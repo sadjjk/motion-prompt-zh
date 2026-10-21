@@ -36,7 +36,7 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
 
 | 生成物 | 源头 |
 |---|---|
-| `api/v1/**`（`catalog.json`、`<lang>/catalog.tsv`、`<lang>/e/*.txt`、`<lang>/p/*.txt`、`kit/*.js`） | `packs/<pack>/{meta.json,pack.js}` |
+| `api/v1/**`（`catalog.json`、`<lang>/catalog.tsv`、`<lang>/e/*.txt`、`<lang>/p/*.txt`、`kit/*.js`） | `packs/<pack>/{meta.json,pack.js}`、`packs/groups.json` |
 | `assets/catalog.js` | 同上 |
 | `packs/README.md`、`packs/<pack>/README*.md` | `meta.json` |
 | `assets/site-config.js`、`skills/motion-prompt-zh/scripts/site-config.json` | `site.config.json` |
@@ -47,14 +47,14 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
 
 ### 数据契约
 
-- 已发布的编号永不重排、不复用，已发布的名称不改名；新动效只能接在已有编号之后（`FORMAT.md` 第 43 行、`CONTRIBUTING.md` 第 97 行）。
+- 编号按大类和展示顺序分配，格式 `#<大类>-<3 位序号>`（如 `#1-001`）；发布后同一大类内不重排、不复用，新动效接在本大类末尾；已发布的名称不改名（`FORMAT.md`「Packs」节、`CONTRIBUTING.md` 第 97 行）。
 - `pack.js` 必须遵守 `FORMAT.md` 的标记和纯函数规则：
   - 用 `// @kit`、`// @element NN`、`// @shared`、`// @end` 切分；
   - `cells[i](k, w, h, u)` 只能依赖 `u`：不用 `Date`，绘制时不用 `Math.random`，不在两次调用之间保留状态；
   - 循环在 `u = cycle → 0` 处必须无缝衔接；
   - 除了创建离屏 canvas，不访问 DOM，不联网。
 - `spec` 中的数字必须取自代码，不得编造（`FORMAT.md` 第 116 行）。
-- 新增分类包时，需在 `assets/site.js` 的 `GROUP_DEFS` 中登记所属大类；未登记的包会显示在「其他」组。
+- 新增分类包必须在 `packs/groups.json` 登记所属大类，未登记时 build 报错。
 - `examples/found.json` 的 `theme` 只能使用大类 id（`web`、`motion`、`film`）；`platform` 缺省为 `x`，为 `x` 时必须有 `id`。
 
 ### 版权与署名

@@ -94,7 +94,7 @@ To also make the videos in your language, use [`make-your-own/prompts/en/01-tran
 
 English is required in every pack, because it is the language packs share. It can be a draft: mark the names whose English term you are not sure about and a reviewer will help. Your own language is the one that matters most.
 
-Numbers are given in pack order. A published number is never reused or changed, and a published name is not renamed. New packs get the numbers after the existing ones.
+Numbers are given by group in display order (`#1-001`, `#2-001` …). Within a group a published number is never reused or changed, new names go at the end of their group, and a published name is not renamed. A new pack must be registered in `packs/groups.json`.
 
 ## License
 

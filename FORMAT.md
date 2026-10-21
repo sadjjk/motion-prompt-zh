@@ -6,7 +6,7 @@ Motion Prompt is a library of names: the words a field uses for the things you a
 with a moving sample. Each element is a small, dependency-free Canvas 2D animation that is a
 **pure function of time**, with its name and a one-line meaning in several languages, an example
 of how to ask for it, and a copyable prompt (ja/en), so people can tell Claude Code / Codex
-"use #012 and #045" or "swap this title for #005".
+"use #2-012 and #3-021" or "swap this title for #2-005".
 
 Repo: GitHub `showheyohtaki/motion-prompt` (MIT) → GitHub Pages
 `https://showheyohtaki.github.io/motion-prompt/`. Author: 大滝昇平 / Shohei Ohtaki (@showheyohtaki).
@@ -27,20 +27,27 @@ skills/motion-prompt-zh/{SKILL.md,scripts/,references/,agents/}   the Chinese ag
 dev/preview.html                           per-pack preview
 ```
 
-Packs and their order (global IDs are assigned in this order, 3 digits; new packs are appended):
+Groups, packs and IDs. Display order and IDs come from `packs/groups.json`; a pack's `order` in
+`meta.json` is the upstream release order and is used only for attribution links to the original site.
 
-| order | pack | elements | IDs | title |
-|---|---|---|---|---|
-| 1 | `motion` | 24 | 001–024 | Motion graphics moves / モーショングラフィックスの動き |
-| 2 | `camera` | 24 | 025–048 | Camera moves & transitions / カメラワークと切り替え |
-| 3 | `ui` | 24 | 049–072 | UI component names / UIパーツの名前 |
-| 4 | `lp` | 24 | 073–096 | Landing page & web effects / LP・Webサイトの演出 |
-| 5 | `photo` | 24 | 097–120 | Photo looks, lighting & styles / 写真の表現・光と画風 |
-| 6 | `motion2` | 24 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 |
+| group | pack | elements | IDs | upstream IDs | title |
+|---|---|---|---|---|---|
+| 1 `web` | `ui` | 24 | 1-001–024 | 049–072 | UI component names / UIパーツの名前 |
+| 1 `web` | `lp` | 24 | 1-025–048 | 073–096 | Landing page & web effects / LP・Webサイトの演出 |
+| 2 `motion` | `motion` | 24 | 2-001–024 | 001–024 | Motion graphics moves / モーショングラフィックスの動き |
+| 2 `motion` | `motion2` | 24 | 2-025–048 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 |
+| 3 `film` | `camera` | 24 | 3-001–024 | 025–048 | Camera moves & transitions / カメラワークと切り替え |
+| 3 `film` | `photo` | 24 | 3-025–048 | 097–120 | Photo looks, lighting & styles / 写真の表現・光と画風 |
 
-**Once the repository is public, numbers are never renumbered and published names are not renamed.**
-A new pack takes the next `order` and the next free IDs. An element is added at the end of its pack
-only if that pack is the last one; otherwise it goes into a new pack.
+**IDs are `#<group>-<3-digit number>` (e.g. `#1-001`), assigned by group in display order. Once published,
+numbers within a group are never renumbered or reused, new names go at the end of their group, and
+published names are not renamed.** A new pack takes the next `order` and must be registered in
+`packs/groups.json`; the build fails otherwise.
+
+## packs/groups.json
+
+An array in display order. Each entry: `id` (slug), `no` (1–9, the ID prefix, equal to the position),
+`title` (`zh-Hans`, `en`, `ja`) and `packs` (pack folders in display order). Every pack belongs to exactly one group.
 
 ## packs/<pack>/pack.js
 
@@ -141,7 +148,7 @@ carried in `api/v1/catalog.json` and shown in the generated lists.
 ## Generated API (tools/build.mjs writes these; the skill CLI and the site read them)
 
 ```
-api/v1/catalog.json                 { version, count, packs:[…], elements:[{ id, pack, no, slug, category, width, height, cycle, name, meaning, ask, summary, spec, use, tags }] }
+api/v1/catalog.json                 { version, count, groups:[{ id, no, title, packs }], packs:[{ pack, group, first, last, upstreamFirst, … }], elements:[{ id, upstream, group, pack, no, slug, category, width, height, cycle, name, meaning, ask, summary, spec, use, tags }] }
 api/v1/<lang>/catalog.tsv           header comment line, then: id  pack  category  title  tags  summary      (lang = zh-Hans | ja | en)
 api/v1/<lang>/e/<id>.txt            one element: license line, info header (name, what it shows, spec, use, size, cycle, "Needs: kit <pack>", live demo URL), then the element code block
 api/v1/<lang>/p/<id>.txt            the copy-paste prompt for that element (same text the site's "copy prompt" button copies)
@@ -149,7 +156,9 @@ api/v1/kit/<pack>.js                @kit + all @shared blocks of the pack, plus 
 ```
 
 First line of every `e/<id>.txt` and `kit/<pack>.js`:
-`// Motion Prompt #<id> · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#<id>`
+`// Motion Prompt #<id> · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#<upstream>`
+
+`<id>` is this site's ID (`2-012`); the link uses the element's upstream ID (`012`) so it opens the same element on the original site.
 
 中文版 Live demo deep link 由 `site.config.json` 的 `site` 派生为 `<site>?lang=<lang>#<id>`；上面的原站链接仅保留在版权行中。
 
@@ -163,7 +172,7 @@ First line of every `e/<id>.txt` and `kit/<pack>.js`:
 - Preview a pack: serve the repo root (`python3 -m http.server 8000`) and open
   `dev/preview.html?pack=<pack>` (playing), `&t=1.2` (frozen) or `&only=5` (one element).
 - A pack's `cycle` may be longer than one pass of the motion (camera uses 9.4s).
-- The kit's first line uses the pack's ID range, e.g. `#001-024`.
+- The kit's first line uses the pack's ID range, e.g. `#2-001-024`.
 
 ## 中文版扩展约定
 
