@@ -31,12 +31,15 @@ included in this repository. Its license notice is reproduced here in acknowledg
 
 ## Posts shown on the examples page
 
-The examples page (`found.html`) shows posts on X by other people through X's official embed
-(`platform.twitter.com/widgets.js`), loaded only when the visitor asks for it. Those posts, including their
-text, images and videos, belong to their authors and are not covered by this repository's MIT License. The
-repository keeps only each post's ID and URL and a one-line introduction we wrote (`examples/found.json`).
-Being listed does not mean the author endorses this project. To ask for a removal or a correction, use the
-[issue form](https://github.com/showheyohtaki/motion-prompt/issues/new?template=3-removal.yml).
+The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat
+official accounts and other platforms. X posts are shown through X's official embed
+(`platform.twitter.com/widgets.js`), loaded only when the visitor scrolls to them; posts on other platforms
+are only linked, and the page loads nothing from those platforms. Those posts, including their text, images
+and videos, belong to their authors and are not covered by this repository's MIT License. The repository
+keeps only each post's URL (and ID for X), the author and a one-line introduction we wrote
+(`examples/found.json`). Being listed does not mean the author endorses this project. To ask for a removal
+or a correction, use the
+[issue form](https://github.com/sadjjk/motion-prompt-zh/issues/new?template=3-removal.yml).
 
 ## Tools used at run time (not included)
 

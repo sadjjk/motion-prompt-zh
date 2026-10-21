@@ -1,13 +1,23 @@
 /* Motion Prompt — "Examples" page (found.html). Plain JS, no dependencies.
-   Reads examples/found.json (post IDs, URLs and our own one-line introductions only).
-   Every post is shown as an X embed: widgets.js is loaded once, and each post is drawn with
-   twttr.widgets.createTweet() as its card comes near the viewport. */
+   Reads examples/found.json (URLs, X post IDs and our own one-line introductions only).
+   X posts are shown as X embeds: widgets.js is loaded once, and each post is drawn with
+   twttr.widgets.createTweet() as its card comes near the viewport. Posts on other platforms
+   (Xiaohongshu, WeChat official accounts, …) are shown as link cards; nothing is loaded from them. */
 (function () {
   'use strict';
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var root = document.documentElement;
   var WIDGETS = 'https://platform.twitter.com/widgets.js';
+  // 平台表：只有 X 使用官方嵌入；其他平台只显示链接卡片，不加载任何第三方脚本或 iframe。
+  var PLATFORMS = {
+    x: { embed: true, home: function (it) { return 'https://x.com/' + encodeURIComponent(it.author.replace(/^@/, '')); } },
+    xiaohongshu: { embed: false },
+    wechat: { embed: false },
+    other: { embed: false },
+  };
+  // 缺省为 x，保证旧条目不用改；写了未知平台时按「其他」处理，避免误用 X 嵌入。
+  function platformOf(it) { return !it.platform ? 'x' : (PLATFORMS[it.platform] ? it.platform : 'other'); }
 
   var I18N = {
     'zh-Hans': {
@@ -17,15 +27,15 @@
       skip: '跳转到案例列表', navLabel: '站点导航', navGallery: '效果库', navFound: '社区案例', langLabel: '语言',
       themeToDark: '切换深色模式', themeToLight: '切换浅色模式', eyebrow: '社区案例',
       h1: '用名称和示例，建立共同语言',
-      lead: '这些作者整理了向 AI 描述需求的专业名称，配有动态示例或速查表，领域、语言和风格各不相同。我们选择包含作者自制示例的帖子，内容与权利属于各位作者。',
+      lead: '这些作者整理了向 AI 描述需求的专业名称，配有动态示例或速查表，来自 X、小红书、微信公众号等平台，领域、语言和风格各不相同。我们选择包含作者自制示例的帖子或文章，内容与权利属于各位作者。',
       leadNote: '收录不代表作者认可或支持本站，案例介绍由本站编写。', noteH: '关于嵌入内容',
-      noteP: '本页通过 X（原 Twitter）官方嵌入展示帖子。打开后将从 X 服务器加载内容并使用其 Cookie，X 可能记录浏览并用于广告。嵌入请求带有 dnt 设置，要求 X 不将其用于个性化。',
+      noteP: 'X 帖子通过官方嵌入展示：打开后将从 X 服务器加载内容并使用其 Cookie，X 可能记录浏览并用于广告；嵌入请求带有 dnt 设置，要求 X 不将其用于个性化。其他平台只提供链接，本页不加载其内容。',
       notePrivacy: 'X 隐私政策', noteCookies: 'X 的 Cookie 使用说明', listH: '案例列表', loadListFailed: '案例列表加载失败。',
-      count: '{n} 个帖子', postLang: { ja: '日语', en: '英语' }, postLangLabel: '帖子语言：{l}',
-      viewOnX: '在 X 查看', viewOnXLabel: '在 X 查看 {a} 的帖子', loading: '正在加载…',
+      count: '{n} 条', postLang: { ja: '日语', en: '英语', zh: '中文' }, postLangLabel: '帖子语言：{l}',
+      viewOn: '在{p}查看', viewOnLabel: '在{p}查看 {a} 的内容', platformName: { x: ' X ', xiaohongshu: '小红书', wechat: '公众号', other: '原网站' }, loading: '正在加载…',
       gone: '无法显示此帖，可能已被删除。', failed: '无法从 X 加载，可能受到网络或内容拦截影响。仍可点击“在 X 查看”打开原帖。', shown: '已显示 {a} 的帖子',
       moreH: '推荐你发现的案例', recH: '推荐帖子，也欢迎自荐',
-      recP: '如果发现配有示例的专业术语帖子，可以通过 GitHub Issue 推荐。本站仅嵌入和链接，不复制图片或视频。', recLink: '推荐案例（GitHub Issue）',
+      recP: '如果发现配有示例的专业术语帖子或文章（X、小红书、公众号等均可），可以通过 GitHub Issue 推荐。本站仅嵌入或链接，不复制图片、视频或正文。', recLink: '推荐案例（GitHub Issue）',
       rmH: '申请移除或更正', rmP: '如需移除自己的帖子或更正介绍，请通过 Issue 表单提交，维护者核实后处理。', rmLink: '申请删除或更正（GitHub Issue）',
       author: '原作者', authorName: 'Shohei Ohtaki', whyLink: '原作者的创作缘起', addLink: '贡献专业术语', listLink: '中文名称列表（GitHub）',
       removeP1: '如需删除或更正本站介绍，请通过', removeLink: 'GitHub Issue 表单', removeP2: '提交，维护者核实后处理。',
@@ -38,24 +48,25 @@
       themeToDark: 'ダークモードに切り替える', themeToLight: 'ライトモードに切り替える',
       eyebrow: '見つけた事例',
       h1: '名前と見本で、共通言語を作っている人たち',
-      lead: 'AIに頼むための名前を、動く見本や早見表と一緒にまとめて公開している人たちのポストです。分野も言語も見た目もそれぞれ違います。投稿者が自分で作った見本のあるポストを選んでいて、ポストの内容と権利は各投稿者にあります。',
+      lead: 'AIに頼むための名前を、動く見本や早見表と一緒にまとめて公開している人たちの投稿です。X、小紅書、WeChat公式アカウントなど、分野も言語も見た目もそれぞれ違います。投稿者が自分で作った見本のある投稿を選んでいて、内容と権利は各投稿者にあります。',
       leadNote: 'ここで紹介していることは、投稿者がこのサイトを支持しているという意味ではありません。紹介文はこのサイトが書いています。',
       noteH: '埋め込みについて',
-      noteP: 'このページは、各ポストをX（旧Twitter）の埋め込みで表示しています。開くとXのサーバーから読み込まれ、XのCookieが使われます。Xはその閲覧を記録し、広告に使うことがあります。読み込むときは、パーソナライズに使わないよう求める設定（dnt）を付けています。',
+      noteP: 'Xのポストは、Xの埋め込みで表示しています。開くとXのサーバーから読み込まれ、XのCookieが使われます。Xはその閲覧を記録し、広告に使うことがあります。読み込むときは、パーソナライズに使わないよう求める設定（dnt）を付けています。ほかのサイトの投稿はリンクのみで、このページでは読み込みません。',
       notePrivacy: 'Xのプライバシーポリシー', noteCookies: 'XのCookieについて',
       listH: '事例の一覧', loadListFailed: '一覧を読み込めませんでした。',
       count: '{n}件',
-      postLang: { ja: '日本語', en: '英語' },
+      postLang: { ja: '日本語', en: '英語', zh: '中国語' },
       postLangLabel: 'ポストの言語: {l}',
-      viewOnX: 'Xで見る',
-      viewOnXLabel: '{a} のポストをXで見る',
+      viewOn: '{p}で見る',
+      viewOnLabel: '{a} の投稿を{p}で見る',
+      platformName: { x: 'X', xiaohongshu: '小紅書', wechat: 'WeChat公式アカウント', other: '元のサイト' },
       loading: '読み込み中です…',
       gone: 'このポストは表示できません（削除された可能性があります）。',
       failed: 'Xから読み込めませんでした。広告ブロックなどで止められている可能性があります。「Xで見る」から開けます。',
       shown: '{a} のポストを表示しました',
       moreH: '事例を教えてください',
       recH: 'ポストを推薦する（自薦も歓迎）',
-      recP: '名前に見本を付けて公開しているポストを見つけたら、GitHub の Issue で知らせてください。自分のポストでもかまいません。載せるのは埋め込みとリンクだけで、画像や動画をこのサイトに写すことはしません。',
+      recP: '名前に見本を付けて公開している投稿（X、小紅書、WeChat公式アカウントなど）を見つけたら、GitHub の Issue で知らせてください。自分の投稿でもかまいません。載せるのは埋め込みかリンクだけで、画像や動画、本文をこのサイトに写すことはしません。',
       recLink: '事例を推薦する（GitHub Issue）',
       rmH: '外してほしいとき',
       rmP: 'ご自分のポストを外したい、紹介文が正しくない、という場合は Issue のフォームから依頼してください。確認できたら、すみやかに外します。',
@@ -72,24 +83,25 @@
       themeToDark: 'Switch to dark mode', themeToLight: 'Switch to light mode',
       eyebrow: 'Examples we found',
       h1: 'People building a common language with names and samples',
-      lead: 'Posts by people who publish names to use with AI, together with moving samples or cheat sheets. The fields, languages and looks all differ. We pick posts whose samples the author made, and each post and its rights belong to its author.',
+      lead: 'Posts and articles by people who publish names to use with AI, together with moving samples or cheat sheets, from X, Xiaohongshu, WeChat official accounts and more. The fields, languages and looks all differ. We pick ones whose samples the author made, and each post and its rights belong to its author.',
       leadNote: 'Being listed here does not mean the author supports this site. The introductions are written by this site.',
       noteH: 'About the embeds',
-      noteP: "This page shows each post as an X (formerly Twitter) embed. When you open it, the posts load from X's servers and X cookies are used. X may record the view and use it for ads. The embeds are loaded with the setting that asks X not to use them for personalization (dnt).",
+      noteP: "X posts are shown with X's official embed. When you open one, it loads from X's servers and X cookies are used. X may record the view and use it for ads. The embeds are loaded with the setting that asks X not to use them for personalization (dnt). Posts on other platforms are only linked; this page does not load them.",
       notePrivacy: 'X Privacy Policy', noteCookies: 'How X uses cookies',
       listH: 'Examples', loadListFailed: 'Could not load the list.',
-      count: '{n} posts',
-      postLang: { ja: 'Japanese', en: 'English' },
+      count: '{n} items',
+      postLang: { ja: 'Japanese', en: 'English', zh: 'Chinese' },
       postLangLabel: 'Post language: {l}',
-      viewOnX: 'View on X',
-      viewOnXLabel: 'View the post by {a} on X',
+      viewOn: 'View on {p}',
+      viewOnLabel: 'View the post by {a} on {p}',
+      platformName: { x: 'X', xiaohongshu: 'Xiaohongshu', wechat: 'WeChat', other: 'the original site' },
       loading: 'Loading…',
       gone: 'This post cannot be shown. It may have been deleted.',
       failed: 'Could not load from X. A content blocker may have stopped it. You can still open it with "View on X".',
       shown: 'Showing the post by {a}',
       moreH: 'Know a good one?',
       recH: 'Suggest a post (your own is welcome)',
-      recP: 'If you find a post that shares names with samples, tell us in a GitHub issue. It can be your own. We only embed and link to it; images and videos are not copied to this site.',
+      recP: 'If you find a post or article that shares names with samples (on X, Xiaohongshu, WeChat or elsewhere), tell us in a GitHub issue. It can be your own. We only embed or link to it; images, videos and text are not copied to this site.',
       recLink: 'Suggest an example (GitHub issue)',
       rmH: 'To have a post removed',
       rmP: 'If you want your post taken off, or an introduction is wrong, use the issue form. We remove it as soon as the request is confirmed.',
@@ -186,7 +198,6 @@
   function redrawShown() { cards.forEach(function (c) { if (c.shown) show(c); }); }
 
   // ------------------------------------------------------------------ list
-  function authorHandle(item) { return item.author.replace(/^@/, ''); }
   function build() {
     var wrap = $('#themes');
     wrap.innerHTML = '';
@@ -198,8 +209,13 @@
       var hid = 'th-' + th.slug;
       var list = h('ul', { class: 'ex-list' });
       items.forEach(function (it) {
-        var handle = authorHandle(it);
-        var link = h('a', { class: 'ex-x', href: it.url, rel: 'noopener', 'aria-label': t('viewOnXLabel', { a: it.author }), text: t('viewOnX') });
+        var pf = platformOf(it);
+        var pname = (t('platformName') || {})[pf] || pf;
+        var pnameTrim = String(pname).trim();
+        var link = h('a', { class: 'ex-x', href: it.url, rel: 'noopener', 'aria-label': t('viewOnLabel', { a: it.author, p: pnameTrim }), text: t('viewOn', { p: pname }) });
+        // 作者主页：优先用数据里的 authorUrl；X 可由账号推出；其他平台没有时只显示文字
+        var home = it.authorUrl || (PLATFORMS[pf].home ? PLATFORMS[pf].home(it) : '');
+        var author = home ? h('a', { class: 'ex-author', href: home, rel: 'noopener', text: it.author }) : h('span', { class: 'ex-author', text: it.author });
         var status = h('p', { class: 'ex-status', role: 'status' });
         status.hidden = true;
         var box = h('div', { class: 'ex-embed' });
@@ -207,15 +223,18 @@
         var langName = (t('postLang') || {})[it.lang] || it.lang;
         var li = h('li', { class: 'ex' }, [
           h('div', { class: 'ex-head' }, [
-            h('a', { class: 'ex-author', href: 'https://x.com/' + encodeURIComponent(handle), rel: 'noopener', text: it.author }),
-            h('span', { class: 'ex-lang', title: t('postLangLabel', { l: langName }), 'aria-label': t('postLangLabel', { l: langName }), text: String(it.lang).toUpperCase() }),
+            author,
+            h('span', { class: 'ex-tags' }, [
+              pf !== 'x' ? h('span', { class: 'ex-lang ex-platform', text: pnameTrim }) : null,
+              h('span', { class: 'ex-lang', title: t('postLangLabel', { l: langName }), 'aria-label': t('postLangLabel', { l: langName }), text: String(it.lang).toUpperCase() }),
+            ]),
           ]),
           h('p', { class: 'ex-intro', text: (it.intro && (it.intro[state.lang] || it.intro.en || it.intro.ja)) || '' }),
           h('div', { class: 'ex-act' }, [link]),
           status,
           box,
         ]);
-        var c = { item: it, el: li, box: box, status: status, shown: false, token: 0 };
+        var c = { item: it, el: li, box: box, status: status, shown: false, token: 0, embed: PLATFORMS[pf].embed };
         cards.push(c);
         list.appendChild(li);
       });
@@ -234,7 +253,7 @@
   var io = null;
   function observe() {
     if (io) io.disconnect();
-    if (!('IntersectionObserver' in window)) { cards.forEach(show); return; }
+    if (!('IntersectionObserver' in window)) { cards.filter(function (c) { return c.embed; }).forEach(show); return; }
     io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (!e.isIntersecting) return;
@@ -243,7 +262,7 @@
         if (c && !c.shown) show(c);
       });
     }, { rootMargin: '1200px 0px' });
-    cards.forEach(function (c) { io.observe(c.el); });
+    cards.forEach(function (c) { if (c.embed) io.observe(c.el); });
   }
 
   // ------------------------------------------------------------------ text, language, theme
