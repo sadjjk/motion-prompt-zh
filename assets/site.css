@@ -143,9 +143,11 @@ h1 { font-size: clamp(40px, 6.1vw, 92px); line-height: 1.1; letter-spacing: -.03
 .count { font: 12.5px/1.5 var(--mono); color: var(--muted); padding-top: 22px; min-height: 42px; }
 .pack { padding-block: 14px 26px; }
 .pack + .pack { border-top: 1px solid var(--line); }
+.pack.is-first { border-top: 0; }
 .pack .tiles { margin-top: 12px; }
-/* 大类分节：大类标题大于分类包标题，大类之间用较粗分隔线 */
+/* 大类分节：大类标题大于分类包标题，大类之间用较粗分隔线；筛选后第一个可见大类不画线（.is-first 由 applyFilter 维护） */
 .group + .group { border-top: 2px solid var(--line-strong); }
+.group.is-first { border-top: 0; }
 .group-h { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; padding-top: 16px; }
 .group-h h3 { font-size: clamp(26px, 2.8vw, 38px); line-height: 1.2; letter-spacing: -.025em; font-weight: 800; }
 .group-n { font-size: 13px; color: var(--muted); }

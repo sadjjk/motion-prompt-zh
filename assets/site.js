@@ -421,18 +421,24 @@
       if (ok) shown.push(tl.el.id);
     });
     $$('.pack', grid).forEach(function (sec) { sec.hidden = !$('.tile-box:not([hidden])', sec); });
+    var firstGroup = true;
     $$('.group', grid).forEach(function (gs) {
       var n = $$('.tile-box:not([hidden])', gs).length;
       gs.hidden = !n;
+      // 「+」相邻选择器会把隐藏的兄弟也算进去：给第一个可见的大类、分类包打标记，去掉它顶部的分隔线
+      gs.classList.toggle('is-first', !!n && firstGroup);
+      if (n) firstGroup = false;
+      var firstPack = true;
+      $$('.pack', gs).forEach(function (sec) { sec.classList.toggle('is-first', !sec.hidden && firstPack); if (!sec.hidden) firstPack = false; });
       $('.group-n', gs).textContent = t('count', { n: n });
     });
     renderCrumb();
     $('#empty').hidden = shown.length > 0;
     $('#count').textContent = shown.length === CAT.count ? t('count', { n: CAT.count }) : t('countOf', { n: shown.length, total: CAT.count });
   }
-  // 面包屑：显示当前筛选路径（全部 › 大类 › 分类包 › 小类）
+  // 面包屑：只在选了大类后显示路径（大类 › 分类包 › 小类）；「全部」时为空，避免和大类按钮重复
   function renderCrumb() {
-    var parts = [t('all')];
+    var parts = [];
     var g = groupBy[state.group], p = packBy[state.pack];
     if (g) parts.push(g.title[state.lang] || g.title.en);
     if (p) parts.push(p.title[state.lang]);
@@ -440,7 +446,9 @@
       var c = p.categories.filter(function (x) { return x.slug === state.cat; })[0];
       if (c) parts.push(c[state.lang]);
     }
-    $('#crumb').textContent = parts.join(' › ');
+    var crumb = $('#crumb');
+    crumb.textContent = parts.join(' › ');
+    crumb.hidden = !parts.length;
   }
 
   function chip(label, pressed, small, onClick) {
