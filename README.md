@@ -1,147 +1,53 @@
 # Motion Prompt 简体中文版
 
-**简体中文** · [English（原版说明）](https://github.com/showheyohtaki/motion-prompt/blob/main/README.md) · [日本語（原版说明）](https://github.com/showheyohtaki/motion-prompt/blob/main/README.ja.md)
+用专业名称向 AI 说清你要的动效。每个效果都有动态示例、中文解释和可复制的 Prompt，把运动规格和参考实现一起交给 AI。
 
-本项目是 Motion Prompt 的非官方简体中文本地化版本，基于 Shohei Ohtaki 的开源项目开发。
+**在线体验**：[sadjjk.github.io/motion-prompt-zh](https://sadjjk.github.io/motion-prompt-zh/)
 
-用专业名称、动态示例与完整 Prompt 向 AI 描述视觉需求。沿用原项目的 HTML/CSS/JavaScript 和多语言架构，默认简体中文，可切换 ZH / EN / JA。144 个效果全部具备中文名称、解释、提问示例、表现、规格及适用场景，保留英文名称与标签。
+## 三大类
 
-**在线体验**：[sadjjk.github.io/motion-prompt-zh](https://sadjjk.github.io/motion-prompt-zh/) · **公开仓库**：[sadjjk/motion-prompt-zh](https://github.com/sadjjk/motion-prompt-zh)（基于 [rainman016/motion-prompt-zh](https://github.com/rainman016/motion-prompt-zh)）。通过 GitHub Pages 部署，API 备用镜像为 jsDelivr。
+| 大类 | 内容 | 适合 | 分类包 | 编号 |
+|---|---|---|---|---|
+| **界面与网页** | 弹窗、开关、导航、状态，滚动、悬停、加载等交互动效 | 给网页或 App 挑动效 | UI 组件 `ui` · 落地页与网页动效 `lp` | 049–072 · 073–096 |
+| **动态图形** | 入场、文字、图形、转场与强调等图形动画 | 片头、讲解视频、演示动画 | 动态图形基础 `motion` · 动态图形进阶 `motion2` | 001–024 · 121–144 |
+| **剪辑与摄影** | 镜头运动、拍摄风格、剪辑转场、布光、镜头效果与色调 | 写视频或图片生成提示词、定剪辑方案 | 镜头运动与剪辑 `camera` · 摄影光线与风格 `photo` | 025–048 · 097–120 |
 
-| 编号 | 分类 | 数量 | 中文资料 |
-|---|---|---:|---|
-| 001–024 | 动态图形基础 `motion` | 24 | [查看](packs/motion/README.zh-Hans.md) |
-| 025–048 | 镜头运动与剪辑 `camera` | 24 | [查看](packs/camera/README.zh-Hans.md) |
-| 049–072 | UI 组件 `ui` | 24 | [查看](packs/ui/README.zh-Hans.md) |
-| 073–096 | 落地页与网页动效 `lp` | 24 | [查看](packs/lp/README.zh-Hans.md) |
-| 097–120 | 摄影光线与风格 `photo` | 24 | [查看](packs/photo/README.zh-Hans.md) |
-| 121–144 | 动态图形进阶 `motion2` | 24 | [查看](packs/motion2/README.zh-Hans.md) |
+编号沿用原项目的发布顺序，同一大类内编号不连续。
 
-## 搜索、预览与复制
+## 使用方式
 
-1. 按分类浏览，或搜索“弹性”“遮罩”“镜头推进”；英文术语、slug、英文标签和 `#012` 等编号仍可搜索。
-2. 点击卡片查看动画、解释、提问示例和完整运动规格，支持暂停及前后切换。
-3. 点击“复制 Prompt”交给 Codex、Claude Code 等 AI。内容包括中英文名称、效果说明、全部参数、适用场景、参考实现与共享代码链接，以及保留运动规格、替换实际素材的要求。
-4. 多项效果可点击“选择”，添加备注后“复制所选”或复制分享链接。由 Skill 打开时，还可“发送给 AI”。
+### 纯 Skill 运行（强烈推荐）
 
-语言优先级为有效 URL → 已保存偏好 → `zh-Hans`。`?lang=zh` 自动归一为 `zh-Hans`，分享链接包含语言。中文资源只生成 `zh-Hans` 目录。Canvas 内原始示例字样保留。
-
-## 本地运行
-
-需要 Node.js 18+，预览可用 Python 3，无需安装网站依赖。
+装一个 Skill，在 AI 对话里直接用，不用下载仓库：
 
 ```sh
+npx skills add sadjjk/motion-prompt-zh --skill motion-prompt-zh
+```
+
+然后直接对 AI 说：
+
+- "打开中文动效库，帮我挑几个适合首页的动画"
+- "搜索和文字入场有关的动画"
+- "用 #012 实现这个动效"
+- "把 #032 的镜头运动写成视频生成提示词"
+
+AI 会打开效果库让你挑选，选好后点"发送给 AI"，它会读取真实的规格和代码，实现到你的项目里。
+
+### 本地运行
+
+需要修改或新增动效时使用。需要 Node.js 18+ 和 Python 3：
+
+```sh
+git clone https://github.com/sadjjk/motion-prompt-zh.git
 cd motion-prompt-zh
 node tools/build.mjs
-node tools/build.mjs --check
-python -m http.server 8000 --bind 127.0.0.1
+python3 -m http.server 8000
 ```
 
-打开 [本地效果库](http://127.0.0.1:8000/)。macOS/Linux 若无 `python`，可用 `python3`。请通过 HTTP 预览，直接打开文件会影响数据请求。
+打开 http://127.0.0.1:8000/ 。数据格式见 [FORMAT.md](FORMAT.md)，修改后的验证流程见 [AGENTS.md](AGENTS.md)。
 
-## Motion Prompt 中文 Skill
+## 来源与授权
 
-技能标识为 `motion-prompt-zh`，与原版 `motion-prompt` 可同时安装。完整用法见 [SKILL.md](skills/motion-prompt-zh/SKILL.md)。
-
-在当前源码仓库中，无需安装即可验证和使用：
-
-```sh
-node skills/motion-prompt-zh/scripts/motion-prompt.mjs info
-node skills/motion-prompt-zh/scripts/motion-prompt.mjs list --lang zh-Hans
-node skills/motion-prompt-zh/scripts/motion-prompt.mjs search 弹性 --lang zh-Hans
-node skills/motion-prompt-zh/scripts/motion-prompt.mjs get 012 --lang zh-Hans
-node skills/motion-prompt-zh/scripts/motion-prompt.mjs prompt 012 --lang zh-Hans
-node skills/motion-prompt-zh/scripts/motion-prompt.mjs kit motion
-node skills/motion-prompt-zh/scripts/motion-prompt.mjs pick --local --lang zh-Hans
-```
-
-`pick` 打开中文网站并等待选择，选中一个或多个动画、填写备注后点击“发送给 AI”。完整源码默认使用本地网页；普通浏览器访问保留“复制所选”。`--no-open` 可只打印完整链接，由 Codex 浏览器面板打开。
-
-让 Codex 在另一个本地项目中识别技能时，将完整 `skills/motion-prompt-zh` 目录复制到该项目的 `.agents/skills/motion-prompt-zh`，保留 `scripts/site-config.json`、`config.mjs` 和 `references/`。这是项目级安装；无需改全局配置或覆盖原版。Codex 按 [官方 Skill 规范](https://learn.chatgpt.com/docs/build-skills) 读取 `SKILL.md`；安装后若未出现，重启该项目的 Codex 会话。
-
-独立安装的技能默认读取已部署的中文 Pages API，并打开线上中文动效库。需要改用本地数据时，可在启动 Codex 的终端中指定路径并验证：
-
-```powershell
-$env:MOTION_PROMPT_BASE='C:\你的路径\motion-prompt-zh\api\v1'
-node .agents/skills/motion-prompt-zh/scripts/motion-prompt.mjs info
-node .agents/skills/motion-prompt-zh/scripts/motion-prompt.mjs get 059 --lang zh-Hans
-```
-
-需要完全使用本地动效库时，使用完整源码的 CLI 运行 `pick --local`，把回传结果交给目标项目中的 Codex；或将项目级 Skill 链接到完整源码中的技能目录（Codex 支持符号链接）。仅复制技能时，`--local` 会明确提示缺少网站源码；不加 `--local` 即使用线上站点。
-
-其他用户可在目标项目中安装（`npx skills` 安装器当前要求 Node.js 22.20+，网站构建及本仓库 CLI 仍支持 Node.js 18+；见[安装器官方说明](https://github.com/vercel-labs/skills)）：
-
-```sh
-npx skills add sadjjk/motion-prompt-zh --skill motion-prompt-zh --agent codex
-node .agents/skills/motion-prompt-zh/scripts/motion-prompt.mjs info
-node .agents/skills/motion-prompt-zh/scripts/motion-prompt.mjs search 文字 入场 --lang zh-Hans
-node .agents/skills/motion-prompt-zh/scripts/motion-prompt.mjs pick --lang zh-Hans
-```
-
-默认安装到当前项目，确认目录为 `.agents/skills/motion-prompt-zh`。验证命令应显示 144 个元素及实际来源。默认中文；`--lang zh` 等价于 `zh-Hans`，`--lang en`、`--lang ja` 保留原语言。
-
-中文调用示例：
-
-- “使用 $motion-prompt-zh 打开中文动效库，帮我挑选适合首页的动画。”
-- “搜索与文字入场有关的动画。”
-- “使用 #012 实现这个动效。”
-- “把刚选中的 #059 用到当前项目的通知开关，保留保存设置功能。”
-- “将 #032 的镜头运动整理成视频生成提示词。”
-
-Codex 应先检查项目，再读取选中编号的 `get` 与对应 `kit`，完成实际代码适配和验证；Web 动效遵循 `prefers-reduced-motion`。没有收到选择时不会自行猜测编号。
-
-数据配置统一在 [site.config.json](site.config.json)：`site` 为中文站，`repo` 为中文仓库，`apiBase` 默认由站点派生，`rawApiBase` 默认由账号、仓库、分支派生；后两项也可显式设置 HTTP(S) URL。修改后运行构建同步独立技能配置。`MOTION_PROMPT_BASE` 可覆盖为本地 `api/v1` 或逗号分隔的 URL；`MOTION_PROMPT_CACHE`、`MOTION_PROMPT_TTL` 和 `--refresh` 保留。备用来源及缓存会标出来源；中文资料缺失会报错，不静默使用原版英文。
-
-## 发布到 GitHub Pages
-
-本仓库已从 `main` 分支根目录发布到 `https://sadjjk.github.io/motion-prompt-zh/`（来源声明见 [.github/pages-source.json](.github/pages-source.json)，`.nojekyll` 与已生成静态文件随仓库提交，无需框架或部署密钥）。部署地址统一在 [site.config.json](site.config.json) 配置：`site` 与 `apiBase` 为 Pages，`rawApiBase` 为 jsDelivr 镜像 `https://cdn.jsdelivr.net/gh/sadjjk/motion-prompt-zh@main/api/v1`。
-
-每次更新：
-
-1. 运行构建和下方全部检查，提交源文件与生成文件。
-2. 推送 `main`，等待 Pages 构建对应最新提交：
-
-```sh
-git push origin main
-gh api repos/sadjjk/motion-prompt-zh/pages/builds/latest --jq '.status + " " + .commit'
-```
-
-3. jsDelivr 会缓存 `@main` 分支，推送后需刷新 `api/v1` 下变更的文件，否则备用源仍返回旧数据（CLI 会因资源与目录不一致报错，而不是使用旧内容）。刷新地址格式：`https://purge.jsdelivr.net/gh/sadjjk/motion-prompt-zh@main/api/v1/<文件路径>`。
-4. 部署后检查首页、`?lang=zh-Hans#144`、中文资源、分享和 Skill 远程读取。
-
-jsDelivr 只能访问具体文件（如 `…@main/api/v1/catalog.json`）；不带文件名的目录地址会返回 404，带结尾斜杠时显示目录列表。
-
-## 开发与验证
-
-内容源为 `packs/*/meta.json`，动画源为 `packs/*/pack.js`。不要手改 `assets/catalog.js` 或 `api/v1/`。
-
-```sh
-node tools/build.mjs
-node tools/build.mjs --check
-node tools/check-localization.mjs
-node tools/check-skill.mjs
-node tools/check.mjs
-```
-
-浏览器检查需要环境已有 Playwright，本项目未增加 npm 依赖。`MP_PLAYWRIGHT` 可指定安装目录，`MP_PYTHON` 可指定 Python 路径。Windows 设置示例：
-
-```powershell
-$env:MP_PLAYWRIGHT='C:\path\to\node_modules\playwright'
-node tools/check-localization.mjs
-node tools/check-skill.mjs
-node tools/check.mjs
-```
-
-测试覆盖资源、Prompt 一致性、三语状态、搜索、分享、桌面/移动布局、Pages 子路径与 Skill 回传。`check-skill.mjs --static` 只检查 CLI；完整检查还会运行隔离安装、离线缓存、本地/在线子路径多选回传和回调校验。扩展规则见 [FORMAT.md](FORMAT.md)。
-
-## 来源、版权与授权
-
-- 原项目：[showheyohtaki/motion-prompt](https://github.com/showheyohtaki/motion-prompt)，原作者 **Shohei Ohtaki（大滝昇平）**，X [@showheyohtaki](https://x.com/showheyohtaki)。创作缘起与完整原说明见原项目的 [英文](https://github.com/showheyohtaki/motion-prompt/blob/main/README.md) 和 [日文](https://github.com/showheyohtaki/motion-prompt/blob/main/README.ja.md) 文档。
-- 中文翻译及本地化扩展由 `rainman016` 完成；本 fork 由 `sadjjk` 维护部署。均不将原作者动画、代码或素材归为中文版原创。
-- [LICENSE](LICENSE) 完整保留 **MIT License / Copyright (c) 2026 Shohei Ohtaki**。使用参考代码时保留每个元素和 kit 的版权行，再分发时保留许可证。
-- [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) 原文完整保留。案例帖子及其媒体属于作者，**不受本仓库 MIT 许可覆盖**，本站仅存链接、帖子 ID、自写介绍并使用官方嵌入。
-- 未新增外部字体、图片或视频。
-
-## 同步上游
-
-同步时在独立分支合并，保留 ID、顺序、slug 和参数；翻译变化字段后重新生成并验收。不要复制上游生成的 API 覆盖本版；规格行数和数值校验会提醒中文同步更新。
+- 原项目：[showheyohtaki/motion-prompt](https://github.com/showheyohtaki/motion-prompt)，作者 Shohei Ohtaki（[@showheyohtaki](https://x.com/showheyohtaki)）。
+- 中文翻译与本地化：[rainman016/motion-prompt-zh](https://github.com/rainman016/motion-prompt-zh)。
+- [MIT License](LICENSE) © 2026 Shohei Ohtaki。使用参考代码时请保留版权行。案例帖子及其媒体归原作者所有，不在 MIT 许可范围内，详见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
