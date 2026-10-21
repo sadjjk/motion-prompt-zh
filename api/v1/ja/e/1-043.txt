@@ -1,0 +1,42 @@
+// Motion Prompt #1-043 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#091
+//
+// 無限スクロール / Infinite scroll
+// パック: lp (LP・Webサイトの演出) · element 19 · カテゴリ: 読み込み・移動・動き続ける演出
+// 何が起きるか: 一覧を下へスクロールして最後まで来ると、読み込み中の印が回り、新しい項目が3件足されて続きが読めるようになる。
+// 動きの仕様:
+//   - 項目（331×44・角丸8・間隔52）の一覧。最後の項目の下に読み込み中の印（半径10・0.8秒で1回転）
+//   - スクロール量: 0.25〜0.85秒で 38→116px、1.15〜1.75秒で 116→194px（easeInOut 3乗）。一覧の終わりが見えて止まる
+//   - 2.6秒に3件を足す: 各項目 0.35秒で 不透明度 0→1、10px下から上がる（easeOut 3乗）。印は新しい終わりへ移る
+//   - 1周期で3件（156px）ぶん進む。中身は3件ごとにくり返すので、周期の終わりと始まりは同じ見た目
+// 使いどころ: SNSのタイムラインやお知らせ一覧のように、終わりを気にせず読み続けてほしいとき。
+// タグ: infinite-scroll, endless-scroll, load-more, feed, pagination, spinner, list
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-043
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 19
+// 19 無限スクロール（いちばん下まで来ると読み込み表示が出て、続きが足される）
+CELLS[18] = (k, w, h, u) => {
+  frame(k);
+  // 1周期で 3件（156px）ぶん進む。周期の終わりは始まりと同じ見た目（内容は3件ごとにくり返す）
+  const PITCH = 52, BATCH = 3, L0 = 6, TL = 2.6;
+  const y = steps([[0.25, 38], [0.85, 116], [1.15, 116], [1.75, 194], [4.8, 194]], u);
+  const n = u < TL ? L0 : L0 + BATCH, end = 10 + n * PITCH;
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    k.save(); k.translate(0, -y);
+    for (let i = 0; i < n; i++) {
+      const top = 10 + i * PITCH, v = i % 3, fresh = i >= L0 ? eOut(P(u, TL, TL + 0.35)) : 1;
+      if (top - y > VH || top + 44 - y < 0) continue;
+      k.save(); k.globalAlpha = fresh; k.translate(0, 10 * (1 - fresh));
+      k.fillStyle = '#fff'; rr(k, 90, top, 331, 44, 8); k.fill(); pic(k, 98, top + 6, 48, 32, v, 5);
+      bars(k, 158, top + 12, [180, 140, 200][v], 1, C.ink, 7); bars(k, 158, top + 26, [120, 150, 100][v], 1, C.faint, 6);
+      k.restore();
+    }
+    spinner(k, VW / 2, end + 18, 10, u);
+    k.restore();
+  });
+};

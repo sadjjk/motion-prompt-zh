@@ -1,0 +1,15 @@
+Please use "Parallax" (パララックス), one of the names in "Motion graphics moves".
+Motion Prompt #2-016
+
+What it is: Near and far layers move at different speeds to show depth
+What the sample shows: A landscape pans sideways; near layers move more and far layers move less, creating depth.
+Spec:
+- Camera pan: ±108 px on a sine wave, one round trip per 4.7 s.
+- Each layer is offset by pan × factor in the opposite direction. Factors from back to front: stars 0.05, moon 0.1, far ridge 0.28, middle ridge 0.6, front hill and trees 1.25, nearest dark shapes 2.1.
+- Far layers use darker colours close to the background, nearer layers brighter ones; the nearest layer is a large dark silhouette along the bottom.
+- Every layer is drawn at least 200 px beyond both sides of the frame so its ends never show.
+When to use it: Use it to give flat artwork or photos depth: backgrounds, landscapes, scrolling scenes.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-016.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

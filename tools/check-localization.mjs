@@ -28,7 +28,10 @@ assert.equal(cat.site, CONFIG.site);
 assert.equal(cat.repo, CONFIG.repo);
 assert.equal(fs.existsSync(path.join(ROOT, 'api/v1/zh')), false);
 for (const [i, el] of cat.elements.entries()) {
-  assert.equal(el.id, String(i + 1).padStart(3, '0'));
+  // 编号按大类连续：<大类序号>-001 起，与 catalog.groups 顺序一致
+  const g = cat.groups.find(x => x.id === el.group);
+  const k = cat.elements.slice(0, i + 1).filter(x => x.group === el.group).length;
+  assert.equal(el.id, `${g.no}-${String(k).padStart(3, '0')}`);
   for (const key of ['name', 'meaning', 'ask', 'summary', 'use']) assert.match(el[key]['zh-Hans'], /[\u3400-\u9fff]/);
   const p = cat.packs.find(p => p.pack === el.pack);
   for (const lang of langs) {
@@ -49,12 +52,12 @@ function runCli(words) {
   assert.equal(r.status, 0, r.stderr);
   return r.stdout.replace(/\r\n/g, '\n');
 }
-assert.match(runCli(['search', '弹性']), /#001/);
-assert.match(runCli(['search', '遮罩']), /#005/);
-assert.match(runCli(['search', '镜头推进']), /#027/);
-assert.match(runCli(['search', 'typewriter']), /#006/);
-assert.match(runCli(['search', '#144']), /#144/);
-for (const lang of [...langs, 'zh']) assert.equal(runCli(['prompt', '012', '--lang', lang]).trim(), read(`api/v1/${lang === 'zh' ? 'zh-Hans' : lang}/p/012.txt`).trim());
+assert.match(runCli(['search', '弹性']), /#2-001/);
+assert.match(runCli(['search', '遮罩']), /#2-005/);
+assert.match(runCli(['search', '镜头推进']), /#3-003/);
+assert.match(runCli(['search', 'typewriter']), /#2-006/);
+assert.match(runCli(['search', '#2-048']), /#2-048/);
+for (const lang of [...langs, 'zh']) assert.equal(runCli(['prompt', '2-012', '--lang', lang]).trim(), read(`api/v1/${lang === 'zh' ? 'zh-Hans' : lang}/p/2-012.txt`).trim());
 console.log('PASS: 144 Chinese entries, 432 prompts match API, 432 code resources, 6 READMEs, CLI search/languages.');
 if (args.includes('--static')) process.exit(0);
 
@@ -86,7 +89,7 @@ try {
   };
   await open();
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
-  // 效果库按大类（界面与网页 → 动态图形 → 剪辑与摄影）分节，首张卡片为「界面与网页」的 #049
+  // 效果库按大类（界面与网页 → 动态图形 → 剪辑与摄影）分节，首张卡片为 #1-001
   assert.equal(await page.locator('.tile-name').first().innerText(), '模态对话框');
   assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), CONFIG.site);
   // 标题不写死数量，避免新增分类包后过时
@@ -98,7 +101,7 @@ try {
   await page.locator('#play').click();
   assert.equal(await page.locator('#play').getAttribute('aria-pressed'), 'true');
   assert.equal(/[\u3040-\u30ff]/.test(await page.locator('body').innerText()), false, 'Untranslated Japanese outside Canvas');
-  const searches = [['弹性', '001'], ['遮罩', '005'], ['镜头推进', '027'], ['typewriter', '006'], ['#144', '144'], ['012', '012']];
+  const searches = [['弹性', '2-001'], ['遮罩', '2-005'], ['镜头推进', '3-003'], ['typewriter', '2-006'], ['#2-048', '2-048'], ['2-012', '2-012']];
   for (const [term, id] of searches) {
     await page.locator('#q').fill(term);
     await page.waitForFunction(id => !document.querySelector('.tile[data-id="' + id + '"]').parentElement.hidden, id);
@@ -120,19 +123,19 @@ try {
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
   await open('?lang=invalid');
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
-  await open('?lang=zh-Hans#144');
+  await open('?lang=zh-Hans#2-048');
   await page.waitForFunction(() => document.querySelector('#detail').open);
   assert.equal(await page.locator('#d-name').innerText(), '分屏');
   await page.locator('#d-prev').click();
   assert.equal(await page.locator('#d-name').innerText(), '爆炸分解图');
   await page.locator('#d-next').click();
   assert.equal(await page.locator('#d-name').innerText(), '分屏');
-  assert.equal(await page.locator('#d-prompt').innerText(), read('api/v1/zh-Hans/p/144.txt').trim());
+  assert.equal(await page.locator('#d-prompt').innerText(), read('api/v1/zh-Hans/p/2-048.txt').trim());
   await page.locator('#d-copy-prompt').click();
-  assert.equal((await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, '\n'), read('api/v1/zh-Hans/p/144.txt').trim());
+  assert.equal((await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, '\n'), read('api/v1/zh-Hans/p/2-048.txt').trim());
   await page.locator('#d-pick').click();
   await page.locator('#d-close').click();
-  await page.locator('[data-pick="005"]').click();
+  await page.locator('[data-pick="2-005"]').click();
   await page.locator('#tray-note').fill('用于开场标题');
   await page.locator('#tray-main').click();
   assert.match(await page.evaluate(() => navigator.clipboard.readText()), /用于开场标题/);
@@ -172,7 +175,7 @@ try {
     assert.ok(controls.x >= 0 && controls.x + controls.width <= width, `Language buttons outside viewport at ${width}`);
     assert.ok(await page.locator('.top-nav').evaluate(el => el.getBoundingClientRect().right <= document.documentElement.clientWidth), `Header overflow at ${width}`);
     if (shots) await page.screenshot({ path: path.join(shots, `gallery-${width}.png`) });
-    await open('?lang=zh-Hans#001');
+    await open('?lang=zh-Hans#2-001');
     await page.waitForFunction(() => document.querySelector('#detail').open);
     await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished.catch(() => {}))));
     assert.ok(await page.locator('#d-copy-prompt').isVisible());
@@ -192,13 +195,13 @@ try {
     while (!(match = output.match(/http:\/\/127\.0\.0\.1:\d+\/\?[^\s]+/)) && Date.now() < until) await new Promise(r => setTimeout(r, 50));
     assert.ok(match, output + stderr);
     await page.goto(match[0]);
-    await page.waitForSelector('[data-pick="012"]');
+    await page.waitForSelector('[data-pick="2-012"]');
     await page.locator('[data-lang="zh-Hans"]').click();
-    await page.locator('[data-pick="012"]').click();
+    await page.locator('[data-pick="2-012"]').click();
     await page.locator('#tray-main').click();
     await page.waitForFunction(() => document.title === '已发送给 AI | Motion Prompt');
     assert.equal(await result, 0, stderr);
-    assert.match(output, /#012.*形状变形/);
+    assert.match(output, /#2-012.*形状变形/);
     assert.match(output, /四种形状/);
   } finally { child.kill(); }
   console.log('PASS: real Skill local pick → Chinese switch → Send to AI → callback acknowledgement and Chinese specs.');

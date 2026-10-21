@@ -1,0 +1,40 @@
+// Motion Prompt #2-033 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#129
+//
+// Text scramble / テキストスクランブル
+// Pack: motion2 (Motion graphics moves, part 2) · element 09 · Category: Text & shapes
+// What happens: Random characters keep changing, then lock into the right word from left to right.
+// Motion spec:
+//   - "HELLO" in the first 2.35 s, "WORLD" in the second. Five monospaced letters (92 px).
+//   - Unsettled slots show random characters from A–Z (without I and O), 0–9 and #$%&@?, changing 76 times per 4.7 s (about every 0.062 s), mint at 75% opacity.
+//   - Slots lock from left to right: slot i at 0.45 + 0.18i s (the last at 1.17 s). A newly locked letter is yellow for 0.22 s, then white, settling with scale 1 + 0.2·e^(−14t).
+//   - From 1.85 s the slots return to random from right to left (slot i at 1.85 + 0.08 × (4 − i) s).
+//   - A bar under each slot: blue when locked, yellow for the next one to lock, navy otherwise.
+// When to use it: Use it to bring in a headline, a number or a code name with a decoding, hacker or tech feel.
+// Tags: text-scramble, scramble, decode, shuffle, random, text, hacker
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-033
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 09
+// 09 テキストスクランブル（ランダムな文字が入れ替わり続け、左から順に正しい単語に決まる）
+const SCR_GL = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&@?';
+CELLS[8] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const T = CYC / 2, n = Math.floor(u / T), lu = u - n * T, word = n ? 'WORLD' : 'HELLO', N = 5;
+  const f = `700 92px Menlo, "SF Mono", monospace`; k.font = f;
+  const cw = k.measureText('M').width + 16, x0 = w / 2 - cw * (N - 1) / 2, Y = h / 2 - 8;
+  const step = Math.floor(u / (CYC / 76));
+  for (let i = 0; i < N; i++) {
+    const tl = 0.45 + i * 0.18, tu = 1.85 + (N - 1 - i) * 0.08, locked = lu >= tl && lu < tu;
+    let ch, col, sc = 1;
+    if (locked) { ch = word[i]; const age = lu - tl; col = age < 0.22 ? C.yel : '#fff'; sc = 1 + 0.2 * Math.exp(-age * 14); }
+    else { ch = SCR_GL[Math.floor(H01(step * 131 + i * 977 + n * 31) * SCR_GL.length)]; col = C.mint; }
+    k.save(); k.translate(x0 + i * cw, Y); k.scale(sc, sc); k.globalAlpha = locked ? 1 : 0.75; txt(k, ch, 0, 0, f, col, 'center', 'middle'); k.restore();
+    const next = !locked && lu < tl && (i === 0 || lu >= 0.45 + (i - 1) * 0.18);
+    k.fillStyle = locked ? C.blue : next ? C.yel : C.navy3; rr(k, x0 + i * cw - cw / 2 + 8, Y + 58, cw - 16, 8, 4); k.fill();
+  }
+};

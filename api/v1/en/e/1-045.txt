@@ -1,0 +1,47 @@
+// Motion Prompt #1-045 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#093
+//
+// Smooth scroll / スムーススクロール
+// Pack: lp (Landing page & web effects) · element 21 · Category: Loading, navigation & ambient loops
+// What happens: Clicking "Pricing" in the menu glides the page down to the pricing section; the up arrow at the bottom right glides it back to the top.
+// Motion spec:
+//   - At 0.9 s the "Pricing" menu item is clicked; scroll goes 0→296 px over 0.95–2.0 s (1.05 s, cubic ease-in-out).
+//   - Stop position = top of the pricing section (330 px) − fixed header height (34 px).
+//   - Once scroll passes 60 px, a round back-to-top button (radius 15) fades in over the next 40 px at the bottom right.
+//   - At 3.1 s that button is clicked; scroll goes 296→0 over 3.15–4.2 s (cubic ease-in-out).
+//   - While the pricing section is in view, "Pricing" in the menu turns orange.
+// When to use it: Use it when a menu or table of contents jumps within the same page, so the reader sees where they went.
+// Tags: smooth-scroll, scroll-behavior, anchor-link, in-page-link, back-to-top, navigation
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-045
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 21
+// 21 スムーススクロール（メニューを押すと、ページがなめらかに目的の場所まで動く）
+CELLS[20] = (k, w, h, u) => {
+  frame(k);
+  const TO = 296;   // 「料金」セクションの頭（330）− ヘッダーの高さ（34）
+  const y = TO * eIO(P(u, 0.95, 2.0)) * (1 - eIO(P(u, 3.15, 4.2)));
+  const [cx, cy] = path([[0, 380, 132], [0.75, 360, 18], [1.0, 360, 18], [2.9, 478, 140], [3.25, 478, 140], [4.8, 380, 132]], u);
+  view(k, () => {
+    k.save(); k.translate(0, -y);
+    pic(k, 24, 46, 222, 110, 0, 8); txt(k, 'ちょうどいい道具を。', 264, 84, `800 19px ${JP}`, C.ink); bars(k, 264, 98, 210, 3);
+    k.fillStyle = C.soft; k.fillRect(0, 170, VW, 160);
+    txt(k, '特長', VW / 2, 206, `800 17px ${JP}`, C.ink, 'center');
+    for (let i = 0; i < 3; i++) { const x = 100 + i * 155; k.fillStyle = C.blueL; k.beginPath(); k.arc(x, 252, 24, 0, 7); k.fill(); bars(k, x - 46, 288, 92, 2); }
+    txt(k, '料金', VW / 2, 370, `800 17px ${JP}`, C.ink, 'center');
+    ['¥0', '¥980', '¥2,980'].forEach((s, i) => {
+      const x = 50 + i * 143, hi = i === 1; k.fillStyle = '#fff'; rr(k, x, 388, 125, 96, 8); k.fill();
+      k.lineWidth = hi ? 2.5 : 1.5; k.strokeStyle = hi ? C.acc : C.faint; k.stroke();
+      txt(k, s, x + 62.5, 428, `800 20px ${EN}`, hi ? C.acc : C.ink, 'center'); bars(k, x + 22, 444, 81, 2);
+    });
+    k.restore();
+    header(k, 0, y > 250 ? 1 : -1);
+    const tb = clamp((y - 60) / 40);   // ページトップへ戻るボタン
+    if (tb > 0) { k.globalAlpha = tb; k.fillStyle = C.ink; k.beginPath(); k.arc(478, 140, 15, 0, 7); k.fill(); k.strokeStyle = '#fff'; k.lineWidth = 2.4; k.lineCap = 'round'; k.lineJoin = 'round'; k.beginPath(); k.moveTo(472, 143); k.lineTo(478, 136.5); k.lineTo(484, 143); k.stroke(); k.globalAlpha = 1; }
+    sbar(k, y / TO * 0.7, 0.36);
+    click(k, cx, cy, u, [0.9, 3.1]);
+  });
+};

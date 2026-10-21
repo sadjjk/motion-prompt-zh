@@ -34,28 +34,32 @@ try {
   const info = await run(['info']);
   assert.match(info.stdout, /本地中文版仓库/); assert.match(info.stdout, /144 个元素/);
   assert.equal((await run(['list', '--lang', 'zh-Hans'])).stdout.match(/^  - /gm).length, 18);
-  const queries = [['弹性', '001'], ['选择与切换', '059'], ['前两个开关', '059'], ['拉焦', '033'], ['typewriter', '006'], ['ポップイン', '001']];
+  const queries = [['弹性', '2-001'], ['选择与切换', '1-011'], ['前两个开关', '1-011'], ['拉焦', '3-009'], ['typewriter', '2-006'], ['ポップイン', '2-001']];
   for (const [term, id] of queries) assert.ok((await run(['search', term, '--limit', '50'])).stdout.includes('#' + id), term);
   for (const lang of ['zh-Hans', 'zh', 'en', 'ja']) {
     const actual = lang === 'zh' ? 'zh-Hans' : lang;
-    const get = await run(['get', '012', '--lang', lang]);
-    assert.ok(get.stdout.startsWith(read(`api/v1/${actual}/e/012.txt`).trimEnd()));
-    assert.match(get.stdout, /^\/\/ Motion Prompt #012 · MIT License \(c\) 2026 Shohei Ohtaki · https:\/\/showheyohtaki\.github\.io\/motion-prompt\/#012/); assert.match(get.stdout, /CELLS\[11\]/);
-    assert.equal((await run(['prompt', '012', '--lang', lang])).stdout.trimEnd(), read(`api/v1/${actual}/p/012.txt`).trimEnd());
+    const get = await run(['get', '2-012', '--lang', lang]);
+    assert.ok(get.stdout.startsWith(read(`api/v1/${actual}/e/2-012.txt`).trimEnd()));
+    // 署名行：本站新编号 #2-012，链接仍指向原作者站点的原编号 #012
+    assert.match(get.stdout, /^\/\/ Motion Prompt #2-012 · MIT License \(c\) 2026 Shohei Ohtaki · https:\/\/showheyohtaki\.github\.io\/motion-prompt\/#012/); assert.match(get.stdout, /CELLS\[11\]/);
+    assert.equal((await run(['prompt', '2-012', '--lang', lang])).stdout.trimEnd(), read(`api/v1/${actual}/p/2-012.txt`).trimEnd());
   }
   assert.equal((await run(['kit', 'ui'])).stdout.trimEnd(), read('api/v1/kit/ui.js').trimEnd());
-  assert.match((await run(['kit', 'ui'])).stdout, /^\/\/ Motion Prompt #049-072 .*https:\/\/showheyohtaki\.github\.io\/motion-prompt\/#049/);
-  assert.match((await run(['get', '999'], {}, CLI, 1)).stderr, /找不到动画/);
+  assert.match((await run(['kit', 'ui'])).stdout, /^\/\/ Motion Prompt #1-001-024 .*https:\/\/showheyohtaki\.github\.io\/motion-prompt\/#049/);
+  assert.match((await run(['get', '9-999'], {}, CLI, 1)).stderr, /找不到动画/);
+  // 纯数字编号没有大类前缀：报错并按大类列出候选
+  const bare = (await run(['get', '012'], {}, CLI, 1)).stderr;
+  assert.match(bare, /#1-012/); assert.match(bare, /#2-012.*形状变形/); assert.match(bare, /#3-012/);
   assert.match((await run(['--help'])).stdout, /用法/);
   const english = JSON.parse(JSON.stringify(catalog)); delete english.elements[0].name['zh-Hans'];
   const wrong = path.join(tmp, 'wrong'); fs.mkdirSync(wrong); fs.writeFileSync(path.join(wrong, 'catalog.json'), JSON.stringify(english));
-  assert.match((await run(['info'], { MOTION_PROMPT_BASE: wrong }, CLI, 1)).stderr, /缺少完整简体中文.*#001/);
+  assert.match((await run(['info'], { MOTION_PROMPT_BASE: wrong }, CLI, 1)).stderr, /缺少完整简体中文.*#1-001/);
   assert.match((await run(['list', '--lang', 'en'], { MOTION_PROMPT_BASE: wrong })).stdout, /Motion graphics/);
   const missing = path.join(tmp, 'missing'); fs.mkdirSync(missing); fs.writeFileSync(path.join(missing, 'catalog.json'), JSON.stringify(catalog));
-  assert.match((await run(['get', '012'], { MOTION_PROMPT_BASE: missing }, CLI, 1)).stderr, /缺少资源：zh-Hans\/e\/012.txt/);
+  assert.match((await run(['get', '2-012'], { MOTION_PROMPT_BASE: missing }, CLI, 1)).stderr, /缺少资源：zh-Hans\/e\/2-012.txt/);
   fs.mkdirSync(path.join(missing, 'zh-Hans/e'), { recursive: true });
-  fs.writeFileSync(path.join(missing, 'zh-Hans/e/012.txt'), read('api/v1/en/e/012.txt'));
-  assert.match((await run(['get', '012'], { MOTION_PROMPT_BASE: missing }, CLI, 1)).stderr, /未使用英文替代/);
+  fs.writeFileSync(path.join(missing, 'zh-Hans/e/2-012.txt'), read('api/v1/en/e/2-012.txt'));
+  assert.match((await run(['get', '2-012'], { MOTION_PROMPT_BASE: missing }, CLI, 1)).stderr, /未使用英文替代/);
   // A separately hosted API must also appear in copied prompts/reference headers, not only CLI fetches.
   const scratch = path.join(tmp, 'custom-build');
   for (const rel of ['index.html', 'found.html', 'assets/site.js', 'assets/found.js', '.claude-plugin/plugin.json', '.claude-plugin/marketplace.json', '.github/ISSUE_TEMPLATE/2-example.yml', '.github/ISSUE_TEMPLATE/config.yml']) {
@@ -66,11 +70,11 @@ try {
   fs.writeFileSync(path.join(scratch, 'site.config.json'), JSON.stringify(customConfig));
   await run(['--root', scratch], {}, path.join(ROOT, 'tools/build.mjs'));
   const customRead = rel => fs.readFileSync(path.join(scratch, rel), 'utf8');
-  assert.ok(customRead('api/v1/zh-Hans/p/012.txt').includes(customConfig.apiBase + '/zh-Hans/e/012.txt'));
-  assert.ok(customRead('api/v1/zh-Hans/e/012.txt').includes(customConfig.apiBase + '/kit/motion.js'));
+  assert.ok(customRead('api/v1/zh-Hans/p/2-012.txt').includes(customConfig.apiBase + '/zh-Hans/e/2-012.txt'));
+  assert.ok(customRead('api/v1/zh-Hans/e/2-012.txt').includes(customConfig.apiBase + '/kit/motion.js'));
   const web = { window: {} };
   vm.runInNewContext(customRead('assets/site-config.js'), web); vm.runInNewContext(customRead('assets/catalog.js'), web);
-  assert.ok(web.window.MP_PROMPT(catalog.elements[11], catalog.packs[0].title['zh-Hans'], 'zh-Hans').includes(customConfig.apiBase + '/zh-Hans/e/012.txt'));
+  assert.ok(web.window.MP_PROMPT(catalog.elements.find(e => e.id === '2-012'), catalog.packs.find(p => p.pack === 'motion').title['zh-Hans'], 'zh-Hans').includes(customConfig.apiBase + '/zh-Hans/e/2-012.txt'));
   console.log('PASS A: real CLI info/list/search/get/prompt/kit, 144 entries, all languages, explicit missing/wrong Chinese errors.');
   console.log('PASS configuration: custom API URL reaches built prompts, reference headers and browser prompt output.');
   if (process.argv.includes('--static')) process.exitCode = 0;
@@ -98,7 +102,7 @@ try {
     const standalone = await run(['info'], {}, installedCli);
     assert.match(standalone.stdout, /独立安装默认配置/); assert.match(standalone.stdout, /144 个元素/);
     assert.match(standalone.stderr, /备用来源.*backup\/api\/v1/);
-    assert.equal((await run(['prompt', '012'], {}, installedCli)).stdout.trimEnd(), read('api/v1/zh-Hans/p/012.txt').trimEnd());
+    assert.equal((await run(['prompt', '2-012'], {}, installedCli)).stdout.trimEnd(), read('api/v1/zh-Hans/p/2-012.txt').trimEnd());
     const cache = await run(['info'], {}, installedCli); assert.match(cache.stderr, /使用缓存.*backup\/api\/v1/);
     assert.match((await run(['info'], { MOTION_PROMPT_BASE: path.join(ROOT, 'api/v1') }, installedCli)).stdout, /MOTION_PROMPT_BASE/);
     const { chromium } = createRequire(import.meta.url)(process.env.MP_PLAYWRIGHT || 'playwright');
@@ -115,7 +119,7 @@ try {
         const url = new URL(match[0]); assert.equal(url.searchParams.get('lang'), 'zh-Hans');
         const cb = new URL(url.searchParams.get('cb')); assert.equal(cb.hostname, '127.0.0.1'); assert.match(cb.searchParams.get('t'), /^[a-f0-9]{32}$/);
         if (online) assert.equal(url.pathname, '/motion-prompt-zh/'); else assert.equal(url.port, cb.port);
-        const badToken = new URL(cb); badToken.searchParams.set('t', 'wrong'); badToken.searchParams.set('ids', '059');
+        const badToken = new URL(cb); badToken.searchParams.set('t', 'wrong'); badToken.searchParams.set('ids', '1-011');
         assert.equal((await fetch(badToken)).status, 403);
         const malformed = new URL(cb); malformed.searchParams.set('ids', 'bad'); assert.equal((await fetch(malformed)).status, 400);
         const post = await fetch(cb, { method: 'POST' }); assert.equal(post.status, 405);
@@ -140,25 +144,25 @@ try {
       } finally { p.child.kill(); }
     }
     // Explicit local invocation; --no-open uses the same URL in the automated browser.
-    await pick(CLI, ['--local', '--lang', 'zh-Hans', '--no-open'], ['012', '059'], '开场与通知设置，保留现有业务逻辑');
+    await pick(CLI, ['--local', '--lang', 'zh-Hans', '--no-open'], ['2-012', '1-011'], '开场与通知设置，保留现有业务逻辑');
     // No --local and no --lang: development mode must still select the local Chinese gallery.
-    const handoff = await pick(CLI, ['--no-open'], ['059'], '用于当前项目的通知开关');
+    const handoff = await pick(CLI, ['--no-open'], ['1-011'], '用于当前项目的通知开关');
     if (process.argv.includes('--handoff-out')) {
       const dest = path.resolve(process.argv[process.argv.indexOf('--handoff-out') + 1]); fs.mkdirSync(path.dirname(dest), { recursive: true }); fs.writeFileSync(dest, handoff.stdout);
     }
     // A genuinely isolated installed Skill loads HTTP API data and opens the configured subpath.
-    await pick(installedCli, ['--no-open', '--lang', 'zh'], ['059', '060'], '在线中文版回传的中文备注', true);
-    await page.goto(origin + '/motion-prompt-zh/?lang=zh-Hans&pick=059');
+    await pick(installedCli, ['--no-open', '--lang', 'zh'], ['1-011', '1-012'], '在线中文版回传的中文备注', true);
+    await page.goto(origin + '/motion-prompt-zh/?lang=zh-Hans&pick=1-011');
     assert.equal(await page.locator('#tray-main').innerText(), '复制所选'); assert.equal(await page.locator('#tray-wait').isVisible(), false);
-    await page.goto(origin + '/motion-prompt-zh/?pick=059&cb=' + encodeURIComponent('https://example.com/'));
+    await page.goto(origin + '/motion-prompt-zh/?pick=1-011&cb=' + encodeURIComponent('https://example.com/'));
     assert.equal(await page.locator('#tray-main').innerText(), '复制所选');
     assert.deepEqual(errors, []);
     await context.close();
     await browser.close(); browser = null;
     await new Promise(resolve => server.close(resolve)); server = null;
-    const offline = await run(['prompt', '012', '--refresh'], {}, installedCli);
+    const offline = await run(['prompt', '2-012', '--refresh'], {}, installedCli);
     assert.match(offline.stderr, /离线目录缓存/); assert.match(offline.stderr, /使用缓存.*backup\/api\/v1/);
-    assert.equal(offline.stdout.trimEnd(), read('api/v1/zh-Hans/p/012.txt').trimEnd());
+    assert.equal(offline.stdout.trimEnd(), read('api/v1/zh-Hans/p/2-012.txt').trimEnd());
     assert.ok(requests.some(p => p === '/primary/api/v1/catalog.json'));
     assert.ok(requests.some(p => p === '/backup/api/v1/catalog.json'));
     console.log('PASS B: real browser multi-pick + Chinese note + callback; local defaults, standalone HTTP subpath, safe callback rejection, normal copy mode.');

@@ -1,7 +1,7 @@
-// Motion Prompt #097-120 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#097
+// Motion Prompt #3-025-048 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#097
 //
 // Kit for pack "photo" (Photo looks, lighting & styles / 写真の表現・光と画風): the constants and helpers its elements share.
-// Elements #097-120 · 539x208 px · cycle 5 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #3-025-048 · 539x208 px · cycle 5 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

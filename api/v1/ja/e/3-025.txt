@@ -1,0 +1,32 @@
+// Motion Prompt #3-025 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#097
+//
+// 逆光 / Backlighting
+// パック: photo (写真の表現・光と画風) · element 01 · カテゴリ: 光の当て方・時間帯
+// 何が起きるか: 画面の外にあった太陽が人物の頭の真後ろへ回り込む。胸像の縁が細く光り、全体に淡い光の色がかかり、カメラ側の体は暗く沈む。
+// 動きの仕様:
+//   - 場面①: 地平線（y150）の前に胸から上の人物（頭の中心 x270, y78・半径29px、顔・髪なし）。光はアンバー #FFC75A の平らな面、影は一段濃い #33405A
+//   - 太陽: 半径20px。左上の画面外（x40, y−40）から頭の真後ろ（x270, y56）へ。周りに半径2.6倍・1.7倍の平らな光の輪（#FFE3A3、35%・60%）
+//   - 輪郭: 胸像の形を幅7pxの線でなぞってから中を塗り、外側3.5pxの光の縁だけを残す
+//   - 人物 #4D5A75 → #33405A。空 #FAF9F7 → #FFF4DC、全体に #FFE3A3 を22%重ねる
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、3次のイーズインアウト（cubic-bezier(0.65,0,0.35,1) 相当））
+// 使いどころ: やわらかく明るい人物写真や、光に包まれた雰囲気を出したいとき。
+// タグ: backlighting, backlit, contre-jour, sun behind, haze, glow, halo
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-025
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 01
+// 逆光: 太陽が画面の外から頭の真後ろへ回り込み、輪郭が光って人物は暗くなる
+CELLS[0] = cell((k, u) => {
+  const a = env(u);
+  const BACK = Object.assign({}, BASE, { sky: '#FFF4DC', sky2: '#FFEBC4', far: '#F6E2BE', ground: '#F7EAD3', bld: '#F7E9D2', winOff: '#EEDCBF', win: '#EEDCBF', tree: '#EEDCBF', edge: '#E3CFAE', post: '#CDB894', trunk: '#E3CFAE', bulb: '#E3CFAE' });
+  stagePortrait(k, pal(BASE, BACK, a), { sun: [lerp(40, PX, a), lerp(-40, PY - 22, a), 20, 1] });
+  // 輪郭の光: 胸像の形を太い線でなぞってから中を塗り、縁だけを残す
+  k.save(); k.globalAlpha = a; bustPath(k, PX, PY, PR); k.strokeStyle = BASE.lit; k.lineWidth = 7; k.lineJoin = 'round'; k.stroke(); k.restore();
+  bust(k, PX, PY, PR, mixc(BASE.person, BASE.shade, a));
+  // かすみ: 全体に光の色を薄く重ねる
+  k.save(); k.globalAlpha = 0.22 * a; k.fillStyle = BASE.glow; k.fillRect(0, 0, CW, CH); k.restore();
+});

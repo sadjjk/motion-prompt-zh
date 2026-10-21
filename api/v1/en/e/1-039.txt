@@ -1,0 +1,43 @@
+// Motion Prompt #1-039 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#087
+//
+// Before/after slider / ビフォーアフタースライダー
+// Pack: lp (Landing page & web effects) · element 15 · Category: Hover & click interactions
+// What happens: Dragging the line in the middle of the photo left and right changes how much of the grey "before" (left) and the coloured "after" (right) is shown.
+// Motion spec:
+//   - Photo frame 359 × 140 (radius 10). Right: the edited photo in colour. Left: the same photo as the "before" (saturation removed, navy at 0.18 opacity on top).
+//   - The before image is clipped to the left of the divider. On the divider: a white line (3 wide) and a white circle (radius 17) with left/right arrows.
+//   - At 0.7 s the circle is grabbed; the divider goes 50%→20% (0.75–1.55 s) →82% (1.55–2.65 s) →50% (2.65–3.55 s), all cubic ease-in-out.
+//   - Released at 3.62 s. Labels BEFORE (top left) and AFTER (top right).
+// When to use it: Use it on pages that sell a change: renovation, beauty, photo retouching.
+// Tags: before-after, image-comparison, slider, drag, compare, clip, photo
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-039
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 15
+// 15 ビフォーアフタースライダー（真ん中の線をドラッグすると、加工前と加工後の写真の境目が動く）
+CELLS[14] = (k, w, h, u) => {
+  frame(k);
+  const F = { x: 76, y: 14, w: 359, h: 140 };
+  const pos = steps([[0.75, 0.5], [1.55, 0.2], [2.65, 0.82], [3.55, 0.5]], u), hx = F.x + F.w * pos, hy = F.y + F.h / 2;
+  const drag = u > 0.68 && u < 3.62;
+  const [cx, cy] = u < 0.7 ? path([[0, 430, 160], [0.62, hx, hy + 4]], u) : drag ? [hx, hy + 4] : path([[3.6, hx, hy + 4], [4.3, 430, 160], [4.8, 430, 160]], u);
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    pic(k, F.x, F.y, F.w, F.h, 1, 10);                      // 後（色あり）
+    k.save(); k.beginPath(); k.rect(F.x, F.y, hx - F.x, F.h); k.clip();
+    pic(k, F.x, F.y, F.w, F.h, 1, 10);                      // 前（色を抜いて暗く）
+    k.globalCompositeOperation = 'saturation'; k.fillStyle = '#888'; k.fillRect(F.x, F.y, F.w, F.h);
+    k.globalCompositeOperation = 'source-over'; k.fillStyle = 'rgba(28,35,51,.18)'; k.fillRect(F.x, F.y, F.w, F.h);
+    k.restore();
+    const tag = (s, x, al) => { k.font = `800 11px ${EN}`; const tw = k.measureText(s).width + 16; const bx = al ? x - tw : x; k.fillStyle = 'rgba(28,35,51,.55)'; rr(k, bx, F.y + 10, tw, 20, 10); k.fill(); txt(k, s, bx + tw / 2, F.y + 20.5, `800 11px ${EN}`, '#fff', 'center', 'middle', '1px'); };
+    k.save(); rr(k, F.x, F.y, F.w, F.h, 10); k.clip(); tag('BEFORE', F.x + 10, false); tag('AFTER', F.x + F.w - 10, true); k.restore();
+    k.fillStyle = '#fff'; k.fillRect(hx - 1.5, F.y, 3, F.h);
+    k.save(); k.shadowColor = 'rgba(28,35,51,.3)'; k.shadowBlur = 8; k.shadowOffsetY = 2; k.fillStyle = '#fff'; k.beginPath(); k.arc(hx, hy, 17, 0, 7); k.fill(); k.restore();
+    k.fillStyle = C.ink; k.beginPath(); k.moveTo(hx - 4, hy - 6); k.lineTo(hx - 11, hy); k.lineTo(hx - 4, hy + 6); k.closePath(); k.moveTo(hx + 4, hy - 6); k.lineTo(hx + 11, hy); k.lineTo(hx + 4, hy + 6); k.closePath(); k.fill();
+    cursor(k, cx, cy, drag ? 1 : 0);
+  });
+};

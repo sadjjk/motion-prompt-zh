@@ -1,0 +1,31 @@
+// Motion Prompt #3-006 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#030
+//
+// Orbit (Arc shot) / オービット
+// Pack: camera (Camera moves & transitions) · element 06 · Category: Camera Movement
+// What happens: The camera travels on a circle around the subject; the person stays centred while the trees and buildings behind sweep sideways.
+// Motion spec:
+//   - Camera: travels on a circle of radius 6 m centred on the person (9 m ahead), from -0.95 rad → +0.95 rad (-54° → +54°, about 109° in total)
+//   - Direction: always faces the centre (yaw = -angle); height 1.7 m, pitch fixed at -0.07 rad (about 4° down)
+//   - Timing: 0.5 s to 3.6 s (3.1 s), cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1))
+//   - Subject: the person does not move; a white dot on the face shifts sideways with the angle; a dashed circle of radius 1.3 m marks the ground
+//   - Background: 12 trees evenly spaced on a 10 m radius cross behind the person as the camera moves round
+//   - Return: hold 3.6–4.2 s, then cross-fade back over the last 0.5 s; top-right readout shows the angle (-54° → +54°)
+// When to use it: To show a person or product in three dimensions, or to emphasise an entrance or a key moment.
+// Tags: orbit, arc shot, circle, 360, rotate around, revolve, camera move
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-006
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 06
+// 06 オービット: 被写体を中心に円を描いて回り込む
+CELLS[5] = shot(camCell((k, w, h, p) => {
+  const a = lerp(-0.95, 0.95, p), R = 6, P0 = [0, 0, 9];
+  const c = cam({ x: P0[0] + Math.sin(a) * R, z: P0[2] - Math.cos(a) * R, yaw: -a, y: 1.7, pitch: -0.07 });
+  world(k, w, h, c, {
+    person: { z: 9, face: a }, ring: [0, 9, 10], buildings: true, trees: false,
+    after: (kk, cc) => { kk.strokeStyle = C.blueM; kk.lineWidth = 2; kk.setLineDash([5, 5]); kk.beginPath(); for (let i = 0; i <= 48; i++) { const b = i / 48 * Math.PI * 2; const q = proj(cc, Math.sin(b) * 1.3, 0, 9 + Math.cos(b) * 1.3); i ? kk.lineTo(q.x, q.y) : kk.moveTo(q.x, q.y); } kk.stroke(); kk.setLineDash([]); }
+  });
+}, p => `${Math.round(lerp(-0.95, 0.95, p) * 57.3)}°`.replace(/^(\d)/, '+$1'), 0.5, 3.6));

@@ -1,0 +1,15 @@
+Please use "Line boil" (ラインボイル), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-040
+
+What it is: Hand-drawn lines wobble frame to frame
+What the sample shows: A hand-drawn line picture wobbles every few frames while the picture itself stays still.
+Spec:
+- A still line drawing (a yellow star, a white cloud, mint sparkle strokes, a faint ground line). Line widths 6–8, round caps.
+- The drawing does not move. 47 times per 4.7 s (about every 0.1 s) every point is redrawn with a fixed random offset of up to ±3.5 px in x and in y.
+- Each line is first turned into a row of points (every 6–13 px; 96 points round the cloud) and drawn as quadratic curves through the midpoints between them, so it wobbles like hand-drawn frames.
+- The offsets are a hash of the frame number and the point number, so the same frame always looks the same.
+When to use it: Use it on hand-drawn illustrations, icons or lettering to make even a still picture feel drawn by hand.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-040.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

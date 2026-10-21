@@ -1,0 +1,14 @@
+Please use "Pixelate" (ピクセレート), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-045
+
+What it is: Turns into coarse blocks, then switches
+What the sample shows: The picture turns into coarser and coarser blocks, switches at the coarsest point, then sharpens again.
+Spec:
+- Field scene → city scene → field, 2.35 s each. At 0.2–1.9 s (1.7 s) the block size steps up and back down through 1, 2, 3, 4, 6, 8, 11, 15, 20, 27 and 36 px (coarsest at the midpoint, 1.05 s).
+- The first half shows the old scene and the second half the new one; the swap happens at the coarsest step.
+- Method: shrink the frame to width ÷ block size with smoothing on, then scale it back up with smoothing off.
+When to use it: Use it for game-like, retro or digital scene changes, or to blur something out as the scene switches.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-045.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

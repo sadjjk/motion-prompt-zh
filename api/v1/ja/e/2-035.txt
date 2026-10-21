@@ -1,0 +1,37 @@
+// Motion Prompt #2-035 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#131
+//
+// テキストオンパス / Text on a path
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 11 · カテゴリ: 文字・図形の演出
+// 何が起きるか: 文字列が、波打つ線に沿って向きを変えながら流れていく。
+// 動きの仕様:
+//   - 道: y = 118 + 42·sin(2πx ÷ 330 + 0.6)、x = −70〜609。紺の破線（14/10・線幅5）で6px下に見せる
+//   - 「ALONG THE LINE • 」（42px・太字・字間2px）をくり返し並べる。1文字ずつ、道の上の長さ（弧長）の位置に置き、道の向きに回す
+//   - 4.7秒で文字列1回分の長さだけ道に沿って進める（ループがつながる）
+//   - 文字は白、「•」は黄
+// 使いどころ: ロゴのまわり・道や川・波の上など、形に沿って文字を流したいとき。ループする帯の文字にも。
+// タグ: text-on-path, path-text, curved-text, text, marquee, wave, scroll
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-035
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 11
+// 11 テキストオンパス（文字列が、波打つ線に沿って流れていく）
+const TOP = (() => { const pts = []; for (let x = -70; x <= CW + 70; x += 4) pts.push([x, 118 + 42 * Math.sin(x * 2 * Math.PI / 330 + 0.6)]); return { pts, cum: pathLen(pts) }; })();
+CELLS[10] = (k, w, h, u) => {
+  stage(k);
+  k.save(); k.setLineDash([14, 10]); k.strokeStyle = C.navy3; k.lineWidth = 5; k.lineCap = 'round'; k.beginPath(); TOP.pts.forEach((p, i) => i ? k.lineTo(p[0], p[1] + 6) : k.moveTo(p[0], p[1] + 6)); k.stroke(); k.restore();
+  const f = `800 42px ${DISP}`, S = 'ALONG THE LINE • '; k.font = f;
+  const ws = [...S].map(ch => k.measureText(ch).width + 2), run = ws.reduce((a, b) => a + b, 0), L = TOP.cum[TOP.cum.length - 1], shift = (u / CYC) * run;
+  for (let r = -2; r * run + shift < L; r++) {
+    let s = r * run + shift;
+    [...S].forEach((ch, j) => {
+      const c = s + ws[j] / 2; s += ws[j];
+      if (c < 0 || c > L || ch === ' ') return;
+      const p = ptAt(TOP.pts, TOP.cum, c / L);
+      k.save(); k.translate(p[0], p[1]); k.rotate(p[2]); txt(k, ch, 0, 0, f, ch === '•' ? C.yel : '#fff', 'center', 'alphabetic'); k.restore();
+    });
+  }
+};

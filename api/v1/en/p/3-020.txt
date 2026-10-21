@@ -1,0 +1,17 @@
+Please use "Cross dissolve" (クロスディゾルブ), one of the names in "Camera moves & transitions".
+Motion Prompt #3-020
+
+What it is: Blend one shot into the next
+What the sample shows: The next picture is laid over the current one and its opacity rises until it takes over; both show through each other midway.
+Spec:
+- Join: 1.5 s, from 1.5 s to 3.0 s; the incoming picture's opacity goes 0 → 100%
+- Easing: quadratic ease-in-out (about cubic-bezier(0.45,0,0.55,1)); 50% at 2.25 s
+- The outgoing picture stays fully opaque underneath and the incoming one is drawn on top (the outgoing one is not faded out first)
+- Camera: fixed in both pictures (A at height 1.4 m; B at height 1.6 m, pitch +0.1 rad); the subjects do not move either
+- Only the outgoing picture shows for 0–1.5 s, only the incoming one for 3.0–4.7 s
+- Alternates A→B and B→A every 4.7 s (9.4 s for the round trip); top-right readout shows "A → B" / "B → A"
+When to use it: To convey a gentle passage of time or change of place, or to move into a memory.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-020.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -250,7 +250,7 @@ class Store {
   }
 
   checkedResource(rel, text, cat) {
-    const match = /^zh-Hans\/(e|p)\/(\d{3})\.txt$/.exec(rel);
+    const match = /^zh-Hans\/(e|p)\/([1-9]-\d{3})\.txt$/.exec(rel);
     if (!match) return text; // kit code is deliberately unchanged.
     const e = cat.elements.find(e => e.id === match[2]);
     const normalized = text.replace(/\r\n/g, '\n');
@@ -321,13 +321,30 @@ function requirePack(cat, name) {
   return packKey(found);
 }
 
+// 编号格式 <大类>-<序号>：接受 1-12、1-012、#1-012 或以 #1-012 结尾的演示链接；旧的 3 位纯数字编号不再识别
 function parseId(token) {
-  const m = /(?:^|#|\/)(\d{1,4})\/?$/.exec(String(token).trim());
-  return m ? pad(Number(m[1])) : null;
+  const m = /(?:^|#|\/)([1-9])-(\d{1,3})\/?$/.exec(String(token).trim());
+  return m ? `${m[1]}-${pad(Number(m[2]))}` : null;
+}
+
+// 纯数字没有大类前缀：列出各大类中该序号的元素，提示指定大类
+function suggestForNumber(cat, token, lang) {
+  const k = pad(Number(String(token).replace('#', '')));
+  return (cat.groups || []).map((g) => {
+    const e = cat.elements.find((x) => x.id === `${g.no}-${k}`);
+    return e ? `  #${e.id}  ${tx(g.title, lang)} · ${tx(e.name, lang)}` : null;
+  }).filter(Boolean);
+}
+
+function groupRanges(cat) {
+  return (cat.groups || []).map((g) => {
+    const ids = cat.elements.filter((e) => e.group === g.id).map((e) => e.id);
+    return ids.length ? `#${ids[0]}–${ids[ids.length - 1].split('-')[1]}` : '';
+  }).filter(Boolean).join(', ');
 }
 
 function resolveIds(cat, tokens, max) {
-  if (!tokens.length) throw new CliError(EXIT.USAGE, msg('Give at least one element id, e.g. 12, #045 or a demo URL.', '请至少提供一个动画编号，例如 12、#045 或演示链接。'));
+  if (!tokens.length) throw new CliError(EXIT.USAGE, msg('Give at least one element id, e.g. 1-12, #2-012 or a demo URL.', '请至少提供一个动画编号，例如 1-12、#2-012 或演示链接。'));
   const ids = [];
   const bad = [];
   for (const t of tokens) {
@@ -336,8 +353,17 @@ function resolveIds(cat, tokens, max) {
     else if (!ids.includes(id)) ids.push(id);
   }
   if (bad.length) {
-    const all = cat.elements.map((e) => e.id);
-    throw new CliError(EXIT.NOT_FOUND, msg(`No such element: ${bad.join(', ')}. The catalog has ${all.length} elements (#${all[0]}–#${all[all.length - 1]}). Use "search" or "list" to find ids; do not guess them.`, `找不到动画：${bad.join('、')}。目录共 ${all.length} 项（#${all[0]}–#${all[all.length - 1]}），请用 search 或 list 查询，不要猜测编号。`));
+    const bare = bad.filter((t) => /^#?\d{1,3}$/.test(String(t).trim()));
+    if (bare.length) {
+      const lines = [];
+      for (const t of bare) {
+        const s = suggestForNumber(cat, t, UI_LANG);
+        const k = pad(Number(String(t).replace('#', '')));
+        lines.push(s.length ? msg(`${k} in each group:`, `${k} 在各大类中对应：`) : msg(`${k} is not used in any group.`, `${k} 不在任何大类的范围内。`), ...s);
+      }
+      throw new CliError(EXIT.NOT_FOUND, [msg('IDs need a group prefix.', '编号需要带大类前缀。'), ...lines, msg(`Use e.g. get 2-012. Ranges: ${groupRanges(cat)}.`, `请使用如 get 2-012。编号范围：${groupRanges(cat)}。`)].join('\n'));
+    }
+    throw new CliError(EXIT.NOT_FOUND, msg(`No such element: ${bad.join(', ')}. The catalog has ${cat.elements.length} elements (${groupRanges(cat)}). Use "search" or "list" to find ids; do not guess them.`, `找不到动画：${bad.join('、')}。目录共 ${cat.elements.length} 项（${groupRanges(cat)}），请用 search 或 list 查询，不要猜测编号。`));
   }
   if (ids.length > max) throw new CliError(EXIT.USAGE, msg(`Too many ids (${ids.length}). Fetch at most ${max} per call, and only the ones you will use.`, `一次最多读取 ${max} 项，当前为 ${ids.length} 项；请只读取实际使用的动画。`));
   return ids;
@@ -366,7 +392,7 @@ function score(cat, e, tokens) {
     let best = 0;
     for (const t of forms) {
       let s = 0;
-      if (parseId(t) === e.id && /^#?\d+$/.test(t)) s += 20;
+      if (parseId(t) === e.id) s += 20;
       if (names.includes(t)) s += 12; else if (name.includes(t)) s += 8;
       if (slug === t || slug.split('-').includes(t)) s += 6; else if (slug.includes(t)) s += 3;
       if (tags.includes(t)) s += 6; else if (tags.some((g) => g.includes(t))) s += 3;
@@ -433,7 +459,7 @@ async function cmdList(store, flags, lang) {
     const key = packKey(p);
     const items = cat.elements.filter((e) => e.pack === key);
     if (!items.length) continue;
-    console.log(`${key}  (${items.length})  #${items[0].id}–#${items[items.length - 1].id}  ${tx(p.title, lang)}`);
+    console.log(`${key}  (${items.length})  #${items[0].id}–${items[items.length - 1].id.split('-')[1]}  ${tx(p.title, lang)}`);
     const counts = new Map();
     for (const e of items) {
       const label = categoryLabel(cat, e, lang).label;
@@ -496,7 +522,7 @@ async function cmdInfo(store) {
 }
 
 // ---------- pick: the user chooses in the gallery, the choice comes back here ----------
-// A small HTTP server on 127.0.0.1 waits for one GET /?t=<token>&ids=012,045&note=…&lang=ja. The gallery sends it
+// A small HTTP server on 127.0.0.1 waits for one GET /?t=<token>&ids=1-012,2-012&note=…&lang=ja. The gallery sends it
 // as a top-level navigation ("Send to AI"), because an https page may not fetch() from 127.0.0.1.
 
 const MIME = {
@@ -623,7 +649,7 @@ function waitForPick(server, { port, token, root, cat, flags, timeoutSec }) {
           catch (e) { return send(res, 400, page(lang, T.bad, `<p>${esc(e.message)}</p>`)); }
         }
         const raw = String(q.get('ids') || '');
-        if (!/^\d{3}(,\d{3})*$/.test(raw)) {
+        if (!/^[1-9]-\d{3}(,[1-9]-\d{3})*$/.test(raw)) {
           process.stderr.write(msg(`motion-prompt: refused a selection with malformed ids (${JSON.stringify(raw.slice(0, 80))}); still waiting.\n`, '已拒绝格式错误的动画编号，仍在等待有效选择。\n'));
           return send(res, 400, page(lang, T.bad, `<p>${esc(T.badBody)}</p>`));
         }

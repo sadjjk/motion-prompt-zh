@@ -38,6 +38,10 @@ const warns = [];
 const err = (where, msg) => errors.push(`${where}: ${msg}`);
 const warn = (where, msg) => warns.push(`${where}: ${msg}`);
 const pad3 = n => String(n).padStart(3, '0');
+// 编号 = 大类序号-大类内 3 位序号（#1-001）；发布后同一大类内不重排，新动效接在本大类末尾
+const gid = (no, k) => `${no}-${pad3(k)}`;
+// 包范围：同一大类内省略后半段前缀，#1-001–024
+const idRange = (a, b, dash = '–') => (a === b ? `#${a}` : `#${a}${dash}${b.split('-')[1]}`);
 const isStr = v => typeof v === 'string' && v.trim() !== '';
 
 // ---------------------------------------------------------------- prompt template
@@ -325,16 +329,37 @@ for (const dir of dirs) {
   if (errors.length === before && info) packs.push({ dir, meta, raw, cut, info, src, langs });
 }
 
+// ---------------------------------------------------------------- groups (packs/groups.json)
+// 大类决定展示顺序与编号；每个分类包必须恰好登记在一个大类里，否则 build 报错。
+let groups = [];
+try { groups = JSON.parse(fs.readFileSync(path.join(packsDir, 'groups.json'), 'utf8')); } catch (e) { err('packs/groups.json', `missing or invalid JSON (${e.message})`); }
+if (!Array.isArray(groups)) { err('packs/groups.json', 'must be an array'); groups = []; }
+if (groups.length > 9) err('packs/groups.json', 'at most 9 groups (the group number is one digit)');
+const packGroup = {};
+groups.forEach((g, i) => {
+  const w = `packs/groups.json[${i}]`;
+  if (!isStr(g.id)) err(w, 'id must be a non-empty string');
+  if (g.no !== i + 1) err(w, `no must be ${i + 1} (groups are numbered 1, 2, 3… in display order)`);
+  if (!g.title || !LANGS.every(l => isStr(g.title[l]))) err(w, `title needs ${LANGS.join(', ')}`);
+  if (!Array.isArray(g.packs) || !g.packs.length) err(w, 'packs must be a non-empty array');
+  for (const k of Array.isArray(g.packs) ? g.packs : []) {
+    if (packGroup[k]) err(w, `pack "${k}" is already in group "${packGroup[k].id}"`);
+    else packGroup[k] = g;
+  }
+});
+
 packs.sort((a, b) => a.meta.order - b.meta.order);
 for (let i = 1; i < packs.length; i++) if (packs[i].meta.order === packs[i - 1].meta.order)
   err('packs', `"${packs[i].dir}" and "${packs[i - 1].dir}" share order ${packs[i].meta.order}`);
 if (!dirs.length || (!packs.length && !errors.length)) err('packs', `no packs found in ${packsDir}`);
 packs.forEach((p, i) => {
   if (p.meta.order !== i + 1) {
-    const msg = `order ${i + 1} is missing before "${p.dir}" (order ${p.meta.order}); global IDs would shift`;
+    const msg = `order ${i + 1} is missing before "${p.dir}" (order ${p.meta.order}); upstream IDs would shift`;
     if (PARTIAL) warn('packs', msg + ' — allowed by --partial'); else err('packs', msg);
   }
 });
+for (const p of packs) if (!packGroup[p.dir]) err(`packs/${p.dir}`, 'not registered in packs/groups.json — add it to a group');
+for (const k of Object.keys(packGroup)) if (!packs.some(p => p.dir === k) && !PARTIAL) err('packs/groups.json', `pack "${k}" does not exist`);
 
 // ---------------------------------------------------------------- assemble
 // Scaling the 2D context is only safe when the code never addresses device pixels directly.
@@ -349,29 +374,41 @@ for (const d of fs.readdirSync(path.join(ROOT, 'packs')).sort()) {
     if (fs.existsSync(fp)) contentHash.update(d + '/' + f + '\0').update(fs.readFileSync(fp));
   }
 }
-const catalog = { version: `${VERSION}.${contentHash.digest('hex').slice(0, 10)}`, site: SITE, repo: REPO, count: 0, packs: [], elements: [] };
+contentHash.update('groups.json\0').update(JSON.stringify(groups));
+const catalog = { version: `${VERSION}.${contentHash.digest('hex').slice(0, 10)}`, site: SITE, repo: REPO, count: 0, groups: [], packs: [], elements: [] };
 const codeById = {};
+// 上游编号：按 meta.order（原作者发布顺序）累计，只用于署名行链接到原作者站点的同一元素
+const upstreamStart = {};
+let up = 0;
+for (const p of packs) { upstreamStart[p.dir] = up; up += p.meta.elements.length; }
+const byDir = Object.fromEntries(packs.map(p => [p.dir, p]));
 let n = 0;
-for (const p of packs) {
-  const { meta, info, cut } = p;
-  const first = n + 1;
-  meta.elements.forEach((e, i) => {
-    n += 1;
-    const id = pad3(n);
-    catalog.elements.push({
-      id, pack: meta.pack, no: e.no, slug: e.slug, category: e.category,
-      width: info.width, height: info.height, cycle: info.cycle,
-      name: e.name, meaning: e.meaning, ...(e.ask ? { ask: e.ask } : {}), summary: e.summary, spec: e.spec, use: e.use, tags: e.tags,
-      ...(e.aliases ? { aliases: e.aliases } : {}),
+for (const g of groups) {
+  let k = 0;
+  catalog.groups.push({ id: g.id, no: g.no, title: g.title, packs: (g.packs || []).filter(d => byDir[d]) });
+  for (const dir of g.packs || []) {
+    const p = byDir[dir];
+    if (!p) continue;
+    const { meta, info, cut } = p;
+    const firstK = k + 1;
+    meta.elements.forEach((e, i) => {
+      k += 1; n += 1;
+      const id = gid(g.no, k);
+      catalog.elements.push({
+        id, upstream: pad3(upstreamStart[dir] + i + 1), group: g.id, pack: meta.pack, no: e.no, slug: e.slug, category: e.category,
+        width: info.width, height: info.height, cycle: info.cycle,
+        name: e.name, meaning: e.meaning, ...(e.ask ? { ask: e.ask } : {}), summary: e.summary, spec: e.spec, use: e.use, tags: e.tags,
+        ...(e.aliases ? { aliases: e.aliases } : {}),
+      });
+      codeById[id] = cut.elements[i].code;
     });
-    codeById[id] = cut.elements[i].code;
-  });
-  catalog.packs.push({
-    pack: meta.pack, order: meta.order, title: meta.title, langs: p.langs, categories: meta.categories,
-    count: meta.elements.length, first: pad3(first), last: pad3(n),
-    width: info.width, height: info.height, cycle: info.cycle, fonts: info.fonts,
-    scalable: !PIXEL_BOUND.test(p.src),
-  });
+    catalog.packs.push({
+      pack: meta.pack, group: g.id, order: meta.order, title: meta.title, langs: p.langs, categories: meta.categories,
+      count: meta.elements.length, first: gid(g.no, firstK), last: gid(g.no, k), upstreamFirst: pad3(upstreamStart[dir] + 1),
+      width: info.width, height: info.height, cycle: info.cycle, fonts: info.fonts,
+      scalable: !PIXEL_BOUND.test(p.src),
+    });
+  }
 }
 catalog.count = n;
 const packOf = Object.fromEntries(catalog.packs.map(p => [p.pack, p]));
@@ -395,7 +432,7 @@ function elementTxt(el, lang) {
   const cat = p.categories.find(c => c.slug === el.category);
   const name = lang === 'zh-Hans' ? `${el.name[lang]} / ${el.name.en}` : lang === 'ja' ? `${el.name.ja} / ${el.name.en}` : `${el.name.en} / ${el.name.ja}`;
   const head = [
-    `Motion Prompt #${el.id} · ${LICENCE} · ${ATTRIBUTION_SITE}#${el.id}`,
+    `Motion Prompt #${el.id} · ${LICENCE} · ${ATTRIBUTION_SITE}#${el.upstream}`,
     '',
     name,
     `${t.pack}: ${el.pack} (${p.title[lang]}) · element ${el.no} · ${t.cat}: ${cat ? cat[lang] : el.category}`,
@@ -415,10 +452,10 @@ function elementTxt(el, lang) {
 }
 
 function kitJs(p) {
-  const range = p.first === p.last ? `#${p.first}` : `#${p.first}-${p.last}`;
+  const range = idRange(p.first, p.last, '-');
   const W = p.width, H = p.height, C = p.cycle;
   const head = [
-    `Motion Prompt ${range} · ${LICENCE} · ${ATTRIBUTION_SITE}#${p.first}`,
+    `Motion Prompt ${range} · ${LICENCE} · ${ATTRIBUTION_SITE}#${p.upstreamFirst}`,
     '',
     `Kit for pack "${p.pack}" (${p.title.en} / ${p.title.ja}): the constants and helpers its elements share.`,
     `Elements ${range} · ${W}x${H} px · cycle ${C} s. Element code: ${CONFIG.apiBase}/zh-Hans/e/<id>.txt (or /en/, /ja/).`,
@@ -484,7 +521,7 @@ function packReadme(src, p, lang) {
     '',
     `# ${tx(meta.title, lang)}`,
     '',
-    `${p.count} ${d.names} · #${p.first}–${p.last} · ${d.pack} \`${p.pack}\`` + (others.length ? ` · ${d.langs}: ${others.join(' / ')}` : ''),
+    `${p.count} ${d.names} · ${idRange(p.first, p.last)} · ${d.pack} \`${p.pack}\`` + (others.length ? ` · ${d.langs}: ${others.join(' / ')}` : ''),
     '',
     d.intro,
     '',
@@ -519,10 +556,11 @@ function packsIndex() {
     '| Numbers | Pack | Names | Lists |',
     '|---|---|---|---|',
   ];
-  for (const src of packs) {
-    const p = packOf[src.dir];
+  // 按展示顺序（大类 → 包）列出
+  for (const p of catalog.packs) {
+    const src = byDir[p.pack];
     const lists = src.langs.map(l => `[${LANG_NAME[l] || l}](${p.pack}/${readmeName(l)})`).join(' · ');
-    out.push(`| ${p.first}–${p.last} | \`${p.pack}\` — ${mdCell(src.raw.title[BASE_LANG])} | ${p.count} | ${lists} |`);
+    out.push(`| ${idRange(p.first, p.last).slice(1)} | \`${p.pack}\` — ${mdCell(src.raw.title[BASE_LANG])} | ${p.count} | ${lists} |`);
   }
   out.push('', 'To add a pack for your field, or a language to an existing pack, see [CONTRIBUTING.md](../CONTRIBUTING.md).', '');
   return out.join('\n');
@@ -622,6 +660,6 @@ if (!CHECK_ONLY) {
     fs.writeFileSync(f, text);
   }
 }
-const summary = catalog.packs.map(p => `${p.pack} ${p.first}-${p.last}`).join(', ');
+const summary = catalog.packs.map(p => `${p.pack} ${idRange(p.first, p.last).slice(1)}`).join(', ');
 console.log(`${CHECK_ONLY ? 'checked' : 'built'} ${catalog.count} elements in ${catalog.packs.length} pack(s): ${summary}`);
 console.log(`${CHECK_ONLY ? 'would write' : 'wrote'} ${files.size} files under ${ROOT}${warns.length ? ` · ${warns.length} warning(s)` : ''}`);

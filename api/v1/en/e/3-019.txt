@@ -1,0 +1,34 @@
+// Motion Prompt #3-019 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#043
+//
+// Whip pan / ホイップパン
+// Pack: camera (Camera moves & transitions) · element 19 · Category: Transitions
+// What happens: The camera swings sideways very fast and the next scene is swapped in during the streaked blur.
+// Motion spec:
+//   - Join: 0.8 s, from 1.7 s to 2.5 s; in the first 0.4 s the outgoing shot swings away, in the last 0.4 s the incoming shot swings in and settles
+//   - First half: outgoing yaw 0 → +0.45 rad (about 26°), quadratic ease-in-out; second half: incoming yaw -0.45 rad → 0, same easing
+//   - Swap: a straight replacement at the 50% point, hidden because the blur is at its strongest
+//   - Blur: 9 renders spread over ±1.6 frames (at 30 fps) are averaged
+//   - Camera: height 1.4 m, fixed except during the swing; the subjects (a person in A, a car and city in B) do not move
+//   - Alternates A→B and B→A every 4.7 s (9.4 s for the round trip); top-right readout shows "A → B" / "B → A"
+// When to use it: To change location or topic while keeping the energy up.
+// Tags: whip pan, swish pan, motion blur, fast pan, transition, energy
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-019
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 19
+// 19 ホイップパン（ブレで次の場面へ）
+CELLS[18] = shot(abCell((k, w, h, u, A, B) => {
+  const t0 = 1.7, t1 = 2.5;
+  const at = (kk, s) => {   // s: 0..1 の進み。前半 A を右へ振り、後半 B が左から止まる
+    if (s < .5) world(kk, w, h, cam({ y: 1.4, yaw: eIOs(s * 2) * 0.45 }), A === sceneA ? { person: { x: -0.6, z: 7 } } : SB);
+    else world(kk, w, h, cam({ y: 1.4, yaw: -(1 - eIOs((s - .5) * 2)) * 0.45 }), B === sceneA ? { person: { x: -0.6, z: 7 } } : SB);
+  };
+  if (u < t0) return A(k, w, h);
+  if (u > t1) return B(k, w, h);
+  const s = P(u, t0, t1), ds = 1 / FPS / (t1 - t0);
+  mblur(k, at, clamp(s - ds * 1.6), clamp(s + ds * 1.6), 9);
+}));

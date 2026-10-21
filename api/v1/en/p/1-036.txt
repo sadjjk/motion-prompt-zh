@@ -1,0 +1,15 @@
+Please use "Magnetic button" (マグネティックボタン), one of the names in "Landing page & web effects".
+Motion Prompt #1-036
+
+What it is: The button is pulled toward a nearby cursor
+What the sample shows: As the cursor comes near, the button is drawn toward it and follows; when the cursor leaves, the button wobbles back to its place.
+Spec:
+- A 168 × 52 button (orange, radius 26) in the centre. The pull range is a 110 px radius from the button's centre.
+- Inside the range: target offset = (cursor − button centre) × 0.35; every frame (60 fps) the button covers 18% of the way to the target.
+- On leaving the range it returns from its current offset to 0 over 1.1 s with elastic.out(1, 0.3): 2^(−10x)·sin((x − 0.075)·2π/0.3) + 1.
+- The cursor enters from the left, circles the button and leaves to the right.
+When to use it: Use it on the one button you most want clicked, such as sign-up or contact.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-036.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

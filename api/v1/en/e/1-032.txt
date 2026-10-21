@@ -1,0 +1,42 @@
+// Motion Prompt #1-032 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#080
+//
+// Highlighter animation / マーカーアニメーション
+// Pack: lp (Landing page & web effects) · element 08 · Category: Scroll effects
+// What happens: As the copy scrolls into view, a yellow highlighter stroke is drawn left to right across the lower half of the key words.
+// Motion spec:
+//   - Scroll: 0→90 px at 0.35–1.0 s, 90→180 px at 1.6–2.2 s, 180→0 at 3.3–4.4 s (cubic ease-in-out).
+//   - Two lines of copy (20 px, bold) at 190 px and 290 px down the page, hidden below the view at first.
+//   - When a line's top passes the trigger line (80% of the viewport height, 134 px), the stroke under its key words starts.
+//   - Stroke: yellow #FFE36B, 11 tall, in the lower part of the text (8 px above to 3 px below the baseline). Width 0 → word width from the left over 0.8 s (cubic ease-out), drawn behind the text.
+//   - Lines that leave the bottom of the view are reset out of sight.
+// When to use it: Use it in landing-page copy to make the one phrase that matters stand out as it is read.
+// Tags: highlighter, marker, text-highlight, emphasis, scroll-reveal, copy, underline
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-032
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 08
+// 08 マーカーアニメーション（大事な言葉が画面に入ると、蛍光ペンの線が左から引かれる）
+CELLS[7] = (k, w, h, u) => {
+  frame(k);
+  const SY = t => steps([[0.35, 0], [1.0, 90], [1.6, 90], [2.2, 180], [3.3, 180], [4.4, 0]], t), y = SY(u);
+  const LINE = VH * 0.8, DUR = 0.8, MARK = '#FFE36B', F = `800 20px ${JP}`;
+  const rows = [[190, ['毎日のごはんが', 'たった10分で', '作れる。']], [290, ['はじめてでも', '失敗しないレシピ', 'だけ。']]];
+  view(k, () => {
+    k.save(); k.translate(0, -y);
+    txt(k, '忙しい人のための', 70, 50, `700 14px ${JP}`, C.sub); txt(k, '台所の新しい相棒', 70, 80, `800 24px ${JP}`, C.ink);
+    bars(k, 70, 96, 330, 4, C.faint, 6, 12, 0.8);
+    for (const [base, parts] of rows) {
+      k.font = F; const ws = parts.map(s => k.measureText(s).width); let x = (VW - ws.reduce((a, b) => a + b, 0)) / 2;
+      const t0 = enteredAt(SY, base - 20, LINE, u), q = t0 === null ? 0 : eOut(P(u, t0, t0 + DUR));
+      if (q > 0) { k.fillStyle = MARK; k.fillRect(x + ws[0], base - 8, ws[1] * q, 11); }
+      parts.forEach((s, i) => { txt(k, s, x, base, F, i === 1 ? C.ink : '#4A5368'); x += ws[i]; });
+      bars(k, 110, base + 22, 291, 2, C.faint, 6, 12, 0.7);
+    }
+    k.restore();
+    sbar(k, y / 180, 0.5);
+  });
+};

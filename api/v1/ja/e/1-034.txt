@@ -1,0 +1,34 @@
+// Motion Prompt #1-034 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#082
+//
+// ホバーで画像ズーム / Image zoom on hover
+// パック: lp (LP・Webサイトの演出) · element 10 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: カーソルが乗った写真だけが、枠の大きさは変えずに中身がゆっくり拡大し、離れると戻る。
+// 動きの仕様:
+//   - 写真の枠 222×118（角丸8）を2つ並べる。カーソルが左、右の順に約1.5秒ずつ乗る
+//   - 乗ったら0.5秒で中身の拡大率 1→1.15（中心から・easeOut 3乗）。離れたら同じ0.5秒で戻る
+//   - 枠の外にはみ出した部分は切る（overflow: hidden）。枠と下の文字は動かない
+// 使いどころ: 写真の一覧（実績・商品・記事）で、どれを選ぼうとしているかを伝えたいとき。
+// タグ: hover, zoom, image, scale, overflow-hidden, thumbnail, gallery
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-034
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 10
+// 10 ホバーで画像ズーム（枠はそのままで、中の写真だけがゆっくり拡大する）
+CELLS[9] = (k, w, h, u) => {
+  frame(k);
+  const FX = [22, 267], FY = 16, FW = 222, FH = 118, ZOOM = 0.15;
+  const cur = t => path([[0, 60, 160], [0.5, 120, 70], [1.8, 140, 84], [2.2, 370, 70], [3.4, 390, 84], [3.9, 470, 160], [4.8, 60, 160]], t);
+  view(k, () => {
+    for (let i = 0; i < 2; i++) {
+      const inside = t => { const [x, y] = cur(t); return x > FX[i] && x < FX[i] + FW && y > FY && y < FY + FH; };
+      const q = trans(inside, u, 0.5);
+      pic(k, FX[i], FY, FW, FH, i, 8, 1 + ZOOM * q);
+      txt(k, ['夏の山小屋', '海辺のカフェ'][i], FX[i], FY + FH + 20, `800 13px ${JP}`, C.ink); bars(k, FX[i], FY + FH + 28, 150, 1);
+    }
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
+  });
+};

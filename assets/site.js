@@ -23,7 +23,7 @@
       installPromptH: '让 AI 帮你安装', installPromptP: '将下方说明粘贴到 Claude Code 或 Codex，AI 会安装 Skill 并介绍使用方法。',
       installPrompt: '阅读 {repo}，在当前环境安装 motion-prompt Skill。安装完成后，用三行中文说明如何使用。',
       copy: '复制', copied: '已复制', copyFailed: '复制失败', copyCmdLabel: '复制安装命令', copyInstallLabel: '复制安装说明',
-      groupFilterLabel: '按大类筛选', group_web: '界面与网页', group_motion: '动态图形', group_film: '剪辑与摄影', group_other: '其他',
+      groupFilterLabel: '按大类筛选',
       galleryH: '效果库', packFilterLabel: '按分类包筛选', catFilterLabel: '按子分类筛选', all: '全部', allIn: '本分类全部',
       searchLabel: '搜索效果', searchPh: '中文、英文、编号或标签',
       pause: '暂停', play: '播放', pauseLabel: '暂停全部动画', playLabel: '播放全部动画', count: '{n} 个效果', countOf: '{n} / {total} 个效果',
@@ -68,7 +68,7 @@
       installPrompt: 'https://github.com/showheyohtaki/motion-prompt を読んで、motion-prompt スキルをこの環境に入れてください。入れたら、使い方を3行で教えてください。',
       copy: 'コピー', copied: 'コピーしました', copyFailed: 'コピーできませんでした',
       copyCmdLabel: '導入コマンドをコピー', copyInstallLabel: '導入用のプロンプトをコピー',
-      groupFilterLabel: '大分類で絞り込む', group_web: 'UI・Web', group_motion: 'モーショングラフィックス', group_film: '編集・撮影', group_other: 'その他',
+      groupFilterLabel: '大分類で絞り込む',
       galleryH: '見本の一覧', packFilterLabel: 'パックで絞り込む', catFilterLabel: 'カテゴリで絞り込む',
       all: 'すべて', allIn: 'このパックすべて',
       searchLabel: '見本を探す', searchPh: '名前・番号・タグで探す',
@@ -128,7 +128,7 @@
       installPrompt: 'Read https://github.com/showheyohtaki/motion-prompt and install the motion-prompt skill in this environment. When it is installed, tell me how to use it in three lines.',
       copy: 'Copy', copied: 'Copied', copyFailed: 'Could not copy',
       copyCmdLabel: 'Copy the install command', copyInstallLabel: 'Copy the install prompt',
-      groupFilterLabel: 'Filter by group', group_web: 'UI & Web', group_motion: 'Motion graphics', group_film: 'Editing & photography', group_other: 'Other',
+      groupFilterLabel: 'Filter by group',
       galleryH: 'Gallery', packFilterLabel: 'Filter by pack', catFilterLabel: 'Filter by category',
       all: 'All', allIn: 'All in this pack',
       searchLabel: 'Search the gallery', searchPh: 'Name, number or tag',
@@ -193,26 +193,23 @@
   };
   var packBy = {}, elBy = {}, order = [];
   CAT.packs.forEach(function (p) { packBy[p.pack] = p; });
-  // 展示层大类：只决定效果库的显示顺序与分组，不影响 meta.json 的 order 与全局编号。
-  // 新增分类包时在 GROUP_DEFS 登记；未登记的包归入「其他」组（见 AGENTS.md 数据契约）。
-  var GROUP_DEFS = [
-    { id: 'web', packs: ['ui', 'lp'] },
-    { id: 'motion', packs: ['motion', 'motion2'] },
-    { id: 'film', packs: ['camera', 'photo'] },
-  ];
-  var GROUPS = GROUP_DEFS.map(function (g) {
-    return { id: g.id, packs: g.packs.filter(function (k) { return packBy[k]; }) };
+  // 大类来自 packs/groups.json（经 build 写入 catalog），决定展示顺序与编号前缀
+  var GROUPS = (CAT.groups || []).map(function (g) {
+    return { id: g.id, no: g.no, title: g.title, packs: g.packs.filter(function (k) { return packBy[k]; }) };
   }).filter(function (g) { return g.packs.length; });
-  var listedPacks = {};
-  GROUPS.forEach(function (g) { g.packs.forEach(function (k) { listedPacks[k] = true; }); });
-  var otherPacks = CAT.packs.map(function (p) { return p.pack; }).filter(function (k) { return !listedPacks[k]; });
-  if (otherPacks.length) GROUPS.push({ id: 'other', packs: otherPacks });
   var groupBy = {}, groupOf = {};
   GROUPS.forEach(function (g) {
     g.count = g.packs.reduce(function (s, k) { return s + packBy[k].count; }, 0);
     groupBy[g.id] = g;
     g.packs.forEach(function (k) { groupOf[k] = g.id; });
   });
+  // 编号解析：接受 1-12、1-012、#1-012，归一为 1-012；旧的 3 位纯数字编号不再识别
+  function normId(x) {
+    var m = /^#?([1-9])-(\d{1,3})$/.exec(String(x == null ? '' : x).trim());
+    return m ? m[1] + '-' + ('000' + m[2]).slice(-3) : null;
+  }
+  // 包范围：同一大类内省略后半段前缀，#1-001–024（与 build 生成的 README、kit 一致）
+  function idRange(p) { return p.first === p.last ? '#' + p.first : '#' + p.first + '–' + p.last.split('-')[1]; }
   CAT.elements.forEach(function (e, i) { elBy[e.id] = e; e._i = i; order.push(e.id); });
 
   function t(key, vars) {
@@ -336,7 +333,7 @@
     GROUPS.forEach(function (g) {
       var gsec = h('section', { class: 'group', 'data-group': g.id, 'aria-labelledby': 'group-' + g.id }, [
         h('div', { class: 'group-h' }, [
-          h('h3', { id: 'group-' + g.id, text: t('group_' + g.id) }),
+          h('h3', { id: 'group-' + g.id, text: g.title[state.lang] || g.title.en }),
           h('span', { class: 'group-n' }),
         ]),
       ]);
@@ -381,7 +378,7 @@
       var sec = h('section', { class: 'pack', 'data-pack': p.pack, 'aria-labelledby': 'pack-' + p.pack }, [
         h('div', { class: 'pack-h' }, [
           h('h4', { id: 'pack-' + p.pack, text: p.title[state.lang] }),
-          h('span', { text: '#' + p.first + '–' + p.last }),
+          h('span', { text: idRange(p) }),
         ]),
         list,
       ]);
@@ -391,7 +388,7 @@
   function haystack(el) {
     var p = packBy[el.pack];
     var c = p.categories.filter(function (x) { return x.slug === el.category; })[0] || {};
-    return ['#' + el.id, el.id, String(+el.id), el.slug, el.pack,
+    return ['#' + el.id, el.id, el.slug, el.pack,
       el.name, el.meaning, el.summary, el.aliases || {}, el.tags, p.title, c]
       .map(function (v) { return typeof v === 'object' ? JSON.stringify(v) : v; }).join(' ').toLowerCase();
   }
@@ -403,9 +400,10 @@
     if (!el._hay) el._hay = haystack(el);
     var terms = state.q.toLowerCase().replace(/＃/g, '#').split(/[\s　]+/).filter(Boolean);
     return terms.every(function (term) {
-      if (/^#?\d{1,3}$/.test(term)) { // a number means an ID: "12", "012" and "#012" all find #012
-        var d = term.replace('#', '');
-        return el.id === ('000' + d).slice(-3) || (d.length === 3 && el.id === d);
+      var nid = normId(term);
+      if (nid) return el.id === nid; // 1-12、#1-012 精确定位
+      if (/^#?\d{1,3}$/.test(term)) { // 纯数字匹配大类内序号：012 命中 1-012、2-012、3-012
+        return el.id.split('-')[1] === ('000' + term.replace('#', '')).slice(-3);
       }
       return el._hay.indexOf(term) >= 0;
     });
@@ -432,7 +430,7 @@
   function renderCrumb() {
     var parts = [t('all')];
     var g = groupBy[state.group], p = packBy[state.pack];
-    if (g) parts.push(t('group_' + g.id));
+    if (g) parts.push(g.title[state.lang] || g.title.en);
     if (p) parts.push(p.title[state.lang]);
     if (p && state.cat !== 'all') {
       var c = p.categories.filter(function (x) { return x.slug === state.cat; })[0];
@@ -459,7 +457,7 @@
     groups.textContent = ''; packs.textContent = ''; cats.textContent = '';
     groups.appendChild(segBtn(t('all'), state.group === 'all', CAT.count, function () { setFilter('all', 'all', 'all'); }));
     GROUPS.forEach(function (g) {
-      groups.appendChild(segBtn(t('group_' + g.id), state.group === g.id, g.count, function () { setFilter(g.id, 'all', 'all'); }));
+      groups.appendChild(segBtn(g.title[state.lang] || g.title.en, state.group === g.id, g.count, function () { setFilter(g.id, 'all', 'all'); }));
     });
     var g = groupBy[state.group];
     packs.hidden = !g;
@@ -467,7 +465,7 @@
       packs.appendChild(chip(t('all'), state.pack === 'all', String(g.count), function () { setFilter(g.id, 'all', 'all'); }));
       g.packs.forEach(function (key) {
         var p = packBy[key];
-        packs.appendChild(chip(p.title[state.lang], state.pack === p.pack, '#' + p.first + '–' + p.last, function () { setFilter(g.id, p.pack, 'all'); }));
+        packs.appendChild(chip(p.title[state.lang], state.pack === p.pack, idRange(p), function () { setFilter(g.id, p.pack, 'all'); }));
       });
     }
     var p = packBy[state.pack];
@@ -619,8 +617,8 @@
     if (back && back.focus) back.focus({ preventScroll: true });
   }
   function hashId() {
-    var m = /^#(\d{1,3})$/.exec(location.hash);
-    return m ? ('000' + m[1]).slice(-3) : null;
+    var id = normId(decodeURIComponent(location.hash.slice(1)));
+    return id && elBy[id] ? id : null;
   }
   function syncFromHash() {
     var id = hashId();
@@ -677,8 +675,7 @@
   function cleanIds(list) {
     var out = [];
     (list || []).forEach(function (x) {
-      var m = /^#?(\d{1,3})$/.exec(String(x).trim());
-      var id = m && ('000' + m[1]).slice(-3);
+      var id = normId(x);
       if (id && elBy[id] && out.indexOf(id) < 0) out.push(id);
     });
     return out;

@@ -1,0 +1,15 @@
+Please use "Scroll progress bar" (スクロールプログレスバー), one of the names in "Landing page & web effects".
+Motion Prompt #1-031
+
+What it is: A bar at the top shows how far you have read
+What the sample shows: As the article is read a bit at a time, the line along the top grows from the left and reaches the far end at the bottom of the page.
+Spec:
+- The article scrolls 0→430 px in four 110 px steps, each moving for 0.45 s then pausing 0.4 s (cubic ease-in-out).
+- It returns 430→0 at 3.75–4.55 s.
+- A 6 px bar along the top of the viewport: light grey track, orange fill.
+- Fill width = 511 px × scroll / 430, the scroll fraction itself (the same as CSS animation-timeline: scroll()).
+When to use it: Use it on long articles to show how much is left to read.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-031.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

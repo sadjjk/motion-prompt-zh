@@ -1,0 +1,39 @@
+// Motion Prompt #1-007 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#055
+//
+// Popover / ポップオーバー
+// Pack: ui (UI component names) · element 07 · Category: Opening & overlays
+// What happens: Clicking "Details" opens a small white panel to its right with a pointer at the button; clicking OK inside closes it.
+// Motion spec:
+//   - 4.5 s cycle on a 542×191 card. An outlined blue "Details" button (108×36) at (24, 112); the cursor clicks it at 1.0 s.
+//   - Show amount a: 0→1 over 1.0–1.28 s with easeOutCubic; opacity a, sliding 6 px in from the right.
+//   - Panel: white 300×120, radius 10, at (156, 62), 1 px border, shadow blur 22, offset y 6. A 10-wide triangle on its left edge (y 122–138) points at the button.
+//   - Inside: a bold title bar, two text lines, an outlined 70×26 button and a blue 72×26 OK button.
+//   - Close: the cursor moves to OK (402, 157) by 3.0 s and clicks at 3.3 s; a is multiplied by (1 − easeInOutCubic over 3.3–3.5 s).
+// When to use it: Use it for a short setting or confirmation that belongs right next to the button that opened it.
+// Tags: popover, popup, callout, bubble, flyout, overlay
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-007
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 07
+// 07 ポップオーバー（Popover）
+CELLS[6] = ui((w, h, t) => {
+  pageLines(24, 16, 494);
+  strokeRR(24, 112, 108, 36, 8, C.blue, 2); text('詳細', 78, 130, 15, C.blue, 600, 'center');
+  fillRR(24, 160, 494, 22, 6, C.block);
+  const a = eo(seg(t, 1.0, 1.28)) * (1 - eio(seg(t, 3.3, 3.5)));
+  if (a > 0) {
+    X.save(); X.globalAlpha = a; X.translate(6 * (1 - a), 0);
+    const px = 156, py = 62, pw = 300, ph = 120;
+    shadowed(() => { fillRR(px, py, pw, ph, 10, '#fff'); }, 22, 6, .2); strokeRR(px, py, pw, ph, 10, C.border, 1);
+    X.beginPath(); X.moveTo(px + 1, 122); X.lineTo(px - 10, 130); X.lineTo(px + 1, 138); X.fillStyle = '#fff'; X.fill();
+    X.beginPath(); X.moveTo(px, 122); X.lineTo(px - 10, 130); X.lineTo(px, 138); X.strokeStyle = C.border; X.lineWidth = 1; X.stroke();
+    bar(px + 18, py + 18, 130, C.ink, 11); bar(px + 18, py + 42, 250); bar(px + 18, py + 60, 200);
+    strokeRR(px + 130, py + 82, 70, 26, 6, C.line2, 1.5); fillRR(px + 210, py + 82, 72, 26, 6, C.blue); text('OK', px + 246, py + 95, 14, '#fff', 700, 'center', NUMF);
+    X.restore();
+  }
+  pointer([[.3, w + 30, h + 30], [.95, 84, 134], [1.6, 84, 134], [3.0, 402, 157], [3.5, 402, 157], [4.2, w + 30, h + 30]], [1.0, 3.3], t);
+});

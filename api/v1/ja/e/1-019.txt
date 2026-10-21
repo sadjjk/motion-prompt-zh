@@ -1,0 +1,39 @@
+// Motion Prompt #1-019 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#067
+//
+// メガメニュー / Mega menu
+// パック: ui (UIパーツの名前) · element 19 · カテゴリ: 案内する・状態を伝えるパーツ
+// 何が起きるか: ヘッダーの「製品」にカーソルを乗せると、全幅のパネルが下りて3列のリンクと画像が並ぶ。離れると閉じる。
+// 動きの仕様:
+//   - 4.5秒周期・カード542×191。高さ42のヘッダーに「製品・料金・サポート」（各16px、下向き矢印付き）
+//   - カーソルは押さずに乗せるだけ: 1.0秒に「製品」へ着く。開く量 a: 1.05〜1.3秒に easeOutCubic で 0→1。「製品」は青・下線付きになる
+//   - パネル: 白・全幅・高さ146。ヘッダーの下から12px上から下りつつ不透明度 a で出る。影 blur 18・下へ8
+//   - 中身: 130px間隔の3列（青い見出しと3つのリンク）と、右に絵 104×112。カーソルが下りて1.75〜2.9秒に2列目の2つ目のリンクを薄い青で強調
+//   - 閉じる: カーソルが2.9秒からパネルの外へ出て、3.15〜3.4秒に (1 − easeInOutCubic) で消える
+// 使いどころ: 製品やサービスが多いサイトで、全体を一度に見渡せるメニューにしたいとき。
+// タグ: mega-menu, megamenu, dropdown-navigation, navigation, header-menu, multi-column
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-019
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 19
+// 19 メガメニュー（Mega menu）
+CELLS[18] = ui((w, h, t) => {
+  const a = eo(seg(t, 1.05, 1.3)) * (1 - eio(seg(t, 3.15, 3.4)));
+  pageLines(24, 62, 494); fillRR(24, 130, 494, 50, 8, C.block);
+  X.fillStyle = '#fff'; X.fillRect(0, 0, w, 42); X.fillStyle = C.line; X.fillRect(0, 42, w, 1.5);
+  fillRR(24, 14, 70, 16, 4, C.mb);
+  const nav = [['製品', 190], ['料金', 262], ['サポート', 334]];
+  nav.forEach(([s, x], i) => { const on = i === 0 && a > .3; text(s, x, 22, 16, on ? C.blue : '#555', on ? 700 : 600); if (on) fillRR(x, 36, tw(s, 16, 700), 3, 1.5, C.blue); chevron(x + tw(s, 16, 700) + 10, 22, 3.5, 0, on ? C.blue : '#999', 1.8); });
+  if (a > 0) {
+    X.save(); X.globalAlpha = a; X.beginPath(); X.rect(0, 43, w, h); X.clip(); const py = 43 - 12 * (1 - a);
+    shadowed(() => { X.fillStyle = '#fff'; X.fillRect(0, py, w, 146); }, 18, 8, .16);
+    for (let c = 0; c < 3; c++) { const cx = 24 + c * 130; bar(cx, py + 16, 80, C.blue, 10); for (let k = 0; k < 3; k++) { const hov = c === 1 && k === 1 && t > 1.75 && t < 2.9; if (hov) fillRR(cx - 6, py + 34 + k * 26, 112, 22, 5, C.lb); bar(cx, py + 40 + k * 26, [90, 70, 100][(k + c) % 3], hov ? C.sb : C.line2, 9); } }
+    mountains(414, py + 14, 104, 112);
+    X.restore();
+  }
+  // 乗せるだけで開く（クリックしない）
+  pointer([[.3, w + 30, h + 30], [1.0, 205, 26], [1.4, 205, 26], [1.8, 196, 98], [2.9, 196, 98], [3.2, 300, 200], [3.9, w + 30, h + 30]], [], t);
+});

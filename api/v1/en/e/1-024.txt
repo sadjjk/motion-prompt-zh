@@ -1,0 +1,47 @@
+// Motion Prompt #1-024 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#072
+//
+// Empty state / エンプティステート
+// Pack: ui (UI component names) · element 24 · Category: Navigation & status
+// What happens: Deleting the two list rows with their trash icons brings up an empty-box drawing, "Nothing here yet" and an "Add" button.
+// Motion spec:
+//   - 4.5 s cycle on a 542×191 card. A two-row list (494×48, radius 8, a trash icon at the right).
+//   - The cursor clicks the trash icons at 0.95 s and 1.65 s. Each row slides 60 px left while fading out over 0.3 s (easeInOutCubic); the second row moves up 58 px into the first slot.
+//   - Over 1.95–2.3 s (linear) the empty state fades in while rising 8 px: a blue line drawing of an inbox tray, "Nothing here yet" (16 px, in Japanese) and a blue "Add" button (112×34).
+//   - The cursor clicks "Add" at 3.3 s; the empty state fades over 3.25–3.45 s and the two rows come back from the left over 3.35–3.7 s with easeOutCubic.
+// When to use it: Use it for first-use screens or no-results pages to tell people what to do next.
+// Tags: empty-state, no-data, zero-state, blank-state, no-results, onboarding
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-024
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 24
+// 24 エンプティステート（Empty state）
+CELLS[23] = ui((w, h, t) => {
+  const r1 = eio(seg(t, 0.95, 1.25)), r2 = eio(seg(t, 1.65, 1.95));
+  const back = eo(seg(t, 3.35, 3.7));
+  const empty = seg(t, 1.95, 2.3) * (1 - seg(t, 3.25, 3.45));
+  bar(24, 14, 130, C.line2, 11);
+  const rows = [[r1, 0], [r2, 1]];
+  rows.forEach(([g, i]) => {
+    const gone = back > 0 ? 1 - back : g; if (gone >= 1) return;
+    const y = 40 + i * 58 - (i === 1 ? 58 * (back > 0 ? 0 : r1) : 0);
+    X.save(); X.globalAlpha = 1 - gone; X.translate(-60 * gone, 0);
+    strokeRR(24, y, 494, 48, 8, C.line2, 1.5); ring(48, y + 24, 9, C.line2, 2); bar(70, y + 12, 200, C.line2, 10); bar(70, y + 28, 140, C.line, 7);
+    // ゴミ箱
+    X.strokeStyle = '#888'; X.lineWidth = 2; X.lineJoin = 'round'; X.strokeRect(476, y + 18, 16, 18); X.beginPath(); X.moveTo(472, y + 17); X.lineTo(496, y + 17); X.moveTo(480, y + 13); X.lineTo(488, y + 13); X.stroke();
+    X.restore();
+  });
+  if (empty > 0) {
+    X.save(); X.globalAlpha = empty; const cy = 70 + 8 * (1 - empty);
+    X.strokeStyle = C.blue; X.lineWidth = 2.6; X.lineJoin = 'round';
+    X.beginPath(); X.moveTo(w / 2 - 26, cy - 4); X.lineTo(w / 2 - 18, cy - 22); X.lineTo(w / 2 + 18, cy - 22); X.lineTo(w / 2 + 26, cy - 4); X.lineTo(w / 2 + 26, cy + 16); X.lineTo(w / 2 - 26, cy + 16); X.closePath(); X.stroke();
+    X.beginPath(); X.moveTo(w / 2 - 26, cy - 4); X.lineTo(w / 2 - 9, cy - 4); X.lineTo(w / 2 - 6, cy + 3); X.lineTo(w / 2 + 6, cy + 3); X.lineTo(w / 2 + 9, cy - 4); X.lineTo(w / 2 + 26, cy - 4); X.stroke();
+    text('まだ何もありません', w / 2, cy + 40, 16, '#555', 600, 'center');
+    fillRR(w / 2 - 56, cy + 62, 112, 34, 8, C.blue); text('追加する', w / 2, cy + 79, 15, '#fff', 600, 'center');
+    X.restore();
+  }
+  pointer([[.3, w + 30, h + 30], [.9, 486, 67], [1.25, 486, 67], [1.6, 486, 67], [2.4, 486, 67], [3.2, w / 2 + 4, 156], [3.5, w / 2 + 4, 156], [4.2, w + 30, h + 30]], [0.95, 1.65, 3.3], t);
+});

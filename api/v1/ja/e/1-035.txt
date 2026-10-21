@@ -1,0 +1,35 @@
+// Motion Prompt #1-035 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#083
+//
+// マウスストーカー / Cursor follower
+// パック: lp (LP・Webサイトの演出) · element 11 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: カーソルがページの上を動き回ると、朱色の丸が少し遅れてそのあとを追いかける。
+// 動きの仕様:
+//   - カーソルの道筋: x = 255 + 175·sin(2πt/4.8)、y = 86 + 46·sin(4πt/4.8)（8の字を横に寝かせた形・4.8秒で1周）
+//   - 丸: 半径17・朱色・不透明度0.88。カーソルの下に描く
+//   - 追いかけ方: 毎フレーム（60fps）残りの距離の12%ずつ近づく（x += (カーソルのx − x) × 0.12）
+//   - カーソル（矢印）はそのまま見せる
+// 使いどころ: ブランドサイトやポートフォリオで、触っている感じや遊び心を足したいとき。
+// タグ: cursor, custom-cursor, cursor-follower, mouse-follow, lerp, trail, interaction
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-035
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 11
+// 11 マウスストーカー（カーソルのあとを、丸が少し遅れて追いかける）
+CELLS[10] = (k, w, h, u) => {
+  frame(k);
+  const cur = t => [255 + 175 * Math.sin(2 * Math.PI * t / CYC), 86 + 46 * Math.sin(4 * Math.PI * t / CYC)];
+  // 毎フレーム（60fps）残りの距離の 12% ずつ近づく
+  let t = u - 2, [fx, fy] = cur(t);
+  for (let i = 0; i < 120; i++) { t += 1 / 60; const [tx, ty] = cur(t); fx += (tx - fx) * 0.12; fy += (ty - fy) * 0.12; }
+  view(k, () => {
+    txt(k, 'CREATIVE STUDIO', VW / 2, 74, `800 34px ${EN}`, C.ink, 'center', 'alphabetic', '3px');
+    bars(k, VW / 2 - 120, 96, 240, 2, C.faint, 6, 12, 0.7);
+    btn(k, VW / 2 - 50, 128, 100, 24, '作品を見る', C.ink);
+    k.fillStyle = C.acc; k.globalAlpha = 0.88; k.beginPath(); k.arc(fx, fy, 17, 0, 7); k.fill(); k.globalAlpha = 1;
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
+  });
+};

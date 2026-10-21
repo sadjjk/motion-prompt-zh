@@ -1,0 +1,16 @@
+Please use "Low-key" (ローキー), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-042
+
+What it is: A dark image where only the lit parts stand out
+What the sample shows: Most of the frame sinks into darkness and the sun goes out; only the right edge of the bust, lit from the side, stays bright. The histogram hump moves to the left end.
+Spec:
+- Scene 3: a bust on the left (head centre x 140, y 82, radius 28 px) and hills, a house, trees and the sun (x 432, y 54, radius 15 px) on the right. 
+- Colour: sky #FAF9F7 → #2B2D33, hills → #313339 and #36383E, ground → #24252A, figure → #25272E; the sun and its rings take the sky colour and disappear
+- The lit right edge of the bust stays, #FFC75A → #FFB547
+- Histogram: peak centre 0.56 → 0.14, width 0.2 → 0.08
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1)))
+When to use it: For luxurious, tense or mysterious images.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-042.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

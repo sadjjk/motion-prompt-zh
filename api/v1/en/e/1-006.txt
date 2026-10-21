@@ -1,0 +1,36 @@
+// Motion Prompt #1-006 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#054
+//
+// Tooltip / ツールチップ
+// Pack: ui (UI component names) · element 06 · Category: Opening & overlays
+// What happens: Hovering over a "?" icon shows a short note in a dark bubble above it; it disappears when the cursor leaves.
+// Motion spec:
+//   - 4.5 s cycle on a 542×191 card. A "?" icon (blue ring, radius 13) at (196, 121) next to a label.
+//   - The cursor only hovers, no click: it arrives on "?" at 1.05 s, stays until 3.15 s and leaves the card by 4.1 s.
+//   - Show amount a: 0→1 over 1.15–1.35 s with easeOutCubic; opacity a, rising 6 px into place.
+//   - Bubble: #26282c, 184×36, radius 8, top at y 64, with a 16-wide, 8-tall triangle pointing down at the icon; white 15 px text.
+//   - Hide: linear 1→0 over 3.25–3.45 s.
+// When to use it: Use it to add a one-line hint to an icon or abbreviation without taking space on the page.
+// Tags: tooltip, hint, hover, help, info, title
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-006
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 06
+// 06 ツールチップ（Tooltip）
+CELLS[5] = ui((w, h, t) => {
+  pageLines(24, 16, 494);
+  bar(24, 116, 150, C.line2, 11); ring(196, 121, 13, C.blue, 2.2); text('?', 196, 122, 16, C.blue, 700, 'center', NUMF);
+  fillRR(24, 146, 494, 34, 8, C.block);
+  const a = eo(seg(t, 1.15, 1.35)) * (1 - seg(t, 3.25, 3.45));
+  if (a > 0) {
+    X.save(); X.globalAlpha = a; const yy = 64 + 6 * (1 - a);
+    fillRR(196 - 92, yy, 184, 36, 8, C.dark);
+    X.beginPath(); X.moveTo(196 - 8, yy + 36); X.lineTo(196, yy + 44); X.lineTo(196 + 8, yy + 36); X.fillStyle = C.dark; X.fill();
+    text('小さな説明が出る', 196, yy + 18, 15, '#fff', 600, 'center'); X.restore();
+  }
+  // 乗せるだけ（クリックしない）
+  pointer([[.3, w + 30, h + 30], [1.05, 200, 126], [3.15, 200, 126], [4.1, w + 30, h + 30]], [], t);
+});

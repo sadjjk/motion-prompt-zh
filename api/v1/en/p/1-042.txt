@@ -1,0 +1,16 @@
+Please use "Lazy loading" (遅延読み込み), one of the names in "Landing page & web effects".
+Motion Prompt #1-042
+
+What it is: Images load only when they come into view
+What the sample shows: As grey placeholders scroll into view, a spinner turns in each, and the images fade in as they arrive. The top row is loaded from the start.
+Spec:
+- A 3 × 3 grid of 151 × 92 placeholders; the first row is shown from the start. Scroll: 0→110 px at 0.35–1.1 s, 110→225 px at 1.7–2.5 s, 225→0 at 3.5–4.5 s (cubic ease-in-out).
+- Loading starts when a placeholder's top edge passes above the bottom of the viewport (168 px), with each column 0.12 s later than the one to its left.
+- For 0.45 s a spinner (radius 11, one turn per 0.8 s) turns in the placeholder's centre.
+- Then the image fades in 0→1 over 0.35 s (cubic ease-out). Unloaded placeholders show an image icon.
+- Placeholders that leave the bottom of the view are reset out of sight.
+When to use it: Use it on image-heavy pages to make the first view load faster.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-042.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

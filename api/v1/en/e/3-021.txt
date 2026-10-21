@@ -1,0 +1,29 @@
+// Motion Prompt #3-021 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#045
+//
+// Wipe / ワイプ
+// Pack: camera (Camera moves & transitions) · element 21 · Category: Transitions
+// What happens: A vertical edge moves from left to right and the next picture replaces the current one behind it.
+// Motion spec:
+//   - Join: 1.1 s, from 1.7 s to 2.8 s; the edge travels from just outside the left side (x = -4 px) to just outside the right side (x = 543 px)
+//   - Easing: cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1))
+//   - The incoming picture shows left of the edge and the outgoing one right of it; neither picture moves (a reveal by clipping, not a push)
+//   - Edge: a 4 px blue vertical line, visible only while it is moving
+//   - Camera: fixed in both pictures; the subjects do not move either
+//   - Alternates A→B and B→A every 4.7 s (9.4 s for the round trip); top-right readout shows "A → B" / "B → A"
+// When to use it: To mark a clear change of scene or topic, or to switch between the two sides of a comparison.
+// Tags: wipe, linear wipe, reveal, clip, edge, left to right, transition
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-021
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 21
+// 21 ワイプ
+CELLS[20] = shot(abCell((k, w, h, u, A, B) => {
+  const p = eIO(P(u, 1.7, 2.8)), ex = p * (w + 8) - 4;
+  A(k, w, h);
+  if (p > 0) { k.save(); k.beginPath(); k.rect(0, 0, ex, h); k.clip(); k.fillStyle = '#fff'; k.fillRect(0, 0, w, h); B(k, w, h); k.restore(); }
+  if (p > 0 && p < 1) { k.fillStyle = C.blue; k.fillRect(ex - 2, 0, 4, h); }
+}));

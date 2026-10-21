@@ -1,0 +1,25 @@
+// Motion Prompt #3-004 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#028
+//
+// Zoom in / ズームイン
+// Pack: camera (Camera moves & transitions) · element 04 · Category: Camera Movement
+// What happens: The camera does not move; only the focal length gets longer, so the whole picture enlarges by the same ratio.
+// Motion spec:
+//   - Camera: position and direction fixed (height 1.5 m); only the focal length changes, 330 px → 1200 px (shown as 24mm → 87mm, about 3.6×)
+//   - Exponential interpolation: f = 330 × (8/2.2)^p, where p is a cubic ease-in-out from 0.5 s to 3.4 s (2.9 s)
+//   - Subject: a person stands still 8 m ahead; the final size matches 03 Dolly in (about 3.6×)
+//   - No parallax: the foreground post and rock, the person, buildings and mountains all scale by the same ratio (overlaps do not change)
+//   - Return: hold 3.4–4.2 s, then cross-fade back to the start over the last 0.5 s (one pass = 4.7 s)
+//   - Top-right readout shows the focal length in mm (24mm → 87mm)
+// When to use it: To direct attention to one point without moving the camera; it looks flatter and more observational than a dolly in.
+// Tags: zoom, zoom in, focal length, lens, magnify, telephoto, camera move
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-004
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 04
+// 04 ズームイン: 位置は固定・焦点距離だけ伸びる（全体が同じ比率で拡大）
+CELLS[3] = shot(camCell((k, w, h, p) => world(k, w, h, cam({ f: F0 * Math.pow(8 / 2.2, p) }), { person: { z: 8 }, fg: [[-1.5, 3.6], [1.6, 4.8, 'rock']] }),
+  p => mm(F0 * Math.pow(8 / 2.2, p))));

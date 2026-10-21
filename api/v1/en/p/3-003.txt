@@ -1,0 +1,17 @@
+Please use "Dolly in" (ドリーイン), one of the names in "Camera moves & transitions".
+Motion Prompt #3-003
+
+What it is: Move the camera toward the subject
+What the sample shows: The camera itself moves toward the subject; near objects grow and pass quickly while the distant mountains barely change.
+Spec:
+- Camera: moves forward (in depth) 0 m → 5.8 m; height 1.5 m, direction and focal length (330 px, shown as 24mm) fixed
+- Timing: 0.5 s to 3.4 s (2.9 s), cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1))
+- Subject: a person stands still 8 m ahead; distance goes 8 m → 2.2 m, so they appear about 3.6× larger
+- Parallax: a foreground post (1.5 m left, 3.6 m deep) and a rock (1.6 m right, 4.8 m deep) pass out of frame; mountains 120 m+ away stay almost the same size
+- Return: hold 3.4–4.2 s, then cross-fade back to the start over the last 0.5 s (one pass = 4.7 s)
+- The top-right readout stays at 24mm (the difference from 04 Zoom in)
+When to use it: To move in on a person or detail while keeping a sense of depth.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-003.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,39 @@
+// Motion Prompt #1-030 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#078
+//
+// スクロールスナップ / Scroll snap
+// パック: lp (LP・Webサイトの演出) · element 06 · カテゴリ: スクロールで起きる演出
+// 何が起きるか: 少しだけスクロールすると、残りは自動で送られて、次のセクションの頭がちょうど画面の上にそろう。
+// 動きの仕様:
+//   - セクションの高さ = 表示域の高さ（168px）。1つ目は薄い青地、2つ目は濃紺
+//   - 2.4秒で1回。0.45〜0.85秒に手で34pxだけスクロール（easeOut 3乗）
+//   - 0.9〜1.5秒に残りの134pxを自動で送り、次のセクションの頭に合わせる（easeOut 3乗）
+//   - 後半の2.4秒は同じ動きを上向きに行い、1つ目のセクションへ戻る（scroll-snap-type: y mandatory の動き）
+// 使いどころ: 1画面ずつ区切って見せるLPや、スライドのようなページにしたいとき。
+// タグ: scroll-snap, snap, full-page, sections, css, mandatory, scroll
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-030
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 06
+// 06 スクロールスナップ（少しスクロールすると、次のセクションの頭までピタッと送られる）
+CELLS[5] = (k, w, h, u) => {
+  frame(k);
+  const T = CYC / 2, lu = mod(u, T), dir = u < T ? 1 : -1, from = u < T ? 0 : VH, DRIFT = 34;
+  const y = from + dir * (DRIFT * eOut(P(lu, 0.45, 0.85)) + (VH - DRIFT) * eOut(P(lu, 0.9, 1.5)));
+  view(k, () => {
+    k.save(); k.translate(0, -y);
+    for (let i = 0; i < 2; i++) {
+      const y0 = i * VH, dark = i === 1;
+      k.fillStyle = dark ? C.ink : C.blueL; k.fillRect(0, y0, VW, VH);
+      txt(k, '0' + (i + 1), 34, y0 + 70, `800 46px ${EN}`, C.acc);
+      txt(k, dark ? '使ってみる' : '知ってもらう', 34, y0 + 102, `800 18px ${JP}`, dark ? '#fff' : C.ink);
+      bars(k, 34, y0 + 118, 170, 2, dark ? 'rgba(255,255,255,.3)' : '#C3CDEA');
+      pic(k, 262, y0 + 24, 220, 120, dark ? 2 : 0, 8);
+    }
+    k.restore();
+    sbar(k, y / VH, 0.5);
+  });
+};

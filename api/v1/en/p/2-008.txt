@@ -1,0 +1,17 @@
+Please use "Kinetic typography" (キネティックタイポグラフィ), one of the names in "Motion graphics moves".
+Motion Prompt #2-008
+
+What it is: Words move, scale and turn in time with what is said
+What the sample shows: Words move the way they mean: one stretches, one bounces, one spins, one slams down.
+Spec:
+- Four words, 1.175 s each (bold 88 px). Each exits in its last 0.2 s, fading out while moving 46 px up (cubic ease-in).
+- Stretch (blue): horizontal scale 0.3→1 with spring 1 − e^(−4.2t)·cos(12t); vertical scale is 1/√(horizontal).
+- Bounce (yellow): characters staggered by 0.1 s; height 78 px × |sin(πt/0.4)| × e^(−2.6t); squashed vertically by up to 16% at each contact.
+- Spin (mint): characters staggered by 0.12 s; rotation −360°→0° over 0.62 s with backOut (s = 1.3); scale 0→1 over 0.25 s, cubic ease-out.
+- Slam (coral, 100 px, slanted): scale 3.4→1 at 0.02–0.2 s with cubic ease-in.
+- After impact: horizontal shake 10 px × e^(−9t) × sin(38t), vertical squash 20% × e^(−11t), and 8 radial lines for 0.4 s.
+When to use it: Use it to make key words from narration or lyrics memorable through how they move.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-008.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

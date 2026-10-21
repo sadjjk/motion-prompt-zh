@@ -1,0 +1,38 @@
+// Motion Prompt #1-033 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#081
+//
+// ホバーで浮き上がる / Hover lift
+// パック: lp (LP・Webサイトの演出) · element 09 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: カーソルが乗ったカードだけが少し上に持ち上がり、下の影が広がる。カーソルが離れると元に戻る。
+// 動きの仕様:
+//   - カード3枚（146×128・角丸10）。カーソルが左から順に約1秒ずつ乗る
+//   - 乗ったら0.3秒で上へ10px（easeOut 3乗）。離れたら同じ0.3秒で戻る（CSS の transition と同じ）
+//   - 影: ぼかし 6→22px、下へのずれ 2→12px、濃さ 0.08→0.22 を移動と一緒に変える
+//   - 地は薄いグレー、カードは白（影が見えるように）
+// 使いどころ: カード・ボタンなど、押せる物を押せそうに見せたいとき。
+// タグ: hover, lift, float, card, shadow, translatey, interaction
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-033
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 09
+// 09 ホバーで浮き上がる（カーソルが乗ったカードが、影をつけて少し持ち上がる）
+CELLS[8] = (k, w, h, u) => {
+  frame(k);
+  const CX = [26, 192, 358], CY = 18, CWD = 146, CHT = 128, LIFT = 10;
+  const cur = t => path([[0, 70, 160], [0.45, 96, 78], [1.4, 110, 86], [1.62, 262, 80], [2.5, 276, 88], [2.72, 428, 80], [3.6, 440, 88], [4.0, 470, 160], [4.8, 70, 160]], t);
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 3; i++) {
+      const inside = t => { const [x, y] = cur(t); return x > CX[i] && x < CX[i] + CWD && y > CY && y < CY + CHT; };
+      const q = trans(inside, u, 0.3), x = CX[i], y = CY - LIFT * q;
+      k.save(); k.shadowColor = `rgba(28,35,51,${0.08 + 0.14 * q})`; k.shadowBlur = 6 + 16 * q; k.shadowOffsetY = 2 + 10 * q;
+      k.fillStyle = '#fff'; rr(k, x, y, CWD, CHT, 10); k.fill(); k.restore();
+      pic(k, x + 8, y + 8, CWD - 16, 66, i, 6);
+      txt(k, ['山の宿', '海の宿', '星の宿'][i], x + 12, y + 96, `800 13px ${JP}`, C.ink); bars(k, x + 12, y + 106, 100, 1);
+    }
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
+  });
+};

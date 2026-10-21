@@ -1,0 +1,16 @@
+Please use "Bottom sheet" (ボトムシート), one of the names in "UI component names".
+Motion Prompt #1-003
+
+What it is: A panel slides up from the bottom of the screen
+What the sample shows: A finger taps "View details" and a panel rises from the bottom; dragging its handle down closes it.
+Spec:
+- 4.5 s cycle on a 542×191 card. A finger (semi-transparent circle, radius 17, white rim) taps the "View details" pill (170×36, bottom centre) at 1.0 s.
+- Open amount: 0→1 over 1.05–1.45 s with easeOutCubic. Full-card scrim rgba(18,20,28) at opacity 0.36·a.
+- Sheet: white, 136 tall, top corners radius 18, top edge at y = 191 − 136·a. Shadow blur 22, offset y −4. A 52×6 grab handle at top centre.
+- Inside: a bold title bar and two rows with 26×26 icons.
+- Close: the finger lands on the handle (271, 68) at 2.75 s and drags down over 3.0–3.6 s; a is multiplied by (1 − easeInOutCubic over 3.0–3.6 s), so the sheet follows the finger off the bottom.
+When to use it: Use it on mobile to show details or choices while keeping the current screen in view.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-003.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

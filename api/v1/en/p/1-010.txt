@@ -1,0 +1,16 @@
+Please use "Carousel" (カルーセル), one of the names in "UI component names".
+Motion Prompt #1-010
+
+What it is: Slides that move sideways to show one item at a time
+What the sample shows: Each click on the right arrow slides a row of three different images one step to the left, and the dot below moves.
+Spec:
+- 4.5 s cycle on a 542×191 card. Slides 330×138, radius 8, centred with an 18 px gap; the neighbours peek in at the edges.
+- White round buttons (radius 18, shadow blur 10) with chevrons at left and right; three dots below (current one blue 16×8, others 8×8).
+- The cursor clicks the right arrow (514, 88) at 1.0, 2.1 and 3.2 s.
+- Each click moves the row 348 px left (one slide plus gap) over 0.4 s with easeInOutCubic.
+- The three pictures (landscape, three circles, bar chart) repeat, so after three moves the first is back.
+When to use it: Use it to show several images or featured items in limited space, one at a time.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-010.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

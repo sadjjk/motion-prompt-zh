@@ -2,7 +2,7 @@
 
 # Landing page & web effects
 
-24 names · #073–096 · pack `lp` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+24 names · #1-025–048 · pack `lp` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -10,41 +10,41 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
-| [#073](https://sadjjk.github.io/motion-prompt-zh/#073) | **Parallax scrolling** | On scroll, background layers move slower than the content | Make the hero background a parallax scroll: move it at 0.3× the scroll distance. |
-| [#074](https://sadjjk.github.io/motion-prompt-zh/#074) | **Fade-in on scroll** | Elements fade in as they scroll into view | Fade in each section's heading and cards on scroll: up from 30 px below, over 0.6 s. |
-| [#075](https://sadjjk.github.io/motion-prompt-zh/#075) | **Sticky header** | The header stays at the top while the page scrolls | Make the header a sticky header, with a soft shadow once it sticks to the top. |
-| [#076](https://sadjjk.github.io/motion-prompt-zh/#076) | **Pinning** | A section stays fixed while scrolling advances its content | Pin the three-step section and switch the photo and number one step at a time as the user scrolls. |
-| [#077](https://sadjjk.github.io/motion-prompt-zh/#077) | **Horizontal scroll** | Scrolling down moves the content sideways | Turn the work section into a horizontal scroll: move the cards left as far as the user scrolls down. |
-| [#078](https://sadjjk.github.io/motion-prompt-zh/#078) | **Scroll snap** | Scrolling settles exactly on the next section | Add scroll snap per section, so a small scroll lands on the top of the next section. |
-| [#079](https://sadjjk.github.io/motion-prompt-zh/#079) | **Scroll progress bar** | A bar at the top shows how far you have read | Add a scroll progress bar at the top of the article page, 4 px thick, in the brand orange. |
-| [#080](https://sadjjk.github.io/motion-prompt-zh/#080) | **Highlighter animation** | A highlighter stroke is drawn under key words | When the key phrase scrolls into view, draw a yellow highlighter animation under it, left to right in 0.8 s. |
+| [#1-025](https://sadjjk.github.io/motion-prompt-zh/#1-025) | **Parallax scrolling** | On scroll, background layers move slower than the content | Make the hero background a parallax scroll: move it at 0.3× the scroll distance. |
+| [#1-026](https://sadjjk.github.io/motion-prompt-zh/#1-026) | **Fade-in on scroll** | Elements fade in as they scroll into view | Fade in each section's heading and cards on scroll: up from 30 px below, over 0.6 s. |
+| [#1-027](https://sadjjk.github.io/motion-prompt-zh/#1-027) | **Sticky header** | The header stays at the top while the page scrolls | Make the header a sticky header, with a soft shadow once it sticks to the top. |
+| [#1-028](https://sadjjk.github.io/motion-prompt-zh/#1-028) | **Pinning** | A section stays fixed while scrolling advances its content | Pin the three-step section and switch the photo and number one step at a time as the user scrolls. |
+| [#1-029](https://sadjjk.github.io/motion-prompt-zh/#1-029) | **Horizontal scroll** | Scrolling down moves the content sideways | Turn the work section into a horizontal scroll: move the cards left as far as the user scrolls down. |
+| [#1-030](https://sadjjk.github.io/motion-prompt-zh/#1-030) | **Scroll snap** | Scrolling settles exactly on the next section | Add scroll snap per section, so a small scroll lands on the top of the next section. |
+| [#1-031](https://sadjjk.github.io/motion-prompt-zh/#1-031) | **Scroll progress bar** | A bar at the top shows how far you have read | Add a scroll progress bar at the top of the article page, 4 px thick, in the brand orange. |
+| [#1-032](https://sadjjk.github.io/motion-prompt-zh/#1-032) | **Highlighter animation** | A highlighter stroke is drawn under key words | When the key phrase scrolls into view, draw a yellow highlighter animation under it, left to right in 0.8 s. |
 
 ## Hover & click interactions
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
-| [#081](https://sadjjk.github.io/motion-prompt-zh/#081) | **Hover lift** | On hover, the element rises with a deeper shadow | Give the cards a hover lift: up 8 px with a deeper shadow, over 0.3 s. |
-| [#082](https://sadjjk.github.io/motion-prompt-zh/#082) | **Image zoom on hover** | The photo enlarges inside a fixed frame | Add an image zoom on hover to the work photos: fixed frame, content to 1.1× over 0.5 s. |
-| [#083](https://sadjjk.github.io/motion-prompt-zh/#083) | **Cursor follower** | A shape trails the mouse pointer with a delay | Add a cursor follower across the site: a 30 px orange circle that trails the pointer slightly. |
-| [#084](https://sadjjk.github.io/motion-prompt-zh/#084) | **Magnetic button** | The button is pulled toward a nearby cursor | Make the contact button a magnetic button: move 0.3× toward the cursor, and spring back when it leaves. |
-| [#085](https://sadjjk.github.io/motion-prompt-zh/#085) | **Ripple effect** | A ripple spreads from the point that was pressed | Add a ripple effect to the submit button: a white circle spreads from the click point and fades in 0.6 s. |
-| [#086](https://sadjjk.github.io/motion-prompt-zh/#086) | **Underline animation** | A link's underline grows from the left on hover | Add an underline animation to the menu links: grow from the left in 0.3 s on hover, and exit to the right on leave. |
-| [#087](https://sadjjk.github.io/motion-prompt-zh/#087) | **Before/after slider** | Drag a divider to compare before and after | Show the project photos as a before/after slider: drag the middle line to compare before on the left and after on the right. |
-| [#088](https://sadjjk.github.io/motion-prompt-zh/#088) | **Exit-intent popup** | A popup shown when the visitor is about to leave | Add an exit-intent popup to the landing page: when the cursor leaves through the top, show a coupon popup once. |
+| [#1-033](https://sadjjk.github.io/motion-prompt-zh/#1-033) | **Hover lift** | On hover, the element rises with a deeper shadow | Give the cards a hover lift: up 8 px with a deeper shadow, over 0.3 s. |
+| [#1-034](https://sadjjk.github.io/motion-prompt-zh/#1-034) | **Image zoom on hover** | The photo enlarges inside a fixed frame | Add an image zoom on hover to the work photos: fixed frame, content to 1.1× over 0.5 s. |
+| [#1-035](https://sadjjk.github.io/motion-prompt-zh/#1-035) | **Cursor follower** | A shape trails the mouse pointer with a delay | Add a cursor follower across the site: a 30 px orange circle that trails the pointer slightly. |
+| [#1-036](https://sadjjk.github.io/motion-prompt-zh/#1-036) | **Magnetic button** | The button is pulled toward a nearby cursor | Make the contact button a magnetic button: move 0.3× toward the cursor, and spring back when it leaves. |
+| [#1-037](https://sadjjk.github.io/motion-prompt-zh/#1-037) | **Ripple effect** | A ripple spreads from the point that was pressed | Add a ripple effect to the submit button: a white circle spreads from the click point and fades in 0.6 s. |
+| [#1-038](https://sadjjk.github.io/motion-prompt-zh/#1-038) | **Underline animation** | A link's underline grows from the left on hover | Add an underline animation to the menu links: grow from the left in 0.3 s on hover, and exit to the right on leave. |
+| [#1-039](https://sadjjk.github.io/motion-prompt-zh/#1-039) | **Before/after slider** | Drag a divider to compare before and after | Show the project photos as a before/after slider: drag the middle line to compare before on the left and after on the right. |
+| [#1-040](https://sadjjk.github.io/motion-prompt-zh/#1-040) | **Exit-intent popup** | A popup shown when the visitor is about to leave | Add an exit-intent popup to the landing page: when the cursor leaves through the top, show a coupon popup once. |
 
 ## Loading, navigation & ambient loops
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
-| [#089](https://sadjjk.github.io/motion-prompt-zh/#089) | **Preloader** | A screen shown while the page loads | Make a preloader for the site: logo and a percentage, and the screen lifts away at 100%. |
-| [#090](https://sadjjk.github.io/motion-prompt-zh/#090) | **Lazy loading** | Images load only when they come into view | Lazy load the gallery images: grey placeholders until loaded, then fade in over 0.3 s. |
-| [#091](https://sadjjk.github.io/motion-prompt-zh/#091) | **Infinite scroll** | More items load automatically at the bottom | Make the news list an infinite scroll: show a spinner at the bottom and add ten items at a time. |
-| [#092](https://sadjjk.github.io/motion-prompt-zh/#092) | **Page transition** | An animation that bridges two pages | Add a page transition: on link click, an orange panel sweeps across left to right and the next page appears. |
-| [#093](https://sadjjk.github.io/motion-prompt-zh/#093) | **Smooth scroll** | In-page links glide to their target instead of jumping | Make the menu's in-page links smooth scroll, stopping below the fixed header. |
-| [#094](https://sadjjk.github.io/motion-prompt-zh/#094) | **Marquee** | Text or logos scroll across in an endless band | Run the service names in a marquee from right to left, looping without a gap, at about 80 px per second. |
-| [#095](https://sadjjk.github.io/motion-prompt-zh/#095) | **Animated gradient** | Background colours keep drifting and blending | Give the hero an animated gradient background: orange and blue slowly blending, one loop every 10 s. |
-| [#096](https://sadjjk.github.io/motion-prompt-zh/#096) | **Floating animation** | Elements bob gently up and down | Give the phone image in the hero a floating animation: 8 px up and down, one bob every 2.4 s. |
+| [#1-041](https://sadjjk.github.io/motion-prompt-zh/#1-041) | **Preloader** | A screen shown while the page loads | Make a preloader for the site: logo and a percentage, and the screen lifts away at 100%. |
+| [#1-042](https://sadjjk.github.io/motion-prompt-zh/#1-042) | **Lazy loading** | Images load only when they come into view | Lazy load the gallery images: grey placeholders until loaded, then fade in over 0.3 s. |
+| [#1-043](https://sadjjk.github.io/motion-prompt-zh/#1-043) | **Infinite scroll** | More items load automatically at the bottom | Make the news list an infinite scroll: show a spinner at the bottom and add ten items at a time. |
+| [#1-044](https://sadjjk.github.io/motion-prompt-zh/#1-044) | **Page transition** | An animation that bridges two pages | Add a page transition: on link click, an orange panel sweeps across left to right and the next page appears. |
+| [#1-045](https://sadjjk.github.io/motion-prompt-zh/#1-045) | **Smooth scroll** | In-page links glide to their target instead of jumping | Make the menu's in-page links smooth scroll, stopping below the fixed header. |
+| [#1-046](https://sadjjk.github.io/motion-prompt-zh/#1-046) | **Marquee** | Text or logos scroll across in an endless band | Run the service names in a marquee from right to left, looping without a gap, at about 80 px per second. |
+| [#1-047](https://sadjjk.github.io/motion-prompt-zh/#1-047) | **Animated gradient** | Background colours keep drifting and blending | Give the hero an animated gradient background: orange and blue slowly blending, one loop every 10 s. |
+| [#1-048](https://sadjjk.github.io/motion-prompt-zh/#1-048) | **Floating animation** | Elements bob gently up and down | Give the phone image in the hero a floating animation: 8 px up and down, one bob every 2.4 s. |
 
-Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#073](../../api/v1/en/e/073.txt)).
+Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#1-025](../../api/v1/en/e/1-025.txt)).
 
 [All packs](../README.md)

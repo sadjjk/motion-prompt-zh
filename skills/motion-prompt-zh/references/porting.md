@@ -3,7 +3,7 @@
 `get <id>` returns one text file per element:
 
 ```js
-// Motion Prompt #012 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#012
+// Motion Prompt #2-012 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#012
 // name, what it shows, spec lines, when to use it, size, cycle, "Needs: kit <pack>", live demo URL
 // @element 12
 CELLS[11] = (k, w, h, u) => { … };     // k = CanvasRenderingContext2D, w/h = card size, u = seconds in [0, cycle)
@@ -41,9 +41,9 @@ If the project is a module, put these in one file and export the cells. Do not c
 **Two packs never share a scope.** Every kit declares the same top-level names (`CW`, `CH`, `CYC`, `C`, `CELLS` and its own helpers), so pasting two kits into one script or module is a syntax error. Give each pack its own module or its own function scope, and export what you need under names that say which pack they come from:
 
 ```js
-// motion-prompt-motion.js      (kit "motion" + elements #012 …)
+// motion-prompt-motion.js      (kit "motion" + elements #2-012 …)
 export const morph = CELLS[11];  export const MOTION = { w: CW, h: CH, cycle: CYC };
-// motion-prompt-camera.js      (kit "camera" + elements #045 …)
+// motion-prompt-camera.js      (kit "camera" + elements #3-021 …)
 export const wipe = CELLS[20];   export const CAMERA = { w: CW, h: CH, cycle: 9.4 };  // use the Cycle value in the element header; in this kit CYC is half of it
 ```
 

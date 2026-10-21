@@ -1,0 +1,38 @@
+// Motion Prompt #3-011 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#035
+//
+// FPV drone shot / FPV
+// Pack: camera (Camera moves & transitions) · element 11 · Category: Shooting Style & Time
+// What happens: A first-person view flying low and fast between two rows of trees, banking from side to side.
+// Motion spec:
+//   - Camera: flies forward at a constant 14 m/s (shown as 50km/h) with no easing; pitch fixed at -0.05 rad
+//   - Weave (T = 2π×u/4.7, two swings per 4.7 s): sideways 0.6·sin(2T-0.4) m, height 1.4 + 0.5·sin(2T) m
+//   - Bank: roll 0.22·sin(2T+0.6) rad (about ±12.6°), yaw 0.05·sin(2T) rad (about ±2.9°)
+//   - No subject. Trees 4.2 m tall stand 3.6 m to each side, every 8 m, the two rows offset by 4 m, and rush toward the camera
+//   - Speed lines: 10 radial strokes about 32–76 px long (longer toward the sides) in translucent grey, flowing outward and recycling
+//   - No hold and no cross-fade reset (the tree rows shift phase when it restarts every 4.7 s)
+// When to use it: For speed and immersion, or to fly through a location in one continuous move.
+// Tags: fpv, drone, fly through, first person, banking, speed, aerial
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-011
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 11
+// 11 FPV
+CELLS[10] = shot((k, w, h, u) => {
+  const sp = 14, z = u * sp, T = u * 2 * Math.PI / CYC;
+  const c = cam({ z, y: 1.4 + 0.5 * Math.sin(T * 2), roll: 0.22 * Math.sin(T * 2 + 0.6), yaw: 0.05 * Math.sin(T * 2), x: 0.6 * Math.sin(T * 2 - 0.4), pitch: -0.05 });
+  const ex = [];
+  const L = 8, base = Math.floor(z / L) * L;
+  for (let i = 0; i < 12; i++) { const zz = base + i * L; ex.push([-3.6, 0, zz, (kk, s) => tree(kk, s, 4.2)]); ex.push([3.6, 0, zz + L / 2, (kk, s) => tree(kk, s, 4.2, C.blueXL)]); }
+  world(k, w, h, c, {
+    buildings: false, trees: false, extra: ex, gridX: 20,
+    after: (kk) => {   // スピード線
+      kk.strokeStyle = 'rgba(150,150,155,.45)'; kk.lineWidth = 2;
+      for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2 + 0.3, ph = mod(u * 2.2 + i * 0.37, 1); const r0 = 120 + ph * 160; kk.beginPath(); kk.moveTo(Math.cos(a) * r0 * 1.9, Math.sin(a) * r0 * 0.8); kk.lineTo(Math.cos(a) * (r0 + 40) * 1.9, Math.sin(a) * (r0 + 40) * 0.8); kk.stroke(); }
+    }
+  });
+  return `${Math.round(sp * 3.6)}km/h`;
+});
