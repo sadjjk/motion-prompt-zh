@@ -705,6 +705,10 @@
     state.cb = validCb(q.get('cb'));
     var pk = q.get('pack');
     if (pk && packBy[pk]) state.pack = pk;
+    // pack 优先：旧的 ?pack= 链接自动选中所属大类；只有 group 时按大类筛选
+    var gp = q.get('group');
+    if (state.pack !== 'all') state.group = groupOf[state.pack];
+    else if (gp && groupBy[gp]) state.group = gp;
     // A waiting agent keeps its own selection, so last week's picks never slip into a new request.
     var saved = loadSaved(state.cb ? PICK_CB_KEY : PICK_KEY);
     if (state.cb && saved && saved.cb !== state.cb) saved = null;
@@ -814,6 +818,7 @@
     if (!state.picks.length) return;
     var share = new URL(SITE);
     share.searchParams.set('lang', state.lang); share.searchParams.set('pick', state.picks.join(','));
+    if (state.group !== 'all') share.searchParams.set('group', state.group);
     if (state.pack !== 'all') share.searchParams.set('pack', state.pack);
     copyText(share.href).then(function (ok) { flash(btn, ok); });
   });
