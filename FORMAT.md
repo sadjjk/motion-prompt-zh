@@ -23,7 +23,6 @@ packs/README.md  packs/<pack>/README.md  README.<lang>.md*   the name lists, rea
 api/v1/…                                   generated static API (committed)
 tools/build.mjs  tools/check.mjs           generators / checks
 skills/motion-prompt-zh/{SKILL.md,scripts/,references/,agents/}   the Chinese agent skill
-skills/motion-prompt/scripts/motion-prompt.mjs                  legacy CLI entry point
 .claude-plugin/{plugin.json,marketplace.json}
 dev/preview.html                           per-pack preview
 make-your-own/                             prompts, render script and two example sets for making your own

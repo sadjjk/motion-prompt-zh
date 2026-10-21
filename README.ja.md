@@ -239,7 +239,7 @@ cd motion-prompt
 python3 -m http.server 8000
 ```
 
-ブラウザで `http://localhost:8000/` を開くと、ギャラリー（`index.html`）が表示されます。clone したリポジトリでは、`node skills/motion-prompt/scripts/motion-prompt.mjs pick --local` で、手元のギャラリーを開いて選ぶこともできます。ファイルの形式は [FORMAT.md](FORMAT.md) に書いてあります。
+ブラウザで `http://localhost:8000/` を開くと、ギャラリー（`index.html`）が表示されます。clone したリポジトリでは、`node skills/motion-prompt-zh/scripts/motion-prompt.mjs pick --local` で、手元のギャラリーを開いて選ぶこともできます。ファイルの形式は [FORMAT.md](FORMAT.md) に書いてあります。
 
 ## ライセンス
 

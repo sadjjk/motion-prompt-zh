@@ -240,7 +240,7 @@ cd motion-prompt
 python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000/` to see the gallery (`index.html`). In a clone, `node skills/motion-prompt/scripts/motion-prompt.mjs pick --local` opens your local copy of the gallery for picking. The file formats are described in [FORMAT.md](FORMAT.md).
+Open `http://localhost:8000/` to see the gallery (`index.html`). In a clone, `node skills/motion-prompt-zh/scripts/motion-prompt.mjs pick --local` opens your local copy of the gallery for picking. The file formats are described in [FORMAT.md](FORMAT.md).
 
 ## License
 

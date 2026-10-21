@@ -57,7 +57,7 @@ node skills/motion-prompt-zh/scripts/motion-prompt.mjs kit motion
 node skills/motion-prompt-zh/scripts/motion-prompt.mjs pick --local --lang zh-Hans
 ```
 
-`pick` 打开中文网站并等待选择，选中一个或多个动画、填写备注后点击“发送给 AI”。完整源码默认使用本地网页；普通浏览器访问保留“复制所选”。`--no-open` 可只打印完整链接，由 Codex 浏览器面板打开。旧路径 `skills/motion-prompt/scripts/motion-prompt.mjs` 保留为兼容入口。
+`pick` 打开中文网站并等待选择，选中一个或多个动画、填写备注后点击“发送给 AI”。完整源码默认使用本地网页；普通浏览器访问保留“复制所选”。`--no-open` 可只打印完整链接，由 Codex 浏览器面板打开。
 
 让 Codex 在另一个本地项目中识别技能时，将完整 `skills/motion-prompt-zh` 目录复制到该项目的 `.agents/skills/motion-prompt-zh`，保留 `scripts/site-config.json`、`config.mjs` 和 `references/`。这是项目级安装；无需改全局配置或覆盖原版。Codex 按 [官方 Skill 规范](https://learn.chatgpt.com/docs/build-skills) 读取 `SKILL.md`；安装后若未出现，重启该项目的 Codex 会话。
 

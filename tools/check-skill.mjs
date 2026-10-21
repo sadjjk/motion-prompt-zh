@@ -13,7 +13,6 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CLI = path.join(ROOT, 'skills/motion-prompt-zh/scripts/motion-prompt.mjs');
-const LEGACY = path.join(ROOT, 'skills/motion-prompt/scripts/motion-prompt.mjs');
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8').replace(/\r\n/g, '\n');
 const catalog = JSON.parse(read('api/v1/catalog.json'));
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'motion-prompt-zh-skill-'));
@@ -34,8 +33,6 @@ let server, browser;
 try {
   const info = await run(['info']);
   assert.match(info.stdout, /本地中文版仓库/); assert.match(info.stdout, /144 个元素/);
-  const legacy = await run(['info'], {}, LEGACY);
-  assert.equal(legacy.stdout, info.stdout);
   assert.equal((await run(['list', '--lang', 'zh-Hans'])).stdout.match(/^  - /gm).length, 18);
   const queries = [['弹性', '001'], ['选择与切换', '059'], ['前两个开关', '059'], ['拉焦', '033'], ['typewriter', '006'], ['ポップイン', '001']];
   for (const [term, id] of queries) assert.ok((await run(['search', term, '--limit', '50'])).stdout.includes('#' + id), term);
@@ -74,7 +71,7 @@ try {
   const web = { window: {} };
   vm.runInNewContext(customRead('assets/site-config.js'), web); vm.runInNewContext(customRead('assets/catalog.js'), web);
   assert.ok(web.window.MP_PROMPT(catalog.elements[11], catalog.packs[0].title['zh-Hans'], 'zh-Hans').includes(customConfig.apiBase + '/zh-Hans/e/012.txt'));
-  console.log('PASS A: real CLI info/list/search/get/prompt/kit, 144 entries, all languages, legacy path, explicit missing/wrong Chinese errors.');
+  console.log('PASS A: real CLI info/list/search/get/prompt/kit, 144 entries, all languages, explicit missing/wrong Chinese errors.');
   console.log('PASS configuration: custom API URL reaches built prompts, reference headers and browser prompt output.');
   if (process.argv.includes('--static')) process.exitCode = 0;
   else {

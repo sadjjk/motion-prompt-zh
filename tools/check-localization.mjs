@@ -43,7 +43,7 @@ for (const p of cat.packs) {
 }
 for (const lang of langs) assert.equal(read(`api/v1/${lang}/catalog.tsv`).trim().split('\n').length, 145);
 assert.deepEqual(json('skills/motion-prompt-zh/scripts/site-config.json'), CONFIG);
-const cli = ['skills/motion-prompt/scripts/motion-prompt.mjs'];
+const cli = ['skills/motion-prompt-zh/scripts/motion-prompt.mjs'];
 function runCli(words) {
   const r = spawnSync(process.execPath, [...cli, ...words], { cwd: ROOT, encoding: 'utf8', windowsHide: true });
   assert.equal(r.status, 0, r.stderr);

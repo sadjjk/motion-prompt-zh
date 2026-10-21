@@ -65,13 +65,12 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
 
 - **未经用户确认，不得 push `main`**。Pages 从 `main` 的根目录发布（`.github/pages-source.json`），push 就等于公开上线。
 - 未经用户确认，不得 force push，不得修改 Pages 设置或仓库可见性。
-- 不手改生成物，不修改 `tools/` 中的逻辑来让检查通过。
+- 不手改生成物，不修改 `tools/` 中的逻辑来让检查通过；被测对象删除时，可同步删除对应的测试。
 
 ### 接口契约（Skill 与站点）
 
 - Skill CLI（`skills/motion-prompt-zh/scripts/motion-prompt.mjs`）按 `site.config.json` 中 `apiBase` 在前、`rawApiBase` 在后的顺序读取 `api/v1`。读到的中文资源必须和 `catalog.json` 一致，否则报错，不回退到英文。
 - `pick` 回传地址只接受 `http://127.0.0.1:<端口>/` 或 `http://localhost:<端口>/`（`assets/site.js` 第 618–622 行），不得放宽。
-- `skills/motion-prompt/scripts/` 是旧入口，只转发到 `motion-prompt-zh`，保留它是为了兼容。
 
 ## 发布
 
@@ -79,10 +78,3 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
 2. 获得用户确认后 `git push origin main`，等 Pages 部署完成。
 3. 刷新 jsDelivr 上 `@main` 的 `api/v1` 缓存（`https://purge.jsdelivr.net/gh/sadjjk/motion-prompt-zh@main/<路径>`）。不刷新的话，备用源会返回旧数据。
 4. 如果改过 `site.config.json`，把生成的 `skills/motion-prompt-zh/scripts/site-config.json` 同步到本机安装的 skill。
-
-## 上游关系
-
-- `origin`：`sadjjk/motion-prompt-zh`，历史已压缩为单个提交，GitHub 的「Sync fork」不可用。
-- `upstream`：`rainman016/motion-prompt-zh`（再往上是 `showheyohtaki/motion-prompt`）。
-- 跟进上游时手动对比源文件（`packs/`、`assets/`、`tools/`、`skills/`），生成物用重新 build 解决，不手工合并。
-- `make-your-own/` 已移除，上游对它的改动都不合入。
