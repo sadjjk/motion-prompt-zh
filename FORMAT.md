@@ -11,8 +11,8 @@ of how to ask for it, and a copyable prompt (ja/en), so people can tell Claude C
 Repo: GitHub `showheyohtaki/motion-prompt` (MIT) → GitHub Pages
 `https://showheyohtaki.github.io/motion-prompt/`. Author: 大滝昇平 / Shohei Ohtaki (@showheyohtaki).
 No build framework. The gallery, the packs, the API and the skill are plain HTML/CSS/JS and Node 18+
-scripts with zero npm dependencies. Only `make-your-own/` (rendering your own videos) has a
-`package.json`; it needs Playwright and ffmpeg.
+scripts with zero npm dependencies. The video tooling (`make-your-own/`) lives only in the upstream
+repository, https://github.com/showheyohtaki/motion-prompt; this fork does not include it.
 
 ## Layout
 
@@ -25,7 +25,6 @@ tools/build.mjs  tools/check.mjs           generators / checks
 skills/motion-prompt-zh/{SKILL.md,scripts/,references/,agents/}   the Chinese agent skill
 .claude-plugin/{plugin.json,marketplace.json}
 dev/preview.html                           per-pack preview
-make-your-own/                             prompts, render script and two example sets for making your own
 ```
 
 Packs and their order (global IDs are assigned in this order, 3 digits; new packs are appended):

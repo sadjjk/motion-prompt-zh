@@ -6,7 +6,7 @@
 
 映像以外の分野も歓迎します。照明、音、UIとインタラクション、写真、文字組み、イラスト、料理、建築、ファッション、音楽、ダンス、ゲームなど。その分野の人どうしが「ここは○○で」と言い合っていて、外の人にはその言葉が分からない。そういう言葉が、ここに入る名前です。
 
-コードを自分で書く必要はありません。[`make-your-own/prompts/`](make-your-own/prompts/) のプロンプトを使えば、作る作業の大半はコーディングAI（Claude Code、Codex、Cursor など）に任せられます。あなたにしかできないのは、どの名前が本当に使われているかを知っていることです。
+コードを自分で書く必要はありません。[`make-your-own/prompts/`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/) のプロンプトを使えば、作る作業の大半はコーディングAI（Claude Code、Codex、Cursor など）に任せられます。あなたにしかできないのは、どの名前が本当に使われているかを知っていることです。
 
 ## 受け入れ口は3つ
 
@@ -74,11 +74,11 @@
 
 ギャラリーのサイトとスキルのコマンドは、今のところ英語と日本語だけです。足した言語は、`packs/` の一覧と `api/v1/catalog.json` に出ます。くわしくは [FORMAT.md](FORMAT.md) にあります。
 
-動画もその言語で作るときは、[`make-your-own/prompts/ja/01-translate.md`](make-your-own/prompts/ja/01-translate.md) を使います。
+動画もその言語で作るときは、[`make-your-own/prompts/ja/01-translate.md`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/ja/01-translate.md) を使います。
 
 ## 自分の分野のパックを足す
 
-1. **先に名前を決める。** [`make-your-own/prompts/ja/02-your-own-field.md`](make-your-own/prompts/ja/02-your-own-field.md) をコーディングAIに貼ります。最初の手順で、名前の一覧と、それぞれをどこで確かめたかが出てきます。同じ分野の仲間に見せられると思えるまで、この一覧を直します。1パックは、16〜24個を2〜3の区分に分けるのが目安です。
+1. **先に名前を決める。** [`make-your-own/prompts/ja/02-your-own-field.md`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/ja/02-your-own-field.md) をコーディングAIに貼ります。最初の手順で、名前の一覧と、それぞれをどこで確かめたかが出てきます。同じ分野の仲間に見せられると思えるまで、この一覧を直します。1パックは、16〜24個を2〜3の区分に分けるのが目安です。
 2. **見本を作る。** 同じプロンプトで続けます。HTMLのページと、どこにでも投稿できる動画ができます。これだけを `make-your-own/examples/<slug>/<lang>/` に足すこともできます。
 3. **ギャラリー用のパックにする。** コーディングAIに、こう頼みます。
    ```text

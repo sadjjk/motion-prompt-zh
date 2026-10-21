@@ -8,7 +8,7 @@ This repository is a library of names: the words people in a field use for the t
 
 Fields outside video are welcome: lighting, sound, UI and interaction, photography, typography, illustration, cooking, architecture, fashion, music, dance, games. If people in a field say "do a ___" to each other and an outsider would not know the word, that word belongs here.
 
-You do not have to write the code yourself. The prompts in [`make-your-own/prompts/`](make-your-own/prompts/) let a coding AI (Claude Code, Codex, Cursor, and so on) do most of the building. What only you can bring is knowing which names are real.
+You do not have to write the code yourself. The prompts in [`make-your-own/prompts/`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/) let a coding AI (Claude Code, Codex, Cursor, and so on) do most of the building. What only you can bring is knowing which names are real.
 
 ## Three ways in
 
@@ -76,11 +76,11 @@ You can ask a coding AI to do steps 1 to 3 ("add Spanish to packs/camera/meta.js
 
 The gallery site and the skill's command line are in English and Japanese for now. Your language appears in the lists under `packs/` and in `api/v1/catalog.json`. [FORMAT.md](FORMAT.md) has the details.
 
-To also make the videos in your language, use [`make-your-own/prompts/en/01-translate.md`](make-your-own/prompts/en/01-translate.md).
+To also make the videos in your language, use [`make-your-own/prompts/en/01-translate.md`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/en/01-translate.md).
 
 ## Add a pack for your field
 
-1. **Choose the names first.** Paste [`make-your-own/prompts/en/02-your-own-field.md`](make-your-own/prompts/en/02-your-own-field.md) into a coding AI. Its first step is the list of names, with where each one was checked. Fix that list until you would be happy to show it to a colleague. A pack is usually 16 to 24 names in 2 or 3 groups.
+1. **Choose the names first.** Paste [`make-your-own/prompts/en/02-your-own-field.md`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/en/02-your-own-field.md) into a coding AI. Its first step is the list of names, with where each one was checked. Fix that list until you would be happy to show it to a colleague. A pack is usually 16 to 24 names in 2 or 3 groups.
 2. **Build the samples** with the same prompt. You get an HTML page and videos you can post anywhere. That alone can go into `make-your-own/examples/<slug>/<lang>/`.
 3. **Turn it into a pack** for the gallery. Ask the coding AI:
    ```text

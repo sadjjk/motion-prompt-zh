@@ -4,10 +4,6 @@
 
 AIに何かを作ってもらうときに使う「名前」のライブラリです。名前の1つずつに、動く見本・一言の意味・AIへの頼み方の例が付いています。いま入っているのは、モーショングラフィックスの動き（`motion`）、カメラワーク（`camera`）、UIパーツの名前（`ui`）、LP・Webサイトの演出（`lp`）、写真の表現・光と画風（`photo`）、モーショングラフィックスの演出 第2弾（`motion2`）の6つで、それぞれ24個、合わせて144個です。同じような名前の見本を、自分の分野・自分の言語で作るためのプロンプトも入っています。
 
-| モーショングラフィックス | カメラワーク |
-|---|---|
-| ![モーショングラフィックスの名前 01–08](assets/preview-motion.gif) | ![カメラワークの名前 01–08](assets/preview-camera.gif) |
-
 - ギャラリー（全部の見本が動きます）: https://showheyohtaki.github.io/motion-prompt/
 - GitHub の上でそのまま読める名前の一覧: [`packs/`](packs/README.md)
 - 名前と見本を公開しているほかの人たちの事例（X のポストの埋め込みとリンク）: https://showheyohtaki.github.io/motion-prompt/found.html
@@ -95,13 +91,13 @@ motion-prompt の #032 のカメラワークを、Veo に渡す英語のプロ�
 
 ### 3. 自分の分野・自分の言語の版を作る
 
-[`make-your-own/`](make-your-own/README.ja.md) に、コーディングAIに貼るプロンプト、動画を書き出すスクリプト、完成した見本2つ（HTMLのソース・動画3本・早見表の画像）が入っています。
+[`make-your-own/`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/README.ja.md) に、コーディングAIに貼るプロンプト、動画を書き出すスクリプト、完成した見本2つ（HTMLのソース・動画3本・早見表の画像）が入っています。
 
 | やりたいこと | プロンプト |
 |---|---|
-| 同じ動画を別の言語で作る | [`01-translate.md`](make-your-own/prompts/ja/01-translate.md) |
-| 自分の分野の名前を、自分の好きな見た目で作る | [`02-your-own-field.md`](make-your-own/prompts/ja/02-your-own-field.md) |
-| 1枚の早見表の画像を作る | [`03-cheatsheet-image.md`](make-your-own/prompts/ja/03-cheatsheet-image.md) |
+| 同じ動画を別の言語で作る | [`01-translate.md`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/ja/01-translate.md) |
+| 自分の分野の名前を、自分の好きな見た目で作る | [`02-your-own-field.md`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/ja/02-your-own-field.md) |
+| 1枚の早見表の画像を作る | [`03-cheatsheet-image.md`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/ja/03-cheatsheet-image.md) |
 
 映像でなくてもかまいません。照明、音、UI、写真、料理、建築など、名前を知っていることが頼めることにつながる分野なら、どこでも作れます。
 

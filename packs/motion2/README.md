@@ -6,8 +6,6 @@
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
-![Motion graphics moves, part 2 — preview](../../assets/preview-motion2.gif)
-
 ## Motion techniques
 
 | # | Name | What it is | How to ask an AI |

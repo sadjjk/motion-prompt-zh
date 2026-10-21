@@ -3,14 +3,10 @@
 **English** | [日本語](README.ja.md)
 
 > 日本語の説明は [README.ja.md](README.ja.md) にあります。
-> 中文用户：名称一览目前只有英文和日文。把 [`make-your-own/prompts/en/01-translate.md`](make-your-own/prompts/en/01-translate.md) 交给 Claude Code、Codex 等编程 AI，就可以制作中文或其他语言的版本。
-> Other languages: the name lists are in English and Japanese for now. Give [`make-your-own/prompts/en/01-translate.md`](make-your-own/prompts/en/01-translate.md) to a coding AI to make a version in your language.
+> 中文用户：名称一览目前只有英文和日文。把 [`make-your-own/prompts/en/01-translate.md`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/en/01-translate.md) 交给 Claude Code、Codex 等编程 AI，就可以制作中文或其他语言的版本。
+> Other languages: the name lists are in English and Japanese for now. Give [`make-your-own/prompts/en/01-translate.md`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/en/01-translate.md) to a coding AI to make a version in your language.
 
 A library of names for the things you ask an AI to make. Each name comes with a moving sample, a one-line meaning and an example of how to ask for it. Six sets are in it now, 24 names each and 144 in all: motion-graphics moves (`motion`), camera moves (`camera`), UI component names (`ui`), landing page and web effects (`lp`), photo looks, lighting and styles (`photo`), and motion-graphics moves, part 2 (`motion2`). It also comes with the prompts to make the same kind of library for your own field, in your own language.
-
-| Motion graphics | Camera moves |
-|---|---|
-| ![Motion graphics names 01–08](assets/preview-motion.gif) | ![Camera move names 01–08](assets/preview-camera.gif) |
 
 - Gallery (every sample, moving): https://showheyohtaki.github.io/motion-prompt/
 - Name lists you can read here on GitHub: [`packs/`](packs/README.md)
@@ -99,13 +95,13 @@ No install is needed for this. The names work in a coding AI, a video-generation
 
 ### 3. Make a version for your own field or language
 
-[`make-your-own/`](make-your-own/README.md) has copy-and-paste prompts for a coding AI, a script that renders the videos, and the two finished examples (HTML source, three videos and a cheat-sheet image each).
+[`make-your-own/`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/README.md) has copy-and-paste prompts for a coding AI, a script that renders the videos, and the two finished examples (HTML source, three videos and a cheat-sheet image each).
 
 | Goal | Prompt |
 |---|---|
-| The same videos in another language | [`01-translate.md`](make-your-own/prompts/en/01-translate.md) |
-| The names of your own field, with your own look | [`02-your-own-field.md`](make-your-own/prompts/en/02-your-own-field.md) |
-| The one-page cheat-sheet image | [`03-cheatsheet-image.md`](make-your-own/prompts/en/03-cheatsheet-image.md) |
+| The same videos in another language | [`01-translate.md`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/en/01-translate.md) |
+| The names of your own field, with your own look | [`02-your-own-field.md`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/en/02-your-own-field.md) |
+| The one-page cheat-sheet image | [`03-cheatsheet-image.md`](https://github.com/showheyohtaki/motion-prompt/blob/main/make-your-own/prompts/en/03-cheatsheet-image.md) |
 
 The field does not have to be video. Lighting, sound, UI, photography, cooking, architecture: any field where knowing the name is what lets you ask for the thing.
 

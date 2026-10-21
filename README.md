@@ -8,8 +8,6 @@
 
 **在线体验**：[sadjjk.github.io/motion-prompt-zh](https://sadjjk.github.io/motion-prompt-zh/) · **公开仓库**：[sadjjk/motion-prompt-zh](https://github.com/sadjjk/motion-prompt-zh)（基于 [rainman016/motion-prompt-zh](https://github.com/rainman016/motion-prompt-zh)）。通过 GitHub Pages 部署，API 备用镜像为 jsDelivr。
 
-![动态图形示例](assets/preview-motion.gif)
-
 | 编号 | 分类 | 数量 | 中文资料 |
 |---|---|---:|---|
 | 001–024 | 动态图形基础 `motion` | 24 | [查看](packs/motion/README.zh-Hans.md) |

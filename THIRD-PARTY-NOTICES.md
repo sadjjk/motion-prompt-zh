@@ -40,7 +40,5 @@ Being listed does not mean the author endorses this project. To ask for a remova
 
 ## Tools used at run time (not included)
 
-`make-your-own/render.mjs` uses [Playwright](https://playwright.dev/) (Apache-2.0, installed by `npm install`)
-and [ffmpeg](https://ffmpeg.org/) (installed separately). `tools/check.mjs` also uses Playwright. Neither is
-redistributed in this repository. No font files or third-party images are included; the examples use fonts
-that are already installed on the machine that renders them.
+`tools/check.mjs` uses [Playwright](https://playwright.dev/) (Apache-2.0). It is not redistributed in this
+repository. No font files or third-party images are included.
