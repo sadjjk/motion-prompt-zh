@@ -2,7 +2,7 @@
 
 # 镜头运动与剪辑
 
-24 个效果 · #3-001–024 · 分类包 `camera` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+24 个效果 · #3 001~024 · 分类包 `camera` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 

@@ -32,12 +32,14 @@ Groups, packs and IDs. Display order and IDs come from `packs/groups.json`; a pa
 
 | group | pack | elements | IDs | upstream IDs | title |
 |---|---|---|---|---|---|
-| 1 `web` | `ui` | 24 | 1-001–024 | 049–072 | UI component names / UIパーツの名前 |
-| 1 `web` | `lp` | 24 | 1-025–048 | 073–096 | Landing page & web effects / LP・Webサイトの演出 |
-| 2 `motion` | `motion` | 24 | 2-001–024 | 001–024 | Motion graphics moves / モーショングラフィックスの動き |
-| 2 `motion` | `motion2` | 24 | 2-025–048 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 |
-| 3 `film` | `camera` | 24 | 3-001–024 | 025–048 | Camera moves & transitions / カメラワークと切り替え |
-| 3 `film` | `photo` | 24 | 3-025–048 | 097–120 | Photo looks, lighting & styles / 写真の表現・光と画風 |
+| 1 `web` | `ui` | 24 | #1 001~024 | 049–072 | UI component names / UIパーツの名前 |
+| 1 `web` | `lp` | 24 | #1 025~048 | 073–096 | Landing page & web effects / LP・Webサイトの演出 |
+| 2 `motion` | `motion` | 24 | #2 001~024 | 001–024 | Motion graphics moves / モーショングラフィックスの動き |
+| 2 `motion` | `motion2` | 24 | #2 025~048 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 |
+| 3 `film` | `camera` | 24 | #3 001~024 | 025–048 | Camera moves & transitions / カメラワークと切り替え |
+| 3 `film` | `photo` | 24 | #3 025~048 | 097–120 | Photo looks, lighting & styles / 写真の表現・光と画風 |
+
+A range is written `#<group> <first>~<last>` (e.g. `#1 025~048`); a single ID is `#1-025`.
 
 **IDs are `#<group>-<3-digit number>` (e.g. `#1-001`), assigned by group in display order. Once published,
 numbers within a group are never renumbered or reused, new names go at the end of their group, and
@@ -172,7 +174,7 @@ First line of every `e/<id>.txt` and `kit/<pack>.js`:
 - Preview a pack: serve the repo root (`python3 -m http.server 8000`) and open
   `dev/preview.html?pack=<pack>` (playing), `&t=1.2` (frozen) or `&only=5` (one element).
 - A pack's `cycle` may be longer than one pass of the motion (camera uses 9.4s).
-- The kit's first line uses the pack's ID range, e.g. `#2-001-024`.
+- The kit's first line uses the pack's ID range, e.g. `#2 001~024`.
 
 ## 中文版扩展约定
 

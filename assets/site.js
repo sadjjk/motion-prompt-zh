@@ -208,8 +208,12 @@
     var m = /^#?([1-9])-(\d{1,3})$/.exec(String(x == null ? '' : x).trim());
     return m ? m[1] + '-' + ('000' + m[2]).slice(-3) : null;
   }
-  // 包范围：同一大类内省略后半段前缀，#1-001–024（与 build 生成的 README、kit 一致）
-  function idRange(p) { return p.first === p.last ? '#' + p.first : '#' + p.first + '–' + p.last.split('-')[1]; }
+  // 包范围：#1 001~024（大类前缀只写一次）；单个元素仍写 #1-001。与 build 生成的 README、kit 一致
+  function idRange(p) {
+    if (p.first === p.last) return '#' + p.first;
+    var a = p.first.split('-'), b = p.last.split('-');
+    return '#' + a[0] + ' ' + a[1] + '~' + b[1];
+  }
   CAT.elements.forEach(function (e, i) { elBy[e.id] = e; e._i = i; order.push(e.id); });
 
   function t(key, vars) {

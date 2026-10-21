@@ -40,8 +40,12 @@ const warn = (where, msg) => warns.push(`${where}: ${msg}`);
 const pad3 = n => String(n).padStart(3, '0');
 // 编号 = 大类序号-大类内 3 位序号（#1-001）；发布后同一大类内不重排，新动效接在本大类末尾
 const gid = (no, k) => `${no}-${pad3(k)}`;
-// 包范围：同一大类内省略后半段前缀，#1-001–024
-const idRange = (a, b, dash = '–') => (a === b ? `#${a}` : `#${a}${dash}${b.split('-')[1]}`);
+// 包范围：#1 001~024（大类前缀只写一次）；单个元素仍写 #1-001
+const idRange = (a, b) => {
+  if (a === b) return `#${a}`;
+  const [g, x] = a.split('-'), y = b.split('-')[1];
+  return `#${g} ${x}~${y}`;
+};
 const isStr = v => typeof v === 'string' && v.trim() !== '';
 
 // ---------------------------------------------------------------- prompt template
@@ -452,7 +456,7 @@ function elementTxt(el, lang) {
 }
 
 function kitJs(p) {
-  const range = idRange(p.first, p.last, '-');
+  const range = idRange(p.first, p.last);
   const W = p.width, H = p.height, C = p.cycle;
   const head = [
     `Motion Prompt ${range} · ${LICENCE} · ${ATTRIBUTION_SITE}#${p.upstreamFirst}`,
@@ -560,7 +564,7 @@ function packsIndex() {
   for (const p of catalog.packs) {
     const src = byDir[p.pack];
     const lists = src.langs.map(l => `[${LANG_NAME[l] || l}](${p.pack}/${readmeName(l)})`).join(' · ');
-    out.push(`| ${idRange(p.first, p.last).slice(1)} | \`${p.pack}\` — ${mdCell(src.raw.title[BASE_LANG])} | ${p.count} | ${lists} |`);
+    out.push(`| ${idRange(p.first, p.last)} | \`${p.pack}\` — ${mdCell(src.raw.title[BASE_LANG])} | ${p.count} | ${lists} |`);
   }
   out.push('', 'To add a pack for your field, or a language to an existing pack, see [CONTRIBUTING.md](../CONTRIBUTING.md).', '');
   return out.join('\n');
@@ -660,6 +664,6 @@ if (!CHECK_ONLY) {
     fs.writeFileSync(f, text);
   }
 }
-const summary = catalog.packs.map(p => `${p.pack} ${idRange(p.first, p.last).slice(1)}`).join(', ');
+const summary = catalog.packs.map(p => `${p.pack} ${idRange(p.first, p.last)}`).join(', ');
 console.log(`${CHECK_ONLY ? 'checked' : 'built'} ${catalog.count} elements in ${catalog.packs.length} pack(s): ${summary}`);
 console.log(`${CHECK_ONLY ? 'would write' : 'wrote'} ${files.size} files under ${ROOT}${warns.length ? ` · ${warns.length} warning(s)` : ''}`);

@@ -336,10 +336,17 @@ function suggestForNumber(cat, token, lang) {
   }).filter(Boolean);
 }
 
+// 编号范围：#1 001~024（大类前缀只写一次）；单个元素仍写 #1-001
+function idRange(first, last) {
+  if (first === last) return `#${first}`;
+  const [g, x] = first.split('-');
+  return `#${g} ${x}~${last.split('-')[1]}`;
+}
+
 function groupRanges(cat) {
   return (cat.groups || []).map((g) => {
     const ids = cat.elements.filter((e) => e.group === g.id).map((e) => e.id);
-    return ids.length ? `#${ids[0]}–${ids[ids.length - 1].split('-')[1]}` : '';
+    return ids.length ? idRange(ids[0], ids[ids.length - 1]) : '';
   }).filter(Boolean).join(', ');
 }
 
@@ -459,7 +466,7 @@ async function cmdList(store, flags, lang) {
     const key = packKey(p);
     const items = cat.elements.filter((e) => e.pack === key);
     if (!items.length) continue;
-    console.log(`${key}  (${items.length})  #${items[0].id}–${items[items.length - 1].id.split('-')[1]}  ${tx(p.title, lang)}`);
+    console.log(`${key}  (${items.length})  ${idRange(items[0].id, items[items.length - 1].id)}  ${tx(p.title, lang)}`);
     const counts = new Map();
     for (const e of items) {
       const label = categoryLabel(cat, e, lang).label;

@@ -2,7 +2,7 @@
 
 # 动态图形进阶
 
-24 个效果 · #2-025–048 · 分类包 `motion2` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+24 个效果 · #2 025~048 · 分类包 `motion2` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 

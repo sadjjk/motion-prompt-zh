@@ -45,7 +45,7 @@ try {
     assert.equal((await run(['prompt', '2-012', '--lang', lang])).stdout.trimEnd(), read(`api/v1/${actual}/p/2-012.txt`).trimEnd());
   }
   assert.equal((await run(['kit', 'ui'])).stdout.trimEnd(), read('api/v1/kit/ui.js').trimEnd());
-  assert.match((await run(['kit', 'ui'])).stdout, /^\/\/ Motion Prompt #1-001-024 .*https:\/\/showheyohtaki\.github\.io\/motion-prompt\/#049/);
+  assert.match((await run(['kit', 'ui'])).stdout, /^\/\/ Motion Prompt #1 001~024 .*https:\/\/showheyohtaki\.github\.io\/motion-prompt\/#049/);
   assert.match((await run(['get', '9-999'], {}, CLI, 1)).stderr, /找不到动画/);
   // 纯数字编号没有大类前缀：报错并按大类列出候选
   const bare = (await run(['get', '012'], {}, CLI, 1)).stderr;
