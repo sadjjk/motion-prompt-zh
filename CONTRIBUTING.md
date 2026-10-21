@@ -15,17 +15,17 @@ You do not have to write the code yourself. The prompts in [`make-your-own/promp
 | Way in | What | How to send it | Where it goes |
 |---|---|---|---|
 | A pack of names | The names of your field with moving samples, or another language for an existing pack | A pull request (or [Suggest names or a pack](https://github.com/showheyohtaki/motion-prompt/issues/new?template=1-contribution.yml) to talk it over first) | `packs/<pack>/` |
-| An example you found | A post on X that shares names with samples (your own is welcome) | [Suggest an example](https://github.com/showheyohtaki/motion-prompt/issues/new?template=2-example.yml) | `examples/found.json` and the [examples page](https://showheyohtaki.github.io/motion-prompt/found.html) |
+| An example you found | A post, article, site or open-source repository that shares names with samples, on X, Xiaohongshu, WeChat or the open web (your own is welcome) | [Suggest an example](https://github.com/showheyohtaki/motion-prompt/issues/new?template=2-example.yml) | `examples/found.json` and the [examples page](https://showheyohtaki.github.io/motion-prompt/found.html) |
 | A contribution | Something you made with make-your-own (videos, HTML, a cheat-sheet image), or a fix to a name | A pull request or [Suggest names or a pack](https://github.com/showheyohtaki/motion-prompt/issues/new?template=1-contribution.yml) | `make-your-own/examples/<slug>/<lang>/` and so on |
 
-"Make-your-own examples" are things you made yourself; "examples you found" are other people's posts on X.
+"Make-your-own examples" are things you made yourself; "examples you found" are other people's posts, articles, sites or repositories.
 
 ### How found examples are listed
 
-- Other people's posts are shown only with X's official embed, a link, and a one-line introduction we write. No images, videos, screenshots or post text are copied into this repository or onto the site.
-- `examples/found.json` holds only the post ID (`id`), the author (`author`), `url`, a theme (`theme`), a one-line introduction (`intro`, in Japanese and English), the language of the post (`lang`) and the date it was added (`added`). It does not keep the post text or counts such as likes.
-- The introduction is one line in our own words. It does not copy the post and does not read as if the author recommends this site.
-- We list posts with samples the author made (moving samples with names, cheat sheets and so on). We do not list posts that use someone else's work without credit, posts that only quote another post, posts that are mainly advertising a paid course or a product, or company ads.
+- X posts are shown with X's official embed. Everything else (Xiaohongshu, WeChat articles, sites, repositories) is shown as a link card with a one-line introduction we write; the page loads nothing from those platforms. No images, videos, screenshots or post text are copied into this repository or onto the site.
+- `examples/found.json` holds only the author (`author`), `url`, a theme (`theme`, one of the group ids `web`, `motion`, `film`), a one-line introduction (`intro`, in Simplified Chinese, Japanese and English), the language of the source (`lang`) and the date it was added (`added`). Optional: `platform` (`x` | `xiaohongshu` | `wechat` | `other`, default `x`), the post ID (`id`, required for X), `authorUrl` and `platformLabel` (a short label for `other`, e.g. `GitHub · Web`). It does not keep the post text or counts such as likes.
+- The introduction is one line in our own words. It does not copy the source and does not read as if the author recommends this site.
+- We list sources with samples the author made (moving samples with names, cheat sheets, live demos and so on). We do not list sources that use someone else's work without credit, posts that only quote another post, posts that are mainly advertising a paid course or a product, or company ads. A free, openly licensed project that also sells an optional paid tier can be listed; the introduction does not mention the paid tier.
 - The examples page has no ads for courses or services.
 - Requests to remove or correct an entry come in through the [issue form](https://github.com/showheyohtaki/motion-prompt/issues/new?template=3-removal.yml), and we act on them as soon as they are confirmed.
 

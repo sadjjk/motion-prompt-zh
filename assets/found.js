@@ -212,6 +212,8 @@
         var pf = platformOf(it);
         var pname = (t('platformName') || {})[pf] || pf;
         var pnameTrim = String(pname).trim();
+        // platformLabel（可选）：只替换平台标签，如独立网站写「GitHub · Web」；「在…查看」按钮仍用平台表名称
+        var tagText = it.platformLabel || pnameTrim;
         var link = h('a', { class: 'ex-x', href: it.url, rel: 'noopener', 'aria-label': t('viewOnLabel', { a: it.author, p: pnameTrim }), text: t('viewOn', { p: pname }) });
         // 作者主页：优先用数据里的 authorUrl；X 可由账号推出；其他平台没有时只显示文字
         var home = it.authorUrl || (PLATFORMS[pf].home ? PLATFORMS[pf].home(it) : '');
@@ -225,7 +227,7 @@
           h('div', { class: 'ex-head' }, [
             author,
             h('span', { class: 'ex-tags' }, [
-              pf !== 'x' ? h('span', { class: 'ex-lang ex-platform', text: pnameTrim }) : null,
+              pf !== 'x' ? h('span', { class: 'ex-lang ex-platform', text: tagText }) : null,
               h('span', { class: 'ex-lang', title: t('postLangLabel', { l: langName }), 'aria-label': t('postLangLabel', { l: langName }), text: String(it.lang).toUpperCase() }),
             ]),
           ]),
