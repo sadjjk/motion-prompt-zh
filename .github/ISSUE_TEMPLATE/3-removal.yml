@@ -1,55 +1,52 @@
-name: "削除・訂正の依頼 · Removal or correction"
-description: "掲載されている事例・名前・素材の削除や訂正を依頼する / Ask us to remove or correct something on this site or in this repository"
+name: "申请删除或更正"
+description: "申请删除或更正本站及本仓库中的案例、名称或素材"
 labels: ["removal"]
 body:
   - type: markdown
     attributes:
       value: |
-        確認できたら、すみやかに外します（または直します）。外すのは、事例のページの埋め込みとリンク、紹介文、リポジトリ内の該当ファイルです。
-        Once the request is confirmed, we remove (or correct) it promptly: the embed, link and introduction on the examples page, or the files in this repository.
+        核实后会尽快删除（或更正），范围包括社区案例页中的嵌入、链接和介绍，以及仓库中的相关文件。
 
-        Issue は公開されます。メールアドレス・電話番号・住所などの個人情報は書かないでください。
-        Issues are public. Please do not write personal information such as an email address, a phone number or an address.
+        Issue 是公开的，请不要填写邮箱、电话、住址等个人信息。
   - type: input
     id: target
     attributes:
-      label: "対象の URL / What to remove or correct (URL)"
-      description: "事例ならポストの URL、リポジトリ内ならファイルの URL。 / The post URL for an example, or the file URL in this repository."
+      label: "对象链接"
+      description: "案例请填写帖子链接，仓库内容请填写文件链接。"
     validations:
       required: true
   - type: dropdown
     id: request
     attributes:
-      label: "依頼の内容 / Request"
+      label: "申请类型"
       options:
-        - "削除 / Remove"
-        - "訂正 / Correct"
+        - "删除"
+        - "更正"
     validations:
       required: true
   - type: dropdown
     id: who
     attributes:
-      label: "あなたは / You are"
+      label: "你的身份"
       options:
-        - "ポストの投稿者本人 / The author of the post"
-        - "ポストに写っている作品の作者・権利者 / The creator or rights holder of the work in the post"
-        - "上の人の代理 / Acting for one of the above"
-        - "その他（誤りを知らせたい） / Other (reporting a mistake)"
+        - "帖子作者本人"
+        - "帖子中作品的作者或权利人"
+        - "代表以上人员"
+        - "其他（报告错误）"
     validations:
       required: true
   - type: textarea
     id: reason
     attributes:
-      label: "理由 / Reason"
-      description: "訂正なら、正しい内容も書いてください。 / For a correction, include what it should say."
+      label: "原因"
+      description: "如申请更正，请写明正确内容。"
     validations:
       required: true
   - type: textarea
     id: verify
     attributes:
-      label: "本人確認の方法 / How we can confirm it is you"
+      label: "身份确认方式"
       description: |
-        例: 対象ポストのアカウントから、この Issue の番号を書いたポストかリプライを出す（確認が済んだら消してかまいません）。GitHub のプロフィールに X のアカウントが載っている、なども使えます。
-        For example: from the account of the post, publish a post or reply that mentions this issue's number (you can delete it after we confirm). A GitHub profile that links to your X account also works.
+        例如：用对象帖子所在的账号发一条帖子或回复，注明本 Issue 编号（确认后可删除）；或 GitHub 个人资料中已关联你的 X 账号。
     validations:
       required: true

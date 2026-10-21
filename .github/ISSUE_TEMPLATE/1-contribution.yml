@@ -1,63 +1,60 @@
-name: "名前・パックの提案／寄稿 · Suggest names or contribute a pack"
-description: "あなたの分野の名前、パック、作例を提案・寄稿する / Suggest or contribute names, a pack or a make-your-own example"
+name: "提交名称或分类包"
+description: "提议或贡献你所在领域的名称、分类包，或更正已有名称"
 labels: ["contribution"]
 body:
   - type: markdown
     attributes:
       value: |
-        ありがとうございます。名前の基準と見本の基準は [CONTRIBUTING.ja.md](https://github.com/showheyohtaki/motion-prompt/blob/main/CONTRIBUTING.ja.md) にあります。ファイルを出せる場合は、pull request で送ってもかまいません。
-        Thank you. What a name and a sample need is in [CONTRIBUTING.md](https://github.com/showheyohtaki/motion-prompt/blob/main/CONTRIBUTING.md). If you have the files ready, a pull request works too.
+        感谢参与。名称与示例的标准见 [CONTRIBUTING.md](https://github.com/sadjjk/motion-prompt-zh/blob/main/CONTRIBUTING.md)。已有文件也可以直接提交 Pull Request。
 
-        このリポジトリは MIT License です。MIT で公開できない物は受け取れません。
-        This repository is under the MIT License. We cannot accept anything that cannot be released under it.
+        本仓库采用 MIT 许可证，无法以 MIT 公开的内容不能接收。
   - type: dropdown
     id: kind
     attributes:
-      label: "何を足しますか / What are you adding?"
+      label: "提交类型"
       options:
-        - "新しい分野のパック / A pack for a new field"
-        - "今あるパックに言語を足す / A language for an existing pack"
-        - "名前の追加・訂正 / New names or a correction"
-        - "作例（make-your-own/examples） / A make-your-own example"
-        - "その他 / Other"
+        - "新领域的分类包"
+        - "为已有分类包增加语言"
+        - "新增或更正名称"
+        - "其他"
     validations:
       required: true
   - type: input
     id: field
     attributes:
-      label: "分野と言語 / Field and language"
-      placeholder: "例: 照明・日本語 / e.g. Lighting, Spanish"
+      label: "领域与语言"
+      placeholder: "例：灯光 · 简体中文"
     validations:
       required: true
   - type: textarea
     id: names
     attributes:
-      label: "名前の一覧、または内容 / The names, or what it is"
-      description: "名前ごとに一言の意味があると助かります。自信のない名前には印を付けてください。 / A one-line meaning per name helps. Mark the names you are not sure about."
+      label: "名称列表或内容说明"
+      description: "每个名称附一句含义会很有帮助；不确定的名称请标注。"
     validations:
       required: true
   - type: textarea
     id: sources
     attributes:
-      label: "出典 / Where you checked the names"
-      description: "教科書、ソフトのマニュアル、業界の用語集、よく知られたチュートリアル、自分の仕事の経験など。名前ごとに1行で十分です。 / A textbook, a software manual, a trade glossary, a well-known tutorial or your own work. One line per name is enough."
+      label: "出处"
+      description: "教材、软件手册、行业术语表、知名教程或你的从业经验等，每个名称一行即可。"
     validations:
       required: true
   - type: textarea
     id: files
     attributes:
-      label: "ファイルや見本の場所（あれば） / Files or samples, if any"
-      description: "pull request、フォーク、ご自分のポストの URL など。ご自分の X のポストと同じ素材なら、そのポストの URL も書いてください。 / A pull request, a fork, or a link. If the material is also in your own post on X, add that post's URL."
+      label: "文件或示例位置（如有）"
+      description: "Pull Request、fork 或链接。若同一素材也发布在你的 X 帖子中，请一并附上帖子链接。"
   - type: checkboxes
     id: rights
     attributes:
-      label: "確認 / Please confirm"
+      label: "确认"
       options:
-        - label: "自分で作った物です（または、権利者から公開の許可を得ています。その内容を上に書きました）。 / I made this myself (or the rights holder allowed me to publish it, and I described that above)."
+        - label: "内容由我本人制作（或已获权利人公开许可，并在上方说明）。"
           required: true
-        - label: "他人の画像・動画・フォント・ロゴ・写っている人物を含みません（含む場合は、許可の内容を上に書きました）。 / It contains no images, videos, fonts, logos or people from anyone else (or I described the permission above)."
+        - label: "不包含他人的图片、视频、字体、标志或出镜人物（如包含，已在上方说明许可）。"
           required: true
-        - label: "MIT License で公開することに同意します。 / I agree to release it under the MIT License."
+        - label: "同意以 MIT 许可证公开。"
           required: true
-        - label: "公開したあとはライセンスを取り消せないことを理解しています。 / I understand that the license cannot be withdrawn after it is published."
+        - label: "了解公开后许可证无法撤回。"
           required: true
