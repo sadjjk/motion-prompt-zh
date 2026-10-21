@@ -23,6 +23,7 @@
       installPromptH: '让 AI 帮你安装', installPromptP: '将下方说明粘贴到 Claude Code 或 Codex，AI 会安装 Skill 并介绍使用方法。',
       installPrompt: '阅读 {repo}，在当前环境安装 motion-prompt Skill。安装完成后，用三行中文说明如何使用。',
       copy: '复制', copied: '已复制', copyFailed: '复制失败', copyCmdLabel: '复制安装命令', copyInstallLabel: '复制安装说明',
+      groupFilterLabel: '按大类筛选', group_web: '界面与网页', group_motion: '动态图形', group_film: '剪辑与摄影', group_other: '其他',
       galleryH: '效果库', packFilterLabel: '按分类包筛选', catFilterLabel: '按子分类筛选', all: '全部', allIn: '本分类全部',
       searchLabel: '搜索效果', searchPh: '中文、英文、编号或标签',
       pause: '暂停', play: '播放', pauseLabel: '暂停全部动画', playLabel: '播放全部动画', count: '{n} 个效果', countOf: '{n} / {total} 个效果',
@@ -67,6 +68,7 @@
       installPrompt: 'https://github.com/showheyohtaki/motion-prompt を読んで、motion-prompt スキルをこの環境に入れてください。入れたら、使い方を3行で教えてください。',
       copy: 'コピー', copied: 'コピーしました', copyFailed: 'コピーできませんでした',
       copyCmdLabel: '導入コマンドをコピー', copyInstallLabel: '導入用のプロンプトをコピー',
+      groupFilterLabel: '大分類で絞り込む', group_web: 'UI・Web', group_motion: 'モーショングラフィックス', group_film: '編集・撮影', group_other: 'その他',
       galleryH: '見本の一覧', packFilterLabel: 'パックで絞り込む', catFilterLabel: 'カテゴリで絞り込む',
       all: 'すべて', allIn: 'このパックすべて',
       searchLabel: '見本を探す', searchPh: '名前・番号・タグで探す',
@@ -126,6 +128,7 @@
       installPrompt: 'Read https://github.com/showheyohtaki/motion-prompt and install the motion-prompt skill in this environment. When it is installed, tell me how to use it in three lines.',
       copy: 'Copy', copied: 'Copied', copyFailed: 'Could not copy',
       copyCmdLabel: 'Copy the install command', copyInstallLabel: 'Copy the install prompt',
+      groupFilterLabel: 'Filter by group', group_web: 'UI & Web', group_motion: 'Motion graphics', group_film: 'Editing & photography', group_other: 'Other',
       galleryH: 'Gallery', packFilterLabel: 'Filter by pack', catFilterLabel: 'Filter by category',
       all: 'All', allIn: 'All in this pack',
       searchLabel: 'Search the gallery', searchPh: 'Name, number or tag',
@@ -180,7 +183,7 @@
   var darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : { matches: false };
   var state = {
     lang: window.MP_LANGUAGE.normalize(root.lang) || 'zh-Hans',
-    pack: 'all', cat: 'all', q: '',
+    group: 'all', pack: 'all', cat: 'all', q: '',
     playing: !reduceMotion.matches,
     open: null,           // id shown in the detail view
     internalNav: 0,       // history entries this page pushed for the detail view
@@ -190,6 +193,26 @@
   };
   var packBy = {}, elBy = {}, order = [];
   CAT.packs.forEach(function (p) { packBy[p.pack] = p; });
+  // 展示层大类：只决定效果库的显示顺序与分组，不影响 meta.json 的 order 与全局编号。
+  // 新增分类包时在 GROUP_DEFS 登记；未登记的包归入「其他」组（见 AGENTS.md 数据契约）。
+  var GROUP_DEFS = [
+    { id: 'web', packs: ['ui', 'lp'] },
+    { id: 'motion', packs: ['motion', 'motion2'] },
+    { id: 'film', packs: ['camera', 'photo'] },
+  ];
+  var GROUPS = GROUP_DEFS.map(function (g) {
+    return { id: g.id, packs: g.packs.filter(function (k) { return packBy[k]; }) };
+  }).filter(function (g) { return g.packs.length; });
+  var listedPacks = {};
+  GROUPS.forEach(function (g) { g.packs.forEach(function (k) { listedPacks[k] = true; }); });
+  var otherPacks = CAT.packs.map(function (p) { return p.pack; }).filter(function (k) { return !listedPacks[k]; });
+  if (otherPacks.length) GROUPS.push({ id: 'other', packs: otherPacks });
+  var groupBy = {}, groupOf = {};
+  GROUPS.forEach(function (g) {
+    g.count = g.packs.reduce(function (s, k) { return s + packBy[k].count; }, 0);
+    groupBy[g.id] = g;
+    g.packs.forEach(function (k) { groupOf[k] = g.id; });
+  });
   CAT.elements.forEach(function (e, i) { elBy[e.id] = e; e._i = i; order.push(e.id); });
 
   function t(key, vars) {
@@ -309,7 +332,20 @@
     if (io) io.disconnect();
     tiles = [];
     grid.textContent = '';
-    CAT.packs.forEach(function (p) {
+    // 按大类分节：大类标题（h3）→ 各分类包（h4）→ 卡片
+    GROUPS.forEach(function (g) {
+      var gsec = h('section', { class: 'group', 'data-group': g.id, 'aria-labelledby': 'group-' + g.id }, [
+        h('div', { class: 'group-h' }, [
+          h('h3', { id: 'group-' + g.id, text: t('group_' + g.id) }),
+          h('span', { class: 'group-n' }),
+        ]),
+      ]);
+      g.packs.forEach(function (key) { gsec.appendChild(buildPack(packBy[key])); });
+      grid.appendChild(gsec);
+    });
+    applyFilter();
+  }
+  function buildPack(p) {
       var list = h('div', { class: 'tiles' });
       CAT.elements.forEach(function (el) {
         if (el.pack !== p.pack) return;
@@ -344,14 +380,12 @@
       });
       var sec = h('section', { class: 'pack', 'data-pack': p.pack, 'aria-labelledby': 'pack-' + p.pack }, [
         h('div', { class: 'pack-h' }, [
-          h('h3', { id: 'pack-' + p.pack, text: p.title[state.lang] }),
+          h('h4', { id: 'pack-' + p.pack, text: p.title[state.lang] }),
           h('span', { text: '#' + p.first + '–' + p.last }),
         ]),
         list,
       ]);
-      grid.appendChild(sec);
-    });
-    applyFilter();
+      return sec;
   }
 
   function haystack(el) {
@@ -362,6 +396,7 @@
       .map(function (v) { return typeof v === 'object' ? JSON.stringify(v) : v; }).join(' ').toLowerCase();
   }
   function matches(el) {
+    if (state.group !== 'all' && groupOf[el.pack] !== state.group) return false;
     if (state.pack !== 'all' && el.pack !== state.pack) return false;
     if (state.cat !== 'all' && el.category !== state.cat) return false;
     if (!state.q) return true;
@@ -384,8 +419,26 @@
       if (ok) shown.push(tl.el.id);
     });
     $$('.pack', grid).forEach(function (sec) { sec.hidden = !$('.tile-box:not([hidden])', sec); });
+    $$('.group', grid).forEach(function (gs) {
+      var n = $$('.tile-box:not([hidden])', gs).length;
+      gs.hidden = !n;
+      $('.group-n', gs).textContent = t('count', { n: n });
+    });
+    renderCrumb();
     $('#empty').hidden = shown.length > 0;
     $('#count').textContent = shown.length === CAT.count ? t('count', { n: CAT.count }) : t('countOf', { n: shown.length, total: CAT.count });
+  }
+  // 面包屑：显示当前筛选路径（全部 › 大类 › 分类包 › 小类）
+  function renderCrumb() {
+    var parts = [t('all')];
+    var g = groupBy[state.group], p = packBy[state.pack];
+    if (g) parts.push(t('group_' + g.id));
+    if (p) parts.push(p.title[state.lang]);
+    if (p && state.cat !== 'all') {
+      var c = p.categories.filter(function (x) { return x.slug === state.cat; })[0];
+      if (c) parts.push(c[state.lang]);
+    }
+    $('#crumb').textContent = parts.join(' › ');
   }
 
   function chip(label, pressed, small, onClick) {
@@ -394,27 +447,44 @@
     b.addEventListener('click', onClick);
     return b;
   }
+  function segBtn(label, pressed, n, onClick) {
+    var b = h('button', { type: 'button', class: 'gseg-b', 'aria-pressed': pressed ? 'true' : 'false', text: label });
+    b.appendChild(h('small', { text: String(n) }));
+    b.addEventListener('click', onClick);
+    return b;
+  }
+  // 三级筛选：大类（分段按钮）→ 分类包（选中大类后出现）→ 小类（选中分类包后出现）
   function buildChips() {
-    var packs = $('#packs'), cats = $('#cats');
-    packs.textContent = ''; cats.textContent = '';
-    packs.appendChild(chip(t('all'), state.pack === 'all', String(CAT.count), function () { setFilter('all', 'all'); }));
-    CAT.packs.forEach(function (p) {
-      packs.appendChild(chip(p.title[state.lang], state.pack === p.pack, String(p.count), function () { setFilter(p.pack, 'all'); }));
+    var groups = $('#groups'), packs = $('#packs'), cats = $('#cats');
+    groups.textContent = ''; packs.textContent = ''; cats.textContent = '';
+    groups.appendChild(segBtn(t('all'), state.group === 'all', CAT.count, function () { setFilter('all', 'all', 'all'); }));
+    GROUPS.forEach(function (g) {
+      groups.appendChild(segBtn(t('group_' + g.id), state.group === g.id, g.count, function () { setFilter(g.id, 'all', 'all'); }));
     });
+    var g = groupBy[state.group];
+    packs.hidden = !g;
+    if (g) {
+      packs.appendChild(chip(t('all'), state.pack === 'all', String(g.count), function () { setFilter(g.id, 'all', 'all'); }));
+      g.packs.forEach(function (key) {
+        var p = packBy[key];
+        packs.appendChild(chip(p.title[state.lang], state.pack === p.pack, '#' + p.first + '–' + p.last, function () { setFilter(g.id, p.pack, 'all'); }));
+      });
+    }
     var p = packBy[state.pack];
     cats.hidden = !p;
     if (!p) return;
-    cats.appendChild(chip(t('allIn'), state.cat === 'all', '', function () { setFilter(state.pack, 'all'); }));
+    cats.appendChild(chip(t('allIn'), state.cat === 'all', '', function () { setFilter(state.group, state.pack, 'all'); }));
     p.categories.forEach(function (c) {
-      cats.appendChild(chip(c[state.lang], state.cat === c.slug, '', function () { setFilter(state.pack, c.slug); }));
+      cats.appendChild(chip(c[state.lang], state.cat === c.slug, '', function () { setFilter(state.group, state.pack, c.slug); }));
     });
   }
-  function setFilter(pack, cat) {
-    var focusIndex = $$('.chip').indexOf(document.activeElement);
-    state.pack = pack; state.cat = cat;
+  function setFilter(group, pack, cat) {
+    var focusables = function () { return $$('.gseg-b, .chip'); };
+    var focusIndex = focusables().indexOf(document.activeElement);
+    state.group = group; state.pack = pack; state.cat = cat;
     buildChips();
     applyFilter();
-    var again = $$('.chip')[focusIndex]; // the chips were rebuilt: keep keyboard focus where it was
+    var again = focusables()[focusIndex]; // the buttons were rebuilt: keep keyboard focus where it was
     if (focusIndex >= 0 && again) again.focus();
   }
 

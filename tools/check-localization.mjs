@@ -86,7 +86,8 @@ try {
   };
   await open();
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
-  assert.equal(await page.locator('.tile-name').first().innerText(), '弹性弹入');
+  // 效果库按大类（界面与网页 → 动态图形 → 剪辑与摄影）分节，首张卡片为「界面与网页」的 #049
+  assert.equal(await page.locator('.tile-name').first().innerText(), '模态对话框');
   assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), CONFIG.site);
   assert.match(await page.title(), /144/);
   assert.equal(await page.locator('.seg-b').allTextContents().then(x => x.join('/')), 'ZH/EN/JA');

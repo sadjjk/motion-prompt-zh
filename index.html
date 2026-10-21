@@ -83,7 +83,7 @@
     <h2 id="gallery-h" class="sr" data-t="galleryH">效果库</h2>
     <div class="tools">
       <div class="wrap tools-in">
-        <div class="chips" id="packs" role="group" aria-label="按分类包筛选" data-t-attr="aria-label:packFilterLabel"></div>
+        <div class="gseg" id="groups" role="group" aria-label="按大类筛选" data-t-attr="aria-label:groupFilterLabel"></div>
         <div class="tools-side">
           <label class="search">
             <span class="sr" data-t="searchLabel">搜索效果</span>
@@ -96,7 +96,9 @@
             <span id="play-t">暂停</span>
           </button>
         </div>
+        <div class="chips chips-row" id="packs" role="group" aria-label="按分类包筛选" data-t-attr="aria-label:packFilterLabel" hidden></div>
         <div class="chips chips-sub" id="cats" role="group" aria-label="按子分类筛选" data-t-attr="aria-label:catFilterLabel" hidden></div>
+        <p class="crumb" id="crumb"></p>
       </div>
     </div>
     <div class="wrap">
