@@ -432,24 +432,8 @@
       $$('.pack', gs).forEach(function (sec) { sec.classList.toggle('is-first', !sec.hidden && firstPack); if (!sec.hidden) firstPack = false; });
       $('.group-n', gs).textContent = t('count', { n: n });
     });
-    renderCrumb();
     $('#empty').hidden = shown.length > 0;
     $('#count').textContent = shown.length === CAT.count ? t('count', { n: CAT.count }) : t('countOf', { n: shown.length, total: CAT.count });
-  }
-  // 面包屑：选到分类包后显示路径（大类 › 分类包 › 小类）；「全部」或只选大类时隐藏，避免和按钮重复
-  function renderCrumb() {
-    var parts = [];
-    var g = groupBy[state.group], p = packBy[state.pack];
-    if (g) parts.push(g.title[state.lang] || g.title.en);
-    if (p) parts.push(p.title[state.lang]);
-    if (p && state.cat !== 'all') {
-      var c = p.categories.filter(function (x) { return x.slug === state.cat; })[0];
-      if (c) parts.push(c[state.lang]);
-    }
-    var crumb = $('#crumb');
-    crumb.textContent = parts.join(' › ');
-    // 只选了大类时，路径和高亮的大类按钮重复，不显示；选到分类包后才显示
-    crumb.hidden = !p;
   }
 
   function chip(label, pressed, small, onClick) {
