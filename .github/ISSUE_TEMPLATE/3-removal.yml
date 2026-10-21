@@ -12,7 +12,7 @@ body:
     id: target
     attributes:
       label: "对象链接"
-      description: "案例请填写帖子链接，仓库内容请填写文件链接。"
+      description: "案例请填写原帖或文章链接，仓库内容请填写文件链接。"
     validations:
       required: true
   - type: dropdown
@@ -29,8 +29,8 @@ body:
     attributes:
       label: "你的身份"
       options:
-        - "帖子作者本人"
-        - "帖子中作品的作者或权利人"
+        - "内容作者本人"
+        - "内容中作品的作者或权利人"
         - "代表以上人员"
         - "其他（报告错误）"
     validations:
@@ -47,6 +47,6 @@ body:
     attributes:
       label: "身份确认方式"
       description: |
-        例如：用对象帖子所在的账号发一条帖子或回复，注明本 Issue 编号（确认后可删除）；或 GitHub 个人资料中已关联你的 X 账号。
+        例如：用发布该内容的账号发帖、评论或私信，注明本 Issue 编号（确认后可删除）；或在 GitHub 个人资料中关联该账号。
     validations:
       required: true
