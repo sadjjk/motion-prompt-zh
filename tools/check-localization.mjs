@@ -89,7 +89,8 @@ try {
   // 效果库按大类（界面与网页 → 动态图形 → 剪辑与摄影）分节，首张卡片为「界面与网页」的 #049
   assert.equal(await page.locator('.tile-name').first().innerText(), '模态对话框');
   assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), CONFIG.site);
-  assert.match(await page.title(), /144/);
+  // 标题不写死数量，避免新增分类包后过时
+  assert.match(await page.title(), /动效与视觉效果中文名称库/);
   assert.equal(await page.locator('.seg-b').allTextContents().then(x => x.join('/')), 'ZH/EN/JA');
   assert.equal(await page.locator('.tile.is-broken').count(), 0);
   await page.locator('#play').click();

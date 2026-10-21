@@ -12,13 +12,13 @@
   var I18N = {
     'zh-Hans': {
       localizationNotice: '本项目是 Motion Prompt 的非官方简体中文本地化版本，基于 Shohei Ohtaki 的开源项目开发。', sourceLink: '原始项目',
-      title: 'Motion Prompt｜144 个动效与视觉效果的中文名称库',
-      description: 'Motion Prompt 非官方简体中文本地化版。144 个动态图形、镜头、UI、网页与摄影效果，附中文解释、动画预览和可复制的完整 AI Prompt。',
+      title: 'Motion Prompt｜动效与视觉效果中文名称库',
+      description: 'Motion Prompt 非官方简体中文版：界面与网页、动态图形、剪辑与摄影三大类动效，附中文解释、动画预览和可复制的完整 AI Prompt。',
       skip: '跳转到效果库', navLabel: '站点导航', navHow: '使用方法', navFound: '社区案例', langLabel: '语言',
       themeToDark: '切换深色模式', themeToLight: '切换浅色模式',
-      eyebrow: '用专业名称，向 AI 讲清创意', h1: '成为指挥 AI 的<wbr><span class="hero-phrase">创意总监</span>',
-      lead: '{n} 个动态图形、镜头、UI 组件、网页与摄影效果，每个都有动态示例。复制 Prompt，即可将效果解释、运动规格和参考实现一起交给 AI。',
-      factMoves: '个效果', factPacks: '个分类', factLicense: '开源许可',
+      eyebrow: '用专业名称，向 AI 讲清创意', h1: '成为 AI 的<wbr><span class="hero-phrase">视觉创意总监</span>',
+      lead: '{n} 个动效，分为界面与网页、动态图形、剪辑与摄影三大类，每个都有动态示例。复制 Prompt，即可把效果解释、运动规格和参考实现一起交给 AI。',
+      factMoves: '个效果', factGroups: '个大类', factPacks: '个分类包', factLicense: '开源许可',
       installSkillH: '通过 Skill 安装', installSkillP: '在终端运行下方命令。安装后，告诉 AI“打开 motion-prompt 效果库”，选好效果并点击“发送给 AI”即可。',
       installPromptH: '让 AI 帮你安装', installPromptP: '将下方说明粘贴到 Claude Code 或 Codex，AI 会安装 Skill 并介绍使用方法。',
       installPrompt: '阅读 {repo}，在当前环境安装 motion-prompt Skill。安装完成后，用三行中文说明如何使用。',
@@ -58,9 +58,9 @@
       skip: '見本の一覧へ移動', navLabel: 'サイト内', navHow: '使い方', navFound: '事例', langLabel: '言語',
       themeToDark: 'ダークモードに切り替える', themeToLight: 'ライトモードに切り替える',
       eyebrow: 'AIに頼むための「名前」のライブラリ',
-      h1: 'AIを<wbr>指揮する<wbr>クリエイティブ<wbr>ディレクターへ',
-      lead: 'モーショングラフィックス、カメラワーク、UIパーツ、LP・Webサイトの演出、写真の表現の名前を{n}個、動く見本つきで並べました。プロンプトをコピーすれば、動きの仕様と参考実装も一緒に渡せます。',
-      factMoves: '名前', factPacks: 'パック', factLicense: 'ライセンス',
+      h1: 'AIの<wbr>ビジュアル・<wbr>クリエイティブ<wbr>ディレクターへ',
+      lead: 'UI・Web、モーショングラフィックス、編集・撮影の3つの大分類に、名前を{n}個、動く見本つきで並べました。プロンプトをコピーすれば、動きの仕様と参考実装も一緒に渡せます。',
+      factMoves: '名前', factGroups: '大分類', factPacks: 'パック', factLicense: 'ライセンス',
       installSkillH: 'スキルで導入',
       installSkillP: 'ターミナルで実行します。入れたあとは、AIに「motion-prompt のライブラリ出して」と頼むと、このギャラリーが開きます。選んで「AIに渡す」を押すと、AIに届きます。',
       installPromptH: 'プロンプトで導入',
@@ -118,9 +118,9 @@
       skip: 'Skip to the gallery', navLabel: 'Site', navHow: 'How to use', navFound: 'Examples', langLabel: 'Language',
       themeToDark: 'Switch to dark mode', themeToLight: 'Switch to light mode',
       eyebrow: 'A library of names to use with AI',
-      h1: 'For the creative directors who direct AI.',
-      lead: '{n} names from motion graphics, camera work, UI components, landing pages and photography, each with a moving sample. Copy the prompt, and the motion spec and a reference implementation go with it.',
-      factMoves: 'Names', factPacks: 'Packs', factLicense: 'License',
+      h1: "Be AI's visual creative director.",
+      lead: '{n} named effects in three groups: UI & Web, Motion graphics, and Editing & photography, each with a moving sample. Copy the prompt, and the motion spec and a reference implementation go with it.',
+      factMoves: 'Names', factGroups: 'Groups', factPacks: 'Packs', factLicense: 'License',
       installSkillH: 'Install as a skill',
       installSkillP: 'Run this in a terminal. After that, say "open the motion-prompt library" to your AI and this gallery opens. Pick what you want and press "Send to AI".',
       installPromptH: 'Install with a prompt',
@@ -848,6 +848,7 @@
     });
     $$('[data-lang]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-lang') === lang ? 'true' : 'false'); });
     $('#fact-count').textContent = CAT.count;
+    $('#fact-groups').textContent = GROUPS.length;
     $('#fact-packs').textContent = CAT.packs.length;
     $('#tsv-link').href = 'api/v1/' + lang + '/catalog.tsv';
     $$('[data-href-' + lang + ']').forEach(function (a) { a.href = a.getAttribute('data-href-' + lang); });
