@@ -1,0 +1,15 @@
+Please use "Toggle switch" (トグルスイッチ), one of the names in "UI component names".
+Motion Prompt #059
+
+What it is: Flip a setting on or off
+What the sample shows: The switches on the first two of three setting rows are turned on in turn, then off again.
+Spec:
+- 4.5 s cycle on a 542×191 card. Three setting rows 60 px apart with dividers. At x 450 a 64×34 track (radius 17) and a white knob (radius 13, shadow).
+- Clicks: row 1 on at 1.0 s, row 2 on at 1.8 s, row 1 off at 3.0 s, row 2 off at 3.6 s. Row 3 stays off.
+- Each switch takes 0.2 s with easeOutCubic; the knob slides 30 px (17 → 47).
+- The track colour blends from grey #d9d7d5 to blue #1f5ae8 with the switch progress.
+When to use it: Use it for settings that take effect immediately and have only two states.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/059.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

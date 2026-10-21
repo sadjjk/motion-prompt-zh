@@ -1,0 +1,16 @@
+Please use "Spinner" (スピナー), one of the names in "UI component names".
+Motion Prompt #070
+
+What it is: A spinning circle that means "please wait"
+What the sample shows: Clicking "Send" washes the card white and a blue arc spins in the middle; when finished it changes to a check and fades.
+Spec:
+- 4.5 s cycle on a 542×191 card. The cursor clicks "Send" (120×40, bottom centre) at 1.0 s.
+- Over 1.05–1.2 s (linear) a white scrim (opacity 0.78) and the spinner fade in over the whole card.
+- Spinner at (271, 92): a pale ring, radius 26, 6 thick, with a blue 243° (1.35π) arc on top (round caps), turning 1.3 times per second (468°/s).
+- Over 2.95–3.05 s the spinner fades; over 2.95–3.2 s a blue circle (radius 28) with a white check scales 0.7 → 1 (easeOutCubic).
+- Everything fades out linearly over 3.75–4.0 s.
+When to use it: Use it for short waits of unknown length, such as sending or saving.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/070.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

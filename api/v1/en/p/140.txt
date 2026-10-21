@@ -1,0 +1,15 @@
+Please use "Page curl" (ページめくり), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #140
+
+What it is: Peels back like paper to show the next page
+What the sample shows: A page peels back from its corner and folds over, revealing the next page beneath.
+Spec:
+- Page 1 (white) → page 2 (cream) → page 1, 2.35 s each. The curl starts at the bottom-right corner, 0.35–1.75 s (1.4 s), quadratic ease-in-out.
+- The fold line moves from the corner in the direction (−1, −0.42), normalised, by 0→600 px.
+- The part beyond the fold line is mirrored across it to form the flap, the back of the page (light grey or beige), with a drop shadow (blur 14, offset 4, 4) and a white 2 px edge.
+- The next page shows where the paper has lifted, with a 50 px shadow gradient along the fold.
+When to use it: Use it for books, catalogues, albums or chapter breaks, where a paper feel or reading on suits the content.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/140.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

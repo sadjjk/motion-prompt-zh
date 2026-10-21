@@ -1,0 +1,36 @@
+// Motion Prompt #014 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#014
+//
+// Motion trail / モーショントレイル
+// Pack: motion (Motion graphics moves) · element 14 · Category: Motion polish
+// What happens: A ball moving in a figure eight leaves a fading trail of copies behind it.
+// Motion spec:
+//   - A ball (coral, radius 25, white centre radius 11) traces a figure eight once per 4.7 s: x = 196·sin(a), y = 62·sin(2a), with a advancing at constant speed.
+//   - 15 copies, each placed 0.105 rad (about 0.079 s) further back along the path.
+//   - Copy radius goes 22→6 and opacity is 0.9 × (1 − i/15) + 0.05, so older copies are smaller and fainter.
+//   - Copy colour runs coral → yellow → blue from newest to oldest.
+//   - Draw the oldest copy first and the ball itself last.
+// When to use it: Use it to show speed or a path: flying objects, cursors, points of light.
+// Tags: trail, motion-trail, echo, afterimage, ghost, path, speed
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#014
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 14
+// 14 モーショントレイル（動いた跡に、残像が尾を引く）
+CELLS[13] = (k, w, h, u) => {
+  stage(k);
+  const X = w / 2, Y = h / 2 + 2, A = 196, B = 62, th = u / CYC * Math.PI * 2;
+  const pt = a => [X + A * Math.sin(a), Y + B * Math.sin(2 * a)];
+  const N = 15;
+  for (let i = N; i >= 1; i--) {
+    const [x, y] = pt(th - i * 0.105), f = i / N;
+    k.globalAlpha = 0.9 * (1 - f) + 0.05; k.fillStyle = f < 0.5 ? mix(C.coral, C.yel, f * 2) : mix(C.yel, C.blue, (f - 0.5) * 2);
+    k.beginPath(); k.arc(x, y, lerp(22, 6, f), 0, 7); k.fill();
+  }
+  k.globalAlpha = 1; const [x, y] = pt(th);
+  k.fillStyle = C.coral; k.beginPath(); k.arc(x, y, 25, 0, 7); k.fill();
+  k.fillStyle = '#fff'; k.beginPath(); k.arc(x, y, 11, 0, 7); k.fill();
+};

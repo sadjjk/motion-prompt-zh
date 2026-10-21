@@ -1,0 +1,16 @@
+Please use "Stop-motion style" (ストップモーション風), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #128
+
+What it is: Moves in choppy steps, with frames dropped
+What the sample shows: A star hops across in choppy steps at about 8 frames per second, each frame slightly off.
+Spec:
+- 38 frames per 4.7 s (about 8 per second, each held for about 0.124 s). Only those frames are drawn; nothing is drawn in between.
+- A yellow star (radius 38) hops from x = −44 to 583 along three arches of height 54·|sin(3πt)|, turning twice.
+- Each frame gets a fixed random jitter: position ±5 px across and ±4.5 px up and down, rotation ±0.15 rad, size ±5%.
+- The previous two frames stay faintly visible (opacity 0.28 and 0.12), like onion skin.
+- Black film-strip bands top and bottom (26 px each, with sprocket holes) and a frames-per-second label.
+When to use it: Use it for a handmade, claymation or collage look, when smooth motion feels too slick.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/128.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

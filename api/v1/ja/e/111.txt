@@ -1,0 +1,32 @@
+// Motion Prompt #111 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#111
+//
+// 色収差 / Chromatic aberration
+// パック: photo (写真の表現・光と画風) · element 15 · カテゴリ: レンズ・カメラの効果
+// 何が起きるか: 街角の絵を赤・緑・青に分け、少しずつ違う大きさで重ねると、人物や建物や街灯の縁に赤と青緑のずれが出て、画面の端ほど大きくなる。
+// 動きの仕様:
+//   - 場面②: 街角。奥に建物の列・木・街灯（x114, 292, 494）、道は y132〜162、人物は左手前（足元 x176, y200・身長124px）。
+//   - 分け方: 絵に赤 #FF0000・緑 #00FF00・青 #0000FF を乗算して3枚にし、黒の上に加算で重ねる
+//   - 大きさ（画面の中心から）: 赤 1 + 2s、緑 1 + s、青 1。s = 0 → 0.02
+//   - ずれ: 画面の左右の端で赤と青が約11px離れる、中心では0
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、3次のイーズインアウト（cubic-bezier(0.65,0,0.35,1) 相当））
+// 使いどころ: 古いレンズやVHS、グリッチのような、少し崩れた質感を足したいとき。
+// タグ: chromatic aberration, color fringing, rgb split, lens aberration, fringe, glitch
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#111
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 15
+// 色収差: 赤・緑・青を少しずつ違う大きさで重ね、画面の端ほど縁に赤と青のずれが出る
+CELLS[14] = cell((k, u) => {
+  const a = env(u), s = 0.02 * a, cx = CW / 2, cy = CH / 2;
+  if (s < 0.0005) { stageStreet(k, BASE); return; }
+  const [S, ks] = layer('ca'); stageStreet(ks, BASE);
+  k.fillStyle = '#000000'; k.fillRect(0, 0, CW, CH);
+  for (const [col, sc] of [['#FF0000', 1 + 2 * s], ['#00FF00', 1 + s], ['#0000FF', 1]]) {
+    const [L, kl] = layer('ca-' + col); kl.drawImage(S, 0, 0); kl.globalCompositeOperation = 'multiply'; kl.fillStyle = col; kl.fillRect(0, 0, CW, CH); kl.globalCompositeOperation = 'source-over';
+    k.save(); k.globalCompositeOperation = 'lighter'; k.translate(cx, cy); k.scale(sc, sc); k.translate(-cx, -cy); k.drawImage(L, 0, 0); k.restore();
+  }
+});

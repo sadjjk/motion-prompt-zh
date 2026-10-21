@@ -1,0 +1,17 @@
+Please use "Dutch angle" (ダッチアングル), one of the names in "Camera moves & transitions".
+Motion Prompt #036
+
+What it is: Tilt the frame diagonally
+What the sample shows: A level camera rolls around its lens axis and holds with the horizon on a diagonal.
+Spec:
+- Camera: position fixed (height 1.5 m); roll only, 0 → 0.36 rad (about 21°); the whole picture turns around the frame centre
+- Timing: 0.6 s to 2.2 s (1.6 s), cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1))
+- Subject: a person stands still 7 m ahead; horizon, buildings and person all tilt by the same angle
+- Hold: stays tilted from 2.2 s to 4.2 s (time to read the tilted composition itself)
+- Return: cross-fade back to the level start over the last 0.5 s (one pass = 4.7 s)
+- Top-right readout shows the angle (∠ 0° → ∠ 21°)
+When to use it: To express unease, tension or the feeling that something is wrong.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/036.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

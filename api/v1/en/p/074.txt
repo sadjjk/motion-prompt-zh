@@ -1,0 +1,16 @@
+Please use "Fade-in on scroll" (スクロールでフェードイン), one of the names in "Landing page & web effects".
+Motion Prompt #074
+
+What it is: Elements fade in as they scroll into view
+What the sample shows: As the page scrolls, the heading, the cards and the body text each rise into place and fade in when they enter the view.
+Spec:
+- Scroll: 0→95 px at 0.35–1.0 s, 95→200 px at 1.5–2.1 s, 200→0 at 3.2–4.4 s (all cubic ease-in-out).
+- Trigger line at 85% of the viewport height (143 px from the top). An element fires when its top edge passes above it (the Intersection Observer idea).
+- After firing, over 0.7 s: opacity 0→1 and offset 28 px below → 0 (cubic ease-out).
+- Three elements: the heading (172 px down the page), a row of three cards (206 px) and body text (334 px), all below the view at first. The cards in the row appear together.
+- When an element leaves the bottom of the view on the way back up, it is reset out of sight and plays again next time.
+When to use it: Use it on a long landing page to bring content in piece by piece as the reader scrolls.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/074.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

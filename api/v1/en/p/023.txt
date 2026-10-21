@@ -1,0 +1,17 @@
+Please use "Glitch" (グリッチ), one of the names in "Motion graphics moves".
+Motion Prompt #023
+
+What it is: The picture breaks up as if it were malfunctioning
+What the sample shows: Text slices shift sideways, colours split and small bars appear, with no brightness flashing.
+Spec:
+- White bold text (104 px). It glitches twice per 4.7 s: 0.55–1.25 s (5 steps) and 2.9–3.74 s (6 steps); otherwise it is still.
+- Each step lasts 0.14 s and shows one fixed disturbance (stepped, not smoothly animated).
+- Colour split: a coral copy shifted 7–16 px left and 2 px down, a cyan (#22D3EE) copy shifted the same amount right and 2 px up, with the white text on top.
+- Slice shift: 2–4 horizontal strips (10–35 px tall, y 40–150) are displaced 18–64 px to the left or right.
+- Three small colour bars (coral, cyan, yellow; 30–120 wide × 5–12 tall) at random positions.
+- Background brightness never changes (no full-frame flashing). The random values use a fixed seed.
+When to use it: Use it for a digital, error or uneasy feel, as an accent on titles and scene changes.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/023.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

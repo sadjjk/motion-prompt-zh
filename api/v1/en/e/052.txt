@@ -1,0 +1,35 @@
+// Motion Prompt #052 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#052
+//
+// Accordion / アコーディオン
+// Pack: ui (UI component names) · element 04 · Category: Opening & overlays
+// What happens: Clicking the first of three headings opens its content and pushes the rows below down; clicking again closes it.
+// Motion spec:
+//   - 4.5 s cycle on a 542×191 card. Three headings (494 wide, 34 tall, radius 8, gap 6) with a down chevron at the right.
+//   - The cursor reaches the first heading at 0.95 s and clicks at 1.0 s and 3.3 s.
+//   - Open amount ex: 0→1 over 1.0–1.35 s with easeInOutCubic, then 1→0 over 3.3–3.62 s.
+//   - The first row grows from 34 to 92 tall (+58·ex) and pushes the rows below down; its two content lines are clipped to the row and fade in with opacity ex.
+//   - While open, the chevron rotates 180°·ex, the border turns light blue and the heading blue.
+// When to use it: Use it for FAQs or long details where people scan the headings and open only what they need.
+// Tags: accordion, collapsible, expand, collapse, disclosure, faq, details
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#052
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 04
+// 04 アコーディオン（Accordion）
+CELLS[3] = ui((w, h, t) => {
+  const ex = eio(seg(t, 1.0, 1.35)) * (1 - eio(seg(t, 3.3, 3.62)));
+  let y = 12; const H0 = 34, EX = 58;
+  for (let i = 0; i < 3; i++) {
+    const extra = i === 0 ? EX * ex : 0;
+    strokeRR(24, y, 494, H0 + extra, 8, i === 0 && ex > .05 ? C.sb : C.line2, 1.5);
+    bar(42, y + 12, [180, 220, 150][i], i === 0 && ex > .05 ? C.blue : C.line2, 10);
+    chevron(494, y + 17, 6, i === 0 ? Math.PI * ex : 0, i === 0 && ex > .05 ? C.blue : '#9a9896');
+    if (i === 0 && ex > 0) { X.save(); rr(24, y, 494, H0 + extra, 8); X.clip(); X.globalAlpha = ex; bar(42, y + H0 + 6, 420); bar(42, y + H0 + 24, 320); X.restore(); }
+    y += H0 + extra + 6;
+  }
+  pointer([[.3, w + 30, h + 30], [.95, 300, 31], [1.6, 300, 31], [3.0, 300, 31], [3.55, 300, 31], [4.2, w + 30, h + 30]], [1.0, 3.3], t);
+});

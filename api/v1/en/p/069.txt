@@ -1,0 +1,15 @@
+Please use "Skeleton screen" (スケルトン), one of the names in "UI component names".
+Motion Prompt #069
+
+What it is: Grey shapes stand in for content while it loads
+What the sample shows: Clicking reload turns the list into grey blocks of the same shape with a sweeping shine; the content returns when loading ends.
+Spec:
+- 4.5 s cycle on a 542×191 card. A two-row list (a 96×56 picture and three text lines each). The cursor clicks the reload icon at top right at 1.0 s.
+- Over 1.05–1.2 s (linear) the content switches to grey #e9e7e5 rounded blocks of the same size and position.
+- Shine: a white band 160 wide (transparent at the edges, opacity 0.75 in the middle) sweeps from x −200 to x 742 every 0.9 s, drawn only over the blocks.
+- The content returns over 3.0–3.3 s (linear).
+When to use it: Use it for lists or cards that take a moment to load, so the layout is visible while people wait.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/069.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

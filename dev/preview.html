@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hans">
+<meta charset="utf-8"><title>分类包预览｜Motion Prompt</title>
+<style>
+body{margin:20px;background:#f4f3f0;font:13px/1.4 system-ui}
+#g{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+figure{margin:0}canvas{width:100%;height:auto;display:block;border-radius:8px;background:#fff}
+figcaption{padding:4px 2px;color:#333}
+</style>
+<p id="info"></p><div id="g"></div>
+<script src="../assets/runtime.js"></script>
+<script>
+// dev/preview.html?pack=motion            all cells of one pack, playing
+// dev/preview.html?pack=motion&t=1.2      frozen at u = 1.2s (use this for screenshots)
+// dev/preview.html?pack=motion&only=5     only element 05 (1-based), large
+const q = new URLSearchParams(location.search), id = q.get('pack');
+const s = document.createElement('script'); s.src = `../packs/${id}/pack.js`;
+s.onload = async () => {
+  const p = MotionPrompt.packs[id];
+  await MotionPrompt.loadFonts(p, new URL(`../packs/${id}/`, location.href));
+  await document.fonts.ready;
+  const meta = await fetch(`../packs/${id}/meta.json`).then(r => r.json()).catch(() => null);
+  const only = +q.get('only') || 0, fixed = q.has('t') ? +q.get('t') : null;
+  if (only) document.getElementById('g').style.gridTemplateColumns = '1fr';
+  document.getElementById('info').textContent = `${id}: ${p.cells.length} 个效果，${p.width}x${p.height}，周期 ${p.cycle} 秒`;
+  const items = [];
+  p.cells.forEach((cell, i) => {
+    if (only && only !== i + 1) return;
+    const f = document.createElement('figure'), c = document.createElement('canvas');
+    c.width = p.width; c.height = p.height;
+    const el = meta && meta.elements[i];
+    f.append(c); const cap = document.createElement('figcaption');
+    cap.textContent = `${String(i + 1).padStart(2, '0')} ${el ? (el.name['zh-Hans'] || el.name.en) + ' / ' + el.name.en : ''}`;
+    f.append(cap); document.getElementById('g').append(f);
+    items.push({ cell, k: c.getContext('2d') });
+  });
+  const draw = u => items.forEach(({ cell, k }) => {
+    k.setTransform(1, 0, 0, 1, 0, 0); k.globalAlpha = 1; k.filter = 'none'; k.globalCompositeOperation = 'source-over';
+    k.clearRect(0, 0, p.width, p.height); k.save(); cell(k, p.width, p.height, u); k.restore();
+  });
+  if (fixed !== null) { draw(fixed % p.cycle); window.READY = true; }
+  else { const t0 = performance.now(); (function loop() { draw(((performance.now() - t0) / 1000) % p.cycle); requestAnimationFrame(loop); })(); window.READY = true; }
+};
+document.head.append(s);
+</script>

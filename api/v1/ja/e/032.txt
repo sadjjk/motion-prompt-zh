@@ -1,0 +1,31 @@
+// Motion Prompt #032 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#032
+//
+// ドリーズーム / Dolly zoom (Vertigo)
+// パック: camera (カメラワークと切り替え) · element 08 · カテゴリ: カメラの動き
+// 何が起きるか: カメラを引きながら同じ比率でズームする。人物の大きさは変わらず、背景だけが迫ってくる。
+// 動きの仕様:
+//   - カメラ: 人物（8m先）との距離 d を 3.2m → 8m に広げる（4.8m後退）。高さ1.3m
+//   - 焦点距離: f = 330 × d/8 px。132px → 330px（10mm → 24mm表示）。距離と焦点距離の比を一定に保つ
+//   - 時間: 0.5秒から3.4秒まで2.9秒。3次のイーズインアウト（cubic-bezier(0.65,0,0.35,1) 相当）
+//   - 被写体: 人物は動かず、画面上の高さも一定。頭（1.8m）と足元に幅160pxの青い点線を引き、大きさが変わらないことを示す
+//   - 背景: 建物（48m先）は約2.2倍、山は約2.4倍に拡大して人物の後ろに迫る。人物より手前の地面は逆に縮む
+//   - 戻り: 3.4〜4.2秒は止め、最後の0.5秒で開始状態へクロスフェード（1周4.7秒）
+// 使いどころ: 人物が何かに気づいた瞬間や、不安・動揺を映像で表すとき。
+// タグ: dolly zoom, vertigo, zolly, push pull, background stretch, unease, camera move
+// サイズ: 539x208 px · 1周: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#032
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 08
+// 08 ドリーズーム: 人物の大きさは一定、背景だけ伸び縮み
+CELLS[7] = shot(camCell((k, w, h, p) => {
+  const d = lerp(3.2, 8, p), f = F0 * d / 8 * 1.0;
+  const c = cam({ z: 8 - d, f, y: 1.3 });
+  world(k, w, h, c, {
+    person: { z: 8 }, trees: true,
+    after: (kk, cc) => { const top = proj(cc, 0, 1.8, 8).y, bot = proj(cc, 0, 0, 8).y; kk.strokeStyle = C.blue; kk.lineWidth = 1.6; kk.setLineDash([6, 5]); kk.beginPath(); kk.moveTo(-80, top); kk.lineTo(80, top); kk.moveTo(-80, bot); kk.lineTo(80, bot); kk.stroke(); kk.setLineDash([]); }
+  });
+}, p => mm(F0 * lerp(3.2, 8, p) / 8)));

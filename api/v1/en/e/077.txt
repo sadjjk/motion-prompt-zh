@@ -1,0 +1,42 @@
+// Motion Prompt #077 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#077
+//
+// Horizontal scroll / 横スクロール
+// Pack: lp (Landing page & web effects) · element 05 · Category: Scroll effects
+// What happens: As the page scrolls down, the section holds still and four numbered work cards travel to the left.
+// Motion spec:
+//   - Scroll: 0→420 px at 0.3–3.0 s, 420→0 at 3.5–4.5 s (cubic ease-in-out).
+//   - The heading "WORKS" scrolls away; the section reaches the top at 40 px of scroll and stays there.
+//   - Cards: four at 200 × 112, gap 20, side padding 34. Horizontal travel = 34·2 + 200·4 + 20·3 − 511 = 417 px.
+//   - Card x = start x − p × 417, with p = (scroll − 40) / 380: linear in scroll, no easing.
+//   - The scrollbar thumb moves down while the cards move sideways.
+// When to use it: Use it to show work, case studies or products in a row inside a long vertical page.
+// Tags: horizontal-scroll, sideways, scrolltrigger, pin, gallery, portfolio, scroll
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#077
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 05
+// 05 横スクロール（縦にスクロールすると、カードの列が横へ流れる）
+CELLS[4] = (k, w, h, u) => {
+  frame(k);
+  const y = steps([[0.3, 0], [3.0, 420], [3.5, 420], [4.5, 0]], u);
+  const PIN0 = 40, PD = 380, N = 4, PWD = 200, GAP = 20;
+  const top = y < PIN0 ? PIN0 - y : 0, p = clamp((y - PIN0) / PD);
+  const travel = 34 * 2 + N * PWD + (N - 1) * GAP - VW;
+  view(k, () => {
+    txt(k, 'WORKS', 34, 30 - y, `800 20px ${EN}`, C.ink, 'left', 'alphabetic', '2px');
+    k.save(); k.translate(0, top);
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH + 40);
+    for (let i = 0; i < N; i++) {
+      const x = 34 + i * (PWD + GAP) - p * travel;
+      pic(k, x, 18, PWD, 112, i % 3, 8);
+      txt(k, '0' + (i + 1), x + 14, 118, `800 22px ${EN}`, '#fff');
+      bars(k, x, 140, 120, 1, '#CBD2DE');
+    }
+    k.restore();
+    sbar(k, y / 420, 0.36);
+  });
+};

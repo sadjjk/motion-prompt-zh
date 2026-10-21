@@ -1,0 +1,35 @@
+// Motion Prompt #056 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#056
+//
+// トースト / Toast notification
+// パック: ui (UIパーツの名前) · element 08 · カテゴリ: 開く・重なるパーツ
+// 何が起きるか: 「保存」を押すと右下に黒い通知が右から滑り込み、残り時間の線が縮みきると右へ消える。
+// 動きの仕様:
+//   - 4.5秒周期・カード542×191。左下の青い「保存」ボタン（110×36）をカーソルが1.0秒にクリックし、左下へ去る
+//   - 通知: #26282c の 214×52・角丸10。右端から18px・下端から16pxの位置に、1.05〜1.4秒に easeOutCubic で右から240px滑り込む
+//   - 中身: 青い丸に白いチェックと、白い15pxの「保存しました」
+//   - 下端に残り時間の線（幅194→0・高さ3）を1.4〜3.2秒に直線で縮める
+//   - 消える: 3.2〜3.55秒に easeInOutCubic で右へ240px滑り出る
+// 使いどころ: 保存・送信などの結果を、作業を止めずに短く知らせたいとき。
+// タグ: toast, snackbar, notification, alert, message, auto-dismiss
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#056
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 08
+// 08 トースト（Toast notification）
+CELLS[7] = ui((w, h, t) => {
+  bar(24, 16, 90, C.line2, 10); strokeRR(24, 34, 300, 34, 7, C.line2, 1.5); bar(24, 82, 90, C.line2, 10); strokeRR(24, 100, 300, 34, 7, C.line2, 1.5);
+  fillRR(24, 146, 110, 36, 8, C.blue); text('保存', 79, 164, 16, '#fff', 600, 'center');
+  const tin = eo(seg(t, 1.05, 1.4)), tout = eio(seg(t, 3.2, 3.55));
+  if (tin > 0 && tout < 1) {
+    const tw0 = 214, th = 52, tx = w - 18 - tw0 + (1 - tin) * 240 + tout * 240, ty = h - 16 - th;
+    shadowed(() => fillRR(tx, ty, tw0, th, 10, C.dark), 18, 6, .25);
+    circle(tx + 26, ty + 24, 11, C.blue); check(tx + 26, ty + 24, 5, '#fff', 2.4);
+    text('保存しました', tx + 46, ty + 24, 15, '#fff', 600);
+    const life = 1 - seg(t, 1.4, 3.2); fillRR(tx + 10, ty + th - 7, (tw0 - 20) * life, 3, 1.5, C.sb);
+  }
+  pointer([[.3, -30, h + 30], [.95, 84, 168], [1.5, 84, 168], [2.2, -40, h + 40]], [1.0], t);
+});

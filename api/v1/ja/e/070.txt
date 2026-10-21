@@ -1,0 +1,35 @@
+// Motion Prompt #070 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#070
+//
+// スピナー / Spinner
+// パック: ui (UIパーツの名前) · element 22 · カテゴリ: 案内する・状態を伝えるパーツ
+// 何が起きるか: 「送信」を押すと画面が白くかすみ、中央で青い弧が回る。済むとチェックに変わって消える。
+// 動きの仕様:
+//   - 4.5秒周期・カード542×191。下中央の「送信」（120×40）をカーソルが1.0秒にクリック
+//   - 1.05〜1.2秒に直線で、全面に白の幕（不透明度0.78）とスピナーを出す
+//   - スピナー: (271, 92) に半径26・太さ6の薄い輪と、その上に長さ243°（1.35π）の青い弧（端は丸）。1秒に1.3回転（468°/秒）で回す
+//   - 2.95〜3.05秒にスピナーを消し、2.95〜3.2秒に青い丸（半径28）と白いチェックを拡大率 0.7→1（easeOutCubic）で出す
+//   - 3.75〜4.0秒に直線で幕ごと消す
+// 使いどころ: 送信・保存など、終わるまでの時間が読めない短い待ちを示したいとき。
+// タグ: spinner, loading, loader, activity-indicator, progress-circle, busy
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#070
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 22
+// 22 スピナー（Spinner）
+CELLS[21] = ui((w, h, t) => {
+  const load = seg(t, 1.05, 1.2) * (1 - seg(t, 2.95, 3.05));
+  const done = seg(t, 2.95, 3.15) * (1 - seg(t, 3.75, 4.0));
+  pageLines(24, 18, 494); strokeRR(24, 90, 494, 34, 7, C.line2, 1.5);
+  fillRR(w / 2 - 60, 140, 120, 40, 8, C.blue); text('送信', w / 2, 160, 16, '#fff', 600, 'center');
+  const ov = Math.max(load, done);
+  if (ov > 0) {
+    X.fillStyle = `rgba(255,255,255,${.78 * ov})`; X.fillRect(0, 0, w, h);
+    if (load > 0) { X.save(); X.globalAlpha = load; ring(w / 2, 92, 26, '#e3e8f5', 6); X.beginPath(); const a0 = t * Math.PI * 2 * 1.3; X.arc(w / 2, 92, 26, a0, a0 + Math.PI * 1.35); X.strokeStyle = C.blue; X.lineWidth = 6; X.lineCap = 'round'; X.stroke(); X.restore(); }
+    if (done > 0) { X.save(); X.globalAlpha = done; const s = .7 + .3 * eo(seg(t, 2.95, 3.2)); X.translate(w / 2, 92); X.scale(s, s); circle(0, 0, 28, C.blue); check(0, 0, 11, '#fff', 4); X.restore(); }
+  }
+  pointer([[.3, w + 30, h + 30], [.95, w / 2 + 6, 166], [1.5, w / 2 + 6, 166], [2.2, w + 30, h + 30]], [1.0], t);
+});

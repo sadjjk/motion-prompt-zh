@@ -1,0 +1,26 @@
+// Motion Prompt #138 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#138
+//
+// ブラインド / Blinds transition
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 18 · カテゴリ: 切り替え・見せ場
+// 何が起きるか: 細い帯ごとのすき間がだんだん広がって、次の画面が開く。
+// 動きの仕様:
+//   - 昼の画面 → 夜の画面 → 昼を2.35秒ずつ。横の帯7本（1本 208÷7 ≒ 29.7px）
+//   - 0.4〜1.65秒（1.25秒）、easeInOut（2乗）: どの帯でも、帯の上端から下へ次の画面が見える部分を広げ、0から帯の高さいっぱいまで同時に開く
+//   - 前の画面は下に置いたまま動かさない。どちらの画面の絵も動かさない
+// 使いどころ: 昼夜・季節・前後など、2つの場面をはっきり切り替えたいとき。レトロな雰囲気を出したいときにも。
+// タグ: blinds, venetian-blinds, stripes, transition, wipe, scene-change
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#138
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 18
+// 18 ブラインド（細い帯ごとのすき間がだんだん広がって、次の画面が開く）
+CELLS[17] = abCell((k, w, h, u, a, b) => {
+  const p = eIOs(P(u, TA - 0.1, TB + 0.15)), N = 7, sh = h / N, S = [scrA, scrB];
+  S[a](k, w, h);
+  if (p <= 0) return;
+  k.save(); k.beginPath(); for (let i = 0; i < N; i++) k.rect(0, i * sh, w, sh * p + (p > 0.999 ? 1 : 0)); k.clip(); S[b](k, w, h); k.restore();
+});

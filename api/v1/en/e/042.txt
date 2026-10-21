@@ -1,0 +1,44 @@
+// Motion Prompt #042 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#042
+//
+// Match cut / マッチカット
+// Pack: camera (Camera moves & transitions) · element 18 · Category: Transitions
+// What happens: A thrown ball becomes, in the next shot, a sun at the same position and size; two different scenes are joined on a matching shape.
+// Motion spec:
+//   - Join: a straight cut at 2.3 s (0 frames); the blue circle has the same position (120 px right, 46 px above centre) and radius 17 px on both sides
+//   - Outgoing shot (0–2.3 s): fixed camera (height 1.4 m); a person (1.2 m left, 7 m away) throws a ball from 0.5 s, cubic ease-out (about cubic-bezier(0.33,1,0.68,1))
+//   - Ball: travels from above the person's head (2.3 m high) to the match point; radius 5 px → 17 px, on an arc bulging up to 30 px
+//   - Incoming shot (2.3–4.7 s): a different place (no buildings, height 1.2 m); the blue circle in the same spot is now the sun and sinks 14 px over 2.4 s
+//   - Marker: a blue dashed circle of radius 26 px fades in and out within 0.7 s either side of the cut
+//   - Top-right readout shows "SHOT 1" → "SHOT 2"; at 4.7 s it cuts straight back to SHOT 1
+// When to use it: To link two scenes far apart in time or place through a shared shape or motion.
+// Tags: match cut, graphic match, shape match, cut, transition, edit
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#042
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 18
+// 18 マッチカット（投げたボール → 同じ位置・大きさの太陽）
+CELLS[17] = shot((k, w, h, u) => {
+  const cut = 2.3;
+  const BX = 120, BY = -46, BR = 17;
+  if (u < cut) {
+    const q = eOut(P(u, 0.5, cut));
+    world(k, w, h, cam({ y: 1.4 }), {
+      person: { x: -1.2, z: 7, armUp: q > 0.05 }, sun: null,
+      after: (kk, cc) => { const s = proj(cc, -1.2, 2.3, 7); const x = lerp(s.x, BX, q), y = lerp(s.y, BY, q) - Math.sin(q * Math.PI) * 30, r = lerp(5, BR, q); kk.fillStyle = C.blue; kk.beginPath(); kk.arc(x, y, r, 0, 7); kk.fill(); }
+    });
+  } else {
+    const q = P(u, cut, CYC);
+    world(k, w, h, cam({ y: 1.2 }), {
+      buildings: false, sun: null, trees: true,
+      after: (kk) => { kk.fillStyle = C.blue; kk.beginPath(); kk.arc(BX, BY + q * 14, BR, 0, 7); kk.fill(); }
+    });
+  }
+  // 形がそろっていることを示す点線の円
+  const g = Math.max(0, 1 - Math.abs(u - cut) / 0.7);
+  if (g > 0) { k.save(); k.translate(w / 2, h / 2); k.globalAlpha = g; k.strokeStyle = C.blue; k.lineWidth = 2; k.setLineDash([5, 4]); k.beginPath(); k.arc(BX, BY + (u > cut ? P(u, cut, CYC) * 14 : 0), BR + 9, 0, 7); k.stroke(); k.restore(); }
+  return u < cut ? 'SHOT 1' : 'SHOT 2';
+});

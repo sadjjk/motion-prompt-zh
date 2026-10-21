@@ -1,0 +1,38 @@
+// Motion Prompt #094 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#094
+//
+// マーキー / Marquee
+// パック: lp (LP・Webサイトの演出) · element 22 · カテゴリ: 読み込み・移動・動き続ける演出
+// 何が起きるか: 濃紺の帯の中で、大きな英字のサービス名と朱色の点が、途切れずに左へ流れ続ける。
+// 動きの仕様:
+//   - 帯: 高さ58・濃紺・表示域の幅いっぱい。文字: 30px・太字・字間1px・白
+//   - 4語（WEB DESIGN / BRANDING / MOTION / UI/UX）を1組とし、語の間は64px、その真ん中に朱色の点（半径6）
+//   - 1周期（4.8秒）で1組の幅（この環境で約881px）だけ等速で左へ動かす。1組の幅を測って位置を 周期で折り返すので、つなぎ目が出ない
+//   - 表示域の幅が埋まるまで同じ組をくり返して並べる
+// 使いどころ: サービス名・取引先のロゴ・キャッチコピーを、にぎやかに見せたいとき。
+// タグ: marquee, ticker, infinite-loop, scrolling-text, logo-strip, band, loop
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#094
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 22
+// 22 マーキー（文字の帯が、途切れずに横へ流れ続ける）
+CELLS[21] = (k, w, h, u) => {
+  frame(k);
+  const WORDS = ['WEB DESIGN', 'BRANDING', 'MOTION', 'UI/UX'], F = `800 30px ${EN}`, GAPW = 64;
+  view(k, () => {
+    bars(k, 34, 20, 180, 1, C.ink, 10); bars(k, 34, 38, 300, 1);
+    k.fillStyle = C.ink; k.fillRect(0, 58, VW, 58);
+    k.font = F; k.letterSpacing = '1px'; const ws = WORDS.map(s => k.measureText(s).width); k.letterSpacing = '0px';
+    const unit = ws.reduce((a, b) => a + b + GAPW, 0);
+    let x = -mod(u / CYC, 1) * unit;                 // 1周期で1組ぶん左へ
+    for (let rep = 0; x < VW; rep++) WORDS.forEach((s, i) => {
+      txt(k, s, x, 88, F, '#fff', 'left', 'middle', '1px');
+      k.fillStyle = C.acc; k.beginPath(); k.arc(x + ws[i] + GAPW / 2, 88, 6, 0, 7); k.fill();
+      x += ws[i] + GAPW;
+    });
+    for (let i = 0; i < 3; i++) { k.fillStyle = C.soft; rr(k, 34 + i * 152, 130, 136, 30, 6); k.fill(); bars(k, 46 + i * 152, 142, 90, 1, C.faint); }
+  });
+};

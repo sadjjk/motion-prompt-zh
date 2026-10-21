@@ -1,0 +1,15 @@
+Please use "Text mask" (テキストマスク), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #133
+
+What it is: Letters cut out to show a picture inside
+What the sample shows: Heavy letters are cut out so that a moving seascape shows only inside them; near the end of the cycle the whole picture appears.
+Spec:
+- "OCEAN" (weight 900, system-ui, 2 px letter spacing). The font size starts at 172 px and drops 2 px at a time until the word is at most 500 px wide.
+- The scene inside keeps moving: coral sky, a yellow sun bobbing ±6 px, blue sea below y = 116 with four white wavy lines drifting 240 px per 4.7 s in alternating directions, a sailboat crossing once per 4.7 s, clouds drifting 60 px.
+- Method: draw the word on an offscreen canvas, then composite the scene onto it with source-in, so the scene remains only inside the letters. A white 4 px outline around the letters.
+- Outside the letters the scene shows at 12% opacity; it rises to 100% at 3.45–3.85 s and returns to 12% at 4.25–4.65 s (smoothstep).
+When to use it: Use it to show a photo or footage inside a title or brand name, putting the word and the picture together.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/133.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

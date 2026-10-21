@@ -1,0 +1,31 @@
+// Motion Prompt #030 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#030
+//
+// オービット / Orbit (Arc shot)
+// パック: camera (カメラワークと切り替え) · element 06 · カテゴリ: カメラの動き
+// 何が起きるか: 被写体を中心に、カメラが円を描いて回り込む。人物は中央のまま、背景の木と建物が横に大きく流れる。
+// 動きの仕様:
+//   - カメラ: 人物（正面9m先）を中心とする半径6mの円周上を -0.95rad → +0.95rad（-54° → +54°、計約109°）移動
+//   - 向き: 常に中心を向く（ヨー = -角度）。高さ1.7m、ピッチ -0.07rad（約4°下向き）で固定
+//   - 時間: 0.5秒から3.6秒まで3.1秒。3次のイーズインアウト（cubic-bezier(0.65,0,0.35,1) 相当）
+//   - 被写体: 人物は動かない。顔の白い点が角度に応じて横へずれ、回り込みが分かる。足元に半径1.3mの点線の円
+//   - 背景: 半径10mに12本の木を等間隔で並べ、回り込むと人物の後ろを横切る
+//   - 戻り: 3.6〜4.2秒は止め、最後の0.5秒で開始状態へクロスフェード。右上に角度（-54° → +54°）
+// 使いどころ: 人物や商品を立体的に見せたいとき、登場や決めの場面を強調するとき。
+// タグ: orbit, arc shot, circle, 360, rotate around, revolve, camera move
+// サイズ: 539x208 px · 1周: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#030
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 06
+// 06 オービット: 被写体を中心に円を描いて回り込む
+CELLS[5] = shot(camCell((k, w, h, p) => {
+  const a = lerp(-0.95, 0.95, p), R = 6, P0 = [0, 0, 9];
+  const c = cam({ x: P0[0] + Math.sin(a) * R, z: P0[2] - Math.cos(a) * R, yaw: -a, y: 1.7, pitch: -0.07 });
+  world(k, w, h, c, {
+    person: { z: 9, face: a }, ring: [0, 9, 10], buildings: true, trees: false,
+    after: (kk, cc) => { kk.strokeStyle = C.blueM; kk.lineWidth = 2; kk.setLineDash([5, 5]); kk.beginPath(); for (let i = 0; i <= 48; i++) { const b = i / 48 * Math.PI * 2; const q = proj(cc, Math.sin(b) * 1.3, 0, 9 + Math.cos(b) * 1.3); i ? kk.lineTo(q.x, q.y) : kk.moveTo(q.x, q.y); } kk.stroke(); kk.setLineDash([]); }
+  });
+}, p => `${Math.round(lerp(-0.95, 0.95, p) * 57.3)}°`.replace(/^(\d)/, '+$1'), 0.5, 3.6));

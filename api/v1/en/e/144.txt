@@ -1,0 +1,30 @@
+// Motion Prompt #144 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#144
+//
+// Split screen / スプリットスクリーン
+// Pack: motion2 (Motion graphics moves, part 2) · element 24 · Category: Transitions & highlights
+// What happens: One full-frame scene splits into two panels, then three, each with its own scene moving.
+// Motion spec:
+//   - A full-frame sea scene splits into two panels at 0.45–0.95 s (divider 539→269.5), then into three at 1.4–1.9 s (dividers at 1/3 and 2/3), and merges back into one at 3.75–4.4 s, all cubic ease-in-out.
+//   - The three scenes (sea, city, field) are each centred in and clipped to their own panel and keep moving inside it (waves and a sailboat, city windows switching 8 times per 4.7 s, a windmill turning twice per 4.7 s).
+//   - White dividers (width 6) between the panels.
+// When to use it: Use it to compare, to show things happening at once, or to line up several people or places, such as before and after or a set of options.
+// Tags: split-screen, multi-screen, panels, side-by-side, comparison, layout
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#144
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 24
+// 24 スプリットスクリーン（1枚の画面が2つ、3つに分かれて、別々の場面が同時に動く）
+CELLS[23] = (k, w, h, u) => {
+  u = snapU(u);
+  const s2 = eIO(P(u, 0.45, 0.95)), s3 = eIO(P(u, 1.4, 1.9)), m = eIO(P(u, 3.75, 4.4));
+  let b1 = lerp(lerp(w, w / 2, s2), w / 3, s3), b2 = lerp(w, 2 * w / 3, s3);
+  b1 = lerp(b1, w, m); b2 = lerp(b2, w, m);
+  pnSea(k, 0, b1, h, u, false);
+  if (b1 < w - 0.5) pnCity(k, b1, Math.max(b1, b2), h, u, false);
+  if (b2 < w - 0.5) pnField(k, b2, w, h, u, false);
+  k.fillStyle = '#fff';[b1, b2].forEach(b => { if (b < w - 0.5) k.fillRect(b - 3, 0, 6, h); });
+};

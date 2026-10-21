@@ -1,0 +1,35 @@
+// Motion Prompt #018 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#018
+//
+// シェイプトランジション / Shape transition
+// パック: motion (モーショングラフィックスの動き) · element 18 · カテゴリ: 切り替え・見せ場
+// 何が起きるか: 色のついた帯が画面を覆い隠し、抜けると次の画面になっている。
+// 動きの仕様:
+//   - 昼 → 夜 → 昼を2.35秒ずつ。横長の帯4本（高さ52・青、コーラル、黄、ミント）。帯の左右の端は80px斜め
+//   - 覆う: 0.38〜1.0秒。各帯の先端が画面の端から反対の端まで進む。帯ごとに全体の14%ずつ遅らせ、1本あたり全体の58%の長さで easeInOut（3乗）
+//   - 1.0秒（全部覆った瞬間）に下の画面を次の画面へ差し替える
+//   - 抜ける: 1.12〜1.75秒。各帯の後ろの端が同じ遅れ・同じカーブで追いかけ、次の画面が現れる
+//   - 向き: 昼→夜は左から右、夜→昼は左右反転
+// 使いどころ: ブランドカラーの図形で場面を切り替えたいとき。章の区切りや話題の転換に。
+// タグ: shape-transition, transition, wipe, bands, stripes, cover, scene-change
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#018
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 18
+// 18 シェイプトランジション（色のついた帯が画面を覆い隠し、抜けると次の画面になっている）
+CELLS[17] = abCell((k, w, h, u, a, b) => {
+  const p1 = P(u, TA - 0.12, TA + 0.5), p2 = P(u, TA + 0.62, TA + 1.25), N = 4, sk = 80;
+  SCR[p1 >= 1 ? b : a](k, w, h);
+  const cols = [C.blue, C.coral, C.yel, C.mint];
+  for (let i = 0; i < N; i++) {
+    const d = i * 0.14, e1 = eIO(clamp((p1 - d) / (1 - 0.42))), e2 = eIO(clamp((p2 - d) / (1 - 0.42)));
+    if (e1 <= 0 || e2 >= 1) continue;
+    const bh = h / N + 1, y = i * h / N, span = w + sk + 20, dir = a === 0 ? 1 : -1;
+    let xa = -sk - 10 + e2 * span, xb = -sk - 10 + e1 * span;
+    k.save(); if (dir < 0) { k.translate(w, 0); k.scale(-1, 1); }
+    k.fillStyle = cols[i]; k.beginPath(); k.moveTo(xa + sk, y); k.lineTo(xb + sk, y); k.lineTo(xb, y + bh); k.lineTo(xa, y + bh); k.closePath(); k.fill(); k.restore();
+  }
+});

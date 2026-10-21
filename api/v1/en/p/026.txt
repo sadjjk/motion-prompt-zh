@@ -1,0 +1,17 @@
+Please use "Tilt" (ティルト), one of the names in "Camera moves & transitions".
+Motion Prompt #026
+
+What it is: Pivot the camera up or down
+What the sample shows: The camera stays in place and pivots upward, from a person at ground level up to the top of a tower.
+Spec:
+- Camera: position fixed (height 1.4 m); pitch only, -0.06 rad → +0.36 rad (-3° → +21°, about 24° in total)
+- Timing: 0.5 s to 3.4 s (2.9 s), cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1))
+- Subject: a person stands still 7 m ahead; a 9.5 m tower (antenna tip at 11.8 m) stands 26 m away behind
+- On screen everything slides downward: the person leaves at the bottom while the tower top and its antenna enter
+- Return: hold 3.4–4.2 s, then cross-fade back to the start over the last 0.5 s (one pass = 4.7 s)
+- Top-right readout shows the angle in whole degrees (-3° → +21°)
+When to use it: To show the height or scale of a building or a person.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/026.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

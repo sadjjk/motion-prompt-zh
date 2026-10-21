@@ -1,0 +1,40 @@
+// Motion Prompt #021 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#021
+//
+// フリップ / Flip
+// パック: motion (モーショングラフィックスの動き) · element 21 · カテゴリ: 切り替え・見せ場
+// 何が起きるか: カードが縦の軸で回って裏返り、裏の面が出る。
+// 動きの仕様:
+//   - カード（300×156・角丸22）。表（青・Q）⇄ 裏（黄・A）を2.35秒ずつ
+//   - 0.45〜1.5秒（1.05秒）で180°回す。backOut（s=1.5）で180°を少し行き過ぎてから戻る
+//   - カードの幅 = 元の幅 × |cos θ|。90°を越えたところで面の絵を差し替える
+//   - 遠近感: カードを縦に細く切り、左右で高さを最大±20% × sin θ 変える（奥が低く、手前が高い）
+//   - 回転中は sin の山で8%拡大し6px浮かせる。面に暗い色を透明度 0.34 × |sin θ| で重ねる。床に楕円の影
+// 使いどころ: 問いと答え、ビフォーとアフターなど、表と裏の関係にある2つを見せたいとき。
+// タグ: flip, card, 3d, rotate, turn, reveal, question-answer
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#021
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 21
+// 21 フリップ（カードが軸で回って裏返り、裏の面が出る）
+const FW = 300, FH = 156, FC = mkCanvas(FW, FH), FK = FC.getContext('2d');
+function flipFace(i) {
+  FK.setTransform(1, 0, 0, 1, 0, 0); FK.clearRect(0, 0, FW, FH);
+  FK.fillStyle = i ? C.yel : C.blue; rr(FK, 0, 0, FW, FH, 22); FK.fill();
+  FK.strokeStyle = i ? 'rgba(15,26,61,.18)' : 'rgba(255,255,255,.3)'; FK.lineWidth = 4; rr(FK, 12, 12, FW - 24, FH - 24, 13); FK.stroke();
+  txt(FK, i ? 'A' : 'Q', 92, FH / 2 + 4, `800 112px ${DISP}`, i ? C.navy : '#fff', 'center', 'middle');
+  FK.fillStyle = i ? C.navy : '#fff'; FK.globalAlpha = i ? 0.85 : 0.9; rr(FK, 164, 50, 100, 14, 7); FK.fill(); FK.globalAlpha = i ? 0.4 : 0.5; rr(FK, 164, 76, 76, 12, 6); FK.fill(); rr(FK, 164, 98, 90, 12, 6); FK.fill(); FK.globalAlpha = 1;
+}
+CELLS[20] = abCell((k, w, h, u, a, b) => {
+  stage(k);
+  const pr = P(u, TA - 0.05, TB), th = Math.PI * backOut(pr, 1.5), c = Math.cos(th), s = Math.sin(th), front = c >= 0;
+  flipFace(front ? a : b);
+  const X = w / 2, Y = h / 2 - 2, lift = Math.sin(Math.PI * pr), sc = 1 + 0.08 * lift, ww = FW * Math.abs(c) * sc, per = 0.2 * s * (front ? 1 : -1);
+  k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(X, h - 13, Math.max(8, ww / 2 * 0.9), 6, 0, 0, 7); k.fill();
+  const STEP = 2;
+  for (let sx = 0; sx < FW; sx += STEP) { const f = sx / FW, dx = X - ww / 2 + f * ww, hh = FH * sc * (1 + per * (f - 0.5) * 2); k.drawImage(FC, sx, 0, STEP, FH, dx, Y - hh / 2 - 6 * lift, ww / FW * STEP + 0.6, hh); }
+  if (Math.abs(s) > 0.02) { k.fillStyle = `rgba(8,14,40,${0.34 * Math.abs(s)})`; k.beginPath(); const hl = FH * sc * (1 - per), hr = FH * sc * (1 + per), yy = Y - 6 * lift; k.moveTo(X - ww / 2, yy - hl / 2); k.lineTo(X + ww / 2, yy - hr / 2); k.lineTo(X + ww / 2, yy + hr / 2); k.lineTo(X - ww / 2, yy + hl / 2); k.closePath(); k.fill(); }
+});

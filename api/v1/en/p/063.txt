@@ -1,0 +1,15 @@
+Please use "Stepper (+/−)" (ステッパー), one of the names in "UI component names".
+Motion Prompt #063
+
+What it is: Plus and minus buttons that change a number by one
+What the sample shows: Pressing + three times raises the number from 1 to 4, and pressing − three times brings it back to 1; the number pops on each press.
+Spec:
+- 4.5 s cycle on a 542×191 card. A 200×60 box (radius 12) at (171, 52): "−" in the left 60 px, a blue "+" in the right 60 px, and a bold 30 px number in the middle.
+- Clicks: + at 0.9, 1.35, 1.8 s (1 → 4), − at 2.8, 3.25, 3.7 s (4 → 1).
+- The pressed segment is tinted light blue from 0.05 s before to 0.15 s after each click.
+- Number: on each press its scale goes linearly from 1.18 back to 1 over 0.25 s, and it is blue meanwhile.
+When to use it: Use it for small whole numbers changed one at a time, such as quantity or number of guests.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/063.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

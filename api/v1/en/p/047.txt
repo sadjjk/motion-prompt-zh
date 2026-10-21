@@ -1,0 +1,17 @@
+Please use "J-cut" (Jカット), one of the names in "Camera moves & transitions".
+Motion Prompt #047
+
+What it is: Next scene's audio starts first
+What the sample shows: The next scene's audio starts before the picture changes; the picture is shown on top with video and audio timelines below.
+Spec:
+- Join: the picture is a straight cut; only the audio switches to the next scene (B) before the picture does. The offset is 20% of the timeline (0.72 s)
+- Playhead: moves left to right at constant speed over 3.6 s (0.4 s to 4.0 s); audio switches at 35% (about 1.66 s), picture at 55% (about 2.38 s)
+- In the offset section (35–55%) the picture is still A while the audio is already B; the section is marked with a pale blue band and two blue dashed lines
+- Layout: the top 134 px is the picture (fixed camera, subjects do not move); the bottom 74 px holds two timeline rows, video and audio (A grey, B pale blue, waveform on the audio row)
+- Labels: "映像A / 映像B" (video A / B) at bottom left of the picture; the audio now playing at bottom right ("♪ Aの音" grey → "♪ Bの音" blue)
+- Return: cross-fade back to the start over the last 0.5 s (one pass = 4.7 s)
+When to use it: To build anticipation for the next scene, or to make a change of scene or speaker feel natural.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/047.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

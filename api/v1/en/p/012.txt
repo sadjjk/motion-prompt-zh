@@ -1,0 +1,17 @@
+Please use "Shape morph" (モーフィング), one of the names in "Motion graphics moves".
+Motion Prompt #012
+
+What it is: One shape turns smoothly into another
+What the sample shows: A shape changes smoothly from circle to square to star to heart, with its colour.
+Spec:
+- Four shapes, 1.175 s each: circle → square with rounded-off corners → star → heart → back to circle. Base radius 64.
+- Each segment holds first, then morphs to the next shape between 0.62 s and 0.04 s before its end (0.58 s).
+- Every outline is stored as 240 points; points with the same index are linearly interpolated. Progress uses backOut (s = 1.6), so it overshoots slightly.
+- Colour: blue → coral → yellow → mint, blended with quadratic ease-in-out.
+- During the morph the scale swells by 1 + 0.07 × sin(π × progress).
+- Four dots below; the dot for the current shape is larger and coloured.
+When to use it: Use it to turn one icon or logo into another without a cut.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/012.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,16 @@
+Please use "Kaleidoscope" (カレイドスコープ), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #135
+
+What it is: Mirrored patterns spread out symmetrically
+What the sample shows: An 8-way symmetrical pattern turns and spreads out from the centre, like a kaleidoscope.
+Spec:
+- The area around the centre is split into eight 45° wedges; every other wedge is drawn mirrored, giving eight mirror-symmetric sections.
+- One wedge holds 13 shapes (circles, diamonds, triangles; four colours; fixed random seed). They travel outward from the centre to radius 300, one full radius per 4.7 s, wrapping back to the centre.
+- Shapes grow as they go out ((5 + 0.1r) × 0.7–1.4) and spin 0.02 rad per px. They fade in over the first 30 px and out over the last 70 px; each sways ±0.08 rad once per 4.7 s.
+- The whole pattern turns 90° per 4.7 s (two wedges, so the loop joins up).
+- A white eight-point star at the centre (radius 20 ± 4, pulsing twice per 4.7 s).
+When to use it: Use it for music videos, live backdrops or dreamy scene changes, wherever a pattern has to hold up on repeat.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/135.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,50 @@
+// Motion Prompt #038 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#038
+//
+// Speed ramp / スピードランプ
+// Pack: camera (Camera moves & transitions) · element 14 · Category: Shooting Style & Time
+// What happens: Within one shot the playback speed changes smoothly from fast to slow; a graph at bottom left shows the speed.
+// Motion spec:
+//   - Camera: completely fixed (height 1.3 m); only the playback speed changes
+//   - Playback speed: 2.4× → 0.25×; the change takes 0.7 s (1.2 s to 1.9 s) with a quadratic ease-in-out (about cubic-bezier(0.45,0,0.55,1))
+//   - Subject: a person 8 m away runs from 6 m left toward the right; x = -6 + footage time × 2.0 m; they close in quickly during the fast section
+//   - Jump: a parabola while x is between -1.5 m and 2.5 m, peak 0.99 m, arms raised; take-off at about 0.94 s, most of the airtime plays in slow motion, landing at about 3.68 s
+//   - Graph: a 120×40 px speed curve at bottom left with a blue dot (radius 5 px) at the current time
+//   - Return: stops at 4.2 s, then cross-fades back over the last 0.5 s; top-right readout shows the rate (×2.4 → ×0.3)
+// When to use it: To slow down only the key part of an action while keeping the lead-in quick.
+// Tags: speed ramp, time remap, ramping, fast to slow, variable speed, velocity
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#038
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 14
+// 14 スピードランプ: 速い→遅い（グラフで速さを表示）
+function rampTime(u) {   // 再生速度 v(u): 2.4 → 0.25（u 1.2〜1.9 で切替）
+  const v = x => lerp(2.4, 0.25, eIOs(P(x, 1.2, 1.9)));
+  let s = 0; const N = 60; for (let i = 0; i < N; i++) { const x = u * (i + .5) / N; s += v(x) * u / N; } return { s, v: v(u) };
+}
+CELLS[13] = shot((k, w, h, u) => {
+  const uu = Math.min(u, CYC - RESET);
+  const draw = (kk, uu) => {
+    const { s, v } = rampTime(uu);
+    const x = -6 + s * 2.0, q = P(x, -1.5, 2.5);
+    world(kk, w, h, cam({ y: 1.3 }), {
+      person: { x, z: 8, walk: s * 9, y: jumpY(q) * 0.9, armUp: q > 0 && q < 1 },
+      after: (k2) => {   // 速度グラフ
+        const gx = -w / 2 + 26, gy = h / 2 - 22, gw = 120, gh = 40;
+        k2.fillStyle = 'rgba(255,255,255,.85)'; rr(k2, gx - 8, gy - gh - 10, gw + 16, gh + 18, 6); k2.fill();
+        k2.strokeStyle = C.faint; k2.lineWidth = 1.5; k2.beginPath(); k2.moveTo(gx, gy); k2.lineTo(gx + gw, gy); k2.stroke();
+        k2.strokeStyle = C.blue; k2.lineWidth = 2.5; k2.beginPath();
+        for (let i = 0; i <= 40; i++) { const xx = i / 40 * (CYC - RESET), vv = rampTime(xx).v; const X = gx + i / 40 * gw, Y = gy - vv / 2.4 * gh; i ? k2.lineTo(X, Y) : k2.moveTo(X, Y); }
+        k2.stroke();
+        const X = gx + uu / (CYC - RESET) * gw, Y = gy - v / 2.4 * gh; k2.fillStyle = C.blue; k2.beginPath(); k2.arc(X, Y, 5, 0, 7); k2.fill();
+      }
+    });
+    return v;
+  };
+  const r = P(u, CYC - RESET, CYC); let v;
+  blend(k, kk => { v = draw(kk, uu); }, kk => draw(kk, 0), eIOs(r));
+  return `×${(r > .5 ? 2.4 : v).toFixed(1)}`;
+});

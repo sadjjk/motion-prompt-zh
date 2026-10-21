@@ -1,0 +1,16 @@
+Please use "Shatter" (ガラス割れ), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #142
+
+What it is: Breaks like glass and the shards fly off
+What the sample shows: The picture cracks like glass, the shards fly off and the next scene is revealed.
+Spec:
+- Mountain scene → day scene → mountain, 2.35 s each. The impact point is (304, 92).
+- Cracks: 0.3–0.65 s. Thirteen radial lines and rings at radii of about 40, 98 and 175 (each ±15%) appear in order of distance from the centre (cubic ease-out, out to 420 px). A white flash star at the centre fades by 0.6 s.
+- The glass breaks at 0.82 s: 52 shards (13 × 4 rings) cut from the old scene fly outward at 220–480 px/s (vertical speed × 0.7, plus up to 120 upward), with gravity 1300 px/s², spinning ±4 rad/s and shrinking up to 35% over 1 s.
+- Outer rings leave later (0.035 s per ring plus up to 0.03 s at random). Each shard fades out 0.55–1.0 s after it starts moving.
+- Shards have a white 2.5 px edge; the next scene is underneath.
+When to use it: Use it for an impact, a break or a twist, just before a title or a result that should hit hard.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/142.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

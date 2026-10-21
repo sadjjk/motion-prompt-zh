@@ -1,0 +1,24 @@
+// Motion Prompt #036 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#036
+//
+// ダッチアングル / Dutch angle
+// パック: camera (カメラワークと切り替え) · element 12 · カテゴリ: 撮り方・時間の演出
+// 何が起きるか: 水平だったカメラを光軸まわりに傾け、地平線を斜めにしたまま止める。
+// 動きの仕様:
+//   - カメラ: 位置固定（高さ1.5m）。ロールだけ 0 → 0.36rad（約21°）。画面中央を軸に全体が回る
+//   - 時間: 0.6秒から2.2秒まで1.6秒。3次のイーズインアウト（cubic-bezier(0.65,0,0.35,1) 相当）
+//   - 被写体: 人物は7m先で動かない。地平線・建物・人物がそろって同じ角度だけ傾く
+//   - 止め: 2.2〜4.2秒は傾いたまま保つ（傾けた構図そのものを見せる時間）
+//   - 戻り: 最後の0.5秒で水平の開始状態へクロスフェード（1周4.7秒）
+//   - 右上に角度を表示（∠ 0° → ∠ 21°）
+// 使いどころ: 不安・緊張・違和感を画面で表すとき。
+// タグ: dutch angle, dutch tilt, canted angle, oblique, roll, tension, tilted horizon
+// サイズ: 539x208 px · 1周: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#036
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 12
+// 12 ダッチアングル
+CELLS[11] = shot(camCell((k, w, h, p) => world(k, w, h, cam({ roll: lerp(0, 0.36, p) }), { person: { z: 7 } }), p => `∠ ${Math.round(lerp(0, 0.36, p) * 57.3)}°`, 0.6, 2.2));

@@ -1,0 +1,38 @@
+// Motion Prompt #005 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#005
+//
+// マスクリビール / Mask reveal
+// パック: motion (モーショングラフィックスの動き) · element 05 · カテゴリ: 登場・文字の演出
+// 何が起きるか: 1本の線を境に、見えない枠の向こうから見出しがせり上がる。
+// 動きの仕様:
+//   - 2.35秒で1回。境目の線（コーラル・380×6・y=124）: 0.1〜0.5秒で中央から左右へ伸ばす（easeInOut 3乗）。2.05〜2.3秒で縮めて消す
+//   - 上の文字（太字98px・白）: 線より上だけ見える切り抜き（y=8〜119）の中で、120px下から定位置へ。0.35〜1.0秒・easeOut（5乗）
+//   - 下の文字（32px・黄）: 線より下だけ見える切り抜き（y=129〜181）の中で、60px上から定位置へ。0.55〜1.15秒・easeOut（5乗）
+//   - 退場: 上の文字は 1.7〜2.05秒に上へ150px（backIn s=1.2・いったん少し下がる）。下の文字は 1.75〜2.05秒に下へ70px（easeIn 3乗）
+//   - 文字の透明度は変えない。切り抜きの外に出ると見えなくなるだけ
+// 使いどころ: タイトルや見出しを、落ち着いた印象で出したいとき。
+// タグ: mask, reveal, clip, wipe, title, text, slide-up, headline
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#005
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 05
+// 05 マスクリビール（見えない枠＝線の向こうから、見出しがせり上がる）
+CELLS[4] = (k, w, h, u) => {
+  stage(k);
+  const T = CYC / 2, lu = mod(u, T), X = w / 2, LY = 124;
+  const lg = eIO(P(lu, 0.1, 0.5)) * (1 - eIO(P(lu, 2.05, 2.3)));
+  // 上の段：線の下から上へ
+  const up = (1 - eOut5(P(lu, 0.35, 1.0))) * 120 + backIn(P(lu, 1.7, 2.05), 1.2) * -150;
+  k.save(); k.beginPath(); k.rect(0, 8, w, LY - 8 - 5); k.clip();
+  txt(k, 'Hello!', X, LY - 14 + up, `800 98px ${DISP}`, '#fff', 'center', 'alphabetic', '1px');
+  k.restore();
+  // 下の段：線の上から下へ
+  const dn = (1 - eOut5(P(lu, 0.55, 1.15))) * -60 + eIn(P(lu, 1.75, 2.05)) * 70;
+  k.save(); k.beginPath(); k.rect(0, LY + 5, w, 52); k.clip();
+  txt(k, 'はじめまして', X, LY + 44 + dn, `700 32px ${JP}`, C.yel, 'center', 'alphabetic', '6px');
+  k.restore();
+  if (lg > 0.005) { k.fillStyle = C.coral; rr(k, X - 190 * lg, LY - 3, 380 * lg, 6, 3); k.fill(); }
+};

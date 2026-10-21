@@ -1,0 +1,17 @@
+Please use "Slow motion" (スローモーション), one of the names in "Camera moves & transitions".
+Motion Prompt #037
+
+What it is: Play the action slower
+What the sample shows: In front of a fixed camera a person rises and falls slowly through a jump while leaves drift down slowly; the whole action is stretched out.
+Spec:
+- Camera: completely fixed (height 1.3 m); only the subject moves
+- Subject: a person 7 m away takes 3.8 s for one jump (0.5 s to 4.3 s); height = 4q(1-q)×1.1 m, a parabola peaking at 1.1 m, with q linear in time
+- Both arms are raised while airborne; the person stands still for 0.5 s before the jump and 0.4 s after landing
+- Leaves: 9 leaves fall from 3.4 m to the ground over 4.7 s while rotating, each offset by 1/9 of the cycle
+- Top-right readout shows "120fps ×0.25" (playback stretched 4×)
+- No hold and no cross-fade; loops seamlessly every 4.7 s
+When to use it: To let viewers study a brief action or expression, or to emphasise an emotional peak.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/037.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

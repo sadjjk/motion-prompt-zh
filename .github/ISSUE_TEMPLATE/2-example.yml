@@ -1,0 +1,42 @@
+name: "事例の推薦 · Suggest an example"
+description: "名前に見本を付けて公開しているポストを推薦する（自薦歓迎） / Suggest a post that shares names with samples (your own is welcome)"
+labels: ["example"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        [事例のページ](https://sadjjk.github.io/motion-prompt-zh/found.html) には、X の公式の埋め込みとリンク、こちらで書いた一行の紹介だけを載せます。画像・動画・本文をこのリポジトリに写すことはしません。
+        The [examples page](https://sadjjk.github.io/motion-prompt-zh/found.html) shows X's official embed, a link, and a one-line introduction we write. No images, videos or post text are copied into this repository.
+
+        載せるのは、投稿者が自分で作った見本（名前のついた動く見本や早見表など）があるポストです。他人の作品を使ったポスト、宣伝が主のポストは載せません。
+        We list posts with samples the author made (moving samples with names, cheat sheets and so on). Posts that use someone else's work, or that are mainly advertising, are not listed.
+  - type: input
+    id: url
+    attributes:
+      label: "ポストの URL / Post URL"
+      placeholder: "https://x.com/<name>/status/<id>"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: "なぜ良いと思いましたか / Why is it good?"
+      description: "どの分野の名前か、見本のどこが分かりやすいか、など。紹介文の参考にします。 / Which field the names are from, what makes the samples clear, and so on. We use this when writing the introduction."
+    validations:
+      required: true
+  - type: dropdown
+    id: who
+    attributes:
+      label: "あなたは / You are"
+      options:
+        - "投稿者本人 / The author of the post"
+        - "投稿者ではない / Not the author"
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: "確認 / Please confirm"
+      options:
+        - label: "見本は投稿者が自分で作った物だと思います（他人の動画や画像の転載ではない）。 / As far as I know, the samples were made by the author (not reposted from someone else)."
+          required: true

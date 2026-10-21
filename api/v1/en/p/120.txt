@@ -1,0 +1,17 @@
+Please use "Double exposure" (二重露光（多重露光）), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #120
+
+What it is: Two photos layered into one frame
+What the sample shows: The background turns white and the landscape of hills, house, trees and sun appears, scaled down, only inside the shape of the bust.
+Spec:
+- Scene 3: a bust on the left (head centre x 140, y 82, radius 28 px) and hills, a house, trees and the sun (x 432, y 54, radius 15 px) on the right. 
+- Background: white #FFFFFF outside the bust
+- Inside the bust: the same landscape at 0.7×, placed so the sun sits at the top right of the head and the ridge of the hills runs across the neck
+- Inside colours: sky #D3DBE6, hills #9AA8BD and #76869F, ground #55647E, trees #3F4C66
+- Transition: the double exposure is laid over the original picture at the effect amount
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1)))
+When to use it: For posters and covers that tie a person to a place, a memory or an inner world.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/120.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

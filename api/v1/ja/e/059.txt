@@ -1,0 +1,32 @@
+// Motion Prompt #059 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#059
+//
+// トグルスイッチ / Toggle switch
+// パック: ui (UIパーツの名前) · element 11 · カテゴリ: 選ぶ・切り替えるパーツ
+// 何が起きるか: 設定の3行のうち上の2つのスイッチを順にオンにし、その後オフに戻す。
+// 動きの仕様:
+//   - 4.5秒周期・カード542×191。設定の行3つ（60px間隔・区切り線あり）。右端 x 450 に 64×34・角丸17 の溝と、白いつまみ（半径13・影）
+//   - カーソルのクリック: 1行目オン1.0秒、2行目オン1.8秒、1行目オフ3.0秒、2行目オフ3.6秒。3行目はオフのまま
+//   - 1回の切り替えは0.2秒・easeOutCubic。つまみを30px（17→47）滑らせる
+//   - 溝の色は灰色 #d9d7d5 から青 #1f5ae8 へ、切り替えの進み具合で重ねて変える
+// 使いどころ: 設定画面で、すぐ反映されるオン・オフを並べたいとき。
+// タグ: toggle, switch, toggle-switch, on-off, boolean, settings
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#059
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 11
+// 11 トグルスイッチ（Toggle switch）
+CELLS[10] = ui((w, h, t) => {
+  const st = [eo(seg(t, 1.0, 1.2)) * (1 - eo(seg(t, 3.0, 3.2))), eo(seg(t, 1.8, 2.0)) * (1 - eo(seg(t, 3.6, 3.8))), 0];
+  for (let i = 0; i < 3; i++) {
+    const y = 14 + i * 60; bar(24, y + 10, [170, 140, 190][i], C.line2, 11); bar(24, y + 30, [260, 220, 240][i], C.line, 8);
+    if (i < 2) { X.fillStyle = C.line; X.fillRect(24, y + 52, 494, 1.5); }
+    const k = st[i], tx = 450, ty = y + 10;
+    fillRR(tx, ty, 64, 34, 17, k > .5 ? C.blue : '#d9d7d5'); if (k > 0 && k < 1) { X.globalAlpha = k; fillRR(tx, ty, 64, 34, 17, C.blue); X.globalAlpha = 1; }
+    shadowed(() => circle(tx + 17 + 30 * k, ty + 17, 13, '#fff'), 4, 1, .25);
+  }
+  pointer([[.3, w + 30, h + 30], [.95, 486, 30], [1.35, 486, 30], [1.75, 486, 90], [2.5, 486, 90], [2.95, 486, 30], [3.25, 486, 30], [3.55, 486, 90], [3.85, 486, 90], [4.3, w + 30, h + 30]], [1.0, 1.8, 3.0, 3.6], t);
+});

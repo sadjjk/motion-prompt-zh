@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motion Prompt｜144 个动效与视觉效果的中文名称库</title>
+<meta name="description" content="Motion Prompt 非官方简体中文本地化版。144 个动态图形、镜头、UI、网页与摄影效果，附中文解释、动画预览和可复制的完整 AI Prompt。">
+<link rel="canonical" href="https://sadjjk.github.io/motion-prompt-zh/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Motion Prompt">
+<meta property="og:title" content="Motion Prompt｜144 个动效与视觉效果的中文名称库">
+<meta property="og:description" content="Motion Prompt 非官方简体中文本地化版。144 个动态图形、镜头、UI、网页与摄影效果，附中文解释、动画预览和可复制的完整 AI Prompt。">
+<meta property="og:url" content="https://sadjjk.github.io/motion-prompt-zh/">
+<meta property="og:image" content="https://sadjjk.github.io/motion-prompt-zh/assets/og.png">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="ja_JP">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@showheyohtaki">
+<meta name="twitter:image" content="https://sadjjk.github.io/motion-prompt-zh/assets/og.png">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script src="assets/site-config.js"></script>
+<script src="assets/language.js"></script>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#gallery" data-t="skip">跳转到效果库</a>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="logo" href="./" aria-label="Motion Prompt">Motion Prompt</a>
+    <nav class="top-nav" aria-label="站点导航" data-t-attr="aria-label:navLabel">
+      <a class="top-link top-how" href="#how" data-t="navHow">使用方法</a>
+      <a class="top-link" href="found.html" data-t="navFound">社区案例</a>
+      <a class="top-link top-gh" href="https://github.com/sadjjk/motion-prompt-zh" data-repo-path="" rel="noopener">GitHub</a>
+      <div class="seg" role="group" aria-label="语言" data-t-attr="aria-label:langLabel">
+        <button type="button" class="seg-b" data-lang="zh-Hans" aria-pressed="true" aria-label="简体中文">ZH</button>
+        <button type="button" class="seg-b" data-lang="en" aria-pressed="false" aria-label="English">EN</button>
+        <button type="button" class="seg-b" data-lang="ja" aria-pressed="false" aria-label="日本語">JA</button>
+      </div>
+      <button type="button" class="icon-b" id="theme" aria-label="切换深色模式">
+        <svg class="i-moon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M16.5 12.3A7 7 0 0 1 7.7 3.5a.6.6 0 0 0-.8-.7 7.6 7.6 0 1 0 10.3 10.3.6.6 0 0 0-.7-.8z" fill="currentColor"/></svg>
+        <svg class="i-sun" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="3.6" fill="currentColor"/><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.3 4.3l1.4 1.4M14.3 14.3l1.4 1.4M4.3 15.7l1.4-1.4M14.3 5.7l1.4-1.4"/></g></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap" aria-labelledby="hero-h">
+    <div class="hero-copy">
+      <p class="eyebrow" data-t="eyebrow">用专业名称，向 AI 讲清创意</p>
+      <h1 id="hero-h" data-t-html="h1">成为指挥 AI 的<wbr><span class="hero-phrase">创意总监</span></h1>
+      <p class="lead" data-t="lead">144 个动态图形、镜头、UI 组件、网页与摄影效果，每个都有动态示例。复制 Prompt，即可将效果解释、运动规格和参考实现一起交给 AI。</p>
+      <dl class="facts">
+        <div><dt data-t="factMoves">个效果</dt><dd id="fact-count"></dd></div>
+        <div><dt data-t="factPacks">个分类</dt><dd id="fact-packs"></dd></div>
+        <div><dt data-t="factLicense">开源许可</dt><dd>MIT</dd></div>
+      </dl>
+    </div>
+    <div class="hero-install">
+      <div class="install">
+        <h2 class="install-h" data-t="installSkillH">通过 Skill 安装</h2>
+        <p class="install-p" data-t="installSkillP">在终端运行下方命令。安装后，告诉 AI“打开 motion-prompt 效果库”，选好效果并点击“发送给 AI”即可。</p>
+        <div class="copyfield">
+          <code id="cmd">npx skills add sadjjk/motion-prompt-zh --skill motion-prompt-zh</code>
+          <button type="button" class="btn btn-s" data-copy="#cmd" data-t="copy" data-t-attr="aria-label:copyCmdLabel" aria-label="复制安装命令">复制</button>
+        </div>
+      </div>
+      <div class="install">
+        <h2 class="install-h" data-t="installPromptH">让 AI 帮你安装</h2>
+        <p class="install-p" data-t="installPromptP">将下方说明粘贴到 Claude Code 或 Codex，AI 会安装 Skill 并介绍使用方法。</p>
+        <div class="copyfield copyfield-text">
+          <p id="install-prompt" data-t="installPrompt">阅读 https://github.com/sadjjk/motion-prompt-zh，在当前环境安装 motion-prompt-zh Skill。安装完成后，用三行中文说明如何使用。</p>
+          <button type="button" class="btn btn-s" data-copy="#install-prompt" data-t="copy" data-t-attr="aria-label:copyInstallLabel" aria-label="复制安装说明">复制</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="gallery" class="gallery" aria-labelledby="gallery-h">
+    <h2 id="gallery-h" class="sr" data-t="galleryH">效果库</h2>
+    <div class="tools">
+      <div class="wrap tools-in">
+        <div class="chips" id="packs" role="group" aria-label="按分类包筛选" data-t-attr="aria-label:packFilterLabel"></div>
+        <div class="tools-side">
+          <label class="search">
+            <span class="sr" data-t="searchLabel">搜索效果</span>
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <input type="search" id="q" autocomplete="off" spellcheck="false" placeholder="中文、英文、编号或标签" data-t-attr="placeholder:searchPh">
+          </label>
+          <button type="button" class="btn btn-ghost playtoggle" id="play" aria-pressed="true">
+            <svg class="i-pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3" y="2.5" width="3.6" height="11" rx="1" fill="currentColor"/><rect x="9.4" y="2.5" width="3.6" height="11" rx="1" fill="currentColor"/></svg>
+            <svg class="i-play" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.6v10.8a.6.6 0 0 0 .9.5l9-5.4a.6.6 0 0 0 0-1l-9-5.4a.6.6 0 0 0-.9.5z" fill="currentColor"/></svg>
+            <span id="play-t">暂停</span>
+          </button>
+        </div>
+        <div class="chips chips-sub" id="cats" role="group" aria-label="按子分类筛选" data-t-attr="aria-label:catFilterLabel" hidden></div>
+      </div>
+    </div>
+    <div class="wrap">
+      <p class="count" id="count" role="status" aria-live="polite"></p>
+      <div id="grid"></div>
+      <p class="empty" id="empty" hidden data-t="empty">没有找到结果，请尝试其他词语或编号。</p>
+      <noscript><p class="empty">需要启用 JavaScript。也可直接阅读 <a href="api/v1/zh-Hans/catalog.tsv">静态资料</a>。</p></noscript>
+    </div>
+  </section>
+
+  <section id="how" class="how wrap" aria-labelledby="how-h">
+    <h2 id="how-h" class="sec-h" data-t="howH">使用方法</h2>
+    <ol class="steps">
+      <li><span class="step-n" aria-hidden="true">1</span><h3 data-t="s1h">让 AI 打开效果库</h3><p data-t="s1p">向已安装 motion-prompt-zh Skill 的 AI 说“打开 motion-prompt 效果库”，即可在浏览器中打开本页。</p></li>
+      <li><span class="step-n" aria-hidden="true">2</span><h3 data-t="s2h">边预览，边选择</h3><p data-t="s2p">点击所需效果上的“选择”，支持多选。所选内容会出现在屏幕下方，也可添加“用于开场标题”等简短备注。</p></li>
+      <li><span class="step-n" aria-hidden="true">3</span><h3 data-t="s3h">发送给 AI，再提出需求</h3><p data-t="s3p">点击“发送给 AI”，然后回到对话中说“按这些效果修改视频开场”。该按钮在 AI 通过 Skill 打开效果库时显示。</p></li>
+    </ol>
+    <div class="how-more how-more-3">
+      <div class="how-col">
+        <h3 data-t="skillH">可以这样提需求</h3>
+        <p data-t="skillP">无需记住名称或编号。不确定效果名称时，就像查词典一样，让 AI 打开效果库。</p>
+        <ul class="says">
+          <li data-t="say1">打开 motion-prompt 效果库</li>
+          <li data-t="say2">有哪些镜头运动？打开列表让我选</li>
+          <li data-t="say3">（选好并发送后）用这些效果修改视频开场</li>
+        </ul>
+      </div>
+      <div class="how-col">
+        <h3 data-t="altH">未安装 Skill，或已知编号时</h3>
+        <p data-t="altP1">点击下方“复制所选”，把带演示和规格链接的文字粘贴给 AI。只用一个效果时，也可在详情中点击“复制 Prompt”。</p>
+        <p data-t="altP2">已知编号时可直接说：“使用 motion-prompt 的 #012 和 #045。”</p>
+      </div>
+      <div class="how-col">
+        <h3 data-t="implH">关于参考实现</h3>
+        <p data-t="implP">所有示例均为只依赖时间的 Canvas 2D 函数，无外部运行库，可逐帧绘制并用于视频渲染。</p>
+        <p><a href="api/v1/catalog.json">catalog.json</a> · <a id="tsv-link" href="api/v1/zh-Hans/catalog.tsv">catalog.tsv</a> · <a href="https://github.com/sadjjk/motion-prompt-zh" data-repo-path="" rel="noopener">GitHub</a></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p><span data-t="localizationNotice">本项目是 Motion Prompt 的非官方简体中文本地化版本，基于 Shohei Ohtaki 的开源项目开发。</span> <a href="https://github.com/showheyohtaki/motion-prompt" rel="noopener" data-t="sourceLink">原始项目</a></p>
+    <p><strong>Motion Prompt</strong> · MIT License · <span data-t="author">原作者</span> <span data-t="authorName">Shohei Ohtaki</span>（<a href="https://x.com/showheyohtaki" rel="noopener">@showheyohtaki</a>）</p>
+    <p class="foot-links">
+      <a href="https://github.com/showheyohtaki/motion-prompt/blob/main/README.ja.md#なぜ作ったか" data-href-ja="https://github.com/showheyohtaki/motion-prompt/blob/main/README.ja.md#なぜ作ったか" data-href-en="https://github.com/showheyohtaki/motion-prompt#why-i-made-this" rel="noopener" data-t="whyLink">原作者的创作缘起</a>
+      <a href="https://github.com/sadjjk/motion-prompt-zh/tree/main/packs" data-repo-path="/tree/main/packs" rel="noopener" data-t="listLink">中文名称列表（GitHub）</a>
+      <a href="https://github.com/sadjjk/motion-prompt-zh/blob/main/CONTRIBUTING.md" data-repo-path="/blob/main/CONTRIBUTING.md" rel="noopener" data-t="addLink">贡献专业术语</a>
+    </p>
+    <p class="foot-remove"><span data-t="removeP1">如需删除或更正本站介绍，请通过</span><a href="https://github.com/sadjjk/motion-prompt-zh/issues/new?template=3-removal.yml" data-repo-path="/issues/new?template=3-removal.yml" rel="noopener" data-t="removeLink">GitHub Issue 表单</a><span data-t="removeP2">提交，维护者核实后处理。</span></p>
+    <p class="foot-thanks"><span data-t="thanks1">动态示例与可复制 Prompt 相结合的形式，受到</span> <a href="https://lucianlabs.dev/uxui-prompt/" rel="noopener">Lucian UX/UI Prompt</a> <span data-t="thanks2">的启发，谨致谢意。</span></p>
+  </div>
+</footer>
+
+<aside class="tray" id="tray" aria-labelledby="tray-count" hidden>
+  <div class="wrap tray-in">
+    <div class="tray-top">
+      <button type="button" class="tray-toggle" id="tray-toggle" aria-expanded="true" aria-controls="tray-body">
+        <span class="tray-count" id="tray-count">已选 0 项</span>
+        <svg class="tray-chev" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.5 10l4.5-4.5 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <p class="tray-wait" id="tray-wait" data-t="trayWait" hidden>AI 正在等待，选好后点击“发送给 AI”。</p>
+      <button type="button" class="btn btn-s btn-main tray-main" id="tray-main">复制所选</button>
+    </div>
+    <div class="tray-body" id="tray-body">
+      <ol class="tray-list" id="tray-list"></ol>
+      <p class="tray-empty" id="tray-empty" data-t="trayEmpty" hidden>点击效果上的“选择”，即可加入此处。</p>
+      <div class="tray-row">
+        <label class="tray-note">
+          <span class="tray-note-l" data-t="noteLabel">备注（可选）</span>
+          <input type="text" id="tray-note" maxlength="300" autocomplete="off" placeholder="例如：用于视频开场标题" data-t-attr="placeholder:notePh">
+        </label>
+        <div class="tray-acts">
+          <button type="button" class="btn btn-s" id="tray-copy" data-t="copyPicked" hidden>复制所选</button>
+          <button type="button" class="btn btn-s" id="tray-share" data-t="shareUrl">复制分享链接</button>
+          <button type="button" class="btn btn-s btn-ghost" id="tray-clear" data-t="clearAll">清空选择</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<dialog class="detail" id="detail" aria-labelledby="d-name">
+  <div class="d-bar">
+    <p class="d-id"><span id="d-id">#000</span><span class="d-where" id="d-where"></span></p>
+    <div class="d-nav">
+      <button type="button" class="icon-b playtoggle" id="d-play" aria-pressed="true" aria-label="暂停">
+        <svg class="i-pause" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3" y="2.5" width="3.6" height="11" rx="1" fill="currentColor"/><rect x="9.4" y="2.5" width="3.6" height="11" rx="1" fill="currentColor"/></svg>
+        <svg class="i-play" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.6v10.8a.6.6 0 0 0 .9.5l9-5.4a.6.6 0 0 0 0-1l-9-5.4a.6.6 0 0 0-.9.5z" fill="currentColor"/></svg>
+      </button>
+      <button type="button" class="icon-b" id="d-prev" aria-label="上一个效果"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button type="button" class="icon-b" id="d-next" aria-label="下一个效果"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button type="button" class="icon-b" id="d-close" aria-label="关闭"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
+  <div class="d-body">
+    <div class="d-stage"><canvas id="d-canvas" aria-hidden="true"></canvas></div>
+    <div class="d-head">
+      <h2 id="d-name" tabindex="-1"></h2>
+      <p class="d-sub" id="d-sub"></p>
+      <p class="d-meaning" id="d-meaning"></p>
+      <p class="d-summary" id="d-summary"></p>
+    </div>
+    <div class="d-main">
+      <h3 id="d-ask-h" data-t="dAsk">向 AI 提需求的示例</h3>
+      <p class="d-ask" id="d-ask"></p>
+      <h3 data-t="dSpec">运动规格</h3>
+      <ul class="d-spec" id="d-spec"></ul>
+      <h3 data-t="dUse">适用场景</h3>
+      <p id="d-use"></p>
+      <ul class="d-tags" id="d-tags" aria-label="英文标签" data-t-attr="aria-label:tagsLabel"></ul>
+    </div>
+    <div class="d-side">
+      <button type="button" class="btn btn-pick" id="d-pick" aria-pressed="false"><span class="pick-box" aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M3.5 8.4l3 3 6-6.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span id="d-pick-t">选择</span></button>
+      <button type="button" class="btn btn-main" id="d-copy-prompt" data-t="copyPrompt">复制 Prompt</button>
+      <button type="button" class="btn" id="d-copy-code" data-t="copyCode">复制代码</button>
+      <pre class="d-prompt" id="d-prompt" tabindex="0" aria-label="将被复制的完整 Prompt" data-t-attr="aria-label:promptLabel"></pre>
+      <details class="d-code">
+        <summary data-t="showCode">查看代码</summary>
+        <pre id="d-code" tabindex="0"></pre>
+      </details>
+      <p class="d-links"><a id="d-kit" href="#"></a><a id="d-txt" href="#"></a></p>
+      <p class="sr" id="d-live" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</dialog>
+
+<p class="sr" id="live" role="status" aria-live="polite"></p>
+
+<script src="assets/runtime.js"></script>
+<script src="assets/catalog.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

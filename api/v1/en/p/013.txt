@@ -1,0 +1,16 @@
+Please use "Liquid motion" (リキッドモーション), one of the names in "Motion graphics moves".
+Motion Prompt #013
+
+What it is: Shapes move and merge like liquid
+What the sample shows: A blob stretches out, breaks into drops and merges back into one.
+Spec:
+- Lead circle (radius 44): moves 300 px right at 0.35–1.45 s with cubic-bezier(.7, 0, .2, 1), rising 34 px on a sine arc while moving; returns the same way at 2.7–3.8 s.
+- Seven circles follow the same path, each 0.065 s later, radius tapering 44→15, wobbling ±6 px vertically.
+- Even while it rests, three small circles (radius 15, 13, 11) move in and out between 34 and 64 px from it, twice per cycle.
+- Merged look: draw the circles in white → blur 9 px → threshold the alpha (soft only between 112 and 144) → fill what remains with colour.
+- Fill is a diagonal gradient mint → blue → violet (#7C5CFF), with a white elliptical highlight on the lead circle.
+When to use it: Use it for an organic, soft look in logos, backgrounds and connecting moves.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/013.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

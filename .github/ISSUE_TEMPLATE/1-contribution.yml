@@ -1,0 +1,63 @@
+name: "名前・パックの提案／寄稿 · Suggest names or contribute a pack"
+description: "あなたの分野の名前、パック、作例を提案・寄稿する / Suggest or contribute names, a pack or a make-your-own example"
+labels: ["contribution"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ありがとうございます。名前の基準と見本の基準は [CONTRIBUTING.ja.md](https://github.com/showheyohtaki/motion-prompt/blob/main/CONTRIBUTING.ja.md) にあります。ファイルを出せる場合は、pull request で送ってもかまいません。
+        Thank you. What a name and a sample need is in [CONTRIBUTING.md](https://github.com/showheyohtaki/motion-prompt/blob/main/CONTRIBUTING.md). If you have the files ready, a pull request works too.
+
+        このリポジトリは MIT License です。MIT で公開できない物は受け取れません。
+        This repository is under the MIT License. We cannot accept anything that cannot be released under it.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: "何を足しますか / What are you adding?"
+      options:
+        - "新しい分野のパック / A pack for a new field"
+        - "今あるパックに言語を足す / A language for an existing pack"
+        - "名前の追加・訂正 / New names or a correction"
+        - "作例（make-your-own/examples） / A make-your-own example"
+        - "その他 / Other"
+    validations:
+      required: true
+  - type: input
+    id: field
+    attributes:
+      label: "分野と言語 / Field and language"
+      placeholder: "例: 照明・日本語 / e.g. Lighting, Spanish"
+    validations:
+      required: true
+  - type: textarea
+    id: names
+    attributes:
+      label: "名前の一覧、または内容 / The names, or what it is"
+      description: "名前ごとに一言の意味があると助かります。自信のない名前には印を付けてください。 / A one-line meaning per name helps. Mark the names you are not sure about."
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: "出典 / Where you checked the names"
+      description: "教科書、ソフトのマニュアル、業界の用語集、よく知られたチュートリアル、自分の仕事の経験など。名前ごとに1行で十分です。 / A textbook, a software manual, a trade glossary, a well-known tutorial or your own work. One line per name is enough."
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: "ファイルや見本の場所（あれば） / Files or samples, if any"
+      description: "pull request、フォーク、ご自分のポストの URL など。ご自分の X のポストと同じ素材なら、そのポストの URL も書いてください。 / A pull request, a fork, or a link. If the material is also in your own post on X, add that post's URL."
+  - type: checkboxes
+    id: rights
+    attributes:
+      label: "確認 / Please confirm"
+      options:
+        - label: "自分で作った物です（または、権利者から公開の許可を得ています。その内容を上に書きました）。 / I made this myself (or the rights holder allowed me to publish it, and I described that above)."
+          required: true
+        - label: "他人の画像・動画・フォント・ロゴ・写っている人物を含みません（含む場合は、許可の内容を上に書きました）。 / It contains no images, videos, fonts, logos or people from anyone else (or I described the permission above)."
+          required: true
+        - label: "MIT License で公開することに同意します。 / I agree to release it under the MIT License."
+          required: true
+        - label: "公開したあとはライセンスを取り消せないことを理解しています。 / I understand that the license cannot be withdrawn after it is published."
+          required: true

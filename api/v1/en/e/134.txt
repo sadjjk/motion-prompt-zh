@@ -1,0 +1,37 @@
+// Motion Prompt #134 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#134
+//
+// Repeater / リピーター
+// Pack: motion2 (Motion graphics moves, part 2) · element 14 · Category: Text & shapes
+// What happens: One shape is duplicated around a circle, and the copies turn and pulse slightly out of step.
+// Motion spec:
+//   - A rounded bar (24 × 60, radius 12) is copied up to 12 times around a circle of radius 58 at the centre, each turned to face outward (angle + 90°).
+//   - Count: 1→12 at 0.35–1.7 s and 12→1 at 3.6–4.45 s (quadratic ease-in-out). Each new copy slides from the previous slot to its own, 30° further on (cubic ease-out).
+//   - The whole ring turns once per 4.7 s. Each copy pulses in size by 1 ± 0.22 twice per 4.7 s, each one 0.55 rad later than the last, so a ripple runs round the ring.
+//   - Colours go blue, coral, yellow, mint. The original copy has a white outline. A "×N" counter at the top right.
+// When to use it: Use it for loaders, background patterns, flowers or rays: anything built from one shape repeated.
+// Tags: repeater, duplicate, radial, array, clone, pattern, loader
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#134
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 14
+// 14 リピーター（1つの図形が複製されて円に並び、少しずつずれながら回る）
+CELLS[13] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const N = 12, X = w / 2, Y = h / 2, R = 58, spin = 2 * Math.PI * u / CYC;
+  const cnt = 1 + (N - 1) * (eIOs(P(u, 0.35, 1.7)) - eIOs(P(u, 3.6, 4.45)));
+  for (let i = N - 1; i >= 0; i--) {
+    const vis = i === 0 ? 1 : clamp(cnt - i); if (vis <= 0) continue;
+    const ang = spin + (i === 0 ? 0 : (i - 1 + eOut(vis))) * 2 * Math.PI / N;
+    const pul = (1 + 0.22 * Math.sin(2 * Math.PI * 2 * u / CYC - i * 0.55)) * (0.55 + 0.45 * vis);
+    k.save(); k.translate(X + Math.cos(ang) * R, Y + Math.sin(ang) * R); k.rotate(ang + Math.PI / 2); k.scale(pul, pul);
+    k.fillStyle = PAL[i % 4]; rr(k, -12, -30, 24, 60, 12); k.fill();
+    if (i === 0) { k.strokeStyle = '#fff'; k.lineWidth = 4; rr(k, -12, -30, 24, 60, 12); k.stroke(); }
+    k.restore();
+  }
+  txt(k, '×' + Math.round(cnt), w - 34, 46, `800 40px ${DISP}`, C.yel, 'right', 'middle');
+};

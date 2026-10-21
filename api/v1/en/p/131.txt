@@ -1,0 +1,15 @@
+Please use "Text on a path" (テキストオンパス), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #131
+
+What it is: Text flows along a line or curve
+What the sample shows: A line of text flows along a wavy line, each letter turning to follow it.
+Spec:
+- Path: y = 118 + 42·sin(2πx ÷ 330 + 0.6) for x = −70 to 609, shown 6 px below as a navy dashed line (14/10, width 5).
+- "ALONG THE LINE • " (42 px, bold, 2 px letter spacing) is repeated. Each character is placed at its arc-length position on the path and rotated to the path direction.
+- The text moves along the path by the length of one copy of the string every 4.7 s, so the loop joins up.
+- Letters are white; the bullet is yellow.
+When to use it: Use it to run text along a shape: around a logo, along a road, river or wave, or as a looping band of text.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/131.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

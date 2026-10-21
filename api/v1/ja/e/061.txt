@@ -1,0 +1,40 @@
+// Motion Prompt #061 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#061
+//
+// チップ / Filter chips
+// パック: ui (UIパーツの名前) · element 13 · カテゴリ: 選ぶ・切り替えるパーツ
+// 何が起きるか: 「新着」「無料」のチップを押すとチェックが付いて青くなり、条件に合わないカードが薄くなる。
+// 動きの仕様:
+//   - 4.5秒周期・カード542×191。チップ4つ「すべて・新着・人気・無料」: 高さ34・角丸17、幅は文字幅+32、10px間隔で左から並べる
+//   - カーソルのクリック: 新着オン0.95秒、無料オン1.75秒、新着オフ3.0秒、無料オフ3.6秒
+//   - 1回の切り替えは0.15秒・easeOutCubic。チップが18px広がって左にチェックが出て、地は薄い青・枠と文字は青
+//   - 下の一覧: カード4枚（242×54、2列2段）。条件に合わないカードは不透明度を 1 → 0.12 に下げる
+// 使いどころ: 一覧や検索結果を、条件を重ねて手早く絞り込ませたいとき。
+// タグ: chips, filter-chips, tags, filter, facets, pills
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#061
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 13
+// 13 チップ（Filter chips）
+CELLS[12] = ui((w, h, t) => {
+  const chips = ['すべて', '新着', '人気', '無料']; let x = 24; const pos = [];
+  const on = [0, eo(seg(t, 0.95, 1.1)) * (1 - eo(seg(t, 3.0, 3.15))), 0, eo(seg(t, 1.75, 1.9)) * (1 - eo(seg(t, 3.6, 3.75)))];
+  chips.forEach((s, i) => {
+    const k = on[i], cw0 = tw(s, 15, 600) + 32 + (k > 0 ? 18 * k : 0);
+    fillRR(x, 12, cw0, 34, 17, k > .5 ? C.lb : '#fff'); strokeRR(x, 12, cw0, 34, 17, k > .5 ? C.blue : C.line2, 1.5);
+    if (k > 0) { X.globalAlpha = k; check(x + 18, 29, 5, C.blue, 2.4); X.globalAlpha = 1; }
+    text(s, x + 16 + 18 * k, 30, 15, k > .5 ? C.blue : '#555', 600);
+    pos.push(x + cw0 / 2); x += cw0 + 10;
+  });
+  // 一覧：条件に合わないカードが消える
+  const vis = [1, 1 - Math.max(on[1], on[3]), 1 - on[3], 1];
+  for (let i = 0; i < 4; i++) {
+    const cx = 24 + (i % 2) * 252, cy = 60 + Math.floor(i / 2) * 64, a = clamp(.12 + .88 * vis[i]);
+    X.save(); X.globalAlpha = a; strokeRR(cx, cy, 242, 54, 8, C.line2, 1.5); fillRR(cx + 10, cy + 10, 34, 34, 6, i === 0 ? C.mb : C.line); bar(cx + 54, cy + 14, 120, C.line2, 10); bar(cx + 54, cy + 32, 150, C.line, 7); X.restore();
+  }
+  const p1 = pos[1] || 120, p3 = pos[3] || 300;
+  pointer([[.3, w + 30, h + 30], [.9, 130, 32], [1.3, 130, 32], [1.7, 300, 32], [2.5, 300, 32], [2.95, 130, 32], [3.2, 130, 32], [3.55, 296, 32], [3.85, 296, 32], [4.3, w + 30, h + 30]], [0.95, 1.75, 3.0, 3.6], t);
+});

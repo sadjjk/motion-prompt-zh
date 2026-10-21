@@ -1,0 +1,37 @@
+// Motion Prompt #066 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#066
+//
+// パンくずリスト / Breadcrumbs
+// パック: ui (UIパーツの名前) · element 18 · カテゴリ: 案内する・状態を伝えるパーツ
+// 何が起きるか: パンくずの「講座」を押すと一つ上の一覧ページに戻り、一覧のカードを押すと元の詳細ページへ進む。
+// 動きの仕様:
+//   - 4.5秒周期・カード542×191。上に「ホーム › 講座 › Web制作」（17px）。リンクは青、今のページは黒の太字。下に区切り線（y 46）
+//   - カーソルが「講座」に乗ると0.9〜1.2秒に下線、1.0秒にクリック
+//   - 上へ戻る量 up: 1.0〜1.25秒に easeInOutCubic で 0→1。「› Web制作」が消え、「講座」が今のページ（黒の太字）になる
+//   - 中身: 詳細ページ（見出しと本文）から、3枚のカード（158×118・山の絵付き）の一覧へ不透明度で切り替える
+//   - 戻る: カーソルが1枚目のカードに乗り（2.45〜2.8秒に青い枠）、2.7秒にクリック。2.7〜2.95秒に元の詳細ページへ
+// 使いどころ: 階層の深いサイトで、今いる場所と上の階層への戻り道を示したいとき。
+// タグ: breadcrumbs, breadcrumb, trail, hierarchy, navigation, path
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#066
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 18
+// 18 パンくずリスト（Breadcrumbs）
+CELLS[17] = ui((w, h, t) => {
+  const up = eio(seg(t, 1.0, 1.25)) * (1 - eio(seg(t, 2.7, 2.95))); // 1=「講座」の階層にいる
+  let x = 24; const y = 24;
+  text('ホーム', x, y, 17, C.blue, 600); x += tw('ホーム', 17, 600) + 10; text('›', x, y, 17, '#aaa', 500); x += 18;
+  const kx = x, kw = tw('講座', 17, 700);
+  const hoverK = t > .9 && t < 1.2;
+  text('講座', x, y, 17, up > .5 ? C.ink : C.blue, up > .5 ? 700 : 600); if (hoverK) { X.fillStyle = C.blue; X.fillRect(x, y + 12, kw, 2); }
+  x += kw + 10;
+  X.globalAlpha = 1 - up; text('›', x, y, 17, '#aaa', 500); text('Web制作', x + 18, y, 17, C.ink, 700); X.globalAlpha = 1;
+  X.fillStyle = C.line; X.fillRect(24, 46, 494, 1.5);
+  // 中身：詳細ページ ⇄ 一覧ページ
+  if (up < 1) { X.save(); X.globalAlpha = 1 - up; bar(24, 64, 200, C.ink, 13); bar(24, 92, 494); bar(24, 110, 420); fillRR(24, 132, 494, 48, 8, C.block); X.restore(); }
+  if (up > 0) { X.save(); X.globalAlpha = up; for (let k = 0; k < 3; k++) { const cx = 24 + k * 168, hov = k === 0 && t > 2.45 && t < 2.8; strokeRR(cx, 62, 158, 118, 8, hov ? C.blue : C.line2, hov ? 2 : 1.5); mountains(cx + 10, 72, 138, 58, k % 2); bar(cx + 10, 142, 90, k === 0 ? C.sb : C.line2, 10); bar(cx + 10, 160, 120, C.line, 7); } X.restore(); }
+  pointer([[.3, w + 30, h + 30], [.95, kx + kw / 2, 30], [1.6, kx + kw / 2, 30], [2.4, 104, 120], [3.1, 104, 120], [3.9, w + 30, h + 30]], [1.0, 2.7], t);
+});

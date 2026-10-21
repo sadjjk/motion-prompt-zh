@@ -1,0 +1,55 @@
+name: "削除・訂正の依頼 · Removal or correction"
+description: "掲載されている事例・名前・素材の削除や訂正を依頼する / Ask us to remove or correct something on this site or in this repository"
+labels: ["removal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        確認できたら、すみやかに外します（または直します）。外すのは、事例のページの埋め込みとリンク、紹介文、リポジトリ内の該当ファイルです。
+        Once the request is confirmed, we remove (or correct) it promptly: the embed, link and introduction on the examples page, or the files in this repository.
+
+        Issue は公開されます。メールアドレス・電話番号・住所などの個人情報は書かないでください。
+        Issues are public. Please do not write personal information such as an email address, a phone number or an address.
+  - type: input
+    id: target
+    attributes:
+      label: "対象の URL / What to remove or correct (URL)"
+      description: "事例ならポストの URL、リポジトリ内ならファイルの URL。 / The post URL for an example, or the file URL in this repository."
+    validations:
+      required: true
+  - type: dropdown
+    id: request
+    attributes:
+      label: "依頼の内容 / Request"
+      options:
+        - "削除 / Remove"
+        - "訂正 / Correct"
+    validations:
+      required: true
+  - type: dropdown
+    id: who
+    attributes:
+      label: "あなたは / You are"
+      options:
+        - "ポストの投稿者本人 / The author of the post"
+        - "ポストに写っている作品の作者・権利者 / The creator or rights holder of the work in the post"
+        - "上の人の代理 / Acting for one of the above"
+        - "その他（誤りを知らせたい） / Other (reporting a mistake)"
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: "理由 / Reason"
+      description: "訂正なら、正しい内容も書いてください。 / For a correction, include what it should say."
+    validations:
+      required: true
+  - type: textarea
+    id: verify
+    attributes:
+      label: "本人確認の方法 / How we can confirm it is you"
+      description: |
+        例: 対象ポストのアカウントから、この Issue の番号を書いたポストかリプライを出す（確認が済んだら消してかまいません）。GitHub のプロフィールに X のアカウントが載っている、なども使えます。
+        For example: from the account of the post, publish a post or reply that mentions this issue's number (you can delete it after we confirm). A GitHub profile that links to your X account also works.
+    validations:
+      required: true

@@ -1,0 +1,16 @@
+Please use "Flip" (フリップ), one of the names in "Motion graphics moves".
+Motion Prompt #021
+
+What it is: Turns over like a card to show the other side
+What the sample shows: A card turns over around its vertical axis and shows its other side.
+Spec:
+- A card (300 × 156, radius 22). Front (blue, Q) ⇄ back (yellow, A), 2.35 s each.
+- Rotates 180° at 0.45–1.5 s (1.05 s) with backOut (s = 1.5), going slightly past 180° and coming back.
+- Card width = original width × |cos θ|. The face artwork is swapped as it passes 90°.
+- Perspective: the card is drawn in thin vertical slices whose height varies by up to ±20% × sin θ from one side to the other (far side shorter, near side taller).
+- During the turn it scales up 8% and lifts 6 px on a sine curve; a dark overlay with opacity 0.34 × |sin θ| shades the face. An elliptical shadow sits on the floor.
+When to use it: Use it for two things that are sides of one another: question and answer, before and after.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/021.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

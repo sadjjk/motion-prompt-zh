@@ -1,0 +1,16 @@
+Please use "Exit-intent popup" (離脱防止ポップアップ), one of the names in "Landing page & web effects".
+Motion Prompt #088
+
+What it is: A popup shown when the visitor is about to leave
+What the sample shows: When the cursor heads out through the top of the page (toward the tabs and close button), the page dims and a "Wait!" popup opens. The × closes it.
+Spec:
+- The cursor rises from the page toward the browser's address bar at 0.7–1.25 s (cubic ease-in-out).
+- It fires when the cursor crosses the top edge of the viewport (y = 0, at about 1.07 s), the same test as mouseleave on document with clientY ≤ 0.
+- Opens 0.05–0.45 s after firing (cubic ease-out): backdrop navy 0→0.5 opacity; popup (260 × 132, radius 12) opacity 0→1 and scale 0.9→1.
+- Inside: a heading, a discount line (orange), a coupon button and an × at the top right.
+- Click on the × at 2.9 s; it disappears 0.03–0.25 s later (linear).
+When to use it: Use it to make one last offer to visitors who are about to leave without converting.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/088.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

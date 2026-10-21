@@ -1,0 +1,32 @@
+// Motion Prompt #098 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#098
+//
+// リムライト / Rim light
+// パック: photo (写真の表現・光と画風) · element 02 · カテゴリ: 光の当て方・時間帯
+// 何が起きるか: 周りが暗く落ち、斜め後ろ左右の2灯で、暗い人物の頭と肩の両側にだけ細い光の縁が出る。右下の図で2灯の位置を示す。
+// 動きの仕様:
+//   - 場面①: 地平線（y150）の前に胸から上の人物（頭の中心 x270, y78・半径29px、顔・髪なし）。
+//   - 背景: 明るい場面 → 暗い場面（空 #2B2D33、地面 #24252A）。人物 #4D5A75 → #1F2128
+//   - 光の縁: 胸像と同じ形をアンバー #FFC75A で左右に3.5px・上に2.5pxずらして2枚、暗い胸像の後ろに置く（縁の幅3.5px）
+//   - 右下の配置図（66×66px）: 光は真上から見て ±135°（斜め後ろ左右）。右上の表示「±135°」
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、3次のイーズインアウト（cubic-bezier(0.65,0,0.35,1) 相当））
+// 使いどころ: 暗い背景から人物や商品を切り離して、形をくっきり見せたいとき。
+// タグ: rim light, rim lighting, edge light, backlight, kicker, outline, studio
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#098
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 02
+// リムライト: 周りが暗くなり、斜め後ろ左右の2灯で頭と肩の輪郭だけが細く光る
+CELLS[1] = cell((k, u) => {
+  const a = env(u);
+  stagePortrait(k, pal(BASE, DARK, a));
+  k.save(); k.globalAlpha = a; k.fillStyle = BASE.lit;
+  for (const dx of [-3.5, 3.5]) { k.save(); k.translate(dx, -2.5); bustPath(k, PX, PY, PR); k.fill(); k.restore(); }
+  k.restore();
+  bust(k, PX, PY, PR, mixc(BASE.person, DARK.person, a));
+  plan(k, [[Math.PI * 0.75, a], [-Math.PI * 0.75, a]]);
+  hud(k, '±135°');
+});

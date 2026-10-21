@@ -1,0 +1,16 @@
+Please use "Wiggle" (ウィグル), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #124
+
+What it is: Shakes in small, random, continuous jitters
+What the sample shows: A bell keeps jittering irregularly: not one hit, but a small shake that never stops.
+Spec:
+- A yellow bell pivoting at its top (centre, y = 34). It never stops moving.
+- Angle = the sum of four sine waves: 23, 31, 43 and 59 cycles per 4.7 s (about 4.9, 6.6, 9.1 and 12.6 Hz), amplitudes 0.085, 0.065, 0.05 and 0.035 rad (up to about 0.235 rad, 13.5°, when they line up).
+- Position also jitters: x with 29, 47 and 61 cycles (4, 3, 2 px), y with 37 and 53 cycles (2.4, 1.8 px).
+- Every frequency is a whole number of cycles per 4.7 s, so the loop joins up; the counts share no common factor, so it does not look regular.
+- The clapper (coral, radius 13) swings the other way (angle × 70 px). White vibration arcs (radius 86 and 110, width 6) flicker on both sides the whole time.
+When to use it: Use it on a notification, an incoming call or anything that should catch the eye, or to add a restless, handheld feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/124.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

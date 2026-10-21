@@ -1,0 +1,14 @@
+Please use "Split screen" (スプリットスクリーン), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #144
+
+What it is: Divides the frame to show scenes side by side
+What the sample shows: One full-frame scene splits into two panels, then three, each with its own scene moving.
+Spec:
+- A full-frame sea scene splits into two panels at 0.45–0.95 s (divider 539→269.5), then into three at 1.4–1.9 s (dividers at 1/3 and 2/3), and merges back into one at 3.75–4.4 s, all cubic ease-in-out.
+- The three scenes (sea, city, field) are each centred in and clipped to their own panel and keep moving inside it (waves and a sailboat, city windows switching 8 times per 4.7 s, a windmill turning twice per 4.7 s).
+- White dividers (width 6) between the panels.
+When to use it: Use it to compare, to show things happening at once, or to line up several people or places, such as before and after or a set of options.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/144.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

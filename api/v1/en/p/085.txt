@@ -1,0 +1,15 @@
+Please use "Ripple effect" (リップルエフェクト), one of the names in "Landing page & web effects".
+Motion Prompt #085
+
+What it is: A ripple spreads from the point that was pressed
+What the sample shows: Each click sends a white circle out from the click point to fill the button, then it fades away.
+Spec:
+- Button 280 × 56 (orange, radius 10). Clicks at 0.7 s (left of centre) and 2.9 s (right of centre).
+- The circle is centred on the click point; its radius grows from 0 to the distance to the button's farthest corner over 0.6 s (cubic ease-out).
+- White at 0.4 opacity, fading to 0 between 0.3 and 0.8 s after the click.
+- The circle is clipped to the button (overflow: hidden); the label sits above it.
+When to use it: Use it to confirm a press on a button or list item right where it happened.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/085.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

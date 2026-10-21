@@ -1,0 +1,15 @@
+Please use "Cursor follower" (マウスストーカー), one of the names in "Landing page & web effects".
+Motion Prompt #083
+
+What it is: A shape trails the mouse pointer with a delay
+What the sample shows: As the cursor moves around the page, an orange circle follows it a little behind.
+Spec:
+- Cursor path: x = 255 + 175·sin(2πt/4.8), y = 86 + 46·sin(4πt/4.8) (a figure eight lying on its side, one lap per 4.8 s).
+- Circle: radius 17, orange, opacity 0.88, drawn under the cursor.
+- Follow rule: every frame (60 fps) it covers 12% of the remaining distance (x += (cursor x − x) × 0.12).
+- The arrow cursor stays visible.
+When to use it: Use it on brand sites and portfolios to add a playful, hands-on feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/083.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

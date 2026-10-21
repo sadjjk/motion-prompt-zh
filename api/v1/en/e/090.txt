@@ -1,0 +1,44 @@
+// Motion Prompt #090 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#090
+//
+// Lazy loading / 遅延読み込み
+// Pack: lp (Landing page & web effects) · element 18 · Category: Loading, navigation & ambient loops
+// What happens: As grey placeholders scroll into view, a spinner turns in each, and the images fade in as they arrive. The top row is loaded from the start.
+// Motion spec:
+//   - A 3 × 3 grid of 151 × 92 placeholders; the first row is shown from the start. Scroll: 0→110 px at 0.35–1.1 s, 110→225 px at 1.7–2.5 s, 225→0 at 3.5–4.5 s (cubic ease-in-out).
+//   - Loading starts when a placeholder's top edge passes above the bottom of the viewport (168 px), with each column 0.12 s later than the one to its left.
+//   - For 0.45 s a spinner (radius 11, one turn per 0.8 s) turns in the placeholder's centre.
+//   - Then the image fades in 0→1 over 0.35 s (cubic ease-out). Unloaded placeholders show an image icon.
+//   - Placeholders that leave the bottom of the view are reset out of sight.
+// When to use it: Use it on image-heavy pages to make the first view load faster.
+// Tags: lazy-loading, lazy-load, images, placeholder, performance, spinner, gallery
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#090
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 18
+// 18 遅延読み込み（画面に入った画像だけ、その時点で読み込まれて表示される）
+CELLS[17] = (k, w, h, u) => {
+  frame(k);
+  const SY = t => steps([[0.35, 0], [1.1, 110], [1.7, 110], [2.5, 225], [3.5, 225], [4.5, 0]], t), y = SY(u);
+  const COLX = [15, 180, 345], IW = 151, IH = 92, ROWS = [12, 168, 276], WAIT = 0.45, FADE = 0.35;
+  view(k, () => {
+    k.save(); k.translate(0, -y);
+    txt(k, 'ギャラリー', 15, 140, `800 18px ${JP}`, C.ink); bars(k, 120, 128, 200, 1);
+    ROWS.forEach((top, r) => COLX.forEach((x, c) => {
+      const t0 = r === 0 ? -1e9 : enteredAt(SY, top, VH, u), age = t0 === null ? -1 : u - t0 - c * 0.12;
+      k.fillStyle = C.skel; rr(k, x, top, IW, IH, 6); k.fill();
+      if (age < WAIT + FADE) {   // まだの画像: 灰色の枠と画像の印
+        k.save(); k.translate(x + IW / 2, top + IH / 2); k.strokeStyle = '#B9C1CF'; k.lineWidth = 2; k.lineJoin = 'round';
+        if (age >= 0 && age < WAIT) spinner(k, 0, 0, 11, u, C.blue);
+        else { rr(k, -15, -11, 30, 22, 3); k.stroke(); k.beginPath(); k.moveTo(-11, 7); k.lineTo(-3, -1); k.lineTo(3, 5); k.lineTo(7, 1); k.lineTo(11, 6); k.stroke(); }
+        k.restore();
+      }
+      if (age >= WAIT) { k.save(); k.globalAlpha = eOut(P(age, WAIT, WAIT + FADE)); pic(k, x, top, IW, IH, (r + c) % 3, 6); k.restore(); }
+    }));
+    k.restore();
+    sbar(k, y / 225, 0.45);
+  });
+};
