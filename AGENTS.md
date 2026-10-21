@@ -54,6 +54,8 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
   - 循环在 `u = cycle → 0` 处必须无缝衔接；
   - 除了创建离屏 canvas，不访问 DOM，不联网。
 - `spec` 中的数字必须取自代码，不得编造（`FORMAT.md` 第 116 行）。
+- 新增分类包时，需在 `assets/site.js` 的 `GROUP_DEFS` 中登记所属大类；未登记的包会显示在「其他」组。
+- `examples/found.json` 的 `theme` 只能使用大类 id（`web`、`motion`、`film`）；`platform` 缺省为 `x`，为 `x` 时必须有 `id`。
 
 ### 版权与署名
 
