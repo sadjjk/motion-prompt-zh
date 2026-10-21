@@ -1,6 +1,6 @@
 # Motion Prompt 简体中文版
 
-**简体中文** · [English（原版说明）](README.en.md) · [日本語（原版说明）](README.ja.md)
+**简体中文** · [English（原版说明）](https://github.com/showheyohtaki/motion-prompt/blob/main/README.md) · [日本語（原版说明）](https://github.com/showheyohtaki/motion-prompt/blob/main/README.ja.md)
 
 本项目是 Motion Prompt 的非官方简体中文本地化版本，基于 Shohei Ohtaki 的开源项目开发。
 
@@ -24,7 +24,7 @@
 3. 点击“复制 Prompt”交给 Codex、Claude Code 等 AI。内容包括中英文名称、效果说明、全部参数、适用场景、参考实现与共享代码链接，以及保留运动规格、替换实际素材的要求。
 4. 多项效果可点击“选择”，添加备注后“复制所选”或复制分享链接。由 Skill 打开时，还可“发送给 AI”。
 
-语言优先级为有效 URL → 已保存偏好 → `zh-Hans`。`?lang=zh` 自动归一为 `zh-Hans`，分享链接包含语言。中文资源只生成 `zh-Hans` 目录。Canvas 内原始示例字样保留，见 [本地化说明](docs/LOCALIZATION.md)。
+语言优先级为有效 URL → 已保存偏好 → `zh-Hans`。`?lang=zh` 自动归一为 `zh-Hans`，分享链接包含语言。中文资源只生成 `zh-Hans` 目录。Canvas 内原始示例字样保留。
 
 ## 本地运行
 
@@ -111,8 +111,6 @@ gh api repos/sadjjk/motion-prompt-zh/pages/builds/latest --jq '.status + " " + .
 
 jsDelivr 只能访问具体文件（如 `…@main/api/v1/catalog.json`）；不带文件名的目录地址会返回 404，带结尾斜杠时显示目录列表。
 
-首次发布的完整过程与原验收记录见 [发布说明](docs/PUBLISHING.md)（rainman016 的原始记录）。
-
 ## 开发与验证
 
 内容源为 `packs/*/meta.json`，动画源为 `packs/*/pack.js`。不要手改 `assets/catalog.js` 或 `api/v1/`。
@@ -134,16 +132,16 @@ node tools/check-skill.mjs
 node tools/check.mjs
 ```
 
-测试覆盖资源、Prompt 一致性、三语状态、搜索、分享、桌面/移动布局、Pages 子路径与 Skill 回传。`check-skill.mjs --static` 只检查 CLI；完整检查还会运行隔离安装、离线缓存、本地/在线子路径多选回传和回调校验。真实结果见 [原验收记录](docs/VALIDATION.md) 与 [Skill 集成验收](docs/SKILL-INTEGRATION.md)，扩展规则见 [FORMAT.md](FORMAT.md)。
+测试覆盖资源、Prompt 一致性、三语状态、搜索、分享、桌面/移动布局、Pages 子路径与 Skill 回传。`check-skill.mjs --static` 只检查 CLI；完整检查还会运行隔离安装、离线缓存、本地/在线子路径多选回传和回调校验。扩展规则见 [FORMAT.md](FORMAT.md)。
 
 ## 来源、版权与授权
 
-- 原项目：[showheyohtaki/motion-prompt](https://github.com/showheyohtaki/motion-prompt)，原作者 **Shohei Ohtaki（大滝昇平）**，X [@showheyohtaki](https://x.com/showheyohtaki)。创作缘起与完整原说明保留在 [英文](README.en.md) 和 [日文](README.ja.md) 文档。
+- 原项目：[showheyohtaki/motion-prompt](https://github.com/showheyohtaki/motion-prompt)，原作者 **Shohei Ohtaki（大滝昇平）**，X [@showheyohtaki](https://x.com/showheyohtaki)。创作缘起与完整原说明见原项目的 [英文](https://github.com/showheyohtaki/motion-prompt/blob/main/README.md) 和 [日文](https://github.com/showheyohtaki/motion-prompt/blob/main/README.ja.md) 文档。
 - 中文翻译及本地化扩展由 `rainman016` 完成；本 fork 由 `sadjjk` 维护部署。均不将原作者动画、代码或素材归为中文版原创。
 - [LICENSE](LICENSE) 完整保留 **MIT License / Copyright (c) 2026 Shohei Ohtaki**。使用参考代码时保留每个元素和 kit 的版权行，再分发时保留许可证。
 - [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) 原文完整保留。案例帖子及其媒体属于作者，**不受本仓库 MIT 许可覆盖**，本站仅存链接、帖子 ID、自写介绍并使用官方嵌入。
-- 未新增外部字体、图片或视频。原仓库资源和素材核查范围见 [本地化说明](docs/LOCALIZATION.md)。
+- 未新增外部字体、图片或视频。
 
-## 改动记录与同步上游
+## 同步上游
 
-见 [CHANGELOG.zh-Hans.md](CHANGELOG.zh-Hans.md)。同步时在独立分支合并，保留 ID、顺序、slug 和参数；翻译变化字段后重新生成并验收。不要复制上游生成的 API 覆盖本版；规格行数和数值校验会提醒中文同步更新。
+同步时在独立分支合并，保留 ID、顺序、slug 和参数；翻译变化字段后重新生成并验收。不要复制上游生成的 API 覆盖本版；规格行数和数值校验会提醒中文同步更新。

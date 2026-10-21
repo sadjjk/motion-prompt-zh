@@ -171,4 +171,4 @@ First line of every `e/<id>.txt` and `kit/<pack>.js`:
 - `aliases` 为可选的语言到字符串数组映射，例如 `{"zh-Hans":["弹入","弹性"]}`，构建透传到 catalog，网页和 CLI 在全语言中搜索；英文 tags 原样保留。
 - 默认中文；有效 URL 优先于本地偏好。规范站点与仓库读 `site.config.json`，本地网页资源与分享按当前地址解析。
 - 修改内容后运行构建，不手改生成 API。构建验证中文规格行数和数值，语义与非数值约束仍需复核。
-- 英文和日文文档是保留的上游说明；中文 README 和 docs/LOCALIZATION.md 记录本版行为。
+- 英文和日文原版说明见上游仓库；中文 README 记录本版行为。

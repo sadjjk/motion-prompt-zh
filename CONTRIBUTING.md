@@ -1,8 +1,8 @@
-> 中文版维护：先阅读 [README.md](README.md) 与 [本地化说明](docs/LOCALIZATION.md)。本版网站和 CLI 支持 zh-Hans / en / ja，144 项正式内容要求完整中文，aliases 为可选搜索扩展。下方保留原贡献指南，涉及上游地址的链接仍指向原项目。
+> 中文版维护：先阅读 [README.md](README.md)。本版网站和 CLI 支持 zh-Hans / en / ja，144 项正式内容要求完整中文，aliases 为可选搜索扩展。下方保留原贡献指南，涉及上游地址的链接仍指向原项目。
 
 # Contributing: add the names of your field
 
-**English** | [日本語](CONTRIBUTING.ja.md)
+**English** | [日本語](https://github.com/showheyohtaki/motion-prompt/blob/main/CONTRIBUTING.ja.md)
 
 This repository is a library of names: the words people in a field use for the things you can ask an AI to make. It started with two of the sets posted on X, motion graphics and camera moves, and UI component names, landing page and web effects, and photo looks have been added since. **Please add the common language of your own field, in your own language.**
 
