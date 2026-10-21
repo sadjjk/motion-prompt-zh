@@ -436,7 +436,7 @@
     $('#empty').hidden = shown.length > 0;
     $('#count').textContent = shown.length === CAT.count ? t('count', { n: CAT.count }) : t('countOf', { n: shown.length, total: CAT.count });
   }
-  // 面包屑：只在选了大类后显示路径（大类 › 分类包 › 小类）；「全部」时为空，避免和大类按钮重复
+  // 面包屑：选到分类包后显示路径（大类 › 分类包 › 小类）；「全部」或只选大类时隐藏，避免和按钮重复
   function renderCrumb() {
     var parts = [];
     var g = groupBy[state.group], p = packBy[state.pack];
@@ -448,7 +448,8 @@
     }
     var crumb = $('#crumb');
     crumb.textContent = parts.join(' › ');
-    crumb.hidden = !parts.length;
+    // 只选了大类时，路径和高亮的大类按钮重复，不显示；选到分类包后才显示
+    crumb.hidden = !p;
   }
 
   function chip(label, pressed, small, onClick) {
