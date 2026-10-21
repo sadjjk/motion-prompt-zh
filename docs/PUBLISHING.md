@@ -1,5 +1,7 @@
 # GitHub 开源发布说明
 
+> 本文是 `rainman016/motion-prompt-zh` 首次发布时的原始记录，保留作历史依据。本 fork 当前部署于 `https://sadjjk.github.io/motion-prompt-zh/`，API 备用镜像为 jsDelivr；现行发布步骤见 [README](../README.md#发布到-github-pages) 与 [AGENTS.md](../AGENTS.md)。
+
 ## 发布目标与来源
 
 - 个人 GitHub 账号：`rainman016`。

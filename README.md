@@ -6,7 +6,7 @@
 
 用专业名称、动态示例与完整 Prompt 向 AI 描述视觉需求。沿用原项目的 HTML/CSS/JavaScript 和多语言架构，默认简体中文，可切换 ZH / EN / JA。144 个效果全部具备中文名称、解释、提问示例、表现、规格及适用场景，保留英文名称与标签。
 
-**在线体验**：[rainman016.github.io/motion-prompt-zh](https://rainman016.github.io/motion-prompt-zh/) · **公开仓库**：[rainman016/motion-prompt-zh](https://github.com/rainman016/motion-prompt-zh)。已通过 GitHub Pages 部署，144 项中文资料、独立 Skill 安装及网页多选发送回本地 CLI 均已实际验证。
+**在线体验**：[sadjjk.github.io/motion-prompt-zh](https://sadjjk.github.io/motion-prompt-zh/) · **公开仓库**：[sadjjk/motion-prompt-zh](https://github.com/sadjjk/motion-prompt-zh)（基于 [rainman016/motion-prompt-zh](https://github.com/rainman016/motion-prompt-zh)）。通过 GitHub Pages 部署，API 备用镜像为 jsDelivr。
 
 ![动态图形示例](assets/preview-motion.gif)
 
@@ -96,30 +96,24 @@ Codex 应先检查项目，再读取选中编号的 `get` 与对应 `kit`，完�
 
 ## 发布到 GitHub Pages
 
-首次发布推荐 Fork 原项目，保留上游来源关系与完整 Git 历史。以下命令是发布操作，须在确认自己的账号和公开范围、完成本地检查与提交后执行；仅修改配置文件不会自动开启 Pages。当前发布目标为个人账号 `rainman016` 的 `motion-prompt-zh`。
+本仓库已从 `main` 分支根目录发布到 `https://sadjjk.github.io/motion-prompt-zh/`（来源声明见 [.github/pages-source.json](.github/pages-source.json)，`.nojekyll` 与已生成静态文件随仓库提交，无需框架或部署密钥）。部署地址统一在 [site.config.json](site.config.json) 配置：`site` 与 `apiBase` 为 Pages，`rawApiBase` 为 jsDelivr 镜像 `https://cdn.jsdelivr.net/gh/sadjjk/motion-prompt-zh@main/api/v1`。
 
-1. 从 `showheyohtaki/motion-prompt` 创建个人 Fork，并命名为 `motion-prompt-zh`。沿用当前工作区，不需要重新克隆。
-2. 核对 [site.config.json](site.config.json)。当前根据 GitHub CLI 身份设置为 `rainman016`；换账号时统一修改 `owner`、`repo`、`site`，仓库名和分支也须对应实际值。
-3. 运行构建和校验。构建会同步网页元数据、API、Prompt、Skill 配置和插件地址；提交全部源文件与生成文件。
-4. 首次发布、目标 Fork 尚未创建且 `origin` 仍指向上游时，创建 Fork，再保留 `upstream` 并将 `origin` 指向自己的 Fork。若目标或远程已存在，先检查再继续，不重复创建或覆盖：
+每次更新：
 
-```sh
-gh repo fork showheyohtaki/motion-prompt --fork-name motion-prompt-zh --clone=false
-git remote rename origin upstream
-git remote add origin https://github.com/rainman016/motion-prompt-zh.git
-git push -u origin HEAD:main
-```
-
-5. 使用已准备的 [.github/pages-source.json](.github/pages-source.json) 开启 Pages。它声明从 `main`、`/` 发布，本身不是自动执行的工作流：
+1. 运行构建和下方全部检查，提交源文件与生成文件。
+2. 推送 `main`，等待 Pages 构建对应最新提交：
 
 ```sh
-gh api repos/rainman016/motion-prompt-zh/pages --method POST --input .github/pages-source.json
+git push origin main
+gh api repos/sadjjk/motion-prompt-zh/pages/builds/latest --jq '.status + " " + .commit'
 ```
 
-也可在仓库 **Settings → Pages → Build and deployment** 选择 **Deploy from a branch**，分支 `main`、目录 `/(root)`。项目自带 `.nojekyll` 与已生成静态文件，无需框架或额外部署密钥。参见 [GitHub 官方发布源说明](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)及 [Pages API](https://docs.github.com/en/rest/pages/pages#create-a-github-pages-site)。
-6. 每次部署后检查首页、`?lang=zh-Hans#144`、中文资源、分享和 Skill 远程读取，确认 Pages 构建对应最新提交。
+3. jsDelivr 会缓存 `@main` 分支，推送后需刷新 `api/v1` 下变更的文件，否则备用源仍返回旧数据（CLI 会因资源与目录不一致报错，而不是使用旧内容）。刷新地址格式：`https://purge.jsdelivr.net/gh/sadjjk/motion-prompt-zh@main/api/v1/<文件路径>`。
+4. 部署后检查首页、`?lang=zh-Hans#144`、中文资源、分享和 Skill 远程读取。
 
-发布内容检查、完整验收范围及上线后的验证清单见 [发布说明](docs/PUBLISHING.md)。后续更新只需重新构建、检查、提交并推送 `main`，Pages 会按已配置来源更新。
+jsDelivr 只能访问具体文件（如 `…@main/api/v1/catalog.json`）；不带文件名的目录地址会返回 404，带结尾斜杠时显示目录列表。
+
+首次发布的完整过程与原验收记录见 [发布说明](docs/PUBLISHING.md)（rainman016 的原始记录）。
 
 ## 开发与验证
 
@@ -147,7 +141,7 @@ node tools/check.mjs
 ## 来源、版权与授权
 
 - 原项目：[showheyohtaki/motion-prompt](https://github.com/showheyohtaki/motion-prompt)，原作者 **Shohei Ohtaki（大滝昇平）**，X [@showheyohtaki](https://x.com/showheyohtaki)。创作缘起与完整原说明保留在 [英文](README.en.md) 和 [日文](README.ja.md) 文档。
-- 本版由 `rainman016` 维护中文翻译及本地化扩展，不将原作者动画、代码或素材归为中文版原创。
+- 中文翻译及本地化扩展由 `rainman016` 完成；本 fork 由 `sadjjk` 维护部署。均不将原作者动画、代码或素材归为中文版原创。
 - [LICENSE](LICENSE) 完整保留 **MIT License / Copyright (c) 2026 Shohei Ohtaki**。使用参考代码时保留每个元素和 kit 的版权行，再分发时保留许可证。
 - [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) 原文完整保留。案例帖子及其媒体属于作者，**不受本仓库 MIT 许可覆盖**，本站仅存链接、帖子 ID、自写介绍并使用官方嵌入。
 - 未新增外部字体、图片或视频。原仓库资源和素材核查范围见 [本地化说明](docs/LOCALIZATION.md)。
