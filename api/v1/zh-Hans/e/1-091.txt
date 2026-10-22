@@ -1,0 +1,81 @@
+// Motion Prompt #1-091 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 数字逐位滚动 / Rolling digits
+// 分类包: uxmotion (交互与数据动效) · element 31 · 子分类: 进度反馈
+// 动画表现: 「实时访客」大数字每次更新只有变化的位带轻微过冲地滚动，旁边的走势线同步左移一格。
+// 运动规格:
+//   - 只有变化的位单独滚动，每位 0.9 秒，cubic-bezier(.3,1.25,.5,1) 带过冲，从左到右每位延迟 45 毫秒。
+//   - 46 px 大号数字，数值增加时从下往上滚，减少时从上往下滚；上下 14% 渐隐遮罩。
+//   - 演示中 1.0、2.4、3.8、5.2 秒依次变为 12,486 → 12,531 → 12,529 → 12,407。
+//   - 24 点走势线每次更新用 0.6 秒左移一格；红点每 1.6 秒呼吸一次。
+// 适用场景: 适合数据看板 KPI、实时访客数、销售额、价格等频繁变化的数字。
+// 标签: odometer, counter, rolling-digits, dashboard, kpi, realtime
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-091
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 31
+// 31 数字逐位滚动：「实时访客」大数字，每次变化只有变了的位单独滚动（每位 .9 秒 cubic-bezier(.3,1.25,.5,1)，从左到右每位延迟 45ms），
+// 不变的位保持不动；1.0 / 2.4 / 3.8 秒依次变为 12,486 → 12,531 → 12,529 → 回到 12,407（周期末与开头一致）；
+// 下方 24 点走势线随每次更新向左推进一格并在末端画出新点，「较一小时前」增幅徽标同步更新；红点每 1.6 秒呼吸一次
+const ODO_VALS = [12407, 12486, 12531, 12529];
+const ODO_T = [1.0, 2.4, 3.8, 5.2];                   // 第 i 次更新时刻：第 4 次回到初始值 12,407
+const ODO_bez = UXA_bz(.3, 1.25, .5, 1);
+const ODO_SERIES = (() => { let s = 3, v = 12100; const out = []; for (let i = 0; i < 27; i++) { s = (s * 9301 + 49297) % 233280; v += (s / 233280 - 0.45) * 90; out.push(v); } return out; })();
+const ODO_fmt = n => n.toLocaleString('en-US');
+CELLS[30] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 12, 10, CW - 24, CH - 20, 22);
+  // 当前与上一个值
+  let idx = 0; for (let i = 0; i < ODO_T.length; i++) if (u >= ODO_T[i]) idx = i + 1;
+  const cur = ODO_VALS[idx % ODO_VALS.length], prev = ODO_VALS[(idx + ODO_VALS.length - 1) % ODO_VALS.length];
+  const tch = idx ? ODO_T[idx - 1] : -9;
+  // 标题行与呼吸红点（1.6 秒一次，每周期 4 次）
+  const lp = (u % 1.6) / 1.6;
+  k.fillStyle = `rgba(217,58,85,${0.5 * (1 - lp)})`; k.beginPath(); k.arc(36, 36, 4 + 8 * lp, 0, TAU); k.fill();
+  k.fillStyle = UX.danger; k.beginPath(); k.arc(36, 36, 4, 0, TAU); k.fill();
+  txt(k, '实时访客', 48, 40, `750 12px ${SANS}`, UX.ink2);
+  // 大数字：逐位比较，只有变了的位滚动
+  const s0 = ODO_fmt(prev), s1 = ODO_fmt(cur), DH = 52, X0 = 30, Y0 = 62;
+  k.font = `850 46px ${SANS}`; const cw = k.measureText('0').width;
+  k.save(); k.beginPath(); k.rect(X0 - 4, Y0, 260, DH); k.clip();
+  let x = X0, di = 0;
+  for (let i = 0; i < s1.length; i++) {
+    const c1 = s1[i], c0 = s0[i] || c1;
+    if (c1 === ',') { txt(k, ',', x, Y0 + 40, `850 46px ${SANS}`, UX.ink); x += cw * 0.45; continue; }
+    const changed = c1 !== c0, t = changed ? clamp((u - tch - di * 0.045) / 0.9) : 1, e = changed ? ODO_bez(t) : 1;
+    // 新值大于旧值时数字从下往上滚，反之从上往下
+    const dir = cur > prev ? 1 : -1;
+    if (changed && e < 1) txt(k, c0, x, Y0 + 40 - dir * DH * e, `850 46px ${SANS}`, UX.ink);
+    txt(k, c1, x, Y0 + 40 + dir * DH * (1 - e), `850 46px ${SANS}`, UX.ink);
+    x += cw; di++;
+  }
+  k.restore();
+  // 渐隐遮罩（上下 14%）
+  const fm = k.createLinearGradient(0, Y0, 0, Y0 + DH);
+  fm.addColorStop(0, UX.surface); fm.addColorStop(0.14, 'rgba(255,255,255,0)'); fm.addColorStop(0.86, 'rgba(255,255,255,0)'); fm.addColorStop(1, UX.surface);
+  k.fillStyle = fm; k.fillRect(X0 - 4, Y0, 260, DH);
+  // 增幅徽标
+  const diff = cur - 12090, up = diff >= 0;
+  k.fillStyle = up ? 'rgba(17,156,114,.12)' : 'rgba(217,58,85,.12)'; rr(k, X0, 126, 74, 20, 10); k.fill();
+  txt(k, `${up ? '▲' : '▼'} ${(Math.abs(diff) / 12090 * 100).toFixed(1)}%`, X0 + 10, 140, `800 10px ${SANS}`, up ? UX.mint : UX.danger);
+  txt(k, '较一小时前', X0 + 84, 140, `600 10px ${SANS}`, UX.ink3);
+  // 右侧走势线：24 个点，每次更新左移一格（.6 秒）
+  const gx = 300, gy = 40, gw = 210, gh = 120, step = gw / 23;
+  const shift = idx + (tch > 0 ? out3(clamp((u - tch) / 0.6)) - 1 : 0);
+  const off = ((shift % 4) + 4) % 4;
+  const pts = []; for (let i = 0; i < 25; i++) pts.push(ODO_SERIES[i + Math.floor(off)] * (1 - (off % 1)) + ODO_SERIES[i + Math.floor(off) + 1] * (off % 1));
+  const mn = 11900, mx = 12700, Y = v => gy + gh - (v - mn) / (mx - mn) * gh;
+  k.save(); k.beginPath(); k.rect(gx, gy - 6, gw, gh + 12); k.clip();
+  const ag = k.createLinearGradient(0, gy, 0, gy + gh); ag.addColorStop(0, 'rgba(106,87,242,.26)'); ag.addColorStop(1, 'rgba(106,87,242,0)');
+  k.beginPath(); pts.forEach((v, i) => { const px = gx + i * step - (off % 1) * step; if (i) k.lineTo(px, Y(v)); else k.moveTo(px, Y(v)); });
+  k.lineTo(gx + gw + step, gy + gh); k.lineTo(gx - step, gy + gh); k.closePath(); k.fillStyle = ag; k.fill();
+  k.beginPath(); pts.forEach((v, i) => { const px = gx + i * step - (off % 1) * step; if (i) k.lineTo(px, Y(v)); else k.moveTo(px, Y(v)); });
+  k.strokeStyle = UX.accent; k.lineWidth = 2; k.lineJoin = 'round'; k.stroke();
+  k.restore();
+  const ly = Y(pts[23]); k.fillStyle = UX.surface; k.beginPath(); k.arc(gx + 23 * step - (off % 1) * step, ly, 4.5, 0, TAU); k.fill();
+  k.strokeStyle = UX.accent; k.lineWidth = 2; k.stroke();
+};

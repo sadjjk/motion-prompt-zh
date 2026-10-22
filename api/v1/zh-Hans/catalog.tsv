@@ -1,4 +1,4 @@
-# Motion Prompt catalog (zh-Hans) · 188 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
+# Motion Prompt catalog (zh-Hans) · 225 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
 1-001	ui	弹出与覆盖	模态对话框 (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	点击“打开”后页面变暗，小窗口略微放大并出现在中央，点击 × 关闭。
 1-002	ui	弹出与覆盖	侧边抽屉 (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	点击“菜单”后高面板从左侧滑入，点击外部后滑回。
 1-003	ui	弹出与覆盖	底部弹出面板 (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	手指轻点“查看详情”，面板从底部升起；向下拖动把手即可关闭。
@@ -59,6 +59,43 @@
 1-058	aiux	液态交互	液态分裂菜单 (Gooey morph menu)	gooey,liquid,morph,fab,speed-dial,menu,metaball	指针点“+”后，三个圆从白色液体中伸出，颈部变细拉断，图标浮现；再点一次，它们被吸回融成一个。
 1-059	aiux	液态交互	液态拖尾 (Gooey trail)	gooey,liquid,tabs,segmented-control,indicator,trail,slider	白色指示块在三个选项间来回移动，速度越快拉得越长，身后黏着的液滴也越大。
 1-060	aiux	液态交互	液态弯曲 (Gooey bend)	gooey,liquid,bend,drag,card,sortable,elastic	白色卡片被左右拖动，速度越快左右两边越向后弯，减速时恢复平直。
+1-061	uxmotion	交互文字	词立方翻滚 (Rolling word cube)	word-cube,rolling-text,3d-flip,headline,rotating-words,landing-page,kinetic-type	方块每隔一段时间向下翻一面换上新关键词，下方说明同步上下翻页，底部进度条随之填满。
+1-062	uxmotion	交互文字	环形文字徽章 (Circular text badge)	circular-text,rotating-badge,hover,click,cta,portfolio,spin	圆周上的文字缓慢旋转，指针移入后加速，每次点击转速猛增，新文字逐字淡入。
+1-063	uxmotion	交互文字	字母飞散重组 (Scatter & reassemble letters)	letter-scatter,physics,spring,playful,headline,click,easter-egg	彩色大字母一点就边转边飞散，受重力下落反弹，停留片刻后逐个弹回原来的排列。
+1-064	uxmotion	交互文字	逐词卡点字幕 (Word-by-word kinetic captions)	kinetic-captions,subtitles,word-by-word,video,emphasis,pop-in	播放后字幕逐词从下方弹出，重点词先放大倾斜再变黄落定，整句说完后整行向上折起消失。
+1-065	uxmotion	交互文字	手绘圈画标注 (Hand-drawn annotations)	hand-drawn,annotation,highlight,underline,circle,marker,copywriting	每切换一种样式，旧标注倒着擦掉，红笔新线逐词画出，稍后再叠一道淡些的副笔。
+1-066	uxmotion	交互文字	剧透沙粒遮挡 (Spoiler sand cover)	spoiler,reveal,particles,chat,tap,hidden-text	细沙粒在气泡里闪烁遮住剧透，点哪里就从哪里向外炸开露出文字，点「再藏起来」又聚拢回去。
+1-067	uxmotion	交互文字	阅读句子聚焦 (Sentence reading focus)	reading-focus,blur,hover,long-form,highlight,accessibility	指针移到哪句，哪句就变清晰，其余变淡变模糊，左侧紫色竖条跟着移动并伸缩到句高。
+1-068	uxmotion	交互文字	字母弹簧涟漪 (Rippling letters)	spring,ripple,letters,hover,headline,wave,kinetic-type	指针从左划到右，经过的大字母依次抬起并偏紫，再弹跳落回；点按钮时一道波浪横扫全部字母。
+1-069	uxmotion	滚动交互	卡片堆叠吸顶 (Shrinking sticky card stack)	sticky,card-stack,scroll,parallax,feature-section,landing-page	渐变卡片随滚动上移并在顶部停住，下一张盖上来时下面的卡片缩小变暗，叠成台阶。
+1-070	uxmotion	滚动交互	滚动填色文字 (Scroll-filled sentence)	scroll-fill,text-reveal,scroll,manifesto,highlight,storytelling	越往下滚，淡灰句子从头逐词变深，重点词亮成紫色，读完后按钮从下方弹起。
+1-071	uxmotion	滚动交互	分区背景切换 (Per-section background shift)	background-transition,scroll,color-blend,product-page,sections,storytelling	滚动时背景色无缝融到下一种口味色，中间易拉罐边倾斜边换色换标签，右侧文字向上流过。
+1-072	uxmotion	滚动交互	速度倾斜列表 (Velocity-lean list)	velocity,skew,scroll,spring,list,inertia	快速滚动时整列卡片斜过去并略微拉长，停下立刻弹正；慢慢滚几乎不倾斜。
+1-073	uxmotion	滚动交互	翻滚章节数字 (Rolling chapter numbers)	chapter-number,rolling-digits,scroll,progress-ring,long-form,sidebar	正文向下滚，左侧大号章节号像数字带一样滚到下一章，章节名上滑替换，圆环按本章进度填满。
+1-074	uxmotion	滚动交互	滚筒时间选择器 (Drum time picker)	time-picker,drum-picker,wheel,scroll,mobile,alarm,3d	按住滚筒往上拨，数字滚动后停在中线上，远处的值向后倒去变淡，上方时间和响铃倒计时随之更新。
+1-075	uxmotion	首屏背景	网格光束背景 (Grid-beam background)	grid,beams,hero,background,dark,saas,cursor-glow	带拖尾的彩色光束在深色淡网格上横竖穿行，指针周围的网格亮成靛蓝。
+1-076	uxmotion	首屏背景	产品屏由斜到正 (Tilt-to-flat product screen)	3d-tilt,perspective,scroll,hero,product-screenshot,dashboard,saas	一滚动，后倾的产品窗口边立起边放大、阴影加深，转正后图表柱子依次长高。
+1-077	uxmotion	首屏背景	星空跃迁 (Warp starfield)	starfield,warp,hero,background,long-press,space,particles	星星从中心缓缓飞来，按住按钮瞬间加速成蓝色光线、中心泛光，松开后回落到巡航。
+1-078	uxmotion	首屏背景	粒子连线网 (Constellation mesh)	particles,constellation,network,hero,background,cursor,mesh	深色背景上点缓慢漂移、近邻以淡线相连，指针用黄线连住并吸引周围的点，点击炸出新点。
+1-079	uxmotion	首屏背景	点阵涟漪 (Dot grid ripple)	dot-grid,ripple,wave,hero,background,cursor,interactive	指针划过安静的灰点阵，经过处一圈圈涟漪荡开，波峰上的点变大上浮，并从蓝紫转为青绿。
+1-080	uxmotion	首屏背景	粒子聚合成字 (Particles that form words)	particles,hero,text,spring,interactive,glow,landing-page	深紫底上光点拼出 HELLO，被指针推开，每次点击迸散后重组成 NICE、LUCIAN。
+1-081	uxmotion	光标交互	光标聚光边框 (Cursor-lit borders)	cursor,spotlight,border-glow,cards,hover,dark-theme	指针波浪形横扫 4 张深色卡片，附近卡片的描边泛起紫到蓝的光，指针离开后缓缓熄灭。
+1-082	uxmotion	光标交互	悬停跟随预览图 (Hover-follow preview)	hover,cursor-follow,preview,portfolio,list,tilt	指针在黑底作品名列表中自上而下移动，悬停行右移变亮，旁边跟随的预览图边倾斜边滑到下一张。
+1-083	uxmotion	光标交互	光标图片拖尾 (Cursor photo trail)	cursor-trail,photos,hero,playful,spring,image-trail	指针扫过大标题时，白边照片以随机角度弹出又下沉消失，点击时 5 张照片扇形散开。
+1-084	uxmotion	光标交互	方向感知遮罩 (Direction-aware overlay)	hover,direction-aware,overlay,grid,portfolio,gallery	指针从不同方向穿过 3 × 3 作品缩略图，深色说明面板从进入的边滑入、从离开的边滑出。
+1-085	uxmotion	光标交互	光标透镜揭示 (Cursor lens reveal)	cursor,lens,reveal,mask,spring,headline,hero	圆形透镜像弹簧一样追着指针掠过两行大字，窗内露出深底的另一句，点击后扩满全卡再缩回。
+1-086	uxmotion	光标交互	滑动卡片堆叠 (Swipeable card stack)	swipe,card-stack,drag,gesture,mobile,tinder-style	指针把顶卡向右拖并倾斜，带着「收藏」印章飞出，再把下一张向左滑「跳过」，最后两张飞回原位。
+1-087	uxmotion	进度反馈	支付成功对勾 (Payment ring & check)	payment,checkout,progress-ring,success,check-mark,button-morph	支付按钮点击后收成圆，环形进度推进时 3 个步骤依次点亮，转绿画出对勾，收据卡从下方弹出。
+1-088	uxmotion	进度反馈	图标安装进度 (Install progress on icon)	install,download,progress,app-icon,pause-resume,radial-progress	渐变图标上的暗色扇形顺时针消退，可点击暂停再继续，装完后图标弹跳、「打开」按钮弹出。
+1-089	uxmotion	进度反馈	不定转确定进度 (Indeterminate to determinate)	progress-bar,indeterminate,deploy,loading,steps,status	部署卡片上流动的色条变成分步增长的进度，日志逐行浮现打勾，状态药丸转绿「就绪」。
+1-090	uxmotion	进度反馈	点赞爱心迸发 (Heart burst like)	like,heart,burst,micro-interaction,button,counter,social	点击后爱心先缩后弹并填满红色，圆环与彩点迸发，点赞数从 842 滚到 843，再点滚回。
+1-091	uxmotion	进度反馈	数字逐位滚动 (Rolling digits)	odometer,counter,rolling-digits,dashboard,kpi,realtime	「实时访客」大数字每次更新只有变化的位带轻微过冲地滚动，旁边的走势线同步左移一格。
+1-092	uxmotion	动态图表	等轴数据积木 (Isometric data blocks)	isometric,3d-chart,bar-chart,dashboard,data-viz,hover	等轴积木从前排起依次弹起，悬停某柱时只留同行同列着色并浮出数值，切换指标时高度波浪式重排。
+1-093	uxmotion	动态图表	气泡分组重排 (Regrouping bubbles)	bubble-chart,force-layout,grouping,dashboard,data-viz,tabs	彩色气泡团随标签切换推挤分成 4 群、3 群，再聚回一团，群顶标签显示预算合计。
+1-094	uxmotion	动态图表	表格实时插入 (Live table insert)	table,realtime,row-insert,sorting,dashboard,flip-animation	订单表里新行从顶部滑入并闪亮，点「金额」表头各行互相穿过重新排列，点「时间」恢复原序。
+1-095	uxmotion	动态图表	排名赛跑柱状图 (Bar chart race)	bar-chart-race,ranking,time-series,data-viz,slider,animation	饮品横条随年份伸缩，超过上一名的柱子上移交换名次，大号年份跳动；最后拖回滑块，排名倒放。
+1-096	uxmotion	动态图表	华夫格翻转 (Waffle chart flip)	waffle-chart,flip,proportion,data-viz,tabs,legend-hover	点击年龄标签，只有换色的格子沿对角线波浪翻转，百分比滚动；悬停图例只突出该方式。
+1-097	uxmotion	动态图表	季度气泡移动 (Quarterly bubble motion)	bubble-chart,time-series,scrubbing,data-viz,motion-chart,log-scale	季度大字作背景，App 气泡边缩放边在坐标上滑动，一个留下虚线轨迹；拖动可快进倒回。
 2-001	motion	入场与文字	弹性弹入 (Pop-in)	pop,pop-in,spring,bounce,scale,icon,badge,entrance	应用图标弹跳入场，随后通知角标稍晚弹出。
 2-002	motion	入场与文字	交错入场 (Stagger)	stagger,sequence,delay,cascade,bar-chart,list,entrance	图表的柱条从左到右依次升起，每根略有延迟。
 2-003	motion	入场与文字	放射迸发 (Burst)	burst,explosion,radial,like,heart,celebrate,accent,sparkle	点赞心形被填满的同时，圆环、线条和圆点向外迸发。

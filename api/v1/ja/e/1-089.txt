@@ -1,0 +1,96 @@
+// Motion Prompt #1-089 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 不確定から確定への進捗 / Indeterminate to determinate
+// パック: uxmotion (インタラクションとデータの動き) · element 29 · カテゴリ: 進捗フィードバック
+// 何が起きるか: デプロイカードで色の帯が流れる待機表示から、同じバーが段階的に伸びる進捗に変わり、ログが1行ずつ浮かんでチェックに変わり、状態バッジが緑の「準備完了」になる。
+// 動きの仕様:
+//   - プログレスバー 256×6px。待機中は 2 本の色帯が 1.6 秒周期で伸縮しながら流れ、2 本目は 0.55 秒遅れ、どちらも周期の 60% で到達
+//   - デモでは 1.8 秒に確定進捗へ切り替わり、5 ステップで 22%・38%・70%・85%・100% へ進む
+//   - 第 i ステップの長さは (650+120i) ミリ秒×0.6、バーの伸びは 0.5 秒のイージング。ログは行ごとに 8px 浮き上がり、スピナーがチェックに変わる
+//   - 状態バッジは 待機中 #D6731E → ビルド中 #6A57F2 → 準備完了 #119C72、色の切り替えは 0.4 秒。約 4.5 秒で完了
+// 使いどころ: デプロイ・ビルド・エクスポートなど、最初は所要時間が読めず途中から進捗が分かる処理の画面で。
+// タグ: progress-bar, indeterminate, deploy, loading, steps, status
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-089
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 29
+// 29 不定转确定进度：部署卡左栏为标题、状态药丸、进度轨与"重新部署"按钮，右栏为日志。0.2–1.8 秒排队：两段色条以 1.6s 周期
+// 伸缩滑过（a 段 left -35%→100%、right 100%→-90%；b 段延迟 .55s、left -200%→107%、right 100%→-8%，均在 60% 处到位）；
+// 1.8 秒同一根轨变为确定进度，5 个步骤依次推进到 22/38/70/85/100%（每步时长 (650+120i)ms×0.6，填充 .5s 缓动），日志逐行上浮、转圈变对勾；
+// 药丸 排队中(#D6731E)→构建中(#6A57F2)→就绪(#119C72)；约 4.5 秒完成，5.45 秒指针点"重新部署"，5.6–6.2 秒交叉淡化回到排队状态。
+const IDP_STEPS = [['安装依赖', 0.22], ['类型检查', 0.38], ['构建产物', 0.7], ['优化图片', 0.85], ['部署到边缘节点', 1]];
+const IDP_Q = 1.8;
+const IDP_T = (() => { const T = [IDP_Q]; for (let i = 0; i < 5; i++) T.push(T[i] + (650 + i * 120) * 0.6 / 1000); return T; })();
+const IDP_SEC = (() => { let s = 0; return [0, 1, 2, 3, 4, 5].map(i => (s += 1 + Math.round(hash(i + 40) * 3))); })();
+const IDP_FILL = [[-1, 0], ...IDP_STEPS.map((s, i) => [IDP_T[i], s[1]])];
+const IDP_KEYS = [[0, 560, 240], [4.9, 560, 240], [5.35, 152, 170]];
+function IDP_seg(k, x0, x1, y, w) { const a = Math.max(x0, 0), b = Math.min(x1, 100); if (b > a) { rr(k, 24 + w * a / 100, y, w * (b - a) / 100, 6, 3); k.fill(); } }
+function IDP_draw(k, u) {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 10, 10, CW - 20, CH - 20, 18);
+  const done = u >= IDP_T[5], det = u >= IDP_Q;
+  // 标题
+  rr(k, 24, 24, 32, 32, 10); k.fillStyle = UX.ink; k.fill();
+  k.fillStyle = UX.page; k.beginPath(); k.moveTo(40, 33); k.lineTo(47, 46); k.lineTo(33, 46); k.closePath(); k.fill();
+  txt(k, 'Deploy #128', 64, 38, UXB_f(850, 14), UX.ink); txt(k, 'main · a3f9c21', 64, 53, UXB_f(650, 10.5), UX.ink3);
+  // 药丸
+  const warn = UXB_rgb(UX.warn), acc = UXB_rgb(UX.accent), mint = UXB_rgb(UX.mint);
+  const pc = !det ? warn : !done ? lerpC(warn, acc, seg(u, IDP_Q, IDP_Q + 0.4)) : lerpC(acc, mint, seg(u, IDP_T[5], IDP_T[5] + 0.4));
+  const pt = !det ? '排队中' : !done ? '构建中' : '就绪', pf = UXB_f(800, 10.5); k.font = pf;
+  const pw = k.measureText(pt).width + 27;
+  rr(k, 280 - pw, 29, pw, 22, 11); k.fillStyle = rgba(pc, 0.14); k.fill();
+  const blink = done ? 1 : 1 - 0.7 * (0.5 - 0.5 * Math.cos(TAU * u / 1.2));
+  k.fillStyle = rgba(pc, blink); k.beginPath(); k.arc(280 - pw + 12, 40, 3.5, 0, TAU); k.fill();
+  txt(k, pt, 280 - pw + 20, 44, pf, rgba(pc, 1));
+  // 进度轨
+  const TW = 256;
+  rr(k, 24, 80, TW, 6, 3); k.fillStyle = UX.surface3; k.fill();
+  const sa = 1 - seg(u, IDP_Q, IDP_Q + 0.4);
+  if (sa > 0) {
+    k.save(); rr(k, 24, 80, TW, 6, 3); k.clip(); k.globalAlpha = sa; k.fillStyle = UX.accent;
+    const pa = (u % 1.6) / 1.6, ea = inOut3(clamp(pa / 0.6));
+    IDP_seg(k, mix(-35, 100, ea), 100 - mix(100, -90, ea), 80, TW);
+    if (u >= 0.55) { const pb = ((u - 0.55) % 1.6) / 1.6, eb = uxEase(clamp(pb / 0.6)); IDP_seg(k, mix(-200, 107, eb), 100 - mix(100, -8, eb), 80, TW); }
+    k.restore();
+  }
+  const fa = seg(u, IDP_Q, IDP_Q + 0.3);
+  if (fa > 0) {
+    const fp = UXB_ramp(u, IDP_FILL, 0.5, uxEase);
+    k.save(); k.globalAlpha = fa; k.fillStyle = rgba(lerpC(acc, mint, done ? seg(u, IDP_T[5], IDP_T[5] + 0.4) : 0), 1);
+    if (fp > 0.005) { rr(k, 24, 80, TW * fp, 6, 3); k.fill(); }
+    k.restore();
+  }
+  let si = -1; for (let i = 0; i < 5; i++) if (u >= IDP_T[i]) si = i;
+  const ml = !det ? '等待队列空位' : done ? '已部署到 lumen.app' : IDP_STEPS[si][0];
+  const mr = !det ? '' : done ? '38s' : Math.round(IDP_STEPS[si][1] * 100) + '%';
+  txt(k, ml, 24, 104, UXB_f(700, 11), UX.ink3); txt(k, mr, 24 + TW, 104, UXB_f(700, 11), UX.ink3, 'right');
+  // 重新部署按钮（未完成时 .35 透明）
+  k.save(); k.globalAlpha = done ? mix(0.35, 1, seg(u, IDP_T[5], IDP_T[5] + 0.3)) : 0.35;
+  const bs = 1 - 0.03 * UXB_press(u, 5.45); k.translate(152, 168); k.scale(bs, bs);
+  rr(k, -128, -18, 256, 36, 12); k.fillStyle = UX.ink; k.fill(); txt(k, '重新部署', 0, 4.5, UXB_f(750, 12.5), UX.page, 'center');
+  k.restore();
+  // 日志
+  rr(k, 296, 22, 220, 166, 14); k.fillStyle = UX.surface2; k.fill();
+  const lines = [{ t: 0, ok: IDP_Q, s: '排队中 · 前面还有 2 个', d: '排队中 · 前面还有 2 个' }];
+  IDP_STEPS.forEach((s, i) => lines.push({ t: IDP_T[i], ok: IDP_T[i + 1], s: s[0] + '…', d: s[0] + ' 完成' }));
+  lines.forEach((L, j) => {
+    if (u < L.t) return;
+    const e = j === 0 ? 1 : uxEase(seg(u, L.t, L.t + 0.4)), y = 46 + j * 25 + 8 * (1 - e), ok = u >= L.ok;
+    k.save(); k.globalAlpha = e;
+    if (ok) { k.strokeStyle = UX.mint; k.lineWidth = 2.2; k.lineCap = 'round'; k.lineJoin = 'round'; UXB_poly(k, [[307, y - 4], [310, y - 1], [315, y - 7.5]], 1); }
+    else { k.strokeStyle = UX.accent; k.lineWidth = 2; const a0 = u / 0.7 * TAU; k.beginPath(); k.arc(311, y - 4, 5, a0, a0 + Math.PI * 1.5); k.stroke(); }
+    txt(k, '00:' + ('0' + IDP_SEC[j]).slice(-2), 324, y, UXB_f(600, 9.5, MONO), UX.ink3);
+    txt(k, ok ? L.d : L.s, 360, y, UXB_f(600, 11), ok ? UX.ink3 : UX.ink2);
+    k.restore();
+  });
+}
+CELLS[28] = (k, w, h, u) => {
+  UXB_xfade(k, IDP_draw, u, 5.6, 6.2);
+  const c = UXB_path(u, IDP_KEYS);
+  ripple(k, c[0], c[1], seg(u, 5.45, 5.95), '255,255,255');
+  if (u > 4.9) cursor(k, c[0], c[1], UXB_press(u, 5.45));
+};

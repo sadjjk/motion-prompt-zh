@@ -7,8 +7,13 @@ documentation (a command table, a workflow, rules and troubleshooting), the CLI'
 (search / list / get / info, its exit codes and its three environment variables) and the layout of the static
 data files (`api/v1/<lang>/catalog.tsv`, `e/<id>.txt`) follow
 [Lucian UX/UI Prompt](https://lucianlabs.dev/uxui-prompt/) and its skill
-[Seokwoooo/lucian-uxui](https://github.com/Seokwoooo/lucian-uxui). No Lucian element, style or script is
-included in this repository. Its license notice is reproduced here in acknowledgment:
+[Seokwoooo/lucian-uxui](https://github.com/Seokwoooo/lucian-uxui).
+
+The 37 elements in `packs/uxmotion/` (Interaction & data motion, `#1-061`–`#1-097`) are Canvas 2D
+implementations written for this repository after the structure, timing, easing and colors of the corresponding
+Lucian elements, recomposed as looping card demos with a simulated pointer or scroll. No Lucian HTML, CSS or
+script is copied. Every `e/<id>.txt` and `kit/uxmotion.js` of this pack carries Seokwoooo's copyright line.
+The license notice:
 
 > MIT License
 >

@@ -1,0 +1,15 @@
+Please use "Hover-follow preview" (ホバーで追う画像プレビュー), one of the names in "Interaction & data motion".
+Motion Prompt #1-082
+
+What it is: Hovering a project list row brings up a preview image that follows the cursor
+What the sample shows: The pointer moves down a dark list of project names; the hovered row shifts right and brightens while a trailing image tilts and slides to the next project.
+Spec:
+- 6 rows of project names on a dark #111111 background, row height 29 px.
+- The hovered row shifts 10 px right (0.35 s with overshoot) and shows an arrow; other rows dim to #5C5852 over 0.25 s.
+- An 84 × 105 px preview sits 18 px right of the pointer, trailing by about 0.11 s and tilting by horizontal speed × 0.02, up to ±12°.
+- Changing rows slides the image vertically to the next one over 0.5 s; it appears with a 0.25 s fade and a springy scale from 0.6 to 1.
+When to use it: Use it on designer or studio portfolio pages to add visual cues to a text-only project list.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-082.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

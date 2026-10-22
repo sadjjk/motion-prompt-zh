@@ -35,6 +35,7 @@ Groups, packs and IDs. Display order and IDs come from `packs/groups.json`; a pa
 | 1 `web` | `ui` | 24 | #1 001~024 | 049–072 | UI component names / UIパーツの名前 |
 | 1 `web` | `lp` | 24 | #1 025~048 | 073–096 | Landing page & web effects / LP・Webサイトの演出 |
 | 1 `web` | `aiux` | 12 | #1 049~060 | — | Glow & liquid / グロー・リキッド (after [Libraries.dev](https://libraries.dev/), Jakub Antalik) |
+| 1 `web` | `uxmotion` | 37 | #1 061~097 | — | Interaction & data motion / インタラクションとデータの動き (after [Lucian UX/UI Prompt](https://lucianlabs.dev/uxui-prompt/), Seokwoooo) |
 | 2 `motion` | `motion` | 24 | #2 001~024 | 001–024 | Motion graphics moves / モーショングラフィックスの動き |
 | 2 `motion` | `motion2` | 24 | #2 025~048 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 |
 | 3 `film` | `camera` | 24 | #3 001~024 | 025–048 | Camera moves & transitions / カメラワークと切り替え |

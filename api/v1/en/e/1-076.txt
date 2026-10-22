@@ -1,0 +1,98 @@
+// Motion Prompt #1-076 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// Tilt-to-flat product screen / 傾きから正面へのスクリーン
+// Pack: uxmotion (Interaction & data motion) · element 16 · Category: Hero backgrounds
+// What happens: Scrolling lifts the backward-tilted product window upright as it grows and its shadow deepens; once flat, the chart bars rise in sequence.
+// Motion spec:
+//   - The product window starts at .84 scale tilted back 34° (perspective 900 px) and stands up along 1−(1−p)² over 0→210 px of scroll.
+//   - As it rises it scales to 1 and moves up 18 px, with the shadow deepening from 10/20 px to 34/54 px.
+//   - Once upright (p > .88) its 8 bars grow in turn: .7 s each, 50 ms apart, cubic-bezier(.3,1.3,.5,1); scrolling back drops them to .15.
+//   - Before scrolling, a 'Scroll' hint bobs 4 px every 1.6 s; demo scrolls over 0.4→2.6 s and back over 5.4→6.3 s.
+// When to use it: Use it in SaaS and data-product heroes to 'stand up' the product screenshot as the visitor scrolls.
+// Tags: 3d-tilt, perspective, scroll, hero, product-screenshot, dashboard, saas
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-076
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 16
+// 16 产品屏由斜到正：左侧首屏文案，右侧产品窗口起初缩小（.84）并向后倾倒 34°（透视 900），滚动 0→210px 时按 1−(1−p)² 立起、放大到 1、上移 18px，阴影由 10/20px 加深到 34/54px；
+// 立正（p>.88）后图表 8 根柱子依次长高（.7 秒 cubic-bezier(.3,1.3,.5,1)，每根延迟 50ms），回滚时倒回 .15。0.4→2.6 秒滚下，5.4→6.3 秒回顶；未滚动时底部「滚动」提示上下跳（1.6 秒一次）
+const TILT_H = [0.42, 0.58, 0.5, 0.72, 0.64, 0.86, 0.78, 0.95];
+const TILT_WW = 270, TILT_WH = 152, TILT_CX = 380, TILT_TOP = 34;
+const TILT_bar = UXA_bz(.3, 1.3, .5, 1);
+let TILT_BUF = null;                                 // 2 倍分辨率的窗口草稿画布：每帧整块重画后按条带透视贴图（不跨帧保留内容）
+let TILT_CHROME = null;                              // 窗口外框、统计卡与网格线（常量，首帧画好后只贴图）
+CELLS[15] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  k.drawImage(layer('TILT_bg', g => {
+    g.save(); g.translate(CW / 2, 0); g.scale(1.6, 0.6);
+    const rg = g.createRadialGradient(0, 0, 0, 0, 0, 300); rg.addColorStop(0, 'rgba(106,87,242,.12)'); rg.addColorStop(0.7, 'rgba(106,87,242,0)');
+    g.fillStyle = rg; g.fillRect(-300, 0, 600, 400); g.restore();
+    g.fillStyle = UX.surface; rr(g, 26, 34, 76, 20, 10); g.fill(); g.strokeStyle = UX.line; g.lineWidth = 1; rr(g, 26.5, 34.5, 75, 19, 10); g.stroke();
+    txt(g, '团队数据看板', 64, 44.5, `800 10px ${SANS}`, UX.accent, 'center', 'middle');
+    g.letterSpacing = '-1px';
+    txt(g, '所有数字', 26, 88, `900 26px ${SANS}`, UX.ink); txt(g, '一屏看全', 26, 118, `900 26px ${SANS}`, UX.ink);
+    g.letterSpacing = '0px';
+    txt(g, '把分散的指标实时汇到一起。', 26, 142, `600 11.5px ${SANS}`, UX.ink2);
+    g.fillStyle = UX.ink; rr(g, 26, 154, 74, 28, 14); g.fill();
+    txt(g, '免费试用', 63, 168.5, `800 11.5px ${SANS}`, UX.surface, 'center', 'middle');
+  }), 0, 0);
+  const p = u < SHOW ? inOut3(seg(u, 0.4, 2.6)) : 1 - inOut3(seg(u, SHOW, SHOW + 0.9));
+  const e = 1 - Math.pow(1 - p, 2), ang = 34 * (1 - e) * Math.PI / 180, sc = 0.84 + 0.16 * e, ty = -18 * e;
+  // 柱子目标：立正时（p>.88）为数据高度，否则 .15；按切换时刻做弹性过渡
+  const tUp = 0.4 + 2.2 * UXA_inv(0.88), tDn = SHOW + 0.9 * UXA_inv(0.12);
+  const full = u >= tUp && u < tDn, tch = full ? tUp : (u >= tDn ? tDn : -9);
+  // 窗口内容画到草稿画布（2 倍分辨率）：窗口外框、统计卡与网格线是常量，缓存为 TILT_CHROME；每帧只重画柱子
+  if (!TILT_BUF) { TILT_BUF = document.createElement('canvas'); TILT_BUF.width = TILT_WW * 2; TILT_BUF.height = TILT_WH * 2; }
+  if (!TILT_CHROME) {
+    TILT_CHROME = document.createElement('canvas'); TILT_CHROME.width = TILT_WW * 2; TILT_CHROME.height = TILT_WH * 2;
+    const c = TILT_CHROME.getContext('2d'); c.scale(2, 2);
+    c.save(); rr(c, 0, 0, TILT_WW, TILT_WH, 12); c.clip();
+    c.fillStyle = UX.surface; c.fillRect(0, 0, TILT_WW, TILT_WH);
+    c.fillStyle = UX.surface2; c.fillRect(0, 0, TILT_WW, 20);
+    for (let i = 0; i < 3; i++) { c.fillStyle = UX.line2; c.beginPath(); c.arc(13 + i * 11, 10, 3.5, 0, TAU); c.fill(); }
+    [['月收入', '¥48万'], ['注册数', '1,284'], ['回访率', '62%']].forEach(([a, b], i) => {
+      const x = 10 + i * 85; c.fillStyle = UX.surface2; rr(c, x, 28, 80, 36, 8); c.fill();
+      txt(c, a, x + 7, 41, `800 8px ${SANS}`, UX.ink3); txt(c, b, x + 7, 58, `900 13px ${SANS}`, UX.ink);
+    });
+    c.strokeStyle = UX.line; c.lineWidth = 1;
+    for (let y = 72; y < 142; y += 16) { c.beginPath(); c.moveTo(10, y + 0.5); c.lineTo(TILT_WW - 10, y + 0.5); c.stroke(); }
+    c.restore();
+    c.strokeStyle = UX.line; c.lineWidth = 1; rr(c, 0.5, 0.5, TILT_WW - 1, TILT_WH - 1, 12); c.stroke();
+  }
+  const g = TILT_BUF.getContext('2d');
+  g.save(); g.clearRect(0, 0, TILT_WW * 2, TILT_WH * 2); g.drawImage(TILT_CHROME, 0, 0); g.scale(2, 2);
+  g.save(); rr(g, 0, 0, TILT_WW, TILT_WH, 12); g.clip();
+  const bw = (TILT_WW - 28 - 7 * 6) / 8;
+  TILT_H.forEach((hv, i) => {
+    const q = TILT_bar(clamp((u - tch - i * 0.05) / 0.7));
+    const v = full ? mix(0.15, hv, q) : (tch > 0 ? mix(hv, 0.15, q) : 0.15), bh = 66 * v, x = 14 + i * (bw + 6);
+    const bg = g.createLinearGradient(0, 142 - bh, 0, 142); bg.addColorStop(0, UX.accent); bg.addColorStop(1, 'rgba(106,87,242,.45)');
+    g.fillStyle = bg; rr(g, x, 142 - bh, bw, bh + 4, 4); g.fill();
+  });
+  g.restore();
+  g.restore();
+  // 透视：绕窗口顶边 rotateX（底边朝观者），先缩放与上移；按 16 条水平条带贴图
+  const P = 900, N = 16, proj = yl => { const y = yl * sc, z = y * Math.sin(ang), s = P / (P - z); return [TILT_TOP + (ty * sc + y * Math.cos(ang)) * s, s]; };
+  const [yb, sb] = proj(TILT_WH);
+  // 阴影：0 sy sb −12px
+  k.save(); k.shadowColor = 'rgba(40,30,80,.3)'; k.shadowBlur = (20 + 34 * e) * 0.5; k.shadowOffsetY = (10 + 24 * e) * 0.6;
+  const wb = TILT_WW * sc * sb, wt = TILT_WW * sc, yt = proj(0)[0];
+  k.fillStyle = UX.surface; k.beginPath(); k.moveTo(TILT_CX - wt / 2 + 12, yt + 6); k.lineTo(TILT_CX + wt / 2 - 12, yt + 6); k.lineTo(TILT_CX + wb / 2 - 12, yb - 4); k.lineTo(TILT_CX - wb / 2 + 12, yb - 4); k.closePath(); k.fill();
+  k.restore();
+  for (let i = 0; i < N; i++) {
+    const a = i / N * TILT_WH, b = (i + 1) / N * TILT_WH, [y0, s0] = proj(a), [y1, s1] = proj(b), ww = TILT_WW * sc * (s0 + s1) / 2;
+    k.drawImage(TILT_BUF, 0, a * 2, TILT_WW * 2, (b - a) * 2, TILT_CX - ww / 2, y0, ww, y1 - y0 + 0.6);
+  }
+  // 「滚动」提示：未滚动时显示（scrollTop > 8 即隐藏，.3 秒），箭头 1.6 秒上下 4px
+  const ho = p * 210 > 8 ? 0 : 1, bob = 2 - 2 * Math.cos(TAU * 4 * u / CYC);
+  if (ho) {
+    txt(k, '滚动', 470, 188, `800 9.5px ${SANS}`, UX.ink3, 'center');
+    k.strokeStyle = UX.ink3; k.lineWidth = 1.8; k.lineCap = 'round'; k.lineJoin = 'round';
+    k.beginPath(); k.moveTo(466, 192 + bob); k.lineTo(470, 196 + bob); k.lineTo(474, 192 + bob); k.stroke();
+  }
+  scrollbar(k, p, 0.4, CW - 8);
+};

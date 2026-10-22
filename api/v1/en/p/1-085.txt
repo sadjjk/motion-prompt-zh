@@ -1,0 +1,15 @@
+Please use "Cursor lens reveal" (カーソルのレンズで現れる文), one of the names in "Interaction & data motion".
+Motion Prompt #1-085
+
+What it is: A round lens at the cursor that reveals a different message underneath
+What the sample shows: A round lens chases the pointer springily over a two-line headline, revealing another sentence on dark ground; a click expands it to full size, another shrinks it back.
+Spec:
+- 2 lines of 58 px bold text on #F5F1E8; a 54 px round lens reveals another sentence on #1D1A16, highlighted in #FFD43B / #FF8787.
+- The lens follows the pointer on a spring (stiffness 260, damping 24) and stretches up to 35% along the direction of fast motion.
+- In the demo, a click at 2.8 s expands the lens to the whole card at a rate of 5/s; a second click at 4.1 s shrinks it back to 54 px at 12/s.
+- When the pointer leaves the area the lens shrinks to 0; its edge has a 1.5 px yellow stroke.
+When to use it: Use it on brand or campaign page headlines to add the fun of discovering a hidden message.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-085.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

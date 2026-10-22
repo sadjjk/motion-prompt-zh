@@ -1,0 +1,15 @@
+Please use "Scatter & reassemble letters" (文字の飛散と再集合), one of the names in "Interaction & data motion".
+Motion Prompt #1-063
+
+What it is: Logo letters that scatter on a click and spring back into place
+What the sample shows: Coloured capital letters fly apart spinning, fall and bounce under gravity, hover briefly, then snap back into the word one by one.
+Spec:
+- The 7 letters of PLAYFUL each get a hue (oklch .62 .2, hue 20 + 48i), weight 900, 64 px.
+- On 'scatter' each letter flies off in a random direction at 7–14 px/frame, spinning ±15°/frame, with gravity .05 and damping .985.
+- Edge bounces keep .8 horizontally and .75 vertically; letters hover 1.3 s (each 70 ms later than the previous) before returning.
+- Return uses a spring of .06 with damping .8; 'reset' pulls them back at once. Demo: scatter at 1.0 s, again at 3.4 s, reset at 4.5 s.
+When to use it: Use it for a hidden-fun headline on event pages, creative-studio sites or 404 pages, triggered by a click or button.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-063.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

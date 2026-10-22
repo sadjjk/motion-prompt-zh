@@ -1,0 +1,15 @@
+Please use "Per-section background shift" (セクションごとの背景切り替え), one of the names in "Interaction & data motion".
+Motion Prompt #1-071
+
+What it is: A product page whose background colour flows from section to section as you scroll
+What the sample shows: Scrolling melts the background into the next flavour colour, the central can tilts as it swaps colour and label, and the copy slides up.
+Spec:
+- Scrolling passes 4 flavours, with the background blending continuously between neighbouring colours: #FFAB91 / #C0EB75 / #A5B4FC / #FFC8DD.
+- The central can (74×140 px) changes colour and label per section: #E64A19 / #5C940D / #4C3BCF / #D6336C.
+- The can tilts by its offset from the nearest section (offset × 24°) and the label slides sideways (offset × −60 px).
+- 4 section dots on the right, the current one at 1.5×; demo scrolls over 0.4→4.8 s and back over 5.4→6.3 s.
+When to use it: Use it on product pages for drinks, cosmetics or any multi-flavour, multi-colour line, showing one variant per scroll section.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-071.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

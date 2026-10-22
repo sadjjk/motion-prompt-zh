@@ -1,0 +1,64 @@
+// Motion Prompt #1-082 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 悬停跟随预览图 / Hover-follow preview
+// 分类包: uxmotion (交互与数据动效) · element 22 · 子分类: 光标交互
+// 动画表现: 指针在黑底作品名列表中自上而下移动，悬停行右移变亮，旁边跟随的预览图边倾斜边滑到下一张。
+// 运动规格:
+//   - 暗色底 #111111 上 6 行作品名，行高 29 px。
+//   - 悬停行右移 10 px（0.35 秒，带回弹）并亮出箭头，其余行 0.25 秒变暗为 #5C5852。
+//   - 预览图 84 × 105 px 位于指针右侧 18 px，滞后约 0.11 秒跟随，按水平速度 × 0.02 倾斜，最多 ±12°。
+//   - 换行时图片 0.5 秒上下滑到下一张；出现时 0.25 秒淡入，并从 0.6 倍回弹到 1 倍。
+// 适用场景: 适合设计师或工作室的作品集页面，给纯文字的项目列表加上图片提示。
+// 标签: hover, cursor-follow, preview, portfolio, list, tilt
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-082
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 22
+// 22 悬停跟随预览图：#111 暗底作品列表（6 行大字项目名）；指针 0.3 秒从上方进入，0.8–4.8 秒逐行向下停留并左右游走，5.0 秒从底部离开。
+// 悬停行右移 10px（.35s 回弹）并亮起箭头，其余行变暗 #5C5852（.25s）；预览图（渐变色块画的缩略图）在指针右侧 18px、
+// 滞后约 0.11 秒跟随，按水平速度×0.02 倾斜（±12°）；换行时图片带 .5s cubic-bezier(.6,0,.2,1) 上下滑到下一张；出现 .25s 淡入 + .6→1 回弹缩放。
+const HFP_WK = [['House of Wind', '建筑', '2026'], ['Salt Studio', '品牌', '2025'], ['Night Library', '应用', '2025'], ['Blue Garden', '展览', '2024'], ['Paper Workshop', '包装', '2024'], ['Slow Post Office', '网页', '2023']];
+const HFP_ART = [['city', '#DEE2E6', '#868E96', '#343A40'], ['sea', '#FFFFFF', '#CED4DA', '#ADB5BD'], ['night', '#1B1F3B', '#FFE066'], ['sky', '#A5D8FF', '#2F9E44', '#1E6B30'], ['split', '#F8F0E3', '#D9B482', '#B08A55'], ['sun', '#FFA8A8', '#C92A2A', '#FFE3E3']];
+const HFP_TOP = 30, HFP_RH = 29, HFP_PW = 84, HFP_PH = 105;
+const HFP_ry = r => HFP_TOP + HFP_RH * (r + 0.5);
+const HFP_KEYS = [[0.3, 250, -16], [0.8, 230, HFP_ry(0)], [1.25, 290, HFP_ry(0) + 3], [1.55, 270, HFP_ry(1)], [2.0, 330, HFP_ry(1) - 2], [2.3, 300, HFP_ry(2)], [2.7, 250, HFP_ry(2) + 3], [3.0, 280, HFP_ry(3)], [3.4, 340, HFP_ry(3)], [3.7, 310, HFP_ry(4)], [4.1, 260, HFP_ry(4) + 2], [4.4, 290, HFP_ry(5)], [4.8, 330, HFP_ry(5)], [5.2, 350, CH + 26]];
+const HFP_row = p => (p[0] >= 18 && p[0] <= CW - 18 && p[1] >= HFP_TOP && p[1] < HFP_TOP + HFP_RH * 6 ? Math.floor((p[1] - HFP_TOP) / HFP_RH) : -1);
+const HFP_EV = UXB_changes(u => HFP_row(UXB_path(u, HFP_KEYS)));
+const HFP_ON = [0, 1, 2, 3, 4, 5].map(r => [[-1, 0], ...HFP_EV.slice(1).map(([t, v]) => [t, v === r ? 1 : 0])]);
+const HFP_ANY = [[-1, 0], ...HFP_EV.slice(1).map(([t, v]) => [t, v >= 0 ? 1 : 0])];
+const HFP_STRIP = [[-1, 0], ...HFP_EV.slice(1).filter(e => e[1] >= 0)];
+CELLS[21] = (k, w, h, u) => {
+  k.fillStyle = '#111111'; k.fillRect(0, 0, CW, CH);
+  txt(k, 'SELECTED WORK', 20, 21, UXB_f(750, 9.5), '#8D8880');
+  txt(k, '2023—26', CW - 20, 21, UXB_f(750, 9.5), '#8D8880', 'right');
+  k.fillStyle = '#2A2826';
+  for (let r = 0; r <= 6; r++) k.fillRect(18, HFP_TOP + r * HFP_RH, CW - 36, 1);
+  const any = UXB_ramp(u, HFP_ANY, 0.25, x => x);
+  for (let r = 0; r < 6; r++) {
+    const on = UXB_ramp(u, HFP_ON[r], 0.25, x => x), sh = 10 * UXB_ramp(u, HFP_ON[r], 0.35, backOut);
+    const y = HFP_TOP + r * HFP_RH, col = rgba(lerpC([242, 239, 234], [92, 88, 82], any * (1 - on)), 1);
+    txt(k, HFP_WK[r][0], 20 + sh, y + 21, UXB_f(800, 16), col);
+    txt(k, `${HFP_WK[r][1]} · ${HFP_WK[r][2]}`, CW - 46 + sh, y + 19, UXB_f(650, 9.5), '#8D8880', 'right');
+    if (on > 0.01) { k.save(); k.globalAlpha = on; txt(k, '→', CW - 38 + sh - 8 * (1 - on), y + 20, UXB_f(700, 14), '#F2EFEA'); k.restore(); }
+  }
+  const vis = any;
+  if (vis > 0.01) {
+    const sc = 0.6 + 0.4 * UXB_ramp(u, HFP_ANY, 0.35, backOut);
+    const p = UXB_path(u - 0.11, HFP_KEYS), p2 = UXB_path(u - 0.11 - 1 / 60, HFP_KEYS);
+    const tilt = clamp((p[0] - p2[0]) * 60 * 0.02, -12, 12) * Math.PI / 180;
+    const x = p[0] + 18, y = clamp(p[1] - HFP_PH / 2, 4, CH - HFP_PH - 4), st = UXB_ramp(u, HFP_STRIP, 0.5, inOut3);
+    k.save(); k.globalAlpha = vis; k.translate(x + HFP_PW / 2, y + HFP_PH / 2); k.rotate(tilt); k.scale(sc, sc);
+    k.save(); k.shadowColor = 'rgba(0,0,0,.6)'; k.shadowBlur = 22; k.shadowOffsetY = 10;
+    rr(k, -HFP_PW / 2, -HFP_PH / 2, HFP_PW, HFP_PH, 6); k.fillStyle = '#222'; k.fill(); k.restore();
+    rr(k, -HFP_PW / 2, -HFP_PH / 2, HFP_PW, HFP_PH, 6); k.clip();
+    const i0 = Math.floor(st);
+    for (let j = Math.max(0, i0); j <= Math.min(5, i0 + 1); j++) UXB_pic(k, -HFP_PW / 2, -HFP_PH / 2 + (j - st) * HFP_PH, HFP_PW, HFP_PH, HFP_ART[j]);
+    k.restore();
+  }
+  const c = UXB_path(u, HFP_KEYS);
+  if (u > 0.3 && u < 5.2) cursor(k, c[0], c[1]);
+};

@@ -1,0 +1,15 @@
+Please use "Indeterminate to determinate" (不確定から確定への進捗), one of the names in "Interaction & data motion".
+Motion Prompt #1-089
+
+What it is: An indeterminate progress bar that turns into step-by-step determinate progress
+What the sample shows: On a deploy card, streaks sliding through the bar give way to the same bar filling step by step, log lines float in and tick off, and the status pill turns green.
+Spec:
+- A 256 × 6 px track; while queued, 2 streaks stretch and slide through on a 1.6 s cycle, streak 2 delayed by 0.55 s, both arriving at 60% of the cycle.
+- In the demo the bar switches to determinate progress at 1.8 s and advances through 5 steps to 22%, 38%, 70%, 85% and 100%.
+- Step i lasts (650 + 120i) ms × 0.6 and the fill eases over 0.5 s; log lines float up 8 px one by one and spinners turn into checks.
+- The status pill goes queued #D6731E → building #6A57F2 → ready #119C72 with 0.4 s colour changes; the run completes at about 4.5 s.
+When to use it: Use it for deploys, builds or exports whose duration is unknown at first and becomes measurable partway through.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-089.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

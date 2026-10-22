@@ -1,0 +1,15 @@
+Please use "Spoiler sand cover" (ネタバレの砂カバー), one of the names in "Interaction & data motion".
+Motion Prompt #1-066
+
+What it is: Spoiler text hidden under shimmering sand that blows away on tap
+What the sample shows: Fine grains flicker over part of a chat bubble; a tap scatters them from that point to reveal the words, and 'hide' gathers them back.
+Spec:
+- Spoiler phrases are covered in grains: 1 per 9 square pixels, .6–1.5 px wide, flickering between .45–1 brightness and jittering ±.8 px.
+- A tap bursts the grains outward from the tap point at 2–5 px/frame; each frame speed ×.94 and opacity −.025.
+- The text starts appearing .1 s after the tap and is fully shown after .5 s.
+- 'Hide again' pulls grains back from 60 px out, closing 12% per frame, as the text fades; demo reveals at 1.2 and 2.6 s, hides at 4.2 s.
+When to use it: Use it in chat apps, comment threads and community posts to hide spoilers, answers or sensitive details.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-066.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

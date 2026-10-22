@@ -1,0 +1,103 @@
+// Motion Prompt #1-062 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 环形文字徽章 / Circular text badge
+// 分类包: uxmotion (交互与数据动效) · element 02 · 子分类: 交互文字
+// 动画表现: 圆周上的文字缓慢旋转，指针移入后加速，每次点击转速猛增，新文字逐字淡入。
+// 运动规格:
+//   - 等宽字沿半径 84px 的圆周排布，平时匀速旋转 18°/s。
+//   - 悬停时目标转速 150°/s（每帧逼近 6%）；移开后每帧按 2.5% 惯性减速回 18°/s。
+//   - 每次点击转速 +120°/s 并换一段文字；新文字从 120ms 起每字间隔 22ms 逐个淡入，每字 .25 秒。
+//   - 中心按钮悬停放大到 1.06 倍，箭头从 -45° 转正；点击时在 .6 秒的 30% 处缩到 .78 再回弹。
+// 适用场景: 适合作品集、品牌官网首屏的「滚动探索」「接受合作」角标或 CTA 按钮。
+// 标签: circular-text, rotating-badge, hover, click, cta, portfolio, spin
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-062
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 02
+// 02 环形文字徽章：等宽字沿圆周排布匀速旋转（18°/s）；指针 1.2 秒移入后目标转速 150°/s（每帧逼近 6%），1.8/3.0/4.2 秒三次点击各 +120°/s，
+// 新文字从 120ms 起每字间隔 22ms 逐个淡入（.25 秒），中心按钮按下回弹（.6 秒，30% 处缩到 .78）；4.6 秒移出后按每帧 2.5% 惯性减速；三次点击后文字轮换回第一段
+const BADGE_TEXTS = ['SCROLL TO EXPLORE • SCROLL TO EXPLORE • ', 'OPEN FOR PROJECTS • 2026 • OPEN • ', 'MADE WITH CARE • LUCIANLABS • '];
+const BADGE_CLICKS = [1.8, 3.0, 4.2];
+const BADGE_CX = 112, BADGE_CY = 104, BADGE_R = 84;  // 原作直径 218，这里半径 84（缩放 .77）
+const BADGE_KF = [[0, 590, 240], [0.6, 590, 240], [1.2, 132, 122], [1.8, 126, 116], [3.0, 120, 122], [4.2, 130, 114], [4.6, 134, 120], [5.2, 590, 240]];
+const BADGE_path = u => UXA_path(BADGE_KF, u);
+// 一次性模拟整周期转速与转角（120 步/秒，原作每帧系数换算到连续时间）；复位段把转速平滑拉回 18°/s，总转角缩放到 360° 整数倍保证无缝
+const BADGE_SIM = (() => {
+  const N = 768, dt = CYC / N, V = new Float32Array(N + 1), A = new Float32Array(N + 1);
+  let vel = 18, ang = 0, ci = 0, tin = -1, tout = -1, was = false;
+  for (let j = 0; j <= N; j++) {
+    const t = j * dt;
+    if (j > 0) {
+      const [x, y] = BADGE_path(t), hov = Math.hypot(x - BADGE_CX, y - BADGE_CY) < BADGE_R;
+      if (hov && !was) tin = t; if (!hov && was) tout = t; was = hov;
+      const target = hov ? 150 : 18, kk = target > vel ? 0.06 : 0.025;
+      vel += (target - vel) * (1 - Math.pow(1 - kk, dt * 60));
+      while (ci < BADGE_CLICKS.length && BADGE_CLICKS[ci] <= t) { vel += 120; ci++; }
+    }
+    const ve = mix(vel, 18, resetK(t));
+    if (j > 0) ang += ve * dt;
+    V[j] = ve; A[j] = ang;
+  }
+  const f = Math.max(1, Math.round(A[N] / 360)) * 360 / A[N];
+  for (let j = 0; j <= N; j++) A[j] *= f;
+  return { V, A, N, tin, tout };
+})();
+const BADGE_at = (arr, u) => { const N = BADGE_SIM.N, x = clamp(u / CYC) * N, i = Math.min(N - 1, Math.floor(x)); return arr[i] + (arr[i + 1] - arr[i]) * (x - i); };
+CELLS[1] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 10, 10, CW - 20, CH - 20, 22);
+  const S = BADGE_SIM, cx = BADGE_CX, cy = BADGE_CY, R = BADGE_R;
+  // 徽章底：外圈 surface2、内 40% 为 surface，细描边
+  k.fillStyle = UX.surface2; k.beginPath(); k.arc(cx, cy, R, 0, TAU); k.fill();
+  k.fillStyle = UX.surface; k.beginPath(); k.arc(cx, cy, R * 0.566, 0, TAU); k.fill();
+  k.strokeStyle = UX.line; k.lineWidth = 1; k.beginPath(); k.arc(cx, cy, R - 0.5, 0, TAU); k.stroke();
+  // 当前文字与点击时间
+  let nc = 0; for (const t of BADGE_CLICKS) if (u >= t) nc++;
+  const tc = nc ? BADGE_CLICKS[nc - 1] : -9, str = BADGE_TEXTS[nc % 3];
+  const rot = BADGE_at(S.A, u) * Math.PI / 180, rT = 86 * R / 109, span = 532 / 540.4 * TAU, N = str.length;
+  k.font = `800 12px ${MONO}`; k.fillStyle = UX.ink; k.textAlign = 'center'; k.textBaseline = 'alphabetic';
+  for (let i = 0; i < N; i++) {
+    const op = nc ? clamp((u - tc - 0.12 - i * 0.022) / 0.25) : 1;
+    if (op <= 0 || str[i] === ' ') continue;
+    const th = Math.PI + (i + 0.5) * span / N + rot;
+    k.save(); k.globalAlpha = op; k.translate(cx + Math.cos(th) * rT, cy + Math.sin(th) * rT); k.rotate(th + Math.PI / 2);
+    k.fillText(str[i], 0, 0); k.restore();
+  }
+  // 中心按钮：悬停放大 1.06（.5 秒弹簧）、箭头从 -45° 转正（.6 秒）；点击时 .6 秒内 30% 处缩到 .78
+  const [px, py] = BADGE_path(u), hov = Math.hypot(px - cx, py - cy) < R;
+  const hp = hov ? UXA_spring(clamp((u - S.tin) / 0.5)) : 1 - UXA_spring(clamp((u - S.tout) / 0.5));
+  const ap = hov ? UXA_spring(clamp((u - S.tin) / 0.6)) : 1 - UXA_spring(clamp((u - S.tout) / 0.6));
+  let sc = 1 + 0.06 * hp;
+  const pt = (u - tc) / 0.6;
+  if (pt >= 0 && pt < 1) sc = pt < 0.3 ? mix(sc, 0.78, UXA_spring(pt / 0.3)) : mix(0.78, sc, UXA_spring((pt - 0.3) / 0.7));
+  const cr = 39 * R / 109;
+  k.save(); k.translate(cx, cy); k.scale(sc, sc);
+  k.fillStyle = UX.ink; k.beginPath(); k.arc(0, 0, cr, 0, TAU); k.fill();
+  k.rotate((-45 + 45 * ap) * Math.PI / 180); k.scale(23 / 24, 23 / 24); k.translate(-12, -12);
+  k.strokeStyle = UX.page; k.lineWidth = 2.2; k.lineCap = 'round'; k.lineJoin = 'round';
+  k.beginPath(); k.moveTo(5, 12); k.lineTo(19, 12); k.moveTo(13, 6); k.lineTo(19, 12); k.lineTo(13, 18); k.stroke();
+  k.restore();
+  // 右侧：转速读数（每 120ms 刷新）与近 3 秒转速曲线
+  txt(k, '每按一次换一段文字', 236, 40, `700 12px ${SANS}`, UX.ink3);
+  txt(k, '转速', 236, 78, `700 12px ${SANS}`, UX.ink3);
+  txt(k, `${Math.round(BADGE_at(S.V, Math.floor(u / 0.12) * 0.12))}°/s`, 268, 80, `700 24px ${MONO}`, UX.ink);
+  txt(k, '近 3 秒', 509, 78, `600 10px ${SANS}`, UX.ink3, 'right');
+  const GX = 236, GW = 273, GY = 176, GH = 80;
+  k.strokeStyle = UX.line; k.lineWidth = 1;
+  for (let j = 0; j <= 3; j++) { const y = Math.round(GY - j * GH / 3) + 0.5; k.beginPath(); k.moveTo(GX, y); k.lineTo(GX + GW, y); k.stroke(); }
+  k.beginPath();
+  for (let j = 0; j <= 90; j++) {
+    const tt = (((u - 3 + j * 3 / 90) % CYC) + CYC) % CYC, v = BADGE_at(S.V, tt), x = GX + j / 90 * GW, y = GY - Math.min(1, v / 300) * GH;
+    j ? k.lineTo(x, y) : k.moveTo(x, y);
+  }
+  k.strokeStyle = UX.accent; k.lineWidth = 2; k.stroke();
+  k.lineTo(GX + GW, GY); k.lineTo(GX, GY); k.closePath(); k.fillStyle = UX.accentSoft; k.fill();
+  // 模拟指针
+  let press = 0; for (const t of BADGE_CLICKS) press = Math.max(press, pingPong(u, t - 0.1, t, t + 0.02, t + 0.14));
+  for (const t of BADGE_CLICKS) ripple(k, BADGE_path(t)[0], BADGE_path(t)[1], (u - t) / 0.5);
+  cursor(k, px, py, press);
+};

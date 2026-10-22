@@ -1,0 +1,15 @@
+Please use "Grid-beam background" (グリッドビーム背景), one of the names in "Interaction & data motion".
+Motion Prompt #1-075
+
+What it is: A dark grid hero background with light beams racing along the lines
+What the sample shows: Coloured beams with fading tails streak across a faint dark grid, and the grid lights up indigo only around the pointer.
+Spec:
+- A dark #07080F background with a 34 px grid (white at 7% opacity), faded at the edges by a central elliptical mask.
+- 8 beam lanes run along the grid lines horizontally and vertically, 2 or 3 passes per cycle; tails fade over 50–90 px with a 1.8 px bright head.
+- Beams come in 3 colours: 129,140,248 / 45,212,191 / 244,114,182.
+- The grid within a 90 px radius of the pointer glows indigo (129,140,248 at .55 opacity).
+When to use it: Use it as the hero background for developer tools, cloud services and AI products.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-075.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

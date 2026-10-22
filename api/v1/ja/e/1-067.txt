@@ -1,0 +1,73 @@
+// Motion Prompt #1-067 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 読んでいる文のフォーカス / Sentence reading focus
+// パック: uxmotion (インタラクションとデータの動き) · element 07 · カテゴリ: インタラクティブな文字
+// 何が起きるか: ポインタが文から文へ移るとその一文だけが鮮明になり、他は薄くぼけ、左の紫の縦線が文の高さに伸縮しながら付いてくる。
+// 動きの仕様:
+//   - 段落の 5 文のうち現在の文だけ鮮明、他は不透明度 25% で軽くぼかす。切り替え .45 秒
+//   - 左側の幅 4px の紫の縦線が現在の文へ移り、文の高さに伸縮する（.55 秒スプリング）
+//   - 上部のカウンター「N / 5」は目盛りごとに 16px ロールする（.5 秒スプリング）
+//   - デモではポインタが 0 / 1.2 / 2.2 / 3.2 / 4.2 秒に 1→5 文目へ順に移り、5.6 秒に 1 文目へ戻る
+// 使いどころ: ブログの長文、ヘルプドキュメント、学習アプリの読書モードで、今読んでいる箇所を見失わないようにするとき。
+// タグ: reading-focus, blur, hover, long-form, highlight, accessibility
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-067
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 07
+// 07 阅读句子聚焦：段落 5 句话只留指针下那句清晰，其余降到 25% 透明度并轻微模糊（.45 秒过渡）；左侧 4px 紫色竖条随句子移动并伸缩到句高（.55 秒弹簧），
+// 顶部计数器按 16px 一格滚动（.5 秒弹簧）；指针在 0 / 1.2 / 2.2 / 3.2 / 4.2 秒依次移到第 1→5 句，5.6 秒回到第 1 句
+const READ_S = ['读长文的时候，眼睛迷路的次数比你想的多。', '只让一句保持清晰，就知道下一步该读哪里。', '把其余部分模糊掉不是为了藏起来，而是为了显出顺序。', '焦点会顺滑地跟着你的手走。', '读完以后，随时都能重新看到全文。'];
+const READ_EV = [[0, 0], [1.2, 1], [2.2, 2], [3.2, 3], [4.2, 4], [5.6, 0]];
+const READ_F = `620 16px ${SANS}`, READ_X = 46, READ_W = 462, READ_Y = 76, READ_LH = 27;
+let READ_LAY = null;                                 // 惰性常量：每句的折行片段与上下边界
+CELLS[6] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 10, 10, CW - 20, CH - 20, 22);
+  k.font = READ_F;
+  if (!READ_LAY) {
+    const frags = [], tops = [], bots = []; let x = 0, y = 0;
+    READ_S.forEach((s, si) => {
+      let cur = '', sx = x; tops.push(y);
+      for (const ch of s) {
+        const ww = k.measureText(cur + ch).width;
+        if (sx + ww > READ_W && cur) { frags.push({ si, s: cur, x: sx, y }); y += READ_LH; sx = 0; cur = ch; } else cur += ch;
+      }
+      frags.push({ si, s: cur, x: sx, y }); x = sx + k.measureText(cur).width + 4; bots.push(y);
+    });
+    READ_LAY = { frags, tops, bots };
+  }
+  const L = READ_LAY;
+  // 每句的清晰度 on（0..1，.45 秒 ux-ease）
+  let curI = 0, tcur = -9, prevI = 0;
+  READ_EV.forEach(([t, i], j) => { if (u >= t) { prevI = curI; curI = i; tcur = t; } });
+  const fo = uxEase(clamp((u - tcur) / 0.45));
+  // 头部：阅读模式 · N / 5，数字一格 16px 滚动
+  txt(k, '阅读模式 ·', 30, 38, `750 12px ${SANS}`, UX.ink3);
+  const roll = UXA_steps(READ_EV.map(([t, i]) => [t, i]), u, 0.5);
+  k.save(); k.beginPath(); k.rect(92, 26, 14, 16); k.clip();
+  for (let i = 0; i < 5; i++) txt(k, String(i + 1), 99, 38 + (i - roll) * 16, `700 12px ${MONO}`, UX.ink, 'center');
+  k.restore();
+  txt(k, '/ 5', 108, 38, `750 12px ${SANS}`, UX.ink3);
+  k.fillStyle = UX.surface2; rr(k, 433, 20, 76, 26, 13); k.fill();
+  txt(k, '关闭聚焦', 471, 33.5, `700 12px ${SANS}`, UX.ink2, 'center', 'middle');
+  // 段落
+  k.textAlign = 'left'; k.textBaseline = 'alphabetic'; k.fillStyle = UX.ink;
+  for (const f of L.frags) {
+    const on = f.si === curI ? (curI === prevI ? 1 : fo) : f.si === prevI && prevI !== curI ? 1 - fo : 0;
+    UXA_blurText(k, f.s, READ_X + f.x, READ_Y + f.y, 1.2 * (1 - on), 0.25 + 0.75 * on);
+  }
+  k.globalAlpha = 1;
+  // 左侧竖条：top = 句首行顶 + 3，height = 句高 − 6（行高 27，字形占上 19px）
+  const top = UXA_steps(READ_EV.map(([t, i]) => [t, READ_Y + L.tops[i] - 19 + 3]), u, 0.55);
+  const hh = UXA_steps(READ_EV.map(([t, i]) => [t, Math.max(8, L.bots[i] - L.tops[i] + 25 - 6)]), u, 0.55);
+  k.fillStyle = UX.accent; rr(k, 30, top, 4, hh, 2); k.fill();
+  // 指针停在当前句中部
+  const KF = READ_EV.map(([t, i]) => [t, READ_X + 70 + i * 52, READ_Y + (L.tops[i] + L.bots[i]) / 2 - 2]);
+  const PK = []; KF.forEach((p, j) => { if (j) PK.push([p[0] - 0.45, KF[j - 1][1], KF[j - 1][2]]); PK.push(p); }); PK.push([6.4, KF[0][1], KF[0][2]]);
+  const [px, py] = UXA_path(PK, u);
+  cursor(k, px, py);
+};

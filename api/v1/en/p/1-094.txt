@@ -1,0 +1,15 @@
+Please use "Live table insert" (新しい行が入るテーブル), one of the names in "Interaction & data motion".
+Motion Prompt #1-094
+
+What it is: A live table where new rows slide in and rows pass each other when re-sorted
+What the sample shows: New orders slide into the table with a flash; clicking the amount header makes rows pass each other into a new order, and the time header restores it.
+Spec:
+- 5 visible rows, 24 px tall; a new order slides in from the top with a purple flash that fades in 1.4 s.
+- Other rows move to their new slots in 0.45 s, and rows pushed out fade over 0.35 s.
+- In the demo new orders arrive at 0.8 s and 3.1 s, the amount header sorts descending at 2.2 s, and the time header restores order at 4.2 s.
+- Each row's N s ago label counts up, showing just now under 3 s; the header's red dot pulses every 1.4 s.
+When to use it: Use it in admin panels and dashboards where orders, transactions or logs arrive in real time.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-094.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

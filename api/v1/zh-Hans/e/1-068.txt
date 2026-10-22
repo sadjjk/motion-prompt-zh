@@ -1,0 +1,80 @@
+// Motion Prompt #1-068 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 字母弹簧涟漪 / Rippling letters
+// 分类包: uxmotion (交互与数据动效) · element 08 · 子分类: 交互文字
+// 动画表现: 指针从左划到右，经过的大字母依次抬起并偏紫，再弹跳落回；点按钮时一道波浪横扫全部字母。
+// 运动规格:
+//   - 单词 MOTION 的 6 个字母间距 66px、字重 900、62px，只做上下弹动。
+//   - 指针附近的字母按高斯分布（σ 34px）抬起，最高 34px；每个字母一根弹簧：每帧 v += (目标 − y)×0.16，v ×= 0.8。
+//   - 抬得越高越偏紫（按 y / 50 混色），地面投影越淡越窄。
+//   - 点「发送波浪」：一道 1.1 秒、1.35 倍幅度的脉冲从左扫到右；演示中 0.4–3.0 秒划过，3.4 秒点击。
+// 适用场景: 适合品牌官网标题、作品集名字或活动页大字，给悬停加一点触感。
+// 标签: spring, ripple, letters, hover, headline, wave, kinetic-type
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-068
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 08
+// 08 字母弹簧涟漪：一行 6 个大字母「MOTION」各自停在固定位置，只做上下弹动；模拟指针 0.4–3.0 秒自左向右划过，
+// 靠近的字母按高斯分布（σ 34px）抬起，最高 −34px；每个字母一根弹簧（每帧 v += (目标 − y)×0.16，v ×= 0.8，按 60Hz 预先积分），
+// 抬得越高越偏紫（y/−50）、地面投影越淡越窄；3.4 秒点「发送波浪」，一道 1.1 秒、1.35 倍幅度的脉冲从左到右扫过；6 秒前全部静止
+const RIPL_WORD = 'MOTION', RIPL_SIG = 34, RIPL_AMP = 34, RIPL_N = 384;  // 384 帧 = 6.4 秒 × 60Hz
+const RIPL_X0 = 60, RIPL_GAP = 66, RIPL_BASE = 142;
+const RIPL_PX = u => u < 0.4 || u > 3.0 ? null : mix(RIPL_X0 - 50, RIPL_X0 + RIPL_GAP * 5 + 50, inOut3(seg(u, 0.4, 3.0)));
+const RIPL_PULSE = 3.4;
+// 预先按 60Hz 积分弹簧（纯函数：绘制时只查表）
+const RIPL_SIM = (() => {
+  const y = new Array(6).fill(0), v = new Array(6).fill(0), out = [];
+  const g = (d, s) => Math.exp(-(d * d) / (2 * s * s));
+  for (let f = 0; f <= RIPL_N; f++) {
+    const u = f / 60, px = RIPL_PX(u);
+    const pk = u >= RIPL_PULSE && u < RIPL_PULSE + 1.1 ? (u - RIPL_PULSE) / 1.1 : -1;
+    const pc = pk < 0 ? null : -60 + (RIPL_GAP * 5 + 120) * pk + RIPL_X0 - 30;
+    out.push(y.map((_, i) => {
+      const x = RIPL_X0 + i * RIPL_GAP; let tgt = 0;
+      if (px != null) tgt -= RIPL_AMP * g(x - px, RIPL_SIG);
+      if (pc != null) tgt -= RIPL_AMP * 1.35 * g(x - pc, RIPL_SIG * 1.2);
+      v[i] += (tgt - y[i]) * 0.16; v[i] *= 0.8; y[i] += v[i];
+      return [y[i], v[i]];
+    }));
+  }
+  return out;
+})();
+CELLS[7] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 12, 10, CW - 24, CH - 20, 24);
+  const sea = k.createLinearGradient(0, 110, 0, CH - 10); sea.addColorStop(0, 'rgba(47,143,224,0)'); sea.addColorStop(1, 'rgba(47,143,224,.1)');
+  k.fillStyle = sea; rr(k, 12, 110, CW - 24, CH - 120, 24); k.fill();
+  const st = RIPL_SIM[Math.min(RIPL_N, Math.round(u * 60))];
+  const ac = [106, 87, 242], ink = [22, 21, 27];
+  for (let i = 0; i < 6; i++) {
+    const [y, v] = st[i], x = RIPL_X0 + i * RIPL_GAP, t = clamp(-y / 50), sy = 1 + Math.max(-0.08, Math.min(0.14, -v * 0.02));
+    // 地面投影：抬得越高越淡越窄
+    k.fillStyle = `rgba(40,30,80,${0.3 * (1 - t * 0.7)})`;
+    k.beginPath(); k.ellipse(x, RIPL_BASE + 10, 18 * (1 - t * 0.5), 3, 0, 0, TAU); k.fill();
+    k.save(); k.translate(x, RIPL_BASE + y); k.scale(1, sy);
+    txt(k, RIPL_WORD[i], 0, 0, `900 62px ${SANS}`, rgba(lerpC(ink, ac, t), 1), 'center', 'alphabetic');
+    k.restore();
+  }
+  // 右侧控制条：波高读数 + 「发送波浪」按钮（3.4 秒按下）
+  const bp = clamp(1 - Math.abs(u - RIPL_PULSE) / 0.12);
+  k.fillStyle = UX.surface2; rr(k, 446, 72, 72, 64, 14); k.fill();
+  txt(k, '波高', 456, 92, `700 9px ${SANS}`, UX.ink3); txt(k, '34', 456, 112, `800 16px ${SANS}`, UX.ink);
+  k.save(); k.translate(482, 156); k.scale(1 - 0.07 * bp, 1 - 0.07 * bp);
+  k.fillStyle = UX.ink; rr(k, -36, -14, 72, 28, 10); k.fill();
+  txt(k, '发送波浪', 0, 4, `750 10px ${SANS}`, UX.page, 'center');
+  k.restore();
+  ripple(k, 482, 156, seg(u, RIPL_PULSE, RIPL_PULSE + 0.5));
+  // 模拟指针：划过字母后移向按钮，按下后离开
+  const px = RIPL_PX(u);
+  let cx, cy;
+  if (px != null) { cx = px; cy = RIPL_BASE - 30; }
+  else if (u < 0.4) { cx = mix(RIPL_X0 - 70, RIPL_X0 - 50, seg(u, 0, 0.4)); cy = RIPL_BASE - 30; }
+  else if (u < 3.3) { const q = inOut3(seg(u, 3.0, 3.3)); cx = mix(RIPL_X0 + RIPL_GAP * 5 + 50, 480, q); cy = mix(RIPL_BASE - 30, 152, q); }
+  else if (u < 4.2) { cx = 480; cy = 152; }
+  else { const q = inOut3(seg(u, 4.2, 6.0)); cx = mix(480, RIPL_X0 - 70, q); cy = mix(152, RIPL_BASE - 30, q); }
+  cursor(k, cx, cy, bp);
+};

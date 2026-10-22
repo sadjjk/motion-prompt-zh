@@ -1,0 +1,15 @@
+Please use "Tilt-to-flat product screen" (傾きから正面へのスクリーン), one of the names in "Interaction & data motion".
+Motion Prompt #1-076
+
+What it is: A hero where a tilted product screen rises upright as you scroll
+What the sample shows: Scrolling lifts the backward-tilted product window upright as it grows and its shadow deepens; once flat, the chart bars rise in sequence.
+Spec:
+- The product window starts at .84 scale tilted back 34° (perspective 900 px) and stands up along 1−(1−p)² over 0→210 px of scroll.
+- As it rises it scales to 1 and moves up 18 px, with the shadow deepening from 10/20 px to 34/54 px.
+- Once upright (p > .88) its 8 bars grow in turn: .7 s each, 50 ms apart, cubic-bezier(.3,1.3,.5,1); scrolling back drops them to .15.
+- Before scrolling, a 'Scroll' hint bobs 4 px every 1.6 s; demo scrolls over 0.4→2.6 s and back over 5.4→6.3 s.
+When to use it: Use it in SaaS and data-product heroes to 'stand up' the product screenshot as the visitor scrolls.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-076.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

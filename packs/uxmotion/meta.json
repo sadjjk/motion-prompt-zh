@@ -1,0 +1,2470 @@
+{
+  "pack": "uxmotion",
+  "order": 9,
+  "title": {
+    "ja": "インタラクションとデータの動き",
+    "en": "Interaction & data motion",
+    "zh-Hans": "交互与数据动效"
+  },
+  "license": "MIT License (c) 2026 Seokwoooo",
+  "attribution": "https://lucianlabs.dev/uxui-prompt/",
+  "categories": [
+    {
+      "slug": "text",
+      "ja": "インタラクティブな文字",
+      "en": "Interactive type",
+      "zh-Hans": "交互文字"
+    },
+    {
+      "slug": "scroll",
+      "ja": "スクロール連動",
+      "en": "Scroll interactions",
+      "zh-Hans": "滚动交互"
+    },
+    {
+      "slug": "hero",
+      "ja": "ヒーロー背景",
+      "en": "Hero backgrounds",
+      "zh-Hans": "首屏背景"
+    },
+    {
+      "slug": "cursor",
+      "ja": "カーソル連動",
+      "en": "Cursor interactions",
+      "zh-Hans": "光标交互"
+    },
+    {
+      "slug": "feedback",
+      "ja": "進捗フィードバック",
+      "en": "Progress feedback",
+      "zh-Hans": "进度反馈"
+    },
+    {
+      "slug": "data",
+      "ja": "動くチャート",
+      "en": "Animated charts",
+      "zh-Hans": "动态图表"
+    }
+  ],
+  "elements": [
+    {
+      "no": "01",
+      "slug": "rolling-word-cube",
+      "category": "text",
+      "name": {
+        "ja": "単語キューブの回転",
+        "en": "Rolling word cube",
+        "zh-Hans": "词立方翻滚"
+      },
+      "meaning": {
+        "ja": "キーワードを立方体の各面に貼り、順番に転がして切り替える見出し",
+        "en": "A headline whose keywords sit on the faces of a cube that rolls to the next one",
+        "zh-Hans": "关键词贴在立方体各面上、依次翻滚切换的标题"
+      },
+      "ask": {
+        "ja": "「私たちの仕事」見出しにワードキューブを入れて。4つのキーワードを1.6秒ごとに下へ転がし、回転は0.9秒で両端に少し跳ね返りを付けて。",
+        "en": "Put a rolling word cube in the 'What we do' heading: 4 keywords, rolling down to the next face every 1.6 s, with a 0.9 s roll that overshoots at both ends.",
+        "zh-Hans": "在「我们做什么」标题里放一个词立方：4 个关键词每 1.6 秒向下翻一面，翻转 0.9 秒、两端带回弹。"
+      },
+      "summary": {
+        "ja": "立方体が一定間隔で下へ一面転がって次の言葉を見せ、下の説明文も上下にめくれ、進捗バーが伸びていく。",
+        "en": "The cube rolls down one face at a time to reveal the next word, the caption below flips with it, and a progress bar fills between rolls.",
+        "zh-Hans": "方块每隔一段时间向下翻一面换上新关键词，下方说明同步上下翻页，底部进度条随之填满。"
+      },
+      "spec": {
+        "ja": [
+          "4 面に 4 つのキーワード。面の高さ 72px、奥行きの半分 36px、パース 520px。1.6 秒ごとに下へ 1 面、回転は 0.9 秒",
+          "回転のイージングは cubic-bezier(.5,-.25,.3,1.3) で両端が跳ね返る。古い正面は brightness .55 まで暗くなり、新しい正面が明るくなる",
+          "説明文は古い行が上へ消え、新しい行が下から入る：移動 .7 秒のスプリング、不透明度 .4 秒。現在のドットは 1.3 倍に拡大",
+          "下部の進捗バーは 1.6 秒で線形に満ちる。4 回転で 360° 回り、1 語目に戻る"
+        ],
+        "en": [
+          "4 keywords on 4 faces; face height 72 px, half-depth 36 px, perspective 520 px. It rolls down 1 face every 1.6 s, each roll taking 0.9 s.",
+          "Roll easing cubic-bezier(.5,-.25,.3,1.3) overshoots at both ends; the old front face dims to brightness .55 while the new one lights up.",
+          "The caption flips: the old line slides up and out, the new one springs in from below (.7 s spring, .4 s opacity); the current dot scales to 1.3×.",
+          "The bottom progress bar fills linearly over 1.6 s; 4 rolls make a full 360° and return to word 1."
+        ],
+        "zh-Hans": [
+          "4 个面贴 4 个关键词，面高 72px、半深 36px、透视 520px；每 1.6 秒向下翻 1 面，翻转 0.9 秒。",
+          "翻转缓动 cubic-bezier(.5,-.25,.3,1.3)，两端回弹；旧正面压暗到 brightness .55，新正面变亮。",
+          "说明文字旧行上移淡出、新行从下方弹入：位移 .7 秒弹簧，透明度 .4 秒；当前圆点放大到 1.3 倍。",
+          "底部进度条 1.6 秒线性填满；4 次翻转正好转满 360°，回到第 1 个词。"
+        ]
+      },
+      "use": {
+        "ja": "ランディングページのファーストビューや「私たちの仕事」セクションで、サービスや工程、強みのキーワードを順に見せるとき。",
+        "en": "Use it in a landing-page hero or 'What we do' section to cycle through services, stages or selling points.",
+        "zh-Hans": "适合落地页首屏或「我们做什么」区块，轮流展示服务、阶段或卖点关键词。"
+      },
+      "tags": [
+        "word-cube",
+        "rolling-text",
+        "3d-flip",
+        "headline",
+        "rotating-words",
+        "landing-page",
+        "kinetic-type"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "翻转词",
+          "滚动关键词",
+          "3D 翻转文字"
+        ]
+      }
+    },
+    {
+      "no": "02",
+      "slug": "circular-text-badge",
+      "category": "text",
+      "name": {
+        "ja": "円形テキストバッジ",
+        "en": "Circular text badge",
+        "zh-Hans": "环形文字徽章"
+      },
+      "meaning": {
+        "ja": "円周に沿って文字が回り、ホバーやクリックで速くなる円形バッジ",
+        "en": "A circular text badge that spins and speeds up on hover and click",
+        "zh-Hans": "文字沿圆周旋转、悬停和点击会加速的环形徽章"
+      },
+      "ask": {
+        "ja": "ポートフォリオのトップに円形テキストバッジを置いて。普段は毎秒18°で回り、ホバーで150°/sまで加速、クリックで文言が切り替わるように。",
+        "en": "Add a circular text badge to the portfolio home: it spins at 18°/s, speeds up to 150°/s on hover, and swaps its text on each click.",
+        "zh-Hans": "给作品集首页加一个环形文字徽章：平时每秒转 18°，悬停加速到 150°/s，每点一下换一段文字。"
+      },
+      "summary": {
+        "ja": "円に沿った文字がゆっくり回り、ポインタが乗ると加速し、クリックのたびに速度が跳ね上がって新しい文言が一字ずつ現れる。",
+        "en": "Text on a ring spins slowly, accelerates when the pointer arrives, and jumps faster on each click as new words fade in letter by letter.",
+        "zh-Hans": "圆周上的文字缓慢旋转，指针移入后加速，每次点击转速猛增，新文字逐字淡入。"
+      },
+      "spec": {
+        "ja": [
+          "等幅の文字を半径 84px の円周に並べ、普段は一定の 18°/s で回転",
+          "ホバー中の目標速度は 150°/s（毎フレーム 6% ずつ近づく）。離れると毎フレーム 2.5% の慣性で 18°/s へ減速",
+          "クリックごとに速度 +120°/s、文言を切り替え。新しい文字は 120ms 後から字ごとに 22ms ずらして、各 .25 秒でフェードイン",
+          "中央ボタンはホバーで 1.06 倍、矢印は -45° から正位置へ。クリック時は .6 秒のうち 30% の時点で .78 まで縮んで戻る"
+        ],
+        "en": [
+          "Monospaced letters are set around a ring of radius 84 px and spin at a steady 18°/s.",
+          "On hover the target speed is 150°/s (closing 6% of the gap per frame); after the pointer leaves it coasts back to 18°/s at 2.5% per frame.",
+          "Each click adds 120°/s and swaps the text; new letters fade in from 120 ms, staggered 22 ms apart, each over .25 s.",
+          "The centre button grows to 1.06× on hover and its arrow turns from -45° to upright; a click squeezes it to .78 at 30% of a .6 s bounce."
+        ],
+        "zh-Hans": [
+          "等宽字沿半径 84px 的圆周排布，平时匀速旋转 18°/s。",
+          "悬停时目标转速 150°/s（每帧逼近 6%）；移开后每帧按 2.5% 惯性减速回 18°/s。",
+          "每次点击转速 +120°/s 并换一段文字；新文字从 120ms 起每字间隔 22ms 逐个淡入，每字 .25 秒。",
+          "中心按钮悬停放大到 1.06 倍，箭头从 -45° 转正；点击时在 .6 秒的 30% 处缩到 .78 再回弹。"
+        ]
+      },
+      "use": {
+        "ja": "ポートフォリオやブランドサイトのファーストビューで、「スクロールして見る」「仕事募集中」などの角バッジや CTA ボタンに。",
+        "en": "Use it as a corner badge or CTA on portfolio and brand-site heroes, such as 'Scroll to explore' or 'Open for projects'.",
+        "zh-Hans": "适合作品集、品牌官网首屏的「滚动探索」「接受合作」角标或 CTA 按钮。"
+      },
+      "tags": [
+        "circular-text",
+        "rotating-badge",
+        "hover",
+        "click",
+        "cta",
+        "portfolio",
+        "spin"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "旋转文字",
+          "圆形文字",
+          "环绕文字按钮"
+        ]
+      }
+    },
+    {
+      "no": "03",
+      "slug": "scatter-reassemble-letters",
+      "category": "text",
+      "name": {
+        "ja": "文字の飛散と再集合",
+        "en": "Scatter & reassemble letters",
+        "zh-Hans": "字母飞散重组"
+      },
+      "meaning": {
+        "ja": "クリックで文字がばらばらに飛び散り、ばねのように元へ戻るロゴ文字",
+        "en": "Logo letters that scatter on a click and spring back into place",
+        "zh-Hans": "点击后字母四散飞出、再像弹簧一样归位的标题字"
+      },
+      "ask": {
+        "ja": "ブランド見出しを遊べる文字にして。クリックで7文字が四方に弾け飛び、壁で跳ね返って、1.3秒後にばねのように元へ戻るように。",
+        "en": "Make the brand headline playful: on click, its 7 letters burst in all directions, bounce off the edges, and spring back after 1.3 s.",
+        "zh-Hans": "把品牌标题做成可玩的字母：点一下 7 个字母四散弹飞、撞墙反弹，1.3 秒后像弹簧一样归位。"
+      },
+      "summary": {
+        "ja": "色違いの大きな文字が点いた瞬間に回転しながら飛び散り、重力で落ちて跳ね、少し漂ってから一字ずつ元の並びへ戻る。",
+        "en": "Coloured capital letters fly apart spinning, fall and bounce under gravity, hover briefly, then snap back into the word one by one.",
+        "zh-Hans": "彩色大字母一点就边转边飞散，受重力下落反弹，停留片刻后逐个弹回原来的排列。"
+      },
+      "spec": {
+        "ja": [
+          "単語 PLAYFUL の 7 文字にそれぞれ色相（oklch .62 .2、色相 20 + 48i）、ウェイト 900、64px",
+          "「飛散」で各文字が 7–14 px/フレームでランダムな方向へ飛び、±15°/フレームで自転。重力 .05、減衰 .985",
+          "端での反発係数は横 .8、縦 .75。1.3 秒漂ってから（文字ごとに 70ms 遅れて）戻り始める",
+          "復帰はばね .06、減衰 .8。「戻す」で即座に回収。デモでは 1.0 秒に飛散、3.4 秒に再度、4.5 秒に復帰"
+        ],
+        "en": [
+          "The 7 letters of PLAYFUL each get a hue (oklch .62 .2, hue 20 + 48i), weight 900, 64 px.",
+          "On 'scatter' each letter flies off in a random direction at 7–14 px/frame, spinning ±15°/frame, with gravity .05 and damping .985.",
+          "Edge bounces keep .8 horizontally and .75 vertically; letters hover 1.3 s (each 70 ms later than the previous) before returning.",
+          "Return uses a spring of .06 with damping .8; 'reset' pulls them back at once. Demo: scatter at 1.0 s, again at 3.4 s, reset at 4.5 s."
+        ],
+        "zh-Hans": [
+          "单词 PLAYFUL 的 7 个字母各有色相（oklch .62 .2，色相 20 + 48i），字重 900、64px。",
+          "点「飞散」时每个字母以 7–14 px/帧向随机方向弹出，自转 ±15°/帧；重力 .05、阻尼 .985。",
+          "撞边反弹系数水平 .8、垂直 .75；停留 1.3 秒（每个字母再晚 70ms）后开始归位。",
+          "归位弹簧系数 .06、阻尼 .8；点「归位」立即收回。演示中 1.0 秒飞散、3.4 秒再飞一次、4.5 秒归位。"
+        ]
+      },
+      "use": {
+        "ja": "イベントページ、クリエイティブスタジオのサイト、404 ページの隠し要素として、クリックやボタンで発動させる見出しに。",
+        "en": "Use it for a hidden-fun headline on event pages, creative-studio sites or 404 pages, triggered by a click or button.",
+        "zh-Hans": "适合活动页、创意工作室官网或 404 页的彩蛋标题，点击或按钮触发。"
+      },
+      "tags": [
+        "letter-scatter",
+        "physics",
+        "spring",
+        "playful",
+        "headline",
+        "click",
+        "easter-egg"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "字母爆炸",
+          "文字飞散",
+          "物理文字"
+        ]
+      }
+    },
+    {
+      "no": "04",
+      "slug": "kinetic-captions",
+      "category": "text",
+      "name": {
+        "ja": "単語ごとのキネティック字幕",
+        "en": "Word-by-word kinetic captions",
+        "zh-Hans": "逐词卡点字幕"
+      },
+      "meaning": {
+        "ja": "話す速さに合わせて単語が一つずつ弾み出る動画字幕",
+        "en": "Video captions that pop in word by word in time with speech",
+        "zh-Hans": "按语速逐词弹出、重点词放大变色的视频字幕"
+      },
+      "ask": {
+        "ja": "製品紹介動画に単語ごとのキネティック字幕を付けて。1語0.3秒で弾み出て、強調語は1.45倍に膨らんで黄色に変わるように。",
+        "en": "Add word-by-word kinetic captions to the product video: each word pops in over about 0.3 s, and key words swell to 1.45× and turn yellow.",
+        "zh-Hans": "给产品介绍视频做逐词卡点字幕：每词约 0.3 秒弹出，重点词放大到 1.45 倍并变黄。"
+      },
+      "summary": {
+        "ja": "再生すると字幕が単語ごとに下から弾んで現れ、強調語は大きく傾いてから黄色で着地し、文が終わると行ごと上へ折れて消える。",
+        "en": "When playback starts, words bounce up one at a time, key words swell and tilt before landing in yellow, and finished lines fold up and vanish.",
+        "zh-Hans": "播放后字幕逐词从下方弹出，重点词先放大倾斜再变黄落定，整句说完后整行向上折起消失。"
+      },
+      "spec": {
+        "ja": [
+          "単語は話す速さで出る：各語 .30 秒＋ランダム 0–.08 秒、強調語の前に .12 秒、後に .22 秒長く止まる",
+          "通常の語は .35 秒で下 12px・縮小 .6 から弾み出る。イージング cubic-bezier(.3,1.6,.5,1)",
+          "強調語は .6 秒のうちに 1.45 倍・-3° まで膨らみ、1 倍に戻りながら黄色 #FFE066 に変わる",
+          "文が終わると行全体が 70° 上へ折れ 26px 上がって消える（.45 秒）。下部の 26 本の音声バーは 90ms ごとに高さが変わる"
+        ],
+        "en": [
+          "Words follow the speech rhythm: .30 s each plus a random 0–.08 s; key words get an extra .12 s before and .22 s after.",
+          "Normal words pop in over .35 s from 12 px below at .6 scale, easing cubic-bezier(.3,1.6,.5,1).",
+          "Key words swell to 1.45× and tilt -3° within .6 s, then settle back to 1× while turning yellow #FFE066.",
+          "A finished line folds up 70° and rises 26 px as it fades (.45 s); 26 voice bars below change height every 90 ms."
+        ],
+        "zh-Hans": [
+          "按语速逐词出现：每词 .30 秒加随机 0–.08 秒，重点词前多停 .12 秒、后多停 .22 秒。",
+          "普通词 .35 秒从下方 12px、缩放 .6 弹入，缓动 cubic-bezier(.3,1.6,.5,1)。",
+          "重点词 .6 秒内先放大到 1.45 倍并转 -3°，再落回 1 倍并变成黄色 #FFE066。",
+          "整句结束后整行上折 70°、上移 26px 淡出（.45 秒）；底栏 26 根声波条每 90ms 换一组高度。"
+        ]
+      },
+      "use": {
+        "ja": "ショート動画、製品デモ動画、ポッドキャストの切り抜きで、重要な数字や売りを強調する動く字幕に。",
+        "en": "Use it as motion captions in short videos, product demos and podcast clips to stress key numbers or selling points.",
+        "zh-Hans": "适合短视频、产品演示视频与播客剪辑的动态字幕，用来强调关键数据或卖点。"
+      },
+      "tags": [
+        "kinetic-captions",
+        "subtitles",
+        "word-by-word",
+        "video",
+        "emphasis",
+        "pop-in"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "动态字幕",
+          "卡点字幕",
+          "逐字字幕"
+        ]
+      }
+    },
+    {
+      "no": "05",
+      "slug": "hand-drawn-annotations",
+      "category": "text",
+      "name": {
+        "ja": "手描きの注釈",
+        "en": "Hand-drawn annotations",
+        "zh-Hans": "手绘圈画标注"
+      },
+      "meaning": {
+        "ja": "文中のキーワードに赤ペンで手描きの丸や線を引く注釈",
+        "en": "Hand-drawn red-pen marks that circle, box or underline key words",
+        "zh-Hans": "用红笔在句中关键词上手绘圈画的标注"
+      },
+      "ask": {
+        "ja": "ランディングページのコピーで3つのキーワードに手描きの赤ペン注釈を付けて。丸・四角・取り消し線・下線を切り替えられて、1語ごとに0.24秒ずらして描くように。",
+        "en": "Add hand-drawn red-pen marks to 3 key words in the landing-page copy, switchable between circle, box, strike-through and underline, drawn 0.24 s apart.",
+        "zh-Hans": "给落地页标语里的 3 个关键词加手绘红笔标注，可切换圈出、方框、删除线、下划线，每词间隔 0.24 秒画出。"
+      },
+      "summary": {
+        "ja": "スタイルを選ぶたびに前の印が逆再生で消え、赤ペンの線が語ごとに順番に描かれていき、少し遅れて重ね書きの線が続く。",
+        "en": "Each time a style is picked, the old marks rewind away and new red strokes are drawn word by word, each followed by a lighter second pass.",
+        "zh-Hans": "每切换一种样式，旧标注倒着擦掉，红笔新线逐词画出，稍后再叠一道淡些的副笔。"
+      },
+      "spec": {
+        "ja": [
+          "文中の 3 語を赤 #D93A55 で注釈：主線 2.4px に、1.6px・不透明度 70% の副線を重ねる",
+          "4 スタイル：下線・丸囲み・四角・取り消し線。切り替え時はまず古い印を逆向きに消す（.26 秒）",
+          "新しい印は語ごとに描く：語の間隔 .24 秒、副線はさらに .13 秒遅れ。各線の時間は .25 秒 + 線の長さ × 0.9ms",
+          "イージング cubic-bezier(.55,.1,.35,1)。デモでは 0.2 / 1.75 / 3.3 / 4.9 秒に順にスタイルを切り替える"
+        ],
+        "en": [
+          "3 words are marked in red #D93A55: a 2.4 px main stroke plus a 1.6 px second pass at 70% opacity.",
+          "4 styles: underline, circle, box and strike-through; switching first rewinds the old marks (.26 s).",
+          "New marks are drawn word by word, .24 s apart, the second pass .13 s later; each stroke lasts .25 s + path length × 0.9 ms.",
+          "Easing cubic-bezier(.55,.1,.35,1); in the demo the style switches at 0.2 / 1.75 / 3.3 / 4.9 s."
+        ],
+        "zh-Hans": [
+          "句中 3 个关键词用红笔 #D93A55 标注：主笔 2.4px，再叠一道 1.6px、不透明度 70% 的副笔。",
+          "4 种样式：下划线、圈出、方框、删除线；切换时先把旧标注倒着擦掉（.26 秒）。",
+          "新标注逐词画出：每词间隔 .24 秒，副笔再晚 .13 秒；单笔时长 .25 秒 + 路径长 × 0.9ms。",
+          "缓动 cubic-bezier(.55,.1,.35,1)；演示中 0.2 / 1.75 / 3.3 / 4.9 秒依次切换样式。"
+        ]
+      },
+      "use": {
+        "ja": "マーケティングページのキャッチコピー、料金比較、記事の要点文で、手書きの勢いでキーワードを目立たせるとき。",
+        "en": "Use it in marketing taglines, pricing comparisons or an article's key sentence to make words stand out with a handwritten feel.",
+        "zh-Hans": "适合营销页标语、定价对比或文章重点句，用手写感突出关键词。"
+      },
+      "tags": [
+        "hand-drawn",
+        "annotation",
+        "highlight",
+        "underline",
+        "circle",
+        "marker",
+        "copywriting"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "手写标注",
+          "红笔圈重点",
+          "手绘下划线"
+        ]
+      }
+    },
+    {
+      "no": "06",
+      "slug": "spoiler-sand-cover",
+      "category": "text",
+      "name": {
+        "ja": "ネタバレの砂カバー",
+        "en": "Spoiler sand cover",
+        "zh-Hans": "剧透沙粒遮挡"
+      },
+      "meaning": {
+        "ja": "ネタバレ部分をきらめく砂粒で覆い、タップで吹き飛ばして見せる表示",
+        "en": "Spoiler text hidden under shimmering sand that blows away on tap",
+        "zh-Hans": "剧透内容盖着闪烁沙粒、点击后炸开显出的遮挡"
+      },
+      "ask": {
+        "ja": "チャットのネタバレ部分をきらめく砂粒で覆って。タップすると砂粒が毎フレーム2–5pxで弾け、0.5秒で文字が見えるように。",
+        "en": "Cover spoilers in the chat with shimmering sand: on tap the grains burst outward at 2–5 px per frame and the text appears over 0.5 s.",
+        "zh-Hans": "聊天里的剧透内容盖一层闪烁沙粒，点一下沙粒以每帧 2–5px 炸开，文字 0.5 秒显出。"
+      },
+      "summary": {
+        "ja": "吹き出しの一部を細かな砂粒がちらちら覆い、タップした所から粒が四方へ散って文字が現れ、「隠す」で粒が集まり直す。",
+        "en": "Fine grains flicker over part of a chat bubble; a tap scatters them from that point to reveal the words, and 'hide' gathers them back.",
+        "zh-Hans": "细沙粒在气泡里闪烁遮住剧透，点哪里就从哪里向外炸开露出文字，点「再藏起来」又聚拢回去。"
+      },
+      "spec": {
+        "ja": [
+          "ネタバレ語句を砂粒で覆う：9 平方ピクセルに 1 粒、一辺 .6–1.5px、明るさは .45–1 で明滅し、±.8px 揺れる",
+          "タップで砂粒がタップ位置から 2–5 px/フレームで外へ弾ける。毎フレーム速度 ×.94、不透明度 −.025",
+          "文字はタップの .1 秒後から .5 秒かけて現れる",
+          "「もう一度隠す」で砂粒が 60px 外から毎フレーム 12% ずつ元の位置へ集まり、文字も消える。デモでは 1.2・2.6 秒に開き、4.2 秒に隠す"
+        ],
+        "en": [
+          "Spoiler phrases are covered in grains: 1 per 9 square pixels, .6–1.5 px wide, flickering between .45–1 brightness and jittering ±.8 px.",
+          "A tap bursts the grains outward from the tap point at 2–5 px/frame; each frame speed ×.94 and opacity −.025.",
+          "The text starts appearing .1 s after the tap and is fully shown after .5 s.",
+          "'Hide again' pulls grains back from 60 px out, closing 12% per frame, as the text fades; demo reveals at 1.2 and 2.6 s, hides at 4.2 s."
+        ],
+        "zh-Hans": [
+          "剧透短语盖满沙粒：每 9 平方像素 1 粒，边长 .6–1.5px，亮度在 .45–1 之间闪烁，并抖动 ±.8px。",
+          "点击后沙粒从点击处以 2–5 px/帧向外炸开，每帧速度 ×.94、透明度 −.025。",
+          "文字在点击 .1 秒后开始显出，.5 秒显完。",
+          "点「再藏起来」：沙粒从 60px 外每帧收拢 12% 回到原位，文字同时隐去；演示中 1.2、2.6 秒点开，4.2 秒藏起。"
+        ]
+      },
+      "use": {
+        "ja": "チャットアプリ、コメント欄、コミュニティ投稿で、ネタバレや答え、伏せたい情報を隠すとき。",
+        "en": "Use it in chat apps, comment threads and community posts to hide spoilers, answers or sensitive details.",
+        "zh-Hans": "适合聊天 App、评论区与社区帖子里遮挡剧透、答案或敏感信息。"
+      },
+      "tags": [
+        "spoiler",
+        "reveal",
+        "particles",
+        "chat",
+        "tap",
+        "hidden-text"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "剧透遮罩",
+          "隐藏文字",
+          "点击揭示"
+        ]
+      }
+    },
+    {
+      "no": "07",
+      "slug": "reading-focus",
+      "category": "text",
+      "name": {
+        "ja": "読んでいる文のフォーカス",
+        "en": "Sentence reading focus",
+        "zh-Hans": "阅读句子聚焦"
+      },
+      "meaning": {
+        "ja": "ポインタの下の一文だけをはっきり見せる読書フォーカスモード",
+        "en": "A reading focus mode that keeps only the sentence under the pointer sharp",
+        "zh-Hans": "只让指针下那句话保持清晰的阅读聚焦模式"
+      },
+      "ask": {
+        "ja": "長文ページに読書フォーカスを付けて。マウスの下の一文だけくっきり、他は不透明度25%でぼかし、切り替えは0.45秒で。",
+        "en": "Add a reading focus to long articles: only the sentence under the mouse stays sharp, the rest drops to 25% opacity with a slight blur, over 0.45 s.",
+        "zh-Hans": "长文页面加阅读聚焦：只让鼠标下那句清晰，其余降到 25% 透明度并模糊，0.45 秒过渡。"
+      },
+      "summary": {
+        "ja": "ポインタが文から文へ移るとその一文だけが鮮明になり、他は薄くぼけ、左の紫の縦線が文の高さに伸縮しながら付いてくる。",
+        "en": "As the pointer moves between sentences, only that one sharpens while the rest blur and fade, and a purple bar on the left follows and resizes.",
+        "zh-Hans": "指针移到哪句，哪句就变清晰，其余变淡变模糊，左侧紫色竖条跟着移动并伸缩到句高。"
+      },
+      "spec": {
+        "ja": [
+          "段落の 5 文のうち現在の文だけ鮮明、他は不透明度 25% で軽くぼかす。切り替え .45 秒",
+          "左側の幅 4px の紫の縦線が現在の文へ移り、文の高さに伸縮する（.55 秒スプリング）",
+          "上部のカウンター「N / 5」は目盛りごとに 16px ロールする（.5 秒スプリング）",
+          "デモではポインタが 0 / 1.2 / 2.2 / 3.2 / 4.2 秒に 1→5 文目へ順に移り、5.6 秒に 1 文目へ戻る"
+        ],
+        "en": [
+          "Of the paragraph's 5 sentences only the current one is sharp; the rest drop to 25% opacity with a slight blur, over .45 s.",
+          "A 4 px purple bar on the left moves to the current sentence and stretches to its height (.55 s spring).",
+          "The 'N / 5' counter at the top rolls 16 px per step (.5 s spring).",
+          "In the demo the pointer moves to sentences 1→5 at 0 / 1.2 / 2.2 / 3.2 / 4.2 s and back to sentence 1 at 5.6 s."
+        ],
+        "zh-Hans": [
+          "段落 5 句话只留当前句清晰，其余降到 25% 透明度并轻微模糊，过渡 .45 秒。",
+          "左侧 4px 宽的紫色竖条移到当前句并伸缩到句高（.55 秒弹簧）。",
+          "顶部计数器「N / 5」按 16px 一格滚动（.5 秒弹簧）。",
+          "演示中指针在 0 / 1.2 / 2.2 / 3.2 / 4.2 秒依次移到第 1→5 句，5.6 秒回到第 1 句。"
+        ]
+      },
+      "use": {
+        "ja": "ブログの長文、ヘルプドキュメント、学習アプリの読書モードで、今読んでいる箇所を見失わないようにするとき。",
+        "en": "Use it as a reading mode for long blog posts, help docs and learning apps so readers keep their place.",
+        "zh-Hans": "适合博客长文、帮助文档、学习类 App 的阅读模式，帮读者不跟丢当前位置。"
+      },
+      "tags": [
+        "reading-focus",
+        "blur",
+        "hover",
+        "long-form",
+        "highlight",
+        "accessibility"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "聚焦阅读",
+          "句子高亮",
+          "专注模式"
+        ]
+      }
+    },
+    {
+      "no": "08",
+      "slug": "rippling-letters",
+      "category": "text",
+      "name": {
+        "ja": "文字のばね波紋",
+        "en": "Rippling letters",
+        "zh-Hans": "字母弹簧涟漪"
+      },
+      "meaning": {
+        "ja": "ポインタが通ると文字がばねのように波打つ見出し",
+        "en": "A headline whose letters bob like springs as the pointer passes",
+        "zh-Hans": "指针划过时字母像弹簧一样起伏的标题"
+      },
+      "ask": {
+        "ja": "見出しの文字にばねの波紋を付けて。マウスが通ると近くの文字がσ34pxの範囲で持ち上がり、ばねで弾んで戻るように。",
+        "en": "Give the headline letters a spring ripple: as the mouse passes, letters within a 34 px Gaussian lift up and bounce back on springs.",
+        "zh-Hans": "标题字母做弹簧涟漪：鼠标划过时附近字母按 σ 34px 的高斯范围抬起，再弹回原位。"
+      },
+      "summary": {
+        "ja": "ポインタが左から右へ滑ると、その下の大きな文字が順に持ち上がって紫がかり、弾みながら着地し、ボタンで波が一気に走る。",
+        "en": "As the pointer glides left to right, the big letters beneath lift and tint purple, then bounce down; a button sends a wave across them.",
+        "zh-Hans": "指针从左划到右，经过的大字母依次抬起并偏紫，再弹跳落回；点按钮时一道波浪横扫全部字母。"
+      },
+      "spec": {
+        "ja": [
+          "単語 MOTION の 6 文字、間隔 66px、ウェイト 900、62px。各文字は上下にだけ動く",
+          "ポインタ近くの文字はガウス分布（σ 34px）で最大 34px 持ち上がる。各文字にばね：毎フレーム v += (目標 − y)×0.16、v ×= 0.8",
+          "高く上がるほど紫に寄り（y / 50 で混色）、床の影は薄く細くなる",
+          "「波を送る」で 1.1 秒・振幅 1.35 倍のパルスが左から右へ走る。デモでは 0.4–3.0 秒になぞり、3.4 秒にクリック"
+        ],
+        "en": [
+          "The 6 letters of MOTION sit 66 px apart, weight 900, 62 px, and only move up and down.",
+          "Letters near the pointer lift by a Gaussian (σ 34 px), up to 34 px; each has a spring: per frame v += (target − y)×0.16, v ×= 0.8.",
+          "The higher a letter rises, the more purple it turns (mixed by y / 50), and its floor shadow gets fainter and narrower.",
+          "'Send wave' runs a 1.1 s pulse at 1.35× amplitude from left to right; demo sweeps at 0.4–3.0 s and clicks at 3.4 s."
+        ],
+        "zh-Hans": [
+          "单词 MOTION 的 6 个字母间距 66px、字重 900、62px，只做上下弹动。",
+          "指针附近的字母按高斯分布（σ 34px）抬起，最高 34px；每个字母一根弹簧：每帧 v += (目标 − y)×0.16，v ×= 0.8。",
+          "抬得越高越偏紫（按 y / 50 混色），地面投影越淡越窄。",
+          "点「发送波浪」：一道 1.1 秒、1.35 倍幅度的脉冲从左扫到右；演示中 0.4–3.0 秒划过，3.4 秒点击。"
+        ]
+      },
+      "use": {
+        "ja": "ブランドサイトの見出し、ポートフォリオの名前、イベントページの大きな文字で、ホバー時の手触りを加えるとき。",
+        "en": "Use it on brand-site headlines, portfolio names or big event-page type to add a tactile hover response.",
+        "zh-Hans": "适合品牌官网标题、作品集名字或活动页大字，给悬停加一点触感。"
+      },
+      "tags": [
+        "spring",
+        "ripple",
+        "letters",
+        "hover",
+        "headline",
+        "wave",
+        "kinetic-type"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "文字波浪",
+          "弹跳字母",
+          "悬停起伏"
+        ]
+      }
+    },
+    {
+      "no": "09",
+      "slug": "sticky-card-stack",
+      "category": "scroll",
+      "name": {
+        "ja": "カードの積み重ね固定",
+        "en": "Shrinking sticky card stack",
+        "zh-Hans": "卡片堆叠吸顶"
+      },
+      "meaning": {
+        "ja": "スクロールするとカードが順に上部に貼り付き、重なっていく積み重ね",
+        "en": "Cards that stick to the top one after another and stack as you scroll",
+        "zh-Hans": "滚动时卡片依次吸在顶部、层层叠起的堆叠效果"
+      },
+      "ask": {
+        "ja": "機能紹介をスティッキーなカードスタックにして。4枚がスクロールで順に上部に貼り付き、覆われたカードは1層ごとに6%縮んで18%暗くなるように。",
+        "en": "Turn the feature section into a sticky card stack: 4 cards pin to the top in turn, and each covered layer shrinks 6% and darkens 18%.",
+        "zh-Hans": "功能介绍区做卡片堆叠吸顶：4 张卡片滚动时依次吸在顶部，被盖住的每层缩小 6%、压暗 18%。"
+      },
+      "summary": {
+        "ja": "スクロールに合わせてグラデーションのカードが下から上がって上部で止まり、次のカードに覆われるたびに奥のカードが縮んで暗くなる。",
+        "en": "Gradient cards scroll up and pin near the top; each time the next card slides over, the ones beneath shrink and darken into steps.",
+        "zh-Hans": "渐变卡片随滚动上移并在顶部停住，下一张盖上来时下面的卡片缩小变暗，叠成台阶。"
+      },
+      "spec": {
+        "ja": [
+          "グラデーションカード 4 枚、高さ 150px、間隔 16px。上部の固定位置は 14 + 番号 × 8 px",
+          "次のカードが重なると、下のカードは重なり率に応じて縮小（層ごとに −6%）・暗転（層ごとに黒 18%）",
+          "カードの角丸 22px。最後のカードまで来ると段々に重なる",
+          "デモでは 0.4→4.6 秒に最下部までスクロールし、5.4→6.3 秒に先頭へ戻る"
+        ],
+        "en": [
+          "4 gradient cards, 150 px tall with 16 px gaps; each pins at 14 + index × 8 px from the top.",
+          "When the next card overlaps, the one beneath shrinks (−6% per layer) and darkens (18% black per layer) in proportion to the overlap.",
+          "Cards have a 22 px corner radius and end up as a stepped stack at the last card.",
+          "Demo scrolls to the bottom over 0.4→4.6 s and back to the top over 5.4→6.3 s."
+        ],
+        "zh-Hans": [
+          "4 张渐变卡片，高 150px、间距 16px；吸顶位置为 14 + 序号 × 8 px。",
+          "下一张盖上来时，下面那张按重叠比例缩小（每层 −6%）并压暗（每层黑色 18%）。",
+          "卡片圆角 22px，到最后一张时叠成台阶。",
+          "演示中 0.4→4.6 秒滚到底，5.4→6.3 秒回到顶部。"
+        ]
+      },
+      "use": {
+        "ja": "製品ページの「使い方」「機能のポイント」など、長いページで手順や特長を 1 枚ずつ説明するとき。",
+        "en": "Use it for 'How it works' or feature-highlight sections on product pages that explain steps one card at a time.",
+        "zh-Hans": "适合产品页「工作方式」「功能亮点」等分步介绍，在长页面里逐张讲解。"
+      },
+      "tags": [
+        "sticky",
+        "card-stack",
+        "scroll",
+        "parallax",
+        "feature-section",
+        "landing-page"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "吸顶卡片",
+          "堆叠卡片",
+          "滚动叠卡"
+        ]
+      }
+    },
+    {
+      "no": "10",
+      "slug": "scroll-filled-sentence",
+      "category": "scroll",
+      "name": {
+        "ja": "スクロールで塗られる文",
+        "en": "Scroll-filled sentence",
+        "zh-Hans": "滚动填色文字"
+      },
+      "meaning": {
+        "ja": "スクロールに合わせて灰色の文章が単語ごとに色づいていく見出し",
+        "en": "A large sentence that fills in word by word as you scroll",
+        "zh-Hans": "随滚动逐词由灰变实色的大段文字"
+      },
+      "ask": {
+        "ja": "ブランドの理念文をスクロールで塗りつぶして。単語ごとに灰色から黒へ、強調語は紫に光り、読み終えたら「次の記事」ボタンが出るように。",
+        "en": "Make the brand statement fill on scroll: words go from grey to black one by one, key words glow purple, and a 'Next' button pops up at the end.",
+        "zh-Hans": "品牌理念段落做滚动填色：句子随滚动逐词由灰变黑，重点词变紫并发光，读完弹出「下一篇」按钮。"
+      },
+      "summary": {
+        "ja": "スクロールが進むほど薄灰色の文が頭から単語ごとに濃くなり、強調語は紫に光り、最後に下からボタンが弾み出る。",
+        "en": "As you scroll, the pale sentence darkens word by word from the start, key words light up purple, and a button springs up at the end.",
+        "zh-Hans": "越往下滚，淡灰句子从头逐词变深，重点词亮成紫色，读完后按钮从下方弹起。"
+      },
+      "spec": {
+        "ja": [
+          "大きな文は最初は薄灰色。スクロール進捗に応じて頭から単語ごとに実色へ：各語が進捗の 1/N、全体を ×1.15 で早めに満たす",
+          "2 か所の強調語は満ちると紫 #6A57F2 になり、不透明度 .16 の光彩が灯る",
+          "読み終えると「次の記事 →」ボタンが下 12px から弾み出る：フェード .35 秒、スプリング .5 秒",
+          "右側の幅 3px・高さ 120px の進捗バーが同時に伸びる。デモでは 0.4→4.4 秒に最下部へ、5.4→6.3 秒に戻って文が薄くなる"
+        ],
+        "en": [
+          "The sentence starts pale grey and fills word by word with scroll progress: each word takes 1/N of the progress, sped up ×1.15 so it finishes early.",
+          "The 2 key phrases turn purple #6A57F2 once filled and light up with a glow at .16 opacity.",
+          "When reading ends, a 'Next →' button springs up from 12 px below (.35 s fade, .5 s spring).",
+          "A 3 px wide, 120 px tall progress bar on the right grows in step; demo scrolls over 0.4→4.4 s and back over 5.4→6.3 s, fading the text again."
+        ],
+        "zh-Hans": [
+          "大句子起初为淡灰，随滚动进度按词从头填成实色：每词占进度 1/N，整体 ×1.15 提前填满。",
+          "2 处重点词填满时变成紫色 #6A57F2，并亮起不透明度 .16 的光晕。",
+          "读完后「下一篇 →」按钮从下方 12px 弹起：淡入 .35 秒、弹簧 .5 秒。",
+          "右侧 3px 宽、120px 高的进度条同步伸长；演示中 0.4→4.4 秒滚到底，5.4→6.3 秒回顶并重新变淡。"
+        ]
+      },
+      "use": {
+        "ja": "ブランドストーリー、宣言ページ、長文の導入で、スクロールのリズムで読み進めてもらうとき。",
+        "en": "Use it for brand stories, manifesto pages or long-read intros to pace reading with the scroll.",
+        "zh-Hans": "适合品牌故事、宣言页或长文导语，用滚动节奏引导阅读。"
+      },
+      "tags": [
+        "scroll-fill",
+        "text-reveal",
+        "scroll",
+        "manifesto",
+        "highlight",
+        "storytelling"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "滚动高亮文字",
+          "文字填充",
+          "逐词上色"
+        ]
+      }
+    },
+    {
+      "no": "11",
+      "slug": "section-background-shift",
+      "category": "scroll",
+      "name": {
+        "ja": "セクションごとの背景切り替え",
+        "en": "Per-section background shift",
+        "zh-Hans": "分区背景切换"
+      },
+      "meaning": {
+        "ja": "スクロールでセクションを越えるたびに背景色が滑らかに移り変わる商品ページ",
+        "en": "A product page whose background colour flows from section to section as you scroll",
+        "zh-Hans": "滚过每个分区时整页背景色平滑过渡的商品页"
+      },
+      "ask": {
+        "ja": "フレーバー別の商品ページを作って。スクロールで背景が4色の間を滑らかに移り、中央の缶も色とラベルが変わって少し傾くように。",
+        "en": "Build a flavour-by-flavour product page: on scroll the background blends between 4 colours, and the central can changes colour and label and tilts slightly.",
+        "zh-Hans": "做一个按口味分区的商品页：滚动时背景在 4 种颜色间平滑过渡，中间的易拉罐跟着换色、换标签并轻微倾斜。"
+      },
+      "summary": {
+        "ja": "スクロールすると背景色が隣のフレーバー色へ途切れなく溶け、中央の缶は傾きながら色とラベルを替え、右の文が上へ流れる。",
+        "en": "Scrolling melts the background into the next flavour colour, the central can tilts as it swaps colour and label, and the copy slides up.",
+        "zh-Hans": "滚动时背景色无缝融到下一种口味色，中间易拉罐边倾斜边换色换标签，右侧文字向上流过。"
+      },
+      "spec": {
+        "ja": [
+          "4 つのフレーバーを通過し、背景は隣り合う色の間を連続補間：#FFAB91 / #C0EB75 / #A5B4FC / #FFC8DD",
+          "中央の缶（74×140px）はセクションごとに #E64A19 / #5C940D / #4C3BCF / #D6336C へ色とラベル名が変わる",
+          "缶は最寄りのセクションからのずれに応じて傾き（ずれ × 24°）、ラベルは横へずれる（ずれ × −60px）",
+          "右側に 4 つのセクションドット、現在のドットは 1.5 倍。デモでは 0.4→4.8 秒に最下部へ、5.4→6.3 秒に戻る"
+        ],
+        "en": [
+          "Scrolling passes 4 flavours, with the background blending continuously between neighbouring colours: #FFAB91 / #C0EB75 / #A5B4FC / #FFC8DD.",
+          "The central can (74×140 px) changes colour and label per section: #E64A19 / #5C940D / #4C3BCF / #D6336C.",
+          "The can tilts by its offset from the nearest section (offset × 24°) and the label slides sideways (offset × −60 px).",
+          "4 section dots on the right, the current one at 1.5×; demo scrolls over 0.4→4.8 s and back over 5.4→6.3 s."
+        ],
+        "zh-Hans": [
+          "滚过 4 种口味，背景在相邻两色间连续插值：#FFAB91 / #C0EB75 / #A5B4FC / #FFC8DD。",
+          "中间的易拉罐（74×140px）随分区换成 #E64A19 / #5C940D / #4C3BCF / #D6336C，并换标签名。",
+          "罐身按离最近分区的偏移倾斜（偏移 × 24°），标签横移（偏移 × −60px）。",
+          "右侧 4 个分区圆点，当前点放大到 1.5 倍；演示中 0.4→4.8 秒滚到底，5.4→6.3 秒回顶。"
+        ]
+      },
+      "use": {
+        "ja": "飲料やコスメなど複数フレーバー・複数カラーの商品ページで、1 種類ずつスクロールで見せるとき。",
+        "en": "Use it on product pages for drinks, cosmetics or any multi-flavour, multi-colour line, showing one variant per scroll section.",
+        "zh-Hans": "适合饮料、美妆等多口味、多色款的商品页，逐款滚动展示。"
+      },
+      "tags": [
+        "background-transition",
+        "scroll",
+        "color-blend",
+        "product-page",
+        "sections",
+        "storytelling"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "滚动换色",
+          "背景渐变切换",
+          "分区变色"
+        ]
+      }
+    },
+    {
+      "no": "12",
+      "slug": "velocity-lean-list",
+      "category": "scroll",
+      "name": {
+        "ja": "速度で傾くリスト",
+        "en": "Velocity-lean list",
+        "zh-Hans": "速度倾斜列表"
+      },
+      "meaning": {
+        "ja": "速くスクロールするほどリストがその方向へ傾くスキュー効果",
+        "en": "A list that leans in the scroll direction the faster you scroll",
+        "zh-Hans": "滚得越快列表越朝滚动方向倾斜的效果"
+      },
+      "ask": {
+        "ja": "リストにスクロール速度の傾きを付けて。速いほどスクロール方向へ斜めに、skewYは速度×3.2°で最大10°、止まったら弾んで戻るように。",
+        "en": "Add a velocity lean to the list: the faster you scroll the more it skews, skewY = speed × 3.2° up to 10°, springing back when you stop.",
+        "zh-Hans": "列表加速度倾斜：滚得越快越朝滚动方向斜，skewY 为速度 ×3.2°、最多 10°，停下后弹回。"
+      },
+      "summary": {
+        "ja": "勢いよくスクロールするとカードの列が斜めに傾いて少し伸び、止めるとばねで真っ直ぐに戻り、ゆっくりならほとんど傾かない。",
+        "en": "A fast flick skews and slightly stretches the column of cards, which springs straight again on stopping; slow scrolling barely tilts it.",
+        "zh-Hans": "快速滚动时整列卡片斜过去并略微拉长，停下立刻弹正；慢慢滚几乎不倾斜。"
+      },
+      "spec": {
+        "ja": [
+          "速度に応じて傾く：skewY = −速度 × 3.2°、±10° で制限。傾き 1° ごとに 0.6% 縦に伸び、最大 6%",
+          "速度は平滑化（新しい値 .4、古い値 .6）。傾きはばねで動かす：毎フレーム 0.2 で近づき、減衰 0.72",
+          "上部の半円メーターの赤い針が速度に応じて −88° から +80° まで振れる",
+          "デモでは 0.4–0.9 秒に速くスクロール、1.9–3.5 秒にゆっくり、4.2–4.6 秒に素早く先頭へ戻る"
+        ],
+        "en": [
+          "The list leans with speed: skewY = −speed × 3.2°, clamped to ±10°; it stretches 0.6% per 1° of lean, up to 6%.",
+          "Speed is smoothed (.4 new, .6 old); the lean is driven by a spring closing 0.2 per frame with 0.72 damping.",
+          "The red needle of a semicircle gauge at the top swings from −88° to +80° with speed.",
+          "Demo: fast scroll at 0.4–0.9 s, slow scroll at 1.9–3.5 s, quick return to top at 4.2–4.6 s."
+        ],
+        "zh-Hans": [
+          "列表按速度倾斜：skewY = −速度 × 3.2°，限制在 ±10°；每倾斜 1° 拉长 0.6%，最多 6%。",
+          "速度先平滑（新值占 .4、旧值占 .6）；倾斜由弹簧驱动：每帧逼近 0.2、阻尼 0.72。",
+          "顶部半圆仪表的红色指针按速度从 −88° 转到 +80°。",
+          "演示中 0.4–0.9 秒快滚、1.9–3.5 秒慢滚、4.2–4.6 秒快速回顶。"
+        ]
+      },
+      "use": {
+        "ja": "コンテンツフィード、商品一覧、ポートフォリオの長いリストで、速いスクロールに慣性の手触りを加えるとき。",
+        "en": "Use it on content feeds, product lists and long portfolio lists to give fast scrolling a sense of inertia.",
+        "zh-Hans": "适合内容流、商品列表、作品集长列表，给快速滚动加上惯性手感。"
+      },
+      "tags": [
+        "velocity",
+        "skew",
+        "scroll",
+        "spring",
+        "list",
+        "inertia"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "滚动倾斜",
+          "速度形变",
+          "惯性列表"
+        ]
+      }
+    },
+    {
+      "no": "13",
+      "slug": "rolling-chapter-number",
+      "category": "scroll",
+      "name": {
+        "ja": "回転する章番号",
+        "en": "Rolling chapter numbers",
+        "zh-Hans": "翻滚章节数字"
+      },
+      "meaning": {
+        "ja": "読み進めると章番号が数字の帯のように回って切り替わるサイドバー",
+        "en": "A sidebar whose chapter number rolls like a number strip as you read",
+        "zh-Hans": "读到哪章、章节号就像数字带一样滚到哪章的侧栏"
+      },
+      "ask": {
+        "ja": "長文の左側に回転する章番号を付けて。スクロールで数字の帯が連続して回り、各章を75%読んだら次の章へ回り始め、横のリングで章の進み具合を見せて。",
+        "en": "Add a rolling chapter number to the left of the long read: the digit strip rolls with scroll, starts moving to the next chapter after 75% of the current one, and a ring shows progress.",
+        "zh-Hans": "长文左侧加翻滚章节号：数字带随滚动连续滚动，每章读到 75% 时开始滚向下一章，旁边圆环显示本章进度。"
+      },
+      "summary": {
+        "ja": "本文をスクロールすると左の大きな章番号が数字の帯のように次へ回り、章名が上へ差し替わり、リングが章の読了率で満ちる。",
+        "en": "As the body scrolls, the big chapter number on the left rolls to the next like a digit strip, the chapter name slides in, and a ring fills.",
+        "zh-Hans": "正文向下滚，左侧大号章节号像数字带一样滚到下一章，章节名上滑替换，圆环按本章进度填满。"
+      },
+      "spec": {
+        "ja": [
+          "左欄の大きな章番号は数字の帯のように連続してロールし、目盛りあたり 64px。各章を 75% 読んでから次の章へ回り始める",
+          "章が変わると下の章名が上へスライドして差し替わる：移動 .45 秒スプリング、不透明度 .3 秒",
+          "進捗リングは半径 16px・線幅 4px、その章の読了率で満ちる",
+          "全 4 章。デモでは 0.4→4.8 秒に本文が第 4 章までスクロールし、5.4→6.3 秒に先頭へ戻る"
+        ],
+        "en": [
+          "The big chapter number in the left column rolls continuously like a digit strip, 64 px per step, only moving on after 75% of a chapter is read.",
+          "On a chapter change, the chapter name below slides up and is replaced (.45 s spring, .3 s opacity).",
+          "A progress ring of radius 16 px and 4 px stroke fills with how much of the chapter has been read.",
+          "4 chapters in total; demo scrolls the body to chapter 4 over 0.4→4.8 s and back over 5.4→6.3 s."
+        ],
+        "zh-Hans": [
+          "左栏大号章节数字像数字带一样连续滚动，一格 64px；每章读到 75% 后才开始滚向下一章。",
+          "换章时下方章节名上滑替换：位移 .45 秒弹簧，透明度 .3 秒。",
+          "进度圆环半径 16px、线宽 4px，按本章阅读比例填满。",
+          "共 4 章；演示中 0.4→4.8 秒正文滚到第 4 章，5.4→6.3 秒回顶。"
+        ]
+      },
+      "use": {
+        "ja": "長いケーススタディ、年次レポート、ブランドストーリーなど章立ての長文で、サイドバーのナビゲーションとして。",
+        "en": "Use it as sidebar navigation for chaptered long reads such as case studies, annual reports and brand stories.",
+        "zh-Hans": "适合长篇案例、年度报告、品牌故事等分章节长文的侧栏导航。"
+      },
+      "tags": [
+        "chapter-number",
+        "rolling-digits",
+        "scroll",
+        "progress-ring",
+        "long-form",
+        "sidebar"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "滚动章节号",
+          "章节进度",
+          "数字滚轮"
+        ]
+      }
+    },
+    {
+      "no": "14",
+      "slug": "drum-time-picker",
+      "category": "scroll",
+      "name": {
+        "ja": "ドラム式時刻ピッカー",
+        "en": "Drum time picker",
+        "zh-Hans": "滚筒时间选择器"
+      },
+      "meaning": {
+        "ja": "ドラムを回して時刻を選ぶ、奥へ湾曲して見えるピッカー",
+        "en": "A drum-style time picker whose values curve away around a wheel",
+        "zh-Hans": "拨动滚筒选时间、数值沿滚筒弯向背面的选择器"
+      },
+      "ask": {
+        "ja": "アラームアプリにドラム式の時刻ピッカーを作って。3列で、中央線から離れるほど1目盛り22°ずつ傾いて薄くなり、止まって120ms後に鳴るまでの時間を更新して。",
+        "en": "Build a drum time picker for the alarm app: 3 wheels, values tilting 22° per step and fading away from the centre line, updating the countdown 120 ms after stopping.",
+        "zh-Hans": "闹钟 App 做滚筒时间选择器：3 列滚筒，离中线越远每格多倾斜 22° 并变淡，停下 120ms 后更新响铃倒计时。"
+      },
+      "summary": {
+        "ja": "ドラムを上へドラッグすると数字が回って中央線に止まり、離れた値は奥へ倒れて薄れ、上の時刻と鳴るまでの時間が書き換わる。",
+        "en": "Dragging a wheel rolls the numbers to rest on the centre line, far values tip away and fade, and the alarm time and countdown update.",
+        "zh-Hans": "按住滚筒往上拨，数字滚动后停在中线上，远处的值向后倒去变淡，上方时间和响铃倒计时随之更新。"
+      },
+      "spec": {
+        "ja": [
+          "午前/午後・時・分の 3 ドラム、目盛り間隔 34px。中央の高さ 36px の淡いバー上の値が選択値",
+          "中央線から d 目盛り離れた値は奥へ傾き（rotateX d × 22°、最大 80°）、不透明度 1 − |d| × 0.28、最低 .15",
+          "回転のイージング cubic-bezier(.2,.8,.2,1)。止まって 120ms 後に見出しと「あと X 時間 Y 分で鳴る」が更新",
+          "デモでは 0.5–1.5 秒に時を 6 から 9、2.0–3.0 秒に分を 30 から 45、3.5–4.1 秒に午後へ回し、5.4–6.3 秒に戻す"
+        ],
+        "en": [
+          "3 wheels for AM/PM, hour and minute, 34 px per step; the value on the 36 px tall light bar at the centre is selected.",
+          "A value d steps from centre tips back (rotateX d × 22°, max 80°) and fades to 1 − |d| × 0.28 opacity, no lower than .15.",
+          "Wheels ease with cubic-bezier(.2,.8,.2,1); 120 ms after stopping, the title and 'rings in X h Y min' update.",
+          "Demo: hour from 6 to 9 at 0.5–1.5 s, minute from 30 to 45 at 2.0–3.0 s, AM to PM at 3.5–4.1 s, all back at 5.4–6.3 s."
+        ],
+        "zh-Hans": [
+          "上午/下午、小时、分钟 3 个滚筒，每格 34px；中线 36px 高的浅色条上的值即选中值。",
+          "离中线 d 格的值向背面倾斜（rotateX d × 22°，最多 80°），透明度 1 − |d| × 0.28，最低 .15。",
+          "拨动缓动 cubic-bezier(.2,.8,.2,1)；停下 120ms 后标题与「还有 X 小时 Y 分响铃」更新。",
+          "演示中 0.5–1.5 秒把小时从 6 拨到 9，2.0–3.0 秒把分钟从 30 拨到 45，3.5–4.1 秒拨到下午，5.4–6.3 秒拨回。"
+        ]
+      },
+      "use": {
+        "ja": "アラーム、予約、スケジュール系アプリで時刻や日付を選ばせるとき。",
+        "en": "Use it for picking times or dates in alarm, booking and calendar apps.",
+        "zh-Hans": "适合闹钟、预约、日程类 App 的时间或日期选择。"
+      },
+      "tags": [
+        "time-picker",
+        "drum-picker",
+        "wheel",
+        "scroll",
+        "mobile",
+        "alarm",
+        "3d"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "滚轮选择器",
+          "时间选择",
+          "iOS 滚轮"
+        ]
+      }
+    },
+    {
+      "no": "15",
+      "slug": "grid-beam-background",
+      "category": "hero",
+      "name": {
+        "ja": "グリッドビーム背景",
+        "en": "Grid-beam background",
+        "zh-Hans": "网格光束背景"
+      },
+      "meaning": {
+        "ja": "暗いグリッドの上を光のビームが走る、開発者向けサービスの首屏背景",
+        "en": "A dark grid hero background with light beams racing along the lines",
+        "zh-Hans": "光束沿深色网格线滑过的科技感首屏背景"
+      },
+      "ask": {
+        "ja": "SaaSのファーストビュー背景を暗いグリッドにして。光のビームがグリッド線に沿って走り、マウスの周り半径90pxのグリッドが藍色に光るように。",
+        "en": "Give the SaaS hero a dark grid background: light beams run along the grid lines, and the grid within 90 px of the mouse glows indigo.",
+        "zh-Hans": "SaaS 首屏背景铺深色网格：光束沿网格线滑过，鼠标周围半径 90px 的网格亮成靛蓝色。"
+      },
+      "summary": {
+        "ja": "暗い背景の薄いグリッドを、尾を引く色付きの光が縦横に駆け抜け、ポインタの周りだけグリッドが藍色に浮かび上がる。",
+        "en": "Coloured beams with fading tails streak across a faint dark grid, and the grid lights up indigo only around the pointer.",
+        "zh-Hans": "带拖尾的彩色光束在深色淡网格上横竖穿行，指针周围的网格亮成靛蓝。"
+      },
+      "spec": {
+        "ja": [
+          "暗い背景 #07080F に 34px のグリッド（白・不透明度 7%）、中心の楕円マスクで端をフェード",
+          "8 本のビームがグリッド線に沿って縦横に走り、各周期に 2 または 3 回。尾は 50–90px のグラデーション、先端に 1.8px の光点",
+          "ビームは 3 色：129,140,248 / 45,212,191 / 244,114,182",
+          "ポインタの周り半径 90px のグリッドが藍色（129,140,248、不透明度 .55）に光る"
+        ],
+        "en": [
+          "A dark #07080F background with a 34 px grid (white at 7% opacity), faded at the edges by a central elliptical mask.",
+          "8 beam lanes run along the grid lines horizontally and vertically, 2 or 3 passes per cycle; tails fade over 50–90 px with a 1.8 px bright head.",
+          "Beams come in 3 colours: 129,140,248 / 45,212,191 / 244,114,182.",
+          "The grid within a 90 px radius of the pointer glows indigo (129,140,248 at .55 opacity)."
+        ],
+        "zh-Hans": [
+          "深色背景 #07080F 铺 34px 网格（白色、不透明度 7%），用中心椭圆遮罩淡出边缘。",
+          "8 道光束沿网格线横竖滑过，每周期 2 或 3 趟；拖尾 50–90px 渐变，头部 1.8px 亮点。",
+          "光束 3 色：129,140,248 / 45,212,191 / 244,114,182。",
+          "指针周围半径 90px 的网格亮成靛蓝（129,140,248，不透明度 .55）。"
+        ]
+      },
+      "use": {
+        "ja": "開発者ツール、クラウドサービス、AI プロダクトのファーストビュー背景に。",
+        "en": "Use it as the hero background for developer tools, cloud services and AI products.",
+        "zh-Hans": "适合开发者工具、云服务、AI 产品的首屏背景。"
+      },
+      "tags": [
+        "grid",
+        "beams",
+        "hero",
+        "background",
+        "dark",
+        "saas",
+        "cursor-glow"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "网格背景",
+          "流光网格",
+          "光束背景"
+        ]
+      }
+    },
+    {
+      "no": "16",
+      "slug": "tilt-to-flat-screen",
+      "category": "hero",
+      "name": {
+        "ja": "傾きから正面へのスクリーン",
+        "en": "Tilt-to-flat product screen",
+        "zh-Hans": "产品屏由斜到正"
+      },
+      "meaning": {
+        "ja": "スクロールで後ろに倒れた製品画面が起き上がって正面を向く首屏",
+        "en": "A hero where a tilted product screen rises upright as you scroll",
+        "zh-Hans": "滚动时向后倾倒的产品屏立起转正的首屏"
+      },
+      "ask": {
+        "ja": "SaaSのファーストビューで製品スクリーンショットを斜めから正面へ。最初は34°後ろに倒れて0.84倍、210pxスクロールする間に起き上がって拡大し、そのあとグラフの棒が順に伸びるように。",
+        "en": "In the SaaS hero, tilt the product screenshot back 34° at 0.84 scale and stand it upright within 210 px of scroll, then grow the chart bars one by one.",
+        "zh-Hans": "SaaS 首屏的产品截图做成由斜到正：初始后倾 34°、缩到 0.84，滚动 210px 内立正放大，之后图表柱子依次长高。"
+      },
+      "summary": {
+        "ja": "スクロールすると奥へ倒れていた製品ウィンドウが起き上がりながら大きくなり、影が深まり、正面を向くとグラフの棒が順に伸びる。",
+        "en": "Scrolling lifts the backward-tilted product window upright as it grows and its shadow deepens; once flat, the chart bars rise in sequence.",
+        "zh-Hans": "一滚动，后倾的产品窗口边立起边放大、阴影加深，转正后图表柱子依次长高。"
+      },
+      "spec": {
+        "ja": [
+          "製品ウィンドウは最初 .84 倍に縮み、34° 後ろへ倒れる（パース 900px）。スクロール 0→210px で 1−(1−p)² に沿って起き上がる",
+          "起き上がりながら 1 倍に拡大し 18px 上がる。影は 10/20px から 34/54px へ深まる",
+          "正面になると（p > .88）8 本の棒が順に伸びる：各 .7 秒・50ms ずつ遅れ、cubic-bezier(.3,1.3,.5,1)。戻すと .15 まで縮む",
+          "未スクロール時は下の「スクロール」案内が 1.6 秒ごとに 4px 上下する。デモでは 0.4→2.6 秒にスクロール、5.4→6.3 秒に戻る"
+        ],
+        "en": [
+          "The product window starts at .84 scale tilted back 34° (perspective 900 px) and stands up along 1−(1−p)² over 0→210 px of scroll.",
+          "As it rises it scales to 1 and moves up 18 px, with the shadow deepening from 10/20 px to 34/54 px.",
+          "Once upright (p > .88) its 8 bars grow in turn: .7 s each, 50 ms apart, cubic-bezier(.3,1.3,.5,1); scrolling back drops them to .15.",
+          "Before scrolling, a 'Scroll' hint bobs 4 px every 1.6 s; demo scrolls over 0.4→2.6 s and back over 5.4→6.3 s."
+        ],
+        "zh-Hans": [
+          "产品窗口起初缩到 .84、向后倾倒 34°（透视 900px）；滚动 0→210px 时按 1−(1−p)² 立起。",
+          "立起时放大到 1、上移 18px，阴影由 10/20px 加深到 34/54px。",
+          "立正后（p > .88）8 根柱子依次长高：每根 .7 秒、延迟 50ms，cubic-bezier(.3,1.3,.5,1)；回滚时倒回 .15。",
+          "未滚动时底部「滚动」提示每 1.6 秒上下跳 4px；演示中 0.4→2.6 秒滚下，5.4→6.3 秒回顶。"
+        ]
+      },
+      "use": {
+        "ja": "SaaS やデータ製品のファーストビューで、スクロールに合わせて製品画面を「立ち上げて」見せるとき。",
+        "en": "Use it in SaaS and data-product heroes to 'stand up' the product screenshot as the visitor scrolls.",
+        "zh-Hans": "适合 SaaS 与数据产品的首屏，滚动时把产品截图「立起来」展示。"
+      },
+      "tags": [
+        "3d-tilt",
+        "perspective",
+        "scroll",
+        "hero",
+        "product-screenshot",
+        "dashboard",
+        "saas"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "透视截图",
+          "倾斜转正",
+          "滚动立起"
+        ]
+      }
+    },
+    {
+      "no": "17",
+      "slug": "warp-starfield",
+      "category": "hero",
+      "name": {
+        "ja": "ワープする星空",
+        "en": "Warp starfield",
+        "zh-Hans": "星空跃迁"
+      },
+      "meaning": {
+        "ja": "星がこちらへ飛んできて、長押しでワープする宇宙の首屏背景",
+        "en": "A starfield hero where stars rush toward you and a long press triggers warp",
+        "zh-Hans": "星星朝镜头飞来、按住按钮即可跃迁的星空首屏"
+      },
+      "ask": {
+        "ja": "ファーストビューに星空ワープを。280個の星がカメラへ飛んできて、ボタンを長押しすると速度が0.22から3.2へ上がり、星が青い光の線に伸びるように。",
+        "en": "Add a warp starfield to the hero: 280 stars fly toward the camera, and holding the button raises speed from 0.22 to 3.2, stretching stars into blue streaks.",
+        "zh-Hans": "首屏做星空跃迁：280 颗星飞向镜头，按住按钮速度从 0.22 升到 3.2，星星拉成蓝色光线。"
+      },
+      "summary": {
+        "ja": "中心から星がゆっくり迫り、ボタンを押し続けると一気に加速して青い光の筋になり、中心が光り、離すと巡航へ戻る。",
+        "en": "Stars drift out from the centre; holding the button accelerates them into blue streaks with a glowing core, and releasing eases back to cruise.",
+        "zh-Hans": "星星从中心缓缓飞来，按住按钮瞬间加速成蓝色光线、中心泛光，松开后回落到巡航。"
+      },
+      "spec": {
+        "ja": [
+          "280 個の星が中心からカメラへ向かって飛ぶ（焦点距離 150）。近いほど明るく太い",
+          "「長押しでワープ」を押すと速度が毎秒 25% 残る指数で 3.2 に近づき（巡航 0.22）、離すと毎秒 12% 残る指数で戻る",
+          "ワープ中は星が長い線に伸びて青みを帯び（青さ = (v − 0.22) / 1.6）、中心に 120px の青い光彩",
+          "ポインタ位置で進行方向がずれる（x × 70、y × 60）。デモでは 1.2 秒に押し、3.6 秒に離す"
+        ],
+        "en": [
+          "280 stars fly from the centre toward the camera (focal length 150), getting brighter and thicker as they near.",
+          "Holding 'Hold to warp' pulls speed toward 3.2, keeping 25% of the gap per second (cruise 0.22); release eases back, keeping 12% per second.",
+          "During warp stars stretch into lines and turn blue (blueness = (v − 0.22) / 1.6), with a 120 px blue glow at the centre.",
+          "The pointer shifts the heading (x × 70, y × 60); demo presses at 1.2 s and releases at 3.6 s."
+        ],
+        "zh-Hans": [
+          "280 颗星从中心朝镜头飞来（焦距 150），越近越亮越粗。",
+          "按住「按住跃迁」时速度以每秒剩 25% 的指数逼近 3.2（巡航 0.22）；松开后以每秒剩 12% 回落。",
+          "跃迁中星星拉成长线并偏蓝（蓝度 = (v − 0.22) / 1.6），中心泛起 120px 蓝色光晕。",
+          "指针位置让航向偏移（x × 70、y × 60）；演示中 1.2 秒按住、3.6 秒松开。"
+        ]
+      },
+      "use": {
+        "ja": "ゲーム、宇宙・先端技術、AI 製品のローンチページのファーストビューで、「開始」「起動」ボタンの長押しと組み合わせて。",
+        "en": "Use it in hero sections for games, space-tech or AI product launches, paired with a long-press 'Start' or 'Launch' button.",
+        "zh-Hans": "适合游戏、太空科技、AI 产品发布页的首屏，配合「开始」「启动」按钮的长按交互。"
+      },
+      "tags": [
+        "starfield",
+        "warp",
+        "hero",
+        "background",
+        "long-press",
+        "space",
+        "particles"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "星空背景",
+          "光速跃迁",
+          "曲速星空"
+        ]
+      }
+    },
+    {
+      "no": "18",
+      "slug": "constellation-mesh",
+      "category": "hero",
+      "name": {
+        "ja": "星座のようなメッシュ",
+        "en": "Constellation mesh",
+        "zh-Hans": "粒子连线网"
+      },
+      "meaning": {
+        "ja": "漂う点どうしが近づくと線でつながる星座のような網目の首屏背景",
+        "en": "A constellation-like mesh of drifting dots that link up when close",
+        "zh-Hans": "漂移的点彼此靠近就连线的星座网状背景"
+      },
+      "ask": {
+        "ja": "ファーストビュー背景を粒子の網目に。72個の点が72px以内で線でつながり、マウスの120px以内の点はポインタへ線を伸ばし、クリックで9個の新しい点が弾けるように。",
+        "en": "Make the hero background a particle mesh: 72 dots link within 72 px, dots within 120 px connect to the mouse, and a click bursts out 9 new dots.",
+        "zh-Hans": "首屏背景做粒子连线网：72 个点相距 72px 内连线，鼠标 120px 内的点连到指针，点击炸出 9 个新点。"
+      },
+      "summary": {
+        "ja": "暗い背景で点がゆっくり漂い、近い点どうしが淡い線で結ばれ、ポインタは黄色い線で周囲の点を引き寄せ、クリックで点が弾ける。",
+        "en": "Dots drift on a dark field joined by faint lines; the pointer pulls nearby dots in with yellow links, and a click sprays out new dots.",
+        "zh-Hans": "深色背景上点缓慢漂移、近邻以淡线相连，指针用黄线连住并吸引周围的点，点击炸出新点。"
+      },
+      "spec": {
+        "ja": [
+          "72 個の点が閉じた小さな軌道で漂い、72px 以内なら淡い線で結ぶ：色相 210 + x/幅 × 90、不透明度 (1 − d/72) × .45",
+          "ポインタは節点になり、120px 以内の点へ明るい黄色の線（255,224,130、(1 − d/120) × .8）を伸ばし、点を最大 16px 引き寄せる",
+          "クリック位置から 9 個の新しい点が初速 60–130 px/s で飛び、30 px/s を超える分は毎秒 1.5 で減衰。生まれて .6 秒で半径 4 から 1.6 へ",
+          "左上に現在の接続線の数を表示。デモでは 0.6 秒にポインタが入り、2.8 秒にクリック"
+        ],
+        "en": [
+          "72 dots drift on small closed paths and link within 72 px: hue 210 + x/width × 90, opacity (1 − d/72) × .45.",
+          "The pointer becomes a node, drawing bright yellow links (255,224,130, (1 − d/120) × .8) to dots within 120 px and pulling them in by up to 16 px.",
+          "A click bursts 9 new dots at 60–130 px/s, with speed above 30 px/s decaying at 1.5 per second; their radius shrinks from 4 to 1.6 over .6 s.",
+          "The top-left badge shows the live link count; demo pointer enters at 0.6 s and clicks at 2.8 s."
+        ],
+        "zh-Hans": [
+          "72 个点沿闭合小轨迹缓慢漂移，相距 72px 内连淡线：色相 210 + x/宽 × 90，透明度 (1 − d/72) × .45。",
+          "指针成为一个节点，向 120px 内的点连亮黄线（255,224,130，(1 − d/120) × .8），并把点最多吸近 16px。",
+          "点击处炸出 9 个新点，初速 60–130 px/s，超出 30 px/s 的部分按每秒 1.5 衰减；出生 .6 秒内半径由 4 缩到 1.6。",
+          "左上角实时显示当前连线数；演示中 0.6 秒指针进入、2.8 秒点击。"
+        ]
+      },
+      "use": {
+        "ja": "テック、データ、ソーシャルネットワーク系プロダクトのファーストビュー背景に。",
+        "en": "Use it as the hero background for tech, data and social-network products.",
+        "zh-Hans": "适合科技、数据、社交网络类产品的首屏背景。"
+      },
+      "tags": [
+        "particles",
+        "constellation",
+        "network",
+        "hero",
+        "background",
+        "cursor",
+        "mesh"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "粒子网络",
+          "连线粒子",
+          "星座背景"
+        ]
+      }
+    },
+    {
+      "no": "19",
+      "slug": "dot-grid-ripple",
+      "category": "hero",
+      "name": {
+        "ja": "ドットグリッドの波紋",
+        "en": "Dot grid ripple",
+        "zh-Hans": "点阵涟漪"
+      },
+      "meaning": {
+        "ja": "ポインタがなぞった所から点の格子に波紋が広がる背景",
+        "en": "A dot-grid background where ripples spread from wherever the pointer goes",
+        "zh-Hans": "指针经过处在点阵上荡开涟漪的背景"
+      },
+      "ask": {
+        "ja": "ファーストビューに17px間隔の点の格子を敷いて。マウスが通ると110msごとに小さな波紋、クリックで大きな波が170px/sで広がるように。",
+        "en": "Lay a 17 px dot grid in the hero: the mouse leaves a small ripple every 110 ms, and a click sends a big wave spreading at 170 px/s.",
+        "zh-Hans": "首屏铺 17px 间距的点阵：鼠标划过时每 110ms 留下一圈小涟漪，点击激起大波，以 170px/s 扩散。"
+      },
+      "summary": {
+        "ja": "静かな灰色の点の格子をポインタがなぞると、通った跡から輪が次々広がり、波の上の点が膨らんで浮き、青紫から青緑へ色を変える。",
+        "en": "As the pointer crosses the calm grey grid, rings spread from its trail; dots on the wave swell, lift and shift from blue-violet to teal.",
+        "zh-Hans": "指针划过安静的灰点阵，经过处一圈圈涟漪荡开，波峰上的点变大上浮，并从蓝紫转为青绿。"
+      },
+      "spec": {
+        "ja": [
+          "17px 間隔の点の格子。静止時はグレー、不透明度 55%",
+          "ポインタが通ると 110ms ごとに小さな波紋（振幅 .55）、クリックで大きな波（振幅 1.6）。同時に最大 14 本",
+          "波面は 170 px/s で広がり、波形 sin(k/14)·e^(k/60)、e^(−1.3·経過時間) で減衰して 2.6 秒で消える",
+          "盛り上がった点は半径 1.6 + m × 3.4、m × 3px 浮き、色相 230 − m × 110 で青紫から青緑へ。デモでは 2.4 秒にクリック"
+        ],
+        "en": [
+          "A dot grid at 17 px spacing; at rest the dots are grey at 55% opacity.",
+          "The pointer drops a small ripple every 110 ms (amplitude .55) and a click a big wave (amplitude 1.6); up to 14 run at once.",
+          "Wavefronts spread at 170 px/s with shape sin(k/14)·e^(k/60), decaying by e^(−1.3·age) and gone after 2.6 s.",
+          "Raised dots grow to radius 1.6 + m × 3.4, lift m × 3 px and shift hue 230 − m × 110 from blue-violet to teal; demo clicks at 2.4 s."
+        ],
+        "zh-Hans": [
+          "17px 间距的点阵，静止时为灰色、不透明度 55%。",
+          "指针划过时每 110ms 在经过处投下一圈小涟漪（振幅 .55），点击投下大波（振幅 1.6），同时最多 14 道。",
+          "波前以 170 px/s 扩散，波形 sin(k/14)·e^(k/60)，按 e^(−1.3·年龄) 衰减，2.6 秒后消失。",
+          "隆起的点半径变为 1.6 + m × 3.4、上浮 m × 3px，色相按 230 − m × 110 由蓝紫转向青绿；演示中 2.4 秒点击。"
+        ]
+      },
+      "use": {
+        "ja": "製品サイトのファーストビューやセクション背景で、静かなページにマウスへの反応を加えるとき。",
+        "en": "Use it as a hero or section background on product sites to add mouse-responsive feedback to a calm page.",
+        "zh-Hans": "适合产品官网首屏或区块背景，给静态页面加上跟随鼠标的反馈。"
+      },
+      "tags": [
+        "dot-grid",
+        "ripple",
+        "wave",
+        "hero",
+        "background",
+        "cursor",
+        "interactive"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "点阵背景",
+          "波纹点阵",
+          "鼠标涟漪"
+        ]
+      }
+    },
+    {
+      "no": "20",
+      "slug": "particles-form-words",
+      "category": "hero",
+      "name": {
+        "ja": "粒子が文字になる",
+        "en": "Particles that form words",
+        "zh-Hans": "粒子聚合成字"
+      },
+      "meaning": {
+        "ja": "無数の光の粒が集まって単語を描き、触れると散るヒーロー背景",
+        "en": "A hero background where hundreds of glowing particles gather into a word and scatter when touched",
+        "zh-Hans": "成百上千的光点聚成单词、一碰就散开的首屏背景"
+      },
+      "ask": {
+        "ja": "LPのファーストビューに、720個の光の粒がばねで集まって単語になる背景を作って。クリックで別の単語に組み替わり、マウスを近づけると60pxの範囲で粒が逃げるように。",
+        "en": "Build a hero background where 720 glowing particles spring together into a word; clicking re-forms them into the next word, and the cursor pushes away particles within 60 px.",
+        "zh-Hans": "给落地页首屏做一个粒子背景：720 颗光点用弹簧聚成单词，点击换成下一个词，指针靠近时把 60 px 内的光点推开。"
+      },
+      "summary": {
+        "ja": "暗い紫の背景で光の粒が HELLO を形づくり、ポインターがなぞると押しのけられ、クリックのたびに弾けて NICE、LUCIAN へと組み替わる。",
+        "en": "On a dark violet background, glowing dots form HELLO, part around the passing pointer, and burst apart on each click to re-form as NICE, then LUCIAN.",
+        "zh-Hans": "深紫底上光点拼出 HELLO，被指针推开，每次点击迸散后重组成 NICE、LUCIAN。"
+      },
+      "spec": {
+        "ja": [
+          "光の粒 720 個。ばね（剛性 38・減衰 7.5）で 5×7 のドット文字に集まる（各マス 3×3 粒、間隔 4px）。文字に入らない粒は外周に散らばり、不透明度 0.18",
+          "ポインターから 60px 以内の粒を押しのけ、最大 26px ずれる",
+          "デモでは 1.8 秒のクリックで NICE、3.6 秒で LUCIAN、5.4 秒で HELLO に戻る。切り替えのたびに全粒へ ±130 px/s のランダムな初速",
+          "加算合成で光らせる。色相 250–330、速い粒ほど色相が最大 60 ずれ、明度が 68% から 88% へ上がる"
+        ],
+        "en": [
+          "720 particles spring (stiffness 38, damping 7.5) into a 5 × 7 dot-matrix font, 3 × 3 dots per cell at 4 px spacing; spare particles scatter on an outer ring at 0.18 opacity.",
+          "The pointer pushes away particles within 60 px, displacing them by up to 26 px.",
+          "In the demo, a click at 1.8 s switches to NICE, 3.6 s to LUCIAN, and 5.4 s back to HELLO; each switch gives every particle a random kick of ±130 px/s.",
+          "Additive blending; hues span 250–330, and faster particles shift hue by up to 60 and brighten from 68% to 88% lightness."
+        ],
+        "zh-Hans": [
+          "720 颗光点以弹簧（刚度 38、阻尼 7.5）聚成 5 × 7 点阵字，每格 3 × 3 个点、间距 4 px；不在字上的光点散在外圈，不透明度 0.18。",
+          "指针把 60 px 内的光点推开，最大位移 26 px。",
+          "演示中 1.8 秒点击换成 NICE、3.6 秒换成 LUCIAN、5.4 秒回到 HELLO，每次给所有光点 ±130 px/s 的随机冲量。",
+          "叠加发光混合；色相 250–330，速度越快色相偏移越多（最多 60），亮度从 68% 升到 88%。"
+        ]
+      },
+      "use": {
+        "ja": "プロダクトのローンチページやイベントLPのファーストビューで、ブランド名やキャッチコピーを印象づけたいとき。",
+        "en": "Use it in the hero of a product launch or event landing page to make a brand name or tagline memorable.",
+        "zh-Hans": "适合产品发布页、活动落地页的首屏，用来突出品牌名或主标语。"
+      },
+      "tags": [
+        "particles",
+        "hero",
+        "text",
+        "spring",
+        "interactive",
+        "glow",
+        "landing-page"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "粒子文字",
+          "粒子组字",
+          "光点成字"
+        ]
+      }
+    },
+    {
+      "no": "21",
+      "slug": "cursor-lit-borders",
+      "category": "cursor",
+      "name": {
+        "ja": "カーソルで光る枠線",
+        "en": "Cursor-lit borders",
+        "zh-Hans": "光标聚光边框"
+      },
+      "meaning": {
+        "ja": "カーソルの光がカードの枠を照らして浮かび上がらせる演出",
+        "en": "A cursor-following light that illuminates the borders of nearby cards",
+        "zh-Hans": "跟随光标的光晕把附近卡片的边框照亮"
+      },
+      "ask": {
+        "ja": "機能紹介のカード列に、カーソルを中心にした半径160pxの光で枠線が光るエフェクトを付けて。離れたらゆっくり消えるように。",
+        "en": "Add a spotlight to the feature card row: a 160 px glow centred on the cursor lights up the card borders and fades out slowly when the cursor leaves.",
+        "zh-Hans": "给功能卡片行加光标聚光效果：以光标为中心 160 px 的光晕点亮卡片描边，移开后慢慢熄灭。"
+      },
+      "summary": {
+        "ja": "暗い画面に並ぶ4枚のカードの上をポインターが波打つように横切り、近くのカードの枠が紫から青へ光り、通り過ぎるとゆっくり消える。",
+        "en": "The pointer sweeps in a wave across four dark cards; borders near it glow from violet to blue, then dim slowly once it passes.",
+        "zh-Hans": "指针波浪形横扫 4 张深色卡片，附近卡片的描边泛起紫到蓝的光，指针离开后缓缓熄灭。"
+      },
+      "spec": {
+        "ja": [
+          "暗い背景 #0A0B10 にカード 4 枚。角丸 18px、枠線 1.5px",
+          "ポインター中心の半径 160px のグラデーション光（紫から青、半径 70% で透明）が、隣り合うカードの枠を同時に照らす",
+          "カード内にも半径 220px・強さ 0.14 の淡い紫の光を重ねる",
+          "入ると明るさが毎秒 8 の速さで 1 に近づき、離れると毎秒 2.5 で消える。デモではポインターが 0.3–4.9 秒に波打ちながら横切る"
+        ],
+        "en": [
+          "4 cards on a dark #0A0B10 background, corner radius 18 px, 1.5 px borders.",
+          "A 160 px gradient glow centred on the pointer (violet to blue, transparent at 70% of the radius) lights the borders of adjacent cards at once.",
+          "A faint violet glow of 220 px at 0.14 strength is layered inside the cards.",
+          "Brightness approaches 1 at a rate of 8/s on enter and fades at 2.5/s on leave; in the demo the pointer sweeps across in a wave from 0.3–4.9 s."
+        ],
+        "zh-Hans": [
+          "暗色底 #0A0B10 上 4 张卡片，圆角 18 px，描边 1.5 px。",
+          "以指针为圆心、半径 160 px 的渐变光晕（紫到蓝，半径 70% 处透明）同时点亮相邻卡片的描边。",
+          "卡片内部再叠一层 220 px、强度 0.14 的淡紫光。",
+          "进入后亮度以 8/秒逼近 1，离开后以 2.5/秒熄灭；演示中指针在 0.3–4.9 秒波浪形横扫。"
+        ]
+      },
+      "use": {
+        "ja": "SaaS や開発者向けサービスの機能一覧、料金プランのカード列など、暗いテーマのランディングページで。",
+        "en": "Use it on feature grids or pricing cards in dark-themed SaaS and developer-tool landing pages.",
+        "zh-Hans": "适合深色主题的 SaaS、开发者工具落地页中的功能卡片、价格方案卡片。"
+      },
+      "tags": [
+        "cursor",
+        "spotlight",
+        "border-glow",
+        "cards",
+        "hover",
+        "dark-theme"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "鼠标光晕",
+          "聚光卡片",
+          "发光边框"
+        ]
+      }
+    },
+    {
+      "no": "22",
+      "slug": "hover-follow-preview",
+      "category": "cursor",
+      "name": {
+        "ja": "ホバーで追う画像プレビュー",
+        "en": "Hover-follow preview",
+        "zh-Hans": "悬停跟随预览图"
+      },
+      "meaning": {
+        "ja": "作品リストの行にホバーすると、プレビュー画像がカーソルについてくる",
+        "en": "Hovering a project list row brings up a preview image that follows the cursor",
+        "zh-Hans": "悬停作品列表的某一行，预览图跟着光标移动"
+      },
+      "ask": {
+        "ja": "ポートフォリオの作品リストで、行にホバーしたらカーソルの右18pxにプレビュー画像を出して、少し遅れて追従させ、横の速さに応じて最大12°傾けて。",
+        "en": "In the portfolio project list, show a preview image 18 px to the right of the cursor on row hover; let it trail slightly and tilt up to 12° with horizontal speed.",
+        "zh-Hans": "作品列表悬停某行时，在光标右侧 18 px 显示预览图，稍微滞后跟随，按水平速度最多倾斜 12°。"
+      },
+      "summary": {
+        "ja": "黒い背景の作品名リストをポインターが上から下へなぞり、ホバー中の行が右にずれて光り、横に付いてくる画像が傾きながら次の作品へスライドする。",
+        "en": "The pointer moves down a dark list of project names; the hovered row shifts right and brightens while a trailing image tilts and slides to the next project.",
+        "zh-Hans": "指针在黑底作品名列表中自上而下移动，悬停行右移变亮，旁边跟随的预览图边倾斜边滑到下一张。"
+      },
+      "spec": {
+        "ja": [
+          "暗い背景 #111111 に作品名 6 行、行の高さ 29px",
+          "ホバー行は 10px 右へ（0.35 秒、オーバーシュート付き）ずれて矢印が出る。ほかの行は 0.25 秒で #5C5852 に暗くなる",
+          "プレビュー画像 84×105px をポインターの右 18px に置き、約 0.11 秒遅れて追従。横方向の速さ×0.02 で最大 ±12° 傾く",
+          "行が変わると画像は 0.5 秒で縦にスライドして次の画像へ。出現時は 0.25 秒でフェードインし、0.6 倍から 1 倍へ弾む"
+        ],
+        "en": [
+          "6 rows of project names on a dark #111111 background, row height 29 px.",
+          "The hovered row shifts 10 px right (0.35 s with overshoot) and shows an arrow; other rows dim to #5C5852 over 0.25 s.",
+          "An 84 × 105 px preview sits 18 px right of the pointer, trailing by about 0.11 s and tilting by horizontal speed × 0.02, up to ±12°.",
+          "Changing rows slides the image vertically to the next one over 0.5 s; it appears with a 0.25 s fade and a springy scale from 0.6 to 1."
+        ],
+        "zh-Hans": [
+          "暗色底 #111111 上 6 行作品名，行高 29 px。",
+          "悬停行右移 10 px（0.35 秒，带回弹）并亮出箭头，其余行 0.25 秒变暗为 #5C5852。",
+          "预览图 84 × 105 px 位于指针右侧 18 px，滞后约 0.11 秒跟随，按水平速度 × 0.02 倾斜，最多 ±12°。",
+          "换行时图片 0.5 秒上下滑到下一张；出现时 0.25 秒淡入，并从 0.6 倍回弹到 1 倍。"
+        ]
+      },
+      "use": {
+        "ja": "デザイナーや制作会社のポートフォリオ、作品一覧ページで、文字だけのリストに画像の手がかりを足したいとき。",
+        "en": "Use it on designer or studio portfolio pages to add visual cues to a text-only project list.",
+        "zh-Hans": "适合设计师或工作室的作品集页面，给纯文字的项目列表加上图片提示。"
+      },
+      "tags": [
+        "hover",
+        "cursor-follow",
+        "preview",
+        "portfolio",
+        "list",
+        "tilt"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "悬停预览",
+          "跟随图片",
+          "作品列表悬停"
+        ]
+      }
+    },
+    {
+      "no": "23",
+      "slug": "cursor-photo-trail",
+      "category": "cursor",
+      "name": {
+        "ja": "カーソルの写真の軌跡",
+        "en": "Cursor photo trail",
+        "zh-Hans": "光标图片拖尾"
+      },
+      "meaning": {
+        "ja": "カーソルの軌跡に写真が次々と落ちていく遊び心のある演出",
+        "en": "A playful effect that drops photos along the cursor's path",
+        "zh-Hans": "光标移动时沿路径不断落下照片的趣味效果"
+      },
+      "ask": {
+        "ja": "ヒーローの見出しの上でカーソルを動かすと、46px動くごとに写真が1枚落ちて、0.9秒後に縮みながら消えるトレイルを作って。",
+        "en": "Make a cursor trail over the hero heading: drop a photo every 46 px of movement, and let each one shrink away after 0.9 s.",
+        "zh-Hans": "在首屏标题上做光标图片拖尾：指针每移动 46 px 落下一张照片，0.9 秒后缩小消失。"
+      },
+      "summary": {
+        "ja": "大きな見出しの上をポインターが横切ると、白いフチの写真がランダムな角度で弾むように現れては沈んで消え、クリックで5枚が扇形に広がる。",
+        "en": "As the pointer crosses a large heading, white-framed photos pop in at random angles and sink away; a click fans out 5 photos at once.",
+        "zh-Hans": "指针扫过大标题时，白边照片以随机角度弹出又下沉消失，点击时 5 张照片扇形散开。"
+      },
+      "spec": {
+        "ja": [
+          "ポインターが 46px 動くごとに 58×72px の白フチ写真を落とす。回転は ±12° のランダム＋横移動量×0.06",
+          "写真は 0.32 秒で 0.3 倍から弾んで現れ、0.9 秒後に 0.45 秒かけて縮み、14px 沈んでフェードアウト",
+          "同時に出るのは最大 14 枚。超えると一番古い写真から消え始める",
+          "デモでは 3.5 秒のクリックで 5 枚が扇形に広がる（0.06 秒間隔、横 16px・12° ずつ、表示 1.4 秒）"
+        ],
+        "en": [
+          "Every 46 px of pointer movement drops a 58 × 72 px white-framed photo, rotated by a random ±12° plus horizontal movement × 0.06.",
+          "Each photo springs in from 0.3× over 0.32 s, then after 0.9 s shrinks, sinks 14 px and fades out over 0.45 s.",
+          "At most 14 photos are visible; beyond that the oldest starts fading early.",
+          "In the demo, a click at 3.5 s fans out 5 photos (0.06 s apart, 16 px and 12° per step, lasting 1.4 s)."
+        ],
+        "zh-Hans": [
+          "指针每移动 46 px 落下一张 58 × 72 px 的白边照片，旋转角为 ±12° 随机值加横移量 × 0.06。",
+          "照片 0.32 秒从 0.3 倍回弹弹入，0.9 秒后用 0.45 秒缩小、下沉 14 px 并淡出。",
+          "同时最多 14 张，超出时最早的一张提前淡出。",
+          "演示中 3.5 秒点击，5 张照片呈扇形散开（间隔 0.06 秒，每张横移 16 px、转 12°，停留 1.4 秒）。"
+        ]
+      },
+      "use": {
+        "ja": "写真家や旅行・イベントのサイトのファーストビューで、見出しの周りに遊びを加えたいとき。",
+        "en": "Use it in the hero of photographer, travel or event sites to add play around the main heading.",
+        "zh-Hans": "适合摄影师、旅行或活动网站的首屏，给主标题周围增加趣味互动。"
+      },
+      "tags": [
+        "cursor-trail",
+        "photos",
+        "hero",
+        "playful",
+        "spring",
+        "image-trail"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "图片拖尾",
+          "鼠标拖尾",
+          "照片轨迹"
+        ]
+      }
+    },
+    {
+      "no": "24",
+      "slug": "direction-aware-overlay",
+      "category": "cursor",
+      "name": {
+        "ja": "入った方向からのオーバーレイ",
+        "en": "Direction-aware overlay",
+        "zh-Hans": "方向感知遮罩"
+      },
+      "meaning": {
+        "ja": "カーソルが入ってきた方向からオーバーレイが滑り込むグリッド",
+        "en": "A grid whose overlay slides in from the side the cursor entered",
+        "zh-Hans": "遮罩从光标进入的方向滑入的作品格"
+      },
+      "ask": {
+        "ja": "作品グリッドで、カーソルが入った辺から説明パネルが0.32秒で滑り込み、出ていった方向へ抜けるホバー効果を付けて。",
+        "en": "On the work grid, slide the caption panel in from the edge the cursor entered over 0.32 s, and out toward the edge it leaves.",
+        "zh-Hans": "作品网格悬停时，说明面板从光标进入的那条边 0.32 秒滑入，离开时朝光标离开的方向滑出。"
+      },
+      "summary": {
+        "ja": "3×3の作品サムネイルをポインターがいろいろな方向から横切り、入った辺から暗い説明パネルが滑り込み、出た方向へ滑り抜けていく。",
+        "en": "The pointer crosses a 3 × 3 thumbnail grid from many directions; a dark caption panel slides in from the entry edge and out the exit edge.",
+        "zh-Hans": "指针从不同方向穿过 3 × 3 作品缩略图，深色说明面板从进入的边滑入、从离开的边滑出。"
+      },
+      "spec": {
+        "ja": [
+          "3×3 の作品グリッド、すき間 7px、角丸 10px",
+          "マスに入ると暗いパネル rgba(20,18,30,.82) が、ポインターが越えた辺から 0.32 秒（速く入ってゆっくり止まる）で滑り込む。出るときは出ていく方向へ滑り出る",
+          "方向の判定：マスの中心からのずれを幅と高さで正規化し、縦横どちらが大きいかで辺を決める",
+          "デモではポインターが 0.3–4.9 秒に左・下・上・右などから 8 マスを通過する"
+        ],
+        "en": [
+          "A 3 × 3 work grid with 7 px gaps and 10 px corner radius.",
+          "On entering a tile, a dark rgba(20,18,30,.82) panel slides in from the edge the pointer crossed over 0.32 s (fast start, soft stop), and slides out toward the exit edge.",
+          "Direction is decided by normalising the pointer's offset from the tile centre by width and height, then comparing the horizontal and vertical offsets.",
+          "In the demo the pointer passes through 8 tiles from the left, bottom, top and right between 0.3–4.9 s."
+        ],
+        "zh-Hans": [
+          "3 × 3 作品格，间距 7 px，圆角 10 px。",
+          "进入某格时，深色面板 rgba(20,18,30,.82) 从指针越过的那条边用 0.32 秒（快起慢收）滑入；离开时朝指针离开的方向滑出。",
+          "判断方向：把指针相对格中心的偏移按格宽、格高归一化，比较横纵偏移哪个更大来确定边。",
+          "演示中指针在 0.3–4.9 秒从左、下、上、右等方向穿过 8 个格子。"
+        ]
+      },
+      "use": {
+        "ja": "ポートフォリオやギャラリー、商品一覧のグリッドで、ホバーに方向感を持たせて操作の手応えを出したいとき。",
+        "en": "Use it on portfolio, gallery or product grids to give hover states a sense of direction.",
+        "zh-Hans": "适合作品集、图库、商品网格，让悬停效果带有方向感、操作更有手感。"
+      },
+      "tags": [
+        "hover",
+        "direction-aware",
+        "overlay",
+        "grid",
+        "portfolio",
+        "gallery"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "方向感知悬停",
+          "滑入遮罩",
+          "悬停遮罩"
+        ]
+      }
+    },
+    {
+      "no": "25",
+      "slug": "cursor-lens-reveal",
+      "category": "cursor",
+      "name": {
+        "ja": "カーソルのレンズで現れる文",
+        "en": "Cursor lens reveal",
+        "zh-Hans": "光标透镜揭示"
+      },
+      "meaning": {
+        "ja": "カーソルの丸いレンズの中だけ、別のメッセージが見える演出",
+        "en": "A round lens at the cursor that reveals a different message underneath",
+        "zh-Hans": "光标处的圆形透镜里露出另一句隐藏文案"
+      },
+      "ask": {
+        "ja": "大きな見出しの上で、カーソルに半径54pxの丸いレンズを付けて、中だけ反転色の別の文が見えるようにして。クリックでレンズが画面いっぱいに広がるように。",
+        "en": "Add a 54 px round lens to the cursor over the big headline that reveals an inverted second sentence inside; a click expands the lens to fill the section.",
+        "zh-Hans": "在大标题上给光标加一个半径 54 px 的圆形透镜，透镜内露出反色的另一句话；点击后透镜扩满整块区域。"
+      },
+      "summary": {
+        "ja": "明るい背景の大きな2行の文の上を丸いレンズがばねのように追いかけ、中に暗い背景の別の文が見え、クリックで全体に広がってまた縮む。",
+        "en": "A round lens chases the pointer springily over a two-line headline, revealing another sentence on dark ground; a click expands it to full size, another shrinks it back.",
+        "zh-Hans": "圆形透镜像弹簧一样追着指针掠过两行大字，窗内露出深底的另一句，点击后扩满全卡再缩回。"
+      },
+      "spec": {
+        "ja": [
+          "58px の太字 2 行、背景 #F5F1E8。半径 54px の丸いレンズの中に #1D1A16 背景の別の文（#FFD43B / #FF8787 で強調）",
+          "レンズはばね（剛性 260・減衰 24）でポインターを追い、速く動かすと速度方向へ最大 35% 伸びる",
+          "デモでは 2.8 秒のクリックでレンズが毎秒 5 の速さでカード全体へ広がり、4.1 秒の再クリックで半径 54px に戻る（毎秒 12）",
+          "ポインターが画面外に出るとレンズは 0 に縮む。縁に 1.5px の黄色い線"
+        ],
+        "en": [
+          "2 lines of 58 px bold text on #F5F1E8; a 54 px round lens reveals another sentence on #1D1A16, highlighted in #FFD43B / #FF8787.",
+          "The lens follows the pointer on a spring (stiffness 260, damping 24) and stretches up to 35% along the direction of fast motion.",
+          "In the demo, a click at 2.8 s expands the lens to the whole card at a rate of 5/s; a second click at 4.1 s shrinks it back to 54 px at 12/s.",
+          "When the pointer leaves the area the lens shrinks to 0; its edge has a 1.5 px yellow stroke."
+        ],
+        "zh-Hans": [
+          "2 行 58 px 粗体句子，底色 #F5F1E8；半径 54 px 的圆形透镜内露出 #1D1A16 底的另一句（用 #FFD43B / #FF8787 高亮）。",
+          "透镜以弹簧（刚度 260、阻尼 24）跟随指针，快速移动时沿速度方向最多拉伸 35%。",
+          "演示中 2.8 秒点击，透镜以 5/秒扩满整张卡片；4.1 秒再点，以 12/秒缩回 54 px。",
+          "指针移出画面时透镜收为 0；透镜边缘有 1.5 px 黄色描边。"
+        ]
+      },
+      "use": {
+        "ja": "ブランドサイトやキャンペーンページの見出しで、隠れたメッセージを探す楽しさを足したいとき。",
+        "en": "Use it on brand or campaign page headlines to add the fun of discovering a hidden message.",
+        "zh-Hans": "适合品牌官网、营销活动页的大标题，让用户在移动光标时发现隐藏文案。"
+      },
+      "tags": [
+        "cursor",
+        "lens",
+        "reveal",
+        "mask",
+        "spring",
+        "headline",
+        "hero"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "鼠标透镜",
+          "光标遮罩揭示",
+          "放大镜文字"
+        ]
+      }
+    },
+    {
+      "no": "26",
+      "slug": "swipeable-card-stack",
+      "category": "cursor",
+      "name": {
+        "ja": "スワイプするカードの山",
+        "en": "Swipeable card stack",
+        "zh-Hans": "滑动卡片堆叠"
+      },
+      "meaning": {
+        "ja": "重なったカードを左右にスワイプして振り分けるUI",
+        "en": "A stacked card UI you swipe left or right to sort",
+        "zh-Hans": "把叠放的卡片左右滑动来收藏或跳过"
+      },
+      "ask": {
+        "ja": "おすすめスポットのカードを4枚重ねて、ドラッグ量×0.06°で傾き、右スワイプで「保存」、左で「スキップ」のスタンプが出て飛んでいくUIにして。",
+        "en": "Stack 4 recommendation cards; dragging tilts the card by drag × 0.06°, shows a Save stamp to the right or Skip to the left, and flings it off on release.",
+        "zh-Hans": "把 4 张推荐地点卡叠放，拖动时按拖动量 × 0.06° 倾斜，右滑显示「收藏」、左滑显示「跳过」印章，松手后飞出。"
+      },
+      "summary": {
+        "ja": "重なったカードの一番上をポインターが右へ引いて傾け、「保存」スタンプとともに飛ばし、次のカードを左へ「スキップ」して、最後に2枚が戻ってくる。",
+        "en": "The pointer drags the top card right with a tilt, flings it away with a Save stamp, swipes the next one left to Skip, and finally both fly back.",
+        "zh-Hans": "指针把顶卡向右拖并倾斜，带着「收藏」印章飞出，再把下一张向左滑「跳过」，最后两张飞回原位。"
+      },
+      "spec": {
+        "ja": [
+          "カード 4 枚を重ねる。190×150px、角丸 18px。下のカードほど 9px ずつ下がり 5% ずつ小さい",
+          "ドラッグ中はドラッグ量×0.06° 傾く。「保存」「スキップ」のスタンプはドラッグ距離に応じて濃くなり 110px で完全に表示、それぞれ −14° / 14° 傾く",
+          "離すと 0.45 秒でさらに 270px 飛び去り、次のカードが繰り上がる",
+          "デモでは 0.5–1.6 秒に一番上を右へ 150px、2.6–3.7 秒に 2 枚目を左へドラッグ。5.0–6.1 秒に 2 枚が順に戻る"
+        ],
+        "en": [
+          "4 stacked cards, 190 × 150 px with 18 px corner radius; each lower card sits 9 px lower and 5% smaller.",
+          "While dragging the card tilts by drag × 0.06°; the Save / Skip stamps fade in with drag distance, fully visible at 110 px, tilted −14° / 14°.",
+          "On release the card flies a further 270 px off in 0.45 s and the next card moves up.",
+          "In the demo the top card is dragged 150 px right from 0.5–1.6 s and card 2 left from 2.6–3.7 s; the 2 cards fly back in turn from 5.0–6.1 s."
+        ],
+        "zh-Hans": [
+          "4 张卡片叠放，190 × 150 px、圆角 18 px；下层每张下移 9 px、缩小 5%。",
+          "拖动时卡片按拖动量 × 0.06° 倾斜；「收藏」「跳过」印章随拖动距离显出，拖到 110 px 时完全显示，分别倾斜 −14° / 14°。",
+          "松手后卡片 0.45 秒再飞出 270 px，下一张补上。",
+          "演示中 0.5–1.6 秒把顶卡向右拖 150 px，2.6–3.7 秒把第 2 张向左拖；5.0–6.1 秒 2 张依次飞回。"
+        ]
+      },
+      "use": {
+        "ja": "おすすめ・マッチング・お気に入り登録などのモバイルアプリで、1件ずつ素早く振り分けてもらいたいとき。",
+        "en": "Use it in recommendation, matching or bookmarking mobile apps where users sort items one by one.",
+        "zh-Hans": "适合推荐、匹配、收藏类 App，让用户一张一张快速筛选内容。"
+      },
+      "tags": [
+        "swipe",
+        "card-stack",
+        "drag",
+        "gesture",
+        "mobile",
+        "tinder-style"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "滑卡",
+          "左滑右滑",
+          "卡片堆叠"
+        ]
+      }
+    },
+    {
+      "no": "27",
+      "slug": "payment-ring-check",
+      "category": "feedback",
+      "name": {
+        "ja": "支払いリングとチェック",
+        "en": "Payment ring & check",
+        "zh-Hans": "支付成功对勾"
+      },
+      "meaning": {
+        "ja": "支払いボタンがリング状の進捗に変わり、完了のチェックで締めくくる",
+        "en": "A pay button that morphs into a progress ring and ends with a check mark",
+        "zh-Hans": "支付按钮变成环形进度，最后画出成功对勾"
+      },
+      "ask": {
+        "ja": "決済ボタンを押したら44pxの丸に縮んで、2.6秒でリングが一周し、緑になってチェックを描き、レシートが下から出てくるようにして。",
+        "en": "When the pay button is pressed, shrink it to a 44 px circle, fill a progress ring over 2.6 s, turn it green with a drawn check, then slide up a receipt.",
+        "zh-Hans": "点击支付按钮后收成 44 px 圆，环形进度 2.6 秒画满一圈，转绿并画出对勾，然后收据卡从下方滑入。"
+      },
+      "summary": {
+        "ja": "支払いボタンがクリックで丸く縮み、リングが進むにつれて3つのステップが点灯し、緑に変わってチェックが描かれ、レシートが下から弾んで現れる。",
+        "en": "The pay button shrinks into a circle on click, a ring fills while 3 steps light up, it turns green with a check, and a receipt bounces up from below.",
+        "zh-Hans": "支付按钮点击后收成圆，环形进度推进时 3 个步骤依次点亮，转绿画出对勾，收据卡从下方弹出。"
+      },
+      "spec": {
+        "ja": [
+          "クリックでボタンが 0.5 秒（オーバーシュート付き）で幅 214px から 44px の丸に縮み、文字は 0.2 秒で消える",
+          "0.25 秒遅れて半径 29px のリングが現れ、2.6 秒で一周（2.2 乗のイーズアウト）",
+          "「リクエスト中 / 銀行確認 / 完了」の 3 ステップが進捗 2%・45%・99.9% で順に点灯し、点が 1.3 倍に弾む",
+          "満ちたリングは緑 #119C72 に変わり、0.2 秒後に 0.45 秒でチェックを描く。さらに 0.9 秒後、レシートカードが 0.6 秒で下から弾んで入る"
+        ],
+        "en": [
+          "On click the button shrinks from 214 px wide into a 44 px circle over 0.5 s with overshoot; the label fades in 0.2 s.",
+          "After a 0.25 s delay a 29 px-radius ring appears and fills in 2.6 s (power-2.2 ease-out).",
+          "3 steps — requesting, bank check, done — light up at 2%, 45% and 99.9% progress, each dot springing to 1.3×.",
+          "The full ring turns green #119C72 and, after 0.2 s, draws a check in 0.45 s; 0.9 s later a receipt card springs up from below in 0.6 s."
+        ],
+        "zh-Hans": [
+          "点击后按钮 0.5 秒（带回弹）从 214 px 宽收成 44 px 圆，文字 0.2 秒淡出。",
+          "延迟 0.25 秒出现半径 29 px 的环形进度，2.6 秒画满一圈（按 2.2 次方缓出）。",
+          "「请求中 / 银行确认 / 完成」3 个步骤在进度 2%、45%、99.9% 时依次点亮，圆点回弹放大到 1.3 倍。",
+          "满环转绿 #119C72，延迟 0.2 秒用 0.45 秒画出对勾；再过 0.9 秒，收据卡 0.6 秒从下方回弹滑入。"
+        ]
+      },
+      "use": {
+        "ja": "ECサイトの決済画面やアプリ内課金など、支払い処理の待ち時間と成功を伝えたいとき。",
+        "en": "Use it in e-commerce checkouts and in-app purchases to show payment progress and success.",
+        "zh-Hans": "适合电商结账页、App 内购买，用来表现支付处理中和支付成功。"
+      },
+      "tags": [
+        "payment",
+        "checkout",
+        "progress-ring",
+        "success",
+        "check-mark",
+        "button-morph"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "支付成功动画",
+          "按钮变进度",
+          "对勾动画"
+        ]
+      }
+    },
+    {
+      "no": "28",
+      "slug": "icon-install-progress",
+      "category": "feedback",
+      "name": {
+        "ja": "アイコン上のインストール進捗",
+        "en": "Install progress on icon",
+        "zh-Hans": "图标安装进度"
+      },
+      "meaning": {
+        "ja": "アプリアイコンの上で、暗い覆いが時計回りに晴れていくインストール進捗",
+        "en": "Install progress shown as a dark overlay sweeping clockwise off an app icon",
+        "zh-Hans": "App 图标上的暗罩顺时针扫开，表示安装进度"
+      },
+      "ask": {
+        "ja": "アプリのダウンロード中、アイコンの上の暗い覆いが進捗に合わせて時計回りに晴れていき、タップで一時停止できる表示にして。容量は186MBで。",
+        "en": "While the app downloads, sweep a dark overlay clockwise off the icon with progress, and let a tap pause it; the package is 186 MB.",
+        "zh-Hans": "App 下载时，让图标上的暗罩随进度顺时针扫开，点击可暂停；安装包 186 MB。"
+      },
+      "summary": {
+        "ja": "グラデーションのアプリアイコンを覆う暗い扇形が時計回りに消えていき、途中でタップして一時停止・再開し、完了するとアイコンが弾んで「開く」ボタンが出る。",
+        "en": "A dark wedge over a gradient app icon sweeps away clockwise, pauses and resumes on taps, and on completion the icon bounces and an Open button pops in.",
+        "zh-Hans": "渐变图标上的暗色扇形顺时针消退，可点击暂停再继续，装完后图标弹跳、「打开」按钮弹出。"
+      },
+      "spec": {
+        "ja": [
+          "120px のグラデーションアイコン #FFB547→#FF6B8B→#7B61FF、角丸 29px。不透明度 0.55 の暗い覆いが進捗に合わせて時計回りに晴れる",
+          "進む速さは 2×(0.16+0.04·sin 2.5t)。右側のパーセントと 186 MB 中の MB 数が連動して増える",
+          "デモでは 1.8 秒のタップで一時停止（中央が再生の三角に 0.2 秒で変わる）、2.7 秒のタップで再開",
+          "完了すると覆いが 0.5 秒で消え、中央の円は 0.45 秒で 0.4 倍に縮む。アイコンは 0.7 秒で弾み（0.9 倍に縮み、1.08 倍に膨らんで 4px 上がる）、「開く」ボタンが 0.5 秒で弾んで現れる"
+        ],
+        "en": [
+          "A 120 px gradient icon #FFB547→#FF6B8B→#7B61FF with 29 px corner radius; a dark overlay at 0.55 opacity sweeps away clockwise with progress.",
+          "Progress speed is 2 × (0.16 + 0.04·sin 2.5t); the percentage and MB count out of 186 MB rise in sync on the right.",
+          "In the demo a tap at 1.8 s pauses (the centre switches to a play triangle in 0.2 s) and a tap at 2.7 s resumes.",
+          "On completion the overlay fades in 0.5 s and the centre ring shrinks to 0.4× in 0.45 s; the icon bounces over 0.7 s (down to 0.9×, up to 1.08× and 4 px higher) and an Open button springs in over 0.5 s."
+        ],
+        "zh-Hans": [
+          "120 px 渐变图标 #FFB547→#FF6B8B→#7B61FF，圆角 29 px；不透明度 0.55 的暗罩按进度顺时针扫开。",
+          "进度速度为 2 × (0.16 + 0.04·sin 2.5t)，右侧百分比与 186 MB 中的已下载 MB 数同步上涨。",
+          "演示中 1.8 秒点击暂停（中心 0.2 秒换成播放三角），2.7 秒再点继续。",
+          "装满后暗罩 0.5 秒淡出、中心圈 0.45 秒缩到 0.4 倍；图标 0.7 秒弹跳（缩到 0.9 倍，再放大到 1.08 倍并上移 4 px），「打开」按钮 0.5 秒回弹出现。"
+        ]
+      },
+      "use": {
+        "ja": "アプリストア風の画面やランチャー、ソフトウェアのダウンロード・アップデート表示で。",
+        "en": "Use it in app-store style screens, launchers, and software download or update indicators.",
+        "zh-Hans": "适合应用商店式界面、启动器，以及软件下载、更新进度的展示。"
+      },
+      "tags": [
+        "install",
+        "download",
+        "progress",
+        "app-icon",
+        "pause-resume",
+        "radial-progress"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "下载进度",
+          "图标进度",
+          "安装动画"
+        ]
+      }
+    },
+    {
+      "no": "29",
+      "slug": "indeterminate-to-progress",
+      "category": "feedback",
+      "name": {
+        "ja": "不確定から確定への進捗",
+        "en": "Indeterminate to determinate",
+        "zh-Hans": "不定转确定进度"
+      },
+      "meaning": {
+        "ja": "待機中の不定プログレスが、そのまま段階的な確定プログレスに切り替わる",
+        "en": "An indeterminate progress bar that turns into step-by-step determinate progress",
+        "zh-Hans": "排队时的不定进度条直接转为分步的确定进度"
+      },
+      "ask": {
+        "ja": "デプロイ画面で、待機中は色の帯が1.6秒周期で流れる不定プログレスにして、ビルドが始まったら同じバーで5ステップの確定進捗に切り替えて。",
+        "en": "On the deploy screen, show an indeterminate bar with streaks cycling every 1.6 s while queued, then switch the same bar to 5-step determinate progress when the build starts.",
+        "zh-Hans": "部署页排队时用 1.6 秒一周期的不定进度条，开始构建后同一根进度条切换为 5 个步骤的确定进度。"
+      },
+      "summary": {
+        "ja": "デプロイカードで色の帯が流れる待機表示から、同じバーが段階的に伸びる進捗に変わり、ログが1行ずつ浮かんでチェックに変わり、状態バッジが緑の「準備完了」になる。",
+        "en": "On a deploy card, streaks sliding through the bar give way to the same bar filling step by step, log lines float in and tick off, and the status pill turns green.",
+        "zh-Hans": "部署卡片上流动的色条变成分步增长的进度，日志逐行浮现打勾，状态药丸转绿「就绪」。"
+      },
+      "spec": {
+        "ja": [
+          "プログレスバー 256×6px。待機中は 2 本の色帯が 1.6 秒周期で伸縮しながら流れ、2 本目は 0.55 秒遅れ、どちらも周期の 60% で到達",
+          "デモでは 1.8 秒に確定進捗へ切り替わり、5 ステップで 22%・38%・70%・85%・100% へ進む",
+          "第 i ステップの長さは (650+120i) ミリ秒×0.6、バーの伸びは 0.5 秒のイージング。ログは行ごとに 8px 浮き上がり、スピナーがチェックに変わる",
+          "状態バッジは 待機中 #D6731E → ビルド中 #6A57F2 → 準備完了 #119C72、色の切り替えは 0.4 秒。約 4.5 秒で完了"
+        ],
+        "en": [
+          "A 256 × 6 px track; while queued, 2 streaks stretch and slide through on a 1.6 s cycle, streak 2 delayed by 0.55 s, both arriving at 60% of the cycle.",
+          "In the demo the bar switches to determinate progress at 1.8 s and advances through 5 steps to 22%, 38%, 70%, 85% and 100%.",
+          "Step i lasts (650 + 120i) ms × 0.6 and the fill eases over 0.5 s; log lines float up 8 px one by one and spinners turn into checks.",
+          "The status pill goes queued #D6731E → building #6A57F2 → ready #119C72 with 0.4 s colour changes; the run completes at about 4.5 s."
+        ],
+        "zh-Hans": [
+          "进度轨 256 × 6 px；排队时 2 段色条以 1.6 秒周期伸缩滑过，第 2 段延迟 0.55 秒，都在周期的 60% 处到位。",
+          "演示中 1.8 秒转为确定进度，5 个步骤依次推进到 22%、38%、70%、85%、100%。",
+          "第 i 步时长 (650 + 120i) 毫秒 × 0.6，填充用 0.5 秒缓动；日志逐行上浮 8 px，转圈图标变成对勾。",
+          "状态药丸 排队中 #D6731E → 构建中 #6A57F2 → 就绪 #119C72，每次换色 0.4 秒；约 4.5 秒完成。"
+        ]
+      },
+      "use": {
+        "ja": "デプロイ・ビルド・エクスポートなど、最初は所要時間が読めず途中から進捗が分かる処理の画面で。",
+        "en": "Use it for deploys, builds or exports whose duration is unknown at first and becomes measurable partway through.",
+        "zh-Hans": "适合部署、构建、导出等一开始无法预估时长、之后才能显示进度的任务界面。"
+      },
+      "tags": [
+        "progress-bar",
+        "indeterminate",
+        "deploy",
+        "loading",
+        "steps",
+        "status"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "不确定进度条",
+          "部署进度",
+          "排队转进度"
+        ]
+      }
+    },
+    {
+      "no": "30",
+      "slug": "heart-burst-like",
+      "category": "feedback",
+      "name": {
+        "ja": "ハートがはじける「いいね」",
+        "en": "Heart burst like",
+        "zh-Hans": "点赞爱心迸发"
+      },
+      "meaning": {
+        "ja": "いいねを押すとハートが弾み、輪と粒がはじけるリアクション",
+        "en": "A like reaction where the heart pulses and bursts with a ring and confetti dots",
+        "zh-Hans": "点赞时爱心跳动、圆环和彩点迸发的反馈"
+      },
+      "ask": {
+        "ja": "いいねボタンを押したら、ハートが0.7秒で縮んで大きく弾み、ピンクの輪と7組の色の粒がはじけて、数字が1つ上にロールするようにして。",
+        "en": "When the like button is tapped, make the heart squash and pop over 0.7 s, burst a pink ring and 7 pairs of coloured dots, and roll the count up by 1.",
+        "zh-Hans": "点赞时让爱心 0.7 秒先缩后弹，迸出粉色圆环和 7 对彩色小点，点赞数向上滚动加 1。"
+      },
+      "summary": {
+        "ja": "丸いボタンのハートがクリックで縮んでから大きく弾み、赤く満ちながら輪と色の粒が広がり、いいね数が842から843へロールし、もう一度押すと戻る。",
+        "en": "On click the heart squashes then pops, filling red as a ring and coloured dots burst out; the count rolls from 842 to 843 and back on a second click.",
+        "zh-Hans": "点击后爱心先缩后弹并填满红色，圆环与彩点迸发，点赞数从 842 滚到 843，再点滚回。"
+      },
+      "spec": {
+        "ja": [
+          "クリックで 0.7 秒の拍動：1 → 0.72 → 1.24 → 0.94 → 1。グラデーションの赤 #FF4D6D→#FF8A5B が中心から満ちる",
+          "ピンクの輪が 0.1 秒遅れて 0.6 秒で 0.3 倍から 1 倍へ広がり、細くなって消える",
+          "7 組の色の粒が約 51° 間隔で外へはじけ、30px から 62px まで飛びながら縮んで消える",
+          "いいね数は 0.45 秒で 842 → 843 へ上にロール。デモでは 4.0 秒の再クリックで取り消し、ハートは線に戻り、数字は 842 へ下にロール"
+        ],
+        "en": [
+          "Clicking runs a 0.7 s beat: 1 → 0.72 → 1.24 → 0.94 → 1, while a red gradient #FF4D6D→#FF8A5B fills from the centre.",
+          "After a 0.1 s delay a pink ring expands from 0.3× to 1× over 0.6 s, thinning out as it fades.",
+          "7 pairs of coloured dots burst outward about 51° apart, flying from 30 px to 62 px while shrinking away.",
+          "The count rolls up from 842 → 843 in 0.45 s; in the demo a second click at 4.0 s unlikes, the heart returns to an outline and the count rolls down to 842."
+        ],
+        "zh-Hans": [
+          "点击后 0.7 秒节拍：1 → 0.72 → 1.24 → 0.94 → 1，渐变红 #FF4D6D→#FF8A5B 由中心填满。",
+          "粉色圆环延迟 0.1 秒，在 0.6 秒内从 0.3 倍扩到 1 倍并变细消失。",
+          "7 对彩色小点按约 51° 间隔向外迸发，从 30 px 飞到 62 px，同时缩小消失。",
+          "点赞数用 0.45 秒从 842 → 843 向上滚动；演示中 4.0 秒再点取消，爱心变回描边，数字向下滚回 842。"
+        ]
+      },
+      "use": {
+        "ja": "SNSやコミュニティ、コンテンツアプリのいいね・お気に入りボタンで、押した手応えをはっきり返したいとき。",
+        "en": "Use it on like or favourite buttons in social, community and content apps to give clear tap feedback.",
+        "zh-Hans": "适合社交、社区、内容类 App 的点赞或收藏按钮，给出明确的点击反馈。"
+      },
+      "tags": [
+        "like",
+        "heart",
+        "burst",
+        "micro-interaction",
+        "button",
+        "counter",
+        "social"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "点赞动画",
+          "爱心迸发",
+          "喜欢按钮"
+        ]
+      }
+    },
+    {
+      "no": "31",
+      "slug": "rolling-digits",
+      "category": "feedback",
+      "name": {
+        "ja": "桁ごとに回る数字",
+        "en": "Rolling digits",
+        "zh-Hans": "数字逐位滚动"
+      },
+      "meaning": {
+        "ja": "変わった桁だけが縦にロールして数値が更新されるカウンター",
+        "en": "A counter where only the changed digits roll vertically to update",
+        "zh-Hans": "只有变化的数位上下滚动来更新的数字计数器"
+      },
+      "ask": {
+        "ja": "リアルタイム訪問者数の表示で、値が変わったら変わった桁だけを0.9秒でロールさせて、左から1桁ごとに45msずつ遅らせて。",
+        "en": "For the live visitor count, roll only the changed digits over 0.9 s when the value updates, staggering each digit by 45 ms from left to right.",
+        "zh-Hans": "实时访客数变化时，只让变了的位滚动 0.9 秒，从左到右每位延迟 45 毫秒。"
+      },
+      "summary": {
+        "ja": "「リアルタイム訪問者」の大きな数字が更新のたびに変わった桁だけ少し行き過ぎながらロールし、横の推移グラフが1目盛り左へ進む。",
+        "en": "Each update of a large live-visitor number rolls only the changed digits with a slight overshoot, while the trend line beside it shifts one step left.",
+        "zh-Hans": "「实时访客」大数字每次更新只有变化的位带轻微过冲地滚动，旁边的走势线同步左移一格。"
+      },
+      "spec": {
+        "ja": [
+          "変わった桁だけが個別にロールする。各桁 0.9 秒、cubic-bezier(.3,1.25,.5,1) で行き過ぎあり、左から桁ごとに 45 ミリ秒遅れる",
+          "46px の大きな数字。増えたときは下から上へ、減ったときは上から下へロール。上下 14% はフェードで隠す",
+          "デモでは 1.0・2.4・3.8・5.2 秒に 12,486 → 12,531 → 12,529 → 12,407 と変わる",
+          "24 点の推移グラフは更新ごとに 0.6 秒でひと目盛り左へ進む。赤い点が 1.6 秒ごとに脈打つ"
+        ],
+        "en": [
+          "Only changed digits roll, each for 0.9 s with cubic-bezier(.3,1.25,.5,1) overshoot, staggered 45 ms from left to right.",
+          "46 px digits roll upward when the value rises and downward when it falls; the top and bottom 14% fade out.",
+          "In the demo the value changes at 1.0, 2.4, 3.8 and 5.2 s: 12,486 → 12,531 → 12,529 → 12,407.",
+          "A 24-point trend line shifts one step left in 0.6 s on each update; a red dot pulses every 1.6 s."
+        ],
+        "zh-Hans": [
+          "只有变化的位单独滚动，每位 0.9 秒，cubic-bezier(.3,1.25,.5,1) 带过冲，从左到右每位延迟 45 毫秒。",
+          "46 px 大号数字，数值增加时从下往上滚，减少时从上往下滚；上下 14% 渐隐遮罩。",
+          "演示中 1.0、2.4、3.8、5.2 秒依次变为 12,486 → 12,531 → 12,529 → 12,407。",
+          "24 点走势线每次更新用 0.6 秒左移一格；红点每 1.6 秒呼吸一次。"
+        ]
+      },
+      "use": {
+        "ja": "ダッシュボードのKPI、リアルタイムの訪問者数や売上、価格表示など、頻繁に変わる数値の更新に。",
+        "en": "Use it for frequently changing numbers such as dashboard KPIs, live visitors, sales or prices.",
+        "zh-Hans": "适合数据看板 KPI、实时访客数、销售额、价格等频繁变化的数字。"
+      },
+      "tags": [
+        "odometer",
+        "counter",
+        "rolling-digits",
+        "dashboard",
+        "kpi",
+        "realtime"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "数字滚动",
+          "里程表数字",
+          "翻牌数字"
+        ]
+      }
+    },
+    {
+      "no": "32",
+      "slug": "isometric-data-blocks",
+      "category": "data",
+      "name": {
+        "ja": "アイソメトリックのデータブロック",
+        "en": "Isometric data blocks",
+        "zh-Hans": "等轴数据积木"
+      },
+      "meaning": {
+        "ja": "等角投影のブロックが積み上がって地域×月のデータを見せる立体グラフ",
+        "en": "An isometric 3D chart of blocks showing data by region and month",
+        "zh-Hans": "用等轴积木柱展示地区 × 月份数据的立体图表"
+      },
+      "ask": {
+        "ja": "4地域×6か月の数値を等角投影のブロックで見せて、手前の列から70msずつずらして弾むように伸ばし、ホバーで同じ行と列だけ色を残して。",
+        "en": "Show 4 regions × 6 months as isometric blocks that rise with a bounce row by row from the front, staggered by 70 ms; on hover keep colour only on the same row and column.",
+        "zh-Hans": "用等轴积木展示 4 个地区 × 6 个月的数据，从最前排开始每排错开 70 毫秒弹起；悬停时只保留同行同列的颜色。"
+      },
+      "summary": {
+        "ja": "等角のブロックが手前から順に弾みながら伸び、ホバーした柱の行と列以外が灰色になって値が浮かび、指標を切り替えると高さが波のように組み替わる。",
+        "en": "Isometric blocks rise from the front with a bounce; hovering greys out all but the bar's row and column and shows its value, and switching metrics re-stacks heights in a wave.",
+        "zh-Hans": "等轴积木从前排起依次弹起，悬停某柱时只留同行同列着色并浮出数值，切换指标时高度波浪式重排。"
+      },
+      "spec": {
+        "ja": [
+          "4 地域 × 6 か月の等角ブロック。格子の間隔 32 × 12px、柱の幅は 0.72 マス",
+          "手前から順に伸びる：遅延 (8−行−列)×70 ミリ秒、長さ 650 ミリ秒、弾むイージング",
+          "ホバーした柱の同じ行と列だけ色を残し、ほかは 0.2 秒で灰色に。値のツールチップは 0.22 秒で弾んで出る。デモでは 1.9–2.7 秒と 4.0–4.7 秒にホバー",
+          "デモでは 3.1 秒に指標を切り替え、高さが (行+列)×45 ミリ秒の波で組み替わる。5.4 秒から (行+列)×30 ミリ秒ずつ 0.5 秒で地面へ戻る"
+        ],
+        "en": [
+          "Isometric blocks for 4 regions × 6 months; grid spacing 32 × 12 px, bars 0.72 of a cell wide.",
+          "Rows rise from the front with a delay of (8 − row − column) × 70 ms, a 650 ms duration and a bouncy ease.",
+          "Hovering keeps colour only on the bar's row and column and greys the rest in 0.2 s; the value tooltip springs in over 0.22 s. The demo hovers from 1.9–2.7 s and 4.0–4.7 s.",
+          "In the demo the metric switches at 3.1 s and heights re-stack in a (row + column) × 45 ms wave; from 5.4 s blocks drop to the floor in 0.5 s, staggered by (row + column) × 30 ms."
+        ],
+        "zh-Hans": [
+          "4 个地区 × 6 个月的等轴积木，格距 32 × 12 px，柱宽 0.72 格。",
+          "从最前排开始逐排升起：延迟 (8 − 行 − 列) × 70 毫秒，时长 650 毫秒，缓动带回弹。",
+          "悬停某柱时只留同行同列着色，其余 0.2 秒变灰；数值提示框 0.22 秒回弹浮出。演示中 1.9–2.7 秒、4.0–4.7 秒各悬停一次。",
+          "演示中 3.1 秒切换指标，高度按 (行 + 列) × 45 毫秒的波浪重排；5.4 秒起按 (行 + 列) × 30 毫秒依次用 0.5 秒落回地面。"
+        ]
+      },
+      "use": {
+        "ja": "営業・アクセスの地域別ダッシュボードや、レポートページで2軸の比較を立体的に見せたいとき。",
+        "en": "Use it in regional sales or traffic dashboards and report pages to compare two dimensions in 3D.",
+        "zh-Hans": "适合分地区的销售、访问量看板或报告页，用立体方式对比两个维度。"
+      },
+      "tags": [
+        "isometric",
+        "3d-chart",
+        "bar-chart",
+        "dashboard",
+        "data-viz",
+        "hover"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "等轴柱状图",
+          "立体柱状图",
+          "2.5D 图表"
+        ]
+      }
+    },
+    {
+      "no": "33",
+      "slug": "regrouping-bubbles",
+      "category": "data",
+      "name": {
+        "ja": "グループが組み替わるバブル",
+        "en": "Regrouping bubbles",
+        "zh-Hans": "气泡分组重排"
+      },
+      "meaning": {
+        "ja": "泡の群れが押し合いながら、条件ごとのグループに分かれ直すチャート",
+        "en": "A bubble chart where bubbles jostle and regroup by the chosen category",
+        "zh-Hans": "气泡互相推挤、按所选条件重新分组的图表"
+      },
+      "ask": {
+        "ja": "36件のプロジェクトを予算の大きさの泡で表して、タブで「チーム別」「状態別」に切り替えたら、泡が押し合いながら4群・3群に分かれるようにして。",
+        "en": "Show 36 projects as bubbles sized by budget; switching tabs to by-team or by-status makes them jostle apart into 4 or 3 clusters.",
+        "zh-Hans": "用气泡表示 36 个项目（大小代表预算），切换「按团队」「按状态」时气泡互相推挤，分成 4 群或 3 群。"
+      },
+      "summary": {
+        "ja": "色分けされた泡の塊が、タブの切り替えで押し合いながら4つ、3つの群に分かれ、最後にまた1つにまとまる。群の上のラベルが予算合計を示す。",
+        "en": "A cluster of coloured bubbles jostles apart into 4, then 3 groups as tabs switch, then merges back; labels above each group show budget totals.",
+        "zh-Hans": "彩色气泡团随标签切换推挤分成 4 群、3 群，再聚回一团，群顶标签显示预算合计。"
+      },
+      "spec": {
+        "ja": [
+          "プロジェクトの泡 36 個、半径 (4.5+√予算×5)×0.85、4 チームで色分け",
+          "力学レイアウト：グループ中心への引力係数 5、速度の減衰 e^(−5·dt)、衝突解消は 3 回（すき間 1.5px）",
+          "デモでは 1.0 秒に「チーム別」で 4 群、2.6 秒に「状態別」で 3 群、4.2 秒に「すべて」でひとつに。切り替えのたびに ±30 のランダムな初速",
+          "ホバーした泡以外は不透明度 0.45 に下がりツールチップが出る。群のラベルは群と一緒に動いて予算合計を示し、切り替え後 0.3 秒でフェードイン"
+        ],
+        "en": [
+          "36 project bubbles with radius (4.5 + √budget × 5) × 0.85, coloured by 4 teams.",
+          "Force layout: pull toward the group centre with strength 5, velocity damping e^(−5·dt), and 3 collision passes with 1.5 px spacing.",
+          "In the demo, by-team at 1.0 s forms 4 clusters, by-status at 2.6 s forms 3, and all at 4.2 s merges them; each switch adds a random kick of ±30.",
+          "Hovering drops other bubbles to 0.45 opacity and shows a tooltip; group labels move with their cluster, show the budget total, and fade in 0.3 s after a switch."
+        ],
+        "zh-Hans": [
+          "36 个项目气泡，半径 (4.5 + √预算 × 5) × 0.85，按 4 个团队着色。",
+          "力导布局：向组中心的弹力系数 5，速度阻尼 e^(−5·dt)，3 轮碰撞分离（间距 1.5 px）。",
+          "演示中 1.0 秒点「按团队」分成 4 群，2.6 秒点「按状态」分成 3 群，4.2 秒点「全部」聚回一团；每次切换给气泡 ±30 的随机冲量。",
+          "悬停某个气泡时其余降到 0.45 不透明并浮出提示框；群标签随群移动、显示预算合计，切换后 0.3 秒淡入。"
+        ]
+      },
+      "use": {
+        "ja": "プロジェクト管理やポートフォリオ分析のダッシュボードで、同じデータを切り口を変えて見せたいとき。",
+        "en": "Use it in project-management or portfolio-analysis dashboards to show the same data from different groupings.",
+        "zh-Hans": "适合项目管理、投资组合分析看板，用不同分组方式查看同一批数据。"
+      },
+      "tags": [
+        "bubble-chart",
+        "force-layout",
+        "grouping",
+        "dashboard",
+        "data-viz",
+        "tabs"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "力导气泡图",
+          "气泡分群",
+          "分组气泡"
+        ]
+      }
+    },
+    {
+      "no": "34",
+      "slug": "live-table-insert",
+      "category": "data",
+      "name": {
+        "ja": "新しい行が入るテーブル",
+        "en": "Live table insert",
+        "zh-Hans": "表格实时插入"
+      },
+      "meaning": {
+        "ja": "新しい行が流れ込み、並べ替えで行がすれ違うライブ更新の表",
+        "en": "A live table where new rows slide in and rows pass each other when re-sorted",
+        "zh-Hans": "新行实时滑入、排序时各行互相穿过的表格"
+      },
+      "ask": {
+        "ja": "リアルタイム注文テーブルで、新しい注文は上から滑り込んで紫に一瞬光り、1.4秒で消えるようにして。列見出しで並べ替えたら行が0.45秒で移動するように。",
+        "en": "In the live orders table, slide new orders in from the top with a purple flash that fades in 1.4 s, and move rows to their new positions over 0.45 s when a header re-sorts them.",
+        "zh-Hans": "实时订单表中，新订单从顶部滑入并闪一下紫色，1.4 秒褪去；点表头排序时各行 0.45 秒移动到新位置。"
+      },
+      "summary": {
+        "ja": "注文テーブルに新しい行が上から滑り込んで光り、金額の見出しをクリックすると行同士がすれ違って並び替わり、時間で戻すと元の順に戻る。",
+        "en": "New orders slide into the table with a flash; clicking the amount header makes rows pass each other into a new order, and the time header restores it.",
+        "zh-Hans": "订单表里新行从顶部滑入并闪亮，点「金额」表头各行互相穿过重新排列，点「时间」恢复原序。"
+      },
+      "spec": {
+        "ja": [
+          "表示は 5 行、行の高さ 24px。新しい注文は上から滑り込んで紫に光り、1.4 秒で消える",
+          "ほかの行は 0.45 秒で新しい位置へ移動し、押し出された行は 0.35 秒でフェードアウト",
+          "デモでは 0.8 秒と 3.1 秒に新しい注文が入り、2.2 秒に「金額」で降順に並べ替え、4.2 秒に「時間」で元に戻す",
+          "各行の「N 秒前」は時間とともに増え、3 秒未満は「たった今」。見出しの赤い点は 1.4 秒ごとに脈打つ"
+        ],
+        "en": [
+          "5 visible rows, 24 px tall; a new order slides in from the top with a purple flash that fades in 1.4 s.",
+          "Other rows move to their new slots in 0.45 s, and rows pushed out fade over 0.35 s.",
+          "In the demo new orders arrive at 0.8 s and 3.1 s, the amount header sorts descending at 2.2 s, and the time header restores order at 4.2 s.",
+          "Each row's N s ago label counts up, showing just now under 3 s; the header's red dot pulses every 1.4 s."
+        ],
+        "zh-Hans": [
+          "只显示 5 行，行高 24 px；新订单从顶部滑入并闪一下紫色，1.4 秒褪去。",
+          "其余行 0.45 秒滑到新位置，挤出的行 0.35 秒淡出。",
+          "演示中 0.8 秒、3.1 秒各来一笔新订单，2.2 秒点「金额」按降序重排，4.2 秒点「时间」恢复。",
+          "每行「N 秒前」随时间增长，不足 3 秒显示「刚刚」；标题旁红点每 1.4 秒呼吸一次。"
+        ]
+      },
+      "use": {
+        "ja": "注文・取引・ログなどリアルタイムで行が増える管理画面やダッシュボードの表で。",
+        "en": "Use it in admin panels and dashboards where orders, transactions or logs arrive in real time.",
+        "zh-Hans": "适合订单、交易、日志等实时新增数据的后台管理界面和数据看板表格。"
+      },
+      "tags": [
+        "table",
+        "realtime",
+        "row-insert",
+        "sorting",
+        "dashboard",
+        "flip-animation"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "实时表格",
+          "表格排序动画",
+          "新行插入"
+        ]
+      }
+    },
+    {
+      "no": "35",
+      "slug": "bar-chart-race",
+      "category": "data",
+      "name": {
+        "ja": "順位が入れ替わる棒グラフ",
+        "en": "Bar chart race",
+        "zh-Hans": "排名赛跑柱状图"
+      },
+      "meaning": {
+        "ja": "年ごとに順位が入れ替わる、横棒グラフの順位レース",
+        "en": "A horizontal bar chart race where rankings change year by year",
+        "zh-Hans": "按年份推进、排名不断交换的横向柱状赛跑图"
+      },
+      "ask": {
+        "ja": "8種類のドリンクの2019〜2026年の売上をバーチャートレースにして、上位6位だけ表示、1年0.6秒で再生し、スライダーで年をドラッグできるようにして。",
+        "en": "Make a bar chart race of 8 drinks' sales from 2019 to 2026, showing the top 6, playing at 0.6 s per year, with a draggable year slider.",
+        "zh-Hans": "把 8 种饮品 2019–2026 年的销量做成排名赛跑柱状图，只显示前 6 名，每年播放 0.6 秒，可拖动年份滑块。"
+      },
+      "summary": {
+        "ja": "ドリンクの横棒が年とともに伸び縮みし、追い抜いた棒が上へ移って順位が入れ替わり、大きな年号が進む。最後にスライダーを戻すと順位が逆再生される。",
+        "en": "Drink bars grow year by year, overtaking bars slide up to swap ranks and a large year ticks on; dragging the slider back plays the ranking in reverse.",
+        "zh-Hans": "饮品横条随年份伸缩，超过上一名的柱子上移交换名次，大号年份跳动；最后拖回滑块，排名倒放。"
+      },
+      "spec": {
+        "ja": [
+          "8 種類のドリンクの 2019–2026 年の売上を競わせ、上位 6 位だけ表示。行の高さ 22px",
+          "順位の位置は毎秒 10 の速さで目標へ近づく（ドラッグ中は毎秒 16）。目盛りの最大値は首位の 1.08 倍で、毎秒 4 で追従",
+          "デモでは 0.3–4.5 秒に自動再生、各年 0.6 秒。右下の 58px の大きな年号と棒の先の数字が連動",
+          "デモでは 5.0 秒に年スライダーをつかみ、5.05–5.8 秒に 2019 まで引き戻して順位を逆再生。6.0 秒に再生ボタンを押す"
+        ],
+        "en": [
+          "8 drinks race on sales from 2019–2026, showing only the top 6, with 22 px rows.",
+          "Rank positions approach their targets at 10/s (16/s while dragging); the axis maximum is 1.08 × the leader and follows at 4/s.",
+          "In the demo it autoplays from 0.3–4.5 s at 0.6 s per year; a 58 px year in the lower right and the bar-end values update in sync.",
+          "In the demo the year slider is grabbed at 5.0 s and dragged back to 2019 from 5.05–5.8 s, replaying ranks in reverse; the play button is clicked at 6.0 s."
+        ],
+        "zh-Hans": [
+          "8 种饮品 2019–2026 年销量赛跑，只显示前 6 名，行高 22 px。",
+          "排名位置以 10/秒逼近目标（拖动时 16/秒）；刻度最大值取第一名的 1.08 倍，以 4/秒跟随。",
+          "演示中 0.3–4.5 秒自动播放，每年 0.6 秒；右下角 58 px 大年份与柱端数字同步跳动。",
+          "演示中 5.0 秒按住年份滑块，5.05–5.8 秒拖回 2019，排名倒放；6.0 秒点击播放键。"
+        ]
+      },
+      "use": {
+        "ja": "市場シェアや売上ランキングの推移を見せるデータストーリー、年次レポート、マーケティングページで。",
+        "en": "Use it in data stories, annual reports and marketing pages that show how market share or sales rankings changed over time.",
+        "zh-Hans": "适合展示市场份额、销量排名变化的数据故事、年度报告和营销页面。"
+      },
+      "tags": [
+        "bar-chart-race",
+        "ranking",
+        "time-series",
+        "data-viz",
+        "slider",
+        "animation"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "动态排名图",
+          "柱状图赛跑",
+          "排行榜动画"
+        ]
+      }
+    },
+    {
+      "no": "36",
+      "slug": "waffle-chart-flip",
+      "category": "data",
+      "name": {
+        "ja": "反転するワッフルチャート",
+        "en": "Waffle chart flip",
+        "zh-Hans": "华夫格翻转"
+      },
+      "meaning": {
+        "ja": "100マスのワッフルチャートで、変わったマスだけがめくれて構成比が変わる",
+        "en": "A 100-cell waffle chart where only the cells that change flip to the new share",
+        "zh-Hans": "100 格华夫图中只有变了的格子翻转来更新占比"
+      },
+      "ask": {
+        "ja": "100人の通勤手段を10×10のワッフルチャートにして、年代タブを切り替えたら所属が変わるマスだけを斜めの波で380msずつめくって色を変えて。",
+        "en": "Show 100 people's commute modes as a 10 × 10 waffle chart; when the age tab changes, flip only the cells that change category in a diagonal wave, 380 ms each.",
+        "zh-Hans": "把 100 人的通勤方式做成 10 × 10 华夫图，切换年龄段时只让换了归属的格子沿对角线波浪翻转，每格 380 毫秒。"
+      },
+      "summary": {
+        "ja": "年代タブをクリックするたびに、色が変わるマスだけが斜めの波でくるりとめくれ、右のパーセントがロールし、凡例にホバーするとその手段だけが残る。",
+        "en": "Each age-tab click flips only the cells that change colour in a diagonal wave while the percentages roll; hovering a legend item isolates that mode.",
+        "zh-Hans": "点击年龄标签，只有换色的格子沿对角线波浪翻转，百分比滚动；悬停图例只突出该方式。"
+      },
+      "spec": {
+        "ja": [
+          "10×10 = 100 マス、各マス 13px・すき間 3px、通勤手段 4 種で色分け",
+          "年代を切り替えると所属が変わるマスだけがめくれる：斜めの遅延 (列+行)×22 ミリ秒、めくりは 380 ミリ秒、90° まで回って 0.85 倍に縮んだ瞬間に色が変わる",
+          "右側のパーセントは 0.7 秒で新しい値へロール。凡例にホバーするとほかのマスが 0.25 秒で不透明度 0.16 に下がる",
+          "デモでは 0.8・2.0・3.2 秒に 30–39・40–49・50+ 歳のタブを順に押し、5.0 秒に 20–29 歳へ戻す"
+        ],
+        "en": [
+          "10 × 10 = 100 cells, 13 px each with 3 px gaps, coloured by 4 commute modes.",
+          "Switching age group flips only cells that change category: diagonal delay of (column + row) × 22 ms, a 380 ms flip, with the colour swapping at the 90° midpoint while scaled to 0.85.",
+          "The percentages on the right roll to new values in 0.7 s; hovering a legend item dims other cells to 0.16 opacity in 0.25 s.",
+          "In the demo the 30–39, 40–49 and 50+ tabs are clicked at 0.8, 2.0 and 3.2 s, and 20–29 is restored at 5.0 s."
+        ],
+        "zh-Hans": [
+          "10 × 10 = 100 格，每格 13 px、间距 3 px，按 4 种通勤方式着色。",
+          "切换年龄段时只有换了归属的格子翻转：沿对角线延迟 (列 + 行) × 22 毫秒，翻转 380 毫秒，转到 90° 并缩到 0.85 倍的中点换色。",
+          "右侧百分比 0.7 秒滚动到新值；悬停图例时其余格子 0.25 秒降到 0.16 不透明。",
+          "演示中 0.8、2.0、3.2 秒依次点 30–39、40–49、50+ 岁标签，5.0 秒点回 20–29 岁。"
+        ]
+      },
+      "use": {
+        "ja": "アンケート結果や人口構成など、割合をグループ別に比べるデータ記事やダッシュボードで。",
+        "en": "Use it in data articles and dashboards that compare proportions across groups, such as survey results or demographics.",
+        "zh-Hans": "适合按群体比较占比的数据文章和看板，例如问卷结果、人口构成。"
+      },
+      "tags": [
+        "waffle-chart",
+        "flip",
+        "proportion",
+        "data-viz",
+        "tabs",
+        "legend-hover"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "华夫图",
+          "方格占比图",
+          "翻转方格"
+        ]
+      }
+    },
+    {
+      "no": "37",
+      "slug": "moving-bubble-chart",
+      "category": "data",
+      "name": {
+        "ja": "四半期ごとに動くバブル",
+        "en": "Quarterly bubble motion",
+        "zh-Hans": "季度气泡移动"
+      },
+      "meaning": {
+        "ja": "四半期ごとに泡が軌跡を描いて動く、時間軸つきのバブルチャート",
+        "en": "A time-based bubble chart where bubbles travel along their paths quarter by quarter",
+        "zh-Hans": "气泡随季度沿各自路径移动的时间轴气泡图"
+      },
+      "ask": {
+        "ja": "8つのアプリを月間ユーザー（対数軸）×30日継続率のバブルチャートにして、四半期ごとに泡を動かし、背景をドラッグすると8pxごとに1四半期進んだり戻ったりするように。",
+        "en": "Plot 8 apps on monthly users (log axis) × 30-day retention; animate the bubbles quarter by quarter, and let dragging the background scrub 1 quarter per 8 px.",
+        "zh-Hans": "把 8 个 App 画成月活用户（对数轴）× 30 日留存的气泡图，按季度移动气泡，拖动背景时每 8 px 前进或后退 1 个季度。"
+      },
+      "summary": {
+        "ja": "大きな四半期の文字を背に、アプリの泡が大きさを変えながら座標上を滑らかに移動し、1つは点線の軌跡を残す。ドラッグで早送りや巻き戻しができる。",
+        "en": "Behind a large quarter label, app bubbles glide across the chart while changing size, one leaving a dotted trail; dragging fast-forwards or rewinds time.",
+        "zh-Hans": "季度大字作背景，App 气泡边缩放边在坐标上滑动，一个留下虚线轨迹；拖动可快进倒回。"
+      },
+      "spec": {
+        "ja": [
+          "アプリの泡 8 個、半径 4+√売上×2.6。横軸は月間ユーザー（対数）、縦軸は 30 日継続率 10–70%",
+          "キーフレームは第 0・8・16・23 四半期、その間は smoothstep で補間し、ユーザー数は対数で補間",
+          "デモでは 0.2–2.8 秒に自動再生（毎秒 2.4 四半期）。背景のドラッグは 8px ごとに 1 四半期進む・戻る",
+          "「写真編集」は点線の軌跡と四半期ごとの点を残す。背景の大きな四半期表示は 2021 Q1 から 2026 Q4"
+        ],
+        "en": [
+          "8 app bubbles with radius 4 + √revenue × 2.6; x is monthly users on a log scale, y is 30-day retention from 10–70%.",
+          "Keyframes sit at quarters 0, 8, 16 and 23, interpolated with smoothstep, and user counts interpolate logarithmically.",
+          "In the demo it autoplays from 0.2–2.8 s at 2.4 quarters per second; dragging the background moves 1 quarter per 8 px.",
+          "The photo-editing app leaves a dotted trail with a dot per quarter; the large background label runs from 2021 Q1 to 2026 Q4."
+        ],
+        "zh-Hans": [
+          "8 个 App 气泡，半径 4 + √营收 × 2.6；横轴为月活用户（对数），纵轴为 30 日留存 10–70%。",
+          "关键帧在第 0、8、16、23 季度，之间用 smoothstep 插值，用户数按对数插值。",
+          "演示中 0.2–2.8 秒自动播放，每秒 2.4 个季度；拖动背景时每 8 px 前进或后退 1 个季度。",
+          "「照片编辑」留下虚线轨迹与逐季圆点；背景大号季度字样从 2021 Q1 到 2026 Q4。"
+        ]
+      },
+      "use": {
+        "ja": "市場分析や投資家向け資料、年次レポートのデータストーリーで、複数指標の時間変化を見せたいとき。",
+        "en": "Use it in market analysis, investor decks and annual-report data stories that show several metrics changing over time.",
+        "zh-Hans": "适合市场分析、投资人材料、年度报告中的数据故事，展示多项指标随时间的变化。"
+      },
+      "tags": [
+        "bubble-chart",
+        "time-series",
+        "scrubbing",
+        "data-viz",
+        "motion-chart",
+        "log-scale"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "动态气泡图",
+          "季度气泡图",
+          "运动图表"
+        ]
+      }
+    }
+  ]
+}

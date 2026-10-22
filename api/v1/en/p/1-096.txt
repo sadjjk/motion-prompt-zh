@@ -1,0 +1,15 @@
+Please use "Waffle chart flip" (反転するワッフルチャート), one of the names in "Interaction & data motion".
+Motion Prompt #1-096
+
+What it is: A 100-cell waffle chart where only the cells that change flip to the new share
+What the sample shows: Each age-tab click flips only the cells that change colour in a diagonal wave while the percentages roll; hovering a legend item isolates that mode.
+Spec:
+- 10 × 10 = 100 cells, 13 px each with 3 px gaps, coloured by 4 commute modes.
+- Switching age group flips only cells that change category: diagonal delay of (column + row) × 22 ms, a 380 ms flip, with the colour swapping at the 90° midpoint while scaled to 0.85.
+- The percentages on the right roll to new values in 0.7 s; hovering a legend item dims other cells to 0.16 opacity in 0.25 s.
+- In the demo the 30–39, 40–49 and 50+ tabs are clicked at 0.8, 2.0 and 3.2 s, and 20–29 is restored at 5.0 s.
+When to use it: Use it in data articles and dashboards that compare proportions across groups, such as survey results or demographics.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-096.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

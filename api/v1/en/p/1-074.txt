@@ -1,0 +1,15 @@
+Please use "Drum time picker" (ドラム式時刻ピッカー), one of the names in "Interaction & data motion".
+Motion Prompt #1-074
+
+What it is: A drum-style time picker whose values curve away around a wheel
+What the sample shows: Dragging a wheel rolls the numbers to rest on the centre line, far values tip away and fade, and the alarm time and countdown update.
+Spec:
+- 3 wheels for AM/PM, hour and minute, 34 px per step; the value on the 36 px tall light bar at the centre is selected.
+- A value d steps from centre tips back (rotateX d × 22°, max 80°) and fades to 1 − |d| × 0.28 opacity, no lower than .15.
+- Wheels ease with cubic-bezier(.2,.8,.2,1); 120 ms after stopping, the title and 'rings in X h Y min' update.
+- Demo: hour from 6 to 9 at 0.5–1.5 s, minute from 30 to 45 at 2.0–3.0 s, AM to PM at 3.5–4.1 s, all back at 5.4–6.3 s.
+When to use it: Use it for picking times or dates in alarm, booking and calendar apps.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-074.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

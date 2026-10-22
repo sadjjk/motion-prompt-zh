@@ -1,0 +1,113 @@
+// Motion Prompt #1-065 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 手描きの注釈 / Hand-drawn annotations
+// パック: uxmotion (インタラクションとデータの動き) · element 05 · カテゴリ: インタラクティブな文字
+// 何が起きるか: スタイルを選ぶたびに前の印が逆再生で消え、赤ペンの線が語ごとに順番に描かれていき、少し遅れて重ね書きの線が続く。
+// 動きの仕様:
+//   - 文中の 3 語を赤 #D93A55 で注釈：主線 2.4px に、1.6px・不透明度 70% の副線を重ねる
+//   - 4 スタイル：下線・丸囲み・四角・取り消し線。切り替え時はまず古い印を逆向きに消す（.26 秒）
+//   - 新しい印は語ごとに描く：語の間隔 .24 秒、副線はさらに .13 秒遅れ。各線の時間は .25 秒 + 線の長さ × 0.9ms
+//   - イージング cubic-bezier(.55,.1,.35,1)。デモでは 0.2 / 1.75 / 3.3 / 4.9 秒に順にスタイルを切り替える
+// 使いどころ: マーケティングページのキャッチコピー、料金比較、記事の要点文で、手書きの勢いでキーワードを目立たせるとき。
+// タグ: hand-drawn, annotation, highlight, underline, circle, marker, copywriting
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-065
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 05
+// 05 手绘圈画标注：句中 3 个关键词被红笔（#D93A55，主笔 2.4px + 1.6px 70% 副笔）依次标注；指针在 0.2 / 1.75 / 3.3 / 4.9 秒依次点「圈出 / 方框 / 删除线 / 下划线」，
+// 每次先把旧标注倒着擦掉（.26 秒），再逐词画新标注（每词间隔 .24 秒、副笔再晚 .13 秒，单笔时长 .25 秒 + 路径长 ×0.9ms，缓动 cubic-bezier(.55,.1,.35,1)），周期末回到下划线
+const MARK_SEG = [['这个季度，我们要把', 0], ['注册率', 1], ['提升到', 0], ['两倍', 1], ['，并把首周的', 0], ['流失率', 1], ['砍掉一半。', 0]];
+const MARK_TABS = ['下划线', '圈出', '方框', '删除线'];
+const MARK_EV = [[0.2, 1], [1.75, 2], [3.3, 3], [4.9, 0]];   // [点击时刻, 样式]
+const MARK_X = 30, MARK_W = 480, MARK_Y = 74, MARK_LH = 38;
+const MARK_ease = UXA_bz(.55, .1, .35, 1);
+let MARK_LAY = null;                                 // 惰性常量：文字片段位置、关键词矩形、4 种样式的笔画折线
+const MARK_build = k => {
+  const frags = [], rects = []; let x = 0, y = 0;
+  for (const [s, b] of MARK_SEG) {
+    k.font = `${b ? 850 : 700} 21px ${SANS}`;
+    if (b) {
+      const ww = k.measureText(s).width;
+      if (x + ww > MARK_W) { x = 0; y += MARK_LH; }
+      frags.push({ s, b, x: MARK_X + x, y: MARK_Y + y }); rects.push({ x: MARK_X + x, y: MARK_Y + y - 21, w: ww, h: 26 }); x += ww;
+    } else {
+      let cur = '';
+      for (const ch of s) {
+        const ww = k.measureText(cur + ch).width;
+        if (x + ww > MARK_W && cur) { frags.push({ s: cur, b, x: MARK_X + x, y: MARK_Y + y }); x = 0; y += MARK_LH; cur = ch; }
+        else cur += ch;
+      }
+      if (cur) { frags.push({ s: cur, b, x: MARK_X + x, y: MARK_Y + y }); x += k.measureText(cur).width; }
+    }
+  }
+  // 笔画折线：抖动用 hash（按样式、词、笔次固定），与原作 j(n) 幅度一致
+  const shapes = [0, 1, 2, 3].map(type => rects.map((r, wi) => [0, 1].map(pass => {
+    let sd = type * 1000 + wi * 100 + pass * 50;
+    const j = n => (hash(++sd) - 0.5) * 2 * n, s = pass ? 1.6 : 1, pts = [];
+    const quad = (x0, y0, cx, cy, x1, y1) => { for (let i = 0; i <= 16; i++) { const t = i / 16; pts.push([(1 - t) * (1 - t) * x0 + 2 * t * (1 - t) * cx + t * t * x1, (1 - t) * (1 - t) * y0 + 2 * t * (1 - t) * cy + t * t * y1]); } };
+    const { x, y, w, h } = r;
+    if (type === 0) quad(x - 2, y + h - 1 + j(1.5), x + w / 2, y + h + 3 * s + j(2), x + w + 3, y + h - 2 + j(1.5));
+    if (type === 3) quad(x - 3, y + h * 0.55 + j(2), x + w / 2, y + h * 0.45 + j(3), x + w + 3, y + h * 0.52 + j(2));
+    if (type === 2) pts.push([x - 4 + j(1.5), y - 1 + j(1.5)], [x + w + 4 + j(1.5), y - 2 + j(1.5)], [x + w + 3 + j(1.5), y + h + 2 + j(1.5)], [x - 3 + j(1.5), y + h + 1 + j(1.5)], [x - 4 + j(1), y - 3 + j(1)]);
+    if (type === 1) {
+      const cx = x + w / 2, cy = y + h / 2, rx = w / 2 + 9, ry = h / 2 + 5, a0 = -2.2 + j(0.3);
+      for (let i = 0; i <= 26; i++) { const a = a0 + (i / 26) * (TAU + 0.6), kk = 1 + j(0.05) + i * 0.004 * s; pts.push([cx + Math.cos(a) * rx * kk, cy + Math.sin(a) * ry * kk]); }
+    }
+    const L = [0]; for (let i = 1; i < pts.length; i++) L.push(L[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+    return { pts, L, len: L[L.length - 1] };
+  })));
+  return { frags, shapes };
+};
+// 画折线的前 f 段（0..1，按长度）
+const MARK_part = (k, sh, f) => {
+  if (f <= 0) return;
+  const lim = sh.len * Math.min(1, f);
+  k.beginPath(); k.moveTo(sh.pts[0][0], sh.pts[0][1]);
+  for (let i = 1; i < sh.pts.length; i++) {
+    if (sh.L[i] <= lim) { k.lineTo(sh.pts[i][0], sh.pts[i][1]); continue; }
+    const t = (lim - sh.L[i - 1]) / (sh.L[i] - sh.L[i - 1]);
+    k.lineTo(mix(sh.pts[i - 1][0], sh.pts[i][0], t), mix(sh.pts[i - 1][1], sh.pts[i][1], t)); break;
+  }
+  k.stroke();
+};
+CELLS[4] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 10, 10, CW - 20, CH - 20, 22);
+  if (!MARK_LAY) MARK_LAY = MARK_build(k);
+  txt(k, '季度计划备忘', MARK_X, 36, `700 12px ${SANS}`, UX.ink3);
+  for (const f of MARK_LAY.frags) txt(k, f.s, f.x, f.y, `${f.b ? 850 : 700} 21px ${SANS}`, UX.ink);
+  // 当前样式与上一样式
+  let ne = 0; for (const [t] of MARK_EV) if (u >= t) ne++;
+  const evt = ne ? MARK_EV[ne - 1] : [MARK_EV[3][0] - CYC, 0], prevType = MARK_EV[(ne + 2) % 4][1], type = evt[1];
+  const dt = u - evt[0];
+  k.strokeStyle = UX.danger; k.lineCap = 'round'; k.lineJoin = 'round';
+  const drawSet = (tp, fn) => MARK_LAY.shapes[tp].forEach((pair, wi) => pair.forEach((sh, pass) => {
+    k.lineWidth = pass ? 1.6 : 2.4; k.globalAlpha = pass ? 0.7 : 1; MARK_part(k, sh, fn(sh, wi, pass));
+  }));
+  if (dt < 0.26) drawSet(prevType, () => 1 - MARK_ease(dt / 0.26));
+  else drawSet(type, (sh, wi, pass) => MARK_ease(clamp((dt - 0.26 - wi * 0.24 - pass * 0.13) / (0.25 + sh.len * 0.0009))));
+  k.globalAlpha = 1;
+  // 样式分段控件：选中项白底 + 细描边，切换 .25 秒
+  const TX = 30, TY = 152, TW = 479, BW = (TW - 8 - 12) / 4;
+  k.fillStyle = UX.surface2; rr(k, TX, TY, TW, 36, 12); k.fill();
+  for (let i = 0; i < 4; i++) {
+    const bx = TX + 4 + i * (BW + 4);
+    const on = i === type ? clamp(dt / 0.25) : i === prevType && type !== prevType ? 1 - clamp(dt / 0.25) : 0;
+    if (on > 0) { k.globalAlpha = on; card(k, bx, TY + 4, BW, 28, 9); k.globalAlpha = 1; }
+    txt(k, MARK_TABS[i], bx + BW / 2, TY + 19, `700 12.5px ${SANS}`, rgba(lerpC([142, 138, 151], [22, 21, 27], on), 1), 'center', 'middle');
+  }
+  // 指针依次点 4 个按钮
+  const tabX = i => TX + 4 + i * (BW + 4) + BW / 2 + 4, ty = TY + 22;
+  const KF = [[0, tabX(0), ty + 4], [0.2, tabX(1), ty]];
+  MARK_EV.forEach(([t, tp], i) => { if (i) KF.push([t - 0.5, tabX(tp), ty], [t, tabX(tp), ty]); });
+  KF.push([5.6, tabX(0), ty + 4], [6.4, tabX(0), ty + 4]);
+  KF[0] = [0, tabX(0), ty + 4]; KF.splice(1, 0, [0.0001, tabX(0), ty + 4]);
+  const [px, py] = UXA_path(KF.sort((a, b) => a[0] - b[0]), u);
+  let press = 0; for (const [t] of MARK_EV) press = Math.max(press, pingPong(u, t - 0.1, t, t + 0.02, t + 0.14));
+  for (const [t, tp] of MARK_EV) ripple(k, tabX(tp), ty, (u - t) / 0.5);
+  cursor(k, px, py, press);
+};

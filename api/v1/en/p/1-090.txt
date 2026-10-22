@@ -1,0 +1,15 @@
+Please use "Heart burst like" (ハートがはじける「いいね」), one of the names in "Interaction & data motion".
+Motion Prompt #1-090
+
+What it is: A like reaction where the heart pulses and bursts with a ring and confetti dots
+What the sample shows: On click the heart squashes then pops, filling red as a ring and coloured dots burst out; the count rolls from 842 to 843 and back on a second click.
+Spec:
+- Clicking runs a 0.7 s beat: 1 → 0.72 → 1.24 → 0.94 → 1, while a red gradient #FF4D6D→#FF8A5B fills from the centre.
+- After a 0.1 s delay a pink ring expands from 0.3× to 1× over 0.6 s, thinning out as it fades.
+- 7 pairs of coloured dots burst outward about 51° apart, flying from 30 px to 62 px while shrinking away.
+- The count rolls up from 842 → 843 in 0.45 s; in the demo a second click at 4.0 s unlikes, the heart returns to an outline and the count rolls down to 842.
+When to use it: Use it on like or favourite buttons in social, community and content apps to give clear tap feedback.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-090.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

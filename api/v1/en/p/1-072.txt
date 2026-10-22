@@ -1,0 +1,15 @@
+Please use "Velocity-lean list" (速度で傾くリスト), one of the names in "Interaction & data motion".
+Motion Prompt #1-072
+
+What it is: A list that leans in the scroll direction the faster you scroll
+What the sample shows: A fast flick skews and slightly stretches the column of cards, which springs straight again on stopping; slow scrolling barely tilts it.
+Spec:
+- The list leans with speed: skewY = −speed × 3.2°, clamped to ±10°; it stretches 0.6% per 1° of lean, up to 6%.
+- Speed is smoothed (.4 new, .6 old); the lean is driven by a spring closing 0.2 per frame with 0.72 damping.
+- The red needle of a semicircle gauge at the top swings from −88° to +80° with speed.
+- Demo: fast scroll at 0.4–0.9 s, slow scroll at 1.9–3.5 s, quick return to top at 4.2–4.6 s.
+When to use it: Use it on content feeds, product lists and long portfolio lists to give fast scrolling a sense of inertia.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-072.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

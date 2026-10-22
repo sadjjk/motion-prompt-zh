@@ -1,0 +1,15 @@
+Please use "Quarterly bubble motion" (四半期ごとに動くバブル), one of the names in "Interaction & data motion".
+Motion Prompt #1-097
+
+What it is: A time-based bubble chart where bubbles travel along their paths quarter by quarter
+What the sample shows: Behind a large quarter label, app bubbles glide across the chart while changing size, one leaving a dotted trail; dragging fast-forwards or rewinds time.
+Spec:
+- 8 app bubbles with radius 4 + √revenue × 2.6; x is monthly users on a log scale, y is 30-day retention from 10–70%.
+- Keyframes sit at quarters 0, 8, 16 and 23, interpolated with smoothstep, and user counts interpolate logarithmically.
+- In the demo it autoplays from 0.2–2.8 s at 2.4 quarters per second; dragging the background moves 1 quarter per 8 px.
+- The photo-editing app leaves a dotted trail with a dot per quarter; the large background label runs from 2021 Q1 to 2026 Q4.
+When to use it: Use it in market analysis, investor decks and annual-report data stories that show several metrics changing over time.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-097.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

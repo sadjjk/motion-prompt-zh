@@ -1,0 +1,87 @@
+// Motion Prompt #1-086 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// スワイプするカードの山 / Swipeable card stack
+// パック: uxmotion (インタラクションとデータの動き) · element 26 · カテゴリ: カーソル連動
+// 何が起きるか: 重なったカードの一番上をポインターが右へ引いて傾け、「保存」スタンプとともに飛ばし、次のカードを左へ「スキップ」して、最後に2枚が戻ってくる。
+// 動きの仕様:
+//   - カード 4 枚を重ねる。190×150px、角丸 18px。下のカードほど 9px ずつ下がり 5% ずつ小さい
+//   - ドラッグ中はドラッグ量×0.06° 傾く。「保存」「スキップ」のスタンプはドラッグ距離に応じて濃くなり 110px で完全に表示、それぞれ −14° / 14° 傾く
+//   - 離すと 0.45 秒でさらに 270px 飛び去り、次のカードが繰り上がる
+//   - デモでは 0.5–1.6 秒に一番上を右へ 150px、2.6–3.7 秒に 2 枚目を左へドラッグ。5.0–6.1 秒に 2 枚が順に戻る
+// 使いどころ: おすすめ・マッチング・お気に入り登録などのモバイルアプリで、1件ずつ素早く振り分けてもらいたいとき。
+// タグ: swipe, card-stack, drag, gesture, mobile, tinder-style
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-086
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 26
+// 26 滑动卡片堆叠：4 张地点卡叠放（下层每张下移 9px、缩小 5%）；模拟指针 0.5–1.6 秒把顶卡向右拖 150px（卡片按 拖动量×0.06° 倾斜），
+// 「收藏」印章随拖动距离显出；松手后 .45 秒飞出画面，下一张以 .5 秒弹簧补上；2.6–3.7 秒把第 2 张向左拖，显出「跳过」印章并飞出；
+// 5.0–6.2 秒两张卡依次从两侧飞回原位（倒放），周期末回到初始那一叠
+const SWIPE_D = [
+  ['延南洞 · 咖啡馆', '午后温室', ['安静', '靠窗座位'], ['#FFB547', '#FF6B8B'], ['#FFE2B8', '#FF8A65']],
+  ['圣水洞 · 展览', '光之花园', ['需预约', '2 小时'], ['#5B8CFF', '#7B61FF'], ['#B7A4FF', '#3D5BFF']],
+  ['望远洞 · 书店', '海边书屋', ['独立出版', '饮品'], ['#22C3A6', '#0E7490'], ['#A5F2D3', '#14B8A6']],
+  ['乙支路 · 酒吧', '霓虹之家', ['爵士', '营业到 23 点'], ['#B04FD0', '#2B1B6B'], ['#FF9BD2', '#B04FD0']],
+];
+const SWIPE_CX = 200, SWIPE_CY = 100, SWIPE_W = 190, SWIPE_H = 150;
+// 第 i 张卡在时刻 u 的拖动偏移 dx（0 = 在叠中）与是否已离开
+function SWIPE_state(i, u) {
+  const ev = i === 0 ? { s: 0.5, e: 1.6, dir: 1, back: [5.0, 5.6] } : i === 1 ? { s: 2.6, e: 3.7, dir: -1, back: [5.5, 6.1] } : null;
+  if (!ev) return { dx: 0, out: 0 };
+  if (u >= ev.back[0]) { const q = inOut3(seg(u, ev.back[0], ev.back[1])); return { dx: ev.dir * 420 * (1 - q), out: 1 - q }; }
+  if (u < ev.s) return { dx: 0, out: 0 };
+  if (u < ev.e) return { dx: ev.dir * 150 * inOut3(seg(u, ev.s, ev.e)), out: 0 };
+  const q = out3(seg(u, ev.e, ev.e + 0.45)); return { dx: ev.dir * (150 + 270 * q), out: q };
+}
+CELLS[25] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  // 叠中位置：已离开的卡不占层；depth = 前面仍在叠中的卡数（带 .5 秒弹簧过渡）
+  const outs = SWIPE_D.map((_, i) => SWIPE_state(i, u));
+  const depthOf = i => { let d = 0; for (let j = 0; j < i; j++) d += 1 - outs[j].out; return d; };
+  for (let i = SWIPE_D.length - 1; i >= 0; i--) {
+    const d = Math.min(3, depthOf(i)), { dx } = outs[i];
+    const [place, title, tags, g1, g2] = SWIPE_D[i];
+    k.save(); k.translate(SWIPE_CX + dx, SWIPE_CY + d * 9 + SWIPE_H / 2); k.rotate(dx * 0.06 * Math.PI / 180); k.scale(1 - d * 0.05, 1 - d * 0.05);
+    k.translate(0, -SWIPE_H / 2);
+    k.save(); k.shadowColor = 'rgba(20,10,50,.35)'; k.shadowBlur = 18; k.shadowOffsetY = 10;
+    const bg = k.createLinearGradient(-SWIPE_W / 2, -SWIPE_H / 2, SWIPE_W / 2, SWIPE_H / 2); bg.addColorStop(0, g1[0]); bg.addColorStop(1, g1[1]);
+    k.fillStyle = bg; rr(k, -SWIPE_W / 2, -SWIPE_H / 2, SWIPE_W, SWIPE_H, 18); k.fill(); k.restore();
+    k.save(); rr(k, -SWIPE_W / 2, -SWIPE_H / 2, SWIPE_W, SWIPE_H, 18); k.clip();
+    glow(k, SWIPE_W / 2 - 30, -SWIPE_H / 2 + 10, 90, '255,255,255', 0.45);
+    const sg = k.createLinearGradient(-40, -60, 40, 20); sg.addColorStop(0, g2[0]); sg.addColorStop(1, g2[1]);
+    k.fillStyle = sg; k.beginPath(); k.ellipse(0, -18, 46, 42, 0.3, 0, TAU); k.fill();
+    const sh = k.createLinearGradient(0, 0, 0, SWIPE_H / 2); sh.addColorStop(0, 'rgba(10,6,30,0)'); sh.addColorStop(1, 'rgba(10,6,30,.6)');
+    k.fillStyle = sh; k.fillRect(-SWIPE_W / 2, 0, SWIPE_W, SWIPE_H / 2);
+    txt(k, place, -SWIPE_W / 2 + 14, 34, `700 9px ${SANS}`, 'rgba(255,255,255,.8)');
+    txt(k, title, -SWIPE_W / 2 + 14, 52, `800 16px ${SANS}`, '#fff');
+    let tx = -SWIPE_W / 2 + 14; for (const t of tags) { k.font = `700 8.5px ${SANS}`; const tw = k.measureText(t).width + 14; k.fillStyle = 'rgba(255,255,255,.22)'; rr(k, tx, 58, tw, 14, 7); k.fill(); txt(k, t, tx + 7, 68, `700 8.5px ${SANS}`, '#fff'); tx += tw + 5; }
+    // 印章：右滑「收藏」（左上、−14°），左滑「跳过」（右上、14°），透明度随拖动量
+    const a = clamp(Math.abs(dx) / 110);
+    if (a > 0.02) {
+      const yes = dx > 0; k.save(); k.translate(yes ? -SWIPE_W / 2 + 46 : SWIPE_W / 2 - 46, -SWIPE_H / 2 + 26); k.rotate((yes ? -14 : 14) * Math.PI / 180);
+      k.globalAlpha = a; k.strokeStyle = yes ? '#7EE8C0' : '#FF8FA3'; k.lineWidth = 2.5; rr(k, -30, -12, 60, 24, 7); k.stroke();
+      txt(k, yes ? '收藏' : '跳过', 0, 5, `900 13px ${SANS}`, yes ? '#7EE8C0' : '#FF8FA3', 'center'); k.restore();
+    }
+    k.restore(); k.restore();
+  }
+  // 右侧按钮栏与计数
+  const saved = outs[0].out > 0.5 ? 1 : 0, passed = outs[1].out > 0.5 ? 1 : 0;
+  txt(k, '今日推荐', 360, 52, `800 15px ${SANS}`, UX.ink);
+  txt(k, `收藏 ${saved} · 跳过 ${passed}`, 360, 72, `700 10px ${SANS}`, UX.ink3);
+  [['✕', UX.danger, 380], ['↺', UX.ink3, 428], ['♥', UX.mint, 476]].forEach(([s, c, x]) => {
+    k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 10; k.shadowOffsetY = 3; k.fillStyle = UX.surface; k.beginPath(); k.arc(x, 128, 18, 0, TAU); k.fill(); k.restore();
+    txt(k, s, x, 133, `800 15px ${SANS}`, c, 'center');
+  });
+  // 模拟指针：抓住顶卡中部拖动
+  let cx = 330, cy = 170, press = 0;
+  if (u >= 0.3 && u < 1.6) { cx = SWIPE_CX + outs[0].dx + 10; cy = SWIPE_CY + 60; press = u >= 0.5 ? 1 : seg(u, 0.3, 0.5); }
+  else if (u >= 1.6 && u < 2.6) { const q = inOut3(seg(u, 1.7, 2.5)); cx = mix(SWIPE_CX + 160, SWIPE_CX + 10, q); cy = SWIPE_CY + 60; }
+  else if (u >= 2.6 && u < 3.7) { cx = SWIPE_CX + outs[1].dx + 10; cy = SWIPE_CY + 60; press = 1; }
+  else if (u >= 3.7) { const q = inOut3(seg(u, 3.8, 4.6)); cx = mix(SWIPE_CX - 140, 330, q); cy = mix(SWIPE_CY + 60, 170, q); }
+  else { cx = mix(330, SWIPE_CX + 10, inOut3(seg(u, 0, 0.3))); cy = mix(170, SWIPE_CY + 60, inOut3(seg(u, 0, 0.3))); }
+  cursor(k, cx, cy, press);
+};

@@ -1,0 +1,72 @@
+// Motion Prompt #1-084 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 方向感知遮罩 / Direction-aware overlay
+// 分类包: uxmotion (交互与数据动效) · element 24 · 子分类: 光标交互
+// 动画表现: 指针从不同方向穿过 3 × 3 作品缩略图，深色说明面板从进入的边滑入、从离开的边滑出。
+// 运动规格:
+//   - 3 × 3 作品格，间距 7 px，圆角 10 px。
+//   - 进入某格时，深色面板 rgba(20,18,30,.82) 从指针越过的那条边用 0.32 秒（快起慢收）滑入；离开时朝指针离开的方向滑出。
+//   - 判断方向：把指针相对格中心的偏移按格宽、格高归一化，比较横纵偏移哪个更大来确定边。
+//   - 演示中指针在 0.3–4.9 秒从左、下、上、右等方向穿过 8 个格子。
+// 适用场景: 适合作品集、图库、商品网格，让悬停效果带有方向感、操作更有手感。
+// 标签: hover, direction-aware, overlay, grid, portfolio, gallery
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-084
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 24
+// 24 方向感知遮罩：#F1EEE8 底上 3×3 作品格（渐变色块缩略图）；指针 0.3–4.9 秒依次从左、下、左、上、上、右等不同方向穿过 8 个格子。
+// 进入某格时，深色说明面板 rgba(20,18,30,.82) 从指针越过的那条边滑入覆盖（.32s cubic-bezier(.3,.8,.3,1)），离开时朝指针离开的方向滑出；
+// 判断方向用原作算法：指针相对格中心的偏移按格宽高归一化，比较 |dx| 与 |dy|。
+const DAO_TT = [['House of Wind', '建筑'], ['Salt Studio', '品牌'], ['Night Library', '应用'], ['Blue Garden', '展览'], ['Paper Workshop', '包装'], ['Slow Post', '网页'], ['Sea Cinema', '电影'], ['Little Bakery', '品牌'], ['Forest Sounds', '音乐']];
+const DAO_ART = [['city', '#ADB5BD', '#343A40', '#212529'], ['sea', '#F8F9FA', '#CED4DA', '#ADB5BD'], ['night', '#1B1F3B', '#FFE066'], ['sky', '#A5D8FF', '#2F9E44', '#237032'], ['split', '#F8F0E3', '#D9B482'], ['sun', '#FFA8A8', '#C92A2A', '#FFE3E3'], ['sea', '#1864AB', '#0B3D91', '#FCC419'], ['sun', '#FFE8CC', '#E8590C', '#FFF4E6'], ['sky', '#B2F2BB', '#087F5B', '#0B5E46']];
+const DAO_P = 12, DAO_G = 7, DAO_W = (CW - 2 * DAO_P - 2 * DAO_G) / 3, DAO_H = (CH - 2 * DAO_P - 2 * DAO_G) / 3;
+const DAO_xy = i => [DAO_P + (i % 3) * (DAO_W + DAO_G), DAO_P + Math.floor(i / 3) * (DAO_H + DAO_G)];
+const DAO_KEYS = [[0.3, -20, 104], [0.9, 95, 104], [1.4, 270, 100], [1.9, 268, 38], [2.4, 440, 36], [2.9, 445, 104], [3.4, 440, 172], [3.9, 265, 170], [4.4, 95, 172], [4.9, -20, 150]];
+const DAO_at = p => { for (let i = 0; i < 9; i++) { const [x, y] = DAO_xy(i); if (p[0] >= x && p[0] < x + DAO_W && p[1] >= y && p[1] < y + DAO_H) return i; } return -1; };
+const DAO_side = (i, p) => { const [x, y] = DAO_xy(i), dx = (p[0] - x - DAO_W / 2) / DAO_W, dy = (p[1] - y - DAO_H / 2) / DAO_H; return Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : 3) : (dy > 0 ? 2 : 0); };
+// 每格事件表 [时刻, 1 进入/0 离开, 边 0上1右2下3左]
+const DAO_EV = (() => {
+  const E = DAO_TT.map(() => []); let cur = -1;
+  for (let i = 0; i <= CYC * 240; i++) {
+    const t = i / 240, p = UXB_path(t, DAO_KEYS), o = DAO_at(p);
+    if (o === cur) continue;
+    if (cur >= 0) E[cur].push([t, 0, DAO_side(cur, p)]);
+    if (o >= 0) E[o].push([t, 1, DAO_side(o, p)]);
+    cur = o;
+  }
+  return E;
+})();
+const DAO_OUT = [[0, -1.01], [1.01, 0], [0, 1.01], [-1.01, 0]];
+function DAO_off(u, ev) {
+  let fx = 0, fy = -1.01, tx = 0, ty = -1.01, t0 = -1e9;
+  for (const [t, show, s] of ev) {
+    if (t > u) break;
+    const e = uxEase(seg(t, t0, t0 + 0.32)), cx = mix(fx, tx, e), cy = mix(fy, ty, e);
+    if (show) { fx = DAO_OUT[s][0]; fy = DAO_OUT[s][1]; tx = 0; ty = 0; } else { fx = cx; fy = cy; tx = DAO_OUT[s][0]; ty = DAO_OUT[s][1]; }
+    t0 = t;
+  }
+  const e = uxEase(seg(u, t0, t0 + 0.32)); return [mix(fx, tx, e), mix(fy, ty, e)];
+}
+CELLS[23] = (k, w, h, u) => {
+  k.fillStyle = '#F1EEE8'; k.fillRect(0, 0, CW, CH);
+  for (let i = 0; i < 9; i++) {
+    const [x, y] = DAO_xy(i);
+    k.save(); rr(k, x, y, DAO_W, DAO_H, 10); k.clip();
+    UXB_pic(k, x, y, DAO_W, DAO_H, DAO_ART[i]);
+    const [ox, oy] = DAO_off(u, DAO_EV[i]);
+    if (Math.abs(ox) < 1 && Math.abs(oy) < 1) {
+      const X = x + ox * DAO_W, Y = y + oy * DAO_H;
+      k.fillStyle = 'rgba(20,18,30,.82)'; k.fillRect(X, Y, DAO_W, DAO_H);
+      k.save(); k.globalAlpha = 0.7; txt(k, DAO_TT[i][1], X + 10, Y + DAO_H - 34, UXB_f(650, 9.5), '#FFFFFF'); k.restore();
+      txt(k, DAO_TT[i][0], X + 10, Y + DAO_H - 21, UXB_f(800, 12), '#FFFFFF');
+      txt(k, '查看 →', X + 10, Y + DAO_H - 8, UXB_f(800, 10), '#FFD8A8');
+    }
+    k.restore();
+  }
+  const c = UXB_path(u, DAO_KEYS);
+  if (u > 0.3 && u < 4.9) cursor(k, c[0], c[1]);
+};

@@ -1,0 +1,15 @@
+Please use "Constellation mesh" (星座のようなメッシュ), one of the names in "Interaction & data motion".
+Motion Prompt #1-078
+
+What it is: A constellation-like mesh of drifting dots that link up when close
+What the sample shows: Dots drift on a dark field joined by faint lines; the pointer pulls nearby dots in with yellow links, and a click sprays out new dots.
+Spec:
+- 72 dots drift on small closed paths and link within 72 px: hue 210 + x/width × 90, opacity (1 − d/72) × .45.
+- The pointer becomes a node, drawing bright yellow links (255,224,130, (1 − d/120) × .8) to dots within 120 px and pulling them in by up to 16 px.
+- A click bursts 9 new dots at 60–130 px/s, with speed above 30 px/s decaying at 1.5 per second; their radius shrinks from 4 to 1.6 over .6 s.
+- The top-left badge shows the live link count; demo pointer enters at 0.6 s and clicks at 2.8 s.
+When to use it: Use it as the hero background for tech, data and social-network products.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-078.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

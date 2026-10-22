@@ -1,0 +1,15 @@
+Please use "Warp starfield" (ワープする星空), one of the names in "Interaction & data motion".
+Motion Prompt #1-077
+
+What it is: A starfield hero where stars rush toward you and a long press triggers warp
+What the sample shows: Stars drift out from the centre; holding the button accelerates them into blue streaks with a glowing core, and releasing eases back to cruise.
+Spec:
+- 280 stars fly from the centre toward the camera (focal length 150), getting brighter and thicker as they near.
+- Holding 'Hold to warp' pulls speed toward 3.2, keeping 25% of the gap per second (cruise 0.22); release eases back, keeping 12% per second.
+- During warp stars stretch into lines and turn blue (blueness = (v − 0.22) / 1.6), with a 120 px blue glow at the centre.
+- The pointer shifts the heading (x × 70, y × 60); demo presses at 1.2 s and releases at 3.6 s.
+When to use it: Use it in hero sections for games, space-tech or AI product launches, paired with a long-press 'Start' or 'Launch' button.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-077.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

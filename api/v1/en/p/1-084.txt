@@ -1,0 +1,15 @@
+Please use "Direction-aware overlay" (入った方向からのオーバーレイ), one of the names in "Interaction & data motion".
+Motion Prompt #1-084
+
+What it is: A grid whose overlay slides in from the side the cursor entered
+What the sample shows: The pointer crosses a 3 × 3 thumbnail grid from many directions; a dark caption panel slides in from the entry edge and out the exit edge.
+Spec:
+- A 3 × 3 work grid with 7 px gaps and 10 px corner radius.
+- On entering a tile, a dark rgba(20,18,30,.82) panel slides in from the edge the pointer crossed over 0.32 s (fast start, soft stop), and slides out toward the exit edge.
+- Direction is decided by normalising the pointer's offset from the tile centre by width and height, then comparing the horizontal and vertical offsets.
+- In the demo the pointer passes through 8 tiles from the left, bottom, top and right between 0.3–4.9 s.
+When to use it: Use it on portfolio, gallery or product grids to give hover states a sense of direction.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-084.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

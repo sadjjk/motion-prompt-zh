@@ -1,0 +1,15 @@
+Please use "Cursor-lit borders" (カーソルで光る枠線), one of the names in "Interaction & data motion".
+Motion Prompt #1-081
+
+What it is: A cursor-following light that illuminates the borders of nearby cards
+What the sample shows: The pointer sweeps in a wave across four dark cards; borders near it glow from violet to blue, then dim slowly once it passes.
+Spec:
+- 4 cards on a dark #0A0B10 background, corner radius 18 px, 1.5 px borders.
+- A 160 px gradient glow centred on the pointer (violet to blue, transparent at 70% of the radius) lights the borders of adjacent cards at once.
+- A faint violet glow of 220 px at 0.14 strength is layered inside the cards.
+- Brightness approaches 1 at a rate of 8/s on enter and fades at 2.5/s on leave; in the demo the pointer sweeps across in a wave from 0.3–4.9 s.
+When to use it: Use it on feature grids or pricing cards in dark-themed SaaS and developer-tool landing pages.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-081.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,60 @@
+// Motion Prompt #1-070 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 滚动填色文字 / Scroll-filled sentence
+// 分类包: uxmotion (交互与数据动效) · element 10 · 子分类: 滚动交互
+// 动画表现: 越往下滚，淡灰句子从头逐词变深，重点词亮成紫色，读完后按钮从下方弹起。
+// 运动规格:
+//   - 大句子起初为淡灰，随滚动进度按词从头填成实色：每词占进度 1/N，整体 ×1.15 提前填满。
+//   - 2 处重点词填满时变成紫色 #6A57F2，并亮起不透明度 .16 的光晕。
+//   - 读完后「下一篇 →」按钮从下方 12px 弹起：淡入 .35 秒、弹簧 .5 秒。
+//   - 右侧 3px 宽、120px 高的进度条同步伸长；演示中 0.4→4.4 秒滚到底，5.4→6.3 秒回顶并重新变淡。
+// 适用场景: 适合品牌故事、宣言页或长文导语，用滚动节奏引导阅读。
+// 标签: scroll-fill, text-reveal, scroll, manifesto, highlight, storytelling
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-070
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 10
+// 10 滚动填色文字：大句子先是淡灰（line-2），滚到哪里就按词从头填成实色（每词占进度 1/N，整体 ×1.15 提前填满）；
+// 两处重点词填满时变成紫色并亮起光晕，读完后「下一篇 →」按钮从下方 12px 弹起（.35 秒淡入、.5 秒弹簧）；右侧 3px 进度条同步伸长。0.4→4.4 秒滚到底，5.4→6.3 秒回顶、文字重新变淡
+const FILL_T = '我们每天都在把*复杂的事情*变简单。因为我们相信，一个按钮、一句话，就能*省下某人的一个下午*。';
+const FILL_WORDS = (() => {
+  // 中文没有空格：按标点与 2–4 字的短语切词（重点词整体作为一个词）
+  const out = [];
+  FILL_T.split('*').forEach((chunk, ci) => {
+    if (ci % 2) { out.push({ s: chunk, em: true }); return; }
+    const parts = chunk.match(/[^，。、]{1,3}[，。、]?/g) || [];
+    parts.forEach(s => out.push({ s, em: false }));
+  });
+  return out;
+})();
+const FILL_F = `820 28px ${SANS}`, FILL_X = 30, FILL_W = 468, FILL_LH = 39;
+let FILL_LAY = null;                                 // 惰性常量：每个词的位置
+CELLS[9] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  k.font = FILL_F;
+  if (!FILL_LAY) { let x = 0, y = 0; FILL_LAY = FILL_WORDS.map(wd => { const ww = k.measureText(wd.s).width; if (x + ww > FILL_W) { x = 0; y += FILL_LH; } const r = { x: FILL_X + x, y: 66 + y, w: ww }; x += ww; return r; }); }
+  const t = u < SHOW ? inOut3(seg(u, 0.4, 4.4)) : 1 - inOut3(seg(u, SHOW, SHOW + 0.9));
+  const N = FILL_WORDS.length, f = t * 1.15 * N;
+  txt(k, '我们为什么做这件事', FILL_X, 34, `750 12px ${SANS}`, UX.ink3);
+  const grey = [215, 215, 216];
+  FILL_WORDS.forEach((wd, i) => {
+    const v = clamp(f - i), r = FILL_LAY[i];
+    if (wd.em && v >= 1) glow(k, r.x + r.w / 2, r.y - 9, r.w * 0.7, '106,87,242', 0.16);
+    txt(k, wd.s, r.x, r.y, FILL_F, rgba(lerpC(grey, wd.em ? [106, 87, 242] : [22, 21, 27], v), 1));
+  });
+  // 「下一篇 →」：进度 ×1.15 ≥ 1 时出现（按到达/离开时刻做 .35 秒淡入与 .5 秒弹簧）
+  const tOn = 0.4 + 4.0 * UXA_inv(1 / 1.15), tOff = SHOW + 0.9 * (1 - UXA_inv(1 / 1.15));
+  const on = u < tOff ? (u >= tOn ? 1 : 0) : 0, dt = on ? u - tOn : u - tOff;
+  const op = on ? clamp(dt / 0.35) : (u >= tOff ? 1 - clamp(dt / 0.35) : 0), ty = on ? 12 * (1 - UXA_spring(clamp(dt / 0.5))) : 12 * UXA_spring(clamp(dt / 0.5));
+  if (op > 0) {
+    k.globalAlpha = op; k.fillStyle = UX.ink; rr(k, FILL_X, 154 + ty, 106, 34, 17); k.fill();
+    txt(k, '下一篇 →', FILL_X + 53, 171.5 + ty, `750 13px ${SANS}`, UX.page, 'center', 'middle'); k.globalAlpha = 1;
+  }
+  // 右侧进度条：高 120、宽 3
+  k.fillStyle = UX.line; rr(k, 516, 24, 3, 120, 1.5); k.fill();
+  k.fillStyle = UX.ink; rr(k, 516, 24, 3, 120 * Math.min(1, t * 1.15), 1.5); k.fill();
+};

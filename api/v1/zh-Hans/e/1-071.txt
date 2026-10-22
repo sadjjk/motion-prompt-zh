@@ -1,0 +1,65 @@
+// Motion Prompt #1-071 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 分区背景切换 / Per-section background shift
+// 分类包: uxmotion (交互与数据动效) · element 11 · 子分类: 滚动交互
+// 动画表现: 滚动时背景色无缝融到下一种口味色，中间易拉罐边倾斜边换色换标签，右侧文字向上流过。
+// 运动规格:
+//   - 滚过 4 种口味，背景在相邻两色间连续插值：#FFAB91 / #C0EB75 / #A5B4FC / #FFC8DD。
+//   - 中间的易拉罐（74×140px）随分区换成 #E64A19 / #5C940D / #4C3BCF / #D6336C，并换标签名。
+//   - 罐身按离最近分区的偏移倾斜（偏移 × 24°），标签横移（偏移 × −60px）。
+//   - 右侧 4 个分区圆点，当前点放大到 1.5 倍；演示中 0.4→4.8 秒滚到底，5.4→6.3 秒回顶。
+// 适用场景: 适合饮料、美妆等多口味、多色款的商品页，逐款滚动展示。
+// 标签: background-transition, scroll, color-blend, product-page, sections, storytelling
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-071
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 11
+// 11 分区背景切换：滚过四种口味，整张卡片背景在相邻两色间连续插值（不跳变），中间的易拉罐跟着换色、换标签名；
+// 罐身按「离最近分区的偏移」倾斜（偏移×24°）、标签横移（偏移×−60px）。四色 #FFAB91 / #C0EB75 / #A5B4FC / #FFC8DD，罐色 #E64A19 / #5C940D / #4C3BCF / #D6336C。0.4→4.8 秒滚到底，5.4→6.3 秒回顶
+const SECT_F = [['葡萄柚', '明亮微苦的早晨'], ['青葡萄', '轻盈冒泡的午后'], ['蓝莓', '深沉香甜的傍晚'], ['水蜜桃', '温柔收尾的夜晚']];
+const SECT_BG = [[255, 171, 145], [192, 235, 117], [165, 180, 252], [255, 200, 221]];
+const SECT_CAN = ['#E64A19', '#5C940D', '#4C3BCF', '#D6336C'];
+CELLS[10] = (k, w, h, u) => {
+  const p = UXA_scroll(u, 0.4, 4.8), f = p * 3;
+  const i = Math.min(2, Math.floor(f)), t = f - i;
+  k.fillStyle = rgba(lerpC(SECT_BG[i], SECT_BG[i + 1], t), 1); k.fillRect(0, 0, CW, CH);
+  const cur = Math.round(f), off = f - cur;
+  txt(k, '四种气泡口味', 22, 32, `800 13px ${SANS}`, 'rgba(27,27,34,.75)');
+  // 右侧分区文字：每个分区占一屏（208px），随滚动上移
+  k.save(); k.beginPath(); k.rect(250, 0, 250, CH); k.clip();
+  SECT_F.forEach((s, j) => {
+    const y = 132 + (j - f) * CH;
+    if (y < -40 || y > CH + 40) return;
+    txt(k, s[0], 262, y, `900 32px ${SANS}`, '#1B1B22');
+    txt(k, s[1], 264, y + 26, `700 14px ${SANS}`, 'rgba(27,27,34,.75)');
+  });
+  k.restore();
+  // 易拉罐（原作 104×196，这里 74×140），绕中心倾斜
+  const cw = 74, ch = 140, col = SECT_CAN[cur];
+  k.save(); k.translate(150, 34 + ch / 2 + 4); k.rotate(off * 24 * Math.PI / 180);
+  k.save(); k.shadowColor = 'rgba(0,0,0,.35)'; k.shadowBlur = 20; k.shadowOffsetY = 14;
+  k.fillStyle = col; rr(k, -cw / 2, -ch / 2, cw, ch, 18); k.fill(); k.restore();
+  k.save(); rr(k, -cw / 2, -ch / 2, cw, ch, 18); k.clip();
+  // 白色标签带（高 57，横移）
+  k.fillStyle = 'rgba(255,255,255,.9)'; k.fillRect(-cw / 2 + off * -60 * 0.71, -ch / 2 + 46, cw, 57);
+  txt(k, 'SPARKLING', off * -60 * 0.71, -ch / 2 + 66, `800 7px ${SANS}`, '#555555', 'center', 'middle');
+  txt(k, SECT_F[cur][0], off * -60 * 0.71, -ch / 2 + 84, `900 14px ${SANS}`, col, 'center', 'middle');
+  // 金属高光：左暗 → 30% 亮 → 55% 透 → 右暗
+  const g = k.createLinearGradient(-cw / 2, 0, cw / 2, 0);
+  g.addColorStop(0, 'rgba(0,0,0,.25)'); g.addColorStop(0.3, 'rgba(255,255,255,.35)'); g.addColorStop(0.55, 'rgba(255,255,255,.05)'); g.addColorStop(1, 'rgba(0,0,0,.28)');
+  k.fillStyle = g; k.fillRect(-cw / 2, -ch / 2, cw, ch);
+  const lid = k.createLinearGradient(0, -ch / 2, 0, -ch / 2 + 10); lid.addColorStop(0, '#E9ECEF'); lid.addColorStop(1, '#ADB5BD');
+  k.fillStyle = lid; rr(k, -cw / 2 + 6, -ch / 2 - 6, cw - 12, 16, 6); k.fill();
+  k.restore(); k.restore();
+  // 右侧分区圆点（当前点放大 1.5 倍，.3 秒）
+  for (let j = 0; j < 4; j++) {
+    const on = j === cur ? 1 : 0;
+    k.fillStyle = on ? '#1B1B22' : 'rgba(0,0,0,.25)';
+    k.beginPath(); k.arc(516, CH / 2 - 19.5 + j * 13, 3 * (on ? 1.5 : 1), 0, TAU); k.fill();
+  }
+  scrollbar(k, p, 0.25, CW - 8, 10, CH - 10);
+};

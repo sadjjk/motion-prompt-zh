@@ -1,0 +1,17 @@
+请使用“卡片堆叠吸顶（Shrinking sticky card stack）”，属于“交互与数据动效”。
+Motion Prompt #1-069
+
+效果解释：滚动时卡片依次吸在顶部、层层叠起的堆叠效果
+动画表现：渐变卡片随滚动上移并在顶部停住，下一张盖上来时下面的卡片缩小变暗，叠成台阶。
+实现规格与关键运动参数：
+- 4 张渐变卡片，高 150px、间距 16px；吸顶位置为 14 + 序号 × 8 px。
+- 下一张盖上来时，下面那张按重叠比例缩小（每层 −6%）并压暗（每层黑色 18%）。
+- 卡片圆角 22px，到最后一张时叠成台阶。
+- 演示中 0.4→4.6 秒滚到底，5.4→6.3 秒回到顶部。
+适用场景：适合产品页「工作方式」「功能亮点」等分步介绍，在长页面里逐张讲解。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-069
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-069.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Seokwoooo 的 MIT 版权标识。

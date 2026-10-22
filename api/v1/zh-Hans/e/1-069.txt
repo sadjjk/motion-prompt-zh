@@ -1,0 +1,57 @@
+// Motion Prompt #1-069 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 卡片堆叠吸顶 / Shrinking sticky card stack
+// 分类包: uxmotion (交互与数据动效) · element 09 · 子分类: 滚动交互
+// 动画表现: 渐变卡片随滚动上移并在顶部停住，下一张盖上来时下面的卡片缩小变暗，叠成台阶。
+// 运动规格:
+//   - 4 张渐变卡片，高 150px、间距 16px；吸顶位置为 14 + 序号 × 8 px。
+//   - 下一张盖上来时，下面那张按重叠比例缩小（每层 −6%）并压暗（每层黑色 18%）。
+//   - 卡片圆角 22px，到最后一张时叠成台阶。
+//   - 演示中 0.4→4.6 秒滚到底，5.4→6.3 秒回到顶部。
+// 适用场景: 适合产品页「工作方式」「功能亮点」等分步介绍，在长页面里逐张讲解。
+// 标签: sticky, card-stack, scroll, parallax, feature-section, landing-page
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-069
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 09
+// 09 卡片堆叠吸顶：4 张渐变卡片（高 150、间距 16）依次滚到顶部吸住（吸顶位置 14 + 序号×8，原作 14 + 序号×12）；
+// 下一张盖上来时，下面那张按「重叠比例」缩小（每层 −6%）、压暗（每层黑色 18%），到最后一张时叠成台阶。0.4→4.6 秒滚到底，5.4→6.3 秒回顶
+const STACK_C = [['01', '一处规划', '把零散的笔记和文档汇到一块看板上。'], ['02', '一起打磨', '评论和版本都留在同一个地方。'], ['03', '即刻分享', '一个链接就能给团队外的人看。'], ['04', '看看数据', '每天早上收到一份反馈摘要。']];
+const STACK_BG = [['#7048E8', '#4C6EF5'], ['#F76707', '#F59F00'], ['#0CA678', '#15AABF'], ['#E64980', '#BE4BDB']];
+const STACK_H = 150, STACK_GAP = 16, STACK_X = 24, STACK_W = 470, STACK_HEAD = 50;
+const STACK_MAX = STACK_HEAD + 3 * (STACK_H + STACK_GAP) - (14 + 3 * 8);   // 最后一张刚好吸顶时的滚动量
+CELLS[8] = (k, w, h, u) => {
+  k.fillStyle = UX.surface2; k.fillRect(0, 0, CW, CH);
+  const p = UXA_scroll(u), s = p * (STACK_MAX + 40);
+  txt(k, '工作方式', STACK_X + 4, 34 - s, `880 22px ${SANS}`, UX.ink);
+  // 每张卡片的屏幕位置：自然位置 − 滚动量，但不高于吸顶位置
+  const nat = i => STACK_HEAD + i * (STACK_H + STACK_GAP) - s, stick = i => 14 + i * 8;
+  const pos = [0, 1, 2, 3].map(i => Math.max(stick(i), nat(i)));
+  for (let i = 0; i < 4; i++) {
+    let depth = 0;
+    for (let j = i + 1; j < 4; j++) depth += clamp(1 - (pos[j] - stick(j)) / STACK_H);
+    const sc = 1 - depth * 0.06, y = pos[i];
+    if (y > CH) continue;
+    k.save(); k.translate(STACK_X + STACK_W / 2, y); k.scale(sc, sc); k.translate(-STACK_W / 2, 0);
+    // 顶部投影：0 -10px 30px -18px rgba(0,0,0,.35)
+    k.fillStyle = 'rgba(0,0,0,.08)'; rr(k, 6, -3, STACK_W - 12, 20, 18); k.fill();
+    const g = k.createLinearGradient(0, 0, STACK_W * 0.5, STACK_H * 1.2); g.addColorStop(0, STACK_BG[i][0]); g.addColorStop(1, STACK_BG[i][1]);
+    k.fillStyle = g; rr(k, 0, 0, STACK_W, STACK_H, 22); k.fill();
+    k.save(); rr(k, 0, 0, STACK_W, STACK_H, 22); k.clip();
+    // 装饰：旋转 12° 的半透明圆角方块 + 内圆
+    k.save(); k.translate(STACK_W - 70, 62); k.rotate(12 * Math.PI / 180);
+    k.fillStyle = 'rgba(255,255,255,.18)'; rr(k, -40, -40, 80, 80, 22); k.fill();
+    k.fillStyle = 'rgba(255,255,255,.35)'; k.beginPath(); k.arc(0, 0, 20, 0, TAU); k.fill(); k.restore();
+    k.restore();
+    txt(k, STACK_C[i][0], 20, 30, `800 12px ${MONO}`, 'rgba(255,255,255,.7)');
+    txt(k, STACK_C[i][1], 20, 104, `880 26px ${SANS}`, '#FFFFFF');
+    txt(k, STACK_C[i][2], 20, 130, `500 14px ${SANS}`, 'rgba(255,255,255,.85)');
+    if (depth > 0) { k.fillStyle = `rgba(0,0,0,${0.18 * depth})`; rr(k, 0, 0, STACK_W, STACK_H, 22); k.fill(); }
+    k.restore();
+  }
+  scrollbar(k, p, 0.32, CW - 14);
+};

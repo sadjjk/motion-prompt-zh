@@ -1,0 +1,15 @@
+Please use "Circular text badge" (円形テキストバッジ), one of the names in "Interaction & data motion".
+Motion Prompt #1-062
+
+What it is: A circular text badge that spins and speeds up on hover and click
+What the sample shows: Text on a ring spins slowly, accelerates when the pointer arrives, and jumps faster on each click as new words fade in letter by letter.
+Spec:
+- Monospaced letters are set around a ring of radius 84 px and spin at a steady 18°/s.
+- On hover the target speed is 150°/s (closing 6% of the gap per frame); after the pointer leaves it coasts back to 18°/s at 2.5% per frame.
+- Each click adds 120°/s and swaps the text; new letters fade in from 120 ms, staggered 22 ms apart, each over .25 s.
+- The centre button grows to 1.06× on hover and its arrow turns from -45° to upright; a click squeezes it to .78 at 30% of a .6 s bounce.
+When to use it: Use it as a corner badge or CTA on portfolio and brand-site heroes, such as 'Scroll to explore' or 'Open for projects'.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-062.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,4 +1,4 @@
-# Motion Prompt catalog (ja) · 188 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
+# Motion Prompt catalog (ja) · 225 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
 1-001	ui	開く・重なるパーツ	モーダル (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	「開く」ボタンを押すと画面全体が暗くなり、中央に小窓が少し拡大しながら出る。×を押すと閉じる。
 1-002	ui	開く・重なるパーツ	ドロワー (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	「メニュー」を押すと左から縦長のパネルが引き出され、外側を押すと戻る。
 1-003	ui	開く・重なるパーツ	ボトムシート (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	指で「詳細を見る」を押すと下からパネルがせり上がり、上端のつまみを下へ引くと閉じる。
@@ -59,6 +59,43 @@
 1-058	aiux	リキッドな操作	リキッド展開メニュー (Gooey morph menu)	gooey,liquid,morph,fab,speed-dial,menu,metaball	カーソルが「+」を押すと、白い液体から3つの丸が伸びて首が細くなりちぎれ、アイコンが浮かぶ。もう一度押すと吸い込まれて1つに戻る。
 1-059	aiux	リキッドな操作	リキッドの尾 (Gooey trail)	gooey,liquid,tabs,segmented-control,indicator,trail,slider	3つの選択肢の間を白い指示部分が行き来し、速く動くほど横に伸びて、後ろに丸いしずくがくっついてくる。
 1-060	aiux	リキッドな操作	リキッドのしなり (Gooey bend)	gooey,liquid,bend,drag,card,sortable,elastic	白いカードが左右にドラッグされ、速く動くほど左右の辺が後ろへしなり、止まるとまっすぐに戻る。
+1-061	uxmotion	インタラクティブな文字	単語キューブの回転 (Rolling word cube)	word-cube,rolling-text,3d-flip,headline,rotating-words,landing-page,kinetic-type	立方体が一定間隔で下へ一面転がって次の言葉を見せ、下の説明文も上下にめくれ、進捗バーが伸びていく。
+1-062	uxmotion	インタラクティブな文字	円形テキストバッジ (Circular text badge)	circular-text,rotating-badge,hover,click,cta,portfolio,spin	円に沿った文字がゆっくり回り、ポインタが乗ると加速し、クリックのたびに速度が跳ね上がって新しい文言が一字ずつ現れる。
+1-063	uxmotion	インタラクティブな文字	文字の飛散と再集合 (Scatter & reassemble letters)	letter-scatter,physics,spring,playful,headline,click,easter-egg	色違いの大きな文字が点いた瞬間に回転しながら飛び散り、重力で落ちて跳ね、少し漂ってから一字ずつ元の並びへ戻る。
+1-064	uxmotion	インタラクティブな文字	単語ごとのキネティック字幕 (Word-by-word kinetic captions)	kinetic-captions,subtitles,word-by-word,video,emphasis,pop-in	再生すると字幕が単語ごとに下から弾んで現れ、強調語は大きく傾いてから黄色で着地し、文が終わると行ごと上へ折れて消える。
+1-065	uxmotion	インタラクティブな文字	手描きの注釈 (Hand-drawn annotations)	hand-drawn,annotation,highlight,underline,circle,marker,copywriting	スタイルを選ぶたびに前の印が逆再生で消え、赤ペンの線が語ごとに順番に描かれていき、少し遅れて重ね書きの線が続く。
+1-066	uxmotion	インタラクティブな文字	ネタバレの砂カバー (Spoiler sand cover)	spoiler,reveal,particles,chat,tap,hidden-text	吹き出しの一部を細かな砂粒がちらちら覆い、タップした所から粒が四方へ散って文字が現れ、「隠す」で粒が集まり直す。
+1-067	uxmotion	インタラクティブな文字	読んでいる文のフォーカス (Sentence reading focus)	reading-focus,blur,hover,long-form,highlight,accessibility	ポインタが文から文へ移るとその一文だけが鮮明になり、他は薄くぼけ、左の紫の縦線が文の高さに伸縮しながら付いてくる。
+1-068	uxmotion	インタラクティブな文字	文字のばね波紋 (Rippling letters)	spring,ripple,letters,hover,headline,wave,kinetic-type	ポインタが左から右へ滑ると、その下の大きな文字が順に持ち上がって紫がかり、弾みながら着地し、ボタンで波が一気に走る。
+1-069	uxmotion	スクロール連動	カードの積み重ね固定 (Shrinking sticky card stack)	sticky,card-stack,scroll,parallax,feature-section,landing-page	スクロールに合わせてグラデーションのカードが下から上がって上部で止まり、次のカードに覆われるたびに奥のカードが縮んで暗くなる。
+1-070	uxmotion	スクロール連動	スクロールで塗られる文 (Scroll-filled sentence)	scroll-fill,text-reveal,scroll,manifesto,highlight,storytelling	スクロールが進むほど薄灰色の文が頭から単語ごとに濃くなり、強調語は紫に光り、最後に下からボタンが弾み出る。
+1-071	uxmotion	スクロール連動	セクションごとの背景切り替え (Per-section background shift)	background-transition,scroll,color-blend,product-page,sections,storytelling	スクロールすると背景色が隣のフレーバー色へ途切れなく溶け、中央の缶は傾きながら色とラベルを替え、右の文が上へ流れる。
+1-072	uxmotion	スクロール連動	速度で傾くリスト (Velocity-lean list)	velocity,skew,scroll,spring,list,inertia	勢いよくスクロールするとカードの列が斜めに傾いて少し伸び、止めるとばねで真っ直ぐに戻り、ゆっくりならほとんど傾かない。
+1-073	uxmotion	スクロール連動	回転する章番号 (Rolling chapter numbers)	chapter-number,rolling-digits,scroll,progress-ring,long-form,sidebar	本文をスクロールすると左の大きな章番号が数字の帯のように次へ回り、章名が上へ差し替わり、リングが章の読了率で満ちる。
+1-074	uxmotion	スクロール連動	ドラム式時刻ピッカー (Drum time picker)	time-picker,drum-picker,wheel,scroll,mobile,alarm,3d	ドラムを上へドラッグすると数字が回って中央線に止まり、離れた値は奥へ倒れて薄れ、上の時刻と鳴るまでの時間が書き換わる。
+1-075	uxmotion	ヒーロー背景	グリッドビーム背景 (Grid-beam background)	grid,beams,hero,background,dark,saas,cursor-glow	暗い背景の薄いグリッドを、尾を引く色付きの光が縦横に駆け抜け、ポインタの周りだけグリッドが藍色に浮かび上がる。
+1-076	uxmotion	ヒーロー背景	傾きから正面へのスクリーン (Tilt-to-flat product screen)	3d-tilt,perspective,scroll,hero,product-screenshot,dashboard,saas	スクロールすると奥へ倒れていた製品ウィンドウが起き上がりながら大きくなり、影が深まり、正面を向くとグラフの棒が順に伸びる。
+1-077	uxmotion	ヒーロー背景	ワープする星空 (Warp starfield)	starfield,warp,hero,background,long-press,space,particles	中心から星がゆっくり迫り、ボタンを押し続けると一気に加速して青い光の筋になり、中心が光り、離すと巡航へ戻る。
+1-078	uxmotion	ヒーロー背景	星座のようなメッシュ (Constellation mesh)	particles,constellation,network,hero,background,cursor,mesh	暗い背景で点がゆっくり漂い、近い点どうしが淡い線で結ばれ、ポインタは黄色い線で周囲の点を引き寄せ、クリックで点が弾ける。
+1-079	uxmotion	ヒーロー背景	ドットグリッドの波紋 (Dot grid ripple)	dot-grid,ripple,wave,hero,background,cursor,interactive	静かな灰色の点の格子をポインタがなぞると、通った跡から輪が次々広がり、波の上の点が膨らんで浮き、青紫から青緑へ色を変える。
+1-080	uxmotion	ヒーロー背景	粒子が文字になる (Particles that form words)	particles,hero,text,spring,interactive,glow,landing-page	暗い紫の背景で光の粒が HELLO を形づくり、ポインターがなぞると押しのけられ、クリックのたびに弾けて NICE、LUCIAN へと組み替わる。
+1-081	uxmotion	カーソル連動	カーソルで光る枠線 (Cursor-lit borders)	cursor,spotlight,border-glow,cards,hover,dark-theme	暗い画面に並ぶ4枚のカードの上をポインターが波打つように横切り、近くのカードの枠が紫から青へ光り、通り過ぎるとゆっくり消える。
+1-082	uxmotion	カーソル連動	ホバーで追う画像プレビュー (Hover-follow preview)	hover,cursor-follow,preview,portfolio,list,tilt	黒い背景の作品名リストをポインターが上から下へなぞり、ホバー中の行が右にずれて光り、横に付いてくる画像が傾きながら次の作品へスライドする。
+1-083	uxmotion	カーソル連動	カーソルの写真の軌跡 (Cursor photo trail)	cursor-trail,photos,hero,playful,spring,image-trail	大きな見出しの上をポインターが横切ると、白いフチの写真がランダムな角度で弾むように現れては沈んで消え、クリックで5枚が扇形に広がる。
+1-084	uxmotion	カーソル連動	入った方向からのオーバーレイ (Direction-aware overlay)	hover,direction-aware,overlay,grid,portfolio,gallery	3×3の作品サムネイルをポインターがいろいろな方向から横切り、入った辺から暗い説明パネルが滑り込み、出た方向へ滑り抜けていく。
+1-085	uxmotion	カーソル連動	カーソルのレンズで現れる文 (Cursor lens reveal)	cursor,lens,reveal,mask,spring,headline,hero	明るい背景の大きな2行の文の上を丸いレンズがばねのように追いかけ、中に暗い背景の別の文が見え、クリックで全体に広がってまた縮む。
+1-086	uxmotion	カーソル連動	スワイプするカードの山 (Swipeable card stack)	swipe,card-stack,drag,gesture,mobile,tinder-style	重なったカードの一番上をポインターが右へ引いて傾け、「保存」スタンプとともに飛ばし、次のカードを左へ「スキップ」して、最後に2枚が戻ってくる。
+1-087	uxmotion	進捗フィードバック	支払いリングとチェック (Payment ring & check)	payment,checkout,progress-ring,success,check-mark,button-morph	支払いボタンがクリックで丸く縮み、リングが進むにつれて3つのステップが点灯し、緑に変わってチェックが描かれ、レシートが下から弾んで現れる。
+1-088	uxmotion	進捗フィードバック	アイコン上のインストール進捗 (Install progress on icon)	install,download,progress,app-icon,pause-resume,radial-progress	グラデーションのアプリアイコンを覆う暗い扇形が時計回りに消えていき、途中でタップして一時停止・再開し、完了するとアイコンが弾んで「開く」ボタンが出る。
+1-089	uxmotion	進捗フィードバック	不確定から確定への進捗 (Indeterminate to determinate)	progress-bar,indeterminate,deploy,loading,steps,status	デプロイカードで色の帯が流れる待機表示から、同じバーが段階的に伸びる進捗に変わり、ログが1行ずつ浮かんでチェックに変わり、状態バッジが緑の「準備完了」になる。
+1-090	uxmotion	進捗フィードバック	ハートがはじける「いいね」 (Heart burst like)	like,heart,burst,micro-interaction,button,counter,social	丸いボタンのハートがクリックで縮んでから大きく弾み、赤く満ちながら輪と色の粒が広がり、いいね数が842から843へロールし、もう一度押すと戻る。
+1-091	uxmotion	進捗フィードバック	桁ごとに回る数字 (Rolling digits)	odometer,counter,rolling-digits,dashboard,kpi,realtime	「リアルタイム訪問者」の大きな数字が更新のたびに変わった桁だけ少し行き過ぎながらロールし、横の推移グラフが1目盛り左へ進む。
+1-092	uxmotion	動くチャート	アイソメトリックのデータブロック (Isometric data blocks)	isometric,3d-chart,bar-chart,dashboard,data-viz,hover	等角のブロックが手前から順に弾みながら伸び、ホバーした柱の行と列以外が灰色になって値が浮かび、指標を切り替えると高さが波のように組み替わる。
+1-093	uxmotion	動くチャート	グループが組み替わるバブル (Regrouping bubbles)	bubble-chart,force-layout,grouping,dashboard,data-viz,tabs	色分けされた泡の塊が、タブの切り替えで押し合いながら4つ、3つの群に分かれ、最後にまた1つにまとまる。群の上のラベルが予算合計を示す。
+1-094	uxmotion	動くチャート	新しい行が入るテーブル (Live table insert)	table,realtime,row-insert,sorting,dashboard,flip-animation	注文テーブルに新しい行が上から滑り込んで光り、金額の見出しをクリックすると行同士がすれ違って並び替わり、時間で戻すと元の順に戻る。
+1-095	uxmotion	動くチャート	順位が入れ替わる棒グラフ (Bar chart race)	bar-chart-race,ranking,time-series,data-viz,slider,animation	ドリンクの横棒が年とともに伸び縮みし、追い抜いた棒が上へ移って順位が入れ替わり、大きな年号が進む。最後にスライダーを戻すと順位が逆再生される。
+1-096	uxmotion	動くチャート	反転するワッフルチャート (Waffle chart flip)	waffle-chart,flip,proportion,data-viz,tabs,legend-hover	年代タブをクリックするたびに、色が変わるマスだけが斜めの波でくるりとめくれ、右のパーセントがロールし、凡例にホバーするとその手段だけが残る。
+1-097	uxmotion	動くチャート	四半期ごとに動くバブル (Quarterly bubble motion)	bubble-chart,time-series,scrubbing,data-viz,motion-chart,log-scale	大きな四半期の文字を背に、アプリの泡が大きさを変えながら座標上を滑らかに移動し、1つは点線の軌跡を残す。ドラッグで早送りや巻き戻しができる。
 2-001	motion	登場・文字の演出	ポップイン (Pop-in)	pop,pop-in,spring,bounce,scale,icon,badge,entrance	アプリのアイコンがポンと弾んで現れ、通知バッジが遅れてポンと出る。
 2-002	motion	登場・文字の演出	スタガー (Stagger)	stagger,sequence,delay,cascade,bar-chart,list,entrance	グラフの棒が、少しずつ時間をずらして左から順に立ち上がる。
 2-003	motion	登場・文字の演出	バースト (Burst)	burst,explosion,radial,like,heart,celebrate,accent,sparkle	「いいね」のハートが点くと同時に、まわりに輪・線・粒が弾ける。

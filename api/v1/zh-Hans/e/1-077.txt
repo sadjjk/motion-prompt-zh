@@ -1,0 +1,78 @@
+// Motion Prompt #1-077 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 星空跃迁 / Warp starfield
+// 分类包: uxmotion (交互与数据动效) · element 17 · 子分类: 首屏背景
+// 动画表现: 星星从中心缓缓飞来，按住按钮瞬间加速成蓝色光线、中心泛光，松开后回落到巡航。
+// 运动规格:
+//   - 280 颗星从中心朝镜头飞来（焦距 150），越近越亮越粗。
+//   - 按住「按住跃迁」时速度以每秒剩 25% 的指数逼近 3.2（巡航 0.22）；松开后以每秒剩 12% 回落。
+//   - 跃迁中星星拉成长线并偏蓝（蓝度 = (v − 0.22) / 1.6），中心泛起 120px 蓝色光晕。
+//   - 指针位置让航向偏移（x × 70、y × 60）；演示中 1.2 秒按住、3.6 秒松开。
+// 适用场景: 适合游戏、太空科技、AI 产品发布页的首屏，配合「开始」「启动」按钮的长按交互。
+// 标签: starfield, warp, hero, background, long-press, space, particles
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-077
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 17
+// 17 星空跃迁：280 颗星从中心朝镜头飞来（焦距 150，按 1−z 变亮变粗）；指针 1.2 秒按住「按住跃迁」，速度以每秒剩 25% 的指数逼近 3.2（巡航 0.22），
+// 星星拉成长线并偏蓝（蓝度 = (v−.22)/1.6），中心泛起 120px 蓝色光晕；3.6 秒松开后以每秒剩 12% 回落到巡航。指针位置让航向偏移（x×70、y×60）。总行程取整，星星循环无缝
+const WARP_N = 280;
+const WARP_SIM = (() => {
+  // 120 步/秒模拟速度 v 与航向 steer，积分得到总行程 D；按 D 的整数倍缩放 → 循环无缝
+  const S = 768, dt = CYC / S, V = new Float32Array(S + 1), D = new Float32Array(S + 1), SX = new Float32Array(S + 1), SY = new Float32Array(S + 1);
+  let v = 0.22, d = 0, sx = 0, sy = 0;
+  for (let j = 0; j <= S; j++) {
+    const t = j * dt, warp = t >= 1.2 && t < 3.6, [px, py] = WARP_ptr(t), on = t > 0.5 && t < 5.2;
+    const ax = on ? (px / CW - 0.5) * 2 : 0, ay = on ? (py / CH - 0.5) * 2 : 0;
+    if (j) {
+      v += ((warp ? 3.2 : 0.22) - v) * (1 - Math.pow(warp ? 0.25 : 0.12, dt));
+      sx += (ax - sx) * (1 - Math.pow(0.05, dt)); sy += (ay - sy) * (1 - Math.pow(0.05, dt));
+      d += v * dt;
+    }
+    V[j] = mix(v, 0.22, resetK(t)); SX[j] = sx * fadeIn(t); SY[j] = sy * fadeIn(t); D[j] = d;
+  }
+  const f = Math.round(D[S]) / D[S];
+  for (let j = 0; j <= S; j++) D[j] *= f;
+  return { V, D, SX, SY, S, total: Math.round(D[S]) };
+})();
+function WARP_ptr(t) { return UXA_path([[0, 590, 240], [0.4, 590, 240], [1.1, CW / 2 + 6, 184], [3.7, CW / 2 + 6, 184], [4.2, 380, 70], [4.8, 150, 60], [5.4, 590, 240]], t); }
+const WARP_at = (arr, u) => { const S = WARP_SIM.S, x = clamp(u / CYC) * S, i = Math.min(S - 1, Math.floor(x)); return arr[i] + (arr[i + 1] - arr[i]) * (x - i); };
+CELLS[16] = (k, w, h, u) => {
+  k.drawImage(layer('WARP_bg', g => {
+    const rg = g.createRadialGradient(CW / 2, CH / 2, 0, CW / 2, CH / 2, CW * 0.7 * 0.7); rg.addColorStop(0, '#0B1230'); rg.addColorStop(1, '#02030A');
+    g.fillStyle = rg; g.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+  const v = WARP_at(WARP_SIM.V, u), D = WARP_at(WARP_SIM.D, u), M = WARP_SIM.total;
+  const ox = CW / 2 + WARP_at(WARP_SIM.SX, u) * 70, oy = CH / 2 + WARP_at(WARP_SIM.SY, u) * 60, f = 150, blue = Math.min(1, Math.max(0, (v - 0.22) / 1.6));
+  // 拖尾长度：原作上一帧 z + v×0.03，再加跃迁时 .35 透明残影 → 用 v×(0.05 + 0.08×blue)
+  const tail = v * (0.05 + 0.08 * blue);
+  k.lineCap = 'round';
+  for (let i = 0; i < WARP_N; i++) {
+    // z 每走完 1 个单位重生一次；重生序号对 M 取模 → 位置随序号变化但整周期一致
+    const ph = hash(i * 3 + 1) + D, n = Math.floor(ph), z = 1 - (ph - n) * 0.98, sd = i * 97 + ((n % M) + M) % M * 13;
+    const sx = (hash(sd + 1) - 0.5) * 2.8, sy = (hash(sd + 2) - 0.5) * 1.6, c = hash(sd + 3);
+    const x = ox + sx / z * f, y = oy + sy / z * f;
+    if (x < -20 || x > CW + 20 || y < -20 || y > CH + 20) continue;
+    const pz = Math.min(1.02, z + tail), px = ox + sx / pz * f, py = oy + sy / pz * f;
+    const a = Math.min(1, (1 - z) * 1.4), lw = Math.max(0.6, (1 - z) * 2.6);
+    k.strokeStyle = `rgba(${Math.round(255 - blue * 120 * c)},${Math.round(255 - blue * 40)},255,${a.toFixed(2)})`; k.lineWidth = lw;
+    k.beginPath(); k.moveTo(px, py); k.lineTo(x + 0.01, y); k.stroke();
+  }
+  if (blue > 0.05) glow(k, ox, oy, 120, '120,190,255', 0.25 * blue);
+  // HUD：模式标签 + 倍速
+  const warp = u >= 1.2 && u < 3.6;
+  k.fillStyle = warp ? '#4DABF7' : 'rgba(255,255,255,.12)'; rr(k, 18, 16, 40, 22, 11); k.fill();
+  txt(k, warp ? '跃迁' : '巡航', 38, 27.5, `700 12px ${SANS}`, warp ? '#03122B' : '#FFFFFF', 'center', 'middle');
+  txt(k, '×' + (v / 0.22).toFixed(1), 66, 28, `700 12px ${MONO}`, '#FFFFFF', 'left', 'middle');
+  // 按钮：按住时变蓝并缩到 .96
+  k.save(); k.translate(CW / 2, 184); const bs = warp ? 0.96 : 1; k.scale(bs, bs);
+  k.fillStyle = warp ? 'rgba(77,171,247,.35)' : 'rgba(255,255,255,.1)'; rr(k, -50, -15, 100, 30, 15); k.fill();
+  k.strokeStyle = 'rgba(255,255,255,.25)'; k.lineWidth = 1; rr(k, -49.5, -14.5, 99, 29, 15); k.stroke();
+  txt(k, '按住跃迁', 0, 1, `800 12.5px ${SANS}`, '#FFFFFF', 'center', 'middle'); k.restore();
+  const [px, py] = WARP_ptr(u);
+  cursor(k, px, py, pingPong(u, 1.1, 1.2, 3.6, 3.7), false);
+};

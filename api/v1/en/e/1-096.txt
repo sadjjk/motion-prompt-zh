@@ -1,0 +1,76 @@
+// Motion Prompt #1-096 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// Waffle chart flip / 反転するワッフルチャート
+// Pack: uxmotion (Interaction & data motion) · element 36 · Category: Animated charts
+// What happens: Each age-tab click flips only the cells that change colour in a diagonal wave while the percentages roll; hovering a legend item isolates that mode.
+// Motion spec:
+//   - 10 × 10 = 100 cells, 13 px each with 3 px gaps, coloured by 4 commute modes.
+//   - Switching age group flips only cells that change category: diagonal delay of (column + row) × 22 ms, a 380 ms flip, with the colour swapping at the 90° midpoint while scaled to 0.85.
+//   - The percentages on the right roll to new values in 0.7 s; hovering a legend item dims other cells to 0.16 opacity in 0.25 s.
+//   - In the demo the 30–39, 40–49 and 50+ tabs are clicked at 0.8, 2.0 and 3.2 s, and 20–29 is restored at 5.0 s.
+// When to use it: Use it in data articles and dashboards that compare proportions across groups, such as survey results or demographics.
+// Tags: waffle-chart, flip, proportion, data-viz, tabs, legend-hover
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-096
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 36
+// 36 华夫格翻转：100 格华夫图表示 100 人的通勤方式（地铁/公交/汽车/骑行步行）。指针 0.8、2.0、3.2 秒依次点 30–39、40–49、50+ 岁标签，
+// 只有换了归属的格子沿对角线波浪（延迟 (列+行)×22ms）做 380ms 翻转（中点 rotateY 90°、缩到 .85、此刻换色）；右侧百分比 700ms 滚动到新值；
+// 3.85–4.6 秒悬停图例"汽车"：其余格子降到 .16 透明（.25s）；5.0 秒点回 20–29 岁，翻回初始分布，指针离开。
+const WAF_CAT = ['地铁', '公交', '汽车', '骑行/步行'], WAF_AGE = ['20–29 岁', '30–39 岁', '40–49 岁', '50 岁+'];
+const WAF_COL = ['#6366F1', '#10B981', '#F59E0B', '#EC4899'];
+const WAF_D = [[46, 28, 10, 16], [41, 22, 27, 10], [30, 18, 45, 7], [24, 27, 41, 8]];
+const WAF_OWN = WAF_D.map(d => { const o = []; d.forEach((n, c) => { for (let j = 0; j < n; j++) o.push(c); }); return o; });
+const WAF_EV = [[0, 0], [0.8, 1], [2.0, 2], [3.2, 3], [5.0, 0]];
+const WAF_GX = 22, WAF_GY = 40, WAF_CS = 13, WAF_GAP = 3, WAF_TX0 = 200, WAF_TW = 76.75;
+const WAF_tx = i => WAF_TX0 + i * (WAF_TW + 4) + WAF_TW / 2;
+const WAF_li = i => [WAF_TX0 + (i % 2) * 163, 70 + Math.floor(i / 2) * 64, 156, 58];
+const WAF_KEYS = [[0, 560, 230], [0.4, 560, 230], [0.75, WAF_tx(1), 48], [1.0, WAF_tx(1), 48], [1.95, WAF_tx(2), 48], [2.2, WAF_tx(2), 48], [3.15, WAF_tx(3), 48], [3.4, WAF_tx(3), 48], [3.85, 278, 166], [4.6, 282, 170], [4.95, WAF_tx(0), 48], [5.2, WAF_tx(0), 48], [5.8, 570, 230]];
+const WAF_hit = p => { for (let i = 0; i < 4; i++) { const [x, y, w, h] = WAF_li(i); if (p[0] >= x && p[0] < x + w && p[1] >= y && p[1] < y + h) return i; } return -1; };
+const WAF_HEV = UXB_changes(u => WAF_hit(UXB_path(u, WAF_KEYS)));
+const WAF_ANY = [[-1, 0], ...WAF_HEV.slice(1).map(([t, v]) => [t, v >= 0 ? 1 : 0])];
+const WAF_HL = [0, 1, 2, 3].map(c => [[-1, 0], ...WAF_HEV.slice(1).map(([t, v]) => [t, v === c ? 1 : 0])]);
+CELLS[35] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  txt(k, '通勤方式', 22, 28, UXB_f(900, 14), UX.ink); txt(k, '每 100 人', CW - 20, 28, UXB_f(700, 10.5), UX.ink3, 'right');
+  let j = 0; WAF_EV.forEach((e, i) => { if (u >= e[0]) j = i; });
+  const te = WAF_EV[j][0], own = WAF_OWN[WAF_EV[j][1]], prev = j > 0 ? WAF_OWN[WAF_EV[j - 1][1]] : own;
+  const fAny = UXB_ramp(u, WAF_ANY, 0.25, x => x), hl = WAF_HL.map(e => UXB_ramp(u, e, 0.25, x => x));
+  for (let i = 0; i < 100; i++) {
+    const delay = ((i % 10) + Math.floor(i / 10)) * 0.022;
+    let col = own[i], sx = 1, sc = 1;
+    if (j > 0 && prev[i] !== own[i]) {
+      if (u < te + delay + 0.19) col = prev[i];
+      const lt = (u - te - delay) / 0.38;
+      if (lt > 0 && lt < 1) { const e = lt * lt * (3 - 2 * lt), ang = (e < 0.5 ? e * 2 : (1 - e) * 2) * 90; sx = Math.cos(ang * Math.PI / 180); sc = 1 - 0.15 * ang / 90; }
+    }
+    const x = WAF_GX + (i % 10) * (WAF_CS + WAF_GAP) + WAF_CS / 2, y = WAF_GY + Math.floor(i / 10) * (WAF_CS + WAF_GAP) + WAF_CS / 2;
+    const cw = WAF_CS * sc * Math.max(0.02, sx), ch = WAF_CS * sc;
+    k.globalAlpha = 1 - 0.84 * clamp(fAny - hl[col]);
+    rr(k, x - cw / 2, y - ch / 2, cw, ch, Math.min(4, cw / 2)); k.fillStyle = WAF_COL[col]; k.fill();
+  }
+  k.globalAlpha = 1;
+  WAF_AGE.forEach((s, i) => {
+    const on = i === WAF_EV[j][1], x = WAF_TX0 + i * (WAF_TW + 4);
+    rr(k, x, 36, WAF_TW, 24, 9); k.fillStyle = on ? UX.ink : UX.surface2; k.fill();
+    txt(k, s, x + WAF_TW / 2, 52, UXB_f(800, 10.5), on ? UX.surface : UX.ink2, 'center');
+  });
+  const from = j > 0 ? WAF_D[WAF_EV[j - 1][1]] : WAF_D[0], to = WAF_D[WAF_EV[j][1]], re = out3(seg(u, te, te + 0.7));
+  for (let i = 0; i < 4; i++) {
+    const [x, y, lw, lh] = WAF_li(i);
+    k.save(); k.globalAlpha = 1 - 0.6 * clamp(fAny - hl[i]);
+    if (hl[i] > 0.01) { k.save(); k.globalAlpha *= hl[i]; rr(k, x, y, lw, lh, 10); k.fillStyle = UX.surface2; k.fill(); k.restore(); }
+    rr(k, x + 8, y + 10, 8, 8, 2); k.fillStyle = WAF_COL[i]; k.fill();
+    txt(k, WAF_CAT[i], x + 21, y + 18, UXB_f(750, 10.5), UX.ink2);
+    const v = String(Math.round(mix(from[i], to[i], re))), pf = UXB_f(900, 26); k.font = pf;
+    txt(k, v, x + 8, y + 47, pf, UX.ink); txt(k, '%', x + 10 + k.measureText(v).width, y + 47, UXB_f(800, 12), UX.ink3);
+    k.restore();
+  }
+  const c = UXB_path(u, WAF_KEYS);
+  for (const [t] of WAF_EV.slice(1)) ripple(k, c[0], c[1], seg(u, t, t + 0.5));
+  if (u > 0.4 && u < 5.8) cursor(k, c[0], c[1], Math.max(...WAF_EV.slice(1).map(([t]) => UXB_press(u, t))));
+};
