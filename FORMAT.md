@@ -34,6 +34,7 @@ Groups, packs and IDs. Display order and IDs come from `packs/groups.json`; a pa
 |---|---|---|---|---|---|
 | 1 `web` | `ui` | 24 | #1 001~024 | 049–072 | UI component names / UIパーツの名前 |
 | 1 `web` | `lp` | 24 | #1 025~048 | 073–096 | Landing page & web effects / LP・Webサイトの演出 |
+| 1 `web` | `aiux` | 12 | #1 049~060 | — | AI interface motion / AIインターフェースの動き (after [Libraries.dev](https://libraries.dev/), Jakub Antalik) |
 | 2 `motion` | `motion` | 24 | #2 001~024 | 001–024 | Motion graphics moves / モーショングラフィックスの動き |
 | 2 `motion` | `motion2` | 24 | #2 025~048 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 |
 | 3 `film` | `camera` | 24 | #3 001~024 | 025–048 | Camera moves & transitions / カメラワークと切り替え |
@@ -50,6 +51,17 @@ published names are not renamed.** A new pack takes the next `order` and must be
 
 An array in display order. Each entry: `id` (slug), `no` (1–9, the ID prefix, equal to the position),
 `title` (`zh-Hans`, `en`, `ja`) and `packs` (pack folders in display order). Every pack belongs to exactly one group.
+
+## Optional pack fields: license and attribution
+
+A pack written after another author's work names that author in `meta.json`:
+
+- `license`: the copyright line, e.g. `"MIT License (c) 2026 Jakub Antalik"`. It must start with `MIT License (c) <year> `.
+- `attribution`: an https link to the original work, e.g. `"https://libraries.dev/"`.
+
+The build puts them on the first line of every `e/<id>.txt` and `kit/<pack>.js` of that pack, and the Chinese prompt
+asks to keep that author's copyright. Without them a pack uses Shohei Ohtaki's line and a link to the original
+site at the element's upstream ID. The first line of `pack.js` should carry the same copyright line.
 
 ## packs/<pack>/pack.js
 
@@ -160,7 +172,7 @@ api/v1/kit/<pack>.js                @kit + all @shared blocks of the pack, plus 
 First line of every `e/<id>.txt` and `kit/<pack>.js`:
 `// Motion Prompt #<id> · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#<upstream>`
 
-`<id>` is this site's ID (`2-012`); the link uses the element's upstream ID (`012`) so it opens the same element on the original site.
+`<id>` is this site's ID (`2-012`); the link uses the element's upstream ID (`012`) so it opens the same element on the original site. Packs with `license` / `attribution` (see above) use those instead, e.g. `// Motion Prompt #1-049 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/`.
 
 中文版 Live demo deep link 由 `site.config.json` 的 `site` 派生为 `<site>?lang=<lang>#<id>`；上面的原站链接仅保留在版权行中。
 
