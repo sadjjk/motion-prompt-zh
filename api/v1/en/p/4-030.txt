@@ -1,0 +1,15 @@
+Please use "Infinity room" (インフィニティ・ルーム), one of the names in "Styled scenes".
+Motion Prompt #4-030
+
+What it is: An infinity room where coloured lights recede endlessly in a dark mirrored space
+What the sample shows: The camera glides forward through lights in 4 hues hanging in darkness, mirrored in the floor, their brightness breathing in waves into the depth.
+Spec:
+- Black background #020205. Lights in 4 hues 320 / 40 / 185 / 265; about 80% of 17 slots per row are lit, rows 0.55 apart.
+- The camera moves forward 4 rows (2.2) every 6.4 s; the layout repeats every 4 rows, so the loop is seamless.
+- Brightness breathes 2 times per cycle, phase-shifted with depth; lights fade at the near and far limits.
+- Floor reflections are at 0.35 brightness; floor grid lines move with the camera, and a vignette darkens the edges.
+When to use it: Openers for music, nightlife or art exhibition promos, immersive hero backgrounds, or a waiting screen before a livestream.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-030.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

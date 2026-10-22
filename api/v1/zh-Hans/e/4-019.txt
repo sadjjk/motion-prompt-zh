@@ -1,0 +1,47 @@
+// Motion Prompt #4-019 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 桑基图 / Sankey flow
+// 分类包: scenes (风格画面) · element 19 · 子分类: 纹样与图形
+// 动画表现: 带子从左侧 4 种能源向右伸展，一路渐变颜色，分流汇入右侧 4 类用途。
+// 运动规格:
+//   - 左侧 4 种能源（太阳能 120、风能 90、水电 70、天然气 110），右侧 4 类用途（工业 150、住宅 110、交通 70、储能 60）
+//   - 13 条带子，粗细为每单位 0.4px，颜色从来源色线性渐变到去向色，不透明度 0.55
+//   - 0.2–3.2 秒内带子从左向右依次流入，每条晚 0.04 进度出发
+//   - 节点宽 7px、间隔 7px，左右各距边缘 62px；5.4–6.0 秒淡出
+// 适用场景: 适合年报、数据新闻视频的开场，能源与可持续主题网站首屏，或演示中数据章节的封面。
+// 标签: sankey, data-viz, infographic, flow, energy, chart, gradient
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-019
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 19
+// 19 桑基图：四种能源（左）分流到四类用途（右），13 条带子粗细即数量、颜色由来源渐变到去向；0.2–3.2 秒依次流入，5.4 秒淡出
+const SK_L = [['太阳能', 120, '#E9A23B'], ['风能', 90, '#4E8FBF'], ['水电', 70, '#3AA39A'], ['天然气', 110, '#B65A4A']];
+const SK_R = [['工业', 150, '#5B5F97'], ['住宅', 110, '#C87D5B'], ['交通', 70, '#6A9A62'], ['储能', 60, '#8E6BB0']];
+const SK_XL = 62, SK_NW = 7, SK_XR = CW - 62 - 7;
+const SK_GEO = (() => {                                      // 节点与带子几何（常量）：每单位 0.4px，节点间隔 7px，自 y=16 排起
+  const lay = arr => { let y = 16; return arr.map(a => { const o = { y, h: a[1] * 0.4, off: 0 }; y += a[1] * 0.4 + 7; return o; }); };
+  const ln = lay(SK_L), rn = lay(SK_R);
+  const flows = [[0, 0, 50], [0, 1, 40], [0, 3, 30], [1, 0, 40], [1, 1, 30], [1, 3, 20], [2, 0, 30], [2, 1, 20], [2, 2, 20], [3, 0, 30], [3, 1, 20], [3, 2, 50], [3, 3, 10]]
+    .map(([a, b, v]) => { const hh = v * 0.4, ya = ln[a].y + ln[a].off, yb = rn[b].y + rn[b].off; ln[a].off += hh; rn[b].off += hh; return { a, b, h: hh, ya, yb }; });
+  return { ln, rn, flows };
+})();
+CELLS[18] = (k, w, h, u) => {
+  k.fillStyle = '#F3EFE7'; k.fillRect(0, 0, CW, CH);
+  const { ln, rn, flows } = SK_GEO, x0 = SK_XL + SK_NW, xr = SK_XR, mx = (x0 + xr) / 2;
+  const prog = inOut3(seg(u, 0.2, 3.2)), fade = fadeIn(u);
+  flows.forEach((f, i) => {
+    const kk = clamp(prog * 1.5 - i * 0.04); if (kk <= 0 || fade <= 0) return;   // 第 i 条晚 0.04 进度出发
+    const g = k.createLinearGradient(x0, 0, xr, 0); g.addColorStop(0, SK_L[f.a][2]); g.addColorStop(1, SK_R[f.b][2]);
+    k.save(); k.beginPath(); k.rect(0, 0, x0 + (xr - x0) * kk, CH); k.clip();
+    k.globalAlpha = 0.55 * fade; k.fillStyle = g;
+    k.beginPath(); k.moveTo(x0, f.ya); k.bezierCurveTo(mx, f.ya, mx, f.yb, xr, f.yb); k.lineTo(xr, f.yb + f.h);
+    k.bezierCurveTo(mx, f.yb + f.h, mx, f.ya + f.h, x0, f.ya + f.h); k.closePath(); k.fill(); k.restore();
+  });
+  SK_L.forEach((a, i) => { k.fillStyle = a[2]; k.fillRect(SK_XL, ln[i].y, SK_NW, ln[i].h); txt(k, a[0], SK_XL - 5, ln[i].y + ln[i].h / 2, `700 10px ${SANS}`, '#1D1B18', 'right', 'middle'); });
+  SK_R.forEach((a, i) => { k.fillStyle = a[2]; k.fillRect(xr, rn[i].y, SK_NW, rn[i].h); txt(k, a[0], xr + SK_NW + 5, rn[i].y + rn[i].h / 2, `700 10px ${SANS}`, '#1D1B18', 'left', 'middle'); });
+  grain(k, 0.05, 'multiply');
+};

@@ -1,0 +1,67 @@
+// Motion Prompt #4-029 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Möbius strip / メビウスの帯
+// Pack: scenes (Styled scenes) · element 29 · Category: Objects & space
+// What happens: A Möbius strip sways gently in a dark space while orange-pink and white stripes flow along it, front quietly becoming back.
+// Motion spec:
+//   - Dark gradient background #1A1C2A → #0B0C12. Strip radius 1.7, band width 1, perspective projection.
+//   - It swings about the vertical axis between -0.1 and 0.7 rad and tilts between 0.04 and 0.16 rad, each 1 swing per 6.4 s.
+//   - 40 stripes, each 0.375 orange-pink gradient and 0.625 white, advancing 8 stripes per cycle.
+//   - Shaded with diffuse light and a power-40 specular highlight; back-facing normals flip toward the camera so it reads as one surface.
+// When to use it: Openers for maths or science videos, hero sections for brands themed on infinity or loops, or presentation title slides.
+// Tags: mobius-strip, 3d, topology, stripes, infinity, math, loop
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-029
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 29
+// 29 莫比乌斯环：只有一个面的环带绕竖轴在 -0.1–0.7 rad 间往复摆动、俯仰在 0.04–0.16 rad 间轻摆（各每周期一次）；40 道橙粉条纹沿带子流动，每周期前进 8 道
+const MOB_CP = Math.cos(0.36), MOB_SP = Math.sin(0.36);
+const MOB_L = (() => { const v = [-0.4, 0.8, 0.5], l = Math.hypot(...v); return v.map(c => c / l); })();   // 相机空间光线
+CELLS[28] = (k, w, h, u) => {
+  const g = k.createLinearGradient(0, 0, 0, CH); g.addColorStop(0, '#1A1C2A'); g.addColorStop(1, '#0B0C12');
+  k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  const a = 0.3 + 0.4 * Math.cos(TAU * u / CYC), b = 0.1 + 0.06 * Math.sin(TAU * u / CYC), ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);
+  // 曲面点 → 相机空间 [x, y, 深度]
+  const M = (t, v) => {
+    const R = 1.7; let x = (R + v * Math.cos(t / 2)) * Math.cos(t), y = v * Math.sin(t / 2), z = (R + v * Math.cos(t / 2)) * Math.sin(t);
+    [x, z] = [x * ca - z * sa, x * sa + z * ca]; [y, z] = [y * cb - z * sb, y * sb + z * cb];
+    return [x, y * MOB_CP + z * MOB_SP, -y * MOB_SP + z * MOB_CP + 6];
+  };
+  const pr = p => [269.5 + p[0] * 590 / p[2], 100 - p[1] * 590 / p[2]];
+  const shift = 8 * u / CYC, per = TAU / 40, quads = [];
+  // 每道条纹拆成「彩色 0.375 + 白色 0.625」两段，段界随相位连续移动，避免条纹按网格跳格
+  for (let s = 0; s < 40; s++) {
+    const t0 = (s + shift % 1) * per, cuts = [[t0, t0 + 0.375 * per, true], [t0 + 0.375 * per, t0 + per, false]];
+    for (const [ta, tb, st] of cuts) {
+      const n = st ? 2 : 3;
+      for (let q = 0; q < n; q++) for (let j = 0; j < 3; j++) {
+        const u0 = ta + (tb - ta) * q / n, u1 = ta + (tb - ta) * (q + 1) / n, v0 = -0.5 + j / 3, v1 = -0.5 + (j + 1) / 3;
+        const p = [M(u0, v0), M(u1, v0), M(u1, v1), M(u0, v1)];
+        const e1 = [p[1][0] - p[0][0], p[1][1] - p[0][1], p[1][2] - p[0][2]], e2 = [p[3][0] - p[0][0], p[3][1] - p[0][1], p[3][2] - p[0][2]];
+        let nx = e1[1] * e2[2] - e1[2] * e2[1], ny = e1[2] * e2[0] - e1[0] * e2[2], nz = e1[0] * e2[1] - e1[1] * e2[0];
+        const nl = Math.hypot(nx, ny, nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+        const mx = (p[0][0] + p[2][0]) / 2, my = (p[0][1] + p[2][1]) / 2, mz = (p[0][2] + p[2][2]) / 2, ml = Math.hypot(mx, my, mz);
+        if (nx * mx + ny * my + nz * mz > 0) { nx = -nx; ny = -ny; nz = -nz; }   // 法线翻向相机
+        const d = Math.max(0, nx * MOB_L[0] + ny * MOB_L[1] - nz * MOB_L[2]);
+        const hx = MOB_L[0] - mx / ml, hy = MOB_L[1] - my / ml, hz = -MOB_L[2] - mz / ml, hl = Math.hypot(hx, hy, hz);
+        const sp = Math.pow(Math.max(0, (hx * nx + hy * ny + hz * nz) / hl), 40);
+        const uu = (((u0 / TAU) % 1) + 1) % 1;
+        quads.push([ml, p, d, sp, st, uu]);
+      }
+    }
+  }
+  quads.sort((x, y) => y[0] - x[0]);
+  k.lineWidth = 0.8;
+  for (const [, p, d, sp, st, uu] of quads) {
+    const base = st ? lerpC([255, 140, 90], [255, 90, 140], uu) : [240, 236, 228];
+    const c = `rgb(${lerpC(base.map(v => Math.min(255, Math.round(v * (0.25 + 0.8 * d)))), [255, 255, 255], sp * 0.5).join()})`;
+    k.fillStyle = c; k.strokeStyle = c; k.beginPath();
+    p.forEach((q, i) => { const s = pr(q); i ? k.lineTo(s[0], s[1]) : k.moveTo(s[0], s[1]); });
+    k.closePath(); k.fill(); k.stroke();
+  }
+  grain(k, 0.05);
+};

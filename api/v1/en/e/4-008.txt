@@ -1,0 +1,42 @@
+// Motion Prompt #4-008 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Sci-fi HUD / SF の計器
+// Pack: scenes (Styled scenes) · element 08 · Category: Tech moods
+// What happens: Cyan concentric rings turn in opposite directions on deep navy while a scan sector sweeps and the central readout and side data keep changing.
+// Motion spec:
+//   - Centred at (200, 104) with 8 concentric rings; 6 of them turn 0.5–3 laps per 6.4 s in mixed directions.
+//   - An outer scale of 120 ticks (a 6 px long tick every 10); an inner scan sector turns 2 laps per 6.4 s.
+//   - The central readout swings between 75 and 99 along a sine, set in 28 px thin type.
+//   - 6 data rows CH-1 to CH-6 on the right rise and fall 2 times per 6.4 s; lines rgba(90, 220, 255) on #04101C.
+// When to use it: Use it to open tech launch videos, as a hero background for games or sci-fi titles, or as an idle screen for data dashboards.
+// Tags: hud, sci-fi, dial, rings, interface, futuristic, tech
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-008
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 08
+// 08 科幻仪表：同心刻度环以不同速度转动，中心读数与侧边数据跳动，青色线条叠在深蓝上
+CELLS[7] = (k, w, h, u) => {
+  k.fillStyle = '#04101C'; k.fillRect(0, 0, CW, CH);
+  const cx = 200, cy = 104, S = 0.2, ph = TAU * u / CYC;   // 环半径按 0.2 倍缩放；转速取每周期整数圈
+  const c = a => `rgba(90,220,255,${a})`;
+  k.save(); k.globalCompositeOperation = 'lighter';
+  const ring = (R, wd, n, turns, gap, a) => {
+    k.strokeStyle = c(a); k.lineWidth = wd;
+    for (let i = 0; i < n; i++) { const a0 = i / n * TAU + ph * turns; k.beginPath(); k.arc(cx, cy, R * S, a0, a0 + TAU / n * (1 - gap)); k.stroke(); }
+  };
+  ring(420, 1, 1, 0, 0, 0.25); ring(400, 3, 36, 1, 0.5, 0.5); ring(360, 1, 3, -1, 0.2, 0.8); ring(320, 6, 60, 0.5, 0.7, 0.35);
+  ring(270, 1.2, 8, 2, 0.3, 0.7); ring(220, 1, 1, 0, 0, 0.5); ring(200, 4, 4, -2, 0.6, 0.6); ring(140, 1, 12, 3, 0.5, 0.9);
+  for (let i = 0; i < 120; i++) { const a = i / 120 * TAU, L = i % 10 === 0 ? 6 : 2.5; k.strokeStyle = c(0.5); k.lineWidth = 0.6; k.beginPath(); k.moveTo(cx + Math.cos(a) * 88, cy + Math.sin(a) * 88); k.lineTo(cx + Math.cos(a) * (88 + L), cy + Math.sin(a) * (88 + L)); k.stroke(); }
+  const sweep = ph * 2, g = k.createConicGradient(sweep, cx, cy);   // 扫描扇区每周期 2 圈
+  g.addColorStop(0, 'rgba(90,220,255,.35)'); g.addColorStop(0.12, 'rgba(90,220,255,0)'); g.addColorStop(1, 'rgba(90,220,255,0)');
+  k.fillStyle = g; k.beginPath(); k.arc(cx, cy, 60, 0, TAU); k.fill();
+  k.restore();
+  txt(k, String(Math.floor(87 + 12 * Math.sin(ph))).padStart(2, '0'), cx, cy + 8, `200 28px ${DISP}`, '#C9F4FF', 'center');
+  txt(k, 'SYNC %', cx, cy + 22, `500 7px ${MONO}`, '#C9F4FF', 'center');
+  for (let q = 0; q < 6; q++) txt(k, `CH-${q + 1}  ${(Math.sin(ph * 2 + q) * 50 + 50).toFixed(2).padStart(6, '0')}`, 340, 58 + q * 18, `500 10px ${MONO}`, 'rgba(160,235,255,.8)');
+  grain(k, 0.05);
+};

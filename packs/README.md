@@ -13,5 +13,6 @@ A pack is one field's set of names. Each list below is readable here on GitHub; 
 | #2 025~048 | `motion2` — Motion graphics moves, part 2 | 24 | [English](motion2/README.md) · [日本語](motion2/README.ja.md) · [简体中文](motion2/README.zh-Hans.md) |
 | #3 001~024 | `camera` — Camera moves & transitions | 24 | [English](camera/README.md) · [日本語](camera/README.ja.md) · [简体中文](camera/README.zh-Hans.md) |
 | #3 025~048 | `photo` — Photo looks, lighting & styles | 24 | [English](photo/README.md) · [日本語](photo/README.ja.md) · [简体中文](photo/README.zh-Hans.md) |
+| #4 001~032 | `scenes` — Styled scenes | 32 | [English](scenes/README.md) · [日本語](scenes/README.ja.md) · [简体中文](scenes/README.zh-Hans.md) |
 
 To add a pack for your field, or a language to an existing pack, see [CONTRIBUTING.md](../CONTRIBUTING.md).

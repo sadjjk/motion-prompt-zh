@@ -39,6 +39,7 @@ Groups, packs and IDs. Display order and IDs come from `packs/groups.json`; a pa
 | 2 `motion` | `motion2` | 24 | #2 025~048 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 |
 | 3 `film` | `camera` | 24 | #3 001~024 | 025–048 | Camera moves & transitions / カメラワークと切り替え |
 | 3 `film` | `photo` | 24 | #3 025~048 | 097–120 | Photo looks, lighting & styles / 写真の表現・光と画風 |
+| 4 `ambient` | `scenes` | 32 | #4 001~032 | — | Styled scenes / スタイルシーン (after [Motion Atlas](https://github.com/skylarzzzz/motion-atlas), Yun) |
 
 A range is written `#<group> <first>~<last>` (e.g. `#1 025~048`); a single ID is `#1-025`.
 

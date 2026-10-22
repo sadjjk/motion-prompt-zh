@@ -1,0 +1,17 @@
+请使用“故障艺术（Glitch）”，属于“风格画面”。
+Motion Prompt #4-006
+
+效果解释：海报文字在信号干扰下错位撕裂的故障艺术画面
+动画表现：深色海报上的「SIGNAL LOST」分出 RGB 重影，横向切片忽左忽右地跳，叠着彩色噪块和扫描线。
+实现规格与关键运动参数：
+- 海报「SIGNAL LOST」64 px 特粗字，深色底 #0B0B0E，红色强调 #FF3B5C。
+- RGB 3 个通道左右错开 3–9 px，每 6.4 秒起伏 3 次。
+- 干扰图案每秒换 10 次：每帧 7 条高 2–20 px 的横向切片左右偏移最多 ±32 px，另有 5 条红或青色噪块。
+- 每 3 px 一条扫描线；一周期 64 帧，最后一帧复用第 0 帧图案，循环无缝。
+适用场景：适合游戏、音乐、科技类视频开场，错误页或维护公告页，以及赛博风海报。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-006
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/4-006.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Yun 的 MIT 版权标识。

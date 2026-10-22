@@ -1,0 +1,74 @@
+// Motion Prompt #4-030 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Infinity room / インフィニティ・ルーム
+// Pack: scenes (Styled scenes) · element 30 · Category: Objects & space
+// What happens: The camera glides forward through lights in 4 hues hanging in darkness, mirrored in the floor, their brightness breathing in waves into the depth.
+// Motion spec:
+//   - Black background #020205. Lights in 4 hues 320 / 40 / 185 / 265; about 80% of 17 slots per row are lit, rows 0.55 apart.
+//   - The camera moves forward 4 rows (2.2) every 6.4 s; the layout repeats every 4 rows, so the loop is seamless.
+//   - Brightness breathes 2 times per cycle, phase-shifted with depth; lights fade at the near and far limits.
+//   - Floor reflections are at 0.35 brightness; floor grid lines move with the camera, and a vignette darkens the edges.
+// When to use it: Openers for music, nightlife or art exhibition promos, immersive hero backgrounds, or a waiting screen before a livestream.
+// Tags: infinity-room, mirror, lights, immersive, 3d, night, bokeh
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-030
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 30
+// 30 无限镜屋：四色小灯悬在黑色镜屋里、镜面地板倒映；镜头每周期向前推进 4 排灯（灯阵每 4 排重复，天然无缝），灯色沿纵深每周期呼吸 2 次
+const INF_HUES = [320, 40, 185, 265];
+const INF_SPR = INF_HUES.map(hue => { // 每种色相一张光晕贴图（常量），绘制时只缩放贴图
+  const c = document.createElement('canvas'); c.width = 64; c.height = 64; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, `hsla(${hue},100%,85%,1)`); gr.addColorStop(0.25, `hsla(${hue},95%,60%,.45)`); gr.addColorStop(1, `hsla(${hue},90%,50%,0)`);
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return c;
+});
+const INF_LIGHTS = (() => { // [列 x, 高度 y, 排内深度抖动, 色相下标, 相位]，按 (列, 排 mod 4) 生成
+  const o = [];
+  for (let rm = 0; rm < 4; rm++) for (let i = -8; i <= 8; i++) {
+    const s = (rm * 17 + i + 8) * 5 + 3;
+    if (hash(s) > 0.8) continue;
+    o.push([rm, i * 0.55 + (hash(s + 1) - 0.5) * 0.3, 0.1 + hash(s + 2) * 2.1 - 1.2, (hash(s + 3) - 0.5) * 0.3, Math.floor(hash(s + 4) * 4), hash(s + 4)]);
+  }
+  return o;
+})();
+const INF_F = 170, INF_HOR = 96, INF_FL = -1.2;
+CELLS[29] = (k, w, h, u) => {
+  k.fillStyle = '#020205'; k.fillRect(0, 0, CW, CH);
+  const camZ = 2.2 * u / CYC;                                                   // 每周期前进 4 排 × 0.55
+  // 地板网格：纵线静态、横线随镜头移动（间距 1.1 = 2 排）
+  k.drawImage(layer('INF_floor', g => {
+    g.strokeStyle = 'rgba(120,120,160,.08)'; g.lineWidth = 1;
+    for (let i = -8; i <= 8; i++) { g.beginPath(); g.moveTo(269.5 + i * 0.8 * INF_F / 0.6, INF_HOR - INF_FL * INF_F / 0.6); g.lineTo(269.5 + i * 0.8 * INF_F / 24, INF_HOR - INF_FL * INF_F / 24); g.stroke(); }
+  }), 0, 0);
+  k.strokeStyle = 'rgba(120,120,160,.08)'; k.lineWidth = 1;
+  for (let q = 0; q < 18; q++) { const zc = q * 1.1 + 0.6 - (camZ % 1.1); if (zc < 0.6) continue; const y = INF_HOR - INF_FL * INF_F / zc; k.beginPath(); k.moveTo(0, y); k.lineTo(CW, y); k.stroke(); }
+  k.save(); k.globalCompositeOperation = 'lighter';
+  const items = [];
+  for (let r = 40; r >= 0; r--) {
+    for (const L of INF_LIGHTS) {
+      if (L[0] !== r % 4) continue;
+      const zc = r * 0.55 + L[3] - camZ;
+      if (zc < 0.35 || zc > 19.8) continue;
+      items.push([zc, L]);
+    }
+  }
+  items.sort((a, b) => b[0] - a[0]);
+  for (const [zc, L] of items) {
+    const [, x, y, , hi, kk] = L;
+    const br = 0.55 + 0.45 * Math.sin(TAU * 2 * u / CYC - zc * 0.35 + kk * 6);   // 每周期呼吸 2 次，沿纵深错相
+    const edge = clamp((19.8 - zc) / 3) * clamp((zc - 0.35) / 1.0);
+    const sx = 269.5 + x * INF_F / zc, rr = Math.max(1.2, 9 / zc), al0 = Math.min(1, 6 / zc) * br * edge;
+    if (sx < -rr * 4 || sx > CW + rr * 4) continue;
+    for (const [yy, m] of [[y, 1], [2 * INF_FL - y, 0.35]]) {
+      const sy = INF_HOR - yy * INF_F / zc; if (sy < -rr * 4 || sy > CH + rr * 4) continue;
+      k.globalAlpha = Math.min(1, al0 * m); k.drawImage(INF_SPR[hi], sx - rr * 4, sy - rr * 4, rr * 8, rr * 8);
+    }
+  }
+  k.restore();
+  k.drawImage(layer('INF_vig', g => { const v = g.createRadialGradient(269.5, 104, 60, 269.5, 104, 330); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.6)'); g.fillStyle = v; g.fillRect(0, 0, CW, CH); }), 0, 0);
+  grain(k, 0.05);
+};

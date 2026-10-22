@@ -1,0 +1,53 @@
+// Motion Prompt #4-007 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Dot-matrix sign / LED ドットマトリクス
+// Pack: scenes (Styled scenes) · element 07 · Category: Tech moods
+// What happens: On an angled LED board, amber dot letters scroll right to left, with lit dots glowing softly.
+// Motion spec:
+//   - 64 columns × 7 rows of amber LED dots using a 5 × 7 font: 5 columns per glyph plus 1 spacer column.
+//   - The message NEXT TRAIN · PLATFORM 07 · ON TIME scrolls right to left once every 6.4 s, stepping column by column.
+//   - Angled perspective: dot size and pitch are 0.55× at the left end and 1.3× at the right; base dot 2.2 px, pitch 7.2 px.
+//   - Lit dots #FFE3A0 carry a glow 2.6× the dot radius; unlit dots are #2A1C10.
+// When to use it: Use it to open transport, city or retro-tech videos, as an announcement banner, or as looping venue signage.
+// Tags: led, dot-matrix, sign, scrolling, station, amber, tech
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-007
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 07
+// 07 LED 点阵屏：车站信息屏式的琥珀色点阵，文字从右向左滚过，亮灯带微光，屏幕斜向透视冲出画面
+const LED_MSG = '  NEXT TRAIN  ·  PLATFORM 07  ·  ON TIME  ·  ';
+// 5×7 字模（每字 7 行、每行 5 位），覆盖上面消息用到的字符
+const GLYPH = {
+  ' ': [0, 0, 0, 0, 0, 0, 0], '·': [0, 0, 0, 4, 0, 0, 0],
+  N: [17, 25, 21, 19, 17, 17, 17], E: [31, 16, 16, 30, 16, 16, 31], X: [17, 17, 10, 4, 10, 17, 17], T: [31, 4, 4, 4, 4, 4, 4],
+  R: [30, 17, 17, 30, 20, 18, 17], A: [14, 17, 17, 31, 17, 17, 17], I: [14, 4, 4, 4, 4, 4, 14], P: [30, 17, 17, 30, 16, 16, 16],
+  L: [16, 16, 16, 16, 16, 16, 31], F: [31, 16, 16, 30, 16, 16, 16], O: [14, 17, 17, 17, 17, 17, 14], M: [17, 27, 21, 21, 17, 17, 17],
+  '0': [14, 17, 19, 21, 25, 17, 14], '7': [31, 1, 2, 4, 8, 8, 8],
+};
+const LED_BITS = (() => { // 整条消息的点阵：每字 5 列 + 1 列间隔
+  const cols = []; for (const ch of LED_MSG) { const gph = GLYPH[ch] || GLYPH[' ']; for (let x = 0; x < 6; x++) cols.push(gph.map(r => x < 5 && (r >> (4 - x)) & 1)); }
+  return cols;
+})();
+CELLS[6] = (k, w, h, u) => {
+  k.fillStyle = '#0A0806'; k.fillRect(0, 0, CW, CH);
+  const COLS = 64, ROWS = 7, N = LED_BITS.length;
+  // 每周期正好滚过整条消息（N 列）；取 N 的整数倍时刻，u→CYC 时回到第 0 列，首尾无缝
+  const off = Math.floor(u / CYC * N) % N;
+  // 透视：左侧远、右侧近，点距与点径随列号增大
+  for (let i = 0; i < COLS; i++) {
+    const t = i / (COLS - 1), sc = 0.55 + 0.75 * t;   // 远端 0.55 倍、近端 1.3 倍
+    const x = 30 + (Math.pow(t, 1.25)) * 480, rr = 2.2 * sc, pitch = 7.2 * sc, y0 = 104 - pitch * 3 - (1 - t) * 6;
+    const colBits = LED_BITS[(i + off) % N];
+    for (let j = 0; j < ROWS; j++) {
+      const y = y0 + j * pitch;
+      if (colBits[j]) { glow(k, x, y, rr * 2.6, '255,150,30', 0.5); k.fillStyle = '#FFE3A0'; }
+      else k.fillStyle = '#2A1C10';
+      k.beginPath(); k.arc(x, y, rr, 0, TAU); k.fill();
+    }
+  }
+  grain(k, 0.06);
+};

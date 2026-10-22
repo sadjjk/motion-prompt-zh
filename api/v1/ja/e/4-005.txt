@@ -1,0 +1,52 @@
+// Motion Prompt #4-005 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 縦書きの詩箋 / Vertical verse
+// パック: scenes (スタイルシーン) · element 05 · カテゴリ: 文字のムード
+// 何が起きるか: 朱色の罫の詩箋に「山居秋暝」が右の列から一字ずつ濃淡をつけて浮かび、書き終えると左下に朱印が押される。
+// 動きの仕様:
+//   - 朱色の罫の詩箋 9 列、各列 40 px・各字 30 px、地色 #E2D7C1
+//   - 王維「山居秋暝」44 字が右の列から順に浮かぶ。毎秒 9.5 字、各字 1.5 秒でフェードイン、約 4.6 秒で書き終わる
+//   - 墨の濃さは字順に 0.78〜1.0 で揺れる。題は 21 px の太字、本文 23 px
+//   - 書き終えて 1 字ぶん後に 30 × 30 px の「摩詰」朱印 #B3261E。5.4〜6.0 秒で墨字と印が消え、罫は残る
+// 使いどころ: 古典文学・国風ブランドの首画面や、詩の朗読動画のオープニング、文化系の発表の幕間に。
+// タグ: vertical-text, poem, chinese, letter-paper, seal, calligraphy, type
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-005
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 05
+// 05 竖排诗笺：朱丝栏笺纸上，王维《山居秋暝》从右往左逐字浮现，墨色有浓有淡，最后钤一方朱印
+const POEM = ['山居秋暝', '空山新雨後', '天氣晚來秋', '明月松間照', '清泉石上流', '竹喧歸浣女', '蓮動下漁舟', '隨意春芳歇', '王孫自可留'];
+CELLS[4] = (k, w, h, u) => {
+  k.fillStyle = '#E2D7C1'; k.fillRect(0, 0, CW, CH); paper(k, [150, 120, 80], 600, 5);
+  const colW = 40, ch = 30, x0 = 440, y0 = 30, cols = POEM.length;   // 每列 40px、每字 30px
+  const fade = fadeIn(u);
+  // 朱丝栏常驻；淡出复位只作用于墨字与印章，使周期首尾画面一致
+  k.strokeStyle = 'rgba(190,60,40,.55)'; k.lineWidth = 1;
+  const left = x0 - colW * (cols - 1) - colW / 2, top = y0 - 14, bh = ch * 5 + 16;
+  k.strokeRect(left, top, colW * cols, bh);
+  for (let i = 1; i < cols; i++) { const x = left + i * colW; k.beginPath(); k.moveTo(x, top); k.lineTo(x, top + bh); k.stroke(); }
+  k.save(); k.globalAlpha = fade;
+  const speed = 9.5; let n = 0;                     // 每秒写 9.5 个字，44 个字约 4.6 秒写完
+  POEM.forEach((ln, ci) => {
+    const x = x0 - ci * colW;
+    [...ln].forEach((c, q) => {
+      const t = (u - 0.2) * speed - n; n++;
+      if (t <= 0) return;
+      const a = clamp(t / 1.5), ink = 0.78 + 0.22 * Math.sin(n * 2.1);   // 墨色深浅按字序起伏
+      txt(k, c, x, y0 + q * ch + 10 + (ci === 0 ? 6 : 0), `${ci === 0 ? 900 : 700} ${ci === 0 ? 21 : 23}px ${SERIF}`, `rgba(20,16,12,${a * ink})`, 'center', 'middle');
+    });
+  });
+  const sk = clamp((u - 0.2) * speed - n - 1);      // 写完 1 个字的时间后钤印
+  if (sk > 0) {
+    k.save(); k.translate(left - 2, top + bh + 2); k.translate(-20, -20); k.rotate(-0.04); k.globalAlpha = sk * fade;
+    k.fillStyle = '#B3261E'; k.fillRect(-15, -15, 30, 30);
+    txt(k, '摩詰', 0, 1, `900 11px ${SERIF}`, '#F1E4CC', 'center', 'middle');
+    k.restore();
+  }
+  k.restore();
+  grain(k, 0.07, 'multiply');
+};

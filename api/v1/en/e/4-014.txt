@@ -1,0 +1,40 @@
+// Motion Prompt #4-014 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Constructivist / 構成主義
+// Pack: scenes (Styled scenes) · element 14 · Category: Patterns & graphics
+// What happens: On a tilted cream canvas a red circle swells, then black bars, bold FORWARD and a red wedge slam in one after another, and later leave in reverse.
+// Motion spec:
+//   - The whole layout is tilted -0.42 rad; red #C8231B and black #141414 on cream #E9E0CC, 2 colours only.
+//   - 5 elements enter at 0.2 + 0.35i s, 0.5 s each: a 92 px-radius red circle, an 840 px bar, a 460 px post, 62 px FORWARD and a 250 px red wedge.
+//   - The bar slides in from 1000 px off the left, the post drops from 700 px above, and FORWARD rushes in from 1000 px off the right.
+//   - From 5.4 s they leave in reverse order, 0.12 s apart, 0.4 s each.
+// When to use it: Use it to open bold announcement videos, as a hero for design or art exhibitions, or as a moving version of a campaign poster.
+// Tags: constructivist, poster, geometric, red-black, bold-type, avant-garde, pattern
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-014
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 14
+// 14 构成主义：红黑两色，大红圆、黑色横杠与竖杠、粗体 FORWARD、红色楔形依次砸进倾斜 -0.42 rad 的画面；停留后逆序退场
+CELLS[13] = (k, w, h, u) => {
+  k.fillStyle = '#E9E0CC'; k.fillRect(0, 0, CW, CH);
+  // 第 i 个元素在 0.2 + 0.35i 秒入场（0.5 秒 out3，最后一个 1.9 秒到位）；5.4 秒起逆序退场，间隔 0.12 秒、每个 0.4 秒
+  const e = i => out3(seg(u, 0.2 + i * 0.35, 0.7 + i * 0.35)) * (1 - inOut3(seg(u, SHOW + (4 - i) * 0.12, SHOW + 0.4 + (4 - i) * 0.12)));
+  k.save(); k.translate(300, 104); k.rotate(-0.42);
+  const r0 = 92 * e(0);                                        // 红圆半径 92px，从中心胀开
+  if (r0 > 0) { k.fillStyle = '#C8231B'; k.beginPath(); k.arc(40, -14, r0, 0, TAU); k.fill(); }
+  k.fillStyle = '#141414';
+  k.fillRect(-420 - (1 - e(1)) * 1000, 34, 840, 21);          // 横杠从左侧画外 1000px 处滑入
+  k.fillRect(-18, -230 - (1 - e(2)) * 700, 18, 460);          // 竖杠从上方画外落下
+  k.letterSpacing = '-3px';
+  txt(k, 'FORWARD', -250 + (1 - e(3)) * 1000, -40, `900 62px ${DISP}`, '#141414');   // 粗体字从右侧画外冲入
+  k.letterSpacing = '0px';
+  const tw = 250 * e(4);                                       // 红色楔形向右拉长到 250px
+  if (tw > 0) { k.fillStyle = '#C8231B'; k.beginPath(); k.moveTo(70, 70); k.lineTo(70 + tw, 70); k.lineTo(70, 98); k.fill(); }
+  k.restore();
+  txt(k, 'No. 21  ·  1926 → 2026', 12, 199, `700 8px ${DISP}`, '#141414');
+  grain(k, 0.08, 'multiply');
+};

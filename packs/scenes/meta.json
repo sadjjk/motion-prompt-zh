@@ -1,0 +1,2151 @@
+{
+  "pack": "scenes",
+  "order": 8,
+  "title": {
+    "ja": "スタイルシーン",
+    "en": "Styled scenes",
+    "zh-Hans": "风格画面"
+  },
+  "license": "MIT License (c) 2026 Yun",
+  "attribution": "https://github.com/skylarzzzz/motion-atlas",
+  "categories": [
+    {
+      "slug": "type",
+      "ja": "文字のムード",
+      "en": "Type moods",
+      "zh-Hans": "文字氛围"
+    },
+    {
+      "slug": "tech",
+      "ja": "テックのムード",
+      "en": "Tech moods",
+      "zh-Hans": "科技氛围"
+    },
+    {
+      "slug": "pattern",
+      "ja": "文様・グラフィック",
+      "en": "Patterns & graphics",
+      "zh-Hans": "纹样与图形"
+    },
+    {
+      "slug": "objects",
+      "ja": "器物・空間",
+      "en": "Objects & space",
+      "zh-Hans": "器物与空间"
+    }
+  ],
+  "elements": [
+    {
+      "no": "01",
+      "slug": "dry-brush",
+      "category": "type",
+      "name": {
+        "ja": "書の筆致",
+        "en": "Dry brush",
+        "zh-Hans": "书法笔触"
+      },
+      "meaning": {
+        "ja": "筆で和紙に「永」の字を書き、かすれと朱印で仕上げる書道の画面",
+        "en": "A calligraphy scene where a brush writes the character 永 on rice paper, with dry-brush streaks and a red seal",
+        "zh-Hans": "毛笔在宣纸上写出「永」字、带飞白和朱印的书法画面"
+      },
+      "ask": {
+        "ja": "書道風のオープニングを作って。筆が4秒で「永」の8画を書き、最後に朱色の印を押す。",
+        "en": "Make a calligraphy opener: a brush writes the 8 strokes of 永 in 4 s, then a red seal stamps down.",
+        "zh-Hans": "做一段书法开场：毛笔 4 秒写完「永」字 8 笔，最后盖上朱红印章。"
+      },
+      "summary": {
+        "ja": "和紙の上で筆が一画ずつ「永」を書き、線の縁はかすれる。書き終わると朱印が大きい状態から縮んで押され、少し残ってから消える。",
+        "en": "A brush writes 永 stroke by stroke on rice paper with streaky dry edges; a red seal then shrinks into place, holds, and fades away.",
+        "zh-Hans": "宣纸上毛笔一笔一笔写出「永」字，笔画边缘带飞白，写完后朱印由大到小落下，停留后淡出。"
+      },
+      "spec": {
+        "ja": [
+          "画面 539 × 208 px、生成りの和紙 #EDE6D6。字枠 196 px、「永」の 8 画を 0.2〜4.2 秒で書き、各画 0.5 秒",
+          "各画は 60 本の細い線を重ねて描き、画の後半（45% 以降）の縁の線をノイズで途切れさせてかすれを作る",
+          "朱印は 44 × 44 px・#B5281D。4.4 秒から 0.3 秒で 1.6 倍から原寸へ縮んで押される",
+          "周期 6.4 秒：5.4〜6.0 秒で墨字と印がフェードアウトし、6.4 秒で白紙に戻る"
+        ],
+        "en": [
+          "Canvas 539 × 208 px on cream paper #EDE6D6. A 196 px character box; the 8 strokes of 永 are written from 0.2 to 4.2 s, 0.5 s per stroke.",
+          "Each stroke is built from 60 fine hairs; past 45% of the stroke, edge hairs break up by noise to form dry-brush gaps.",
+          "The seal is 44 × 44 px in #B5281D; from 4.4 s it shrinks from 1.6× to full size over 0.3 s.",
+          "Cycle 6.4 s: ink and seal fade out from 5.4 to 6.0 s, returning to blank paper by 6.4 s."
+        ],
+        "zh-Hans": [
+          "画面 539 × 208 px，米色宣纸底 #EDE6D6；字框 196 px，「永」字 8 笔在 0.2–4.2 秒内写完，每笔 0.5 秒。",
+          "每笔由 60 根细丝叠成，笔画后半段（45% 之后）边缘的细丝按噪声断开，形成飞白。",
+          "朱印 44 × 44 px、颜色 #B5281D，4.4 秒起用 0.3 秒从 1.6 倍缩到原大落定。",
+          "周期 6.4 秒：5.4–6.0 秒墨字与印章淡出，6.4 秒回到空白宣纸。"
+        ]
+      },
+      "use": {
+        "ja": "和風・中華風ブランドの動画オープニングや、書道・茶道・文化イベントのページ冒頭に。",
+        "en": "Use it as a video opener for East Asian or heritage brands, or as the hero of a calligraphy, tea or cultural event page.",
+        "zh-Hans": "适合国风品牌的视频开场，或书法、茶道、文化活动网页的首屏背景。"
+      },
+      "tags": [
+        "calligraphy",
+        "brush",
+        "ink",
+        "dry-brush",
+        "chinese",
+        "seal",
+        "type"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "毛笔字",
+          "写字动画",
+          "水墨书法"
+        ]
+      }
+    },
+    {
+      "no": "02",
+      "slug": "sphere-of-words",
+      "category": "type",
+      "name": {
+        "ja": "文字の球",
+        "en": "Sphere of words",
+        "zh-Hans": "字之球"
+      },
+      "meaning": {
+        "ja": "漢字を球面に貼り付けて回転させる、文字でできた地球儀のような画面",
+        "en": "A globe made of Chinese characters, mapped onto a rotating sphere",
+        "zh-Hans": "汉字贴满球面并不停旋转的文字球画面"
+      },
+      "ask": {
+        "ja": "千字文の漢字160字を球面に並べて、6.4秒で1回転する文字の球を作って。",
+        "en": "Build a sphere of 160 Chinese characters from the Thousand Character Classic that turns once every 6.4 s.",
+        "zh-Hans": "做一个字之球：160 个《千字文》汉字贴在球面上，6.4 秒自转一圈。"
+      },
+      "summary": {
+        "ja": "千字文の字が球面に散らばってゆっくり自転し、手前の字は濃く太く、奥の字は淡い影になる。",
+        "en": "Characters scattered over a sphere slowly spin; those in front turn bold and dark while those behind fade to pale shadows.",
+        "zh-Hans": "《千字文》的字散布在球面上缓缓自转，转到前面的字变粗变深，转到背后的退成淡影。"
+      },
+      "spec": {
+        "ja": [
+          "千字文の 160 字をフィボナッチ螺旋で半径 84 px の球面に配置、背景 #F2EEE6",
+          "球は 6.4 秒ごとに縦軸まわりに 1 回転、俯角 0.35 rad",
+          "文字サイズ 11 px に遠近係数 2.4 /(2.4 − z) を掛ける。手前の字はウェイト 900、裏側は 400 の淡い影",
+          "最も手前（z > 0.9）の字は朱色 #C8231B"
+        ],
+        "en": [
+          "160 characters from the Thousand Character Classic placed on a sphere of radius 84 px by a Fibonacci spiral; background #F2EEE6.",
+          "The sphere spins 1 lap around its vertical axis every 6.4 s, tilted by 0.35 rad.",
+          "Glyph size 11 px times the perspective factor 2.4 /(2.4 − z); front glyphs use weight 900, back glyphs weight 400 as faint shadows.",
+          "The frontmost glyphs (z > 0.9) turn vermilion #C8231B."
+        ],
+        "zh-Hans": [
+          "160 个《千字文》字按斐波那契螺旋分布在半径 84 px 的球面上，底色 #F2EEE6。",
+          "球每 6.4 秒绕竖轴自转 1 圈，俯角 0.35 rad。",
+          "字号 11 px 乘透视系数 2.4 /(2.4 − z)；朝前的字为 900 字重，背面的字为 400 字重的淡影。",
+          "最靠前（z > 0.9）的字显示为朱红 #C8231B。"
+        ]
+      },
+      "use": {
+        "ja": "出版・教育・文化系ブランドの首画面背景や、漢字・言語をテーマにした発表の幕間に。",
+        "en": "Use it as a hero background for publishing, education or culture brands, or as a transition in talks about language and characters.",
+        "zh-Hans": "适合出版、教育、文化品牌的首屏背景，或以汉字、语言为主题的演示过场。"
+      },
+      "tags": [
+        "sphere",
+        "characters",
+        "chinese",
+        "globe",
+        "rotation",
+        "3d",
+        "type"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "文字球",
+          "汉字球",
+          "旋转字球"
+        ]
+      }
+    },
+    {
+      "no": "03",
+      "slug": "split-flap-board",
+      "category": "type",
+      "name": {
+        "ja": "反転フラップ表示板",
+        "en": "Split-flap board",
+        "zh-Hans": "机场翻牌"
+      },
+      "meaning": {
+        "ja": "空港の出発案内板のように、文字が板をめくって切り替わる画面",
+        "en": "An airport departures board whose split-flap letters flip into place",
+        "zh-Hans": "机场出发信息板式的翻牌字画面"
+      },
+      "ask": {
+        "ja": "空港の出発案内板を作って。3便ぶんの文字がパタパタめくれ、各マス1.6秒で時差をつけて止まるように。",
+        "en": "Make an airport split-flap board: 3 flights, each cell flips for 1.6 s and settles in a staggered wave.",
+        "zh-Hans": "做一块机场出发翻牌：3 行航班，每格翻 1.6 秒后错峰停住。"
+      },
+      "summary": {
+        "ja": "暗い案内板の各マスがアルファベットを高速でめくり、時刻・行き先・ゲート・状態に順番に止まり、最後は空白にめくり戻る。",
+        "en": "Each cell on a dark board races through the alphabet, then settles in turn on time, destination, gate and status before flipping back to blank.",
+        "zh-Hans": "深色信息板上每格字母快速翻过字母表，依次停在时刻、目的地、登机口和状态上，最后翻回空白。"
+      },
+      "spec": {
+        "ja": [
+          "3 便 × 4 列（時刻 4 マス・行き先 9 マス・ゲート 3 マス・状態 8 マス）、各マス 13 × 22 px",
+          "0.3 秒から時差でめくり始める：行ごとに 0.18 秒、列ごとに 0.1 秒、マスごとに 0.04 秒遅れ、1.6 秒めくって目的の文字で止まる",
+          "めくり中は上半分が毎秒 14 回倒れる。BOARDING は緑 #7CE38B、DELAYED は赤 #FF5A3C",
+          "5.4 秒から各マスが 0.5 秒で空白にめくり戻る（行の差 0.08 秒、マスの差 0.02 秒）"
+        ],
+        "en": [
+          "3 flights × 4 columns (time 4 cells, destination 9, gate 3, status 8); each cell is 13 × 22 px.",
+          "Cells start flipping from 0.3 s with staggers of 0.18 s per row, 0.1 s per column and 0.04 s per cell; each flips for 1.6 s then lands on its target.",
+          "While flipping, the top half drops 14 times per second. BOARDING shows green #7CE38B, DELAYED red #FF5A3C.",
+          "From 5.4 s each cell flips back to blank within 0.5 s, staggered 0.08 s per row and 0.02 s per cell."
+        ],
+        "zh-Hans": [
+          "3 行航班 × 4 列（时刻 4 格、目的地 9 格、登机口 3 格、状态 8 格），每格 13 × 22 px。",
+          "从 0.3 秒起错峰开翻：每行延后 0.18 秒、每列 0.1 秒、每格 0.04 秒；翻 1.6 秒后停在目标字符。",
+          "翻动时上半片每秒翻下 14 次；BOARDING 显示绿色 #7CE38B，DELAYED 显示红色 #FF5A3C。",
+          "5.4 秒起各格在 0.5 秒内翻回空白，行间错开 0.08 秒、格间错开 0.02 秒。"
+        ]
+      },
+      "use": {
+        "ja": "旅行・交通サービスの動画オープニングや、イベント告知・発表の幕間、レトロなページ首画面に。",
+        "en": "Use it to open travel or transport videos, as a transition announcing a schedule, or as a retro hero for event pages.",
+        "zh-Hans": "适合旅行、交通类视频开场，日程公布、活动预告的过场，或复古风网页首屏。"
+      },
+      "tags": [
+        "split-flap",
+        "airport",
+        "departures",
+        "board",
+        "flip",
+        "retro",
+        "type"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "翻牌",
+          "航班信息屏",
+          "翻页字"
+        ]
+      }
+    },
+    {
+      "no": "04",
+      "slug": "type-ocean",
+      "category": "type",
+      "name": {
+        "ja": "文字の海",
+        "en": "Type ocean",
+        "zh-Hans": "文字海浪"
+      },
+      "meaning": {
+        "ja": "アルファベットを敷き詰めた海面が波打つ、文字の海の画面",
+        "en": "A sea surface made of letters that rolls in waves",
+        "zh-Hans": "字母铺成海面并随波起伏的文字海浪画面"
+      },
+      "ask": {
+        "ja": "文字で海を作って。11列×31字のアルファベットが2つの波で上下し、波頭は白く太く。",
+        "en": "Make an ocean of type: 11 rows × 31 letters rising and falling on 2 waves, with white bold crests.",
+        "zh-Hans": "做一片文字海浪：11 排 × 31 列字母随 2 组波起伏，浪尖变白加粗。"
+      },
+      "summary": {
+        "ja": "遠近のついた文字の海面が 2 つの波で上下にうねり、波頭の字は白く太く、谷の字は濃紺に沈む。",
+        "en": "A perspective field of letters swells on 2 overlapping waves; letters on the crests turn white and bold while those in the troughs sink into deep blue.",
+        "zh-Hans": "带透视的字母海面随两组波上下翻涌，浪尖的字变白加粗，浪谷的字沉进深蓝。"
+      },
+      "spec": {
+        "ja": [
+          "11 列 × 31 字のアルファベット（MOTIONPROMPTWAVE を繰り返す）で海面を作る、濃紺の背景 #071226",
+          "海面の高さは 2 つの正弦波の合成、振幅 0.45 と 0.25、6.4 秒ごとにそれぞれ 2 周と 1 周進む",
+          "上方の水平線へ収束する遠近、文字サイズ 30 / 奥行き。波頭（高さ係数 0.75 超）はウェイト 900 で白くなる",
+          "色は谷の青 rgb(30, 70, 160) から波頭の rgb(235, 245, 255) へ変わる"
+        ],
+        "en": [
+          "11 rows × 31 columns of letters (MOTIONPROMPTWAVE repeated) form the sea on deep navy #071226.",
+          "Surface height sums 2 sine waves with amplitudes 0.45 and 0.25, advancing 2 and 1 laps every 6.4 s.",
+          "Perspective converges on a horizon near the top; glyph size is 30 / depth, and crests (height factor above 0.75) turn white at weight 900.",
+          "Colour runs from trough blue rgb(30, 70, 160) to crest white rgb(235, 245, 255)."
+        ],
+        "zh-Hans": [
+          "11 排 × 31 列字母（循环 MOTIONPROMPTWAVE）铺成海面，深蓝底 #071226。",
+          "海面高度由 2 组正弦波叠加，振幅 0.45 与 0.25，每 6.4 秒分别推进 2 圈与 1 圈。",
+          "透视收向上方地平线，字号为 30 / 深度；浪尖（高度系数大于 0.75）变白并加粗为 900。",
+          "颜色从浪谷的蓝 rgb(30, 70, 160) 渐变到浪尖的 rgb(235, 245, 255)。"
+        ]
+      },
+      "use": {
+        "ja": "海・旅行・メディア系ブランドの首画面背景や、動画オープニング、ループするサイネージに。",
+        "en": "Use it as a hero background for ocean, travel or media brands, a video opener, or looping signage.",
+        "zh-Hans": "适合海洋、旅行、媒体品牌的首屏背景、视频开场，或循环播放的展示屏。"
+      },
+      "tags": [
+        "type-ocean",
+        "waves",
+        "letters",
+        "kinetic-type",
+        "perspective",
+        "sea",
+        "type"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "字母海",
+          "文字波浪",
+          "文字海面"
+        ]
+      }
+    },
+    {
+      "no": "05",
+      "slug": "vertical-verse",
+      "category": "type",
+      "name": {
+        "ja": "縦書きの詩箋",
+        "en": "Vertical verse",
+        "zh-Hans": "竖排诗笺"
+      },
+      "meaning": {
+        "ja": "罫線入りの詩箋に漢詩が縦書きで一字ずつ浮かぶ画面",
+        "en": "A classical Chinese poem appearing character by character in vertical columns on ruled letter paper",
+        "zh-Hans": "朱丝栏笺纸上古诗竖排逐字浮现的画面"
+      },
+      "ask": {
+        "ja": "縦書きの詩箋を作って。王維の詩44字が右から左へ1秒に9.5字ずつ浮かび、最後に朱印を押す。",
+        "en": "Make a vertical verse scene: Wang Wei's 44-character poem appears right to left at 9.5 characters per second, then a red seal is stamped.",
+        "zh-Hans": "做一张竖排诗笺：王维的诗 44 个字从右往左每秒浮现 9.5 个，最后钤一方朱印。"
+      },
+      "summary": {
+        "ja": "朱色の罫の詩箋に「山居秋暝」が右の列から一字ずつ濃淡をつけて浮かび、書き終えると左下に朱印が押される。",
+        "en": "On paper ruled in red, Wang Wei's poem fades in column by column from the right with varied ink depth, and a red seal is stamped at the end.",
+        "zh-Hans": "朱丝栏笺纸上，《山居秋暝》从右边一列起逐字浮现，墨色有浓有淡，写完在左下角钤上朱印。"
+      },
+      "spec": {
+        "ja": [
+          "朱色の罫の詩箋 9 列、各列 40 px・各字 30 px、地色 #E2D7C1",
+          "王維「山居秋暝」44 字が右の列から順に浮かぶ。毎秒 9.5 字、各字 1.5 秒でフェードイン、約 4.6 秒で書き終わる",
+          "墨の濃さは字順に 0.78〜1.0 で揺れる。題は 21 px の太字、本文 23 px",
+          "書き終えて 1 字ぶん後に 30 × 30 px の「摩詰」朱印 #B3261E。5.4〜6.0 秒で墨字と印が消え、罫は残る"
+        ],
+        "en": [
+          "Red-ruled letter paper with 9 columns, 40 px per column and 30 px per character, on #E2D7C1.",
+          "The 44 characters of Wang Wei's poem appear from the right column on, 9.5 per second, each fading in over 1.5 s, finishing in about 4.6 s.",
+          "Ink depth varies by character order between 0.78 and 1.0; the title is 21 px bold, the body 23 px.",
+          "1 character's time after the last, a 30 × 30 px seal 摩詰 in #B3261E is stamped; ink and seal fade out from 5.4 to 6.0 s while the ruling stays."
+        ],
+        "zh-Hans": [
+          "朱丝栏笺纸 9 列，每列 40 px、每字 30 px，底色 #E2D7C1。",
+          "王维《山居秋暝》44 个字从右边一列起逐字浮现，每秒 9.5 个字，每字 1.5 秒淡入，约 4.6 秒写完。",
+          "墨色深浅按字序在 0.78–1.0 之间起伏；标题 21 px 粗体，正文 23 px。",
+          "写完后隔 1 个字的时间钤上 30 × 30 px 的「摩詰」朱印 #B3261E；5.4–6.0 秒墨字与印章淡出，栏线常驻。"
+        ]
+      },
+      "use": {
+        "ja": "古典文学・国風ブランドの首画面や、詩の朗読動画のオープニング、文化系の発表の幕間に。",
+        "en": "Use it as a hero for classical literature or heritage brands, an opener for poetry readings, or a transition in culture talks.",
+        "zh-Hans": "适合古典文学、国风品牌的首屏，诗词朗诵视频开场，或文化主题演示的过场。"
+      },
+      "tags": [
+        "vertical-text",
+        "poem",
+        "chinese",
+        "letter-paper",
+        "seal",
+        "calligraphy",
+        "type"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "竖排古诗",
+          "诗词笺",
+          "古风诗句"
+        ]
+      }
+    },
+    {
+      "no": "06",
+      "slug": "glitch-poster",
+      "category": "type",
+      "name": {
+        "ja": "グリッチ",
+        "en": "Glitch",
+        "zh-Hans": "故障艺术"
+      },
+      "meaning": {
+        "ja": "信号障害でポスターの文字がずれて乱れるグリッチアートの画面",
+        "en": "A glitch-art poster torn apart by signal interference",
+        "zh-Hans": "海报文字在信号干扰下错位撕裂的故障艺术画面"
+      },
+      "ask": {
+        "ja": "「SIGNAL LOST」のグリッチポスターを作って。RGBが3〜9pxずれ、ノイズは毎秒10回切り替わる。",
+        "en": "Make a SIGNAL LOST glitch poster: RGB channels split by 3–9 px and the interference changes 10 times per second.",
+        "zh-Hans": "做一张「SIGNAL LOST」故障海报：RGB 通道错开 3–9 px，干扰每秒跳 10 次。"
+      },
+      "summary": {
+        "ja": "暗いポスターの「SIGNAL LOST」が RGB に分かれてずれ、横の帯が左右にはね、色のノイズ片と走査線が重なる。",
+        "en": "SIGNAL LOST splits into RGB ghosts on a dark poster while horizontal slices jump sideways under coloured noise bars and scanlines.",
+        "zh-Hans": "深色海报上的「SIGNAL LOST」分出 RGB 重影，横向切片忽左忽右地跳，叠着彩色噪块和扫描线。"
+      },
+      "spec": {
+        "ja": [
+          "ポスター「SIGNAL LOST」64 px の極太、暗い背景 #0B0B0E、赤のアクセント #FF3B5C",
+          "RGB 3 チャンネルが左右に 3〜9 px ずれ、6.4 秒に 3 回大きくなる",
+          "ノイズは毎秒 10 回切り替わる：毎フレーム高さ 2〜20 px の横帯 7 本が最大 ±32 px ずれ、赤／青緑の色片 5 本",
+          "3 px ごとに走査線。周期あたり 64 フレームで、最後のフレームは第 0 フレームと同じ模様で切れ目なくつながる"
+        ],
+        "en": [
+          "Poster text SIGNAL LOST in 64 px black weight on dark #0B0B0E, with red accents #FF3B5C.",
+          "The 3 RGB channels split 3–9 px apart horizontally, peaking 3 times every 6.4 s.",
+          "Interference changes 10 times per second: each frame shifts 7 horizontal slices 2–20 px tall by up to ±32 px, plus 5 red or cyan noise bars.",
+          "A scanline every 3 px; one cycle has 64 frames and the last reuses frame 0, so the loop is seamless."
+        ],
+        "zh-Hans": [
+          "海报「SIGNAL LOST」64 px 特粗字，深色底 #0B0B0E，红色强调 #FF3B5C。",
+          "RGB 3 个通道左右错开 3–9 px，每 6.4 秒起伏 3 次。",
+          "干扰图案每秒换 10 次：每帧 7 条高 2–20 px 的横向切片左右偏移最多 ±32 px，另有 5 条红或青色噪块。",
+          "每 3 px 一条扫描线；一周期 64 帧，最后一帧复用第 0 帧图案，循环无缝。"
+        ]
+      },
+      "use": {
+        "ja": "ゲーム・音楽・テック系の動画オープニングや、エラー／メンテナンス告知のページ、サイバー調の海報に。",
+        "en": "Use it to open game, music or tech videos, on error or maintenance pages, or as a cyber-styled poster.",
+        "zh-Hans": "适合游戏、音乐、科技类视频开场，错误页或维护公告页，以及赛博风海报。"
+      },
+      "tags": [
+        "glitch",
+        "rgb-split",
+        "poster",
+        "scanlines",
+        "signal",
+        "cyber",
+        "type"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "故障风",
+          "信号干扰",
+          "RGB 错位"
+        ]
+      }
+    },
+    {
+      "no": "07",
+      "slug": "dot-matrix-sign",
+      "category": "tech",
+      "name": {
+        "ja": "LED ドットマトリクス",
+        "en": "Dot-matrix sign",
+        "zh-Hans": "LED 点阵屏"
+      },
+      "meaning": {
+        "ja": "駅の案内表示のような、琥珀色の LED ドットで文字が流れる画面",
+        "en": "An amber LED dot-matrix sign scrolling a station message",
+        "zh-Hans": "车站信息屏式的琥珀色 LED 点阵滚动字幕画面"
+      },
+      "ask": {
+        "ja": "駅の LED 電光掲示板を作って。64×7ドットで「NEXT TRAIN」の文が6.4秒で1巡スクロールする。",
+        "en": "Make a station LED sign: 64 × 7 amber dots scrolling a NEXT TRAIN message once every 6.4 s.",
+        "zh-Hans": "做一块车站 LED 点阵屏：64 × 7 个琥珀色灯点，NEXT TRAIN 消息每 6.4 秒滚过一遍。"
+      },
+      "summary": {
+        "ja": "斜めに置かれた LED 掲示板で、琥珀色のドット文字が右から左へ流れ、点灯したドットがぼんやり光る。",
+        "en": "On an angled LED board, amber dot letters scroll right to left, with lit dots glowing softly.",
+        "zh-Hans": "斜着摆放的 LED 屏上，琥珀色点阵字从右往左滚过，亮起的灯点带着微光。"
+      },
+      "spec": {
+        "ja": [
+          "64 列 × 7 行の琥珀色 LED ドット、5 × 7 のフォント、各字 5 列＋間隔 1 列",
+          "メッセージ「NEXT TRAIN · PLATFORM 07 · ON TIME」が 6.4 秒ごとに右から左へひと巡りし、列単位で進む",
+          "斜めの遠近：左端はドット径とピッチが 0.55 倍、右端は 1.3 倍。基準径 2.2 px、ピッチ 7.2 px",
+          "点灯 #FFE3A0 は光暈付き（ドット径の 2.6 倍）、消灯 #2A1C10"
+        ],
+        "en": [
+          "64 columns × 7 rows of amber LED dots using a 5 × 7 font: 5 columns per glyph plus 1 spacer column.",
+          "The message NEXT TRAIN · PLATFORM 07 · ON TIME scrolls right to left once every 6.4 s, stepping column by column.",
+          "Angled perspective: dot size and pitch are 0.55× at the left end and 1.3× at the right; base dot 2.2 px, pitch 7.2 px.",
+          "Lit dots #FFE3A0 carry a glow 2.6× the dot radius; unlit dots are #2A1C10."
+        ],
+        "zh-Hans": [
+          "64 列 × 7 行琥珀色 LED 点阵，5 × 7 字模，每字 5 列加 1 列间隔。",
+          "消息「NEXT TRAIN · PLATFORM 07 · ON TIME」每 6.4 秒从右往左滚过一整遍，逐列跳动。",
+          "斜向透视：左端点径与点距为 0.55 倍、右端为 1.3 倍；基准点径 2.2 px、点距 7.2 px。",
+          "亮灯 #FFE3A0 带光晕（半径为点径的 2.6 倍），灭灯 #2A1C10。"
+        ]
+      },
+      "use": {
+        "ja": "交通・都市・レトロテック系の動画オープニングや、お知らせバナー、イベント会場のループ表示に。",
+        "en": "Use it to open transport, city or retro-tech videos, as an announcement banner, or as looping venue signage.",
+        "zh-Hans": "适合交通、城市、复古科技类视频开场，公告横幅，或活动现场的循环展示屏。"
+      },
+      "tags": [
+        "led",
+        "dot-matrix",
+        "sign",
+        "scrolling",
+        "station",
+        "amber",
+        "tech"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "LED 屏",
+          "电子屏",
+          "滚动字幕"
+        ]
+      }
+    },
+    {
+      "no": "08",
+      "slug": "sci-fi-hud",
+      "category": "tech",
+      "name": {
+        "ja": "SF の計器",
+        "en": "Sci-fi HUD",
+        "zh-Hans": "科幻仪表"
+      },
+      "meaning": {
+        "ja": "同心円の目盛りが回り、数値が動く SF 映画風のヘッドアップ表示",
+        "en": "A sci-fi heads-up display of turning concentric dials and live readouts",
+        "zh-Hans": "同心刻度环转动、数据跳动的科幻仪表画面"
+      },
+      "ask": {
+        "ja": "SF風のHUDを作って。8重の目盛りリングが別々の速さで回り、右に6行のデータが動く。",
+        "en": "Make a sci-fi HUD: 8 concentric dial rings turning at different speeds, with 6 lines of live data on the right.",
+        "zh-Hans": "做一个科幻仪表：8 层同心刻度环以不同速度转动，右侧 6 行数据跳动。"
+      },
+      "summary": {
+        "ja": "濃紺の上で青緑の同心リングがそれぞれ逆向きにも回り、中心の数値と右のデータ列が絶えず変わり、扫描扇が回る。",
+        "en": "Cyan concentric rings turn in opposite directions on deep navy while a scan sector sweeps and the central readout and side data keep changing.",
+        "zh-Hans": "深蓝底上青色同心环有正有反地转动，扫描扇区绕圈，中心读数和右侧数据不停变化。"
+      },
+      "spec": {
+        "ja": [
+          "中心 (200, 104)、8 重の同心リング。うち 6 本が 6.4 秒あたり 0.5〜3 周で回り、向きは正逆まちまち",
+          "外周に 120 本の目盛り（10 本ごとに 6 px の長目盛り）。内側の走査扇は 6.4 秒で 2 周",
+          "中心の数値は 75〜99 の間で正弦的に変わる、28 px の細字",
+          "右に CH-1〜CH-6 の 6 行、6.4 秒に 2 回増減。線色 rgba(90, 220, 255)、背景 #04101C"
+        ],
+        "en": [
+          "Centred at (200, 104) with 8 concentric rings; 6 of them turn 0.5–3 laps per 6.4 s in mixed directions.",
+          "An outer scale of 120 ticks (a 6 px long tick every 10); an inner scan sector turns 2 laps per 6.4 s.",
+          "The central readout swings between 75 and 99 along a sine, set in 28 px thin type.",
+          "6 data rows CH-1 to CH-6 on the right rise and fall 2 times per 6.4 s; lines rgba(90, 220, 255) on #04101C."
+        ],
+        "zh-Hans": [
+          "中心 (200, 104)，8 层同心刻度环，其中 6 层每 6.4 秒转 0.5–3 圈，方向有正有反。",
+          "外圈 120 道刻度（每 10 道一根 6 px 长刻度）；内部扫描扇区每 6.4 秒转 2 圈。",
+          "中心读数在 75–99 之间按正弦变化，28 px 细体字。",
+          "右侧 CH-1 至 CH-6 共 6 行数据，每 6.4 秒起伏 2 次；线条 rgba(90, 220, 255)，底色 #04101C。"
+        ]
+      },
+      "use": {
+        "ja": "テック製品の発表動画のオープニングや、ゲーム・SF 作品の首画面背景、データ系ダッシュボードの待機画面に。",
+        "en": "Use it to open tech launch videos, as a hero background for games or sci-fi titles, or as an idle screen for data dashboards.",
+        "zh-Hans": "适合科技产品发布视频开场、游戏或科幻作品的首屏背景，以及数据大屏的待机画面。"
+      },
+      "tags": [
+        "hud",
+        "sci-fi",
+        "dial",
+        "rings",
+        "interface",
+        "futuristic",
+        "tech"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "科幻界面",
+          "HUD 仪表",
+          "未来感界面"
+        ]
+      }
+    },
+    {
+      "no": "09",
+      "slug": "radar-sweep",
+      "category": "tech",
+      "name": {
+        "ja": "レーダースキャン",
+        "en": "Radar sweep",
+        "zh-Hans": "雷达扫描"
+      },
+      "meaning": {
+        "ja": "緑のレーダー画面を走査線が回り、海岸線や目標が光る画面",
+        "en": "A green radar screen whose sweep lights up coastline and targets",
+        "zh-Hans": "绿色雷达屏上扫描线转动、海岸与目标被扫亮的画面"
+      },
+      "ask": {
+        "ja": "レーダー画面を作って。走査線が6.4秒で2周し、7つの目標が掃かれると光ってゆっくり消える。",
+        "en": "Make a radar screen: the sweep turns 2 laps every 6.4 s, and 7 targets flash as it passes then slowly fade.",
+        "zh-Hans": "做一个雷达扫描屏：扫描线 6.4 秒转 2 圈，7 个目标被扫到时亮起再慢慢暗下。"
+      },
+      "summary": {
+        "ja": "濃い緑の円形画面を走査線が尾を引いて回り、通り過ぎた海岸線の点と目標が明るく光ってから徐々に暗くなる。",
+        "en": "A trailing sweep circles a dark green scope; coastline dots and targets brighten as it passes, then dim gradually.",
+        "zh-Hans": "深绿圆形屏上扫描线拖着尾迹转动，扫过的海岸点阵和目标先亮起，再慢慢暗下去。"
+      },
+      "spec": {
+        "ja": [
+          "レーダー半径 92 px、距離リング 4 本、外周に 10° ごとの目盛り（30° ごとに長い）",
+          "走査線は 6.4 秒で 2 周、尾は 40 枚の扇形で薄れていく",
+          "海岸線は 3 px 間隔の点で、掃かれると光り指数的に暗くなる。目標 7 個は光暈付き",
+          "配色：背景 #030805、画面 #061810、光る点 rgba(90, 255, 150)"
+        ],
+        "en": [
+          "Radar radius 92 px with 4 range rings and a tick every 10° around the rim (longer every 30°).",
+          "The sweep turns 2 laps per 6.4 s, its trail fading across 40 wedge slices.",
+          "Coastline dots sit on a 3 px grid, lighting up when swept and decaying exponentially; 7 targets carry glows.",
+          "Palette: background #030805, scope #061810, lit dots rgba(90, 255, 150)."
+        ],
+        "zh-Hans": [
+          "雷达屏半径 92 px，4 道距离环，外缘每 10° 一道刻度、每 30° 加长。",
+          "扫描线每 6.4 秒转 2 圈，尾迹由 40 片扇形渐隐。",
+          "海岸线点阵按 3 px 间距取样，被扫过后点亮、再按指数衰减变暗；7 个目标点带光晕。",
+          "配色：底 #030805、屏面 #061810、亮点 rgba(90, 255, 150)。"
+        ]
+      },
+      "use": {
+        "ja": "セキュリティ・監視・探索をテーマにした動画オープニングや、検索中・スキャン中の待機画面、演出の幕間に。",
+        "en": "Use it to open security, monitoring or exploration videos, as a searching or scanning idle screen, or as a transition.",
+        "zh-Hans": "适合安防、监测、探索主题的视频开场，搜索中或扫描中的等待画面，以及演示过场。"
+      },
+      "tags": [
+        "radar",
+        "sweep",
+        "scan",
+        "sonar",
+        "military",
+        "monitor",
+        "tech"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "雷达屏",
+          "扫描雷达",
+          "声呐扫描"
+        ]
+      }
+    },
+    {
+      "no": "10",
+      "slug": "flight-paths",
+      "category": "tech",
+      "name": {
+        "ja": "世界の航路",
+        "en": "Flight paths",
+        "zh-Hans": "全球航线"
+      },
+      "meaning": {
+        "ja": "斜めに置いたドット地図の上を、航路の弧と光点が行き交う画面",
+        "en": "Flight arcs and moving lights criss-crossing an angled dot-matrix map",
+        "zh-Hans": "斜铺的点阵地图上航线弧与光点往来的画面"
+      },
+      "ask": {
+        "ja": "世界の航路図を作って。8つのハブから14本の弧が2秒以内に順に伸び、光点が弧に沿って飛ぶ。",
+        "en": "Make a flight-paths map: 14 arcs grow from 8 hubs within the first 2 s, and lights fly along them.",
+        "zh-Hans": "做一张全球航线图：14 条弧线在 2 秒内从 8 个枢纽依次弹出，光点沿弧线飞行。"
+      },
+      "summary": {
+        "ja": "斜め俯瞰のドット地図で、ハブから橙色の弧が順に伸び、描き終えた弧の上を光点が反対側へ飛んでいく。",
+        "en": "On an angled dot map, orange arcs spring from hubs one after another, and lights travel along each finished arc to the far end.",
+        "zh-Hans": "斜俯视的点阵地图上，橙色航线从枢纽依次弹射成弧，画完后光点沿弧线飞向另一端。"
+      },
+      "spec": {
+        "ja": [
+          "斜め俯瞰のドット地図、ハブ 8 か所・航路 14 本、背景 #060912",
+          "各航路は 0〜2 秒の間に順に現れ、各弧を 1.2 秒で描く。弧の高さは距離の 0.28 倍",
+          "描き終えた弧の上を光点がループ飛行し、毎秒航路の 0.35 ぶん進む",
+          "航路は橙 rgba(255, 170, 90)、ハブは青い光暈。5.4〜6.0 秒で航路が消え、地図は残る"
+        ],
+        "en": [
+          "An angled, top-down dot-matrix map with 8 hubs and 14 routes on #060912.",
+          "Routes appear one by one between 0 and 2 s, each arc drawn in 1.2 s; arc height is 0.28× the route length.",
+          "Once drawn, a light loops along each arc, covering 0.35 of the route per second.",
+          "Routes are orange rgba(255, 170, 90), hubs glow blue; routes fade from 5.4 to 6.0 s while the map stays."
+        ],
+        "zh-Hans": [
+          "斜俯视点阵地图，8 个枢纽、14 条航线，底色 #060912。",
+          "各航线在 0–2 秒内依次出现，每条 1.2 秒画完弧线，弧高为航程的 0.28 倍。",
+          "弧线画完后光点沿航线循环飞行，每秒走完航程的 0.35。",
+          "航线为橙色 rgba(255, 170, 90)，枢纽带蓝色光晕；5.4–6.0 秒航线淡出，地图常驻。"
+        ]
+      },
+      "use": {
+        "ja": "物流・航空・グローバル企業の首画面背景や、海外展開を語る発表のオープニング、データ可視化の幕間に。",
+        "en": "Use it as a hero background for logistics, airline or global companies, an opener for talks on international reach, or a data-viz transition.",
+        "zh-Hans": "适合物流、航空、跨国企业的首屏背景，讲全球布局的演示开场，或数据可视化过场。"
+      },
+      "tags": [
+        "flight-paths",
+        "map",
+        "routes",
+        "global",
+        "arcs",
+        "network",
+        "tech"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "航线图",
+          "世界地图连线",
+          "全球网络"
+        ]
+      }
+    },
+    {
+      "no": "11",
+      "slug": "market-candles",
+      "category": "tech",
+      "name": {
+        "ja": "ローソク足チャート",
+        "en": "Market candles",
+        "zh-Hans": "行情 K 线"
+      },
+      "meaning": {
+        "ja": "ローソク足と移動平均線が伸びていく株価チャートの画面",
+        "en": "A stock chart where candlesticks and moving averages grow across the screen",
+        "zh-Hans": "K 线与均线逐根长出的行情图画面"
+      },
+      "ask": {
+        "ja": "株価チャートのアニメを作って。48本のローソク足が4.4秒で左から伸び、MA5とMA20が追従する。",
+        "en": "Animate a stock chart: 48 candles grow from the left in 4.4 s, followed by MA5 and MA20 lines.",
+        "zh-Hans": "做一段行情 K 线动画：48 根 K 线 4.4 秒内从左往右长满，MA5 和 MA20 均线跟着延伸。"
+      },
+      "summary": {
+        "ja": "暗いチャートにローソク足が左から一本ずつ伸び、陽線は赤・陰線は緑、平均線が曲がりながら続き、下の出来高も上下する。",
+        "en": "Candles grow one by one from the left on a dark chart, red for up and green for down, with moving averages curving along and volume bars below.",
+        "zh-Hans": "深色图表上 K 线从左往右逐根长出，红涨绿跌，均线顺着走势弯过去，下方成交量柱跟着起伏。"
+      },
+      "spec": {
+        "ja": [
+          "48 本のローソク足が 0.2〜4.6 秒で左から並ぶ。上昇は赤 #F0443A、下落は緑 #22B573",
+          "価格エリアは y 20〜140 px。下に出来高バー（不透明度 0.5）がローソク足と一緒に伸びる",
+          "MA5 #F5C14B と MA20 #7FA8FF の 2 本の平均線がローソク足について伸びる",
+          "最新の終値に 3 px 間隔の赤い点線と 46 × 14 px の価格ラベル。5.4〜6.0 秒でフェードアウト"
+        ],
+        "en": [
+          "48 candles fill in from the left between 0.2 and 4.6 s; up candles red #F0443A, down candles green #22B573.",
+          "The price area spans y 20–140 px; volume bars at opacity 0.5 grow below alongside each candle.",
+          "MA5 #F5C14B and MA20 #7FA8FF: 2 moving averages extend with the candles.",
+          "The latest close gets a red dashed line (3 px dashes) and a 46 × 14 px price tag; everything fades out from 5.4 to 6.0 s."
+        ],
+        "zh-Hans": [
+          "48 根 K 线在 0.2–4.6 秒内从左往右长满，红涨 #F0443A、绿跌 #22B573。",
+          "价格区 y 20–140 px；下方成交量柱不透明度 0.5，随 K 线一同长高。",
+          "MA5 #F5C14B 与 MA20 #7FA8FF 共 2 条均线随 K 线延伸。",
+          "最新收盘价有红色虚线（3 px 间隔）和 46 × 14 px 价签；5.4–6.0 秒淡出。"
+        ]
+      },
+      "use": {
+        "ja": "金融・投資サービスの首画面背景や、決算・市場レポート動画のオープニング、投資テーマの発表の幕間に。",
+        "en": "Use it as a hero background for finance or investing services, an opener for earnings or market videos, or a transition in investment talks.",
+        "zh-Hans": "适合金融、投资服务的首屏背景，财报或市场解读视频开场，以及投资主题演示过场。"
+      },
+      "tags": [
+        "candlestick",
+        "stock",
+        "chart",
+        "finance",
+        "trading",
+        "moving-average",
+        "tech"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "K 线图",
+          "股票走势",
+          "股市行情"
+        ]
+      }
+    },
+    {
+      "no": "12",
+      "slug": "neural-net",
+      "category": "tech",
+      "name": {
+        "ja": "ニューラルネット",
+        "en": "Neural net",
+        "zh-Hans": "神经网络"
+      },
+      "meaning": {
+        "ja": "多層ネットワークを信号の光が左から右へ伝わるニューラルネットの画面",
+        "en": "A layered neural network with signal lights flowing from left to right",
+        "zh-Hans": "信号沿多层网络从左往右传递的神经网络画面"
+      },
+      "ask": {
+        "ja": "ニューラルネットの図をアニメにして。6層のノードを光の信号が左から右へ6.4秒に3回流れる。",
+        "en": "Animate a neural net: signals pulse left to right through 6 layers, 3 waves every 6.4 s.",
+        "zh-Hans": "做一张神经网络动画：信号光点穿过 6 层节点从左往右传递，每 6.4 秒 3 轮。"
+      },
+      "summary": {
+        "ja": "濃紺の上に層状の接続図があり、太い重みの線を橙色の光点が右へ走り、ノードは活性化に合わせて明滅する。",
+        "en": "Over deep navy, orange signal lights run rightward along the strongest weights of a layered graph while nodes brighten and dim with activation.",
+        "zh-Hans": "深蓝底上的分层连接图里，橙色光点沿高权重连线向右传递，节点随激活明暗起伏。"
+      },
+      "spec": {
+        "ja": [
+          "6 層のネットワーク、ノード数 4-7-9-9-7-3、層の間隔 72 px、ノード間隔 19 px",
+          "重みが 0.62 を超える線を強調し、その上を橙色の信号が左から右へ。6.4 秒に 3 回",
+          "ノード半径 5 px、活性の明滅は 6.4 秒に 2 回、層ごとに位相がずれる",
+          "背景は放射グラデーション #0E1230 → #04050B、ノードの光暈半径 13 px"
+        ],
+        "en": [
+          "A 6-layer network with 4-7-9-9-7-3 nodes, 72 px between layers and 19 px between nodes.",
+          "Links with weight above 0.62 are highlighted, carrying orange signals left to right 3 times per 6.4 s.",
+          "Nodes have a 5 px radius; activation pulses 2 times per 6.4 s, phase-shifted layer by layer.",
+          "Radial background #0E1230 → #04050B; node glows have a 13 px radius."
+        ],
+        "zh-Hans": [
+          "6 层网络，节点数 4-7-9-9-7-3，层距 72 px、节点间距 19 px。",
+          "权重大于 0.62 的连线高亮，橙色信号光点沿其从左往右传递，每 6.4 秒 3 轮。",
+          "节点半径 5 px，激活明暗每 6.4 秒起伏 2 次，逐层错开相位。",
+          "底色为径向渐变 #0E1230 → #04050B，节点光晕半径 13 px。"
+        ]
+      },
+      "use": {
+        "ja": "AI 製品・研究紹介の首画面背景や、機械学習を説明する発表のオープニング、技術系動画の幕間に。",
+        "en": "Use it as a hero background for AI products or research, to open talks explaining machine learning, or as a transition in tech videos.",
+        "zh-Hans": "适合 AI 产品或研究介绍的首屏背景，讲机器学习的演示开场，或科技类视频过场。"
+      },
+      "tags": [
+        "neural-network",
+        "ai",
+        "nodes",
+        "deep-learning",
+        "signals",
+        "graph",
+        "tech"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "神经网络图",
+          "AI 网络",
+          "深度学习"
+        ]
+      }
+    },
+    {
+      "no": "13",
+      "slug": "electron-orbital",
+      "category": "tech",
+      "name": {
+        "ja": "電子雲",
+        "en": "Electron orbital",
+        "zh-Hans": "电子云"
+      },
+      "meaning": {
+        "ja": "原子軌道の確率雲を点で描き、ゆっくり回転させる科学的な画面",
+        "en": "An atomic orbital's probability cloud drawn in dots and slowly rotating",
+        "zh-Hans": "用点阵描绘原子轨道概率云并缓慢旋转的科学画面"
+      },
+      "ask": {
+        "ja": "電子雲のアニメを作って。3d軌道の確率雲を1600個の点で描き、6.4秒で1回転させる。",
+        "en": "Animate an electron cloud: a 3d orbital drawn with 1600 dots, rotating once every 6.4 s.",
+        "zh-Hans": "做一个电子云动画：3d 轨道概率云由 1600 个点组成，6.4 秒转一圈。"
+      },
+      "summary": {
+        "ja": "暗い背景に、青と橙の点でできた 3d 軌道の雲がゆっくり回り、中心に白い光、周りに楕円の軌跡線がある。",
+        "en": "A cloud of blue and orange dots in the shape of a 3d orbital turns slowly on a dark background, with a white core glow and an elliptical orbit line.",
+        "zh-Hans": "深色底上，蓝橙两色点阵组成的 3d 轨道云缓缓旋转，中心一团白光，外绕一道椭圆轨迹线。"
+      },
+      "spec": {
+        "ja": [
+          "3d 軌道（n = 3、l = 2、m = 0）の確率雲、波動関数の確率密度で選んだ 1600 個の点",
+          "正の位相は青 rgba(90, 170, 255)、負の位相は橙 rgba(255, 130, 90)、点の大きさ 1.3 px",
+          "点群は 6.4 秒で縦軸まわりに 1 回転、傾き 0.5 rad、加算合成で重ねる",
+          "中心に半径 12 px の白い光暈、外側に半軸 120 / 32 px の楕円の軌跡線"
+        ],
+        "en": [
+          "Probability cloud of a 3d orbital (n = 3, l = 2, m = 0), made of 1600 dots sampled by the squared wavefunction.",
+          "Positive phase is blue rgba(90, 170, 255), negative phase orange rgba(255, 130, 90); dots are 1.3 px.",
+          "The cloud rotates 1 lap around its vertical axis every 6.4 s, tilted 0.5 rad, with additive blending.",
+          "A white glow of radius 12 px at the centre and an elliptical orbit line with semi-axes 120 / 32 px."
+        ],
+        "zh-Hans": [
+          "3d 轨道（n = 3、l = 2、m = 0）概率云，由按波函数平方采样的 1600 个点构成。",
+          "正相位为蓝色 rgba(90, 170, 255)、负相位为橙色 rgba(255, 130, 90)，点大小 1.3 px。",
+          "点云每 6.4 秒绕竖轴转 1 圈，俯仰 0.5 rad，叠加发光混合。",
+          "中心白色光晕半径 12 px，外绕半轴 120 / 32 px 的椭圆轨迹线。"
+        ]
+      },
+      "use": {
+        "ja": "科学教育・研究機関の首画面背景や、物理・化学をテーマにした動画のオープニング、発表の幕間に。",
+        "en": "Use it as a hero background for science education or research institutes, an opener for physics or chemistry videos, or a talk transition.",
+        "zh-Hans": "适合科普教育、科研机构的首屏背景，物理化学主题视频开场，或演示过场。"
+      },
+      "tags": [
+        "electron-cloud",
+        "orbital",
+        "quantum",
+        "physics",
+        "particles",
+        "science",
+        "tech"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "原子轨道",
+          "量子云",
+          "粒子云"
+        ]
+      }
+    },
+    {
+      "no": "14",
+      "slug": "constructivist",
+      "category": "pattern",
+      "name": {
+        "ja": "構成主義",
+        "en": "Constructivist",
+        "zh-Hans": "构成主义"
+      },
+      "meaning": {
+        "ja": "赤と黒の幾何学形と太い文字が斜めの構図に飛び込む構成主義ポスターの画面",
+        "en": "A Constructivist poster where red and black shapes and bold type slam into a tilted layout",
+        "zh-Hans": "红黑几何块与粗体字砸进倾斜构图的构成主义海报画面"
+      },
+      "ask": {
+        "ja": "構成主義のポスターを動かして。赤い円・黒い棒・太字のFORWARDなど5つの要素が0.35秒間隔で飛び込む。",
+        "en": "Animate a Constructivist poster: 5 elements, including a red circle, black bars and bold FORWARD, slam in 0.35 s apart.",
+        "zh-Hans": "做一张构成主义动态海报：红圆、黑杠、粗体 FORWARD 等 5 个元素每隔 0.35 秒依次砸入。"
+      },
+      "summary": {
+        "ja": "傾いた生成りの画面に、赤い円が膨らみ、黒い横棒と縦棒、太字の FORWARD、赤いくさびが順に飛び込み、最後は逆順に退く。",
+        "en": "On a tilted cream canvas a red circle swells, then black bars, bold FORWARD and a red wedge slam in one after another, and later leave in reverse.",
+        "zh-Hans": "倾斜的米色画面上，红圆胀开，黑色横杠、竖杠、粗体 FORWARD 和红色楔形依次砸入，最后逆序退场。"
+      },
+      "spec": {
+        "ja": [
+          "画面全体を -0.42 rad 傾ける。生成り #E9E0CC の地に赤 #C8231B と黒 #141414 の 2 色",
+          "5 つの要素が 0.2 + 0.35i 秒に 0.5 秒ずつで登場：半径 92 px の赤い円、840 px の横棒、460 px の縦棒、62 px の FORWARD、250 px の赤いくさび",
+          "横棒は左の画面外 1000 px から滑り込み、縦棒は上 700 px から落ち、FORWARD は右 1000 px から飛び込む",
+          "5.4 秒から逆順に退場、間隔 0.12 秒、各 0.4 秒"
+        ],
+        "en": [
+          "The whole layout is tilted -0.42 rad; red #C8231B and black #141414 on cream #E9E0CC, 2 colours only.",
+          "5 elements enter at 0.2 + 0.35i s, 0.5 s each: a 92 px-radius red circle, an 840 px bar, a 460 px post, 62 px FORWARD and a 250 px red wedge.",
+          "The bar slides in from 1000 px off the left, the post drops from 700 px above, and FORWARD rushes in from 1000 px off the right.",
+          "From 5.4 s they leave in reverse order, 0.12 s apart, 0.4 s each."
+        ],
+        "zh-Hans": [
+          "画面整体倾斜 -0.42 rad，米色底 #E9E0CC 上只用红 #C8231B、黑 #141414 共 2 色。",
+          "5 个元素在 0.2 + 0.35i 秒依次入场、各用 0.5 秒：半径 92 px 红圆、840 px 横杠、460 px 竖杠、62 px 粗体 FORWARD、250 px 红楔形。",
+          "横杠从左侧画外 1000 px 滑入，竖杠从上方 700 px 落下，FORWARD 从右侧画外 1000 px 冲入。",
+          "5.4 秒起逆序退场，间隔 0.12 秒，每个 0.4 秒。"
+        ]
+      },
+      "use": {
+        "ja": "力強い告知動画のオープニングや、デザイン・美術展の首画面、キャンペーンポスターの動画版に。",
+        "en": "Use it to open bold announcement videos, as a hero for design or art exhibitions, or as a moving version of a campaign poster.",
+        "zh-Hans": "适合有冲击力的发布视频开场，设计或艺术展网页首屏，以及宣传海报的动态版。"
+      },
+      "tags": [
+        "constructivist",
+        "poster",
+        "geometric",
+        "red-black",
+        "bold-type",
+        "avant-garde",
+        "pattern"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "构成派",
+          "苏联海报",
+          "俄国构成主义"
+        ]
+      }
+    },
+    {
+      "no": "15",
+      "slug": "memphis",
+      "category": "pattern",
+      "name": {
+        "ja": "メンフィス",
+        "en": "Memphis",
+        "zh-Hans": "孟菲斯"
+      },
+      "meaning": {
+        "ja": "パステル地に派手な色の幾何学形が跳ねて回るメンフィス風の画面",
+        "en": "Memphis-style bold geometric shapes bouncing and spinning on a pastel ground",
+        "zh-Hans": "粉彩底上撞色几何图形弹跳旋转的孟菲斯风画面"
+      },
+      "ask": {
+        "ja": "メンフィス風の背景を作って。36個の円や三角、波線がパステル地で弾み、6.4秒に2〜3回跳ねる。",
+        "en": "Make a Memphis background: 36 circles, triangles and squiggles bouncing 2 or 3 times every 6.4 s on a pastel ground.",
+        "zh-Hans": "做一张孟菲斯风背景：36 个圆、三角、波浪线在粉彩底上弹跳，每 6.4 秒跳 2 或 3 次。"
+      },
+      "summary": {
+        "ja": "ピーチ色の地に、円・三角・波線・ドット・帯がばらばらに上下に弾み、それぞれの向きで回る。",
+        "en": "Circles, triangles, squiggles, dot grids and bars bob up and down across a peach ground, each spinning its own way.",
+        "zh-Hans": "桃粉底上，圆、三角、波浪线、点阵和条块各自上下弹跳，并朝各自方向旋转。"
+      },
+      "spec": {
+        "ja": [
+          "パステル地 #FDE3D6 に 36 個の図形、9 列 × 4 行の揺らしたグリッドに配置、大きさ 18〜48 px",
+          "形は 5 種（円・三角・波線・4 × 4 のドット・帯）、色は 5 色",
+          "各図形は振幅 5 px で上下に弾み、6.4 秒に 2 回または 3 回",
+          "同時に回転し、6.4 秒あたり -1、0、1 周のいずれか"
+        ],
+        "en": [
+          "36 shapes on pastel #FDE3D6, laid on a jittered 9 × 4 grid, sized 18–48 px.",
+          "5 shape types (circle, triangle, squiggle, 4 × 4 dot grid, bar) in 5 colours.",
+          "Each shape bobs with a 5 px amplitude, 2 or 3 times per 6.4 s.",
+          "Each also spins -1, 0 or 1 laps per 6.4 s."
+        ],
+        "zh-Hans": [
+          "粉彩底 #FDE3D6 上 36 个图形，按 9 列 × 4 行抖动网格铺开，尺寸 18–48 px。",
+          "5 种形状（圆、三角、波浪线、4 × 4 点阵、条块），5 种颜色。",
+          "每个图形上下弹跳振幅 5 px，每 6.4 秒跳 2 次或 3 次。",
+          "同时旋转，每 6.4 秒转 -1、0 或 1 圈。"
+        ]
+      },
+      "use": {
+        "ja": "ポップなブランドやイベントの首画面背景、子ども向け・若者向け動画のオープニング、SNS 用カバーに。",
+        "en": "Use it as a hero background for playful brands or events, an opener for youth or kids' videos, or a social media cover.",
+        "zh-Hans": "适合潮流品牌或活动的首屏背景，面向年轻人、儿童的视频开场，以及社交媒体封面。"
+      },
+      "tags": [
+        "memphis",
+        "geometric",
+        "pastel",
+        "playful",
+        "shapes",
+        "80s",
+        "pattern"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "孟菲斯风",
+          "几何撞色",
+          "波普几何"
+        ]
+      }
+    },
+    {
+      "no": "16",
+      "slug": "art-deco",
+      "category": "pattern",
+      "name": {
+        "ja": "アール・デコ",
+        "en": "Art Deco",
+        "zh-Hans": "装饰艺术"
+      },
+      "meaning": {
+        "ja": "黒地に金の放射線と扇形が広がるアール・デコ装飾の画面",
+        "en": "An Art Deco ornament of gold rays and fan arcs unfolding on black",
+        "zh-Hans": "黑底金线放射纹与扇形层层展开的装饰艺术画面"
+      },
+      "ask": {
+        "ja": "アール・デコ風の画面を作って。黒地に金の放射線25本と扇形9層が下から広がり、光が6.4秒に1回横切る。",
+        "en": "Make an Art Deco scene: 25 gold rays and 9 fan arcs unfold from the bottom on black, with a light sweep every 6.4 s.",
+        "zh-Hans": "做一个装饰艺术画面：黑底上 25 道金色放射线和 9 层扇形弧从底部展开，暖光每 6.4 秒扫过一次。"
+      },
+      "summary": {
+        "ja": "黒地の下中央から金の放射線と扇形の弧が層ごとに広がり、階段状のアーチが重なり、暖かい光の帯が横切る。",
+        "en": "Gold rays and fan arcs spread layer by layer from the bottom centre of a black field, framed by stepped arches, as a warm band of light sweeps across.",
+        "zh-Hans": "黑底下方中央，金色放射线与扇形弧逐层展开，阶梯拱门层层套叠，一道暖光横扫而过。"
+      },
+      "spec": {
+        "ja": [
+          "黒地 #0B0B0D に金の線 rgba(214, 176, 98)。放射線 25 本が 0.2〜1.8 秒で 300 px まで伸びる",
+          "扇形の弧 9 層、第 i 層は 0.4 + 0.18i 秒に始まり 0.8 秒で広がる、半径 26 + 19i px",
+          "5 重の階段状アーチは常に表示、幅 182 px から層ごとに 26 px 狭まる",
+          "幅 60 px の暖かい光の帯が 6.4 秒に 1 回左から右へ。5.4〜6.2 秒で放射線と弧が縮んで戻る"
+        ],
+        "en": [
+          "Gold lines rgba(214, 176, 98) on black #0B0B0D; 25 rays extend to 300 px between 0.2 and 1.8 s.",
+          "9 fan arcs: arc i starts at 0.4 + 0.18i s and opens over 0.8 s, with radius 26 + 19i px.",
+          "5 stepped arches stay on screen, starting 182 px wide and narrowing by 26 px per step.",
+          "A warm 60 px light band sweeps left to right 1 time every 6.4 s; rays and arcs retract from 5.4 to 6.2 s."
+        ],
+        "zh-Hans": [
+          "黑底 #0B0B0D 金线 rgba(214, 176, 98)；25 道放射线在 0.2–1.8 秒伸到 300 px。",
+          "9 层扇形弧，第 i 层 0.4 + 0.18i 秒开始、0.8 秒展开，半径 26 + 19i px。",
+          "5 重阶梯拱门常驻，宽 182 px 起每层收窄 26 px。",
+          "宽 60 px 的暖光带每 6.4 秒从左到右扫过 1 次；5.4–6.2 秒放射线与扇形弧收回。"
+        ]
+      },
+      "use": {
+        "ja": "ホテル・高級ブランド・ジャズイベントの首画面背景や、授賞式・ガラの動画オープニング、招待状の動画版に。",
+        "en": "Use it as a hero background for hotels, luxury brands or jazz events, an opener for award or gala videos, or an animated invitation.",
+        "zh-Hans": "适合酒店、奢侈品牌、爵士活动的首屏背景，颁奖礼或晚宴视频开场，以及动态请柬。"
+      },
+      "tags": [
+        "art-deco",
+        "gold",
+        "sunburst",
+        "luxury",
+        "ornament",
+        "1920s",
+        "pattern"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "装饰风",
+          "金色放射纹",
+          "盖茨比风"
+        ]
+      }
+    },
+    {
+      "no": "17",
+      "slug": "risograph",
+      "category": "pattern",
+      "name": {
+        "ja": "リソグラフ",
+        "en": "Risograph",
+        "zh-Hans": "孔版印刷"
+      },
+      "meaning": {
+        "ja": "蛍光ピンクとティールの2版をずらして刷ったリソグラフ風ポスター画面",
+        "en": "A risograph-style poster where fluorescent pink and teal plates are printed slightly out of register",
+        "zh-Hans": "荧光粉与青绿两版故意错位套印的孔版印刷海报画面"
+      },
+      "ask": {
+        "ja": "リソグラフ風の動くポスターを作って。蛍光ピンクとティールの2版を乗算で重ね、版ずれを1〜5pxで揺らして6.4秒に3往復させて。",
+        "en": "Make an animated risograph poster: fluorescent pink and teal plates multiplied together, with the misregistration swaying between 1 and 5 px, 3 times per 6.4 s loop.",
+        "zh-Hans": "做一张孔版印刷风格的动态海报：荧光粉和青绿两版正片叠底，套印错位在 1–5px 间来回晃，6.4 秒循环 3 次。"
+      },
+      "summary": {
+        "ja": "生成りの紙に、ピンクとティールの大きな円・四角・太字が重なって第3の色を生み、版ずれが小さく行き来する。",
+        "en": "Pink and teal circles, squares and heavy type overlap on cream paper into a third colour, while the plates drift slightly back and forth.",
+        "zh-Hans": "粉色与青绿两版的大圆、方块和粗体字叠在米白纸上叠出第三色，套印错位轻轻来回晃动。"
+      },
+      "spec": {
+        "ja": [
+          "画面 539 × 208 px、生成りの地 #F4F0E6。蛍光ピンク #FF48B0 とティール #00A69C の2版を乗算で重ねて新たな色を作る",
+          "ピンク版：半径 78px の円、84 × 84 px の四角、100px の極太 RISO。ティール版：半径 66px の円、64px の極太 PRINT、太さ 4px の横線 8 本",
+          "2版のずれは 3 ± 2px（1〜5px）、正弦で 6.4 秒に 3 往復し、ピンク版は右へ、ティール版は上へずれる",
+          "固定のかすれ点 1500 個と、不透明度 0.1 の乗算グレイン"
+        ],
+        "en": [
+          "Frame 539 × 208 px on cream #F4F0E6. The 2 plates, fluorescent pink #FF48B0 and teal #00A69C, are multiplied to form a third colour.",
+          "Pink plate: a radius 78 px circle, an 84 × 84 px square and 100 px heavy RISO. Teal plate: a radius 66 px circle, 64 px heavy PRINT and 8 bars 4 px thick.",
+          "The 2 plates are offset by 3 ± 2 px (1–5 px), following a sine 3 times per 6.4 s; the pink plate shifts right and the teal plate shifts up.",
+          "1500 fixed pale ink-skip specks plus multiply grain at 0.1 opacity."
+        ],
+        "zh-Hans": [
+          "画面 539 × 208 px，米白底 #F4F0E6；荧光粉 #FF48B0 与青绿 #00A69C 2 版正片叠底，叠出第三色",
+          "粉版：半径 78px 的圆、84 × 84 px 方块、100px 粗体 RISO；青绿版：半径 66px 的圆、64px 粗体 PRINT、8 条 4px 粗横线",
+          "2 版错位 3 ± 2px（1–5px），按正弦每 6.4 秒往复 3 次，粉版向右、青绿版向上错开",
+          "1500 个固定的浅色漏印斑点，加不透明度 0.1 的正片叠底颗粒"
+        ]
+      },
+      "use": {
+        "ja": "インディー誌や音楽イベントのポスター・カバー、クリエイティブ系ブランドのファーストビューにレトロな印刷感を出したいとき。",
+        "en": "Posters and covers for zines or music events, or a hero background that gives a creative brand a retro print feel.",
+        "zh-Hans": "适合独立刊物、音乐活动的海报与封面，或文创品牌网页首屏的复古印刷氛围。"
+      },
+      "tags": [
+        "risograph",
+        "print",
+        "poster",
+        "overprint",
+        "retro",
+        "grain",
+        "typography"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "丝网印刷",
+          "套印错位",
+          "Riso 海报"
+        ]
+      }
+    },
+    {
+      "no": "18",
+      "slug": "spirograph",
+      "category": "pattern",
+      "name": {
+        "ja": "スピログラフ",
+        "en": "Spirograph",
+        "zh-Hans": "万花尺"
+      },
+      "meaning": {
+        "ja": "歯車が輪の中を転がり、3色のインクで花のような曲線を描くスピログラフ",
+        "en": "A spirograph where gears roll inside rings and draw floral curves in 3 inks",
+        "zh-Hans": "齿轮在圆环里滚动、用 3 色墨水画出繁花曲线的万花尺"
+      },
+      "ask": {
+        "ja": "スピログラフのアニメーションを作って。3つの歯車がリングの中を転がって赤・青・緑の花模様を描き、それぞれ3.6秒で閉じるように。",
+        "en": "Animate a spirograph: 3 gears roll inside rings and draw red, blue and green rosettes, each closing in 3.6 s.",
+        "zh-Hans": "做一个万花尺动画：3 个齿轮在圆环里滚动，画出红、蓝、绿 3 朵繁花曲线，每朵 3.6 秒画完闭合。"
+      },
+      "summary": {
+        "ja": "生成りの紙の上で半透明の歯車が3つのリングを順に転がり、ペン先が赤・青・緑の花曲線を描き切って止まる。",
+        "en": "Translucent gears roll around 3 rings on cream paper in turn, their pen tips tracing red, blue and green rosettes that close and hold.",
+        "zh-Hans": "米白纸上半透明齿轮依次沿 3 个圆环滚动，笔尖画出红、蓝、绿繁花曲线，闭合后停住。"
+      },
+      "spec": {
+        "ja": [
+          "生成りの地 #F2EDE3。半径 84px の固定リングが 3 つ並び、歯車はその内側を転がる",
+          "歯車の半径 32 / 18 / 13 px、ペン距離 25 / 14 / 8 px。色は赤 #D2452F、青 #1F3B8A、緑 #2E7D63",
+          "3 本の曲線は 0.4 秒ずつずれて描き始め、それぞれ 3.6 秒で描き終える。8 / 3 / 13 周で閉じる",
+          "描画中は半透明の歯車とペン先を表示。閉じた後は止まり、5.4〜6.0 秒でフェードアウト（周期 6.4 秒）"
+        ],
+        "en": [
+          "Cream background #F2EDE3. 3 fixed rings of radius 84 px; the gears roll inside them.",
+          "Gear radii 32 / 18 / 13 px, pen offsets 25 / 14 / 8 px, inked red #D2452F, blue #1F3B8A and green #2E7D63.",
+          "The 3 curves start 0.4 s apart and each takes 3.6 s to draw, closing after 8 / 3 / 13 laps.",
+          "A translucent gear and pen dot show while drawing; the closed curves hold, then fade out over 5.4–6.0 s (6.4 s cycle)."
+        ],
+        "zh-Hans": [
+          "米白底 #F2EDE3；3 个半径 84px 的固定圆环，齿轮在环内滚动",
+          "齿轮半径 32 / 18 / 13 px，笔距 25 / 14 / 8 px，墨色为红 #D2452F、蓝 #1F3B8A、绿 #2E7D63",
+          "3 条曲线错开 0.4 秒起笔，各用 3.6 秒画完，分别绕 8 / 3 / 13 圈后闭合",
+          "画线时显示半透明齿轮与笔尖；闭合后停留，5.4–6.0 秒淡出（周期 6.4 秒）"
+        ]
+      },
+      "use": {
+        "ja": "手作り感のあるブランドや文具・教育系コンテンツの開場、ポスターの背景、プレゼンの章間に。",
+        "en": "Openers for handmade, stationery or education brands, poster backgrounds, or section breaks in a presentation.",
+        "zh-Hans": "适合手作、文具、教育类品牌的视频开场、海报背景或演示的章节过场。"
+      },
+      "tags": [
+        "spirograph",
+        "hypotrochoid",
+        "gears",
+        "line-art",
+        "handmade",
+        "drawing",
+        "pattern"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "繁花曲线",
+          "齿轮画",
+          "内摆线"
+        ]
+      }
+    },
+    {
+      "no": "19",
+      "slug": "sankey-flow",
+      "category": "pattern",
+      "name": {
+        "ja": "サンキー図",
+        "en": "Sankey flow",
+        "zh-Hans": "桑基图"
+      },
+      "meaning": {
+        "ja": "エネルギーの流れを帯の太さで見せるサンキー図のインフォグラフィック画面",
+        "en": "A Sankey infographic that shows energy flow through the width of each band",
+        "zh-Hans": "用带子粗细展示能量流向的桑基图信息画面"
+      },
+      "ask": {
+        "ja": "4つのエネルギー源から4つの用途へ流れるサンキー図をアニメーションで。13本の帯が0.2〜3.2秒で左から順に流れ込むように。",
+        "en": "Animate a Sankey chart from 4 energy sources to 4 uses: 13 bands flow in from the left between 0.2 and 3.2 s.",
+        "zh-Hans": "做一个从 4 种能源流向 4 类用途的桑基图动画，13 条带子在 0.2–3.2 秒内从左往右依次流入。"
+      },
+      "summary": {
+        "ja": "左の4つのエネルギー源から帯が右へ伸び、色を変えながら4つの用途へ分かれて流れ込む。",
+        "en": "Bands grow rightward from 4 energy sources on the left, shifting colour as they split into 4 uses on the right.",
+        "zh-Hans": "带子从左侧 4 种能源向右伸展，一路渐变颜色，分流汇入右侧 4 类用途。"
+      },
+      "spec": {
+        "ja": [
+          "左に 4 つのエネルギー源（太陽光 120、風力 90、水力 70、天然ガス 110）、右に 4 つの用途（工業 150、住宅 110、交通 70、蓄電 60）",
+          "帯は 13 本、太さは単位あたり 0.4px。色は出発元から行き先へ線形グラデーション、不透明度 0.55",
+          "0.2〜3.2 秒で帯が左から右へ順に流れ込み、各帯は前の帯より進捗 0.04 遅れて出発",
+          "ノード幅 7px・間隔 7px、左右の端から 62px。5.4〜6.0 秒でフェードアウト"
+        ],
+        "en": [
+          "4 sources on the left (Solar 120, Wind 90, Hydro 70, Gas 110) and 4 uses on the right (Industry 150, Homes 110, Transport 70, Storage 60).",
+          "13 bands at 0.4 px per unit, each a linear gradient from source colour to destination colour at 0.55 opacity.",
+          "Bands flow in from left to right over 0.2–3.2 s, each starting 0.04 of progress after the previous.",
+          "Nodes are 7 px wide with 7 px gaps, inset 62 px from each side. Everything fades out over 5.4–6.0 s."
+        ],
+        "zh-Hans": [
+          "左侧 4 种能源（太阳能 120、风能 90、水电 70、天然气 110），右侧 4 类用途（工业 150、住宅 110、交通 70、储能 60）",
+          "13 条带子，粗细为每单位 0.4px，颜色从来源色线性渐变到去向色，不透明度 0.55",
+          "0.2–3.2 秒内带子从左向右依次流入，每条晚 0.04 进度出发",
+          "节点宽 7px、间隔 7px，左右各距边缘 62px；5.4–6.0 秒淡出"
+        ]
+      },
+      "use": {
+        "ja": "年次報告やデータ報道の動画の開場、エネルギー・サステナビリティ系サイトのファーストビュー、プレゼンのデータ章の扉に。",
+        "en": "Openers for annual reports or data stories, hero sections on energy and sustainability sites, or the title slide of a data section.",
+        "zh-Hans": "适合年报、数据新闻视频的开场，能源与可持续主题网站首屏，或演示中数据章节的封面。"
+      },
+      "tags": [
+        "sankey",
+        "data-viz",
+        "infographic",
+        "flow",
+        "energy",
+        "chart",
+        "gradient"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "能量流向图",
+          "流量图",
+          "分流图"
+        ]
+      }
+    },
+    {
+      "no": "20",
+      "slug": "guilloche",
+      "category": "pattern",
+      "name": {
+        "ja": "彩紋（ギョーシェ）",
+        "en": "Guilloche",
+        "zh-Hans": "防伪钞票纹"
+      },
+      "meaning": {
+        "ja": "紙幣のような精密な曲線が重なって回るギョーシェ彩紋の画面",
+        "en": "A guilloche pattern of fine banknote-style curves layered into a slowly turning rosette",
+        "zh-Hans": "钞票式精密曲线层层缠绕、缓缓转动的防伪花纹画面"
+      },
+      "ask": {
+        "ja": "紙幣のギョーシェ彩紋のような背景を作って。32本の内サイクロイドをエメラルドと金で重ねてロゼットにし、6.4秒で継ぎ目なくループさせて。",
+        "en": "Make a banknote guilloche background: 32 hypotrochoids in emerald and gold layered into a rosette, looping seamlessly every 6.4 s.",
+        "zh-Hans": "做一个钞票防伪纹风格的背景：32 条内摆线用翡翠绿和金色叠成玫瑰窗，6.4 秒无缝循环。"
+      },
+      "summary": {
+        "ja": "エメラルドと金の細線が重なったロゼットが層ごとに逆向きにゆっくり回り、両脇の波線の帯が左右に流れる。",
+        "en": "An emerald-and-gold rosette turns slowly with layers rotating in opposite directions, while wavy bands on both sides drift sideways.",
+        "zh-Hans": "翡翠绿与金色细线叠成的玫瑰窗各层反向缓缓转动，两侧波纹带左右流动。"
+      },
+      "spec": {
+        "ja": [
+          "内サイクロイド 32 本を 4 組に分けてロゼットにし、外周半径 96px。色はエメラルド #0F5A4A と金 #B88A2E",
+          "4 組はそれぞれ 13 / 13 / 17 / 11 弁で、6.4 秒ごとにちょうど 1 弁ぶん回転。回転方向は組ごとに交互",
+          "両脇の波線帯：緑と金の 2 系統が各 10 本、波長 48px・振幅 10px で逆向きに流れ、周期ごとに 1 波長進む",
+          "ロゼットの外に半径 115px と 118px の細い円枠 2 本、左下に 7px の等幅シリアル番号"
+        ],
+        "en": [
+          "32 hypotrochoids in 4 groups form a rosette with a 96 px outer radius, in emerald #0F5A4A and gold #B88A2E.",
+          "The 4 groups have 13 / 13 / 17 / 11 petals and each turns exactly 1 petal per 6.4 s, alternating direction.",
+          "Side bands: 2 families of 10 sine lines each, green and gold, wavelength 48 px and amplitude 10 px, drifting opposite ways by 1 wavelength per cycle.",
+          "2 thin rings of radius 115 px and 118 px frame the rosette; a 7 px monospace serial number sits bottom left."
+        ],
+        "zh-Hans": [
+          "32 条内摆线分 4 组叠成玫瑰窗，外圈半径 96px；颜色为翡翠绿 #0F5A4A 与金色 #B88A2E",
+          "4 组分别为 13 / 13 / 17 / 11 瓣，每 6.4 秒各转过整 1 瓣，相邻组方向交替",
+          "两侧波纹带：绿、金 2 族各 10 条正弦线，波长 48px、振幅 10px，反向平移，每周期 1 个波长",
+          "玫瑰窗外有半径 115px 与 118px 的 2 道细圆框，左下角为 7px 等宽字体的序列号"
+        ]
+      },
+      "use": {
+        "ja": "金融・フィンテックや高級ブランドの動画開場、証書やチケット風デザインの背景、プレゼンの格調ある扉ページに。",
+        "en": "Openers for finance, fintech or luxury brands, backgrounds for certificate or ticket designs, or a formal title slide.",
+        "zh-Hans": "适合金融、金融科技与奢侈品牌的视频开场，证书或票券风格设计的背景，或演示中庄重的封面页。"
+      },
+      "tags": [
+        "guilloche",
+        "banknote",
+        "security-pattern",
+        "rosette",
+        "line-art",
+        "luxury",
+        "seamless-loop"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "钞票纹",
+          "玫瑰窗花纹",
+          "扭索纹"
+        ]
+      }
+    },
+    {
+      "no": "21",
+      "slug": "seigaiha-waves",
+      "category": "pattern",
+      "name": {
+        "ja": "青海波",
+        "en": "Seigaiha waves",
+        "zh-Hans": "青海波"
+      },
+      "meaning": {
+        "ja": "濃紺の地に青海波が重なり、金の満月が浮かぶ和柄の画面",
+        "en": "A Japanese seigaiha wave pattern on deep indigo with a golden full moon",
+        "zh-Hans": "深靛底上青海波层层相叠、金色满月高悬的和风纹样画面"
+      },
+      "ask": {
+        "ja": "青海波の背景をループで作って。5重の半円を重ね、模様が6.4秒で22pxずつ下へ流れて継ぎ目なくつながるように。右上に金の満月を。",
+        "en": "Make a looping seigaiha background: 5-ring semicircles that slide down 22 px every 6.4 s with no seam, plus a gold full moon at the top right.",
+        "zh-Hans": "做一个循环的青海波背景：5 重半圆相叠，纹样每 6.4 秒向下平移 22px 无缝衔接，右上加一轮金色满月。"
+      },
+      "summary": {
+        "ja": "生成りと藍の同心半円が鱗のように重なってゆっくり下へ流れ、右上には金色の満月が動かずに浮かぶ。",
+        "en": "Cream and indigo concentric arcs overlap like scales and slide slowly downward, under a still golden moon at the top right.",
+        "zh-Hans": "米白与靛蓝的同心半圆像鳞片一样相叠，缓缓向下流动，右上一轮金色满月静静悬着。"
+      },
+      "spec": {
+        "ja": [
+          "濃紺の地 #0F2447。各波は半径 22px の同心半円 5 重で、生成り #E9E2D0 と藍が交互",
+          "行間 11px、奇数行は 22px ずらし、後の行が前の行の上に重なる",
+          "模様は 6.4 秒ごとに 22px（1 模様周期）下へ動き、継ぎ目なくループ",
+          "右上の金の満月は半径 46px、中心 (410, 64)、放射グラデーション #F5D58A → #C9952F"
+        ],
+        "en": [
+          "Deep indigo background #0F2447. Each wave is 5 concentric semicircles of radius 22 px, alternating cream #E9E2D0 and indigo.",
+          "Rows are 11 px apart; odd rows shift by 22 px, and each later row overlaps the one before.",
+          "The pattern moves down 22 px (1 pattern period) every 6.4 s, looping seamlessly.",
+          "A gold moon of radius 46 px sits at (410, 64) with a radial gradient #F5D58A → #C9952F."
+        ],
+        "zh-Hans": [
+          "深靛底 #0F2447；每组波纹为半径 22px 的 5 重同心半圆，米白 #E9E2D0 与靛蓝交替",
+          "行距 11px，奇数行错开 22px，后画的行压住前一行",
+          "纹样每 6.4 秒向下平移 22px（1 个纹样周期），无缝循环",
+          "右上金色满月半径 46px，圆心 (410, 64)，径向渐变 #F5D58A → #C9952F"
+        ]
+      },
+      "use": {
+        "ja": "和食・旅館・和菓子などのブランド動画の開場、日本文化テーマのサイト背景、季節キャンペーンのポスターに。",
+        "en": "Openers for Japanese food, ryokan or confectionery brands, backgrounds for Japan-themed sites, or seasonal campaign posters.",
+        "zh-Hans": "适合日料、旅馆、和果子等品牌的视频开场，日本文化主题网站背景，或节令活动海报。"
+      },
+      "tags": [
+        "seigaiha",
+        "japanese-pattern",
+        "waves",
+        "indigo",
+        "moon",
+        "seamless-loop",
+        "traditional"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "海浪纹",
+          "和风纹样",
+          "日式波纹"
+        ]
+      }
+    },
+    {
+      "no": "22",
+      "slug": "girih-stars",
+      "category": "pattern",
+      "name": {
+        "ja": "ギリ星文様",
+        "en": "Girih stars",
+        "zh-Hans": "伊斯兰星纹"
+      },
+      "meaning": {
+        "ja": "八芒星と十字が敷き詰められたイスラムのギリ文様が中心から灯る画面",
+        "en": "An Islamic girih tiling of eight-point stars and crosses that lights up from the centre",
+        "zh-Hans": "八角星与十字铺满墙面、从中心一格格点亮的伊斯兰星纹画面"
+      },
+      "ask": {
+        "ja": "イスラムの星文様の背景アニメを作って。62pxのタイルに八芒星を描き、中心から外へ一枚ずつ約2.5秒ですべて灯るように。",
+        "en": "Animate an Islamic star-pattern background: 62 px tiles with eight-point stars that light up outward from the centre, all lit in about 2.5 s.",
+        "zh-Hans": "做一个伊斯兰星纹背景动画：62px 方格里画八角星，从中心向外一格格点亮，约 2.5 秒全部亮起。"
+      },
+      "summary": {
+        "ja": "濃紺の地に、ターコイズのタイルとコバルトの八芒星が中心から一枚ずつ広がるように灯り、星が小さくから大きく開く。",
+        "en": "Turquoise tiles with cobalt eight-point stars light up one by one outward from the centre on dark navy, each star scaling open.",
+        "zh-Hans": "深蓝底上，松石绿方格和钴蓝八角星从中心一格格向外点亮，星形由小放大。"
+      },
+      "spec": {
+        "ja": [
+          "濃紺の地 #0F1E3A。62px のタイル 11 × 7 枚を全体で 0.12 rad 傾ける",
+          "各タイル：ターコイズ #1F8A8A の地、生成りの十字、コバルト #1C3F94 の八芒星（頂点 16）、金 #D9A93C の輪郭線と放射線 8 本",
+          "0.2 秒から中心からの距離順にタイルが灯り、星は縮小状態から開く。約 2.5 秒ですべて点灯",
+          "5.4 秒まで保持し、5.4〜6.0 秒でフェードアウト"
+        ],
+        "en": [
+          "Dark navy background #0F1E3A. 11 × 7 tiles of 62 px, the whole grid tilted 0.12 rad.",
+          "Each tile: turquoise #1F8A8A ground, cream cross, cobalt #1C3F94 eight-point star (16 vertices), gold #D9A93C outline and 8 radiating lines.",
+          "From 0.2 s tiles light up in order of distance from the centre, stars scaling up from small; all are lit in about 2.5 s.",
+          "Holds until 5.4 s, then fades out over 5.4–6.0 s."
+        ],
+        "zh-Hans": [
+          "深蓝底 #0F1E3A；11 × 7 个 62px 方格，整体旋转 0.12 rad",
+          "每格：松石绿底 #1F8A8A、米白十字、钴蓝 #1C3F94 八角星（16 个顶点）、金色 #D9A93C 描线与 8 条放射线",
+          "0.2 秒起按与中心的距离依次点亮，星形由小放大，约 2.5 秒全部亮起",
+          "停留到 5.4 秒，5.4–6.0 秒淡出"
+        ]
+      },
+      "use": {
+        "ja": "中東・イスラム文化や旅行テーマの動画開場、ラマダンなど季節イベントの背景、建築・工芸系プレゼンの扉に。",
+        "en": "Openers for Middle Eastern culture or travel content, backgrounds for Ramadan and other seasonal events, or title slides for architecture and craft talks.",
+        "zh-Hans": "适合中东、伊斯兰文化或旅行主题的视频开场，斋月等节令活动背景，或建筑、工艺类演示的封面。"
+      },
+      "tags": [
+        "girih",
+        "islamic-pattern",
+        "geometric",
+        "tiles",
+        "stars",
+        "reveal",
+        "ornament"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "八角星纹",
+          "阿拉伯花纹",
+          "几何星纹"
+        ]
+      }
+    },
+    {
+      "no": "23",
+      "slug": "blue-and-white",
+      "category": "pattern",
+      "name": {
+        "ja": "青花の皿",
+        "en": "Blue & white",
+        "zh-Hans": "青花瓷盘"
+      },
+      "meaning": {
+        "ja": "藍の文様が描かれた白磁の青花皿を真上から見て回す画面",
+        "en": "A top-down view of a turning blue-and-white porcelain plate",
+        "zh-Hans": "俯视一只缓缓转动的白釉钴蓝青花瓷盘画面"
+      },
+      "ask": {
+        "ja": "青花の皿を真上から見たループ映像を作って。皿は6.4秒で時計回りに1周し、暖かい金色のハイライトが左から右へ流れるように。",
+        "en": "Make a loop of a blue-and-white plate seen from above: it turns clockwise once every 6.4 s while a warm gold highlight sweeps left to right.",
+        "zh-Hans": "做一段俯视青花瓷盘的循环画面：瓷盘每 6.4 秒顺时针转 1 圈，一道暖金高光从左扫到右。"
+      },
+      "summary": {
+        "ja": "波濤文・蓮弁・唐草が同心円状に描かれた白磁の皿がゆっくり回り、暖かい金色の光の帯が釉面を横切る。",
+        "en": "A white porcelain plate ringed with waves, lotus petals and scrolling vines turns slowly as a warm gold band of light crosses the glaze.",
+        "zh-Hans": "画着海水纹、莲瓣、缠枝莲的白釉瓷盘缓缓转动，一道暖金光带横扫过釉面。"
+      },
+      "spec": {
+        "ja": [
+          "白磁の皿は半径 152px で中央に置き、上下はわずかにはみ出す。背景 #E7E2D8",
+          "外から内へ：波濤文 36 個、蓮弁 16 枚、唐草の渦巻きと葉 9 枚、中心の 8 弁花をコバルトで描く",
+          "皿は 6.4 秒ごとに時計回りに 1 周",
+          "幅 60px の暖かい金色の光帯が毎周期、皿の左外から右外へ横切る。左上に固定の釉の映り込み"
+        ],
+        "en": [
+          "A porcelain plate of radius 152 px, centred and slightly cropped top and bottom, on #E7E2D8.",
+          "Outside in: 36 wave scrolls, 16 lotus petals, a vine spiral with 9 leaves and an 8-petal centre flower, all in cobalt.",
+          "The plate turns clockwise 1 full turn every 6.4 s.",
+          "A 60 px warm gold light band sweeps from outside the left rim to outside the right rim each cycle; a fixed sky reflection sits top left."
+        ],
+        "zh-Hans": [
+          "白釉瓷盘半径 152px，居中，上下略出画；背景 #E7E2D8",
+          "由外到内：36 朵海水纹、16 片莲瓣、缠枝螺旋与 9 片叶、中心 8 瓣花，均为钴蓝",
+          "瓷盘每 6.4 秒顺时针转 1 整圈",
+          "60px 宽的暖金光带每周期从盘左外侧扫到右外侧；左上有固定的釉面天光"
+        ]
+      },
+      "use": {
+        "ja": "中国茶・陶磁器・博物館などのブランド動画の開場、東洋文化テーマのファーストビュー、展覧会のポスターに。",
+        "en": "Openers for tea, ceramics or museum brands, hero sections on Chinese-culture themes, or exhibition posters.",
+        "zh-Hans": "适合茶饮、陶瓷、博物馆等品牌的视频开场，中国文化主题网站首屏，或展览海报。"
+      },
+      "tags": [
+        "blue-and-white",
+        "porcelain",
+        "chinese-pattern",
+        "plate",
+        "rotation",
+        "ceramics",
+        "traditional"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "青花瓷",
+          "瓷盘",
+          "缠枝莲纹"
+        ]
+      }
+    },
+    {
+      "no": "24",
+      "slug": "fair-isle-knit",
+      "category": "pattern",
+      "name": {
+        "ja": "フェアアイル編み",
+        "en": "Fair Isle knit",
+        "zh-Hans": "费尔岛针织"
+      },
+      "meaning": {
+        "ja": "V字の編み目が一段ずつ編まれていくフェアアイル柄のニット画面",
+        "en": "A Fair Isle knit that grows row by row from V-shaped stitches",
+        "zh-Hans": "V 字毛线圈一行行织出图案的费尔岛针织画面"
+      },
+      "ask": {
+        "ja": "フェアアイル柄のニットが下から編み上がるアニメを作って。V字の編み目で26段を0.2〜4.6秒で一段ずつ編むように。",
+        "en": "Animate a Fair Isle knit growing from the bottom: 26 rows of V stitches knitted one by one between 0.2 and 4.6 s.",
+        "zh-Hans": "做一段费尔岛针织从下往上织出的动画：V 字针脚共 26 行，在 0.2–4.6 秒内一行行织完。"
+      },
+      "summary": {
+        "ja": "ふっくらしたV字の編み目が下から一段ずつ左右に往復しながら現れ、菱形・雪の結晶・トナカイの帯模様が編み上がる。",
+        "en": "Plump V stitches appear row by row from the bottom, each row running back and forth, building bands of lattice, snowflake and reindeer motifs.",
+        "zh-Hans": "蓬松的 V 字针脚从下往上一行行出现，每行左右往返推进，织出菱格、雪花和驯鹿图案带。"
+      },
+      "spec": {
+        "ja": [
+          "各目は V 字の 2 枚の編み目で 10 × 8.5 px、全 26 段",
+          "4 色 #F2ECE0・#C8322E・#1B2A3A・#E8B44A。12 段ずつの菱形・雪の結晶・トナカイの帯を繰り返す",
+          "0.2〜4.6 秒で下から一段ずつ編み上がり、編んでいる段は左右に往復しながら進む",
+          "5.4 秒まで保持し、5.4〜6.0 秒でフェードアウト"
+        ],
+        "en": [
+          "Each stitch is 2 V-shaped loops, 10 × 8.5 px; 26 rows in total.",
+          "4 colours #F2ECE0, #C8322E, #1B2A3A and #E8B44A, repeating 12-row bands of lattice, snowflake and reindeer.",
+          "Rows are knitted from the bottom up over 0.2–4.6 s, the current row advancing back and forth across the width.",
+          "Holds until 5.4 s, then fades out over 5.4–6.0 s."
+        ],
+        "zh-Hans": [
+          "每针为 2 片 V 字毛线圈，10 × 8.5 px，共 26 行",
+          "4 色 #F2ECE0、#C8322E、#1B2A3A、#E8B44A，以 12 行为一条，菱格、雪花、驯鹿图案带循环",
+          "0.2–4.6 秒从下往上逐行织出，正在织的一行左右往返推进",
+          "停留到 5.4 秒，5.4–6.0 秒淡出"
+        ]
+      },
+      "use": {
+        "ja": "冬物アパレルや手芸ブランドの動画開場、クリスマス・年末キャンペーンの背景、季節の挨拶カードに。",
+        "en": "Openers for winter apparel or craft brands, backgrounds for Christmas and year-end campaigns, or seasonal greeting cards.",
+        "zh-Hans": "适合冬季服饰、手工编织品牌的视频开场，圣诞与年末活动背景，或节日贺卡。"
+      },
+      "tags": [
+        "fair-isle",
+        "knit",
+        "textile",
+        "christmas",
+        "winter",
+        "pattern",
+        "reveal"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "毛衣花纹",
+          "针织图案",
+          "圣诞毛衣"
+        ]
+      }
+    },
+    {
+      "no": "25",
+      "slug": "glass-mosaic",
+      "category": "pattern",
+      "name": {
+        "ja": "ガラスモザイク",
+        "en": "Glass mosaic",
+        "zh-Hans": "玻璃马赛克"
+      },
+      "meaning": {
+        "ja": "小さなガラスタイルが次々と裏返って夕日の海を描くモザイク画面",
+        "en": "A glass mosaic whose small tiles flip into place to form a sunset seascape",
+        "zh-Hans": "小玻璃砖依次翻面拼出日落海景的马赛克画面"
+      },
+      "ask": {
+        "ja": "ガラスモザイクのアニメを作って。45×18枚の12pxタイルが右から左へ次々と裏返って夕日の海景になり、約3.65秒で揃うように。",
+        "en": "Animate a glass mosaic: 45 × 18 tiles of 12 px flip in from right to left to form a sunset seascape, complete in about 3.65 s.",
+        "zh-Hans": "做一个玻璃马赛克动画：45×18 块 12px 玻璃砖从右往左依次翻面，拼出日落海景，约 3.65 秒拼完。"
+      },
+      "summary": {
+        "ja": "色ガラスのタイルが右から左へ波のように裏返って夕日と海を描き、しばらく保った後また右から裏返って消える。",
+        "en": "Coloured glass tiles flip over in a wave from right to left to form a sunset over the sea, hold, then flip away again from the right.",
+        "zh-Hans": "彩色玻璃砖从右往左像波浪一样翻面，拼出海上落日，停留后再从右往左翻回消失。"
+      },
+      "spec": {
+        "ja": [
+          "12px のガラスタイル 45 × 18 枚、目地 1.5px。各タイルの明るさは 0.85〜1.15 でばらつく",
+          "夕日の海：上 55% はオレンジから紫の空と楕円の太陽、下は濃紺の海と一段おきの太陽の映り込み",
+          "0.2 秒から右から左へ順に裏返って定位置に収まり、各 0.35 秒、約 3.65 秒ですべて揃う",
+          "5.4 秒から再び右から左へ裏返って消え、各 0.25 秒、6.3 秒までに完了"
+        ],
+        "en": [
+          "45 × 18 glass tiles of 12 px with 1.5 px grout; each tile's brightness varies between 0.85 and 1.15.",
+          "Sunset seascape: the top 55% is an orange-to-purple sky with an oval sun; below is a deep blue sea with a sun reflection on alternate rows.",
+          "From 0.2 s tiles flip into place from right to left, 0.35 s each, all in place by about 3.65 s.",
+          "From 5.4 s they flip away again from right to left, 0.25 s each, finishing by 6.3 s."
+        ],
+        "zh-Hans": [
+          "45 × 18 块 12px 玻璃砖，缝隙 1.5px，每块亮度在 0.85–1.15 间浮动",
+          "日落海景：上方 55% 为橙红渐变到紫的天空与椭圆落日，下方为深蓝海面与隔行的落日倒影",
+          "0.2 秒起从右往左依次翻面落位，每块 0.35 秒，约 3.65 秒全部到位",
+          "5.4 秒起再从右往左翻回，每块 0.25 秒，6.3 秒前全部翻完"
+        ]
+      },
+      "use": {
+        "ja": "旅行・リゾートや建築・インテリア系の動画開場、ファーストビューの画像出現演出、プレゼンの章間に。",
+        "en": "Openers for travel, resort, architecture or interior content, a hero image reveal, or section breaks in a presentation.",
+        "zh-Hans": "适合旅行度假、建筑与室内设计类的视频开场，网页首屏的图像揭示，或演示的章节过场。"
+      },
+      "tags": [
+        "mosaic",
+        "tiles",
+        "glass",
+        "sunset",
+        "flip",
+        "reveal",
+        "pixel"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "马赛克拼图",
+          "瓷砖翻转",
+          "像素拼贴"
+        ]
+      }
+    },
+    {
+      "no": "26",
+      "slug": "cube-flip-wave",
+      "category": "objects",
+      "name": {
+        "ja": "キューブの反転波",
+        "en": "Cube flip wave",
+        "zh-Hans": "方块翻转"
+      },
+      "meaning": {
+        "ja": "立方体の配列が斜めの波で次々に反転して色を変えるアイソメ画面",
+        "en": "An isometric array of cubes that flip in a diagonal wave and change colour",
+        "zh-Hans": "立方体阵列被斜向波浪依次翻转、逐次换色的轴测画面"
+      },
+      "ask": {
+        "ja": "キューブの配列が波のように反転するループを作って。22×6個の立方体が6.4秒に8回ずつ90°転がり、そのたびに上面の色が変わるように。",
+        "en": "Make a loop of a cube array flipping in a wave: 22 × 6 cubes each roll 90° 8 times per 6.4 s, changing their top colour every flip.",
+        "zh-Hans": "做一个立方体阵列波浪翻转的循环：22×6 个立方体每 6.4 秒各翻 8 次，每次 90°，每翻一次顶面换色。"
+      },
+      "summary": {
+        "ja": "暗い地の上で立方体の板が斜めの波に沿って次々に転がり、上面が4色を順に入れ替わってめくれる画面のように見える。",
+        "en": "On a dark ground, a slab of cubes rolls over in a diagonal wave, their tops cycling through 4 colours like a flipping display.",
+        "zh-Hans": "深色底上整片立方体沿斜向波浪依次翻滚，顶面在 4 色间轮换，像一块会翻页的屏幕。"
+      },
+      "spec": {
+        "ja": [
+          "22 × 6 の立方体配列、正投影のアイソメ視点（ヨー 0.42・ピッチ 0.62 rad）、暗い地 #121214",
+          "斜めの波で順に反転し、各キューブは 6.4 秒に 8 回、各回 90°・約 0.4 秒で転がる",
+          "上面の色は 4 色 #FF5C40・#F5F0E6・#3C5AE6・#FFC83C を巡り、周期ごとに 2 巡して元の色に戻る",
+          "側面は今の色と次の色の間で変化し、面の向きに応じて暗くなる"
+        ],
+        "en": [
+          "A 22 × 6 cube array in orthographic isometric view (yaw 0.42, pitch 0.62 rad) on dark #121214.",
+          "A diagonal wave flips them in turn; each cube rolls 90° 8 times per 6.4 s, each roll taking about 0.4 s.",
+          "Top faces cycle through 4 colours #FF5C40, #F5F0E6, #3C5AE6 and #FFC83C, going round 2 times per cycle back to the start.",
+          "Side faces blend between the current and next colour and darken according to their facing."
+        ],
+        "zh-Hans": [
+          "22 × 6 的立方体阵列，正交轴测视角（偏航 0.42、俯仰 0.62 rad），深色底 #121214",
+          "斜向波浪依次翻转，每块每 6.4 秒翻 8 次，每次 90°、约 0.4 秒",
+          "顶面颜色在 4 色 #FF5C40、#F5F0E6、#3C5AE6、#FFC83C 间轮换，每周期循环 2 轮回到原色",
+          "侧面颜色在当前色与下一色间渐变，并按朝向加暗"
+        ]
+      },
+      "use": {
+        "ja": "テック系・デザインスタジオの動画開場、プロダクト発表のファーストビュー、プレゼンの章間のリズミカルな転換に。",
+        "en": "Openers for tech brands or design studios, hero sections for product launches, or rhythmic section transitions in a presentation.",
+        "zh-Hans": "适合科技品牌、设计工作室的视频开场，产品发布页首屏，或演示中有节奏感的章节转场。"
+      },
+      "tags": [
+        "cubes",
+        "isometric",
+        "flip",
+        "wave",
+        "3d",
+        "grid",
+        "colorful"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "立方体翻转",
+          "方块波浪",
+          "翻牌墙"
+        ]
+      }
+    },
+    {
+      "no": "27",
+      "slug": "domino-run",
+      "category": "objects",
+      "name": {
+        "ja": "ドミノ倒し",
+        "en": "Domino run",
+        "zh-Hans": "多米诺"
+      },
+      "meaning": {
+        "ja": "S字に並んだドミノが連鎖して倒れ、巻き戻って立ち上がる画面",
+        "en": "Dominoes laid along an S-curve that topple in a chain reaction, then rewind upright",
+        "zh-Hans": "沿 S 形排开的骨牌连锁倒下、再倒放立回的画面"
+      },
+      "ask": {
+        "ja": "ドミノ倒しのアニメを作って。56枚がS字カーブに並び、0.3秒に1枚目が倒れて4.3秒まで加速しながら連鎖し、最後は巻き戻るように。",
+        "en": "Animate a domino run: 56 tiles along an S-curve, the first falling at 0.3 s and the chain speeding up until 4.3 s, then rewinding.",
+        "zh-Hans": "做一个多米诺动画：56 块骨牌沿 S 形曲线排开，0.3 秒第 1 块倒下，连锁越来越快一直传到 4.3 秒，最后倒放复原。"
+      },
+      "summary": {
+        "ja": "S字に並んだ黒と赤のドミノが手前から奥へ加速しながら連鎖して倒れ、最後は逆再生で順に立ち上がる。",
+        "en": "Black and red dominoes along an S-curve topple in an accelerating chain, then stand back up in reverse as the clip rewinds.",
+        "zh-Hans": "沿 S 形排开的黑红骨牌越倒越快地连锁倒下，最后倒放，按相反顺序一块块立回。"
+      },
+      "spec": {
+        "ja": [
+          "56 枚のドミノを S 字カーブに等間隔で並べ、8 枚ごとに赤、ほかは黒",
+          "0.3 秒に 1 枚目が倒れ、連鎖は 4.3 秒まで続き、間隔は 0.7 乗の分布で次第に短くなる",
+          "各牌は 0.28 秒で倒れ、1.22 rad 傾いて次の牌にもたれる。最後の牌は 1.53 rad まで倒れる",
+          "5.4〜6.2 秒は時間を逆再生し、逆の順に元の位置へ立ち上がる。地面には斜めの影"
+        ],
+        "en": [
+          "56 dominoes evenly spaced along an S-curve; every 8th is red, the rest black.",
+          "Domino 1 falls at 0.3 s and the chain runs until 4.3 s, the gaps shrinking along a power-0.7 curve.",
+          "Each falls in 0.28 s, tilting 1.22 rad to lean on the next; the final one tips to 1.53 rad.",
+          "Over 5.4–6.2 s time plays backwards and they stand up in reverse order; each casts an angled ground shadow."
+        ],
+        "zh-Hans": [
+          "56 块骨牌沿 S 形曲线等距排开，每第 8 块为红色，其余为黑色",
+          "0.3 秒第 1 块倒下，连锁传到 4.3 秒，间隔按 0.7 次方分布越来越短",
+          "每块倒下用 0.28 秒，倾倒 1.22 rad 靠在下一块上，最后一块倒到 1.53 rad",
+          "5.4–6.2 秒时间倒放，骨牌按相反顺序立回原位；地面有斜向投影"
+        ]
+      },
+      "use": {
+        "ja": "連鎖・波及効果を語る動画の開場、プロセスや仕組みを説明するプレゼンの扉、キャンペーンのティザーに。",
+        "en": "Openers for videos about chain reactions or ripple effects, title slides for process explainers, or campaign teasers.",
+        "zh-Hans": "适合讲连锁反应、蝴蝶效应的视频开场，流程与机制说明类演示的封面，或活动预告。"
+      },
+      "tags": [
+        "domino",
+        "chain-reaction",
+        "3d",
+        "physics",
+        "sequence",
+        "rewind",
+        "objects"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "多米诺骨牌",
+          "连锁反应",
+          "骨牌效应"
+        ]
+      }
+    },
+    {
+      "no": "28",
+      "slug": "impossible-triangle",
+      "category": "objects",
+      "name": {
+        "ja": "不可能な三角形",
+        "en": "Impossible triangle",
+        "zh-Hans": "不可能三角"
+      },
+      "meaning": {
+        "ja": "落ちてくるブロックがアイソメ視点でつながるペンローズの不可能な三角形",
+        "en": "A Penrose impossible triangle assembled from falling blocks in isometric view",
+        "zh-Hans": "方块依次落下、在等轴视角里首尾相接成彭罗斯三角的画面"
+      },
+      "ask": {
+        "ja": "不可能な三角形が組み上がるアニメを作って。18個のブロックが3辺に沿って上から順に落ち、0.2〜3.5秒でペンローズの三角形になるように。",
+        "en": "Animate an impossible triangle being built: 18 blocks drop in along 3 edges, forming a Penrose triangle between 0.2 and 3.5 s.",
+        "zh-Hans": "做一个不可能三角拼成的动画：18 块方块沿 3 条边从上方依次落下，0.2–3.5 秒拼成彭罗斯三角。"
+      },
+      "summary": {
+        "ja": "パステルの地に色違いのブロックが上から一つずつ落ちて3辺を作り、最後に端と端がつながって不可能な三角形がゆっくり回る。",
+        "en": "Coloured blocks drop one by one onto a pastel ground to build 3 edges whose ends meet into an impossible triangle that slowly turns.",
+        "zh-Hans": "粉彩底上不同颜色的方块一块块从上方落下拼出 3 条边，首尾接上成不可能三角，整体缓缓转动。"
+      },
+      "spec": {
+        "ja": [
+          "ブロック 18 個を 3 辺に 6 個ずつ並べるアイソメ投影、外接円の直径 196px",
+          "ブロックは 1/6 秒間隔で上から順に落ち、0.5 秒で着地。0.2〜3.5 秒ですべて揃う",
+          "1 個目のブロックを最後のブロックと重なる六角形に切り抜いて描き直し、端と端がつながって見える錯視を作る",
+          "全体は 6.4 秒に 1 周回転し、上下に ±4px 浮かぶ。5.4〜6.0 秒でフェードアウト"
+        ],
+        "en": [
+          "18 blocks, 6 per edge on 3 edges, in isometric projection; the bounding circle is 196 px across.",
+          "Blocks drop from above 1/6 s apart and settle in 0.5 s; all are in place over 0.2–3.5 s.",
+          "Block 1 is redrawn clipped to the hexagon where it overlaps the last block, creating the illusion that the ends join.",
+          "The whole figure makes 1 full turn per 6.4 s and floats ±4 px; it fades out over 5.4–6.0 s."
+        ],
+        "zh-Hans": [
+          "18 块方块分 3 条边、每边 6 块，等轴投影，外接圆直径 196px",
+          "方块每隔 1/6 秒依次从上方落下，0.5 秒落定，0.2–3.5 秒全部到位",
+          "第 1 块再画一次并裁进它与末块交叠的六边形，造成首尾相接的错觉",
+          "整体每 6.4 秒转 1 圈、上下浮动 ±4px；5.4–6.0 秒淡出"
+        ]
+      },
+      "use": {
+        "ja": "錯視・数学・デザイン思考をテーマにした動画の開場、クリエイティブ系サイトのファーストビュー、ポスターに。",
+        "en": "Openers for videos on illusions, maths or design thinking, hero sections on creative sites, or posters.",
+        "zh-Hans": "适合错觉、数学、设计思维主题的视频开场，创意类网站首屏，或海报。"
+      },
+      "tags": [
+        "penrose",
+        "impossible-triangle",
+        "isometric",
+        "optical-illusion",
+        "blocks",
+        "3d",
+        "geometry"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "彭罗斯三角",
+          "错觉三角",
+          "埃舍尔"
+        ]
+      }
+    },
+    {
+      "no": "29",
+      "slug": "mobius-strip",
+      "category": "objects",
+      "name": {
+        "ja": "メビウスの帯",
+        "en": "Möbius strip",
+        "zh-Hans": "莫比乌斯环"
+      },
+      "meaning": {
+        "ja": "片面しかない帯が宙で揺れ、縞模様が流れるメビウスの帯",
+        "en": "A one-sided Möbius strip swaying in space with stripes flowing along it",
+        "zh-Hans": "只有一个面的环带在空中摆动、条纹沿带流动的莫比乌斯环"
+      },
+      "ask": {
+        "ja": "メビウスの帯の3Dループを作って。40本のオレンジピンクの縞が帯に沿って流れ、6.4秒で8本ぶん進むように。",
+        "en": "Make a 3D Möbius strip loop: 40 orange-pink stripes flow along the band, advancing 8 stripes every 6.4 s.",
+        "zh-Hans": "做一个莫比乌斯环 3D 循环：40 道橙粉条纹沿带子流动，每 6.4 秒前进 8 道。"
+      },
+      "summary": {
+        "ja": "暗い空間でメビウスの帯が左右にゆっくり揺れ、オレンジピンクと白の縞が帯に沿って流れて表がいつの間にか裏になる。",
+        "en": "A Möbius strip sways gently in a dark space while orange-pink and white stripes flow along it, front quietly becoming back.",
+        "zh-Hans": "深色空间里莫比乌斯环左右缓缓摆动，橙粉与白色条纹沿带子流动，正面不知不觉变成背面。"
+      },
+      "spec": {
+        "ja": [
+          "暗いグラデーションの地 #1A1C2A → #0B0C12。帯の半径 1.7、帯幅 1、透視投影",
+          "縦軸まわりに -0.1〜0.7 rad で往復し、ピッチは 0.04〜0.16 rad で揺れる。いずれも 6.4 秒に 1 回",
+          "縞は 40 本、各縞はオレンジピンクのグラデーション部 0.375 と白部 0.625 から成り、周期ごとに 8 本ぶん進む",
+          "拡散光と 40 乗の鏡面ハイライトで陰影をつけ、裏向きの面も法線をカメラ側へ返して片面として描く"
+        ],
+        "en": [
+          "Dark gradient background #1A1C2A → #0B0C12. Strip radius 1.7, band width 1, perspective projection.",
+          "It swings about the vertical axis between -0.1 and 0.7 rad and tilts between 0.04 and 0.16 rad, each 1 swing per 6.4 s.",
+          "40 stripes, each 0.375 orange-pink gradient and 0.625 white, advancing 8 stripes per cycle.",
+          "Shaded with diffuse light and a power-40 specular highlight; back-facing normals flip toward the camera so it reads as one surface."
+        ],
+        "zh-Hans": [
+          "深色渐变底 #1A1C2A → #0B0C12；环带半径 1.7、带宽 1，透视投影",
+          "绕竖轴在 -0.1–0.7 rad 间往复，俯仰在 0.04–0.16 rad 间轻摆，各每 6.4 秒 1 次",
+          "40 道条纹，每道由橙粉渐变段 0.375 与白色段 0.625 组成，每周期前进 8 道",
+          "漫反射加 40 次方镜面高光；背向的面把法线翻向相机，呈现为一个连续的面"
+        ]
+      },
+      "use": {
+        "ja": "数学・科学系の動画開場、無限やループをテーマにしたブランドのファーストビュー、プレゼンの扉に。",
+        "en": "Openers for maths or science videos, hero sections for brands themed on infinity or loops, or presentation title slides.",
+        "zh-Hans": "适合数学、科普类的视频开场，以无限、循环为主题的品牌首屏，或演示封面。"
+      },
+      "tags": [
+        "mobius-strip",
+        "3d",
+        "topology",
+        "stripes",
+        "infinity",
+        "math",
+        "loop"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "莫比乌斯带",
+          "单面环",
+          "无限环"
+        ]
+      }
+    },
+    {
+      "no": "30",
+      "slug": "infinity-room",
+      "category": "objects",
+      "name": {
+        "ja": "インフィニティ・ルーム",
+        "en": "Infinity room",
+        "zh-Hans": "无限镜屋"
+      },
+      "meaning": {
+        "ja": "鏡張りの暗い部屋に色とりどりの小さな灯りが無限に続くインフィニティ・ルーム",
+        "en": "An infinity room where coloured lights recede endlessly in a dark mirrored space",
+        "zh-Hans": "黑色镜屋里彩色小灯无限延伸的沉浸空间画面"
+      },
+      "ask": {
+        "ja": "インフィニティ・ミラールームのループ映像を作って。4色の小さな灯りの中をカメラが6.4秒で4列ぶん前進し、灯りが2回呼吸するように。",
+        "en": "Make an infinity mirror room loop: the camera moves forward 4 rows through lights in 4 hues every 6.4 s, the lights breathing 2 times.",
+        "zh-Hans": "做一段无限镜屋的循环画面：镜头每 6.4 秒在 4 色小灯间向前推进 4 排，灯光呼吸 2 次。"
+      },
+      "summary": {
+        "ja": "暗闇に浮かぶ4色の灯りの間をカメラがゆっくり前へ進み、鏡の床に灯りが映り込み、明るさが奥へ波打つように呼吸する。",
+        "en": "The camera glides forward through lights in 4 hues hanging in darkness, mirrored in the floor, their brightness breathing in waves into the depth.",
+        "zh-Hans": "镜头在黑暗中悬着的 4 色小灯间缓缓前进，镜面地板倒映灯阵，亮度沿纵深一阵阵呼吸。"
+      },
+      "spec": {
+        "ja": [
+          "黒い地 #020205。色相 320 / 40 / 185 / 265 の 4 色の灯り、各列 17 個のうち約 80% が点灯、列の間隔 0.55",
+          "カメラは 6.4 秒ごとに 4 列ぶん（2.2）前進し、灯りの配置は 4 列ごとに繰り返すため継ぎ目なくループ",
+          "灯りの明るさは 周期ごとに 2 回呼吸し、奥行きに沿って位相がずれる。手前と奥の端ではフェード",
+          "鏡の床の映り込みは明るさ 0.35。床の格子の横線はカメラとともに動き、周囲は暗く落とす"
+        ],
+        "en": [
+          "Black background #020205. Lights in 4 hues 320 / 40 / 185 / 265; about 80% of 17 slots per row are lit, rows 0.55 apart.",
+          "The camera moves forward 4 rows (2.2) every 6.4 s; the layout repeats every 4 rows, so the loop is seamless.",
+          "Brightness breathes 2 times per cycle, phase-shifted with depth; lights fade at the near and far limits.",
+          "Floor reflections are at 0.35 brightness; floor grid lines move with the camera, and a vignette darkens the edges."
+        ],
+        "zh-Hans": [
+          "黑底 #020205；色相 320 / 40 / 185 / 265 的 4 色小灯，每排 17 个位置约 80% 亮灯，排距 0.55",
+          "镜头每 6.4 秒向前推进 4 排（2.2），灯阵每 4 排重复，循环无缝",
+          "灯光每周期呼吸 2 次，沿纵深错相；最近与最远处渐隐",
+          "镜面地板倒影亮度 0.35；地板网格横线随镜头移动，四周加暗角"
+        ]
+      },
+      "use": {
+        "ja": "音楽・ナイトイベントやアートの展示告知の動画開場、没入感を出したいファーストビュー、ライブ配信の待機画面に。",
+        "en": "Openers for music, nightlife or art exhibition promos, immersive hero backgrounds, or a waiting screen before a livestream.",
+        "zh-Hans": "适合音乐、夜间活动或艺术展览宣传的视频开场，需要沉浸感的网页首屏，或直播开始前的等待画面。"
+      },
+      "tags": [
+        "infinity-room",
+        "mirror",
+        "lights",
+        "immersive",
+        "3d",
+        "night",
+        "bokeh"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "镜屋",
+          "灯光隧道",
+          "草间弥生"
+        ]
+      }
+    },
+    {
+      "no": "31",
+      "slug": "spinning-vinyl",
+      "category": "objects",
+      "name": {
+        "ja": "回るレコード",
+        "en": "Spinning vinyl",
+        "zh-Hans": "黑胶唱片"
+      },
+      "meaning": {
+        "ja": "赤い地に大きく切り取られたレコードが回るプロダクト写真風の画面",
+        "en": "A product-shot-style scene of a large, cropped vinyl record spinning on red",
+        "zh-Hans": "红底上放大裁切的黑胶唱片转动、像封套产品照的画面"
+      },
+      "ask": {
+        "ja": "回るレコードのループ映像を作って。赤い地に半径150pxのレコードを大きく置き、ラベルが6.4秒で4回転、トーンアームは針を落としたままで。",
+        "en": "Make a spinning vinyl loop: a 150 px radius record cropped large on red, the label turning 4 times per 6.4 s with the tonearm resting in the groove.",
+        "zh-Hans": "做一段黑胶唱片旋转的循环：红底上放一张半径 150px 的大唱片，标签每 6.4 秒转 4 圈，唱臂落在沟槽上不动。"
+      },
+      "summary": {
+        "ja": "赤い地でレコードのラベルが一定の速さで回り、溝の反射光は光源の方向に留まり、銀のトーンアームは静止している。",
+        "en": "On red, the record label spins at a steady speed while the groove highlights stay fixed toward the light and the silver tonearm rests still.",
+        "zh-Hans": "红底上唱片标签匀速旋转，沟槽高光固定在光源方向，银色唱臂静止落在唱片上。"
+      },
+      "spec": {
+        "ja": [
+          "赤のグラデーション地 #E6513A → #C23A26。レコードは半径 150px、中心 (215, 104)、大きく画面外へはみ出す",
+          "溝は 1.1px ごとの細い同心円。2 本の対向する扇形ハイライトは光源方向に固定され回らない",
+          "ラベルは半径 49px、半分が生成りで半分が赤、6.4 秒に 4 回転（37.5 RPM）",
+          "銀のトーンアームは溝に針を落とした状態で静止"
+        ],
+        "en": [
+          "Red gradient background #E6513A → #C23A26. The record has radius 150 px, centred at (215, 104), cropped large past the frame.",
+          "Grooves are thin concentric rings every 1.1 px; 2 opposed conic highlights stay fixed toward the light and do not turn.",
+          "The label, radius 49 px, half cream and half red, turns 4 times per 6.4 s (37.5 RPM).",
+          "The silver tonearm rests with the stylus in the groove and does not move."
+        ],
+        "zh-Hans": [
+          "红色渐变底 #E6513A → #C23A26；黑胶半径 150px，圆心 (215, 104)，放大裁切出画",
+          "沟槽为每 1.1px 一道的细同心圆；2 道对置的锥形高光固定在光源方向，不随唱片转",
+          "标签半径 49px，一半米白一半红，每 6.4 秒转 4 圈（37.5 RPM）",
+          "银色唱臂落在沟槽上，静止不动"
+        ]
+      },
+      "use": {
+        "ja": "音楽配信・レーベル・ポッドキャストの動画開場、アルバムやプレイリストのカバー、音楽イベントのファーストビューに。",
+        "en": "Openers for music releases, labels or podcasts, album and playlist covers, or hero sections for music events.",
+        "zh-Hans": "适合新歌发布、唱片厂牌、播客的视频开场，专辑与歌单封面，或音乐活动网页首屏。"
+      },
+      "tags": [
+        "vinyl",
+        "record",
+        "music",
+        "turntable",
+        "spin",
+        "retro",
+        "product-shot"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "唱片",
+          "黑胶",
+          "唱片机"
+        ]
+      }
+    },
+    {
+      "no": "32",
+      "slug": "card-flourish",
+      "category": "objects",
+      "name": {
+        "ja": "カードの扇開き",
+        "en": "Card flourish",
+        "zh-Hans": "扑克飞牌"
+      },
+      "meaning": {
+        "ja": "緑のフェルト台でトランプが扇形に広がり、表裏が返るカードマジックの画面",
+        "en": "A card flourish on green felt where playing cards fan out and flip face up and back",
+        "zh-Hans": "绿呢台面上扑克牌飞出成扇、逐张翻面的魔术画面"
+      },
+      "ask": {
+        "ja": "トランプが扇形に広がるアニメを作って。24枚のカードが山札から順に飛び出して扇になり、1.9〜3.8秒で一枚ずつ表に返るように。",
+        "en": "Animate a card fan: 24 cards fly from the deck into a fan and flip face up one by one between 1.9 and 3.8 s.",
+        "zh-Hans": "做一个扑克牌展扇动画：24 张牌从牌堆依次飞出排成扇形，1.9–3.8 秒逐张翻到正面。"
+      },
+      "summary": {
+        "ja": "緑のフェルトの中央の山札からカードが次々に飛び出して扇形に並び、一枚ずつ表に返ってまた裏に戻り、山札へ集まる。",
+        "en": "Cards fly from a deck on green felt into a fan, flip face up one by one, turn back over, then gather into the deck again.",
+        "zh-Hans": "绿呢台面中央的牌堆里牌一张张飞出排成扇形，逐张翻到正面再翻回背面，最后收拢回牌堆。"
+      },
+      "spec": {
+        "ja": [
+          "緑のフェルトの放射グラデーション #1F5A3E → #0A2016。カードは 38 × 54 px を 24 枚",
+          "0.2〜1.95 秒に中央の山札から順に飛び出し、全体の開き 1.7 rad の扇形に並ぶ。扇の上でカードは 6px 揺れる",
+          "1.9〜3.8 秒に一枚ずつ表へ返り、3.9〜5.35 秒に一枚ずつ暗赤の斜線模様の裏へ戻る",
+          "5.4〜6.26 秒に逆順で山札へ集まり、各 0.4 秒"
+        ],
+        "en": [
+          "Green felt radial gradient #1F5A3E → #0A2016. 24 cards of 38 × 54 px.",
+          "Over 0.2–1.95 s they fly from the central deck into a fan with a total spread of 1.7 rad, bobbing 6 px while fanned.",
+          "Over 1.9–3.8 s they flip face up one by one, and over 3.9–5.35 s back to the dark red crosshatched back one by one.",
+          "Over 5.4–6.26 s they gather back into the deck in reverse order, 0.4 s per card."
+        ],
+        "zh-Hans": [
+          "绿呢台面径向渐变 #1F5A3E → #0A2016；24 张 38 × 54 px 的牌",
+          "0.2–1.95 秒从中央牌堆依次飞出，排成总张角 1.7 rad 的扇形，展开时上下浮动 6px",
+          "1.9–3.8 秒逐张翻到正面，3.9–5.35 秒逐张翻回暗红斜纹背面",
+          "5.4–6.26 秒按相反顺序收拢回牌堆，每张 0.4 秒"
+        ]
+      },
+      "use": {
+        "ja": "マジック・ボードゲーム・カジノ系の動画開場、ゲームイベントの告知、プレゼンで選択肢を広げて見せる場面に。",
+        "en": "Openers for magic, board game or casino content, game event promos, or a presentation moment that fans out a set of options.",
+        "zh-Hans": "适合魔术、桌游、棋牌类内容的视频开场，游戏活动宣传，或演示中展开一组选项的场景。"
+      },
+      "tags": [
+        "playing-cards",
+        "card-fan",
+        "magic",
+        "flip",
+        "casino",
+        "objects",
+        "sequence"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "扑克牌",
+          "花切",
+          "魔术牌"
+        ]
+      }
+    }
+  ]
+}

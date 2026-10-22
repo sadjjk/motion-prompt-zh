@@ -1,0 +1,37 @@
+// Motion Prompt #4-021 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Seigaiha waves / 青海波
+// Pack: scenes (Styled scenes) · element 21 · Category: Patterns & graphics
+// What happens: Cream and indigo concentric arcs overlap like scales and slide slowly downward, under a still golden moon at the top right.
+// Motion spec:
+//   - Deep indigo background #0F2447. Each wave is 5 concentric semicircles of radius 22 px, alternating cream #E9E2D0 and indigo.
+//   - Rows are 11 px apart; odd rows shift by 22 px, and each later row overlaps the one before.
+//   - The pattern moves down 22 px (1 pattern period) every 6.4 s, looping seamlessly.
+//   - A gold moon of radius 46 px sits at (410, 64) with a radial gradient #F5D58A → #C9952F.
+// When to use it: Openers for Japanese food, ryokan or confectionery brands, backgrounds for Japan-themed sites, or seasonal campaign posters.
+// Tags: seigaiha, japanese-pattern, waves, indigo, moon, seamless-loop, traditional
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-021
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 21
+// 21 青海波：深靛底上米白与靛蓝五重同心半圆层层相叠，纹样每周期向下平移一个纹样周期（22px），金色满月压在右上
+const SEI_R = 22;                                             // 波纹半径 22px（原 70px）
+CELLS[20] = (k, w, h, u) => {
+  k.fillStyle = '#0F2447'; k.fillRect(0, 0, CW, CH);
+  const shift = (u / CYC) * SEI_R;                           // 纹样竖向周期 = R（两行），每周期平移整一个周期
+  const R = SEI_R;
+  for (let row = -3; row <= Math.ceil((CH + R) / (R / 2)) + 1; row++) {   // 行距 R/2，奇数行错开 R，后画的行压住前一行
+    const y = row * R * 0.5 + shift;
+    for (let col = -1; col <= Math.ceil(CW / (R * 2)) + 1; col++) {
+      const x = col * R * 2 + (((row % 2) + 2) % 2 ? R : 0) - 18;
+      for (let q = 5; q >= 1; q--) { k.fillStyle = q % 2 ? '#0F2447' : '#E9E2D0'; k.beginPath(); k.arc(x, y, R * q / 5, Math.PI, 0); k.fill(); }
+    }
+  }
+  const mg = k.createRadialGradient(410, 64, 4, 410, 64, 48); mg.addColorStop(0, '#F5D58A'); mg.addColorStop(1, '#C9952F');
+  k.fillStyle = mg; k.beginPath(); k.arc(410, 64, 46, 0, TAU); k.fill();
+  grain(k, 0.07);
+};

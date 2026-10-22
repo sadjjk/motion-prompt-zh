@@ -1,0 +1,42 @@
+// Motion Prompt #4-004 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Type ocean / 文字の海
+// Pack: scenes (Styled scenes) · element 04 · Category: Type moods
+// What happens: A perspective field of letters swells on 2 overlapping waves; letters on the crests turn white and bold while those in the troughs sink into deep blue.
+// Motion spec:
+//   - 11 rows × 31 columns of letters (MOTIONPROMPTWAVE repeated) form the sea on deep navy #071226.
+//   - Surface height sums 2 sine waves with amplitudes 0.45 and 0.25, advancing 2 and 1 laps every 6.4 s.
+//   - Perspective converges on a horizon near the top; glyph size is 30 / depth, and crests (height factor above 0.75) turn white at weight 900.
+//   - Colour runs from trough blue rgb(30, 70, 160) to crest white rgb(235, 245, 255).
+// When to use it: Use it as a hero background for ocean, travel or media brands, a video opener, or looping signage.
+// Tags: type-ocean, waves, letters, kinetic-type, perspective, sea, type
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-004
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 04
+// 04 文字海浪：字母铺成的海面随两组正弦波起伏，浪尖变白加粗、浪谷沉进深蓝
+const WORD = 'MOTIONPROMPTWAVE';
+CELLS[3] = (k, w, h, u) => {
+  k.fillStyle = '#071226'; k.fillRect(0, 0, CW, CH);
+  const ph = TAU * u / CYC;                         // 两组波每周期各推进整数圈
+  const items = [];
+  for (let j = 0; j < 11; j++) for (let i = -15; i <= 15; i++) {   // 11 排 × 31 列字母（原 40 × 81）
+    const x = i * 0.3 + (j % 2) * 0.15, z = j * 0.38 + 0.6;
+    const y = 0.45 * Math.sin(x * 0.7 + z * 0.5 - ph * 2) + 0.25 * Math.sin(x * 1.6 - z * 0.8 + ph);
+    // 透视：远处收向上方的地平线（y≈18），最近一排落在画面底部；海面高度 y 让字母上下起伏
+    const d = z + 1.2, sx = 269.5 + x * 150 / d, sy = 18 + 230 / d - y * 34 / d;
+    if (sx < -10 || sx > CW + 10 || sy > CH + 20) continue;
+    items.push([sx, sy, d, y, WORD[(i + 15 + j * 3) % WORD.length]]);
+  }
+  items.sort((a, b) => b[2] - a[2]);
+  for (const [sx, sy, d, y, ch] of items) {
+    const sz = 30 / d, kk = clamp((y + 0.7) / 1.4);
+    const c = lerpC([30, 70, 160], [235, 245, 255], Math.pow(kk, 1.6));
+    txt(k, ch, sx, sy, `${kk > 0.75 ? 900 : 600} ${sz.toFixed(1)}px ${DISP}`, rgba(c, Math.min(1, 2.4 / d)), 'center', 'middle');
+  }
+  grain(k, 0.05);
+};

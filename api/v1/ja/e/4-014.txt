@@ -1,0 +1,40 @@
+// Motion Prompt #4-014 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 構成主義 / Constructivist
+// パック: scenes (スタイルシーン) · element 14 · カテゴリ: 文様・グラフィック
+// 何が起きるか: 傾いた生成りの画面に、赤い円が膨らみ、黒い横棒と縦棒、太字の FORWARD、赤いくさびが順に飛び込み、最後は逆順に退く。
+// 動きの仕様:
+//   - 画面全体を -0.42 rad 傾ける。生成り #E9E0CC の地に赤 #C8231B と黒 #141414 の 2 色
+//   - 5 つの要素が 0.2 + 0.35i 秒に 0.5 秒ずつで登場：半径 92 px の赤い円、840 px の横棒、460 px の縦棒、62 px の FORWARD、250 px の赤いくさび
+//   - 横棒は左の画面外 1000 px から滑り込み、縦棒は上 700 px から落ち、FORWARD は右 1000 px から飛び込む
+//   - 5.4 秒から逆順に退場、間隔 0.12 秒、各 0.4 秒
+// 使いどころ: 力強い告知動画のオープニングや、デザイン・美術展の首画面、キャンペーンポスターの動画版に。
+// タグ: constructivist, poster, geometric, red-black, bold-type, avant-garde, pattern
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-014
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 14
+// 14 构成主义：红黑两色，大红圆、黑色横杠与竖杠、粗体 FORWARD、红色楔形依次砸进倾斜 -0.42 rad 的画面；停留后逆序退场
+CELLS[13] = (k, w, h, u) => {
+  k.fillStyle = '#E9E0CC'; k.fillRect(0, 0, CW, CH);
+  // 第 i 个元素在 0.2 + 0.35i 秒入场（0.5 秒 out3，最后一个 1.9 秒到位）；5.4 秒起逆序退场，间隔 0.12 秒、每个 0.4 秒
+  const e = i => out3(seg(u, 0.2 + i * 0.35, 0.7 + i * 0.35)) * (1 - inOut3(seg(u, SHOW + (4 - i) * 0.12, SHOW + 0.4 + (4 - i) * 0.12)));
+  k.save(); k.translate(300, 104); k.rotate(-0.42);
+  const r0 = 92 * e(0);                                        // 红圆半径 92px，从中心胀开
+  if (r0 > 0) { k.fillStyle = '#C8231B'; k.beginPath(); k.arc(40, -14, r0, 0, TAU); k.fill(); }
+  k.fillStyle = '#141414';
+  k.fillRect(-420 - (1 - e(1)) * 1000, 34, 840, 21);          // 横杠从左侧画外 1000px 处滑入
+  k.fillRect(-18, -230 - (1 - e(2)) * 700, 18, 460);          // 竖杠从上方画外落下
+  k.letterSpacing = '-3px';
+  txt(k, 'FORWARD', -250 + (1 - e(3)) * 1000, -40, `900 62px ${DISP}`, '#141414');   // 粗体字从右侧画外冲入
+  k.letterSpacing = '0px';
+  const tw = 250 * e(4);                                       // 红色楔形向右拉长到 250px
+  if (tw > 0) { k.fillStyle = '#C8231B'; k.beginPath(); k.moveTo(70, 70); k.lineTo(70 + tw, 70); k.lineTo(70, 98); k.fill(); }
+  k.restore();
+  txt(k, 'No. 21  ·  1926 → 2026', 12, 199, `700 8px ${DISP}`, '#141414');
+  grain(k, 0.08, 'multiply');
+};

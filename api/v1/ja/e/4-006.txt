@@ -1,0 +1,52 @@
+// Motion Prompt #4-006 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// グリッチ / Glitch
+// パック: scenes (スタイルシーン) · element 06 · カテゴリ: 文字のムード
+// 何が起きるか: 暗いポスターの「SIGNAL LOST」が RGB に分かれてずれ、横の帯が左右にはね、色のノイズ片と走査線が重なる。
+// 動きの仕様:
+//   - ポスター「SIGNAL LOST」64 px の極太、暗い背景 #0B0B0E、赤のアクセント #FF3B5C
+//   - RGB 3 チャンネルが左右に 3〜9 px ずれ、6.4 秒に 3 回大きくなる
+//   - ノイズは毎秒 10 回切り替わる：毎フレーム高さ 2〜20 px の横帯 7 本が最大 ±32 px ずれ、赤／青緑の色片 5 本
+//   - 3 px ごとに走査線。周期あたり 64 フレームで、最後のフレームは第 0 フレームと同じ模様で切れ目なくつながる
+// 使いどころ: ゲーム・音楽・テック系の動画オープニングや、エラー／メンテナンス告知のページ、サイバー調の海報に。
+// タグ: glitch, rgb-split, poster, scanlines, signal, cyber, type
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-006
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 06
+// 06 故障艺术：海报「SIGNAL LOST」在信号干扰下 RGB 通道错开，横向切片忽左忽右地跳，压着扫描线
+const GL = (() => { // 海报底稿（常量）：只画一次，绘制时按通道着色并错位
+  const c = document.createElement('canvas'); c.width = CW; c.height = CH; const g = c.getContext('2d');
+  g.fillStyle = '#0B0B0E'; g.fillRect(0, 0, CW, CH);
+  g.fillStyle = '#FF3B5C'; g.fillRect(170, 34, 36, 4);
+  font(g, '900', 64, DISP); g.fillStyle = '#F2F0EA'; g.textBaseline = 'alphabetic'; g.fillText('SIGNAL', 168, 104); g.fillText('LOST', 168, 164);
+  font(g, '500', 9, MONO); g.fillStyle = '#FF3B5C'; g.fillText('ERR 0x5A · CH 07 · NO CARRIER', 171, 184);
+  const ch = col => { const t = document.createElement('canvas'); t.width = CW; t.height = CH; const tc = t.getContext('2d'); tc.drawImage(c, 0, 0); tc.globalCompositeOperation = 'multiply'; tc.fillStyle = col; tc.fillRect(0, 0, CW, CH); return t; };
+  return { r: ch('#FF0000'), g: ch('#00FF00'), b: ch('#0000FF') };
+})();
+const TMP = (() => { const c = document.createElement('canvas'); c.width = CW; c.height = CH; return c; })();
+CELLS[5] = (k, w, h, u) => {
+  // 干扰每秒跳 10 次（每 0.1 秒一帧图案），一周期 64 帧；最后一帧沿用第 0 帧的图案，循环无缝
+  const f0 = Math.floor(u * 10), fr = f0 >= 63 ? 0 : f0;
+  const sh = 3 + 6 * Math.abs(Math.sin(TAU * u / CYC * 3));   // 通道错开 3–9px，每周期起伏 3 次
+  // 先在离屏画布上按通道叠加，再整体贴到卡片并按切片错位（不读回卡片画布）
+  const t = TMP.getContext('2d');
+  t.globalCompositeOperation = 'source-over'; t.fillStyle = '#0B0B0E'; t.fillRect(0, 0, CW, CH);
+  t.globalCompositeOperation = 'lighter'; t.drawImage(GL.r, -sh, 0); t.drawImage(GL.g, 0, 0); t.drawImage(GL.b, sh, 0);
+  t.globalCompositeOperation = 'source-over';
+  k.drawImage(TMP, 0, 0);
+  for (let i = 0; i < 7; i++) {
+    const y = hash(fr * 31 + i) * CH, hh = 2 + hash(fr * 17 + i * 5) * 18, dx = (hash(fr * 13 + i * 7) - 0.5) * 64;
+    k.drawImage(TMP, 0, y, CW, hh, dx, y, CW, hh);
+  }
+  for (let i = 0; i < 5; i++) {
+    k.fillStyle = hash(fr * 7 + i) > 0.5 ? 'rgba(255,59,92,.8)' : 'rgba(80,240,220,.8)';
+    k.fillRect(160 + hash(fr * 11 + i * 3) * 340, hash(fr * 19 + i * 2) * CH, 6 + hash(fr + i * 9) * 46, 1.5 + hash(fr * 5 + i) * 4);
+  }
+  k.fillStyle = 'rgba(0,0,0,.25)'; for (let y = 0; y < CH; y += 3) k.fillRect(0, y, CW, 1);
+  grain(k, 0.12);
+};

@@ -1,0 +1,71 @@
+// Motion Prompt #4-023 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Blue & white / 青花の皿
+// Pack: scenes (Styled scenes) · element 23 · Category: Patterns & graphics
+// What happens: A white porcelain plate ringed with waves, lotus petals and scrolling vines turns slowly as a warm gold band of light crosses the glaze.
+// Motion spec:
+//   - A porcelain plate of radius 152 px, centred and slightly cropped top and bottom, on #E7E2D8.
+//   - Outside in: 36 wave scrolls, 16 lotus petals, a vine spiral with 9 leaves and an 8-petal centre flower, all in cobalt.
+//   - The plate turns clockwise 1 full turn every 6.4 s.
+//   - A 60 px warm gold light band sweeps from outside the left rim to outside the right rim each cycle; a fixed sky reflection sits top left.
+// When to use it: Openers for tea, ceramics or museum brands, hero sections on Chinese-culture themes, or exhibition posters.
+// Tags: blue-and-white, porcelain, chinese-pattern, plate, rotation, ceramics, traditional
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-023
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 23
+// 23 青花瓷盘：俯视白釉瓷盘，钴蓝海水纹、莲瓣、缠枝莲与中心花一圈圈；瓷盘每周期顺时针转一整圈，一道暖金高光每周期从左扫到右
+const QH_R = 152, QH_E = 156;                                 // 盘半径 152px（原 460px，比例 0.33），上下略出画
+const QH_IMG = (() => {                                       // 纹样画在 2 倍分辨率透明离屏图上，绘制时整体旋转
+  const c = document.createElement('canvas'); c.width = c.height = QH_E * 4; const g = c.getContext('2d');
+  g.scale(2, 2); g.translate(QH_E, QH_E);
+  const R = QH_R, f = R / 460, blue = a => `rgba(28,52,140,${a})`;
+  const ring = (r, lw) => { g.strokeStyle = blue(0.85); g.lineWidth = lw; g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke(); };
+  ring(R * 0.97, 2); ring(R * 0.9, 1);
+  for (let i = 0; i < 36; i++) {                            // 36 朵海水纹
+    g.save(); g.rotate(i / 36 * TAU); g.strokeStyle = blue(0.8); g.lineWidth = 1;
+    g.beginPath(); g.arc(0, -R * 0.935, 18 * f, Math.PI * 0.1, Math.PI * 1.3); g.stroke();
+    g.beginPath(); g.arc(6 * f, -R * 0.935, 8 * f, Math.PI * 0.2, Math.PI * 1.6); g.stroke(); g.restore();
+  }
+  ring(R * 0.74, 1);
+  for (let i = 0; i < 16; i++) {                            // 16 片莲瓣
+    g.save(); g.rotate(i / 16 * TAU); g.fillStyle = blue(0.22); g.strokeStyle = blue(0.85); g.lineWidth = 0.9;
+    g.beginPath(); g.moveTo(-R * 0.07, -R * 0.74); g.quadraticCurveTo(-R * 0.07, -R * 0.88, 0, -R * 0.89); g.quadraticCurveTo(R * 0.07, -R * 0.88, R * 0.07, -R * 0.74); g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(0, -R * 0.76); g.lineTo(0, -R * 0.86); g.stroke(); g.restore();
+  }
+  ring(R * 0.52, 1.1);
+  g.strokeStyle = blue(0.9); g.lineWidth = 1.2; g.beginPath();   // 缠枝：18 弧度长的渐开螺旋
+  for (let t = 0; t < 18; t += 0.05) { const r = R * (0.15 + 0.3 * (t / 18)), a = t * 1.2; t ? g.lineTo(Math.cos(a) * r, Math.sin(a) * r) : g.moveTo(Math.cos(a) * r, Math.sin(a) * r); }
+  g.stroke();
+  for (let i = 0; i < 9; i++) {                             // 9 片缠枝叶
+    const a = i * 2.1, r = R * (0.15 + 0.3 * (i * 2 / 18));
+    g.save(); g.translate(Math.cos(a * 1.2) * r, Math.sin(a * 1.2) * r); g.rotate(a); g.fillStyle = blue(0.3); g.strokeStyle = blue(0.85); g.lineWidth = 0.8;
+    g.beginPath(); g.ellipse(16 * f, 0, 22 * f, 9 * f, 0, 0, TAU); g.fill(); g.stroke(); g.restore();
+  }
+  for (let i = 0; i < 8; i++) {                             // 中心八瓣花
+    g.save(); g.rotate(i / 8 * TAU); g.fillStyle = blue(0.35); g.strokeStyle = blue(0.9); g.lineWidth = 0.9;
+    g.beginPath(); g.ellipse(0, -R * 0.09, R * 0.045, R * 0.1, 0, 0, TAU); g.fill(); g.stroke(); g.restore();
+  }
+  g.fillStyle = blue(0.85); g.beginPath(); g.arc(0, 0, R * 0.04, 0, TAU); g.fill();
+  return c;
+})();
+CELLS[22] = (k, w, h, u) => {
+  k.fillStyle = '#E7E2D8'; k.fillRect(0, 0, CW, CH);
+  const cx = 269.5, cy = 104, R = QH_R;
+  k.fillStyle = 'rgba(80,70,60,.18)'; k.beginPath(); k.ellipse(cx + 10, cy + 13, R, R * 0.98, 0, 0, TAU); k.fill();
+  const gl = k.createRadialGradient(cx - 40, cy - 46, 16, cx, cy, R); gl.addColorStop(0, '#FBFBF8'); gl.addColorStop(1, '#E8EBEC');
+  k.fillStyle = gl; k.beginPath(); k.arc(cx, cy, R, 0, TAU); k.fill();
+  k.save(); k.translate(cx, cy); k.rotate(TAU * u / CYC); k.drawImage(QH_IMG, -QH_E, -QH_E, QH_E * 2, QH_E * 2); k.restore();
+  // 描金高光：60px 宽的暖金光带，每周期从盘左外侧扫到右外侧（首尾都在盘外）
+  const sx = cx - R - 70 + (u / CYC) * (R * 2 + 140);
+  k.save(); k.beginPath(); k.arc(cx, cy, R, 0, TAU); k.clip(); k.globalCompositeOperation = 'screen';
+  const sg = k.createLinearGradient(sx - 30, 0, sx + 30, 0);
+  sg.addColorStop(0, 'rgba(255,214,140,0)'); sg.addColorStop(0.5, 'rgba(255,214,140,.45)'); sg.addColorStop(1, 'rgba(255,214,140,0)');
+  k.fillStyle = sg; k.fillRect(sx - 30, 0, 60, CH); k.restore();
+  k.fillStyle = 'rgba(255,255,255,.55)'; k.beginPath(); k.ellipse(cx - 64, cy - 76, 40, 11, -0.6, 0, TAU); k.fill();   // 固定的釉面天光
+  grain(k, 0.05, 'multiply');
+};

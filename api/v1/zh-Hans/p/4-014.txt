@@ -1,0 +1,17 @@
+请使用“构成主义（Constructivist）”，属于“风格画面”。
+Motion Prompt #4-014
+
+效果解释：红黑几何块与粗体字砸进倾斜构图的构成主义海报画面
+动画表现：倾斜的米色画面上，红圆胀开，黑色横杠、竖杠、粗体 FORWARD 和红色楔形依次砸入，最后逆序退场。
+实现规格与关键运动参数：
+- 画面整体倾斜 -0.42 rad，米色底 #E9E0CC 上只用红 #C8231B、黑 #141414 共 2 色。
+- 5 个元素在 0.2 + 0.35i 秒依次入场、各用 0.5 秒：半径 92 px 红圆、840 px 横杠、460 px 竖杠、62 px 粗体 FORWARD、250 px 红楔形。
+- 横杠从左侧画外 1000 px 滑入，竖杠从上方 700 px 落下，FORWARD 从右侧画外 1000 px 冲入。
+- 5.4 秒起逆序退场，间隔 0.12 秒，每个 0.4 秒。
+适用场景：适合有冲击力的发布视频开场，设计或艺术展网页首屏，以及宣传海报的动态版。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-014
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/4-014.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Yun 的 MIT 版权标识。

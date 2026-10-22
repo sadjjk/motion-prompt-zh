@@ -1,0 +1,15 @@
+Please use "Art Deco" (アール・デコ), one of the names in "Styled scenes".
+Motion Prompt #4-016
+
+What it is: An Art Deco ornament of gold rays and fan arcs unfolding on black
+What the sample shows: Gold rays and fan arcs spread layer by layer from the bottom centre of a black field, framed by stepped arches, as a warm band of light sweeps across.
+Spec:
+- Gold lines rgba(214, 176, 98) on black #0B0B0D; 25 rays extend to 300 px between 0.2 and 1.8 s.
+- 9 fan arcs: arc i starts at 0.4 + 0.18i s and opens over 0.8 s, with radius 26 + 19i px.
+- 5 stepped arches stay on screen, starting 182 px wide and narrowing by 26 px per step.
+- A warm 60 px light band sweeps left to right 1 time every 6.4 s; rays and arcs retract from 5.4 to 6.2 s.
+When to use it: Use it as a hero background for hotels, luxury brands or jazz events, an opener for award or gala videos, or an animated invitation.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-016.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

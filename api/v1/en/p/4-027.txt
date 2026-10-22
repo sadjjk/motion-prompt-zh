@@ -1,0 +1,15 @@
+Please use "Domino run" (ドミノ倒し), one of the names in "Styled scenes".
+Motion Prompt #4-027
+
+What it is: Dominoes laid along an S-curve that topple in a chain reaction, then rewind upright
+What the sample shows: Black and red dominoes along an S-curve topple in an accelerating chain, then stand back up in reverse as the clip rewinds.
+Spec:
+- 56 dominoes evenly spaced along an S-curve; every 8th is red, the rest black.
+- Domino 1 falls at 0.3 s and the chain runs until 4.3 s, the gaps shrinking along a power-0.7 curve.
+- Each falls in 0.28 s, tilting 1.22 rad to lean on the next; the final one tips to 1.53 rad.
+- Over 5.4–6.2 s time plays backwards and they stand up in reverse order; each casts an angled ground shadow.
+When to use it: Openers for videos about chain reactions or ripple effects, title slides for process explainers, or campaign teasers.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-027.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

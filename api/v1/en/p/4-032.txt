@@ -1,0 +1,15 @@
+Please use "Card flourish" (カードの扇開き), one of the names in "Styled scenes".
+Motion Prompt #4-032
+
+What it is: A card flourish on green felt where playing cards fan out and flip face up and back
+What the sample shows: Cards fly from a deck on green felt into a fan, flip face up one by one, turn back over, then gather into the deck again.
+Spec:
+- Green felt radial gradient #1F5A3E → #0A2016. 24 cards of 38 × 54 px.
+- Over 0.2–1.95 s they fly from the central deck into a fan with a total spread of 1.7 rad, bobbing 6 px while fanned.
+- Over 1.9–3.8 s they flip face up one by one, and over 3.9–5.35 s back to the dark red crosshatched back one by one.
+- Over 5.4–6.26 s they gather back into the deck in reverse order, 0.4 s per card.
+When to use it: Openers for magic, board game or casino content, game event promos, or a presentation moment that fans out a set of options.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-032.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

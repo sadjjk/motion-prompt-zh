@@ -1,0 +1,37 @@
+// Motion Prompt #4-021 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 青海波 / Seigaiha waves
+// パック: scenes (スタイルシーン) · element 21 · カテゴリ: 文様・グラフィック
+// 何が起きるか: 生成りと藍の同心半円が鱗のように重なってゆっくり下へ流れ、右上には金色の満月が動かずに浮かぶ。
+// 動きの仕様:
+//   - 濃紺の地 #0F2447。各波は半径 22px の同心半円 5 重で、生成り #E9E2D0 と藍が交互
+//   - 行間 11px、奇数行は 22px ずらし、後の行が前の行の上に重なる
+//   - 模様は 6.4 秒ごとに 22px（1 模様周期）下へ動き、継ぎ目なくループ
+//   - 右上の金の満月は半径 46px、中心 (410, 64)、放射グラデーション #F5D58A → #C9952F
+// 使いどころ: 和食・旅館・和菓子などのブランド動画の開場、日本文化テーマのサイト背景、季節キャンペーンのポスターに。
+// タグ: seigaiha, japanese-pattern, waves, indigo, moon, seamless-loop, traditional
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-021
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 21
+// 21 青海波：深靛底上米白与靛蓝五重同心半圆层层相叠，纹样每周期向下平移一个纹样周期（22px），金色满月压在右上
+const SEI_R = 22;                                             // 波纹半径 22px（原 70px）
+CELLS[20] = (k, w, h, u) => {
+  k.fillStyle = '#0F2447'; k.fillRect(0, 0, CW, CH);
+  const shift = (u / CYC) * SEI_R;                           // 纹样竖向周期 = R（两行），每周期平移整一个周期
+  const R = SEI_R;
+  for (let row = -3; row <= Math.ceil((CH + R) / (R / 2)) + 1; row++) {   // 行距 R/2，奇数行错开 R，后画的行压住前一行
+    const y = row * R * 0.5 + shift;
+    for (let col = -1; col <= Math.ceil(CW / (R * 2)) + 1; col++) {
+      const x = col * R * 2 + (((row % 2) + 2) % 2 ? R : 0) - 18;
+      for (let q = 5; q >= 1; q--) { k.fillStyle = q % 2 ? '#0F2447' : '#E9E2D0'; k.beginPath(); k.arc(x, y, R * q / 5, Math.PI, 0); k.fill(); }
+    }
+  }
+  const mg = k.createRadialGradient(410, 64, 4, 410, 64, 48); mg.addColorStop(0, '#F5D58A'); mg.addColorStop(1, '#C9952F');
+  k.fillStyle = mg; k.beginPath(); k.arc(410, 64, 46, 0, TAU); k.fill();
+  grain(k, 0.07);
+};

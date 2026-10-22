@@ -1,0 +1,64 @@
+// Motion Prompt #4-001 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Dry brush / 書の筆致
+// Pack: scenes (Styled scenes) · element 01 · Category: Type moods
+// What happens: A brush writes 永 stroke by stroke on rice paper with streaky dry edges; a red seal then shrinks into place, holds, and fades away.
+// Motion spec:
+//   - Canvas 539 × 208 px on cream paper #EDE6D6. A 196 px character box; the 8 strokes of 永 are written from 0.2 to 4.2 s, 0.5 s per stroke.
+//   - Each stroke is built from 60 fine hairs; past 45% of the stroke, edge hairs break up by noise to form dry-brush gaps.
+//   - The seal is 44 × 44 px in #B5281D; from 4.4 s it shrinks from 1.6× to full size over 0.3 s.
+//   - Cycle 6.4 s: ink and seal fade out from 5.4 to 6.0 s, returning to blank paper by 6.4 s.
+// When to use it: Use it as a video opener for East Asian or heritage brands, or as the hero of a calligraphy, tea or cultural event page.
+// Tags: calligraphy, brush, ink, dry-brush, chinese, seal, type
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-001
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 01
+// 01 书法笔触：一笔一笔写出「永」字，飞白由细丝叠成，最后盖朱红印章；停留后淡出复位
+const YONG = [ // 永字八笔：[[起点, 控制点, 终点], 起笔宽, 收笔宽]（坐标为字框 0..1）
+  [[[.47, .07], [.505, .12], [.53, .175]], 34, 22], [[[.33, .27], [.47, .265], [.61, .255]], 30, 26],
+  [[[.6, .26], [.585, .5], [.57, .86]], 36, 30], [[[.57, .86], [.53, .83], [.48, .79]], 30, 6],
+  [[[.22, .47], [.32, .455], [.42, .45]], 26, 24], [[[.42, .45], [.33, .6], [.2, .73]], 28, 6],
+  [[[.77, .33], [.71, .4], [.635, .47]], 26, 8], [[[.62, .47], [.74, .63], [.9, .8]], 16, 46]];
+CELLS[0] = (k, w, h, u) => {
+  k.fillStyle = '#EDE6D6'; k.fillRect(0, 0, CW, CH); paper(k, [120, 100, 70], 700, 3);
+  const ox = 200, oy = 6, S = 196, WS = 0.22;      // 字框 196px（原 900px 按比例缩小），笔宽同比缩放
+  const prog = seg(u, 0.2, 4.2) * YONG.length;     // 4 秒写完 8 笔，每笔 0.5 秒
+  const fade = fadeIn(u);
+  k.save(); k.globalAlpha = fade; k.lineCap = 'round';
+  YONG.forEach(([pts, w0, w1], si) => {
+    const pr = clamp(prog - si); if (pr <= 0) return;
+    const sm = [];
+    for (let q = 0; q <= 40; q++) { const t = q / 40, [a, b, c] = pts; sm.push([(1 - t) * (1 - t) * a[0] + 2 * (1 - t) * t * b[0] + t * t * c[0], (1 - t) * (1 - t) * a[1] + 2 * (1 - t) * t * b[1] + t * t * c[1]]); }
+    const n = Math.max(2, Math.floor(sm.length * pr));
+    for (let hb = 0; hb < 60; hb++) {                // 60 根细丝叠成笔画（原 220 根）
+      const off = (hash(si * 997 + hb) - 0.5) * 2, dry = hash(si * 131 + hb * 7);
+      k.strokeStyle = `rgba(14,12,10,${0.25 + 0.55 * hash(si * 53 + hb * 3)})`; k.lineWidth = 0.5 + hash(hb + si) * 0.7;
+      k.beginPath(); let pen = false;
+      for (let q = 0; q < n; q++) {
+        const t = q / 40, press = Math.min(1, t * 6 + 0.35), wd = (w0 + (w1 - w0) * t) * press * 1.25 * WS;
+        const [x, y] = sm[q], [x2, y2] = sm[Math.min(40, q + 1)], tx = x2 - x, ty = y2 - y, tl = Math.hypot(tx, ty) || 1;
+        const px = ox + x * S - ty / tl * off * wd, py = oy + y * S + tx / tl * off * wd;
+        // 飞白：笔画后半段、靠边缘的细丝按确定性噪声断开
+        const gap = t > 0.45 && Math.abs(off) > 0.45 && hash(q * 17 + hb * 31 + si) < 0.3 + dry * 0.35;
+        if (gap) { pen = false; continue; }
+        if (!pen) { k.moveTo(px, py); pen = true; } else k.lineTo(px, py);
+      }
+      k.stroke();
+    }
+  });
+  // 朱印：4.4 秒盖下（0.3 秒由大到小落定）
+  const sa = out3(seg(u, 4.4, 4.7));
+  if (sa > 0) {
+    k.save(); k.translate(452, 160); k.scale(1 + (1 - sa) * 0.6, 1 + (1 - sa) * 0.6); k.globalAlpha = sa * fade;
+    k.fillStyle = '#B5281D'; k.fillRect(-22, -22, 44, 44);
+    txt(k, '永', 0, -2, `900 17px ${SERIF}`, '#EDE6D6', 'center', 'middle'); txt(k, '字', 0, 14, `900 17px ${SERIF}`, '#EDE6D6', 'center', 'middle');
+    k.restore();
+  }
+  k.restore();
+  grain(k, 0.06, 'multiply');
+};

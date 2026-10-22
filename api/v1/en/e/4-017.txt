@@ -1,0 +1,38 @@
+// Motion Prompt #4-017 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Risograph / リソグラフ
+// Pack: scenes (Styled scenes) · element 17 · Category: Patterns & graphics
+// What happens: Pink and teal circles, squares and heavy type overlap on cream paper into a third colour, while the plates drift slightly back and forth.
+// Motion spec:
+//   - Frame 539 × 208 px on cream #F4F0E6. The 2 plates, fluorescent pink #FF48B0 and teal #00A69C, are multiplied to form a third colour.
+//   - Pink plate: a radius 78 px circle, an 84 × 84 px square and 100 px heavy RISO. Teal plate: a radius 66 px circle, 64 px heavy PRINT and 8 bars 4 px thick.
+//   - The 2 plates are offset by 3 ± 2 px (1–5 px), following a sine 3 times per 6.4 s; the pink plate shifts right and the teal plate shifts up.
+//   - 1500 fixed pale ink-skip specks plus multiply grain at 0.1 opacity.
+// When to use it: Posters and covers for zines or music events, or a hero background that gives a creative brand a retro print feel.
+// Tags: risograph, print, poster, overprint, retro, grain, typography
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-017
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 17
+// 17 孔版印刷：荧光粉与青绿两版正片叠底，大圆、方块、粗体 RISO/PRINT 叠出第三色；两版错位按正弦每周期往复 3 次
+CELLS[16] = (k, w, h, u) => {
+  k.fillStyle = '#F4F0E6'; k.fillRect(0, 0, CW, CH);
+  const off = 3 + Math.sin(TAU * u / CYC * 3) * 2;           // 套印错位 1–5px
+  k.save(); k.globalCompositeOperation = 'multiply'; k.letterSpacing = '-4px';
+  k.fillStyle = '#FF48B0';
+  k.beginPath(); k.arc(300 + off, 92, 78, 0, TAU); k.fill();
+  txt(k, 'RISO', 14 + off, 196, `900 100px ${DISP}`, '#FF48B0');
+  k.fillRect(440 + off, 14, 84, 84);
+  k.fillStyle = '#00A69C';
+  k.beginPath(); k.arc(372, 128 - off, 66, 0, TAU); k.fill();
+  txt(k, 'PRINT', 16, 86 - off, `900 64px ${DISP}`, '#00A69C');
+  for (let i = 0; i < 8; i++) k.fillRect(440, 118 + i * 11, 90, 4);
+  k.restore();
+  // 漏印斑点：1500 个固定浅色点（原作 22000 个，按面积缩减），缓存成图层
+  k.drawImage(layer('RISO_speck', g => { for (let i = 0; i < 1500; i++) { g.fillStyle = `rgba(244,240,230,${hash(i * 3 + 5) * 0.55})`; g.fillRect(hash(i * 3 + 6) * CW, hash(i * 3 + 7) * CH, 1.2, 1.2); } }), 0, 0);
+  grain(k, 0.1, 'multiply');
+};

@@ -32,8 +32,8 @@ async function run(words, extra, script, code = 0) {
 let server, browser;
 try {
   const info = await run(['info']);
-  assert.match(info.stdout, /本地中文版仓库/); assert.match(info.stdout, /156 个元素/);
-  assert.equal((await run(['list', '--lang', 'zh-Hans'])).stdout.match(/^  - /gm).length, 20);
+  assert.match(info.stdout, /本地中文版仓库/); assert.match(info.stdout, /188 个元素/);
+  assert.equal((await run(['list', '--lang', 'zh-Hans'])).stdout.match(/^  - /gm).length, 24);
   const queries = [['弹性', '2-001'], ['选择与切换', '1-011'], ['前两个开关', '1-011'], ['拉焦', '3-009'], ['typewriter', '2-006'], ['ポップイン', '2-001']];
   for (const [term, id] of queries) assert.ok((await run(['search', term, '--limit', '50'])).stdout.includes('#' + id), term);
   for (const lang of ['zh-Hans', 'zh', 'en', 'ja']) {
@@ -49,6 +49,8 @@ try {
   // 改写自 Libraries.dev 的包：CLI 读到的版权行指向 Jakub Antalik
   assert.match((await run(['get', '1-049'])).stdout, /^\/\/ Motion Prompt #1-049 · MIT License \(c\) 2026 Jakub Antalik · https:\/\/libraries\.dev\//);
   assert.match((await run(['kit', 'aiux'])).stdout, /^\/\/ Motion Prompt #1 049~060 · MIT License \(c\) 2026 Jakub Antalik/);
+  // 改写自 Motion Atlas 的包：CLI 读到的版权行指向 Yun
+  assert.match((await run(['get', '4-001'])).stdout, /^\/\/ Motion Prompt #4-001 · MIT License \(c\) 2026 Yun/);
   assert.match((await run(['get', '9-999'], {}, CLI, 1)).stderr, /找不到动画/);
   // 纯数字编号没有大类前缀：报错并按大类列出候选
   const bare = (await run(['get', '012'], {}, CLI, 1)).stderr;
@@ -78,7 +80,7 @@ try {
   const web = { window: {} };
   vm.runInNewContext(customRead('assets/site-config.js'), web); vm.runInNewContext(customRead('assets/catalog.js'), web);
   assert.ok(web.window.MP_PROMPT(catalog.elements.find(e => e.id === '2-012'), catalog.packs.find(p => p.pack === 'motion').title['zh-Hans'], 'zh-Hans').includes(customConfig.apiBase + '/zh-Hans/e/2-012.txt'));
-  console.log('PASS A: real CLI info/list/search/get/prompt/kit, 156 entries, all languages, explicit missing/wrong Chinese errors.');
+  console.log('PASS A: real CLI info/list/search/get/prompt/kit, 188 entries, all languages, explicit missing/wrong Chinese errors.');
   console.log('PASS configuration: custom API URL reaches built prompts, reference headers and browser prompt output.');
   if (process.argv.includes('--static')) process.exitCode = 0;
   else {
@@ -103,7 +105,7 @@ try {
     Object.assign(config, { site: origin + '/motion-prompt-zh/', apiBase: origin + '/primary/api/v1', rawApiBase: origin + '/backup/api/v1' });
     fs.writeFileSync(path.join(installed, 'scripts/site-config.json'), JSON.stringify(config));
     const standalone = await run(['info'], {}, installedCli);
-    assert.match(standalone.stdout, /独立安装默认配置/); assert.match(standalone.stdout, /156 个元素/);
+    assert.match(standalone.stdout, /独立安装默认配置/); assert.match(standalone.stdout, /188 个元素/);
     assert.match(standalone.stderr, /备用来源.*backup\/api\/v1/);
     assert.equal((await run(['prompt', '2-012'], {}, installedCli)).stdout.trimEnd(), read('api/v1/zh-Hans/p/2-012.txt').trimEnd());
     const cache = await run(['info'], {}, installedCli); assert.match(cache.stderr, /使用缓存.*backup\/api\/v1/);
@@ -128,7 +130,7 @@ try {
         const post = await fetch(cb, { method: 'POST' }); assert.equal(post.status, 405);
         if (!online) assert.equal((await fetch(cb.origin + '/.git/config')).status, 404);
         await page.goto(url.href);
-        await page.waitForFunction(() => document.querySelectorAll('.tile').length === 156);
+        await page.waitForFunction(() => document.querySelectorAll('.tile').length === 188);
         assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
         for (const id of ids) await page.locator(`[data-pick="${id}"]`).click();
         const toggle = page.locator('#tray-toggle');

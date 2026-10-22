@@ -1,0 +1,17 @@
+请使用“LED 点阵屏（Dot-matrix sign）”，属于“风格画面”。
+Motion Prompt #4-007
+
+效果解释：车站信息屏式的琥珀色 LED 点阵滚动字幕画面
+动画表现：斜着摆放的 LED 屏上，琥珀色点阵字从右往左滚过，亮起的灯点带着微光。
+实现规格与关键运动参数：
+- 64 列 × 7 行琥珀色 LED 点阵，5 × 7 字模，每字 5 列加 1 列间隔。
+- 消息「NEXT TRAIN · PLATFORM 07 · ON TIME」每 6.4 秒从右往左滚过一整遍，逐列跳动。
+- 斜向透视：左端点径与点距为 0.55 倍、右端为 1.3 倍；基准点径 2.2 px、点距 7.2 px。
+- 亮灯 #FFE3A0 带光晕（半径为点径的 2.6 倍），灭灯 #2A1C10。
+适用场景：适合交通、城市、复古科技类视频开场，公告横幅，或活动现场的循环展示屏。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-007
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/4-007.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Yun 的 MIT 版权标识。

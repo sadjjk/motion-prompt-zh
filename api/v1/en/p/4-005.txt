@@ -1,0 +1,15 @@
+Please use "Vertical verse" (縦書きの詩箋), one of the names in "Styled scenes".
+Motion Prompt #4-005
+
+What it is: A classical Chinese poem appearing character by character in vertical columns on ruled letter paper
+What the sample shows: On paper ruled in red, Wang Wei's poem fades in column by column from the right with varied ink depth, and a red seal is stamped at the end.
+Spec:
+- Red-ruled letter paper with 9 columns, 40 px per column and 30 px per character, on #E2D7C1.
+- The 44 characters of Wang Wei's poem appear from the right column on, 9.5 per second, each fading in over 1.5 s, finishing in about 4.6 s.
+- Ink depth varies by character order between 0.78 and 1.0; the title is 21 px bold, the body 23 px.
+- 1 character's time after the last, a 30 × 30 px seal 摩詰 in #B3261E is stamped; ink and seal fade out from 5.4 to 6.0 s while the ruling stays.
+When to use it: Use it as a hero for classical literature or heritage brands, an opener for poetry readings, or a transition in culture talks.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-005.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

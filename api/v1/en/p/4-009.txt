@@ -1,0 +1,15 @@
+Please use "Radar sweep" (レーダースキャン), one of the names in "Styled scenes".
+Motion Prompt #4-009
+
+What it is: A green radar screen whose sweep lights up coastline and targets
+What the sample shows: A trailing sweep circles a dark green scope; coastline dots and targets brighten as it passes, then dim gradually.
+Spec:
+- Radar radius 92 px with 4 range rings and a tick every 10° around the rim (longer every 30°).
+- The sweep turns 2 laps per 6.4 s, its trail fading across 40 wedge slices.
+- Coastline dots sit on a 3 px grid, lighting up when swept and decaying exponentially; 7 targets carry glows.
+- Palette: background #030805, scope #061810, lit dots rgba(90, 255, 150).
+When to use it: Use it to open security, monitoring or exploration videos, as a searching or scanning idle screen, or as a transition.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-009.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

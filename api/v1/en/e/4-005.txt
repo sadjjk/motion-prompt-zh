@@ -1,0 +1,52 @@
+// Motion Prompt #4-005 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Vertical verse / 縦書きの詩箋
+// Pack: scenes (Styled scenes) · element 05 · Category: Type moods
+// What happens: On paper ruled in red, Wang Wei's poem fades in column by column from the right with varied ink depth, and a red seal is stamped at the end.
+// Motion spec:
+//   - Red-ruled letter paper with 9 columns, 40 px per column and 30 px per character, on #E2D7C1.
+//   - The 44 characters of Wang Wei's poem appear from the right column on, 9.5 per second, each fading in over 1.5 s, finishing in about 4.6 s.
+//   - Ink depth varies by character order between 0.78 and 1.0; the title is 21 px bold, the body 23 px.
+//   - 1 character's time after the last, a 30 × 30 px seal 摩詰 in #B3261E is stamped; ink and seal fade out from 5.4 to 6.0 s while the ruling stays.
+// When to use it: Use it as a hero for classical literature or heritage brands, an opener for poetry readings, or a transition in culture talks.
+// Tags: vertical-text, poem, chinese, letter-paper, seal, calligraphy, type
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-005
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 05
+// 05 竖排诗笺：朱丝栏笺纸上，王维《山居秋暝》从右往左逐字浮现，墨色有浓有淡，最后钤一方朱印
+const POEM = ['山居秋暝', '空山新雨後', '天氣晚來秋', '明月松間照', '清泉石上流', '竹喧歸浣女', '蓮動下漁舟', '隨意春芳歇', '王孫自可留'];
+CELLS[4] = (k, w, h, u) => {
+  k.fillStyle = '#E2D7C1'; k.fillRect(0, 0, CW, CH); paper(k, [150, 120, 80], 600, 5);
+  const colW = 40, ch = 30, x0 = 440, y0 = 30, cols = POEM.length;   // 每列 40px、每字 30px
+  const fade = fadeIn(u);
+  // 朱丝栏常驻；淡出复位只作用于墨字与印章，使周期首尾画面一致
+  k.strokeStyle = 'rgba(190,60,40,.55)'; k.lineWidth = 1;
+  const left = x0 - colW * (cols - 1) - colW / 2, top = y0 - 14, bh = ch * 5 + 16;
+  k.strokeRect(left, top, colW * cols, bh);
+  for (let i = 1; i < cols; i++) { const x = left + i * colW; k.beginPath(); k.moveTo(x, top); k.lineTo(x, top + bh); k.stroke(); }
+  k.save(); k.globalAlpha = fade;
+  const speed = 9.5; let n = 0;                     // 每秒写 9.5 个字，44 个字约 4.6 秒写完
+  POEM.forEach((ln, ci) => {
+    const x = x0 - ci * colW;
+    [...ln].forEach((c, q) => {
+      const t = (u - 0.2) * speed - n; n++;
+      if (t <= 0) return;
+      const a = clamp(t / 1.5), ink = 0.78 + 0.22 * Math.sin(n * 2.1);   // 墨色深浅按字序起伏
+      txt(k, c, x, y0 + q * ch + 10 + (ci === 0 ? 6 : 0), `${ci === 0 ? 900 : 700} ${ci === 0 ? 21 : 23}px ${SERIF}`, `rgba(20,16,12,${a * ink})`, 'center', 'middle');
+    });
+  });
+  const sk = clamp((u - 0.2) * speed - n - 1);      // 写完 1 个字的时间后钤印
+  if (sk > 0) {
+    k.save(); k.translate(left - 2, top + bh + 2); k.translate(-20, -20); k.rotate(-0.04); k.globalAlpha = sk * fade;
+    k.fillStyle = '#B3261E'; k.fillRect(-15, -15, 30, 30);
+    txt(k, '摩詰', 0, 1, `900 11px ${SERIF}`, '#F1E4CC', 'center', 'middle');
+    k.restore();
+  }
+  k.restore();
+  grain(k, 0.07, 'multiply');
+};

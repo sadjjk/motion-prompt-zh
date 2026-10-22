@@ -1,0 +1,15 @@
+Please use "Split-flap board" (反転フラップ表示板), one of the names in "Styled scenes".
+Motion Prompt #4-003
+
+What it is: An airport departures board whose split-flap letters flip into place
+What the sample shows: Each cell on a dark board races through the alphabet, then settles in turn on time, destination, gate and status before flipping back to blank.
+Spec:
+- 3 flights × 4 columns (time 4 cells, destination 9, gate 3, status 8); each cell is 13 × 22 px.
+- Cells start flipping from 0.3 s with staggers of 0.18 s per row, 0.1 s per column and 0.04 s per cell; each flips for 1.6 s then lands on its target.
+- While flipping, the top half drops 14 times per second. BOARDING shows green #7CE38B, DELAYED red #FF5A3C.
+- From 5.4 s each cell flips back to blank within 0.5 s, staggered 0.08 s per row and 0.02 s per cell.
+When to use it: Use it to open travel or transport videos, as a transition announcing a schedule, or as a retro hero for event pages.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-003.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

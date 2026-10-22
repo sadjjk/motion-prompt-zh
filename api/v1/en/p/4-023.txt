@@ -1,0 +1,15 @@
+Please use "Blue & white" (青花の皿), one of the names in "Styled scenes".
+Motion Prompt #4-023
+
+What it is: A top-down view of a turning blue-and-white porcelain plate
+What the sample shows: A white porcelain plate ringed with waves, lotus petals and scrolling vines turns slowly as a warm gold band of light crosses the glaze.
+Spec:
+- A porcelain plate of radius 152 px, centred and slightly cropped top and bottom, on #E7E2D8.
+- Outside in: 36 wave scrolls, 16 lotus petals, a vine spiral with 9 leaves and an 8-petal centre flower, all in cobalt.
+- The plate turns clockwise 1 full turn every 6.4 s.
+- A 60 px warm gold light band sweeps from outside the left rim to outside the right rim each cycle; a fixed sky reflection sits top left.
+When to use it: Openers for tea, ceramics or museum brands, hero sections on Chinese-culture themes, or exhibition posters.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-023.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

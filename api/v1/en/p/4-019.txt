@@ -1,0 +1,15 @@
+Please use "Sankey flow" (サンキー図), one of the names in "Styled scenes".
+Motion Prompt #4-019
+
+What it is: A Sankey infographic that shows energy flow through the width of each band
+What the sample shows: Bands grow rightward from 4 energy sources on the left, shifting colour as they split into 4 uses on the right.
+Spec:
+- 4 sources on the left (Solar 120, Wind 90, Hydro 70, Gas 110) and 4 uses on the right (Industry 150, Homes 110, Transport 70, Storage 60).
+- 13 bands at 0.4 px per unit, each a linear gradient from source colour to destination colour at 0.55 opacity.
+- Bands flow in from left to right over 0.2–3.2 s, each starting 0.04 of progress after the previous.
+- Nodes are 7 px wide with 7 px gaps, inset 62 px from each side. Everything fades out over 5.4–6.0 s.
+When to use it: Openers for annual reports or data stories, hero sections on energy and sustainability sites, or the title slide of a data section.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-019.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

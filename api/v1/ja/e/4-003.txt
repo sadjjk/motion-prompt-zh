@@ -1,0 +1,53 @@
+// Motion Prompt #4-003 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 反転フラップ表示板 / Split-flap board
+// パック: scenes (スタイルシーン) · element 03 · カテゴリ: 文字のムード
+// 何が起きるか: 暗い案内板の各マスがアルファベットを高速でめくり、時刻・行き先・ゲート・状態に順番に止まり、最後は空白にめくり戻る。
+// 動きの仕様:
+//   - 3 便 × 4 列（時刻 4 マス・行き先 9 マス・ゲート 3 マス・状態 8 マス）、各マス 13 × 22 px
+//   - 0.3 秒から時差でめくり始める：行ごとに 0.18 秒、列ごとに 0.1 秒、マスごとに 0.04 秒遅れ、1.6 秒めくって目的の文字で止まる
+//   - めくり中は上半分が毎秒 14 回倒れる。BOARDING は緑 #7CE38B、DELAYED は赤 #FF5A3C
+//   - 5.4 秒から各マスが 0.5 秒で空白にめくり戻る（行の差 0.08 秒、マスの差 0.02 秒）
+// 使いどころ: 旅行・交通サービスの動画オープニングや、イベント告知・発表の幕間、レトロなページ首画面に。
+// タグ: split-flap, airport, departures, board, flip, retro, type
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-003
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 03
+// 03 机场翻牌：每格字母快速翻过字母表，再错峰停在航班、时刻与状态上；停留后翻回空白
+const AL = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const FLIGHTS = [['0815', 'TOKYO', 'A12', 'BOARDING'], ['0840', 'PARIS', 'B03', 'ON TIME'], ['0905', 'LISBON', 'A07', 'DELAYED']];
+CELLS[2] = (k, w, h, u) => {
+  k.fillStyle = '#121214'; k.fillRect(0, 0, CW, CH);
+  const cw = 13, chh = 22, gap = 2, cols = [4, 9, 3, 8], colX = [0, 4, 13, 16], cg = 9; // 每格 13×22px
+  const x0 = 34, y0 = 58;
+  txt(k, 'DEPARTURES', x0, 30, `700 12px ${MONO}`, '#E8B23A');
+  ['TIME', 'DESTINATION', 'GATE', 'REMARKS'].forEach((t, i) => txt(k, t, x0 + colX[i] * (cw + gap) + i * cg, 49, `600 8px ${MONO}`, '#8C8670'));
+  const back = u >= SHOW;
+  FLIGHTS.forEach((row, ri) => row.forEach((s, ci) => {
+    for (let q = 0; q < cols[ci]; q++) {
+      const ch = s[q] || ' ', target = AL.indexOf(ch);
+      const x = x0 + (colX[ci] + q) * (cw + gap) + ci * cg, y = y0 + ri * (chh + 10);
+      const st = 0.3 + ri * 0.18 + ci * 0.1 + q * 0.04;  // 错峰开始：每行 0.18 秒、每列 0.1 秒、每格 0.04 秒
+      let prog = clamp((u - st) / 1.6), idx;            // 每格翻 1.6 秒后停在目标字符
+      if (back) { const bp = clamp((u - SHOW - (2 - ri) * 0.08 - q * 0.02) / 0.5); prog = 1 - bp; idx = bp >= 1 ? 0 : Math.floor((1 - bp) * target); }
+      else idx = prog >= 1 ? target : Math.floor(prog * (target + AL.length)) % AL.length;
+      k.fillStyle = '#1F1F23'; rr(k, x, y, cw, chh, 2); k.fill();
+      k.fillStyle = 'rgba(255,255,255,.04)'; k.fillRect(x, y, cw, chh / 2);
+      const red = ci === 3 && s === 'DELAYED', green = ci === 3 && s === 'BOARDING';
+      txt(k, AL[idx] || ' ', x + cw / 2, y + chh / 2 + 1, `700 13px ${MONO}`, red ? '#FF5A3C' : green ? '#7CE38B' : '#F4F1E8', 'center', 'middle');
+      if (prog > 0 && prog < 1) { // 翻动中：上半片按每秒 14 次的节奏翻下
+        const ph = (u * 14 + q) % 1, hh = chh / 2 * Math.abs(Math.cos(ph * Math.PI));
+        k.fillStyle = 'rgba(30,30,34,.92)'; k.fillRect(x, y + chh / 2 - hh, cw, hh);
+      }
+      k.fillStyle = '#0B0B0D'; k.fillRect(x, y + chh / 2 - 0.5, cw, 1);
+    }
+  }));
+  const v = k.createLinearGradient(0, 0, 0, CH); v.addColorStop(0, 'rgba(255,220,160,.06)'); v.addColorStop(1, 'rgba(0,0,0,.25)');
+  k.fillStyle = v; k.fillRect(0, 0, CW, CH);
+  grain(k, 0.05);
+};

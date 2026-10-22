@@ -1,0 +1,42 @@
+// Motion Prompt #4-002 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 文字の球 / Sphere of words
+// パック: scenes (スタイルシーン) · element 02 · カテゴリ: 文字のムード
+// 何が起きるか: 千字文の字が球面に散らばってゆっくり自転し、手前の字は濃く太く、奥の字は淡い影になる。
+// 動きの仕様:
+//   - 千字文の 160 字をフィボナッチ螺旋で半径 84 px の球面に配置、背景 #F2EEE6
+//   - 球は 6.4 秒ごとに縦軸まわりに 1 回転、俯角 0.35 rad
+//   - 文字サイズ 11 px に遠近係数 2.4 /(2.4 − z) を掛ける。手前の字はウェイト 900、裏側は 400 の淡い影
+//   - 最も手前（z > 0.9）の字は朱色 #C8231B
+// 使いどころ: 出版・教育・文化系ブランドの首画面背景や、漢字・言語をテーマにした発表の幕間に。
+// タグ: sphere, characters, chinese, globe, rotation, 3d, type
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-002
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 02
+// 02 字之球：《千字文》的字按斐波那契分布贴在旋转的球面上，近处清晰加粗、远处退成淡影
+const QZW = '天地玄黄宇宙洪荒日月盈昃辰宿列张寒来暑往秋收冬藏闰余成岁律吕调阳云腾致雨露结为霜金生丽水玉出昆冈剑号巨阙珠称夜光果珍李柰菜重芥姜海咸河淡鳞潜羽翔';
+CELLS[1] = (k, w, h, u) => {
+  k.fillStyle = '#F2EEE6'; k.fillRect(0, 0, CW, CH);
+  const cx = 269.5, cy = 104, R = 84, N = 160;      // 球半径 84px、160 个字（原 400px、420 个）
+  const a1 = TAU * u / CYC, a2 = 0.35;              // 每周期自转一圈，俯角 0.35 rad
+  const items = [];
+  for (let i = 0; i < N; i++) {
+    const y = 1 - (i + 0.5) / N * 2, r = Math.sqrt(1 - y * y), th = i * 2.39996;
+    let x = Math.cos(th) * r, z = Math.sin(th) * r;
+    [x, z] = [x * Math.cos(a1) - z * Math.sin(a1), x * Math.sin(a1) + z * Math.cos(a1)];
+    const yy = y * Math.cos(a2) - z * Math.sin(a2); z = y * Math.sin(a2) + z * Math.cos(a2);
+    items.push([x, yy, z, QZW[i % QZW.length]]);
+  }
+  items.sort((a, b) => a[2] - b[2]);
+  for (const [x, y, z, ch] of items) {
+    const persp = 2.4 / (2.4 - z), sz = 11 * persp;
+    const col = z > 0.9 ? '#C8231B' : z > 0 ? `rgba(20,20,20,${0.35 + 0.65 * z})` : `rgba(20,20,20,${0.08 + 0.1 * (1 + z)})`;
+    txt(k, ch, cx + x * R * persp, cy - y * R * persp, `${z > 0 ? 900 : 400} ${sz.toFixed(1)}px ${SERIF}`, col, 'center', 'middle');
+  }
+  grain(k, 0.05, 'multiply');
+};

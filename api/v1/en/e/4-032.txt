@@ -1,0 +1,56 @@
+// Motion Prompt #4-032 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Card flourish / カードの扇開き
+// Pack: scenes (Styled scenes) · element 32 · Category: Objects & space
+// What happens: Cards fly from a deck on green felt into a fan, flip face up one by one, turn back over, then gather into the deck again.
+// Motion spec:
+//   - Green felt radial gradient #1F5A3E → #0A2016. 24 cards of 38 × 54 px.
+//   - Over 0.2–1.95 s they fly from the central deck into a fan with a total spread of 1.7 rad, bobbing 6 px while fanned.
+//   - Over 1.9–3.8 s they flip face up one by one, and over 3.9–5.35 s back to the dark red crosshatched back one by one.
+//   - Over 5.4–6.26 s they gather back into the deck in reverse order, 0.4 s per card.
+// When to use it: Openers for magic, board game or casino content, game event promos, or a presentation moment that fans out a set of options.
+// Tags: playing-cards, card-fan, magic, flip, casino, objects, sequence
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-032
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 32
+// 32 扑克飞牌：绿呢台面上 24 张牌从中间牌堆依次飞出（0.2–1.95 秒）排成扇形，1.9–3.8 秒逐张翻到正面、3.9–5.35 秒逐张翻回背面，5.4–6.26 秒收拢回牌堆
+const CARD_N = 24, CARD_W = 38, CARD_H = 54;
+const CARD_SUIT = ['♠', '♥', '♦', '♣'], CARD_RANK = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+const CARD_HATCH = (() => { // 牌背斜纹贴图（常量）
+  const c = document.createElement('canvas'); c.width = 8; c.height = 8; const g = c.getContext('2d');
+  g.fillStyle = '#8E1E2A'; g.fillRect(0, 0, 8, 8); g.strokeStyle = 'rgba(255,230,200,.35)'; g.lineWidth = 0.7;
+  g.beginPath(); g.moveTo(0, 0); g.lineTo(8, 8); g.moveTo(8, 0); g.lineTo(0, 8); g.stroke(); return c;
+})();
+CELLS[31] = (k, w, h, u) => {
+  k.fillStyle = '#0A2016'; k.fillRect(0, 0, CW, CH);
+  k.drawImage(layer('CARD_bg', g => { const bg = g.createRadialGradient(269.5, 104, 0, 269.5, 104, 300); bg.addColorStop(0, '#1F5A3E'); bg.addColorStop(1, '#0A2016'); g.fillStyle = bg; g.fillRect(0, 0, CW, CH); }), 0, 0);
+  const hatch = k.createPattern(CARD_HATCH, 'repeat');
+  for (let i = 0; i < CARD_N; i++) {
+    const t = i / (CARD_N - 1), back = CARD_N - 1 - i;
+    const e = inOut3(seg(u, 0.2 + i * 0.05, 0.8 + i * 0.05)) * (1 - inOut3(seg(u, SHOW + back * 0.02, SHOW + back * 0.02 + 0.4)));
+    const a = (t - 0.5) * 1.7 * e;                                              // 扇面总张角 1.7 rad
+    const fx = 269.5 + Math.sin(a) * 270, fy = 336 - Math.cos(a) * 270 + Math.sin(t * TAU + TAU * u / CYC) * 6 * e;
+    const x = mix(269.5, fx, e), y = mix(118, fy, e) - i * 0.3 * (1 - e);       // 牌堆：每张高 0.3px 叠起
+    const fa = Math.PI * (inOut3(seg(u, 1.9 + i * 0.07, 2.2 + i * 0.07)) - inOut3(seg(u, 3.9 + i * 0.05, 4.2 + i * 0.05)));
+    const cs = Math.cos(fa), sx = Math.max(0.03, Math.abs(cs)), face = cs < 0;
+    k.save(); k.translate(x, y); k.rotate(a); k.scale(sx, 1);
+    k.fillStyle = 'rgba(0,0,0,.3)'; rr(k, -CARD_W / 2 + 1.5, -CARD_H / 2 + 2.5, CARD_W, CARD_H, 2.4); k.fill();
+    k.fillStyle = '#FAF8F2'; rr(k, -CARD_W / 2, -CARD_H / 2, CARD_W, CARD_H, 2.4); k.fill();
+    if (face) {
+      const su = CARD_SUIT[i % 4], col = (su === '♥' || su === '♦') ? '#C8282E' : '#141414';
+      txt(k, CARD_RANK[(i * 5) % 13], -CARD_W / 2 + 3, -CARD_H / 2 + 9, `700 8px ${SERIF}`, col);
+      txt(k, su, -CARD_W / 2 + 3, -CARD_H / 2 + 17, `400 7px ${SANS}`, col);
+      txt(k, su, 0, 4, `400 22px ${SANS}`, col, 'center', 'middle');
+    } else {
+      k.fillStyle = hatch; rr(k, -CARD_W / 2 + 2.2, -CARD_H / 2 + 2.2, CARD_W - 4.4, CARD_H - 4.4, 1.6); k.fill();
+      k.strokeStyle = '#F4E6D0'; k.lineWidth = 0.7; k.strokeRect(-CARD_W / 2 + 3.7, -CARD_H / 2 + 3.7, CARD_W - 7.4, CARD_H - 7.4);
+    }
+    k.restore();
+  }
+  grain(k, 0.05);
+};

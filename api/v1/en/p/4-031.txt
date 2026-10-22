@@ -1,0 +1,15 @@
+Please use "Spinning vinyl" (回るレコード), one of the names in "Styled scenes".
+Motion Prompt #4-031
+
+What it is: A product-shot-style scene of a large, cropped vinyl record spinning on red
+What the sample shows: On red, the record label spins at a steady speed while the groove highlights stay fixed toward the light and the silver tonearm rests still.
+Spec:
+- Red gradient background #E6513A → #C23A26. The record has radius 150 px, centred at (215, 104), cropped large past the frame.
+- Grooves are thin concentric rings every 1.1 px; 2 opposed conic highlights stay fixed toward the light and do not turn.
+- The label, radius 49 px, half cream and half red, turns 4 times per 6.4 s (37.5 RPM).
+- The silver tonearm rests with the stylus in the groove and does not move.
+When to use it: Openers for music releases, labels or podcasts, album and playlist covers, or hero sections for music events.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-031.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

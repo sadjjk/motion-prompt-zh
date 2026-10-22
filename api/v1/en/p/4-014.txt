@@ -1,0 +1,15 @@
+Please use "Constructivist" (構成主義), one of the names in "Styled scenes".
+Motion Prompt #4-014
+
+What it is: A Constructivist poster where red and black shapes and bold type slam into a tilted layout
+What the sample shows: On a tilted cream canvas a red circle swells, then black bars, bold FORWARD and a red wedge slam in one after another, and later leave in reverse.
+Spec:
+- The whole layout is tilted -0.42 rad; red #C8231B and black #141414 on cream #E9E0CC, 2 colours only.
+- 5 elements enter at 0.2 + 0.35i s, 0.5 s each: a 92 px-radius red circle, an 840 px bar, a 460 px post, 62 px FORWARD and a 250 px red wedge.
+- The bar slides in from 1000 px off the left, the post drops from 700 px above, and FORWARD rushes in from 1000 px off the right.
+- From 5.4 s they leave in reverse order, 0.12 s apart, 0.4 s each.
+When to use it: Use it to open bold announcement videos, as a hero for design or art exhibitions, or as a moving version of a campaign poster.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-014.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

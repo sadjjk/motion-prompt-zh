@@ -1,0 +1,42 @@
+// Motion Prompt #4-004 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 文字海浪 / Type ocean
+// 分类包: scenes (风格画面) · element 04 · 子分类: 文字氛围
+// 动画表现: 带透视的字母海面随两组波上下翻涌，浪尖的字变白加粗，浪谷的字沉进深蓝。
+// 运动规格:
+//   - 11 排 × 31 列字母（循环 MOTIONPROMPTWAVE）铺成海面，深蓝底 #071226。
+//   - 海面高度由 2 组正弦波叠加，振幅 0.45 与 0.25，每 6.4 秒分别推进 2 圈与 1 圈。
+//   - 透视收向上方地平线，字号为 30 / 深度；浪尖（高度系数大于 0.75）变白并加粗为 900。
+//   - 颜色从浪谷的蓝 rgb(30, 70, 160) 渐变到浪尖的 rgb(235, 245, 255)。
+// 适用场景: 适合海洋、旅行、媒体品牌的首屏背景、视频开场，或循环播放的展示屏。
+// 标签: type-ocean, waves, letters, kinetic-type, perspective, sea, type
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-004
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 04
+// 04 文字海浪：字母铺成的海面随两组正弦波起伏，浪尖变白加粗、浪谷沉进深蓝
+const WORD = 'MOTIONPROMPTWAVE';
+CELLS[3] = (k, w, h, u) => {
+  k.fillStyle = '#071226'; k.fillRect(0, 0, CW, CH);
+  const ph = TAU * u / CYC;                         // 两组波每周期各推进整数圈
+  const items = [];
+  for (let j = 0; j < 11; j++) for (let i = -15; i <= 15; i++) {   // 11 排 × 31 列字母（原 40 × 81）
+    const x = i * 0.3 + (j % 2) * 0.15, z = j * 0.38 + 0.6;
+    const y = 0.45 * Math.sin(x * 0.7 + z * 0.5 - ph * 2) + 0.25 * Math.sin(x * 1.6 - z * 0.8 + ph);
+    // 透视：远处收向上方的地平线（y≈18），最近一排落在画面底部；海面高度 y 让字母上下起伏
+    const d = z + 1.2, sx = 269.5 + x * 150 / d, sy = 18 + 230 / d - y * 34 / d;
+    if (sx < -10 || sx > CW + 10 || sy > CH + 20) continue;
+    items.push([sx, sy, d, y, WORD[(i + 15 + j * 3) % WORD.length]]);
+  }
+  items.sort((a, b) => b[2] - a[2]);
+  for (const [sx, sy, d, y, ch] of items) {
+    const sz = 30 / d, kk = clamp((y + 0.7) / 1.4);
+    const c = lerpC([30, 70, 160], [235, 245, 255], Math.pow(kk, 1.6));
+    txt(k, ch, sx, sy, `${kk > 0.75 ? 900 : 600} ${sz.toFixed(1)}px ${DISP}`, rgba(c, Math.min(1, 2.4 / d)), 'center', 'middle');
+  }
+  grain(k, 0.05);
+};

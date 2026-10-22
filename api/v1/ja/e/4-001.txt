@@ -1,0 +1,64 @@
+// Motion Prompt #4-001 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 書の筆致 / Dry brush
+// パック: scenes (スタイルシーン) · element 01 · カテゴリ: 文字のムード
+// 何が起きるか: 和紙の上で筆が一画ずつ「永」を書き、線の縁はかすれる。書き終わると朱印が大きい状態から縮んで押され、少し残ってから消える。
+// 動きの仕様:
+//   - 画面 539 × 208 px、生成りの和紙 #EDE6D6。字枠 196 px、「永」の 8 画を 0.2〜4.2 秒で書き、各画 0.5 秒
+//   - 各画は 60 本の細い線を重ねて描き、画の後半（45% 以降）の縁の線をノイズで途切れさせてかすれを作る
+//   - 朱印は 44 × 44 px・#B5281D。4.4 秒から 0.3 秒で 1.6 倍から原寸へ縮んで押される
+//   - 周期 6.4 秒：5.4〜6.0 秒で墨字と印がフェードアウトし、6.4 秒で白紙に戻る
+// 使いどころ: 和風・中華風ブランドの動画オープニングや、書道・茶道・文化イベントのページ冒頭に。
+// タグ: calligraphy, brush, ink, dry-brush, chinese, seal, type
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-001
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 01
+// 01 书法笔触：一笔一笔写出「永」字，飞白由细丝叠成，最后盖朱红印章；停留后淡出复位
+const YONG = [ // 永字八笔：[[起点, 控制点, 终点], 起笔宽, 收笔宽]（坐标为字框 0..1）
+  [[[.47, .07], [.505, .12], [.53, .175]], 34, 22], [[[.33, .27], [.47, .265], [.61, .255]], 30, 26],
+  [[[.6, .26], [.585, .5], [.57, .86]], 36, 30], [[[.57, .86], [.53, .83], [.48, .79]], 30, 6],
+  [[[.22, .47], [.32, .455], [.42, .45]], 26, 24], [[[.42, .45], [.33, .6], [.2, .73]], 28, 6],
+  [[[.77, .33], [.71, .4], [.635, .47]], 26, 8], [[[.62, .47], [.74, .63], [.9, .8]], 16, 46]];
+CELLS[0] = (k, w, h, u) => {
+  k.fillStyle = '#EDE6D6'; k.fillRect(0, 0, CW, CH); paper(k, [120, 100, 70], 700, 3);
+  const ox = 200, oy = 6, S = 196, WS = 0.22;      // 字框 196px（原 900px 按比例缩小），笔宽同比缩放
+  const prog = seg(u, 0.2, 4.2) * YONG.length;     // 4 秒写完 8 笔，每笔 0.5 秒
+  const fade = fadeIn(u);
+  k.save(); k.globalAlpha = fade; k.lineCap = 'round';
+  YONG.forEach(([pts, w0, w1], si) => {
+    const pr = clamp(prog - si); if (pr <= 0) return;
+    const sm = [];
+    for (let q = 0; q <= 40; q++) { const t = q / 40, [a, b, c] = pts; sm.push([(1 - t) * (1 - t) * a[0] + 2 * (1 - t) * t * b[0] + t * t * c[0], (1 - t) * (1 - t) * a[1] + 2 * (1 - t) * t * b[1] + t * t * c[1]]); }
+    const n = Math.max(2, Math.floor(sm.length * pr));
+    for (let hb = 0; hb < 60; hb++) {                // 60 根细丝叠成笔画（原 220 根）
+      const off = (hash(si * 997 + hb) - 0.5) * 2, dry = hash(si * 131 + hb * 7);
+      k.strokeStyle = `rgba(14,12,10,${0.25 + 0.55 * hash(si * 53 + hb * 3)})`; k.lineWidth = 0.5 + hash(hb + si) * 0.7;
+      k.beginPath(); let pen = false;
+      for (let q = 0; q < n; q++) {
+        const t = q / 40, press = Math.min(1, t * 6 + 0.35), wd = (w0 + (w1 - w0) * t) * press * 1.25 * WS;
+        const [x, y] = sm[q], [x2, y2] = sm[Math.min(40, q + 1)], tx = x2 - x, ty = y2 - y, tl = Math.hypot(tx, ty) || 1;
+        const px = ox + x * S - ty / tl * off * wd, py = oy + y * S + tx / tl * off * wd;
+        // 飞白：笔画后半段、靠边缘的细丝按确定性噪声断开
+        const gap = t > 0.45 && Math.abs(off) > 0.45 && hash(q * 17 + hb * 31 + si) < 0.3 + dry * 0.35;
+        if (gap) { pen = false; continue; }
+        if (!pen) { k.moveTo(px, py); pen = true; } else k.lineTo(px, py);
+      }
+      k.stroke();
+    }
+  });
+  // 朱印：4.4 秒盖下（0.3 秒由大到小落定）
+  const sa = out3(seg(u, 4.4, 4.7));
+  if (sa > 0) {
+    k.save(); k.translate(452, 160); k.scale(1 + (1 - sa) * 0.6, 1 + (1 - sa) * 0.6); k.globalAlpha = sa * fade;
+    k.fillStyle = '#B5281D'; k.fillRect(-22, -22, 44, 44);
+    txt(k, '永', 0, -2, `900 17px ${SERIF}`, '#EDE6D6', 'center', 'middle'); txt(k, '字', 0, 14, `900 17px ${SERIF}`, '#EDE6D6', 'center', 'middle');
+    k.restore();
+  }
+  k.restore();
+  grain(k, 0.06, 'multiply');
+};

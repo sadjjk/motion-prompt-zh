@@ -1,0 +1,15 @@
+Please use "Sci-fi HUD" (SF の計器), one of the names in "Styled scenes".
+Motion Prompt #4-008
+
+What it is: A sci-fi heads-up display of turning concentric dials and live readouts
+What the sample shows: Cyan concentric rings turn in opposite directions on deep navy while a scan sector sweeps and the central readout and side data keep changing.
+Spec:
+- Centred at (200, 104) with 8 concentric rings; 6 of them turn 0.5–3 laps per 6.4 s in mixed directions.
+- An outer scale of 120 ticks (a 6 px long tick every 10); an inner scan sector turns 2 laps per 6.4 s.
+- The central readout swings between 75 and 99 along a sine, set in 28 px thin type.
+- 6 data rows CH-1 to CH-6 on the right rise and fall 2 times per 6.4 s; lines rgba(90, 220, 255) on #04101C.
+When to use it: Use it to open tech launch videos, as a hero background for games or sci-fi titles, or as an idle screen for data dashboards.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-008.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

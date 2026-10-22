@@ -1,0 +1,49 @@
+// Motion Prompt #4-011 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 行情 K 线 / Market candles
+// 分类包: scenes (风格画面) · element 11 · 子分类: 科技氛围
+// 动画表现: 深色图表上 K 线从左往右逐根长出，红涨绿跌，均线顺着走势弯过去，下方成交量柱跟着起伏。
+// 运动规格:
+//   - 48 根 K 线在 0.2–4.6 秒内从左往右长满，红涨 #F0443A、绿跌 #22B573。
+//   - 价格区 y 20–140 px；下方成交量柱不透明度 0.5，随 K 线一同长高。
+//   - MA5 #F5C14B 与 MA20 #7FA8FF 共 2 条均线随 K 线延伸。
+//   - 最新收盘价有红色虚线（3 px 间隔）和 46 × 14 px 价签；5.4–6.0 秒淡出。
+// 适用场景: 适合金融、投资服务的首屏背景，财报或市场解读视频开场，以及投资主题演示过场。
+// 标签: candlestick, stock, chart, finance, trading, moving-average, tech
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-011
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 11
+// 11 行情 K 线：K 线从左往右逐根长出，红涨绿跌，均线顺着走势弯过去，下方成交量柱跟着起伏
+const KDATA = (() => { const N = 48, out = []; let p = 100; for (let i = 0; i < N; i++) { const o = p, c = o + (hash(i * 4 + 1) - 0.47) * 6 + Math.sin(i * 0.15) * 1.5; out.push([o, c, Math.max(o, c) + hash(i * 4 + 2) * 3, Math.min(o, c) - hash(i * 4 + 3) * 3, 30 + hash(i * 4 + 4) * 70 + Math.abs(c - o) * 12]); p = c; } return out; })();
+CELLS[10] = (k, w, h, u) => {
+  k.fillStyle = '#0B0F1A'; k.fillRect(0, 0, CW, CH);
+  const x0 = 40, x1 = 470, y0 = 20, y1 = 140, N = KDATA.length;
+  k.strokeStyle = 'rgba(140,160,200,.1)'; k.lineWidth = 1;
+  for (let i = 0; i <= 6; i++) { const y = y0 + (y1 - y0) * i / 6; k.beginPath(); k.moveTo(x0, y); k.lineTo(x1, y); k.stroke(); }
+  const mn = Math.min(...KDATA.map(d => d[3])), mx = Math.max(...KDATA.map(d => d[2]));
+  const Y = v => y1 - (v - mn) / (mx - mn) * (y1 - y0), cw = (x1 - x0) / N;
+  const shown = Math.min(N, seg(u, 0.2, 4.6) * N + (u > 0.2 ? 0.001 : 0));   // 4.4 秒长满 48 根
+  const fade = fadeIn(u);
+  k.save(); k.globalAlpha = fade;
+  for (let i = 0; i < shown; i++) {
+    const [o, c, hi, lo, vol] = KDATA[i], up = c >= o, col = up ? '#F0443A' : '#22B573', x = x0 + i * cw + cw / 2, kk = clamp(shown - i);
+    k.strokeStyle = col; k.lineWidth = 0.8; k.beginPath(); k.moveTo(x, Y(hi)); k.lineTo(x, Y(lo)); k.stroke();
+    const yt = Y(Math.max(o, c)), yb = Y(Math.min(o, c)); k.fillStyle = col; k.fillRect(x - cw * 0.35, yb - (yb - yt) * kk, cw * 0.7, Math.max(1, (yb - yt) * kk));
+    k.globalAlpha = 0.5 * fade; k.fillRect(x - cw * 0.35, 196 - vol * 0.42 * kk, cw * 0.7, vol * 0.42 * kk); k.globalAlpha = fade;
+  }
+  const ma = (n, c) => { k.strokeStyle = c; k.lineWidth = 1.2; k.beginPath(); for (let i = n; i < shown; i++) { let s = 0; for (let j = 0; j < n; j++) s += KDATA[i - j][1]; const x = x0 + i * cw + cw / 2, y = Y(s / n); if (i === n) k.moveTo(x, y); else k.lineTo(x, y); } k.stroke(); };
+  ma(5, '#F5C14B'); ma(20, '#7FA8FF');
+  if (shown >= 1) {
+    const last = KDATA[Math.max(0, Math.floor(shown) - 1)];
+    k.setLineDash([3, 3]); k.strokeStyle = 'rgba(240,68,58,.6)'; k.beginPath(); k.moveTo(x0, Y(last[1])); k.lineTo(x1, Y(last[1])); k.stroke(); k.setLineDash([]);
+    k.fillStyle = '#F0443A'; k.fillRect(x1 + 4, Y(last[1]) - 7, 46, 14); txt(k, last[1].toFixed(2), x1 + 8, Y(last[1]) + 3, `700 9px ${MONO}`, '#fff');
+  }
+  k.restore();
+  txt(k, 'MA5', x0, 14, `500 8px ${MONO}`, '#F5C14B'); txt(k, 'MA20', x0 + 28, 14, `500 8px ${MONO}`, '#7FA8FF');
+  grain(k, 0.05);
+};

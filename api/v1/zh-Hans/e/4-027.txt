@@ -1,0 +1,71 @@
+// Motion Prompt #4-027 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 多米诺 / Domino run
+// 分类包: scenes (风格画面) · element 27 · 子分类: 器物与空间
+// 动画表现: 沿 S 形排开的黑红骨牌越倒越快地连锁倒下，最后倒放，按相反顺序一块块立回。
+// 运动规格:
+//   - 56 块骨牌沿 S 形曲线等距排开，每第 8 块为红色，其余为黑色
+//   - 0.3 秒第 1 块倒下，连锁传到 4.3 秒，间隔按 0.7 次方分布越来越短
+//   - 每块倒下用 0.28 秒，倾倒 1.22 rad 靠在下一块上，最后一块倒到 1.53 rad
+//   - 5.4–6.2 秒时间倒放，骨牌按相反顺序立回原位；地面有斜向投影
+// 适用场景: 适合讲连锁反应、蝴蝶效应的视频开场，流程与机制说明类演示的封面，或活动预告。
+// 标签: domino, chain-reaction, 3d, physics, sequence, rewind, objects
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-027
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 27
+// 27 多米诺：56 块骨牌沿 S 形曲线排开，0.3 秒起第一块倒下，连锁一路传到 4.3 秒（间隔越来越短）；5.4–6.2 秒倒放，骨牌按相反顺序立回原位
+const DOM_CP = Math.cos(0.72), DOM_SP = Math.sin(0.72), DOM_D = 8, DOM_F = 410;
+const DOM_EYE = [0, DOM_D * DOM_SP, -DOM_D * DOM_CP];
+const DOM_P = (p) => { const y1 = p[1] * DOM_CP + p[2] * DOM_SP, d = -p[1] * DOM_SP + p[2] * DOM_CP + DOM_D, s = DOM_F / d; return [269.5 + p[0] * s, 112 - y1 * s]; };
+const DOM_PTS = (() => { // 按等弧长 0.215 在 S 曲线 x = -5→5、z = 1.5·sin 上取点（常量）
+  const poly = []; for (let i = 0; i <= 2000; i++) { const s = i / 2000; poly.push([-5 + 10 * s, 1.5 * Math.sin(s * TAU)]); }
+  const out = []; let acc = 0, next = 0;
+  for (let i = 1; i < poly.length; i++) {
+    const dx = poly[i][0] - poly[i - 1][0], dz = poly[i][1] - poly[i - 1][1], l = Math.hypot(dx, dz);
+    if (acc + l >= next) { out.push([poly[i][0], poly[i][1], dx / l, dz / l]); next += 0.215; }
+    acc += l;
+  }
+  return out;
+})();
+const DOM_L = (() => { const v = [-0.5, 0.8, -0.3], l = Math.hypot(...v); return v.map(c => c / l); })();
+CELLS[26] = (k, w, h, u) => {
+  k.fillStyle = '#E8E3DA'; k.fillRect(0, 0, CW, CH);
+  const N = DOM_PTS.length;
+  const tau = u < SHOW ? u : mix(SHOW, 0, inOut3(seg(u, SHOW, SHOW + 0.8)));   // 复位段把时间倒放回 0
+  const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]], mul = (a, s) => [a[0] * s, a[1] * s, a[2] * s];
+  const faces = [], shadows = [];
+  DOM_PTS.forEach(([x, z, dx, dz], i) => {
+    const t0 = 0.3 + 4.0 * Math.pow(i / (N - 1), 0.7);                       // 倒下时刻：间隔逐渐缩短
+    const fall = clamp((tau - t0) / 0.28), ang = inOut3(fall) * (i === N - 1 ? 1.53 : 1.22);
+    const dir = [dx, 0, dz], side = [-dz, 0, dx], up = [0, 1, 0], cu = Math.cos(ang), su = Math.sin(ang);
+    const upr = add(mul(up, cu), mul(dir, su)), fwd = add(mul(dir, cu), mul(up, -su));
+    const hw = 0.11, ht = 0.5, th = 0.035, piv = [x, 0, z];
+    const C = (a, b, c) => add(piv, add(add(mul(side, a * hw), mul(upr, b * ht)), mul(fwd, c * th)));
+    const v = [C(-1, 0, -1), C(1, 0, -1), C(1, 1, -1), C(-1, 1, -1), C(-1, 0, 1), C(1, 0, 1), C(1, 1, 1), C(-1, 1, 1)];
+    // 阴影：顶边沿光线方向压到地面
+    const toG = p => [p[0] - DOM_L[0] * p[1] / DOM_L[1], 0, p[2] - DOM_L[2] * p[1] / DOM_L[1]];
+    shadows.push([v[0], v[1], toG(v[2]), toG(v[3])]);
+    const ctr = mul(v.reduce(add, [0, 0, 0]), 1 / 8);
+    for (const f of [[0, 1, 2, 3], [4, 5, 6, 7], [0, 1, 5, 4], [3, 2, 6, 7], [0, 3, 7, 4], [1, 2, 6, 5]]) {
+      const fc = mul(f.reduce((s, q) => add(s, v[q]), [0, 0, 0]), 0.25), n = [fc[0] - ctr[0], fc[1] - ctr[1], fc[2] - ctr[2]];
+      const e = [DOM_EYE[0] - fc[0], DOM_EYE[1] - fc[1], DOM_EYE[2] - fc[2]];
+      if (n[0] * e[0] + n[1] * e[1] + n[2] * e[2] <= 0) continue;
+      const nl = Math.hypot(...n), dif = Math.max(0, (n[0] * DOM_L[0] + n[1] * DOM_L[1] + n[2] * DOM_L[2]) / nl);
+      faces.push([Math.hypot(...e), f.map(q => v[q]), dif, i]);
+    }
+  });
+  k.fillStyle = 'rgba(60,50,40,.12)';
+  for (const q of shadows) { k.beginPath(); q.forEach((p, j) => { const s = DOM_P(p); j ? k.lineTo(s[0], s[1]) : k.moveTo(s[0], s[1]); }); k.fill(); }
+  faces.sort((a, b) => b[0] - a[0]);
+  for (const [, q, dif, i] of faces) {
+    const base = i % 8 === 0 ? [214, 70, 52] : [26, 26, 30];                  // 每第 8 块为红色
+    k.fillStyle = `rgb(${base.map(c => Math.min(255, Math.round(c * 0.5 + c * 0.9 * dif + 18 * dif))).join()})`;
+    k.beginPath(); q.forEach((p, j) => { const s = DOM_P(p); j ? k.lineTo(s[0], s[1]) : k.moveTo(s[0], s[1]); }); k.closePath(); k.fill();
+  }
+  grain(k, 0.05, 'multiply');
+};

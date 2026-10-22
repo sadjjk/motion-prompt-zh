@@ -1,0 +1,38 @@
+// Motion Prompt #4-017 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 孔版印刷 / Risograph
+// 分类包: scenes (风格画面) · element 17 · 子分类: 纹样与图形
+// 动画表现: 粉色与青绿两版的大圆、方块和粗体字叠在米白纸上叠出第三色，套印错位轻轻来回晃动。
+// 运动规格:
+//   - 画面 539 × 208 px，米白底 #F4F0E6；荧光粉 #FF48B0 与青绿 #00A69C 2 版正片叠底，叠出第三色
+//   - 粉版：半径 78px 的圆、84 × 84 px 方块、100px 粗体 RISO；青绿版：半径 66px 的圆、64px 粗体 PRINT、8 条 4px 粗横线
+//   - 2 版错位 3 ± 2px（1–5px），按正弦每 6.4 秒往复 3 次，粉版向右、青绿版向上错开
+//   - 1500 个固定的浅色漏印斑点，加不透明度 0.1 的正片叠底颗粒
+// 适用场景: 适合独立刊物、音乐活动的海报与封面，或文创品牌网页首屏的复古印刷氛围。
+// 标签: risograph, print, poster, overprint, retro, grain, typography
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-017
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 17
+// 17 孔版印刷：荧光粉与青绿两版正片叠底，大圆、方块、粗体 RISO/PRINT 叠出第三色；两版错位按正弦每周期往复 3 次
+CELLS[16] = (k, w, h, u) => {
+  k.fillStyle = '#F4F0E6'; k.fillRect(0, 0, CW, CH);
+  const off = 3 + Math.sin(TAU * u / CYC * 3) * 2;           // 套印错位 1–5px
+  k.save(); k.globalCompositeOperation = 'multiply'; k.letterSpacing = '-4px';
+  k.fillStyle = '#FF48B0';
+  k.beginPath(); k.arc(300 + off, 92, 78, 0, TAU); k.fill();
+  txt(k, 'RISO', 14 + off, 196, `900 100px ${DISP}`, '#FF48B0');
+  k.fillRect(440 + off, 14, 84, 84);
+  k.fillStyle = '#00A69C';
+  k.beginPath(); k.arc(372, 128 - off, 66, 0, TAU); k.fill();
+  txt(k, 'PRINT', 16, 86 - off, `900 64px ${DISP}`, '#00A69C');
+  for (let i = 0; i < 8; i++) k.fillRect(440, 118 + i * 11, 90, 4);
+  k.restore();
+  // 漏印斑点：1500 个固定浅色点（原作 22000 个，按面积缩减），缓存成图层
+  k.drawImage(layer('RISO_speck', g => { for (let i = 0; i < 1500; i++) { g.fillStyle = `rgba(244,240,230,${hash(i * 3 + 5) * 0.55})`; g.fillRect(hash(i * 3 + 6) * CW, hash(i * 3 + 7) * CH, 1.2, 1.2); } }), 0, 0);
+  grain(k, 0.1, 'multiply');
+};

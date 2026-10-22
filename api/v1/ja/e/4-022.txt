@@ -1,0 +1,44 @@
+// Motion Prompt #4-022 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// ギリ星文様 / Girih stars
+// パック: scenes (スタイルシーン) · element 22 · カテゴリ: 文様・グラフィック
+// 何が起きるか: 濃紺の地に、ターコイズのタイルとコバルトの八芒星が中心から一枚ずつ広がるように灯り、星が小さくから大きく開く。
+// 動きの仕様:
+//   - 濃紺の地 #0F1E3A。62px のタイル 11 × 7 枚を全体で 0.12 rad 傾ける
+//   - 各タイル：ターコイズ #1F8A8A の地、生成りの十字、コバルト #1C3F94 の八芒星（頂点 16）、金 #D9A93C の輪郭線と放射線 8 本
+//   - 0.2 秒から中心からの距離順にタイルが灯り、星は縮小状態から開く。約 2.5 秒ですべて点灯
+//   - 5.4 秒まで保持し、5.4〜6.0 秒でフェードアウト
+// 使いどころ: 中東・イスラム文化や旅行テーマの動画開場、ラマダンなど季節イベントの背景、建築・工芸系プレゼンの扉に。
+// タグ: girih, islamic-pattern, geometric, tiles, stars, reveal, ornament
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-022
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 22
+// 22 伊斯兰星纹：松石绿方格上钴蓝八角星、米白十字与金色描线，从中心一格格向外点亮（0.2–2.5 秒），停留后 5.4 秒淡出
+const GIR_S = 62;                                             // 格宽 62px（原 210px），整体转 0.12 rad
+const GIR_STAR = r => { const p = new Path2D(); for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, q = i % 2 ? r * 0.62 : r; i ? p.lineTo(Math.cos(a) * q, Math.sin(a) * q) : p.moveTo(q, 0); } p.closePath(); return p; };
+const GIR_P = { big: GIR_STAR(GIR_S * 0.44), small: GIR_STAR(GIR_S * 0.2) };
+const GIR_GRID = []; for (let gy = -3; gy <= 3; gy++) for (let gx = -5; gx <= 5; gx++) GIR_GRID.push([gx, gy, Math.hypot(gx, gy)]);
+function girCell(k, x, y, a) {                                // a：点亮进度 0..1（透明度与星形缩放）
+  const S = GIR_S; k.save(); k.translate(x, y); k.globalAlpha = a;
+  k.fillStyle = '#1F8A8A'; k.fillRect(-S / 2, -S / 2, S, S);
+  k.fillStyle = '#F2EBDC'; k.beginPath();
+  for (let i = 0; i < 4; i++) { k.rotate(Math.PI / 2); k.moveTo(-S * 0.12, -S / 2); k.lineTo(S * 0.12, -S / 2); k.lineTo(S * 0.12, -S * 0.3); k.lineTo(-S * 0.12, -S * 0.3); }
+  k.fill();
+  k.save(); k.scale(a, a); k.fillStyle = '#1C3F94'; k.fill(GIR_P.big); k.fillStyle = '#F2EBDC'; k.fill(GIR_P.small);
+  k.fillStyle = '#D9A93C'; k.beginPath(); k.arc(0, 0, S * 0.06, 0, TAU); k.fill(); k.restore();
+  k.strokeStyle = '#D9A93C'; k.lineWidth = 1.1; k.stroke(GIR_P.big); k.beginPath();
+  for (let i = 0; i < 8; i++) { const t = i / 8 * TAU; k.moveTo(Math.cos(t) * S * 0.44, Math.sin(t) * S * 0.44); k.lineTo(Math.cos(t) * S * 0.72, Math.sin(t) * S * 0.72); }
+  k.stroke(); k.restore();
+}
+function girAll(k, p) { k.save(); k.translate(269.5, 104); k.rotate(0.12); for (const [gx, gy, d] of GIR_GRID) { const a = out3(clamp(p - d * 0.45)); if (a > 0) girCell(k, gx * GIR_S, gy * GIR_S, a); } k.restore(); }
+CELLS[21] = (k, w, h, u) => {
+  k.fillStyle = '#0F1E3A'; k.fillRect(0, 0, CW, CH);
+  const p = (u - 0.2) * 1.6, fade = fadeIn(u);                // 距中心 d 格的格子在 p = 0.45d 时开始点亮；最远 d≈5.83，约 2.5 秒全部点亮
+  if (p > 0 && fade > 0) { k.save(); k.globalAlpha = fade; girAll(k, p); k.restore(); }
+  grain(k, 0.06);
+};
