@@ -1,0 +1,17 @@
+请使用“内呼吸光晕（Inner pulse）”，属于“AI 界面动效”。
+Motion Prompt #1-051
+
+效果解释：彩色光在按钮内部明暗呼吸，吸引注意
+动画表现：胶囊按钮内部，粉、橙、蓝三团光放大又收小，边框也随之明暗。
+实现规格与关键运动参数：
+- 按钮 200 × 56 px，圆角 28 px；光按按钮形状裁切，不溢出。
+- 一次呼吸 2.4 秒（每周期 2 次），按 0.5 − 0.5·cos 从 0 到 1 再回 0。
+- 三团径向光（色相 330°、40°、200°）半径 46→80 px、不透明度 0.35→0.9，并左右缓慢漂移 ±14 px。
+- 1.4 px 彩虹描边，不透明度 0.3→0.8；按钮文字“✦ Ask AI”16 px。
+适用场景：适合突出“问 AI”“生成”等 AI 操作按钮或主要行动按钮。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-051
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-051.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Jakub Antalik 的 MIT 版权标识。

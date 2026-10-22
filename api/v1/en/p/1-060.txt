@@ -1,0 +1,15 @@
+Please use "Gooey bend" (リキッドのしなり), one of the names in "AI interface motion".
+Motion Prompt #1-060
+
+What it is: A dragged card bows softly against the direction it moves
+What the sample shows: A white card is dragged side to side; the faster it moves, the more its sides bow backwards, straightening as it slows.
+Spec:
+- Card 170 × 100 px, corner radius 16 px; its centre swings ±90 px sideways once per cycle (sine).
+- The middle of the left and right edges bows against the motion, in proportion to speed, up to about 9 px.
+- The content rows shift with it, by up to about 6 px.
+- A drag pointer (5 px dot and 10 px ring) sits on the top edge, with a shadow below.
+When to use it: Use it on sortable cards and rows or draggable panels to give dragging a tactile feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-060.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

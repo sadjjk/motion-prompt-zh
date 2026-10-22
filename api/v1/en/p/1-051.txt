@@ -1,0 +1,15 @@
+Please use "Inner pulse" (インナーパルス), one of the names in "AI interface motion".
+Motion Prompt #1-051
+
+What it is: Coloured light breathes inside a button to draw attention to it
+What the sample shows: Inside a pill button, pink, orange and blue glows swell and shrink, and the outline brightens with them.
+Spec:
+- Button 200 × 56 px, corner radius 28 px. The light is clipped to the button and never spills out.
+- One breath is 2.4 s (2 per cycle), eased as 0.5 − 0.5·cos from 0 to 1 and back to 0.
+- Three radial glows (hues 330°, 40°, 200°) grow from 46 to 80 px radius and 0.35 to 0.9 opacity, drifting ±14 px sideways.
+- A 1.4 px rainbow outline goes from 0.3 to 0.8 opacity. Label "✦ Ask AI" at 16 px.
+When to use it: Use it to highlight an AI action button or main call to action, such as Ask AI or Generate.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-051.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,15 @@
+Please use "Line beam" (ラインビーム), one of the names in "AI interface motion".
+Motion Prompt #1-050
+
+What it is: A light sweeps back and forth along the bottom edge of a field to show a search is running
+What the sample shows: Only the bottom edge of a rounded search field lights up, and the light glides from left to right and back.
+Spec:
+- Search field 380 × 48 px, corner radius 24 px. Only the lower half of the border lights up.
+- The light centre travels between 60 px from each end: right at 0.1–2.3 s, back left at 2.5–4.7 s (cubic ease-in-out).
+- The lit band is 180 px wide, brightest at the centre: a 6 px layer with 14 px blur plus a 1.6 px core.
+- A soft flattened glow sits under the edge (radius 70 px, squashed to 0.35 height, opacity 0.28).
+When to use it: Use it on a search field, command bar or ask box between submitting and getting results.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-050.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

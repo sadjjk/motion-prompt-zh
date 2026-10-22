@@ -1,0 +1,40 @@
+// Motion Prompt #1-057 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// 思考球·写作 / Thinking orb: composing
+// 分类包: aiux (AI 界面动效) · element 09 · 子分类: 加载与思考
+// 动画表现: 三条点阵波带以不同倾角缠绕球体，一边起伏一边流动，亮光沿波带前进。
+// 运动规格:
+//   - 球半径 58 px（240 个淡点），3 条波带倾角 0.5、−0.45、1.15 rad，相位各差 120°。
+//   - 每条波带沿经度 72 个点 × 3 行，纬度方向振幅 0.32 rad，绕一圈有 2 个波峰。
+//   - 波形每周期推进一次，亮部沿波带每周期绕 2 圈。
+//   - 球每周期自转一圈；右侧文字“Writing…”15 px。
+// 适用场景: 适合 AI 正在撰写、起草、总结文字的阶段。
+// 标签: thinking-orb, composing, writing, generating, text, bands
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-057
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 09
+// 09 思考球·写作（state="composing"）：三条起伏的点阵波带绕球流动
+CELLS[8] = (k, w, h, u) => {
+  bg(k);
+  const spin = TAU * u / CYC;
+  for (const p of SPHERE) dot(k, rot(p, spin, ORB.tilt), 0.3);
+  const bands = [[0.5, 0], [-0.45, TAU / 3], [1.15, 2 * TAU / 3]];   // [倾角, 相位]
+  for (const [tilt, ph] of bands) {
+    for (let j = 0; j < 72; j++) {
+      const lon = j * TAU / 72;
+      const glow = Math.max(0, Math.sin(lon - 2 * TAU * u / CYC + ph));
+      for (const off of [-0.09, 0, 0.09]) {
+        const lat = 0.32 * Math.sin(2 * lon + TAU * u / CYC + ph) + off, cl = Math.cos(lat);
+        let p = [cl * Math.cos(lon), Math.sin(lat), cl * Math.sin(lon)];
+        p = [p[0], p[1] * Math.cos(tilt) - p[2] * Math.sin(tilt), p[1] * Math.sin(tilt) + p[2] * Math.cos(tilt)];
+        dot(k, rot(p, spin, ORB.tilt), off ? 0.55 : 0.85, glow * glow * 0.5);
+      }
+    }
+  }
+  orbLabel(k, 'Writing…');
+};

@@ -1,0 +1,15 @@
+Please use "Thinking orb: searching" (思考オーブ・検索中), one of the names in "AI interface motion".
+Motion Prompt #1-054
+
+What it is: A bright meridian scans a dotted globe to show the AI is searching
+What the sample shows: A dotted globe turns while a vertical line of light sweeps over it, brightening the dots it passes.
+Spec:
+- Orb radius 58 px, 240 dots; it spins once per cycle.
+- The scanning meridian goes round 2 times per cycle (2 × the spin), drawn 1 px wide at 0.35 opacity.
+- Dots near the meridian brighten by up to +0.75, falling off as exp(−Δ²/0.05) with the angle Δ.
+- Label "Searching the web…" at 15 px on the right.
+When to use it: Use it while the AI is searching the web, retrieving documents or looking something up.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-054.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

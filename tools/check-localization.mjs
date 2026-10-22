@@ -22,8 +22,8 @@ const langs = ['zh-Hans', 'en', 'ja'];
 const window = { MP_SITE_CONFIG: CONFIG };
 vm.runInNewContext(read('assets/catalog.js'), { window });
 const cat = window.MP_CATALOG;
-assert.equal(cat.count, 144);
-assert.equal(cat.packs.length, 6);
+assert.equal(cat.count, 156);
+assert.equal(cat.packs.length, 7);
 assert.equal(cat.site, CONFIG.site);
 assert.equal(cat.repo, CONFIG.repo);
 assert.equal(fs.existsSync(path.join(ROOT, 'api/v1/zh')), false);
@@ -36,15 +36,22 @@ for (const [i, el] of cat.elements.entries()) {
   const p = cat.packs.find(p => p.pack === el.pack);
   for (const lang of langs) {
     assert.equal(read(`api/v1/${lang}/p/${el.id}.txt`), window.MP_PROMPT(el, p.title[lang], lang, CONFIG.site, CONFIG.apiBase, p.author) + '\n');
-    assert.match(read(`api/v1/${lang}/e/${el.id}.txt`), new RegExp('^// Motion Prompt #' + el.id + ' · MIT License \\(c\\) 2026 Shohei Ohtaki'));
+    // 首行版权按元素所属包（改写自其他作者的包写其 license），缺省为 Shohei Ohtaki
+    assert.ok(read(`api/v1/${lang}/e/${el.id}.txt`).startsWith(`// Motion Prompt #${el.id} · ${p.license}`), `${el.id} licence line`);
   }
 }
 for (const p of cat.packs) {
-  assert.equal(p.count, 24);
+  assert.equal(p.count, json(`packs/${p.pack}/meta.json`).elements.length);
   assert.ok(read(`packs/${p.pack}/README.zh-Hans.md`).includes(p.title['zh-Hans']));
-  assert.match(read(`api/v1/kit/${p.pack}.js`), /MIT License \(c\) 2026 Shohei Ohtaki/);
+  assert.ok(read(`api/v1/kit/${p.pack}.js`).split('\n')[0].includes(p.license), `${p.pack} kit licence line`);
 }
-for (const lang of langs) assert.equal(read(`api/v1/${lang}/catalog.tsv`).trim().split('\n').length, 145);
+assert.equal(cat.packs.filter(p => p.license === 'MIT License (c) 2026 Shohei Ohtaki').length, 6);
+for (const lang of langs) assert.equal(read(`api/v1/${lang}/catalog.tsv`).trim().split('\n').length, cat.count + 1);
+// 改写自 Libraries.dev 的包：版权行与署名指向 Jakub Antalik
+assert.equal(read('api/v1/zh-Hans/e/1-049.txt').split('\n')[0], '// Motion Prompt #1-049 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/');
+assert.equal(read('api/v1/kit/aiux.js').split('\n')[0], '// Motion Prompt #1 049~060 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/');
+assert.match(read('api/v1/zh-Hans/p/1-049.txt'), /保留 Jakub Antalik 的 MIT 版权标识/);
+assert.match(read('api/v1/zh-Hans/p/1-001.txt'), /保留 Shohei Ohtaki 的 MIT 版权标识/);
 assert.deepEqual(json('skills/motion-prompt-zh/scripts/site-config.json'), CONFIG);
 const cli = ['skills/motion-prompt-zh/scripts/motion-prompt.mjs'];
 function runCli(words) {
@@ -58,7 +65,7 @@ assert.match(runCli(['search', '镜头推进']), /#3-003/);
 assert.match(runCli(['search', 'typewriter']), /#2-006/);
 assert.match(runCli(['search', '#2-048']), /#2-048/);
 for (const lang of [...langs, 'zh']) assert.equal(runCli(['prompt', '2-012', '--lang', lang]).trim(), read(`api/v1/${lang === 'zh' ? 'zh-Hans' : lang}/p/2-012.txt`).trim());
-console.log('PASS: 144 Chinese entries, 432 prompts match API, 432 code resources, 6 READMEs, CLI search/languages.');
+console.log(`PASS: ${cat.count} Chinese entries, ${cat.count * 3} prompts match API, ${cat.count * 3} code resources, ${cat.packs.length} READMEs, per-pack licence lines, CLI search/languages.`);
 if (args.includes('--static')) process.exit(0);
 
 let chromium;
@@ -85,7 +92,7 @@ try {
   page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400 && !r.url().endsWith('/favicon.ico')) errors.push(`${r.status()} ${r.url()}`); });
   const open = async (suffix = '') => {
     await page.goto(base + '/motion-prompt-zh/' + suffix);
-    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 144 && Object.keys(window.MotionPrompt.packs).length === 6);
+    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 156 && Object.keys(window.MotionPrompt.packs).length === 7);
   };
   await open();
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');

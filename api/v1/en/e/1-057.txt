@@ -1,0 +1,40 @@
+// Motion Prompt #1-057 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// Thinking orb: composing / 思考オーブ・執筆中
+// Pack: aiux (AI interface motion) · element 09 · Category: Loading & thinking
+// What happens: Three bands of dots wrap the orb at different tilts, rippling as they flow, with light running along them.
+// Motion spec:
+//   - Orb radius 58 px (240 faint dots) with 3 bands tilted 0.5, −0.45 and 1.15 rad, 120° apart in phase.
+//   - Each band is 72 points around × 3 rows, waving ±0.32 rad in latitude with 2 crests around.
+//   - The wave moves once per cycle; the bright part runs round the band 2 times per cycle.
+//   - The orb spins once per cycle. Label "Writing…" at 15 px on the right.
+// When to use it: Use it while the AI is writing, drafting or summarising text.
+// Tags: thinking-orb, composing, writing, generating, text, bands
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-057
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 09
+// 09 思考球·写作（state="composing"）：三条起伏的点阵波带绕球流动
+CELLS[8] = (k, w, h, u) => {
+  bg(k);
+  const spin = TAU * u / CYC;
+  for (const p of SPHERE) dot(k, rot(p, spin, ORB.tilt), 0.3);
+  const bands = [[0.5, 0], [-0.45, TAU / 3], [1.15, 2 * TAU / 3]];   // [倾角, 相位]
+  for (const [tilt, ph] of bands) {
+    for (let j = 0; j < 72; j++) {
+      const lon = j * TAU / 72;
+      const glow = Math.max(0, Math.sin(lon - 2 * TAU * u / CYC + ph));
+      for (const off of [-0.09, 0, 0.09]) {
+        const lat = 0.32 * Math.sin(2 * lon + TAU * u / CYC + ph) + off, cl = Math.cos(lat);
+        let p = [cl * Math.cos(lon), Math.sin(lat), cl * Math.sin(lon)];
+        p = [p[0], p[1] * Math.cos(tilt) - p[2] * Math.sin(tilt), p[1] * Math.sin(tilt) + p[2] * Math.cos(tilt)];
+        dot(k, rot(p, spin, ORB.tilt), off ? 0.55 : 0.85, glow * glow * 0.5);
+      }
+    }
+  }
+  orbLabel(k, 'Writing…');
+};

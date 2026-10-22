@@ -1,0 +1,15 @@
+Please use "Gooey trail" (リキッドの尾), one of the names in "AI interface motion".
+Motion Prompt #1-059
+
+What it is: A moving indicator stretches and trails a droplet tail behind it
+What the sample shows: A white indicator moves between three options; the faster it goes, the more it stretches and the bigger the droplet clinging behind it.
+Spec:
+- Segmented control 288 × 44 px with three options 96 px apart; the indicator is 84 × 34 px.
+- It moves every 1.2 s, starting at 0.1, 1.3, 2.5 and 3.7 s, 0.45 s per move (cubic ease-in-out): 1 → 2 → 3 → 2 → 1.
+- With speed it widens by up to 25% and flattens by up to 12% (full at 320 px/s).
+- The tail sits where the indicator was 0.09 s earlier; its blob grows from 6 to 16 px radius, joined by a neck. Labels invert over the indicator.
+When to use it: Use it for the sliding indicator of a tab bar or segmented control, or for a slider thumb.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-059.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

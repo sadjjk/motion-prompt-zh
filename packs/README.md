@@ -8,6 +8,7 @@ A pack is one field's set of names. Each list below is readable here on GitHub; 
 |---|---|---|---|
 | #1 001~024 | `ui` — UI component names | 24 | [English](ui/README.md) · [日本語](ui/README.ja.md) · [简体中文](ui/README.zh-Hans.md) |
 | #1 025~048 | `lp` — Landing page & web effects | 24 | [English](lp/README.md) · [日本語](lp/README.ja.md) · [简体中文](lp/README.zh-Hans.md) |
+| #1 049~060 | `aiux` — AI interface motion | 12 | [English](aiux/README.md) · [日本語](aiux/README.ja.md) · [简体中文](aiux/README.zh-Hans.md) |
 | #2 001~024 | `motion` — Motion graphics moves | 24 | [English](motion/README.md) · [日本語](motion/README.ja.md) · [简体中文](motion/README.zh-Hans.md) |
 | #2 025~048 | `motion2` — Motion graphics moves, part 2 | 24 | [English](motion2/README.md) · [日本語](motion2/README.ja.md) · [简体中文](motion2/README.zh-Hans.md) |
 | #3 001~024 | `camera` — Camera moves & transitions | 24 | [English](camera/README.md) · [日本語](camera/README.ja.md) · [简体中文](camera/README.zh-Hans.md) |

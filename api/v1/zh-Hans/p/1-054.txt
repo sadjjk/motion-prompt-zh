@@ -1,0 +1,17 @@
+请使用“思考球·搜索（Thinking orb: searching）”，属于“AI 界面动效”。
+Motion Prompt #1-054
+
+效果解释：一条亮经线扫过点阵地球，表示 AI 正在搜索
+动画表现：点阵地球自转，一条竖向光线在表面扫过，经过的点随之变亮。
+实现规格与关键运动参数：
+- 球半径 58 px，240 个点；每周期自转一圈。
+- 扫描经线每周期转 2 圈（是自转的 2 倍速），线宽 1 px、不透明度 0.35。
+- 离经线越近的点越亮，按角度差 Δ 以 exp(−Δ²/0.05) 衰减，最多加亮 0.75。
+- 右侧文字“Searching the web…”15 px。
+适用场景：适合联网搜索、检索资料、查询数据等“正在找”的阶段。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-054
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-054.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Jakub Antalik 的 MIT 版权标识。

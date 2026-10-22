@@ -1,0 +1,35 @@
+// Motion Prompt #1-052 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// Outer pulse / アウターパルス
+// Pack: aiux (AI interface motion) · element 04 · Category: Loading & thinking
+// What happens: Layered rainbow rings spread out around a dark input and shrink back, while the field itself stays crisp.
+// Motion spec:
+//   - Input 380 × 64 px, corner radius 16 px. The light is drawn only outside the field.
+//   - One breath is 2.4 s (2 per cycle); the glow spreads from 4 to 18 px outward.
+//   - 4 rings (3 px wide, 18 px blur), fainter toward the outside; opacity 0.25 to 0.7.
+//   - The rainbow gradient turns once per cycle.
+// When to use it: Use it on the main input of an empty state or landing page, or on a featured pricing card.
+// Tags: pulse, input, highlight, glow, landing, featured
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-052
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 04
+// 04 外扩呼吸光晕（border-beam size="pulse-outside"）：彩色光晕在输入框外侧向外扩散再收回
+CELLS[3] = (k, w, h, u) => {
+  bg(k);
+  const x = 79.5, y = 72, W = 380, H = 64, R = 16;
+  const s = 0.5 - 0.5 * Math.cos(TAU * u / 2.4);
+  const e = 4 + 14 * s, rot0 = TAU * u / CYC;
+  for (let i = 4; i >= 1; i--) {
+    const ex = e * i / 4;
+    k.strokeStyle = conic(k, x + W / 2, y + H / 2, rot0, (0.25 + 0.45 * s) * (1.15 - i / 4));
+    k.lineWidth = 3; k.shadowColor = hsla(200 + 360 * u / CYC, 100, 60, 0.5 * s); k.shadowBlur = 18;
+    rr(k, x - ex, y - ex, W + ex * 2, H + ex * 2, R + ex); k.stroke();
+  }
+  k.shadowBlur = 0; k.shadowColor = 'transparent';
+  field(k, x, y, W, H, R, 'Describe what you want to build…');
+};

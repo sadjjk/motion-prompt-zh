@@ -1,0 +1,27 @@
+// Motion Prompt #1-049 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// ボーダービーム / Border beam
+// パック: aiux (AIインターフェースの動き) · element 01 · カテゴリ: 読み込み・思考中
+// 何が起きるか: 暗い入力欄の枠を、先が明るく後ろが消えていく虹色の光が時計回りに一周し続ける。
+// 動きの仕様:
+//   - 入力欄 380×64px、角丸 16px。光は時計回りに 4.8 秒で 1 周（一定速度）
+//   - 光の長さは枠の周長の 22%。先端から後ろへ 1.5 乗で薄くなり、先端に白い点
+//   - 3 層で描く：太さ 9px・不透明度 0.16・ぼかし 16px／4px・0.45・8px／1.6px・1.0
+//   - 色相は光の後ろから先へ 150° 変化し、全体が 1 周期で 360° 回る
+// 使いどころ: AIの返答やエージェントの作業など、3秒以上かかる処理の間、その入力欄やカードに付けるとき。
+// タグ: border-beam, loading, ai, input, glow, streaming, border
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-049
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 01
+// 01 环绕光束（border-beam size="md"）：一道彩色光沿输入框边框顺时针绕行，一圈 4.8 秒
+CELLS[0] = (k, w, h, u) => {
+  bg(k);
+  const x = 79.5, y = 72, W = 380, H = 64, R = 16;
+  field(k, x, y, W, H, R, 'Ask anything…');
+  beam(k, x, y, W, H, R, u / CYC, 0.22, 200 + 360 * u / CYC);
+};

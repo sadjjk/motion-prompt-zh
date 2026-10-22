@@ -1,0 +1,17 @@
+请使用“思考球·连接（Thinking orb: connecting）”，属于“AI 界面动效”。
+Motion Prompt #1-056
+
+效果解释：球面节点依次连线、数据沿线流动，表示正在连接服务
+动画表现：旋转的球面上，节点像星座一样一条条连起来，随后光点沿连线流动，最后淡出复位。
+实现规格与关键运动参数：
+- 球半径 58 px：240 个淡点和 10 个节点；每周期自转一圈。
+- 12 条连线从 0.15 秒起每隔 0.17 秒画出一条，每条用时 0.35 秒（三次缓出）。
+- 2.4–4.0 秒，光点沿每条连线流动，每 0.8 秒走完一趟。
+- 4.0–4.8 秒连线和光点淡出复位；右侧文字“Connecting sources…”15 px。
+适用场景：适合连接外部服务、接入数据源、连接工具服务器的阶段。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-056
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-056.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Jakub Antalik 的 MIT 版权标识。

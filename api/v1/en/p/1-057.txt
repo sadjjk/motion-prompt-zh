@@ -1,0 +1,15 @@
+Please use "Thinking orb: composing" (思考オーブ・執筆中), one of the names in "AI interface motion".
+Motion Prompt #1-057
+
+What it is: Bands of dots flow and undulate around the orb to show the AI is writing
+What the sample shows: Three bands of dots wrap the orb at different tilts, rippling as they flow, with light running along them.
+Spec:
+- Orb radius 58 px (240 faint dots) with 3 bands tilted 0.5, −0.45 and 1.15 rad, 120° apart in phase.
+- Each band is 72 points around × 3 rows, waving ±0.32 rad in latitude with 2 crests around.
+- The wave moves once per cycle; the bright part runs round the band 2 times per cycle.
+- The orb spins once per cycle. Label "Writing…" at 15 px on the right.
+When to use it: Use it while the AI is writing, drafting or summarising text.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-057.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

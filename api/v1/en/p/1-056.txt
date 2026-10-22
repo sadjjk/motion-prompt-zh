@@ -1,0 +1,15 @@
+Please use "Thinking orb: connecting" (思考オーブ・接続中), one of the names in "AI interface motion".
+Motion Prompt #1-056
+
+What it is: Nodes on the orb join up one by one and packets flow along the links, showing services are being connected
+What the sample shows: On a turning orb, nodes are joined one link at a time like a constellation, then light packets run along the links before it all fades and restarts.
+Spec:
+- Orb radius 58 px: 240 faint dots plus 10 nodes; it spins once per cycle.
+- 12 links are drawn one at a time from 0.15 s, every 0.17 s, each taking 0.35 s (cubic ease-out).
+- At 2.4–4.0 s a light packet runs along each link, one pass every 0.8 s.
+- Links and packets fade out at 4.0–4.8 s and the loop restarts. Label "Connecting sources…" at 15 px.
+When to use it: Use it while connecting to outside services, linking data sources or reaching a tool server.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-056.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

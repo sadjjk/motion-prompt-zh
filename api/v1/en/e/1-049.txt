@@ -1,0 +1,27 @@
+// Motion Prompt #1-049 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// Border beam / ボーダービーム
+// Pack: aiux (AI interface motion) · element 01 · Category: Loading & thinking
+// What happens: A rainbow beam, bright at the head and fading at the tail, keeps travelling clockwise around a dark input field.
+// Motion spec:
+//   - Input 380 × 64 px, corner radius 16 px. The beam laps clockwise once every 4.8 s at a constant speed.
+//   - Beam length is 22% of the perimeter, fading toward the tail (power 1.5), with a white dot at the head.
+//   - Three layers: 9 px wide at 0.16 opacity with 16 px blur; 4 px at 0.45 with 8 px blur; a 1.6 px core at 1.0.
+//   - Hue shifts 150° from tail to head, and the whole palette rotates 360° per cycle.
+// When to use it: Use it on the input or card that is doing the work while an AI reply or agent run takes more than about 3 s.
+// Tags: border-beam, loading, ai, input, glow, streaming, border
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-049
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 01
+// 01 环绕光束（border-beam size="md"）：一道彩色光沿输入框边框顺时针绕行，一圈 4.8 秒
+CELLS[0] = (k, w, h, u) => {
+  bg(k);
+  const x = 79.5, y = 72, W = 380, H = 64, R = 16;
+  field(k, x, y, W, H, R, 'Ask anything…');
+  beam(k, x, y, W, H, R, u / CYC, 0.22, 200 + 360 * u / CYC);
+};

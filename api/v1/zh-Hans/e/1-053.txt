@@ -1,0 +1,38 @@
+// Motion Prompt #1-053 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// 思考球·运转 / Thinking orb: working
+// 分类包: aiux (AI 界面动效) · element 05 · 子分类: 加载与思考
+// 动画表现: 缓慢自转的点阵球周围，带短拖尾的粒子沿三条倾斜轨道以不同速度绕行。
+// 运动规格:
+//   - 球半径 58 px，240 个点按斐波那契球面分布；越靠前点越大越亮。每周期自转一圈，俯视角 0.32 rad。
+//   - 三条轨道倾角 0.35、1.05、−0.6 rad，半径为球的 1.14 倍，每条 8 个粒子。
+//   - 每周期分别绕 1 圈、2 圈、反向 1 圈。
+//   - 每个粒子带 5 个渐淡残影；右侧文字“Working…”15 px。
+// 适用场景: 适合智能体执行任务、工具运行等通用的“AI 工作中”状态；不足 2 秒的等待不要用。
+// 标签: thinking-orb, working, agent, loading, ai, orbit, particles
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-053
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 05
+// 05 思考球·运转（thinking-orbs state="working"）：粒子在三条倾斜轨道上绕点阵球运行
+CELLS[4] = (k, w, h, u) => {
+  bg(k);
+  const spin = TAU * u / CYC;
+  for (const p of SPHERE) dot(k, rot(p, spin, ORB.tilt), 0.45);
+  const orbits = [[0.35, 0, 1], [1.05, 2.1, 2], [-0.6, 4.2, -1]];   // [倾角, 偏航, 每周期圈数]
+  for (const [tilt, yaw, sp] of orbits) {
+    for (let j = 0; j < 8; j++) {
+      for (let tr = 5; tr >= 0; tr--) {
+        const th = sp * TAU * u / CYC + j * TAU / 8 - Math.sign(sp) * tr * 0.07;
+        let p = [Math.cos(th) * 1.14, 0, Math.sin(th) * 1.14];
+        p = rot([p[0], p[1] * Math.cos(tilt) - p[2] * Math.sin(tilt), p[1] * Math.sin(tilt) + p[2] * Math.cos(tilt)], yaw, ORB.tilt);
+        dot(k, p, tr ? 0.5 * (1 - tr / 6) : 1, tr ? 0 : 0.35);
+      }
+    }
+  }
+  orbLabel(k, 'Working…');
+};

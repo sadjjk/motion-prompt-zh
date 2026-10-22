@@ -1,0 +1,15 @@
+Please use "Border beam" (ボーダービーム), one of the names in "AI interface motion".
+Motion Prompt #1-049
+
+What it is: A coloured light travels around the border to show that work is in progress
+What the sample shows: A rainbow beam, bright at the head and fading at the tail, keeps travelling clockwise around a dark input field.
+Spec:
+- Input 380 × 64 px, corner radius 16 px. The beam laps clockwise once every 4.8 s at a constant speed.
+- Beam length is 22% of the perimeter, fading toward the tail (power 1.5), with a white dot at the head.
+- Three layers: 9 px wide at 0.16 opacity with 16 px blur; 4 px at 0.45 with 8 px blur; a 1.6 px core at 1.0.
+- Hue shifts 150° from tail to head, and the whole palette rotates 360° per cycle.
+When to use it: Use it on the input or card that is doing the work while an AI reply or agent run takes more than about 3 s.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-049.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

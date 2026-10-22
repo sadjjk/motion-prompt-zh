@@ -1,0 +1,15 @@
+Please use "Outer pulse" (アウターパルス), one of the names in "AI interface motion".
+Motion Prompt #1-052
+
+What it is: Coloured light blooms outside an input and pulls back, inviting the user to type there
+What the sample shows: Layered rainbow rings spread out around a dark input and shrink back, while the field itself stays crisp.
+Spec:
+- Input 380 × 64 px, corner radius 16 px. The light is drawn only outside the field.
+- One breath is 2.4 s (2 per cycle); the glow spreads from 4 to 18 px outward.
+- 4 rings (3 px wide, 18 px blur), fainter toward the outside; opacity 0.25 to 0.7.
+- The rainbow gradient turns once per cycle.
+When to use it: Use it on the main input of an empty state or landing page, or on a featured pricing card.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-052.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

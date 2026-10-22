@@ -1,0 +1,17 @@
+请使用“思考球·运转（Thinking orb: working）”，属于“AI 界面动效”。
+Motion Prompt #1-053
+
+效果解释：粒子沿倾斜轨道绕点阵球运行，表示 AI 正在工作
+动画表现：缓慢自转的点阵球周围，带短拖尾的粒子沿三条倾斜轨道以不同速度绕行。
+实现规格与关键运动参数：
+- 球半径 58 px，240 个点按斐波那契球面分布；越靠前点越大越亮。每周期自转一圈，俯视角 0.32 rad。
+- 三条轨道倾角 0.35、1.05、−0.6 rad，半径为球的 1.14 倍，每条 8 个粒子。
+- 每周期分别绕 1 圈、2 圈、反向 1 圈。
+- 每个粒子带 5 个渐淡残影；右侧文字“Working…”15 px。
+适用场景：适合智能体执行任务、工具运行等通用的“AI 工作中”状态；不足 2 秒的等待不要用。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-053
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-053.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Jakub Antalik 的 MIT 版权标识。

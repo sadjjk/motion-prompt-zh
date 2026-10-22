@@ -1,0 +1,15 @@
+Please use "Gooey morph menu" (リキッド展開メニュー), one of the names in "AI interface motion".
+Motion Prompt #1-058
+
+What it is: Action buttons are pulled out of a plus button like liquid and pinch off on their own
+What the sample shows: A cursor clicks the +; three circles stretch out of the white liquid, their necks thin and break, and icons appear. A second click draws them back into one.
+Spec:
+- Main button radius 30 px, actions 24 px, opening to (−81, −51), (0, −96) and (81, −51) px — the original's 40 px buttons and (±54, −34), (0, −64) offsets scaled 1.5×.
+- Opening starts at 0.8 s, 0.55 s per button, staggered 40 ms (like cubic-bezier(0.34, 1.56, 0.64, 1), overshooting about 10%). Closing starts at 3.0 s in reverse order, 0.55 s each (cubic ease-in-out).
+- The liquid is a smooth union of distance fields (smoothing 22 px), so necks thin and break as buttons move apart. New buttons grow from 55% size; the main button squashes by up to 6%.
+- The + turns 45° into × when open; icons fade in once a button is 60% out. Clicks at 0.68 s and 2.88 s with a 0.6 s ripple.
+When to use it: Use it for a floating + button or speed dial that opens actions such as new file, add image or new folder.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-058.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

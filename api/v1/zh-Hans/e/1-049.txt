@@ -1,0 +1,27 @@
+// Motion Prompt #1-049 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// 环绕光束 / Border beam
+// 分类包: aiux (AI 界面动效) · element 01 · 子分类: 加载与思考
+// 动画表现: 一道头亮尾淡的彩虹色光束，沿深色输入框的边框顺时针不停绕行。
+// 运动规格:
+//   - 输入框 380 × 64 px，圆角 16 px；光束顺时针匀速绕行，4.8 秒一圈。
+//   - 光束长度为边框周长的 22%，向尾部按 1.5 次方渐隐，头部有白色亮点。
+//   - 分三层：9 px 宽、不透明度 0.16、模糊 16 px；4 px、0.45、8 px；1.6 px 细芯、1.0。
+//   - 色相从尾到头变化 150°，整体配色每周期旋转 360°。
+// 适用场景: 适合 AI 回复、智能体任务等超过约 3 秒的等待，加在正在工作的输入框或卡片上。
+// 标签: border-beam, loading, ai, input, glow, streaming, border
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-049
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 01
+// 01 环绕光束（border-beam size="md"）：一道彩色光沿输入框边框顺时针绕行，一圈 4.8 秒
+CELLS[0] = (k, w, h, u) => {
+  bg(k);
+  const x = 79.5, y = 72, W = 380, H = 64, R = 16;
+  field(k, x, y, W, H, R, 'Ask anything…');
+  beam(k, x, y, W, H, R, u / CYC, 0.22, 200 + 360 * u / CYC);
+};

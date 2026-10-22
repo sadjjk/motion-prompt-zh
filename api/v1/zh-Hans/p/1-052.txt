@@ -1,0 +1,17 @@
+请使用“外扩呼吸光晕（Outer pulse）”，属于“AI 界面动效”。
+Motion Prompt #1-052
+
+效果解释：彩光在输入框外侧扩散又收回，引导用户在这里输入
+动画表现：深色输入框周围，多层彩虹光圈向外扩散再收回，输入框本身保持清晰。
+实现规格与关键运动参数：
+- 输入框 380 × 64 px，圆角 16 px；光只画在输入框外侧。
+- 一次呼吸 2.4 秒（每周期 2 次），外扩距离 4→18 px。
+- 叠 4 层光圈（3 px 宽、模糊 18 px），越往外越淡；不透明度 0.25→0.7。
+- 彩虹渐变每周期旋转一圈。
+适用场景：适合空状态或首页的主输入框，也可用在推荐的价格方案卡片上。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-052
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-052.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Jakub Antalik 的 MIT 版权标识。

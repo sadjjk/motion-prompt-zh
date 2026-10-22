@@ -1,8 +1,8 @@
 {
- "version": "1.a3b3afec77",
+ "version": "1.2eeaacebd7",
  "site": "https://sadjjk.github.io/motion-prompt-zh/",
  "repo": "https://github.com/sadjjk/motion-prompt-zh",
- "count": 144,
+ "count": 156,
  "groups": [
   {
    "id": "web",
@@ -14,7 +14,8 @@
    },
    "packs": [
     "ui",
-    "lp"
+    "lp",
+    "aiux"
    ]
   },
   {
@@ -135,6 +136,47 @@
    "fonts": [],
    "license": "MIT License (c) 2026 Shohei Ohtaki",
    "author": "Shohei Ohtaki",
+   "scalable": true
+  },
+  {
+   "pack": "aiux",
+   "group": "web",
+   "order": 7,
+   "title": {
+    "ja": "AIインターフェースの動き",
+    "en": "AI interface motion",
+    "zh-Hans": "AI 界面动效"
+   },
+   "langs": [
+    "en",
+    "ja",
+    "zh-Hans"
+   ],
+   "categories": [
+    {
+     "slug": "loading-thinking",
+     "ja": "読み込み・思考中",
+     "en": "Loading & thinking",
+     "zh-Hans": "加载与思考"
+    },
+    {
+     "slug": "liquid",
+     "ja": "リキッドな操作",
+     "en": "Liquid interactions",
+     "zh-Hans": "液态交互"
+    }
+   ],
+   "count": 12,
+   "first": "1-049",
+   "last": "1-060",
+   "upstreamFirst": "145",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "fonts": [],
+   "license": "MIT License (c) 2026 Jakub Antalik",
+   "author": "Jakub Antalik",
+   "attribution": "https://libraries.dev/",
    "scalable": true
   },
   {
@@ -3606,6 +3648,865 @@
     "decoration",
     "loop"
    ]
+  },
+  {
+   "id": "1-049",
+   "upstream": "145",
+   "group": "web",
+   "pack": "aiux",
+   "no": "01",
+   "slug": "border-beam",
+   "category": "loading-thinking",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "ボーダービーム",
+    "en": "Border beam",
+    "zh-Hans": "环绕光束"
+   },
+   "meaning": {
+    "ja": "色の光が枠に沿って一周し、処理中であることを示す",
+    "en": "A coloured light travels around the border to show that work is in progress",
+    "zh-Hans": "一道彩色光沿边框绕行，表示正在处理"
+   },
+   "ask": {
+    "ja": "AIの返答を生成している間、入力欄の枠に沿って色の光が一周するボーダービームを付けて。1周4.8秒で。",
+    "en": "While the AI reply is generating, add a border beam that travels around the input: one lap every 4.8 s.",
+    "zh-Hans": "AI 生成回复期间，给输入框加环绕光束，光沿边框绕一圈 4.8 秒。"
+   },
+   "summary": {
+    "ja": "暗い入力欄の枠を、先が明るく後ろが消えていく虹色の光が時計回りに一周し続ける。",
+    "en": "A rainbow beam, bright at the head and fading at the tail, keeps travelling clockwise around a dark input field.",
+    "zh-Hans": "一道头亮尾淡的彩虹色光束，沿深色输入框的边框顺时针不停绕行。"
+   },
+   "spec": {
+    "ja": [
+     "入力欄 380×64px、角丸 16px。光は時計回りに 4.8 秒で 1 周（一定速度）",
+     "光の長さは枠の周長の 22%。先端から後ろへ 1.5 乗で薄くなり、先端に白い点",
+     "3 層で描く：太さ 9px・不透明度 0.16・ぼかし 16px／4px・0.45・8px／1.6px・1.0",
+     "色相は光の後ろから先へ 150° 変化し、全体が 1 周期で 360° 回る"
+    ],
+    "en": [
+     "Input 380 × 64 px, corner radius 16 px. The beam laps clockwise once every 4.8 s at a constant speed.",
+     "Beam length is 22% of the perimeter, fading toward the tail (power 1.5), with a white dot at the head.",
+     "Three layers: 9 px wide at 0.16 opacity with 16 px blur; 4 px at 0.45 with 8 px blur; a 1.6 px core at 1.0.",
+     "Hue shifts 150° from tail to head, and the whole palette rotates 360° per cycle."
+    ],
+    "zh-Hans": [
+     "输入框 380 × 64 px，圆角 16 px；光束顺时针匀速绕行，4.8 秒一圈。",
+     "光束长度为边框周长的 22%，向尾部按 1.5 次方渐隐，头部有白色亮点。",
+     "分三层：9 px 宽、不透明度 0.16、模糊 16 px；4 px、0.45、8 px；1.6 px 细芯、1.0。",
+     "色相从尾到头变化 150°，整体配色每周期旋转 360°。"
+    ]
+   },
+   "use": {
+    "ja": "AIの返答やエージェントの作業など、3秒以上かかる処理の間、その入力欄やカードに付けるとき。",
+    "en": "Use it on the input or card that is doing the work while an AI reply or agent run takes more than about 3 s.",
+    "zh-Hans": "适合 AI 回复、智能体任务等超过约 3 秒的等待，加在正在工作的输入框或卡片上。"
+   },
+   "tags": [
+    "border-beam",
+    "loading",
+    "ai",
+    "input",
+    "glow",
+    "streaming",
+    "border"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "边框光束",
+     "流光边框",
+     "跑马灯边框"
+    ]
+   }
+  },
+  {
+   "id": "1-050",
+   "upstream": "146",
+   "group": "web",
+   "pack": "aiux",
+   "no": "02",
+   "slug": "line-beam",
+   "category": "loading-thinking",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "ラインビーム",
+    "en": "Line beam",
+    "zh-Hans": "底边光束"
+   },
+   "meaning": {
+    "ja": "入力欄の下辺を光が左右に走り、検索中であることを示す",
+    "en": "A light sweeps back and forth along the bottom edge of a field to show a search is running",
+    "zh-Hans": "光沿输入框底边左右扫动，表示正在搜索"
+   },
+   "ask": {
+    "ja": "検索を送信してから結果が出るまで、検索欄の下辺に光が左右へ往復するラインビームを付けて。片道2.2秒で。",
+    "en": "From submit until results arrive, add a line beam that sweeps along the bottom of the search field: 2.2 s each way.",
+    "zh-Hans": "提交搜索到结果返回之间，给搜索框加底边光束，光沿底边左右往返，单程 2.2 秒。"
+   },
+   "summary": {
+    "ja": "丸い検索欄の下辺だけが光り、その光が左から右へ、右から左へとゆっくり往復する。",
+    "en": "Only the bottom edge of a rounded search field lights up, and the light glides from left to right and back.",
+    "zh-Hans": "圆角搜索框只有底边发光，光从左滑到右，再从右滑回左。"
+   },
+   "spec": {
+    "ja": [
+     "検索欄 380×48px、角丸 24px。光るのは枠の下半分だけ",
+     "光の中心は左端から 60px の位置〜右端から 60px の位置を往復：0.1〜2.3 秒で右へ、2.5〜4.7 秒で左へ（easeInOut 3 乗）",
+     "光の幅 180px（中心が最も明るく両端で透明）。太さ 6px・ぼかし 14px の層と 1.6px の芯",
+     "下辺の外側に横長の柔らかい光（半径 70px、縦 0.35 倍、不透明度 0.28）"
+    ],
+    "en": [
+     "Search field 380 × 48 px, corner radius 24 px. Only the lower half of the border lights up.",
+     "The light centre travels between 60 px from each end: right at 0.1–2.3 s, back left at 2.5–4.7 s (cubic ease-in-out).",
+     "The lit band is 180 px wide, brightest at the centre: a 6 px layer with 14 px blur plus a 1.6 px core.",
+     "A soft flattened glow sits under the edge (radius 70 px, squashed to 0.35 height, opacity 0.28)."
+    ],
+    "zh-Hans": [
+     "搜索框 380 × 48 px，圆角 24 px；只有边框下半部分发光。",
+     "光的中心在距两端 60 px 之间往返：0.1–2.3 秒向右，2.5–4.7 秒向左，三次缓入缓出。",
+     "发光段宽 180 px，中间最亮、两端透明；由 6 px 宽、模糊 14 px 的一层和 1.6 px 细芯组成。",
+     "底边外侧有一团压扁的柔光（半径 70 px，纵向 0.35 倍，不透明度 0.28）。"
+    ]
+   },
+   "use": {
+    "ja": "検索欄・コマンドバー・質問欄で、送信してから結果が返るまでの間に。",
+    "en": "Use it on a search field, command bar or ask box between submitting and getting results.",
+    "zh-Hans": "适合搜索框、命令栏、提问框在提交后、结果返回前的等待。"
+   },
+   "tags": [
+    "line-beam",
+    "search",
+    "loading",
+    "input",
+    "glow",
+    "sweep"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "搜索光束",
+     "底部流光"
+    ]
+   }
+  },
+  {
+   "id": "1-051",
+   "upstream": "147",
+   "group": "web",
+   "pack": "aiux",
+   "no": "03",
+   "slug": "inner-pulse",
+   "category": "loading-thinking",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "インナーパルス",
+    "en": "Inner pulse",
+    "zh-Hans": "内呼吸光晕"
+   },
+   "meaning": {
+    "ja": "ボタンの内側で色の光がゆっくり明滅し、注目を集める",
+    "en": "Coloured light breathes inside a button to draw attention to it",
+    "zh-Hans": "彩色光在按钮内部明暗呼吸，吸引注意"
+   },
+   "ask": {
+    "ja": "「Ask AI」ボタンの内側で色の光がゆっくり明滅するインナーパルスにして。1呼吸2.4秒で、光はボタンの外に出さないで。",
+    "en": "Give the Ask AI button an inner pulse: coloured light breathing inside it, 2.4 s per breath, never spilling outside.",
+    "zh-Hans": "给“Ask AI”按钮加内呼吸光晕，彩光在按钮内部明暗呼吸，一次 2.4 秒，不溢出按钮。"
+   },
+   "summary": {
+    "ja": "丸いボタンの中で、ピンク・オレンジ・青の光が広がっては縮み、枠の色もいっしょに明滅する。",
+    "en": "Inside a pill button, pink, orange and blue glows swell and shrink, and the outline brightens with them.",
+    "zh-Hans": "胶囊按钮内部，粉、橙、蓝三团光放大又收小，边框也随之明暗。"
+   },
+   "spec": {
+    "ja": [
+     "ボタン 200×56px、角丸 28px。光はボタンの形で切り抜き、外へ出さない",
+     "呼吸 2.4 秒（1 周期に 2 回）：0.5−0.5cos で 0→1→0",
+     "3 つの放射状の光（色相 330°・40°・200°）が半径 46→80px、不透明度 0.35→0.9 に変化し、左右に ±14px ゆっくり漂う",
+     "枠は 1.4px の虹色、不透明度 0.3→0.8。文字「✦ Ask AI」16px"
+    ],
+    "en": [
+     "Button 200 × 56 px, corner radius 28 px. The light is clipped to the button and never spills out.",
+     "One breath is 2.4 s (2 per cycle), eased as 0.5 − 0.5·cos from 0 to 1 and back to 0.",
+     "Three radial glows (hues 330°, 40°, 200°) grow from 46 to 80 px radius and 0.35 to 0.9 opacity, drifting ±14 px sideways.",
+     "A 1.4 px rainbow outline goes from 0.3 to 0.8 opacity. Label \"✦ Ask AI\" at 16 px."
+    ],
+    "zh-Hans": [
+     "按钮 200 × 56 px，圆角 28 px；光按按钮形状裁切，不溢出。",
+     "一次呼吸 2.4 秒（每周期 2 次），按 0.5 − 0.5·cos 从 0 到 1 再回 0。",
+     "三团径向光（色相 330°、40°、200°）半径 46→80 px、不透明度 0.35→0.9，并左右缓慢漂移 ±14 px。",
+     "1.4 px 彩虹描边，不透明度 0.3→0.8；按钮文字“✦ Ask AI”16 px。"
+    ]
+   },
+   "use": {
+    "ja": "「AIに聞く」「生成」など、AIの操作ボタンや主要な CTA を目立たせたいときに。",
+    "en": "Use it to highlight an AI action button or main call to action, such as Ask AI or Generate.",
+    "zh-Hans": "适合突出“问 AI”“生成”等 AI 操作按钮或主要行动按钮。"
+   },
+   "tags": [
+    "pulse",
+    "button",
+    "cta",
+    "highlight",
+    "glow",
+    "ai"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "按钮呼吸灯",
+     "内发光"
+    ]
+   }
+  },
+  {
+   "id": "1-052",
+   "upstream": "148",
+   "group": "web",
+   "pack": "aiux",
+   "no": "04",
+   "slug": "outer-pulse",
+   "category": "loading-thinking",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "アウターパルス",
+    "en": "Outer pulse",
+    "zh-Hans": "外扩呼吸光晕"
+   },
+   "meaning": {
+    "ja": "入力欄の外側に色の光がにじみ出ては引き、ここに入力するよう促す",
+    "en": "Coloured light blooms outside an input and pulls back, inviting the user to type there",
+    "zh-Hans": "彩光在输入框外侧扩散又收回，引导用户在这里输入"
+   },
+   "ask": {
+    "ja": "トップページの入力欄の外側に、色の光が広がっては戻るアウターパルスを付けて。広がりは4〜18px、1呼吸2.4秒で。",
+    "en": "Add an outer pulse around the main input on the landing page: light spreading 4–18 px outside, 2.4 s per breath.",
+    "zh-Hans": "给首页主输入框加外扩呼吸光晕，光向外扩 4–18 px，一次呼吸 2.4 秒。"
+   },
+   "summary": {
+    "ja": "暗い入力欄のまわりに虹色の輪が何重にも広がっては縮み、欄そのものはくっきりしたまま。",
+    "en": "Layered rainbow rings spread out around a dark input and shrink back, while the field itself stays crisp.",
+    "zh-Hans": "深色输入框周围，多层彩虹光圈向外扩散再收回，输入框本身保持清晰。"
+   },
+   "spec": {
+    "ja": [
+     "入力欄 380×64px、角丸 16px。光は欄の外側だけに描く",
+     "呼吸 2.4 秒（1 周期に 2 回）。外への広がり 4→18px",
+     "4 重の輪（太さ 3px・ぼかし 18px）を外ほど薄く重ねる。不透明度 0.25→0.7",
+     "虹色のグラデーションは 1 周期で 1 回転"
+    ],
+    "en": [
+     "Input 380 × 64 px, corner radius 16 px. The light is drawn only outside the field.",
+     "One breath is 2.4 s (2 per cycle); the glow spreads from 4 to 18 px outward.",
+     "4 rings (3 px wide, 18 px blur), fainter toward the outside; opacity 0.25 to 0.7.",
+     "The rainbow gradient turns once per cycle."
+    ],
+    "zh-Hans": [
+     "输入框 380 × 64 px，圆角 16 px；光只画在输入框外侧。",
+     "一次呼吸 2.4 秒（每周期 2 次），外扩距离 4→18 px。",
+     "叠 4 层光圈（3 px 宽、模糊 18 px），越往外越淡；不透明度 0.25→0.7。",
+     "彩虹渐变每周期旋转一圈。"
+    ]
+   },
+   "use": {
+    "ja": "空の状態やトップページの主な入力欄、おすすめのプランカードを目立たせたいときに。",
+    "en": "Use it on the main input of an empty state or landing page, or on a featured pricing card.",
+    "zh-Hans": "适合空状态或首页的主输入框，也可用在推荐的价格方案卡片上。"
+   },
+   "tags": [
+    "pulse",
+    "input",
+    "highlight",
+    "glow",
+    "landing",
+    "featured"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "外发光",
+     "输入框光晕"
+    ]
+   }
+  },
+  {
+   "id": "1-053",
+   "upstream": "149",
+   "group": "web",
+   "pack": "aiux",
+   "no": "05",
+   "slug": "orb-working",
+   "category": "loading-thinking",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "思考オーブ・作業中",
+    "en": "Thinking orb: working",
+    "zh-Hans": "思考球·运转"
+   },
+   "meaning": {
+    "ja": "点でできた球のまわりを粒が軌道で回り、AIが作業中であることを示す",
+    "en": "Particles circle a dotted orb on tilted orbits to show the AI is working",
+    "zh-Hans": "粒子沿倾斜轨道绕点阵球运行，表示 AI 正在工作"
+   },
+   "ask": {
+    "ja": "ツールを実行している間、「Working…」の横に、点の球のまわりを粒が3本の軌道で回る思考オーブを出して。",
+    "en": "While a tool is running, show a thinking orb next to \"Working…\": particles circling a dotted orb on three orbits.",
+    "zh-Hans": "工具执行期间，在“Working…”旁放思考球，粒子沿三条轨道绕点阵球运行。"
+   },
+   "summary": {
+    "ja": "ゆっくり回る点の球のまわりを、傾いた3本の軌道に沿って尾を引く粒がそれぞれの速さで回る。",
+    "en": "Around a slowly spinning dotted orb, particles with short trails orbit on three tilted paths at different speeds.",
+    "zh-Hans": "缓慢自转的点阵球周围，带短拖尾的粒子沿三条倾斜轨道以不同速度绕行。"
+   },
+   "spec": {
+    "ja": [
+     "球は半径 58px、点 240 個（フィボナッチ球面配置）。手前ほど点が大きく明るい。1 周期で 1 回自転、俯角 0.32 rad",
+     "軌道は 3 本（傾き 0.35・1.05・−0.6 rad）、半径は球の 1.14 倍。各軌道に粒 8 個",
+     "1 周期に 1 周・2 周・逆向き 1 周",
+     "粒は 5 つの残像で尾を引く。右に「Working…」15px"
+    ],
+    "en": [
+     "Orb radius 58 px, 240 dots on a Fibonacci sphere; nearer dots are larger and brighter. It spins once per cycle, viewed 0.32 rad from above.",
+     "Three orbits tilted 0.35, 1.05 and −0.6 rad, at 1.14 × the orb radius, with 8 particles each.",
+     "They go round 1, 2 and 1 (in reverse) times per cycle.",
+     "Each particle trails 5 fading copies. Label \"Working…\" at 15 px on the right."
+    ],
+    "zh-Hans": [
+     "球半径 58 px，240 个点按斐波那契球面分布；越靠前点越大越亮。每周期自转一圈，俯视角 0.32 rad。",
+     "三条轨道倾角 0.35、1.05、−0.6 rad，半径为球的 1.14 倍，每条 8 个粒子。",
+     "每周期分别绕 1 圈、2 圈、反向 1 圈。",
+     "每个粒子带 5 个渐淡残影；右侧文字“Working…”15 px。"
+    ]
+   },
+   "use": {
+    "ja": "エージェントの作業やツールの実行など、汎用の「AIが作業中」を示したいときに。2秒未満の待ちには使わない。",
+    "en": "Use it for general agent work or a running tool. Skip it for waits under 2 s.",
+    "zh-Hans": "适合智能体执行任务、工具运行等通用的“AI 工作中”状态；不足 2 秒的等待不要用。"
+   },
+   "tags": [
+    "thinking-orb",
+    "working",
+    "agent",
+    "loading",
+    "ai",
+    "orbit",
+    "particles"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "思考动画",
+     "AI 加载球"
+    ]
+   }
+  },
+  {
+   "id": "1-054",
+   "upstream": "150",
+   "group": "web",
+   "pack": "aiux",
+   "no": "06",
+   "slug": "orb-searching",
+   "category": "loading-thinking",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "思考オーブ・検索中",
+    "en": "Thinking orb: searching",
+    "zh-Hans": "思考球·搜索"
+   },
+   "meaning": {
+    "ja": "点の地球を光の経線が走査し、AIが検索中であることを示す",
+    "en": "A bright meridian scans a dotted globe to show the AI is searching",
+    "zh-Hans": "一条亮经线扫过点阵地球，表示 AI 正在搜索"
+   },
+   "ask": {
+    "ja": "Web検索している間、「Searching the web…」の横に、点の地球を光の線が走査する思考オーブを出して。",
+    "en": "While searching the web, show a thinking orb beside \"Searching the web…\": a light line scanning a dotted globe.",
+    "zh-Hans": "联网搜索期间，在“Searching the web…”旁放思考球，一条光线扫过点阵地球。"
+   },
+   "summary": {
+    "ja": "点でできた地球が回り、縦の光の線がその上をなでるように動いて、触れた点が明るくなる。",
+    "en": "A dotted globe turns while a vertical line of light sweeps over it, brightening the dots it passes.",
+    "zh-Hans": "点阵地球自转，一条竖向光线在表面扫过，经过的点随之变亮。"
+   },
+   "spec": {
+    "ja": [
+     "球は半径 58px、点 240 個。1 周期で 1 回自転",
+     "走査する経線は 1 周期で 2 周（自転の 2 倍の速さ）。経線は不透明度 0.35、太さ 1px",
+     "経線に近い点ほど明るい：ずれの角度の 2 乗に対して exp(−Δ²/0.05)、最大 +0.75",
+     "右に「Searching the web…」15px"
+    ],
+    "en": [
+     "Orb radius 58 px, 240 dots; it spins once per cycle.",
+     "The scanning meridian goes round 2 times per cycle (2 × the spin), drawn 1 px wide at 0.35 opacity.",
+     "Dots near the meridian brighten by up to +0.75, falling off as exp(−Δ²/0.05) with the angle Δ.",
+     "Label \"Searching the web…\" at 15 px on the right."
+    ],
+    "zh-Hans": [
+     "球半径 58 px，240 个点；每周期自转一圈。",
+     "扫描经线每周期转 2 圈（是自转的 2 倍速），线宽 1 px、不透明度 0.35。",
+     "离经线越近的点越亮，按角度差 Δ 以 exp(−Δ²/0.05) 衰减，最多加亮 0.75。",
+     "右侧文字“Searching the web…”15 px。"
+    ]
+   },
+   "use": {
+    "ja": "Web検索・資料の検索・データの照会など、何かを探している間に。",
+    "en": "Use it while the AI is searching the web, retrieving documents or looking something up.",
+    "zh-Hans": "适合联网搜索、检索资料、查询数据等“正在找”的阶段。"
+   },
+   "tags": [
+    "thinking-orb",
+    "searching",
+    "search",
+    "retrieval",
+    "loading",
+    "globe"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "搜索中",
+     "检索动画"
+    ]
+   }
+  },
+  {
+   "id": "1-055",
+   "upstream": "151",
+   "group": "web",
+   "pack": "aiux",
+   "no": "07",
+   "slug": "orb-listening",
+   "category": "loading-thinking",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "思考オーブ・聞き取り中",
+    "en": "Thinking orb: listening",
+    "zh-Hans": "思考球·聆听"
+   },
+   "meaning": {
+    "ja": "緯線の輪が音の波のようにうねり、マイクが聞き取り中であることを示す",
+    "en": "Latitude rings ripple like a sound wave to show the mic is listening",
+    "zh-Hans": "纬线环像声波一样起伏，表示正在聆听语音"
+   },
+   "ask": {
+    "ja": "音声入力でマイクが開いている間、「Listening…」の横に、球の緯線が音の波のようにうねる思考オーブを出して。",
+    "en": "While the mic is open for voice input, show a thinking orb by \"Listening…\" whose latitude rings ripple like sound.",
+    "zh-Hans": "语音输入开麦期间，在“Listening…”旁放思考球，纬线环像声波一样起伏。"
+   },
+   "summary": {
+    "ja": "点を並べた緯線の輪が上から下へ順にふくらんではしぼみ、波が球の上を転がっていくように見える。",
+    "en": "Rings of dots swell and shrink one after another from top to bottom, like a wave rolling over the orb.",
+    "zh-Hans": "一圈圈点阵纬线从上到下依次鼓起又收回，像一道波在球面上滚过。"
+   },
+   "spec": {
+    "ja": [
+     "球は半径 58px。緯線の輪 11 本（−75°〜75°、15° おき）、輪ごとの点の数は緯度に応じて 8〜34 個",
+     "各輪の半径が最大 ±10%（約 6px）ふくらむ。1 周期に 2 波、隣の輪とは 0.7 rad ずれる",
+     "ふくらんだ輪ほど点が明るい。球は 1 周期で 1 回自転",
+     "右に「Listening…」15px"
+    ],
+    "en": [
+     "Orb radius 58 px with 11 latitude rings (−75° to 75°, every 15°), 8–34 dots per ring depending on latitude.",
+     "Each ring's radius swells by up to ±10% (about 6 px); 2 waves per cycle, offset 0.7 rad from ring to ring.",
+     "Swollen rings are brighter. The orb spins once per cycle.",
+     "Label \"Listening…\" at 15 px on the right."
+    ],
+    "zh-Hans": [
+     "球半径 58 px，11 条纬线环（−75° 到 75°，每 15° 一条），每环 8–34 个点，按纬度增减。",
+     "各环半径最多起伏 ±10%（约 6 px）；每周期 2 个波，相邻两环相位差 0.7 rad。",
+     "鼓起的环更亮；球每周期自转一圈。",
+     "右侧文字“Listening…”15 px。"
+    ]
+   },
+   "use": {
+    "ja": "音声入力・音声モード・ディクテーションでマイクが開いている間に。",
+    "en": "Use it while the mic is open for voice input, voice mode or dictation.",
+    "zh-Hans": "适合语音输入、语音模式、听写等开麦阶段。"
+   },
+   "tags": [
+    "thinking-orb",
+    "listening",
+    "voice",
+    "microphone",
+    "dictation",
+    "wave"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "语音聆听",
+     "录音中"
+    ]
+   }
+  },
+  {
+   "id": "1-056",
+   "upstream": "152",
+   "group": "web",
+   "pack": "aiux",
+   "no": "08",
+   "slug": "orb-connecting",
+   "category": "loading-thinking",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "思考オーブ・接続中",
+    "en": "Thinking orb: connecting",
+    "zh-Hans": "思考球·连接"
+   },
+   "meaning": {
+    "ja": "球の上の点が順に線で結ばれ、データが流れて、サービスに接続中であることを示す",
+    "en": "Nodes on the orb join up one by one and packets flow along the links, showing services are being connected",
+    "zh-Hans": "球面节点依次连线、数据沿线流动，表示正在连接服务"
+   },
+   "ask": {
+    "ja": "外部サービスに接続している間、「Connecting sources…」の横に、球の点が順に線で結ばれてデータが流れる思考オーブを出して。",
+    "en": "While connecting to services, show a thinking orb by \"Connecting sources…\": nodes linking up, then packets flowing.",
+    "zh-Hans": "连接外部服务期间，在“Connecting sources…”旁放思考球，节点依次连线，然后数据沿线流动。"
+   },
+   "summary": {
+    "ja": "回る球の上で星座のように点が一本ずつ結ばれ、そのあと線の上を光の粒が流れ、最後に消えて最初に戻る。",
+    "en": "On a turning orb, nodes are joined one link at a time like a constellation, then light packets run along the links before it all fades and restarts.",
+    "zh-Hans": "旋转的球面上，节点像星座一样一条条连起来，随后光点沿连线流动，最后淡出复位。"
+   },
+   "spec": {
+    "ja": [
+     "球は半径 58px、うすい点 240 個と節点 10 個。1 周期で 1 回自転",
+     "線 12 本を 0.15 秒から 0.17 秒おきに 1 本ずつ描く（1 本 0.35 秒、easeOut 3 乗）",
+     "2.4〜4.0 秒：各線の上を光の粒が 0.8 秒で 1 往路ずつ流れる",
+     "4.0〜4.8 秒で線と粒が消えて元に戻る。右に「Connecting sources…」15px"
+    ],
+    "en": [
+     "Orb radius 58 px: 240 faint dots plus 10 nodes; it spins once per cycle.",
+     "12 links are drawn one at a time from 0.15 s, every 0.17 s, each taking 0.35 s (cubic ease-out).",
+     "At 2.4–4.0 s a light packet runs along each link, one pass every 0.8 s.",
+     "Links and packets fade out at 4.0–4.8 s and the loop restarts. Label \"Connecting sources…\" at 15 px."
+    ],
+    "zh-Hans": [
+     "球半径 58 px：240 个淡点和 10 个节点；每周期自转一圈。",
+     "12 条连线从 0.15 秒起每隔 0.17 秒画出一条，每条用时 0.35 秒（三次缓出）。",
+     "2.4–4.0 秒，光点沿每条连线流动，每 0.8 秒走完一趟。",
+     "4.0–4.8 秒连线和光点淡出复位；右侧文字“Connecting sources…”15 px。"
+    ]
+   },
+   "use": {
+    "ja": "外部サービスへの接続・データソースのつなぎ込み・ツールサーバーとの接続中に。",
+    "en": "Use it while connecting to outside services, linking data sources or reaching a tool server.",
+    "zh-Hans": "适合连接外部服务、接入数据源、连接工具服务器的阶段。"
+   },
+   "tags": [
+    "thinking-orb",
+    "connecting",
+    "network",
+    "integration",
+    "nodes",
+    "constellation"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "连接中",
+     "节点连线"
+    ]
+   }
+  },
+  {
+   "id": "1-057",
+   "upstream": "153",
+   "group": "web",
+   "pack": "aiux",
+   "no": "09",
+   "slug": "orb-composing",
+   "category": "loading-thinking",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "思考オーブ・執筆中",
+    "en": "Thinking orb: composing",
+    "zh-Hans": "思考球·写作"
+   },
+   "meaning": {
+    "ja": "点の帯が球のまわりをうねりながら流れ、AIが文章を書いていることを示す",
+    "en": "Bands of dots flow and undulate around the orb to show the AI is writing",
+    "zh-Hans": "点阵波带绕球起伏流动，表示 AI 正在写作"
+   },
+   "ask": {
+    "ja": "AIが文章を生成している間、「Writing…」の横に、点の帯が球のまわりをうねって流れる思考オーブを出して。",
+    "en": "While the AI drafts text, show a thinking orb by \"Writing…\" with bands of dots undulating around it.",
+    "zh-Hans": "AI 生成文字期间，在“Writing…”旁放思考球，点阵波带绕球起伏流动。"
+   },
+   "summary": {
+    "ja": "3本の点の帯が、それぞれ違う傾きで球に巻きつき、波打ちながら流れ、光が帯の上を進んでいく。",
+    "en": "Three bands of dots wrap the orb at different tilts, rippling as they flow, with light running along them.",
+    "zh-Hans": "三条点阵波带以不同倾角缠绕球体，一边起伏一边流动，亮光沿波带前进。"
+   },
+   "spec": {
+    "ja": [
+     "球は半径 58px（うすい点 240 個）。帯 3 本（傾き 0.5・−0.45・1.15 rad、位相 120° ずつ）",
+     "各帯は経度 72 点 × 3 列。緯度方向に振幅 0.32 rad、経度 2 山でうねる",
+     "うねりは 1 周期で 1 回、明るい部分は帯に沿って 1 周期で 2 周する",
+     "球は 1 周期で 1 回自転。右に「Writing…」15px"
+    ],
+    "en": [
+     "Orb radius 58 px (240 faint dots) with 3 bands tilted 0.5, −0.45 and 1.15 rad, 120° apart in phase.",
+     "Each band is 72 points around × 3 rows, waving ±0.32 rad in latitude with 2 crests around.",
+     "The wave moves once per cycle; the bright part runs round the band 2 times per cycle.",
+     "The orb spins once per cycle. Label \"Writing…\" at 15 px on the right."
+    ],
+    "zh-Hans": [
+     "球半径 58 px（240 个淡点），3 条波带倾角 0.5、−0.45、1.15 rad，相位各差 120°。",
+     "每条波带沿经度 72 个点 × 3 行，纬度方向振幅 0.32 rad，绕一圈有 2 个波峰。",
+     "波形每周期推进一次，亮部沿波带每周期绕 2 圈。",
+     "球每周期自转一圈；右侧文字“Writing…”15 px。"
+    ]
+   },
+   "use": {
+    "ja": "文章の生成・下書き・要約など、AIが書いている間に。",
+    "en": "Use it while the AI is writing, drafting or summarising text.",
+    "zh-Hans": "适合 AI 正在撰写、起草、总结文字的阶段。"
+   },
+   "tags": [
+    "thinking-orb",
+    "composing",
+    "writing",
+    "generating",
+    "text",
+    "bands"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "写作中",
+     "生成文字"
+    ]
+   }
+  },
+  {
+   "id": "1-058",
+   "upstream": "154",
+   "group": "web",
+   "pack": "aiux",
+   "no": "10",
+   "slug": "gooey-morph",
+   "category": "liquid",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "リキッド展開メニュー",
+    "en": "Gooey morph menu",
+    "zh-Hans": "液态分裂菜单"
+   },
+   "meaning": {
+    "ja": "「+」ボタンから操作ボタンが液体のように引き出され、ちぎれて分かれる",
+    "en": "Action buttons are pulled out of a plus button like liquid and pinch off on their own",
+    "zh-Hans": "操作按钮像液体一样从“+”按钮里被拉出，再拉断成独立的按钮"
+   },
+   "ask": {
+    "ja": "右下の「+」ボタンを押すと、3つの操作ボタンが液体のように伸びて分かれるメニューにして。展開550ms、40msずつずらして、少し跳ねるように。",
+    "en": "Make the + button open a gooey menu: three actions stretch out of it like liquid and split off, 550 ms each, staggered 40 ms, with a slight bounce.",
+    "zh-Hans": "点“+”按钮后展开液态菜单：三个操作按钮像液体一样拉出并分离，各 550 ms，依次错开 40 ms，带一点回弹。"
+   },
+   "summary": {
+    "ja": "カーソルが「+」を押すと、白い液体から3つの丸が伸びて首が細くなりちぎれ、アイコンが浮かぶ。もう一度押すと吸い込まれて1つに戻る。",
+    "en": "A cursor clicks the +; three circles stretch out of the white liquid, their necks thin and break, and icons appear. A second click draws them back into one.",
+    "zh-Hans": "指针点“+”后，三个圆从白色液体中伸出，颈部变细拉断，图标浮现；再点一次，它们被吸回融成一个。"
+   },
+   "spec": {
+    "ja": [
+     "主ボタン半径 30px、操作ボタン半径 24px。開いた位置は (−81,−51)・(0,−96)・(81,−51)px（原版の 40px ボタン・(±54,−34)・(0,−64) を 1.5 倍）",
+     "0.8 秒から展開、各 0.55 秒・40ms ずつずらす（cubic-bezier(0.34,1.56,0.64,1) 相当、約 10% 行き過ぎて戻る）。3.0 秒から逆順に収納、各 0.55 秒（easeInOut 3 乗）",
+     "液体は距離場のなめらかな和（なめらかさ 22px）で描くので、離れるほど首が細くなりちぎれる。出たばかりの丸は 55% の大きさから広がり、主ボタンは最大 6% つぶれる",
+     "「+」は開くと 45° 回って「×」に。アイコンは 60% 以上離れてから浮かぶ。クリックは 0.68 秒と 2.88 秒、波紋 0.6 秒"
+    ],
+    "en": [
+     "Main button radius 30 px, actions 24 px, opening to (−81, −51), (0, −96) and (81, −51) px — the original's 40 px buttons and (±54, −34), (0, −64) offsets scaled 1.5×.",
+     "Opening starts at 0.8 s, 0.55 s per button, staggered 40 ms (like cubic-bezier(0.34, 1.56, 0.64, 1), overshooting about 10%). Closing starts at 3.0 s in reverse order, 0.55 s each (cubic ease-in-out).",
+     "The liquid is a smooth union of distance fields (smoothing 22 px), so necks thin and break as buttons move apart. New buttons grow from 55% size; the main button squashes by up to 6%.",
+     "The + turns 45° into × when open; icons fade in once a button is 60% out. Clicks at 0.68 s and 2.88 s with a 0.6 s ripple."
+    ],
+    "zh-Hans": [
+     "主按钮半径 30 px，操作按钮半径 24 px，展开位置 (−81, −51)、(0, −96)、(81, −51) px，即原版 40 px 按钮与 (±54, −34)、(0, −64) 位移放大 1.5 倍。",
+     "0.8 秒开始展开，每个 0.55 秒、依次错开 40 ms（近似 cubic-bezier(0.34, 1.56, 0.64, 1)，冲过头约 10% 再回）；3.0 秒开始倒序收回，每个 0.55 秒（三次缓入缓出）。",
+     "液体用距离场平滑并集绘制（平滑距离 22 px），按钮越远颈部越细直到断开；刚拉出的按钮从 55% 大小长大，主按钮最多被拉扁 6%。",
+     "展开时“+”旋转 45° 变成“×”；按钮离开 60% 以上图标才浮现。0.68 秒与 2.88 秒点击，涟漪 0.6 秒。"
+    ]
+   },
+   "use": {
+    "ja": "「新規ファイル・画像追加・フォルダ」などを出す浮動の「+」ボタンや、スピードダイヤルに。",
+    "en": "Use it for a floating + button or speed dial that opens actions such as new file, add image or new folder.",
+    "zh-Hans": "适合悬浮“+”按钮或快捷拨号，展开“新建文件、添加图片、新建文件夹”等操作。"
+   },
+   "tags": [
+    "gooey",
+    "liquid",
+    "morph",
+    "fab",
+    "speed-dial",
+    "menu",
+    "metaball"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "液态菜单",
+     "黏液按钮",
+     "融球"
+    ]
+   }
+  },
+  {
+   "id": "1-059",
+   "upstream": "155",
+   "group": "web",
+   "pack": "aiux",
+   "no": "11",
+   "slug": "gooey-move",
+   "category": "liquid",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "リキッドの尾",
+    "en": "Gooey trail",
+    "zh-Hans": "液态拖尾"
+   },
+   "meaning": {
+    "ja": "動く指示部分が伸び、後ろに液体のしずくの尾を引く",
+    "en": "A moving indicator stretches and trails a droplet tail behind it",
+    "zh-Hans": "移动的指示块被拉长，身后拖出液滴尾巴"
+   },
+   "ask": {
+    "ja": "タブの選択インジケーターを、動くときに伸びて後ろにしずくの尾を引く液体にして。移動は0.45秒、尾は0.09秒遅れで。",
+    "en": "Make the tab indicator liquid: it stretches when it moves and trails a droplet tail, 0.45 s per move, tail lagging 0.09 s.",
+    "zh-Hans": "把标签切换的指示块做成液态：移动时拉长并拖出液滴尾巴，每次移动 0.45 秒，尾巴滞后 0.09 秒。"
+   },
+   "summary": {
+    "ja": "3つの選択肢の間を白い指示部分が行き来し、速く動くほど横に伸びて、後ろに丸いしずくがくっついてくる。",
+    "en": "A white indicator moves between three options; the faster it goes, the more it stretches and the bigger the droplet clinging behind it.",
+    "zh-Hans": "白色指示块在三个选项间来回移动，速度越快拉得越长，身后黏着的液滴也越大。"
+   },
+   "spec": {
+    "ja": [
+     "セグメント 288×44px、選択肢 3 つ（96px 間隔）、指示部分 84×34px",
+     "1.2 秒ごとに移動：0.1・1.3・2.5・3.7 秒から各 0.45 秒（easeInOut 3 乗）で 1→2→3→2→1",
+     "速度に応じて横 最大 +25%、縦 最大 −12%（速度 320px/s で最大）",
+     "尾は 0.09 秒前の位置。尾の丸の半径 6→16px、首でつながる。文字は指示部分の上で反転色"
+    ],
+    "en": [
+     "Segmented control 288 × 44 px with three options 96 px apart; the indicator is 84 × 34 px.",
+     "It moves every 1.2 s, starting at 0.1, 1.3, 2.5 and 3.7 s, 0.45 s per move (cubic ease-in-out): 1 → 2 → 3 → 2 → 1.",
+     "With speed it widens by up to 25% and flattens by up to 12% (full at 320 px/s).",
+     "The tail sits where the indicator was 0.09 s earlier; its blob grows from 6 to 16 px radius, joined by a neck. Labels invert over the indicator."
+    ],
+    "zh-Hans": [
+     "分段控件 288 × 44 px，三个选项间距 96 px，指示块 84 × 34 px。",
+     "每 1.2 秒移动一次，分别从 0.1、1.3、2.5、3.7 秒开始，每次 0.45 秒（三次缓入缓出），顺序 1 → 2 → 3 → 2 → 1。",
+     "随速度横向最多拉长 25%、纵向最多压扁 12%（320 px/s 时达到最大）。",
+     "尾巴位于 0.09 秒前的位置，尾球半径 6→16 px，用颈部相连；指示块上的文字反色显示。"
+    ]
+   },
+   "use": {
+    "ja": "タブバー・セグメントコントロールの選択インジケーターや、スライダーのつまみに。",
+    "en": "Use it for the sliding indicator of a tab bar or segmented control, or for a slider thumb.",
+    "zh-Hans": "适合标签栏、分段控件的滑动指示块，或滑块的拖动按钮。"
+   },
+   "tags": [
+    "gooey",
+    "liquid",
+    "tabs",
+    "segmented-control",
+    "indicator",
+    "trail",
+    "slider"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "液态指示器",
+     "黏液滑块"
+    ]
+   }
+  },
+  {
+   "id": "1-060",
+   "upstream": "156",
+   "group": "web",
+   "pack": "aiux",
+   "no": "12",
+   "slug": "gooey-bend",
+   "category": "liquid",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "リキッドのしなり",
+    "en": "Gooey bend",
+    "zh-Hans": "液态弯曲"
+   },
+   "meaning": {
+    "ja": "ドラッグしたカードが、動きと反対向きにやわらかくしなる",
+    "en": "A dragged card bows softly against the direction it moves",
+    "zh-Hans": "被拖动的卡片向运动反方向柔软地弯曲"
+   },
+   "ask": {
+    "ja": "ドラッグしているカードを、動きと反対向きに液体のようにしならせて。しなりは速さに比例して最大9pxで。",
+    "en": "Make the dragged card bend like liquid against its motion, in proportion to speed, up to 9 px.",
+    "zh-Hans": "拖动卡片时让它像液体一样向运动反方向弯曲，弯曲量与速度成正比，最多 9 px。"
+   },
+   "summary": {
+    "ja": "白いカードが左右にドラッグされ、速く動くほど左右の辺が後ろへしなり、止まるとまっすぐに戻る。",
+    "en": "A white card is dragged side to side; the faster it moves, the more its sides bow backwards, straightening as it slows.",
+    "zh-Hans": "白色卡片被左右拖动，速度越快左右两边越向后弯，减速时恢复平直。"
+   },
+   "spec": {
+    "ja": [
+     "カード 170×100px、角丸 16px。中心が左右 ±90px を 1 周期で 1 往復（正弦）",
+     "左右の辺の中央が動きと反対向きにしなる。しなりは速さに比例し最大約 9px",
+     "中身の行もいっしょにずれる（最大約 6px）",
+     "上辺にドラッグ中のポインター（点 5px と輪 10px）、下に影"
+    ],
+    "en": [
+     "Card 170 × 100 px, corner radius 16 px; its centre swings ±90 px sideways once per cycle (sine).",
+     "The middle of the left and right edges bows against the motion, in proportion to speed, up to about 9 px.",
+     "The content rows shift with it, by up to about 6 px.",
+     "A drag pointer (5 px dot and 10 px ring) sits on the top edge, with a shadow below."
+    ],
+    "zh-Hans": [
+     "卡片 170 × 100 px，圆角 16 px；中心每周期左右往返一次，幅度 ±90 px（正弦）。",
+     "左右两边的中部向运动反方向弯曲，弯曲量与速度成正比，最多约 9 px。",
+     "卡片内容行也跟着偏移，最多约 6 px。",
+     "顶边有拖动指针（5 px 圆点加 10 px 圆环），下方有投影。"
+    ]
+   },
+   "use": {
+    "ja": "並べ替えられるカードや行、ドラッグできるドロップダウンなど、ドラッグ中の手ごたえを出したいときに。",
+    "en": "Use it on sortable cards and rows or draggable panels to give dragging a tactile feel.",
+    "zh-Hans": "适合可排序的卡片和列表行、可拖动的面板，让拖动更有手感。"
+   },
+   "tags": [
+    "gooey",
+    "liquid",
+    "bend",
+    "drag",
+    "card",
+    "sortable",
+    "elastic"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "液态拖拽",
+     "弹性卡片"
+    ]
+   }
   },
   {
    "id": "2-001",

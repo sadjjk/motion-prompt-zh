@@ -1,0 +1,45 @@
+// Motion Prompt #1-060 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// リキッドのしなり / Gooey bend
+// パック: aiux (AIインターフェースの動き) · element 12 · カテゴリ: リキッドな操作
+// 何が起きるか: 白いカードが左右にドラッグされ、速く動くほど左右の辺が後ろへしなり、止まるとまっすぐに戻る。
+// 動きの仕様:
+//   - カード 170×100px、角丸 16px。中心が左右 ±90px を 1 周期で 1 往復（正弦）
+//   - 左右の辺の中央が動きと反対向きにしなる。しなりは速さに比例し最大約 9px
+//   - 中身の行もいっしょにずれる（最大約 6px）
+//   - 上辺にドラッグ中のポインター（点 5px と輪 10px）、下に影
+// 使いどころ: 並べ替えられるカードや行、ドラッグできるドロップダウンなど、ドラッグ中の手ごたえを出したいときに。
+// タグ: gooey, liquid, bend, drag, card, sortable, elastic
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-060
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 12
+// 12 液态弯曲（effect="bend"）：卡片被左右拖动，卡身向运动反方向弯曲，速度越快弯得越多
+CELLS[11] = (k, w, h, u) => {
+  bg(k); grid(k);
+  const th = TAU * u / CYC, cx = 269.5 + 90 * Math.sin(th), cy = 104;
+  const b = -16 * Math.cos(th);                             // 弯曲量与速度成正比，最大约 9 px
+  const W = 170, H = 100, r = 16, x0 = cx - W / 2, x1 = cx + W / 2, y0 = cy - H / 2, y1 = cy + H / 2;
+  k.fillStyle = 'rgba(0,0,0,0.35)'; k.beginPath(); k.ellipse(cx, y1 + 14, W * 0.42, 6, 0, 0, TAU); k.fill();
+  k.fillStyle = C.goo; k.beginPath();
+  k.moveTo(x0 + r, y0); k.lineTo(x1 - r, y0);
+  k.quadraticCurveTo(x1, y0, x1 + b * 0.15, y0 + r);
+  k.quadraticCurveTo(x1 + b, cy, x1 + b * 0.15, y1 - r);
+  k.quadraticCurveTo(x1, y1, x1 - r, y1); k.lineTo(x0 + r, y1);
+  k.quadraticCurveTo(x0, y1, x0 + b * 0.15, y1 - r);
+  k.quadraticCurveTo(x0 + b, cy, x0 + b * 0.15, y0 + r);
+  k.quadraticCurveTo(x0, y0, x0 + r, y0); k.closePath(); k.fill();
+  // 卡片内容随弯曲轻微偏移（中间行偏得最多）
+  const row = (yy, f) => cx + b * 0.4 * f;
+  k.fillStyle = C.ink; k.beginPath(); k.arc(row(0, 0.6) - 52, cy - 14, 13, 0, TAU); k.fill();
+  k.fillStyle = 'rgba(23,23,29,0.75)'; rr(k, row(0, 0.6) - 30, cy - 21, 82, 7, 3.5); k.fill();
+  k.fillStyle = 'rgba(23,23,29,0.35)'; rr(k, row(0, 0.9) - 30, cy - 8, 60, 6, 3); k.fill();
+  rr(k, row(0, 0.9) - 65, cy + 14, 130, 6, 3); k.fill(); rr(k, row(0, 0.6) - 65, cy + 26, 96, 6, 3); k.fill();
+  // 拖动手势：卡片顶部的指针
+  k.fillStyle = 'rgba(236,236,241,0.9)'; k.beginPath(); k.arc(cx, y0 - 2, 5, 0, TAU); k.fill();
+  k.strokeStyle = 'rgba(236,236,241,0.35)'; k.lineWidth = 1.5; k.beginPath(); k.arc(cx, y0 - 2, 10, 0, TAU); k.stroke();
+};

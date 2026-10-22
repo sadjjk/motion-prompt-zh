@@ -1,0 +1,40 @@
+// Motion Prompt #1-057 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// 思考オーブ・執筆中 / Thinking orb: composing
+// パック: aiux (AIインターフェースの動き) · element 09 · カテゴリ: 読み込み・思考中
+// 何が起きるか: 3本の点の帯が、それぞれ違う傾きで球に巻きつき、波打ちながら流れ、光が帯の上を進んでいく。
+// 動きの仕様:
+//   - 球は半径 58px（うすい点 240 個）。帯 3 本（傾き 0.5・−0.45・1.15 rad、位相 120° ずつ）
+//   - 各帯は経度 72 点 × 3 列。緯度方向に振幅 0.32 rad、経度 2 山でうねる
+//   - うねりは 1 周期で 1 回、明るい部分は帯に沿って 1 周期で 2 周する
+//   - 球は 1 周期で 1 回自転。右に「Writing…」15px
+// 使いどころ: 文章の生成・下書き・要約など、AIが書いている間に。
+// タグ: thinking-orb, composing, writing, generating, text, bands
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-057
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 09
+// 09 思考球·写作（state="composing"）：三条起伏的点阵波带绕球流动
+CELLS[8] = (k, w, h, u) => {
+  bg(k);
+  const spin = TAU * u / CYC;
+  for (const p of SPHERE) dot(k, rot(p, spin, ORB.tilt), 0.3);
+  const bands = [[0.5, 0], [-0.45, TAU / 3], [1.15, 2 * TAU / 3]];   // [倾角, 相位]
+  for (const [tilt, ph] of bands) {
+    for (let j = 0; j < 72; j++) {
+      const lon = j * TAU / 72;
+      const glow = Math.max(0, Math.sin(lon - 2 * TAU * u / CYC + ph));
+      for (const off of [-0.09, 0, 0.09]) {
+        const lat = 0.32 * Math.sin(2 * lon + TAU * u / CYC + ph) + off, cl = Math.cos(lat);
+        let p = [cl * Math.cos(lon), Math.sin(lat), cl * Math.sin(lon)];
+        p = [p[0], p[1] * Math.cos(tilt) - p[2] * Math.sin(tilt), p[1] * Math.sin(tilt) + p[2] * Math.cos(tilt)];
+        dot(k, rot(p, spin, ORB.tilt), off ? 0.55 : 0.85, glow * glow * 0.5);
+      }
+    }
+  }
+  orbLabel(k, 'Writing…');
+};

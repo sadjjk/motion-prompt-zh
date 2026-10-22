@@ -1,0 +1,17 @@
+请使用“思考球·聆听（Thinking orb: listening）”，属于“AI 界面动效”。
+Motion Prompt #1-055
+
+效果解释：纬线环像声波一样起伏，表示正在聆听语音
+动画表现：一圈圈点阵纬线从上到下依次鼓起又收回，像一道波在球面上滚过。
+实现规格与关键运动参数：
+- 球半径 58 px，11 条纬线环（−75° 到 75°，每 15° 一条），每环 8–34 个点，按纬度增减。
+- 各环半径最多起伏 ±10%（约 6 px）；每周期 2 个波，相邻两环相位差 0.7 rad。
+- 鼓起的环更亮；球每周期自转一圈。
+- 右侧文字“Listening…”15 px。
+适用场景：适合语音输入、语音模式、听写等开麦阶段。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-055
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-055.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Jakub Antalik 的 MIT 版权标识。

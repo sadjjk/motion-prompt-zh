@@ -1,0 +1,43 @@
+// Motion Prompt #1-059 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// リキッドの尾 / Gooey trail
+// パック: aiux (AIインターフェースの動き) · element 11 · カテゴリ: リキッドな操作
+// 何が起きるか: 3つの選択肢の間を白い指示部分が行き来し、速く動くほど横に伸びて、後ろに丸いしずくがくっついてくる。
+// 動きの仕様:
+//   - セグメント 288×44px、選択肢 3 つ（96px 間隔）、指示部分 84×34px
+//   - 1.2 秒ごとに移動：0.1・1.3・2.5・3.7 秒から各 0.45 秒（easeInOut 3 乗）で 1→2→3→2→1
+//   - 速度に応じて横 最大 +25%、縦 最大 −12%（速度 320px/s で最大）
+//   - 尾は 0.09 秒前の位置。尾の丸の半径 6→16px、首でつながる。文字は指示部分の上で反転色
+// 使いどころ: タブバー・セグメントコントロールの選択インジケーターや、スライダーのつまみに。
+// タグ: gooey, liquid, tabs, segmented-control, indicator, trail, slider
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-059
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 11
+// 11 液态拖尾（effect="move"）：分段控件的指示块移动时拉长，身后拖出液滴尾巴
+CELLS[10] = (k, w, h, u) => {
+  bg(k); grid(k);
+  const tx = 125.5, ty = 82, TW = 288, TH = 44, step = 96, x0 = tx + 48;
+  const MOVES = [[0.1, 0.55, 0, 1], [1.3, 1.75, 1, 2], [2.5, 2.95, 2, 1], [3.7, 4.15, 1, 0]];   // 每 1.2 秒移动一次，位移 96 px
+  const pos = t => { t = ((t % CYC) + CYC) % CYC; let s = 0; for (const [a, b, f, g] of MOVES) { if (t >= a) s = mix(f, g, inOut3(seg(t, a, b))); } return s; };
+  const s = pos(u), hx = x0 + step * s;
+  const v = (pos(u + 0.01) - pos(u - 0.01)) / 0.02 * step;   // px/s
+  const sp = clamp(Math.abs(v) / 320), dir = Math.sign(v) || 1;
+  k.fillStyle = C.panel; rr(k, tx, ty, TW, TH, TH / 2); k.fill();
+  k.strokeStyle = C.line; k.lineWidth = 1; rr(k, tx + 0.5, ty + 0.5, TW - 1, TH - 1, TH / 2); k.stroke();
+  const PW = 84 * (1 + 0.25 * sp), PH = 34 * (1 - 0.12 * sp);   // 速度越快越扁长（stretch）
+  const lag = x0 + step * pos(u - 0.09);                       // 尾巴滞后 0.09 秒（trail）
+  const tailR = 6 + 10 * sp, tailX = lag - dir * (PW / 2 - 10);
+  const endX = hx - dir * (PW / 2 - PH / 2);
+  k.fillStyle = C.goo;
+  rr(k, hx - PW / 2, ty + TH / 2 - PH / 2, PW, PH, PH / 2); k.fill();
+  if (sp > 0.02) { neck(k, endX, ty + TH / 2, PH / 2, tailX, ty + TH / 2, tailR, PH / 2 + tailR + 40); disc(k, tailX, ty + TH / 2, tailR); }
+  ['Chat', 'Search', 'Agents'].forEach((lab, i) => {
+    const lx = x0 + step * i, on = clamp(1 - Math.abs(lx - hx) / 46);
+    txt(k, lab, lx, ty + TH / 2 + 1, `600 14px ${FONT}`, on > 0.5 ? C.ink : C.muted, 'center');
+  });
+};

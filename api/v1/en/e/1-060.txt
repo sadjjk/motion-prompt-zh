@@ -1,0 +1,45 @@
+// Motion Prompt #1-060 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// Gooey bend / リキッドのしなり
+// Pack: aiux (AI interface motion) · element 12 · Category: Liquid interactions
+// What happens: A white card is dragged side to side; the faster it moves, the more its sides bow backwards, straightening as it slows.
+// Motion spec:
+//   - Card 170 × 100 px, corner radius 16 px; its centre swings ±90 px sideways once per cycle (sine).
+//   - The middle of the left and right edges bows against the motion, in proportion to speed, up to about 9 px.
+//   - The content rows shift with it, by up to about 6 px.
+//   - A drag pointer (5 px dot and 10 px ring) sits on the top edge, with a shadow below.
+// When to use it: Use it on sortable cards and rows or draggable panels to give dragging a tactile feel.
+// Tags: gooey, liquid, bend, drag, card, sortable, elastic
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-060
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 12
+// 12 液态弯曲（effect="bend"）：卡片被左右拖动，卡身向运动反方向弯曲，速度越快弯得越多
+CELLS[11] = (k, w, h, u) => {
+  bg(k); grid(k);
+  const th = TAU * u / CYC, cx = 269.5 + 90 * Math.sin(th), cy = 104;
+  const b = -16 * Math.cos(th);                             // 弯曲量与速度成正比，最大约 9 px
+  const W = 170, H = 100, r = 16, x0 = cx - W / 2, x1 = cx + W / 2, y0 = cy - H / 2, y1 = cy + H / 2;
+  k.fillStyle = 'rgba(0,0,0,0.35)'; k.beginPath(); k.ellipse(cx, y1 + 14, W * 0.42, 6, 0, 0, TAU); k.fill();
+  k.fillStyle = C.goo; k.beginPath();
+  k.moveTo(x0 + r, y0); k.lineTo(x1 - r, y0);
+  k.quadraticCurveTo(x1, y0, x1 + b * 0.15, y0 + r);
+  k.quadraticCurveTo(x1 + b, cy, x1 + b * 0.15, y1 - r);
+  k.quadraticCurveTo(x1, y1, x1 - r, y1); k.lineTo(x0 + r, y1);
+  k.quadraticCurveTo(x0, y1, x0 + b * 0.15, y1 - r);
+  k.quadraticCurveTo(x0 + b, cy, x0 + b * 0.15, y0 + r);
+  k.quadraticCurveTo(x0, y0, x0 + r, y0); k.closePath(); k.fill();
+  // 卡片内容随弯曲轻微偏移（中间行偏得最多）
+  const row = (yy, f) => cx + b * 0.4 * f;
+  k.fillStyle = C.ink; k.beginPath(); k.arc(row(0, 0.6) - 52, cy - 14, 13, 0, TAU); k.fill();
+  k.fillStyle = 'rgba(23,23,29,0.75)'; rr(k, row(0, 0.6) - 30, cy - 21, 82, 7, 3.5); k.fill();
+  k.fillStyle = 'rgba(23,23,29,0.35)'; rr(k, row(0, 0.9) - 30, cy - 8, 60, 6, 3); k.fill();
+  rr(k, row(0, 0.9) - 65, cy + 14, 130, 6, 3); k.fill(); rr(k, row(0, 0.6) - 65, cy + 26, 96, 6, 3); k.fill();
+  // 拖动手势：卡片顶部的指针
+  k.fillStyle = 'rgba(236,236,241,0.9)'; k.beginPath(); k.arc(cx, y0 - 2, 5, 0, TAU); k.fill();
+  k.strokeStyle = 'rgba(236,236,241,0.35)'; k.lineWidth = 1.5; k.beginPath(); k.arc(cx, y0 - 2, 10, 0, TAU); k.stroke();
+};

@@ -1,0 +1,54 @@
+// Motion Prompt #1-056 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// 思考球·连接 / Thinking orb: connecting
+// 分类包: aiux (AI 界面动效) · element 08 · 子分类: 加载与思考
+// 动画表现: 旋转的球面上，节点像星座一样一条条连起来，随后光点沿连线流动，最后淡出复位。
+// 运动规格:
+//   - 球半径 58 px：240 个淡点和 10 个节点；每周期自转一圈。
+//   - 12 条连线从 0.15 秒起每隔 0.17 秒画出一条，每条用时 0.35 秒（三次缓出）。
+//   - 2.4–4.0 秒，光点沿每条连线流动，每 0.8 秒走完一趟。
+//   - 4.0–4.8 秒连线和光点淡出复位；右侧文字“Connecting sources…”15 px。
+// 适用场景: 适合连接外部服务、接入数据源、连接工具服务器的阶段。
+// 标签: thinking-orb, connecting, network, integration, nodes, constellation
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-056
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 08
+// 08 思考球·连接（state="connecting"）：球面节点依次连线，数据包沿连线流动，最后淡出复位
+CELLS[7] = (k, w, h, u) => {
+  bg(k);
+  const spin = TAU * u / CYC;
+  const fade = 1 - inOut3(seg(u, 4.0, 4.8));
+  for (const p of SPHERE) dot(k, rot(p, spin, ORB.tilt), 0.35);
+  const E = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [0, 4], [2, 6], [3, 8]];
+  const slerp = (a, b, t) => {
+    const d = clamp(a[0] * b[0] + a[1] * b[1] + a[2] * b[2], -1, 1), om = Math.acos(d);
+    if (om < 1e-4) return a;
+    const s1 = Math.sin((1 - t) * om) / Math.sin(om), s2 = Math.sin(t * om) / Math.sin(om);
+    return [a[0] * s1 + b[0] * s2, a[1] * s1 + b[1] * s2, a[2] * s1 + b[2] * s2];
+  };
+  const P = q => [ORB.x + q[0] * ORB.r, ORB.y - q[1] * ORB.r];
+  const lit = new Array(NODES.length).fill(0);
+  E.forEach(([a, b], e) => {
+    const g = out3(seg(u, 0.15 + e * 0.17, 0.5 + e * 0.17));   // 每条连线 0.35 秒画出，依次错开 0.17 秒
+    if (g <= 0) return;
+    lit[a] = Math.max(lit[a], 1); lit[b] = Math.max(lit[b], g);
+    k.lineWidth = 1.2; k.beginPath();
+    for (let i = 0; i <= 16; i++) {
+      const q = rot(slerp(NODES[a], NODES[b], g * i / 16), spin, ORB.tilt), pt = P(q);
+      k.strokeStyle = `rgba(236,236,241,${(0.25 + 0.4 * (q[2] + 1) / 2) * fade})`;
+      if (i) k.lineTo(pt[0], pt[1]); else k.moveTo(pt[0], pt[1]);
+    }
+    k.stroke();
+    if (u >= 2.4 && u < 4.0) {
+      const t = ((u - 2.4) / 0.8 + e * 0.137) % 1;
+      dot(k, rot(slerp(NODES[a], NODES[b], t), spin, ORB.tilt), fade, 0.6 * fade);
+    }
+  });
+  NODES.forEach((n, i) => dot(k, rot(n, spin, ORB.tilt), 0.6, lit[i] * 0.55 * fade));
+  orbLabel(k, 'Connecting sources…');
+};

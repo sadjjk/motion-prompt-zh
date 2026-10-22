@@ -1,0 +1,17 @@
+请使用“思考球·写作（Thinking orb: composing）”，属于“AI 界面动效”。
+Motion Prompt #1-057
+
+效果解释：点阵波带绕球起伏流动，表示 AI 正在写作
+动画表现：三条点阵波带以不同倾角缠绕球体，一边起伏一边流动，亮光沿波带前进。
+实现规格与关键运动参数：
+- 球半径 58 px（240 个淡点），3 条波带倾角 0.5、−0.45、1.15 rad，相位各差 120°。
+- 每条波带沿经度 72 个点 × 3 行，纬度方向振幅 0.32 rad，绕一圈有 2 个波峰。
+- 波形每周期推进一次，亮部沿波带每周期绕 2 圈。
+- 球每周期自转一圈；右侧文字“Writing…”15 px。
+适用场景：适合 AI 正在撰写、起草、总结文字的阶段。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-057
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-057.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Jakub Antalik 的 MIT 版权标识。

@@ -1,0 +1,15 @@
+Please use "Thinking orb: working" (思考オーブ・作業中), one of the names in "AI interface motion".
+Motion Prompt #1-053
+
+What it is: Particles circle a dotted orb on tilted orbits to show the AI is working
+What the sample shows: Around a slowly spinning dotted orb, particles with short trails orbit on three tilted paths at different speeds.
+Spec:
+- Orb radius 58 px, 240 dots on a Fibonacci sphere; nearer dots are larger and brighter. It spins once per cycle, viewed 0.32 rad from above.
+- Three orbits tilted 0.35, 1.05 and −0.6 rad, at 1.14 × the orb radius, with 8 particles each.
+- They go round 1, 2 and 1 (in reverse) times per cycle.
+- Each particle trails 5 fading copies. Label "Working…" at 15 px on the right.
+When to use it: Use it for general agent work or a running tool. Skip it for waits under 2 s.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-053.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

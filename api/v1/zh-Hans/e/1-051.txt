@@ -1,0 +1,39 @@
+// Motion Prompt #1-051 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+//
+// 内呼吸光晕 / Inner pulse
+// 分类包: aiux (AI 界面动效) · element 03 · 子分类: 加载与思考
+// 动画表现: 胶囊按钮内部，粉、橙、蓝三团光放大又收小，边框也随之明暗。
+// 运动规格:
+//   - 按钮 200 × 56 px，圆角 28 px；光按按钮形状裁切，不溢出。
+//   - 一次呼吸 2.4 秒（每周期 2 次），按 0.5 − 0.5·cos 从 0 到 1 再回 0。
+//   - 三团径向光（色相 330°、40°、200°）半径 46→80 px、不透明度 0.35→0.9，并左右缓慢漂移 ±14 px。
+//   - 1.4 px 彩虹描边，不透明度 0.3→0.8；按钮文字“✦ Ask AI”16 px。
+// 适用场景: 适合突出“问 AI”“生成”等 AI 操作按钮或主要行动按钮。
+// 标签: pulse, button, cta, highlight, glow, ai
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-051
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 03
+// 03 内呼吸光晕（border-beam size="pulse-inner"）：彩色光在按钮内部明暗呼吸，不溢出按钮
+CELLS[2] = (k, w, h, u) => {
+  bg(k);
+  const x = 169.5, y = 76, W = 200, H = 56, R = 28;
+  const s = 0.5 - 0.5 * Math.cos(TAU * u / 2.4);          // 2.4 秒一呼一吸，周期内 2 次
+  k.fillStyle = C.panel; rr(k, x, y, W, H, R); k.fill();
+  k.save(); rr(k, x, y, W, H, R); k.clip();
+  const drift = Math.sin(TAU * u / CYC) * 14;
+  [[x + 40 + drift, 330], [x + W / 2 - drift, 40], [x + W - 40 + drift, 200]].forEach(([bx, hue]) => {
+    const rad = 46 + 34 * s;
+    const g = k.createRadialGradient(bx, y + H / 2, 0, bx, y + H / 2, rad);
+    g.addColorStop(0, hsla(hue, 100, 62, 0.35 + 0.55 * s)); g.addColorStop(1, hsla(hue, 100, 62, 0));
+    k.fillStyle = g; k.fillRect(x, y, W, H);
+  });
+  k.restore();
+  k.strokeStyle = conic(k, x + W / 2, y + H / 2, TAU * u / CYC, 0.3 + 0.5 * s); k.lineWidth = 1.4;
+  rr(k, x + 0.7, y + 0.7, W - 1.4, H - 1.4, R); k.stroke();
+  txt(k, '✦  Ask AI', x + W / 2, y + H / 2 + 1, `600 16px ${FONT}`, C.text, 'center');
+};

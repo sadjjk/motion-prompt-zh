@@ -1,0 +1,15 @@
+Please use "Thinking orb: listening" (思考オーブ・聞き取り中), one of the names in "AI interface motion".
+Motion Prompt #1-055
+
+What it is: Latitude rings ripple like a sound wave to show the mic is listening
+What the sample shows: Rings of dots swell and shrink one after another from top to bottom, like a wave rolling over the orb.
+Spec:
+- Orb radius 58 px with 11 latitude rings (−75° to 75°, every 15°), 8–34 dots per ring depending on latitude.
+- Each ring's radius swells by up to ±10% (about 6 px); 2 waves per cycle, offset 0.7 rad from ring to ring.
+- Swollen rings are brighter. The orb spins once per cycle.
+- Label "Listening…" at 15 px on the right.
+When to use it: Use it while the mic is open for voice input, voice mode or dictation.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-055.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.
