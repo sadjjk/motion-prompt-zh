@@ -55,7 +55,7 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
   - 除了创建离屏 canvas，不访问 DOM，不联网。
 - `spec` 中的数字必须取自代码，不得编造（`FORMAT.md` 第 116 行）。
 - 新增分类包必须在 `packs/groups.json` 登记所属大类，未登记时 build 报错。
-- `examples/found.json` 的 `theme` 只能使用大类 id（`web`、`motion`、`film`）；`platform` 缺省为 `x`，为 `x` 时必须有 `id`。
+- `examples/found.json` 的 `theme` 只能使用大类 id（`web`、`motion`、`film`、`ambient`）；`platform` 缺省为 `x`，为 `x` 时必须有 `id`。
 
 ### 版权与署名
 
@@ -77,12 +77,14 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
 
 ## 新增社区案例与补充效果库
 
-一个外部来源可以只收录为社区案例，也可以同时补充进效果库；两段流程分别执行。
+新来源默认两段都做：收录为社区案例，并把能还原的内容补充进效果库。只有许可不允许再发布、或没有能用 Canvas 2D 还原的内容时，才只收社区案例，并向用户说明理由。
+
+动手前先给出分类表交用户确认：大类、分类包、小类，以及每款的归属与原作者分类；现有大类都不贴切时，一并给出新大类的候选名（与现有大类同一构词）。
 
 ### 新增社区案例（`examples/found.json`）
 
 1. 核实来源：链接可以访问；确认作者身份、示例为作者本人制作、许可信息；有付费内容的先记下，在第 2 步判断。
-2. 逐条对照 `CONTRIBUTING.md`「How found examples are listed」的收录规则，有不符合的先问用户。
+2. 逐条对照 `CONTRIBUTING.md`「How found examples are listed」的收录规则，有不符合的先问用户；`theme` 归属与分类表一致。
 3. 填字段：`platform`（`x` / `xiaohongshu` / `wechat` / `other`）、`theme`（大类 id）、`lang`、`added`；按需填 `authorUrl`，`other` 平台按需填 `platformLabel`（只替换平台标签，「在…查看」按钮仍用通用文案）；X 必须有 `id`。
 4. 写三语一句话 `intro`：用自己的话，不照抄原文，不写成作者推荐本站；举例只用确认收录的内容，不提付费部分。
 5. 验证：`build --check`、`check-localization`；再用 Playwright 确认卡片出现在对应大类下，标签与按钮正确，页面不请求第三方站点。
@@ -91,8 +93,8 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
 ### 补充效果库（新增分类包）
 
 1. 确认许可与可还原性：只收 MIT 等可再发布、且能用 Canvas 2D 忠实还原的内容；依赖 WebGL 或含其他许可（如 Apache-2.0）组件的不收；付费部分不收。
-2. 与用户确认分类包名称、小类、收录哪些与数量，然后写 spec 与 plan（`design-spec-plan`）。
-3. 写 `packs/<pack>/pack.js`：首行写来源作者的 MIT 版权行；每格是只依赖 `u` 的纯函数、循环无缝。启动本地服务，由用户在 `dev/preview.html?pack=<pack>` 对照原版目视确认；还原不好的删除，不凑数。
+2. 按分类表与用户确认分类包名称（按内容命名，不沿用来源项目名）、小类、收录哪些与数量，然后写 spec 与 plan（`design-spec-plan`）。
+3. 写 `packs/<pack>/pack.js`：首行写来源作者的 MIT 版权行；每格是只依赖 `u` 的纯函数、循环无缝。启动本地服务，由用户在 `dev/preview.html?pack=<pack>` 对照原版目视确认；还原不好的删除，不凑数。来源是一次性片段时，改为无缝循环并加复位段；绘制中的随机（如颗粒噪点）改为确定性生成；来源字体不打包，改用系统字体栈。
 4. 写 `packs/<pack>/meta.json`：完整三语资料，`spec` 的数字取自 `pack.js` 代码，且中英日每行的数字一致（build 会校验）；改写自其他作者时填 `license`、`attribution`。
 5. 在 `packs/groups.json` 把新包接在所属大类末尾（现有编号不变）。
 6. 同步检查脚本中的数量断言（须经用户授权），更新 `THIRD-PARTY-NOTICES.md`、`README.md`、`FORMAT.md`。
