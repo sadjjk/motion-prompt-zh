@@ -61,6 +61,7 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
 
 - 原作者署名不可修改（`tools/build.mjs` 第 8 行）。
 - `pack.js`、`e/<id>.txt`、`kit/<pack>.js` 的首行 MIT 版权行必须保留（`FORMAT.md` 第 50、154 行）。
+- 改写自其他作者作品的分类包，在 `meta.json` 写 `license` 与 `attribution`，版权行与署名链接指向该作者（如 `aiux` 写 Jakub Antalik 与 `https://libraries.dev/`），并在 `THIRD-PARTY-NOTICES.md` 附其许可全文（`FORMAT.md`「Optional pack fields」节）。
 - `LICENSE` 是 Shohei Ohtaki 的版权声明，不得改动。
 
 ### 禁止的操作
@@ -73,6 +74,29 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
 
 - Skill CLI（`skills/motion-prompt-zh/scripts/motion-prompt.mjs`）按 `site.config.json` 中 `apiBase` 在前、`rawApiBase` 在后的顺序读取 `api/v1`。读到的中文资源必须和 `catalog.json` 一致，否则报错，不回退到英文。
 - `pick` 回传地址只接受 `http://127.0.0.1:<端口>/` 或 `http://localhost:<端口>/`（`assets/site.js` 第 618–622 行），不得放宽。
+
+## 新增社区案例与补充效果库
+
+一个外部来源可以只收录为社区案例，也可以同时补充进效果库；两段流程分别执行。
+
+### 新增社区案例（`examples/found.json`）
+
+1. 核实来源：链接可以访问；确认作者身份、示例为作者本人制作、许可信息；有付费内容的先记下，在第 2 步判断。
+2. 逐条对照 `CONTRIBUTING.md`「How found examples are listed」的收录规则，有不符合的先问用户。
+3. 填字段：`platform`（`x` / `xiaohongshu` / `wechat` / `other`）、`theme`（大类 id）、`lang`、`added`；按需填 `authorUrl`，`other` 平台按需填 `platformLabel`（只替换平台标签，「在…查看」按钮仍用通用文案）；X 必须有 `id`。
+4. 写三语一句话 `intro`：用自己的话，不照抄原文，不写成作者推荐本站；举例只用确认收录的内容，不提付费部分。
+5. 验证：`build --check`、`check-localization`；再用 Playwright 确认卡片出现在对应大类下，标签与按钮正确，页面不请求第三方站点。
+6. 经用户确认后提交（`feat: 新增社区案例 <作者>`）、推送，并在线上案例页核对。
+
+### 补充效果库（新增分类包）
+
+1. 确认许可与可还原性：只收 MIT 等可再发布、且能用 Canvas 2D 忠实还原的内容；依赖 WebGL 或含其他许可（如 Apache-2.0）组件的不收；付费部分不收。
+2. 与用户确认分类包名称、小类、收录哪些与数量，然后写 spec 与 plan（`design-spec-plan`）。
+3. 写 `packs/<pack>/pack.js`：首行写来源作者的 MIT 版权行；每格是只依赖 `u` 的纯函数、循环无缝。启动本地服务，由用户在 `dev/preview.html?pack=<pack>` 对照原版目视确认；还原不好的删除，不凑数。
+4. 写 `packs/<pack>/meta.json`：完整三语资料，`spec` 的数字取自 `pack.js` 代码，且中英日每行的数字一致（build 会校验）；改写自其他作者时填 `license`、`attribution`。
+5. 在 `packs/groups.json` 把新包接在所属大类末尾（现有编号不变）。
+6. 同步检查脚本中的数量断言（须经用户授权），更新 `THIRD-PARTY-NOTICES.md`、`README.md`、`FORMAT.md`。
+7. 跑完整验证流程，经用户确认后推送；刷新 jsDelivr 的 `catalog.json`、三个 `catalog.tsv` 与新包的 `kit/<pack>.js`，同步本机 skill。
 
 ## 发布
 
