@@ -8,7 +8,7 @@
 
 | 大类 | 内容 | 分类包 |
 |---|---|---|
-| **界面与网页** `#1` | 弹窗、开关、导航、状态，滚动、悬停、加载等交互动效，以及 AI 产品的思考与加载动效；适合给网页或 App 挑动效 | UI 组件 `ui` · 落地页与网页动效 `lp` · AI 界面动效 `aiux` |
+| **界面与网页** `#1` | 弹窗、开关、导航、状态，滚动、悬停、加载等交互动效，以及 AI 产品的思考与加载动效；适合给网页或 App 挑动效 | UI 组件 `ui` · 落地页与网页动效 `lp` · 光效与液态 `aiux` |
 | **动态图形** `#2` | 入场、文字、图形、转场与强调等图形动画；适合片头、讲解视频、演示动画 | 动态图形基础 `motion` · 动态图形进阶 `motion2` |
 | **剪辑与摄影** `#3` | 镜头运动、拍摄风格、剪辑转场、布光、镜头效果与色调；适合写视频或图片生成提示词、定剪辑方案 | 镜头运动与剪辑 `camera` · 摄影光线与风格 `photo` |
 
@@ -51,4 +51,4 @@ python3 -m http.server 8000
 - 原项目：[showheyohtaki/motion-prompt](https://github.com/showheyohtaki/motion-prompt)，作者 Shohei Ohtaki（[@showheyohtaki](https://x.com/showheyohtaki)）。
 - 中文翻译与本地化：[rainman016/motion-prompt-zh](https://github.com/rainman016/motion-prompt-zh)。
 - [MIT License](LICENSE) © 2026 Shohei Ohtaki。使用参考代码时请保留版权行。案例帖子及其媒体归原作者所有，不在 MIT 许可范围内，详见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
-- AI 界面动效（`aiux`）改写自 [Libraries.dev](https://libraries.dev/)，作者 Jakub Antalik，[MIT License](https://github.com/Jakubantalik/Libraries.dev/blob/main/LICENSE)。使用这部分代码时保留其版权行。
+- 光效与液态（`aiux`）改写自 [Libraries.dev](https://libraries.dev/)，作者 Jakub Antalik，[MIT License](https://github.com/Jakubantalik/Libraries.dev/blob/main/LICENSE)。使用这部分代码时保留其版权行。

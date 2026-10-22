@@ -1,7 +1,7 @@
 /* Motion Prompt · pack "aiux" · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/ */
 MotionPrompt.pack('aiux', function () {
   // @kit
-  // AI 界面动效 12（每格 539x208、4.8 秒周期；每格都是只依赖时间 u 的纯函数）
+  // 光效与液态 12（每格 539x208、4.8 秒周期；每格都是只依赖时间 u 的纯函数）
   // 按 Libraries.dev（Jakub Antalik，MIT）的 border-beam、thinking-orbs、liquid-gooey 的公开效果与参数，
   // 用 Canvas 2D 重新实现。深色底，对应原版默认 theme="dark"。
   const CW = 539, CH = 208;

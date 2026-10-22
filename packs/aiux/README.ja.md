@@ -1,6 +1,6 @@
 <!-- tools/build.mjs が meta.json から作ったファイルです。直すときは meta.json を編集してください。 -->
 
-# AIインターフェースの動き
+# グロー・リキッド
 
 12 個の名前 · #1 049~060 · パック `aiux` · 言語: [English](README.md) / [简体中文](README.zh-Hans.md)
 

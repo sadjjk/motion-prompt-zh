@@ -1,6 +1,6 @@
 // Motion Prompt #1 049~060 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
 //
-// Kit for pack "aiux" (AI interface motion / AIインターフェースの動き): the constants and helpers its elements share.
+// Kit for pack "aiux" (Glow & liquid / グロー・リキッド): the constants and helpers its elements share.
 // Elements #1 049~060 · 539x208 px · cycle 4.8 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
@@ -18,7 +18,7 @@
 // Every cell is a pure function of u, so the same call renders video frames: u = frame / fps.
 
 // @kit
-// AI 界面动效 12（每格 539x208、4.8 秒周期；每格都是只依赖时间 u 的纯函数）
+// 光效与液态 12（每格 539x208、4.8 秒周期；每格都是只依赖时间 u 的纯函数）
 // 按 Libraries.dev（Jakub Antalik，MIT）的 border-beam、thinking-orbs、liquid-gooey 的公开效果与参数，
 // 用 Canvas 2D 重新实现。深色底，对应原版默认 theme="dark"。
 const CW = 539, CH = 208;

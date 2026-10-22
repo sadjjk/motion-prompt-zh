@@ -1,6 +1,6 @@
 <!-- 由 tools/build.mjs 从 meta.json 生成，请修改源文件后重新构建。 -->
 
-# AI 界面动效
+# 光效与液态
 
 12 个效果 · #1 049~060 · 分类包 `aiux` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 

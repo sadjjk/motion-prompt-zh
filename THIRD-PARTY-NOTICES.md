@@ -31,7 +31,7 @@ included in this repository. Its license notice is reproduced here in acknowledg
 
 ## Libraries.dev (pack `aiux`)
 
-The 12 elements in `packs/aiux/` (AI interface motion, `#1-049`–`#1-060`) are Canvas 2D implementations
+The 12 elements in `packs/aiux/` (Glow & liquid, `#1-049`–`#1-060`) are Canvas 2D implementations
 written for this repository after the effects and published parameters of three
 [Libraries.dev](https://libraries.dev/) packages by Jakub Antalik: `border-beam`, `thinking-orbs` and
 `liquid-gooey` ([Jakubantalik/Libraries.dev](https://github.com/Jakubantalik/Libraries.dev)). No source file of
