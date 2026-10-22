@@ -16,6 +16,9 @@ import { resolveConfig } from '../skills/motion-prompt-zh/scripts/config.mjs';
 const LICENCE = 'MIT License (c) 2026 Shohei Ohtaki';
 // Attribution is immutable; deployment/demo/resource links use the Chinese site's configuration.
 const ATTRIBUTION_SITE = 'https://showheyohtaki.github.io/motion-prompt/';
+// 包的版权行与作者：改写自其他作者作品的包在 meta.json 写 license / attribution；缺省为原作者 Shohei Ohtaki
+const packLicence = meta => meta.license || LICENCE;
+const licenceAuthor = s => s.replace(/^MIT License \(c\) \d{4} /, '');
 const VERSION = 1;
 const LANGS = ['zh-Hans', 'en', 'ja'];   // one canonical folder for Simplified Chinese
 const BASE_LANG = 'en';       // every text field needs this one; any other language code is optional
@@ -51,7 +54,8 @@ const isStr = v => typeof v === 'string' && v.trim() !== '';
 // ---------------------------------------------------------------- prompt template
 // This function is also written into assets/catalog.js (as source text), so the site's
 // "copy prompt" button and api/v1/<lang>/p/<id>.txt can never drift apart. Keep it self-contained.
-function mpPrompt(el, packTitle, lang, site, apiBase) {
+// author：该元素所属包的版权人（catalog.packs[].author），缺省为原作者
+function mpPrompt(el, packTitle, lang, site, apiBase, author) {
   lang = lang === 'zh' ? 'zh-Hans' : lang;
   var base = site || (typeof window !== 'undefined' && window.MP_SITE_CONFIG ? window.MP_SITE_CONFIG.site : '');
   var en = lang === 'en';
@@ -74,7 +78,7 @@ function mpPrompt(el, packTitle, lang, site, apiBase) {
       '参考实现（Canvas 2D，画面仅由时间决定）：' + ref,
       '共享辅助代码：' + kit,
       '保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。',
-      '使用参考代码时保留 Shohei Ohtaki 的 MIT 版权标识。'
+      '使用参考代码时保留 ' + (author || 'Shohei Ohtaki') + ' 的 MIT 版权标识。'
     ].join('\n');
   }
   if (en) {
@@ -223,6 +227,8 @@ function validateMeta(meta, where) {
   bi(meta.title, where, 'title');
   if (!isStr(meta.title?.['zh-Hans'])) err(where, 'title.zh-Hans is required');
   for (const l of packLangs(meta)) if (!LANG_CODE.test(l)) err(where, `title has a key "${l}" that is not a language code (use codes such as en, ja, es, zh-Hans)`);
+  if (meta.license != null && !(isStr(meta.license) && /^MIT License \(c\) \d{4} \S/.test(meta.license))) err(where, 'license must look like "MIT License (c) 2026 Author Name"');
+  if (meta.attribution != null && !(isStr(meta.attribution) && /^https:\/\//.test(meta.attribution))) err(where, 'attribution must be an https URL');
   if (!Array.isArray(meta.categories) || !meta.categories.length) err(where, 'categories is missing or empty');
   const slugs = new Set();
   for (const c of meta.categories || []) {
@@ -410,6 +416,7 @@ for (const g of groups) {
       pack: meta.pack, group: g.id, order: meta.order, title: meta.title, langs: p.langs, categories: meta.categories,
       count: meta.elements.length, first: gid(g.no, firstK), last: gid(g.no, k), upstreamFirst: pad3(upstreamStart[dir] + 1),
       width: info.width, height: info.height, cycle: info.cycle, fonts: info.fonts,
+      license: packLicence(meta), author: licenceAuthor(packLicence(meta)), ...(meta.attribution ? { attribution: meta.attribution } : {}),
       scalable: !PIXEL_BOUND.test(p.src),
     });
   }
@@ -436,7 +443,7 @@ function elementTxt(el, lang) {
   const cat = p.categories.find(c => c.slug === el.category);
   const name = lang === 'zh-Hans' ? `${el.name[lang]} / ${el.name.en}` : lang === 'ja' ? `${el.name.ja} / ${el.name.en}` : `${el.name.en} / ${el.name.ja}`;
   const head = [
-    `Motion Prompt #${el.id} · ${LICENCE} · ${ATTRIBUTION_SITE}#${el.upstream}`,
+    `Motion Prompt #${el.id} · ${p.license} · ${p.attribution || `${ATTRIBUTION_SITE}#${el.upstream}`}`,
     '',
     name,
     `${t.pack}: ${el.pack} (${p.title[lang]}) · element ${el.no} · ${t.cat}: ${cat ? cat[lang] : el.category}`,
@@ -459,7 +466,7 @@ function kitJs(p) {
   const range = idRange(p.first, p.last);
   const W = p.width, H = p.height, C = p.cycle;
   const head = [
-    `Motion Prompt ${range} · ${LICENCE} · ${ATTRIBUTION_SITE}#${p.upstreamFirst}`,
+    `Motion Prompt ${range} · ${p.license} · ${p.attribution || `${ATTRIBUTION_SITE}#${p.upstreamFirst}`}`,
     '',
     `Kit for pack "${p.pack}" (${p.title.en} / ${p.title.ja}): the constants and helpers its elements share.`,
     `Elements ${range} · ${W}x${H} px · cycle ${C} s. Element code: ${CONFIG.apiBase}/zh-Hans/e/<id>.txt (or /en/, /ja/).`,
@@ -621,7 +628,7 @@ for (const lang of LANGS) {
   files.set(`api/v1/${lang}/catalog.tsv`, catalogTsv(lang));
   for (const el of catalog.elements) {
     files.set(`api/v1/${lang}/e/${el.id}.txt`, elementTxt(el, lang));
-    files.set(`api/v1/${lang}/p/${el.id}.txt`, mpPrompt(el, packOf[el.pack].title[lang], lang, SITE, CONFIG.apiBase) + '\n');
+    files.set(`api/v1/${lang}/p/${el.id}.txt`, mpPrompt(el, packOf[el.pack].title[lang], lang, SITE, CONFIG.apiBase, packOf[el.pack].author) + '\n');
   }
 }
 for (const p of catalog.packs) files.set(`api/v1/kit/${p.pack}.js`, kitJs(p));

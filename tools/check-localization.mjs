@@ -35,7 +35,7 @@ for (const [i, el] of cat.elements.entries()) {
   for (const key of ['name', 'meaning', 'ask', 'summary', 'use']) assert.match(el[key]['zh-Hans'], /[\u3400-\u9fff]/);
   const p = cat.packs.find(p => p.pack === el.pack);
   for (const lang of langs) {
-    assert.equal(read(`api/v1/${lang}/p/${el.id}.txt`), window.MP_PROMPT(el, p.title[lang], lang, CONFIG.site, CONFIG.apiBase) + '\n');
+    assert.equal(read(`api/v1/${lang}/p/${el.id}.txt`), window.MP_PROMPT(el, p.title[lang], lang, CONFIG.site, CONFIG.apiBase, p.author) + '\n');
     assert.match(read(`api/v1/${lang}/e/${el.id}.txt`), new RegExp('^// Motion Prompt #' + el.id + ' · MIT License \\(c\\) 2026 Shohei Ohtaki'));
   }
 }

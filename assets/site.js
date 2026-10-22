@@ -566,7 +566,7 @@
     $('#d-use').textContent = el.use[lang];
     var tags = $('#d-tags'); tags.textContent = '';
     el.tags.forEach(function (s) { tags.appendChild(h('li', { text: s })); });
-    $('#d-prompt').textContent = PROMPT(el, p.title[lang], lang);
+    $('#d-prompt').textContent = PROMPT(el, p.title[lang], lang, undefined, undefined, p.author);
     var kit = $('#d-kit'), txt = $('#d-txt');
     kit.href = 'api/v1/kit/' + el.pack + '.js'; kit.textContent = t('kitLink', { pack: el.pack });
     txt.href = 'api/v1/' + lang + '/e/' + el.id + '.txt'; txt.textContent = t('txtLink', { id: el.id });
