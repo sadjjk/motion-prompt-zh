@@ -262,6 +262,10 @@ function validateMeta(meta, where) {
     if (e.no !== want) err(w, `no should be "${want}" (elements must be listed 01..N in order)`);
     if (!(isStr(e.id) && ID_RE.test(e.id))) err(w, 'id must look like "1-001" (group number, dash, 3 digits); it is fixed once published');
     if (e.added != null && !isDate(e.added)) err(w, 'added must be YYYY-MM-DD');
+    // 效果级版权：自写或改写自其他作者、放进他人包的效果单独署名
+    if (e.license != null && !(isStr(e.license) && /^MIT License \(c\) \d{4} \S/.test(e.license))) err(w, 'license must look like "MIT License (c) 2026 Author Name"');
+    if (e.attribution != null && !(isStr(e.attribution) && /^https:\/\//.test(e.attribution))) err(w, 'attribution must be an https URL');
+    if (e.attribution != null && e.license == null) err(w, 'attribution needs a license on the same element');
     if (!isStr(e.slug)) err(w, 'slug is missing');
     else {
       if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(e.slug)) err(w, `slug "${e.slug}" must be lowercase kebab-case`);
@@ -404,10 +408,13 @@ for (const d of fs.readdirSync(path.join(ROOT, 'packs')).sort()) {
 contentHash.update('groups.json\0').update(JSON.stringify(groups));
 const catalog = { version: `${VERSION}.${contentHash.digest('hex').slice(0, 10)}`, site: SITE, repo: REPO, count: 0, groups: [], packs: [], elements: [] };
 const codeById = {};
-// 上游编号：按 meta.order（原作者发布顺序）累计，只用于署名行链接到原作者站点的同一元素
+// 上游编号：按 meta.order（原作者发布顺序）累计，只用于署名行链接到原作者站点的同一元素。
+// 只数原作效果（无效果级 license）；后加进原作包的效果不占序号，否则其后各包的原站链接会整体错位
+const origCount = meta => meta.elements.filter(e => !e.license).length;
+const origIndex = (meta, i) => meta.elements.slice(0, i).filter(e => !e.license).length;
 const upstreamStart = {};
 let up = 0;
-for (const p of packs) { upstreamStart[p.dir] = up; up += p.meta.elements.length; }
+for (const p of packs) { upstreamStart[p.dir] = up; up += origCount(p.meta); }
 const byDir = Object.fromEntries(packs.map(p => [p.dir, p]));
 // 已发布编号不变：与上一次生成的 catalog 比较，同一 pack/slug 的编号被改动即报错
 const PUBLISHED = (() => {
@@ -432,8 +439,10 @@ for (const g of groups) {
       const was = PUBLISHED[`${meta.pack}/${e.slug}`];
       if (was && was !== id) err(w, `id changed from "${was}" to "${id}"; published IDs never change`);
       catalog.elements.push({
-        id, upstream: pad3(upstreamStart[dir] + i + 1), group: g.id, pack: meta.pack, no: e.no, slug: e.slug, category: e.category,
+        // upstream：原作在原站的序号，只给原作效果；带效果级 license 的效果（他人作品或后加）不占原作序号
+        id, ...(e.license ? {} : { upstream: pad3(upstreamStart[dir] + origIndex(meta, i) + 1) }), group: g.id, pack: meta.pack, no: e.no, slug: e.slug, category: e.category,
         added: e.added || meta.added,
+        ...(e.license ? { license: e.license, author: licenceAuthor(e.license), ...(e.attribution ? { attribution: e.attribution } : {}) } : {}),
         width: info.width, height: info.height, cycle: info.cycle,
         name: e.name, meaning: e.meaning, ...(e.ask ? { ask: e.ask } : {}), summary: e.summary, spec: e.spec, use: e.use, tags: e.tags,
         ...(e.aliases ? { aliases: e.aliases } : {}),
@@ -471,8 +480,11 @@ function elementTxt(el, lang) {
   const t = T[lang], p = packOf[el.pack];
   const cat = p.categories.find(c => c.slug === el.category);
   const name = lang === 'zh-Hans' ? `${el.name[lang]} / ${el.name.en}` : lang === 'ja' ? `${el.name.ja} / ${el.name.en}` : `${el.name.en} / ${el.name.ja}`;
+  // 版权行按效果取值：效果级 license 覆盖包级；原作效果链接原站同一效果，其余链接其 attribution 或本站该效果
+  const lic = el.license || p.license;
+  const link = el.license ? (el.attribution || `${SITE}#${el.id}`) : (p.attribution || `${ATTRIBUTION_SITE}#${el.upstream}`);
   const head = [
-    `Motion Prompt #${el.id} · ${p.license} · ${p.attribution || `${ATTRIBUTION_SITE}#${el.upstream}`}`,
+    `Motion Prompt #${el.id} · ${lic} · ${link}`,
     '',
     name,
     `${t.pack}: ${el.pack} (${p.title[lang]}) · element ${el.no} · ${t.cat}: ${cat ? cat[lang] : el.category}`,
@@ -491,11 +503,25 @@ function elementTxt(el, lang) {
   return head.join('\n') + '\n\n' + codeById[el.id] + '\n';
 }
 
+// kit 首行之后的补充版权行：包内带效果级 license 的效果，按版权人分组列出编号
+function alsoLines(p) {
+  const groups = new Map();
+  for (const el of catalog.elements) {
+    if (el.pack !== p.pack || !el.license) continue;
+    const key = `${el.license} · ${el.attribution || SITE}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(el.id);
+  }
+  return [...groups].map(([k, ids]) => `Also: ${k} (${idRange(idRanges(ids))})`);
+}
+
 function kitJs(p) {
   const range = idRange(p.ranges);
   const W = p.width, H = p.height, C = p.cycle;
   const head = [
     `Motion Prompt ${range} · ${p.license} · ${p.attribution || `${ATTRIBUTION_SITE}#${p.upstreamFirst}`}`,
+    // 包内有效果级版权时，第二行列出这些版权人与对应编号（首行保持包级版权不变）
+    ...alsoLines(p),
     '',
     `Kit for pack "${p.pack}" (${p.title.en} / ${p.title.ja}): the constants and helpers its elements share.`,
     `Elements ${range} · ${W}x${H} px · cycle ${C} s. Element code: ${CONFIG.apiBase}/zh-Hans/e/<id>.txt (or /en/, /ja/).`,
@@ -657,7 +683,7 @@ for (const lang of LANGS) {
   files.set(`api/v1/${lang}/catalog.tsv`, catalogTsv(lang));
   for (const el of catalog.elements) {
     files.set(`api/v1/${lang}/e/${el.id}.txt`, elementTxt(el, lang));
-    files.set(`api/v1/${lang}/p/${el.id}.txt`, mpPrompt(el, packOf[el.pack].title[lang], lang, SITE, CONFIG.apiBase, packOf[el.pack].author) + '\n');
+    files.set(`api/v1/${lang}/p/${el.id}.txt`, mpPrompt(el, packOf[el.pack].title[lang], lang, SITE, CONFIG.apiBase, el.author || packOf[el.pack].author) + '\n');
   }
 }
 for (const p of catalog.packs) files.set(`api/v1/kit/${p.pack}.js`, kitJs(p));
