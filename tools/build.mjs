@@ -18,7 +18,9 @@ const LICENCE = 'MIT License (c) 2026 Shohei Ohtaki';
 const ATTRIBUTION_SITE = 'https://showheyohtaki.github.io/motion-prompt/';
 // 包的版权行与作者：改写自其他作者作品的包在 meta.json 写 license / attribution；缺省为原作者 Shohei Ohtaki
 const packLicence = meta => meta.license || LICENCE;
-const licenceAuthor = s => s.replace(/^MIT License \(c\) \d{4} /, '');
+// 版权行格式：MIT License (c) <年> <作者>，或 MIT-0 License (c) <年> <作者>（MIT No Attribution）
+const LICENCE_RE = /^MIT(-0)? License \(c\) \d{4} \S/;
+const licenceAuthor = s => s.replace(/^MIT(-0)? License \(c\) \d{4} /, '');
 const VERSION = 1;
 const LANGS = ['zh-Hans', 'en', 'ja'];   // one canonical folder for Simplified Chinese
 const BASE_LANG = 'en';       // every text field needs this one; any other language code is optional
@@ -68,6 +70,7 @@ const isDate = v => isStr(v) && /^\d{4}-\d{2}-\d{2}$/.test(v) && !isNaN(Date.par
 // This function is also written into assets/catalog.js (as source text), so the site's
 // "copy prompt" button and api/v1/<lang>/p/<id>.txt can never drift apart. Keep it self-contained.
 // author：该元素所属包的版权人（catalog.packs[].author），缺省为原作者
+// 末句的许可名取效果级 license：以 MIT-0 开头时写 MIT-0，其余（含包级版权）写 MIT
 function mpPrompt(el, packTitle, lang, site, apiBase, author) {
   lang = lang === 'zh' ? 'zh-Hans' : lang;
   var base = site || (typeof window !== 'undefined' && window.MP_SITE_CONFIG ? window.MP_SITE_CONFIG.site : '');
@@ -91,7 +94,7 @@ function mpPrompt(el, packTitle, lang, site, apiBase, author) {
       '参考实现（Canvas 2D，画面仅由时间决定）：' + ref,
       '共享辅助代码：' + kit,
       '保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。',
-      '使用参考代码时保留 ' + (author || 'Shohei Ohtaki') + ' 的 MIT 版权标识。'
+      '使用参考代码时保留 ' + (author || 'Shohei Ohtaki') + ' 的 ' + (/^MIT-0 /.test(el.license || '') ? 'MIT-0' : 'MIT') + ' 版权标识。'
     ].join('\n');
   }
   if (en) {
@@ -240,7 +243,7 @@ function validateMeta(meta, where) {
   bi(meta.title, where, 'title');
   if (!isStr(meta.title?.['zh-Hans'])) err(where, 'title.zh-Hans is required');
   for (const l of packLangs(meta)) if (!LANG_CODE.test(l)) err(where, `title has a key "${l}" that is not a language code (use codes such as en, ja, es, zh-Hans)`);
-  if (meta.license != null && !(isStr(meta.license) && /^MIT License \(c\) \d{4} \S/.test(meta.license))) err(where, 'license must look like "MIT License (c) 2026 Author Name"');
+  if (meta.license != null && !(isStr(meta.license) && LICENCE_RE.test(meta.license))) err(where, 'license must look like "MIT License (c) 2026 Author Name" or "MIT-0 License (c) 2026 Author Name"');
   if (meta.attribution != null && !(isStr(meta.attribution) && /^https:\/\//.test(meta.attribution))) err(where, 'attribution must be an https URL');
   // added：分类包加入本库的日期（首页「最新添加」排序依据）；元素级 added 可选，用于往已有包补充的效果
   if (!isDate(meta.added)) err(where, 'added must be the date the pack was added, as YYYY-MM-DD');
@@ -263,7 +266,7 @@ function validateMeta(meta, where) {
     if (!(isStr(e.id) && ID_RE.test(e.id))) err(w, 'id must look like "1-001" (group number, dash, 3 digits); it is fixed once published');
     if (e.added != null && !isDate(e.added)) err(w, 'added must be YYYY-MM-DD');
     // 效果级版权：自写或改写自其他作者、放进他人包的效果单独署名
-    if (e.license != null && !(isStr(e.license) && /^MIT License \(c\) \d{4} \S/.test(e.license))) err(w, 'license must look like "MIT License (c) 2026 Author Name"');
+    if (e.license != null && !(isStr(e.license) && LICENCE_RE.test(e.license))) err(w, 'license must look like "MIT License (c) 2026 Author Name" or "MIT-0 License (c) 2026 Author Name"');
     if (e.attribution != null && !(isStr(e.attribution) && /^https:\/\//.test(e.attribution))) err(w, 'attribution must be an https URL');
     if (e.attribution != null && e.license == null) err(w, 'attribution needs a license on the same element');
     if (!isStr(e.slug)) err(w, 'slug is missing');
