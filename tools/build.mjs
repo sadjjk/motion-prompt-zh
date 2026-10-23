@@ -41,13 +41,24 @@ const warns = [];
 const err = (where, msg) => errors.push(`${where}: ${msg}`);
 const warn = (where, msg) => warns.push(`${where}: ${msg}`);
 const pad3 = n => String(n).padStart(3, '0');
-// 编号 = 大类序号-大类内 3 位序号（#1-001）；发布后同一大类内不重排，新动效接在本大类末尾
-const gid = (no, k) => `${no}-${pad3(k)}`;
-// 包范围：#1 001~024（大类前缀只写一次）；单个元素仍写 #1-001
-const idRange = (a, b) => {
-  if (a === b) return `#${a}`;
-  const [g, x] = a.split('-'), y = b.split('-')[1];
-  return `#${g} ${x}~${y}`;
+// 编号 = 大类序号-大类内 3 位序号（#1-001），写在 meta.json 的 id 字段；发布后不变、不复用。
+// 新效果可放进任何分类包，编号取本大类的下一个号，因此一个包的编号可能分成几段。
+const ID_RE = /^(\d)-(\d{3})$/;
+// 把一组编号合并成连续段：['1-001','1-002','1-098'] → [['1-001','1-002'],['1-098','1-098']]
+const idRanges = ids => {
+  const s = [...ids].sort(), out = [];
+  for (const id of s) {
+    const last = out[out.length - 1];
+    if (last && +last[1].split('-')[1] + 1 === +id.split('-')[1] && last[1].split('-')[0] === id.split('-')[0]) last[1] = id;
+    else out.push([id, id]);
+  }
+  return out;
+};
+// 包范围：#1 001~024（大类前缀只写一次）；多段用「 · 」连接：#1 001~024 · 098~103；单个元素仍写 #1-001
+const idRange = ranges => {
+  if (ranges.length === 1 && ranges[0][0] === ranges[0][1]) return `#${ranges[0][0]}`;
+  const g = ranges[0][0].split('-')[0];
+  return `#${g} ` + ranges.map(([a, b]) => (a === b ? a.split('-')[1] : `${a.split('-')[1]}~${b.split('-')[1]}`)).join(' · ');
 };
 const isStr = v => typeof v === 'string' && v.trim() !== '';
 // YYYY-MM-DD 且是真实存在的日期（2026-02-30 这类会被拒绝）
@@ -249,6 +260,7 @@ function validateMeta(meta, where) {
     const w = `${where} element ${e && e.no ? e.no : `[${i}]`}`;
     if (!e || typeof e !== 'object') { err(w, 'not an object'); return; }
     if (e.no !== want) err(w, `no should be "${want}" (elements must be listed 01..N in order)`);
+    if (!(isStr(e.id) && ID_RE.test(e.id))) err(w, 'id must look like "1-001" (group number, dash, 3 digits); it is fixed once published');
     if (e.added != null && !isDate(e.added)) err(w, 'added must be YYYY-MM-DD');
     if (!isStr(e.slug)) err(w, 'slug is missing');
     else {
@@ -397,18 +409,28 @@ const upstreamStart = {};
 let up = 0;
 for (const p of packs) { upstreamStart[p.dir] = up; up += p.meta.elements.length; }
 const byDir = Object.fromEntries(packs.map(p => [p.dir, p]));
+// 已发布编号不变：与上一次生成的 catalog 比较，同一 pack/slug 的编号被改动即报错
+const PUBLISHED = (() => {
+  try { const prev = JSON.parse(fs.readFileSync(path.join(ROOT, 'api/v1/catalog.json'), 'utf8')); return Object.fromEntries(prev.elements.map(e => [`${e.pack}/${e.slug}`, e.id])); }
+  catch { return {}; }
+})();
+const idOwner = {};
 let n = 0;
 for (const g of groups) {
-  let k = 0;
   catalog.groups.push({ id: g.id, no: g.no, title: g.title, packs: (g.packs || []).filter(d => byDir[d]) });
   for (const dir of g.packs || []) {
     const p = byDir[dir];
     if (!p) continue;
     const { meta, info, cut } = p;
-    const firstK = k + 1;
     meta.elements.forEach((e, i) => {
-      k += 1; n += 1;
-      const id = gid(g.no, k);
+      n += 1;
+      const id = e.id, w = `packs/${dir}/meta.json element ${e.no}`;
+      const m = ID_RE.exec(id || '');
+      if (m && +m[1] !== g.no) err(w, `id "${id}" starts with group ${m[1]}, but the pack is in group ${g.no} (${g.id})`);
+      if (idOwner[id]) err(w, `id "${id}" is already used by ${idOwner[id]}`);
+      idOwner[id] = `${dir}/${e.slug}`;
+      const was = PUBLISHED[`${meta.pack}/${e.slug}`];
+      if (was && was !== id) err(w, `id changed from "${was}" to "${id}"; published IDs never change`);
       catalog.elements.push({
         id, upstream: pad3(upstreamStart[dir] + i + 1), group: g.id, pack: meta.pack, no: e.no, slug: e.slug, category: e.category,
         added: e.added || meta.added,
@@ -418,9 +440,10 @@ for (const g of groups) {
       });
       codeById[id] = cut.elements[i].code;
     });
+    const ranges = idRanges(meta.elements.map(e => e.id).filter(x => ID_RE.test(x || '')));
     catalog.packs.push({
       pack: meta.pack, group: g.id, order: meta.order, added: meta.added, title: meta.title, langs: p.langs, categories: meta.categories,
-      count: meta.elements.length, first: gid(g.no, firstK), last: gid(g.no, k), upstreamFirst: pad3(upstreamStart[dir] + 1),
+      count: meta.elements.length, first: ranges.length ? ranges[0][0] : '', last: ranges.length ? ranges[ranges.length - 1][1] : '', ranges, upstreamFirst: pad3(upstreamStart[dir] + 1),
       width: info.width, height: info.height, cycle: info.cycle, fonts: info.fonts,
       license: packLicence(meta), author: licenceAuthor(packLicence(meta)), ...(meta.attribution ? { attribution: meta.attribution } : {}),
       scalable: !PIXEL_BOUND.test(p.src),
@@ -469,7 +492,7 @@ function elementTxt(el, lang) {
 }
 
 function kitJs(p) {
-  const range = idRange(p.first, p.last);
+  const range = idRange(p.ranges);
   const W = p.width, H = p.height, C = p.cycle;
   const head = [
     `Motion Prompt ${range} · ${p.license} · ${p.attribution || `${ATTRIBUTION_SITE}#${p.upstreamFirst}`}`,
@@ -538,7 +561,7 @@ function packReadme(src, p, lang) {
     '',
     `# ${tx(meta.title, lang)}`,
     '',
-    `${p.count} ${d.names} · ${idRange(p.first, p.last)} · ${d.pack} \`${p.pack}\`` + (others.length ? ` · ${d.langs}: ${others.join(' / ')}` : ''),
+    `${p.count} ${d.names} · ${idRange(p.ranges)} · ${d.pack} \`${p.pack}\`` + (others.length ? ` · ${d.langs}: ${others.join(' / ')}` : ''),
     '',
     d.intro,
     '',
@@ -577,7 +600,7 @@ function packsIndex() {
   for (const p of catalog.packs) {
     const src = byDir[p.pack];
     const lists = src.langs.map(l => `[${LANG_NAME[l] || l}](${p.pack}/${readmeName(l)})`).join(' · ');
-    out.push(`| ${idRange(p.first, p.last)} | \`${p.pack}\` — ${mdCell(src.raw.title[BASE_LANG])} | ${p.count} | ${lists} |`);
+    out.push(`| ${idRange(p.ranges)} | \`${p.pack}\` — ${mdCell(src.raw.title[BASE_LANG])} | ${p.count} | ${lists} |`);
   }
   out.push('', 'To add a pack for your field, or a language to an existing pack, see [CONTRIBUTING.md](../CONTRIBUTING.md).', '');
   return out.join('\n');
@@ -677,6 +700,6 @@ if (!CHECK_ONLY) {
     fs.writeFileSync(f, text);
   }
 }
-const summary = catalog.packs.map(p => `${p.pack} ${idRange(p.first, p.last)}`).join(', ');
+const summary = catalog.packs.map(p => `${p.pack} ${idRange(p.ranges)}`).join(', ');
 console.log(`${CHECK_ONLY ? 'checked' : 'built'} ${catalog.count} elements in ${catalog.packs.length} pack(s): ${summary}`);
 console.log(`${CHECK_ONLY ? 'would write' : 'wrote'} ${files.size} files under ${ROOT}${warns.length ? ` · ${warns.length} warning(s)` : ''}`);

@@ -209,10 +209,15 @@
     return m ? m[1] + '-' + ('000' + m[2]).slice(-3) : null;
   }
   // 包范围：#1 001~024（大类前缀只写一次）；单个元素仍写 #1-001。与 build 生成的 README、kit 一致
+  // 编号写死在 meta.json，同一分类包的编号可能不连续（如 #1 001~024 · 098~103），按 build 给出的 ranges 分段显示
   function idRange(p) {
-    if (p.first === p.last) return '#' + p.first;
-    var a = p.first.split('-'), b = p.last.split('-');
-    return '#' + a[0] + ' ' + a[1] + '~' + b[1];
+    var rs = p.ranges && p.ranges.length ? p.ranges : [[p.first, p.last]];
+    if (rs.length === 1 && rs[0][0] === rs[0][1]) return '#' + rs[0][0];
+    var g = rs[0][0].split('-')[0];
+    return '#' + g + ' ' + rs.map(function (r) {
+      var a = r[0].split('-')[1], b = r[1].split('-')[1];
+      return a === b ? a : a + '~' + b;
+    }).join(' · ');
   }
   // added：该效果加入本库的日期（YYYY-MM-DD，build 由 meta.json 写入）
   CAT.elements.forEach(function (e, i) { elBy[e.id] = e; e._i = i; order.push(e.id); e._added = e.added || ''; });
