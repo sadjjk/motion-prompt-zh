@@ -2,7 +2,7 @@
 
 # Landing page & web effects
 
-24 names · #1 025~048 · pack `lp` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+29 names · #1 025~048 · 103~107 · pack `lp` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -31,6 +31,8 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-038](https://sadjjk.github.io/motion-prompt-zh/#1-038) | **Underline animation** | A link's underline grows from the left on hover | Add an underline animation to the menu links: grow from the left in 0.3 s on hover, and exit to the right on leave. |
 | [#1-039](https://sadjjk.github.io/motion-prompt-zh/#1-039) | **Before/after slider** | Drag a divider to compare before and after | Show the project photos as a before/after slider: drag the middle line to compare before on the left and after on the right. |
 | [#1-040](https://sadjjk.github.io/motion-prompt-zh/#1-040) | **Exit-intent popup** | A popup shown when the visitor is about to leave | Add an exit-intent popup to the landing page: when the cursor leaves through the top, show a coupon popup once. |
+| [#1-103](https://sadjjk.github.io/motion-prompt-zh/#1-103) | **Press / tap feedback** | A button shrinks slightly while pressed, so a tap feels physical | Add press feedback to every button: shrink to 0.97 within 0.1 s of pressing, back to 1 over 0.25 s on release. |
+| [#1-104](https://sadjjk.github.io/motion-prompt-zh/#1-104) | **Hold to confirm** | An action runs only after the button is held until its progress fills | Make the delete button hold-to-confirm: delete only after it is held for 1.2 s and the fill completes; if released early, the fill drains back. |
 
 ## Loading, navigation & ambient loops
 
@@ -44,6 +46,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-046](https://sadjjk.github.io/motion-prompt-zh/#1-046) | **Marquee** | Text or logos scroll across in an endless band | Run the service names in a marquee from right to left, looping without a gap, at about 80 px per second. |
 | [#1-047](https://sadjjk.github.io/motion-prompt-zh/#1-047) | **Animated gradient** | Background colours keep drifting and blending | Give the hero an animated gradient background: orange and blue slowly blending, one loop every 10 s. |
 | [#1-048](https://sadjjk.github.io/motion-prompt-zh/#1-048) | **Floating animation** | Elements bob gently up and down | Give the phone image in the hero a floating animation: 8 px up and down, one bob every 2.4 s. |
+| [#1-105](https://sadjjk.github.io/motion-prompt-zh/#1-105) | **Shared element transition** | One element morphs from the list into the detail view, linking the two screens | Use a shared element transition from the album list to the detail page: the thumbnail moves and grows into the large detail image over 0.6 s. |
+| [#1-106](https://sadjjk.github.io/motion-prompt-zh/#1-106) | **Direction-aware transition** | Screens slide one way going forward and the other way going back | Make the multi-step form transition direction-aware: next slides left, back slides right, 0.5 s ease-in-out. |
+| [#1-107](https://sadjjk.github.io/motion-prompt-zh/#1-107) | **Layout animation** | When the layout changes, the remaining items glide to their new places | After a card is deleted, close the gap with a layout animation: the other cards move to their new spots over 0.5 s ease-in-out. |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#1-025](../../api/v1/en/e/1-025.txt)).
 

@@ -1505,6 +1505,77 @@
         "comparison",
         "layout"
       ]
+    },
+    {
+      "no": "25",
+      "id": "2-064",
+      "slug": "text-morph",
+      "category": "text-shapes",
+      "added": "2026-10-23",
+      "license": "MIT License (c) 2026 Emil Kowalski",
+      "attribution": "https://github.com/emilkowalski/skills",
+      "name": {
+        "ja": "テキストモーフ",
+        "en": "Text morph",
+        "zh-Hans": "文字逐字变换"
+      },
+      "meaning": {
+        "ja": "共通の文字は残って動き、違う文字だけが入れ替わる",
+        "en": "Shared letters stay and slide while only the changed ones swap",
+        "zh-Hans": "相同的字留下平移，只有不同的字替换"
+      },
+      "ask": {
+        "ja": "保存ボタンの文字の変化をテキストモーフにして。共通の文字は0.5秒で移動し、新しい文字は0.06秒ずつずらして入れる。ボタンの幅も一緒に変える。",
+        "en": "Animate the save button's label with a text morph: shared characters slide over 0.5 s, new ones roll in 0.06 s apart, and the button width follows.",
+        "zh-Hans": "保存按钮的文字变化用文字逐字变换：相同的字平移 0.5 秒，新字错开 0.06 秒翻入，按钮宽度同步变化。"
+      },
+      "summary": {
+        "ja": "ボタンの文字が「保存」「已保存」「再次保存」と変わる。共通の字は新しい位置へ滑り、増えた字だけが下から入り、なくなった字は上へ消える。",
+        "en": "The button label cycles through 保存, 已保存 and 再次保存; shared characters slide into place, new ones roll up from below and dropped ones drift away upward.",
+        "zh-Hans": "按钮文字在“保存、已保存、再次保存”间切换，共有的字滑到新位置，新增的字翻入、多余的字向上飘走。"
+      },
+      "spec": {
+        "ja": [
+          "青いボタンの文字が「保存 → 已保存 → 再次保存 → 保存」と順に変わる（保存する／保存済み／もう一度保存）。変化は0.6・2.0・3.4秒、文字サイズ60px",
+          "前後の語を最長共通部分列で対応づける: 共通の字は残り、0.5秒の easeInOut（3乗）で新しい位置へ動く。消える字は0.25秒で上へ16px動いて消える",
+          "新しい字は0.15秒から字ごとに0.06秒ずらし、0.3秒の easeOut（3乗）で下18pxから入る。出た直後は黄色、0.4秒で白へ戻る",
+          "ボタンの幅（文字幅 + 左右48pxずつ）も0.5秒の easeInOut でなめらかに変わる。3.95秒以降は「保存」で止まる",
+          "数字ロール・テキストスクランブルとの違い: 文字化けも桁の回転もなく、変わらない字は見えたまま位置だけ動き、変わる字だけが入れ替わる"
+        ],
+        "en": [
+          "The blue button's label changes in order: 保存 → 已保存 → 再次保存 → 保存 (Save → Saved → Save again → Save). Changes at 0.6, 2.0 and 3.4 s; font size 60px.",
+          "The two words are matched by longest common subsequence: shared characters stay and slide to their new spots over 0.5 s (easeInOut, power 3); leaving characters rise 16px and fade within 0.25 s.",
+          "New characters start at 0.15 s, staggered 0.06 s apart, rolling up from 18px below over 0.3 s (easeOut, power 3); they appear yellow and turn white within 0.4 s.",
+          "The button width (text width + 48px each side) also eases over 0.5 s with easeInOut. From 3.95 s it rests on 保存.",
+          "Versus Digit roll and Text scramble: no garbled glyphs and no rolling columns — unchanged characters stay visible and only move, while just the changed ones swap."
+        ],
+        "zh-Hans": [
+          "蓝色按钮里的文字按“保存 → 已保存 → 再次保存 → 保存”依次变化，变化时刻 0.6、2.0、3.4 秒；字号 60px。",
+          "按最长公共子序列配对：相同的字留下，0.5 秒 easeInOut（3 次方）平移到新位置；消失的字 0.25 秒内上移 16px 并淡出。",
+          "新出现的字从 0.15 秒起每字错开 0.06 秒，0.3 秒 easeOut（3 次方）从下方 18px 翻入，刚出现时为黄色，0.4 秒内变回白色。",
+          "按钮宽度（文字宽 + 左右各 48px）同样 0.5 秒 easeInOut 平滑变化；3.95 秒后回到“保存”静止。",
+          "与数字逐位滚动、文字乱码解码不同：不出现乱码也不整列滚动，没变的字始终可见只挪位置，只有变化的字在换。"
+        ]
+      },
+      "use": {
+        "ja": "「保存 → 保存済み」のようなボタンの状態、タブ名やプラン名など、短い文字の切り替えに。",
+        "en": "Use it for button states (Save → Saved), tab labels, plan names and other short text that changes state.",
+        "zh-Hans": "适合按钮状态（保存 → 已保存）、标签名、套餐名等短文本的状态切换。"
+      },
+      "tags": [
+        "text-morph",
+        "text-transition",
+        "button-state",
+        "micro-interaction",
+        "typography",
+        "label"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "文字变形",
+          "文本过渡"
+        ]
+      }
     }
   ]
 }

@@ -696,6 +696,219 @@ MotionPrompt.pack('lp', function () {
       txt(k, '★ 4.8', 448, 108, `800 13px ${EN}`, C.acc, 'center', 'middle'); k.restore();
     });
   };
+  // @element 25
+  // 25 按压缩小（Press / Tap feedback）：左右两颗同样的「立即购买」按钮做对比。光标先按左边（无反馈：按下、松开按钮都不变），
+  // 再按右边两次（有反馈）：按下后 0.1 秒内 easeOut（3 次方）缩到 0.97，阴影由 blur 14 / 下移 6 收紧到 blur 4 / 下移 2；
+  // 松开后 0.25 秒 easeOut（3 次方）回到 1。按下区间：左 0.80–1.15 秒；右 2.20–2.55、3.05–3.40 秒。光标 3.6–4.2 秒回到起点。
+  // 与「点击涟漪」的区别：没有任何波纹，只有按钮本身的缩小与阴影收紧，像真的被按下去。
+  const PRESS_L = [[0.8, 1.15]], PRESS_R = [[2.2, 2.55], [3.05, 3.4]];
+  const PRESS_AMT = (u, list) => {
+    for (const [d, r] of list) {
+      if (u >= d && u < r) return eOut(P(u, d, d + 0.1));
+      if (u >= r && u < r + 0.25) return 1 - eOut(P(u, r, r + 0.25));
+    }
+    return 0;
+  };
+  CELLS[24] = (k, w, h, u) => {
+    frame(k);
+    const BW = 170, BH = 50, BY = 46, LX = 70, RX = 271;
+    const [cx, cy] = path([[0, 255, 150], [0.6, 160, 74], [1.4, 160, 74], [2.0, 360, 74], [3.6, 360, 74], [4.2, 255, 150], [4.8, 255, 150]], u);
+    const pl = PRESS_AMT(u, PRESS_L), pr = PRESS_AMT(u, PRESS_R);
+    view(k, () => {
+      k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+      // 按钮：p 为按下程度（0〜1），fb 为是否有反馈
+      const button = (x, p) => {
+        const s = 1 - 0.03 * p;
+        k.save(); k.translate(x + BW / 2, BY + BH / 2); k.scale(s, s);
+        k.shadowColor = 'rgba(255,90,44,.38)'; k.shadowBlur = lerp(14, 4, p); k.shadowOffsetY = lerp(6, 2, p);
+        k.fillStyle = C.acc; rr(k, -BW / 2, -BH / 2, BW, BH, BH / 2); k.fill(); k.shadowColor = 'transparent';
+        txt(k, '立即购买', 0, 1, `800 16px ${JP}`, '#fff', 'center', 'middle');
+        k.restore();
+      };
+      button(LX, 0); button(RX, pr);
+      txt(k, '无反馈', LX + BW / 2, 124, `700 13px ${JP}`, C.sub, 'center', 'middle');
+      txt(k, '按下缩小', RX + BW / 2, 124, `700 13px ${JP}`, C.acc, 'center', 'middle');
+      txt(k, 'scale 1.00', LX + BW / 2, 143, `600 11px ${EN}`, C.sub, 'center', 'middle');
+      txt(k, `scale ${(1 - 0.03 * pr).toFixed(2)}`, RX + BW / 2, 143, `600 11px ${EN}`, C.acc, 'center', 'middle');
+      k.fillStyle = C.faint; k.fillRect(VW / 2 - 0.5, 40, 1, 110);
+      cursor(k, cx, cy, Math.max(pl, pr));
+    });
+  };
+
+  // @element 26
+  // 26 长按确认（Hold to confirm）：按住「按住删除」按钮，深色进度从左向右匀速填满（需按满 1.2 秒）才执行删除。
+  // 第 1 次 0.70–1.40 秒只按了 0.7 秒（约 58%）就松手，进度 0.35 秒 easeOut（3 次方）退回 0；
+  // 第 2 次 2.00–3.20 秒按满，3.20 秒执行：上方文件卡片 0.35 秒淡出并压扁，按钮显示「已删除」。
+  // 4.30–4.70 秒复位：进度 easeInOut（3 次方）退回、卡片淡入、文字换回「按住删除」。
+  // 与普通点击的区别：单击不触发，必须持续按住到进度满；中途松手会看到进度回退。
+  const HOLD_NEED = 1.2, HOLD_DOWN = [[0.7, 1.4], [2.0, 3.2]], HOLD_DONE = 3.2, HOLD_RESET = 4.3;
+  const HOLD_PROG = u => {
+    const [a, b] = HOLD_DOWN;
+    if (u < a[0]) return 0;
+    if (u < a[1]) return (u - a[0]) / HOLD_NEED;
+    if (u < b[0]) return (a[1] - a[0]) / HOLD_NEED * (1 - eOut(P(u, a[1], a[1] + 0.35)));
+    if (u < b[1]) return (u - b[0]) / HOLD_NEED;
+    if (u < HOLD_RESET) return 1;
+    return 1 - eIO(P(u, HOLD_RESET, HOLD_RESET + 0.4));
+  };
+  CELLS[25] = (k, w, h, u) => {
+    frame(k, 'example.com/files');
+    const B = { x: 145, y: 96, w: 220, h: 46 };
+    const prog = clamp(HOLD_PROG(u)), done = u >= HOLD_DONE && u < HOLD_RESET;
+    const gone = u < HOLD_RESET ? eOut(P(u, HOLD_DONE, HOLD_DONE + 0.35)) : 1 - eOut(P(u, HOLD_RESET, HOLD_RESET + 0.4));
+    let press = 0; for (const [d, r] of HOLD_DOWN) if (u >= d && u < r) press = eOut(P(u, d, d + 0.08));
+    const [cx, cy] = path([[0, 420, 150], [0.55, 262, 122], [3.6, 262, 122], [4.3, 420, 150], [4.8, 420, 150]], u);
+    view(k, () => {
+      k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+      // 要删除的文件卡片（执行后淡出并压扁）
+      if (gone < 1) {
+        k.save(); k.globalAlpha = 1 - gone; k.translate(VW / 2, 47); k.scale(1, 1 - 0.4 * gone); k.translate(-VW / 2, -47);
+        k.fillStyle = '#fff'; rr(k, 105, 20, 300, 54, 8); k.fill();
+        pic(k, 113, 28, 56, 38, 2, 5);
+        txt(k, '季度报告.pdf', 182, 42, `800 13px ${JP}`, C.ink); bars(k, 182, 54, 120, 1);
+        k.restore();
+      }
+      if (gone > 0.5) txt(k, '文件已删除', VW / 2, 47, `700 12px ${JP}`, C.sub, 'center', 'middle');
+      // 按钮底色 + 进度
+      const label = done ? '已删除' : '按住删除';
+      k.fillStyle = C.accL; rr(k, B.x, B.y, B.w, B.h, B.h / 2); k.fill();
+      txt(k, label, B.x + B.w / 2, B.y + B.h / 2 + 1, `800 15px ${JP}`, C.acc, 'center', 'middle');
+      if (prog > 0) {
+        k.save(); rr(k, B.x, B.y, B.w, B.h, B.h / 2); k.clip();
+        k.beginPath(); k.rect(B.x, B.y, B.w * prog, B.h); k.clip();
+        k.fillStyle = C.acc; k.fillRect(B.x, B.y, B.w, B.h);
+        txt(k, label, B.x + B.w / 2, B.y + B.h / 2 + 1, `800 15px ${JP}`, '#fff', 'center', 'middle');
+        k.restore();
+      }
+      const cancel = u >= 1.4 && u < 1.95;
+      txt(k, done ? '已执行' : cancel ? '未按满，已取消' : '按住 1.2 秒确认', VW / 2, 156, `600 11px ${JP}`, done ? C.acc : C.sub, 'center', 'middle');
+      cursor(k, cx, cy, press);
+    });
+  };
+
+  // @element 27
+  // 27 共享元素转场（Shared element transition）：列表第 2 行的缩略图（56×32、圆角 5）在 0.80–1.40 秒（0.6 秒 easeInOut 3 次方）
+  // 连续移动并放大成详情页大图（250×140、圆角 10），位置、尺寸、圆角同时插值；其余列表 0.25 秒淡出，详情文字 1.25–1.55 秒淡入。
+  // 3.0 秒点「← 返回」，3.10–3.70 秒同一张图沿原路缩回列表，列表 3.45–3.75 秒淡入。
+  // 与「页面转场」的区别：没有遮罩切换，同一个元素从旧位置一路变形到新位置，两页靠它连起来。
+  const SHARED_A = [36, 69, 56, 32, 5], SHARED_B = [24, 14, 250, 140, 10];
+  CELLS[26] = (k, w, h, u) => {
+    frame(k, u >= 1.1 && u < 3.4 ? 'example.com/photos/02' : 'example.com/photos');
+    const q = eIO(P(u, 0.8, 1.4)) * (1 - eIO(P(u, 3.1, 3.7)));
+    const la = u < 2 ? 1 - eOut(P(u, 0.8, 1.05)) : eOut(P(u, 3.45, 3.75));
+    const da = eOut(P(u, 1.25, 1.55)) * (1 - eOut(P(u, 3.05, 3.2)));
+    const [cx, cy] = path([[0, 420, 150], [0.6, 200, 85], [1.6, 200, 85], [2.8, 322, 24], [3.3, 322, 24], [4.4, 420, 150], [4.8, 420, 150]], u);
+    view(k, () => {
+      k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+      if (la > 0) {
+        k.save(); k.globalAlpha = la;
+        const NAMES = ['海边清晨', '山间日落', '夜色湖面'];
+        for (let i = 0; i < 3; i++) {
+          const top = 14 + i * 50;
+          k.fillStyle = '#fff'; rr(k, 30, top, 451, 42, 8); k.fill();
+          if (i !== 1) pic(k, 36, top + 5, 56, 32, i === 0 ? 0 : 2, 5);
+          txt(k, NAMES[i], 106, top + 19, `800 13px ${JP}`, C.ink); bars(k, 106, top + 26, [160, 130, 180][i], 1);
+          txt(k, '›', 462, top + 22, `700 18px ${EN}`, C.sub, 'center', 'middle');
+        }
+        k.restore();
+      }
+      if (da > 0) {
+        k.save(); k.globalAlpha = da;
+        txt(k, '← 返回', 300, 24, `700 12px ${JP}`, C.sub, 'left', 'middle');
+        txt(k, '山间日落', 300, 66, `800 22px ${JP}`, C.ink);
+        bars(k, 300, 82, 180, 3);
+        k.fillStyle = C.accL; rr(k, 300, 124, 64, 20, 10); k.fill(); txt(k, '风景', 332, 134.5, `700 11px ${JP}`, C.acc, 'center', 'middle');
+        k.restore();
+      }
+      // 共享元素：同一张图，位置、尺寸、圆角连续插值
+      const R = SHARED_A.map((a, i) => lerp(a, SHARED_B[i], q));
+      if (q > 0.001) { k.save(); k.shadowColor = `rgba(28,35,51,${0.22 * Math.sin(Math.PI * clamp(q))})`; k.shadowBlur = 16; k.shadowOffsetY = 6; k.fillStyle = '#fff'; rr(k, R[0], R[1], R[2], R[3], R[4]); k.fill(); k.restore(); }
+      pic(k, R[0], R[1], R[2], R[3], 1, R[4]);
+      click(k, cx, cy, u, [0.7, 3.0]);
+    });
+  };
+
+  // @element 28
+  // 28 方向感知转场（Direction-aware transition）：三步引导页。点「下一页 →」（0.6、1.6 秒）时旧页向左滑出、新页从右滑入；
+  // 点「← 返回」（2.7、3.7 秒）时方向相反：旧页向右滑出、新页从左滑入。每次滑动 0.5 秒 easeInOut（3 次方），距离为整个视口宽 511px。
+  // 页面顺序 1→2→3→2→1，周期末回到第 1 页。与「页面转场」的区别：滑动方向跟着前进 / 后退变化，看得出自己在往哪走。
+  const DIRT_TR = [[0.65, 0, 1], [1.65, 1, 2], [2.75, 2, 1], [3.75, 1, 0]], DIRT_DUR = 0.5;
+  const DIRT_PAGES = [['欢迎使用', 0], ['选择套餐', 1], ['完成设置', 2]];
+  CELLS[27] = (k, w, h, u) => {
+    let cur = 0, nxt = -1, q = 0;
+    for (const [t0, a, b] of DIRT_TR) if (u >= t0) { if (u < t0 + DIRT_DUR) { cur = a; nxt = b; q = eIO(P(u, t0, t0 + DIRT_DUR)); } else { cur = b; nxt = -1; } }
+    const idx = nxt >= 0 ? nxt : cur;
+    frame(k, `example.com/setup/${idx + 1}`);
+    const [cx, cy] = path([[0, 330, 110], [0.5, 441, 145], [1.7, 441, 145], [2.45, 70, 145], [3.9, 70, 145], [4.6, 330, 110], [4.8, 330, 110]], u);
+    view(k, () => {
+      const page = (i, x) => {
+        k.save(); k.translate(x, 0);
+        k.fillStyle = '#fff'; k.fillRect(0, 0, VW, 124);
+        pic(k, 34, 14, 190, 100, DIRT_PAGES[i][1], 8);
+        txt(k, `步骤 ${i + 1} / 3`, 250, 38, `700 12px ${JP}`, C.acc);
+        txt(k, DIRT_PAGES[i][0], 250, 68, `800 22px ${JP}`, C.ink);
+        bars(k, 250, 84, 200, 3);
+        k.restore();
+      };
+      k.save(); k.beginPath(); k.rect(0, 0, VW, 124); k.clip();
+      if (nxt >= 0) { const dir = nxt > cur ? 1 : -1; page(cur, -dir * VW * q); page(nxt, dir * VW * (1 - q)); }
+      else page(cur, 0);
+      k.restore();
+      // 底部导航（固定不动）
+      k.fillStyle = C.soft; k.fillRect(0, 124, VW, VH - 124); k.fillStyle = C.rule; k.fillRect(0, 124, VW, 1);
+      btn(k, 24, 132, 92, 26, '← 返回', idx === 0 ? C.faint : C.ink, '#fff', 12);
+      btn(k, 395, 132, 92, 26, '下一页 →', idx === 2 ? C.faint : C.acc, '#fff', 12);
+      for (let i = 0; i < 3; i++) { k.fillStyle = i === idx ? C.acc : C.faint; rr(k, VW / 2 - 26 + i * 20 - (i === idx ? 4 : 0), 142, i === idx ? 20 : 12, 6, 3); k.fill(); }
+      click(k, cx, cy, u, [0.6, 1.6, 2.7, 3.7]);
+    });
+  };
+
+  // @element 29
+  // 29 布局动画（Layout animation）：4×2 卡片网格。光标在 1.0 秒点第 2 张卡的 ×：该卡 0.2 秒 easeOut 缩到 0.85 并淡出，
+  // 其余卡片 1.25–1.75 秒（0.5 秒 easeInOut 3 次方）平滑移到新格子补位，第 5 张从第 2 行行首斜着移到第 1 行行尾，不瞬移。
+  // 1.3 秒出现「已删除 1 项 · 撤销」提示，3.35 秒点「撤销」：其余卡片 3.5–4.0 秒移回原位，第 2 张 3.95–4.25 秒放大淡入。
+  // 与「拖拽排序」的区别：没有拖动，是布局变化（删除 / 恢复）引起的自动补位。
+  const LAYOUT_CW = 110, LAYOUT_CH = 66, LAYOUT_GX = 122, LAYOUT_GY = 78, LAYOUT_X0 = 17.5, LAYOUT_Y0 = 16;
+  const LAYOUT_SLOT = i => [LAYOUT_X0 + (i % 4) * LAYOUT_GX, LAYOUT_Y0 + Math.floor(i / 4) * LAYOUT_GY];
+  CELLS[28] = (k, w, h, u) => {
+    frame(k, 'example.com/board');
+    const mv = eIO(P(u, 1.25, 1.75)) * (1 - eIO(P(u, 3.5, 4.0)));
+    const vis = u < 3.9 ? 1 - eOut(P(u, 1.05, 1.25)) : eOut(P(u, 3.95, 4.25));
+    const toast = eOut(P(u, 1.3, 1.5)) * (1 - eOut(P(u, 3.4, 3.6)));
+    const [cx, cy] = path([[0, 330, 120], [0.8, 240, 27], [1.15, 240, 27], [1.9, 330, 118], [2.6, 330, 118], [3.1, 302, 147], [3.6, 302, 147], [4.4, 330, 120], [4.8, 330, 120]], u);
+    view(k, () => {
+      k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+      const card = (x, y, i) => {
+        k.save(); k.shadowColor = 'rgba(28,35,51,.10)'; k.shadowBlur = 6; k.shadowOffsetY = 2;
+        k.fillStyle = '#fff'; rr(k, x, y, LAYOUT_CW, LAYOUT_CH, 8); k.fill(); k.restore();
+        pic(k, x + 6, y + 6, LAYOUT_CW - 12, 36, i % 3, 5);
+        bars(k, x + 8, y + 50, [70, 52, 80, 60][i % 4], 1, C.ink, 6);
+      };
+      for (let i = 0; i < 8; i++) {
+        if (i === 1) continue;
+        const [ax, ay] = LAYOUT_SLOT(i), [bx, by] = LAYOUT_SLOT(i > 1 ? i - 1 : i);
+        card(lerp(ax, bx, mv), lerp(ay, by, mv), i);
+      }
+      // 被删除的第 2 张
+      if (vis > 0) {
+        const [x, y] = LAYOUT_SLOT(1), s = 0.85 + 0.15 * vis;
+        k.save(); k.globalAlpha = vis; k.translate(x + LAYOUT_CW / 2, y + LAYOUT_CH / 2); k.scale(s, s); k.translate(-x - LAYOUT_CW / 2, -y - LAYOUT_CH / 2);
+        card(x, y, 1);
+        const hov = cx > x && cx < x + LAYOUT_CW && cy > y && cy < y + LAYOUT_CH && u < 1.3;
+        if (hov) { k.fillStyle = C.ink; k.beginPath(); k.arc(x + LAYOUT_CW - 10, y + 10, 8, 0, 7); k.fill(); txt(k, '×', x + LAYOUT_CW - 10, y + 10.5, `700 12px ${EN}`, '#fff', 'center', 'middle'); }
+        k.restore();
+      }
+      if (toast > 0) {
+        k.save(); k.globalAlpha = toast; k.translate(0, 8 * (1 - toast));
+        k.fillStyle = C.ink; rr(k, 180, 134, 150, 26, 13); k.fill();
+        txt(k, '已删除 1 项', 196, 147.5, `600 11px ${JP}`, '#fff', 'left', 'middle');
+        txt(k, '撤销', 302, 147.5, `800 11px ${JP}`, C.acc, 'center', 'middle');
+        k.restore();
+      }
+      click(k, cx, cy, u, [1.0, 3.35]);
+    });
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

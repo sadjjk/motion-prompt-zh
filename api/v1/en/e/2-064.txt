@@ -1,0 +1,80 @@
+// Motion Prompt #2-064 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills
+//
+// Text morph / テキストモーフ
+// Pack: motion2 (Motion graphics moves, part 2) · element 25 · Category: Text & shapes
+// What happens: The button label cycles through 保存, 已保存 and 再次保存; shared characters slide into place, new ones roll up from below and dropped ones drift away upward.
+// Motion spec:
+//   - The blue button's label changes in order: 保存 → 已保存 → 再次保存 → 保存 (Save → Saved → Save again → Save). Changes at 0.6, 2.0 and 3.4 s; font size 60px.
+//   - The two words are matched by longest common subsequence: shared characters stay and slide to their new spots over 0.5 s (easeInOut, power 3); leaving characters rise 16px and fade within 0.25 s.
+//   - New characters start at 0.15 s, staggered 0.06 s apart, rolling up from 18px below over 0.3 s (easeOut, power 3); they appear yellow and turn white within 0.4 s.
+//   - The button width (text width + 48px each side) also eases over 0.5 s with easeInOut. From 3.95 s it rests on 保存.
+//   - Versus Digit roll and Text scramble: no garbled glyphs and no rolling columns — unchanged characters stay visible and only move, while just the changed ones swap.
+// When to use it: Use it for button states (Save → Saved), tab labels, plan names and other short text that changes state.
+// Tags: text-morph, text-transition, button-state, micro-interaction, typography, label
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-064
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 25
+// 25 テキストモーフ / 文字逐字变换（Text morph）：蓝色按钮里的文字按「保存 → 已保存 → 再次保存 → 保存」依次变化，变化时刻 0.6、2.0、3.4 秒。
+// 两个词之间按最长公共子序列配对：相同的字（如「保存」）留下来，只用 0.5 秒 easeInOut（3 次方）平移到新位置；
+// 消失的字 0.25 秒内向上移 16px 并淡出；新出现的字从 0.15 秒起每字错开 0.06 秒，0.3 秒 easeOut（3 次方）从下方 18px 翻入，刚出现时为黄色、0.4 秒内变回白色。
+// 按钮宽度（文字宽 + 左右各 48px）同样 0.5 秒 easeInOut 平滑变化。字号 60px。3.95 秒后回到「保存」静止，到周期末与开头一致。
+// 与「文字乱码解码」「打字机效果」的区别：不出现乱码、也不逐字敲出，没变的字始终可见只是挪位置，只有变化的那几个字在换。
+const TMORPH_W = ['保存', '已保存', '再次保存'], TMORPH_SEQ = [[0.6, 0, 1], [2.0, 1, 2], [3.4, 2, 0]], TMORPH_F = `800 60px ${JP}`, TMORPH_PAD = 48;
+const TMORPH_LAY = TMORPH_W.map(s => chars(TK, s, TMORPH_F, 2));
+// 两个词的最长公共子序列：返回 [[旧下标, 新下标], …]
+const TMORPH_LCS = (a, b) => {
+  const A = [...a], B = [...b], L = A.map(() => B.map(() => 0));
+  const g = (i, j) => (i < A.length && j < B.length ? L[i][j] : 0);
+  for (let i = A.length - 1; i >= 0; i--) for (let j = B.length - 1; j >= 0; j--) L[i][j] = A[i] === B[j] ? 1 + g(i + 1, j + 1) : Math.max(g(i + 1, j), g(i, j + 1));
+  const out = []; let i = 0, j = 0;
+  while (i < A.length && j < B.length) { if (A[i] === B[j]) { out.push([i, j]); i++; j++; } else if (g(i + 1, j) >= g(i, j + 1)) i++; else j++; }
+  return out;
+};
+const TMORPH_PAIRS = TMORPH_SEQ.map(([, a, b]) => TMORPH_LCS(TMORPH_W[a], TMORPH_W[b]));
+const TMORPH_WID = i => { const c = TMORPH_LAY[i]; return c[c.length - 1].x + c[c.length - 1].w / 2 - (c[0].x - c[0].w / 2); };
+CELLS[24] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const CX = w / 2, Y = 92;
+  // 当前所处的变化段
+  let si = -1; for (let i = 0; i < TMORPH_SEQ.length; i++) if (u >= TMORPH_SEQ[i][0]) si = i;
+  const glyphs = [];   // [字, x, dy, alpha, 黄色程度]
+  let bw;
+  if (si < 0) { TMORPH_LAY[0].forEach(c => glyphs.push([c.ch, c.x, 0, 1, 0])); bw = TMORPH_WID(0); }
+  else {
+    const [t0, a, b] = TMORPH_SEQ[si], d = u - t0, la = TMORPH_LAY[a], lb = TMORPH_LAY[b], pairs = TMORPH_PAIRS[si];
+    const mv = eIO(P(d, 0, 0.5));
+    const keptA = new Set(pairs.map(p => p[0])), keptB = new Set(pairs.map(p => p[1]));
+    pairs.forEach(([i, j]) => glyphs.push([lb[j].ch, lerp(la[i].x, lb[j].x, mv), 0, 1, 0]));
+    // 消失的字：向上 16px 淡出
+    la.forEach((c, i) => { if (keptA.has(i)) return; const q = P(d, 0, 0.25); if (q < 1) glyphs.push([c.ch, c.x, -16 * eOut(q), 1 - q, 0]); });
+    // 新出现的字：错开 0.06 秒，从下方 18px 翻入
+    let n = 0;
+    lb.forEach((c, j) => {
+      if (keptB.has(j)) return;
+      const s = 0.15 + 0.06 * n++, q = eOut(P(d, s, s + 0.3));
+      if (q > 0) glyphs.push([c.ch, c.x, 18 * (1 - q), q, 1 - P(d, s, s + 0.4)]);
+    });
+    bw = lerp(TMORPH_WID(a), TMORPH_WID(b), mv);
+  }
+  // 按钮（宽度平滑变化）
+  const BW = bw + TMORPH_PAD * 2, BH = 96;
+  k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(CX, Y + BH / 2 + 14, BW * 0.46, 6, 0, 0, 7); k.fill();
+  k.fillStyle = C.blue; rr(k, CX - BW / 2, Y - BH / 2, BW, BH, BH / 2); k.fill();
+  k.fillStyle = 'rgba(255,255,255,.14)'; rr(k, CX - BW / 2, Y - BH / 2, BW, BH / 2, [BH / 2, BH / 2, 0, 0]); k.fill();
+  k.save(); rr(k, CX - BW / 2, Y - BH / 2, BW, BH, BH / 2); k.clip();
+  for (const [ch, x, dy, al, yl] of glyphs) { k.globalAlpha = al; txt(k, ch, CX + x, Y + 2 + dy, TMORPH_F, mix(C.white, C.yel, clamp(yl)), 'center', 'middle'); }
+  k.globalAlpha = 1; k.restore();
+  // 下方：三个状态的进度标记
+  const cur = si < 0 ? 0 : TMORPH_SEQ[si][2], LX = [w / 2 - 150, w / 2, w / 2 + 150];
+  k.fillStyle = C.navy3; rr(k, LX[0], 182, LX[2] - LX[0], 4, 2); k.fill();
+  TMORPH_W.forEach((s, i) => {
+    k.fillStyle = i === cur ? C.yel : C.navy3; k.beginPath(); k.arc(LX[i], 184, i === cur ? 8 : 6, 0, 7); k.fill();
+    txt(k, s, LX[i] + (i === 2 ? 14 : i === 0 ? -14 : 0), 184 + (i === 1 ? -20 : 0), `700 16px ${JP}`, i === cur ? '#fff' : C.dim, i === 0 ? 'right' : i === 2 ? 'left' : 'center', 'middle');
+  });
+};

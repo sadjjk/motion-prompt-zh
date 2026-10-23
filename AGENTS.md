@@ -47,7 +47,7 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
 
 ### 数据契约
 
-- 编号按大类和展示顺序分配，格式 `#<大类>-<3 位序号>`（如 `#1-001`）；发布后同一大类内不重排、不复用，新动效接在本大类末尾；已发布的名称不改名（`FORMAT.md`「Packs」节、`CONTRIBUTING.md` 第 97 行）。
+- 编号格式 `#<大类>-<3 位序号>`（如 `#1-001`），写在 `meta.json` 每个效果的 `id` 字段，与展示位置无关；发布后不改、不复用（build 会对比上一版 catalog，改动已发布编号即报错）。新效果放进最合适的分类包与小类，编号取本大类的下一个号，因此一个包的编号可以分成几段（如 `#1 001~024 · 098~102`）；已发布的名称不改名（`FORMAT.md`「Packs」节、`CONTRIBUTING.md` 第 97 行）。
 - `pack.js` 必须遵守 `FORMAT.md` 的标记和纯函数规则：
   - 用 `// @kit`、`// @element NN`、`// @shared`、`// @end` 切分；
   - `cells[i](k, w, h, u)` 只能依赖 `u`：不用 `Date`，绘制时不用 `Math.random`，不在两次调用之间保留状态；
@@ -96,7 +96,7 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
 2. 按分类表与用户确认分类包名称（按内容命名，不沿用来源项目名）、小类、收录哪些与数量，然后写 spec 与 plan（`design-spec-plan`）。
 3. 写 `packs/<pack>/pack.js`：首行写来源作者的 MIT 版权行；每格是只依赖 `u` 的纯函数、循环无缝。启动本地服务，由用户在 `dev/preview.html?pack=<pack>` 对照原版目视确认；还原不好的删除，不凑数。来源是一次性片段时，改为无缝循环并加复位段；绘制中的随机（如颗粒噪点）改为确定性生成；来源字体不打包，改用系统字体栈。
 4. 写 `packs/<pack>/meta.json`：完整三语资料，`spec` 的数字取自 `pack.js` 代码，且中英日每行的数字一致（build 会校验）；改写自其他作者时填 `license`、`attribution`；包级 `added` 填当天日期（`YYYY-MM-DD`，首页「最新添加」排序依据，build 必填）。往已有包补充效果时，在该元素上写 `added`。
-5. 在 `packs/groups.json` 把新包接在所属大类末尾（现有编号不变）。
+5. 新包在 `packs/groups.json` 接在所属大类末尾；往已有包补效果时，追加到该包 `pack.js` 与 `meta.json` 的末尾，`category` 写目标小类。每个效果写 `id`（本大类下一个号）；来源作者不是该包作者时，在效果上写 `license`、`attribution`。
 6. 同步检查脚本中的数量断言（须经用户授权），更新 `THIRD-PARTY-NOTICES.md`、`README.md`、`FORMAT.md`。
 7. 跑完整验证流程，经用户确认后推送；刷新 jsDelivr 的 `catalog.json`、三个 `catalog.tsv` 与新包的 `kit/<pack>.js`，同步本机 skill。
 

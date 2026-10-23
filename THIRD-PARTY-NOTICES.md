@@ -115,6 +115,35 @@ photos, sticker images, textures, HDRIs, glyph outlines, fonts or audio are used
 > IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 > THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## skills by Emil Kowalski (elements `#1-098`–`#1-107`, `#2-064`)
+
+The 11 elements `#1-098`–`#1-102` (pack `ui`), `#1-103`–`#1-107` (pack `lp`) and `#2-064` (pack `motion2`) are
+Canvas 2D cards written for this repository after the terms and definitions in the `animation-vocabulary` skill of
+[skills](https://github.com/emilkowalski/skills) by Emil Kowalski (scale in, origin-aware animation, rubber-banding,
+interruptible animation, drag to reorder, press feedback, hold to confirm, shared element transition,
+direction-aware transition, layout animation, text morph). The skill is a glossary and contains no animation code;
+the scenes, timings and text are this repository's own. Every `e/<id>.txt` of these elements carries the copyright
+line below, and the `kit/<pack>.js` of `ui`, `lp` and `motion2` lists it after the pack's own line.
+
+> MIT License
+>
+> Copyright (c) 2026 Emil Kowalski
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+> associated documentation files (the "Software"), to deal in the Software without restriction, including
+> without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+> following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all copies or substantial
+> portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+> LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+> EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+> IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+> THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat

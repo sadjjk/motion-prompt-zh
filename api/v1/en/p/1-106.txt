@@ -1,0 +1,16 @@
+Please use "Direction-aware transition" (方向に合わせたトランジション), one of the names in "Landing page & web effects".
+Motion Prompt #1-106
+
+What it is: Screens slide one way going forward and the other way going back
+What the sample shows: Moving forward through the onboarding slides content to the left; going back slides it to the right, with the page dots following.
+Spec:
+- A 3-step onboarding, page order 1→2→3→2→1. Clicking "Next →" (0.6, 1.6 s) slides the old page out to the left and the new one in from the right.
+- Clicking "← Back" (2.7, 3.7 s) reverses it: the old page leaves to the right and the new one enters from the left.
+- Each slide takes 0.5 s with easeInOut (power 3) over the full 511 px viewport width; the bottom navigation stays fixed.
+- Versus Page transition and Push transition: the slide direction flips with forward / back, so users can tell which way they moved.
+- Versus Direction-aware mask: direction comes from forward / back navigation, not from the side the cursor entered.
+When to use it: Use it for multi-step forms, onboarding, carousels and forward/back navigation inside apps.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-106.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,63 @@
+// Motion Prompt #1-102 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills
+//
+// Drag to reorder / ドラッグで並べ替え
+// Pack: ui (UI component names) · element 29 · Category: Choosing & switching
+// What happens: The first row is grabbed and lifted, dragged down two rows; each row it passes slides up out of the way, and on release it settles into its new place.
+// Motion spec:
+//   - A 4-row list, row height 38, pitch 44 (y = 12 / 56 / 100 / 144). The cursor reaches row 1's left handle at 0.95 s and presses at 1.0 s.
+//   - Lift over 1.0–1.15 s, easeOutCubic: the dragged row scales to 1.04×, shadow blur 4→20 and offset 1→7 px, and its border turns blue.
+//   - Dragged down 88 px over 1.15–2.1 s with easeInOutCubic. As it passes the halfway point of rows 2 and 3 (22 / 66 px), each row moves up 44 px in 0.2 s easeOutCubic; a light blue dashed placeholder marks the slot.
+//   - Released at 2.2 s; the lift returns to 0 over 2.2–2.4 s and the row settles. Over 3.4–3.9 s all rows return to their original order.
+//   - Versus Live table insert: the order is changed by the user's drag, and the other rows make room in real time.
+// When to use it: Use it for to-do lists, playlists, kanban cards and settings where users set their own order.
+// Tags: drag-and-drop, reorder, sortable, list, drag-handle, placeholder, kanban
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-102
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 29
+// 30 拖拽排序（Drag to reorder）
+// 4 行列表，行高 38、行距 44（y = 12 / 56 / 100 / 144）。光标 0.95 秒到第 1 行左侧把手，1.0 秒按下。
+// 抬起量 1.0–1.15 秒 easeOutCubic：拖动行放大到 1.04 倍、阴影模糊 4→20、下移 1→7px，边框变蓝。
+// 1.15–2.1 秒 easeInOutCubic 向下拖 88px（两个行距）；拖动行越过第 2、3 行的一半（22 / 66px）时，该行用 0.2 秒 easeOutCubic 上移 44px 让位，
+// 原位留下浅蓝虚线占位框。2.2 秒松手，2.2–2.4 秒抬起量回 0 落位。
+// 复位：3.4–3.9 秒 easeInOutCubic 所有行回到原顺序。
+const REORD_ITEMS = ['设计稿评审', '接口联调', '撰写周报', '发布上线'];
+const REORD_TAG = [C.blue, C.sb, C.mb, C.line2];
+const REORD_Y0 = 12, REORD_GAP = 44, REORD_H = 38;
+const REORD_DY = t => 88 * eio(seg(t, 1.15, 2.1));
+// 越过阈值的时刻：二分求解（只在加载时算一次）
+const REORD_TC = [1, 2].map(j => { const thr = REORD_GAP * (j - .5); let a = 1.15, b = 2.1; for (let i = 0; i < 40; i++) { const m = (a + b) / 2; if (REORD_DY(m) < thr) a = m; else b = m; } return b; });
+CELLS[28] = ui((w, h, t) => {
+  const back = eio(seg(t, 3.4, 3.9));
+  const lift = eo(seg(t, 1.0, 1.15)) * (1 - eo(seg(t, 2.2, 2.4)));
+  const row = (i, y, lf) => {
+    const x = 24, rw = 494;
+    X.save();
+    if (lf > 0) { const cx = x + rw / 2, cy = y + REORD_H / 2, s = 1 + .04 * lf; X.translate(cx, cy); X.scale(s, s); X.translate(-cx, -cy); }
+    shadowed(() => fillRR(x, y, rw, REORD_H, 8, '#fff'), 4 + 16 * lf, 1 + 6 * lf, .06 + .16 * lf);
+    strokeRR(x, y, rw, REORD_H, 8, lf > .05 ? C.sb : C.line2, 1.5);
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 2; c++) circle(x + 16 + c * 6, y + 12 + r * 7, 1.8, lf > .05 ? C.blue : '#aaa');
+    ring(x + 46, y + 19, 8, C.line2, 2);
+    text(REORD_ITEMS[i], x + 64, y + 20, 14, C.ink, 600);
+    fillRR(x + rw - 70, y + 12, 52, 14, 7, REORD_TAG[i]);
+    X.restore();
+  };
+  const dragY = REORD_Y0 + (t < 3.4 ? REORD_DY(t) : 88 * (1 - back));
+  const passed = REORD_TC.filter(c => t >= c).length;
+  if (lift > 0) { const py = REORD_Y0 + REORD_GAP * passed; X.save(); X.globalAlpha = lift; fillRR(24, py, 494, REORD_H, 8, C.lb); X.setLineDash([5, 4]); strokeRR(24, py, 494, REORD_H, 8, C.sb, 1.5); X.restore(); }
+  for (let i = 1; i < 4; i++) {
+    let y = REORD_Y0 + i * REORD_GAP;
+    if (i <= 2) { const sh = t < 3.4 ? eo(seg(t, REORD_TC[i - 1], REORD_TC[i - 1] + .2)) : 1 - back; y -= REORD_GAP * sh; }
+    row(i, y, 0);
+  }
+  row(0, dragY, lift);
+  let pos;
+  if (t < 1.0) pos = track([[.3, w + 30, h + 30], [.95, 44, 33]], t);
+  else if (t < 2.25) pos = [44, dragY + 21];
+  else pos = track([[2.25, 44, dragY + 21], [2.9, w + 30, h + 30]], t);
+  pointer([[0, pos[0], pos[1]]], [1.0, 2.2], t);
+});

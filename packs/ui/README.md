@@ -2,7 +2,7 @@
 
 # UI component names
 
-24 names · #1 001~024 · pack `ui` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+29 names · #1 001~024 · 098~102 · pack `ui` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -18,6 +18,10 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-006](https://sadjjk.github.io/motion-prompt-zh/#1-006) | **Tooltip** | Hover over something to show a short label | Add a tooltip to the "?" icon: show the note above it 0.2 s after hover, and hide it when the cursor leaves. |
 | [#1-007](https://sadjjk.github.io/motion-prompt-zh/#1-007) | **Popover** | Click a button to open a small panel pointing at it | Attach a popover to the "Details" button: clicking opens a small panel to its right over 0.3 s, and OK closes it. |
 | [#1-008](https://sadjjk.github.io/motion-prompt-zh/#1-008) | **Toast notification** | A short message appears in a corner and goes away on its own | After saving, show "Saved" as a toast at the bottom right: slide it in from the right in 0.35 s and dismiss it automatically after 2 s. |
+| [#1-098](https://sadjjk.github.io/motion-prompt-zh/#1-098) | **Scale in** | A layer appears by growing from just under full size while fading in | Bring the popup in with a scale-in: from 0.95× to full size while fading in, 0.25 s ease-out, no overshoot. |
+| [#1-099](https://sadjjk.github.io/motion-prompt-zh/#1-099) | **Origin-aware animation** | A popup grows out of the button that opened it | Set the dropdown's transform-origin to the trigger button so it grows out of it from 0.5× over 0.3 s ease-out. |
+| [#1-100](https://sadjjk.github.io/motion-prompt-zh/#1-100) | **Rubber-banding** | Dragging past an edge meets resistance and springs back on release | Add rubber-banding when the bottom sheet is pulled past its top: 120 px of finger travel moves the sheet only about 49 px, and it springs back on release. |
+| [#1-101](https://sadjjk.github.io/motion-prompt-zh/#1-101) | **Interruptible animation** | An animation can change course mid-way, continuing from where it is | Make the drawer a spring animation that can be interrupted: if it is tapped again mid-open, it turns back from its current position and speed (ω = 10). |
 
 ## Choosing & switching
 
@@ -31,6 +35,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-014](https://sadjjk.github.io/motion-prompt-zh/#1-014) | **Range slider** | Two handles on one track pick a minimum and a maximum | Make the price filter a range slider with two handles, showing each value in a bubble while it is dragged. |
 | [#1-015](https://sadjjk.github.io/motion-prompt-zh/#1-015) | **Stepper (+/−)** | Plus and minus buttons that change a number by one | Make the quantity field a stepper: + and − change it by one, and the number pops slightly for 0.25 s on each press. |
 | [#1-016](https://sadjjk.github.io/motion-prompt-zh/#1-016) | **Pagination** | Numbered buttons that move between pages | Add pagination under the search results: the current page is a blue circle that moves in 0.2 s on click, and the list is replaced. |
+| [#1-102](https://sadjjk.github.io/motion-prompt-zh/#1-102) | **Drag to reorder** | Grab and drag a list item; the others make room as the order changes | Let the to-do list be reordered by dragging: pressing the handle lifts the row to 1.04×, and the other rows slide aside in 0.2 s. |
 
 ## Navigation & status
 

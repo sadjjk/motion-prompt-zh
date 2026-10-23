@@ -1,0 +1,15 @@
+Please use "Layout animation" (レイアウトアニメーション), one of the names in "Landing page & web effects".
+Motion Prompt #1-107
+
+What it is: When the layout changes, the remaining items glide to their new places
+What the sample shows: Deleting the second card makes the following cards glide into the gap, with the wrapping card moving up diagonally; undo sends each back to its place.
+Spec:
+- A 4×2 card grid (cards 110×66, column pitch 122, row pitch 78). The cursor clicks card 2's × at 1.0 s; that card shrinks to 0.85 and fades out in 0.2 s with easeOut.
+- The other cards glide to their new slots over 1.25–1.75 s (0.5 s, easeInOut, power 3); card 5 moves diagonally from the start of row 2 to the end of row 1.
+- At 1.3 s a "1 item deleted · Undo" toast appears. Undo is clicked at 3.35 s: the cards move back over 3.5–4.0 s and card 2 grows and fades back in over 3.95–4.25 s.
+- Versus Drag to reorder: there is no dragging; items reflow automatically after a delete or restore, never jumping.
+When to use it: Use it for boards, photo grids, carts and tag lists — anywhere adding, removing or filtering changes the layout.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-107.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

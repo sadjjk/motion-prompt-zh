@@ -1,0 +1,73 @@
+// Motion Prompt #1-101 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills
+//
+// 可打断动画 / Interruptible animation
+// 分类包: ui (UI 组件) · element 28 · 子分类: 弹出与覆盖
+// 动画表现: 抽屉开到一半时再次点击，它不先开完，而是顺势略冲后平滑折返关闭。
+// 运动规格:
+//   - 左侧手机屏 304×171，光标 1.0 秒点右上角菜单按钮，宽 160 的抽屉以临界阻尼弹簧 ω = 10 rad/s 打开：p = 1 − (1 + ωs)e^(−ωs)。
+//   - 1.2 秒抽屉开到 59%、速度 2.7/s 时再次点击，目标改为关闭，从当前位置和速度接续：p = (p₀ + (v₀ + ωp₀)s)e^(−ωs)。
+//   - 先顺势略冲到约 63% 再平滑折返，约 0.7 秒回到 0，速度全程连续；遮罩 0.36·p。
+//   - 右侧曲线面板（0.9–2.1 秒）：蓝实线为本效果位置曲线，无折角；灰虚线为“先开完再关”（0.35 秒开、0.35 秒关），顶部有折角。
+//   - 与普通开关动画不同：中途收到新指令时不排队、不跳变，直接从当前状态转向。
+// 适用场景: 适合抽屉、菜单、开关、可拖动卡片等用户可能连续快速操作的地方。
+// 标签: interruptible, spring, physics, drawer, velocity, retarget, gesture
+// 尺寸: 542x191 px · 周期: 4.5 s
+// 依赖: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-101
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 28
+// 29 可打断动画（Interruptible animation）
+// 左侧手机屏 304×171 内，光标 1.0 秒点右上角菜单按钮，抽屉（宽 160）以临界阻尼弹簧 ω = 10 rad/s 打开：p = 1 − (1 + ωs)e^(−ωs)。
+// 1.2 秒抽屉开到 59%、速度 2.7/s 时再次点击，目标改为关闭；从当前位置和当前速度接续：p = (p₀ + (v₀ + ωp₀)s)e^(−ωs)，
+// 先顺势略冲到约 63% 再平滑折返，约 0.7 秒回到 0，速度全程连续。遮罩 0.36·p。
+// 右侧曲线面板（时间 0.9–2.1 秒）：蓝实线为本效果位置曲线，随时间画出，无折角；灰虚线为「先开完再关」（0.35 秒开、0.35 秒关），顶部有折角。
+// 3.9–4.2 秒蓝线淡出复位。
+const INTR_W = 10, INTR_T0 = 1.0, INTR_T1 = 1.2;
+const INTR_ST = (() => { const s = INTR_T1 - INTR_T0, e = Math.exp(-INTR_W * s); return [1 - (1 + INTR_W * s) * e, INTR_W * INTR_W * s * e]; })();
+const INTR_P = t => {
+  if (t < INTR_T0 || t > 2.6) return 0;
+  if (t < INTR_T1) { const s = t - INTR_T0; return 1 - (1 + INTR_W * s) * Math.exp(-INTR_W * s); }
+  const s = t - INTR_T1, x0 = INTR_ST[0], v0 = INTR_ST[1]; return (x0 + (v0 + INTR_W * x0) * s) * Math.exp(-INTR_W * s);
+};
+const INTR_NAIVE = t => eo(seg(t, 1.0, 1.35)) * (1 - eio(seg(t, 1.35, 1.7)));
+CELLS[27] = ui((w, h, t) => {
+  const p = INTR_P(t);
+  const fx = 14, fy = 10, fw = 304, fh = 171;
+  X.save(); rr(fx, fy, fw, fh, 12); X.clip();
+  fillRR(30, 24, 70, 14, 4, C.mb); pageLines(30, 58, 272); fillRR(30, 122, 272, 46, 8, C.block);
+  if (p > 0) {
+    X.fillStyle = `rgba(18,20,28,${.36 * p})`; X.fillRect(fx, fy, fw, fh);
+    const pw = 160, px = fx - pw + pw * p;
+    shadowed(() => { X.fillStyle = '#fff'; X.fillRect(px, fy, pw, fh); }, 22, 0, .25);
+    circle(px + 30, fy + 24, 12, C.mb); bar(px + 50, fy + 19, 80, C.line2, 10);
+    for (let i = 0; i < 4; i++) { const y = fy + 48 + i * 30; if (i === 0) fillRR(px + 10, y - 2, pw - 20, 26, 6, C.lb); fillRR(px + 18, y + 4, 14, 14, 3, i === 0 ? C.blue : C.line2); bar(px + 40, y + 6, 70 + (i % 2) * 24, i === 0 ? C.sb : C.line); }
+  }
+  X.restore();
+  strokeRR(fx, fy, fw, fh, 12, C.line2, 1.5);
+  // 菜单按钮（三本线）
+  X.strokeStyle = p > .02 ? C.blue : '#333'; X.lineWidth = 2.6; X.lineCap = 'round'; X.beginPath();
+  for (let k = -1; k <= 1; k++) { X.moveTo(274, 31 + 7 * k); X.lineTo(294, 31 + 7 * k); } X.stroke();
+  // 位置曲线面板
+  const qx0 = 342, qx1 = 514, T0 = 0.9, T1 = 2.1, QX = s => lerp(qx0, qx1, (s - T0) / (T1 - T0)), QY = v => 146 - 84 * v;
+  text('抽屉位置', 334, 20, 13, '#555', 700);
+  X.fillStyle = C.line; X.fillRect(qx0, QY(0), qx1 - qx0, 1.2);
+  X.save(); X.setLineDash([4, 3]); X.strokeStyle = '#a9a7a5'; X.lineWidth = 1.6; X.beginPath();
+  for (let i = 0; i <= 60; i++) { const s = lerp(T0, T1, i / 60), x = QX(s), y = QY(INTR_NAIVE(s)); i ? X.lineTo(x, y) : X.moveTo(x, y); } X.stroke();
+  X.setLineDash([2, 3]); X.strokeStyle = C.sb; X.lineWidth = 1.2; X.beginPath(); X.moveTo(QX(INTR_T1), 44); X.lineTo(QX(INTR_T1), QY(0)); X.stroke(); X.restore();
+  text('再次点击', QX(INTR_T1) + 4, 40, 10, C.blue, 600);
+  const fade = 1 - seg(t, 3.9, 4.2), te = Math.min(t, T1);
+  if (t > T0 && fade > 0) {
+    X.save(); X.globalAlpha = fade; X.strokeStyle = C.blue; X.lineWidth = 2.4; X.lineJoin = 'round'; X.beginPath();
+    const n = Math.max(1, Math.ceil(60 * (te - T0) / (T1 - T0)));
+    for (let i = 0; i <= n; i++) { const s = lerp(T0, te, i / n), x = QX(s), y = QY(INTR_P(s)); i ? X.lineTo(x, y) : X.moveTo(x, y); } X.stroke();
+    circle(QX(te), QY(INTR_P(te)), 5, C.blue); ring(QX(te), QY(INTR_P(te)), 5, '#fff', 1.8);
+    X.restore();
+  }
+  fillRR(334, 163, 16, 3, 1.5, C.blue); text('可打断：从当前位置折返', 356, 165, 10, '#555', 600);
+  X.save(); X.setLineDash([4, 3]); X.strokeStyle = '#a9a7a5'; X.lineWidth = 1.6; X.beginPath(); X.moveTo(334, 179); X.lineTo(350, 179); X.stroke(); X.restore();
+  text('不可打断：先开完再关', 356, 179, 10, '#9a9896', 600);
+  pointer([[.3, w + 30, h + 30], [.95, 286, 36], [1.6, 286, 36], [2.3, w + 30, h + 30]], [1.0, 1.2], t);
+});

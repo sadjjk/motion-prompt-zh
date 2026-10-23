@@ -1,0 +1,16 @@
+Please use "Rubber-banding" (ラバーバンド), one of the names in "UI component names".
+Motion Prompt #1-100
+
+What it is: Dragging past an edge meets resistance and springs back on release
+What the sample shows: Pulling a fully open bottom sheet further up gets heavier and heavier, the sheet lags behind the finger, and on release it snaps back to the edge.
+Spec:
+- The bottom sheet is fully open with its top at the edge y = 64. The finger grabs the handle at 0.9 s and drags up 120 px over 0.95–2.35 s with easeInOutCubic.
+- The sheet moves only by the damping function f(x) = (1 − 1 / (0.55·x / 190 + 1)) × 190: at 40 / 80 / 120 px of finger travel the sheet moves 20 / 36 / 49 px, heavier the further you pull.
+- Release at 2.6 s; the sheet springs back to the edge over 2.6–3.0 s with easeOutCubic.
+- 2 bars on the right compare finger travel (grey) with sheet travel (blue).
+- Versus Bottom sheet: it is not the opening motion but resistance when dragging past the end, then a return.
+When to use it: Use it at the end of a scrolling list or when a sheet or carousel is dragged to its limit, to show there is nothing further.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-100.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

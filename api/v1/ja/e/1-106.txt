@@ -1,0 +1,54 @@
+// Motion Prompt #1-106 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills
+//
+// 方向に合わせたトランジション / Direction-aware transition
+// パック: lp (LP・Webサイトの演出) · element 28 · カテゴリ: 読み込み・移動・動き続ける演出
+// 何が起きるか: 案内ページを進むと内容が左へ、戻ると右へ滑って入れ替わり、ページの点も一緒に切り替わる。
+// 動きの仕様:
+//   - 3ステップの案内ページ。ページ順は 1→2→3→2→1。「次へ →」（0.6・1.6秒）を押すと古いページは左へ出て、新しいページが右から入る
+//   - 「← 戻る」（2.7・3.7秒）を押すと向きが逆: 古いページは右へ出て、新しいページが左から入る
+//   - 滑りは毎回0.5秒の easeInOut（3乗）、距離は表示域の幅いっぱいの511px。下のナビは動かない
+//   - ページトランジション・プッシュトランジションとの違い: 滑る向きが進む／戻るで切り替わり、いまどちらへ動いたかが分かる
+//   - 方向を感知するマスクとの違い: 向きを決めるのはカーソルが入ってきた方向ではなく、進む／戻るの操作
+// 使いどころ: ステップ形式のフォーム・初回案内・カルーセル・アプリ内の進む／戻るの画面遷移に。
+// タグ: direction-aware, slide-transition, page-transition, onboarding, stepper, navigation, wizard
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-106
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 28
+// 28 方向感知转场（Direction-aware transition）：三步引导页。点「下一页 →」（0.6、1.6 秒）时旧页向左滑出、新页从右滑入；
+// 点「← 返回」（2.7、3.7 秒）时方向相反：旧页向右滑出、新页从左滑入。每次滑动 0.5 秒 easeInOut（3 次方），距离为整个视口宽 511px。
+// 页面顺序 1→2→3→2→1，周期末回到第 1 页。与「页面转场」的区别：滑动方向跟着前进 / 后退变化，看得出自己在往哪走。
+const DIRT_TR = [[0.65, 0, 1], [1.65, 1, 2], [2.75, 2, 1], [3.75, 1, 0]], DIRT_DUR = 0.5;
+const DIRT_PAGES = [['欢迎使用', 0], ['选择套餐', 1], ['完成设置', 2]];
+CELLS[27] = (k, w, h, u) => {
+  let cur = 0, nxt = -1, q = 0;
+  for (const [t0, a, b] of DIRT_TR) if (u >= t0) { if (u < t0 + DIRT_DUR) { cur = a; nxt = b; q = eIO(P(u, t0, t0 + DIRT_DUR)); } else { cur = b; nxt = -1; } }
+  const idx = nxt >= 0 ? nxt : cur;
+  frame(k, `example.com/setup/${idx + 1}`);
+  const [cx, cy] = path([[0, 330, 110], [0.5, 441, 145], [1.7, 441, 145], [2.45, 70, 145], [3.9, 70, 145], [4.6, 330, 110], [4.8, 330, 110]], u);
+  view(k, () => {
+    const page = (i, x) => {
+      k.save(); k.translate(x, 0);
+      k.fillStyle = '#fff'; k.fillRect(0, 0, VW, 124);
+      pic(k, 34, 14, 190, 100, DIRT_PAGES[i][1], 8);
+      txt(k, `步骤 ${i + 1} / 3`, 250, 38, `700 12px ${JP}`, C.acc);
+      txt(k, DIRT_PAGES[i][0], 250, 68, `800 22px ${JP}`, C.ink);
+      bars(k, 250, 84, 200, 3);
+      k.restore();
+    };
+    k.save(); k.beginPath(); k.rect(0, 0, VW, 124); k.clip();
+    if (nxt >= 0) { const dir = nxt > cur ? 1 : -1; page(cur, -dir * VW * q); page(nxt, dir * VW * (1 - q)); }
+    else page(cur, 0);
+    k.restore();
+    // 底部导航（固定不动）
+    k.fillStyle = C.soft; k.fillRect(0, 124, VW, VH - 124); k.fillStyle = C.rule; k.fillRect(0, 124, VW, 1);
+    btn(k, 24, 132, 92, 26, '← 返回', idx === 0 ? C.faint : C.ink, '#fff', 12);
+    btn(k, 395, 132, 92, 26, '下一页 →', idx === 2 ? C.faint : C.acc, '#fff', 12);
+    for (let i = 0; i < 3; i++) { k.fillStyle = i === idx ? C.acc : C.faint; rr(k, VW / 2 - 26 + i * 20 - (i === idx ? 4 : 0), 142, i === idx ? 20 : 12, 6, 3); k.fill(); }
+    click(k, cx, cy, u, [0.6, 1.6, 2.7, 3.7]);
+  });
+};

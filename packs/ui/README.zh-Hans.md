@@ -2,7 +2,7 @@
 
 # UI 组件
 
-24 个效果 · #1 001~024 · 分类包 `ui` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+29 个效果 · #1 001~024 · 098~102 · 分类包 `ui` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -18,6 +18,10 @@
 | [#1-006](https://sadjjk.github.io/motion-prompt-zh/#1-006) | **悬浮提示** | Tooltip | 悬停时显示简短说明 | 给“?”图标加悬浮提示，悬停 0.2 秒后在上方显示，移开即隐藏。 |
 | [#1-007](https://sadjjk.github.io/motion-prompt-zh/#1-007) | **气泡弹出框** | Popover | 点击按钮打开指向该按钮的小面板 | 给“详情”按钮加气泡弹出框，点击后用 0.3 秒在右侧打开，点“确定”关闭。 |
 | [#1-008](https://sadjjk.github.io/motion-prompt-zh/#1-008) | **轻提示通知** | Toast notification | 角落短暂出现消息，随后自动消失 | 保存后在右下角显示“已保存”轻提示，用 0.35 秒从右侧滑入，两秒后自动关闭。 |
+| [#1-098](https://sadjjk.github.io/motion-prompt-zh/#1-098) | **缩放淡入** | Scale in | 弹层从略小尺寸放大到原尺寸并淡入 | 弹窗出现时用缩放淡入：从 0.95 倍放大到原尺寸并淡入，0.25 秒 ease-out，不要回弹。 |
+| [#1-099](https://sadjjk.github.io/motion-prompt-zh/#1-099) | **从触发点展开** | Origin-aware animation | 弹出菜单从触发它的按钮处长出 | 下拉菜单的 transform-origin 设在触发按钮上，从 0.5 倍放大展开，0.3 秒 ease-out。 |
+| [#1-100](https://sadjjk.github.io/motion-prompt-zh/#1-100) | **橡皮筋回弹** | Rubber-banding | 拖过边界时带阻力移动，松手后弹回 | 底部面板拖到顶后加橡皮筋阻尼：手指多拖 120px 面板只移动约 49px，松手后弹回。 |
+| [#1-101](https://sadjjk.github.io/motion-prompt-zh/#1-101) | **可打断动画** | Interruptible animation | 动画进行中可随时改向，从当前状态接续 | 抽屉开关用弹簧动画并支持中途打断：开到一半再点，就从当前位置和速度直接折返（ω = 10）。 |
 
 ## 选择与切换
 
@@ -31,6 +35,7 @@
 | [#1-014](https://sadjjk.github.io/motion-prompt-zh/#1-014) | **区间滑块** | Range slider | 在同一轨道上用两个滑块选择上下限 | 价格筛选使用双滑块区间选择器，拖动时在气泡中显示数值。 |
 | [#1-015](https://sadjjk.github.io/motion-prompt-zh/#1-015) | **数字步进器** | Stepper (+/−) | 通过加减按钮逐个调整数值 | 数量字段用数字步进器，+ 和 − 每次改变一，按下后数字用 0.25 秒轻微弹动。 |
 | [#1-016](https://sadjjk.github.io/motion-prompt-zh/#1-016) | **分页器** | Pagination | 使用带页码的按钮切换页面 | 搜索结果下方加分页器，当前页用蓝圆标记，点击后用 0.2 秒移动并替换列表。 |
+| [#1-102](https://sadjjk.github.io/motion-prompt-zh/#1-102) | **拖拽排序** | Drag to reorder | 按住拖动列表项，其他项让位改变顺序 | 待办列表支持拖拽排序：按住把手时行抬起放大到 1.04 倍，其他行用 0.2 秒滑开让位。 |
 
 ## 导航与状态
 

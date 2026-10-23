@@ -27,27 +27,31 @@ skills/motion-prompt-zh/{SKILL.md,scripts/,references/,agents/}   the Chinese ag
 dev/preview.html                           per-pack preview
 ```
 
-Groups, packs and IDs. Display order and IDs come from `packs/groups.json`; a pack's `order` in
-`meta.json` is the upstream release order and is used only for attribution links to the original site.
+Groups, packs and IDs. Display order comes from `packs/groups.json`; each element's ID is fixed in its
+`meta.json` (`id`). A pack's `order` in `meta.json` is the upstream release order and is used only for
+attribution links to the original site.
 
 | group | pack | elements | IDs | upstream IDs | title |
 |---|---|---|---|---|---|
-| 1 `web` | `ui` | 24 | #1 001~024 | 049–072 | UI component names / UIパーツの名前 |
-| 1 `web` | `lp` | 24 | #1 025~048 | 073–096 | Landing page & web effects / LP・Webサイトの演出 |
+| 1 `web` | `ui` | 29 | #1 001~024 · 098~102 | 049–072 | UI component names / UIパーツの名前 (098~102 after [skills](https://github.com/emilkowalski/skills), Emil Kowalski) |
+| 1 `web` | `lp` | 29 | #1 025~048 · 103~107 | 073–096 | Landing page & web effects / LP・Webサイトの演出 (103~107 after [skills](https://github.com/emilkowalski/skills), Emil Kowalski) |
 | 1 `web` | `aiux` | 12 | #1 049~060 | — | Glow & liquid / グロー・リキッド (after [Libraries.dev](https://libraries.dev/), Jakub Antalik) |
 | 1 `web` | `uxmotion` | 37 | #1 061~097 | — | Interaction & data motion / インタラクションとデータの動き (after [Lucian UX/UI Prompt](https://lucianlabs.dev/uxui-prompt/), Seokwoooo) |
 | 2 `motion` | `motion` | 24 | #2 001~024 | 001–024 | Motion graphics moves / モーショングラフィックスの動き |
-| 2 `motion` | `motion2` | 24 | #2 025~048 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 |
+| 2 `motion` | `motion2` | 25 | #2 025~048 · 064 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 (064 after [skills](https://github.com/emilkowalski/skills), Emil Kowalski) |
 | 2 `motion` | `mgstyles` | 15 | #2 049~063 | — | MG styles / モーショングラフィックスのスタイル (after [mg-styles-15](https://github.com/Vincentwei1021/mg-styles-15), Vincentwei1021) |
 | 3 `film` | `camera` | 24 | #3 001~024 | 025–048 | Camera moves & transitions / カメラワークと切り替え |
 | 3 `film` | `photo` | 24 | #3 025~048 | 097–120 | Photo looks, lighting & styles / 写真の表現・光と画風 |
 | 4 `ambient` | `scenes` | 32 | #4 001~032 | — | Styled scenes / スタイルシーン (after [Motion Atlas](https://github.com/skylarzzzz/motion-atlas), Yun) |
 
-A range is written `#<group> <first>~<last>` (e.g. `#1 025~048`); a single ID is `#1-025`.
+A range is written `#<group> <first>~<last>` (e.g. `#1 025~048`); a pack whose IDs come in several runs
+joins them with ` · ` (e.g. `#1 001~024 · 098~102`); a single ID is `#1-025`.
 
-**IDs are `#<group>-<3-digit number>` (e.g. `#1-001`), assigned by group in display order. Once published,
-numbers within a group are never renumbered or reused, new names go at the end of their group, and
-published names are not renamed.** A new pack takes the next `order` and must be registered in
+**IDs are `#<group>-<3-digit number>` (e.g. `#1-001`) and are written in `meta.json` (`id`), independent of
+where the element is shown. Once published, an ID never changes and is never reused (the build compares
+with the previous catalog and fails if one changes). A new element goes into the pack and category that
+fit it best and takes the next free number of its group, so a pack's IDs may come in several runs.
+Published names are not renamed.** A new pack takes the next `order` and must be registered in
 `packs/groups.json`; the build fails otherwise.
 
 ## packs/groups.json
@@ -65,6 +69,10 @@ A pack written after another author's work names that author in `meta.json`:
 The build puts them on the first line of every `e/<id>.txt` and `kit/<pack>.js` of that pack, and the Chinese prompt
 asks to keep that author's copyright. Without them a pack uses Shohei Ohtaki's line and a link to the original
 site at the element's upstream ID. The first line of `pack.js` should carry the same copyright line.
+
+An element added to a pack by someone other than the pack's author carries its own `license` and
+`attribution` (same formats). Its `e/<id>.txt` first line and Chinese prompt use them; the pack's `kit/<pack>.js`
+keeps the pack line first and adds `// Also: <license> · <attribution> (#ids)`. Such elements get no upstream ID.
 
 ## packs/<pack>/pack.js
 
@@ -114,7 +122,7 @@ Rules:
   "title": { "ja": "モーショングラフィックスの動き", "en": "Motion graphics moves" },
   "categories": [ { "slug": "entrances-text", "ja": "登場・文字の演出", "en": "Entrances & text" } ],
   "elements": [
-    { "no": "01", "slug": "pop-in", "category": "entrances-text",
+    { "no": "01", "id": "2-001", "slug": "pop-in", "category": "entrances-text",
       "name": { "ja": "ポップイン", "en": "Pop-in" },
       "meaning": { "ja": "ポンと弾んで現れる", "en": "Pops into view with a small bounce" },
       "ask": { "ja": "ロゴをポップインで出して。0.4秒で、行き過ぎは少しだけ。", "en": "Bring the logo in with a pop-in, about 0.4 s, with a slight overshoot." },
@@ -126,6 +134,8 @@ Rules:
 }
 ```
 
+- `id`: required, the element's fixed ID (`"1-098"`). The group number must match the pack's group; an ID is
+  unique across the library and never changes once published.
 - `added`: required, the date the pack joined this library, as `YYYY-MM-DD`. The gallery's default
   "Newest" order sorts by it. An element may carry its own `added` when it is added to an existing pack later.
 - `name`: the term people in the field really use, in each language. Do not coin a name or translate
@@ -167,7 +177,7 @@ carried in `api/v1/catalog.json` and shown in the generated lists.
 ## Generated API (tools/build.mjs writes these; the skill CLI and the site read them)
 
 ```
-api/v1/catalog.json                 { version, count, groups:[{ id, no, title, packs }], packs:[{ pack, group, first, last, upstreamFirst, … }], elements:[{ id, upstream, group, pack, no, slug, category, width, height, cycle, name, meaning, ask, summary, spec, use, tags }] }
+api/v1/catalog.json                 { version, count, groups:[{ id, no, title, packs }], packs:[{ pack, group, first, last, ranges, upstreamFirst, … }], elements:[{ id, upstream?, group, pack, no, slug, category, added, license?, author?, attribution?, width, height, cycle, name, meaning, ask, summary, spec, use, tags }] }
 api/v1/<lang>/catalog.tsv           header comment line, then: id  pack  category  title  tags  summary      (lang = zh-Hans | ja | en)
 api/v1/<lang>/e/<id>.txt            one element: license line, info header (name, what it shows, spec, use, size, cycle, "Needs: kit <pack>", live demo URL), then the element code block
 api/v1/<lang>/p/<id>.txt            the copy-paste prompt for that element (same text the site's "copy prompt" button copies)

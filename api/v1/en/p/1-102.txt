@@ -1,0 +1,16 @@
+Please use "Drag to reorder" (ドラッグで並べ替え), one of the names in "UI component names".
+Motion Prompt #1-102
+
+What it is: Grab and drag a list item; the others make room as the order changes
+What the sample shows: The first row is grabbed and lifted, dragged down two rows; each row it passes slides up out of the way, and on release it settles into its new place.
+Spec:
+- A 4-row list, row height 38, pitch 44 (y = 12 / 56 / 100 / 144). The cursor reaches row 1's left handle at 0.95 s and presses at 1.0 s.
+- Lift over 1.0–1.15 s, easeOutCubic: the dragged row scales to 1.04×, shadow blur 4→20 and offset 1→7 px, and its border turns blue.
+- Dragged down 88 px over 1.15–2.1 s with easeInOutCubic. As it passes the halfway point of rows 2 and 3 (22 / 66 px), each row moves up 44 px in 0.2 s easeOutCubic; a light blue dashed placeholder marks the slot.
+- Released at 2.2 s; the lift returns to 0 over 2.2–2.4 s and the row settles. Over 3.4–3.9 s all rows return to their original order.
+- Versus Live table insert: the order is changed by the user's drag, and the other rows make room in real time.
+When to use it: Use it for to-do lists, playlists, kanban cards and settings where users set their own order.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-102.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1514,6 +1514,358 @@
         "decoration",
         "loop"
       ]
+    },
+    {
+      "no": "25",
+      "id": "1-103",
+      "slug": "press-feedback",
+      "category": "hover-click",
+      "added": "2026-10-23",
+      "license": "MIT License (c) 2026 Emil Kowalski",
+      "attribution": "https://github.com/emilkowalski/skills",
+      "name": {
+        "ja": "押したときの縮み",
+        "en": "Press / tap feedback",
+        "zh-Hans": "按压缩小"
+      },
+      "meaning": {
+        "ja": "押している間ボタンが少し縮み、押した手応えを出す",
+        "en": "A button shrinks slightly while pressed, so a tap feels physical",
+        "zh-Hans": "按下时按钮微微缩小，让点击有按下去的实感"
+      },
+      "ask": {
+        "ja": "すべてのボタンに押したときの縮みをつけて。押して0.1秒で0.97倍、離したら0.25秒で1に戻す。",
+        "en": "Add press feedback to every button: shrink to 0.97 within 0.1 s of pressing, back to 1 over 0.25 s on release.",
+        "zh-Hans": "所有按钮加按压反馈：按下 0.1 秒缩到 0.97，松开 0.25 秒恢复到 1。"
+      },
+      "summary": {
+        "ja": "同じボタン2つを比べる。左は押しても何も変わらず、右は押すと少し縮んで影が締まり、離すと戻る。",
+        "en": "Two identical buttons: the left one does nothing when pressed; the right one shrinks a little with a tighter shadow and recovers on release.",
+        "zh-Hans": "两颗相同按钮对比：左边按下毫无变化，右边按下时微微缩小、阴影收紧，松开后恢复。"
+      },
+      "spec": {
+        "ja": [
+          "左右に同じ「今すぐ購入」ボタン 170×50 を2つ並べて比べる。左は押しても離しても変わらず、右は反応がある",
+          "押すと0.1秒以内に easeOut（3乗）で0.97へ縮み、影は blur 14・下へ6 から blur 4・下へ2 に締まる",
+          "離すと0.25秒の easeOut（3乗）で1へ戻る",
+          "押している区間: 左 0.80〜1.15秒、右 2.20〜2.55・3.05〜3.40秒。カーソルは3.6〜4.2秒に出発点へ戻る",
+          "クリックの波紋との違い: 波紋は出ず、ボタン自身が縮んで影が締まるだけ"
+        ],
+        "en": [
+          "2 identical \"Buy now\" buttons (170×50), left and right: the left does not change on press or release; the right gives feedback.",
+          "On press it shrinks to 0.97 within 0.1 s with easeOut (power 3), and the shadow tightens from blur 14 / offset 6 to blur 4 / offset 2.",
+          "On release it returns to 1 over 0.25 s with easeOut (power 3).",
+          "Pressed intervals: left 0.80–1.15 s; right 2.20–2.55 and 3.05–3.40 s. The cursor returns to its start over 3.6–4.2 s.",
+          "Versus Click ripple: no ripple at all, only the button itself shrinking with a tighter shadow."
+        ],
+        "zh-Hans": [
+          "左右 2 颗相同的“立即购买”按钮 170×50 对比：左边按下、松开都不变；右边有反馈。",
+          "按下后 0.1 秒内 easeOut（3 次方）缩到 0.97，阴影由 blur 14 / 下移 6 收紧到 blur 4 / 下移 2。",
+          "松开后 0.25 秒 easeOut（3 次方）回到 1。",
+          "按下区间：左 0.80–1.15 秒；右 2.20–2.55、3.05–3.40 秒。光标 3.6–4.2 秒回到起点。",
+          "与点击涟漪不同：没有波纹，只有按钮本身缩小、阴影收紧。"
+        ]
+      },
+      "use": {
+        "ja": "ボタン・カード・リスト項目など押せるものすべてに。特にタッチ操作のアプリで、押した手応えを返したいとき。",
+        "en": "Use it on buttons, cards and list items — anything tappable, especially in touch apps, to make taps feel responsive.",
+        "zh-Hans": "适合按钮、卡片、列表项等所有可点击元素，尤其是触屏 App，让点击有实感。"
+      },
+      "tags": [
+        "press",
+        "tap",
+        "active-state",
+        "button",
+        "feedback",
+        "scale",
+        "micro-interaction"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "按下反馈",
+          "点击缩放"
+        ]
+      }
+    },
+    {
+      "no": "26",
+      "id": "1-104",
+      "slug": "hold-to-confirm",
+      "category": "hover-click",
+      "added": "2026-10-23",
+      "license": "MIT License (c) 2026 Emil Kowalski",
+      "attribution": "https://github.com/emilkowalski/skills",
+      "name": {
+        "ja": "長押しで確定",
+        "en": "Hold to confirm",
+        "zh-Hans": "长按确认"
+      },
+      "meaning": {
+        "ja": "ボタンを押し続けて進みが満ちたときだけ実行する",
+        "en": "An action runs only after the button is held until its progress fills",
+        "zh-Hans": "按住按钮直到进度填满才执行操作"
+      },
+      "ask": {
+        "ja": "削除ボタンを長押しで確定にして。1.2秒押し続けて進みが満ちたら削除し、途中で離したら進みを戻す。",
+        "en": "Make the delete button hold-to-confirm: delete only after it is held for 1.2 s and the fill completes; if released early, the fill drains back.",
+        "zh-Hans": "删除按钮改成长按确认：按住 1.2 秒填满进度才删除，中途松手进度回退。"
+      },
+      "summary": {
+        "ja": "1回目は途中で離して進みが戻り、2回目は1.2秒押し切ってファイルのカードが消え、ボタンが「削除済み」になる。",
+        "en": "The first hold is released early and the fill drains back; the second lasts the full 1.2 s, the file card disappears and the button reads \"Deleted\".",
+        "zh-Hans": "第 1 次按到一半松手，进度退回；第 2 次按满 1.2 秒，文件卡片消失，按钮显示“已删除”。"
+      },
+      "spec": {
+        "ja": [
+          "220×46 の「押して削除」ボタンを押し続けると、濃い進みが左から右へ一定の速さで満ちる。1.2秒押し切って初めて実行",
+          "1回目は0.70〜1.40秒、0.7秒（約58%）で離す。進みは0.35秒の easeOut（3乗）で0へ戻る",
+          "2回目は2.00〜3.20秒で押し切り、3.20秒に実行。上のファイルカードが0.35秒でフェードアウトしながらつぶれ、ボタンは「削除済み」",
+          "4.30〜4.70秒にリセット: 進みは easeInOut（3乗）で戻り、カードがフェードイン、文字が「押して削除」に戻る",
+          "ふつうのクリックとの違い: クリックだけでは動かず、途中で離すと進みが戻るのが見える"
+        ],
+        "en": [
+          "Holding the 220×46 \"Hold to delete\" button fills a dark bar from left to right at a steady rate; the action runs only after a full 1.2 s.",
+          "Hold 1, 0.70–1.40 s: released after 0.7 s (about 58%); the fill drains to 0 over 0.35 s with easeOut (power 3).",
+          "Hold 2, 2.00–3.20 s reaches full and runs at 3.20 s: the file card above fades out and flattens over 0.35 s, and the button reads \"Deleted\".",
+          "Reset over 4.30–4.70 s: the fill drains with easeInOut (power 3), the card fades back in and the label returns to \"Hold to delete\".",
+          "Versus a normal click: a single click does nothing, and letting go early visibly drains the progress."
+        ],
+        "zh-Hans": [
+          "按住 220×46 的“按住删除”按钮，深色进度从左向右匀速填满，需按满 1.2 秒才执行。",
+          "第 1 次 0.70–1.40 秒只按 0.7 秒（约 58%）就松手，进度 0.35 秒 easeOut（3 次方）退回 0。",
+          "第 2 次 2.00–3.20 秒按满，3.20 秒执行：上方文件卡片 0.35 秒淡出并压扁，按钮显示“已删除”。",
+          "4.30–4.70 秒复位：进度 easeInOut（3 次方）退回，卡片淡入，文字换回“按住删除”。",
+          "与普通点击不同：单击不触发，中途松手可以看到进度回退。"
+        ]
+      },
+      "use": {
+        "ja": "削除・送金・送信など取り消せない操作で、うっかり押しを防ぎたいとき。",
+        "en": "Use it for irreversible actions such as delete, transfer or submit, to prevent accidental taps.",
+        "zh-Hans": "适合删除、转账、提交等不可撤销的操作，防止误触。"
+      },
+      "tags": [
+        "hold-to-confirm",
+        "long-press",
+        "progress",
+        "destructive-action",
+        "button",
+        "confirm"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "长按删除",
+          "按住确认"
+        ]
+      }
+    },
+    {
+      "no": "27",
+      "id": "1-105",
+      "slug": "shared-element-transition",
+      "category": "loading-loops",
+      "added": "2026-10-23",
+      "license": "MIT License (c) 2026 Emil Kowalski",
+      "attribution": "https://github.com/emilkowalski/skills",
+      "name": {
+        "ja": "共有要素トランジション",
+        "en": "Shared element transition",
+        "zh-Hans": "共享元素转场"
+      },
+      "meaning": {
+        "ja": "同じ要素が一覧から詳細へ形を変えながら移り、2つの画面をつなぐ",
+        "en": "One element morphs from the list into the detail view, linking the two screens",
+        "zh-Hans": "同一元素从列表变形到详情页，把两页连起来"
+      },
+      "ask": {
+        "ja": "アルバム一覧から詳細へ移るとき共有要素トランジションにして。サムネイルが0.6秒で詳細の大きな画像へ移動しながら拡大する。",
+        "en": "Use a shared element transition from the album list to the detail page: the thumbnail moves and grows into the large detail image over 0.6 s.",
+        "zh-Hans": "从相册列表进详情页时做共享元素转场：缩略图用 0.6 秒移动并放大成详情大图。"
+      },
+      "summary": {
+        "ja": "一覧のサムネイルが、そのまま動いて広がり詳細ページの大きな画像になる。ほかはフェードで入れ替わり、戻るときは同じ道で縮む。",
+        "en": "A list thumbnail moves and expands straight into the detail page's large image while everything else cross-fades; going back shrinks it along the same path.",
+        "zh-Hans": "列表缩略图一路移动放大成详情页大图，其余内容淡出淡入；返回时沿原路缩回。"
+      },
+      "spec": {
+        "ja": [
+          "一覧2行目のサムネイル（56×32・角丸5）が0.80〜1.40秒（0.6秒 easeInOut 3乗）に途切れず動いて広がり、詳細ページの大きな画像（250×140・角丸10）になる",
+          "位置・大きさ・角丸を同時に補間。ほかの一覧は0.25秒でフェードアウトし、詳細の文字は1.25〜1.55秒にフェードイン",
+          "3.0秒に「← 戻る」を押し、3.10〜3.70秒に同じ画像が同じ道を通って一覧へ縮む。一覧は3.45〜3.75秒にフェードイン",
+          "ページトランジションとの違い: 幕で切り替えず、同じ要素が元の位置から新しい位置まで形を変え続けて両方のページをつなぐ"
+        ],
+        "en": [
+          "The thumbnail in list row 2 (56×32, radius 5) moves and grows continuously over 0.80–1.40 s (0.6 s, easeInOut, power 3) into the detail page's large image (250×140, radius 10).",
+          "Position, size and corner radius interpolate together; the rest of the list fades out in 0.25 s and the detail text fades in over 1.25–1.55 s.",
+          "\"← Back\" is clicked at 3.0 s; over 3.10–3.70 s the same image shrinks back along its path into the list, which fades in over 3.45–3.75 s.",
+          "Versus Page transition: there is no cover wipe; one element keeps morphing from its old place to its new one, tying the two pages together."
+        ],
+        "zh-Hans": [
+          "列表第 2 行的缩略图（56×32、圆角 5）在 0.80–1.40 秒（0.6 秒 easeInOut 3 次方）连续移动并放大成详情页大图（250×140、圆角 10）。",
+          "位置、尺寸、圆角同时插值；其余列表 0.25 秒淡出，详情文字 1.25–1.55 秒淡入。",
+          "3.0 秒点“← 返回”，3.10–3.70 秒同一张图沿原路缩回列表，列表 3.45–3.75 秒淡入。",
+          "与页面转场不同：没有遮罩切换，同一个元素从旧位置一路变形到新位置，把两页连起来。"
+        ]
+      },
+      "use": {
+        "ja": "写真・商品・連絡先など、一覧から詳細へ入る画面で、どれを開いたかを見失わせたくないとき。",
+        "en": "Use it when moving from a list to a detail view — photos, products, contacts — so users never lose track of what they opened.",
+        "zh-Hans": "适合相册、商品、联系人等从列表进入详情的场景，让用户不丢失所点的对象。"
+      },
+      "tags": [
+        "shared-element",
+        "hero-transition",
+        "page-transition",
+        "list-detail",
+        "magic-move",
+        "morph"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "共享元素动画",
+          "神奇移动"
+        ]
+      }
+    },
+    {
+      "no": "28",
+      "id": "1-106",
+      "slug": "direction-aware-transition",
+      "category": "loading-loops",
+      "added": "2026-10-23",
+      "license": "MIT License (c) 2026 Emil Kowalski",
+      "attribution": "https://github.com/emilkowalski/skills",
+      "name": {
+        "ja": "方向に合わせたトランジション",
+        "en": "Direction-aware transition",
+        "zh-Hans": "方向感知转场"
+      },
+      "meaning": {
+        "ja": "進むと戻るで画面が滑る向きが逆になる",
+        "en": "Screens slide one way going forward and the other way going back",
+        "zh-Hans": "前进与后退时页面滑动方向相反"
+      },
+      "ask": {
+        "ja": "ステップ形式のフォームの切り替えを方向に合わせて。次へは左へ、戻るは右へ、0.5秒の ease-in-out で滑らせて。",
+        "en": "Make the multi-step form transition direction-aware: next slides left, back slides right, 0.5 s ease-in-out.",
+        "zh-Hans": "多步表单切换跟随方向：下一步向左推，返回向右推，0.5 秒 ease-in-out。"
+      },
+      "summary": {
+        "ja": "案内ページを進むと内容が左へ、戻ると右へ滑って入れ替わり、ページの点も一緒に切り替わる。",
+        "en": "Moving forward through the onboarding slides content to the left; going back slides it to the right, with the page dots following.",
+        "zh-Hans": "引导页前进时内容向左滑走，后退时向右滑走，页码点同步切换。"
+      },
+      "spec": {
+        "ja": [
+          "3ステップの案内ページ。ページ順は 1→2→3→2→1。「次へ →」（0.6・1.6秒）を押すと古いページは左へ出て、新しいページが右から入る",
+          "「← 戻る」（2.7・3.7秒）を押すと向きが逆: 古いページは右へ出て、新しいページが左から入る",
+          "滑りは毎回0.5秒の easeInOut（3乗）、距離は表示域の幅いっぱいの511px。下のナビは動かない",
+          "ページトランジション・プッシュトランジションとの違い: 滑る向きが進む／戻るで切り替わり、いまどちらへ動いたかが分かる",
+          "方向を感知するマスクとの違い: 向きを決めるのはカーソルが入ってきた方向ではなく、進む／戻るの操作"
+        ],
+        "en": [
+          "A 3-step onboarding, page order 1→2→3→2→1. Clicking \"Next →\" (0.6, 1.6 s) slides the old page out to the left and the new one in from the right.",
+          "Clicking \"← Back\" (2.7, 3.7 s) reverses it: the old page leaves to the right and the new one enters from the left.",
+          "Each slide takes 0.5 s with easeInOut (power 3) over the full 511 px viewport width; the bottom navigation stays fixed.",
+          "Versus Page transition and Push transition: the slide direction flips with forward / back, so users can tell which way they moved.",
+          "Versus Direction-aware mask: direction comes from forward / back navigation, not from the side the cursor entered."
+        ],
+        "zh-Hans": [
+          "3 步引导页，页面顺序 1→2→3→2→1。点“下一页 →”（0.6、1.6 秒）时旧页向左滑出、新页从右滑入。",
+          "点“← 返回”（2.7、3.7 秒）时方向相反：旧页向右滑出、新页从左滑入。",
+          "每次滑动 0.5 秒 easeInOut（3 次方），距离为整个视口宽 511px；底部导航固定不动。",
+          "与页面转场、推移转场不同：滑动方向随前进 / 后退切换，看得出自己在往哪走。",
+          "与方向感知遮罩不同：方向由前进 / 后退操作决定，而不是光标进入的方向。"
+        ]
+      },
+      "use": {
+        "ja": "ステップ形式のフォーム・初回案内・カルーセル・アプリ内の進む／戻るの画面遷移に。",
+        "en": "Use it for multi-step forms, onboarding, carousels and forward/back navigation inside apps.",
+        "zh-Hans": "适合分步表单、新手引导、轮播以及 App 内前进与返回的页面切换。"
+      },
+      "tags": [
+        "direction-aware",
+        "slide-transition",
+        "page-transition",
+        "onboarding",
+        "stepper",
+        "navigation",
+        "wizard"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "方向感知滑动",
+          "前进后退转场"
+        ]
+      }
+    },
+    {
+      "no": "29",
+      "id": "1-107",
+      "slug": "layout-animation",
+      "category": "loading-loops",
+      "added": "2026-10-23",
+      "license": "MIT License (c) 2026 Emil Kowalski",
+      "attribution": "https://github.com/emilkowalski/skills",
+      "name": {
+        "ja": "レイアウトアニメーション",
+        "en": "Layout animation",
+        "zh-Hans": "布局动画"
+      },
+      "meaning": {
+        "ja": "並びが変わるとき、残りの要素がなめらかに新しい位置へ動く",
+        "en": "When the layout changes, the remaining items glide to their new places",
+        "zh-Hans": "布局变化时，其余元素平滑移到新位置"
+      },
+      "ask": {
+        "ja": "カードを削除したら残りのカードをレイアウトアニメーションで詰めて。0.5秒の ease-in-out で新しい位置へ動かす。",
+        "en": "After a card is deleted, close the gap with a layout animation: the other cards move to their new spots over 0.5 s ease-in-out.",
+        "zh-Hans": "删除卡片后其余卡片用布局动画补位，0.5 秒 ease-in-out 平滑移到新位置。"
+      },
+      "summary": {
+        "ja": "2枚目のカードを消すと後ろのカードがすき間へ滑り込み、折り返す1枚は斜めに上がる。元に戻すとそれぞれ元の場所へ戻る。",
+        "en": "Deleting the second card makes the following cards glide into the gap, with the wrapping card moving up diagonally; undo sends each back to its place.",
+        "zh-Hans": "删除第 2 张卡片后，后面的卡片滑入空位，换行的那张斜着移上去；撤销后各自回位。"
+      },
+      "spec": {
+        "ja": [
+          "4×2 のカード格子（カード 110×66・横の間隔122・行の間隔78）。カーソルが1.0秒に2枚目の×を押し、そのカードは0.2秒の easeOut で0.85へ縮みながら消える",
+          "残りのカードは1.25〜1.75秒（0.5秒 easeInOut 3乗）に新しいマスへなめらかに詰める。5枚目は2行目の先頭から1行目の末尾へ斜めに動く",
+          "1.3秒に「1件削除しました · 元に戻す」が出る。3.35秒に「元に戻す」を押すと、残りのカードは3.5〜4.0秒に元の位置へ戻り、2枚目は3.95〜4.25秒に拡大しながらフェードイン",
+          "ドラッグで並べ替えとの違い: ドラッグはなく、削除・復元による並びの変化で自動的に詰め、瞬間移動しない"
+        ],
+        "en": [
+          "A 4×2 card grid (cards 110×66, column pitch 122, row pitch 78). The cursor clicks card 2's × at 1.0 s; that card shrinks to 0.85 and fades out in 0.2 s with easeOut.",
+          "The other cards glide to their new slots over 1.25–1.75 s (0.5 s, easeInOut, power 3); card 5 moves diagonally from the start of row 2 to the end of row 1.",
+          "At 1.3 s a \"1 item deleted · Undo\" toast appears. Undo is clicked at 3.35 s: the cards move back over 3.5–4.0 s and card 2 grows and fades back in over 3.95–4.25 s.",
+          "Versus Drag to reorder: there is no dragging; items reflow automatically after a delete or restore, never jumping."
+        ],
+        "zh-Hans": [
+          "4×2 卡片网格（卡片 110×66、横距 122、行距 78）。光标 1.0 秒点第 2 张卡的 ×，该卡 0.2 秒 easeOut 缩到 0.85 并淡出。",
+          "其余卡片 1.25–1.75 秒（0.5 秒 easeInOut 3 次方）平滑移到新格子补位，第 5 张从第 2 行行首斜着移到第 1 行行尾。",
+          "1.3 秒出现“已删除 1 项 · 撤销”提示；3.35 秒点“撤销”：其余卡片 3.5–4.0 秒移回原位，第 2 张 3.95–4.25 秒放大淡入。",
+          "与拖拽排序不同：没有拖动，是删除 / 恢复引起的布局变化自动补位，不瞬移。"
+        ]
+      },
+      "use": {
+        "ja": "カンバン・写真の格子・カート・タグ一覧など、追加・削除・絞り込みで並びが変わる所に。",
+        "en": "Use it for boards, photo grids, carts and tag lists — anywhere adding, removing or filtering changes the layout.",
+        "zh-Hans": "适合看板、相册网格、购物车、标签列表等增删或筛选后布局会变化的地方。"
+      },
+      "tags": [
+        "layout-animation",
+        "flip",
+        "grid",
+        "reflow",
+        "delete",
+        "undo",
+        "auto-animate"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "自动布局动画",
+          "补位动画"
+        ]
+      }
     }
   ]
 }

@@ -1536,6 +1536,370 @@
         "no-results",
         "onboarding"
       ]
+    },
+    {
+      "no": "25",
+      "id": "1-098",
+      "slug": "scale-in",
+      "category": "open-overlay",
+      "added": "2026-10-23",
+      "license": "MIT License (c) 2026 Emil Kowalski",
+      "attribution": "https://github.com/emilkowalski/skills",
+      "name": {
+        "ja": "スケールイン",
+        "en": "Scale in",
+        "zh-Hans": "缩放淡入"
+      },
+      "meaning": {
+        "ja": "少し小さい状態から拡大しつつフェードインして現れる",
+        "en": "A layer appears by growing from just under full size while fading in",
+        "zh-Hans": "弹层从略小尺寸放大到原尺寸并淡入"
+      },
+      "ask": {
+        "ja": "ポップアップはスケールインで出して。0.95倍から等倍へ拡大しつつフェードイン、0.25秒の ease-out で、行き過ぎなし。",
+        "en": "Bring the popup in with a scale-in: from 0.95× to full size while fading in, 0.25 s ease-out, no overshoot.",
+        "zh-Hans": "弹窗出现时用缩放淡入：从 0.95 倍放大到原尺寸并淡入，0.25 秒 ease-out，不要回弹。"
+      },
+      "summary": {
+        "ja": "「開く」を押すと、ダイアログが0.95倍から等倍へ拡大しながらフェードインし、行き過ぎずに止まる。閉じるときは同じ道を戻って縮み消える。",
+        "en": "Clicking \"Open\" grows the dialog from 0.95× to full size as it fades in, stopping without overshoot; closing plays the same path in reverse.",
+        "zh-Hans": "点击“打开”后，对话框从 0.95 倍放大到原尺寸并淡入，不越过终点；关闭时原路缩回淡出。"
+      },
+      "spec": {
+        "ja": [
+          "左の0〜386がページ。カーソルが0.95秒に110×36の「開く」ボタンへ着き、1.0秒にクリック",
+          "開く量 a = easeOutCubic(p)。p は1.0〜1.25秒（0.25秒）で 0→1。ページの幕は不透明度 0.36·a",
+          "ダイアログ 220×112・角丸12・中心 (193, 92)。拡大率 0.95 + 0.05·a、不透明度 a。a は1まで単調に上がり、行き過ぎない",
+          "閉じる: カーソルが3.0秒に×へ移り3.3秒にクリック。p は3.3〜3.5秒（0.2秒）で 1→0。開く曲線を逆再生し、0.95倍へ縮みながら消える",
+          "右の386〜542は曲線パネル: 青の実線が easeOutCubic、灰の破線が弾むポップイン backOut（1.0を越えてから戻る）",
+          "モーダルとの違い: 始まりの大きさが等倍に近く短い。弾むポップインとの違い: 行き過ぎがない"
+        ],
+        "en": [
+          "The page fills 0–386 on the left. The cursor reaches the 110×36 \"Open\" button at 0.95 s and clicks at 1.0 s.",
+          "Open amount a = easeOutCubic(p), with p going 0→1 over 1.0–1.25 s (0.25 s). Page scrim opacity 0.36·a.",
+          "Dialog 220×112, radius 12, centred at (193, 92). Scale 0.95 + 0.05·a, opacity a; a rises monotonically to 1 with no overshoot.",
+          "Close: the cursor moves to × by 3.0 s and clicks at 3.3 s; p goes 1→0 over 3.3–3.5 s (0.2 s), replaying the open curve backwards, shrinking to 0.95× as it fades.",
+          "The curve panel on the right (386–542): solid blue is easeOutCubic, dashed grey is the elastic pop-in backOut (passes 1.0, then settles).",
+          "Versus Modal dialog: it starts closer to full size and is shorter. Versus Elastic pop-in: no overshoot."
+        ],
+        "zh-Hans": [
+          "左侧 0–386 为页面，光标 0.95 秒到达 110×36 的“打开”按钮，1.0 秒点击。",
+          "打开量 a = easeOutCubic(p)，p 在 1.0–1.25 秒（0.25 秒）由 0→1；页面遮罩透明度 0.36·a。",
+          "对话框 220×112、圆角 12、中心 (193, 92)；缩放 0.95 + 0.05·a，透明度 a；a 单调升到 1，不过冲。",
+          "关闭：光标 3.0 秒移到 ×，3.3 秒点击；p 在 3.3–3.5 秒（0.2 秒）由 1→0，倒放打开曲线，缩回 0.95 倍并淡出。",
+          "右侧 386–542 为曲线面板：蓝实线为 easeOutCubic，灰虚线为弹性弹入 backOut（越过 1.0 再回落）。",
+          "与模态对话框相比起始尺寸更接近原大小、动作更短；与弹性弹入相比没有过冲。"
+        ]
+      },
+      "use": {
+        "ja": "ダイアログ・ポップオーバー・メニューなどを、控えめに出し入れしたいとき。",
+        "en": "Use it to open and close dialogs, popovers and menus quietly, without drawing too much attention.",
+        "zh-Hans": "适合对话框、气泡弹出框、菜单等弹层克制地出现和消失。"
+      },
+      "tags": [
+        "scale-in",
+        "fade-in",
+        "dialog",
+        "popover",
+        "overlay",
+        "ease-out",
+        "entrance"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "缩放进入",
+          "放大淡入"
+        ]
+      }
+    },
+    {
+      "no": "26",
+      "id": "1-099",
+      "slug": "origin-aware-animation",
+      "category": "open-overlay",
+      "added": "2026-10-23",
+      "license": "MIT License (c) 2026 Emil Kowalski",
+      "attribution": "https://github.com/emilkowalski/skills",
+      "name": {
+        "ja": "起点を意識したアニメーション",
+        "en": "Origin-aware animation",
+        "zh-Hans": "从触发点展开"
+      },
+      "meaning": {
+        "ja": "メニューが押したボタンから伸びて出る",
+        "en": "A popup grows out of the button that opened it",
+        "zh-Hans": "弹出菜单从触发它的按钮处长出"
+      },
+      "ask": {
+        "ja": "ドロップダウンの transform-origin を押したボタンに合わせ、0.5倍から0.3秒の ease-out で広げて。",
+        "en": "Set the dropdown's transform-origin to the trigger button so it grows out of it from 0.5× over 0.3 s ease-out.",
+        "zh-Hans": "下拉菜单的 transform-origin 设在触发按钮上，从 0.5 倍放大展开，0.3 秒 ease-out。"
+      },
+      "summary": {
+        "ja": "同じメニューを左右で比べる。左は自分の中心から宙にふくらみ、右は「その他」ボタンの中から伸びて出て、同じ点へ縮んで戻る。",
+        "en": "The same menu side by side: on the left it swells from its own centre in mid-air; on the right it grows out of the \"More\" button and shrinks back into it.",
+        "zh-Hans": "左右两份相同菜单对比：左边从自身中心凭空胀开，右边从“更多”按钮里长出并缩回。"
+      },
+      "spec": {
+        "ja": [
+          "左右に同じ「その他」ボタン 92×34 とメニュー 200×82 を置き、transform-origin だけを変える。左は0.9秒、右は1.8秒にクリック",
+          "開く量 a = easeOutCubic、0.3秒。拡大率 0.5 + 0.5·a、不透明度 a",
+          "左の起点はメニュー中心 (140, 91) で宙にふくらむ。右の起点はボタン上辺の中点 (341, 140) で、ボタンから伸びて出る",
+          "閉じる: 左は2.9秒、右は3.5秒にもう一度押す。a に (1 − easeInOutCubic) を掛け、0.2秒で同じ起点へ縮む",
+          "青い十字が起点。動いている間だけ起点からメニューの角へ破線のガイドを出す。スケールインとの違い: 拡大の中心を押したボタンに合わせる"
+        ],
+        "en": [
+          "Two identical \"More\" buttons (92×34) and menus (200×82), left and right; only transform-origin differs. Left clicks at 0.9 s, right at 1.8 s.",
+          "Open amount a = easeOutCubic over 0.3 s. Scale 0.5 + 0.5·a, opacity a.",
+          "Left origin is the menu centre (140, 91), so it swells in mid-air; right origin is the midpoint of the button's top edge (341, 140), so it grows out of the button.",
+          "Close: left at 2.9 s, right at 3.5 s, clicking the button again; a is multiplied by (1 − easeInOutCubic) over 0.2 s, shrinking to the same origin.",
+          "A blue cross marks each origin; dashed guides from the origin to the menu corners show only while animating. Versus Scale in: the scaling centre is anchored on the trigger."
+        ],
+        "zh-Hans": [
+          "左右两组相同的“更多”按钮 92×34 与菜单 200×82，只改 transform-origin。左组 0.9 秒点击，右组 1.8 秒点击。",
+          "展开量 a = easeOutCubic，0.3 秒；缩放 0.5 + 0.5·a，透明度 a。",
+          "左组原点为菜单中心 (140, 91)，菜单在半空胀开；右组原点为按钮顶边中点 (341, 140)，菜单从按钮里长出。",
+          "收起：左组 2.9 秒、右组 3.5 秒再次点击按钮，a 乘以 (1 − easeInOutCubic)，0.2 秒，沿同一原点缩回。",
+          "蓝色十字标出原点，动画进行中原点到菜单各角显示虚线引导。与缩放淡入不同，缩放中心对准触发按钮。"
+        ]
+      },
+      "use": {
+        "ja": "ドロップダウン・ポップオーバー・右クリックメニューなど、ボタンから出る小さな層に。どこから出たかが一目で分かる。",
+        "en": "Use it for dropdowns, popovers and context menus opened from a button, so it is clear where they came from.",
+        "zh-Hans": "适合下拉菜单、气泡弹出框、右键菜单等由按钮触发的弹层，让人看出它从哪来。"
+      },
+      "tags": [
+        "transform-origin",
+        "origin-aware",
+        "dropdown",
+        "popover",
+        "menu",
+        "scale",
+        "context-menu"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "原点感知动画",
+          "变换原点"
+        ]
+      }
+    },
+    {
+      "no": "27",
+      "id": "1-100",
+      "slug": "rubber-banding",
+      "category": "open-overlay",
+      "added": "2026-10-23",
+      "license": "MIT License (c) 2026 Emil Kowalski",
+      "attribution": "https://github.com/emilkowalski/skills",
+      "name": {
+        "ja": "ラバーバンド",
+        "en": "Rubber-banding",
+        "zh-Hans": "橡皮筋回弹"
+      },
+      "meaning": {
+        "ja": "端を越えて引くと抵抗がかかり、離すと戻る",
+        "en": "Dragging past an edge meets resistance and springs back on release",
+        "zh-Hans": "拖过边界时带阻力移动，松手后弹回"
+      },
+      "ask": {
+        "ja": "ボトムシートを上端より引っ張ったらラバーバンドの抵抗をつけて。指を120px動かしてもシートは約49pxだけ動き、離したら弾んで戻る。",
+        "en": "Add rubber-banding when the bottom sheet is pulled past its top: 120 px of finger travel moves the sheet only about 49 px, and it springs back on release.",
+        "zh-Hans": "底部面板拖到顶后加橡皮筋阻尼：手指多拖 120px 面板只移动约 49px，松手后弹回。"
+      },
+      "summary": {
+        "ja": "開ききったボトムシートをさらに上へ引くと、引くほど重くなって指から遅れ、離すと境界へ戻る。",
+        "en": "Pulling a fully open bottom sheet further up gets heavier and heavier, the sheet lags behind the finger, and on release it snaps back to the edge.",
+        "zh-Hans": "已展开的底部面板被继续上拉，越拉越重、落后于手指，松手后弹回边界。"
+      },
+      "spec": {
+        "ja": [
+          "ボトムシートは開ききり、上辺が境界 y = 64 に止まっている。指が0.9秒につまみを押さえ、0.95〜2.35秒に easeInOutCubic で上へ120px引く",
+          "シートは減衰関数 f(x) = (1 − 1 / (0.55·x / 190 + 1)) × 190 だけ動く。指 40 / 80 / 120px でシート 20 / 36 / 49px、引くほど重い",
+          "2.6秒に指を離し、シートは2.6〜3.0秒に easeOutCubic で境界へ戻る",
+          "右側の2本のバーで指の移動量（灰）とシートの移動量（青）を比べる",
+          "ボトムシートとの違い: 開く動きではなく、もう端に着いたあとの引っ張りに抵抗をつけて戻す"
+        ],
+        "en": [
+          "The bottom sheet is fully open with its top at the edge y = 64. The finger grabs the handle at 0.9 s and drags up 120 px over 0.95–2.35 s with easeInOutCubic.",
+          "The sheet moves only by the damping function f(x) = (1 − 1 / (0.55·x / 190 + 1)) × 190: at 40 / 80 / 120 px of finger travel the sheet moves 20 / 36 / 49 px, heavier the further you pull.",
+          "Release at 2.6 s; the sheet springs back to the edge over 2.6–3.0 s with easeOutCubic.",
+          "2 bars on the right compare finger travel (grey) with sheet travel (blue).",
+          "Versus Bottom sheet: it is not the opening motion but resistance when dragging past the end, then a return."
+        ],
+        "zh-Hans": [
+          "底部面板已完全展开，顶边停在边界 y = 64。手指 0.9 秒按住把手，0.95–2.35 秒 easeInOutCubic 向上拖 120px。",
+          "面板只按阻尼函数 f(x) = (1 − 1 / (0.55·x / 190 + 1)) × 190 移动：手指 40 / 80 / 120px 时面板 20 / 36 / 49px，越拉越重。",
+          "2.6 秒松手，面板 2.6–3.0 秒 easeOutCubic 弹回边界。",
+          "右侧 2 条进度条对比手指位移（灰）与面板位移（蓝）。",
+          "与底部弹出面板不同：不是打开动作，而是到尽头后继续拖动时给出阻力并弹回。"
+        ]
+      },
+      "use": {
+        "ja": "リストのスクロール端、シートやカルーセルを端まで引いたときに、それ以上は進めないことを伝えたいとき。",
+        "en": "Use it at the end of a scrolling list or when a sheet or carousel is dragged to its limit, to show there is nothing further.",
+        "zh-Hans": "适合列表滚到尽头、面板或轮播拖到边界时，提示已无法继续。"
+      },
+      "tags": [
+        "rubber-banding",
+        "overscroll",
+        "elastic",
+        "drag",
+        "bottom-sheet",
+        "damping",
+        "bounce-back"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "橡皮筋效果",
+          "越界回弹",
+          "阻尼拖拽"
+        ]
+      }
+    },
+    {
+      "no": "28",
+      "id": "1-101",
+      "slug": "interruptible-animation",
+      "category": "open-overlay",
+      "added": "2026-10-23",
+      "license": "MIT License (c) 2026 Emil Kowalski",
+      "attribution": "https://github.com/emilkowalski/skills",
+      "name": {
+        "ja": "中断できるアニメーション",
+        "en": "Interruptible animation",
+        "zh-Hans": "可打断动画"
+      },
+      "meaning": {
+        "ja": "動いている途中で向きを変えても今の状態から続く",
+        "en": "An animation can change course mid-way, continuing from where it is",
+        "zh-Hans": "动画进行中可随时改向，从当前状态接续"
+      },
+      "ask": {
+        "ja": "ドロワーの開閉をばねアニメーションにして途中で止められるようにして。開く途中で押し直したら、今の位置と速さのまま折り返す（ω = 10）。",
+        "en": "Make the drawer a spring animation that can be interrupted: if it is tapped again mid-open, it turns back from its current position and speed (ω = 10).",
+        "zh-Hans": "抽屉开关用弹簧动画并支持中途打断：开到一半再点，就从当前位置和速度直接折返（ω = 10）。"
+      },
+      "summary": {
+        "ja": "ドロワーが半分ほど開いたところでもう一度押すと、開ききるのを待たず、勢いのまま少し進んでからなめらかに閉じる。",
+        "en": "Tapping again while the drawer is half open does not wait for it to finish; it carries on a little, then turns smoothly and closes.",
+        "zh-Hans": "抽屉开到一半时再次点击，它不先开完，而是顺势略冲后平滑折返关闭。"
+      },
+      "spec": {
+        "ja": [
+          "左の端末画面 304×171。カーソルが1.0秒に右上のメニューボタンを押し、幅160のドロワーが臨界減衰ばね ω = 10 rad/s で開く: p = 1 − (1 + ωs)e^(−ωs)",
+          "1.2秒、59%まで開き速度2.7/sのところでもう一度押し、目標を閉じるへ変更。今の位置と速度から続ける: p = (p₀ + (v₀ + ωp₀)s)e^(−ωs)",
+          "勢いで約63%まで進んでからなめらかに折り返し、約0.7秒で0へ。速度は最後まで途切れない。幕は 0.36·p",
+          "右の曲線パネル（0.9〜2.1秒）: 青の実線が本効果の位置で角がない。灰の破線は「開ききってから閉じる」（0.35秒開き・0.35秒閉じ）で、頂点が角になる",
+          "ふつうの開閉との違い: 途中で新しい指示が来ても順番待ちや瞬間移動をせず、その場から向きを変える"
+        ],
+        "en": [
+          "A 304×171 phone screen on the left. The cursor taps the menu button at 1.0 s and a 160-wide drawer opens on a critically damped spring, ω = 10 rad/s: p = 1 − (1 + ωs)e^(−ωs).",
+          "At 1.2 s, with the drawer 59% open and moving at 2.7/s, a second tap retargets it to closed, continuing from the current position and velocity: p = (p₀ + (v₀ + ωp₀)s)e^(−ωs).",
+          "It coasts to about 63%, turns smoothly and reaches 0 in about 0.7 s; velocity stays continuous throughout. Scrim 0.36·p.",
+          "Curve panel on the right (0.9–2.1 s): the solid blue position curve has no corner; the dashed grey \"finish opening, then close\" (0.35 s open, 0.35 s close) has a sharp peak.",
+          "Versus a plain open/close: a new command mid-animation neither queues nor jumps; it redirects from the current state."
+        ],
+        "zh-Hans": [
+          "左侧手机屏 304×171，光标 1.0 秒点右上角菜单按钮，宽 160 的抽屉以临界阻尼弹簧 ω = 10 rad/s 打开：p = 1 − (1 + ωs)e^(−ωs)。",
+          "1.2 秒抽屉开到 59%、速度 2.7/s 时再次点击，目标改为关闭，从当前位置和速度接续：p = (p₀ + (v₀ + ωp₀)s)e^(−ωs)。",
+          "先顺势略冲到约 63% 再平滑折返，约 0.7 秒回到 0，速度全程连续；遮罩 0.36·p。",
+          "右侧曲线面板（0.9–2.1 秒）：蓝实线为本效果位置曲线，无折角；灰虚线为“先开完再关”（0.35 秒开、0.35 秒关），顶部有折角。",
+          "与普通开关动画不同：中途收到新指令时不排队、不跳变，直接从当前状态转向。"
+        ]
+      },
+      "use": {
+        "ja": "ドロワー・メニュー・トグル・ドラッグするカードなど、ユーザーが素早く続けて操作しそうな所に。",
+        "en": "Use it for drawers, menus, toggles and draggable cards — anywhere users may act again quickly before an animation ends.",
+        "zh-Hans": "适合抽屉、菜单、开关、可拖动卡片等用户可能连续快速操作的地方。"
+      },
+      "tags": [
+        "interruptible",
+        "spring",
+        "physics",
+        "drawer",
+        "velocity",
+        "retarget",
+        "gesture"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "可中断动画",
+          "弹簧动画"
+        ]
+      }
+    },
+    {
+      "no": "29",
+      "id": "1-102",
+      "slug": "drag-to-reorder",
+      "category": "select-switch",
+      "added": "2026-10-23",
+      "license": "MIT License (c) 2026 Emil Kowalski",
+      "attribution": "https://github.com/emilkowalski/skills",
+      "name": {
+        "ja": "ドラッグで並べ替え",
+        "en": "Drag to reorder",
+        "zh-Hans": "拖拽排序"
+      },
+      "meaning": {
+        "ja": "項目をつかんで動かすと、ほかの項目がよけて順番が変わる",
+        "en": "Grab and drag a list item; the others make room as the order changes",
+        "zh-Hans": "按住拖动列表项，其他项让位改变顺序"
+      },
+      "ask": {
+        "ja": "ToDoリストをドラッグで並べ替えられるようにして。つまみを押すと1.04倍に浮き上がり、ほかの行は0.2秒でよける。",
+        "en": "Let the to-do list be reordered by dragging: pressing the handle lifts the row to 1.04×, and the other rows slide aside in 0.2 s.",
+        "zh-Hans": "待办列表支持拖拽排序：按住把手时行抬起放大到 1.04 倍，其他行用 0.2 秒滑开让位。"
+      },
+      "summary": {
+        "ja": "1行目をつかんで浮かせ、下へ2行ぶん引くと、通り過ぎた行が順に上へよけ、離すと新しい位置に収まる。",
+        "en": "The first row is grabbed and lifted, dragged down two rows; each row it passes slides up out of the way, and on release it settles into its new place.",
+        "zh-Hans": "第 1 行被按住抬起、向下拖过 2 行，途经的行依次上移让位，松手后落入新位置。"
+      },
+      "spec": {
+        "ja": [
+          "4行のリスト、行の高さ38・間隔44（y = 12 / 56 / 100 / 144）。カーソルが0.95秒に1行目左のつまみへ着き、1.0秒に押す",
+          "持ち上げ 1.0〜1.15秒 easeOutCubic: ドラッグ中の行は1.04倍、影のぼかし 4→20・下へ 1→7px、枠が青になる",
+          "1.15〜2.1秒 easeInOutCubic で下へ88px。2・3行目の半分（22 / 66px）を越えた行は、0.2秒 easeOutCubic で上へ44pxよける。元の場所に水色の破線の枠",
+          "2.2秒に離し、2.2〜2.4秒で持ち上げ量が0に戻って収まる。3.4〜3.9秒にすべての行が元の順に戻る",
+          "テーブルのリアルタイム挿入との違い: 順番を変えるのはユーザーの手のドラッグで、ほかの行がその場でよける"
+        ],
+        "en": [
+          "A 4-row list, row height 38, pitch 44 (y = 12 / 56 / 100 / 144). The cursor reaches row 1's left handle at 0.95 s and presses at 1.0 s.",
+          "Lift over 1.0–1.15 s, easeOutCubic: the dragged row scales to 1.04×, shadow blur 4→20 and offset 1→7 px, and its border turns blue.",
+          "Dragged down 88 px over 1.15–2.1 s with easeInOutCubic. As it passes the halfway point of rows 2 and 3 (22 / 66 px), each row moves up 44 px in 0.2 s easeOutCubic; a light blue dashed placeholder marks the slot.",
+          "Released at 2.2 s; the lift returns to 0 over 2.2–2.4 s and the row settles. Over 3.4–3.9 s all rows return to their original order.",
+          "Versus Live table insert: the order is changed by the user's drag, and the other rows make room in real time."
+        ],
+        "zh-Hans": [
+          "4 行列表，行高 38、行距 44（y = 12 / 56 / 100 / 144）。光标 0.95 秒到第 1 行左侧把手，1.0 秒按下。",
+          "抬起 1.0–1.15 秒 easeOutCubic：拖动行放大到 1.04 倍，阴影模糊 4→20、下移 1→7px，边框变蓝。",
+          "1.15–2.1 秒 easeInOutCubic 向下拖 88px；越过第 2、3 行的一半（22 / 66px）时，该行用 0.2 秒 easeOutCubic 上移 44px 让位，原位留浅蓝虚线占位框。",
+          "2.2 秒松手，2.2–2.4 秒抬起量回 0 落位；3.4–3.9 秒所有行回到原顺序。",
+          "与表格实时插入不同：顺序由用户手动拖动改变，其他行实时让位。"
+        ]
+      },
+      "use": {
+        "ja": "ToDo・プレイリスト・カンバンのカード・設定項目など、ユーザーが自分で順番を決めるリストに。",
+        "en": "Use it for to-do lists, playlists, kanban cards and settings where users set their own order.",
+        "zh-Hans": "适合待办、播放列表、看板卡片、设置项等需要用户自定义顺序的列表。"
+      },
+      "tags": [
+        "drag-and-drop",
+        "reorder",
+        "sortable",
+        "list",
+        "drag-handle",
+        "placeholder",
+        "kanban"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "拖动排序",
+          "拖放排序"
+        ]
+      }
     }
   ]
 }

@@ -2,7 +2,7 @@
 
 # 动态图形进阶
 
-24 个效果 · #2 025~048 · 分类包 `motion2` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+25 个效果 · #2 025~048 · 064 · 分类包 `motion2` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -31,6 +31,7 @@
 | [#2-038](https://sadjjk.github.io/motion-prompt-zh/#2-038) | **图形重复器** | Repeater | 复制图形，并对副本做旋转排列 | 用重复器把花瓣复制十二份围成圆，每四秒转一圈。 |
 | [#2-039](https://sadjjk.github.io/motion-prompt-zh/#2-039) | **万花筒** | Kaleidoscope | 镜像图案对称扩散 | 标志后加万花筒，八向镜像对称，缓慢转动并向外扩散。 |
 | [#2-040](https://sadjjk.github.io/motion-prompt-zh/#2-040) | **手绘线条抖动** | Line boil | 手绘轮廓在逐帧重画时轻微变化 | 手绘插画加线条抖动，每秒十帧，线条仅移动 2–3 px。 |
+| [#2-064](https://sadjjk.github.io/motion-prompt-zh/#2-064) | **文字逐字变换** | Text morph | 相同的字留下平移，只有不同的字替换 | 保存按钮的文字变化用文字逐字变换：相同的字平移 0.5 秒，新字错开 0.06 秒翻入，按钮宽度同步变化。 |
 
 ## 转场与强调
 

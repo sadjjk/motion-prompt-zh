@@ -1,0 +1,62 @@
+// Motion Prompt #1-098 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills
+//
+// Scale in / スケールイン
+// Pack: ui (UI component names) · element 25 · Category: Opening & overlays
+// What happens: Clicking "Open" grows the dialog from 0.95× to full size as it fades in, stopping without overshoot; closing plays the same path in reverse.
+// Motion spec:
+//   - The page fills 0–386 on the left. The cursor reaches the 110×36 "Open" button at 0.95 s and clicks at 1.0 s.
+//   - Open amount a = easeOutCubic(p), with p going 0→1 over 1.0–1.25 s (0.25 s). Page scrim opacity 0.36·a.
+//   - Dialog 220×112, radius 12, centred at (193, 92). Scale 0.95 + 0.05·a, opacity a; a rises monotonically to 1 with no overshoot.
+//   - Close: the cursor moves to × by 3.0 s and clicks at 3.3 s; p goes 1→0 over 3.3–3.5 s (0.2 s), replaying the open curve backwards, shrinking to 0.95× as it fades.
+//   - The curve panel on the right (386–542): solid blue is easeOutCubic, dashed grey is the elastic pop-in backOut (passes 1.0, then settles).
+//   - Versus Modal dialog: it starts closer to full size and is shorter. Versus Elastic pop-in: no overshoot.
+// When to use it: Use it to open and close dialogs, popovers and menus quietly, without drawing too much attention.
+// Tags: scale-in, fade-in, dialog, popover, overlay, ease-out, entrance
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-098
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 25
+// 25 缩放淡入（Scale in）
+// 左侧 0–386 为页面：光标 0.95 秒到达左下 110×36「打开」按钮，1.0 秒点击。
+// 打开量 a = easeOutCubic(p)，p 在 1.0–1.25 秒（0.25 秒）由 0→1：对话框 220×112、圆角 12、中心 (193, 92)，
+// 缩放 0.95 + 0.05·a、不透明度 a、页面遮罩 0.36·a。a 单调升到 1，不越过目标尺寸（无过冲）。
+// 关闭：光标 3.0 秒移到 ×，3.3 秒点击；p 在 3.3–3.5 秒（0.2 秒）由 1→0，即把打开曲线倒放，缩回 0.95 倍并淡出。
+// 右侧 386–542 为曲线面板：蓝实线为本效果 easeOutCubic，灰虚线为弹性弹入 backOut（越过 1.0 再回落），蓝点随当前 p 沿曲线移动。
+const SCALEIN_S0 = 0.95;
+const SCALEIN_BACK = p => { const c = 1.70158; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+CELLS[24] = ui((w, h, t) => {
+  const SW = 386;
+  pageLines(24, 18, 338); fillRR(24, 80, 338, 44, 8, C.block);
+  fillRR(24, 138, 110, 36, 8, C.blue); text('打开', 79, 156, 16, '#fff', 600, 'center');
+  fillRR(148, 138, 214, 36, 8, C.block);
+  const cl = seg(t, 3.3, 3.5), p = cl > 0 ? 1 - cl : seg(t, 1.0, 1.25), a = eo(p);
+  if (a > 0) {
+    X.fillStyle = `rgba(18,20,28,${.36 * a})`; X.fillRect(0, 0, SW, h);
+    X.save(); X.globalAlpha = a; X.translate(193, 92); const s = SCALEIN_S0 + (1 - SCALEIN_S0) * a; X.scale(s, s);
+    shadowed(() => fillRR(-110, -56, 220, 112, 12, '#fff'), 24, 8, .25);
+    bar(-92, -36, 96, C.ink, 11); bar(-92, -12, 184); bar(-92, 6, 140);
+    strokeRR(-62, 22, 68, 26, 7, C.line2, 1.5); text('取消', -28, 35, 13, '#666', 600, 'center');
+    fillRR(14, 22, 78, 26, 7, C.blue); text('确定', 53, 35, 13, '#fff', 600, 'center');
+    X.strokeStyle = '#9a9896'; X.lineWidth = 2.2; X.lineCap = 'round'; X.beginPath(); X.moveTo(84, -44); X.lineTo(94, -34); X.moveTo(94, -44); X.lineTo(84, -34); X.stroke();
+    X.restore();
+  }
+  // 曲线面板（不被遮罩覆盖）
+  X.fillStyle = '#faf9f8'; X.fillRect(SW, 0, w - SW, h); X.fillStyle = C.line; X.fillRect(SW, 0, 1.5, h);
+  const px0 = 404, px1 = 508, Y = v => 146 - 74 * v;
+  text('缩放曲线', px0, 20, 13, '#555', 700);
+  text('×' + (SCALEIN_S0 + (1 - SCALEIN_S0) * a).toFixed(3), px0, 40, 14, C.blue, 700, 'left', NUMF);
+  X.fillStyle = C.line; X.fillRect(px0, Y(0), px1 - px0, 1.2);
+  X.save(); X.setLineDash([3, 3]); X.strokeStyle = C.line2; X.lineWidth = 1; X.beginPath(); X.moveTo(px0, Y(1)); X.lineTo(px1, Y(1)); X.stroke(); X.restore();
+  text('1.00', w - 6, Y(1) - 8, 9, '#9a9896', 500, 'right', NUMF); text('0.95', w - 6, Y(0) - 8, 9, '#9a9896', 500, 'right', NUMF);
+  const curve = (f, col, dash, lw) => { X.save(); X.setLineDash(dash); X.strokeStyle = col; X.lineWidth = lw; X.lineJoin = 'round'; X.beginPath(); for (let i = 0; i <= 40; i++) { const q = i / 40, x = lerp(px0, px1, q), y = Y(f(q)); i ? X.lineTo(x, y) : X.moveTo(x, y); } X.stroke(); X.restore(); };
+  curve(SCALEIN_BACK, '#a9a7a5', [4, 3], 1.6); curve(eo, C.blue, [], 2.4);
+  circle(lerp(px0, px1, p), Y(a), 5, C.blue); ring(lerp(px0, px1, p), Y(a), 5, '#fff', 1.8);
+  fillRR(px0, 161, 16, 3, 1.5, C.blue); text('缩放淡入', px0 + 22, 163, 10, '#555', 600);
+  X.save(); X.setLineDash([4, 3]); X.strokeStyle = '#a9a7a5'; X.lineWidth = 1.6; X.beginPath(); X.moveTo(px0, 178); X.lineTo(px0 + 16, 178); X.stroke(); X.restore();
+  text('弹性弹入（过冲）', px0 + 22, 178, 10, '#9a9896', 600);
+  pointer([[.3, w + 30, h + 30], [.95, 80, 158], [1.5, 80, 158], [3.0, 284, 56], [3.5, 284, 56], [4.2, w + 30, h + 30]], [1.0, 3.3], t);
+});

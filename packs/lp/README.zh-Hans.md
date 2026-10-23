@@ -2,7 +2,7 @@
 
 # 落地页与网页动效
 
-24 个效果 · #1 025~048 · 分类包 `lp` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+29 个效果 · #1 025~048 · 103~107 · 分类包 `lp` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -31,6 +31,8 @@
 | [#1-038](https://sadjjk.github.io/motion-prompt-zh/#1-038) | **下划线动画** | Underline animation | 悬停链接时，下划线从左侧伸展 | 菜单链接悬停时用 0.3 秒从左侧画出下划线，移开后向右消退。 |
 | [#1-039](https://sadjjk.github.io/motion-prompt-zh/#1-039) | **前后对比滑块** | Before/after slider | 拖动分隔线比较处理前后 | 项目照片做前后对比滑块，拖动中线比较左侧处理前与右侧处理后。 |
 | [#1-040](https://sadjjk.github.io/motion-prompt-zh/#1-040) | **离站挽留弹窗** | Exit-intent popup | 访客准备离开时出现弹窗 | 落地页增加一次性的离站挽留弹窗，光标从顶部移出时展示优惠券。 |
+| [#1-103](https://sadjjk.github.io/motion-prompt-zh/#1-103) | **按压缩小** | Press / tap feedback | 按下时按钮微微缩小，让点击有按下去的实感 | 所有按钮加按压反馈：按下 0.1 秒缩到 0.97，松开 0.25 秒恢复到 1。 |
+| [#1-104](https://sadjjk.github.io/motion-prompt-zh/#1-104) | **长按确认** | Hold to confirm | 按住按钮直到进度填满才执行操作 | 删除按钮改成长按确认：按住 1.2 秒填满进度才删除，中途松手进度回退。 |
 
 ## 加载、导航与循环动效
 
@@ -44,6 +46,9 @@
 | [#1-046](https://sadjjk.github.io/motion-prompt-zh/#1-046) | **无缝跑马灯** | Marquee | 文字或标志沿条带持续循环滚动 | 服务名称从右向左无缝跑马灯滚动，速度约每秒 80 px。 |
 | [#1-047](https://sadjjk.github.io/motion-prompt-zh/#1-047) | **动态渐变** | Animated gradient | 背景颜色持续漂移融合 | 首屏使用橙蓝缓慢融合的动态渐变背景，每十秒一轮。 |
 | [#1-048](https://sadjjk.github.io/motion-prompt-zh/#1-048) | **悬浮动画** | Floating animation | 元素轻柔地上下浮动 | 首屏手机图加悬浮动画，上下 8 px，每 2.4 秒起伏一次。 |
+| [#1-105](https://sadjjk.github.io/motion-prompt-zh/#1-105) | **共享元素转场** | Shared element transition | 同一元素从列表变形到详情页，把两页连起来 | 从相册列表进详情页时做共享元素转场：缩略图用 0.6 秒移动并放大成详情大图。 |
+| [#1-106](https://sadjjk.github.io/motion-prompt-zh/#1-106) | **方向感知转场** | Direction-aware transition | 前进与后退时页面滑动方向相反 | 多步表单切换跟随方向：下一步向左推，返回向右推，0.5 秒 ease-in-out。 |
+| [#1-107](https://sadjjk.github.io/motion-prompt-zh/#1-107) | **布局动画** | Layout animation | 布局变化时，其余元素平滑移到新位置 | 删除卡片后其余卡片用布局动画补位，0.5 秒 ease-in-out 平滑移到新位置。 |
 
 点击编号查看动画演示。单项的时序、缓动和参考代码： `api/v1/zh-Hans/e/<id>.txt` ([#1-025](../../api/v1/zh-Hans/e/1-025.txt)).
 

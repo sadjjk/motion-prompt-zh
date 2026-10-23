@@ -557,6 +557,221 @@ MotionPrompt.pack('ui', function () {
     pointer([[.3, w + 30, h + 30], [.9, 486, 67], [1.25, 486, 67], [1.6, 486, 67], [2.4, 486, 67], [3.2, w / 2 + 4, 156], [3.5, w / 2 + 4, 156], [4.2, w + 30, h + 30]], [0.95, 1.65, 3.3], t);
   });
 
+  // @element 25
+  // 25 缩放淡入（Scale in）
+  // 左侧 0–386 为页面：光标 0.95 秒到达左下 110×36「打开」按钮，1.0 秒点击。
+  // 打开量 a = easeOutCubic(p)，p 在 1.0–1.25 秒（0.25 秒）由 0→1：对话框 220×112、圆角 12、中心 (193, 92)，
+  // 缩放 0.95 + 0.05·a、不透明度 a、页面遮罩 0.36·a。a 单调升到 1，不越过目标尺寸（无过冲）。
+  // 关闭：光标 3.0 秒移到 ×，3.3 秒点击；p 在 3.3–3.5 秒（0.2 秒）由 1→0，即把打开曲线倒放，缩回 0.95 倍并淡出。
+  // 右侧 386–542 为曲线面板：蓝实线为本效果 easeOutCubic，灰虚线为弹性弹入 backOut（越过 1.0 再回落），蓝点随当前 p 沿曲线移动。
+  const SCALEIN_S0 = 0.95;
+  const SCALEIN_BACK = p => { const c = 1.70158; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+  CELLS[24] = ui((w, h, t) => {
+    const SW = 386;
+    pageLines(24, 18, 338); fillRR(24, 80, 338, 44, 8, C.block);
+    fillRR(24, 138, 110, 36, 8, C.blue); text('打开', 79, 156, 16, '#fff', 600, 'center');
+    fillRR(148, 138, 214, 36, 8, C.block);
+    const cl = seg(t, 3.3, 3.5), p = cl > 0 ? 1 - cl : seg(t, 1.0, 1.25), a = eo(p);
+    if (a > 0) {
+      X.fillStyle = `rgba(18,20,28,${.36 * a})`; X.fillRect(0, 0, SW, h);
+      X.save(); X.globalAlpha = a; X.translate(193, 92); const s = SCALEIN_S0 + (1 - SCALEIN_S0) * a; X.scale(s, s);
+      shadowed(() => fillRR(-110, -56, 220, 112, 12, '#fff'), 24, 8, .25);
+      bar(-92, -36, 96, C.ink, 11); bar(-92, -12, 184); bar(-92, 6, 140);
+      strokeRR(-62, 22, 68, 26, 7, C.line2, 1.5); text('取消', -28, 35, 13, '#666', 600, 'center');
+      fillRR(14, 22, 78, 26, 7, C.blue); text('确定', 53, 35, 13, '#fff', 600, 'center');
+      X.strokeStyle = '#9a9896'; X.lineWidth = 2.2; X.lineCap = 'round'; X.beginPath(); X.moveTo(84, -44); X.lineTo(94, -34); X.moveTo(94, -44); X.lineTo(84, -34); X.stroke();
+      X.restore();
+    }
+    // 曲线面板（不被遮罩覆盖）
+    X.fillStyle = '#faf9f8'; X.fillRect(SW, 0, w - SW, h); X.fillStyle = C.line; X.fillRect(SW, 0, 1.5, h);
+    const px0 = 404, px1 = 508, Y = v => 146 - 74 * v;
+    text('缩放曲线', px0, 20, 13, '#555', 700);
+    text('×' + (SCALEIN_S0 + (1 - SCALEIN_S0) * a).toFixed(3), px0, 40, 14, C.blue, 700, 'left', NUMF);
+    X.fillStyle = C.line; X.fillRect(px0, Y(0), px1 - px0, 1.2);
+    X.save(); X.setLineDash([3, 3]); X.strokeStyle = C.line2; X.lineWidth = 1; X.beginPath(); X.moveTo(px0, Y(1)); X.lineTo(px1, Y(1)); X.stroke(); X.restore();
+    text('1.00', w - 6, Y(1) - 8, 9, '#9a9896', 500, 'right', NUMF); text('0.95', w - 6, Y(0) - 8, 9, '#9a9896', 500, 'right', NUMF);
+    const curve = (f, col, dash, lw) => { X.save(); X.setLineDash(dash); X.strokeStyle = col; X.lineWidth = lw; X.lineJoin = 'round'; X.beginPath(); for (let i = 0; i <= 40; i++) { const q = i / 40, x = lerp(px0, px1, q), y = Y(f(q)); i ? X.lineTo(x, y) : X.moveTo(x, y); } X.stroke(); X.restore(); };
+    curve(SCALEIN_BACK, '#a9a7a5', [4, 3], 1.6); curve(eo, C.blue, [], 2.4);
+    circle(lerp(px0, px1, p), Y(a), 5, C.blue); ring(lerp(px0, px1, p), Y(a), 5, '#fff', 1.8);
+    fillRR(px0, 161, 16, 3, 1.5, C.blue); text('缩放淡入', px0 + 22, 163, 10, '#555', 600);
+    X.save(); X.setLineDash([4, 3]); X.strokeStyle = '#a9a7a5'; X.lineWidth = 1.6; X.beginPath(); X.moveTo(px0, 178); X.lineTo(px0 + 16, 178); X.stroke(); X.restore();
+    text('弹性弹入（过冲）', px0 + 22, 178, 10, '#9a9896', 600);
+    pointer([[.3, w + 30, h + 30], [.95, 80, 158], [1.5, 80, 158], [3.0, 284, 56], [3.5, 284, 56], [4.2, w + 30, h + 30]], [1.0, 3.3], t);
+  });
+
+  // @element 26
+  // 26 从触发点展开（Origin-aware animation）
+  // 卡片左右各一组：同样的「更多」按钮 92×34 与菜单 200×82，只改 transform-origin。
+  // 左组 0.9 秒点击、右组 1.8 秒点击；展开量 a = easeOutCubic，0.3 秒，缩放 0.5 + 0.5·a、不透明度 a。
+  // 左组以菜单中心 (140, 91) 为原点，菜单凭空在半空胀开；右组以按钮顶边中点 (341, 140) 为原点，菜单从按钮里长出。
+  // 收起：左组 2.9 秒、右组 3.5 秒再次点击按钮，a 乘以 (1 − easeInOutCubic)，0.2 秒，沿同一原点缩回。
+  // 蓝色十字标出各自的原点；动画进行中，原点到菜单四角显示虚线引导。
+  const ORIGIN_SIDES = [
+    { ox: 0, lab: '从中心展开', note: 'transform-origin：菜单中心', c0: 0.9, c1: 2.9, btn: false },
+    { ox: 271, lab: '从按钮展开', note: 'transform-origin：按钮', c0: 1.8, c1: 3.5, btn: true }];
+  CELLS[25] = ui((w, h, t) => {
+    X.fillStyle = C.line; X.fillRect(270, 12, 1.5, h - 24);
+    ORIGIN_SIDES.forEach(S => {
+      const ox = S.ox, mx = ox + 40, my = 50, mw = 200, mh = 82;
+      const oxp = S.btn ? ox + 70 : mx + mw / 2, oyp = S.btn ? 140 : my + mh / 2;
+      text(S.lab, ox + 24, 18, 14, S.btn ? C.blue : '#555', 700);
+      text(S.note, ox + 24, 36, 10, '#9a9896', 500);
+      fillRR(ox + 132, 140, 116, 34, 8, C.block);
+      const a = eo(seg(t, S.c0, S.c0 + .3)) * (1 - eio(seg(t, S.c1, S.c1 + .2)));
+      strokeRR(ox + 24, 140, 92, 34, 8, C.blue, 2); if (a > .02) fillRR(ox + 26, 142, 88, 30, 7, C.lb);
+      text('更多', ox + 60, 157, 15, C.blue, 600, 'center'); chevron(ox + 98, 158, 4, Math.PI * a, C.blue, 2);
+      if (a > 0) {
+        X.save(); X.globalAlpha = a; X.translate(oxp, oyp); const s = .5 + .5 * a; X.scale(s, s); X.translate(-oxp, -oyp);
+        shadowed(() => fillRR(mx, my, mw, mh, 10, '#fff'), 18, 6, .2); strokeRR(mx, my, mw, mh, 10, C.border, 1);
+        for (let i = 0; i < 3; i++) { const y = my + 8 + i * 24; if (i === 0) fillRR(mx + 6, y, mw - 12, 22, 5, C.lb); fillRR(mx + 14, y + 4, 14, 14, 3, i === 0 ? C.blue : C.line2); bar(mx + 36, y + 6, [110, 88, 124][i], i === 0 ? C.sb : C.line); }
+        X.restore();
+        // 引导线：只在动画进行中出现
+        const g = 4 * a * (1 - a);
+        if (g > .01) {
+          const s = .5 + .5 * a, cx = q => oxp + (q - oxp) * s, cy = q => oyp + (q - oyp) * s;
+          X.save(); X.globalAlpha = .7 * g; X.setLineDash([3, 3]); X.strokeStyle = C.blue; X.lineWidth = 1.2; X.beginPath();
+          [[mx, my], [mx + mw, my], [mx, my + mh], [mx + mw, my + mh]].forEach(([qx, qy]) => { X.moveTo(oxp, oyp); X.lineTo(cx(qx), cy(qy)); });
+          X.stroke(); X.restore();
+        }
+      }
+      // 原点十字
+      X.save(); X.globalAlpha = .45 + .55 * Math.max(4 * a * (1 - a), 0);
+      ring(oxp, oyp, 6, C.blue, 2); X.strokeStyle = C.blue; X.lineWidth = 1.6; X.beginPath(); X.moveTo(oxp - 11, oyp); X.lineTo(oxp + 11, oyp); X.moveTo(oxp, oyp - 11); X.lineTo(oxp, oyp + 11); X.stroke();
+      X.restore();
+    });
+    pointer([[.3, w + 30, h + 30], [.85, 64, 160], [1.4, 64, 160], [1.75, 335, 160], [2.4, 335, 160], [2.85, 64, 160], [3.0, 64, 160], [3.45, 335, 160], [3.6, 335, 160], [4.2, w + 30, h + 30]], [0.9, 1.8, 2.9, 3.5], t);
+  });
+
+  // @element 27
+  // 28 橡皮筋回弹（Rubber-banding）
+  // 底部面板已完全展开，顶边停在边界 y = 64（蓝色虚线）。手指 0.9 秒按住把手，0.95–2.35 秒 easeInOutCubic 向上拖 120px。
+  // 面板只按阻尼函数 f(x) = (1 − 1 / (0.55·x / 190 + 1)) × 190 移动：手指 40 / 80 / 120px 时面板 20 / 36 / 49px，越拉越重，把手逐渐落后于手指。
+  // 2.6 秒松手，面板 2.6–3.0 秒 easeOutCubic 弹回边界。面板右侧两条进度条对比手指位移（灰）与面板位移（蓝）。
+  const RUBBER_D = 190, RUBBER_C = 0.55;
+  const RUBBER_F = x => (1 - 1 / (x * RUBBER_C / RUBBER_D + 1)) * RUBBER_D;
+  CELLS[26] = ui((w, h, t) => {
+    pageLines(24, 14, 494); fillRR(24, 74, 239, 54, 8, C.block); fillRR(279, 74, 239, 54, 8, C.block);
+    X.fillStyle = 'rgba(18,20,28,.36)'; X.fillRect(0, 0, w, h);
+    const d = 120 * eio(seg(t, 0.95, 2.35)), rel = eo(seg(t, 2.6, 3.0));
+    const off = t < 2.6 ? RUBBER_F(d) : RUBBER_F(120) * (1 - rel);
+    const fd = t < 2.6 ? d : 120 * (1 - eo(seg(t, 2.6, 2.8)));
+    const y0 = 64, sy = y0 - off, act = t > .9 && t < 2.6;
+    shadowed(() => { rr(0, sy, w, h - sy + 30, 18); X.fillStyle = '#fff'; X.fill(); }, 22, -4, .2);
+    fillRR(w / 2 - 26, sy + 10, 52, 6, 3, act ? C.sb : C.line2);
+    bar(28, sy + 30, 150, C.ink, 11);
+    for (let i = 0; i < 3; i++) { const y = sy + 54 + i * 36; fillRR(28, y, 26, 26, 6, i ? C.mb : C.blue); bar(66, y + 4, 200, C.line); bar(66, y + 17, 130, C.line, 7); }
+    // 位移对比
+    const mx = 336, tx = 372, tw0 = 120;
+    text('手指', mx, sy + 60, 12, '#777', 600); fillRR(tx, sy + 56, tw0, 8, 4, '#eceae8'); if (fd > .5) fillRR(tx, sy + 56, fd, 8, 4, '#9a9896');
+    text(Math.round(fd) + 'px', w - 20, sy + 60, 12, '#777', 700, 'right', NUMF);
+    text('面板', mx, sy + 86, 12, C.blue, 600); fillRR(tx, sy + 82, tw0, 8, 4, '#eceae8'); if (off > .5) fillRR(tx, sy + 82, off, 8, 4, C.blue);
+    text(Math.round(off) + 'px', w - 20, sy + 86, 12, C.blue, 700, 'right', NUMF);
+    text('阻尼：越拉越重', mx, sy + 112, 11, '#9a9896', 600);
+    // 边界线
+    X.save(); X.setLineDash([5, 4]); X.strokeStyle = C.blue; X.globalAlpha = .85; X.lineWidth = 1.5; X.beginPath(); X.moveTo(0, y0); X.lineTo(w, y0); X.stroke(); X.restore();
+    text('边界', w - 20, y0 - 9, 11, '#fff', 700, 'right');
+    const fp = t < 0.95 ? track([[.3, w / 2, h + 30], [.9, w / 2, y0 + 13]], t) : [w / 2, y0 + 13 - d];
+    finger([[0, fp[0], fp[1]]], [0.95], t, t > .55 && t < 2.62);
+  });
+
+  // @element 28
+  // 29 可打断动画（Interruptible animation）
+  // 左侧手机屏 304×171 内，光标 1.0 秒点右上角菜单按钮，抽屉（宽 160）以临界阻尼弹簧 ω = 10 rad/s 打开：p = 1 − (1 + ωs)e^(−ωs)。
+  // 1.2 秒抽屉开到 59%、速度 2.7/s 时再次点击，目标改为关闭；从当前位置和当前速度接续：p = (p₀ + (v₀ + ωp₀)s)e^(−ωs)，
+  // 先顺势略冲到约 63% 再平滑折返，约 0.7 秒回到 0，速度全程连续。遮罩 0.36·p。
+  // 右侧曲线面板（时间 0.9–2.1 秒）：蓝实线为本效果位置曲线，随时间画出，无折角；灰虚线为「先开完再关」（0.35 秒开、0.35 秒关），顶部有折角。
+  // 3.9–4.2 秒蓝线淡出复位。
+  const INTR_W = 10, INTR_T0 = 1.0, INTR_T1 = 1.2;
+  const INTR_ST = (() => { const s = INTR_T1 - INTR_T0, e = Math.exp(-INTR_W * s); return [1 - (1 + INTR_W * s) * e, INTR_W * INTR_W * s * e]; })();
+  const INTR_P = t => {
+    if (t < INTR_T0 || t > 2.6) return 0;
+    if (t < INTR_T1) { const s = t - INTR_T0; return 1 - (1 + INTR_W * s) * Math.exp(-INTR_W * s); }
+    const s = t - INTR_T1, x0 = INTR_ST[0], v0 = INTR_ST[1]; return (x0 + (v0 + INTR_W * x0) * s) * Math.exp(-INTR_W * s);
+  };
+  const INTR_NAIVE = t => eo(seg(t, 1.0, 1.35)) * (1 - eio(seg(t, 1.35, 1.7)));
+  CELLS[27] = ui((w, h, t) => {
+    const p = INTR_P(t);
+    const fx = 14, fy = 10, fw = 304, fh = 171;
+    X.save(); rr(fx, fy, fw, fh, 12); X.clip();
+    fillRR(30, 24, 70, 14, 4, C.mb); pageLines(30, 58, 272); fillRR(30, 122, 272, 46, 8, C.block);
+    if (p > 0) {
+      X.fillStyle = `rgba(18,20,28,${.36 * p})`; X.fillRect(fx, fy, fw, fh);
+      const pw = 160, px = fx - pw + pw * p;
+      shadowed(() => { X.fillStyle = '#fff'; X.fillRect(px, fy, pw, fh); }, 22, 0, .25);
+      circle(px + 30, fy + 24, 12, C.mb); bar(px + 50, fy + 19, 80, C.line2, 10);
+      for (let i = 0; i < 4; i++) { const y = fy + 48 + i * 30; if (i === 0) fillRR(px + 10, y - 2, pw - 20, 26, 6, C.lb); fillRR(px + 18, y + 4, 14, 14, 3, i === 0 ? C.blue : C.line2); bar(px + 40, y + 6, 70 + (i % 2) * 24, i === 0 ? C.sb : C.line); }
+    }
+    X.restore();
+    strokeRR(fx, fy, fw, fh, 12, C.line2, 1.5);
+    // 菜单按钮（三本线）
+    X.strokeStyle = p > .02 ? C.blue : '#333'; X.lineWidth = 2.6; X.lineCap = 'round'; X.beginPath();
+    for (let k = -1; k <= 1; k++) { X.moveTo(274, 31 + 7 * k); X.lineTo(294, 31 + 7 * k); } X.stroke();
+    // 位置曲线面板
+    const qx0 = 342, qx1 = 514, T0 = 0.9, T1 = 2.1, QX = s => lerp(qx0, qx1, (s - T0) / (T1 - T0)), QY = v => 146 - 84 * v;
+    text('抽屉位置', 334, 20, 13, '#555', 700);
+    X.fillStyle = C.line; X.fillRect(qx0, QY(0), qx1 - qx0, 1.2);
+    X.save(); X.setLineDash([4, 3]); X.strokeStyle = '#a9a7a5'; X.lineWidth = 1.6; X.beginPath();
+    for (let i = 0; i <= 60; i++) { const s = lerp(T0, T1, i / 60), x = QX(s), y = QY(INTR_NAIVE(s)); i ? X.lineTo(x, y) : X.moveTo(x, y); } X.stroke();
+    X.setLineDash([2, 3]); X.strokeStyle = C.sb; X.lineWidth = 1.2; X.beginPath(); X.moveTo(QX(INTR_T1), 44); X.lineTo(QX(INTR_T1), QY(0)); X.stroke(); X.restore();
+    text('再次点击', QX(INTR_T1) + 4, 40, 10, C.blue, 600);
+    const fade = 1 - seg(t, 3.9, 4.2), te = Math.min(t, T1);
+    if (t > T0 && fade > 0) {
+      X.save(); X.globalAlpha = fade; X.strokeStyle = C.blue; X.lineWidth = 2.4; X.lineJoin = 'round'; X.beginPath();
+      const n = Math.max(1, Math.ceil(60 * (te - T0) / (T1 - T0)));
+      for (let i = 0; i <= n; i++) { const s = lerp(T0, te, i / n), x = QX(s), y = QY(INTR_P(s)); i ? X.lineTo(x, y) : X.moveTo(x, y); } X.stroke();
+      circle(QX(te), QY(INTR_P(te)), 5, C.blue); ring(QX(te), QY(INTR_P(te)), 5, '#fff', 1.8);
+      X.restore();
+    }
+    fillRR(334, 163, 16, 3, 1.5, C.blue); text('可打断：从当前位置折返', 356, 165, 10, '#555', 600);
+    X.save(); X.setLineDash([4, 3]); X.strokeStyle = '#a9a7a5'; X.lineWidth = 1.6; X.beginPath(); X.moveTo(334, 179); X.lineTo(350, 179); X.stroke(); X.restore();
+    text('不可打断：先开完再关', 356, 179, 10, '#9a9896', 600);
+    pointer([[.3, w + 30, h + 30], [.95, 286, 36], [1.6, 286, 36], [2.3, w + 30, h + 30]], [1.0, 1.2], t);
+  });
+
+  // @element 29
+  // 30 拖拽排序（Drag to reorder）
+  // 4 行列表，行高 38、行距 44（y = 12 / 56 / 100 / 144）。光标 0.95 秒到第 1 行左侧把手，1.0 秒按下。
+  // 抬起量 1.0–1.15 秒 easeOutCubic：拖动行放大到 1.04 倍、阴影模糊 4→20、下移 1→7px，边框变蓝。
+  // 1.15–2.1 秒 easeInOutCubic 向下拖 88px（两个行距）；拖动行越过第 2、3 行的一半（22 / 66px）时，该行用 0.2 秒 easeOutCubic 上移 44px 让位，
+  // 原位留下浅蓝虚线占位框。2.2 秒松手，2.2–2.4 秒抬起量回 0 落位。
+  // 复位：3.4–3.9 秒 easeInOutCubic 所有行回到原顺序。
+  const REORD_ITEMS = ['设计稿评审', '接口联调', '撰写周报', '发布上线'];
+  const REORD_TAG = [C.blue, C.sb, C.mb, C.line2];
+  const REORD_Y0 = 12, REORD_GAP = 44, REORD_H = 38;
+  const REORD_DY = t => 88 * eio(seg(t, 1.15, 2.1));
+  // 越过阈值的时刻：二分求解（只在加载时算一次）
+  const REORD_TC = [1, 2].map(j => { const thr = REORD_GAP * (j - .5); let a = 1.15, b = 2.1; for (let i = 0; i < 40; i++) { const m = (a + b) / 2; if (REORD_DY(m) < thr) a = m; else b = m; } return b; });
+  CELLS[28] = ui((w, h, t) => {
+    const back = eio(seg(t, 3.4, 3.9));
+    const lift = eo(seg(t, 1.0, 1.15)) * (1 - eo(seg(t, 2.2, 2.4)));
+    const row = (i, y, lf) => {
+      const x = 24, rw = 494;
+      X.save();
+      if (lf > 0) { const cx = x + rw / 2, cy = y + REORD_H / 2, s = 1 + .04 * lf; X.translate(cx, cy); X.scale(s, s); X.translate(-cx, -cy); }
+      shadowed(() => fillRR(x, y, rw, REORD_H, 8, '#fff'), 4 + 16 * lf, 1 + 6 * lf, .06 + .16 * lf);
+      strokeRR(x, y, rw, REORD_H, 8, lf > .05 ? C.sb : C.line2, 1.5);
+      for (let r = 0; r < 3; r++) for (let c = 0; c < 2; c++) circle(x + 16 + c * 6, y + 12 + r * 7, 1.8, lf > .05 ? C.blue : '#aaa');
+      ring(x + 46, y + 19, 8, C.line2, 2);
+      text(REORD_ITEMS[i], x + 64, y + 20, 14, C.ink, 600);
+      fillRR(x + rw - 70, y + 12, 52, 14, 7, REORD_TAG[i]);
+      X.restore();
+    };
+    const dragY = REORD_Y0 + (t < 3.4 ? REORD_DY(t) : 88 * (1 - back));
+    const passed = REORD_TC.filter(c => t >= c).length;
+    if (lift > 0) { const py = REORD_Y0 + REORD_GAP * passed; X.save(); X.globalAlpha = lift; fillRR(24, py, 494, REORD_H, 8, C.lb); X.setLineDash([5, 4]); strokeRR(24, py, 494, REORD_H, 8, C.sb, 1.5); X.restore(); }
+    for (let i = 1; i < 4; i++) {
+      let y = REORD_Y0 + i * REORD_GAP;
+      if (i <= 2) { const sh = t < 3.4 ? eo(seg(t, REORD_TC[i - 1], REORD_TC[i - 1] + .2)) : 1 - back; y -= REORD_GAP * sh; }
+      row(i, y, 0);
+    }
+    row(0, dragY, lift);
+    let pos;
+    if (t < 1.0) pos = track([[.3, w + 30, h + 30], [.95, 44, 33]], t);
+    else if (t < 2.25) pos = [44, dragY + 21];
+    else pos = track([[2.25, 44, dragY + 21], [2.9, w + 30, h + 30]], t);
+    pointer([[0, pos[0], pos[1]]], [1.0, 2.2], t);
+  });
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

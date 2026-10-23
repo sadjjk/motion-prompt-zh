@@ -1,4 +1,4 @@
-# Motion Prompt catalog (zh-Hans) · 240 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
+# Motion Prompt catalog (zh-Hans) · 251 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
 1-001	ui	弹出与覆盖	模态对话框 (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	点击“打开”后页面变暗，小窗口略微放大并出现在中央，点击 × 关闭。
 1-002	ui	弹出与覆盖	侧边抽屉 (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	点击“菜单”后高面板从左侧滑入，点击外部后滑回。
 1-003	ui	弹出与覆盖	底部弹出面板 (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	手指轻点“查看详情”，面板从底部升起；向下拖动把手即可关闭。
@@ -23,6 +23,11 @@
 1-022	ui	导航与状态	加载旋转指示器 (Spinner)	spinner,loading,loader,activity-indicator,progress-circle,busy	点击“发送”后卡片蒙白，中央蓝色圆弧旋转，完成后变为对勾并淡出。
 1-023	ui	导航与状态	数字角标 (Badge)	badge,notification-badge,counter,count,dot,unread	每收到通知，页头铃铛上的蓝点依次显示 1、2、3，点击铃铛后清空。
 1-024	ui	导航与状态	空状态 (Empty state)	empty-state,no-data,zero-state,blank-state,no-results,onboarding	通过垃圾桶图标删除两行列表后，出现空盒子插画、“暂无内容”和“添加”按钮。
+1-098	ui	弹出与覆盖	缩放淡入 (Scale in)	scale-in,fade-in,dialog,popover,overlay,ease-out,entrance	点击“打开”后，对话框从 0.95 倍放大到原尺寸并淡入，不越过终点；关闭时原路缩回淡出。
+1-099	ui	弹出与覆盖	从触发点展开 (Origin-aware animation)	transform-origin,origin-aware,dropdown,popover,menu,scale,context-menu	左右两份相同菜单对比：左边从自身中心凭空胀开，右边从“更多”按钮里长出并缩回。
+1-100	ui	弹出与覆盖	橡皮筋回弹 (Rubber-banding)	rubber-banding,overscroll,elastic,drag,bottom-sheet,damping,bounce-back	已展开的底部面板被继续上拉，越拉越重、落后于手指，松手后弹回边界。
+1-101	ui	弹出与覆盖	可打断动画 (Interruptible animation)	interruptible,spring,physics,drawer,velocity,retarget,gesture	抽屉开到一半时再次点击，它不先开完，而是顺势略冲后平滑折返关闭。
+1-102	ui	选择与切换	拖拽排序 (Drag to reorder)	drag-and-drop,reorder,sortable,list,drag-handle,placeholder,kanban	第 1 行被按住抬起、向下拖过 2 行，途经的行依次上移让位，松手后落入新位置。
 1-025	lp	滚动效果	视差滚动 (Parallax scrolling)	parallax,parallax-scrolling,scroll,depth,layers,hero,background	页面下滚时，标题正常上移，天空、太阳、远山与近山移动得更慢。
 1-026	lp	滚动效果	滚动淡入 (Fade-in on scroll)	fade-in,scroll-reveal,reveal-on-scroll,intersection-observer,aos,entrance,scroll	随页面滚动，标题、卡片和正文进入视口后分别上移到位并淡入。
 1-027	lp	滚动效果	吸顶页头 (Sticky header)	sticky,sticky-header,fixed-header,position-sticky,navigation,header,scroll	公告条滚出后，下方页头停在顶部，正文从其下方滚过。
@@ -47,6 +52,11 @@
 1-046	lp	加载、导航与循环动效	无缝跑马灯 (Marquee)	marquee,ticker,infinite-loop,scrolling-text,logo-strip,band,loop	深蓝色条带中，大号服务名称以橙点分隔，持续向左移动，没有空隙。
 1-047	lp	加载、导航与循环动效	动态渐变 (Animated gradient)	gradient,animated-gradient,mesh-gradient,background,hero,ambient,loop	标题后方柔和的橙、浅橙、蓝、浅蓝色块沿圆弧漂移，持续形成不同混色。
 1-048	lp	加载、导航与循环动效	悬浮动画 (Floating animation)	floating,float,bob,hover-animation,keyframes,translatey,decoration,loop	标题旁的手机、心形徽章和评分标签错开节奏轻轻浮动，手机下方阴影随之缩放。
+1-103	lp	悬停与点击交互	按压缩小 (Press / tap feedback)	press,tap,active-state,button,feedback,scale,micro-interaction	两颗相同按钮对比：左边按下毫无变化，右边按下时微微缩小、阴影收紧，松开后恢复。
+1-104	lp	悬停与点击交互	长按确认 (Hold to confirm)	hold-to-confirm,long-press,progress,destructive-action,button,confirm	第 1 次按到一半松手，进度退回；第 2 次按满 1.2 秒，文件卡片消失，按钮显示“已删除”。
+1-105	lp	加载、导航与循环动效	共享元素转场 (Shared element transition)	shared-element,hero-transition,page-transition,list-detail,magic-move,morph	列表缩略图一路移动放大成详情页大图，其余内容淡出淡入；返回时沿原路缩回。
+1-106	lp	加载、导航与循环动效	方向感知转场 (Direction-aware transition)	direction-aware,slide-transition,page-transition,onboarding,stepper,navigation,wizard	引导页前进时内容向左滑走，后退时向右滑走，页码点同步切换。
+1-107	lp	加载、导航与循环动效	布局动画 (Layout animation)	layout-animation,flip,grid,reflow,delete,undo,auto-animate	删除第 2 张卡片后，后面的卡片滑入空位，换行的那张斜着移上去；撤销后各自回位。
 1-049	aiux	加载与思考	环绕光束 (Border beam)	border-beam,loading,ai,input,glow,streaming,border	一道头亮尾淡的彩虹色光束，沿深色输入框的边框顺时针不停绕行。
 1-050	aiux	加载与思考	底边光束 (Line beam)	line-beam,search,loading,input,glow,sweep	圆角搜索框只有底边发光，光从左滑到右，再从右滑回左。
 1-051	aiux	加载与思考	内呼吸光晕 (Inner pulse)	pulse,button,cta,highlight,glow,ai	胶囊按钮内部，粉、橙、蓝三团光放大又收小，边框也随之明暗。
@@ -144,6 +154,7 @@
 2-046	motion2	转场与强调	碎裂转场 (Shatter)	shatter,glass-break,broken-glass,shards,crack,transition,impact	画面像玻璃一样开裂，碎片飞散，露出下一场景。
 2-047	motion2	转场与强调	爆炸分解图 (Exploded view)	exploded-view,explode,layers,isometric,product,breakdown,explainer	手机分成多个结构层展示内部构造，随后重新组装。
 2-048	motion2	转场与强调	分屏 (Split screen)	split-screen,multi-screen,panels,side-by-side,comparison,layout	全幅场景先分成两个面板，再分成三个，各面板中的场景持续运动。
+2-064	motion2	文字与图形	文字逐字变换 (Text morph)	text-morph,text-transition,button-state,micro-interaction,typography,label	按钮文字在“保存、已保存、再次保存”间切换，共有的字滑到新位置，新增的字翻入、多余的字向上飘走。
 2-049	mgstyles	平面与线条	扁平矢量动画 (Flat vector motion)	flat-design,vector,squash-and-stretch,bounce,elastic,explainer,brand-intro	珊瑚圆点从群青天空落下连跳 5 下，每次落地弹出彩色扁平小楼，最后字标弹性入场。
 2-050	mgstyles	平面与线条	线条动画 (Line art animation)	line-art,one-line-drawing,stroke-reveal,logo-reveal,gold,camera-pan	镜头跟着发光笔尖平移，金线一笔画出幼苗与塔楼，最后拉远成海报构图，环形标志内填满金色。
 2-051	mgstyles	平面与线条	形变动画 (Morphing)	shape-morph,morphing,beat-sync,color-wipe,squash-and-stretch,social-short	主形先收成圆再展开成下一形，伴着挤压与摆转；每次背景从中心圆形换色，右侧字幕同步换词。

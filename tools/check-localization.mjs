@@ -22,25 +22,27 @@ const langs = ['zh-Hans', 'en', 'ja'];
 const window = { MP_SITE_CONFIG: CONFIG };
 vm.runInNewContext(read('assets/catalog.js'), { window });
 const cat = window.MP_CATALOG;
-assert.equal(cat.count, 240);
+assert.equal(cat.count, 251);
 assert.equal(cat.packs.length, 10);
 assert.equal(cat.groups.length, 4);
 assert.equal(cat.site, CONFIG.site);
 assert.equal(cat.repo, CONFIG.repo);
 assert.equal(fs.existsSync(path.join(ROOT, 'api/v1/zh')), false);
-for (const [i, el] of cat.elements.entries()) {
-  // 编号按大类连续：<大类序号>-001 起，与 catalog.groups 顺序一致
+const seenIds = new Set();
+for (const el of cat.elements) {
+  // 编号写在 meta.json，与展示位置无关：格式 <大类序号>-<3 位>，前缀与所在大类一致，全库唯一
   const g = cat.groups.find(x => x.id === el.group);
-  const k = cat.elements.slice(0, i + 1).filter(x => x.group === el.group).length;
-  assert.equal(el.id, `${g.no}-${String(k).padStart(3, '0')}`);
+  assert.match(el.id, /^\d-\d{3}$/, `${el.id} id format`);
+  assert.equal(el.id.split('-')[0], String(g.no), `${el.id} group prefix`);
+  assert.ok(!seenIds.has(el.id), `${el.id} is used twice`); seenIds.add(el.id);
   // 添加日期：首页「最新添加」排序依据，build 由 meta.json 的 added 写入
   assert.match(el.added, /^\d{4}-\d{2}-\d{2}$/, `${el.id} added`);
   for (const key of ['name', 'meaning', 'ask', 'summary', 'use']) assert.match(el[key]['zh-Hans'], /[\u3400-\u9fff]/);
   const p = cat.packs.find(p => p.pack === el.pack);
   for (const lang of langs) {
-    assert.equal(read(`api/v1/${lang}/p/${el.id}.txt`), window.MP_PROMPT(el, p.title[lang], lang, CONFIG.site, CONFIG.apiBase, p.author) + '\n');
-    // 首行版权按元素所属包（改写自其他作者的包写其 license），缺省为 Shohei Ohtaki
-    assert.ok(read(`api/v1/${lang}/e/${el.id}.txt`).startsWith(`// Motion Prompt #${el.id} · ${p.license}`), `${el.id} licence line`);
+    assert.equal(read(`api/v1/${lang}/p/${el.id}.txt`), window.MP_PROMPT(el, p.title[lang], lang, CONFIG.site, CONFIG.apiBase, el.author || p.author) + '\n');
+    // 首行版权：效果级 license 优先（他人作品放进本包时），否则用所属包的 license，缺省为 Shohei Ohtaki
+    assert.ok(read(`api/v1/${lang}/e/${el.id}.txt`).startsWith(`// Motion Prompt #${el.id} · ${el.license || p.license}`), `${el.id} licence line`);
   }
 }
 for (const p of cat.packs) {
@@ -64,6 +66,11 @@ assert.match(read('api/v1/zh-Hans/p/1-061.txt'), /保留 Seokwoooo 的 MIT 版�
 // 改写自 mg-styles-15 的包：版权行与署名指向 Vincentwei1021
 assert.equal(read('api/v1/zh-Hans/e/2-049.txt').split('\n')[0], '// Motion Prompt #2-049 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15');
 assert.match(read('api/v1/zh-Hans/p/2-049.txt'), /保留 Vincentwei1021 的 MIT 版权标识/);
+// 放进 Shohei 原作包的效果：效果级版权指向 Emil Kowalski；同包原作仍为 Shohei 并链接原站；kit 首行之后列出其他版权人
+assert.equal(read('api/v1/zh-Hans/e/1-098.txt').split('\n')[0], '// Motion Prompt #1-098 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills');
+assert.match(read('api/v1/zh-Hans/p/1-098.txt'), /保留 Emil Kowalski 的 MIT 版权标识/);
+assert.ok(read('api/v1/zh-Hans/e/1-001.txt').startsWith('// Motion Prompt #1-001 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#049'));
+assert.match(read('api/v1/kit/ui.js').split('\n')[1], /^\/\/ Also: MIT License \(c\) 2026 Emil Kowalski · https:\/\/github\.com\/emilkowalski\/skills \(#1 098~102\)$/);
 assert.deepEqual(json('skills/motion-prompt-zh/scripts/site-config.json'), CONFIG);
 const cli = ['skills/motion-prompt-zh/scripts/motion-prompt.mjs'];
 function runCli(words) {
@@ -104,7 +111,7 @@ try {
   page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400 && !r.url().endsWith('/favicon.ico')) errors.push(`${r.status()} ${r.url()}`); });
   const open = async (suffix = '') => {
     await page.goto(base + '/motion-prompt-zh/' + suffix);
-    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 240 && Object.keys(window.MotionPrompt.packs).length === 10);
+    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 251 && Object.keys(window.MotionPrompt.packs).length === 10);
   };
   await open();
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');

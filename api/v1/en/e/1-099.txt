@@ -1,0 +1,62 @@
+// Motion Prompt #1-099 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills
+//
+// Origin-aware animation / 起点を意識したアニメーション
+// Pack: ui (UI component names) · element 26 · Category: Opening & overlays
+// What happens: The same menu side by side: on the left it swells from its own centre in mid-air; on the right it grows out of the "More" button and shrinks back into it.
+// Motion spec:
+//   - Two identical "More" buttons (92×34) and menus (200×82), left and right; only transform-origin differs. Left clicks at 0.9 s, right at 1.8 s.
+//   - Open amount a = easeOutCubic over 0.3 s. Scale 0.5 + 0.5·a, opacity a.
+//   - Left origin is the menu centre (140, 91), so it swells in mid-air; right origin is the midpoint of the button's top edge (341, 140), so it grows out of the button.
+//   - Close: left at 2.9 s, right at 3.5 s, clicking the button again; a is multiplied by (1 − easeInOutCubic) over 0.2 s, shrinking to the same origin.
+//   - A blue cross marks each origin; dashed guides from the origin to the menu corners show only while animating. Versus Scale in: the scaling centre is anchored on the trigger.
+// When to use it: Use it for dropdowns, popovers and context menus opened from a button, so it is clear where they came from.
+// Tags: transform-origin, origin-aware, dropdown, popover, menu, scale, context-menu
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-099
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 26
+// 26 从触发点展开（Origin-aware animation）
+// 卡片左右各一组：同样的「更多」按钮 92×34 与菜单 200×82，只改 transform-origin。
+// 左组 0.9 秒点击、右组 1.8 秒点击；展开量 a = easeOutCubic，0.3 秒，缩放 0.5 + 0.5·a、不透明度 a。
+// 左组以菜单中心 (140, 91) 为原点，菜单凭空在半空胀开；右组以按钮顶边中点 (341, 140) 为原点，菜单从按钮里长出。
+// 收起：左组 2.9 秒、右组 3.5 秒再次点击按钮，a 乘以 (1 − easeInOutCubic)，0.2 秒，沿同一原点缩回。
+// 蓝色十字标出各自的原点；动画进行中，原点到菜单四角显示虚线引导。
+const ORIGIN_SIDES = [
+  { ox: 0, lab: '从中心展开', note: 'transform-origin：菜单中心', c0: 0.9, c1: 2.9, btn: false },
+  { ox: 271, lab: '从按钮展开', note: 'transform-origin：按钮', c0: 1.8, c1: 3.5, btn: true }];
+CELLS[25] = ui((w, h, t) => {
+  X.fillStyle = C.line; X.fillRect(270, 12, 1.5, h - 24);
+  ORIGIN_SIDES.forEach(S => {
+    const ox = S.ox, mx = ox + 40, my = 50, mw = 200, mh = 82;
+    const oxp = S.btn ? ox + 70 : mx + mw / 2, oyp = S.btn ? 140 : my + mh / 2;
+    text(S.lab, ox + 24, 18, 14, S.btn ? C.blue : '#555', 700);
+    text(S.note, ox + 24, 36, 10, '#9a9896', 500);
+    fillRR(ox + 132, 140, 116, 34, 8, C.block);
+    const a = eo(seg(t, S.c0, S.c0 + .3)) * (1 - eio(seg(t, S.c1, S.c1 + .2)));
+    strokeRR(ox + 24, 140, 92, 34, 8, C.blue, 2); if (a > .02) fillRR(ox + 26, 142, 88, 30, 7, C.lb);
+    text('更多', ox + 60, 157, 15, C.blue, 600, 'center'); chevron(ox + 98, 158, 4, Math.PI * a, C.blue, 2);
+    if (a > 0) {
+      X.save(); X.globalAlpha = a; X.translate(oxp, oyp); const s = .5 + .5 * a; X.scale(s, s); X.translate(-oxp, -oyp);
+      shadowed(() => fillRR(mx, my, mw, mh, 10, '#fff'), 18, 6, .2); strokeRR(mx, my, mw, mh, 10, C.border, 1);
+      for (let i = 0; i < 3; i++) { const y = my + 8 + i * 24; if (i === 0) fillRR(mx + 6, y, mw - 12, 22, 5, C.lb); fillRR(mx + 14, y + 4, 14, 14, 3, i === 0 ? C.blue : C.line2); bar(mx + 36, y + 6, [110, 88, 124][i], i === 0 ? C.sb : C.line); }
+      X.restore();
+      // 引导线：只在动画进行中出现
+      const g = 4 * a * (1 - a);
+      if (g > .01) {
+        const s = .5 + .5 * a, cx = q => oxp + (q - oxp) * s, cy = q => oyp + (q - oyp) * s;
+        X.save(); X.globalAlpha = .7 * g; X.setLineDash([3, 3]); X.strokeStyle = C.blue; X.lineWidth = 1.2; X.beginPath();
+        [[mx, my], [mx + mw, my], [mx, my + mh], [mx + mw, my + mh]].forEach(([qx, qy]) => { X.moveTo(oxp, oyp); X.lineTo(cx(qx), cy(qy)); });
+        X.stroke(); X.restore();
+      }
+    }
+    // 原点十字
+    X.save(); X.globalAlpha = .45 + .55 * Math.max(4 * a * (1 - a), 0);
+    ring(oxp, oyp, 6, C.blue, 2); X.strokeStyle = C.blue; X.lineWidth = 1.6; X.beginPath(); X.moveTo(oxp - 11, oyp); X.lineTo(oxp + 11, oyp); X.moveTo(oxp, oyp - 11); X.lineTo(oxp, oyp + 11); X.stroke();
+    X.restore();
+  });
+  pointer([[.3, w + 30, h + 30], [.85, 64, 160], [1.4, 64, 160], [1.75, 335, 160], [2.4, 335, 160], [2.85, 64, 160], [3.0, 64, 160], [3.45, 335, 160], [3.6, 335, 160], [4.2, w + 30, h + 30]], [0.9, 1.8, 2.9, 3.5], t);
+});

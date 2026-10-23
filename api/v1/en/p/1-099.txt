@@ -1,0 +1,16 @@
+Please use "Origin-aware animation" (起点を意識したアニメーション), one of the names in "UI component names".
+Motion Prompt #1-099
+
+What it is: A popup grows out of the button that opened it
+What the sample shows: The same menu side by side: on the left it swells from its own centre in mid-air; on the right it grows out of the "More" button and shrinks back into it.
+Spec:
+- Two identical "More" buttons (92×34) and menus (200×82), left and right; only transform-origin differs. Left clicks at 0.9 s, right at 1.8 s.
+- Open amount a = easeOutCubic over 0.3 s. Scale 0.5 + 0.5·a, opacity a.
+- Left origin is the menu centre (140, 91), so it swells in mid-air; right origin is the midpoint of the button's top edge (341, 140), so it grows out of the button.
+- Close: left at 2.9 s, right at 3.5 s, clicking the button again; a is multiplied by (1 − easeInOutCubic) over 0.2 s, shrinking to the same origin.
+- A blue cross marks each origin; dashed guides from the origin to the menu corners show only while animating. Versus Scale in: the scaling centre is anchored on the trigger.
+When to use it: Use it for dropdowns, popovers and context menus opened from a button, so it is clear where they came from.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-099.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.
