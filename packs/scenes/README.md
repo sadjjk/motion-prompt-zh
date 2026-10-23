@@ -2,7 +2,7 @@
 
 # Styled scenes
 
-32 names · #4 001~032 · pack `scenes` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+35 names · #4 001~035 · pack `scenes` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -28,6 +28,8 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-011](https://sadjjk.github.io/motion-prompt-zh/#4-011) | **Market candles** | A stock chart where candlesticks and moving averages grow across the screen | Animate a stock chart: 48 candles grow from the left in 4.4 s, followed by MA5 and MA20 lines. |
 | [#4-012](https://sadjjk.github.io/motion-prompt-zh/#4-012) | **Neural net** | A layered neural network with signal lights flowing from left to right | Animate a neural net: signals pulse left to right through 6 layers, 3 waves every 6.4 s. |
 | [#4-013](https://sadjjk.github.io/motion-prompt-zh/#4-013) | **Electron orbital** | An atomic orbital's probability cloud drawn in dots and slowly rotating | Animate an electron cloud: a 3d orbital drawn with 1600 dots, rotating once every 6.4 s. |
+| [#4-034](https://sadjjk.github.io/motion-prompt-zh/#4-034) | **Barcode scan** | A cyan laser reading the barcode on a packing slip | Animate a barcode scan: a cyan laser sweeps once left to right across 29 bars on a white slip, then "Verified · ready to ship" appears in green. |
+| [#4-035](https://sadjjk.github.io/motion-prompt-zh/#4-035) | **Oscilloscope trace** | A sweep beam drawing a cyan waveform across a dark scope screen | Animate an oscilloscope: a vertical sweep beam moves left to right, drawing a cyan waveform behind it whose 3 peaks get gradually smaller. |
 
 ## Patterns & graphics
 
@@ -57,6 +59,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-030](https://sadjjk.github.io/motion-prompt-zh/#4-030) | **Infinity room** | An infinity room where coloured lights recede endlessly in a dark mirrored space | Make an infinity mirror room loop: the camera moves forward 4 rows through lights in 4 hues every 6.4 s, the lights breathing 2 times. |
 | [#4-031](https://sadjjk.github.io/motion-prompt-zh/#4-031) | **Spinning vinyl** | A product-shot-style scene of a large, cropped vinyl record spinning on red | Make a spinning vinyl loop: a 150 px radius record cropped large on red, the label turning 4 times per 6.4 s with the tonearm resting in the groove. |
 | [#4-032](https://sadjjk.github.io/motion-prompt-zh/#4-032) | **Card flourish** | A card flourish on green felt where playing cards fan out and flip face up and back | Animate a card fan: 24 cards fly from the deck into a fan and flip face up one by one between 1.9 and 3.8 s. |
+| [#4-033](https://sadjjk.github.io/motion-prompt-zh/#4-033) | **Receipt printing** | A thermal receipt slowly feeding out of a register's paper slot | Animate a receipt printing: a white receipt feeds 165px out of a dark paper slot, revealing the shop name, 3 item lines and the total. |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#4-001](../../api/v1/en/e/4-001.txt)).
 

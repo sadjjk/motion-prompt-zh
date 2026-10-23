@@ -56,3 +56,5 @@ python3 -m http.server 8000
 - 交互与数据动效（`uxmotion`）改写自 [Lucian UX/UI Prompt](https://lucianlabs.dev/uxui-prompt/)，作者 Seokwoooo，MIT License。使用这部分代码时保留其版权行。
 - MG 风格（`mgstyles`）改写自 [mg-styles-15](https://github.com/Vincentwei1021/mg-styles-15)，作者 Vincentwei1021，MIT License；未使用原作的照片、纹理、字形与音频。使用这部分代码时保留其版权行。
 - 风格画面（`scenes`）改写自 [Motion Atlas](https://github.com/skylarzzzz/motion-atlas)，作者 Yun，MIT License。使用这部分代码时保留其版权行。
+- `#1-098`～`#1-107`、`#2-064` 改写自 [skills](https://github.com/emilkowalski/skills)，作者 Emil Kowalski，MIT License。使用这部分代码时保留其版权行。
+- `#1-108`～`#1-113`、`#4-033`～`#4-035`、`#2-065`～`#2-067` 改写自 [ui2v](https://ui2v.com/) 上 illli Ai Studio 的动效包，MIT-0（MIT No Attribution）；未使用原作的代码与字体。我们仍在版权行中署名作者。

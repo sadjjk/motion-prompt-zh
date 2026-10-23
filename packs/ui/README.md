@@ -2,7 +2,7 @@
 
 # UI component names
 
-29 names · #1 001~024 · 098~102 · pack `ui` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+35 names · #1 001~024 · 098~102 · 108~113 · pack `ui` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -22,6 +22,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-099](https://sadjjk.github.io/motion-prompt-zh/#1-099) | **Origin-aware animation** | A popup grows out of the button that opened it | Set the dropdown's transform-origin to the trigger button so it grows out of it from 0.5× over 0.3 s ease-out. |
 | [#1-100](https://sadjjk.github.io/motion-prompt-zh/#1-100) | **Rubber-banding** | Dragging past an edge meets resistance and springs back on release | Add rubber-banding when the bottom sheet is pulled past its top: 120 px of finger travel moves the sheet only about 49 px, and it springs back on release. |
 | [#1-101](https://sadjjk.github.io/motion-prompt-zh/#1-101) | **Interruptible animation** | An animation can change course mid-way, continuing from where it is | Make the drawer a spring animation that can be interrupted: if it is tapped again mid-open, it turns back from its current position and speed (ω = 10). |
+| [#1-110](https://sadjjk.github.io/motion-prompt-zh/#1-110) | **Drag-and-drop upload** | Drop a file onto the zone; it reacts and the upload runs | Build a drag-and-drop upload zone: when a file is dropped the dashed border turns solid green, a progress bar runs from 0 to 100% and "Ready to publish" appears. |
 
 ## Choosing & switching
 
@@ -36,6 +37,8 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-015](https://sadjjk.github.io/motion-prompt-zh/#1-015) | **Stepper (+/−)** | Plus and minus buttons that change a number by one | Make the quantity field a stepper: + and − change it by one, and the number pops slightly for 0.25 s on each press. |
 | [#1-016](https://sadjjk.github.io/motion-prompt-zh/#1-016) | **Pagination** | Numbered buttons that move between pages | Add pagination under the search results: the current page is a blue circle that moves in 0.2 s on click, and the list is replaced. |
 | [#1-102](https://sadjjk.github.io/motion-prompt-zh/#1-102) | **Drag to reorder** | Grab and drag a list item; the others make room as the order changes | Let the to-do list be reordered by dragging: pressing the handle lifts the row to 1.04×, and the other rows slide aside in 0.2 s. |
+| [#1-108](https://sadjjk.github.io/motion-prompt-zh/#1-108) | **OTP input fill** | A one-time code fills in box by box and is confirmed once complete | Animate a verification code field: 6 boxes fill one digit every 0.35 s, and once full every box turns blue and "Verified" appears. |
+| [#1-109](https://sadjjk.github.io/motion-prompt-zh/#1-109) | **Password strength meter** | Strength bars fill segment by segment as the password grows | Add a strength meter under the password field: 4 bar segments light red → orange → yellow-green → green as the user types, and the label goes from "Weak" to "Strong". |
 
 ## Navigation & status
 
@@ -49,6 +52,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-022](https://sadjjk.github.io/motion-prompt-zh/#1-022) | **Spinner** | A spinning circle that means "please wait" | While sending, show a spinner over the form, turning a little over once per second, then replace it with a blue check when done. |
 | [#1-023](https://sadjjk.github.io/motion-prompt-zh/#1-023) | **Badge** | A small dot with a number showing a count | Add a badge to the bell in the header to show the unread count: it pops for 0.3 s each time the count goes up and disappears when opened. |
 | [#1-024](https://sadjjk.github.io/motion-prompt-zh/#1-024) | **Empty state** | The screen shown when there is nothing to list yet | When the list is empty, show an empty state: a line icon, "Nothing here yet" and an add button, fading in over 0.35 s. |
+| [#1-111](https://sadjjk.github.io/motion-prompt-zh/#1-111) | **Keyboard shortcut press** | The keys of a shortcut press down and light up one by one | Make a shortcut hint: the Ctrl, Shift and P keys press down in turn and glow amber, the caption builds up with each key, and it ends on "Queued". |
+| [#1-112](https://sadjjk.github.io/motion-prompt-zh/#1-112) | **Code diff highlight** | Removed and added code lines appear in red and green | Animate a code diff in an editor: after the context lines brighten, a red removed line and a green added line slide in 6.4px from the left in turn, and the added line flashes once. |
+| [#1-113](https://sadjjk.github.io/motion-prompt-zh/#1-113) | **Deploy pipeline** | Build stages run in sequence, turning green and linking up | Animate a deploy: 4 cards Lint, Test, Build and Deploy go from "Running" to "Passed" in green one by one, the links between them fill, and it ends on "Live". |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#1-001](../../api/v1/en/e/1-001.txt)).
 

@@ -1,0 +1,16 @@
+Please use "Oscilloscope trace" (オシロスコープの波形), one of the names in "Styled scenes".
+Motion Prompt #4-035
+
+What it is: A sweep beam drawing a cyan waveform across a dark scope screen
+What the sample shows: A dark scope panel fades in and a vertical light beam travels left to right, tracing a cyan waveform that swings 3 times with shrinking height, then the beam fades out.
+Spec:
+- A dark panel, 511×188 (#04111d, border #164e63), with a 44×16 grid and a 467×120 waveform box.
+- The panel fades in and rises 6px over 0.3–0.96 s (quadratic ease-out); a vertical sweep beam switches on over 0.84–1.08 s.
+- Over 0.96–4.08 s the waveform and beam advance together at a constant rate from left to right; the cyan #22d3ee trace swings 3 times with shrinking amplitude. The beam fades over 4.08–4.44 s.
+- Over 4.2–5.4 s the panel lifts 2px with a sine ease-in-out; everything fades over 5.4–6.0 s, back to the empty background by 6.4 s.
+- Versus Sci-fi HUD: a single waveform is traced gradually by a sweep beam, like a live measurement, rather than many gauges ticking at once.
+When to use it: Use it for electronics, test equipment, audio or medical device promos, transitions in science and tech videos, or a loading screen.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-035.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

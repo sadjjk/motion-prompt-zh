@@ -1,0 +1,16 @@
+Please use "Deploy pipeline" (デプロイパイプライン), one of the names in "UI component names".
+Motion Prompt #1-113
+
+What it is: Build stages run in sequence, turning green and linking up
+What the sample shows: Four stage cards on a dark background run left to right; each one that passes glows green at its border and dot, a line extends to the next, and the final Deploy card reads "Live".
+Spec:
+- 4 stage cards Lint → Test → Build → Deploy (117×124, 14 apart), joined by 2px connector lines placed 70 down from the card top.
+- 0.85 s stage 01 running → 1.25 s "Passed · 0 errors"; 1.70 s stage 02 running → 2.15 s "Passed · 128 tests"; 2.60 s stage 03 running → 3.05 s "Artifacts ready"; 3.50 s stage 04 goes straight to "Live".
+- On passing, the border turns green #16a34a, the top-right dot glows #22c55e and the status text turns bold green (instant); 0.05 s later the connector fills to the next stage over 0.35 s (quadratic ease-out).
+- Over 3.6–3.95 s the whole row rises 2.5px with sine.inOut. Reset over 3.95–4.35 s (easeInOutCubic): the green borders, dots, connectors and status text return to "Queued".
+- Versus Step indicator: each stage has running and passed states with result text and advances on its own, rather than waiting for the user to press Next.
+When to use it: Use it on landing pages for CI/CD, hosting and developer platforms, or for build status in dashboards.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-113.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

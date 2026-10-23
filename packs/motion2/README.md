@@ -2,7 +2,7 @@
 
 # Motion graphics moves, part 2
 
-25 names · #2 025~048 · 064 · pack `motion2` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+28 names · #2 025~048 · 064~067 · pack `motion2` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -32,6 +32,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-039](https://sadjjk.github.io/motion-prompt-zh/#2-039) | **Kaleidoscope** | Mirrored patterns spread out symmetrically | Put a kaleidoscope behind the logo: 8-way mirror symmetry, turning slowly as it spreads out. |
 | [#2-040](https://sadjjk.github.io/motion-prompt-zh/#2-040) | **Line boil** | Hand-drawn lines wobble frame to frame | Add line boil to the hand-drawn illustration: 10 frames per second, with the lines shifting only 2–3 px. |
 | [#2-064](https://sadjjk.github.io/motion-prompt-zh/#2-064) | **Text morph** | Shared letters stay and slide while only the changed ones swap | Animate the save button's label with a text morph: shared characters slide over 0.5 s, new ones roll in 0.06 s apart, and the button width follows. |
+| [#2-065](https://sadjjk.github.io/motion-prompt-zh/#2-065) | **Wave interference** | Two waves travelling in opposite directions add up, reinforcing and cancelling | Animate a wave interference diagram: waves A and B travel in opposite directions in the top 2 lanes, their sum is drawn in the bottom lane, and 3 dots on a vertical dashed line read out the values. |
+| [#2-066](https://sadjjk.github.io/motion-prompt-zh/#2-066) | **Dots settling into a normal distribution** | Scattered observations gather into a bell-shaped distribution | Animate a normal distribution forming: 98 dots first scatter like a cloud, then drop one by one into 13 bell-shaped columns, and the mean line μ lights up and locks. |
+| [#2-067](https://sadjjk.github.io/motion-prompt-zh/#2-067) | **Network diffusion** | A signal spreading hop by hop through a network from one source | Animate network diffusion: the source on the left lights up and sends out 3 ripples, the signal travels along 16 curved edges to 16 nodes on the right, and hop count and nodes reached show at the top left. |
 
 ## Transitions & highlights
 

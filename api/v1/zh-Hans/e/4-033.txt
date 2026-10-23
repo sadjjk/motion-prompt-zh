@@ -1,0 +1,66 @@
+// Motion Prompt #4-033 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+//
+// 小票打印 / Receipt printing
+// 分类包: scenes (风格画面) · element 33 · 子分类: 器物与空间
+// 动画表现: 深色出纸口淡入后，白色小票从顶部缓缓吐出，依次露出店名、3 行明细和虚线下的“合计 已发货”，最后整体淡出。
+// 运动规格:
+//   - 深色出纸口 341×188（#1f2937、内描边 #374151），顶部 11px 出纸嘴 #4b5563→#1f2937；小票 301×130、底色 #f9fafb
+//   - 出纸口 0.36–0.96 秒淡入并上移 5px（二次缓出）
+//   - 小票 1.08–3.96 秒以二次缓出下送 165px，4.08–5.28 秒再以正弦缓入缓出补送 5px，顶边停在出纸口高度 16% 处
+//   - 票面：店名、3 行明细、虚线 #9ca3af 下的“合计 已发货”；5.4–6.0 秒整体淡出，6.4 秒回到空背景
+//   - 与机场翻牌不同：信息随纸张送出逐渐露出，不是逐格翻转换字
+// 适用场景: 适合电商、支付、收银系统的宣传，下单成功或发货通知的展示，以及月度账单、结果揭晓类视频。
+// 标签: receipt, printer, thermal-paper, pos, checkout, objects
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-033
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 33
+// 改写自 ui2v · illli Ai Studio · hero-receipt-print（MIT-0）
+// 33 小票打印：深色收银机出纸口里，一张热敏小票从上方出纸口缓缓送出，露出店名、三行明细和虚线下的「合计 已发货」。
+// 时间按原作 4.5 秒 × 1.2 映射到 0–5.4 秒展示段：出纸口 0.36–0.96 秒淡入并上移 5px（原 0.3 秒起 0.5 秒、20px，二次缓出）；
+// 小票 1.08–3.96 秒以二次缓出下送 165px（原 0.9 秒起 2.4 秒送 620px），4.08–5.28 秒再以正弦缓入缓出补送 5px（原 3.4 秒起 1 秒补 20px）；
+// 5.4–6.0 秒整体淡出，6.4 秒回到空背景。尺寸换算：出纸口 520×760 → 341×188（宽 ×0.66、高 ×0.25），小票内容重排为 301×130，
+// 终点位置保持原作「小票顶边停在出纸口高度 16% 处」。配色照抄：底 #111827、出纸口 #1f2937 / 内描边 #374151、出纸嘴 #4b5563→#1f2937、
+// 小票 #f9fafb、字 #111827、合计虚线 #9ca3af。
+const RCPT_X = 99, RCPT_Y = 10, RCPT_W = 341, RCPT_H = 188, RCPT_PW = 301, RCPT_PH = 130;
+const RCPT_LINES = [['动效包', '20×'], ['发布', '成功'], ['Lint', '0 错误']];
+const RCPT_qOut = t => 1 - (1 - t) * (1 - t);                       // GSAP power1.out
+const RCPT_sIO = t => -(Math.cos(Math.PI * t) - 1) / 2;              // GSAP sine.inOut
+CELLS[32] = (k, w, h, u) => {
+  k.fillStyle = '#111827'; k.fillRect(0, 0, CW, CH);
+  const sa = RCPT_qOut(seg(u, 0.36, 0.96)), fade = fadeIn(u);
+  const a = sa * fade; if (a <= 0) return;
+  // 小票顶边：起点 -130（整张藏在出纸口上方），一段送 164.7px、二段补 5.3px，终点 y=40
+  const top = -130 + 164.7 * RCPT_qOut(seg(u, 1.08, 3.96)) + 5.3 * RCPT_sIO(seg(u, 4.08, 5.28));
+  k.save(); k.globalAlpha = a; k.translate(0, 5 * (1 - sa));
+  // 出纸口外投影（原 0 24px 50px rgba(0,0,0,.35)，以三层半透明圆角块近似）
+  for (let i = 0; i < 3; i++) { k.fillStyle = 'rgba(0,0,0,.12)'; rr(k, RCPT_X - 2 - i * 2, RCPT_Y + 6 + i * 2, RCPT_W + 4 + i * 4, RCPT_H, 9 + i * 2); k.fill(); }
+  k.fillStyle = '#1f2937'; rr(k, RCPT_X, RCPT_Y, RCPT_W, RCPT_H, 7); k.fill();
+  k.save(); rr(k, RCPT_X, RCPT_Y, RCPT_W, RCPT_H, 7); k.clip();
+  // 小票（左右各留 20px）
+  const px = RCPT_X + 20;
+  k.save(); k.translate(px, top);
+  k.fillStyle = 'rgba(0,0,0,.25)'; k.fillRect(-2, 3, RCPT_PW + 4, RCPT_PH + 3);
+  k.fillStyle = '#f9fafb'; k.fillRect(0, 0, RCPT_PW, RCPT_PH);
+  txt(k, 'UI2V 小卖部', 16, 30, `700 15px ${MONO}`, '#111827');
+  RCPT_LINES.forEach(([l, r], i) => {
+    txt(k, l, 16, 54 + i * 17, `400 12px ${MONO}`, '#111827');
+    txt(k, r, RCPT_PW - 16, 54 + i * 17, `400 12px ${MONO}`, '#111827', 'right');
+  });
+  k.strokeStyle = '#9ca3af'; k.lineWidth = 1.4; k.setLineDash([4, 3]);
+  k.beginPath(); k.moveTo(16, 100); k.lineTo(RCPT_PW - 16, 100); k.stroke(); k.setLineDash([]);
+  txt(k, '合计', 16, 118, `700 12px ${MONO}`, '#111827');
+  txt(k, '已发货', RCPT_PW - 16, 118, `700 12px ${MONO}`, '#111827', 'right');
+  k.restore();
+  // 出纸嘴：盖在小票上方（原 z-index 2），高 11px
+  const mg = k.createLinearGradient(0, RCPT_Y, 0, RCPT_Y + 11); mg.addColorStop(0, '#4b5563'); mg.addColorStop(1, '#1f2937');
+  k.fillStyle = mg; k.fillRect(RCPT_X, RCPT_Y, RCPT_W, 11);
+  k.restore();
+  // 内描边（原 inset 0 0 0 2px #374151）
+  k.strokeStyle = '#374151'; k.lineWidth = 1.5; rr(k, RCPT_X + 0.75, RCPT_Y + 0.75, RCPT_W - 1.5, RCPT_H - 1.5, 6.5); k.stroke();
+  k.restore();
+};

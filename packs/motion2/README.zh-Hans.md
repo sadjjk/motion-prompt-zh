@@ -2,7 +2,7 @@
 
 # 动态图形进阶
 
-25 个效果 · #2 025~048 · 064 · 分类包 `motion2` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+28 个效果 · #2 025~048 · 064~067 · 分类包 `motion2` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -32,6 +32,9 @@
 | [#2-039](https://sadjjk.github.io/motion-prompt-zh/#2-039) | **万花筒** | Kaleidoscope | 镜像图案对称扩散 | 标志后加万花筒，八向镜像对称，缓慢转动并向外扩散。 |
 | [#2-040](https://sadjjk.github.io/motion-prompt-zh/#2-040) | **手绘线条抖动** | Line boil | 手绘轮廓在逐帧重画时轻微变化 | 手绘插画加线条抖动，每秒十帧，线条仅移动 2–3 px。 |
 | [#2-064](https://sadjjk.github.io/motion-prompt-zh/#2-064) | **文字逐字变换** | Text morph | 相同的字留下平移，只有不同的字替换 | 保存按钮的文字变化用文字逐字变换：相同的字平移 0.5 秒，新字错开 0.06 秒翻入，按钮宽度同步变化。 |
+| [#2-065](https://sadjjk.github.io/motion-prompt-zh/#2-065) | **波的干涉** | Wave interference | 两列反向行进的波叠加，时而相长时而相消的图解 | 做一个波的干涉图解动画：上面 2 条泳道是反向行进的波 A、B，下方泳道画出两者相加的合成波，竖直虚线上 3 个点实时读数。 |
+| [#2-066](https://sadjjk.github.io/motion-prompt-zh/#2-066) | **散点聚成正态分布** | Dots settling into a normal distribution | 散乱的观测点聚拢成钟形分布的统计图解 | 做一个正态分布形成动画：98 个点先散成一团云，再一个个落进 13 列钟形柱，均值线 μ 亮起锁定。 |
+| [#2-067](https://sadjjk.github.io/motion-prompt-zh/#2-067) | **网络扩散** | Network diffusion | 信号从一个源点沿连线逐跳扩散的网络图解 | 做一个网络扩散动画：左侧源点亮起放出 3 圈涟漪，信号沿 16 条曲线边依次传到右侧 16 个节点，左上角显示跳数和已触达节点数。 |
 
 ## 转场与强调
 

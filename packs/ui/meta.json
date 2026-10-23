@@ -1900,6 +1900,438 @@
           "拖放排序"
         ]
       }
+    },
+    {
+      "no": "30",
+      "id": "1-108",
+      "slug": "otp-fill",
+      "category": "select-switch",
+      "added": "2026-10-23",
+      "license": "MIT-0 License (c) 2026 illli Ai Studio",
+      "attribution": "https://ui2v.com/",
+      "name": {
+        "ja": "ワンタイムコード入力",
+        "en": "OTP input fill",
+        "zh-Hans": "验证码逐格填入"
+      },
+      "meaning": {
+        "ja": "コードの数字がひとマスずつ入り、そろうと確認される",
+        "en": "A one-time code fills in box by box and is confirmed once complete",
+        "zh-Hans": "验证码一格一位依次填满后自动确认"
+      },
+      "ask": {
+        "ja": "認証コードの入力欄をアニメにして。6マスに0.35秒ごとにひと桁ずつ数字が入り、そろったら全部の枠が青くなって「認証済み」と出る。",
+        "en": "Animate a verification code field: 6 boxes fill one digit every 0.35 s, and once full every box turns blue and \"Verified\" appears.",
+        "zh-Hans": "做一个验证码输入动画：6 个格子每隔 0.35 秒填入一位数字，填满后所有格子亮蓝边并提示已验证。"
+      },
+      "summary": {
+        "ja": "6つのマスに数字が順に入り、入力中のマスの枠が青く光る。そろうと全部が青くなり、案内が「認証済み」に変わって全体が少し浮く。",
+        "en": "Digits drop into six boxes in turn, the active box glowing blue; when all are filled every box turns blue, the hint switches to \"Verified\" and the group lifts slightly.",
+        "zh-Hans": "6 个格子依次跳入数字，正在输入的格子亮起蓝边；填满后全部变蓝，提示换成“已验证”，整组轻轻上浮。"
+      },
+      "spec": {
+        "ja": [
+          "6つのコード入力マス（66×77・間隔13.2・角丸11）、数字35px。未入力のマスは不透明度0.55、入力後は1",
+          "数字 8 4 2 9 1 6 が0.35秒ごとにひとマスずつ瞬時に入る（0.95〜2.70秒）。入ったばかりのマスは枠が青 #60a5fa になり3.3pxの淡い青の外枠が付き、ほかのマスは灰色の枠 #374151 に戻る",
+          "3.2秒に6マスすべての枠が青くなり、案内が「····4821 にコードを送信しました」から「認証済み · 続行中」に変わる。3.4〜3.95秒に全体が sine.inOut で4.4px浮く",
+          "リセット: 3.95〜4.35秒に easeInOutCubic で数字が消え、青い枠と浮きが戻る。4.35〜4.5秒は空の初期画面で止まる",
+          "数字ステッパーとの違い: 決まった桁数のコードをひとマスずつ入れ、そろうと自動で確認する。＋−ボタンでひとつの値を増減するものではない"
+        ],
+        "en": [
+          "6 code boxes (66×77, gap 13.2, radius 11) with 35px digits. Empty boxes sit at opacity 0.55, filled ones at 1.",
+          "The digits 8 4 2 9 1 6 pop into one box every 0.35 s (0.95–2.70 s). The box just filled gets a blue #60a5fa border with a 3.3px light blue halo, while the others return to the grey border #374151.",
+          "At 3.2 s all 6 boxes light blue and the hint changes from \"Code sent to ····4821\" to \"Verified · continuing\"; over 3.4–3.95 s the group rises 4.4px with sine.inOut.",
+          "Reset: over 3.95–4.35 s (easeInOutCubic) the digits fade and the blue borders and lift return; 4.35–4.5 s holds the empty starting frame.",
+          "Versus Stepper: a fixed-length code is typed box by box and checked automatically when complete, rather than one value nudged with plus/minus buttons."
+        ],
+        "zh-Hans": [
+          "6 个验证码格（66×77、间距 13.2、圆角 11），数字 35px；未填格不透明度 0.55，填后为 1。",
+          "数字 8 4 2 9 1 6 每隔 0.35 秒瞬时填入一格（0.95–2.70 秒）；刚填的格描边变蓝 #60a5fa 并带 3.3px 浅蓝外圈，其余格回到灰边 #374151。",
+          "3.2 秒 6 格同时亮蓝边，提示由“验证码已发送至 ····4821”换成“已验证 · 正在继续”；3.4–3.95 秒整组以 sine.inOut 上浮 4.4px。",
+          "复位：3.95–4.35 秒 easeInOutCubic 数字淡出、蓝边与上浮退回，4.35–4.5 秒停在空白初始画面。",
+          "与数字步进器不同：逐格输入固定位数的验证码，填满即自动校验，不是用加减按钮调一个数值。"
+        ]
+      },
+      "use": {
+        "ja": "ログイン・会員登録・決済確認での SMS／メール認証コード入力や、2段階認証の画面に。",
+        "en": "Use it for SMS or email code entry at sign-in, sign-up or payment confirmation, and on two-factor authentication screens.",
+        "zh-Hans": "适合登录、注册、支付确认时的短信或邮箱验证码输入，以及两步验证页面。"
+      },
+      "tags": [
+        "otp",
+        "verification-code",
+        "pin-input",
+        "two-factor",
+        "form",
+        "input"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "验证码输入",
+          "OTP 输入框",
+          "短信验证码"
+        ]
+      }
+    },
+    {
+      "no": "31",
+      "id": "1-109",
+      "slug": "password-strength-meter",
+      "category": "select-switch",
+      "added": "2026-10-23",
+      "license": "MIT-0 License (c) 2026 illli Ai Studio",
+      "attribution": "https://ui2v.com/",
+      "name": {
+        "ja": "パスワード強度メーター",
+        "en": "Password strength meter",
+        "zh-Hans": "密码强度条"
+      },
+      "meaning": {
+        "ja": "入力が長くなるにつれ、強度のバーが段ごとに色づく",
+        "en": "Strength bars fill segment by segment as the password grows",
+        "zh-Hans": "密码越输越长，强度条逐段着色"
+      },
+      "ask": {
+        "ja": "パスワード入力欄の下に強度メーターを付けて。4段のバーが入力に合わせて赤→橙→黄緑→緑と段ごとに色づき、文字も「弱い」から「強い」に変わる。",
+        "en": "Add a strength meter under the password field: 4 bar segments light red → orange → yellow-green → green as the user types, and the label goes from \"Weak\" to \"Strong\".",
+        "zh-Hans": "在密码框下加强度条：4 段强度条随输入依次变红、橙、黄绿、绿，文字从“弱”变到“强”。"
+      },
+      "summary": {
+        "ja": "「新しいパスワード」欄の丸が4個から16個まで増えるたびに、下の4段のバーが段ごとに色づき、強度の文字も赤から緑へ変わる。",
+        "en": "As the dots in the \"New password\" field grow from 4 to 16, the four bars below light up one at a time and the strength label shifts from red to green.",
+        "zh-Hans": "“新密码”框里的圆点从 4 个增到 16 个，下方 4 段强度条逐段点亮，强度文字从红变绿。"
+      },
+      "spec": {
+        "ja": [
+          "「新しいパスワード」カード（幅429・角丸15.4）、入力欄の高さ48.4。伏せ字の丸が4個から8 / 12 / 16個へ順に増える（1.00 / 1.55 / 2.15秒）",
+          "4段の強度バー（高さ7.7・間隔6.6）が順に色づく: 1.05秒 赤 #ef4444「弱い」、1.60秒 橙 #f59e0b「普通」、2.20秒 黄緑 #84cc16「良い」、2.75秒 緑 #22c55e「強い」",
+          "各段の色の変化は0.25秒（最後の段は0.3秒）で二次の easeOut。左下の強度の文字も同時に変わり、右下は「12文字以上 · 大文字小文字を混ぜる」で固定",
+          "3.2〜3.95秒にカードが sine.inOut で4.4px浮く。リセット 3.95〜4.35秒 easeInOutCubic: 増えた丸が消え、4段は灰色 #44403c に戻り、強度の文字は琥珀色の「弱い」に戻る",
+          "ステップインジケーターとの違い: 段の色はパスワードの強さを表し、入力に合わせて変わる。手続きの何段目かを示すものではない"
+        ],
+        "en": [
+          "A \"New password\" card (429 wide, radius 15.4) with a 48.4-high field. The masked dots grow from 4 to 8 / 12 / 16 (1.00 / 1.55 / 2.15 s).",
+          "4 strength segments (7.7 high, 6.6 apart) fill in turn: 1.05 s red #ef4444 \"Weak\", 1.60 s orange #f59e0b \"Fair\", 2.20 s yellow-green #84cc16 \"Good\", 2.75 s green #22c55e \"Strong\".",
+          "Each colour change takes 0.25 s (0.3 s for the last) with a quadratic ease-out; the label at lower left changes with it, while the lower right always reads \"At least 12 characters · mixed case\".",
+          "Over 3.2–3.95 s the card rises 4.4px with sine.inOut. Reset over 3.95–4.35 s (easeInOutCubic): the extra dots fade, the 4 segments return to grey #44403c and the label returns to amber \"Weak\".",
+          "Versus Step indicator: the segments show password strength and react to typing; they do not mark which step of a flow you are on."
+        ],
+        "zh-Hans": [
+          "“新密码”卡片宽 429、圆角 15.4，密码框高 48.4；圆点从 4 个依次增到 8 / 12 / 16 个（1.00 / 1.55 / 2.15 秒）。",
+          "4 段强度条（高 7.7、段距 6.6）逐段着色：1.05 秒红 #ef4444“弱”、1.60 秒橙 #f59e0b“一般”、2.20 秒黄绿 #84cc16“良好”、2.75 秒绿 #22c55e“强”。",
+          "每段颜色过渡 0.25 秒（末段 0.3 秒），二次缓出；左下强度文字同步换字换色，右下固定提示“至少 12 位 · 大小写混合”。",
+          "3.2–3.95 秒卡片以 sine.inOut 上浮 4.4px；复位 3.95–4.35 秒 easeInOutCubic，多出的圆点淡出，4 段退回灰 #44403c，强度文字回到琥珀色“弱”。",
+          "与步骤指示器不同：分段条反映密码强度并随输入变色，不表示流程走到第几步。"
+        ]
+      },
+      "use": {
+        "ja": "会員登録・パスワード変更・アカウント設定など、安全なパスワードを促したいフォームに。",
+        "en": "Use it in sign-up, password change and account settings forms where you want to nudge users toward a strong password.",
+        "zh-Hans": "适合注册、修改密码、账户设置等需要引导用户设置安全密码的表单。"
+      },
+      "tags": [
+        "password",
+        "strength-meter",
+        "form",
+        "validation",
+        "progress-bar",
+        "sign-up"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "密码强度",
+          "强度指示器"
+        ]
+      }
+    },
+    {
+      "no": "32",
+      "id": "1-110",
+      "slug": "drag-and-drop-upload",
+      "category": "open-overlay",
+      "added": "2026-10-23",
+      "license": "MIT-0 License (c) 2026 illli Ai Studio",
+      "attribution": "https://ui2v.com/",
+      "name": {
+        "ja": "ドラッグ＆ドロップでアップロード",
+        "en": "Drag-and-drop upload",
+        "zh-Hans": "拖拽上传"
+      },
+      "meaning": {
+        "ja": "ファイルを枠に落とすと、枠が反応してアップロードが進む",
+        "en": "Drop a file onto the zone; it reacts and the upload runs",
+        "zh-Hans": "文件拖进上传区后区域激活并开始上传"
+      },
+      "ask": {
+        "ja": "ドラッグ＆ドロップのアップロード欄を作って。ファイルを落とすと点線の枠が緑の実線になり、進捗バーが0から100%まで進んで「公開できます」と出る。",
+        "en": "Build a drag-and-drop upload zone: when a file is dropped the dashed border turns solid green, a progress bar runs from 0 to 100% and \"Ready to publish\" appears.",
+        "zh-Hans": "做一个拖拽上传区：文件拖进来后虚线框变成绿色实线，进度条从 0 走到 100%，最后显示“可以发布”。"
+      },
+      "summary": {
+        "ja": "点線のアップロード欄にファイルのカードが上から落ちてくると、枠が実線に変わり、進捗バーが伸びて100%で「公開できます」と表示される。",
+        "en": "A file card drops into the dashed upload zone from above; the border turns solid, the progress bar fills, and at 100% it reads \"Ready to publish\".",
+        "zh-Hans": "文件卡从上方落进虚线上传区，边框变成实线，进度条走满，到 100% 时显示“可以发布”。"
+      },
+      "spec": {
+        "ja": [
+          "横長の点線アップロード欄 510×167・角丸16。左に「↑」アイコン、「ここにファイルをドラッグ」とファイル一覧、右にファイルのカード 210×80 が落ちる",
+          "1.0〜1.7秒にカード「hero-pack.zip」が上から100px落ちて入る（不透明度 0→1、拡大 0.96→1、三次の easeOut）。1.5秒に欄がアクティブになり、点線 #34d399 が実線 #059669 に、背景が72%の白から白に変わる",
+          "1.6〜3.4秒に進捗バーが 0→100%（二次の easeInOut）、パーセントも同時に整数で進む。3.45秒に文字が「100% · 公開できます」（#047857）に変わる",
+          "3.5〜3.95秒に欄が sine.inOut で4px浮く。リセット 3.95〜4.35秒 easeInOutCubic: カードが消え、欄は点線の状態に戻る",
+          "ドラッグで並べ替えとの違い: 動かすのは外から持ち込むファイルで、落とすとアップロードが始まり進捗を見せる。リストの順番は変えない"
+        ],
+        "en": [
+          "A wide dashed upload zone, 510×167 with radius 16: an \"↑\" icon, \"Drag the file pack here\" and a file list on the left; a 210×80 file card drops in on the right.",
+          "Over 1.0–1.7 s the \"hero-pack.zip\" card falls 100px into place (opacity 0→1, scale 0.96→1, cubic ease-out). At 1.5 s the zone activates: the dashed #34d399 border becomes solid #059669 and the fill goes from 72% white to white.",
+          "Over 1.6–3.4 s the progress bar runs 0→100% (quadratic ease-in-out) with a rounded percentage alongside; at 3.45 s the text becomes \"100% · Ready to publish\" (#047857).",
+          "Over 3.5–3.95 s the zone rises 4px with sine.inOut. Reset over 3.95–4.35 s (easeInOutCubic): the card fades and the zone returns to its dashed state.",
+          "Versus Drag to reorder: what is dragged is an outside file, and dropping it starts an upload with progress; no list order changes."
+        ],
+        "zh-Hans": [
+          "横向虚线上传区 510×167、圆角 16：左侧图标“↑”、标题“将文件包拖到这里”和文件清单，右侧落入 210×80 的文件卡。",
+          "1.0–1.7 秒文件卡“hero-pack.zip”从上方 100px 落入（不透明度 0→1、缩放 0.96→1，三次缓出）；1.5 秒上传区激活，虚线 #34d399 换成实线 #059669，底由 72% 白变纯白。",
+          "1.6–3.4 秒进度条 0→100%（二次缓入缓出），百分比同步取整；3.45 秒文字变为“100% · 可以发布”（#047857）。",
+          "3.5–3.95 秒上传区以 sine.inOut 上浮 4px；复位 3.95–4.35 秒 easeInOutCubic，文件卡淡出、上传区退回虚线态。",
+          "与拖拽排序不同：拖的是外部文件，落进上传区后开始上传并显示进度，不改变列表顺序。"
+        ]
+      },
+      "use": {
+        "ja": "ファイル共有・素材の入稿・管理画面のインポートなど、ファイルを受け取る画面に。",
+        "en": "Use it wherever files are received: file sharing, asset submission, or import screens in admin dashboards.",
+        "zh-Hans": "适合文件分享、素材投稿、后台导入等需要接收文件的页面。"
+      },
+      "tags": [
+        "upload",
+        "drag-and-drop",
+        "dropzone",
+        "file",
+        "progress-bar",
+        "form"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "文件上传",
+          "拖放上传",
+          "上传区"
+        ]
+      }
+    },
+    {
+      "no": "33",
+      "id": "1-111",
+      "slug": "shortcut-key-press",
+      "category": "navigate-status",
+      "added": "2026-10-23",
+      "license": "MIT-0 License (c) 2026 illli Ai Studio",
+      "attribution": "https://ui2v.com/",
+      "name": {
+        "ja": "ショートカットキーの点灯",
+        "en": "Keyboard shortcut press",
+        "zh-Hans": "快捷键逐键点亮"
+      },
+      "meaning": {
+        "ja": "組み合わせキーがひとつずつ押し込まれて光る",
+        "en": "The keys of a shortcut press down and light up one by one",
+        "zh-Hans": "组合键一枚枚按下并点亮"
+      },
+      "ask": {
+        "ja": "ショートカットの案内を作って。Ctrl・Shift・P のキーが順に押し込まれて琥珀色に光り、下の案内文が押した分だけ組み立てられ、最後に「キューに追加」と出る。",
+        "en": "Make a shortcut hint: the Ctrl, Shift and P keys press down in turn and glow amber, the caption builds up with each key, and it ends on \"Queued\".",
+        "zh-Hans": "做一个快捷键演示：Ctrl、Shift、P 三枚键依次按下变琥珀色，下方提示随按键逐步拼出，最后显示“已排队”。"
+      },
+      "summary": {
+        "ja": "暗いキーボード板の上で Ctrl・Shift・P が順に押し込まれて琥珀色に光り、案内文が組み立てられ、板が軽く脈打ってから「キューに追加」に変わる。",
+        "en": "On a dark keyboard plate Ctrl, Shift and P press down and glow amber in turn; the caption builds up, the plate gives a small pulse and the text changes to \"Queued\".",
+        "zh-Hans": "深色键盘板上 Ctrl、Shift、P 依次按下亮成琥珀色，提示文字逐步拼出，键盘板轻轻一跳后变为“已排队”。"
+      },
+      "spec": {
+        "ja": [
+          "暗いキーボード板 510×168 に3つのキー Ctrl / Shift / P（幅 87 / 87 / 55・高さ55・間隔8.7・角丸8.7）。1.10 / 1.45 / 1.85秒に順に押されたままになる",
+          "押すとキー面が #292524 から琥珀 #fbbf24 に、枠が #f59e0b になり、キーが2.5px沈む。下の影は5pxの黒 #0c0a09 から2.5pxの茶 #92400e に縮む（瞬時に切り替え）",
+          "案内文:「押すと公開」→ 1.45秒「Ctrl + Shift + P」→ 1.85秒 全体が琥珀色で「· 公開」が付く → 2.6秒「キューに追加」。2.2〜2.6秒に板が1.02倍に拡大して1に戻る（各0.2秒）",
+          "3.2〜3.95秒に板が sine.inOut で5px浮く。リセット 3.95〜4.35秒 easeInOutCubic: 3つのキーが同時に上がり、案内文がクロスフェードで「押すと公開」に戻る",
+          "ツールチップとの違い: キーを押す様子で組み合わせキーを見せ、案内文も押した分だけ完成していく。ボタンの横に添える説明ではない"
+        ],
+        "en": [
+          "A dark keyboard plate, 510×168, with 3 keys Ctrl / Shift / P (87 / 87 / 55 wide, 55 high, 8.7 apart, radius 8.7), pressed and held in turn at 1.10 / 1.45 / 1.85 s.",
+          "When pressed, the keycap turns from #292524 to amber #fbbf24 with a #f59e0b border and sinks 2.5px; the base shadow shrinks from a 5px black #0c0a09 to a 2.5px brown #92400e (instant switch).",
+          "Caption: \"Press to publish\" → at 1.45 s \"Ctrl + Shift + P\" → at 1.85 s all amber with \"· Publish\" added → at 2.6 s \"Queued\". Over 2.2–2.6 s the plate scales to 1.02 and back to 1 (0.2 s each way).",
+          "Over 3.2–3.95 s the plate rises 5px with sine.inOut. Reset over 3.95–4.35 s (easeInOutCubic): the 3 keys lift together and the caption crossfades back to \"Press to publish\".",
+          "Versus Tooltip: the shortcut is shown by keys actually pressing, and the caption completes as each key goes down, rather than a note attached beside a button."
+        ],
+        "zh-Hans": [
+          "深色键盘板 510×168 上 3 枚键 Ctrl / Shift / P（宽 87 / 87 / 55、高 55、键距 8.7、圆角 8.7），1.10 / 1.45 / 1.85 秒依次按下并保持。",
+          "按下时键面由 #292524 变琥珀 #fbbf24、边 #f59e0b，键身下沉 2.5px，底部投影由 5px 黑 #0c0a09 缩成 2.5px 棕 #92400e（瞬时切换）。",
+          "提示：“按下即可发布”→ 1.45 秒“Ctrl + Shift + P”→ 1.85 秒整组琥珀并加上“· 发布”→ 2.6 秒“已排队”；2.2–2.6 秒键盘板放大到 1.02 倍再回到 1（每程 0.2 秒）。",
+          "3.2–3.95 秒键盘板以 sine.inOut 上浮 5px；复位 3.95–4.35 秒 easeInOutCubic，3 键同时抬起，提示交叉淡回“按下即可发布”。",
+          "与悬浮提示不同：用键帽按下的过程演示组合键，提示随按键进度逐步完整，不是附在按钮旁的说明。"
+        ]
+      },
+      "use": {
+        "ja": "アプリやツールの機能紹介、オンボーディング、ショートカット一覧、リリースノートでの操作説明に。",
+        "en": "Use it in feature tours, onboarding, shortcut cheat sheets and release notes for apps and developer tools.",
+        "zh-Hans": "适合应用或开发工具的功能介绍、新手引导、快捷键清单和更新日志里的操作说明。"
+      },
+      "tags": [
+        "keyboard-shortcut",
+        "hotkey",
+        "keycap",
+        "onboarding",
+        "productivity",
+        "micro-interaction"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "快捷键提示",
+          "键盘按键动画",
+          "组合键"
+        ]
+      }
+    },
+    {
+      "no": "34",
+      "id": "1-112",
+      "slug": "code-diff-highlight",
+      "category": "navigate-status",
+      "added": "2026-10-23",
+      "license": "MIT-0 License (c) 2026 illli Ai Studio",
+      "attribution": "https://ui2v.com/",
+      "name": {
+        "ja": "コード差分のハイライト",
+        "en": "Code diff highlight",
+        "zh-Hans": "代码差异高亮"
+      },
+      "meaning": {
+        "ja": "コードの削除行と追加行が赤と緑で順に現れる",
+        "en": "Removed and added code lines appear in red and green",
+        "zh-Hans": "代码删除行与新增行以红绿两色依次出现"
+      },
+      "ask": {
+        "ja": "エディタ風のコード差分アニメを作って。前後の行が明るくなったあと、赤い削除行と緑の追加行が左から6.4px滑りながら順に出て、追加行が一度濃く光る。",
+        "en": "Animate a code diff in an editor: after the context lines brighten, a red removed line and a green added line slide in 6.4px from the left in turn, and the added line flashes once.",
+        "zh-Hans": "做一个编辑器代码差异动画：上下文行亮起后，红色删除行和绿色新增行依次从左 6.4px 滑入，新增行再闪亮一次。"
+      },
+      "summary": {
+        "ja": "暗いエディタの5行のうち、前後の行が明るくなり、赤い削除行と緑の追加行が順に左から滑り込み、追加行の背景が一度濃くなって戻る。",
+        "en": "In a dark five-line editor the context lines brighten, then a red removed line and a green added line slide in from the left, and the added line's background deepens once before settling.",
+        "zh-Hans": "深色编辑器的 5 行代码里，上下文行先亮起，红色删除行与绿色新增行依次从左滑入，新增行底色加深一次再回落。"
+      },
+      "spec": {
+        "ja": [
+          "暗いエディタ「motions.ts」510×173、タイトルバー29.7、等幅14.8px、行の高さ25.2。全5行: 前後の行 41 / 43 / 44 と、42行目の削除・追加の2行",
+          "前後の行は0.7〜1.1秒に35%から100%へ明るくなる。削除行は1.2〜1.65秒、追加行は1.75〜2.2秒に順に現れ、左6.4pxから元の位置へ滑る（二次の easeOut）",
+          "削除行の背景 rgba(239,68,68,.12)・文字 #fecaca、追加行の背景 rgba(16,185,129,.14)・文字 #a7f3d0。2.4〜2.75秒に追加行の背景が.28へ濃くなり、2.85〜3.3秒に.14へ戻る",
+          "3.2〜3.95秒にエディタが sine.inOut で4.2px浮く。リセット 3.95〜4.35秒 easeInOutCubic: 削除行と追加行が消え、前後の行は35%に戻る",
+          "スケルトンとの違い: 見せるのはコード変更の前後比較で、赤の削除と緑の追加が行ごとに現れる。読み込み中の仮表示ではない"
+        ],
+        "en": [
+          "A dark \"motions.ts\" editor, 510×173, title bar 29.7, monospace 14.8px, line height 25.2. 5 lines in all: context lines 41 / 43 / 44 and the 2 removed/added versions of line 42.",
+          "Context lines brighten from 35% to 100% over 0.7–1.1 s. The removed line (1.2–1.65 s) and the added line (1.75–2.2 s) fade in one after the other, sliding 6.4px from the left into place (quadratic ease-out).",
+          "Removed line: background rgba(239,68,68,.12), text #fecaca; added line: background rgba(16,185,129,.14), text #a7f3d0. Over 2.4–2.75 s the added background deepens to .28 and returns to .14 over 2.85–3.3 s.",
+          "Over 3.2–3.95 s the editor rises 4.2px with sine.inOut. Reset over 3.95–4.35 s (easeInOutCubic): the removed and added lines fade and the context lines return to 35%.",
+          "Versus Skeleton screen: it shows a before/after code change with red removals and green additions appearing line by line, not a loading placeholder."
+        ],
+        "zh-Hans": [
+          "深色编辑器“motions.ts”510×173，标题栏 29.7、等宽字 14.8px、行高 25.2，共 5 行：上下文行 41 / 43 / 44 与第 42 行的删除、新增 2 行。",
+          "上下文行 0.7–1.1 秒由 35% 亮到 100%；删除行 1.2–1.65 秒、新增行 1.75–2.2 秒依次淡入，并从左 6.4px 滑到原位（二次缓出）。",
+          "删除行底 rgba(239,68,68,.12)、字 #fecaca；新增行底 rgba(16,185,129,.14)、字 #a7f3d0；2.4–2.75 秒新增行底加深到 .28，2.85–3.3 秒回到 .14。",
+          "3.2–3.95 秒编辑器以 sine.inOut 上浮 4.2px；复位 3.95–4.35 秒 easeInOutCubic，删除行与新增行淡出、上下文行回到 35%。",
+          "与骨架屏不同：展示代码改动的前后对照，红删绿增逐行出现，不是加载占位。"
+        ]
+      },
+      "use": {
+        "ja": "開発ツールやコードレビューサービスの紹介ページ、変更履歴、技術記事で修正点を見せるときに。",
+        "en": "Use it on landing pages for developer tools and code review services, in changelogs, or in technical posts that walk through a fix.",
+        "zh-Hans": "适合开发工具、代码评审服务的介绍页，更新日志，或技术文章里讲解代码修改。"
+      },
+      "tags": [
+        "code-diff",
+        "code-editor",
+        "syntax",
+        "developer-tools",
+        "highlight",
+        "code-review"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "代码对比",
+          "差异对比",
+          "diff 高亮"
+        ]
+      }
+    },
+    {
+      "no": "35",
+      "id": "1-113",
+      "slug": "deploy-pipeline",
+      "category": "navigate-status",
+      "added": "2026-10-23",
+      "license": "MIT-0 License (c) 2026 illli Ai Studio",
+      "attribution": "https://ui2v.com/",
+      "name": {
+        "ja": "デプロイパイプライン",
+        "en": "Deploy pipeline",
+        "zh-Hans": "部署流水线"
+      },
+      "meaning": {
+        "ja": "ビルドの各段階が順に実行され、緑になってつながる",
+        "en": "Build stages run in sequence, turning green and linking up",
+        "zh-Hans": "构建各阶段依次运行通过并连成一线"
+      },
+      "ask": {
+        "ja": "デプロイの進行をアニメにして。Lint・Test・Build・Deploy の4つのカードが順に「実行中」から「成功」へ緑に変わり、間の線がつながって最後に「公開済み」と出る。",
+        "en": "Animate a deploy: 4 cards Lint, Test, Build and Deploy go from \"Running\" to \"Passed\" in green one by one, the links between them fill, and it ends on \"Live\".",
+        "zh-Hans": "做一个部署进度动画：Lint、Test、Build、Deploy 4 张阶段卡依次由“运行中”变绿“通过”，连接线逐段接通，最后显示“已上线”。"
+      },
+      "summary": {
+        "ja": "暗い背景に並ぶ4つの段階カードが左から順に実行され、成功すると枠と丸が緑に光り、次のカードへ線が伸びて、最後の Deploy が「公開済み」になる。",
+        "en": "Four stage cards on a dark background run left to right; each one that passes glows green at its border and dot, a line extends to the next, and the final Deploy card reads \"Live\".",
+        "zh-Hans": "深色背景上 4 张阶段卡从左到右依次运行，通过后描边和圆点亮绿，连接线伸向下一张，最后 Deploy 显示“已上线”。"
+      },
+      "spec": {
+        "ja": [
+          "4つの段階カード Lint → Test → Build → Deploy（117×124・間隔14）。つなぎ線の高さ2px、カード上端から70の位置",
+          "0.85秒 段階01 実行中 → 1.25秒「成功 · エラー0件」。1.70秒 段階02 実行 → 2.15秒「成功 · 128件のテスト」。2.60秒 段階03 実行 → 3.05秒「成果物の準備完了」。3.50秒 段階04 がすぐ「公開済み」",
+          "成功すると枠が緑 #16a34a、右上の丸が #22c55e で光り、状態の文字が緑の太字になる（瞬時）。成功から0.05秒後、つなぎ線が0.35秒（二次の easeOut）で次の段階まで伸びる",
+          "3.6〜3.95秒に列全体が sine.inOut で2.5px浮く。リセット 3.95〜4.35秒 easeInOutCubic: 緑の枠・丸・つなぎ線・状態の文字が「待機中」に戻る",
+          "ステップインジケーターとの違い: 各段階に実行中と成功の状態と結果の文字があり、自動で順に進む。ユーザーが「次へ」を押して進めるものではない"
+        ],
+        "en": [
+          "4 stage cards Lint → Test → Build → Deploy (117×124, 14 apart), joined by 2px connector lines placed 70 down from the card top.",
+          "0.85 s stage 01 running → 1.25 s \"Passed · 0 errors\"; 1.70 s stage 02 running → 2.15 s \"Passed · 128 tests\"; 2.60 s stage 03 running → 3.05 s \"Artifacts ready\"; 3.50 s stage 04 goes straight to \"Live\".",
+          "On passing, the border turns green #16a34a, the top-right dot glows #22c55e and the status text turns bold green (instant); 0.05 s later the connector fills to the next stage over 0.35 s (quadratic ease-out).",
+          "Over 3.6–3.95 s the whole row rises 2.5px with sine.inOut. Reset over 3.95–4.35 s (easeInOutCubic): the green borders, dots, connectors and status text return to \"Queued\".",
+          "Versus Step indicator: each stage has running and passed states with result text and advances on its own, rather than waiting for the user to press Next."
+        ],
+        "zh-Hans": [
+          "4 个阶段卡 Lint → Test → Build → Deploy（117×124、间距 14），连接线高 2px，位于卡片顶边下 70 处。",
+          "0.85 秒阶段 01 运行中 → 1.25 秒“通过 · 0 个错误”；1.70 秒阶段 02 运行 → 2.15 秒“通过 · 128 项测试”；2.60 秒阶段 03 运行 → 3.05 秒“产物就绪”；3.50 秒阶段 04 直接“已上线”。",
+          "通过时描边变绿 #16a34a、右上圆点亮 #22c55e 带光晕、状态字转绿加粗（瞬时）；通过后 0.05 秒起，连接线用 0.35 秒（二次缓出）填满到下一阶段。",
+          "3.6–3.95 秒整排以 sine.inOut 上浮 2.5px；复位 3.95–4.35 秒 easeInOutCubic，绿色描边、圆点、连接线与状态字退回“排队中”。",
+          "与步骤指示器不同：每个阶段有运行中、通过两种状态和结果文字，自动依次跑完，不靠用户点下一步。"
+        ]
+      },
+      "use": {
+        "ja": "CI/CD・ホスティング・開発基盤サービスの紹介ページや、ダッシュボードのビルド状況表示に。",
+        "en": "Use it on landing pages for CI/CD, hosting and developer platforms, or for build status in dashboards.",
+        "zh-Hans": "适合 CI/CD、托管与开发平台的介绍页，或看板中的构建状态展示。"
+      },
+      "tags": [
+        "deploy",
+        "pipeline",
+        "ci-cd",
+        "build-status",
+        "progress",
+        "developer-tools",
+        "dashboard"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "CI 流水线",
+          "构建流程",
+          "发布进度"
+        ]
+      }
     }
   ]
 }

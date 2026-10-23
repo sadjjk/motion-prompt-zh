@@ -772,6 +772,280 @@ MotionPrompt.pack('ui', function () {
     pointer([[0, pos[0], pos[1]]], [1.0, 2.2], t);
   });
 
+  // @element 30
+  // 改写自 ui2v · illli Ai Studio · hero-otp-fill（MIT-0）
+  // 验证码逐格填入：深色底上 6 个验证码格，数字 8 4 2 9 1 6 每隔 0.35 秒依次填入一格（0.95 / 1.30 / 1.65 / 2.00 / 2.35 / 2.70 秒，瞬时出现），
+  // 刚填的格描边变蓝 #60a5fa 并带 3.3px 浅蓝外圈，其余格回到灰边；未填格不透明度 0.55，填后为 1。
+  // 3.2 秒 6 格同时亮蓝边，提示由「验证码已发送至 ····4821」（#6b7280）换成「已验证 · 正在继续」（#60a5fa）；
+  // 3.4–3.95 秒整组以 sine.inOut 上浮 4.4px。复位：3.95–4.35 秒 easeInOutCubic 数字淡出、蓝边与上浮退回，4.35–4.5 秒停在空白初始画面。
+  // 尺寸换算：原作 1920×1080 中的格子组按 0.55 倍放到卡片中央（格 120×140→66×77、间距 24→13.2、圆角 20→11、数字 64→35px、提示 26→14px），
+  // 去掉顶部标题区，提示上移到格子下方 30px。时间与原作 4.5 秒一一对应，原作 1.0 秒的上浮缩到 0.55 秒以留出复位段。
+  // 配色取原作：底 #1f2937→#111827 径向渐变，格 #1f2937 / 边 #374151，数字 #f9fafb。
+  const OTP_DIG = ['8', '4', '2', '9', '1', '6'];
+  const OTP_S = 0.55;
+  const OTP_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
+  const OTP_MIX = (a, b, k) => { const p = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(',')})`; };
+  CELLS[29] = ui((w, h, t) => {
+    const g = X.createRadialGradient(w * .5, h * .4, 0, w * .5, h * .4, w * .62);
+    g.addColorStop(0, '#1f2937'); g.addColorStop(1, '#111827'); X.fillStyle = g; X.fillRect(0, 0, w, h);
+    const keep = 1 - eio(seg(t, 3.95, 4.35));
+    const dy = -8 * OTP_S * OTP_SINE(seg(t, 3.4, 3.95)) * keep;
+    const cw = 66, ch = 77, gap = 13.2, x0 = (w - (6 * cw + 5 * gap)) / 2, y0 = 36 + dy;
+    const done = t >= 3.2;
+    let cur = -1; for (let i = 0; i < 6; i++) if (t >= 0.95 + i * 0.35) cur = i;
+    for (let i = 0; i < 6; i++) {
+      const x = x0 + i * (cw + gap), filled = i <= cur, on = done || i === cur;
+      const a = filled ? lerp(.55, 1, keep) : .55;
+      X.save(); X.globalAlpha = a;
+      X.save(); X.shadowColor = 'rgba(0,0,0,.25)'; X.shadowBlur = 22; X.shadowOffsetY = 8.8; fillRR(x, y0, cw, ch, 11, '#1f2937'); X.restore();
+      const onK = on ? keep : 0;
+      if (onK > 0) strokeRR(x - 1.65, y0 - 1.65, cw + 3.3, ch + 3.3, 12.65, `rgba(96,165,250,${.18 * onK})`, 3.3);
+      strokeRR(x, y0, cw, ch, 11, OTP_MIX('#374151', '#60a5fa', onK), 1.2);
+      if (filled) { X.globalAlpha = a * keep; text(OTP_DIG[i], x + cw / 2, y0 + ch / 2 + 1, 35, '#f9fafb', 700, 'center', NUMF); }
+      X.restore();
+    }
+    const hy = 150 + dy;
+    if (!done) text('验证码已发送至 ····4821', w / 2, hy, 14, '#6b7280', 500, 'center');
+    else {
+      X.save(); X.globalAlpha = 1 - keep; text('验证码已发送至 ····4821', w / 2, hy, 14, '#6b7280', 500, 'center');
+      X.globalAlpha = keep; text('已验证 · 正在继续', w / 2, hy, 14, '#60a5fa', 600, 'center'); X.restore();
+    }
+  });
+
+  // @element 31
+  // 改写自 ui2v · illli Ai Studio · hero-password-meter（MIT-0）
+  // 密码强度条：「新密码」卡片里，密码框圆点从 4 个依次增到 8 / 12 / 16 个（1.00 / 1.55 / 2.15 秒），
+  // 下方 4 段强度条随之逐段着色：1.05 秒红 #ef4444「弱」、1.60 秒橙 #f59e0b「一般」、2.20 秒黄绿 #84cc16「良好」、2.75 秒绿 #22c55e「强」，
+  // 每段颜色过渡 0.25 秒（末段 0.3 秒），缓动 power1.out（二次缓出）；左下强度文字同步换字换色，右下固定「至少 12 位 · 大小写混合」。
+  // 3.2–3.95 秒卡片以 sine.inOut 上浮 4.4px。复位：3.95–4.35 秒 easeInOutCubic 多出的圆点淡出、四段退回灰 #44403c、强度文字回到初始琥珀色「弱」。
+  // 尺寸换算：原作右侧 780 宽卡片按 0.55 倍居中（卡 780→429 宽、圆角 28→15.4、密码框高 88→48.4、强度条高 14→7.7、段间距 12→6.6、
+  // 文字 22/34/24→12/19/13px），去掉左侧标题区，卡片上下内边距 48→22 以装进 191 高。时间与原作一一对应，上浮由 1.2 秒缩到 0.75 秒。
+  // 配色取原作：底 #292524→#1c1917，卡 #292524 / 边 #44403c，密码框 #1c1917 / 边 #57534c。
+  const PWD_S = 0.55;
+  const PWD_SEG = [[1.05, .25, '#ef4444'], [1.6, .25, '#f59e0b'], [2.2, .25, '#84cc16'], [2.75, .3, '#22c55e']];
+  const PWD_LV = [['弱', '#fbbf24'], ['弱', '#ef4444'], ['一般', '#f59e0b'], ['良好', '#84cc16'], ['强', '#22c55e']];
+  const PWD_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
+  const PWD_MIX = (a, b, k) => { const p = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(',')})`; };
+  CELLS[30] = ui((w, h, t) => {
+    const g = X.createRadialGradient(w * .3, h * .4, 0, w * .3, h * .4, w * .65);
+    g.addColorStop(0, '#292524'); g.addColorStop(1, '#1c1917'); X.fillStyle = g; X.fillRect(0, 0, w, h);
+    const keep = 1 - eio(seg(t, 3.95, 4.35));
+    const dy = -8 * PWD_S * PWD_SINE(seg(t, 3.2, 3.95)) * keep;
+    const cw = 429, chh = 169, cx = (w - cw) / 2, cy = (h - chh) / 2 + dy, px = 28.6;
+    X.save(); X.shadowColor = 'rgba(0,0,0,.35)'; X.shadowBlur = 38; X.shadowOffsetY = 15; fillRR(cx, cy, cw, chh, 15.4, '#292524'); X.restore();
+    strokeRR(cx, cy, cw, chh, 15.4, '#44403c', 1);
+    text('新密码', cx + px, cy + 29, 12, '#a8a29e', 500);
+    // 密码框与圆点
+    const fx = cx + px, fy = cy + 45, fw = cw - 2 * px, fh = 48.4;
+    fillRR(fx, fy, fw, fh, 8.8, '#1c1917'); strokeRR(fx, fy, fw, fh, 8.8, '#57534c', 1.1);
+    const n = t >= 2.15 ? 16 : t >= 1.55 ? 12 : t >= 1.0 ? 8 : 4;
+    for (let i = 0; i < n; i++) { X.save(); X.globalAlpha = i < 4 ? 1 : keep; circle(fx + 21.4 + i * 13.5, fy + fh / 2, 3.2, '#fafaf9'); X.restore(); }
+    // 四段强度条
+    const sw = (fw - 3 * 6.6) / 4, sy = fy + fh + 19.8;
+    let lv = 0;
+    PWD_SEG.forEach(([t0, d, col], i) => {
+      const q = seg(t, t0, t0 + d), p = 1 - (1 - q) * (1 - q);
+      if (t >= t0) lv = i + 1;
+      fillRR(fx + i * (sw + 6.6), sy, sw, 7.7, 3.85, PWD_MIX('#44403c', col, p * keep));
+    });
+    const my = sy + 7.7 + 19;
+    X.save(); X.globalAlpha = keep; text(PWD_LV[lv][0], fx, my, 13.2, PWD_LV[lv][1], 700);
+    X.globalAlpha = 1 - keep; text(PWD_LV[0][0], fx, my, 13.2, PWD_LV[0][1], 700); X.restore();
+    text('至少 12 位 · 大小写混合', fx + fw, my, 13.2, '#a8a29e', 500, 'right');
+  });
+
+  // @element 32
+  // 改写自 ui2v · illli Ai Studio · hero-upload-drop（MIT-0）
+  // 拖拽上传：浅绿渐变底上一块虚线上传区（左侧图标「↑」+「将文件包拖到这里」+ 文件清单），
+  // 1.0–1.7 秒文件卡「hero-pack.zip」从上方落入（下移 100px、不透明度 0→1、缩放 0.96→1，power3.out 即三次缓出）；
+  // 1.5 秒上传区变为激活态（虚线 #34d399 换成实线 #059669，底由 72% 白变纯白）；
+  // 1.6–3.4 秒进度条 0→100%，power1.inOut（二次缓入缓出），百分比同步取整；3.45 秒文字变为「100% · 可以发布」（#047857）。
+  // 3.5–3.95 秒上传区以 sine.inOut 上浮 4px。复位：3.95–4.35 秒 easeInOutCubic 文件卡淡出、上传区退回虚线态。
+  // 尺寸换算：原作 780×680 竖向上传区改为横向 510×167 铺满卡片，文字与文件卡按 0.5 倍（文件卡 420×160→210×80、图标 120→52、
+  // 标题 40→20px、说明 26→13px、文件名 28→14px），图标与文字放左半，文件卡落在右半；下落距离 200→100px。时间与原作一一对应，上浮由 0.9 秒缩到 0.45 秒。
+  const UPL_S = 0.5;
+  const UPL_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
+  CELLS[31] = ui((w, h, t) => {
+    // 165deg 线性渐变：方向 (sin165°, −cos165°)，渐变线长 |w·sin|+|h·cos|
+    const dx = Math.sin(165 * Math.PI / 180), dyy = -Math.cos(165 * Math.PI / 180), L = Math.abs(w * dx) + Math.abs(h * dyy);
+    const g = X.createLinearGradient(w / 2 - dx * L / 2, h / 2 - dyy * L / 2, w / 2 + dx * L / 2, h / 2 + dyy * L / 2);
+    g.addColorStop(0, '#ecfdf5'); g.addColorStop(.45, '#d1fae5'); g.addColorStop(1, '#f0fdf4'); X.fillStyle = g; X.fillRect(0, 0, w, h);
+    const keep = 1 - eio(seg(t, 3.95, 4.35));
+    const oy = -8 * UPL_S * UPL_SINE(seg(t, 3.5, 3.95)) * keep;
+    const act = (t >= 1.5 ? 1 : 0) * keep;
+    const zx = 16, zy = 12 + oy, zw = 510, zh = 167, zr = 16;
+    X.save(); X.shadowColor = 'rgba(6,78,59,.1)'; X.shadowBlur = 30; X.shadowOffsetY = 12; fillRR(zx, zy, zw, zh, zr, `rgba(255,255,255,${.72 + .28 * act})`); X.restore();
+    if (act < 1) { X.save(); X.globalAlpha = 1 - act; X.setLineDash([7, 5]); strokeRR(zx, zy, zw, zh, zr, '#34d399', 1.5); X.restore(); }
+    if (act > 0) { X.save(); X.globalAlpha = act; strokeRR(zx, zy, zw, zh, zr, '#059669', 1.5); X.restore(); }
+    // 左半：图标 + 标题 + 文件清单
+    const lx = 152;
+    fillRR(lx - 26, zy + 20, 52, 52, 12, '#d1fae5'); text('↑', lx, zy + 47, 28, '#059669', 700, 'center', NUMF);
+    text('将文件包拖到这里', lx, zy + 98, 20, '#064e3b', 700, 'center');
+    text('registry-item.json · index.html · assets/', lx, zy + 126, 13, '#059669', 500, 'center', NUMF);
+    // 右半：文件卡下落
+    const q = eo(seg(t, 1.0, 1.7)), fa = q * keep;
+    if (fa > 0) {
+      const fw = 210, fh = 81, fx = 296, fy = zy + 43 - 100 * (1 - q), s = .96 + .04 * q;
+      X.save(); X.globalAlpha = fa; X.translate(fx + fw / 2, fy + fh / 2); X.scale(s, s); X.translate(-fx - fw / 2, -fy - fh / 2);
+      X.save(); X.shadowColor = 'rgba(6,78,59,.16)'; X.shadowBlur = 20; X.shadowOffsetY = 9; fillRR(fx, fy, fw, fh, 9, '#fff'); X.restore();
+      strokeRR(fx, fy, fw, fh, 9, '#a7f3d0', 1);
+      text('hero-pack.zip', fx + 15, fy + 24, 14, '#064e3b', 700, 'left', NUMF);
+      const v = seg(t, 1.6, 3.4), p = v < .5 ? 2 * v * v : 1 - Math.pow(-2 * v + 2, 2) / 2;
+      if (t >= 3.45) text('100% · 可以发布', fx + 15, fy + 46, 11, '#047857', 500);
+      else text(Math.round(p * 100) + '% · 上传中', fx + 15, fy + 46, 11, '#6ee7b7', 500);
+      fillRR(fx + 15, fy + 61, fw - 30, 5, 2.5, '#d1fae5');
+      if (p > 0) fillRR(fx + 15, fy + 61, (fw - 30) * p, 5, 2.5, '#059669');
+      X.restore();
+    }
+  });
+
+  // @element 33
+  // 改写自 ui2v · illli Ai Studio · hero-keymap-press（MIT-0）
+  // 快捷键逐键点亮：深色键盘板上三枚键 Ctrl / Shift / P，1.10 / 1.45 / 1.85 秒依次按下并保持：
+  // 键面由 #292524 变琥珀 #fbbf24、边 #f59e0b，键身下沉 2.5px，底部投影由 5px 黑 #0c0a09 缩成 2.5px 棕 #92400e（瞬时切换）。
+  // 下方提示：「按下即可发布」→ 1.45 秒「Ctrl + Shift + P」（Ctrl 琥珀）→ 1.85 秒整组琥珀「Ctrl + Shift + P · 发布」→ 2.6 秒「已排队 · hero-keymap-press@1.0.0」。
+  // 2.2–2.6 秒键盘板以中心放大到 1.02 倍再回到 1（每程 0.2 秒，power1.out 往返）；3.2–3.95 秒板以 sine.inOut 上浮 5px。
+  // 复位：3.95–4.35 秒 easeInOutCubic 三键同时抬起、提示交叉淡回「按下即可发布」。
+  // 尺寸换算：原作键盘板按 0.62 倍（键 140/88×88→87/55×55、键距 14→8.7、圆角 14→8.7、键字 22/28→13.6/17.4px、提示 28→17.4px），
+  // 板宽 980 收窄到 510 铺满卡片，去掉左侧标题区。时间与原作一一对应，上浮由 1.2 秒缩到 0.75 秒。
+  const KEYS_S = 0.62;
+  const KEYS_DEF = [['Ctrl', 87, 1.1], ['Shift', 87, 1.45], ['P', 55, 1.85]];
+  const KEYS_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
+  const KEYS_MIX = (a, b, k) => { const p = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(',')})`; };
+  CELLS[32] = ui((w, h, t) => {
+    X.fillStyle = '#fafaf9'; X.fillRect(0, 0, w, h);
+    const keep = 1 - eio(seg(t, 3.95, 4.35));
+    const dy = -8 * KEYS_S * KEYS_SINE(seg(t, 3.2, 3.95)) * keep;
+    // 往返（yoyo）：上程 power1.out 放大到 1.02，回程为其倒放
+    const pu = seg(t, 2.2, 2.4), pd = seg(t, 2.4, 2.6);
+    const s = t < 2.2 || t >= 2.6 ? 1 : t < 2.4 ? 1 + .02 * (1 - (1 - pu) * (1 - pu)) : 1 + .02 * (1 - pd * pd);
+    const bx = 16, by = 11.5 + dy, bw = 510, bh = 168;
+    X.save(); X.translate(w / 2, by + bh / 2); X.scale(s, s); X.translate(-w / 2, -(by + bh / 2));
+    X.save(); X.shadowColor = 'rgba(28,25,23,.2)'; X.shadowBlur = 43; X.shadowOffsetY = 17; fillRR(bx, by, bw, bh, 17, '#1c1917'); X.restore();
+    const gap = 8.7, kh = 55, rowW = KEYS_DEF.reduce((a, d) => a + d[1], 0) + gap * 2;
+    let kx = (w - rowW) / 2; const ky = by + 30;
+    KEYS_DEF.forEach(([lab, kw, t0]) => {
+      const p = (t >= t0 ? 1 : 0) * keep, ty = 2.48 * p, sh = 4.96 - 2.48 * p;
+      fillRR(kx, ky + ty + sh, kw, kh, 8.7, KEYS_MIX('#0c0a09', '#92400e', p));
+      fillRR(kx, ky + ty, kw, kh, 8.7, KEYS_MIX('#292524', '#fbbf24', p));
+      strokeRR(kx + .6, ky + ty + .6, kw - 1.2, kh - 1.2, 8.1, KEYS_MIX('#44403c', '#f59e0b', p), 1.24);
+      text(lab, kx + kw / 2, ky + ty + kh / 2 + 1, lab.length > 1 ? 13.6 : 17.4, KEYS_MIX('#e7e5e4', '#1c1917', p), 700, 'center', NUMF);
+      kx += kw + gap;
+    });
+    // 提示行：分段着色，整体居中
+    const cy = by + 137, A = '#fbbf24', G = '#a8a29e';
+    const line = (parts, alpha) => {
+      X.save(); X.globalAlpha = alpha;
+      const tot = parts.reduce((a, [s0]) => a + tw(s0, 17.4, 600, NUMF), 0); let x = (w - tot) / 2;
+      parts.forEach(([s0, c, wt]) => { text(s0, x, cy, 17.4, c, wt, 'left', NUMF); x += tw(s0, 17.4, 600, NUMF); });
+      X.restore();
+    };
+    const init = [['按下即可发布', G, 600]];
+    const cur = t >= 2.6 ? [['已排队 · hero-keymap-press@1.0.0', A, 600]]
+      : t >= 1.85 ? [['Ctrl + Shift + P', A, 600], [' · 发布', G, 600]]
+      : t >= 1.45 ? [['Ctrl', A, 600], [' + Shift + P', G, 600]] : init;
+    if (cur === init) line(init, 1); else { line(cur, keep); line(init, 1 - keep); }
+    X.restore();
+  });
+
+  // @element 34
+  // 改写自 ui2v · illli Ai Studio · hero-diff-highlight（MIT-0）
+  // 代码差异高亮：深色编辑器「motions.ts」中 5 行代码，上下文行（41 / 43 / 44）0.7–1.1 秒由 35% 亮到 100%；
+  // 删除行「- if (count >= limit) …」1.2–1.65 秒、新增行「+ if (!isStaff && …) …」1.75–2.2 秒依次淡入并从左 6.4px 滑到原位（power2.out 即二次缓出），
+  // 删除行底 rgba(239,68,68,.12)、字 #fecaca，新增行底 rgba(16,185,129,.14)、字 #a7f3d0；
+  // 2.4–2.75 秒新增行底加深到 .28，2.85–3.3 秒回到 .14（各 power1.out）。3.2–3.95 秒编辑器以 sine.inOut 上浮 4.2px。
+  // 复位：3.95–4.35 秒 easeInOutCubic 删除行与新增行淡出、上下文行回到 35%。
+  // 尺寸换算：原作 980 宽编辑器按 0.53 倍铺满卡片（510×173，标题栏 56→29.7、字号 28→14.8px、行高 47.6→25.2、行左右内边距 36→19），
+  // 代码区上下内边距 36→9 以装进 191 高，去掉左侧标题区。时间与原作一一对应，上浮由 1.2 秒缩到 0.75 秒。
+  const DIFF_S = 0.53;
+  const DIFF_MONO = 'Menlo, Consolas, "Courier New", monospace';
+  const DIFF_LINES = [
+    ['41', ' ', 'const limit = hourlyNewMotionLimit;', 0],
+    ['42', '-', 'if (count >= limit) throw rateLimit;', 'del'],
+    ['42', '+', 'if (!isStaff && count >= limit) throw rateLimit;', 'add'],
+    ['43', ' ', 'return await insertMotion(ctx, args);', 0],
+    ['44', ' ', '}', 0]];
+  const DIFF_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
+  CELLS[33] = ui((w, h, t) => {
+    X.fillStyle = '#0c0f14'; X.fillRect(0, 0, w, h);
+    const keep = 1 - eio(seg(t, 3.95, 4.35));
+    const q1 = x => 1 - (1 - x) * (1 - x);
+    const dy = -8 * DIFF_S * DIFF_SINE(seg(t, 3.2, 3.95)) * keep;
+    const ex = 16, ey = 9 + dy, ew = 510, eh = 173, er = 10.6;
+    X.save(); X.shadowColor = 'rgba(0,0,0,.45)'; X.shadowBlur = 37; X.shadowOffsetY = 15; fillRR(ex, ey, ew, eh, er, '#111827'); X.restore();
+    X.save(); rr(ex, ey, ew, eh, er); X.clip();
+    X.fillStyle = '#0b1220'; X.fillRect(ex, ey, ew, 29.7); X.fillStyle = '#1f2937'; X.fillRect(ex, ey + 29.2, ew, 1);
+    ['#f87171', '#fbbf24', '#34d399'].forEach((c, i) => circle(ex + 14.9 + i * 11.7, ey + 14.85, 3.2, c));
+    text('motions.ts', ex + 14.9 + 2 * 11.7 + 3.2 + 7.4, ey + 15, 10.6, '#6b7280', 500, 'left', NUMF);
+    const ctxA = lerp(.35, lerp(.35, 1, q1(seg(t, 0.7, 1.1))), keep);
+    const enter = [0, q1(seg(t, 1.2, 1.65)), q1(seg(t, 1.75, 2.2)), 0, 0];
+    const addBg = .14 + .14 * q1(seg(t, 2.4, 2.75)) - .14 * q1(seg(t, 2.85, 3.3));
+    DIFF_LINES.forEach(([ln, mk, code, kind], i) => {
+      const ly = ey + 29.7 + 9 + i * 25.2, a = kind ? enter[i] * keep : ctxA, ox = kind ? -6.4 * (1 - enter[i]) : 0;
+      if (a <= 0) return;
+      X.save(); X.globalAlpha = a; X.translate(ox, 0);
+      if (kind === 'del') { X.fillStyle = 'rgba(239,68,68,.12)'; X.fillRect(ex, ly, ew, 25.2); }
+      if (kind === 'add') { X.fillStyle = `rgba(16,185,129,${addBg})`; X.fillRect(ex, ly, ew, 25.2); }
+      const col = kind === 'del' ? '#fecaca' : kind === 'add' ? '#a7f3d0' : '#d1d5db', my = ly + 12.6;
+      text(ln, ex + 38, my, 14.8, '#4b5563', 400, 'right', DIFF_MONO);
+      text(mk, ex + 52.8, my, 14.8, col, 400, 'left', DIFF_MONO);
+      text(code, ex + 77.1, my, 14.8, col, 400, 'left', DIFF_MONO);
+      X.restore();
+    });
+    X.restore();
+    strokeRR(ex, ey, ew, eh, er, '#1f2937', 1);
+  });
+
+  // @element 35
+  // 改写自 ui2v · illli Ai Studio · hero-deploy-pipeline（MIT-0）
+  // 部署流水线：深色底上 4 个阶段卡 Lint → Test → Build → Deploy 依次变绿：
+  // 0.85 秒阶段 01「运行中…」→ 1.25 秒「通过 · 0 个错误」；1.70 秒阶段 02 运行 → 2.15 秒「通过 · 128 项测试」；
+  // 2.60 秒阶段 03 运行 → 3.05 秒「产物就绪」；3.50 秒阶段 04 直接「已上线 ui2v.com」。
+  // 通过时卡片描边变绿 #16a34a、右上圆点亮 #22c55e 带光晕、状态字转绿加粗（瞬时）；每段通过后 0.05 秒起，连接线 0.35 秒（power1.out）由 0 填满到下一阶段。
+  // 3.6–3.95 秒整排以 sine.inOut 上浮 2.5px。复位：3.95–4.35 秒 easeInOutCubic 绿色描边、圆点、连接线与状态字退回「排队中」。
+  // 尺寸换算：原作 1640 宽四列按 510/1640≈0.311 横向换算（卡 389→117 宽、间距 28→14），卡高 280→124；
+  // 文字放大以保证可读（阶段名 22→9px、标题 36→18px、状态 24→10px）；连接线保留原作位置关系：
+  // 原作连接线行左右各留 12.5% 内边距，每条从本卡约 53% 处画到下一卡约 46% 处（卡中心到卡中心），压在卡片之上，
+  // 竖向位于卡高 50%、标题与状态之间（此处卡高 124 → y 偏移 70），线高 4→2px。时间与原作一一对应，上浮由 0.85 秒缩到 0.35 秒。
+  const PIPE_S = 510 / 1640;
+  const PIPE_ST = [
+    ['阶段 01', 'Lint', 0.85, 1.25, '通过 · 0 个错误'],
+    ['阶段 02', 'Test', 1.7, 2.15, '通过 · 128 项测试'],
+    ['阶段 03', 'Build', 2.6, 3.05, '产物就绪'],
+    ['阶段 04', 'Deploy', null, 3.5, '已上线 ui2v.com']];
+  const PIPE_BAR = [[.527, .46], [.532, .465], [.537, .47]];
+  const PIPE_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
+  const PIPE_MIX = (a, b, k) => { const p = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(',')})`; };
+  CELLS[34] = ui((w, h, t) => {
+    const g = X.createRadialGradient(w * .5, h * .35, 0, w * .5, h * .35, w * .6);
+    g.addColorStop(0, '#0f172a'); g.addColorStop(1, '#020617'); X.fillStyle = g; X.fillRect(0, 0, w, h);
+    const keep = 1 - eio(seg(t, 3.95, 4.35));
+    const dy = -8 * PIPE_S * PIPE_SINE(seg(t, 3.6, 3.95)) * keep;
+    const sw = 117, gap = 14, sh = 124, x0 = 16, y0 = (h - sh) / 2 + dy, SX = i => x0 + i * (sw + gap);
+    PIPE_ST.forEach(([h4, name, tr, tp, ok], i) => {
+      const x = SX(i), p = (t >= tp ? 1 : 0) * keep, run = tr !== null && t >= tr && t < tp;
+      fillRR(x, y0, sw, sh, 8, '#0f172a');
+      if (p > 0) strokeRR(x - 1, y0 - 1, sw + 2, sh + 2, 9, `rgba(34,197,94,${.35 * p})`, 1);
+      strokeRR(x, y0, sw, sh, 8, PIPE_MIX('#1e293b', '#16a34a', p), 1);
+      if (p > 0) { X.save(); X.shadowColor = `rgba(34,197,94,${.7 * p})`; X.shadowBlur = 5; circle(x + sw - 14, y0 + 20, 4.5, PIPE_MIX('#334155', '#22c55e', p)); X.restore(); }
+      else circle(x + sw - 14, y0 + 20, 4.5, '#334155');
+      text(h4, x + 11, y0 + 21, 9, '#64748b', 600);
+      text(name, x + 11, y0 + 52, 18, '#e2e8f0', 700, 'left', NUMF);
+      const sy = y0 + 98;
+      if (t >= tp) {
+        X.save(); X.globalAlpha = keep; text(ok, x + 11, sy, 10, '#22c55e', 700);
+        X.globalAlpha = 1 - keep; text('排队中', x + 11, sy, 10, '#64748b', 500); X.restore();
+      } else text(run ? '运行中…' : '排队中', x + 11, sy, 10, '#64748b', 500);
+    });
+    // 连接线：画在卡片之上（与原作层级一致）
+    PIPE_BAR.forEach(([fa, fb], i) => {
+      const a = SX(i) + fa * sw, b = SX(i + 1) + fb * sw, by = y0 + 70;
+      fillRR(a, by - 1, b - a, 2, 1, '#1e293b');
+      const q = seg(t, PIPE_ST[i][3] + .05, PIPE_ST[i][3] + .4), p = (1 - (1 - q) * (1 - q)) * keep;
+      if (p > 0) { X.fillStyle = '#22c55e'; X.fillRect(a, by - 1, (b - a) * p, 2); }
+    });
+  });
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

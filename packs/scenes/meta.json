@@ -2179,6 +2179,222 @@
           "魔术牌"
         ]
       }
+    },
+    {
+      "no": "33",
+      "id": "4-033",
+      "slug": "receipt-print",
+      "category": "objects",
+      "added": "2026-10-23",
+      "license": "MIT-0 License (c) 2026 illli Ai Studio",
+      "attribution": "https://ui2v.com/",
+      "name": {
+        "ja": "レシート印字",
+        "en": "Receipt printing",
+        "zh-Hans": "小票打印"
+      },
+      "meaning": {
+        "ja": "レジの排紙口から感熱紙のレシートがゆっくり出てくる小物の画面",
+        "en": "A thermal receipt slowly feeding out of a register's paper slot",
+        "zh-Hans": "收银机出纸口缓缓送出一张热敏小票的画面"
+      },
+      "ask": {
+        "ja": "レシートが印字されて出てくるアニメを作って。暗い排紙口から白いレシートが165pxゆっくり送り出され、店名・3行の明細・合計が順に見えてくるように。",
+        "en": "Animate a receipt printing: a white receipt feeds 165px out of a dark paper slot, revealing the shop name, 3 item lines and the total.",
+        "zh-Hans": "做一个小票打印动画：白色小票从深色出纸口缓缓送出 165px，依次露出店名、3 行明细和合计。"
+      },
+      "summary": {
+        "ja": "暗い排紙口が現れ、白いレシートが上からゆっくり送り出されて、店名・3行の明細・点線の下の「合計 発送済み」が順に見え、最後に全体が消える。",
+        "en": "A dark paper slot fades in and a white receipt eases out from the top, revealing the shop name, 3 item lines and \"Total · Shipped\" under a dashed rule, before everything fades.",
+        "zh-Hans": "深色出纸口淡入后，白色小票从顶部缓缓吐出，依次露出店名、3 行明细和虚线下的“合计 已发货”，最后整体淡出。"
+      },
+      "spec": {
+        "ja": [
+          "暗い排紙口 341×188（#1f2937・内枠 #374151）、上端に高さ11pxの排紙口の縁 #4b5563→#1f2937。レシートは 301×130・地色 #f9fafb",
+          "排紙口は 0.36〜0.96 秒にフェードインして 5px 上がる（二次の easeOut）",
+          "レシートは 1.08〜3.96 秒に二次の easeOut で 165px 送り出され、4.08〜5.28 秒に正弦の easeInOut でさらに 5px 送られて、上端が排紙口の高さ 16% の位置で止まる",
+          "紙面: 店名、3 行の明細、点線 #9ca3af の下に「合計 発送済み」。5.4〜6.0 秒に全体がフェードアウトし、6.4 秒で空の背景に戻る",
+          "反転フラップ表示板との違い: 情報は紙が送り出されるにつれて見えてくる。マスがめくれて文字が替わるのではない"
+        ],
+        "en": [
+          "A dark paper slot, 341×188 (#1f2937, inner border #374151), with an 11px lip at the top shaded #4b5563→#1f2937. The receipt is 301×130 on #f9fafb.",
+          "The slot fades in and rises 5px over 0.36–0.96 s (quadratic ease-out).",
+          "The receipt feeds out 165px over 1.08–3.96 s with a quadratic ease-out, then another 5px over 4.08–5.28 s with a sine ease-in-out, its top edge stopping at 16% of the slot height.",
+          "On the paper: shop name, 3 item lines, and \"Total · Shipped\" under a dashed #9ca3af rule. Everything fades over 5.4–6.0 s, back to the empty background by 6.4 s.",
+          "Versus Split-flap board: the information appears as paper feeds out, not by flaps flipping to new characters."
+        ],
+        "zh-Hans": [
+          "深色出纸口 341×188（#1f2937、内描边 #374151），顶部 11px 出纸嘴 #4b5563→#1f2937；小票 301×130、底色 #f9fafb",
+          "出纸口 0.36–0.96 秒淡入并上移 5px（二次缓出）",
+          "小票 1.08–3.96 秒以二次缓出下送 165px，4.08–5.28 秒再以正弦缓入缓出补送 5px，顶边停在出纸口高度 16% 处",
+          "票面：店名、3 行明细、虚线 #9ca3af 下的“合计 已发货”；5.4–6.0 秒整体淡出，6.4 秒回到空背景",
+          "与机场翻牌不同：信息随纸张送出逐渐露出，不是逐格翻转换字"
+        ]
+      },
+      "use": {
+        "ja": "EC・決済・POS サービスの紹介、注文完了や発送通知の演出、月次レポートや結果発表の動画に。",
+        "en": "Use it for e-commerce, payment or POS promos, order-complete and shipping notices, or videos that reveal a monthly report or results.",
+        "zh-Hans": "适合电商、支付、收银系统的宣传，下单成功或发货通知的展示，以及月度账单、结果揭晓类视频。"
+      },
+      "tags": [
+        "receipt",
+        "printer",
+        "thermal-paper",
+        "pos",
+        "checkout",
+        "objects"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "打印小票",
+          "收银小票",
+          "热敏纸"
+        ]
+      }
+    },
+    {
+      "no": "34",
+      "id": "4-034",
+      "slug": "barcode-scan",
+      "category": "tech",
+      "added": "2026-10-23",
+      "license": "MIT-0 License (c) 2026 illli Ai Studio",
+      "attribution": "https://ui2v.com/",
+      "name": {
+        "ja": "バーコードスキャン",
+        "en": "Barcode scan",
+        "zh-Hans": "条码扫描"
+      },
+      "meaning": {
+        "ja": "伝票のバーコードをシアンのレーザーが読み取る物流の画面",
+        "en": "A cyan laser reading the barcode on a packing slip",
+        "zh-Hans": "青色激光扫过装箱单条码的物流画面"
+      },
+      "ask": {
+        "ja": "バーコードスキャンのアニメを作って。白い伝票の29本のバーをシアンのレーザーが左から右へ一度なぞり、読み終わると緑で「確認済み · 発送可」と出る。",
+        "en": "Animate a barcode scan: a cyan laser sweeps once left to right across 29 bars on a white slip, then \"Verified · ready to ship\" appears in green.",
+        "zh-Hans": "做一个条码扫描动画：青色激光从左到右扫过白色单据上的 29 根条码，扫完后绿色显示“已核验 · 可发货”。"
+      },
+      "summary": {
+        "ja": "灰色の台に白い伝票が少し傾いて置かれて落ち着き、シアンのレーザーがバーコードを左から右へなぞって消え、緑の「確認済み · 発送可」が浮かぶ。",
+        "en": "A white packing slip settles onto a grey desk, a cyan laser sweeps the barcode left to right and switches off, and a green \"Verified · ready to ship\" rises in.",
+        "zh-Hans": "灰色台面上一张白色装箱单落定，青色激光从左到右扫过条码后熄灭，绿色“已核验 · 可发货”浮现。"
+      },
+      "spec": {
+        "ja": [
+          "淡い灰色の台 #e2e8f0→#cbd5e1 に白い伝票 491×180。バーコードは 29 本（幅 ×0.8・間隔 5.6px、全体で幅 399px・高さ 68px）",
+          "伝票は 0.18〜1.02 秒にフェードインしながら 9px 上がり、-0.6° からまっすぐに戻る（四次の easeOut）",
+          "シアンのレーザー #06b6d4 が 0.9〜1.14 秒に点き、1.02〜3.6 秒に二次の easeInOut で左から 412px なぞり、3.78〜4.2 秒に消える",
+          "緑の状態表示「確認済み · 発送可」#059669 が 3.66〜4.2 秒に 3px 上がりながら現れる。5.4〜6.0 秒に伝票ごと消え、6.4 秒で空の台に戻る",
+          "レーダースキャンとの違い: スキャン線はバーコードを一方向に一度なぞるだけで、読み終わると結果を出す。円を描いて回り続ける探知ではない"
+        ],
+        "en": [
+          "A white packing slip, 491×180, on a pale grey desk #e2e8f0→#cbd5e1. The barcode has 29 bars (width ×0.8, 5.6px gaps; 399px wide and 68px tall overall).",
+          "The slip fades in over 0.18–1.02 s, rising 9px and straightening from -0.6° (quartic ease-out).",
+          "A cyan laser #06b6d4 switches on over 0.9–1.14 s, sweeps 412px from the left over 1.02–3.6 s with a quadratic ease-in-out, and switches off over 3.78–4.2 s.",
+          "A green status \"Verified · ready to ship\" #059669 rises 3px into view over 3.66–4.2 s. The slip fades over 5.4–6.0 s, leaving the empty desk by 6.4 s.",
+          "Versus Radar sweep: the scan line passes over the barcode once in one direction and then gives a result, instead of circling continuously."
+        ],
+        "zh-Hans": [
+          "浅灰台面 #e2e8f0→#cbd5e1 上白色装箱单 491×180；条码 29 根（宽度 ×0.8、间距 5.6px，共 399px 宽、68px 高）",
+          "装箱单 0.18–1.02 秒淡入、上移 9px，由 -0.6° 转正（四次缓出）",
+          "青色激光 #06b6d4 0.9–1.14 秒亮起，1.02–3.6 秒以二次缓入缓出从左扫过 412px，3.78–4.2 秒熄灭",
+          "绿色状态“已核验 · 可发货”#059669 3.66–4.2 秒淡入并上移 3px；5.4–6.0 秒整单淡出，6.4 秒回到空台面",
+          "与雷达扫描不同：扫描线只单向扫过条码一次，扫完给出核验结果，不是绕圈循环探测"
+        ]
+      },
+      "use": {
+        "ja": "物流・倉庫管理・在庫システム・EC の出荷フローの紹介、検品や認証が完了したことを伝える場面に。",
+        "en": "Use it for logistics, warehouse, inventory or e-commerce fulfilment promos, or to signal that an item or check has been verified.",
+        "zh-Hans": "适合物流、仓储、库存系统、电商发货流程的介绍，以及表示核验或认证完成的场景。"
+      },
+      "tags": [
+        "barcode",
+        "scanner",
+        "laser",
+        "logistics",
+        "warehouse",
+        "tech"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "扫码",
+          "条形码",
+          "扫描枪"
+        ]
+      }
+    },
+    {
+      "no": "35",
+      "id": "4-035",
+      "slug": "oscilloscope-trace",
+      "category": "tech",
+      "added": "2026-10-23",
+      "license": "MIT-0 License (c) 2026 illli Ai Studio",
+      "attribution": "https://ui2v.com/",
+      "name": {
+        "ja": "オシロスコープの波形",
+        "en": "Oscilloscope trace",
+        "zh-Hans": "示波器描线"
+      },
+      "meaning": {
+        "ja": "暗い計測画面に走査線がシアンの波形を描いていく画面",
+        "en": "A sweep beam drawing a cyan waveform across a dark scope screen",
+        "zh-Hans": "扫描光束在深色屏上描出青色波形的仪器画面"
+      },
+      "ask": {
+        "ja": "オシロスコープのアニメを作って。縦の走査線が左から右へ進み、その後ろにシアンの波形が描かれ、3つの山が少しずつ小さくなるように。",
+        "en": "Animate an oscilloscope: a vertical sweep beam moves left to right, drawing a cyan waveform behind it whose 3 peaks get gradually smaller.",
+        "zh-Hans": "做一个示波器动画：竖直扫描光束从左走到右，身后画出青色波形，3 个起伏的振幅逐次减小。"
+      },
+      "summary": {
+        "ja": "暗い計測パネルが現れ、縦の光の線が左から右へ進みながらシアンの波形を描き、波は3回うねって次第に小さくなり、描き終えると光が消える。",
+        "en": "A dark scope panel fades in and a vertical light beam travels left to right, tracing a cyan waveform that swings 3 times with shrinking height, then the beam fades out.",
+        "zh-Hans": "深色示波器面板淡入，一道竖直光束从左走到右，身后描出青色波形，起伏 3 次逐渐变小，画完后光束熄灭。"
+      },
+      "spec": {
+        "ja": [
+          "暗いパネル 511×188（#04111d・枠 #164e63）、方眼 44×16、波形の枠 467×120",
+          "パネルは 0.3〜0.96 秒にフェードインして 6px 上がる（二次の easeOut）。縦の走査線が 0.84〜1.08 秒に点く",
+          "0.96〜4.08 秒に波形と走査線が一緒に等速で左から右へ進む。シアンの波形 #22d3ee は 3 回うねり、振幅は少しずつ小さくなる。走査線は 4.08〜4.44 秒に消える",
+          "4.2〜5.4 秒にパネルが正弦の easeInOut で 2px 浮き、5.4〜6.0 秒に全体がフェードアウトし、6.4 秒で空の背景に戻る",
+          "SF の計器との違い: 一本の波形を走査線が少しずつ描き、信号を測っているように見せる。たくさんの計器の数値が同時に動く画面ではない"
+        ],
+        "en": [
+          "A dark panel, 511×188 (#04111d, border #164e63), with a 44×16 grid and a 467×120 waveform box.",
+          "The panel fades in and rises 6px over 0.3–0.96 s (quadratic ease-out); a vertical sweep beam switches on over 0.84–1.08 s.",
+          "Over 0.96–4.08 s the waveform and beam advance together at a constant rate from left to right; the cyan #22d3ee trace swings 3 times with shrinking amplitude. The beam fades over 4.08–4.44 s.",
+          "Over 4.2–5.4 s the panel lifts 2px with a sine ease-in-out; everything fades over 5.4–6.0 s, back to the empty background by 6.4 s.",
+          "Versus Sci-fi HUD: a single waveform is traced gradually by a sweep beam, like a live measurement, rather than many gauges ticking at once."
+        ],
+        "zh-Hans": [
+          "深色面板 511×188（#04111d、边 #164e63），网格 44×16，波形框 467×120",
+          "面板 0.3–0.96 秒淡入、上移 6px（二次缓出）；竖直扫描光束 0.84–1.08 秒亮起",
+          "0.96–4.08 秒波形与光束同时匀速从左推进到右，青色波形 #22d3ee 起伏 3 次、振幅逐次减小；光束 4.08–4.44 秒熄灭",
+          "4.2–5.4 秒面板以正弦缓入缓出上浮 2px；5.4–6.0 秒整体淡出，6.4 秒回到空背景",
+          "与科幻仪表不同：只有一道波形被扫描光束逐步描出，像在实时测量信号，不是多组仪表读数同时跳动"
+        ]
+      },
+      "use": {
+        "ja": "電子工作・計測機器・オーディオ・医療機器の紹介や、科学技術系の動画の場面転換、ローディング画面に。",
+        "en": "Use it for electronics, test equipment, audio or medical device promos, transitions in science and tech videos, or a loading screen.",
+        "zh-Hans": "适合电子、测量仪器、音频、医疗设备的介绍，科技类视频的转场，或加载画面。"
+      },
+      "tags": [
+        "oscilloscope",
+        "waveform",
+        "signal",
+        "sweep",
+        "electronics",
+        "tech"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "示波器",
+          "波形图",
+          "信号波形"
+        ]
+      }
     }
   ]
 }

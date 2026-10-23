@@ -2,7 +2,7 @@
 
 # 风格画面
 
-32 个效果 · #4 001~032 · 分类包 `scenes` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+35 个效果 · #4 001~035 · 分类包 `scenes` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -28,6 +28,8 @@
 | [#4-011](https://sadjjk.github.io/motion-prompt-zh/#4-011) | **行情 K 线** | Market candles | K 线与均线逐根长出的行情图画面 | 做一段行情 K 线动画：48 根 K 线 4.4 秒内从左往右长满，MA5 和 MA20 均线跟着延伸。 |
 | [#4-012](https://sadjjk.github.io/motion-prompt-zh/#4-012) | **神经网络** | Neural net | 信号沿多层网络从左往右传递的神经网络画面 | 做一张神经网络动画：信号光点穿过 6 层节点从左往右传递，每 6.4 秒 3 轮。 |
 | [#4-013](https://sadjjk.github.io/motion-prompt-zh/#4-013) | **电子云** | Electron orbital | 用点阵描绘原子轨道概率云并缓慢旋转的科学画面 | 做一个电子云动画：3d 轨道概率云由 1600 个点组成，6.4 秒转一圈。 |
+| [#4-034](https://sadjjk.github.io/motion-prompt-zh/#4-034) | **条码扫描** | Barcode scan | 青色激光扫过装箱单条码的物流画面 | 做一个条码扫描动画：青色激光从左到右扫过白色单据上的 29 根条码，扫完后绿色显示“已核验 · 可发货”。 |
+| [#4-035](https://sadjjk.github.io/motion-prompt-zh/#4-035) | **示波器描线** | Oscilloscope trace | 扫描光束在深色屏上描出青色波形的仪器画面 | 做一个示波器动画：竖直扫描光束从左走到右，身后画出青色波形，3 个起伏的振幅逐次减小。 |
 
 ## 纹样与图形
 
@@ -57,6 +59,7 @@
 | [#4-030](https://sadjjk.github.io/motion-prompt-zh/#4-030) | **无限镜屋** | Infinity room | 黑色镜屋里彩色小灯无限延伸的沉浸空间画面 | 做一段无限镜屋的循环画面：镜头每 6.4 秒在 4 色小灯间向前推进 4 排，灯光呼吸 2 次。 |
 | [#4-031](https://sadjjk.github.io/motion-prompt-zh/#4-031) | **黑胶唱片** | Spinning vinyl | 红底上放大裁切的黑胶唱片转动、像封套产品照的画面 | 做一段黑胶唱片旋转的循环：红底上放一张半径 150px 的大唱片，标签每 6.4 秒转 4 圈，唱臂落在沟槽上不动。 |
 | [#4-032](https://sadjjk.github.io/motion-prompt-zh/#4-032) | **扑克飞牌** | Card flourish | 绿呢台面上扑克牌飞出成扇、逐张翻面的魔术画面 | 做一个扑克牌展扇动画：24 张牌从牌堆依次飞出排成扇形，1.9–3.8 秒逐张翻到正面。 |
+| [#4-033](https://sadjjk.github.io/motion-prompt-zh/#4-033) | **小票打印** | Receipt printing | 收银机出纸口缓缓送出一张热敏小票的画面 | 做一个小票打印动画：白色小票从深色出纸口缓缓送出 165px，依次露出店名、3 行明细和合计。 |
 
 点击编号查看动画演示。单项的时序、缓动和参考代码： `api/v1/zh-Hans/e/<id>.txt` ([#4-001](../../api/v1/zh-Hans/e/4-001.txt)).
 

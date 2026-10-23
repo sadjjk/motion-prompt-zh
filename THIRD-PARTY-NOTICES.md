@@ -144,6 +144,48 @@ line below, and the `kit/<pack>.js` of `ui`, `lp` and `motion2` lists it after t
 > IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 > THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## ui2v by illli Ai Studio (elements `#1-108`–`#1-113`, `#4-033`–`#4-035`, `#2-065`–`#2-067`)
+
+The 12 elements below are Canvas 2D cards written for this repository after motion packages published by
+illli Ai Studio (@itelmn) on [ui2v](https://ui2v.com/). Each one follows the original's composition, colours,
+timings and easing from its HyperFrames source, rescaled to the card size and made to loop. None of the original
+HTML, CSS, GSAP code or fonts are included. ui2v releases its motion packages under MIT No Attribution
+(MIT-0); this repository still credits the author: every `e/<id>.txt` of these elements carries the line
+`MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/`, and the `kit/<pack>.js` of `ui`, `scenes` and
+`motion2` lists it after the pack's own line.
+
+| ID | Original package |
+|---|---|
+| `#1-108` | [hero-otp-fill](https://ui2v.com/itelmn/hero-otp-fill) |
+| `#1-109` | [hero-password-meter](https://ui2v.com/itelmn/hero-password-meter) |
+| `#1-110` | [hero-upload-drop](https://ui2v.com/itelmn/hero-upload-drop) |
+| `#1-111` | [hero-keymap-press](https://ui2v.com/itelmn/hero-keymap-press) |
+| `#1-112` | [hero-diff-highlight](https://ui2v.com/itelmn/hero-diff-highlight) |
+| `#1-113` | [hero-deploy-pipeline](https://ui2v.com/itelmn/hero-deploy-pipeline) |
+| `#4-033` | [hero-receipt-print](https://ui2v.com/itelmn/hero-receipt-print) |
+| `#4-034` | [hero-barcode-scan](https://ui2v.com/itelmn/hero-barcode-scan) |
+| `#4-035` | [hero-scope-trace](https://ui2v.com/itelmn/hero-scope-trace) |
+| `#2-065` | [broll-wave-interference](https://ui2v.com/itelmn/broll-wave-interference) |
+| `#2-066` | [broll-probability-cloud](https://ui2v.com/itelmn/broll-probability-cloud) |
+| `#2-067` | [broll-network-diffusion](https://ui2v.com/itelmn/broll-network-diffusion) |
+
+> MIT No Attribution
+>
+> Copyright 2026 illli Ai Studio
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy of this
+> software and associated documentation files (the "Software"), to deal in the Software
+> without restriction, including without limitation the rights to use, copy, modify,
+> merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+> permit persons to whom the Software is furnished to do so.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+> INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+> PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+> HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+> OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+> SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat

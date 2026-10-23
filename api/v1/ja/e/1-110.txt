@@ -1,0 +1,64 @@
+// Motion Prompt #1-110 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+//
+// ドラッグ＆ドロップでアップロード / Drag-and-drop upload
+// パック: ui (UIパーツの名前) · element 32 · カテゴリ: 開く・重なるパーツ
+// 何が起きるか: 点線のアップロード欄にファイルのカードが上から落ちてくると、枠が実線に変わり、進捗バーが伸びて100%で「公開できます」と表示される。
+// 動きの仕様:
+//   - 横長の点線アップロード欄 510×167・角丸16。左に「↑」アイコン、「ここにファイルをドラッグ」とファイル一覧、右にファイルのカード 210×80 が落ちる
+//   - 1.0〜1.7秒にカード「hero-pack.zip」が上から100px落ちて入る（不透明度 0→1、拡大 0.96→1、三次の easeOut）。1.5秒に欄がアクティブになり、点線 #34d399 が実線 #059669 に、背景が72%の白から白に変わる
+//   - 1.6〜3.4秒に進捗バーが 0→100%（二次の easeInOut）、パーセントも同時に整数で進む。3.45秒に文字が「100% · 公開できます」（#047857）に変わる
+//   - 3.5〜3.95秒に欄が sine.inOut で4px浮く。リセット 3.95〜4.35秒 easeInOutCubic: カードが消え、欄は点線の状態に戻る
+//   - ドラッグで並べ替えとの違い: 動かすのは外から持ち込むファイルで、落とすとアップロードが始まり進捗を見せる。リストの順番は変えない
+// 使いどころ: ファイル共有・素材の入稿・管理画面のインポートなど、ファイルを受け取る画面に。
+// タグ: upload, drag-and-drop, dropzone, file, progress-bar, form
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-110
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 32
+// 改写自 ui2v · illli Ai Studio · hero-upload-drop（MIT-0）
+// 拖拽上传：浅绿渐变底上一块虚线上传区（左侧图标「↑」+「将文件包拖到这里」+ 文件清单），
+// 1.0–1.7 秒文件卡「hero-pack.zip」从上方落入（下移 100px、不透明度 0→1、缩放 0.96→1，power3.out 即三次缓出）；
+// 1.5 秒上传区变为激活态（虚线 #34d399 换成实线 #059669，底由 72% 白变纯白）；
+// 1.6–3.4 秒进度条 0→100%，power1.inOut（二次缓入缓出），百分比同步取整；3.45 秒文字变为「100% · 可以发布」（#047857）。
+// 3.5–3.95 秒上传区以 sine.inOut 上浮 4px。复位：3.95–4.35 秒 easeInOutCubic 文件卡淡出、上传区退回虚线态。
+// 尺寸换算：原作 780×680 竖向上传区改为横向 510×167 铺满卡片，文字与文件卡按 0.5 倍（文件卡 420×160→210×80、图标 120→52、
+// 标题 40→20px、说明 26→13px、文件名 28→14px），图标与文字放左半，文件卡落在右半；下落距离 200→100px。时间与原作一一对应，上浮由 0.9 秒缩到 0.45 秒。
+const UPL_S = 0.5;
+const UPL_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
+CELLS[31] = ui((w, h, t) => {
+  // 165deg 线性渐变：方向 (sin165°, −cos165°)，渐变线长 |w·sin|+|h·cos|
+  const dx = Math.sin(165 * Math.PI / 180), dyy = -Math.cos(165 * Math.PI / 180), L = Math.abs(w * dx) + Math.abs(h * dyy);
+  const g = X.createLinearGradient(w / 2 - dx * L / 2, h / 2 - dyy * L / 2, w / 2 + dx * L / 2, h / 2 + dyy * L / 2);
+  g.addColorStop(0, '#ecfdf5'); g.addColorStop(.45, '#d1fae5'); g.addColorStop(1, '#f0fdf4'); X.fillStyle = g; X.fillRect(0, 0, w, h);
+  const keep = 1 - eio(seg(t, 3.95, 4.35));
+  const oy = -8 * UPL_S * UPL_SINE(seg(t, 3.5, 3.95)) * keep;
+  const act = (t >= 1.5 ? 1 : 0) * keep;
+  const zx = 16, zy = 12 + oy, zw = 510, zh = 167, zr = 16;
+  X.save(); X.shadowColor = 'rgba(6,78,59,.1)'; X.shadowBlur = 30; X.shadowOffsetY = 12; fillRR(zx, zy, zw, zh, zr, `rgba(255,255,255,${.72 + .28 * act})`); X.restore();
+  if (act < 1) { X.save(); X.globalAlpha = 1 - act; X.setLineDash([7, 5]); strokeRR(zx, zy, zw, zh, zr, '#34d399', 1.5); X.restore(); }
+  if (act > 0) { X.save(); X.globalAlpha = act; strokeRR(zx, zy, zw, zh, zr, '#059669', 1.5); X.restore(); }
+  // 左半：图标 + 标题 + 文件清单
+  const lx = 152;
+  fillRR(lx - 26, zy + 20, 52, 52, 12, '#d1fae5'); text('↑', lx, zy + 47, 28, '#059669', 700, 'center', NUMF);
+  text('将文件包拖到这里', lx, zy + 98, 20, '#064e3b', 700, 'center');
+  text('registry-item.json · index.html · assets/', lx, zy + 126, 13, '#059669', 500, 'center', NUMF);
+  // 右半：文件卡下落
+  const q = eo(seg(t, 1.0, 1.7)), fa = q * keep;
+  if (fa > 0) {
+    const fw = 210, fh = 81, fx = 296, fy = zy + 43 - 100 * (1 - q), s = .96 + .04 * q;
+    X.save(); X.globalAlpha = fa; X.translate(fx + fw / 2, fy + fh / 2); X.scale(s, s); X.translate(-fx - fw / 2, -fy - fh / 2);
+    X.save(); X.shadowColor = 'rgba(6,78,59,.16)'; X.shadowBlur = 20; X.shadowOffsetY = 9; fillRR(fx, fy, fw, fh, 9, '#fff'); X.restore();
+    strokeRR(fx, fy, fw, fh, 9, '#a7f3d0', 1);
+    text('hero-pack.zip', fx + 15, fy + 24, 14, '#064e3b', 700, 'left', NUMF);
+    const v = seg(t, 1.6, 3.4), p = v < .5 ? 2 * v * v : 1 - Math.pow(-2 * v + 2, 2) / 2;
+    if (t >= 3.45) text('100% · 可以发布', fx + 15, fy + 46, 11, '#047857', 500);
+    else text(Math.round(p * 100) + '% · 上传中', fx + 15, fy + 46, 11, '#6ee7b7', 500);
+    fillRR(fx + 15, fy + 61, fw - 30, 5, 2.5, '#d1fae5');
+    if (p > 0) fillRR(fx + 15, fy + 61, (fw - 30) * p, 5, 2.5, '#059669');
+    X.restore();
+  }
+});

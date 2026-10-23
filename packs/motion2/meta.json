@@ -1576,6 +1576,224 @@
           "文本过渡"
         ]
       }
+    },
+    {
+      "no": "26",
+      "id": "2-065",
+      "slug": "wave-interference",
+      "category": "text-shapes",
+      "added": "2026-10-23",
+      "license": "MIT-0 License (c) 2026 illli Ai Studio",
+      "attribution": "https://ui2v.com/",
+      "name": {
+        "ja": "波の干渉",
+        "en": "Wave interference",
+        "zh-Hans": "波的干涉"
+      },
+      "meaning": {
+        "ja": "逆向きに進む2つの波を足し合わせ、強め合い弱め合う様子を見せる図解",
+        "en": "Two waves travelling in opposite directions add up, reinforcing and cancelling",
+        "zh-Hans": "两列反向行进的波叠加，时而相长时而相消的图解"
+      },
+      "ask": {
+        "ja": "波の干渉の図解アニメを作って。上の2段に逆向きに進む波A・Bを描き、下の段に足し合わせた波を出して、縦の点線上の3つの点で値を読み取れるように。",
+        "en": "Animate a wave interference diagram: waves A and B travel in opposite directions in the top 2 lanes, their sum is drawn in the bottom lane, and 3 dots on a vertical dashed line read out the values.",
+        "zh-Hans": "做一个波的干涉图解动画：上面 2 条泳道是反向行进的波 A、B，下方泳道画出两者相加的合成波，竖直虚线上 3 个点实时读数。"
+      },
+      "summary": {
+        "ja": "青緑の波Aと橙の波Bが逆向きに流れ、下の段の合成波が高くなったり平らになったりし、縦の点線上の3つの点が値を追いかける。",
+        "en": "A cyan wave A and an orange wave B flow in opposite directions while the combined wave below swells and flattens, and 3 dots on a vertical dashed line track the values.",
+        "zh-Hans": "青色波 A 与橙色波 B 反向流动，下方合成波时而加高时而压平，竖直采样虚线上 3 个点跟着读数。"
+      },
+      "spec": {
+        "ja": [
+          "3段のレーン: 波A（シアン #67e8f9）と波B（橙 #ffb454）が逆向きに進み、合成レーンで点ごとに y₁ + y₂ を足す。a = sin(0.012x + φ)、b = sin(0.012x − 0.62φ + 1.08)、元の波の振幅58・合成66",
+          "パネルは0.07〜0.42秒に0.96倍から拡大しながら現れる。波A・Bは0.25 / 0.34秒から0.36秒で左20pxから滑り込み、合成レーンは0.59秒から下20pxから入る",
+          "合成波の振幅は0.88〜1.62秒に0から最大へ。位相は0.6〜3.74秒に等速で5π進む。「+」記号は0.8秒から0.23秒で弾んで拡大",
+          "縦の点線が1.4秒に現れ、3つの読み取り点が1.44秒から0.044秒おきに弾んで出る。合成波の線幅は1.87〜2.97秒に正弦で2回脈打つ（2.7→3.9px）。4.22〜4.39秒に内容が消え、背景の方眼だけが残る",
+          "ウェーブテキストとの違い: 2つの波が重なって合成波になる物理の図解で、読み取り値も位相に合わせて変わる。文字を波打たせるものではない"
+        ],
+        "en": [
+          "3 lanes: wave A (cyan #67e8f9) and wave B (orange #ffb454) travel in opposite directions, and the sum lane adds them point by point, y₁ + y₂. a = sin(0.012x + φ), b = sin(0.012x − 0.62φ + 1.08); source amplitude 58, sum 66.",
+          "The panel scales up from 0.96 and fades in over 0.07–0.42 s. Waves A and B slide in 20px from the left starting at 0.25 / 0.34 s over 0.36 s; the sum lane slides up 20px from 0.59 s.",
+          "The sum's amplitude grows from 0 to full over 0.88–1.62 s; the phase advances 5π at a constant rate over 0.6–3.74 s; the \"+\" sign pops in over 0.23 s from 0.8 s.",
+          "The vertical dashed line fades in at 1.4 s, and 3 sample dots pop in 0.044 s apart from 1.44 s. The sum's stroke pulses 2 times on a sine over 1.87–2.97 s (2.7→3.9px). Content fades over 4.22–4.39 s, leaving only the background grid.",
+          "Versus Wave text: it is a physics diagram of 2 waves adding into one, with readouts that follow the phase, rather than letters bobbing in a wave."
+        ],
+        "zh-Hans": [
+          "3 条泳道：波 A（青 #67e8f9）与波 B（橙 #ffb454）反向行进，合成泳道逐点相加 y₁ + y₂；a = sin(0.012x + φ)、b = sin(0.012x − 0.62φ + 1.08)，源波振幅 58、合成 66。",
+          "面板 0.07–0.42 秒由 0.96 倍放大并淡入；波 A、B 自 0.25 / 0.34 秒起用 0.36 秒从左 20px 滑入；合成泳道 0.59 秒起从下 20px 滑入。",
+          "合成波振幅 0.88–1.62 秒由 0 增到满；相位 0.6–3.74 秒匀速走 5π；“+”号 0.8 秒起用 0.23 秒回弹放大。",
+          "采样虚线 1.4 秒淡入，3 个采样点 1.44 秒起每隔 0.044 秒回弹出现；合成线宽 1.87–2.97 秒按正弦脉动 2 次（2.7→3.9px）；4.22–4.39 秒内容淡出，只留背景网格。",
+          "与波浪文字不同：是 2 列波叠加成合成波的物理图解，读数随相位实时变化，不是让文字起伏。"
+        ]
+      },
+      "use": {
+        "ja": "物理や信号処理の授業動画、教育アプリ、音響・通信技術の解説、データ解説動画の挿入カットに。",
+        "en": "Use it in physics or signal processing lessons, education apps, explainers on audio and communications tech, or as an insert in data videos.",
+        "zh-Hans": "适合物理或信号处理课程视频、教育类 App、声学与通信技术讲解，以及数据解说视频的插入镜头。"
+      },
+      "tags": [
+        "wave",
+        "interference",
+        "physics",
+        "sine-wave",
+        "diagram",
+        "education",
+        "data-visualization"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "波的叠加",
+          "干涉图解",
+          "正弦波"
+        ]
+      }
+    },
+    {
+      "no": "27",
+      "id": "2-066",
+      "slug": "dots-to-normal-distribution",
+      "category": "text-shapes",
+      "added": "2026-10-23",
+      "license": "MIT-0 License (c) 2026 illli Ai Studio",
+      "attribution": "https://ui2v.com/",
+      "name": {
+        "ja": "点が正規分布にまとまる",
+        "en": "Dots settling into a normal distribution",
+        "zh-Hans": "散点聚成正态分布"
+      },
+      "meaning": {
+        "ja": "ばらばらの観測点が集まり、釣り鐘形の分布になる統計の図解",
+        "en": "Scattered observations gather into a bell-shaped distribution",
+        "zh-Hans": "散乱的观测点聚拢成钟形分布的统计图解"
+      },
+      "ask": {
+        "ja": "正規分布ができる様子をアニメにして。98個の点がまず雲のように散らばり、13列の釣り鐘形の柱へひとつずつ落ちていき、平均線 μ が光って固定されるように。",
+        "en": "Animate a normal distribution forming: 98 dots first scatter like a cloud, then drop one by one into 13 bell-shaped columns, and the mean line μ lights up and locks.",
+        "zh-Hans": "做一个正态分布形成动画：98 个点先散成一团云，再一个个落进 13 列钟形柱，均值线 μ 亮起锁定。"
+      },
+      "summary": {
+        "ja": "紫の座標の中に点が雲のように現れ、少しずつずれながら釣り鐘形の柱へ飛んで積み上がり、カウンターが098まで増えて平均線が実線になる。",
+        "en": "Dots pop up like a cloud inside a purple plot, fly off with slight staggers to stack into bell-shaped columns, the counter climbs to 098 and the mean line turns solid.",
+        "zh-Hans": "紫色坐标区里点先像云一样冒出，再错开飞落堆成钟形柱，计数升到 098，均值线变成实线。"
+      },
+      "spec": {
+        "ja": [
+          "紫の座標エリア 479×192、観測点98個（紫 #8a72ff、6個に1個は橙の大きな点 #ffbf69）、点の直径 5.4 / 7px",
+          "0.11秒から点が中央から両側へ0.0022秒おきに弾んで現れ、雲になる。平均線 μ が0.28〜0.58秒に下から伸びる。3個に1個の点は0.44〜1.1秒に0.82倍へ縮む",
+          "1.13秒から各点が (i mod 13)×0.0066秒ずつずれ、1.29〜1.46秒かけて（四次の easeInOut）13列の釣り鐘形の柱へ飛ぶ。柱の高さは 1-2-4-7-11-15-18-15-11-7-4-2-1",
+          "カウンターは1.13〜2.6秒に000から098へ。状態の文字は2.0秒に「分布が現れる」、3.05秒に「平均を固定」へ。平均線は2.61秒から実線になり、橙の大きな点は2.83秒から1.28倍に膨らんで戻る。4.19〜4.38秒に消える",
+          "ローソク足チャートとの違い: 柱はひとつずつ飛んでくる点が積み上がってでき、標本が正規分布にまとまる様子を見せる。価格の柱を一本ずつ描くものではない"
+        ],
+        "en": [
+          "A purple plot area, 479×192, with 98 observation dots (purple #8a72ff; 1 in every 6 is a large orange dot #ffbf69); dot diameters 5.4 / 7px.",
+          "From 0.11 s the dots pop in from the centre outward, 0.0022 s apart, forming a cloud. The mean line μ grows upward over 0.28–0.58 s. 1 in every 3 dots shrinks to 0.82 over 0.44–1.1 s.",
+          "From 1.13 s each dot, offset by (i mod 13)×0.0066 s, flies over 1.29–1.46 s (quartic ease-in-out) into 13 bell-shaped columns with heights 1-2-4-7-11-15-18-15-11-7-4-2-1.",
+          "The counter rises from 000 to 098 over 1.13–2.6 s; the status reads \"Distribution emerging\" at 2.0 s and \"Mean locked\" at 3.05 s. The mean line turns solid from 2.61 s, and the large orange dots swell to 1.28 and settle from 2.83 s. Everything fades over 4.19–4.38 s.",
+          "Versus Candlestick chart: the columns are built from dots flying in one at a time to show a sample settling into a normal distribution, rather than price bars drawn one by one."
+        ],
+        "zh-Hans": [
+          "紫色坐标区 479×192，98 个观测点（紫 #8a72ff，每 6 个中 1 个为橙色大点 #ffbf69），点直径 5.4 / 7px。",
+          "0.11 秒起点从中间向两侧每隔 0.0022 秒回弹出现，散成一团云；均值线 μ 0.28–0.58 秒自下而上长出；每 3 个点中 1 个 0.44–1.1 秒缩到 0.82 倍。",
+          "1.13 秒起各点按 (i mod 13)×0.0066 秒错开，用时 1.29–1.46 秒（四次缓入缓出）飞进 13 列钟形柱，高度 1-2-4-7-11-15-18-15-11-7-4-2-1。",
+          "计数 1.13–2.6 秒从 000 升到 098；状态字 2.0 秒变“分布浮现”、3.05 秒变“均值锁定”；均值线 2.61 秒起变实，橙色大点 2.83 秒起放大到 1.28 倍再回落；4.19–4.38 秒淡出。",
+          "与行情 K 线不同：柱子由一个个飞来的散点堆成，演示样本如何聚成正态分布，不是逐根画出价格柱。"
+        ]
+      },
+      "use": {
+        "ja": "統計・データサイエンスの授業動画、分析ツールの紹介、調査結果やレポートの解説動画に。",
+        "en": "Use it in statistics and data science lessons, analytics product promos, or videos explaining survey results and reports.",
+        "zh-Hans": "适合统计与数据科学课程视频、分析工具介绍，以及调研结果、报告的解说视频。"
+      },
+      "tags": [
+        "normal-distribution",
+        "statistics",
+        "histogram",
+        "bell-curve",
+        "particles",
+        "data-visualization",
+        "education"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "正态分布",
+          "钟形曲线",
+          "高斯分布"
+        ]
+      }
+    },
+    {
+      "no": "28",
+      "id": "2-067",
+      "slug": "network-diffusion",
+      "category": "text-shapes",
+      "added": "2026-10-23",
+      "license": "MIT-0 License (c) 2026 illli Ai Studio",
+      "attribution": "https://ui2v.com/",
+      "name": {
+        "ja": "ネットワーク拡散",
+        "en": "Network diffusion",
+        "zh-Hans": "网络扩散"
+      },
+      "meaning": {
+        "ja": "1つの起点から信号がつながりをたどって広がっていく図解",
+        "en": "A signal spreading hop by hop through a network from one source",
+        "zh-Hans": "信号从一个源点沿连线逐跳扩散的网络图解"
+      },
+      "ask": {
+        "ja": "ネットワーク拡散のアニメを作って。左の起点が光って波紋を3回出し、信号が16本の曲線をたどって右の16個のノードへ順に広がり、左上にホップ数と到達数を表示する。",
+        "en": "Animate network diffusion: the source on the left lights up and sends out 3 ripples, the signal travels along 16 curved edges to 16 nodes on the right, and hop count and nodes reached show at the top left.",
+        "zh-Hans": "做一个网络扩散动画：左侧源点亮起放出 3 圈涟漪，信号沿 16 条曲线边依次传到右侧 16 个节点，左上角显示跳数和已触达节点数。"
+      },
+      "summary": {
+        "ja": "左の起点が光って波紋を広げ、信号がつながりを段ごとに右へ伝わり、通った線は珊瑚色に光り、届いたノードが弾んで点灯し、ホップ数と到達数が増えていく。",
+        "en": "The source on the left glows and ripples, the signal passes rightward one hop at a time, each traversed edge glows coral, reached nodes pop alight, and the hop and reach counters climb.",
+        "zh-Hans": "左侧源点亮起扩出涟漪，信号一跳一跳向右传递，经过的边亮成珊瑚色，到达的节点回弹点亮，跳数和触达数随之增加。"
+      },
+      "spec": {
+        "ja": [
+          "起点と16個のノード、16本の曲線の辺からなる暗いネットワーク（背景 #071421・暗い辺 #315365）。信号の色は珊瑚 #ff7058",
+          "起点は0.13〜0.4秒に0.35倍から弾んで現れる。波紋3つが0.18秒から0.11秒おきに出て、0.78秒で0.3倍から4.8倍へ広がりながら消える",
+          "16本の辺が0.35秒から3.08秒にかけて順に点灯し、各0.36秒で描き終わる（三次の easeInOut）。描き始めの0.24秒後に先のノードが0.25倍から弾んで点灯する（0.18秒）",
+          "左上にホップ数 = min(4, ⌊i/2⌋+1)、到達数 = i + 2 をリアルタイム表示。3.4秒から3つの光の輪が1.2倍に広がって薄れ、4.05〜4.23秒に信号の層が消えて暗い辺だけの初期状態に戻る",
+          "ニューラルネットとの違い: 信号は1つの起点から段ごとに外へ広がり、通った辺は光ったまま残る。層の間をパルスが繰り返し流れるものではない"
+        ],
+        "en": [
+          "A dark network of a source plus 16 nodes and 16 curved edges (background #071421, dim edges #315365); the signal colour is coral #ff7058.",
+          "The source pops in from 0.35 over 0.13–0.4 s; 3 ripples leave 0.11 s apart from 0.18 s, each expanding from 0.3 to 4.8 and fading within 0.78 s.",
+          "The 16 edges light in turn from 0.35 s to 3.08 s, each drawn in 0.36 s (cubic ease-in-out); 0.24 s after an edge starts, its end node pops in from 0.25 and lights (0.18 s).",
+          "Top left shows hops = min(4, ⌊i/2⌋+1) and nodes reached = i + 2 live. From 3.4 s, 3 halos expand to 1.2 and fade; over 4.05–4.23 s the signal layer fades, back to the dim starting network.",
+          "Versus Neural net: the signal spreads outward hop by hop from 1 source and traversed edges stay lit, rather than pulses cycling between layers."
+        ],
+        "zh-Hans": [
+          "源点加 16 个节点、16 条曲线边组成的暗色网络（底 #071421、暗边 #315365），信号色为珊瑚 #ff7058。",
+          "源点 0.13–0.4 秒从 0.35 倍回弹出现；3 圈涟漪 0.18 秒起每隔 0.11 秒放出，0.78 秒内由 0.3 倍扩到 4.8 倍并淡出。",
+          "16 条边从 0.35 秒到 3.08 秒依次点亮，每条 0.36 秒画完（三次缓入缓出）；边起画后 0.24 秒，终点节点由 0.25 倍回弹点亮（0.18 秒）。",
+          "左上实时显示跳数 = min(4, ⌊i/2⌋+1)、触达数 = i + 2；3.4 秒起 3 个光环放大到 1.2 倍并变淡；4.05–4.23 秒信号层淡出，回到只有暗边的初始网络。",
+          "与神经网络不同：信号从 1 个源点逐跳向外扩散，经过的边保持点亮，不是在层与层之间循环传递脉冲。"
+        ]
+      },
+      "use": {
+        "ja": "SNS での情報の広がり、感染症の拡散、P2P・ブロックチェーン、紹介プログラムなどを説明する動画やプレゼンに。",
+        "en": "Use it in videos and talks that explain how information spreads on social media, epidemic spread, P2P or blockchain networks, or referral programs.",
+        "zh-Hans": "适合讲解社交媒体信息传播、疾病扩散、P2P 或区块链网络、邀请裂变等内容的视频和演示。"
+      },
+      "tags": [
+        "network",
+        "diffusion",
+        "graph",
+        "propagation",
+        "nodes",
+        "data-visualization"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "信息传播",
+          "传播网络",
+          "节点扩散"
+        ]
+      }
     }
   ]
 }

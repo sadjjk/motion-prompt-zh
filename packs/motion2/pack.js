@@ -771,6 +771,265 @@ MotionPrompt.pack('motion2', function () {
     });
   };
 
+  // @element 26
+  // 改写自 ui2v · illli Ai Studio · broll-wave-interference（MIT-0）
+  // 26 波的干涉：三条横向泳道，上两条是向相反方向行进的波 A（青 #67e8f9）与波 B（橙 #ffb454），下方合成泳道把两者逐点相加 y₁ + y₂，
+  // 一根竖直采样虚线上三个圆点实时读出 A、B 与合成值，合成波时而相长（加高）时而相消（压平）。
+  // 时间按原作 8 秒 × 0.55 映射：面板 0.07–0.42 秒由 0.96 倍放大并淡入（三次缓出 = power2.out）；波 A、B 0.25 / 0.34 秒起 0.36 秒从左 20px 滑入（四次缓出 = power3.out）；
+  // 合成泳道 0.59 秒起从下 20px 滑入；「+」号 0.8 秒起 0.23 秒回弹放大（back 1.8）；合成波振幅 0.88–1.62 秒由 0 增到满（三次缓入缓出）；
+  // 相位 0.6–3.74 秒匀速走 5π；采样线 1.4 秒淡入，三个采样点 1.44 秒起每隔 0.044 秒回弹出现（back 2）；合成线宽 1.87–2.97 秒按正弦脉动 2 次（2.7→3.9px）。
+  // 4.22–4.39 秒内容淡出（原 7.68 秒 0.3 秒淡出），只留背景网格，与 u=0 画面相同。
+  // 波函数照抄：a = sin(0.012x + φ)，b = sin(0.012x − 0.62φ + 1.08)，x 取原作 190–1660；源波振幅 58、合成 66（原 1740×730 坐标）。
+  // 尺寸换算：面板 1740×730 → 523×196（横 ×0.3006、纵 ×0.2685），去掉标题与页脚；标签字号放大到 10px / 8px。配色照抄原作 CSS 变量。
+  const WAVE_SX = 8, WAVE_SY = 6, WAVE_KX = 523 / 1740, WAVE_KY = 196 / 730, WAVE_S = 0.55;
+  const WAVE_q4o = x => 1 - Math.pow(1 - x, 4);                               // power3.out
+  const WAVE_sIO = x => -(Math.cos(Math.PI * x) - 1) / 2;                    // sine.inOut
+  const WAVE_X = (x) => WAVE_SX + x * WAVE_KX, WAVE_Y = (y) => WAVE_SY + y * WAVE_KY;
+  const WAVE_LANES = [[26, 188, 120, '波 A', 'y₁(x,t)', '#eefdf8'], [238, 188, 332, '波 B', 'y₂(x,t)', '#eefdf8'], [486, 218, 595, '合成', 'y₁ + y₂', '#d8fff2']];
+  function WAVE_lane(k, i) {
+    const [y0, hh, base, lb, fm, col] = WAVE_LANES[i];
+    k.fillStyle = '#101b1f'; k.strokeStyle = '#29464e'; k.lineWidth = 0.8;
+    rr(k, WAVE_X(26), WAVE_Y(y0), 1688 * WAVE_KX, hh * WAVE_KY, 7); k.fill(); k.stroke();
+    k.strokeStyle = '#46636a'; k.lineWidth = 0.8; k.setLineDash([2.1, 3.3]);
+    k.beginPath(); k.moveTo(WAVE_X(190), WAVE_Y(base)); k.lineTo(WAVE_X(1660), WAVE_Y(base)); k.stroke(); k.setLineDash([]);
+    txt(k, lb, WAVE_X(52), WAVE_Y(base) - 3, `900 10px ${JP}`, col);
+    txt(k, fm, WAVE_X(52), WAVE_Y(base) + 9, `700 8px ui-monospace, Menlo, monospace`, '#91aaa5');
+  }
+  function WAVE_curve(k, base, amp, kind, ph, col, lw) {
+    k.beginPath();
+    for (let x = 190; x <= 1660; x += 15) {
+      const a = Math.sin(x * 0.012 + ph), b = Math.sin(x * 0.012 - ph * 0.62 + 1.08), v = kind === 0 ? a : kind === 1 ? b : a + b;
+      const px = WAVE_X(x), py = WAVE_Y(base - v * amp); x === 190 ? k.moveTo(px, py) : k.lineTo(px, py);
+    }
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    const ga = k.globalAlpha; k.strokeStyle = col; k.lineWidth = lw * 2.6; k.globalAlpha = ga * 0.22; k.stroke();   // 原 drop-shadow 12px 光晕
+    k.globalAlpha = ga; k.lineWidth = lw; k.stroke();
+  }
+  const WAVE_BG = (() => {                                                   // 静态底：右上径向光 + 14.4px 网格（原 48px）
+    const c = mkCanvas(CW, CH), g = c.getContext('2d');
+    const r = g.createRadialGradient(CW * 0.76, CH * 0.2, 0, CW * 0.76, CH * 0.2, CW * 0.3); r.addColorStop(0, '#123139'); r.addColorStop(1, 'rgba(18,49,57,0)');
+    g.fillStyle = r; g.fillRect(0, 0, CW, CH);
+    g.fillStyle = 'rgba(103,232,249,.055)'; for (let x = 0; x < CW; x += 14.4) g.fillRect(x, 0, 1, CH); for (let y = 0; y < CH; y += 14.4) g.fillRect(0, y, CW, 1);
+    return c;
+  })();
+  // GSAP yoyo：从 t0 起每 d 秒走半程，共 n 个半程，返回 0..1..0 的正弦缓动值
+  const WAVE_yoyo = (t, t0, d, n) => { const q = (t - t0) / d; if (q <= 0 || q >= n) return 0; const f = q % 1; return WAVE_sIO(Math.floor(q) % 2 ? 1 - f : f); };
+  CELLS[25] = (k, w, h, u) => {
+    u = snapU(u);
+    const t = u / WAVE_S;                                                      // 换回原作时间轴
+    stage(k, '#081013');
+    k.drawImage(WAVE_BG, 0, 0);
+    const out = 1 - eIn(P(t, 7.68, 7.98));                                      // 原 power2.in 淡出
+    const sc = eOut(P(t, 0.12, 0.77));
+    if (sc <= 0 || out <= 0) return;
+    const ph = Math.PI * 5 * P(t, 1.1, 6.8), mixA = eIO(P(t, 1.6, 2.95));
+    k.save(); k.globalAlpha = sc * out;
+    k.translate(w / 2, h / 2); k.scale(0.96 + 0.04 * sc, 0.96 + 0.04 * sc); k.translate(-w / 2, -h / 2);
+    k.fillStyle = 'rgba(5,13,16,.68)'; k.fillRect(WAVE_SX, WAVE_SY, 1740 * WAVE_KX, 730 * WAVE_KY);
+    k.strokeStyle = '#31515a'; k.lineWidth = 0.8; k.strokeRect(WAVE_SX + 0.4, WAVE_SY + 0.4, 1740 * WAVE_KX - 0.8, 730 * WAVE_KY - 0.8);
+    // 波 A、B：从左 70（→20px）滑入
+    [[0.45, 0, '#67e8f9'], [0.61, 1, '#ffb454']].forEach(([s, i, col]) => {
+      const e = WAVE_q4o(P(t, s, s + 0.65)); if (e <= 0) return;
+      k.save(); k.globalAlpha = sc * out * e; k.translate(-20 * (1 - e), 0);
+      WAVE_lane(k, i); WAVE_curve(k, WAVE_LANES[i][2], 58, i, ph, col, 2.1); k.restore();
+    });
+    // 合成：从下 70（→19px）滑入
+    const er = WAVE_q4o(P(t, 1.08, 1.73));
+    if (er > 0) {
+      k.save(); k.globalAlpha = sc * out * er; k.translate(0, 19 * (1 - er));
+      WAVE_lane(k, 2);
+      const pulse = 4 * WAVE_yoyo(t, 3.4, 0.5, 4);                             // 线宽 9→13 往返 2 次（原 yoyo repeat 3）
+      if (mixA > 0) WAVE_curve(k, 595, 66 * mixA, 2, ph, '#d8fff2', (9 + pulse) * 0.3);
+      // 采样线与三个采样点（x = 1160）
+      const sl = P(t, 2.55, 2.9);
+      const sa = Math.sin(1160 * 0.012 + ph), sb = Math.sin(1160 * 0.012 - ph * 0.62 + 1.08);
+      if (sl > 0) {
+        k.save(); k.globalAlpha *= sl * 0.55; k.strokeStyle = '#d8fff2'; k.lineWidth = 0.8; k.setLineDash([1.5, 2.4]);
+        k.beginPath(); k.moveTo(WAVE_X(1160), WAVE_Y(45)); k.lineTo(WAVE_X(1160), WAVE_Y(686)); k.stroke(); k.restore();
+        k.save(); k.globalAlpha *= sl;
+        txt(k, `振幅 ${(sa + sb) * mixA >= 0 ? '+' : '−'}${Math.abs((sa + sb) * mixA).toFixed(2)}`, WAVE_X(1160) + 7, WAVE_Y(510), `700 9px ui-monospace, Menlo, monospace`, '#d8fff2');
+        k.restore();
+      }
+      [[120 - sa * 58, 2.1], [332 - sb * 58, 2.1], [595 - (sa + sb) * 66 * mixA, 3]].forEach(([cy, r], i) => {
+        const d = backOut(P(t, 2.62 + i * 0.08, 2.97 + i * 0.08), 2); if (d <= 0) return;
+        k.fillStyle = '#d8fff2'; k.beginPath(); k.arc(WAVE_X(1160), WAVE_Y(cy), r * d, 0, 7); k.fill();
+      });
+      k.restore();
+    }
+    // 「+」号
+    const pl = P(t, 1.45, 1.87);
+    if (pl > 0) {
+      const s = 0.2 + 0.8 * backOut(pl, 1.8);
+      k.save(); k.globalAlpha = sc * out * clamp(pl * 1.5); k.translate(WAVE_X(870), WAVE_Y(452)); k.scale(s, s);
+      txt(k, '+', 0, 0, `900 16px ${DISP}`, '#d8fff2', 'center', 'middle'); k.restore();
+    }
+    k.restore();
+  };
+
+  // @element 27
+  // 改写自 ui2v · illli Ai Studio · broll-probability-cloud（MIT-0）
+  // 27 散点聚成正态分布：紫色坐标区里 98 个观测点先散成一团云，再一个个落进 13 列、高度 1-2-4-7-11-15-18-15-11-7-4-2-1 的钟形柱，均值线 μ 亮起锁定。
+  // 时间按原作 8 秒 × 0.55 映射：点 0.11 秒起从中间向两侧每隔 0.0022 秒回弹出现（0.22 秒、back 1.6，透明度到 0.78）；均值线 0.28–0.58 秒自下而上长出（透明度 0.28）；
+  // 每 3 个点中 1 个 0.44–1.1 秒按 0.82 倍往返 3 个半程（缩→回→缩，停在 0.82 倍）；1.13 秒起各点按 (i mod 13)×0.0066 秒错开、用时 1.29–1.46 秒（四次缓入缓出 = power3.inOut）飞到钟形位置；
+  // 计数 1.13–2.6 秒从 000 升到 098（三次缓入缓出）；状态字 2.0 秒变「分布浮现」、3.05 秒变「均值锁定 / μ」；均值线 2.61 秒起变实；每 6 个点中 1 个（橙色大点）2.83 秒起放大到 1.28 倍再回落；
+  // 坐标区 3.55–3.99 秒微放大到 1.012 倍；4.19–4.38 秒点、均值线与文字淡出，只剩坐标轴与网格，与 u=0 相同。
+  // 点的初始位置照抄原作确定性公式：sx = 70 + (149k mod 1510)，sy = 60 + ((97k + 11k²) mod 430)；终点 fx = 118 + 121·列，fy = 620 − 27·行。
+  // 尺寸换算：坐标区 1680×700 → 479×192（横 ×0.285、纵 ×0.274），点直径 17 / 22 → 5.4 / 7px。配色照抄：底 #17152d、紫 #8a72ff、橙 #ffbf69、轴 #5a5478、字 #f3f0ff / #9890b8。
+  const PCLD_X = 32, PCLD_Y = 8, PCLD_KX = 479 / 1680, PCLD_KY = 192 / 700, PCLD_S = 0.55;
+  const PCLD_DOTS = (() => {
+    const counts = [1, 2, 4, 7, 11, 15, 18, 15, 11, 7, 4, 2, 1], o = []; let k = 0;
+    counts.forEach((n, col) => { for (let row = 0; row < n; row++) { o.push({ sx: 70 + ((k * 149) % 1510), sy: 60 + ((k * 97 + k * k * 11) % 430), fx: 118 + col * 121, fy: 620 - row * 27, big: (k + 1) % 6 === 0, third: (k + 1) % 3 === 0 }); k++; } });
+    return o;
+  })();
+  const PCLD_qIO4 = x => (x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2);   // power3.inOut
+  const PCLD_qIO3 = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);       // power2.inOut
+  const PCLD_sIO = x => -(Math.cos(Math.PI * x) - 1) / 2;
+  // GSAP yoyo 共 n 个半程：奇数个半程结束后停在终值（原作每 3 个点的 0.82 倍缩放 repeat 2 即停在 0.82）
+  const PCLD_yoyo = (t, t0, d, n) => { const q = (t - t0) / d; if (q <= 0) return 0; if (q >= n) return n % 2; const f = q % 1; return PCLD_sIO(Math.floor(q) % 2 ? 1 - f : f); };
+  const PCLD_BG = (() => {
+    const c = mkCanvas(CW, CH), g = c.getContext('2d');
+    g.fillStyle = '#17152d'; g.fillRect(0, 0, CW, CH);
+    const a = g.createRadialGradient(CW * 0.5, CH * 0.46, 0, CW * 0.5, CH * 0.46, CW * 0.38); a.addColorStop(0, 'rgba(138,114,255,.25)'); a.addColorStop(1, 'rgba(138,114,255,0)'); g.fillStyle = a; g.fillRect(0, 0, CW, CH);
+    const b = g.createRadialGradient(CW * 0.22, CH * 0.7, 0, CW * 0.22, CH * 0.7, CW * 0.26); b.addColorStop(0, 'rgba(255,191,105,.09)'); b.addColorStop(1, 'rgba(255,191,105,0)'); g.fillStyle = b; g.fillRect(0, 0, CW, CH);
+    g.fillStyle = 'rgba(243,240,255,.045)';
+    for (let x = 0; x <= 1680; x += 70) g.fillRect(PCLD_X + x * PCLD_KX, PCLD_Y, 1, 700 * PCLD_KY);
+    for (let y = 0; y <= 700; y += 70) g.fillRect(PCLD_X, PCLD_Y + y * PCLD_KY, 1680 * PCLD_KX, 1);
+    g.fillStyle = '#5a5478'; g.fillRect(PCLD_X - 1, PCLD_Y, 1.2, 700 * PCLD_KY); g.fillRect(PCLD_X - 1, PCLD_Y + 700 * PCLD_KY - 1.2, 1680 * PCLD_KX + 1, 1.2);
+    return c;
+  })();
+  CELLS[26] = (k, w, h, u) => {
+    u = snapU(u);
+    const t = u / PCLD_S;
+    k.drawImage(PCLD_BG, 0, 0);
+    const out = 1 - eIn(P(t, 7.62, 7.96));
+    if (t < 0.2 || out <= 0) return;
+    const ps = 1 + 0.012 * PCLD_sIO(P(t, 6.45, 7.25));
+    k.save(); k.globalAlpha = out;
+    k.translate(PCLD_X + 840 * PCLD_KX, PCLD_Y + 350 * PCLD_KY); k.scale(ps, ps); k.translate(-(PCLD_X + 840 * PCLD_KX), -(PCLD_Y + 350 * PCLD_KY));
+    // 均值线 μ（坐标区正中，顶端距上沿 34）
+    const mg = eOut(P(t, 0.5, 1.05)), mx = PCLD_X + 840 * PCLD_KX, mb = PCLD_Y + 700 * PCLD_KY, mt = PCLD_Y + 34 * PCLD_KY;
+    if (mg > 0) {
+      const ma = mg * lerp(0.28, 1, eOut(P(t, 4.75, 5.2)));
+      k.save(); k.globalAlpha = out * ma; k.fillStyle = '#ffbf69'; k.fillRect(mx - 0.5, lerp(mb, mt, mg), 1.2, (mb - mt) * mg);
+      txt(k, 'μ', mx - 4, mt + 1, `italic 900 12px Georgia, serif`, '#ffbf69', 'right', 'top'); k.restore();
+    }
+    // 98 个点
+    k.shadowColor = 'rgba(138,114,255,.45)'; k.shadowBlur = 4;
+    PCLD_DOTS.forEach((d, i) => {
+      const ap = P(t, 0.2 + Math.abs(i - 49) * 0.004, 0.6 + Math.abs(i - 49) * 0.004); if (ap <= 0) return;
+      let s = backOut(ap, 1.6);
+      if (d.third) s *= 1 - 0.18 * PCLD_yoyo(t, 0.8, 0.4, 3);
+      if (d.big) s *= 1 + 0.28 * PCLD_yoyo(t, 5.15, 0.42, 2);
+      const t0 = 2.05 + (i % 13) * 0.012, mv = PCLD_qIO4(P(t, t0, t0 + 2.35 + (i % 6) * 0.06));
+      const r = d.big ? 11 : 8.5, x = PCLD_X + (lerp(d.sx, d.fx, mv) + r) * PCLD_KX, y = PCLD_Y + (lerp(d.sy, d.fy, mv) + r) * PCLD_KY;
+      k.globalAlpha = out * clamp(ap * 2.5) * lerp(0.78, 1, mv);
+      k.fillStyle = d.big ? '#ffbf69' : '#8a72ff'; k.beginPath(); k.arc(x, y, (d.big ? 3.5 : 2.7) * s, 0, 7); k.fill();
+    });
+    k.shadowBlur = 0; k.shadowColor = 'transparent';
+    k.restore();
+    // 文字：坐标轴刻度、左上状态、右上计数（随原作标题 0–0.55 秒淡入，三次缓出）
+    k.save(); k.globalAlpha = out * eOut(P(t, 0.2, 0.75));
+    ['−3σ', '−2σ', '−1σ', 'μ', '+1σ', '+2σ', '+3σ'].forEach((s, i) => txt(k, s, PCLD_X + (115 + 8 + i * (1450 - 16) / 6) * PCLD_KX, PCLD_Y + 700 * PCLD_KY - 4, `700 8px ui-monospace, Menlo, monospace`, '#9890b8', 'center', 'alphabetic'));
+    const phase = t >= 5.55 ? '均值锁定 / μ' : t >= 3.65 ? '分布浮现' : '样本未定';
+    txt(k, phase, PCLD_X + 8, PCLD_Y + 16, `800 11px ${JP}`, '#ffbf69');
+    const n = Math.round(98 * PCLD_qIO3(P(t, 2.05, 4.75)));
+    txt(k, '观测', w - 64, PCLD_Y + 16, `700 9px ${JP}`, '#9890b8', 'right');
+    txt(k, String(n).padStart(3, '0'), w - 16, PCLD_Y + 18, `700 17px ui-monospace, Menlo, monospace`, '#f3f0ff', 'right');
+    k.restore();
+  };
+
+  // @element 28
+  // 改写自 ui2v · illli Ai Studio · broll-network-diffusion（MIT-0）
+  // 28 网络扩散：左侧源点亮起并放出 3 圈涟漪，信号沿 16 条曲线边一跳一跳向右传到 16 个节点，经过的边变成珊瑚色发光、到达的节点回弹点亮，左上角实时显示跳数与已触达节点数。
+  // 时间按原作 8.5 秒 × 0.5 映射：源点 0.13–0.4 秒从 0.35 倍回弹出现（back 1.8）；3 圈涟漪 0.18 秒起每隔 0.11 秒放出、0.78 秒内由 0.3 倍扩到 4.8 倍并淡出（三次缓出）；
+  // 16 条边的点亮时刻 0.35 / 0.46 / 1.03 / 1.13 / 1.21 / 1.31 / 1.73 / 1.81 / 1.9 / 1.99 / 2.08 / 2.17 / 2.26 / 2.83 / 2.95 / 3.08 秒，
+  // 每条边 0.36 秒画完（三次缓入缓出 = power2.inOut），起点后 0.24 秒节点由 0.25 倍回弹出现（0.18 秒、back 1.7），跳数 = min(4, ⌊i/2⌋+1)、触达数 = i + 2；
+  // 3.4 秒起三个光环依次放大到 1.2 倍并变淡；4.05–4.23 秒信号层淡出，回到只有暗色边的初始网络（与 u=0 相同）。
+  // 尺寸换算：网络 1740×760 → 节点区 x 200–1640 映射到 20–519（×0.3465），y 30–730 映射到 8–200（×0.274），圆半径 ×0.31。
+  // 配色照抄：底 #071421、信号 #ff7058、暗边 #315365、节点描边 #9bb0b8、字 #e8efe9 / #6f8794；节点标签译为「源」与 N1–N6。
+  const NETD_KX = 499 / 1440, NETD_KY = 192 / 700, NETD_KR = 0.31, NETD_S = 0.5;
+  const NETD_X = x => 20 + (x - 200) * NETD_KX, NETD_Y = y => 8 + (y - 30) * NETD_KY;
+  const NETD_NODES = [[260, 380, 27, 58, '源'], [570, 220, 18, 39, 'N1'], [590, 500, 18, 39, 'N2'], [850, 115, 15, 0, 'N3'], [875, 300, 15, 0, 'N4'], [890, 415, 15, 0, 'N5'], [900, 625, 15, 0, 'N6'],
+    [1165, 65, 12, 0], [1180, 195, 12, 0], [1200, 275, 12, 0], [1215, 365, 12, 0], [1230, 465, 12, 0], [1240, 570, 12, 0], [1280, 690, 12, 0], [1530, 115, 10, 0], [1580, 325, 10, 0], [1600, 500, 10, 0]];
+  // 边：[起点节点, 终点节点, 控制点1 x, 控制点2 x]（原作三次贝塞尔，控制点 y 分别取起点、终点 y）
+  const NETD_EDGES = [[0, 1, 390, 430], [0, 2, 400, 445], [1, 3, 690, 730], [1, 4, 700, 735], [2, 5, 715, 755], [2, 6, 720, 760], [3, 7, 990, 1025], [3, 8, 995, 1035],
+    [4, 9, 1015, 1050], [4, 10, 1020, 1060], [5, 11, 1030, 1080], [6, 12, 1040, 1090], [6, 13, 1060, 1110], [7, 14, 1300, 1380], [10, 15, 1360, 1410], [11, 16, 1380, 1430]].map(([a, b, c1, c2]) => {
+    const A = NETD_NODES[a], B = NETD_NODES[b], pts = [], cum = [0];
+    for (let i = 0; i <= 24; i++) {
+      const t = i / 24, m = 1 - t;
+      const x = m * m * m * A[0] + 3 * m * m * t * c1 + 3 * m * t * t * c2 + t * t * t * B[0], y = m * m * m * A[1] + 3 * m * m * t * A[1] + 3 * m * t * t * B[1] + t * t * t * B[1];
+      pts.push([NETD_X(x), NETD_Y(y)]); if (i) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+    }
+    return { b, pts, cum };
+  });
+  const NETD_START = [0.7, 0.92, 2.05, 2.25, 2.42, 2.62, 3.45, 3.62, 3.8, 3.98, 4.16, 4.34, 4.52, 5.65, 5.9, 6.15];
+  const NETD_sIO = x => -(Math.cos(Math.PI * x) - 1) / 2;
+  const NETD_BG = (() => {
+    const c = mkCanvas(CW, CH), g = c.getContext('2d');
+    g.fillStyle = '#071421'; g.fillRect(0, 0, CW, CH);
+    const a = g.createRadialGradient(CW * 0.37, CH * 0.52, 0, CW * 0.37, CH * 0.52, CW * 0.26); a.addColorStop(0, 'rgba(255,112,88,.13)'); a.addColorStop(1, 'rgba(255,112,88,0)'); g.fillStyle = a; g.fillRect(0, 0, CW, CH);
+    const b = g.createRadialGradient(CW * 0.78, CH * 0.48, 0, CW * 0.78, CH * 0.48, CW * 0.34); b.addColorStop(0, 'rgba(60,117,142,.2)'); b.addColorStop(1, 'rgba(60,117,142,0)'); g.fillStyle = b; g.fillRect(0, 0, CW, CH);
+    for (let x = 4; x < CW; x += 9) for (let y = 4; y < CH; y += 9) {                     // 点阵（原 30px）两侧渐隐
+      const f = clamp(Math.min(x, CW - x) / (CW * 0.16)); g.fillStyle = `rgba(232,239,233,${0.11 * f})`; g.fillRect(x, y, 1, 1);
+    }
+    g.strokeStyle = '#315365'; g.lineWidth = 1.3; g.lineCap = 'round';
+    for (const e of NETD_EDGES) { g.beginPath(); e.pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); }
+    return c;
+  })();
+  CELLS[27] = (k, w, h, u) => {
+    u = snapU(u);
+    const t = u / NETD_S;
+    k.drawImage(NETD_BG, 0, 0);
+    const out = 1 - eIn(P(t, 8.1, 8.45));
+    if (out <= 0 || t < 0.25) return;
+    k.save(); k.globalAlpha = out;
+    // 亮边：按虚线偏移逐段画出
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    let hop = 0, reached = 1;
+    NETD_EDGES.forEach((e, i) => {
+      const s = NETD_START[i]; if (t < s) return;
+      const L = e.cum[e.cum.length - 1] * eIO(P(t, s, s + 0.72));
+      k.beginPath(); k.moveTo(e.pts[0][0], e.pts[0][1]);
+      for (let j = 1; j < e.pts.length; j++) {
+        if (e.cum[j] <= L) { k.lineTo(e.pts[j][0], e.pts[j][1]); continue; }
+        const q = (L - e.cum[j - 1]) / (e.cum[j] - e.cum[j - 1]); k.lineTo(lerp(e.pts[j - 1][0], e.pts[j][0], q), lerp(e.pts[j - 1][1], e.pts[j][1], q)); break;
+      }
+      k.strokeStyle = 'rgba(255,112,88,.28)'; k.lineWidth = 5; k.stroke();             // 原 drop-shadow 9px 光晕
+      k.strokeStyle = '#ff7058'; k.lineWidth = 1.9; k.stroke();
+      if (t >= s + 0.5) { hop = Math.min(4, Math.floor(i / 2) + 1); reached = i + 2; }
+    });
+    // 源点涟漪
+    for (let r = 0; r < 3; r++) {
+      const q = P(t, 0.35 + r * 0.22, 1.9 + r * 0.22); if (q <= 0 || q >= 1) continue;
+      const e = eOut(q);
+      k.save(); k.globalAlpha = out * 0.55 * (1 - e); k.strokeStyle = '#ff7058'; k.lineWidth = 1;
+      k.beginPath(); k.arc(NETD_X(260), NETD_Y(380), 58 * NETD_KR * lerp(0.3, 4.8, e), 0, 7); k.stroke(); k.restore();
+    }
+    // 节点
+    NETD_NODES.forEach(([x, y, cr, hr, lb], n) => {
+      const s0 = n === 0 ? 0.25 : NETD_START[NETD_EDGES.findIndex(e => e.b === n)] + 0.48;
+      const q = P(t, s0, s0 + (n === 0 ? 0.55 : 0.36)); if (q <= 0) return;
+      const sc = lerp(n === 0 ? 0.35 : 0.25, 1, backOut(q, n === 0 ? 1.8 : 1.7)), active = n === 0 || t >= s0 - 0.01;
+      const X = NETD_X(x), Y = NETD_Y(y);
+      k.save(); k.globalAlpha = out * clamp(q * 1.6); k.translate(X, Y); k.scale(sc, sc);
+      if (hr) {
+        const hp = NETD_sIO(P(t, 6.8 + n * 0.025, 7.45 + n * 0.025));
+        k.save(); k.globalAlpha *= lerp(0.35, 0.08, hp) / 1; k.strokeStyle = '#ff7058'; k.lineWidth = 1;
+        k.beginPath(); k.arc(0, 0, hr * NETD_KR * (1 + 0.2 * hp), 0, 7); k.stroke(); k.restore();
+      }
+      k.fillStyle = active ? '#ff7058' : '#071421'; k.strokeStyle = active ? '#e8efe9' : '#9bb0b8'; k.lineWidth = n === 0 ? 1.9 : 1.25;
+      k.beginPath(); k.arc(0, 0, Math.max(3, cr * NETD_KR), 0, 7); k.fill(); k.stroke();
+      if (lb) txt(k, lb, 0, Math.max(3, cr * NETD_KR) + (n === 0 ? 13 : 10), `700 ${n === 0 ? 10 : 8}px ${n === 0 ? JP : 'ui-monospace, Menlo, monospace'}`, '#e8efe9', 'center', 'alphabetic');
+      k.restore();
+    });
+    // 左上遥测（随原作状态栏 0.15–0.65 秒淡入）
+    k.globalAlpha = out * eOut(P(t, 0.25, 0.75));
+    txt(k, '跳数', 18, 22, `700 9px ${JP}`, '#6f8794');
+    txt(k, String(hop).padStart(2, '0'), 44, 23, `700 13px ui-monospace, Menlo, monospace`, '#e8efe9');
+    txt(k, `${String(reached).padStart(2, '0')} 个节点已触达`, 18, 38, `700 9px ${JP}`, '#e8efe9');
+    k.restore();
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

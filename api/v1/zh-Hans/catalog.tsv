@@ -1,4 +1,4 @@
-# Motion Prompt catalog (zh-Hans) · 251 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
+# Motion Prompt catalog (zh-Hans) · 263 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
 1-001	ui	弹出与覆盖	模态对话框 (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	点击“打开”后页面变暗，小窗口略微放大并出现在中央，点击 × 关闭。
 1-002	ui	弹出与覆盖	侧边抽屉 (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	点击“菜单”后高面板从左侧滑入，点击外部后滑回。
 1-003	ui	弹出与覆盖	底部弹出面板 (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	手指轻点“查看详情”，面板从底部升起；向下拖动把手即可关闭。
@@ -28,6 +28,12 @@
 1-100	ui	弹出与覆盖	橡皮筋回弹 (Rubber-banding)	rubber-banding,overscroll,elastic,drag,bottom-sheet,damping,bounce-back	已展开的底部面板被继续上拉，越拉越重、落后于手指，松手后弹回边界。
 1-101	ui	弹出与覆盖	可打断动画 (Interruptible animation)	interruptible,spring,physics,drawer,velocity,retarget,gesture	抽屉开到一半时再次点击，它不先开完，而是顺势略冲后平滑折返关闭。
 1-102	ui	选择与切换	拖拽排序 (Drag to reorder)	drag-and-drop,reorder,sortable,list,drag-handle,placeholder,kanban	第 1 行被按住抬起、向下拖过 2 行，途经的行依次上移让位，松手后落入新位置。
+1-108	ui	选择与切换	验证码逐格填入 (OTP input fill)	otp,verification-code,pin-input,two-factor,form,input	6 个格子依次跳入数字，正在输入的格子亮起蓝边；填满后全部变蓝，提示换成“已验证”，整组轻轻上浮。
+1-109	ui	选择与切换	密码强度条 (Password strength meter)	password,strength-meter,form,validation,progress-bar,sign-up	“新密码”框里的圆点从 4 个增到 16 个，下方 4 段强度条逐段点亮，强度文字从红变绿。
+1-110	ui	弹出与覆盖	拖拽上传 (Drag-and-drop upload)	upload,drag-and-drop,dropzone,file,progress-bar,form	文件卡从上方落进虚线上传区，边框变成实线，进度条走满，到 100% 时显示“可以发布”。
+1-111	ui	导航与状态	快捷键逐键点亮 (Keyboard shortcut press)	keyboard-shortcut,hotkey,keycap,onboarding,productivity,micro-interaction	深色键盘板上 Ctrl、Shift、P 依次按下亮成琥珀色，提示文字逐步拼出，键盘板轻轻一跳后变为“已排队”。
+1-112	ui	导航与状态	代码差异高亮 (Code diff highlight)	code-diff,code-editor,syntax,developer-tools,highlight,code-review	深色编辑器的 5 行代码里，上下文行先亮起，红色删除行与绿色新增行依次从左滑入，新增行底色加深一次再回落。
+1-113	ui	导航与状态	部署流水线 (Deploy pipeline)	deploy,pipeline,ci-cd,build-status,progress,developer-tools,dashboard	深色背景上 4 张阶段卡从左到右依次运行，通过后描边和圆点亮绿，连接线伸向下一张，最后 Deploy 显示“已上线”。
 1-025	lp	滚动效果	视差滚动 (Parallax scrolling)	parallax,parallax-scrolling,scroll,depth,layers,hero,background	页面下滚时，标题正常上移，天空、太阳、远山与近山移动得更慢。
 1-026	lp	滚动效果	滚动淡入 (Fade-in on scroll)	fade-in,scroll-reveal,reveal-on-scroll,intersection-observer,aos,entrance,scroll	随页面滚动，标题、卡片和正文进入视口后分别上移到位并淡入。
 1-027	lp	滚动效果	吸顶页头 (Sticky header)	sticky,sticky-header,fixed-header,position-sticky,navigation,header,scroll	公告条滚出后，下方页头停在顶部，正文从其下方滚过。
@@ -155,6 +161,9 @@
 2-047	motion2	转场与强调	爆炸分解图 (Exploded view)	exploded-view,explode,layers,isometric,product,breakdown,explainer	手机分成多个结构层展示内部构造，随后重新组装。
 2-048	motion2	转场与强调	分屏 (Split screen)	split-screen,multi-screen,panels,side-by-side,comparison,layout	全幅场景先分成两个面板，再分成三个，各面板中的场景持续运动。
 2-064	motion2	文字与图形	文字逐字变换 (Text morph)	text-morph,text-transition,button-state,micro-interaction,typography,label	按钮文字在“保存、已保存、再次保存”间切换，共有的字滑到新位置，新增的字翻入、多余的字向上飘走。
+2-065	motion2	文字与图形	波的干涉 (Wave interference)	wave,interference,physics,sine-wave,diagram,education,data-visualization	青色波 A 与橙色波 B 反向流动，下方合成波时而加高时而压平，竖直采样虚线上 3 个点跟着读数。
+2-066	motion2	文字与图形	散点聚成正态分布 (Dots settling into a normal distribution)	normal-distribution,statistics,histogram,bell-curve,particles,data-visualization,education	紫色坐标区里点先像云一样冒出，再错开飞落堆成钟形柱，计数升到 098，均值线变成实线。
+2-067	motion2	文字与图形	网络扩散 (Network diffusion)	network,diffusion,graph,propagation,nodes,data-visualization	左侧源点亮起扩出涟漪，信号一跳一跳向右传递，经过的边亮成珊瑚色，到达的节点回弹点亮，跳数和触达数随之增加。
 2-049	mgstyles	平面与线条	扁平矢量动画 (Flat vector motion)	flat-design,vector,squash-and-stretch,bounce,elastic,explainer,brand-intro	珊瑚圆点从群青天空落下连跳 5 下，每次落地弹出彩色扁平小楼，最后字标弹性入场。
 2-050	mgstyles	平面与线条	线条动画 (Line art animation)	line-art,one-line-drawing,stroke-reveal,logo-reveal,gold,camera-pan	镜头跟着发光笔尖平移，金线一笔画出幼苗与塔楼，最后拉远成海报构图，环形标志内填满金色。
 2-051	mgstyles	平面与线条	形变动画 (Morphing)	shape-morph,morphing,beat-sync,color-wipe,squash-and-stretch,social-short	主形先收成圆再展开成下一形，伴着挤压与摆转；每次背景从中心圆形换色，右侧字幕同步换词。
@@ -250,3 +259,6 @@
 4-030	scenes	器物与空间	无限镜屋 (Infinity room)	infinity-room,mirror,lights,immersive,3d,night,bokeh	镜头在黑暗中悬着的 4 色小灯间缓缓前进，镜面地板倒映灯阵，亮度沿纵深一阵阵呼吸。
 4-031	scenes	器物与空间	黑胶唱片 (Spinning vinyl)	vinyl,record,music,turntable,spin,retro,product-shot	红底上唱片标签匀速旋转，沟槽高光固定在光源方向，银色唱臂静止落在唱片上。
 4-032	scenes	器物与空间	扑克飞牌 (Card flourish)	playing-cards,card-fan,magic,flip,casino,objects,sequence	绿呢台面中央的牌堆里牌一张张飞出排成扇形，逐张翻到正面再翻回背面，最后收拢回牌堆。
+4-033	scenes	器物与空间	小票打印 (Receipt printing)	receipt,printer,thermal-paper,pos,checkout,objects	深色出纸口淡入后，白色小票从顶部缓缓吐出，依次露出店名、3 行明细和虚线下的“合计 已发货”，最后整体淡出。
+4-034	scenes	科技氛围	条码扫描 (Barcode scan)	barcode,scanner,laser,logistics,warehouse,tech	灰色台面上一张白色装箱单落定，青色激光从左到右扫过条码后熄灭，绿色“已核验 · 可发货”浮现。
+4-035	scenes	科技氛围	示波器描线 (Oscilloscope trace)	oscilloscope,waveform,signal,sweep,electronics,tech	深色示波器面板淡入，一道竖直光束从左走到右，身后描出青色波形，起伏 3 次逐渐变小，画完后光束熄灭。

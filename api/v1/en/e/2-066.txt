@@ -1,0 +1,91 @@
+// Motion Prompt #2-066 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+//
+// Dots settling into a normal distribution / 点が正規分布にまとまる
+// Pack: motion2 (Motion graphics moves, part 2) · element 27 · Category: Text & shapes
+// What happens: Dots pop up like a cloud inside a purple plot, fly off with slight staggers to stack into bell-shaped columns, the counter climbs to 098 and the mean line turns solid.
+// Motion spec:
+//   - A purple plot area, 479×192, with 98 observation dots (purple #8a72ff; 1 in every 6 is a large orange dot #ffbf69); dot diameters 5.4 / 7px.
+//   - From 0.11 s the dots pop in from the centre outward, 0.0022 s apart, forming a cloud. The mean line μ grows upward over 0.28–0.58 s. 1 in every 3 dots shrinks to 0.82 over 0.44–1.1 s.
+//   - From 1.13 s each dot, offset by (i mod 13)×0.0066 s, flies over 1.29–1.46 s (quartic ease-in-out) into 13 bell-shaped columns with heights 1-2-4-7-11-15-18-15-11-7-4-2-1.
+//   - The counter rises from 000 to 098 over 1.13–2.6 s; the status reads "Distribution emerging" at 2.0 s and "Mean locked" at 3.05 s. The mean line turns solid from 2.61 s, and the large orange dots swell to 1.28 and settle from 2.83 s. Everything fades over 4.19–4.38 s.
+//   - Versus Candlestick chart: the columns are built from dots flying in one at a time to show a sample settling into a normal distribution, rather than price bars drawn one by one.
+// When to use it: Use it in statistics and data science lessons, analytics product promos, or videos explaining survey results and reports.
+// Tags: normal-distribution, statistics, histogram, bell-curve, particles, data-visualization, education
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-066
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 27
+// 改写自 ui2v · illli Ai Studio · broll-probability-cloud（MIT-0）
+// 27 散点聚成正态分布：紫色坐标区里 98 个观测点先散成一团云，再一个个落进 13 列、高度 1-2-4-7-11-15-18-15-11-7-4-2-1 的钟形柱，均值线 μ 亮起锁定。
+// 时间按原作 8 秒 × 0.55 映射：点 0.11 秒起从中间向两侧每隔 0.0022 秒回弹出现（0.22 秒、back 1.6，透明度到 0.78）；均值线 0.28–0.58 秒自下而上长出（透明度 0.28）；
+// 每 3 个点中 1 个 0.44–1.1 秒按 0.82 倍往返 3 个半程（缩→回→缩，停在 0.82 倍）；1.13 秒起各点按 (i mod 13)×0.0066 秒错开、用时 1.29–1.46 秒（四次缓入缓出 = power3.inOut）飞到钟形位置；
+// 计数 1.13–2.6 秒从 000 升到 098（三次缓入缓出）；状态字 2.0 秒变「分布浮现」、3.05 秒变「均值锁定 / μ」；均值线 2.61 秒起变实；每 6 个点中 1 个（橙色大点）2.83 秒起放大到 1.28 倍再回落；
+// 坐标区 3.55–3.99 秒微放大到 1.012 倍；4.19–4.38 秒点、均值线与文字淡出，只剩坐标轴与网格，与 u=0 相同。
+// 点的初始位置照抄原作确定性公式：sx = 70 + (149k mod 1510)，sy = 60 + ((97k + 11k²) mod 430)；终点 fx = 118 + 121·列，fy = 620 − 27·行。
+// 尺寸换算：坐标区 1680×700 → 479×192（横 ×0.285、纵 ×0.274），点直径 17 / 22 → 5.4 / 7px。配色照抄：底 #17152d、紫 #8a72ff、橙 #ffbf69、轴 #5a5478、字 #f3f0ff / #9890b8。
+const PCLD_X = 32, PCLD_Y = 8, PCLD_KX = 479 / 1680, PCLD_KY = 192 / 700, PCLD_S = 0.55;
+const PCLD_DOTS = (() => {
+  const counts = [1, 2, 4, 7, 11, 15, 18, 15, 11, 7, 4, 2, 1], o = []; let k = 0;
+  counts.forEach((n, col) => { for (let row = 0; row < n; row++) { o.push({ sx: 70 + ((k * 149) % 1510), sy: 60 + ((k * 97 + k * k * 11) % 430), fx: 118 + col * 121, fy: 620 - row * 27, big: (k + 1) % 6 === 0, third: (k + 1) % 3 === 0 }); k++; } });
+  return o;
+})();
+const PCLD_qIO4 = x => (x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2);   // power3.inOut
+const PCLD_qIO3 = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);       // power2.inOut
+const PCLD_sIO = x => -(Math.cos(Math.PI * x) - 1) / 2;
+// GSAP yoyo 共 n 个半程：奇数个半程结束后停在终值（原作每 3 个点的 0.82 倍缩放 repeat 2 即停在 0.82）
+const PCLD_yoyo = (t, t0, d, n) => { const q = (t - t0) / d; if (q <= 0) return 0; if (q >= n) return n % 2; const f = q % 1; return PCLD_sIO(Math.floor(q) % 2 ? 1 - f : f); };
+const PCLD_BG = (() => {
+  const c = mkCanvas(CW, CH), g = c.getContext('2d');
+  g.fillStyle = '#17152d'; g.fillRect(0, 0, CW, CH);
+  const a = g.createRadialGradient(CW * 0.5, CH * 0.46, 0, CW * 0.5, CH * 0.46, CW * 0.38); a.addColorStop(0, 'rgba(138,114,255,.25)'); a.addColorStop(1, 'rgba(138,114,255,0)'); g.fillStyle = a; g.fillRect(0, 0, CW, CH);
+  const b = g.createRadialGradient(CW * 0.22, CH * 0.7, 0, CW * 0.22, CH * 0.7, CW * 0.26); b.addColorStop(0, 'rgba(255,191,105,.09)'); b.addColorStop(1, 'rgba(255,191,105,0)'); g.fillStyle = b; g.fillRect(0, 0, CW, CH);
+  g.fillStyle = 'rgba(243,240,255,.045)';
+  for (let x = 0; x <= 1680; x += 70) g.fillRect(PCLD_X + x * PCLD_KX, PCLD_Y, 1, 700 * PCLD_KY);
+  for (let y = 0; y <= 700; y += 70) g.fillRect(PCLD_X, PCLD_Y + y * PCLD_KY, 1680 * PCLD_KX, 1);
+  g.fillStyle = '#5a5478'; g.fillRect(PCLD_X - 1, PCLD_Y, 1.2, 700 * PCLD_KY); g.fillRect(PCLD_X - 1, PCLD_Y + 700 * PCLD_KY - 1.2, 1680 * PCLD_KX + 1, 1.2);
+  return c;
+})();
+CELLS[26] = (k, w, h, u) => {
+  u = snapU(u);
+  const t = u / PCLD_S;
+  k.drawImage(PCLD_BG, 0, 0);
+  const out = 1 - eIn(P(t, 7.62, 7.96));
+  if (t < 0.2 || out <= 0) return;
+  const ps = 1 + 0.012 * PCLD_sIO(P(t, 6.45, 7.25));
+  k.save(); k.globalAlpha = out;
+  k.translate(PCLD_X + 840 * PCLD_KX, PCLD_Y + 350 * PCLD_KY); k.scale(ps, ps); k.translate(-(PCLD_X + 840 * PCLD_KX), -(PCLD_Y + 350 * PCLD_KY));
+  // 均值线 μ（坐标区正中，顶端距上沿 34）
+  const mg = eOut(P(t, 0.5, 1.05)), mx = PCLD_X + 840 * PCLD_KX, mb = PCLD_Y + 700 * PCLD_KY, mt = PCLD_Y + 34 * PCLD_KY;
+  if (mg > 0) {
+    const ma = mg * lerp(0.28, 1, eOut(P(t, 4.75, 5.2)));
+    k.save(); k.globalAlpha = out * ma; k.fillStyle = '#ffbf69'; k.fillRect(mx - 0.5, lerp(mb, mt, mg), 1.2, (mb - mt) * mg);
+    txt(k, 'μ', mx - 4, mt + 1, `italic 900 12px Georgia, serif`, '#ffbf69', 'right', 'top'); k.restore();
+  }
+  // 98 个点
+  k.shadowColor = 'rgba(138,114,255,.45)'; k.shadowBlur = 4;
+  PCLD_DOTS.forEach((d, i) => {
+    const ap = P(t, 0.2 + Math.abs(i - 49) * 0.004, 0.6 + Math.abs(i - 49) * 0.004); if (ap <= 0) return;
+    let s = backOut(ap, 1.6);
+    if (d.third) s *= 1 - 0.18 * PCLD_yoyo(t, 0.8, 0.4, 3);
+    if (d.big) s *= 1 + 0.28 * PCLD_yoyo(t, 5.15, 0.42, 2);
+    const t0 = 2.05 + (i % 13) * 0.012, mv = PCLD_qIO4(P(t, t0, t0 + 2.35 + (i % 6) * 0.06));
+    const r = d.big ? 11 : 8.5, x = PCLD_X + (lerp(d.sx, d.fx, mv) + r) * PCLD_KX, y = PCLD_Y + (lerp(d.sy, d.fy, mv) + r) * PCLD_KY;
+    k.globalAlpha = out * clamp(ap * 2.5) * lerp(0.78, 1, mv);
+    k.fillStyle = d.big ? '#ffbf69' : '#8a72ff'; k.beginPath(); k.arc(x, y, (d.big ? 3.5 : 2.7) * s, 0, 7); k.fill();
+  });
+  k.shadowBlur = 0; k.shadowColor = 'transparent';
+  k.restore();
+  // 文字：坐标轴刻度、左上状态、右上计数（随原作标题 0–0.55 秒淡入，三次缓出）
+  k.save(); k.globalAlpha = out * eOut(P(t, 0.2, 0.75));
+  ['−3σ', '−2σ', '−1σ', 'μ', '+1σ', '+2σ', '+3σ'].forEach((s, i) => txt(k, s, PCLD_X + (115 + 8 + i * (1450 - 16) / 6) * PCLD_KX, PCLD_Y + 700 * PCLD_KY - 4, `700 8px ui-monospace, Menlo, monospace`, '#9890b8', 'center', 'alphabetic'));
+  const phase = t >= 5.55 ? '均值锁定 / μ' : t >= 3.65 ? '分布浮现' : '样本未定';
+  txt(k, phase, PCLD_X + 8, PCLD_Y + 16, `800 11px ${JP}`, '#ffbf69');
+  const n = Math.round(98 * PCLD_qIO3(P(t, 2.05, 4.75)));
+  txt(k, '观测', w - 64, PCLD_Y + 16, `700 9px ${JP}`, '#9890b8', 'right');
+  txt(k, String(n).padStart(3, '0'), w - 16, PCLD_Y + 18, `700 17px ui-monospace, Menlo, monospace`, '#f3f0ff', 'right');
+  k.restore();
+};

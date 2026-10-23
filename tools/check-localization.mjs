@@ -22,7 +22,7 @@ const langs = ['zh-Hans', 'en', 'ja'];
 const window = { MP_SITE_CONFIG: CONFIG };
 vm.runInNewContext(read('assets/catalog.js'), { window });
 const cat = window.MP_CATALOG;
-assert.equal(cat.count, 251);
+assert.equal(cat.count, 263);
 assert.equal(cat.packs.length, 10);
 assert.equal(cat.groups.length, 4);
 assert.equal(cat.site, CONFIG.site);
@@ -69,6 +69,9 @@ assert.match(read('api/v1/zh-Hans/p/2-049.txt'), /保留 Vincentwei1021 的 MIT 
 // 放进 Shohei 原作包的效果：效果级版权指向 Emil Kowalski；同包原作仍为 Shohei 并链接原站；kit 首行之后列出其他版权人
 assert.equal(read('api/v1/zh-Hans/e/1-098.txt').split('\n')[0], '// Motion Prompt #1-098 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills');
 assert.match(read('api/v1/zh-Hans/p/1-098.txt'), /保留 Emil Kowalski 的 MIT 版权标识/);
+// MIT-0 作品（改写自 ui2v，illli Ai Studio）：首行写 MIT-0 License，中文 Prompt 末句提示保留 MIT-0 版权标识
+assert.equal(read('api/v1/zh-Hans/e/1-108.txt').split('\n')[0], '// Motion Prompt #1-108 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/');
+assert.match(read('api/v1/zh-Hans/p/1-108.txt'), /保留 illli Ai Studio 的 MIT-0 版权标识/);
 assert.ok(read('api/v1/zh-Hans/e/1-001.txt').startsWith('// Motion Prompt #1-001 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#049'));
 assert.match(read('api/v1/kit/ui.js').split('\n')[1], /^\/\/ Also: MIT License \(c\) 2026 Emil Kowalski · https:\/\/github\.com\/emilkowalski\/skills \(#1 098~102\)$/);
 assert.deepEqual(json('skills/motion-prompt-zh/scripts/site-config.json'), CONFIG);
@@ -111,7 +114,7 @@ try {
   page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400 && !r.url().endsWith('/favicon.ico')) errors.push(`${r.status()} ${r.url()}`); });
   const open = async (suffix = '') => {
     await page.goto(base + '/motion-prompt-zh/' + suffix);
-    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 251 && Object.keys(window.MotionPrompt.packs).length === 10);
+    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 263 && Object.keys(window.MotionPrompt.packs).length === 10);
   };
   await open();
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');

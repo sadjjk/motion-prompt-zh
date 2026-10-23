@@ -1169,6 +1169,172 @@ MotionPrompt.pack('scenes', function () {
     }
     grain(k, 0.05);
   };
+  // @element 33
+  // 改写自 ui2v · illli Ai Studio · hero-receipt-print（MIT-0）
+  // 33 小票打印：深色收银机出纸口里，一张热敏小票从上方出纸口缓缓送出，露出店名、三行明细和虚线下的「合计 已发货」。
+  // 时间按原作 4.5 秒 × 1.2 映射到 0–5.4 秒展示段：出纸口 0.36–0.96 秒淡入并上移 5px（原 0.3 秒起 0.5 秒、20px，二次缓出）；
+  // 小票 1.08–3.96 秒以二次缓出下送 165px（原 0.9 秒起 2.4 秒送 620px），4.08–5.28 秒再以正弦缓入缓出补送 5px（原 3.4 秒起 1 秒补 20px）；
+  // 5.4–6.0 秒整体淡出，6.4 秒回到空背景。尺寸换算：出纸口 520×760 → 341×188（宽 ×0.66、高 ×0.25），小票内容重排为 301×130，
+  // 终点位置保持原作「小票顶边停在出纸口高度 16% 处」。配色照抄：底 #111827、出纸口 #1f2937 / 内描边 #374151、出纸嘴 #4b5563→#1f2937、
+  // 小票 #f9fafb、字 #111827、合计虚线 #9ca3af。
+  const RCPT_X = 99, RCPT_Y = 10, RCPT_W = 341, RCPT_H = 188, RCPT_PW = 301, RCPT_PH = 130;
+  const RCPT_LINES = [['动效包', '20×'], ['发布', '成功'], ['Lint', '0 错误']];
+  const RCPT_qOut = t => 1 - (1 - t) * (1 - t);                       // GSAP power1.out
+  const RCPT_sIO = t => -(Math.cos(Math.PI * t) - 1) / 2;              // GSAP sine.inOut
+  CELLS[32] = (k, w, h, u) => {
+    k.fillStyle = '#111827'; k.fillRect(0, 0, CW, CH);
+    const sa = RCPT_qOut(seg(u, 0.36, 0.96)), fade = fadeIn(u);
+    const a = sa * fade; if (a <= 0) return;
+    // 小票顶边：起点 -130（整张藏在出纸口上方），一段送 164.7px、二段补 5.3px，终点 y=40
+    const top = -130 + 164.7 * RCPT_qOut(seg(u, 1.08, 3.96)) + 5.3 * RCPT_sIO(seg(u, 4.08, 5.28));
+    k.save(); k.globalAlpha = a; k.translate(0, 5 * (1 - sa));
+    // 出纸口外投影（原 0 24px 50px rgba(0,0,0,.35)，以三层半透明圆角块近似）
+    for (let i = 0; i < 3; i++) { k.fillStyle = 'rgba(0,0,0,.12)'; rr(k, RCPT_X - 2 - i * 2, RCPT_Y + 6 + i * 2, RCPT_W + 4 + i * 4, RCPT_H, 9 + i * 2); k.fill(); }
+    k.fillStyle = '#1f2937'; rr(k, RCPT_X, RCPT_Y, RCPT_W, RCPT_H, 7); k.fill();
+    k.save(); rr(k, RCPT_X, RCPT_Y, RCPT_W, RCPT_H, 7); k.clip();
+    // 小票（左右各留 20px）
+    const px = RCPT_X + 20;
+    k.save(); k.translate(px, top);
+    k.fillStyle = 'rgba(0,0,0,.25)'; k.fillRect(-2, 3, RCPT_PW + 4, RCPT_PH + 3);
+    k.fillStyle = '#f9fafb'; k.fillRect(0, 0, RCPT_PW, RCPT_PH);
+    txt(k, 'UI2V 小卖部', 16, 30, `700 15px ${MONO}`, '#111827');
+    RCPT_LINES.forEach(([l, r], i) => {
+      txt(k, l, 16, 54 + i * 17, `400 12px ${MONO}`, '#111827');
+      txt(k, r, RCPT_PW - 16, 54 + i * 17, `400 12px ${MONO}`, '#111827', 'right');
+    });
+    k.strokeStyle = '#9ca3af'; k.lineWidth = 1.4; k.setLineDash([4, 3]);
+    k.beginPath(); k.moveTo(16, 100); k.lineTo(RCPT_PW - 16, 100); k.stroke(); k.setLineDash([]);
+    txt(k, '合计', 16, 118, `700 12px ${MONO}`, '#111827');
+    txt(k, '已发货', RCPT_PW - 16, 118, `700 12px ${MONO}`, '#111827', 'right');
+    k.restore();
+    // 出纸嘴：盖在小票上方（原 z-index 2），高 11px
+    const mg = k.createLinearGradient(0, RCPT_Y, 0, RCPT_Y + 11); mg.addColorStop(0, '#4b5563'); mg.addColorStop(1, '#1f2937');
+    k.fillStyle = mg; k.fillRect(RCPT_X, RCPT_Y, RCPT_W, 11);
+    k.restore();
+    // 内描边（原 inset 0 0 0 2px #374151）
+    k.strokeStyle = '#374151'; k.lineWidth = 1.5; rr(k, RCPT_X + 0.75, RCPT_Y + 0.75, RCPT_W - 1.5, RCPT_H - 1.5, 6.5); k.stroke();
+    k.restore();
+  };
+
+  // @element 34
+  // 改写自 ui2v · illli Ai Studio · hero-barcode-scan（MIT-0）
+  // 34 条码扫描：浅灰台面上一张白色装箱单落定，青色激光从左向右扫过 29 根条码，扫完后绿色「已核验 · 可发货」浮现、激光熄灭。
+  // 时间按原作 4.5 秒 × 1.2 映射：装箱单 0.18–1.02 秒淡入、上移 9px、由 -0.6° 转正（四次缓出，对应 power3.out）；
+  // 激光 0.9–1.14 秒亮起，1.02–3.6 秒以二次缓入缓出扫过 412px（原 2.15 秒扫 1040px，×0.396）；状态字 3.66–4.2 秒淡入上移 3px；
+  // 激光 3.78–4.2 秒熄灭；5.4–6.0 秒整单淡出，6.4 秒回到空台面。尺寸换算：装箱单 1240×800 → 491×180，
+  // 条码宽度 ×0.8、7px 间距 → 5.6px（共 399px 宽、68px 高）。去掉原作大标题「Barcode Scan」，保留眉题、SKU 行、角标与状态行。
+  // 配色照抄：台面 #e2e8f0→#cbd5e1（160°）、单 #fff、条 #0f172a、虚线 #cbd5e1、角标 #94a3b8、眉题 #64748b、SKU #475569、
+  // 激光 #06b6d4 / 光晕 #22d3ee、状态 #059669。
+  const BARC_W = [12, 4, 18, 6, 10, 4, 22, 7, 5, 15, 4, 20, 8, 6, 14, 4, 24, 9, 5, 16, 7, 11, 4, 19, 8, 6, 13, 5, 17];
+  const BARC_SX = 24, BARC_SY = 14, BARC_SW = 491, BARC_SH = 180;
+  const BARC_q4o = t => 1 - Math.pow(1 - t, 4);                           // GSAP power3.out
+  const BARC_qIO = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2); // GSAP power1.inOut
+  const BARC_qOut = t => 1 - (1 - t) * (1 - t);                            // GSAP 默认 power1.out
+  CELLS[33] = (k, w, h, u) => {
+    k.fillStyle = '#e2e8f0'; k.fillRect(0, 0, CW, CH);
+    k.drawImage(layer('BARC_bg', g => {
+      const gr = g.createLinearGradient(200, -80, 339, 288); gr.addColorStop(0, '#e2e8f0'); gr.addColorStop(1, '#cbd5e1');
+      g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+    }), 0, 0);
+    const e = BARC_q4o(seg(u, 0.18, 1.02)), a = e * fadeIn(u);
+    if (a <= 0) return;
+    k.save(); k.globalAlpha = a;
+    k.translate(BARC_SX + BARC_SW / 2, BARC_SY + BARC_SH / 2 + 9 * (1 - e)); k.rotate(-0.6 * Math.PI / 180 * (1 - e));
+    k.translate(-BARC_SW / 2, -BARC_SH / 2);
+    // 投影（原 0 28px 70px rgba(15,23,42,.18)）
+    for (let i = 0; i < 4; i++) { k.fillStyle = 'rgba(15,23,42,.045)'; rr(k, -i * 3, 6 + i * 2, BARC_SW + i * 6, BARC_SH + i * 2, 4 + i * 3); k.fill(); }
+    k.fillStyle = '#fff'; rr(k, 0, 0, BARC_SW, BARC_SH, 3); k.fill();
+    // 角标
+    k.strokeStyle = '#94a3b8'; k.lineWidth = 1.5; k.beginPath(); k.moveTo(BARC_SW - 58, 22); k.lineTo(BARC_SW - 22, 22); k.lineTo(BARC_SW - 22, 58); k.stroke();
+    txt(k, '装 箱 单', 22, 27, `600 9px ${SANS}`, '#64748b');
+    txt(k, 'SKU · UI2V-MOTION-2048 · 数量 1', 22, 47, `500 12px ${SANS}`, '#475569');
+    // 条码区：上下虚线 y=60 / 136，条高 64–132
+    k.strokeStyle = '#cbd5e1'; k.lineWidth = 1; k.setLineDash([3, 3]);
+    k.beginPath(); k.moveTo(22, 60.5); k.lineTo(BARC_SW - 22, 60.5); k.moveTo(22, 135.5); k.lineTo(BARC_SW - 22, 135.5); k.stroke(); k.setLineDash([]);
+    k.fillStyle = '#0f172a';
+    let bx = 22; for (const bw of BARC_W) { k.fillRect(bx, 64, bw * 0.8, 68); bx += bw * 0.8 + 5.6; }
+    // 激光
+    const la = BARC_qOut(seg(u, 0.9, 1.14)) * (1 - BARC_qOut(seg(u, 3.78, 4.2)));
+    if (la > 0) {
+      const lx = 22 + 412 * BARC_qIO(seg(u, 1.02, 3.6));
+      k.save(); k.globalAlpha = a * la;
+      const gl = k.createLinearGradient(lx - 14, 0, lx + 17, 0);
+      gl.addColorStop(0, 'rgba(34,211,238,0)'); gl.addColorStop(0.45, 'rgba(34,211,238,.85)'); gl.addColorStop(0.55, 'rgba(34,211,238,.85)'); gl.addColorStop(1, 'rgba(34,211,238,0)');
+      k.globalAlpha = a * la * 0.55; k.fillStyle = gl; k.fillRect(lx - 14, 60, 31, 76);
+      k.globalAlpha = a * la; k.fillStyle = '#06b6d4'; k.fillRect(lx, 60, 3, 76);
+      k.restore();
+    }
+    // 状态行
+    const sq = BARC_qOut(seg(u, 3.66, 4.2));
+    if (sq > 0) { k.globalAlpha = a * sq; txt(k, '已核验 · 可发货', 22, 164 + 3 * (1 - sq), `600 15px ${SANS}`, '#059669'); }
+    k.restore();
+  };
+
+  // @element 35
+  // 改写自 ui2v · illli Ai Studio · hero-scope-trace（MIT-0）
+  // 35 示波器描线：深色示波器面板上，一道竖直扫描光束从左走到右，身后画出青色脉冲波形（三个起伏、振幅逐次减小）。
+  // 时间按原作 4.5 秒 × 1.2 映射：面板 0.3–0.96 秒淡入、上移 6px（二次缓出）；光束 0.84–1.08 秒亮起；
+  // 0.96–4.08 秒波形与光束同时匀速推进（原 0.8 秒起 2.6 秒、ease none），波形按原作 1400 的虚线长度推进、到原路径全长即画完；
+  // 光束 4.08–4.44 秒熄灭；4.2–5.4 秒面板以正弦缓入缓出上浮 2px；5.4–6.0 秒整体淡出，6.4 秒回到空背景。
+  // 尺寸换算：面板 920×720 → 511×188；波形框 840×200 → 467×120（横 ×0.556、纵 ×0.6，纵向放大让波形更醒目），网格 80×60 → 44×16。
+  // 配色照抄：底 #020617、面板 #04111d / 边 #164e63、网格 rgba(34,211,238,.08/.05)、波形 #22d3ee、光束 rgba(34,211,238,.55)。
+  const SCOPE_X = 14, SCOPE_Y = 10, SCOPE_W = 511, SCOPE_H = 188, SCOPE_WX = 22.2, SCOPE_WY = 34, SCOPE_KX = 0.5554, SCOPE_KY = 0.6;
+  const SCOPE_PATH = (() => { // 原作 SVG 路径（840×200 坐标）：C 段后接 6 个 S 段，S 的第一控制点取上一段第二控制点的对称点
+    const segs = [[[0, 100], [60, 100], [60, 30], [120, 30]]];
+    const S = [[180, 170, 240, 170], [300, 40, 360, 40], [420, 160, 480, 160], [540, 50, 600, 50], [660, 140, 720, 140], [780, 100, 840, 100]];
+    for (const [c2x, c2y, ex, ey] of S) { const p = segs[segs.length - 1]; segs.push([p[3], [2 * p[3][0] - p[2][0], 2 * p[3][1] - p[2][1]], [c2x, c2y], [ex, ey]]); }
+    const pts = [[0, 100]], cum = [0];
+    for (const [a, b, c, d] of segs) for (let i = 1; i <= 40; i++) {
+      const t = i / 40, m = 1 - t;
+      const x = m * m * m * a[0] + 3 * m * m * t * b[0] + 3 * m * t * t * c[0] + t * t * t * d[0];
+      const y = m * m * m * a[1] + 3 * m * m * t * b[1] + 3 * m * t * t * c[1] + t * t * t * d[1];
+      const q = pts[pts.length - 1]; cum.push(cum[cum.length - 1] + Math.hypot(x - q[0], y - q[1])); pts.push([x, y]);
+    }
+    return { pts, cum, L: cum[cum.length - 1] };
+  })();
+  const SCOPE_qOut = t => 1 - (1 - t) * (1 - t);
+  const SCOPE_sIO = t => -(Math.cos(Math.PI * t) - 1) / 2;
+  CELLS[34] = (k, w, h, u) => {
+    k.fillStyle = '#020617'; k.fillRect(0, 0, CW, CH);
+    const e = SCOPE_qOut(seg(u, 0.3, 0.96)), a = e * fadeIn(u);
+    if (a <= 0) return;
+    const dy = 6 * (1 - e) - 2 * SCOPE_sIO(seg(u, 4.2, 5.4));
+    k.save(); k.globalAlpha = a; k.translate(0, dy);
+    k.drawImage(layer('SCOPE_panel', g => {
+      g.fillStyle = '#04111d'; rr(g, SCOPE_X, SCOPE_Y, SCOPE_W, SCOPE_H, 6); g.fill();
+      g.save(); rr(g, SCOPE_X, SCOPE_Y, SCOPE_W, SCOPE_H, 6); g.clip();
+      g.fillStyle = 'rgba(34,211,238,.08)'; for (let y = 0; y < SCOPE_H; y += 16) g.fillRect(SCOPE_X, SCOPE_Y + y, SCOPE_W, 1);
+      g.fillStyle = 'rgba(34,211,238,.05)'; for (let x = 0; x < SCOPE_W; x += 44) g.fillRect(SCOPE_X + x, SCOPE_Y, 1, SCOPE_H);
+      g.restore();
+      g.strokeStyle = '#164e63'; g.lineWidth = 1.2; rr(g, SCOPE_X + 0.6, SCOPE_Y + 0.6, SCOPE_W - 1.2, SCOPE_H - 1.2, 6); g.stroke();
+    }), 0, 0);
+    const p = seg(u, 0.96, 4.08), vis = Math.min(SCOPE_PATH.L, 1400 * p);      // 原作 dasharray 1400：可见长度 = 1400 × 进度
+    const ox = SCOPE_X + SCOPE_WX, oy = SCOPE_Y + SCOPE_WY;
+    if (vis > 0) {
+      const { pts, cum } = SCOPE_PATH;
+      k.beginPath(); k.moveTo(ox + pts[0][0] * SCOPE_KX, oy + pts[0][1] * SCOPE_KY);
+      for (let i = 1; i < pts.length; i++) {
+        if (cum[i] <= vis) { k.lineTo(ox + pts[i][0] * SCOPE_KX, oy + pts[i][1] * SCOPE_KY); continue; }
+        const t = (vis - cum[i - 1]) / (cum[i] - cum[i - 1]);
+        k.lineTo(ox + mix(pts[i - 1][0], pts[i][0], t) * SCOPE_KX, oy + mix(pts[i - 1][1], pts[i][1], t) * SCOPE_KY); break;
+      }
+      k.lineCap = 'round'; k.lineJoin = 'round';
+      k.strokeStyle = 'rgba(34,211,238,.22)'; k.lineWidth = 7; k.stroke();      // 原 drop-shadow 8px 的光晕
+      k.strokeStyle = '#22d3ee'; k.lineWidth = 2.2; k.stroke();
+    }
+    const ba = SCOPE_qOut(seg(u, 0.84, 1.08)) * (1 - SCOPE_qOut(seg(u, 4.08, 4.44)));
+    if (ba > 0) {
+      const bx = ox + 840 * p * SCOPE_KX;
+      k.save(); k.beginPath(); rr(k, SCOPE_X, SCOPE_Y, SCOPE_W, SCOPE_H, 6); k.clip();
+      const gb = k.createLinearGradient(bx - 9, 0, bx + 9, 0);
+      gb.addColorStop(0, 'rgba(34,211,238,0)'); gb.addColorStop(0.5, 'rgba(34,211,238,.6)'); gb.addColorStop(1, 'rgba(34,211,238,0)');
+      k.globalAlpha = a * ba * 0.45; k.fillStyle = gb; k.fillRect(bx - 9, SCOPE_Y, 18, SCOPE_H);
+      k.globalAlpha = a * ba; k.fillStyle = 'rgba(34,211,238,.55)'; k.fillRect(bx - 0.85, SCOPE_Y, 1.7, SCOPE_H);
+      k.restore();
+    }
+    k.restore();
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

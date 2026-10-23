@@ -1,0 +1,64 @@
+// Motion Prompt #1-110 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+//
+// Drag-and-drop upload / ドラッグ＆ドロップでアップロード
+// Pack: ui (UI component names) · element 32 · Category: Opening & overlays
+// What happens: A file card drops into the dashed upload zone from above; the border turns solid, the progress bar fills, and at 100% it reads "Ready to publish".
+// Motion spec:
+//   - A wide dashed upload zone, 510×167 with radius 16: an "↑" icon, "Drag the file pack here" and a file list on the left; a 210×80 file card drops in on the right.
+//   - Over 1.0–1.7 s the "hero-pack.zip" card falls 100px into place (opacity 0→1, scale 0.96→1, cubic ease-out). At 1.5 s the zone activates: the dashed #34d399 border becomes solid #059669 and the fill goes from 72% white to white.
+//   - Over 1.6–3.4 s the progress bar runs 0→100% (quadratic ease-in-out) with a rounded percentage alongside; at 3.45 s the text becomes "100% · Ready to publish" (#047857).
+//   - Over 3.5–3.95 s the zone rises 4px with sine.inOut. Reset over 3.95–4.35 s (easeInOutCubic): the card fades and the zone returns to its dashed state.
+//   - Versus Drag to reorder: what is dragged is an outside file, and dropping it starts an upload with progress; no list order changes.
+// When to use it: Use it wherever files are received: file sharing, asset submission, or import screens in admin dashboards.
+// Tags: upload, drag-and-drop, dropzone, file, progress-bar, form
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-110
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 32
+// 改写自 ui2v · illli Ai Studio · hero-upload-drop（MIT-0）
+// 拖拽上传：浅绿渐变底上一块虚线上传区（左侧图标「↑」+「将文件包拖到这里」+ 文件清单），
+// 1.0–1.7 秒文件卡「hero-pack.zip」从上方落入（下移 100px、不透明度 0→1、缩放 0.96→1，power3.out 即三次缓出）；
+// 1.5 秒上传区变为激活态（虚线 #34d399 换成实线 #059669，底由 72% 白变纯白）；
+// 1.6–3.4 秒进度条 0→100%，power1.inOut（二次缓入缓出），百分比同步取整；3.45 秒文字变为「100% · 可以发布」（#047857）。
+// 3.5–3.95 秒上传区以 sine.inOut 上浮 4px。复位：3.95–4.35 秒 easeInOutCubic 文件卡淡出、上传区退回虚线态。
+// 尺寸换算：原作 780×680 竖向上传区改为横向 510×167 铺满卡片，文字与文件卡按 0.5 倍（文件卡 420×160→210×80、图标 120→52、
+// 标题 40→20px、说明 26→13px、文件名 28→14px），图标与文字放左半，文件卡落在右半；下落距离 200→100px。时间与原作一一对应，上浮由 0.9 秒缩到 0.45 秒。
+const UPL_S = 0.5;
+const UPL_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
+CELLS[31] = ui((w, h, t) => {
+  // 165deg 线性渐变：方向 (sin165°, −cos165°)，渐变线长 |w·sin|+|h·cos|
+  const dx = Math.sin(165 * Math.PI / 180), dyy = -Math.cos(165 * Math.PI / 180), L = Math.abs(w * dx) + Math.abs(h * dyy);
+  const g = X.createLinearGradient(w / 2 - dx * L / 2, h / 2 - dyy * L / 2, w / 2 + dx * L / 2, h / 2 + dyy * L / 2);
+  g.addColorStop(0, '#ecfdf5'); g.addColorStop(.45, '#d1fae5'); g.addColorStop(1, '#f0fdf4'); X.fillStyle = g; X.fillRect(0, 0, w, h);
+  const keep = 1 - eio(seg(t, 3.95, 4.35));
+  const oy = -8 * UPL_S * UPL_SINE(seg(t, 3.5, 3.95)) * keep;
+  const act = (t >= 1.5 ? 1 : 0) * keep;
+  const zx = 16, zy = 12 + oy, zw = 510, zh = 167, zr = 16;
+  X.save(); X.shadowColor = 'rgba(6,78,59,.1)'; X.shadowBlur = 30; X.shadowOffsetY = 12; fillRR(zx, zy, zw, zh, zr, `rgba(255,255,255,${.72 + .28 * act})`); X.restore();
+  if (act < 1) { X.save(); X.globalAlpha = 1 - act; X.setLineDash([7, 5]); strokeRR(zx, zy, zw, zh, zr, '#34d399', 1.5); X.restore(); }
+  if (act > 0) { X.save(); X.globalAlpha = act; strokeRR(zx, zy, zw, zh, zr, '#059669', 1.5); X.restore(); }
+  // 左半：图标 + 标题 + 文件清单
+  const lx = 152;
+  fillRR(lx - 26, zy + 20, 52, 52, 12, '#d1fae5'); text('↑', lx, zy + 47, 28, '#059669', 700, 'center', NUMF);
+  text('将文件包拖到这里', lx, zy + 98, 20, '#064e3b', 700, 'center');
+  text('registry-item.json · index.html · assets/', lx, zy + 126, 13, '#059669', 500, 'center', NUMF);
+  // 右半：文件卡下落
+  const q = eo(seg(t, 1.0, 1.7)), fa = q * keep;
+  if (fa > 0) {
+    const fw = 210, fh = 81, fx = 296, fy = zy + 43 - 100 * (1 - q), s = .96 + .04 * q;
+    X.save(); X.globalAlpha = fa; X.translate(fx + fw / 2, fy + fh / 2); X.scale(s, s); X.translate(-fx - fw / 2, -fy - fh / 2);
+    X.save(); X.shadowColor = 'rgba(6,78,59,.16)'; X.shadowBlur = 20; X.shadowOffsetY = 9; fillRR(fx, fy, fw, fh, 9, '#fff'); X.restore();
+    strokeRR(fx, fy, fw, fh, 9, '#a7f3d0', 1);
+    text('hero-pack.zip', fx + 15, fy + 24, 14, '#064e3b', 700, 'left', NUMF);
+    const v = seg(t, 1.6, 3.4), p = v < .5 ? 2 * v * v : 1 - Math.pow(-2 * v + 2, 2) / 2;
+    if (t >= 3.45) text('100% · 可以发布', fx + 15, fy + 46, 11, '#047857', 500);
+    else text(Math.round(p * 100) + '% · 上传中', fx + 15, fy + 46, 11, '#6ee7b7', 500);
+    fillRR(fx + 15, fy + 61, fw - 30, 5, 2.5, '#d1fae5');
+    if (p > 0) fillRR(fx + 15, fy + 61, (fw - 30) * p, 5, 2.5, '#059669');
+    X.restore();
+  }
+});

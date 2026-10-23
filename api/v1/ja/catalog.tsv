@@ -1,4 +1,4 @@
-# Motion Prompt catalog (ja) · 251 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
+# Motion Prompt catalog (ja) · 263 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
 1-001	ui	開く・重なるパーツ	モーダル (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	「開く」ボタンを押すと画面全体が暗くなり、中央に小窓が少し拡大しながら出る。×を押すと閉じる。
 1-002	ui	開く・重なるパーツ	ドロワー (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	「メニュー」を押すと左から縦長のパネルが引き出され、外側を押すと戻る。
 1-003	ui	開く・重なるパーツ	ボトムシート (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	指で「詳細を見る」を押すと下からパネルがせり上がり、上端のつまみを下へ引くと閉じる。
@@ -28,6 +28,12 @@
 1-100	ui	開く・重なるパーツ	ラバーバンド (Rubber-banding)	rubber-banding,overscroll,elastic,drag,bottom-sheet,damping,bounce-back	開ききったボトムシートをさらに上へ引くと、引くほど重くなって指から遅れ、離すと境界へ戻る。
 1-101	ui	開く・重なるパーツ	中断できるアニメーション (Interruptible animation)	interruptible,spring,physics,drawer,velocity,retarget,gesture	ドロワーが半分ほど開いたところでもう一度押すと、開ききるのを待たず、勢いのまま少し進んでからなめらかに閉じる。
 1-102	ui	選ぶ・切り替えるパーツ	ドラッグで並べ替え (Drag to reorder)	drag-and-drop,reorder,sortable,list,drag-handle,placeholder,kanban	1行目をつかんで浮かせ、下へ2行ぶん引くと、通り過ぎた行が順に上へよけ、離すと新しい位置に収まる。
+1-108	ui	選ぶ・切り替えるパーツ	ワンタイムコード入力 (OTP input fill)	otp,verification-code,pin-input,two-factor,form,input	6つのマスに数字が順に入り、入力中のマスの枠が青く光る。そろうと全部が青くなり、案内が「認証済み」に変わって全体が少し浮く。
+1-109	ui	選ぶ・切り替えるパーツ	パスワード強度メーター (Password strength meter)	password,strength-meter,form,validation,progress-bar,sign-up	「新しいパスワード」欄の丸が4個から16個まで増えるたびに、下の4段のバーが段ごとに色づき、強度の文字も赤から緑へ変わる。
+1-110	ui	開く・重なるパーツ	ドラッグ＆ドロップでアップロード (Drag-and-drop upload)	upload,drag-and-drop,dropzone,file,progress-bar,form	点線のアップロード欄にファイルのカードが上から落ちてくると、枠が実線に変わり、進捗バーが伸びて100%で「公開できます」と表示される。
+1-111	ui	案内する・状態を伝えるパーツ	ショートカットキーの点灯 (Keyboard shortcut press)	keyboard-shortcut,hotkey,keycap,onboarding,productivity,micro-interaction	暗いキーボード板の上で Ctrl・Shift・P が順に押し込まれて琥珀色に光り、案内文が組み立てられ、板が軽く脈打ってから「キューに追加」に変わる。
+1-112	ui	案内する・状態を伝えるパーツ	コード差分のハイライト (Code diff highlight)	code-diff,code-editor,syntax,developer-tools,highlight,code-review	暗いエディタの5行のうち、前後の行が明るくなり、赤い削除行と緑の追加行が順に左から滑り込み、追加行の背景が一度濃くなって戻る。
+1-113	ui	案内する・状態を伝えるパーツ	デプロイパイプライン (Deploy pipeline)	deploy,pipeline,ci-cd,build-status,progress,developer-tools,dashboard	暗い背景に並ぶ4つの段階カードが左から順に実行され、成功すると枠と丸が緑に光り、次のカードへ線が伸びて、最後の Deploy が「公開済み」になる。
 1-025	lp	スクロールで起きる演出	パララックススクロール (Parallax scrolling)	parallax,parallax-scrolling,scroll,depth,layers,hero,background	ページを下へスクロールすると、見出しはふつうに上がり、空と太陽・遠い山・近い山はそれより遅く動く。
 1-026	lp	スクロールで起きる演出	スクロールでフェードイン (Fade-in on scroll)	fade-in,scroll-reveal,reveal-on-scroll,intersection-observer,aos,entrance,scroll	スクロールで画面に入った見出し・カード・本文が、それぞれ下から浮かび上がりながら現れる。
 1-027	lp	スクロールで起きる演出	追従ヘッダー (Sticky header)	sticky,sticky-header,fixed-header,position-sticky,navigation,header,scroll	上のお知らせの帯はスクロールで消えるが、その下のヘッダーは画面の上端に来たところで止まり、本文がその下を通っていく。
@@ -155,6 +161,9 @@
 2-047	motion2	切り替え・見せ場	分解図 (Exploded view)	exploded-view,explode,layers,isometric,product,breakdown,explainer	スマホの部品が層ごとにばらけて中の構造を見せ、また組み上がる。
 2-048	motion2	切り替え・見せ場	スプリットスクリーン (Split screen)	split-screen,multi-screen,panels,side-by-side,comparison,layout	1枚の画面が2つ、3つに分かれて、別々の場面が同時に動く。
 2-064	motion2	文字・図形の演出	テキストモーフ (Text morph)	text-morph,text-transition,button-state,micro-interaction,typography,label	ボタンの文字が「保存」「已保存」「再次保存」と変わる。共通の字は新しい位置へ滑り、増えた字だけが下から入り、なくなった字は上へ消える。
+2-065	motion2	文字・図形の演出	波の干渉 (Wave interference)	wave,interference,physics,sine-wave,diagram,education,data-visualization	青緑の波Aと橙の波Bが逆向きに流れ、下の段の合成波が高くなったり平らになったりし、縦の点線上の3つの点が値を追いかける。
+2-066	motion2	文字・図形の演出	点が正規分布にまとまる (Dots settling into a normal distribution)	normal-distribution,statistics,histogram,bell-curve,particles,data-visualization,education	紫の座標の中に点が雲のように現れ、少しずつずれながら釣り鐘形の柱へ飛んで積み上がり、カウンターが098まで増えて平均線が実線になる。
+2-067	motion2	文字・図形の演出	ネットワーク拡散 (Network diffusion)	network,diffusion,graph,propagation,nodes,data-visualization	左の起点が光って波紋を広げ、信号がつながりを段ごとに右へ伝わり、通った線は珊瑚色に光り、届いたノードが弾んで点灯し、ホップ数と到達数が増えていく。
 2-049	mgstyles	フラット・線	フラット・ベクター (Flat vector motion)	flat-design,vector,squash-and-stretch,bounce,elastic,explainer,brand-intro	群青の空からサンゴ色の丸が落ちて 5 回跳ね、着地のたびに色とりどりの平面ビルが弾んで現れ、最後にロゴが弾むように入る。
 2-050	mgstyles	フラット・線	ラインアート (Line art animation)	line-art,one-line-drawing,stroke-reveal,logo-reveal,gold,camera-pan	光るペン先を追ってカメラが横に流れ、金の線が芽や塔を一筆で描き、最後に引きの構図でリングが金色に塗られる。
 2-051	mgstyles	フラット・線	シェイプモーフ (Morphing)	shape-morph,morphing,beat-sync,color-wipe,squash-and-stretch,social-short	中央の図形が一度丸に縮んでから次の形へ開き、つぶれと回転を伴って変わるたびに背景色が円形に塗り替わり、右の字幕も入れ替わる。
@@ -250,3 +259,6 @@
 4-030	scenes	器物・空間	インフィニティ・ルーム (Infinity room)	infinity-room,mirror,lights,immersive,3d,night,bokeh	暗闇に浮かぶ4色の灯りの間をカメラがゆっくり前へ進み、鏡の床に灯りが映り込み、明るさが奥へ波打つように呼吸する。
 4-031	scenes	器物・空間	回るレコード (Spinning vinyl)	vinyl,record,music,turntable,spin,retro,product-shot	赤い地でレコードのラベルが一定の速さで回り、溝の反射光は光源の方向に留まり、銀のトーンアームは静止している。
 4-032	scenes	器物・空間	カードの扇開き (Card flourish)	playing-cards,card-fan,magic,flip,casino,objects,sequence	緑のフェルトの中央の山札からカードが次々に飛び出して扇形に並び、一枚ずつ表に返ってまた裏に戻り、山札へ集まる。
+4-033	scenes	器物・空間	レシート印字 (Receipt printing)	receipt,printer,thermal-paper,pos,checkout,objects	暗い排紙口が現れ、白いレシートが上からゆっくり送り出されて、店名・3行の明細・点線の下の「合計 発送済み」が順に見え、最後に全体が消える。
+4-034	scenes	テックのムード	バーコードスキャン (Barcode scan)	barcode,scanner,laser,logistics,warehouse,tech	灰色の台に白い伝票が少し傾いて置かれて落ち着き、シアンのレーザーがバーコードを左から右へなぞって消え、緑の「確認済み · 発送可」が浮かぶ。
+4-035	scenes	テックのムード	オシロスコープの波形 (Oscilloscope trace)	oscilloscope,waveform,signal,sweep,electronics,tech	暗い計測パネルが現れ、縦の光の線が左から右へ進みながらシアンの波形を描き、波は3回うねって次第に小さくなり、描き終えると光が消える。

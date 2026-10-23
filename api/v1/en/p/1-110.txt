@@ -1,0 +1,16 @@
+Please use "Drag-and-drop upload" (ドラッグ＆ドロップでアップロード), one of the names in "UI component names".
+Motion Prompt #1-110
+
+What it is: Drop a file onto the zone; it reacts and the upload runs
+What the sample shows: A file card drops into the dashed upload zone from above; the border turns solid, the progress bar fills, and at 100% it reads "Ready to publish".
+Spec:
+- A wide dashed upload zone, 510×167 with radius 16: an "↑" icon, "Drag the file pack here" and a file list on the left; a 210×80 file card drops in on the right.
+- Over 1.0–1.7 s the "hero-pack.zip" card falls 100px into place (opacity 0→1, scale 0.96→1, cubic ease-out). At 1.5 s the zone activates: the dashed #34d399 border becomes solid #059669 and the fill goes from 72% white to white.
+- Over 1.6–3.4 s the progress bar runs 0→100% (quadratic ease-in-out) with a rounded percentage alongside; at 3.45 s the text becomes "100% · Ready to publish" (#047857).
+- Over 3.5–3.95 s the zone rises 4px with sine.inOut. Reset over 3.95–4.35 s (easeInOutCubic): the card fades and the zone returns to its dashed state.
+- Versus Drag to reorder: what is dragged is an outside file, and dropping it starts an upload with progress; no list order changes.
+When to use it: Use it wherever files are received: file sharing, asset submission, or import screens in admin dashboards.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-110.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

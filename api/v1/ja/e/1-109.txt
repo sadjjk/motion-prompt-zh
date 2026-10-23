@@ -1,0 +1,61 @@
+// Motion Prompt #1-109 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+//
+// パスワード強度メーター / Password strength meter
+// パック: ui (UIパーツの名前) · element 31 · カテゴリ: 選ぶ・切り替えるパーツ
+// 何が起きるか: 「新しいパスワード」欄の丸が4個から16個まで増えるたびに、下の4段のバーが段ごとに色づき、強度の文字も赤から緑へ変わる。
+// 動きの仕様:
+//   - 「新しいパスワード」カード（幅429・角丸15.4）、入力欄の高さ48.4。伏せ字の丸が4個から8 / 12 / 16個へ順に増える（1.00 / 1.55 / 2.15秒）
+//   - 4段の強度バー（高さ7.7・間隔6.6）が順に色づく: 1.05秒 赤 #ef4444「弱い」、1.60秒 橙 #f59e0b「普通」、2.20秒 黄緑 #84cc16「良い」、2.75秒 緑 #22c55e「強い」
+//   - 各段の色の変化は0.25秒（最後の段は0.3秒）で二次の easeOut。左下の強度の文字も同時に変わり、右下は「12文字以上 · 大文字小文字を混ぜる」で固定
+//   - 3.2〜3.95秒にカードが sine.inOut で4.4px浮く。リセット 3.95〜4.35秒 easeInOutCubic: 増えた丸が消え、4段は灰色 #44403c に戻り、強度の文字は琥珀色の「弱い」に戻る
+//   - ステップインジケーターとの違い: 段の色はパスワードの強さを表し、入力に合わせて変わる。手続きの何段目かを示すものではない
+// 使いどころ: 会員登録・パスワード変更・アカウント設定など、安全なパスワードを促したいフォームに。
+// タグ: password, strength-meter, form, validation, progress-bar, sign-up
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-109
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 31
+// 改写自 ui2v · illli Ai Studio · hero-password-meter（MIT-0）
+// 密码强度条：「新密码」卡片里，密码框圆点从 4 个依次增到 8 / 12 / 16 个（1.00 / 1.55 / 2.15 秒），
+// 下方 4 段强度条随之逐段着色：1.05 秒红 #ef4444「弱」、1.60 秒橙 #f59e0b「一般」、2.20 秒黄绿 #84cc16「良好」、2.75 秒绿 #22c55e「强」，
+// 每段颜色过渡 0.25 秒（末段 0.3 秒），缓动 power1.out（二次缓出）；左下强度文字同步换字换色，右下固定「至少 12 位 · 大小写混合」。
+// 3.2–3.95 秒卡片以 sine.inOut 上浮 4.4px。复位：3.95–4.35 秒 easeInOutCubic 多出的圆点淡出、四段退回灰 #44403c、强度文字回到初始琥珀色「弱」。
+// 尺寸换算：原作右侧 780 宽卡片按 0.55 倍居中（卡 780→429 宽、圆角 28→15.4、密码框高 88→48.4、强度条高 14→7.7、段间距 12→6.6、
+// 文字 22/34/24→12/19/13px），去掉左侧标题区，卡片上下内边距 48→22 以装进 191 高。时间与原作一一对应，上浮由 1.2 秒缩到 0.75 秒。
+// 配色取原作：底 #292524→#1c1917，卡 #292524 / 边 #44403c，密码框 #1c1917 / 边 #57534c。
+const PWD_S = 0.55;
+const PWD_SEG = [[1.05, .25, '#ef4444'], [1.6, .25, '#f59e0b'], [2.2, .25, '#84cc16'], [2.75, .3, '#22c55e']];
+const PWD_LV = [['弱', '#fbbf24'], ['弱', '#ef4444'], ['一般', '#f59e0b'], ['良好', '#84cc16'], ['强', '#22c55e']];
+const PWD_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
+const PWD_MIX = (a, b, k) => { const p = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(',')})`; };
+CELLS[30] = ui((w, h, t) => {
+  const g = X.createRadialGradient(w * .3, h * .4, 0, w * .3, h * .4, w * .65);
+  g.addColorStop(0, '#292524'); g.addColorStop(1, '#1c1917'); X.fillStyle = g; X.fillRect(0, 0, w, h);
+  const keep = 1 - eio(seg(t, 3.95, 4.35));
+  const dy = -8 * PWD_S * PWD_SINE(seg(t, 3.2, 3.95)) * keep;
+  const cw = 429, chh = 169, cx = (w - cw) / 2, cy = (h - chh) / 2 + dy, px = 28.6;
+  X.save(); X.shadowColor = 'rgba(0,0,0,.35)'; X.shadowBlur = 38; X.shadowOffsetY = 15; fillRR(cx, cy, cw, chh, 15.4, '#292524'); X.restore();
+  strokeRR(cx, cy, cw, chh, 15.4, '#44403c', 1);
+  text('新密码', cx + px, cy + 29, 12, '#a8a29e', 500);
+  // 密码框与圆点
+  const fx = cx + px, fy = cy + 45, fw = cw - 2 * px, fh = 48.4;
+  fillRR(fx, fy, fw, fh, 8.8, '#1c1917'); strokeRR(fx, fy, fw, fh, 8.8, '#57534c', 1.1);
+  const n = t >= 2.15 ? 16 : t >= 1.55 ? 12 : t >= 1.0 ? 8 : 4;
+  for (let i = 0; i < n; i++) { X.save(); X.globalAlpha = i < 4 ? 1 : keep; circle(fx + 21.4 + i * 13.5, fy + fh / 2, 3.2, '#fafaf9'); X.restore(); }
+  // 四段强度条
+  const sw = (fw - 3 * 6.6) / 4, sy = fy + fh + 19.8;
+  let lv = 0;
+  PWD_SEG.forEach(([t0, d, col], i) => {
+    const q = seg(t, t0, t0 + d), p = 1 - (1 - q) * (1 - q);
+    if (t >= t0) lv = i + 1;
+    fillRR(fx + i * (sw + 6.6), sy, sw, 7.7, 3.85, PWD_MIX('#44403c', col, p * keep));
+  });
+  const my = sy + 7.7 + 19;
+  X.save(); X.globalAlpha = keep; text(PWD_LV[lv][0], fx, my, 13.2, PWD_LV[lv][1], 700);
+  X.globalAlpha = 1 - keep; text(PWD_LV[0][0], fx, my, 13.2, PWD_LV[0][1], 700); X.restore();
+  text('至少 12 位 · 大小写混合', fx + fw, my, 13.2, '#a8a29e', 500, 'right');
+});

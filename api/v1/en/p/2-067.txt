@@ -1,0 +1,16 @@
+Please use "Network diffusion" (ネットワーク拡散), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-067
+
+What it is: A signal spreading hop by hop through a network from one source
+What the sample shows: The source on the left glows and ripples, the signal passes rightward one hop at a time, each traversed edge glows coral, reached nodes pop alight, and the hop and reach counters climb.
+Spec:
+- A dark network of a source plus 16 nodes and 16 curved edges (background #071421, dim edges #315365); the signal colour is coral #ff7058.
+- The source pops in from 0.35 over 0.13–0.4 s; 3 ripples leave 0.11 s apart from 0.18 s, each expanding from 0.3 to 4.8 and fading within 0.78 s.
+- The 16 edges light in turn from 0.35 s to 3.08 s, each drawn in 0.36 s (cubic ease-in-out); 0.24 s after an edge starts, its end node pops in from 0.25 and lights (0.18 s).
+- Top left shows hops = min(4, ⌊i/2⌋+1) and nodes reached = i + 2 live. From 3.4 s, 3 halos expand to 1.2 and fade; over 4.05–4.23 s the signal layer fades, back to the dim starting network.
+- Versus Neural net: the signal spreads outward hop by hop from 1 source and traversed edges stay lit, rather than pulses cycling between layers.
+When to use it: Use it in videos and talks that explain how information spreads on social media, epidemic spread, P2P or blockchain networks, or referral programs.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-067.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.
