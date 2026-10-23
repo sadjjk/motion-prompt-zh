@@ -1,7 +1,7 @@
 ---
 name: motion-prompt-zh
 description: >-
-  打开 Motion Prompt 中文动效库，让用户预览、选择并发送给 AI，再读取真实规格与代码实现到当前项目。用于挑选首页/数据看板/UI 动效、按中文关键词搜索、按 #2-012 等编号实现、应用刚选中的动画，或将 #3-008 等镜头整理为视频/图片生成提示词。也支持原有 English “open the motion-prompt library”, “use #2-012 and #3-021” 和日本語「ライブラリ出して」「一覧見せて」「#2-005 に差し替えて」。编号格式为 `<大类>-<序号>`（1 界面与网页、2 动态图形、3 剪辑与摄影）。
+  打开 Motion Prompt 中文动效库，让用户预览、选择并发送给 AI，再读取真实规格与代码实现到当前项目。用于挑选首页/数据看板/UI 动效、按中文关键词搜索、按 #2-012 等编号实现、应用刚选中的动画，或将 #3-008 等镜头整理为视频/图片生成提示词。也支持 English “pick a few fitting animations from the motion-prompt library”, “open the motion-prompt library”, “use #2-012 and #3-021” 和日本語「motion-prompt のライブラリから合いそうなアニメーションをいくつか選んで」「ライブラリ出して」「一覧見せて」「#2-005 に差し替えて」。编号格式为 `<大类>-<序号>`（1 界面与网页、2 动态图形、3 剪辑与摄影）。
 ---
 
 # Motion Prompt 中文动效库
@@ -20,7 +20,7 @@ node <skill-dir>/scripts/motion-prompt.mjs info
 
 | 用户需求 | 行动 |
 |---|---|
-| “打开 Motion Prompt 中文动效库”“帮我挑选几个适合首页的动画”“有哪些适合数据看板的 UI 动效” | 运行 `pick`，按上下文可加 `--pack lp` 或 `--pack ui`；让用户实际选择 |
+| “从 motion-prompt 动效库里挑几个合适的动画”“打开 Motion Prompt 中文动效库”“帮我挑选几个适合首页的动画”“有哪些适合数据看板的 UI 动效” | 运行 `pick`，按上下文可加 `--pack lp` 或 `--pack ui`；让用户实际选择 |
 | “搜索与文字入场有关的动画” | `search 文字 入场 --lang zh-Hans`；需要直观比较时再打开库 |
 | “使用 #2-012 实现这个动效” | `get 2-012 --lang zh-Hans`，再读取其 `kit` 并实现，无需额外打开选择页 |
 | “把我刚刚选中的动画用到当前项目”或粘贴的选择结果、分享链接 | 以回传/粘贴的编号及顺序为准，读取 `get` 和 `kit`；没有实际选择数据时先取得选择，不猜编号 |

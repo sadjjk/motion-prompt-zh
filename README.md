@@ -27,7 +27,7 @@ npx skills add sadjjk/motion-prompt-zh --skill motion-prompt-zh
 
 然后直接对 AI 说：
 
-- "打开中文动效库，帮我挑几个适合首页的动画"
+- "从 motion-prompt 动效库里挑几个合适的动画"
 - "搜索和文字入场有关的动画"
 - "用 #2-012 实现这个动效"
 - "把 #3-008 的镜头运动写成视频生成提示词"
