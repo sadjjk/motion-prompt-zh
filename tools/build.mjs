@@ -50,6 +50,8 @@ const idRange = (a, b) => {
   return `#${g} ${x}~${y}`;
 };
 const isStr = v => typeof v === 'string' && v.trim() !== '';
+// YYYY-MM-DD 且是真实存在的日期（2026-02-30 这类会被拒绝）
+const isDate = v => isStr(v) && /^\d{4}-\d{2}-\d{2}$/.test(v) && !isNaN(Date.parse(v + 'T00:00:00Z')) && new Date(v + 'T00:00:00Z').toISOString().slice(0, 10) === v;
 
 // ---------------------------------------------------------------- prompt template
 // This function is also written into assets/catalog.js (as source text), so the site's
@@ -229,6 +231,8 @@ function validateMeta(meta, where) {
   for (const l of packLangs(meta)) if (!LANG_CODE.test(l)) err(where, `title has a key "${l}" that is not a language code (use codes such as en, ja, es, zh-Hans)`);
   if (meta.license != null && !(isStr(meta.license) && /^MIT License \(c\) \d{4} \S/.test(meta.license))) err(where, 'license must look like "MIT License (c) 2026 Author Name"');
   if (meta.attribution != null && !(isStr(meta.attribution) && /^https:\/\//.test(meta.attribution))) err(where, 'attribution must be an https URL');
+  // added：分类包加入本库的日期（首页「最新添加」排序依据）；元素级 added 可选，用于往已有包补充的效果
+  if (!isDate(meta.added)) err(where, 'added must be the date the pack was added, as YYYY-MM-DD');
   if (!Array.isArray(meta.categories) || !meta.categories.length) err(where, 'categories is missing or empty');
   const slugs = new Set();
   for (const c of meta.categories || []) {
@@ -245,6 +249,7 @@ function validateMeta(meta, where) {
     const w = `${where} element ${e && e.no ? e.no : `[${i}]`}`;
     if (!e || typeof e !== 'object') { err(w, 'not an object'); return; }
     if (e.no !== want) err(w, `no should be "${want}" (elements must be listed 01..N in order)`);
+    if (e.added != null && !isDate(e.added)) err(w, 'added must be YYYY-MM-DD');
     if (!isStr(e.slug)) err(w, 'slug is missing');
     else {
       if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(e.slug)) err(w, `slug "${e.slug}" must be lowercase kebab-case`);
@@ -406,6 +411,7 @@ for (const g of groups) {
       const id = gid(g.no, k);
       catalog.elements.push({
         id, upstream: pad3(upstreamStart[dir] + i + 1), group: g.id, pack: meta.pack, no: e.no, slug: e.slug, category: e.category,
+        added: e.added || meta.added,
         width: info.width, height: info.height, cycle: info.cycle,
         name: e.name, meaning: e.meaning, ...(e.ask ? { ask: e.ask } : {}), summary: e.summary, spec: e.spec, use: e.use, tags: e.tags,
         ...(e.aliases ? { aliases: e.aliases } : {}),
@@ -413,7 +419,7 @@ for (const g of groups) {
       codeById[id] = cut.elements[i].code;
     });
     catalog.packs.push({
-      pack: meta.pack, group: g.id, order: meta.order, title: meta.title, langs: p.langs, categories: meta.categories,
+      pack: meta.pack, group: g.id, order: meta.order, added: meta.added, title: meta.title, langs: p.langs, categories: meta.categories,
       count: meta.elements.length, first: gid(g.no, firstK), last: gid(g.no, k), upstreamFirst: pad3(upstreamStart[dir] + 1),
       width: info.width, height: info.height, cycle: info.cycle, fonts: info.fonts,
       license: packLicence(meta), author: licenceAuthor(packLicence(meta)), ...(meta.attribution ? { attribution: meta.attribution } : {}),

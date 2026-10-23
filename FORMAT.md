@@ -110,7 +110,7 @@ Rules:
 
 ```json
 {
-  "pack": "motion", "order": 1,
+  "pack": "motion", "order": 1, "added": "2026-10-21",
   "title": { "ja": "モーショングラフィックスの動き", "en": "Motion graphics moves" },
   "categories": [ { "slug": "entrances-text", "ja": "登場・文字の演出", "en": "Entrances & text" } ],
   "elements": [
@@ -126,6 +126,8 @@ Rules:
 }
 ```
 
+- `added`: required, the date the pack joined this library, as `YYYY-MM-DD`. The gallery's default
+  "Newest" order sorts by it. An element may carry its own `added` when it is added to an existing pack later.
 - `name`: the term people in the field really use, in each language. Do not coin a name or translate
   one literally; where a language keeps the English term, write the English term.
 - `meaning`: one short line saying what the name means (about 40 characters in English, 20 in Japanese).

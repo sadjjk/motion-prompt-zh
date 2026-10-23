@@ -33,6 +33,8 @@ for (const [i, el] of cat.elements.entries()) {
   const g = cat.groups.find(x => x.id === el.group);
   const k = cat.elements.slice(0, i + 1).filter(x => x.group === el.group).length;
   assert.equal(el.id, `${g.no}-${String(k).padStart(3, '0')}`);
+  // 添加日期：首页「最新添加」排序依据，build 由 meta.json 的 added 写入
+  assert.match(el.added, /^\d{4}-\d{2}-\d{2}$/, `${el.id} added`);
   for (const key of ['name', 'meaning', 'ask', 'summary', 'use']) assert.match(el[key]['zh-Hans'], /[\u3400-\u9fff]/);
   const p = cat.packs.find(p => p.pack === el.pack);
   for (const lang of langs) {
@@ -106,8 +108,12 @@ try {
   };
   await open();
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
-  // 效果库按大类（界面与网页 → 动态图形 → 剪辑与摄影）分节，首张卡片为 #1-001
-  assert.equal(await page.locator('.tile-name').first().innerText(), '模态对话框');
+  // 默认按最新添加：首张为最新日期、该日最后建立的分类包（order 最大）的第一个元素；第一个分节标题为「YYYY/MM/DD 添加」
+  const newestDay = cat.elements.reduce((m, e) => (e.added > m ? e.added : m), '');
+  const newestPack = cat.packs.filter(p => p.added === newestDay).sort((a, b) => b.order - a.order)[0];
+  assert.equal(await page.locator('.tile').first().getAttribute('data-id'), newestPack.first);
+  assert.equal(await page.locator('.group-h h3').first().innerText(), `${newestDay.replace(/-/g, '/')} 添加`);
+  assert.equal(await page.locator('#sort [aria-pressed="true"]').innerText(), '最新添加');
   assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), CONFIG.site);
   // 标题不写死数量，避免新增分类包后过时
   assert.match(await page.title(), /动效与视觉效果中文名称库/);
@@ -124,6 +130,14 @@ try {
     await page.waitForFunction(id => !document.querySelector('.tile[data-id="' + id + '"]').parentElement.hidden, id);
   }
   await page.locator('#q').fill('');
+  // 切换「编号」：按大类（界面与网页 → 动态图形 → …）分节，首张为 #1-001，网址带 sort=id，可直接打开
+  await page.locator('#sort .gseg-b', { hasText: '编号' }).click();
+  assert.equal(await page.locator('.tile-name').first().innerText(), '模态对话框');
+  assert.equal(new URL(page.url()).searchParams.get('sort'), 'id');
+  await open('?lang=zh-Hans&sort=id');
+  assert.equal(await page.locator('.tile-name').first().innerText(), '模态对话框');
+  assert.equal(await page.locator('#sort [aria-pressed="true"]').innerText(), '编号');
+  await open('?lang=zh-Hans');
   await page.locator('[data-lang=en]').click();
   await page.reload();
   assert.equal(await page.locator('html').getAttribute('lang'), 'en');

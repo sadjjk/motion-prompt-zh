@@ -95,7 +95,7 @@ Motion Prompt 动效库的非官方简体中文 fork：Canvas 动效静态网站
 1. 确认许可与可还原性：只收 MIT 等可再发布、且能用 Canvas 2D 忠实还原的内容；依赖 WebGL 或含其他许可（如 Apache-2.0）组件的不收；付费部分不收。
 2. 按分类表与用户确认分类包名称（按内容命名，不沿用来源项目名）、小类、收录哪些与数量，然后写 spec 与 plan（`design-spec-plan`）。
 3. 写 `packs/<pack>/pack.js`：首行写来源作者的 MIT 版权行；每格是只依赖 `u` 的纯函数、循环无缝。启动本地服务，由用户在 `dev/preview.html?pack=<pack>` 对照原版目视确认；还原不好的删除，不凑数。来源是一次性片段时，改为无缝循环并加复位段；绘制中的随机（如颗粒噪点）改为确定性生成；来源字体不打包，改用系统字体栈。
-4. 写 `packs/<pack>/meta.json`：完整三语资料，`spec` 的数字取自 `pack.js` 代码，且中英日每行的数字一致（build 会校验）；改写自其他作者时填 `license`、`attribution`。
+4. 写 `packs/<pack>/meta.json`：完整三语资料，`spec` 的数字取自 `pack.js` 代码，且中英日每行的数字一致（build 会校验）；改写自其他作者时填 `license`、`attribution`；包级 `added` 填当天日期（`YYYY-MM-DD`，首页「最新添加」排序依据，build 必填）。往已有包补充效果时，在该元素上写 `added`。
 5. 在 `packs/groups.json` 把新包接在所属大类末尾（现有编号不变）。
 6. 同步检查脚本中的数量断言（须经用户授权），更新 `THIRD-PARTY-NOTICES.md`、`README.md`、`FORMAT.md`。
 7. 跑完整验证流程，经用户确认后推送；刷新 jsDelivr 的 `catalog.json`、三个 `catalog.tsv` 与新包的 `kit/<pack>.js`，同步本机 skill。

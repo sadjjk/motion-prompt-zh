@@ -23,7 +23,7 @@
       installPromptH: '让 AI 帮你安装', installPromptP: '将下方说明粘贴到 Claude Code 或 Codex，AI 会安装 Skill 并介绍使用方法。',
       installPrompt: '阅读 {repo}，在当前环境安装 motion-prompt Skill。安装完成后，用三行中文说明如何使用。',
       copy: '复制', copied: '已复制', copyFailed: '复制失败', copyCmdLabel: '复制安装命令', copyInstallLabel: '复制安装说明',
-      groupFilterLabel: '按大类筛选',
+      groupFilterLabel: '按大类筛选', sortLabel: '排序', sortNewest: '最新添加', sortId: '编号', addedOn: '添加于 {d}', addedSec: '{d} 添加',
       galleryH: '效果库', packFilterLabel: '按分类包筛选', catFilterLabel: '按子分类筛选', all: '全部', allIn: '本分类全部',
       searchLabel: '搜索效果', searchPh: '中文、英文、编号或标签',
       pause: '暂停', play: '播放', pauseLabel: '暂停全部动画', playLabel: '播放全部动画', count: '{n} 个效果', countOf: '{n} / {total} 个效果',
@@ -68,7 +68,7 @@
       installPrompt: 'https://github.com/showheyohtaki/motion-prompt を読んで、motion-prompt スキルをこの環境に入れてください。入れたら、使い方を3行で教えてください。',
       copy: 'コピー', copied: 'コピーしました', copyFailed: 'コピーできませんでした',
       copyCmdLabel: '導入コマンドをコピー', copyInstallLabel: '導入用のプロンプトをコピー',
-      groupFilterLabel: '大分類で絞り込む',
+      groupFilterLabel: '大分類で絞り込む', sortLabel: '並び順', sortNewest: '新着順', sortId: '番号順', addedOn: '{d} 追加', addedSec: '{d} 追加',
       galleryH: '見本の一覧', packFilterLabel: 'パックで絞り込む', catFilterLabel: 'カテゴリで絞り込む',
       all: 'すべて', allIn: 'このパックすべて',
       searchLabel: '見本を探す', searchPh: '名前・番号・タグで探す',
@@ -128,7 +128,7 @@
       installPrompt: 'Read https://github.com/showheyohtaki/motion-prompt and install the motion-prompt skill in this environment. When it is installed, tell me how to use it in three lines.',
       copy: 'Copy', copied: 'Copied', copyFailed: 'Could not copy',
       copyCmdLabel: 'Copy the install command', copyInstallLabel: 'Copy the install prompt',
-      groupFilterLabel: 'Filter by group',
+      groupFilterLabel: 'Filter by group', sortLabel: 'Sort', sortNewest: 'Newest', sortId: 'By number', addedOn: 'Added {d}', addedSec: 'Added {d}',
       galleryH: 'Gallery', packFilterLabel: 'Filter by pack', catFilterLabel: 'Filter by category',
       all: 'All', allIn: 'All in this pack',
       searchLabel: 'Search the gallery', searchPh: 'Name, number or tag',
@@ -183,7 +183,7 @@
   var darkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : { matches: false };
   var state = {
     lang: window.MP_LANGUAGE.normalize(root.lang) || 'zh-Hans',
-    group: 'all', pack: 'all', cat: 'all', q: '',
+    group: 'all', pack: 'all', cat: 'all', q: '', sort: 'newest', // newest（最新添加，默认）| id（编号）；只放在网址 ?sort=id
     playing: !reduceMotion.matches,
     open: null,           // id shown in the detail view
     internalNav: 0,       // history entries this page pushed for the detail view
@@ -214,7 +214,16 @@
     var a = p.first.split('-'), b = p.last.split('-');
     return '#' + a[0] + ' ' + a[1] + '~' + b[1];
   }
-  CAT.elements.forEach(function (e, i) { elBy[e.id] = e; e._i = i; order.push(e.id); });
+  // added：该效果加入本库的日期（YYYY-MM-DD，build 由 meta.json 写入）
+  CAT.elements.forEach(function (e, i) { elBy[e.id] = e; e._i = i; order.push(e.id); e._added = e.added || ''; });
+  // 最新添加：日期倒序 → 同一天按分类包 order 倒序（后建的包在前）→ 包内按编号升序
+  var newestOrder = order.slice().sort(function (a, b) {
+    var x = elBy[a], y = elBy[b];
+    if (x._added !== y._added) return x._added < y._added ? 1 : -1;
+    var ox = packBy[x.pack].order, oy = packBy[y.pack].order;
+    if (ox !== oy) return oy - ox;
+    return x._i - y._i;
+  });
 
   function t(key, vars) {
     var s = I18N[state.lang][key];
@@ -333,6 +342,7 @@
     if (io) io.disconnect();
     tiles = [];
     grid.textContent = '';
+    if (state.sort === 'newest') { buildByDate(); applyFilter(); return; }
     // 按大类分节：大类标题（h3）→ 各分类包（h4）→ 卡片
     GROUPS.forEach(function (g) {
       var gsec = h('section', { class: 'group', 'data-group': g.id, 'aria-labelledby': 'group-' + g.id }, [
@@ -346,10 +356,44 @@
     });
     applyFilter();
   }
+  // 最新添加：按日期分节：日期标题（h3）→ 该日各分类包（h4，带大类名）→ 卡片；顺序同 newestOrder
+  function buildByDate() {
+    var days = [], byDay = {};
+    newestOrder.forEach(function (id) { var el = elBy[id]; if (!byDay[el._added]) { byDay[el._added] = []; days.push(el._added); } byDay[el._added].push(el); });
+    days.forEach(function (d) {
+      var gsec = h('section', { class: 'group', 'data-day': d, 'aria-labelledby': 'day-' + d }, [
+        h('div', { class: 'group-h' }, [h('h3', { id: 'day-' + d, text: t('addedSec', { d: d.replace(/-/g, '/') }) }), h('span', { class: 'group-n' })]),
+      ]);
+      var seen = [];
+      byDay[d].forEach(function (el) { if (seen.indexOf(el.pack) < 0) seen.push(el.pack); });
+      seen.forEach(function (key) {
+        var p = packBy[key], g = groupBy[groupOf[key]];
+        var list = h('div', { class: 'tiles' });
+        byDay[d].forEach(function (el) { if (el.pack === key) list.appendChild(buildTile(el)); });
+        gsec.appendChild(h('section', { class: 'pack', 'data-pack': p.pack, 'aria-labelledby': 'pack-' + d + '-' + p.pack }, [
+          h('div', { class: 'pack-h' }, [
+            h('h4', { id: 'pack-' + d + '-' + p.pack, text: p.title[state.lang] }),
+            h('span', { text: (g ? (g.title[state.lang] || g.title.en) + ' · ' : '') + idRange(p) }),
+          ]),
+          list,
+        ]));
+      });
+      grid.appendChild(gsec);
+    });
+  }
   function buildPack(p) {
       var list = h('div', { class: 'tiles' });
-      CAT.elements.forEach(function (el) {
-        if (el.pack !== p.pack) return;
+      CAT.elements.forEach(function (el) { if (el.pack === p.pack) list.appendChild(buildTile(el)); });
+      var sec = h('section', { class: 'pack', 'data-pack': p.pack, 'aria-labelledby': 'pack-' + p.pack }, [
+        h('div', { class: 'pack-h' }, [
+          h('h4', { id: 'pack-' + p.pack, text: p.title[state.lang] }),
+          h('span', { text: idRange(p) }),
+        ]),
+        list,
+      ]);
+      return sec;
+  }
+  function buildTile(el) {
         var nm = names(el);
         var canvas = h('canvas', { width: el.width, height: el.height, 'aria-hidden': 'true' });
         var a = h('a', { class: 'tile', href: '#' + el.id, 'data-id': el.id, 'aria-label': t('openLabel', { id: el.id, name: nm.main }) }, [
@@ -376,17 +420,8 @@
         });
         if (ready[el.pack] === 'failed') breakTile(tl);
         tiles.push(tl);
-        list.appendChild(box);
         if (io) io.observe(a);
-      });
-      var sec = h('section', { class: 'pack', 'data-pack': p.pack, 'aria-labelledby': 'pack-' + p.pack }, [
-        h('div', { class: 'pack-h' }, [
-          h('h4', { id: 'pack-' + p.pack, text: p.title[state.lang] }),
-          h('span', { text: idRange(p) }),
-        ]),
-        list,
-      ]);
-      return sec;
+        return box;
   }
 
   function haystack(el) {
@@ -447,6 +482,23 @@
     b.appendChild(h('small', { text: String(n) }));
     b.addEventListener('click', onClick);
     return b;
+  }
+  // 排序：最新添加 | 编号（与大类分段按钮同款样式）
+  function buildSort() {
+    var s = $('#sort'); s.textContent = '';
+    [['newest', t('sortNewest')], ['id', t('sortId')]].forEach(function (o) {
+      var b = h('button', { type: 'button', class: 'gseg-b', 'aria-pressed': state.sort === o[0] ? 'true' : 'false', text: o[1] });
+      b.addEventListener('click', function () { setSort(o[0]); });
+      s.appendChild(b);
+    });
+  }
+  function setSort(v) {
+    if (state.sort === v) return;
+    state.sort = v; buildSort(); buildGrid();
+    var q = new URLSearchParams(location.search);
+    if (v === 'id') q.set('sort', 'id'); else q.delete('sort'); // 默认（最新添加）不写参数
+    var rest = q.toString();
+    history.replaceState(null, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
   }
   // 三级筛选：大类（分段按钮）→ 分类包（选中大类后出现）→ 小类（选中分类包后出现）
   function buildChips() {
@@ -554,7 +606,7 @@
     detail.ctx = detail.canvas.getContext('2d');
     detail.canvas.style.aspectRatio = el.width + '/' + el.height;
     $('#d-id').textContent = '#' + el.id;
-    $('#d-where').textContent = p.title[lang] + (c ? ' / ' + c[lang] : '');
+    $('#d-where').textContent = p.title[lang] + (c ? ' / ' + c[lang] : '') + (el._added ? ' · ' + t('addedOn', { d: el._added.replace(/-/g, '/') }) : '');
     $('#d-name').textContent = nm.main;
     $('#d-sub').textContent = nm.sub + ' · ' + t('size', { w: el.width, h: el.height, c: el.cycle });
     var mean = $('#d-meaning'), ask = $('#d-ask'), askH = $('#d-ask-h');
@@ -696,6 +748,7 @@
   }
   function readParams() {
     var q = new URLSearchParams(location.search);
+    if (q.get('sort') === 'id') state.sort = 'id';
     state.cb = validCb(q.get('cb'));
     var pk = q.get('pack');
     if (pk && packBy[pk]) state.pack = pk;
@@ -862,7 +915,7 @@
     state.lang = lang;
     store.set('mp-lang', lang);
     window.MP_LANGUAGE.updateUrl(lang);
-    applyText(); buildChips(); buildGrid(); renderTray();
+    applyText(); buildSort(); buildChips(); buildGrid(); renderTray();
     if (state.open) fillDetail(elBy[state.open]);
   }
   $$('[data-lang]').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
@@ -904,6 +957,7 @@
   // ------------------------------------------------------------------ start
   readParams();
   applyText();
+  buildSort();
   buildChips();
   buildGrid();
   renderTray();
