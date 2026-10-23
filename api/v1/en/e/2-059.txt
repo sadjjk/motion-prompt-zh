@@ -1,0 +1,164 @@
+// Motion Prompt #2-059 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// 80s Synthwave / VHS / 80s シンセウェイブ・VHS
+// Pack: mgstyles (MG styles) · element 11 · Category: Genres & eras
+// What happens: A striped sun sits behind wireframe mountains, a magenta grid rolls toward camera and palms whip past; a chrome title slams down with a white flash and a neon script flickers on.
+// Motion spec:
+//   - Deep purple night sky #060212→#751266 with stars. The striped sun is a 5-stop gradient #fff59e→#ff3d8f; the cut-out bands on its lower half widen downward (up to 58%) and slide down 8 bands per cycle.
+//   - A magenta #FF29D1 one-point perspective grid with a 2-layer glow rolls 12 squares toward camera per cycle. Palm silhouettes pass on alternating sides every 3.2 s.
+//   - A VHS PLAY ▶ overlay shows at 0.1–1.15 s. At 1.2 s the chrome title NEON DRIVE slams down from 2.1× (in 0.13 s) with a white flash; a highlight sweeps across at 1.8–2.4 s.
+//   - At 2.6–3.4 s a neon Midnight lights up left to right, then strobes for 8 frames from 3.4 s. RGB split of ±2.5 px, scanlines every 2 px, and 2-frame tape glitches at 0.37, 2.47 and 4.6 s.
+// When to use it: Retro music videos, electronic music and game promos, and openings for nostalgia-themed brand films.
+// Tags: synthwave, retrowave, 80s, vhs, neon, chrome-text, perspective-grid, glitch
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-059
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 11
+// 11 复古 80s Synthwave / VHS（10-synthwave「NEON DRIVE / Midnight」）：深紫夜空 #060212→#751266 与星空，条纹落日（#fff59e→#ff3d8f 五段渐变，下半部横向镂空条带自上而下变宽 0→58%，每周期下移 8 格），线框群山 #ff49d6 描边，品红 #FF29D1 一点透视网格双层辉光向镜头滚动（每周期 12 格），两侧棕榈剪影每 3.2 秒交替掠过；0.1–1.15 秒 VHS「PLAY ▶」OSD，1.2 秒铬字 NEON DRIVE 从 2.1 倍砸下（0.13 秒）带镜头光斑与白闪，1.8–2.4 秒高光扫过，2.6–3.4 秒粉色霓虹「Midnight」逐字点亮、3.4 秒按原片 8 帧频闪点燃；RGB 色偏 ±2.5px、2px 扫描线，0.37/2.47/4.6 秒各 2 帧磁带抖动错位；5.4–6.0 秒字幕淡出，背景按整数格循环
+const SYN_SKY = [[0, '#060212'], [0.45, '#1A063D'], [0.8, '#4D0D66'], [1, '#751266']];
+const SYN_SUN = ['#fff59e', '#ffdb5c', '#ff9e38', '#ff6647', '#ff3d8f'];
+const SYN_HZ = 122, SYN_VX = 270;
+const SYN_GLITCH = [0.37, 2.47, 4.6];
+const SYN_STRIKE = [1, 0.15, 1, 1, 0.08, 0.5, 0.85, 1];
+// 棕榈剪影：先描一圈品红轮廓光，再压深色本体；40 单位 = 1 个世界单位
+function SYN_palm(k, x, yb, S, side, a) {
+  if (a <= 0) return;
+  k.save(); k.globalAlpha = a; k.translate(x, yb); k.scale(S / 40, S / 40); k.lineCap = 'round';
+  const tx = -side * 14, ty = -120;
+  for (const [col, extra] of [['rgba(255,60,185,0.85)', 3], ['#0a0118', 0]]) {
+    k.strokeStyle = col; k.lineWidth = 7 + extra; k.beginPath(); k.moveTo(0, 0); k.quadraticCurveTo(side * 8, -60, tx, ty); k.stroke();
+    k.lineWidth = 4 + extra;
+    for (let i = 0; i < 7; i++) {
+      const a0 = -Math.PI + i * Math.PI / 6, L = 42 + 10 * Math.sin(i * 1.7);
+      k.beginPath(); k.moveTo(tx, ty); k.quadraticCurveTo(tx + Math.cos(a0) * L * 0.6, ty + Math.sin(a0) * L * 0.6 - 12, tx + Math.cos(a0) * L, ty + Math.sin(a0) * L * 0.5 + 20); k.stroke();
+    }
+  }
+  k.restore();
+}
+// 铬字标题 + 霓虹手写字（磁带抖动时会在错位条带里重画一次）
+function SYN_title(k, u, a) {
+  if (u < 1.2 || a <= 0) return;
+  const ps = seg(u, 1.2, 1.33), s = ps < 1 ? mix(2.1, 1, out3(ps)) : 1 + 0.03 * Math.exp(-(u - 1.33) * 10) * Math.sin((u - 1.33) * 40);
+  const T = 'NEON DRIVE';
+  k.save(); k.globalAlpha = a * clamp(ps * 3); k.translate(270, 68); k.scale(s, s); k.transform(1, 0, -0.22, 1, 0, 0);
+  k.font = `italic 900 44px ${DISP}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round';
+  k.fillStyle = 'rgba(255,0,60,0.55)'; k.fillText(T, -2.5, 0); k.fillStyle = 'rgba(0,220,255,0.55)'; k.fillText(T, 2.5, 0);
+  k.strokeStyle = 'rgba(255,0,176,0.3)'; k.lineWidth = 14; k.strokeText(T, 0, 0);
+  k.strokeStyle = '#ff49d6'; k.lineWidth = 9; k.strokeText(T, 0, 0);
+  k.strokeStyle = '#0a0014'; k.lineWidth = 6; k.strokeText(T, 0, 0);
+  const rim = k.createLinearGradient(0, -20, 0, 20);
+  [[0, '#ffffff'], [0.22, '#8ea4dc'], [0.47, '#ffffff'], [0.53, '#3a1830'], [0.78, '#ffab66'], [1, '#fff4e0']].forEach(([o, c]) => rim.addColorStop(o, c));
+  k.strokeStyle = rim; k.lineWidth = 2.4; k.strokeText(T, 0, 0);
+  const fill = k.createLinearGradient(0, -17, 0, 17);
+  [[0, '#0b1a4d'], [0.12, '#1d4fae'], [0.3, '#5fb8ff'], [0.44, '#d8f6ff'], [0.494, '#ffffff'], [0.506, '#2b0a26'], [0.56, '#5a1438'], [0.7, '#c2452f'], [0.84, '#ff9a3c'], [0.94, '#ffd98a'], [1, '#fff6dc']].forEach(([o, c]) => fill.addColorStop(o, c));
+  k.fillStyle = fill; k.fillText(T, 0, 0);
+  const gp = seg(u, 1.8, 2.4);
+  if (gp > 0 && gp < 1) {
+    const gx = mix(-180, 180, gp), gg = k.createLinearGradient(gx - 24, 0, gx + 24, 0);
+    gg.addColorStop(0, 'rgba(255,255,255,0)'); gg.addColorStop(0.5, 'rgba(255,255,255,0.95)'); gg.addColorStop(1, 'rgba(255,255,255,0)');
+    k.fillStyle = gg; k.fillText(T, 0, 0);
+  }
+  k.restore();
+  // 星芒：高光扫到 80% 时在字顶闪一下
+  const sk = Math.max(0, 1 - Math.abs(gp - 0.8) / 0.12);
+  if (sk > 0) {
+    k.save(); k.globalAlpha = a * sk; k.translate(mix(90, 450, 0.8) - 6, 50); k.fillStyle = '#ffffff';
+    k.beginPath(); for (let i = 0; i < 8; i++) { const r = i % 2 ? 1.6 : 13 * sk, an = i * Math.PI / 4; i ? k.lineTo(Math.cos(an) * r, Math.sin(an) * r) : k.moveTo(r, 0); } k.closePath(); k.fill(); k.restore();
+  }
+  // 霓虹 Midnight：2.6–3.4 逐字点亮（半亮），3.4 起 8 帧频闪后全亮
+  const pm = seg(u, 2.6, 3.4);
+  if (pm > 0) {
+    let fl = 1; if (u < 3.4) fl = 0.6; else { const i = Math.floor((u - 3.4) * 30); if (i < 8) fl = SYN_STRIKE[i]; }
+    k.save(); k.globalAlpha = a * fl; k.translate(378, 106); k.rotate(-0.12);
+    k.font = `italic 700 30px ${SERIF}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round';
+    const tw = k.measureText('Midnight').width;
+    k.beginPath(); k.rect(-tw / 2 - 8, -30, (tw + 16) * pm, 60); k.clip();
+    k.strokeStyle = 'rgba(255,20,170,0.35)'; k.lineWidth = 8; k.strokeText('Midnight', 0, 0);
+    k.strokeStyle = '#ff3dcf'; k.lineWidth = 2.6; k.strokeText('Midnight', 0, 0);
+    k.fillStyle = '#fff0fb'; k.fillText('Midnight', 0, 0);
+    k.restore();
+  }
+}
+CELLS[10] = (k, w, h, u) => {
+  const HZ = SYN_HZ, VX = SYN_VX, F = fadeIn(u);
+  k.globalAlpha = 1; k.fillStyle = '#060212'; k.fillRect(0, 0, CW, CH);
+  k.drawImage(layer('SYN_sky', g => {
+    const sg = g.createLinearGradient(0, 0, 0, HZ); SYN_SKY.forEach(([o, c]) => sg.addColorStop(o, c));
+    g.fillStyle = sg; g.fillRect(0, 0, CW, HZ);
+    for (let i = 0; i < 90; i++) { const big = hash(i + 5) > 0.85 ? 1.6 : 1; g.fillStyle = `rgba(242,230,255,${0.25 + 0.6 * hash(i + 77)})`; g.fillRect(hash(i * 2 + 31) * CW, hash(i * 2 + 32) * (HZ - 30), big, big); }
+    const fg = g.createLinearGradient(0, HZ, 0, CH); fg.addColorStop(0, '#2a0838'); fg.addColorStop(0.25, '#170326'); fg.addColorStop(1, '#05000D');
+    g.fillStyle = fg; g.fillRect(0, HZ, CW, CH - HZ);
+  }), 0, 0);
+  // 闪烁星：每颗整数圈
+  for (let i = 0; i < 8; i++) { const a = 0.5 + 0.5 * Math.sin(TAU * u / CYC * (2 + i % 3) + i * 1.3); k.fillStyle = `rgba(255,240,255,${a})`; k.fillRect(hash(i + 300) * CW, hash(i + 340) * 70, 1.8, 1.8); }
+  // 条纹落日
+  const SX = VX, SY = 92, SR = 58;
+  glow(k, SX, SY, 130, '255,71,133', 0.35);
+  k.save(); k.beginPath(); k.rect(0, 0, CW, HZ); k.clip();
+  const sunG = k.createLinearGradient(0, SY - SR, 0, SY + SR); SYN_SUN.forEach((c, i) => sunG.addColorStop(i / 4, c));
+  k.fillStyle = sunG; k.beginPath(); k.arc(SX, SY, SR, 0, TAU); k.fill();
+  const y0 = SY - 6, P = 9, ph = (u / CYC * 8) % 1;
+  const gapG = k.createLinearGradient(0, y0, 0, HZ); gapG.addColorStop(0, '#4D0D66'); gapG.addColorStop(1, '#d838b0');
+  k.fillStyle = gapG;
+  for (let j = -1; j < 8; j++) { const yc = y0 + (j + ph) * P; if (yc < y0) continue; const gh = 0.58 * P * clamp((yc - y0) / (HZ - y0)) + 0.6; k.fillRect(SX - SR - 2, yc - gh / 2, SR * 2 + 4, gh); }
+  k.restore();
+  const hz = k.createLinearGradient(0, HZ - 40, 0, HZ); hz.addColorStop(0, 'rgba(255,71,180,0)'); hz.addColorStop(1, 'rgba(255,130,210,0.45)');
+  k.fillStyle = hz; k.fillRect(0, HZ - 40, CW, 40);
+  // 线框群山（静态图层）
+  k.drawImage(layer('SYN_mtn', g => {
+    const ridge = x => { const e = Math.pow(clamp(Math.abs(x - VX) / 250), 1.3); return HZ - (6 + 46 * e * (0.55 + 0.45 * fbm2(x / 38, 2.5, 3)) + 6 * fbm2(x / 9, 7.1, 2)); };
+    g.beginPath(); g.moveTo(0, HZ); for (let x = 0; x <= CW; x += 3) g.lineTo(x, ridge(x)); g.lineTo(CW, HZ); g.closePath();
+    const mg = g.createLinearGradient(0, HZ - 60, 0, HZ); mg.addColorStop(0, '#2a0f4a'); mg.addColorStop(1, '#0e0420'); g.fillStyle = mg; g.fill();
+    g.strokeStyle = 'rgba(255,73,214,0.28)'; g.lineWidth = 0.8;
+    for (const f of [0.66, 0.33]) { g.beginPath(); for (let x = 0; x <= CW; x += 3) { const y = HZ - (HZ - ridge(x)) * f; x ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
+    g.beginPath(); for (let x = 0; x <= CW; x += 12) { g.moveTo(x, ridge(x)); g.lineTo(x + (x - VX) * 0.05, HZ); } g.stroke();
+    g.strokeStyle = '#ff49d6'; g.lineWidth = 1.3; g.beginPath(); for (let x = 0; x <= CW; x += 3) x ? g.lineTo(x, ridge(x)) : g.moveTo(x, ridge(x)); g.stroke();
+  }), 0, 0);
+  // 透视网格：横线深度 dd，屏幕 y = HZ + 86/dd；每周期滚动 12 格
+  glow(k, VX, HZ + 6, 120, '255,90,170', 0.25);
+  k.save(); k.beginPath(); k.rect(0, HZ, CW, CH - HZ); k.clip();
+  k.beginPath(); for (let X = -14; X <= 14; X++) { k.moveTo(VX, HZ); k.lineTo(VX + X * 46, CH); }
+  k.strokeStyle = 'rgba(255,41,209,0.28)'; k.lineWidth = 3; k.stroke(); k.strokeStyle = '#FF29D1'; k.lineWidth = 1; k.stroke();
+  const ph2 = (u / CYC * 12) % 1;
+  for (let i = 1; i < 62; i++) {
+    const dd = (i - ph2) * 0.5; if (dd < 0.4) continue;
+    const y = HZ + 86 / dd; if (y > CH + 2) continue;
+    const a = 0.15 + 0.85 * clamp((y - HZ) / 25);
+    k.fillStyle = `rgba(255,41,209,${0.28 * a})`; k.fillRect(0, y - 1.5, CW, 3);
+    k.fillStyle = `rgba(255,41,209,${a})`; k.fillRect(0, y - 0.5, CW, 1);
+  }
+  k.restore();
+  k.fillStyle = '#ffd1f5'; k.fillRect(0, HZ - 0.8, CW, 1.6);
+  // 棕榈：左右交替，每 3.2 秒一棵（每周期 2 棵/侧）
+  for (const [side, off] of [[-1, 0], [1, 0.5]]) {
+    const p = (u / 3.2 + off) % 1, z = 14 - 13.6 * p, S = 86 / z;
+    SYN_palm(k, VX + side * 2.7 * S, HZ + S, S, side, seg(p, 0, 0.12));
+  }
+  // 标题（白闪 + 横向光斑）
+  if (u >= 1.33 && F > 0) {
+    const d = u - 1.33;
+    k.globalAlpha = F * 0.5 * Math.exp(-d * 9); k.fillStyle = '#ffebfa'; k.fillRect(0, 0, CW, CH);
+    k.globalAlpha = F * (0.25 + 0.6 * Math.exp(-d * 4)); glow(k, 270, 68, 90, '255,120,220', 0.6);
+    const fl = k.createLinearGradient(0, 0, CW, 0); fl.addColorStop(0, 'rgba(160,220,255,0)'); fl.addColorStop(0.5, 'rgba(230,245,255,0.9)'); fl.addColorStop(1, 'rgba(160,220,255,0)');
+    k.fillStyle = fl; k.fillRect(0, 67, CW, 2);
+    k.globalAlpha = 1;
+  }
+  SYN_title(k, u, F);
+  // VHS OSD
+  if (u >= 0.1 && u < 1.15) { txt(k, 'PLAY ▶', 18, 28, `700 14px ${MONO}`, 'rgba(0,0,0,0.85)'); txt(k, 'PLAY ▶', 16, 26, `700 14px ${MONO}`, '#f4f4ff'); }
+  // 磁带抖动：2 帧错位条带 + 噪声横纹
+  for (const g0 of SYN_GLITCH) if (u >= g0 && u < g0 + 2 / 30) {
+    const f = Math.floor(u * 30), by = 30 + hash(f * 3 + 1) * 130, bh = 10 + hash(f * 3 + 2) * 12;
+    k.save(); k.beginPath(); k.rect(0, by, CW, bh); k.clip(); k.fillStyle = 'rgba(10,1,24,0.6)'; k.fillRect(0, by, CW, bh);
+    k.translate(10 * (hash(f) - 0.3), 0); SYN_title(k, u, F); k.restore();
+    for (let i = 0; i < 14; i++) { k.fillStyle = `rgba(255,255,255,${0.2 + 0.5 * hash(f * 31 + i)})`; k.fillRect(hash(f * 17 + i) * CW, by + hash(f * 13 + i) * bh, 20 + hash(f * 7 + i) * 90, 1); }
+  }
+  k.drawImage(layer('SYN_vhs', g => {
+    g.fillStyle = 'rgba(0,0,0,0.12)'; for (let y = 0; y < CH; y += 2) g.fillRect(0, y, CW, 1);
+    const v = g.createRadialGradient(270, 104, 120, 270, 104, 330); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.45)'); g.fillStyle = v; g.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+};

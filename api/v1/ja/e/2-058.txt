@@ -1,0 +1,219 @@
+// Motion Prompt #2-058 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// サイバーパンク HUD / Cyberpunk HUD / FUI
+// パック: mgstyles (モーショングラフィックスのスタイル) · element 10 · カテゴリ: ジャンル・年代
+// 何が起きるか: シアンの線画、レーダー、地球が順に点灯し、数値が乱れてから確定、括弧が飛び込んで探索・吸着し、ロックの瞬間に全体がマゼンタになる。
+// 動きの仕様:
+//   - 濃い青黒 #020A0D の背景。シアン #00E5FF の線画が層ごとにずれて伸びる：0.12 秒 外枠の角、0.4 秒 外輪、0.55 秒 レーダー、0.9 秒 地球、1.15 秒 右パネル
+//   - レーダーは 1.6 秒で 1 周（周期ごとに 4 周）、反射点 4 個。1.2 秒から 5 行の数値がそれぞれ 4 フレーム乱れてから確定し、ログは毎秒 45 文字で打ち出される
+//   - 線画の地球は 0–3.4 秒で減速しながら 360° 回る。3.0 秒に四隅の括弧が画面の四隅から飛び込み、3.25–3.55 秒に ±4 px で探索、3.55–3.8 秒に 1.4 倍から 1 倍へ吸着
+//   - 3.8 秒にロック：全体がマゼンタ #FF2A8A に変わり、白フラッシュと 3 本の広がる輪（3.8、4.3、4.8 秒）。全編に 3 px 間隔の走査線を重ねる
+// 使いどころ: テック製品のプロモーション、ゲームの予告編、SF調のオープニングやデータ可視化の解説に。
+// タグ: cyberpunk, hud, fui, sci-fi, wireframe, radar, target-lock, scanlines
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-058
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 10
+// 10 赛博朋克 HUD / FUI（22-hud「隼眼-9 · 目标锁定」）：深青黑底 #020A0D，青 #00E5FF 线框按层级错帧生长（0.12 外框角 → 0.4 外环 → 0.55 刻度/雷达 → 0.9 地球 → 1.15 右面板 → 1.0–1.6 六边形网格），雷达扫描 1.6 秒一圈（每周期 4 圈）带 4 个回波点；1.2–2.2 秒五行读数各自乱跳 4 帧（30fps）后落定，日志打字机 45 字/秒带闪烁光标；中央线框地球 0–3.4 秒减速转满一圈把上海（N31°14′ E121°29′）转到正面，2.4/2.9 秒两个候选框跳选后划叉，3.0 秒四角括号从卡片四角飞入、3.25–3.55 秒 ±4px 搜寻、3.55–3.8 秒 1.4→1.0 快出缓入吸附，3.8 秒锁定：全局翻洋红 #FF2A8A、白热闪帧、3 道扩散环（3.8/4.3/4.8）、目标锁定 / TARGET LOCKED，4.2 秒坐标打字；5.4–6.0 秒整体淡出，全程叠扫描线
+const HUD_C = { ink: '#020A0D', cya: '#00E5FF', dim: '#0B7C8C', deep: '#0E3A42', hot: '#E8FEFF', mag: '#FF2A8A', dot: '#FF5A4E' };
+const HUD_LOCK = 3.8;
+const HUD_BLIPS = [[118, 0.62], [205, 0.41], [262, 0.78], [331, 0.55]];
+const HUD_LOG = [[0.4, 'OPTIC CORE v4.2.1', 'OK'], [0.75, 'CRYO FPA 4096² · 77K', 'OK'], [1.1, 'GYRO ALIGN Δ0.0003°', 'OK'], [1.98, '> SEARCH MODE ENGAGED', ''], [2.6, '! SIGNAL · BRG 041°', ''], [3.9, '■ TGT-03 LOCKED', '']];
+const HUD_DATA = [['AZM', 41.27, 2, '°'], ['ELV', 18.04, 2, '°'], ['ALT', 512.08, 2, 'KM'], ['RNG', 296.4, 1, 'KM'], ['SNR', 32.6, 1, 'dB']];
+// 地球表面"陆地"点：随机经纬度按噪声筛选，另在目标（华东）附近加一簇密点
+const HUD_LAND = (() => {
+  const a = [];
+  for (let i = 0; i < 520; i++) { const lat = Math.asin(2 * hash(i * 3 + 501) - 1) * 180 / Math.PI, lon = hash(i * 3 + 502) * 360 - 180; if (fbm2(lon / 40 + 9, lat / 30 + 4, 3) > 0.52) a.push([lat, lon]); }
+  for (let i = 0; i < 70; i++) a.push([22 + hash(i + 901) * 18, 108 + hash(i + 951) * 14]);
+  return a;
+})();
+CELLS[9] = (k, w, h, u) => {
+  const C = HUD_C, F = fadeIn(u), lock = u >= HUD_LOCK, AC = lock ? C.mag : C.cya, D2R = Math.PI / 180;
+  const ga = a => { k.globalAlpha = clamp(a) * F; };
+  const pr = (a, d = 0.5) => out3(seg(u, a, a + d));
+  k.globalAlpha = 1; k.fillStyle = C.ink; k.fillRect(0, 0, CW, CH);
+  // 六边形网格 + 暗角（静态图层）
+  ga(seg(u, 1.0, 1.6));
+  k.drawImage(layer('HUD_hex', g => {
+    g.strokeStyle = C.deep; g.lineWidth = 0.7; g.beginPath();
+    const r = 9, dx = r * 1.5, dy = r * Math.sqrt(3);
+    for (let i = -1; i < CW / dx + 1; i++) for (let j = -1; j < CH / dy + 1; j++) {
+      const cx = i * dx, cy = j * dy + (i % 2 ? dy / 2 : 0);
+      for (let q = 0; q <= 6; q++) { const a = q * Math.PI / 3, px = cx + r * Math.cos(a), py = cy + r * Math.sin(a); q ? g.lineTo(px, py) : g.moveTo(px, py); }
+    }
+    g.stroke();
+    const v = g.createRadialGradient(270, 104, 60, 270, 104, 320); v.addColorStop(0, 'rgba(2,10,13,0)'); v.addColorStop(1, 'rgba(2,10,13,0.85)');
+    g.fillStyle = v; g.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+  // 外框四角 + 面板分隔线
+  const pf = pr(0.12, 0.4);
+  if (pf > 0) {
+    ga(1); k.strokeStyle = AC; k.lineWidth = 1.2; k.beginPath();
+    const L = 18 * pf;
+    for (const [x, y, sx, sy] of [[5, 5, 1, 1], [CW - 5, 5, -1, 1], [CW - 5, CH - 5, -1, -1], [5, CH - 5, 1, -1]]) { k.moveTo(x + sx * L, y); k.lineTo(x, y); k.lineTo(x, y + sy * L); }
+    k.stroke();
+    k.strokeStyle = C.dim; k.lineWidth = 0.8; k.beginPath();
+    k.moveTo(152, 104 - 90 * pf); k.lineTo(152, 104 + 90 * pf); k.moveTo(388, 104 - 90 * pf); k.lineTo(388, 104 + 90 * pf); k.stroke();
+  }
+  // 左：雷达（扫描 1.6 秒一圈，起始方位 52°）
+  const RX = 64, RY = 62, RR = 42, prd = pr(0.55, 0.6);
+  if (prd > 0) {
+    ga(1); k.strokeStyle = C.dim; k.lineWidth = 0.8;
+    for (const r0 of [RR, RR * 0.66, RR * 0.33]) { k.beginPath(); k.arc(RX, RY, r0, -Math.PI / 2, -Math.PI / 2 + TAU * prd); k.stroke(); }
+    k.beginPath(); k.moveTo(RX - RR * prd, RY); k.lineTo(RX + RR * prd, RY); k.moveTo(RX, RY - RR * prd); k.lineTo(RX, RY + RR * prd); k.stroke();
+    k.strokeStyle = AC; k.lineWidth = 1; k.beginPath();
+    for (let i = 0; i < 36 * prd; i++) { const a = i * 10 * D2R, l = i % 9 === 0 ? 5 : 2.5; k.moveTo(RX + Math.cos(a) * RR, RY + Math.sin(a) * RR); k.lineTo(RX + Math.cos(a) * (RR + l), RY + Math.sin(a) * (RR + l)); }
+    k.stroke();
+    const th = TAU * u / 1.6 + (52 - 90) * D2R, col = lock ? '255,42,138' : '0,229,255';
+    ga(prd);
+    const cg = k.createConicGradient(th - 1.1, RX, RY);
+    cg.addColorStop(0, `rgba(${col},0)`); cg.addColorStop(1.1 / TAU, `rgba(${col},0.5)`); cg.addColorStop(1.1 / TAU + 0.002, `rgba(${col},0)`); cg.addColorStop(1, `rgba(${col},0)`);
+    k.fillStyle = cg; k.beginPath(); k.moveTo(RX, RY); k.arc(RX, RY, RR, th - 1.1, th); k.closePath(); k.fill();
+    k.strokeStyle = AC; k.lineWidth = 1.2; k.beginPath(); k.moveTo(RX, RY); k.lineTo(RX + Math.cos(th) * RR, RY + Math.sin(th) * RR); k.stroke();
+    for (const [brg, r0] of HUD_BLIPS) {
+      const a = (brg - 90) * D2R; let d = (th - a) % TAU; if (d < 0) d += TAU; const b = Math.exp(-d * 1.2);
+      ga(prd * (0.2 + 0.8 * b)); k.fillStyle = brg === 331 && u > 2.6 ? C.dot : AC;
+      k.beginPath(); k.arc(RX + Math.cos(a) * RR * r0, RY + Math.sin(a) * RR * r0, 1.6 + b, 0, TAU); k.fill();
+    }
+    ga(prd); txt(k, 'RADAR · 雷达扫描', 14, 122, `600 8px ${SANS}`, C.cya);
+  }
+  // 左：迷你折线（1.6–2.4 描出）与频谱柱（10fps 跳动）
+  const psp = pr(1.6, 0.8);
+  if (psp > 0) {
+    ga(1); k.strokeStyle = C.deep; k.lineWidth = 0.8; k.strokeRect(14, 132, 126, 30);
+    k.strokeStyle = AC; k.lineWidth = 1.1; k.beginPath();
+    const n = Math.floor(40 * psp);
+    for (let i = 0; i <= n; i++) { const x = 14 + i * 126 / 40, y = 158 - 22 * fbm2(i * 0.35 + 3, 1.5, 3); i ? k.lineTo(x, y) : k.moveTo(x, y); }
+    k.stroke();
+  }
+  const psb = pr(1.9, 0.4);
+  if (psb > 0) {
+    ga(psb); txt(k, '信号分析 SIGNAL', 14, 176, `600 8px ${SANS}`, C.cya);
+    const fq = Math.floor(u * 10);
+    for (let i = 0; i < 18; i++) {
+      const hit = i > 9 && i < 13 && u > 2.6, v = clamp(0.2 + 0.8 * hash(i * 13 + fq * 7) * (hit ? 1.25 : 0.7));
+      k.fillStyle = hit ? C.hot : C.dim; k.fillRect(14 + i * 7, 200 - 18 * v, 5, 18 * v);
+    }
+  }
+  // 中：外环（4 段弧，每周期 1 圈）+ 刻度环
+  const GX = 270, GY = 106, GR = 80, tilt = 24 * D2R, ct = Math.cos(tilt), st = Math.sin(tilt);
+  const rot = TAU * u / CYC, por = pr(0.4, 0.5);
+  if (por > 0) {
+    ga(1); k.strokeStyle = AC; k.lineWidth = 1.1;
+    for (let q = 0; q < 4; q++) { k.beginPath(); k.arc(GX, GY, 97, rot + q * Math.PI / 2, rot + q * Math.PI / 2 + 1.1 * por); k.stroke(); }
+    k.strokeStyle = C.dim; k.lineWidth = 0.8; k.beginPath();
+    const nt = Math.floor(72 * pr(0.55, 0.5));
+    for (let i = 0; i < nt; i++) { const a = -rot + i * 5 * D2R, l = i % 6 === 0 ? 5 : 2; k.moveTo(GX + Math.cos(a) * 90, GY + Math.sin(a) * 90); k.lineTo(GX + Math.cos(a) * (90 - l), GY + Math.sin(a) * (90 - l)); }
+    k.stroke();
+  }
+  // 中：线框地球（正射投影，倾角 24°；0–3.4 秒减速转满 360°）
+  const lon0 = 121.48 - 360 * (1 - out3(seg(u, 0, 3.4)));
+  const pj = (lat, lon) => { const a = lat * D2R, b = (lon - lon0) * D2R, ca = Math.cos(a); const x = ca * Math.sin(b), y = Math.sin(a), z = ca * Math.cos(b); return [GX + GR * x, GY - GR * (y * ct - z * st), y * st + z * ct]; };
+  const pg = pr(0.9, 0.7);
+  if (pg > 0) {
+    ga(pg); glow(k, GX, GY, 110, lock ? '255,42,138' : '0,229,255', 0.1);
+    const lines = [], nm = Math.ceil(12 * pg);
+    for (let m = 0; m < nm; m++) { const pts = []; for (let la = -90; la <= 90; la += 6) pts.push(pj(la, m * 30)); lines.push(pts); }
+    for (let la = -60; la <= 60; la += 30) if (pg > 0.3 + (la + 60) / 300) { const pts = []; for (let lo = 0; lo <= 360; lo += 6) pts.push(pj(la, lo)); lines.push(pts); }
+    for (const pass of [0, 1]) {
+      k.beginPath();
+      for (const pts of lines) for (let i = 1; i < pts.length; i++) { const p0 = pts[i - 1], p1 = pts[i]; if ((p0[2] > 0 && p1[2] > 0) === (pass === 1)) { k.moveTo(p0[0], p0[1]); k.lineTo(p1[0], p1[1]); } }
+      if (pass === 0) { ga(0.22 * pg); k.strokeStyle = C.dim; k.lineWidth = 0.7; k.stroke(); }
+      else { ga(0.22 * pg); k.strokeStyle = AC; k.lineWidth = 2.6; k.stroke(); ga(0.85 * pg); k.lineWidth = 0.8; k.stroke(); }
+    }
+    ga(0.9 * pg); k.strokeStyle = AC; k.lineWidth = 1; k.beginPath(); k.arc(GX, GY, GR, 0, TAU); k.stroke();
+    ga(0.75 * pg); k.fillStyle = AC; k.beginPath();
+    for (const [la, lo] of HUD_LAND) { const p = pj(la, lo); if (p[2] > 0.05) k.rect(p[0] - 0.6, p[1] - 0.6, 1.2, 1.2); }
+    k.fill();
+  }
+  // 目标点（2.6 秒发现，4Hz 闪烁至锁定）
+  const T = pj(31.23, 121.48), tx = T[0], ty = T[1];
+  if (u > 2.6 && T[2] > 0) {
+    const on = lock || Math.floor((u - 2.6) * 8) % 2 === 0;
+    ga(1); glow(k, tx, ty, 14, '255,90,78', on ? 0.6 : 0.25);
+    if (on) { k.fillStyle = C.dot; k.beginPath(); k.arc(tx, ty, 2.6, 0, TAU); k.fill(); }
+  }
+  // 候选目标：跳选 0.5 秒后划叉
+  for (const [t0, la, lo, lab] of [[2.4, 24.5, 112.5, 'CND-01 0.231'], [2.9, 38.5, 128.5, 'CND-02 0.418']]) {
+    if (u < t0) continue;
+    const p = pj(la, lo), age = u - t0;
+    if (age < 0.5) {
+      const s = 1.4 - 0.4 * out3(clamp(age / 0.15));
+      ga(Math.floor(age * 20) % 2 ? 0.6 : 1); k.strokeStyle = C.cya; k.lineWidth = 1; k.beginPath();
+      for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) { const cx = p[0] + sx * 9 * s, cy = p[1] + sy * 9 * s; k.moveTo(cx - sx * 4, cy); k.lineTo(cx, cy); k.lineTo(cx, cy - sy * 4); }
+      k.stroke(); txt(k, lab, p[0] + 13, p[1] - 9, `600 7.5px ${MONO}`, C.cya);
+    } else if (age < 1.1) {
+      ga(0.6 * (1 - (age - 0.5) / 0.6)); k.strokeStyle = C.dim; k.lineWidth = 1; k.beginPath();
+      k.moveTo(p[0] - 5, p[1] - 5); k.lineTo(p[0] + 5, p[1] + 5); k.moveTo(p[0] + 5, p[1] - 5); k.lineTo(p[0] - 5, p[1] + 5); k.stroke();
+    }
+  }
+  // 主锁定框：3.0 飞入 → 3.25 搜寻 → 3.55 吸附 1.4→1.0 → 3.8 锁定咬合至 0.62
+  if (u >= 3.0) {
+    const HS = 22, cs = [[-1, -1], [1, -1], [1, 1], [-1, 1]], cc = [[8, 8], [CW - 8, 8], [CW - 8, CH - 8], [8, CH - 8]];
+    let hs, jx = 0, jy = 0, e = 1;
+    if (u < 3.25) { e = out3(seg(u, 3.0, 3.25)); hs = HS * 1.4; }
+    else if (u < 3.55) { hs = HS * 1.4; const f = Math.floor(u * 15); jx = (hash(f * 3 + 1) - 0.5) * 8; jy = (hash(f * 3 + 2) - 0.5) * 8; }
+    else if (u < HUD_LOCK) { const q = 1 - Math.pow(2, -10 * seg(u, 3.55, HUD_LOCK)); hs = HS * mix(1.4, 1.0, q); }
+    else hs = HS * mix(1.0, 0.62, out3(seg(u, HUD_LOCK, HUD_LOCK + 0.2)));
+    const col = lock ? C.mag : C.cya, arm = 7;
+    for (const [lw, a] of [[3.4, 0.25], [1.4, 1]]) {
+      ga(a); k.strokeStyle = col; k.lineWidth = lw; k.beginPath();
+      cs.forEach(([sx, sy], i) => { const px = mix(cc[i][0], tx + jx + sx * hs, e), py = mix(cc[i][1], ty + jy + sy * hs, e); k.moveTo(px - sx * arm, py); k.lineTo(px, py); k.lineTo(px, py - sy * arm); });
+      k.stroke();
+    }
+    if (u >= 3.25 && u < HUD_LOCK) {
+      const q = seg(u, 3.25, HUD_LOCK); ga(0.8); k.strokeStyle = C.cya; k.lineWidth = 1.2;
+      k.beginPath(); k.arc(tx, ty, 11, -Math.PI / 2, -Math.PI / 2 + TAU * q * q); k.stroke();
+      txt(k, `LOCK ${Math.round(q * q * 100)}%`, tx, ty + hs + 12, `600 7.5px ${MONO}`, C.cya, 'center');
+    }
+    if (lock) {
+      const d = u - HUD_LOCK, sp = d * 1.4;
+      ga(out3(clamp(d / 0.4))); k.strokeStyle = C.mag; k.lineWidth = 1.5;
+      for (let q = 0; q < 4; q++) { k.beginPath(); k.arc(tx, ty, 9, sp + q * Math.PI / 2, sp + q * Math.PI / 2 + 0.9); k.stroke(); }
+      if (d < 0.25) { const z = out3(d / 0.25); ga(0.9 * (1 - z)); k.strokeStyle = C.hot; k.lineWidth = 2; k.strokeRect(tx - 25 - 35 * z, ty - 25 - 35 * z, 50 + 70 * z, 50 + 70 * z); }
+      for (const p0 of [HUD_LOCK, 4.3, 4.8]) { const dd = u - p0; if (dd < 0 || dd > 0.7) continue; const z = out3(dd / 0.7); ga((1 - z) * 0.9); k.strokeStyle = C.mag; k.lineWidth = 1.5; k.beginPath(); k.arc(tx, ty, 18 + z * 90, 0, TAU); k.stroke(); }
+      const pl = out3(seg(u, 4.0, 4.3));
+      if (pl > 0) { ga(1); k.strokeStyle = C.mag; k.lineWidth = 1; k.beginPath(); k.moveTo(tx + 14, ty - 14); k.lineTo(tx + 14 + 30 * pl, ty - 44 * pl); k.lineTo(tx + 14 + 64 * pl, ty - 44 * pl); k.stroke(); ga(pl); txt(k, 'TGT-03', tx + 46, ty - 47, `700 8px ${MONO}`, C.hot); }
+      if (d < 0.3) { ga(0.35 * Math.exp(-d * 14)); k.fillStyle = C.hot; k.fillRect(0, 0, CW, CH); }
+    }
+  }
+  // 右面板：标题、打字机日志、读数、锁定标题
+  const RXp = 396;
+  ga(pr(1.15, 0.3)); txt(k, '隼眼-9 · 轨道光学系统', RXp, 19, `600 9px ${SANS}`, AC);
+  k.fillStyle = C.dim; k.fillRect(RXp, 24, 136 * pr(1.15, 0.5), 0.8);
+  let lastI = -1;
+  HUD_LOG.forEach(([t0], i) => { if (u >= t0) lastI = i; });
+  HUD_LOG.forEach(([t0, s, ok], i) => {
+    if (u < t0) return;
+    const n = Math.min(s.length, Math.floor((u - t0) * 45)), y = 36 + i * 10;
+    ga(1); txt(k, s.slice(0, n), RXp, y, `500 7.5px ${MONO}`, i === 5 ? C.mag : i >= 3 ? C.hot : C.cya);
+    if (n === s.length && ok) txt(k, ok, 532, y, `700 7.5px ${MONO}`, C.cya, 'right');
+    if (i === lastI && Math.floor(u * 4) % 2 === 0) { k.font = `500 7.5px ${MONO}`; const x = RXp + k.measureText(s.slice(0, n)).width + 1; k.fillStyle = AC; k.fillRect(x, y - 6, 4, 7); }
+  });
+  HUD_DATA.forEach(([lab, v, dp, unit], i) => {
+    const t0 = 1.2 + i * 0.25; if (u < t0 - 0.3) return;
+    const y = 104 + i * 11, rolling = u >= t0 && u < t0 + 4 / 30;
+    ga(seg(u, t0 - 0.3, t0 - 0.1)); txt(k, lab, RXp, y, `600 7.5px ${MONO}`, C.dim);
+    let s;
+    if (u < t0) s = '---.--';
+    else if (rolling) s = (hash(Math.floor(u * 30) * 7 + i) * 999).toFixed(dp);
+    else s = (v + (lab === 'ALT' ? 0.02 * Math.sin(u * 3) : 0)).toFixed(dp);
+    txt(k, s + ' ' + unit, 532, y, `600 8px ${MONO}`, rolling ? C.hot : AC, 'right');
+  });
+  if (!lock) {
+    if (u > 1.98) { ga(Math.floor(u * 3) % 2 ? 0.45 : 1); txt(k, '扫描中 · SCANNING', RXp, 178, `600 9px ${SANS}`, C.cya); }
+  } else {
+    const e = out3(seg(u, HUD_LOCK, HUD_LOCK + 0.15));
+    ga(e); txt(k, 'TARGET LOCKED', RXp, 162, `800 10px ${DISP}`, C.hot);
+    ga(0.55 * e); txt(k, '目标锁定', RXp - 1.5, 186, `900 22px ${SANS}`, C.cya); txt(k, '目标锁定', RXp + 1.5, 186, `900 22px ${SANS}`, C.hot);
+    ga(e); txt(k, '目标锁定', RXp, 186, `900 22px ${SANS}`, C.mag);
+    if (u > 4.2) { const s = 'N31°14′ E121°29′', n = Math.min(s.length, Math.floor((u - 4.2) * 30)); ga(1); txt(k, s.slice(0, n), RXp, 200, `600 8.5px ${MONO}`, C.hot); }
+  }
+  // 扫描线（常量图层，全程覆盖）
+  k.globalAlpha = 1;
+  k.drawImage(layer('HUD_scan', g => { g.fillStyle = 'rgba(0,0,0,0.22)'; for (let y = 0; y < CH; y += 3) g.fillRect(0, y, CW, 1); }), 0, 0);
+};

@@ -1,0 +1,169 @@
+// Motion Prompt #2-060 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// Pixel art / 8-bit / ピクセルアート
+// Pack: mgstyles (MG styles) · element 12 · Category: Genres & eras
+// What happens: A red-hooded hero runs across 3 parallax layers, jumps for coins and squashes a slime, while a blocky pixel logo drops in frame by frame and bounces.
+// Motion spec:
+//   - Drawn on a 108 × 42 low-res frame and scaled up 5× with nearest-neighbour. The sky is a Bayer 4 × 4 dithered gradient, with CRT scanlines and a vignette on top.
+//   - Sprites and scrolling run at 48 frames per cycle (7.5 fps): the hero has a 6-frame run cycle, far hills, bushes and ground tiles scroll at 1/4, 1/2 and 1× parallax, and the ground travels 192 pixels per cycle.
+//   - Along the way the hero jumps through an arc of 3 coins, stomps a pink slime into a puff of smoke, then runs over 3 ground coins. Coins spin in 4 frames.
+//   - From 0.4 s the blocky logo PIXEL QUEST drops and bounces at 8 fps; from 1.1 s the Chinese subtitle appears character by character. Highlights sweep diagonally at 1.5 and 3.5 s, and the logo steps up and out at 5.4 s.
+// When to use it: Game promos, retro-themed social shorts, and openings for tech or programming explainer videos.
+// Tags: pixel-art, 8-bit, retro-game, side-scroller, dithering, parallax, crt
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-060
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 12
+// 12 像素风（20-pixel「PIXEL QUEST 像素冒险」）：108×42 低分辨率离屏画面按 5 倍最近邻放大，QUEST-32 色板（#0d0b1a #4f6fc0 #8cc8f5 #d23c3c #ffd166 #4fae4a #8a5236 …），Bayer 4×4 抖动天空；精灵与卷轴按每周期 48 帧（7.5fps）阶梯时序、标志按 8fps：红兜帽主角 6 帧跑步循环，远山/树丛/地砖三层视差按 1/4、1/2、1 整像素卷动（地面每周期 192 像素一圈），途中跳起吃 3 枚弧形金币（闪光）、跳踩粉色史莱姆（压扁 + 烟团）、再跑过 3 枚地面金币；0.4 秒块状像素标志 PIXEL QUEST 8fps 落下回弹，1.1 秒「像素冒险」逐字出现，1.5/3.5 秒高光斜扫，5.4 秒标志阶梯式上飞退场；CRT 每行扫描线 + 暗角
+const PIX_W = 108, PIX_H = 42, PIX_GY = 34, PIX_TRACK = 192;
+const PIX_C = { k: '#0d0b1a', w: '#ffffff', r: '#d23c3c', R: '#7a1f2e', s: '#ffc9a0', S: '#e8b27c', b: '#4f6fc0', B: '#3d4a8a', y: '#ffd166', Y: '#f59a4a', u: '#fff3b0', l: '#8a5236', L: '#5a3326', e: '#2b1a1f', p: '#b0415f', P: '#6b2d5c', o: '#e8665a' };
+const PIX_CACHE = {};
+const PIX_LR = (() => { const c = document.createElement('canvas'); c.width = PIX_W; c.height = PIX_H; return c; })();   // 每帧整张重画的低分辨率画布
+// 字符行 → 小画布（可选 1px 深色描边），按 key 缓存
+function PIX_bake(key, rows, outline = true) {
+  if (PIX_CACHE[key]) return PIX_CACHE[key];
+  const o = outline ? 1 : 0, w0 = Math.max(...rows.map(r => r.length)), W = w0 + 2 * o, H = rows.length + 2 * o;
+  const at = (x, y) => { const r = rows[y - o]; const ch = r ? r[x - o] : undefined; return ch && ch !== '.' ? ch : null; };
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    let ch = at(x, y);
+    if (!ch && outline && (at(x - 1, y) || at(x + 1, y) || at(x, y - 1) || at(x, y + 1))) ch = 'k';
+    if (ch) { g.fillStyle = PIX_C[ch]; g.fillRect(x, y, 1, 1); }
+  }
+  return (PIX_CACHE[key] = c);
+}
+const PIX_HEAD = ['..rrrrr..', '.rrrrrrr.', 'rrrRRRRrr', 'rRRsssssS', 'rRsssksk.', 'rRsssssS.', '.R.ssss..', '...ss....'];
+const PIX_RUN = [
+  { bob: 0, bf: [-3, 3], ff: [3, 4], bh: [3, 1], fh: [-2, 2] },
+  { bob: 1, bf: [-3, 2], ff: [1, 4], bh: [2, 2], fh: [-1, 3] },
+  { bob: 0, bf: [0, 2], ff: [-1, 4], bh: [0, 3], fh: [1, 3] },
+  { bob: 0, bf: [3, 4], ff: [-3, 3], bh: [-2, 2], fh: [3, 1] },
+  { bob: 1, bf: [1, 4], ff: [-3, 2], bh: [-1, 3], fh: [2, 2] },
+  { bob: 0, bf: [-1, 4], ff: [0, 2], bh: [1, 3], fh: [0, 3] },
+];
+const PIX_AIR = { bob: 0, bf: [-2, 2], ff: [2, 3], bh: [-3, -2], fh: [3, -3] };
+// 主角精灵：头身固定，四肢按姿势用 Bresenham 线段画出（13×16，描边后 15×18）
+function PIX_hero(fr, air) {
+  const key = 'hero' + fr + (air ? 'a' : '');
+  if (PIX_CACHE[key]) return PIX_CACHE[key];
+  const P = air ? PIX_AIR : PIX_RUN[fr], W = 13, H = 16, g = Array.from({ length: H }, () => Array(W).fill('.'));
+  const put = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H) g[y][x] = c; };
+  const line = (x0, y0, x1, y1, c) => { const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1; let e = dx + dy; for (let n = 0; n < 40; n++) { put(x0, y0, c); if (x0 === x1 && y0 === y1) break; const e2 = 2 * e; if (e2 >= dy) { e += dy; x0 += sx; } if (e2 <= dx) { e += dx; y0 += sy; } } };
+  const b = P.bob;
+  line(5, 8 + b, 5 + P.bh[0], 8 + b + P.bh[1], 'B'); put(5 + P.bh[0], 8 + b + P.bh[1], 'S');
+  line(5, 11 + b, 5 + P.bf[0], 11 + P.bf[1], 'L'); put(5 + P.bf[0], 11 + P.bf[1], 'e'); put(6 + P.bf[0], 11 + P.bf[1], 'e');
+  for (let x = 4; x <= 8; x++) { put(x, 8 + b, 'b'); put(x, 9 + b, x === 8 ? 'B' : 'b'); put(x, 10 + b, x === 6 ? 'u' : 'y'); }
+  line(7, 11 + b, 7 + P.ff[0], 11 + P.ff[1], 'l'); put(7 + P.ff[0], 11 + P.ff[1], 'e'); put(8 + P.ff[0], 11 + P.ff[1], 'e');
+  PIX_HEAD.forEach((r, j) => { for (let i = 0; i < r.length; i++) if (r[i] !== '.') put(2 + i, j + b, r[i]); });
+  line(7, 8 + b, 7 + P.fh[0], 8 + b + P.fh[1], 'b'); put(7 + P.fh[0], 8 + b + P.fh[1], 's');
+  return PIX_bake(key, g.map(r => r.join('')));
+}
+const PIX_COIN = [['.yyyy.', 'uyyyyY', 'uyYYyY', 'uyYYyY', 'uyYYyY', 'uyYYyY', 'uyyyYY', '.YYYY.'], ['.yy.', 'uyyY', 'uyYY', 'uyYY', 'uyYY', 'uyYY', 'uyyY', '.YY.'], ['uY', 'uY', 'uY', 'uY', 'uY', 'uY', 'uY', 'uY'], ['.yy.', 'Yyyu', 'YYyu', 'YYyu', 'YYyu', 'YYyu', 'Yyyu', '.YY.']];
+const PIX_SLIME = [['....pppp....', '..pppppppp..', '.pwwpppppppP', '.pwppkppkppP', 'pppppkppkpPP', 'ppppppppppPP', 'PpppppppppPP', '.PPPPPPPPPP.'], ['...pppppp...', '.pwwppppppP.', 'pwpppkppkppP', 'pppppkppkpPP', 'PpppppppppPP', '.PPPPPPPPPP.'], ['..pppppppp..', 'ppkkpppkkppP', '.PPPPPPPPPP.']];
+const PIX_SPARK = [['.u.', 'uwu', '.u.'], ['..w..', '..u..', 'wuwuw', '..u..', '..w..'], ['...w...', '...u...', '...u...', 'wuuwuuw', '...u...', '...u...', '...w...']];
+const PIX_PUFF = [['.ww.', 'wwww', 'wwww', '.ww.'], ['..ww..', '.wwwww', 'ww..ww', '.wwww.'], ['.w..w.', 'w....w', '.w..w.']];
+const PIX_FONT = { P: ['111', '101', '111', '100', '100'], I: ['111', '010', '010', '010', '111'], X: ['101', '101', '010', '101', '101'], E: ['111', '100', '110', '100', '111'], L: ['100', '100', '100', '100', '111'], Q: ['111', '101', '101', '110', '011'], U: ['101', '101', '101', '101', '111'], S: ['111', '100', '111', '001', '111'], T: ['111', '010', '010', '010', '010'], ' ': ['000', '000', '000', '000', '000'] };
+// 标志：3×5 点阵字 2 倍放大、上黄下橙，sx 为高光斜带位置（按位置缓存）
+function PIX_logo(sx) {
+  const key = 'logo' + sx; if (PIX_CACHE[key]) return PIX_CACHE[key];
+  const text = 'PIXEL QUEST', W = text.length * 8 - 2, rows = [];
+  for (let y = 0; y < 10; y++) {
+    let r = '';
+    for (let x = 0; x < W; x++) {
+      const ci = Math.floor(x / 8), cx = x % 8; let on = false;
+      if (cx < 6) on = PIX_FONT[text[ci]][Math.floor(y / 2)][Math.floor(cx / 2)] === '1';
+      let col = y < 1 ? 'u' : y < 5 ? 'y' : y < 8 ? 'Y' : 'o';
+      if (on && x - y * 0.5 >= sx && x - y * 0.5 < sx + 2) col = 'w';
+      r += on ? col : '.';
+    }
+    rows.push(r);
+  }
+  return PIX_bake(key, rows);
+}
+// 静态底图：抖动天空 + 太阳 + 云；远山（48 像素一周期）；树丛（96）；地砖（16）
+function PIX_tiles() {
+  if (PIX_CACHE.tiles) return PIX_CACHE.tiles;
+  const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return [c, c.getContext('2d')]; };
+  const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+  const [sky, gs] = mk(PIX_W, PIX_GY), stops = [[0, '#4f6fc0'], [10, '#5b9bea'], [20, '#8cc8f5'], [30, '#c8ecff'], [34, '#c8ecff']];
+  for (let y = 0; y < PIX_GY; y++) for (let x = 0; x < PIX_W; x++) {
+    let i = 0; while (i < stops.length - 2 && y >= stops[i + 1][0]) i++;
+    const t = (y - stops[i][0]) / (stops[i + 1][0] - stops[i][0]), th = (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+    gs.fillStyle = t > th ? stops[i + 1][1] : stops[i][1]; gs.fillRect(x, y, 1, 1);
+  }
+  for (let y = -5; y <= 5; y++) for (let x = -5; x <= 5; x++) { const d = x * x + y * y; if (d <= 25) { gs.fillStyle = d <= 12 ? '#fff3b0' : '#ffd166'; gs.fillRect(96 + x, 19 + y, 1, 1); } }
+  for (const [cx, cy, n] of [[8, 16, 9], [62, 25, 7]]) { gs.fillStyle = '#ffffff'; gs.fillRect(cx, cy, n * 2, 3); gs.fillRect(cx + 3, cy - 2, n, 2); gs.fillRect(cx + 5, cy - 3, 4, 1); gs.fillStyle = '#b8c2d9'; gs.fillRect(cx + 1, cy + 3, n * 2 - 2, 1); }
+  const [far, gf] = mk(48, PIX_GY);
+  for (const [px, ph, hw] of [[12, 15, 13], [35, 10, 11]]) for (let x = px - hw; x <= px + hw; x++) {
+    const top = PIX_GY - 1 - Math.floor(ph * (1 - Math.abs(x - px) / hw));
+    for (let y = top; y < PIX_GY; y++) { const xx = (x + 48) % 48; gf.fillStyle = y < top + 2 && ph - (PIX_GY - 1 - top) < 3 ? '#c8ecff' : x < px ? '#8cc8f5' : '#5b9bea'; gf.fillRect(xx, y, 1, 1); }
+  }
+  const [mid, gm] = mk(96, PIX_GY);
+  for (let x = 0; x < 96; x++) {
+    const top = Math.floor(25 - 4 * Math.abs(Math.sin(Math.PI * x / 12)) - 2 * Math.sin(TAU * x / 32));
+    gm.fillStyle = '#1d4a3a'; gm.fillRect(x, top, 1, PIX_GY - top); gm.fillStyle = '#2e7a45'; gm.fillRect(x, top, 1, 1);
+    if (x % 12 === 6) { gm.fillRect(x - 1, top + 1, 1, 1); gm.fillRect(x + 1, top + 1, 1, 1); }
+  }
+  const [gr, gg] = mk(16, PIX_H - PIX_GY);
+  gg.fillStyle = '#8a5236'; gg.fillRect(0, 0, 16, 8); gg.fillStyle = '#93d65a'; gg.fillRect(0, 0, 16, 1); gg.fillStyle = '#4fae4a'; gg.fillRect(0, 1, 16, 1);
+  gg.fillRect(3, 2, 1, 1); gg.fillRect(11, 2, 1, 1); gg.fillStyle = '#5a3326'; gg.fillRect(0, 4, 16, 1); gg.fillRect(7, 2, 1, 2); gg.fillRect(15, 5, 1, 3);
+  gg.fillStyle = '#c07a45'; gg.fillRect(2, 5, 3, 1); gg.fillRect(9, 2, 3, 1);
+  const [zh, gz] = mk(40, 11); gz.font = `700 8px ${SANS}`; gz.textBaseline = 'top'; gz.lineJoin = 'round'; gz.strokeStyle = '#0d0b1a'; gz.lineWidth = 2; gz.strokeText('像素冒险', 2, 1.5); gz.fillStyle = '#fff3b0'; gz.fillText('像素冒险', 2, 1.5);
+  return (PIX_CACHE.tiles = { sky, far, mid, gr, zh });
+}
+// 跳跃高度：按主角在 192 像素赛道上的位置 c（整像素）给出
+function PIX_lift(c) {
+  if (c >= 48 && c < 78) { const p = (c - 48) / 30; return Math.floor(44 * p * (1 - p)); }
+  if (c >= 110 && c < 138) { const p = (c - 110) / 28; return Math.floor(48 * p * (1 - p)); }
+  if (c >= 138 && c < 150) { const p = (c - 138) / 12; return Math.floor(24 * p * (1 - p)); }
+  return 0;
+}
+CELLS[11] = (k, w, h, u) => {
+  const T = PIX_tiles(), g = PIX_LR.getContext('2d');
+  // 每周期整 48 帧（7.5fps，地面每帧 4 像素，跑步 6 帧/金币 4 帧都整除）；帧格以 u 为中心取整，u=0 与 u→6.4 落在同一帧
+  const f = Math.floor(u / CYC * 48 + 0.5) % 48, pos = f * PIX_TRACK / 48, c = (pos + 31) % PIX_TRACK;
+  g.clearRect(0, 0, PIX_W, PIX_H);
+  g.drawImage(T.sky, 0, 0);
+  const o1 = Math.floor(pos / 4) % 48; for (let x = -o1; x < PIX_W; x += 48) g.drawImage(T.far, x, 0);
+  const o2 = Math.floor(pos / 2) % 96; for (let x = -o2; x < PIX_W; x += 96) g.drawImage(T.mid, x, 0);
+  const o3 = pos % 16; for (let x = -o3; x < PIX_W; x += 16) g.drawImage(T.gr, x, PIX_GY);
+  const sxOf = wx => { let s = wx - c + 31; while (s < -60) s += PIX_TRACK; while (s >= 132) s -= PIX_TRACK; return s; };
+  // 金币：前 3 枚沿第一跳弧线，后 3 枚贴地；被吃后 3 帧闪光
+  const coins = [[58, PIX_GY - 10 - PIX_lift(58)], [65, PIX_GY - 10 - PIX_lift(65)], [72, PIX_GY - 10 - PIX_lift(72)], [160, PIX_GY - 9], [167, PIX_GY - 9], [174, PIX_GY - 9]];
+  coins.forEach(([wx, cy], i) => {
+    const dd = (c - wx + PIX_TRACK) % PIX_TRACK, sx = sxOf(wx);
+    if (dd < 9) { const sp = PIX_bake('sp' + Math.floor(dd / 3), PIX_SPARK[Math.floor(dd / 3)], false); g.drawImage(sp, Math.floor(sx - sp.width / 2), Math.floor(cy - sp.height / 2)); }
+    else if (dd >= 60) { const fi = (f + i) % 4, cn = PIX_bake('coin' + fi, PIX_COIN[fi]); g.drawImage(cn, Math.floor(sx - cn.width / 2), cy - 5); }
+  });
+  // 史莱姆（赛道 140）：被踩 → 压扁 4 像素 → 烟团 3 帧 → 消失直到出画
+  const sd = (c - 138 + PIX_TRACK) % PIX_TRACK, ssx = sxOf(140);
+  if (sd < 4) { const s = PIX_bake('slf', PIX_SLIME[2]); g.drawImage(s, Math.floor(ssx - 7), PIX_GY - s.height); }
+  else if (sd < 13) { const pi = Math.floor((sd - 4) / 3), s = PIX_bake('pf' + pi, PIX_PUFF[pi], false); g.drawImage(s, Math.floor(ssx - s.width / 2), PIX_GY - 6 - s.height); }
+  else if (sd >= 39) { const si = Math.floor(u * 4) % 2, s = PIX_bake('sl' + si, PIX_SLIME[si]); g.drawImage(s, Math.floor(ssx - 7), PIX_GY - s.height); }
+  // 主角
+  const lift = PIX_lift(c), hero = PIX_hero(f % 6, lift > 0);
+  g.drawImage(hero, 24, PIX_GY - 17 - lift);
+  // 标志：0.4 秒起 8fps 落下回弹；5.4 秒起阶梯上飞
+  const DROP = [-14, -9, -4, 1, 4, 2, 3];
+  let ly = null; const fl = Math.floor((u - 0.4) * 8 + 1e-6), fo = Math.floor((u - SHOW) * 8 + 1e-6);
+  if (fl >= 0) ly = DROP[Math.min(fl, DROP.length - 1)];
+  if (fo >= 0) ly = [3, 1, -3, -9, -16][Math.min(fo, 4)];
+  if (ly !== null && ly > -15) {
+    let sx = -99;
+    for (const s0 of [1.5, 3.5]) { const q = Math.floor((u - s0) * 8 + 1e-6); if (q >= 0 && q < 8) sx = q * 13 - 6; }
+    g.drawImage(PIX_logo(sx), 10, ly);
+    const n = Math.min(4, Math.floor((u - 1.1) * 8 + 1e-6) + 1);
+    if (n > 0) g.drawImage(T.zh, 0, 0, 2 + n * 9, 11, 34, ly + 12, 2 + n * 9, 11);
+  }
+  // 最近邻放大 5 倍 + CRT 扫描线
+  k.globalAlpha = 1; k.fillStyle = '#0d0b1a'; k.fillRect(0, 0, CW, CH);
+  k.save(); k.imageSmoothingEnabled = false; k.drawImage(PIX_LR, 0, 0, PIX_W * 5, PIX_H * 5); k.restore();
+  k.drawImage(layer('PIX_crt', q => {
+    q.fillStyle = 'rgba(0,0,0,0.2)'; for (let y = 4; y < CH; y += 5) q.fillRect(0, y, CW, 1);
+    const v = q.createRadialGradient(270, 104, 150, 270, 104, 330); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.4)'); q.fillStyle = v; q.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+};

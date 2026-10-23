@@ -1,0 +1,17 @@
+请使用“形变动画（Morphing）”，属于“MG 风格”。
+Motion Prompt #2-051
+
+效果解释：一个主形随节拍不断变成另一个形状的形变动画风格
+动画表现：主形先收成圆再展开成下一形，伴着挤压与摆转；每次背景从中心圆形换色，右侧字幕同步换词。
+实现规格与关键运动参数：
+- 每 0.8 秒（150 BPM 2 拍）换一形：0.35 秒定格 + 0.45 秒形变，8 形构成一个周期。
+- 形变分 A→圆→B 2 段，各用 inOut3；120 个顶点，基准半径 62 px。
+- 形变中最大 13% 挤压拉伸，并摆转 0.35 弧度。
+- 配色 #16151B / #F4EEE3 / #FFB627 / #FF4F2B / #2438E8；背景以半径 600 px 的圆从中心擦除换色，40 px 字幕上移 24 px 换词。
+适用场景：适合卡点社媒短片、品牌主视觉轮播，以及主题依次切换的片头字幕。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-051
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-051.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Vincentwei1021 的 MIT 版权标识。

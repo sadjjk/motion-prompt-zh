@@ -1,0 +1,93 @@
+// Motion Prompt #2-049 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// Flat vector motion / フラット・ベクター
+// Pack: mgstyles (MG styles) · element 01 · Category: Flat & line
+// What happens: A coral dot drops from an ultramarine sky and hops 5 times; each landing springs up flat coloured buildings, then a wordmark bounces in.
+// Motion spec:
+//   - Sky #2B2BFF, ground #FFF6E9, and a single coral dot #FF5A4E of radius 16 px that falls in from the top over 0.2 s.
+//   - 5 hops during 0.4–4.4 s (0.8 s each, 72 px high): an 18% squash for 0.16 s on landing, a 10% stretch in the air, and 3 ghost trails.
+//   - 6 landing spots, each with 2 buildings behind it (12 in total), popping up with elasticOut over 0.6 s at 0 / 0.1 s after the landing.
+//   - The popwise wordmark (46 px) bounces in at 4.6–5.2 s; buildings, text and dot shrink away at 5.4–6.0 s.
+// When to use it: Use it for app explainers, product intros and cheerful brand openers where you want a friendly, simple look.
+// Tags: flat-design, vector, squash-and-stretch, bounce, elastic, explainer, brand-intro
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-049
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 01
+// 01 扁平矢量（popwise「One Dot」）：群青天空 #2B2BFF + 奶油地面 #FFF6E9，唯一主角珊瑚圆点 #FF5A4E 0.2 秒从顶部落下，0.4–4.4 秒连跳 5 下（每跳 0.8 秒：落地 0.16 秒挤压 18%、空中拉伸 10%、3 个残影模拟运动模糊），每次落地错峰 0.1 秒用 elasticOut 弹出两栋扁平楼；4.6 秒 popwise 字标与 EVERY DAY, A LITTLE WISER 弹性入场；5.4–6.0 秒楼、字、圆点缩回
+const FLAT_C = { U: '#2B2BFF', UD: '#1F1FCC', UL: '#4D4DFF', CO: '#FF5A4E', COD: '#E0433A', SU: '#FFC62B', SUD: '#F0A91A', MI: '#2EE6A8', MID: '#1FC28C', CR: '#FFF6E9', CRD: '#F1E3CC', INK: '#151433' };
+const FLAT_GY = 168;                                  // 地平线 y
+const FLAT_HOPX = [44, 132, 220, 308, 396, 484];      // 6 个落点（第 0 次为入场落地）
+// 楼：每个落点身后两栋，弹出时刻 = 该落点着地时刻 + 0 / 0.1 秒
+const FLAT_BLD = (() => {
+  const cols = [[FLAT_C.SU, FLAT_C.SUD], [FLAT_C.MI, FLAT_C.MID], [FLAT_C.CR, FLAT_C.CRD], [FLAT_C.CO, FLAT_C.COD], [FLAT_C.UL, FLAT_C.UD]];
+  const out = [];
+  FLAT_HOPX.forEach((x, i) => {
+    for (let j = 0; j < 2; j++) {
+      const n = i * 2 + j;
+      out.push({ x: x - 40 + j * 38 + hash(n * 3) * 6, w: 30 + hash(n * 5) * 12, h: 34 + hash(n * 7) * 36, c: cols[(n * 2 + i) % 5], roof: n % 3, t: 0.4 + 0.8 * i + 0.1 * j });
+    }
+  });
+  return out;
+})();
+function FLAT_dot(t) {
+  const R = 16, G = FLAT_GY - R;
+  if (t < 0.4) { const p = seg(t, 0.2, 0.4); return { x: FLAT_HOPX[0], y: mix(-30, G, p * p), sx: 0.9, sy: 1.12, air: p > 0 && p < 1 }; }
+  const i = Math.min(5, Math.floor((t - 0.4) / 0.8)), dt = t - (0.4 + 0.8 * i);
+  if (i >= 5 || dt < 0.12) {                          // 着地：先挤压后回弹（预备）
+    const q = dt < 0.16 ? Math.sin(Math.PI * dt / 0.16) * 0.18 : 0;
+    const sy = 1 - q;
+    return { x: FLAT_HOPX[i], y: G + R * (1 - sy), sx: 1 + q, sy, air: false };
+  }
+  const p = (dt - 0.12) / 0.68;                       // 空中：抛物线，速度越快拉伸越大
+  const st = 1 + 0.1 * Math.abs(1 - 2 * p);
+  return { x: mix(FLAT_HOPX[i], FLAT_HOPX[i + 1], p), y: G - 72 * 4 * p * (1 - p), sx: 1 / st, sy: st, air: true };
+}
+CELLS[0] = (k, w, h, u) => {
+  const C = FLAT_C, rk = resetK(u), keep = 1 - rk;
+  k.fillStyle = C.U; k.fillRect(0, 0, CW, CH);
+  // 两朵扁平云：整周期 1 次往返漂移
+  for (let i = 0; i < 2; i++) {
+    const cx = 150 + i * 230 + 10 * Math.sin(TAU * u / CYC + i * 2), cy = 26 + i * 14;
+    k.fillStyle = C.UL; rr(k, cx - 34, cy - 7, 68, 14, 7); k.fill();
+    k.beginPath(); k.arc(cx - 6, cy - 7, 11, 0, TAU); k.fill();
+  }
+  // 楼（在地面线之上，从底边弹出）
+  for (const b of FLAT_BLD) {
+    const s = elasticOut(seg(u, b.t, b.t + 0.6)) * keep;
+    if (s <= 0.001) continue;
+    const bh = b.h * s, x0 = b.x, y0 = FLAT_GY - bh;
+    k.fillStyle = b.c[0]; k.fillRect(x0, y0, b.w, bh);
+    k.fillStyle = b.c[1]; k.fillRect(x0 + b.w * 0.72, y0, b.w * 0.28, bh);     // 无渐变的扁平侧面
+    if (b.roof === 0) { k.beginPath(); k.moveTo(x0 - 3, y0); k.lineTo(x0 + b.w / 2, y0 - 12 * s); k.lineTo(x0 + b.w + 3, y0); k.closePath(); k.fillStyle = C.INK; k.fill(); }
+    else if (b.roof === 1) { k.fillStyle = C.INK; k.fillRect(x0 - 2, y0 - 4, b.w + 4, 4); }
+    k.fillStyle = b.c[0] === C.CR ? C.U : C.CR;
+    for (let yy = y0 + 8; yy < FLAT_GY - 10; yy += 12) for (let xx = x0 + 5; xx < x0 + b.w * 0.7 - 5; xx += 9) k.fillRect(xx, yy, 5, 6);
+  }
+  k.fillStyle = C.CR; k.fillRect(0, FLAT_GY, CW, CH - FLAT_GY);
+  k.fillStyle = C.CRD; k.fillRect(0, FLAT_GY + 14, CW, 3);
+  // 字标 popwise + 标语（4.6 秒弹性放大入场）
+  const ls = elasticOut(seg(u, 4.6, 5.2)) * keep;
+  if (ls > 0.001) {
+    k.save(); k.translate(28, 68); k.scale(ls, ls);
+    txt(k, 'popwise', 0, 0, `800 46px ${DISP}`, C.CR);
+    txt(k, 'EVERY DAY, A LITTLE WISER', 2, 18, `600 9px ${DISP}`, '#CFCFFF');
+    k.restore();
+  }
+  // 圆点影子 + 残影 + 本体
+  const d = FLAT_dot(u), R = 16 * keep;
+  if (R > 0.2) {
+    k.fillStyle = rgba([21, 20, 51], 0.18 * clamp(1 - (FLAT_GY - 16 - d.y) / 90));
+    k.beginPath(); k.ellipse(d.x, FLAT_GY + 2, R * 1.1, 3.5, 0, 0, TAU); k.fill();
+    if (d.air) for (let j = 3; j >= 1; j--) {
+      const g = FLAT_dot(Math.max(0.2, u - j * 0.03));
+      k.fillStyle = rgba([255, 90, 78], 0.32 - j * 0.08);
+      k.beginPath(); k.ellipse(g.x, g.y, R * g.sx, R * g.sy, 0, 0, TAU); k.fill();
+    }
+    k.fillStyle = C.CO; k.beginPath(); k.ellipse(d.x, d.y, R * d.sx, R * d.sy, 0, 0, TAU); k.fill();
+  }
+};

@@ -22,8 +22,8 @@ const langs = ['zh-Hans', 'en', 'ja'];
 const window = { MP_SITE_CONFIG: CONFIG };
 vm.runInNewContext(read('assets/catalog.js'), { window });
 const cat = window.MP_CATALOG;
-assert.equal(cat.count, 225);
-assert.equal(cat.packs.length, 9);
+assert.equal(cat.count, 240);
+assert.equal(cat.packs.length, 10);
 assert.equal(cat.groups.length, 4);
 assert.equal(cat.site, CONFIG.site);
 assert.equal(cat.repo, CONFIG.repo);
@@ -59,6 +59,9 @@ assert.match(read('api/v1/zh-Hans/p/4-001.txt'), /保留 Yun 的 MIT 版权标�
 // 改写自 Lucian UX/UI Prompt 的包：版权行与署名指向 Seokwoooo
 assert.equal(read('api/v1/zh-Hans/e/1-061.txt').split('\n')[0], '// Motion Prompt #1-061 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/');
 assert.match(read('api/v1/zh-Hans/p/1-061.txt'), /保留 Seokwoooo 的 MIT 版权标识/);
+// 改写自 mg-styles-15 的包：版权行与署名指向 Vincentwei1021
+assert.equal(read('api/v1/zh-Hans/e/2-049.txt').split('\n')[0], '// Motion Prompt #2-049 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15');
+assert.match(read('api/v1/zh-Hans/p/2-049.txt'), /保留 Vincentwei1021 的 MIT 版权标识/);
 assert.deepEqual(json('skills/motion-prompt-zh/scripts/site-config.json'), CONFIG);
 const cli = ['skills/motion-prompt-zh/scripts/motion-prompt.mjs'];
 function runCli(words) {
@@ -99,7 +102,7 @@ try {
   page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400 && !r.url().endsWith('/favicon.ico')) errors.push(`${r.status()} ${r.url()}`); });
   const open = async (suffix = '') => {
     await page.goto(base + '/motion-prompt-zh/' + suffix);
-    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 225 && Object.keys(window.MotionPrompt.packs).length === 9);
+    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 240 && Object.keys(window.MotionPrompt.packs).length === 10);
   };
   await open();
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');

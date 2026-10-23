@@ -1,0 +1,179 @@
+// Motion Prompt #2-061 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// コラージュ・切り絵 / Collage / cutout
+// パック: mgstyles (モーショングラフィックスのスタイル) · element 13 · カテゴリ: ジャンル・年代
+// 何が起きるか: 切り抜きの頭像がクラフト紙にパンと貼られ、頭の上がふたのように開いて星やロケット、ツバメが飛び出し、文字片と破れた帯が順に貼られる。
+// 動きの仕様:
+//   - クラフト紙 #DCC39A の地に等幅の誌名。切り抜きはすべて 2 倍解像度で事前描画し、オフホワイト #F2ECDF のはさみの白縁、影、墨色 #16130F の網点付き
+//   - 12 fps のコマ撮りリズムで貼る：0.25 秒 紳士の頭像（拡大率 1.3→1.12→0.96→1）、0.45 秒 赤い円盤 #D2261C、0.65 秒 新聞の切れ端
+//   - 1.5 秒に頭の上がギザギザの切り口から開き（6 フレーム）、POP の爆発が 3 フレーム、続いて星・土星・ロケット・ツバメ・バラの 5 つが放物線で飛び出す
+//   - 2.5 秒から 1/6 秒ごとに脅迫状風の文字片を 1 枚ずつ貼り、3.25 秒に破れた黒帯が滑り込む。止まった片は 1/6 秒ごとに ±1.2 px 揺れる。5.4–6.0 秒に破れ縁のクラフト紙が右から覆ってリセット
+// 使いどころ: カルチャー誌、アート展、ポッドキャスト、クリエイティブ系ブランドのオープニングやSNS短尺動画に。
+// タグ: collage, cutout, paper-cut, stop-motion, halftone, zine, kraft-paper
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-061
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 13
+// 13 拼贴剪贴（06-collage「NOGGIN 脑洞季刊 · THE MIND IS A COLLAGE」）：牛皮纸底 + 等宽刊头，全部元素是代码画的剪纸（2×预渲染，米白 #F2ECDF 剪刀白边 + 投影 + 墨色 #16130F 半调网点）；12fps 定格节奏：0.25 秒维多利亚绅士头像剪纸「啪」地拍下（1.3→1.12→0.96→1 四帧），0.45 秒红色构成主义圆盘 #D2261C，0.65 秒报纸碎片；1.5 秒头顶沿锯齿剪口像盖子翻开（6 帧翻到 −106°），POP 爆炸纸片 3 帧，1.58–2.25 秒星星、土星、火箭、燕子、玫瑰依次沿 12fps 抛物线从脑洞飞出；2.5–3.0 秒每 1/6 秒拍下一枚勒索信字块「脑 洞 大 开」，3.25 秒黑色撕纸横条 THE MIND IS A COLLAGE 滑入、3.33 秒红条、3.58 秒 Nº06 红签；静止时每 1/6 秒 ±1.2px/±0.9° 手摆抖动，火箭尾焰 3 张替换帧；5.4–6.0 秒一整张牛皮纸带撕边从右向左 12fps 盖过全页复位
+const COL_K = '#16130F', COL_PP = '#F2ECDF', COL_R = '#D2261C', COL_B = '#3F6FA8', COL_O = '#D6A945', COL_N = '#E4DAC4', COL_H = '#3C2608';
+const COL_BK = {};
+// 2 倍分辨率预渲染一个剪纸件；ax/ay 为锚点（局部原点）在件内的位置
+function COL_bake(name, wd, ht, ax, ay, draw) {
+  if (!COL_BK[name]) { const c = document.createElement('canvas'); c.width = wd * 2; c.height = ht * 2; const g = c.getContext('2d'); g.scale(2, 2); g.translate(ax, ay); draw(g); COL_BK[name] = { c, w: wd, h: ht, ax, ay }; }
+  return COL_BK[name];
+}
+// 剪纸：先带投影描米白剪刀边，再填本色
+function COL_cut(g, path, fill, rim = 3) {
+  g.save(); g.shadowColor = 'rgba(22,19,15,0.38)'; g.shadowOffsetX = 5; g.shadowOffsetY = 6; g.shadowBlur = 6;
+  path(g); g.fillStyle = rim ? COL_PP : fill; g.fill(); if (rim) { g.lineJoin = 'miter'; g.lineWidth = rim * 2; g.strokeStyle = COL_PP; g.stroke(); }
+  g.restore(); path(g); g.fillStyle = fill; g.fill();
+}
+// 半调网点：在 path 内按 rf(x,y) 给出的半径画墨点
+function COL_dots(g, path, col, cell, rf, x0, y0, x1, y1) {
+  g.save(); path(g); g.clip(); g.fillStyle = col; g.beginPath();
+  for (let y = y0; y <= y1; y += cell) for (let x = x0 + ((y / cell) % 2 ? cell / 2 : 0); x <= x1; x += cell) { const r = rf(x, y); if (r > 0.2) { g.moveTo(x + r, y); g.arc(x, y, r, 0, TAU); } }
+  g.fill(); g.restore();
+}
+const COL_quad = (g, wd, ht, seed, j = 3) => { g.beginPath(); [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy], i) => { const x = sx * wd / 2 + (hash(seed * 9 + i) - 0.5) * j * 2, y = sy * ht / 2 + (hash(seed * 9 + i + 4) - 0.5) * j * 2; i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); };
+const COL_torn = (g, wd, ht, seed) => { g.beginPath(); g.moveTo(-wd / 2, -ht / 2); for (let x = -wd / 2; x <= wd / 2; x += 6) g.lineTo(x, -ht / 2 + (hash(seed + x) - 0.5) * 4); for (let x = wd / 2; x >= -wd / 2; x -= 6) g.lineTo(x, ht / 2 + (hash(seed + 77 + x) - 0.5) * 4); g.closePath(); };
+// 头像剪口：横贯脸部的锯齿线（y≈-14），下半为脸、上半为可翻开的头盖
+const COL_ZIG = Array.from({ length: 13 }, (_, i) => [-29 + i * 58 / 12, -14 + (i % 2 ? 1.8 : -1.8)]);
+const COL_lowFace = g => { COL_ZIG.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); for (let t = -0.29; t <= Math.PI + 0.29; t += 0.1) g.lineTo(27 * Math.cos(t), -4 + 35 * Math.sin(t)); g.closePath(); };
+const COL_lidPath = g => { g.beginPath(); COL_ZIG.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); for (let t = -0.29; t >= -Math.PI + 0.29; t -= 0.1) g.lineTo(27 * Math.cos(t), -4 + 35 * Math.sin(t)); g.closePath(); };
+const COL_PIECES = {
+  disc: () => COL_bake('disc', 176, 176, 88, 88, g => {
+    const p = q => { q.beginPath(); for (let i = 0; i < 44; i++) { const a = i / 44 * TAU, r = 80 + (hash(i + 900) - 0.5) * 3; i ? q.lineTo(Math.cos(a) * r, Math.sin(a) * r) : q.moveTo(r, 0); } q.closePath(); };
+    COL_cut(g, p, COL_R, 0); COL_dots(g, p, 'rgba(120,10,8,0.25)', 5, () => 1, -84, -84, 84, 84);
+  }),
+  head: () => COL_bake('head', 136, 136, 68, 48, g => {
+    const all = q => { q.beginPath(); q.moveTo(-62, 90); q.lineTo(-58, 58); q.quadraticCurveTo(-50, 40, -18, 34); q.lineTo(18, 34); q.quadraticCurveTo(50, 40, 58, 58); q.lineTo(62, 90); q.closePath(); q.rect(-11, 12, 22, 26); COL_lowFace(q); q.ellipse(-27, 0, 5, 8, 0, 0, TAU); q.ellipse(27, 0, 5, 8, 0, 0, TAU); };
+    COL_cut(g, all, COL_N, 3);
+    g.beginPath(); g.moveTo(-62, 90); g.lineTo(-58, 58); g.quadraticCurveTo(-50, 40, -18, 34); g.lineTo(18, 34); g.quadraticCurveTo(50, 40, 58, 58); g.lineTo(62, 90); g.closePath(); g.fillStyle = COL_K; g.fill();
+    g.beginPath(); g.moveTo(-14, 34); g.lineTo(14, 34); g.lineTo(0, 58); g.closePath(); g.fillStyle = COL_PP; g.fill();
+    g.beginPath(); g.moveTo(-8, 38); g.lineTo(0, 42); g.lineTo(8, 38); g.lineTo(8, 46); g.lineTo(0, 42); g.lineTo(-8, 46); g.closePath(); g.fillStyle = COL_K; g.fill();
+    const face = q => { q.beginPath(); COL_lowFace(q); q.rect(-11, 12, 22, 24); q.ellipse(-27, 0, 5, 8, 0, 0, TAU); q.ellipse(27, 0, 5, 8, 0, 0, TAU); };
+    face(g); g.fillStyle = COL_N; g.fill();
+    COL_dots(g, face, 'rgba(22,19,15,0.55)', 3.2, (x, y) => 1.5 * clamp(-x / 27 * 0.6 + (y + 4) / 35 * 0.45 + 0.15), -34, -16, 34, 40);
+    g.fillStyle = COL_H;
+    g.beginPath(); g.ellipse(-23, -1, 5, 13, 0.1, 0, TAU); g.ellipse(23, -1, 5, 13, -0.1, 0, TAU); g.fill();
+    g.beginPath(); g.moveTo(0, 10); g.quadraticCurveTo(-10, 6, -19, 14); g.quadraticCurveTo(-10, 12, 0, 15); g.quadraticCurveTo(10, 12, 19, 14); g.quadraticCurveTo(10, 6, 0, 10); g.fill();
+    g.fillStyle = COL_K; g.beginPath(); g.ellipse(-10, -4, 3, 2, 0, 0, TAU); g.ellipse(10, -4, 3, 2, 0, 0, TAU); g.fill();
+    g.strokeStyle = COL_H; g.lineWidth = 2; g.beginPath(); g.moveTo(-16, -9); g.lineTo(-5, -10); g.moveTo(5, -10); g.lineTo(16, -9); g.stroke();
+    g.strokeStyle = 'rgba(22,19,15,0.6)'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(1, -6); g.quadraticCurveTo(4, 4, -2, 7); g.stroke();
+  }),
+  lid: () => COL_bake('lid', 72, 48, 36, 46, g => {
+    COL_cut(g, COL_lidPath, COL_N, 3);
+    const hair = q => { COL_lidPath(q); };
+    g.save(); COL_lidPath(g); g.clip(); g.fillStyle = COL_H; g.beginPath(); g.ellipse(0, -16, 31, 26, 0, Math.PI, TAU); g.rect(-31, -18, 6, 6); g.rect(25, -18, 6, 6); g.fill();
+    g.fillStyle = COL_N; g.beginPath(); g.moveTo(-6, -40); g.lineTo(-4, -16); g.lineTo(-2, -40); g.fill(); g.restore();
+    COL_dots(g, hair, 'rgba(242,236,223,0.35)', 3.2, (x, y) => 1.2 * clamp(0.6 - (x + 10) / 40 - (y + 30) / 60), -32, -42, 32, -12);
+  }),
+  cav: () => COL_bake('cav', 72, 48, 36, 46, g => {
+    COL_lidPath(g); g.fillStyle = '#141a33'; g.fill();
+    g.save(); COL_lidPath(g); g.clip();
+    const ng = g.createRadialGradient(-6, -26, 2, -6, -26, 26); ng.addColorStop(0, 'rgba(63,111,168,0.9)'); ng.addColorStop(1, 'rgba(63,111,168,0)'); g.fillStyle = ng; g.fillRect(-36, -46, 72, 40);
+    g.fillStyle = COL_PP; for (let i = 0; i < 26; i++) { const r = hash(i + 620) > 0.8 ? 1.1 : 0.5; g.beginPath(); g.arc(-26 + hash(i + 600) * 52, -38 + hash(i + 610) * 24, r, 0, TAU); g.fill(); }
+    g.restore(); g.strokeStyle = COL_K; g.lineWidth = 1.5; COL_lidPath(g); g.stroke();
+  }),
+  star: () => COL_bake('star', 40, 40, 20, 20, g => COL_cut(g, q => { q.beginPath(); for (let i = 0; i < 10; i++) { const r = i % 2 ? 6 : 14, a = i / 10 * TAU - Math.PI / 2; i ? q.lineTo(Math.cos(a) * r, Math.sin(a) * r) : q.moveTo(Math.cos(a) * r, Math.sin(a) * r); } q.closePath(); }, COL_R, 2.5)),
+  planet: () => COL_bake('planet', 64, 44, 32, 22, g => {
+    const ring = q => { q.beginPath(); q.ellipse(0, 0, 28, 7, -0.3, 0, TAU); q.ellipse(0, 0, 21, 4.5, -0.3, 0, TAU); };
+    COL_cut(g, q => { q.beginPath(); q.arc(0, 0, 15, 0, TAU); q.ellipse(0, 0, 28, 7, -0.3, 0, TAU); }, COL_O, 2.5);
+    g.fillStyle = COL_B; ring(g); g.fill('evenodd');
+    const ball = q => { q.beginPath(); q.arc(0, 0, 15, 0, TAU); };
+    g.save(); ball(g); g.clip(); g.fillStyle = COL_O; g.fillRect(-16, -16, 32, 32); g.restore();
+    COL_dots(g, ball, 'rgba(22,19,15,0.5)', 3.4, (x, y) => 1.4 * clamp((x + y) / 30 + 0.3), -16, -16, 16, 16);
+    g.save(); g.beginPath(); g.rect(-30, 0, 60, 10); g.clip(); g.fillStyle = COL_B; ring(g); g.fill('evenodd'); g.restore();
+  }),
+  rocket: () => COL_bake('rocket', 40, 60, 20, 30, g => {
+    const body = q => { q.beginPath(); q.moveTo(0, -25); q.quadraticCurveTo(11, -10, 9, 14); q.lineTo(-9, 14); q.quadraticCurveTo(-11, -10, 0, -25); q.moveTo(-9, 4); q.lineTo(-16, 20); q.lineTo(-8, 14); q.moveTo(9, 4); q.lineTo(16, 20); q.lineTo(8, 14); };
+    COL_cut(g, body, COL_N, 2.5);
+    g.fillStyle = COL_R; g.beginPath(); g.moveTo(-9, 4); g.lineTo(-16, 20); g.lineTo(-8, 14); g.closePath(); g.moveTo(9, 4); g.lineTo(16, 20); g.lineTo(8, 14); g.closePath(); g.fill();
+    g.save(); body(g); g.clip(); g.fillRect(-12, -26, 24, 11); g.restore();
+    COL_dots(g, body, 'rgba(22,19,15,0.4)', 3, x => 1.2 * clamp(x / 10 + 0.2), -10, -14, 10, 14);
+    g.fillStyle = COL_B; g.strokeStyle = COL_K; g.lineWidth = 1.5; g.beginPath(); g.arc(0, -3, 4.5, 0, TAU); g.fill(); g.stroke();
+  }),
+  bird: () => COL_bake('bird', 56, 34, 28, 17, g => COL_cut(g, q => { q.beginPath(); q.moveTo(-24, -2); q.quadraticCurveTo(-8, -4, 0, 2); q.quadraticCurveTo(4, -12, 20, -14); q.quadraticCurveTo(8, -4, 6, 4); q.lineTo(16, 10); q.lineTo(4, 8); q.quadraticCurveTo(-6, 12, -12, 4); q.closePath(); }, COL_B, 2.5)),
+  rose: () => COL_bake('rose', 44, 44, 22, 22, g => {
+    COL_cut(g, q => { q.beginPath(); q.arc(0, -2, 11, 0, TAU); q.moveTo(2, 8); q.quadraticCurveTo(14, 8, 18, 18); q.quadraticCurveTo(6, 18, 2, 8); }, COL_R, 2.5);
+    g.fillStyle = '#7A5516'; g.beginPath(); g.moveTo(2, 8); g.quadraticCurveTo(14, 8, 18, 18); g.quadraticCurveTo(6, 18, 2, 8); g.fill();
+    g.strokeStyle = '#8a1510'; g.lineWidth = 1.4; g.beginPath(); for (let t = 0; t < 14; t += 0.3) { const r = t * 0.7; g.lineTo(Math.cos(t) * r, -2 + Math.sin(t) * r); } g.stroke();
+  }),
+  news: () => COL_bake('news', 132, 96, 66, 48, g => {
+    COL_cut(g, q => COL_quad(q, 120, 84, 31, 4), '#EFE8DA', 3);
+    g.fillStyle = COL_K; g.fillRect(-52, -34, 70, 7);
+    g.fillStyle = 'rgba(22,19,15,0.32)'; for (let r = 0; r < 9; r++) for (let col = 0; col < 3; col++) g.fillRect(-52 + col * 36, -22 + r * 6.5, 30 - hash(r * 3 + col) * 8, 2.2);
+  }),
+  n06: () => COL_bake('n06', 62, 36, 31, 18, g => { COL_cut(g, q => COL_quad(q, 52, 28, 7, 2), COL_R, 2.5); g.fillStyle = COL_PP; g.font = `800 17px ${DISP}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('Nº06', 0, 1); }),
+  band: () => COL_bake('band', 430, 44, 215, 22, g => { COL_cut(g, q => COL_torn(q, 420, 30, 41), COL_K, 0); g.fillStyle = COL_PP; g.font = `900 21px ${DISP}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('THE MIND IS A COLLAGE', 0, 1); }),
+  strip: () => COL_bake('strip', 400, 14, 200, 7, g => COL_cut(g, q => COL_torn(q, 390, 6, 53), COL_R, 0)),
+};
+// 勒索信字块：脑（红底黑字）洞（报纸底黑字）大（黑底白字）开（米白底红字）
+const COL_CH = [['脑', COL_R, COL_K, SANS], ['洞', '#EFE8DA', COL_K, SERIF], ['大', COL_K, COL_PP, SANS], ['开', COL_PP, COL_R, SERIF]];
+COL_CH.forEach(([ch, bg, fg, ff], i) => { COL_PIECES['ch' + i] = () => COL_bake('ch' + i, 58, 58, 29, 29, g => { COL_cut(g, q => COL_quad(q, 46, 48, 21 + i, 3), bg, 3); g.fillStyle = fg; g.font = `900 34px ${ff}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(ch, 0, 2); }); });
+COL_PIECES.flame = i => COL_bake('flame' + i, 24, 30, 12, 4, g => { const L = [16, 22, 13][i]; COL_cut(g, q => { q.beginPath(); q.moveTo(-6, 0); q.quadraticCurveTo(-4, L * 0.6, 0, L); q.quadraticCurveTo(4, L * 0.6, 6, 0); q.closePath(); }, '#E8742A', 1.5); g.fillStyle = '#FFE9A6'; g.beginPath(); g.moveTo(-3, 0); g.quadraticCurveTo(0, L * 0.7, 3, 0); g.fill(); });
+const COL_put = (k, P, x, y, rot, s) => { k.save(); k.translate(x, y); k.rotate(rot); k.scale(s, s); k.drawImage(P.c, -P.ax, -P.ay, P.w, P.h); k.restore(); };
+// 12fps 拍下：提前 2 帧从空中落下（1.3 → 1.12），着纸帧压扁 0.96，之后 1
+const COL_slap = (u, t0) => { const f = Math.floor((u - t0) * 12 + 1e-6); if (f < -2) return null; return f === -2 ? { s: 1.3, d: 1 } : f === -1 ? { s: 1.12, d: 0.45 } : f === 0 ? { s: 0.96, d: 0 } : { s: 1, d: 0 }; };
+const COL_jit = (seed, u) => { const n = Math.floor(u * 6 + 1e-6); return [(hash(seed * 7.13 + n) - 0.5) * 2.4, (hash(seed * 3.31 + n + 50) - 0.5) * 2.4, (hash(seed * 1.77 + n + 90) - 0.5) * 0.03]; };
+const COL_page = () => layer('COL_page', g => {
+  g.fillStyle = '#DCC39A'; g.fillRect(0, 0, CW, CH);
+  for (let y = 0; y < CH; y += 4) for (let x = 0; x < CW; x += 4) { const v = fbm2(x / 60, y / 60, 3); g.fillStyle = `rgba(150,110,60,${0.28 * clamp(v - 0.35)})`; g.fillRect(x, y, 4, 4); }
+  paper(g, [60, 40, 10], 900, 11);
+  txt(g, 'NOGGIN QUARTERLY — Nº06 — AUTUMN 2026', 12, 14, `500 8px ${MONO}`, 'rgba(22,19,15,0.82)');
+  txt(g, 'PL. VI · CUT & PASTE ON KRAFT, 1860 / 2026', CW - 10, CH - 6, `500 7px ${MONO}`, 'rgba(22,19,15,0.72)', 'right');
+});
+CELLS[12] = (k, w, h, u) => {
+  k.globalAlpha = 1; k.fillStyle = '#DCC39A'; k.fillRect(0, 0, CW, CH); k.drawImage(COL_page(), 0, 0);
+  if (u >= 6.0) return;
+  const P = COL_PIECES, HX = 128, HY = 118;
+  const S = (piece, t0, x, y, rot, seed, dir = [30, -24]) => { const sl = COL_slap(u, t0); if (!sl) return; const [jx, jy, jr] = COL_jit(seed, u); COL_put(k, piece, x + jx + dir[0] * sl.d, y + jy + dir[1] * sl.d, rot + jr, sl.s); };
+  S(P.disc(), 0.45, HX, HY - 12, 0, 5, [-40, -20]);
+  S(P.news(), 0.65, 428, 78, 0.05, 6, [60, -30]);
+  // 头像：盖子按 12fps 6 帧翻开（铰链在剪口左端）
+  const hs = COL_slap(u, 0.25);
+  if (hs) {
+    const [jx, jy, jr] = COL_jit(1, u), x = HX + jx + 40 * hs.d, y = HY + jy - 30 * hs.d;
+    const LID = [-0.35, -0.95, -1.65, -1.92, -1.8, -1.85], fp = Math.floor((u - 1.5) * 12 + 1e-6), ang = fp < 0 ? 0 : LID[Math.min(fp, 5)];
+    k.save(); k.translate(x, y); k.rotate(jr); k.scale(hs.s, hs.s);
+    if (ang !== 0) { const cv = P.cav(); k.drawImage(cv.c, -cv.ax, -cv.ay, cv.w, cv.h); }
+    const hd = P.head(); k.drawImage(hd.c, -hd.ax, -hd.ay, hd.w, hd.h);
+    k.translate(-29, -14); k.rotate(ang); k.translate(29, 14);
+    const ld = P.lid(); k.drawImage(ld.c, -ld.ax, -ld.ay, ld.w, ld.h);
+    k.restore();
+  }
+  // POP 爆炸纸片：1.5 秒起 3 帧
+  const pf = Math.floor((u - 1.5) * 12 + 1e-6);
+  if (pf >= 0 && pf < 3) {
+    const s = [0.6, 1.1, 0.9][pf]; k.save(); k.translate(HX, HY - 40); k.rotate(pf * 0.2); k.scale(s, s);
+    k.beginPath(); for (let i = 0; i < 24; i++) { const r = i % 2 ? 16 : 34 + hash(i + pf * 30) * 8, a = i / 24 * TAU; i ? k.lineTo(Math.cos(a) * r, Math.sin(a) * r) : k.moveTo(r, 0); } k.closePath();
+    k.lineJoin = 'miter'; k.lineWidth = 5; k.strokeStyle = COL_PP; k.stroke(); k.fillStyle = '#FFE9A6'; k.fill();
+    txt(k, 'POP!', 0, 1, `900 16px ${DISP}`, COL_R, 'center', 'middle'); k.restore();
+  }
+  // 脑洞飞出物：6 帧 12fps 抛物线落位
+  const SPILL = [['star', 1.583, 196, 32, 0.2], ['planet', 1.75, 252, 58, -0.1], ['rocket', 1.917, 322, 40, 0.55], ['bird', 2.083, 236, 114, -0.15], ['rose', 2.25, 300, 98, 0.3]];
+  SPILL.forEach(([name, t0, tx, ty, r0], i) => {
+    const fq = Math.floor((u - t0) * 12 + 1e-6); if (fq < 0) return;
+    const p = Math.min(fq, 6) / 6, [jx, jy, jr] = p >= 1 ? COL_jit(20 + i, u) : [0, 0, 0];
+    const x = mix(HX, tx, p) + jx, y = mix(HY - 36, ty, p) - 46 * Math.sin(Math.PI * p) + jy, rot = r0 * p + (1 - p) * 3 + jr, s = mix(0.35, 1, p);
+    if (name === 'rocket') { const fl = P.flame(Math.floor(u * 12 + 1e-6) % 3); k.save(); k.translate(x, y); k.rotate(rot); k.scale(s, s); k.drawImage(fl.c, -fl.ax, 14 - fl.ay, fl.w, fl.h); k.restore(); }
+    COL_put(k, P[name](), x, y, rot, s);
+  });
+  // 勒索信字块、撕纸横条、红条、Nº06
+  [[382, 54, -0.11], [436, 48, 0.08], [384, 106, 0.05], [438, 102, -0.08]].forEach(([x, y, r], i) => S(P['ch' + i](), 2.5 + i / 6, x, y, r, 30 + i));
+  S(P.band(), 3.25, 368, 168, -0.1, 40, [-70, 7]);
+  S(P.strip(), 3.333, 352, 190, -0.1, 41, [-60, 6]);
+  S(P.n06(), 3.583, 506, 28, -0.09, 42, [30, -20]);
+  // 复位：整张牛皮纸带撕边 12fps 从右盖过
+  if (u >= SHOW) {
+    const p = out3(seg(stepT(u, 12), SHOW, 6.0)), ex = CW * (1 - p);
+    const edge = (dx) => { k.beginPath(); k.moveTo(ex + dx, -5); for (let y = 0; y <= CH + 8; y += 8) k.lineTo(ex + dx + (hash(Math.floor(y / 8) + 300) - 0.5) * 10, y); k.lineTo(CW + 10, CH + 5); k.lineTo(CW + 10, -5); k.closePath(); };
+    edge(-6); k.fillStyle = 'rgba(22,19,15,0.25)'; k.fill();
+    edge(-2.5); k.fillStyle = COL_PP; k.fill();
+    k.save(); edge(0); k.clip(); k.fillStyle = '#DCC39A'; k.fillRect(0, 0, CW, CH); k.drawImage(COL_page(), 0, 0); k.restore();
+  }
+};

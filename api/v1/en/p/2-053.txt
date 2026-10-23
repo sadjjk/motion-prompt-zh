@@ -1,0 +1,15 @@
+Please use "Cel animation / line boil" (手描きアニメ・線のゆらぎ), one of the names in "MG styles".
+Motion Prompt #2-053
+
+What it is: Hand-drawn cel style: low frame rate and lines that jitter (boil) slightly every frame
+What the sample shows: A match-flame sprite squashes and bounces, smoke puffs rise and star sparks pop, while the hand-lettered yellow HAND MADE keeps boiling.
+Spec:
+- Paper #f4e9d0 with ink #1c1613, red #e5402b and yellow #ffc425; everything is stepped to 12 fps, and the line art cycles 4 slightly different drawings frame by frame.
+- The brush varies in width and tapers to 45% at both ends; fills are offset 2 px from the lines.
+- The flame sprite bounces with a 14% squash every 0.8 s, 7 star sparks pop every 1.6 s, and 3 smoke puffs rise over 3.2 s.
+- HAND MADE letters are 40 px tall, drawn as a 12 px black outline under a 6 px yellow stroke, with a 4 px block shadow.
+When to use it: Use it for handmade-feel brand films, kids' content, craft or food ads and warm social shorts.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-053.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

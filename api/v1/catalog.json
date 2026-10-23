@@ -1,8 +1,8 @@
 {
- "version": "1.493095263a",
+ "version": "1.e803dab1a5",
  "site": "https://sadjjk.github.io/motion-prompt-zh/",
  "repo": "https://github.com/sadjjk/motion-prompt-zh",
- "count": 225,
+ "count": 240,
  "groups": [
   {
    "id": "web",
@@ -29,7 +29,8 @@
    },
    "packs": [
     "motion",
-    "motion2"
+    "motion2",
+    "mgstyles"
    ]
   },
   {
@@ -348,6 +349,53 @@
    "license": "MIT License (c) 2026 Shohei Ohtaki",
    "author": "Shohei Ohtaki",
    "scalable": false
+  },
+  {
+   "pack": "mgstyles",
+   "group": "motion",
+   "order": 10,
+   "title": {
+    "ja": "モーショングラフィックスのスタイル",
+    "en": "MG styles",
+    "zh-Hans": "MG 风格"
+   },
+   "langs": [
+    "en",
+    "ja",
+    "zh-Hans"
+   ],
+   "categories": [
+    {
+     "slug": "flat",
+     "ja": "フラット・線",
+     "en": "Flat & line",
+     "zh-Hans": "平面与线条"
+    },
+    {
+     "slug": "space",
+     "ja": "空間・質感",
+     "en": "Space & material",
+     "zh-Hans": "空间与质感"
+    },
+    {
+     "slug": "genre",
+     "ja": "ジャンル・年代",
+     "en": "Genres & eras",
+     "zh-Hans": "题材与年代"
+    }
+   ],
+   "count": 15,
+   "first": "2-049",
+   "last": "2-063",
+   "upstreamFirst": "226",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "fonts": [],
+   "license": "MIT License (c) 2026 Vincentwei1021",
+   "author": "Vincentwei1021",
+   "attribution": "https://github.com/Vincentwei1021/mg-styles-15",
+   "scalable": true
   },
   {
    "pack": "camera",
@@ -10674,6 +10722,1101 @@
     "comparison",
     "layout"
    ]
+  },
+  {
+   "id": "2-049",
+   "upstream": "226",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "01",
+   "slug": "flat-vector",
+   "category": "flat",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "フラット・ベクター",
+    "en": "Flat vector motion",
+    "zh-Hans": "扁平矢量动画"
+   },
+   "meaning": {
+    "ja": "影もグラデーションもない平らな色面と、弾むキャラクターで見せるフラットなベクターアニメ",
+    "en": "Flat vector animation: solid colour shapes with no gradients and a bouncy, squash-and-stretch hero",
+    "zh-Hans": "纯色平涂、无渐变，靠弹跳挤压的主角讲故事的扁平矢量动画"
+   },
+   "ask": {
+    "ja": "フラットなベクター調で、青い空とクリーム色の地面の上をサンゴ色の丸が 5 回跳ねて、着地のたびにビルがポンと飛び出す 6 秒くらいの動画にして。",
+    "en": "Make a 6-second flat vector clip: a coral dot hops 5 times across a blue sky and cream ground, and flat buildings pop up wherever it lands.",
+    "zh-Hans": "做一段 6 秒左右的扁平矢量动画：珊瑚色圆点在蓝天奶油地面上连跳 5 下，每次落地弹出扁平小楼。"
+   },
+   "summary": {
+    "ja": "群青の空からサンゴ色の丸が落ちて 5 回跳ね、着地のたびに色とりどりの平面ビルが弾んで現れ、最後にロゴが弾むように入る。",
+    "en": "A coral dot drops from an ultramarine sky and hops 5 times; each landing springs up flat coloured buildings, then a wordmark bounces in.",
+    "zh-Hans": "珊瑚圆点从群青天空落下连跳 5 下，每次落地弹出彩色扁平小楼，最后字标弹性入场。"
+   },
+   "spec": {
+    "ja": [
+     "空 #2B2BFF、地面 #FFF6E9、主役は半径 16px のサンゴ色の丸 #FF5A4E。0.2 秒で上から落ちる",
+     "0.4–4.4 秒に 5 回ジャンプ（各 0.8 秒、高さ 72px）。着地 0.16 秒で 18% つぶれ、空中は 10% 伸び、残像 3 つ",
+     "落点 6 か所の後ろにビル 2 棟ずつ、計 12 棟。着地から 0 / 0.1 秒ずらして elasticOut で 0.6 秒かけて飛び出す",
+     "4.6–5.2 秒にロゴ popwise（46px）が弾んで拡大。5.4–6.0 秒にビル・文字・丸が縮んで消える"
+    ],
+    "en": [
+     "Sky #2B2BFF, ground #FFF6E9, and a single coral dot #FF5A4E of radius 16 px that falls in from the top over 0.2 s.",
+     "5 hops during 0.4–4.4 s (0.8 s each, 72 px high): an 18% squash for 0.16 s on landing, a 10% stretch in the air, and 3 ghost trails.",
+     "6 landing spots, each with 2 buildings behind it (12 in total), popping up with elasticOut over 0.6 s at 0 / 0.1 s after the landing.",
+     "The popwise wordmark (46 px) bounces in at 4.6–5.2 s; buildings, text and dot shrink away at 5.4–6.0 s."
+    ],
+    "zh-Hans": [
+     "天空 #2B2BFF、地面 #FFF6E9，唯一主角是半径 16 px 的珊瑚圆点 #FF5A4E，0.2 秒从顶部落下。",
+     "0.4–4.4 秒连跳 5 下（每跳 0.8 秒、高 72 px）：落地 0.16 秒挤压 18%，空中拉伸 10%，带 3 个残影。",
+     "6 个落点身后各 2 栋楼，共 12 栋，在落地后 0 / 0.1 秒用 elasticOut 弹出，历时 0.6 秒。",
+     "4.6–5.2 秒 popwise 字标（46 px）弹性放大入场；5.4–6.0 秒楼、字、圆点缩回。"
+    ]
+   },
+   "use": {
+    "ja": "アプリ紹介やサービス解説動画、明るいブランドのオープニングなど、親しみやすさを出したい短い動画に。",
+    "en": "Use it for app explainers, product intros and cheerful brand openers where you want a friendly, simple look.",
+    "zh-Hans": "适合 App 介绍、产品讲解视频和轻快的品牌片头，想要亲切简洁观感的短片。"
+   },
+   "tags": [
+    "flat-design",
+    "vector",
+    "squash-and-stretch",
+    "bounce",
+    "elastic",
+    "explainer",
+    "brand-intro"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "扁平风",
+     "扁平插画动画",
+     "矢量 MG"
+    ]
+   }
+  },
+  {
+   "id": "2-050",
+   "upstream": "227",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "02",
+   "slug": "line-art",
+   "category": "flat",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "ラインアート",
+    "en": "Line art animation",
+    "zh-Hans": "线条动画"
+   },
+   "meaning": {
+    "ja": "1 本の線が途切れずに描き進み、風景やロゴを形づくっていくラインアートのアニメ",
+    "en": "Line art animation: one continuous stroke draws itself into a scene and, finally, a logo",
+    "zh-Hans": "一根线一笔连续画出场景并收成标志的线条动画"
+   },
+   "ask": {
+    "ja": "濃紺の背景に金色の 1 本線で、地平線から芽、建物、波を一筆書きで描いて、最後にリング型のロゴになる線画アニメを作って。描画は 4 秒くらい。",
+    "en": "Create a line-art animation on midnight blue: one gold stroke draws a horizon, a sprout, buildings and waves in a single line, ending in a ring logo, in about 4 s.",
+    "zh-Hans": "做一段线条动画：午夜蓝底上一根金线一笔画出地平线、幼苗、建筑和海浪，最后收成环形标志，画线约 4 秒。"
+   },
+   "summary": {
+    "ja": "光るペン先を追ってカメラが横に流れ、金の線が芽や塔を一筆で描き、最後に引きの構図でリングが金色に塗られる。",
+    "en": "The camera follows a glowing pen tip as a gold line draws sprouts and towers in one stroke, then pulls back as the ring fills with gold.",
+    "zh-Hans": "镜头跟着发光笔尖平移，金线一笔画出幼苗与塔楼，最后拉远成海报构图，环形标志内填满金色。"
+   },
+   "spec": {
+    "ja": [
+     "背景 #0B1320、線は太さ 2.5px・丸端のシャンパンゴールド #E9D7A5。0.3–4.5 秒に一筆で描き切る",
+     "カメラは光るペン先を追って横移動。描いた線は 35% の明るさに落とし、直近 240px だけ全光量",
+     "4.4–5.0 秒に 0.56 倍まで引いてポスター構図にし、線も全光量に戻る",
+     "4.7–5.1 秒に半径 42px のリング内を金で塗り、4.9 秒から ATELIER LINEA（17px 明朝体）がフェードイン"
+    ],
+    "en": [
+     "Background #0B1320; a 2.5 px round-capped champagne gold line #E9D7A5 draws everything in one stroke during 0.3–4.5 s.",
+     "The camera pans with the glowing pen tip; drawn line drops to 35% brightness, and only the latest 240 px stays fully lit.",
+     "At 4.4–5.0 s the view pulls back to 0.56× into a poster layout, and the whole line returns to full brightness.",
+     "At 4.7–5.1 s the 42 px-radius ring fills with gold, and from 4.9 s the ATELIER LINEA serif wordmark (17 px) fades in."
+    ],
+    "zh-Hans": [
+     "底色 #0B1320，一根 2.5 px 圆头香槟金线 #E9D7A5 在 0.3–4.5 秒一笔连续画完。",
+     "镜头跟随发光笔尖平移；画过的线降到 35% 亮度，只有最近 240 px 保持全亮。",
+     "4.4–5.0 秒拉远到 0.56 倍成海报构图，整根线恢复全亮。",
+     "4.7–5.1 秒半径 42 px 的环内填金，4.9 秒起 ATELIER LINEA 衬线字标（17 px）淡入。"
+    ]
+   },
+   "use": {
+    "ja": "高級感のあるブランド動画、建築・デザイン事務所のオープニング、ロゴの成り立ちを見せる演出に。",
+    "en": "Use it for premium brand films, studio or architecture openers, and reveals that show how a logo comes to be.",
+    "zh-Hans": "适合高端品牌片、设计或建筑工作室片头，以及展示标志由来的 logo 演绎。"
+   },
+   "tags": [
+    "line-art",
+    "one-line-drawing",
+    "stroke-reveal",
+    "logo-reveal",
+    "gold",
+    "camera-pan"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "一笔画",
+     "线描动画",
+     "描边生长"
+    ]
+   }
+  },
+  {
+   "id": "2-051",
+   "upstream": "228",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "03",
+   "slug": "shape-morph-style",
+   "category": "flat",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "シェイプモーフ",
+    "en": "Morphing",
+    "zh-Hans": "形变动画"
+   },
+   "meaning": {
+    "ja": "1 つの形がリズムに合わせて次々と別の形へ変わっていくモーフィングのスタイル",
+    "en": "Morphing style: a single shape keeps transforming into new shapes in time with the beat",
+    "zh-Hans": "一个主形随节拍不断变成另一个形状的形变动画风格"
+   },
+   "ask": {
+    "ja": "1 つの図形が丸→太陽→紙飛行機→ハート→星…と 8 種類にリズムよく変形して、変わるたびに背景色も円形ワイプで切り替わる動画にして。1 回 0.8 秒で。",
+    "en": "Make one shape morph through 8 forms in rhythm — circle, sun, paper plane, heart, star… — with a circular colour wipe behind it at each change, 0.8 s per form.",
+    "zh-Hans": "做一个主形按节拍变成 8 种形状（圆、太阳、纸飞机、心、星……），每次形变背景从中心圆形擦除换色，每形 0.8 秒。"
+   },
+   "summary": {
+    "ja": "中央の図形が一度丸に縮んでから次の形へ開き、つぶれと回転を伴って変わるたびに背景色が円形に塗り替わり、右の字幕も入れ替わる。",
+    "en": "The main shape squeezes back to a circle before opening into the next form, wobbling as it turns, while the background wipes in a new colour and the caption swaps.",
+    "zh-Hans": "主形先收成圆再展开成下一形，伴着挤压与摆转；每次背景从中心圆形换色，右侧字幕同步换词。"
+   },
+   "spec": {
+    "ja": [
+     "150 BPM の 2 拍＝0.8 秒ごとに形が変わる：0.35 秒静止 + 0.45 秒変形。8 形で周期が一巡",
+     "変形は A→丸→B の 2 段階で、各段 inOut3。頂点 120 個、基準半径 62px",
+     "変形中は最大 13% のつぶれと伸び、0.35 ラジアンの揺れ回転",
+     "配色 #16151B / #F4EEE3 / #FFB627 / #FF4F2B / #2438E8。背景は中心から半径 600px の円で塗り替え、字幕 40px は 24px 上へ入れ替わる"
+    ],
+    "en": [
+     "The shape changes every 0.8 s (2 beats at 150 BPM): a 0.35 s hold plus a 0.45 s morph; 8 forms make one cycle.",
+     "Each morph runs A → circle → B in 2 halves, each with inOut3; 120 vertices, base radius 62 px.",
+     "During a morph it squashes and stretches by up to 13% and swings 0.35 rad.",
+     "Palette #16151B / #F4EEE3 / #FFB627 / #FF4F2B / #2438E8; the background wipes with a 600 px circle from the centre, and the 40 px caption slides 24 px up as it swaps."
+    ],
+    "zh-Hans": [
+     "每 0.8 秒（150 BPM 2 拍）换一形：0.35 秒定格 + 0.45 秒形变，8 形构成一个周期。",
+     "形变分 A→圆→B 2 段，各用 inOut3；120 个顶点，基准半径 62 px。",
+     "形变中最大 13% 挤压拉伸，并摆转 0.35 弧度。",
+     "配色 #16151B / #F4EEE3 / #FFB627 / #FF4F2B / #2438E8；背景以半径 600 px 的圆从中心擦除换色，40 px 字幕上移 24 px 换词。"
+    ]
+   },
+   "use": {
+    "ja": "音楽に合わせた SNS ショート、ブランドのキービジュアル展開、テーマが次々変わるタイトル演出に。",
+    "en": "Use it for beat-synced social shorts, brand key-visual sequences and title sequences that cycle through themes.",
+    "zh-Hans": "适合卡点社媒短片、品牌主视觉轮播，以及主题依次切换的片头字幕。"
+   },
+   "tags": [
+    "shape-morph",
+    "morphing",
+    "beat-sync",
+    "color-wipe",
+    "squash-and-stretch",
+    "social-short"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "变形动画",
+     "图形变换",
+     "卡点形变"
+    ]
+   }
+  },
+  {
+   "id": "2-052",
+   "upstream": "229",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "04",
+   "slug": "bauhaus",
+   "category": "flat",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "幾何構成・バウハウス",
+    "en": "Geometric / Bauhaus",
+    "zh-Hans": "几何构成 / 包豪斯"
+   },
+   "meaning": {
+    "ja": "格子の上に円・三角・四角と原色だけで構成を組み立てていくバウハウス調の幾何アニメ",
+    "en": "Bauhaus-style geometry: circles, triangles and squares in primary colours, built up on a grid",
+    "zh-Hans": "在网格上用圆、三角、方与三原色逐步搭出构图的包豪斯几何动画"
+   },
+   "ask": {
+    "ja": "バウハウス風に、クリーム色の紙に格子を引いて、赤い円・黄色い三角・青い四角・黒い柱が 120 BPM の拍ごとに 1 つずつ置かれていく構成アニメにして。",
+    "en": "Do a Bauhaus-style build on cream paper with a grid: a red circle, yellow triangle, blue square and black bar land one per beat at 120 BPM.",
+    "zh-Hans": "做包豪斯风格构成动画：奶油色纸上画网格，红圆、黄三角、蓝方、黑柱按 120 BPM 每拍放上一个。"
+   },
+   "summary": {
+    "ja": "格子が引かれた紙に、拍ごとに赤い円が落ち、黒い柱が下り、三角が反転し、四角が角から広がって、最後に BAUHAUS の文字が入る。",
+    "en": "On gridded paper, each beat adds a move — a red circle drops, a black bar pulls down, a triangle flips, a square grows from a corner — until BAUHAUS cuts in.",
+    "zh-Hans": "网格纸上每拍一个动作：红圆落下、黑柱下拉、三角翻转、蓝方从角点放大，最后 BAUHAUS 字样硬切入。"
+   },
+   "spec": {
+    "ja": [
+     "紙 #F1E9DA に 52px の格子（10 列 × 4 行）。赤 #E03C31・黄 #F2B705・青 #1E4FA3・黒 #111111",
+     "120 BPM で 0.5 秒の拍ごとに動作をひとつ。拍の 0.25 秒前に動き始め、power2 の inOut で拍ちょうどに止まり、跳ね返りなし",
+     "0.5 秒の赤い円から 4.5 秒の横線まで 9 動作、すべて格子線上に収まる。格子線は 0–0.5 秒で引かれる",
+     "5.0 秒に BAUHAUS（21px）がハードカットで入り、左下で拍数を数える。5.4–6.0 秒で白紙に戻る"
+    ],
+    "en": [
+     "Paper #F1E9DA with a 52 px grid (10 columns × 4 rows); red #E03C31, yellow #F2B705, blue #1E4FA3, black #111111.",
+     "One move per 0.5 s beat at 120 BPM: each starts 0.25 s early and lands exactly on the beat with power2 inOut, no overshoot.",
+     "9 moves from the red circle at 0.5 s to the rule at 4.5 s, all landing on grid lines; the grid itself draws in during 0–0.5 s.",
+     "BAUHAUS (21 px) hard-cuts in at 5.0 s with a beat counter bottom left; the page fades back to blank at 5.4–6.0 s."
+    ],
+    "zh-Hans": [
+     "纸色 #F1E9DA，52 px 模数网格（10 列 × 4 行）；红 #E03C31、黄 #F2B705、蓝 #1E4FA3、黑 #111111。",
+     "120 BPM 每拍 0.5 秒一个动作：拍点前 0.25 秒启动，用 power2 inOut 正好落在拍点，无回弹。",
+     "从 0.5 秒红圆到 4.5 秒横线共 9 个动作，落点都在网格线上；网格线 0–0.5 秒画出。",
+     "5.0 秒 BAUHAUS（21 px）硬切入，左下计拍；5.4–6.0 秒淡回空纸。"
+    ]
+   },
+   "use": {
+    "ja": "デザイン展や美術館の告知、ブランドの理念紹介、音楽に合わせた構成的なタイトル演出に。",
+    "en": "Use it for design exhibition or museum promos, brand-philosophy films and beat-driven typographic title sequences.",
+    "zh-Hans": "适合设计展、美术馆宣传，品牌理念短片，以及卡拍点的构成式标题演绎。"
+   },
+   "tags": [
+    "bauhaus",
+    "geometric",
+    "grid",
+    "primary-colors",
+    "beat-sync",
+    "modernism",
+    "constructivism"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "包豪斯",
+     "几何构成",
+     "构成主义动画"
+    ]
+   }
+  },
+  {
+   "id": "2-053",
+   "upstream": "230",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "05",
+   "slug": "cel-line-boil",
+   "category": "flat",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "手描きアニメ・線のゆらぎ",
+    "en": "Cel animation / line boil",
+    "zh-Hans": "逐帧手绘 / 线条沸腾"
+   },
+   "meaning": {
+    "ja": "コマ打ちで線が毎フレーム小さく震える、手描きセルアニメの質感を出すスタイル",
+    "en": "Hand-drawn cel style: low frame rate and lines that jitter (boil) slightly every frame",
+    "zh-Hans": "低帧率逐帧、线条每帧微微抖动的手绘赛璐璐质感风格"
+   },
+   "ask": {
+    "ja": "手描きアニメ風に、12fps のコマ打ちで線がぷるぷる震える感じにして。クリーム色の紙に墨・赤・黄の 3 色で、マッチの火のキャラが跳ねる絵にしたい。",
+    "en": "Give it a hand-drawn cel look: 12 fps on twos with boiling lines, 3 colours (ink, red, yellow) on cream paper, and a little match-flame character bouncing.",
+    "zh-Hans": "做成逐帧手绘风：12fps 一拍二、线条沸腾抖动，奶油纸上只用墨、红、黄 3 色，画一个火柴火苗角色在跳。"
+   },
+   "summary": {
+    "ja": "マッチの火のキャラがつぶれながら跳ね、煙が昇り、星の火花がはじけ、黄色い手書きの HAND MADE が線をゆらしながら震え続ける。",
+    "en": "A match-flame sprite squashes and bounces, smoke puffs rise and star sparks pop, while the hand-lettered yellow HAND MADE keeps boiling.",
+    "zh-Hans": "火柴头上的火苗精灵挤压弹跳，烟团升起、星形火花爆开，黄色手写 HAND MADE 字样持续沸腾抖动。"
+   },
+   "spec": {
+    "ja": [
+     "紙 #f4e9d0 に墨 #1c1613・赤 #e5402b・黄 #ffc425。全体を 12fps に丸め、線画は毎フレーム 4 枚の微差版を順に切り替える",
+     "筆は太さが揺れ、両端は 45% まで細くなる。塗りは線から 2px ずらす",
+     "火の精は 0.8 秒ごとに 14% つぶれて跳ね、星の火花 7 個は 1.6 秒ごと、煙 3 つは 3.2 秒で昇る",
+     "HAND MADE は高さ 40px、黒縁 12px と黄 6px の二重線に 4px のブロック影"
+    ],
+    "en": [
+     "Paper #f4e9d0 with ink #1c1613, red #e5402b and yellow #ffc425; everything is stepped to 12 fps, and the line art cycles 4 slightly different drawings frame by frame.",
+     "The brush varies in width and tapers to 45% at both ends; fills are offset 2 px from the lines.",
+     "The flame sprite bounces with a 14% squash every 0.8 s, 7 star sparks pop every 1.6 s, and 3 smoke puffs rise over 3.2 s.",
+     "HAND MADE letters are 40 px tall, drawn as a 12 px black outline under a 6 px yellow stroke, with a 4 px block shadow."
+    ],
+    "zh-Hans": [
+     "纸色 #f4e9d0，墨 #1c1613、红 #e5402b、黄 #ffc425；整格按 12fps 取整，线稿每帧轮换 4 张微差版本。",
+     "变宽笔刷，两头收锋到 45%；填色与线错位 2 px。",
+     "火苗精灵每 0.8 秒挤压 14% 弹跳一次，7 颗星形火花每 1.6 秒一轮，3 团烟 3.2 秒升起。",
+     "HAND MADE 字高 40 px，12 px 黑描边上叠 6 px 黄字身，带 4 px 块状投影。"
+    ]
+   },
+   "use": {
+    "ja": "手作り感を出したいブランド動画、子ども向けや雑貨・食品の CM、温かみのある SNS ショートに。",
+    "en": "Use it for handmade-feel brand films, kids' content, craft or food ads and warm social shorts.",
+    "zh-Hans": "适合想要手作感的品牌片、儿童内容、手作或食品广告，以及温暖风格的社媒短片。"
+   },
+   "tags": [
+    "cel-animation",
+    "line-boil",
+    "hand-drawn",
+    "frame-by-frame",
+    "on-twos",
+    "12fps",
+    "squash-and-stretch"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "手绘动画",
+     "线条抖动",
+     "一拍二"
+    ]
+   }
+  },
+  {
+   "id": "2-054",
+   "upstream": "231",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "06",
+   "slug": "isometric",
+   "category": "space",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "アイソメトリック 2.5D",
+    "en": "Isometric 2.5D",
+    "zh-Hans": "等轴 2.5D"
+   },
+   "meaning": {
+    "ja": "消失点のない等角投影で、ミニチュアの街や仕組みを斜め上から見せる 2.5D スタイル",
+    "en": "Isometric 2.5D: a miniature world seen from above at a fixed angle, with no vanishing point",
+    "zh-Hans": "无灭点的等轴投影，从斜上方俯看微缩城市或系统的 2.5D 风格"
+   },
+   "ask": {
+    "ja": "アイソメトリックの 2.5D で、浮かぶ島の上にパステルカラーのビルが 0.25 秒ずつ順番に生えてきて、窓が灯り、車が道を走る街の動画にして。",
+    "en": "Make an isometric 2.5D city on a floating island: pastel buildings grow one by one every 0.25 s, windows light up and cars drive along the road.",
+    "zh-Hans": "做一段等轴 2.5D 城市：浮岛上马卡龙色楼房每 0.25 秒依次长出来，窗户亮起，小车沿路行驶。"
+   },
+   "summary": {
+    "ja": "ラベンダーの浮島に影が落ち、パステルのビルが弾むように次々と立ち上がって屋根がのり、窓が灯り、ビル間をデータの光が行き来する。",
+    "en": "On a lavender floating island, shadows land first, then pastel buildings spring up one after another, roofs drop on, windows light and data pulses between towers.",
+    "zh-Hans": "薰衣草色浮岛上先落阴影，马卡龙色楼房依次带回弹拔起、盖顶，窗户逐个亮起，楼间有青色数据流往返。"
+   },
+   "spec": {
+    "ja": [
+     "30° の等角投影、マス目 28px、島は 12 × 4 マス。輪郭色 #2C2960 にパステル 6 色",
+     "ビル 14 棟（奥 8・手前 6）が 0.4 秒から 0.25 秒ずつずれて、backOut で 0.4 秒かけて立ち上がり、0.1 秒遅れて屋根がのる",
+     "3.6–4.6 秒に窓が順に点灯、4.2 秒からビル間にシアン #62F0F2 のデータ流（周期ごとに 4 往復）",
+     "車 2 台が逆向きに 周期ごとに 2 周、木 5 本が順に飛び出す。5.4–6.0 秒にビルが地面へ縮む"
+    ],
+    "en": [
+     "True isometric at 30°, 28 px per tile, a 12 × 4 tile island; outline colour #2C2960 with 6 pastel tones.",
+     "14 buildings (8 back, 6 front) rise from 0.4 s, staggered by 0.25 s, each growing over 0.4 s with backOut, and the roof drops on 0.1 s later.",
+     "Windows light up one by one at 3.6–4.6 s; from 4.2 s a cyan #62F0F2 data stream runs between towers (4 trips per cycle).",
+     "2 cars drive in opposite directions, 2 laps per cycle, and 5 trees pop up in turn; buildings shrink back into the ground at 5.4–6.0 s."
+    ],
+    "zh-Hans": [
+     "30° 真等轴投影，每格 28 px，浮岛 12 × 4 格；描边色 #2C2960，配 6 种马卡龙色。",
+     "14 栋楼（后排 8、前排 6）从 0.4 秒起每隔 0.25 秒错峰，用 backOut 在 0.4 秒内拔起，屋顶晚 0.1 秒盖上。",
+     "3.6–4.6 秒窗户依次点亮；4.2 秒起两楼之间出现青色 #62F0F2 数据流（每周期 4 趟）。",
+     "2 辆小车反向行驶，每周期 2 圈；5 棵树依次弹出；5.4–6.0 秒楼房缩回地面。"
+    ]
+   },
+   "use": {
+    "ja": "SaaS やスマートシティの紹介、仕組みを俯瞰で見せる解説動画、テック系の製品プロモーションに。",
+    "en": "Use it for SaaS or smart-city explainers, system overviews seen from above and tech product promos.",
+    "zh-Hans": "适合 SaaS、智慧城市介绍，俯瞰展示系统流程的讲解视频，以及科技产品宣传片。"
+   },
+   "tags": [
+    "isometric",
+    "2-5d",
+    "miniature-city",
+    "pastel",
+    "build-up",
+    "explainer",
+    "tech"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "等距插画",
+     "2.5D 动画",
+     "等轴城市"
+    ]
+   }
+  },
+  {
+   "id": "2-055",
+   "upstream": "232",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "07",
+   "slug": "soft-3d-render",
+   "category": "space",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "3D レンダー調",
+    "en": "3D render look",
+    "zh-Hans": "3D 渲染系"
+   },
+   "meaning": {
+    "ja": "柔らかいゴムやつやのあるプラスチックのような立体感で、物が弾んで見える 3D レンダー調",
+    "en": "3D render look: soft rubbery and glossy objects that bounce with real weight",
+    "zh-Hans": "软胶与亮面塑料般的立体材质、带重量感弹跳的 3D 渲染风格"
+   },
+   "ask": {
+    "ja": "3D レンダー調で、淡いピンクのスタジオ背景にぷにぷにの立体文字 s・o・f・t が 0.5 秒おきに落ちてきて、着地でつぶれて弾む動画にして。",
+    "en": "Make a 3D render-style clip: squishy 3D letters s, o, f, t drop onto a soft pink studio backdrop every 0.5 s and squash and bounce on landing.",
+    "zh-Hans": "做成 3D 渲染风：淡粉棚拍背景上，软胶立体字 s、o、f、t 每隔 0.5 秒落下，落地挤压回弹。"
+   },
+   "summary": {
+    "ja": "軟らかい立体文字が順に落ちてつぶれては弾み、最後にクロームの球が句点として落ち、下ではカプセルの列が波打って着地の波紋が広がる。",
+    "en": "Soft 3D letters drop in turn, squash and spring back, a chrome ball lands as the full stop, and a row of glossy pills ripples with each landing.",
+    "zh-Hans": "软胶立体字母依次落下、挤压回弹，镀铬小球作句号落地，底部一排光面胶囊随落地泛起涟漪。"
+   },
+   "spec": {
+    "ja": [
+     "背景 #efe2ea のスタジオ。112px の文字 s/o/f/t が 0.5 / 1.0 / 1.5 / 2.0 秒に 0.32 秒かけて落下し、落下中は縦に 12% 伸びる",
+     "着地は減衰ばねでつぶれ、初期 28%・減衰係数 5.5 で約 0.6 秒で収まる。接地影は高さに応じて伸縮",
+     "2.8 秒に半径 14px のクローム球が句点として落ちる。素材は縦グラデ + 左上の白ハイライト + 右下の暗い厚み + 鏡面スポット",
+     "下のカプセル 2 列 × 21 個が周期ごとに 2 回 2.5px 波打ち、着地ごとに 7px の波紋が 1.6 秒広がる。3.2 秒にコピーがフェードイン"
+    ],
+    "en": [
+     "Studio backdrop #efe2ea; 112 px letters s/o/f/t fall over 0.32 s to land at 0.5 / 1.0 / 1.5 / 2.0 s, stretching 12% vertically on the way down.",
+     "Landings squash on a damped spring: 28% at first, decay factor 5.5, settling in about 0.6 s; the contact shadow scales with height.",
+     "At 2.8 s a 14 px-radius chrome ball drops as the full stop. Materials: vertical gradient + white top-left highlight + dark bottom-right thickness + specular spot.",
+     "Below, 2 rows × 21 pills wave 2.5 px 2 times per cycle, and each landing sends a 7 px ripple outward for 1.6 s; the tagline fades in at 3.2 s."
+    ],
+    "zh-Hans": [
+     "棚拍背景 #efe2ea；112 px 的字母 s/o/f/t 各用 0.32 秒下落，于 0.5 / 1.0 / 1.5 / 2.0 秒着地，下落时纵向拉伸 12%。",
+     "着地后阻尼弹簧挤压：初始 28%、衰减系数 5.5，约 0.6 秒平复；接地影随高度收放。",
+     "2.8 秒半径 14 px 的镀铬小球作句号落下；材质 = 竖向渐变 + 左上白色高光边 + 右下暗色厚度层 + 镜面光斑。",
+     "底部 2 排 × 21 颗胶囊每周期起伏 2 次、幅度 2.5 px，每次落地激起 7 px 涟漪向外传 1.6 秒；3.2 秒标语淡入。"
+    ]
+   },
+   "use": {
+    "ja": "コスメや雑貨、アプリのプロモーション、柔らかく可愛い雰囲気のブランドロゴ演出や SNS 広告に。",
+    "en": "Use it for cosmetics, lifestyle or app promos, and soft, playful brand logo reveals and social ads.",
+    "zh-Hans": "适合美妆、生活好物与 App 宣传片，以及柔软可爱调性的品牌 logo 演绎和社媒广告。"
+   },
+   "tags": [
+    "3d-render",
+    "soft-body",
+    "squash-and-stretch",
+    "spring",
+    "glossy",
+    "chrome",
+    "studio-backdrop"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "3D 质感",
+     "软胶 3D",
+     "C4D 风"
+    ]
+   }
+  },
+  {
+   "id": "2-056",
+   "upstream": "233",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "08",
+   "slug": "liquid-motion-style",
+   "category": "space",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "リキッドモーション",
+    "en": "Liquid motion",
+    "zh-Hans": "液态流动"
+   },
+   "meaning": {
+    "ja": "液体が膨らみ、ちぎれ、くっつき合う様子を、つやのある色で見せるリキッドモーション",
+    "en": "Liquid motion: glossy fluid that swells, pinches off, drips and merges back together",
+    "zh-Hans": "液体鼓起、断开、滴落又粘连融合，配糖果色光泽的液态流动风格"
+   },
+   "ask": {
+    "ja": "リキッドモーションで、暗い紫の背景に上の液面からオレンジ〜ピンク〜紫のしずくが 6 本ぽたぽた落ちて、下の液だまりに溶け込む動画にして。1 滴 3.2 秒くらい。",
+    "en": "Do a liquid-motion piece on dark plum: 6 orange-to-pink-to-purple drops fall from a top band into a pool below and merge, about 3.2 s per drip.",
+    "zh-Hans": "做液态流动风格：深梅紫底上，6 条橙粉紫渐变液滴从顶部液带滴下、落入底部液池融合，每滴约 3.2 秒。"
+   },
+   "summary": {
+    "ja": "上の液帯からしずくが膨らんでくびれ、ちぎれて落ち、小さな滴が後を追い、下の液だまりで平たく広がって跳ねる。",
+    "en": "Drops bulge out of the top band, neck and break free, a small droplet follows, and each splashes flat into the pool below.",
+    "zh-Hans": "液泡从顶部液带鼓起拉颈、断开下落，小液滴紧随其后，落入底部液池压扁溅开。"
+   },
+   "spec": {
+    "ja": [
+     "上の液帯の下に 6 レーン、3.2 秒ごとに滴る（周期ごとに 2 回、位相はずらす）",
+     "0–40% で膨らみ首が伸び、40–75% でちぎれて落下（小さな滴が 0.12 遅れて追う）、75–100% で液だまりに落ちて横に広がる",
+     "メタボールは半分の解像度 270×104 で「4px ぼかし + コントラスト 24」で接合し、#FF5C0F→#FF1A70→#8F1FFF のグラデを掛ける",
+     "マスクを 1.5px ずらした差分で左上の光る縁を作る。中央に drop. のロゴ（60px）が常駐"
+    ],
+    "en": [
+     "6 lanes under the top band, each dripping once every 3.2 s (2 times per cycle, phases staggered).",
+     "0–40%: the drop bulges and necks; 40–75%: it breaks off and falls (a smaller droplet trails 0.12 behind); 75–100%: it lands in the pool and spreads flat.",
+     "Metaballs merge on a half-resolution 270×104 buffer via 4 px blur + contrast 24, then take the #FF5C0F→#FF1A70→#8F1FFF gradient.",
+     "A mask differenced against itself shifted 1.5 px gives a top-left glossy rim; the drop. wordmark (60 px) stays in the centre."
+    ],
+    "zh-Hans": [
+     "顶部液带下 6 条泳道，每条 3.2 秒滴一次（每周期 2 次，相位错开）。",
+     "0–40% 液泡鼓起拉颈，40–75% 断颈下落（次级小液滴晚 0.12 跟随），75–100% 落入底部液池并左右压扁溅开。",
+     "融球在半分辨率 270×104 离屏图上用「模糊 4 px + 对比度 24」粘连，再乘 #FF5C0F→#FF1A70→#8F1FFF 渐变。",
+     "掩膜与偏移 1.5 px 的自身求差，得到左上高光边；中央 drop. 字标（60 px）常驻。"
+    ]
+   },
+   "use": {
+    "ja": "飲料・コスメの広告、音楽やイベントのティザー、なめらかさを強調したいブランドのオープニングに。",
+    "en": "Use it for drink and cosmetics ads, music or event teasers, and brand openers that need a smooth, fluid feel.",
+    "zh-Hans": "适合饮品、美妆广告，音乐或活动预告，以及强调顺滑流动感的品牌片头。"
+   },
+   "tags": [
+    "liquid",
+    "metaball",
+    "gooey",
+    "drip",
+    "fluid",
+    "gradient",
+    "glossy"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "液体动画",
+     "融球",
+     "流体 MG"
+    ]
+   }
+  },
+  {
+   "id": "2-057",
+   "upstream": "234",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "09",
+   "slug": "aurora-glass",
+   "category": "space",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "オーロラグラデーション・グラス",
+    "en": "Aurora gradient & glass",
+    "zh-Hans": "弥散渐变 / 玻璃拟态"
+   },
+   "meaning": {
+    "ja": "暗いオーロラのグラデーションに半透明のすりガラスのカードを重ねた、柔らかい光のテック系スタイル",
+    "en": "A soft-glow tech look: half-transparent frosted-glass cards floating over a dark aurora gradient",
+    "zh-Hans": "深色极光渐变背景上叠半透明磨砂玻璃卡片的柔光科技风"
+   },
+   "ask": {
+    "ja": "AI製品の発表映像を、オーロラグラデーション＋グラスモーフィズムで。暗い背景に5つのオーロラ色の光がゆっくり漂い、その上に2枚のすりガラスカードが浮かぶ感じで。",
+    "en": "Give the AI product launch film an aurora-gradient glassmorphism look: 5 aurora-coloured glows drifting slowly over a dark background, with 2 frosted-glass cards floating on top.",
+    "zh-Hans": "给 AI 产品发布片做弥散渐变加玻璃拟态风格：深色底上 5 团极光色斑缓慢漂移，2 张磨砂玻璃卡浮在上面。"
+   },
+   "summary": {
+    "ja": "暗い背景でオーロラ色の光がゆっくり流れ、2枚のガラスカードがふわりと浮き、会話が1行ずつ現れ、ガラスのレンズが行き来して画面を拡大する。",
+    "en": "Aurora glows flow slowly over a dark background, 2 glass cards bob gently, chat lines appear one by one, and a glass lens sweeps back and forth magnifying the scene.",
+    "zh-Hans": "极光色斑在深色背景上缓缓流动，两张玻璃卡轻轻浮动，对话逐行浮现，一枚玻璃透镜来回扫过放大画面。"
+   },
+   "spec": {
+    "ja": [
+     "濃紺黒 #040312 の背景に 5 つのオーロラ色の光（#7050FF、#2F46F2、#34CFF0、#B653F0、#3320A8）。68×26 の低解像度キャンバスに描いて拡大し柔らかくぼかす。周期ごとに 1 周漂う",
+     "すりガラスカード 2 枚：白 8% の塗り、1 px・白 30% の枠線、上端のハイライト、背景を 1.08 倍に拡大・ずらして屈折を表現。周期ごとに 2 回上下に浮く（振幅 2.5 px）",
+     "会話は一行ずつフェードと 8 px の浮き上がりで現れる（0.6、1.3、2.0、2.7 秒）。3.4–4.0 秒に「集中」スイッチがスライドし、波形バー 18 本が揺れ続ける",
+     "半径 30 px の液体ガラスのレンズが 周期ごとに 1 往復横切り、下の画面を 1.35 倍に拡大、シアン／マゼンタの色ずれの縁付き。5.4–6.0 秒に文字がフェードアウト"
+    ],
+    "en": [
+     "Deep indigo-black #040312 background with 5 aurora glows (#7050FF, #2F46F2, #34CFF0, #B653F0, #3320A8), drawn on a 68 × 26 low-res canvas and scaled up into a soft blur; they drift 1 loop per cycle.",
+     "2 frosted-glass cards: white fill at 8%, 1 px white border at 30%, a top highlight, and the backdrop scaled 1.08× and offset to fake refraction. They bob 2 times per cycle (2.5 px amplitude).",
+     "Chat lines fade in one by one while rising 8 px (at 0.6, 1.3, 2.0, 2.7 s). At 3.4–4.0 s a Focus toggle slides on, and 18 waveform bars keep pulsing.",
+     "A liquid-glass lens of radius 30 px sweeps across 1 round trip per cycle, magnifying what is below 1.35× with cyan/magenta fringes. Text fades out at 5.4–6.0 s."
+    ],
+    "zh-Hans": [
+     "深靛黑 #040312 底上 5 团极光色斑（#7050FF、#2F46F2、#34CFF0、#B653F0、#3320A8），先画在 68 × 26 的低分辨率画布再放大成柔和弥散，每周期漂移 1 圈。",
+     "2 张磨砂玻璃卡：白色 8% 填充、1 px 白色 30% 描边、顶部高光，背景放大 1.08 倍并偏移模拟折射；每周期上下浮动 2 次（幅度 2.5 px）。",
+     "对话逐行淡入并上移 8 px 浮现（0.6、1.3、2.0、2.7 秒）；3.4–4.0 秒「专注」开关滑开，18 根波形条持续起伏。",
+     "半径 30 px 的液态玻璃透镜每周期往返横扫 1 次，把下方画面放大 1.35 倍，边缘带青/品红色散；5.4–6.0 秒文字淡出。"
+    ]
+   },
+   "use": {
+    "ja": "AI製品、スマホのOS、スマートデバイスの発表映像のオープニングや機能紹介に。",
+    "en": "Openings and feature demos in launch films for AI products, phone operating systems or smart devices.",
+    "zh-Hans": "适合 AI 产品、手机系统或智能硬件发布片的片头与功能演示。"
+   },
+   "tags": [
+    "aurora",
+    "gradient",
+    "glassmorphism",
+    "frosted-glass",
+    "liquid-glass",
+    "blur",
+    "tech-launch"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "弥散光",
+     "毛玻璃",
+     "液态玻璃"
+    ]
+   }
+  },
+  {
+   "id": "2-058",
+   "upstream": "235",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "10",
+   "slug": "cyberpunk-hud",
+   "category": "genre",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "サイバーパンク HUD",
+    "en": "Cyberpunk HUD / FUI",
+    "zh-Hans": "赛博朋克 HUD / FUI"
+   },
+   "meaning": {
+    "ja": "SF映画のようなシアンの線画HUD。層ごとに展開してターゲットをロックする",
+    "en": "A sci-fi film style cyan wireframe heads-up display that builds up layer by layer and locks onto a target",
+    "zh-Hans": "科幻电影里的青色线框抬头显示界面，层层展开后锁定目标"
+   },
+   "ask": {
+    "ja": "サイバーパンクHUD風のターゲットロック演出を作って。シアンの線画が層ごとに広がり、レーダーは1.6秒で1周、3.8秒でロックしたら全体がマゼンタに変わるように。",
+    "en": "Make a cyberpunk HUD target-lock sequence: cyan wireframes unfold layer by layer, the radar sweeps once every 1.6 s, and at 3.8 s the lock turns everything magenta.",
+    "zh-Hans": "做一段赛博朋克 HUD 风格的目标锁定动画：青色线框逐层展开，雷达 1.6 秒扫一圈，3.8 秒锁定时全屏转洋红。"
+   },
+   "summary": {
+    "ja": "シアンの線画、レーダー、地球が順に点灯し、数値が乱れてから確定、括弧が飛び込んで探索・吸着し、ロックの瞬間に全体がマゼンタになる。",
+    "en": "Cyan frames, radar and globe light up in layers, readouts scramble then settle, brackets fly in, hunt and snap onto the target, and the lock flips everything magenta.",
+    "zh-Hans": "青色线框、雷达和地球逐层亮起，读数乱跳后落定，括号飞入搜寻并吸附到目标，锁定瞬间全屏转洋红。"
+   },
+   "spec": {
+    "ja": [
+     "濃い青黒 #020A0D の背景。シアン #00E5FF の線画が層ごとにずれて伸びる：0.12 秒 外枠の角、0.4 秒 外輪、0.55 秒 レーダー、0.9 秒 地球、1.15 秒 右パネル",
+     "レーダーは 1.6 秒で 1 周（周期ごとに 4 周）、反射点 4 個。1.2 秒から 5 行の数値がそれぞれ 4 フレーム乱れてから確定し、ログは毎秒 45 文字で打ち出される",
+     "線画の地球は 0–3.4 秒で減速しながら 360° 回る。3.0 秒に四隅の括弧が画面の四隅から飛び込み、3.25–3.55 秒に ±4 px で探索、3.55–3.8 秒に 1.4 倍から 1 倍へ吸着",
+     "3.8 秒にロック：全体がマゼンタ #FF2A8A に変わり、白フラッシュと 3 本の広がる輪（3.8、4.3、4.8 秒）。全編に 3 px 間隔の走査線を重ねる"
+    ],
+    "en": [
+     "Dark teal-black #020A0D background. Cyan #00E5FF wireframes grow in staggered layers: outer corners at 0.12 s, outer ring at 0.4 s, radar at 0.55 s, globe at 0.9 s, right panel at 1.15 s.",
+     "The radar sweeps 1 lap every 1.6 s (4 laps per cycle) with 4 blips. From 1.2 s, 5 readouts each scramble for 4 frames before settling, and the log types at 45 characters per second.",
+     "The wireframe globe decelerates through 360° over 0–3.4 s. At 3.0 s corner brackets fly in from the frame corners, hunt by ±4 px at 3.25–3.55 s, then snap from 1.4× to 1× at 3.55–3.8 s.",
+     "Lock at 3.8 s: everything turns magenta #FF2A8A, with a white flash and 3 expanding rings (at 3.8, 4.3, 4.8 s). Scanlines every 3 px cover the whole piece."
+    ],
+    "zh-Hans": [
+     "深青黑底 #020A0D，青色 #00E5FF 线框按层级错帧生长：0.12 秒外框角、0.4 秒外环、0.55 秒雷达、0.9 秒地球、1.15 秒右侧面板。",
+     "雷达 1.6 秒扫 1 圈（每周期 4 圈），带 4 个回波点；1.2 秒起 5 行读数各乱跳 4 帧后落定，日志按每秒 45 字打出。",
+     "线框地球 0–3.4 秒减速转满 360°；3.0 秒四角括号从画面四角飞入，3.25–3.55 秒 ±4 px 搜寻，3.55–3.8 秒由 1.4 倍收到 1 倍吸附。",
+     "3.8 秒锁定：全局转洋红 #FF2A8A，白闪加 3 道扩散环（3.8、4.3、4.8 秒）；全程叠加每 3 px 一条的扫描线。"
+    ]
+   },
+   "use": {
+    "ja": "テック製品のプロモーション、ゲームの予告編、SF調のオープニングやデータ可視化の解説に。",
+    "en": "Tech product promos, game trailers, sci-fi openings and data-visualisation explainers.",
+    "zh-Hans": "适合科技产品宣传片、游戏预告、科幻风片头和数据可视化讲解。"
+   },
+   "tags": [
+    "cyberpunk",
+    "hud",
+    "fui",
+    "sci-fi",
+    "wireframe",
+    "radar",
+    "target-lock",
+    "scanlines"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "科幻界面",
+     "抬头显示",
+     "未来界面"
+    ]
+   }
+  },
+  {
+   "id": "2-059",
+   "upstream": "236",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "11",
+   "slug": "synthwave-vhs",
+   "category": "genre",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "80s シンセウェイブ・VHS",
+    "en": "80s Synthwave / VHS",
+    "zh-Hans": "复古 80s Synthwave / VHS"
+   },
+   "meaning": {
+    "ja": "ネオンの夕日、遠近グリッド、ビデオテープの画質でつくる80年代のレトロフューチャー",
+    "en": "1980s retro-futurism: a neon sunset, a perspective grid and videotape picture quality",
+    "zh-Hans": "霓虹落日、透视网格加录像带画质的 80 年代复古未来风"
+   },
+   "ask": {
+    "ja": "80sシンセウェイブ風のオープニングを作って。縞模様の夕日、マゼンタの遠近グリッドが手前へ流れ、1.2秒でクロームのタイトルがドンと落ちる。VHSの走査線とテープの乱れも入れて。",
+    "en": "Make an 80s synthwave opening: a striped sunset, a magenta perspective grid rolling toward camera, a chrome title slamming down at 1.2 s, plus VHS scanlines and tape glitches.",
+    "zh-Hans": "做一个 80s Synthwave 风格的片头：条纹落日、品红透视网格向镜头滚动，1.2 秒铬字标题砸下，带 VHS 扫描线和磁带抖动。"
+   },
+   "summary": {
+    "ja": "縞の夕日が線画の山の向こうに沈み、マゼンタのグリッドが手前へ流れ、ヤシが横切る。クロームの文字が落ちて白く光り、ネオンの筆記体が明滅して点く。",
+    "en": "A striped sun sits behind wireframe mountains, a magenta grid rolls toward camera and palms whip past; a chrome title slams down with a white flash and a neon script flickers on.",
+    "zh-Hans": "条纹落日沉在线框群山后，品红网格向镜头滚动、棕榈掠过，铬字标题砸下闪白，霓虹手写字频闪点亮。"
+   },
+   "spec": {
+    "ja": [
+     "濃紫の夜空 #060212→#751266 と星。縞の夕日は 5 段グラデーション #fff59e→#ff3d8f、下半分の抜き帯は下ほど太く（最大 58%）、周期ごとに 8 本分下へ動く",
+     "マゼンタ #FF29D1 の一点透視グリッドは 2 層のグロー付きで、周期ごとに 12 マス手前へ流れる。左右のヤシのシルエットが 3.2 秒ごとに交互に通過",
+     "0.1–1.15 秒に VHS の「PLAY ▶」表示。1.2 秒にクロームの NEON DRIVE が 2.1 倍から落ちて（0.13 秒）白フラッシュ、1.8–2.4 秒にハイライトが走る",
+     "2.6–3.4 秒にネオンの「Midnight」が左から点灯し、3.4 秒から 8 フレーム明滅。RGB ずれ ±2.5 px、2 px 間隔の走査線、0.37、2.47、4.6 秒にそれぞれ 2 フレームのテープの乱れ"
+    ],
+    "en": [
+     "Deep purple night sky #060212→#751266 with stars. The striped sun is a 5-stop gradient #fff59e→#ff3d8f; the cut-out bands on its lower half widen downward (up to 58%) and slide down 8 bands per cycle.",
+     "A magenta #FF29D1 one-point perspective grid with a 2-layer glow rolls 12 squares toward camera per cycle. Palm silhouettes pass on alternating sides every 3.2 s.",
+     "A VHS PLAY ▶ overlay shows at 0.1–1.15 s. At 1.2 s the chrome title NEON DRIVE slams down from 2.1× (in 0.13 s) with a white flash; a highlight sweeps across at 1.8–2.4 s.",
+     "At 2.6–3.4 s a neon Midnight lights up left to right, then strobes for 8 frames from 3.4 s. RGB split of ±2.5 px, scanlines every 2 px, and 2-frame tape glitches at 0.37, 2.47 and 4.6 s."
+    ],
+    "zh-Hans": [
+     "深紫夜空 #060212→#751266 加星空；条纹落日为 5 段渐变 #fff59e→#ff3d8f，下半部镂空条带越往下越宽（最宽 58%），每周期下移 8 格。",
+     "品红 #FF29D1 一点透视网格带 2 层辉光，每周期向镜头滚动 12 格；两侧棕榈剪影每 3.2 秒交替掠过。",
+     "0.1–1.15 秒显示 VHS「PLAY ▶」；1.2 秒铬字 NEON DRIVE 从 2.1 倍砸下（0.13 秒）并白闪，1.8–2.4 秒高光扫过。",
+     "2.6–3.4 秒霓虹「Midnight」从左到右点亮，3.4 秒起频闪 8 帧；RGB 色偏 ±2.5 px、每 2 px 一条扫描线，0.37、2.47、4.6 秒各有 2 帧磁带抖动。"
+    ]
+   },
+   "use": {
+    "ja": "レトロ調のミュージックビデオ、エレクトロ音楽やゲームの宣伝、懐かし系ブランド映像のオープニングに。",
+    "en": "Retro music videos, electronic music and game promos, and openings for nostalgia-themed brand films.",
+    "zh-Hans": "适合复古主题音乐视频、电子音乐与游戏宣传、怀旧风品牌短片的片头。"
+   },
+   "tags": [
+    "synthwave",
+    "retrowave",
+    "80s",
+    "vhs",
+    "neon",
+    "chrome-text",
+    "perspective-grid",
+    "glitch"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "合成器浪潮",
+     "复古霓虹",
+     "录像带风"
+    ]
+   }
+  },
+  {
+   "id": "2-060",
+   "upstream": "237",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "12",
+   "slug": "pixel-art",
+   "category": "genre",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "ピクセルアート",
+    "en": "Pixel art / 8-bit",
+    "zh-Hans": "像素风"
+   },
+   "meaning": {
+    "ja": "低解像度のドット、限られたパレット、コマ送りの動きでつくる8ビットゲーム風の画面",
+    "en": "An 8-bit game look built from low-res pixels, a limited palette and frame-stepped motion",
+    "zh-Hans": "低分辨率色块、有限色板加逐帧跳动的 8-bit 游戏画面风"
+   },
+   "ask": {
+    "ja": "ピクセルアート風のゲームオープニングを作って。キャラが横スクロールでコインを取りスライムを踏む。1周期48フレームで、5倍に拡大してドット感を残して。",
+    "en": "Make a pixel-art game opening: a little hero runs through a side-scroller grabbing coins and stomping a slime, 48 frames per cycle, scaled up 5× so the pixels stay crisp.",
+    "zh-Hans": "做一段像素风游戏片头：小人跑过横版卷轴吃金币、踩史莱姆，每周期 48 帧，画面按 5 倍放大保持像素颗粒。"
+   },
+   "summary": {
+    "ja": "赤ずきんのキャラが3層の視差スクロールを走り、ジャンプしてコインを取りスライムを踏みつぶし、ドットのロゴが1コマずつ落ちて弾む。",
+    "en": "A red-hooded hero runs across 3 parallax layers, jumps for coins and squashes a slime, while a blocky pixel logo drops in frame by frame and bounces.",
+    "zh-Hans": "红兜帽小人在三层视差卷轴上奔跑，跳起吃金币、踩扁史莱姆，像素标志一格一格落下回弹。"
+   },
+   "spec": {
+    "ja": [
+     "108×42 の低解像度画面に描き、5 倍に最近傍拡大。空は Bayer 4×4 ディザのグラデーション、CRT の走査線と周辺減光を重ねる",
+     "スプライトとスクロールは 周期ごとに 48 フレーム（7.5 fps）：主人公は 6 フレームの走りループ、遠景の山・木立・地面タイルは 1/4、1/2、1 倍の視差で動き、地面は周期ごとに 192 ピクセル進む",
+     "途中でジャンプして弧状の 3 枚のコインを取り、ピンクのスライムを踏みつぶして煙を出し、地面の 3 枚のコインを走り抜ける。コインは 4 フレームで回転",
+     "0.4 秒からブロック状のロゴ PIXEL QUEST が 8 fps で落ちて弾み、1.1 秒から「像素冒险」が一字ずつ出る。1.5、3.5 秒にハイライトが斜めに走り、5.4 秒に段階的に上へ退場"
+    ],
+    "en": [
+     "Drawn on a 108 × 42 low-res frame and scaled up 5× with nearest-neighbour. The sky is a Bayer 4 × 4 dithered gradient, with CRT scanlines and a vignette on top.",
+     "Sprites and scrolling run at 48 frames per cycle (7.5 fps): the hero has a 6-frame run cycle, far hills, bushes and ground tiles scroll at 1/4, 1/2 and 1× parallax, and the ground travels 192 pixels per cycle.",
+     "Along the way the hero jumps through an arc of 3 coins, stomps a pink slime into a puff of smoke, then runs over 3 ground coins. Coins spin in 4 frames.",
+     "From 0.4 s the blocky logo PIXEL QUEST drops and bounces at 8 fps; from 1.1 s the Chinese subtitle appears character by character. Highlights sweep diagonally at 1.5 and 3.5 s, and the logo steps up and out at 5.4 s."
+    ],
+    "zh-Hans": [
+     "在 108 × 42 的低分辨率画面上绘制，按 5 倍最近邻放大；天空用 Bayer 4 × 4 抖动渐变，叠加 CRT 扫描线与暗角。",
+     "精灵与卷轴每周期 48 帧（7.5 fps）：主角 6 帧跑步循环，远山、树丛、地砖按 1/4、1/2、1 倍视差卷动，地面每周期走 192 像素。",
+     "途中跳起吃 3 枚弧线金币，踩扁粉色史莱姆冒出烟团，再跑过 3 枚地面金币；金币 4 帧旋转。",
+     "0.4 秒起块状标志 PIXEL QUEST 按 8 fps 落下回弹，1.1 秒起「像素冒险」逐字出现；1.5、3.5 秒高光斜扫，5.4 秒标志阶梯式上飞退场。"
+    ]
+   },
+   "use": {
+    "ja": "ゲームの宣伝、レトロ調のSNS短尺動画、テック・プログラミング系解説動画のオープニングに。",
+    "en": "Game promos, retro-themed social shorts, and openings for tech or programming explainer videos.",
+    "zh-Hans": "适合游戏宣传、复古主题社媒短片、科技与编程类讲解视频的片头。"
+   },
+   "tags": [
+    "pixel-art",
+    "8-bit",
+    "retro-game",
+    "side-scroller",
+    "dithering",
+    "parallax",
+    "crt"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "8 位像素",
+     "复古游戏",
+     "点阵风"
+    ]
+   }
+  },
+  {
+   "id": "2-061",
+   "upstream": "238",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "13",
+   "slug": "collage-cutout",
+   "category": "genre",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "コラージュ・切り絵",
+    "en": "Collage / cutout",
+    "zh-Hans": "拼贴剪贴"
+   },
+   "meaning": {
+    "ja": "切り抜きをコマ撮りのように1枚ずつ紙に貼っていく、手作り雑誌風のコラージュ",
+    "en": "A handmade zine-style collage where cut-out pieces are slapped onto paper one by one like stop-motion",
+    "zh-Hans": "剪报拼贴的手工杂志风，像定格动画一样把剪纸一件件拍到纸上"
+   },
+   "ask": {
+    "ja": "コラージュ・切り絵風の雑誌オープニングを作って。切り抜きの人物、新聞の切れ端、脅迫状風の文字を12fpsのコマ撮りのリズムでクラフト紙に1枚ずつ貼っていく感じで。",
+    "en": "Make a collage/cutout magazine opening: a cut-out portrait, newspaper scraps and ransom-note letters slapped onto kraft paper one by one at a 12 fps stop-motion rhythm.",
+    "zh-Hans": "做一段拼贴剪贴风格的杂志片头：剪纸人像、报纸碎片和勒索信字块按 12 fps 定格节奏一件件拍到牛皮纸上。"
+   },
+   "summary": {
+    "ja": "切り抜きの頭像がクラフト紙にパンと貼られ、頭の上がふたのように開いて星やロケット、ツバメが飛び出し、文字片と破れた帯が順に貼られる。",
+    "en": "A cut-out head slaps onto kraft paper, its scalp flips open like a lid, stars, a rocket and a swallow fly out, and letter blocks and a torn banner are pasted on in turn.",
+    "zh-Hans": "剪纸头像啪地拍到牛皮纸上，头顶像盖子翻开，星星、火箭、燕子从脑洞飞出，字块和撕纸横条依次贴上。"
+   },
+   "spec": {
+    "ja": [
+     "クラフト紙 #DCC39A の地に等幅の誌名。切り抜きはすべて 2 倍解像度で事前描画し、オフホワイト #F2ECDF のはさみの白縁、影、墨色 #16130F の網点付き",
+     "12 fps のコマ撮りリズムで貼る：0.25 秒 紳士の頭像（拡大率 1.3→1.12→0.96→1）、0.45 秒 赤い円盤 #D2261C、0.65 秒 新聞の切れ端",
+     "1.5 秒に頭の上がギザギザの切り口から開き（6 フレーム）、POP の爆発が 3 フレーム、続いて星・土星・ロケット・ツバメ・バラの 5 つが放物線で飛び出す",
+     "2.5 秒から 1/6 秒ごとに脅迫状風の文字片を 1 枚ずつ貼り、3.25 秒に破れた黒帯が滑り込む。止まった片は 1/6 秒ごとに ±1.2 px 揺れる。5.4–6.0 秒に破れ縁のクラフト紙が右から覆ってリセット"
+    ],
+    "en": [
+     "Kraft paper #DCC39A with a monospaced masthead. Every cut-out is pre-rendered at 2× resolution with an off-white #F2ECDF scissor rim, a drop shadow and ink #16130F halftone dots.",
+     "Pieces slap down on a 12 fps stop-motion beat: a gentleman's portrait at 0.25 s (scale 1.3→1.12→0.96→1), a red disc #D2261C at 0.45 s, a newspaper scrap at 0.65 s.",
+     "At 1.5 s the top of the head flips open along a zigzag cut (6 frames), a POP burst lasts 3 frames, then 5 pieces (star, Saturn, rocket, swallow, rose) arc out of the head.",
+     "From 2.5 s a ransom-note letter block lands every 1/6 s, 1 at a time; a torn black banner slides in at 3.25 s. Resting pieces jitter ±1.2 px every 1/6 s. At 5.4–6.0 s a torn-edged sheet of kraft paper wipes in from the right to reset."
+    ],
+    "zh-Hans": [
+     "牛皮纸底 #DCC39A 加等宽刊头；所有剪纸件按 2 倍分辨率预渲染，带米白 #F2ECDF 剪刀白边、投影和墨色 #16130F 半调网点。",
+     "按 12 fps 定格节奏拍下：0.25 秒绅士头像（缩放 1.3→1.12→0.96→1），0.45 秒红色圆盘 #D2261C，0.65 秒报纸碎片。",
+     "1.5 秒头盖沿锯齿剪口翻开（6 帧），POP 爆炸 3 帧，随后星星、土星、火箭、燕子、玫瑰 5 件沿抛物线从脑洞飞出。",
+     "2.5 秒起每 1/6 秒拍下 1 枚勒索信字块，3.25 秒黑色撕纸横条滑入；静止件每 1/6 秒抖动 ±1.2 px；5.4–6.0 秒一张撕边牛皮纸从右盖过复位。"
+    ]
+   },
+   "use": {
+    "ja": "カルチャー誌、アート展、ポッドキャスト、クリエイティブ系ブランドのオープニングやSNS短尺動画に。",
+    "en": "Openings and social shorts for culture magazines, art exhibitions, podcasts and creative brands.",
+    "zh-Hans": "适合文化杂志、艺术展览、播客与创意品牌的片头和社媒短片。"
+   },
+   "tags": [
+    "collage",
+    "cutout",
+    "paper-cut",
+    "stop-motion",
+    "halftone",
+    "zine",
+    "kraft-paper"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "剪报拼贴",
+     "剪纸拼贴",
+     "杂志拼贴"
+    ]
+   }
+  },
+  {
+   "id": "2-062",
+   "upstream": "239",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "14",
+   "slug": "sticker-explainer",
+   "category": "genre",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "太線ステッカー解説",
+    "en": "Bold-outline sticker explainer",
+    "zh-Hans": "粗描边贴纸人科普"
+   },
+   "meaning": {
+    "ja": "太い白縁のステッカーと1色だけのアクセントカラーでつくるフラットな解説スタイル",
+    "en": "A flat explainer style built from thick white-outlined stickers and a single accent colour",
+    "zh-Hans": "粗白描边贴纸配单一强调色的扁平科普讲解风"
+   },
+   "ask": {
+    "ja": "太線ステッカー風の解説動画を作って。スマホのステッカーが貼られて引き出し線で注釈、カメラが周期表へ飛んで70種の元素を点灯し、最後に5本の棒グラフになる流れで。",
+    "en": "Make a bold-outline sticker explainer: a phone sticker slaps down with callout lines, the camera flies to a periodic table that lights up 70 elements, then on to a 5-bar chart.",
+    "zh-Hans": "做一段粗描边贴纸风的科普讲解：手机贴纸拍下后引线标注，镜头飞到周期表点亮 70 种元素，再长成 5 根柱状图。"
+   },
+   "summary": {
+    "ja": "スマホのステッカーが弾んで貼られ引き出し線が伸び、カメラが周期表へ飛んでマスが滝のように点灯し、さらに棒グラフへ飛んで1マスずつ伸びる。",
+    "en": "A phone sticker slaps down with a bounce and callout lines draw out; the camera flies to a periodic table that lights up in a cascade, then to a chart that grows bar by bar.",
+    "zh-Hans": "贴纸手机带回弹拍下并拉出引线标注，镜头飞到周期表让格子瀑布般点亮，再飞到柱状图逐格长柱。"
+   },
+   "spec": {
+    "ja": [
+     "青灰の背景 #E9EEF2、スレート #25313D、アクセントは 1 色 #FF5A36 だけ。ステッカーは白縁と柔らかい影付きで、オーバーシュートするイージングで貼られる",
+     "0.2 秒にスマホのステッカー、0.35、0.5 秒にタイトルのステッカー 2 枚、0.6 秒から 4 本の引き出し線が部品と元素バッジを順に注釈",
+     "1.6–2.2 秒にカメラが斜めに周期表へ飛ぶ（途中で 0.9 まで縮小）。118 マスが順に弾んで現れ、2.45 秒に最初の 10 種、2.5–3.2 秒に残り 60 種が滝のように点灯し、カウントは 70 まで",
+     "3.5–4.1 秒に棒グラフへ飛び、4.15 秒から 70 個の小さな四角が ひとマスずつ積まれて 5 本の棒（23、16、12、11、8）になる。4.95 秒に「約 70 種」のオレンジのステッカー。5.4–6.2 秒にカメラが始点へ戻る"
+    ],
+    "en": [
+     "Blue-grey background #E9EEF2, slate #25313D and just 1 accent colour, #FF5A36. Stickers have a white outline and a soft shadow and slap down with an overshooting ease.",
+     "A phone sticker lands at 0.2 s, 2 title stickers at 0.35 and 0.5 s, and from 0.6 s 4 callout lines label the parts with element badges in turn.",
+     "At 1.6–2.2 s the camera flies diagonally to a periodic table (dipping to 0.9 zoom mid-flight). 118 tiles pop in, the first 10 elements light at 2.45 s, the other 60 cascade on at 2.5–3.2 s, and the counter reaches 70.",
+     "At 3.5–4.1 s the camera flies to a bar chart; from 4.15 s 70 small squares stack up one by one into 5 bars (23, 16, 12, 11, 8), and an orange 'about 70' sticker slaps down at 4.95 s. The camera flies back to the start at 5.4–6.2 s."
+    ],
+    "zh-Hans": [
+     "蓝灰底 #E9EEF2、石板色 #25313D，只用 1 种强调色 #FF5A36；贴纸带白描边和柔投影，以回弹缓动拍下。",
+     "0.2 秒手机贴纸拍下，0.35、0.5 秒 2 块标题贴纸，0.6 秒起 4 条引线依次标注部件与元素徽章。",
+     "1.6–2.2 秒镜头斜飞到周期表（中途缩到 0.9），118 格依次弹入；2.45 秒首批 10 种点亮，2.5–3.2 秒其余 60 种瀑布式点亮，计数到 70。",
+     "3.5–4.1 秒飞到柱状图，4.15 秒起 70 枚小方块逐格长成 5 根柱（23、16、12、11、8），4.95 秒「约 70 种」橙色贴纸拍下；5.4–6.2 秒镜头飞回起点。"
+    ]
+   },
+   "use": {
+    "ja": "知識解説の動画、製品の分解解説、データレポートやインフォグラフィックの短尺動画に。",
+    "en": "Science and knowledge explainers, product teardown videos, data reports and infographic shorts.",
+    "zh-Hans": "适合知识科普视频、产品拆解讲解、数据报告和信息图短片。"
+   },
+   "tags": [
+    "sticker",
+    "explainer",
+    "infographic",
+    "flat-design",
+    "camera-pan",
+    "data-viz",
+    "bold-outline"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "贴纸风科普",
+     "信息图动画",
+     "科普讲解"
+    ]
+   }
+  },
+  {
+   "id": "2-063",
+   "upstream": "240",
+   "group": "motion",
+   "pack": "mgstyles",
+   "no": "15",
+   "slug": "variety-captions",
+   "category": "genre",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "バラエティ番組のテロップ",
+    "en": "Variety-show captions",
+    "zh-Hans": "综艺花字"
+   },
+   "meaning": {
+    "ja": "多層の縁取りの派手な文字に爆発フキダシと集中線を合わせたバラエティ番組風の演出",
+    "en": "Variety-show styling: loud multi-outlined captions with comic burst bubbles and speed lines",
+    "zh-Hans": "多层描边的彩色大字配爆炸框和集中线的综艺节目包装风"
+   },
+   "ask": {
+    "ja": "ペット動画にバラエティ番組風のテロップを入れて。タイトルはバネで弾んで1字ずつ2フレームずらして登場、2.9秒でカメラがグッと寄って集中線と爆発フキダシで「震惊！！」を出して。",
+    "en": "Add variety-show captions to a pet video: the title springs in letter by letter, 2 frames apart, and at 2.9 s the camera punches in with speed lines and a burst bubble for a 'shocked!!' caption.",
+    "zh-Hans": "给萌宠短片加综艺花字：标题字弹簧弹入、逐字错 2 帧，2.9 秒镜头猛推配集中线和爆炸框打出「震惊！！」。"
+   },
+   "summary": {
+    "ja": "茶トラ猫の画面に派手な文字が1字ずつ弾んで揺れ、？が跳ねて汗が垂れ、カメラが寄ると爆発フキダシと集中線が弾け、赤いハンコが押される。",
+    "en": "Over a ginger cat, captions spring in letter by letter and sway, question marks hop and a sweat drop slides, then the camera punches in, a burst bubble and speed lines pop and a red stamp lands.",
+    "zh-Hans": "橘猫画面上花字逐字弹入摇摆，问号跳动、汗滴滑落，镜头猛推后爆炸框和集中线炸开，红色印章砸下。"
+   },
+   "spec": {
+    "ja": [
+     "テロップは 3 層構造：グラデーションの塗り、太い白縁、色付きの外縁と濃色の押し出し影（タイトルは #FFFBD6→#FFE23A→#FF9A1F、白、#FF3D7F、#A3124F）",
+     "登場は減衰バネで 0→1.15→1（ζ=0.517、ω=22）、落下と回転を伴い 一字ずつ 2 フレームずらす。表示中はわずかに揺れる",
+     "0.3 秒にタイトル、1.2 秒に小声のツッコミ、2.3 秒に弾けて消える。2.4 秒にシアンの「？？？」がひとつずつ弾んで跳ね、猫は点の目になる",
+     "2.9 秒にカメラのズームが 0.14 跳ね上がり 3 フレーム揺れる。12 fps で震える白い集中線、黄 #FFF15A／ピンク #FF3D7F の 2 層爆発フキダシ。4.3 秒にハンコが 4 フレームで押され、5.4 秒から全要素が順に弾けて消える（0.17 秒）"
+    ],
+    "en": [
+     "Captions have 3 layers: a gradient fill, a thick white outline, and a coloured outer outline with a dark extruded shadow (title: #FFFBD6→#FFE23A→#FF9A1F, white, #FF3D7F, #A3124F).",
+     "Entrances use a damped spring 0→1.15→1 (ζ=0.517, ω=22) with a drop and a spin-in, each character 2 frames after the last; held text sways slightly.",
+     "The title enters at 0.3 s and a whispered aside at 1.2 s; both pop away at 2.3 s. At 2.4 s cyan question marks pop in one by one and hop, and the cat's eyes turn to dots.",
+     "At 2.9 s the camera zoom jumps by 0.14 and shakes for 3 frames; white speed lines boil at 12 fps behind a 2-layer yellow #FFF15A / pink #FF3D7F burst bubble. A stamp slams down in 4 frames at 4.3 s, and from 5.4 s everything pops out in turn (0.17 s each)."
+    ],
+    "zh-Hans": [
+     "花字 3 层结构：渐变填充、粗白描边、彩色外描边加深色挤出投影（标题为 #FFFBD6→#FFE23A→#FF9A1F、白、#FF3D7F、#A3124F）。",
+     "入场用阻尼弹簧 0→1.15→1（ζ=0.517、ω=22），带下落与旋入，逐字错 2 帧；驻留时轻微摇摆。",
+     "0.3 秒标题入场，1.2 秒小声吐槽，2.3 秒弹出消失；2.4 秒青色「？？？」逐个弹出并跳动，猫变豆豆眼。",
+     "2.9 秒镜头缩放猛增 0.14 并震动 3 帧，12 fps 抖动的白色集中线衬着黄 #FFF15A / 粉 #FF3D7F 2 层爆炸框；4.3 秒印章 4 帧砸下，5.4 秒起全部依次弹出消失（0.17 秒）。"
+    ]
+   },
+   "use": {
+    "ja": "バラエティ番組のパッケージ、ペットやVlogの短尺動画、配信の切り抜きのテロップに。",
+    "en": "Variety-show packaging, pet and vlog shorts, and captions on livestream clips.",
+    "zh-Hans": "适合综艺节目包装、萌宠与 vlog 短视频、直播切片的字幕花字。"
+   },
+   "tags": [
+    "variety-show",
+    "captions",
+    "kinetic-type",
+    "spring",
+    "comic-burst",
+    "speed-lines",
+    "cute"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "综艺字幕",
+     "花字特效",
+     "综艺包装"
+    ]
+   }
   },
   {
    "id": "3-001",

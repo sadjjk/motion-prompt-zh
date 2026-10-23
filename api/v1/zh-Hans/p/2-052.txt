@@ -1,0 +1,17 @@
+请使用“几何构成 / 包豪斯（Geometric / Bauhaus）”，属于“MG 风格”。
+Motion Prompt #2-052
+
+效果解释：在网格上用圆、三角、方与三原色逐步搭出构图的包豪斯几何动画
+动画表现：网格纸上每拍一个动作：红圆落下、黑柱下拉、三角翻转、蓝方从角点放大，最后 BAUHAUS 字样硬切入。
+实现规格与关键运动参数：
+- 纸色 #F1E9DA，52 px 模数网格（10 列 × 4 行）；红 #E03C31、黄 #F2B705、蓝 #1E4FA3、黑 #111111。
+- 120 BPM 每拍 0.5 秒一个动作：拍点前 0.25 秒启动，用 power2 inOut 正好落在拍点，无回弹。
+- 从 0.5 秒红圆到 4.5 秒横线共 9 个动作，落点都在网格线上；网格线 0–0.5 秒画出。
+- 5.0 秒 BAUHAUS（21 px）硬切入，左下计拍；5.4–6.0 秒淡回空纸。
+适用场景：适合设计展、美术馆宣传，品牌理念短片，以及卡拍点的构成式标题演绎。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-052
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-052.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Vincentwei1021 的 MIT 版权标识。

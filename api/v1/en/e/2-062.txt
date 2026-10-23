@@ -1,0 +1,171 @@
+// Motion Prompt #2-062 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// Bold-outline sticker explainer / 太線ステッカー解説
+// Pack: mgstyles (MG styles) · element 14 · Category: Genres & eras
+// What happens: A phone sticker slaps down with a bounce and callout lines draw out; the camera flies to a periodic table that lights up in a cascade, then to a chart that grows bar by bar.
+// Motion spec:
+//   - Blue-grey background #E9EEF2, slate #25313D and just 1 accent colour, #FF5A36. Stickers have a white outline and a soft shadow and slap down with an overshooting ease.
+//   - A phone sticker lands at 0.2 s, 2 title stickers at 0.35 and 0.5 s, and from 0.6 s 4 callout lines label the parts with element badges in turn.
+//   - At 1.6–2.2 s the camera flies diagonally to a periodic table (dipping to 0.9 zoom mid-flight). 118 tiles pop in, the first 10 elements light at 2.45 s, the other 60 cascade on at 2.5–3.2 s, and the counter reaches 70.
+//   - At 3.5–4.1 s the camera flies to a bar chart; from 4.15 s 70 small squares stack up one by one into 5 bars (23, 16, 12, 11, 8), and an orange 'about 70' sticker slaps down at 4.95 s. The camera flies back to the start at 5.4–6.2 s.
+// When to use it: Science and knowledge explainers, product teardown videos, data reports and infographic shorts.
+// Tags: sticker, explainer, infographic, flat-design, camera-pan, data-viz, bold-outline
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-062
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 14
+// 14 粗描边贴纸人科普（19-paperclip「一部手机里，藏着多少种元素？」）：蓝灰底 #E9EEF2、石板 #25313D + 唯一强调色 #FF5A36、等线黑体；一条连续镜头串三个信息点：0.2 秒手机贴纸（白描边 + 柔投影）backOut 拍下，0.35/0.5 秒两块标题贴纸，0.6–0.96 秒四条引线标注（屏幕/电池/主板/磁铁 + 元素徽章）；1.6–2.2 秒镜头斜向飞到周期表（中途缩到 0.9），1.9 秒 118 格依次弹入，2.45 秒首批 10 种点亮、2.5–3.2 秒其余 60 种按列 + 行序瀑布点亮（稀土为橙），计数 0→70 / 118；3.5–4.1 秒飞到柱状图，4.15–4.81 秒 70 枚元素小方块逐格长成 5 根柱（过渡金属 23、稀土 16、主族金属与类金属 12、非金属 11、碱金属与碱土金属 8）并计数，4.95 秒「约 70 种」橙色贴纸拍下；5.4–6.0 秒内容淡出、5.4–6.2 秒镜头飞回起点
+const STK = { bg: '#E9EEF2', ink: '#25313D', mid: '#8C9AA8', card: '#F7F9FB', or: '#FF5A36', line: '#CDD6DE', line2: '#AEBAC5' };
+const STK_SYM = 'H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf Db Sg Bh Hs Mt Ds Rg Cn Nh Fl Mc Lv Ts Og'.split(' ');
+const STK_RE = new Set(['Sc', 'Y', 'La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu']);
+const STK_CATS = [['过渡金属', 'Ti V Cr Mn Fe Co Ni Cu Zn Zr Nb Mo Ru Rh Pd Ag Cd Hf Ta W Ir Pt Au'], ['稀土元素', 'Sc Y La Ce Pr Nd Sm Eu Gd Tb Dy Ho Er Tm Yb Lu'], ['主族金属与类金属', 'Al Ga In Sn Pb Bi B Si Ge As Sb Te'], ['非金属', 'H C N O F P S Cl Se Br I'], ['碱金属与碱土金属', 'Li Na K Be Mg Ca Sr Ba']].map(([zh, els]) => ({ zh, els: els.split(' ') }));
+const STK_rc = Z => { if (Z === 1) return [0, 0]; if (Z === 2) return [0, 17]; if (Z <= 4) return [1, Z - 3]; if (Z <= 10) return [1, Z + 7]; if (Z <= 12) return [2, Z - 11]; if (Z <= 18) return [2, Z - 1]; if (Z <= 36) return [3, Z - 19]; if (Z <= 54) return [4, Z - 37]; if (Z <= 56) return [5, Z - 55]; if (Z <= 71) return [7, Z - 55]; if (Z <= 86) return [5, Z - 69]; if (Z <= 88) return [6, Z - 87]; if (Z <= 103) return [8, Z - 87]; return [6, Z - 101]; };
+// 周期表 118 格：位置、弹入延迟、点亮时刻（首批 10 种 2.45 秒，其余按 列+0.45行+随机 排序、立方缓出铺满 2.5–3.2 秒）
+const STK_TILES = (() => {
+  const used = new Set(); STK_CATS.forEach(c => c.els.forEach(s => used.add(s)));
+  const FIRST = ['In', 'Li', 'Co', 'Si', 'Ga', 'Cu', 'Sn', 'Au', 'Nd', 'Pr'];
+  const rest = [...used].filter(s => !FIRST.includes(s)).map(s => { const Z = STK_SYM.indexOf(s) + 1, [r, c] = STK_rc(Z); return { s, key: c + 0.45 * r + hash(Z + 19) * 2.2 }; }).sort((a, b) => a.key - b.key).map(o => o.s);
+  const lt = {}; FIRST.forEach(s => { lt[s] = 2.45; }); rest.forEach((s, i) => { lt[s] = mix(2.5, 3.2, 1 - Math.cbrt(1 - (i + 1) / rest.length)); });
+  return STK_SYM.map((s, i) => { const [r, c] = STK_rc(i + 1); return { s, x: 14 + c * 15, y: r < 7 ? 34 + r * 15 : 34 + 7 * 15 + 5 + (r - 7) * 15, d: 1.9 + (c + r * 1.4) * 0.012, lt: lt[s] ?? null, re: STK_RE.has(s) }; });
+})();
+const STK_LT = STK_TILES.filter(t => t.lt !== null).map(t => t.lt).sort((a, b) => a - b);
+const STK_PARTS = [['屏幕', 'DISPLAY', ['In'], [98, 66], 42], ['电池', 'BATTERY', ['Li', 'Co'], [86, 100], 82], ['主板', 'BOARD', ['Si', 'Ga', 'Cu', 'Sn', 'Au'], [68, 128], 122], ['磁铁', 'MAGNET', ['Nd', 'Pr'], [92, 156], 162]];
+const STK_SEC = { A: [0, 0], B: [700, 250], C: [1400, 500] };
+// 贴纸底板：柔投影 + 白描边 + 本色
+function STK_plate(k, x, y, wd, ht, r, fill, ow = 4) {
+  k.fillStyle = 'rgba(22,34,46,0.12)'; rr(k, x - ow, y - ow + 4, wd + 2 * ow, ht + 2 * ow, r + ow); k.fill();
+  k.fillStyle = 'rgba(22,34,46,0.1)'; rr(k, x - ow, y - ow + 1.5, wd + 2 * ow, ht + 2 * ow, r + ow); k.fill();
+  k.fillStyle = '#FFFFFF'; rr(k, x - ow, y - ow, wd + 2 * ow, ht + 2 * ow, r + ow); k.fill();
+  k.fillStyle = fill; rr(k, x, y, wd, ht, r); k.fill();
+}
+function STK_cam(u) {
+  const A = [270, 104], B = [970, 354], C = [1670, 604];
+  const fly = (P0, P1, a, b, z0, dip) => { const e = inOut3(seg(u, a, b)); return [mix(P0[0], P1[0], e), mix(P0[1], P1[1], e), mix(z0, 1, e) - dip * Math.sin(Math.PI * e)]; };
+  if (u < 1.6) return [A[0], A[1], 1 + 0.03 * seg(u, 0, 1.6)];
+  if (u < 2.2) return fly(A, B, 1.6, 2.2, 1.03, 0.1);
+  if (u < 3.5) return [B[0], B[1], 1 + 0.03 * seg(u, 2.2, 3.5)];
+  if (u < 4.1) return fly(B, C, 3.5, 4.1, 1.03, 0.1);
+  if (u < SHOW) return [C[0], C[1], 1 + 0.03 * seg(u, 4.1, SHOW)];
+  if (u < 6.2) return fly(C, A, SHOW, 6.2, 1.03, 0.12);
+  return [A[0], A[1], 1];
+}
+CELLS[13] = (k, w, h, u) => {
+  const F = fadeIn(u), [cx, cy, z] = STK_cam(u);
+  k.globalAlpha = 1; k.fillStyle = STK.bg; k.fillRect(0, 0, CW, CH);
+  k.save(); k.translate(CW / 2, CH / 2); k.scale(z, z); k.translate(-cx, -cy);
+  const vx0 = cx - CW / 2 / z, vx1 = cx + CW / 2 / z, vy0 = cy - CH / 2 / z, vy1 = cy + CH / 2 / z;
+  // 世界坐标点阵底纹（随镜头移动）
+  k.fillStyle = STK.line; k.beginPath();
+  for (let y = Math.floor(vy0 / 26) * 26; y < vy1; y += 26) for (let x = Math.floor(vx0 / 26) * 26; x < vx1; x += 26) k.rect(x - 0.8, y - 0.8, 1.6, 1.6);
+  k.fill();
+  const vis = ([ox, oy]) => ox < vx1 && ox + CW > vx0 && oy < vy1 && oy + CH > vy0;
+  k.globalAlpha = F;
+  if (F > 0 && vis(STK_SEC.A)) {
+    // A：手机贴纸 + 引线标注 + 标题贴纸
+    PARTS_DRAW: {
+      STK_PARTS.forEach(([zh, en, els, [ax, ay], ly], i) => {
+        const p = out3(seg(u, 0.6 + i * 0.12, 0.85 + i * 0.12)); if (p <= 0) return;
+        k.strokeStyle = STK.ink; k.lineWidth = 1.2; k.beginPath(); k.moveTo(ax, ay);
+        const ex = 150, L1 = Math.hypot(ex - ax, ly - ay), q = p * (L1 + 6);
+        if (q < L1) k.lineTo(mix(ax, ex, q / L1), mix(ay, ly, q / L1)); else { k.lineTo(ex, ly); k.lineTo(ex + (q - L1), ly); }
+        k.stroke(); k.fillStyle = STK.ink; k.beginPath(); k.arc(ax, ay, 2.2, 0, TAU); k.fill();
+        const a = seg(u, 0.75 + i * 0.12, 0.95 + i * 0.12); if (a <= 0) return;
+        k.globalAlpha = F * a;
+        txt(k, zh, 160, ly + 2, `700 10px ${SANS}`, STK.ink); k.font = `700 10px ${SANS}`; const zw = k.measureText(zh).width;
+        txt(k, en, 164 + zw, ly + 2, `700 7px ${DISP}`, STK.mid);
+        els.forEach((s, j) => { const bs = 1 + 0.3 * (1 - backOut(seg(u, 0.8 + i * 0.12 + j * 0.04, 1.0 + i * 0.12 + j * 0.04))); k.save(); k.translate(167 + j * 18, ly + 14); k.scale(bs, bs); STK_plate(k, -7, -7, 14, 14, 3, STK_RE.has(s) ? STK.or : STK.ink, 1.5); txt(k, s, 0, 0.5, `800 7.5px ${DISP}`, '#FFFFFF', 'center', 'middle'); k.restore(); });
+        k.globalAlpha = F;
+      });
+    }
+    const pp = seg(u, 0.2, 0.45);
+    if (pp > 0) {
+      k.save(); k.globalAlpha = F * clamp(pp * 4); k.translate(78, 106); k.rotate(-0.08 + 0.05 * (1 - pp)); const s = mix(1.35, 1, backOut(pp)); k.scale(s, s);
+      STK_plate(k, -28, -58, 56, 116, 9, '#1D2731', 5);
+      const sg = k.createLinearGradient(0, -52, 0, 52); sg.addColorStop(0, '#303740'); sg.addColorStop(1, '#161E26'); k.fillStyle = sg; rr(k, -25, -52, 50, 104, 6); k.fill();
+      const AP = ['#FF5A36', '#8C9AA8', '#5E6D7B', '#AEBAC5'];
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) { k.fillStyle = AP[(r * 3 + c * 2) % 4]; k.globalAlpha = F * clamp(pp * 4) * 0.85; rr(k, -19 + c * 14, -38 + r * 16, 10, 10, 2.5); k.fill(); }
+      k.globalAlpha = F * clamp(pp * 4); k.fillStyle = '#0B0E11'; rr(k, -8, -50, 16, 4, 2); k.fill();
+      k.restore();
+    }
+    const pk = seg(u, 0.3, 0.5);
+    if (pk > 0) { k.globalAlpha = F * pk; k.fillStyle = STK.or; k.fillRect(296, 30, 8, 8); txt(k, '硬核拆解 · TEARDOWN', 310, 37.5, `700 8.5px ${SANS}`, STK.mid); }
+    [[0.35, '一部手机里，', 70, -0.03], [0.5, '藏着多少种元素？', 106, 0.02]].forEach(([t0, s, y, r]) => {
+      const p = seg(u, t0, t0 + 0.25); if (p <= 0) return;
+      k.save(); k.globalAlpha = F * clamp(p * 4); k.translate(296, y); k.rotate(r * (1 + (1 - p))); const sc = mix(1.25, 1, backOut(p)); k.scale(sc, sc);
+      k.font = `900 24px ${SANS}`; const tw = k.measureText(s).width;
+      STK_plate(k, -6, -24, tw + 12, 32, 5, STK.card, 3.5);
+      if (s.endsWith('？')) { const main = s.slice(0, -1); txt(k, main, 0, 0, `900 24px ${SANS}`, STK.ink); k.font = `900 24px ${SANS}`; txt(k, '？', k.measureText(main).width, 0, `900 24px ${SANS}`, STK.or); }
+      else txt(k, s, 0, 0, `900 24px ${SANS}`, STK.ink);
+      k.restore();
+    });
+    const pc = seg(u, 0.9, 1.2); if (pc > 0) { k.globalAlpha = F * pc; txt(k, '拆开一部智能手机，逐一对照元素周期表', 296, 140, `600 9px ${SANS}`, STK.mid); }
+    k.globalAlpha = F;
+  }
+  if (F > 0 && vis(STK_SEC.B)) {
+    // B：周期表点亮 + 计数
+    k.save(); k.translate(STK_SEC.B[0], STK_SEC.B[1]);
+    const pk = seg(u, 1.95, 2.25);
+    if (pk > 0) { k.globalAlpha = F * pk; k.fillStyle = STK.or; k.fillRect(14, 15, 8, 8); txt(k, '02 对照元素周期表', 28, 22.5, `700 9.5px ${SANS}`, STK.ink); txt(k, 'PERIODIC TABLE', 118, 22.5, `700 7px ${DISP}`, STK.mid); }
+    let lit = 0;
+    for (const t of STK_TILES) {
+      const q = seg(u, t.d, t.d + 0.3); if (q <= 0) continue;
+      let s = mix(0.55, 1, backOut(q)), on = t.lt !== null && u >= t.lt;
+      if (on) { lit++; const qq = seg(u, t.lt, t.lt + 0.16); s *= 1 + 0.16 * (1 - qq); }
+      k.globalAlpha = F * clamp(q * 3);
+      k.save(); k.translate(t.x + 6.5, t.y + 6.5); k.scale(s, s);
+      if (on) { k.fillStyle = t.re ? STK.or : STK.ink; k.fillRect(-6.5, -6.5, 13, 13); txt(k, t.s, 0, 0.5, `700 7px ${DISP}`, '#FFFFFF', 'center', 'middle'); }
+      else { k.fillStyle = STK.card; k.fillRect(-6.5, -6.5, 13, 13); k.strokeStyle = STK.line; k.lineWidth = 1; k.strokeRect(-6, -6, 12, 12); txt(k, t.s, 0, 0.5, `600 7px ${DISP}`, STK.mid, 'center', 'middle'); }
+      k.restore();
+    }
+    const pn = seg(u, 2.2, 2.5);
+    if (pn > 0) {
+      k.globalAlpha = F * pn;
+      const nCol = u < 3.2 ? (lit > 0 ? STK.or : STK.mid) : STK.ink;
+      txt(k, String(lit), 304, 112, `900 66px ${DISP}`, nCol);
+      txt(k, '/ 118', 428, 112, `800 24px ${DISP}`, STK.mid);
+      txt(k, '种元素，出现在一部手机里', 306, 134, `700 11px ${SANS}`, STK.ink);
+      txt(k, '已知 118 种元素中，一部智能手机用到约 70 种，', 306, 154, `600 8px ${SANS}`, STK.mid);
+      txt(k, '其中稀土就有 16 种。', 306, 166, `600 8px ${SANS}`, STK.mid);
+    }
+    k.restore(); k.globalAlpha = F;
+  }
+  if (F > 0 && vis(STK_SEC.C)) {
+    // C：单位柱状图
+    k.save(); k.translate(STK_SEC.C[0], STK_SEC.C[1]);
+    const pa = seg(u, 3.75, 4.1);
+    if (pa > 0) {
+      k.globalAlpha = F * pa; k.fillStyle = STK.or; k.fillRect(14, 15, 8, 8);
+      txt(k, '03 按类别统计', 28, 22.5, `700 9.5px ${SANS}`, STK.ink); txt(k, 'BY CATEGORY · 共 70 种', 100, 22.5, `700 7px ${DISP}`, STK.mid);
+      k.strokeStyle = STK.ink; k.lineWidth = 1.5; k.beginPath(); k.moveTo(106, 32); k.lineTo(106, 186); k.stroke();
+      k.strokeStyle = STK.line2; k.lineWidth = 1; k.setLineDash([2, 4]); k.beginPath();
+      for (const n of [5, 10, 15, 20]) { const x = 112 + n * 15 - 1; k.moveTo(x, 32); k.lineTo(x, 186); } k.stroke(); k.setLineDash([]);
+      for (const n of [5, 10, 15, 20]) txt(k, String(n), 112 + n * 15 - 1, 197, `600 8px ${DISP}`, STK.mid, 'center');
+    }
+    STK_CATS.forEach((c, i) => {
+      const y = 38 + i * 30, re = i === 1;
+      const pl = seg(u, 3.85 + i * 0.05, 4.1 + i * 0.05); if (pl <= 0) return;
+      k.globalAlpha = F * pl; txt(k, c.zh, 100, y + 11, `700 9px ${SANS}`, STK.ink, 'right');
+      let n = 0;
+      c.els.forEach((s, j) => {
+        const t0 = 4.15 + j * 0.03 + i * 0.05, q = seg(u, t0, t0 + 0.12); if (q <= 0) return; n = j + 1;
+        const sc = 1.3 - 0.3 * out3(q); k.globalAlpha = F * clamp(q * 2);
+        k.save(); k.translate(112 + j * 15 + 6.5, y + 6.5 + 2); k.scale(sc, sc); k.fillStyle = re ? STK.or : STK.ink; k.fillRect(-6.5, -6.5, 13, 13);
+        txt(k, s, 0, 0.5, `700 7px ${DISP}`, '#FFFFFF', 'center', 'middle'); k.restore();
+      });
+      if (n > 0) { k.globalAlpha = F; txt(k, String(n), 112 + n * 15 + 4, y + 15, `900 15px ${DISP}`, re ? STK.or : STK.ink); }
+    });
+    const ps = seg(u, 4.95, 5.2);
+    if (ps > 0) {
+      k.save(); k.globalAlpha = F * clamp(ps * 4); k.translate(476, 160); k.rotate(-0.1); const sc = mix(1.5, 1, backOut(ps)); k.scale(sc, sc);
+      STK_plate(k, -38, -19, 76, 38, 9, STK.or, 4.5);
+      txt(k, '约', -27, 6, `800 10px ${SANS}`, '#FFFFFF'); txt(k, '70', -14, 9, `900 26px ${DISP}`, '#FFFFFF'); txt(k, '种', 19, 6, `800 10px ${SANS}`, '#FFFFFF');
+      k.restore();
+    }
+    k.restore();
+  }
+  k.restore(); k.globalAlpha = 1;
+};

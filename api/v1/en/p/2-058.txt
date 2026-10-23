@@ -1,0 +1,15 @@
+Please use "Cyberpunk HUD / FUI" (サイバーパンク HUD), one of the names in "MG styles".
+Motion Prompt #2-058
+
+What it is: A sci-fi film style cyan wireframe heads-up display that builds up layer by layer and locks onto a target
+What the sample shows: Cyan frames, radar and globe light up in layers, readouts scramble then settle, brackets fly in, hunt and snap onto the target, and the lock flips everything magenta.
+Spec:
+- Dark teal-black #020A0D background. Cyan #00E5FF wireframes grow in staggered layers: outer corners at 0.12 s, outer ring at 0.4 s, radar at 0.55 s, globe at 0.9 s, right panel at 1.15 s.
+- The radar sweeps 1 lap every 1.6 s (4 laps per cycle) with 4 blips. From 1.2 s, 5 readouts each scramble for 4 frames before settling, and the log types at 45 characters per second.
+- The wireframe globe decelerates through 360° over 0–3.4 s. At 3.0 s corner brackets fly in from the frame corners, hunt by ±4 px at 3.25–3.55 s, then snap from 1.4× to 1× at 3.55–3.8 s.
+- Lock at 3.8 s: everything turns magenta #FF2A8A, with a white flash and 3 expanding rings (at 3.8, 4.3, 4.8 s). Scanlines every 3 px cover the whole piece.
+When to use it: Tech product promos, game trailers, sci-fi openings and data-visualisation explainers.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-058.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -38,6 +38,7 @@ Groups, packs and IDs. Display order and IDs come from `packs/groups.json`; a pa
 | 1 `web` | `uxmotion` | 37 | #1 061~097 | — | Interaction & data motion / インタラクションとデータの動き (after [Lucian UX/UI Prompt](https://lucianlabs.dev/uxui-prompt/), Seokwoooo) |
 | 2 `motion` | `motion` | 24 | #2 001~024 | 001–024 | Motion graphics moves / モーショングラフィックスの動き |
 | 2 `motion` | `motion2` | 24 | #2 025~048 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 |
+| 2 `motion` | `mgstyles` | 15 | #2 049~063 | — | MG styles / モーショングラフィックスのスタイル (after [mg-styles-15](https://github.com/Vincentwei1021/mg-styles-15), Vincentwei1021) |
 | 3 `film` | `camera` | 24 | #3 001~024 | 025–048 | Camera moves & transitions / カメラワークと切り替え |
 | 3 `film` | `photo` | 24 | #3 025~048 | 097–120 | Photo looks, lighting & styles / 写真の表現・光と画風 |
 | 4 `ambient` | `scenes` | 32 | #4 001~032 | — | Styled scenes / スタイルシーン (after [Motion Atlas](https://github.com/skylarzzzz/motion-atlas), Yun) |

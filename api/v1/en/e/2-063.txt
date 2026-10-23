@@ -1,0 +1,162 @@
+// Motion Prompt #2-063 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// Variety-show captions / バラエティ番組のテロップ
+// Pack: mgstyles (MG styles) · element 15 · Category: Genres & eras
+// What happens: Over a ginger cat, captions spring in letter by letter and sway, question marks hop and a sweat drop slides, then the camera punches in, a burst bubble and speed lines pop and a red stamp lands.
+// Motion spec:
+//   - Captions have 3 layers: a gradient fill, a thick white outline, and a coloured outer outline with a dark extruded shadow (title: #FFFBD6→#FFE23A→#FF9A1F, white, #FF3D7F, #A3124F).
+//   - Entrances use a damped spring 0→1.15→1 (ζ=0.517, ω=22) with a drop and a spin-in, each character 2 frames after the last; held text sways slightly.
+//   - The title enters at 0.3 s and a whispered aside at 1.2 s; both pop away at 2.3 s. At 2.4 s cyan question marks pop in one by one and hop, and the cat's eyes turn to dots.
+//   - At 2.9 s the camera zoom jumps by 0.14 and shakes for 3 frames; white speed lines boil at 12 fps behind a 2-layer yellow #FFF15A / pink #FF3D7F burst bubble. A stamp slams down in 4 frames at 4.3 s, and from 5.4 s everything pops out in turn (0.17 s each).
+// When to use it: Variety-show packaging, pet and vlog shorts, and captions on livestream clips.
+// Tags: variety-show, captions, kinetic-type, spring, comic-burst, speed-lines, cute
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-063
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 15
+// 15 综艺花字（18-hanazi「喵呜日记 EP.07」）：粉色墙面 + 窗光 + 青色坐垫上的矢量橘猫（深紫 #1A1030 粗描边，耳朵每周期抽动 4 次，手持晃动按整数圈），花字三层结构 = 渐变填充 + 粗白描边 + 彩色外描边/深色挤出投影（今日份快乐：#FFFBD6→#FFE23A→#FF9A1F + 白 + #FF3D7F + #A3124F）；入场为阻尼弹簧 0→1.15→1（ζ=0.517、ω=22，约 5 帧到峰）带下落与旋入、逐字错 2 帧，驻留轻微摇摆；0.3 秒今日份快乐、0.8 秒闪光、1.2 秒（小声）正在光合作用…，2.3 秒弹出消失；2.4 秒青色「？？？」逐个弹出并按半拍跳动 + 2.5 秒汗滴下滑，猫变豆豆眼；2.9 秒镜头猛推 1.14 倍 + 3 帧震动、12fps 抖动的白色集中线与黄 #FFF15A / 粉 #FF3D7F 双层爆炸框、「震惊！！」、3.5 秒「这发量合理吗？！」，猫惊吓炸毛；4.3 秒红色「猫主子认证」印章 4 帧砸下；5.4–5.6 秒全部依次 pop-out（1→1.12→0，0.17 秒），左上角节目角标常驻
+const HZ_ST = {
+  title: { fill: [[0, '#FFFBD6'], [0.42, '#FFE23A'], [1, '#FF9A1F']], white: 4.5, outer: 3.5, outerC: '#FF3D7F', ext: 4, extC: '#A3124F', gloss: 0.55 },
+  q: { fill: [[0, '#E8FBFF'], [1, '#2CCBF2']], white: 4, outer: 3, outerC: '#1E2A78', ext: 3, extC: '#0E1440', gloss: 0.4 },
+  shock: { fill: [[0, '#FFF6C0'], [0.45, '#FF7FC8'], [1, '#FF2E4D']], white: 4.5, outer: 3.5, outerC: '#1A1030', ext: 4, extC: '#1A1030', gloss: 0.45 },
+  sub: { fill: [[0, '#FFFFFF'], [1, '#FFF6C0']], white: 0, outer: 3, outerC: '#1E2A78', ext: 2, extC: '#0E1440' },
+  aside: { fill: [[0, '#FFFFFF'], [1, '#F2EDFF']], white: 0, outer: 2.5, outerC: '#1A1030', ext: 0 },
+};
+const HZ_spring = (t, z = 0.517, w = 22) => { if (t <= 0) return 0; const wd = w * Math.sqrt(1 - z * z); return 1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + z * w / wd * Math.sin(wd * t)); };
+// 单字变换：弹簧缩放、下落、旋入、驻留摇摆；t1 起 pop-out（0.17 秒：先胀到 1.12 再缩没）
+function HZ_xf(u, t0, o = {}) {
+  const t = u - t0; if (t < 0) return null;
+  let s = HZ_spring(t, o.z, o.w), y = -(o.drop || 0) * (1 - HZ_spring(t, 0.55, 20)), r = (o.r0 || 0) * (1 - HZ_spring(t, 0.45, 18));
+  const hold = clamp((t - 0.22) / 0.35), wf = o.wf || 1.15, ph = o.ph || 0;
+  r += hold * (o.wig ?? 1.8) * Math.sin(TAU * wf * u + ph); y += hold * (o.bob ?? 2) * Math.sin(TAU * wf * u + ph + 1.9);
+  if (o.t1 != null && u >= o.t1) { const q = (u - o.t1) / 0.17; if (q >= 1) return null; s *= q < 0.3 ? 1 + 0.12 * (1 - (1 - q / 0.3) ** 2) : 1.12 * (1 - ((q - 0.3) / 0.7) ** 3); }
+  return s > 0.01 ? { s, y, r } : null;
+}
+function HZ_draw(k, ch, x, y, size, st, f) {
+  if (!f) return;
+  k.save(); k.translate(x, y + f.y); k.rotate(f.r * Math.PI / 180); k.scale(f.s, f.s);
+  k.font = `900 ${size}px ${SANS}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round';
+  const lw = 2 * (st.white + st.outer);
+  if (st.ext) { k.strokeStyle = st.extC; k.lineWidth = lw; k.strokeText(ch, 0, st.ext); k.fillStyle = st.extC; k.fillText(ch, 0, st.ext); }
+  k.strokeStyle = st.outerC; k.lineWidth = lw; k.strokeText(ch, 0, 0);
+  if (st.white) { k.strokeStyle = '#FFFFFF'; k.lineWidth = 2 * st.white; k.strokeText(ch, 0, 0); }
+  const g = k.createLinearGradient(0, -size / 2, 0, size / 2); st.fill.forEach(([o, c]) => g.addColorStop(o, c)); k.fillStyle = g; k.fillText(ch, 0, 0);
+  if (st.gloss) { const gg = k.createLinearGradient(0, -size / 2, 0, 0); gg.addColorStop(0, `rgba(255,255,255,${st.gloss})`); gg.addColorStop(1, 'rgba(255,255,255,0)'); k.fillStyle = gg; k.fillText(ch, 0, 0); }
+  k.restore();
+}
+// 四角闪光
+function HZ_spark(k, x, y, r, col, a) {
+  if (r <= 0) return; const q = r * 0.16;
+  k.save(); k.globalAlpha = a; k.translate(x, y); k.fillStyle = col; k.strokeStyle = '#1A1030'; k.lineWidth = 1.5; k.lineJoin = 'round';
+  k.beginPath(); k.moveTo(0, -r); k.quadraticCurveTo(q, -q, r, 0); k.quadraticCurveTo(q, q, 0, r); k.quadraticCurveTo(-q, q, -r, 0); k.quadraticCurveTo(-q, -q, 0, -r); k.closePath(); k.stroke(); k.fill(); k.restore();
+}
+function HZ_burst(k, rx, ry, seed) {
+  k.beginPath();
+  for (let i = 0; i < 30; i++) { const a = i / 30 * TAU + (hash(seed + i) - 0.5) * 0.09, out = i % 2 === 0, m = out ? 1 + (hash(seed + i + 40) - 0.45) * 0.26 : 0.7 + (hash(seed + i + 80) - 0.5) * 0.07; const x = Math.cos(a) * rx * m, y = Math.sin(a) * ry * m; i ? k.lineTo(x, y) : k.moveTo(x, y); }
+  k.closePath();
+}
+// 矢量橘猫：mode 0 常态、1 豆豆眼、2 惊吓（12fps 炸毛）
+function HZ_cat(k, u, mode) {
+  const O = '#1A1030'; k.lineJoin = 'round'; k.lineCap = 'round'; k.strokeStyle = O; k.lineWidth = 3;
+  k.fillStyle = '#FF9A1F'; k.beginPath(); k.ellipse(135, 202, 70, 50, 0, 0, TAU); k.fill(); k.stroke();
+  k.fillStyle = '#FFF6C0'; k.beginPath(); k.ellipse(135, 198, 32, 30, 0, 0, TAU); k.fill();
+  const tw = 0.25 * Math.pow(Math.max(0, Math.sin(TAU * u / CYC * 4)), 8);
+  for (const sx of [-1, 1]) {
+    k.save(); k.translate(135 + sx * 34, 80); k.rotate(sx * (0.18 + (sx > 0 ? tw : 0)));
+    k.beginPath(); k.moveTo(-16, 10); k.lineTo(sx * 2, -26); k.lineTo(16, 10); k.closePath(); k.fillStyle = '#FF9A1F'; k.fill(); k.stroke();
+    k.beginPath(); k.moveTo(-8, 6); k.lineTo(sx, -14); k.lineTo(8, 6); k.closePath(); k.fillStyle = '#FF7FC8'; k.fill(); k.restore();
+  }
+  if (mode === 2) {
+    const b = Math.floor(u * 12) % 3; k.fillStyle = '#FF9A1F'; k.beginPath();
+    for (let i = 0; i < 36; i++) { const a = i / 36 * TAU, r = i % 2 ? 50 : 62 + hash(i + b * 50) * 6; const x = 135 + Math.cos(a) * r * 1.12, y = 114 + Math.sin(a) * r * 0.92; i ? k.lineTo(x, y) : k.moveTo(x, y); }
+    k.closePath(); k.fill(); k.stroke();
+  }
+  k.fillStyle = '#FF9A1F'; k.beginPath(); k.ellipse(135, 114, 56, 46, 0, 0, TAU); k.fill(); k.stroke();
+  k.strokeStyle = 'rgba(170,70,0,0.45)'; k.lineWidth = 4; k.beginPath(); for (const dx of [-12, 0, 12]) { k.moveTo(135 + dx, 72); k.lineTo(135 + dx * 1.2, 86); } k.stroke();
+  k.fillStyle = '#FFF6C0'; k.beginPath(); k.ellipse(124, 130, 16, 12, 0, 0, TAU); k.ellipse(146, 130, 16, 12, 0, 0, TAU); k.fill();
+  k.fillStyle = 'rgba(255,61,127,0.35)'; k.beginPath(); k.ellipse(100, 126, 9, 5, 0, 0, TAU); k.ellipse(170, 126, 9, 5, 0, 0, TAU); k.fill();
+  k.fillStyle = '#FF3D7F'; k.beginPath(); k.moveTo(129, 120); k.lineTo(141, 120); k.lineTo(135, 127); k.closePath(); k.fill();
+  k.strokeStyle = O; k.lineWidth = 2.2; k.beginPath(); k.moveTo(135, 127); k.quadraticCurveTo(130, 134, 125, 130); k.moveTo(135, 127); k.quadraticCurveTo(140, 134, 145, 130); k.stroke();
+  k.lineWidth = 1.5; k.beginPath(); for (const sx of [-1, 1]) for (const dy of [-3, 3]) { k.moveTo(135 + sx * 22, 129 + dy); k.lineTo(135 + sx * 50, 125 + dy * 2.2); } k.stroke();
+  if (mode === 0) {
+    for (const ex of [115, 155]) { k.fillStyle = O; k.beginPath(); k.ellipse(ex, 106, 9, 11, 0, 0, TAU); k.fill(); k.fillStyle = '#FFFFFF'; k.beginPath(); k.arc(ex - 3, 102, 3.5, 0, TAU); k.arc(ex + 3, 110, 1.5, 0, TAU); k.fill(); }
+  } else if (mode === 1) {
+    k.fillStyle = O; k.beginPath(); k.arc(115, 107, 3, 0, TAU); k.arc(155, 107, 3, 0, TAU); k.fill();
+  } else {
+    for (const ex of [115, 155]) { k.fillStyle = '#FFFFFF'; k.lineWidth = 2.5; k.beginPath(); k.arc(ex, 105, 12, 0, TAU); k.fill(); k.stroke(); k.fillStyle = O; k.beginPath(); k.arc(ex, 105, 2.5, 0, TAU); k.fill(); }
+  }
+}
+CELLS[14] = (k, w, h, u) => {
+  const F = fadeIn(u);
+  k.globalAlpha = 1; k.fillStyle = '#FFC9E0'; k.fillRect(0, 0, CW, CH);
+  // 镜头：手持晃动（整数圈）+ 2.9 秒猛推 1.14 倍并 3 帧震动
+  const pz = u >= 2.9 ? clamp((u - 2.9) / 0.067) * Math.exp(-(u - 2.9) * 1.0) * F : 0;
+  const fh = Math.floor((u - 2.9) * 30), hit = fh >= 0 && fh < 3 ? [[5, -3], [-5, 3], [3, -2]][fh] : [0, 0];
+  const shx = 1.2 * Math.sin(TAU * u / CYC * 5) + 0.8 * Math.sin(TAU * u / CYC * 11 + 1) + hit[0], shy = 1.0 * Math.sin(TAU * u / CYC * 7 + 2) + 0.6 * Math.sin(TAU * u / CYC * 13) + hit[1];
+  const z = 1.03 + 0.14 * pz;
+  k.save(); k.translate(135 + shx, 112 + shy); k.scale(z, z); k.translate(-135, -112);
+  k.drawImage(layer('HZ_bg', g => {
+    const wg = g.createLinearGradient(0, 0, 0, CH); wg.addColorStop(0, '#FFE3F0'); wg.addColorStop(1, '#FFC2DC'); g.fillStyle = wg; g.fillRect(-20, -20, CW + 40, CH + 40);
+    g.fillStyle = 'rgba(255,127,200,0.22)'; for (let y = 6; y < CH; y += 18) for (let x = 250 + ((y / 18) % 2 ? 9 : 0); x < CW + 20; x += 18) { g.beginPath(); g.arc(x, y, 3, 0, TAU); g.fill(); }
+    g.fillStyle = '#FFF6C0'; rr(g, 14, 12, 160, 124, 10); g.fill(); g.strokeStyle = '#FFFFFF'; g.lineWidth = 6; rr(g, 14, 12, 160, 124, 10); g.stroke();
+    g.beginPath(); g.moveTo(94, 12); g.lineTo(94, 136); g.moveTo(14, 74); g.lineTo(174, 74); g.stroke();
+    g.fillStyle = 'rgba(255,255,255,0.28)'; g.beginPath(); g.moveTo(40, 12); g.lineTo(90, 12); g.lineTo(230, 208); g.lineTo(150, 208); g.closePath(); g.fill();
+    g.fillStyle = '#2CCBF2'; rr(g, -20, 170, 330, 70, 26); g.fill(); g.fillStyle = '#1E2A78'; g.fillRect(-20, 200, 330, 30);
+  }), -20, -20, CW + 40, CH + 40);
+  const mode = u >= 2.4 && u < 2.9 ? 1 : u >= 2.9 && u < 5.6 ? 2 : 0;
+  HZ_cat(k, u, mode);
+  k.restore();
+  // 集中线 + 爆炸框（2.9–5.4，12fps 抖动 3 张）
+  const boil = Math.floor(u * 12) % 3;
+  if (u >= 2.9 && u < SHOW) {
+    k.globalAlpha = 0.9 - 0.3 * seg(u, 2.9, 3.5); k.fillStyle = '#FFFFFF'; k.beginPath();
+    for (let i = 0; i < 44; i++) { const a = i / 44 * TAU + (hash(i + boil * 60) - 0.5) * 0.12, wd = 0.012 + 0.02 * hash(i + boil * 60 + 7), r0 = 82 + hash(i + boil * 60 + 9) * 40; k.moveTo(400 + Math.cos(a) * r0, 104 + Math.sin(a) * r0 * 0.7); k.lineTo(400 + Math.cos(a - wd) * 460, 104 + Math.sin(a - wd) * 460); k.lineTo(400 + Math.cos(a + wd) * 460, 104 + Math.sin(a + wd) * 460); k.closePath(); }
+    k.fill(); k.globalAlpha = 1;
+  }
+  const bs = u >= 2.9 ? HZ_xf(u, 2.9 + 2 / 30, { z: 0.42, w: 24, wig: 1.2, bob: 0, wf: 1.1, t1: 5.45 }) : null;
+  if (bs) {
+    k.save(); k.translate(400 + 7, 104 + 8); k.rotate(-0.05); k.scale(bs.s, bs.s); HZ_burst(k, 124, 74, 200 + boil); k.fillStyle = '#FF3D7F'; k.fill(); k.lineWidth = 4; k.strokeStyle = '#1A1030'; k.lineJoin = 'round'; k.stroke(); k.restore();
+    k.save(); k.translate(400, 104); k.rotate((-5 + 1.2 * Math.sin(u * 7)) * Math.PI / 180); k.scale(bs.s, bs.s); HZ_burst(k, 118, 70, 100 + boil); k.fillStyle = '#FFF15A'; k.fill(); k.lineWidth = 4; k.strokeStyle = '#1A1030'; k.stroke(); k.restore();
+  }
+  // 今日份快乐（0.3 起逐字错 2 帧；2.3 弹出）
+  const TX = [312, 351, 390, 429, 468], TDY = [3, -6, 4, -5, 2], TR = [-7, 4, -3, 6, -5];
+  [...'今日份快乐'].forEach((ch, i) => HZ_draw(k, ch, TX[i], 52 + TDY[i], 38, HZ_ST.title, HZ_xf(u, 0.3 + i / 15, { drop: 30, r0: i % 2 ? 16 : -16, ph: i * 1.3, t1: 2.3 + i * 0.02 })));
+  [[298, 26, 0.8, '#FFFFFF'], [488, 30, 0.9, '#FFE14D'], [470, 84, 1.0, '#FFFFFF'], [296, 44, 3.1, '#FFFFFF'], [516, 58, 3.2, '#FFE14D'], [506, 158, 3.3, '#2CCBF2']].forEach(([x, y, t0, col], i) => {
+    const t1 = t0 < 2 ? 2.3 : SHOW + 0.05, f = HZ_xf(u, t0, { z: 0.45, w: 20, t1 }); if (!f) return;
+    HZ_spark(k, x, y, (7 + 2 * Math.sin(TAU * u * 1.5 + i)) * f.s, col, 1);
+  });
+  HZ_draw(k, '（小声）', 322, 96, 13, HZ_ST.aside, HZ_xf(u, 1.2, { z: 0.6, w: 26, wig: 1, bob: 1, t1: 2.3 }));
+  [...'正在光合作用…'].forEach((ch, i) => HZ_draw(k, ch, 364 + i * 13, 96, 12, HZ_ST.aside, HZ_xf(u, 1.3 + i * 0.033, { z: 0.6, w: 26, wig: 1, bob: 1, ph: i, t1: 2.32 })));
+  // ？？？ + 汗滴（2.4 起，4.1 弹出）
+  [[198, 44, -10], [222, 38, 6], [246, 46, 14]].forEach(([x, y, r], i) => { const f = HZ_xf(u, 2.4 + i / 15, { drop: 20, r0: r * 2, ph: i * 2, t1: 4.1 + i * 0.03 }); if (f) { f.y -= 6 * Math.abs(Math.sin(Math.PI * (u - 2.4) / 0.5)); f.r += r; } HZ_draw(k, '？', x, y, 30, HZ_ST.q, f); });
+  const sw = HZ_xf(u, 2.5, { z: 0.5, w: 22, wig: 0, bob: 0, t1: 4.1 });
+  if (sw) {
+    const p = out3(seg(u, 2.5, 3.4)); k.save(); k.translate(188 + 4 * p, 74 + 22 * p); k.scale(sw.s, sw.s); k.rotate(-0.25);
+    k.beginPath(); k.moveTo(0, -12); k.quadraticCurveTo(9, 0, 7, 5); k.arc(0, 5, 7, 0, Math.PI); k.quadraticCurveTo(-9, 0, 0, -12); k.closePath();
+    k.lineJoin = 'round'; k.lineWidth = 5; k.strokeStyle = '#1E2A78'; k.stroke(); k.lineWidth = 2.5; k.strokeStyle = '#FFFFFF'; k.stroke(); k.fillStyle = '#2CCBF2'; k.fill();
+    k.fillStyle = '#FFFFFF'; k.beginPath(); k.ellipse(-2.5, 3, 1.6, 3, 0.3, 0, TAU); k.fill(); k.restore();
+  }
+  // 震惊！！ + 副字
+  [[344, '震'], [384, '惊'], [418, '！'], [444, '！']].forEach(([x, ch], i) => HZ_draw(k, ch, x, 98, 40, HZ_ST.shock, HZ_xf(u, 2.97 + i / 15, { drop: 24, r0: i % 2 ? 14 : -14, wig: 2.4, bob: 3, wf: 1.6, ph: i, t1: SHOW + 0.02 * i })));
+  [...'这发量合理吗？！'].forEach((ch, i) => HZ_draw(k, ch, 348 + i * 15, 142, 14, HZ_ST.sub, HZ_xf(u, 3.5 + i * 0.033, { z: 0.6, w: 28, wig: 1.2, bob: 2, ph: i * 0.7, t1: SHOW + 0.1 })));
+  // 猫主子认证印章：4.3 秒 4 帧砸下（2.2→1）
+  if (u >= 4.3) {
+    const fs = Math.floor((u - 4.3) * 30), s0 = fs < 4 ? [2.2, 1.6, 0.92, 1.04][fs] : 1, po = u >= SHOW + 0.1 ? HZ_xf(u, 0, { wig: 0, bob: 0, t1: SHOW + 0.1 }) : { s: 1 };
+    if (po) {
+      k.save(); k.translate(58, 168); k.rotate(-0.24); k.scale(s0 * po.s, s0 * po.s); k.globalAlpha = 0.92;
+      k.fillStyle = 'rgba(255,255,255,0.75)'; k.beginPath(); k.arc(0, 0, 31, 0, TAU); k.fill();
+      k.strokeStyle = '#E8283C'; k.lineWidth = 3.5; k.beginPath(); k.arc(0, 0, 29, 0, TAU); k.stroke(); k.lineWidth = 1.5; k.beginPath(); k.arc(0, 0, 23.5, 0, TAU); k.stroke();
+      txt(k, '猫主子', 0, -3, `900 13px ${SANS}`, '#E8283C', 'center', 'middle'); txt(k, '认证', 0, 12, `900 10px ${SANS}`, '#E8283C', 'center', 'middle');
+      k.restore(); k.globalAlpha = 1;
+    }
+  }
+  // 节目角标（常驻，轻微上下浮动：每周期 4 圈）
+  const by = 9 + 1.5 * Math.sin(TAU * u / CYC * 4);
+  STK_plate(k, 12, by, 118, 24, 12, '#1E2A78', 3);
+  txt(k, '喵呜日记', 22, by + 17, `900 14px ${SANS}`, '#FFE14D');
+  txt(k, 'EP.07', 84, by + 16.5, `900 11px ${DISP}`, '#FF7FC8');
+};

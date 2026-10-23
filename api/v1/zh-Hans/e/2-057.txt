@@ -1,0 +1,102 @@
+// Motion Prompt #2-057 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// 弥散渐变 / 玻璃拟态 / Aurora gradient & glass
+// 分类包: mgstyles (MG 风格) · element 09 · 子分类: 空间与质感
+// 动画表现: 极光色斑在深色背景上缓缓流动，两张玻璃卡轻轻浮动，对话逐行浮现，一枚玻璃透镜来回扫过放大画面。
+// 运动规格:
+//   - 深靛黑 #040312 底上 5 团极光色斑（#7050FF、#2F46F2、#34CFF0、#B653F0、#3320A8），先画在 68 × 26 的低分辨率画布再放大成柔和弥散，每周期漂移 1 圈。
+//   - 2 张磨砂玻璃卡：白色 8% 填充、1 px 白色 30% 描边、顶部高光，背景放大 1.08 倍并偏移模拟折射；每周期上下浮动 2 次（幅度 2.5 px）。
+//   - 对话逐行淡入并上移 8 px 浮现（0.6、1.3、2.0、2.7 秒）；3.4–4.0 秒「专注」开关滑开，18 根波形条持续起伏。
+//   - 半径 30 px 的液态玻璃透镜每周期往返横扫 1 次，把下方画面放大 1.35 倍，边缘带青/品红色散；5.4–6.0 秒文字淡出。
+// 适用场景: 适合 AI 产品、手机系统或智能硬件发布片的片头与功能演示。
+// 标签: aurora, gradient, glassmorphism, frosted-glass, liquid-glass, blur, tech-launch
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-057
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 09
+// 09 弥散渐变 / 玻璃拟态（Aurora「思考，自有光」）：深靛黑 #040312 底上 5 团极光色斑（紫 #7050FF、蓝 #2F46F2、青 #34CFF0、品红 #B653F0、靛 #3320A8）在 68×26 低分辨率离屏里绘制后放大成大面积柔和弥散并整周期 1 圈漂移；两张磨砂玻璃卡（再降一级分辨率的背景 + 1.08 倍放大偏移模拟折射 + 白 8% 填充 + 1px 白 30% 描边 + 顶部高光）每周期 2 次缓慢浮动；卡内对话逐行以透明度 + 8px 上移浮现（0.6/1.3/2.0/2.7 秒），3.4 秒「专注」开关滑开，波形条持续呼吸；一枚液态玻璃透镜整周期往返横扫，放大其下画面并带青/品红色散边与镜面弧光；5.4–6.0 秒文字淡出
+const AUR_LOW = (() => { const c = document.createElement('canvas'); c.width = 68; c.height = 26; return c; })();
+const AUR_LOW2 = (() => { const c = document.createElement('canvas'); c.width = 34; c.height = 13; return c; })();
+const AUR_SC = (() => { const c = document.createElement('canvas'); c.width = CW; c.height = CH; return c; })();
+const AUR_BLOBS = [
+  { c: '112,80,255', x: 120, y: 60, r: 190, ax: 60, ay: 22, p: 0 },
+  { c: '47,70,242', x: 330, y: 150, r: 200, ax: 70, ay: 20, p: 1.7 },
+  { c: '52,207,240', x: 470, y: 50, r: 150, ax: 50, ay: 25, p: 3.1 },
+  { c: '182,83,240', x: 250, y: 200, r: 160, ax: 80, ay: 18, p: 4.4 },
+  { c: '51,32,168', x: 40, y: 190, r: 170, ax: 40, ay: 20, p: 5.6 },
+];
+function AUR_card(g, x, y, wd, ht, r) {
+  g.save(); rr(g, x, y, wd, ht, r); g.clip();
+  g.imageSmoothingEnabled = true;
+  g.drawImage(AUR_LOW2, -CW * 0.04 + 6, -CH * 0.04 + 4, CW * 1.08, CH * 1.08);   // 更糊、略放大偏移的背景 = 背板模糊 + 折射
+  g.fillStyle = 'rgba(255,255,255,0.08)'; g.fillRect(x, y, wd, ht);
+  const hl = g.createLinearGradient(0, y, 0, y + ht); hl.addColorStop(0, 'rgba(255,255,255,0.18)'); hl.addColorStop(0.4, 'rgba(255,255,255,0)'); g.fillStyle = hl; g.fillRect(x, y, wd, ht);
+  g.restore();
+  g.strokeStyle = 'rgba(255,255,255,0.3)'; g.lineWidth = 1; rr(g, x + 0.5, y + 0.5, wd - 1, ht - 1, r); g.stroke();
+  g.strokeStyle = 'rgba(255,255,255,0.55)'; g.beginPath(); g.moveTo(x + r, y + 1); g.lineTo(x + wd - r, y + 1); g.stroke();
+}
+CELLS[8] = (k, w, h, u) => {
+  const ph = TAU * u / CYC, f = fadeIn(u);
+  // 极光：低分辨率离屏 → 放大
+  const gl = AUR_LOW.getContext('2d');
+  gl.save(); gl.globalCompositeOperation = 'source-over'; gl.fillStyle = '#040312'; gl.fillRect(0, 0, 68, 26);
+  gl.scale(68 / CW, 26 / CH); gl.globalCompositeOperation = 'screen';
+  for (const B of AUR_BLOBS) {
+    const bx = B.x + B.ax * Math.sin(ph + B.p), by = B.y + B.ay * Math.sin(ph + B.p * 1.7 + 1);
+    const gr = gl.createRadialGradient(bx, by, 0, bx, by, B.r); gr.addColorStop(0, `rgba(${B.c},0.85)`); gr.addColorStop(0.55, `rgba(${B.c},0.35)`); gr.addColorStop(1, `rgba(${B.c},0)`);
+    gl.fillStyle = gr; gl.fillRect(bx - B.r, by - B.r, B.r * 2, B.r * 2);
+  }
+  gl.restore();
+  const g2 = AUR_LOW2.getContext('2d'); g2.imageSmoothingEnabled = true; g2.drawImage(AUR_LOW, 0, 0, 34, 13);
+  // 整幅画到离屏 SC（透镜要放大它）
+  const g = AUR_SC.getContext('2d');
+  g.save(); g.imageSmoothingEnabled = true; g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+  g.drawImage(AUR_LOW, 0, 0, CW, CH);
+  // 标题
+  g.globalAlpha = 0.92 * f;
+  g.letterSpacing = '1px'; txt(g, 'Aurora', 24, 92, `300 32px ${DISP}`, '#FFFFFF');
+  g.letterSpacing = '2px'; txt(g, '— think in light', 26, 112, `300 10px ${DISP}`, '#C9D2FF');
+  g.letterSpacing = '4px'; txt(g, '思考，自有光', 26, 138, `300 13px ${SANS}`, '#E9E4FF');
+  g.letterSpacing = '0px'; g.globalAlpha = 1;
+  // 卡 A：对话
+  const fa = 2.5 * Math.sin(ph * 2), fb = 2.5 * Math.sin(ph * 2 + 1.6);
+  AUR_card(g, 214, 22 + fa, 200, 86, 16);
+  const line = (s, x, y, t, fnt, col, al = 'left') => { const a = seg(u, t, t + 0.6) * f; if (a <= 0) return; g.globalAlpha = a; txt(g, s, x, y + 8 * (1 - Math.sin(a * Math.PI / 2)), fnt, col, al); g.globalAlpha = 1; };
+  const ua = seg(u, 0.6, 1.2) * f;
+  if (ua > 0) { g.globalAlpha = ua; g.fillStyle = 'rgba(154,124,255,0.45)'; rr(g, 270, 32 + fa + 8 * (1 - ua), 134, 18, 9); g.fill(); g.globalAlpha = 1; }
+  line('帮我安排一个慢悠悠的周日。', 398, 45 + fa, 0.6, `500 9.5px ${SANS}`, '#FFFFFF', 'right');
+  line('十点，慢慢吃早餐。', 228, 68 + fa, 1.3, `400 9px ${SANS}`, 'rgba(233,228,255,0.9)');
+  line('四点，去湖边走一走，', 228, 82 + fa, 2.0, `400 9px ${SANS}`, 'rgba(233,228,255,0.9)');
+  line('正好赶上光变成金色。', 228, 96 + fa, 2.7, `400 9px ${SANS}`, 'rgba(233,228,255,0.9)');
+  // 卡 B：专注开关 + 波形
+  AUR_card(g, 300, 122 + fb, 216, 66, 18);
+  txt(g, '专注', 316, 146 + fb, `500 11px ${SANS}`, '#FFFFFF');
+  txt(g, '仅家人可以联系你', 316, 162 + fb, `400 8px ${SANS}`, 'rgba(201,210,255,0.85)');
+  const on = inOut3(seg(u, 3.4, 4.0)) * f;
+  rr(g, 462, 134 + fb, 40, 20, 10);
+  const tg = g.createLinearGradient(462, 0, 502, 0); tg.addColorStop(0, '#5B7CFF'); tg.addColorStop(1, '#43D3F2');
+  g.fillStyle = 'rgba(255,255,255,0.15)'; g.fill(); g.globalAlpha = on; g.fillStyle = tg; g.fill(); g.globalAlpha = 1;
+  g.fillStyle = '#FFFFFF'; g.beginPath(); g.arc(472 + 20 * on, 144 + fb, 8, 0, TAU); g.fill();
+  for (let i = 0; i < 18; i++) {
+    const hh = 3 + 7 * (0.5 + 0.5 * Math.sin(ph * 4 + i * 0.7)) * (0.5 + 0.5 * Math.sin(ph * 2 - i * 0.31));
+    g.fillStyle = `rgba(${i < 9 ? '154,124,255' : '67,211,242'},0.85)`; rr(g, 316 + i * 7, 176 + fb - hh / 2, 3, hh, 1.5); g.fill();
+  }
+  txt(g, '聆听中', 446, 180 + fb, `400 8px ${SANS}`, 'rgba(233,228,255,0.8)');
+  g.restore();
+  k.drawImage(AUR_SC, 0, 0);
+  // 液态玻璃透镜
+  const lx = 270 + 220 * Math.sin(ph), ly = 108 + 10 * Math.sin(ph * 2), R = 30, mag = 1.35;
+  k.save(); k.beginPath(); k.arc(lx, ly, R, 0, TAU); k.clip();
+  k.translate(lx, ly); k.scale(mag, mag); k.translate(-lx, -ly); k.drawImage(AUR_SC, 0, 0);
+  k.restore();
+  k.save(); k.lineWidth = 1.5;
+  k.strokeStyle = 'rgba(67,211,242,0.7)'; k.beginPath(); k.arc(lx - 0.8, ly, R - 0.8, 0, TAU); k.stroke();
+  k.strokeStyle = 'rgba(224,123,216,0.7)'; k.beginPath(); k.arc(lx + 0.8, ly, R - 0.8, 0, TAU); k.stroke();
+  k.strokeStyle = 'rgba(255,255,255,0.9)'; k.lineWidth = 2; k.beginPath(); k.arc(lx, ly, R - 4, Math.PI * 1.1, Math.PI * 1.45); k.stroke();
+  k.restore();
+  grain(k, 0.04, 'overlay');
+};

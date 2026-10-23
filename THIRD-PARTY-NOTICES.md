@@ -87,6 +87,34 @@ Every `e/<id>.txt` and `kit/scenes.js` of this pack carries the copyright line b
 > IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 > THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## mg-styles-15 (pack `mgstyles`)
+
+The 15 elements in `packs/mgstyles/` (MG styles, `#2-049`–`#2-063`) are Canvas 2D implementations written for
+this repository after the palettes, composition, rhythm and signature techniques of the corresponding styles in
+[mg-styles-15](https://github.com/Vincentwei1021/mg-styles-15) by Vincentwei1021: each one takes one representative
+passage of the original 10-second film and recomposes it as a looping 539 × 208 card. None of that project's
+photos, sticker images, textures, HDRIs, glyph outlines, fonts or audio are used. Every `e/<id>.txt` and
+`kit/mgstyles.js` of this pack carries the copyright line below.
+
+> MIT License
+>
+> Copyright (c) 2026 Vincentwei1021
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+> associated documentation files (the "Software"), to deal in the Software without restriction, including
+> without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+> following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all copies or substantial
+> portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+> LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+> EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+> IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+> THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat

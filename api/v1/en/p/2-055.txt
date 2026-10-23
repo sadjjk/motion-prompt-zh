@@ -1,0 +1,15 @@
+Please use "3D render look" (3D レンダー調), one of the names in "MG styles".
+Motion Prompt #2-055
+
+What it is: 3D render look: soft rubbery and glossy objects that bounce with real weight
+What the sample shows: Soft 3D letters drop in turn, squash and spring back, a chrome ball lands as the full stop, and a row of glossy pills ripples with each landing.
+Spec:
+- Studio backdrop #efe2ea; 112 px letters s/o/f/t fall over 0.32 s to land at 0.5 / 1.0 / 1.5 / 2.0 s, stretching 12% vertically on the way down.
+- Landings squash on a damped spring: 28% at first, decay factor 5.5, settling in about 0.6 s; the contact shadow scales with height.
+- At 2.8 s a 14 px-radius chrome ball drops as the full stop. Materials: vertical gradient + white top-left highlight + dark bottom-right thickness + specular spot.
+- Below, 2 rows × 21 pills wave 2.5 px 2 times per cycle, and each landing sends a 7 px ripple outward for 1.6 s; the tagline fades in at 3.2 s.
+When to use it: Use it for cosmetics, lifestyle or app promos, and soft, playful brand logo reveals and social ads.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-055.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

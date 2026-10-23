@@ -1,0 +1,15 @@
+Please use "80s Synthwave / VHS" (80s シンセウェイブ・VHS), one of the names in "MG styles".
+Motion Prompt #2-059
+
+What it is: 1980s retro-futurism: a neon sunset, a perspective grid and videotape picture quality
+What the sample shows: A striped sun sits behind wireframe mountains, a magenta grid rolls toward camera and palms whip past; a chrome title slams down with a white flash and a neon script flickers on.
+Spec:
+- Deep purple night sky #060212→#751266 with stars. The striped sun is a 5-stop gradient #fff59e→#ff3d8f; the cut-out bands on its lower half widen downward (up to 58%) and slide down 8 bands per cycle.
+- A magenta #FF29D1 one-point perspective grid with a 2-layer glow rolls 12 squares toward camera per cycle. Palm silhouettes pass on alternating sides every 3.2 s.
+- A VHS PLAY ▶ overlay shows at 0.1–1.15 s. At 1.2 s the chrome title NEON DRIVE slams down from 2.1× (in 0.13 s) with a white flash; a highlight sweeps across at 1.8–2.4 s.
+- At 2.6–3.4 s a neon Midnight lights up left to right, then strobes for 8 frames from 3.4 s. RGB split of ±2.5 px, scanlines every 2 px, and 2-frame tape glitches at 0.37, 2.47 and 4.6 s.
+When to use it: Retro music videos, electronic music and game promos, and openings for nostalgia-themed brand films.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-059.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.
