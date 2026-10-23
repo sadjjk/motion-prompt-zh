@@ -1413,19 +1413,19 @@
         "ja": [
           "アイソメトリックのスマホを4層（背面・電池・基板・画面）で作る。各層は平らな角丸の板を、0.85倍・左右30°に傾けた座標で描き、側面の厚み6px",
           "ばらける: 0.45秒から各層0.75秒、上の層ほど0.08秒ずつ遅らせる。backOut(s=1.3)。下から i 段目（0〜3）の高さ = 7i + 30i × 進み具合（いちばん下の背面は動かない）",
-          "ばらけている間: 各層を ±3px で4.7秒に2回上下させ、角を結ぶ点線の補助線と、右へ引き出し線つきの名前ラベル（背面・電池・基板・画面）を出す",
+          "ばらけている間: 各層を ±3px で4.7秒に2回上下させ、角を結ぶ点線の補助線と、右へ引き出し線つきの名前ラベル（背壳・电池・主板・屏幕、中国語表記）を出す",
           "組み上がる: 3.25秒から各層0.7秒、いちばん上の層から0.07秒ずつ遅らせる。easeInOut（3乗）"
         ],
         "en": [
           "An isometric phone built from four layers (back cover, battery, circuit board, screen). Each layer is a flat rounded plate drawn on axes scaled by 0.85 and tilted 30° either way, with 6 px thick sides.",
           "Separate: from 0.45 s, 0.75 s per layer, each layer 0.08 s after the one below, backOut (s = 1.3). Height of layer i (0–3 from the bottom) = 7i + 30i × progress, so the back cover stays put.",
-          "While apart, each layer bobs ±3 px twice per 4.7 s, dotted guide lines join the corners, and name labels with leader lines appear on the right (in Japanese in the demo).",
+          "While apart, each layer bobs ±3 px twice per 4.7 s, dotted guide lines join the corners, and name labels with leader lines appear on the right (back cover, battery, board, screen, in Chinese).",
           "Reassemble: from 3.25 s, 0.7 s per layer, starting with the top layer, 0.07 s apart, cubic ease-in-out."
         ],
         "zh-Hans": [
           "等距手机由后盖、电池、电路板、屏幕四层组成；各层为圆角平板，绘制轴缩放 0.85，分别倾斜 30°，侧面厚 6 px。",
           "分离从 0.45 秒开始，每层 0.75 秒，比下层晚 0.08 秒，用 backOut（s = 1.3）；第 i 层高度 = 7i + 30i × progress，i 自底为 0–3，后盖保持原位。",
-          "分开时各层每 4.7 秒上下 ±3 px 两次，虚线连接各角，右侧出现带引线的名称标签，原演示为日文。",
+          "分开时各层每 4.7 秒上下 ±3 px 两次，虚线连接各角，右侧出现带引线的名称标签：背壳、电池、主板、屏幕。",
           "3.25 秒开始重组，每层 0.7 秒，从顶层开始，间隔 0.07 秒，三次缓入缓出。"
         ]
       },

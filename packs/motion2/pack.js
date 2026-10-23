@@ -10,7 +10,7 @@ MotionPrompt.pack('motion2', function () {
     blue: '#3B7BFF', coral: '#FF6B5C', yel: '#FFC83D', mint: '#2EDBA8', white: '#FFFFFF', cream: '#FFF1D6'
   };
   const PAL = [C.blue, C.coral, C.yel, C.mint];
-  const JP = '"Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif';
+  const JP = '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Hiragino Sans", sans-serif';   // 画面文字为简体中文：中文字体优先，日文字体作后备
   const DISP = '"Avenir Next", "Helvetica Neue", system-ui, sans-serif';
   const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
   const lerp = (a, b, x) => a + (b - a) * x;
@@ -241,7 +241,7 @@ MotionPrompt.pack('motion2', function () {
     // 再生バー
     const ty = 184, tx0 = 196, tx1 = w - 34;
     k.fillStyle = fwd ? C.blue : C.coral; rr(k, 22, ty - 20, 158, 40, 20); k.fill();
-    txt(k, fwd ? '▶ 再生' : '◀ 逆再生', 101, ty + 1, `800 25px ${JP}`, '#fff', 'center', 'middle');
+    txt(k, fwd ? '▶ 播放' : '◀ 倒放', 101, ty + 1, `800 25px ${JP}`, '#fff', 'center', 'middle');
     k.fillStyle = C.navy3; rr(k, tx0, ty - 5, tx1 - tx0, 10, 5); k.fill();
     k.fillStyle = fwd ? C.blue : C.coral; rr(k, tx0, ty - 5, Math.max(10, (tx1 - tx0) * g), 10, 5); k.fill();
     k.fillStyle = C.yel; k.beginPath(); k.arc(tx0 + (tx1 - tx0) * g, ty, 12, 0, 7); k.fill();
@@ -268,7 +268,7 @@ MotionPrompt.pack('motion2', function () {
     k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(p.x, floor + 6, 30, 5, 0, 0, 7); k.fill();
     draw(p, 1);
     // 1秒あたりのコマ数
-    txt(k, '8コマ/秒', w - 16, 50, `800 24px ${JP}`, C.dim, 'right', 'middle');
+    txt(k, '8 帧/秒', w - 16, 50, `800 24px ${JP}`, C.dim, 'right', 'middle');
   };
 
 
@@ -332,8 +332,8 @@ MotionPrompt.pack('motion2', function () {
     const v = 0.5 - 0.5 * Math.cos(2 * Math.PI * 2 * u / CYC), wt = Math.round(100 + 800 * v);
     txt(k, 'MOTION', w / 2, 80, `${wt} 112px system-ui`, '#fff', 'center', 'middle', '2px');
     const x0 = 112, x1 = w - 112, y = 180, kx = x0 + (x1 - x0) * v;
-    txt(k, '細', x0 - 34, y + 1, `300 30px ${JP}`, C.dim, 'center', 'middle');
-    txt(k, '太', x1 + 34, y + 1, `900 30px ${JP}`, C.dim, 'center', 'middle');
+    txt(k, '细', x0 - 34, y + 1, `300 30px ${JP}`, C.dim, 'center', 'middle');
+    txt(k, '粗', x1 + 34, y + 1, `900 30px ${JP}`, C.dim, 'center', 'middle');
     k.fillStyle = C.navy3; rr(k, x0, y - 5, x1 - x0, 10, 5); k.fill();
     k.fillStyle = C.blue; rr(k, x0, y - 5, Math.max(10, kx - x0), 10, 5); k.fill();
     k.fillStyle = C.yel; k.beginPath(); k.arc(kx, y, 14, 0, 7); k.fill();
@@ -668,10 +668,10 @@ MotionPrompt.pack('motion2', function () {
   // @element 23
   // 23 分解図（スマホの部品が層ごとにばらけて中の構造を見せ、また組み上がる）
   const XL = [
-    { name: '背面', o: [-27, -50, 54, 100, 10], side: '#B8483D', draw: g => { g.fillStyle = C.coral; rr(g, -27, -50, 54, 100, 10); g.fill(); g.fillStyle = C.navy; g.beginPath(); g.arc(-12, -34, 7, 0, 7); g.fill(); g.beginPath(); g.arc(2, -34, 5, 0, 7); g.fill(); } },
-    { name: '電池', o: [-21, -40, 42, 68, 6], side: '#17946F', draw: g => { g.fillStyle = C.mint; rr(g, -21, -40, 42, 68, 6); g.fill(); g.fillStyle = '#fff'; g.fillRect(-3, -18, 6, 20); g.fillRect(-10, -11, 20, 6); } },
-    { name: '基板', o: [-25, -48, 50, 96, 6], side: '#2550B5', draw: g => { g.fillStyle = C.blue; rr(g, -25, -48, 50, 96, 6); g.fill(); g.fillStyle = C.yel; g.fillRect(-16, -38, 16, 14); g.fillRect(4, -30, 12, 10); g.fillRect(-14, 8, 26, 14); g.fillStyle = C.mint; g.fillRect(-18, -14, 34, 3); g.fillRect(-4, 26, 3, 16); } },
-    { name: '画面', o: [-27, -50, 54, 100, 10], side: '#AEB8D4', draw: g => { g.fillStyle = '#fff'; rr(g, -27, -50, 54, 100, 10); g.fill(); g.fillStyle = C.navy2; rr(g, -22, -44, 44, 88, 6); g.fill(); for (let i = 0; i < 6; i++) { g.fillStyle = PAL[i % 4]; rr(g, -16 + (i % 2) * 18, -36 + Math.floor(i / 2) * 18, 13, 13, 3); g.fill(); } } },
+    { name: '背壳', o: [-27, -50, 54, 100, 10], side: '#B8483D', draw: g => { g.fillStyle = C.coral; rr(g, -27, -50, 54, 100, 10); g.fill(); g.fillStyle = C.navy; g.beginPath(); g.arc(-12, -34, 7, 0, 7); g.fill(); g.beginPath(); g.arc(2, -34, 5, 0, 7); g.fill(); } },
+    { name: '电池', o: [-21, -40, 42, 68, 6], side: '#17946F', draw: g => { g.fillStyle = C.mint; rr(g, -21, -40, 42, 68, 6); g.fill(); g.fillStyle = '#fff'; g.fillRect(-3, -18, 6, 20); g.fillRect(-10, -11, 20, 6); } },
+    { name: '主板', o: [-25, -48, 50, 96, 6], side: '#2550B5', draw: g => { g.fillStyle = C.blue; rr(g, -25, -48, 50, 96, 6); g.fill(); g.fillStyle = C.yel; g.fillRect(-16, -38, 16, 14); g.fillRect(4, -30, 12, 10); g.fillRect(-14, 8, 26, 14); g.fillStyle = C.mint; g.fillRect(-18, -14, 34, 3); g.fillRect(-4, 26, 3, 16); } },
+    { name: '屏幕', o: [-27, -50, 54, 100, 10], side: '#AEB8D4', draw: g => { g.fillStyle = '#fff'; rr(g, -27, -50, 54, 100, 10); g.fill(); g.fillStyle = C.navy2; rr(g, -22, -44, 44, 88, 6); g.fill(); for (let i = 0; i < 6; i++) { g.fillStyle = PAL[i % 4]; rr(g, -16 + (i % 2) * 18, -36 + Math.floor(i / 2) * 18, 13, 13, 3); g.fill(); } } },
   ];
   const ISO = (px, py) => [(px - py) * 0.866, (px + py) * 0.5];
   CELLS[22] = (k, w, h, u) => {

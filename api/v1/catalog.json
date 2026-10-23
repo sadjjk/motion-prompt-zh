@@ -1,5 +1,5 @@
 {
- "version": "1.f00e93e7e2",
+ "version": "1.cfdb052ab6",
  "site": "https://sadjjk.github.io/motion-prompt-zh/",
  "repo": "https://github.com/sadjjk/motion-prompt-zh",
  "count": 251,
@@ -968,21 +968,21 @@
     "ja": [
      "4.5秒周期・カード542×191。入力欄 260×38（角丸8）に「選択してください」と右端の矢印。カーソルが1.0秒にクリック",
      "開く量: 1.0〜1.25秒に easeOutCubic で 0→1。一覧（白 260×112・影 blur 18）が不透明度とともに上から6px下りて出る。矢印は180°回り、枠は青2px",
-     "一覧は26px間隔の4行（東京・大阪・名古屋・福岡）。カーソルが下りるにつれ1.55秒から大阪、1.95秒から名古屋の行を薄い青で強調",
+     "一覧は26px間隔の4行（北京・上海・広州・深圳、中国語表記）。カーソルが下りるにつれ1.55秒から上海、1.95秒から広州の行を薄い青で強調",
      "2.3秒に名古屋をクリック: 一覧は2.3〜2.45秒に (1 − easeInOutCubic) で閉じ、プレースホルダーは2.2〜2.3秒に消え、「名古屋」が2.32〜2.42秒に出る",
      "戻し: 名古屋は3.9〜4.08秒に消え、プレースホルダーが4.1〜4.3秒に戻る（文字を重ねない）"
     ],
     "en": [
      "4.5 s cycle on a 542×191 card. A 260×38 field (radius 8) shows a placeholder and a chevron; the cursor clicks it at 1.0 s.",
      "Open amount: 0→1 over 1.0–1.25 s with easeOutCubic. The list (white 260×112, shadow blur 18) fades in while dropping 6 px. The chevron turns 180° and the field border becomes 2 px blue.",
-     "Four options 26 px apart (Tokyo, Osaka, Nagoya, Fukuoka in Japanese). As the cursor moves down, Osaka is highlighted light blue from 1.55 s and Nagoya from 1.95 s.",
+     "Four options 26 px apart (Beijing, Shanghai, Guangzhou, Shenzhen, in Chinese). As the cursor moves down, Shanghai is highlighted light blue from 1.55 s and Guangzhou from 1.95 s.",
      "Click on Nagoya at 2.3 s: the list closes over 2.3–2.45 s (1 − easeInOutCubic); the placeholder fades out over 2.2–2.3 s and \"Nagoya\" fades in over 2.32–2.42 s.",
      "Reset: Nagoya fades out over 3.9–4.08 s, then the placeholder returns over 4.1–4.3 s, so the two texts never overlap."
     ],
     "zh-Hans": [
      "542×191 卡片，周期 4.5 秒。字段为 260×38、圆角 8，显示占位文字和箭头；光标于 1.0 秒点击。",
      "展开量在 1.0–1.25 秒由 0→1，使用 easeOutCubic；白色 260×112 列表、阴影模糊 18，淡入并下移 6 px；箭头转 180°，字段边框变为 2 px 蓝线。",
-     "四个选项间隔 26 px，原演示为日文东京、大阪、名古屋、福冈；光标下移时，大阪从 1.55 秒、名古屋从 1.95 秒起显示浅蓝高亮。",
+     "四个选项间隔 26 px，依次为北京、上海、广州、深圳；光标下移时，上海从 1.55 秒、广州从 1.95 秒起显示浅蓝高亮。",
      "2.3 秒点击名古屋：列表在 2.3–2.45 秒用 (1 − easeInOutCubic) 关闭；占位文字于 2.2–2.3 秒淡出，“名古屋”于 2.32–2.42 秒淡入。",
      "复位：名古屋于 3.9–4.08 秒淡出，占位文字于 4.1–4.3 秒恢复，二者不重叠。"
     ]
@@ -1453,19 +1453,19 @@
    },
    "spec": {
     "ja": [
-     "4.5秒周期・カード542×191。灰色の台 300×40・角丸10 を (121, 12) に置き、3等分（各100）に「日・週・月」",
+     "4.5秒周期・カード542×191。灰色の台 300×40・角丸10 を (121, 12) に置き、3等分（各100）に「日・周・月」（中国語表記）",
      "選択部分: 青の 92×32・角丸8（影 blur 6）。選ばれた文字は白",
      "カーソルが1.0秒に「週」、2.1秒に「月」、3.3秒に「日」をクリック。選択部分は各0.25秒、easeInOutCubic で滑る",
      "下の棒グラフ: 幅34・58px間隔の7本（6本目だけ青）。高さを3組のデータ（例 30〜85 / 40〜100 / 60〜115）の間で、選択部分と同時に easeInOutCubic で変える"
     ],
     "en": [
-     "4.5 s cycle on a 542×191 card. A grey 300×40 base (radius 10) at (121, 12), split into three 100-wide segments: Day, Week, Month (in Japanese).",
+     "4.5 s cycle on a 542×191 card. A grey 300×40 base (radius 10) at (121, 12), split into three 100-wide segments: Day, Week, Month (in Chinese).",
      "Selection: blue 92×32, radius 8, shadow blur 6; the selected label is white.",
      "The cursor clicks Week at 1.0 s, Month at 2.1 s and Day at 3.3 s; the selection slides over 0.25 s each with easeInOutCubic.",
      "Chart below: seven bars 34 wide, 58 px apart (the sixth is blue). Heights move between three data sets (about 30–85, 40–100, 60–115) together with the selection, eased the same way."
     ],
     "zh-Hans": [
-     "542×191 卡片，周期 4.5 秒。灰色底座为 300×40、圆角 10，位于 (121, 12)，分为三个宽 100 的区段，原演示为日文日、周、月。",
+     "542×191 卡片，周期 4.5 秒。灰色底座为 300×40、圆角 10，位于 (121, 12)，分为三个宽 100 的区段：日、周、月。",
      "选中背景为蓝色 92×32、圆角 8、阴影模糊 6，选中文字为白色。",
      "光标在 1.0 秒点击周、2.1 秒点击月、3.3 秒点击日；每次以 easeInOutCubic 在 0.25 秒内移动选中背景。",
      "下方七根柱条宽 34、间距 58 px，第六根为蓝色；高度随选择在约 30–85, 40–100, 60–115 三组数据间变化，使用相同缓动。"
@@ -1519,19 +1519,19 @@
    },
    "spec": {
     "ja": [
-     "4.5秒周期・カード542×191。チップ4つ「すべて・新着・人気・無料」: 高さ34・角丸17、幅は文字幅+32、10px間隔で左から並べる",
+     "4.5秒周期・カード542×191。チップ4つ「全部・最新・热门・免费」（中国語表記）: 高さ34・角丸17、幅は文字幅+32、10px間隔で左から並べる",
      "カーソルのクリック: 新着オン0.95秒、無料オン1.75秒、新着オフ3.0秒、無料オフ3.6秒",
      "1回の切り替えは0.15秒・easeOutCubic。チップが18px広がって左にチェックが出て、地は薄い青・枠と文字は青",
      "下の一覧: カード4枚（242×54、2列2段）。条件に合わないカードは不透明度を 1 → 0.12 に下げる"
     ],
     "en": [
-     "4.5 s cycle on a 542×191 card. Four chips (\"All, New, Popular, Free\" in Japanese): 34 tall, radius 17, width = text + 32, 10 px apart from the left.",
+     "4.5 s cycle on a 542×191 card. Four chips (\"All, New, Popular, Free\" in Chinese): 34 tall, radius 17, width = text + 32, 10 px apart from the left.",
      "Clicks: New on at 0.95 s, Free on at 1.75 s, New off at 3.0 s, Free off at 3.6 s.",
      "Each change takes 0.15 s with easeOutCubic: the chip widens 18 px to make room for a check mark; fill light blue, border and text blue.",
      "List below: four cards (242×54, two columns, two rows); cards that do not match drop from opacity 1 to 0.12."
     ],
     "zh-Hans": [
-     "542×191 卡片，周期 4.5 秒。四个标签原文为日文的全部、最新、热门、免费；高 34、圆角半径 17，宽度 = 文字宽 + 32，从左向右间隔 10 px。",
+     "542×191 卡片，周期 4.5 秒。四个标签为全部、最新、热门、免费；高 34、圆角半径 17，宽度 = 文字宽 + 32，从左向右间隔 10 px。",
      "点击：0.95 秒选中最新，1.75 秒选中免费，3.0 秒取消最新，3.6 秒取消免费。",
      "每次以 easeOutCubic 在 0.15 秒内变化；标签加宽 18 px 以放置对勾，填充浅蓝色，文字与边框为蓝色。",
      "下方四张卡片为 242×54，两行两列；不匹配卡片的透明度从 1 降至 0.12。"
@@ -1853,21 +1853,21 @@
    },
    "spec": {
     "ja": [
-     "4.5秒周期・カード542×191。上に「ホーム › 講座 › Web制作」（17px）。リンクは青、今のページは黒の太字。下に区切り線（y 46）",
+     "4.5秒周期・カード542×191。上に「首页 › 课程 › 网页制作」（中国語表記、17px）。リンクは青、今のページは黒の太字。下に区切り線（y 46）",
      "カーソルが「講座」に乗ると0.9〜1.2秒に下線、1.0秒にクリック",
      "上へ戻る量 up: 1.0〜1.25秒に easeInOutCubic で 0→1。「› Web制作」が消え、「講座」が今のページ（黒の太字）になる",
      "中身: 詳細ページ（見出しと本文）から、3枚のカード（158×118・山の絵付き）の一覧へ不透明度で切り替える",
      "戻る: カーソルが1枚目のカードに乗り（2.45〜2.8秒に青い枠）、2.7秒にクリック。2.7〜2.95秒に元の詳細ページへ"
     ],
     "en": [
-     "4.5 s cycle on a 542×191 card. At the top \"Home › Courses › Web design\" (in Japanese, 17 px): links blue, current page black and bold; a divider at y 46.",
+     "4.5 s cycle on a 542×191 card. At the top \"Home › Courses › Web design\" (in Chinese, 17 px): links blue, current page black and bold; a divider at y 46.",
      "The cursor hovers \"Courses\" (underline 0.9–1.2 s) and clicks at 1.0 s.",
      "Up amount: 0→1 over 1.0–1.25 s with easeInOutCubic. \"› Web design\" fades out and \"Courses\" becomes the current page (black, bold).",
      "Content cross-fades from a detail page (title and text) to a list of three cards (158×118, with a landscape picture).",
      "Back: the cursor moves onto the first card (blue outline 2.45–2.8 s) and clicks at 2.7 s; the detail page returns over 2.7–2.95 s."
     ],
     "zh-Hans": [
-     "542×191 卡片，周期 4.5 秒。顶部为日文“首页 › 课程 › 网页设计”，字号 17 px；链接蓝色，当前页黑色加粗，y 46 处有分隔线。",
+     "542×191 卡片，周期 4.5 秒。顶部为“首页 › 课程 › 网页制作”，字号 17 px；链接蓝色，当前页黑色加粗，y 46 处有分隔线。",
      "光标悬停“课程”时在 0.9–1.2 秒显示下划线，1.0 秒点击。",
      "返回上级的进度在 1.0–1.25 秒以 easeInOutCubic 从 0→1；“› 网页设计”淡出，“课程”变为黑色粗体当前页。",
      "内容由标题加正文的详情交叉淡化为三张 158×118、带风景图的列表卡片。",
@@ -1922,21 +1922,21 @@
    },
    "spec": {
     "ja": [
-     "4.5秒周期・カード542×191。高さ42のヘッダーに「製品・料金・サポート」（各16px、下向き矢印付き）",
+     "4.5秒周期・カード542×191。高さ42のヘッダーに「产品・价格・支持」（中国語表記、各16px、下向き矢印付き）",
      "カーソルは押さずに乗せるだけ: 1.0秒に「製品」へ着く。開く量 a: 1.05〜1.3秒に easeOutCubic で 0→1。「製品」は青・下線付きになる",
      "パネル: 白・全幅・高さ146。ヘッダーの下から12px上から下りつつ不透明度 a で出る。影 blur 18・下へ8",
      "中身: 130px間隔の3列（青い見出しと3つのリンク）と、右に絵 104×112。カーソルが下りて1.75〜2.9秒に2列目の2つ目のリンクを薄い青で強調",
      "閉じる: カーソルが2.9秒からパネルの外へ出て、3.15〜3.4秒に (1 − easeInOutCubic) で消える"
     ],
     "en": [
-     "4.5 s cycle on a 542×191 card. A 42-tall header with \"Products, Pricing, Support\" (in Japanese, 16 px, each with a down chevron).",
+     "4.5 s cycle on a 542×191 card. A 42-tall header with \"Products, Pricing, Support\" (in Chinese, 16 px, each with a down chevron).",
      "The cursor only hovers: it reaches \"Products\" at 1.0 s. Open amount a: 0→1 over 1.05–1.3 s with easeOutCubic; \"Products\" turns blue with an underline.",
      "Panel: white, full width, 146 tall, dropping 12 px into place under the header while fading in with a. Shadow blur 18, offset y 8.",
      "Inside: three columns 130 px apart (a blue heading and three links each) and a 104×112 picture at the right. The cursor moves down and the second link of the second column is highlighted light blue from 1.75 to 2.9 s.",
      "Close: the cursor leaves the panel from 2.9 s; it fades over 3.15–3.4 s (1 − easeInOutCubic)."
     ],
     "zh-Hans": [
-     "542×191 卡片，周期 4.5 秒。页头高 42，使用 16 px 日文产品、价格、支持，各有下箭头。",
+     "542×191 卡片，周期 4.5 秒。页头高 42，使用 16 px 的产品、价格、支持，各有下箭头。",
      "光标仅悬停，1.0 秒到达“产品”；展开量 a 在 1.05–1.3 秒以 easeOutCubic 从 0→1，“产品”变蓝并显示下划线。",
      "白色面板全宽、高 146，在页头下方向下移动 12 px 到位，同时以 a 淡入；阴影模糊 18、y 偏移 8。",
      "内部三列间隔 130 px，每列含蓝色标题和三个链接，右侧为 104×112 图片；光标向下移动，第二列第二链接在 1.75 至 2.9 秒高亮浅蓝。",
@@ -1991,21 +1991,21 @@
    },
    "spec": {
     "ja": [
-     "4.5秒周期・カード542×191。4つの段階「入力・確認・支払い・完了」を x 80・207・334・461、y 35 に置く。丸は半径17、間を灰色の4pxの線でつなぐ",
+     "4.5秒周期・カード542×191。4つの段階「填写・确认・支付・完成」（中国語表記）を x 80・207・334・461、y 35 に置く。丸は半径17、間を灰色の4pxの線でつなぐ",
      "カーソルが右下の「次へ」（110×38）を0.9・1.7・2.5秒にクリック",
      "押すたびに、今の段階は青い丸に白いチェック、次の段階は青い丸に白い番号になる。未到達は白い丸に灰色の縁と番号",
      "青い線は1回につき127px、0.3秒の easeInOutCubic で伸びる。3回目で4つすべてがチェックになる",
      "戻し: 3.75〜4.05秒に段階の表示ごと消し、4.05〜4.3秒に1段目の状態で出し直す"
     ],
     "en": [
-     "4.5 s cycle on a 542×191 card. Four steps (\"Details, Review, Payment, Done\" in Japanese) at x 80, 207, 334, 461, y 35; circles of radius 17 joined by a 4 px grey line.",
+     "4.5 s cycle on a 542×191 card. Four steps (\"Details, Review, Payment, Done\" in Chinese) at x 80, 207, 334, 461, y 35; circles of radius 17 joined by a 4 px grey line.",
      "The cursor clicks \"Next\" (110×38, bottom right) at 0.9, 1.7 and 2.5 s.",
      "On each click the current step becomes a blue circle with a white check and the next becomes the current one (blue circle, white number). Steps not reached are white with a grey rim.",
      "The blue line grows 127 px per click over 0.3 s with easeInOutCubic; after the third click all four are checked.",
      "Reset: the indicator fades out over 3.75–4.05 s and fades back in at step 1 over 4.05–4.3 s."
     ],
     "zh-Hans": [
-     "542×191 卡片，周期 4.5 秒。四步原文为日文资料、确认、支付、完成，x 为 80, 207, 334, 461，y 35；圆半径 17，以 4 px 灰线连接。",
+     "542×191 卡片，周期 4.5 秒。四步为填写、确认、支付、完成，x 为 80, 207, 334, 461，y 35；圆半径 17，以 4 px 灰线连接。",
      "光标在 0.9, 1.7, 2.5 秒点击右下角 110×38 的“下一步”。",
      "每次点击后当前步变为蓝圆白色对勾，下一步变为蓝圆白色数字；未到达步骤为白底灰边。",
      "每次点击蓝线用 easeInOutCubic 在 0.3 秒内增长 127 px；第三次点击后四步都显示对勾。",
@@ -2273,19 +2273,19 @@
     "ja": [
      "4.5秒周期・カード542×191。2行の一覧（494×48・角丸8、右端にごみ箱）",
      "カーソルがごみ箱を0.95秒と1.65秒にクリック。各行は0.3秒の easeInOutCubic で左へ60px動きながら消え、2行目は1行目の位置へ58px上がる",
-     "1.95〜2.3秒に直線で、空の状態を8px下から上げつつ出す: 青い線画の受け箱、「まだ何もありません」（16px）、青い「追加する」ボタン（112×34）",
+     "1.95〜2.3秒に直線で、空の状態を8px下から上げつつ出す: 青い線画の受け箱、「暂无内容」（中国語表記、16px）、青い「添加」ボタン（112×34）",
      "カーソルが3.3秒に「追加する」をクリック。空の状態は3.25〜3.45秒に消え、2行が3.35〜3.7秒に easeOutCubic で左から戻る"
     ],
     "en": [
      "4.5 s cycle on a 542×191 card. A two-row list (494×48, radius 8, a trash icon at the right).",
      "The cursor clicks the trash icons at 0.95 s and 1.65 s. Each row slides 60 px left while fading out over 0.3 s (easeInOutCubic); the second row moves up 58 px into the first slot.",
-     "Over 1.95–2.3 s (linear) the empty state fades in while rising 8 px: a blue line drawing of an inbox tray, \"Nothing here yet\" (16 px, in Japanese) and a blue \"Add\" button (112×34).",
+     "Over 1.95–2.3 s (linear) the empty state fades in while rising 8 px: a blue line drawing of an inbox tray, \"Nothing here yet\" (16 px, in Chinese) and a blue \"Add\" button (112×34).",
      "The cursor clicks \"Add\" at 3.3 s; the empty state fades over 3.25–3.45 s and the two rows come back from the left over 3.35–3.7 s with easeOutCubic."
     ],
     "zh-Hans": [
      "542×191 卡片，周期 4.5 秒。两行列表，尺寸 494×48、圆角 8，右侧有垃圾桶图标。",
      "光标在 0.95 秒和 1.65 秒点击删除；每行在 0.3 秒内以 easeInOutCubic 左移 60 px 并淡出；第二行上移 58 px 填补首行位置。",
-     "1.95–2.3 秒空状态线性淡入并上移 8 px，包括蓝色线描收件盘、16 px 日文“暂无内容”和 112×34 蓝色“添加”按钮。",
+     "1.95–2.3 秒空状态线性淡入并上移 8 px，包括蓝色线描收件盘、16 px “暂无内容”和 112×34 蓝色“添加”按钮。",
      "光标于 3.3 秒点击添加；空状态在 3.25–3.45 秒淡出，两行列表在 3.35–3.7 秒以 easeOutCubic 从左侧返回。"
     ]
    },
@@ -11626,19 +11626,19 @@
     "ja": [
      "アイソメトリックのスマホを4層（背面・電池・基板・画面）で作る。各層は平らな角丸の板を、0.85倍・左右30°に傾けた座標で描き、側面の厚み6px",
      "ばらける: 0.45秒から各層0.75秒、上の層ほど0.08秒ずつ遅らせる。backOut(s=1.3)。下から i 段目（0〜3）の高さ = 7i + 30i × 進み具合（いちばん下の背面は動かない）",
-     "ばらけている間: 各層を ±3px で4.7秒に2回上下させ、角を結ぶ点線の補助線と、右へ引き出し線つきの名前ラベル（背面・電池・基板・画面）を出す",
+     "ばらけている間: 各層を ±3px で4.7秒に2回上下させ、角を結ぶ点線の補助線と、右へ引き出し線つきの名前ラベル（背壳・电池・主板・屏幕、中国語表記）を出す",
      "組み上がる: 3.25秒から各層0.7秒、いちばん上の層から0.07秒ずつ遅らせる。easeInOut（3乗）"
     ],
     "en": [
      "An isometric phone built from four layers (back cover, battery, circuit board, screen). Each layer is a flat rounded plate drawn on axes scaled by 0.85 and tilted 30° either way, with 6 px thick sides.",
      "Separate: from 0.45 s, 0.75 s per layer, each layer 0.08 s after the one below, backOut (s = 1.3). Height of layer i (0–3 from the bottom) = 7i + 30i × progress, so the back cover stays put.",
-     "While apart, each layer bobs ±3 px twice per 4.7 s, dotted guide lines join the corners, and name labels with leader lines appear on the right (in Japanese in the demo).",
+     "While apart, each layer bobs ±3 px twice per 4.7 s, dotted guide lines join the corners, and name labels with leader lines appear on the right (back cover, battery, board, screen, in Chinese).",
      "Reassemble: from 3.25 s, 0.7 s per layer, starting with the top layer, 0.07 s apart, cubic ease-in-out."
     ],
     "zh-Hans": [
      "等距手机由后盖、电池、电路板、屏幕四层组成；各层为圆角平板，绘制轴缩放 0.85，分别倾斜 30°，侧面厚 6 px。",
      "分离从 0.45 秒开始，每层 0.75 秒，比下层晚 0.08 秒，用 backOut（s = 1.3）；第 i 层高度 = 7i + 30i × progress，i 自底为 0–3，后盖保持原位。",
-     "分开时各层每 4.7 秒上下 ±3 px 两次，虚线连接各角，右侧出现带引线的名称标签，原演示为日文。",
+     "分开时各层每 4.7 秒上下 ±3 px 两次，虚线连接各角，右侧出现带引线的名称标签：背壳、电池、主板、屏幕。",
      "3.25 秒开始重组，每层 0.7 秒，从顶层开始，间隔 0.07 秒，三次缓入缓出。"
     ]
    },
@@ -14522,7 +14522,7 @@
      "後の絵（2.4〜4.2秒）: 焦点距離を2.6倍（858px）にして寄り、ロール -0.12rad（約-7°）で傾ける。人物は両腕を上げ、放射状の青い線18本",
      "後の絵の揺れ: ロール ±0.03rad（毎秒約6回）と ヨー ±0.006rad（毎秒約8回）で振る。音量メーターは0.85±0.15でほぼ満杯",
      "戻り: 最後の0.5秒で静かな絵へクロスフェード（2次のイーズインアウト）",
-     "右上に「♪ 静か」→「♪ 大音量」"
+     "右上に「♪ 安静」→「♪ 大音量」（中国語表記）"
     ],
     "en": [
      "Join: a straight cut at 2.4 s (0 frames); no transition effect, the contrast does the work",
@@ -14530,7 +14530,7 @@
      "Incoming shot (2.4–4.2 s): focal length 2.6× (858 px) for a tight framing, rolled -0.12 rad (about -7°); the person has both arms raised, with 18 radial blue lines",
      "Shake in the incoming shot: roll ±0.03 rad (about 6 cycles per second) and yaw ±0.006 rad (about 8 per second); volume meter at 0.85±0.15, nearly full",
      "Return: cross-fade back to the quiet shot over the last 0.5 s (quadratic ease-in-out)",
-     "Top-right readout shows \"♪ 静か\" (quiet) → \"♪ 大音量\" (loud)"
+     "Top-right readout shows \"♪ 安静\" (quiet) → \"♪ 大音量\" (loud)"
     ],
     "zh-Hans": [
      "2.4 秒直接硬切，0 帧过渡，无转场特效，依靠内容反差。",
@@ -14538,7 +14538,7 @@
      "后镜头为 2.4–4.2 秒，焦距变为 2.6×，即 858 px，形成紧景别；横滚 -0.12 rad，约 -7°；人物双臂举起，周围18 条蓝色放射线。",
      "后镜头横滚 ±0.03 rad，约每秒6 次，偏航 ±0.006 rad，约每秒8 次；音量表为 0.85±0.15，接近满格。",
      "最后 0.5 秒以二次缓入缓出交叉淡化回安静镜头。",
-     "右上角显示“♪ 静か”（安静）→“♪ 大音量”（大音量）。"
+     "右上角显示“♪ 安静”→“♪ 大音量”。"
     ]
    },
    "use": {
@@ -14594,7 +14594,7 @@
      "再生ヘッド: 0.4秒から4.0秒まで3.6秒かけて等速で左から右へ。音の切り替えは35%（約1.66秒）、映像の切り替えは55%（約2.38秒）",
      "ずれている区間（35〜55%）は、映像がAのまま音だけBになる。区間を薄い青の帯と青い点線2本で強調",
      "画面構成: 上134pxが映像（固定カメラ・被写体は動かない）、下74pxが「映像」「音」の2段のタイムライン（A＝灰色、B＝薄い青、音の段に波形）",
-     "表示: 映像の左下に「映像A / 映像B」、右下に今流れている音（「♪ Aの音」灰色 →「♪ Bの音」青）",
+     "表示: 映像の左下に「画面A / 画面B」、右下に今流れている音（「♪ A 的声音」灰色 →「♪ B 的声音」青、中国語表記）",
      "戻り: 最後の0.5秒で開始状態へクロスフェード（1周4.7秒）"
     ],
     "en": [
@@ -14602,7 +14602,7 @@
      "Playhead: moves left to right at constant speed over 3.6 s (0.4 s to 4.0 s); audio switches at 35% (about 1.66 s), picture at 55% (about 2.38 s)",
      "In the offset section (35–55%) the picture is still A while the audio is already B; the section is marked with a pale blue band and two blue dashed lines",
      "Layout: the top 134 px is the picture (fixed camera, subjects do not move); the bottom 74 px holds two timeline rows, video and audio (A grey, B pale blue, waveform on the audio row)",
-     "Labels: \"映像A / 映像B\" (video A / B) at bottom left of the picture; the audio now playing at bottom right (\"♪ Aの音\" grey → \"♪ Bの音\" blue)",
+     "Labels: \"画面A / 画面B\" (video A / B) at bottom left of the picture; the audio now playing at bottom right (\"♪ A 的声音\" grey → \"♪ B 的声音\" blue)",
      "Return: cross-fade back to the start over the last 0.5 s (one pass = 4.7 s)"
     ],
     "zh-Hans": [
@@ -14610,7 +14610,7 @@
      "播放头在 3.6 秒内从左向右匀速移动，时间为 0.4 秒至 4.0 秒；音频在 35% 处切换，约 1.66 秒，画面在 55% 处切换，约 2.38 秒。",
      "错位区间 35–55% 内，画面仍为 A，声音已为 B；用浅蓝色带与两条蓝色虚线标出。",
      "布局：上方 134 px 为画面，机位和主体固定；下方 74 px 为视频、音频两行时间线，A 灰色、B 浅蓝色，音频行带波形。",
-     "画面左下角标签为“映像A / 映像B”，即视频 A / B；右下角标出当前声音，从灰色“♪ Aの音”变为蓝色“♪ Bの音”。",
+     "画面左下角标签为“画面A / 画面B”；右下角标出当前声音，从灰色“♪ A 的声音”变为蓝色“♪ B 的声音”。",
      "最后 0.5 秒交叉淡化回起点，每轮 4.7 秒。"
     ]
    },
@@ -14667,7 +14667,7 @@
      "再生ヘッド: 0.4秒から4.0秒まで3.6秒かけて等速で左から右へ。映像の切り替えは55%（約2.38秒）、音の切り替えは75%（約3.10秒）",
      "ずれている区間（55〜75%）は、映像がBになっても音はAのまま。区間を薄い青の帯と青い点線2本で強調",
      "画面構成: 上134pxが映像（固定カメラ・被写体は動かない）、下74pxが「映像」「音」の2段のタイムライン（A＝灰色、B＝薄い青、音の段に波形）",
-     "表示: 映像の左下に「映像A / 映像B」、右下に今流れている音（「♪ Aの音」灰色 →「♪ Bの音」青）",
+     "表示: 映像の左下に「画面A / 画面B」、右下に今流れている音（「♪ A 的声音」灰色 →「♪ B 的声音」青、中国語表記）",
      "戻り: 最後の0.5秒で開始状態へクロスフェード（1周4.7秒）"
     ],
     "en": [
@@ -14675,7 +14675,7 @@
      "Playhead: moves left to right at constant speed over 3.6 s (0.4 s to 4.0 s); picture switches at 55% (about 2.38 s), audio at 75% (about 3.10 s)",
      "In the offset section (55–75%) the picture is already B while the audio is still A; the section is marked with a pale blue band and two blue dashed lines",
      "Layout: the top 134 px is the picture (fixed camera, subjects do not move); the bottom 74 px holds two timeline rows, video and audio (A grey, B pale blue, waveform on the audio row)",
-     "Labels: \"映像A / 映像B\" (video A / B) at bottom left of the picture; the audio now playing at bottom right (\"♪ Aの音\" grey → \"♪ Bの音\" blue)",
+     "Labels: \"画面A / 画面B\" (video A / B) at bottom left of the picture; the audio now playing at bottom right (\"♪ A 的声音\" grey → \"♪ B 的声音\" blue)",
      "Return: cross-fade back to the start over the last 0.5 s (one pass = 4.7 s)"
     ],
     "zh-Hans": [
@@ -14683,7 +14683,7 @@
      "播放头在 3.6 秒内从左向右匀速移动，时间为 0.4 秒至 4.0 秒；画面在 55% 处切换，约 2.38 秒，音频在 75% 处切换，约 3.10 秒。",
      "错位区间 55–75% 内，画面已为 B，声音仍为 A；用浅蓝色带与两条蓝色虚线标出。",
      "布局：上方 134 px 为画面，机位和主体固定；下方 74 px 为视频、音频两行时间线，A 灰色、B 浅蓝色，音频行带波形。",
-     "画面左下角标签为“映像A / 映像B”，即视频 A / B；右下角标出当前声音，从灰色“♪ Aの音”变为蓝色“♪ Bの音”。",
+     "画面左下角标签为“画面A / 画面B”；右下角标出当前声音，从灰色“♪ A 的声音”变为蓝色“♪ B 的声音”。",
      "最后 0.5 秒交叉淡化回起点，每轮 4.7 秒。"
     ]
    },

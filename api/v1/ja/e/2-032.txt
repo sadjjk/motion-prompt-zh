@@ -39,5 +39,5 @@ CELLS[7] = (k, w, h, u) => {
   k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(p.x, floor + 6, 30, 5, 0, 0, 7); k.fill();
   draw(p, 1);
   // 1秒あたりのコマ数
-  txt(k, '8コマ/秒', w - 16, 50, `800 24px ${JP}`, C.dim, 'right', 'middle');
+  txt(k, '8 帧/秒', w - 16, 50, `800 24px ${JP}`, C.dim, 'right', 'middle');
 };

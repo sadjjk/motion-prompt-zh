@@ -23,7 +23,8 @@
 // 06 タイプライター（入力欄に1文字ずつ打たれ、打ち終わると送信ボタンが点く）
 CELLS[5] = (k, w, h, u) => {
   stage(k);
-  const S = 'ねこの動画つくって', N = [...S].length, t0 = 0.3, dt = 0.24, done = t0 + N * dt;
+  // 中文 8 字：逐字间隔按原 9 字 × 0.24 秒 = 2.16 秒的总打字时长换算为 0.27 秒，送信等后续时间点不变
+  const S = '帮我做个猫咪视频', N = [...S].length, t0 = 0.3, dt = 2.16 / N, done = t0 + N * dt;
   const BX = 34, BY = 58, BW = w - 68, BH = 92;
   const sendT = done + 0.55, clr = P(u, sendT + 0.12, sendT + 0.4);
   k.fillStyle = '#fff'; rr(k, BX, BY, BW, BH, 30); k.fill();

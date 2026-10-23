@@ -27,7 +27,7 @@ const C = {
   blue: '#3B7BFF', coral: '#FF6B5C', yel: '#FFC83D', mint: '#2EDBA8', white: '#FFFFFF', cream: '#FFF1D6'
 };
 const PAL = [C.blue, C.coral, C.yel, C.mint];
-const JP = '"Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif';
+const JP = '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Hiragino Sans", sans-serif';   // 画面文字为简体中文：中文字体优先，日文字体作后备
 const DISP = '"Avenir Next", "Helvetica Neue", system-ui, sans-serif';
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const lerp = (a, b, x) => a + (b - a) * x;

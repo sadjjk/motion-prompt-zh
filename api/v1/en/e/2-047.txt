@@ -6,7 +6,7 @@
 // Motion spec:
 //   - An isometric phone built from four layers (back cover, battery, circuit board, screen). Each layer is a flat rounded plate drawn on axes scaled by 0.85 and tilted 30° either way, with 6 px thick sides.
 //   - Separate: from 0.45 s, 0.75 s per layer, each layer 0.08 s after the one below, backOut (s = 1.3). Height of layer i (0–3 from the bottom) = 7i + 30i × progress, so the back cover stays put.
-//   - While apart, each layer bobs ±3 px twice per 4.7 s, dotted guide lines join the corners, and name labels with leader lines appear on the right (in Japanese in the demo).
+//   - While apart, each layer bobs ±3 px twice per 4.7 s, dotted guide lines join the corners, and name labels with leader lines appear on the right (back cover, battery, board, screen, in Chinese).
 //   - Reassemble: from 3.25 s, 0.7 s per layer, starting with the top layer, 0.07 s apart, cubic ease-in-out.
 // When to use it: Use it to explain what is inside a product, how it works or what it is made of, at a glance.
 // Tags: exploded-view, explode, layers, isometric, product, breakdown, explainer
@@ -20,10 +20,10 @@
 // @element 23
 // 23 分解図（スマホの部品が層ごとにばらけて中の構造を見せ、また組み上がる）
 const XL = [
-  { name: '背面', o: [-27, -50, 54, 100, 10], side: '#B8483D', draw: g => { g.fillStyle = C.coral; rr(g, -27, -50, 54, 100, 10); g.fill(); g.fillStyle = C.navy; g.beginPath(); g.arc(-12, -34, 7, 0, 7); g.fill(); g.beginPath(); g.arc(2, -34, 5, 0, 7); g.fill(); } },
-  { name: '電池', o: [-21, -40, 42, 68, 6], side: '#17946F', draw: g => { g.fillStyle = C.mint; rr(g, -21, -40, 42, 68, 6); g.fill(); g.fillStyle = '#fff'; g.fillRect(-3, -18, 6, 20); g.fillRect(-10, -11, 20, 6); } },
-  { name: '基板', o: [-25, -48, 50, 96, 6], side: '#2550B5', draw: g => { g.fillStyle = C.blue; rr(g, -25, -48, 50, 96, 6); g.fill(); g.fillStyle = C.yel; g.fillRect(-16, -38, 16, 14); g.fillRect(4, -30, 12, 10); g.fillRect(-14, 8, 26, 14); g.fillStyle = C.mint; g.fillRect(-18, -14, 34, 3); g.fillRect(-4, 26, 3, 16); } },
-  { name: '画面', o: [-27, -50, 54, 100, 10], side: '#AEB8D4', draw: g => { g.fillStyle = '#fff'; rr(g, -27, -50, 54, 100, 10); g.fill(); g.fillStyle = C.navy2; rr(g, -22, -44, 44, 88, 6); g.fill(); for (let i = 0; i < 6; i++) { g.fillStyle = PAL[i % 4]; rr(g, -16 + (i % 2) * 18, -36 + Math.floor(i / 2) * 18, 13, 13, 3); g.fill(); } } },
+  { name: '背壳', o: [-27, -50, 54, 100, 10], side: '#B8483D', draw: g => { g.fillStyle = C.coral; rr(g, -27, -50, 54, 100, 10); g.fill(); g.fillStyle = C.navy; g.beginPath(); g.arc(-12, -34, 7, 0, 7); g.fill(); g.beginPath(); g.arc(2, -34, 5, 0, 7); g.fill(); } },
+  { name: '电池', o: [-21, -40, 42, 68, 6], side: '#17946F', draw: g => { g.fillStyle = C.mint; rr(g, -21, -40, 42, 68, 6); g.fill(); g.fillStyle = '#fff'; g.fillRect(-3, -18, 6, 20); g.fillRect(-10, -11, 20, 6); } },
+  { name: '主板', o: [-25, -48, 50, 96, 6], side: '#2550B5', draw: g => { g.fillStyle = C.blue; rr(g, -25, -48, 50, 96, 6); g.fill(); g.fillStyle = C.yel; g.fillRect(-16, -38, 16, 14); g.fillRect(4, -30, 12, 10); g.fillRect(-14, 8, 26, 14); g.fillStyle = C.mint; g.fillRect(-18, -14, 34, 3); g.fillRect(-4, 26, 3, 16); } },
+  { name: '屏幕', o: [-27, -50, 54, 100, 10], side: '#AEB8D4', draw: g => { g.fillStyle = '#fff'; rr(g, -27, -50, 54, 100, 10); g.fill(); g.fillStyle = C.navy2; rr(g, -22, -44, 44, 88, 6); g.fill(); for (let i = 0; i < 6; i++) { g.fillStyle = PAL[i % 4]; rr(g, -16 + (i % 2) * 18, -36 + Math.floor(i / 2) * 18, 13, 13, 3); g.fill(); } } },
 ];
 const ISO = (px, py) => [(px - py) * 0.866, (px + py) * 0.5];
 CELLS[22] = (k, w, h, u) => {

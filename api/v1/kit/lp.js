@@ -28,7 +28,7 @@ const C = {
   desk: '#E7EAF0', win: '#FFFFFF', bar: '#F3F5F8', rule: '#E2E6ED', ink: '#1C2333', sub: '#7D879B',
   faint: '#DCE1EA', soft: '#F3F5F9', skel: '#E4E8EF', acc: '#FF5A2C', accL: '#FFE5DB', blue: '#3B64E8', blueL: '#E1E8FF'
 };
-const JP = '"Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", system-ui, sans-serif';
+const JP = '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Hiragino Sans", sans-serif';   // 画面文字为简体中文：中文字体优先，日文字体作后备
 const EN = '"Avenir Next", "Helvetica Neue", system-ui, sans-serif';
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const lerp = (a, b, x) => a + (b - a) * x;
@@ -113,8 +113,8 @@ const NAVX = [300, 346, 392];
 function header(k, y, active = -1) {
   k.fillStyle = '#fff'; k.fillRect(0, y, VW, 34); k.fillStyle = C.rule; k.fillRect(0, y + 33, VW, 1);
   logo(k, 18, y + 17);
-  ['特長', '料金', 'FAQ'].forEach((s, i) => txt(k, s, NAVX[i], y + 17.5, `600 12px ${JP}`, active === i ? C.acc : C.ink, 'left', 'middle'));
-  btn(k, 428, y + 7, 70, 20, '無料で試す', C.acc, '#fff', 10.5);
+  ['特色', '价格', 'FAQ'].forEach((s, i) => txt(k, s, NAVX[i], y + 17.5, `600 12px ${JP}`, active === i ? C.acc : C.ink, 'left', 'middle'));
+  btn(k, 428, y + 7, 70, 20, '免费试用', C.acc, '#fff', 10.5);
 }
 // マウスのカーソル（矢印）。press で少し縮む
 function cursor(k, x, y, press = 0) {

@@ -4,7 +4,7 @@
 // パック: ui (UIパーツの名前) · element 18 · カテゴリ: 案内する・状態を伝えるパーツ
 // 何が起きるか: パンくずの「講座」を押すと一つ上の一覧ページに戻り、一覧のカードを押すと元の詳細ページへ進む。
 // 動きの仕様:
-//   - 4.5秒周期・カード542×191。上に「ホーム › 講座 › Web制作」（17px）。リンクは青、今のページは黒の太字。下に区切り線（y 46）
+//   - 4.5秒周期・カード542×191。上に「首页 › 课程 › 网页制作」（中国語表記、17px）。リンクは青、今のページは黒の太字。下に区切り線（y 46）
 //   - カーソルが「講座」に乗ると0.9〜1.2秒に下線、1.0秒にクリック
 //   - 上へ戻る量 up: 1.0〜1.25秒に easeInOutCubic で 0→1。「› Web制作」が消え、「講座」が今のページ（黒の太字）になる
 //   - 中身: 詳細ページ（見出しと本文）から、3枚のカード（158×118・山の絵付き）の一覧へ不透明度で切り替える
@@ -23,12 +23,12 @@
 CELLS[17] = ui((w, h, t) => {
   const up = eio(seg(t, 1.0, 1.25)) * (1 - eio(seg(t, 2.7, 2.95))); // 1=「講座」の階層にいる
   let x = 24; const y = 24;
-  text('ホーム', x, y, 17, C.blue, 600); x += tw('ホーム', 17, 600) + 10; text('›', x, y, 17, '#aaa', 500); x += 18;
-  const kx = x, kw = tw('講座', 17, 700);
+  text('首页', x, y, 17, C.blue, 600); x += tw('首页', 17, 600) + 10; text('›', x, y, 17, '#aaa', 500); x += 18;
+  const kx = x, kw = tw('课程', 17, 700);
   const hoverK = t > .9 && t < 1.2;
-  text('講座', x, y, 17, up > .5 ? C.ink : C.blue, up > .5 ? 700 : 600); if (hoverK) { X.fillStyle = C.blue; X.fillRect(x, y + 12, kw, 2); }
+  text('课程', x, y, 17, up > .5 ? C.ink : C.blue, up > .5 ? 700 : 600); if (hoverK) { X.fillStyle = C.blue; X.fillRect(x, y + 12, kw, 2); }
   x += kw + 10;
-  X.globalAlpha = 1 - up; text('›', x, y, 17, '#aaa', 500); text('Web制作', x + 18, y, 17, C.ink, 700); X.globalAlpha = 1;
+  X.globalAlpha = 1 - up; text('›', x, y, 17, '#aaa', 500); text('网页制作', x + 18, y, 17, C.ink, 700); X.globalAlpha = 1;
   X.fillStyle = C.line; X.fillRect(24, 46, 494, 1.5);
   // 中身：詳細ページ ⇄ 一覧ページ
   if (up < 1) { X.save(); X.globalAlpha = 1 - up; bar(24, 64, 200, C.ink, 13); bar(24, 92, 494); bar(24, 110, 420); fillRR(24, 132, 494, 48, 8, C.block); X.restore(); }
