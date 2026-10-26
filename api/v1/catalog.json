@@ -1,8 +1,8 @@
 {
- "version": "1.8d49cc5a56",
+ "version": "1.7d410e4153",
  "site": "https://sadjjk.github.io/motion-prompt-zh/",
  "repo": "https://github.com/sadjjk/motion-prompt-zh",
- "count": 264,
+ "count": 263,
  "groups": [
   {
    "id": "web",
@@ -30,8 +30,7 @@
    "packs": [
     "motion",
     "motion2",
-    "mgstyles",
-    "motion3"
+    "mgstyles"
    ]
   },
   {
@@ -461,48 +460,6 @@
    "license": "MIT License (c) 2026 Vincentwei1021",
    "author": "Vincentwei1021",
    "attribution": "https://github.com/Vincentwei1021/mg-styles-15",
-   "scalable": true
-  },
-  {
-   "pack": "motion3",
-   "group": "motion",
-   "order": 11,
-   "added": "2026-10-26",
-   "title": {
-    "zh-Hans": "动态图形进阶 2",
-    "en": "Motion graphics, part 3",
-    "ja": "モーショングラフィックスの演出 第3弾"
-   },
-   "langs": [
-    "en",
-    "ja",
-    "zh-Hans"
-   ],
-   "categories": [
-    {
-     "slug": "logo-knot",
-     "ja": "ロゴの物語",
-     "en": "Logo narratives",
-     "zh-Hans": "Logo 叙事"
-    }
-   ],
-   "count": 1,
-   "first": "2-077",
-   "last": "2-077",
-   "ranges": [
-    [
-     "2-077",
-     "2-077"
-    ]
-   ],
-   "upstreamFirst": "241",
-   "width": 539,
-   "height": 208,
-   "cycle": 6,
-   "fonts": [],
-   "license": "MIT License (c) 2026 Shohei Ohtaki",
-   "author": "Shohei Ohtaki",
-   "attribution": "https://showheyohtaki.github.io/motion-prompt/#121",
    "scalable": true
   },
   {
@@ -13661,84 +13618,6 @@
      "综艺字幕",
      "花字特效",
      "综艺包装"
-    ]
-   }
-  },
-  {
-   "id": "2-077",
-   "group": "motion",
-   "pack": "motion3",
-   "no": "01",
-   "slug": "knot-sentence",
-   "category": "logo-knot",
-   "added": "2026-10-26",
-   "license": "MIT License (c) 2026 Lemomo",
-   "author": "Lemomo",
-   "attribution": "https://github.com/lemomo-ai/lemo-wake",
-   "width": 539,
-   "height": 208,
-   "cycle": 6,
-   "name": {
-    "zh-Hans": "打结的一句话",
-    "en": "Knot sentence",
-    "ja": "結びの言葉"
-   },
-   "meaning": {
-    "zh-Hans": "六边形结里，一条带子印着一句话，最后拧收紧回标准 Logo",
-    "en": "A hexagonal knot where one band carries a sentence, then twists shut back to the standard logo",
-    "ja": "六辺形の結び目に文が印字され、最後にひねって標準のロゴに戻る"
-   },
-   "ask": {
-    "zh-Hans": "做一个 Logo 叙事动效：一个结印着一句话，最后拧回标准形状",
-    "en": "Make a logo narrative: a knot carries a sentence, then twists back to the standard shape",
-    "ja": "ロゴの物語を作って：結び目に文が印字され、最後にひねって標準の形に戻る"
-   },
-   "summary": {
-    "zh-Hans": "浅灰底中央六边形结，六条带缩回后逐条印字，最后拧收紧回标准 Logo",
-    "en": "A hexagonal knot on a light grey ground: bands retract one by one, each prints a word, then twists shut back to the standard logo",
-    "ja": "薄い灰色の背景に六辺形の結び目。帯が一本ずつ引っ込み、各帯に文字が印字され、最後にひねって標準のロゴに戻る"
-   },
-   "spec": {
-    "zh-Hans": [
-     "539×208 画布，周期 6 秒。浅灰底中央六边形结（半径 62、带宽 9.5、边带数 6）。",
-     "0.55 秒起六条带按 60° 间隔逐条缩回槽口（i=5 最先、i=1 最后），只剩最上一条；1.15 秒起镜头推近 1.24 倍。",
-     "留下的带边出纸带印字：every word（1.75 秒）、in this knot（2.7 秒）、was a guess（3.65 秒）、about the（4.55 秒）、next one（5.35 秒），每条带按弧排字、新段生长。",
-     "5.35 秒第 6 条尾端钻回第 1 条底下；5.9 秒结一拧收紧（旋转 8°、缩 0.94），字母飞散，5.95 秒后整句隐去。",
-     "拧转与缩放按正弦周期回弹，与 u=0 相同。画面文字均为英文（专名保留）。"
-    ],
-    "en": [
-     "539×208 card, 6 s cycle. A hexagonal knot (radius 62, band width 9.5, 6 bands) on a light grey ground.",
-     "From 0.55 s the six bands retract in 60° steps (i=5 first, i=1 last), leaving only the top band; the camera pushes in 1.24× from 1.15 s.",
-     "The remaining band edge prints: every word (1.75 s), in this knot (2.7 s), was a guess (3.65 s), about the (4.55 s), next one (5.35 s), each along the curve and growing.",
-     "At 5.35 s band 6 tucks back under band 1; at 5.9 s the knot twists shut (rotate 8°, scale 0.94) and letters fly off; the whole sentence fades after 5.95 s.",
-     "The twist and scale return sinusoidally, matching u=0. On-canvas text is English (proper nouns kept)."
-    ],
-    "ja": [
-     "539×208 カード、6 秒周期。薄い灰色の背景に六辺形の結び目（半径 62、帯の幅 9.5、帯の数 6）。",
-     "0.55 秒から六本の帯が 60° 間隔で一本ずつ引っ込み（i=5 が最初、i=1 が最後）、最上段だけ残る。1.15 秒からカメラが 1.24 倍に推近。",
-     "残った帯の端から文字が印字される: every word（1.75 秒）、in this knot（2.7 秒）、was a guess（3.65 秒）、about the（4.55 秒）、next one（5.35 秒）、各帯は曲線に沿って文字が並び、新しい部分が生える。",
-     "5.35 秒に 6 本目の帯の端が 1 本目の下に戻る。5.9 秒に結び目がひねって締まる（回転 8°、縮小 0.94）、文字が飛び散り、5.95 秒以降に文全体が消える。",
-     "ひねりと縮小は正弦周期で戻り、u=0 と同じ。画面の文字は英語（固有名詞を残す）。"
-    ]
-   },
-   "use": {
-    "zh-Hans": "Logo 叙事、品牌故事动效、产品介绍",
-    "en": "Logo narratives, brand stories, product intros",
-    "ja": "ロゴの物語、ブランドストーリー、製品紹介"
-   },
-   "tags": [
-    "logo",
-    "knot",
-    "sentence",
-    "narrative",
-    "openai",
-    "motion"
-   ],
-   "aliases": {
-    "zh-Hans": [
-     "结语",
-     "打结叙事",
-     "OpenAI 结"
     ]
    }
   },
