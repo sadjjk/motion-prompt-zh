@@ -1,0 +1,130 @@
+// Motion Prompt #2-077 · MIT License (c) 2026 Lemomo · https://github.com/lemomo-ai/lemo-wake
+//
+// 打结的一句话 / Knot sentence
+// 分类包: motion3 (动态图形进阶 2) · element 01 · 子分类: Logo 叙事
+// 动画表现: 浅灰底中央六边形结，六条带缩回后逐条印字，最后拧收紧回标准 Logo
+// 运动规格:
+//   - 539×208 画布，周期 6 秒。浅灰底中央六边形结（半径 62、带宽 9.5、边带数 6）。
+//   - 0.55 秒起六条带按 60° 间隔逐条缩回槽口（i=5 最先、i=1 最后），只剩最上一条；1.15 秒起镜头推近 1.24 倍。
+//   - 留下的带边出纸带印字：every word（1.75 秒）、in this knot（2.7 秒）、was a guess（3.65 秒）、about the（4.55 秒）、next one（5.35 秒），每条带按弧排字、新段生长。
+//   - 5.35 秒第 6 条尾端钻回第 1 条底下；5.9 秒结一拧收紧（旋转 8°、缩 0.94），字母飞散，5.95 秒后整句隐去。
+//   - 拧转与缩放按正弦周期回弹，与 u=0 相同。画面文字均为英文（专名保留）。
+// 适用场景: Logo 叙事、品牌故事动效、产品介绍
+// 标签: logo, knot, sentence, narrative, openai, motion
+// 尺寸: 539x208 px · 周期: 6 s
+// 依赖: kit motion3 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion3.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-077
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 01
+// 手法参考 Lemomo 的 lemo-wake Logo 动效墙（OpenAI《一个结 一句话》），画面与代码为原创；
+// 结形按原作同一段弯折带绕中心转 6 次、一上一下互相穿过编成的结构重建（非商标图片）。
+// 01 打结的一句话：浅灰底中央六边形结（边带约 9.5px），0.55–1.05 秒六条带按 60° 间隔逐条缩回槽口，只剩最上一条；
+// 1.15–1.7 秒镜头推近 1.24 倍；1.75–2.6 秒留下的带边出纸带印字「every word」；
+// 2.7–3.6 秒第 2 条带从它底下转出接着写「in this knot」；3.65–4.5 秒第 3 条写「was a guess」；
+// 4.55–5.3 秒第 4 条写「about the」；5.35–5.9 秒第 5、6 条接力写「next one」并把尾端钻回第 1 条底下；
+// 5.9–6.5 秒结一拧收紧（旋转 8°、缩 0.94），字母飞散，5.95 秒后整句隐去，回到标准结。
+// 质感：纸底径向微渐变 + 纤维细点；带体白芯 + 深描边 + 下缘投影；字随带弧度贴排，新字随带生长、旧字保留在带上。
+const OA_CX = 270, OA_CY = 104, OA_R = 62, OA_W = 9.5, OA_N = 6;
+const OA_SENT = 'every word in this knot was a guess about the next one';
+const OA_CHUNKS = ['every word', 'in this knot', 'was a guess', 'about the', 'next one', ''];
+const OA_BG = (() => {
+  const c = mkCanvas(CW, CH), g = c.getContext('2d');
+  let gr = g.createRadialGradient(OA_CX, 96, 10, OA_CX, 100, 330);
+  gr.addColorStop(0, '#F4F2EC'); gr.addColorStop(0.65, '#ECEAE0'); gr.addColorStop(1, '#DAD6C8');
+  g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+  gr = g.createRadialGradient(OA_CX, CH / 2, 130, OA_CX, CH / 2, 330);
+  gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(90,80,60,.22)');
+  g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+  const rr = rand(20261026);
+  for (let i = 0; i < 4200; i++) { const x = rr() * CW, y = rr() * CH, v = rr(); g.fillStyle = v > 0.5 ? `rgba(255,255,255,${0.2 * (v - 0.5) + 0.03})` : `rgba(120,100,70,${0.04 + 0.07 * v})`; g.fillRect(x, y, 1, 1); }
+  return c;
+})();
+// 单条带的几何：从槽口 (a0) 出发，向外弯一圈再回 (a0+2π/3)，形成六边形一瓣
+// 单条带的几何：从槽口 (a0) 出发，向外弯一圈再回 (a0+2π/3)，形成六边形一瓣
+// 两端点 P0、P2 是与相邻带的交点（交点角度 = a0+π/6 与 a2-π/6）
+function oaBandPath(i) {
+  const a0 = -Math.PI / 2 + i * Math.PI / 3, a2 = a0 + 2 * Math.PI / 3;
+  const o = 26, r1 = OA_R + o, r2 = OA_R - o;
+  const P0 = [OA_CX + Math.cos(a0) * OA_R, OA_CY + Math.sin(a0) * OA_R];
+  const P1 = [OA_CX + Math.cos(a2 / 2) * r1, OA_CY + Math.sin(a2 / 2) * r1];
+  const P2 = [OA_CX + Math.cos(a2) * OA_R, OA_CY + Math.sin(a2) * OA_R];
+  const p = new Path2D(`M ${P0[0]} ${P0[1]} Q ${P1[0]} ${P1[1]} ${P2[0]} ${P2[1]}`);
+  return { p, P0, P1, P2, a0 };
+}
+const OA_BANDS = Array.from({ length: OA_N }, (_, i) => oaBandPath(i));
+CELLS[0] = (k, w, h, u) => {
+  k.drawImage(OA_BG, 0, 0);
+  // 节拍：0.55 起六条带按序缩回，只剩 i=0（最上，a0=-90°）；1.15 起镜头推近
+  const shrink = i => eIO(P(u, 0.55 + i * 0.09, 0.9 + i * 0.09));   // i=5 最先，i=1 最后；i=0 不收
+  const zoom = 1 + 0.24 * eIO(P(u, 1.15, 1.7)), rot = Math.sin(2 * Math.PI * u / CYC) * Math.PI / 22.5;
+  const sc = zoom * (1 - 0.06 * Math.sin(Math.PI * u / CYC));
+  k.save(); k.translate(OA_CX, OA_CY); k.scale(sc, sc); k.rotate(rot); k.translate(-OA_CX, -OA_CY);
+  // 各条带：交点处一上一下——先画所有带的「下」段，再画所有带的「上」段
+  // 带 i 在 a0 端进入时在上（盖过上一条），在 a2 端出去时在下（被下一条压）
+  // 收起时同序绘制
+  const halfAt = (i, t) => {
+    const b = OA_BANDS[i];
+    const seg = [b.P0, b.P1, b.P2];
+    const t0 = i === 0 ? 1 : 1 - shrink(i);
+    if (t0 <= 0.01) return null;
+    const upper = new Path2D(), lower = new Path2D();
+    // 上段 = 起点 → 中点（f<0.5 部分），下段 = 中点 → 终点
+    const tU = Math.min(1, t * 2), tL = Math.max(0, t * 2 - 1);
+    if (tU > 0) { upper.moveTo(seg[0][0], seg[0][1]); upper.quadraticCurveTo(seg[1][0], seg[1][1], lerp(seg[1][0], seg[2][0], tU), lerp(seg[1][1], seg[2][1], tU)); }
+    if (tL > 0) { lower.moveTo(lerp(seg[1][0], seg[2][0], tL), lerp(seg[1][1], seg[2][1], tL)); lower.quadraticCurveTo(seg[2][0], seg[2][1], seg[2][0], seg[2][1]); }
+    return { upper, lower };
+  };
+  const bands = OA_BANDS.map((b, i) => halfAt(i, u));
+  const drawSeg = (seg, kind) => {
+    if (!seg || !seg[kind]) return;
+    k.strokeStyle = '#0D1226'; k.lineWidth = OA_W + 2.5; k.stroke(seg[kind]);
+    k.strokeStyle = '#E8E4DA'; k.lineWidth = OA_W; k.stroke(seg[kind]);
+    k.strokeStyle = 'rgba(60,50,30,.35)'; k.lineWidth = OA_W - 3; k.save(); k.translate(0, 1.5); k.stroke(seg[kind]); k.restore();
+  };
+  // 下段（被压）：先画全部下段
+  for (let i = 0; i < OA_N; i++) drawSeg(bands[i], 'lower');
+  // 上段（压人）：后画全部上段
+  for (let i = 0; i < OA_N; i++) drawSeg(bands[i], 'upper');
+  // 纸带印字：每条带上按弧排字，新段生长、旧段保留
+  const chunkAt = i => OA_CHUNKS[i] || '';
+  const grow = i => eIO(P(u, 1.75 + i * 0.55, 2.35 + i * 0.55));
+  for (let i = 0; i < OA_N && chunkAt(i); i++) {
+    const g = i === 0 ? 1 : grow(i); if (g <= 0) continue;
+    const b = OA_BANDS[i], len = chunkAt(i).length;
+    const path = [b.P0, b.P1, b.P2], total = path.length - 1;
+    let dist = (1 - g) * 0.9;                                  // 从带内向外生长
+    k.font = `600 ${7.5}px ${DISP}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+    for (let c = 0; c < len; c++) {
+      const p = Math.min(0.98, (dist + c * 0.035) * total / total + 0.12);
+      const f = p * total, j = Math.min(total - 1, Math.floor(f)), q = f - j;
+      const x = lerp(path[j][0], path[j + 1][0], q), y = lerp(path[j][1], path[j + 1][1], q);
+      const tx = lerp(path[Math.max(0, j - 1)][0] + 1e-9, path[j + 1][0], 0.5), ty = lerp(path[Math.max(0, j - 1)][1] + 1e-9, path[j + 1][1], 0.5);
+      const ang = Math.atan2(y - ty, x - tx);
+      k.save(); k.translate(x, y); k.rotate(ang);
+      // 字写在带内侧（沿法线向内）
+      k.translate(0, -OA_W * 0.42);
+      k.fillStyle = '#1A2E68'; k.fillText(chunkAt(i)[c], 0, 0); k.restore();
+    }
+  }
+  // 第 6 条尾端钻回第 1 条底下（5.35–5.9）：在 a0 处加一段「穿底」小弧
+  const tuck = P(u, 5.35, 5.9);
+  if (tuck > 0) {
+    const b = OA_BANDS[0], P0 = b.P0, d = Math.cos(b.a0) * 8, dy = Math.sin(b.a0) * 8;
+    k.strokeStyle = '#0D1226'; k.lineWidth = OA_W + 2; k.lineCap = 'round';
+    k.beginPath(); k.moveTo(P0[0], P0[1]); k.lineTo(P0[0] + d * tuck, P0[1] + dy * tuck); k.stroke();
+    k.strokeStyle = '#E8E4DA'; k.lineWidth = OA_W - 1; k.beginPath(); k.moveTo(P0[0], P0[1]); k.lineTo(P0[0] + d * tuck, P0[1] + dy * tuck); k.stroke();
+  }
+  k.restore();
+  // 拧收紧后字母飞散：5.95 秒后整句淡出，飞散的小点往外飘
+  const disperse = P(u, 5.95, 6.5);
+  if (disperse > 0 && disperse < 1) {
+    for (let i = 0; i < 28; i++) {
+      const t = H01(i), a = i * 0.79, r = (10 + 70 * t) * disperse;
+      k.fillStyle = `rgba(26,46,104,${(1 - disperse) * 0.7})`;
+      k.fillRect(OA_CX + Math.cos(a) * (OA_R * 0.9 + r), OA_CY + Math.sin(a) * (OA_R * 0.9 + r), 2, 2);
+    }
+  }
+};

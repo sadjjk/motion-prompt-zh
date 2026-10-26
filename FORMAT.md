@@ -39,6 +39,7 @@ attribution links to the original site.
 | 1 `web` | `uxmotion` | 37 | #1 061~097 | — | Interaction & data motion / インタラクションとデータの動き (after [Lucian UX/UI Prompt](https://lucianlabs.dev/uxui-prompt/), Seokwoooo) |
 | 2 `motion` | `motion` | 24 | #2 001~024 | 001–024 | Motion graphics moves / モーショングラフィックスの動き |
 | 2 `motion` | `motion2` | 28 | #2 025~048 · 064~067 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 (064 after [skills](https://github.com/emilkowalski/skills), Emil Kowalski; 065~067 after [ui2v](https://ui2v.com/), illli Ai Studio) |
+| 2 `motion` | `motion3` | 1 | #2 077 | 145–168 | Logo narratives / ロゴの物語 (after [lemo-wake](https://github.com/lemomo-ai/lemo-wake), Lemomo) |
 | 2 `motion` | `mgstyles` | 15 | #2 049~063 | — | MG styles / モーショングラフィックスのスタイル (after [mg-styles-15](https://github.com/Vincentwei1021/mg-styles-15), Vincentwei1021) |
 | 3 `film` | `camera` | 24 | #3 001~024 | 025–048 | Camera moves & transitions / カメラワークと切り替え |
 | 3 `film` | `photo` | 24 | #3 025~048 | 097–120 | Photo looks, lighting & styles / 写真の表現・光と画風 |

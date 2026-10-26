@@ -22,8 +22,8 @@ const langs = ['zh-Hans', 'en', 'ja'];
 const window = { MP_SITE_CONFIG: CONFIG };
 vm.runInNewContext(read('assets/catalog.js'), { window });
 const cat = window.MP_CATALOG;
-assert.equal(cat.count, 263);
-assert.equal(cat.packs.length, 10);
+assert.equal(cat.count, 264);
+assert.equal(cat.packs.length, 11);
 assert.equal(cat.groups.length, 4);
 assert.equal(cat.site, CONFIG.site);
 assert.equal(cat.repo, CONFIG.repo);
@@ -50,7 +50,7 @@ for (const p of cat.packs) {
   assert.ok(read(`packs/${p.pack}/README.zh-Hans.md`).includes(p.title['zh-Hans']));
   assert.ok(read(`api/v1/kit/${p.pack}.js`).split('\n')[0].includes(p.license), `${p.pack} kit licence line`);
 }
-assert.equal(cat.packs.filter(p => p.license === 'MIT License (c) 2026 Shohei Ohtaki').length, 6);
+assert.equal(cat.packs.filter(p => p.license === 'MIT License (c) 2026 Shohei Ohtaki').length, 7);
 for (const lang of langs) assert.equal(read(`api/v1/${lang}/catalog.tsv`).trim().split('\n').length, cat.count + 1);
 // 改写自 Libraries.dev 的包：版权行与署名指向 Jakub Antalik
 assert.equal(read('api/v1/zh-Hans/e/1-049.txt').split('\n')[0], '// Motion Prompt #1-049 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/');
@@ -72,6 +72,8 @@ assert.match(read('api/v1/zh-Hans/p/1-098.txt'), /保留 Emil Kowalski 的 MIT �
 // MIT-0 作品（改写自 ui2v，illli Ai Studio）：首行写 MIT-0 License，中文 Prompt 末句提示保留 MIT-0 版权标识
 assert.equal(read('api/v1/zh-Hans/e/1-108.txt').split('\n')[0], '// Motion Prompt #1-108 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/');
 assert.match(read('api/v1/zh-Hans/p/1-108.txt'), /保留 illli Ai Studio 的 MIT-0 版权标识/);
+// 新增分类包 motion3：#2-077 OpenAI 打结，署名 Lemomo（借鉴手法、画面与代码原创）
+assert.equal(read('api/v1/zh-Hans/e/2-077.txt').split('\n')[0], '// Motion Prompt #2-077 · MIT License (c) 2026 Lemomo · https://github.com/lemomo-ai/lemo-wake');
 assert.ok(read('api/v1/zh-Hans/e/1-001.txt').startsWith('// Motion Prompt #1-001 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#049'));
 assert.match(read('api/v1/kit/ui.js').split('\n')[1], /^\/\/ Also: MIT License \(c\) 2026 Emil Kowalski · https:\/\/github\.com\/emilkowalski\/skills \(#1 098~102\)$/);
 assert.deepEqual(json('skills/motion-prompt-zh/scripts/site-config.json'), CONFIG);
@@ -114,7 +116,7 @@ try {
   page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400 && !r.url().endsWith('/favicon.ico')) errors.push(`${r.status()} ${r.url()}`); });
   const open = async (suffix = '') => {
     await page.goto(base + '/motion-prompt-zh/' + suffix);
-    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 263 && Object.keys(window.MotionPrompt.packs).length === 10);
+    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 264 && Object.keys(window.MotionPrompt.packs).length === 11);
   };
   await open();
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
