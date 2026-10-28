@@ -482,6 +482,32 @@ MotionPrompt.pack('aiux', function () {
     k.fillStyle = 'rgba(236,236,241,0.9)'; k.beginPath(); k.arc(cx, y0 - 2, 5, 0, TAU); k.fill();
     k.strokeStyle = 'rgba(236,236,241,0.35)'; k.lineWidth = 1.5; k.beginPath(); k.arc(cx, y0 - 2, 10, 0, TAU); k.stroke();
   };
+
+  // @element 13
+  // 13 旋转光芒（改写自 KittenJam #227，Hannah，MIT）：标题后 12 条放射光纹（各占间距的 45%）绕中心匀速旋转，
+  // 每 4.8 秒正好转过一个光纹间距（30°），画面无缝；径向渐变让中心最亮、半径 300px 处淡入背景；标题轻微呼吸（亮度 ±6%）。
+  const SBR_N = 12, SBR_DUTY = 0.45, SBR_R = 300, SBR_CX = 269.5, SBR_CY = 104;
+  CELLS[12] = (k, w, h, u) => {
+    bg(k);
+    const step = TAU / SBR_N, rot = step * u / CYC;
+    k.save(); k.translate(SBR_CX, SBR_CY); k.rotate(rot);
+    k.fillStyle = 'rgba(255,214,120,0.16)';
+    for (let i = 0; i < SBR_N; i++) {
+      const a = i * step; k.beginPath(); k.moveTo(0, 0); k.arc(0, 0, SBR_R, a, a + step * SBR_DUTY); k.closePath(); k.fill();
+    }
+    k.restore();
+    // 遮罩：中心透明、向外渐变到底色，让光纹往外淡出
+    const g = k.createRadialGradient(SBR_CX, SBR_CY, 0, SBR_CX, SBR_CY, SBR_R);
+    g.addColorStop(0, 'rgba(14,14,18,0)'); g.addColorStop(0.35, 'rgba(14,14,18,0.35)'); g.addColorStop(1, 'rgba(14,14,18,1)');
+    k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+    const core = k.createRadialGradient(SBR_CX, SBR_CY, 0, SBR_CX, SBR_CY, 120);
+    core.addColorStop(0, 'rgba(255,220,140,0.35)'); core.addColorStop(1, 'rgba(255,220,140,0)');
+    k.fillStyle = core; k.fillRect(0, 0, CW, CH);
+    const br = 0.94 + 0.06 * Math.sin(TAU * u / CYC);
+    k.save(); k.shadowColor = 'rgba(255,200,90,0.6)'; k.shadowBlur = 18;
+    txt(k, '年度大奖', SBR_CX, SBR_CY - 4, `800 40px ${FONT}`, `rgba(255,236,190,${br})`, 'center'); k.restore();
+    txt(k, 'WINNER 2026', SBR_CX, SBR_CY + 32, `600 12px ${FONT}`, C.muted, 'center');
+  };
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

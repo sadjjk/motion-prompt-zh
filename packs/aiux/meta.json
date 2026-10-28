@@ -597,6 +597,58 @@
       },
       "tags": ["gooey", "liquid", "bend", "drag", "card", "sortable", "elastic"],
       "aliases": { "zh-Hans": ["液态拖拽", "弹性卡片"] }
+    },
+    {
+      "no": "13",
+      "id": "1-128",
+      "slug": "sunburst-rays",
+      "category": "loading-thinking",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": { "ja": "サンバースト", "en": "Sunburst rays", "zh-Hans": "旋转光芒" },
+      "meaning": {
+        "ja": "見出しの後ろで放射状の光がゆっくり回る背景",
+        "en": "Radiating light rays that slowly turn behind a headline",
+        "zh-Hans": "标题背后缓缓旋转的放射状光芒"
+      },
+      "ask": {
+        "ja": "受賞の見出しの後ろに12本の光が放射状に回るサンバーストを敷いて。4.8秒で光の間隔ひとつ分だけ回して。",
+        "en": "Put sunburst rays behind the award headline: 12 rays turning by one ray spacing every 4.8 s.",
+        "zh-Hans": "在获奖标题后面加旋转光芒：12 条放射光纹，每 4.8 秒转过一个光纹间距。"
+      },
+      "summary": {
+        "ja": "暗い背景で、中央の見出しの後ろから金色の光の筋が放射状に広がってゆっくり回り、外側ほど背景に溶ける。",
+        "en": "On a dark background, golden rays fan out from behind a centred headline and turn slowly, fading into the background towards the edges.",
+        "zh-Hans": "深色背景上，金色光纹从居中标题后方向外放射并缓缓旋转，越往外越融入背景。"
+      },
+      "spec": {
+        "ja": [
+          "光の筋 12 本、それぞれ間隔の 45%。見出しの中心から半径 300px まで広がる",
+          "等速で回転し、1 周期 4.8 秒でちょうど間隔ひとつ分（30°）進むので継ぎ目がない",
+          "放射状のマスクで中心をもっとも明るくし、外へ向かって背景に溶かす。見出しの後ろに半径 120px の暖色の芯",
+          "見出しの明るさが ±6% でゆっくり呼吸する"
+        ],
+        "en": [
+          "12 rays, each 45% of its spacing, fan out from the headline centre to a 300 px radius.",
+          "The rays turn at a constant speed, exactly one spacing (30°) per 4.8 s cycle, so the loop is seamless.",
+          "A radial mask keeps the centre brightest and fades the rays into the background; a warm core glow of 120 px radius sits behind the headline.",
+          "The headline brightness breathes gently by ±6%."
+        ],
+        "zh-Hans": [
+          "12 条放射光纹，各占间距的 45%，从标题中心铺到半径 300 px。",
+          "光纹匀速旋转，每个 4.8 秒周期正好转过一个间距（30°），循环无缝。",
+          "径向遮罩让中心最亮、光纹向外融入背景；标题后方有半径 120 px 的暖色核心光晕。",
+          "标题亮度轻微呼吸，幅度 ±6%。"
+        ]
+      },
+      "use": {
+        "ja": "受賞や抽選の結果、達成バッジ、キャンペーンの見出しなど、祝う瞬間を目立たせたいときに。",
+        "en": "Use it for award and prize reveals, achievement badges and campaign headlines that should feel celebratory.",
+        "zh-Hans": "适合获奖与抽奖结果、成就徽章、活动标题等需要庆祝氛围的时刻。"
+      },
+      "tags": ["sunburst", "rays", "god-rays", "rotate", "celebration", "award", "background"],
+      "aliases": { "zh-Hans": ["放射光芒", "光芒背景"] }
     }
   ]
 }

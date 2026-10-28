@@ -2646,6 +2646,514 @@ MotionPrompt.pack('uxmotion', function () {
     ripple(k, c[0], c[1], seg(u, 6.0, 6.4));
     if (u > 2.3 && u < 6.38) cursor(k, c[0], c[1], Math.max(hold(2.8, 3.9), hold(4.6, 5.8), UXB_press(u, 6.0)));
   };
+
+  // @shared
+  // 38–50 共用（改写自 KittenJam Motion Library，Hannah，MIT）：伪 3D 倾斜投影、卡片仿射映射、按住时长
+  // 以卡片中心为原点：先绕 Y 轴转 ry，再绕 X 轴转 rx，透视距离 P；z 为正表示远离观众
+  function UXC_proj(x, y, rx, ry, cx, cy, P = 600) {
+    const x1 = x * Math.cos(ry), z1 = x * Math.sin(ry);
+    const y2 = y * Math.cos(rx) - z1 * Math.sin(rx), z2 = y * Math.sin(rx) + z1 * Math.cos(rx);
+    const s = P / (P + z2);
+    return [cx + x1 * s, cy + y2 * s];
+  }
+  // 把 W×H 的本地坐标（左上角为原点）映射到投影后的左上、右上、左下三个角：Canvas 2D 只有仿射变换，倾斜 ≤13° 时近似误差很小
+  function UXC_tilt(k, W, H, rx, ry, cx, cy, sc = 1, P = 600) {
+    const a = UXC_proj(-W / 2 * sc, -H / 2 * sc, rx, ry, cx, cy, P), b = UXC_proj(W / 2 * sc, -H / 2 * sc, rx, ry, cx, cy, P), c = UXC_proj(-W / 2 * sc, H / 2 * sc, rx, ry, cx, cy, P);
+    k.transform((b[0] - a[0]) / W, (b[1] - a[1]) / W, (c[0] - a[0]) / H, (c[1] - a[1]) / H, a[0], a[1]);
+  }
+  // 按住程度：a 前 0.08 秒按下，b 后 0.14 秒抬起（拖动、刮擦这类持续按压）
+  const UXC_hold = (u, a, b) => (u >= a - 0.08 && u < b + 0.14 ? Math.min(1, seg(u, a - 0.08, a)) * (1 - seg(u, b, b + 0.14)) : 0);
+
+  // @element 38
+  // 38 折线图绘制（KittenJam #197）：淡格线上，折线 0.3–1.9 秒由左到右匀速画出；线头经过时 10 个数据点依次弹出（0.3 秒 backOut），
+  // 画到 60% 起线下渐变面积 0.6 秒淡入；1.9–2.3 秒终点上方浮出增长标签；5.4–6.0 秒全部淡出复位。
+  const LCD_V = [12, 18, 15, 24, 22, 31, 29, 38, 44, 52];
+  const LCD_X0 = 60, LCD_X1 = 500, LCD_Y0 = 50, LCD_Y1 = 176, LCD_MAX = 60, LCD_T0 = 0.3, LCD_DUR = 1.6;
+  const LCD_pt = i => [mix(LCD_X0, LCD_X1, i / (LCD_V.length - 1)), LCD_Y1 - LCD_V[i] / LCD_MAX * (LCD_Y1 - LCD_Y0)];
+  CELLS[37] = (k, w, h, u) => {
+    k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+    txt(k, '月营收增长', 22, 28, UXB_f(900, 14), UX.ink); txt(k, '单位：万元', CW - 20, 28, UXB_f(700, 10.5), UX.ink3, 'right');
+    k.strokeStyle = UX.line; k.lineWidth = 1;
+    [0, 20, 40, 60].forEach(v => {
+      const y = Math.round(LCD_Y1 - v / LCD_MAX * (LCD_Y1 - LCD_Y0)) + 0.5;
+      k.beginPath(); k.moveTo(LCD_X0, y); k.lineTo(LCD_X1, y); k.stroke(); txt(k, String(v), LCD_X0 - 10, y + 3.5, UXB_f(700, 9), UX.ink3, 'right');
+    });
+    const fa = fadeIn(u), p = seg(u, LCD_T0, LCD_T0 + LCD_DUR), hx = mix(LCD_X0, LCD_X1, p);
+    if (fa <= 0 || p <= 0) return;
+    const pts = LCD_V.map((_, i) => LCD_pt(i));
+    k.save(); k.globalAlpha = fa;
+    k.save(); k.beginPath(); k.rect(0, 0, hx, CH); k.clip();
+    // 线下面积：线画到 60% 时开始淡入
+    const aa = seg(u, LCD_T0 + LCD_DUR * 0.6, LCD_T0 + LCD_DUR * 0.6 + 0.6);
+    if (aa > 0) {
+      const g = k.createLinearGradient(0, LCD_Y0, 0, LCD_Y1); g.addColorStop(0, 'rgba(106,87,242,.28)'); g.addColorStop(1, 'rgba(106,87,242,0)');
+      k.globalAlpha = fa * aa; k.fillStyle = g; k.beginPath(); k.moveTo(pts[0][0], LCD_Y1);
+      pts.forEach(q => k.lineTo(q[0], q[1])); k.lineTo(pts[pts.length - 1][0], LCD_Y1); k.closePath(); k.fill(); k.globalAlpha = fa;
+    }
+    k.strokeStyle = UX.accent; k.lineWidth = 2.5; k.lineJoin = 'round'; k.lineCap = 'round';
+    k.beginPath(); pts.forEach((q, i) => (i ? k.lineTo(q[0], q[1]) : k.moveTo(q[0], q[1]))); k.stroke();
+    k.restore();
+    // 数据点：线头经过（间隔 = 描绘时长 ÷ 段数）时从 0 弹出
+    pts.forEach((q, i) => {
+      const s = backOut(seg(u, LCD_T0 + LCD_DUR * i / (LCD_V.length - 1), LCD_T0 + LCD_DUR * i / (LCD_V.length - 1) + 0.3));
+      if (s <= 0) return;
+      k.fillStyle = UX.surface; k.strokeStyle = UX.accent; k.lineWidth = 2;
+      k.beginPath(); k.arc(q[0], q[1], 4 * s, 0, TAU); k.fill(); k.stroke();
+    });
+    const la = out3(seg(u, 1.9, 2.3));
+    if (la > 0) {
+      const q = pts[pts.length - 1], y = q[1] - 22 + 8 * (1 - la);
+      k.globalAlpha = fa * la; rr(k, q[0] - 30, y - 12, 50, 20, 10); k.fillStyle = UX.mint; k.fill();
+      txt(k, '+333%', q[0] - 5, y + 2, UXB_f(800, 10.5), '#FFFFFF', 'center');
+    }
+    k.restore();
+  };
+
+  // @element 39
+  // 39 环形图分段（KittenJam #199）：4 段环（42/28/18/12%）从正上方起顺时针依次画出，每段 0.45 秒（inOut3）、段间留 2° 间隙；
+  // 中心总数 0.3–0.8 秒淡入；右侧图例从 0.5 秒起每隔 0.12 秒从右 24px 滑入（0.4 秒 out3）；5.4–6.0 秒淡出复位。
+  const DNT_V = [42, 28, 18, 12], DNT_N = ['自然搜索', '社交媒体', '直接访问', '邮件推广'];
+  const DNT_COL = ['#6A57F2', '#2F8FE0', '#1FB89A', '#D6731E'];
+  const DNT_CX = 170, DNT_CY = 108, DNT_R = 62, DNT_LW = 20, DNT_GAP = 2 * Math.PI / 180, DNT_T0 = 0.3, DNT_SEG = 0.45;
+  CELLS[38] = (k, w, h, u) => {
+    k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+    txt(k, '流量来源', 22, 28, UXB_f(900, 14), UX.ink);
+    k.strokeStyle = UX.surface2; k.lineWidth = DNT_LW; k.beginPath(); k.arc(DNT_CX, DNT_CY, DNT_R, 0, TAU); k.stroke();
+    const fa = fadeIn(u);
+    k.save(); k.globalAlpha = fa; k.lineCap = 'butt';
+    let a0 = -Math.PI / 2;
+    DNT_V.forEach((v, i) => {
+      const span = v / 100 * TAU, t = inOut3(seg(u, DNT_T0 + i * DNT_SEG, DNT_T0 + (i + 1) * DNT_SEG));
+      if (t > 0) { k.strokeStyle = DNT_COL[i]; k.beginPath(); k.arc(DNT_CX, DNT_CY, DNT_R, a0 + DNT_GAP / 2, a0 + DNT_GAP / 2 + (span - DNT_GAP) * t); k.stroke(); }
+      a0 += span;
+    });
+    k.globalAlpha = fa * out3(seg(u, 0.3, 0.8));
+    txt(k, '12.4万', DNT_CX, DNT_CY + 4, UXB_f(900, 20), UX.ink, 'center');
+    txt(k, '本月访问', DNT_CX, DNT_CY + 22, UXB_f(700, 10), UX.ink3, 'center');
+    DNT_V.forEach((v, i) => {
+      const t = out3(seg(u, 0.5 + i * 0.12, 0.9 + i * 0.12)), y = 62 + i * 30, dx = 24 * (1 - t);
+      k.globalAlpha = fa * t;
+      rr(k, 300 + dx, y - 9, 10, 10, 3); k.fillStyle = DNT_COL[i]; k.fill();
+      txt(k, DNT_N[i], 318 + dx, y, UXB_f(750, 12), UX.ink2);
+      txt(k, v + '%', 500 + dx, y, UXB_f(900, 12), UX.ink, 'right');
+    });
+    k.restore();
+  };
+
+  // @element 40
+  // 40 全息闪卡（KittenJam #289）：指针 0.3 秒进场在收藏卡上游走；卡片随指针相对位置倾斜（最大 13°，透视 600px），
+  // 彩虹箔光（color-dodge 斜条纹）随指针平移、倾斜越大越亮（不透明度 .15→.75），白色柔光（半径 90px）跟随指针；4.6–4.9 秒指针离开，卡片回正。
+  const HOL_CX = 269.5, HOL_CY = 100, HOL_W = 112, HOL_H = 164, HOL_MAX = 13 * Math.PI / 180;
+  const HOL_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, 300, 62], [1.6, 236, 146], [2.4, 306, 146], [3.2, 232, 58], [4.0, 292, 94], [4.6, 300, 88], [5.2, 570, 230]];
+  function HOL_face(k) {
+    const bg = k.createLinearGradient(0, 0, HOL_W, HOL_H); bg.addColorStop(0, '#2A2350'); bg.addColorStop(1, '#141226');
+    k.fillStyle = bg; k.fillRect(0, 0, HOL_W, HOL_H);
+    const ag = k.createLinearGradient(0, 8, 0, 104); ag.addColorStop(0, '#5B4BD6'); ag.addColorStop(1, '#E06AA8');
+    k.fillStyle = ag; rr(k, 8, 8, HOL_W - 16, 96, 6); k.fill();
+    k.strokeStyle = 'rgba(255,255,255,.35)'; k.lineWidth = 1; k.beginPath(); k.arc(HOL_W / 2, 56, 34, 0, TAU); k.stroke();
+    k.fillStyle = '#FFE9A8'; k.beginPath();
+    for (let j = 0; j < 10; j++) { const r = j % 2 ? 11 : 26, a = -Math.PI / 2 + j * Math.PI / 5; k.lineTo(HOL_W / 2 + Math.cos(a) * r, 56 + Math.sin(a) * r); }
+    k.closePath(); k.fill();
+    txt(k, '星辉', 10, 124, UXB_f(900, 15), UXD.ink); txt(k, 'No. 027', HOL_W - 10, 124, UXB_f(700, 9, MONO), UXD.ink3, 'right');
+    k.fillStyle = 'rgba(255,255,255,.18)'; rr(k, 10, 134, 70, 4, 2); k.fill(); rr(k, 10, 143, 50, 4, 2); k.fill();
+  }
+  CELLS[39] = (k, w, h, u) => {
+    k.fillStyle = UXD.page; k.fillRect(0, 0, CW, CH);
+    glow(k, HOL_CX, HOL_CY, 150, '183,164,255', 0.12);
+    const c = UXB_path(u, HOL_KEYS), hv = pingPong(u, 0.7, 0.95, 4.6, 4.9);
+    const px = clamp((c[0] - (HOL_CX - HOL_W / 2)) / HOL_W), py = clamp((c[1] - (HOL_CY - HOL_H / 2)) / HOL_H);
+    const ry = (px - 0.5) * 2 * HOL_MAX * hv, rx = (py - 0.5) * 2 * HOL_MAX * hv;
+    const tilt = clamp(Math.hypot(px - 0.5, py - 0.5) * 2) * hv;
+    k.fillStyle = 'rgba(0,0,0,.5)'; k.beginPath(); k.ellipse(HOL_CX - ry * 40, HOL_CY + HOL_H / 2 + 9, HOL_W * 0.45, 4, 0, 0, TAU); k.fill();
+    k.save(); UXC_tilt(k, HOL_W, HOL_H, rx, ry, HOL_CX, HOL_CY);
+    rr(k, 0, 0, HOL_W, HOL_H, 10); k.clip();
+    HOL_face(k);
+    // 箔光：斜向彩虹条纹，位置跟指针，倾斜越大越亮
+    k.globalCompositeOperation = 'color-dodge'; k.globalAlpha = 0.15 + 0.6 * tilt;
+    const o = (px - 0.5) * HOL_W * 1.6 + (py - 0.5) * HOL_H * 0.5;
+    const fg = k.createLinearGradient(o - HOL_W, -20, o + HOL_W * 2, HOL_H + 20);
+    for (let i = 0; i <= 12; i++) fg.addColorStop(i / 12, `hsl(${(i * 60) % 360},90%,${i % 2 ? 35 : 62}%)`);
+    k.fillStyle = fg; k.fillRect(0, 0, HOL_W, HOL_H);
+    k.globalCompositeOperation = 'source-over'; k.globalAlpha = 1;
+    // 柔光：白色径向渐变跟随指针
+    const gx = px * HOL_W, gy = py * HOL_H, gl = k.createRadialGradient(gx, gy, 0, gx, gy, 90);
+    gl.addColorStop(0, `rgba(255,255,255,${0.35 * hv})`); gl.addColorStop(1, 'rgba(255,255,255,0)');
+    k.fillStyle = gl; k.fillRect(0, 0, HOL_W, HOL_H);
+    k.restore();
+    k.save(); UXC_tilt(k, HOL_W, HOL_H, rx, ry, HOL_CX, HOL_CY);
+    k.strokeStyle = 'rgba(255,255,255,.28)'; k.lineWidth = 1; rr(k, 0.5, 0.5, HOL_W - 1, HOL_H - 1, 10); k.stroke(); k.restore();
+    if (u > 0.3 && u < 5.2) cursor(k, c[0], c[1]);
+  };
+
+  // @element 41
+  // 41 3D 倾斜视差图片（KittenJam #105）：指针在风景图上游走，整图朝指针方向倾斜（最大 10°）并放大到 1.04；
+  // 天空/太阳/远山/中丘/近景分层向指针反方向位移 2/3/5/10/18px 形成景深；柔光（半径 120px）跟随指针；说明文字从下方 18px 滑上；4.6–4.95 秒指针离开，全部回正。
+  const TPI_CX = 269.5, TPI_CY = 100, TPI_W = 280, TPI_H = 150, TPI_MAX = 10 * Math.PI / 180;
+  const TPI_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, 340, 62], [1.7, 176, 146], [2.5, 364, 146], [3.3, 186, 58], [4.1, 300, 106], [4.6, 290, 98], [5.2, 570, 230]];
+  const TPI_FAR = [[-20, 110], [30, 72], [70, 92], [120, 58], [170, 88], [220, 64], [300, 104]];
+  const TPI_MID = [[-20, 124], [50, 100], [110, 118], [180, 94], [240, 112], [300, 98]];
+  const TPI_NEAR = [[-20, 136], [80, 126], [160, 138], [300, 128]];
+  function TPI_ridge(k, pts, dx, dy, col) {
+    k.fillStyle = col; k.beginPath(); pts.forEach(([x, y], i) => (i ? k.lineTo(x + dx, y + dy) : k.moveTo(x + dx, y + dy)));
+    k.lineTo(300 + dx, TPI_H + 30); k.lineTo(-20 + dx, TPI_H + 30); k.closePath(); k.fill();
+  }
+  CELLS[40] = (k, w, h, u) => {
+    k.fillStyle = UXD.page; k.fillRect(0, 0, CW, CH);
+    const c = UXB_path(u, TPI_KEYS), hv = pingPong(u, 0.7, 1.0, 4.6, 4.95);
+    const px = clamp((c[0] - (TPI_CX - TPI_W / 2)) / TPI_W), py = clamp((c[1] - (TPI_CY - TPI_H / 2)) / TPI_H);
+    const ry = (px - 0.5) * 2 * TPI_MAX * hv, rx = (py - 0.5) * 2 * TPI_MAX * hv, sc = 1 + 0.04 * hv;
+    k.fillStyle = 'rgba(0,0,0,.5)'; k.beginPath(); k.ellipse(TPI_CX, TPI_CY + TPI_H / 2 + 12, TPI_W * 0.42, 5, 0, 0, TAU); k.fill();
+    k.save(); UXC_tilt(k, TPI_W, TPI_H, rx, ry, TPI_CX, TPI_CY, sc);
+    rr(k, 0, 0, TPI_W, TPI_H, 14); k.clip();
+    // 视差方向与指针相反，系数越大越靠前
+    const ox = -(px - 0.5) * 2 * hv, oy = -(py - 0.5) * 2 * hv;
+    const sky = k.createLinearGradient(0, -20, 0, TPI_H); sky.addColorStop(0, '#2B2D6E'); sky.addColorStop(0.75, '#F08A5D'); sky.addColorStop(1, '#F6C177');
+    k.fillStyle = sky; k.fillRect(-20 + ox * 2, -20 + oy * 2, TPI_W + 40, TPI_H + 40);
+    const sx = TPI_W * 0.62 + ox * 3, sy = 70 + oy * 3;
+    glow(k, sx, sy, 60, '255,227,163', 0.45); k.fillStyle = '#FFE3A3'; k.beginPath(); k.arc(sx, sy, 20, 0, TAU); k.fill();
+    TPI_ridge(k, TPI_FAR, ox * 5, oy * 5, 'rgba(92,70,140,.9)');
+    TPI_ridge(k, TPI_MID, ox * 10, oy * 10, '#3A2F63');
+    TPI_ridge(k, TPI_NEAR, ox * 18, oy * 18, '#1A1530');
+    k.fillStyle = '#1A1530';
+    [[26, 128, 30], [44, 124, 38], [238, 126, 34], [256, 128, 26]].forEach(([x, y, th]) => {
+      k.beginPath(); k.moveTo(x + ox * 18 - 8, y + oy * 18); k.lineTo(x + ox * 18, y - th + oy * 18); k.lineTo(x + ox * 18 + 8, y + oy * 18); k.closePath(); k.fill();
+    });
+    const gx = px * TPI_W, gy = py * TPI_H, gl = k.createRadialGradient(gx, gy, 0, gx, gy, 120);
+    gl.addColorStop(0, `rgba(255,255,255,${0.3 * hv})`); gl.addColorStop(1, 'rgba(255,255,255,0)');
+    k.fillStyle = gl; k.fillRect(0, 0, TPI_W, TPI_H);
+    // 说明：底部暗渐变 + 小标与标题从下方滑上
+    if (hv > 0) {
+      const cg = k.createLinearGradient(0, TPI_H - 60, 0, TPI_H); cg.addColorStop(0, 'rgba(0,0,0,0)'); cg.addColorStop(1, `rgba(0,0,0,${0.55 * hv})`);
+      k.fillStyle = cg; k.fillRect(0, TPI_H - 60, TPI_W, 60);
+      const dy = 18 * (1 - out3(hv));
+      k.globalAlpha = hv; txt(k, '摄影 · 2026', 14, TPI_H - 30 + dy, UXB_f(700, 9.5), 'rgba(255,255,255,.75)');
+      txt(k, '山岚 夕照', 14, TPI_H - 12 + dy, UXB_f(900, 16), '#FFFFFF'); k.globalAlpha = 1;
+    }
+    k.restore();
+    k.save(); UXC_tilt(k, TPI_W, TPI_H, rx, ry, TPI_CX, TPI_CY, sc);
+    k.strokeStyle = 'rgba(255,255,255,.18)'; k.lineWidth = 1; rr(k, 0.5, 0.5, TPI_W - 1, TPI_H - 1, 14); k.stroke(); k.restore();
+    if (u > 0.3 && u < 5.2) cursor(k, c[0], c[1]);
+  };
+
+  // @element 42
+  // 42 眼睛跟随（KittenJam #257）：吉祥物脸上一对大眼，眼珠朝指针方向偏移，距离 = min(1, 距离/150)×14px（比指针晚 0.06 秒）；
+  // 1.9 与 3.9 秒两眼同时眨一下（0.15 秒内纵向压到 10% 再恢复）；指针 0.3–0.8 秒进场、4.9–5.4 秒离开，眼珠回到中央。
+  const EYE_P = [[229, 92], [309, 92]], EYE_RX = 30, EYE_RY = 34, EYE_PR = 13, EYE_OFF = 14, EYE_RANGE = 150, EYE_LAG = 0.06;
+  const EYE_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, 470, 36], [1.6, 70, 50], [2.3, 269, 168], [2.8, 269, 106], [3.4, 90, 176], [4.1, 480, 172], [4.8, 430, 56], [5.4, 570, 230]];
+  const EYE_BLINK = [1.9, 3.9];
+  CELLS[41] = (k, w, h, u) => {
+    k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+    k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 18; k.shadowOffsetY = 6;
+    k.fillStyle = UX.accent; rr(k, 164, 26, 210, 140, 60); k.fill(); k.restore();
+    const hv = pingPong(u, 0.3, 0.8, 4.9, 5.4), c = UXB_path(Math.max(0, u - EYE_LAG), EYE_KEYS);
+    let bl = 1; for (const t of EYE_BLINK) { const e = seg(u, t, t + 0.15); bl = Math.min(bl, 1 - 0.9 * (1 - Math.abs(2 * e - 1))); }
+    EYE_P.forEach(([ex, ey]) => {
+      k.save(); k.translate(ex, ey); k.scale(1, bl);
+      k.fillStyle = '#FFFFFF'; k.beginPath(); k.ellipse(0, 0, EYE_RX, EYE_RY, 0, 0, TAU); k.fill();
+      const dx = c[0] - ex, dy = c[1] - ey, a = Math.atan2(dy, dx), r = Math.min(1, Math.hypot(dx, dy) / EYE_RANGE) * EYE_OFF * hv;
+      const qx = Math.cos(a) * r, qy = Math.sin(a) * r;
+      k.fillStyle = UX.ink; k.beginPath(); k.arc(qx, qy, EYE_PR, 0, TAU); k.fill();
+      k.fillStyle = '#FFFFFF'; k.beginPath(); k.arc(qx + 4, qy - 4, 4, 0, TAU); k.fill();
+      k.restore();
+    });
+    k.strokeStyle = 'rgba(255,255,255,.85)'; k.lineWidth = 3; k.lineCap = 'round';
+    k.beginPath(); k.arc(269, 134, 12, 0.15 * Math.PI, 0.85 * Math.PI); k.stroke();
+    txt(k, '404 · 页面走丢了', 269.5, 192, UXB_f(800, 11), UX.ink3, 'center');
+    const cp = UXB_path(u, EYE_KEYS);
+    if (u > 0.3 && u < 5.4) cursor(k, cp[0], cp[1]);
+  };
+
+  // @element 43
+  // 43 刮刮乐揭示（KittenJam #180）：银色表层盖住优惠券；指针 0.85 秒按下，沿 7 段之字形来回刮到 3.0 秒（圆头笔刷 30px），
+  // 离屏 canvas 每帧重画表层，再用 destination-out 擦掉截至当前时刻的整条轨迹；3.1–3.6 秒剩余表层淡出；5.4–6.0 秒表层淡回复位。
+  const SCR_X = 120, SCR_Y = 34, SCR_W = 300, SCR_H = 140, SCR_BR = 30, SCR_T0 = 0.85, SCR_T1 = 3.0;
+  const SCR_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.75, 145, 52], [0.85, 145, 52], [1.17, 395, 62], [1.49, 145, 82], [1.81, 395, 102],
+    [2.13, 145, 122], [2.45, 395, 142], [2.77, 145, 160], [3.0, 262, 158], [3.6, 570, 230]];
+  const SCR_OFF = {};                                   // 只缓存离屏画布本身；内容每帧清空重画，不跨帧保留
+  function SCR_coat(g) {
+    g.save(); rr(g, SCR_X, SCR_Y, SCR_W, SCR_H, 14); g.clip();
+    const m = g.createLinearGradient(SCR_X, SCR_Y, SCR_X + SCR_W, SCR_Y + SCR_H);
+    m.addColorStop(0, '#B8BCC8'); m.addColorStop(0.45, '#EEF0F4'); m.addColorStop(0.55, '#D9DCE4'); m.addColorStop(1, '#AEB2BE');
+    g.fillStyle = m; g.fillRect(SCR_X, SCR_Y, SCR_W, SCR_H);
+    g.strokeStyle = 'rgba(255,255,255,.22)'; g.lineWidth = 6;
+    for (let x = SCR_X - SCR_H; x < SCR_X + SCR_W; x += 26) { g.beginPath(); g.moveTo(x, SCR_Y + SCR_H); g.lineTo(x + SCR_H, SCR_Y); g.stroke(); }
+    txt(g, '刮开看看', SCR_X + SCR_W / 2, SCR_Y + 74, UXB_f(900, 22), '#5F6370', 'center');
+    txt(g, '按住来回刮开表层', SCR_X + SCR_W / 2, SCR_Y + 96, UXB_f(700, 10.5), '#7A7E8A', 'center');
+    g.restore();
+  }
+  CELLS[42] = (k, w, h, u) => {
+    k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+    const cx = SCR_X + SCR_W / 2;
+    card(k, SCR_X, SCR_Y, SCR_W, SCR_H, 14, '#FFF7EC');
+    k.setLineDash([5, 4]); k.strokeStyle = 'rgba(214,115,30,.5)'; k.lineWidth = 1.2; rr(k, SCR_X + 10.5, SCR_Y + 10.5, SCR_W - 21, SCR_H - 21, 10); k.stroke(); k.setLineDash([]);
+    txt(k, '恭喜获得', cx, SCR_Y + 40, UXB_f(700, 11), UX.ink3, 'center');
+    txt(k, '免运费优惠券', cx, SCR_Y + 78, UXB_f(900, 26), UX.warn, 'center');
+    txt(k, '全场满 99 元可用 · 券码 FREESHIP', cx, SCR_Y + 106, UXB_f(700, 10.5), UX.ink2, 'center');
+    if (!SCR_OFF.c) { SCR_OFF.c = document.createElement('canvas'); SCR_OFF.c.width = CW * 2; SCR_OFF.c.height = CH * 2; SCR_OFF.g = SCR_OFF.c.getContext('2d'); }
+    const g = SCR_OFF.g;
+    g.setTransform(2, 0, 0, 2, 0, 0); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, CW, CH);
+    SCR_coat(g);
+    let a;
+    if (u >= SHOW) a = resetK(u);                       // 复位：完整表层淡回
+    else {
+      a = 1 - inOut3(seg(u, 3.1, 3.6));
+      if (u > SCR_T0) {
+        // 从按下时刻起按 1/60 秒取样指针轨迹，整条重画擦除
+        const te = Math.min(u, SCR_T1), n = Math.floor((te - SCR_T0) * 60);
+        g.globalCompositeOperation = 'destination-out'; g.strokeStyle = '#000'; g.lineWidth = SCR_BR; g.lineCap = 'round'; g.lineJoin = 'round';
+        g.beginPath(); let p = UXB_path(SCR_T0, SCR_KEYS); g.moveTo(p[0], p[1]);
+        for (let j = 1; j <= n; j++) { p = UXB_path(SCR_T0 + j / 60, SCR_KEYS); g.lineTo(p[0], p[1]); }
+        p = UXB_path(te, SCR_KEYS); g.lineTo(p[0], p[1]); g.stroke();
+        g.globalCompositeOperation = 'source-over';
+      }
+    }
+    if (a > 0) { k.save(); k.globalAlpha = a; k.drawImage(SCR_OFF.c, 0, 0, CW, CH); k.restore(); }
+    const c = UXB_path(u, SCR_KEYS);
+    if (u > 0.3 && u < 3.6) cursor(k, c[0], c[1], UXC_hold(u, SCR_T0, SCR_T1));
+  };
+
+  // @element 44
+  // 44 流场线条（KittenJam #173）：220 条细线顺着随时间缓变的流场（角度 = 两组正弦叠加，相位每 6.4 秒一圈）以 60px/s 前进，留 0.6 秒拖尾；
+  // 每条寿命 1.6 秒（每周期 4 代，出生位置按下标与代数确定性生成），透明度按 sin 渐入渐出；指针 1.2–4.2 秒在画面中游走，周围 70px（高斯 σ）流向被扭成切向漩涡。
+  const FLF_N = 220, FLF_LIFE = CYC / 4, FLF_DT = 1 / 30, FLF_SPD = 60, FLF_TAIL = 18, FLF_SIG = 70;
+  const FLF_KEYS = [[0, 570, 230], [0.6, 570, 230], [1.2, 330, 100], [2.2, 200, 80], [3.2, 360, 132], [4.2, 262, 108], [5.0, 570, 230]];
+  const FLF_P = Array.from({ length: FLF_N }, (_, i) => ({ off: hash(i * 3 + 1) * FLF_LIFE, alt: hash(i * 5 + 2) < 0.5 }));
+  const FLF_wrap = t => ((t % CYC) + CYC) % CYC;
+  function FLF_ang(x, y, t) {
+    const ph = TAU * t / CYC;
+    let a = Math.sin(x * 0.009 + Math.cos(ph) * 1.2) * 1.3 + Math.cos(y * 0.016 + Math.sin(ph) * 1.5) * 0.9;
+    const hv = pingPong(t, 0.9, 1.2, 4.4, 4.8);
+    if (hv > 0) {
+      const c = UXB_path(t, FLF_KEYS), dx = x - c[0], dy = y - c[1], wgt = hv * Math.exp(-(dx * dx + dy * dy) / (2 * FLF_SIG * FLF_SIG));
+      if (wgt > 0.01) { const tg = Math.atan2(dy, dx) + Math.PI / 2; a = Math.atan2(mix(Math.sin(a), Math.sin(tg), wgt), mix(Math.cos(a), Math.cos(tg), wgt)); }
+    }
+    return a;
+  }
+  CELLS[43] = (k, w, h, u) => {
+    k.fillStyle = UXD.page; k.fillRect(0, 0, CW, CH);
+    k.lineWidth = 1.1; k.lineCap = 'round'; k.lineJoin = 'round';
+    const pts = [];
+    for (let i = 0; i < FLF_N; i++) {
+      const P = FLF_P[i]; let tt = u - P.off; if (tt < 0) tt += CYC;
+      const gen = Math.floor(tt / FLF_LIFE), age = tt - gen * FLF_LIFE, born = P.off + gen * FLF_LIFE;
+      const al = 0.6 * Math.sin(Math.PI * age / FLF_LIFE), n = Math.floor(age / FLF_DT);
+      if (al < 0.02 || n < 1) continue;
+      // 每帧从出生点重新积分到当前年龄（纯函数，不保留粒子状态）
+      let x = hash(i * 7 + gen * 131 + 0.5) * (CW + 60) - 30, y = hash(i * 11 + gen * 97 + 0.25) * (CH + 40) - 20;
+      pts.length = 0; pts.push(x, y);
+      for (let s = 0; s < n; s++) { const a = FLF_ang(x, y, FLF_wrap(born + s * FLF_DT)); x += Math.cos(a) * FLF_SPD * FLF_DT; y += Math.sin(a) * FLF_SPD * FLF_DT; pts.push(x, y); }
+      const s0 = Math.max(0, n - FLF_TAIL);
+      k.strokeStyle = P.alt ? `rgba(183,164,255,${al})` : `rgba(125,180,255,${al})`;
+      k.beginPath(); k.moveTo(pts[s0 * 2], pts[s0 * 2 + 1]); for (let s = s0 + 1; s <= n; s++) k.lineTo(pts[s * 2], pts[s * 2 + 1]); k.stroke();
+    }
+    const c = UXB_path(u, FLF_KEYS);
+    if (u > 0.6 && u < 5.0) cursor(k, c[0], c[1]);
+  };
+
+  // @element 45
+  // 45 加入购物车飞入（KittenJam #221）：指针 1.0 秒点「加入购物车」（按钮缩到 .95）；商品缩略图复制一份 1.05–1.8 秒飞向右上角购物车：
+  // x 按 t² 加速、y 线性并叠加 40px 上拱弧，尺寸 1→0.15；抵达时购物车放大 1.25 弹一下（0.35 秒），角标 2→3 弹出（0.3 秒 backOut）；5.4–6.0 秒交叉淡化复位。
+  const CRT_T = 1.0, CRT_F0 = 1.05, CRT_F1 = 1.8, CRT_CX = 470, CRT_CY = 42, CRT_IX = 134, CRT_IY = 104, CRT_IS = 124;
+  const CRT_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.85, 282, 150], [1.1, 282, 150], [1.75, 570, 230]];
+  function CRT_cup(k, x, y, s) {
+    const g = k.createLinearGradient(x, y - s / 2, x, y + s / 2); g.addColorStop(0, '#F3E3CF'); g.addColorStop(1, '#E7CBA9');
+    k.fillStyle = g; rr(k, x - s / 2, y - s / 2, s, s, s * 0.1); k.fill();
+    k.fillStyle = '#8E4A2B'; k.beginPath(); k.ellipse(x - s * 0.02, y + s * 0.25, s * 0.3, s * 0.04, 0, 0, TAU); k.fill();
+    k.strokeStyle = '#B0623B'; k.lineWidth = s * 0.05; k.beginPath(); k.arc(x + s * 0.17, y + s * 0.03, s * 0.1, -Math.PI / 2, Math.PI / 2); k.stroke();
+    k.fillStyle = '#B0623B'; rr(k, x - s * 0.2, y - s * 0.16, s * 0.36, s * 0.4, s * 0.06); k.fill();
+  }
+  function CRT_draw(k, u) {
+    k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+    card(k, 60, 30, 300, 148, 14);
+    CRT_cup(k, CRT_IX, CRT_IY, CRT_IS);
+    txt(k, '手工陶杯', 212, 66, UXB_f(900, 16), UX.ink); txt(k, '柴烧 · 320 ml', 212, 86, UXB_f(700, 10.5), UX.ink3);
+    txt(k, '¥128', 212, 116, UXB_f(900, 18), UX.ink);
+    const pr = UXB_press(u, CRT_T), bs = 1 - 0.05 * pr;
+    k.save(); k.translate(280, 150); k.scale(bs, bs); rr(k, -68, -17, 136, 34, 17); k.fillStyle = UX.accent; k.fill();
+    txt(k, '加入购物车', 0, 4.5, UXB_f(800, 12.5), '#FFFFFF', 'center'); k.restore();
+    const bt = seg(u, CRT_F1, CRT_F1 + 0.35), cs = 1 + 0.25 * Math.sin(Math.PI * bt);
+    k.save(); k.translate(CRT_CX, CRT_CY); k.scale(cs, cs);
+    k.fillStyle = UX.surface; k.beginPath(); k.arc(0, 0, 22, 0, TAU); k.fill(); k.strokeStyle = UX.line2; k.lineWidth = 1; k.stroke();
+    k.strokeStyle = UX.ink; k.lineWidth = 2; k.lineJoin = 'round'; k.lineCap = 'round';
+    k.beginPath(); k.moveTo(-11, -8); k.lineTo(-7, -8); k.lineTo(-3, 5); k.lineTo(9, 5); k.lineTo(11, -4); k.lineTo(-5, -4); k.stroke();
+    k.fillStyle = UX.ink; k.beginPath(); k.arc(-1, 9.5, 1.8, 0, TAU); k.arc(7, 9.5, 1.8, 0, TAU); k.fill();
+    k.restore();
+    const n = u >= CRT_F1 ? 3 : 2, ps = u >= CRT_F1 ? 0.4 + 0.6 * backOut(seg(u, CRT_F1, CRT_F1 + 0.3)) : 1;
+    k.save(); k.translate(CRT_CX + 16, CRT_CY - 16); k.scale(ps, ps);
+    k.fillStyle = UX.danger; k.beginPath(); k.arc(0, 0, 9, 0, TAU); k.fill(); txt(k, String(n), 0, 3.8, UXB_f(900, 11), '#FFFFFF', 'center'); k.restore();
+    const ft = seg(u, CRT_F0, CRT_F1);
+    if (ft > 0 && ft < 1) {
+      const x = mix(CRT_IX, CRT_CX, ft * ft), y = mix(CRT_IY, CRT_CY, ft) - 40 * Math.sin(Math.PI * ft);
+      k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 12; CRT_cup(k, x, y, CRT_IS * mix(1, 0.15, ft)); k.restore();
+    }
+    const c = UXB_path(u, CRT_KEYS);
+    if (u > 0.3 && u < 1.75) cursor(k, c[0], c[1], pr);
+  }
+  CELLS[44] = (k, w, h, u) => UXB_xfade(k, CRT_draw, u, SHOW, SHOW + 0.6);
+
+  // @element 46
+  // 46 纸飞机发送（KittenJam #241）：指针 0.95 秒按下发送按钮（缩到 .94 回弹）；1.0–1.3 秒文字右移 16px 淡出，纸飞机 1.0–1.2 秒后撤 6px 蓄力，
+  // 1.2–1.8 秒按 t³ 加速向右上飞出按钮（+300px、-60px、转 -25°，被按钮裁切）；1.75–2.05 秒按钮转绿、「已发送 ✓」从左滑入；3.3–3.9 秒换回原文，飞机从左下飞回。
+  const SND_CX = 269.5, SND_CY = 104, SND_W = 210, SND_H = 54;
+  const SND_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.85, 300, 118], [1.05, 300, 118], [1.7, 570, 230]];
+  function SND_plane(k, x, y, rot) {
+    k.save(); k.translate(x, y); k.rotate(rot);
+    k.fillStyle = '#FFFFFF'; k.beginPath(); k.moveTo(-10, -1); k.lineTo(11, -9); k.lineTo(4, 10); k.lineTo(1, 2); k.closePath(); k.fill();
+    k.strokeStyle = 'rgba(0,0,0,.18)'; k.lineWidth = 1; k.beginPath(); k.moveTo(1, 2); k.lineTo(11, -9); k.stroke();
+    k.restore();
+  }
+  CELLS[45] = (k, w, h, u) => {
+    k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+    const pr = UXB_press(u, 0.95), bs = 1 - 0.06 * pr, x0 = SND_CX - SND_W / 2, y0 = SND_CY - SND_H / 2;
+    const si = out3(seg(u, 1.75, 2.05)), so = out3(seg(u, 3.3, 3.55));
+    const col = UXB_mix(UX.accent, UX.mint, inOut3(seg(u, 1.75, 2.05)) * (1 - inOut3(seg(u, 3.3, 3.6))));
+    k.save(); k.translate(SND_CX, SND_CY); k.scale(bs, bs); k.translate(-SND_CX, -SND_CY);
+    k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 16; k.shadowOffsetY = 6; rr(k, x0, y0, SND_W, SND_H, SND_H / 2); k.fillStyle = rgba(col, 1); k.fill(); k.restore();
+    rr(k, x0, y0, SND_W, SND_H, SND_H / 2); k.clip();
+    const to = out3(seg(u, 1.0, 1.3)), ti = out3(seg(u, 3.45, 3.75));
+    k.globalAlpha = u < 3.45 ? 1 - to : ti;
+    txt(k, '发送消息', SND_CX + 14 + (u < 3.45 ? 16 * to : -10 * (1 - ti)), SND_CY + 5.5, UXB_f(800, 15), '#FFFFFF', 'center');
+    k.globalAlpha = si * (1 - so);
+    txt(k, '已发送 ✓', SND_CX - 16 * (1 - si) + 10 * so, SND_CY + 5.5, UXB_f(800, 15), '#FFFFFF', 'center');
+    k.globalAlpha = 1;
+    let px = x0 + 44, py = SND_CY, rot = 0;
+    if (u >= 1.0 && u < 3.4) {
+      const w1 = inOut3(seg(u, 1.0, 1.2)), f = Math.pow(seg(u, 1.2, 1.8), 3);
+      px += -6 * w1 + 300 * f; py += -60 * f; rot = (-10 * w1 - 15 * f) * Math.PI / 180;
+    } else if (u >= 3.4) { const r = out3(seg(u, 3.4, 3.9)); px -= 40 * (1 - r); py += 24 * (1 - r); rot = 20 * (1 - r) * Math.PI / 180; }
+    SND_plane(k, px, py, rot);
+    k.restore();
+    const c = UXB_path(u, SND_KEYS);
+    if (u > 0.3 && u < 1.7) cursor(k, c[0], c[1], pr);
+  };
+
+  // @element 47
+  // 47 星星评分（KittenJam #149）：指针 0.9 秒悬停第 2 颗，前 2 颗浅色预览（0.15 秒过渡）、下方显示「较差」；2.2 秒点第 4 颗，
+  // 第 1–4 颗每隔 0.08 秒依次填满并弹跳（0.3 秒内放大到 1.35 再回落），下方浮出「很好」；指针 2.3–3.0 秒离开；5.4–6.0 秒交叉淡化复位。
+  const STR_Y = 98, STR_GAP = 48, STR_RO = 17, STR_RI = 7.5, STR_CLICK = 2.2, STR_PICK = 4, STR_STAG = 0.08;
+  const STR_x = i => 269.5 + (i - 2) * STR_GAP;
+  const STR_LAB = ['很差', '较差', '一般', '很好', '超赞！'];
+  const STR_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, STR_x(1) + 3, STR_Y + 6], [1.7, STR_x(1) + 3, STR_Y + 6], [2.1, STR_x(3) + 3, STR_Y + 6], [2.3, STR_x(3) + 3, STR_Y + 6], [3.0, 570, 230]];
+  const STR_hit = p => { for (let i = 0; i < 5; i++) if (Math.abs(p[0] - STR_x(i)) < 22 && Math.abs(p[1] - STR_Y) < 22) return i + 1; return 0; };
+  const STR_HEV = UXB_changes(t => STR_hit(UXB_path(t, STR_KEYS)));
+  const STR_PEV = [0, 1, 2, 3, 4].map(i => [[-1, 0], ...STR_HEV.slice(1).map(([t, v]) => [t, v > i ? 1 : 0])]);
+  function STR_star(k) {
+    k.beginPath();
+    for (let j = 0; j < 10; j++) { const r = j % 2 ? STR_RI : STR_RO, a = -Math.PI / 2 + j * Math.PI / 5; k.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+    k.closePath();
+  }
+  function STR_draw(k, u) {
+    k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+    card(k, 120, 22, 299, 164, 16);
+    txt(k, '为这次体验打分', 269.5, 56, UXB_f(900, 15), UX.ink, 'center');
+    let hov = 0; for (const [t, v] of STR_HEV) if (t <= u) hov = v;
+    for (let i = 0; i < 5; i++) {
+      const t0 = STR_CLICK + i * STR_STAG, on = i < STR_PICK && u >= t0, pre = UXB_ramp(u, STR_PEV[i], 0.15, x => x);
+      const sc = on ? 1 + 0.35 * Math.sin(Math.PI * seg(u, t0, t0 + 0.3)) : 1;
+      k.save(); k.translate(STR_x(i), STR_Y); k.scale(sc, sc); STR_star(k);
+      k.fillStyle = on ? '#F5B301' : UX.surface2; k.fill();
+      if (!on && pre > 0) { k.globalAlpha = 0.45 * pre; k.fillStyle = '#F5B301'; k.fill(); k.globalAlpha = 1; }
+      k.strokeStyle = on ? '#E0A100' : UX.line2; k.lineWidth = 1.5; k.lineJoin = 'round'; k.stroke();
+      k.restore();
+    }
+    if (u >= STR_CLICK) {
+      const a = out3(seg(u, STR_CLICK + 0.24, STR_CLICK + 0.5));
+      k.globalAlpha = a; txt(k, STR_LAB[STR_PICK - 1], 269.5, 152 + 6 * (1 - a), UXB_f(900, 14), UX.ink, 'center'); k.globalAlpha = 1;
+    } else txt(k, hov ? STR_LAB[hov - 1] : '点击星星评分', 269.5, 152, UXB_f(700, 12), UX.ink3, 'center');
+    const c = UXB_path(u, STR_KEYS);
+    if (u > 0.3 && u < 3.0) cursor(k, c[0], c[1], UXB_press(u, STR_CLICK));
+  }
+  CELLS[46] = (k, w, h, u) => UXB_xfade(k, STR_draw, u, SHOW, SHOW + 0.6);
+
+  // @element 48
+  // 48 滑动确认（KittenJam #235）：胶囊滑轨 300×56，提示字有一道每 1.6 秒扫过一次的流光；第一次 0.9–1.7 秒拖到 60% 松开，
+  // 把手贴着起点衰减弹回（0.6 秒）；第二次 2.65–3.45 秒拖到底，3.55 秒松开时超过 85% 即确认，0.3 秒内轨道填满变绿、显示「已确认 ✓」；5.4–6.0 秒交叉淡化复位。
+  const SLD_X = 119.5, SLD_Y = 76, SLD_W = 300, SLD_H = 56, SLD_R = 23, SLD_PASS = 0.85, SLD_SHINE = 1.6;
+  const SLD_D = SLD_W - 10 - SLD_R * 2, SLD_K0 = SLD_X + 5 + SLD_R, SLD_KY = SLD_Y + SLD_H / 2;
+  function SLD_d(u) {
+    if (u < 0.9) return 0;
+    if (u < 1.8) return 0.6 * SLD_D * inOut3(seg(u, 0.9, 1.7));
+    if (u < 2.65) { const t = u - 1.8; return t >= 0.6 ? 0 : 0.6 * SLD_D * Math.exp(-7 * t) * Math.abs(Math.cos(t * 9)) * (1 - t / 0.6); }
+    return SLD_D * inOut3(seg(u, 2.65, 3.45));
+  }
+  function SLD_cur(u, d) {
+    if (u < 0.85) return UXB_path(u, [[0, 570, 230], [0.3, 570, 230], [0.8, SLD_K0 + 3, SLD_KY + 2]]);
+    if (u < 1.8) return [SLD_K0 + 3 + d, SLD_KY + 2];
+    if (u < 2.6) return UXB_path(u, [[1.8, SLD_K0 + 3 + 0.6 * SLD_D, SLD_KY + 2], [2.0, SLD_K0 + 3 + 0.6 * SLD_D, SLD_KY + 10], [2.5, SLD_K0 + 3, SLD_KY + 2]]);
+    if (u < 3.55) return [SLD_K0 + 3 + d, SLD_KY + 2];
+    return UXB_path(u, [[3.55, SLD_K0 + 3 + SLD_D, SLD_KY + 2], [4.3, 570, 230]]);
+  }
+  // s = 状态时间（复位时冻结），u = 真实时间（只驱动流光，保证流光不停）
+  function SLD_draw(k, s, u) {
+    k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+    const d = SLD_d(s), done = s >= 3.55 && d >= SLD_PASS * SLD_D ? inOut3(seg(s, 3.55, 3.85)) : 0, kx = SLD_K0 + d;
+    rr(k, SLD_X, SLD_Y, SLD_W, SLD_H, SLD_H / 2); k.fillStyle = UX.surface3; k.fill();
+    const fw = mix(kx + SLD_R + 5 - SLD_X, SLD_W, done);
+    k.globalAlpha = mix(0.25, 1, done); rr(k, SLD_X, SLD_Y, fw, SLD_H, SLD_H / 2); k.fillStyle = rgba(UXB_mix(UX.accent, UX.mint, done), 1); k.fill(); k.globalAlpha = 1;
+    const ha = clamp(1 - d / (0.5 * SLD_D)) * (1 - done);
+    if (ha > 0) {
+      const sx = mix(SLD_X + 40, SLD_X + SLD_W + 20, (u % SLD_SHINE) / SLD_SHINE), g = k.createLinearGradient(sx - 40, 0, sx + 40, 0);
+      g.addColorStop(0, UX.ink3); g.addColorStop(0.5, UX.ink); g.addColorStop(1, UX.ink3);
+      k.globalAlpha = ha; txt(k, '滑动以付款', SLD_X + SLD_W / 2 + 20, SLD_KY + 5, UXB_f(800, 14), g, 'center'); k.globalAlpha = 1;
+    }
+    if (done > 0) { k.globalAlpha = done; txt(k, '已确认 ✓', SLD_X + SLD_W / 2 - 20, SLD_KY + 5, UXB_f(900, 15), '#FFFFFF', 'center'); k.globalAlpha = 1; }
+    k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 8; k.shadowOffsetY = 2;
+    k.fillStyle = '#FFFFFF'; k.beginPath(); k.arc(kx, SLD_KY, SLD_R, 0, TAU); k.fill(); k.restore();
+    k.lineWidth = 2.2; k.lineCap = 'round'; k.lineJoin = 'round'; k.beginPath();
+    if (done < 0.5) { k.strokeStyle = UX.ink; k.moveTo(kx - 7, SLD_KY); k.lineTo(kx + 7, SLD_KY); k.moveTo(kx + 2, SLD_KY - 5); k.lineTo(kx + 7, SLD_KY); k.lineTo(kx + 2, SLD_KY + 5); }
+    else { k.strokeStyle = UX.mint; k.moveTo(kx - 7, SLD_KY); k.lineTo(kx - 2, SLD_KY + 5); k.lineTo(kx + 7, SLD_KY - 5); }
+    k.stroke();
+    const c = SLD_cur(s, d);
+    if (s > 0.3 && s < 4.3) cursor(k, c[0], c[1], Math.max(UXC_hold(s, 0.85, 1.8), UXC_hold(s, 2.6, 3.55)));
+  }
+  CELLS[47] = (k, w, h, u) => UXB_xfade(k, (g, s) => SLD_draw(g, s, u), u, SHOW, SHOW + 0.6);
+
+  // @element 49
+  // 49 圆形扩张转场（KittenJam #161）：滚动进度 0.5–4.4 秒由 0 到 1（inOut3，右侧滚动条同步），第二章从中央以圆形遮罩出现，
+  // 半径随进度从 0 扩到画面半对角线；第一章标题缩到 0.8 并淡出，第二章标题从 1.2 倍缩回 1；5.4–6.3 秒滚回，圆形缩回。
+  const CRV_RMAX = Math.hypot(CW / 2, CH / 2);
+  CELLS[48] = (k, w, h, u) => {
+    const p = UXA_scroll(u, 0.5, 4.4), r = CRV_RMAX * p;
+    k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+    const s1 = 1 - 0.2 * p;
+    k.save(); k.globalAlpha = 1 - p; k.translate(CW / 2, CH / 2); k.scale(s1, s1);
+    txt(k, '第一章', 0, -26, UXB_f(800, 12), UX.ink3, 'center'); txt(k, '启程', 0, 18, UXB_f(900, 40, SERIF), UX.ink, 'center');
+    k.restore();
+    if (r > 0.5) {
+      k.save(); k.beginPath(); k.arc(CW / 2, CH / 2, r, 0, TAU); k.clip();
+      k.fillStyle = UXD.page; k.fillRect(0, 0, CW, CH); glow(k, CW / 2, CH / 2, 200, '183,164,255', 0.25);
+      const s2 = 1.2 - 0.2 * p; k.translate(CW / 2, CH / 2); k.scale(s2, s2);
+      txt(k, '第二章', 0, -26, UXB_f(800, 12), UXD.ink3, 'center'); txt(k, '远方', 0, 18, UXB_f(900, 40, SERIF), UXD.ink, 'center');
+      k.restore();
+    }
+    scrollbar(k, p, 0.3, CW - 8, 10, CH - 10, p > 0.85);
+  };
+
+  // @element 50
+  // 50 时间轴延伸（KittenJam #127）：滚动进度 0.4–4.6 秒由 0 到 1（右侧滚动条同步），左侧细线从顶端往下延伸 164px；
+  // 线头到达某个节点时，该节点圆点填色、周次 / 标题 / 说明从左 10px 滑入淡现（线头越过节点后 16px 内完成）；5.4–6.3 秒滚回，节点依次收起。
+  const TLD_X = 130, TLD_Y0 = 22, TLD_Y1 = 186, TLD_NY = [36, 80, 124, 168];
+  const TLD_NODES = [['需求访谈', '了解目标、用户与限制', '第 1 周'], ['概念构思', '草图、方向与评审', '第 2 周'], ['设计制作', '视觉稿与可交互原型', '第 3–5 周'], ['上线交付', '测试、发布与复盘', '第 6 周']];
+  CELLS[49] = (k, w, h, u) => {
+    k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+    const p = UXA_scroll(u, 0.4, 4.6), ly = mix(TLD_Y0, TLD_Y1, p);
+    k.lineCap = 'round'; k.lineWidth = 2;
+    k.strokeStyle = UX.line2; k.beginPath(); k.moveTo(TLD_X, TLD_Y0); k.lineTo(TLD_X, TLD_Y1); k.stroke();
+    if (p > 0) { k.strokeStyle = UX.accent; k.beginPath(); k.moveTo(TLD_X, TLD_Y0); k.lineTo(TLD_X, ly); k.stroke(); }
+    TLD_NODES.forEach(([title, desc, week], i) => {
+      const ny = TLD_NY[i], a = out3(clamp((ly - ny + 4) / 16)), dx = -10 * (1 - a);
+      k.fillStyle = UX.surface; k.strokeStyle = UX.line2; k.lineWidth = 1.5; k.beginPath(); k.arc(TLD_X, ny, 6, 0, TAU); k.fill(); k.stroke();
+      if (a > 0) {
+        k.globalAlpha = a; k.fillStyle = UX.accent; k.beginPath(); k.arc(TLD_X, ny, 6, 0, TAU); k.fill();
+        txt(k, week, TLD_X - 18 + dx, ny + 4, UXB_f(700, 10.5), UX.ink3, 'right');
+        txt(k, title, TLD_X + 22 + dx, ny + 4.5, UXB_f(800, 13), UX.ink);
+        txt(k, desc, TLD_X + 100 + dx, ny + 4.5, UXB_f(600, 11), UX.ink3);
+        k.globalAlpha = 1;
+      }
+    });
+    if (p > 0 && p < 1) glow(k, TLD_X, ly, 12, '106,87,242', 0.5);
+    scrollbar(k, p);
+  };
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });
