@@ -1,0 +1,15 @@
+Please use "Liquid radio" (リキッドラジオボタン), one of the names in "UI component names".
+Motion Prompt #1-115
+
+What it is: The selection dot stretches like a droplet to the next option
+What the sample shows: The cursor picks 4 stacked options in turn; the selection dot flows to each new ring stretched like a droplet and rounds off, and the card on the right updates.
+Spec:
+- 4 stacked options (38 apart; ring radius 10, dot radius 5.5).
+- The cursor clicks options 2, 3, 4 and 1 at 0.8, 1.7, 2.6 and 3.5 s.
+- The dot travels to the new centre in 0.45 s: the head arrives first with easeOut power 3 and the tail follows with easeInOut power 3, joined into a tapering droplet whose tail shrinks to 0.6× radius before it becomes round again.
+- A summary card on the right shows the current choice.
+When to use it: Use it in settings, surveys or checkout options where choosing should feel soft and fluid.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-115.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

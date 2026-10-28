@@ -2,7 +2,7 @@
 
 # 动态图形进阶
 
-28 个效果 · #2 025~048 · 064~067 · 分类包 `motion2` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+46 个效果 · #2 025~048 · 064~085 · 分类包 `motion2` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -18,6 +18,12 @@
 | [#2-030](https://sadjjk.github.io/motion-prompt-zh/#2-030) | **运动路径** | Motion path | 沿预先定义的曲线移动 | 纸飞机沿这条运动路径飞行四秒，朝向始终跟随运动方向。 |
 | [#2-031](https://sadjjk.github.io/motion-prompt-zh/#2-031) | **往返循环** | Ping-pong loop | 正向播放后再反向播放，持续重复 | 加载圆点做往返循环，单程一秒。 |
 | [#2-032](https://sadjjk.github.io/motion-prompt-zh/#2-032) | **定格动画风格** | Stop-motion style | 通过跳帧产生逐格、顿挫的运动 | 这段运动做定格动画风格，每秒八帧，每帧加轻微抖动。 |
+| [#2-080](https://sadjjk.github.io/motion-prompt-zh/#2-080) | **手写签名** | Signature animation | 草写签名一笔笔写出来 | 结尾加手写签名：草写线条在 2.6 秒内随笔尖圆点写出，最后补一道底线。 |
+| [#2-081](https://sadjjk.github.io/motion-prompt-zh/#2-081) | **地图路线导航** | Map route animation | 地图上落下地标并画出路线 | 地图上做路线导航：3 枚地标弹跳落下，从起点到终点画线，小点沿线前进。 |
+| [#2-082](https://sadjjk.github.io/motion-prompt-zh/#2-082) | **心电图线条** | ECG heartbeat line | 心电波形从左往右持续扫出 | 健康 App 画面加心电图线条：深色格子屏上波形从左往右扫出，心率数字与爱心跟着跳。 |
+| [#2-083](https://sadjjk.github.io/motion-prompt-zh/#2-083) | **树枝生长** | Growing tree | 树从主干到分枝再到叶子逐步长出 | 品牌故事用树枝生长开场：地面与主干、分枝、细枝、叶子依次长出，最后出现文字。 |
+| [#2-084](https://sadjjk.github.io/motion-prompt-zh/#2-084) | **齿轮联动** | Gear train | 咬合齿轮按齿数比转动 | 处理中画面放齿轮联动：一大两小齿轮咬合，按齿数比反向转动。 |
+| [#2-085](https://sadjjk.github.io/motion-prompt-zh/#2-085) | **指纹扫描解锁** | Fingerprint scan | 读取指纹后验证通过 | 登录页加指纹扫描：纹路由内向外画出，光条上下扫过，最后变绿并打勾。 |
 
 ## 文字与图形
 
@@ -35,6 +41,18 @@
 | [#2-065](https://sadjjk.github.io/motion-prompt-zh/#2-065) | **波的干涉** | Wave interference | 两列反向行进的波叠加，时而相长时而相消的图解 | 做一个波的干涉图解动画：上面 2 条泳道是反向行进的波 A、B，下方泳道画出两者相加的合成波，竖直虚线上 3 个点实时读数。 |
 | [#2-066](https://sadjjk.github.io/motion-prompt-zh/#2-066) | **散点聚成正态分布** | Dots settling into a normal distribution | 散乱的观测点聚拢成钟形分布的统计图解 | 做一个正态分布形成动画：98 个点先散成一团云，再一个个落进 13 列钟形柱，均值线 μ 亮起锁定。 |
 | [#2-067](https://sadjjk.github.io/motion-prompt-zh/#2-067) | **网络扩散** | Network diffusion | 信号从一个源点沿连线逐跳扩散的网络图解 | 做一个网络扩散动画：左侧源点亮起放出 3 圈涟漪，信号沿 16 条曲线边依次传到右侧 16 个节点，左上角显示跳数和已触达节点数。 |
+| [#2-068](https://sadjjk.github.io/motion-prompt-zh/#2-068) | **闪电砸落** | Lightning strike | 文字伴随闪电强光重重砸下 | 标题用闪电砸落登场：两次闪白加一道闪电，文字从 2.4 倍砸下并轻微震动。 |
+| [#2-069](https://sadjjk.github.io/motion-prompt-zh/#2-069) | **硬币翻转** | Coin flip | 每个字像硬币一样翻转跳起 | 4 个字做硬币翻转：每字绕竖轴转两圈并跳起，间隔 0.2 秒。 |
+| [#2-070](https://sadjjk.github.io/motion-prompt-zh/#2-070) | **水面倒影** | Water reflection | 文字下方有摇晃的倒置倒影 | 给标题加水面倒影：细水平线下是向下渐隐、摇晃的倒置文字。 |
+| [#2-071](https://sadjjk.github.io/motion-prompt-zh/#2-071) | **文字旗帜** | Flag wave | 文字像旗子一样迎风飘动 | 口号做成文字旗帜：左边立旗杆，字依次波浪飘动。 |
+| [#2-072](https://sadjjk.github.io/motion-prompt-zh/#2-072) | **重力反转** | Gravity flip | 文字往上掉、倒立后再落回 | logo 文字做重力反转：每字往上掉并倒立，停一下再落回并小弹。 |
+| [#2-073](https://sadjjk.github.io/motion-prompt-zh/#2-073) | **卡拉 OK 小球** | Karaoke bouncing ball | 跳动小球逐字点亮歌词 | 歌词加卡拉 OK 小球：发光小球每 0.38 秒跳一个字，落到的字亮起。 |
+| [#2-074](https://sadjjk.github.io/motion-prompt-zh/#2-074) | **墨水晕开** | Ink bleed | 晕开的墨团收敛成字，再晕散消失 | 标题做墨水晕开：每字从模糊墨团收成清晰字形，最后再晕开消失。 |
+| [#2-075](https://sadjjk.github.io/motion-prompt-zh/#2-075) | **崩落** | Crumble | 文字崩塌坠落，再落回重组 | 片尾文字做崩落：每字先歪斜，旋转下坠淡出，再从上方落回。 |
+| [#2-076](https://sadjjk.github.io/motion-prompt-zh/#2-076) | **印章** | Rubber stamp | 带框印章啪地盖上 | 在文件画面上盖两枚印章：从 2.4 倍斜着砸下，印面带斑驳质感。 |
+| [#2-077](https://sadjjk.github.io/motion-prompt-zh/#2-077) | **文字圆柱** | Text cylinder | 同一个字环绕成圆柱并旋转 | 3 个字做成文字圆柱，相邻反向旋转，中间那根用强调色。 |
+| [#2-078](https://sadjjk.github.io/motion-prompt-zh/#2-078) | **拉霸** | Slot machine | 滚轮快速转动后从左到右停在结果 | 结果揭晓做成拉霸：4 个滚轮转动，从左到右减速并略带回弹停下。 |
+| [#2-079](https://sadjjk.github.io/motion-prompt-zh/#2-079) | **液体填满** | Liquid fill | 空心字被液体由下往上填满 | 标题做液体填满：描边空心字在 3 秒内被波动液体由下往上填满，最后清空。 |
 
 ## 转场与强调
 

@@ -1,8 +1,8 @@
 {
- "version": "1.7d410e4153",
+ "version": "1.94b6268718",
  "site": "https://sadjjk.github.io/motion-prompt-zh/",
  "repo": "https://github.com/sadjjk/motion-prompt-zh",
- "count": 263,
+ "count": 313,
  "groups": [
   {
    "id": "web",
@@ -95,9 +95,9 @@
      "zh-Hans": "导航与状态"
     }
    ],
-   "count": 35,
+   "count": 43,
    "first": "1-001",
-   "last": "1-113",
+   "last": "1-121",
    "ranges": [
     [
      "1-001",
@@ -109,7 +109,7 @@
     ],
     [
      "1-108",
-     "1-113"
+     "1-121"
     ]
    ],
    "upstreamFirst": "049",
@@ -156,9 +156,9 @@
      "zh-Hans": "加载、导航与循环动效"
     }
    ],
-   "count": 29,
+   "count": 35,
    "first": "1-025",
-   "last": "1-107",
+   "last": "1-127",
    "ranges": [
     [
      "1-025",
@@ -167,6 +167,10 @@
     [
      "1-103",
      "1-107"
+    ],
+    [
+     "1-122",
+     "1-127"
     ]
    ],
    "upstreamFirst": "073",
@@ -207,13 +211,17 @@
      "zh-Hans": "液态交互"
     }
    ],
-   "count": 12,
+   "count": 13,
    "first": "1-049",
-   "last": "1-060",
+   "last": "1-128",
    "ranges": [
     [
      "1-049",
      "1-060"
+    ],
+    [
+     "1-128",
+     "1-128"
     ]
    ],
    "upstreamFirst": "145",
@@ -279,13 +287,17 @@
      "zh-Hans": "动态图表"
     }
    ],
-   "count": 37,
+   "count": 50,
    "first": "1-061",
-   "last": "1-097",
+   "last": "1-141",
    "ranges": [
     [
      "1-061",
      "1-097"
+    ],
+    [
+     "1-129",
+     "1-141"
     ]
    ],
    "upstreamFirst": "189",
@@ -296,7 +308,7 @@
    "license": "MIT License (c) 2026 Seokwoooo",
    "author": "Seokwoooo",
    "attribution": "https://lucianlabs.dev/uxui-prompt/",
-   "scalable": true
+   "scalable": false
   },
   {
    "pack": "motion",
@@ -386,9 +398,9 @@
      "zh-Hans": "转场与强调"
     }
    ],
-   "count": 28,
+   "count": 46,
    "first": "2-025",
-   "last": "2-067",
+   "last": "2-085",
    "ranges": [
     [
      "2-025",
@@ -396,7 +408,7 @@
     ],
     [
      "2-064",
-     "2-067"
+     "2-085"
     ]
    ],
    "upstreamFirst": "121",
@@ -609,13 +621,13 @@
      "zh-Hans": "器物与空间"
     }
    ],
-   "count": 35,
+   "count": 39,
    "first": "4-001",
-   "last": "4-035",
+   "last": "4-039",
    "ranges": [
     [
      "4-001",
-     "4-035"
+     "4-039"
     ]
    ],
    "upstreamFirst": "157",
@@ -3170,6 +3182,555 @@
    }
   },
   {
+   "id": "1-114",
+   "group": "web",
+   "pack": "ui",
+   "no": "36",
+   "slug": "pricing-toggle",
+   "category": "select-switch",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 542,
+   "height": 191,
+   "cycle": 4.5,
+   "name": {
+    "ja": "料金プラン切り替え",
+    "en": "Pricing toggle",
+    "zh-Hans": "价格方案切换"
+   },
+   "meaning": {
+    "ja": "月払い・年払いを切り替えると価格が回って変わる",
+    "en": "Switching monthly and yearly rolls the prices to new values",
+    "zh-Hans": "切换月付 / 年付时价格数字滚动变化"
+   },
+   "ask": {
+    "ja": "料金表に月払い／年払いの切り替えを付けて。切り替えたら価格の数字を上へ回して新しい値にし、おすすめのプランを少し大きくする。",
+    "en": "Add a monthly / yearly pricing toggle: switching rolls each price up to its new value and slightly enlarges the recommended plan.",
+    "zh-Hans": "价格表加月付 / 年付切换：切换后价格数字向上滚动到新值，推荐方案略微放大并描边。"
+   },
+   "summary": {
+    "ja": "カーソルが「年払い」を押すとつまみが移り、3枚のカードの価格が順に回って下がり、中央のおすすめカードが大きくなって青く縁取られ、後で月払いに戻る。",
+    "en": "The cursor clicks Yearly: the knob slides over, the three prices roll down card by card and the recommended middle card grows with a blue outline; later it switches back to Monthly.",
+    "zh-Hans": "光标点“年付”，滑块移过去，三张卡的价格依次滚动成新值，中间推荐卡放大并描蓝边，之后切回月付。"
+   },
+   "spec": {
+    "ja": [
+     "160×30の「月払い／年払い」カプセル型スイッチと、3枚の価格カード（150×124・間隔18）",
+     "カーソルが1.0秒に「年払い」を押し、つまみが0.3秒（easeInOut 3乗）で右へ移る",
+     "価格はカードごとに0.08秒ずつずれ、各0.4秒で上へ回って新しい値になる：¥29 / 59 / 99 → ¥23 / 47 / 79",
+     "中央のおすすめカードは0.35秒で1.06倍になり2pxの青い縁取り、スイッチの横に「20%お得」が出る",
+     "3.2秒に「月払い」を押すと同じ動きで逆に戻る"
+    ],
+    "en": [
+     "A 160×30 Monthly / Yearly pill toggle and 3 price cards (150×124, 18 apart).",
+     "The cursor clicks Yearly at 1.0 s and the knob slides right over 0.3 s (easeInOut power 3).",
+     "Card by card (0.08 s apart, 0.4 s each) the prices roll up to their new values: ¥29 / 59 / 99 → ¥23 / 47 / 79.",
+     "The recommended middle card scales to 1.06 with a 2px blue outline over 0.35 s, and a \"Save 20%\" badge fades in beside the toggle.",
+     "At 3.2 s Monthly is clicked and everything switches back the same way."
+    ],
+    "zh-Hans": [
+     "160×30“月付 / 年付”胶囊开关，3 张价格卡（150×124、间距 18）。",
+     "光标 1.0 秒点“年付”，滑块 0.3 秒（easeInOut 3 次方）右移。",
+     "三张卡价格依次（间隔 0.08 秒、各 0.4 秒）向上滚动到新值：¥29 / 59 / 99 → ¥23 / 47 / 79。",
+     "中间推荐卡 0.35 秒放大到 1.06 并描 2px 蓝边，开关旁“省 20%”淡入。",
+     "3.2 秒点“月付”，全部以同样方式切回。"
+    ]
+   },
+   "use": {
+    "ja": "SaaS の料金ページなど、支払い周期で価格が変わるプラン比較に。",
+    "en": "Use it on SaaS pricing pages where plans change price with the billing period.",
+    "zh-Hans": "适合 SaaS 价格页等按付费周期变价的方案对比。"
+   },
+   "tags": [
+    "pricing",
+    "toggle",
+    "billing",
+    "number-roll",
+    "plans",
+    "switch"
+   ]
+  },
+  {
+   "id": "1-115",
+   "group": "web",
+   "pack": "ui",
+   "no": "37",
+   "slug": "liquid-radio",
+   "category": "select-switch",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 542,
+   "height": 191,
+   "cycle": 4.5,
+   "name": {
+    "ja": "リキッドラジオボタン",
+    "en": "Liquid radio",
+    "zh-Hans": "水滴单选"
+   },
+   "meaning": {
+    "ja": "選択の点が水滴のように伸びて次の項目へ移る",
+    "en": "The selection dot stretches like a droplet to the next option",
+    "zh-Hans": "选中点像水滴一样拉长移到新选项"
+   },
+   "ask": {
+    "ja": "ラジオボタンをリキッドラジオにして。選び直すと点が水滴のように伸びて0.45秒で次の項目へ移り、丸に戻る。",
+    "en": "Make the radio group liquid: when the choice changes, the dot stretches like a droplet to the new option in 0.45 s and turns round again.",
+    "zh-Hans": "单选框做成水滴单选：换选时选中点像水滴一样拉长，0.45 秒移到新选项后收回圆形。"
+   },
+   "summary": {
+    "ja": "縦に並ぶ4つの選択肢をカーソルが順に選び、選択の点が水滴のように伸びながら次の丸へ流れて丸に戻り、右のカードの表示も替わる。",
+    "en": "The cursor picks 4 stacked options in turn; the selection dot flows to each new ring stretched like a droplet and rounds off, and the card on the right updates.",
+    "zh-Hans": "光标依次点选竖排 4 个选项，选中点拉成水滴流向新圆圈再收圆，右侧卡片同步更新。"
+   },
+   "spec": {
+    "ja": [
+     "縦に並ぶ4つの選択肢（間隔38、外側の輪の半径10、選択の点の半径5.5）",
+     "カーソルが0.8・1.7・2.6・3.5秒に2・3・4・1番目を押す",
+     "点は0.45秒で新しい中心へ移る。先頭は easeOut 3乗で先に着き、後ろは easeInOut 3乗で遅れて続き、間をつないだ細くなる水滴形になる。後ろの半径は0.6倍まで縮み、着くと丸に戻る",
+     "右側の要約カードが今の選択を表示する"
+    ],
+    "en": [
+     "4 stacked options (38 apart; ring radius 10, dot radius 5.5).",
+     "The cursor clicks options 2, 3, 4 and 1 at 0.8, 1.7, 2.6 and 3.5 s.",
+     "The dot travels to the new centre in 0.45 s: the head arrives first with easeOut power 3 and the tail follows with easeInOut power 3, joined into a tapering droplet whose tail shrinks to 0.6× radius before it becomes round again.",
+     "A summary card on the right shows the current choice."
+    ],
+    "zh-Hans": [
+     "竖排 4 个选项（行距 38，外圈半径 10，选中点半径 5.5）。",
+     "光标在 0.8、1.7、2.6、3.5 秒依次点第 2、3、4、1 项。",
+     "选中点 0.45 秒移到新圆心：头部按 easeOut 3 次方先到，尾部按 easeInOut 3 次方后到，中间连成渐细的水滴形，尾端半径缩到 0.6 倍，到位后收回正圆。",
+     "右侧摘要卡显示当前选中项。"
+    ]
+   },
+   "use": {
+    "ja": "設定・アンケート・配送方法など、選択肢を選ぶフォームに柔らかい手ごたえを付けたい所に。",
+    "en": "Use it in settings, surveys or checkout options where choosing should feel soft and fluid.",
+    "zh-Hans": "适合设置、问卷、配送方式等想让选择更柔和流畅的表单。"
+   },
+   "tags": [
+    "radio",
+    "liquid",
+    "gooey",
+    "form",
+    "selection",
+    "droplet"
+   ]
+  },
+  {
+   "id": "1-116",
+   "group": "web",
+   "pack": "ui",
+   "no": "38",
+   "slug": "floating-label-input",
+   "category": "select-switch",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 542,
+   "height": 191,
+   "cycle": 4.5,
+   "name": {
+    "ja": "フローティングラベル",
+    "en": "Floating label",
+    "zh-Hans": "输入框浮动标签"
+   },
+   "meaning": {
+    "ja": "入力欄に入るとラベルが小さく上へ移る",
+    "en": "The label shrinks and floats up when the field is focused",
+    "zh-Hans": "聚焦输入框时标签缩小上浮"
+   },
+   "ask": {
+    "ja": "メール欄をフローティングラベルにして。フォーカスでラベルを小さく上へ移し、下線を中央から左右へ広げる。",
+    "en": "Use a floating label on the email field: on focus the label shrinks and moves up, and the underline grows out from the centre.",
+    "zh-Hans": "邮箱输入框用浮动标签：聚焦时标签缩小上浮，底线从中间向两侧展开。"
+   },
+   "summary": {
+    "ja": "カーソルが入力欄を押すと、中のラベルが小さくなって上へ移り青くなり、下線が中央から広がり、メールアドレスが1文字ずつ入る。最後は消して外を押し元に戻る。",
+    "en": "The cursor clicks the field: the label shrinks, moves up and turns blue, the underline spreads from the centre and an email address is typed letter by letter; it is then cleared and blurred.",
+    "zh-Hans": "光标点进输入框，标签缩小上浮变蓝，底线从中间展开，再逐字输入邮箱；最后删空、点框外复原。"
+   },
+   "spec": {
+    "ja": [
+     "350×52の入力欄。ラベル「メールアドレス」は最初、欄の中に15pxの灰色で置く",
+     "カーソルが0.9秒に押すと、0.25秒（easeOut 3乗）でラベルが11pxに縮み15px上がって青くなり、青い下線が0.3秒で中央から334pxまで広がる",
+     "1.4秒から「hello@kitten.cn」を1文字0.08秒で入力。キャレットは0.5秒ごとに点滅",
+     "3.3秒から1文字0.025秒で消し、3.85秒に欄の外を押すとラベルと下線が0.25秒で元に戻る"
+    ],
+    "en": [
+     "A 350×52 input; the label \"Email address\" starts inside the field in grey at 15px.",
+     "The cursor clicks in at 0.9 s: over 0.25 s (easeOut power 3) the label shrinks to 11px, rises 15px and turns blue, and the blue underline grows from the centre to 334px over 0.3 s.",
+     "From 1.4 s \"hello@kitten.cn\" is typed at 0.08 s per character, with the caret blinking every 0.5 s.",
+     "From 3.3 s it is deleted at 0.025 s per character; at 3.85 s a click outside blurs the field and the label and underline return over 0.25 s."
+    ],
+    "zh-Hans": [
+     "350×52 输入框，标签“邮箱地址”初始在框内，15px 灰字。",
+     "光标 0.9 秒点入：标签 0.25 秒（easeOut 3 次方）缩到 11px、上浮 15px 并变蓝；蓝色底线 0.3 秒从中间展开到 334px。",
+     "1.4 秒起逐字输入“hello@kitten.cn”，每字 0.08 秒，输入光标每 0.5 秒闪烁。",
+     "3.3 秒起每字 0.025 秒删空；3.85 秒点框外失焦，标签与底线 0.25 秒还原。"
+    ]
+   },
+   "use": {
+    "ja": "ログイン・会員登録・問い合わせなど、狭い場所でも項目名を見失わせたくないフォームに。",
+    "en": "Use it in sign-in, sign-up or contact forms where the field name should stay visible while typing.",
+    "zh-Hans": "适合登录、注册、联系表单等输入时仍需看到字段名的地方。"
+   },
+   "tags": [
+    "floating-label",
+    "input",
+    "text-field",
+    "form",
+    "focus",
+    "underline"
+   ]
+  },
+  {
+   "id": "1-117",
+   "group": "web",
+   "pack": "ui",
+   "no": "39",
+   "slug": "expanding-search",
+   "category": "select-switch",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 542,
+   "height": 191,
+   "cycle": 4.5,
+   "name": {
+    "ja": "展開する検索ボックス",
+    "en": "Expanding search",
+    "zh-Hans": "展开搜索框"
+   },
+   "meaning": {
+    "ja": "丸い虫めがねボタンが横に伸びて検索欄になる",
+    "en": "A round search button widens into a search field",
+    "zh-Hans": "圆形放大镜按钮横向展开成搜索框"
+   },
+   "ask": {
+    "ja": "ヘッダーの検索を展開する検索ボックスにして。虫めがねを押したら0.45秒で左へ伸びて入力欄になる。",
+    "en": "Make the header search expand: clicking the magnifier widens it to the left into an input over 0.45 s.",
+    "zh-Hans": "顶栏搜索做成展开搜索框：点放大镜后 0.45 秒向左展开成输入框。"
+   },
+   "summary": {
+    "ja": "カーソルが丸い虫めがねボタンを押すと、右端を固定したまま左へ伸びて検索欄になり、プレースホルダーが出て文字が入り、×で消すと丸いボタンに戻る。",
+    "en": "The cursor clicks a round magnifier button; it widens to the left into a search field with its right edge fixed, a placeholder appears, a query is typed, and clearing it with × folds it back.",
+    "zh-Hans": "光标点圆形放大镜按钮，右缘固定向左展开成搜索框，占位字出现后逐字输入，点 × 清空后收回圆形。"
+   },
+   "spec": {
+    "ja": [
+     "44×44の丸い検索ボタン。カーソルが0.9秒に押す",
+     "右端を固定したまま0.95〜1.4秒（easeInOut 3乗）で左へ320×44の検索欄に伸び、虫めがねは左端といっしょに動く",
+     "1.3〜1.5秒にプレースホルダー「モーションを検索…」がフェードイン。1.8秒から「回転ボタン」を1文字0.18秒で入力し、右に×が出る",
+     "3.4秒に×を押して消し、3.5〜3.95秒で丸いボタンに戻る"
+    ],
+    "en": [
+     "A 44×44 round search button; the cursor clicks it at 0.9 s.",
+     "Keeping its right edge fixed, it widens left into a 320×44 field over 0.95–1.4 s (easeInOut power 3); the magnifier moves with the left edge.",
+     "The placeholder \"Search motion…\" fades in over 1.3–1.5 s; from 1.8 s the query \"rotating button\" is typed at 0.18 s per character and a clear × appears on the right.",
+     "At 3.4 s the × is clicked to clear it, and over 3.5–3.95 s the field shrinks back into the round button."
+    ],
+    "zh-Hans": [
+     "44×44 圆形放大镜按钮，光标 0.9 秒点击。",
+     "右缘固定，0.95–1.4 秒（easeInOut 3 次方）向左展开成 320×44 搜索框，放大镜随左缘移动。",
+     "1.3–1.5 秒占位字“搜索动效…”淡入；1.8 秒起逐字输入“旋转按钮”，每字 0.18 秒，右侧出现 ×。",
+     "3.4 秒点 × 清空，3.5–3.95 秒收回圆形按钮。"
+    ]
+   },
+   "use": {
+    "ja": "ヘッダーやツールバーなど、普段は場所を取らず必要なときだけ検索欄を出したい所に。",
+    "en": "Use it in headers and toolbars where search should take little space until it is needed.",
+    "zh-Hans": "适合顶栏、工具栏等平时不占空间、需要时才展开搜索的地方。"
+   },
+   "tags": [
+    "search",
+    "expand",
+    "input",
+    "header",
+    "toolbar",
+    "morph"
+   ]
+  },
+  {
+   "id": "1-118",
+   "group": "web",
+   "pack": "ui",
+   "no": "40",
+   "slug": "command-palette",
+   "category": "open-overlay",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 542,
+   "height": 191,
+   "cycle": 4.5,
+   "name": {
+    "ja": "コマンドパレット",
+    "en": "Command palette",
+    "zh-Hans": "命令面板"
+   },
+   "meaning": {
+    "ja": "ショートカットで開き、打ちながら命令を絞り込む",
+    "en": "Opens with a shortcut and filters commands as you type",
+    "zh-Hans": "快捷键唤出、边输入边筛选命令"
+   },
+   "ask": {
+    "ja": "⌘K でコマンドパレットを開いて。背景を暗くしてパネルを少し拡大しながら出し、入力に合わせて一覧を絞り込む。",
+    "en": "Open a command palette with ⌘K: dim the page, scale the panel in slightly, and filter the list as the user types.",
+    "zh-Hans": "按 ⌘K 唤出命令面板：背景变暗、面板微微放大出现，输入时实时筛选列表。"
+   },
+   "summary": {
+    "ja": "⌘K のキーが押されると背景が暗くなりパネルが現れ、「設定」と打つと一覧が絞られて一致した文字が青くなり、ハイライトが1行下がって決定される。",
+    "en": "The ⌘K keys press, the page dims and a panel appears; typing \"Settings\" narrows the list with matches in blue, the highlight moves down a row and is confirmed.",
+    "zh-Hans": "⌘K 按下后背景变暗、面板出现，输入“设置”时列表被筛选、匹配字标蓝，高亮下移一行后确认。"
+   },
+   "spec": {
+    "ja": [
+     "右下に ⌘ K のキー表示。0.5秒に2つのキーが2px沈む",
+     "0.6〜0.85秒にページが0.4まで暗くなり、300×159のパネルが easeOut 3乗で0.94 → 1に拡大しながらフェードイン",
+     "1.3秒・1.5秒に「設定」を1文字ずつ入力。一覧は5項目 → 3項目 → 2項目に絞られ、一致した文字が青くなる",
+     "2.3秒にハイライトが0.2秒（easeInOut 3乗）で1行下がり、2.9秒に Enter で一瞬濃くなり、3.1〜3.4秒にパネルと暗い層が消える"
+    ],
+    "en": [
+     "A ⌘ K keycap hint at the bottom right; both keys press down 2px at 0.5 s.",
+     "Over 0.6–0.85 s the page dims to 0.4 and the 300×159 panel fades in while scaling 0.94 → 1 with easeOut power 3.",
+     "\"Settings\" is typed one character at a time at 1.3 s and 1.5 s; the list narrows from 5 items to 3 and then 2, with matching characters in blue.",
+     "At 2.3 s the highlight moves down one row over 0.2 s (easeInOut power 3); Enter darkens it briefly at 2.9 s, and the panel and dim layer fade out over 3.1–3.4 s."
+    ],
+    "zh-Hans": [
+     "右下角键帽提示“⌘ K”，0.5 秒两键下沉 2px。",
+     "0.6–0.85 秒背景暗到 0.4，300×159 面板以 easeOut 3 次方从 0.94 → 1 放大并淡入。",
+     "1.3 秒、1.5 秒逐字输入“设置”，列表由 5 项筛成 3 项再筛成 2 项，匹配字标蓝。",
+     "2.3 秒高亮条 0.2 秒（easeInOut 3 次方）下移一行，2.9 秒回车时加深一下，3.1–3.4 秒面板与暗层淡出。"
+    ]
+   },
+   "use": {
+    "ja": "開発ツール・管理画面・エディタなど、キーボードで素早く操作させたいアプリに。",
+    "en": "Use it in developer tools, dashboards and editors where keyboard users want quick actions.",
+    "zh-Hans": "适合开发工具、管理后台、编辑器等需要键盘快速操作的应用。"
+   },
+   "tags": [
+    "command-palette",
+    "cmdk",
+    "search",
+    "modal",
+    "keyboard",
+    "filter",
+    "shortcut"
+   ]
+  },
+  {
+   "id": "1-119",
+   "group": "web",
+   "pack": "ui",
+   "no": "41",
+   "slug": "page-flip-book",
+   "category": "open-overlay",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 542,
+   "height": 191,
+   "cycle": 4.5,
+   "name": {
+    "ja": "ページめくり",
+    "en": "Page flip",
+    "zh-Hans": "翻页书"
+   },
+   "meaning": {
+    "ja": "本のページが背を軸にめくれて反対側へ移る",
+    "en": "A book page turns over the spine to the other side",
+    "zh-Hans": "书页以书脊为轴翻到另一侧"
+   },
+   "ask": {
+    "ja": "カタログを本のページめくりで見せて。右ページを押したら背を軸に0.7秒でめくって左へ送る。",
+    "en": "Show the catalogue as a book with a page flip: clicking the right page turns it over the spine to the left in 0.7 s.",
+    "zh-Hans": "把产品目录做成翻页书：点右页后以书脊为轴 0.7 秒翻到左侧。"
+   },
+   "summary": {
+    "ja": "開いた本の右ページをカーソルが2回押し、そのたびに1枚が背を軸に横に縮んで裏返り左へ移り、最後に左ページを押すと2枚がまとめて戻る。",
+    "en": "The cursor clicks the right page of an open book twice; each time a leaf narrows over the spine, flips and lands on the left; a final click on the left page turns both leaves back.",
+    "zh-Hans": "光标两次点开着的书的右页，每次一张纸以书脊为轴收窄、翻面落到左侧；最后点左页，两张纸一起翻回。"
+   },
+   "spec": {
+    "ja": [
+     "開いた本。150×148のページ2枚が x 271 の背で接する",
+     "カーソルが0.9秒と2.1秒に右ページを押し、そのたびに1枚が0.7秒で背を軸にめくれる：scaleX は cos(π·easeInOut) で1から −1 へ",
+     "0を過ぎると裏のページが見え、0付近では最大0.25の影を重ねて立体感を出す。見開きは 1-2 → 3-4 → 5-6",
+     "3.4秒に左ページを押すと、上の紙が3.5秒・下の紙が3.6秒から各0.55秒でめくり戻り、1-2 に戻る"
+    ],
+    "en": [
+     "An open book: 2 pages of 150×148 meeting at a spine at x 271.",
+     "The cursor clicks the right page at 0.9 s and 2.1 s; each time one leaf turns over the spine in 0.7 s, its scaleX following cos(π·easeInOut) from 1 to −1.",
+     "Past 0 the back of the leaf shows, and near 0 a shade of up to 0.25 suggests depth. The spreads go 1-2 → 3-4 → 5-6.",
+     "At 3.4 s the left page is clicked: the upper leaf from 3.5 s and the lower leaf from 3.6 s each turn back in 0.55 s, returning to 1-2."
+    ],
+    "zh-Hans": [
+     "摊开的书：2 页 150×148，在 x 271 的书脊处相接。",
+     "光标在 0.9 秒、2.1 秒点右页，每次一张纸以书脊为轴 0.7 秒翻过去：scaleX 按 cos(π·easeInOut) 从 1 到 −1。",
+     "过 0 后显示背面，接近 0 时叠加最多 0.25 的暗影模拟立体感；页码 1-2 → 3-4 → 5-6。",
+     "3.4 秒点左页：上层纸 3.5 秒、下层纸 3.6 秒起各 0.55 秒翻回，回到 1-2。"
+    ]
+   },
+   "use": {
+    "ja": "カタログ・絵本・作品集・年次報告など、紙をめくる感覚を残したい閲覧画面に。",
+    "en": "Use it for catalogues, picture books, portfolios or annual reports that should feel like turning paper.",
+    "zh-Hans": "适合目录、绘本、作品集、年报等想保留纸张翻阅感的阅读界面。"
+   },
+   "tags": [
+    "page-flip",
+    "book",
+    "flipbook",
+    "catalog",
+    "3d-flip",
+    "click"
+   ]
+  },
+  {
+   "id": "1-120",
+   "group": "web",
+   "pack": "ui",
+   "no": "42",
+   "slug": "folding-card",
+   "category": "open-overlay",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 542,
+   "height": 191,
+   "cycle": 4.5,
+   "name": {
+    "ja": "二つ折りカード",
+    "en": "Folding card",
+    "zh-Hans": "对折邀请卡"
+   },
+   "meaning": {
+    "ja": "二つ折りのカードの表紙が開き、中の文字が出る",
+    "en": "A folded card opens its cover to reveal the message inside",
+    "zh-Hans": "对折卡片翻开封面露出内页文字"
+   },
+   "ask": {
+    "ja": "招待状を二つ折りカードにして。表紙を押したら左端を軸に開き、中の文字を順にフェードインさせる。",
+    "en": "Make the invitation a folding card: clicking the cover opens it on its left edge and the message inside fades in line by line.",
+    "zh-Hans": "邀请函做成对折卡：点封面后以左边为轴打开，内页文字依次淡入。"
+   },
+   "summary": {
+    "ja": "カーソルが紺の表紙を押すと、表紙が左端を軸に開いて中の左半分が見え、右半分の3行が順に浮かび上がり、最後は閉じて元に戻る。",
+    "en": "The cursor clicks the navy cover; it swings open on its left edge to show the inner left half while 3 lines on the right fade up in turn, and it closes again at the end.",
+    "zh-Hans": "光标点深蓝封面，封面以左边为轴翻开露出内页左半，右半 3 行文字依次浮现，最后合上复原。"
+   },
+   "spec": {
+    "ja": [
+     "閉じた150×130のカード。紺の表紙に「招待状」",
+     "カーソルが0.8秒に表紙を押す。0.9〜1.6秒に表紙が左端を軸に開き（scaleX 1 → −1、easeInOut 3乗）、0を過ぎると中の左半分が見える。同時にカード全体が右へ75px動いて中央を保つ",
+     "中の3行は1.6・1.8・2.0秒から各0.3秒でフェードインしながら6px上がる",
+     "3.4秒に中を押すと、文字が3.4〜3.6秒に消え、3.6〜4.2秒に表紙が閉じてカードが元の位置へ戻る"
+    ],
+    "en": [
+     "A closed 150×130 card with a navy cover reading \"Invitation\".",
+     "The cursor clicks the cover at 0.8 s; over 0.9–1.6 s the cover opens on its left edge (scaleX 1 → −1, easeInOut power 3), showing the inner left half once past 0, while the whole card moves 75px right to stay centred.",
+     "The 3 lines inside fade in and rise 6px from 1.6, 1.8 and 2.0 s, 0.3 s each.",
+     "At 3.4 s the inside is clicked: the text fades out over 3.4–3.6 s, and over 3.6–4.2 s the cover closes and the card slides back."
+    ],
+    "zh-Hans": [
+     "合起的 150×130 卡片，深蓝封面写“邀请函”。",
+     "光标 0.8 秒点封面；0.9–1.6 秒封面以左边为轴打开（scaleX 1 → −1，easeInOut 3 次方），过 0 后显示内页左半，同时整张卡右移 75px 保持居中。",
+     "内页 3 行文字在 1.6、1.8、2.0 秒起各 0.3 秒淡入并上移 6px。",
+     "3.4 秒点内页：文字 3.4–3.6 秒淡出，3.6–4.2 秒封面合上、卡片回到原位。"
+    ]
+   },
+   "use": {
+    "ja": "招待状・グリーティングカード・お知らせなど、開く楽しさを演出したいメッセージに。",
+    "en": "Use it for invitations, greeting cards or announcements where opening should feel like a small reveal.",
+    "zh-Hans": "适合邀请函、贺卡、通知等想营造打开惊喜感的消息。"
+   },
+   "tags": [
+    "folding-card",
+    "invitation",
+    "card-open",
+    "reveal",
+    "greeting",
+    "click"
+   ]
+  },
+  {
+   "id": "1-121",
+   "group": "web",
+   "pack": "ui",
+   "no": "43",
+   "slug": "pull-to-refresh",
+   "category": "navigate-status",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 542,
+   "height": 191,
+   "cycle": 4.5,
+   "name": {
+    "ja": "プルトゥリフレッシュ",
+    "en": "Pull to refresh",
+    "zh-Hans": "下拉刷新"
+   },
+   "meaning": {
+    "ja": "リストを下に引っぱって離すと読み込み直す",
+    "en": "Pull the list down and let go to reload it",
+    "zh-Hans": "下拉列表松手后重新加载"
+   },
+   "ask": {
+    "ja": "メッセージ一覧にプルトゥリフレッシュを付けて。引くほど重くなり、アイコンが回り、離すと読み込んで新しい項目が上に入る。",
+    "en": "Add pull to refresh to the message list: it resists as it is pulled, the icon turns, and on release it loads and a new item appears at the top.",
+    "zh-Hans": "消息列表加下拉刷新：越拉越沉，图标随距离转动，松手后转圈加载，顶部插入新消息。"
+   },
+   "summary": {
+    "ja": "スマホの画面で指がリストを押して下へ引き、リストは抵抗を受けながら下がって上の矢印が回る。離すと回転して読み込み、戻ると一番上に新しいメッセージが入る。",
+    "en": "In a phone screen a finger drags the list down; it follows with resistance as the arrow at the top turns, then on release the icon spins, the list springs back and a new message slides in at the top.",
+    "zh-Hans": "手机屏幕里手指按住列表下拖，列表带阻力下移、顶部箭头随之转动；松手后图标转圈加载，列表回弹，顶部插入一条新消息。"
+   },
+   "spec": {
+    "ja": [
+     "150×179のスマホ枠の中のメッセージ一覧（行の高さ30）。指が0.8秒に押し、0.8〜1.8秒で120px下へ引く",
+     "抵抗があるため一覧は 90·(1−e^(−引いた量/90)) しか動かず約66px。上の丸い矢印は距離に応じて270°まで回る",
+     "1.8秒に離すと、一覧が0.25秒で44pxの位置に止まり、アイコンが回転する（0.8秒で1回転）",
+     "2.9〜3.2秒に一覧が0へ戻り、3.0〜3.4秒に一番上へ青い「新着メッセージ」の行が入る。4.0〜4.4秒にその行がたたまれて元に戻る"
+    ],
+    "en": [
+     "A message list (rows 30 high) inside a 150×179 phone frame; the finger presses at 0.8 s and drags down 120px over 0.8–1.8 s.",
+     "With resistance the list moves only 90·(1−e^(−drag/90)), about 66px; the round arrow at the top turns up to 270° with the distance.",
+     "Released at 1.8 s, the list settles at 44px over 0.25 s and the icon spins (1 turn per 0.8 s).",
+     "Over 2.9–3.2 s the list eases back to 0 and over 3.0–3.4 s a blue \"New message\" row is inserted at the top; over 4.0–4.4 s that row folds away to reset."
+    ],
+    "zh-Hans": [
+     "150×179 手机框内的消息列表（行高 30）。手指 0.8 秒按住，0.8–1.8 秒向下拖 120px。",
+     "受阻力影响列表只移动 90·(1−e^(−拖动量/90))，约 66px；顶部圆形箭头随距离转到 270°。",
+     "1.8 秒松手，列表 0.25 秒停到 44px 处，图标转圈（0.8 秒 1 圈）。",
+     "2.9–3.2 秒列表回到 0，3.0–3.4 秒顶部插入一条蓝色“新消息”行；4.0–4.4 秒该行收起复位。"
+    ]
+   },
+   "use": {
+    "ja": "メッセージ・ニュース・SNS のフィードなど、最新の内容を取りに行くモバイルの一覧に。",
+    "en": "Use it in mobile feeds such as messages, news or social timelines that fetch the latest items.",
+    "zh-Hans": "适合消息、新闻、社交动态等需要拉取最新内容的移动端列表。"
+   },
+   "tags": [
+    "pull-to-refresh",
+    "refresh",
+    "mobile",
+    "list",
+    "gesture",
+    "loading",
+    "spinner"
+   ]
+  },
+  {
    "id": "1-025",
    "upstream": "073",
    "group": "web",
@@ -5207,6 +5768,403 @@
    }
   },
   {
+   "id": "1-122",
+   "group": "web",
+   "pack": "lp",
+   "no": "30",
+   "slug": "rotating-gradient-border",
+   "category": "hover-click",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "回転グラデーションボーダー",
+    "en": "Rotating gradient border",
+    "zh-Hans": "旋转光边按钮"
+   },
+   "meaning": {
+    "ja": "ボタンの枠の光がぐるりと回り続ける",
+    "en": "A gradient light keeps circling the button border",
+    "zh-Hans": "按钮外框的渐变光持续绕圈"
+   },
+   "ask": {
+    "ja": "CTA ボタンの枠に回転グラデーションボーダーを付けて。ホバー中は回転を速め、外側にぼんやり光らせる。",
+    "en": "Give the CTA a rotating gradient border that spins faster on hover, with a soft outer glow.",
+    "zh-Hans": "给主按钮加旋转光边：锥形渐变外框持续绕圈，悬停时加速并亮起外光晕。"
+   },
+   "summary": {
+    "ja": "暗いページのボタンの枠を多色のグラデーションが回り、カーソルが乗ると回転が速まり外側が光る。",
+    "en": "A multicolour gradient circles the border of a button on a dark page; when the cursor hovers, it spins faster and a glow appears around it.",
+    "zh-Hans": "深色页面上按钮外框的多色渐变一直绕圈，光标悬停时转速加快并亮起外光晕。"
+   },
+   "spec": {
+    "ja": [
+     "暗いページ中央に200×52のカプセル型ボタン。枠は3pxの円錐グラデーション（朱 → 青 → 紫 → 朱）",
+     "グラデーションの角度は基本で1周期に1回転。カーソルが乗っている間（0.7〜3.8秒、easeInOut 2乗）さらに2回転を足し、4.8秒周期で計3回転の整数回にして継ぎ目なし",
+     "カーソルは0.6秒にボタンへ。外側の光（shadowBlur 26）が0.25秒の easeOut で点き、3.8秒に離れると0.25秒で消える"
+    ],
+    "en": [
+     "A 200×52 pill button on a dark page with a 3px conic-gradient border (vermilion → blue → purple → vermilion).",
+     "The gradient angle turns 1 full turn per cycle at base speed; while the cursor hovers (0.7–3.8 s, easeInOut power 2) it adds 2 more turns, a whole 3 turns per 4.8 s cycle, so the loop is seamless.",
+     "The cursor reaches the button at 0.6 s; an outer glow (shadowBlur 26) comes on over 0.25 s with easeOut and goes off over 0.25 s after the cursor leaves at 3.8 s."
+    ],
+    "zh-Hans": [
+     "深色页面中央 200×52 胶囊按钮，外框是 3px 锥形渐变（朱 → 蓝 → 紫 → 朱）。",
+     "渐变角度基础转速为每周期 1 圈；光标悬停期间（0.7–3.8 秒，easeInOut 2 次方）额外加 2 圈，每 4.8 秒周期合计整数 3 圈，首尾无缝。",
+     "光标 0.6 秒移到按钮上，外光晕（shadowBlur 26）用 0.25 秒 easeOut 亮起；3.8 秒移开后 0.25 秒熄灭。"
+    ]
+   },
+   "use": {
+    "ja": "料金ページや暗いヒーローで、いちばん押してほしいボタンを目立たせたい所に。",
+    "en": "Use it to make the main call to action stand out on dark heroes or pricing pages.",
+    "zh-Hans": "适合深色首屏或价格页里最想让人点的主按钮。"
+   },
+   "tags": [
+    "gradient-border",
+    "conic-gradient",
+    "glow",
+    "button",
+    "hover",
+    "animated-border"
+   ]
+  },
+  {
+   "id": "1-123",
+   "group": "web",
+   "pack": "lp",
+   "no": "31",
+   "slug": "jelly-button",
+   "category": "hover-click",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "ゼリーボタン",
+    "en": "Jelly button",
+    "zh-Hans": "果冻弹跳按钮"
+   },
+   "meaning": {
+    "ja": "押すとゼリーのように縦横に揺れて戻る",
+    "en": "Wobbles wide and tall like jelly when pressed",
+    "zh-Hans": "点击后像果冻一样横竖弹动再复原"
+   },
+   "ask": {
+    "ja": "カートに入れるボタンをゼリーボタンにして。押したら横につぶれて縦に伸び、0.6秒で元に戻す。",
+    "en": "Make the add-to-cart button a jelly button: squash wide, stretch tall and settle within 0.6 s of the click.",
+    "zh-Hans": "把“加入购物车”按钮做成果冻弹跳：点击后先横向压扁再纵向拉高，0.6 秒内回弹复原。"
+   },
+   "summary": {
+    "ja": "カーソルがボタンを2回押し、そのたびにボタンが横へつぶれ縦へ伸びて小さく揺れ戻り、下の文字が個数を数える。",
+    "en": "The cursor presses the button twice; each time it squashes wide, stretches tall and wobbles back, while the caption counts the items added.",
+    "zh-Hans": "光标点两次按钮，每次按钮先横向压扁、再纵向拉高、小幅回弹复原，下方文字计数。"
+   },
+   "spec": {
+    "ja": [
+     "160×50の朱色のカプセル型ボタン。カーソルが1.0秒と2.8秒に押す",
+     "押すたびに拡大率 (1, 1) → 0.12秒 (1.18, 0.82) → 0.27秒 (0.85, 1.15) → 0.42秒 (1.05, 0.95) → 0.6秒で (1, 1) に戻る。各区間 easeInOut 3乗",
+     "ボタンの下の文字が押した回数を数える（「1件追加」「2件追加」）。横につぶしてから縦に伸ばすので弾みが読み取れる"
+    ],
+    "en": [
+     "A 160×50 vermilion pill button; the cursor clicks it at 1.0 s and 2.8 s.",
+     "After each click the scale goes (1, 1) → (1.18, 0.82) at 0.12 s → (0.85, 1.15) at 0.27 s → (1.05, 0.95) at 0.42 s → back to (1, 1) at 0.6 s, each step easeInOut power 3.",
+     "The caption under the button counts the clicks (\"Added 1 item\", \"Added 2 items\"); squashing wide before stretching tall keeps the bounce readable."
+    ],
+    "zh-Hans": [
+     "160×50 朱色胶囊按钮，光标在 1.0 秒、2.8 秒各点一次。",
+     "每次点击后缩放 (1, 1) → 0.12 秒 (1.18, 0.82) → 0.27 秒 (0.85, 1.15) → 0.42 秒 (1.05, 0.95) → 0.6 秒回到 (1, 1)，每段 easeInOut 3 次方。",
+     "按钮下方文字计数（“已加入 1 件”“已加入 2 件”）；先横向压扁再纵向拉高，弹性一眼可见。"
+    ]
+   },
+   "use": {
+    "ja": "カート追加・いいね・送信など、押した手ごたえを返したいボタンに。",
+    "en": "Use it on add-to-cart, like or send buttons where a press should feel physical.",
+    "zh-Hans": "适合加入购物车、点赞、发送等需要按压手感反馈的按钮。"
+   },
+   "tags": [
+    "jelly",
+    "squash-stretch",
+    "button",
+    "click",
+    "bounce",
+    "feedback"
+   ]
+  },
+  {
+   "id": "1-124",
+   "group": "web",
+   "pack": "lp",
+   "no": "32",
+   "slug": "card-deal",
+   "category": "hover-click",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "カードディール",
+    "en": "Card deal",
+    "zh-Hans": "发牌展开"
+   },
+   "meaning": {
+    "ja": "カードが一枚ずつ配られて扇形に開く",
+    "en": "Cards are dealt one by one into a fan",
+    "zh-Hans": "卡片依次发出并展开成扇形"
+   },
+   "ask": {
+    "ja": "「配る」を押したら5枚のカードを下から順に配って、±24°の扇形に弾んで開いて。",
+    "en": "When Deal is pressed, deal 5 cards up from the bottom one after another into a ±24° fan with a small overshoot.",
+    "zh-Hans": "点“发牌”后 5 张卡片从底部依次发出，回弹展开成约 ±24° 的扇形。"
+   },
+   "summary": {
+    "ja": "「配る」を押すと5枚のカードが下から順に飛び出して扇形に開き、しばらく後に「集める」で最後の1枚から下へ戻る。",
+    "en": "Pressing Deal sends 5 cards up from the bottom in turn into a fan; later, Collect sends them back down starting with the last card.",
+    "zh-Hans": "点“发牌”后 5 张卡片从底部依次飞出展开成扇形，停留后点“收牌”，从最后一张开始收回下方。"
+   },
+   "spec": {
+    "ja": [
+     "カーソルが0.5秒に「配る」を押す。5枚のカード（60×84）が下から0.12秒おき・1枚0.55秒で出る",
+     "カード下端の132下にある共通の軸を中心に −24°…+24°（1枚ごと12°）の扇形に開く。角度は back-out（行き過ぎ1.7）で弾み、easeOut 3乗で150px上がる",
+     "3.1秒に「集める」を押す。3.2秒から最後の1枚を先に、0.1秒おき・0.35秒（easeInOut 3乗）で閉じながら下へ戻る"
+    ],
+    "en": [
+     "The cursor clicks Deal at 0.5 s; 5 cards (60×84) leave the bottom one by one, 0.12 s apart, 0.55 s each.",
+     "They fan out to −24°…+24° (12° apart) around a shared pivot 132 below the card bottoms; the angle uses back-out with overshoot 1.7 while the cards rise 150px with easeOut power 3.",
+     "At 3.1 s Collect is clicked; from 3.2 s, starting with the last card, each card folds back and drops 0.1 s apart over 0.35 s (easeInOut power 3)."
+    ],
+    "zh-Hans": [
+     "光标 0.5 秒点“发牌”，5 张卡片（60×84）从下方依次发出，间隔 0.12 秒、每张 0.55 秒。",
+     "绕卡片底边下方 132 处的同一枢轴展开到 −24°…+24°（每张差 12°），角度用 back-out（过冲 1.7）回弹，同时 easeOut 3 次方上升 150px。",
+     "3.1 秒点“收牌”；3.2 秒起从最后一张开始，每张间隔 0.1 秒、0.35 秒（easeInOut 3 次方）收拢并落回下方。"
+    ]
+   },
+   "use": {
+    "ja": "カード型の商品・プラン・特典をまとめて見せる場面や、ゲーム風の演出に。",
+    "en": "Use it to reveal a set of card-style products, plans or perks, or for game-like moments.",
+    "zh-Hans": "适合一次展示一组卡片式商品、套餐、福利，或游戏化的展示场景。"
+   },
+   "tags": [
+    "card-deal",
+    "fan",
+    "cards",
+    "stagger",
+    "overshoot",
+    "click"
+   ]
+  },
+  {
+   "id": "1-125",
+   "group": "web",
+   "pack": "lp",
+   "no": "33",
+   "slug": "photo-stack-shuffle",
+   "category": "hover-click",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "フォトスタックシャッフル",
+    "en": "Photo stack shuffle",
+    "zh-Hans": "拍立得洗牌"
+   },
+   "meaning": {
+    "ja": "重ねた写真の一番上を抜いて一番下へ送る",
+    "en": "Pulls the top photo off a pile and tucks it underneath",
+    "zh-Hans": "叠放照片的顶张抽出插回底部"
+   },
+   "ask": {
+    "ja": "思い出の写真をフォトスタックシャッフルにして。クリックで一番上の写真を右へ抜き、一番下に差し込む。",
+    "en": "Show the memories as a photo stack shuffle: each click pulls the top photo out to the right and slips it under the pile.",
+    "zh-Hans": "把回忆照片做成拍立得洗牌：每次点击把顶张向右抽出，再插回最底下。"
+   },
+   "summary": {
+    "ja": "傾いて重なった4枚のポラロイドの一番上をカーソルが押すたび、その1枚が右へ抜けて一番下に入り、残りが1段ずつ上がる。",
+    "en": "Each time the cursor clicks a pile of 4 tilted polaroids, the top one slides out to the right and goes to the bottom while the rest move up a place.",
+    "zh-Hans": "光标每点一次歪斜叠放的 4 张拍立得，顶张向右抽出插到最底层，其余各上移一层。"
+   },
+   "spec": {
+    "ja": [
+     "傾いたポラロイド4枚の束（96×112）。各段の角度は −3°・4°・−7°・6°",
+     "カーソルが0.6・1.5・2.4・3.3秒に一番上を押す。押して0.05秒後から1回0.75秒で入れ替える",
+     "一番上の1枚は最初の0.36秒で easeOut 3乗で右へ170px抜けながら10°余分に回り、残りの0.39秒（easeInOut 3乗）で一番下の段へ戻る",
+     "残り3枚は同時に1段ずつ上がる（easeInOut 3乗）。4回で並びが元に戻り、周期の始めと終わりが同じ"
+    ],
+    "en": [
+     "A pile of 4 tilted polaroids (96×112) whose slots are angled −3°, 4°, −7° and 6°.",
+     "The cursor clicks the top card at 0.6, 1.5, 2.4 and 3.3 s; each shuffle starts 0.05 s after the click and lasts 0.75 s.",
+     "The top card slides 170px to the right and turns 10° more with easeOut power 3 over the first 0.36 s, then tucks into the bottom slot over the remaining 0.39 s (easeInOut power 3).",
+     "The other 3 cards each move up one slot at the same time (easeInOut power 3); after 4 shuffles the order is back to the start, matching the first frame."
+    ],
+    "zh-Hans": [
+     "一叠 4 张歪斜的拍立得（96×112），各槽位角度 −3°、4°、−7°、6°。",
+     "光标在 0.6、1.5、2.4、3.3 秒点顶张；每次点击后 0.05 秒开始洗牌，历时 0.75 秒。",
+     "顶张前 0.36 秒 easeOut 3 次方向右抽出 170px 并多转 10°，后 0.39 秒（easeInOut 3 次方）插回最底层槽位。",
+     "其余 3 张同时各上移一个槽位（easeInOut 3 次方）；4 次后顺序回到初始，与周期开头一致。"
+    ]
+   },
+   "use": {
+    "ja": "旅行記・アルバム・作品集など、写真を1枚ずつめくって見せたい所に。",
+    "en": "Use it in travel stories, albums or portfolios to flip through photos one at a time.",
+    "zh-Hans": "适合旅行记录、相册、作品集等一张张翻看照片的场景。"
+   },
+   "tags": [
+    "photo-stack",
+    "polaroid",
+    "shuffle",
+    "cards",
+    "gallery",
+    "click"
+   ]
+  },
+  {
+   "id": "1-126",
+   "group": "web",
+   "pack": "lp",
+   "no": "34",
+   "slug": "slice-transition",
+   "category": "loading-loops",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "スライストランジション",
+    "en": "Slice transition",
+    "zh-Hans": "切片转场"
+   },
+   "meaning": {
+    "ja": "画像を短冊に切り、交互に上下へ抜いて次を見せる",
+    "en": "Cuts the image into strips that slide away alternately up and down",
+    "zh-Hans": "图片切成竖条交替上下滑走露出下一张"
+   },
+   "ask": {
+    "ja": "スライダーの切り替えをスライストランジションにして。6本の短冊が0.08秒ずつずれて交互に上下へ抜ける。",
+    "en": "Use a slice transition for the slider: 6 strips slide out alternately up and down, 0.08 s apart.",
+    "zh-Hans": "轮播切换用切片转场：当前图切成 6 条，间隔 0.08 秒交替向上、向下滑走。"
+   },
+   "summary": {
+    "ja": "枠の中の図が6本の縦の短冊に分かれ、左から順に上・下・上…と抜けて下の図が現れ、もう一度同じ動きで元の図に戻る。",
+    "en": "The picture in the frame splits into 6 vertical strips that slide away left to right, up, down, up…, revealing the next picture; the same move later brings the first back.",
+    "zh-Hans": "画框里的图分成 6 条竖条，从左到右依次上、下、上…滑走，露出下一张；之后同样切回第一张。"
+   },
+   "spec": {
+    "ja": [
+     "431×128の枠の中で2枚の幾何学的な図が交互に入れ替わる",
+     "今の図を縦6本の短冊に切り、0.08秒おき・各0.5秒の easeInOut 3乗で148px抜く。1・3・5本目は上へ、2・4・6本目は下へ",
+     "タイムライン: 図Aを0.9秒まで表示 → 0.9〜1.8秒に切り抜けて図B → 3.3秒まで表示 → 3.3〜4.2秒に切り抜けて図Aに戻る"
+    ],
+    "en": [
+     "Two geometric pictures alternate inside a 431×128 frame.",
+     "The current picture is cut into 6 vertical strips; each slides 148px out, 0.08 s apart, 0.5 s each with easeInOut power 3 — strips 1, 3, 5 go up and strips 2, 4, 6 go down.",
+     "Timeline: picture A holds until 0.9 s, slices away over 0.9–1.8 s to reveal B, B holds until 3.3 s, then slices away over 3.3–4.2 s back to A."
+    ],
+    "zh-Hans": [
+     "431×128 画框内两张几何示意图交替出现。",
+     "当前图切成 6 条竖条，每条间隔 0.08 秒、各 0.5 秒 easeInOut 3 次方滑出 148px，第 1、3、5 条向上，第 2、4、6 条向下。",
+     "时间线：图 A 停留到 0.9 秒 → 0.9–1.8 秒切走露出图 B → 停到 3.3 秒 → 3.3–4.2 秒切走回到图 A。"
+    ]
+   },
+   "use": {
+    "ja": "ヒーローのスライダー・作品の切り替え・章の区切りなど、画像を印象的に替えたい所に。",
+    "en": "Use it for hero sliders, portfolio switches or section breaks where an image change should feel bold.",
+    "zh-Hans": "适合首屏轮播、作品切换、章节过渡等想让换图更有冲击力的地方。"
+   },
+   "tags": [
+    "slice",
+    "transition",
+    "slider",
+    "strips",
+    "image-reveal",
+    "stagger"
+   ]
+  },
+  {
+   "id": "1-127",
+   "group": "web",
+   "pack": "lp",
+   "no": "35",
+   "slug": "animated-weather-icons",
+   "category": "loading-loops",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "アニメーション天気アイコン",
+    "en": "Animated weather icons",
+    "zh-Hans": "天气图标动画"
+   },
+   "meaning": {
+    "ja": "晴れ・くもり・雨・雷のアイコンがそれぞれ小さく動く",
+    "en": "Sun, cloud, rain and storm icons each move in a small loop",
+    "zh-Hans": "晴、云、雨、雷图标各自小幅循环动"
+   },
+   "ask": {
+    "ja": "天気予報のアイコンをアニメにして。太陽の光が回り、雲が漂い、雨粒が時間差で落ち、雷が光る。",
+    "en": "Animate the forecast icons: the sun's rays turn, the cloud drifts, raindrops fall in turn and the lightning flashes.",
+    "zh-Hans": "让天气预报图标动起来：太阳光芒自转、云朵飘动、雨滴错时落下、闪电闪烁。"
+   },
+   "summary": {
+    "ja": "4枚の小さなカードで、太陽の光が回り、雲が左右に漂い、雨粒が順に落ち、雷雲の稲妻が時々光る。",
+    "en": "On 4 small cards the sun's rays rotate, a cloud drifts side to side, raindrops fall in turn and a storm cloud's bolt flashes now and then.",
+    "zh-Hans": "4 张小卡上，太阳光芒自转、云朵左右飘、雨滴依次落下、雷云里的闪电不时一闪。"
+   },
+   "spec": {
+    "ja": [
+     "4枚の小さなカード（110×128・間隔14）：晴れ・くもり・雨・雷。どのループも4.8秒周期の中で整数回くり返す",
+     "晴れ: 12本の光が1周期に1回転。くもり: 雲が左右に ±6px 漂い、1周期に2往復",
+     "雨: 3粒が0.27秒ずつずれ、0.8秒ごとに30px落ち、始めと終わりでフェード",
+     "雷: 1.2・1.5・3.6秒に各0.12秒光り、同時にカードの地がほんのり明るくなる"
+    ],
+    "en": [
+     "4 small cards (110×128, 14 apart): sunny, cloudy, rain and storm; every loop repeats a whole number of times per 4.8 s cycle.",
+     "Sun: 12 rays rotate 1 full turn per cycle. Cloud: drifts ±6px left and right, 2 round trips per cycle.",
+     "Rain: 3 drops 0.27 s apart, each falling 30px every 0.8 s and fading in and out at the ends.",
+     "Storm: the bolt flashes at 1.2, 1.5 and 3.6 s for 0.12 s each while the card background tints lighter."
+    ],
+    "zh-Hans": [
+     "4 张小卡（110×128、间距 14）：晴、多云、小雨、雷暴；每个循环在 4.8 秒周期内都重复整数次。",
+     "晴：12 道光芒每周期自转 1 圈。多云：云朵左右飘 ±6px，每周期 2 次往返。",
+     "雨：3 滴雨错开 0.27 秒，每 0.8 秒落下 30px，起落两端淡入淡出。",
+     "雷暴：闪电在 1.2、1.5、3.6 秒各闪 0.12 秒，同时卡片底色微亮。"
+    ]
+   },
+   "use": {
+    "ja": "天気・旅行・イベントの案内や、状態を表すアイコンを少し生き生きさせたい所に。",
+    "en": "Use it in weather, travel or event pages, or anywhere status icons should feel a little alive.",
+    "zh-Hans": "适合天气、出行、活动页面，或想让状态图标更生动的地方。"
+   },
+   "tags": [
+    "weather",
+    "icons",
+    "loop",
+    "sun",
+    "rain",
+    "lightning",
+    "micro-animation"
+   ]
+  },
+  {
    "id": "1-049",
    "upstream": "145",
    "group": "web",
@@ -6074,6 +7032,81 @@
     "zh-Hans": [
      "液态拖拽",
      "弹性卡片"
+    ]
+   }
+  },
+  {
+   "id": "1-128",
+   "group": "web",
+   "pack": "aiux",
+   "no": "13",
+   "slug": "sunburst-rays",
+   "category": "loading-thinking",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "サンバースト",
+    "en": "Sunburst rays",
+    "zh-Hans": "旋转光芒"
+   },
+   "meaning": {
+    "ja": "見出しの後ろで放射状の光がゆっくり回る背景",
+    "en": "Radiating light rays that slowly turn behind a headline",
+    "zh-Hans": "标题背后缓缓旋转的放射状光芒"
+   },
+   "ask": {
+    "ja": "受賞の見出しの後ろに12本の光が放射状に回るサンバーストを敷いて。4.8秒で光の間隔ひとつ分だけ回して。",
+    "en": "Put sunburst rays behind the award headline: 12 rays turning by one ray spacing every 4.8 s.",
+    "zh-Hans": "在获奖标题后面加旋转光芒：12 条放射光纹，每 4.8 秒转过一个光纹间距。"
+   },
+   "summary": {
+    "ja": "暗い背景で、中央の見出しの後ろから金色の光の筋が放射状に広がってゆっくり回り、外側ほど背景に溶ける。",
+    "en": "On a dark background, golden rays fan out from behind a centred headline and turn slowly, fading into the background towards the edges.",
+    "zh-Hans": "深色背景上，金色光纹从居中标题后方向外放射并缓缓旋转，越往外越融入背景。"
+   },
+   "spec": {
+    "ja": [
+     "光の筋 12 本、それぞれ間隔の 45%。見出しの中心から半径 300px まで広がる",
+     "等速で回転し、1 周期 4.8 秒でちょうど間隔ひとつ分（30°）進むので継ぎ目がない",
+     "放射状のマスクで中心をもっとも明るくし、外へ向かって背景に溶かす。見出しの後ろに半径 120px の暖色の芯",
+     "見出しの明るさが ±6% でゆっくり呼吸する"
+    ],
+    "en": [
+     "12 rays, each 45% of its spacing, fan out from the headline centre to a 300 px radius.",
+     "The rays turn at a constant speed, exactly one spacing (30°) per 4.8 s cycle, so the loop is seamless.",
+     "A radial mask keeps the centre brightest and fades the rays into the background; a warm core glow of 120 px radius sits behind the headline.",
+     "The headline brightness breathes gently by ±6%."
+    ],
+    "zh-Hans": [
+     "12 条放射光纹，各占间距的 45%，从标题中心铺到半径 300 px。",
+     "光纹匀速旋转，每个 4.8 秒周期正好转过一个间距（30°），循环无缝。",
+     "径向遮罩让中心最亮、光纹向外融入背景；标题后方有半径 120 px 的暖色核心光晕。",
+     "标题亮度轻微呼吸，幅度 ±6%。"
+    ]
+   },
+   "use": {
+    "ja": "受賞や抽選の結果、達成バッジ、キャンペーンの見出しなど、祝う瞬間を目立たせたいときに。",
+    "en": "Use it for award and prize reveals, achievement badges and campaign headlines that should feel celebratory.",
+    "zh-Hans": "适合获奖与抽奖结果、成就徽章、活动标题等需要庆祝氛围的时刻。"
+   },
+   "tags": [
+    "sunburst",
+    "rays",
+    "god-rays",
+    "rotate",
+    "celebration",
+    "award",
+    "background"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "放射光芒",
+     "光芒背景"
     ]
    }
   },
@@ -8789,6 +9822,984 @@
      "动态气泡图",
      "季度气泡图",
      "运动图表"
+    ]
+   }
+  },
+  {
+   "id": "1-129",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "38",
+   "slug": "line-chart-draw",
+   "category": "data",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "折れ線グラフの描画",
+    "en": "Line chart draw",
+    "zh-Hans": "折线图绘制"
+   },
+   "meaning": {
+    "ja": "折れ線が左から描かれ、点が順にはじけるグラフの登場",
+    "en": "A line chart that draws itself left to right as its points pop in",
+    "zh-Hans": "折线由左到右画出、数据点依次弹出的图表进场"
+   },
+   "ask": {
+    "ja": "月の売上推移を折れ線グラフの描画で出して。線は1.6秒で左から描き、点は線が通るたびにはじけさせて。",
+    "en": "Bring in the monthly revenue as a line chart draw: the line draws left to right in 1.6 s and each point pops as the line reaches it.",
+    "zh-Hans": "把月营收做成折线图绘制：折线 1.6 秒由左到右画出，线头经过时数据点依次弹出。"
+   },
+   "summary": {
+    "ja": "淡い横線の上で折れ線が左から右へ伸び、点が順にはじけ、線の下に面のグラデーションがにじみ、最後に伸び率のラベルが浮かぶ。",
+    "en": "Over faint gridlines the line grows from left to right, points pop in turn, a gradient area fades in below and a growth label floats up at the end.",
+    "zh-Hans": "淡淡的横格线上，折线由左向右延伸，数据点依次弹出，线下渐变面积淡入，最后终点上方浮出增长标签。"
+   },
+   "spec": {
+    "ja": [
+     "データ点 10 個。折れ線（太さ 2.5px）は 0.3–1.9 秒に等速で左から右へ描かれる",
+     "線の先端が通るたびに点（半径 4px）が 0 から 0.3 秒の backOut ではじける",
+     "線が 60% まで進んだところから、線の下の面グラデーションが 0.6 秒で現れる",
+     "1.9–2.3 秒に終点の上へ伸び率ラベルが 8px 上がりながら現れる。5.4–6.0 秒に全体が消えて戻る"
+    ],
+    "en": [
+     "10 data points; the 2.5 px line draws left to right at constant speed from 0.3–1.9 s.",
+     "Each point (radius 4 px) pops from 0 with a 0.3 s backOut as the line tip passes it.",
+     "Once the line reaches 60%, the gradient area under it fades in over 0.6 s.",
+     "From 1.9–2.3 s a growth label rises 8 px into view above the last point; everything fades out and resets from 5.4–6.0 s."
+    ],
+    "zh-Hans": [
+     "10 个数据点；折线（线宽 2.5 px）在 0.3–1.9 秒匀速由左到右画出。",
+     "线头经过时，数据点（半径 4 px）用 0.3 秒 backOut 从 0 弹出。",
+     "折线画到 60% 时，线下渐变面积用 0.6 秒淡入。",
+     "1.9–2.3 秒终点上方的增长标签上移 8 px 浮现；5.4–6.0 秒全部淡出复位。"
+    ]
+   },
+   "use": {
+    "ja": "ダッシュボードや成長を伝えるスライドで、推移をひと目で読ませたいときに。",
+    "en": "Use it on dashboards and growth slides to make a trend readable at a glance.",
+    "zh-Hans": "适合仪表盘和讲增长的幻灯片，让趋势一眼可读。"
+   },
+   "tags": [
+    "line-chart",
+    "chart-draw",
+    "data-viz",
+    "dashboard",
+    "trend",
+    "growth"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "折线图",
+     "描线图表",
+     "趋势图"
+    ]
+   }
+  },
+  {
+   "id": "1-130",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "39",
+   "slug": "donut-chart-segments",
+   "category": "data",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "ドーナツグラフの分割描画",
+    "en": "Donut chart segments",
+    "zh-Hans": "环形图分段"
+   },
+   "meaning": {
+    "ja": "ドーナツグラフの弧が一つずつ順に描かれる登場",
+    "en": "A donut chart whose arcs draw in one after another",
+    "zh-Hans": "环形图的弧段一段接一段画出的进场"
+   },
+   "ask": {
+    "ja": "流入元の割合をドーナツグラフにして、真上から時計回りに1区分0.45秒ずつ描き、凡例は右から順に滑り込ませて。",
+    "en": "Show traffic sources as donut chart segments: draw each from the top clockwise, 0.45 s apiece, and slide the legend in from the right.",
+    "zh-Hans": "把流量来源做成环形图分段：从正上方顺时针画，每段 0.45 秒，图例从右侧依次滑入。"
+   },
+   "summary": {
+    "ja": "真上から最初の区分の弧が時計回りに描かれ、前の弧の終わりから次の弧が続いて一周し、中央に合計、右に凡例が順に滑り込む。",
+    "en": "From the top, the first arc draws clockwise and each next arc continues from where the last ended until the ring closes; the total appears in the centre and the legend slides in on the right.",
+    "zh-Hans": "从正上方开始第一段顺时针画出，下一段从上一段终点接续，直到闭合成环；中心出现总数，右侧图例依次滑入。"
+   },
+   "spec": {
+    "ja": [
+     "4 区分 42/28/18/12%。リングは半径 62px、太さ 20px、区分の間に 2° のすき間",
+     "0.3 秒から真上を起点に時計回りで、1 区分ずつ 0.45 秒（inOut3）で描く",
+     "中央の合計は 0.3–0.8 秒にフェードイン",
+     "凡例は 0.5 秒から 0.12 秒ずつずらして右 24px から 0.4 秒（out3）で滑り込む。5.4–6.0 秒に消えて戻る"
+    ],
+    "en": [
+     "4 segments of 42/28/18/12%; the ring has a 62 px radius and 20 px width, with a 2° gap between segments.",
+     "Starting at 0.3 s from the top, segments draw clockwise one at a time, 0.45 s each (inOut3).",
+     "The total in the centre fades in from 0.3–0.8 s.",
+     "Legend rows slide in from 24 px to the right over 0.4 s (out3), starting at 0.5 s and 0.12 s apart; it all fades and resets from 5.4–6.0 s."
+    ],
+    "zh-Hans": [
+     "4 段，占比 42/28/18/12%；圆环半径 62 px、宽 20 px，段间留 2° 间隙。",
+     "从 0.3 秒起，以正上方为起点顺时针逐段画出，每段 0.45 秒（inOut3）。",
+     "中心总数在 0.3–0.8 秒淡入。",
+     "图例从 0.5 秒起每隔 0.12 秒、从右侧 24 px 用 0.4 秒（out3）滑入；5.4–6.0 秒淡出复位。"
+    ]
+   },
+   "use": {
+    "ja": "割合や構成比を示すダッシュボード、レポートのデータ紹介に。",
+    "en": "Use it on dashboards and report pages that show shares or breakdowns.",
+    "zh-Hans": "适合展示占比与构成的仪表盘和报告页面。"
+   },
+   "tags": [
+    "donut-chart",
+    "pie-chart",
+    "segments",
+    "data-viz",
+    "breakdown",
+    "legend"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "甜甜圈图",
+     "环形图",
+     "饼图分段"
+    ]
+   }
+  },
+  {
+   "id": "1-131",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "40",
+   "slug": "holographic-card",
+   "category": "cursor",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "ホログラムカード",
+    "en": "Holographic card",
+    "zh-Hans": "全息闪卡"
+   },
+   "meaning": {
+    "ja": "カーソルに合わせて傾き、虹色の箔と反射が流れるコレクションカード",
+    "en": "A collectible card that tilts with the cursor while rainbow foil and glare shift across it",
+    "zh-Hans": "随光标倾斜、表面炫彩箔光与反光流动的收藏卡"
+   },
+   "ask": {
+    "ja": "トレカ風のカードをホログラムカードにして。カーソル位置で最大13°傾け、虹色の箔光と反射を角度に合わせて動かして。",
+    "en": "Make the trading card a holographic card: tilt it up to 13° towards the cursor and move rainbow foil and glare with the angle.",
+    "zh-Hans": "把收藏卡做成全息闪卡：随光标位置最多倾斜 13°，炫彩箔光与反光随角度流动。"
+   },
+   "summary": {
+    "ja": "暗い背景のカードの上をカーソルが動くと、カードが立体的に傾き、表面の虹色の箔が流れて柔らかな光の点がついてくる。離れると正面に戻る。",
+    "en": "As the cursor moves over a card on a dark background, the card tilts in 3D, rainbow foil streams across its face and a soft glare follows; it straightens when the cursor leaves.",
+    "zh-Hans": "光标在深色背景上的卡片上移动，卡片立体倾斜，表面炫彩箔光流动、柔光跟随；光标离开后回正。"
+   },
+   "spec": {
+    "ja": [
+     "カード 112×164px、角丸 10px。カーソルの相対位置に応じて最大 13° 傾ける（透視 600px）",
+     "虹色の斜めストライプを color-dodge で重ね、位置はカーソルに追従。傾くほど不透明度 0.15→0.75",
+     "白い放射状の反射（半径 90px、不透明度 0.35）がカーソル位置についてくる",
+     "デモでは 0.7–0.95 秒にホバー開始、4.6–4.9 秒にカーソルが離れてカードが正面に戻り、箔が弱まる"
+    ],
+    "en": [
+     "Card 112 × 164 px, corner radius 10 px; tilts up to 13° by the cursor position on it (perspective 600 px).",
+     "Rainbow diagonal stripes blend with color-dodge and follow the cursor; their opacity rises from 0.15 to 0.75 as the tilt grows.",
+     "A white radial glare (radius 90 px, opacity 0.35) follows the cursor.",
+     "In the demo hover starts from 0.7–0.95 s; from 4.6–4.9 s the cursor leaves, the card straightens and the foil dims."
+    ],
+    "zh-Hans": [
+     "卡片 112 × 164 px，圆角 10 px；按光标在卡上的相对位置最多倾斜 13°（透视 600 px）。",
+     "斜向彩虹条纹以 color-dodge 叠加并跟随光标；倾斜越大不透明度越高，0.15→0.75。",
+     "白色径向柔光（半径 90 px，不透明度 0.35）跟随光标。",
+     "演示中 0.7–0.95 秒开始悬停；4.6–4.9 秒光标离开，卡片回正、箔光减弱。"
+    ]
+   },
+   "use": {
+    "ja": "コレクションやNFT、会員カード、特典の紹介など、手に取りたくなる質感を出したいときに。",
+    "en": "Use it for collectibles, membership cards and reward showcases that should feel tangible and premium.",
+    "zh-Hans": "适合收藏卡、会员卡、奖励展示等需要手感与高级感的场景。"
+   },
+   "tags": [
+    "holographic",
+    "foil",
+    "card",
+    "tilt",
+    "glare",
+    "hover",
+    "trading-card"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "闪卡",
+     "镭射卡",
+     "炫彩卡片"
+    ]
+   }
+  },
+  {
+   "id": "1-132",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "41",
+   "slug": "tilt-parallax-image",
+   "category": "cursor",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "3Dチルト視差画像",
+    "en": "Tilt parallax image",
+    "zh-Hans": "3D 倾斜视差图片"
+   },
+   "meaning": {
+    "ja": "カーソル方向に画像が傾き、景色の層がずれて奥行きが出る",
+    "en": "An image that tilts towards the cursor while its layers shift for depth",
+    "zh-Hans": "图片朝光标方向倾斜、景物分层错动形成景深"
+   },
+   "ask": {
+    "ja": "作品画像に3Dチルト視差を付けて。カーソル方向に最大10°傾けて1.04倍にし、遠景から近景まで層ごとに逆向きへずらして。",
+    "en": "Add a tilt parallax to the artwork: tilt up to 10° towards the cursor, scale to 1.04 and shift the layers from far to near in the opposite direction.",
+    "zh-Hans": "给作品图加 3D 倾斜视差：朝光标最多倾斜 10° 并放大到 1.04，远景到近景分层向反方向位移。"
+   },
+   "summary": {
+    "ja": "夕暮れの山の画像の上をカーソルが動くと、画像が傾いて少し拡大し、空・太陽・山並みが層ごとに違う量でずれ、下から説明文が滑り上がる。",
+    "en": "As the cursor moves over a sunset mountain image, it tilts and enlarges slightly, the sky, sun and ridges shift by different amounts, and a caption slides up from the bottom.",
+    "zh-Hans": "光标在夕照山景图上移动，图片倾斜并微微放大，天空、太阳、山脊按层错动，底部说明文字滑上来。"
+   },
+   "spec": {
+    "ja": [
+     "画像 280×150px、角丸 14px。カーソル方向に最大 10° 傾き、1.04 倍に拡大",
+     "空・太陽・遠山・中景・近景が、カーソルと逆向きにそれぞれ最大 2/3/5/10/18px ずれる",
+     "白い反射（半径 120px）がカーソルについてくる。下部の説明は 18px 下から滑り上がる",
+     "デモでは 0.7–1.0 秒にホバー開始、4.6–4.95 秒にカーソルが離れてすべて元に戻る"
+    ],
+    "en": [
+     "Image 280 × 150 px, corner radius 14 px; tilts up to 10° towards the cursor and scales to 1.04.",
+     "Sky, sun, far ridge, middle ridge and foreground shift against the cursor by up to 2/3/5/10/18 px.",
+     "A white glare (radius 120 px) follows the cursor; the caption slides up from 18 px below.",
+     "In the demo hover starts from 0.7–1.0 s; from 4.6–4.95 s the cursor leaves and everything eases back."
+    ],
+    "zh-Hans": [
+     "图片 280 × 150 px，圆角 14 px；朝光标方向最多倾斜 10°，放大到 1.04。",
+     "天空、太阳、远山、中景、近景分别向光标反方向位移，最多 2/3/5/10/18 px。",
+     "白色柔光（半径 120 px）跟随光标；底部说明从下方 18 px 滑上。",
+     "演示中 0.7–1.0 秒开始悬停；4.6–4.95 秒光标离开，全部平滑回正。"
+    ]
+   },
+   "use": {
+    "ja": "作品集、旅行や商品の写真、特集記事のサムネイルなど、画像に奥行きを出したいときに。",
+    "en": "Use it on portfolios, travel or product photos and feature thumbnails to give images depth.",
+    "zh-Hans": "适合作品集、旅行或商品照片、专题缩略图，让图片更有纵深。"
+   },
+   "tags": [
+    "tilt",
+    "parallax",
+    "3d",
+    "image",
+    "hover",
+    "glare",
+    "depth"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "倾斜视差",
+     "景深图片",
+     "悬停倾斜"
+    ]
+   }
+  },
+  {
+   "id": "1-133",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "42",
+   "slug": "following-eyes",
+   "category": "cursor",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "目で追うキャラクター",
+    "en": "Following eyes",
+    "zh-Hans": "眼睛跟随"
+   },
+   "meaning": {
+    "ja": "大きな目の瞳がカーソルの方向をずっと見つめ、ときどきまばたきする",
+    "en": "A pair of big eyes whose pupils keep looking at the cursor and blink now and then",
+    "zh-Hans": "一对大眼睛的眼珠一直盯着光标，偶尔眨眼"
+   },
+   "ask": {
+    "ja": "404ページのキャラクターに目で追う動きを付けて。瞳はカーソルの方向へ最大14pxずらし、2秒おきに0.15秒でまばたきさせて。",
+    "en": "Give the 404 mascot following eyes: pupils move up to 14 px towards the cursor, with a 0.15 s blink every 2 s.",
+    "zh-Hans": "给 404 吉祥物加眼睛跟随：眼珠朝光标方向最多偏移 14 px，每 2 秒用 0.15 秒眨一次眼。"
+   },
+   "summary": {
+    "ja": "紫のキャラクターの大きな白目の中で、黒い瞳がカーソルを追って動き、カーソルが遠いほど縁に寄る。ときどき両目が同時にまばたきする。",
+    "en": "Inside the big white eyes of a purple mascot, the black pupils follow the cursor, moving closer to the rim the farther away it is; now and then both eyes blink together.",
+    "zh-Hans": "紫色吉祥物的大眼白里，黑眼珠跟着光标转，光标越远越靠近眼眶边缘；两眼不时同时眨眼。"
+   },
+   "spec": {
+    "ja": [
+     "白目 30×34px（半径）、瞳 半径 13px と小さなハイライト",
+     "瞳はカーソルへの角度（atan2）方向に min(1, 距離/150)×14px ずれ、0.06 秒遅れて追う",
+     "1.9 秒と 3.9 秒に両目同時にまばたき：0.15 秒で縦 10% までつぶれて戻る",
+     "カーソルは 0.3–0.8 秒に入り 4.9–5.4 秒に去り、瞳は中央に戻る"
+    ],
+    "en": [
+     "Eye whites of 30 × 34 px radii, pupils of 13 px radius with a small highlight.",
+     "Each pupil moves along the angle to the cursor (atan2) by min(1, distance/150) × 14 px, trailing by 0.06 s.",
+     "Both eyes blink together at 1.9 s and 3.9 s, squashing to 10% height and back within 0.15 s.",
+     "The cursor enters from 0.3–0.8 s and leaves from 4.9–5.4 s, and the pupils return to centre."
+    ],
+    "zh-Hans": [
+     "眼白半径 30 × 34 px，眼珠半径 13 px，带小反光点。",
+     "眼珠沿指向光标的角度（atan2）偏移 min(1, 距离/150) × 14 px，滞后 0.06 秒。",
+     "1.9 秒与 3.9 秒两眼同时眨眼：0.15 秒内纵向压到 10% 再恢复。",
+     "光标 0.3–0.8 秒进场、4.9–5.4 秒离开，眼珠回到中央。"
+    ]
+   },
+   "use": {
+    "ja": "404ページやログイン画面、マスコットのいるサービスで、遊び心のある反応を出したいときに。",
+    "en": "Use it on 404 pages, sign-in screens and mascot-led products to add a playful response.",
+    "zh-Hans": "适合 404 页面、登录页和有吉祥物的产品，增加趣味反馈。"
+   },
+   "tags": [
+    "eyes",
+    "follow-cursor",
+    "mascot",
+    "googly-eyes",
+    "blink",
+    "404"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "眼珠跟随",
+     "盯着光标",
+     "吉祥物眼睛"
+    ]
+   }
+  },
+  {
+   "id": "1-134",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "43",
+   "slug": "scratch-reveal",
+   "category": "cursor",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "スクラッチ",
+    "en": "Scratch reveal",
+    "zh-Hans": "刮刮乐揭示"
+   },
+   "meaning": {
+    "ja": "表面を削ると下の内容が現れるスクラッチカード",
+    "en": "A scratch card whose coating rubs away to reveal what is underneath",
+    "zh-Hans": "刮开表层露出下方内容的刮刮卡"
+   },
+   "ask": {
+    "ja": "クーポンをスクラッチで出して。銀色の表面を太さ30pxの丸いブラシで削り、十分削れたら残りを0.5秒で消して。",
+    "en": "Reveal the coupon with a scratch reveal: rub off the silver coating with a 30 px round brush, then fade the rest out over 0.5 s once enough is cleared.",
+    "zh-Hans": "用刮刮乐揭示优惠券：用 30 px 圆头笔刷刮掉银色表层，刮得够多后剩余表层 0.5 秒淡出。"
+   },
+   "summary": {
+    "ja": "銀色の表面に覆われたクーポンの上で、カーソルが押したまま左右にジグザグに動き、通った跡が削れて下の「送料無料クーポン」が現れ、最後に残りが消える。",
+    "en": "Over a coupon covered by a silver coating, the cursor holds and zigzags side to side; its path rubs the coating away to show the free-shipping coupon, and the rest then fades.",
+    "zh-Hans": "银色表层盖住的优惠券上，指针按住左右之字形来回刮，经过处露出下方「免运费优惠券」，最后剩余表层淡出。"
+   },
+   "spec": {
+    "ja": [
+     "クーポン 300×140px を、斜めの光沢と「刮开看看」の文字を描いた銀色の表面が覆う",
+     "カーソルは 0.85 秒に押し、7 本のジグザグ（1 本 0.32 秒）で 3.0 秒まで削る。ブラシは丸い先端で太さ 30px",
+     "オフスクリーンキャンバスに表面を毎フレーム描き直し、その時刻までの軌跡全体を destination-out で消す",
+     "3.1–3.6 秒に残りの表面がフェードアウト。5.4–6.0 秒に表面がフェードインして戻る"
+    ],
+    "en": [
+     "A 300 × 140 px coupon is covered by a silver coating with diagonal sheen and a scratch-here label.",
+     "The cursor presses at 0.85 s and scratches along 7 zigzag strokes (0.32 s each) until 3.0 s, with a 30 px round brush.",
+     "Each frame redraws the coating on an offscreen canvas and erases the whole path up to that moment with destination-out.",
+     "The remaining coating fades out from 3.1–3.6 s; it fades back in to reset from 5.4–6.0 s."
+    ],
+    "zh-Hans": [
+     "300 × 140 px 的优惠券被带斜向光泽与「刮开看看」字样的银色表层覆盖。",
+     "指针 0.85 秒按下，沿 7 段之字形（每段 0.32 秒）刮到 3.0 秒，圆头笔刷宽 30 px。",
+     "每帧在离屏 canvas 上重画表层，用 destination-out 擦掉截至当前时刻的整条轨迹。",
+     "3.1–3.6 秒剩余表层淡出；5.4–6.0 秒表层淡回复位。"
+    ]
+   },
+   "use": {
+    "ja": "抽選や当たりくじ、クーポン配布、キャンペーンの結果発表など、めくる楽しさを出したいときに。",
+    "en": "Use it for lucky draws, coupon drops and campaign result reveals that should feel like a game.",
+    "zh-Hans": "适合抽奖、优惠券发放、活动结果揭晓，增加揭开的乐趣。"
+   },
+   "tags": [
+    "scratch-card",
+    "reveal",
+    "coupon",
+    "lottery",
+    "gamification",
+    "canvas-erase"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "刮刮卡",
+     "刮开揭晓",
+     "刮奖"
+    ]
+   }
+  },
+  {
+   "id": "1-135",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "44",
+   "slug": "flow-field",
+   "category": "cursor",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "フローフィールド",
+    "en": "Flow field",
+    "zh-Hans": "流场线条"
+   },
+   "meaning": {
+    "ja": "見えない流れに沿って細い線が流れ、カーソルが流れをかき混ぜる",
+    "en": "Fine lines drift along an invisible current, and the cursor stirs it",
+    "zh-Hans": "细线顺着看不见的气流流动，光标搅动气流"
+   },
+   "ask": {
+    "ja": "ヒーローの背景をフローフィールドにして。細い線を220本、毎秒60pxで流れに沿って動かし、カーソルの周りは渦を巻かせて。",
+    "en": "Make the hero background a flow field: 220 fine lines moving along the current at 60 px/s, swirling around the cursor.",
+    "zh-Hans": "把首屏背景做成流场线条：220 条细线以 60 px/s 顺着流场前进，光标周围卷成漩涡。"
+   },
+   "summary": {
+    "ja": "暗い背景いっぱいに紫と青の細い線が風や水のように流れて消え、カーソルが通るとその周りの流れが渦を巻く。",
+    "en": "Thin purple and blue lines stream across a dark background like wind or water and fade away; where the cursor passes, the flow curls into a swirl.",
+    "zh-Hans": "深色背景上布满紫色与蓝色细线，像风或水一样流动并淡去；光标经过处，周围的流向卷成漩涡。"
+   },
+   "spec": {
+    "ja": [
+     "細い線 220 本が、時間とともにゆっくり変わる流れ場（正弦 2 つの重ね合わせ、位相は 6.4 秒で一周）に沿って毎秒 60px で進む",
+     "尾は直近 0.6 秒分。1 本の寿命は 1.6 秒（1 周期で 4 世代）、透明度は sin で出入り",
+     "生まれる位置は番号と世代から決まり、毎フレーム誕生点から積分し直すので状態を持たない",
+     "カーソル周り（ガウス σ 70px）の流れは接線方向へねじれて渦になる。デモでは 0.9–1.2 秒に効き始め 4.4–4.8 秒に消える"
+    ],
+    "en": [
+     "220 fine lines advance at 60 px/s along a flow field made of 2 summed sines whose phase turns once every 6.4 s.",
+     "Each trail shows the last 0.6 s; a line lives 1.6 s (4 generations per cycle) and fades in and out with a sine.",
+     "Birth positions come from the index and generation, and each frame re-integrates from the birth point, so no state is kept.",
+     "Around the cursor (Gaussian σ 70 px) the flow twists tangentially into a swirl; in the demo it takes hold from 0.9–1.2 s and releases from 4.4–4.8 s."
+    ],
+    "zh-Hans": [
+     "220 条细线沿流场以 60 px/s 前进；流场由 2 组正弦叠加而成，相位每 6.4 秒转一圈。",
+     "拖尾为最近 0.6 秒；每条寿命 1.6 秒（每周期 4 代），透明度按 sin 渐入渐出。",
+     "出生位置由下标与代数确定，每帧从出生点重新积分，不保留状态。",
+     "光标周围（高斯 σ 70 px）的流向被扭成切向漩涡；演示中 0.9–1.2 秒开始生效，4.4–4.8 秒消失。"
+    ]
+   },
+   "use": {
+    "ja": "ヒーローや作品集の背景、ジェネラティブな雰囲気づくりに。",
+    "en": "Use it as a hero or portfolio background, or wherever a generative mood fits.",
+    "zh-Hans": "适合首屏或作品集背景，营造生成艺术氛围。"
+   },
+   "tags": [
+    "flow-field",
+    "generative",
+    "lines",
+    "particles",
+    "background",
+    "swirl",
+    "noise"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "流场",
+     "气流线条",
+     "生成艺术背景"
+    ]
+   }
+  },
+  {
+   "id": "1-136",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "45",
+   "slug": "add-to-cart-fly",
+   "category": "feedback",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "カートに飛び込む",
+    "en": "Add to cart fly",
+    "zh-Hans": "加入购物车飞入"
+   },
+   "meaning": {
+    "ja": "商品画像が弧を描いてカートへ飛び、数が跳ねて増える",
+    "en": "The product thumbnail arcs into the cart and the count bumps up",
+    "zh-Hans": "商品缩略图沿弧线飞进购物车，数量跳一下"
+   },
+   "ask": {
+    "ja": "「カートに入れる」を押したら、商品画像をカートに飛び込ませて。0.75秒で弧を描きながら0.15倍まで縮め、着いたらバッジを弾ませて。",
+    "en": "When Add to cart is pressed, fly the product image into the cart: an arc over 0.75 s shrinking to 0.15, then bounce the badge.",
+    "zh-Hans": "点「加入购物车」后让商品图飞入购物车：0.75 秒沿弧线飞行并缩到 0.15，抵达后角标弹一下。"
+   },
+   "summary": {
+    "ja": "商品カードのボタンが押されると、陶器のカップの画像が弧を描いて右上のカートへ縮みながら飛び込み、カートが弾んで数字のバッジが 2 から 3 に変わる。",
+    "en": "When the product card button is pressed, the cup image arcs to the cart in the top right while shrinking; the cart bounces and the badge changes from 2 to 3.",
+    "zh-Hans": "商品卡按钮被按下，陶杯图片边缩小边沿弧线飞向右上角购物车；购物车弹一下，角标从 2 变成 3。"
+   },
+   "spec": {
+    "ja": [
+     "1.0 秒にボタンを押す（0.95 倍に沈む）",
+     "1.05–1.8 秒に商品画像の複製がカートへ飛ぶ：x は t² で加速、y は直線に 40px の山なりの弧を加え、大きさ 1→0.15",
+     "到着でカートが 0.35 秒で 1.25 倍に弾み、バッジが 2→3 に変わって 0.3 秒の backOut で飛び出す",
+     "5.4–6.0 秒に初期画面へクロスフェードして戻る"
+    ],
+    "en": [
+     "The button is pressed at 1.0 s (dips to 0.95).",
+     "From 1.05–1.8 s a copy of the product image flies to the cart: x accelerates with t², y moves linearly plus a 40 px arc, and its size goes 1 → 0.15.",
+     "On arrival the cart bounces to 1.25 over 0.35 s and the badge changes 2 → 3, popping with a 0.3 s backOut.",
+     "It cross-fades back to the starting frame from 5.4–6.0 s."
+    ],
+    "zh-Hans": [
+     "1.0 秒按下按钮（缩到 0.95）。",
+     "1.05–1.8 秒商品图副本飞向购物车：x 按 t² 加速，y 线性并叠加 40 px 上拱弧，尺寸 1→0.15。",
+     "抵达时购物车 0.35 秒内放大到 1.25 弹一下，角标 2→3，以 0.3 秒 backOut 弹出。",
+     "5.4–6.0 秒交叉淡化回初始画面。"
+    ]
+   },
+   "use": {
+    "ja": "ECサイトの商品一覧や詳細ページで、カートに入ったことをはっきり伝えたいときに。",
+    "en": "Use it on e-commerce listings and product pages to make \"added to cart\" unmistakable.",
+    "zh-Hans": "适合电商商品列表与详情页，明确告诉用户已加入购物车。"
+   },
+   "tags": [
+    "add-to-cart",
+    "fly-to-cart",
+    "ecommerce",
+    "arc",
+    "badge",
+    "feedback"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "加购动画",
+     "飞入购物车",
+     "购物车反馈"
+    ]
+   }
+  },
+  {
+   "id": "1-137",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "46",
+   "slug": "send-plane-button",
+   "category": "feedback",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "紙飛行機の送信ボタン",
+    "en": "Send plane button",
+    "zh-Hans": "纸飞机发送"
+   },
+   "meaning": {
+    "ja": "押すと紙飛行機が飛び立ち、文字が「送信済み」に変わる送信ボタン",
+    "en": "A send button whose paper plane flies off as the label changes to Sent",
+    "zh-Hans": "按下后纸飞机飞走、文字换成「已发送」的发送按钮"
+   },
+   "ask": {
+    "ja": "送信ボタンを押したら紙飛行機を飛ばして。少し後ろへためてから右上へ加速して飛び出し、文字を「送信済み」に変えて約1.3秒後に戻して。",
+    "en": "On submit, launch the paper plane: a short wind-up back, then accelerate out to the top right, switch the label to Sent and restore it after about 1.3 s.",
+    "zh-Hans": "按下发送时让纸飞机飞走：先向后蓄力，再加速飞向右上方，文字换成「已发送」，约 1.3 秒后换回。"
+   },
+   "summary": {
+    "ja": "紫のボタンが押されると沈んで戻り、文字が右へ消え、紙飛行機が後ろにためてから右上へ飛び去る。ボタンが緑になり「已发送 ✓」が左から入り、しばらくして元に戻って飛行機も帰ってくる。",
+    "en": "The purple button dips and recovers, its label slides off to the right, and the paper plane winds back before shooting off to the top right; the button turns green with a sent label sliding in, then everything returns and the plane flies back.",
+    "zh-Hans": "紫色按钮按下回弹，文字向右淡出，纸飞机先后撤蓄力再飞向右上方；按钮转绿、「已发送 ✓」从左滑入，稍后恢复原样，飞机飞回。"
+   },
+   "spec": {
+    "ja": [
+     "ボタン 210×54px。0.95 秒に押して 0.94 倍に沈んで戻る",
+     "1.0–1.3 秒に文字が右へ 16px 動きながら消える。紙飛行機は 1.0–1.2 秒に 6px 後ろへためる",
+     "1.2–1.8 秒に t³ で加速して右上へ（+300px、−60px、−25° 回転）、ボタンの外は切り取る",
+     "1.75–2.05 秒にボタンが緑になり「已发送 ✓」が左から入る。3.3–3.9 秒に元の文字に戻り、飛行機が左下 40px・24px から帰ってくる"
+    ],
+    "en": [
+     "Button 210 × 54 px; pressed at 0.95 s, it dips to 0.94 and springs back.",
+     "From 1.0–1.3 s the label moves 16 px right as it fades; the plane winds back 6 px from 1.0–1.2 s.",
+     "From 1.2–1.8 s it accelerates with t³ to the top right (+300 px, −60 px, rotating −25°), clipped by the button.",
+     "From 1.75–2.05 s the button turns green and the sent label slides in from the left; from 3.3–3.9 s the original label returns and the plane flies back from 40 px left and 24 px below."
+    ],
+    "zh-Hans": [
+     "按钮 210 × 54 px；0.95 秒按下，缩到 0.94 再回弹。",
+     "1.0–1.3 秒文字右移 16 px 淡出；纸飞机 1.0–1.2 秒后撤 6 px 蓄力。",
+     "1.2–1.8 秒按 t³ 加速飞向右上方（+300 px、−60 px、转 −25°），超出按钮的部分被裁切。",
+     "1.75–2.05 秒按钮转绿，「已发送 ✓」从左滑入；3.3–3.9 秒换回原文，飞机从左 40 px、下 24 px 处飞回。"
+    ]
+   },
+   "use": {
+    "ja": "メッセージ送信、問い合わせフォーム、メール配信などの送信完了を楽しく伝えたいときに。",
+    "en": "Use it on message, contact-form and newsletter submit buttons to confirm sending with some delight.",
+    "zh-Hans": "适合发送消息、联系表单、邮件订阅等提交按钮，愉快地确认已发送。"
+   },
+   "tags": [
+    "send-button",
+    "paper-plane",
+    "submit",
+    "success",
+    "button",
+    "micro-interaction"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "发送按钮",
+     "纸飞机",
+     "提交成功"
+    ]
+   }
+  },
+  {
+   "id": "1-138",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "47",
+   "slug": "star-rating",
+   "category": "feedback",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "星評価",
+    "en": "Star rating",
+    "zh-Hans": "星星评分"
+   },
+   "meaning": {
+    "ja": "選んだ数まで星が左から順に塗られて弾む評価",
+    "en": "A rating where the stars fill and bounce from left to right up to the chosen one",
+    "zh-Hans": "星星由左到右依次填满并弹跳的评分"
+   },
+   "ask": {
+    "ja": "評価欄を星評価にして。4つ目を押したら1〜4つ目を0.08秒ずつずらして塗り、それぞれ1.35倍まで弾ませて。",
+    "en": "Make the feedback a star rating: when the 4th star is tapped, fill stars 1 to 4 at 0.08 s intervals, each bouncing up to 1.35.",
+    "zh-Hans": "把评价区做成星星评分：点第 4 颗时，第 1 到 4 颗每隔 0.08 秒依次填满，各自弹到 1.35 倍。"
+   },
+   "summary": {
+    "ja": "カーソルが 2 つ目の星にのると 2 つ分が薄く色づいて「較差」と出て、続いて 4 つ目を押すと 1〜4 つ目が左から順に金色に塗られて弾み、「很好」が浮かぶ。",
+    "en": "Hovering the 2nd star tints 2 stars and shows a label; clicking the 4th then fills stars 1 to 4 in gold from left to right with a bounce and a \"very good\" label floats up.",
+    "zh-Hans": "光标停在第 2 颗时前 2 颗浅色预览并显示「较差」；接着点第 4 颗，第 1–4 颗由左到右依次填成金色并弹跳，浮出「很好」。"
+   },
+   "spec": {
+    "ja": [
+     "星 5 つ（外径 17px、内径 7.5px、間隔 48px）",
+     "0.9 秒にカーソルが 2 つ目にのり、2 つ分が 0.15 秒で薄く色づき、下に評価の言葉",
+     "2.2 秒に 4 つ目を押すと 1〜4 つ目が 0.08 秒ずつずれて塗られ、それぞれ 0.3 秒で 1.35 倍まで弾んで戻る",
+     "カーソルは 2.3–3.0 秒に去る。5.4–6.0 秒に初期画面へクロスフェードして戻る"
+    ],
+    "en": [
+     "5 stars (outer radius 17 px, inner radius 7.5 px, 48 px apart).",
+     "At 0.9 s the cursor hovers the 2nd star; 2 stars tint lightly over 0.15 s and a word appears below.",
+     "Clicking the 4th star at 2.2 s fills stars 1 to 4 at 0.08 s intervals, each bouncing to 1.35 and back within 0.3 s.",
+     "The cursor leaves from 2.3–3.0 s; it cross-fades back to the start from 5.4–6.0 s."
+    ],
+    "zh-Hans": [
+     "5 颗星（外半径 17 px、内半径 7.5 px、间距 48 px）。",
+     "0.9 秒光标停在第 2 颗，前 2 颗用 0.15 秒浅色预览，下方显示评价词。",
+     "2.2 秒点第 4 颗，第 1 到 4 颗每隔 0.08 秒依次填满，各自在 0.3 秒内弹到 1.35 再回落。",
+     "光标 2.3–3.0 秒离开；5.4–6.0 秒交叉淡化回初始画面。"
+    ]
+   },
+   "use": {
+    "ja": "アプリのレビュー依頼、購入後のアンケート、サポートの満足度評価に。",
+    "en": "Use it for in-app review prompts, post-purchase surveys and support satisfaction ratings.",
+    "zh-Hans": "适合 App 评价邀请、购后问卷和客服满意度评分。"
+   },
+   "tags": [
+    "star-rating",
+    "rating",
+    "review",
+    "stars",
+    "feedback",
+    "micro-interaction"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "评分",
+     "五星评价",
+     "星级打分"
+    ]
+   }
+  },
+  {
+   "id": "1-139",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "48",
+   "slug": "slide-to-confirm",
+   "category": "feedback",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "スライドして確定",
+    "en": "Slide to confirm",
+    "zh-Hans": "滑动确认"
+   },
+   "meaning": {
+    "ja": "つまみを端まで滑らせたときだけ確定し、途中なら戻る操作",
+    "en": "A control that confirms only when the knob is slid to the end, and springs back otherwise",
+    "zh-Hans": "把手拖到底才确认、中途松开会弹回的操作"
+   },
+   "ask": {
+    "ja": "支払いボタンをスライドして確定にして。85%を超えて離したら確定、それ未満ならつまみを弾ませて戻して。",
+    "en": "Turn the pay button into slide to confirm: release past 85% to confirm, otherwise spring the knob back.",
+    "zh-Hans": "把付款按钮做成滑动确认：超过 85% 松开即确认，不到则把手弹回起点。"
+   },
+   "summary": {
+    "ja": "カプセル型のつまみを 1 回目は途中まで引いて離すと弾んで戻り、2 回目は端まで引くとレール全体が緑に満たされ「已确认 ✓」に変わる。案内文には光が流れる。",
+    "en": "The capsule knob is first dragged partway and released, bouncing back; the second drag reaches the end, the whole track fills green and the label changes to confirmed. A shine sweeps the hint text.",
+    "zh-Hans": "胶囊滑轨上，第一次把手拖到一半松开后弹回；第二次拖到底，整条轨道填满变绿并显示「已确认 ✓」；提示文字上有流光扫过。"
+   },
+   "spec": {
+    "ja": [
+     "レール 300×56px、つまみ半径 23px。案内文には 1.6 秒ごとに光が左から右へ流れる",
+     "1 回目は 0.9–1.7 秒に 60% まで引いて離し、つまみは減衰しながら 0.6 秒で起点へ戻る",
+     "2 回目は 2.65–3.45 秒に端まで引き、3.55 秒に離す。85% を超えていれば確定",
+     "確定後 0.3 秒でレールが緑に満たされ「已确认 ✓」に。5.4–6.0 秒に初期画面へクロスフェード"
+    ],
+    "en": [
+     "Track 300 × 56 px with a 23 px knob; a shine sweeps the hint text from left to right every 1.6 s.",
+     "The first drag goes to 60% from 0.9–1.7 s and is released; the knob springs back to the start over 0.6 s with damping.",
+     "The second drag reaches the end from 2.65–3.45 s and releases at 3.55 s; past 85% counts as confirmed.",
+     "After confirming, the track fills green within 0.3 s and shows the confirmed label; it cross-fades back to the start from 5.4–6.0 s."
+    ],
+    "zh-Hans": [
+     "滑轨 300 × 56 px，把手半径 23 px；提示文字上每 1.6 秒有一道流光由左扫到右。",
+     "第一次 0.9–1.7 秒拖到 60% 松开，把手衰减弹回起点，用时 0.6 秒。",
+     "第二次 2.65–3.45 秒拖到底，3.55 秒松开；超过 85% 即确认。",
+     "确认后 0.3 秒内轨道填满变绿，显示「已确认 ✓」；5.4–6.0 秒交叉淡化回初始画面。"
+    ]
+   },
+   "use": {
+    "ja": "支払い、送金、削除など取り消しにくい操作で、誤操作を防ぎたいときに。",
+    "en": "Use it for payments, transfers and deletions where an accidental tap would be costly.",
+    "zh-Hans": "适合付款、转账、删除等难以撤销、需要防误触的操作。"
+   },
+   "tags": [
+    "slide-to-confirm",
+    "swipe",
+    "slider",
+    "payment",
+    "drag",
+    "button"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "滑动解锁",
+     "滑动付款",
+     "拖动确认"
+    ]
+   }
+  },
+  {
+   "id": "1-140",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "49",
+   "slug": "circle-reveal-transition",
+   "category": "scroll",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "円形リビール",
+    "en": "Circle reveal transition",
+    "zh-Hans": "圆形扩张转场"
+   },
+   "meaning": {
+    "ja": "スクロールに合わせて円形マスクが中央から広がり、次の章が現れる",
+    "en": "A circular mask grows from the centre with scrolling to reveal the next section",
+    "zh-Hans": "随滚动从中央扩大的圆形遮罩揭开下一章"
+   },
+   "ask": {
+    "ja": "章の切り替えを円形リビールにして。スクロールに合わせて中央の円を画面いっぱいまで広げ、前の見出しは0.8倍に縮めて消して。",
+    "en": "Use a circle reveal between chapters: as you scroll, grow a circle from the centre to fill the screen and shrink the previous title to 0.8 as it fades.",
+    "zh-Hans": "章节之间用圆形扩张转场：随滚动从中央扩出圆形直到铺满画面，上一章标题缩到 0.8 并淡出。"
+   },
+   "summary": {
+    "ja": "スクロールが進むと、明るい第 1 章の中央から暗い第 2 章が円形に広がって画面を覆い、第 1 章の見出しは縮んで消え、第 2 章の見出しは大きめから元の大きさに収まる。戻ると円も縮む。",
+    "en": "As scrolling progresses, a dark chapter 2 grows as a circle from the centre of the light chapter 1 until it covers the card; the first title shrinks away while the second settles from larger to normal size, and scrolling back shrinks the circle.",
+    "zh-Hans": "随滚动推进，深色第二章从浅色第一章中央以圆形扩开直到铺满；第一章标题缩小淡出，第二章标题由大缩回原尺寸；滚回时圆形缩回。"
+   },
+   "spec": {
+    "ja": [
+     "スクロール進行は 0.5–4.4 秒で 0→1（inOut3）、右のスクロールバーが同期",
+     "円形マスクの半径は進行に比例して 0 から画面の半対角線まで広がる",
+     "第 1 章の見出しは 0.8 倍まで縮みながら消え、第 2 章の見出しは 1.2 倍から 1 倍へ縮む",
+     "5.4–6.3 秒にスクロールが戻り、円が縮む"
+    ],
+    "en": [
+     "Scroll progress goes 0 → 1 from 0.5–4.4 s (inOut3), with the scrollbar on the right in sync.",
+     "The circular mask radius grows in proportion to progress, from 0 to half the card diagonal.",
+     "The first chapter's title shrinks to 0.8 as it fades; the second chapter's title shrinks from 1.2 to 1.",
+     "From 5.4–6.3 s the scroll returns and the circle shrinks back."
+    ],
+    "zh-Hans": [
+     "滚动进度在 0.5–4.4 秒由 0 到 1（inOut3），右侧滚动条同步。",
+     "圆形遮罩半径随进度成比例地从 0 扩大到画面半对角线。",
+     "第一章标题缩到 0.8 并淡出；第二章标题从 1.2 倍缩回 1 倍。",
+     "5.4–6.3 秒滚动回退，圆形缩回。"
+    ]
+   },
+   "use": {
+    "ja": "ストーリー型のページや製品紹介で、章やシーンの区切りを印象づけたいときに。",
+    "en": "Use it on story-led pages and product tours to mark a change of chapter or scene.",
+    "zh-Hans": "适合叙事型页面与产品介绍，强调章节或场景的切换。"
+   },
+   "tags": [
+    "circle-reveal",
+    "clip-path",
+    "transition",
+    "scroll",
+    "scrub",
+    "section"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "圆形遮罩",
+     "圆形转场",
+     "章节转场"
+    ]
+   }
+  },
+  {
+   "id": "1-141",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "50",
+   "slug": "timeline-draw",
+   "category": "scroll",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "タイムラインの描画",
+    "en": "Timeline draw",
+    "zh-Hans": "时间轴延伸"
+   },
+   "meaning": {
+    "ja": "線が下へ伸び、届いた順にステップが現れる縦のタイムライン",
+    "en": "A vertical timeline whose line grows down and reveals each step as it arrives",
+    "zh-Hans": "线条往下延伸、碰到哪一步就出现哪一步的纵向时间轴"
+   },
+   "ask": {
+    "ja": "制作フローをタイムラインの描画で見せて。スクロールに合わせて線を下へ伸ばし、届いた節目の見出しを左10pxから滑り込ませて。",
+    "en": "Show the process as a timeline draw: grow the line down with scrolling and slide each reached step in from 10 px to the left.",
+    "zh-Hans": "用时间轴延伸展示制作流程：随滚动让线往下延伸，到达的节点标题从左侧 10 px 滑入。"
+   },
+   "summary": {
+    "ja": "スクロールが進むと左の細い線が上から下へ伸び、線が届いた節目の点が塗られて、週・見出し・説明が左から滑り込む。戻ると線が縮んで節目も消える。",
+    "en": "As scrolling progresses, a thin line on the left grows from top to bottom; each node it reaches fills in and its week, title and note slide in from the left. Scrolling back shrinks the line and hides the steps.",
+    "zh-Hans": "随滚动推进，左侧细线由上往下延伸，到达的节点圆点填色，周次、标题与说明从左侧滑入；滚回时线条缩回、节点收起。"
+   },
+   "spec": {
+    "ja": [
+     "スクロール進行は 0.4–4.6 秒で 0→1、右のスクロールバーが同期",
+     "左の線は上端から下へ 164px 伸びる。節目は 4 つ、点の半径 6px",
+     "線の先が節目に届くと点が塗られ、週・見出し・説明が左 10px から滑り込みながら現れる（先端が 16px 過ぎるまでに完了）",
+     "5.4–6.3 秒にスクロールが戻り、節目は下から順にしまわれる"
+    ],
+    "en": [
+     "Scroll progress goes 0 → 1 from 0.4–4.6 s, with the scrollbar on the right in sync.",
+     "The line on the left grows 164 px down from the top; there are 4 nodes with 6 px dots.",
+     "When the line tip reaches a node, its dot fills and the week, title and note slide in from 10 px to the left, finishing within 16 px past the node.",
+     "From 5.4–6.3 s the scroll returns and the steps fold away from the bottom up."
+    ],
+    "zh-Hans": [
+     "滚动进度在 0.4–4.6 秒由 0 到 1，右侧滚动条同步。",
+     "左侧细线从顶端往下延伸 164 px；共 4 个节点，圆点半径 6 px。",
+     "线头到达节点时圆点填色，周次、标题、说明从左侧 10 px 滑入淡现，线头越过节点 16 px 内完成。",
+     "5.4–6.3 秒滚动回退，节点自下而上依次收起。"
+    ]
+   },
+   "use": {
+    "ja": "制作の流れ、沿革、導入ステップなど、順番に読ませたい手順の紹介に。",
+    "en": "Use it for process overviews, company histories and onboarding steps that should be read in order.",
+    "zh-Hans": "适合制作流程、发展历程、上手步骤等需要按顺序阅读的内容。"
+   },
+   "tags": [
+    "timeline",
+    "steps",
+    "process",
+    "scroll",
+    "line-draw",
+    "roadmap"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "时间线",
+     "流程步骤",
+     "纵向时间轴"
     ]
    }
   },
@@ -12508,6 +14519,1341 @@
      "信息传播",
      "传播网络",
      "节点扩散"
+    ]
+   }
+  },
+  {
+   "id": "2-068",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "29",
+   "slug": "lightning-strike",
+   "category": "text-shapes",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "ライトニングストライク",
+    "en": "Lightning strike",
+    "zh-Hans": "闪电砸落"
+   },
+   "meaning": {
+    "ja": "稲妻の閃光とともに文字が叩きつけられる",
+    "en": "Text slams down with a flash of lightning",
+    "zh-Hans": "文字伴随闪电强光重重砸下"
+   },
+   "ask": {
+    "ja": "見出しをライトニングストライクで出して。2回の閃光と稲妻のあと、文字が2.4倍から叩きつけられて少し震える。",
+    "en": "Bring the headline in with a lightning strike: two flashes and a bolt, then the text slams down from 2.4x and shakes a little.",
+    "zh-Hans": "标题用闪电砸落登场：两次闪白加一道闪电，文字从 2.4 倍砸下并轻微震动。"
+   },
+   "summary": {
+    "ja": "画面が2回白く光って稲妻が走り、「雷鸣」が大きな状態から叩きつけられて揺れ、黄色い光をまとって残る。",
+    "en": "The screen flashes white twice as a bolt cuts through, the word slams down from large, jolts, and stays with a yellow glow.",
+    "zh-Hans": "画面闪白两次并劈下一道闪电，「雷鸣」从大尺寸砸下、晃动后带着黄色外发光停住。"
+   },
+   "spec": {
+    "ja": [
+     "0.84〜1.0秒に文字が2.4倍から0.9倍へ三次の ease-in で縮みながら現れる",
+     "1.0〜1.12秒で1.06倍へ戻りつつ (−4, 3)px ずれ、1.24秒で1倍・(3, −2)px、1.36秒で静止",
+     "閃光は2回：0.86〜1.04秒（最大0.85）、1.04〜1.24秒（最大0.55）。同時に6点の折れ線の稲妻が1.3秒まで点滅しながら消える",
+     "1.24〜1.6秒に黄色の外側の光（3層の線幅30/18/9px）が現れ、そのまま残る。着地で楕円の衝撃リングが0.5秒広がる",
+     "4.0〜4.6秒で文字が消えて最初の暗い画面に戻る"
+    ],
+    "en": [
+     "From 0.84 to 1.0 s the text appears while shrinking from 2.4x to 0.9x (cubic ease-in).",
+     "Over 1.0–1.12 s it rebounds to 1.06x while shifting (−4, 3) px, at 1.24 s it is 1x at (3, −2) px, and it settles at 1.36 s.",
+     "Two flashes: 0.86–1.04 s (peak 0.85) and 1.04–1.24 s (peak 0.55); a 6-point zigzag bolt flickers and fades by 1.3 s.",
+     "From 1.24 to 1.6 s a yellow outer glow (3 strokes, 30/18/9 px wide) fades in and stays; an elliptical impact ring spreads for 0.5 s on landing.",
+     "Over 4.0–4.6 s the text fades, back to the empty dark start."
+    ],
+    "zh-Hans": [
+     "0.84–1.0 秒文字从 2.4 倍缩到 0.9 倍出现（三次缓入）。",
+     "1.0–1.12 秒回弹到 1.06 倍并偏移 (−4, 3) px，1.24 秒回到 1 倍、偏移 (3, −2) px，1.36 秒静止。",
+     "两次闪白：0.86–1.04 秒（峰值 0.85）与 1.04–1.24 秒（峰值 0.55）；6 点折线闪电闪烁着在 1.3 秒前消失。",
+     "1.24–1.6 秒黄色外发光（3 层描边，宽 30/18/9 px）淡入并保持；落地时椭圆冲击环扩散 0.5 秒。",
+     "4.0–4.6 秒文字淡出，回到空的暗色初始画面。"
+    ]
+   },
+   "use": {
+    "ja": "番組タイトル、試合のオープニング、衝撃的な発表の見出しに。",
+    "en": "Use it for show titles, match openers or the headline of a big announcement.",
+    "zh-Hans": "适合节目标题、比赛开场或重磅发布的标题。"
+   },
+   "tags": [
+    "lightning",
+    "slam",
+    "impact",
+    "flash",
+    "title",
+    "text"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "雷电",
+     "砸字"
+    ]
+   }
+  },
+  {
+   "id": "2-069",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "30",
+   "slug": "coin-flip",
+   "category": "text-shapes",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "コインフリップ",
+    "en": "Coin flip",
+    "zh-Hans": "硬币翻转"
+   },
+   "meaning": {
+    "ja": "文字がコインのように回転して跳ねる",
+    "en": "Letters spin like coins as they hop",
+    "zh-Hans": "每个字像硬币一样翻转跳起"
+   },
+   "ask": {
+    "ja": "4文字をコインフリップで。1文字ずつ0.2秒ずらして縦軸で2回転しながら跳ねさせて。",
+    "en": "Animate the four characters with a coin flip: each spins twice on its vertical axis while hopping, 0.2 s apart.",
+    "zh-Hans": "4 个字做硬币翻转：每字绕竖轴转两圈并跳起，间隔 0.2 秒。"
+   },
+   "summary": {
+    "ja": "金色のコインに書かれた4文字が順に跳ね上がりながら2回転し、着地して小さく弾む。裏面は星。",
+    "en": "Four gold coins carrying characters hop up in turn, spin twice, land and bounce once; the back shows a star.",
+    "zh-Hans": "写着字的 4 枚金币依次跳起翻两圈，落地后小弹一下，背面是星。"
+   },
+   "spec": {
+    "ja": [
+     "半径36pxのコイン4枚を96px間隔で並べ、0.35秒から0.2秒ずつずらして開始。1枚の動きは1.7秒",
+     "前半28%で96px上へ（三次の ease-out）1回転、42%まで落ちながらもう1回転（scaleX = cos で回転を表現）",
+     "48%まで17px跳ね、54%で着地。影は高さに応じて小さくなる",
+     "表は文字、裏は星。縁の厚みは回転方向に4pxずらした濃い色で描く"
+    ],
+    "en": [
+     "4 coins of 36 px radius sit 96 px apart; they start at 0.35 s, 0.2 s apart, and each move lasts 1.7 s.",
+     "In the first 28% a coin rises 96 px (cubic ease-out) through one turn, and by 42% it falls through a second turn (the turn is drawn as scaleX = cos).",
+     "A 17 px hop follows until 48%, landing at 54%; the shadow shrinks with height.",
+     "The front shows the character, the back a star; the rim is a darker disc offset 4 px in the turn direction."
+    ],
+    "zh-Hans": [
+     "4 枚半径 36 px 的硬币间隔 96 px 排列，0.35 秒起每枚错开 0.2 秒开始，每枚动作 1.7 秒。",
+     "前 28% 上升 96 px（三次缓出）并转一圈，到 42% 下落时再转一圈（以 scaleX = cos 表现翻转）。",
+     "到 48% 再小跳 17 px，54% 落地；影子随高度缩小。",
+     "正面是字、背面是星；币边用向翻转方向偏移 4 px 的深色圆表现厚度。"
+    ]
+   },
+   "use": {
+    "ja": "福袋・抽選・ご褒美などの楽しい文字演出に。",
+    "en": "Use it for playful captions about luck, prizes, rewards or games.",
+    "zh-Hans": "适合福袋、抽奖、奖励等轻快的文字演出。"
+   },
+   "tags": [
+    "coin",
+    "flip",
+    "spin",
+    "hop",
+    "playful",
+    "text"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "翻硬币",
+     "翻转跳字"
+    ]
+   }
+  },
+  {
+   "id": "2-070",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "31",
+   "slug": "water-reflection",
+   "category": "text-shapes",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "水面の反射",
+    "en": "Water reflection",
+    "zh-Hans": "水面倒影"
+   },
+   "meaning": {
+    "ja": "文字の下に揺れる逆さの映り込みがある",
+    "en": "Text with a rippling upside-down reflection below",
+    "zh-Hans": "文字下方有摇晃的倒置倒影"
+   },
+   "ask": {
+    "ja": "タイトルの下に水面の反射を付けて。細い水平線の下に薄く消えていく逆さの文字が揺れるように。",
+    "en": "Add a water reflection under the title: below a thin horizon line, an upside-down copy that fades down and ripples.",
+    "zh-Hans": "给标题加水面倒影：细水平线下是向下渐隐、摇晃的倒置文字。"
+   },
+   "summary": {
+    "ja": "夜空の下で白い文字がゆっくり浮き沈みし、水平線の下では珊瑚色の逆さ文字が傾きながら揺れ、横縞状にずれる。",
+    "en": "Under a night sky white text floats gently; below the line a coral upside-down copy sways, skews and breaks into horizontal ripples.",
+    "zh-Hans": "夜空下白字轻轻浮动；线下珊瑚色倒字左右倾斜摇晃，并按横条错位成水纹。"
+   },
+   "spec": {
+    "ja": [
+     "水平線（y = 118、中央が明るいグラデーションの1px線）の上に白い文字、下に縦反転した珊瑚色の写し",
+     "写しは2.35秒周期で ±7° の skew と縦0.92〜1.04倍の伸縮、横に ±3px 揺れる",
+     "写しは線から80pxで透明度0.55から0へ消え、3pxの横帯ごとに ±2.5px ずらして波紋にする",
+     "上の文字は2.35秒周期で2.5px浮き沈みし、背景の星はゆっくり明滅する"
+    ],
+    "en": [
+     "Above a horizon line (y = 118, a 1 px line brightest in the middle) sits white text; below it a vertically flipped coral copy.",
+     "The copy skews ±7°, stretches 0.92–1.04x vertically and sways ±3 px on a 2.35 s cycle.",
+     "The copy fades from 0.55 to 0 opacity over 80 px below the line and is split into 3 px bands shifted ±2.5 px to read as ripples.",
+     "The text above bobs 2.5 px on the 2.35 s cycle while background stars twinkle slowly."
+    ],
+    "zh-Hans": [
+     "水平线（y = 118，中间最亮的 1 px 渐变线）上方是白字，下方是上下翻转的珊瑚色副本。",
+     "副本以 2.35 秒周期做 ±7° 斜切、纵向 0.92–1.04 倍伸缩并左右晃 ±3 px。",
+     "副本在线下 80 px 内由不透明度 0.55 渐隐到 0，并按 3 px 横条错位 ±2.5 px 形成水纹。",
+     "上方文字以 2.35 秒周期浮动 2.5 px，背景星点缓慢闪烁。"
+    ]
+   },
+   "use": {
+    "ja": "夜景・湖・静かなブランドのタイトルや、落ち着いたエンディングに。",
+    "en": "Use it for calm titles about night, lakes or quiet brands, or a gentle end card.",
+    "zh-Hans": "适合夜景、湖面、静谧品牌的标题或平和的片尾。"
+   },
+   "tags": [
+    "reflection",
+    "water",
+    "mirror",
+    "ripple",
+    "calm",
+    "text"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "倒影",
+     "镜像文字"
+    ]
+   }
+  },
+  {
+   "id": "2-071",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "32",
+   "slug": "text-flag",
+   "category": "text-shapes",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "フラッグウェーブ",
+    "en": "Flag wave",
+    "zh-Hans": "文字旗帜"
+   },
+   "meaning": {
+    "ja": "旗のように文字がはためく",
+    "en": "Text ripples like a flag in the wind",
+    "zh-Hans": "文字像旗子一样迎风飘动"
+   },
+   "ask": {
+    "ja": "スローガンをフラッグウェーブで。左に旗竿を立てて、文字が順番に波打つように。",
+    "en": "Animate the slogan as a flag wave: a pole on the left and the characters rippling one after another.",
+    "zh-Hans": "口号做成文字旗帜：左边立旗杆，字依次波浪飘动。"
+   },
+   "summary": {
+    "ja": "左の旗竿から4文字が並び、1文字ずつ遅れて縮み・傾き・持ち上がり、旗がはためく波が右へ流れる。",
+    "en": "Four characters hang from a pole on the left; each narrows, tilts and lifts slightly later than the last, so a wave runs to the right.",
+    "zh-Hans": "4 个字挂在左侧旗杆上，逐字延后地收窄、倾斜、上抬，波浪向右传。"
+   },
+   "spec": {
+    "ja": [
+     "左に旗竿（幅8px、上端に黄色の玉）、4文字（58px）を右へ並べる",
+     "各文字は左端を軸に scaleX = cos(38°·f)、skewY −9°·f、上へ4px·f 動く",
+     "f は1.175秒で0→1→0（余弦）、文字ごとに0.17秒ずつ位相を遅らせる",
+     "偶数番目の文字を珊瑚色、奇数番目を白にする"
+    ],
+    "en": [
+     "A pole on the left (8 px wide, yellow knob on top) with 4 characters (58 px) running to the right.",
+     "Each character, pivoting on its left edge, takes scaleX = cos(38°·f), skewY −9°·f and moves up 4 px·f.",
+     "f goes 0→1→0 over 1.175 s (cosine), delayed 0.17 s per character.",
+     "Even-position characters are coral, odd ones white."
+    ],
+    "zh-Hans": [
+     "左侧旗杆（宽 8 px、顶端黄色圆球），4 个字（58 px）向右排开。",
+     "每字以左边为轴：scaleX = cos(38°·f)、skewY −9°·f、上移 4 px·f。",
+     "f 在 1.175 秒内 0→1→0（余弦），每字相位延后 0.17 秒。",
+     "偶数位字为珊瑚色，奇数位为白色。"
+    ]
+   },
+   "use": {
+    "ja": "応援・スローガン・スポーツのタイトルに。",
+    "en": "Use it for cheers, slogans and sports titles.",
+    "zh-Hans": "适合应援、口号与体育类标题。"
+   },
+   "tags": [
+    "flag",
+    "wave",
+    "wind",
+    "slogan",
+    "ripple",
+    "text"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "旗帜飘扬",
+     "飘动文字"
+    ]
+   }
+  },
+  {
+   "id": "2-072",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "33",
+   "slug": "gravity-flip",
+   "category": "text-shapes",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "グラビティフリップ",
+    "en": "Gravity flip",
+    "zh-Hans": "重力反转"
+   },
+   "meaning": {
+    "ja": "文字が上へ落ちて逆さになり、また戻る",
+    "en": "Letters fall upward, flip over, then drop back",
+    "zh-Hans": "文字往上掉、倒立后再落回"
+   },
+   "ask": {
+    "ja": "ロゴ文字をグラビティフリップで。1文字ずつ上へ落ちて逆さになり、少し止まってから戻って弾むように。",
+    "en": "Do a gravity flip on the logo text: each character falls upward and turns over, pauses, then drops back with a small bounce.",
+    "zh-Hans": "logo 文字做重力反转：每字往上掉并倒立，停一下再落回并小弹。"
+   },
+   "summary": {
+    "ja": "4文字が順に天井へ加速して落ちながら180°回って逆さに張り付き、少し跳ね返ったあと床へ落ちて360°で正立に戻り、小さく弾む。",
+    "en": "Four characters accelerate up to the ceiling in turn, rotating 180° to hang upside down, bounce off it, then fall back to the floor completing 360° and bounce.",
+    "zh-Hans": "4 个字依次加速往上撞到天花板并转 180° 倒挂，回弹后落回地面转满 360°，再小弹一下。"
+   },
+   "spec": {
+    "ja": [
+     "4文字（60px）、0.3秒から0.12秒ずつずらす。1文字のサイクルは3.6秒",
+     "10〜33%：三次の ease-in で90px上へ、同時に180°回転",
+     "33〜46%：天井で19%分跳ね返って戻り、58%まで逆さのまま止まる",
+     "58〜80%：ease-in で落ちながら360°まで回る。87%まで16px跳ね、93%で静止"
+    ],
+    "en": [
+     "4 characters (60 px) starting at 0.3 s, 0.12 s apart; one character's cycle is 3.6 s.",
+     "10–33%: rises 90 px with a cubic ease-in while rotating 180°.",
+     "33–46%: rebounds 19% of the way off the ceiling and back, then hangs upside down until 58%.",
+     "58–80%: falls with ease-in while turning to 360°; hops 16 px until 87% and rests at 93%."
+    ],
+    "zh-Hans": [
+     "4 个字（60 px），0.3 秒起每字错开 0.12 秒；单字一轮 3.6 秒。",
+     "10–33%：三次缓入上移 90 px，同时旋转 180°。",
+     "33–46%：在顶部回弹 19% 的距离再贴回，倒立停到 58%。",
+     "58–80%：缓入落下并转到 360°；到 87% 小跳 16 px，93% 静止。"
+    ]
+   },
+   "use": {
+    "ja": "「常識を覆す」「逆転」などのコピーや、遊び心のあるロゴアニメに。",
+    "en": "Use it for copy about reversal or upending norms, or a playful logo animation.",
+    "zh-Hans": "适合「颠覆常识」「逆转」类文案或俏皮的 logo 动画。"
+   },
+   "tags": [
+    "gravity",
+    "flip",
+    "upside-down",
+    "bounce",
+    "playful",
+    "text"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "反重力",
+     "倒立文字"
+    ]
+   }
+  },
+  {
+   "id": "2-073",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "34",
+   "slug": "karaoke-ball",
+   "category": "text-shapes",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "カラオケボール",
+    "en": "Karaoke bouncing ball",
+    "zh-Hans": "卡拉 OK 小球"
+   },
+   "meaning": {
+    "ja": "弾むボールに合わせて歌詞が1文字ずつ光る",
+    "en": "A bouncing ball lights up lyrics one character at a time",
+    "zh-Hans": "跳动小球逐字点亮歌词"
+   },
+   "ask": {
+    "ja": "歌詞にカラオケボールを付けて。光る玉が1文字0.38秒で跳ね、着地した字が明るくなるように。",
+    "en": "Add a karaoke bouncing ball to the lyric: a glowing ball hops one character every 0.38 s and each character it lands on lights up.",
+    "zh-Hans": "歌词加卡拉 OK 小球：发光小球每 0.38 秒跳一个字，落到的字亮起。"
+   },
+   "summary": {
+    "ja": "暗い7文字の上を黄色く光る玉が左から右へ跳ね、着地した字が白く光って小さく弾む。最後まで行くと字が暗くなって最初から。",
+    "en": "A glowing yellow ball hops left to right over seven dim characters; each one it lands on turns white, glows and pops. At the end the line dims and starts over.",
+    "zh-Hans": "发光黄球在 7 个暗字上方从左往右跳，落点字变白发光并弹一下；跳完后字回暗、重新开始。"
+   },
+   "spec": {
+    "ja": [
+     "7文字（44px）を暗い色で並べ、0.3秒から玉が0.38秒ごとに次の字へ跳ぶ（高さ34pxの正弦の弧）",
+     "着地した字は0.14秒で暗色から白へ、黄色の光（線幅16/8px）が付き、1 + 0.12·e^(−9t)·cos(16t) で弾む",
+     "最後の字の後、玉は右へ跳びながら消え、4.0〜4.3秒で全ての字が暗く戻る",
+     "4.3〜4.65秒に玉が最初の字の左で現れ、0秒と同じ状態になる"
+    ],
+    "en": [
+     "7 characters (44 px) start dim; from 0.3 s the ball hops to the next character every 0.38 s (a 34 px high sine arc).",
+     "A character it lands on turns from dim to white within 0.14 s, gains a yellow glow (16/8 px strokes) and pops with 1 + 0.12·e^(−9t)·cos(16t).",
+     "After the last character the ball hops off to the right and fades; over 4.0–4.3 s all characters dim again.",
+     "Over 4.3–4.65 s the ball fades in left of the first character, matching the frame at 0 s."
+    ],
+    "zh-Hans": [
+     "7 个字（44 px）初始为暗色；0.3 秒起小球每 0.38 秒跳到下一个字（高 34 px 的正弦弧）。",
+     "落点字在 0.14 秒内由暗变白，加上黄色光晕（描边 16/8 px），并按 1 + 0.12·e^(−9t)·cos(16t) 弹跳。",
+     "最后一个字之后，小球向右跳出并淡出；4.0–4.3 秒所有字回暗。",
+     "4.3–4.65 秒小球在第一个字左侧淡入，与 0 秒画面相同。"
+    ]
+   },
+   "use": {
+    "ja": "歌詞字幕、リズムに合わせた読み上げ、子ども向けの文字学習に。",
+    "en": "Use it for lyric subtitles, read-along captions synced to rhythm, or kids' reading videos.",
+    "zh-Hans": "适合歌词字幕、按节奏朗读的字幕或儿童识字视频。"
+   },
+   "tags": [
+    "karaoke",
+    "lyrics",
+    "bouncing-ball",
+    "highlight",
+    "subtitle",
+    "text"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "歌词跳球",
+     "KTV 字幕"
+    ]
+   }
+  },
+  {
+   "id": "2-074",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "35",
+   "slug": "ink-bleed",
+   "category": "text-shapes",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "インクブリード",
+    "en": "Ink bleed",
+    "zh-Hans": "墨水晕开"
+   },
+   "meaning": {
+    "ja": "にじんだ墨が文字の形にまとまり、またにじむ",
+    "en": "Blurry ink gathers into crisp letters, then bleeds away",
+    "zh-Hans": "晕开的墨团收敛成字，再晕散消失"
+   },
+   "ask": {
+    "ja": "和風タイトルをインクブリードで。墨がにじんだ塊から1文字ずつくっきりした字になり、最後にまたにじんで消えるように。",
+    "en": "Give the title an ink bleed: each character goes from a blurry ink blot to sharp, then bleeds away again.",
+    "zh-Hans": "标题做墨水晕开：每字从模糊墨团收成清晰字形，最后再晕开消失。"
+   },
+   "summary": {
+    "ja": "和紙色の上で4文字が順に、ぼやけた墨の塊から縁のくっきりした字へ締まり、しばらく留まったあと再び広がって消える。",
+    "en": "On rice-paper beige, four characters in turn tighten from soft ink blots into crisp shapes, hold, then spread and vanish.",
+    "zh-Hans": "宣纸色底上，4 个字依次由模糊墨团收紧成边缘清晰的字，停留后再晕开消失。"
+   },
+   "spec": {
+    "ja": [
+     "4文字（68px）、0.3秒から0.25秒ずつずらす。1文字のサイクルは3.6秒",
+     "0〜55%：ぼかし16pxから0px、1.3倍から1倍へ（smoothstep）、最初の15%で現れる",
+     "55〜80%はくっきり静止、80〜100%でぼかし16px・1.2倍へ広がりながら消える",
+     "ぼかした墨を contrast(16) でしきい値処理し、にじみ同士がくっつく縁を作って multiply で紙に重ねる"
+    ],
+    "en": [
+     "4 characters (68 px) starting at 0.3 s, 0.25 s apart; one character's cycle is 3.6 s.",
+     "0–55%: blur from 16 px to 0 px and scale from 1.3x to 1x (smoothstep), appearing over the first 15%.",
+     "55–80% holds sharp; 80–100% spreads to 16 px blur and 1.2x while fading.",
+     "The blurred ink is thresholded with contrast(16) so blots merge at the edges, then multiplied onto the paper."
+    ],
+    "zh-Hans": [
+     "4 个字（68 px），0.3 秒起每字错开 0.25 秒；单字一轮 3.6 秒。",
+     "0–55%：模糊由 16 px 到 0 px、缩放由 1.3 倍到 1 倍（smoothstep），前 15% 内显现。",
+     "55–80% 保持清晰；80–100% 扩散到模糊 16 px、1.2 倍并淡出。",
+     "模糊墨字用 contrast(16) 阈值化，使墨团边缘相互粘连，再以 multiply 叠到纸面上。"
+    ]
+   },
+   "use": {
+    "ja": "和風・書道・お茶やお酒のブランドのタイトルに。",
+    "en": "Use it for titles with an East Asian ink, calligraphy, tea or sake feel.",
+    "zh-Hans": "适合国风、书法、茶酒品牌的标题。"
+   },
+   "tags": [
+    "ink",
+    "bleed",
+    "blur",
+    "calligraphy",
+    "gooey",
+    "text"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "水墨",
+     "墨迹晕染"
+    ]
+   }
+  },
+  {
+   "id": "2-075",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "36",
+   "slug": "crumble-down",
+   "category": "text-shapes",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "クランブル",
+    "en": "Crumble",
+    "zh-Hans": "崩落"
+   },
+   "meaning": {
+    "ja": "文字が崩れて落ち、また組み上がる",
+    "en": "Letters crumble and fall, then rebuild",
+    "zh-Hans": "文字崩塌坠落，再落回重组"
+   },
+   "ask": {
+    "ja": "エンディングの文字をクランブルで崩して。1文字ずつ傾いてから回りながら落ちて消え、また上から戻るように。",
+    "en": "Crumble the closing text: each character tilts, falls spinning and fades, then drops back from above.",
+    "zh-Hans": "片尾文字做崩落：每字先歪斜，旋转下坠淡出，再从上方落回。"
+   },
+   "summary": {
+    "ja": "4文字が順に少し傾き、破片を散らしながら回転して加速落下し消え、その後上から降りてきて元の位置に揃う。",
+    "en": "Four characters tilt slightly in turn, then fall spinning and accelerating while shedding debris, vanish, and come back down from above into place.",
+    "zh-Hans": "4 个字依次微微歪斜，随后旋转加速下坠、掉出碎屑并消失，再从上方落回原位。"
+   },
+   "spec": {
+    "ja": [
+     "4文字（64px）、0.3秒から0.16秒ずつずらす。1文字のサイクルは3.6秒",
+     "22〜27%で ±12° 以内のランダムな角度へ傾き、30%まで保持",
+     "30〜62%：三次の ease-in で109px落下、±90° 以内まで回転しながら消える。破片5個が一緒に落ちる",
+     "80〜92%：32px上から ease-out で降りながら現れ、元の位置に戻る"
+    ],
+    "en": [
+     "4 characters (64 px) starting at 0.3 s, 0.16 s apart; one character's cycle is 3.6 s.",
+     "22–27%: tilts to a random angle within ±12°, held until 30%.",
+     "30–62%: falls 109 px with a cubic ease-in, rotating to within ±90° while fading; 5 debris bits fall with it.",
+     "80–92%: comes down from 32 px above with ease-out while fading in, back in place."
+    ],
+    "zh-Hans": [
+     "4 个字（64 px），0.3 秒起每字错开 0.16 秒；单字一轮 3.6 秒。",
+     "22–27% 歪斜到 ±12° 以内的随机角度，保持到 30%。",
+     "30–62%：三次缓入下坠 109 px，旋转到 ±90° 以内并淡出；5 片碎屑一起落下。",
+     "80–92%：从上方 32 px 处缓出落下并淡入，回到原位。"
+    ]
+   },
+   "use": {
+    "ja": "終わり・崩壊・失敗を表すテロップや、エンディングの演出に。",
+    "en": "Use it for captions about endings, collapse or failure, or an outro.",
+    "zh-Hans": "适合表现结束、崩塌、失败的字幕或片尾。"
+   },
+   "tags": [
+    "crumble",
+    "fall",
+    "collapse",
+    "debris",
+    "outro",
+    "text"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "崩塌",
+     "坠落文字"
+    ]
+   }
+  },
+  {
+   "id": "2-076",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "37",
+   "slug": "rubber-stamp",
+   "category": "text-shapes",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "スタンプ",
+    "en": "Rubber stamp",
+    "zh-Hans": "印章"
+   },
+   "meaning": {
+    "ja": "枠付きの印がバンと押される",
+    "en": "A framed stamp slams onto the page",
+    "zh-Hans": "带框印章啪地盖上"
+   },
+   "ask": {
+    "ja": "書類の画面にスタンプを2つ押して。2.4倍から斜めにバンと押され、かすれた質感にして。",
+    "en": "Slam two rubber stamps onto the document: each comes down at an angle from 2.4x with a worn, patchy texture.",
+    "zh-Hans": "在文件画面上盖两枚印章：从 2.4 倍斜着砸下，印面带斑驳质感。"
+   },
+   "summary": {
+    "ja": "書類の上に赤い枠付きの印「急件」と「核准」が順に大きな状態から斜めに押され、紙が少し揺れて印の跡が広がる。",
+    "en": "Two red framed stamps, “urgent” and “approved”, slam onto a document in turn from large and at an angle; the paper jolts and an imprint ring spreads.",
+    "zh-Hans": "文件上依次从大尺寸斜着盖下两枚红色带框印章「急件」「核准」，纸面微震并扩出一圈印痕。"
+   },
+   "spec": {
+    "ja": [
+     "2つの印（170×100px、角度 −9° と 7°）を0.35秒と0.9秒に押す",
+     "各印は0.24秒で2.4倍から0.93倍へ三次の ease-in、その後0.12秒で1倍へ戻る",
+     "着地で紙が2.5px·e^(−14t) で揺れ、外へ1.3倍まで広がる枠の跡が0.36秒で消える",
+     "印面は乱数で打ち抜いた点160個と細い線6本でかすれさせる。3.9〜4.4秒で印が消える"
+    ],
+    "en": [
+     "Two stamps (170×100 px, angled −9° and 7°) land at 0.35 s and 0.9 s.",
+     "Each goes from 2.4x to 0.93x in 0.24 s (cubic ease-in), then back to 1x over 0.12 s.",
+     "On landing the paper jolts by 2.5 px·e^(−14t) and an outline ring grows to 1.3x and fades within 0.36 s.",
+     "160 seeded punched-out dots and 6 thin scratches make the ink patchy; the stamps fade over 3.9–4.4 s."
+    ],
+    "zh-Hans": [
+     "两枚印章（170×100 px，角度 −9° 与 7°）在 0.35 秒和 0.9 秒盖下。",
+     "每枚在 0.24 秒内从 2.4 倍缩到 0.93 倍（三次缓入），再用 0.12 秒回到 1 倍。",
+     "落下时纸面按 2.5 px·e^(−14t) 震动，外扩到 1.3 倍的印痕框在 0.36 秒内消失。",
+     "印面用 160 个随机镂空点和 6 道细划痕做出斑驳感；3.9–4.4 秒印章淡出。"
+    ]
+   },
+   "use": {
+    "ja": "承認・合格・完売・限定などの決定を示す場面に。",
+    "en": "Use it to mark a decision: approved, passed, sold out or limited.",
+    "zh-Hans": "适合表现审批通过、合格、售罄、限定等结果。"
+   },
+   "tags": [
+    "stamp",
+    "seal",
+    "approved",
+    "slam",
+    "impact",
+    "badge"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "盖章",
+     "图章"
+    ]
+   }
+  },
+  {
+   "id": "2-077",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "38",
+   "slug": "text-cylinder",
+   "category": "text-shapes",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "テキストシリンダー",
+    "en": "Text cylinder",
+    "zh-Hans": "文字圆柱"
+   },
+   "meaning": {
+    "ja": "同じ文字を円柱状に並べて回す",
+    "en": "Copies of a letter wrapped round a spinning cylinder",
+    "zh-Hans": "同一个字环绕成圆柱并旋转"
+   },
+   "ask": {
+    "ja": "3文字をテキストシリンダーにして。隣どうし逆向きに回し、真ん中だけアクセント色に。",
+    "en": "Turn three characters into text cylinders spinning in alternating directions, with the middle one in the accent colour.",
+    "zh-Hans": "3 个字做成文字圆柱，相邻反向旋转，中间那根用强调色。"
+   },
+   "summary": {
+    "ja": "3本の円柱がそれぞれ同じ文字10個で巻かれて横軸で回り、隣どうし逆向き。手前の字は大きく明るく、奥は見えない。",
+    "en": "Three cylinders, each wrapped in ten copies of one character, spin about a horizontal axis in alternating directions; near copies are larger and brighter, far ones hidden.",
+    "zh-Hans": "3 根圆柱各由同一个字的 10 个副本环绕，绕水平轴旋转且相邻反向；近处的字更大更亮，背面不显示。"
+   },
+   "spec": {
+    "ja": [
+     "3本の円柱を150px間隔で並べ、各円柱は同じ文字（50px）10個を36°間隔、半径62pxで巻く",
+     "4.7秒で1回転、隣の円柱は逆向き。真ん中の円柱を珊瑚色、両側を白に",
+     "奥行き z に応じて縦を z 倍に潰し、遠近 400 / (400 − 62z) で拡大、透明度は0.2 + 0.8z",
+     "z < 0.05 の裏側の字は描かない"
+    ],
+    "en": [
+     "3 cylinders sit 150 px apart; each wraps 10 copies of one character (50 px) at 36° steps on a 62 px radius.",
+     "One turn per 4.7 s, neighbours turning the opposite way; the middle cylinder is coral, the outer ones white.",
+     "Each copy is squashed vertically by its depth z, scaled by perspective 400 / (400 − 62z), at opacity 0.2 + 0.8z.",
+     "Copies on the back (z < 0.05) are not drawn."
+    ],
+    "zh-Hans": [
+     "3 根圆柱间隔 150 px；每根以半径 62 px、每隔 36° 排 10 个同样的字（50 px）。",
+     "每 4.7 秒转一圈，相邻圆柱方向相反；中间珊瑚色，两侧白色。",
+     "每个副本按深度 z 纵向压缩，按透视 400 / (400 − 62z) 放大，不透明度 0.2 + 0.8z。",
+     "背面（z < 0.05）的字不画。"
+    ]
+   },
+   "use": {
+    "ja": "立体的なロゴ表現、ループする背景タイトル、テック系のオープニングに。",
+    "en": "Use it for a 3D-looking logo, a looping title backdrop or a tech opener.",
+    "zh-Hans": "适合立体 logo、循环背景标题或科技感开场。"
+   },
+   "tags": [
+    "cylinder",
+    "3d",
+    "rotate",
+    "spin",
+    "loop",
+    "text"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "滚筒文字",
+     "3D 圆柱"
+    ]
+   }
+  },
+  {
+   "id": "2-078",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "39",
+   "slug": "slot-machine",
+   "category": "text-shapes",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "スロットマシン",
+    "en": "Slot machine",
+    "zh-Hans": "拉霸"
+   },
+   "meaning": {
+    "ja": "リールが回って左から順に止まり文字がそろう",
+    "en": "Reels spin and stop left to right on the result",
+    "zh-Hans": "滚轮快速转动后从左到右停在结果"
+   },
+   "ask": {
+    "ja": "結果発表をスロットマシンで。4つのリールが回って、左から順に減速して少し跳ね返って止まるように。",
+    "en": "Reveal the result with a slot machine: four reels spin, then slow and stop left to right with a slight bounce back.",
+    "zh-Hans": "结果揭晓做成拉霸：4 个滚轮转动，从左到右减速并略带回弹停下。"
+   },
+   "summary": {
+    "ja": "4つの窓でランダムな字が縦に流れ、左から順に減速して「大吉大利」で止まり、そろうと枠が2回光る。",
+    "en": "Random characters stream vertically in four windows, slowing left to right to land on the result; when all stop the frame flashes twice.",
+    "zh-Hans": "4 个窗格里随机字快速竖向滚动，从左到右减速停在「大吉大利」，全部停下后边框闪两次。"
+   },
+   "spec": {
+    "ja": [
+     "4つの窓（76×92px、間隔14px）。i 番目のリールは18 + 6i 文字の帯で、最初と最後が目標の字",
+     "0.3秒から1.4 + 0.5i 秒かけて帯を上へ送る。cubic-bezier(.2,.75,.25,1.04) で少し行き過ぎて戻る",
+     "速いときは上下14pxに残像を重ね、窓の上下22%に暗いグラデーションの内側の影",
+     "3.2〜4.2秒に枠が0.5秒周期で黄色く2回光る。帯の最初と最後が同じ字なのでループで継ぎ目が出ない"
+    ],
+    "en": [
+     "4 windows (76×92 px, 14 px apart); reel i is a strip of 18 + 6i characters whose first and last are the target.",
+     "From 0.3 s each strip scrolls up over 1.4 + 0.5i s with cubic-bezier(.2,.75,.25,1.04), overshooting slightly and settling.",
+     "At speed, ghost copies sit 14 px above and below; the top and bottom 22% of each window get a dark inner shadow.",
+     "Over 3.2–4.2 s the frame flashes yellow twice on a 0.5 s period; the strip starts and ends on the same character, so the loop is seamless."
+    ],
+    "zh-Hans": [
+     "4 个窗格（76×92 px，间隔 14 px）；第 i 个滚轮是 18 + 6i 个字的滚带，首尾都是目标字。",
+     "0.3 秒起每条滚带用 1.4 + 0.5i 秒向上滚动，曲线 cubic-bezier(.2,.75,.25,1.04)，略冲过再回位。",
+     "高速时上下 14 px 叠拖影；窗格上下 22% 有深色渐变内阴影。",
+     "3.2–4.2 秒边框以 0.5 秒周期黄闪两次；滚带首尾同字，循环无接缝。"
+    ]
+   },
+   "use": {
+    "ja": "抽選・おみくじ・ランキング発表など、結果をじらして見せたいときに。",
+    "en": "Use it to build suspense before a result: draws, fortunes, rankings or prizes.",
+    "zh-Hans": "适合抽奖、求签、排名揭晓等需要吊胃口的结果展示。"
+   },
+   "tags": [
+    "slot-machine",
+    "reel",
+    "spin",
+    "reveal",
+    "lottery",
+    "text"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "老虎机",
+     "滚轮揭晓"
+    ]
+   }
+  },
+  {
+   "id": "2-079",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "40",
+   "slug": "liquid-fill",
+   "category": "text-shapes",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "リキッドフィル",
+    "en": "Liquid fill",
+    "zh-Hans": "液体填满"
+   },
+   "meaning": {
+    "ja": "中空の文字が下から液体で満たされる",
+    "en": "Outlined text fills with liquid from the bottom",
+    "zh-Hans": "空心字被液体由下往上填满"
+   },
+   "ask": {
+    "ja": "見出しをリキッドフィルで。縁取りだけの文字に、波打つ液体が3秒かけて下から満ちて、最後に抜けるように。",
+    "en": "Do a liquid fill on the headline: outlined text fills from the bottom with wavy liquid over 3 s, then drains.",
+    "zh-Hans": "标题做液体填满：描边空心字在 3 秒内被波动液体由下往上填满，最后清空。"
+   },
+   "summary": {
+    "ja": "ミントの縁取りの中空文字に、波打つ液面と泡が下から上がって満たし、しばらく留まってから一気に抜ける。下に%表示。",
+    "en": "Mint-outlined hollow text fills from the bottom with a wavy surface and rising bubbles, holds full, then drains quickly; a percentage shows below.",
+    "zh-Hans": "薄荷色描边的空心字被带波纹和气泡的液面由下往上填满，停留后迅速清空；下方显示百分比。"
+   },
+   "spec": {
+    "ja": [
+     "132pxの文字を線幅3pxのミントで縁取りし、液体は文字の形で切り抜く",
+     "液面は0.3〜3.3秒で下から上へ（二次の easeInOut）、4.2〜4.6秒で下へ戻る",
+     "液面は2層の正弦波で、波高 6px·sin(π·液位)（空と満杯では平ら）、1.57秒周期で流れる",
+     "液の中を泡10個が上る。下に0〜100%の数字を表示"
+    ],
+    "en": [
+     "132 px text outlined in mint at 3 px; the liquid is clipped to the letter shapes.",
+     "The level rises over 0.3–3.3 s (quadratic ease-in-out) and drops back over 4.2–4.6 s.",
+     "The surface is two sine waves with height 6 px·sin(π·level) (flat when empty or full), flowing on a 1.57 s period.",
+     "10 bubbles rise through the liquid; a 0–100% readout sits below."
+    ],
+    "zh-Hans": [
+     "132 px 文字以 3 px 薄荷色描边，液体按字形裁切。",
+     "液面在 0.3–3.3 秒上升（二次缓入缓出），4.2–4.6 秒降回。",
+     "液面是两层正弦波，波高 6 px·sin(π·液位)（空和满时变平），以 1.57 秒周期流动。",
+     "10 个气泡在液体中上浮；下方显示 0–100% 读数。"
+    ]
+   },
+   "use": {
+    "ja": "進捗・充電・目標達成、飲料ブランドの見出しに。",
+    "en": "Use it for progress, charging, hitting a goal, or a drinks brand headline.",
+    "zh-Hans": "适合进度、充电、目标达成或饮品品牌的标题。"
+   },
+   "tags": [
+    "liquid",
+    "fill",
+    "wave",
+    "progress",
+    "water",
+    "text"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "水位填充",
+     "注水文字"
+    ]
+   }
+  },
+  {
+   "id": "2-080",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "41",
+   "slug": "signature-writing",
+   "category": "techniques",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "サイン描画",
+    "en": "Signature animation",
+    "zh-Hans": "手写签名"
+   },
+   "meaning": {
+    "ja": "筆記体のサインが書かれていく",
+    "en": "A cursive signature writes itself on",
+    "zh-Hans": "草写签名一笔笔写出来"
+   },
+   "ask": {
+    "ja": "最後にサインを描画して。筆記体の線がペン先の点と一緒に2.6秒で書かれ、最後に下線を引くように。",
+    "en": "End with a signature animation: the cursive line writes on with a pen-tip dot over 2.6 s, then an underline sweeps in.",
+    "zh-Hans": "结尾加手写签名：草写线条在 2.6 秒内随笔尖圆点写出，最后补一道底线。"
+   },
+   "summary": {
+    "ja": "一筆書きの筆記体サインがペン先の珊瑚色の点に先導されて左から右へ書かれ、書き終わると下に緩い弧の下線がさっと引かれる。",
+    "en": "A one-stroke cursive signature is written left to right behind a coral pen-tip dot, then a gently curved underline sweeps in beneath it.",
+    "zh-Hans": "一笔连写的草写签名由珊瑚色笔尖圆点引领从左写到右，写完后下方快速划出一道微弯底线。"
+   },
+   "spec": {
+    "ja": [
+     "一筆の経路：大きな頭文字の弧、6つの連続ループ、右上へ払う終筆",
+     "0.3〜2.9秒に sine の easeInOut で書き進め、ペン先の点（半径4px、光の輪8px）が先端に付く",
+     "線幅は線の向きに応じて2〜4.2pxで変わり、ペンの強弱を出す",
+     "2.95〜3.4秒に緩い弧の下線（2.4px）が三次の ease-out で引かれ、4.0〜4.5秒で全体が消える"
+    ],
+    "en": [
+     "A single-stroke path: a large initial loop, 6 joined loops, and an upward exit stroke to the right.",
+     "It writes on over 0.3–2.9 s with a sine ease-in-out; a pen-tip dot (4 px radius, 8 px halo) rides the tip.",
+     "Line width varies 2–4.2 px with the stroke direction, like pen pressure.",
+     "Over 2.95–3.4 s a gently curved underline (2.4 px) sweeps in (cubic ease-out); everything fades over 4.0–4.5 s."
+    ],
+    "zh-Hans": [
+     "单笔路径：大写起笔弧、6 个连写圈、向右上扬的收笔。",
+     "0.3–2.9 秒按 sine 缓入缓出写出，笔尖圆点（半径 4 px、光圈 8 px）跟在前端。",
+     "线宽随笔画方向在 2–4.2 px 间变化，模拟笔压。",
+     "2.95–3.4 秒微弯底线（2.4 px）以三次缓出划出；4.0–4.5 秒整体淡出。"
+    ]
+   },
+   "use": {
+    "ja": "ポートフォリオの冒頭、ブランドのサイン、手紙やエンディングの署名に。",
+    "en": "Use it for a portfolio intro, a brand signature, or signing off a letter or video.",
+    "zh-Hans": "适合作品集开场、品牌签名或信件、视频结尾的署名。"
+   },
+   "tags": [
+    "signature",
+    "handwriting",
+    "cursive",
+    "draw",
+    "stroke",
+    "line-art"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "签名动画",
+     "手写描边"
+    ]
+   }
+  },
+  {
+   "id": "2-081",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "42",
+   "slug": "map-route",
+   "category": "techniques",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "ルートアニメーション",
+    "en": "Map route animation",
+    "zh-Hans": "地图路线导航"
+   },
+   "meaning": {
+    "ja": "地図上にピンが落ちてルートが引かれる",
+    "en": "Pins drop on a map and a route draws between them",
+    "zh-Hans": "地图上落下地标并画出路线"
+   },
+   "ask": {
+    "ja": "地図にルートアニメーションを。3つのピンが弾んで落ち、出発地から目的地まで線が引かれて点が進むように。",
+    "en": "Add a map route animation: three pins bounce in, then a line draws from start to destination with a dot travelling along it.",
+    "zh-Hans": "地图上做路线导航：3 枚地标弹跳落下，从起点到终点画线，小点沿线前进。"
+   },
+   "summary": {
+    "ja": "淡い地図と格子の上に3本のピンが順に弾んで落ち、点線の予定ルートに沿って青い線が引かれ、光る点が進み、終点のピンが弾む。",
+    "en": "On a faint map with grid lines, three pins drop and bounce in turn; a blue line draws along the dashed planned route, a glowing dot travels with it, and the end pin pops.",
+    "zh-Hans": "淡色地图与格线上，3 枚地标依次弹跳落下，蓝线沿虚线预定路线画出，发光小点同步前进，终点地标弹一下。"
+   },
+   "spec": {
+    "ja": [
+     "淡い陸地と54px間隔の格子、2本の三次ベジェで作るルートを点線で先に表示",
+     "ピン3本が0.3秒から0.18秒ずつずらして30px上から bounce で0.6秒かけて落ちる",
+     "1.3〜3.5秒に青い線（3.5px、光9px）が sine の easeInOut で引かれ、光の輪付きの点が先端を進む",
+     "3.5〜3.85秒に終点のピンが1.25倍に弾み、4.1〜4.55秒でピンと線が消える"
+    ],
+    "en": [
+     "A faint landmass with a 54 px grid; the route (2 cubic Béziers) is shown dashed from the start.",
+     "3 pins drop from 30 px above with a bounce over 0.6 s, starting at 0.3 s and 0.18 s apart.",
+     "Over 1.3–3.5 s a blue line (3.5 px, 9 px glow) draws with a sine ease-in-out, a dot with a halo riding its tip.",
+     "Over 3.5–3.85 s the end pin pops to 1.25x; pins and line fade over 4.1–4.55 s."
+    ],
+    "zh-Hans": [
+     "淡色陆地加 54 px 间隔格线，路线（2 段三次贝塞尔）先以虚线显示。",
+     "3 枚地标从上方 30 px 处以 bounce 用 0.6 秒落下，0.3 秒起每枚错开 0.18 秒。",
+     "1.3–3.5 秒蓝线（3.5 px、光晕 9 px）按 sine 缓入缓出画出，带光圈的小点跟在前端。",
+     "3.5–3.85 秒终点地标弹到 1.25 倍；4.1–4.55 秒地标与路线淡出。"
+    ]
+   },
+   "use": {
+    "ja": "旅行記、配送・物流の説明、店舗へのアクセス案内に。",
+    "en": "Use it for travel stories, delivery and logistics explainers, or directions to a store.",
+    "zh-Hans": "适合旅行记录、配送物流讲解或门店路线指引。"
+   },
+   "tags": [
+    "map",
+    "route",
+    "pin",
+    "navigation",
+    "path",
+    "travel"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "路线动画",
+     "导航路径"
+    ]
+   }
+  },
+  {
+   "id": "2-082",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "43",
+   "slug": "ecg-line",
+   "category": "techniques",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "心電図ライン",
+    "en": "ECG heartbeat line",
+    "zh-Hans": "心电图线条"
+   },
+   "meaning": {
+    "ja": "心電図の波形が左から右へ描かれ続ける",
+    "en": "A heartbeat trace sweeps across a monitor",
+    "zh-Hans": "心电波形从左往右持续扫出"
+   },
+   "ask": {
+    "ja": "健康アプリの画面に心電図ラインを。暗いマス目の画面で波形が左から右へ描かれ、心拍数とハートが脈打つように。",
+    "en": "Put an ECG heartbeat line on the health screen: on a dark grid the trace sweeps left to right while the BPM and a heart pulse.",
+    "zh-Hans": "健康 App 画面加心电图线条：深色格子屏上波形从左往右扫出，心率数字与爱心跟着跳。"
+   },
+   "summary": {
+    "ja": "暗い緑のマス目の画面で、光る心電図の波形が左から右へ掃引され、古い線は暗くなり、右側のハートが拍ごとに膨らむ。",
+    "en": "On a dark green grid a glowing ECG trace sweeps left to right, older trace dims, and a heart on the right swells with each beat.",
+    "zh-Hans": "深绿格子屏上，发光的心电波形从左往右扫出，旧波形逐渐变暗，右侧爱心随每拍放大。"
+   },
+   "spec": {
+    "ja": [
+     "16pxの細かいマス目（80pxごとに濃い線）の暗い画面。波形は96pxごとに P波・QRS（上へ62px）・T波を繰り返す",
+     "掃引の先端が2.35秒で左から右へ進み、先端の前8%は空白、後ろの線は古いほど暗くなる（最暗で25%）",
+     "線は2pxの明るい緑と7pxの光、先端に光る点（半径3.5px、光9px）",
+     "R波が先端を通るとハートが1.25倍に膨らんで戻り、心拍数の表示が拍ごとに切り替わる"
+    ],
+    "en": [
+     "A dark screen with a 16 px fine grid (darker every 80 px); the trace repeats a P wave, QRS (62 px up) and T wave every 96 px.",
+     "The sweep head crosses left to right in 2.35 s; 8% ahead of it is blank and older trace dims with age (down to 25%).",
+     "The trace is a 2 px bright green line with a 7 px glow; a glowing dot (3.5 px radius, 9 px halo) marks the head.",
+     "When an R wave passes the head, the heart swells to 1.25x and settles, and the BPM readout changes per beat."
+    ],
+    "zh-Hans": [
+     "深色屏幕带 16 px 细格（每 80 px 一条深线）；波形每 96 px 重复 P 波、QRS（向上 62 px）、T 波。",
+     "扫描前端 2.35 秒从左扫到右；前端前方 8% 留空，越早的波形越暗（最暗 25%）。",
+     "波形为 2 px 亮绿线加 7 px 光晕；前端有发光点（半径 3.5 px、光晕 9 px）。",
+     "R 波经过前端时爱心放大到 1.25 倍再回落，心率数字按拍切换。"
+    ]
+   },
+   "use": {
+    "ja": "医療・健康・フィットネスの説明や、「鼓動」「生きている」を表す演出に。",
+    "en": "Use it for medical, health or fitness explainers, or to stand for a heartbeat or being alive.",
+    "zh-Hans": "适合医疗、健康、健身讲解，或表现「心跳」「生命力」。"
+   },
+   "tags": [
+    "ecg",
+    "heartbeat",
+    "pulse",
+    "monitor",
+    "medical",
+    "line"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "心跳线",
+     "心电监护"
+    ]
+   }
+  },
+  {
+   "id": "2-083",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "44",
+   "slug": "growing-tree",
+   "category": "techniques",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "ツリーグロース",
+    "en": "Growing tree",
+    "zh-Hans": "树枝生长"
+   },
+   "meaning": {
+    "ja": "幹から枝、葉へと木が育っていく",
+    "en": "A tree grows from trunk to branches to leaves",
+    "zh-Hans": "树从主干到分枝再到叶子逐步长出"
+   },
+   "ask": {
+    "ja": "ブランドストーリーにツリーグロースを。地面と幹、枝、小枝、葉の順に育ち、最後に文字が出るように。",
+    "en": "Open the brand story with a growing tree: ground and trunk, then branches, twigs and leaves, then a line of text.",
+    "zh-Hans": "品牌故事用树枝生长开场：地面与主干、分枝、细枝、叶子依次长出，最后出现文字。"
+   },
+   "summary": {
+    "ja": "地面の線が左右へ伸び、幹が上へ伸び、4本の枝と5本の小枝が順に生え、葉がランダムな順に弾んで開き、下に文字が浮かぶ。",
+    "en": "A ground line spreads, the trunk grows up, 4 branches and 5 twigs sprout in turn, leaves pop open in random order, and a caption rises below.",
+    "zh-Hans": "地面线向两侧展开，主干向上长，4 根分枝和 5 根细枝依次长出，叶子乱序回弹展开，下方浮现文字。"
+   },
+   "spec": {
+    "ja": [
+     "0.2〜0.6秒に地面の線が中央から左右へ伸びる（三次の ease-out）",
+     "0.45秒から幹（線幅9px）が0.8秒で伸び、4本の枝（5/4px）が0.15秒間隔・各0.45秒、5本の小枝（2.5px）が0.12秒間隔・各0.35秒（二次の easeInOut）",
+     "2.6秒から14枚の葉がランダムな順に0.07秒間隔、各0.32秒で0から1へ（back 1.7）",
+     "3.4〜3.8秒に下の文字が6px上がりながら現れ、4.15〜4.6秒で全体が消える"
+    ],
+    "en": [
+     "Over 0.2–0.6 s a ground line grows outward from the centre (cubic ease-out).",
+     "From 0.45 s the trunk (9 px) grows in 0.8 s; 4 branches (5/4 px) follow 0.15 s apart, 0.45 s each; 5 twigs (2.5 px) 0.12 s apart, 0.35 s each (quadratic ease-in-out).",
+     "From 2.6 s, 14 leaves pop from 0 to 1 in random order, 0.07 s apart, 0.32 s each (back 1.7).",
+     "Over 3.4–3.8 s the caption rises 6 px while fading in; everything fades over 4.15–4.6 s."
+    ],
+    "zh-Hans": [
+     "0.2–0.6 秒地面线从中间向两侧伸出（三次缓出）。",
+     "0.45 秒起主干（9 px）用 0.8 秒长出；4 根分枝（5/4 px）间隔 0.15 秒、各 0.45 秒；5 根细枝（2.5 px）间隔 0.12 秒、各 0.35 秒（二次缓入缓出）。",
+     "2.6 秒起 14 片叶子乱序、间隔 0.07 秒、各 0.32 秒从 0 放大到 1（back 1.7）。",
+     "3.4–3.8 秒下方文字上移 6 px 并淡入；4.15–4.6 秒整体淡出。"
+    ]
+   },
+   "use": {
+    "ja": "ブランドストーリー、成長・サステナビリティ・教育のテーマに。",
+    "en": "Use it for brand stories and themes of growth, sustainability or learning.",
+    "zh-Hans": "适合品牌故事，以及成长、可持续、教育类主题。"
+   },
+   "tags": [
+    "tree",
+    "grow",
+    "branch",
+    "leaves",
+    "nature",
+    "line-art"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "树木生长",
+     "生长动画"
+    ]
+   }
+  },
+  {
+   "id": "2-084",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "45",
+   "slug": "gear-train",
+   "category": "techniques",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "ギアトレイン",
+    "en": "Gear train",
+    "zh-Hans": "齿轮联动"
+   },
+   "meaning": {
+    "ja": "かみ合った歯車が歯数の比で回る",
+    "en": "Meshed gears turning at their tooth ratios",
+    "zh-Hans": "咬合齿轮按齿数比转动"
+   },
+   "ask": {
+    "ja": "処理中の画面にギアトレインを。大きな歯車1つと小さな2つがかみ合い、歯数の比で逆向きに回るように。",
+    "en": "Show a gear train on the processing screen: one large gear and two small ones meshed, turning the opposite way at their tooth ratios.",
+    "zh-Hans": "处理中画面放齿轮联动：一大两小齿轮咬合，按齿数比反向转动。"
+   },
+   "summary": {
+    "ja": "青い大歯車が時計回りに回り、かみ合う珊瑚色と黄色の小歯車が速く逆回転する。歯は互いの溝に入ったまま、横に「系统运转中」。",
+    "en": "A large blue gear turns clockwise while coral and yellow pinions meshed with it spin faster the other way, teeth staying in each other's gaps; a status line sits beside them.",
+    "zh-Hans": "蓝色大齿轮顺时针转，与之咬合的珊瑚色、黄色小齿轮更快地反向转，齿始终落在对方齿槽里；旁边显示「系统运转中」。"
+   },
+   "spec": {
+    "ja": [
+     "歯数16・10・8の歯車（モジュール6.4px、ピッチ半径 = 6.4 × 歯数 ÷ 2）。小さい2つを大歯車の −20° と 160° の方向にかみ合わせる",
+     "大歯車は4.7秒で180°（8歯分）時計回り、小歯車は歯数比で逆回転（どれも1周期で8歯分）",
+     "接触方向で歯と溝が合うよう初期角を計算する",
+     "穴の数は6・5・4。右に「系统运转中」と0.39秒ごとに増える点"
+    ],
+    "en": [
+     "Gears of 16, 10 and 8 teeth (module 6.4 px, pitch radius = 6.4 × teeth ÷ 2); the two small ones mesh with the big gear at −20° and 160°.",
+     "The big gear turns 180° (8 teeth) clockwise per 4.7 s; the small ones counter-rotate at their tooth ratios (all 8 teeth per cycle).",
+     "Starting angles are computed along each contact direction so teeth sit in gaps.",
+     "6, 5 and 4 holes; on the right a status line with dots that grow every 0.39 s."
+    ],
+    "zh-Hans": [
+     "齿数 16、10、8 的齿轮（模数 6.4 px，节圆半径 = 6.4 × 齿数 ÷ 2）；两个小齿轮在大齿轮 −20° 和 160° 方向咬合。",
+     "大齿轮每 4.7 秒顺时针转 180°（8 个齿距），小齿轮按齿数比反转（每周期同为 8 个齿距）。",
+     "沿每个接触方向计算初始角，让齿落在齿槽中。",
+     "孔数 6、5、4；右侧文字「系统运转中」后的点每 0.39 秒增加一个。"
+    ]
+   },
+   "use": {
+    "ja": "処理中・設定・システム稼働、仕組みやチームワークの説明に。",
+    "en": "Use it for processing, settings or system status, or to explain how parts work together.",
+    "zh-Hans": "适合处理中、设置、系统运行状态，或讲解机制与协作。"
+   },
+   "tags": [
+    "gear",
+    "cog",
+    "mechanical",
+    "loading",
+    "rotation",
+    "system"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "齿轮",
+     "机械联动"
+    ]
+   }
+  },
+  {
+   "id": "2-085",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "46",
+   "slug": "fingerprint-scan",
+   "category": "techniques",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "指紋スキャン",
+    "en": "Fingerprint scan",
+    "zh-Hans": "指纹扫描解锁"
+   },
+   "meaning": {
+    "ja": "指紋を読み取って認証が通る",
+    "en": "A fingerprint is read and access is granted",
+    "zh-Hans": "读取指纹后验证通过"
+   },
+   "ask": {
+    "ja": "ログイン画面に指紋スキャンを。紋が内側から描かれ、光の帯が上下に走り、緑になってチェックが付くように。",
+    "en": "Add a fingerprint scan to the login screen: ridges draw from the centre out, a light bar sweeps down and up, then it turns green with a check mark.",
+    "zh-Hans": "登录页加指纹扫描：纹路由内向外画出，光条上下扫过，最后变绿并打勾。"
+   },
+   "summary": {
+    "ja": "角丸の読み取り枠で指紋の弧が内側から外へ描かれ、緑の光の帯が上下に走り、紋が薄れてチェックが描かれ、枠が緑に光る。",
+    "en": "In a rounded sensor box fingerprint arcs draw from the inside out, a green light bar sweeps down and back, the ridges dim, a check mark draws and the frame glows green.",
+    "zh-Hans": "圆角感应区内指纹弧线由内向外画出，绿色光条上下扫过，纹路变淡后画出对勾，外框发出绿光。"
+   },
+   "spec": {
+    "ja": [
+     "112pxの角丸の枠に7本の楕円の弧（半径が1本ごとに6.2/6.6px増える）を0.3秒から0.08秒間隔、各0.7秒で描く",
+     "1.25〜2.05秒に光の帯が下へ、2.05〜2.85秒に上へ（どちらも sine の easeInOut）",
+     "2.95秒から紋が0.3まで薄れ、3.0〜3.3秒にチェック（線幅7px）が三次の ease-out で描かれ、枠がミントに光る",
+     "文字は「请轻触感应区 → 扫描中 → 验证成功」と切り替わり、4.2〜4.6秒で最初の状態に戻る"
+    ],
+    "en": [
+     "7 elliptical arcs (radii growing 6.2/6.6 px each) draw inside a 112 px rounded box, from 0.3 s, 0.08 s apart, 0.7 s each.",
+     "A light bar sweeps down over 1.25–2.05 s and back up over 2.05–2.85 s (sine ease-in-out both ways).",
+     "From 2.95 s the ridges dim to 0.3; over 3.0–3.3 s a check mark (7 px) draws with a cubic ease-out and the frame glows mint.",
+     "The caption changes from “touch the sensor” to “scanning” to “verified”; over 4.2–4.6 s it returns to the start."
+    ],
+    "zh-Hans": [
+     "112 px 圆角框内 7 道椭圆弧（半径每道增加 6.2/6.6 px）从 0.3 秒起间隔 0.08 秒、各 0.7 秒画出。",
+     "1.25–2.05 秒光条向下扫，2.05–2.85 秒向上扫回（均为 sine 缓入缓出）。",
+     "2.95 秒起纹路淡到 0.3；3.0–3.3 秒对勾（7 px）以三次缓出画出，外框发出薄荷色光。",
+     "文字依次为「请轻触感应区 → 扫描中 → 验证成功」；4.2–4.6 秒回到初始状态。"
+    ]
+   },
+   "use": {
+    "ja": "ログイン・決済・本人確認・セキュリティ機能の紹介に。",
+    "en": "Use it for login, payment, identity checks or showing security features.",
+    "zh-Hans": "适合登录、支付、身份验证或安全功能介绍。"
+   },
+   "tags": [
+    "fingerprint",
+    "biometric",
+    "scan",
+    "unlock",
+    "security",
+    "auth"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "指纹解锁",
+     "生物识别"
     ]
    }
   },
@@ -19723,6 +23069,289 @@
      "信号波形"
     ]
    }
+  },
+  {
+   "id": "4-036",
+   "group": "ambient",
+   "pack": "scenes",
+   "no": "36",
+   "slug": "confetti-burst",
+   "category": "pattern",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "紙吹雪",
+    "en": "Confetti burst",
+    "zh-Hans": "彩纸爆发"
+   },
+   "meaning": {
+    "ja": "文字が弾むと同時に紙吹雪が噴き上がる",
+    "en": "Confetti shoots up as the title springs in",
+    "zh-Hans": "标题弹起的同时喷出一把彩纸"
+   },
+   "ask": {
+    "ja": "「おめでとう」の文字を弾ませて、下から紙吹雪を60枚くらい噴き上げて。放物線で落ちながら回転し、最後の0.5秒で消えるように。",
+    "en": "Make the word \"Congrats\" spring in while about 60 pieces of confetti burst up from below, falling in arcs, spinning, and fading over the last 0.5 s.",
+    "zh-Hans": "让「恭喜」两个字弹性放大，同时从下方喷出约 60 片彩纸，抛物线落下、边转边翻，最后 0.5 秒淡出。"
+   },
+   "summary": {
+    "ja": "暗い紫の背景で「恭喜」の文字が一度縮んでから弾んで戻り、同時に下から5色の紙片が扇形に噴き上がり、回転しながら放物線を描いて落ち、消えていく。3.2秒ごとに繰り返す。",
+    "en": "On a dark purple background the word \"恭喜\" dips and springs back while confetti in 5 colors fans up from below, spinning and falling in arcs before fading; it repeats every 3.2 s.",
+    "zh-Hans": "深紫背景上「恭喜」先收缩再弹回，同时 5 色彩纸从下方扇形喷出，边转边沿抛物线落下并淡出，每 3.2 秒一次。"
+   },
+   "spec": {
+    "ja": [
+     "64px の太字「恭喜」が 0.25 秒で 0.6 倍に縮み、続いて elastic.out(1, 0.4) で 0.8 秒かけて 1 倍に戻る",
+     "縮み終わりと同時に、カード高さの 62% の位置から 8×5 の紙片 60 枚（5 色）が噴き出す。初速 187〜374px/s、角度 215°〜325°",
+     "重力 395px/s² の放物線で落ち、2 秒で ±540° 回転し、毎秒 1〜2 回裏返る（縦方向の scale を cos で変える）",
+     "紙片の寿命は 2 秒で、最後の 1.5〜2.0 秒にフェードアウトする",
+     "3.2 秒ごとに噴き出し、6.4 秒の 1 周で 2 回。次の噴出の前に紙片はすべて消え、文字も 1 倍に戻っている"
+    ],
+    "en": [
+     "A 64px bold \"恭喜\" shrinks to 0.6× over 0.25 s, then springs back to 1× over 0.8 s with elastic.out(1, 0.4).",
+     "As the shrink ends, 60 confetti pieces of 8×5 in 5 colors burst from 62% of the card height, at 187–374px/s and angles of 215°–325°.",
+     "They fall in arcs under 395px/s² of gravity, rotate ±540° over 2 s, and flip 1–2 times per second (vertical scale driven by cos).",
+     "Each piece lives 2 s and fades out over 1.5–2.0 s.",
+     "A burst fires every 3.2 s, 2 per 6.4 s cycle; all pieces are gone and the title is back at 1× before the next burst."
+    ],
+    "zh-Hans": [
+     "64px 粗体「恭喜」在 0.25 秒内收缩到 0.6 倍，随后以 elastic.out(1, 0.4) 用 0.8 秒弹回 1 倍",
+     "收缩结束时，从卡片高度 62% 处喷出 60 片 8×5 的 5 色彩纸，初速 187–374px/s，角度 215°–325°",
+     "受 395px/s² 重力沿抛物线落下，2 秒内旋转 ±540°，每秒翻面 1–2 次（纵向 scale 按 cos 变化）",
+     "每片寿命 2 秒，在 1.5–2.0 秒之间淡出",
+     "每 3.2 秒喷一次，6.4 秒周期内 2 次；下一次喷发前彩纸已全部消失，标题回到 1 倍"
+    ]
+   },
+   "use": {
+    "ja": "達成・当選・誕生日・リリース告知など、お祝いの一言を強調したい場面に。",
+    "en": "Use it to celebrate a milestone, a win, a birthday or a launch announcement.",
+    "zh-Hans": "适合达成目标、中奖、生日、新品发布等需要庆祝一句话的场面。"
+   },
+   "tags": [
+    "confetti",
+    "celebration",
+    "burst",
+    "particles",
+    "party",
+    "congrats"
+   ]
+  },
+  {
+   "id": "4-037",
+   "group": "ambient",
+   "pack": "scenes",
+   "no": "37",
+   "slug": "falling-petals",
+   "category": "pattern",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "花びらの舞い落ち",
+    "en": "Falling petals",
+    "zh-Hans": "飘落花瓣"
+   },
+   "meaning": {
+    "ja": "花びらが揺れて落ち、カーソルで吹き散る",
+    "en": "Petals drift down and scatter at the cursor",
+    "zh-Hans": "花瓣摇曳飘落，光标经过时被吹开"
+   },
+   "ask": {
+    "ja": "背景に花びらを40枚くらい舞い落とし、左右に揺れて裏返るように。カーソルが通ったら近くの花びらを押しのけて、すぐ元の軌道に戻して。",
+    "en": "Fill the background with about 40 falling petals that sway and flip; when the cursor passes, push nearby petals aside and let them drift back to their paths.",
+    "zh-Hans": "背景飘落约 40 片花瓣，左右摆动并翻面；光标经过时把附近花瓣推开，再慢慢回到原来的轨迹。"
+   },
+   "summary": {
+    "ja": "暗い紫の背景にピンクの花びらが揺れながら落ち、くるくる回って裏返る。カーソルが左から右へ一度横切ると、通り道の花びらが押しのけられ、また元の流れに戻る。",
+    "en": "Pink petals sway, spin and flip as they fall over a dark plum background; a cursor sweeps once from left to right, pushing petals along its path aside before they settle back into their fall.",
+    "zh-Hans": "深紫背景上粉色花瓣边摆边转、翻面飘落；光标从左向右横扫一次，路径上的花瓣被推开，随后回到原来的下落轨迹。"
+   },
+   "spec": {
+    "ja": [
+     "半径 4〜8px の楕円の花びら 40 枚。6.4 秒で 248px の区間を 1 回または 2 回落ち、左右に 8〜22px を 1〜3 回揺れる",
+     "各花びらは 6.4 秒に 1〜2 回転し、横方向の scale を cos で変えて 2〜4 回裏返る",
+     "カーソルは 0.8〜4.0 秒に三次の easeInOut で x -16 から 555 へ横切り、y は 64 から 132 へ下がりながら 22px の波を描く",
+     "カーソルから 52px 以内の花びらは、カーソルの進む向きと離れる向きに最大 46px 押され、0.35 秒で最も遠くなってから指数的に元の軌道へ戻る",
+     "残った押し出しは 5.4〜6.2 秒に 0 になる。落下・揺れ・回転・裏返りは 6.4 秒で整数回なので継ぎ目なくループする"
+    ],
+    "en": [
+     "40 elliptical petals with a radius of 4–8px; each falls through a 248px span 1 or 2 times per 6.4 s and sways 8–22px sideways 1–3 times.",
+     "Each petal turns 1–2 times per 6.4 s and flips 2–4 times by driving its horizontal scale with cos.",
+     "The cursor sweeps from x -16 to 555 over 0.8–4.0 s (cubic ease-in-out), with y going from 64 to 132 plus a 22px wave.",
+     "Petals within 52px of the cursor are pushed up to 46px along its direction and away from it, peaking at 0.35 s and easing exponentially back to their paths.",
+     "Any remaining push fades to 0 over 5.4–6.2 s; falling, swaying, turning and flipping are whole counts per 6.4 s, so the loop is seamless."
+    ],
+    "zh-Hans": [
+     "40 片椭圆花瓣，半径 4–8px；每片每 6.4 秒落过 248px 的跨度 1 或 2 次，左右摆动 8–22px、1–3 次",
+     "每片每 6.4 秒转 1–2 圈，横向 scale 按 cos 变化，翻面 2–4 次",
+     "光标在 0.8–4.0 秒以三次缓入缓出从 x -16 横扫到 555，y 从 64 降到 132 并叠加 22px 的波动",
+     "距光标 52px 内的花瓣沿光标方向并背离光标被推开，最多 46px，0.35 秒时最远，随后指数回落到原轨迹",
+     "残余推开量在 5.4–6.2 秒归 0；下落、摆动、旋转、翻面在 6.4 秒内都是整数次，循环无缝"
+    ]
+   },
+   "use": {
+    "ja": "春のキャンペーン・和風のタイトル・結婚式の招待など、季節感のある背景に。雪や雨の粒子にも置き換えられる。",
+    "en": "Use it behind spring campaigns, Japanese-style titles or wedding invitations; swap the petals for snow or rain for other seasons.",
+    "zh-Hans": "适合春季活动、和风标题、婚礼邀请等有季节感的背景，也可换成雪花或雨滴。"
+   },
+   "tags": [
+    "petals",
+    "sakura",
+    "falling",
+    "particles",
+    "cursor",
+    "interactive",
+    "spring"
+   ]
+  },
+  {
+   "id": "4-038",
+   "group": "ambient",
+   "pack": "scenes",
+   "no": "38",
+   "slug": "click-fireworks",
+   "category": "pattern",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "花火",
+    "en": "Fireworks",
+    "zh-Hans": "烟火"
+   },
+   "meaning": {
+    "ja": "クリックした所に花火が上がって開く",
+    "en": "A firework rises and bursts where you click",
+    "zh-Hans": "点击处升起烟火并炸开"
+   },
+   "ask": {
+    "ja": "夜空の背景で、クリックした位置に下から花火を0.7秒で打ち上げ、40個の火花に開いて重力で落ちながら消えるようにして。",
+    "en": "On a night sky, launch a firework from the bottom to wherever I click in 0.7 s, bursting into 40 sparks that slow down, fall under gravity and fade.",
+    "zh-Hans": "夜空背景，点击哪里就从底部用 0.7 秒升起一枚烟火到那里，炸开 40 颗火花，减速、受重力下坠并淡出。"
+   },
+   "summary": {
+    "ja": "星の出た夜空で、カーソルが 3 か所を順にクリックし、そのたびに波紋が広がり、下から花火が上がって金・青・桃色の火花に開き、垂れ下がりながら消える。",
+    "en": "On a starry night sky a cursor clicks 3 spots in turn; each click sends out a ripple and a rocket rises from the bottom to burst into gold, blue or pink sparks that droop and fade.",
+    "zh-Hans": "星空下光标依次点击 3 处，每次点击泛起涟漪，底部升起一枚烟火，炸成金、蓝、粉色火花，下垂并淡出。"
+   },
+   "spec": {
+    "ja": [
+     "カーソルは右下 (470, 176) から、0.3〜0.85、1.6〜2.25、3.0〜3.65 秒に三次の easeInOut で (150, 62)、(392, 52)、(268, 86) へ移り、4.6〜5.6 秒に元の位置へ戻る",
+     "クリックは 0.9、2.3、3.7 秒。矢印が 12% 縮み、半径 22px の波紋が 0.5 秒で広がって消える",
+     "クリックごとに、点の x ±30px の下端から花火が 0.7 秒（三次の easeOut）で点まで上がり、0.1 秒分の尾を引く",
+     "到達すると半径 34px の閃光が 0.3 秒で消え、火花 40 個が全方向へ 70〜140px/s で飛ぶ。抵抗 1.8/s、重力 120px/s² で計算し、1.4 秒でフェードアウトする",
+     "最後の火花は 5.8 秒に消え、6.4 秒で最初と同じ夜空とカーソル位置に戻る"
+    ],
+    "en": [
+     "The cursor starts at the bottom right (470, 176), moves to (150, 62), (392, 52) and (268, 86) over 0.3–0.85, 1.6–2.25 and 3.0–3.65 s (cubic ease-in-out), and returns over 4.6–5.6 s.",
+     "Clicks land at 0.9, 2.3 and 3.7 s: the arrow shrinks 12% and a 22px ripple grows and fades over 0.5 s.",
+     "Each click launches a rocket from the bottom edge, within ±30px of the click x, rising to the point in 0.7 s (cubic ease-out) with a 0.1 s trail.",
+     "On arrival a 34px flash fades over 0.3 s and 40 sparks fly out at 70–140px/s in every direction, with drag of 1.8/s and gravity of 120px/s², fading over 1.4 s.",
+     "The last sparks are gone by 5.8 s, and at 6.4 s the sky and cursor match the start."
+    ],
+    "zh-Hans": [
+     "光标从右下 (470, 176) 出发，在 0.3–0.85、1.6–2.25、3.0–3.65 秒以三次缓入缓出依次移到 (150, 62)、(392, 52)、(268, 86)，4.6–5.6 秒回到原位",
+     "点击时刻为 0.9、2.3、3.7 秒：箭头缩小 12%，半径 22px 的涟漪在 0.5 秒内扩散消失",
+     "每次点击从底边（点击 x ±30px 内）升起一枚烟火，0.7 秒（三次缓出）到达点击处，拖 0.1 秒的尾迹",
+     "到达后半径 34px 的闪光 0.3 秒内消失，40 颗火花以 70–140px/s 向四周飞散，阻力 1.8/s、重力 120px/s²，1.4 秒内淡出",
+     "最后一批火花 5.8 秒熄灭，6.4 秒时夜空与光标回到开头状态"
+    ]
+   },
+   "use": {
+    "ja": "イベントページ・お祭り・カウントダウン・完了のお祝いなど、クリックで盛り上げたい場面に。",
+    "en": "Use it for event pages, festivals, countdowns or a completion celebration that reacts to clicks.",
+    "zh-Hans": "适合活动页、节庆、倒计时、完成庆祝等希望点击时热闹起来的场面。"
+   },
+   "tags": [
+    "fireworks",
+    "celebration",
+    "click",
+    "particles",
+    "night",
+    "interactive",
+    "explosion"
+   ]
+  },
+  {
+   "id": "4-039",
+   "group": "ambient",
+   "pack": "scenes",
+   "no": "39",
+   "slug": "tape-cross",
+   "category": "type",
+   "added": "2026-10-29",
+   "license": "MIT License (c) 2026 Hannah",
+   "author": "Hannah",
+   "attribution": "https://kittenjam-motion-library.vercel.app/",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "立入禁止テープ",
+    "en": "Caution tape cross",
+    "zh-Hans": "封锁胶带"
+   },
+   "meaning": {
+    "ja": "文字入りの警告テープが X 字に交差する",
+    "en": "Two lettered caution tapes crossing in an X",
+    "zh-Hans": "印字的警示胶带交叉成 X"
+   },
+   "ask": {
+    "ja": "黄色に黒縁の警告テープを2本、X字に交差させて、テープの「立入禁止」の文字を互いに逆向きに流して。影も付けて。",
+    "en": "Cross 2 yellow caution tapes with black edges in an X, scroll their repeated \"KEEP OUT\" text in opposite directions, and add a drop shadow.",
+    "zh-Hans": "用 2 条黄底黑边的警示胶带交叉成 X，胶带上重复的「禁止进入」反向滑动，并加投影。"
+   },
+   "summary": {
+    "ja": "暗い背景の上で、黒い縁の黄色いテープ 2 本が X 字に交差し、それぞれに繰り返された「禁止进入」の文字が逆向きに流れ続ける。",
+    "en": "Over a dark background, 2 yellow tapes with black edges cross in an X, each carrying a repeated \"禁止进入\" that scrolls in the opposite direction to the other.",
+    "zh-Hans": "深色背景上，2 条黄底黑边的胶带交叉成 X，各自印着重复的「禁止进入」，文字朝相反方向持续滑动。"
+   },
+   "spec": {
+    "ja": [
+     "テープは長さ 840px、高さ 34px、黄 #ffd400 に上下 4px の黒 #111111 の縁。ぼかし 18px・下 8px の影",
+     "中心はカード中央で、下のテープは y 112・13° 傾き、上のテープは y 96・-15° 傾き",
+     "テープの文字は 16px の太字「禁止进入 · 」の繰り返し",
+     "上のテープは 6.4 秒で文字 4 単元ぶん左へ、下のテープは 3 単元ぶん右へ等速で流れる。単元幅の整数倍なので継ぎ目なくループする"
+    ],
+    "en": [
+     "Each tape is 840px long and 34px tall, yellow #ffd400 with 4px black #111111 edges top and bottom, and an 18px blur shadow offset 8px down.",
+     "Both are centered on the card: the lower tape at y 112 tilted 13°, the upper tape at y 96 tilted -15°.",
+     "The tapes carry a repeated 16px bold \"禁止进入 · \".",
+     "Over 6.4 s the upper tape scrolls 4 text units left and the lower tape 3 units right at a constant rate; whole units keep the loop seamless."
+    ],
+    "zh-Hans": [
+     "每条胶带长 840px、高 34px，黄色 #ffd400，上下各 4px 黑边 #111111，投影模糊 18px、下移 8px",
+     "两条都以卡片中心为中心：下层胶带 y 112、倾斜 13°，上层胶带 y 96、倾斜 -15°",
+     "胶带上是重复的 16px 粗体「禁止进入 · 」",
+     "6.4 秒内上层胶带匀速左移 4 个文字单元，下层右移 3 个；滑动量是单元宽的整数倍，循环无缝"
+    ]
+   },
+   "use": {
+    "ja": "工事中・公開前・閲覧制限・ネタバレ注意などの告知や、ストリート系のタイトル背景に。",
+    "en": "Use it for under-construction, coming-soon, restricted or spoiler notices, or behind street-style titles.",
+    "zh-Hans": "适合施工中、即将上线、限制访问、剧透警告等提示，或街头风格的标题背景。"
+   },
+   "tags": [
+    "caution-tape",
+    "warning",
+    "marquee",
+    "crossed",
+    "street",
+    "banner"
+   ]
   }
  ]
 }

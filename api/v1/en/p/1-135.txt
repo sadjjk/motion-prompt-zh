@@ -1,0 +1,15 @@
+Please use "Flow field" (フローフィールド), one of the names in "Interaction & data motion".
+Motion Prompt #1-135
+
+What it is: Fine lines drift along an invisible current, and the cursor stirs it
+What the sample shows: Thin purple and blue lines stream across a dark background like wind or water and fade away; where the cursor passes, the flow curls into a swirl.
+Spec:
+- 220 fine lines advance at 60 px/s along a flow field made of 2 summed sines whose phase turns once every 6.4 s.
+- Each trail shows the last 0.6 s; a line lives 1.6 s (4 generations per cycle) and fades in and out with a sine.
+- Birth positions come from the index and generation, and each frame re-integrates from the birth point, so no state is kept.
+- Around the cursor (Gaussian σ 70 px) the flow twists tangentially into a swirl; in the demo it takes hold from 0.9–1.2 s and releases from 4.4–4.8 s.
+When to use it: Use it as a hero or portfolio background, or wherever a generative mood fits.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-135.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

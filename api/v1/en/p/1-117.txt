@@ -1,0 +1,15 @@
+Please use "Expanding search" (展開する検索ボックス), one of the names in "UI component names".
+Motion Prompt #1-117
+
+What it is: A round search button widens into a search field
+What the sample shows: The cursor clicks a round magnifier button; it widens to the left into a search field with its right edge fixed, a placeholder appears, a query is typed, and clearing it with × folds it back.
+Spec:
+- A 44×44 round search button; the cursor clicks it at 0.9 s.
+- Keeping its right edge fixed, it widens left into a 320×44 field over 0.95–1.4 s (easeInOut power 3); the magnifier moves with the left edge.
+- The placeholder "Search motion…" fades in over 1.3–1.5 s; from 1.8 s the query "rotating button" is typed at 0.18 s per character and a clear × appears on the right.
+- At 3.4 s the × is clicked to clear it, and over 3.5–3.95 s the field shrinks back into the round button.
+When to use it: Use it in headers and toolbars where search should take little space until it is needed.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-117.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

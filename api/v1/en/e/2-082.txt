@@ -1,0 +1,57 @@
+// Motion Prompt #2-082 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// ECG heartbeat line / 心電図ライン
+// Pack: motion2 (Motion graphics moves, part 2) · element 43 · Category: Motion techniques
+// What happens: On a dark green grid a glowing ECG trace sweeps left to right, older trace dims, and a heart on the right swells with each beat.
+// Motion spec:
+//   - A dark screen with a 16 px fine grid (darker every 80 px); the trace repeats a P wave, QRS (62 px up) and T wave every 96 px.
+//   - The sweep head crosses left to right in 2.35 s; 8% ahead of it is blank and older trace dims with age (down to 25%).
+//   - The trace is a 2 px bright green line with a 7 px glow; a glowing dot (3.5 px radius, 9 px halo) marks the head.
+//   - When an R wave passes the head, the heart swells to 1.25x and settles, and the BPM readout changes per beat.
+// When to use it: Use it for medical, health or fitness explainers, or to stand for a heartbeat or being alive.
+// Tags: ecg, heartbeat, pulse, monitor, medical, line
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-082
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 43
+// 改写自 KittenJam Motion Library #328（Hannah）· 心电图：深色细格屏上，P 波、QRS 尖波、T 波每 96px 重复，扫描前端每 2.35 秒从左扫到右，前端后面是新画的发光波形，前方留 8% 空隙、更早的波形逐渐变暗；右侧心形随每次 R 波放大 1.25 倍，心率数字按拍切换。
+const ECG_XL = 20, ECG_XR = 404, ECG_YB = 120, ECG_PW = 96;
+const ECG_QRS = [[34, 0], [37, 6], [41, -62], [46, 18], [50, 0]];
+const ECG_BPM = [102, 101, 103, 102, 100, 102, 104, 103];
+function ECG_y(xl) {
+  const x = mod(xl, ECG_PW);
+  if (x > 14 && x < 28) return ECG_YB - 7 * Math.sin(Math.PI * (x - 14) / 14);
+  if (x > 62 && x < 80) return ECG_YB - 14 * Math.sin(Math.PI * (x - 62) / 18);
+  for (let i = 1; i < ECG_QRS.length; i++) if (x >= ECG_QRS[i - 1][0] && x <= ECG_QRS[i][0]) return ECG_YB + lerp(ECG_QRS[i - 1][1], ECG_QRS[i][1], (x - ECG_QRS[i - 1][0]) / (ECG_QRS[i][0] - ECG_QRS[i - 1][0]));
+  return ECG_YB;
+}
+CELLS[42] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k, '#04100C');
+  k.fillStyle = '#071A13'; rr(k, 10, 10, w - 20, h - 20, 12); k.fill();
+  for (let x = 10; x <= w - 10; x += 16) { k.fillStyle = (x - 10) % 80 ? 'rgba(46,219,168,.06)' : 'rgba(46,219,168,.14)'; k.fillRect(x, 10, 1, h - 20); }
+  for (let y = 10; y <= h - 10; y += 16) { k.fillStyle = (y - 10) % 80 ? 'rgba(46,219,168,.06)' : 'rgba(46,219,168,.14)'; k.fillRect(10, y, w - 20, 1); }
+  const W = ECG_XR - ECG_XL, s = mod(u / (CYC / 2), 1), cx = ECG_XL + s * W;
+  k.lineCap = 'round'; k.lineJoin = 'round';
+  for (let x = ECG_XL; x < ECG_XR; x += 4) {
+    const age = mod(cx - x, W) / W; if (age > 0.92) continue;
+    const a = 1 - 0.75 * age, x2 = Math.min(ECG_XR, x + 4);
+    k.beginPath(); k.moveTo(x, ECG_y(x - ECG_XL)); for (let xx = x + 1; xx <= x2; xx++) k.lineTo(xx, ECG_y(xx - ECG_XL));
+    k.strokeStyle = `rgba(53,242,154,${0.18 * a})`; k.lineWidth = 7; k.stroke();
+    k.strokeStyle = `rgba(53,242,154,${a})`; k.lineWidth = 2; k.stroke();
+  }
+  const cy = ECG_y(cx - ECG_XL);
+  k.fillStyle = 'rgba(53,242,154,.25)'; k.beginPath(); k.arc(cx, cy, 9, 0, 7); k.fill();
+  k.fillStyle = '#D9FFEC'; k.beginPath(); k.arc(cx, cy, 3.5, 0, 7); k.fill();
+  // 右侧读数：R 波（局部 41px）经过后心形跳一下
+  const d = mod(cx - ECG_XL - 41, ECG_PW), pulse = Math.exp(-d / 12);
+  const beat = mod(Math.floor(u / (CYC / 2) * 4 - 41 / 96), 8);
+  k.fillStyle = 'rgba(46,219,168,.2)'; k.fillRect(420, 30, 1, h - 60);
+  txt(k, String(ECG_BPM[beat]), 438, 104, `700 40px ui-monospace, Menlo, monospace`, '#D9FFEC');
+  txt(k, 'BPM', 440, 126, `700 12px ${DISP}`, 'rgba(53,242,154,.8)');
+  k.save(); k.translate(488, 58); k.scale(1 + 0.25 * pulse, 1 + 0.25 * pulse); k.fillStyle = C.coral; heartPath(k, 10); k.fill(); k.restore();
+};

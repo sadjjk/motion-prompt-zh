@@ -1,0 +1,61 @@
+// Motion Prompt #1-125 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 拍立得洗牌 / Photo stack shuffle
+// 分类包: lp (落地页与网页动效) · element 33 · 子分类: 悬停与点击交互
+// 动画表现: 光标每点一次歪斜叠放的 4 张拍立得，顶张向右抽出插到最底层，其余各上移一层。
+// 运动规格:
+//   - 一叠 4 张歪斜的拍立得（96×112），各槽位角度 −3°、4°、−7°、6°。
+//   - 光标在 0.6、1.5、2.4、3.3 秒点顶张；每次点击后 0.05 秒开始洗牌，历时 0.75 秒。
+//   - 顶张前 0.36 秒 easeOut 3 次方向右抽出 170px 并多转 10°，后 0.39 秒（easeInOut 3 次方）插回最底层槽位。
+//   - 其余 3 张同时各上移一个槽位（easeInOut 3 次方）；4 次后顺序回到初始，与周期开头一致。
+// 适用场景: 适合旅行记录、相册、作品集等一张张翻看照片的场景。
+// 标签: photo-stack, polaroid, shuffle, cards, gallery, click
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-125
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 33
+// 改写自 KittenJam Motion Library #270 拍立得洗牌：一叠 4 张歪斜的拍立得（96×112，各槽位角度 −3°/4°/−7°/6°），
+// 光标在 0.6、1.5、2.4、3.3 秒点顶张：顶张前 0.36 秒 easeOut 向右抽出 170px 并多转 10°，后 0.39 秒插回最底层槽位；
+// 其余 3 张同时 easeInOut 3 次方各上移一个槽位。4 次后顺序回到初始，周期首尾一致。
+const PSTACK_SLOT = [[0, 0, -3], [7, 4, 4], [-6, 7, -7], [4, 10, 6]];
+const PSTACK_CLICKS = [0.6, 1.5, 2.4, 3.3], PSTACK_DUR = 0.75;
+CELLS[32] = (k, w, h, u) => {
+  frame(k, 'example.com/memories');
+  const [cx, cy] = path([[0, 430, 150], [0.45, 205, 70], [3.5, 205, 70], [4.2, 430, 150], [4.8, 430, 150]], u);
+  let n = 0, p = -1;
+  for (const tc of PSTACK_CLICKS) if (u >= tc + 0.05) { if (u < tc + 0.05 + PSTACK_DUR) p = (u - tc - 0.05) / PSTACK_DUR; else n++; }
+  const ox = 190, oy = 84;
+  const pola = (card, x, y, deg) => {
+    k.save(); k.translate(ox + x, oy + y); k.rotate(deg * Math.PI / 180);
+    k.shadowColor = 'rgba(28,35,51,.2)'; k.shadowBlur = 10; k.shadowOffsetY = 3;
+    k.fillStyle = '#fff'; k.fillRect(-48, -56, 96, 112); k.shadowColor = 'transparent';
+    pic(k, -42, -50, 84, 80, card, 2);
+    bars(k, -38, 38, 50, 1, C.faint, 5);
+    txt(k, `0${card + 1}`, 34, 42, `700 9px ${EN}`, C.sub, 'right', 'middle');
+    k.restore();
+  };
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    txt(k, '旅行回忆', 330, 70, `800 20px ${JP}`, C.ink); bars(k, 330, 86, 140, 2);
+    // 槽位 j 上的卡 = (j + n) % 4；动画中槽位 0 的卡在抽出
+    const draws = [];
+    for (let j = 3; j >= 0; j--) {
+      const card = (j + n) % 4;
+      if (p < 0) { draws.push([card, ...PSTACK_SLOT[j]]); continue; }
+      if (j === 0) continue;
+      const f = eIO(clamp(p / 0.9)), A = PSTACK_SLOT[j], B = PSTACK_SLOT[j - 1];
+      draws.push([card, lerp(A[0], B[0], f), lerp(A[1], B[1], f), lerp(A[2], B[2], f)]);
+    }
+    if (p >= 0) {
+      const top = n % 4, S0 = PSTACK_SLOT[0], S3 = PSTACK_SLOT[3];
+      if (p < 0.48) { const f = eOut(p / 0.48); draws.push([top, S0[0] + 170 * f, S0[1], S0[2] + 10 * f]); }
+      else { const f = eIO((p - 0.48) / 0.52); draws.unshift([top, lerp(S0[0] + 170, S3[0], f), S3[1], lerp(S0[2] + 10, S3[2], f)]); }
+    }
+    draws.forEach(d => pola(...d));
+    click(k, cx, cy, u, PSTACK_CLICKS);
+  });
+};

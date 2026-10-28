@@ -2,7 +2,7 @@
 
 # グロー・リキッド
 
-12 個の名前 · #1 049~060 · パック `aiux` · 言語: [English](README.md) / [简体中文](README.zh-Hans.md)
+13 個の名前 · #1 049~060 · 128 · パック `aiux` · 言語: [English](README.md) / [简体中文](README.zh-Hans.md)
 
 名前を見つけたら、そのままAIに伝えてください。「何秒で」「どのくらい強く」「何が動くか」を添えると、思った通りに近づきます。
 
@@ -19,6 +19,7 @@
 | [#1-055](https://sadjjk.github.io/motion-prompt-zh/#1-055) | **思考オーブ・聞き取り中** | Thinking orb: listening | 緯線の輪が音の波のようにうねり、マイクが聞き取り中であることを示す | 音声入力でマイクが開いている間、「Listening…」の横に、球の緯線が音の波のようにうねる思考オーブを出して。 |
 | [#1-056](https://sadjjk.github.io/motion-prompt-zh/#1-056) | **思考オーブ・接続中** | Thinking orb: connecting | 球の上の点が順に線で結ばれ、データが流れて、サービスに接続中であることを示す | 外部サービスに接続している間、「Connecting sources…」の横に、球の点が順に線で結ばれてデータが流れる思考オーブを出して。 |
 | [#1-057](https://sadjjk.github.io/motion-prompt-zh/#1-057) | **思考オーブ・執筆中** | Thinking orb: composing | 点の帯が球のまわりをうねりながら流れ、AIが文章を書いていることを示す | AIが文章を生成している間、「Writing…」の横に、点の帯が球のまわりをうねって流れる思考オーブを出して。 |
+| [#1-128](https://sadjjk.github.io/motion-prompt-zh/#1-128) | **サンバースト** | Sunburst rays | 見出しの後ろで放射状の光がゆっくり回る背景 | 受賞の見出しの後ろに12本の光が放射状に回るサンバーストを敷いて。4.8秒で光の間隔ひとつ分だけ回して。 |
 
 ## リキッドな操作
 

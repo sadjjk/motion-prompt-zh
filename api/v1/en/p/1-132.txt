@@ -1,0 +1,15 @@
+Please use "Tilt parallax image" (3Dチルト視差画像), one of the names in "Interaction & data motion".
+Motion Prompt #1-132
+
+What it is: An image that tilts towards the cursor while its layers shift for depth
+What the sample shows: As the cursor moves over a sunset mountain image, it tilts and enlarges slightly, the sky, sun and ridges shift by different amounts, and a caption slides up from the bottom.
+Spec:
+- Image 280 × 150 px, corner radius 14 px; tilts up to 10° towards the cursor and scales to 1.04.
+- Sky, sun, far ridge, middle ridge and foreground shift against the cursor by up to 2/3/5/10/18 px.
+- A white glare (radius 120 px) follows the cursor; the caption slides up from 18 px below.
+- In the demo hover starts from 0.7–1.0 s; from 4.6–4.95 s the cursor leaves and everything eases back.
+When to use it: Use it on portfolios, travel or product photos and feature thumbnails to give images depth.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-132.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

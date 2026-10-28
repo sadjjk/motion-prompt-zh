@@ -1,0 +1,15 @@
+Please use "ECG heartbeat line" (心電図ライン), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-082
+
+What it is: A heartbeat trace sweeps across a monitor
+What the sample shows: On a dark green grid a glowing ECG trace sweeps left to right, older trace dims, and a heart on the right swells with each beat.
+Spec:
+- A dark screen with a 16 px fine grid (darker every 80 px); the trace repeats a P wave, QRS (62 px up) and T wave every 96 px.
+- The sweep head crosses left to right in 2.35 s; 8% ahead of it is blank and older trace dims with age (down to 25%).
+- The trace is a 2 px bright green line with a 7 px glow; a glowing dot (3.5 px radius, 9 px halo) marks the head.
+- When an R wave passes the head, the heart swells to 1.25x and settles, and the BPM readout changes per beat.
+When to use it: Use it for medical, health or fitness explainers, or to stand for a heartbeat or being alive.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-082.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

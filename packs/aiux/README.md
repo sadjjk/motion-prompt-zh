@@ -2,7 +2,7 @@
 
 # Glow & liquid
 
-12 names · #1 049~060 · pack `aiux` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+13 names · #1 049~060 · 128 · pack `aiux` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -19,6 +19,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-055](https://sadjjk.github.io/motion-prompt-zh/#1-055) | **Thinking orb: listening** | Latitude rings ripple like a sound wave to show the mic is listening | While the mic is open for voice input, show a thinking orb by "Listening…" whose latitude rings ripple like sound. |
 | [#1-056](https://sadjjk.github.io/motion-prompt-zh/#1-056) | **Thinking orb: connecting** | Nodes on the orb join up one by one and packets flow along the links, showing services are being connected | While connecting to services, show a thinking orb by "Connecting sources…": nodes linking up, then packets flowing. |
 | [#1-057](https://sadjjk.github.io/motion-prompt-zh/#1-057) | **Thinking orb: composing** | Bands of dots flow and undulate around the orb to show the AI is writing | While the AI drafts text, show a thinking orb by "Writing…" with bands of dots undulating around it. |
+| [#1-128](https://sadjjk.github.io/motion-prompt-zh/#1-128) | **Sunburst rays** | Radiating light rays that slowly turn behind a headline | Put sunburst rays behind the award headline: 12 rays turning by one ray spacing every 4.8 s. |
 
 ## Liquid interactions
 

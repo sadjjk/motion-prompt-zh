@@ -1,0 +1,56 @@
+// Motion Prompt #1-138 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 星評価 / Star rating
+// パック: uxmotion (インタラクションとデータの動き) · element 47 · カテゴリ: 進捗フィードバック
+// 何が起きるか: カーソルが 2 つ目の星にのると 2 つ分が薄く色づいて「較差」と出て、続いて 4 つ目を押すと 1〜4 つ目が左から順に金色に塗られて弾み、「很好」が浮かぶ。
+// 動きの仕様:
+//   - 星 5 つ（外径 17px、内径 7.5px、間隔 48px）
+//   - 0.9 秒にカーソルが 2 つ目にのり、2 つ分が 0.15 秒で薄く色づき、下に評価の言葉
+//   - 2.2 秒に 4 つ目を押すと 1〜4 つ目が 0.08 秒ずつずれて塗られ、それぞれ 0.3 秒で 1.35 倍まで弾んで戻る
+//   - カーソルは 2.3–3.0 秒に去る。5.4–6.0 秒に初期画面へクロスフェードして戻る
+// 使いどころ: アプリのレビュー依頼、購入後のアンケート、サポートの満足度評価に。
+// タグ: star-rating, rating, review, stars, feedback, micro-interaction
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-138
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 47
+// 47 星星评分（KittenJam #149）：指针 0.9 秒悬停第 2 颗，前 2 颗浅色预览（0.15 秒过渡）、下方显示「较差」；2.2 秒点第 4 颗，
+// 第 1–4 颗每隔 0.08 秒依次填满并弹跳（0.3 秒内放大到 1.35 再回落），下方浮出「很好」；指针 2.3–3.0 秒离开；5.4–6.0 秒交叉淡化复位。
+const STR_Y = 98, STR_GAP = 48, STR_RO = 17, STR_RI = 7.5, STR_CLICK = 2.2, STR_PICK = 4, STR_STAG = 0.08;
+const STR_x = i => 269.5 + (i - 2) * STR_GAP;
+const STR_LAB = ['很差', '较差', '一般', '很好', '超赞！'];
+const STR_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, STR_x(1) + 3, STR_Y + 6], [1.7, STR_x(1) + 3, STR_Y + 6], [2.1, STR_x(3) + 3, STR_Y + 6], [2.3, STR_x(3) + 3, STR_Y + 6], [3.0, 570, 230]];
+const STR_hit = p => { for (let i = 0; i < 5; i++) if (Math.abs(p[0] - STR_x(i)) < 22 && Math.abs(p[1] - STR_Y) < 22) return i + 1; return 0; };
+const STR_HEV = UXB_changes(t => STR_hit(UXB_path(t, STR_KEYS)));
+const STR_PEV = [0, 1, 2, 3, 4].map(i => [[-1, 0], ...STR_HEV.slice(1).map(([t, v]) => [t, v > i ? 1 : 0])]);
+function STR_star(k) {
+  k.beginPath();
+  for (let j = 0; j < 10; j++) { const r = j % 2 ? STR_RI : STR_RO, a = -Math.PI / 2 + j * Math.PI / 5; k.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+  k.closePath();
+}
+function STR_draw(k, u) {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 120, 22, 299, 164, 16);
+  txt(k, '为这次体验打分', 269.5, 56, UXB_f(900, 15), UX.ink, 'center');
+  let hov = 0; for (const [t, v] of STR_HEV) if (t <= u) hov = v;
+  for (let i = 0; i < 5; i++) {
+    const t0 = STR_CLICK + i * STR_STAG, on = i < STR_PICK && u >= t0, pre = UXB_ramp(u, STR_PEV[i], 0.15, x => x);
+    const sc = on ? 1 + 0.35 * Math.sin(Math.PI * seg(u, t0, t0 + 0.3)) : 1;
+    k.save(); k.translate(STR_x(i), STR_Y); k.scale(sc, sc); STR_star(k);
+    k.fillStyle = on ? '#F5B301' : UX.surface2; k.fill();
+    if (!on && pre > 0) { k.globalAlpha = 0.45 * pre; k.fillStyle = '#F5B301'; k.fill(); k.globalAlpha = 1; }
+    k.strokeStyle = on ? '#E0A100' : UX.line2; k.lineWidth = 1.5; k.lineJoin = 'round'; k.stroke();
+    k.restore();
+  }
+  if (u >= STR_CLICK) {
+    const a = out3(seg(u, STR_CLICK + 0.24, STR_CLICK + 0.5));
+    k.globalAlpha = a; txt(k, STR_LAB[STR_PICK - 1], 269.5, 152 + 6 * (1 - a), UXB_f(900, 14), UX.ink, 'center'); k.globalAlpha = 1;
+  } else txt(k, hov ? STR_LAB[hov - 1] : '点击星星评分', 269.5, 152, UXB_f(700, 12), UX.ink3, 'center');
+  const c = UXB_path(u, STR_KEYS);
+  if (u > 0.3 && u < 3.0) cursor(k, c[0], c[1], UXB_press(u, STR_CLICK));
+}
+CELLS[46] = (k, w, h, u) => UXB_xfade(k, STR_draw, u, SHOW, SHOW + 0.6);

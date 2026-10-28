@@ -1,0 +1,15 @@
+Please use "Folding card" (二つ折りカード), one of the names in "UI component names".
+Motion Prompt #1-120
+
+What it is: A folded card opens its cover to reveal the message inside
+What the sample shows: The cursor clicks the navy cover; it swings open on its left edge to show the inner left half while 3 lines on the right fade up in turn, and it closes again at the end.
+Spec:
+- A closed 150×130 card with a navy cover reading "Invitation".
+- The cursor clicks the cover at 0.8 s; over 0.9–1.6 s the cover opens on its left edge (scaleX 1 → −1, easeInOut power 3), showing the inner left half once past 0, while the whole card moves 75px right to stay centred.
+- The 3 lines inside fade in and rise 6px from 1.6, 1.8 and 2.0 s, 0.3 s each.
+- At 3.4 s the inside is clicked: the text fades out over 3.4–3.6 s, and over 3.6–4.2 s the cover closes and the card slides back.
+When to use it: Use it for invitations, greeting cards or announcements where opening should feel like a small reveal.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-120.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

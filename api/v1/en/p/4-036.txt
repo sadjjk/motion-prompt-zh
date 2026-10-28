@@ -1,0 +1,16 @@
+Please use "Confetti burst" (紙吹雪), one of the names in "Styled scenes".
+Motion Prompt #4-036
+
+What it is: Confetti shoots up as the title springs in
+What the sample shows: On a dark purple background the word "恭喜" dips and springs back while confetti in 5 colors fans up from below, spinning and falling in arcs before fading; it repeats every 3.2 s.
+Spec:
+- A 64px bold "恭喜" shrinks to 0.6× over 0.25 s, then springs back to 1× over 0.8 s with elastic.out(1, 0.4).
+- As the shrink ends, 60 confetti pieces of 8×5 in 5 colors burst from 62% of the card height, at 187–374px/s and angles of 215°–325°.
+- They fall in arcs under 395px/s² of gravity, rotate ±540° over 2 s, and flip 1–2 times per second (vertical scale driven by cos).
+- Each piece lives 2 s and fades out over 1.5–2.0 s.
+- A burst fires every 3.2 s, 2 per 6.4 s cycle; all pieces are gone and the title is back at 1× before the next burst.
+When to use it: Use it to celebrate a milestone, a win, a birthday or a launch announcement.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-036.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

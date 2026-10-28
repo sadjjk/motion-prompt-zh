@@ -2,7 +2,7 @@
 
 # Motion graphics moves, part 2
 
-28 names · #2 025~048 · 064~067 · pack `motion2` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+46 names · #2 025~048 · 064~085 · pack `motion2` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -18,6 +18,12 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-030](https://sadjjk.github.io/motion-prompt-zh/#2-030) | **Motion path** | Moves along a curve that you define | Fly the paper plane along this curve as a motion path in 4 s, turning it to face the direction of travel. |
 | [#2-031](https://sadjjk.github.io/motion-prompt-zh/#2-031) | **Ping-pong loop** | Plays forward, then backward, over and over | Move the loading dot back and forth as a ping-pong loop, 1 s each way. |
 | [#2-032](https://sadjjk.github.io/motion-prompt-zh/#2-032) | **Stop-motion style** | Moves in choppy steps, with frames dropped | Make this move stop-motion style: 8 frames per second, with a slight jitter on every frame. |
+| [#2-080](https://sadjjk.github.io/motion-prompt-zh/#2-080) | **Signature animation** | A cursive signature writes itself on | End with a signature animation: the cursive line writes on with a pen-tip dot over 2.6 s, then an underline sweeps in. |
+| [#2-081](https://sadjjk.github.io/motion-prompt-zh/#2-081) | **Map route animation** | Pins drop on a map and a route draws between them | Add a map route animation: three pins bounce in, then a line draws from start to destination with a dot travelling along it. |
+| [#2-082](https://sadjjk.github.io/motion-prompt-zh/#2-082) | **ECG heartbeat line** | A heartbeat trace sweeps across a monitor | Put an ECG heartbeat line on the health screen: on a dark grid the trace sweeps left to right while the BPM and a heart pulse. |
+| [#2-083](https://sadjjk.github.io/motion-prompt-zh/#2-083) | **Growing tree** | A tree grows from trunk to branches to leaves | Open the brand story with a growing tree: ground and trunk, then branches, twigs and leaves, then a line of text. |
+| [#2-084](https://sadjjk.github.io/motion-prompt-zh/#2-084) | **Gear train** | Meshed gears turning at their tooth ratios | Show a gear train on the processing screen: one large gear and two small ones meshed, turning the opposite way at their tooth ratios. |
+| [#2-085](https://sadjjk.github.io/motion-prompt-zh/#2-085) | **Fingerprint scan** | A fingerprint is read and access is granted | Add a fingerprint scan to the login screen: ridges draw from the centre out, a light bar sweeps down and up, then it turns green with a check mark. |
 
 ## Text & shapes
 
@@ -35,6 +41,18 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-065](https://sadjjk.github.io/motion-prompt-zh/#2-065) | **Wave interference** | Two waves travelling in opposite directions add up, reinforcing and cancelling | Animate a wave interference diagram: waves A and B travel in opposite directions in the top 2 lanes, their sum is drawn in the bottom lane, and 3 dots on a vertical dashed line read out the values. |
 | [#2-066](https://sadjjk.github.io/motion-prompt-zh/#2-066) | **Dots settling into a normal distribution** | Scattered observations gather into a bell-shaped distribution | Animate a normal distribution forming: 98 dots first scatter like a cloud, then drop one by one into 13 bell-shaped columns, and the mean line μ lights up and locks. |
 | [#2-067](https://sadjjk.github.io/motion-prompt-zh/#2-067) | **Network diffusion** | A signal spreading hop by hop through a network from one source | Animate network diffusion: the source on the left lights up and sends out 3 ripples, the signal travels along 16 curved edges to 16 nodes on the right, and hop count and nodes reached show at the top left. |
+| [#2-068](https://sadjjk.github.io/motion-prompt-zh/#2-068) | **Lightning strike** | Text slams down with a flash of lightning | Bring the headline in with a lightning strike: two flashes and a bolt, then the text slams down from 2.4x and shakes a little. |
+| [#2-069](https://sadjjk.github.io/motion-prompt-zh/#2-069) | **Coin flip** | Letters spin like coins as they hop | Animate the four characters with a coin flip: each spins twice on its vertical axis while hopping, 0.2 s apart. |
+| [#2-070](https://sadjjk.github.io/motion-prompt-zh/#2-070) | **Water reflection** | Text with a rippling upside-down reflection below | Add a water reflection under the title: below a thin horizon line, an upside-down copy that fades down and ripples. |
+| [#2-071](https://sadjjk.github.io/motion-prompt-zh/#2-071) | **Flag wave** | Text ripples like a flag in the wind | Animate the slogan as a flag wave: a pole on the left and the characters rippling one after another. |
+| [#2-072](https://sadjjk.github.io/motion-prompt-zh/#2-072) | **Gravity flip** | Letters fall upward, flip over, then drop back | Do a gravity flip on the logo text: each character falls upward and turns over, pauses, then drops back with a small bounce. |
+| [#2-073](https://sadjjk.github.io/motion-prompt-zh/#2-073) | **Karaoke bouncing ball** | A bouncing ball lights up lyrics one character at a time | Add a karaoke bouncing ball to the lyric: a glowing ball hops one character every 0.38 s and each character it lands on lights up. |
+| [#2-074](https://sadjjk.github.io/motion-prompt-zh/#2-074) | **Ink bleed** | Blurry ink gathers into crisp letters, then bleeds away | Give the title an ink bleed: each character goes from a blurry ink blot to sharp, then bleeds away again. |
+| [#2-075](https://sadjjk.github.io/motion-prompt-zh/#2-075) | **Crumble** | Letters crumble and fall, then rebuild | Crumble the closing text: each character tilts, falls spinning and fades, then drops back from above. |
+| [#2-076](https://sadjjk.github.io/motion-prompt-zh/#2-076) | **Rubber stamp** | A framed stamp slams onto the page | Slam two rubber stamps onto the document: each comes down at an angle from 2.4x with a worn, patchy texture. |
+| [#2-077](https://sadjjk.github.io/motion-prompt-zh/#2-077) | **Text cylinder** | Copies of a letter wrapped round a spinning cylinder | Turn three characters into text cylinders spinning in alternating directions, with the middle one in the accent colour. |
+| [#2-078](https://sadjjk.github.io/motion-prompt-zh/#2-078) | **Slot machine** | Reels spin and stop left to right on the result | Reveal the result with a slot machine: four reels spin, then slow and stop left to right with a slight bounce back. |
+| [#2-079](https://sadjjk.github.io/motion-prompt-zh/#2-079) | **Liquid fill** | Outlined text fills with liquid from the bottom | Do a liquid fill on the headline: outlined text fills from the bottom with wavy liquid over 3 s, then drains. |
 
 ## Transitions & highlights
 

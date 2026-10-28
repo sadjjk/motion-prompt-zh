@@ -2,7 +2,7 @@
 
 # 交互与数据动效
 
-37 个效果 · #1 061~097 · 分类包 `uxmotion` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+50 个效果 · #1 061~097 · 129~141 · 分类包 `uxmotion` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -29,6 +29,8 @@
 | [#1-072](https://sadjjk.github.io/motion-prompt-zh/#1-072) | **速度倾斜列表** | Velocity-lean list | 滚得越快列表越朝滚动方向倾斜的效果 | 列表加速度倾斜：滚得越快越朝滚动方向斜，skewY 为速度 ×3.2°、最多 10°，停下后弹回。 |
 | [#1-073](https://sadjjk.github.io/motion-prompt-zh/#1-073) | **翻滚章节数字** | Rolling chapter numbers | 读到哪章、章节号就像数字带一样滚到哪章的侧栏 | 长文左侧加翻滚章节号：数字带随滚动连续滚动，每章读到 75% 时开始滚向下一章，旁边圆环显示本章进度。 |
 | [#1-074](https://sadjjk.github.io/motion-prompt-zh/#1-074) | **滚筒时间选择器** | Drum time picker | 拨动滚筒选时间、数值沿滚筒弯向背面的选择器 | 闹钟 App 做滚筒时间选择器：3 列滚筒，离中线越远每格多倾斜 22° 并变淡，停下 120ms 后更新响铃倒计时。 |
+| [#1-140](https://sadjjk.github.io/motion-prompt-zh/#1-140) | **圆形扩张转场** | Circle reveal transition | 随滚动从中央扩大的圆形遮罩揭开下一章 | 章节之间用圆形扩张转场：随滚动从中央扩出圆形直到铺满画面，上一章标题缩到 0.8 并淡出。 |
+| [#1-141](https://sadjjk.github.io/motion-prompt-zh/#1-141) | **时间轴延伸** | Timeline draw | 线条往下延伸、碰到哪一步就出现哪一步的纵向时间轴 | 用时间轴延伸展示制作流程：随滚动让线往下延伸，到达的节点标题从左侧 10 px 滑入。 |
 
 ## 首屏背景
 
@@ -51,6 +53,11 @@
 | [#1-084](https://sadjjk.github.io/motion-prompt-zh/#1-084) | **方向感知遮罩** | Direction-aware overlay | 遮罩从光标进入的方向滑入的作品格 | 作品网格悬停时，说明面板从光标进入的那条边 0.32 秒滑入，离开时朝光标离开的方向滑出。 |
 | [#1-085](https://sadjjk.github.io/motion-prompt-zh/#1-085) | **光标透镜揭示** | Cursor lens reveal | 光标处的圆形透镜里露出另一句隐藏文案 | 在大标题上给光标加一个半径 54 px 的圆形透镜，透镜内露出反色的另一句话；点击后透镜扩满整块区域。 |
 | [#1-086](https://sadjjk.github.io/motion-prompt-zh/#1-086) | **滑动卡片堆叠** | Swipeable card stack | 把叠放的卡片左右滑动来收藏或跳过 | 把 4 张推荐地点卡叠放，拖动时按拖动量 × 0.06° 倾斜，右滑显示「收藏」、左滑显示「跳过」印章，松手后飞出。 |
+| [#1-131](https://sadjjk.github.io/motion-prompt-zh/#1-131) | **全息闪卡** | Holographic card | 随光标倾斜、表面炫彩箔光与反光流动的收藏卡 | 把收藏卡做成全息闪卡：随光标位置最多倾斜 13°，炫彩箔光与反光随角度流动。 |
+| [#1-132](https://sadjjk.github.io/motion-prompt-zh/#1-132) | **3D 倾斜视差图片** | Tilt parallax image | 图片朝光标方向倾斜、景物分层错动形成景深 | 给作品图加 3D 倾斜视差：朝光标最多倾斜 10° 并放大到 1.04，远景到近景分层向反方向位移。 |
+| [#1-133](https://sadjjk.github.io/motion-prompt-zh/#1-133) | **眼睛跟随** | Following eyes | 一对大眼睛的眼珠一直盯着光标，偶尔眨眼 | 给 404 吉祥物加眼睛跟随：眼珠朝光标方向最多偏移 14 px，每 2 秒用 0.15 秒眨一次眼。 |
+| [#1-134](https://sadjjk.github.io/motion-prompt-zh/#1-134) | **刮刮乐揭示** | Scratch reveal | 刮开表层露出下方内容的刮刮卡 | 用刮刮乐揭示优惠券：用 30 px 圆头笔刷刮掉银色表层，刮得够多后剩余表层 0.5 秒淡出。 |
+| [#1-135](https://sadjjk.github.io/motion-prompt-zh/#1-135) | **流场线条** | Flow field | 细线顺着看不见的气流流动，光标搅动气流 | 把首屏背景做成流场线条：220 条细线以 60 px/s 顺着流场前进，光标周围卷成漩涡。 |
 
 ## 进度反馈
 
@@ -61,6 +68,10 @@
 | [#1-089](https://sadjjk.github.io/motion-prompt-zh/#1-089) | **不定转确定进度** | Indeterminate to determinate | 排队时的不定进度条直接转为分步的确定进度 | 部署页排队时用 1.6 秒一周期的不定进度条，开始构建后同一根进度条切换为 5 个步骤的确定进度。 |
 | [#1-090](https://sadjjk.github.io/motion-prompt-zh/#1-090) | **点赞爱心迸发** | Heart burst like | 点赞时爱心跳动、圆环和彩点迸发的反馈 | 点赞时让爱心 0.7 秒先缩后弹，迸出粉色圆环和 7 对彩色小点，点赞数向上滚动加 1。 |
 | [#1-091](https://sadjjk.github.io/motion-prompt-zh/#1-091) | **数字逐位滚动** | Rolling digits | 只有变化的数位上下滚动来更新的数字计数器 | 实时访客数变化时，只让变了的位滚动 0.9 秒，从左到右每位延迟 45 毫秒。 |
+| [#1-136](https://sadjjk.github.io/motion-prompt-zh/#1-136) | **加入购物车飞入** | Add to cart fly | 商品缩略图沿弧线飞进购物车，数量跳一下 | 点「加入购物车」后让商品图飞入购物车：0.75 秒沿弧线飞行并缩到 0.15，抵达后角标弹一下。 |
+| [#1-137](https://sadjjk.github.io/motion-prompt-zh/#1-137) | **纸飞机发送** | Send plane button | 按下后纸飞机飞走、文字换成「已发送」的发送按钮 | 按下发送时让纸飞机飞走：先向后蓄力，再加速飞向右上方，文字换成「已发送」，约 1.3 秒后换回。 |
+| [#1-138](https://sadjjk.github.io/motion-prompt-zh/#1-138) | **星星评分** | Star rating | 星星由左到右依次填满并弹跳的评分 | 把评价区做成星星评分：点第 4 颗时，第 1 到 4 颗每隔 0.08 秒依次填满，各自弹到 1.35 倍。 |
+| [#1-139](https://sadjjk.github.io/motion-prompt-zh/#1-139) | **滑动确认** | Slide to confirm | 把手拖到底才确认、中途松开会弹回的操作 | 把付款按钮做成滑动确认：超过 85% 松开即确认，不到则把手弹回起点。 |
 
 ## 动态图表
 
@@ -72,6 +83,8 @@
 | [#1-095](https://sadjjk.github.io/motion-prompt-zh/#1-095) | **排名赛跑柱状图** | Bar chart race | 按年份推进、排名不断交换的横向柱状赛跑图 | 把 8 种饮品 2019–2026 年的销量做成排名赛跑柱状图，只显示前 6 名，每年播放 0.6 秒，可拖动年份滑块。 |
 | [#1-096](https://sadjjk.github.io/motion-prompt-zh/#1-096) | **华夫格翻转** | Waffle chart flip | 100 格华夫图中只有变了的格子翻转来更新占比 | 把 100 人的通勤方式做成 10 × 10 华夫图，切换年龄段时只让换了归属的格子沿对角线波浪翻转，每格 380 毫秒。 |
 | [#1-097](https://sadjjk.github.io/motion-prompt-zh/#1-097) | **季度气泡移动** | Quarterly bubble motion | 气泡随季度沿各自路径移动的时间轴气泡图 | 把 8 个 App 画成月活用户（对数轴）× 30 日留存的气泡图，按季度移动气泡，拖动背景时每 8 px 前进或后退 1 个季度。 |
+| [#1-129](https://sadjjk.github.io/motion-prompt-zh/#1-129) | **折线图绘制** | Line chart draw | 折线由左到右画出、数据点依次弹出的图表进场 | 把月营收做成折线图绘制：折线 1.6 秒由左到右画出，线头经过时数据点依次弹出。 |
+| [#1-130](https://sadjjk.github.io/motion-prompt-zh/#1-130) | **环形图分段** | Donut chart segments | 环形图的弧段一段接一段画出的进场 | 把流量来源做成环形图分段：从正上方顺时针画，每段 0.45 秒，图例从右侧依次滑入。 |
 
 点击编号查看动画演示。单项的时序、缓动和参考代码： `api/v1/zh-Hans/e/<id>.txt` ([#1-061](../../api/v1/zh-Hans/e/1-061.txt)).
 

@@ -1,0 +1,15 @@
+Please use "Add to cart fly" (カートに飛び込む), one of the names in "Interaction & data motion".
+Motion Prompt #1-136
+
+What it is: The product thumbnail arcs into the cart and the count bumps up
+What the sample shows: When the product card button is pressed, the cup image arcs to the cart in the top right while shrinking; the cart bounces and the badge changes from 2 to 3.
+Spec:
+- The button is pressed at 1.0 s (dips to 0.95).
+- From 1.05–1.8 s a copy of the product image flies to the cart: x accelerates with t², y moves linearly plus a 40 px arc, and its size goes 1 → 0.15.
+- On arrival the cart bounces to 1.25 over 0.35 s and the badge changes 2 → 3, popping with a 0.3 s backOut.
+- It cross-fades back to the starting frame from 5.4–6.0 s.
+When to use it: Use it on e-commerce listings and product pages to make "added to cart" unmistakable.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-136.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,15 @@
+Please use "Crumble" (クランブル), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-075
+
+What it is: Letters crumble and fall, then rebuild
+What the sample shows: Four characters tilt slightly in turn, then fall spinning and accelerating while shedding debris, vanish, and come back down from above into place.
+Spec:
+- 4 characters (64 px) starting at 0.3 s, 0.16 s apart; one character's cycle is 3.6 s.
+- 22–27%: tilts to a random angle within ±12°, held until 30%.
+- 30–62%: falls 109 px with a cubic ease-in, rotating to within ±90° while fading; 5 debris bits fall with it.
+- 80–92%: comes down from 32 px above with ease-out while fading in, back in place.
+When to use it: Use it for captions about endings, collapse or failure, or an outro.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-075.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -2,7 +2,7 @@
 
 # Landing page & web effects
 
-29 names · #1 025~048 · 103~107 · pack `lp` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+35 names · #1 025~048 · 103~107 · 122~127 · pack `lp` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -33,6 +33,10 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-040](https://sadjjk.github.io/motion-prompt-zh/#1-040) | **Exit-intent popup** | A popup shown when the visitor is about to leave | Add an exit-intent popup to the landing page: when the cursor leaves through the top, show a coupon popup once. |
 | [#1-103](https://sadjjk.github.io/motion-prompt-zh/#1-103) | **Press / tap feedback** | A button shrinks slightly while pressed, so a tap feels physical | Add press feedback to every button: shrink to 0.97 within 0.1 s of pressing, back to 1 over 0.25 s on release. |
 | [#1-104](https://sadjjk.github.io/motion-prompt-zh/#1-104) | **Hold to confirm** | An action runs only after the button is held until its progress fills | Make the delete button hold-to-confirm: delete only after it is held for 1.2 s and the fill completes; if released early, the fill drains back. |
+| [#1-122](https://sadjjk.github.io/motion-prompt-zh/#1-122) | **Rotating gradient border** | A gradient light keeps circling the button border | Give the CTA a rotating gradient border that spins faster on hover, with a soft outer glow. |
+| [#1-123](https://sadjjk.github.io/motion-prompt-zh/#1-123) | **Jelly button** | Wobbles wide and tall like jelly when pressed | Make the add-to-cart button a jelly button: squash wide, stretch tall and settle within 0.6 s of the click. |
+| [#1-124](https://sadjjk.github.io/motion-prompt-zh/#1-124) | **Card deal** | Cards are dealt one by one into a fan | When Deal is pressed, deal 5 cards up from the bottom one after another into a ±24° fan with a small overshoot. |
+| [#1-125](https://sadjjk.github.io/motion-prompt-zh/#1-125) | **Photo stack shuffle** | Pulls the top photo off a pile and tucks it underneath | Show the memories as a photo stack shuffle: each click pulls the top photo out to the right and slips it under the pile. |
 
 ## Loading, navigation & ambient loops
 
@@ -49,6 +53,8 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-105](https://sadjjk.github.io/motion-prompt-zh/#1-105) | **Shared element transition** | One element morphs from the list into the detail view, linking the two screens | Use a shared element transition from the album list to the detail page: the thumbnail moves and grows into the large detail image over 0.6 s. |
 | [#1-106](https://sadjjk.github.io/motion-prompt-zh/#1-106) | **Direction-aware transition** | Screens slide one way going forward and the other way going back | Make the multi-step form transition direction-aware: next slides left, back slides right, 0.5 s ease-in-out. |
 | [#1-107](https://sadjjk.github.io/motion-prompt-zh/#1-107) | **Layout animation** | When the layout changes, the remaining items glide to their new places | After a card is deleted, close the gap with a layout animation: the other cards move to their new spots over 0.5 s ease-in-out. |
+| [#1-126](https://sadjjk.github.io/motion-prompt-zh/#1-126) | **Slice transition** | Cuts the image into strips that slide away alternately up and down | Use a slice transition for the slider: 6 strips slide out alternately up and down, 0.08 s apart. |
+| [#1-127](https://sadjjk.github.io/motion-prompt-zh/#1-127) | **Animated weather icons** | Sun, cloud, rain and storm icons each move in a small loop | Animate the forecast icons: the sun's rays turn, the cloud drifts, raindrops fall in turn and the lightning flashes. |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#1-025](../../api/v1/en/e/1-025.txt)).
 

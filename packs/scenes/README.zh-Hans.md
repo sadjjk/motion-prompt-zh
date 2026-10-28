@@ -2,7 +2,7 @@
 
 # 风格画面
 
-35 个效果 · #4 001~035 · 分类包 `scenes` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+39 个效果 · #4 001~039 · 分类包 `scenes` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -16,6 +16,7 @@
 | [#4-004](https://sadjjk.github.io/motion-prompt-zh/#4-004) | **文字海浪** | Type ocean | 字母铺成海面并随波起伏的文字海浪画面 | 做一片文字海浪：11 排 × 31 列字母随 2 组波起伏，浪尖变白加粗。 |
 | [#4-005](https://sadjjk.github.io/motion-prompt-zh/#4-005) | **竖排诗笺** | Vertical verse | 朱丝栏笺纸上古诗竖排逐字浮现的画面 | 做一张竖排诗笺：王维的诗 44 个字从右往左每秒浮现 9.5 个，最后钤一方朱印。 |
 | [#4-006](https://sadjjk.github.io/motion-prompt-zh/#4-006) | **故障艺术** | Glitch | 海报文字在信号干扰下错位撕裂的故障艺术画面 | 做一张「SIGNAL LOST」故障海报：RGB 通道错开 3–9 px，干扰每秒跳 10 次。 |
+| [#4-039](https://sadjjk.github.io/motion-prompt-zh/#4-039) | **封锁胶带** | Caution tape cross | 印字的警示胶带交叉成 X | 用 2 条黄底黑边的警示胶带交叉成 X，胶带上重复的「禁止进入」反向滑动，并加投影。 |
 
 ## 科技氛围
 
@@ -47,6 +48,9 @@
 | [#4-023](https://sadjjk.github.io/motion-prompt-zh/#4-023) | **青花瓷盘** | Blue & white | 俯视一只缓缓转动的白釉钴蓝青花瓷盘画面 | 做一段俯视青花瓷盘的循环画面：瓷盘每 6.4 秒顺时针转 1 圈，一道暖金高光从左扫到右。 |
 | [#4-024](https://sadjjk.github.io/motion-prompt-zh/#4-024) | **费尔岛针织** | Fair Isle knit | V 字毛线圈一行行织出图案的费尔岛针织画面 | 做一段费尔岛针织从下往上织出的动画：V 字针脚共 26 行，在 0.2–4.6 秒内一行行织完。 |
 | [#4-025](https://sadjjk.github.io/motion-prompt-zh/#4-025) | **玻璃马赛克** | Glass mosaic | 小玻璃砖依次翻面拼出日落海景的马赛克画面 | 做一个玻璃马赛克动画：45×18 块 12px 玻璃砖从右往左依次翻面，拼出日落海景，约 3.65 秒拼完。 |
+| [#4-036](https://sadjjk.github.io/motion-prompt-zh/#4-036) | **彩纸爆发** | Confetti burst | 标题弹起的同时喷出一把彩纸 | 让「恭喜」两个字弹性放大，同时从下方喷出约 60 片彩纸，抛物线落下、边转边翻，最后 0.5 秒淡出。 |
+| [#4-037](https://sadjjk.github.io/motion-prompt-zh/#4-037) | **飘落花瓣** | Falling petals | 花瓣摇曳飘落，光标经过时被吹开 | 背景飘落约 40 片花瓣，左右摆动并翻面；光标经过时把附近花瓣推开，再慢慢回到原来的轨迹。 |
+| [#4-038](https://sadjjk.github.io/motion-prompt-zh/#4-038) | **烟火** | Fireworks | 点击处升起烟火并炸开 | 夜空背景，点击哪里就从底部用 0.7 秒升起一枚烟火到那里，炸开 40 颗火花，减速、受重力下坠并淡出。 |
 
 ## 器物与空间
 

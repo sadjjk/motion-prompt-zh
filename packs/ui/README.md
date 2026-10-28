@@ -2,7 +2,7 @@
 
 # UI component names
 
-35 names · #1 001~024 · 098~102 · 108~113 · pack `ui` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+43 names · #1 001~024 · 098~102 · 108~121 · pack `ui` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -23,6 +23,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-100](https://sadjjk.github.io/motion-prompt-zh/#1-100) | **Rubber-banding** | Dragging past an edge meets resistance and springs back on release | Add rubber-banding when the bottom sheet is pulled past its top: 120 px of finger travel moves the sheet only about 49 px, and it springs back on release. |
 | [#1-101](https://sadjjk.github.io/motion-prompt-zh/#1-101) | **Interruptible animation** | An animation can change course mid-way, continuing from where it is | Make the drawer a spring animation that can be interrupted: if it is tapped again mid-open, it turns back from its current position and speed (ω = 10). |
 | [#1-110](https://sadjjk.github.io/motion-prompt-zh/#1-110) | **Drag-and-drop upload** | Drop a file onto the zone; it reacts and the upload runs | Build a drag-and-drop upload zone: when a file is dropped the dashed border turns solid green, a progress bar runs from 0 to 100% and "Ready to publish" appears. |
+| [#1-118](https://sadjjk.github.io/motion-prompt-zh/#1-118) | **Command palette** | Opens with a shortcut and filters commands as you type | Open a command palette with ⌘K: dim the page, scale the panel in slightly, and filter the list as the user types. |
+| [#1-119](https://sadjjk.github.io/motion-prompt-zh/#1-119) | **Page flip** | A book page turns over the spine to the other side | Show the catalogue as a book with a page flip: clicking the right page turns it over the spine to the left in 0.7 s. |
+| [#1-120](https://sadjjk.github.io/motion-prompt-zh/#1-120) | **Folding card** | A folded card opens its cover to reveal the message inside | Make the invitation a folding card: clicking the cover opens it on its left edge and the message inside fades in line by line. |
 
 ## Choosing & switching
 
@@ -39,6 +42,10 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-102](https://sadjjk.github.io/motion-prompt-zh/#1-102) | **Drag to reorder** | Grab and drag a list item; the others make room as the order changes | Let the to-do list be reordered by dragging: pressing the handle lifts the row to 1.04×, and the other rows slide aside in 0.2 s. |
 | [#1-108](https://sadjjk.github.io/motion-prompt-zh/#1-108) | **OTP input fill** | A one-time code fills in box by box and is confirmed once complete | Animate a verification code field: 6 boxes fill one digit every 0.35 s, and once full every box turns blue and "Verified" appears. |
 | [#1-109](https://sadjjk.github.io/motion-prompt-zh/#1-109) | **Password strength meter** | Strength bars fill segment by segment as the password grows | Add a strength meter under the password field: 4 bar segments light red → orange → yellow-green → green as the user types, and the label goes from "Weak" to "Strong". |
+| [#1-114](https://sadjjk.github.io/motion-prompt-zh/#1-114) | **Pricing toggle** | Switching monthly and yearly rolls the prices to new values | Add a monthly / yearly pricing toggle: switching rolls each price up to its new value and slightly enlarges the recommended plan. |
+| [#1-115](https://sadjjk.github.io/motion-prompt-zh/#1-115) | **Liquid radio** | The selection dot stretches like a droplet to the next option | Make the radio group liquid: when the choice changes, the dot stretches like a droplet to the new option in 0.45 s and turns round again. |
+| [#1-116](https://sadjjk.github.io/motion-prompt-zh/#1-116) | **Floating label** | The label shrinks and floats up when the field is focused | Use a floating label on the email field: on focus the label shrinks and moves up, and the underline grows out from the centre. |
+| [#1-117](https://sadjjk.github.io/motion-prompt-zh/#1-117) | **Expanding search** | A round search button widens into a search field | Make the header search expand: clicking the magnifier widens it to the left into an input over 0.45 s. |
 
 ## Navigation & status
 
@@ -55,6 +62,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-111](https://sadjjk.github.io/motion-prompt-zh/#1-111) | **Keyboard shortcut press** | The keys of a shortcut press down and light up one by one | Make a shortcut hint: the Ctrl, Shift and P keys press down in turn and glow amber, the caption builds up with each key, and it ends on "Queued". |
 | [#1-112](https://sadjjk.github.io/motion-prompt-zh/#1-112) | **Code diff highlight** | Removed and added code lines appear in red and green | Animate a code diff in an editor: after the context lines brighten, a red removed line and a green added line slide in 6.4px from the left in turn, and the added line flashes once. |
 | [#1-113](https://sadjjk.github.io/motion-prompt-zh/#1-113) | **Deploy pipeline** | Build stages run in sequence, turning green and linking up | Animate a deploy: 4 cards Lint, Test, Build and Deploy go from "Running" to "Passed" in green one by one, the links between them fill, and it ends on "Live". |
+| [#1-121](https://sadjjk.github.io/motion-prompt-zh/#1-121) | **Pull to refresh** | Pull the list down and let go to reload it | Add pull to refresh to the message list: it resists as it is pulled, the icon turns, and on release it loads and a new item appears at the top. |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#1-001](../../api/v1/en/e/1-001.txt)).
 

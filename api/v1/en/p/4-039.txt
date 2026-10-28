@@ -1,0 +1,15 @@
+Please use "Caution tape cross" (立入禁止テープ), one of the names in "Styled scenes".
+Motion Prompt #4-039
+
+What it is: Two lettered caution tapes crossing in an X
+What the sample shows: Over a dark background, 2 yellow tapes with black edges cross in an X, each carrying a repeated "禁止进入" that scrolls in the opposite direction to the other.
+Spec:
+- Each tape is 840px long and 34px tall, yellow #ffd400 with 4px black #111111 edges top and bottom, and an 18px blur shadow offset 8px down.
+- Both are centered on the card: the lower tape at y 112 tilted 13°, the upper tape at y 96 tilted -15°.
+- The tapes carry a repeated 16px bold "禁止进入 · ".
+- Over 6.4 s the upper tape scrolls 4 text units left and the lower tape 3 units right at a constant rate; whole units keep the loop seamless.
+When to use it: Use it for under-construction, coming-soon, restricted or spoiler notices, or behind street-style titles.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-039.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,15 @@
+Please use "Coin flip" (コインフリップ), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-069
+
+What it is: Letters spin like coins as they hop
+What the sample shows: Four gold coins carrying characters hop up in turn, spin twice, land and bounce once; the back shows a star.
+Spec:
+- 4 coins of 36 px radius sit 96 px apart; they start at 0.35 s, 0.2 s apart, and each move lasts 1.7 s.
+- In the first 28% a coin rises 96 px (cubic ease-out) through one turn, and by 42% it falls through a second turn (the turn is drawn as scaleX = cos).
+- A 17 px hop follows until 48%, landing at 54%; the shadow shrinks with height.
+- The front shows the character, the back a star; the rim is a darker disc offset 4 px in the turn direction.
+When to use it: Use it for playful captions about luck, prizes, rewards or games.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-069.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

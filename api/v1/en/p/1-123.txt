@@ -1,0 +1,14 @@
+Please use "Jelly button" (ゼリーボタン), one of the names in "Landing page & web effects".
+Motion Prompt #1-123
+
+What it is: Wobbles wide and tall like jelly when pressed
+What the sample shows: The cursor presses the button twice; each time it squashes wide, stretches tall and wobbles back, while the caption counts the items added.
+Spec:
+- A 160×50 vermilion pill button; the cursor clicks it at 1.0 s and 2.8 s.
+- After each click the scale goes (1, 1) → (1.18, 0.82) at 0.12 s → (0.85, 1.15) at 0.27 s → (1.05, 0.95) at 0.42 s → back to (1, 1) at 0.6 s, each step easeInOut power 3.
+- The caption under the button counts the clicks ("Added 1 item", "Added 2 items"); squashing wide before stretching tall keeps the bounce readable.
+When to use it: Use it on add-to-cart, like or send buttons where a press should feel physical.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-123.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

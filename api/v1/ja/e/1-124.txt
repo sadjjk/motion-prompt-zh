@@ -1,0 +1,49 @@
+// Motion Prompt #1-124 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// カードディール / Card deal
+// パック: lp (LP・Webサイトの演出) · element 32 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: 「配る」を押すと5枚のカードが下から順に飛び出して扇形に開き、しばらく後に「集める」で最後の1枚から下へ戻る。
+// 動きの仕様:
+//   - カーソルが0.5秒に「配る」を押す。5枚のカード（60×84）が下から0.12秒おき・1枚0.55秒で出る
+//   - カード下端の132下にある共通の軸を中心に −24°…+24°（1枚ごと12°）の扇形に開く。角度は back-out（行き過ぎ1.7）で弾み、easeOut 3乗で150px上がる
+//   - 3.1秒に「集める」を押す。3.2秒から最後の1枚を先に、0.1秒おき・0.35秒（easeInOut 3乗）で閉じながら下へ戻る
+// 使いどころ: カード型の商品・プラン・特典をまとめて見せる場面や、ゲーム風の演出に。
+// タグ: card-deal, fan, cards, stagger, overshoot, click
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-124
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 32
+// 改写自 KittenJam Motion Library #98 发牌展开：光标 0.5 秒点「发牌」，5 张 60×84 卡片从视口下方依次发出（间隔 0.12 秒、每张 0.55 秒），
+// 绕下方同一枢轴展开成 −24°…+24°（每张差 12°）的扇形，角度用 back-out（过冲 1.7）回弹；停留到 3.1 秒点「收牌」，
+// 从最后一张开始每张间隔 0.1 秒、0.35 秒 easeInOut 3 次方收回下方。
+const DEAL_N = 5, DEAL_W = 60, DEAL_H = 84, DEAL_R = 132;
+const DEAL_BACK = x => { const s = 1.7; return 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2); };
+CELLS[31] = (k, w, h, u) => {
+  frame(k, 'example.com/cards');
+  const [cx, cy] = path([[0, 430, 150], [0.4, 62, 136], [3.4, 62, 136], [4.2, 430, 150], [4.8, 430, 150]], u);
+  const out = u >= 0.5 && u < 3.1;
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    btn(k, 24, 122, 76, 28, out ? '收牌' : '发牌', out ? C.ink : C.acc, '#fff', 12);
+    const px = VW / 2 + 30, pyBase = 64 + DEAL_R;
+    for (let i = 0; i < DEAL_N; i++) {
+      const pin = P(u, 0.6 + i * 0.12, 1.15 + i * 0.12);
+      const pout = eIO(P(u, 3.2 + (DEAL_N - 1 - i) * 0.1, 3.55 + (DEAL_N - 1 - i) * 0.1));
+      const q = pin * (1 - pout);
+      if (q <= 0) continue;
+      const a = (-24 + 12 * i) * Math.PI / 180 * (u < 3.2 ? DEAL_BACK(pin) : 1 - pout);
+      const py = pyBase + 150 * (1 - (u < 3.2 ? eOut(pin) : 1 - pout));
+      k.save(); k.translate(px, py); k.rotate(a); k.translate(-DEAL_W / 2, -DEAL_R - DEAL_H / 2);
+      k.shadowColor = 'rgba(28,35,51,.18)'; k.shadowBlur = 8; k.shadowOffsetY = 3;
+      k.fillStyle = '#fff'; rr(k, 0, 0, DEAL_W, DEAL_H, 7); k.fill(); k.shadowColor = 'transparent';
+      pic(k, 5, 5, DEAL_W - 10, 46, i, 5);
+      bars(k, 7, 58, 40, 2, C.faint, 5, 9);
+      k.restore();
+    }
+    click(k, cx, cy, u, [0.5, 3.1]);
+  });
+};

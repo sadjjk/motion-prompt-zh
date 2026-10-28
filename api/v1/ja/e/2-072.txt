@@ -1,0 +1,47 @@
+// Motion Prompt #2-072 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// グラビティフリップ / Gravity flip
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 33 · カテゴリ: 文字・図形の演出
+// 何が起きるか: 4文字が順に天井へ加速して落ちながら180°回って逆さに張り付き、少し跳ね返ったあと床へ落ちて360°で正立に戻り、小さく弾む。
+// 動きの仕様:
+//   - 4文字（60px）、0.3秒から0.12秒ずつずらす。1文字のサイクルは3.6秒
+//   - 10〜33%：三次の ease-in で90px上へ、同時に180°回転
+//   - 33〜46%：天井で19%分跳ね返って戻り、58%まで逆さのまま止まる
+//   - 58〜80%：ease-in で落ちながら360°まで回る。87%まで16px跳ね、93%で静止
+// 使いどころ: 「常識を覆す」「逆転」などのコピーや、遊び心のあるロゴアニメに。
+// タグ: gravity, flip, upside-down, bounce, playful, text
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-072
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 33
+// 改写自 KittenJam Motion Library #20（Hannah）· 重力反转：每个字（间隔 0.12 秒）加速往上「掉」90px 并转 180° 倒立，撞顶回弹后停住，再加速落回并转满 360°，落地小弹 16px；每字一轮 3.6 秒。
+function GRAV_k(t) {   // 返回 [上移比例 0..1, 旋转角]
+  if (t < 0.1) return [0, 0];
+  if (t < 0.33) { const e = eIn(P(t, 0.1, 0.33)); return [e, Math.PI * e]; }
+  if (t < 0.4) return [lerp(1, 0.81, eOut(P(t, 0.33, 0.4))), Math.PI];
+  if (t < 0.46) return [lerp(0.81, 1, eIn(P(t, 0.4, 0.46))), Math.PI];
+  if (t < 0.58) return [1, Math.PI];
+  if (t < 0.8) { const e = eIn(P(t, 0.58, 0.8)); return [1 - e, Math.PI * (1 + e)]; }
+  if (t < 0.87) return [16 / 90 * eOut(P(t, 0.8, 0.87)), 0];
+  if (t < 0.93) return [16 / 90 * (1 - eIn(P(t, 0.87, 0.93))), 0];
+  return [0, 0];
+}
+CELLS[32] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '重力反转', F = `900 60px ${JP}`, REST = 136, UP = 90;
+  k.strokeStyle = C.navy3; k.lineWidth = 3; k.setLineDash([10, 8]);
+  k.beginPath(); k.moveTo(60, 12); k.lineTo(w - 60, 12); k.stroke(); k.setLineDash([]);
+  k.fillStyle = C.navy3; rr(k, 60, 170, w - 120, 4, 2); k.fill();
+  const cs = chars(k, S, F, 16);
+  cs.forEach((c, i) => {
+    const [p, r] = GRAV_k((u - 0.3 - 0.12 * i) / 3.6);
+    k.save(); k.translate(w / 2 + c.x, REST - UP * p); k.rotate(r);
+    txt(k, c.ch, 0, 0, F, i % 2 ? C.coral : '#fff', 'center', 'middle');
+    k.restore();
+  });
+};

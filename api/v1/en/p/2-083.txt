@@ -1,0 +1,15 @@
+Please use "Growing tree" (ツリーグロース), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-083
+
+What it is: A tree grows from trunk to branches to leaves
+What the sample shows: A ground line spreads, the trunk grows up, 4 branches and 5 twigs sprout in turn, leaves pop open in random order, and a caption rises below.
+Spec:
+- Over 0.2–0.6 s a ground line grows outward from the centre (cubic ease-out).
+- From 0.45 s the trunk (9 px) grows in 0.8 s; 4 branches (5/4 px) follow 0.15 s apart, 0.45 s each; 5 twigs (2.5 px) 0.12 s apart, 0.35 s each (quadratic ease-in-out).
+- From 2.6 s, 14 leaves pop from 0 to 1 in random order, 0.07 s apart, 0.32 s each (back 1.7).
+- Over 3.4–3.8 s the caption rises 6 px while fading in; everything fades over 4.15–4.6 s.
+When to use it: Use it for brand stories and themes of growth, sustainability or learning.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-083.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,14 @@
+Please use "Card deal" (カードディール), one of the names in "Landing page & web effects".
+Motion Prompt #1-124
+
+What it is: Cards are dealt one by one into a fan
+What the sample shows: Pressing Deal sends 5 cards up from the bottom in turn into a fan; later, Collect sends them back down starting with the last card.
+Spec:
+- The cursor clicks Deal at 0.5 s; 5 cards (60×84) leave the bottom one by one, 0.12 s apart, 0.55 s each.
+- They fan out to −24°…+24° (12° apart) around a shared pivot 132 below the card bottoms; the angle uses back-out with overshoot 1.7 while the cards rise 150px with easeOut power 3.
+- At 3.1 s Collect is clicked; from 3.2 s, starting with the last card, each card folds back and drops 0.1 s apart over 0.35 s (easeInOut power 3).
+When to use it: Use it to reveal a set of card-style products, plans or perks, or for game-like moments.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-124.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,15 @@
+Please use "Animated weather icons" (アニメーション天気アイコン), one of the names in "Landing page & web effects".
+Motion Prompt #1-127
+
+What it is: Sun, cloud, rain and storm icons each move in a small loop
+What the sample shows: On 4 small cards the sun's rays rotate, a cloud drifts side to side, raindrops fall in turn and a storm cloud's bolt flashes now and then.
+Spec:
+- 4 small cards (110×128, 14 apart): sunny, cloudy, rain and storm; every loop repeats a whole number of times per 4.8 s cycle.
+- Sun: 12 rays rotate 1 full turn per cycle. Cloud: drifts ±6px left and right, 2 round trips per cycle.
+- Rain: 3 drops 0.27 s apart, each falling 30px every 0.8 s and fading in and out at the ends.
+- Storm: the bolt flashes at 1.2, 1.5 and 3.6 s for 0.12 s each while the card background tints lighter.
+When to use it: Use it in weather, travel or event pages, or anywhere status icons should feel a little alive.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-127.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,46 @@
+// Motion Prompt #2-074 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// インクブリード / Ink bleed
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 35 · カテゴリ: 文字・図形の演出
+// 何が起きるか: 和紙色の上で4文字が順に、ぼやけた墨の塊から縁のくっきりした字へ締まり、しばらく留まったあと再び広がって消える。
+// 動きの仕様:
+//   - 4文字（68px）、0.3秒から0.25秒ずつずらす。1文字のサイクルは3.6秒
+//   - 0〜55%：ぼかし16pxから0px、1.3倍から1倍へ（smoothstep）、最初の15%で現れる
+//   - 55〜80%はくっきり静止、80〜100%でぼかし16px・1.2倍へ広がりながら消える
+//   - ぼかした墨を contrast(16) でしきい値処理し、にじみ同士がくっつく縁を作って multiply で紙に重ねる
+// 使いどころ: 和風・書道・お茶やお酒のブランドのタイトルに。
+// タグ: ink, bleed, blur, calligraphy, gooey, text
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-074
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 35
+// 改写自 KittenJam Motion Library #36（Hannah）· 墨水晕开：宣纸色底，每个字（间隔 0.25 秒）先是模糊 16px、1.3 倍的墨团，收敛成清晰字形，停留后再晕开到 1.2 倍消失；离屏画模糊墨字后用 contrast(16) 阈值化做出墨团粘连的边缘，再以 multiply 叠到纸上。
+const INKB_C = mkCanvas(CW, CH), INKB_G = INKB_C.getContext('2d');
+const INKB_FIB = (() => { const r = rand(3636); return Array.from({ length: 40 }, () => [r() * CW, r() * CH, 6 + r() * 18, r() * Math.PI]); })();
+CELLS[34] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k, '#F2EBDD');
+  k.strokeStyle = 'rgba(150,120,80,.12)'; k.lineWidth = 1;
+  INKB_FIB.forEach(([x, y, l, a]) => { k.beginPath(); k.moveTo(x, y); k.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); k.stroke(); });
+  const S = '墨染江南', F = `900 68px ${JP}`, g = INKB_G;
+  g.save(); g.filter = 'none'; g.globalAlpha = 1; g.fillStyle = '#fff'; g.fillRect(0, 0, CW, CH);
+  g.font = F; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#000';
+  chars(g, S, F, 14).forEach((c, i) => {
+    const t = (u - 0.3 - 0.25 * i) / 3.6; if (t <= 0 || t >= 1) return;
+    let b, op, sc;
+    if (t < 0.55) { const q = smooth(t / 0.55); b = lerp(16, 0, q); sc = lerp(1.3, 1, q); op = clamp(t / 0.15); }
+    else if (t < 0.8) { b = 0; sc = 1; op = 1; }
+    else { const q = smooth((t - 0.8) / 0.2); b = lerp(0, 16, q); sc = lerp(1, 1.2, q); op = 1 - q; }
+    g.filter = `blur(${b.toFixed(2)}px)`; g.globalAlpha = op;
+    g.save(); g.translate(CW / 2 + c.x, CH / 2); g.scale(sc, sc); g.fillText(c.ch, 0, 0); g.restore();
+  });
+  g.restore();
+  k.save(); k.filter = 'contrast(16)'; k.globalCompositeOperation = 'multiply'; k.drawImage(INKB_C, 0, 0); k.restore();
+  // 角落朱印
+  k.fillStyle = '#C8372D'; rr(k, w - 62, h - 54, 30, 30, 4); k.fill();
+  txt(k, '印', w - 47, h - 38, `900 18px ${JP}`, '#F2EBDD', 'center', 'middle');
+};

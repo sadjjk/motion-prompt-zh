@@ -1,0 +1,17 @@
+请使用“墨水晕开（Ink bleed）”，属于“动态图形进阶”。
+Motion Prompt #2-074
+
+效果解释：晕开的墨团收敛成字，再晕散消失
+动画表现：宣纸色底上，4 个字依次由模糊墨团收紧成边缘清晰的字，停留后再晕开消失。
+实现规格与关键运动参数：
+- 4 个字（68 px），0.3 秒起每字错开 0.25 秒；单字一轮 3.6 秒。
+- 0–55%：模糊由 16 px 到 0 px、缩放由 1.3 倍到 1 倍（smoothstep），前 15% 内显现。
+- 55–80% 保持清晰；80–100% 扩散到模糊 16 px、1.2 倍并淡出。
+- 模糊墨字用 contrast(16) 阈值化，使墨团边缘相互粘连，再以 multiply 叠到纸面上。
+适用场景：适合国风、书法、茶酒品牌的标题。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-074
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-074.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Hannah 的 MIT 版权标识。

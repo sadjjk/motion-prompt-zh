@@ -1,0 +1,53 @@
+// Motion Prompt #2-084 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Gear train / ギアトレイン
+// Pack: motion2 (Motion graphics moves, part 2) · element 45 · Category: Motion techniques
+// What happens: A large blue gear turns clockwise while coral and yellow pinions meshed with it spin faster the other way, teeth staying in each other's gaps; a status line sits beside them.
+// Motion spec:
+//   - Gears of 16, 10 and 8 teeth (module 6.4 px, pitch radius = 6.4 × teeth ÷ 2); the two small ones mesh with the big gear at −20° and 160°.
+//   - The big gear turns 180° (8 teeth) clockwise per 4.7 s; the small ones counter-rotate at their tooth ratios (all 8 teeth per cycle).
+//   - Starting angles are computed along each contact direction so teeth sit in gaps.
+//   - 6, 5 and 4 holes; on the right a status line with dots that grow every 0.39 s.
+// When to use it: Use it for processing, settings or system status, or to explain how parts work together.
+// Tags: gear, cog, mechanical, loading, rotation, system
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-084
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 45
+// 改写自 KittenJam Motion Library #330（Hannah）· 齿轮联动：16 齿大齿轮顺时针每 4.7 秒转 180°（8 个齿距），10 齿与 8 齿小齿轮按齿数比反向转（每周期同样 8 个齿距），按接触方向计算初始相位让齿对齿槽；孔数 6/5/4 与转角整除，循环无缝。
+const GEAR_M = 6.4, GEAR_A = [200, 108, 16];
+const GEAR_B = (() => { const r = GEAR_M * (16 + 10) / 2, a = -20 * Math.PI / 180; return [200 + r * Math.cos(a), 108 + r * Math.sin(a), 10, a, 5, C.coral]; })();
+const GEAR_C = (() => { const r = GEAR_M * (16 + 8) / 2, a = 160 * Math.PI / 180; return [200 + r * Math.cos(a), 108 + r * Math.sin(a), 8, a, 4, C.yel]; })();
+function GEAR_draw(k, x, y, N, th, holes, col) {
+  const r = GEAR_M * N / 2, st = Math.PI * 2 / N, ro = r - 1.2 * GEAR_M, rt = r + GEAR_M;
+  k.save(); k.translate(x, y); k.rotate(th);
+  k.beginPath();
+  for (let j = 0; j < N; j++) {
+    const c = j * st;
+    [[c - 0.5 * st, ro], [c - 0.28 * st, ro], [c - 0.16 * st, rt], [c + 0.16 * st, rt], [c + 0.28 * st, ro]].forEach(([a, rr0], q) => { const px = Math.cos(a) * rr0, py = Math.sin(a) * rr0; j || q ? k.lineTo(px, py) : k.moveTo(px, py); });
+  }
+  k.closePath(); k.fillStyle = col; k.fill();
+  k.strokeStyle = 'rgba(15,26,61,.35)'; k.lineWidth = 2; k.beginPath(); k.arc(0, 0, ro - 5, 0, 7); k.stroke();
+  k.fillStyle = C.navy;
+  for (let i = 0; i < holes; i++) { const a = i * Math.PI * 2 / holes; k.beginPath(); k.arc(Math.cos(a) * r * 0.55, Math.sin(a) * r * 0.55, r * 0.13, 0, 7); k.fill(); }
+  k.beginPath(); k.arc(0, 0, r * 0.22, 0, 7); k.fill();
+  k.fillStyle = col; k.beginPath(); k.arc(0, 0, r * 0.09, 0, 7); k.fill();
+  k.restore();
+}
+CELLS[44] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const thA = Math.PI * u / CYC;   // 8 × (2π/16) 每周期
+  // 接触方向 φ 上：大齿轮齿数单位 a=(φ−θA)·NA/2π，小齿轮须在 a 的对侧半齿处：θ = φ + π − π/N + (φ − θA)·NA/N
+  const mesh = ([, , N, phi]) => phi + Math.PI - Math.PI / N + (phi - thA) * 16 / N;
+  GEAR_draw(k, GEAR_A[0], GEAR_A[1], 16, thA, 6, C.blue);
+  GEAR_draw(k, GEAR_B[0], GEAR_B[1], 10, mesh(GEAR_B), 5, GEAR_B[5]);
+  GEAR_draw(k, GEAR_C[0], GEAR_C[1], 8, mesh(GEAR_C), 4, GEAR_C[5]);
+  const dots = Math.floor(u / (CYC / 12)) % 4;
+  txt(k, '系统运转中' + '·'.repeat(dots), 352, 100, `800 22px ${JP}`, '#fff');
+  txt(k, '齿数 16 · 10 · 8', 352, 126, `600 12px ${JP}`, C.dim);
+};

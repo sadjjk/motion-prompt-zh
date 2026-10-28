@@ -1,0 +1,15 @@
+Please use "Gear train" (ギアトレイン), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-084
+
+What it is: Meshed gears turning at their tooth ratios
+What the sample shows: A large blue gear turns clockwise while coral and yellow pinions meshed with it spin faster the other way, teeth staying in each other's gaps; a status line sits beside them.
+Spec:
+- Gears of 16, 10 and 8 teeth (module 6.4 px, pitch radius = 6.4 × teeth ÷ 2); the two small ones mesh with the big gear at −20° and 160°.
+- The big gear turns 180° (8 teeth) clockwise per 4.7 s; the small ones counter-rotate at their tooth ratios (all 8 teeth per cycle).
+- Starting angles are computed along each contact direction so teeth sit in gaps.
+- 6, 5 and 4 holes; on the right a status line with dots that grow every 0.39 s.
+When to use it: Use it for processing, settings or system status, or to explain how parts work together.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-084.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

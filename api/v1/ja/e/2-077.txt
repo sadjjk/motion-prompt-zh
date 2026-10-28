@@ -1,0 +1,38 @@
+// Motion Prompt #2-077 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// テキストシリンダー / Text cylinder
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 38 · カテゴリ: 文字・図形の演出
+// 何が起きるか: 3本の円柱がそれぞれ同じ文字10個で巻かれて横軸で回り、隣どうし逆向き。手前の字は大きく明るく、奥は見えない。
+// 動きの仕様:
+//   - 3本の円柱を150px間隔で並べ、各円柱は同じ文字（50px）10個を36°間隔、半径62pxで巻く
+//   - 4.7秒で1回転、隣の円柱は逆向き。真ん中の円柱を珊瑚色、両側を白に
+//   - 奥行き z に応じて縦を z 倍に潰し、遠近 400 / (400 − 62z) で拡大、透明度は0.2 + 0.8z
+//   - z < 0.05 の裏側の字は描かない
+// 使いどころ: 立体的なロゴ表現、ループする背景タイトル、テック系のオープニングに。
+// タグ: cylinder, 3d, rotate, spin, loop, text
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-077
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 38
+// 改写自 KittenJam Motion Library #57（Hannah）· 文字圆柱：三根圆柱各由同一字的 10 个副本（间隔 36°）环绕水平轴排成，每 4.7 秒转一圈，相邻两根方向相反，中间一根用珊瑚色；背面不画，近处更亮更大。
+CELLS[37] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '立体字', R = 62, CY = 104, th = Math.PI * 2 * u / CYC;
+  [...S].forEach((ch, c) => {
+    const cx = w / 2 + (c - 1) * 150, dir = c % 2 ? -1 : 1, col = c === 1 ? C.coral : '#fff';
+    const list = [];
+    for (let i = 0; i < 10; i++) { const a = i * 36 * Math.PI / 180 + dir * th; list.push([Math.cos(a), Math.sin(a)]); }
+    list.sort((A, B) => A[0] - B[0]).forEach(([z, s]) => {
+      if (z < 0.05) return;
+      const per = 400 / (400 - R * z);
+      k.save(); k.globalAlpha = 0.2 + 0.8 * z; k.translate(cx, CY - R * s * per); k.scale(per, z * per);
+      txt(k, ch, 0, 0, `900 50px ${JP}`, col, 'center', 'middle');
+      k.restore();
+    });
+  });
+};

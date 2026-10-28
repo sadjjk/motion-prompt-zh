@@ -1,0 +1,45 @@
+// Motion Prompt #1-117 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Expanding search / 展開する検索ボックス
+// Pack: ui (UI component names) · element 39 · Category: Choosing & switching
+// What happens: The cursor clicks a round magnifier button; it widens to the left into a search field with its right edge fixed, a placeholder appears, a query is typed, and clearing it with × folds it back.
+// Motion spec:
+//   - A 44×44 round search button; the cursor clicks it at 0.9 s.
+//   - Keeping its right edge fixed, it widens left into a 320×44 field over 0.95–1.4 s (easeInOut power 3); the magnifier moves with the left edge.
+//   - The placeholder "Search motion…" fades in over 1.3–1.5 s; from 1.8 s the query "rotating button" is typed at 0.18 s per character and a clear × appears on the right.
+//   - At 3.4 s the × is clicked to clear it, and over 3.5–3.95 s the field shrinks back into the round button.
+// When to use it: Use it in headers and toolbars where search should take little space until it is needed.
+// Tags: search, expand, input, header, toolbar, morph
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-117
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 39
+// 改写自 KittenJam Motion Library #247 展开搜索框：右侧 44×44 圆形放大镜按钮，光标 0.9 秒点击，
+// 按钮右缘固定、0.45 秒 easeInOut 3 次方向左展开成 320×44 搜索框，放大镜随左缘移动；占位字「搜索动效…」1.3–1.5 秒淡入，
+// 1.8 秒起逐字输入「旋转按钮」（每字 0.18 秒），右侧出现 ×；3.4 秒点 × 清空，3.5–3.95 秒收回圆形按钮。
+const ESEARCH_S = '旋转按钮';
+CELLS[38] = ui((w, h, t) => {
+  bar(24, 18, 90, C.line2, 11); bar(24, 92, 230, C.line); bar(24, 110, 180, C.line); fillRR(24, 132, 230, 44, 8, C.block);
+  const ex = eio(seg(t, .95, 1.4)) * (1 - eio(seg(t, 3.5, 3.95)));
+  const R = 492, by = 50, bh = 44, bw = lerp(44, 320, ex), bx = R - bw;
+  shadowed(() => fillRR(bx, by, bw, bh, 22, '#fff'), 12, 3, .12);
+  strokeRR(bx, by, bw, bh, 22, ex > .02 ? C.sb : C.line2, 1.5);
+  // 放大镜（随左缘移动）
+  const ix = bx + 22, iy = by + 22;
+  ring(ix - 2, iy - 2, 7, ex > .02 ? C.blue : C.ink, 2.2);
+  X.strokeStyle = ex > .02 ? C.blue : C.ink; X.lineWidth = 2.4; X.lineCap = 'round'; X.beginPath(); X.moveTo(ix + 3, iy + 3); X.lineTo(ix + 8, iy + 8); X.stroke(); X.lineCap = 'butt';
+  const n = t < 1.8 || t >= 3.4 ? 0 : Math.min(ESEARCH_S.length, Math.floor((t - 1.8) / .18) + 1);
+  const ph = eo(seg(t, 1.3, 1.5)) * (1 - seg(t, 3.5, 3.6));
+  X.save(); X.beginPath(); X.rect(bx, by, bw, bh); X.clip();
+  if (n === 0 && ph > 0) { X.globalAlpha = ph; text('搜索动效…', ix + 20, iy, 14, C.hint, 500); X.globalAlpha = 1; }
+  if (n > 0) {
+    text(ESEARCH_S.slice(0, n), ix + 20, iy, 14, C.ink, 600);
+    circle(R - 22, iy, 9, C.block); text('×', R - 22, iy, 13, C.en, 600, 'center', NUMF);
+  }
+  X.restore();
+  pointer([[0, w + 30, h + 30], [.8, R - 20, by + 24], [1.4, R - 20, by + 24], [2.0, R - 50, by + 70], [3.0, R - 50, by + 70], [3.35, R - 20, by + 24], [3.6, R - 20, by + 24], [4.4, w + 30, h + 30]], [.9, 3.4], t);
+});

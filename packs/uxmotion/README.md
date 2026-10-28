@@ -2,7 +2,7 @@
 
 # Interaction & data motion
 
-37 names · #1 061~097 · pack `uxmotion` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+50 names · #1 061~097 · 129~141 · pack `uxmotion` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -29,6 +29,8 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-072](https://sadjjk.github.io/motion-prompt-zh/#1-072) | **Velocity-lean list** | A list that leans in the scroll direction the faster you scroll | Add a velocity lean to the list: the faster you scroll the more it skews, skewY = speed × 3.2° up to 10°, springing back when you stop. |
 | [#1-073](https://sadjjk.github.io/motion-prompt-zh/#1-073) | **Rolling chapter numbers** | A sidebar whose chapter number rolls like a number strip as you read | Add a rolling chapter number to the left of the long read: the digit strip rolls with scroll, starts moving to the next chapter after 75% of the current one, and a ring shows progress. |
 | [#1-074](https://sadjjk.github.io/motion-prompt-zh/#1-074) | **Drum time picker** | A drum-style time picker whose values curve away around a wheel | Build a drum time picker for the alarm app: 3 wheels, values tilting 22° per step and fading away from the centre line, updating the countdown 120 ms after stopping. |
+| [#1-140](https://sadjjk.github.io/motion-prompt-zh/#1-140) | **Circle reveal transition** | A circular mask grows from the centre with scrolling to reveal the next section | Use a circle reveal between chapters: as you scroll, grow a circle from the centre to fill the screen and shrink the previous title to 0.8 as it fades. |
+| [#1-141](https://sadjjk.github.io/motion-prompt-zh/#1-141) | **Timeline draw** | A vertical timeline whose line grows down and reveals each step as it arrives | Show the process as a timeline draw: grow the line down with scrolling and slide each reached step in from 10 px to the left. |
 
 ## Hero backgrounds
 
@@ -51,6 +53,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-084](https://sadjjk.github.io/motion-prompt-zh/#1-084) | **Direction-aware overlay** | A grid whose overlay slides in from the side the cursor entered | On the work grid, slide the caption panel in from the edge the cursor entered over 0.32 s, and out toward the edge it leaves. |
 | [#1-085](https://sadjjk.github.io/motion-prompt-zh/#1-085) | **Cursor lens reveal** | A round lens at the cursor that reveals a different message underneath | Add a 54 px round lens to the cursor over the big headline that reveals an inverted second sentence inside; a click expands the lens to fill the section. |
 | [#1-086](https://sadjjk.github.io/motion-prompt-zh/#1-086) | **Swipeable card stack** | A stacked card UI you swipe left or right to sort | Stack 4 recommendation cards; dragging tilts the card by drag × 0.06°, shows a Save stamp to the right or Skip to the left, and flings it off on release. |
+| [#1-131](https://sadjjk.github.io/motion-prompt-zh/#1-131) | **Holographic card** | A collectible card that tilts with the cursor while rainbow foil and glare shift across it | Make the trading card a holographic card: tilt it up to 13° towards the cursor and move rainbow foil and glare with the angle. |
+| [#1-132](https://sadjjk.github.io/motion-prompt-zh/#1-132) | **Tilt parallax image** | An image that tilts towards the cursor while its layers shift for depth | Add a tilt parallax to the artwork: tilt up to 10° towards the cursor, scale to 1.04 and shift the layers from far to near in the opposite direction. |
+| [#1-133](https://sadjjk.github.io/motion-prompt-zh/#1-133) | **Following eyes** | A pair of big eyes whose pupils keep looking at the cursor and blink now and then | Give the 404 mascot following eyes: pupils move up to 14 px towards the cursor, with a 0.15 s blink every 2 s. |
+| [#1-134](https://sadjjk.github.io/motion-prompt-zh/#1-134) | **Scratch reveal** | A scratch card whose coating rubs away to reveal what is underneath | Reveal the coupon with a scratch reveal: rub off the silver coating with a 30 px round brush, then fade the rest out over 0.5 s once enough is cleared. |
+| [#1-135](https://sadjjk.github.io/motion-prompt-zh/#1-135) | **Flow field** | Fine lines drift along an invisible current, and the cursor stirs it | Make the hero background a flow field: 220 fine lines moving along the current at 60 px/s, swirling around the cursor. |
 
 ## Progress feedback
 
@@ -61,6 +68,10 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-089](https://sadjjk.github.io/motion-prompt-zh/#1-089) | **Indeterminate to determinate** | An indeterminate progress bar that turns into step-by-step determinate progress | On the deploy screen, show an indeterminate bar with streaks cycling every 1.6 s while queued, then switch the same bar to 5-step determinate progress when the build starts. |
 | [#1-090](https://sadjjk.github.io/motion-prompt-zh/#1-090) | **Heart burst like** | A like reaction where the heart pulses and bursts with a ring and confetti dots | When the like button is tapped, make the heart squash and pop over 0.7 s, burst a pink ring and 7 pairs of coloured dots, and roll the count up by 1. |
 | [#1-091](https://sadjjk.github.io/motion-prompt-zh/#1-091) | **Rolling digits** | A counter where only the changed digits roll vertically to update | For the live visitor count, roll only the changed digits over 0.9 s when the value updates, staggering each digit by 45 ms from left to right. |
+| [#1-136](https://sadjjk.github.io/motion-prompt-zh/#1-136) | **Add to cart fly** | The product thumbnail arcs into the cart and the count bumps up | When Add to cart is pressed, fly the product image into the cart: an arc over 0.75 s shrinking to 0.15, then bounce the badge. |
+| [#1-137](https://sadjjk.github.io/motion-prompt-zh/#1-137) | **Send plane button** | A send button whose paper plane flies off as the label changes to Sent | On submit, launch the paper plane: a short wind-up back, then accelerate out to the top right, switch the label to Sent and restore it after about 1.3 s. |
+| [#1-138](https://sadjjk.github.io/motion-prompt-zh/#1-138) | **Star rating** | A rating where the stars fill and bounce from left to right up to the chosen one | Make the feedback a star rating: when the 4th star is tapped, fill stars 1 to 4 at 0.08 s intervals, each bouncing up to 1.35. |
+| [#1-139](https://sadjjk.github.io/motion-prompt-zh/#1-139) | **Slide to confirm** | A control that confirms only when the knob is slid to the end, and springs back otherwise | Turn the pay button into slide to confirm: release past 85% to confirm, otherwise spring the knob back. |
 
 ## Animated charts
 
@@ -72,6 +83,8 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-095](https://sadjjk.github.io/motion-prompt-zh/#1-095) | **Bar chart race** | A horizontal bar chart race where rankings change year by year | Make a bar chart race of 8 drinks' sales from 2019 to 2026, showing the top 6, playing at 0.6 s per year, with a draggable year slider. |
 | [#1-096](https://sadjjk.github.io/motion-prompt-zh/#1-096) | **Waffle chart flip** | A 100-cell waffle chart where only the cells that change flip to the new share | Show 100 people's commute modes as a 10 × 10 waffle chart; when the age tab changes, flip only the cells that change category in a diagonal wave, 380 ms each. |
 | [#1-097](https://sadjjk.github.io/motion-prompt-zh/#1-097) | **Quarterly bubble motion** | A time-based bubble chart where bubbles travel along their paths quarter by quarter | Plot 8 apps on monthly users (log axis) × 30-day retention; animate the bubbles quarter by quarter, and let dragging the background scrub 1 quarter per 8 px. |
+| [#1-129](https://sadjjk.github.io/motion-prompt-zh/#1-129) | **Line chart draw** | A line chart that draws itself left to right as its points pop in | Bring in the monthly revenue as a line chart draw: the line draws left to right in 1.6 s and each point pops as the line reaches it. |
+| [#1-130](https://sadjjk.github.io/motion-prompt-zh/#1-130) | **Donut chart segments** | A donut chart whose arcs draw in one after another | Show traffic sources as donut chart segments: draw each from the top clockwise, 0.45 s apiece, and slide the legend in from the right. |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#1-061](../../api/v1/en/e/1-061.txt)).
 

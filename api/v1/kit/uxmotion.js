@@ -1,7 +1,8 @@
-// Motion Prompt #1 061~097 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+// Motion Prompt #1 061~097 · 129~141 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+// Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#1 129~141)
 //
 // Kit for pack "uxmotion" (Interaction & data motion / インタラクションとデータの動き): the constants and helpers its elements share.
-// Elements #1 061~097 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #1 061~097 · 129~141 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,
@@ -250,3 +251,20 @@ function UXB_pic(k, x, y, w, h, s) {
   }
   k.restore();
 }
+
+// @shared
+// 38–50 共用（改写自 KittenJam Motion Library，Hannah，MIT）：伪 3D 倾斜投影、卡片仿射映射、按住时长
+// 以卡片中心为原点：先绕 Y 轴转 ry，再绕 X 轴转 rx，透视距离 P；z 为正表示远离观众
+function UXC_proj(x, y, rx, ry, cx, cy, P = 600) {
+  const x1 = x * Math.cos(ry), z1 = x * Math.sin(ry);
+  const y2 = y * Math.cos(rx) - z1 * Math.sin(rx), z2 = y * Math.sin(rx) + z1 * Math.cos(rx);
+  const s = P / (P + z2);
+  return [cx + x1 * s, cy + y2 * s];
+}
+// 把 W×H 的本地坐标（左上角为原点）映射到投影后的左上、右上、左下三个角：Canvas 2D 只有仿射变换，倾斜 ≤13° 时近似误差很小
+function UXC_tilt(k, W, H, rx, ry, cx, cy, sc = 1, P = 600) {
+  const a = UXC_proj(-W / 2 * sc, -H / 2 * sc, rx, ry, cx, cy, P), b = UXC_proj(W / 2 * sc, -H / 2 * sc, rx, ry, cx, cy, P), c = UXC_proj(-W / 2 * sc, H / 2 * sc, rx, ry, cx, cy, P);
+  k.transform((b[0] - a[0]) / W, (b[1] - a[1]) / W, (c[0] - a[0]) / H, (c[1] - a[1]) / H, a[0], a[1]);
+}
+// 按住程度：a 前 0.08 秒按下，b 后 0.14 秒抬起（拖动、刮擦这类持续按压）
+const UXC_hold = (u, a, b) => (u >= a - 0.08 && u < b + 0.14 ? Math.min(1, seg(u, a - 0.08, a)) * (1 - seg(u, b, b + 0.14)) : 0);

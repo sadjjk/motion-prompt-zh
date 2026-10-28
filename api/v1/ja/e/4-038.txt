@@ -1,0 +1,70 @@
+// Motion Prompt #4-038 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 花火 / Fireworks
+// パック: scenes (スタイルシーン) · element 38 · カテゴリ: 文様・グラフィック
+// 何が起きるか: 星の出た夜空で、カーソルが 3 か所を順にクリックし、そのたびに波紋が広がり、下から花火が上がって金・青・桃色の火花に開き、垂れ下がりながら消える。
+// 動きの仕様:
+//   - カーソルは右下 (470, 176) から、0.3〜0.85、1.6〜2.25、3.0〜3.65 秒に三次の easeInOut で (150, 62)、(392, 52)、(268, 86) へ移り、4.6〜5.6 秒に元の位置へ戻る
+//   - クリックは 0.9、2.3、3.7 秒。矢印が 12% 縮み、半径 22px の波紋が 0.5 秒で広がって消える
+//   - クリックごとに、点の x ±30px の下端から花火が 0.7 秒（三次の easeOut）で点まで上がり、0.1 秒分の尾を引く
+//   - 到達すると半径 34px の閃光が 0.3 秒で消え、火花 40 個が全方向へ 70〜140px/s で飛ぶ。抵抗 1.8/s、重力 120px/s² で計算し、1.4 秒でフェードアウトする
+//   - 最後の火花は 5.8 秒に消え、6.4 秒で最初と同じ夜空とカーソル位置に戻る
+// 使いどころ: イベントページ・お祭り・カウントダウン・完了のお祝いなど、クリックで盛り上げたい場面に。
+// タグ: fireworks, celebration, click, particles, night, interactive, explosion
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-038
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 38
+// 改写自 KittenJam Motion Library #181 烟火（Hannah 整理）：夜空，模拟光标依次点击三处（0.9、2.3、3.7 秒），点击时箭头缩 12% 并出现涟漪；
+// 每次点击从底部升起一枚烟火，0.7 秒（三次缓出）到达点击处炸开 40 颗火花：初速 70–140px/s、阻力系数 1.8/s、重力 120px/s²，1.4 秒内淡出。
+// 光标 4.6–5.6 秒回到右下角原位；最后一朵 5.8 秒熄灭，6.4 秒与开头同一画面。原作为随机自动施放与真实点击。
+const FW_SHOTS = [{ x: 150, y: 62, t: 0.9, hue: 42 }, { x: 392, y: 52, t: 2.3, hue: 196 }, { x: 268, y: 86, t: 3.7, hue: 322 }];
+const FW_REST = [470, 176], FW_MOVES = [[0.3, 0.85], [1.6, 2.25], [3.0, 3.65], [4.6, 5.6]];
+const FW_RISE = 0.7, FW_N = 40, FW_LIFE = 1.4, FW_DRAG = 1.8, FW_G = 120, FW_V = 140;
+// 带线性阻力与重力的解析位移（不逐帧累加）
+const FW_pos = (vx, vy, t) => { const e = (1 - Math.exp(-FW_DRAG * t)) / FW_DRAG; return [vx * e, vy * e + FW_G / FW_DRAG * (t - e)]; };
+CELLS[37] = (k, w, h, u) => {
+  k.drawImage(layer('FW_bg', g => {
+    const gr = g.createLinearGradient(0, 0, 0, CH); gr.addColorStop(0, '#060a1c'); gr.addColorStop(1, '#1a1838');
+    g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+    for (let i = 0; i < 70; i++) { g.fillStyle = `rgba(255,255,255,${0.15 + 0.45 * kjHash(i, 40)})`; g.fillRect(kjHash(i, 41) * CW, kjHash(i, 42) * CH * 0.8, 1.2, 1.2); }
+  }), 0, 0);
+  k.save(); k.globalCompositeOperation = 'lighter'; k.lineCap = 'round';
+  FW_SHOTS.forEach((f, j) => {
+    const tr = u - f.t, te = tr - FW_RISE;
+    if (tr > 0 && tr < FW_RISE) {                                              // 上升中的火箭与尾迹
+      const sx = f.x + (kjHash(j, 31) - 0.5) * 60, sy = CH + 4;
+      const at = s => { const e = out3(clamp(s / FW_RISE)); return [mix(sx, f.x, e), mix(sy, f.y, e)]; };
+      const [x0, y0] = at(Math.max(0, tr - 0.12)), [x1, y1] = at(tr);
+      k.strokeStyle = `hsla(${f.hue},100%,75%,.5)`; k.lineWidth = 1.5; k.beginPath(); k.moveTo(x0, y0); k.lineTo(x1, y1); k.stroke();
+      k.fillStyle = `hsl(${f.hue},100%,80%)`; k.beginPath(); k.arc(x1, y1, 2, 0, TAU); k.fill();
+    }
+    if (te > 0 && te < FW_LIFE) {
+      glow(k, f.x, f.y, 34, '255,240,220', 0.45 * (1 - seg(te, 0, 0.3)));     // 炸开瞬间的闪光
+      const life = 1 - te / FW_LIFE;
+      for (let i = 0; i < FW_N; i++) {
+        const s = j * FW_N + i, an = TAU * kjHash(s, 32), v = FW_V * (0.5 + 0.5 * kjHash(s, 33));
+        const vx = Math.cos(an) * v, vy = Math.sin(an) * v;
+        const [ax, ay] = FW_pos(vx, vy, Math.max(0, te - 0.1)), [bx, by] = FW_pos(vx, vy, te);
+        const col = `hsla(${f.hue + (kjHash(s, 34) - 0.5) * 40},100%,65%,`;
+        k.strokeStyle = col + life * 0.5 + ')'; k.lineWidth = 1.4; k.beginPath(); k.moveTo(f.x + ax, f.y + ay); k.lineTo(f.x + bx, f.y + by); k.stroke();
+        k.fillStyle = col + life + ')'; k.beginPath(); k.arc(f.x + bx, f.y + by, 1.8, 0, TAU); k.fill();
+      }
+    }
+  });
+  k.restore();
+  // 光标：原位 → 三个点击处 → 回原位（三次缓入缓出）
+  const pts = [FW_REST, ...FW_SHOTS.map(f => [f.x, f.y]), FW_REST];
+  let cx = FW_REST[0], cy = FW_REST[1];
+  FW_MOVES.forEach(([a, b], i) => { if (u >= a) { const e = inOut3(seg(u, a, b)); cx = mix(pts[i][0], pts[i + 1][0], e); cy = mix(pts[i][1], pts[i + 1][1], e); } });
+  let press = 0;
+  for (const f of FW_SHOTS) {
+    press = Math.max(press, seg(u, f.t - 0.06, f.t) * (1 - seg(u, f.t + 0.06, f.t + 0.2)));
+    kjRipple(k, f.x, f.y, seg(u, f.t, f.t + 0.5), 22, `${f.hue < 100 ? '255,214,120' : f.hue < 250 ? '120,220,255' : '255,140,220'}`);
+  }
+  kjCursor(k, cx, cy, press);
+};

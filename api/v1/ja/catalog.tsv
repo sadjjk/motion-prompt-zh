@@ -1,4 +1,4 @@
-# Motion Prompt catalog (ja) · 263 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
+# Motion Prompt catalog (ja) · 313 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
 1-001	ui	開く・重なるパーツ	モーダル (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	「開く」ボタンを押すと画面全体が暗くなり、中央に小窓が少し拡大しながら出る。×を押すと閉じる。
 1-002	ui	開く・重なるパーツ	ドロワー (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	「メニュー」を押すと左から縦長のパネルが引き出され、外側を押すと戻る。
 1-003	ui	開く・重なるパーツ	ボトムシート (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	指で「詳細を見る」を押すと下からパネルがせり上がり、上端のつまみを下へ引くと閉じる。
@@ -34,6 +34,14 @@
 1-111	ui	案内する・状態を伝えるパーツ	ショートカットキーの点灯 (Keyboard shortcut press)	keyboard-shortcut,hotkey,keycap,onboarding,productivity,micro-interaction	暗いキーボード板の上で Ctrl・Shift・P が順に押し込まれて琥珀色に光り、案内文が組み立てられ、板が軽く脈打ってから「キューに追加」に変わる。
 1-112	ui	案内する・状態を伝えるパーツ	コード差分のハイライト (Code diff highlight)	code-diff,code-editor,syntax,developer-tools,highlight,code-review	暗いエディタの5行のうち、前後の行が明るくなり、赤い削除行と緑の追加行が順に左から滑り込み、追加行の背景が一度濃くなって戻る。
 1-113	ui	案内する・状態を伝えるパーツ	デプロイパイプライン (Deploy pipeline)	deploy,pipeline,ci-cd,build-status,progress,developer-tools,dashboard	暗い背景に並ぶ4つの段階カードが左から順に実行され、成功すると枠と丸が緑に光り、次のカードへ線が伸びて、最後の Deploy が「公開済み」になる。
+1-114	ui	選ぶ・切り替えるパーツ	料金プラン切り替え (Pricing toggle)	pricing,toggle,billing,number-roll,plans,switch	カーソルが「年払い」を押すとつまみが移り、3枚のカードの価格が順に回って下がり、中央のおすすめカードが大きくなって青く縁取られ、後で月払いに戻る。
+1-115	ui	選ぶ・切り替えるパーツ	リキッドラジオボタン (Liquid radio)	radio,liquid,gooey,form,selection,droplet	縦に並ぶ4つの選択肢をカーソルが順に選び、選択の点が水滴のように伸びながら次の丸へ流れて丸に戻り、右のカードの表示も替わる。
+1-116	ui	選ぶ・切り替えるパーツ	フローティングラベル (Floating label)	floating-label,input,text-field,form,focus,underline	カーソルが入力欄を押すと、中のラベルが小さくなって上へ移り青くなり、下線が中央から広がり、メールアドレスが1文字ずつ入る。最後は消して外を押し元に戻る。
+1-117	ui	選ぶ・切り替えるパーツ	展開する検索ボックス (Expanding search)	search,expand,input,header,toolbar,morph	カーソルが丸い虫めがねボタンを押すと、右端を固定したまま左へ伸びて検索欄になり、プレースホルダーが出て文字が入り、×で消すと丸いボタンに戻る。
+1-118	ui	開く・重なるパーツ	コマンドパレット (Command palette)	command-palette,cmdk,search,modal,keyboard,filter,shortcut	⌘K のキーが押されると背景が暗くなりパネルが現れ、「設定」と打つと一覧が絞られて一致した文字が青くなり、ハイライトが1行下がって決定される。
+1-119	ui	開く・重なるパーツ	ページめくり (Page flip)	page-flip,book,flipbook,catalog,3d-flip,click	開いた本の右ページをカーソルが2回押し、そのたびに1枚が背を軸に横に縮んで裏返り左へ移り、最後に左ページを押すと2枚がまとめて戻る。
+1-120	ui	開く・重なるパーツ	二つ折りカード (Folding card)	folding-card,invitation,card-open,reveal,greeting,click	カーソルが紺の表紙を押すと、表紙が左端を軸に開いて中の左半分が見え、右半分の3行が順に浮かび上がり、最後は閉じて元に戻る。
+1-121	ui	案内する・状態を伝えるパーツ	プルトゥリフレッシュ (Pull to refresh)	pull-to-refresh,refresh,mobile,list,gesture,loading,spinner	スマホの画面で指がリストを押して下へ引き、リストは抵抗を受けながら下がって上の矢印が回る。離すと回転して読み込み、戻ると一番上に新しいメッセージが入る。
 1-025	lp	スクロールで起きる演出	パララックススクロール (Parallax scrolling)	parallax,parallax-scrolling,scroll,depth,layers,hero,background	ページを下へスクロールすると、見出しはふつうに上がり、空と太陽・遠い山・近い山はそれより遅く動く。
 1-026	lp	スクロールで起きる演出	スクロールでフェードイン (Fade-in on scroll)	fade-in,scroll-reveal,reveal-on-scroll,intersection-observer,aos,entrance,scroll	スクロールで画面に入った見出し・カード・本文が、それぞれ下から浮かび上がりながら現れる。
 1-027	lp	スクロールで起きる演出	追従ヘッダー (Sticky header)	sticky,sticky-header,fixed-header,position-sticky,navigation,header,scroll	上のお知らせの帯はスクロールで消えるが、その下のヘッダーは画面の上端に来たところで止まり、本文がその下を通っていく。
@@ -63,6 +71,12 @@
 1-105	lp	読み込み・移動・動き続ける演出	共有要素トランジション (Shared element transition)	shared-element,hero-transition,page-transition,list-detail,magic-move,morph	一覧のサムネイルが、そのまま動いて広がり詳細ページの大きな画像になる。ほかはフェードで入れ替わり、戻るときは同じ道で縮む。
 1-106	lp	読み込み・移動・動き続ける演出	方向に合わせたトランジション (Direction-aware transition)	direction-aware,slide-transition,page-transition,onboarding,stepper,navigation,wizard	案内ページを進むと内容が左へ、戻ると右へ滑って入れ替わり、ページの点も一緒に切り替わる。
 1-107	lp	読み込み・移動・動き続ける演出	レイアウトアニメーション (Layout animation)	layout-animation,flip,grid,reflow,delete,undo,auto-animate	2枚目のカードを消すと後ろのカードがすき間へ滑り込み、折り返す1枚は斜めに上がる。元に戻すとそれぞれ元の場所へ戻る。
+1-122	lp	マウス・クリックへの反応	回転グラデーションボーダー (Rotating gradient border)	gradient-border,conic-gradient,glow,button,hover,animated-border	暗いページのボタンの枠を多色のグラデーションが回り、カーソルが乗ると回転が速まり外側が光る。
+1-123	lp	マウス・クリックへの反応	ゼリーボタン (Jelly button)	jelly,squash-stretch,button,click,bounce,feedback	カーソルがボタンを2回押し、そのたびにボタンが横へつぶれ縦へ伸びて小さく揺れ戻り、下の文字が個数を数える。
+1-124	lp	マウス・クリックへの反応	カードディール (Card deal)	card-deal,fan,cards,stagger,overshoot,click	「配る」を押すと5枚のカードが下から順に飛び出して扇形に開き、しばらく後に「集める」で最後の1枚から下へ戻る。
+1-125	lp	マウス・クリックへの反応	フォトスタックシャッフル (Photo stack shuffle)	photo-stack,polaroid,shuffle,cards,gallery,click	傾いて重なった4枚のポラロイドの一番上をカーソルが押すたび、その1枚が右へ抜けて一番下に入り、残りが1段ずつ上がる。
+1-126	lp	読み込み・移動・動き続ける演出	スライストランジション (Slice transition)	slice,transition,slider,strips,image-reveal,stagger	枠の中の図が6本の縦の短冊に分かれ、左から順に上・下・上…と抜けて下の図が現れ、もう一度同じ動きで元の図に戻る。
+1-127	lp	読み込み・移動・動き続ける演出	アニメーション天気アイコン (Animated weather icons)	weather,icons,loop,sun,rain,lightning,micro-animation	4枚の小さなカードで、太陽の光が回り、雲が左右に漂い、雨粒が順に落ち、雷雲の稲妻が時々光る。
 1-049	aiux	読み込み・思考中	ボーダービーム (Border beam)	border-beam,loading,ai,input,glow,streaming,border	暗い入力欄の枠を、先が明るく後ろが消えていく虹色の光が時計回りに一周し続ける。
 1-050	aiux	読み込み・思考中	ラインビーム (Line beam)	line-beam,search,loading,input,glow,sweep	丸い検索欄の下辺だけが光り、その光が左から右へ、右から左へとゆっくり往復する。
 1-051	aiux	読み込み・思考中	インナーパルス (Inner pulse)	pulse,button,cta,highlight,glow,ai	丸いボタンの中で、ピンク・オレンジ・青の光が広がっては縮み、枠の色もいっしょに明滅する。
@@ -75,6 +89,7 @@
 1-058	aiux	リキッドな操作	リキッド展開メニュー (Gooey morph menu)	gooey,liquid,morph,fab,speed-dial,menu,metaball	カーソルが「+」を押すと、白い液体から3つの丸が伸びて首が細くなりちぎれ、アイコンが浮かぶ。もう一度押すと吸い込まれて1つに戻る。
 1-059	aiux	リキッドな操作	リキッドの尾 (Gooey trail)	gooey,liquid,tabs,segmented-control,indicator,trail,slider	3つの選択肢の間を白い指示部分が行き来し、速く動くほど横に伸びて、後ろに丸いしずくがくっついてくる。
 1-060	aiux	リキッドな操作	リキッドのしなり (Gooey bend)	gooey,liquid,bend,drag,card,sortable,elastic	白いカードが左右にドラッグされ、速く動くほど左右の辺が後ろへしなり、止まるとまっすぐに戻る。
+1-128	aiux	読み込み・思考中	サンバースト (Sunburst rays)	sunburst,rays,god-rays,rotate,celebration,award,background	暗い背景で、中央の見出しの後ろから金色の光の筋が放射状に広がってゆっくり回り、外側ほど背景に溶ける。
 1-061	uxmotion	インタラクティブな文字	単語キューブの回転 (Rolling word cube)	word-cube,rolling-text,3d-flip,headline,rotating-words,landing-page,kinetic-type	立方体が一定間隔で下へ一面転がって次の言葉を見せ、下の説明文も上下にめくれ、進捗バーが伸びていく。
 1-062	uxmotion	インタラクティブな文字	円形テキストバッジ (Circular text badge)	circular-text,rotating-badge,hover,click,cta,portfolio,spin	円に沿った文字がゆっくり回り、ポインタが乗ると加速し、クリックのたびに速度が跳ね上がって新しい文言が一字ずつ現れる。
 1-063	uxmotion	インタラクティブな文字	文字の飛散と再集合 (Scatter & reassemble letters)	letter-scatter,physics,spring,playful,headline,click,easter-egg	色違いの大きな文字が点いた瞬間に回転しながら飛び散り、重力で落ちて跳ね、少し漂ってから一字ずつ元の並びへ戻る。
@@ -112,6 +127,19 @@
 1-095	uxmotion	動くチャート	順位が入れ替わる棒グラフ (Bar chart race)	bar-chart-race,ranking,time-series,data-viz,slider,animation	ドリンクの横棒が年とともに伸び縮みし、追い抜いた棒が上へ移って順位が入れ替わり、大きな年号が進む。最後にスライダーを戻すと順位が逆再生される。
 1-096	uxmotion	動くチャート	反転するワッフルチャート (Waffle chart flip)	waffle-chart,flip,proportion,data-viz,tabs,legend-hover	年代タブをクリックするたびに、色が変わるマスだけが斜めの波でくるりとめくれ、右のパーセントがロールし、凡例にホバーするとその手段だけが残る。
 1-097	uxmotion	動くチャート	四半期ごとに動くバブル (Quarterly bubble motion)	bubble-chart,time-series,scrubbing,data-viz,motion-chart,log-scale	大きな四半期の文字を背に、アプリの泡が大きさを変えながら座標上を滑らかに移動し、1つは点線の軌跡を残す。ドラッグで早送りや巻き戻しができる。
+1-129	uxmotion	動くチャート	折れ線グラフの描画 (Line chart draw)	line-chart,chart-draw,data-viz,dashboard,trend,growth	淡い横線の上で折れ線が左から右へ伸び、点が順にはじけ、線の下に面のグラデーションがにじみ、最後に伸び率のラベルが浮かぶ。
+1-130	uxmotion	動くチャート	ドーナツグラフの分割描画 (Donut chart segments)	donut-chart,pie-chart,segments,data-viz,breakdown,legend	真上から最初の区分の弧が時計回りに描かれ、前の弧の終わりから次の弧が続いて一周し、中央に合計、右に凡例が順に滑り込む。
+1-131	uxmotion	カーソル連動	ホログラムカード (Holographic card)	holographic,foil,card,tilt,glare,hover,trading-card	暗い背景のカードの上をカーソルが動くと、カードが立体的に傾き、表面の虹色の箔が流れて柔らかな光の点がついてくる。離れると正面に戻る。
+1-132	uxmotion	カーソル連動	3Dチルト視差画像 (Tilt parallax image)	tilt,parallax,3d,image,hover,glare,depth	夕暮れの山の画像の上をカーソルが動くと、画像が傾いて少し拡大し、空・太陽・山並みが層ごとに違う量でずれ、下から説明文が滑り上がる。
+1-133	uxmotion	カーソル連動	目で追うキャラクター (Following eyes)	eyes,follow-cursor,mascot,googly-eyes,blink,404	紫のキャラクターの大きな白目の中で、黒い瞳がカーソルを追って動き、カーソルが遠いほど縁に寄る。ときどき両目が同時にまばたきする。
+1-134	uxmotion	カーソル連動	スクラッチ (Scratch reveal)	scratch-card,reveal,coupon,lottery,gamification,canvas-erase	銀色の表面に覆われたクーポンの上で、カーソルが押したまま左右にジグザグに動き、通った跡が削れて下の「送料無料クーポン」が現れ、最後に残りが消える。
+1-135	uxmotion	カーソル連動	フローフィールド (Flow field)	flow-field,generative,lines,particles,background,swirl,noise	暗い背景いっぱいに紫と青の細い線が風や水のように流れて消え、カーソルが通るとその周りの流れが渦を巻く。
+1-136	uxmotion	進捗フィードバック	カートに飛び込む (Add to cart fly)	add-to-cart,fly-to-cart,ecommerce,arc,badge,feedback	商品カードのボタンが押されると、陶器のカップの画像が弧を描いて右上のカートへ縮みながら飛び込み、カートが弾んで数字のバッジが 2 から 3 に変わる。
+1-137	uxmotion	進捗フィードバック	紙飛行機の送信ボタン (Send plane button)	send-button,paper-plane,submit,success,button,micro-interaction	紫のボタンが押されると沈んで戻り、文字が右へ消え、紙飛行機が後ろにためてから右上へ飛び去る。ボタンが緑になり「已发送 ✓」が左から入り、しばらくして元に戻って飛行機も帰ってくる。
+1-138	uxmotion	進捗フィードバック	星評価 (Star rating)	star-rating,rating,review,stars,feedback,micro-interaction	カーソルが 2 つ目の星にのると 2 つ分が薄く色づいて「較差」と出て、続いて 4 つ目を押すと 1〜4 つ目が左から順に金色に塗られて弾み、「很好」が浮かぶ。
+1-139	uxmotion	進捗フィードバック	スライドして確定 (Slide to confirm)	slide-to-confirm,swipe,slider,payment,drag,button	カプセル型のつまみを 1 回目は途中まで引いて離すと弾んで戻り、2 回目は端まで引くとレール全体が緑に満たされ「已确认 ✓」に変わる。案内文には光が流れる。
+1-140	uxmotion	スクロール連動	円形リビール (Circle reveal transition)	circle-reveal,clip-path,transition,scroll,scrub,section	スクロールが進むと、明るい第 1 章の中央から暗い第 2 章が円形に広がって画面を覆い、第 1 章の見出しは縮んで消え、第 2 章の見出しは大きめから元の大きさに収まる。戻ると円も縮む。
+1-141	uxmotion	スクロール連動	タイムラインの描画 (Timeline draw)	timeline,steps,process,scroll,line-draw,roadmap	スクロールが進むと左の細い線が上から下へ伸び、線が届いた節目の点が塗られて、週・見出し・説明が左から滑り込む。戻ると線が縮んで節目も消える。
 2-001	motion	登場・文字の演出	ポップイン (Pop-in)	pop,pop-in,spring,bounce,scale,icon,badge,entrance	アプリのアイコンがポンと弾んで現れ、通知バッジが遅れてポンと出る。
 2-002	motion	登場・文字の演出	スタガー (Stagger)	stagger,sequence,delay,cascade,bar-chart,list,entrance	グラフの棒が、少しずつ時間をずらして左から順に立ち上がる。
 2-003	motion	登場・文字の演出	バースト (Burst)	burst,explosion,radial,like,heart,celebrate,accent,sparkle	「いいね」のハートが点くと同時に、まわりに輪・線・粒が弾ける。
@@ -164,6 +192,24 @@
 2-065	motion2	文字・図形の演出	波の干渉 (Wave interference)	wave,interference,physics,sine-wave,diagram,education,data-visualization	青緑の波Aと橙の波Bが逆向きに流れ、下の段の合成波が高くなったり平らになったりし、縦の点線上の3つの点が値を追いかける。
 2-066	motion2	文字・図形の演出	点が正規分布にまとまる (Dots settling into a normal distribution)	normal-distribution,statistics,histogram,bell-curve,particles,data-visualization,education	紫の座標の中に点が雲のように現れ、少しずつずれながら釣り鐘形の柱へ飛んで積み上がり、カウンターが098まで増えて平均線が実線になる。
 2-067	motion2	文字・図形の演出	ネットワーク拡散 (Network diffusion)	network,diffusion,graph,propagation,nodes,data-visualization	左の起点が光って波紋を広げ、信号がつながりを段ごとに右へ伝わり、通った線は珊瑚色に光り、届いたノードが弾んで点灯し、ホップ数と到達数が増えていく。
+2-068	motion2	文字・図形の演出	ライトニングストライク (Lightning strike)	lightning,slam,impact,flash,title,text	画面が2回白く光って稲妻が走り、「雷鸣」が大きな状態から叩きつけられて揺れ、黄色い光をまとって残る。
+2-069	motion2	文字・図形の演出	コインフリップ (Coin flip)	coin,flip,spin,hop,playful,text	金色のコインに書かれた4文字が順に跳ね上がりながら2回転し、着地して小さく弾む。裏面は星。
+2-070	motion2	文字・図形の演出	水面の反射 (Water reflection)	reflection,water,mirror,ripple,calm,text	夜空の下で白い文字がゆっくり浮き沈みし、水平線の下では珊瑚色の逆さ文字が傾きながら揺れ、横縞状にずれる。
+2-071	motion2	文字・図形の演出	フラッグウェーブ (Flag wave)	flag,wave,wind,slogan,ripple,text	左の旗竿から4文字が並び、1文字ずつ遅れて縮み・傾き・持ち上がり、旗がはためく波が右へ流れる。
+2-072	motion2	文字・図形の演出	グラビティフリップ (Gravity flip)	gravity,flip,upside-down,bounce,playful,text	4文字が順に天井へ加速して落ちながら180°回って逆さに張り付き、少し跳ね返ったあと床へ落ちて360°で正立に戻り、小さく弾む。
+2-073	motion2	文字・図形の演出	カラオケボール (Karaoke bouncing ball)	karaoke,lyrics,bouncing-ball,highlight,subtitle,text	暗い7文字の上を黄色く光る玉が左から右へ跳ね、着地した字が白く光って小さく弾む。最後まで行くと字が暗くなって最初から。
+2-074	motion2	文字・図形の演出	インクブリード (Ink bleed)	ink,bleed,blur,calligraphy,gooey,text	和紙色の上で4文字が順に、ぼやけた墨の塊から縁のくっきりした字へ締まり、しばらく留まったあと再び広がって消える。
+2-075	motion2	文字・図形の演出	クランブル (Crumble)	crumble,fall,collapse,debris,outro,text	4文字が順に少し傾き、破片を散らしながら回転して加速落下し消え、その後上から降りてきて元の位置に揃う。
+2-076	motion2	文字・図形の演出	スタンプ (Rubber stamp)	stamp,seal,approved,slam,impact,badge	書類の上に赤い枠付きの印「急件」と「核准」が順に大きな状態から斜めに押され、紙が少し揺れて印の跡が広がる。
+2-077	motion2	文字・図形の演出	テキストシリンダー (Text cylinder)	cylinder,3d,rotate,spin,loop,text	3本の円柱がそれぞれ同じ文字10個で巻かれて横軸で回り、隣どうし逆向き。手前の字は大きく明るく、奥は見えない。
+2-078	motion2	文字・図形の演出	スロットマシン (Slot machine)	slot-machine,reel,spin,reveal,lottery,text	4つの窓でランダムな字が縦に流れ、左から順に減速して「大吉大利」で止まり、そろうと枠が2回光る。
+2-079	motion2	文字・図形の演出	リキッドフィル (Liquid fill)	liquid,fill,wave,progress,water,text	ミントの縁取りの中空文字に、波打つ液面と泡が下から上がって満たし、しばらく留まってから一気に抜ける。下に%表示。
+2-080	motion2	動きのテクニック	サイン描画 (Signature animation)	signature,handwriting,cursive,draw,stroke,line-art	一筆書きの筆記体サインがペン先の珊瑚色の点に先導されて左から右へ書かれ、書き終わると下に緩い弧の下線がさっと引かれる。
+2-081	motion2	動きのテクニック	ルートアニメーション (Map route animation)	map,route,pin,navigation,path,travel	淡い地図と格子の上に3本のピンが順に弾んで落ち、点線の予定ルートに沿って青い線が引かれ、光る点が進み、終点のピンが弾む。
+2-082	motion2	動きのテクニック	心電図ライン (ECG heartbeat line)	ecg,heartbeat,pulse,monitor,medical,line	暗い緑のマス目の画面で、光る心電図の波形が左から右へ掃引され、古い線は暗くなり、右側のハートが拍ごとに膨らむ。
+2-083	motion2	動きのテクニック	ツリーグロース (Growing tree)	tree,grow,branch,leaves,nature,line-art	地面の線が左右へ伸び、幹が上へ伸び、4本の枝と5本の小枝が順に生え、葉がランダムな順に弾んで開き、下に文字が浮かぶ。
+2-084	motion2	動きのテクニック	ギアトレイン (Gear train)	gear,cog,mechanical,loading,rotation,system	青い大歯車が時計回りに回り、かみ合う珊瑚色と黄色の小歯車が速く逆回転する。歯は互いの溝に入ったまま、横に「系统运转中」。
+2-085	motion2	動きのテクニック	指紋スキャン (Fingerprint scan)	fingerprint,biometric,scan,unlock,security,auth	角丸の読み取り枠で指紋の弧が内側から外へ描かれ、緑の光の帯が上下に走り、紋が薄れてチェックが描かれ、枠が緑に光る。
 2-049	mgstyles	フラット・線	フラット・ベクター (Flat vector motion)	flat-design,vector,squash-and-stretch,bounce,elastic,explainer,brand-intro	群青の空からサンゴ色の丸が落ちて 5 回跳ね、着地のたびに色とりどりの平面ビルが弾んで現れ、最後にロゴが弾むように入る。
 2-050	mgstyles	フラット・線	ラインアート (Line art animation)	line-art,one-line-drawing,stroke-reveal,logo-reveal,gold,camera-pan	光るペン先を追ってカメラが横に流れ、金の線が芽や塔を一筆で描き、最後に引きの構図でリングが金色に塗られる。
 2-051	mgstyles	フラット・線	シェイプモーフ (Morphing)	shape-morph,morphing,beat-sync,color-wipe,squash-and-stretch,social-short	中央の図形が一度丸に縮んでから次の形へ開き、つぶれと回転を伴って変わるたびに背景色が円形に塗り替わり、右の字幕も入れ替わる。
@@ -262,3 +308,7 @@
 4-033	scenes	器物・空間	レシート印字 (Receipt printing)	receipt,printer,thermal-paper,pos,checkout,objects	暗い排紙口が現れ、白いレシートが上からゆっくり送り出されて、店名・3行の明細・点線の下の「合計 発送済み」が順に見え、最後に全体が消える。
 4-034	scenes	テックのムード	バーコードスキャン (Barcode scan)	barcode,scanner,laser,logistics,warehouse,tech	灰色の台に白い伝票が少し傾いて置かれて落ち着き、シアンのレーザーがバーコードを左から右へなぞって消え、緑の「確認済み · 発送可」が浮かぶ。
 4-035	scenes	テックのムード	オシロスコープの波形 (Oscilloscope trace)	oscilloscope,waveform,signal,sweep,electronics,tech	暗い計測パネルが現れ、縦の光の線が左から右へ進みながらシアンの波形を描き、波は3回うねって次第に小さくなり、描き終えると光が消える。
+4-036	scenes	文様・グラフィック	紙吹雪 (Confetti burst)	confetti,celebration,burst,particles,party,congrats	暗い紫の背景で「恭喜」の文字が一度縮んでから弾んで戻り、同時に下から5色の紙片が扇形に噴き上がり、回転しながら放物線を描いて落ち、消えていく。3.2秒ごとに繰り返す。
+4-037	scenes	文様・グラフィック	花びらの舞い落ち (Falling petals)	petals,sakura,falling,particles,cursor,interactive,spring	暗い紫の背景にピンクの花びらが揺れながら落ち、くるくる回って裏返る。カーソルが左から右へ一度横切ると、通り道の花びらが押しのけられ、また元の流れに戻る。
+4-038	scenes	文様・グラフィック	花火 (Fireworks)	fireworks,celebration,click,particles,night,interactive,explosion	星の出た夜空で、カーソルが 3 か所を順にクリックし、そのたびに波紋が広がり、下から花火が上がって金・青・桃色の火花に開き、垂れ下がりながら消える。
+4-039	scenes	文字のムード	立入禁止テープ (Caution tape cross)	caution-tape,warning,marquee,crossed,street,banner	暗い背景の上で、黒い縁の黄色いテープ 2 本が X 字に交差し、それぞれに繰り返された「禁止进入」の文字が逆向きに流れ続ける。

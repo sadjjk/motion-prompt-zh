@@ -1,8 +1,9 @@
-// Motion Prompt #4 001~035 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+// Motion Prompt #4 001~039 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 // Also: MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/ (#4 033~035)
+// Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#4 036~039)
 //
 // Kit for pack "scenes" (Styled scenes / スタイルシーン): the constants and helpers its elements share.
-// Elements #4 001~035 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #4 001~039 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,
@@ -103,3 +104,21 @@ function layer(name, draw) {
   return LAYERS[name];
 }
 const CELLS = [];
+
+// @shared
+// 36–39 改写自 KittenJam Motion Library（Hannah 整理，MIT）的共用件：按下标与通道取确定性"随机"值、模拟鼠标指针、点击涟漪
+const kjHash = (i, ch = 0) => hash(i * 7.31 + ch * 113.7);
+// 模拟鼠标指针，箭头尖端 (x, y) 为热点；press 0→1 为按下，箭头缩小 12%
+function kjCursor(k, x, y, press = 0, dark = false) {
+  const s = 1 - 0.12 * press;
+  k.save(); k.translate(x, y); k.scale(s, s);
+  k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 17); k.lineTo(4.5, 13); k.lineTo(7.5, 19.5); k.lineTo(10.5, 18.2); k.lineTo(7.6, 11.8); k.lineTo(13, 11.8); k.closePath();
+  k.fillStyle = dark ? '#16151B' : '#FFFFFF'; k.fill(); k.strokeStyle = dark ? '#FFFFFF' : '#16151B'; k.lineWidth = 1.3; k.lineJoin = 'round'; k.stroke();
+  k.restore();
+}
+// 点击涟漪：t 0→1 时半径 0→r、透明度 a→0
+function kjRipple(k, x, y, t, r = 22, col = '255,255,255', a = 0.7) {
+  if (t <= 0 || t >= 1) return;
+  k.save(); k.strokeStyle = `rgba(${col},${a * (1 - t)})`; k.lineWidth = 2;
+  k.beginPath(); k.arc(x, y, r * out3(t), 0, TAU); k.stroke(); k.restore();
+}

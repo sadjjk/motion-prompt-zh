@@ -1,0 +1,44 @@
+// Motion Prompt #1-141 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Timeline draw / タイムラインの描画
+// Pack: uxmotion (Interaction & data motion) · element 50 · Category: Scroll interactions
+// What happens: As scrolling progresses, a thin line on the left grows from top to bottom; each node it reaches fills in and its week, title and note slide in from the left. Scrolling back shrinks the line and hides the steps.
+// Motion spec:
+//   - Scroll progress goes 0 → 1 from 0.4–4.6 s, with the scrollbar on the right in sync.
+//   - The line on the left grows 164 px down from the top; there are 4 nodes with 6 px dots.
+//   - When the line tip reaches a node, its dot fills and the week, title and note slide in from 10 px to the left, finishing within 16 px past the node.
+//   - From 5.4–6.3 s the scroll returns and the steps fold away from the bottom up.
+// When to use it: Use it for process overviews, company histories and onboarding steps that should be read in order.
+// Tags: timeline, steps, process, scroll, line-draw, roadmap
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-141
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 50
+// 50 时间轴延伸（KittenJam #127）：滚动进度 0.4–4.6 秒由 0 到 1（右侧滚动条同步），左侧细线从顶端往下延伸 164px；
+// 线头到达某个节点时，该节点圆点填色、周次 / 标题 / 说明从左 10px 滑入淡现（线头越过节点后 16px 内完成）；5.4–6.3 秒滚回，节点依次收起。
+const TLD_X = 130, TLD_Y0 = 22, TLD_Y1 = 186, TLD_NY = [36, 80, 124, 168];
+const TLD_NODES = [['需求访谈', '了解目标、用户与限制', '第 1 周'], ['概念构思', '草图、方向与评审', '第 2 周'], ['设计制作', '视觉稿与可交互原型', '第 3–5 周'], ['上线交付', '测试、发布与复盘', '第 6 周']];
+CELLS[49] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  const p = UXA_scroll(u, 0.4, 4.6), ly = mix(TLD_Y0, TLD_Y1, p);
+  k.lineCap = 'round'; k.lineWidth = 2;
+  k.strokeStyle = UX.line2; k.beginPath(); k.moveTo(TLD_X, TLD_Y0); k.lineTo(TLD_X, TLD_Y1); k.stroke();
+  if (p > 0) { k.strokeStyle = UX.accent; k.beginPath(); k.moveTo(TLD_X, TLD_Y0); k.lineTo(TLD_X, ly); k.stroke(); }
+  TLD_NODES.forEach(([title, desc, week], i) => {
+    const ny = TLD_NY[i], a = out3(clamp((ly - ny + 4) / 16)), dx = -10 * (1 - a);
+    k.fillStyle = UX.surface; k.strokeStyle = UX.line2; k.lineWidth = 1.5; k.beginPath(); k.arc(TLD_X, ny, 6, 0, TAU); k.fill(); k.stroke();
+    if (a > 0) {
+      k.globalAlpha = a; k.fillStyle = UX.accent; k.beginPath(); k.arc(TLD_X, ny, 6, 0, TAU); k.fill();
+      txt(k, week, TLD_X - 18 + dx, ny + 4, UXB_f(700, 10.5), UX.ink3, 'right');
+      txt(k, title, TLD_X + 22 + dx, ny + 4.5, UXB_f(800, 13), UX.ink);
+      txt(k, desc, TLD_X + 100 + dx, ny + 4.5, UXB_f(600, 11), UX.ink3);
+      k.globalAlpha = 1;
+    }
+  });
+  if (p > 0 && p < 1) glow(k, TLD_X, ly, 12, '106,87,242', 0.5);
+  scrollbar(k, p);
+};

@@ -1,0 +1,54 @@
+// Motion Prompt #1-137 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 紙飛行機の送信ボタン / Send plane button
+// パック: uxmotion (インタラクションとデータの動き) · element 46 · カテゴリ: 進捗フィードバック
+// 何が起きるか: 紫のボタンが押されると沈んで戻り、文字が右へ消え、紙飛行機が後ろにためてから右上へ飛び去る。ボタンが緑になり「已发送 ✓」が左から入り、しばらくして元に戻って飛行機も帰ってくる。
+// 動きの仕様:
+//   - ボタン 210×54px。0.95 秒に押して 0.94 倍に沈んで戻る
+//   - 1.0–1.3 秒に文字が右へ 16px 動きながら消える。紙飛行機は 1.0–1.2 秒に 6px 後ろへためる
+//   - 1.2–1.8 秒に t³ で加速して右上へ（+300px、−60px、−25° 回転）、ボタンの外は切り取る
+//   - 1.75–2.05 秒にボタンが緑になり「已发送 ✓」が左から入る。3.3–3.9 秒に元の文字に戻り、飛行機が左下 40px・24px から帰ってくる
+// 使いどころ: メッセージ送信、問い合わせフォーム、メール配信などの送信完了を楽しく伝えたいときに。
+// タグ: send-button, paper-plane, submit, success, button, micro-interaction
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-137
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 46
+// 46 纸飞机发送（KittenJam #241）：指针 0.95 秒按下发送按钮（缩到 .94 回弹）；1.0–1.3 秒文字右移 16px 淡出，纸飞机 1.0–1.2 秒后撤 6px 蓄力，
+// 1.2–1.8 秒按 t³ 加速向右上飞出按钮（+300px、-60px、转 -25°，被按钮裁切）；1.75–2.05 秒按钮转绿、「已发送 ✓」从左滑入；3.3–3.9 秒换回原文，飞机从左下飞回。
+const SND_CX = 269.5, SND_CY = 104, SND_W = 210, SND_H = 54;
+const SND_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.85, 300, 118], [1.05, 300, 118], [1.7, 570, 230]];
+function SND_plane(k, x, y, rot) {
+  k.save(); k.translate(x, y); k.rotate(rot);
+  k.fillStyle = '#FFFFFF'; k.beginPath(); k.moveTo(-10, -1); k.lineTo(11, -9); k.lineTo(4, 10); k.lineTo(1, 2); k.closePath(); k.fill();
+  k.strokeStyle = 'rgba(0,0,0,.18)'; k.lineWidth = 1; k.beginPath(); k.moveTo(1, 2); k.lineTo(11, -9); k.stroke();
+  k.restore();
+}
+CELLS[45] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  const pr = UXB_press(u, 0.95), bs = 1 - 0.06 * pr, x0 = SND_CX - SND_W / 2, y0 = SND_CY - SND_H / 2;
+  const si = out3(seg(u, 1.75, 2.05)), so = out3(seg(u, 3.3, 3.55));
+  const col = UXB_mix(UX.accent, UX.mint, inOut3(seg(u, 1.75, 2.05)) * (1 - inOut3(seg(u, 3.3, 3.6))));
+  k.save(); k.translate(SND_CX, SND_CY); k.scale(bs, bs); k.translate(-SND_CX, -SND_CY);
+  k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 16; k.shadowOffsetY = 6; rr(k, x0, y0, SND_W, SND_H, SND_H / 2); k.fillStyle = rgba(col, 1); k.fill(); k.restore();
+  rr(k, x0, y0, SND_W, SND_H, SND_H / 2); k.clip();
+  const to = out3(seg(u, 1.0, 1.3)), ti = out3(seg(u, 3.45, 3.75));
+  k.globalAlpha = u < 3.45 ? 1 - to : ti;
+  txt(k, '发送消息', SND_CX + 14 + (u < 3.45 ? 16 * to : -10 * (1 - ti)), SND_CY + 5.5, UXB_f(800, 15), '#FFFFFF', 'center');
+  k.globalAlpha = si * (1 - so);
+  txt(k, '已发送 ✓', SND_CX - 16 * (1 - si) + 10 * so, SND_CY + 5.5, UXB_f(800, 15), '#FFFFFF', 'center');
+  k.globalAlpha = 1;
+  let px = x0 + 44, py = SND_CY, rot = 0;
+  if (u >= 1.0 && u < 3.4) {
+    const w1 = inOut3(seg(u, 1.0, 1.2)), f = Math.pow(seg(u, 1.2, 1.8), 3);
+    px += -6 * w1 + 300 * f; py += -60 * f; rot = (-10 * w1 - 15 * f) * Math.PI / 180;
+  } else if (u >= 3.4) { const r = out3(seg(u, 3.4, 3.9)); px -= 40 * (1 - r); py += 24 * (1 - r); rot = 20 * (1 - r) * Math.PI / 180; }
+  SND_plane(k, px, py, rot);
+  k.restore();
+  const c = UXB_path(u, SND_KEYS);
+  if (u > 0.3 && u < 1.7) cursor(k, c[0], c[1], pr);
+};

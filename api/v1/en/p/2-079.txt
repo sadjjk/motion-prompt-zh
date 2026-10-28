@@ -1,0 +1,15 @@
+Please use "Liquid fill" (リキッドフィル), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-079
+
+What it is: Outlined text fills with liquid from the bottom
+What the sample shows: Mint-outlined hollow text fills from the bottom with a wavy surface and rising bubbles, holds full, then drains quickly; a percentage shows below.
+Spec:
+- 132 px text outlined in mint at 3 px; the liquid is clipped to the letter shapes.
+- The level rises over 0.3–3.3 s (quadratic ease-in-out) and drops back over 4.2–4.6 s.
+- The surface is two sine waves with height 6 px·sin(π·level) (flat when empty or full), flowing on a 1.57 s period.
+- 10 bubbles rise through the liquid; a 0–100% readout sits below.
+When to use it: Use it for progress, charging, hitting a goal, or a drinks brand headline.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-079.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

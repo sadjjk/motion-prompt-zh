@@ -1,0 +1,57 @@
+// Motion Prompt #1-120 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 二つ折りカード / Folding card
+// パック: ui (UIパーツの名前) · element 42 · カテゴリ: 開く・重なるパーツ
+// 何が起きるか: カーソルが紺の表紙を押すと、表紙が左端を軸に開いて中の左半分が見え、右半分の3行が順に浮かび上がり、最後は閉じて元に戻る。
+// 動きの仕様:
+//   - 閉じた150×130のカード。紺の表紙に「招待状」
+//   - カーソルが0.8秒に表紙を押す。0.9〜1.6秒に表紙が左端を軸に開き（scaleX 1 → −1、easeInOut 3乗）、0を過ぎると中の左半分が見える。同時にカード全体が右へ75px動いて中央を保つ
+//   - 中の3行は1.6・1.8・2.0秒から各0.3秒でフェードインしながら6px上がる
+//   - 3.4秒に中を押すと、文字が3.4〜3.6秒に消え、3.6〜4.2秒に表紙が閉じてカードが元の位置へ戻る
+// 使いどころ: 招待状・グリーティングカード・お知らせなど、開く楽しさを演出したいメッセージに。
+// タグ: folding-card, invitation, card-open, reveal, greeting, click
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-120
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 42
+// 改写自 KittenJam Motion Library #311 对折邀请卡：150×130 合起的卡片居中，封面深蓝带「邀请函」。
+// 光标 0.8 秒点封面，0.9–1.6 秒封面以左边为轴打开（scaleX 1→−1，easeInOut 3 次方），过 0 后显示浅色内页左半；
+// 同时整张卡右移 75px 保持居中。内页右半三行文字 1.6 / 1.8 / 2.0 秒起各 0.3 秒淡入并上移 6px；
+// 3.4 秒点内页左半，文字 3.4–3.6 秒淡出，3.6–4.2 秒封面合上、卡片回到原位。
+const INVITE_W = 150, INVITE_H = 130, INVITE_Y = 30;
+const INVITE_L = [['诚邀您参加', 12, 500, C.hint], ['年度设计之夜', 18, 800, C.ink], ['10 月 29 日 19:00', 12, 600, C.blue]];
+CELLS[41] = ui((w, h, t) => {
+  X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+  const q = eio(seg(t, .9, 1.6)) * (1 - eio(seg(t, 3.6, 4.2)));
+  const s = Math.cos(Math.PI * q), hx = 196 + 75 * q;
+  // 内页右半（被封面盖住的那面）
+  shadowed(() => fillRR(hx, INVITE_Y, INVITE_W, INVITE_H, 6, '#fffdf8'), 14, 4, .14);
+  const fade = 1 - seg(t, 3.4, 3.6);
+  INVITE_L.forEach(([s0, sz, wt, col], i) => {
+    const p = eo(seg(t, 1.6 + i * .2, 1.9 + i * .2)) * fade;
+    if (p <= 0) return;
+    X.save(); X.globalAlpha = p; text(s0, hx + INVITE_W / 2, INVITE_Y + 40 + i * 26 + 6 * (1 - p), sz, col, wt, 'center', i === 2 ? NUMF : JP); X.restore();
+  });
+  // 封面 / 内页左半：以 hx 为轴压缩
+  const cw = INVITE_W * Math.abs(s);
+  if (cw > .5) {
+    X.save(); X.translate(hx, 0); X.scale(Math.abs(s), 1);
+    if (s > 0) {
+      fillRR(0, INVITE_Y, INVITE_W, INVITE_H, 6, '#1d3a8a');
+      strokeRR(10, INVITE_Y + 10, INVITE_W - 20, INVITE_H - 20, 4, 'rgba(255,255,255,.35)', 1);
+      text('邀请函', INVITE_W / 2, INVITE_Y + 58, 20, '#fff', 800, 'center');
+      bar(INVITE_W / 2 - 24, INVITE_Y + 80, 48, 'rgba(255,255,255,.4)', 4);
+    } else {
+      fillRR(-INVITE_W, INVITE_Y, INVITE_W, INVITE_H, 6, '#f6f1e7');
+      circle(-INVITE_W / 2, INVITE_Y + INVITE_H / 2, 22, C.lb); text('★', -INVITE_W / 2, INVITE_Y + INVITE_H / 2 + 1, 18, C.blue, 700, 'center', NUMF);
+    }
+    const d = .3 * (1 - Math.abs(s));
+    if (d > 0) { X.fillStyle = `rgba(20,24,40,${d})`; X.fillRect(s > 0 ? 0 : -INVITE_W, INVITE_Y, INVITE_W, INVITE_H); }
+    X.restore();
+  }
+  pointer([[0, w + 30, h + 30], [.7, 290, 110], [1.2, 290, 110], [2.0, 470, 170], [3.0, 470, 170], [3.35, 200, 120], [3.6, 200, 120], [4.4, w + 30, h + 30]], [.8, 3.4], t);
+});

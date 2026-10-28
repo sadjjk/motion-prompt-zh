@@ -2,7 +2,7 @@
 
 # 落地页与网页动效
 
-29 个效果 · #1 025~048 · 103~107 · 分类包 `lp` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+35 个效果 · #1 025~048 · 103~107 · 122~127 · 分类包 `lp` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -33,6 +33,10 @@
 | [#1-040](https://sadjjk.github.io/motion-prompt-zh/#1-040) | **离站挽留弹窗** | Exit-intent popup | 访客准备离开时出现弹窗 | 落地页增加一次性的离站挽留弹窗，光标从顶部移出时展示优惠券。 |
 | [#1-103](https://sadjjk.github.io/motion-prompt-zh/#1-103) | **按压缩小** | Press / tap feedback | 按下时按钮微微缩小，让点击有按下去的实感 | 所有按钮加按压反馈：按下 0.1 秒缩到 0.97，松开 0.25 秒恢复到 1。 |
 | [#1-104](https://sadjjk.github.io/motion-prompt-zh/#1-104) | **长按确认** | Hold to confirm | 按住按钮直到进度填满才执行操作 | 删除按钮改成长按确认：按住 1.2 秒填满进度才删除，中途松手进度回退。 |
+| [#1-122](https://sadjjk.github.io/motion-prompt-zh/#1-122) | **旋转光边按钮** | Rotating gradient border | 按钮外框的渐变光持续绕圈 | 给主按钮加旋转光边：锥形渐变外框持续绕圈，悬停时加速并亮起外光晕。 |
+| [#1-123](https://sadjjk.github.io/motion-prompt-zh/#1-123) | **果冻弹跳按钮** | Jelly button | 点击后像果冻一样横竖弹动再复原 | 把“加入购物车”按钮做成果冻弹跳：点击后先横向压扁再纵向拉高，0.6 秒内回弹复原。 |
+| [#1-124](https://sadjjk.github.io/motion-prompt-zh/#1-124) | **发牌展开** | Card deal | 卡片依次发出并展开成扇形 | 点“发牌”后 5 张卡片从底部依次发出，回弹展开成约 ±24° 的扇形。 |
+| [#1-125](https://sadjjk.github.io/motion-prompt-zh/#1-125) | **拍立得洗牌** | Photo stack shuffle | 叠放照片的顶张抽出插回底部 | 把回忆照片做成拍立得洗牌：每次点击把顶张向右抽出，再插回最底下。 |
 
 ## 加载、导航与循环动效
 
@@ -49,6 +53,8 @@
 | [#1-105](https://sadjjk.github.io/motion-prompt-zh/#1-105) | **共享元素转场** | Shared element transition | 同一元素从列表变形到详情页，把两页连起来 | 从相册列表进详情页时做共享元素转场：缩略图用 0.6 秒移动并放大成详情大图。 |
 | [#1-106](https://sadjjk.github.io/motion-prompt-zh/#1-106) | **方向感知转场** | Direction-aware transition | 前进与后退时页面滑动方向相反 | 多步表单切换跟随方向：下一步向左推，返回向右推，0.5 秒 ease-in-out。 |
 | [#1-107](https://sadjjk.github.io/motion-prompt-zh/#1-107) | **布局动画** | Layout animation | 布局变化时，其余元素平滑移到新位置 | 删除卡片后其余卡片用布局动画补位，0.5 秒 ease-in-out 平滑移到新位置。 |
+| [#1-126](https://sadjjk.github.io/motion-prompt-zh/#1-126) | **切片转场** | Slice transition | 图片切成竖条交替上下滑走露出下一张 | 轮播切换用切片转场：当前图切成 6 条，间隔 0.08 秒交替向上、向下滑走。 |
+| [#1-127](https://sadjjk.github.io/motion-prompt-zh/#1-127) | **天气图标动画** | Animated weather icons | 晴、云、雨、雷图标各自小幅循环动 | 让天气预报图标动起来：太阳光芒自转、云朵飘动、雨滴错时落下、闪电闪烁。 |
 
 点击编号查看动画演示。单项的时序、缓动和参考代码： `api/v1/zh-Hans/e/<id>.txt` ([#1-025](../../api/v1/zh-Hans/e/1-025.txt)).
 

@@ -1,0 +1,15 @@
+Please use "Gravity flip" (グラビティフリップ), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-072
+
+What it is: Letters fall upward, flip over, then drop back
+What the sample shows: Four characters accelerate up to the ceiling in turn, rotating 180° to hang upside down, bounce off it, then fall back to the floor completing 360° and bounce.
+Spec:
+- 4 characters (60 px) starting at 0.3 s, 0.12 s apart; one character's cycle is 3.6 s.
+- 10–33%: rises 90 px with a cubic ease-in while rotating 180°.
+- 33–46%: rebounds 19% of the way off the ceiling and back, then hangs upside down until 58%.
+- 58–80%: falls with ease-in while turning to 360°; hops 16 px until 87% and rests at 93%.
+When to use it: Use it for copy about reversal or upending norms, or a playful logo animation.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-072.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

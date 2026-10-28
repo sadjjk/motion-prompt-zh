@@ -1,0 +1,63 @@
+// Motion Prompt #1-131 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Holographic card / ホログラムカード
+// Pack: uxmotion (Interaction & data motion) · element 40 · Category: Cursor interactions
+// What happens: As the cursor moves over a card on a dark background, the card tilts in 3D, rainbow foil streams across its face and a soft glare follows; it straightens when the cursor leaves.
+// Motion spec:
+//   - Card 112 × 164 px, corner radius 10 px; tilts up to 13° by the cursor position on it (perspective 600 px).
+//   - Rainbow diagonal stripes blend with color-dodge and follow the cursor; their opacity rises from 0.15 to 0.75 as the tilt grows.
+//   - A white radial glare (radius 90 px, opacity 0.35) follows the cursor.
+//   - In the demo hover starts from 0.7–0.95 s; from 4.6–4.9 s the cursor leaves, the card straightens and the foil dims.
+// When to use it: Use it for collectibles, membership cards and reward showcases that should feel tangible and premium.
+// Tags: holographic, foil, card, tilt, glare, hover, trading-card
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-131
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 40
+// 40 全息闪卡（KittenJam #289）：指针 0.3 秒进场在收藏卡上游走；卡片随指针相对位置倾斜（最大 13°，透视 600px），
+// 彩虹箔光（color-dodge 斜条纹）随指针平移、倾斜越大越亮（不透明度 .15→.75），白色柔光（半径 90px）跟随指针；4.6–4.9 秒指针离开，卡片回正。
+const HOL_CX = 269.5, HOL_CY = 100, HOL_W = 112, HOL_H = 164, HOL_MAX = 13 * Math.PI / 180;
+const HOL_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, 300, 62], [1.6, 236, 146], [2.4, 306, 146], [3.2, 232, 58], [4.0, 292, 94], [4.6, 300, 88], [5.2, 570, 230]];
+function HOL_face(k) {
+  const bg = k.createLinearGradient(0, 0, HOL_W, HOL_H); bg.addColorStop(0, '#2A2350'); bg.addColorStop(1, '#141226');
+  k.fillStyle = bg; k.fillRect(0, 0, HOL_W, HOL_H);
+  const ag = k.createLinearGradient(0, 8, 0, 104); ag.addColorStop(0, '#5B4BD6'); ag.addColorStop(1, '#E06AA8');
+  k.fillStyle = ag; rr(k, 8, 8, HOL_W - 16, 96, 6); k.fill();
+  k.strokeStyle = 'rgba(255,255,255,.35)'; k.lineWidth = 1; k.beginPath(); k.arc(HOL_W / 2, 56, 34, 0, TAU); k.stroke();
+  k.fillStyle = '#FFE9A8'; k.beginPath();
+  for (let j = 0; j < 10; j++) { const r = j % 2 ? 11 : 26, a = -Math.PI / 2 + j * Math.PI / 5; k.lineTo(HOL_W / 2 + Math.cos(a) * r, 56 + Math.sin(a) * r); }
+  k.closePath(); k.fill();
+  txt(k, '星辉', 10, 124, UXB_f(900, 15), UXD.ink); txt(k, 'No. 027', HOL_W - 10, 124, UXB_f(700, 9, MONO), UXD.ink3, 'right');
+  k.fillStyle = 'rgba(255,255,255,.18)'; rr(k, 10, 134, 70, 4, 2); k.fill(); rr(k, 10, 143, 50, 4, 2); k.fill();
+}
+CELLS[39] = (k, w, h, u) => {
+  k.fillStyle = UXD.page; k.fillRect(0, 0, CW, CH);
+  glow(k, HOL_CX, HOL_CY, 150, '183,164,255', 0.12);
+  const c = UXB_path(u, HOL_KEYS), hv = pingPong(u, 0.7, 0.95, 4.6, 4.9);
+  const px = clamp((c[0] - (HOL_CX - HOL_W / 2)) / HOL_W), py = clamp((c[1] - (HOL_CY - HOL_H / 2)) / HOL_H);
+  const ry = (px - 0.5) * 2 * HOL_MAX * hv, rx = (py - 0.5) * 2 * HOL_MAX * hv;
+  const tilt = clamp(Math.hypot(px - 0.5, py - 0.5) * 2) * hv;
+  k.fillStyle = 'rgba(0,0,0,.5)'; k.beginPath(); k.ellipse(HOL_CX - ry * 40, HOL_CY + HOL_H / 2 + 9, HOL_W * 0.45, 4, 0, 0, TAU); k.fill();
+  k.save(); UXC_tilt(k, HOL_W, HOL_H, rx, ry, HOL_CX, HOL_CY);
+  rr(k, 0, 0, HOL_W, HOL_H, 10); k.clip();
+  HOL_face(k);
+  // 箔光：斜向彩虹条纹，位置跟指针，倾斜越大越亮
+  k.globalCompositeOperation = 'color-dodge'; k.globalAlpha = 0.15 + 0.6 * tilt;
+  const o = (px - 0.5) * HOL_W * 1.6 + (py - 0.5) * HOL_H * 0.5;
+  const fg = k.createLinearGradient(o - HOL_W, -20, o + HOL_W * 2, HOL_H + 20);
+  for (let i = 0; i <= 12; i++) fg.addColorStop(i / 12, `hsl(${(i * 60) % 360},90%,${i % 2 ? 35 : 62}%)`);
+  k.fillStyle = fg; k.fillRect(0, 0, HOL_W, HOL_H);
+  k.globalCompositeOperation = 'source-over'; k.globalAlpha = 1;
+  // 柔光：白色径向渐变跟随指针
+  const gx = px * HOL_W, gy = py * HOL_H, gl = k.createRadialGradient(gx, gy, 0, gx, gy, 90);
+  gl.addColorStop(0, `rgba(255,255,255,${0.35 * hv})`); gl.addColorStop(1, 'rgba(255,255,255,0)');
+  k.fillStyle = gl; k.fillRect(0, 0, HOL_W, HOL_H);
+  k.restore();
+  k.save(); UXC_tilt(k, HOL_W, HOL_H, rx, ry, HOL_CX, HOL_CY);
+  k.strokeStyle = 'rgba(255,255,255,.28)'; k.lineWidth = 1; rr(k, 0.5, 0.5, HOL_W - 1, HOL_H - 1, 10); k.stroke(); k.restore();
+  if (u > 0.3 && u < 5.2) cursor(k, c[0], c[1]);
+};

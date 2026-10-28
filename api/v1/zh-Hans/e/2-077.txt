@@ -1,0 +1,38 @@
+// Motion Prompt #2-077 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 文字圆柱 / Text cylinder
+// 分类包: motion2 (动态图形进阶) · element 38 · 子分类: 文字与图形
+// 动画表现: 3 根圆柱各由同一个字的 10 个副本环绕，绕水平轴旋转且相邻反向；近处的字更大更亮，背面不显示。
+// 运动规格:
+//   - 3 根圆柱间隔 150 px；每根以半径 62 px、每隔 36° 排 10 个同样的字（50 px）。
+//   - 每 4.7 秒转一圈，相邻圆柱方向相反；中间珊瑚色，两侧白色。
+//   - 每个副本按深度 z 纵向压缩，按透视 400 / (400 − 62z) 放大，不透明度 0.2 + 0.8z。
+//   - 背面（z < 0.05）的字不画。
+// 适用场景: 适合立体 logo、循环背景标题或科技感开场。
+// 标签: cylinder, 3d, rotate, spin, loop, text
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-077
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 38
+// 改写自 KittenJam Motion Library #57（Hannah）· 文字圆柱：三根圆柱各由同一字的 10 个副本（间隔 36°）环绕水平轴排成，每 4.7 秒转一圈，相邻两根方向相反，中间一根用珊瑚色；背面不画，近处更亮更大。
+CELLS[37] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '立体字', R = 62, CY = 104, th = Math.PI * 2 * u / CYC;
+  [...S].forEach((ch, c) => {
+    const cx = w / 2 + (c - 1) * 150, dir = c % 2 ? -1 : 1, col = c === 1 ? C.coral : '#fff';
+    const list = [];
+    for (let i = 0; i < 10; i++) { const a = i * 36 * Math.PI / 180 + dir * th; list.push([Math.cos(a), Math.sin(a)]); }
+    list.sort((A, B) => A[0] - B[0]).forEach(([z, s]) => {
+      if (z < 0.05) return;
+      const per = 400 / (400 - R * z);
+      k.save(); k.globalAlpha = 0.2 + 0.8 * z; k.translate(cx, CY - R * s * per); k.scale(per, z * per);
+      txt(k, ch, 0, 0, `900 50px ${JP}`, col, 'center', 'middle');
+      k.restore();
+    });
+  });
+};

@@ -2,7 +2,7 @@
 
 # Styled scenes
 
-35 names · #4 001~035 · pack `scenes` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+39 names · #4 001~039 · pack `scenes` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -16,6 +16,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-004](https://sadjjk.github.io/motion-prompt-zh/#4-004) | **Type ocean** | A sea surface made of letters that rolls in waves | Make an ocean of type: 11 rows × 31 letters rising and falling on 2 waves, with white bold crests. |
 | [#4-005](https://sadjjk.github.io/motion-prompt-zh/#4-005) | **Vertical verse** | A classical Chinese poem appearing character by character in vertical columns on ruled letter paper | Make a vertical verse scene: Wang Wei's 44-character poem appears right to left at 9.5 characters per second, then a red seal is stamped. |
 | [#4-006](https://sadjjk.github.io/motion-prompt-zh/#4-006) | **Glitch** | A glitch-art poster torn apart by signal interference | Make a SIGNAL LOST glitch poster: RGB channels split by 3–9 px and the interference changes 10 times per second. |
+| [#4-039](https://sadjjk.github.io/motion-prompt-zh/#4-039) | **Caution tape cross** | Two lettered caution tapes crossing in an X | Cross 2 yellow caution tapes with black edges in an X, scroll their repeated "KEEP OUT" text in opposite directions, and add a drop shadow. |
 
 ## Tech moods
 
@@ -47,6 +48,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-023](https://sadjjk.github.io/motion-prompt-zh/#4-023) | **Blue & white** | A top-down view of a turning blue-and-white porcelain plate | Make a loop of a blue-and-white plate seen from above: it turns clockwise once every 6.4 s while a warm gold highlight sweeps left to right. |
 | [#4-024](https://sadjjk.github.io/motion-prompt-zh/#4-024) | **Fair Isle knit** | A Fair Isle knit that grows row by row from V-shaped stitches | Animate a Fair Isle knit growing from the bottom: 26 rows of V stitches knitted one by one between 0.2 and 4.6 s. |
 | [#4-025](https://sadjjk.github.io/motion-prompt-zh/#4-025) | **Glass mosaic** | A glass mosaic whose small tiles flip into place to form a sunset seascape | Animate a glass mosaic: 45 × 18 tiles of 12 px flip in from right to left to form a sunset seascape, complete in about 3.65 s. |
+| [#4-036](https://sadjjk.github.io/motion-prompt-zh/#4-036) | **Confetti burst** | Confetti shoots up as the title springs in | Make the word "Congrats" spring in while about 60 pieces of confetti burst up from below, falling in arcs, spinning, and fading over the last 0.5 s. |
+| [#4-037](https://sadjjk.github.io/motion-prompt-zh/#4-037) | **Falling petals** | Petals drift down and scatter at the cursor | Fill the background with about 40 falling petals that sway and flip; when the cursor passes, push nearby petals aside and let them drift back to their paths. |
+| [#4-038](https://sadjjk.github.io/motion-prompt-zh/#4-038) | **Fireworks** | A firework rises and bursts where you click | On a night sky, launch a firework from the bottom to wherever I click in 0.7 s, bursting into 40 sparks that slow down, fall under gravity and fade. |
 
 ## Objects & space
 

@@ -2,7 +2,7 @@
 
 # 光效与液态
 
-12 个效果 · #1 049~060 · 分类包 `aiux` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+13 个效果 · #1 049~060 · 128 · 分类包 `aiux` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -19,6 +19,7 @@
 | [#1-055](https://sadjjk.github.io/motion-prompt-zh/#1-055) | **思考球·聆听** | Thinking orb: listening | 纬线环像声波一样起伏，表示正在聆听语音 | 语音输入开麦期间，在“Listening…”旁放思考球，纬线环像声波一样起伏。 |
 | [#1-056](https://sadjjk.github.io/motion-prompt-zh/#1-056) | **思考球·连接** | Thinking orb: connecting | 球面节点依次连线、数据沿线流动，表示正在连接服务 | 连接外部服务期间，在“Connecting sources…”旁放思考球，节点依次连线，然后数据沿线流动。 |
 | [#1-057](https://sadjjk.github.io/motion-prompt-zh/#1-057) | **思考球·写作** | Thinking orb: composing | 点阵波带绕球起伏流动，表示 AI 正在写作 | AI 生成文字期间，在“Writing…”旁放思考球，点阵波带绕球起伏流动。 |
+| [#1-128](https://sadjjk.github.io/motion-prompt-zh/#1-128) | **旋转光芒** | Sunburst rays | 标题背后缓缓旋转的放射状光芒 | 在获奖标题后面加旋转光芒：12 条放射光纹，每 4.8 秒转过一个光纹间距。 |
 
 ## 液态交互
 

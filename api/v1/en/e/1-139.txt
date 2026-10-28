@@ -1,0 +1,61 @@
+// Motion Prompt #1-139 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Slide to confirm / スライドして確定
+// Pack: uxmotion (Interaction & data motion) · element 48 · Category: Progress feedback
+// What happens: The capsule knob is first dragged partway and released, bouncing back; the second drag reaches the end, the whole track fills green and the label changes to confirmed. A shine sweeps the hint text.
+// Motion spec:
+//   - Track 300 × 56 px with a 23 px knob; a shine sweeps the hint text from left to right every 1.6 s.
+//   - The first drag goes to 60% from 0.9–1.7 s and is released; the knob springs back to the start over 0.6 s with damping.
+//   - The second drag reaches the end from 2.65–3.45 s and releases at 3.55 s; past 85% counts as confirmed.
+//   - After confirming, the track fills green within 0.3 s and shows the confirmed label; it cross-fades back to the start from 5.4–6.0 s.
+// When to use it: Use it for payments, transfers and deletions where an accidental tap would be costly.
+// Tags: slide-to-confirm, swipe, slider, payment, drag, button
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-139
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 48
+// 48 滑动确认（KittenJam #235）：胶囊滑轨 300×56，提示字有一道每 1.6 秒扫过一次的流光；第一次 0.9–1.7 秒拖到 60% 松开，
+// 把手贴着起点衰减弹回（0.6 秒）；第二次 2.65–3.45 秒拖到底，3.55 秒松开时超过 85% 即确认，0.3 秒内轨道填满变绿、显示「已确认 ✓」；5.4–6.0 秒交叉淡化复位。
+const SLD_X = 119.5, SLD_Y = 76, SLD_W = 300, SLD_H = 56, SLD_R = 23, SLD_PASS = 0.85, SLD_SHINE = 1.6;
+const SLD_D = SLD_W - 10 - SLD_R * 2, SLD_K0 = SLD_X + 5 + SLD_R, SLD_KY = SLD_Y + SLD_H / 2;
+function SLD_d(u) {
+  if (u < 0.9) return 0;
+  if (u < 1.8) return 0.6 * SLD_D * inOut3(seg(u, 0.9, 1.7));
+  if (u < 2.65) { const t = u - 1.8; return t >= 0.6 ? 0 : 0.6 * SLD_D * Math.exp(-7 * t) * Math.abs(Math.cos(t * 9)) * (1 - t / 0.6); }
+  return SLD_D * inOut3(seg(u, 2.65, 3.45));
+}
+function SLD_cur(u, d) {
+  if (u < 0.85) return UXB_path(u, [[0, 570, 230], [0.3, 570, 230], [0.8, SLD_K0 + 3, SLD_KY + 2]]);
+  if (u < 1.8) return [SLD_K0 + 3 + d, SLD_KY + 2];
+  if (u < 2.6) return UXB_path(u, [[1.8, SLD_K0 + 3 + 0.6 * SLD_D, SLD_KY + 2], [2.0, SLD_K0 + 3 + 0.6 * SLD_D, SLD_KY + 10], [2.5, SLD_K0 + 3, SLD_KY + 2]]);
+  if (u < 3.55) return [SLD_K0 + 3 + d, SLD_KY + 2];
+  return UXB_path(u, [[3.55, SLD_K0 + 3 + SLD_D, SLD_KY + 2], [4.3, 570, 230]]);
+}
+// s = 状态时间（复位时冻结），u = 真实时间（只驱动流光，保证流光不停）
+function SLD_draw(k, s, u) {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  const d = SLD_d(s), done = s >= 3.55 && d >= SLD_PASS * SLD_D ? inOut3(seg(s, 3.55, 3.85)) : 0, kx = SLD_K0 + d;
+  rr(k, SLD_X, SLD_Y, SLD_W, SLD_H, SLD_H / 2); k.fillStyle = UX.surface3; k.fill();
+  const fw = mix(kx + SLD_R + 5 - SLD_X, SLD_W, done);
+  k.globalAlpha = mix(0.25, 1, done); rr(k, SLD_X, SLD_Y, fw, SLD_H, SLD_H / 2); k.fillStyle = rgba(UXB_mix(UX.accent, UX.mint, done), 1); k.fill(); k.globalAlpha = 1;
+  const ha = clamp(1 - d / (0.5 * SLD_D)) * (1 - done);
+  if (ha > 0) {
+    const sx = mix(SLD_X + 40, SLD_X + SLD_W + 20, (u % SLD_SHINE) / SLD_SHINE), g = k.createLinearGradient(sx - 40, 0, sx + 40, 0);
+    g.addColorStop(0, UX.ink3); g.addColorStop(0.5, UX.ink); g.addColorStop(1, UX.ink3);
+    k.globalAlpha = ha; txt(k, '滑动以付款', SLD_X + SLD_W / 2 + 20, SLD_KY + 5, UXB_f(800, 14), g, 'center'); k.globalAlpha = 1;
+  }
+  if (done > 0) { k.globalAlpha = done; txt(k, '已确认 ✓', SLD_X + SLD_W / 2 - 20, SLD_KY + 5, UXB_f(900, 15), '#FFFFFF', 'center'); k.globalAlpha = 1; }
+  k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 8; k.shadowOffsetY = 2;
+  k.fillStyle = '#FFFFFF'; k.beginPath(); k.arc(kx, SLD_KY, SLD_R, 0, TAU); k.fill(); k.restore();
+  k.lineWidth = 2.2; k.lineCap = 'round'; k.lineJoin = 'round'; k.beginPath();
+  if (done < 0.5) { k.strokeStyle = UX.ink; k.moveTo(kx - 7, SLD_KY); k.lineTo(kx + 7, SLD_KY); k.moveTo(kx + 2, SLD_KY - 5); k.lineTo(kx + 7, SLD_KY); k.lineTo(kx + 2, SLD_KY + 5); }
+  else { k.strokeStyle = UX.mint; k.moveTo(kx - 7, SLD_KY); k.lineTo(kx - 2, SLD_KY + 5); k.lineTo(kx + 7, SLD_KY - 5); }
+  k.stroke();
+  const c = SLD_cur(s, d);
+  if (s > 0.3 && s < 4.3) cursor(k, c[0], c[1], Math.max(UXC_hold(s, 0.85, 1.8), UXC_hold(s, 2.6, 3.55)));
+}
+CELLS[47] = (k, w, h, u) => UXB_xfade(k, (g, s) => SLD_draw(g, s, u), u, SHOW, SHOW + 0.6);

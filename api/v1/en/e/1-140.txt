@@ -1,0 +1,39 @@
+// Motion Prompt #1-140 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Circle reveal transition / 円形リビール
+// Pack: uxmotion (Interaction & data motion) · element 49 · Category: Scroll interactions
+// What happens: As scrolling progresses, a dark chapter 2 grows as a circle from the centre of the light chapter 1 until it covers the card; the first title shrinks away while the second settles from larger to normal size, and scrolling back shrinks the circle.
+// Motion spec:
+//   - Scroll progress goes 0 → 1 from 0.5–4.4 s (inOut3), with the scrollbar on the right in sync.
+//   - The circular mask radius grows in proportion to progress, from 0 to half the card diagonal.
+//   - The first chapter's title shrinks to 0.8 as it fades; the second chapter's title shrinks from 1.2 to 1.
+//   - From 5.4–6.3 s the scroll returns and the circle shrinks back.
+// When to use it: Use it on story-led pages and product tours to mark a change of chapter or scene.
+// Tags: circle-reveal, clip-path, transition, scroll, scrub, section
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-140
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 49
+// 49 圆形扩张转场（KittenJam #161）：滚动进度 0.5–4.4 秒由 0 到 1（inOut3，右侧滚动条同步），第二章从中央以圆形遮罩出现，
+// 半径随进度从 0 扩到画面半对角线；第一章标题缩到 0.8 并淡出，第二章标题从 1.2 倍缩回 1；5.4–6.3 秒滚回，圆形缩回。
+const CRV_RMAX = Math.hypot(CW / 2, CH / 2);
+CELLS[48] = (k, w, h, u) => {
+  const p = UXA_scroll(u, 0.5, 4.4), r = CRV_RMAX * p;
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  const s1 = 1 - 0.2 * p;
+  k.save(); k.globalAlpha = 1 - p; k.translate(CW / 2, CH / 2); k.scale(s1, s1);
+  txt(k, '第一章', 0, -26, UXB_f(800, 12), UX.ink3, 'center'); txt(k, '启程', 0, 18, UXB_f(900, 40, SERIF), UX.ink, 'center');
+  k.restore();
+  if (r > 0.5) {
+    k.save(); k.beginPath(); k.arc(CW / 2, CH / 2, r, 0, TAU); k.clip();
+    k.fillStyle = UXD.page; k.fillRect(0, 0, CW, CH); glow(k, CW / 2, CH / 2, 200, '183,164,255', 0.25);
+    const s2 = 1.2 - 0.2 * p; k.translate(CW / 2, CH / 2); k.scale(s2, s2);
+    txt(k, '第二章', 0, -26, UXB_f(800, 12), UXD.ink3, 'center'); txt(k, '远方', 0, 18, UXB_f(900, 40, SERIF), UXD.ink, 'center');
+    k.restore();
+  }
+  scrollbar(k, p, 0.3, CW - 8, 10, CH - 10, p > 0.85);
+};

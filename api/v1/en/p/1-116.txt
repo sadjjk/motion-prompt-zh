@@ -1,0 +1,15 @@
+Please use "Floating label" (フローティングラベル), one of the names in "UI component names".
+Motion Prompt #1-116
+
+What it is: The label shrinks and floats up when the field is focused
+What the sample shows: The cursor clicks the field: the label shrinks, moves up and turns blue, the underline spreads from the centre and an email address is typed letter by letter; it is then cleared and blurred.
+Spec:
+- A 350×52 input; the label "Email address" starts inside the field in grey at 15px.
+- The cursor clicks in at 0.9 s: over 0.25 s (easeOut power 3) the label shrinks to 11px, rises 15px and turns blue, and the blue underline grows from the centre to 334px over 0.3 s.
+- From 1.4 s "hello@kitten.cn" is typed at 0.08 s per character, with the caret blinking every 0.5 s.
+- From 3.3 s it is deleted at 0.025 s per character; at 3.85 s a click outside blurs the field and the label and underline return over 0.25 s.
+When to use it: Use it in sign-in, sign-up or contact forms where the field name should stay visible while typing.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-116.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

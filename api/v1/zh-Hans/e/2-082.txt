@@ -1,0 +1,57 @@
+// Motion Prompt #2-082 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 心电图线条 / ECG heartbeat line
+// 分类包: motion2 (动态图形进阶) · element 43 · 子分类: 运动技法
+// 动画表现: 深绿格子屏上，发光的心电波形从左往右扫出，旧波形逐渐变暗，右侧爱心随每拍放大。
+// 运动规格:
+//   - 深色屏幕带 16 px 细格（每 80 px 一条深线）；波形每 96 px 重复 P 波、QRS（向上 62 px）、T 波。
+//   - 扫描前端 2.35 秒从左扫到右；前端前方 8% 留空，越早的波形越暗（最暗 25%）。
+//   - 波形为 2 px 亮绿线加 7 px 光晕；前端有发光点（半径 3.5 px、光晕 9 px）。
+//   - R 波经过前端时爱心放大到 1.25 倍再回落，心率数字按拍切换。
+// 适用场景: 适合医疗、健康、健身讲解，或表现「心跳」「生命力」。
+// 标签: ecg, heartbeat, pulse, monitor, medical, line
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-082
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 43
+// 改写自 KittenJam Motion Library #328（Hannah）· 心电图：深色细格屏上，P 波、QRS 尖波、T 波每 96px 重复，扫描前端每 2.35 秒从左扫到右，前端后面是新画的发光波形，前方留 8% 空隙、更早的波形逐渐变暗；右侧心形随每次 R 波放大 1.25 倍，心率数字按拍切换。
+const ECG_XL = 20, ECG_XR = 404, ECG_YB = 120, ECG_PW = 96;
+const ECG_QRS = [[34, 0], [37, 6], [41, -62], [46, 18], [50, 0]];
+const ECG_BPM = [102, 101, 103, 102, 100, 102, 104, 103];
+function ECG_y(xl) {
+  const x = mod(xl, ECG_PW);
+  if (x > 14 && x < 28) return ECG_YB - 7 * Math.sin(Math.PI * (x - 14) / 14);
+  if (x > 62 && x < 80) return ECG_YB - 14 * Math.sin(Math.PI * (x - 62) / 18);
+  for (let i = 1; i < ECG_QRS.length; i++) if (x >= ECG_QRS[i - 1][0] && x <= ECG_QRS[i][0]) return ECG_YB + lerp(ECG_QRS[i - 1][1], ECG_QRS[i][1], (x - ECG_QRS[i - 1][0]) / (ECG_QRS[i][0] - ECG_QRS[i - 1][0]));
+  return ECG_YB;
+}
+CELLS[42] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k, '#04100C');
+  k.fillStyle = '#071A13'; rr(k, 10, 10, w - 20, h - 20, 12); k.fill();
+  for (let x = 10; x <= w - 10; x += 16) { k.fillStyle = (x - 10) % 80 ? 'rgba(46,219,168,.06)' : 'rgba(46,219,168,.14)'; k.fillRect(x, 10, 1, h - 20); }
+  for (let y = 10; y <= h - 10; y += 16) { k.fillStyle = (y - 10) % 80 ? 'rgba(46,219,168,.06)' : 'rgba(46,219,168,.14)'; k.fillRect(10, y, w - 20, 1); }
+  const W = ECG_XR - ECG_XL, s = mod(u / (CYC / 2), 1), cx = ECG_XL + s * W;
+  k.lineCap = 'round'; k.lineJoin = 'round';
+  for (let x = ECG_XL; x < ECG_XR; x += 4) {
+    const age = mod(cx - x, W) / W; if (age > 0.92) continue;
+    const a = 1 - 0.75 * age, x2 = Math.min(ECG_XR, x + 4);
+    k.beginPath(); k.moveTo(x, ECG_y(x - ECG_XL)); for (let xx = x + 1; xx <= x2; xx++) k.lineTo(xx, ECG_y(xx - ECG_XL));
+    k.strokeStyle = `rgba(53,242,154,${0.18 * a})`; k.lineWidth = 7; k.stroke();
+    k.strokeStyle = `rgba(53,242,154,${a})`; k.lineWidth = 2; k.stroke();
+  }
+  const cy = ECG_y(cx - ECG_XL);
+  k.fillStyle = 'rgba(53,242,154,.25)'; k.beginPath(); k.arc(cx, cy, 9, 0, 7); k.fill();
+  k.fillStyle = '#D9FFEC'; k.beginPath(); k.arc(cx, cy, 3.5, 0, 7); k.fill();
+  // 右侧读数：R 波（局部 41px）经过后心形跳一下
+  const d = mod(cx - ECG_XL - 41, ECG_PW), pulse = Math.exp(-d / 12);
+  const beat = mod(Math.floor(u / (CYC / 2) * 4 - 41 / 96), 8);
+  k.fillStyle = 'rgba(46,219,168,.2)'; k.fillRect(420, 30, 1, h - 60);
+  txt(k, String(ECG_BPM[beat]), 438, 104, `700 40px ui-monospace, Menlo, monospace`, '#D9FFEC');
+  txt(k, 'BPM', 440, 126, `700 12px ${DISP}`, 'rgba(53,242,154,.8)');
+  k.save(); k.translate(488, 58); k.scale(1 + 0.25 * pulse, 1 + 0.25 * pulse); k.fillStyle = C.coral; heartPath(k, 10); k.fill(); k.restore();
+};

@@ -1,0 +1,16 @@
+Please use "Pricing toggle" (料金プラン切り替え), one of the names in "UI component names".
+Motion Prompt #1-114
+
+What it is: Switching monthly and yearly rolls the prices to new values
+What the sample shows: The cursor clicks Yearly: the knob slides over, the three prices roll down card by card and the recommended middle card grows with a blue outline; later it switches back to Monthly.
+Spec:
+- A 160×30 Monthly / Yearly pill toggle and 3 price cards (150×124, 18 apart).
+- The cursor clicks Yearly at 1.0 s and the knob slides right over 0.3 s (easeInOut power 3).
+- Card by card (0.08 s apart, 0.4 s each) the prices roll up to their new values: ¥29 / 59 / 99 → ¥23 / 47 / 79.
+- The recommended middle card scales to 1.06 with a 2px blue outline over 0.35 s, and a "Save 20%" badge fades in beside the toggle.
+- At 3.2 s Monthly is clicked and everything switches back the same way.
+When to use it: Use it on SaaS pricing pages where plans change price with the billing period.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-114.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

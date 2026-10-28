@@ -1,0 +1,15 @@
+Please use "Karaoke bouncing ball" (カラオケボール), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-073
+
+What it is: A bouncing ball lights up lyrics one character at a time
+What the sample shows: A glowing yellow ball hops left to right over seven dim characters; each one it lands on turns white, glows and pops. At the end the line dims and starts over.
+Spec:
+- 7 characters (44 px) start dim; from 0.3 s the ball hops to the next character every 0.38 s (a 34 px high sine arc).
+- A character it lands on turns from dim to white within 0.14 s, gains a yellow glow (16/8 px strokes) and pops with 1 + 0.12·e^(−9t)·cos(16t).
+- After the last character the ball hops off to the right and fades; over 4.0–4.3 s all characters dim again.
+- Over 4.3–4.65 s the ball fades in left of the first character, matching the frame at 0 s.
+When to use it: Use it for lyric subtitles, read-along captions synced to rhythm, or kids' reading videos.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-073.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

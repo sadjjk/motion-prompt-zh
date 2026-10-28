@@ -1,0 +1,47 @@
+// Motion Prompt #2-072 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 重力反转 / Gravity flip
+// 分类包: motion2 (动态图形进阶) · element 33 · 子分类: 文字与图形
+// 动画表现: 4 个字依次加速往上撞到天花板并转 180° 倒挂，回弹后落回地面转满 360°，再小弹一下。
+// 运动规格:
+//   - 4 个字（60 px），0.3 秒起每字错开 0.12 秒；单字一轮 3.6 秒。
+//   - 10–33%：三次缓入上移 90 px，同时旋转 180°。
+//   - 33–46%：在顶部回弹 19% 的距离再贴回，倒立停到 58%。
+//   - 58–80%：缓入落下并转到 360°；到 87% 小跳 16 px，93% 静止。
+// 适用场景: 适合「颠覆常识」「逆转」类文案或俏皮的 logo 动画。
+// 标签: gravity, flip, upside-down, bounce, playful, text
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-072
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 33
+// 改写自 KittenJam Motion Library #20（Hannah）· 重力反转：每个字（间隔 0.12 秒）加速往上「掉」90px 并转 180° 倒立，撞顶回弹后停住，再加速落回并转满 360°，落地小弹 16px；每字一轮 3.6 秒。
+function GRAV_k(t) {   // 返回 [上移比例 0..1, 旋转角]
+  if (t < 0.1) return [0, 0];
+  if (t < 0.33) { const e = eIn(P(t, 0.1, 0.33)); return [e, Math.PI * e]; }
+  if (t < 0.4) return [lerp(1, 0.81, eOut(P(t, 0.33, 0.4))), Math.PI];
+  if (t < 0.46) return [lerp(0.81, 1, eIn(P(t, 0.4, 0.46))), Math.PI];
+  if (t < 0.58) return [1, Math.PI];
+  if (t < 0.8) { const e = eIn(P(t, 0.58, 0.8)); return [1 - e, Math.PI * (1 + e)]; }
+  if (t < 0.87) return [16 / 90 * eOut(P(t, 0.8, 0.87)), 0];
+  if (t < 0.93) return [16 / 90 * (1 - eIn(P(t, 0.87, 0.93))), 0];
+  return [0, 0];
+}
+CELLS[32] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '重力反转', F = `900 60px ${JP}`, REST = 136, UP = 90;
+  k.strokeStyle = C.navy3; k.lineWidth = 3; k.setLineDash([10, 8]);
+  k.beginPath(); k.moveTo(60, 12); k.lineTo(w - 60, 12); k.stroke(); k.setLineDash([]);
+  k.fillStyle = C.navy3; rr(k, 60, 170, w - 120, 4, 2); k.fill();
+  const cs = chars(k, S, F, 16);
+  cs.forEach((c, i) => {
+    const [p, r] = GRAV_k((u - 0.3 - 0.12 * i) / 3.6);
+    k.save(); k.translate(w / 2 + c.x, REST - UP * p); k.rotate(r);
+    txt(k, c.ch, 0, 0, F, i % 2 ? C.coral : '#fff', 'center', 'middle');
+    k.restore();
+  });
+};

@@ -1,0 +1,52 @@
+// Motion Prompt #2-070 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Water reflection / 水面の反射
+// Pack: motion2 (Motion graphics moves, part 2) · element 31 · Category: Text & shapes
+// What happens: Under a night sky white text floats gently; below the line a coral upside-down copy sways, skews and breaks into horizontal ripples.
+// Motion spec:
+//   - Above a horizon line (y = 118, a 1 px line brightest in the middle) sits white text; below it a vertically flipped coral copy.
+//   - The copy skews ±7°, stretches 0.92–1.04x vertically and sways ±3 px on a 2.35 s cycle.
+//   - The copy fades from 0.55 to 0 opacity over 80 px below the line and is split into 3 px bands shifted ±2.5 px to read as ripples.
+//   - The text above bobs 2.5 px on the 2.35 s cycle while background stars twinkle slowly.
+// When to use it: Use it for calm titles about night, lakes or quiet brands, or a gentle end card.
+// Tags: reflection, water, mirror, ripple, calm, text
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-070
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 31
+// 改写自 KittenJam Motion Library #17（Hannah）· 水面倒影：细水平线下是上下颠倒、向下渐隐的珊瑚色倒影，倒影以 2.35 秒周期 ±7° 斜切摇晃、纵向 0.92–1.04 倍伸缩，并按水平条带错位成水纹；上方文字轻微浮动 2.5px。
+const WREF_C = mkCanvas(CW, CH), WREF_G = WREF_C.getContext('2d');
+const WREF_STARS = (() => { const r = rand(3117); return Array.from({ length: 26 }, () => [r() * CW, r() * 90, 0.6 + r() * 1.2, r()]); })();
+CELLS[30] = (k, w, h, u) => {
+  u = snapU(u);
+  const LY = 118, S = '静水流深', F = `800 60px ${JP}`;
+  const bg = k.createLinearGradient(0, 0, 0, h); bg.addColorStop(0, '#0A1230'); bg.addColorStop(0.57, '#15245A'); bg.addColorStop(1, '#070D24');
+  k.fillStyle = bg; k.fillRect(0, 0, w, h);
+  WREF_STARS.forEach(([x, y, r, p]) => { k.fillStyle = `rgba(255,255,255,${0.25 + 0.35 * (0.5 + 0.5 * Math.sin(Math.PI * 2 * (u / CYC * 2 + p)))})`; k.fillRect(x, y, r, r); });
+  const ph = Math.PI * 2 * u / 2.35;
+  const bob = -2.5 * (1 - Math.cos(ph)) / 2;
+  // 倒影：先在离屏画倒置文字并做向下渐隐，再按水平条带错位贴回
+  const g = WREF_G; g.save(); g.clearRect(0, 0, CW, CH);
+  const skew = 7 * Math.PI / 180 * Math.sin(ph), sy = 0.98 - 0.06 * Math.sin(ph);
+  g.translate(CW / 2 + 3 * Math.sin(ph), LY + 3); g.transform(1, 0, Math.tan(skew), 1, 0, 0); g.scale(1, -sy);
+  g.font = F; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = C.coral; g.fillText(S, 0, -36);
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'destination-in';
+  const m = g.createLinearGradient(0, LY, 0, LY + 80); m.addColorStop(0, 'rgba(0,0,0,.55)'); m.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = m; g.fillRect(0, 0, CW, CH); g.restore();
+  for (let y = LY; y < h; y += 3) {
+    const dx = 2.5 * Math.sin(y * 0.25 - Math.PI * 2 * u / (CYC / 4));
+    k.drawImage(WREF_C, 0, y, CW, 3, dx, y, CW, 3);
+  }
+  // 水纹细线
+  for (let j = 0; j < 5; j++) {
+    const y = LY + 14 + j * 15, x = w / 2 + Math.sin(Math.PI * 2 * u / CYC + j * 1.7) * 60 + (j % 2 ? 80 : -90);
+    k.strokeStyle = `rgba(160,190,255,${0.22 - j * 0.03})`; k.lineWidth = 1; k.beginPath(); k.moveTo(x - 30 - j * 6, y); k.lineTo(x + 30 + j * 6, y); k.stroke();
+  }
+  const lg = k.createLinearGradient(w * 0.15, 0, w * 0.85, 0); lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(0.5, 'rgba(255,255,255,.55)'); lg.addColorStop(1, 'rgba(255,255,255,0)');
+  k.fillStyle = lg; k.fillRect(w * 0.15, LY, w * 0.7, 1);
+  txt(k, S, w / 2, LY - 36 + bob, F, '#fff', 'center', 'middle');
+};

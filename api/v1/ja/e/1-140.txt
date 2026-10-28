@@ -1,0 +1,39 @@
+// Motion Prompt #1-140 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 円形リビール / Circle reveal transition
+// パック: uxmotion (インタラクションとデータの動き) · element 49 · カテゴリ: スクロール連動
+// 何が起きるか: スクロールが進むと、明るい第 1 章の中央から暗い第 2 章が円形に広がって画面を覆い、第 1 章の見出しは縮んで消え、第 2 章の見出しは大きめから元の大きさに収まる。戻ると円も縮む。
+// 動きの仕様:
+//   - スクロール進行は 0.5–4.4 秒で 0→1（inOut3）、右のスクロールバーが同期
+//   - 円形マスクの半径は進行に比例して 0 から画面の半対角線まで広がる
+//   - 第 1 章の見出しは 0.8 倍まで縮みながら消え、第 2 章の見出しは 1.2 倍から 1 倍へ縮む
+//   - 5.4–6.3 秒にスクロールが戻り、円が縮む
+// 使いどころ: ストーリー型のページや製品紹介で、章やシーンの区切りを印象づけたいときに。
+// タグ: circle-reveal, clip-path, transition, scroll, scrub, section
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-140
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 49
+// 49 圆形扩张转场（KittenJam #161）：滚动进度 0.5–4.4 秒由 0 到 1（inOut3，右侧滚动条同步），第二章从中央以圆形遮罩出现，
+// 半径随进度从 0 扩到画面半对角线；第一章标题缩到 0.8 并淡出，第二章标题从 1.2 倍缩回 1；5.4–6.3 秒滚回，圆形缩回。
+const CRV_RMAX = Math.hypot(CW / 2, CH / 2);
+CELLS[48] = (k, w, h, u) => {
+  const p = UXA_scroll(u, 0.5, 4.4), r = CRV_RMAX * p;
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  const s1 = 1 - 0.2 * p;
+  k.save(); k.globalAlpha = 1 - p; k.translate(CW / 2, CH / 2); k.scale(s1, s1);
+  txt(k, '第一章', 0, -26, UXB_f(800, 12), UX.ink3, 'center'); txt(k, '启程', 0, 18, UXB_f(900, 40, SERIF), UX.ink, 'center');
+  k.restore();
+  if (r > 0.5) {
+    k.save(); k.beginPath(); k.arc(CW / 2, CH / 2, r, 0, TAU); k.clip();
+    k.fillStyle = UXD.page; k.fillRect(0, 0, CW, CH); glow(k, CW / 2, CH / 2, 200, '183,164,255', 0.25);
+    const s2 = 1.2 - 0.2 * p; k.translate(CW / 2, CH / 2); k.scale(s2, s2);
+    txt(k, '第二章', 0, -26, UXB_f(800, 12), UXD.ink3, 'center'); txt(k, '远方', 0, 18, UXB_f(900, 40, SERIF), UXD.ink, 'center');
+    k.restore();
+  }
+  scrollbar(k, p, 0.3, CW - 8, 10, CH - 10, p > 0.85);
+};

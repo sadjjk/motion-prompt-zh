@@ -1,0 +1,41 @@
+// Motion Prompt #2-079 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// リキッドフィル / Liquid fill
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 40 · カテゴリ: 文字・図形の演出
+// 何が起きるか: ミントの縁取りの中空文字に、波打つ液面と泡が下から上がって満たし、しばらく留まってから一気に抜ける。下に%表示。
+// 動きの仕様:
+//   - 132pxの文字を線幅3pxのミントで縁取りし、液体は文字の形で切り抜く
+//   - 液面は0.3〜3.3秒で下から上へ（二次の easeInOut）、4.2〜4.6秒で下へ戻る
+//   - 液面は2層の正弦波で、波高 6px·sin(π·液位)（空と満杯では平ら）、1.57秒周期で流れる
+//   - 液の中を泡10個が上る。下に0〜100%の数字を表示
+// 使いどころ: 進捗・充電・目標達成、飲料ブランドの見出しに。
+// タグ: liquid, fill, wave, progress, water, text
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-079
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 40
+// 改写自 KittenJam Motion Library #73（Hannah）· 液体填满：薄荷色描边的空心字，0.3–3.3 秒正弦液面由下往上填满（波高 6px·sin(π·液位)，前后两层波错相），液中气泡上浮，停留到 4.2 秒后 0.4 秒清空；下方显示百分比。
+const LIQF_C = mkCanvas(CW, CH), LIQF_G = LIQF_C.getContext('2d');
+CELLS[39] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '满格', F = `900 132px ${JP}`, TOP = h / 2 - 66, BOT = h / 2 + 52, CXT = w / 2, CYT = h / 2 - 6;
+  const lv = u < 0.3 ? 0 : u < 3.3 ? eIOs(P(u, 0.3, 3.3)) : u < 4.2 ? 1 : 1 - eIOs(P(u, 4.2, 4.6));
+  const g = LIQF_G; g.save(); g.clearRect(0, 0, CW, CH);
+  const sy = lerp(BOT + 4, TOP - 6, lv), A = 6 * Math.sin(Math.PI * lv), ph = Math.PI * 2 * u / (CYC / 3);
+  const wave = (col, off, dy) => { g.fillStyle = col; g.beginPath(); g.moveTo(0, CH); for (let x = 0; x <= CW; x += 6) g.lineTo(x, sy + dy + A * Math.sin(x * 0.035 - ph + off)); g.lineTo(CW, CH); g.closePath(); g.fill(); };
+  wave('#1F9E7A', 1.3, -3); wave(C.mint, 0, 0);
+  for (let b = 0; b < 10; b++) {
+    const bx = CXT + (H01(b) - 0.5) * 240, by = BOT - mod(u / CYC * 2 + H01(b + 20), 1) * (BOT - TOP);
+    if (by > sy + 4) { g.fillStyle = 'rgba(255,255,255,.45)'; g.beginPath(); g.arc(bx + 3 * Math.sin(by * 0.1), by, 2 + 2 * H01(b + 40), 0, 7); g.fill(); }
+  }
+  g.globalCompositeOperation = 'destination-in'; g.font = F; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#000'; g.fillText(S, CXT, CYT);
+  g.restore();
+  k.drawImage(LIQF_C, 0, 0);
+  k.font = F; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round'; k.strokeStyle = C.mint; k.lineWidth = 3; k.strokeText(S, CXT, CYT);
+  txt(k, `${Math.round(lv * 100)}%`, w / 2, h - 14, `700 13px ui-monospace, Menlo, monospace`, C.dim, 'center', 'alphabetic');
+};

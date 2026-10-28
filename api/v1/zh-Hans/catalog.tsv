@@ -1,4 +1,4 @@
-# Motion Prompt catalog (zh-Hans) · 263 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
+# Motion Prompt catalog (zh-Hans) · 313 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
 1-001	ui	弹出与覆盖	模态对话框 (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	点击“打开”后页面变暗，小窗口略微放大并出现在中央，点击 × 关闭。
 1-002	ui	弹出与覆盖	侧边抽屉 (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	点击“菜单”后高面板从左侧滑入，点击外部后滑回。
 1-003	ui	弹出与覆盖	底部弹出面板 (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	手指轻点“查看详情”，面板从底部升起；向下拖动把手即可关闭。
@@ -34,6 +34,14 @@
 1-111	ui	导航与状态	快捷键逐键点亮 (Keyboard shortcut press)	keyboard-shortcut,hotkey,keycap,onboarding,productivity,micro-interaction	深色键盘板上 Ctrl、Shift、P 依次按下亮成琥珀色，提示文字逐步拼出，键盘板轻轻一跳后变为“已排队”。
 1-112	ui	导航与状态	代码差异高亮 (Code diff highlight)	code-diff,code-editor,syntax,developer-tools,highlight,code-review	深色编辑器的 5 行代码里，上下文行先亮起，红色删除行与绿色新增行依次从左滑入，新增行底色加深一次再回落。
 1-113	ui	导航与状态	部署流水线 (Deploy pipeline)	deploy,pipeline,ci-cd,build-status,progress,developer-tools,dashboard	深色背景上 4 张阶段卡从左到右依次运行，通过后描边和圆点亮绿，连接线伸向下一张，最后 Deploy 显示“已上线”。
+1-114	ui	选择与切换	价格方案切换 (Pricing toggle)	pricing,toggle,billing,number-roll,plans,switch	光标点“年付”，滑块移过去，三张卡的价格依次滚动成新值，中间推荐卡放大并描蓝边，之后切回月付。
+1-115	ui	选择与切换	水滴单选 (Liquid radio)	radio,liquid,gooey,form,selection,droplet	光标依次点选竖排 4 个选项，选中点拉成水滴流向新圆圈再收圆，右侧卡片同步更新。
+1-116	ui	选择与切换	输入框浮动标签 (Floating label)	floating-label,input,text-field,form,focus,underline	光标点进输入框，标签缩小上浮变蓝，底线从中间展开，再逐字输入邮箱；最后删空、点框外复原。
+1-117	ui	选择与切换	展开搜索框 (Expanding search)	search,expand,input,header,toolbar,morph	光标点圆形放大镜按钮，右缘固定向左展开成搜索框，占位字出现后逐字输入，点 × 清空后收回圆形。
+1-118	ui	弹出与覆盖	命令面板 (Command palette)	command-palette,cmdk,search,modal,keyboard,filter,shortcut	⌘K 按下后背景变暗、面板出现，输入“设置”时列表被筛选、匹配字标蓝，高亮下移一行后确认。
+1-119	ui	弹出与覆盖	翻页书 (Page flip)	page-flip,book,flipbook,catalog,3d-flip,click	光标两次点开着的书的右页，每次一张纸以书脊为轴收窄、翻面落到左侧；最后点左页，两张纸一起翻回。
+1-120	ui	弹出与覆盖	对折邀请卡 (Folding card)	folding-card,invitation,card-open,reveal,greeting,click	光标点深蓝封面，封面以左边为轴翻开露出内页左半，右半 3 行文字依次浮现，最后合上复原。
+1-121	ui	导航与状态	下拉刷新 (Pull to refresh)	pull-to-refresh,refresh,mobile,list,gesture,loading,spinner	手机屏幕里手指按住列表下拖，列表带阻力下移、顶部箭头随之转动；松手后图标转圈加载，列表回弹，顶部插入一条新消息。
 1-025	lp	滚动效果	视差滚动 (Parallax scrolling)	parallax,parallax-scrolling,scroll,depth,layers,hero,background	页面下滚时，标题正常上移，天空、太阳、远山与近山移动得更慢。
 1-026	lp	滚动效果	滚动淡入 (Fade-in on scroll)	fade-in,scroll-reveal,reveal-on-scroll,intersection-observer,aos,entrance,scroll	随页面滚动，标题、卡片和正文进入视口后分别上移到位并淡入。
 1-027	lp	滚动效果	吸顶页头 (Sticky header)	sticky,sticky-header,fixed-header,position-sticky,navigation,header,scroll	公告条滚出后，下方页头停在顶部，正文从其下方滚过。
@@ -63,6 +71,12 @@
 1-105	lp	加载、导航与循环动效	共享元素转场 (Shared element transition)	shared-element,hero-transition,page-transition,list-detail,magic-move,morph	列表缩略图一路移动放大成详情页大图，其余内容淡出淡入；返回时沿原路缩回。
 1-106	lp	加载、导航与循环动效	方向感知转场 (Direction-aware transition)	direction-aware,slide-transition,page-transition,onboarding,stepper,navigation,wizard	引导页前进时内容向左滑走，后退时向右滑走，页码点同步切换。
 1-107	lp	加载、导航与循环动效	布局动画 (Layout animation)	layout-animation,flip,grid,reflow,delete,undo,auto-animate	删除第 2 张卡片后，后面的卡片滑入空位，换行的那张斜着移上去；撤销后各自回位。
+1-122	lp	悬停与点击交互	旋转光边按钮 (Rotating gradient border)	gradient-border,conic-gradient,glow,button,hover,animated-border	深色页面上按钮外框的多色渐变一直绕圈，光标悬停时转速加快并亮起外光晕。
+1-123	lp	悬停与点击交互	果冻弹跳按钮 (Jelly button)	jelly,squash-stretch,button,click,bounce,feedback	光标点两次按钮，每次按钮先横向压扁、再纵向拉高、小幅回弹复原，下方文字计数。
+1-124	lp	悬停与点击交互	发牌展开 (Card deal)	card-deal,fan,cards,stagger,overshoot,click	点“发牌”后 5 张卡片从底部依次飞出展开成扇形，停留后点“收牌”，从最后一张开始收回下方。
+1-125	lp	悬停与点击交互	拍立得洗牌 (Photo stack shuffle)	photo-stack,polaroid,shuffle,cards,gallery,click	光标每点一次歪斜叠放的 4 张拍立得，顶张向右抽出插到最底层，其余各上移一层。
+1-126	lp	加载、导航与循环动效	切片转场 (Slice transition)	slice,transition,slider,strips,image-reveal,stagger	画框里的图分成 6 条竖条，从左到右依次上、下、上…滑走，露出下一张；之后同样切回第一张。
+1-127	lp	加载、导航与循环动效	天气图标动画 (Animated weather icons)	weather,icons,loop,sun,rain,lightning,micro-animation	4 张小卡上，太阳光芒自转、云朵左右飘、雨滴依次落下、雷云里的闪电不时一闪。
 1-049	aiux	加载与思考	环绕光束 (Border beam)	border-beam,loading,ai,input,glow,streaming,border	一道头亮尾淡的彩虹色光束，沿深色输入框的边框顺时针不停绕行。
 1-050	aiux	加载与思考	底边光束 (Line beam)	line-beam,search,loading,input,glow,sweep	圆角搜索框只有底边发光，光从左滑到右，再从右滑回左。
 1-051	aiux	加载与思考	内呼吸光晕 (Inner pulse)	pulse,button,cta,highlight,glow,ai	胶囊按钮内部，粉、橙、蓝三团光放大又收小，边框也随之明暗。
@@ -75,6 +89,7 @@
 1-058	aiux	液态交互	液态分裂菜单 (Gooey morph menu)	gooey,liquid,morph,fab,speed-dial,menu,metaball	指针点“+”后，三个圆从白色液体中伸出，颈部变细拉断，图标浮现；再点一次，它们被吸回融成一个。
 1-059	aiux	液态交互	液态拖尾 (Gooey trail)	gooey,liquid,tabs,segmented-control,indicator,trail,slider	白色指示块在三个选项间来回移动，速度越快拉得越长，身后黏着的液滴也越大。
 1-060	aiux	液态交互	液态弯曲 (Gooey bend)	gooey,liquid,bend,drag,card,sortable,elastic	白色卡片被左右拖动，速度越快左右两边越向后弯，减速时恢复平直。
+1-128	aiux	加载与思考	旋转光芒 (Sunburst rays)	sunburst,rays,god-rays,rotate,celebration,award,background	深色背景上，金色光纹从居中标题后方向外放射并缓缓旋转，越往外越融入背景。
 1-061	uxmotion	交互文字	词立方翻滚 (Rolling word cube)	word-cube,rolling-text,3d-flip,headline,rotating-words,landing-page,kinetic-type	方块每隔一段时间向下翻一面换上新关键词，下方说明同步上下翻页，底部进度条随之填满。
 1-062	uxmotion	交互文字	环形文字徽章 (Circular text badge)	circular-text,rotating-badge,hover,click,cta,portfolio,spin	圆周上的文字缓慢旋转，指针移入后加速，每次点击转速猛增，新文字逐字淡入。
 1-063	uxmotion	交互文字	字母飞散重组 (Scatter & reassemble letters)	letter-scatter,physics,spring,playful,headline,click,easter-egg	彩色大字母一点就边转边飞散，受重力下落反弹，停留片刻后逐个弹回原来的排列。
@@ -112,6 +127,19 @@
 1-095	uxmotion	动态图表	排名赛跑柱状图 (Bar chart race)	bar-chart-race,ranking,time-series,data-viz,slider,animation	饮品横条随年份伸缩，超过上一名的柱子上移交换名次，大号年份跳动；最后拖回滑块，排名倒放。
 1-096	uxmotion	动态图表	华夫格翻转 (Waffle chart flip)	waffle-chart,flip,proportion,data-viz,tabs,legend-hover	点击年龄标签，只有换色的格子沿对角线波浪翻转，百分比滚动；悬停图例只突出该方式。
 1-097	uxmotion	动态图表	季度气泡移动 (Quarterly bubble motion)	bubble-chart,time-series,scrubbing,data-viz,motion-chart,log-scale	季度大字作背景，App 气泡边缩放边在坐标上滑动，一个留下虚线轨迹；拖动可快进倒回。
+1-129	uxmotion	动态图表	折线图绘制 (Line chart draw)	line-chart,chart-draw,data-viz,dashboard,trend,growth	淡淡的横格线上，折线由左向右延伸，数据点依次弹出，线下渐变面积淡入，最后终点上方浮出增长标签。
+1-130	uxmotion	动态图表	环形图分段 (Donut chart segments)	donut-chart,pie-chart,segments,data-viz,breakdown,legend	从正上方开始第一段顺时针画出，下一段从上一段终点接续，直到闭合成环；中心出现总数，右侧图例依次滑入。
+1-131	uxmotion	光标交互	全息闪卡 (Holographic card)	holographic,foil,card,tilt,glare,hover,trading-card	光标在深色背景上的卡片上移动，卡片立体倾斜，表面炫彩箔光流动、柔光跟随；光标离开后回正。
+1-132	uxmotion	光标交互	3D 倾斜视差图片 (Tilt parallax image)	tilt,parallax,3d,image,hover,glare,depth	光标在夕照山景图上移动，图片倾斜并微微放大，天空、太阳、山脊按层错动，底部说明文字滑上来。
+1-133	uxmotion	光标交互	眼睛跟随 (Following eyes)	eyes,follow-cursor,mascot,googly-eyes,blink,404	紫色吉祥物的大眼白里，黑眼珠跟着光标转，光标越远越靠近眼眶边缘；两眼不时同时眨眼。
+1-134	uxmotion	光标交互	刮刮乐揭示 (Scratch reveal)	scratch-card,reveal,coupon,lottery,gamification,canvas-erase	银色表层盖住的优惠券上，指针按住左右之字形来回刮，经过处露出下方「免运费优惠券」，最后剩余表层淡出。
+1-135	uxmotion	光标交互	流场线条 (Flow field)	flow-field,generative,lines,particles,background,swirl,noise	深色背景上布满紫色与蓝色细线，像风或水一样流动并淡去；光标经过处，周围的流向卷成漩涡。
+1-136	uxmotion	进度反馈	加入购物车飞入 (Add to cart fly)	add-to-cart,fly-to-cart,ecommerce,arc,badge,feedback	商品卡按钮被按下，陶杯图片边缩小边沿弧线飞向右上角购物车；购物车弹一下，角标从 2 变成 3。
+1-137	uxmotion	进度反馈	纸飞机发送 (Send plane button)	send-button,paper-plane,submit,success,button,micro-interaction	紫色按钮按下回弹，文字向右淡出，纸飞机先后撤蓄力再飞向右上方；按钮转绿、「已发送 ✓」从左滑入，稍后恢复原样，飞机飞回。
+1-138	uxmotion	进度反馈	星星评分 (Star rating)	star-rating,rating,review,stars,feedback,micro-interaction	光标停在第 2 颗时前 2 颗浅色预览并显示「较差」；接着点第 4 颗，第 1–4 颗由左到右依次填成金色并弹跳，浮出「很好」。
+1-139	uxmotion	进度反馈	滑动确认 (Slide to confirm)	slide-to-confirm,swipe,slider,payment,drag,button	胶囊滑轨上，第一次把手拖到一半松开后弹回；第二次拖到底，整条轨道填满变绿并显示「已确认 ✓」；提示文字上有流光扫过。
+1-140	uxmotion	滚动交互	圆形扩张转场 (Circle reveal transition)	circle-reveal,clip-path,transition,scroll,scrub,section	随滚动推进，深色第二章从浅色第一章中央以圆形扩开直到铺满；第一章标题缩小淡出，第二章标题由大缩回原尺寸；滚回时圆形缩回。
+1-141	uxmotion	滚动交互	时间轴延伸 (Timeline draw)	timeline,steps,process,scroll,line-draw,roadmap	随滚动推进，左侧细线由上往下延伸，到达的节点圆点填色，周次、标题与说明从左侧滑入；滚回时线条缩回、节点收起。
 2-001	motion	入场与文字	弹性弹入 (Pop-in)	pop,pop-in,spring,bounce,scale,icon,badge,entrance	应用图标弹跳入场，随后通知角标稍晚弹出。
 2-002	motion	入场与文字	交错入场 (Stagger)	stagger,sequence,delay,cascade,bar-chart,list,entrance	图表的柱条从左到右依次升起，每根略有延迟。
 2-003	motion	入场与文字	放射迸发 (Burst)	burst,explosion,radial,like,heart,celebrate,accent,sparkle	点赞心形被填满的同时，圆环、线条和圆点向外迸发。
@@ -164,6 +192,24 @@
 2-065	motion2	文字与图形	波的干涉 (Wave interference)	wave,interference,physics,sine-wave,diagram,education,data-visualization	青色波 A 与橙色波 B 反向流动，下方合成波时而加高时而压平，竖直采样虚线上 3 个点跟着读数。
 2-066	motion2	文字与图形	散点聚成正态分布 (Dots settling into a normal distribution)	normal-distribution,statistics,histogram,bell-curve,particles,data-visualization,education	紫色坐标区里点先像云一样冒出，再错开飞落堆成钟形柱，计数升到 098，均值线变成实线。
 2-067	motion2	文字与图形	网络扩散 (Network diffusion)	network,diffusion,graph,propagation,nodes,data-visualization	左侧源点亮起扩出涟漪，信号一跳一跳向右传递，经过的边亮成珊瑚色，到达的节点回弹点亮，跳数和触达数随之增加。
+2-068	motion2	文字与图形	闪电砸落 (Lightning strike)	lightning,slam,impact,flash,title,text	画面闪白两次并劈下一道闪电，「雷鸣」从大尺寸砸下、晃动后带着黄色外发光停住。
+2-069	motion2	文字与图形	硬币翻转 (Coin flip)	coin,flip,spin,hop,playful,text	写着字的 4 枚金币依次跳起翻两圈，落地后小弹一下，背面是星。
+2-070	motion2	文字与图形	水面倒影 (Water reflection)	reflection,water,mirror,ripple,calm,text	夜空下白字轻轻浮动；线下珊瑚色倒字左右倾斜摇晃，并按横条错位成水纹。
+2-071	motion2	文字与图形	文字旗帜 (Flag wave)	flag,wave,wind,slogan,ripple,text	4 个字挂在左侧旗杆上，逐字延后地收窄、倾斜、上抬，波浪向右传。
+2-072	motion2	文字与图形	重力反转 (Gravity flip)	gravity,flip,upside-down,bounce,playful,text	4 个字依次加速往上撞到天花板并转 180° 倒挂，回弹后落回地面转满 360°，再小弹一下。
+2-073	motion2	文字与图形	卡拉 OK 小球 (Karaoke bouncing ball)	karaoke,lyrics,bouncing-ball,highlight,subtitle,text	发光黄球在 7 个暗字上方从左往右跳，落点字变白发光并弹一下；跳完后字回暗、重新开始。
+2-074	motion2	文字与图形	墨水晕开 (Ink bleed)	ink,bleed,blur,calligraphy,gooey,text	宣纸色底上，4 个字依次由模糊墨团收紧成边缘清晰的字，停留后再晕开消失。
+2-075	motion2	文字与图形	崩落 (Crumble)	crumble,fall,collapse,debris,outro,text	4 个字依次微微歪斜，随后旋转加速下坠、掉出碎屑并消失，再从上方落回原位。
+2-076	motion2	文字与图形	印章 (Rubber stamp)	stamp,seal,approved,slam,impact,badge	文件上依次从大尺寸斜着盖下两枚红色带框印章「急件」「核准」，纸面微震并扩出一圈印痕。
+2-077	motion2	文字与图形	文字圆柱 (Text cylinder)	cylinder,3d,rotate,spin,loop,text	3 根圆柱各由同一个字的 10 个副本环绕，绕水平轴旋转且相邻反向；近处的字更大更亮，背面不显示。
+2-078	motion2	文字与图形	拉霸 (Slot machine)	slot-machine,reel,spin,reveal,lottery,text	4 个窗格里随机字快速竖向滚动，从左到右减速停在「大吉大利」，全部停下后边框闪两次。
+2-079	motion2	文字与图形	液体填满 (Liquid fill)	liquid,fill,wave,progress,water,text	薄荷色描边的空心字被带波纹和气泡的液面由下往上填满，停留后迅速清空；下方显示百分比。
+2-080	motion2	运动技法	手写签名 (Signature animation)	signature,handwriting,cursive,draw,stroke,line-art	一笔连写的草写签名由珊瑚色笔尖圆点引领从左写到右，写完后下方快速划出一道微弯底线。
+2-081	motion2	运动技法	地图路线导航 (Map route animation)	map,route,pin,navigation,path,travel	淡色地图与格线上，3 枚地标依次弹跳落下，蓝线沿虚线预定路线画出，发光小点同步前进，终点地标弹一下。
+2-082	motion2	运动技法	心电图线条 (ECG heartbeat line)	ecg,heartbeat,pulse,monitor,medical,line	深绿格子屏上，发光的心电波形从左往右扫出，旧波形逐渐变暗，右侧爱心随每拍放大。
+2-083	motion2	运动技法	树枝生长 (Growing tree)	tree,grow,branch,leaves,nature,line-art	地面线向两侧展开，主干向上长，4 根分枝和 5 根细枝依次长出，叶子乱序回弹展开，下方浮现文字。
+2-084	motion2	运动技法	齿轮联动 (Gear train)	gear,cog,mechanical,loading,rotation,system	蓝色大齿轮顺时针转，与之咬合的珊瑚色、黄色小齿轮更快地反向转，齿始终落在对方齿槽里；旁边显示「系统运转中」。
+2-085	motion2	运动技法	指纹扫描解锁 (Fingerprint scan)	fingerprint,biometric,scan,unlock,security,auth	圆角感应区内指纹弧线由内向外画出，绿色光条上下扫过，纹路变淡后画出对勾，外框发出绿光。
 2-049	mgstyles	平面与线条	扁平矢量动画 (Flat vector motion)	flat-design,vector,squash-and-stretch,bounce,elastic,explainer,brand-intro	珊瑚圆点从群青天空落下连跳 5 下，每次落地弹出彩色扁平小楼，最后字标弹性入场。
 2-050	mgstyles	平面与线条	线条动画 (Line art animation)	line-art,one-line-drawing,stroke-reveal,logo-reveal,gold,camera-pan	镜头跟着发光笔尖平移，金线一笔画出幼苗与塔楼，最后拉远成海报构图，环形标志内填满金色。
 2-051	mgstyles	平面与线条	形变动画 (Morphing)	shape-morph,morphing,beat-sync,color-wipe,squash-and-stretch,social-short	主形先收成圆再展开成下一形，伴着挤压与摆转；每次背景从中心圆形换色，右侧字幕同步换词。
@@ -262,3 +308,7 @@
 4-033	scenes	器物与空间	小票打印 (Receipt printing)	receipt,printer,thermal-paper,pos,checkout,objects	深色出纸口淡入后，白色小票从顶部缓缓吐出，依次露出店名、3 行明细和虚线下的“合计 已发货”，最后整体淡出。
 4-034	scenes	科技氛围	条码扫描 (Barcode scan)	barcode,scanner,laser,logistics,warehouse,tech	灰色台面上一张白色装箱单落定，青色激光从左到右扫过条码后熄灭，绿色“已核验 · 可发货”浮现。
 4-035	scenes	科技氛围	示波器描线 (Oscilloscope trace)	oscilloscope,waveform,signal,sweep,electronics,tech	深色示波器面板淡入，一道竖直光束从左走到右，身后描出青色波形，起伏 3 次逐渐变小，画完后光束熄灭。
+4-036	scenes	纹样与图形	彩纸爆发 (Confetti burst)	confetti,celebration,burst,particles,party,congrats	深紫背景上「恭喜」先收缩再弹回，同时 5 色彩纸从下方扇形喷出，边转边沿抛物线落下并淡出，每 3.2 秒一次。
+4-037	scenes	纹样与图形	飘落花瓣 (Falling petals)	petals,sakura,falling,particles,cursor,interactive,spring	深紫背景上粉色花瓣边摆边转、翻面飘落；光标从左向右横扫一次，路径上的花瓣被推开，随后回到原来的下落轨迹。
+4-038	scenes	纹样与图形	烟火 (Fireworks)	fireworks,celebration,click,particles,night,interactive,explosion	星空下光标依次点击 3 处，每次点击泛起涟漪，底部升起一枚烟火，炸成金、蓝、粉色火花，下垂并淡出。
+4-039	scenes	文字氛围	封锁胶带 (Caution tape cross)	caution-tape,warning,marquee,crossed,street,banner	深色背景上，2 条黄底黑边的胶带交叉成 X，各自印着重复的「禁止进入」，文字朝相反方向持续滑动。

@@ -2,7 +2,7 @@
 
 # UI 组件
 
-35 个效果 · #1 001~024 · 098~102 · 108~113 · 分类包 `ui` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+43 个效果 · #1 001~024 · 098~102 · 108~121 · 分类包 `ui` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -23,6 +23,9 @@
 | [#1-100](https://sadjjk.github.io/motion-prompt-zh/#1-100) | **橡皮筋回弹** | Rubber-banding | 拖过边界时带阻力移动，松手后弹回 | 底部面板拖到顶后加橡皮筋阻尼：手指多拖 120px 面板只移动约 49px，松手后弹回。 |
 | [#1-101](https://sadjjk.github.io/motion-prompt-zh/#1-101) | **可打断动画** | Interruptible animation | 动画进行中可随时改向，从当前状态接续 | 抽屉开关用弹簧动画并支持中途打断：开到一半再点，就从当前位置和速度直接折返（ω = 10）。 |
 | [#1-110](https://sadjjk.github.io/motion-prompt-zh/#1-110) | **拖拽上传** | Drag-and-drop upload | 文件拖进上传区后区域激活并开始上传 | 做一个拖拽上传区：文件拖进来后虚线框变成绿色实线，进度条从 0 走到 100%，最后显示“可以发布”。 |
+| [#1-118](https://sadjjk.github.io/motion-prompt-zh/#1-118) | **命令面板** | Command palette | 快捷键唤出、边输入边筛选命令 | 按 ⌘K 唤出命令面板：背景变暗、面板微微放大出现，输入时实时筛选列表。 |
+| [#1-119](https://sadjjk.github.io/motion-prompt-zh/#1-119) | **翻页书** | Page flip | 书页以书脊为轴翻到另一侧 | 把产品目录做成翻页书：点右页后以书脊为轴 0.7 秒翻到左侧。 |
+| [#1-120](https://sadjjk.github.io/motion-prompt-zh/#1-120) | **对折邀请卡** | Folding card | 对折卡片翻开封面露出内页文字 | 邀请函做成对折卡：点封面后以左边为轴打开，内页文字依次淡入。 |
 
 ## 选择与切换
 
@@ -39,6 +42,10 @@
 | [#1-102](https://sadjjk.github.io/motion-prompt-zh/#1-102) | **拖拽排序** | Drag to reorder | 按住拖动列表项，其他项让位改变顺序 | 待办列表支持拖拽排序：按住把手时行抬起放大到 1.04 倍，其他行用 0.2 秒滑开让位。 |
 | [#1-108](https://sadjjk.github.io/motion-prompt-zh/#1-108) | **验证码逐格填入** | OTP input fill | 验证码一格一位依次填满后自动确认 | 做一个验证码输入动画：6 个格子每隔 0.35 秒填入一位数字，填满后所有格子亮蓝边并提示已验证。 |
 | [#1-109](https://sadjjk.github.io/motion-prompt-zh/#1-109) | **密码强度条** | Password strength meter | 密码越输越长，强度条逐段着色 | 在密码框下加强度条：4 段强度条随输入依次变红、橙、黄绿、绿，文字从“弱”变到“强”。 |
+| [#1-114](https://sadjjk.github.io/motion-prompt-zh/#1-114) | **价格方案切换** | Pricing toggle | 切换月付 / 年付时价格数字滚动变化 | 价格表加月付 / 年付切换：切换后价格数字向上滚动到新值，推荐方案略微放大并描边。 |
+| [#1-115](https://sadjjk.github.io/motion-prompt-zh/#1-115) | **水滴单选** | Liquid radio | 选中点像水滴一样拉长移到新选项 | 单选框做成水滴单选：换选时选中点像水滴一样拉长，0.45 秒移到新选项后收回圆形。 |
+| [#1-116](https://sadjjk.github.io/motion-prompt-zh/#1-116) | **输入框浮动标签** | Floating label | 聚焦输入框时标签缩小上浮 | 邮箱输入框用浮动标签：聚焦时标签缩小上浮，底线从中间向两侧展开。 |
+| [#1-117](https://sadjjk.github.io/motion-prompt-zh/#1-117) | **展开搜索框** | Expanding search | 圆形放大镜按钮横向展开成搜索框 | 顶栏搜索做成展开搜索框：点放大镜后 0.45 秒向左展开成输入框。 |
 
 ## 导航与状态
 
@@ -55,6 +62,7 @@
 | [#1-111](https://sadjjk.github.io/motion-prompt-zh/#1-111) | **快捷键逐键点亮** | Keyboard shortcut press | 组合键一枚枚按下并点亮 | 做一个快捷键演示：Ctrl、Shift、P 三枚键依次按下变琥珀色，下方提示随按键逐步拼出，最后显示“已排队”。 |
 | [#1-112](https://sadjjk.github.io/motion-prompt-zh/#1-112) | **代码差异高亮** | Code diff highlight | 代码删除行与新增行以红绿两色依次出现 | 做一个编辑器代码差异动画：上下文行亮起后，红色删除行和绿色新增行依次从左 6.4px 滑入，新增行再闪亮一次。 |
 | [#1-113](https://sadjjk.github.io/motion-prompt-zh/#1-113) | **部署流水线** | Deploy pipeline | 构建各阶段依次运行通过并连成一线 | 做一个部署进度动画：Lint、Test、Build、Deploy 4 张阶段卡依次由“运行中”变绿“通过”，连接线逐段接通，最后显示“已上线”。 |
+| [#1-121](https://sadjjk.github.io/motion-prompt-zh/#1-121) | **下拉刷新** | Pull to refresh | 下拉列表松手后重新加载 | 消息列表加下拉刷新：越拉越沉，图标随距离转动，松手后转圈加载，顶部插入新消息。 |
 
 点击编号查看动画演示。单项的时序、缓动和参考代码： `api/v1/zh-Hans/e/<id>.txt` ([#1-001](../../api/v1/zh-Hans/e/1-001.txt)).
 

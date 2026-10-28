@@ -1,0 +1,57 @@
+// Motion Prompt #2-076 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Rubber stamp / スタンプ
+// Pack: motion2 (Motion graphics moves, part 2) · element 37 · Category: Text & shapes
+// What happens: Two red framed stamps, “urgent” and “approved”, slam onto a document in turn from large and at an angle; the paper jolts and an imprint ring spreads.
+// Motion spec:
+//   - Two stamps (170×100 px, angled −9° and 7°) land at 0.35 s and 0.9 s.
+//   - Each goes from 2.4x to 0.93x in 0.24 s (cubic ease-in), then back to 1x over 0.12 s.
+//   - On landing the paper jolts by 2.5 px·e^(−14t) and an outline ring grows to 1.3x and fades within 0.36 s.
+//   - 160 seeded punched-out dots and 6 thin scratches make the ink patchy; the stamps fade over 3.9–4.4 s.
+// When to use it: Use it to mark a decision: approved, passed, sold out or limited.
+// Tags: stamp, seal, approved, slam, impact, badge
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-076
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 37
+// 改写自 KittenJam Motion Library #43（Hannah）· 印章：纸面上两枚粗框印章（−9° 与 7°）依次从 2.4 倍斜着砸到 0.93 倍再回 1 倍，间隔 0.55 秒，落下时纸面微震并扩出一圈印痕；印面用随机镂空点做斑驳质感（离屏 2 倍分辨率预生成）。3.9–4.4 秒淡出。
+const STMP_IMG = ['急件', '核准'].map((s, j) => {
+  const c = mkCanvas(340, 200), g = c.getContext('2d'), r = rand(4343 + j * 7);
+  g.scale(2, 2); g.strokeStyle = '#E2453A'; g.fillStyle = '#E2453A'; g.lineWidth = 6;
+  g.beginPath(); g.roundRect(8, 8, 154, 84, 10); g.stroke();
+  g.lineWidth = 1.5; g.beginPath(); g.roundRect(15, 15, 140, 70, 6); g.stroke();
+  g.font = `900 50px ${JP}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(s, 85, 52);
+  g.globalCompositeOperation = 'destination-out';
+  for (let i = 0; i < 160; i++) { g.globalAlpha = 0.4 + r() * 0.6; g.beginPath(); g.arc(r() * 170, r() * 100, 0.5 + r() * 1.8, 0, 7); g.fill(); }
+  g.globalAlpha = 0.5; g.lineWidth = 1;
+  for (let i = 0; i < 6; i++) { const x = r() * 170, y = r() * 100; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 10 + r() * 30, y + (r() - 0.5) * 6); g.stroke(); }
+  return c;
+});
+CELLS[36] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const ST = [[196, 92, -9, 0.35], [350, 124, 7, 0.9]], fade = 1 - P(u, 3.9, 4.4);
+  // 纸面受冲击的微震
+  let jy = 0; ST.forEach(([, , , s]) => { const t = u - s - 0.24; if (t > 0 && t < 0.25) jy += 2.5 * Math.exp(-14 * t) * Math.sin(50 * t); });
+  k.save(); k.translate(0, jy);
+  k.fillStyle = C.cream; rr(k, 44, 14, w - 88, h - 28, 6); k.fill();
+  k.fillStyle = 'rgba(15,26,61,.12)';
+  for (let i = 0; i < 6; i++) { k.fillRect(70, 34 + i * 26, i % 3 === 2 ? 220 : 380, 6); }
+  ST.forEach(([x, y, deg, s], j) => {
+    const t = u - s; if (t <= 0) return;
+    let sc, op;
+    if (t < 0.24) { const q = eIn(t / 0.24); sc = lerp(2.4, 0.93, q); op = q; } else { sc = lerp(0.93, 1, eOut(P(t, 0.24, 0.36))); op = 1; }
+    op *= fade; if (op <= 0) return;
+    // 印痕扩散框
+    const rg = P(t, 0.24, 0.6);
+    k.save(); k.translate(x, y); k.rotate(deg * Math.PI / 180);
+    if (rg > 0 && rg < 1) { k.globalAlpha = 0.4 * (1 - rg) * fade; k.strokeStyle = '#E2453A'; k.lineWidth = 2; const e = 1 + 0.3 * eOut(rg); rr(k, -85 * e, -50 * e, 170 * e, 100 * e, 12); k.stroke(); }
+    k.globalAlpha = op * 0.92; k.scale(sc, sc); k.drawImage(STMP_IMG[j], -85, -50, 170, 100);
+    k.restore();
+  });
+  k.restore();
+};

@@ -1,0 +1,16 @@
+Please use "Falling petals" (花びらの舞い落ち), one of the names in "Styled scenes".
+Motion Prompt #4-037
+
+What it is: Petals drift down and scatter at the cursor
+What the sample shows: Pink petals sway, spin and flip as they fall over a dark plum background; a cursor sweeps once from left to right, pushing petals along its path aside before they settle back into their fall.
+Spec:
+- 40 elliptical petals with a radius of 4–8px; each falls through a 248px span 1 or 2 times per 6.4 s and sways 8–22px sideways 1–3 times.
+- Each petal turns 1–2 times per 6.4 s and flips 2–4 times by driving its horizontal scale with cos.
+- The cursor sweeps from x -16 to 555 over 0.8–4.0 s (cubic ease-in-out), with y going from 64 to 132 plus a 22px wave.
+- Petals within 52px of the cursor are pushed up to 46px along its direction and away from it, peaking at 0.35 s and easing exponentially back to their paths.
+- Any remaining push fades to 0 over 5.4–6.2 s; falling, swaying, turning and flipping are whole counts per 6.4 s, so the loop is seamless.
+When to use it: Use it behind spring campaigns, Japanese-style titles or wedding invitations; swap the petals for snow or rain for other seasons.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-037.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

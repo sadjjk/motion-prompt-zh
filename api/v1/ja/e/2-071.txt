@@ -1,0 +1,38 @@
+// Motion Prompt #2-071 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// フラッグウェーブ / Flag wave
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 32 · カテゴリ: 文字・図形の演出
+// 何が起きるか: 左の旗竿から4文字が並び、1文字ずつ遅れて縮み・傾き・持ち上がり、旗がはためく波が右へ流れる。
+// 動きの仕様:
+//   - 左に旗竿（幅8px、上端に黄色の玉）、4文字（58px）を右へ並べる
+//   - 各文字は左端を軸に scaleX = cos(38°·f)、skewY −9°·f、上へ4px·f 動く
+//   - f は1.175秒で0→1→0（余弦）、文字ごとに0.17秒ずつ位相を遅らせる
+//   - 偶数番目の文字を珊瑚色、奇数番目を白にする
+// 使いどころ: 応援・スローガン・スポーツのタイトルに。
+// タグ: flag, wave, wind, slogan, ripple, text
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-071
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 32
+// 改写自 KittenJam Motion Library #19（Hannah）· 文字旗帜：左侧旗杆，每个字以左边为轴做 scaleX = cos(38°·f)、skewY −9°·f、上移 4px·f 的波浪（f 每 1.175 秒一个来回），字与字相位依次延后 0.17 秒，偶数位字用珊瑚色。
+CELLS[31] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '乘风破浪', F = `900 58px ${JP}`, PX = 118, TOP = 30, BOT = 186, CY = 82;
+  k.fillStyle = C.navy3; rr(k, PX - 22, BOT - 6, 44, 8, 3); k.fill();
+  k.fillStyle = '#9AA6CC'; rr(k, PX - 4, TOP, 8, BOT - TOP, 3); k.fill();
+  k.fillStyle = C.yel; k.beginPath(); k.arc(PX, TOP - 4, 7, 0, 7); k.fill();
+  const cs = chars(k, S, F, 10), x0 = PX + 14 - (cs[0].x - cs[0].w / 2);
+  cs.forEach((c, i) => {
+    const f = (1 - Math.cos(Math.PI * 2 * (u - 0.17 * i) / 1.175)) / 2;
+    k.save(); k.translate(x0 + c.x - c.w / 2, CY - 4 * f);
+    k.transform(1, Math.tan(-9 * Math.PI / 180 * f), 0, 1, 0, 0);
+    k.scale(Math.cos(38 * Math.PI / 180 * f), 1);
+    txt(k, c.ch, 0, 0, F, i % 2 ? C.coral : '#fff', 'left', 'middle');
+    k.restore();
+  });
+};
