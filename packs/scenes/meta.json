@@ -2395,6 +2395,265 @@
           "信号波形"
         ]
       }
+    },
+    {
+      "no": "36",
+      "id": "4-036",
+      "slug": "confetti-burst",
+      "category": "pattern",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "紙吹雪",
+        "en": "Confetti burst",
+        "zh-Hans": "彩纸爆发"
+      },
+      "meaning": {
+        "ja": "文字が弾むと同時に紙吹雪が噴き上がる",
+        "en": "Confetti shoots up as the title springs in",
+        "zh-Hans": "标题弹起的同时喷出一把彩纸"
+      },
+      "ask": {
+        "ja": "「おめでとう」の文字を弾ませて、下から紙吹雪を60枚くらい噴き上げて。放物線で落ちながら回転し、最後の0.5秒で消えるように。",
+        "en": "Make the word \"Congrats\" spring in while about 60 pieces of confetti burst up from below, falling in arcs, spinning, and fading over the last 0.5 s.",
+        "zh-Hans": "让「恭喜」两个字弹性放大，同时从下方喷出约 60 片彩纸，抛物线落下、边转边翻，最后 0.5 秒淡出。"
+      },
+      "summary": {
+        "ja": "暗い紫の背景で「恭喜」の文字が一度縮んでから弾んで戻り、同時に下から5色の紙片が扇形に噴き上がり、回転しながら放物線を描いて落ち、消えていく。3.2秒ごとに繰り返す。",
+        "en": "On a dark purple background the word \"恭喜\" dips and springs back while confetti in 5 colors fans up from below, spinning and falling in arcs before fading; it repeats every 3.2 s.",
+        "zh-Hans": "深紫背景上「恭喜」先收缩再弹回，同时 5 色彩纸从下方扇形喷出，边转边沿抛物线落下并淡出，每 3.2 秒一次。"
+      },
+      "spec": {
+        "ja": [
+          "64px の太字「恭喜」が 0.25 秒で 0.6 倍に縮み、続いて elastic.out(1, 0.4) で 0.8 秒かけて 1 倍に戻る",
+          "縮み終わりと同時に、カード高さの 62% の位置から 8×5 の紙片 60 枚（5 色）が噴き出す。初速 187〜374px/s、角度 215°〜325°",
+          "重力 395px/s² の放物線で落ち、2 秒で ±540° 回転し、毎秒 1〜2 回裏返る（縦方向の scale を cos で変える）",
+          "紙片の寿命は 2 秒で、最後の 1.5〜2.0 秒にフェードアウトする",
+          "3.2 秒ごとに噴き出し、6.4 秒の 1 周で 2 回。次の噴出の前に紙片はすべて消え、文字も 1 倍に戻っている"
+        ],
+        "en": [
+          "A 64px bold \"恭喜\" shrinks to 0.6× over 0.25 s, then springs back to 1× over 0.8 s with elastic.out(1, 0.4).",
+          "As the shrink ends, 60 confetti pieces of 8×5 in 5 colors burst from 62% of the card height, at 187–374px/s and angles of 215°–325°.",
+          "They fall in arcs under 395px/s² of gravity, rotate ±540° over 2 s, and flip 1–2 times per second (vertical scale driven by cos).",
+          "Each piece lives 2 s and fades out over 1.5–2.0 s.",
+          "A burst fires every 3.2 s, 2 per 6.4 s cycle; all pieces are gone and the title is back at 1× before the next burst."
+        ],
+        "zh-Hans": [
+          "64px 粗体「恭喜」在 0.25 秒内收缩到 0.6 倍，随后以 elastic.out(1, 0.4) 用 0.8 秒弹回 1 倍",
+          "收缩结束时，从卡片高度 62% 处喷出 60 片 8×5 的 5 色彩纸，初速 187–374px/s，角度 215°–325°",
+          "受 395px/s² 重力沿抛物线落下，2 秒内旋转 ±540°，每秒翻面 1–2 次（纵向 scale 按 cos 变化）",
+          "每片寿命 2 秒，在 1.5–2.0 秒之间淡出",
+          "每 3.2 秒喷一次，6.4 秒周期内 2 次；下一次喷发前彩纸已全部消失，标题回到 1 倍"
+        ]
+      },
+      "use": {
+        "ja": "達成・当選・誕生日・リリース告知など、お祝いの一言を強調したい場面に。",
+        "en": "Use it to celebrate a milestone, a win, a birthday or a launch announcement.",
+        "zh-Hans": "适合达成目标、中奖、生日、新品发布等需要庆祝一句话的场面。"
+      },
+      "tags": [
+        "confetti",
+        "celebration",
+        "burst",
+        "particles",
+        "party",
+        "congrats"
+      ]
+    },
+    {
+      "no": "37",
+      "id": "4-037",
+      "slug": "falling-petals",
+      "category": "pattern",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "花びらの舞い落ち",
+        "en": "Falling petals",
+        "zh-Hans": "飘落花瓣"
+      },
+      "meaning": {
+        "ja": "花びらが揺れて落ち、カーソルで吹き散る",
+        "en": "Petals drift down and scatter at the cursor",
+        "zh-Hans": "花瓣摇曳飘落，光标经过时被吹开"
+      },
+      "ask": {
+        "ja": "背景に花びらを40枚くらい舞い落とし、左右に揺れて裏返るように。カーソルが通ったら近くの花びらを押しのけて、すぐ元の軌道に戻して。",
+        "en": "Fill the background with about 40 falling petals that sway and flip; when the cursor passes, push nearby petals aside and let them drift back to their paths.",
+        "zh-Hans": "背景飘落约 40 片花瓣，左右摆动并翻面；光标经过时把附近花瓣推开，再慢慢回到原来的轨迹。"
+      },
+      "summary": {
+        "ja": "暗い紫の背景にピンクの花びらが揺れながら落ち、くるくる回って裏返る。カーソルが左から右へ一度横切ると、通り道の花びらが押しのけられ、また元の流れに戻る。",
+        "en": "Pink petals sway, spin and flip as they fall over a dark plum background; a cursor sweeps once from left to right, pushing petals along its path aside before they settle back into their fall.",
+        "zh-Hans": "深紫背景上粉色花瓣边摆边转、翻面飘落；光标从左向右横扫一次，路径上的花瓣被推开，随后回到原来的下落轨迹。"
+      },
+      "spec": {
+        "ja": [
+          "半径 4〜8px の楕円の花びら 40 枚。6.4 秒で 248px の区間を 1 回または 2 回落ち、左右に 8〜22px を 1〜3 回揺れる",
+          "各花びらは 6.4 秒に 1〜2 回転し、横方向の scale を cos で変えて 2〜4 回裏返る",
+          "カーソルは 0.8〜4.0 秒に三次の easeInOut で x -16 から 555 へ横切り、y は 64 から 132 へ下がりながら 22px の波を描く",
+          "カーソルから 52px 以内の花びらは、カーソルの進む向きと離れる向きに最大 46px 押され、0.35 秒で最も遠くなってから指数的に元の軌道へ戻る",
+          "残った押し出しは 5.4〜6.2 秒に 0 になる。落下・揺れ・回転・裏返りは 6.4 秒で整数回なので継ぎ目なくループする"
+        ],
+        "en": [
+          "40 elliptical petals with a radius of 4–8px; each falls through a 248px span 1 or 2 times per 6.4 s and sways 8–22px sideways 1–3 times.",
+          "Each petal turns 1–2 times per 6.4 s and flips 2–4 times by driving its horizontal scale with cos.",
+          "The cursor sweeps from x -16 to 555 over 0.8–4.0 s (cubic ease-in-out), with y going from 64 to 132 plus a 22px wave.",
+          "Petals within 52px of the cursor are pushed up to 46px along its direction and away from it, peaking at 0.35 s and easing exponentially back to their paths.",
+          "Any remaining push fades to 0 over 5.4–6.2 s; falling, swaying, turning and flipping are whole counts per 6.4 s, so the loop is seamless."
+        ],
+        "zh-Hans": [
+          "40 片椭圆花瓣，半径 4–8px；每片每 6.4 秒落过 248px 的跨度 1 或 2 次，左右摆动 8–22px、1–3 次",
+          "每片每 6.4 秒转 1–2 圈，横向 scale 按 cos 变化，翻面 2–4 次",
+          "光标在 0.8–4.0 秒以三次缓入缓出从 x -16 横扫到 555，y 从 64 降到 132 并叠加 22px 的波动",
+          "距光标 52px 内的花瓣沿光标方向并背离光标被推开，最多 46px，0.35 秒时最远，随后指数回落到原轨迹",
+          "残余推开量在 5.4–6.2 秒归 0；下落、摆动、旋转、翻面在 6.4 秒内都是整数次，循环无缝"
+        ]
+      },
+      "use": {
+        "ja": "春のキャンペーン・和風のタイトル・結婚式の招待など、季節感のある背景に。雪や雨の粒子にも置き換えられる。",
+        "en": "Use it behind spring campaigns, Japanese-style titles or wedding invitations; swap the petals for snow or rain for other seasons.",
+        "zh-Hans": "适合春季活动、和风标题、婚礼邀请等有季节感的背景，也可换成雪花或雨滴。"
+      },
+      "tags": [
+        "petals",
+        "sakura",
+        "falling",
+        "particles",
+        "cursor",
+        "interactive",
+        "spring"
+      ]
+    },
+    {
+      "no": "38",
+      "id": "4-038",
+      "slug": "click-fireworks",
+      "category": "pattern",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "花火",
+        "en": "Fireworks",
+        "zh-Hans": "烟火"
+      },
+      "meaning": {
+        "ja": "クリックした所に花火が上がって開く",
+        "en": "A firework rises and bursts where you click",
+        "zh-Hans": "点击处升起烟火并炸开"
+      },
+      "ask": {
+        "ja": "夜空の背景で、クリックした位置に下から花火を0.7秒で打ち上げ、40個の火花に開いて重力で落ちながら消えるようにして。",
+        "en": "On a night sky, launch a firework from the bottom to wherever I click in 0.7 s, bursting into 40 sparks that slow down, fall under gravity and fade.",
+        "zh-Hans": "夜空背景，点击哪里就从底部用 0.7 秒升起一枚烟火到那里，炸开 40 颗火花，减速、受重力下坠并淡出。"
+      },
+      "summary": {
+        "ja": "星の出た夜空で、カーソルが 3 か所を順にクリックし、そのたびに波紋が広がり、下から花火が上がって金・青・桃色の火花に開き、垂れ下がりながら消える。",
+        "en": "On a starry night sky a cursor clicks 3 spots in turn; each click sends out a ripple and a rocket rises from the bottom to burst into gold, blue or pink sparks that droop and fade.",
+        "zh-Hans": "星空下光标依次点击 3 处，每次点击泛起涟漪，底部升起一枚烟火，炸成金、蓝、粉色火花，下垂并淡出。"
+      },
+      "spec": {
+        "ja": [
+          "カーソルは右下 (470, 176) から、0.3〜0.85、1.6〜2.25、3.0〜3.65 秒に三次の easeInOut で (150, 62)、(392, 52)、(268, 86) へ移り、4.6〜5.6 秒に元の位置へ戻る",
+          "クリックは 0.9、2.3、3.7 秒。矢印が 12% 縮み、半径 22px の波紋が 0.5 秒で広がって消える",
+          "クリックごとに、点の x ±30px の下端から花火が 0.7 秒（三次の easeOut）で点まで上がり、0.1 秒分の尾を引く",
+          "到達すると半径 34px の閃光が 0.3 秒で消え、火花 40 個が全方向へ 70〜140px/s で飛ぶ。抵抗 1.8/s、重力 120px/s² で計算し、1.4 秒でフェードアウトする",
+          "最後の火花は 5.8 秒に消え、6.4 秒で最初と同じ夜空とカーソル位置に戻る"
+        ],
+        "en": [
+          "The cursor starts at the bottom right (470, 176), moves to (150, 62), (392, 52) and (268, 86) over 0.3–0.85, 1.6–2.25 and 3.0–3.65 s (cubic ease-in-out), and returns over 4.6–5.6 s.",
+          "Clicks land at 0.9, 2.3 and 3.7 s: the arrow shrinks 12% and a 22px ripple grows and fades over 0.5 s.",
+          "Each click launches a rocket from the bottom edge, within ±30px of the click x, rising to the point in 0.7 s (cubic ease-out) with a 0.1 s trail.",
+          "On arrival a 34px flash fades over 0.3 s and 40 sparks fly out at 70–140px/s in every direction, with drag of 1.8/s and gravity of 120px/s², fading over 1.4 s.",
+          "The last sparks are gone by 5.8 s, and at 6.4 s the sky and cursor match the start."
+        ],
+        "zh-Hans": [
+          "光标从右下 (470, 176) 出发，在 0.3–0.85、1.6–2.25、3.0–3.65 秒以三次缓入缓出依次移到 (150, 62)、(392, 52)、(268, 86)，4.6–5.6 秒回到原位",
+          "点击时刻为 0.9、2.3、3.7 秒：箭头缩小 12%，半径 22px 的涟漪在 0.5 秒内扩散消失",
+          "每次点击从底边（点击 x ±30px 内）升起一枚烟火，0.7 秒（三次缓出）到达点击处，拖 0.1 秒的尾迹",
+          "到达后半径 34px 的闪光 0.3 秒内消失，40 颗火花以 70–140px/s 向四周飞散，阻力 1.8/s、重力 120px/s²，1.4 秒内淡出",
+          "最后一批火花 5.8 秒熄灭，6.4 秒时夜空与光标回到开头状态"
+        ]
+      },
+      "use": {
+        "ja": "イベントページ・お祭り・カウントダウン・完了のお祝いなど、クリックで盛り上げたい場面に。",
+        "en": "Use it for event pages, festivals, countdowns or a completion celebration that reacts to clicks.",
+        "zh-Hans": "适合活动页、节庆、倒计时、完成庆祝等希望点击时热闹起来的场面。"
+      },
+      "tags": [
+        "fireworks",
+        "celebration",
+        "click",
+        "particles",
+        "night",
+        "interactive",
+        "explosion"
+      ]
+    },
+    {
+      "no": "39",
+      "id": "4-039",
+      "slug": "tape-cross",
+      "category": "type",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "立入禁止テープ",
+        "en": "Caution tape cross",
+        "zh-Hans": "封锁胶带"
+      },
+      "meaning": {
+        "ja": "文字入りの警告テープが X 字に交差する",
+        "en": "Two lettered caution tapes crossing in an X",
+        "zh-Hans": "印字的警示胶带交叉成 X"
+      },
+      "ask": {
+        "ja": "黄色に黒縁の警告テープを2本、X字に交差させて、テープの「立入禁止」の文字を互いに逆向きに流して。影も付けて。",
+        "en": "Cross 2 yellow caution tapes with black edges in an X, scroll their repeated \"KEEP OUT\" text in opposite directions, and add a drop shadow.",
+        "zh-Hans": "用 2 条黄底黑边的警示胶带交叉成 X，胶带上重复的「禁止进入」反向滑动，并加投影。"
+      },
+      "summary": {
+        "ja": "暗い背景の上で、黒い縁の黄色いテープ 2 本が X 字に交差し、それぞれに繰り返された「禁止进入」の文字が逆向きに流れ続ける。",
+        "en": "Over a dark background, 2 yellow tapes with black edges cross in an X, each carrying a repeated \"禁止进入\" that scrolls in the opposite direction to the other.",
+        "zh-Hans": "深色背景上，2 条黄底黑边的胶带交叉成 X，各自印着重复的「禁止进入」，文字朝相反方向持续滑动。"
+      },
+      "spec": {
+        "ja": [
+          "テープは長さ 840px、高さ 34px、黄 #ffd400 に上下 4px の黒 #111111 の縁。ぼかし 18px・下 8px の影",
+          "中心はカード中央で、下のテープは y 112・13° 傾き、上のテープは y 96・-15° 傾き",
+          "テープの文字は 16px の太字「禁止进入 · 」の繰り返し",
+          "上のテープは 6.4 秒で文字 4 単元ぶん左へ、下のテープは 3 単元ぶん右へ等速で流れる。単元幅の整数倍なので継ぎ目なくループする"
+        ],
+        "en": [
+          "Each tape is 840px long and 34px tall, yellow #ffd400 with 4px black #111111 edges top and bottom, and an 18px blur shadow offset 8px down.",
+          "Both are centered on the card: the lower tape at y 112 tilted 13°, the upper tape at y 96 tilted -15°.",
+          "The tapes carry a repeated 16px bold \"禁止进入 · \".",
+          "Over 6.4 s the upper tape scrolls 4 text units left and the lower tape 3 units right at a constant rate; whole units keep the loop seamless."
+        ],
+        "zh-Hans": [
+          "每条胶带长 840px、高 34px，黄色 #ffd400，上下各 4px 黑边 #111111，投影模糊 18px、下移 8px",
+          "两条都以卡片中心为中心：下层胶带 y 112、倾斜 13°，上层胶带 y 96、倾斜 -15°",
+          "胶带上是重复的 16px 粗体「禁止进入 · 」",
+          "6.4 秒内上层胶带匀速左移 4 个文字单元，下层右移 3 个；滑动量是单元宽的整数倍，循环无缝"
+        ]
+      },
+      "use": {
+        "ja": "工事中・公開前・閲覧制限・ネタバレ注意などの告知や、ストリート系のタイトル背景に。",
+        "en": "Use it for under-construction, coming-soon, restricted or spoiler notices, or behind street-style titles.",
+        "zh-Hans": "适合施工中、即将上线、限制访问、剧透警告等提示，或街头风格的标题背景。"
+      },
+      "tags": [
+        "caution-tape",
+        "warning",
+        "marquee",
+        "crossed",
+        "street",
+        "banner"
+      ]
     }
   ]
 }

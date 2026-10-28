@@ -1335,6 +1335,190 @@ MotionPrompt.pack('scenes', function () {
     k.restore();
   };
 
+  // @shared
+  // 36–39 改写自 KittenJam Motion Library（Hannah 整理，MIT）的共用件：按下标与通道取确定性"随机"值、模拟鼠标指针、点击涟漪
+  const kjHash = (i, ch = 0) => hash(i * 7.31 + ch * 113.7);
+  // 模拟鼠标指针，箭头尖端 (x, y) 为热点；press 0→1 为按下，箭头缩小 12%
+  function kjCursor(k, x, y, press = 0, dark = false) {
+    const s = 1 - 0.12 * press;
+    k.save(); k.translate(x, y); k.scale(s, s);
+    k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 17); k.lineTo(4.5, 13); k.lineTo(7.5, 19.5); k.lineTo(10.5, 18.2); k.lineTo(7.6, 11.8); k.lineTo(13, 11.8); k.closePath();
+    k.fillStyle = dark ? '#16151B' : '#FFFFFF'; k.fill(); k.strokeStyle = dark ? '#FFFFFF' : '#16151B'; k.lineWidth = 1.3; k.lineJoin = 'round'; k.stroke();
+    k.restore();
+  }
+  // 点击涟漪：t 0→1 时半径 0→r、透明度 a→0
+  function kjRipple(k, x, y, t, r = 22, col = '255,255,255', a = 0.7) {
+    if (t <= 0 || t >= 1) return;
+    k.save(); k.strokeStyle = `rgba(${col},${a * (1 - t)})`; k.lineWidth = 2;
+    k.beginPath(); k.arc(x, y, r * out3(t), 0, TAU); k.stroke(); k.restore();
+  }
+
+  // @element 36
+  // 改写自 KittenJam Motion Library #99 彩纸爆发（Hannah 整理）：标题「恭喜」先 0.25 秒收缩到 0.6 倍，再以 elastic.out(1, 0.4) 0.8 秒弹回，
+  // 同时从卡片 62% 高处喷出 60 片彩纸：初速 187–374px/s、角度 215°–325°、重力 395px/s² 的抛物线，旋转 ±540°/2 秒并翻面，2 秒寿命的最后 0.5 秒淡出。
+  // 每 3.2 秒喷一次、一个周期两次；两次之间彩纸已全部消失、标题回到 1 倍，因此循环无缝。原作每次 36 片、无收缩预备。
+  const CONF_N = 60, CONF_GAP = 3.2, CONF_T0 = 0.25, CONF_LIFE = 2.0;
+  const CONF_X = 269.5, CONF_Y = 129, CONF_G = 395;   // 喷口 = 卡片宽的中点、高的 62%；重力 = 1.9 × 卡片高
+  const CONF_COLS = ['#ff5d73', '#ffd23f', '#3ec7ff', '#7cf29a', '#b78bff'];
+  const CONF_el = t => (t <= 0 ? 0 : t >= 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t - 0.1) * TAU / 0.4) + 1); // GSAP elastic.out(1, .4)
+  CELLS[35] = (k, w, h, u) => {
+    k.drawImage(layer('CONF_bg', g => {
+      g.fillStyle = '#15121f'; g.fillRect(0, 0, CW, CH);
+      const gr = g.createRadialGradient(269.5, 100, 0, 269.5, 100, 260);
+      gr.addColorStop(0, 'rgba(120,80,200,.28)'); gr.addColorStop(1, 'rgba(120,80,200,0)'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+    }), 0, 0);
+    const b = Math.floor(u / CONF_GAP), tl = u - b * CONF_GAP;                    // 第几次喷发、本次内的时间
+    const sc = tl < CONF_T0 ? 1 - 0.4 * inOut3(tl / CONF_T0) : 0.6 + 0.4 * CONF_el((tl - CONF_T0) / 0.8);
+    k.save(); k.translate(269.5, 100); k.scale(sc, sc);
+    txt(k, '恭喜', 0, 0, `800 64px ${SANS}`, '#ffffff', 'center', 'middle'); k.restore();
+    const t = tl - CONF_T0;
+    if (t <= 0 || t >= CONF_LIFE) return;
+    k.save(); k.globalAlpha = 1 - seg(t, 1.5, 2.0);
+    for (let i = 0; i < CONF_N; i++) {
+      const s = b * CONF_N + i;                                                   // 两次喷发用不同的种子
+      const v = mix(187, 374, kjHash(s, 1)), an = (215 + 110 * kjHash(s, 2)) * Math.PI / 180;
+      const x = CONF_X + v * Math.cos(an) * t, y = CONF_Y + v * Math.sin(an) * t + 0.5 * CONF_G * t * t;
+      if (y > CH + 12 || x < -12 || x > CW + 12) continue;
+      const rot = kjHash(s, 3) * TAU + (kjHash(s, 4) * 2 - 1) * 3 * Math.PI * t / CONF_LIFE;
+      const flip = Math.cos(TAU * (1 + kjHash(s, 5)) * t + kjHash(s, 6) * TAU);  // 每秒翻面 1–2 圈
+      k.save(); k.translate(x, y); k.rotate(rot); k.scale(1, flip);
+      k.fillStyle = CONF_COLS[i % 5]; k.fillRect(-4, -2.5, 8, 5); k.restore();
+    }
+    k.restore();
+  };
+
+  // @element 37
+  // 改写自 KittenJam Motion Library #174 飘落花瓣（Hannah 整理）：40 片花瓣下落、左右摆、旋转，scaleX = cos 模拟翻面；
+  // 模拟光标 0.8–4.0 秒从左到右横扫一次，经过 52px 内的花瓣被推开最多 46px（随光标方向并背离光标），0.35 秒达到最远后指数回落到原轨迹。
+  // 下落、摆动、旋转、翻面在 6.4 秒内都是整数圈，被推的时刻按光标轨迹预先解出，因此每帧只按 u 解析计算。
+  const PET_N = 40, PET_SPAN = CH + 40, PET_R = 52, PET_PUSH = 46, PET_TAU = 0.35;
+  const PET_cur = s => { const e = inOut3(seg(s, 0.8, 4.0)); return [mix(-16, 555, e), mix(64, 132, e) + 22 * Math.sin(e * TAU)]; };
+  const PET_nat = (p, s) => [p.x0 + p.amp * Math.sin(TAU * p.m * s / CYC + p.ph), ((p.y0 + p.n * PET_SPAN * s / CYC) % PET_SPAN) - 20];
+  const PET = Array.from({ length: PET_N }, (_, i) => {
+    const p = {
+      x0: kjHash(i, 11) * CW, y0: kjHash(i, 12) * PET_SPAN, n: 1 + Math.floor(kjHash(i, 13) * 2),   // 每周期落 1 或 2 个跨度（248px）
+      amp: 8 + 14 * kjHash(i, 14), m: 1 + Math.floor(kjHash(i, 15) * 3), ph: kjHash(i, 16) * TAU,     // 摆幅 8–22px，每周期 1–3 次
+      r: 4 + 4 * kjHash(i, 17), a0: kjHash(i, 18) * TAU, rv: [-2, -1, 1, 2][Math.floor(kjHash(i, 19) * 4)],
+      f: 2 + Math.floor(kjHash(i, 20) * 3), fp: kjHash(i, 21) * TAU, tc: -1, k: 0, dx: 0, dy: 0
+    };
+    // 解光标经过该花瓣的时刻：光标 x 单调，反复用"花瓣此刻的 x"反查光标时刻（二分），三次即收敛
+    let s = 2.4;
+    for (let j = 0; j < 3; j++) {
+      const px = PET_nat(p, s)[0];
+      if (px < -16 || px > 555) { s = -1; break; }
+      let lo = 0.8, hi = 4.0;
+      for (let q = 0; q < 18; q++) { const mid = (lo + hi) / 2; if (PET_cur(mid)[0] < px) lo = mid; else hi = mid; }
+      s = (lo + hi) / 2;
+    }
+    if (s > 0) {
+      const [px, py] = PET_nat(p, s), [cx, cy] = PET_cur(s), d = Math.hypot(px - cx, py - cy);
+      if (d < PET_R) {
+        const a = PET_cur(s - 0.01), b = PET_cur(s + 0.01), vl = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+        let dx = (px - cx) / (d || 1) * 0.6 + (b[0] - a[0]) / vl, dy = (py - cy) / (d || 1) * 0.6 + (b[1] - a[1]) / vl;
+        const dl = Math.hypot(dx, dy) || 1;
+        Object.assign(p, { tc: s, k: 1 - d / PET_R, dx: dx / dl, dy: dy / dl });
+      }
+    }
+    return p;
+  });
+  CELLS[36] = (k, w, h, u) => {
+    k.drawImage(layer('PET_bg', g => {
+      const gr = g.createLinearGradient(0, 0, 0, CH); gr.addColorStop(0, '#1b1426'); gr.addColorStop(1, '#2e1b2f');
+      g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+    }), 0, 0);
+    for (const p of PET) {
+      let [x, y] = PET_nat(p, u);
+      if (p.tc > 0 && u > p.tc) {                                                 // 推开位移：t/τ·e^(1−t/τ)，τ 时最远
+        const q = (u - p.tc) / PET_TAU, g = q * Math.exp(1 - q) * p.k * PET_PUSH * (1 - seg(u, 5.4, 6.2)); // 残余位移在 6.2 秒前归零
+        x += p.dx * g; y += p.dy * g;
+      }
+      k.save(); k.translate(x, y); k.rotate(p.a0 + TAU * p.rv * u / CYC);
+      k.scale(Math.cos(TAU * p.f * u / CYC + p.fp), 1);                           // 翻面：每周期 2–4 次
+      k.fillStyle = 'rgba(255,183,213,.9)'; k.beginPath(); k.ellipse(0, 0, p.r, p.r * 0.62, 0, 0, TAU); k.fill();
+      k.fillStyle = 'rgba(255,140,190,.9)'; k.beginPath(); k.ellipse(p.r * 0.35, 0, p.r * 0.3, p.r * 0.2, 0, 0, TAU); k.fill();
+      k.restore();
+    }
+    const [cx, cy] = PET_cur(u);
+    kjCursor(k, cx, cy);
+  };
+
+  // @element 38
+  // 改写自 KittenJam Motion Library #181 烟火（Hannah 整理）：夜空，模拟光标依次点击三处（0.9、2.3、3.7 秒），点击时箭头缩 12% 并出现涟漪；
+  // 每次点击从底部升起一枚烟火，0.7 秒（三次缓出）到达点击处炸开 40 颗火花：初速 70–140px/s、阻力系数 1.8/s、重力 120px/s²，1.4 秒内淡出。
+  // 光标 4.6–5.6 秒回到右下角原位；最后一朵 5.8 秒熄灭，6.4 秒与开头同一画面。原作为随机自动施放与真实点击。
+  const FW_SHOTS = [{ x: 150, y: 62, t: 0.9, hue: 42 }, { x: 392, y: 52, t: 2.3, hue: 196 }, { x: 268, y: 86, t: 3.7, hue: 322 }];
+  const FW_REST = [470, 176], FW_MOVES = [[0.3, 0.85], [1.6, 2.25], [3.0, 3.65], [4.6, 5.6]];
+  const FW_RISE = 0.7, FW_N = 40, FW_LIFE = 1.4, FW_DRAG = 1.8, FW_G = 120, FW_V = 140;
+  // 带线性阻力与重力的解析位移（不逐帧累加）
+  const FW_pos = (vx, vy, t) => { const e = (1 - Math.exp(-FW_DRAG * t)) / FW_DRAG; return [vx * e, vy * e + FW_G / FW_DRAG * (t - e)]; };
+  CELLS[37] = (k, w, h, u) => {
+    k.drawImage(layer('FW_bg', g => {
+      const gr = g.createLinearGradient(0, 0, 0, CH); gr.addColorStop(0, '#060a1c'); gr.addColorStop(1, '#1a1838');
+      g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+      for (let i = 0; i < 70; i++) { g.fillStyle = `rgba(255,255,255,${0.15 + 0.45 * kjHash(i, 40)})`; g.fillRect(kjHash(i, 41) * CW, kjHash(i, 42) * CH * 0.8, 1.2, 1.2); }
+    }), 0, 0);
+    k.save(); k.globalCompositeOperation = 'lighter'; k.lineCap = 'round';
+    FW_SHOTS.forEach((f, j) => {
+      const tr = u - f.t, te = tr - FW_RISE;
+      if (tr > 0 && tr < FW_RISE) {                                              // 上升中的火箭与尾迹
+        const sx = f.x + (kjHash(j, 31) - 0.5) * 60, sy = CH + 4;
+        const at = s => { const e = out3(clamp(s / FW_RISE)); return [mix(sx, f.x, e), mix(sy, f.y, e)]; };
+        const [x0, y0] = at(Math.max(0, tr - 0.12)), [x1, y1] = at(tr);
+        k.strokeStyle = `hsla(${f.hue},100%,75%,.5)`; k.lineWidth = 1.5; k.beginPath(); k.moveTo(x0, y0); k.lineTo(x1, y1); k.stroke();
+        k.fillStyle = `hsl(${f.hue},100%,80%)`; k.beginPath(); k.arc(x1, y1, 2, 0, TAU); k.fill();
+      }
+      if (te > 0 && te < FW_LIFE) {
+        glow(k, f.x, f.y, 34, '255,240,220', 0.45 * (1 - seg(te, 0, 0.3)));     // 炸开瞬间的闪光
+        const life = 1 - te / FW_LIFE;
+        for (let i = 0; i < FW_N; i++) {
+          const s = j * FW_N + i, an = TAU * kjHash(s, 32), v = FW_V * (0.5 + 0.5 * kjHash(s, 33));
+          const vx = Math.cos(an) * v, vy = Math.sin(an) * v;
+          const [ax, ay] = FW_pos(vx, vy, Math.max(0, te - 0.1)), [bx, by] = FW_pos(vx, vy, te);
+          const col = `hsla(${f.hue + (kjHash(s, 34) - 0.5) * 40},100%,65%,`;
+          k.strokeStyle = col + life * 0.5 + ')'; k.lineWidth = 1.4; k.beginPath(); k.moveTo(f.x + ax, f.y + ay); k.lineTo(f.x + bx, f.y + by); k.stroke();
+          k.fillStyle = col + life + ')'; k.beginPath(); k.arc(f.x + bx, f.y + by, 1.8, 0, TAU); k.fill();
+        }
+      }
+    });
+    k.restore();
+    // 光标：原位 → 三个点击处 → 回原位（三次缓入缓出）
+    const pts = [FW_REST, ...FW_SHOTS.map(f => [f.x, f.y]), FW_REST];
+    let cx = FW_REST[0], cy = FW_REST[1];
+    FW_MOVES.forEach(([a, b], i) => { if (u >= a) { const e = inOut3(seg(u, a, b)); cx = mix(pts[i][0], pts[i + 1][0], e); cy = mix(pts[i][1], pts[i + 1][1], e); } });
+    let press = 0;
+    for (const f of FW_SHOTS) {
+      press = Math.max(press, seg(u, f.t - 0.06, f.t) * (1 - seg(u, f.t + 0.06, f.t + 0.2)));
+      kjRipple(k, f.x, f.y, seg(u, f.t, f.t + 0.5), 22, `${f.hue < 100 ? '255,214,120' : f.hue < 250 ? '120,220,255' : '255,140,220'}`);
+    }
+    kjCursor(k, cx, cy, press);
+  };
+
+  // @element 39
+  // 改写自 KittenJam Motion Library #54 封锁胶带（Hannah 整理）：两条黄色警示胶带（高 34px、上下 4px 黑边、投影）分别倾斜 −15° 与 13° 交叉成 X，
+  // 带上重复的「禁止进入 · 」反向滑动：上层每周期左移 4 个文字单元、下层右移 3 个；滑动距离是单元宽的整数倍，循环无缝。
+  const TAPE_TXT = '禁止进入 · ', TAPE_H = 34, TAPE_B = 4, TAPE_L = 840;
+  const TAPE_BANDS = [{ y: 112, deg: 13, dir: 1, n: 3 }, { y: 96, deg: -15, dir: -1, n: 4 }]; // 先画下层（13°），再画上层（−15°）
+  CELLS[38] = (k, w, h, u) => {
+    k.drawImage(layer('TAPE_bg', g => {
+      g.fillStyle = '#18171d'; g.fillRect(0, 0, CW, CH);
+      const gr = g.createRadialGradient(269.5, 104, 40, 269.5, 104, 320);
+      gr.addColorStop(0, 'rgba(255,255,255,.05)'); gr.addColorStop(1, 'rgba(0,0,0,.35)'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+    }), 0, 0);
+    k.font = `800 16px ${SANS}`;
+    const uw = k.measureText(TAPE_TXT).width;                                       // 文字单元宽，随系统字体而定
+    for (const b of TAPE_BANDS) {
+      k.save(); k.translate(269.5, b.y); k.rotate(b.deg * Math.PI / 180);
+      k.save(); k.shadowColor = 'rgba(0,0,0,.55)'; k.shadowBlur = 18; k.shadowOffsetY = 8;
+      k.fillStyle = '#ffd400'; k.fillRect(-TAPE_L / 2, -TAPE_H / 2, TAPE_L, TAPE_H); k.restore();
+      k.fillStyle = '#111111';
+      k.fillRect(-TAPE_L / 2, -TAPE_H / 2, TAPE_L, TAPE_B); k.fillRect(-TAPE_L / 2, TAPE_H / 2 - TAPE_B, TAPE_L, TAPE_B);
+      const off = (((b.dir * b.n * uw * u / CYC) % uw) + uw) % uw;
+      k.textAlign = 'left'; k.textBaseline = 'middle';
+      for (let x = -TAPE_L / 2 - uw + off; x < TAPE_L / 2; x += uw) k.fillText(TAPE_TXT, x, 1);
+      k.restore();
+    }
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });
