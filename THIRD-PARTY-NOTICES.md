@@ -186,6 +186,74 @@ HTML, CSS, GSAP code or fonts are included. ui2v releases its motion packages un
 > OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 > SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## KittenJam Motion Library by Hannah (elements `#1-114`–`#1-141`, `#2-068`–`#2-085`, `#4-036`–`#4-039`)
+
+The 50 elements below are Canvas 2D cards written for this repository after effects collected in
+[KittenJam Motion Library 動態收藏](https://kittenjam-motion-library.vercel.app/), curated by Hannah
+([portfolio](https://hannahchao-portfolio.vercel.app/)), and added to the packs `ui`, `lp`, `aiux`, `uxmotion`,
+`motion2` and `scenes`. Each card follows the original effect's structure and timing, rescaled to its pack's card
+size and cycle and made to loop; interactive effects are shown with a simulated pointer or scroll bar. None of the
+original prompts, CSS, GSAP code or fonts are included; names, descriptions and prompts here are our own writing.
+
+The source site states: 「名稱與描述屬原作者整理，預覽動畫為示意重製，僅供個人參考學習。」 and lists its references
+as threads.com/@ai_yunon_ai and threads.com/@ai_tjb. Every `e/<id>.txt` of these elements carries the line
+`MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/`, and the `kit/<pack>.js` of the six packs
+lists it after the pack's own line. To ask for a removal or a correction, use the
+[issue form](https://github.com/sadjjk/motion-prompt-zh/issues/new?template=3-removal.yml).
+
+| ID | Pack | Original effect |
+|---|---|---|
+| `#1-114` | `ui` | 價格方案切換 Pricing Toggle (#215) |
+| `#1-115` | `ui` | 水滴單選 Liquid Radio (#250) |
+| `#1-116` | `ui` | 輸入框浮動標籤 Floating Label Input (#148) |
+| `#1-117` | `ui` | 展開搜尋框 Expanding Search (#247) |
+| `#1-118` | `ui` | 指令面板 Command Palette (#321) |
+| `#1-119` | `ui` | 翻頁書 Page Flip Book (#309) |
+| `#1-120` | `ui` | 對折邀請卡 Folding Card (#311) |
+| `#1-121` | `ui` | 下拉重新整理 Pull to Refresh (#142) |
+| `#1-122` | `lp` | 旋轉光邊按鈕 Rotating Gradient Border (#110) |
+| `#1-123` | `lp` | 果凍彈跳按鈕 Jelly Button (#233) |
+| `#1-124` | `lp` | 發牌展開 Card Deal (#98) |
+| `#1-125` | `lp` | 拍立得洗牌 Photo Stack Shuffle (#270) |
+| `#1-126` | `lp` | 切片轉場 Slice Transition (#269) |
+| `#1-127` | `lp` | 天氣圖示動畫 Animated Weather Icons (#324) |
+| `#1-128` | `aiux` | 旋轉光芒 Sunburst Rays (#227) |
+| `#1-129` | `uxmotion` | 折線圖繪製 Line Chart Draw (#197) |
+| `#1-130` | `uxmotion` | 圓餅圖分段 Donut Chart Segments (#199) |
+| `#1-131` | `uxmotion` | 全息閃卡 Holographic Card (#289) |
+| `#1-132` | `uxmotion` | 3D 傾斜視差圖片 Tilt Parallax Image (#105) |
+| `#1-133` | `uxmotion` | 眼睛跟隨 Following Eyes (#257) |
+| `#1-134` | `uxmotion` | 刮刮樂揭示 Scratch Reveal (#180) |
+| `#1-135` | `uxmotion` | 流場線條 Flow Field (#173) |
+| `#1-136` | `uxmotion` | 加入購物車飛入 Add to Cart Fly (#221) |
+| `#1-137` | `uxmotion` | 紙飛機送出 Send Plane Button (#241) |
+| `#1-138` | `uxmotion` | 星星評分 Star Rating (#149) |
+| `#1-139` | `uxmotion` | 滑動確認 Slide to Confirm (#235) |
+| `#1-140` | `uxmotion` | 圓形擴張轉場 Circle Reveal Transition (#161) |
+| `#1-141` | `uxmotion` | 時間軸延伸 Timeline Draw (#127) |
+| `#2-068` | `motion2` | 閃電砸落 Lightning Strike (#1) |
+| `#2-069` | `motion2` | 硬幣翻轉 Coin Flip (#3) |
+| `#2-070` | `motion2` | 水面倒影 Water Reflection (#17) |
+| `#2-071` | `motion2` | 文字旗幟 Text Flag (#19) |
+| `#2-072` | `motion2` | 重力反轉 Gravity Flip (#20) |
+| `#2-073` | `motion2` | 卡拉OK小球 Karaoke Ball (#25) |
+| `#2-074` | `motion2` | 墨水暈開 Ink Bleed (#36) |
+| `#2-075` | `motion2` | 崩落 Crumble Down (#39) |
+| `#2-076` | `motion2` | 印章 Text Stamp (#43) |
+| `#2-077` | `motion2` | 圓柱 Text Cylinder (#57) |
+| `#2-078` | `motion2` | 拉霸 Slot Text (#65) |
+| `#2-079` | `motion2` | 液體填滿 Liquid Fill (#73) |
+| `#2-080` | `motion2` | 手寫簽名 Signature Writing (#134) |
+| `#2-081` | `motion2` | 地圖路線導航 Map Route (#322) |
+| `#2-082` | `motion2` | 心電圖線條 ECG Heartbeat Line (#328) |
+| `#2-083` | `motion2` | 樹枝生長 Growing Plant (#329) |
+| `#2-084` | `motion2` | 齒輪連動 Gear Train (#330) |
+| `#2-085` | `motion2` | 指紋掃描解鎖 Fingerprint Scan (#331) |
+| `#4-036` | `scenes` | 彩紙爆發 Confetti Burst (#99) |
+| `#4-037` | `scenes` | 飄落花瓣 Falling Petals (#174) |
+| `#4-038` | `scenes` | 煙火 Fireworks (#181) |
+| `#4-039` | `scenes` | 封鎖膠帶 Tape Cross (#54) |
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat

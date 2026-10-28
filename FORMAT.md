@@ -33,16 +33,16 @@ attribution links to the original site.
 
 | group | pack | elements | IDs | upstream IDs | title |
 |---|---|---|---|---|---|
-| 1 `web` | `ui` | 35 | #1 001~024 · 098~102 · 108~113 | 049–072 | UI component names / UIパーツの名前 (098~102 after [skills](https://github.com/emilkowalski/skills), Emil Kowalski; 108~113 after [ui2v](https://ui2v.com/), illli Ai Studio) |
-| 1 `web` | `lp` | 29 | #1 025~048 · 103~107 | 073–096 | Landing page & web effects / LP・Webサイトの演出 (103~107 after [skills](https://github.com/emilkowalski/skills), Emil Kowalski) |
-| 1 `web` | `aiux` | 12 | #1 049~060 | — | Glow & liquid / グロー・リキッド (after [Libraries.dev](https://libraries.dev/), Jakub Antalik) |
-| 1 `web` | `uxmotion` | 37 | #1 061~097 | — | Interaction & data motion / インタラクションとデータの動き (after [Lucian UX/UI Prompt](https://lucianlabs.dev/uxui-prompt/), Seokwoooo) |
+| 1 `web` | `ui` | 43 | #1 001~024 · 098~102 · 108~121 | 049–072 | UI component names / UIパーツの名前 (098~102 after [skills](https://github.com/emilkowalski/skills), Emil Kowalski; 108~113 after [ui2v](https://ui2v.com/), illli Ai Studio; 114~121 after [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/), Hannah) |
+| 1 `web` | `lp` | 35 | #1 025~048 · 103~107 · 122~127 | 073–096 | Landing page & web effects / LP・Webサイトの演出 (103~107 after [skills](https://github.com/emilkowalski/skills), Emil Kowalski; 122~127 after [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/), Hannah) |
+| 1 `web` | `aiux` | 13 | #1 049~060 · 128 | — | Glow & liquid / グロー・リキッド (after [Libraries.dev](https://libraries.dev/), Jakub Antalik; 128 after [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/), Hannah) |
+| 1 `web` | `uxmotion` | 50 | #1 061~097 · 129~141 | — | Interaction & data motion / インタラクションとデータの動き (after [Lucian UX/UI Prompt](https://lucianlabs.dev/uxui-prompt/), Seokwoooo; 129~141 after [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/), Hannah) |
 | 2 `motion` | `motion` | 24 | #2 001~024 | 001–024 | Motion graphics moves / モーショングラフィックスの動き |
-| 2 `motion` | `motion2` | 28 | #2 025~048 · 064~067 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 (064 after [skills](https://github.com/emilkowalski/skills), Emil Kowalski; 065~067 after [ui2v](https://ui2v.com/), illli Ai Studio) |
+| 2 `motion` | `motion2` | 46 | #2 025~048 · 064~085 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 (064 after [skills](https://github.com/emilkowalski/skills), Emil Kowalski; 065~067 after [ui2v](https://ui2v.com/), illli Ai Studio; 068~085 after [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/), Hannah) |
 | 2 `motion` | `mgstyles` | 15 | #2 049~063 | — | MG styles / モーショングラフィックスのスタイル (after [mg-styles-15](https://github.com/Vincentwei1021/mg-styles-15), Vincentwei1021) |
 | 3 `film` | `camera` | 24 | #3 001~024 | 025–048 | Camera moves & transitions / カメラワークと切り替え |
 | 3 `film` | `photo` | 24 | #3 025~048 | 097–120 | Photo looks, lighting & styles / 写真の表現・光と画風 |
-| 4 `ambient` | `scenes` | 35 | #4 001~035 | — | Styled scenes / スタイルシーン (after [Motion Atlas](https://github.com/skylarzzzz/motion-atlas), Yun; 033~035 after [ui2v](https://ui2v.com/), illli Ai Studio) |
+| 4 `ambient` | `scenes` | 39 | #4 001~039 | — | Styled scenes / スタイルシーン (after [Motion Atlas](https://github.com/skylarzzzz/motion-atlas), Yun; 033~035 after [ui2v](https://ui2v.com/), illli Ai Studio; 036~039 after [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/), Hannah) |
 
 A range is written `#<group> <first>~<last>` (e.g. `#1 025~048`); a pack whose IDs come in several runs
 joins them with ` · ` (e.g. `#1 001~024 · 098~102`); a single ID is `#1-025`.
