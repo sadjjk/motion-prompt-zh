@@ -1866,6 +1866,367 @@
           "补位动画"
         ]
       }
+    },
+    {
+      "no": "30",
+      "id": "1-122",
+      "slug": "rotating-gradient-border",
+      "category": "hover-click",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "回転グラデーションボーダー",
+        "en": "Rotating gradient border",
+        "zh-Hans": "旋转光边按钮"
+      },
+      "meaning": {
+        "ja": "ボタンの枠の光がぐるりと回り続ける",
+        "en": "A gradient light keeps circling the button border",
+        "zh-Hans": "按钮外框的渐变光持续绕圈"
+      },
+      "ask": {
+        "ja": "CTA ボタンの枠に回転グラデーションボーダーを付けて。ホバー中は回転を速め、外側にぼんやり光らせる。",
+        "en": "Give the CTA a rotating gradient border that spins faster on hover, with a soft outer glow.",
+        "zh-Hans": "给主按钮加旋转光边：锥形渐变外框持续绕圈，悬停时加速并亮起外光晕。"
+      },
+      "summary": {
+        "ja": "暗いページのボタンの枠を多色のグラデーションが回り、カーソルが乗ると回転が速まり外側が光る。",
+        "en": "A multicolour gradient circles the border of a button on a dark page; when the cursor hovers, it spins faster and a glow appears around it.",
+        "zh-Hans": "深色页面上按钮外框的多色渐变一直绕圈，光标悬停时转速加快并亮起外光晕。"
+      },
+      "spec": {
+        "ja": [
+          "暗いページ中央に200×52のカプセル型ボタン。枠は3pxの円錐グラデーション（朱 → 青 → 紫 → 朱）",
+          "グラデーションの角度は基本で1周期に1回転。カーソルが乗っている間（0.7〜3.8秒、easeInOut 2乗）さらに2回転を足し、4.8秒周期で計3回転の整数回にして継ぎ目なし",
+          "カーソルは0.6秒にボタンへ。外側の光（shadowBlur 26）が0.25秒の easeOut で点き、3.8秒に離れると0.25秒で消える"
+        ],
+        "en": [
+          "A 200×52 pill button on a dark page with a 3px conic-gradient border (vermilion → blue → purple → vermilion).",
+          "The gradient angle turns 1 full turn per cycle at base speed; while the cursor hovers (0.7–3.8 s, easeInOut power 2) it adds 2 more turns, a whole 3 turns per 4.8 s cycle, so the loop is seamless.",
+          "The cursor reaches the button at 0.6 s; an outer glow (shadowBlur 26) comes on over 0.25 s with easeOut and goes off over 0.25 s after the cursor leaves at 3.8 s."
+        ],
+        "zh-Hans": [
+          "深色页面中央 200×52 胶囊按钮，外框是 3px 锥形渐变（朱 → 蓝 → 紫 → 朱）。",
+          "渐变角度基础转速为每周期 1 圈；光标悬停期间（0.7–3.8 秒，easeInOut 2 次方）额外加 2 圈，每 4.8 秒周期合计整数 3 圈，首尾无缝。",
+          "光标 0.6 秒移到按钮上，外光晕（shadowBlur 26）用 0.25 秒 easeOut 亮起；3.8 秒移开后 0.25 秒熄灭。"
+        ]
+      },
+      "use": {
+        "ja": "料金ページや暗いヒーローで、いちばん押してほしいボタンを目立たせたい所に。",
+        "en": "Use it to make the main call to action stand out on dark heroes or pricing pages.",
+        "zh-Hans": "适合深色首屏或价格页里最想让人点的主按钮。"
+      },
+      "tags": [
+        "gradient-border",
+        "conic-gradient",
+        "glow",
+        "button",
+        "hover",
+        "animated-border"
+      ]
+    },
+    {
+      "no": "31",
+      "id": "1-123",
+      "slug": "jelly-button",
+      "category": "hover-click",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "ゼリーボタン",
+        "en": "Jelly button",
+        "zh-Hans": "果冻弹跳按钮"
+      },
+      "meaning": {
+        "ja": "押すとゼリーのように縦横に揺れて戻る",
+        "en": "Wobbles wide and tall like jelly when pressed",
+        "zh-Hans": "点击后像果冻一样横竖弹动再复原"
+      },
+      "ask": {
+        "ja": "カートに入れるボタンをゼリーボタンにして。押したら横につぶれて縦に伸び、0.6秒で元に戻す。",
+        "en": "Make the add-to-cart button a jelly button: squash wide, stretch tall and settle within 0.6 s of the click.",
+        "zh-Hans": "把“加入购物车”按钮做成果冻弹跳：点击后先横向压扁再纵向拉高，0.6 秒内回弹复原。"
+      },
+      "summary": {
+        "ja": "カーソルがボタンを2回押し、そのたびにボタンが横へつぶれ縦へ伸びて小さく揺れ戻り、下の文字が個数を数える。",
+        "en": "The cursor presses the button twice; each time it squashes wide, stretches tall and wobbles back, while the caption counts the items added.",
+        "zh-Hans": "光标点两次按钮，每次按钮先横向压扁、再纵向拉高、小幅回弹复原，下方文字计数。"
+      },
+      "spec": {
+        "ja": [
+          "160×50の朱色のカプセル型ボタン。カーソルが1.0秒と2.8秒に押す",
+          "押すたびに拡大率 (1, 1) → 0.12秒 (1.18, 0.82) → 0.27秒 (0.85, 1.15) → 0.42秒 (1.05, 0.95) → 0.6秒で (1, 1) に戻る。各区間 easeInOut 3乗",
+          "ボタンの下の文字が押した回数を数える（「1件追加」「2件追加」）。横につぶしてから縦に伸ばすので弾みが読み取れる"
+        ],
+        "en": [
+          "A 160×50 vermilion pill button; the cursor clicks it at 1.0 s and 2.8 s.",
+          "After each click the scale goes (1, 1) → (1.18, 0.82) at 0.12 s → (0.85, 1.15) at 0.27 s → (1.05, 0.95) at 0.42 s → back to (1, 1) at 0.6 s, each step easeInOut power 3.",
+          "The caption under the button counts the clicks (\"Added 1 item\", \"Added 2 items\"); squashing wide before stretching tall keeps the bounce readable."
+        ],
+        "zh-Hans": [
+          "160×50 朱色胶囊按钮，光标在 1.0 秒、2.8 秒各点一次。",
+          "每次点击后缩放 (1, 1) → 0.12 秒 (1.18, 0.82) → 0.27 秒 (0.85, 1.15) → 0.42 秒 (1.05, 0.95) → 0.6 秒回到 (1, 1)，每段 easeInOut 3 次方。",
+          "按钮下方文字计数（“已加入 1 件”“已加入 2 件”）；先横向压扁再纵向拉高，弹性一眼可见。"
+        ]
+      },
+      "use": {
+        "ja": "カート追加・いいね・送信など、押した手ごたえを返したいボタンに。",
+        "en": "Use it on add-to-cart, like or send buttons where a press should feel physical.",
+        "zh-Hans": "适合加入购物车、点赞、发送等需要按压手感反馈的按钮。"
+      },
+      "tags": [
+        "jelly",
+        "squash-stretch",
+        "button",
+        "click",
+        "bounce",
+        "feedback"
+      ]
+    },
+    {
+      "no": "32",
+      "id": "1-124",
+      "slug": "card-deal",
+      "category": "hover-click",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "カードディール",
+        "en": "Card deal",
+        "zh-Hans": "发牌展开"
+      },
+      "meaning": {
+        "ja": "カードが一枚ずつ配られて扇形に開く",
+        "en": "Cards are dealt one by one into a fan",
+        "zh-Hans": "卡片依次发出并展开成扇形"
+      },
+      "ask": {
+        "ja": "「配る」を押したら5枚のカードを下から順に配って、±24°の扇形に弾んで開いて。",
+        "en": "When Deal is pressed, deal 5 cards up from the bottom one after another into a ±24° fan with a small overshoot.",
+        "zh-Hans": "点“发牌”后 5 张卡片从底部依次发出，回弹展开成约 ±24° 的扇形。"
+      },
+      "summary": {
+        "ja": "「配る」を押すと5枚のカードが下から順に飛び出して扇形に開き、しばらく後に「集める」で最後の1枚から下へ戻る。",
+        "en": "Pressing Deal sends 5 cards up from the bottom in turn into a fan; later, Collect sends them back down starting with the last card.",
+        "zh-Hans": "点“发牌”后 5 张卡片从底部依次飞出展开成扇形，停留后点“收牌”，从最后一张开始收回下方。"
+      },
+      "spec": {
+        "ja": [
+          "カーソルが0.5秒に「配る」を押す。5枚のカード（60×84）が下から0.12秒おき・1枚0.55秒で出る",
+          "カード下端の132下にある共通の軸を中心に −24°…+24°（1枚ごと12°）の扇形に開く。角度は back-out（行き過ぎ1.7）で弾み、easeOut 3乗で150px上がる",
+          "3.1秒に「集める」を押す。3.2秒から最後の1枚を先に、0.1秒おき・0.35秒（easeInOut 3乗）で閉じながら下へ戻る"
+        ],
+        "en": [
+          "The cursor clicks Deal at 0.5 s; 5 cards (60×84) leave the bottom one by one, 0.12 s apart, 0.55 s each.",
+          "They fan out to −24°…+24° (12° apart) around a shared pivot 132 below the card bottoms; the angle uses back-out with overshoot 1.7 while the cards rise 150px with easeOut power 3.",
+          "At 3.1 s Collect is clicked; from 3.2 s, starting with the last card, each card folds back and drops 0.1 s apart over 0.35 s (easeInOut power 3)."
+        ],
+        "zh-Hans": [
+          "光标 0.5 秒点“发牌”，5 张卡片（60×84）从下方依次发出，间隔 0.12 秒、每张 0.55 秒。",
+          "绕卡片底边下方 132 处的同一枢轴展开到 −24°…+24°（每张差 12°），角度用 back-out（过冲 1.7）回弹，同时 easeOut 3 次方上升 150px。",
+          "3.1 秒点“收牌”；3.2 秒起从最后一张开始，每张间隔 0.1 秒、0.35 秒（easeInOut 3 次方）收拢并落回下方。"
+        ]
+      },
+      "use": {
+        "ja": "カード型の商品・プラン・特典をまとめて見せる場面や、ゲーム風の演出に。",
+        "en": "Use it to reveal a set of card-style products, plans or perks, or for game-like moments.",
+        "zh-Hans": "适合一次展示一组卡片式商品、套餐、福利，或游戏化的展示场景。"
+      },
+      "tags": [
+        "card-deal",
+        "fan",
+        "cards",
+        "stagger",
+        "overshoot",
+        "click"
+      ]
+    },
+    {
+      "no": "33",
+      "id": "1-125",
+      "slug": "photo-stack-shuffle",
+      "category": "hover-click",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "フォトスタックシャッフル",
+        "en": "Photo stack shuffle",
+        "zh-Hans": "拍立得洗牌"
+      },
+      "meaning": {
+        "ja": "重ねた写真の一番上を抜いて一番下へ送る",
+        "en": "Pulls the top photo off a pile and tucks it underneath",
+        "zh-Hans": "叠放照片的顶张抽出插回底部"
+      },
+      "ask": {
+        "ja": "思い出の写真をフォトスタックシャッフルにして。クリックで一番上の写真を右へ抜き、一番下に差し込む。",
+        "en": "Show the memories as a photo stack shuffle: each click pulls the top photo out to the right and slips it under the pile.",
+        "zh-Hans": "把回忆照片做成拍立得洗牌：每次点击把顶张向右抽出，再插回最底下。"
+      },
+      "summary": {
+        "ja": "傾いて重なった4枚のポラロイドの一番上をカーソルが押すたび、その1枚が右へ抜けて一番下に入り、残りが1段ずつ上がる。",
+        "en": "Each time the cursor clicks a pile of 4 tilted polaroids, the top one slides out to the right and goes to the bottom while the rest move up a place.",
+        "zh-Hans": "光标每点一次歪斜叠放的 4 张拍立得，顶张向右抽出插到最底层，其余各上移一层。"
+      },
+      "spec": {
+        "ja": [
+          "傾いたポラロイド4枚の束（96×112）。各段の角度は −3°・4°・−7°・6°",
+          "カーソルが0.6・1.5・2.4・3.3秒に一番上を押す。押して0.05秒後から1回0.75秒で入れ替える",
+          "一番上の1枚は最初の0.36秒で easeOut 3乗で右へ170px抜けながら10°余分に回り、残りの0.39秒（easeInOut 3乗）で一番下の段へ戻る",
+          "残り3枚は同時に1段ずつ上がる（easeInOut 3乗）。4回で並びが元に戻り、周期の始めと終わりが同じ"
+        ],
+        "en": [
+          "A pile of 4 tilted polaroids (96×112) whose slots are angled −3°, 4°, −7° and 6°.",
+          "The cursor clicks the top card at 0.6, 1.5, 2.4 and 3.3 s; each shuffle starts 0.05 s after the click and lasts 0.75 s.",
+          "The top card slides 170px to the right and turns 10° more with easeOut power 3 over the first 0.36 s, then tucks into the bottom slot over the remaining 0.39 s (easeInOut power 3).",
+          "The other 3 cards each move up one slot at the same time (easeInOut power 3); after 4 shuffles the order is back to the start, matching the first frame."
+        ],
+        "zh-Hans": [
+          "一叠 4 张歪斜的拍立得（96×112），各槽位角度 −3°、4°、−7°、6°。",
+          "光标在 0.6、1.5、2.4、3.3 秒点顶张；每次点击后 0.05 秒开始洗牌，历时 0.75 秒。",
+          "顶张前 0.36 秒 easeOut 3 次方向右抽出 170px 并多转 10°，后 0.39 秒（easeInOut 3 次方）插回最底层槽位。",
+          "其余 3 张同时各上移一个槽位（easeInOut 3 次方）；4 次后顺序回到初始，与周期开头一致。"
+        ]
+      },
+      "use": {
+        "ja": "旅行記・アルバム・作品集など、写真を1枚ずつめくって見せたい所に。",
+        "en": "Use it in travel stories, albums or portfolios to flip through photos one at a time.",
+        "zh-Hans": "适合旅行记录、相册、作品集等一张张翻看照片的场景。"
+      },
+      "tags": [
+        "photo-stack",
+        "polaroid",
+        "shuffle",
+        "cards",
+        "gallery",
+        "click"
+      ]
+    },
+    {
+      "no": "34",
+      "id": "1-126",
+      "slug": "slice-transition",
+      "category": "loading-loops",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "スライストランジション",
+        "en": "Slice transition",
+        "zh-Hans": "切片转场"
+      },
+      "meaning": {
+        "ja": "画像を短冊に切り、交互に上下へ抜いて次を見せる",
+        "en": "Cuts the image into strips that slide away alternately up and down",
+        "zh-Hans": "图片切成竖条交替上下滑走露出下一张"
+      },
+      "ask": {
+        "ja": "スライダーの切り替えをスライストランジションにして。6本の短冊が0.08秒ずつずれて交互に上下へ抜ける。",
+        "en": "Use a slice transition for the slider: 6 strips slide out alternately up and down, 0.08 s apart.",
+        "zh-Hans": "轮播切换用切片转场：当前图切成 6 条，间隔 0.08 秒交替向上、向下滑走。"
+      },
+      "summary": {
+        "ja": "枠の中の図が6本の縦の短冊に分かれ、左から順に上・下・上…と抜けて下の図が現れ、もう一度同じ動きで元の図に戻る。",
+        "en": "The picture in the frame splits into 6 vertical strips that slide away left to right, up, down, up…, revealing the next picture; the same move later brings the first back.",
+        "zh-Hans": "画框里的图分成 6 条竖条，从左到右依次上、下、上…滑走，露出下一张；之后同样切回第一张。"
+      },
+      "spec": {
+        "ja": [
+          "431×128の枠の中で2枚の幾何学的な図が交互に入れ替わる",
+          "今の図を縦6本の短冊に切り、0.08秒おき・各0.5秒の easeInOut 3乗で148px抜く。1・3・5本目は上へ、2・4・6本目は下へ",
+          "タイムライン: 図Aを0.9秒まで表示 → 0.9〜1.8秒に切り抜けて図B → 3.3秒まで表示 → 3.3〜4.2秒に切り抜けて図Aに戻る"
+        ],
+        "en": [
+          "Two geometric pictures alternate inside a 431×128 frame.",
+          "The current picture is cut into 6 vertical strips; each slides 148px out, 0.08 s apart, 0.5 s each with easeInOut power 3 — strips 1, 3, 5 go up and strips 2, 4, 6 go down.",
+          "Timeline: picture A holds until 0.9 s, slices away over 0.9–1.8 s to reveal B, B holds until 3.3 s, then slices away over 3.3–4.2 s back to A."
+        ],
+        "zh-Hans": [
+          "431×128 画框内两张几何示意图交替出现。",
+          "当前图切成 6 条竖条，每条间隔 0.08 秒、各 0.5 秒 easeInOut 3 次方滑出 148px，第 1、3、5 条向上，第 2、4、6 条向下。",
+          "时间线：图 A 停留到 0.9 秒 → 0.9–1.8 秒切走露出图 B → 停到 3.3 秒 → 3.3–4.2 秒切走回到图 A。"
+        ]
+      },
+      "use": {
+        "ja": "ヒーローのスライダー・作品の切り替え・章の区切りなど、画像を印象的に替えたい所に。",
+        "en": "Use it for hero sliders, portfolio switches or section breaks where an image change should feel bold.",
+        "zh-Hans": "适合首屏轮播、作品切换、章节过渡等想让换图更有冲击力的地方。"
+      },
+      "tags": [
+        "slice",
+        "transition",
+        "slider",
+        "strips",
+        "image-reveal",
+        "stagger"
+      ]
+    },
+    {
+      "no": "35",
+      "id": "1-127",
+      "slug": "animated-weather-icons",
+      "category": "loading-loops",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "アニメーション天気アイコン",
+        "en": "Animated weather icons",
+        "zh-Hans": "天气图标动画"
+      },
+      "meaning": {
+        "ja": "晴れ・くもり・雨・雷のアイコンがそれぞれ小さく動く",
+        "en": "Sun, cloud, rain and storm icons each move in a small loop",
+        "zh-Hans": "晴、云、雨、雷图标各自小幅循环动"
+      },
+      "ask": {
+        "ja": "天気予報のアイコンをアニメにして。太陽の光が回り、雲が漂い、雨粒が時間差で落ち、雷が光る。",
+        "en": "Animate the forecast icons: the sun's rays turn, the cloud drifts, raindrops fall in turn and the lightning flashes.",
+        "zh-Hans": "让天气预报图标动起来：太阳光芒自转、云朵飘动、雨滴错时落下、闪电闪烁。"
+      },
+      "summary": {
+        "ja": "4枚の小さなカードで、太陽の光が回り、雲が左右に漂い、雨粒が順に落ち、雷雲の稲妻が時々光る。",
+        "en": "On 4 small cards the sun's rays rotate, a cloud drifts side to side, raindrops fall in turn and a storm cloud's bolt flashes now and then.",
+        "zh-Hans": "4 张小卡上，太阳光芒自转、云朵左右飘、雨滴依次落下、雷云里的闪电不时一闪。"
+      },
+      "spec": {
+        "ja": [
+          "4枚の小さなカード（110×128・間隔14）：晴れ・くもり・雨・雷。どのループも4.8秒周期の中で整数回くり返す",
+          "晴れ: 12本の光が1周期に1回転。くもり: 雲が左右に ±6px 漂い、1周期に2往復",
+          "雨: 3粒が0.27秒ずつずれ、0.8秒ごとに30px落ち、始めと終わりでフェード",
+          "雷: 1.2・1.5・3.6秒に各0.12秒光り、同時にカードの地がほんのり明るくなる"
+        ],
+        "en": [
+          "4 small cards (110×128, 14 apart): sunny, cloudy, rain and storm; every loop repeats a whole number of times per 4.8 s cycle.",
+          "Sun: 12 rays rotate 1 full turn per cycle. Cloud: drifts ±6px left and right, 2 round trips per cycle.",
+          "Rain: 3 drops 0.27 s apart, each falling 30px every 0.8 s and fading in and out at the ends.",
+          "Storm: the bolt flashes at 1.2, 1.5 and 3.6 s for 0.12 s each while the card background tints lighter."
+        ],
+        "zh-Hans": [
+          "4 张小卡（110×128、间距 14）：晴、多云、小雨、雷暴；每个循环在 4.8 秒周期内都重复整数次。",
+          "晴：12 道光芒每周期自转 1 圈。多云：云朵左右飘 ±6px，每周期 2 次往返。",
+          "雨：3 滴雨错开 0.27 秒，每 0.8 秒落下 30px，起落两端淡入淡出。",
+          "雷暴：闪电在 1.2、1.5、3.6 秒各闪 0.12 秒，同时卡片底色微亮。"
+        ]
+      },
+      "use": {
+        "ja": "天気・旅行・イベントの案内や、状態を表すアイコンを少し生き生きさせたい所に。",
+        "en": "Use it in weather, travel or event pages, or anywhere status icons should feel a little alive.",
+        "zh-Hans": "适合天气、出行、活动页面，或想让状态图标更生动的地方。"
+      },
+      "tags": [
+        "weather",
+        "icons",
+        "loop",
+        "sun",
+        "rain",
+        "lightning",
+        "micro-animation"
+      ]
     }
   ]
 }

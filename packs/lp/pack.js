@@ -909,6 +909,219 @@ MotionPrompt.pack('lp', function () {
     });
   };
 
+  // @element 30
+  // 改写自 KittenJam Motion Library #110 旋转光边按钮：深色页面中央 200×52 胶囊按钮，外框是一圈 3px 锥形渐变（朱 → 蓝 → 紫 → 朱）。
+  // 渐变角度 = 每周期 1 圈的基础转速 + 光标悬停期间（0.7–3.8 秒，easeInOut 2 次方）额外 2 圈，合计每周期整数 3 圈，首尾无缝。
+  // 光标 0.6 秒移到按钮上，外光晕（shadowBlur 26）0.25 秒 easeOut 亮起；3.8 秒移开后 0.25 秒熄灭。
+  const RGB_BW = 200, RGB_BH = 52;
+  CELLS[29] = (k, w, h, u) => {
+    frame(k);
+    const [cx, cy] = path([[0, 430, 150], [0.6, 300, 94], [3.8, 300, 94], [4.4, 430, 150], [4.8, 430, 150]], u);
+    const glow = eOut(P(u, 0.55, 0.8)) * (1 - eOut(P(u, 3.8, 4.05)));
+    const ang = Math.PI * 2 * (u / CYC + 2 * eIOs(P(u, 0.7, 3.8))) - Math.PI / 2;
+    view(k, () => {
+      k.fillStyle = '#151A26'; k.fillRect(0, 0, VW, VH);
+      const bx = (VW - RGB_BW) / 2, by = (VH - RGB_BH) / 2;
+      const g = k.createConicGradient(ang, VW / 2, VH / 2);
+      [[0, C.acc], [0.33, C.blue], [0.66, '#B57CFF'], [1, C.acc]].forEach(([o, c]) => g.addColorStop(o, c));
+      // 外光晕：同一圈渐变带阴影，悬停时出现
+      if (glow > 0) { k.save(); k.globalAlpha = glow; k.shadowColor = 'rgba(181,124,255,.9)'; k.shadowBlur = 26; k.fillStyle = g; rr(k, bx - 3, by - 3, RGB_BW + 6, RGB_BH + 6, (RGB_BH + 6) / 2); k.fill(); k.restore(); }
+      k.fillStyle = g; rr(k, bx - 3, by - 3, RGB_BW + 6, RGB_BH + 6, (RGB_BH + 6) / 2); k.fill();
+      k.fillStyle = '#1C2333'; rr(k, bx, by, RGB_BW, RGB_BH, RGB_BH / 2); k.fill();
+      txt(k, '开始使用', VW / 2, VH / 2 + 1, `700 16px ${JP}`, '#fff', 'center', 'middle', '1px');
+      cursor(k, cx, cy, 0);
+    });
+  };
+
+  // @element 31
+  // 改写自 KittenJam Motion Library #233 果冻弹跳按钮：160×50 朱色胶囊按钮，光标在 1.0、2.8 秒各点一次。
+  // 每次点击后按关键帧缩放 (1,1) → 0.12 秒 (1.18,0.82) → 0.15 秒 (0.85,1.15) → 0.15 秒 (1.05,0.95) → 0.18 秒回到 (1,1)，每段 easeInOut 3 次方，像果冻被压扁后回弹。
+  const JELLY_KEYS = [[0, 1, 1], [0.12, 1.18, 0.82], [0.27, 0.85, 1.15], [0.42, 1.05, 0.95], [0.6, 1, 1]];
+  const JELLY_AT = (d) => {
+    if (d <= 0 || d >= 0.6) return [1, 1];
+    for (let i = 1; i < JELLY_KEYS.length; i++) if (d < JELLY_KEYS[i][0]) { const a = JELLY_KEYS[i - 1], b = JELLY_KEYS[i], f = eIO((d - a[0]) / (b[0] - a[0])); return [lerp(a[1], b[1], f), lerp(a[2], b[2], f)]; }
+    return [1, 1];
+  };
+  CELLS[30] = (k, w, h, u) => {
+    frame(k, 'example.com/shop');
+    const [cx, cy] = path([[0, 430, 150], [0.7, 262, 88], [3.4, 262, 88], [4.2, 430, 150], [4.8, 430, 150]], u);
+    let sx = 1, sy = 1;
+    for (const tc of [1.0, 2.8]) { const [a, b] = JELLY_AT(u - tc); sx *= a; sy *= b; }
+    const n = (u >= 1.0 ? 1 : 0) + (u >= 2.8 ? 1 : 0);
+    view(k, () => {
+      k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+      k.save(); k.translate(VW / 2, VH / 2); k.scale(sx, sy);
+      k.save(); k.shadowColor = 'rgba(255,90,44,.35)'; k.shadowBlur = 14; k.shadowOffsetY = 5; k.fillStyle = C.acc; rr(k, -80, -25, 160, 50, 25); k.fill(); k.restore();
+      txt(k, '加入购物车', 0, 1, `800 15px ${JP}`, '#fff', 'center', 'middle');
+      k.restore();
+      txt(k, n ? `已加入 ${n} 件` : '点一下试试', VW / 2, VH / 2 + 50, `600 11px ${JP}`, n ? C.acc : C.sub, 'center', 'middle');
+      click(k, cx, cy, u, [1.0, 2.8]);
+    });
+  };
+
+  // @element 32
+  // 改写自 KittenJam Motion Library #98 发牌展开：光标 0.5 秒点「发牌」，5 张 60×84 卡片从视口下方依次发出（间隔 0.12 秒、每张 0.55 秒），
+  // 绕下方同一枢轴展开成 −24°…+24°（每张差 12°）的扇形，角度用 back-out（过冲 1.7）回弹；停留到 3.1 秒点「收牌」，
+  // 从最后一张开始每张间隔 0.1 秒、0.35 秒 easeInOut 3 次方收回下方。
+  const DEAL_N = 5, DEAL_W = 60, DEAL_H = 84, DEAL_R = 132;
+  const DEAL_BACK = x => { const s = 1.7; return 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2); };
+  CELLS[31] = (k, w, h, u) => {
+    frame(k, 'example.com/cards');
+    const [cx, cy] = path([[0, 430, 150], [0.4, 62, 136], [3.4, 62, 136], [4.2, 430, 150], [4.8, 430, 150]], u);
+    const out = u >= 0.5 && u < 3.1;
+    view(k, () => {
+      k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+      btn(k, 24, 122, 76, 28, out ? '收牌' : '发牌', out ? C.ink : C.acc, '#fff', 12);
+      const px = VW / 2 + 30, pyBase = 64 + DEAL_R;
+      for (let i = 0; i < DEAL_N; i++) {
+        const pin = P(u, 0.6 + i * 0.12, 1.15 + i * 0.12);
+        const pout = eIO(P(u, 3.2 + (DEAL_N - 1 - i) * 0.1, 3.55 + (DEAL_N - 1 - i) * 0.1));
+        const q = pin * (1 - pout);
+        if (q <= 0) continue;
+        const a = (-24 + 12 * i) * Math.PI / 180 * (u < 3.2 ? DEAL_BACK(pin) : 1 - pout);
+        const py = pyBase + 150 * (1 - (u < 3.2 ? eOut(pin) : 1 - pout));
+        k.save(); k.translate(px, py); k.rotate(a); k.translate(-DEAL_W / 2, -DEAL_R - DEAL_H / 2);
+        k.shadowColor = 'rgba(28,35,51,.18)'; k.shadowBlur = 8; k.shadowOffsetY = 3;
+        k.fillStyle = '#fff'; rr(k, 0, 0, DEAL_W, DEAL_H, 7); k.fill(); k.shadowColor = 'transparent';
+        pic(k, 5, 5, DEAL_W - 10, 46, i, 5);
+        bars(k, 7, 58, 40, 2, C.faint, 5, 9);
+        k.restore();
+      }
+      click(k, cx, cy, u, [0.5, 3.1]);
+    });
+  };
+
+  // @element 33
+  // 改写自 KittenJam Motion Library #270 拍立得洗牌：一叠 4 张歪斜的拍立得（96×112，各槽位角度 −3°/4°/−7°/6°），
+  // 光标在 0.6、1.5、2.4、3.3 秒点顶张：顶张前 0.36 秒 easeOut 向右抽出 170px 并多转 10°，后 0.39 秒插回最底层槽位；
+  // 其余 3 张同时 easeInOut 3 次方各上移一个槽位。4 次后顺序回到初始，周期首尾一致。
+  const PSTACK_SLOT = [[0, 0, -3], [7, 4, 4], [-6, 7, -7], [4, 10, 6]];
+  const PSTACK_CLICKS = [0.6, 1.5, 2.4, 3.3], PSTACK_DUR = 0.75;
+  CELLS[32] = (k, w, h, u) => {
+    frame(k, 'example.com/memories');
+    const [cx, cy] = path([[0, 430, 150], [0.45, 205, 70], [3.5, 205, 70], [4.2, 430, 150], [4.8, 430, 150]], u);
+    let n = 0, p = -1;
+    for (const tc of PSTACK_CLICKS) if (u >= tc + 0.05) { if (u < tc + 0.05 + PSTACK_DUR) p = (u - tc - 0.05) / PSTACK_DUR; else n++; }
+    const ox = 190, oy = 84;
+    const pola = (card, x, y, deg) => {
+      k.save(); k.translate(ox + x, oy + y); k.rotate(deg * Math.PI / 180);
+      k.shadowColor = 'rgba(28,35,51,.2)'; k.shadowBlur = 10; k.shadowOffsetY = 3;
+      k.fillStyle = '#fff'; k.fillRect(-48, -56, 96, 112); k.shadowColor = 'transparent';
+      pic(k, -42, -50, 84, 80, card, 2);
+      bars(k, -38, 38, 50, 1, C.faint, 5);
+      txt(k, `0${card + 1}`, 34, 42, `700 9px ${EN}`, C.sub, 'right', 'middle');
+      k.restore();
+    };
+    view(k, () => {
+      k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+      txt(k, '旅行回忆', 330, 70, `800 20px ${JP}`, C.ink); bars(k, 330, 86, 140, 2);
+      // 槽位 j 上的卡 = (j + n) % 4；动画中槽位 0 的卡在抽出
+      const draws = [];
+      for (let j = 3; j >= 0; j--) {
+        const card = (j + n) % 4;
+        if (p < 0) { draws.push([card, ...PSTACK_SLOT[j]]); continue; }
+        if (j === 0) continue;
+        const f = eIO(clamp(p / 0.9)), A = PSTACK_SLOT[j], B = PSTACK_SLOT[j - 1];
+        draws.push([card, lerp(A[0], B[0], f), lerp(A[1], B[1], f), lerp(A[2], B[2], f)]);
+      }
+      if (p >= 0) {
+        const top = n % 4, S0 = PSTACK_SLOT[0], S3 = PSTACK_SLOT[3];
+        if (p < 0.48) { const f = eOut(p / 0.48); draws.push([top, S0[0] + 170 * f, S0[1], S0[2] + 10 * f]); }
+        else { const f = eIO((p - 0.48) / 0.52); draws.unshift([top, lerp(S0[0] + 170, S3[0], f), S3[1], lerp(S0[2] + 10, S3[2], f)]); }
+      }
+      draws.forEach(d => pola(...d));
+      click(k, cx, cy, u, PSTACK_CLICKS);
+    });
+  };
+
+  // @element 34
+  // 改写自 KittenJam Motion Library #269 切片转场：431×128 画框内两张几何示意图交替。当前图被切成 6 条竖条，
+  // 每条间隔 0.08 秒、各 0.5 秒 easeInOut 3 次方滑出 148px，单数条向上、双数条向下，露出下面的另一张图。
+  // 时间线：图 A 停留到 0.9 秒 → 0.9–1.8 秒切走露出图 B → 停到 3.3 秒 → 3.3–4.2 秒切走露出图 A，周期首尾都是图 A。
+  const SLICE_N = 6, SLICE_X = 40, SLICE_Y = 20, SLICE_W = 431, SLICE_H = 128;
+  CELLS[33] = (k, w, h, u) => {
+    frame(k, 'example.com/gallery');
+    const art = (v) => {
+      if (v === 0) {
+        k.fillStyle = C.blueL; k.fillRect(SLICE_X, SLICE_Y, SLICE_W, SLICE_H);
+        k.fillStyle = C.blue; k.beginPath(); k.arc(SLICE_X + 120, SLICE_Y + 64, 40, 0, 7); k.fill();
+        k.fillStyle = C.acc; k.beginPath(); k.moveTo(SLICE_X + 230, SLICE_Y + 104); k.lineTo(SLICE_X + 290, SLICE_Y + 24); k.lineTo(SLICE_X + 350, SLICE_Y + 104); k.closePath(); k.fill();
+        txt(k, '01', SLICE_X + 16, SLICE_Y + 22, `800 13px ${EN}`, C.blue);
+      } else {
+        k.fillStyle = C.accL; k.fillRect(SLICE_X, SLICE_Y, SLICE_W, SLICE_H);
+        k.fillStyle = C.ink; rr(k, SLICE_X + 90, SLICE_Y + 28, 72, 72, 10); k.fill();
+        k.fillStyle = C.acc; k.save(); k.translate(SLICE_X + 270, SLICE_Y + 64); k.rotate(Math.PI / 4); k.fillRect(-32, -32, 64, 64); k.restore();
+        k.strokeStyle = C.blue; k.lineWidth = 8; k.beginPath(); k.arc(SLICE_X + 360, SLICE_Y + 64, 26, 0, 7); k.stroke();
+        txt(k, '02', SLICE_X + 16, SLICE_Y + 22, `800 13px ${EN}`, C.acc);
+      }
+    };
+    // 当前要切走的图与底图
+    const t0 = u < 2.55 ? 0.9 : 3.3, top = u < 2.55 ? 0 : 1;
+    view(k, () => {
+      k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+      k.save(); k.beginPath(); k.rect(SLICE_X, SLICE_Y, SLICE_W, SLICE_H); k.clip();
+      art(1 - top);
+      const sw = SLICE_W / SLICE_N;
+      for (let i = 0; i < SLICE_N; i++) {
+        const q = eIO(P(u, t0 + i * 0.08, t0 + i * 0.08 + 0.5));
+        if (q >= 1) continue;
+        k.save(); k.beginPath(); k.rect(SLICE_X + i * sw, SLICE_Y, sw + 0.5, SLICE_H); k.clip();
+        k.translate(0, (i % 2 ? 1 : -1) * 148 * q); art(top); k.restore();
+      }
+      k.restore();
+      bars(k, SLICE_X, SLICE_Y + SLICE_H + 8, 180, 1);
+    });
+  };
+
+  // @element 35
+  // 改写自 KittenJam Motion Library #324 天气图标动画：4 张 110×128 小卡（间距 14）各放一个线性图标，全部为周期内整数次循环：
+  // 晴：12 道光芒每周期自转 1 圈；多云：云朵左右飘 ±6px（每周期 2 次往返）；雨：3 滴雨错开 0.27 秒、每 0.8 秒落下一次；
+  // 雷暴：闪电在 1.2、1.5、3.6 秒各闪一下（0.12 秒），闪时卡片底色微亮。
+  const WX_W = 110, WX_H = 128, WX_GAP = 14;
+  CELLS[34] = (k, w, h, u) => {
+    frame(k, 'example.com/weather');
+    const x0 = (VW - (WX_W * 4 + WX_GAP * 3)) / 2, y0 = 18;
+    const cloud = (x, y, s, col) => {
+      k.fillStyle = col; k.beginPath();
+      k.arc(x - 14 * s, y + 4 * s, 12 * s, 0, 7); k.arc(x + 2 * s, y - 6 * s, 16 * s, 0, 7); k.arc(x + 18 * s, y + 4 * s, 11 * s, 0, 7); k.fill();
+      rr(k, x - 26 * s, y + 2 * s, 55 * s, 14 * s, 7 * s); k.fill();
+    };
+    const flash = [1.2, 1.5, 3.6].reduce((a, tc) => Math.max(a, u >= tc && u < tc + 0.12 ? 1 - (u - tc) / 0.12 : 0), 0);
+    view(k, () => {
+      k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+      ['晴', '多云', '小雨', '雷暴'].forEach((lab, i) => {
+        const x = x0 + i * (WX_W + WX_GAP), mx = x + WX_W / 2, my = y0 + 50;
+        k.fillStyle = '#fff'; rr(k, x, y0, WX_W, WX_H, 12); k.fill();
+        if (i === 3 && flash > 0) { k.fillStyle = `rgba(255,229,219,${flash})`; rr(k, x, y0, WX_W, WX_H, 12); k.fill(); }
+        txt(k, lab, mx, y0 + 108, `700 12px ${JP}`, C.ink, 'center', 'middle');
+        if (i === 0) {
+          const a = u / CYC * Math.PI * 2;
+          k.save(); k.translate(mx, my); k.rotate(a); k.strokeStyle = C.acc; k.lineWidth = 3; k.lineCap = 'round';
+          for (let r = 0; r < 12; r++) { k.rotate(Math.PI / 6); k.beginPath(); k.moveTo(0, -22); k.lineTo(0, -30); k.stroke(); }
+          k.restore(); k.fillStyle = C.acc; k.beginPath(); k.arc(mx, my, 16, 0, 7); k.fill(); k.lineCap = 'butt';
+        } else if (i === 1) {
+          k.fillStyle = '#FFB199'; k.beginPath(); k.arc(mx + 14, my - 12, 13, 0, 7); k.fill();
+          cloud(mx + 6 * Math.sin(u / CYC * Math.PI * 4) - 4, my + 4, 1, C.blueL);
+        } else if (i === 2) {
+          k.strokeStyle = C.blue; k.lineWidth = 2.5; k.lineCap = 'round';
+          [-14, 0, 14].forEach((dx, j) => {
+            const q = mod(u - j * 0.27, 0.8) / 0.8;
+            // 起落两端淡入淡出，避免雨滴突然出现
+            k.globalAlpha = Math.min(1, q / 0.15, (1 - q) / 0.2);
+            k.beginPath(); k.moveTo(mx + dx, my + 6 + 30 * q); k.lineTo(mx + dx - 2, my + 13 + 30 * q); k.stroke();
+          });
+          k.globalAlpha = 1; k.lineCap = 'butt';
+          cloud(mx, my - 4, 1, '#A9B4CC');
+        } else {
+          cloud(mx, my - 4, 1, '#5C6680');
+          k.fillStyle = flash > 0 ? '#FFC93C' : '#E7C35A'; k.globalAlpha = 0.35 + 0.65 * flash;
+          k.beginPath(); k.moveTo(mx + 2, my + 6); k.lineTo(mx - 8, my + 24); k.lineTo(mx, my + 24); k.lineTo(mx - 5, my + 38); k.lineTo(mx + 10, my + 18); k.lineTo(mx + 2, my + 18); k.closePath(); k.fill();
+          k.globalAlpha = 1;
+        }
+      });
+    });
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

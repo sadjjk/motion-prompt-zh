@@ -2332,6 +2332,507 @@
           "发布进度"
         ]
       }
+    },
+    {
+      "no": "36",
+      "id": "1-114",
+      "slug": "pricing-toggle",
+      "category": "select-switch",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "料金プラン切り替え",
+        "en": "Pricing toggle",
+        "zh-Hans": "价格方案切换"
+      },
+      "meaning": {
+        "ja": "月払い・年払いを切り替えると価格が回って変わる",
+        "en": "Switching monthly and yearly rolls the prices to new values",
+        "zh-Hans": "切换月付 / 年付时价格数字滚动变化"
+      },
+      "ask": {
+        "ja": "料金表に月払い／年払いの切り替えを付けて。切り替えたら価格の数字を上へ回して新しい値にし、おすすめのプランを少し大きくする。",
+        "en": "Add a monthly / yearly pricing toggle: switching rolls each price up to its new value and slightly enlarges the recommended plan.",
+        "zh-Hans": "价格表加月付 / 年付切换：切换后价格数字向上滚动到新值，推荐方案略微放大并描边。"
+      },
+      "summary": {
+        "ja": "カーソルが「年払い」を押すとつまみが移り、3枚のカードの価格が順に回って下がり、中央のおすすめカードが大きくなって青く縁取られ、後で月払いに戻る。",
+        "en": "The cursor clicks Yearly: the knob slides over, the three prices roll down card by card and the recommended middle card grows with a blue outline; later it switches back to Monthly.",
+        "zh-Hans": "光标点“年付”，滑块移过去，三张卡的价格依次滚动成新值，中间推荐卡放大并描蓝边，之后切回月付。"
+      },
+      "spec": {
+        "ja": [
+          "160×30の「月払い／年払い」カプセル型スイッチと、3枚の価格カード（150×124・間隔18）",
+          "カーソルが1.0秒に「年払い」を押し、つまみが0.3秒（easeInOut 3乗）で右へ移る",
+          "価格はカードごとに0.08秒ずつずれ、各0.4秒で上へ回って新しい値になる：¥29 / 59 / 99 → ¥23 / 47 / 79",
+          "中央のおすすめカードは0.35秒で1.06倍になり2pxの青い縁取り、スイッチの横に「20%お得」が出る",
+          "3.2秒に「月払い」を押すと同じ動きで逆に戻る"
+        ],
+        "en": [
+          "A 160×30 Monthly / Yearly pill toggle and 3 price cards (150×124, 18 apart).",
+          "The cursor clicks Yearly at 1.0 s and the knob slides right over 0.3 s (easeInOut power 3).",
+          "Card by card (0.08 s apart, 0.4 s each) the prices roll up to their new values: ¥29 / 59 / 99 → ¥23 / 47 / 79.",
+          "The recommended middle card scales to 1.06 with a 2px blue outline over 0.35 s, and a \"Save 20%\" badge fades in beside the toggle.",
+          "At 3.2 s Monthly is clicked and everything switches back the same way."
+        ],
+        "zh-Hans": [
+          "160×30“月付 / 年付”胶囊开关，3 张价格卡（150×124、间距 18）。",
+          "光标 1.0 秒点“年付”，滑块 0.3 秒（easeInOut 3 次方）右移。",
+          "三张卡价格依次（间隔 0.08 秒、各 0.4 秒）向上滚动到新值：¥29 / 59 / 99 → ¥23 / 47 / 79。",
+          "中间推荐卡 0.35 秒放大到 1.06 并描 2px 蓝边，开关旁“省 20%”淡入。",
+          "3.2 秒点“月付”，全部以同样方式切回。"
+        ]
+      },
+      "use": {
+        "ja": "SaaS の料金ページなど、支払い周期で価格が変わるプラン比較に。",
+        "en": "Use it on SaaS pricing pages where plans change price with the billing period.",
+        "zh-Hans": "适合 SaaS 价格页等按付费周期变价的方案对比。"
+      },
+      "tags": [
+        "pricing",
+        "toggle",
+        "billing",
+        "number-roll",
+        "plans",
+        "switch"
+      ]
+    },
+    {
+      "no": "37",
+      "id": "1-115",
+      "slug": "liquid-radio",
+      "category": "select-switch",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "リキッドラジオボタン",
+        "en": "Liquid radio",
+        "zh-Hans": "水滴单选"
+      },
+      "meaning": {
+        "ja": "選択の点が水滴のように伸びて次の項目へ移る",
+        "en": "The selection dot stretches like a droplet to the next option",
+        "zh-Hans": "选中点像水滴一样拉长移到新选项"
+      },
+      "ask": {
+        "ja": "ラジオボタンをリキッドラジオにして。選び直すと点が水滴のように伸びて0.45秒で次の項目へ移り、丸に戻る。",
+        "en": "Make the radio group liquid: when the choice changes, the dot stretches like a droplet to the new option in 0.45 s and turns round again.",
+        "zh-Hans": "单选框做成水滴单选：换选时选中点像水滴一样拉长，0.45 秒移到新选项后收回圆形。"
+      },
+      "summary": {
+        "ja": "縦に並ぶ4つの選択肢をカーソルが順に選び、選択の点が水滴のように伸びながら次の丸へ流れて丸に戻り、右のカードの表示も替わる。",
+        "en": "The cursor picks 4 stacked options in turn; the selection dot flows to each new ring stretched like a droplet and rounds off, and the card on the right updates.",
+        "zh-Hans": "光标依次点选竖排 4 个选项，选中点拉成水滴流向新圆圈再收圆，右侧卡片同步更新。"
+      },
+      "spec": {
+        "ja": [
+          "縦に並ぶ4つの選択肢（間隔38、外側の輪の半径10、選択の点の半径5.5）",
+          "カーソルが0.8・1.7・2.6・3.5秒に2・3・4・1番目を押す",
+          "点は0.45秒で新しい中心へ移る。先頭は easeOut 3乗で先に着き、後ろは easeInOut 3乗で遅れて続き、間をつないだ細くなる水滴形になる。後ろの半径は0.6倍まで縮み、着くと丸に戻る",
+          "右側の要約カードが今の選択を表示する"
+        ],
+        "en": [
+          "4 stacked options (38 apart; ring radius 10, dot radius 5.5).",
+          "The cursor clicks options 2, 3, 4 and 1 at 0.8, 1.7, 2.6 and 3.5 s.",
+          "The dot travels to the new centre in 0.45 s: the head arrives first with easeOut power 3 and the tail follows with easeInOut power 3, joined into a tapering droplet whose tail shrinks to 0.6× radius before it becomes round again.",
+          "A summary card on the right shows the current choice."
+        ],
+        "zh-Hans": [
+          "竖排 4 个选项（行距 38，外圈半径 10，选中点半径 5.5）。",
+          "光标在 0.8、1.7、2.6、3.5 秒依次点第 2、3、4、1 项。",
+          "选中点 0.45 秒移到新圆心：头部按 easeOut 3 次方先到，尾部按 easeInOut 3 次方后到，中间连成渐细的水滴形，尾端半径缩到 0.6 倍，到位后收回正圆。",
+          "右侧摘要卡显示当前选中项。"
+        ]
+      },
+      "use": {
+        "ja": "設定・アンケート・配送方法など、選択肢を選ぶフォームに柔らかい手ごたえを付けたい所に。",
+        "en": "Use it in settings, surveys or checkout options where choosing should feel soft and fluid.",
+        "zh-Hans": "适合设置、问卷、配送方式等想让选择更柔和流畅的表单。"
+      },
+      "tags": [
+        "radio",
+        "liquid",
+        "gooey",
+        "form",
+        "selection",
+        "droplet"
+      ]
+    },
+    {
+      "no": "38",
+      "id": "1-116",
+      "slug": "floating-label-input",
+      "category": "select-switch",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "フローティングラベル",
+        "en": "Floating label",
+        "zh-Hans": "输入框浮动标签"
+      },
+      "meaning": {
+        "ja": "入力欄に入るとラベルが小さく上へ移る",
+        "en": "The label shrinks and floats up when the field is focused",
+        "zh-Hans": "聚焦输入框时标签缩小上浮"
+      },
+      "ask": {
+        "ja": "メール欄をフローティングラベルにして。フォーカスでラベルを小さく上へ移し、下線を中央から左右へ広げる。",
+        "en": "Use a floating label on the email field: on focus the label shrinks and moves up, and the underline grows out from the centre.",
+        "zh-Hans": "邮箱输入框用浮动标签：聚焦时标签缩小上浮，底线从中间向两侧展开。"
+      },
+      "summary": {
+        "ja": "カーソルが入力欄を押すと、中のラベルが小さくなって上へ移り青くなり、下線が中央から広がり、メールアドレスが1文字ずつ入る。最後は消して外を押し元に戻る。",
+        "en": "The cursor clicks the field: the label shrinks, moves up and turns blue, the underline spreads from the centre and an email address is typed letter by letter; it is then cleared and blurred.",
+        "zh-Hans": "光标点进输入框，标签缩小上浮变蓝，底线从中间展开，再逐字输入邮箱；最后删空、点框外复原。"
+      },
+      "spec": {
+        "ja": [
+          "350×52の入力欄。ラベル「メールアドレス」は最初、欄の中に15pxの灰色で置く",
+          "カーソルが0.9秒に押すと、0.25秒（easeOut 3乗）でラベルが11pxに縮み15px上がって青くなり、青い下線が0.3秒で中央から334pxまで広がる",
+          "1.4秒から「hello@kitten.cn」を1文字0.08秒で入力。キャレットは0.5秒ごとに点滅",
+          "3.3秒から1文字0.025秒で消し、3.85秒に欄の外を押すとラベルと下線が0.25秒で元に戻る"
+        ],
+        "en": [
+          "A 350×52 input; the label \"Email address\" starts inside the field in grey at 15px.",
+          "The cursor clicks in at 0.9 s: over 0.25 s (easeOut power 3) the label shrinks to 11px, rises 15px and turns blue, and the blue underline grows from the centre to 334px over 0.3 s.",
+          "From 1.4 s \"hello@kitten.cn\" is typed at 0.08 s per character, with the caret blinking every 0.5 s.",
+          "From 3.3 s it is deleted at 0.025 s per character; at 3.85 s a click outside blurs the field and the label and underline return over 0.25 s."
+        ],
+        "zh-Hans": [
+          "350×52 输入框，标签“邮箱地址”初始在框内，15px 灰字。",
+          "光标 0.9 秒点入：标签 0.25 秒（easeOut 3 次方）缩到 11px、上浮 15px 并变蓝；蓝色底线 0.3 秒从中间展开到 334px。",
+          "1.4 秒起逐字输入“hello@kitten.cn”，每字 0.08 秒，输入光标每 0.5 秒闪烁。",
+          "3.3 秒起每字 0.025 秒删空；3.85 秒点框外失焦，标签与底线 0.25 秒还原。"
+        ]
+      },
+      "use": {
+        "ja": "ログイン・会員登録・問い合わせなど、狭い場所でも項目名を見失わせたくないフォームに。",
+        "en": "Use it in sign-in, sign-up or contact forms where the field name should stay visible while typing.",
+        "zh-Hans": "适合登录、注册、联系表单等输入时仍需看到字段名的地方。"
+      },
+      "tags": [
+        "floating-label",
+        "input",
+        "text-field",
+        "form",
+        "focus",
+        "underline"
+      ]
+    },
+    {
+      "no": "39",
+      "id": "1-117",
+      "slug": "expanding-search",
+      "category": "select-switch",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "展開する検索ボックス",
+        "en": "Expanding search",
+        "zh-Hans": "展开搜索框"
+      },
+      "meaning": {
+        "ja": "丸い虫めがねボタンが横に伸びて検索欄になる",
+        "en": "A round search button widens into a search field",
+        "zh-Hans": "圆形放大镜按钮横向展开成搜索框"
+      },
+      "ask": {
+        "ja": "ヘッダーの検索を展開する検索ボックスにして。虫めがねを押したら0.45秒で左へ伸びて入力欄になる。",
+        "en": "Make the header search expand: clicking the magnifier widens it to the left into an input over 0.45 s.",
+        "zh-Hans": "顶栏搜索做成展开搜索框：点放大镜后 0.45 秒向左展开成输入框。"
+      },
+      "summary": {
+        "ja": "カーソルが丸い虫めがねボタンを押すと、右端を固定したまま左へ伸びて検索欄になり、プレースホルダーが出て文字が入り、×で消すと丸いボタンに戻る。",
+        "en": "The cursor clicks a round magnifier button; it widens to the left into a search field with its right edge fixed, a placeholder appears, a query is typed, and clearing it with × folds it back.",
+        "zh-Hans": "光标点圆形放大镜按钮，右缘固定向左展开成搜索框，占位字出现后逐字输入，点 × 清空后收回圆形。"
+      },
+      "spec": {
+        "ja": [
+          "44×44の丸い検索ボタン。カーソルが0.9秒に押す",
+          "右端を固定したまま0.95〜1.4秒（easeInOut 3乗）で左へ320×44の検索欄に伸び、虫めがねは左端といっしょに動く",
+          "1.3〜1.5秒にプレースホルダー「モーションを検索…」がフェードイン。1.8秒から「回転ボタン」を1文字0.18秒で入力し、右に×が出る",
+          "3.4秒に×を押して消し、3.5〜3.95秒で丸いボタンに戻る"
+        ],
+        "en": [
+          "A 44×44 round search button; the cursor clicks it at 0.9 s.",
+          "Keeping its right edge fixed, it widens left into a 320×44 field over 0.95–1.4 s (easeInOut power 3); the magnifier moves with the left edge.",
+          "The placeholder \"Search motion…\" fades in over 1.3–1.5 s; from 1.8 s the query \"rotating button\" is typed at 0.18 s per character and a clear × appears on the right.",
+          "At 3.4 s the × is clicked to clear it, and over 3.5–3.95 s the field shrinks back into the round button."
+        ],
+        "zh-Hans": [
+          "44×44 圆形放大镜按钮，光标 0.9 秒点击。",
+          "右缘固定，0.95–1.4 秒（easeInOut 3 次方）向左展开成 320×44 搜索框，放大镜随左缘移动。",
+          "1.3–1.5 秒占位字“搜索动效…”淡入；1.8 秒起逐字输入“旋转按钮”，每字 0.18 秒，右侧出现 ×。",
+          "3.4 秒点 × 清空，3.5–3.95 秒收回圆形按钮。"
+        ]
+      },
+      "use": {
+        "ja": "ヘッダーやツールバーなど、普段は場所を取らず必要なときだけ検索欄を出したい所に。",
+        "en": "Use it in headers and toolbars where search should take little space until it is needed.",
+        "zh-Hans": "适合顶栏、工具栏等平时不占空间、需要时才展开搜索的地方。"
+      },
+      "tags": [
+        "search",
+        "expand",
+        "input",
+        "header",
+        "toolbar",
+        "morph"
+      ]
+    },
+    {
+      "no": "40",
+      "id": "1-118",
+      "slug": "command-palette",
+      "category": "open-overlay",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "コマンドパレット",
+        "en": "Command palette",
+        "zh-Hans": "命令面板"
+      },
+      "meaning": {
+        "ja": "ショートカットで開き、打ちながら命令を絞り込む",
+        "en": "Opens with a shortcut and filters commands as you type",
+        "zh-Hans": "快捷键唤出、边输入边筛选命令"
+      },
+      "ask": {
+        "ja": "⌘K でコマンドパレットを開いて。背景を暗くしてパネルを少し拡大しながら出し、入力に合わせて一覧を絞り込む。",
+        "en": "Open a command palette with ⌘K: dim the page, scale the panel in slightly, and filter the list as the user types.",
+        "zh-Hans": "按 ⌘K 唤出命令面板：背景变暗、面板微微放大出现，输入时实时筛选列表。"
+      },
+      "summary": {
+        "ja": "⌘K のキーが押されると背景が暗くなりパネルが現れ、「設定」と打つと一覧が絞られて一致した文字が青くなり、ハイライトが1行下がって決定される。",
+        "en": "The ⌘K keys press, the page dims and a panel appears; typing \"Settings\" narrows the list with matches in blue, the highlight moves down a row and is confirmed.",
+        "zh-Hans": "⌘K 按下后背景变暗、面板出现，输入“设置”时列表被筛选、匹配字标蓝，高亮下移一行后确认。"
+      },
+      "spec": {
+        "ja": [
+          "右下に ⌘ K のキー表示。0.5秒に2つのキーが2px沈む",
+          "0.6〜0.85秒にページが0.4まで暗くなり、300×159のパネルが easeOut 3乗で0.94 → 1に拡大しながらフェードイン",
+          "1.3秒・1.5秒に「設定」を1文字ずつ入力。一覧は5項目 → 3項目 → 2項目に絞られ、一致した文字が青くなる",
+          "2.3秒にハイライトが0.2秒（easeInOut 3乗）で1行下がり、2.9秒に Enter で一瞬濃くなり、3.1〜3.4秒にパネルと暗い層が消える"
+        ],
+        "en": [
+          "A ⌘ K keycap hint at the bottom right; both keys press down 2px at 0.5 s.",
+          "Over 0.6–0.85 s the page dims to 0.4 and the 300×159 panel fades in while scaling 0.94 → 1 with easeOut power 3.",
+          "\"Settings\" is typed one character at a time at 1.3 s and 1.5 s; the list narrows from 5 items to 3 and then 2, with matching characters in blue.",
+          "At 2.3 s the highlight moves down one row over 0.2 s (easeInOut power 3); Enter darkens it briefly at 2.9 s, and the panel and dim layer fade out over 3.1–3.4 s."
+        ],
+        "zh-Hans": [
+          "右下角键帽提示“⌘ K”，0.5 秒两键下沉 2px。",
+          "0.6–0.85 秒背景暗到 0.4，300×159 面板以 easeOut 3 次方从 0.94 → 1 放大并淡入。",
+          "1.3 秒、1.5 秒逐字输入“设置”，列表由 5 项筛成 3 项再筛成 2 项，匹配字标蓝。",
+          "2.3 秒高亮条 0.2 秒（easeInOut 3 次方）下移一行，2.9 秒回车时加深一下，3.1–3.4 秒面板与暗层淡出。"
+        ]
+      },
+      "use": {
+        "ja": "開発ツール・管理画面・エディタなど、キーボードで素早く操作させたいアプリに。",
+        "en": "Use it in developer tools, dashboards and editors where keyboard users want quick actions.",
+        "zh-Hans": "适合开发工具、管理后台、编辑器等需要键盘快速操作的应用。"
+      },
+      "tags": [
+        "command-palette",
+        "cmdk",
+        "search",
+        "modal",
+        "keyboard",
+        "filter",
+        "shortcut"
+      ]
+    },
+    {
+      "no": "41",
+      "id": "1-119",
+      "slug": "page-flip-book",
+      "category": "open-overlay",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "ページめくり",
+        "en": "Page flip",
+        "zh-Hans": "翻页书"
+      },
+      "meaning": {
+        "ja": "本のページが背を軸にめくれて反対側へ移る",
+        "en": "A book page turns over the spine to the other side",
+        "zh-Hans": "书页以书脊为轴翻到另一侧"
+      },
+      "ask": {
+        "ja": "カタログを本のページめくりで見せて。右ページを押したら背を軸に0.7秒でめくって左へ送る。",
+        "en": "Show the catalogue as a book with a page flip: clicking the right page turns it over the spine to the left in 0.7 s.",
+        "zh-Hans": "把产品目录做成翻页书：点右页后以书脊为轴 0.7 秒翻到左侧。"
+      },
+      "summary": {
+        "ja": "開いた本の右ページをカーソルが2回押し、そのたびに1枚が背を軸に横に縮んで裏返り左へ移り、最後に左ページを押すと2枚がまとめて戻る。",
+        "en": "The cursor clicks the right page of an open book twice; each time a leaf narrows over the spine, flips and lands on the left; a final click on the left page turns both leaves back.",
+        "zh-Hans": "光标两次点开着的书的右页，每次一张纸以书脊为轴收窄、翻面落到左侧；最后点左页，两张纸一起翻回。"
+      },
+      "spec": {
+        "ja": [
+          "開いた本。150×148のページ2枚が x 271 の背で接する",
+          "カーソルが0.9秒と2.1秒に右ページを押し、そのたびに1枚が0.7秒で背を軸にめくれる：scaleX は cos(π·easeInOut) で1から −1 へ",
+          "0を過ぎると裏のページが見え、0付近では最大0.25の影を重ねて立体感を出す。見開きは 1-2 → 3-4 → 5-6",
+          "3.4秒に左ページを押すと、上の紙が3.5秒・下の紙が3.6秒から各0.55秒でめくり戻り、1-2 に戻る"
+        ],
+        "en": [
+          "An open book: 2 pages of 150×148 meeting at a spine at x 271.",
+          "The cursor clicks the right page at 0.9 s and 2.1 s; each time one leaf turns over the spine in 0.7 s, its scaleX following cos(π·easeInOut) from 1 to −1.",
+          "Past 0 the back of the leaf shows, and near 0 a shade of up to 0.25 suggests depth. The spreads go 1-2 → 3-4 → 5-6.",
+          "At 3.4 s the left page is clicked: the upper leaf from 3.5 s and the lower leaf from 3.6 s each turn back in 0.55 s, returning to 1-2."
+        ],
+        "zh-Hans": [
+          "摊开的书：2 页 150×148，在 x 271 的书脊处相接。",
+          "光标在 0.9 秒、2.1 秒点右页，每次一张纸以书脊为轴 0.7 秒翻过去：scaleX 按 cos(π·easeInOut) 从 1 到 −1。",
+          "过 0 后显示背面，接近 0 时叠加最多 0.25 的暗影模拟立体感；页码 1-2 → 3-4 → 5-6。",
+          "3.4 秒点左页：上层纸 3.5 秒、下层纸 3.6 秒起各 0.55 秒翻回，回到 1-2。"
+        ]
+      },
+      "use": {
+        "ja": "カタログ・絵本・作品集・年次報告など、紙をめくる感覚を残したい閲覧画面に。",
+        "en": "Use it for catalogues, picture books, portfolios or annual reports that should feel like turning paper.",
+        "zh-Hans": "适合目录、绘本、作品集、年报等想保留纸张翻阅感的阅读界面。"
+      },
+      "tags": [
+        "page-flip",
+        "book",
+        "flipbook",
+        "catalog",
+        "3d-flip",
+        "click"
+      ]
+    },
+    {
+      "no": "42",
+      "id": "1-120",
+      "slug": "folding-card",
+      "category": "open-overlay",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "二つ折りカード",
+        "en": "Folding card",
+        "zh-Hans": "对折邀请卡"
+      },
+      "meaning": {
+        "ja": "二つ折りのカードの表紙が開き、中の文字が出る",
+        "en": "A folded card opens its cover to reveal the message inside",
+        "zh-Hans": "对折卡片翻开封面露出内页文字"
+      },
+      "ask": {
+        "ja": "招待状を二つ折りカードにして。表紙を押したら左端を軸に開き、中の文字を順にフェードインさせる。",
+        "en": "Make the invitation a folding card: clicking the cover opens it on its left edge and the message inside fades in line by line.",
+        "zh-Hans": "邀请函做成对折卡：点封面后以左边为轴打开，内页文字依次淡入。"
+      },
+      "summary": {
+        "ja": "カーソルが紺の表紙を押すと、表紙が左端を軸に開いて中の左半分が見え、右半分の3行が順に浮かび上がり、最後は閉じて元に戻る。",
+        "en": "The cursor clicks the navy cover; it swings open on its left edge to show the inner left half while 3 lines on the right fade up in turn, and it closes again at the end.",
+        "zh-Hans": "光标点深蓝封面，封面以左边为轴翻开露出内页左半，右半 3 行文字依次浮现，最后合上复原。"
+      },
+      "spec": {
+        "ja": [
+          "閉じた150×130のカード。紺の表紙に「招待状」",
+          "カーソルが0.8秒に表紙を押す。0.9〜1.6秒に表紙が左端を軸に開き（scaleX 1 → −1、easeInOut 3乗）、0を過ぎると中の左半分が見える。同時にカード全体が右へ75px動いて中央を保つ",
+          "中の3行は1.6・1.8・2.0秒から各0.3秒でフェードインしながら6px上がる",
+          "3.4秒に中を押すと、文字が3.4〜3.6秒に消え、3.6〜4.2秒に表紙が閉じてカードが元の位置へ戻る"
+        ],
+        "en": [
+          "A closed 150×130 card with a navy cover reading \"Invitation\".",
+          "The cursor clicks the cover at 0.8 s; over 0.9–1.6 s the cover opens on its left edge (scaleX 1 → −1, easeInOut power 3), showing the inner left half once past 0, while the whole card moves 75px right to stay centred.",
+          "The 3 lines inside fade in and rise 6px from 1.6, 1.8 and 2.0 s, 0.3 s each.",
+          "At 3.4 s the inside is clicked: the text fades out over 3.4–3.6 s, and over 3.6–4.2 s the cover closes and the card slides back."
+        ],
+        "zh-Hans": [
+          "合起的 150×130 卡片，深蓝封面写“邀请函”。",
+          "光标 0.8 秒点封面；0.9–1.6 秒封面以左边为轴打开（scaleX 1 → −1，easeInOut 3 次方），过 0 后显示内页左半，同时整张卡右移 75px 保持居中。",
+          "内页 3 行文字在 1.6、1.8、2.0 秒起各 0.3 秒淡入并上移 6px。",
+          "3.4 秒点内页：文字 3.4–3.6 秒淡出，3.6–4.2 秒封面合上、卡片回到原位。"
+        ]
+      },
+      "use": {
+        "ja": "招待状・グリーティングカード・お知らせなど、開く楽しさを演出したいメッセージに。",
+        "en": "Use it for invitations, greeting cards or announcements where opening should feel like a small reveal.",
+        "zh-Hans": "适合邀请函、贺卡、通知等想营造打开惊喜感的消息。"
+      },
+      "tags": [
+        "folding-card",
+        "invitation",
+        "card-open",
+        "reveal",
+        "greeting",
+        "click"
+      ]
+    },
+    {
+      "no": "43",
+      "id": "1-121",
+      "slug": "pull-to-refresh",
+      "category": "navigate-status",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "プルトゥリフレッシュ",
+        "en": "Pull to refresh",
+        "zh-Hans": "下拉刷新"
+      },
+      "meaning": {
+        "ja": "リストを下に引っぱって離すと読み込み直す",
+        "en": "Pull the list down and let go to reload it",
+        "zh-Hans": "下拉列表松手后重新加载"
+      },
+      "ask": {
+        "ja": "メッセージ一覧にプルトゥリフレッシュを付けて。引くほど重くなり、アイコンが回り、離すと読み込んで新しい項目が上に入る。",
+        "en": "Add pull to refresh to the message list: it resists as it is pulled, the icon turns, and on release it loads and a new item appears at the top.",
+        "zh-Hans": "消息列表加下拉刷新：越拉越沉，图标随距离转动，松手后转圈加载，顶部插入新消息。"
+      },
+      "summary": {
+        "ja": "スマホの画面で指がリストを押して下へ引き、リストは抵抗を受けながら下がって上の矢印が回る。離すと回転して読み込み、戻ると一番上に新しいメッセージが入る。",
+        "en": "In a phone screen a finger drags the list down; it follows with resistance as the arrow at the top turns, then on release the icon spins, the list springs back and a new message slides in at the top.",
+        "zh-Hans": "手机屏幕里手指按住列表下拖，列表带阻力下移、顶部箭头随之转动；松手后图标转圈加载，列表回弹，顶部插入一条新消息。"
+      },
+      "spec": {
+        "ja": [
+          "150×179のスマホ枠の中のメッセージ一覧（行の高さ30）。指が0.8秒に押し、0.8〜1.8秒で120px下へ引く",
+          "抵抗があるため一覧は 90·(1−e^(−引いた量/90)) しか動かず約66px。上の丸い矢印は距離に応じて270°まで回る",
+          "1.8秒に離すと、一覧が0.25秒で44pxの位置に止まり、アイコンが回転する（0.8秒で1回転）",
+          "2.9〜3.2秒に一覧が0へ戻り、3.0〜3.4秒に一番上へ青い「新着メッセージ」の行が入る。4.0〜4.4秒にその行がたたまれて元に戻る"
+        ],
+        "en": [
+          "A message list (rows 30 high) inside a 150×179 phone frame; the finger presses at 0.8 s and drags down 120px over 0.8–1.8 s.",
+          "With resistance the list moves only 90·(1−e^(−drag/90)), about 66px; the round arrow at the top turns up to 270° with the distance.",
+          "Released at 1.8 s, the list settles at 44px over 0.25 s and the icon spins (1 turn per 0.8 s).",
+          "Over 2.9–3.2 s the list eases back to 0 and over 3.0–3.4 s a blue \"New message\" row is inserted at the top; over 4.0–4.4 s that row folds away to reset."
+        ],
+        "zh-Hans": [
+          "150×179 手机框内的消息列表（行高 30）。手指 0.8 秒按住，0.8–1.8 秒向下拖 120px。",
+          "受阻力影响列表只移动 90·(1−e^(−拖动量/90))，约 66px；顶部圆形箭头随距离转到 270°。",
+          "1.8 秒松手，列表 0.25 秒停到 44px 处，图标转圈（0.8 秒 1 圈）。",
+          "2.9–3.2 秒列表回到 0，3.0–3.4 秒顶部插入一条蓝色“新消息”行；4.0–4.4 秒该行收起复位。"
+        ]
+      },
+      "use": {
+        "ja": "メッセージ・ニュース・SNS のフィードなど、最新の内容を取りに行くモバイルの一覧に。",
+        "en": "Use it in mobile feeds such as messages, news or social timelines that fetch the latest items.",
+        "zh-Hans": "适合消息、新闻、社交动态等需要拉取最新内容的移动端列表。"
+      },
+      "tags": [
+        "pull-to-refresh",
+        "refresh",
+        "mobile",
+        "list",
+        "gesture",
+        "loading",
+        "spinner"
+      ]
     }
   ]
 }

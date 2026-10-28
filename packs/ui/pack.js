@@ -1046,6 +1046,303 @@ MotionPrompt.pack('ui', function () {
     });
   });
 
+  // @element 36
+  // 改写自 KittenJam Motion Library #215 价格方案切换：顶部 160×30「月付 / 年付」胶囊开关，三张 150×124 价格卡（间距 18）。
+  // 光标 1.0 秒点「年付」：滑块 0.3 秒 easeInOut 3 次方右移，三张卡价格数字依次（间隔 0.08 秒、各 0.4 秒）向上滚动到新值
+  // （¥29/59/99 → ¥23/47/79），中间推荐卡 0.35 秒放大到 1.06 并描蓝边 2px，开关旁「省 20%」淡入。3.2 秒点「月付」全部反向切回。
+  const PRICE_M = [29, 59, 99], PRICE_Y = [23, 47, 79], PRICE_NAME = ['基础版', '专业版', '团队版'];
+  CELLS[35] = ui((w, h, t) => {
+    X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+    const yr = eio(seg(t, 1.0, 1.3)) * (1 - eio(seg(t, 3.2, 3.5)));
+    const tx = 191, ty = 10, tw0 = 160, th = 30;
+    fillRR(tx, ty, tw0, th, 15, '#fff'); strokeRR(tx, ty, tw0, th, 15, C.border, 1);
+    fillRR(tx + 3 + 77 * yr, ty + 3, 77, 24, 12, C.blue);
+    text('月付', tx + 41.5, ty + 15, 13, yr < .5 ? '#fff' : C.en, 600, 'center');
+    text('年付', tx + 118.5, ty + 15, 13, yr >= .5 ? '#fff' : C.en, 600, 'center');
+    X.save(); X.globalAlpha = yr; fillRR(tx + tw0 + 10, ty + 6, 54, 18, 9, C.lb); text('省 20%', tx + tw0 + 37, ty + 15, 11, C.blue, 700, 'center'); X.restore();
+    // 当前滚动方向：去程月→年，回程年→月
+    const back = t >= 2.2, t0 = back ? 3.2 : 1.0;
+    for (let i = 0; i < 3; i++) {
+      const x = 28 + i * 168, y = 54, cw = 150, ch = 124;
+      const rec = i === 1 ? eio(seg(t, 1.0, 1.35)) * (1 - eio(seg(t, 3.2, 3.55))) : 0;
+      const s = 1 + 0.06 * rec;
+      X.save(); X.translate(x + cw / 2, y + ch / 2); X.scale(s, s); X.translate(-x - cw / 2, -y - ch / 2);
+      shadowed(() => fillRR(x, y, cw, ch, 10, '#fff'), 12 + 10 * rec, 3, .08 + .1 * rec);
+      if (rec > 0) strokeRR(x, y, cw, ch, 10, `rgba(31,90,232,${rec})`, 2);
+      text(PRICE_NAME[i], x + 14, y + 20, 12, C.en, 600);
+      if (i === 1) { fillRR(x + cw - 50, y + 11, 38, 18, 9, C.lb); text('推荐', x + cw - 31, y + 20, 10, C.blue, 700, 'center'); }
+      // 价格数字滚动：旧值向上滚出、新值从下滚入，裁在一行高度内
+      const q = eio(seg(t, t0 + .1 + i * .08, t0 + .5 + i * .08));
+      const from = back ? PRICE_Y[i] : PRICE_M[i], to = back ? PRICE_M[i] : PRICE_Y[i];
+      text('¥', x + 14, y + 54, 14, C.ink, 700, 'left', NUMF);
+      X.save(); X.beginPath(); X.rect(x + 26, y + 38, 70, 32); X.clip();
+      text(String(from), x + 27, y + 54 - 30 * q, 26, C.ink, 800, 'left', NUMF);
+      text(String(to), x + 27, y + 54 + 30 * (1 - q), 26, C.ink, 800, 'left', NUMF);
+      X.restore();
+      text('/ 月', x + 64, y + 58, 11, C.hint, 500);
+      bar(x + 14, y + 82, 110, C.line, 7); bar(x + 14, y + 96, 84, C.line, 7);
+      X.restore();
+    }
+    pointer([[0, w + 30, h + 30], [.9, tx + 118, ty + 17], [1.6, tx + 118, ty + 17], [3.0, tx + 42, ty + 17], [3.6, tx + 42, ty + 17], [4.4, w + 30, h + 30]], [1.0, 3.2], t);
+  });
+
+  // @element 37
+  // 改写自 KittenJam Motion Library #250 水滴单选：竖排 4 个选项（行距 38，外圈半径 10、选中点半径 5.5）。
+  // 光标在 0.8 / 1.7 / 2.6 / 3.5 秒依次点第 2 / 3 / 4 / 1 项；选中点 0.45 秒内从旧圆心移到新圆心：
+  // 头部按 easeOut 3 次方先到、尾部按 easeInOut 3 次方后到，中间连成渐细的水滴形，尾端半径缩到 0.6 倍，到位后收回正圆。
+  const DROP_Y = i => 34 + i * 38, DROP_X = 64, DROP_LAB = ['按月提醒', '按周提醒', '每天提醒', '不提醒'];
+  const DROP_CLICKS = [[0.8, 0, 1], [1.7, 1, 2], [2.6, 2, 3], [3.5, 3, 0]];
+  CELLS[36] = ui((w, h, t) => {
+    let cur = 0, from = -1, q = 0;
+    for (const [tc, a, b] of DROP_CLICKS) if (t >= tc) { if (t < tc + .45) { from = a; cur = b; q = (t - tc) / .45; } else cur = b; }
+    text('提醒频率', 40, 12, 12, C.hint, 600);
+    for (let i = 0; i < 4; i++) {
+      const on = from < 0 ? i === cur : (q > .5 ? i === cur : i === from);
+      ring(DROP_X, DROP_Y(i), 10, on ? C.blue : C.line2, 2);
+      text(DROP_LAB[i], DROP_X + 24, DROP_Y(i), 15, on ? C.ink : C.en, on ? 700 : 500);
+    }
+    // 选中点：静止时正圆，移动时为头圆 + 尾圆 + 两条切线围成的水滴
+    X.fillStyle = C.blue;
+    if (from < 0) circle(DROP_X, DROP_Y(cur), 5.5, C.blue);
+    else {
+      const ya = DROP_Y(from), yb = DROP_Y(cur);
+      const hy = lerp(ya, yb, eo(q)), ty0 = lerp(ya, yb, eio(q));
+      const stretch = Math.min(1, Math.abs(hy - ty0) / 20), rh = 5.5, rt = 5.5 * (1 - .4 * stretch);
+      X.beginPath(); X.moveTo(DROP_X - rh, hy); X.lineTo(DROP_X - rt, ty0); X.lineTo(DROP_X + rt, ty0); X.lineTo(DROP_X + rh, hy); X.closePath(); X.fill();
+      circle(DROP_X, hy, rh, C.blue); circle(DROP_X, ty0, rt, C.blue);
+    }
+    // 右侧摘要卡跟随当前选项
+    shadowed(() => fillRR(300, 48, 210, 96, 12, '#fff'), 14, 4, .1);
+    text('当前设置', 320, 72, 12, C.hint, 600);
+    text(DROP_LAB[cur], 320, 102, 20, C.ink, 800);
+    bar(320, 124, 120, C.line, 7);
+    const cx = DROP_X + 50;
+    pointer([[0, w + 30, h + 30], [.7, cx, DROP_Y(1) + 2], [1.6, cx, DROP_Y(2) + 2], [2.5, cx, DROP_Y(3) + 2], [3.4, cx, DROP_Y(0) + 2], [3.75, cx, DROP_Y(0) + 2], [4.45, w + 30, h + 30]], DROP_CLICKS.map(c => c[0]), t);
+  });
+
+  // @element 38
+  // 改写自 KittenJam Motion Library #148 输入框浮动标签：350×52 输入框，标签「邮箱地址」初始在框内居中 15px 灰字。
+  // 光标 0.9 秒点入：标签 0.25 秒 easeOut 缩到 11px、上浮 15px 变蓝；底部蓝线 0.3 秒从中间向两侧展开到 350px。
+  // 1.4 秒起逐字输入「hello@kitten.cn」（每字 0.08 秒），光标竖线 0.5 秒闪烁；3.3 秒起每字 0.025 秒删空，3.85 秒点框外失焦，标签与底线 0.25 秒还原。
+  const FLOAT_S = 'hello@kitten.cn';
+  CELLS[37] = ui((w, h, t) => {
+    pageLines(96, 14, 350);
+    const bx = 96, by = 74, bw = 350, bh = 52;
+    const focus = eo(seg(t, .9, 1.15)) * (1 - eo(seg(t, 3.85, 4.1)));
+    const typed = Math.max(0, Math.min(FLOAT_S.length, Math.floor((t - 1.4) / .08) + 1));
+    const del = t >= 3.3 ? Math.min(FLOAT_S.length, Math.floor((t - 3.3) / .025) + 1) : 0;
+    const n = t < 1.4 ? 0 : Math.max(0, typed - del);
+    fillRR(bx, by, bw, bh, 8, focus > 0 ? '#fff' : C.block); strokeRR(bx, by, bw, bh, 8, C.line2, 1);
+    // 底线：灰色常驻，蓝线从中点展开
+    X.fillStyle = C.line2; X.fillRect(bx + 8, by + bh - 2, bw - 16, 2);
+    const lw = (bw - 16) * eo(seg(t, .9, 1.2)) * (1 - eo(seg(t, 3.85, 4.1)));
+    X.fillStyle = C.blue; X.fillRect(bx + bw / 2 - lw / 2, by + bh - 2, lw, 2);
+    const fl = n > 0 ? 1 : focus;
+    const ls = lerp(15, 11, fl), ly = by + bh / 2 - 15 * fl;
+    text('邮箱地址', bx + 16, ly, ls, fl > .5 ? C.blue : C.hint, fl > .5 ? 600 : 500);
+    const s = FLOAT_S.slice(0, n);
+    text(s, bx + 16, by + 33, 15, C.ink, 500, 'left', NUMF);
+    if (focus > .5 && Math.floor((t - .9) / .5) % 2 === 0) { const cxp = bx + 17 + tw(s, 15, 500, NUMF); X.fillStyle = C.blue; X.fillRect(cxp, by + 24, 1.5, 18); }
+    pointer([[0, w + 30, h + 30], [.8, 300, 104], [1.3, 300, 104], [1.9, 470, 160], [3.7, 470, 160], [4.4, w + 30, h + 30]], [.9, 3.85], t);
+  });
+
+  // @element 39
+  // 改写自 KittenJam Motion Library #247 展开搜索框：右侧 44×44 圆形放大镜按钮，光标 0.9 秒点击，
+  // 按钮右缘固定、0.45 秒 easeInOut 3 次方向左展开成 320×44 搜索框，放大镜随左缘移动；占位字「搜索动效…」1.3–1.5 秒淡入，
+  // 1.8 秒起逐字输入「旋转按钮」（每字 0.18 秒），右侧出现 ×；3.4 秒点 × 清空，3.5–3.95 秒收回圆形按钮。
+  const ESEARCH_S = '旋转按钮';
+  CELLS[38] = ui((w, h, t) => {
+    bar(24, 18, 90, C.line2, 11); bar(24, 92, 230, C.line); bar(24, 110, 180, C.line); fillRR(24, 132, 230, 44, 8, C.block);
+    const ex = eio(seg(t, .95, 1.4)) * (1 - eio(seg(t, 3.5, 3.95)));
+    const R = 492, by = 50, bh = 44, bw = lerp(44, 320, ex), bx = R - bw;
+    shadowed(() => fillRR(bx, by, bw, bh, 22, '#fff'), 12, 3, .12);
+    strokeRR(bx, by, bw, bh, 22, ex > .02 ? C.sb : C.line2, 1.5);
+    // 放大镜（随左缘移动）
+    const ix = bx + 22, iy = by + 22;
+    ring(ix - 2, iy - 2, 7, ex > .02 ? C.blue : C.ink, 2.2);
+    X.strokeStyle = ex > .02 ? C.blue : C.ink; X.lineWidth = 2.4; X.lineCap = 'round'; X.beginPath(); X.moveTo(ix + 3, iy + 3); X.lineTo(ix + 8, iy + 8); X.stroke(); X.lineCap = 'butt';
+    const n = t < 1.8 || t >= 3.4 ? 0 : Math.min(ESEARCH_S.length, Math.floor((t - 1.8) / .18) + 1);
+    const ph = eo(seg(t, 1.3, 1.5)) * (1 - seg(t, 3.5, 3.6));
+    X.save(); X.beginPath(); X.rect(bx, by, bw, bh); X.clip();
+    if (n === 0 && ph > 0) { X.globalAlpha = ph; text('搜索动效…', ix + 20, iy, 14, C.hint, 500); X.globalAlpha = 1; }
+    if (n > 0) {
+      text(ESEARCH_S.slice(0, n), ix + 20, iy, 14, C.ink, 600);
+      circle(R - 22, iy, 9, C.block); text('×', R - 22, iy, 13, C.en, 600, 'center', NUMF);
+    }
+    X.restore();
+    pointer([[0, w + 30, h + 30], [.8, R - 20, by + 24], [1.4, R - 20, by + 24], [2.0, R - 50, by + 70], [3.0, R - 50, by + 70], [3.35, R - 20, by + 24], [3.6, R - 20, by + 24], [4.4, w + 30, h + 30]], [.9, 3.4], t);
+  });
+
+  // @element 40
+  // 改写自 KittenJam Motion Library #321 命令面板：页面右下角键帽提示「⌘ K」，0.5 秒两键按下（下沉 2px）；
+  // 0.6–0.85 秒背景变暗到 0.4，面板以 easeOut 3 次方从 0.94 放大到 1 并淡入（300×159）。1.3、1.5 秒逐字输入「设置」，
+  // 列表由 5 项筛成 3 项再筛成 2 项，匹配字标蓝；高亮条 2.3 秒 0.2 秒 easeInOut 下移一行，2.9 秒回车闪一下，3.1–3.4 秒面板与暗层淡出。
+  const CMDK_ALL = ['新建文件', '打开设置', '切换主题', '设置快捷键', '设备信息'];
+  CELLS[39] = ui((w, h, t) => {
+    pageLines(24, 18, 494); fillRR(24, 84, 239, 92, 8, C.block); fillRR(279, 84, 239, 92, 8, C.block);
+    // 键帽提示
+    const pk = t >= .5 && t < .7 ? 2 : 0;
+    [['⌘', 456], ['K', 488]].forEach(([s, x]) => { fillRR(x, 150 + 2, 26, 24, 5, C.line2); fillRR(x, 150 + pk, 26, 24 - 2, 5, '#fff'); strokeRR(x, 150 + pk, 26, 22, 5, C.line2, 1); text(s, x + 13, 161 + pk, 12, C.ink, 700, 'center', NUMF); });
+    const a = eo(seg(t, .6, .85)) * (1 - eio(seg(t, 3.1, 3.4)));
+    if (a <= 0) return;
+    X.fillStyle = `rgba(18,20,28,${.4 * a})`; X.fillRect(0, 0, w, h);
+    const s = .94 + .06 * a, px = 121, py = 16, pw = 300;
+    const q = t < 1.3 ? '' : t < 1.5 ? '设' : '设置';
+    const list = CMDK_ALL.filter(x => [...q].every(c => x.includes(c)));
+    const ph = 36 + 5 * 24 + 3;
+    X.save(); X.globalAlpha = a; X.translate(271, py + ph / 2); X.scale(s, s); X.translate(-271, -py - ph / 2);
+    shadowed(() => fillRR(px, py, pw, ph, 12, '#fff'), 26, 10, .28);
+    X.fillStyle = C.sep; X.fillRect(px, py + 36, pw, 1);
+    ring(px + 18, py + 17, 5.5, C.hint, 1.8); X.strokeStyle = C.hint; X.lineWidth = 1.8; X.beginPath(); X.moveTo(px + 22, py + 21); X.lineTo(px + 26, py + 25); X.stroke();
+    if (q) text(q, px + 34, py + 18, 14, C.ink, 600); else text('输入命令或搜索…', px + 34, py + 18, 14, C.hint, 500);
+    if (t >= .85 && t < 3.1 && Math.floor((t - .85) / .5) % 2 === 0) { X.fillStyle = C.blue; X.fillRect(px + 35 + (q ? tw(q, 14, 600) : 0), py + 10, 1.5, 16); }
+    // 高亮条：在当前列表内的行号，2.3 秒下移一行；2.9 秒回车时加深
+    const hi = eio(seg(t, 2.3, 2.5)), flash = t >= 2.9 && t < 3.05 ? 1 : 0;
+    fillRR(px + 6, py + 40 + 24 * hi, pw - 12, 22, 6, flash ? C.mb : C.lb);
+    list.forEach((it, i) => {
+      const iy = py + 51 + i * 24;
+      fillRR(px + 16, iy - 6, 12, 12, 3, C.line2);
+      let x = px + 38;
+      for (const c of it) { text(c, x, iy, 13, q.includes(c) ? C.blue : C.ink, q.includes(c) ? 700 : 500); x += tw(c, 13, 500); }
+    });
+    if (q) text(`${list.length} 项`, px + pw - 14, py + 18, 11, C.hint, 500, 'right');
+    X.restore();
+  });
+
+  // @element 41
+  // 改写自 KittenJam Motion Library #309 翻页书：两页 150×148 的书摊开（书脊 x=271），光标在 0.9、2.1 秒点右页，
+  // 每次一张纸以书脊为轴翻到左侧 0.7 秒：scaleX 按 cos(π·easeInOut) 从 1 到 −1，过 0 后显示背面页码，近 0 时加最多 0.25 的暗影模拟 3D。
+  // 页码 1-2 → 3-4 → 5-6；3.4 秒点左页，上层纸 3.5 秒、下层纸 3.6 秒起各 0.55 秒翻回，回到 1-2。
+  const BOOK_SP = 271, BOOK_PW = 150, BOOK_Y = 22, BOOK_H = 148;
+  CELLS[40] = ui((w, h, t) => {
+    X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+    const page = (n, x) => {
+      X.fillStyle = '#fff'; X.fillRect(x, BOOK_Y, BOOK_PW, BOOK_H);
+      bar(x + 16, BOOK_Y + 18, 70, C.line2, 9);
+      for (let i = 0; i < 5; i++) bar(x + 16, BOOK_Y + 40 + i * 16, i === 4 ? 70 : 118, C.line, 6);
+      if (n % 2 === 0) mountains(x + 16, BOOK_Y + 92, 118, 34, n % 4 === 0 ? 1 : 0);
+      text(String(n), x + BOOK_PW / 2, BOOK_Y + BOOK_H - 10, 10, C.hint, 600, 'center', NUMF);
+    };
+    // 两张纸：A 正面 2 背面 3，B 正面 4 背面 5；s = 1 在右、−1 在左
+    const flip = (a, b) => Math.cos(Math.PI * eio(seg(t, a, b)));
+    const sA = t < 3 ? flip(.95, 1.65) : -flip(3.6, 4.15), sB = t < 3 ? flip(2.15, 2.85) : -flip(3.5, 4.05);   // 翻回时上层的 B 先翻
+    shadowed(() => { X.fillStyle = '#fff'; X.fillRect(BOOK_SP - BOOK_PW, BOOK_Y, BOOK_PW * 2, BOOK_H); }, 16, 6, .16);
+    page(1, BOOK_SP - BOOK_PW); page(6, BOOK_SP);
+    const sheet = (s, front, back) => {
+      const wpx = BOOK_PW * Math.abs(s);
+      if (wpx < .5) return;
+      X.save();
+      if (s > 0) { X.translate(BOOK_SP, 0); X.scale(Math.abs(s), 1); page(front, 0); }
+      else { X.translate(BOOK_SP, 0); X.scale(Math.abs(s), 1); page(back, -BOOK_PW); }
+      const d = .25 * (1 - Math.abs(s));
+      if (d > 0) { X.fillStyle = `rgba(20,24,40,${d})`; X.fillRect(s > 0 ? 0 : -BOOK_PW, BOOK_Y, BOOK_PW, BOOK_H); }
+      X.restore();
+    };
+    // 绘制顺序：左侧纸 A 在下、B 在上；右侧纸 B 在下、A 在上；正在翻的放最上
+    const moving = s => Math.abs(s) < 1;
+    const order = [];
+    if (sA <= -1) order.push(['A', sA]);
+    if (sB <= -1) order.push(['B', sB]);
+    if (sB >= 1) order.push(['B', sB]);
+    if (sA >= 1) order.push(['A', sA]);
+    if (moving(sB)) order.push(['B', sB]);
+    if (moving(sA)) order.push(['A', sA]);
+    order.forEach(([id, s]) => id === 'A' ? sheet(s, 2, 3) : sheet(s, 4, 5));
+    X.fillStyle = 'rgba(20,24,40,.12)'; X.fillRect(BOOK_SP - 1, BOOK_Y, 2, BOOK_H);
+    pointer([[0, w + 30, h + 30], [.8, 380, 100], [2.2, 380, 100], [2.9, 380, 100], [3.3, 165, 100], [3.6, 165, 100], [4.4, w + 30, h + 30]], [.9, 2.1, 3.4], t);
+  });
+
+  // @element 42
+  // 改写自 KittenJam Motion Library #311 对折邀请卡：150×130 合起的卡片居中，封面深蓝带「邀请函」。
+  // 光标 0.8 秒点封面，0.9–1.6 秒封面以左边为轴打开（scaleX 1→−1，easeInOut 3 次方），过 0 后显示浅色内页左半；
+  // 同时整张卡右移 75px 保持居中。内页右半三行文字 1.6 / 1.8 / 2.0 秒起各 0.3 秒淡入并上移 6px；
+  // 3.4 秒点内页左半，文字 3.4–3.6 秒淡出，3.6–4.2 秒封面合上、卡片回到原位。
+  const INVITE_W = 150, INVITE_H = 130, INVITE_Y = 30;
+  const INVITE_L = [['诚邀您参加', 12, 500, C.hint], ['年度设计之夜', 18, 800, C.ink], ['10 月 29 日 19:00', 12, 600, C.blue]];
+  CELLS[41] = ui((w, h, t) => {
+    X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+    const q = eio(seg(t, .9, 1.6)) * (1 - eio(seg(t, 3.6, 4.2)));
+    const s = Math.cos(Math.PI * q), hx = 196 + 75 * q;
+    // 内页右半（被封面盖住的那面）
+    shadowed(() => fillRR(hx, INVITE_Y, INVITE_W, INVITE_H, 6, '#fffdf8'), 14, 4, .14);
+    const fade = 1 - seg(t, 3.4, 3.6);
+    INVITE_L.forEach(([s0, sz, wt, col], i) => {
+      const p = eo(seg(t, 1.6 + i * .2, 1.9 + i * .2)) * fade;
+      if (p <= 0) return;
+      X.save(); X.globalAlpha = p; text(s0, hx + INVITE_W / 2, INVITE_Y + 40 + i * 26 + 6 * (1 - p), sz, col, wt, 'center', i === 2 ? NUMF : JP); X.restore();
+    });
+    // 封面 / 内页左半：以 hx 为轴压缩
+    const cw = INVITE_W * Math.abs(s);
+    if (cw > .5) {
+      X.save(); X.translate(hx, 0); X.scale(Math.abs(s), 1);
+      if (s > 0) {
+        fillRR(0, INVITE_Y, INVITE_W, INVITE_H, 6, '#1d3a8a');
+        strokeRR(10, INVITE_Y + 10, INVITE_W - 20, INVITE_H - 20, 4, 'rgba(255,255,255,.35)', 1);
+        text('邀请函', INVITE_W / 2, INVITE_Y + 58, 20, '#fff', 800, 'center');
+        bar(INVITE_W / 2 - 24, INVITE_Y + 80, 48, 'rgba(255,255,255,.4)', 4);
+      } else {
+        fillRR(-INVITE_W, INVITE_Y, INVITE_W, INVITE_H, 6, '#f6f1e7');
+        circle(-INVITE_W / 2, INVITE_Y + INVITE_H / 2, 22, C.lb); text('★', -INVITE_W / 2, INVITE_Y + INVITE_H / 2 + 1, 18, C.blue, 700, 'center', NUMF);
+      }
+      const d = .3 * (1 - Math.abs(s));
+      if (d > 0) { X.fillStyle = `rgba(20,24,40,${d})`; X.fillRect(s > 0 ? 0 : -INVITE_W, INVITE_Y, INVITE_W, INVITE_H); }
+      X.restore();
+    }
+    pointer([[0, w + 30, h + 30], [.7, 290, 110], [1.2, 290, 110], [2.0, 470, 170], [3.0, 470, 170], [3.35, 200, 120], [3.6, 200, 120], [4.4, w + 30, h + 30]], [.8, 3.4], t);
+  });
+
+  // @element 43
+  // 改写自 KittenJam Motion Library #142 下拉刷新：150×179 手机框内的消息列表（行高 30）。手指 0.8 秒按住列表，
+  // 0.8–1.8 秒向下拖 120px，列表位移按阻力曲线 90·(1−e^(−拖动/90)) 只走约 66px，顶部圆形箭头随位移转到 270°；
+  // 1.8 秒松手：列表 0.25 秒回到 44px 处停住，图标变转圈（0.8 秒 1 圈）；2.9–3.2 秒列表回弹到 0，3.0–3.4 秒顶部插入一条蓝色「新消息」行；
+  // 复位：4.0–4.4 秒新消息行收起，回到初始列表。
+  const PULL_ROWS = ['设计周报', '小林', '项目群', '日程提醒', '系统通知'];
+  CELLS[42] = ui((w, h, t) => {
+    X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+    const fx = 196, fy = 6, fw = 150, fh = 179, sx = fx + 6, sy = fy + 6, sw = fw - 12, shh = fh - 12;
+    fillRR(fx, fy, fw, fh, 20, C.dark); fillRR(sx, sy, sw, shh, 15, '#fff');
+    X.save(); rr(sx, sy, sw, shh, 15); X.clip();
+    // 顶部栏
+    X.fillStyle = '#fff'; text('消息', sx + sw / 2, sy + 15, 12, C.ink, 700, 'center');
+    X.fillStyle = C.sep; X.fillRect(sx, sy + 28, sw, 1);
+    const top = sy + 29;
+    const drag = 120 * eio(seg(t, .8, 1.8));
+    const pull = 90 * (1 - Math.exp(-drag / 90));
+    const PEAK = 90 * (1 - Math.exp(-120 / 90));
+    let off;
+    if (t < 1.8) off = pull;
+    else if (t < 2.9) off = lerp(PEAK, 44, eo(seg(t, 1.8, 2.05)));
+    else off = 44 * (1 - eo(seg(t, 2.9, 3.2)));
+    // 刷新图标：拖动时按位移旋转，松手后匀速转圈
+    if (off > 2) {
+      const iy = top + off / 2, al = Math.min(1, off / 30);
+      X.save(); X.globalAlpha = al; X.translate(sx + sw / 2, iy);
+      const ang = t < 1.8 ? (off / PEAK) * Math.PI * 1.5 : Math.PI * 1.5 + (t - 1.8) / .8 * Math.PI * 2;
+      X.rotate(ang);
+      X.beginPath(); X.arc(0, 0, 8, 0, Math.PI * 1.5); X.strokeStyle = C.blue; X.lineWidth = 2.2; X.lineCap = 'round'; X.stroke();
+      if (t < 1.8) { X.beginPath(); X.moveTo(0, -11); X.lineTo(4, -8); X.lineTo(0, -5); X.fillStyle = C.blue; X.fill(); }
+      X.restore();
+    }
+    // 新消息行高度：插入 0→30，复位时收起
+    const nh = 30 * eio(seg(t, 3.0, 3.4)) * (1 - eio(seg(t, 4.0, 4.4)));
+    let y = top + off;
+    if (nh > .5) {
+      X.save(); X.beginPath(); X.rect(sx, y, sw, nh); X.clip(); X.globalAlpha = nh / 30;
+      X.fillStyle = C.lb; X.fillRect(sx, y, sw, 30); circle(sx + 18, y + 15, 9, C.blue);
+      text('新消息', sx + 34, y + 11, 11, C.blue, 700); bar(sx + 34, y + 19, 60, C.mb, 5);
+      X.restore(); y += nh;
+    }
+    PULL_ROWS.forEach((r, i) => {
+      const ry = y + i * 30;
+      circle(sx + 18, ry + 15, 9, [C.mb, C.sb, C.line2, C.mb, C.line2][i]);
+      text(r, sx + 34, ry + 11, 11, C.ink, 600); bar(sx + 34, ry + 19, 70 - i * 6, C.line, 5);
+      X.fillStyle = C.sep; X.fillRect(sx + 34, ry + 29.5, sw - 40, 1);
+    });
+    X.restore();
+    const lx = sx + sw / 2 + 20;
+    finger([[0, lx, 50], [.8, lx, 50], [1.8, lx, 170]], [.8], t, t > .55 && t < 1.85);
+  });
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });
