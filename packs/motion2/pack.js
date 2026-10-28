@@ -1030,6 +1030,632 @@ MotionPrompt.pack('motion2', function () {
     k.restore();
   };
 
+  // @element 29
+  // 改写自 KittenJam Motion Library #1（Hannah）· 闪电砸落：两次闪白伴随折线闪电，「雷鸣」从 2.4 倍砸到 0.9 倍、回弹 1.06 倍并微震后停在 1 倍，之后保持黄色外发光；4.0–4.6 秒淡出复位。
+  // 外发光用多层描边代替 shadowBlur，放大绘制时光晕比例不变。
+  const LSTR_BOLT = [[318, 0], [280, 64], [312, 72], [254, 130], [290, 138], [238, 208]];
+  CELLS[28] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k, '#0A1230');
+    // 闪白两次：0.86–1.04 秒峰值 0.85，1.04–1.24 秒峰值 0.55
+    const fl = u < 0.86 ? 0 : u < 0.9 ? 0.85 * P(u, 0.86, 0.9) : u < 1.04 ? 0.85 * (1 - P(u, 0.9, 1.04)) : u < 1.1 ? 0.55 * P(u, 1.04, 1.1) : 0.55 * (1 - P(u, 1.1, 1.24));
+    let sc = 1, dx = 0, dy = 0, al = 1;
+    if (u < 0.84) al = 0;
+    else if (u < 1.0) { const q = eIn(P(u, 0.84, 1.0)); sc = lerp(2.4, 0.9, q); al = q; }
+    else if (u < 1.12) { const q = P(u, 1.0, 1.12); sc = lerp(0.9, 1.06, q); dx = -4 * q; dy = 3 * q; }
+    else if (u < 1.24) { const q = P(u, 1.12, 1.24); sc = lerp(1.06, 1, q); dx = lerp(-4, 3, q); dy = lerp(3, -2, q); }
+    else if (u < 1.36) { const q = P(u, 1.24, 1.36); dx = 3 * (1 - q); dy = -2 * (1 - q); }
+    al *= 1 - P(u, 4.0, 4.6);
+    const glow = smooth(P(u, 1.24, 1.6));
+    // 落地冲击环
+    const ring = P(u, 1.0, 1.5);
+    if (ring > 0 && ring < 1) { k.save(); k.globalAlpha = 0.6 * (1 - ring); k.strokeStyle = C.yel; k.lineWidth = 3; k.beginPath(); k.ellipse(w / 2, h / 2 + 46, 60 + 200 * eOut(ring), 8 + 18 * eOut(ring), 0, 0, 7); k.stroke(); k.restore(); }
+    if (al > 0) {
+      k.save(); k.translate(w / 2 + dx, h / 2 + 4 + dy); k.scale(sc, sc);
+      k.font = `900 96px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round';
+      if (glow > 0) [[30, 0.1], [18, 0.16], [9, 0.28]].forEach(([lw, a]) => { k.globalAlpha = al * a * glow; k.strokeStyle = C.yel; k.lineWidth = lw; k.strokeText('雷鸣', 0, 0); });
+      k.globalAlpha = al; k.fillStyle = '#fff'; k.fillText('雷鸣', 0, 0);
+      k.restore();
+    }
+    // 闪电折线：0.86–1.3 秒逐渐变淡并闪烁
+    const ba = u > 0.86 && u < 1.3 ? (1 - P(u, 0.86, 1.3)) * (H01(Math.floor(u * 40)) > 0.3 ? 1 : 0.4) : 0;
+    if (ba > 0) {
+      k.save(); k.lineJoin = 'round'; k.lineCap = 'round';
+      const path = () => { k.beginPath(); LSTR_BOLT.forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); };
+      k.globalAlpha = 0.35 * ba; k.strokeStyle = C.yel; k.lineWidth = 12; path(); k.stroke();
+      k.globalAlpha = ba; k.strokeStyle = '#fff'; k.lineWidth = 3.2; path(); k.stroke();
+      k.restore();
+    }
+    if (fl > 0) { k.fillStyle = `rgba(255,255,255,${0.75 * fl})`; k.fillRect(0, 0, w, h); }
+  };
+
+  // @element 30
+  // 改写自 KittenJam Motion Library #3（Hannah）· 硬币翻转：4 枚字币依次（间隔 0.2 秒）绕 Y 轴翻两圈（scaleX = cos）并上跳 96px，落地后再小跳 17px；正面是字，背面是星。
+  const COIN_S = '好运连连', COIN_D = 0.2, COIN_T0 = 0.35, COIN_L = 1.7;
+  CELLS[29] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const R = 36, GAP = 96, FLOOR = 170;
+    k.fillStyle = C.navy2; rr(k, 40, FLOOR, w - 80, 4, 2); k.fill();
+    [...COIN_S].forEach((ch, i) => {
+      const x = w / 2 + (i - 1.5) * GAP, t = (u - COIN_T0 - i * COIN_D) / COIN_L;
+      let y = 0, rot = 0;
+      if (t > 0 && t < 1) {
+        if (t < 0.28) { const q = t / 0.28; y = -96 * eOut(q); rot = Math.PI * 2 * q; }
+        else if (t < 0.42) { const q = (t - 0.28) / 0.14; y = -96 * (1 - eIn(q)); rot = Math.PI * 2 * (1 + q); }
+        else if (t < 0.48) { const q = (t - 0.42) / 0.06; y = -17 * eOut(q); }
+        else if (t < 0.54) { const q = (t - 0.48) / 0.06; y = -17 * (1 - eIn(q)); }
+      }
+      // 影子随高度变小
+      const hk = 1 + y / 160;
+      k.fillStyle = 'rgba(0,0,0,.35)'; k.beginPath(); k.ellipse(x, FLOOR - 1, R * hk, 5 * hk, 0, 0, 7); k.fill();
+      const c = Math.cos(rot), sx = Math.max(0.04, Math.abs(c));
+      k.save(); k.translate(x, FLOOR - R - 6 + y);
+      // 硬币厚度：深色边先画，随翻转方向左右偏移
+      k.save(); k.translate(4 * Math.sin(rot), 0); k.scale(sx, 1); k.fillStyle = '#B87A0C'; k.beginPath(); k.arc(0, 0, R, 0, 7); k.fill(); k.restore();
+      k.scale(sx, 1);
+      k.fillStyle = c >= 0 ? C.yel : '#F0B429'; k.beginPath(); k.arc(0, 0, R, 0, 7); k.fill();
+      k.strokeStyle = 'rgba(15,26,61,.35)'; k.lineWidth = 3; k.beginPath(); k.arc(0, 0, R - 6, 0, 7); k.stroke();
+      if (c >= 0) txt(k, ch, 0, 2, `900 36px ${JP}`, C.navy, 'center', 'middle');
+      else { k.fillStyle = C.navy; star(k, 0, 1, 15, 0, 0.45); k.fill(); }
+      k.restore();
+    });
+  };
+
+  // @element 31
+  // 改写自 KittenJam Motion Library #17（Hannah）· 水面倒影：细水平线下是上下颠倒、向下渐隐的珊瑚色倒影，倒影以 2.35 秒周期 ±7° 斜切摇晃、纵向 0.92–1.04 倍伸缩，并按水平条带错位成水纹；上方文字轻微浮动 2.5px。
+  const WREF_C = mkCanvas(CW, CH), WREF_G = WREF_C.getContext('2d');
+  const WREF_STARS = (() => { const r = rand(3117); return Array.from({ length: 26 }, () => [r() * CW, r() * 90, 0.6 + r() * 1.2, r()]); })();
+  CELLS[30] = (k, w, h, u) => {
+    u = snapU(u);
+    const LY = 118, S = '静水流深', F = `800 60px ${JP}`;
+    const bg = k.createLinearGradient(0, 0, 0, h); bg.addColorStop(0, '#0A1230'); bg.addColorStop(0.57, '#15245A'); bg.addColorStop(1, '#070D24');
+    k.fillStyle = bg; k.fillRect(0, 0, w, h);
+    WREF_STARS.forEach(([x, y, r, p]) => { k.fillStyle = `rgba(255,255,255,${0.25 + 0.35 * (0.5 + 0.5 * Math.sin(Math.PI * 2 * (u / CYC * 2 + p)))})`; k.fillRect(x, y, r, r); });
+    const ph = Math.PI * 2 * u / 2.35;
+    const bob = -2.5 * (1 - Math.cos(ph)) / 2;
+    // 倒影：先在离屏画倒置文字并做向下渐隐，再按水平条带错位贴回
+    const g = WREF_G; g.save(); g.clearRect(0, 0, CW, CH);
+    const skew = 7 * Math.PI / 180 * Math.sin(ph), sy = 0.98 - 0.06 * Math.sin(ph);
+    g.translate(CW / 2 + 3 * Math.sin(ph), LY + 3); g.transform(1, 0, Math.tan(skew), 1, 0, 0); g.scale(1, -sy);
+    g.font = F; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = C.coral; g.fillText(S, 0, -36);
+    g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'destination-in';
+    const m = g.createLinearGradient(0, LY, 0, LY + 80); m.addColorStop(0, 'rgba(0,0,0,.55)'); m.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = m; g.fillRect(0, 0, CW, CH); g.restore();
+    for (let y = LY; y < h; y += 3) {
+      const dx = 2.5 * Math.sin(y * 0.25 - Math.PI * 2 * u / (CYC / 4));
+      k.drawImage(WREF_C, 0, y, CW, 3, dx, y, CW, 3);
+    }
+    // 水纹细线
+    for (let j = 0; j < 5; j++) {
+      const y = LY + 14 + j * 15, x = w / 2 + Math.sin(Math.PI * 2 * u / CYC + j * 1.7) * 60 + (j % 2 ? 80 : -90);
+      k.strokeStyle = `rgba(160,190,255,${0.22 - j * 0.03})`; k.lineWidth = 1; k.beginPath(); k.moveTo(x - 30 - j * 6, y); k.lineTo(x + 30 + j * 6, y); k.stroke();
+    }
+    const lg = k.createLinearGradient(w * 0.15, 0, w * 0.85, 0); lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(0.5, 'rgba(255,255,255,.55)'); lg.addColorStop(1, 'rgba(255,255,255,0)');
+    k.fillStyle = lg; k.fillRect(w * 0.15, LY, w * 0.7, 1);
+    txt(k, S, w / 2, LY - 36 + bob, F, '#fff', 'center', 'middle');
+  };
+
+  // @element 32
+  // 改写自 KittenJam Motion Library #19（Hannah）· 文字旗帜：左侧旗杆，每个字以左边为轴做 scaleX = cos(38°·f)、skewY −9°·f、上移 4px·f 的波浪（f 每 1.175 秒一个来回），字与字相位依次延后 0.17 秒，偶数位字用珊瑚色。
+  CELLS[31] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const S = '乘风破浪', F = `900 58px ${JP}`, PX = 118, TOP = 30, BOT = 186, CY = 82;
+    k.fillStyle = C.navy3; rr(k, PX - 22, BOT - 6, 44, 8, 3); k.fill();
+    k.fillStyle = '#9AA6CC'; rr(k, PX - 4, TOP, 8, BOT - TOP, 3); k.fill();
+    k.fillStyle = C.yel; k.beginPath(); k.arc(PX, TOP - 4, 7, 0, 7); k.fill();
+    const cs = chars(k, S, F, 10), x0 = PX + 14 - (cs[0].x - cs[0].w / 2);
+    cs.forEach((c, i) => {
+      const f = (1 - Math.cos(Math.PI * 2 * (u - 0.17 * i) / 1.175)) / 2;
+      k.save(); k.translate(x0 + c.x - c.w / 2, CY - 4 * f);
+      k.transform(1, Math.tan(-9 * Math.PI / 180 * f), 0, 1, 0, 0);
+      k.scale(Math.cos(38 * Math.PI / 180 * f), 1);
+      txt(k, c.ch, 0, 0, F, i % 2 ? C.coral : '#fff', 'left', 'middle');
+      k.restore();
+    });
+  };
+
+  // @element 33
+  // 改写自 KittenJam Motion Library #20（Hannah）· 重力反转：每个字（间隔 0.12 秒）加速往上「掉」90px 并转 180° 倒立，撞顶回弹后停住，再加速落回并转满 360°，落地小弹 16px；每字一轮 3.6 秒。
+  function GRAV_k(t) {   // 返回 [上移比例 0..1, 旋转角]
+    if (t < 0.1) return [0, 0];
+    if (t < 0.33) { const e = eIn(P(t, 0.1, 0.33)); return [e, Math.PI * e]; }
+    if (t < 0.4) return [lerp(1, 0.81, eOut(P(t, 0.33, 0.4))), Math.PI];
+    if (t < 0.46) return [lerp(0.81, 1, eIn(P(t, 0.4, 0.46))), Math.PI];
+    if (t < 0.58) return [1, Math.PI];
+    if (t < 0.8) { const e = eIn(P(t, 0.58, 0.8)); return [1 - e, Math.PI * (1 + e)]; }
+    if (t < 0.87) return [16 / 90 * eOut(P(t, 0.8, 0.87)), 0];
+    if (t < 0.93) return [16 / 90 * (1 - eIn(P(t, 0.87, 0.93))), 0];
+    return [0, 0];
+  }
+  CELLS[32] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const S = '重力反转', F = `900 60px ${JP}`, REST = 136, UP = 90;
+    k.strokeStyle = C.navy3; k.lineWidth = 3; k.setLineDash([10, 8]);
+    k.beginPath(); k.moveTo(60, 12); k.lineTo(w - 60, 12); k.stroke(); k.setLineDash([]);
+    k.fillStyle = C.navy3; rr(k, 60, 170, w - 120, 4, 2); k.fill();
+    const cs = chars(k, S, F, 16);
+    cs.forEach((c, i) => {
+      const [p, r] = GRAV_k((u - 0.3 - 0.12 * i) / 3.6);
+      k.save(); k.translate(w / 2 + c.x, REST - UP * p); k.rotate(r);
+      txt(k, c.ch, 0, 0, F, i % 2 ? C.coral : '#fff', 'center', 'middle');
+      k.restore();
+    });
+  };
+
+  // @element 34
+  // 改写自 KittenJam Motion Library #25（Hannah）· 卡拉 OK 小球：发光小球每 0.38 秒跳到下一个字（跳高 34px），落点字从暗色亮成白色并带黄色光晕和 1.12 倍弹跳；整句跳完球从右侧离场，4.0–4.3 秒字回暗，4.3 秒起球在左侧淡入复位。
+  CELLS[33] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const S = '一闪一闪亮晶晶', F = `800 44px ${JP}`, CY = 124, T0 = 0.3, PER = 0.38, n = [...S].length;
+    const cs = chars(k, S, F, 10), X = i => w / 2 + (i < 0 ? cs[0].x - 60 : i >= n ? cs[n - 1].x + 60 : cs[i].x);
+    const YB = CY - 22 - 16;
+    // 小球
+    let bx, by = YB, ba = 1;
+    const tEnd = T0 + n * PER;
+    if (u < T0) bx = X(-1);
+    else if (u < tEnd + PER) { const i = Math.floor((u - T0) / PER), fr = (u - T0) / PER - i; bx = lerp(X(i - 1), X(i), fr); by = YB - 34 * Math.sin(Math.PI * fr); if (i >= n) ba = 1 - fr; }
+    else { bx = X(-1); ba = P(u, 4.3, 4.65); }
+    cs.forEach((c, i) => {
+      const land = T0 + (i + 1) * PER;
+      const L = P(u, land - 0.04, land + 0.1) * (1 - P(u, 4.0, 4.3));
+      const pop = u > land && u < 4.0 ? 1 + 0.12 * Math.exp(-9 * (u - land)) * Math.cos(16 * (u - land)) : 1;
+      k.save(); k.translate(w / 2 + c.x, CY); k.scale(pop, pop);
+      k.font = F; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round';
+      if (L > 0) [[16, 0.12], [8, 0.22]].forEach(([lw, a]) => { k.globalAlpha = a * L; k.strokeStyle = C.yel; k.lineWidth = lw; k.strokeText(c.ch, 0, 0); });
+      k.globalAlpha = 1; k.fillStyle = mix('#4A5680', '#FFFFFF', L); k.fillText(c.ch, 0, 0);
+      k.restore();
+    });
+    if (ba > 0) {
+      k.save(); k.globalAlpha = ba;
+      [[16, 0.12], [11, 0.22]].forEach(([r, a]) => { k.fillStyle = `rgba(255,200,61,${a})`; k.beginPath(); k.arc(bx, by, r, 0, 7); k.fill(); });
+      k.fillStyle = C.yel; k.beginPath(); k.arc(bx, by, 7, 0, 7); k.fill();
+      k.fillStyle = '#fff'; k.beginPath(); k.arc(bx - 2, by - 2, 2.2, 0, 7); k.fill();
+      k.restore();
+    }
+  };
+
+  // @element 35
+  // 改写自 KittenJam Motion Library #36（Hannah）· 墨水晕开：宣纸色底，每个字（间隔 0.25 秒）先是模糊 16px、1.3 倍的墨团，收敛成清晰字形，停留后再晕开到 1.2 倍消失；离屏画模糊墨字后用 contrast(16) 阈值化做出墨团粘连的边缘，再以 multiply 叠到纸上。
+  const INKB_C = mkCanvas(CW, CH), INKB_G = INKB_C.getContext('2d');
+  const INKB_FIB = (() => { const r = rand(3636); return Array.from({ length: 40 }, () => [r() * CW, r() * CH, 6 + r() * 18, r() * Math.PI]); })();
+  CELLS[34] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k, '#F2EBDD');
+    k.strokeStyle = 'rgba(150,120,80,.12)'; k.lineWidth = 1;
+    INKB_FIB.forEach(([x, y, l, a]) => { k.beginPath(); k.moveTo(x, y); k.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); k.stroke(); });
+    const S = '墨染江南', F = `900 68px ${JP}`, g = INKB_G;
+    g.save(); g.filter = 'none'; g.globalAlpha = 1; g.fillStyle = '#fff'; g.fillRect(0, 0, CW, CH);
+    g.font = F; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#000';
+    chars(g, S, F, 14).forEach((c, i) => {
+      const t = (u - 0.3 - 0.25 * i) / 3.6; if (t <= 0 || t >= 1) return;
+      let b, op, sc;
+      if (t < 0.55) { const q = smooth(t / 0.55); b = lerp(16, 0, q); sc = lerp(1.3, 1, q); op = clamp(t / 0.15); }
+      else if (t < 0.8) { b = 0; sc = 1; op = 1; }
+      else { const q = smooth((t - 0.8) / 0.2); b = lerp(0, 16, q); sc = lerp(1, 1.2, q); op = 1 - q; }
+      g.filter = `blur(${b.toFixed(2)}px)`; g.globalAlpha = op;
+      g.save(); g.translate(CW / 2 + c.x, CH / 2); g.scale(sc, sc); g.fillText(c.ch, 0, 0); g.restore();
+    });
+    g.restore();
+    k.save(); k.filter = 'contrast(16)'; k.globalCompositeOperation = 'multiply'; k.drawImage(INKB_C, 0, 0); k.restore();
+    // 角落朱印
+    k.fillStyle = '#C8372D'; rr(k, w - 62, h - 54, 30, 30, 4); k.fill();
+    txt(k, '印', w - 47, h - 38, `900 18px ${JP}`, '#F2EBDD', 'center', 'middle');
+  };
+
+  // @element 36
+  // 改写自 KittenJam Motion Library #39（Hannah）· 崩落：每个字（间隔 0.16 秒）先歪斜 ±12° 以内，再加速下坠 109px、旋转 ±90° 以内并淡出，带碎屑；随后从上方 32px 处缓出落回原位重组。每字一轮 3.6 秒。
+  const CRUM_R = (() => { const r = rand(3939); return Array.from({ length: 4 }, () => ({ r0: (r() * 2 - 1) * 12, r1: (r() * 2 - 1) * 90, bits: Array.from({ length: 5 }, () => [(r() - 0.5) * 50, (r() - 0.5) * 40, 1.2 + r() * 0.8, r() * 6, 3 + r() * 4]) })); })();
+  CELLS[35] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const S = '土崩瓦解', F = `900 64px ${JP}`, CY = 92, D2R = Math.PI / 180;
+    k.fillStyle = C.navy2; rr(k, 70, 132, w - 140, 4, 2); k.fill();
+    chars(k, S, F, 18).forEach((c, i) => {
+      const t = (u - 0.3 - 0.16 * i) / 3.6, R = CRUM_R[i % CRUM_R.length];   // 取模：脚本被按非 UTF-8 解码时字符数会变多
+      let y = 0, rot = 0, op = 1;
+      if (t > 0.22 && t < 0.27) rot = R.r0 * D2R * P(t, 0.22, 0.27);
+      else if (t >= 0.27 && t < 0.3) rot = R.r0 * D2R;
+      else if (t >= 0.3 && t < 0.62) { const q = P(t, 0.3, 0.62), e = eIn(q); y = 109 * e; rot = lerp(R.r0, R.r1, e) * D2R; op = 1 - q; }
+      else if (t >= 0.62 && t < 0.8) op = 0;
+      else if (t >= 0.8 && t < 0.92) { const q = eOut(P(t, 0.8, 0.92)); y = -32 * (1 - q); op = q; }
+      // 碎屑跟随下坠
+      if (t >= 0.3 && t < 0.62) {
+        const q = P(t, 0.3, 0.62);
+        R.bits.forEach(([bx, by, sp, a, s]) => {
+          k.save(); k.globalAlpha = 0.8 * (1 - q); k.translate(w / 2 + c.x + bx * (0.4 + q), CY + by + 140 * sp * eIn(q)); k.rotate(a + q * 6);
+          k.fillStyle = i % 2 ? C.yel : '#fff'; k.fillRect(-s / 2, -s / 2, s, s); k.restore();
+        });
+      }
+      if (op <= 0) return;
+      k.save(); k.globalAlpha = op; k.translate(w / 2 + c.x, CY + y); k.rotate(rot);
+      txt(k, c.ch, 0, 0, F, i % 2 ? C.yel : '#fff', 'center', 'middle');
+      k.restore();
+    });
+  };
+
+  // @element 37
+  // 改写自 KittenJam Motion Library #43（Hannah）· 印章：纸面上两枚粗框印章（−9° 与 7°）依次从 2.4 倍斜着砸到 0.93 倍再回 1 倍，间隔 0.55 秒，落下时纸面微震并扩出一圈印痕；印面用随机镂空点做斑驳质感（离屏 2 倍分辨率预生成）。3.9–4.4 秒淡出。
+  const STMP_IMG = ['急件', '核准'].map((s, j) => {
+    const c = mkCanvas(340, 200), g = c.getContext('2d'), r = rand(4343 + j * 7);
+    g.scale(2, 2); g.strokeStyle = '#E2453A'; g.fillStyle = '#E2453A'; g.lineWidth = 6;
+    g.beginPath(); g.roundRect(8, 8, 154, 84, 10); g.stroke();
+    g.lineWidth = 1.5; g.beginPath(); g.roundRect(15, 15, 140, 70, 6); g.stroke();
+    g.font = `900 50px ${JP}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(s, 85, 52);
+    g.globalCompositeOperation = 'destination-out';
+    for (let i = 0; i < 160; i++) { g.globalAlpha = 0.4 + r() * 0.6; g.beginPath(); g.arc(r() * 170, r() * 100, 0.5 + r() * 1.8, 0, 7); g.fill(); }
+    g.globalAlpha = 0.5; g.lineWidth = 1;
+    for (let i = 0; i < 6; i++) { const x = r() * 170, y = r() * 100; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 10 + r() * 30, y + (r() - 0.5) * 6); g.stroke(); }
+    return c;
+  });
+  CELLS[36] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const ST = [[196, 92, -9, 0.35], [350, 124, 7, 0.9]], fade = 1 - P(u, 3.9, 4.4);
+    // 纸面受冲击的微震
+    let jy = 0; ST.forEach(([, , , s]) => { const t = u - s - 0.24; if (t > 0 && t < 0.25) jy += 2.5 * Math.exp(-14 * t) * Math.sin(50 * t); });
+    k.save(); k.translate(0, jy);
+    k.fillStyle = C.cream; rr(k, 44, 14, w - 88, h - 28, 6); k.fill();
+    k.fillStyle = 'rgba(15,26,61,.12)';
+    for (let i = 0; i < 6; i++) { k.fillRect(70, 34 + i * 26, i % 3 === 2 ? 220 : 380, 6); }
+    ST.forEach(([x, y, deg, s], j) => {
+      const t = u - s; if (t <= 0) return;
+      let sc, op;
+      if (t < 0.24) { const q = eIn(t / 0.24); sc = lerp(2.4, 0.93, q); op = q; } else { sc = lerp(0.93, 1, eOut(P(t, 0.24, 0.36))); op = 1; }
+      op *= fade; if (op <= 0) return;
+      // 印痕扩散框
+      const rg = P(t, 0.24, 0.6);
+      k.save(); k.translate(x, y); k.rotate(deg * Math.PI / 180);
+      if (rg > 0 && rg < 1) { k.globalAlpha = 0.4 * (1 - rg) * fade; k.strokeStyle = '#E2453A'; k.lineWidth = 2; const e = 1 + 0.3 * eOut(rg); rr(k, -85 * e, -50 * e, 170 * e, 100 * e, 12); k.stroke(); }
+      k.globalAlpha = op * 0.92; k.scale(sc, sc); k.drawImage(STMP_IMG[j], -85, -50, 170, 100);
+      k.restore();
+    });
+    k.restore();
+  };
+
+  // @element 38
+  // 改写自 KittenJam Motion Library #57（Hannah）· 文字圆柱：三根圆柱各由同一字的 10 个副本（间隔 36°）环绕水平轴排成，每 4.7 秒转一圈，相邻两根方向相反，中间一根用珊瑚色；背面不画，近处更亮更大。
+  CELLS[37] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const S = '立体字', R = 62, CY = 104, th = Math.PI * 2 * u / CYC;
+    [...S].forEach((ch, c) => {
+      const cx = w / 2 + (c - 1) * 150, dir = c % 2 ? -1 : 1, col = c === 1 ? C.coral : '#fff';
+      const list = [];
+      for (let i = 0; i < 10; i++) { const a = i * 36 * Math.PI / 180 + dir * th; list.push([Math.cos(a), Math.sin(a)]); }
+      list.sort((A, B) => A[0] - B[0]).forEach(([z, s]) => {
+        if (z < 0.05) return;
+        const per = 400 / (400 - R * z);
+        k.save(); k.globalAlpha = 0.2 + 0.8 * z; k.translate(cx, CY - R * s * per); k.scale(per, z * per);
+        txt(k, ch, 0, 0, `900 50px ${JP}`, col, 'center', 'middle');
+        k.restore();
+      });
+    });
+  };
+
+  // @element 39
+  // 改写自 KittenJam Motion Library #65（Hannah）· 拉霸：4 个窗格里的滚带向上快速滚动随机字，从左到右依次减速（各 1.4 + 0.5i 秒，cubic-bezier(.2,.75,.25,1.04) 带轻微回弹）停在「大吉大利」，全部停下后边框闪两下；滚带首尾都是目标字，循环无缝。
+  const SLOT_POOL = [...'大吉利福寿财中凶7★♥'], SLOT_TG = [...'大吉大利'];
+  const SLOT_STRIPS = SLOT_TG.map((t, i) => { const r = rand(6565 + i * 17), n = 18 + i * 6; return Array.from({ length: n }, (_, j) => j === 0 || j === n - 1 ? t : SLOT_POOL[Math.floor(r() * SLOT_POOL.length)]); });
+  function SLOT_bz(x) {   // cubic-bezier(.2,.75,.25,1.04)：二分求 t 再取 y
+    const bx = t => 3 * (1 - t) * (1 - t) * t * 0.2 + 3 * (1 - t) * t * t * 0.25 + t * t * t;
+    let a = 0, b = 1; for (let i = 0; i < 24; i++) { const m = (a + b) / 2; if (bx(m) < x) a = m; else b = m; }
+    const t = (a + b) / 2; return 3 * (1 - t) * (1 - t) * t * 0.75 + 3 * (1 - t) * t * t * 1.04 + t * t * t;
+  }
+  CELLS[38] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const RW = 76, RH = 92, GAPR = 14, X0 = (w - (4 * RW + 3 * GAPR)) / 2, Y0 = (h - RH) / 2;
+    const flash = u > 3.2 && u < 4.2 ? 0.5 - 0.5 * Math.cos(Math.PI * 2 * (u - 3.2) / 0.5) : 0;
+    k.fillStyle = C.navy2; rr(k, X0 - 18, Y0 - 18, 4 * RW + 3 * GAPR + 36, RH + 36, 16); k.fill();
+    k.strokeStyle = mix(C.navy3, C.yel, flash); k.lineWidth = 3; k.stroke();
+    SLOT_STRIPS.forEach((st, i) => {
+      const x = X0 + i * (RW + GAPR), n = st.length, dur = 1.4 + 0.5 * i;
+      const p = SLOT_bz(P(u, 0.3, 0.3 + dur)), off = p * (n - 1) * RH;
+      const sp = Math.abs(SLOT_bz(P(u + 0.02, 0.3, 0.3 + dur)) - p) * (n - 1) * RH / 0.02;   // 滚动速度 px/s，用于拖影
+      k.save(); rr(k, x, Y0, RW, RH, 10); k.fillStyle = '#16204A'; k.fill(); k.clip();
+      const j0 = Math.floor(off / RH);
+      for (let j = j0 - 1; j <= j0 + 1; j++) {
+        const ch = st[mod(j, n)], y = Y0 + RH / 2 + j * RH - off;
+        const blur = Math.min(1, sp / 1800);
+        if (blur > 0.05) { k.globalAlpha = 0.25 * blur; txt(k, ch, x + RW / 2, y - 14 * blur, `900 58px ${JP}`, C.yel, 'center', 'middle'); txt(k, ch, x + RW / 2, y + 14 * blur, `900 58px ${JP}`, C.yel, 'center', 'middle'); }
+        k.globalAlpha = 1 - 0.5 * blur; txt(k, ch, x + RW / 2, y, `900 58px ${JP}`, C.yel, 'center', 'middle');
+      }
+      k.globalAlpha = 1;
+      const gt = k.createLinearGradient(0, Y0, 0, Y0 + RH);
+      gt.addColorStop(0, 'rgba(0,0,0,.6)'); gt.addColorStop(0.22, 'rgba(0,0,0,0)'); gt.addColorStop(0.78, 'rgba(0,0,0,0)'); gt.addColorStop(1, 'rgba(0,0,0,.6)');
+      k.fillStyle = gt; k.fillRect(x, Y0, RW, RH);
+      k.restore();
+    });
+  };
+
+  // @element 40
+  // 改写自 KittenJam Motion Library #73（Hannah）· 液体填满：薄荷色描边的空心字，0.3–3.3 秒正弦液面由下往上填满（波高 6px·sin(π·液位)，前后两层波错相），液中气泡上浮，停留到 4.2 秒后 0.4 秒清空；下方显示百分比。
+  const LIQF_C = mkCanvas(CW, CH), LIQF_G = LIQF_C.getContext('2d');
+  CELLS[39] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const S = '满格', F = `900 132px ${JP}`, TOP = h / 2 - 66, BOT = h / 2 + 52, CXT = w / 2, CYT = h / 2 - 6;
+    const lv = u < 0.3 ? 0 : u < 3.3 ? eIOs(P(u, 0.3, 3.3)) : u < 4.2 ? 1 : 1 - eIOs(P(u, 4.2, 4.6));
+    const g = LIQF_G; g.save(); g.clearRect(0, 0, CW, CH);
+    const sy = lerp(BOT + 4, TOP - 6, lv), A = 6 * Math.sin(Math.PI * lv), ph = Math.PI * 2 * u / (CYC / 3);
+    const wave = (col, off, dy) => { g.fillStyle = col; g.beginPath(); g.moveTo(0, CH); for (let x = 0; x <= CW; x += 6) g.lineTo(x, sy + dy + A * Math.sin(x * 0.035 - ph + off)); g.lineTo(CW, CH); g.closePath(); g.fill(); };
+    wave('#1F9E7A', 1.3, -3); wave(C.mint, 0, 0);
+    for (let b = 0; b < 10; b++) {
+      const bx = CXT + (H01(b) - 0.5) * 240, by = BOT - mod(u / CYC * 2 + H01(b + 20), 1) * (BOT - TOP);
+      if (by > sy + 4) { g.fillStyle = 'rgba(255,255,255,.45)'; g.beginPath(); g.arc(bx + 3 * Math.sin(by * 0.1), by, 2 + 2 * H01(b + 40), 0, 7); g.fill(); }
+    }
+    g.globalCompositeOperation = 'destination-in'; g.font = F; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#000'; g.fillText(S, CXT, CYT);
+    g.restore();
+    k.drawImage(LIQF_C, 0, 0);
+    k.font = F; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round'; k.strokeStyle = C.mint; k.lineWidth = 3; k.strokeText(S, CXT, CYT);
+    txt(k, `${Math.round(lv * 100)}%`, w / 2, h - 14, `700 13px ui-monospace, Menlo, monospace`, C.dim, 'center', 'alphabetic');
+  };
+
+  // @element 41
+  // 改写自 KittenJam Motion Library #134（Hannah）· 手写签名：单笔草写路径（起笔大写弧 + 6 个连写圈 + 上扬收笔）在 0.3–2.9 秒按 sine 缓入缓出逐段写出，珊瑚色笔尖圆点跟随，线宽随方向 2–4.2px 变化；写完后 2.95–3.4 秒补一道微弯底线，4.0–4.5 秒淡出。
+  const SIGN_PTS = (() => {
+    const pts = [];
+    const bez = (a, b, c, d, n) => { for (let i = pts.length ? 1 : 0; i <= n; i++) { const t = i / n, m = 1 - t; pts.push([m * m * m * a[0] + 3 * m * m * t * b[0] + 3 * m * t * t * c[0] + t * t * t * d[0], m * m * m * a[1] + 3 * m * m * t * b[1] + 3 * m * t * t * c[1] + t * t * t * d[1]]); } };
+    bez([70, 140], [80, 70], [118, 22], [128, 46], 24);
+    bez([128, 46], [136, 72], [104, 150], [96, 158], 24);
+    bez([96, 158], [90, 164], [118, 124], [150, 122], 20);
+    for (let i = 1; i <= 300; i++) {   // 连写圈：x 前进 + 正弦回绕，顶点处向后形成圈
+      const t = i / 300, om = Math.PI * 2 * 6 * t, hh = 34 + 14 * Math.sin(t * 11.3 + 0.8);
+      pts.push([150 + 290 * t + 12 * Math.sin(om), 122 - hh * (1 - Math.cos(om)) / 2]);
+    }
+    bez([440, 122], [470, 124], [486, 96], [500, 58], 24);
+    return pts;
+  })();
+  const SIGN_CUM = pathLen(SIGN_PTS);
+  const SIGN_LINE = (() => { const p = []; for (let i = 0; i <= 30; i++) { const t = i / 30, m = 1 - t; p.push([m * m * m * 96 + 3 * m * m * t * 220 + 3 * m * t * t * 380 + t * t * t * 486, m * m * m * 178 + 3 * m * m * t * 168 + 3 * m * t * t * 168 + t * t * t * 174]); } return p; })();
+  const SIGN_LCUM = pathLen(SIGN_LINE);
+  CELLS[40] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    txt(k, '签名', 30, 34, `700 12px ${JP}`, C.dim);
+    const fade = 1 - P(u, 4.0, 4.5);
+    const f = -(Math.cos(Math.PI * P(u, 0.3, 2.9)) - 1) / 2;
+    if (f > 0 && fade > 0) {
+      k.save(); k.globalAlpha = fade; k.strokeStyle = C.cream; k.lineCap = 'round';
+      const L = SIGN_CUM[SIGN_CUM.length - 1] * f;
+      for (let i = 1; i < SIGN_PTS.length && SIGN_CUM[i - 1] < L; i++) {
+        const a = SIGN_PTS[i - 1], b = SIGN_PTS[i], q = Math.min(1, (L - SIGN_CUM[i - 1]) / Math.max(1e-6, SIGN_CUM[i] - SIGN_CUM[i - 1]));
+        k.lineWidth = 2 + 2.2 * Math.abs(Math.sin(Math.atan2(b[1] - a[1], b[0] - a[0]) - Math.PI / 4));
+        k.beginPath(); k.moveTo(a[0], a[1]); k.lineTo(lerp(a[0], b[0], q), lerp(a[1], b[1], q)); k.stroke();
+      }
+      const ul = eOut(P(u, 2.95, 3.4));
+      if (ul > 0) {
+        const Lu = SIGN_LCUM[SIGN_LCUM.length - 1] * ul; k.lineWidth = 2.4; k.beginPath(); k.moveTo(SIGN_LINE[0][0], SIGN_LINE[0][1]);
+        for (let i = 1; i < SIGN_LINE.length && SIGN_LCUM[i - 1] < Lu; i++) { const q = Math.min(1, (Lu - SIGN_LCUM[i - 1]) / (SIGN_LCUM[i] - SIGN_LCUM[i - 1])); k.lineTo(lerp(SIGN_LINE[i - 1][0], SIGN_LINE[i][0], q), lerp(SIGN_LINE[i - 1][1], SIGN_LINE[i][1], q)); }
+        k.stroke();
+      }
+      k.restore();
+    }
+    if (u > 0.3 && u < 2.9) {
+      const [x, y] = ptAt(SIGN_PTS, SIGN_CUM, f);
+      k.fillStyle = 'rgba(255,107,92,.3)'; k.beginPath(); k.arc(x, y, 8, 0, 7); k.fill();
+      k.fillStyle = C.coral; k.beginPath(); k.arc(x, y, 4, 0, 7); k.fill();
+    }
+  };
+
+  // @element 42
+  // 改写自 KittenJam Motion Library #322（Hannah）· 地图路线导航：淡色陆地与格线的地图上，三枚地标针从 30px 高处依次（间隔 0.18 秒）弹跳落下，1.3–3.5 秒实线路线沿弯曲路径画到终点，带光圈的小点同步前进，抵达后终点针放大 1.25 倍弹一下；4.1–4.55 秒淡出。
+  const MAPR_PINS = [[86, 150, '起点'], [262, 100, '中转'], [452, 62, '终点']];
+  const MAPR_PTS = (() => {
+    const p = [], bez = (a, b, c, d) => { for (let i = p.length ? 1 : 0; i <= 40; i++) { const t = i / 40, m = 1 - t; p.push([m * m * m * a[0] + 3 * m * m * t * b[0] + 3 * m * t * t * c[0] + t * t * t * d[0], m * m * m * a[1] + 3 * m * m * t * b[1] + 3 * m * t * t * c[1] + t * t * t * d[1]]); } };
+    bez([86, 150], [130, 60], [200, 176], [262, 100]); bez([262, 100], [320, 30], [380, 134], [452, 62]); return p;
+  })();
+  const MAPR_CUM = pathLen(MAPR_PTS);
+  const MAPR_BG = (() => {
+    const c = mkCanvas(CW, CH), g = c.getContext('2d');
+    g.fillStyle = '#0D173A'; g.fillRect(0, 0, CW, CH);
+    const blob = (cx, cy, rx, ry, s) => { g.beginPath(); for (let i = 0; i <= 72; i++) { const a = i / 72 * Math.PI * 2, r = 1 + 0.08 * Math.sin(3 * a + s) + 0.05 * Math.sin(5 * a + s * 2); const x = cx + Math.cos(a) * rx * r, y = cy + Math.sin(a) * ry * r; i ? g.lineTo(x, y) : g.moveTo(x, y); } g.closePath(); g.fill(); g.stroke(); };
+    g.fillStyle = '#18275A'; g.strokeStyle = '#26397A'; g.lineWidth = 1.5;
+    blob(270, 104, 236, 84, 1); blob(500, 182, 40, 18, 4);
+    g.strokeStyle = 'rgba(127,144,196,.14)'; g.lineWidth = 1;
+    for (let x = 0; x <= CW; x += 54) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, CH); g.stroke(); }
+    for (let y = 24; y <= CH; y += 54) { g.beginPath(); g.moveTo(0, y); g.lineTo(CW, y); g.stroke(); }
+    g.strokeStyle = 'rgba(255,241,214,.28)'; g.lineWidth = 2; g.setLineDash([5, 6]);
+    g.beginPath(); MAPR_PTS.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke();
+    return c;
+  })();
+  function MAPR_bounce(x) { const n = 7.5625, d = 2.75; if (x < 1 / d) return n * x * x; if (x < 2 / d) return n * (x -= 1.5 / d) * x + 0.75; if (x < 2.5 / d) return n * (x -= 2.25 / d) * x + 0.9375; return n * (x -= 2.625 / d) * x + 0.984375; }
+  CELLS[41] = (k, w, h, u) => {
+    u = snapU(u);
+    k.drawImage(MAPR_BG, 0, 0);
+    const fade = 1 - P(u, 4.1, 4.55);
+    if (fade <= 0) return;
+    k.save(); k.globalAlpha = fade;
+    const f = -(Math.cos(Math.PI * P(u, 1.3, 3.5)) - 1) / 2;
+    if (f > 0) {
+      const L = MAPR_CUM[MAPR_CUM.length - 1] * f;
+      k.lineCap = 'round'; k.lineJoin = 'round'; k.beginPath(); k.moveTo(MAPR_PTS[0][0], MAPR_PTS[0][1]);
+      for (let i = 1; i < MAPR_PTS.length && MAPR_CUM[i - 1] < L; i++) { const q = Math.min(1, (L - MAPR_CUM[i - 1]) / (MAPR_CUM[i] - MAPR_CUM[i - 1])); k.lineTo(lerp(MAPR_PTS[i - 1][0], MAPR_PTS[i][0], q), lerp(MAPR_PTS[i - 1][1], MAPR_PTS[i][1], q)); }
+      k.strokeStyle = 'rgba(59,123,255,.3)'; k.lineWidth = 9; k.stroke();
+      k.strokeStyle = C.blue; k.lineWidth = 3.5; k.stroke();
+    }
+    MAPR_PINS.forEach(([x, y, lb], i) => {
+      const s = 0.3 + 0.18 * i, q = P(u, s, s + 0.6); if (q <= 0) return;
+      const dy = -30 * (1 - MAPR_bounce(q));
+      const pop = i === 2 && u > 3.5 ? 1 + 0.25 * Math.sin(Math.PI * P(u, 3.5, 3.85)) : 1;
+      k.save(); k.globalAlpha = fade * clamp(q * 4);
+      k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(x, y, 6, 2.5, 0, 0, 7); k.fill();
+      k.translate(x, y + dy); k.scale(pop, pop);
+      k.fillStyle = i === 2 ? C.coral : i === 0 ? C.mint : C.yel;
+      k.beginPath(); k.moveTo(0, 0); k.bezierCurveTo(-8, -10, -11, -15, -11, -20); k.arc(0, -20, 11, Math.PI, 0); k.bezierCurveTo(11, -15, 8, -10, 0, 0); k.fill();
+      k.fillStyle = C.navy; k.beginPath(); k.arc(0, -20, 4, 0, 7); k.fill();
+      k.restore();
+      txt(k, lb, x, y + 18, `700 12px ${JP}`, C.cream, 'center', 'alphabetic');
+    });
+    if (f > 0) {
+      const [x, y] = ptAt(MAPR_PTS, MAPR_CUM, f), r = 9 + 3 * Math.sin(Math.PI * 2 * u / (CYC / 6));
+      k.fillStyle = 'rgba(255,255,255,.22)'; k.beginPath(); k.arc(x, y, r, 0, 7); k.fill();
+      k.fillStyle = '#fff'; k.beginPath(); k.arc(x, y, 4.5, 0, 7); k.fill();
+    }
+    k.restore();
+  };
+
+  // @element 43
+  // 改写自 KittenJam Motion Library #328（Hannah）· 心电图：深色细格屏上，P 波、QRS 尖波、T 波每 96px 重复，扫描前端每 2.35 秒从左扫到右，前端后面是新画的发光波形，前方留 8% 空隙、更早的波形逐渐变暗；右侧心形随每次 R 波放大 1.25 倍，心率数字按拍切换。
+  const ECG_XL = 20, ECG_XR = 404, ECG_YB = 120, ECG_PW = 96;
+  const ECG_QRS = [[34, 0], [37, 6], [41, -62], [46, 18], [50, 0]];
+  const ECG_BPM = [102, 101, 103, 102, 100, 102, 104, 103];
+  function ECG_y(xl) {
+    const x = mod(xl, ECG_PW);
+    if (x > 14 && x < 28) return ECG_YB - 7 * Math.sin(Math.PI * (x - 14) / 14);
+    if (x > 62 && x < 80) return ECG_YB - 14 * Math.sin(Math.PI * (x - 62) / 18);
+    for (let i = 1; i < ECG_QRS.length; i++) if (x >= ECG_QRS[i - 1][0] && x <= ECG_QRS[i][0]) return ECG_YB + lerp(ECG_QRS[i - 1][1], ECG_QRS[i][1], (x - ECG_QRS[i - 1][0]) / (ECG_QRS[i][0] - ECG_QRS[i - 1][0]));
+    return ECG_YB;
+  }
+  CELLS[42] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k, '#04100C');
+    k.fillStyle = '#071A13'; rr(k, 10, 10, w - 20, h - 20, 12); k.fill();
+    for (let x = 10; x <= w - 10; x += 16) { k.fillStyle = (x - 10) % 80 ? 'rgba(46,219,168,.06)' : 'rgba(46,219,168,.14)'; k.fillRect(x, 10, 1, h - 20); }
+    for (let y = 10; y <= h - 10; y += 16) { k.fillStyle = (y - 10) % 80 ? 'rgba(46,219,168,.06)' : 'rgba(46,219,168,.14)'; k.fillRect(10, y, w - 20, 1); }
+    const W = ECG_XR - ECG_XL, s = mod(u / (CYC / 2), 1), cx = ECG_XL + s * W;
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    for (let x = ECG_XL; x < ECG_XR; x += 4) {
+      const age = mod(cx - x, W) / W; if (age > 0.92) continue;
+      const a = 1 - 0.75 * age, x2 = Math.min(ECG_XR, x + 4);
+      k.beginPath(); k.moveTo(x, ECG_y(x - ECG_XL)); for (let xx = x + 1; xx <= x2; xx++) k.lineTo(xx, ECG_y(xx - ECG_XL));
+      k.strokeStyle = `rgba(53,242,154,${0.18 * a})`; k.lineWidth = 7; k.stroke();
+      k.strokeStyle = `rgba(53,242,154,${a})`; k.lineWidth = 2; k.stroke();
+    }
+    const cy = ECG_y(cx - ECG_XL);
+    k.fillStyle = 'rgba(53,242,154,.25)'; k.beginPath(); k.arc(cx, cy, 9, 0, 7); k.fill();
+    k.fillStyle = '#D9FFEC'; k.beginPath(); k.arc(cx, cy, 3.5, 0, 7); k.fill();
+    // 右侧读数：R 波（局部 41px）经过后心形跳一下
+    const d = mod(cx - ECG_XL - 41, ECG_PW), pulse = Math.exp(-d / 12);
+    const beat = mod(Math.floor(u / (CYC / 2) * 4 - 41 / 96), 8);
+    k.fillStyle = 'rgba(46,219,168,.2)'; k.fillRect(420, 30, 1, h - 60);
+    txt(k, String(ECG_BPM[beat]), 438, 104, `700 40px ui-monospace, Menlo, monospace`, '#D9FFEC');
+    txt(k, 'BPM', 440, 126, `700 12px ${DISP}`, 'rgba(53,242,154,.8)');
+    k.save(); k.translate(488, 58); k.scale(1 + 0.25 * pulse, 1 + 0.25 * pulse); k.fillStyle = C.coral; heartPath(k, 10); k.fill(); k.restore();
+  };
+
+  // @element 44
+  // 改写自 KittenJam Motion Library #329（Hannah）· 树枝生长：0.2–0.6 秒地面线向两侧画出，0.45 秒起主干 0.8 秒长出，4 根分枝间隔 0.15 秒、各 0.45 秒，5 根细枝间隔 0.12 秒、各 0.35 秒，2.6 秒起 14 片叶子乱序间隔 0.07 秒回弹长出，3.4 秒文字浮现；4.15–4.6 秒淡出。
+  const TREE_BR = [   // [起点, 控制点, 终点, 线宽, 开始秒, 时长]
+    [[270, 170], [266, 120], [272, 62], 9, 0.45, 0.8],
+    [[270, 140], [248, 124], [216, 112], 5, 1.15, 0.45], [[270, 124], [296, 110], [326, 98], 5, 1.3, 0.45],
+    [[271, 98], [250, 84], [238, 62], 4, 1.45, 0.45], [[271, 88], [292, 74], [304, 52], 4, 1.6, 0.45],
+    [[230, 116], [214, 98], [204, 84], 2.5, 1.85, 0.35], [[318, 101], [340, 88], [350, 74], 2.5, 1.97, 0.35],
+    [[244, 76], [226, 64], [220, 50], 2.5, 2.09, 0.35], [[300, 60], [318, 48], [324, 36], 2.5, 2.21, 0.35], [[272, 66], [268, 50], [272, 38], 2.5, 2.33, 0.35]];
+  const TREE_LV = (() => {
+    const pos = [[216, 112], [326, 98], [238, 62], [304, 52], [204, 84], [350, 74], [220, 50], [324, 36], [272, 38], [196, 110], [340, 104], [250, 92], [292, 80], [262, 50]];
+    const r = rand(3290), order = pos.map((_, i) => i).sort(() => r() - 0.5);
+    return pos.map((p, i) => [p[0], p[1], H01(i + 7) * Math.PI * 2, order.indexOf(i)]);
+  })();
+  CELLS[43] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const fade = 1 - P(u, 4.15, 4.6); if (fade <= 0) return;
+    k.save(); k.globalAlpha = fade; k.lineCap = 'round';
+    const gl = eOut(P(u, 0.2, 0.6));
+    if (gl > 0) { k.strokeStyle = C.navy3; k.lineWidth = 3; k.beginPath(); k.moveTo(270 - 120 * gl, 170); k.lineTo(270 + 120 * gl, 170); k.stroke(); }
+    TREE_BR.forEach(([a, c, b, lw, s, d]) => {
+      const f = eIOs(P(u, s, s + d)); if (f <= 0) return;
+      k.strokeStyle = '#C8A27A'; k.lineWidth = lw; k.beginPath(); k.moveTo(a[0], a[1]);
+      const N = Math.max(1, Math.ceil(20 * f));
+      for (let i = 1; i <= N; i++) { const t = f * i / N, m = 1 - t; k.lineTo(m * m * a[0] + 2 * m * t * c[0] + t * t * b[0], m * m * a[1] + 2 * m * t * c[1] + t * t * b[1]); }
+      k.stroke();
+    });
+    TREE_LV.forEach(([x, y, rot, rank], i) => {
+      const s = 2.6 + rank * 0.07, q = P(u, s, s + 0.32); if (q <= 0) return;
+      const sc = backOut(q, 1.7);
+      k.save(); k.translate(x, y); k.rotate(rot); k.scale(sc, sc);
+      k.fillStyle = i % 3 ? C.mint : '#8BE8C4';
+      k.beginPath(); k.moveTo(0, 0); k.bezierCurveTo(4, -6, 11, -6, 14, 0); k.bezierCurveTo(11, 6, 4, 6, 0, 0); k.fill();
+      k.restore();
+    });
+    const tq = eOut(P(u, 3.4, 3.8));
+    if (tq > 0) { k.globalAlpha = fade * tq; txt(k, '持续成长', w / 2, 197 - 6 * tq, `700 15px ${JP}`, C.cream, 'center', 'alphabetic'); }
+    k.restore();
+  };
+
+  // @element 45
+  // 改写自 KittenJam Motion Library #330（Hannah）· 齿轮联动：16 齿大齿轮顺时针每 4.7 秒转 180°（8 个齿距），10 齿与 8 齿小齿轮按齿数比反向转（每周期同样 8 个齿距），按接触方向计算初始相位让齿对齿槽；孔数 6/5/4 与转角整除，循环无缝。
+  const GEAR_M = 6.4, GEAR_A = [200, 108, 16];
+  const GEAR_B = (() => { const r = GEAR_M * (16 + 10) / 2, a = -20 * Math.PI / 180; return [200 + r * Math.cos(a), 108 + r * Math.sin(a), 10, a, 5, C.coral]; })();
+  const GEAR_C = (() => { const r = GEAR_M * (16 + 8) / 2, a = 160 * Math.PI / 180; return [200 + r * Math.cos(a), 108 + r * Math.sin(a), 8, a, 4, C.yel]; })();
+  function GEAR_draw(k, x, y, N, th, holes, col) {
+    const r = GEAR_M * N / 2, st = Math.PI * 2 / N, ro = r - 1.2 * GEAR_M, rt = r + GEAR_M;
+    k.save(); k.translate(x, y); k.rotate(th);
+    k.beginPath();
+    for (let j = 0; j < N; j++) {
+      const c = j * st;
+      [[c - 0.5 * st, ro], [c - 0.28 * st, ro], [c - 0.16 * st, rt], [c + 0.16 * st, rt], [c + 0.28 * st, ro]].forEach(([a, rr0], q) => { const px = Math.cos(a) * rr0, py = Math.sin(a) * rr0; j || q ? k.lineTo(px, py) : k.moveTo(px, py); });
+    }
+    k.closePath(); k.fillStyle = col; k.fill();
+    k.strokeStyle = 'rgba(15,26,61,.35)'; k.lineWidth = 2; k.beginPath(); k.arc(0, 0, ro - 5, 0, 7); k.stroke();
+    k.fillStyle = C.navy;
+    for (let i = 0; i < holes; i++) { const a = i * Math.PI * 2 / holes; k.beginPath(); k.arc(Math.cos(a) * r * 0.55, Math.sin(a) * r * 0.55, r * 0.13, 0, 7); k.fill(); }
+    k.beginPath(); k.arc(0, 0, r * 0.22, 0, 7); k.fill();
+    k.fillStyle = col; k.beginPath(); k.arc(0, 0, r * 0.09, 0, 7); k.fill();
+    k.restore();
+  }
+  CELLS[44] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const thA = Math.PI * u / CYC;   // 8 × (2π/16) 每周期
+    // 接触方向 φ 上：大齿轮齿数单位 a=(φ−θA)·NA/2π，小齿轮须在 a 的对侧半齿处：θ = φ + π − π/N + (φ − θA)·NA/N
+    const mesh = ([, , N, phi]) => phi + Math.PI - Math.PI / N + (phi - thA) * 16 / N;
+    GEAR_draw(k, GEAR_A[0], GEAR_A[1], 16, thA, 6, C.blue);
+    GEAR_draw(k, GEAR_B[0], GEAR_B[1], 10, mesh(GEAR_B), 5, GEAR_B[5]);
+    GEAR_draw(k, GEAR_C[0], GEAR_C[1], 8, mesh(GEAR_C), 4, GEAR_C[5]);
+    const dots = Math.floor(u / (CYC / 12)) % 4;
+    txt(k, '系统运转中' + '·'.repeat(dots), 352, 100, `800 22px ${JP}`, '#fff');
+    txt(k, '齿数 16 · 10 · 8', 352, 126, `600 12px ${JP}`, C.dim);
+  };
+
+  // @element 46
+  // 改写自 KittenJam Motion Library #331（Hannah）· 指纹扫描解锁：圆角感应区内 7 道椭圆弧纹由内向外依次画出（间隔 0.08 秒、各 0.7 秒），1.25–2.05 秒发光扫描条向下、2.05–2.85 秒向上扫回；2.95 秒起纹路变淡到 0.3、对勾 3.0–3.3 秒画出、外框变绿发光，文字依次为「请轻触感应区 → 扫描中 → 验证成功」；4.2–4.6 秒复位。
+  CELLS[45] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const CX = w / 2, CY = 90, BS = 112, X0 = CX - BS / 2, Y0 = CY - BS / 2;
+    const ok = 1 - P(u, 4.2, 4.6), done = P(u, 2.95, 3.15) * ok;
+    k.save(); rr(k, X0, Y0, BS, BS, 22); k.fillStyle = C.navy2; k.fill();
+    if (done > 0) [[12, 0.12], [6, 0.25]].forEach(([lw, a]) => { k.strokeStyle = `rgba(46,219,168,${a * done})`; k.lineWidth = lw; k.stroke(); });
+    k.strokeStyle = mix(C.navy3, C.mint, done); k.lineWidth = 2.5; k.stroke();
+    k.clip();
+    const arcA = (1 - 0.7 * P(u, 2.95, 3.2)) * ok;
+    k.lineCap = 'round'; k.strokeStyle = '#8FB4FF'; k.lineWidth = 2.6; k.globalAlpha = arcA;
+    for (let i = 0; i < 7; i++) {
+      const f = -(Math.cos(Math.PI * P(u, 0.3 + 0.08 * i, 1.0 + 0.08 * i)) - 1) / 2; if (f <= 0) continue;
+      const gp = i % 2 ? 0.75 : 0.4, a0 = Math.PI / 2 + gp, a1 = Math.PI / 2 - gp + Math.PI * 2;
+      k.beginPath(); k.ellipse(CX, CY + 4, 7 + i * 6.2, 9 + i * 6.6, 0, a0, a0 + (a1 - a0) * f); k.stroke();
+    }
+    k.globalAlpha = 1;
+    if (u > 1.2 && u < 2.9) {
+      const sp = u < 2.05 ? -(Math.cos(Math.PI * P(u, 1.25, 2.05)) - 1) / 2 : 1 + (Math.cos(Math.PI * P(u, 2.05, 2.85)) - 1) / 2;
+      const y = Y0 + 6 + (BS - 12) * sp, ga = Math.min(P(u, 1.2, 1.3), 1 - P(u, 2.8, 2.9));
+      const g = k.createLinearGradient(0, y - 14, 0, y + 14); g.addColorStop(0, 'rgba(46,219,168,0)'); g.addColorStop(0.5, `rgba(46,219,168,${0.45 * ga})`); g.addColorStop(1, 'rgba(46,219,168,0)');
+      k.fillStyle = g; k.fillRect(X0, y - 14, BS, 28);
+      k.fillStyle = `rgba(217,255,236,${ga})`; k.fillRect(X0 + 8, y - 1, BS - 16, 2);
+    }
+    const tk = eOut(P(u, 3.0, 3.3));
+    if (tk > 0 && ok > 0) {
+      const T = [[CX - 20, CY + 2], [CX - 6, CY + 16], [CX + 22, CY - 14]], L1 = Math.hypot(14, 14), L2 = Math.hypot(28, 30), L = (L1 + L2) * tk;
+      k.globalAlpha = ok; k.strokeStyle = C.mint; k.lineWidth = 7; k.lineJoin = 'round'; k.beginPath(); k.moveTo(T[0][0], T[0][1]);
+      if (L <= L1) k.lineTo(lerp(T[0][0], T[1][0], L / L1), lerp(T[0][1], T[1][1], L / L1));
+      else { k.lineTo(T[1][0], T[1][1]); const q = (L - L1) / L2; k.lineTo(lerp(T[1][0], T[2][0], q), lerp(T[1][1], T[2][1], q)); }
+      k.stroke(); k.globalAlpha = 1;
+    }
+    k.restore();
+    const a0 = clamp(1 - P(u, 1.15, 1.3) + P(u, 4.2, 4.6)), a1 = clamp(P(u, 1.15, 1.3) - P(u, 2.85, 3.0)), a2 = clamp(P(u, 2.9, 3.05) - P(u, 4.2, 4.4));
+    const F = `700 15px ${JP}`;
+    if (a0 > 0) { k.globalAlpha = a0; txt(k, '请轻触感应区', CX, 178, F, C.dim, 'center', 'alphabetic'); }
+    if (a1 > 0) { k.globalAlpha = a1; txt(k, '扫描中' + '·'.repeat(1 + Math.floor(u / 0.25) % 3), CX, 178, F, '#fff', 'center', 'alphabetic'); }
+    if (a2 > 0) { k.globalAlpha = a2; txt(k, '验证成功', CX, 178, F, C.mint, 'center', 'alphabetic'); }
+    k.globalAlpha = 1;
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });
