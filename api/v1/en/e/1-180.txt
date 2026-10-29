@@ -1,0 +1,57 @@
+// Motion Prompt #1-180 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Neon glow button / ネオングローボタン
+// Pack: aiux (Glow & liquid) · element 18 · Category: Loading & thinking
+// What happens: On a dark background, a cyan neon-outlined button pulses gently; when the pointer arrives it fills, the label inverts and a large glow appears, then it returns to breathing when the pointer leaves.
+// Motion spec:
+//   - Button 200 × 56 px, corner radius 28 px, hue 185°; the 2 px outline breathes between 0.6 and 1 opacity.
+//   - The breath lasts 2.4 s (2 per cycle); the outer glow is 5 rings spreading 6–16 px at 0.25–0.6 opacity, plus an inner glow along the edge.
+//   - The pointer moves onto the button over 1.3–1.85 s and leaves over 3.5–4.1 s (ease-in-out cubic).
+//   - The hover state arrives over 1.75–2.1 s (0.35 s): the button fills, the label inverts, the outer glow spreads 30 px at 0.75 opacity and the halo behind grows from 130 to 200 px radius.
+//   - The hover state fades over 3.75–4.1 s and the button returns to breathing.
+// When to use it: Use it for primary sign-up or purchase buttons and for gaming or cyberpunk-style sites where a button must catch the eye.
+// Tags: neon, glow, button, pulse, hover, cyberpunk, breathing
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-180
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 18
+// 18 霓虹呼吸按钮（改写自 KittenJam #238，Hannah，MIT）：青色霓虹外框与光晕以 2.4 秒一呼一吸；
+// 指针移上来悬停时 0.35 秒过渡到填满、文字反白、大范围发光（呼吸被盖住），离开后 0.35 秒回到呼吸。
+const NEO_X = 169.5, NEO_Y = 76, NEO_W = 200, NEO_H = 56, NEO_R = 28, NEO_HUE = 185;
+CELLS[17] = (k, w, h, u) => {
+  bg(k);
+  const s = 0.5 - 0.5 * Math.cos(TAU * u / 2.4);
+  // 悬停量 hv：指针约 1.6 秒进入按钮、约 3.75 秒离开，过渡各 0.35 秒（原版 transition 0.35s）
+  const hv = u < 3.6 ? inOut3(seg(u, 1.75, 2.1)) : 1 - inOut3(seg(u, 3.75, 4.1));
+  const cx = NEO_X + NEO_W / 2, cy = NEO_Y + NEO_H / 2;
+  // 背后的大椭圆光晕
+  const gr = mix(130, 200, hv), ga = mix(0.1 + 0.15 * s, 0.5, hv);
+  const rg = k.createRadialGradient(cx, cy, 0, cx, cy, gr);
+  rg.addColorStop(0, hsla(NEO_HUE, 100, 60, ga)); rg.addColorStop(1, hsla(NEO_HUE, 100, 60, 0));
+  k.save(); k.translate(cx, cy); k.scale(1, 0.45); k.translate(-cx, -cy); k.fillStyle = rg; k.fillRect(cx - gr, cy - gr, gr * 2, gr * 2); k.restore();
+  // 外发光：5 圈逐渐外扩、逐渐变淡的描边
+  const spread = mix(6 + 10 * s, 30, hv), ba = mix(0.25 + 0.35 * s, 0.75, hv);
+  for (let i = 5; i >= 1; i--) {
+    const e = spread * i / 5;
+    k.strokeStyle = hsla(NEO_HUE, 100, 60, ba * (1 - i / 6)); k.lineWidth = 3;
+    rr(k, NEO_X - e, NEO_Y - e, NEO_W + e * 2, NEO_H + e * 2, NEO_R + e); k.stroke();
+  }
+  k.fillStyle = C.bg; rr(k, NEO_X, NEO_Y, NEO_W, NEO_H, NEO_R); k.fill();
+  k.fillStyle = hsla(NEO_HUE, 100, 60, hv); rr(k, NEO_X, NEO_Y, NEO_W, NEO_H, NEO_R); k.fill();
+  // 内发光：裁到按钮内的粗描边
+  k.save(); rr(k, NEO_X, NEO_Y, NEO_W, NEO_H, NEO_R); k.clip();
+  k.strokeStyle = hsla(NEO_HUE, 100, 60, (0.15 + 0.25 * s) * (1 - hv)); k.lineWidth = 10;
+  rr(k, NEO_X, NEO_Y, NEO_W, NEO_H, NEO_R); k.stroke(); k.restore();
+  k.strokeStyle = hsla(NEO_HUE, 100, 62, mix(0.6 + 0.4 * s, 1, hv)); k.lineWidth = 2;
+  rr(k, NEO_X + 1, NEO_Y + 1, NEO_W - 2, NEO_H - 2, NEO_R - 1); k.stroke();
+  const font = `700 17px ${FONT}`;
+  txt(k, '加入我们', cx, cy + 1, font, hsla(NEO_HUE, 100, 70, 1 - hv), 'center');
+  txt(k, '加入我们', cx, cy + 1, font, `rgba(14,14,18,${hv})`, 'center');
+  // 指针：1.3–1.85 秒移入按钮，3.5–4.1 秒移出
+  const m = u < 2.6 ? inOut3(seg(u, 1.3, 1.85)) : 1 - inOut3(seg(u, 3.5, 4.1));
+  cursor(k, mix(440, 318, m), mix(178, 108, m), 0);
+};

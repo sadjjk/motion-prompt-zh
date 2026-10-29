@@ -1,0 +1,16 @@
+Please use "Neon glow button" (ネオングローボタン), one of the names in "Glow & liquid".
+Motion Prompt #1-180
+
+What it is: A button whose neon outline breathes and fills with strong glow on hover
+What the sample shows: On a dark background, a cyan neon-outlined button pulses gently; when the pointer arrives it fills, the label inverts and a large glow appears, then it returns to breathing when the pointer leaves.
+Spec:
+- Button 200 × 56 px, corner radius 28 px, hue 185°; the 2 px outline breathes between 0.6 and 1 opacity.
+- The breath lasts 2.4 s (2 per cycle); the outer glow is 5 rings spreading 6–16 px at 0.25–0.6 opacity, plus an inner glow along the edge.
+- The pointer moves onto the button over 1.3–1.85 s and leaves over 3.5–4.1 s (ease-in-out cubic).
+- The hover state arrives over 1.75–2.1 s (0.35 s): the button fills, the label inverts, the outer glow spreads 30 px at 0.75 opacity and the halo behind grows from 130 to 200 px radius.
+- The hover state fades over 3.75–4.1 s and the button returns to breathing.
+When to use it: Use it for primary sign-up or purchase buttons and for gaming or cyberpunk-style sites where a button must catch the eye.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-180.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

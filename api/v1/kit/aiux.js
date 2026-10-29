@@ -1,8 +1,8 @@
-// Motion Prompt #1 049~060 · 128 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
-// Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#1-128)
+// Motion Prompt #1 049~060 · 128 · 176~181 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+// Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#1 128 · 176~181)
 //
 // Kit for pack "aiux" (Glow & liquid / グロー・リキッド): the constants and helpers its elements share.
-// Elements #1 049~060 · 128 · 539x208 px · cycle 4.8 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #1 049~060 · 128 · 176~181 · 539x208 px · cycle 4.8 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

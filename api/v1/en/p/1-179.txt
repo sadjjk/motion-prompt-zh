@@ -1,0 +1,15 @@
+Please use "Flowing gradient stroke" (フローグラデーションライン), one of the names in "Glow & liquid".
+Motion Prompt #1-179
+
+What it is: A gradient flows along a line while a spark of light travels around it
+What the sample shows: An infinity-shaped line sits on a dark background; blue-to-pink colour keeps flowing along it while a glowing white spark with a tail laps the line.
+Spec:
+- The line is a lemniscate (infinity sign) with a 200 px half-width, drawn in 180 segments.
+- It has 2 layers: a 12 px glow at 0.12 opacity and a 4 px core at 0.95.
+- Hue runs between 190° and 330° with 2 colour periods along the line, and moves by one period (half the line) per 4.8 s cycle.
+- The spark laps the line once per 4.8 s; its tail is 10% of the line length, 24 segments, 5 px wide and fading by a power of 1.5; the head is a 3.5 px white dot with an 18 px radius glow.
+When to use it: Use it as a logo decoration, a tech-style background or a waiting state that should feel continuously flowing.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-179.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

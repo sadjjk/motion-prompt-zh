@@ -1,0 +1,51 @@
+// Motion Prompt #1-181 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Liquid fill icon / リキッドフィルアイコン
+// Pack: aiux (Glow & liquid) · element 19 · Category: Loading & thinking
+// What happens: Inside a drop outline on a dark background, 2 crossing wave layers rise from the bottom until the drop is full, while the number on the right climbs from 0% to 100% and reads complete, then everything resets.
+// Motion spec:
+//   - Drop icon 92 px wide and 126 px tall, 2.5 px outline, hue 195°.
+//   - The level rises at a constant speed from below the base to above the tip over 0.3–4.0 s, while a 46 px number on the right counts from 0% to 100%.
+//   - There are 2 wave layers: 120 px wavelength, 6 px amplitude, 2 laps per cycle; and 90 px wavelength, 5 px amplitude, 3 laps the other way; both are clipped to the icon shape.
+//   - At 100% the label reads complete and holds until 4.2 s; the liquid and text fade out over 4.2–4.5 s, and the 0% state fades in over 4.5–4.8 s.
+// When to use it: Use it for upload and download progress, goal completion or fill levels where a percentage should feel friendly.
+// Tags: liquid, fill, wave, progress, percentage, loading, icon
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-181
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 19
+// 19 液体填充图标（改写自 KittenJam #195，Hannah，MIT）：水滴图标内两层交错的波浪液面从底部升到填满（0.3–4.0 秒），
+// 右侧百分比同步从 0% 数到 100%；停 0.2 秒后液体与文字 0.3 秒淡出，再以 0% 淡入，回到起始画面。
+const LFI_CX = 210, LFI_TOP = 40, LFI_BOT = 166, LFI_HUE = 195;
+function lfiDrop(k) {
+  k.beginPath(); k.moveTo(LFI_CX, LFI_TOP);
+  k.bezierCurveTo(LFI_CX + 12, 62, LFI_CX + 46, 92, LFI_CX + 46, 120);
+  k.arc(LFI_CX, 120, 46, 0, Math.PI);
+  k.bezierCurveTo(LFI_CX - 46, 92, LFI_CX - 12, 62, LFI_CX, LFI_TOP);
+  k.closePath();
+}
+CELLS[18] = (k, w, h, u) => {
+  bg(k);
+  const p = u < 4.5 ? seg(u, 0.3, 4.0) : 0;
+  const fa = u < 4.2 ? 1 : u < 4.5 ? 1 - seg(u, 4.2, 4.5) : seg(u, 4.5, 4.8);
+  const level = LFI_BOT + 8 - p * (LFI_BOT - LFI_TOP + 16);   // p=0 时液面在图标底下，p=1 时连波谷也高过顶尖
+  const ph = TAU * u / CYC;
+  const wave = (lam, amp, sp, p0) => {
+    k.beginPath(); k.moveTo(LFI_CX - 60, CH);
+    for (let x = LFI_CX - 60; x <= LFI_CX + 60; x += 3) k.lineTo(x, level + amp * Math.sin(TAU * x / lam + sp * ph + p0));
+    k.lineTo(LFI_CX + 60, CH); k.closePath(); k.fill();
+  };
+  k.save(); lfiDrop(k); k.clip(); k.globalAlpha = fa;
+  k.fillStyle = hsla(LFI_HUE + 20, 90, 50, 0.45); wave(120, 6, 2, 0);
+  k.fillStyle = hsla(LFI_HUE, 95, 60, 0.9); wave(90, 5, -3, 1);
+  k.restore();
+  k.strokeStyle = hsla(LFI_HUE, 95, 65, 1); k.lineWidth = 2.5; k.lineJoin = 'round'; lfiDrop(k); k.stroke();
+  k.save(); k.globalAlpha = fa;
+  txt(k, `${Math.round(p * 100)}%`, 300, 92, `800 46px ${FONT}`, '#FFFFFF');
+  txt(k, p >= 1 ? '已完成' : '上传中…', 302, 134, `500 15px ${FONT}`, C.muted);
+  k.restore();
+};

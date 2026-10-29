@@ -1,0 +1,46 @@
+// Motion Prompt #1-178 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Aurora gradient / オーロラグラデーション
+// Pack: aiux (Glow & liquid) · element 16 · Category: Loading & thinking
+// What happens: On a dark background, large green, blue, purple and pink glows drift on separate paths and overlap, with a greeting headline on top.
+// Motion spec:
+//   - 4 glows with radii of 160–210 px and hues of 165°, 205°, 270° and 320° are stacked with additive blending (lighter).
+//   - Each glow drifts on a closed loop spanning 70–120 px horizontally and 25–40 px vertically, with 1 or 2 swings per cycle on each axis.
+//   - The radius breathes by ±12% once per cycle.
+//   - Each radial gradient has 0.4 opacity at the centre, 0.15 at half the radius and 0 at the edge.
+//   - A 24 px heading and a 14 px subline are drawn on top and stay clearly readable.
+// When to use it: Use it for welcome screens, AI idle states and hero backgrounds that should move quietly and continuously.
+// Tags: aurora, gradient, mesh-gradient, glow, blur, background, hero
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-178
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 16
+// 16 流动光晕渐变（改写自 KittenJam #106，Hannah，MIT）：4 团半径 160–210px 的大光晕以叠加（lighter）混合，
+// 各自沿不同的椭圆轨迹漂移、半径 ±12% 呼吸，交融成极光；前景标题保持清楚。
+// 每团：[中心 x, 中心 y, x 振幅, y 振幅, x 每周期圈数, y 每周期圈数, 相位, 半径, 色相]
+const AUR_BLOBS = [
+  [170, 70, 80, 30, 1, 1, 0.0, 190, 165],
+  [320, 140, 100, 35, 1, 1, 2.1, 210, 270],
+  [420, 70, 70, 40, 1, 2, 4.2, 170, 320],
+  [250, 110, 120, 25, 2, 1, 1.0, 160, 205],
+];
+CELLS[15] = (k, w, h, u) => {
+  bg(k);
+  const ph = TAU * u / CYC;
+  k.save(); k.globalCompositeOperation = 'lighter';
+  for (const [bx, by, ax, ay, fx, fy, p0, r0, hue] of AUR_BLOBS) {
+    const x = bx + ax * Math.sin(fx * ph + p0), y = by + ay * Math.cos(fy * ph + p0);
+    const r = r0 * (1 + 0.12 * Math.sin(ph + p0));
+    const g = k.createRadialGradient(x, y, 0, x, y, r);
+    // 叠加混合下中心透明度 0.4，四团重叠也不至于发白，标题仍清楚
+    g.addColorStop(0, hsla(hue, 90, 58, 0.4)); g.addColorStop(0.5, hsla(hue, 90, 58, 0.15)); g.addColorStop(1, hsla(hue, 90, 58, 0));
+    k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  }
+  k.restore();
+  txt(k, '早上好，今天想做点什么？', 269.5, 96, `700 24px ${FONT}`, '#FFFFFF', 'center');
+  txt(k, '正在为你准备灵感…', 269.5, 128, `400 14px ${FONT}`, 'rgba(236,236,241,0.7)', 'center');
+};

@@ -1,0 +1,16 @@
+Please use "Aurora gradient" (オーロラグラデーション), one of the names in "Glow & liquid".
+Motion Prompt #1-178
+
+What it is: Blurred glows drift and blend, flowing like an aurora
+What the sample shows: On a dark background, large green, blue, purple and pink glows drift on separate paths and overlap, with a greeting headline on top.
+Spec:
+- 4 glows with radii of 160–210 px and hues of 165°, 205°, 270° and 320° are stacked with additive blending (lighter).
+- Each glow drifts on a closed loop spanning 70–120 px horizontally and 25–40 px vertically, with 1 or 2 swings per cycle on each axis.
+- The radius breathes by ±12% once per cycle.
+- Each radial gradient has 0.4 opacity at the centre, 0.15 at half the radius and 0 at the edge.
+- A 24 px heading and a 14 px subline are drawn on top and stay clearly readable.
+When to use it: Use it for welcome screens, AI idle states and hero backgrounds that should move quietly and continuously.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-178.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,46 @@
+// Motion Prompt #1-177 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// オーガニックブロブ / Organic blob
+// パック: aiux (グロー・リキッド) · element 15 · カテゴリ: リキッドな操作
+// 何が起きるか: 暗い背景の中央で、ピンクから紫のグラデーションの塊が輪郭をうねらせ続け、後ろの淡い影が別のリズムで形を変える。
+// 動きの仕様:
+//   - 輪郭は極座標で描き、半径 = 基準 62px + 正弦波 3 組（2・3・5 山、振幅 6・5・3px）
+//   - 各正弦波は 1 周期にそれぞれ 1・2・3 回転し、向きは交互に逆。ループに継ぎ目がない
+//   - 後ろの影は 1.15 倍の大きさで (10, 8) px ずらし、別の正弦波 3 組（2・3・4 山、振幅 7・4・4px）で変形、不透明度 0.22
+//   - 本体は色相 330°→265° の斜めグラデーション。中央に 22px の文字
+// 使いどころ: ヒーローの装飾、強調したいラベル、キャラクター的なアクセントなど、やわらかい動きを添えたいときに。
+// タグ: blob, organic, morph, liquid, wobble, shape, decoration
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-177
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 15
+// 15 有机流动色块（改写自 KittenJam #326，Hannah，MIT）：极坐标半径 = 基准 62px + 3 组正弦谐波（各自整数圈速），
+// 色块持续蠕动；后方一层放大 1.15 倍、错开 (10, 8) px 的淡影子用另一组谐波变形，节奏不同。
+const OB_MAIN = [[2, 6, 1, 0.0], [3, 5, -2, 1.3], [5, 3, 3, 2.1]];     // [瓣数, 振幅 px, 每周期圈数, 相位]
+const OB_SHADOW = [[2, 7, -1, 0.7], [3, 4, 2, 2.5], [4, 4, -3, 0.4]];
+const OB_R = 62, OB_CX = 269.5, OB_CY = 104, OB_N = 96;
+function obPath(k, cx, cy, R, waves, ph) {
+  k.beginPath();
+  for (let i = 0; i <= OB_N; i++) {
+    const th = TAU * i / OB_N;
+    let r = R;
+    for (const [n, a, sp, p0] of waves) r += a * Math.sin(n * th + sp * ph + p0);
+    const x = cx + r * Math.cos(th), y = cy + r * Math.sin(th);
+    if (i) k.lineTo(x, y); else k.moveTo(x, y);
+  }
+  k.closePath();
+}
+CELLS[14] = (k, w, h, u) => {
+  bg(k);
+  const ph = TAU * u / CYC;
+  k.fillStyle = hsla(300, 80, 62, 0.22);
+  obPath(k, OB_CX + 10, OB_CY + 8, OB_R * 1.15, OB_SHADOW, ph); k.fill();
+  const g = k.createLinearGradient(OB_CX - 70, OB_CY - 70, OB_CX + 70, OB_CY + 70);
+  g.addColorStop(0, hsla(330, 90, 66, 1)); g.addColorStop(1, hsla(265, 85, 62, 1));
+  k.fillStyle = g; obPath(k, OB_CX, OB_CY, OB_R, OB_MAIN, ph); k.fill();
+  txt(k, '灵感', OB_CX, OB_CY + 1, `700 22px ${FONT}`, '#FFFFFF', 'center');
+};

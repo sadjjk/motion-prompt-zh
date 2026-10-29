@@ -1,0 +1,46 @@
+// Motion Prompt #1-177 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Organic blob / オーガニックブロブ
+// Pack: aiux (Glow & liquid) · element 15 · Category: Liquid interactions
+// What happens: In the middle of a dark background, a pink-to-purple blob keeps rippling its outline while a faint shadow behind it changes shape to a different rhythm.
+// Motion spec:
+//   - The outline is drawn in polar form: radius = 62 px base + 3 sine waves (2, 3 and 5 lobes, amplitudes 6, 5 and 3 px).
+//   - The waves turn 1, 2 and 3 times per cycle with alternating directions, so the loop is seamless.
+//   - The shadow behind is 1.15× larger, offset by (10, 8) px and shaped by 3 other sine waves (2, 3 and 4 lobes, amplitudes 7, 4 and 4 px) at 0.22 opacity.
+//   - The blob has a diagonal hue gradient from 330° to 265° with a 22 px label in the centre.
+// When to use it: Use it as a hero decoration, a highlight behind a label or a playful accent that needs soft motion.
+// Tags: blob, organic, morph, liquid, wobble, shape, decoration
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-177
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 15
+// 15 有机流动色块（改写自 KittenJam #326，Hannah，MIT）：极坐标半径 = 基准 62px + 3 组正弦谐波（各自整数圈速），
+// 色块持续蠕动；后方一层放大 1.15 倍、错开 (10, 8) px 的淡影子用另一组谐波变形，节奏不同。
+const OB_MAIN = [[2, 6, 1, 0.0], [3, 5, -2, 1.3], [5, 3, 3, 2.1]];     // [瓣数, 振幅 px, 每周期圈数, 相位]
+const OB_SHADOW = [[2, 7, -1, 0.7], [3, 4, 2, 2.5], [4, 4, -3, 0.4]];
+const OB_R = 62, OB_CX = 269.5, OB_CY = 104, OB_N = 96;
+function obPath(k, cx, cy, R, waves, ph) {
+  k.beginPath();
+  for (let i = 0; i <= OB_N; i++) {
+    const th = TAU * i / OB_N;
+    let r = R;
+    for (const [n, a, sp, p0] of waves) r += a * Math.sin(n * th + sp * ph + p0);
+    const x = cx + r * Math.cos(th), y = cy + r * Math.sin(th);
+    if (i) k.lineTo(x, y); else k.moveTo(x, y);
+  }
+  k.closePath();
+}
+CELLS[14] = (k, w, h, u) => {
+  bg(k);
+  const ph = TAU * u / CYC;
+  k.fillStyle = hsla(300, 80, 62, 0.22);
+  obPath(k, OB_CX + 10, OB_CY + 8, OB_R * 1.15, OB_SHADOW, ph); k.fill();
+  const g = k.createLinearGradient(OB_CX - 70, OB_CY - 70, OB_CX + 70, OB_CY + 70);
+  g.addColorStop(0, hsla(330, 90, 66, 1)); g.addColorStop(1, hsla(265, 85, 62, 1));
+  k.fillStyle = g; obPath(k, OB_CX, OB_CY, OB_R, OB_MAIN, ph); k.fill();
+  txt(k, '灵感', OB_CX, OB_CY + 1, `700 22px ${FONT}`, '#FFFFFF', 'center');
+};
