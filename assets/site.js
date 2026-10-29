@@ -519,7 +519,8 @@
       packs.appendChild(chip(t('all'), state.pack === 'all', String(g.count), function () { setFilter(g.id, 'all', 'all'); }));
       g.packs.forEach(function (key) {
         var p = packBy[key];
-        packs.appendChild(chip(p.title[state.lang], state.pack === p.pack, idRange(p), function () { setFilter(g.id, p.pack, 'all'); }));
+        // 筛选按钮只显示包名：编号段随补充效果会越来越长，完整编号段在分区标题（.pack-h）里显示
+        packs.appendChild(chip(p.title[state.lang], state.pack === p.pack, '', function () { setFilter(g.id, p.pack, 'all'); }));
       });
     }
     var p = packBy[state.pack];
