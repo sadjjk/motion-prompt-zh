@@ -22,7 +22,7 @@ const langs = ['zh-Hans', 'en', 'ja'];
 const window = { MP_SITE_CONFIG: CONFIG };
 vm.runInNewContext(read('assets/catalog.js'), { window });
 const cat = window.MP_CATALOG;
-assert.equal(cat.count, 263);
+assert.equal(cat.count, 313);
 assert.equal(cat.packs.length, 10);
 assert.equal(cat.groups.length, 4);
 assert.equal(cat.site, CONFIG.site);
@@ -54,7 +54,7 @@ assert.equal(cat.packs.filter(p => p.license === 'MIT License (c) 2026 Shohei Oh
 for (const lang of langs) assert.equal(read(`api/v1/${lang}/catalog.tsv`).trim().split('\n').length, cat.count + 1);
 // 改写自 Libraries.dev 的包：版权行与署名指向 Jakub Antalik
 assert.equal(read('api/v1/zh-Hans/e/1-049.txt').split('\n')[0], '// Motion Prompt #1-049 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/');
-assert.equal(read('api/v1/kit/aiux.js').split('\n')[0], '// Motion Prompt #1 049~060 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/');
+assert.equal(read('api/v1/kit/aiux.js').split('\n')[0], '// Motion Prompt #1 049~060 · 128 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/');
 assert.match(read('api/v1/zh-Hans/p/1-049.txt'), /保留 Jakub Antalik 的 MIT 版权标识/);
 assert.match(read('api/v1/zh-Hans/p/1-001.txt'), /保留 Shohei Ohtaki 的 MIT 版权标识/);
 // 改写自 Motion Atlas 的包：版权行与署名指向 Yun
@@ -114,14 +114,17 @@ try {
   page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400 && !r.url().endsWith('/favicon.ico')) errors.push(`${r.status()} ${r.url()}`); });
   const open = async (suffix = '') => {
     await page.goto(base + '/motion-prompt-zh/' + suffix);
-    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 263 && Object.keys(window.MotionPrompt.packs).length === 10);
+    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 313 && Object.keys(window.MotionPrompt.packs).length === 10);
   };
   await open();
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
-  // 默认按最新添加：首张为最新日期、该日最后建立的分类包（order 最大）的第一个元素；第一个分节标题为「YYYY/MM/DD 添加」
+  // 默认按最新添加（同 assets/site.js 的排序）：首张为最新日期新增的效果里，所属分类包 order 最大者的第一个；
+  // 新增的可以是新建分类包，也可以是往已有包补充的效果，所以按元素的 added 取，不按包的 added 取。第一个分节标题为「YYYY/MM/DD 添加」
   const newestDay = cat.elements.reduce((m, e) => (e.added > m ? e.added : m), '');
-  const newestPack = cat.packs.filter(p => p.added === newestDay).sort((a, b) => b.order - a.order)[0];
-  assert.equal(await page.locator('.tile').first().getAttribute('data-id'), newestPack.first);
+  const newestEls = cat.elements.filter(e => e.added === newestDay);
+  const orderOf = id => cat.packs.find(p => p.pack === id).order;
+  const newestFirst = newestEls.reduce((a, e) => (orderOf(e.pack) > orderOf(a.pack) ? e : a));
+  assert.equal(await page.locator('.tile').first().getAttribute('data-id'), newestFirst.id);
   assert.equal(await page.locator('.group-h h3').first().innerText(), `${newestDay.replace(/-/g, '/')} 添加`);
   assert.equal(await page.locator('#sort [aria-pressed="true"]').innerText(), '最新添加');
   assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), CONFIG.site);
