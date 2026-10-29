@@ -1,0 +1,16 @@
+Please use "Memory match" (神経衰弱カード), one of the names in "Interaction & data motion".
+Motion Prompt #1-170
+
+What it is: A card memory game: flip two, mismatches flip back, matches stay
+What the sample shows: A pointer flips 2 of 8 face-down cards; the pictures differ, so after a pause both flip back. It then flips the 2 matching moons, which turn accent-coloured and bounce, and the progress reads 1/4.
+Spec:
+- There are 4 × 2 cards of 52 × 64 px; each flip takes 0.4 s, squashing sideways and opening again (inOut3).
+- At 0.9 s and 1.7 s two different cards flip; after a 0.8 s pause both flip back at 2.9 s.
+- At 3.4 s and 4.0 s two matching cards flip, and they match at 4.4 s.
+- Matched cards get an accent outline and bounce to 1.12× within 0.3 s; progress goes 0 / 4 → 1 / 4.
+- A crossfade from 5.4–6.0 s resets it.
+When to use it: Use it for campaign mini games, kids' apps and playable loading screens.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-170.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,15 @@
+Please use "Icon slide button" (アイコンスライドボタン), one of the names in "Landing page & web effects".
+Motion Prompt #1-157
+
+What it is: The right arrow slides out as a new one slides in from the left
+What the sample shows: When the cursor lands, the arrow on the right of the button slides out and fades while a matching arrow slides in from outside the left edge, and the label moves right to make room.
+Spec:
+- A 180×50 ink pill button with the label and an arrow on its right; the cursor moves onto it in 0.6 s.
+- Over 0.4 s (easeInOut power 3) the right arrow slides 40px out to the right and fades out.
+- A second arrow slides in from outside the left edge (−16px) to just left of the label (+30px) and fades in, while the label moves 20px right.
+- The cursor leaves at 3.4 s and everything slides back.
+When to use it: Use it on buttons that lead onward, such as 'Next' or 'Learn more'.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-157.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

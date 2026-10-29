@@ -1,0 +1,47 @@
+// Motion Prompt #1-155 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Dock magnification / Dock 拡大
+// Pack: lp (Landing page & web effects) · element 40 · Category: Hover & click interactions
+// What happens: As the cursor sweeps across a dock of 7 icons, the nearby icons swell into a smooth peak that pushes the neighbours aside and travels with the cursor.
+// Motion spec:
+//   - 7 rounded icons (40×40, 10 apart) sit in a dock with their bottoms aligned.
+//   - Each icon scales by its horizontal distance from the cursor: scale = 1 + 0.9 × max(0, 1 − distance / 110), so the nearest reaches about 1.9×.
+//   - Wider icons push their neighbours outward, and the magnification fades in and out over 0.2 s (easeOut) as the cursor enters and leaves the dock.
+//   - Cursor path: enters at 0.5 s, sweeps right until 2.3 s, sweeps back left until 3.8 s, leaves at 4.3 s.
+// When to use it: Use it for app launchers, tool switchers or rows of social links where an icon bar should feel playful.
+// Tags: dock, magnify, fisheye, icons, menu, hover
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-155
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 40
+// 改写自 KittenJam Motion Library #166 Dock 放大菜单：7 个 40×40 圆角图标排成 Dock（间距 10，底边对齐）。光标在图标列上左右扫过时，
+// 每个图标按与光标的水平距离放大：scale = 1 + 0.9 × max(0, 1 − 距离 / 110)，最近的约 1.9 倍，变宽后把邻居往两侧推开。
+// 光标 0.5 秒进入 → 2.3 秒扫到右侧 → 3.8 秒扫回左侧 → 4.3 秒离开；进出 Dock 时放大量 0.2 秒 easeOut 渐变。
+const DOCK_N = 7, DOCK_S = 40, DOCK_GAP = 10, DOCK_R = 110;
+const DOCK_COL = [C.acc, C.blue, '#3FA56B', '#8A6BEA', '#E0A21C', '#1C2333', '#E5487A'];
+CELLS[39] = (k, w, h, u) => {
+  frame(k, 'example.com/desktop');
+  const cur = t => path([[0, 256, 162], [0.5, 120, 104], [2.3, 400, 104], [3.8, 140, 104], [4.3, 256, 162], [4.8, 256, 162]], t);
+  const [cx, cy] = cur(u);
+  const m = trans(t => cur(t)[1] < 140, u, 0.2);
+  // 放大量按图标「原位」的中心计算（不受推开后的位置影响）
+  const s = [];
+  for (let i = 0; i < DOCK_N; i++) { const c0 = VW / 2 + (i - (DOCK_N - 1) / 2) * (DOCK_S + DOCK_GAP); s.push(1 + 0.9 * m * Math.max(0, 1 - Math.abs(cx - c0) / DOCK_R)); }
+  const tot = s.reduce((a, v) => a + v * DOCK_S, 0) + DOCK_GAP * (DOCK_N - 1), BOT = 132;
+  view(k, () => {
+    const g = k.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, '#C9D5FF'); g.addColorStop(1, '#FFE1D6'); k.fillStyle = g; k.fillRect(0, 0, VW, VH);
+    k.fillStyle = 'rgba(255,255,255,.55)'; rr(k, VW / 2 - tot / 2 - 10, BOT - DOCK_S - 10, tot + 20, DOCK_S + 20, 16); k.fill();
+    let x = VW / 2 - tot / 2;
+    for (let i = 0; i < DOCK_N; i++) {
+      const z = DOCK_S * s[i];
+      k.fillStyle = DOCK_COL[i]; rr(k, x, BOT - z, z, z, z * 0.24); k.fill();
+      k.fillStyle = 'rgba(255,255,255,.85)'; k.beginPath(); k.arc(x + z / 2, BOT - z / 2, z * 0.2, 0, 7); k.fill();
+      x += z + DOCK_GAP;
+    }
+    cursor(k, cx, cy);
+  });
+};

@@ -1,0 +1,15 @@
+Please use "Text fan" (文字の扇), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-087
+
+What it is: Copies of one character open out like a folding fan
+What the sample shows: Seven stacked copies of 扇 swing open around a yellow pivot below into a fan, with translucent coral copies either side of the white centre one, then fold shut.
+Spec:
+- 7 copies of one character pivot on a point 112 px below the character centre.
+- Over 0.5–1.9 s they open to (i−3)×24° with a cubic ease-in-out and hold until 3.6 s.
+- Over 3.6–4.5 s they fold back.
+- The centre copy is opaque white; the others are coral, fainter further out (0.7 − 0.12 × distance).
+When to use it: Use it for Japanese-style or traditional logos and brand reveals.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-087.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

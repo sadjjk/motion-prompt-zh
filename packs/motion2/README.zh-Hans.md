@@ -2,7 +2,7 @@
 
 # 动态图形进阶
 
-46 个效果 · #2 025~048 · 064~085 · 分类包 `motion2` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+59 个效果 · #2 025~048 · 064~098 · 分类包 `motion2` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -24,6 +24,8 @@
 | [#2-083](https://sadjjk.github.io/motion-prompt-zh/#2-083) | **树枝生长** | Growing tree | 树从主干到分枝再到叶子逐步长出 | 品牌故事用树枝生长开场：地面与主干、分枝、细枝、叶子依次长出，最后出现文字。 |
 | [#2-084](https://sadjjk.github.io/motion-prompt-zh/#2-084) | **齿轮联动** | Gear train | 咬合齿轮按齿数比转动 | 处理中画面放齿轮联动：一大两小齿轮咬合，按齿数比反向转动。 |
 | [#2-085](https://sadjjk.github.io/motion-prompt-zh/#2-085) | **指纹扫描解锁** | Fingerprint scan | 读取指纹后验证通过 | 登录页加指纹扫描：纹路由内向外画出，光条上下扫过，最后变绿并打勾。 |
+| [#2-097](https://sadjjk.github.io/motion-prompt-zh/#2-097) | **Logo 组合登场** | Logo build reveal | 标志逐个部件画出组合，再滑入品牌名 | 片头做 Logo 组合登场：先描外圈，再描 45° 方块并填色，中心圆点弹出，最后品牌名从左滑入。 |
+| [#2-098](https://sadjjk.github.io/motion-prompt-zh/#2-098) | **音频波形** | Audio waveform | 细条随播放的声音上下伸缩 | 播放器加音频波形：细条以中线为基准上下伸缩，高度和速度各不相同，左边播放钮，右边时间。 |
 
 ## 文字与图形
 
@@ -53,6 +55,17 @@
 | [#2-077](https://sadjjk.github.io/motion-prompt-zh/#2-077) | **文字圆柱** | Text cylinder | 同一个字环绕成圆柱并旋转 | 3 个字做成文字圆柱，相邻反向旋转，中间那根用强调色。 |
 | [#2-078](https://sadjjk.github.io/motion-prompt-zh/#2-078) | **拉霸** | Slot machine | 滚轮快速转动后从左到右停在结果 | 结果揭晓做成拉霸：4 个滚轮转动，从左到右减速并略带回弹停下。 |
 | [#2-079](https://sadjjk.github.io/motion-prompt-zh/#2-079) | **液体填满** | Liquid fill | 空心字被液体由下往上填满 | 标题做液体填满：描边空心字在 3 秒内被波动液体由下往上填满，最后清空。 |
+| [#2-086](https://sadjjk.github.io/motion-prompt-zh/#2-086) | **激光切断** | Laser cut | 激光把文字上下切开错位 | 标题用激光切断：发光线横扫中线，上下两半斜着错开，停一下再合回。 |
+| [#2-087](https://sadjjk.github.io/motion-prompt-zh/#2-087) | **文字扇** | Text fan | 同一个字像扇子一样展开 | 把「扇」字复制 7 份做文字扇：以下方一点为轴像扇子一样展开再收拢。 |
+| [#2-088](https://sadjjk.github.io/motion-prompt-zh/#2-088) | **钟摆摇晃** | Swing letters | 吊在一点上的字像钟摆一样摆动 | 角色名用钟摆摇晃：每个字吊在上方一点，±14° 左右摆，相位错开。 |
+| [#2-089](https://sadjjk.github.io/motion-prompt-zh/#2-089) | **文字隧道** | Text tunnel | 像穿过一层层文字组成的隧道 | 开场加文字隧道：同一个词的多层副本从中心依次放大并冲出画面。 |
+| [#2-090](https://sadjjk.github.io/motion-prompt-zh/#2-090) | **立体字** | Extruded text | 有厚度的 3D 字转动露出侧面 | 把标题做成立体字，绕竖轴约 5 秒转一圈，能看到厚度。 |
+| [#2-091](https://sadjjk.github.io/motion-prompt-zh/#2-091) | **霓虹闪烁** | Neon flicker | 霓虹灯管闪几下后点亮 | 招牌风标题加霓虹闪烁：先不规则闪 2、3 下再点亮，偶尔有一个字接触不良地闪。 |
+| [#2-092](https://sadjjk.github.io/motion-prompt-zh/#2-092) | **字距展开** | Tracking expand | 叠在一起的字散开成正常字距 | 标题用字距展开：从叠在一起的模糊状态，约 1 秒内字距散开并变清晰。 |
+| [#2-093](https://sadjjk.github.io/motion-prompt-zh/#2-093) | **划掉改写** | Strike and rewrite | 一笔划掉旧词，再手写出新词 | 文案里的「便宜」用一笔划掉，下面手写出「实惠」，逐字写出。 |
+| [#2-094](https://sadjjk.github.io/motion-prompt-zh/#2-094) | **残影堆叠** | Echo stack | 空心描边副本阶梯状错开成残影 | 标题加残影堆叠：5 层空心描边副本依次向右上展开，停一下再收回重叠。 |
+| [#2-095](https://sadjjk.github.io/motion-prompt-zh/#2-095) | **多语问候切换** | Multilingual greeting | 不同语言的问候轮流出现 | 首屏放多语问候切换：每隔一秒多换一种语言，模糊淡入淡出，外框宽度平滑跟随新词。 |
+| [#2-096](https://sadjjk.github.io/motion-prompt-zh/#2-096) | **倒数砸落** | Countdown slam | 倒数数字逐个从大处砸下 | 开场加倒数砸落：3、2、1、GO! 每个 0.75 秒，从 3 倍砸下并轻微回弹。 |
 
 ## 转场与强调
 

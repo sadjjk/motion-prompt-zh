@@ -1,0 +1,15 @@
+Please use "Light source shadow" (光源のロングシャドウ), one of the names in "Interaction & data motion".
+Motion Prompt #1-165
+
+What it is: The cursor acts as a light; the text's long shadow points away from it
+What the sample shows: On a dark background a small warm light circles a big headline. The long shadow behind the headline always points away from the light and swings round as it moves; when the light goes out the shadow folds back under the text.
+Spec:
+- The shadow has 18 layers; layer i is offset by direction × i × 3.2 px.
+- Direction = (headline centre − light) divided by the canvas width and height.
+- Layer opacity falls linearly from 0.6 at the front toward the far end.
+- The light turns on from 0.6–1.0 s and goes out from 4.7–5.2 s, after which the shadow sits right under the text.
+When to use it: Use it on hero headlines or portfolio landing pages that should react with depth when touched.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-165.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

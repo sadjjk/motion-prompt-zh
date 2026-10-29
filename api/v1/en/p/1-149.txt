@@ -1,0 +1,15 @@
+Please use "3D ring carousel" (3D リングカルーセル), one of the names in "UI component names".
+Motion Prompt #1-149
+
+What it is: Cards arranged in a ring that turns in 3D
+What the sample shows: 8 cards in a ring turn slowly, larger and brighter in front, smaller and darker behind; partway through a finger drags right to spin the ring.
+Spec:
+- 8 cards, 84×108, sit on a ring of radius 190 that turns at one revolution per 24 s.
+- Each card scales 0.55–1 by z=cos(angle), and its width is further multiplied by 0.3+0.7·|z| to show it turning; farther cards sit higher and take up to 0.45 of darkening.
+- Cards are drawn from far to near by z, and those facing away show only their back.
+- A finger drags 160px right over 1.6–2.6 s, turning the ring an extra 67.5° the other way (easeInOut power 3), which cancels one 4.5 s cycle of rotation so the angle matches at the start and end.
+When to use it: Use it for portfolios, product showcases or hero displays that present many images in one spot.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-149.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

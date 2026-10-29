@@ -1,0 +1,17 @@
+请使用“箭头接力按钮（Icon slide button）”，属于“落地页与网页动效”。
+Motion Prompt #1-157
+
+效果解释：右侧箭头滑出，新箭头从左侧滑入
+动画表现：光标一放上，按钮右侧箭头向右滑出淡去，相同的箭头从左外侧滑到文字左边，文字右移让位。
+实现规格与关键运动参数：
+- 180×50 墨色胶囊按钮，文字右侧一个箭头；光标 0.6 秒移入。
+- 0.4 秒内（easeInOut 3 次方）右侧箭头向右滑出 40px 并淡出。
+- 另一个箭头从按钮左外侧（−16px）滑到文字左边（+30px）并淡入，文字同步右移 20px 让位。
+- 3.4 秒光标移开后反向复原。
+适用场景：适合「下一步」「了解更多」等表示继续前进的按钮。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-157
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-157.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Hannah 的 MIT 版权标识。

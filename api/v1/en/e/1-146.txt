@@ -1,0 +1,64 @@
+// Motion Prompt #1-146 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Tag input / タグ入力
+// Pack: ui (UI component names) · element 48 · Category: Choosing & switching
+// What happens: Two words are typed one after another and each pops out as a pill tag on Enter; then the cursor clicks × twice and the tags shrink away as the rest closes up.
+// Motion spec:
+//   - A 400×48 input that starts with one tag, "Design".
+//   - From 0.6 s a word is typed at 0.25 s per character and Enter is pressed at 1.3 s: the text becomes a pill tag that pops from 0 in 0.35 s with back.out(1.4), and the Enter keycap at lower right sinks at the same time.
+//   - From 1.8 s a second word is typed and pops out the same way on Enter at 2.5 s.
+//   - The cursor clicks a tag's × at 3.3 s and 3.9 s; each tag shrinks away in 0.25 s (easeInOut power 3) and the rest closes up to the left, back to the first tag.
+// When to use it: Use it in forms that collect several short values such as interests, skills, keywords or recipients.
+// Tags: tag-input, chips, token-field, keywords, form, input
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-146
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 48
+// 改写自 KittenJam Motion Library #249 标签输入：400×48 输入框内已有标签「设计」。0.6 秒起逐字输入「动态」（每字 0.25 秒），1.3 秒回车：
+// 文字变成胶囊标签，按 back.out(1.4) 0.35 秒从 0 弹大，右下「回车」键帽同时下沉；1.8 秒起输入「前端」，2.5 秒回车同样弹出。
+// 光标 3.3 秒点「动态」的 ×、3.9 秒点「前端」的 ×：标签各 0.25 秒 easeInOut 3 次方缩小消失，后面的内容向左补位，回到只剩「设计」。
+const TAGI_ADD = [['动态', .6, 1.3], ['前端', 1.8, 2.5]], TAGI_RM = [3.3, 3.9];
+const TAGI_back = x => 1 + 2.4 * Math.pow(x - 1, 3) + 1.4 * Math.pow(x - 1, 2);
+CELLS[47] = ui((w, h, t) => {
+  const bx = 71, by = 62, bw = 400, bh = 48, cy = by + bh / 2;
+  text('兴趣标签', bx, 42, 12, C.hint, 600);
+  const fo = eo(seg(t, .4, .6)) * (1 - eo(seg(t, 4.2, 4.4)));
+  fillRR(bx, by, bw, bh, 10, '#fff'); strokeRR(bx, by, bw, bh, 10, C.line2, 1.5);
+  if (fo > 0) strokeRR(bx, by, bw, bh, 10, `rgba(31,90,232,${fo})`, 2);
+  // 标签列表：[文字, 占位宽度比例, 视觉缩放]
+  const chips = [['设计', 1, 1]];
+  let typed = '';
+  TAGI_ADD.forEach(([s, t0, te], i) => {
+    if (t >= t0 && t < te) typed = s.slice(0, Math.min(s.length, Math.floor((t - t0) / .25) + 1));
+    if (t < te) return;
+    const ap = seg(t, te, te + .35), rm = eio(seg(t, TAGI_RM[i], TAGI_RM[i] + .25));
+    chips.push([s, eo(ap) * (1 - rm), TAGI_back(ap) * (1 - rm)]);
+  });
+  let x = bx + 10;
+  chips.forEach(([s, g, sc]) => {
+    const cw = tw(s, 13, 600) + 38;
+    if (sc > .01) {
+      X.save(); X.translate(x + cw * g / 2, cy); X.scale(sc, sc);
+      fillRR(-cw / 2, -13, cw, 26, 13, C.lb);
+      text(s, -cw / 2 + 12, 0, 13, C.blue, 600); text('×', cw / 2 - 12, 0, 13, C.blue, 600, 'center', NUMF);
+      X.restore();
+    }
+    x += (cw + 6) * g;
+  });
+  if (typed) text(typed, x + 4, cy, 14, C.ink, 600);
+  else if (fo < .5) text('输入后按回车', x + 4, cy, 13, C.hint, 500);
+  if (fo > .5 && Math.floor((t - .4) / .5) % 2 === 0) { X.fillStyle = C.blue; X.fillRect(x + 4 + (typed ? tw(typed, 14, 600) : 0), cy - 9, 1.5, 18); }
+  // 回车键帽：回车瞬间下沉
+  const pk = TAGI_ADD.some(([, , te]) => t >= te - .05 && t < te + .15) ? 2 : 0;
+  const kx = bx + bw - 64, ky = by + bh + 16;
+  fillRR(kx, ky + 2, 64, 26, 6, C.line2); fillRR(kx, ky + pk, 64, 24, 6, pk ? C.lb : '#fff'); strokeRR(kx, ky + pk, 64, 24, 6, C.line2, 1);
+  text('回车 ↵', kx + 32, ky + 12 + pk, 12, pk ? C.blue : C.ink, 700, 'center');
+  // × 位置按标签宽度计算：先点「动态」，「前端」补位后再点它
+  const wD = tw('设计', 13, 600) + 38, wA = tw('动态', 13, 600) + 38, wF = tw('前端', 13, 600) + 38;
+  const xA = bx + 10 + wD + 6 + wA - 12, xF = bx + 10 + wD + 6 + wF - 12;
+  pointer([[0, w + 30, h + 30], [2.6, w + 30, h + 30], [3.2, xA, cy], [3.4, xA, cy], [3.8, xF, cy], [4.0, xF, cy], [4.45, w + 30, h + 30]], [3.3, 3.9], t);
+});

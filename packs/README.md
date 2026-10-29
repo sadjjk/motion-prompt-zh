@@ -6,15 +6,15 @@ A pack is one field's set of names. Each list below is readable here on GitHub; 
 
 | Numbers | Pack | Names | Lists |
 |---|---|---|---|
-| #1 001~024 · 098~102 · 108~121 | `ui` — UI component names | 43 | [English](ui/README.md) · [日本語](ui/README.ja.md) · [简体中文](ui/README.zh-Hans.md) |
-| #1 025~048 · 103~107 · 122~127 | `lp` — Landing page & web effects | 35 | [English](lp/README.md) · [日本語](lp/README.ja.md) · [简体中文](lp/README.zh-Hans.md) |
+| #1 001~024 · 098~102 · 108~121 · 142~150 | `ui` — UI component names | 52 | [English](ui/README.md) · [日本語](ui/README.ja.md) · [简体中文](ui/README.zh-Hans.md) |
+| #1 025~048 · 103~107 · 122~127 · 151~163 | `lp` — Landing page & web effects | 48 | [English](lp/README.md) · [日本語](lp/README.ja.md) · [简体中文](lp/README.zh-Hans.md) |
 | #1 049~060 · 128 | `aiux` — Glow & liquid | 13 | [English](aiux/README.md) · [日本語](aiux/README.ja.md) · [简体中文](aiux/README.zh-Hans.md) |
-| #1 061~097 · 129~141 | `uxmotion` — Interaction & data motion | 50 | [English](uxmotion/README.md) · [日本語](uxmotion/README.ja.md) · [简体中文](uxmotion/README.zh-Hans.md) |
+| #1 061~097 · 129~141 · 164~175 | `uxmotion` — Interaction & data motion | 62 | [English](uxmotion/README.md) · [日本語](uxmotion/README.ja.md) · [简体中文](uxmotion/README.zh-Hans.md) |
 | #2 001~024 | `motion` — Motion graphics moves | 24 | [English](motion/README.md) · [日本語](motion/README.ja.md) · [简体中文](motion/README.zh-Hans.md) |
-| #2 025~048 · 064~085 | `motion2` — Motion graphics moves, part 2 | 46 | [English](motion2/README.md) · [日本語](motion2/README.ja.md) · [简体中文](motion2/README.zh-Hans.md) |
+| #2 025~048 · 064~098 | `motion2` — Motion graphics moves, part 2 | 59 | [English](motion2/README.md) · [日本語](motion2/README.ja.md) · [简体中文](motion2/README.zh-Hans.md) |
 | #2 049~063 | `mgstyles` — MG styles | 15 | [English](mgstyles/README.md) · [日本語](mgstyles/README.ja.md) · [简体中文](mgstyles/README.zh-Hans.md) |
 | #3 001~024 | `camera` — Camera moves & transitions | 24 | [English](camera/README.md) · [日本語](camera/README.ja.md) · [简体中文](camera/README.zh-Hans.md) |
 | #3 025~048 | `photo` — Photo looks, lighting & styles | 24 | [English](photo/README.md) · [日本語](photo/README.ja.md) · [简体中文](photo/README.zh-Hans.md) |
-| #4 001~039 | `scenes` — Styled scenes | 39 | [English](scenes/README.md) · [日本語](scenes/README.ja.md) · [简体中文](scenes/README.zh-Hans.md) |
+| #4 001~042 | `scenes` — Styled scenes | 42 | [English](scenes/README.md) · [日本語](scenes/README.ja.md) · [简体中文](scenes/README.zh-Hans.md) |
 
 To add a pack for your field, or a language to an existing pack, see [CONTRIBUTING.md](../CONTRIBUTING.md).

@@ -1,0 +1,41 @@
+// Motion Prompt #2-097 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Logo build reveal / ロゴビルド
+// Pack: motion2 (Motion graphics moves, part 2) · element 58 · Category: Motion techniques
+// What happens: A white ring draws itself, then a coral square turned 45° is outlined and filled, a white centre dot pops in, and 星火工作室 with an English subtitle slides in from the left.
+// Motion spec:
+//   - Over 0.3–1.2 s the outer ring (radius 52 px) draws with a sine ease-in-out.
+//   - Over 1.1–1.7 s a square turned 45° (30 px from centre to corner) draws, and over 1.6–1.9 s it fills coral.
+//   - Over 1.85–2.25 s the centre dot (radius 9 px) pops with backOut(3).
+//   - Over 2.2–2.7 s the name slides in from 12 px left, the subtitle 0.15 s later; over 4.0–4.5 s everything fades out.
+// When to use it: Use it as a video opener, a site intro or the end card of a brand piece.
+// Tags: logo, reveal, draw, stroke, intro, brand
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-097
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 58
+// 改写自 KittenJam Motion Library #192（Hannah）· Logo 组合登场：0.3–1.2 秒描出外圈（半径 52px），1.1–1.7 秒描出旋转 45° 的方块，1.6–1.9 秒填入珊瑚色，1.85–2.25 秒中心圆点以 backOut(3) 弹出，2.2–2.7 秒品牌名从左 12px 滑入淡入、英文副标题晚 0.15 秒；4.0–4.5 秒整体淡出。
+CELLS[57] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const fade = 1 - P(u, 4.0, 4.5); if (fade <= 0) return;
+  const LX = 178, LY = 104, R = 52, Q = 30, D = [[LX, LY - Q], [LX + Q, LY], [LX, LY + Q], [LX - Q, LY]];
+  k.save(); k.globalAlpha = fade; k.lineCap = 'round'; k.lineJoin = 'round';
+  const c1 = eIOs(P(u, 0.3, 1.2));
+  if (c1 > 0) { k.strokeStyle = '#fff'; k.lineWidth = 4; k.beginPath(); k.arc(LX, LY, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * c1); k.stroke(); }
+  const dia = () => { k.beginPath(); D.forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.closePath(); };
+  const fl = P(u, 1.6, 1.9);
+  if (fl > 0) { k.globalAlpha = fade * fl; k.fillStyle = C.coral; dia(); k.fill(); k.globalAlpha = fade; }
+  const c2 = eIOs(P(u, 1.1, 1.7)), PER = 4 * Q * Math.SQRT2;
+  if (c2 > 0) { k.strokeStyle = C.coral; k.lineWidth = 4; k.setLineDash([PER * c2, PER]); dia(); k.stroke(); k.setLineDash([]); }
+  const dq = P(u, 1.85, 2.25);
+  if (dq > 0) { const s = Math.max(0, backOut(dq, 3)); k.fillStyle = '#fff'; k.beginPath(); k.arc(LX, LY, 9 * s, 0, 7); k.fill(); }
+  const tq = eOut(P(u, 2.2, 2.7)), sq = eOut(P(u, 2.35, 2.85));
+  if (tq > 0) { k.globalAlpha = fade * tq; txt(k, '星火工作室', 258 - 12 * (1 - tq), 98, `900 40px ${JP}`, '#fff', 'left', 'middle'); }
+  if (sq > 0) { k.globalAlpha = fade * sq; txt(k, 'STARFIRE STUDIO', 260 - 12 * (1 - sq), 136, `700 13px ${DISP}`, C.dim, 'left', 'middle', '3px'); }
+  k.restore();
+};

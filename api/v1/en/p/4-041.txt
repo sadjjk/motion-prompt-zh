@@ -1,0 +1,15 @@
+Please use "Text corridor" (文字の回廊), one of the names in "Styled scenes".
+Motion Prompt #4-041
+
+What it is: Moving forward through a corridor lined with text
+What the sample shows: In a one-point corridor the floor, ceiling and both walls are filled with 文字走廊 in different colours that keep flowing toward the viewer, with the vanishing point sunk in shadow.
+Spec:
+- One-point perspective with a 300 px focal length; the corridor is 1 half-wide and 0.5 half-high.
+- Depth z = 0.5–8 is cut into 15 sections (0.5 deep each), each surface carrying a text strip.
+- It moves forward 4 sections per 6.4 s at a constant rate (whole sections, so the loop is seamless).
+- Sections fade in over the far 3 units; a dark glow of radius 90 px sits at the vanishing point; floor, ceiling and walls each have their own colour.
+When to use it: Use it for immersive openings, music or exhibition visuals, or behind a title.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-041.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

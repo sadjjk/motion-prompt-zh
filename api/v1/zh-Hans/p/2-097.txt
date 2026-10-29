@@ -1,0 +1,17 @@
+请使用“Logo 组合登场（Logo build reveal）”，属于“动态图形进阶”。
+Motion Prompt #2-097
+
+效果解释：标志逐个部件画出组合，再滑入品牌名
+动画表现：白色外圈先被描出，接着旋转 45° 的珊瑚色方块描边并填色，中心白点弹出，右侧「星火工作室」与英文副标题从左滑入。
+实现规格与关键运动参数：
+- 0.3–1.2 秒以 sine 缓入缓出描出半径 52 px 的外圈
+- 1.1–1.7 秒描出旋转 45° 的方块（中心到顶点 30 px），1.6–1.9 秒填入珊瑚色
+- 1.85–2.25 秒中心圆点（半径 9 px）以 backOut(3) 弹出
+- 2.2–2.7 秒品牌名从左 12 px 滑入，副标题晚 0.15 秒；4.0–4.5 秒整体淡出
+适用场景：适合视频片头、网站开场或品牌介绍的收尾。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-097
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-097.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Hannah 的 MIT 版权标识。

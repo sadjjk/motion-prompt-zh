@@ -1,0 +1,15 @@
+Please use "Stat cards" (統計カード), one of the names in "Interaction & data motion".
+Motion Prompt #1-172
+
+What it is: Cards rise in turn as numbers count up and sparklines draw
+What the sample shows: 3 data cards float up one after another. Each number counts from 0 to its target, a small sparkline draws in from the left, and the growth tag fades in at the top right.
+Spec:
+- 3 cards float up from 30 px below and fade in (0.6 s out3, 0.12 s apart).
+- Numbers count up to their targets from 0.5 s over 1.2 s (power2.out).
+- The sparkline draws from 0.6 s over 1.0 s (inOut3); the growth tag fades in from 1.6 s over 0.4 s.
+- Numbers, sparklines and tags are also staggered by 0.12 s per card; everything fades out from 5.4–6.0 s.
+When to use it: Use it for admin dashboards, monthly reports and KPI overviews.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-172.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -2,7 +2,7 @@
 
 # 风格画面
 
-39 个效果 · #4 001~039 · 分类包 `scenes` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+42 个效果 · #4 001~042 · 分类包 `scenes` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -17,6 +17,7 @@
 | [#4-005](https://sadjjk.github.io/motion-prompt-zh/#4-005) | **竖排诗笺** | Vertical verse | 朱丝栏笺纸上古诗竖排逐字浮现的画面 | 做一张竖排诗笺：王维的诗 44 个字从右往左每秒浮现 9.5 个，最后钤一方朱印。 |
 | [#4-006](https://sadjjk.github.io/motion-prompt-zh/#4-006) | **故障艺术** | Glitch | 海报文字在信号干扰下错位撕裂的故障艺术画面 | 做一张「SIGNAL LOST」故障海报：RGB 通道错开 3–9 px，干扰每秒跳 10 次。 |
 | [#4-039](https://sadjjk.github.io/motion-prompt-zh/#4-039) | **封锁胶带** | Caution tape cross | 印字的警示胶带交叉成 X | 用 2 条黄底黑边的警示胶带交叉成 X，胶带上重复的「禁止进入」反向滑动，并加投影。 |
+| [#4-041](https://sadjjk.github.io/motion-prompt-zh/#4-041) | **文字走廊** | Text corridor | 在铺满文字的走廊里不断前进 | 开场做文字走廊：地板、天花板与左右墙铺满重复文字，一点透视，文字朝观众流过来。 |
 
 ## 科技氛围
 
@@ -31,6 +32,7 @@
 | [#4-013](https://sadjjk.github.io/motion-prompt-zh/#4-013) | **电子云** | Electron orbital | 用点阵描绘原子轨道概率云并缓慢旋转的科学画面 | 做一个电子云动画：3d 轨道概率云由 1600 个点组成，6.4 秒转一圈。 |
 | [#4-034](https://sadjjk.github.io/motion-prompt-zh/#4-034) | **条码扫描** | Barcode scan | 青色激光扫过装箱单条码的物流画面 | 做一个条码扫描动画：青色激光从左到右扫过白色单据上的 29 根条码，扫完后绿色显示“已核验 · 可发货”。 |
 | [#4-035](https://sadjjk.github.io/motion-prompt-zh/#4-035) | **示波器描线** | Oscilloscope trace | 扫描光束在深色屏上描出青色波形的仪器画面 | 做一个示波器动画：竖直扫描光束从左走到右，身后画出青色波形，3 个起伏的振幅逐次减小。 |
+| [#4-040](https://sadjjk.github.io/motion-prompt-zh/#4-040) | **数字雨** | Matrix rain | 一列列字符像雨一样落下 | 黑客风背景用数字雨：绿色字符一列列落下，最前端发白光，后面逐渐变暗拖尾。 |
 
 ## 纹样与图形
 
@@ -51,6 +53,7 @@
 | [#4-036](https://sadjjk.github.io/motion-prompt-zh/#4-036) | **彩纸爆发** | Confetti burst | 标题弹起的同时喷出一把彩纸 | 让「恭喜」两个字弹性放大，同时从下方喷出约 60 片彩纸，抛物线落下、边转边翻，最后 0.5 秒淡出。 |
 | [#4-037](https://sadjjk.github.io/motion-prompt-zh/#4-037) | **飘落花瓣** | Falling petals | 花瓣摇曳飘落，光标经过时被吹开 | 背景飘落约 40 片花瓣，左右摆动并翻面；光标经过时把附近花瓣推开，再慢慢回到原来的轨迹。 |
 | [#4-038](https://sadjjk.github.io/motion-prompt-zh/#4-038) | **烟火** | Fireworks | 点击处升起烟火并炸开 | 夜空背景，点击哪里就从底部用 0.7 秒升起一枚烟火到那里，炸开 40 颗火花，减速、受重力下坠并淡出。 |
+| [#4-042](https://sadjjk.github.io/motion-prompt-zh/#4-042) | **起伏线条** | Wavy lines | 细线像布料一样起伏，光标经过处被拱起 | 背景用起伏线条：水平线由 2 组正弦波叠加像布料一样起伏，光标经过的地方线条被平滑拱起。 |
 
 ## 器物与空间
 

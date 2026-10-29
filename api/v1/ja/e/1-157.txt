@@ -1,0 +1,45 @@
+// Motion Prompt #1-157 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// アイコンスライドボタン / Icon slide button
+// パック: lp (LP・Webサイトの演出) · element 42 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: カーソルが乗ると、ボタン右の矢印が右へ抜けて消え、同じ矢印が左の外から文字の左へ滑り込み、文字は右へずれて場所を空ける。
+// 動きの仕様:
+//   - 180×50の墨色のカプセル型ボタン。文字の右に矢印。カーソルは0.6秒で乗る
+//   - 0.4秒（easeInOut 3乗）で右の矢印が右へ40px抜けながら消える
+//   - もう1つの矢印が左の外（−16px）から文字の左（+30px）へ入りながら現れ、文字は右へ20pxずれる
+//   - 3.4秒でカーソルが離れ、逆の動きで戻る
+// 使いどころ: 「次へ」「詳しく見る」など、先へ進むことを示すボタンに。
+// タグ: button, arrow, icon-slide, hover, cta, relay
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-157
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 42
+// 改写自 KittenJam Motion Library #237 箭头接力按钮：180×50 墨色胶囊按钮，文字「了解更多」右侧一个箭头。光标 0.6 秒移入后 0.4 秒 easeInOut 3 次方：
+// 右侧箭头向右滑出 40px 并淡出，另一个箭头从按钮左外侧（−16px）滑到文字左边（+30px）并淡入，文字同步右移 20px 让位；3.4 秒移开后反向复原。
+const ISLIDE_W = 180, ISLIDE_H = 50;
+CELLS[41] = (k, w, h, u) => {
+  frame(k, 'example.com/about');
+  const bx = (VW - ISLIDE_W) / 2, by = (VH - ISLIDE_H) / 2, my = by + ISLIDE_H / 2;
+  const cur = t => path([[0, 430, 150], [0.6, 250, 90], [3.4, 250, 90], [4.0, 430, 150], [4.8, 430, 150]], t);
+  const on = t => { const [a, b] = cur(t); return a > bx && a < bx + ISLIDE_W && b > by && b < by + ISLIDE_H; };
+  const q = trans(on, u, 0.4, eIO);
+  const arrow = (x, a) => {
+    if (a <= 0) return;
+    k.save(); k.globalAlpha = a; k.strokeStyle = '#fff'; k.lineWidth = 2.2; k.lineCap = 'round'; k.lineJoin = 'round';
+    k.beginPath(); k.moveTo(x - 7, my); k.lineTo(x + 7, my); k.moveTo(x + 2, my - 5); k.lineTo(x + 7, my); k.lineTo(x + 2, my + 5); k.stroke(); k.restore();
+  };
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    k.save(); k.shadowColor = 'rgba(28,35,51,.25)'; k.shadowBlur = 12; k.shadowOffsetY = 4; k.fillStyle = C.ink; rr(k, bx, by, ISLIDE_W, ISLIDE_H, ISLIDE_H / 2); k.fill(); k.restore();
+    k.save(); rr(k, bx, by, ISLIDE_W, ISLIDE_H, ISLIDE_H / 2); k.clip();
+    txt(k, '了解更多', bx + 78 + 20 * q, my + 1, `700 15px ${JP}`, '#fff', 'center', 'middle');
+    arrow(bx + 140 + 40 * q, 1 - q);
+    arrow(bx - 16 + 46 * q, q);
+    k.restore();
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
+  });
+};

@@ -2,7 +2,7 @@
 
 # UI 组件
 
-43 个效果 · #1 001~024 · 098~102 · 108~121 · 分类包 `ui` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+52 个效果 · #1 001~024 · 098~102 · 108~121 · 142~150 · 分类包 `ui` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -26,6 +26,8 @@
 | [#1-118](https://sadjjk.github.io/motion-prompt-zh/#1-118) | **命令面板** | Command palette | 快捷键唤出、边输入边筛选命令 | 按 ⌘K 唤出命令面板：背景变暗、面板微微放大出现，输入时实时筛选列表。 |
 | [#1-119](https://sadjjk.github.io/motion-prompt-zh/#1-119) | **翻页书** | Page flip | 书页以书脊为轴翻到另一侧 | 把产品目录做成翻页书：点右页后以书脊为轴 0.7 秒翻到左侧。 |
 | [#1-120](https://sadjjk.github.io/motion-prompt-zh/#1-120) | **对折邀请卡** | Folding card | 对折卡片翻开封面露出内页文字 | 邀请函做成对折卡：点封面后以左边为轴打开，内页文字依次淡入。 |
+| [#1-147](https://sadjjk.github.io/motion-prompt-zh/#1-147) | **Cookie 同意横幅** | Cookie banner | 从底部弹出的 Cookie 使用同意卡片 | 网站加 Cookie 同意横幅：从底部弹上来，饼干图标晃一下，点同意后卡片滑出。 |
+| [#1-148](https://sadjjk.github.io/motion-prompt-zh/#1-148) | **浮动按钮展开菜单** | Speed dial | 浮动“+”按钮展开一列小操作按钮 | 右下角新增按钮做成浮动按钮展开菜单：点击后 + 转成 ×，上方小按钮自下而上依次弹出。 |
 
 ## 选择与切换
 
@@ -46,6 +48,11 @@
 | [#1-115](https://sadjjk.github.io/motion-prompt-zh/#1-115) | **水滴单选** | Liquid radio | 选中点像水滴一样拉长移到新选项 | 单选框做成水滴单选：换选时选中点像水滴一样拉长，0.45 秒移到新选项后收回圆形。 |
 | [#1-116](https://sadjjk.github.io/motion-prompt-zh/#1-116) | **输入框浮动标签** | Floating label | 聚焦输入框时标签缩小上浮 | 邮箱输入框用浮动标签：聚焦时标签缩小上浮，底线从中间向两侧展开。 |
 | [#1-117](https://sadjjk.github.io/motion-prompt-zh/#1-117) | **展开搜索框** | Expanding search | 圆形放大镜按钮横向展开成搜索框 | 顶栏搜索做成展开搜索框：点放大镜后 0.45 秒向左展开成输入框。 |
+| [#1-142](https://sadjjk.github.io/motion-prompt-zh/#1-142) | **滑动删除** | Swipe to delete | 列表项左滑露出删除，滑到底即移除 | 通知列表做滑动删除：向左拖露出红色删除区，松手后该行滑出，下方行补位上移。 |
+| [#1-143](https://sadjjk.github.io/motion-prompt-zh/#1-143) | **多选卡片** | Selectable cards | 点选多张卡片，底部出现已选数量栏 | 图片卡片做成多选卡片：选中时出现框线与勾，底部弹出“已选 N 项”操作栏。 |
+| [#1-144](https://sadjjk.github.io/motion-prompt-zh/#1-144) | **错误震动提示** | Shake on error | 输入错误时字段左右震动 | 密码错误时用错误震动提示：输入框左右震动 0.45 秒，边框变红，下方滑出错误提示。 |
+| [#1-145](https://sadjjk.github.io/motion-prompt-zh/#1-145) | **勾选框打勾** | Animated checkbox | 点击时方框弹一下，勾像笔画出 | 待办勾选做成勾选框打勾：方框弹一下，勾从左下画到右上，项目文字加删除线。 |
+| [#1-146](https://sadjjk.github.io/motion-prompt-zh/#1-146) | **标签输入** | Tag input | 输入文字回车后变成标签的输入框 | 兴趣栏做成标签输入：回车后文字变成弹出的标签，点 × 时标签缩小消失、后面补位。 |
 
 ## 导航与状态
 
@@ -63,6 +70,8 @@
 | [#1-112](https://sadjjk.github.io/motion-prompt-zh/#1-112) | **代码差异高亮** | Code diff highlight | 代码删除行与新增行以红绿两色依次出现 | 做一个编辑器代码差异动画：上下文行亮起后，红色删除行和绿色新增行依次从左 6.4px 滑入，新增行再闪亮一次。 |
 | [#1-113](https://sadjjk.github.io/motion-prompt-zh/#1-113) | **部署流水线** | Deploy pipeline | 构建各阶段依次运行通过并连成一线 | 做一个部署进度动画：Lint、Test、Build、Deploy 4 张阶段卡依次由“运行中”变绿“通过”，连接线逐段接通，最后显示“已上线”。 |
 | [#1-121](https://sadjjk.github.io/motion-prompt-zh/#1-121) | **下拉刷新** | Pull to refresh | 下拉列表松手后重新加载 | 消息列表加下拉刷新：越拉越沉，图标随距离转动，松手后转圈加载，顶部插入新消息。 |
+| [#1-149](https://sadjjk.github.io/motion-prompt-zh/#1-149) | **3D 环形轮播** | 3D ring carousel | 卡片围成一圈在 3D 中旋转的轮播 | 作品集做成 3D 环形轮播：8 张卡片围成一圈 24 秒转一周，可以拖动转动。 |
+| [#1-150](https://sadjjk.github.io/motion-prompt-zh/#1-150) | **侧栏收合** | Collapsible sidebar | 侧边栏收成只剩图标的窄条 | 后台左侧菜单做成侧栏收合：点按钮后 0.45 秒收成只剩图标，主内容区变宽。 |
 
 点击编号查看动画演示。单项的时序、缓动和参考代码： `api/v1/zh-Hans/e/<id>.txt` ([#1-001](../../api/v1/zh-Hans/e/1-001.txt)).
 

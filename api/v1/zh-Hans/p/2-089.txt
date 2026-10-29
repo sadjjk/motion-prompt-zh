@@ -1,0 +1,17 @@
+请使用“文字隧道（Text tunnel）”，属于“动态图形进阶”。
+Motion Prompt #2-089
+
+效果解释：像穿过一层层文字组成的隧道
+动画表现：「穿越」一层层从中心的小点放大并冲出画面，白色与珊瑚色交替，中心有暗色光晕。
+实现规格与关键运动参数：
+- 同一个词 8 层从中心按指数从 0.04 倍放大到 9 倍
+- 每层穿过需 4.7 秒，相位依次错开 1/8
+- 前 25% 淡入，后 40% 淡出
+- 相邻层白色与珊瑚色交替，中心半径 70 px 暗色光晕
+适用场景：适合开场、穿越突入或场景切换。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-089
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-089.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Hannah 的 MIT 版权标识。

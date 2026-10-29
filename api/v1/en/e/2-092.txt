@@ -1,0 +1,35 @@
+// Motion Prompt #2-092 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Tracking expand / トラッキング展開
+// Pack: motion2 (Motion graphics moves, part 2) · element 53 · Category: Text & shapes
+// What happens: On a cream ground the blurred, overlapping 展开视野 spreads out from the centre and sharpens while the rule below stretches with it, then blurs away again.
+// Motion spec:
+//   - Letter spacing goes from −0.55 em (overlapping) to 0.06 em.
+//   - It opens over 0.3–1.4 s with a cubic ease-out, blur 6 px → 0, fading in over 0.3–1.0 s.
+//   - A 3 px coral rule below stretches to the line's width.
+//   - Over 3.8–4.4 s it blurs up to 4 px and fades out.
+// When to use it: Use it for refined headings, brand taglines or chapter titles.
+// Tags: tracking, letter-spacing, spread, blur, reveal, heading
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-092
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 53
+// 改写自 KittenJam Motion Library #189（Hannah）· 字距展开：字距从 −0.55em（字全叠在一起）以三次缓出在 0.3–1.4 秒展开到 0.06em，同时模糊 6px→0、淡入；下方细线跟随整行宽度伸长；3.8–4.4 秒再模糊 4px 淡出。
+CELLS[52] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k, C.cream);
+  const S = '展开视野', FS = 64, F = `900 ${FS}px ${JP}`, CY = 96;
+  const e = eOut(P(u, 0.3, 1.4)), out = P(u, 3.8, 4.4), al = P(u, 0.3, 1.0) * (1 - out);
+  if (al <= 0) return;
+  const cs = chars(k, S, F, lerp(-0.55 * FS, 0.06 * FS, e));
+  const half = cs[cs.length - 1].x + cs[cs.length - 1].w / 2;
+  k.save(); k.globalAlpha = al; k.filter = `blur(${(6 * (1 - e) + 4 * out).toFixed(2)}px)`;
+  cs.forEach(c => txt(k, c.ch, w / 2 + c.x, CY, F, C.navy, 'center', 'middle'));
+  k.filter = 'none';
+  k.fillStyle = C.coral; k.fillRect(w / 2 - half, CY + 50, half * 2, 3);
+  k.restore();
+};

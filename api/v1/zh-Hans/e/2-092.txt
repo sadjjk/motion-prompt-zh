@@ -1,0 +1,35 @@
+// Motion Prompt #2-092 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 字距展开 / Tracking expand
+// 分类包: motion2 (动态图形进阶) · element 53 · 子分类: 文字与图形
+// 动画表现: 奶油色底上，叠在一起模糊的「展开视野」从中心向两侧散开并变清晰，下方细线随宽度伸长，停留后再模糊消失。
+// 运动规格:
+//   - 字距从 −0.55em（字叠在一起）到 0.06em
+//   - 0.3–1.4 秒三次缓出展开，模糊 6 px → 0，0.3–1.0 秒淡入
+//   - 下方 3 px 珊瑚色细线随整行宽度伸长
+//   - 3.8–4.4 秒模糊到 4 px 并淡出
+// 适用场景: 适合简洁大气的标题、品牌口号或章节标题。
+// 标签: tracking, letter-spacing, spread, blur, reveal, heading
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-092
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 53
+// 改写自 KittenJam Motion Library #189（Hannah）· 字距展开：字距从 −0.55em（字全叠在一起）以三次缓出在 0.3–1.4 秒展开到 0.06em，同时模糊 6px→0、淡入；下方细线跟随整行宽度伸长；3.8–4.4 秒再模糊 4px 淡出。
+CELLS[52] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k, C.cream);
+  const S = '展开视野', FS = 64, F = `900 ${FS}px ${JP}`, CY = 96;
+  const e = eOut(P(u, 0.3, 1.4)), out = P(u, 3.8, 4.4), al = P(u, 0.3, 1.0) * (1 - out);
+  if (al <= 0) return;
+  const cs = chars(k, S, F, lerp(-0.55 * FS, 0.06 * FS, e));
+  const half = cs[cs.length - 1].x + cs[cs.length - 1].w / 2;
+  k.save(); k.globalAlpha = al; k.filter = `blur(${(6 * (1 - e) + 4 * out).toFixed(2)}px)`;
+  cs.forEach(c => txt(k, c.ch, w / 2 + c.x, CY, F, C.navy, 'center', 'middle'));
+  k.filter = 'none';
+  k.fillStyle = C.coral; k.fillRect(w / 2 - half, CY + 50, half * 2, 3);
+  k.restore();
+};

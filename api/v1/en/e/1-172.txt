@@ -1,0 +1,45 @@
+// Motion Prompt #1-172 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Stat cards / 統計カード
+// Pack: uxmotion (Interaction & data motion) · element 59 · Category: Animated charts
+// What happens: 3 data cards float up one after another. Each number counts from 0 to its target, a small sparkline draws in from the left, and the growth tag fades in at the top right.
+// Motion spec:
+//   - 3 cards float up from 30 px below and fade in (0.6 s out3, 0.12 s apart).
+//   - Numbers count up to their targets from 0.5 s over 1.2 s (power2.out).
+//   - The sparkline draws from 0.6 s over 1.0 s (inOut3); the growth tag fades in from 1.6 s over 0.4 s.
+//   - Numbers, sparklines and tags are also staggered by 0.12 s per card; everything fades out from 5.4–6.0 s.
+// When to use it: Use it for admin dashboards, monthly reports and KPI overviews.
+// Tags: dashboard, stat-card, kpi, count-up, sparkline, metrics
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-172
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 59
+// 59 数据仪表卡片（KittenJam #308）：三张数据卡从下方 30px 依次浮上淡入（0.6 秒 out3，间隔 0.12 秒）；数字 0.5 秒起累加到目标值（1.2 秒，power2.out），
+// 迷你折线 0.6 秒起画出（1.0 秒 inOut3），增长率标签 1.6 秒起淡入（0.4 秒）；三项都按卡片序号错开 0.12 秒；5.4–6.0 秒淡出复位。
+const STC_X0 = 26.5, STC_Y = 44, STC_W = 150, STC_H = 120, STC_GAP = 18, STC_STAG = 0.12;
+const STC_D = [['本月访客', 12480, 0, '', '+12.4%', [3, 5, 4, 6, 5, 7, 9]], ['转化率', 3.6, 1, '%', '+0.8%', [4, 3, 5, 4, 6, 6, 7]], ['新订单', 864, 0, '', '+21%', [2, 4, 3, 5, 7, 6, 9]]];
+const STC_fmt = (n, dec) => (dec ? n.toFixed(dec) : String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+CELLS[58] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  txt(k, '运营概览', STC_X0, 28, UXB_f(900, 13), UX.ink);
+  const fa = fadeIn(u);
+  STC_D.forEach(([lab, val, dec, suf, gr, sp], i) => {
+    const d = i * STC_STAG, e = out3(seg(u, 0.3 + d, 0.9 + d));
+    if (e <= 0 || fa <= 0) return;
+    const x = STC_X0 + i * (STC_W + STC_GAP), y = STC_Y + 30 * (1 - e);
+    k.save(); k.globalAlpha = e * fa; card(k, x, y, STC_W, STC_H, 12);
+    txt(k, lab, x + 14, y + 24, UXB_f(700, 11), UX.ink3);
+    const ct = seg(u, 0.5 + d, 1.7 + d), n = val * (1 - (1 - ct) * (1 - ct));
+    txt(k, STC_fmt(n, dec) + suf, x + 14, y + 54, UXB_f(900, 22), UX.ink);
+    const ga = seg(u, 1.6 + d, 2.0 + d);
+    if (ga > 0) { k.globalAlpha = e * fa * ga; rr(k, x + STC_W - 60, y + 13, 48, 17, 8.5); k.fillStyle = 'rgba(17,156,114,.12)'; k.fill(); txt(k, gr, x + STC_W - 36, y + 25, UXB_f(800, 9.5), UX.mint, 'center'); k.globalAlpha = e * fa; }
+    const pts = sp.map((v, j) => [x + 14 + j * (STC_W - 28) / (sp.length - 1), y + 106 - v * 3]);
+    k.strokeStyle = UX.accent; k.lineWidth = 2; k.lineJoin = 'round'; k.lineCap = 'round';
+    UXB_poly(k, pts, inOut3(seg(u, 0.6 + d, 1.6 + d)));
+    k.restore();
+  });
+};

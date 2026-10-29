@@ -2,7 +2,7 @@
 
 # 落地页与网页动效
 
-35 个效果 · #1 025~048 · 103~107 · 122~127 · 分类包 `lp` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+48 个效果 · #1 025~048 · 103~107 · 122~127 · 151~163 · 分类包 `lp` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -37,6 +37,17 @@
 | [#1-123](https://sadjjk.github.io/motion-prompt-zh/#1-123) | **果冻弹跳按钮** | Jelly button | 点击后像果冻一样横竖弹动再复原 | 把“加入购物车”按钮做成果冻弹跳：点击后先横向压扁再纵向拉高，0.6 秒内回弹复原。 |
 | [#1-124](https://sadjjk.github.io/motion-prompt-zh/#1-124) | **发牌展开** | Card deal | 卡片依次发出并展开成扇形 | 点“发牌”后 5 张卡片从底部依次发出，回弹展开成约 ±24° 的扇形。 |
 | [#1-125](https://sadjjk.github.io/motion-prompt-zh/#1-125) | **拍立得洗牌** | Photo stack shuffle | 叠放照片的顶张抽出插回底部 | 把回忆照片做成拍立得洗牌：每次点击把顶张向右抽出，再插回最底下。 |
+| [#1-151](https://sadjjk.github.io/motion-prompt-zh/#1-151) | **图标微动画** | Icon micro-animations | 悬停的图标各做符合意思的小动作 | 给工具栏图标加微动画：悬停时铃铛摇、爱心跳、齿轮转 90°、信封打开。 |
+| [#1-152](https://sadjjk.github.io/motion-prompt-zh/#1-152) | **聚焦淡化其他** | Focus dim siblings | 悬停的卡片浮起，其他卡片变淡缩小 | 价格方案卡片做成聚焦淡化其他：悬停的卡上浮 8px，其他卡 0.45 秒内变淡缩小。 |
+| [#1-153](https://sadjjk.github.io/motion-prompt-zh/#1-153) | **Bento 格局展开** | Bento grid expand | 悬停的格子变大，其他格子同步让位 | 功能介绍做成 Bento 格局展开：悬停格所在栏 0.55 秒放大到 2.4fr、所在列放大到 1.8fr。 |
+| [#1-154](https://sadjjk.github.io/motion-prompt-zh/#1-154) | **文字翻滚按钮** | Rolling text button | 悬停时按钮文字逐字往上翻滚替换 | 把「查看作品」按钮做成文字翻滚按钮：每个字错开 0.035 秒往上翻滚，按钮同时反色。 |
+| [#1-155](https://sadjjk.github.io/motion-prompt-zh/#1-155) | **Dock 放大菜单** | Dock magnification | 离光标越近的图标越大，并推开邻居 | 应用切换菜单做成 Dock 放大：最近的图标放大到约 1.9 倍，110px 范围内按距离放大。 |
+| [#1-156](https://sadjjk.github.io/motion-prompt-zh/#1-156) | **边框描绘按钮** | Border draw button | 悬停时四条边框依次画出围住按钮 | 把「联系我们」按钮做成边框描绘按钮：从左上角起按上、右、下、左的顺序，每段 0.18 秒画出边框。 |
+| [#1-157](https://sadjjk.github.io/motion-prompt-zh/#1-157) | **箭头接力按钮** | Icon slide button | 右侧箭头滑出，新箭头从左侧滑入 | 把「了解更多」按钮做成箭头接力按钮：0.4 秒内右侧箭头滑出，新箭头从左侧滑入，文字右移让位。 |
+| [#1-158](https://sadjjk.github.io/motion-prompt-zh/#1-158) | **展开文字按钮** | Expanding button | 圆形「+」按钮悬停时向右展开出文字 | 新建按钮做成展开文字按钮：悬停 0.5 秒向右展开，加号转 90°，展开过半后文字才淡入。 |
+| [#1-159](https://sadjjk.github.io/motion-prompt-zh/#1-159) | **光标扩散填满按钮** | Direction-aware fill button | 从光标进入处圆形扩散填满，离开时往出口收回 | 把「立即联系」按钮做成光标扩散填满按钮：从进入点 0.55 秒圆形扩散填满，离开时向离开点缩小消失。 |
+| [#1-160](https://sadjjk.github.io/motion-prompt-zh/#1-160) | **展开式图片面板** | Expanding panels | 一排窄图片面板中被悬停的一片展开并显示标题 | 分类入口做成展开式图片面板：悬停的一片 0.6 秒展开到其他片的 4 倍宽，展开后再显示标题。 |
+| [#1-161](https://sadjjk.github.io/motion-prompt-zh/#1-161) | **低饱和唤醒** | Saturate on hover | 低饱和的图片悬停时恢复鲜艳并微微放大 | 团队照片做成低饱和唤醒：平时去饱和 90% 且偏暗，悬停 0.6 秒恢复色彩并放大到 1.05。 |
 
 ## 加载、导航与循环动效
 
@@ -55,6 +66,8 @@
 | [#1-107](https://sadjjk.github.io/motion-prompt-zh/#1-107) | **布局动画** | Layout animation | 布局变化时，其余元素平滑移到新位置 | 删除卡片后其余卡片用布局动画补位，0.5 秒 ease-in-out 平滑移到新位置。 |
 | [#1-126](https://sadjjk.github.io/motion-prompt-zh/#1-126) | **切片转场** | Slice transition | 图片切成竖条交替上下滑走露出下一张 | 轮播切换用切片转场：当前图切成 6 条，间隔 0.08 秒交替向上、向下滑走。 |
 | [#1-127](https://sadjjk.github.io/motion-prompt-zh/#1-127) | **天气图标动画** | Animated weather icons | 晴、云、雨、雷图标各自小幅循环动 | 让天气预报图标动起来：太阳光芒自转、云朵飘动、雨滴错时落下、闪电闪烁。 |
+| [#1-162](https://sadjjk.github.io/motion-prompt-zh/#1-162) | **指针时钟** | Analog clock | 秒针逐格跳动并带一点回弹的指针时钟 | 在营业时间旁放一个指针时钟，秒针每跳一格 0.15 秒内略超过再弹回。 |
+| [#1-163](https://sadjjk.github.io/motion-prompt-zh/#1-163) | **选取框蚂蚁线** | Marching ants selection | 虚线选取框的线条持续流动，四角带控制点 | 编辑器选区做成选取框蚂蚁线：线段 6、间隔 5 持续流动，框变大小时宽 × 高标签跟着更新。 |
 
 点击编号查看动画演示。单项的时序、缓动和参考代码： `api/v1/zh-Hans/e/<id>.txt` ([#1-025](../../api/v1/zh-Hans/e/1-025.txt)).
 

@@ -1,0 +1,15 @@
+Please use "Countdown slam" (カウントダウン・スラム), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-096
+
+What it is: Countdown numbers slam down from huge
+What the sample shows: 3, 2 and 1 slam down in turn from huge, each impact shaking the frame and sending out a ring; the final GO! is coral with burst lines.
+Spec:
+- From 0.3 s, 3 · 2 · 1 · GO! appear every 0.75 s.
+- Each takes 0.7 s: from 3× it lands at 0.9× at 35%, reaches 1.05× at 55%, then settles at 1×.
+- Each landing shakes the frame by 5 px and sends a ring from radius 60 px out to 200 px.
+- GO! is coral with 12 burst lines and fades out over 3.9–4.4 s.
+When to use it: Use it before a start, at the top of a live stream or at the start of a game round.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-096.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

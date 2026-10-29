@@ -1,0 +1,62 @@
+// Motion Prompt #1-142 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 滑动删除 / Swipe to delete
+// 分类包: ui (UI 组件) · element 44 · 子分类: 选择与切换
+// 动画表现: 手指把第 2 行向左拖，露出底下红色“删除”区；松手后该行滑出、高度收合，下方行上移，最后原行复位。
+// 运动规格:
+//   - 宽 280、行高 38 的 4 行列表。
+//   - 手指 0.8 秒按住第 2 行，0.8–1.5 秒向左拖 150px（easeInOut 3 次方），底下红色“删除”区随拖动距离淡入。
+//   - 1.5 秒松手，该行 0.3 秒（easeIn 3 次方）滑出左缘。
+//   - 1.8–2.1 秒行高从 38 收到 0，下方行上移补位。
+//   - 3.7–4.2 秒该行在原位展开回 38 并淡入，回到初始状态。
+// 适用场景: 适合通知、邮件、待办等需要快速删除条目的移动端列表。
+// 标签: swipe-to-delete, swipe, delete, list, gesture, mobile, dismiss
+// 尺寸: 542x191 px · 周期: 4.5 s
+// 依赖: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-142
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 44
+// 改写自 KittenJam Motion Library #145 滑动删除：280 宽的 4 行列表（行高 38）。手指 0.8 秒按住第 2 行，0.8–1.5 秒 easeInOut 3 次方向左拖 150px，
+// 露出红色「删除」区（文字随拖动距离淡入）；1.5 秒松手，该行 0.3 秒 easeIn 3 次方滑出左缘，1.8–2.1 秒行高 38→0 收合、下方行上移；
+// 复位：3.7–4.2 秒该行在原位重新展开到 38 并淡入。
+const SWIPE_ROWS = ['会议提醒', '账单通知', '新消息', '日程变更'], SWIPE_TIME = ['09:30', '昨天', '刚刚', '周一'];
+CELLS[43] = ui((w, h, t) => {
+  X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+  const lx = 131, lw = 280, ly = 20, RH = 38;
+  // 被删行：先拖动露出删除区，越过门槛后整行滑出，再收合高度；收合后位移归零，等复位段展开
+  let off = -150 * eio(seg(t, .8, 1.5));
+  if (t >= 1.5) off = lerp(-150, -lw, Math.pow(seg(t, 1.5, 1.8), 3));
+  if (t >= 2.1) off = 0;
+  const rh = t < 1.8 ? RH : t < 3.7 ? RH * (1 - eio(seg(t, 1.8, 2.1))) : RH * eio(seg(t, 3.7, 4.2));
+  const fa = t >= 3.7 ? eio(seg(t, 3.7, 4.2)) : 1;
+  const hs = SWIPE_ROWS.map((_, i) => i === 1 ? rh : RH);
+  const total = hs.reduce((a, b) => a + b, 0);
+  shadowed(() => fillRR(lx, ly, lw, total, 12, '#fff'), 14, 4, .1);
+  X.save(); rr(lx, ly, lw, total, 12); X.clip();
+  let y = ly;
+  SWIPE_ROWS.forEach((s, i) => {
+    const hh = hs[i];
+    if (hh < .5) return;
+    X.save(); X.beginPath(); X.rect(lx, y, lw, hh); X.clip();
+    const dx = i === 1 ? off : 0;
+    if (i === 1 && t >= .8 && t < 2.1) {
+      X.fillStyle = '#e5484d'; X.fillRect(lx, y, lw, hh);
+      X.save(); X.globalAlpha = Math.min(1, -off / 80); text('删除', lx + lw - 38, y + RH / 2, 13, '#fff', 700, 'center'); X.restore();
+    }
+    X.globalAlpha = i === 1 ? fa : 1;
+    X.fillStyle = '#fff'; X.fillRect(lx + dx, y, lw, RH);
+    circle(lx + dx + 24, y + RH / 2, 10, [C.mb, C.sb, C.lb, C.line2][i]);
+    text(s, lx + dx + 44, y + 14, 12, C.ink, 700); bar(lx + dx + 44, y + 23, 110 - i * 12, C.line, 6);
+    text(SWIPE_TIME[i], lx + dx + lw - 14, y + 14, 10, C.hint, 500, 'right');
+    X.globalAlpha = 1;
+    if (i < 3) { X.fillStyle = C.sep; X.fillRect(lx + 44, y + hh - 1, lw - 44, 1); }
+    X.restore();
+    y += hh;
+  });
+  X.restore();
+  const fy = ly + RH * 1.5;
+  finger([[0, 370, fy], [.8, 370, fy], [1.5, 220, fy]], [.8], t, t > .55 && t < 1.55);
+});

@@ -1,0 +1,16 @@
+Please use "Chat message pop" (チャットメッセージの出現), one of the names in "Interaction & data motion".
+Motion Prompt #1-164
+
+What it is: Typing dots turn into a message, then a reply pops in
+What the sample shows: The other person's bubble pops in on the left with 3 dots bouncing in turn; it widens into a text message, and an accent-coloured reply pops out on the right. Both then drift up and fade.
+Spec:
+- The other bubble pops in at 0.3 s from its bottom-left corner over 0.35 s (backOut, overshoot factor 2).
+- Inside, 3 dots of radius 3 px bounce up to 4 px on a 0.9 s cycle, each 0.15 s behind the last.
+- At 2.05 s the bubble widens from 58 → 128 px, swaps to text and springs from 0.85 → 1 (0.3 s, factor 3).
+- At 3.05 s the accent reply pops in from its bottom-right corner over 0.4 s.
+- From 4.8 s both bubbles rise 10 px and fade over 0.4 s, 0.08 s apart.
+When to use it: Use it for support chat, messaging apps and chatbot introductions.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-164.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

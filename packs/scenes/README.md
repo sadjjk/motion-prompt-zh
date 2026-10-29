@@ -2,7 +2,7 @@
 
 # Styled scenes
 
-39 names · #4 001~039 · pack `scenes` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+42 names · #4 001~042 · pack `scenes` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -17,6 +17,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-005](https://sadjjk.github.io/motion-prompt-zh/#4-005) | **Vertical verse** | A classical Chinese poem appearing character by character in vertical columns on ruled letter paper | Make a vertical verse scene: Wang Wei's 44-character poem appears right to left at 9.5 characters per second, then a red seal is stamped. |
 | [#4-006](https://sadjjk.github.io/motion-prompt-zh/#4-006) | **Glitch** | A glitch-art poster torn apart by signal interference | Make a SIGNAL LOST glitch poster: RGB channels split by 3–9 px and the interference changes 10 times per second. |
 | [#4-039](https://sadjjk.github.io/motion-prompt-zh/#4-039) | **Caution tape cross** | Two lettered caution tapes crossing in an X | Cross 2 yellow caution tapes with black edges in an X, scroll their repeated "KEEP OUT" text in opposite directions, and add a drop shadow. |
+| [#4-041](https://sadjjk.github.io/motion-prompt-zh/#4-041) | **Text corridor** | Moving forward through a corridor lined with text | Make an intro with a text corridor: floor, ceiling and both walls covered with repeated text flowing toward the viewer in one-point perspective. |
 
 ## Tech moods
 
@@ -31,6 +32,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-013](https://sadjjk.github.io/motion-prompt-zh/#4-013) | **Electron orbital** | An atomic orbital's probability cloud drawn in dots and slowly rotating | Animate an electron cloud: a 3d orbital drawn with 1600 dots, rotating once every 6.4 s. |
 | [#4-034](https://sadjjk.github.io/motion-prompt-zh/#4-034) | **Barcode scan** | A cyan laser reading the barcode on a packing slip | Animate a barcode scan: a cyan laser sweeps once left to right across 29 bars on a white slip, then "Verified · ready to ship" appears in green. |
 | [#4-035](https://sadjjk.github.io/motion-prompt-zh/#4-035) | **Oscilloscope trace** | A sweep beam drawing a cyan waveform across a dark scope screen | Animate an oscilloscope: a vertical sweep beam moves left to right, drawing a cyan waveform behind it whose 3 peaks get gradually smaller. |
+| [#4-040](https://sadjjk.github.io/motion-prompt-zh/#4-040) | **Matrix rain** | Columns of glyphs pour down like rain | Use matrix rain as a hacker-style background: columns of green glyphs fall, the leading glyph glowing white with a fading trail. |
 
 ## Patterns & graphics
 
@@ -51,6 +53,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-036](https://sadjjk.github.io/motion-prompt-zh/#4-036) | **Confetti burst** | Confetti shoots up as the title springs in | Make the word "Congrats" spring in while about 60 pieces of confetti burst up from below, falling in arcs, spinning, and fading over the last 0.5 s. |
 | [#4-037](https://sadjjk.github.io/motion-prompt-zh/#4-037) | **Falling petals** | Petals drift down and scatter at the cursor | Fill the background with about 40 falling petals that sway and flip; when the cursor passes, push nearby petals aside and let them drift back to their paths. |
 | [#4-038](https://sadjjk.github.io/motion-prompt-zh/#4-038) | **Fireworks** | A firework rises and bursts where you click | On a night sky, launch a firework from the bottom to wherever I click in 0.7 s, bursting into 40 sparks that slow down, fall under gravity and fade. |
+| [#4-042](https://sadjjk.github.io/motion-prompt-zh/#4-042) | **Wavy lines** | Thin lines ripple like cloth and lift under the cursor | Make the background wavy lines: horizontal lines ripple like cloth from 2 sine waves, and lift smoothly only where the cursor passes. |
 
 ## Objects & space
 

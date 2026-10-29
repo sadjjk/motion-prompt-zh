@@ -1,0 +1,48 @@
+// Motion Prompt #1-161 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// ホバーで彩度を戻す / Saturate on hover
+// パック: lp (LP・Webサイトの演出) · element 46 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: くすんで暗い4枚の画像のうち、カーソルが乗った1枚目、次に3枚目が鮮やかに戻って少し大きくなり、下から名前のラベルが上がってくる。
+// 動きの仕様:
+//   - 幾何学的な図4枚（104×118・間隔16）。ふだんは彩度を90%落とし、20%暗くしてある
+//   - ホバーした1枚は0.6秒の easeOut 3乗で色と明るさが戻り、枠の中で絵が1.05倍になる
+//   - 下の名前ラベルが10px上がりながら現れる。カーソルは1・3枚目に順にとどまり、離れるとくすんだ状態に戻る
+// 使いどころ: メンバー紹介・作品一覧・取引先ロゴなど、並んだ画像を落ち着かせつつ1枚を目立たせたい所に。
+// タグ: saturate, grayscale, image, hover, team, zoom
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-161
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 46
+// 改写自 KittenJam Motion Library #264 低饱和唤醒：一排 4 张 104×118 的几何示意图（间距 16）平时低饱和偏暗（90% 去饱和、压暗 20%）。
+// 光标滑过的那张 0.6 秒 easeOut 3 次方恢复鲜艳与亮度，画面在框内放大到 1.05，底部名字标签上浮 10px 淡入；光标依次停第 1、3 张，离开后恢复。
+const SAT_W = 104, SAT_H = 118, SAT_GAP = 16;
+CELLS[45] = (k, w, h, u) => {
+  frame(k, 'example.com/team');
+  const x0 = (VW - (SAT_W * 4 + SAT_GAP * 3)) / 2, y0 = 22, x3 = x0 + 2 * (SAT_W + SAT_GAP) + 56;
+  const cur = t => path([[0, 255, 160], [0.5, x0 + 56, 80], [1.7, x0 + 56, 80], [2.1, x3, 80], [3.4, x3, 80], [3.9, 255, 160], [4.8, 255, 160]], t);
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 4; i++) {
+      const x = x0 + i * (SAT_W + SAT_GAP);
+      const on = t => { const [a, b] = cur(t); return a > x && a < x + SAT_W && b > y0 && b < y0 + SAT_H; };
+      const q = trans(on, u, 0.6), d = 1 - q;
+      pic(k, x, y0, SAT_W, SAT_H, i, 10, 1 + 0.05 * q);
+      k.save(); rr(k, x, y0, SAT_W, SAT_H, 10); k.clip();
+      if (d > 0) {
+        // 用灰色做 saturation 合成来去饱和（相当于 grayscale），再叠一层黑色压暗（相当于 brightness）
+        k.globalCompositeOperation = 'saturation'; k.globalAlpha = 0.9 * d; k.fillStyle = '#808080'; k.fillRect(x, y0, SAT_W, SAT_H);
+        k.globalCompositeOperation = 'source-over'; k.globalAlpha = 1; k.fillStyle = `rgba(0,0,0,${0.2 * d})`; k.fillRect(x, y0, SAT_W, SAT_H);
+      }
+      if (q > 0) {
+        k.globalAlpha = q; k.fillStyle = 'rgba(255,255,255,.92)'; rr(k, x + 8, y0 + SAT_H - 30 + 10 * d, SAT_W - 16, 22, 11); k.fill();
+        txt(k, ['设计', '开发', '产品', '运营'][i], x + SAT_W / 2, y0 + SAT_H - 19 + 10 * d, `700 11px ${JP}`, C.ink, 'center', 'middle');
+      }
+      k.restore();
+    }
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
+  });
+};

@@ -1,0 +1,15 @@
+Please use "Marching ants selection" (マーチングアンツ), one of the names in "Landing page & web effects".
+Motion Prompt #1-163
+
+What it is: A dashed selection box whose line keeps crawling, with corner handles
+What the sample shows: In a design-tool canvas, the blue dashed box around a layer keeps crawling in one direction, and the size label below changes as the box grows and shrinks.
+Spec:
+- A blue 1.5px dashed selection box (dash 6, gap 5) whose dash offset moves −11 every 0.48 s (10 rounds per cycle), so the line keeps flowing one way.
+- Each corner has an 8×8 handle with a white fill and a blue outline.
+- The box resizes between 200×90 and 280×120: growing over 0.4–2.0 s and shrinking over 2.8–4.4 s (easeInOut power 3).
+- A label below shows the rounded width × height live.
+When to use it: Use it when introducing design tools, image editors or no-code products to show selecting and editing.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-163.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

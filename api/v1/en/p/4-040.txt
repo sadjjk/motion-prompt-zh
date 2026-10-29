@@ -1,0 +1,15 @@
+Please use "Matrix rain" (マトリックス・レイン), one of the names in "Styled scenes".
+Motion Prompt #4-040
+
+What it is: Columns of glyphs pour down like rain
+What the sample shows: On black, columns of katakana, digits and letters keep falling; the head of each column glows white and the trail darkens to green behind it, the glyphs changing as they go.
+Spec:
+- 39 columns at a 14 px glyph size; each column's start, speed (1–3 passes per 6.4 s) and trail length (10–18 glyphs) are fixed by index.
+- The head glyph is white with a 14 px glow; the trail darkens to green further back (opacity falling from 0.9).
+- The first 3 glyphs change every 0.1 s (64 times per 6.4 s); the rest every 0.4 s.
+- A dark gradient covers the top and bottom 18%.
+When to use it: Use it behind hacker, cybersecurity or data themes, or for a sci-fi opening.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-040.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

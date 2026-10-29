@@ -2,7 +2,7 @@
 
 # 交互与数据动效
 
-50 个效果 · #1 061~097 · 129~141 · 分类包 `uxmotion` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+62 个效果 · #1 061~097 · 129~141 · 164~175 · 分类包 `uxmotion` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -18,6 +18,7 @@
 | [#1-066](https://sadjjk.github.io/motion-prompt-zh/#1-066) | **剧透沙粒遮挡** | Spoiler sand cover | 剧透内容盖着闪烁沙粒、点击后炸开显出的遮挡 | 聊天里的剧透内容盖一层闪烁沙粒，点一下沙粒以每帧 2–5px 炸开，文字 0.5 秒显出。 |
 | [#1-067](https://sadjjk.github.io/motion-prompt-zh/#1-067) | **阅读句子聚焦** | Sentence reading focus | 只让指针下那句话保持清晰的阅读聚焦模式 | 长文页面加阅读聚焦：只让鼠标下那句清晰，其余降到 25% 透明度并模糊，0.45 秒过渡。 |
 | [#1-068](https://sadjjk.github.io/motion-prompt-zh/#1-068) | **字母弹簧涟漪** | Rippling letters | 指针划过时字母像弹簧一样起伏的标题 | 标题字母做弹簧涟漪：鼠标划过时附近字母按 σ 34px 的高斯范围抬起，再弹回原位。 |
+| [#1-164](https://sadjjk.github.io/motion-prompt-zh/#1-164) | **聊天消息出现** | Chat message pop | 输入中的点变成消息，再弹出你的回复 | 用聊天消息出现展示对话界面：对方先显示输入中的点 1.75 秒，再把气泡换成文字，然后用 0.4 秒从右下角弹出你的回复。 |
 
 ## 滚动交互
 
@@ -31,6 +32,8 @@
 | [#1-074](https://sadjjk.github.io/motion-prompt-zh/#1-074) | **滚筒时间选择器** | Drum time picker | 拨动滚筒选时间、数值沿滚筒弯向背面的选择器 | 闹钟 App 做滚筒时间选择器：3 列滚筒，离中线越远每格多倾斜 22° 并变淡，停下 120ms 后更新响铃倒计时。 |
 | [#1-140](https://sadjjk.github.io/motion-prompt-zh/#1-140) | **圆形扩张转场** | Circle reveal transition | 随滚动从中央扩大的圆形遮罩揭开下一章 | 章节之间用圆形扩张转场：随滚动从中央扩出圆形直到铺满画面，上一章标题缩到 0.8 并淡出。 |
 | [#1-141](https://sadjjk.github.io/motion-prompt-zh/#1-141) | **时间轴延伸** | Timeline draw | 线条往下延伸、碰到哪一步就出现哪一步的纵向时间轴 | 用时间轴延伸展示制作流程：随滚动让线往下延伸，到达的节点标题从左侧 10 px 滑入。 |
+| [#1-174](https://sadjjk.github.io/motion-prompt-zh/#1-174) | **回到顶部进度环** | Back-to-top progress ring | 滚动后浮出、外环显示阅读进度的回顶按钮 | 给文章加回到顶部进度环：滚过 12% 后右下角浮出按钮，外环弧长表示阅读进度，点击后 0.8 秒回到顶部。 |
+| [#1-175](https://sadjjk.github.io/motion-prompt-zh/#1-175) | **滚动放大全幅图片** | Scroll zoom to full | 随滚动小图放大到满幅 | 把专题的重点画面做成滚动放大全幅图片：38% × 46% 的图片随滚动放大到满幅，圆角从 16 px 变为 0，最后浮出标题。 |
 
 ## 首屏背景
 
@@ -58,6 +61,10 @@
 | [#1-133](https://sadjjk.github.io/motion-prompt-zh/#1-133) | **眼睛跟随** | Following eyes | 一对大眼睛的眼珠一直盯着光标，偶尔眨眼 | 给 404 吉祥物加眼睛跟随：眼珠朝光标方向最多偏移 14 px，每 2 秒用 0.15 秒眨一次眼。 |
 | [#1-134](https://sadjjk.github.io/motion-prompt-zh/#1-134) | **刮刮乐揭示** | Scratch reveal | 刮开表层露出下方内容的刮刮卡 | 用刮刮乐揭示优惠券：用 30 px 圆头笔刷刮掉银色表层，刮得够多后剩余表层 0.5 秒淡出。 |
 | [#1-135](https://sadjjk.github.io/motion-prompt-zh/#1-135) | **流场线条** | Flow field | 细线顺着看不见的气流流动，光标搅动气流 | 把首屏背景做成流场线条：220 条细线以 60 px/s 顺着流场前进，光标周围卷成漩涡。 |
+| [#1-165](https://sadjjk.github.io/motion-prompt-zh/#1-165) | **光源投影字** | Light source shadow | 光标当作灯，文字的长阴影朝反方向延伸 | 给标题加光源投影字：把光标当成光源，让 18 层阴影朝光标的反方向延伸。 |
+| [#1-166](https://sadjjk.github.io/motion-prompt-zh/#1-166) | **反色混合光标** | Blend difference cursor | 圆形光标经过文字时放大，重叠处颜色反转 | 标题区使用反色混合光标：白色圆以差值混合叠加，移到标题上时半径用 0.45 秒从 12 px 放大到 46 px。 |
+| [#1-167](https://sadjjk.github.io/motion-prompt-zh/#1-167) | **情境标签光标** | Contextual cursor | 移到不同内容上变成带动作文字的大圆 | 作品列表使用情境标签光标：平时是半径 5 px 的小点，移到卡片上弹性放大成半径 34 px 的圆并显示「播放」「查看」等文字。 |
+| [#1-168](https://sadjjk.github.io/motion-prompt-zh/#1-168) | **十字准星坐标** | Crosshair cursor | 横竖细线跟随光标，旁边实时显示坐标 | 给主视觉加十字准星坐标：横竖两条线贯穿画面交于光标，右下方用等宽字显示换算到 1920 × 1080 的坐标。 |
 
 ## 进度反馈
 
@@ -72,6 +79,9 @@
 | [#1-137](https://sadjjk.github.io/motion-prompt-zh/#1-137) | **纸飞机发送** | Send plane button | 按下后纸飞机飞走、文字换成「已发送」的发送按钮 | 按下发送时让纸飞机飞走：先向后蓄力，再加速飞向右上方，文字换成「已发送」，约 1.3 秒后换回。 |
 | [#1-138](https://sadjjk.github.io/motion-prompt-zh/#1-138) | **星星评分** | Star rating | 星星由左到右依次填满并弹跳的评分 | 把评价区做成星星评分：点第 4 颗时，第 1 到 4 颗每隔 0.08 秒依次填满，各自弹到 1.35 倍。 |
 | [#1-139](https://sadjjk.github.io/motion-prompt-zh/#1-139) | **滑动确认** | Slide to confirm | 把手拖到底才确认、中途松开会弹回的操作 | 把付款按钮做成滑动确认：超过 85% 松开即确认，不到则把手弹回起点。 |
+| [#1-169](https://sadjjk.github.io/motion-prompt-zh/#1-169) | **成就徽章解锁** | Badge unlock | 六角徽章描边画出，星星盖上，光芒放射 | 成就页加入成就徽章解锁：0.8 秒画出六角外框，星星从 3 倍大像盖章一样落下，再放射 12 道光芒。 |
+| [#1-170](https://sadjjk.github.io/motion-prompt-zh/#1-170) | **翻牌配对游戏** | Memory match | 翻开两张牌，不同翻回，相同留下 | 用翻牌配对游戏展示小游戏：4 × 2 张牌每次 0.4 秒翻开，不同则 0.8 秒后翻回，相同则变强调色并弹到 1.12 倍。 |
+| [#1-171](https://sadjjk.github.io/motion-prompt-zh/#1-171) | **复制成功反馈** | Copy feedback | 点复制后图标旋转变成勾，弹出提示 | 给代码块加复制成功反馈：按下后图标旋转 90° 变成勾，上方弹出「已复制」，1.5 秒后恢复。 |
 
 ## 动态图表
 
@@ -85,6 +95,8 @@
 | [#1-097](https://sadjjk.github.io/motion-prompt-zh/#1-097) | **季度气泡移动** | Quarterly bubble motion | 气泡随季度沿各自路径移动的时间轴气泡图 | 把 8 个 App 画成月活用户（对数轴）× 30 日留存的气泡图，按季度移动气泡，拖动背景时每 8 px 前进或后退 1 个季度。 |
 | [#1-129](https://sadjjk.github.io/motion-prompt-zh/#1-129) | **折线图绘制** | Line chart draw | 折线由左到右画出、数据点依次弹出的图表进场 | 把月营收做成折线图绘制：折线 1.6 秒由左到右画出，线头经过时数据点依次弹出。 |
 | [#1-130](https://sadjjk.github.io/motion-prompt-zh/#1-130) | **环形图分段** | Donut chart segments | 环形图的弧段一段接一段画出的进场 | 把流量来源做成环形图分段：从正上方顺时针画，每段 0.45 秒，图例从右侧依次滑入。 |
+| [#1-172](https://sadjjk.github.io/motion-prompt-zh/#1-172) | **数据仪表卡片** | Stat cards | 数据卡依次浮上，数字累加，迷你折线画出 | 用数据仪表卡片作为仪表盘开场：3 张卡片相隔 0.12 秒从下方 30 px 浮上，数字用 1.2 秒累加。 |
+| [#1-173](https://sadjjk.github.io/motion-prompt-zh/#1-173) | **表格十字高亮** | Table crosshair highlight | 指到的格子整行整列亮起，该格放大 | 给对比表加表格十字高亮：指到的格子所在行与列用 0.25 秒铺上淡强调色，该格放大到 1.12 倍。 |
 
 点击编号查看动画演示。单项的时序、缓动和参考代码： `api/v1/zh-Hans/e/<id>.txt` ([#1-061](../../api/v1/zh-Hans/e/1-061.txt)).
 

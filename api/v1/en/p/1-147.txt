@@ -1,0 +1,15 @@
+Please use "Cookie banner" (Cookie 同意バナー), one of the names in "UI component names".
+Motion Prompt #1-147
+
+What it is: A consent card for cookies that rises from the bottom
+What the sample shows: A cookie card springs up from the bottom of the page while its cookie icon pops upright from a tilt and wobbles twice; the cursor clicks "Accept all", the button dips and the card slides back down.
+Spec:
+- A 360×74 card springs up from below the frame to y 108 over 0.3–0.9 s with back.out(1.4) and fades in.
+- The cookie icon on the left pops upright from 0.4 scale and a −0.6 rad tilt over 0.5–1.1 s, then wobbles 2 more times over 1.2–1.8 s (0.3 rad, dying out).
+- The cursor clicks "Accept all" at 2.4 s; the button dips to 0.92 in 0.08 s and recovers in 0.15 s.
+- Over 2.55–2.95 s the card slides off the bottom with easeIn power 3 and fades out.
+When to use it: Use it for cookie or privacy consent and other notices asked once on a first visit.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-147.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

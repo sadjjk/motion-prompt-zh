@@ -1,9 +1,9 @@
-// Motion Prompt #1 025~048 · 103~107 · 122~127 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#073
+// Motion Prompt #1 025~048 · 103~107 · 122~127 · 151~163 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#073
 // Also: MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills (#1 103~107)
-// Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#1 122~127)
+// Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#1 122~127 · 151~163)
 //
 // Kit for pack "lp" (Landing page & web effects / LP・Webサイトの演出): the constants and helpers its elements share.
-// Elements #1 025~048 · 103~107 · 122~127 · 539x208 px · cycle 4.8 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #1 025~048 · 103~107 · 122~127 · 151~163 · 539x208 px · cycle 4.8 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,
@@ -152,3 +152,17 @@ function enteredAt(sy, top, line, u) {
   return y(u) < line ? -1e9 : null;
 }
 const CELLS = [];
+
+// @shared
+// 第二批 KittenJam 改写款共用：flipAt 求悬停状态 on(t) 最后一次切换的时刻（与 trans 同样按 1/120 秒往回查，最多 5 秒，找不到返回 null）；
+// mixHex 在两个 #RRGGBB 颜色之间按 x（0〜1）线性混色，用于悬停时的反色、变色。
+function flipAt(on, u) {
+  const s = on(u);
+  for (let i = 0, t = u; i < 600; i++, t -= 1 / 120) if (on(t - 1 / 120) !== s) return t;
+  return null;
+}
+function mixHex(a, b, x) {
+  const p = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16));
+  const A = p(a), B = p(b);
+  return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], clamp(x)))).join(',')})`;
+}

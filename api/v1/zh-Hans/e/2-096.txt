@@ -1,0 +1,53 @@
+// Motion Prompt #2-096 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 倒数砸落 / Countdown slam
+// 分类包: motion2 (动态图形进阶) · element 57 · 子分类: 文字与图形
+// 动画表现: 「3」「2」「1」依次从巨大砸下，每次落地画面震动并扩出冲击环，最后「GO!」为珊瑚色并迸出放射线。
+// 运动规格:
+//   - 0.3 秒起每 0.75 秒出现「3・2・1・GO!」
+//   - 每个 0.7 秒：从 3 倍在 35% 处落到 0.9 倍，55% 时 1.05 倍，最后停在 1 倍
+//   - 落地时画面震动 5 px，冲击环半径从 60 px 扩到 200 px
+//   - GO! 为珊瑚色带 12 道放射线，3.9–4.4 秒淡出
+// 适用场景: 适合开始前的倒数、直播开场或游戏回合开始。
+// 标签: countdown, slam, numbers, impact, intro, game
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-096
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 57
+// 改写自 KittenJam Motion Library #8（Hannah）· 倒数砸落：「3、2、1、GO!」从 0.3 秒起每 0.75 秒一个，各在 0.7 秒内从 3 倍砸到 0.9 倍（35% 处落地）、回弹到 1.05 倍再停在 1 倍；落地时画面震动并扩出冲击环，GO! 用珊瑚色并迸出放射线，3.9–4.4 秒淡出。
+const SLAM_S = ['3', '2', '1', 'GO!'], SLAM_T0 = 0.3, SLAM_D = 0.75, SLAM_HIT = 0.7 * 0.35;
+function SLAM_sc(t) {
+  const p = t / 0.7;
+  if (p < 0.35) { const q = eIn(p / 0.35); return [lerp(3, 0.9, q), q]; }
+  if (p < 0.55) return [lerp(0.9, 1.05, smooth((p - 0.35) / 0.2)), 1];
+  return [lerp(1.05, 1, smooth(clamp((p - 0.55) / 0.45))), 1];
+}
+CELLS[56] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  let n = -1; for (let i = 0; i < SLAM_S.length; i++) if (u >= SLAM_T0 + i * SLAM_D) n = i;
+  if (n < 0) return;
+  const t = u - (SLAM_T0 + n * SLAM_D), go = n === SLAM_S.length - 1, fade = go ? 1 - P(u, 3.9, 4.4) : 1;
+  if (fade <= 0) return;
+  const ht = t - SLAM_HIT, shake = ht > 0 ? 5 * Math.exp(-12 * ht) * Math.sin(60 * ht) : 0;
+  const CX = w / 2, CY = h / 2 + 4;
+  k.save(); k.globalAlpha = fade; k.translate(shake, -shake * 0.6);
+  const rg = P(t, SLAM_HIT, 0.75);
+  if (rg > 0 && rg < 1) { k.save(); k.globalAlpha = fade * 0.6 * (1 - rg); k.strokeStyle = go ? C.coral : C.yel; k.lineWidth = 4; k.beginPath(); k.arc(CX, CY, 60 + 140 * eOut(rg), 0, 7); k.stroke(); k.restore(); }
+  if (go && ht > 0) {
+    const q = eOut(P(ht, 0, 0.5)); k.strokeStyle = C.yel; k.lineWidth = 3; k.lineCap = 'round'; k.globalAlpha = fade * (1 - 0.6 * q);
+    for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6 + 0.26, r0 = 96 + 30 * q, r1 = r0 + 26 * (1 - q) + 6; k.beginPath(); k.moveTo(CX + Math.cos(a) * r0, CY + Math.sin(a) * r0 * 0.6); k.lineTo(CX + Math.cos(a) * r1, CY + Math.sin(a) * r1 * 0.6); k.stroke(); }
+    k.globalAlpha = fade;
+  }
+  // 上一个数字在新数字砸下的前 0.12 秒内缩小淡出
+  if (n > 0 && t < 0.12) { const q = t / 0.12; k.save(); k.globalAlpha = fade * (1 - q); k.translate(CX, CY); k.scale(1 - 0.2 * q, 1 - 0.2 * q); txt(k, SLAM_S[n - 1], 0, 0, `900 128px ${DISP}`, '#fff', 'center', 'middle'); k.restore(); }
+  const [sc, op] = SLAM_sc(Math.min(t, 0.7));
+  k.save(); k.globalAlpha = fade * op; k.translate(CX, CY); k.scale(sc, sc);
+  txt(k, SLAM_S[n], 0, 0, `900 ${go ? 100 : 128}px ${DISP}`, go ? C.coral : '#fff', 'center', 'middle');
+  k.restore();
+  k.restore();
+};

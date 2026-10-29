@@ -1,0 +1,48 @@
+// Motion Prompt #2-093 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 划掉改写 / Strike and rewrite
+// 分类包: motion2 (动态图形进阶) · element 54 · 子分类: 文字与图形
+// 动画表现: 白色「便宜」被一道斜的珊瑚色粗线从左划掉并变淡，弯箭头指向下方，黄色楷体「实惠」随笔尖圆点逐字写出。
+// 运动规格:
+//   - 0–0.3 秒旧词淡入，0.4–0.85 秒一道 −4° 的 7 px 粗线从左到右划过
+//   - 0.85–1.1 秒旧词变淡到 0.4，0.9–1.15 秒画出弯箭头
+//   - 新词为黄色楷体，1.15 秒起间隔 0.45 秒、每字 0.4 秒由左往右写出，笔尖圆点跟随
+//   - 4.0–4.5 秒整体淡出
+// 适用场景: 适合用更好的说法强调卖点、前后对比或改正的画面。
+// 标签: strikethrough, rewrite, correction, handwriting, copywriting, emphasis
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-093
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 54
+// 改写自 KittenJam Motion Library #297（Hannah）· 划掉改写：旧词「便宜」0.4–0.85 秒被一道 −4° 的 7px 珊瑚色粗线从左到右划掉并变淡到 0.4，0.9–1.15 秒弯箭头指向下方，新词「实惠」以楷体黄色逐字（间隔 0.45 秒、各 0.4 秒）由左往右写出，笔尖圆点跟随；4.0–4.5 秒淡出，0–0.3 秒旧词淡入。
+CELLS[53] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const OLD = '便宜', NEW = '实惠', FO = `800 60px ${JP}`, FN = `700 62px "Kaiti SC", "STKaiti", KaiTi, ${JP}`, OX = w / 2, OY = 66, NY = 152;
+  const fade = Math.min(P(u, 0, 0.3), 1 - P(u, 4.0, 4.5)); if (fade <= 0) return;   // 开头 0.3 秒淡入旧词，与周期末的空白衔接
+  k.save();
+  k.globalAlpha = fade * (1 - 0.6 * P(u, 0.85, 1.1)); txt(k, OLD, OX, OY, FO, '#fff', 'center', 'middle');
+  const sw = tw(k, OLD, FO) + 28, st = eIOs(P(u, 0.4, 0.85));
+  k.globalAlpha = fade; k.lineCap = 'round'; k.lineJoin = 'round';
+  if (st > 0) { k.save(); k.translate(OX - sw / 2, OY + 6); k.rotate(-4 * Math.PI / 180); k.strokeStyle = C.coral; k.lineWidth = 7; k.beginPath(); k.moveTo(0, 0); k.lineTo(sw * st, 0); k.stroke(); k.restore(); }
+  const ar = eOut(P(u, 0.9, 1.15));
+  if (ar > 0) {
+    k.strokeStyle = C.dim; k.lineWidth = 2.5; k.setLineDash([140 * ar, 400]);
+    k.beginPath(); k.moveTo(OX - 86, OY + 8); k.bezierCurveTo(OX - 124, OY + 40, OX - 120, NY - 10, OX - 92, NY - 4); k.stroke(); k.setLineDash([]);
+    if (ar >= 1) { k.beginPath(); k.moveTo(OX - 102, NY - 14); k.lineTo(OX - 92, NY - 4); k.lineTo(OX - 105, NY + 1); k.stroke(); }
+  }
+  chars(k, NEW, FN, 12).forEach((c, i) => {
+    const s0 = 1.15 + i * 0.45, q = P(u, s0, s0 + 0.4); if (q <= 0) return;
+    const e = eIOs(q);
+    k.save(); k.translate(OX + c.x, NY); k.rotate(-3 * Math.PI / 180);
+    k.beginPath(); k.rect(-c.w / 2 - 4, -50, (c.w + 8) * e, 100); k.clip();
+    txt(k, c.ch, 0, 0, FN, C.yel, 'center', 'middle');
+    k.restore();
+    if (q < 1) { k.fillStyle = '#fff'; k.beginPath(); k.arc(OX + c.x - c.w / 2 + c.w * e, NY + 14 * Math.sin(q * Math.PI * 5), 3.5, 0, 7); k.fill(); }
+  });
+  k.restore();
+};

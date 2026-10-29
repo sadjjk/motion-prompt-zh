@@ -1,0 +1,15 @@
+Please use "Speed dial" (スピードダイヤル), one of the names in "UI component names".
+Motion Prompt #1-148
+
+What it is: A floating + button that fans out small action buttons
+What the sample shows: The cursor clicks the blue + at lower right; it turns 135° into × as the page dims, 3 labelled mini buttons pop out above it from the bottom up, and a second click tucks them away in reverse.
+Spec:
+- A blue + button of radius 22 at lower right; the cursor clicks it at 0.9 s and it turns 135° into × in 0.3 s (easeOut power 3) while a 0.35 dim layer covers the page.
+- 3 mini buttons of radius 16, 44 apart, pop out above it from the bottom up, 0.06 s apart, each in 0.3 s with back.out(1.4) from 0.3 scale and 12px lower, with text labels on the left.
+- Over 1.9–2.6 s the cursor rests on "Photo" and its fill turns light blue.
+- A second click at 3.2 s tucks them away from the top down, 0.05 s apart, 0.2 s each, and the button turns back into +.
+When to use it: Use it in mobile apps that group frequent create actions such as notes, photos or sharing.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-148.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,42 @@
+// Motion Prompt #2-098 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 音频波形 / Audio waveform
+// 分类包: motion2 (动态图形进阶) · element 59 · 子分类: 运动技法
+// 动画表现: 播放器面板上 44 根圆角细条以中线为基准参差伸缩，已播放部分为珊瑚色，左侧播放钮外圈有扩散波纹。
+// 运动规格:
+//   - 44 根细条（宽 3.6 px）以中线上下对称伸缩，最高 72 px
+//   - 每根每 4.7 秒走 12–18 段（每段约 0.26–0.39 秒）
+//   - 每段以 sine 缓入缓出变到 0.12–1 倍之间的固定随机高度
+//   - 左边 17 根为珊瑚色（已播放），播放钮波纹每 1.175 秒一次
+// 适用场景: 适合播客、音乐、语音消息等音频内容的介绍。
+// 标签: audio, waveform, equalizer, music, player, podcast
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-098
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 59
+// 改写自 KittenJam Motion Library #193（Hannah）· 音频波形：播放器面板上 44 根圆角细条以中线为基准上下伸缩，每根每 4.7 秒走 12–18 段（各 0.26–0.39 秒），每段在 0.12–1 倍高度（最高 72px）之间按 ease-in-out 换一个固定的随机值；左侧播放钮外圈每 1.175 秒扩散一次，已播放部分为珊瑚色。
+const WAVE_N = 44;
+const WAVE_M = Array.from({ length: WAVE_N }, (_, i) => 12 + Math.floor(H01(i * 7 + 1) * 7));
+CELLS[58] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const CY = 104, BX = 84, X0 = 138, X1 = 416;
+  k.fillStyle = C.navy2; rr(k, 24, 44, w - 48, 120, 22); k.fill();
+  const pq = mod(u / (CYC / 4), 1);
+  k.strokeStyle = `rgba(255,107,92,${0.5 * (1 - pq)})`; k.lineWidth = 2; k.beginPath(); k.arc(BX, CY, 30 + 12 * eOut(pq), 0, 7); k.stroke();
+  k.fillStyle = C.coral; k.beginPath(); k.arc(BX, CY, 30, 0, 7); k.fill();
+  k.fillStyle = '#fff'; rr(k, BX - 9, CY - 11, 6, 22, 2); k.fill(); rr(k, BX + 3, CY - 11, 6, 22, 2); k.fill();
+  const step = (X1 - X0) / WAVE_N;
+  for (let i = 0; i < WAVE_N; i++) {
+    const M = WAVE_M[i], f = u / CYC * M, j = Math.floor(f), q = f - j;
+    const a = 0.12 + 0.88 * H01(i * 131 + mod(j, M)), b = 0.12 + 0.88 * H01(i * 131 + mod(j + 1, M));
+    const hh = 72 * lerp(a, b, eIOs(q));
+    k.fillStyle = i < 17 ? C.coral : '#8FA0D6'; rr(k, X0 + i * step, CY - hh / 2, 3.6, hh, 1.8); k.fill();
+  }
+  txt(k, '1:24', 440, 100, `700 20px ui-monospace, Menlo, monospace`, '#fff');
+  txt(k, '/ 3:45', 442, 122, `600 12px ui-monospace, Menlo, monospace`, C.dim);
+};

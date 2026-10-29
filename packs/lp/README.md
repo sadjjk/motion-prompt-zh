@@ -2,7 +2,7 @@
 
 # Landing page & web effects
 
-35 names · #1 025~048 · 103~107 · 122~127 · pack `lp` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+48 names · #1 025~048 · 103~107 · 122~127 · 151~163 · pack `lp` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -37,6 +37,17 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-123](https://sadjjk.github.io/motion-prompt-zh/#1-123) | **Jelly button** | Wobbles wide and tall like jelly when pressed | Make the add-to-cart button a jelly button: squash wide, stretch tall and settle within 0.6 s of the click. |
 | [#1-124](https://sadjjk.github.io/motion-prompt-zh/#1-124) | **Card deal** | Cards are dealt one by one into a fan | When Deal is pressed, deal 5 cards up from the bottom one after another into a ±24° fan with a small overshoot. |
 | [#1-125](https://sadjjk.github.io/motion-prompt-zh/#1-125) | **Photo stack shuffle** | Pulls the top photo off a pile and tucks it underneath | Show the memories as a photo stack shuffle: each click pulls the top photo out to the right and slips it under the pile. |
+| [#1-151](https://sadjjk.github.io/motion-prompt-zh/#1-151) | **Icon micro-animations** | Hovered icons each make a small move that fits their meaning | Add icon micro-animations to the toolbar: on hover the bell swings, the heart pops, the gear turns 90° and the envelope opens. |
+| [#1-152](https://sadjjk.github.io/motion-prompt-zh/#1-152) | **Focus dim siblings** | Lifts the hovered card while the other cards fade and shrink | Make the pricing cards focus and dim their siblings: the hovered card lifts 8px and the others fade and shrink over 0.45 s. |
+| [#1-153](https://sadjjk.github.io/motion-prompt-zh/#1-153) | **Bento grid expand** | The hovered tile grows and the rest of the grid makes room | Lay out the features as a bento grid expand: the hovered tile's column grows to 2.4fr and its row to 1.8fr over 0.55 s. |
+| [#1-154](https://sadjjk.github.io/motion-prompt-zh/#1-154) | **Rolling text button** | On hover the label rolls up letter by letter and swaps | Make the 'View work' button a rolling text button: letters roll up 0.035 s apart and the colours invert. |
+| [#1-155](https://sadjjk.github.io/motion-prompt-zh/#1-155) | **Dock magnification** | Icons near the cursor grow by distance and push neighbours aside | Give the app switcher a dock magnification: the nearest icon grows to about 1.9× and icons within 110px scale with distance. |
+| [#1-156](https://sadjjk.github.io/motion-prompt-zh/#1-156) | **Border draw button** | On hover the four edges draw in turn to frame the button | Make the 'Contact us' button a border draw button: the outline draws from the top-left corner, top, right, bottom, left, 0.18 s per edge. |
+| [#1-157](https://sadjjk.github.io/motion-prompt-zh/#1-157) | **Icon slide button** | The right arrow slides out as a new one slides in from the left | Make the 'Learn more' button an icon slide button: over 0.4 s the right arrow slides out, a new arrow enters from the left and the label shifts right. |
+| [#1-158](https://sadjjk.github.io/motion-prompt-zh/#1-158) | **Expanding button** | A round plus button widens on hover to reveal its label | Make the new-item button an expanding button: on hover it widens over 0.5 s, the plus turns 90° and the label fades in after the halfway point. |
+| [#1-159](https://sadjjk.github.io/motion-prompt-zh/#1-159) | **Direction-aware fill button** | Colour spreads from where the cursor enters and drains toward the exit | Make the 'Contact now' button a direction-aware fill button: colour spreads in a circle from the entry point over 0.55 s and shrinks back toward the exit point. |
+| [#1-160](https://sadjjk.github.io/motion-prompt-zh/#1-160) | **Expanding panels** | The hovered panel in a row of narrow images widens and shows its title | Use expanding panels for the category entrances: the hovered panel widens to 4 times the others over 0.6 s and its title fades in afterwards. |
+| [#1-161](https://sadjjk.github.io/motion-prompt-zh/#1-161) | **Saturate on hover** | A muted image regains full colour and zooms slightly on hover | Make the team photos saturate on hover: 90% desaturated and dimmed at rest, back to full colour and 1.05× over 0.6 s on hover. |
 
 ## Loading, navigation & ambient loops
 
@@ -55,6 +66,8 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-107](https://sadjjk.github.io/motion-prompt-zh/#1-107) | **Layout animation** | When the layout changes, the remaining items glide to their new places | After a card is deleted, close the gap with a layout animation: the other cards move to their new spots over 0.5 s ease-in-out. |
 | [#1-126](https://sadjjk.github.io/motion-prompt-zh/#1-126) | **Slice transition** | Cuts the image into strips that slide away alternately up and down | Use a slice transition for the slider: 6 strips slide out alternately up and down, 0.08 s apart. |
 | [#1-127](https://sadjjk.github.io/motion-prompt-zh/#1-127) | **Animated weather icons** | Sun, cloud, rain and storm icons each move in a small loop | Animate the forecast icons: the sun's rays turn, the cloud drifts, raindrops fall in turn and the lightning flashes. |
+| [#1-162](https://sadjjk.github.io/motion-prompt-zh/#1-162) | **Analog clock** | A clock whose second hand ticks with a small overshoot | Put an analog clock next to the opening hours, with a second hand that overshoots slightly and settles in 0.15 s on each tick. |
+| [#1-163](https://sadjjk.github.io/motion-prompt-zh/#1-163) | **Marching ants selection** | A dashed selection box whose line keeps crawling, with corner handles | Show the editor selection as marching ants: dashes of 6 with gaps of 5 that keep flowing, and a width × height label that updates as the box resizes. |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#1-025](../../api/v1/en/e/1-025.txt)).
 

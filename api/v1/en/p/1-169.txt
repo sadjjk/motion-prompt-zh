@@ -1,0 +1,16 @@
+Please use "Badge unlock" (バッジ解除), one of the names in "Interaction & data motion".
+Motion Prompt #1-169
+
+What it is: A hexagon badge draws in, a star stamps down and rays burst out
+What the sample shows: A hexagon outline draws in one stroke and fills with gold; a large rotated star shrinks and stamps into the centre. Short rays shoot outward as the badge gives a small bounce, and the achievement name and 'Unlocked' rise in below.
+Spec:
+- The hexagon outline draws in one stroke from 0.3–1.1 s (inOut3), then fills from 1.1–1.4 s.
+- The star goes from 3× and -60° to 1× and 0° from 1.4–1.9 s (backOut).
+- From 1.8–2.35 s, 12 rays shoot from a 58 px to an 80 px radius and vanish while the badge bounces to 1.08×.
+- The achievement name rises 8 px at 2.1 s and 'Unlocked' at 2.25 s (0.4 s out3).
+- Everything fades out from 5.4–6.0 s to reset.
+When to use it: Use it for gamification, learning apps and streak rewards.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-169.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,15 @@
+Please use "Swing letters" (振り子の揺れ), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-088
+
+What it is: Letters hang from a point and swing like pendulums
+What the sample shows: Four characters hang on threads from a rail and swing lazily about yellow pivots above them, each slightly out of phase with its neighbour.
+Spec:
+- Each character hangs from a pivot above and swings ±14°.
+- It makes 3 swings in 4.7 s (about 1.57 s each) on a cosine curve.
+- Neighbouring characters are offset by 0.27 s.
+- Every second character is coral, the rest white.
+When to use it: Use it for relaxed logos, character intros or idle screens.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-088.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

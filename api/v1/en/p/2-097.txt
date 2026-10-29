@@ -1,0 +1,15 @@
+Please use "Logo build reveal" (ロゴビルド), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-097
+
+What it is: A logo draws itself part by part, then the name slides in
+What the sample shows: A white ring draws itself, then a coral square turned 45° is outlined and filled, a white centre dot pops in, and 星火工作室 with an English subtitle slides in from the left.
+Spec:
+- Over 0.3–1.2 s the outer ring (radius 52 px) draws with a sine ease-in-out.
+- Over 1.1–1.7 s a square turned 45° (30 px from centre to corner) draws, and over 1.6–1.9 s it fills coral.
+- Over 1.85–2.25 s the centre dot (radius 9 px) pops with backOut(3).
+- Over 2.2–2.7 s the name slides in from 12 px left, the subtitle 0.15 s later; over 4.0–4.5 s everything fades out.
+When to use it: Use it as a video opener, a site intro or the end card of a brand piece.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-097.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

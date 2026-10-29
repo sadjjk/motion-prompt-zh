@@ -1,0 +1,15 @@
+Please use "Wavy lines" (うねる線), one of the names in "Styled scenes".
+Motion Prompt #4-042
+
+What it is: Thin lines ripple like cloth and lift under the cursor
+What the sample shows: On a dark ground 26 thin horizontal lines undulate like contour lines, with a brighter thicker line every few; as a simulated cursor passes left to right, the nearby lines lift softly and settle back.
+Spec:
+- 26 lines of 80 points each: y = base + 7·sin(0.018x + phase + 0.35j) + 4·sin(0.043x − 2 × phase + 0.35j).
+- The phase turns once per 6.4 s; the second wave runs the other way 2 times.
+- 1 line in every 5 is a brighter 2 px line; the rest are 1 px.
+- A simulated cursor travels from −200 px off the left to 740 px off the right over 0.8–5.4 s, weaving 46 px up and down, lifting nearby lines by up to 26 px with a Gaussian (σx 56 px, σy 40 px).
+When to use it: Use it for hero backgrounds, music or tech sites, or to show a hover-reactive background.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-042.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

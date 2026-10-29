@@ -1,0 +1,15 @@
+Please use "Collapsible sidebar" (折りたたみサイドバー), one of the names in "UI component names".
+Motion Prompt #1-150
+
+What it is: A sidebar that folds down to a strip of icons
+What the sample shows: The cursor clicks the button at the foot of the sidebar; it narrows to its icons as the labels fade, the stat cards and chart on the right widen, and a second click later restores it.
+Spec:
+- An admin layout with a 150-wide sidebar on the left (4 nav items; the current one, "Reports", on a light blue fill).
+- The cursor clicks the collapse button at the bottom at 0.9 s; over 0.95–1.4 s (easeInOut power 3) the sidebar narrows to 52, icons only, and the labels fade out in 0.2 s while shifting 8px left.
+- The 3 stat cards and the line chart on the right widen in step with the sidebar.
+- A second click at 2.9 s widens it back to 150 over 2.95–3.4 s, with labels fading in over 3.2–3.4 s; the button arrow flips 180° with the state.
+When to use it: Use it in admin panels, dashboards or docs with a left nav where the content sometimes needs more room.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-150.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

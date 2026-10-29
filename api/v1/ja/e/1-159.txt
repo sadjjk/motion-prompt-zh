@@ -1,0 +1,40 @@
+// Motion Prompt #1-159 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 方向認識フィルボタン / Direction-aware fill button
+// パック: lp (LP・Webサイトの演出) · element 44 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: 暗いページの枠線ボタンに左下からカーソルが入ると、その点から朱色の円が広がってボタンを満たし、上へ抜けると今度は抜けた点へ縮んで消える。
+// 動きの仕様:
+//   - 暗いページの上に、朱色の枠線の200×52のカプセル型ボタン
+//   - カーソルは左下から入る。入った点を中心に朱色の円が0.55秒の easeInOut 3乗で0から一番遠い角まで届く半径に広がり、文字は朱色から白になる
+//   - 3.0秒の後カーソルが上へ抜けると、円は抜けた点を中心にし直して0.55秒で縮んで消え、色が出口の方へ引く
+// 使いどころ: 問い合わせ・申し込みなどの CTA で、カーソルの動きに反応している感覚を出したい所に。
+// タグ: button, direction-aware, fill, hover, circle, cta
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-159
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 44
+// 改写自 KittenJam Motion Library #103 光标扩散填满按钮：深色页面上 200×52 朱色描边胶囊按钮。光标从左下方进入按钮，
+// 朱色圆以「进入点」为圆心、0.55 秒 easeInOut 3 次方从 0 放大到能盖住最远角的半径，文字由朱色变白；
+// 3.0 秒后光标往上方离开，圆改以「离开点」为圆心 0.55 秒缩小消失，颜色往出口方向收回。
+const DFILL_W = 200, DFILL_H = 52;
+CELLS[43] = (k, w, h, u) => {
+  frame(k, 'example.com/contact');
+  const bx = (VW - DFILL_W) / 2, by = (VH - DFILL_H) / 2;
+  const cur = t => path([[0, 40, 150], [0.9, 250, 86], [3.0, 262, 84], [3.5, 320, 16], [4.2, 40, 16], [4.8, 40, 150]], t);
+  const on = t => { const [a, b] = cur(t); return a > bx && a < bx + DFILL_W && b > by && b < by + DFILL_H; };
+  // 圆心 = 最后一次进入或离开按钮那一刻的光标位置
+  const q = trans(on, u, 0.55, eIO), ft = flipAt(on, u);
+  const [ox, oy] = ft === null ? [bx, by] : cur(ft);
+  const R = Math.max(...[[bx, by], [bx + DFILL_W, by], [bx, by + DFILL_H], [bx + DFILL_W, by + DFILL_H]].map(([a, b]) => Math.hypot(a - ox, b - oy)));
+  view(k, () => {
+    k.fillStyle = '#151A26'; k.fillRect(0, 0, VW, VH);
+    if (q > 0) { k.save(); rr(k, bx, by, DFILL_W, DFILL_H, DFILL_H / 2); k.clip(); k.fillStyle = C.acc; k.beginPath(); k.arc(ox, oy, R * q, 0, 7); k.fill(); k.restore(); }
+    k.strokeStyle = C.acc; k.lineWidth = 2; rr(k, bx, by, DFILL_W, DFILL_H, DFILL_H / 2); k.stroke();
+    txt(k, '立即联系', VW / 2, VH / 2 + 1, `700 16px ${JP}`, mixHex(C.acc, '#FFFFFF', q), 'center', 'middle', '2px');
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
+  });
+};

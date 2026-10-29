@@ -1,0 +1,48 @@
+// Motion Prompt #4-040 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Matrix rain / マトリックス・レイン
+// Pack: scenes (Styled scenes) · element 40 · Category: Tech moods
+// What happens: On black, columns of katakana, digits and letters keep falling; the head of each column glows white and the trail darkens to green behind it, the glyphs changing as they go.
+// Motion spec:
+//   - 39 columns at a 14 px glyph size; each column's start, speed (1–3 passes per 6.4 s) and trail length (10–18 glyphs) are fixed by index.
+//   - The head glyph is white with a 14 px glow; the trail darkens to green further back (opacity falling from 0.9).
+//   - The first 3 glyphs change every 0.1 s (64 times per 6.4 s); the rest every 0.4 s.
+//   - A dark gradient covers the top and bottom 18%.
+// When to use it: Use it behind hacker, cybersecurity or data themes, or for a sci-fi opening.
+// Tags: matrix, code-rain, hacker, glyphs, cyber, background
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-040
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 40
+// 改写自 KittenJam Motion Library #175 数字雨（Hannah 整理）：卡片按 14px 字级分成 39 列，每列一串字符匀速下落，最前端的字白亮带光，后面 10–18 格逐渐变暗成绿色拖尾；
+// 每列的起点、速度（每周期落 1–3 个跨度）与拖尾长度按下标确定；前 3 格每 0.1 秒换字（一周期 64 次）、更后面每 0.4 秒换字，循环无缝。原作逐帧半透明覆盖、随机重置。
+const MRN_FS = 14, MRN_COLS = Math.ceil(CW / MRN_FS), MRN_ROWS = Math.ceil(CH / MRN_FS), MRN_SPAN = MRN_ROWS + 24;
+const MRN_GL = [...'0123456789アイウエオカキクケコサシスセソタチツテトナニヌネハヒフヘホマミムメモヤユヨラリルレロワABCDEFZ'];
+CELLS[39] = (k, w, h, u) => {
+  k.fillStyle = '#020a06'; k.fillRect(0, 0, CW, CH);
+  const step = Math.floor(u * 10 + 1e-6) % 64;
+  k.font = `600 ${MRN_FS}px ${MONO}`; k.textAlign = 'center'; k.textBaseline = 'top';
+  for (let c = 0; c < MRN_COLS; c++) {
+    const n = 1 + Math.floor(kjHash(c, 51) * 3), len = 10 + Math.floor(kjHash(c, 52) * 9);
+    const head = (kjHash(c, 53) * MRN_SPAN + n * MRN_SPAN * u / CYC) % MRN_SPAN - 4;   // 以格为单位，-4 起让字从卡片上方进入
+    const hr = Math.floor(head), x = c * MRN_FS + MRN_FS / 2;
+    for (let j = 0; j <= len; j++) {
+      const r = hr - j; if (r < 0 || r >= MRN_ROWS) continue;
+      // 字符按 (列, 行, 换字步) 取固定值；拖尾后段换得慢
+      const gs = j < 3 ? step : Math.floor(step / 4);
+      const g = MRN_GL[Math.floor(kjHash(c * 97 + r, 54 + gs) * MRN_GL.length) % MRN_GL.length];
+      const y = r * MRN_FS;
+      if (j === 0) { glow(k, x, y + MRN_FS / 2, 14, '120,255,170', 0.35); k.fillStyle = '#eafff0'; }
+      else k.fillStyle = `rgba(60,230,120,${(1 - j / (len + 1)) * 0.9})`;
+      k.fillText(g, x, y);
+    }
+  }
+  // 上下暗边：字从暗处出现、在暗处消失
+  const gr = k.createLinearGradient(0, 0, 0, CH);
+  gr.addColorStop(0, 'rgba(2,10,6,.7)'); gr.addColorStop(0.18, 'rgba(2,10,6,0)'); gr.addColorStop(0.82, 'rgba(2,10,6,0)'); gr.addColorStop(1, 'rgba(2,10,6,.7)');
+  k.fillStyle = gr; k.fillRect(0, 0, CW, CH);
+};

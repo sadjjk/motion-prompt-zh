@@ -1,0 +1,15 @@
+Please use "Laser cut" (レーザーカット), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-086
+
+What it is: A laser line slices the text into two offset halves
+What the sample shows: A sparking laser runs left to right along the middle of the word; once it passes, the top half slides up-left and the bottom half down-right with a slight tilt, then they rejoin.
+Spec:
+- Over 0.3–1.2 s a laser (2.5 px white core with 16/8 px coral glow) runs along the middle from left to right, with 8 sparks at its tip.
+- Over 1.2–1.55 s the top half moves to (−16, −12 px) at −3° and the bottom half to (16, 12 px) at 2°, with a cubic ease-out.
+- A red hot edge shows along the cut and fades by 2.6 s.
+- Over 3.7–4.3 s the halves return with a cubic ease-in-out.
+When to use it: Use it for sci-fi or action titles, or as a cut between scenes.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-086.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

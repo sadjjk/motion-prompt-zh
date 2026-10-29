@@ -1,0 +1,15 @@
+Please use "Expanding panels" (エキスパンディングパネル), one of the names in "Landing page & web effects".
+Motion Prompt #1-160
+
+What it is: The hovered panel in a row of narrow images widens and shows its title
+What the sample shows: Among 5 tall image panels, the 2nd and then the 4th widen as the cursor rests on them while the others narrow, and a title appears at the lower left of the wide panel.
+Spec:
+- 5 equal vertical panels (471 wide in total, 136 tall, 6px gaps), each flex 1, showing geometric pictures cropped around their centres.
+- The hovered panel widens to flex 4 over 0.6 s (easeOut power 3) while the others narrow.
+- Its title fades in at the lower left once the expansion passes 0.6.
+- Timeline: panel 2 from 0.35 to 1.75 s, panel 4 takes over from 1.75 to 3.6 s, then all panels return to equal width.
+When to use it: Use it for portfolio categories, travel destinations or gallery entrances chosen by picture.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-160.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

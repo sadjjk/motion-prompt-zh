@@ -1,0 +1,42 @@
+// Motion Prompt #2-098 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// オーディオ波形 / Audio waveform
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 59 · カテゴリ: 動きのテクニック
+// 何が起きるか: プレーヤーのパネルで、44本の丸い細い棒が中心線から上下にばらばらに伸び縮みし、再生済み部分はコーラル、左の再生ボタンの外側に波紋が広がる。
+// 動きの仕様:
+//   - 44本の棒（幅3.6px）を中心線から上下対称に、最大72px
+//   - 各棒は4.7秒に12〜18区間（1区間約0.26〜0.39秒）
+//   - 区間ごとに0.12〜1倍の固定の乱数高さへ sine の easeInOut で移る
+//   - 左17本はコーラル（再生済み）、再生ボタンの波紋は1.175秒ごと
+// 使いどころ: ポッドキャスト、音楽、ボイスメモなど音声コンテンツの紹介に。
+// タグ: audio, waveform, equalizer, music, player, podcast
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-098
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 59
+// 改写自 KittenJam Motion Library #193（Hannah）· 音频波形：播放器面板上 44 根圆角细条以中线为基准上下伸缩，每根每 4.7 秒走 12–18 段（各 0.26–0.39 秒），每段在 0.12–1 倍高度（最高 72px）之间按 ease-in-out 换一个固定的随机值；左侧播放钮外圈每 1.175 秒扩散一次，已播放部分为珊瑚色。
+const WAVE_N = 44;
+const WAVE_M = Array.from({ length: WAVE_N }, (_, i) => 12 + Math.floor(H01(i * 7 + 1) * 7));
+CELLS[58] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const CY = 104, BX = 84, X0 = 138, X1 = 416;
+  k.fillStyle = C.navy2; rr(k, 24, 44, w - 48, 120, 22); k.fill();
+  const pq = mod(u / (CYC / 4), 1);
+  k.strokeStyle = `rgba(255,107,92,${0.5 * (1 - pq)})`; k.lineWidth = 2; k.beginPath(); k.arc(BX, CY, 30 + 12 * eOut(pq), 0, 7); k.stroke();
+  k.fillStyle = C.coral; k.beginPath(); k.arc(BX, CY, 30, 0, 7); k.fill();
+  k.fillStyle = '#fff'; rr(k, BX - 9, CY - 11, 6, 22, 2); k.fill(); rr(k, BX + 3, CY - 11, 6, 22, 2); k.fill();
+  const step = (X1 - X0) / WAVE_N;
+  for (let i = 0; i < WAVE_N; i++) {
+    const M = WAVE_M[i], f = u / CYC * M, j = Math.floor(f), q = f - j;
+    const a = 0.12 + 0.88 * H01(i * 131 + mod(j, M)), b = 0.12 + 0.88 * H01(i * 131 + mod(j + 1, M));
+    const hh = 72 * lerp(a, b, eIOs(q));
+    k.fillStyle = i < 17 ? C.coral : '#8FA0D6'; rr(k, X0 + i * step, CY - hh / 2, 3.6, hh, 1.8); k.fill();
+  }
+  txt(k, '1:24', 440, 100, `700 20px ui-monospace, Menlo, monospace`, '#fff');
+  txt(k, '/ 3:45', 442, 122, `600 12px ui-monospace, Menlo, monospace`, C.dim);
+};

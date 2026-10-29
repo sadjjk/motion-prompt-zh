@@ -1,0 +1,15 @@
+Please use "Bento grid expand" (ベントーグリッド展開), one of the names in "Landing page & web effects".
+Motion Prompt #1-153
+
+What it is: The hovered tile grows and the rest of the grid makes room
+What the sample shows: In a 3×2 bento grid, the cursor rests on the top-left and then the bottom-right tile; each time that tile grows with a larger title while the others shrink to make room.
+Spec:
+- A 3×2 bento grid (471×144, 8px gaps) where every column and row starts at 1fr.
+- When the cursor rests on a tile, its column grows to 2.4fr and its row to 1.8fr over 0.55 s (easeInOut power 3) while the other columns and rows shrink.
+- The focused tile's title grows from 13px to 18px.
+- Timeline: top-left tile 0.45–2.0 s, bottom-right tile 2.0–3.6 s, then the cursor leaves and the grid evens out again.
+When to use it: Use it for feature overviews, dashboards or portfolios where grid tiles should take turns in the spotlight.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-153.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

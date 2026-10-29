@@ -1,0 +1,50 @@
+// Motion Prompt #1-144 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// エラー時のシェイク / Shake on error
+// パック: ui (UIパーツの名前) · element 46 · カテゴリ: 選ぶ・切り替えるパーツ
+// 何が起きるか: パスワード欄に点が6つ入って「ログイン」が押されると、欄が左右に震えて枠が赤くなり、下に赤いエラー文が降りてくる。
+// 動きの仕様:
+//   - 300×44のパスワード欄。0.3秒から0.12秒ごとに点を入力（計6つ）し、1.2秒に「ログイン」を押す
+//   - 1.35〜1.8秒に欄が左右に震える。変位は 10·sin(8πp)·sin(πp) で、小→大→小。枠は0.15秒で赤くなる
+//   - エラー文は1.45〜1.75秒に上から4px下りながらフェードイン
+//   - 3.6〜3.9秒に点・赤い枠・エラー文がまとめて消えて初期状態に戻る
+// 使いどころ: ログイン・認証コード・必須項目など、入力の誤りをすぐ伝えたいフォームに。
+// タグ: shake, error, validation, password, login, form
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-144
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 46
+// 改写自 KittenJam Motion Library #151 错误震动提示：300×44 密码框，0.3 秒起每 0.12 秒输入一个圆点（共 6 个），1.2 秒按下「登录」。
+// 1.35–1.8 秒密码框左右震动：位移 10·sin(8πp)·sin(πp)，幅度由小到大再变小；边框 0.15 秒变红；
+// 错误提示「密码错误，请再试一次」1.45–1.75 秒从上方 4px 滑下淡入；复位：3.6–3.9 秒圆点、红框与提示一起淡出。
+CELLS[45] = ui((w, h, t) => {
+  const fx = 121, fy = 34, fw = 300, fh = 44;
+  const ndots = t < .3 ? 0 : Math.min(6, Math.floor((t - .3) / .12) + 1);
+  const clear = 1 - seg(t, 3.6, 3.9);
+  const p = seg(t, 1.35, 1.8);
+  const dx = p > 0 && p < 1 ? 10 * Math.sin(p * Math.PI * 8) * Math.sin(p * Math.PI) : 0;
+  const er = eo(seg(t, 1.35, 1.5)) * (1 - eo(seg(t, 3.6, 3.9)));
+  text('密码', fx, 20, 12, C.hint, 600);
+  X.save(); X.translate(dx, 0);
+  fillRR(fx, fy, fw, fh, 8, '#fff'); strokeRR(fx, fy, fw, fh, 8, C.line2, 1.5);
+  if (er > 0) strokeRR(fx, fy, fw, fh, 8, `rgba(229,72,77,${er})`, 2);
+  X.save(); X.globalAlpha = clear;
+  for (let i = 0; i < ndots; i++) circle(fx + 20 + i * 16, fy + fh / 2, 4.5, C.ink);
+  X.restore();
+  X.restore();
+  const a = eo(seg(t, 1.45, 1.75)) * clear;
+  if (a > 0) {
+    const ey = 96 - 4 * (1 - a);
+    X.save(); X.globalAlpha = a;
+    circle(fx + 7, ey, 7, '#e5484d'); text('!', fx + 7, ey + .5, 10, '#fff', 800, 'center', NUMF);
+    text('密码错误，请再试一次', fx + 20, ey, 12, '#e5484d', 600);
+    X.restore();
+  }
+  const press = t >= 1.2 && t < 1.35;
+  fillRR(fx, 118, fw, 38, 8, press ? '#1748c0' : C.blue);
+  text('登录', fx + fw / 2, 137, 14, '#fff', 700, 'center');
+});

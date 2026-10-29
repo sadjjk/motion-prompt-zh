@@ -1,0 +1,15 @@
+Please use "Shake on error" (エラー時のシェイク), one of the names in "UI component names".
+Motion Prompt #1-144
+
+What it is: A field shakes side to side when the input is wrong
+What the sample shows: Six dots are typed into the password field and "Log in" is pressed; the field shakes, its border turns red and a red error message drops in below.
+Spec:
+- A 300×44 password field; from 0.3 s one dot is typed every 0.12 s (6 in all), and "Log in" is pressed at 1.2 s.
+- Over 1.35–1.8 s the field shakes sideways by 10·sin(8πp)·sin(πp), small to large to small; the border turns red in 0.15 s.
+- The error message fades in over 1.45–1.75 s while sliding down 4px from above.
+- Over 3.6–3.9 s the dots, red border and message fade out together to reset.
+When to use it: Use it in login, verification-code or required-field forms that should flag a mistake at once.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-144.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

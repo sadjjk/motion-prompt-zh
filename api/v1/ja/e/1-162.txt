@@ -1,0 +1,49 @@
+// Motion Prompt #1-162 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// アナログ時計 / Analog clock
+// パック: lp (LP・Webサイトの演出) · element 47 · カテゴリ: 読み込み・移動・動き続ける演出
+// 何が起きるか: 60の目盛りがある白い文字盤で、時針と分針は10時10分のまま、朱色の秒針が太い目盛りごとに跳び、そのたびに少し行き過ぎて戻る。
+// 動きの仕様:
+//   - 直径140pxの文字盤に60の目盛り（5つごとに太く長い）。時針と分針は実際の時刻を読まず、見本の時刻10:10で止まる
+//   - 朱色の秒針が0.4秒ごとに次の太い目盛り（30°）へ跳ぶ
+//   - 各跳びは0.15秒の back-out（行き過ぎ1.7）で、目盛りを少し越えてから戻る
+//   - 1周期に12回跳んでちょうど1周し、ループの継ぎ目がない
+// 使いどころ: 営業時間・タイムゾーン・カウントダウンなど、時間を扱う画面のアクセントに。
+// タグ: clock, analog, second-hand, tick, overshoot, loop
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-162
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 47
+// 改写自 KittenJam Motion Library #323 指针时钟：直径 140 的表盘，60 个刻度（每 5 格较粗较长）；时针、分针停在示意时间 10:10（不读真实时间）。
+// 朱色秒针每 0.4 秒跳到下一个粗刻度（30°），每跳 0.15 秒 back-out（过冲 1.7）略超过再弹回；一周期跳 12 次刚好一圈，首尾无缝。
+const CLK_R = 70, CLK_STEP = 0.4;
+const CLK_BACK = x => { const s = 1.7; return 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2); };
+CELLS[46] = (k, w, h, u) => {
+  frame(k, 'example.com/clock');
+  const n = Math.floor(u / CLK_STEP), f = clamp((u - n * CLK_STEP) / 0.15);
+  const sa = (n + CLK_BACK(f)) * Math.PI / 6;   // 秒针角度（0 = 12 点方向）
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    const ox = VW / 2, oy = VH / 2;
+    k.save(); k.shadowColor = 'rgba(28,35,51,.16)'; k.shadowBlur = 14; k.shadowOffsetY = 4; k.fillStyle = '#fff'; k.beginPath(); k.arc(ox, oy, CLK_R, 0, 7); k.fill(); k.restore();
+    k.strokeStyle = C.ink; k.lineWidth = 3; k.beginPath(); k.arc(ox, oy, CLK_R, 0, 7); k.stroke();
+    for (let i = 0; i < 60; i++) {
+      const a = i * Math.PI / 30, big = i % 5 === 0, r0 = CLK_R - (big ? 13 : 8);
+      k.strokeStyle = big ? C.ink : C.sub; k.lineWidth = big ? 2.4 : 1;
+      k.beginPath(); k.moveTo(ox + Math.sin(a) * r0, oy - Math.cos(a) * r0); k.lineTo(ox + Math.sin(a) * (CLK_R - 5), oy - Math.cos(a) * (CLK_R - 5)); k.stroke();
+    }
+    const hand = (a, len, tail, lw, col) => {
+      k.strokeStyle = col; k.lineWidth = lw; k.lineCap = 'round';
+      k.beginPath(); k.moveTo(ox - Math.sin(a) * tail, oy + Math.cos(a) * tail); k.lineTo(ox + Math.sin(a) * len, oy - Math.cos(a) * len); k.stroke();
+    };
+    hand((10 + 10 / 60) * Math.PI / 6, 36, 6, 5, C.ink);   // 时针 10:10
+    hand(10 * Math.PI / 30, 52, 8, 3.5, C.ink);             // 分针 10 分
+    hand(sa, 58, 14, 1.8, C.acc);
+    k.lineCap = 'butt';
+    k.fillStyle = C.acc; k.beginPath(); k.arc(ox, oy, 4.5, 0, 7); k.fill();
+  });
+};

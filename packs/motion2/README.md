@@ -2,7 +2,7 @@
 
 # Motion graphics moves, part 2
 
-46 names · #2 025~048 · 064~085 · pack `motion2` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+59 names · #2 025~048 · 064~098 · pack `motion2` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -24,6 +24,8 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-083](https://sadjjk.github.io/motion-prompt-zh/#2-083) | **Growing tree** | A tree grows from trunk to branches to leaves | Open the brand story with a growing tree: ground and trunk, then branches, twigs and leaves, then a line of text. |
 | [#2-084](https://sadjjk.github.io/motion-prompt-zh/#2-084) | **Gear train** | Meshed gears turning at their tooth ratios | Show a gear train on the processing screen: one large gear and two small ones meshed, turning the opposite way at their tooth ratios. |
 | [#2-085](https://sadjjk.github.io/motion-prompt-zh/#2-085) | **Fingerprint scan** | A fingerprint is read and access is granted | Add a fingerprint scan to the login screen: ridges draw from the centre out, a light bar sweeps down and up, then it turns green with a check mark. |
+| [#2-097](https://sadjjk.github.io/motion-prompt-zh/#2-097) | **Logo build reveal** | A logo draws itself part by part, then the name slides in | Add a logo build reveal at the start: draw the outer circle, draw and fill a 45° square, pop the centre dot, then slide the name in from the left. |
+| [#2-098](https://sadjjk.github.io/motion-prompt-zh/#2-098) | **Audio waveform** | Bars stretch and shrink like playing audio | Add an audio waveform to the player: thin bars stretch up and down from the centre line at varied heights and speeds, with a play button on the left and the time on the right. |
 
 ## Text & shapes
 
@@ -53,6 +55,17 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-077](https://sadjjk.github.io/motion-prompt-zh/#2-077) | **Text cylinder** | Copies of a letter wrapped round a spinning cylinder | Turn three characters into text cylinders spinning in alternating directions, with the middle one in the accent colour. |
 | [#2-078](https://sadjjk.github.io/motion-prompt-zh/#2-078) | **Slot machine** | Reels spin and stop left to right on the result | Reveal the result with a slot machine: four reels spin, then slow and stop left to right with a slight bounce back. |
 | [#2-079](https://sadjjk.github.io/motion-prompt-zh/#2-079) | **Liquid fill** | Outlined text fills with liquid from the bottom | Do a liquid fill on the headline: outlined text fills from the bottom with wavy liquid over 3 s, then drains. |
+| [#2-086](https://sadjjk.github.io/motion-prompt-zh/#2-086) | **Laser cut** | A laser line slices the text into two offset halves | Give the title a laser cut: a glowing line crosses its middle, the halves slide apart diagonally, hold, then rejoin. |
+| [#2-087](https://sadjjk.github.io/motion-prompt-zh/#2-087) | **Text fan** | Copies of one character open out like a folding fan | Make a text fan: stack 7 copies of one character and open them around a point below like a folding fan, then close. |
+| [#2-088](https://sadjjk.github.io/motion-prompt-zh/#2-088) | **Swing letters** | Letters hang from a point and swing like pendulums | Give the character name swing letters: hang each letter from a point above and swing it ±14°, staggered. |
+| [#2-089](https://sadjjk.github.io/motion-prompt-zh/#2-089) | **Text tunnel** | Layers of a word fly past as if through a tunnel | Open with a text tunnel: layers of the same word grow from the centre one after another and fly off the screen. |
+| [#2-090](https://sadjjk.github.io/motion-prompt-zh/#2-090) | **Extruded text** | Text with real depth turns to show its side | Make the title extruded 3D text and spin it once around the vertical axis in about 5 s so the depth shows. |
+| [#2-091](https://sadjjk.github.io/motion-prompt-zh/#2-091) | **Neon flicker** | Neon tubes flicker before they light up | Add a neon flicker to the sign-style title: it flickers 2 or 3 times irregularly, then lights, and one letter occasionally blinks as if loose. |
+| [#2-092](https://sadjjk.github.io/motion-prompt-zh/#2-092) | **Tracking expand** | Overlapping letters spread to normal spacing as they appear | Bring the heading in with a tracking expand: from overlapping and blurred, the letter spacing opens up and sharpens in about 1 s. |
+| [#2-093](https://sadjjk.github.io/motion-prompt-zh/#2-093) | **Strike and rewrite** | A word is struck out and a better one handwritten | Do a strike and rewrite on the copy: cross out 便宜 with one stroke and handwrite 实惠 below it one character at a time. |
+| [#2-094](https://sadjjk.github.io/motion-prompt-zh/#2-094) | **Echo stack** | Outlined copies step out behind the text like an echo | Add an echo stack to the heading: fan 5 outlined copies out to the upper right in turn, hold, then fold them back. |
+| [#2-095](https://sadjjk.github.io/motion-prompt-zh/#2-095) | **Multilingual greeting** | Greetings in different languages take turns | Put a multilingual greeting in the hero: the word swaps with a blur every second or so, and the frame width eases to fit the new word. |
+| [#2-096](https://sadjjk.github.io/motion-prompt-zh/#2-096) | **Countdown slam** | Countdown numbers slam down from huge | Open with a countdown slam: 3, 2, 1, GO!, 0.75 s each, slamming down from 3× with a small rebound. |
 
 ## Transitions & highlights
 

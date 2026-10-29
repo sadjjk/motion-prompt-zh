@@ -1,0 +1,17 @@
+请使用“多语问候切换（Multilingual greeting）”，属于“动态图形进阶”。
+Motion Prompt #2-095
+
+效果解释：不同语言的问候轮流出现
+动画表现：胶囊框里「你好」「Hello」「こんにちは」「Bonjour」向上模糊淡出、从下方模糊淡入，框宽与后面的圆点随词长平滑移动。
+实现规格与关键运动参数：
+- 4 个词每 1.175 秒切换一次（4.7 秒一轮）
+- 旧词在 0.3 秒内上移 18 px、模糊到 6 px 淡出
+- 新词 0.15–0.5 秒从下方 18 px 处出现，模糊 6 px → 0
+- 0–0.5 秒框宽以三次缓入缓出变为新词宽度加左右各 30 px，后面的圆点同步移动
+适用场景：适合国际化品牌、旅行或语言服务的首屏和欢迎页。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-095
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-095.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Hannah 的 MIT 版权标识。

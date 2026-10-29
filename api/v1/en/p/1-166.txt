@@ -1,0 +1,15 @@
+Please use "Blend difference cursor" (反転ブレンドカーソル), one of the names in "Interaction & data motion".
+Motion Prompt #1-166
+
+What it is: A round cursor that grows over text and inverts colours where it overlaps
+What the sample shows: The cursor becomes a white circle that inverts the text and background beneath it. Over the big headline the circle grows to cover more letters, and shrinks again when it leaves.
+Spec:
+- A white circle is drawn with the difference blend mode, inverting what lies underneath.
+- The circle trails the pointer path by 0.08 s.
+- Over the headline the radius goes 12 → 46 px (0.45 s inOut3) and returns when it leaves.
+- The pointer enters at 0.3 s and leaves the frame from 4.1–4.8 s.
+When to use it: Use it on portfolio and agency sites that want a playful custom cursor.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-166.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

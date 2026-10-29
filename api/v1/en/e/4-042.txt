@@ -1,0 +1,46 @@
+// Motion Prompt #4-042 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Wavy lines / うねる線
+// Pack: scenes (Styled scenes) · element 42 · Category: Patterns & graphics
+// What happens: On a dark ground 26 thin horizontal lines undulate like contour lines, with a brighter thicker line every few; as a simulated cursor passes left to right, the nearby lines lift softly and settle back.
+// Motion spec:
+//   - 26 lines of 80 points each: y = base + 7·sin(0.018x + phase + 0.35j) + 4·sin(0.043x − 2 × phase + 0.35j).
+//   - The phase turns once per 6.4 s; the second wave runs the other way 2 times.
+//   - 1 line in every 5 is a brighter 2 px line; the rest are 1 px.
+//   - A simulated cursor travels from −200 px off the left to 740 px off the right over 0.8–5.4 s, weaving 46 px up and down, lifting nearby lines by up to 26 px with a Gaussian (σx 56 px, σy 40 px).
+// When to use it: Use it for hero backgrounds, music or tech sites, or to show a hover-reactive background.
+// Tags: wavy, lines, contour, sine, cursor, interactive
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-042
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 42
+// 改写自 KittenJam Motion Library #230 起伏线条（Hannah 整理）：26 条水平细线，每条取 80 个点，y = 基准 + 7·sin(0.018x + 2πu/6.4 + 0.35j) + 4·sin(0.043x − 4πu/6.4 + 0.35j)，
+// 相邻线相位错开，每 5 条有一条较粗较亮。模拟光标 0.8–5.4 秒从卡片左外侧 −200px 扫到右外侧 740px（上下起伏 46px），附近的线被高斯形（σx 56px、σy 40px）平滑拱起最多 26px，离开后恢复。原作为真实鼠标。
+const WAVY_N = 26, WAVY_P = 80;
+const WAVY_cur = u => { const e = inOut3(seg(u, 0.8, 5.4)); return [mix(-200, 740, e), 104 + 46 * Math.sin(e * TAU * 1.25)]; };
+CELLS[41] = (k, w, h, u) => {
+  k.drawImage(layer('WAVY_bg', g => {
+    const gr = g.createLinearGradient(0, 0, CW, CH); gr.addColorStop(0, '#101828'); gr.addColorStop(1, '#1d1430');
+    g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+  const [mx, my] = WAVY_cur(u);
+  const ph = TAU * u / CYC, gap = (CH - 24) / (WAVY_N - 1);
+  k.lineJoin = 'round';
+  for (let j = 0; j < WAVY_N; j++) {
+    const base = 12 + j * gap, hi = j % 5 === 2;
+    k.beginPath();
+    for (let p = 0; p < WAVY_P; p++) {
+      const x = p / (WAVY_P - 1) * CW;
+      let y = base + 7 * Math.sin(x * 0.018 + ph + j * 0.35) + 4 * Math.sin(x * 0.043 - 2 * ph + j * 0.35);
+      y -= 26 * Math.exp(-((x - mx) * (x - mx)) / (2 * 56 * 56) - ((base - my) * (base - my)) / (2 * 40 * 40));
+      p ? k.lineTo(x, y) : k.moveTo(x, y);
+    }
+    k.strokeStyle = hi ? 'rgba(140,220,255,.85)' : `rgba(170,160,230,${(0.22 + 0.12 * Math.sin(j * 0.7)).toFixed(3)})`;
+    k.lineWidth = hi ? 2 : 1; k.stroke();
+  }
+  kjCursor(k, mx, my);
+};

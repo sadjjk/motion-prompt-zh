@@ -1,9 +1,9 @@
-// Motion Prompt #4 001~039 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+// Motion Prompt #4 001~042 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 // Also: MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/ (#4 033~035)
-// Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#4 036~039)
+// Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#4 036~042)
 //
 // Kit for pack "scenes" (Styled scenes / スタイルシーン): the constants and helpers its elements share.
-// Elements #4 001~039 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #4 001~042 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

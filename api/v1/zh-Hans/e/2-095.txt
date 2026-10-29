@@ -1,0 +1,38 @@
+// Motion Prompt #2-095 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 多语问候切换 / Multilingual greeting
+// 分类包: motion2 (动态图形进阶) · element 56 · 子分类: 文字与图形
+// 动画表现: 胶囊框里「你好」「Hello」「こんにちは」「Bonjour」向上模糊淡出、从下方模糊淡入，框宽与后面的圆点随词长平滑移动。
+// 运动规格:
+//   - 4 个词每 1.175 秒切换一次（4.7 秒一轮）
+//   - 旧词在 0.3 秒内上移 18 px、模糊到 6 px 淡出
+//   - 新词 0.15–0.5 秒从下方 18 px 处出现，模糊 6 px → 0
+//   - 0–0.5 秒框宽以三次缓入缓出变为新词宽度加左右各 30 px，后面的圆点同步移动
+// 适用场景: 适合国际化品牌、旅行或语言服务的首屏和欢迎页。
+// 标签: greeting, multilingual, hello, rotate-words, blur, hero
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-095
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 56
+// 改写自 KittenJam Motion Library #301（Hannah）· 多语问候切换：胶囊框里每 1.175 秒换一种语言的问候（你好 → Hello → こんにちは → Bonjour）：旧词 0.3 秒上移 18px、模糊到 6px 淡出，新词 0.15–0.5 秒从下方模糊淡入；框宽以三次缓入缓出平滑变为新词宽度，后面的圆点跟着移动。
+const GRT_W = ['你好', 'Hello', 'こんにちは', 'Bonjour'];
+CELLS[55] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const F = `800 44px ${JP}`, N = GRT_W.length, T = CYC / N, n = Math.min(N - 1, Math.floor(u / T)), lt = u - n * T;
+  const cur = GRT_W[n], prev = GRT_W[mod(n - 1, N)], PAD = 30, H = 76, CY = 92;
+  const pw = lerp(tw(k, prev, F) + PAD * 2, tw(k, cur, F) + PAD * 2, eIO(P(lt, 0, 0.5)));
+  const x0 = w / 2 - (pw + 30) / 2;
+  rr(k, x0, CY - H / 2, pw, H, H / 2); k.fillStyle = C.navy2; k.fill(); k.strokeStyle = C.navy3; k.lineWidth = 2; k.stroke();
+  k.save(); rr(k, x0, CY - H / 2, pw, H, H / 2); k.clip();
+  const qo = P(lt, 0, 0.3), qi = P(lt, 0.15, 0.5);
+  if (qo < 1) { k.globalAlpha = 1 - qo; k.filter = `blur(${(6 * qo).toFixed(2)}px)`; txt(k, prev, x0 + pw / 2, CY - 18 * eOut(qo), F, '#fff', 'center', 'middle'); }
+  if (qi > 0) { k.globalAlpha = qi; k.filter = `blur(${(6 * (1 - qi)).toFixed(2)}px)`; txt(k, cur, x0 + pw / 2, CY + 18 * (1 - eOut(qi)), F, '#fff', 'center', 'middle'); }
+  k.restore();
+  k.fillStyle = C.coral; k.beginPath(); k.arc(x0 + pw + 18, CY + 16, 7, 0, 7); k.fill();
+  txt(k, '来自世界各地的问候', w / 2, 172, `600 14px ${JP}`, C.dim, 'center', 'alphabetic');
+};

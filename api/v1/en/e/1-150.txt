@@ -1,0 +1,64 @@
+// Motion Prompt #1-150 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Collapsible sidebar / 折りたたみサイドバー
+// Pack: ui (UI component names) · element 52 · Category: Navigation & status
+// What happens: The cursor clicks the button at the foot of the sidebar; it narrows to its icons as the labels fade, the stat cards and chart on the right widen, and a second click later restores it.
+// Motion spec:
+//   - An admin layout with a 150-wide sidebar on the left (4 nav items; the current one, "Reports", on a light blue fill).
+//   - The cursor clicks the collapse button at the bottom at 0.9 s; over 0.95–1.4 s (easeInOut power 3) the sidebar narrows to 52, icons only, and the labels fade out in 0.2 s while shifting 8px left.
+//   - The 3 stat cards and the line chart on the right widen in step with the sidebar.
+//   - A second click at 2.9 s widens it back to 150 over 2.95–3.4 s, with labels fading in over 3.2–3.4 s; the button arrow flips 180° with the state.
+// When to use it: Use it in admin panels, dashboards or docs with a left nav where the content sometimes needs more room.
+// Tags: collapsible-sidebar, sidebar, navigation, dashboard, admin, collapse
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-150
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 52
+// 改写自 KittenJam Motion Library #320 侧栏收合：后台界面左侧 150 宽侧栏（4 个导航项，当前项「报表」浅蓝底）。
+// 光标 0.9 秒点底部收合按钮：侧栏 0.95–1.4 秒 easeInOut 3 次方收到 52 宽只剩图标，文字 0.2 秒淡出并左移 8px，右侧统计卡与折线图同步变宽；
+// 2.9 秒再点按钮，2.95–3.4 秒展开回 150，文字 3.2–3.4 秒淡入；按钮箭头随状态翻转 180°。
+const SIDE_ITEMS = ['首页', '报表', '消息', '设置'];
+CELLS[51] = ui((w, h, t) => {
+  const col = eio(seg(t, .95, 1.4)) * (1 - eio(seg(t, 2.95, 3.4)));
+  const sw = lerp(150, 52, col);
+  const txa = t < 2.95 ? 1 - seg(t, .95, 1.15) : seg(t, 3.2, 3.4);
+  X.fillStyle = C.block; X.fillRect(0, 0, sw, h);
+  X.fillStyle = C.line; X.fillRect(sw - 1, 0, 1, h);
+  X.save(); X.beginPath(); X.rect(0, 0, sw - 1, h); X.clip();
+  fillRR(15, 12, 22, 22, 6, C.blue);
+  X.save(); X.globalAlpha = txa; text('控制台', 46 - 8 * (1 - txa), 23, 13, C.ink, 800); X.restore();
+  SIDE_ITEMS.forEach((s, i) => {
+    const y = 58 + i * 30, on = i === 1;
+    if (on) fillRR(8, y - 12, sw - 16, 24, 6, C.lb);
+    const ic = on ? C.blue : C.hint;
+    if (i === 0) fillRR(19, y - 7, 14, 14, 3, ic);
+    else if (i === 1) { for (let b = 0; b < 3; b++) X.fillStyle = ic, X.fillRect(19 + b * 5, y + 7 - (6 + b * 4), 3.5, 6 + b * 4); }
+    else if (i === 2) { strokeRR(19, y - 6, 14, 12, 2, ic, 1.8); }
+    else ring(26, y, 6, ic, 2.2);
+    X.save(); X.globalAlpha = txa; text(s, 44 - 8 * (1 - txa), y, 13, on ? C.blue : C.ink, on ? 700 : 500); X.restore();
+  });
+  // 收合按钮固定在侧栏底部右侧，箭头随状态翻转
+  const tbx = sw - 26, tby = h - 24;
+  fillRR(tbx - 13, tby - 13, 26, 26, 8, '#fff'); strokeRR(tbx - 13, tby - 13, 26, 26, 8, C.line2, 1);
+  chevron(tbx, tby, 4.5, Math.PI / 2 + Math.PI * col, C.ink, 2);
+  X.restore();
+  // 主内容区随侧栏宽度伸缩
+  const mx = sw + 16, mw = w - 16 - mx;
+  bar(mx, 16, 120, C.line2, 11);
+  const cw = (mw - 24) / 3;
+  for (let i = 0; i < 3; i++) {
+    const x = mx + i * (cw + 12);
+    fillRR(x, 40, cw, 56, 8, '#fff'); strokeRR(x, 40, cw, 56, 8, C.line, 1);
+    bar(x + 12, 54, Math.min(60, cw - 24), C.line, 7);
+    text(['1,284', '86%', '32'][i], x + 12, 78, 16, C.ink, 800, 'left', NUMF);
+  }
+  fillRR(mx, 108, mw, 70, 8, C.block);
+  const pts = [.7, .5, .62, .35, .45, .2, .3];
+  X.beginPath(); pts.forEach((v, i) => { const px = mx + 14 + (mw - 28) * i / (pts.length - 1), py = 116 + 54 * v; i ? X.lineTo(px, py) : X.moveTo(px, py); });
+  X.strokeStyle = C.blue; X.lineWidth = 2.2; X.lineJoin = 'round'; X.stroke();
+  pointer([[0, w + 30, h + 30], [.8, 126, 169], [1.0, 126, 169], [1.8, 330, 150], [2.7, 28, 169], [3.05, 28, 169], [4.4, w + 30, h + 30]], [.9, 2.9], t);
+});

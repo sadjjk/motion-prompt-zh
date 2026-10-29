@@ -1,0 +1,35 @@
+// Motion Prompt #2-092 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// トラッキング展開 / Tracking expand
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 53 · カテゴリ: 文字・図形の演出
+// 何が起きるか: クリーム地で、重なってぼけた「展开视野」が中心から左右へ広がりながらくっきりし、下の線も幅に合わせて伸び、しばらくして再びぼけて消える。
+// 動きの仕様:
+//   - 字間は −0.55em（字が重なる）から 0.06em へ
+//   - 0.3〜1.4秒に三次の ease-out で開き、ぼかし6px→0、0.3〜1.0秒で現れる
+//   - 下のコーラルの線（3px）は行の幅に合わせて伸びる
+//   - 3.8〜4.4秒にぼかし4pxまで戻りながら消える
+// 使いどころ: 上品な見出し、ブランドのキャッチコピー、章タイトルに。
+// タグ: tracking, letter-spacing, spread, blur, reveal, heading
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-092
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 53
+// 改写自 KittenJam Motion Library #189（Hannah）· 字距展开：字距从 −0.55em（字全叠在一起）以三次缓出在 0.3–1.4 秒展开到 0.06em，同时模糊 6px→0、淡入；下方细线跟随整行宽度伸长；3.8–4.4 秒再模糊 4px 淡出。
+CELLS[52] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k, C.cream);
+  const S = '展开视野', FS = 64, F = `900 ${FS}px ${JP}`, CY = 96;
+  const e = eOut(P(u, 0.3, 1.4)), out = P(u, 3.8, 4.4), al = P(u, 0.3, 1.0) * (1 - out);
+  if (al <= 0) return;
+  const cs = chars(k, S, F, lerp(-0.55 * FS, 0.06 * FS, e));
+  const half = cs[cs.length - 1].x + cs[cs.length - 1].w / 2;
+  k.save(); k.globalAlpha = al; k.filter = `blur(${(6 * (1 - e) + 4 * out).toFixed(2)}px)`;
+  cs.forEach(c => txt(k, c.ch, w / 2 + c.x, CY, F, C.navy, 'center', 'middle'));
+  k.filter = 'none';
+  k.fillStyle = C.coral; k.fillRect(w / 2 - half, CY + 50, half * 2, 3);
+  k.restore();
+};

@@ -1,0 +1,15 @@
+Please use "Selectable cards" (複数選択カード), one of the names in "UI component names".
+Motion Prompt #1-143
+
+What it is: Cards picked by clicking, with a bar counting the choices
+What the sample shows: The cursor picks 3 of 4 cards in turn; each gains a blue outline and check, a bar springs up from the bottom and its count rolls up, and "Clear" deselects all and drops the bar.
+Spec:
+- 4 image cards, 110×100, 14 apart; the cursor clicks cards 1, 3 and 4 at 0.8, 1.5 and 2.2 s.
+- A picked card shrinks to 0.96 in 0.25 s (easeOut) and gets a 2.5px blue outline; the round check at top right swells to 1.25 and settles, fills blue and draws a white check.
+- On the first pick a 220×38 action bar springs up to y 136 in 0.4 s with back.out(1.4); the count in "N selected" rolls up in 0.25 s.
+- At 3.4 s "Clear" is clicked: the picks are undone in 0.25 s and the bar drops away over 3.45–3.8 s.
+When to use it: Use it for bulk photo selection, template picking or interest onboarding where several items are chosen before moving on.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-143.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

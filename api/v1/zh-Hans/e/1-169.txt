@@ -1,0 +1,62 @@
+// Motion Prompt #1-169 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 成就徽章解锁 / Badge unlock
+// 分类包: uxmotion (交互与数据动效) · element 56 · 子分类: 进度反馈
+// 动画表现: 六角外框一笔描出并填满金色，一颗放大旋转的星星缩小盖到中央；同时四周短光芒向外射出，徽章轻弹一下，下方依次浮现成就名与「成就解锁」。
+// 运动规格:
+//   - 六角外框 0.3–1.1 秒一笔描出（inOut3），1.1–1.4 秒内部填色。
+//   - 星星 1.4–1.9 秒从 3 倍、-60° 变到 1 倍、0°（backOut）。
+//   - 1.8–2.35 秒 12 道光芒从半径 58 px 射到 80 px 后消失，徽章同时弹到 1.08 倍。
+//   - 2.1 秒成就名、2.25 秒「成就解锁」从下方 8 px 浮现（0.4 秒 out3）。
+//   - 5.4–6.0 秒整体淡出复位。
+// 适用场景: 适合游戏化设计、学习应用和连续登录奖励。
+// 标签: badge, achievement, unlock, reward, gamification, star
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-169
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 56
+// 56 成就徽章解锁（KittenJam #327）：六角徽章外框 0.3–1.1 秒一笔描出（inOut3），1.1–1.4 秒内部填色；星星 1.4–1.9 秒从 3 倍、-60° 缩回 1 倍落定（backOut）；
+// 1.8–2.35 秒 12 道光芒从半径 58 射到 80px 后消失，徽章同时弹到 1.08；2.1 / 2.25 秒成就名与「成就解锁」依次上浮 8px 淡入；5.4–6.0 秒淡出复位。
+const BDG_CX = 269.5, BDG_CY = 78, BDG_R = 46, BDG_RAY = 12;
+const BDG_HEX = Array.from({ length: 7 }, (_, i) => { const a = -Math.PI / 2 + i * Math.PI / 3; return [Math.cos(a) * BDG_R, Math.sin(a) * BDG_R]; });
+function BDG_hex(k) { k.beginPath(); BDG_HEX.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); k.closePath(); }
+CELLS[55] = (k, w, h, u) => {
+  k.fillStyle = UXD.page; k.fillRect(0, 0, CW, CH);
+  const fa = fadeIn(u), fill = seg(u, 1.1, 1.4), sc = 1 + 0.08 * Math.sin(Math.PI * seg(u, 1.8, 2.15));
+  glow(k, BDG_CX, BDG_CY, 120, '245,196,81', 0.2 * fill * fa);
+  k.save(); k.translate(BDG_CX, BDG_CY); k.scale(sc, sc);
+  k.lineJoin = 'round'; k.lineCap = 'round'; k.lineWidth = 3;
+  k.strokeStyle = 'rgba(255,255,255,.08)'; BDG_hex(k); k.stroke();
+  k.globalAlpha = fa;
+  if (fill > 0) {
+    const g = k.createLinearGradient(0, -BDG_R, 0, BDG_R); g.addColorStop(0, '#F5C451'); g.addColorStop(1, '#D9892B');
+    k.globalAlpha = fa * fill; k.fillStyle = g; BDG_hex(k); k.fill(); k.globalAlpha = fa;
+  }
+  k.strokeStyle = '#F5C451'; UXB_poly(k, BDG_HEX, inOut3(seg(u, 0.3, 1.1)));
+  const st = seg(u, 1.4, 1.9);
+  if (st > 0) {
+    const e = backOut(st), s = mix(3, 1, e);
+    k.save(); k.globalAlpha = fa * seg(u, 1.4, 1.6); k.rotate(mix(-60, 0, e) * Math.PI / 180); k.scale(s, s);
+    k.fillStyle = '#FFFFFF'; k.beginPath();
+    for (let j = 0; j < 10; j++) { const r = j % 2 ? 8 : 19, a = -Math.PI / 2 + j * Math.PI / 5; k.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+    k.closePath(); k.fill(); k.restore();
+  }
+  // 光芒：线头先射出，线尾随后追上（描边 0%→100%→收尾）
+  const hd = out3(seg(u, 1.8, 2.05)), tl = out3(seg(u, 2.05, 2.35));
+  if (hd > 0 && tl < 1) {
+    k.strokeStyle = '#FFE39A'; k.lineWidth = 2.5;
+    for (let j = 0; j < BDG_RAY; j++) {
+      const a = (j + 0.5) * TAU / BDG_RAY, r0 = mix(58, 80, tl), r1 = mix(58, 80, hd);
+      k.beginPath(); k.moveTo(Math.cos(a) * r0, Math.sin(a) * r0); k.lineTo(Math.cos(a) * r1, Math.sin(a) * r1); k.stroke();
+    }
+  }
+  k.restore();
+  const a1 = out3(seg(u, 2.1, 2.5)), a2 = out3(seg(u, 2.25, 2.65));
+  k.globalAlpha = fa * a1; txt(k, '连续登录 7 天', BDG_CX, 158 + 8 * (1 - a1), UXB_f(900, 15), UXD.ink, 'center');
+  k.globalAlpha = fa * a2; txt(k, '成就解锁', BDG_CX, 180 + 8 * (1 - a2), UXB_f(700, 10.5), '#F5C451', 'center');
+  k.globalAlpha = 1;
+};

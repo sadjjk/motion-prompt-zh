@@ -1,0 +1,17 @@
+请使用“Dock 放大菜单（Dock magnification）”，属于“落地页与网页动效”。
+Motion Prompt #1-155
+
+效果解释：离光标越近的图标越大，并推开邻居
+动画表现：光标在 7 个图标的 Dock 上左右扫过，附近的图标隆起成平滑的波峰，推开两侧邻居并跟着光标移动。
+实现规格与关键运动参数：
+- 7 个 40×40 圆角图标排成 Dock（间距 10，底边对齐）。
+- 每个图标按与光标的水平距离放大：scale = 1 + 0.9 × max(0, 1 − 距离 / 110)，最近的约 1.9 倍。
+- 图标变宽后把邻居往两侧推开；光标进出 Dock 时放大量 0.2 秒 easeOut 渐变。
+- 光标路径：0.5 秒进入 → 扫到右侧（2.3 秒）→ 扫回左侧（3.8 秒）→ 4.3 秒离开。
+适用场景：适合应用启动栏、工具切换、社交链接排等想让图标列更有趣味的地方。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-155
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-155.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Hannah 的 MIT 版权标识。

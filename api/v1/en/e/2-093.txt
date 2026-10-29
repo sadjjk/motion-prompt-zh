@@ -1,0 +1,48 @@
+// Motion Prompt #2-093 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Strike and rewrite / 取り消して書き直し
+// Pack: motion2 (Motion graphics moves, part 2) · element 54 · Category: Text & shapes
+// What happens: A slanted coral bar strikes through the white word 便宜 from the left and it dims; a curved arrow points down and a yellow brush-style 实惠 is written out character by character behind a pen dot.
+// Motion spec:
+//   - Over 0–0.3 s the old word fades in; over 0.4–0.85 s a 7 px bar at −4° draws through it from left to right.
+//   - Over 0.85–1.1 s the old word dims to 0.4; over 0.9–1.15 s a curved arrow draws.
+//   - The new word, in yellow brush script, writes out left to right from 1.15 s, 0.45 s apart and 0.4 s per character, with a pen dot.
+//   - Over 4.0–4.5 s everything fades out.
+// When to use it: Use it to stress a better wording in copy, for before/after messages or corrections.
+// Tags: strikethrough, rewrite, correction, handwriting, copywriting, emphasis
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-093
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 54
+// 改写自 KittenJam Motion Library #297（Hannah）· 划掉改写：旧词「便宜」0.4–0.85 秒被一道 −4° 的 7px 珊瑚色粗线从左到右划掉并变淡到 0.4，0.9–1.15 秒弯箭头指向下方，新词「实惠」以楷体黄色逐字（间隔 0.45 秒、各 0.4 秒）由左往右写出，笔尖圆点跟随；4.0–4.5 秒淡出，0–0.3 秒旧词淡入。
+CELLS[53] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const OLD = '便宜', NEW = '实惠', FO = `800 60px ${JP}`, FN = `700 62px "Kaiti SC", "STKaiti", KaiTi, ${JP}`, OX = w / 2, OY = 66, NY = 152;
+  const fade = Math.min(P(u, 0, 0.3), 1 - P(u, 4.0, 4.5)); if (fade <= 0) return;   // 开头 0.3 秒淡入旧词，与周期末的空白衔接
+  k.save();
+  k.globalAlpha = fade * (1 - 0.6 * P(u, 0.85, 1.1)); txt(k, OLD, OX, OY, FO, '#fff', 'center', 'middle');
+  const sw = tw(k, OLD, FO) + 28, st = eIOs(P(u, 0.4, 0.85));
+  k.globalAlpha = fade; k.lineCap = 'round'; k.lineJoin = 'round';
+  if (st > 0) { k.save(); k.translate(OX - sw / 2, OY + 6); k.rotate(-4 * Math.PI / 180); k.strokeStyle = C.coral; k.lineWidth = 7; k.beginPath(); k.moveTo(0, 0); k.lineTo(sw * st, 0); k.stroke(); k.restore(); }
+  const ar = eOut(P(u, 0.9, 1.15));
+  if (ar > 0) {
+    k.strokeStyle = C.dim; k.lineWidth = 2.5; k.setLineDash([140 * ar, 400]);
+    k.beginPath(); k.moveTo(OX - 86, OY + 8); k.bezierCurveTo(OX - 124, OY + 40, OX - 120, NY - 10, OX - 92, NY - 4); k.stroke(); k.setLineDash([]);
+    if (ar >= 1) { k.beginPath(); k.moveTo(OX - 102, NY - 14); k.lineTo(OX - 92, NY - 4); k.lineTo(OX - 105, NY + 1); k.stroke(); }
+  }
+  chars(k, NEW, FN, 12).forEach((c, i) => {
+    const s0 = 1.15 + i * 0.45, q = P(u, s0, s0 + 0.4); if (q <= 0) return;
+    const e = eIOs(q);
+    k.save(); k.translate(OX + c.x, NY); k.rotate(-3 * Math.PI / 180);
+    k.beginPath(); k.rect(-c.w / 2 - 4, -50, (c.w + 8) * e, 100); k.clip();
+    txt(k, c.ch, 0, 0, FN, C.yel, 'center', 'middle');
+    k.restore();
+    if (q < 1) { k.fillStyle = '#fff'; k.beginPath(); k.arc(OX + c.x - c.w / 2 + c.w * e, NY + 14 * Math.sin(q * Math.PI * 5), 3.5, 0, 7); k.fill(); }
+  });
+  k.restore();
+};

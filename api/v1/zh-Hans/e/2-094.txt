@@ -1,0 +1,34 @@
+// Motion Prompt #2-094 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 残影堆叠 / Echo stack
+// 分类包: motion2 (动态图形进阶) · element 55 · 子分类: 文字与图形
+// 动画表现: 白色粗体「回声」后面 5 层珊瑚色空心副本依次向右上阶梯状展开，越后越淡，停留后收回重叠。
+// 运动规格:
+//   - 5 层描边（线宽 2 px）副本，不透明度 0.85 − 0.14×层
+//   - 0.4 秒起间隔 0.06 秒、各 0.7 秒，以三次缓入缓出展开到每层 (14, −11 px)
+//   - 3.0 秒起由外到内按同样间隔收回
+//   - 正面字为白色，始终在最上层
+// 适用场景: 适合海报风标题、音乐活动宣传或需要强调的词。
+// 标签: echo, outline, stack, offset, retro, heading
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-094
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 55
+// 改写自 KittenJam Motion Library #299（Hannah）· 残影堆叠：白色粗体「回声」后面叠 5 层珊瑚色空心描边副本，越后越淡（0.85 − 0.14×层）；0.4 秒起各层依次（间隔 0.06 秒、各 0.7 秒）向右上展开到每层 14px、−11px，停留后 3.0 秒起由外到内收回重叠。
+CELLS[54] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '回声', X = w / 2 - 30, Y = 118;
+  k.font = `900 92px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round';
+  for (let i = 5; i >= 1; i--) {
+    const o = 0.4 + 0.06 * i, c = 3.0 + 0.06 * (5 - i);
+    const e = eIO(P(u, o, o + 0.7)) * (1 - eIO(P(u, c, c + 0.7)));
+    k.globalAlpha = 0.85 - 0.14 * i; k.strokeStyle = C.coral; k.lineWidth = 2;
+    k.strokeText(S, X + 14 * i * e, Y - 11 * i * e);
+  }
+  k.globalAlpha = 1; k.fillStyle = '#fff'; k.fillText(S, X, Y);
+};

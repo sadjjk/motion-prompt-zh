@@ -1,0 +1,37 @@
+// Motion Prompt #2-087 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 文字の扇 / Text fan
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 48 · カテゴリ: 文字・図形の演出
+// 何が起きるか: 重なった7つの「扇」が下の黄色い要を軸に扇形に開き、中央の白い1枚の両側にコーラルの半透明な字が並び、しばらくして閉じる。
+// 動きの仕様:
+//   - 同じ字7枚、軸は字の中心から下へ112px
+//   - 0.5〜1.9秒に (i−3)×24° まで三次の easeInOut で開き、3.6秒まで止まる
+//   - 3.6〜4.5秒に閉じる
+//   - 中央は白で不透明、両側はコーラルで外ほど薄い（0.7 − 0.12×距離）
+// 使いどころ: 和風・伝統系のロゴや、ブランド名の登場に。
+// タグ: fan, radial, rotate, copies, japanese, logo
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-087
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 48
+// 改写自 KittenJam Motion Library #24（Hannah）· 文字扇：同一个「扇」字 7 份，以字下方 112px 的点为轴，0.5–1.9 秒按 (i−3)×24° 展开成扇形，停留到 3.6 秒，3.6–4.5 秒收拢；中间一份白色不透明，两侧珊瑚色、越外越淡。
+const TFAN_ORD = [0, 6, 1, 5, 2, 4, 3];   // 外侧先画，中间一份压在最上面
+CELLS[47] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const PX = w / 2, PY = 196, R = 112, F = `900 80px ${JP}`;
+  const o = eIO(P(u, 0.5, 1.9)) * (1 - eIO(P(u, 3.6, 4.5)));
+  TFAN_ORD.forEach(i => {
+    const a = (i - 3) * 24 * Math.PI / 180 * o;
+    k.save(); k.translate(PX, PY); k.rotate(a);
+    k.strokeStyle = 'rgba(255,241,214,.16)'; k.lineWidth = 2; k.beginPath(); k.moveTo(0, -8); k.lineTo(0, -R + 42); k.stroke();
+    k.globalAlpha = i === 3 ? 1 : 0.7 - Math.abs(i - 3) * 0.12;
+    txt(k, '扇', 0, -R, F, i === 3 ? '#fff' : C.coral, 'center', 'middle');
+    k.restore();
+  });
+  k.fillStyle = C.yel; k.beginPath(); k.arc(PX, PY, 6, 0, 7); k.fill();
+};
