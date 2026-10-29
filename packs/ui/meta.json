@@ -2833,6 +2833,568 @@
         "loading",
         "spinner"
       ]
+    },
+    {
+      "no": "44",
+      "id": "1-142",
+      "slug": "swipe-to-delete",
+      "category": "select-switch",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "スワイプで削除",
+        "en": "Swipe to delete",
+        "zh-Hans": "滑动删除"
+      },
+      "meaning": {
+        "ja": "行を左へずらすと削除ボタンが出て、消える",
+        "en": "Slide a row left to reveal delete and remove it",
+        "zh-Hans": "列表项左滑露出删除，滑到底即移除"
+      },
+      "ask": {
+        "ja": "通知一覧の行をスワイプで削除できるようにして。左へ引くと赤い削除が出て、離すと行が抜けて下の行が詰まる。",
+        "en": "Let notification rows use swipe to delete: dragging left shows a red delete area, and on release the row slides out and the rows below close the gap.",
+        "zh-Hans": "通知列表做滑动删除：向左拖露出红色删除区，松手后该行滑出，下方行补位上移。"
+      },
+      "summary": {
+        "ja": "指が2行目を左へ引くと奥の赤い「削除」が見え、離すと行が左へ抜けて高さが縮み、下の行が上へ詰まる。最後に元の行が戻る。",
+        "en": "A finger drags the second row left to uncover a red \"Delete\" area; on release the row slides out, its height collapses and the rows below move up, then the row returns.",
+        "zh-Hans": "手指把第 2 行向左拖，露出底下红色“删除”区；松手后该行滑出、高度收合，下方行上移，最后原行复位。"
+      },
+      "spec": {
+        "ja": [
+          "幅280、行の高さ38の4行リスト",
+          "指が0.8秒に2行目を押し、0.8〜1.5秒に easeInOut 3乗で左へ150px引く。奥の赤い「削除」は引いた距離に応じて現れる",
+          "1.5秒に離すと、行が0.3秒 easeIn 3乗で左端の外へ抜ける",
+          "1.8〜2.1秒に行の高さが38から0へ縮み、下の行が上へ詰まる",
+          "3.7〜4.2秒に同じ位置で行の高さが38へ戻り、フェードインして初期状態に戻る"
+        ],
+        "en": [
+          "A 4-row list, 280 wide with rows 38 high.",
+          "The finger presses row 2 at 0.8 s and drags it 150px left over 0.8–1.5 s (easeInOut power 3); the red \"Delete\" area underneath fades in with the distance.",
+          "Released at 1.5 s, the row slides out past the left edge in 0.3 s (easeIn power 3).",
+          "Over 1.8–2.1 s the row height collapses from 38 to 0 and the rows below move up.",
+          "Over 3.7–4.2 s the row grows back to 38 in place and fades in, returning to the start."
+        ],
+        "zh-Hans": [
+          "宽 280、行高 38 的 4 行列表。",
+          "手指 0.8 秒按住第 2 行，0.8–1.5 秒向左拖 150px（easeInOut 3 次方），底下红色“删除”区随拖动距离淡入。",
+          "1.5 秒松手，该行 0.3 秒（easeIn 3 次方）滑出左缘。",
+          "1.8–2.1 秒行高从 38 收到 0，下方行上移补位。",
+          "3.7–4.2 秒该行在原位展开回 38 并淡入，回到初始状态。"
+        ]
+      },
+      "use": {
+        "ja": "通知・メール・ToDo など、モバイルの一覧から項目を手早く消す操作に。",
+        "en": "Use it in mobile lists such as notifications, mail or to-dos where items are removed quickly.",
+        "zh-Hans": "适合通知、邮件、待办等需要快速删除条目的移动端列表。"
+      },
+      "tags": [
+        "swipe-to-delete",
+        "swipe",
+        "delete",
+        "list",
+        "gesture",
+        "mobile",
+        "dismiss"
+      ]
+    },
+    {
+      "no": "45",
+      "id": "1-143",
+      "slug": "selectable-cards",
+      "category": "select-switch",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "複数選択カード",
+        "en": "Selectable cards",
+        "zh-Hans": "多选卡片"
+      },
+      "meaning": {
+        "ja": "カードを押して複数選び、選んだ数のバーが出る",
+        "en": "Cards picked by clicking, with a bar counting the choices",
+        "zh-Hans": "点选多张卡片，底部出现已选数量栏"
+      },
+      "ask": {
+        "ja": "画像カードを複数選択カードにして。選ぶと枠とチェックが付き、下から「N件選択中」のバーが出る。",
+        "en": "Make the image cards selectable cards: each pick gets an outline and a check, and a bar with \"N selected\" pops up from the bottom.",
+        "zh-Hans": "图片卡片做成多选卡片：选中时出现框线与勾，底部弹出“已选 N 项”操作栏。"
+      },
+      "summary": {
+        "ja": "カーソルが4枚中3枚を順に押すと、カードに青い枠とチェックが付き、下からバーが跳ね上がって選択数が繰り上がる。「クリア」で全部外れてバーが下がる。",
+        "en": "The cursor picks 3 of 4 cards in turn; each gains a blue outline and check, a bar springs up from the bottom and its count rolls up, and \"Clear\" deselects all and drops the bar.",
+        "zh-Hans": "光标依次点选 4 张中的 3 张，卡片出现蓝框与勾，底部操作栏弹起、数字上滚；点“清空”后全部取消、操作栏滑下。"
+      },
+      "spec": {
+        "ja": [
+          "110×100の画像カード4枚（間隔14）。カーソルが0.8・1.5・2.2秒に1・3・4枚目を押す",
+          "選んだカードは0.25秒 easeOut で0.96に縮み、2.5pxの青い枠が付く。右上の丸いチェック欄は1.25倍に膨らんで戻り、青く塗られて白いチェックが描かれる",
+          "最初の選択で、220×38の操作バーが back.out(1.4) で0.4秒かけて y 136 へ跳ね上がる。「N件選択」の数字は0.25秒で上へ繰り上がる",
+          "3.4秒に「クリア」を押すと、選択が0.25秒で外れ、バーは3.45〜3.8秒に下へ抜ける"
+        ],
+        "en": [
+          "4 image cards, 110×100, 14 apart; the cursor clicks cards 1, 3 and 4 at 0.8, 1.5 and 2.2 s.",
+          "A picked card shrinks to 0.96 in 0.25 s (easeOut) and gets a 2.5px blue outline; the round check at top right swells to 1.25 and settles, fills blue and draws a white check.",
+          "On the first pick a 220×38 action bar springs up to y 136 in 0.4 s with back.out(1.4); the count in \"N selected\" rolls up in 0.25 s.",
+          "At 3.4 s \"Clear\" is clicked: the picks are undone in 0.25 s and the bar drops away over 3.45–3.8 s."
+        ],
+        "zh-Hans": [
+          "4 张 110×100 图片卡，间距 14；光标在 0.8、1.5、2.2 秒点第 1、3、4 张。",
+          "被选卡片 0.25 秒（easeOut）缩到 0.96 并描 2.5px 蓝框；右上圆形勾选框放大到 1.25 后回落，填蓝并画出白勾。",
+          "首次选中时 220×38 操作栏以 back.out(1.4) 用 0.4 秒弹到 y 136；“已选 N 项”的数字 0.25 秒上滚。",
+          "3.4 秒点“清空”：选中 0.25 秒内全部取消，操作栏 3.45–3.8 秒滑出底部。"
+        ]
+      },
+      "use": {
+        "ja": "画像の一括選択・テンプレート選び・興味のオンボーディングなど、複数を選んで次へ進む画面に。",
+        "en": "Use it for bulk photo selection, template picking or interest onboarding where several items are chosen before moving on.",
+        "zh-Hans": "适合批量选图、挑选模板、兴趣引导等先多选再继续的界面。"
+      },
+      "tags": [
+        "multi-select",
+        "selectable-cards",
+        "checkbox",
+        "action-bar",
+        "cards",
+        "click"
+      ]
+    },
+    {
+      "no": "46",
+      "id": "1-144",
+      "slug": "shake-on-error",
+      "category": "select-switch",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "エラー時のシェイク",
+        "en": "Shake on error",
+        "zh-Hans": "错误震动提示"
+      },
+      "meaning": {
+        "ja": "入力が間違っていると欄が左右に震える",
+        "en": "A field shakes side to side when the input is wrong",
+        "zh-Hans": "输入错误时字段左右震动"
+      },
+      "ask": {
+        "ja": "パスワードが違うときはエラー時のシェイクにして。欄を0.45秒左右に震わせ、枠を赤くして下にエラー文を出す。",
+        "en": "Use a shake on error for a wrong password: shake the field for 0.45 s, turn its border red and slide an error message in below.",
+        "zh-Hans": "密码错误时用错误震动提示：输入框左右震动 0.45 秒，边框变红，下方滑出错误提示。"
+      },
+      "summary": {
+        "ja": "パスワード欄に点が6つ入って「ログイン」が押されると、欄が左右に震えて枠が赤くなり、下に赤いエラー文が降りてくる。",
+        "en": "Six dots are typed into the password field and \"Log in\" is pressed; the field shakes, its border turns red and a red error message drops in below.",
+        "zh-Hans": "密码框输入 6 个圆点后按下“登录”，输入框左右震动、边框变红，下方滑出红色错误提示。"
+      },
+      "spec": {
+        "ja": [
+          "300×44のパスワード欄。0.3秒から0.12秒ごとに点を入力（計6つ）し、1.2秒に「ログイン」を押す",
+          "1.35〜1.8秒に欄が左右に震える。変位は 10·sin(8πp)·sin(πp) で、小→大→小。枠は0.15秒で赤くなる",
+          "エラー文は1.45〜1.75秒に上から4px下りながらフェードイン",
+          "3.6〜3.9秒に点・赤い枠・エラー文がまとめて消えて初期状態に戻る"
+        ],
+        "en": [
+          "A 300×44 password field; from 0.3 s one dot is typed every 0.12 s (6 in all), and \"Log in\" is pressed at 1.2 s.",
+          "Over 1.35–1.8 s the field shakes sideways by 10·sin(8πp)·sin(πp), small to large to small; the border turns red in 0.15 s.",
+          "The error message fades in over 1.45–1.75 s while sliding down 4px from above.",
+          "Over 3.6–3.9 s the dots, red border and message fade out together to reset."
+        ],
+        "zh-Hans": [
+          "300×44 密码框；0.3 秒起每 0.12 秒输入一个圆点（共 6 个），1.2 秒按下“登录”。",
+          "1.35–1.8 秒输入框左右震动，位移 10·sin(8πp)·sin(πp)，幅度由小到大再变小；边框 0.15 秒变红。",
+          "错误提示“密码错误，请再试一次”在 1.45–1.75 秒从上方 4px 滑下并淡入。",
+          "3.6–3.9 秒圆点、红框与提示一起淡出复位。"
+        ]
+      },
+      "use": {
+        "ja": "ログイン・認証コード・必須項目など、入力の誤りをすぐ伝えたいフォームに。",
+        "en": "Use it in login, verification-code or required-field forms that should flag a mistake at once.",
+        "zh-Hans": "适合登录、验证码、必填项等需要即时提示输入错误的表单。"
+      },
+      "tags": [
+        "shake",
+        "error",
+        "validation",
+        "password",
+        "login",
+        "form"
+      ]
+    },
+    {
+      "no": "47",
+      "id": "1-145",
+      "slug": "animated-checkbox",
+      "category": "select-switch",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "アニメーションチェックボックス",
+        "en": "Animated checkbox",
+        "zh-Hans": "勾选框打勾"
+      },
+      "meaning": {
+        "ja": "押すと箱が弾み、チェックが線で描かれる",
+        "en": "The box bounces and the check draws itself in",
+        "zh-Hans": "点击时方框弹一下，勾像笔画出"
+      },
+      "ask": {
+        "ja": "ToDo のチェックをアニメーションチェックボックスにして。箱を弾ませ、チェックを左下から右上へ描き、文字に取り消し線を引く。",
+        "en": "Make the to-do checks animated checkboxes: bounce the box, draw the check from lower left to upper right and strike through the text.",
+        "zh-Hans": "待办勾选做成勾选框打勾：方框弹一下，勾从左下画到右上，项目文字加删除线。"
+      },
+      "summary": {
+        "ja": "カーソルが3つのチェック欄を順に押すと、箱が縮んで弾み、青く塗られて白いチェックが描かれ、文字に取り消し線が引かれて薄くなる。最後に「クリア」で戻る。",
+        "en": "The cursor ticks 3 boxes in turn; each squashes and bounces, fills blue as a white check draws in, and its text is struck through and greyed, then \"Clear\" resets them.",
+        "zh-Hans": "光标依次点 3 个勾选框，方框缩一下再弹起、填蓝并画出白勾，文字加删除线变灰；最后点“清除”复原。"
+      },
+      "spec": {
+        "ja": [
+          "ToDo 3項目（行間42）、22×22の箱。カーソルが0.8・1.5・2.2秒に順に箱を押す",
+          "箱は0.4秒の間に0.85へ縮み、1.1へ弾んで1に戻る。地は0.15秒で青く塗られ、白いチェックが0.1〜0.35秒に左下から右上へ描かれる",
+          "文字には0.2〜0.5秒に左から右へ取り消し線が伸び（easeInOut 3乗）、灰色になる",
+          "3.35秒に「クリア」を押すと、3項目が0.3秒で同時に元へ戻る"
+        ],
+        "en": [
+          "3 to-do items (42 apart) with 22×22 boxes; the cursor clicks the boxes at 0.8, 1.5 and 2.2 s.",
+          "Within 0.4 s the box squashes to 0.85, bounces to 1.1 and settles at 1; it fills blue in 0.15 s and a white check draws from lower left to upper right over 0.1–0.35 s.",
+          "A strike-through grows left to right across the text over 0.2–0.5 s (easeInOut power 3) and the text turns grey.",
+          "At 3.35 s \"Clear\" is clicked and all 3 items reverse together in 0.3 s."
+        ],
+        "zh-Hans": [
+          "3 条待办（行距 42），方框 22×22；光标在 0.8、1.5、2.2 秒依次点方框。",
+          "0.4 秒内方框先缩到 0.85、再弹到 1.1 后回 1；底色 0.15 秒填蓝，白勾在 0.1–0.35 秒从左下画到右上。",
+          "文字在 0.2–0.5 秒从左到右加删除线（easeInOut 3 次方）并变灰。",
+          "3.35 秒点“清除”，3 项 0.3 秒内同时复原。"
+        ]
+      },
+      "use": {
+        "ja": "ToDo・買い物リスト・チェックリストなど、完了の手応えを出したい一覧に。",
+        "en": "Use it in to-do, shopping or checklist screens where finishing an item should feel satisfying.",
+        "zh-Hans": "适合待办、购物清单、检查表等想强化完成手感的列表。"
+      },
+      "tags": [
+        "checkbox",
+        "check",
+        "todo",
+        "strikethrough",
+        "toggle",
+        "click"
+      ]
+    },
+    {
+      "no": "48",
+      "id": "1-146",
+      "slug": "tag-input",
+      "category": "select-switch",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "タグ入力",
+        "en": "Tag input",
+        "zh-Hans": "标签输入"
+      },
+      "meaning": {
+        "ja": "入力してEnterで文字がタグになる入力欄",
+        "en": "A field where typed words become tags on Enter",
+        "zh-Hans": "输入文字回车后变成标签的输入框"
+      },
+      "ask": {
+        "ja": "興味の欄をタグ入力にして。Enterで文字が弾むタグになり、×を押すとタグが縮んで消えて後ろが詰まる。",
+        "en": "Make the interests field a tag input: Enter turns the text into a tag that pops in, and clicking × shrinks it away while the rest closes up.",
+        "zh-Hans": "兴趣栏做成标签输入：回车后文字变成弹出的标签，点 × 时标签缩小消失、后面补位。"
+      },
+      "summary": {
+        "ja": "入力欄に2語が順に打たれ、Enterのたびに文字が丸いタグになって弾み出る。その後カーソルが×を2回押し、タグが縮んで消えて後ろが詰まる。",
+        "en": "Two words are typed one after another and each pops out as a pill tag on Enter; then the cursor clicks × twice and the tags shrink away as the rest closes up.",
+        "zh-Hans": "输入框依次输入两个词，每次回车文字都弹成胶囊标签；随后光标点两次 ×，标签缩小消失、后面补位。"
+      },
+      "spec": {
+        "ja": [
+          "400×48の入力欄。最初はタグ「デザイン」だけ",
+          "0.6秒から文字ごとに0.25秒で入力し、1.3秒にEnter。文字が丸いタグになり、back.out(1.4) で0.35秒かけて0から弾み出る。右下のEnterキーも同時に沈む",
+          "1.8秒から次の語を入力し、2.5秒のEnterで同じように弾み出る",
+          "カーソルが3.3秒・3.9秒にタグの×を押す。タグは各0.25秒 easeInOut 3乗で縮んで消え、後ろが左へ詰まって最初のタグだけに戻る"
+        ],
+        "en": [
+          "A 400×48 input that starts with one tag, \"Design\".",
+          "From 0.6 s a word is typed at 0.25 s per character and Enter is pressed at 1.3 s: the text becomes a pill tag that pops from 0 in 0.35 s with back.out(1.4), and the Enter keycap at lower right sinks at the same time.",
+          "From 1.8 s a second word is typed and pops out the same way on Enter at 2.5 s.",
+          "The cursor clicks a tag's × at 3.3 s and 3.9 s; each tag shrinks away in 0.25 s (easeInOut power 3) and the rest closes up to the left, back to the first tag."
+        ],
+        "zh-Hans": [
+          "400×48 输入框，初始只有一个标签“设计”。",
+          "0.6 秒起逐字输入（每字 0.25 秒），1.3 秒回车：文字变成胶囊标签，以 back.out(1.4) 用 0.35 秒从 0 弹出，右下“回车”键帽同时下沉。",
+          "1.8 秒起输入第二个词，2.5 秒回车同样弹出。",
+          "光标在 3.3 秒、3.9 秒点标签的 ×；标签各 0.25 秒（easeInOut 3 次方）缩小消失，后面内容向左补位，回到只剩第一个标签。"
+        ]
+      },
+      "use": {
+        "ja": "興味・スキル・キーワード・宛先など、複数の短い値を入れるフォームに。",
+        "en": "Use it in forms that collect several short values such as interests, skills, keywords or recipients.",
+        "zh-Hans": "适合填写兴趣、技能、关键词、收件人等多个短值的表单。"
+      },
+      "tags": [
+        "tag-input",
+        "chips",
+        "token-field",
+        "keywords",
+        "form",
+        "input"
+      ]
+    },
+    {
+      "no": "49",
+      "id": "1-147",
+      "slug": "cookie-banner",
+      "category": "open-overlay",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "Cookie 同意バナー",
+        "en": "Cookie banner",
+        "zh-Hans": "Cookie 同意横幅"
+      },
+      "meaning": {
+        "ja": "画面下に出る Cookie 利用の同意カード",
+        "en": "A consent card for cookies that rises from the bottom",
+        "zh-Hans": "从底部弹出的 Cookie 使用同意卡片"
+      },
+      "ask": {
+        "ja": "サイトに Cookie 同意バナーを付けて。下から弾んで上がり、クッキーのアイコンが揺れて、同意を押すと下へ消える。",
+        "en": "Add a cookie banner: it springs up from the bottom, the cookie icon wobbles, and clicking accept sends it back down.",
+        "zh-Hans": "网站加 Cookie 同意横幅：从底部弹上来，饼干图标晃一下，点同意后卡片滑出。"
+      },
+      "summary": {
+        "ja": "ページの下から Cookie のカードが弾んで上がり、クッキーのアイコンが傾きから正位置へ弾んで2回揺れる。カーソルが「すべて同意」を押すとボタンが沈み、カードが下へ抜ける。",
+        "en": "A cookie card springs up from the bottom of the page while its cookie icon pops upright from a tilt and wobbles twice; the cursor clicks \"Accept all\", the button dips and the card slides back down.",
+        "zh-Hans": "页面底部弹上 Cookie 卡片，饼干图标从倾斜弹正后晃 2 下；光标点“全部同意”，按钮压下，卡片向下滑出。"
+      },
+      "spec": {
+        "ja": [
+          "360×74のカードが0.3〜0.9秒に back.out(1.4) で画面下の外から y 108 へ弾み上がり、フェードイン",
+          "左のクッキーのアイコンは0.5〜1.1秒に0.4倍・−0.6ラジアンの傾きから弾んで正位置へ。1.2〜1.8秒にさらに2回揺れる（振れ幅0.3ラジアンから減衰）",
+          "カーソルが2.4秒に「すべて同意」を押す。ボタンは0.08秒で0.92へ沈み、0.15秒で戻る",
+          "カードは2.55〜2.95秒に easeIn 3乗で画面下へ抜けながら消える"
+        ],
+        "en": [
+          "A 360×74 card springs up from below the frame to y 108 over 0.3–0.9 s with back.out(1.4) and fades in.",
+          "The cookie icon on the left pops upright from 0.4 scale and a −0.6 rad tilt over 0.5–1.1 s, then wobbles 2 more times over 1.2–1.8 s (0.3 rad, dying out).",
+          "The cursor clicks \"Accept all\" at 2.4 s; the button dips to 0.92 in 0.08 s and recovers in 0.15 s.",
+          "Over 2.55–2.95 s the card slides off the bottom with easeIn power 3 and fades out."
+        ],
+        "zh-Hans": [
+          "360×74 卡片在 0.3–0.9 秒以 back.out(1.4) 从画面底部外弹到 y 108 并淡入。",
+          "左侧饼干图标 0.5–1.1 秒从 0.4 倍、倾斜 −0.6 弧度弹正放大；1.2–1.8 秒再晃 2 下（幅度 0.3 弧度递减）。",
+          "光标 2.4 秒点“全部同意”，按钮 0.08 秒压到 0.92、0.15 秒回弹。",
+          "卡片 2.55–2.95 秒以 easeIn 3 次方滑出底部并淡出。"
+        ]
+      },
+      "use": {
+        "ja": "Cookie やプライバシーの同意など、初回訪問で一度だけ確認を取るお知らせに。",
+        "en": "Use it for cookie or privacy consent and other notices asked once on a first visit.",
+        "zh-Hans": "适合 Cookie、隐私授权等首次访问时只确认一次的提示。"
+      },
+      "tags": [
+        "cookie-banner",
+        "consent",
+        "privacy",
+        "gdpr",
+        "banner",
+        "notice"
+      ]
+    },
+    {
+      "no": "50",
+      "id": "1-148",
+      "slug": "speed-dial-fab",
+      "category": "open-overlay",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "スピードダイヤル",
+        "en": "Speed dial",
+        "zh-Hans": "浮动按钮展开菜单"
+      },
+      "meaning": {
+        "ja": "浮いた＋ボタンから小さな操作ボタンが並んで出る",
+        "en": "A floating + button that fans out small action buttons",
+        "zh-Hans": "浮动“+”按钮展开一列小操作按钮"
+      },
+      "ask": {
+        "ja": "右下の追加ボタンをスピードダイヤルにして。押すと＋が×に回り、上に小さなボタンが下から順に弾み出る。",
+        "en": "Turn the add button at lower right into a speed dial: on click the + turns into ×, and small buttons pop out above it from the bottom up.",
+        "zh-Hans": "右下角新增按钮做成浮动按钮展开菜单：点击后 + 转成 ×，上方小按钮自下而上依次弹出。"
+      },
+      "summary": {
+        "ja": "カーソルが右下の青い＋を押すと、ボタンが135°回って×になり画面が暗くなる。上にラベル付きの小さなボタン3つが下から順に弾み出て、もう一度押すと逆順にしまわれる。",
+        "en": "The cursor clicks the blue + at lower right; it turns 135° into × as the page dims, 3 labelled mini buttons pop out above it from the bottom up, and a second click tucks them away in reverse.",
+        "zh-Hans": "光标点右下蓝色 +，按钮旋转 135° 变成 ×，页面变暗；上方 3 个带标签的小按钮自下而上弹出，再点一次按相反顺序收回。"
+      },
+      "spec": {
+        "ja": [
+          "右下に半径22の青い＋ボタン。カーソルが0.9秒に押すと、0.3秒 easeOut 3乗で135°回って×になり、ページに0.35の暗幕がかかる",
+          "上に半径16の小さなボタン3つ（間隔44）。下から0.06秒ずつずらし、各0.3秒 back.out(1.4) で0.3倍・12px下から弾み出る。左に文字ラベル",
+          "1.9〜2.6秒にカーソルが「写真」の上に止まり、地が薄い青になる",
+          "3.2秒にもう一度押すと、上から0.05秒ずつずらして各0.2秒でしまわれ、ボタンは＋に戻る"
+        ],
+        "en": [
+          "A blue + button of radius 22 at lower right; the cursor clicks it at 0.9 s and it turns 135° into × in 0.3 s (easeOut power 3) while a 0.35 dim layer covers the page.",
+          "3 mini buttons of radius 16, 44 apart, pop out above it from the bottom up, 0.06 s apart, each in 0.3 s with back.out(1.4) from 0.3 scale and 12px lower, with text labels on the left.",
+          "Over 1.9–2.6 s the cursor rests on \"Photo\" and its fill turns light blue.",
+          "A second click at 3.2 s tucks them away from the top down, 0.05 s apart, 0.2 s each, and the button turns back into +."
+        ],
+        "zh-Hans": [
+          "右下半径 22 的蓝色 + 按钮；光标 0.9 秒点击，按钮 0.3 秒（easeOut 3 次方）旋转 135° 成 ×，页面盖上 0.35 的暗层。",
+          "上方 3 个半径 16 的小按钮（间距 44）自下而上每隔 0.06 秒弹出，各 0.3 秒以 back.out(1.4) 从 0.3 倍、低 12px 处放大，左侧带文字标签。",
+          "1.9–2.6 秒光标停在“拍照”上，底色变浅蓝。",
+          "3.2 秒再点一次，小按钮自上而下每隔 0.05 秒、各 0.2 秒收回，按钮转回 +。"
+        ]
+      },
+      "use": {
+        "ja": "メモ・写真・共有など、よく使う作成操作をまとめたいモバイルアプリの画面に。",
+        "en": "Use it in mobile apps that group frequent create actions such as notes, photos or sharing.",
+        "zh-Hans": "适合把笔记、拍照、分享等常用新建操作收进一个按钮的移动应用。"
+      },
+      "tags": [
+        "speed-dial",
+        "fab",
+        "floating-action-button",
+        "menu",
+        "expand",
+        "click"
+      ]
+    },
+    {
+      "no": "51",
+      "id": "1-149",
+      "slug": "3d-ring-carousel",
+      "category": "navigate-status",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "3D リングカルーセル",
+        "en": "3D ring carousel",
+        "zh-Hans": "3D 环形轮播"
+      },
+      "meaning": {
+        "ja": "カードが輪になって立体的に回るカルーセル",
+        "en": "Cards arranged in a ring that turns in 3D",
+        "zh-Hans": "卡片围成一圈在 3D 中旋转的轮播"
+      },
+      "ask": {
+        "ja": "作品一覧を 3D リングカルーセルにして。8枚を輪にして24秒で1周させ、ドラッグで回せるようにする。",
+        "en": "Show the gallery as a 3D ring carousel: 8 cards in a ring turning once every 24 s, and let a drag spin it.",
+        "zh-Hans": "作品集做成 3D 环形轮播：8 张卡片围成一圈 24 秒转一周，可以拖动转动。"
+      },
+      "summary": {
+        "ja": "8枚のカードが輪になってゆっくり回り、手前ほど大きく明るく、奥ほど小さく暗い。途中で指が右へドラッグして輪を回す。",
+        "en": "8 cards in a ring turn slowly, larger and brighter in front, smaller and darker behind; partway through a finger drags right to spin the ring.",
+        "zh-Hans": "8 张卡片围成一圈缓慢旋转，近处大而亮、远处小而暗；中途手指向右拖动转动圆环。"
+      },
+      "spec": {
+        "ja": [
+          "84×108のカード8枚が半径190の輪に並び、24秒で一周する速さで回る",
+          "各カードは z=cos(角度) で大きさ0.55〜1、幅にさらに 0.3+0.7·|z| を掛けて横向きを表す。奥ほど上へ寄り、最大0.45の暗さが重なる",
+          "z の奥から手前の順に描き、裏を向いたカードは裏面だけを描く",
+          "指が1.6〜2.6秒に右へ160pxドラッグし、輪が easeInOut 3乗で逆向きに67.5°余分に回る。周期4.5秒分の自転と相殺され、周期の始めと終わりで角度が揃う"
+        ],
+        "en": [
+          "8 cards, 84×108, sit on a ring of radius 190 that turns at one revolution per 24 s.",
+          "Each card scales 0.55–1 by z=cos(angle), and its width is further multiplied by 0.3+0.7·|z| to show it turning; farther cards sit higher and take up to 0.45 of darkening.",
+          "Cards are drawn from far to near by z, and those facing away show only their back.",
+          "A finger drags 160px right over 1.6–2.6 s, turning the ring an extra 67.5° the other way (easeInOut power 3), which cancels one 4.5 s cycle of rotation so the angle matches at the start and end."
+        ],
+        "zh-Hans": [
+          "8 张 84×108 卡片排在半径 190 的圆环上，以 24 秒一圈的速度旋转。",
+          "每张卡按 z=cos(角度) 缩放 0.55–1，宽度再乘 0.3+0.7·|z| 表现侧转；越远位置越高，最多叠 0.45 的暗度。",
+          "按 z 由远到近绘制，背面朝外的卡片只画卡背。",
+          "手指 1.6–2.6 秒向右拖 160px，圆环按 easeInOut 3 次方反向额外转 67.5°，正好抵消一个 4.5 秒周期的自转，首尾角度一致。"
+        ]
+      },
+      "use": {
+        "ja": "作品集・商品紹介・ヒーローの展示など、多くの画像を一つの場所で見せたいときに。",
+        "en": "Use it for portfolios, product showcases or hero displays that present many images in one spot.",
+        "zh-Hans": "适合作品集、商品展示、首屏展陈等在一处展示多张图片的场景。"
+      },
+      "tags": [
+        "3d-carousel",
+        "ring",
+        "carousel",
+        "gallery",
+        "rotate",
+        "drag"
+      ]
+    },
+    {
+      "no": "52",
+      "id": "1-150",
+      "slug": "collapsible-sidebar",
+      "category": "navigate-status",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "折りたたみサイドバー",
+        "en": "Collapsible sidebar",
+        "zh-Hans": "侧栏收合"
+      },
+      "meaning": {
+        "ja": "サイドバーがアイコンだけの細い帯にたたまれる",
+        "en": "A sidebar that folds down to a strip of icons",
+        "zh-Hans": "侧边栏收成只剩图标的窄条"
+      },
+      "ask": {
+        "ja": "管理画面の左メニューを折りたたみサイドバーにして。ボタンで0.45秒かけてアイコンだけに縮め、本文を広げる。",
+        "en": "Make the admin menu a collapsible sidebar: a button shrinks it to icons over 0.45 s and the main area widens.",
+        "zh-Hans": "后台左侧菜单做成侧栏收合：点按钮后 0.45 秒收成只剩图标，主内容区变宽。"
+      },
+      "summary": {
+        "ja": "カーソルがサイドバー下のボタンを押すと、サイドバーがアイコンだけの幅に縮んで文字が消え、右の統計カードとグラフが広がる。後半にもう一度押して元の幅に戻る。",
+        "en": "The cursor clicks the button at the foot of the sidebar; it narrows to its icons as the labels fade, the stat cards and chart on the right widen, and a second click later restores it.",
+        "zh-Hans": "光标点侧栏底部按钮，侧栏收窄到只剩图标、文字淡出，右侧统计卡与折线图同步变宽；后段再点一次展开复原。"
+      },
+      "spec": {
+        "ja": [
+          "管理画面の左に幅150のサイドバー（ナビ4項目、現在の「レポート」は薄い青の地）",
+          "カーソルが0.9秒に下の折りたたみボタンを押すと、0.95〜1.4秒に easeInOut 3乗で幅52まで縮みアイコンだけになる。文字は0.2秒で8px左へずれながら消える",
+          "右の統計カード3枚と折れ線グラフはサイドバーの幅に合わせて同時に広がる",
+          "2.9秒にもう一度押すと2.95〜3.4秒に150へ戻り、文字は3.2〜3.4秒にフェードイン。ボタンの矢印は状態に合わせて180°反転する"
+        ],
+        "en": [
+          "An admin layout with a 150-wide sidebar on the left (4 nav items; the current one, \"Reports\", on a light blue fill).",
+          "The cursor clicks the collapse button at the bottom at 0.9 s; over 0.95–1.4 s (easeInOut power 3) the sidebar narrows to 52, icons only, and the labels fade out in 0.2 s while shifting 8px left.",
+          "The 3 stat cards and the line chart on the right widen in step with the sidebar.",
+          "A second click at 2.9 s widens it back to 150 over 2.95–3.4 s, with labels fading in over 3.2–3.4 s; the button arrow flips 180° with the state."
+        ],
+        "zh-Hans": [
+          "后台界面左侧 150 宽的侧栏（4 个导航项，当前项“报表”为浅蓝底）。",
+          "光标 0.9 秒点底部收合按钮，0.95–1.4 秒（easeInOut 3 次方）侧栏收到 52 宽只剩图标，文字 0.2 秒内左移 8px 并淡出。",
+          "右侧 3 张统计卡与折线图随侧栏宽度同步变宽。",
+          "2.9 秒再点一次，2.95–3.4 秒展开回 150，文字 3.2–3.4 秒淡入；按钮箭头随状态翻转 180°。"
+        ]
+      },
+      "use": {
+        "ja": "管理画面・ダッシュボード・ドキュメントなど、本文を広く使いたい左ナビ付きの画面に。",
+        "en": "Use it in admin panels, dashboards or docs with a left nav where the content sometimes needs more room.",
+        "zh-Hans": "适合后台、仪表盘、文档等带左侧导航、需要腾出内容空间的界面。"
+      },
+      "tags": [
+        "collapsible-sidebar",
+        "sidebar",
+        "navigation",
+        "dashboard",
+        "admin",
+        "collapse"
+      ]
     }
   ]
 }
