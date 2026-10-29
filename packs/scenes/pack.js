@@ -1519,6 +1519,114 @@ MotionPrompt.pack('scenes', function () {
     }
   };
 
+  // @element 40
+  // 改写自 KittenJam Motion Library #175 数字雨（Hannah 整理）：卡片按 14px 字级分成 39 列，每列一串字符匀速下落，最前端的字白亮带光，后面 10–18 格逐渐变暗成绿色拖尾；
+  // 每列的起点、速度（每周期落 1–3 个跨度）与拖尾长度按下标确定；前 3 格每 0.1 秒换字（一周期 64 次）、更后面每 0.4 秒换字，循环无缝。原作逐帧半透明覆盖、随机重置。
+  const MRN_FS = 14, MRN_COLS = Math.ceil(CW / MRN_FS), MRN_ROWS = Math.ceil(CH / MRN_FS), MRN_SPAN = MRN_ROWS + 24;
+  const MRN_GL = [...'0123456789アイウエオカキクケコサシスセソタチツテトナニヌネハヒフヘホマミムメモヤユヨラリルレロワABCDEFZ'];
+  CELLS[39] = (k, w, h, u) => {
+    k.fillStyle = '#020a06'; k.fillRect(0, 0, CW, CH);
+    const step = Math.floor(u * 10 + 1e-6) % 64;
+    k.font = `600 ${MRN_FS}px ${MONO}`; k.textAlign = 'center'; k.textBaseline = 'top';
+    for (let c = 0; c < MRN_COLS; c++) {
+      const n = 1 + Math.floor(kjHash(c, 51) * 3), len = 10 + Math.floor(kjHash(c, 52) * 9);
+      const head = (kjHash(c, 53) * MRN_SPAN + n * MRN_SPAN * u / CYC) % MRN_SPAN - 4;   // 以格为单位，-4 起让字从卡片上方进入
+      const hr = Math.floor(head), x = c * MRN_FS + MRN_FS / 2;
+      for (let j = 0; j <= len; j++) {
+        const r = hr - j; if (r < 0 || r >= MRN_ROWS) continue;
+        // 字符按 (列, 行, 换字步) 取固定值；拖尾后段换得慢
+        const gs = j < 3 ? step : Math.floor(step / 4);
+        const g = MRN_GL[Math.floor(kjHash(c * 97 + r, 54 + gs) * MRN_GL.length) % MRN_GL.length];
+        const y = r * MRN_FS;
+        if (j === 0) { glow(k, x, y + MRN_FS / 2, 14, '120,255,170', 0.35); k.fillStyle = '#eafff0'; }
+        else k.fillStyle = `rgba(60,230,120,${(1 - j / (len + 1)) * 0.9})`;
+        k.fillText(g, x, y);
+      }
+    }
+    // 上下暗边：字从暗处出现、在暗处消失
+    const gr = k.createLinearGradient(0, 0, 0, CH);
+    gr.addColorStop(0, 'rgba(2,10,6,.7)'); gr.addColorStop(0.18, 'rgba(2,10,6,0)'); gr.addColorStop(0.82, 'rgba(2,10,6,0)'); gr.addColorStop(1, 'rgba(2,10,6,.7)');
+    k.fillStyle = gr; k.fillRect(0, 0, CW, CH);
+  };
+
+  // @element 41
+  // 改写自 KittenJam Motion Library #56 文字走廊（Hannah 整理）：一点透视的走廊，地板、天花板、左右墙面铺满重复的「文字走廊」，深度 z = 0.5–8 切成 15 段（段深 0.5），
+  // 所有段向观者移动，6.4 秒前进 4 段（段深的整数倍，循环无缝）；远处 3 个单位内淡入、近处移出画面，消失点有暗色光晕。焦距 300px，走廊半宽 1、半高 0.5。
+  const CORR_F = 300, CORR_DZ = 0.5, CORR_N = 15, CORR_Z0 = 0.5, CORR_TXT = '文字走廊文字走廊';
+  const CORR_COLS = ['#ff8c78', '#96aaff', '#ffd678', '#78e6c8'];   // 地板、天花板、左墙、右墙
+  const CORR_STRIP = CORR_COLS.map(col => {                          // 每面一张预先上色的字带（常量）
+    const c = document.createElement('canvas'); c.width = 512; c.height = 64; const g = c.getContext('2d');
+    g.font = `900 52px ${SANS}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = col;
+    [...CORR_TXT].forEach((ch, i, a) => g.fillText(ch, (i + 0.5) * 512 / a.length, 34));
+    return c;
+  });
+  CELLS[40] = (k, w, h, u) => {
+    k.fillStyle = '#0d0b1a'; k.fillRect(0, 0, CW, CH);
+    const cx = CW / 2, cy = CH / 2, ZF = CORR_Z0 + CORR_N * CORR_DZ;
+    const sx = z => CORR_F / z, sy = z => 0.5 * CORR_F / z;
+    const nx = sx(CORR_Z0), ny = sy(CORR_Z0), fx = sx(ZF), fy = sy(ZF);
+    // 四个面在 z=0.5 与 z=8 之间的梯形，用来裁切每段的字带
+    const SURF = [
+      { poly: [[cx - nx, cy + ny], [cx + nx, cy + ny], [cx + fx, cy + fy], [cx - fx, cy + fy]], wall: false, s: 1 },
+      { poly: [[cx - nx, cy - ny], [cx + nx, cy - ny], [cx + fx, cy - fy], [cx - fx, cy - fy]], wall: false, s: -1 },
+      { poly: [[cx - nx, cy - ny], [cx - fx, cy - fy], [cx - fx, cy + fy], [cx - nx, cy + ny]], wall: true, s: -1 },
+      { poly: [[cx + nx, cy - ny], [cx + fx, cy - fy], [cx + fx, cy + fy], [cx + nx, cy + ny]], wall: true, s: 1 }
+    ];
+    const off = (u / CYC * 4 * CORR_DZ) % CORR_DZ;
+    for (let i = CORR_N - 1; i >= -1; i--) {                                        // 由远到近画；i = −1 是正在移出画面的一段
+      const z = Math.max(0.1, CORR_Z0 + i * CORR_DZ + CORR_DZ - off), z2 = CORR_Z0 + (i + 2) * CORR_DZ - off;   // 本段近边 z、远边 z2
+      const a = clamp((ZF - z) / 3) * 0.8;
+      if (a <= 0) continue;
+      SURF.forEach((S, si) => {
+        k.save(); k.beginPath(); S.poly.forEach((p, q) => q ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.closePath(); k.clip();
+        k.globalAlpha = a;
+        if (!S.wall) {
+          const y1 = cy + S.s * sy(z), y2 = cy + S.s * sy(z2);
+          k.translate(cx, (y1 + y2) / 2); if (S.s < 0) k.scale(1, -1);
+          k.drawImage(CORR_STRIP[si], -sx(z), -Math.abs(y1 - y2) / 2, 2 * sx(z), Math.abs(y1 - y2));
+        } else {
+          const x1 = cx + S.s * sx(z), x2 = cx + S.s * sx(z2);
+          k.translate((x1 + x2) / 2, cy); k.rotate(S.s * Math.PI / 2);              // 旋转后局部 x 轴沿屏幕竖直方向
+          k.drawImage(CORR_STRIP[si], -sy(z), -Math.abs(x1 - x2) / 2, 2 * sy(z), Math.abs(x1 - x2));
+        }
+        k.restore();
+      });
+    }
+    k.strokeStyle = 'rgba(255,255,255,.12)'; k.lineWidth = 1;
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => { k.beginPath(); k.moveTo(cx + a * nx, cy + b * ny); k.lineTo(cx + a * fx, cy + b * fy); k.stroke(); });
+    const gr = k.createRadialGradient(cx, cy, 0, cx, cy, 90);
+    gr.addColorStop(0, 'rgba(8,6,16,1)'); gr.addColorStop(0.45, 'rgba(8,6,16,.75)'); gr.addColorStop(1, 'rgba(8,6,16,0)');
+    k.fillStyle = gr; k.fillRect(0, 0, CW, CH);
+  };
+
+  // @element 42
+  // 改写自 KittenJam Motion Library #230 起伏线条（Hannah 整理）：26 条水平细线，每条取 80 个点，y = 基准 + 7·sin(0.018x + 2πu/6.4 + 0.35j) + 4·sin(0.043x − 4πu/6.4 + 0.35j)，
+  // 相邻线相位错开，每 5 条有一条较粗较亮。模拟光标 0.8–5.4 秒从卡片左外侧 −200px 扫到右外侧 740px（上下起伏 46px），附近的线被高斯形（σx 56px、σy 40px）平滑拱起最多 26px，离开后恢复。原作为真实鼠标。
+  const WAVY_N = 26, WAVY_P = 80;
+  const WAVY_cur = u => { const e = inOut3(seg(u, 0.8, 5.4)); return [mix(-200, 740, e), 104 + 46 * Math.sin(e * TAU * 1.25)]; };
+  CELLS[41] = (k, w, h, u) => {
+    k.drawImage(layer('WAVY_bg', g => {
+      const gr = g.createLinearGradient(0, 0, CW, CH); gr.addColorStop(0, '#101828'); gr.addColorStop(1, '#1d1430');
+      g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+    }), 0, 0);
+    const [mx, my] = WAVY_cur(u);
+    const ph = TAU * u / CYC, gap = (CH - 24) / (WAVY_N - 1);
+    k.lineJoin = 'round';
+    for (let j = 0; j < WAVY_N; j++) {
+      const base = 12 + j * gap, hi = j % 5 === 2;
+      k.beginPath();
+      for (let p = 0; p < WAVY_P; p++) {
+        const x = p / (WAVY_P - 1) * CW;
+        let y = base + 7 * Math.sin(x * 0.018 + ph + j * 0.35) + 4 * Math.sin(x * 0.043 - 2 * ph + j * 0.35);
+        y -= 26 * Math.exp(-((x - mx) * (x - mx)) / (2 * 56 * 56) - ((base - my) * (base - my)) / (2 * 40 * 40));
+        p ? k.lineTo(x, y) : k.moveTo(x, y);
+      }
+      k.strokeStyle = hi ? 'rgba(140,220,255,.85)' : `rgba(170,160,230,${(0.22 + 0.12 * Math.sin(j * 0.7)).toFixed(3)})`;
+      k.lineWidth = hi ? 2 : 1; k.stroke();
+    }
+    kjCursor(k, mx, my);
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

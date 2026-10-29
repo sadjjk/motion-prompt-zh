@@ -3021,6 +3021,889 @@
           "生物识别"
         ]
       }
+    },
+    {
+      "no": "47",
+      "id": "2-086",
+      "slug": "laser-cut",
+      "category": "text-shapes",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "レーザーカット",
+        "en": "Laser cut",
+        "zh-Hans": "激光切断"
+      },
+      "meaning": {
+        "ja": "光線が文字を上下に切り分ける",
+        "en": "A laser line slices the text into two offset halves",
+        "zh-Hans": "激光把文字上下切开错位"
+      },
+      "ask": {
+        "ja": "タイトルをレーザーカットで。光の線が中央を横切り、上下が斜めにずれて少し止まってから戻るように。",
+        "en": "Give the title a laser cut: a glowing line crosses its middle, the halves slide apart diagonally, hold, then rejoin.",
+        "zh-Hans": "标题用激光切断：发光线横扫中线，上下两半斜着错开，停一下再合回。"
+      },
+      "summary": {
+        "ja": "火花を散らす光の線が文字の中央を左から右へ走り、通り過ぎると上半分が左上、下半分が右下へずれて傾き、しばらくして元に戻る。",
+        "en": "A sparking laser runs left to right along the middle of the word; once it passes, the top half slides up-left and the bottom half down-right with a slight tilt, then they rejoin.",
+        "zh-Hans": "带火花的激光沿字的中线从左扫到右，扫过后上半截向左上、下半截向右下错开并微倾，停留后合回。"
+      },
+      "spec": {
+        "ja": [
+          "0.3〜1.2秒に光の線（白い芯2.5px＋コーラルの光 16/8px）が中央線を左から右へ走り、先端に火花8粒",
+          "1.2〜1.55秒に上半分が (−16, −12px)・−3°、下半分が (16, 12px)・2° へ三次の ease-out でずれる",
+          "切り口に赤い余熱の線が出て、2.6秒までに消える",
+          "3.7〜4.3秒に三次の easeInOut で元の位置へ戻る"
+        ],
+        "en": [
+          "Over 0.3–1.2 s a laser (2.5 px white core with 16/8 px coral glow) runs along the middle from left to right, with 8 sparks at its tip.",
+          "Over 1.2–1.55 s the top half moves to (−16, −12 px) at −3° and the bottom half to (16, 12 px) at 2°, with a cubic ease-out.",
+          "A red hot edge shows along the cut and fades by 2.6 s.",
+          "Over 3.7–4.3 s the halves return with a cubic ease-in-out."
+        ],
+        "zh-Hans": [
+          "0.3–1.2 秒激光（2.5 px 白芯＋16/8 px 珊瑚色光晕）沿中线从左扫到右，前端有 8 颗火花",
+          "1.2–1.55 秒上半截移到 (−16, −12 px)、−3°，下半截移到 (16, 12 px)、2°，三次缓出",
+          "切口出现红色余热边，2.6 秒前消失",
+          "3.7–4.3 秒以三次缓入缓出合回原位"
+        ]
+      },
+      "use": {
+        "ja": "SF・アクション系のタイトルや、場面を断ち切る転換に。",
+        "en": "Use it for sci-fi or action titles, or as a cut between scenes.",
+        "zh-Hans": "适合科幻、动作类标题，或切断式的转场。"
+      },
+      "tags": [
+        "laser",
+        "cut",
+        "slice",
+        "split",
+        "sci-fi",
+        "title"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "激光切割",
+          "切开"
+        ]
+      }
+    },
+    {
+      "no": "48",
+      "id": "2-087",
+      "slug": "text-fan",
+      "category": "text-shapes",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "文字の扇",
+        "en": "Text fan",
+        "zh-Hans": "文字扇"
+      },
+      "meaning": {
+        "ja": "同じ字が扇のように開く",
+        "en": "Copies of one character open out like a folding fan",
+        "zh-Hans": "同一个字像扇子一样展开"
+      },
+      "ask": {
+        "ja": "「扇」の字を7枚重ねて、下の一点を軸に扇のように開いて閉じる文字扇にして。",
+        "en": "Make a text fan: stack 7 copies of one character and open them around a point below like a folding fan, then close.",
+        "zh-Hans": "把「扇」字复制 7 份做文字扇：以下方一点为轴像扇子一样展开再收拢。"
+      },
+      "summary": {
+        "ja": "重なった7つの「扇」が下の黄色い要を軸に扇形に開き、中央の白い1枚の両側にコーラルの半透明な字が並び、しばらくして閉じる。",
+        "en": "Seven stacked copies of 扇 swing open around a yellow pivot below into a fan, with translucent coral copies either side of the white centre one, then fold shut.",
+        "zh-Hans": "7 个叠在一起的「扇」以下方黄色轴点展开成扇形，中间白色一份两侧是半透明珊瑚色副本，停留后收拢。"
+      },
+      "spec": {
+        "ja": [
+          "同じ字7枚、軸は字の中心から下へ112px",
+          "0.5〜1.9秒に (i−3)×24° まで三次の easeInOut で開き、3.6秒まで止まる",
+          "3.6〜4.5秒に閉じる",
+          "中央は白で不透明、両側はコーラルで外ほど薄い（0.7 − 0.12×距離）"
+        ],
+        "en": [
+          "7 copies of one character pivot on a point 112 px below the character centre.",
+          "Over 0.5–1.9 s they open to (i−3)×24° with a cubic ease-in-out and hold until 3.6 s.",
+          "Over 3.6–4.5 s they fold back.",
+          "The centre copy is opaque white; the others are coral, fainter further out (0.7 − 0.12 × distance)."
+        ],
+        "zh-Hans": [
+          "同一个字 7 份，轴点在字中心下方 112 px",
+          "0.5–1.9 秒以三次缓入缓出展开到 (i−3)×24°，停到 3.6 秒",
+          "3.6–4.5 秒收拢",
+          "中间一份白色不透明，其余为珊瑚色，越外越淡（0.7 − 0.12×距离）"
+        ]
+      },
+      "use": {
+        "ja": "和風・伝統系のロゴや、ブランド名の登場に。",
+        "en": "Use it for Japanese-style or traditional logos and brand reveals.",
+        "zh-Hans": "适合和风、传统风格的 Logo 或品牌名登场。"
+      },
+      "tags": [
+        "fan",
+        "radial",
+        "rotate",
+        "copies",
+        "japanese",
+        "logo"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "扇形展开"
+        ]
+      }
+    },
+    {
+      "no": "49",
+      "id": "2-088",
+      "slug": "swing-letters",
+      "category": "text-shapes",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "振り子の揺れ",
+        "en": "Swing letters",
+        "zh-Hans": "钟摆摇晃"
+      },
+      "meaning": {
+        "ja": "一点に吊られた字が振り子のように揺れる",
+        "en": "Letters hang from a point and swing like pendulums",
+        "zh-Hans": "吊在一点上的字像钟摆一样摆动"
+      },
+      "ask": {
+        "ja": "キャラクター名を振り子の揺れで。各文字を上の点から吊るし、±14°で少しずつずらして揺らして。",
+        "en": "Give the character name swing letters: hang each letter from a point above and swing it ±14°, staggered.",
+        "zh-Hans": "角色名用钟摆摇晃：每个字吊在上方一点，±14° 左右摆，相位错开。"
+      },
+      "summary": {
+        "ja": "横棒から糸で吊られた4文字が、上の黄色い支点を中心に左右へゆったり揺れ、隣の字と少しずつ位相がずれている。",
+        "en": "Four characters hang on threads from a rail and swing lazily about yellow pivots above them, each slightly out of phase with its neighbour.",
+        "zh-Hans": "4 个字用细线挂在横杆下，以上方黄色支点为中心缓缓左右摆动，相邻字相位略有错开。"
+      },
+      "spec": {
+        "ja": [
+          "各字は上の支点から吊られ、±14°で振れる",
+          "4.7秒で3往復（1往復約1.57秒）の余弦カーブ",
+          "隣の字は0.27秒ずつ位相がずれる",
+          "偶数番目の字はコーラル、ほかは白"
+        ],
+        "en": [
+          "Each character hangs from a pivot above and swings ±14°.",
+          "It makes 3 swings in 4.7 s (about 1.57 s each) on a cosine curve.",
+          "Neighbouring characters are offset by 0.27 s.",
+          "Every second character is coral, the rest white."
+        ],
+        "zh-Hans": [
+          "每个字吊在上方支点，摆幅 ±14°",
+          "4.7 秒摆 3 个来回（每个约 1.57 秒），余弦曲线",
+          "相邻字相位错开 0.27 秒",
+          "偶数位字为珊瑚色，其余白色"
+        ]
+      },
+      "use": {
+        "ja": "ゆるい雰囲気のロゴやキャラクター紹介、待機画面に。",
+        "en": "Use it for relaxed logos, character intros or idle screens.",
+        "zh-Hans": "适合慵懒可爱的 Logo、角色介绍或待机画面。"
+      },
+      "tags": [
+        "swing",
+        "pendulum",
+        "sway",
+        "hanging",
+        "cute",
+        "idle"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "摇摆",
+          "挂牌"
+        ]
+      }
+    },
+    {
+      "no": "50",
+      "id": "2-089",
+      "slug": "text-tunnel",
+      "category": "text-shapes",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "文字トンネル",
+        "en": "Text tunnel",
+        "zh-Hans": "文字隧道"
+      },
+      "meaning": {
+        "ja": "文字の層の中を突き抜けていく",
+        "en": "Layers of a word fly past as if through a tunnel",
+        "zh-Hans": "像穿过一层层文字组成的隧道"
+      },
+      "ask": {
+        "ja": "オープニングに文字トンネルを。同じ語の層が中心から次々に拡大して画面の外へ抜けていくように。",
+        "en": "Open with a text tunnel: layers of the same word grow from the centre one after another and fly off the screen.",
+        "zh-Hans": "开场加文字隧道：同一个词的多层副本从中心依次放大并冲出画面。"
+      },
+      "summary": {
+        "ja": "「穿越」の層が中心の小さな点から次々と拡大して画面の外へ抜け、白とコーラルの層が交互に流れ、中心は暗く沈んでいる。",
+        "en": "Layers of 穿越 keep growing out of a tiny point in the centre and rush off the edges, alternating white and coral, with a dark glow at the centre.",
+        "zh-Hans": "「穿越」一层层从中心的小点放大并冲出画面，白色与珊瑚色交替，中心有暗色光晕。"
+      },
+      "spec": {
+        "ja": [
+          "同じ語8層が中心で0.04倍から9倍まで指数的に拡大する",
+          "1層が通り抜けるのに4.7秒、各層の位相は1/8ずつずれる",
+          "前半25%で現れ、後半40%で消える",
+          "隣の層は白とコーラルが交互で、中心半径70pxに暗い光"
+        ],
+        "en": [
+          "8 layers of one word scale exponentially from 0.04× to 9× from the centre.",
+          "Each layer takes 4.7 s to pass, phases offset by 1/8.",
+          "Each fades in over the first 25% and out over the last 40%.",
+          "Layers alternate white and coral, with a dark glow of radius 70 px at the centre."
+        ],
+        "zh-Hans": [
+          "同一个词 8 层从中心按指数从 0.04 倍放大到 9 倍",
+          "每层穿过需 4.7 秒，相位依次错开 1/8",
+          "前 25% 淡入，后 40% 淡出",
+          "相邻层白色与珊瑚色交替，中心半径 70 px 暗色光晕"
+        ]
+      },
+      "use": {
+        "ja": "オープニング、ワープ・突入の演出、場面転換に。",
+        "en": "Use it for openings, warp-in moments or scene changes.",
+        "zh-Hans": "适合开场、穿越突入或场景切换。"
+      },
+      "tags": [
+        "tunnel",
+        "zoom",
+        "warp",
+        "depth",
+        "loop",
+        "intro"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "穿越",
+          "无限放大"
+        ]
+      }
+    },
+    {
+      "no": "51",
+      "id": "2-090",
+      "slug": "extrude-text",
+      "category": "text-shapes",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "押し出し文字",
+        "en": "Extruded text",
+        "zh-Hans": "立体字"
+      },
+      "meaning": {
+        "ja": "厚みのある3D文字が回る",
+        "en": "Text with real depth turns to show its side",
+        "zh-Hans": "有厚度的 3D 字转动露出侧面"
+      },
+      "ask": {
+        "ja": "タイトルを押し出しの立体文字にして、縦軸で5秒くらいで1回転させて厚みが見えるように。",
+        "en": "Make the title extruded 3D text and spin it once around the vertical axis in about 5 s so the depth shows.",
+        "zh-Hans": "把标题做成立体字，绕竖轴约 5 秒转一圈，能看到厚度。"
+      },
+      "summary": {
+        "ja": "白い正面の後ろに暗いコーラルの層が重なって厚みを作る「立体」が縦軸でゆっくり1回転し、横向きになると厚みが見える。",
+        "en": "立体 with a white face and darker coral layers stacked behind for depth turns slowly once around the vertical axis, showing its thickness side-on.",
+        "zh-Hans": "白色正面、后面叠着渐暗珊瑚色层做出厚度的「立体」绕竖轴缓慢转一圈，转到侧面能看到厚度。"
+      },
+      "spec": {
+        "ja": [
+          "正面は白、後ろに珊瑚色の階調14層（1層の奥行き2.6px、奥ほど暗い）",
+          "4.7秒で縦軸に等速1回転（scaleX = cos）",
+          "12°の俯角で層が少し上へずれる",
+          "背面を向くと重なり順を入れ替え、手前が最も深い層になる"
+        ],
+        "en": [
+          "A white face with 14 coral layers behind it (2.6 px deep each, darker further back).",
+          "It turns once around the vertical axis every 4.7 s at a constant rate (scaleX = cos).",
+          "A 12° tilt shifts the layers slightly upward.",
+          "When it faces away the draw order flips so the deepest layer is in front."
+        ],
+        "zh-Hans": [
+          "正面白色，后面 14 层珊瑚色阶（每层深 2.6 px，越深越暗）",
+          "每 4.7 秒绕竖轴匀速转一圈（scaleX = cos）",
+          "12° 俯角让各层略向上错位",
+          "转到背面时调换绘制顺序，最深一层在前"
+        ]
+      },
+      "use": {
+        "ja": "ロゴ、タイトル、ゲーム風の見出しに。",
+        "en": "Use it for logos, titles or game-style headings.",
+        "zh-Hans": "适合 Logo、标题或游戏风格的大字。"
+      },
+      "tags": [
+        "extrude",
+        "3d",
+        "depth",
+        "rotate",
+        "title",
+        "logo"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "3D字",
+          "挤出"
+        ]
+      }
+    },
+    {
+      "no": "52",
+      "id": "2-091",
+      "slug": "neon-flicker",
+      "category": "text-shapes",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "ネオン点灯",
+        "en": "Neon flicker",
+        "zh-Hans": "霓虹闪烁"
+      },
+      "meaning": {
+        "ja": "ネオン管がちらついてから点く",
+        "en": "Neon tubes flicker before they light up",
+        "zh-Hans": "霓虹灯管闪几下后点亮"
+      },
+      "ask": {
+        "ja": "看板風のタイトルにネオンの点灯を。不規則に2、3回ちらついてから点き、たまに1文字だけ接触不良で瞬くように。",
+        "en": "Add a neon flicker to the sign-style title: it flickers 2 or 3 times irregularly, then lights, and one letter occasionally blinks as if loose.",
+        "zh-Hans": "招牌风标题加霓虹闪烁：先不规则闪 2、3 下再点亮，偶尔有一个字接触不良地闪。"
+      },
+      "summary": {
+        "ja": "暗いれんが壁の「营业中」の管が不規則に瞬いて点き、コーラルの光が壁を照らし、途中で最後の1字だけ消えかけ、また全体が一瞬ちらつく。",
+        "en": "On a dark brick wall the tubes of 营业中 flicker irregularly and light, washing the wall in coral; later only the last character drops out briefly, then the whole sign flickers once more.",
+        "zh-Hans": "深色砖墙上「营业中」灯管不规则闪几下后点亮，珊瑚色光照亮墙面；之后只有最后一个字短暂熄灭，整体又闪一下。"
+      },
+      "spec": {
+        "ja": [
+          "暗い管は線幅3pxの輪郭、0.45〜0.92秒に3回不規則にちらついて点灯",
+          "光は線幅24/14/7pxの3層＋明るい芯3.5px、壁に半径240pxの光",
+          "1.6秒から最後の字だけ2回消え、3.1秒に全体がもう一度ちらつく",
+          "4.25〜4.55秒に消灯して元に戻る"
+        ],
+        "en": [
+          "The unlit tubes are 3 px outlines; over 0.45–0.92 s they flicker irregularly 3 times and light.",
+          "The glow is 3 strokes of 24/14/7 px plus a 3.5 px bright core, with a 240 px radial light on the wall.",
+          "From 1.6 s only the last character drops out 2 times; at 3.1 s the whole sign flickers once more.",
+          "Over 4.25–4.55 s it switches off and resets."
+        ],
+        "zh-Hans": [
+          "未亮时为 3 px 轮廓，0.45–0.92 秒不规则闪 3 下后点亮",
+          "光晕为线宽 24/14/7 px 的 3 层加 3.5 px 亮芯，墙面有半径 240 px 的光",
+          "1.6 秒起只有最后一个字熄 2 次，3.1 秒整体再闪一下",
+          "4.25–4.55 秒熄灭复位"
+        ]
+      },
+      "use": {
+        "ja": "夜の街、バー、ゲームなどのタイトルや看板の演出に。",
+        "en": "Use it for night-life, bar or game titles and sign-style shots.",
+        "zh-Hans": "适合夜生活、酒吧、游戏类标题或招牌画面。"
+      },
+      "tags": [
+        "neon",
+        "flicker",
+        "glow",
+        "sign",
+        "night",
+        "tube"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "霓虹灯",
+          "招牌"
+        ]
+      }
+    },
+    {
+      "no": "53",
+      "id": "2-092",
+      "slug": "tracking-expand",
+      "category": "text-shapes",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "トラッキング展開",
+        "en": "Tracking expand",
+        "zh-Hans": "字距展开"
+      },
+      "meaning": {
+        "ja": "重なった字が字間を広げて現れる",
+        "en": "Overlapping letters spread to normal spacing as they appear",
+        "zh-Hans": "叠在一起的字散开成正常字距"
+      },
+      "ask": {
+        "ja": "見出しをトラッキング展開で。字が重なってぼけた状態から、1秒ほどで字間が開いてくっきりするように。",
+        "en": "Bring the heading in with a tracking expand: from overlapping and blurred, the letter spacing opens up and sharpens in about 1 s.",
+        "zh-Hans": "标题用字距展开：从叠在一起的模糊状态，约 1 秒内字距散开并变清晰。"
+      },
+      "summary": {
+        "ja": "クリーム地で、重なってぼけた「展开视野」が中心から左右へ広がりながらくっきりし、下の線も幅に合わせて伸び、しばらくして再びぼけて消える。",
+        "en": "On a cream ground the blurred, overlapping 展开视野 spreads out from the centre and sharpens while the rule below stretches with it, then blurs away again.",
+        "zh-Hans": "奶油色底上，叠在一起模糊的「展开视野」从中心向两侧散开并变清晰，下方细线随宽度伸长，停留后再模糊消失。"
+      },
+      "spec": {
+        "ja": [
+          "字間は −0.55em（字が重なる）から 0.06em へ",
+          "0.3〜1.4秒に三次の ease-out で開き、ぼかし6px→0、0.3〜1.0秒で現れる",
+          "下のコーラルの線（3px）は行の幅に合わせて伸びる",
+          "3.8〜4.4秒にぼかし4pxまで戻りながら消える"
+        ],
+        "en": [
+          "Letter spacing goes from −0.55 em (overlapping) to 0.06 em.",
+          "It opens over 0.3–1.4 s with a cubic ease-out, blur 6 px → 0, fading in over 0.3–1.0 s.",
+          "A 3 px coral rule below stretches to the line's width.",
+          "Over 3.8–4.4 s it blurs up to 4 px and fades out."
+        ],
+        "zh-Hans": [
+          "字距从 −0.55em（字叠在一起）到 0.06em",
+          "0.3–1.4 秒三次缓出展开，模糊 6 px → 0，0.3–1.0 秒淡入",
+          "下方 3 px 珊瑚色细线随整行宽度伸长",
+          "3.8–4.4 秒模糊到 4 px 并淡出"
+        ]
+      },
+      "use": {
+        "ja": "上品な見出し、ブランドのキャッチコピー、章タイトルに。",
+        "en": "Use it for refined headings, brand taglines or chapter titles.",
+        "zh-Hans": "适合简洁大气的标题、品牌口号或章节标题。"
+      },
+      "tags": [
+        "tracking",
+        "letter-spacing",
+        "spread",
+        "blur",
+        "reveal",
+        "heading"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "字距",
+          "散开"
+        ]
+      }
+    },
+    {
+      "no": "54",
+      "id": "2-093",
+      "slug": "strike-rewrite",
+      "category": "text-shapes",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "取り消して書き直し",
+        "en": "Strike and rewrite",
+        "zh-Hans": "划掉改写"
+      },
+      "meaning": {
+        "ja": "語を線で消して手書きで書き直す",
+        "en": "A word is struck out and a better one handwritten",
+        "zh-Hans": "一笔划掉旧词，再手写出新词"
+      },
+      "ask": {
+        "ja": "コピーの「便宜」を一本線で消して、その下に手書き風の「实惠」を1字ずつ書く取り消し書き直しにして。",
+        "en": "Do a strike and rewrite on the copy: cross out 便宜 with one stroke and handwrite 实惠 below it one character at a time.",
+        "zh-Hans": "文案里的「便宜」用一笔划掉，下面手写出「实惠」，逐字写出。"
+      },
+      "summary": {
+        "ja": "白い「便宜」に斜めのコーラルの太線が左から引かれて薄くなり、曲がった矢印が下を指し、黄色い楷書の「实惠」がペン先の点とともに1字ずつ書かれる。",
+        "en": "A slanted coral bar strikes through the white word 便宜 from the left and it dims; a curved arrow points down and a yellow brush-style 实惠 is written out character by character behind a pen dot.",
+        "zh-Hans": "白色「便宜」被一道斜的珊瑚色粗线从左划掉并变淡，弯箭头指向下方，黄色楷体「实惠」随笔尖圆点逐字写出。"
+      },
+      "spec": {
+        "ja": [
+          "0〜0.3秒に旧語が現れ、0.4〜0.85秒に −4° の太線（7px）が左から右へ引かれる",
+          "0.85〜1.1秒に旧語が0.4まで薄くなり、0.9〜1.15秒に曲がった矢印が描かれる",
+          "新語は楷書の黄色で、1.15秒から0.45秒間隔・各0.4秒で左から右へ書き出し、ペン先の点が付く",
+          "4.0〜4.5秒に全体が消える"
+        ],
+        "en": [
+          "Over 0–0.3 s the old word fades in; over 0.4–0.85 s a 7 px bar at −4° draws through it from left to right.",
+          "Over 0.85–1.1 s the old word dims to 0.4; over 0.9–1.15 s a curved arrow draws.",
+          "The new word, in yellow brush script, writes out left to right from 1.15 s, 0.45 s apart and 0.4 s per character, with a pen dot.",
+          "Over 4.0–4.5 s everything fades out."
+        ],
+        "zh-Hans": [
+          "0–0.3 秒旧词淡入，0.4–0.85 秒一道 −4° 的 7 px 粗线从左到右划过",
+          "0.85–1.1 秒旧词变淡到 0.4，0.9–1.15 秒画出弯箭头",
+          "新词为黄色楷体，1.15 秒起间隔 0.45 秒、每字 0.4 秒由左往右写出，笔尖圆点跟随",
+          "4.0–4.5 秒整体淡出"
+        ]
+      },
+      "use": {
+        "ja": "言い換えで価値を強調するコピー、ビフォー・アフター、訂正の演出に。",
+        "en": "Use it to stress a better wording in copy, for before/after messages or corrections.",
+        "zh-Hans": "适合用更好的说法强调卖点、前后对比或改正的画面。"
+      },
+      "tags": [
+        "strikethrough",
+        "rewrite",
+        "correction",
+        "handwriting",
+        "copywriting",
+        "emphasis"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "删除线",
+          "改字"
+        ]
+      }
+    },
+    {
+      "no": "55",
+      "id": "2-094",
+      "slug": "echo-stack",
+      "category": "text-shapes",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "エコースタック",
+        "en": "Echo stack",
+        "zh-Hans": "残影堆叠"
+      },
+      "meaning": {
+        "ja": "輪郭だけの複製が階段状にずれて並ぶ",
+        "en": "Outlined copies step out behind the text like an echo",
+        "zh-Hans": "空心描边副本阶梯状错开成残影"
+      },
+      "ask": {
+        "ja": "見出しにエコースタックを。輪郭だけの複製5枚を右上へ順に広げて、少し止めてから重ね戻して。",
+        "en": "Add an echo stack to the heading: fan 5 outlined copies out to the upper right in turn, hold, then fold them back.",
+        "zh-Hans": "标题加残影堆叠：5 层空心描边副本依次向右上展开，停一下再收回重叠。"
+      },
+      "summary": {
+        "ja": "白い太字の「回声」の後ろからコーラルの輪郭だけの複製5枚が順に右上へ階段状に広がり、奥ほど薄く、しばらくして元へ重なる。",
+        "en": "Five coral outline copies step out one by one to the upper right behind the bold white 回声, fainter further back, then slide back under it.",
+        "zh-Hans": "白色粗体「回声」后面 5 层珊瑚色空心副本依次向右上阶梯状展开，越后越淡，停留后收回重叠。"
+      },
+      "spec": {
+        "ja": [
+          "輪郭（線幅2px）の複製5枚、透明度は 0.85 − 0.14×層",
+          "0.4秒から0.06秒間隔・各0.7秒で、1層あたり (14, −11px) へ三次の easeInOut で開く",
+          "3.0秒から外側の層から順に同じ間隔で戻る",
+          "正面の字は白で、常に一番上"
+        ],
+        "en": [
+          "5 outline copies (2 px stroke), opacity 0.85 − 0.14 × layer.",
+          "From 0.4 s, 0.06 s apart and 0.7 s each, they move out by (14, −11 px) per layer with a cubic ease-in-out.",
+          "From 3.0 s they return in the same steps, outermost first.",
+          "The front word is white and always on top."
+        ],
+        "zh-Hans": [
+          "5 层描边（线宽 2 px）副本，不透明度 0.85 − 0.14×层",
+          "0.4 秒起间隔 0.06 秒、各 0.7 秒，以三次缓入缓出展开到每层 (14, −11 px)",
+          "3.0 秒起由外到内按同样间隔收回",
+          "正面字为白色，始终在最上层"
+        ]
+      },
+      "use": {
+        "ja": "ポスター風の見出し、音楽・イベント告知、強調したい一語に。",
+        "en": "Use it for poster-style headings, music or event promos, or a word you want to stress.",
+        "zh-Hans": "适合海报风标题、音乐活动宣传或需要强调的词。"
+      },
+      "tags": [
+        "echo",
+        "outline",
+        "stack",
+        "offset",
+        "retro",
+        "heading"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "回声字",
+          "描边残影"
+        ]
+      }
+    },
+    {
+      "no": "56",
+      "id": "2-095",
+      "slug": "multilingual-greeting",
+      "category": "text-shapes",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "多言語あいさつ",
+        "en": "Multilingual greeting",
+        "zh-Hans": "多语问候切换"
+      },
+      "meaning": {
+        "ja": "各国語のあいさつが入れ替わる",
+        "en": "Greetings in different languages take turns",
+        "zh-Hans": "不同语言的问候轮流出现"
+      },
+      "ask": {
+        "ja": "ヒーローに多言語あいさつを。1秒ちょっとごとに語がぼかしで入れ替わり、枠の幅が新しい語に合わせて滑らかに変わるように。",
+        "en": "Put a multilingual greeting in the hero: the word swaps with a blur every second or so, and the frame width eases to fit the new word.",
+        "zh-Hans": "首屏放多语问候切换：每隔一秒多换一种语言，模糊淡入淡出，外框宽度平滑跟随新词。"
+      },
+      "summary": {
+        "ja": "カプセル形の枠の中で「你好」「Hello」「こんにちは」「Bonjour」が上へぼけて消え下からぼけて現れ、枠の幅と後ろの点が語の長さに合わせて滑らかに動く。",
+        "en": "Inside a pill-shaped frame 你好, Hello, こんにちは and Bonjour blur out upward and blur in from below, while the frame width and the dot after it glide to fit each word.",
+        "zh-Hans": "胶囊框里「你好」「Hello」「こんにちは」「Bonjour」向上模糊淡出、从下方模糊淡入，框宽与后面的圆点随词长平滑移动。"
+      },
+      "spec": {
+        "ja": [
+          "4語を1.175秒ごとに切り替える（4.7秒で1巡）",
+          "旧語は0.3秒で上へ18px、ぼかし6pxまで消える",
+          "新語は0.15〜0.5秒に下18pxから、ぼかし6px→0で現れる",
+          "枠の幅は0〜0.5秒に三次の easeInOut で新しい語の幅＋左右30pxへ、後ろの点も一緒に動く"
+        ],
+        "en": [
+          "4 words switch every 1.175 s (one round in 4.7 s).",
+          "The old word moves up 18 px and blurs to 6 px as it fades over 0.3 s.",
+          "The new word comes in from 18 px below over 0.15–0.5 s, blur 6 px → 0.",
+          "Over 0–0.5 s the frame width eases (cubic in-out) to the new word plus 30 px each side, carrying the dot."
+        ],
+        "zh-Hans": [
+          "4 个词每 1.175 秒切换一次（4.7 秒一轮）",
+          "旧词在 0.3 秒内上移 18 px、模糊到 6 px 淡出",
+          "新词 0.15–0.5 秒从下方 18 px 处出现，模糊 6 px → 0",
+          "0–0.5 秒框宽以三次缓入缓出变为新词宽度加左右各 30 px，后面的圆点同步移动"
+        ]
+      },
+      "use": {
+        "ja": "国際的なブランドや旅行・語学サービスのヒーロー、ウェルカム画面に。",
+        "en": "Use it in heroes for global brands, travel or language services, or on welcome screens.",
+        "zh-Hans": "适合国际化品牌、旅行或语言服务的首屏和欢迎页。"
+      },
+      "tags": [
+        "greeting",
+        "multilingual",
+        "hello",
+        "rotate-words",
+        "blur",
+        "hero"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "你好",
+          "轮播问候"
+        ]
+      }
+    },
+    {
+      "no": "57",
+      "id": "2-096",
+      "slug": "number-slam",
+      "category": "text-shapes",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "カウントダウン・スラム",
+        "en": "Countdown slam",
+        "zh-Hans": "倒数砸落"
+      },
+      "meaning": {
+        "ja": "カウントの数字が大きく叩きつけられる",
+        "en": "Countdown numbers slam down from huge",
+        "zh-Hans": "倒数数字逐个从大处砸下"
+      },
+      "ask": {
+        "ja": "オープニングにカウントダウン・スラムを。3、2、1、GO! が1つ0.75秒で、3倍から叩きつけて少し跳ね返るように。",
+        "en": "Open with a countdown slam: 3, 2, 1, GO!, 0.75 s each, slamming down from 3× with a small rebound.",
+        "zh-Hans": "开场加倒数砸落：3、2、1、GO! 每个 0.75 秒，从 3 倍砸下并轻微回弹。"
+      },
+      "summary": {
+        "ja": "「3」「2」「1」が順に巨大な状態から叩きつけられ、着地のたびに画面が揺れて輪が広がり、最後の「GO!」はコーラルで放射線が飛ぶ。",
+        "en": "3, 2 and 1 slam down in turn from huge, each impact shaking the frame and sending out a ring; the final GO! is coral with burst lines.",
+        "zh-Hans": "「3」「2」「1」依次从巨大砸下，每次落地画面震动并扩出冲击环，最后「GO!」为珊瑚色并迸出放射线。"
+      },
+      "spec": {
+        "ja": [
+          "0.3秒から0.75秒ごとに「3・2・1・GO!」",
+          "各0.7秒：3倍から35%の時点で0.9倍に着地、55%で1.05倍、最後に1倍",
+          "着地で画面が5px揺れ、半径60pxから200pxへ輪が広がる",
+          "GO! はコーラルで12本の放射線、3.9〜4.4秒に消える"
+        ],
+        "en": [
+          "From 0.3 s, 3 · 2 · 1 · GO! appear every 0.75 s.",
+          "Each takes 0.7 s: from 3× it lands at 0.9× at 35%, reaches 1.05× at 55%, then settles at 1×.",
+          "Each landing shakes the frame by 5 px and sends a ring from radius 60 px out to 200 px.",
+          "GO! is coral with 12 burst lines and fades out over 3.9–4.4 s."
+        ],
+        "zh-Hans": [
+          "0.3 秒起每 0.75 秒出现「3・2・1・GO!」",
+          "每个 0.7 秒：从 3 倍在 35% 处落到 0.9 倍，55% 时 1.05 倍，最后停在 1 倍",
+          "落地时画面震动 5 px，冲击环半径从 60 px 扩到 200 px",
+          "GO! 为珊瑚色带 12 道放射线，3.9–4.4 秒淡出"
+        ]
+      },
+      "use": {
+        "ja": "スタート前のカウント、ライブ配信の開始、ゲームのラウンド開始に。",
+        "en": "Use it before a start, at the top of a live stream or at the start of a game round.",
+        "zh-Hans": "适合开始前的倒数、直播开场或游戏回合开始。"
+      },
+      "tags": [
+        "countdown",
+        "slam",
+        "numbers",
+        "impact",
+        "intro",
+        "game"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "倒计时",
+          "321"
+        ]
+      }
+    },
+    {
+      "no": "58",
+      "id": "2-097",
+      "slug": "logo-build-reveal",
+      "category": "techniques",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "ロゴビルド",
+        "en": "Logo build reveal",
+        "zh-Hans": "Logo 组合登场"
+      },
+      "meaning": {
+        "ja": "ロゴのパーツが順に描かれて組み上がる",
+        "en": "A logo draws itself part by part, then the name slides in",
+        "zh-Hans": "标志逐个部件画出组合，再滑入品牌名"
+      },
+      "ask": {
+        "ja": "片頭にロゴビルドを。外円を描き、45°の四角を描いて塗り、中心の点を弾ませ、最後に社名を左から滑り込ませて。",
+        "en": "Add a logo build reveal at the start: draw the outer circle, draw and fill a 45° square, pop the centre dot, then slide the name in from the left.",
+        "zh-Hans": "片头做 Logo 组合登场：先描外圈，再描 45° 方块并填色，中心圆点弹出，最后品牌名从左滑入。"
+      },
+      "summary": {
+        "ja": "白い外円が描かれ、続いて45°回したコーラルの四角が縁取られて塗られ、中心の白い点が弾んで現れ、右に「星火工作室」と英字の副題が左から滑り込む。",
+        "en": "A white ring draws itself, then a coral square turned 45° is outlined and filled, a white centre dot pops in, and 星火工作室 with an English subtitle slides in from the left.",
+        "zh-Hans": "白色外圈先被描出，接着旋转 45° 的珊瑚色方块描边并填色，中心白点弹出，右侧「星火工作室」与英文副标题从左滑入。"
+      },
+      "spec": {
+        "ja": [
+          "0.3〜1.2秒に半径52pxの外円を sine の easeInOut で描く",
+          "1.1〜1.7秒に45°回した四角（中心から頂点まで30px）を描き、1.6〜1.9秒にコーラルで塗る",
+          "1.85〜2.25秒に中心の点（半径9px）を backOut(3) で弾ませる",
+          "2.2〜2.7秒に社名が左12pxから滑り込み、副題は0.15秒遅れ、4.0〜4.5秒に全体が消える"
+        ],
+        "en": [
+          "Over 0.3–1.2 s the outer ring (radius 52 px) draws with a sine ease-in-out.",
+          "Over 1.1–1.7 s a square turned 45° (30 px from centre to corner) draws, and over 1.6–1.9 s it fills coral.",
+          "Over 1.85–2.25 s the centre dot (radius 9 px) pops with backOut(3).",
+          "Over 2.2–2.7 s the name slides in from 12 px left, the subtitle 0.15 s later; over 4.0–4.5 s everything fades out."
+        ],
+        "zh-Hans": [
+          "0.3–1.2 秒以 sine 缓入缓出描出半径 52 px 的外圈",
+          "1.1–1.7 秒描出旋转 45° 的方块（中心到顶点 30 px），1.6–1.9 秒填入珊瑚色",
+          "1.85–2.25 秒中心圆点（半径 9 px）以 backOut(3) 弹出",
+          "2.2–2.7 秒品牌名从左 12 px 滑入，副标题晚 0.15 秒；4.0–4.5 秒整体淡出"
+        ]
+      },
+      "use": {
+        "ja": "動画の片頭、サイトのオープニング、ブランド紹介の締めに。",
+        "en": "Use it as a video opener, a site intro or the end card of a brand piece.",
+        "zh-Hans": "适合视频片头、网站开场或品牌介绍的收尾。"
+      },
+      "tags": [
+        "logo",
+        "reveal",
+        "draw",
+        "stroke",
+        "intro",
+        "brand"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "标志演绎",
+          "片头"
+        ]
+      }
+    },
+    {
+      "no": "59",
+      "id": "2-098",
+      "slug": "audio-waveform",
+      "category": "techniques",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "オーディオ波形",
+        "en": "Audio waveform",
+        "zh-Hans": "音频波形"
+      },
+      "meaning": {
+        "ja": "再生中の音に合わせて棒が伸び縮みする",
+        "en": "Bars stretch and shrink like playing audio",
+        "zh-Hans": "细条随播放的声音上下伸缩"
+      },
+      "ask": {
+        "ja": "プレーヤー画面にオーディオ波形を。細い棒が中心線から上下にばらばらの高さと速さで伸び縮みし、左に再生ボタン、右に時間を。",
+        "en": "Add an audio waveform to the player: thin bars stretch up and down from the centre line at varied heights and speeds, with a play button on the left and the time on the right.",
+        "zh-Hans": "播放器加音频波形：细条以中线为基准上下伸缩，高度和速度各不相同，左边播放钮，右边时间。"
+      },
+      "summary": {
+        "ja": "プレーヤーのパネルで、44本の丸い細い棒が中心線から上下にばらばらに伸び縮みし、再生済み部分はコーラル、左の再生ボタンの外側に波紋が広がる。",
+        "en": "On a player panel 44 thin rounded bars stretch and shrink unevenly about the centre line, the played part in coral, while a ripple spreads around the play button on the left.",
+        "zh-Hans": "播放器面板上 44 根圆角细条以中线为基准参差伸缩，已播放部分为珊瑚色，左侧播放钮外圈有扩散波纹。"
+      },
+      "spec": {
+        "ja": [
+          "44本の棒（幅3.6px）を中心線から上下対称に、最大72px",
+          "各棒は4.7秒に12〜18区間（1区間約0.26〜0.39秒）",
+          "区間ごとに0.12〜1倍の固定の乱数高さへ sine の easeInOut で移る",
+          "左17本はコーラル（再生済み）、再生ボタンの波紋は1.175秒ごと"
+        ],
+        "en": [
+          "44 bars (3.6 px wide) grow symmetrically about the centre line, up to 72 px.",
+          "Each bar runs 12–18 segments per 4.7 s (about 0.26–0.39 s each).",
+          "Each segment eases (sine in-out) to a fixed random height between 0.12× and 1×.",
+          "The left 17 bars are coral (played); the play button ripples every 1.175 s."
+        ],
+        "zh-Hans": [
+          "44 根细条（宽 3.6 px）以中线上下对称伸缩，最高 72 px",
+          "每根每 4.7 秒走 12–18 段（每段约 0.26–0.39 秒）",
+          "每段以 sine 缓入缓出变到 0.12–1 倍之间的固定随机高度",
+          "左边 17 根为珊瑚色（已播放），播放钮波纹每 1.175 秒一次"
+        ]
+      },
+      "use": {
+        "ja": "ポッドキャスト、音楽、ボイスメモなど音声コンテンツの紹介に。",
+        "en": "Use it for podcasts, music, voice notes or any audio feature.",
+        "zh-Hans": "适合播客、音乐、语音消息等音频内容的介绍。"
+      },
+      "tags": [
+        "audio",
+        "waveform",
+        "equalizer",
+        "music",
+        "player",
+        "podcast"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "声波",
+          "音乐播放"
+        ]
+      }
     }
   ]
 }

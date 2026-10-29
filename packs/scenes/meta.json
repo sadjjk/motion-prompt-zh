@@ -2654,6 +2654,210 @@
         "street",
         "banner"
       ]
+    },
+    {
+      "no": "40",
+      "id": "4-040",
+      "slug": "matrix-rain",
+      "category": "tech",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "マトリックス・レイン",
+        "en": "Matrix rain",
+        "zh-Hans": "数字雨"
+      },
+      "meaning": {
+        "ja": "文字の列が雨のように降り続ける",
+        "en": "Columns of glyphs pour down like rain",
+        "zh-Hans": "一列列字符像雨一样落下"
+      },
+      "ask": {
+        "ja": "ハッカー風の背景にマトリックス・レインを。緑の文字の列が降り、先頭だけ白く光って後ろが暗く尾を引くように。",
+        "en": "Use matrix rain as a hacker-style background: columns of green glyphs fall, the leading glyph glowing white with a fading trail.",
+        "zh-Hans": "黑客风背景用数字雨：绿色字符一列列落下，最前端发白光，后面逐渐变暗拖尾。"
+      },
+      "summary": {
+        "ja": "黒地にカタカナ・数字・英字の列が降り続け、各列の先頭は白く光り、後ろは緑に暗くなりながら尾を引き、文字は時々入れ替わる。",
+        "en": "On black, columns of katakana, digits and letters keep falling; the head of each column glows white and the trail darkens to green behind it, the glyphs changing as they go.",
+        "zh-Hans": "黑底上片假名、数字、字母组成的字符列不断落下，每列最前端发白光，后面渐暗成绿色拖尾，字符不时变换。"
+      },
+      "spec": {
+        "ja": [
+          "文字サイズ14pxで39列、各列の起点・速さ（6.4秒に1〜3周）・尾の長さ（10〜18文字）は添字で固定",
+          "先頭の文字は白く半径14pxの光、尾は奥ほど暗い緑（不透明度0.9から下がる）",
+          "先頭3文字は0.1秒ごと（6.4秒で64回）、それより後ろは0.4秒ごとに文字が替わる",
+          "上下18%に暗いグラデーションをかける"
+        ],
+        "en": [
+          "39 columns at a 14 px glyph size; each column's start, speed (1–3 passes per 6.4 s) and trail length (10–18 glyphs) are fixed by index.",
+          "The head glyph is white with a 14 px glow; the trail darkens to green further back (opacity falling from 0.9).",
+          "The first 3 glyphs change every 0.1 s (64 times per 6.4 s); the rest every 0.4 s.",
+          "A dark gradient covers the top and bottom 18%."
+        ],
+        "zh-Hans": [
+          "字级 14 px 共 39 列，每列起点、速度（6.4 秒落 1–3 个跨度）与拖尾长度（10–18 个字）按下标固定",
+          "最前端为白字带半径 14 px 光晕，拖尾越后越暗的绿色（不透明度从 0.9 递减）",
+          "前 3 个字每 0.1 秒换字（6.4 秒 64 次），更后面每 0.4 秒换字",
+          "上下各 18% 盖暗色渐变"
+        ]
+      },
+      "use": {
+        "ja": "ハッカー・サイバーセキュリティ・データ系の背景や、SF のオープニングに。",
+        "en": "Use it behind hacker, cybersecurity or data themes, or for a sci-fi opening.",
+        "zh-Hans": "适合黑客、网络安全、数据主题的背景或科幻开场。"
+      },
+      "tags": [
+        "matrix",
+        "code-rain",
+        "hacker",
+        "glyphs",
+        "cyber",
+        "background"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "代码雨",
+          "黑客帝国"
+        ]
+      }
+    },
+    {
+      "no": "41",
+      "id": "4-041",
+      "slug": "text-corridor",
+      "category": "type",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "文字の回廊",
+        "en": "Text corridor",
+        "zh-Hans": "文字走廊"
+      },
+      "meaning": {
+        "ja": "文字で埋まった通路を進み続ける",
+        "en": "Moving forward through a corridor lined with text",
+        "zh-Hans": "在铺满文字的走廊里不断前进"
+      },
+      "ask": {
+        "ja": "イントロに文字の回廊を。床・天井・左右の壁が繰り返す文字で埋まり、こちらへ流れてくる一点透視にして。",
+        "en": "Make an intro with a text corridor: floor, ceiling and both walls covered with repeated text flowing toward the viewer in one-point perspective.",
+        "zh-Hans": "开场做文字走廊：地板、天花板与左右墙铺满重复文字，一点透视，文字朝观众流过来。"
+      },
+      "summary": {
+        "ja": "一点透視の通路の床・天井・左右の壁が色違いの「文字走廊」で埋まり、手前へ流れ続け、中央の消失点は暗く沈んでいる。",
+        "en": "In a one-point corridor the floor, ceiling and both walls are filled with 文字走廊 in different colours that keep flowing toward the viewer, with the vanishing point sunk in shadow.",
+        "zh-Hans": "一点透视的走廊里，地板、天花板和左右墙铺满不同颜色的「文字走廊」，持续朝观众流动，中心消失点沉在暗处。"
+      },
+      "spec": {
+        "ja": [
+          "焦点距離300px、通路の半幅1・半高0.5の一点透視",
+          "奥行き z = 0.5〜8 を15区画（区画の深さ0.5）に分け、各面に文字帯を貼る",
+          "6.4秒で4区画ぶん手前へ等速で進む（区画の深さの整数倍で継ぎ目なし）",
+          "奥3単位で現れ、消失点に半径90pxの暗い光、床・天井・左右壁で色を変える"
+        ],
+        "en": [
+          "One-point perspective with a 300 px focal length; the corridor is 1 half-wide and 0.5 half-high.",
+          "Depth z = 0.5–8 is cut into 15 sections (0.5 deep each), each surface carrying a text strip.",
+          "It moves forward 4 sections per 6.4 s at a constant rate (whole sections, so the loop is seamless).",
+          "Sections fade in over the far 3 units; a dark glow of radius 90 px sits at the vanishing point; floor, ceiling and walls each have their own colour."
+        ],
+        "zh-Hans": [
+          "一点透视，焦距 300 px，走廊半宽 1、半高 0.5",
+          "深度 z = 0.5–8 切成 15 段（每段深 0.5），每个面贴文字带",
+          "6.4 秒匀速前进 4 段（段深的整数倍，循环无缝）",
+          "最远 3 个单位内淡入，消失点有半径 90 px 的暗色光晕，地板、天花板、左右墙各用一种颜色"
+        ]
+      },
+      "use": {
+        "ja": "没入感のあるオープニング、音楽・展示の映像、タイトルの背景に。",
+        "en": "Use it for immersive openings, music or exhibition visuals, or behind a title.",
+        "zh-Hans": "适合沉浸式开场、音乐或展览影像，以及标题背景。"
+      },
+      "tags": [
+        "corridor",
+        "perspective",
+        "tunnel",
+        "kinetic-type",
+        "depth",
+        "immersive"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "透视文字",
+          "无限走廊"
+        ]
+      }
+    },
+    {
+      "no": "42",
+      "id": "4-042",
+      "slug": "wavy-lines",
+      "category": "pattern",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": {
+        "ja": "うねる線",
+        "en": "Wavy lines",
+        "zh-Hans": "起伏线条"
+      },
+      "meaning": {
+        "ja": "細い線が布のようにうねり、カーソルで盛り上がる",
+        "en": "Thin lines ripple like cloth and lift under the cursor",
+        "zh-Hans": "细线像布料一样起伏，光标经过处被拱起"
+      },
+      "ask": {
+        "ja": "背景をうねる線にして、横線が2つの正弦波で布のように揺れ、カーソルが通ったところだけ線がなめらかに持ち上がるように。",
+        "en": "Make the background wavy lines: horizontal lines ripple like cloth from 2 sine waves, and lift smoothly only where the cursor passes.",
+        "zh-Hans": "背景用起伏线条：水平线由 2 组正弦波叠加像布料一样起伏，光标经过的地方线条被平滑拱起。"
+      },
+      "summary": {
+        "ja": "暗い背景に26本の細い横線が地形線のようにうねり、数本おきに明るい太い線が入り、模擬カーソルが左から右へ通ると近くの線がふわりと持ち上がって戻る。",
+        "en": "On a dark ground 26 thin horizontal lines undulate like contour lines, with a brighter thicker line every few; as a simulated cursor passes left to right, the nearby lines lift softly and settle back.",
+        "zh-Hans": "深色背景上 26 条细横线像地形线一样起伏，每隔几条有一条更亮更粗的线；模拟光标从左往右经过时，附近线条被轻轻拱起后恢复。"
+      },
+      "spec": {
+        "ja": [
+          "横線26本・各80点、y = 基準 + 7·sin(0.018x + 位相 + 0.35j) + 4·sin(0.043x − 2×位相 + 0.35j)",
+          "位相は6.4秒で1周、2つ目の波は逆向きに2周",
+          "5本ごとに1本、線幅2pxの明るい線、ほかは1px",
+          "模擬カーソルが0.8〜5.4秒に左外 −200px から右外 740px へ上下46pxに揺れながら移動し、近くの線をガウス形（σx 56px・σy 40px）で最大26px持ち上げる"
+        ],
+        "en": [
+          "26 lines of 80 points each: y = base + 7·sin(0.018x + phase + 0.35j) + 4·sin(0.043x − 2 × phase + 0.35j).",
+          "The phase turns once per 6.4 s; the second wave runs the other way 2 times.",
+          "1 line in every 5 is a brighter 2 px line; the rest are 1 px.",
+          "A simulated cursor travels from −200 px off the left to 740 px off the right over 0.8–5.4 s, weaving 46 px up and down, lifting nearby lines by up to 26 px with a Gaussian (σx 56 px, σy 40 px)."
+        ],
+        "zh-Hans": [
+          "26 条横线各 80 个点，y = 基准 + 7·sin(0.018x + 相位 + 0.35j) + 4·sin(0.043x − 2×相位 + 0.35j)",
+          "相位 6.4 秒转一圈，第二组波反向转 2 圈",
+          "每 5 条有 1 条线宽 2 px 的亮线，其余 1 px",
+          "模拟光标 0.8–5.4 秒从左外 −200 px 移到右外 740 px，上下起伏 46 px，以高斯形（σx 56 px、σy 40 px）把附近线条最多拱起 26 px"
+        ]
+      },
+      "use": {
+        "ja": "ヒーロー背景、音楽・テック系のサイト、触れると反応するインタラクションの見本に。",
+        "en": "Use it for hero backgrounds, music or tech sites, or to show a hover-reactive background.",
+        "zh-Hans": "适合首屏背景、音乐或科技类网站，以及展示鼠标互动的背景。"
+      },
+      "tags": [
+        "wavy",
+        "lines",
+        "contour",
+        "sine",
+        "cursor",
+        "interactive"
+      ],
+      "aliases": {
+        "zh-Hans": [
+          "波浪线",
+          "地形线"
+        ]
+      }
     }
   ]
 }

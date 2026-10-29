@@ -1656,6 +1656,320 @@ MotionPrompt.pack('motion2', function () {
     k.globalAlpha = 1;
   };
 
+  // @element 47
+  // 改写自 KittenJam Motion Library #2（Hannah）· 雷射切断：0.3–1.2 秒发光激光沿字的中线从左扫到右，前端迸出火花；扫完后 1.2–1.55 秒上半截向左上（−16, −12px、−3°）、下半截向右下（16, 12px、2°）错开，停留到 3.7 秒，3.7–4.3 秒合回。
+  // 上下两半各在自己的局部坐标里裁切，错开后切口边缘仍是一条直线。
+  CELLS[46] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const S = '切断', F = `900 104px ${JP}`, CX = w / 2, CY = 104, XL = 70, XR = w - 70;
+    const lx = lerp(XL, XR, eIOs(P(u, 0.3, 1.2)));
+    const la = u < 0.3 ? 0 : 1 - P(u, 1.25, 1.55);
+    const sp = eOut(P(u, 1.2, 1.55)) * (1 - eIO(P(u, 3.7, 4.3)));
+    [1, -1].forEach(s => {   // s=1 上半截，s=−1 下半截
+      k.save();
+      k.translate(CX - 16 * s * sp, CY - 12 * s * sp); k.rotate((s > 0 ? -3 : 2) * Math.PI / 180 * sp);
+      k.beginPath(); s > 0 ? k.rect(-w, -h, 2 * w, h) : k.rect(-w, 0, 2 * w, h); k.clip();
+      txt(k, S, 0, 0, F, '#fff', 'center', 'middle');
+      // 切口刚分开时的余热红边
+      const hot = sp * (1 - P(u, 1.55, 2.6));
+      if (hot > 0) { k.fillStyle = `rgba(255,107,92,${0.8 * hot})`; k.fillRect(-tw(k, S, F) / 2 - 6, s > 0 ? -2 : 0, tw(k, S, F) + 12, 2); }
+      k.restore();
+    });
+    if (la > 0) {
+      k.save(); k.globalAlpha = la; k.lineCap = 'round';
+      [[16, 0.14], [8, 0.3]].forEach(([lw, a]) => { k.strokeStyle = `rgba(255,107,92,${a})`; k.lineWidth = lw; k.beginPath(); k.moveTo(XL - 24, CY); k.lineTo(lx, CY); k.stroke(); });
+      k.strokeStyle = '#fff'; k.lineWidth = 2.5; k.beginPath(); k.moveTo(XL - 24, CY); k.lineTo(lx, CY); k.stroke();
+      if (u < 1.2) {
+        k.fillStyle = 'rgba(255,107,92,.4)'; k.beginPath(); k.arc(lx, CY, 11, 0, 7); k.fill();
+        k.fillStyle = '#fff'; k.beginPath(); k.arc(lx, CY, 4.5, 0, 7); k.fill();
+        // 火花：8 颗按下标取固定方向，沿各自的寿命循环飞出
+        for (let i = 0; i < 8; i++) {
+          const q = mod(u * 5 + H01(i + 470), 1), a = Math.PI * (0.75 + 0.5 * H01(i + 480)) + (i % 2 ? 0.5 : -0.5), r = 6 + 34 * q;
+          k.fillStyle = i % 3 ? C.yel : '#fff'; k.globalAlpha = la * (1 - q);
+          k.fillRect(lx + Math.cos(a) * r - 1.5, CY + Math.sin(a) * r - 1.5, 3, 3);
+        }
+      }
+      k.restore();
+    }
+  };
+
+  // @element 48
+  // 改写自 KittenJam Motion Library #24（Hannah）· 文字扇：同一个「扇」字 7 份，以字下方 112px 的点为轴，0.5–1.9 秒按 (i−3)×24° 展开成扇形，停留到 3.6 秒，3.6–4.5 秒收拢；中间一份白色不透明，两侧珊瑚色、越外越淡。
+  const TFAN_ORD = [0, 6, 1, 5, 2, 4, 3];   // 外侧先画，中间一份压在最上面
+  CELLS[47] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const PX = w / 2, PY = 196, R = 112, F = `900 80px ${JP}`;
+    const o = eIO(P(u, 0.5, 1.9)) * (1 - eIO(P(u, 3.6, 4.5)));
+    TFAN_ORD.forEach(i => {
+      const a = (i - 3) * 24 * Math.PI / 180 * o;
+      k.save(); k.translate(PX, PY); k.rotate(a);
+      k.strokeStyle = 'rgba(255,241,214,.16)'; k.lineWidth = 2; k.beginPath(); k.moveTo(0, -8); k.lineTo(0, -R + 42); k.stroke();
+      k.globalAlpha = i === 3 ? 1 : 0.7 - Math.abs(i - 3) * 0.12;
+      txt(k, '扇', 0, -R, F, i === 3 ? '#fff' : C.coral, 'center', 'middle');
+      k.restore();
+    });
+    k.fillStyle = C.yel; k.beginPath(); k.arc(PX, PY, 6, 0, 7); k.fill();
+  };
+
+  // @element 49
+  // 改写自 KittenJam Motion Library #26（Hannah）· 钟摆摇晃：每个字用细线挂在横杆下，以字上方的小圆点为支点 ±14° 左右摆，4.7 秒摆 3 个来回（ease-in-out 的余弦），相邻字相位错开 0.27 秒，偶数位字用珊瑚色。
+  const SWNG_T = CYC / 3;
+  CELLS[48] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const S = '悠然自得', F = `900 56px ${JP}`, RAIL = 34, PIV = 50;
+    k.fillStyle = C.navy3; rr(k, 70, RAIL - 2, w - 140, 4, 2); k.fill();
+    chars(k, S, F, 34).forEach((c, i) => {
+      const a = 14 * Math.PI / 180 * Math.cos(Math.PI * 2 * (u + 0.27 * i) / SWNG_T), x = w / 2 + c.x;
+      k.strokeStyle = C.dim; k.lineWidth = 1.5; k.beginPath(); k.moveTo(x, RAIL); k.lineTo(x, PIV); k.stroke();
+      k.save(); k.translate(x, PIV); k.rotate(a);
+      k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 30); k.stroke();
+      txt(k, c.ch, 0, 62, F, i % 2 ? C.coral : '#fff', 'center', 'middle');
+      k.restore();
+      k.fillStyle = C.yel; k.beginPath(); k.arc(x, PIV, 4.5, 0, 7); k.fill();
+    });
+  };
+
+  // @element 50
+  // 改写自 KittenJam Motion Library #55（Hannah）· 文字隧道：8 层「穿越」从中心 0.04 倍按指数放大到 9 倍冲出画面，每层走完需 4.7 秒、相位依次错开 1/8；前 25% 淡入、后 40% 淡出，相邻层白色与珊瑚色交替，中心有暗色光晕。
+  const TUNL_N = 8;
+  CELLS[49] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k, '#0A1230');
+    const L = [];
+    for (let i = 0; i < TUNL_N; i++) L.push([mod(u / CYC + i / TUNL_N, 1), i]);
+    L.sort((a, b) => a[0] - b[0]).forEach(([p, i]) => {
+      const s = 0.04 * Math.pow(9 / 0.04, p), a = P(p, 0, 0.25) * (1 - P(p, 0.6, 1));
+      if (a <= 0) return;
+      k.save(); k.globalAlpha = a; k.translate(w / 2, h / 2); k.scale(s, s);
+      txt(k, '穿越', 0, 0, `900 44px ${JP}`, i % 2 ? C.coral : '#fff', 'center', 'middle');
+      k.restore();
+    });
+    const g = k.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, 70);
+    g.addColorStop(0, 'rgba(5,9,26,.75)'); g.addColorStop(1, 'rgba(5,9,26,0)');
+    k.fillStyle = g; k.fillRect(0, 0, w, h);
+  };
+
+  // @element 51
+  // 改写自 KittenJam Motion Library #61（Hannah）· 立体字：「立体」由 14 层珊瑚色阶（每层深 2.6px，越深越暗）叠出厚度，正面白色；整组绕竖轴每 4.7 秒匀速转一圈（scaleX = cos），带 12° 俯角的上下错位，转到侧面能看到厚度。
+  CELLS[50] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const S = '立体', F = `900 96px ${JP}`, th = Math.PI * 2 * u / CYC, c = Math.cos(th), s = Math.sin(th), TX = Math.tan(12 * Math.PI / 180);
+    const sx = Math.abs(c) < 0.02 ? (c < 0 ? -0.02 : 0.02) : c;
+    k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(w / 2, 172, 130 * Math.max(0.3, Math.abs(c)), 7, 0, 0, 7); k.fill();
+    const ids = []; for (let i = 14; i >= 0; i--) ids.push(i);   // 0 = 正面
+    if (c < 0) ids.reverse();                                     // 转到背面时近处是最深一层
+    ids.forEach(i => {
+      const d = i * 2.6;
+      k.save(); k.translate(w / 2 - d * s, h / 2 - 4 - d * TX); k.scale(sx, 1);
+      txt(k, S, 0, 0, F, i ? `hsl(6,72%,${54 - i * 2}%)` : '#fff', 'center', 'middle');
+      k.restore();
+    });
+  };
+
+  // @element 52
+  // 改写自 KittenJam Motion Library #186（Hannah）· 霓虹闪烁：空心灯管字「营业中」先暗着，0.45–0.92 秒不规则闪 3 下后点亮，3 层外发光（线宽 24/14/7px）加浅色灯芯；1.6 秒起最后一个字单独接触不良闪 2 下，3.1 秒整体再闪一下；4.25–4.55 秒熄灭复位。墙面砖纹随亮度被照亮。
+  const NEON_K = [[0, 0], [0.45, 1], [0.5, 0], [0.62, 1], [0.66, 0.15], [0.74, 1], [0.79, 0], [0.92, 1], [3.1, 0.25], [3.15, 1], [3.22, 0.4], [3.26, 1]];
+  function NEON_lv(u) { let v = 0; for (const [t, x] of NEON_K) if (u >= t) v = x; return v * (1 - P(u, 4.25, 4.55)); }
+  const NEON_BG = (() => {
+    const c = mkCanvas(CW, CH), g = c.getContext('2d');
+    g.fillStyle = '#0B0F26'; g.fillRect(0, 0, CW, CH);
+    g.strokeStyle = 'rgba(127,144,196,.1)'; g.lineWidth = 1;
+    for (let r = 0; r * 22 < CH; r++) {
+      g.beginPath(); g.moveTo(0, r * 22 + 0.5); g.lineTo(CW, r * 22 + 0.5); g.stroke();
+      for (let x = (r % 2) * 30; x < CW; x += 60) { g.beginPath(); g.moveTo(x + 0.5, r * 22); g.lineTo(x + 0.5, r * 22 + 22); g.stroke(); }
+    }
+    return c;
+  })();
+  CELLS[51] = (k, w, h, u) => {
+    u = snapU(u);
+    k.drawImage(NEON_BG, 0, 0);
+    const S = '营业中', F = `900 76px ${JP}`, CY = 94, L = NEON_lv(u);
+    if (L > 0) { const g = k.createRadialGradient(w / 2, CY, 10, w / 2, CY, 240); g.addColorStop(0, `rgba(255,107,92,${0.3 * L})`); g.addColorStop(1, 'rgba(255,107,92,0)'); k.fillStyle = g; k.fillRect(0, 0, w, h); }
+    const tube = (s, x, y, f, col, core, v) => {
+      k.save(); k.translate(x, y); k.font = f; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round';
+      k.strokeStyle = 'rgba(255,255,255,.12)'; k.lineWidth = 3; k.strokeText(s, 0, 0);
+      if (v > 0) {
+        [[24, 0.08], [14, 0.16], [7, 0.32]].forEach(([lw, a]) => { k.globalAlpha = a * v; k.strokeStyle = col; k.lineWidth = lw; k.strokeText(s, 0, 0); });
+        k.globalAlpha = v; k.strokeStyle = core; k.lineWidth = 3.5; k.strokeText(s, 0, 0);
+      }
+      k.restore();
+    };
+    chars(k, S, F, 22).forEach((c, i, all) => {
+      const bad = i === all.length - 1 && ((u > 1.6 && u < 1.66) || (u > 1.74 && u < 1.8));
+      tube(c.ch, w / 2 + c.x, CY, F, C.coral, '#FFE0DA', bad ? 0.1 * L : L);
+    });
+    tube('24 小时', w / 2, 168, `800 24px ${JP}`, C.mint, '#DFFFF3', L);
+  };
+
+  // @element 53
+  // 改写自 KittenJam Motion Library #189（Hannah）· 字距展开：字距从 −0.55em（字全叠在一起）以三次缓出在 0.3–1.4 秒展开到 0.06em，同时模糊 6px→0、淡入；下方细线跟随整行宽度伸长；3.8–4.4 秒再模糊 4px 淡出。
+  CELLS[52] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k, C.cream);
+    const S = '展开视野', FS = 64, F = `900 ${FS}px ${JP}`, CY = 96;
+    const e = eOut(P(u, 0.3, 1.4)), out = P(u, 3.8, 4.4), al = P(u, 0.3, 1.0) * (1 - out);
+    if (al <= 0) return;
+    const cs = chars(k, S, F, lerp(-0.55 * FS, 0.06 * FS, e));
+    const half = cs[cs.length - 1].x + cs[cs.length - 1].w / 2;
+    k.save(); k.globalAlpha = al; k.filter = `blur(${(6 * (1 - e) + 4 * out).toFixed(2)}px)`;
+    cs.forEach(c => txt(k, c.ch, w / 2 + c.x, CY, F, C.navy, 'center', 'middle'));
+    k.filter = 'none';
+    k.fillStyle = C.coral; k.fillRect(w / 2 - half, CY + 50, half * 2, 3);
+    k.restore();
+  };
+
+  // @element 54
+  // 改写自 KittenJam Motion Library #297（Hannah）· 划掉改写：旧词「便宜」0.4–0.85 秒被一道 −4° 的 7px 珊瑚色粗线从左到右划掉并变淡到 0.4，0.9–1.15 秒弯箭头指向下方，新词「实惠」以楷体黄色逐字（间隔 0.45 秒、各 0.4 秒）由左往右写出，笔尖圆点跟随；4.0–4.5 秒淡出，0–0.3 秒旧词淡入。
+  CELLS[53] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const OLD = '便宜', NEW = '实惠', FO = `800 60px ${JP}`, FN = `700 62px "Kaiti SC", "STKaiti", KaiTi, ${JP}`, OX = w / 2, OY = 66, NY = 152;
+    const fade = Math.min(P(u, 0, 0.3), 1 - P(u, 4.0, 4.5)); if (fade <= 0) return;   // 开头 0.3 秒淡入旧词，与周期末的空白衔接
+    k.save();
+    k.globalAlpha = fade * (1 - 0.6 * P(u, 0.85, 1.1)); txt(k, OLD, OX, OY, FO, '#fff', 'center', 'middle');
+    const sw = tw(k, OLD, FO) + 28, st = eIOs(P(u, 0.4, 0.85));
+    k.globalAlpha = fade; k.lineCap = 'round'; k.lineJoin = 'round';
+    if (st > 0) { k.save(); k.translate(OX - sw / 2, OY + 6); k.rotate(-4 * Math.PI / 180); k.strokeStyle = C.coral; k.lineWidth = 7; k.beginPath(); k.moveTo(0, 0); k.lineTo(sw * st, 0); k.stroke(); k.restore(); }
+    const ar = eOut(P(u, 0.9, 1.15));
+    if (ar > 0) {
+      k.strokeStyle = C.dim; k.lineWidth = 2.5; k.setLineDash([140 * ar, 400]);
+      k.beginPath(); k.moveTo(OX - 86, OY + 8); k.bezierCurveTo(OX - 124, OY + 40, OX - 120, NY - 10, OX - 92, NY - 4); k.stroke(); k.setLineDash([]);
+      if (ar >= 1) { k.beginPath(); k.moveTo(OX - 102, NY - 14); k.lineTo(OX - 92, NY - 4); k.lineTo(OX - 105, NY + 1); k.stroke(); }
+    }
+    chars(k, NEW, FN, 12).forEach((c, i) => {
+      const s0 = 1.15 + i * 0.45, q = P(u, s0, s0 + 0.4); if (q <= 0) return;
+      const e = eIOs(q);
+      k.save(); k.translate(OX + c.x, NY); k.rotate(-3 * Math.PI / 180);
+      k.beginPath(); k.rect(-c.w / 2 - 4, -50, (c.w + 8) * e, 100); k.clip();
+      txt(k, c.ch, 0, 0, FN, C.yel, 'center', 'middle');
+      k.restore();
+      if (q < 1) { k.fillStyle = '#fff'; k.beginPath(); k.arc(OX + c.x - c.w / 2 + c.w * e, NY + 14 * Math.sin(q * Math.PI * 5), 3.5, 0, 7); k.fill(); }
+    });
+    k.restore();
+  };
+
+  // @element 55
+  // 改写自 KittenJam Motion Library #299（Hannah）· 残影堆叠：白色粗体「回声」后面叠 5 层珊瑚色空心描边副本，越后越淡（0.85 − 0.14×层）；0.4 秒起各层依次（间隔 0.06 秒、各 0.7 秒）向右上展开到每层 14px、−11px，停留后 3.0 秒起由外到内收回重叠。
+  CELLS[54] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const S = '回声', X = w / 2 - 30, Y = 118;
+    k.font = `900 92px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round';
+    for (let i = 5; i >= 1; i--) {
+      const o = 0.4 + 0.06 * i, c = 3.0 + 0.06 * (5 - i);
+      const e = eIO(P(u, o, o + 0.7)) * (1 - eIO(P(u, c, c + 0.7)));
+      k.globalAlpha = 0.85 - 0.14 * i; k.strokeStyle = C.coral; k.lineWidth = 2;
+      k.strokeText(S, X + 14 * i * e, Y - 11 * i * e);
+    }
+    k.globalAlpha = 1; k.fillStyle = '#fff'; k.fillText(S, X, Y);
+  };
+
+  // @element 56
+  // 改写自 KittenJam Motion Library #301（Hannah）· 多语问候切换：胶囊框里每 1.175 秒换一种语言的问候（你好 → Hello → こんにちは → Bonjour）：旧词 0.3 秒上移 18px、模糊到 6px 淡出，新词 0.15–0.5 秒从下方模糊淡入；框宽以三次缓入缓出平滑变为新词宽度，后面的圆点跟着移动。
+  const GRT_W = ['你好', 'Hello', 'こんにちは', 'Bonjour'];
+  CELLS[55] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const F = `800 44px ${JP}`, N = GRT_W.length, T = CYC / N, n = Math.min(N - 1, Math.floor(u / T)), lt = u - n * T;
+    const cur = GRT_W[n], prev = GRT_W[mod(n - 1, N)], PAD = 30, H = 76, CY = 92;
+    const pw = lerp(tw(k, prev, F) + PAD * 2, tw(k, cur, F) + PAD * 2, eIO(P(lt, 0, 0.5)));
+    const x0 = w / 2 - (pw + 30) / 2;
+    rr(k, x0, CY - H / 2, pw, H, H / 2); k.fillStyle = C.navy2; k.fill(); k.strokeStyle = C.navy3; k.lineWidth = 2; k.stroke();
+    k.save(); rr(k, x0, CY - H / 2, pw, H, H / 2); k.clip();
+    const qo = P(lt, 0, 0.3), qi = P(lt, 0.15, 0.5);
+    if (qo < 1) { k.globalAlpha = 1 - qo; k.filter = `blur(${(6 * qo).toFixed(2)}px)`; txt(k, prev, x0 + pw / 2, CY - 18 * eOut(qo), F, '#fff', 'center', 'middle'); }
+    if (qi > 0) { k.globalAlpha = qi; k.filter = `blur(${(6 * (1 - qi)).toFixed(2)}px)`; txt(k, cur, x0 + pw / 2, CY + 18 * (1 - eOut(qi)), F, '#fff', 'center', 'middle'); }
+    k.restore();
+    k.fillStyle = C.coral; k.beginPath(); k.arc(x0 + pw + 18, CY + 16, 7, 0, 7); k.fill();
+    txt(k, '来自世界各地的问候', w / 2, 172, `600 14px ${JP}`, C.dim, 'center', 'alphabetic');
+  };
+
+  // @element 57
+  // 改写自 KittenJam Motion Library #8（Hannah）· 倒数砸落：「3、2、1、GO!」从 0.3 秒起每 0.75 秒一个，各在 0.7 秒内从 3 倍砸到 0.9 倍（35% 处落地）、回弹到 1.05 倍再停在 1 倍；落地时画面震动并扩出冲击环，GO! 用珊瑚色并迸出放射线，3.9–4.4 秒淡出。
+  const SLAM_S = ['3', '2', '1', 'GO!'], SLAM_T0 = 0.3, SLAM_D = 0.75, SLAM_HIT = 0.7 * 0.35;
+  function SLAM_sc(t) {
+    const p = t / 0.7;
+    if (p < 0.35) { const q = eIn(p / 0.35); return [lerp(3, 0.9, q), q]; }
+    if (p < 0.55) return [lerp(0.9, 1.05, smooth((p - 0.35) / 0.2)), 1];
+    return [lerp(1.05, 1, smooth(clamp((p - 0.55) / 0.45))), 1];
+  }
+  CELLS[56] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    let n = -1; for (let i = 0; i < SLAM_S.length; i++) if (u >= SLAM_T0 + i * SLAM_D) n = i;
+    if (n < 0) return;
+    const t = u - (SLAM_T0 + n * SLAM_D), go = n === SLAM_S.length - 1, fade = go ? 1 - P(u, 3.9, 4.4) : 1;
+    if (fade <= 0) return;
+    const ht = t - SLAM_HIT, shake = ht > 0 ? 5 * Math.exp(-12 * ht) * Math.sin(60 * ht) : 0;
+    const CX = w / 2, CY = h / 2 + 4;
+    k.save(); k.globalAlpha = fade; k.translate(shake, -shake * 0.6);
+    const rg = P(t, SLAM_HIT, 0.75);
+    if (rg > 0 && rg < 1) { k.save(); k.globalAlpha = fade * 0.6 * (1 - rg); k.strokeStyle = go ? C.coral : C.yel; k.lineWidth = 4; k.beginPath(); k.arc(CX, CY, 60 + 140 * eOut(rg), 0, 7); k.stroke(); k.restore(); }
+    if (go && ht > 0) {
+      const q = eOut(P(ht, 0, 0.5)); k.strokeStyle = C.yel; k.lineWidth = 3; k.lineCap = 'round'; k.globalAlpha = fade * (1 - 0.6 * q);
+      for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6 + 0.26, r0 = 96 + 30 * q, r1 = r0 + 26 * (1 - q) + 6; k.beginPath(); k.moveTo(CX + Math.cos(a) * r0, CY + Math.sin(a) * r0 * 0.6); k.lineTo(CX + Math.cos(a) * r1, CY + Math.sin(a) * r1 * 0.6); k.stroke(); }
+      k.globalAlpha = fade;
+    }
+    // 上一个数字在新数字砸下的前 0.12 秒内缩小淡出
+    if (n > 0 && t < 0.12) { const q = t / 0.12; k.save(); k.globalAlpha = fade * (1 - q); k.translate(CX, CY); k.scale(1 - 0.2 * q, 1 - 0.2 * q); txt(k, SLAM_S[n - 1], 0, 0, `900 128px ${DISP}`, '#fff', 'center', 'middle'); k.restore(); }
+    const [sc, op] = SLAM_sc(Math.min(t, 0.7));
+    k.save(); k.globalAlpha = fade * op; k.translate(CX, CY); k.scale(sc, sc);
+    txt(k, SLAM_S[n], 0, 0, `900 ${go ? 100 : 128}px ${DISP}`, go ? C.coral : '#fff', 'center', 'middle');
+    k.restore();
+    k.restore();
+  };
+
+  // @element 58
+  // 改写自 KittenJam Motion Library #192（Hannah）· Logo 组合登场：0.3–1.2 秒描出外圈（半径 52px），1.1–1.7 秒描出旋转 45° 的方块，1.6–1.9 秒填入珊瑚色，1.85–2.25 秒中心圆点以 backOut(3) 弹出，2.2–2.7 秒品牌名从左 12px 滑入淡入、英文副标题晚 0.15 秒；4.0–4.5 秒整体淡出。
+  CELLS[57] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const fade = 1 - P(u, 4.0, 4.5); if (fade <= 0) return;
+    const LX = 178, LY = 104, R = 52, Q = 30, D = [[LX, LY - Q], [LX + Q, LY], [LX, LY + Q], [LX - Q, LY]];
+    k.save(); k.globalAlpha = fade; k.lineCap = 'round'; k.lineJoin = 'round';
+    const c1 = eIOs(P(u, 0.3, 1.2));
+    if (c1 > 0) { k.strokeStyle = '#fff'; k.lineWidth = 4; k.beginPath(); k.arc(LX, LY, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * c1); k.stroke(); }
+    const dia = () => { k.beginPath(); D.forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.closePath(); };
+    const fl = P(u, 1.6, 1.9);
+    if (fl > 0) { k.globalAlpha = fade * fl; k.fillStyle = C.coral; dia(); k.fill(); k.globalAlpha = fade; }
+    const c2 = eIOs(P(u, 1.1, 1.7)), PER = 4 * Q * Math.SQRT2;
+    if (c2 > 0) { k.strokeStyle = C.coral; k.lineWidth = 4; k.setLineDash([PER * c2, PER]); dia(); k.stroke(); k.setLineDash([]); }
+    const dq = P(u, 1.85, 2.25);
+    if (dq > 0) { const s = Math.max(0, backOut(dq, 3)); k.fillStyle = '#fff'; k.beginPath(); k.arc(LX, LY, 9 * s, 0, 7); k.fill(); }
+    const tq = eOut(P(u, 2.2, 2.7)), sq = eOut(P(u, 2.35, 2.85));
+    if (tq > 0) { k.globalAlpha = fade * tq; txt(k, '星火工作室', 258 - 12 * (1 - tq), 98, `900 40px ${JP}`, '#fff', 'left', 'middle'); }
+    if (sq > 0) { k.globalAlpha = fade * sq; txt(k, 'STARFIRE STUDIO', 260 - 12 * (1 - sq), 136, `700 13px ${DISP}`, C.dim, 'left', 'middle', '3px'); }
+    k.restore();
+  };
+
+  // @element 59
+  // 改写自 KittenJam Motion Library #193（Hannah）· 音频波形：播放器面板上 44 根圆角细条以中线为基准上下伸缩，每根每 4.7 秒走 12–18 段（各 0.26–0.39 秒），每段在 0.12–1 倍高度（最高 72px）之间按 ease-in-out 换一个固定的随机值；左侧播放钮外圈每 1.175 秒扩散一次，已播放部分为珊瑚色。
+  const WAVE_N = 44;
+  const WAVE_M = Array.from({ length: WAVE_N }, (_, i) => 12 + Math.floor(H01(i * 7 + 1) * 7));
+  CELLS[58] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const CY = 104, BX = 84, X0 = 138, X1 = 416;
+    k.fillStyle = C.navy2; rr(k, 24, 44, w - 48, 120, 22); k.fill();
+    const pq = mod(u / (CYC / 4), 1);
+    k.strokeStyle = `rgba(255,107,92,${0.5 * (1 - pq)})`; k.lineWidth = 2; k.beginPath(); k.arc(BX, CY, 30 + 12 * eOut(pq), 0, 7); k.stroke();
+    k.fillStyle = C.coral; k.beginPath(); k.arc(BX, CY, 30, 0, 7); k.fill();
+    k.fillStyle = '#fff'; rr(k, BX - 9, CY - 11, 6, 22, 2); k.fill(); rr(k, BX + 3, CY - 11, 6, 22, 2); k.fill();
+    const step = (X1 - X0) / WAVE_N;
+    for (let i = 0; i < WAVE_N; i++) {
+      const M = WAVE_M[i], f = u / CYC * M, j = Math.floor(f), q = f - j;
+      const a = 0.12 + 0.88 * H01(i * 131 + mod(j, M)), b = 0.12 + 0.88 * H01(i * 131 + mod(j + 1, M));
+      const hh = 72 * lerp(a, b, eIOs(q));
+      k.fillStyle = i < 17 ? C.coral : '#8FA0D6'; rr(k, X0 + i * step, CY - hh / 2, 3.6, hh, 1.8); k.fill();
+    }
+    txt(k, '1:24', 440, 100, `700 20px ui-monospace, Menlo, monospace`, '#fff');
+    txt(k, '/ 3:45', 442, 122, `600 12px ui-monospace, Menlo, monospace`, C.dim);
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });
