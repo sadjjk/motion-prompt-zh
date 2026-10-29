@@ -58,4 +58,4 @@ python3 -m http.server 8000
 - 风格画面（`scenes`）改写自 [Motion Atlas](https://github.com/skylarzzzz/motion-atlas)，作者 Yun，MIT License。使用这部分代码时保留其版权行。
 - `#1-098`～`#1-107`、`#2-064` 改写自 [skills](https://github.com/emilkowalski/skills)，作者 Emil Kowalski，MIT License。使用这部分代码时保留其版权行。
 - `#1-108`～`#1-113`、`#4-033`～`#4-035`、`#2-065`～`#2-067` 改写自 [ui2v](https://ui2v.com/) 上 illli Ai Studio 的动效包，MIT-0（MIT No Attribution）；未使用原作的代码与字体。我们仍在版权行中署名作者。
-- `#1-114`～`#1-141`、`#2-068`～`#2-085`、`#4-036`～`#4-039` 改写自 Hannah 整理的 [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/)；原站声明「僅供個人參考學習」，未使用原站的提示词、代码与字体，名称、说明与提示词为本仓库自写，详见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。版权行署名 Hannah。
+- `#1-114`～`#1-175`、`#2-068`～`#2-098`、`#4-036`～`#4-042` 改写自 Hannah 整理的 [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/)；原站声明「僅供個人參考學習」，未使用原站的提示词、代码与字体，名称、说明与提示词为本仓库自写，详见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。版权行署名 Hannah。

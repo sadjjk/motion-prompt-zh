@@ -186,9 +186,9 @@ HTML, CSS, GSAP code or fonts are included. ui2v releases its motion packages un
 > OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 > SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-## KittenJam Motion Library by Hannah (elements `#1-114`–`#1-141`, `#2-068`–`#2-085`, `#4-036`–`#4-039`)
+## KittenJam Motion Library by Hannah (elements `#1-114`–`#1-175`, `#2-068`–`#2-098`, `#4-036`–`#4-042`)
 
-The 50 elements below are Canvas 2D cards written for this repository after effects collected in
+The 100 elements below are Canvas 2D cards written for this repository after effects collected in
 [KittenJam Motion Library 動態收藏](https://kittenjam-motion-library.vercel.app/), curated by Hannah
 ([portfolio](https://hannahchao-portfolio.vercel.app/)), and added to the packs `ui`, `lp`, `aiux`, `uxmotion`,
 `motion2` and `scenes`. Each card follows the original effect's structure and timing, rescaled to its pack's card
@@ -231,6 +231,40 @@ lists it after the pack's own line. To ask for a removal or a correction, use th
 | `#1-139` | `uxmotion` | 滑動確認 Slide to Confirm (#235) |
 | `#1-140` | `uxmotion` | 圓形擴張轉場 Circle Reveal Transition (#161) |
 | `#1-141` | `uxmotion` | 時間軸延伸 Timeline Draw (#127) |
+| `#1-142` | `ui` | 滑動刪除 Swipe to Delete (#145) |
+| `#1-143` | `ui` | 多選卡片 Selectable Cards (#304) |
+| `#1-144` | `ui` | 錯誤震動提示 Shake on Error (#151) |
+| `#1-145` | `ui` | 勾選框打勾 Animated Checkbox (#242) |
+| `#1-146` | `ui` | 標籤輸入 Tag Input (#249) |
+| `#1-147` | `ui` | Cookie 同意橫幅 Cookie Banner (#317) |
+| `#1-148` | `ui` | 浮動按鈕展開選單 Speed Dial FAB (#318) |
+| `#1-149` | `ui` | 3D 環形輪播 3D Ring Carousel (#306) |
+| `#1-150` | `ui` | 側欄收合 Collapsible Sidebar (#320) |
+| `#1-151` | `lp` | 圖示微動畫 Icon Micro-animations (#285) |
+| `#1-152` | `lp` | 聚焦淡化其他 Focus Dim Siblings (#220) |
+| `#1-153` | `lp` | Bento 格局展開 Bento Grid Expand (#209) |
+| `#1-154` | `lp` | 文字翻滾按鈕 Rolling Text Button (#102) |
+| `#1-155` | `lp` | Dock 放大選單 Dock Magnify (#166) |
+| `#1-156` | `lp` | 邊框描繪按鈕 Border Draw Button (#171) |
+| `#1-157` | `lp` | 箭頭接力按鈕 Icon Slide Button (#237) |
+| `#1-158` | `lp` | 展開文字按鈕 Expanding Button (#240) |
+| `#1-159` | `lp` | 游標擴散填滿按鈕 Direction-aware Fill Button (#103) |
+| `#1-160` | `lp` | 展開式圖片面板 Expanding Panels (#168) |
+| `#1-161` | `lp` | 低飽和喚醒 Saturate on Hover (#264) |
+| `#1-162` | `lp` | 即時時鐘 Analog Clock (#323) |
+| `#1-163` | `lp` | 選取框螞蟻線 Marching Ants Selection (#325) |
+| `#1-164` | `uxmotion` | 聊天訊息出現 Chat Message Pop (#298) |
+| `#1-165` | `uxmotion` | 光源投影字 Light Source Shadow (#294) |
+| `#1-166` | `uxmotion` | 反色混合游標 Blend Difference Cursor (#252) |
+| `#1-167` | `uxmotion` | 情境標籤游標 Contextual Cursor (#255) |
+| `#1-168` | `uxmotion` | 十字準星座標 Crosshair Cursor (#256) |
+| `#1-169` | `uxmotion` | 成就徽章解鎖 Badge Unlock (#327) |
+| `#1-170` | `uxmotion` | 翻牌配對遊戲 Memory Match (#307) |
+| `#1-171` | `uxmotion` | 複製成功回饋 Copy Feedback (#239) |
+| `#1-172` | `uxmotion` | 數據儀表卡片 Stat Cards (#308) |
+| `#1-173` | `uxmotion` | 表格十字高亮 Table Crosshair Highlight (#291) |
+| `#1-174` | `uxmotion` | 回到頂部進度環 Back to Top Progress (#211) |
+| `#1-175` | `uxmotion` | 捲動放大全幅圖片 Scroll Zoom to Full (#153) |
 | `#2-068` | `motion2` | 閃電砸落 Lightning Strike (#1) |
 | `#2-069` | `motion2` | 硬幣翻轉 Coin Flip (#3) |
 | `#2-070` | `motion2` | 水面倒影 Water Reflection (#17) |
@@ -249,10 +283,26 @@ lists it after the pack's own line. To ask for a removal or a correction, use th
 | `#2-083` | `motion2` | 樹枝生長 Growing Plant (#329) |
 | `#2-084` | `motion2` | 齒輪連動 Gear Train (#330) |
 | `#2-085` | `motion2` | 指紋掃描解鎖 Fingerprint Scan (#331) |
+| `#2-086` | `motion2` | 雷射切斷 Laser Cut (#2) |
+| `#2-087` | `motion2` | 文字扇 Text Fan (#24) |
+| `#2-088` | `motion2` | 鐘擺搖晃 Swing Letters (#26) |
+| `#2-089` | `motion2` | 文字隧道 Text Tunnel (#55) |
+| `#2-090` | `motion2` | 立體字 Extrude Text (#61) |
+| `#2-091` | `motion2` | 霓虹閃爍 Neon Flicker (#186) |
+| `#2-092` | `motion2` | 展開 Spread (#189) |
+| `#2-093` | `motion2` | 劃掉改寫 Strike & Rewrite (#297) |
+| `#2-094` | `motion2` | 殘影堆疊 Echo Stack (#299) |
+| `#2-095` | `motion2` | 多語問候切換 Multilingual Greeting (#301) |
+| `#2-096` | `motion2` | 倒數砸落 Number Slam (#8) |
+| `#2-097` | `motion2` | Logo 組合登場 Logo Build Reveal (#192) |
+| `#2-098` | `motion2` | 音訊波形 Audio Waveform (#193) |
 | `#4-036` | `scenes` | 彩紙爆發 Confetti Burst (#99) |
 | `#4-037` | `scenes` | 飄落花瓣 Falling Petals (#174) |
 | `#4-038` | `scenes` | 煙火 Fireworks (#181) |
 | `#4-039` | `scenes` | 封鎖膠帶 Tape Cross (#54) |
+| `#4-040` | `scenes` | 數字雨 Matrix Rain (#175) |
+| `#4-041` | `scenes` | 文字走廊 Text Corridor (#56) |
+| `#4-042` | `scenes` | 起伏線條 Wavy Lines (#230) |
 
 ## Posts shown on the examples page
 
