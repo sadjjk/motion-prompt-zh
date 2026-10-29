@@ -649,6 +649,327 @@
       },
       "tags": ["sunburst", "rays", "god-rays", "rotate", "celebration", "award", "background"],
       "aliases": { "zh-Hans": ["放射光芒", "光芒背景"] }
+    },
+    {
+      "no": "14",
+      "id": "1-176",
+      "slug": "metaballs",
+      "category": "liquid",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": { "ja": "メタボール", "en": "Metaballs", "zh-Hans": "融合球" },
+      "meaning": {
+        "ja": "漂う球が近づくと液体のようにくっつく表現",
+        "en": "Floating balls that merge like liquid when they come close",
+        "zh-Hans": "漂浮的圆球靠近时像液体一样黏连"
+      },
+      "ask": {
+        "ja": "ヒーローの背景に5個のメタボールを漂わせて。近づいたら液体のようにくっつき、離れたらちぎれるように。",
+        "en": "Float 5 metaballs in the hero background; they should stick together like liquid when close and pull apart when they drift away.",
+        "zh-Hans": "在 Hero 背景里放 5 颗融合球漂浮，靠近时像液体一样黏在一起，远离时拉细断开。"
+      },
+      "summary": {
+        "ja": "暗い背景で紫から青のグラデーションの球がゆっくり漂い、近づくと首を伸ばしてつながり、離れるとちぎれて別々の球に戻る。",
+        "en": "On a dark background, purple-to-blue balls drift slowly, grow a neck and join when they meet, then snap apart into separate balls again.",
+        "zh-Hans": "深色背景上，紫到蓝渐变的圆球缓缓漂浮，相遇时拉出颈部连在一起，分开时断成独立的球。"
+      },
+      "spec": {
+        "ja": [
+          "球 5 個、半径 22–36px。それぞれ横 70–150px・縦 30–45px の振幅で、1 周期に 1 回か 2 回往復するリサージュ軌道を描く",
+          "場の強さ Σ r²/d² が 1 を超える範囲を液体として塗る。球が近づくと自然に首ができ、離れると細くなって切れる",
+          "等値線は 3px 格子の marching squares で求め、輪郭はなめらかで拡大してもぼけない",
+          "液体は横方向の色相 265°→190° のグラデーション。場の強さ 1.8 以上の芯に白 16% を重ねて厚みを出す",
+          "全軌道が 4.8 秒周期の整数倍なので、ループに継ぎ目がない"
+        ],
+        "en": [
+          "5 balls with radii of 22–36 px follow Lissajous paths with horizontal amplitudes of 70–150 px and vertical ones of 30–45 px, 1 or 2 swings per cycle.",
+          "The area where the field Σ r²/d² exceeds 1 is filled as liquid, so close balls grow a neck and distant ones thin out and split.",
+          "The contour comes from marching squares on a 3 px grid, giving a smooth outline that stays sharp when scaled.",
+          "The liquid uses a horizontal hue gradient from 265° to 190°; a 16% white core where the field exceeds 1.8 adds depth.",
+          "Every path repeats a whole number of times per 4.8 s cycle, so the loop is seamless."
+        ],
+        "zh-Hans": [
+          "5 颗球，半径 22–36 px，沿利萨如轨迹运动：水平振幅 70–150 px、垂直振幅 30–45 px，每周期往返 1 或 2 次。",
+          "势场 Σ r²/d² 超过 1 的区域填成液体：靠近的球自然长出颈部，远离时颈部变细断开。",
+          "等值线用 3 px 网格的 marching squares 求出，轮廓平滑，放大也不糊。",
+          "液体是水平方向色相 265° 到 190° 的渐变；势场超过 1.8 的内芯叠一层 16% 白色，增加厚度。",
+          "所有轨迹在 4.8 s 周期内都走整数次，循环无缝。"
+        ]
+      },
+      "use": {
+        "ja": "ヒーローや待機画面の背景、ブランドの装飾など、やわらかく有機的な動きがほしいときに。",
+        "en": "Use it behind heroes, idle screens and brand visuals that need a soft, organic, lava-lamp feel.",
+        "zh-Hans": "适合 Hero、待机画面背景和品牌装饰，需要柔软、有机、像熔岩灯一样的氛围时。"
+      },
+      "tags": ["metaballs", "liquid", "gooey", "blob", "lava-lamp", "merge", "background"],
+      "aliases": { "zh-Hans": ["熔岩灯", "液态融合"] }
+    },
+    {
+      "no": "15",
+      "id": "1-177",
+      "slug": "organic-blob",
+      "category": "liquid",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": { "ja": "オーガニックブロブ", "en": "Organic blob", "zh-Hans": "有机流动色块" },
+      "meaning": {
+        "ja": "不定形のやわらかい色の塊がゆっくり形を変え続ける",
+        "en": "A soft, shapeless colour blob that keeps slowly changing shape",
+        "zh-Hans": "一团不规则的柔软色块持续缓慢变形"
+      },
+      "ask": {
+        "ja": "見出しの後ろにオーガニックブロブを置いて。輪郭が4.8秒周期でゆっくりうねり、後ろに淡い影が少しずれてついてくるように。",
+        "en": "Place an organic blob behind the heading: its outline slowly wobbles on a 4.8 s loop, with a faint offset shadow following behind.",
+        "zh-Hans": "在标题后面放一团有机流动色块，轮廓按 4.8 秒周期缓慢蠕动，后面跟一层错开的淡影子。"
+      },
+      "summary": {
+        "ja": "暗い背景の中央で、ピンクから紫のグラデーションの塊が輪郭をうねらせ続け、後ろの淡い影が別のリズムで形を変える。",
+        "en": "In the middle of a dark background, a pink-to-purple blob keeps rippling its outline while a faint shadow behind it changes shape to a different rhythm.",
+        "zh-Hans": "深色背景中央，一团粉到紫渐变的色块轮廓不停蠕动，后面的淡影子按另一种节奏变形。"
+      },
+      "spec": {
+        "ja": [
+          "輪郭は極座標で描き、半径 = 基準 62px + 正弦波 3 組（2・3・5 山、振幅 6・5・3px）",
+          "各正弦波は 1 周期にそれぞれ 1・2・3 回転し、向きは交互に逆。ループに継ぎ目がない",
+          "後ろの影は 1.15 倍の大きさで (10, 8) px ずらし、別の正弦波 3 組（2・3・4 山、振幅 7・4・4px）で変形、不透明度 0.22",
+          "本体は色相 330°→265° の斜めグラデーション。中央に 22px の文字"
+        ],
+        "en": [
+          "The outline is drawn in polar form: radius = 62 px base + 3 sine waves (2, 3 and 5 lobes, amplitudes 6, 5 and 3 px).",
+          "The waves turn 1, 2 and 3 times per cycle with alternating directions, so the loop is seamless.",
+          "The shadow behind is 1.15× larger, offset by (10, 8) px and shaped by 3 other sine waves (2, 3 and 4 lobes, amplitudes 7, 4 and 4 px) at 0.22 opacity.",
+          "The blob has a diagonal hue gradient from 330° to 265° with a 22 px label in the centre."
+        ],
+        "zh-Hans": [
+          "轮廓用极坐标描出：半径 = 基准 62 px + 3 组正弦波（2、3、5 瓣，振幅 6、5、3 px）。",
+          "这些正弦波每周期分别转 1、2、3 圈，方向交替，循环无缝。",
+          "后方影子放大 1.15 倍、错开 (10, 8) px，用另外 3 组正弦波（2、3、4 瓣，振幅 7、4、4 px）变形，不透明度 0.22。",
+          "色块是色相 330° 到 265° 的斜向渐变，中央放 22 px 文字。"
+        ]
+      },
+      "use": {
+        "ja": "ヒーローの装飾、強調したいラベル、キャラクター的なアクセントなど、やわらかい動きを添えたいときに。",
+        "en": "Use it as a hero decoration, a highlight behind a label or a playful accent that needs soft motion.",
+        "zh-Hans": "适合 Hero 装饰、需要强调的标签背景、俏皮的点缀，想加一点柔软动感时。"
+      },
+      "tags": ["blob", "organic", "morph", "liquid", "wobble", "shape", "decoration"],
+      "aliases": { "zh-Hans": ["流动色块", "果冻形状"] }
+    },
+    {
+      "no": "16",
+      "id": "1-178",
+      "slug": "aurora-gradient",
+      "category": "loading-thinking",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": { "ja": "オーロラグラデーション", "en": "Aurora gradient", "zh-Hans": "流动光晕渐变" },
+      "meaning": {
+        "ja": "ぼけた光の塊が漂いながら混ざり、オーロラのように流れる",
+        "en": "Blurred glows drift and blend, flowing like an aurora",
+        "zh-Hans": "几团模糊光晕漂移交融，像极光一样流动"
+      },
+      "ask": {
+        "ja": "ウェルカム画面の背景にオーロラグラデーションを敷いて。大きな光4つがそれぞれゆっくり漂って混ざり、見出しははっきり読めるように。",
+        "en": "Give the welcome screen an aurora gradient background: 4 large glows each drifting slowly and blending, with the heading kept clearly readable.",
+        "zh-Hans": "给欢迎页背景加流动光晕渐变：4 团大光晕各自缓慢漂移交融，标题保持清楚可读。"
+      },
+      "summary": {
+        "ja": "暗い背景で緑・青・紫・ピンクの大きな光がそれぞれ別の軌道で漂って重なり合い、その上に挨拶の見出しが乗る。",
+        "en": "On a dark background, large green, blue, purple and pink glows drift on separate paths and overlap, with a greeting headline on top.",
+        "zh-Hans": "深色背景上，绿、蓝、紫、粉几团大光晕沿各自轨迹漂移、相互重叠，上面压着问候标题。"
+      },
+      "spec": {
+        "ja": [
+          "光 4 つ、半径 160–210px、色相 165°・205°・270°・320°。加算合成（lighter）で重ねる",
+          "各光は横 70–120px・縦 25–40px の範囲で、1 周期に 1 回か 2 回往復する閉じた軌道を漂う",
+          "半径は 1 周期に 1 回 ±12% 呼吸する",
+          "放射グラデーションの不透明度は中心 0.4、半径の半分で 0.15、外周で 0",
+          "見出し 24px と補足 14px は光の上に描き、はっきり読める"
+        ],
+        "en": [
+          "4 glows with radii of 160–210 px and hues of 165°, 205°, 270° and 320° are stacked with additive blending (lighter).",
+          "Each glow drifts on a closed loop spanning 70–120 px horizontally and 25–40 px vertically, with 1 or 2 swings per cycle on each axis.",
+          "The radius breathes by ±12% once per cycle.",
+          "Each radial gradient has 0.4 opacity at the centre, 0.15 at half the radius and 0 at the edge.",
+          "A 24 px heading and a 14 px subline are drawn on top and stay clearly readable."
+        ],
+        "zh-Hans": [
+          "4 团光晕，半径 160–210 px，色相 165°、205°、270°、320°，用叠加混合（lighter）相互叠加。",
+          "每团沿闭合轨迹漂移，水平幅度 70–120 px、垂直 25–40 px，每个方向每周期往返 1 或 2 次。",
+          "半径每周期呼吸一次，幅度 ±12%。",
+          "径向渐变的不透明度：中心 0.4，半径一半处 0.15，边缘 0。",
+          "24 px 标题和 14 px 副标题画在光晕之上，保持清楚可读。"
+        ]
+      },
+      "use": {
+        "ja": "ウェルカム画面、AI の待機画面、ヒーローの背景など、静かに動き続ける雰囲気がほしいときに。",
+        "en": "Use it for welcome screens, AI idle states and hero backgrounds that should move quietly and continuously.",
+        "zh-Hans": "适合欢迎页、AI 待机状态、Hero 背景等需要安静而持续流动氛围的地方。"
+      },
+      "tags": ["aurora", "gradient", "mesh-gradient", "glow", "blur", "background", "hero"],
+      "aliases": { "zh-Hans": ["极光背景", "弥散渐变"] }
+    },
+    {
+      "no": "17",
+      "id": "1-179",
+      "slug": "flowing-gradient-stroke",
+      "category": "loading-thinking",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": { "ja": "フローグラデーションライン", "en": "Flowing gradient stroke", "zh-Hans": "渐变光流线条" },
+      "meaning": {
+        "ja": "線の上のグラデーションが流れ、光の点が線に沿って回る",
+        "en": "A gradient flows along a line while a spark of light travels around it",
+        "zh-Hans": "曲线上的渐变持续流动，一个光点沿线绕行"
+      },
+      "ask": {
+        "ja": "ロゴの横に無限記号の線を描き、線のグラデーションを流しつつ光の点を4.8秒で1周させて。",
+        "en": "Draw an infinity-shaped line next to the logo, keep its gradient flowing and send a spark around it once every 4.8 s.",
+        "zh-Hans": "在 Logo 旁画一条无限符号曲线，线上渐变持续流动，再让一个光点每 4.8 秒沿线绕一圈。"
+      },
+      "summary": {
+        "ja": "暗い背景に無限記号の線があり、青からピンクの色が線に沿って流れ続け、白く光る点が尾を引いて線を一周する。",
+        "en": "An infinity-shaped line sits on a dark background; blue-to-pink colour keeps flowing along it while a glowing white spark with a tail laps the line.",
+        "zh-Hans": "深色背景上一条无限符号曲线，蓝到粉的颜色沿线不断流动，一个拖着尾巴的白色光点沿线绕行。"
+      },
+      "spec": {
+        "ja": [
+          "線はレムニスケート（無限記号）、半幅 200px、180 分割で描く",
+          "2 層で描く：太さ 12px・不透明度 0.12 のにじみと、太さ 4px・0.95 の芯",
+          "色相は 190°〜330°、線 1 周に色の周期が 2 つ。1 周期 4.8 秒で色の周期ひとつ分（線の半分）流れる",
+          "光の点は線を 4.8 秒で 1 周。尾は線長の 10%、24 分割、太さ 5px で 1.5 乗で消える。先端は 3.5px の白点と半径 18px の光"
+        ],
+        "en": [
+          "The line is a lemniscate (infinity sign) with a 200 px half-width, drawn in 180 segments.",
+          "It has 2 layers: a 12 px glow at 0.12 opacity and a 4 px core at 0.95.",
+          "Hue runs between 190° and 330° with 2 colour periods along the line, and moves by one period (half the line) per 4.8 s cycle.",
+          "The spark laps the line once per 4.8 s; its tail is 10% of the line length, 24 segments, 5 px wide and fading by a power of 1.5; the head is a 3.5 px white dot with an 18 px radius glow."
+        ],
+        "zh-Hans": [
+          "曲线是伯努利双纽线（无限符号），半宽 200 px，分 180 段绘制。",
+          "分 2 层画：12 px 宽、不透明度 0.12 的光晕，和 4 px 宽、0.95 的线芯。",
+          "色相在 190° 到 330° 之间，沿线有 2 个色彩周期；每个 4.8 s 周期流过一个色彩周期（半条线）。",
+          "光点每 4.8 s 沿线绕一圈；尾巴为线长的 10%，分 24 段，宽 5 px，按 1.5 次方渐隐；头部是 3.5 px 白点加半径 18 px 光晕。"
+        ]
+      },
+      "use": {
+        "ja": "ロゴまわりの装飾、テック系の背景、処理中の待機表示など、流れ続ける感じを出したいときに。",
+        "en": "Use it as a logo decoration, a tech-style background or a waiting state that should feel continuously flowing.",
+        "zh-Hans": "适合 Logo 周边装饰、科技感背景或处理中的等待状态，需要持续流动感时。"
+      },
+      "tags": ["gradient", "stroke", "flow", "comet", "infinity", "line", "loop"],
+      "aliases": { "zh-Hans": ["流光线条", "无限符号"] }
+    },
+    {
+      "no": "18",
+      "id": "1-180",
+      "slug": "neon-glow-button",
+      "category": "loading-thinking",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": { "ja": "ネオングローボタン", "en": "Neon glow button", "zh-Hans": "霓虹呼吸按钮" },
+      "meaning": {
+        "ja": "ネオンの枠と光が呼吸し、ホバーで塗りつぶされて強く光るボタン",
+        "en": "A button whose neon outline breathes and fills with strong glow on hover",
+        "zh-Hans": "霓虹外框与光晕呼吸，悬停时填满并大量发光的按钮"
+      },
+      "ask": {
+        "ja": "登録ボタンをネオングローボタンにして。待機中は2.4秒で光が呼吸し、ホバーで0.35秒かけて塗りつぶして強く光らせて。",
+        "en": "Make the sign-up button a neon glow button: the glow breathes every 2.4 s at rest, and on hover it fills and glows strongly over 0.35 s.",
+        "zh-Hans": "把注册按钮做成霓虹呼吸按钮：平时光晕 2.4 秒呼吸一次，悬停时 0.35 秒内填满并大量发光。"
+      },
+      "summary": {
+        "ja": "暗い背景で青緑のネオン枠のボタンがゆっくり明滅し、ポインターが乗ると全体が塗られて文字が反転し大きく光り、離れると呼吸に戻る。",
+        "en": "On a dark background, a cyan neon-outlined button pulses gently; when the pointer arrives it fills, the label inverts and a large glow appears, then it returns to breathing when the pointer leaves.",
+        "zh-Hans": "深色背景上，青色霓虹描边按钮缓缓明暗呼吸；指针移上来时整颗填满、文字反白、大片发光，离开后回到呼吸。"
+      },
+      "spec": {
+        "ja": [
+          "ボタン 200×56px、角丸 28px、色相 185°。枠線 2px、不透明度 0.6–1 で呼吸",
+          "呼吸は 2.4 秒周期（1 周期に 2 回）。外側の光は 5 重の線で 6–16px 広がり、不透明度 0.25–0.6。内側にも枠に沿った光",
+          "ポインターは 1.3–1.85 秒で移動してボタンに乗り、3.5–4.1 秒で離れる（ease-in-out cubic）",
+          "ホバーは 1.75–2.1 秒（0.35 秒）で塗りつぶし・文字反転、外側の光は 30px・不透明度 0.75、背後の光は半径 130→200px",
+          "3.75–4.1 秒でホバーが解け、呼吸に戻る"
+        ],
+        "en": [
+          "Button 200 × 56 px, corner radius 28 px, hue 185°; the 2 px outline breathes between 0.6 and 1 opacity.",
+          "The breath lasts 2.4 s (2 per cycle); the outer glow is 5 rings spreading 6–16 px at 0.25–0.6 opacity, plus an inner glow along the edge.",
+          "The pointer moves onto the button over 1.3–1.85 s and leaves over 3.5–4.1 s (ease-in-out cubic).",
+          "The hover state arrives over 1.75–2.1 s (0.35 s): the button fills, the label inverts, the outer glow spreads 30 px at 0.75 opacity and the halo behind grows from 130 to 200 px radius.",
+          "The hover state fades over 3.75–4.1 s and the button returns to breathing."
+        ],
+        "zh-Hans": [
+          "按钮 200 × 56 px，圆角 28 px，色相 185°；2 px 描边的不透明度在 0.6 到 1 之间呼吸。",
+          "一次呼吸 2.4 s（每周期 2 次）；外发光是 5 圈描边，向外扩 6–16 px，不透明度 0.25–0.6；边内侧也有一圈内发光。",
+          "指针在 1.3–1.85 s 移到按钮上，3.5–4.1 s 离开（ease-in-out cubic）。",
+          "悬停在 1.75–2.1 s（0.35 s）内生效：按钮填满、文字反白，外发光扩到 30 px、不透明度 0.75，背后光晕半径从 130 增到 200 px。",
+          "3.75–4.1 s 悬停效果退去，回到呼吸。"
+        ]
+      },
+      "use": {
+        "ja": "登録や購入などの主要ボタン、ゲームやサイバーパンク調のサイトなど、目を引きたいボタンに。",
+        "en": "Use it for primary sign-up or purchase buttons and for gaming or cyberpunk-style sites where a button must catch the eye.",
+        "zh-Hans": "适合注册、购买等主按钮，以及游戏、赛博朋克风格网站里需要抢眼的按钮。"
+      },
+      "tags": ["neon", "glow", "button", "pulse", "hover", "cyberpunk", "breathing"],
+      "aliases": { "zh-Hans": ["霓虹按钮", "发光按钮"] }
+    },
+    {
+      "no": "19",
+      "id": "1-181",
+      "slug": "liquid-fill-icon",
+      "category": "loading-thinking",
+      "added": "2026-10-29",
+      "license": "MIT License (c) 2026 Hannah",
+      "attribution": "https://kittenjam-motion-library.vercel.app/",
+      "name": { "ja": "リキッドフィルアイコン", "en": "Liquid fill icon", "zh-Hans": "液体填充图标" },
+      "meaning": {
+        "ja": "アイコンの中で波打つ液面が上がり、割合が同時に増える",
+        "en": "A wavy liquid level rises inside an icon as a percentage counts up",
+        "zh-Hans": "图标内液面带波浪上升，百分比同步增加"
+      },
+      "ask": {
+        "ja": "アップロード進捗を水滴のリキッドフィルアイコンで見せて。波打つ液面が3.7秒で満ち、横の割合が0%から100%まで数えるように。",
+        "en": "Show the upload progress as a liquid fill icon in a drop shape: the wavy level fills in 3.7 s while the percentage beside it counts from 0% to 100%.",
+        "zh-Hans": "用水滴形液体填充图标显示上传进度：带波浪的液面 3.7 秒填满，旁边百分比从 0% 数到 100%。"
+      },
+      "summary": {
+        "ja": "暗い背景の水滴の枠の中で、2 層の波が交差しながら液面が底から上がって満ち、右の数字が 0% から 100% に増えて完了表示になり、そのあと最初に戻る。",
+        "en": "Inside a drop outline on a dark background, 2 crossing wave layers rise from the bottom until the drop is full, while the number on the right climbs from 0% to 100% and reads complete, then everything resets.",
+        "zh-Hans": "深色背景的水滴轮廓里，2 层交错的波浪从底部升起直到填满，右边数字从 0% 增到 100% 并显示已完成，随后复位。"
+      },
+      "spec": {
+        "ja": [
+          "水滴アイコン 幅 92px・高さ 126px、枠線 2.5px、色相 195°",
+          "液面は 0.3–4.0 秒で底の下から先端の上まで等速で上がり、右の 46px の数字が 0% から 100% へ同時に増える",
+          "波は 2 層：波長 120px・振幅 6px・1 周期 2 回、波長 90px・振幅 5px・逆向きに 3 回。アイコンの形で切り抜く",
+          "100% で「已完成」を表示し 4.2 秒まで保持、4.2–4.5 秒で液体と文字がフェードアウト、4.5–4.8 秒で 0% の状態がフェードイン"
+        ],
+        "en": [
+          "Drop icon 92 px wide and 126 px tall, 2.5 px outline, hue 195°.",
+          "The level rises at a constant speed from below the base to above the tip over 0.3–4.0 s, while a 46 px number on the right counts from 0% to 100%.",
+          "There are 2 wave layers: 120 px wavelength, 6 px amplitude, 2 laps per cycle; and 90 px wavelength, 5 px amplitude, 3 laps the other way; both are clipped to the icon shape.",
+          "At 100% the label reads complete and holds until 4.2 s; the liquid and text fade out over 4.2–4.5 s, and the 0% state fades in over 4.5–4.8 s."
+        ],
+        "zh-Hans": [
+          "水滴图标宽 92 px、高 126 px，描边 2.5 px，色相 195°。",
+          "液面在 0.3–4.0 s 内从底部以下匀速升到尖顶以上，右侧 46 px 的数字同步从 0% 数到 100%。",
+          "波浪 2 层：波长 120 px、振幅 6 px、每周期 2 圈；波长 90 px、振幅 5 px、反向 3 圈；都裁切在图标形状内。",
+          "到 100% 显示「已完成」并保持到 4.2 s；4.2–4.5 s 液体与文字淡出，4.5–4.8 s 以 0% 状态淡入。"
+        ]
+      },
+      "use": {
+        "ja": "アップロードやダウンロードの進捗、目標の達成率、残量表示など、割合を親しみやすく見せたいときに。",
+        "en": "Use it for upload and download progress, goal completion or fill levels where a percentage should feel friendly.",
+        "zh-Hans": "适合上传下载进度、目标达成率、余量显示等想把百分比做得更亲切的地方。"
+      },
+      "tags": ["liquid", "fill", "wave", "progress", "percentage", "loading", "icon"],
+      "aliases": { "zh-Hans": ["液体进度", "水波进度"] }
     }
   ]
 }

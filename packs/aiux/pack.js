@@ -508,6 +508,190 @@ MotionPrompt.pack('aiux', function () {
     txt(k, '年度大奖', SBR_CX, SBR_CY - 4, `800 40px ${FONT}`, `rgba(255,236,190,${br})`, 'center'); k.restore();
     txt(k, 'WINNER 2026', SBR_CX, SBR_CY + 32, `600 12px ${FONT}`, C.muted, 'center');
   };
+
+  // @element 14
+  // 14 融合球（改写自 KittenJam #176，Hannah，MIT）：5 颗圆球沿整数频率的利萨如轨迹漂浮，势场 Σr²/d² 超过 1 的区域填色，
+  // 靠近时自然黏连、分开时颈部拉细断开；用 marching squares（步长 3px）求等值线，边缘干净且放大不糊。
+  // 每颗球：[中心 x, 中心 y, x 振幅, y 振幅, x 每周期圈数, y 每周期圈数, x 相位, y 相位, 半径]
+  const MB_BALLS = [
+    [150, 104, 70, 40, 1, 2, 0.0, 0.5, 34],
+    [270, 100, 120, 45, 1, 1, 2.1, 0.0, 30],
+    [390, 108, 70, 38, 1, 2, 4.0, 1.7, 36],
+    [220, 110, 150, 30, 2, 1, 1.0, 3.0, 22],
+    [330, 96, 140, 35, 1, 2, 3.3, 5.0, 26],
+  ];
+  const MB_STEP = 3;
+  CELLS[13] = (k, w, h, u) => {
+    bg(k); grid(k);
+    const ph = TAU * u / CYC;
+    const balls = MB_BALLS.map(([bx, by, ax, ay, fx, fy, px, py, r]) => [bx + ax * Math.sin(fx * ph + px), by + ay * Math.sin(fy * ph + py), r * r]);
+    const field = (x, y) => {
+      let f = 0;
+      for (const [bx, by, r2] of balls) f += r2 / ((x - bx) * (x - bx) + (y - by) * (y - by) + 1e-3);
+      return f;
+    };
+    // 外层：势场阈值 1；内层：阈值 1.8 的亮芯，给液体一点厚度
+    const g = k.createLinearGradient(60, 0, 480, 0);
+    g.addColorStop(0, hsla(265, 90, 64, 1)); g.addColorStop(1, hsla(190, 95, 58, 1));
+    k.fillStyle = g; liquid(k, (x, y) => 1 - field(x, y), 0, 0, CW, CH, MB_STEP);
+    k.fillStyle = 'rgba(255,255,255,0.16)'; liquid(k, (x, y) => 1.8 - field(x, y), 0, 0, CW, CH, MB_STEP);
+  };
+
+  // @element 15
+  // 15 有机流动色块（改写自 KittenJam #326，Hannah，MIT）：极坐标半径 = 基准 62px + 3 组正弦谐波（各自整数圈速），
+  // 色块持续蠕动；后方一层放大 1.15 倍、错开 (10, 8) px 的淡影子用另一组谐波变形，节奏不同。
+  const OB_MAIN = [[2, 6, 1, 0.0], [3, 5, -2, 1.3], [5, 3, 3, 2.1]];     // [瓣数, 振幅 px, 每周期圈数, 相位]
+  const OB_SHADOW = [[2, 7, -1, 0.7], [3, 4, 2, 2.5], [4, 4, -3, 0.4]];
+  const OB_R = 62, OB_CX = 269.5, OB_CY = 104, OB_N = 96;
+  function obPath(k, cx, cy, R, waves, ph) {
+    k.beginPath();
+    for (let i = 0; i <= OB_N; i++) {
+      const th = TAU * i / OB_N;
+      let r = R;
+      for (const [n, a, sp, p0] of waves) r += a * Math.sin(n * th + sp * ph + p0);
+      const x = cx + r * Math.cos(th), y = cy + r * Math.sin(th);
+      if (i) k.lineTo(x, y); else k.moveTo(x, y);
+    }
+    k.closePath();
+  }
+  CELLS[14] = (k, w, h, u) => {
+    bg(k);
+    const ph = TAU * u / CYC;
+    k.fillStyle = hsla(300, 80, 62, 0.22);
+    obPath(k, OB_CX + 10, OB_CY + 8, OB_R * 1.15, OB_SHADOW, ph); k.fill();
+    const g = k.createLinearGradient(OB_CX - 70, OB_CY - 70, OB_CX + 70, OB_CY + 70);
+    g.addColorStop(0, hsla(330, 90, 66, 1)); g.addColorStop(1, hsla(265, 85, 62, 1));
+    k.fillStyle = g; obPath(k, OB_CX, OB_CY, OB_R, OB_MAIN, ph); k.fill();
+    txt(k, '灵感', OB_CX, OB_CY + 1, `700 22px ${FONT}`, '#FFFFFF', 'center');
+  };
+
+  // @element 16
+  // 16 流动光晕渐变（改写自 KittenJam #106，Hannah，MIT）：4 团半径 160–210px 的大光晕以叠加（lighter）混合，
+  // 各自沿不同的椭圆轨迹漂移、半径 ±12% 呼吸，交融成极光；前景标题保持清楚。
+  // 每团：[中心 x, 中心 y, x 振幅, y 振幅, x 每周期圈数, y 每周期圈数, 相位, 半径, 色相]
+  const AUR_BLOBS = [
+    [170, 70, 80, 30, 1, 1, 0.0, 190, 165],
+    [320, 140, 100, 35, 1, 1, 2.1, 210, 270],
+    [420, 70, 70, 40, 1, 2, 4.2, 170, 320],
+    [250, 110, 120, 25, 2, 1, 1.0, 160, 205],
+  ];
+  CELLS[15] = (k, w, h, u) => {
+    bg(k);
+    const ph = TAU * u / CYC;
+    k.save(); k.globalCompositeOperation = 'lighter';
+    for (const [bx, by, ax, ay, fx, fy, p0, r0, hue] of AUR_BLOBS) {
+      const x = bx + ax * Math.sin(fx * ph + p0), y = by + ay * Math.cos(fy * ph + p0);
+      const r = r0 * (1 + 0.12 * Math.sin(ph + p0));
+      const g = k.createRadialGradient(x, y, 0, x, y, r);
+      // 叠加混合下中心透明度 0.4，四团重叠也不至于发白，标题仍清楚
+      g.addColorStop(0, hsla(hue, 90, 58, 0.4)); g.addColorStop(0.5, hsla(hue, 90, 58, 0.15)); g.addColorStop(1, hsla(hue, 90, 58, 0));
+      k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+    }
+    k.restore();
+    txt(k, '早上好，今天想做点什么？', 269.5, 96, `700 24px ${FONT}`, '#FFFFFF', 'center');
+    txt(k, '正在为你准备灵感…', 269.5, 128, `400 14px ${FONT}`, 'rgba(236,236,241,0.7)', 'center');
+  };
+
+  // @element 17
+  // 17 渐变光流线条（改写自 KittenJam #194，Hannah，MIT）：无限符号曲线（伯努利双纽线，半宽 200px）上的多色渐变
+  // 沿线流动，每周期前进半条线（一个色彩周期）；一颗彗星光点沿线一周 4.8 秒，拖着 10% 线长的尾巴。
+  const FGS_A = 200, FGS_CX = 269.5, FGS_CY = 104, FGS_N = 180, FGS_TAIL = 0.1;
+  const fgsPt = s => { const t = TAU * s, d = 1 + Math.sin(t) * Math.sin(t); return [FGS_CX + FGS_A * Math.cos(t) / d, FGS_CY + FGS_A * Math.sin(t) * Math.cos(t) / d]; };
+  CELLS[16] = (k, w, h, u) => {
+    bg(k);
+    const f = u / CYC;
+    const hue = s => 190 + 140 * (0.5 - 0.5 * Math.cos(TAU * (2 * s - f)));   // 色相 190°–330°，线上 2 个色彩周期
+    k.lineCap = 'round';
+    for (const [lw, a] of [[12, 0.12], [4, 0.95]]) {
+      for (let i = 0; i < FGS_N; i++) {
+        const s0 = i / FGS_N, s1 = (i + 1) / FGS_N, p0 = fgsPt(s0), p1 = fgsPt(s1);
+        k.strokeStyle = hsla(hue(s0), 95, 62, a); k.lineWidth = lw;
+        k.beginPath(); k.moveTo(p0[0], p0[1]); k.lineTo(p1[0], p1[1]); k.stroke();
+      }
+    }
+    // 彗星：头部 s = u/CYC，尾巴 24 段渐隐
+    for (let i = 0; i < 24; i++) {
+      const s0 = f - FGS_TAIL * (1 - i / 24), s1 = f - FGS_TAIL * (1 - (i + 1) / 24), p0 = fgsPt(s0), p1 = fgsPt(s1);
+      k.strokeStyle = `rgba(255,255,255,${0.9 * Math.pow((i + 1) / 24, 1.5)})`; k.lineWidth = 5;
+      k.beginPath(); k.moveTo(p0[0], p0[1]); k.lineTo(p1[0], p1[1]); k.stroke();
+    }
+    const hp = fgsPt(f);
+    const gl = k.createRadialGradient(hp[0], hp[1], 0, hp[0], hp[1], 18);
+    gl.addColorStop(0, 'rgba(255,255,255,0.7)'); gl.addColorStop(1, 'rgba(255,255,255,0)');
+    k.fillStyle = gl; k.fillRect(hp[0] - 18, hp[1] - 18, 36, 36);
+    k.fillStyle = '#FFFFFF'; k.beginPath(); k.arc(hp[0], hp[1], 3.5, 0, TAU); k.fill();
+  };
+
+  // @element 18
+  // 18 霓虹呼吸按钮（改写自 KittenJam #238，Hannah，MIT）：青色霓虹外框与光晕以 2.4 秒一呼一吸；
+  // 指针移上来悬停时 0.35 秒过渡到填满、文字反白、大范围发光（呼吸被盖住），离开后 0.35 秒回到呼吸。
+  const NEO_X = 169.5, NEO_Y = 76, NEO_W = 200, NEO_H = 56, NEO_R = 28, NEO_HUE = 185;
+  CELLS[17] = (k, w, h, u) => {
+    bg(k);
+    const s = 0.5 - 0.5 * Math.cos(TAU * u / 2.4);
+    // 悬停量 hv：指针约 1.6 秒进入按钮、约 3.75 秒离开，过渡各 0.35 秒（原版 transition 0.35s）
+    const hv = u < 3.6 ? inOut3(seg(u, 1.75, 2.1)) : 1 - inOut3(seg(u, 3.75, 4.1));
+    const cx = NEO_X + NEO_W / 2, cy = NEO_Y + NEO_H / 2;
+    // 背后的大椭圆光晕
+    const gr = mix(130, 200, hv), ga = mix(0.1 + 0.15 * s, 0.5, hv);
+    const rg = k.createRadialGradient(cx, cy, 0, cx, cy, gr);
+    rg.addColorStop(0, hsla(NEO_HUE, 100, 60, ga)); rg.addColorStop(1, hsla(NEO_HUE, 100, 60, 0));
+    k.save(); k.translate(cx, cy); k.scale(1, 0.45); k.translate(-cx, -cy); k.fillStyle = rg; k.fillRect(cx - gr, cy - gr, gr * 2, gr * 2); k.restore();
+    // 外发光：5 圈逐渐外扩、逐渐变淡的描边
+    const spread = mix(6 + 10 * s, 30, hv), ba = mix(0.25 + 0.35 * s, 0.75, hv);
+    for (let i = 5; i >= 1; i--) {
+      const e = spread * i / 5;
+      k.strokeStyle = hsla(NEO_HUE, 100, 60, ba * (1 - i / 6)); k.lineWidth = 3;
+      rr(k, NEO_X - e, NEO_Y - e, NEO_W + e * 2, NEO_H + e * 2, NEO_R + e); k.stroke();
+    }
+    k.fillStyle = C.bg; rr(k, NEO_X, NEO_Y, NEO_W, NEO_H, NEO_R); k.fill();
+    k.fillStyle = hsla(NEO_HUE, 100, 60, hv); rr(k, NEO_X, NEO_Y, NEO_W, NEO_H, NEO_R); k.fill();
+    // 内发光：裁到按钮内的粗描边
+    k.save(); rr(k, NEO_X, NEO_Y, NEO_W, NEO_H, NEO_R); k.clip();
+    k.strokeStyle = hsla(NEO_HUE, 100, 60, (0.15 + 0.25 * s) * (1 - hv)); k.lineWidth = 10;
+    rr(k, NEO_X, NEO_Y, NEO_W, NEO_H, NEO_R); k.stroke(); k.restore();
+    k.strokeStyle = hsla(NEO_HUE, 100, 62, mix(0.6 + 0.4 * s, 1, hv)); k.lineWidth = 2;
+    rr(k, NEO_X + 1, NEO_Y + 1, NEO_W - 2, NEO_H - 2, NEO_R - 1); k.stroke();
+    const font = `700 17px ${FONT}`;
+    txt(k, '加入我们', cx, cy + 1, font, hsla(NEO_HUE, 100, 70, 1 - hv), 'center');
+    txt(k, '加入我们', cx, cy + 1, font, `rgba(14,14,18,${hv})`, 'center');
+    // 指针：1.3–1.85 秒移入按钮，3.5–4.1 秒移出
+    const m = u < 2.6 ? inOut3(seg(u, 1.3, 1.85)) : 1 - inOut3(seg(u, 3.5, 4.1));
+    cursor(k, mix(440, 318, m), mix(178, 108, m), 0);
+  };
+
+  // @element 19
+  // 19 液体填充图标（改写自 KittenJam #195，Hannah，MIT）：水滴图标内两层交错的波浪液面从底部升到填满（0.3–4.0 秒），
+  // 右侧百分比同步从 0% 数到 100%；停 0.2 秒后液体与文字 0.3 秒淡出，再以 0% 淡入，回到起始画面。
+  const LFI_CX = 210, LFI_TOP = 40, LFI_BOT = 166, LFI_HUE = 195;
+  function lfiDrop(k) {
+    k.beginPath(); k.moveTo(LFI_CX, LFI_TOP);
+    k.bezierCurveTo(LFI_CX + 12, 62, LFI_CX + 46, 92, LFI_CX + 46, 120);
+    k.arc(LFI_CX, 120, 46, 0, Math.PI);
+    k.bezierCurveTo(LFI_CX - 46, 92, LFI_CX - 12, 62, LFI_CX, LFI_TOP);
+    k.closePath();
+  }
+  CELLS[18] = (k, w, h, u) => {
+    bg(k);
+    const p = u < 4.5 ? seg(u, 0.3, 4.0) : 0;
+    const fa = u < 4.2 ? 1 : u < 4.5 ? 1 - seg(u, 4.2, 4.5) : seg(u, 4.5, 4.8);
+    const level = LFI_BOT + 8 - p * (LFI_BOT - LFI_TOP + 16);   // p=0 时液面在图标底下，p=1 时连波谷也高过顶尖
+    const ph = TAU * u / CYC;
+    const wave = (lam, amp, sp, p0) => {
+      k.beginPath(); k.moveTo(LFI_CX - 60, CH);
+      for (let x = LFI_CX - 60; x <= LFI_CX + 60; x += 3) k.lineTo(x, level + amp * Math.sin(TAU * x / lam + sp * ph + p0));
+      k.lineTo(LFI_CX + 60, CH); k.closePath(); k.fill();
+    };
+    k.save(); lfiDrop(k); k.clip(); k.globalAlpha = fa;
+    k.fillStyle = hsla(LFI_HUE + 20, 90, 50, 0.45); wave(120, 6, 2, 0);
+    k.fillStyle = hsla(LFI_HUE, 95, 60, 0.9); wave(90, 5, -3, 1);
+    k.restore();
+    k.strokeStyle = hsla(LFI_HUE, 95, 65, 1); k.lineWidth = 2.5; k.lineJoin = 'round'; lfiDrop(k); k.stroke();
+    k.save(); k.globalAlpha = fa;
+    txt(k, `${Math.round(p * 100)}%`, 300, 92, `800 46px ${FONT}`, '#FFFFFF');
+    txt(k, p >= 1 ? '已完成' : '上传中…', 302, 134, `500 15px ${FONT}`, C.muted);
+    k.restore();
+  };
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });
