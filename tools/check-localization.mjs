@@ -22,7 +22,7 @@ const langs = ['zh-Hans', 'en', 'ja'];
 const window = { MP_SITE_CONFIG: CONFIG };
 vm.runInNewContext(read('assets/catalog.js'), { window });
 const cat = window.MP_CATALOG;
-assert.equal(cat.count, 363);
+assert.equal(cat.count, 369);
 assert.equal(cat.packs.length, 10);
 assert.equal(cat.groups.length, 4);
 assert.equal(cat.site, CONFIG.site);
@@ -54,7 +54,7 @@ assert.equal(cat.packs.filter(p => p.license === 'MIT License (c) 2026 Shohei Oh
 for (const lang of langs) assert.equal(read(`api/v1/${lang}/catalog.tsv`).trim().split('\n').length, cat.count + 1);
 // 改写自 Libraries.dev 的包：版权行与署名指向 Jakub Antalik
 assert.equal(read('api/v1/zh-Hans/e/1-049.txt').split('\n')[0], '// Motion Prompt #1-049 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/');
-assert.equal(read('api/v1/kit/aiux.js').split('\n')[0], '// Motion Prompt #1 049~060 · 128 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/');
+assert.equal(read('api/v1/kit/aiux.js').split('\n')[0], '// Motion Prompt #1 049~060 · 128 · 176~181 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/');
 assert.match(read('api/v1/zh-Hans/p/1-049.txt'), /保留 Jakub Antalik 的 MIT 版权标识/);
 assert.match(read('api/v1/zh-Hans/p/1-001.txt'), /保留 Shohei Ohtaki 的 MIT 版权标识/);
 // 改写自 Motion Atlas 的包：版权行与署名指向 Yun
@@ -114,7 +114,7 @@ try {
   page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400 && !r.url().endsWith('/favicon.ico')) errors.push(`${r.status()} ${r.url()}`); });
   const open = async (suffix = '') => {
     await page.goto(base + '/motion-prompt-zh/' + suffix);
-    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 363 && Object.keys(window.MotionPrompt.packs).length === 10);
+    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 369 && Object.keys(window.MotionPrompt.packs).length === 10);
   };
   await open();
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');

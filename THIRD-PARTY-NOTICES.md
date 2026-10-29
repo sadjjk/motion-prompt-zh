@@ -186,9 +186,9 @@ HTML, CSS, GSAP code or fonts are included. ui2v releases its motion packages un
 > OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 > SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-## KittenJam Motion Library by Hannah (elements `#1-114`–`#1-175`, `#2-068`–`#2-098`, `#4-036`–`#4-042`)
+## KittenJam Motion Library by Hannah (elements `#1-114`–`#1-181`, `#2-068`–`#2-098`, `#4-036`–`#4-042`)
 
-The 100 elements below are Canvas 2D cards written for this repository after effects collected in
+The 106 elements below are Canvas 2D cards written for this repository after effects collected in
 [KittenJam Motion Library 動態收藏](https://kittenjam-motion-library.vercel.app/), curated by Hannah
 ([portfolio](https://hannahchao-portfolio.vercel.app/)), and added to the packs `ui`, `lp`, `aiux`, `uxmotion`,
 `motion2` and `scenes`. Each card follows the original effect's structure and timing, rescaled to its pack's card
@@ -265,6 +265,12 @@ lists it after the pack's own line. To ask for a removal or a correction, use th
 | `#1-173` | `uxmotion` | 表格十字高亮 Table Crosshair Highlight (#291) |
 | `#1-174` | `uxmotion` | 回到頂部進度環 Back to Top Progress (#211) |
 | `#1-175` | `uxmotion` | 捲動放大全幅圖片 Scroll Zoom to Full (#153) |
+| `#1-176` | `aiux` | 融合球 Metaballs (#176) |
+| `#1-177` | `aiux` | 有機流動色塊 Organic Blob (#326) |
+| `#1-178` | `aiux` | 流動光暈漸層 Aurora Gradient (#106) |
+| `#1-179` | `aiux` | 漸層光流線條 Flowing Gradient Stroke (#194) |
+| `#1-180` | `aiux` | 霓虹呼吸按鈕 Neon Glow Button (#238) |
+| `#1-181` | `aiux` | 液體填充圖示 Liquid Fill Icon (#195) |
 | `#2-068` | `motion2` | 閃電砸落 Lightning Strike (#1) |
 | `#2-069` | `motion2` | 硬幣翻轉 Coin Flip (#3) |
 | `#2-070` | `motion2` | 水面倒影 Water Reflection (#17) |
