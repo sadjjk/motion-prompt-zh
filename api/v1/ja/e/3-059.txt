@@ -1,0 +1,32 @@
+// Motion Prompt #3-059 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/symmetry
+//
+// シンメトリー構図 / Symmetrical composition
+// パック: photo (写真の表現・光と画風) · element 27 · カテゴリ: 構図
+// 何が起きるか: 真ん中の飛び石はずっとある。両側の木が手前から奥へ一対ずつ生え、中心線をはさんで左右で対応する。
+// 動きの仕様:
+//   - 中心線 x 270 に飛び石4つ。手前ほど大きく、y 196 から y 136 まで並ぶ
+//   - 両側に木が4対、中心線から70・120・170・220px。i番目の対は効果が0.2iのとき生え始め、0.4で育ちきる
+//   - 中心線は x 270 の縦の破線、上に「对称轴」
+//   - 補助線: 琥珀色 #F5A524 の破線、太さ1.6px。効果の量に合わせて現れる
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: 建物・廊下・映り込みなど元から対称な場面や、安定した厳かな印象にしたいとき。
+// タグ: symmetry, symmetrical composition, mirror, axis, composition, balance
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-059
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 27
+// 对称构图: 中间的踏脚石一直在；两侧的树随 a 由近到远逐对长出，围绕中轴呼应
+CELLS[26] = cell((k, u) => {
+  const a = env(u), D = field(k, BASE, 120);
+  [[196, 18], [172, 13], [152, 9], [136, 6]].forEach(([y, r]) => D.rr(CW / 2 - r, y, r * 2, r * 0.6, r * 0.3, BASE.edge));
+  for (let i = 0; i < 4; i++) {   // 第 i 对在 a 走到 0.2i 时开始长，0.4 内长满（近大远小）
+    const g = P(a, i * 0.2, i * 0.2 + 0.4); if (g <= 0) continue;
+    const off = 70 + i * 50, r = (20 - i * 3.5) * g, base = 196 - i * 20;
+    tree(D, CW / 2 - off, base, r, BASE); tree(D, CW / 2 + off, base, r, BASE);
+  }
+  guide(k, [[CW / 2, 0], [CW / 2, CH]], a); tag(k, '对称轴', CW / 2, 22, a);
+});

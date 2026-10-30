@@ -1,0 +1,30 @@
+// Motion Prompt #3-061 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/negative-space
+//
+// 余白（ネガティブスペース） / Negative space
+// パック: photo (写真の表現・光と画風) · element 29 · カテゴリ: 構図
+// 何が起きるか: 人物が左へ移り、右の建物と木が消える。空いた広い明るい部分が囲まれ、余白と表示される。
+// 動きの仕様:
+//   - 人物: x 270 から左の x 110 へ、身長100px
+//   - 右の建物2棟と木1本は効果に合わせて消える
+//   - 余白: (200, 20) から320×170px、薄い琥珀 #FFE3A3 を35%で重ね、破線で囲み、中央に「留白」
+//   - 補助線: 琥珀色 #F5A524 の破線、太さ1.6px。効果の量に合わせて現れる
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: 孤独・静けさ・簡潔さを出したいときや、文字やタイトルの場所を空けたいとき。
+// タグ: negative space, empty space, minimalism, breathing room, composition, copy space
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-061
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 29
+// 留白: 主体移到左侧、面朝右；右侧的建筑和树淡出，空出的大片简单区域标为留白
+CELLS[28] = cell((k, u) => {
+  const a = env(u), D = field(k, BASE, 150);
+  k.save(); k.globalAlpha = 1 - a; building(D, 360, 150, 36, 40, BASE, 2); building(D, 420, 150, 30, 28, BASE, 3); tree(D, 488, 150, 16, BASE); k.restore();
+  figure(D, lerp(CW / 2, 110, a), 176, 100, BASE.person);
+  k.save(); k.globalAlpha = 0.35 * a; k.fillStyle = BASE.glow; k.fillRect(200, 20, 320, 170); k.restore();
+  guide(k, [[200, 20], [520, 20], [520, 190], [200, 190], [200, 20]], a);
+  tag(k, '留白', 360, 100, a);
+});

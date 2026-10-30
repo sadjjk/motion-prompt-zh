@@ -1,0 +1,34 @@
+// Motion Prompt #3-049 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/extreme-long-shot
+//
+// Extreme long shot / 超ロングショット
+// Pack: camera (Camera moves & transitions) · element 25 · Category: Shot size
+// What happens: From a distant, slightly high camera, mountains, buildings, trees and clouds fill the frame while a person only about 20 px tall walks across and back.
+// Motion spec:
+//   - Framing: camera 2.2 m high, 30 m from the person, focal length 330 px; the person (about 1.8 m tall) is about 20 px tall.
+//   - Action: walks 6 m to one side and back each pass (12 m in total) at cosine speed, with 8 stride cycles.
+//   - Setting: mountains, buildings, trees and clouds fill the frame; the clouds drift by 2 m.
+//   - Labels: top right reads "大远景 ELS"; the scale figure at bottom right is shaded from head to toe (the whole body fits with room to spare).
+//   - The camera never moves; one pass = 4.7 s and the first and last frames match.
+// When to use it: To establish where a character is, or to make a person look small or alone in a place.
+// Tags: extreme long shot, els, extreme wide shot, ews, shot size, framing, landscape
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-049
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 25
+// 25 大远景：机位远、略高，人物只有约 20 px，在山野间来回走；看的是人物和环境的关系
+CELLS[24] = shot(frameCell({ lo: -1, hi: 12, name: '大远景', abbr: 'ELS', draw: (k, w, h, u) => {
+  const x = -6 * Math.cos(u / CYC * TAU);   // 一轮走过去再走回来，首尾同一位置
+  world(k, w, h, cam({ y: 2.2, z: -22 }), {
+    person: { x, z: 8, walk: u / CYC * TAU * 8 },
+    clouds: [[-22 + 2 * wave(u, 1), 14, 80, 2.5], [24 + 2 * wave(u, 1, 1), 17, 95, 3]]
+  });
+} }));
+
+// 26〜28：动作选这个景别才看得清的东西——
+//   26 全景：完整看到一个人走一步（踏出一大步 + 手臂摆动），脚步出框也没关系
+//   27 中全景：膝盖以上。画的不是走路，是「跨一步」：腿抬起落下的整段弧线
+//   28 中景：腰以上。画的不是腿部动作，是「抬手招手」：手臂从垂下到举过头顶来回摆

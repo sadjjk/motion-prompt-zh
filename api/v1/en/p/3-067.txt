@@ -1,0 +1,16 @@
+Please use "180-degree rule" (イマジナリーライン（180度ルール）), one of the names in "Camera moves & transitions".
+Motion Prompt #3-067
+
+What it is: Keep every camera on one side of the line between two people so left and right never flip
+What the sample shows: A small top-down map at bottom right shows the line between the two people, the camera side in pale blue and the far side hatched as off limits; both shots stay on one side, so A is always on the left.
+Spec:
+- Camera 1: square on to the pair, 5 m away and 1.5 m high; A speaks from 0.5 s to 1.9 s.
+- Camera 2: cut at 2.4 s, 2.2 m to the left and 2.8 m away, turned 0.702 rad, still on the same side of the line; B speaks from 2.7 s to 4.0 s.
+- Top-down map, 66×66 px: a blue dashed line for the axis, a blue dot for A and an ink dot for B; the camera side is pale blue and the other side hatched and labelled "越轴".
+- In the map the active camera is blue and the other grey; in the main picture A stays on the left and B on the right.
+- Return: cross-fade back to the first shot over the last 0.5 s (one pass = 4.7 s).
+When to use it: For dialogue, chases or stand-offs shot from several angles, so the audience never loses track of who is on which side.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-067.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

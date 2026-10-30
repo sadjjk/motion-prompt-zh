@@ -2,7 +2,7 @@
 
 # Photo looks, lighting & styles
 
-24 names · #3 025~048 · pack `photo` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+31 names · #3 025~048 · 057~063 · pack `photo` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -44,6 +44,18 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#3-046](https://sadjjk.github.io/motion-prompt-zh/#3-046) | **Film grain** | Fine, film-like grain over the image | Add film grain to the beach photo: fine grain all over, blacks slightly lifted and warm. |
 | [#3-047](https://sadjjk.github.io/motion-prompt-zh/#3-047) | **Light leak** | Red-orange glow as if light leaked onto the film | Summer memory photo with a light leak coming in from the right edge, red and orange light bleeding in. |
 | [#3-048](https://sadjjk.github.io/motion-prompt-zh/#3-048) | **Double exposure** | Two photos layered into one frame | Double exposure of a profile silhouette and a forest-and-mountain landscape on a white background, the landscape visible only inside the head. |
+
+## Composition
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#3-057](https://sadjjk.github.io/motion-prompt-zh/#3-057) | **Rule of thirds** | Put the subject and the horizon near lines that split the frame in thirds | A person on the beach composed by the rule of thirds: the figure on the left third line and the horizon on the lower third. |
+| [#3-058](https://sadjjk.github.io/motion-prompt-zh/#3-058) | **Centered composition** | The subject sits dead centre so the eye goes straight to it | Centered composition of a person standing in the middle of an empty square, exactly on the frame's centre line. |
+| [#3-059](https://sadjjk.github.io/motion-prompt-zh/#3-059) | **Symmetrical composition** | The two halves of the frame mirror each other across a centre line | Symmetrical composition of a tree-lined avenue, the trees on each side matching, the centre line on the middle of the road. |
+| [#3-060](https://sadjjk.github.io/motion-prompt-zh/#3-060) | **Leading lines** | Roads, rails and other lines carry the eye to the subject | Leading-lines composition of railway tracks running into the distance, the two rails converging on a person standing at the end. |
+| [#3-061](https://sadjjk.github.io/motion-prompt-zh/#3-061) | **Negative space** | A large plain area around the subject sets it off and carries mood | Negative-space composition of a person standing at the left of a snowfield, the right two thirds of the frame nothing but empty snow. |
+| [#3-062](https://sadjjk.github.io/motion-prompt-zh/#3-062) | **Frame within a frame** | A door, window or arch in the foreground frames the subject a second time | Frame-within-a-frame composition of a child in the yard outside, the nearby doorframe enclosing the child in the middle of the picture. |
+| [#3-063](https://sadjjk.github.io/motion-prompt-zh/#3-063) | **Foreground, middle ground & background** | Foreground, middle ground and background are laid out in layers for depth | Shoot the person by the lake in three layers: flowers in the foreground, the person in the middle ground, the lake and the woods across it in the background. |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#3-025](../../api/v1/en/e/3-025.txt)).
 

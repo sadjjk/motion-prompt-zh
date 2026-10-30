@@ -1,0 +1,16 @@
+Please use "Establishing shot" (エスタブリッシングショット), one of the names in "Camera moves & transitions".
+Motion Prompt #3-064
+
+What it is: A wide shot that sets up the place and who stands where, before cutting closer
+What the sample shows: A high wide shot first shows two people standing left and right in the space; at 2.4 s it cuts straight to a close shot of the one on the left, who starts speaking. The audience already knows the other person is to his right.
+Spec:
+- Shot 1: camera 4.5 m high, 20 m from the pair, tilted slightly down; A (blue) on the left and B (ink) on the right, 2.4 m apart.
+- Cut: straight cut at 2.4 s; the camera does not travel between the two positions.
+- Shot 2: close shot of A from a camera 1.45 m high and 3.2 m away, background softly blurred; A speaks from 2.8 s to 4.1 s.
+- Top right reads "建立 WIDE" and then "近景 A" after the cut.
+- Return: cross-fade back to the first shot over the last 0.5 s (one pass = 4.7 s).
+When to use it: At the start of a new scene, so the audience knows where we are and who is there before the details.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-064.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

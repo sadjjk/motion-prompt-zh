@@ -1,0 +1,30 @@
+// Motion Prompt #3-058 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/centered-composition
+//
+// Centered composition / 日の丸構図
+// Pack: photo (Photo looks, lighting & styles) · element 26 · Category: Composition
+// What happens: The person moves from the left onto the centre line; the centre line and a ring marking the visual weight at head and chest appear. The background has a building on the left and trees on the right, so it is not symmetrical.
+// Motion spec:
+//   - Subject: x 150 → centre line at x 270, 110 px tall.
+//   - The centre line is a vertical dashed line at x 270; the visual-weight ring has radius 28 px centred at y 118, labelled "视觉重心" to its right.
+//   - The background is not mirrored: a building at x 60 on the left and two trees at x 432 and x 470 on the right, showing that centring is about weight, not symmetry.
+//   - Guides: amber #F5A524 dashed lines, 1.6 px wide, fading in with the effect amount.
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For product shots, formal portraits, or whenever one subject must dominate or the picture should feel formal.
+// Tags: centered composition, central composition, center framing, bullseye, composition, visual weight
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-058
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 26
+// 居中构图: 主体移到中轴，标出中轴与视觉重心；背景故意不镜像（左建筑、右树），说明居中看的是重心，不是对称
+CELLS[25] = cell((k, u) => {
+  const a = env(u), D = field(k, BASE, 150);
+  building(D, 60, 150, 40, 46, BASE, 1); tree(D, 470, 150, 18, BASE); tree(D, 432, 150, 11, BASE);
+  figure(D, lerp(150, CW / 2, a), 178, 110, BASE.person);
+  guide(k, [[CW / 2, 0], [CW / 2, CH]], a);
+  k.save(); k.globalAlpha = a; k.strokeStyle = GUIDE; k.lineWidth = 2; k.beginPath(); k.arc(CW / 2, 118, 28, 0, TAU); k.stroke(); k.restore();
+  tag(k, '视觉重心', CW / 2 + 76, 118, a);
+});

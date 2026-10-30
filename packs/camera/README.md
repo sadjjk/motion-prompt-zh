@@ -2,7 +2,7 @@
 
 # Camera moves & transitions
 
-24 names · #3 001~024 · pack `camera` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+36 names · #3 001~024 · 049~056 · 064~067 · pack `camera` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -44,6 +44,23 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#3-022](https://sadjjk.github.io/motion-prompt-zh/#3-022) | **Smash cut** | Abrupt cut to a contrasting scene | Smash cut from the quiet bedroom to a noisy intersection. |
 | [#3-023](https://sadjjk.github.io/motion-prompt-zh/#3-023) | **J-cut** | Next scene's audio starts first | J-cut: let the sound of waves from the next scene start before cutting to the sea. |
 | [#3-024](https://sadjjk.github.io/motion-prompt-zh/#3-024) | **L-cut** | Previous scene's audio carries over | L-cut: keep her voice going while cutting to the listener's face. |
+| [#3-064](https://sadjjk.github.io/motion-prompt-zh/#3-064) | **Establishing shot** | A wide shot that sets up the place and who stands where, before cutting closer | Open with a 2-second establishing shot of two people sitting opposite each other in a café, then cut to a close shot of one of them. |
+| [#3-065](https://sadjjk.github.io/motion-prompt-zh/#3-065) | **Shot/reverse shot** | Cutting back and forth between two over-the-shoulder angles of a conversation | Shoot the two-person dialogue as shot/reverse shot, cutting between over-the-shoulder angles every 1.5 seconds, the speaker always facing the camera. |
+| [#3-066](https://sadjjk.github.io/motion-prompt-zh/#3-066) | **Match on action** | Cut mid-movement so the action carries on in the next shot | Use a match on action as he pushes open a door: cut to the inside angle halfway through, and the door keeps opening in the next shot. |
+| [#3-067](https://sadjjk.github.io/motion-prompt-zh/#3-067) | **180-degree rule** | Keep every camera on one side of the line between two people so left and right never flip | Follow the 180-degree rule for the two-person dialogue: every camera on the same side, the heroine always on the left of the frame. |
+
+## Shot size
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#3-049](https://sadjjk.github.io/motion-prompt-zh/#3-049) | **Extreme long shot** | The person is tiny; the frame is mostly about the place | Extreme long shot of him walking alone through a valley, the figure about a tenth of the frame height, for 4 seconds. |
+| [#3-050](https://sadjjk.github.io/motion-prompt-zh/#3-050) | **Full shot** | One person framed from head to toe | Full shot of her taking one big step forward, a little room above the head and below the feet, for 3 seconds. |
+| [#3-051](https://sadjjk.github.io/motion-prompt-zh/#3-051) | **Medium long shot** | Framed from the knees up, keeping both movement and expression | Medium long shot of him stepping over a low kerb, the bottom edge of the frame at the knees, for 3 seconds. |
+| [#3-052](https://sadjjk.github.io/motion-prompt-zh/#3-052) | **Medium shot** | Framed from the waist up, so hand gestures read clearly | Medium shot of her raising her right hand to wave, the bottom edge of the frame at the waist, for 3 seconds. |
+| [#3-053](https://sadjjk.github.io/motion-prompt-zh/#3-053) | **Medium close-up** | Framed from the chest up, centred on speech and expression | Medium close-up of her speaking, the bottom edge of the frame at her chest, for 3 seconds. |
+| [#3-054](https://sadjjk.github.io/motion-prompt-zh/#3-054) | **Close-up** | Head and shoulders fill the frame, so small expressions lead | Close-up of him hearing a sound, his eyes flicking and blinking once, framed down to the shoulders, for 3 seconds. |
+| [#3-055](https://sadjjk.github.io/motion-prompt-zh/#3-055) | **Extreme close-up** | Only a detail such as the eyes, magnifying the smallest change | Extreme close-up of her eyes, nothing but the eye area, the gaze sweeping to one side and then a blink, for 2 seconds. |
+| [#3-056](https://sadjjk.github.io/motion-prompt-zh/#3-056) | **Macro shot** | A very small subject shot so it fills the frame | Macro shot of a small mushroom, the focus slowly pulling sharp until a tiny bug crawling over the cap is visible, for 4 seconds. |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#3-001](../../api/v1/en/e/3-001.txt)).
 

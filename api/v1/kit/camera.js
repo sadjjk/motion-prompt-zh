@@ -1,7 +1,19 @@
-// Motion Prompt #3 001~024 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#025
+// Motion Prompt #3 001~024 · 049~056 · 064~067 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#025
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/extreme-long-shot (#3-049)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/full-shot (#3-050)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-long-shot (#3-051)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-shot (#3-052)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-close-up (#3-053)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/close-up (#3-054)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/extreme-close-up (#3-055)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/macro-shot (#3-056)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/establishing-shot (#3-064)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/shot-reverse-shot (#3-065)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/match-on-action (#3-066)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/180-degree-rule (#3-067)
 //
 // Kit for pack "camera" (Camera moves & transitions / カメラワークと切り替え): the constants and helpers its elements share.
-// Elements #3 001~024 · 539x208 px · cycle 9.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #3 001~024 · 049~056 · 064~067 · 539x208 px · cycle 9.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,
@@ -18,7 +30,8 @@
 // Every cell is a pure function of u, so the same call renders video frames: u = frame / fps.
 
 // @kit
-// カメラワーク＆切り替え 24（カード 539x208）。各コマは時間 u の純関数。
+// カメラワーク＆切り替え 36（カード 539x208）。各コマは時間 u の純関数。
+// 25〜32 は景别（取景框で示す）、33〜36 は镜头衔接（固定机位の切り替え）。
 // 1つの動きは CYC=4.7秒。切り替え（19〜21）は A→B の次に B→A と戻るので、パックの周期は CYC×2=9.4秒。
 const CW = 539, CH = 208, FPS = 30;
 const HOLD = 9.4, CYC = HOLD / 2;
@@ -289,3 +302,132 @@ function splitCell(lead) {   // lead>0: 音が先（J） / lead<0: 音が後（L
     return null;
   };
 }
+
+// @shared
+// 景别（25〜）：每格一开始就是目标景别（不做收框动画），画面里的动作只有在这个景别下才看得清。
+// 景别概念参考 jingyu-skill（MIT · 阿梦freedom）。演示「框住多少」，镜头全程不推不摇，避免和 03 推进、04 变焦重复。
+// 右上角固定显示景别名（frameCell）；右下角的比例尺（ruler）标出本景别截到身体的哪一段。
+// 八格动作：25 来回走 / 26 踏出一大步 / 27 跨步（膝上可见抬腿）/ 28 单臂挥手 / 29 说话（两段+停顿眨眼+字幕+「！」）
+//          30 视线+眨眼+小步后退 / 31 大特写眨眼+视线扫视 / 32 微距（对焦拉实+小虫沿伞缘走）
+
+// 微距前景的草叶：细长叶片从画面两侧探进来（局部米制，y 向上）
+function reed(k, s) {
+  k.strokeStyle = 'rgba(128,150,110,0.92)'; k.lineCap = 'round'; k.lineWidth = 0.006;
+  [[-0.38, 0.3, 0.28], [-0.55, 0.33, 0.39], [0.42, 0.28, -0.3]].forEach(([x, h, lean]) => {
+    k.beginPath(); k.moveTo(x, -0.02); k.quadraticCurveTo(x + lean * 0.5, h * 0.55, x + lean, h + 0.08); k.stroke();
+  });
+}
+// 蘑菇（局部米制，y 向上，原点在地面）。S 缩放全身：远景 1，微距 1.5 时总高约 0.26 m 撑满微距画面
+//   bug：小虫沿伞盖外缘的行进度 0→1（0 = 右缘）；不传则不画虫（远景太小，看不见）
+function mushroom(k, s, bug, S = 1) {
+  const top = 0.115 * S, capR = 0.09 * S, capH = 0.058 * S, capY = top + 0.004 * S;
+  // 茎柄：白肚，微距距离才看得见的两道细纹
+  k.fillStyle = '#EFE9DB';
+  k.beginPath(); k.moveTo(-0.024 * S, 0);
+  k.quadraticCurveTo(-0.021 * S, top * 0.5, -0.02 * S, top + 0.004 * S);
+  k.lineTo(0.02 * S, top + 0.004 * S);
+  k.quadraticCurveTo(0.021 * S, top * 0.5, 0.024 * S, 0);
+  k.closePath(); k.fill();
+  if (S > 1.3) {
+    k.strokeStyle = '#D9CFBE'; k.lineWidth = 0.0022 * S; k.lineCap = 'round';
+    [0.052, 0.09].forEach(hh => { k.beginPath(); k.moveTo(-0.019 * S, hh * S); k.quadraticCurveTo(0, (hh + 0.005) * S, 0.019 * S, hh * S); k.stroke(); });
+    // 菌褶：伞盖下缘的细密放射纹
+    k.save();
+    k.beginPath(); k.moveTo(-0.085 * S, top); k.lineTo(0.085 * S, top);
+    k.quadraticCurveTo(0, top - 0.052 * S, -0.085 * S, top); k.closePath();
+    k.fillStyle = '#F3EEDF'; k.fill(); k.clip();
+    k.strokeStyle = 'rgba(140,120,105,0.55)'; k.lineWidth = 0.0025 * S;
+    for (let j = -6; j <= 6; j++) { k.beginPath(); k.moveTo(j * 0.02 * S, top - 0.003 * S); k.lineTo(j * 0.003 * S, top - 0.024 * S); k.stroke(); }
+    k.restore();
+  }
+  // 伞盖：白边包一圈，伞面从红棕向着日心渐浅，中间一层稍深的色环
+  k.fillStyle = '#C34F40'; k.beginPath(); k.ellipse(0, capY, capR, capH, 0, Math.PI, 0, true); k.closePath(); k.fill();
+  k.fillStyle = '#D97B57'; k.beginPath(); k.ellipse(0, capY, capR * 0.62, capH * 0.66, 0, Math.PI, 0, true); k.closePath(); k.fill();
+  k.fillStyle = '#E7E0CE'; k.beginPath(); k.ellipse(0, capY, capR * 0.3, capH * 0.4, 0, Math.PI, 0, true); k.closePath(); k.fill();
+  k.fillStyle = '#F0E9DB'; k.beginPath(); k.ellipse(0, capY, capR, capH, 0, 0, Math.PI, true); k.closePath(); k.fill();
+  if (S > 1.3) {
+    // 白点花纹：近景才看得见的细节
+    k.fillStyle = 'rgba(255,255,255,0.88)';
+    [[0.3, 4], [0.55, 7], [0.78, 10]].forEach(([f, n], ring) => {
+      for (let j = 0; j < n; j++) {
+        const a = Math.PI - (j + 0.5) / n * Math.PI;
+        k.beginPath(); k.arc(Math.cos(a) * capR * f, capY + Math.sin(a) * capH * f * 0.82, (0.0062 - ring * 0.0013) * S, 0, TAU); k.fill();
+      }
+    });
+    // 小虫：沿伞盖外缘来回爬；腿的摆动频率跟着行进速度，移得慢时腿也慢
+    const A = bug * Math.PI;
+    k.save();
+    k.translate(Math.cos(A) * capR * 0.9, capY + Math.sin(A) * capH * 0.8);
+    k.rotate(A - Math.PI / 2); k.scale(-1, 1);   // 头朝行进方向
+    k.fillStyle = '#3A3A40';
+    k.beginPath(); k.ellipse(-0.005 * S, -0.004 * S, 0.012 * S, 0.007 * S, 0.2, 0, TAU); k.fill();
+    k.beginPath(); k.arc(0.009 * S, -0.003 * S, 0.0045 * S, 0, TAU); k.fill();
+    k.strokeStyle = '#3A3A40'; k.lineWidth = 0.0016 * S; k.lineCap = 'round';
+    for (let j = 0; j < 3; j++) {
+      const w2 = Math.sin(bug * 30 + j * 2.1);
+      k.beginPath(); k.moveTo(-0.006 * S + j * 0.005 * S, -0.007 * S);
+      k.lineTo(-0.006 * S + j * 0.005 * S + 0.0035 * S * w2, 0.002 * S); k.stroke();
+    }
+    k.beginPath(); k.moveTo(0.012 * S, -0.006 * S); k.lineTo(0.019 * S, -0.012 * S);
+    k.moveTo(0.012 * S, -0.004 * S); k.lineTo(0.021 * S, -0.008 * S); k.stroke();
+    k.restore();
+  }
+}
+// ---- 景别共用：每格一开始就是目标景别；各格场景、动作都不同，并排看也能分清 ----
+const TAU = Math.PI * 2;
+// wave(u, n)：以 CYC 为周期、一轮 n 次的正弦；n 取整数，u = CYC → 0 处无缝
+const wave = (u, n, ph = 0) => Math.sin(u / CYC * TAU * n + ph);
+// fit(lo, hi, d, o)：机位正对框中心、离框所在深度 d 米，焦距按「lo〜hi 正好占满卡片高」换算
+//   o: { z 框所在深度（缺省 8 = 人物站位）, cx 框中心的世界 x }
+const fit = (lo, hi, d, o = {}) => {
+  const z = o.z === undefined ? 8 : o.z;
+  return cam({ x: o.cx || 0, y: (lo + hi) / 2, z: z - d, f: CH * d / (hi - lo) });
+};
+// 脸部细节（单独一个 sprite，叠在 person 的头上；局部米制，头心 1.63 m）
+//   o: { gaze 视线左右偏移（米）, blink 0 睁眼〜1 闭眼, talk 张嘴程度 0〜1 }
+function face(k, s, o = {}) {
+  const g = o.gaze || 0, open = 1 - (o.blink || 0);
+  k.fillStyle = '#FFFFFF';
+  [-0.055, 0.055].forEach(x => { k.beginPath(); k.ellipse(x + g, 1.665, 0.022, Math.max(0.003, 0.026 * open), 0, 0, TAU); k.fill(); });
+  k.beginPath(); k.ellipse(g * 0.6, 1.56, 0.045, 0.006 + 0.022 * (o.talk || 0), 0, 0, TAU); k.fill();
+}
+// 比例尺：右下角的小人形，蓝色带标出本景别截到身体的哪一段（lo〜hi，米）；超出 0〜2 m 的部分被面板裁掉
+function ruler(k, w, h, lo, hi) {
+  const pw = 46, ph = 84, x0 = w - 13 - 14 - pw, y0 = h - 13 - 10 - ph;   // 避开取景器右下角的角标
+  const s = (ph - 12) / 2.0, foot = y0 + ph - 6;
+  k.save();
+  k.fillStyle = 'rgba(255,255,255,.9)'; rr(k, x0, y0, pw, ph, 7); k.fill();
+  k.strokeStyle = C.border; k.lineWidth = 1.2; k.stroke();
+  rr(k, x0, y0, pw, ph, 7); k.clip();
+  k.save(); k.translate(x0 + pw / 2, foot); k.scale(s, -s); person(k, s, { col: C.g3 }); k.restore();
+  const yt = foot - hi * s, yb = foot - lo * s;
+  k.fillStyle = 'rgba(47,107,235,.22)'; k.fillRect(x0, yt, pw, yb - yt);
+  k.strokeStyle = C.blue; k.lineWidth = 1.6; k.beginPath(); k.moveTo(x0, yt); k.lineTo(x0 + pw, yt); k.moveTo(x0, yb); k.lineTo(x0 + pw, yb); k.stroke();
+  k.restore();
+}
+// frameCell(o)：o.draw(k, w, h, u) 画主画面；o.lo / o.hi 给比例尺；HUD 固定显示景别名
+const frameCell = o => (k, w, h, u) => { o.draw(k, w, h, u); ruler(k, w, h, o.lo, o.hi); return `${o.name} ${o.abbr}`; };
+
+// @shared
+// 镜头衔接（33〜36）：两人 A（蓝）、B（墨色）面对面站在 z=8，用几个固定机位按时刻硬切；末尾 RESET 秒淡回第一个镜头。
+// 衔接概念参考 jingyu-skill（MIT · 阿梦freedom）。机位都不移动，避免和 01〜08 的运镜混淆。
+const DUO = { A: { x: -1.2, z: 8, col: C.blue }, B: { x: 1.2, z: 8, col: C.ink } };
+// two(o)：world 只支持一个 person，第二个人物 B 用 extra 加入；o.talkA / o.talkB 给说话的那个人加嘴部动作
+//   o.faces：画出脸的人（缺省 'AB'）。过肩镜头里背对机位的那个人不画脸，只露肩背
+const two = (o = {}) => {
+  const f = o.faces === undefined ? 'AB' : o.faces, extra = [[DUO.B.x, 0, DUO.B.z, (k, s) => person(k, s, DUO.B)]];
+  if (f.includes('A')) extra.push([DUO.A.x, 0, DUO.A.z - 0.01, (k, s) => face(k, s, { gaze: 0.04, talk: o.talkA || 0 })]);
+  if (f.includes('B')) extra.push([DUO.B.x, 0, DUO.B.z - 0.01, (k, s) => face(k, s, { gaze: -0.04, talk: o.talkB || 0 })]);
+  return Object.assign({ person: DUO.A, extra }, o);
+};
+// cutCell(shots)：shots = [[开始时刻, 画法(k,w,h,u), HUD]]，按时刻选镜头；最后 RESET 秒淡回 shots[0]
+function cutCell(shots) {
+  const pick = u => shots.reduce((a, s) => (u >= s[0] ? s : a), shots[0]);
+  return (k, w, h, u) => {
+    const r = P(u, CYC - RESET, CYC), cur = pick(u);
+    blend(k, kk => cur[1](kk, w, h, u), kk => shots[0][1](kk, w, h, 0), eIOs(r));
+    return r > 0.5 ? shots[0][2] : cur[2];
+  };
+}
+// 说话口型：u 落在 [a, b] 内时开合（首尾合拢）
+const mouth = (u, a, b) => P(u, a, a + 0.2) * (1 - P(u, b - 0.2, b)) * (0.35 + 0.35 * Math.max(0, Math.sin(u * 19)));

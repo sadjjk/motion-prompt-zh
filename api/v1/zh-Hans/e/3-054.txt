@@ -1,0 +1,32 @@
+// Motion Prompt #3-054 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/close-up
+//
+// 特写 / Close-up
+// 分类包: camera (镜头运动与剪辑) · element 30 · 子分类: 景别
+// 动画表现: 头和肩占满画面：视线先移向一侧，接着眨一次眼，身体轻轻后退半步，最后回到正视。
+// 运动规格:
+//   - 画框：1.4 m 至 1.85 m，即肩部到头顶；机位距人物 2.6 m。
+//   - 视线：0.4 秒至 0.9 秒移向一侧 0.05 m，3.7 秒至 4.4 秒回正。
+//   - 1.55 秒眨一次眼；0.9 秒至 1.3 秒身体后退 0.05 m，与视线一起复原。
+//   - 背景明显虚化；右上角显示“特写 CU”，比例尺蓝色带从肩部到头顶。
+//   - 机位全程不动；每轮 4.7 秒，首尾画面相同。
+// 适用场景: 需要观众注意情绪变化、反应或细微表情的时刻。
+// 标签: close-up, cu, close up, head and shoulders, reaction, shot size, emotion
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-054
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 30
+// 30 特写：胸像。动作只有特写才看得清：视线先动（被什么吸引）、一次眨眼、身体轻轻退半步，末段复原；首尾正视，循环无缝
+CELLS[29] = shot(frameCell({ lo: 1.4, hi: 1.85, name: '特写', abbr: 'CU', draw: (k, w, h, u) => {
+  const gaze = 0.05 * eOut(P(u, 0.4, 0.9)) * (1 - P(u, 3.7, 4.4));   // 视线先动：被什么吸引
+  const sway = -0.05 * eOut(P(u, 0.9, 1.3)) * (1 - P(u, 3.7, 4.4));  // 身体轻轻退半步
+  const blink = clamp(1 - Math.abs(u - 1.55) / 0.09);                // 注意到时眨一次眼
+  world(k, w, h, fit(1.4, 1.85, 2.6), {
+    person: { x: sway, z: 8, fg: true },
+    extra: [[sway, 0, 7.99, (kk, s) => face(kk, s, { gaze, blink }), true]],
+    blurBg: 2.0
+  });
+} }));

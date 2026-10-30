@@ -1,0 +1,16 @@
+Please use "Match on action" (アクションつなぎ), one of the names in "Camera moves & transitions".
+Motion Prompt #3-066
+
+What it is: Cut mid-movement so the action carries on in the next shot
+What the sample shows: A person walks across at a steady pace; halfway, the picture cuts from a front camera to a three-quarter camera. Position and stride carry straight through the cut, and a blue dashed mark flashes under the feet to show it is the same movement.
+Spec:
+- Subject: walks from x −3.2 m to 3.2 m at constant speed from 0 s to 4.2 s (6.4 m), with a continuous stride.
+- Camera 1: frontal, 1.4 m high, 8 m from the subject.
+- Camera 2: cut at 2.3 s, placed 1.4 m to the right, 1.2 m high, 3 m from the subject, turned 0.35 rad.
+- For 0.35 s after the cut a short blue dashed mark shows under the feet and fades; top right reads "机位 1" / "机位 2 · 动作延续".
+- Return: cross-fade back to the first shot over the last 0.5 s (one pass = 4.7 s).
+When to use it: To change angle without breaking the flow of a movement, such as opening a door, sitting down, handing something over or throwing a punch.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-066.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

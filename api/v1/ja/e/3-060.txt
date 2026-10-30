@@ -1,0 +1,32 @@
+// Motion Prompt #3-060 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/leading-lines
+//
+// リーディングライン / Leading lines
+// パック: photo (写真の表現・光と画風) · element 28 · カテゴリ: 構図
+// 何が起きるか: 道の両端の線が画面下から遠くの一点へ集まり、人物が道の外からその点へ移る。破線が線に沿って彼へ流れる。
+// 動きの仕様:
+//   - 消失点 (380, 112)。道の両端は (150, 208) と (599, 208) から消失点へ
+//   - 人物: 道の外 x 120 から消失点 x 380 へ、身長40px
+//   - 誘導の破線は8/6px、毎秒28px被写体へ流れ、1周でちょうど10回。「引导线」と表示
+//   - 補助線: 琥珀色 #F5A524 の破線、太さ1.6px。効果の量に合わせて現れる
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: 被写体をすぐに見つけさせたいときや、奥行きと方向を強調したいとき。
+// タグ: leading lines, converging lines, vanishing point, perspective, composition, depth
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-060
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 28
+// 引导线: 道路边线从画面下沿汇聚到远处；主体从路外移到汇聚点，虚线沿边线流向主体
+CELLS[27] = cell((k, u) => {
+  const a = env(u), VX = 380, VY = 112, D = field(k, BASE, VY);
+  D.poly([[150, CH], [VX - 6, VY], [VX + 6, VY], [CW + 60, CH]], BASE.ground2);
+  figure(D, lerp(120, VX, a), VY + 4, 40, BASE.person);
+  // 虚线每秒流动 28 px；[8,6] 一周 14 px，5 秒正好 10 周，循环无缝
+  k.save(); k.lineDashOffset = -u * 28;
+  guide(k, [[150, CH], [VX - 6, VY + 2]], a, [8, 6]); guide(k, [[CW + 60, CH], [VX + 6, VY + 2]], a, [8, 6]);
+  k.restore();
+  tag(k, '引导线', 250, 176, a);
+});

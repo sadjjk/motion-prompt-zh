@@ -1,0 +1,32 @@
+// Motion Prompt #3-059 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/symmetry
+//
+// 对称构图 / Symmetrical composition
+// 分类包: photo (摄影光线与风格) · element 27 · 子分类: 构图
+// 动画表现: 中间一列踏脚石一直在；两侧的树由近到远一对一对长出来，围绕中轴左右呼应。
+// 运动规格:
+//   - 中轴 x 270 上有 4 块踏脚石，近大远小，从 y 196 排到 y 136。
+//   - 两侧 4 对树：离中轴 70、120、170、220 px，第 i 对在效果到 0.2i 时开始长，0.4 内长满。
+//   - 中轴线为 x 270 的竖向虚线，顶部标“对称轴”。
+//   - 辅助线为琥珀色 #F5A524 虚线，线宽 1.6 px，随效果强度渐显。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 建筑、走廊、倒影等本身有对称结构的场景，或想要稳定、庄重的感觉时。
+// 标签: symmetry, symmetrical composition, mirror, axis, composition, balance
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-059
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 27
+// 对称构图: 中间的踏脚石一直在；两侧的树随 a 由近到远逐对长出，围绕中轴呼应
+CELLS[26] = cell((k, u) => {
+  const a = env(u), D = field(k, BASE, 120);
+  [[196, 18], [172, 13], [152, 9], [136, 6]].forEach(([y, r]) => D.rr(CW / 2 - r, y, r * 2, r * 0.6, r * 0.3, BASE.edge));
+  for (let i = 0; i < 4; i++) {   // 第 i 对在 a 走到 0.2i 时开始长，0.4 内长满（近大远小）
+    const g = P(a, i * 0.2, i * 0.2 + 0.4); if (g <= 0) continue;
+    const off = 70 + i * 50, r = (20 - i * 3.5) * g, base = 196 - i * 20;
+    tree(D, CW / 2 - off, base, r, BASE); tree(D, CW / 2 + off, base, r, BASE);
+  }
+  guide(k, [[CW / 2, 0], [CW / 2, CH]], a); tag(k, '对称轴', CW / 2, 22, a);
+});

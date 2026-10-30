@@ -1,7 +1,14 @@
-// Motion Prompt #3 025~048 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#097
+// Motion Prompt #3 025~048 · 057~063 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#097
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/rule-of-thirds (#3-057)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/centered-composition (#3-058)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/symmetry (#3-059)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/leading-lines (#3-060)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/negative-space (#3-061)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/frame-within-frame (#3-062)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/depth-layering (#3-063)
 //
 // Kit for pack "photo" (Photo looks, lighting & styles / 写真の表現・光と画風): the constants and helpers its elements share.
-// Elements #3 025~048 · 539x208 px · cycle 5 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #3 025~048 · 057~063 · 539x208 px · cycle 5 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,
@@ -18,7 +25,8 @@
 // Every cell is a pure function of u, so the same call renders video frames: u = frame / fps.
 
 // @kit
-// 写真の表現・光と画風 24（カード 539x208、1周 5秒）。各コマは時間 u の純関数。
+// 写真の表現・光と画風 31（カード 539x208、1周 5秒）。各コマは時間 u の純関数。
+// 25〜31 は構図。同じ平らな場面で、env(u) に合わせて主役を構図どおりの位置へ動かし、補助線を出す。
 // 絵は平らな図形だけで描く。場面は3つを全コマで使い回す: ①光＝地平線の前の胸像 ②レンズ＝街角 ③仕上げ＝胸像と風景。
 // 人物は顔・髪のない丸い頭のピクト。光はアンバー1色の面、影は一段濃い平らな面で表す。
 // 色が主役の効果（モノクロ・デュオトーンなど）は、同じ場面の色の割り当て（パレット）を差し替えて見せる。
@@ -269,3 +277,30 @@ function histo(k, c, s) {
 }
 
 const CELLS = [];
+
+// @shared
+// 构图（25〜31）：同一个平面场景，env(u) 从「普通摆法」过渡到「按构图规则摆好 + 画出辅助线」，再回到普通摆法。
+// 构图概念参考 jingyu-skill（MIT · 阿梦freedom）。辅助线用本包的强调色（琥珀），标注用中文字体栈。
+const ZH = '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif';
+const GUIDE = BASE.sun, T3 = [CW / 3, CW * 2 / 3], H3 = [CH / 3, CH * 2 / 3];
+// 辅助线：pts 为折线点列，a 为不透明度（跟着 env 渐显）。调用方可在外面设 lineDashOffset 让虚线流动
+function guide(k, pts, a, dash = [6, 5]) {
+  if (a <= 0.01) return;
+  k.save(); k.globalAlpha = a; k.strokeStyle = GUIDE; k.lineWidth = 1.6; k.setLineDash(dash);
+  k.beginPath(); pts.forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.stroke(); k.restore();
+}
+// 标注小牌：琥珀底白字，居中于 (x, y)
+function tag(k, s, x, y, a) {
+  if (a <= 0.01) return;
+  k.save(); k.globalAlpha = a; k.font = `600 12px ${ZH}`; const w = k.measureText(s).width + 12;
+  k.fillStyle = GUIDE; k.beginPath(); k.roundRect(x - w / 2, y - 10, w, 20, 5); k.fill();
+  k.fillStyle = '#FFFFFF'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(s, x, y); k.restore();
+}
+// 构图用的空场景：天空、远山、地平线 hz 以下是地面；返回画笔 D 供后续加元素
+function field(k, p, hz) {
+  const D = pen(k);
+  D.rect(0, 0, CW, CH, p.sky);
+  D.poly([[0, hz], [0, hz - 14], [120, hz - 22], [240, hz - 10], [360, hz - 24], [460, hz - 12], [539, hz - 18], [539, hz]], p.far);
+  D.rect(0, hz, CW, CH - hz, p.ground);
+  return D;
+}

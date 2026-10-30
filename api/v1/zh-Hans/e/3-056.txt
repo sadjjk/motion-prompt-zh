@@ -1,0 +1,35 @@
+// Motion Prompt #3-056 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/macro-shot
+//
+// 微距 / Macro shot
+// 分类包: camera (镜头运动与剪辑) · element 32 · 子分类: 景别
+// 动画表现: 一朵约 0.26 m 高的蘑菇撑满画面，焦点从虚拉到实，伞盖的白点、菌褶和沿伞缘爬动的小虫逐渐清晰；后面的树干和人腿一直虚化。
+// 运动规格:
+//   - 画框：地面以下 0.02 m 至 0.26 m；机位贴近地面，距蘑菇 0.9 m。
+//   - 对焦：0.4 秒至 1.1 秒从虚拉到实，4.3 秒至 4.7 秒回虚。
+//   - 蘑菇：伞面红棕 #C34F40、中环 #D97B57、中心 #E7E0CE，三圈白点，伞下有放射状菌褶，茎上两道细纹。
+//   - 小虫：每轮沿伞缘从右到左再回来一次，腿的摆动快慢跟着移动速度。
+//   - 后景的两棵树和人物的腿始终虚化；右上角显示“微距 MACRO”；每轮 4.7 秒。
+// 适用场景: 表现昆虫、花、食物、产品纹理等肉眼难以看清的细节时。
+// 标签: macro shot, macro, macro photography, focus pull, detail, shallow depth of field, shot size
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-056
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 32
+// 32 微距：0.26 m 的蘑菇撑满画面，对焦拉实（0.4–1.1s）后能看清伞盖的白点花纹、菌褶和沿伞缘爬的小虫；
+// 后景是虚化的树干，人物只剩一双虚化的腿（贴着地面看的视角）；结尾回虚，循环无缝
+CELLS[31] = shot(frameCell({ lo: -0.02, hi: 0.26, name: '微距', abbr: 'MACRO', draw: (k, w, h, u) => {
+  const sharp = eIO(P(u, 0.4, 1.1)) * (1 - eIOs(P(u, 4.3, 4.7)));   // 1 = 对上焦；结尾回虚，循环无缝
+  const bug = 0.5 - 0.5 * wave(u, 1);   // 小虫沿伞盖外缘来回走（0 = 右缘，1 = 左缘）
+  world(k, w, h, fit(-0.02, 0.26, 0.9, { z: 7 }), {
+    person: { x: 0.2, z: 7.6 }, blurBg: 4, blurFg: 4 * (1 - sharp),
+    extra: [
+      [0.3, 0, 7.4, (kk, s) => mushroom(kk, s, bug, 1.5), true],
+      [-0.13, 0, 7.9, (kk, s) => tree(kk, s, 4, '#8FA98F')],
+      [0.45, 0, 8.2, (kk, s) => tree(kk, s, 4.6, '#9DB3A0')]
+    ]
+  });
+} }));

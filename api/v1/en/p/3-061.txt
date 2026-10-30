@@ -1,0 +1,16 @@
+Please use "Negative space" (余白（ネガティブスペース）), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-061
+
+What it is: A large plain area around the subject sets it off and carries mood
+What the sample shows: The person moves to the left while the buildings and tree on the right fade away; the large plain area left behind is outlined and labelled as negative space.
+Spec:
+- Subject: x 270 → x 110 on the left, 100 px tall.
+- The two buildings and the tree on the right fade out with the effect.
+- Negative space: 320×170 px from (200, 20), washed with pale amber #FFE3A3 at 35%, outlined with a dashed frame and labelled "留白" in the middle.
+- Guides: amber #F5A524 dashed lines, 1.6 px wide, fading in with the effect amount.
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+When to use it: To convey loneliness, calm or simplicity, or to leave room for text and titles.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-061.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

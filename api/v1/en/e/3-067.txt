@@ -1,0 +1,40 @@
+// Motion Prompt #3-067 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/180-degree-rule
+//
+// 180-degree rule / イマジナリーライン（180度ルール）
+// Pack: camera (Camera moves & transitions) · element 36 · Category: Transitions
+// What happens: A small top-down map at bottom right shows the line between the two people, the camera side in pale blue and the far side hatched as off limits; both shots stay on one side, so A is always on the left.
+// Motion spec:
+//   - Camera 1: square on to the pair, 5 m away and 1.5 m high; A speaks from 0.5 s to 1.9 s.
+//   - Camera 2: cut at 2.4 s, 2.2 m to the left and 2.8 m away, turned 0.702 rad, still on the same side of the line; B speaks from 2.7 s to 4.0 s.
+//   - Top-down map, 66×66 px: a blue dashed line for the axis, a blue dot for A and an ink dot for B; the camera side is pale blue and the other side hatched and labelled "越轴".
+//   - In the map the active camera is blue and the other grey; in the main picture A stays on the left and B on the right.
+//   - Return: cross-fade back to the first shot over the last 0.5 s (one pass = 4.7 s).
+// When to use it: For dialogue, chases or stand-offs shot from several angles, so the audience never loses track of who is on which side.
+// Tags: 180-degree rule, 180 degree rule, axis of action, imaginary line, crossing the line, screen direction, continuity
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-067
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 36
+// 36 180 度轴线：右下角俯视小图画出 A—B 连线（轴线），两次机位都在同一侧；主画面里 A 始终在左
+function axisMap(k, w, h, camIdx) {
+  const s = 66, x0 = w - 13 - 14 - s, y0 = h - 13 - 10 - s, cx = x0 + s / 2, cy = y0 + 26;
+  k.save();
+  k.fillStyle = 'rgba(255,255,255,.92)'; rr(k, x0, y0, s, s, 8); k.fill(); k.strokeStyle = C.border; k.lineWidth = 1.2; k.stroke();
+  k.save(); rr(k, x0, y0, s, s, 8); k.clip();
+  k.fillStyle = C.blueBg; k.fillRect(x0, cy, s, s);   // 摄影机所在的一侧（俯视图里画在下半）
+  k.strokeStyle = C.g2; k.lineWidth = 1; for (let i = -s; i < s; i += 6) { k.beginPath(); k.moveTo(x0 + i, y0); k.lineTo(x0 + i + 26, cy); k.stroke(); }   // 越轴一侧打斜线
+  k.restore();
+  k.strokeStyle = C.blue; k.lineWidth = 1.6; k.setLineDash([3, 3]); k.beginPath(); k.moveTo(x0 + 6, cy); k.lineTo(x0 + s - 6, cy); k.stroke(); k.setLineDash([]);
+  [[-14, C.blue], [14, C.ink]].forEach(([dx, col]) => { k.fillStyle = col; k.beginPath(); k.arc(cx + dx, cy, 4.5, 0, 7); k.fill(); });
+  [[cx, cy + 26], [cx - 22, cy + 16]].forEach(([x, y], i) => { k.fillStyle = i === camIdx ? C.blue : C.g4; rr(k, x - 5, y - 3.5, 10, 7, 2); k.fill(); });
+  txt(k, '越轴', cx, y0 + 11, `600 10px ${JP}`, C.sub, 'center', 'middle');
+  k.restore();
+}
+CELLS[35] = shot(cutCell([
+  [0, (k, w, h, u) => { world(k, w, h, cam({ y: 1.5, z: 3 }), two({ buildings: false, talkA: mouth(u, 0.5, 1.9) })); axisMap(k, w, h, 0); }, '机位 1'],
+  [2.4, (k, w, h, u) => { world(k, w, h, cam({ x: -2.2, y: 1.5, z: 5.2, yaw: 0.702 }), two({ buildings: false, talkB: mouth(u, 2.7, 4.0) })); axisMap(k, w, h, 1); }, '机位 2 · 同侧']
+]));

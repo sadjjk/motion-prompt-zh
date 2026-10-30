@@ -2,7 +2,7 @@
 
 # 镜头运动与剪辑
 
-24 个效果 · #3 001~024 · 分类包 `camera` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+36 个效果 · #3 001~024 · 049~056 · 064~067 · 分类包 `camera` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -44,6 +44,23 @@
 | [#3-022](https://sadjjk.github.io/motion-prompt-zh/#3-022) | **冲击硬切** | Smash cut | 突然切到反差强烈的场景 | 从安静卧室冲击硬切到嘈杂路口。 |
 | [#3-023](https://sadjjk.github.io/motion-prompt-zh/#3-023) | **J 型剪辑（声音先入）** | J-cut | 下一场景的声音先于画面出现 | 用 J 型剪辑，让下一场景的海浪声先响起，再切到海面。 |
 | [#3-024](https://sadjjk.github.io/motion-prompt-zh/#3-024) | **L 型剪辑（声音延续）** | L-cut | 上一场景的声音延续到下一画面 | 用 L 型剪辑，切到倾听者面部时继续保留她的声音。 |
+| [#3-064](https://sadjjk.github.io/motion-prompt-zh/#3-064) | **建立镜头** | Establishing shot | 先用远景交代场地和人物位置，再切近 | 先用 2 秒建立镜头拍下咖啡馆里相对而坐的两个人，再切到其中一人的近景。 |
+| [#3-065](https://sadjjk.github.io/motion-prompt-zh/#3-065) | **正反打** | Shot/reverse shot | 两个过肩机位交替切换，拍对话的两个人 | 用正反打拍两人对话，过肩镜头每 1.5 秒切换一次，说话的人始终正对镜头。 |
+| [#3-066](https://sadjjk.github.io/motion-prompt-zh/#3-066) | **动作衔接** | Match on action | 在动作进行中切换机位，动作在下一个镜头里接着做完 | 用动作衔接拍他推门走进房间，推到一半切到屋内机位，门在下一个镜头里接着打开。 |
+| [#3-067](https://sadjjk.github.io/motion-prompt-zh/#3-067) | **180 度轴线** | 180-degree rule | 机位留在两人连线的同一侧，左右关系才不会颠倒 | 拍两人对话时遵守 180 度轴线，所有机位都在同一侧，女主始终在画面左边。 |
+
+## 景别
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#3-049](https://sadjjk.github.io/motion-prompt-zh/#3-049) | **大远景** | Extreme long shot | 人物很小，画面主要交代环境 | 用大远景拍他独自走过山谷，人物只占画面高度的十分之一，持续 4 秒。 |
+| [#3-050](https://sadjjk.github.io/motion-prompt-zh/#3-050) | **全景** | Full shot | 从头到脚完整框住一个人 | 用全景拍她向前迈出一大步，头顶和脚下各留一点空间，持续 3 秒。 |
+| [#3-051](https://sadjjk.github.io/motion-prompt-zh/#3-051) | **中全景** | Medium long shot | 框到膝盖以上，兼顾动作与表情 | 用中全景拍他跨过一道矮坎，画框下沿在膝盖，持续 3 秒。 |
+| [#3-052](https://sadjjk.github.io/motion-prompt-zh/#3-052) | **中景** | Medium shot | 框到腰部以上，看清手部动作 | 用中景拍她举起右手招手，画框下沿在腰部，持续 3 秒。 |
+| [#3-053](https://sadjjk.github.io/motion-prompt-zh/#3-053) | **中近景** | Medium close-up | 框到胸口以上，重点在说话和表情 | 用中近景拍她说话，画框下沿落在胸口，持续 3 秒。 |
+| [#3-054](https://sadjjk.github.io/motion-prompt-zh/#3-054) | **特写** | Close-up | 框住头部和肩部，表情细节成为主角 | 用特写拍他听到声音后眼神一动、眨一下眼，画面只到肩膀，持续 3 秒。 |
+| [#3-055](https://sadjjk.github.io/motion-prompt-zh/#3-055) | **大特写** | Extreme close-up | 只框住眼睛等局部，放大最细的变化 | 用大特写拍她的眼睛，画面只有眼部，视线扫向一侧后眨一下眼，持续 2 秒。 |
+| [#3-056](https://sadjjk.github.io/motion-prompt-zh/#3-056) | **微距** | Macro shot | 把很小的物体拍到撑满画面 | 用微距拍一朵小蘑菇，焦点慢慢拉实后能看见伞盖上爬过的小虫，持续 4 秒。 |
 
 点击编号查看动画演示。单项的时序、缓动和参考代码： `api/v1/zh-Hans/e/<id>.txt` ([#3-001](../../api/v1/zh-Hans/e/3-001.txt)).
 

@@ -1,0 +1,30 @@
+// Motion Prompt #3-061 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/negative-space
+//
+// Negative space / 余白（ネガティブスペース）
+// Pack: photo (Photo looks, lighting & styles) · element 29 · Category: Composition
+// What happens: The person moves to the left while the buildings and tree on the right fade away; the large plain area left behind is outlined and labelled as negative space.
+// Motion spec:
+//   - Subject: x 270 → x 110 on the left, 100 px tall.
+//   - The two buildings and the tree on the right fade out with the effect.
+//   - Negative space: 320×170 px from (200, 20), washed with pale amber #FFE3A3 at 35%, outlined with a dashed frame and labelled "留白" in the middle.
+//   - Guides: amber #F5A524 dashed lines, 1.6 px wide, fading in with the effect amount.
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: To convey loneliness, calm or simplicity, or to leave room for text and titles.
+// Tags: negative space, empty space, minimalism, breathing room, composition, copy space
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-061
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 29
+// 留白: 主体移到左侧、面朝右；右侧的建筑和树淡出，空出的大片简单区域标为留白
+CELLS[28] = cell((k, u) => {
+  const a = env(u), D = field(k, BASE, 150);
+  k.save(); k.globalAlpha = 1 - a; building(D, 360, 150, 36, 40, BASE, 2); building(D, 420, 150, 30, 28, BASE, 3); tree(D, 488, 150, 16, BASE); k.restore();
+  figure(D, lerp(CW / 2, 110, a), 176, 100, BASE.person);
+  k.save(); k.globalAlpha = 0.35 * a; k.fillStyle = BASE.glow; k.fillRect(200, 20, 320, 170); k.restore();
+  guide(k, [[200, 20], [520, 20], [520, 190], [200, 190], [200, 20]], a);
+  tag(k, '留白', 360, 100, a);
+});

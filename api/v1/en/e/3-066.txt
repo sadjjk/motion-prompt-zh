@@ -1,0 +1,35 @@
+// Motion Prompt #3-066 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/match-on-action
+//
+// Match on action / アクションつなぎ
+// Pack: camera (Camera moves & transitions) · element 35 · Category: Transitions
+// What happens: A person walks across at a steady pace; halfway, the picture cuts from a front camera to a three-quarter camera. Position and stride carry straight through the cut, and a blue dashed mark flashes under the feet to show it is the same movement.
+// Motion spec:
+//   - Subject: walks from x −3.2 m to 3.2 m at constant speed from 0 s to 4.2 s (6.4 m), with a continuous stride.
+//   - Camera 1: frontal, 1.4 m high, 8 m from the subject.
+//   - Camera 2: cut at 2.3 s, placed 1.4 m to the right, 1.2 m high, 3 m from the subject, turned 0.35 rad.
+//   - For 0.35 s after the cut a short blue dashed mark shows under the feet and fades; top right reads "机位 1" / "机位 2 · 动作延续".
+//   - Return: cross-fade back to the first shot over the last 0.5 s (one pass = 4.7 s).
+// When to use it: To change angle without breaking the flow of a movement, such as opening a door, sitting down, handing something over or throwing a punch.
+// Tags: match on action, cutting on action, match cut, action continuity, cut, editing, continuity
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-066
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 35
+// 35 动作衔接：A 匀速横穿，走到一半从正面机位切到侧前方机位；走位与步态都由 u 连续算出，切点前后动作不重来
+const walkX = u => lerp(-3.2, 3.2, Math.min(1, u / 4.2));
+const walker = u => ({ person: { x: walkX(u), z: 8, walk: u * 7, col: C.blue } });
+CELLS[34] = shot(cutCell([
+  [0, (k, w, h, u) => world(k, w, h, cam({ y: 1.4 }), walker(u)), '机位 1'],
+  [2.3, (k, w, h, u) => world(k, w, h, cam({ x: 1.4, y: 1.2, z: 5, yaw: -0.35 }), Object.assign(walker(u), {
+    after: (kk, cc) => {   // 切点后 0.35 秒：脚下的蓝色虚线短标，说明是同一个动作
+      const g = 1 - P(u, 2.3, 2.65); if (g <= 0) return;
+      const p = proj(cc, walkX(u), 0, 8);
+      kk.save(); kk.globalAlpha = g; kk.strokeStyle = C.blue; kk.lineWidth = 2; kk.setLineDash([5, 4]);
+      kk.beginPath(); kk.moveTo(p.x - 40, p.y + 6); kk.lineTo(p.x + 40, p.y + 6); kk.stroke(); kk.restore();
+    }
+  })), '机位 2 · 动作延续']
+]));

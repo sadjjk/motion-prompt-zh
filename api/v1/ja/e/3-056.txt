@@ -1,0 +1,35 @@
+// Motion Prompt #3-056 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/macro-shot
+//
+// マクロ撮影 / Macro shot
+// パック: camera (カメラワークと切り替え) · element 32 · カテゴリ: ショットサイズ
+// 何が起きるか: 高さ約0.26mのキノコが画面を埋める。ピントがぼけから合い、かさの白い斑点・ひだ・縁を這う虫が見えてくる。後ろの木の幹と人の脚はぼけたまま。
+// 動きの仕様:
+//   - 画框: 地面の下0.02mから0.26mまで。カメラは地面すれすれ、キノコまで0.9m
+//   - ピント: 0.4〜1.1秒でぼけから合い、4.3〜4.7秒で再びぼける
+//   - キノコ: かさは赤茶 #C34F40、中間の輪 #D97B57、中心 #E7E0CE。白い斑点が3周、かさの下に放射状のひだ、柄に細い線が2本
+//   - 虫: 1周で縁を右から左へ行って戻る。脚の動きの速さは移動速度に合わせる
+//   - 後ろの2本の木と人物の脚は常にぼけたまま。右上に「微距 MACRO」。1周4.7秒
+// 使いどころ: 虫・花・料理・製品の質感など、肉眼では見えにくい細部を見せるとき。
+// タグ: macro shot, macro, macro photography, focus pull, detail, shallow depth of field, shot size
+// サイズ: 539x208 px · 1周: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-056
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 32
+// 32 微距：0.26 m 的蘑菇撑满画面，对焦拉实（0.4–1.1s）后能看清伞盖的白点花纹、菌褶和沿伞缘爬的小虫；
+// 后景是虚化的树干，人物只剩一双虚化的腿（贴着地面看的视角）；结尾回虚，循环无缝
+CELLS[31] = shot(frameCell({ lo: -0.02, hi: 0.26, name: '微距', abbr: 'MACRO', draw: (k, w, h, u) => {
+  const sharp = eIO(P(u, 0.4, 1.1)) * (1 - eIOs(P(u, 4.3, 4.7)));   // 1 = 对上焦；结尾回虚，循环无缝
+  const bug = 0.5 - 0.5 * wave(u, 1);   // 小虫沿伞盖外缘来回走（0 = 右缘，1 = 左缘）
+  world(k, w, h, fit(-0.02, 0.26, 0.9, { z: 7 }), {
+    person: { x: 0.2, z: 7.6 }, blurBg: 4, blurFg: 4 * (1 - sharp),
+    extra: [
+      [0.3, 0, 7.4, (kk, s) => mushroom(kk, s, bug, 1.5), true],
+      [-0.13, 0, 7.9, (kk, s) => tree(kk, s, 4, '#8FA98F')],
+      [0.45, 0, 8.2, (kk, s) => tree(kk, s, 4.6, '#9DB3A0')]
+    ]
+  });
+} }));

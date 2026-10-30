@@ -1,0 +1,27 @@
+// Motion Prompt #3-050 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/full-shot
+//
+// Full shot / フルショット
+// Pack: camera (Camera moves & transitions) · element 26 · Category: Shot size
+// What happens: The person fits the frame from head to toe, takes one big step with the arms swinging, holds and then draws back.
+// Motion spec:
+//   - Frame: from 0.12 m below the feet to 2.0 m (head to toe plus a little room); camera 5.2 m away at the frame centre height.
+//   - Action: steps forward 0.42 m from 0.4 s to 1.0 s with the arms swinging, then draws back to feet together from 3.4 s to 4.0 s.
+//   - Background buildings and trees stay sharp, showing where the person stands.
+//   - Labels: top right reads "全景 FS"; the blue band on the scale figure covers the whole body from feet to head.
+//   - The camera never moves; one pass = 4.7 s and the first and last frames match.
+// When to use it: When you need the whole body movement and the place it happens in at the same time.
+// Tags: full shot, fs, wide shot, ws, head to toe, shot size, framing
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-050
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 26
+CELLS[25] = shot(frameCell({ lo: -0.12, hi: 2.0, name: '全景', abbr: 'FS', draw: (k, w, h, u) => {
+  const step = eIO(P(u, 0.4, 1.0)) * (1 - P(u, 3.4, 4.0));   // 踏出一大步再收回来，首尾并脚
+  world(k, w, h, fit(-0.12, 2.0, 5.2), {
+    person: { x: step * 0.42, walk: step * Math.PI * 0.9, z: 8 }   // 大步幅 + 手臂摆动
+  });
+} }));

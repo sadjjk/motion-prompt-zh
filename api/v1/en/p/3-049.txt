@@ -1,0 +1,16 @@
+Please use "Extreme long shot" (超ロングショット), one of the names in "Camera moves & transitions".
+Motion Prompt #3-049
+
+What it is: The person is tiny; the frame is mostly about the place
+What the sample shows: From a distant, slightly high camera, mountains, buildings, trees and clouds fill the frame while a person only about 20 px tall walks across and back.
+Spec:
+- Framing: camera 2.2 m high, 30 m from the person, focal length 330 px; the person (about 1.8 m tall) is about 20 px tall.
+- Action: walks 6 m to one side and back each pass (12 m in total) at cosine speed, with 8 stride cycles.
+- Setting: mountains, buildings, trees and clouds fill the frame; the clouds drift by 2 m.
+- Labels: top right reads "大远景 ELS"; the scale figure at bottom right is shaded from head to toe (the whole body fits with room to spare).
+- The camera never moves; one pass = 4.7 s and the first and last frames match.
+When to use it: To establish where a character is, or to make a person look small or alone in a place.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-049.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

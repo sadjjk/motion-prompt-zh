@@ -1,0 +1,28 @@
+// Motion Prompt #3-065 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/shot-reverse-shot
+//
+// 切り返し / Shot/reverse shot
+// パック: camera (カメラワークと切り替え) · element 34 · カテゴリ: 切り替え（トランジション）
+// 何が起きるか: Bの肩越しにAが話し、Aの肩越しのBの返事に切り替え、またAに戻る。聞き手は肩と背中だけ。Aは常に画面の左、Bは右。
+// 動きの仕様:
+//   - 正打: カメラはBの後ろ右2.6m、高さ1.5m、0.741rad振ってBの肩越しにA。逆打は左右対称
+//   - 切り替え: 1.4秒で逆打へ、2.8秒で正打へ戻る。カメラは間を移動しない
+//   - 話す: Aは0.2〜1.3秒と3.0〜4.0秒、Bは1.6〜2.7秒。背中を向けた人は顔を描かない
+//   - 2つのカメラは軸の同じ側にあり、Aは左・Bは右のまま。右上に「正打 A」「反打 B」
+//   - 戻り: 最後の0.5秒で最初のカットへクロスフェード（1周4.7秒）
+// 使いどころ: 2人の会話を撮る基本の方法。話す人と聞く人の反応を両方見せる。
+// タグ: shot reverse shot, shot/reverse shot, ots, over the shoulder, dialogue, cut, editing
+// サイズ: 539x208 px · 1周: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-065
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 34
+// 34 正反打：两个过肩机位直接交替，不在两点之间移动；说话的人在镜头里，听的人只露肩背。A 始终在画面左、B 始终在右
+const OTS_A = cam({ x: 2.6, y: 1.5, z: 5.6, yaw: -0.741 }), OTS_B = cam({ x: -2.6, y: 1.5, z: 5.6, yaw: 0.741 });
+CELLS[33] = shot(cutCell([
+  [0, (k, w, h, u) => world(k, w, h, OTS_A, two({ buildings: false, blurBg: 1.2, faces: 'A', talkA: mouth(u, 0.2, 1.3) })), '正打 A'],
+  [1.4, (k, w, h, u) => world(k, w, h, OTS_B, two({ buildings: false, blurBg: 1.2, faces: 'B', talkB: mouth(u, 1.6, 2.7) })), '反打 B'],
+  [2.8, (k, w, h, u) => world(k, w, h, OTS_A, two({ buildings: false, blurBg: 1.2, faces: 'A', talkA: mouth(u, 3.0, 4.0) })), '正打 A']
+]));

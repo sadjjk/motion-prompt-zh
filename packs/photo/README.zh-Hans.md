@@ -2,7 +2,7 @@
 
 # 摄影光线与风格
 
-24 个效果 · #3 025~048 · 分类包 `photo` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+31 个效果 · #3 025~048 · 057~063 · 分类包 `photo` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -44,6 +44,18 @@
 | [#3-046](https://sadjjk.github.io/motion-prompt-zh/#3-046) | **胶片颗粒** | Film grain | 在画面上叠加细腻胶片质感颗粒 | 海滩照片加细腻胶片颗粒，遍布全图，黑位稍抬并偏暖。 |
 | [#3-047](https://sadjjk.github.io/motion-prompt-zh/#3-047) | **漏光** | Light leak | 模拟光线漏入胶片形成红橙光晕 | 夏日回忆照片加右边缘漏光，红橙色光线渗入。 |
 | [#3-048](https://sadjjk.github.io/motion-prompt-zh/#3-048) | **双重曝光** | Double exposure | 将两张照片叠合在同一画面 | 侧面人像剪影与森林山景做双重曝光，白色背景，风景只显示在头部内部。 |
+
+## 构图
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#3-057](https://sadjjk.github.io/motion-prompt-zh/#3-057) | **三分法** | Rule of thirds | 把主体和地平线放在三等分线附近 | 按三分法拍海边的一个人，人物在左三分线上，地平线压在下三分线。 |
+| [#3-058](https://sadjjk.github.io/motion-prompt-zh/#3-058) | **居中构图** | Centered composition | 把主体放在画面正中，视线直接落在它身上 | 用居中构图拍站在空旷广场中央的一个人，人物正好在画面中轴上。 |
+| [#3-059](https://sadjjk.github.io/motion-prompt-zh/#3-059) | **对称构图** | Symmetrical composition | 画面左右以中轴互为镜像 | 用对称构图拍一条林荫道，两侧的树左右对应，中轴线对准道路中心。 |
+| [#3-060](https://sadjjk.github.io/motion-prompt-zh/#3-060) | **引导线** | Leading lines | 用道路、栏杆等线条把视线引向主体 | 用引导线构图拍一条伸向远方的铁轨，两条铁轨汇聚到站在尽头的人身上。 |
+| [#3-061](https://sadjjk.github.io/motion-prompt-zh/#3-061) | **留白** | Negative space | 让大片简单区域包围主体，突出主体和情绪 | 用留白构图拍站在雪地左侧的一个人，画面右边三分之二只有空白的雪。 |
+| [#3-062](https://sadjjk.github.io/motion-prompt-zh/#3-062) | **框中框** | Frame within a frame | 用门窗、拱洞等前景把主体再框一次 | 用框中框构图拍门外院子里的孩子，近处的门框把孩子框在画面中央。 |
+| [#3-063](https://sadjjk.github.io/motion-prompt-zh/#3-063) | **前中后景** | Foreground, middle ground & background | 前景、中景、后景分层排布，画面更有纵深 | 拍湖边的人物时做出前中后景：前景是花丛，中景是人物，后景是湖和对岸的树林。 |
 
 点击编号查看动画演示。单项的时序、缓动和参考代码： `api/v1/zh-Hans/e/<id>.txt` ([#3-025](../../api/v1/zh-Hans/e/3-025.txt)).
 

@@ -1,0 +1,31 @@
+// Motion Prompt #3-057 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/rule-of-thirds
+//
+// 三分割法 / Rule of thirds
+// パック: photo (写真の表現・光と画風) · element 25 · カテゴリ: 構図
+// 何が起きるか: 人物が中央から左の三分割線へ、地平線が中央から下の三分割線へ動き、縦横の三分割線と4つの交点が現れる。
+// 動きの仕様:
+//   - 人物: x 270 から左の三分割線 x 180 へ。地平線: y 104 から下の三分割線 y 139 へ
+//   - 木は x 390 から右の三分割線 x 360 へ動き、人物と釣り合う
+//   - 三分割線: 縦 x 180・x 360、横 y 69・y 139。4つの交点に半径3.5pxの点
+//   - 補助線: 琥珀色 #F5A524 の破線、太さ1.6px。効果の量に合わせて現れる
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: 風景・人物・スナップで、釣り合いを取りつつ単調にしたくないとき。
+// タグ: rule of thirds, thirds, grid, composition, horizon, balance
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-057
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 25
+// 三分法: 主体从中央移到左三分线，地平线从中线降到下三分线；辅助线只是参照，不要求压线
+CELLS[24] = cell((k, u) => {
+  const a = env(u), hz = lerp(CH / 2, H3[1], a);
+  const D = field(k, BASE, hz);
+  tree(D, lerp(CW / 2 + 120, T3[1], a), hz, 16, BASE);
+  figure(D, lerp(CW / 2, T3[0], a), hz + 30, 92, BASE.person);   // 头顶约在上三分线附近
+  T3.forEach(X => guide(k, [[X, 0], [X, CH]], a)); H3.forEach(Y => guide(k, [[0, Y], [CW, Y]], a));
+  k.save(); k.globalAlpha = a; k.fillStyle = GUIDE;   // 四个交点
+  T3.forEach(X => H3.forEach(Y => { k.beginPath(); k.arc(X, Y, 3.5, 0, TAU); k.fill(); })); k.restore();
+});

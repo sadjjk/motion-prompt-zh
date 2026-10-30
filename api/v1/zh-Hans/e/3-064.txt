@@ -1,0 +1,26 @@
+// Motion Prompt #3-064 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/establishing-shot
+//
+// 建立镜头 / Establishing shot
+// 分类包: camera (镜头运动与剪辑) · element 33 · 子分类: 剪辑与转场
+// 动画表现: 先从高处远景看到两人一左一右站在场地中，2.4 秒硬切到左边那人的近景，他开始说话；观众已经知道另一人在他右边。
+// 运动规格:
+//   - 镜头 1：机位高 4.5 m，距两人 20 m，略微俯拍；A 蓝色在左，B 墨色在右，相距 2.4 m。
+//   - 切点：2.4 秒硬切，机位之间不移动。
+//   - 镜头 2：A 的近景，机位高 1.45 m、距 A 3.2 m，背景轻微虚化；A 在 2.8 秒至 4.1 秒说话。
+//   - 右上角先显示“建立 WIDE”，切换后显示“近景 A”。
+//   - 最后 0.5 秒交叉淡化回第一个镜头，每轮 4.7 秒。
+// 适用场景: 新场景开头，让观众先知道在哪里、谁在场，再进入细节。
+// 标签: establishing shot, master shot, wide shot, scene setting, cut, editing, continuity
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-064
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 33
+// 33 建立镜头：先用远景交代两人和场地的位置，再切到 A 的近景（观众已经知道 B 在 A 右边）
+CELLS[32] = shot(cutCell([
+  [0, (k, w, h) => world(k, w, h, cam({ y: 4.5, z: -12, pitch: -0.12 }), two()), '建立 WIDE'],
+  [2.4, (k, w, h, u) => world(k, w, h, cam({ x: -0.6, y: 1.45, z: 4.8 }), two({ talkA: mouth(u, 2.8, 4.1), blurBg: 1.2 })), '近景 A']
+]));

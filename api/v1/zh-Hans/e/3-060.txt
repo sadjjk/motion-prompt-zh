@@ -1,0 +1,32 @@
+// Motion Prompt #3-060 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/leading-lines
+//
+// 引导线 / Leading lines
+// 分类包: photo (摄影光线与风格) · element 28 · 子分类: 构图
+// 动画表现: 道路两条边线从画面下沿汇聚到远处一点，人物从路外走到汇聚点上，虚线沿边线流向他。
+// 运动规格:
+//   - 汇聚点 (380, 112)；道路两条边线分别从 (150, 208)、(599, 208) 伸向汇聚点。
+//   - 人物：从路外 x 120 移到汇聚点 x 380，身高 40 px。
+//   - 引导虚线 8/6 px，每秒向主体流动 28 px，每轮正好 10 周；标“引导线”。
+//   - 辅助线为琥珀色 #F5A524 虚线，线宽 1.6 px，随效果强度渐显。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 想让观众一眼找到主体，或强调纵深和方向感时。
+// 标签: leading lines, converging lines, vanishing point, perspective, composition, depth
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-060
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 28
+// 引导线: 道路边线从画面下沿汇聚到远处；主体从路外移到汇聚点，虚线沿边线流向主体
+CELLS[27] = cell((k, u) => {
+  const a = env(u), VX = 380, VY = 112, D = field(k, BASE, VY);
+  D.poly([[150, CH], [VX - 6, VY], [VX + 6, VY], [CW + 60, CH]], BASE.ground2);
+  figure(D, lerp(120, VX, a), VY + 4, 40, BASE.person);
+  // 虚线每秒流动 28 px；[8,6] 一周 14 px，5 秒正好 10 周，循环无缝
+  k.save(); k.lineDashOffset = -u * 28;
+  guide(k, [[150, CH], [VX - 6, VY + 2]], a, [8, 6]); guide(k, [[CW + 60, CH], [VX + 6, VY + 2]], a, [8, 6]);
+  k.restore();
+  tag(k, '引导线', 250, 176, a);
+});

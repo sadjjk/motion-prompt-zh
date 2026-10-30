@@ -1,0 +1,16 @@
+Please use "Foreground, middle ground & background" (前景・中景・背景), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-063
+
+What it is: Foreground, middle ground and background are laid out in layers for depth
+What the sample shows: The lake and woods behind, the person in the middle and the flowers in front slide sideways by different amounts, creating parallax; each layer is labelled.
+Spec:
+- Background: far hills, 6 trees across the water and the lake surface, sliding by 6 px.
+- Middle ground: the person at x 270, 66 px tall, sliding by 18 px.
+- Foreground: 4 clumps of flowers along the bottom edge sliding by 48 px; the nearer the layer, the more it moves.
+- The sideways slide follows one sine per pass and grows with the effect; each layer carries a moving label "后景", "中景" or "前景".
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+When to use it: For landscapes, travel and story pictures that should show depth on a flat image.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-063.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

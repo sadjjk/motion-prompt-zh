@@ -1,0 +1,32 @@
+// Motion Prompt #3-052 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-shot
+//
+// Medium shot / ウエストショット
+// Pack: camera (Camera moves & transitions) · element 28 · Category: Shot size
+// What happens: The bottom edge falls at the waist; the person raises one arm beside the head, waves it back and forth and lowers it again.
+// Motion spec:
+//   - Frame: 0.88 m to 1.92 m (waist to the top of the head); camera 4.2 m away.
+//   - Action: one arm rises beside the head from 0.4 s to 1.0 s and swings back and forth on a rhythm of 4 per pass; it lowers from 3.4 s to 4.0 s.
+//   - The other arm hangs naturally; the person stays sharp on the foreground layer and the background is softly blurred.
+//   - Labels: top right reads "中景 MS"; the blue band on the scale figure runs from the waist to the head.
+//   - The camera never moves; one pass = 4.7 s and the first and last frames match.
+// When to use it: For dialogue, presenting or handling an object, where gestures and faces both matter.
+// Tags: medium shot, ms, waist shot, mid shot, shot size, framing, gesture
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-052
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 28
+CELLS[27] = shot(frameCell({ lo: 0.88, hi: 1.92, name: '中景', abbr: 'MS', draw: (k, w, h, u) => {
+  const arm = eIO(P(u, 0.4, 1.0)) * (1 - P(u, 3.4, 4.0));   // 招手：手臂举到头侧来回摆
+  const ang = arm * (0.55 + 0.5 * Math.sin(u / CYC * TAU * 4));   // 举手期间摆 4 次，首尾收住
+  world(k, w, h, fit(0.88, 1.92, 4.2), {
+    person: { x: -0.1, z: 8, fg: true }, blurBg: 1.4,   // 本体双手自然下垂
+    extra: [[-0.1, 0, 7.99, (kk, s) => {   // 挥动的那只手臂（本体 walk=0 不会画摆臂）
+      kk.save(); kk.translate(0.25, 1.38); kk.rotate(-1.9 - ang * 0.4);
+      kk.fillStyle = C.blue; rr(kk, -0.06, -0.6, 0.12, 0.6, 0.06); kk.fill(); kk.restore();
+    }, true]]
+  });
+} }));

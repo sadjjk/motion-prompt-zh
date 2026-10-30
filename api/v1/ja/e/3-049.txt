@@ -1,0 +1,34 @@
+// Motion Prompt #3-049 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/extreme-long-shot
+//
+// 超ロングショット / Extreme long shot
+// パック: camera (カメラワークと切り替え) · element 25 · カテゴリ: ショットサイズ
+// 何が起きるか: 遠く少し高いカメラから、山・建物・木・雲が画面を埋め、身長約20pxの人物がその中を歩いて行って戻ってくる。
+// 動きの仕様:
+//   - 画角: カメラの高さ2.2m、人物まで30m、焦点距離330px。身長約1.8mの人物は画面上で約20px
+//   - 動き: 1周で片側へ6m歩いて戻る（計12m）。速度は余弦カーブ、歩行8周期
+//   - 環境: 山・建物・木・雲が画面を埋め、雲は2m左右に漂う
+//   - 表示: 右上に「大远景 ELS」。右下の比例尺の人形は全身が青い帯に入る（全身が余裕を持って入る）
+//   - カメラは最後まで動かない。1周4.7秒で、最初と最後の画面は同じ
+// 使いどころ: 人物がどこにいるかを示す、または場所の中で人を小さく孤独に見せたいとき。
+// タグ: extreme long shot, els, extreme wide shot, ews, shot size, framing, landscape
+// サイズ: 539x208 px · 1周: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-049
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 25
+// 25 大远景：机位远、略高，人物只有约 20 px，在山野间来回走；看的是人物和环境的关系
+CELLS[24] = shot(frameCell({ lo: -1, hi: 12, name: '大远景', abbr: 'ELS', draw: (k, w, h, u) => {
+  const x = -6 * Math.cos(u / CYC * TAU);   // 一轮走过去再走回来，首尾同一位置
+  world(k, w, h, cam({ y: 2.2, z: -22 }), {
+    person: { x, z: 8, walk: u / CYC * TAU * 8 },
+    clouds: [[-22 + 2 * wave(u, 1), 14, 80, 2.5], [24 + 2 * wave(u, 1, 1), 17, 95, 3]]
+  });
+} }));
+
+// 26〜28：动作选这个景别才看得清的东西——
+//   26 全景：完整看到一个人走一步（踏出一大步 + 手臂摆动），脚步出框也没关系
+//   27 中全景：膝盖以上。画的不是走路，是「跨一步」：腿抬起落下的整段弧线
+//   28 中景：腰以上。画的不是腿部动作，是「抬手招手」：手臂从垂下到举过头顶来回摆
