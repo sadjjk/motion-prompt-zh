@@ -2,7 +2,7 @@
 
 # UI component names
 
-52 names · #1 001~024 · 098~102 · 108~121 · 142~150 · pack `ui` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+56 names · #1 001~024 · 098~102 · 108~121 · 142~150 · 182~185 · pack `ui` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -28,6 +28,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-120](https://sadjjk.github.io/motion-prompt-zh/#1-120) | **Folding card** | A folded card opens its cover to reveal the message inside | Make the invitation a folding card: clicking the cover opens it on its left edge and the message inside fades in line by line. |
 | [#1-147](https://sadjjk.github.io/motion-prompt-zh/#1-147) | **Cookie banner** | A consent card for cookies that rises from the bottom | Add a cookie banner: it springs up from the bottom, the cookie icon wobbles, and clicking accept sends it back down. |
 | [#1-148](https://sadjjk.github.io/motion-prompt-zh/#1-148) | **Speed dial** | A floating + button that fans out small action buttons | Turn the add button at lower right into a speed dial: on click the + turns into ×, and small buttons pop out above it from the bottom up. |
+| [#1-185](https://sadjjk.github.io/motion-prompt-zh/#1-185) | **Swipe-to-dismiss toast** | A short notification you can drag down to dismiss | Make the copied toast swipe-to-dismiss: it drops in from the top with a 3.0 s countdown bar along its bottom, pressing pauses it, dragging up to 74 px shrinks and fades it, and releasing past 46 px makes it speed off downward. |
 
 ## Choosing & switching
 
@@ -53,6 +54,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-144](https://sadjjk.github.io/motion-prompt-zh/#1-144) | **Shake on error** | A field shakes side to side when the input is wrong | Use a shake on error for a wrong password: shake the field for 0.45 s, turn its border red and slide an error message in below. |
 | [#1-145](https://sadjjk.github.io/motion-prompt-zh/#1-145) | **Animated checkbox** | The box bounces and the check draws itself in | Make the to-do checks animated checkboxes: bounce the box, draw the check from lower left to upper right and strike through the text. |
 | [#1-146](https://sadjjk.github.io/motion-prompt-zh/#1-146) | **Tag input** | A field where typed words become tags on Enter | Make the interests field a tag input: Enter turns the text into a tag that pops in, and clicking × shrinks it away while the rest closes up. |
+| [#1-182](https://sadjjk.github.io/motion-prompt-zh/#1-182) | **Comet-trail dial** | A rotary knob whose indicator dot leaves a fading comet tail as it turns | Make the volume knob a comet-trail dial: as it turns from 24 to 72, a dot runs inside the tick ring trailing the arc of the last 0.32 s, ticks it passes glow and fade over 0.4 s, and on release the knob springs back. |
+| [#1-183](https://sadjjk.github.io/motion-prompt-zh/#1-183) | **Wake bar slider** | A slider made of thin bars that rise into a trailing wave as you drag | Turn the brightness slider into a row of bars with no round thumb: lift the bars under the cursor by 12 px and leave a speed-driven wave behind the drag, capped at 48 px and settling with a 0.36 s decay. |
+| [#1-184](https://sadjjk.github.io/motion-prompt-zh/#1-184) | **Bell notification toggle** | A button that turns notifications on with a swinging bell | Make the notify button a bell toggle: on click it turns blue, the bell swings 0.42 rad at 2.4 Hz and damps out, and 3 sound arcs spread on both sides. A second click draws a slash over the bell and turns it off. |
 
 ## Navigation & status
 

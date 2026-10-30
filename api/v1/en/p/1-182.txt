@@ -1,0 +1,16 @@
+Please use "Comet-trail dial" (光の尾を引くダイヤル), one of the names in "UI component names".
+Motion Prompt #1-182
+
+What it is: A rotary knob whose indicator dot leaves a fading comet tail as it turns
+What the sample shows: A white ceramic knob sits in a ring of ticks on a warm grey panel, with the volume number on the right. The cursor grabs and turns it: a blue dot travels inside the ring with a comet tail, passed ticks flash and fade, and the number and level bar climb. On release the tail shrinks and the number pops, then the knob springs back on its own with a slight overshoot.
+Spec:
+- 542×191 card, 4.5 s cycle. A knob of radius 45 sits in a tick ring from 0 to 100, one tick every 2 and a long tick every 10, sweeping 270° clockwise from 135°.
+- The cursor grabs the knob at 0.85 s and turns the value 24 → 72 over 0.95–2.35 s with easeInOutCubic.
+- The dot runs on a radius 60 track; its tail is the arc covered in the last 0.32 s, drawn as 14 fading segments, so faster turns give longer tails.
+- Ticks the dot passes glow blue and fade over 0.4 s; ticks at or below the current value stay ink.
+- Release at 2.35 s: the tail shrinks and the number pops for 0.5 s. From 2.8–3.65 s the knob springs back 72 → 24 with a slight overshoot.
+When to use it: Use it for volume, brightness or temperature controls in smart-home and audio apps where a value is turned continuously.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-182.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,17 @@
+Please use "Hold-to-talk capsule" (長押し録音カプセル), one of the names in "Interaction & data motion".
+Motion Prompt #1-193
+
+What it is: A mic button stretches into a recording capsule while held, then shrinks back and shows the transcript
+What the sample shows: The pointer presses a round purple mic button, which swells sideways into a dark capsule: a red dot breathes on the left, bars bounce with the voice in the middle and a timer runs on the right. On release the bars flatten from the ends into a single line, the capsule springs back into a round button, and a transcript bubble pops up above and types out its text.
+Spec:
+- From 0.2–0.9 s the pointer moves onto the button and presses it; the 68 px round mic button sinks in 0.1 s.
+- From 1.0–1.45 s the button swells sideways with overshoot into a dark capsule 304 px wide.
+- While recording, the red dot breathes on a 1.05 s cycle, 3 px wide bars bounce in the middle and the timer runs to 0:03.
+- Released at 4.3 s, the bars flatten from the ends inward with a 0.12 s stagger and draw together into one line by 4.72 s.
+- From 4.62–5.12 s the capsule springs back to a round button with overshoot; from 4.95–5.35 s a transcript bubble pops up above and finishes typing by 5.6 s.
+- From 4.6–5.6 s the pointer returns, and from 5.85–6.1 s the bubble fades out.
+When to use it: Use it for voice messages in chat apps, voice input to AI assistants and voice search in search boxes.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-193.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

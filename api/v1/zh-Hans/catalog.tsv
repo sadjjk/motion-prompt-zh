@@ -1,4 +1,4 @@
-# Motion Prompt catalog (zh-Hans) · 369 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
+# Motion Prompt catalog (zh-Hans) · 384 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
 1-001	ui	弹出与覆盖	模态对话框 (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	点击“打开”后页面变暗，小窗口略微放大并出现在中央，点击 × 关闭。
 1-002	ui	弹出与覆盖	侧边抽屉 (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	点击“菜单”后高面板从左侧滑入，点击外部后滑回。
 1-003	ui	弹出与覆盖	底部弹出面板 (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	手指轻点“查看详情”，面板从底部升起；向下拖动把手即可关闭。
@@ -51,6 +51,10 @@
 1-148	ui	弹出与覆盖	浮动按钮展开菜单 (Speed dial)	speed-dial,fab,floating-action-button,menu,expand,click	光标点右下蓝色 +，按钮旋转 135° 变成 ×，页面变暗；上方 3 个带标签的小按钮自下而上弹出，再点一次按相反顺序收回。
 1-149	ui	导航与状态	3D 环形轮播 (3D ring carousel)	3d-carousel,ring,carousel,gallery,rotate,drag	8 张卡片围成一圈缓慢旋转，近处大而亮、远处小而暗；中途手指向右拖动转动圆环。
 1-150	ui	导航与状态	侧栏收合 (Collapsible sidebar)	collapsible-sidebar,sidebar,navigation,dashboard,admin,collapse	光标点侧栏底部按钮，侧栏收窄到只剩图标、文字淡出，右侧统计卡与折线图同步变宽；后段再点一次展开复原。
+1-182	ui	选择与切换	彗尾旋钮 (Comet-trail dial)	knob,dial,rotary,volume,trail,comet,glow,skeuomorphic	暖灰面板上是一颗白陶瓷旋钮和一圈刻度，右侧显示音量数值；光标抓住旋钮拧动，蓝色亮点拖着彗星光尾沿刻度环内侧前进，经过的刻度闪亮后熄灭，数值和电平条同步上涨。松手后光尾收短、数值轻弹，随后旋钮自行回弹，略微过冲后回到原位。
+1-183	ui	选择与切换	波浪尾迹滑块 (Wake bar slider)	slider,range,bars,wave,trail,drag,brightness	奶白塑料质感的底座上排着一列细竖条，当前值左侧为蓝、右侧为灰；光标按住后慢慢右拖，按住处微微隆起，接着左右快速甩动，身后拖出一道高浪。光标停住后浪慢慢平复，松手后数值缓回初始值。
+1-184	ui	选择与切换	通知铃铛开关 (Bell notification toggle)	toggle,bell,notification,subscribe,button,swing,skeuomorphic	立体白色胶囊按钮左侧是金色铃铛，右侧写着「开启通知」；光标点击后按钮变蓝并收窄，文字上移换成「已开启」，铃铛摇摆，两侧扩散声波。再点一次按钮变回白色，铃铛上划出斜杠并轻摇一下，随后斜杠淡去，回到首帧。
+1-185	ui	弹出与覆盖	下滑关闭提示 (Swipe-to-dismiss toast)	toast,snackbar,notification,swipe,dismiss,drag,countdown	暖灰底面上，深色提示「已复制链接」从上方弹落，底边细条开始缩短；光标按住后细条暂停，向下拖动时卡片缩小变淡，下方浮出「下滑关闭」，越过阈值变成「松手即关闭」。松手后卡片加速滑出，接着「已保存草稿」弹入，倒计时走完后向上收起。
 1-025	lp	滚动效果	视差滚动 (Parallax scrolling)	parallax,parallax-scrolling,scroll,depth,layers,hero,background	页面下滚时，标题正常上移，天空、太阳、远山与近山移动得更慢。
 1-026	lp	滚动效果	滚动淡入 (Fade-in on scroll)	fade-in,scroll-reveal,reveal-on-scroll,intersection-observer,aos,entrance,scroll	随页面滚动，标题、卡片和正文进入视口后分别上移到位并淡入。
 1-027	lp	滚动效果	吸顶页头 (Sticky header)	sticky,sticky-header,fixed-header,position-sticky,navigation,header,scroll	公告条滚出后，下方页头停在顶部，正文从其下方滚过。
@@ -99,6 +103,10 @@
 1-161	lp	悬停与点击交互	低饱和唤醒 (Saturate on hover)	saturate,grayscale,image,hover,team,zoom	4 张低饱和偏暗的图里，光标先停第 1 张、再停第 3 张，被指的恢复鲜艳并微微放大，底部名字标签浮上来。
 1-162	lp	加载、导航与循环动效	指针时钟 (Analog clock)	clock,analog,second-hand,tick,overshoot,loop	带 60 个刻度的白色表盘上，时针分针停在 10:10，朱色秒针逐个粗刻度跳动，每次略超过再弹回。
 1-163	lp	加载、导航与循环动效	选取框蚂蚁线 (Marching ants selection)	marching-ants,selection,dashed,handles,design-tool,loop	设计工具风格的画面里，框住图层的蓝色虚线持续同向流动，框放大缩小时下方的尺寸数字跟着变化。
+1-186	lp	悬停与点击交互	撕票根 (Tear-off ticket stub)	ticket,tear,drag,perforation,stamp,paper	光标抓住一张纸质音乐会门票右端的票根往下拉；打孔线从上往下撕开，撕口带纸纤维毛边，票根旋转着掉出画面，主票面回弹并盖上朱红「已检票」印章；印章褪去后票根重新回到原位。
+1-187	lp	悬停与点击交互	碎纸机删除 (Shredder delete)	shredder,delete,drag-and-drop,file-list,shake,paper	左边是文件列表，右边是一台石墨色碎纸机；光标抓起 PDF 那一行，沿弧线拖到进纸口松手，卡片被吸入，机身震动、指示灯橙色闪烁，纸篓窗里细纸条卷曲着落下；列表下方的行上移补上空位，最后复位。
+1-188	lp	悬停与点击交互	文件夹弹出卡片 (Folder pop-out cards)	folder,hover,cards,pop-out,float,stagger	桌面上一个橙色立体文件夹；光标悬停时前片向前下方翻开，色板、草图便利贴、一句话卡三张卡片依次弹出，散到左、上、右三处，带点倾斜轻轻浮动；光标移开后卡片按相反顺序收回，前片合上并轻弹一下。
+1-189	lp	加载、导航与循环动效	树状菜单 (Tree menu)	tree,menu,sidebar,navigation,expand,path	白色侧边导航左侧有一根竖向主干，各菜单项经圆角枝杈接上去；光标点「产品」，下方条目被推下，三条子枝杈带着发光尖端依次长出，子项随之淡入；接着点「案例」，一道光从主干沿路径流到该项，条目变成橙色选中态；最后再点「产品」收起。
 1-049	aiux	加载与思考	环绕光束 (Border beam)	border-beam,loading,ai,input,glow,streaming,border	一道头亮尾淡的彩虹色光束，沿深色输入框的边框顺时针不停绕行。
 1-050	aiux	加载与思考	底边光束 (Line beam)	line-beam,search,loading,input,glow,sweep	圆角搜索框只有底边发光，光从左滑到右，再从右滑回左。
 1-051	aiux	加载与思考	内呼吸光晕 (Inner pulse)	pulse,button,cta,highlight,glow,ai	胶囊按钮内部，粉、橙、蓝三团光放大又收小，边框也随之明暗。
@@ -180,6 +188,11 @@
 1-173	uxmotion	动态图表	表格十字高亮 (Table crosshair highlight)	table,crosshair,highlight,hover,data-table,grid	指针在 4 × 4 数据表上移动；停留格所在整行整列淡淡着色形成十字，该格填满强调色、数字变白加粗放大；离开表格后高亮消失。
 1-174	uxmotion	滚动交互	回到顶部进度环 (Back-to-top progress ring)	back-to-top,scroll,progress-ring,reading-progress,button,smooth-scroll	文章向下滚动后，右下角浮出圆形按钮，外环弧线随阅读量增长；指针点击按钮，页面平滑回到顶部，按钮缩小消失。
 1-175	uxmotion	滚动交互	滚动放大全幅图片 (Scroll zoom to full)	scroll,zoom,full-bleed,image,scrollytelling,hero	暗色画面中央是一张圆角小图；随滚动推进，图片放大到占满画面，圆角变成直角，图内景物逐渐缩回；后段标题从下方浮现，滚回时全部倒退。
+1-190	uxmotion	进度反馈	任务状态图标 (Task status icon)	status-icon,task-list,agent,spinner,checkmark,error-state,morph	3 行任务列表左侧各有一枚带虚线环的立体圆盘；各行依次把虚线收拢成旋转的紫色弧，弧闭合后圆盘填绿、画出对勾，右侧状态同步变为已完成。第三行中途弧线停住变红，收向圆心变成叉并左右抖动，最后各行依次复位回等待。
+1-191	uxmotion	进度反馈	思考过程折叠 (Collapsible thinking)	ai,reasoning,thinking,collapse,chat,timer,accordion	AI 头像旁的卡片里「正在思考」计时在跳，推理步骤逐条从下方出现，新一条带紫色微光扫过；思考结束后标题变为「已思考 4.8 秒」并出现小箭头，步骤自下而上叠成一行消失，卡片收矮，回答第一行浮现。
+1-192	uxmotion	进度反馈	AI 生图分阶段进度 (Staged image generation)	ai,image-generation,progressive,mosaic,blur-up,progress,loading	左侧是提示词气泡，右侧是空白图片框；框内先有模糊色块流动并收拢成构图，再变成粗马赛克上色，方格逐级变细，最后清晰呈现黄昏海边的灯塔。完成时卡片轻弹一下，弹出下载按钮，灯塔光束摆动一次，随后淡回空白占位。
+1-193	uxmotion	进度反馈	按住说话录音胶囊 (Hold-to-talk capsule)	voice,recording,microphone,waveform,press-and-hold,transcription,morph	光标按下紫色圆形麦克风按钮，按钮横向鼓胀成深色胶囊：左侧红点呼吸，中间竖条随说话跳动，右侧计时走动；松开后竖条从两端压平、收成一条线，胶囊带弹性缩回圆钮，上方弹出转写气泡并逐字打出文字。
+1-194	uxmotion	进度反馈	方格波浪加载 (Grid wave loader)	loader,grid,wave,progress-bar,indexing,stopwatch,merge	凹槽托盘里排着两行白色立体方格，一道亮波从左往右反复扫过，被扫到的方格抬起、上色点亮再落回；上方是状态文字和百分比，下方是当前文件名与计数，右侧秒表在走。完成时所有方格同时亮起，横向收拢成一条紫到绿的渐变进度条并显示「完成」，随后拆回方格。
 2-001	motion	入场与文字	弹性弹入 (Pop-in)	pop,pop-in,spring,bounce,scale,icon,badge,entrance	应用图标弹跳入场，随后通知角标稍晚弹出。
 2-002	motion	入场与文字	交错入场 (Stagger)	stagger,sequence,delay,cascade,bar-chart,list,entrance	图表的柱条从左到右依次升起，每根略有延迟。
 2-003	motion	入场与文字	放射迸发 (Burst)	burst,explosion,radial,like,heart,celebrate,accent,sparkle	点赞心形被填满的同时，圆环、线条和圆点向外迸发。
@@ -263,6 +276,8 @@
 2-096	motion2	文字与图形	倒数砸落 (Countdown slam)	countdown,slam,numbers,impact,intro,game	「3」「2」「1」依次从巨大砸下，每次落地画面震动并扩出冲击环，最后「GO!」为珊瑚色并迸出放射线。
 2-097	motion2	运动技法	Logo 组合登场 (Logo build reveal)	logo,reveal,draw,stroke,intro,brand	白色外圈先被描出，接着旋转 45° 的珊瑚色方块描边并填色，中心白点弹出，右侧「星火工作室」与英文副标题从左滑入。
 2-098	motion2	运动技法	音频波形 (Audio waveform)	audio,waveform,equalizer,music,player,podcast	播放器面板上 44 根圆角细条以中线为基准参差伸缩，已播放部分为珊瑚色，左侧播放钮外圈有扩散波纹。
+2-099	motion2	运动技法	渐进边缘模糊 (Progressive edge blur)	blur,progressive-blur,scroll,fade,mask,glass	深蓝页面上，一列文章内容（标题、正文、湖景图片卡、数据卡）匀速向上滚动并无缝循环。内容滚到上下边缘时逐级变糊、变淡，像沉进雾里；顶部悬浮的玻璃导航栏下，透出的是模糊最重的内容色块。
+2-100	motion2	运动技法	无限螺旋轮播 (Infinite helix carousel)	helix,carousel,3d,perspective,cards,loop,gallery	深蓝背景中，一串小相片卡沿横向螺旋排开，边绕轴翻转边向右推进；转到前方的卡片变大变亮，带投影和扫过的高光，转到后方的露出深蓝背面并变暗变糊。推进节奏一推一滑：周期接缝处几乎停住，中段加速滑过，两端的卡片淡入暗角。
 2-049	mgstyles	平面与线条	扁平矢量动画 (Flat vector motion)	flat-design,vector,squash-and-stretch,bounce,elastic,explainer,brand-intro	珊瑚圆点从群青天空落下连跳 5 下，每次落地弹出彩色扁平小楼，最后字标弹性入场。
 2-050	mgstyles	平面与线条	线条动画 (Line art animation)	line-art,one-line-drawing,stroke-reveal,logo-reveal,gold,camera-pan	镜头跟着发光笔尖平移，金线一笔画出幼苗与塔楼，最后拉远成海报构图，环形标志内填满金色。
 2-051	mgstyles	平面与线条	形变动画 (Morphing)	shape-morph,morphing,beat-sync,color-wipe,squash-and-stretch,social-short	主形先收成圆再展开成下一形，伴着挤压与摆转；每次背景从中心圆形换色，右侧字幕同步换词。

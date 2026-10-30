@@ -1,0 +1,17 @@
+Please use "Task status icon" (タスク状態アイコン), one of the names in "Interaction & data motion".
+Motion Prompt #1-190
+
+What it is: One icon that morphs smoothly between waiting, running, done and failed
+What the sample shows: A three-row task list shows a raised disc with a dashed ring at the start of each row. Row by row the dashes gather into a spinning purple arc; when the arc closes the disc fills green, a check is drawn and the status on the right switches to done. The third row's arc stalls, turns red, shrinks to the centre and becomes a cross that shakes, then every row resets to waiting in turn.
+Spec:
+- The 3 task rows start at 0.40, 1.55 and 2.75 s; the waiting icon is a ring of 12 dashes (8.6 px radius) on a disc of 13 px radius.
+- On start the dashes gather within 0.35 s into an arc covering 22% of the ring, turning from grey to purple and spinning at 1.25 turns per second.
+- Rows 1 and 2 close their arcs at 1.65 and 2.90 s; 0.08 s later the disc fills green with a 7% pop, and the check is drawn from 0.22–0.5 s after closing.
+- Row 3 fails: its arc slows to a stop from 4.05–4.20 s, turns red by 4.45 s and shrinks into the centre by 4.80 s, then the disc fills red and a cross is drawn (4.75–5.03 s).
+- From 4.80–5.20 s the failed icon shakes side to side 3 times, up to 2.6 px, decaying.
+- From 5.6 s the rows reset to the waiting dashes one by one, 0.08 s apart and 0.35 s each; still from 6.11–6.4 s.
+When to use it: Use it in AI agent task lists, CI step views and batch job queues where several steps show their status side by side.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-190.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

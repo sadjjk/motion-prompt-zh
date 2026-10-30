@@ -2,7 +2,7 @@
 
 # Landing page & web effects
 
-48 names · #1 025~048 · 103~107 · 122~127 · 151~163 · pack `lp` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+52 names · #1 025~048 · 103~107 · 122~127 · 151~163 · 186~189 · pack `lp` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -48,6 +48,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-159](https://sadjjk.github.io/motion-prompt-zh/#1-159) | **Direction-aware fill button** | Colour spreads from where the cursor enters and drains toward the exit | Make the 'Contact now' button a direction-aware fill button: colour spreads in a circle from the entry point over 0.55 s and shrinks back toward the exit point. |
 | [#1-160](https://sadjjk.github.io/motion-prompt-zh/#1-160) | **Expanding panels** | The hovered panel in a row of narrow images widens and shows its title | Use expanding panels for the category entrances: the hovered panel widens to 4 times the others over 0.6 s and its title fades in afterwards. |
 | [#1-161](https://sadjjk.github.io/motion-prompt-zh/#1-161) | **Saturate on hover** | A muted image regains full colour and zooms slightly on hover | Make the team photos saturate on hover: 90% desaturated and dimmed at rest, back to full colour and 1.05× over 0.6 s on hover. |
+| [#1-186](https://sadjjk.github.io/motion-prompt-zh/#1-186) | **Tear-off ticket stub** | Drag the stub to tear it off along the perforation, and the ticket gets stamped | Make the event checkout success screen a tear-off ticket stub: grab the 82 px stub on the right and pull down, it tears along the perforation over 1.2 s and drops away, then a 'checked' stamp lands on the ticket. |
+| [#1-187](https://sadjjk.github.io/motion-prompt-zh/#1-187) | **Shredder delete** | Drag a file into a shredder to delete it, and the list closes the gap | Make file deletion a shredder delete: dragging a row shrinks it to a 0.6× card that gets sucked into the slot, the machine shakes, 15 paper strips curl down into the bin and the rows below move up 33 px. |
+| [#1-188](https://sadjjk.github.io/motion-prompt-zh/#1-188) | **Folder pop-out cards** | On hover a folder opens and the cards inside pop out around it and float | Make the portfolio folder a folder pop-out on hover: tip the front open over 0.5 s, launch 3 cards 0.17 s apart to the left, top and right with a spin, and let them float by 2.6 px. |
 
 ## Loading, navigation & ambient loops
 
@@ -68,6 +71,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-127](https://sadjjk.github.io/motion-prompt-zh/#1-127) | **Animated weather icons** | Sun, cloud, rain and storm icons each move in a small loop | Animate the forecast icons: the sun's rays turn, the cloud drifts, raindrops fall in turn and the lightning flashes. |
 | [#1-162](https://sadjjk.github.io/motion-prompt-zh/#1-162) | **Analog clock** | A clock whose second hand ticks with a small overshoot | Put an analog clock next to the opening hours, with a second hand that overshoots slightly and settles in 0.15 s on each tick. |
 | [#1-163](https://sadjjk.github.io/motion-prompt-zh/#1-163) | **Marching ants selection** | A dashed selection box whose line keeps crawling, with corner handles | Show the editor selection as marching ants: dashes of 6 with gaps of 5 that keep flowing, and a width × height label that updates as the box resizes. |
+| [#1-189](https://sadjjk.github.io/motion-prompt-zh/#1-189) | **Tree menu** | A side nav whose items hang off a trunk by branch lines; opening grows new branches and picking an item lights its path | Turn the dashboard side nav into a tree menu: clicking 'Products' pushes the items below down 54 px, grows 3 child branches 0.13 s apart over 0.4 s each, and lights the line to the chosen child over 0.58 s. |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#1-025](../../api/v1/en/e/1-025.txt)).
 

@@ -1,4 +1,4 @@
-# Motion Prompt catalog (ja) · 369 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
+# Motion Prompt catalog (ja) · 384 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	pack	category	title	tags	summary
 1-001	ui	開く・重なるパーツ	モーダル (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	「開く」ボタンを押すと画面全体が暗くなり、中央に小窓が少し拡大しながら出る。×を押すと閉じる。
 1-002	ui	開く・重なるパーツ	ドロワー (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	「メニュー」を押すと左から縦長のパネルが引き出され、外側を押すと戻る。
 1-003	ui	開く・重なるパーツ	ボトムシート (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	指で「詳細を見る」を押すと下からパネルがせり上がり、上端のつまみを下へ引くと閉じる。
@@ -51,6 +51,10 @@
 1-148	ui	開く・重なるパーツ	スピードダイヤル (Speed dial)	speed-dial,fab,floating-action-button,menu,expand,click	カーソルが右下の青い＋を押すと、ボタンが135°回って×になり画面が暗くなる。上にラベル付きの小さなボタン3つが下から順に弾み出て、もう一度押すと逆順にしまわれる。
 1-149	ui	案内する・状態を伝えるパーツ	3D リングカルーセル (3D ring carousel)	3d-carousel,ring,carousel,gallery,rotate,drag	8枚のカードが輪になってゆっくり回り、手前ほど大きく明るく、奥ほど小さく暗い。途中で指が右へドラッグして輪を回す。
 1-150	ui	案内する・状態を伝えるパーツ	折りたたみサイドバー (Collapsible sidebar)	collapsible-sidebar,sidebar,navigation,dashboard,admin,collapse	カーソルがサイドバー下のボタンを押すと、サイドバーがアイコンだけの幅に縮んで文字が消え、右の統計カードとグラフが広がる。後半にもう一度押して元の幅に戻る。
+1-182	ui	選ぶ・切り替えるパーツ	光の尾を引くダイヤル (Comet-trail dial)	knob,dial,rotary,volume,trail,comet,glow,skeuomorphic	暖かいグレーの面に白い陶器風のつまみと目盛りの輪、右に音量の数字。カーソルがつまみをつかんで回すと、青い光点が尾を引きながら輪の内側を進み、通った目盛りが一瞬光って消え、数字とバーが増える。離すと尾が縮んで数字が軽く弾み、そのあとつまみが自ら少し行き過ぎながら元の位置へ戻る。
+1-183	ui	選ぶ・切り替えるパーツ	波が尾を引くスライダー (Wake bar slider)	slider,range,bars,wave,trail,drag,brightness	白いプラスチック風の台に細い縦棒が並び、値より左は青、右はグレー。カーソルが押さえてゆっくり右へ動かすと押した所が少し盛り上がり、続いて左右に素早く振ると後ろに高い波が尾を引く。止まると波はゆっくり静まり、離したあと値は元に戻る。
+1-184	ui	選ぶ・切り替えるパーツ	ベル付き通知トグル (Bell notification toggle)	toggle,bell,notification,subscribe,button,swing,skeuomorphic	白い立体的なカプセルボタンの左に金色のベル、右に「开启通知」の文字。カーソルが押すとボタンが青くなって少し縮み、文字が上へ抜けて「已开启」に替わり、ベルが揺れて音の波が広がる。もう一度押すと白に戻り、ベルに斜線が引かれて軽く揺れ、斜線が消えて最初の画面に戻る。
+1-185	ui	開く・重なるパーツ	スワイプで消すトースト (Swipe-to-dismiss toast)	toast,snackbar,notification,swipe,dismiss,drag,countdown	暖かいグレーの面に、上から暗いトースト「已复制链接」が弾んで落ちてきて、下端のバーが縮み始める。カーソルが押すとバーが止まり、下へ引くとカードが縮んで薄くなり、下に「下滑关闭」の案内が出て閾値を越えると「松手即关闭」に変わる。離すとカードは加速して落ち、次に「已保存草稿」が落ちてきて時間切れで上へ消える。
 1-025	lp	スクロールで起きる演出	パララックススクロール (Parallax scrolling)	parallax,parallax-scrolling,scroll,depth,layers,hero,background	ページを下へスクロールすると、見出しはふつうに上がり、空と太陽・遠い山・近い山はそれより遅く動く。
 1-026	lp	スクロールで起きる演出	スクロールでフェードイン (Fade-in on scroll)	fade-in,scroll-reveal,reveal-on-scroll,intersection-observer,aos,entrance,scroll	スクロールで画面に入った見出し・カード・本文が、それぞれ下から浮かび上がりながら現れる。
 1-027	lp	スクロールで起きる演出	追従ヘッダー (Sticky header)	sticky,sticky-header,fixed-header,position-sticky,navigation,header,scroll	上のお知らせの帯はスクロールで消えるが、その下のヘッダーは画面の上端に来たところで止まり、本文がその下を通っていく。
@@ -99,6 +103,10 @@
 1-161	lp	マウス・クリックへの反応	ホバーで彩度を戻す (Saturate on hover)	saturate,grayscale,image,hover,team,zoom	くすんで暗い4枚の画像のうち、カーソルが乗った1枚目、次に3枚目が鮮やかに戻って少し大きくなり、下から名前のラベルが上がってくる。
 1-162	lp	読み込み・移動・動き続ける演出	アナログ時計 (Analog clock)	clock,analog,second-hand,tick,overshoot,loop	60の目盛りがある白い文字盤で、時針と分針は10時10分のまま、朱色の秒針が太い目盛りごとに跳び、そのたびに少し行き過ぎて戻る。
 1-163	lp	読み込み・移動・動き続ける演出	マーチングアンツ (Marching ants selection)	marching-ants,selection,dashed,handles,design-tool,loop	デザインツール風の画面で、レイヤーを囲む青い破線が同じ向きに流れ続け、枠が大きくなったり小さくなったりするたびに下の寸法の数字が変わる。
+1-186	lp	マウス・クリックへの反応	チケットのもぎり (Tear-off ticket stub)	ticket,tear,drag,perforation,stamp,paper	紙の質感があるコンサートチケットの右端の半券を、カーソルがつかんで下へ引く。ミシン目が上から下へ毛羽立ちながら裂け、半券は回転しながら画面外へ落ち、本券が揺れ戻って朱色の「已检票」スタンプが押される。スタンプが消えると半券が元の位置に戻る。
+1-187	lp	マウス・クリックへの反応	シュレッダーで削除 (Shredder delete)	shredder,delete,drag-and-drop,file-list,shake,paper	左にファイル一覧、右に濃いグレーのシュレッダー。カーソルがPDFの行をつかんで弧を描いて投入口まで運び、離すとカードが吸い込まれ、本体が震えてランプがオレンジに点滅し、窓の中に細い紙片が丸まりながら落ちる。一覧の下の行が上がって空きを埋め、最後に元に戻る。
+1-188	lp	マウス・クリックへの反応	フォルダーからカードが飛び出す (Folder pop-out cards)	folder,hover,cards,pop-out,float,stagger	机の上にオレンジ色の立体フォルダー。カーソルが乗ると前面が手前に倒れて開き、カラーパレット・スケッチの付箋・一言カードの3枚が順に飛び出して左・上・右に散り、少し傾いたままふわふわ浮く。カーソルが離れるとカードが逆順に戻り、前面が閉じて小さく弾む。
+1-189	lp	読み込み・移動・動き続ける演出	ツリーメニュー (Tree menu)	tree,menu,sidebar,navigation,expand,path	白いサイドナビの左に縦の幹線があり、各項目は角丸の枝でつながっている。カーソルが「产品」を押すと下の項目が押し下げられ、3本の子の枝が先端を光らせながら順に伸びて子項目がフェードインする。続いて「案例」を押すと幹線からそこまでの道筋を光が流れ、項目がオレンジに選択される。最後にもう一度「产品」を押して畳む。
 1-049	aiux	読み込み・思考中	ボーダービーム (Border beam)	border-beam,loading,ai,input,glow,streaming,border	暗い入力欄の枠を、先が明るく後ろが消えていく虹色の光が時計回りに一周し続ける。
 1-050	aiux	読み込み・思考中	ラインビーム (Line beam)	line-beam,search,loading,input,glow,sweep	丸い検索欄の下辺だけが光り、その光が左から右へ、右から左へとゆっくり往復する。
 1-051	aiux	読み込み・思考中	インナーパルス (Inner pulse)	pulse,button,cta,highlight,glow,ai	丸いボタンの中で、ピンク・オレンジ・青の光が広がっては縮み、枠の色もいっしょに明滅する。
@@ -180,6 +188,11 @@
 1-173	uxmotion	動くチャート	表のクロスハイライト (Table crosshair highlight)	table,crosshair,highlight,hover,data-table,grid	4×4の数値表の上をポインタが移る。止まったセルの行全体と列全体が淡く色づいて十字になり、そのセルは強調色で塗られ数字が白く太く大きくなる。表を離れると消える。
 1-174	uxmotion	スクロール連動	進捗リング付きトップへ戻る (Back-to-top progress ring)	back-to-top,scroll,progress-ring,reading-progress,button,smooth-scroll	記事が下へスクロールすると右下に丸いボタンが現れ、外周の弧が読んだ分だけ伸びる。ポインタがボタンを押すとページがなめらかにトップへ戻り、ボタンは縮んで消える。
 1-175	uxmotion	スクロール連動	スクロールで全画面ズーム (Scroll zoom to full)	scroll,zoom,full-bleed,image,scrollytelling,hero	暗い画面の中央に角丸の小さな画像。スクロールが進むと画像が画面いっぱいまで広がり、角は直角になり、中の景色は少しずつ引いていく。後半で見出しが下から現れ、戻ると逆にたどる。
+1-190	uxmotion	進捗フィードバック	タスク状態アイコン (Task status icon)	status-icon,task-list,agent,spinner,checkmark,error-state,morph	3 行のタスク一覧の左に、破線リングを載せた立体的な円盤が並ぶ。上から順に破線が集まって回転する紫の弧になり、弧が閉じると円盤が緑に塗られてチェックが描かれ、右の状態表示も「完了」に変わる。3 行目は途中で弧が止まって赤くなり、中心に縮んでバツになり左右に揺れ、最後に全行が順に待機へ戻る。
+1-191	uxmotion	進捗フィードバック	思考過程の折りたたみ (Collapsible thinking)	ai,reasoning,thinking,collapse,chat,timer,accordion	AI アバターの横のカードで「考え中」の秒数が進み、推論ステップが一行ずつ下から現れて、新しい行には紫の光が走る。考え終わると見出しが「4.8 秒考えました」と矢印に変わり、ステップは下から順に上へ重なって消え、カードが縮んで回答の 1 行目が浮かぶ。
+1-192	uxmotion	進捗フィードバック	画像の段階的生成 (Staged image generation)	ai,image-generation,progressive,mosaic,blur-up,progress,loading	左にプロンプトの吹き出し、右に空の画像枠。枠の中にぼんやりした色の塊が流れて構図に集まり、粗いモザイクになって色が付き、マス目が段々細かくなって夕暮れの灯台の絵がくっきり現れる。完成するとカードが軽く弾み、ダウンロードボタンが出て灯台の光が一度振れ、最後は空の枠に戻る。
+1-193	uxmotion	進捗フィードバック	長押し録音カプセル (Hold-to-talk capsule)	voice,recording,microphone,waveform,press-and-hold,transcription,morph	ポインタが紫の丸いマイクボタンを押すと、ボタンは横に膨らんで暗いカプセルになり、左で赤い点が呼吸し、中央のバーが声に合わせて跳ね、右のタイマーが進む。離すとバーは両端から平らになって一本の線に縮み、カプセルは弾みながら丸いボタンに戻り、上に文字起こしの吹き出しが現れて文字が打ち込まれる。
+1-194	uxmotion	進捗フィードバック	グリッド波ローダー (Grid wave loader)	loader,grid,wave,progress-bar,indexing,stopwatch,merge	くぼんだトレイに白い立体の四角が 2 列並び、光の波が左から右へ何度も走って、通った四角が持ち上がって色付きで光り、また落ちる。上には状態と百分率、下には処理中のファイル名と件数、右にはストップウォッチが進む。完了すると四角が一斉に光り、横に寄って紫から緑のグラデーションの進捗バーになり「完了」が出て、最後は元の四角に戻る。
 2-001	motion	登場・文字の演出	ポップイン (Pop-in)	pop,pop-in,spring,bounce,scale,icon,badge,entrance	アプリのアイコンがポンと弾んで現れ、通知バッジが遅れてポンと出る。
 2-002	motion	登場・文字の演出	スタガー (Stagger)	stagger,sequence,delay,cascade,bar-chart,list,entrance	グラフの棒が、少しずつ時間をずらして左から順に立ち上がる。
 2-003	motion	登場・文字の演出	バースト (Burst)	burst,explosion,radial,like,heart,celebrate,accent,sparkle	「いいね」のハートが点くと同時に、まわりに輪・線・粒が弾ける。
@@ -263,6 +276,8 @@
 2-096	motion2	文字・図形の演出	カウントダウン・スラム (Countdown slam)	countdown,slam,numbers,impact,intro,game	「3」「2」「1」が順に巨大な状態から叩きつけられ、着地のたびに画面が揺れて輪が広がり、最後の「GO!」はコーラルで放射線が飛ぶ。
 2-097	motion2	動きのテクニック	ロゴビルド (Logo build reveal)	logo,reveal,draw,stroke,intro,brand	白い外円が描かれ、続いて45°回したコーラルの四角が縁取られて塗られ、中心の白い点が弾んで現れ、右に「星火工作室」と英字の副題が左から滑り込む。
 2-098	motion2	動きのテクニック	オーディオ波形 (Audio waveform)	audio,waveform,equalizer,music,player,podcast	プレーヤーのパネルで、44本の丸い細い棒が中心線から上下にばらばらに伸び縮みし、再生済み部分はコーラル、左の再生ボタンの外側に波紋が広がる。
+2-099	motion2	動きのテクニック	プログレッシブブラー (Progressive edge blur)	blur,progressive-blur,scroll,fade,mask,glass	濃紺のページで、見出し・本文・湖の写真カード・数値カードが並ぶ記事の列が一定速度で上へスクロールし、継ぎ目なくループする。内容は上下の端に近づくにつれて段階的にぼけて薄れ、霧に沈むように消えていく。上部に浮かぶガラスのナビバーの下には、最も強くぼけた内容が色の塊として透けて見える。
+2-100	motion2	動きのテクニック	無限らせんカルーセル (Infinite helix carousel)	helix,carousel,3d,perspective,cards,loop,gallery	濃紺の背景に小さな写真カードの列が横向きのらせんに沿って並び、軸を中心に回りながら右へ進む。手前に来たカードは大きく明るくなり、影と流れるハイライトがつき、奥へ回ったカードは濃紺の裏面を見せて暗くかすむ。進み方は押して滑るリズムで、周期の継ぎ目ではほぼ止まり、中盤で速く滑り、両端のカードは暗がりへ溶けていく。
 2-049	mgstyles	フラット・線	フラット・ベクター (Flat vector motion)	flat-design,vector,squash-and-stretch,bounce,elastic,explainer,brand-intro	群青の空からサンゴ色の丸が落ちて 5 回跳ね、着地のたびに色とりどりの平面ビルが弾んで現れ、最後にロゴが弾むように入る。
 2-050	mgstyles	フラット・線	ラインアート (Line art animation)	line-art,one-line-drawing,stroke-reveal,logo-reveal,gold,camera-pan	光るペン先を追ってカメラが横に流れ、金の線が芽や塔を一筆で描き、最後に引きの構図でリングが金色に塗られる。
 2-051	mgstyles	フラット・線	シェイプモーフ (Morphing)	shape-morph,morphing,beat-sync,color-wipe,squash-and-stretch,social-short	中央の図形が一度丸に縮んでから次の形へ開き、つぶれと回転を伴って変わるたびに背景色が円形に塗り替わり、右の字幕も入れ替わる。

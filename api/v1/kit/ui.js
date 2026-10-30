@@ -1,10 +1,11 @@
-// Motion Prompt #1 001~024 · 098~102 · 108~121 · 142~150 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#049
+// Motion Prompt #1 001~024 · 098~102 · 108~121 · 142~150 · 182~185 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#049
 // Also: MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills (#1 098~102)
 // Also: MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/ (#1 108~113)
 // Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#1 114~121 · 142~150)
+// Also: MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh (#1 182~185)
 //
 // Kit for pack "ui" (UI component names / UIパーツの名前): the constants and helpers its elements share.
-// Elements #1 001~024 · 098~102 · 108~121 · 142~150 · 542x191 px · cycle 4.5 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #1 001~024 · 098~102 · 108~121 · 142~150 · 182~185 · 542x191 px · cycle 4.5 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

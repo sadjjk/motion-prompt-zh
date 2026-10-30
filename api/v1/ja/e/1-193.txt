@@ -1,0 +1,306 @@
+// Motion Prompt #1-193 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// 長押し録音カプセル / Hold-to-talk capsule
+// パック: uxmotion (インタラクションとデータの動き) · element 66 · カテゴリ: 進捗フィードバック
+// 何が起きるか: ポインタが紫の丸いマイクボタンを押すと、ボタンは横に膨らんで暗いカプセルになり、左で赤い点が呼吸し、中央のバーが声に合わせて跳ね、右のタイマーが進む。離すとバーは両端から平らになって一本の線に縮み、カプセルは弾みながら丸いボタンに戻り、上に文字起こしの吹き出しが現れて文字が打ち込まれる。
+// 動きの仕様:
+//   - 0.2–0.9 秒にポインタがボタンへ移動して押し、68px の丸いマイクボタンが 0.1 秒で沈む
+//   - 1.0–1.45 秒にボタンが横へオーバーシュートしながら膨らみ、幅 304px の暗いカプセルになる
+//   - 録音中は赤い点が 1.05 秒周期で呼吸し、幅 3px のバーが中央で跳ね、タイマーが 0:03 まで進む
+//   - 4.3 秒に離すと、バーは両端から 0.12 秒ずつずれて平らになり、4.72 秒までに一本の線に集まる
+//   - 4.62–5.12 秒にカプセルがオーバーシュートしながら丸いボタンに戻り、4.95–5.35 秒に上へ文字起こしの吹き出しが弾み出て、5.6 秒までに文字を打ち終える
+//   - 4.6–5.6 秒にポインタが元の位置へ戻り、5.85–6.1 秒に吹き出しがフェードアウト
+// 使いどころ: チャットアプリの音声メッセージ、AI アシスタントの音声入力、検索欄の音声検索などに。
+// タグ: voice, recording, microphone, waveform, press-and-hold, transcription, morph
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-193
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 66
+CELLS[65] = (function () {
+  // 语音录制胶囊：立体圆形麦克风按钮被光标按下后横向鼓胀成宽胶囊（红点呼吸 + 均衡器竖条 + 计时），
+  // 松开后竖条从两端收拢成一条线、胶囊带过冲缩回圆钮，上方弹出转写文字气泡；随后气泡淡出复位。
+  // 纯函数：画面只由 u 决定；背景层首次调用时按 3 倍分辨率预渲染缓存。
+  const W = 539, H = 208, CYC = 6.4;
+  const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+  const MONO = '"SF Mono", Menlo, Consolas, monospace';
+  const S = 3;                                   // 缓存分辨率倍数：调用方最多约 2×dpr 放大
+
+  // 配色：uxmotion 的暖灰底 + 紫色强调；录音态胶囊转为深墨色，红点用 danger 红
+  const PAL = {
+    bgTop: [248, 246, 242], bgBot: [232, 227, 219], vignette: '52,40,70',
+    btnHi: [138, 118, 255], btnLo: [94, 72, 230], btnThick: [64, 46, 170],
+    capHi: [52, 49, 66], capLo: [26, 24, 34], capThick: [10, 9, 14],
+    ink: '#16151B', ink2: '#57535F', ink3: '#8E8A97',
+    red: '#FF4D62', redGlow: '255,77,98', bar1: '#C9BEFF', bar2: '#7DB4FF',
+    shadow: '40,30,80', bubble: '#FFFFFF', bubbleLo: '#F3F1EC'
+  };
+
+  // 几何：圆钮直径 = 胶囊高 BH；胶囊展开宽 CW（约占画宽 56%）
+  const CX = 270, CY = 124, BH = 68, CW = 304;
+  const REST = { x: 468, y: 192 }, PRESS = { x: CX + 6, y: CY + 8 };
+
+  const clamp = (x, a, b) => Math.max(a === undefined ? 0 : a, Math.min(b === undefined ? 1 : b, x));
+  const seg = (u, a, b) => clamp((u - a) / (b - a));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const ease = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const easeOut = t => 1 - Math.pow(1 - clamp(t), 3);
+  const backOut = (t, c) => { t = clamp(t); c = c || 1.7; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+  const mixC = (a, b, t) => `rgb(${Math.round(lerp(a[0], b[0], t))},${Math.round(lerp(a[1], b[1], t))},${Math.round(lerp(a[2], b[2], t))})`;
+
+  // 圆角矩形：自己用 arcTo 画，避开 Safari 不支持的原生圆角 API
+  function rr(k, x, y, w, h, r) {
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    k.beginPath(); k.moveTo(x + r, y); k.arcTo(x + w, y, x + w, y + h, r); k.arcTo(x + w, y + h, x, y + h, r);
+    k.arcTo(x, y + h, x, y, r); k.arcTo(x, y, x + w, y, r); k.closePath();
+  }
+
+  let BG = null;
+  function bg() {
+    if (BG) return BG;
+    const c = document.createElement('canvas'); c.width = W * S; c.height = H * S;
+    const x = c.getContext('2d'); x.scale(S, S);
+    const gr = x.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, mixC(PAL.bgTop, PAL.bgTop, 0)); gr.addColorStop(1, mixC(PAL.bgBot, PAL.bgBot, 0));
+    x.fillStyle = gr; x.fillRect(0, 0, W, H);
+    // 按钮背后一团很淡的紫色环境光，让主体有落点
+    const am = x.createRadialGradient(CX, CY, 0, CX, CY, 220);
+    am.addColorStop(0, 'rgba(150,130,255,0.10)'); am.addColorStop(1, 'rgba(150,130,255,0)');
+    x.fillStyle = am; x.fillRect(0, 0, W, H);
+    // 径向暗角：四角压暗
+    const vg = x.createRadialGradient(W / 2, H * 0.45, H * 0.35, W / 2, H * 0.45, W * 0.62);
+    vg.addColorStop(0, `rgba(${PAL.vignette},0)`); vg.addColorStop(1, `rgba(${PAL.vignette},0.16)`);
+    x.fillStyle = vg; x.fillRect(0, 0, W, H);
+    BG = c; return c;
+  }
+
+  // 胶囊本体（cw×ch，中心 cx,cy）；rec = 录音态混合 0..1；press = 按下下沉 0..1
+  function capsule(k, cx, cy, cw, ch, rec, press) {
+    const x0 = cx - cw / 2, y0 = cy - ch / 2, r = Math.min(cw, ch) / 2;
+    const th = lerp(4, 1.5, press);              // 厚度：按下时变薄
+    k.save();
+    k.shadowColor = `rgba(${PAL.shadow},${lerp(0.30, 0.18, press)})`;
+    k.shadowBlur = lerp(18, 8, press); k.shadowOffsetY = lerp(9, 4, press);
+    rr(k, x0, y0 + th, cw, ch, r); k.fillStyle = mixC(PAL.btnThick, PAL.capThick, rec); k.fill();
+    k.restore();
+    const gr = k.createLinearGradient(0, y0, 0, y0 + ch);
+    gr.addColorStop(0, mixC(PAL.btnHi, PAL.capHi, rec)); gr.addColorStop(1, mixC(PAL.btnLo, PAL.capLo, rec));
+    rr(k, x0, y0, cw, ch, r); k.fillStyle = gr; k.fill();
+    // 内部光影：顶部镜面光斑 + 底部反光，裁切在胶囊内
+    k.save(); rr(k, x0, y0, cw, ch, r); k.clip();
+    const sp = k.createRadialGradient(x0 + Math.min(cw * 0.3, 30), y0 - ch * 0.1, 0, x0 + Math.min(cw * 0.3, 30), y0 - ch * 0.1, Math.max(ch * 0.9, cw * 0.45));
+    sp.addColorStop(0, `rgba(255,255,255,${lerp(0.42, 0.16, rec)})`); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    k.fillStyle = sp; k.fillRect(x0, y0, cw, ch);
+    // 上半部玻璃釉面：一条压扁的白色高光带
+    rr(k, x0 + r * 0.45, y0 + 3, cw - r * 0.9, ch * 0.42, ch * 0.21);
+    const gl = k.createLinearGradient(0, y0 + 3, 0, y0 + 3 + ch * 0.42);
+    gl.addColorStop(0, `rgba(255,255,255,${lerp(0.30, 0.10, rec)})`); gl.addColorStop(1, 'rgba(255,255,255,0)');
+    k.fillStyle = gl; k.fill();
+    const rf = k.createLinearGradient(0, y0 + ch * 0.7, 0, y0 + ch);
+    rf.addColorStop(0, 'rgba(255,255,255,0)'); rf.addColorStop(1, `rgba(255,255,255,${lerp(0.10, 0.05, rec)})`);
+    k.fillStyle = rf; k.fillRect(x0, y0 + ch * 0.7, cw, ch * 0.3);
+    k.restore();
+    // 左上白高光边 → 右下渐隐
+    const hl = k.createLinearGradient(x0, y0, x0 + Math.min(cw, 120), y0 + ch);
+    hl.addColorStop(0, 'rgba(255,255,255,0.85)'); hl.addColorStop(0.5, 'rgba(255,255,255,0.18)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    rr(k, x0 + 0.5, y0 + 0.5, cw - 1, ch - 1, r - 0.5); k.strokeStyle = hl; k.lineWidth = 1; k.stroke();
+  }
+
+  // 白色麦克风图标（中心 cx,cy，s 为缩放，a 为不透明度）
+  function mic(k, cx, cy, s, a) {
+    if (a <= 0.01 || s <= 0.01) return;
+    k.save(); k.translate(cx, cy); k.scale(s, s); k.globalAlpha = a;
+    k.shadowColor = 'rgba(30,16,110,0.35)'; k.shadowBlur = 3; k.shadowOffsetY = 1;
+    k.fillStyle = '#fff'; rr(k, -6, -15, 12, 20, 6); k.fill();
+    k.strokeStyle = '#fff'; k.lineWidth = 2.6; k.lineCap = 'round';
+    k.beginPath(); k.arc(0, -3, 10, 0.12 * Math.PI, 0.88 * Math.PI); k.stroke();
+    k.beginPath(); k.moveTo(0, 7); k.lineTo(0, 13); k.moveTo(-5.5, 13.5); k.lineTo(5.5, 13.5); k.stroke();
+    k.restore();
+  }
+
+  // 箭头光标（尖端在 x,y）：白描边深色填充；按下时 s<1
+  function cursor(k, x, y, s) {
+    k.save(); k.translate(x, y); k.scale(s, s);
+    k.beginPath();
+    k.moveTo(0, 0); k.lineTo(0, 17); k.lineTo(4.2, 13); k.lineTo(7.2, 19.6); k.lineTo(10, 18.4);
+    k.lineTo(7.1, 12); k.lineTo(12.6, 12); k.closePath();
+    k.shadowColor = 'rgba(20,16,40,0.35)'; k.shadowBlur = 4; k.shadowOffsetY = 1.5;
+    k.fillStyle = '#16151B'; k.fill();
+    k.shadowColor = 'rgba(0,0,0,0)';
+    k.lineJoin = 'round'; k.lineWidth = 1.4; k.strokeStyle = '#fff'; k.stroke();
+    k.restore();
+  }
+
+  // 时间线（秒）：光标移入 → 按下 → 鼓胀 → 录音 → 松开 → 竖条收拢 → 缩回过冲 → 气泡弹出 → 复位 → 静止
+  const T = {
+    move0: 0.2, move1: 0.9, down: 0.9, grow0: 1.0, grow1: 1.45, rec0: 1.2,
+    up: 4.3, flat1: 4.5, conv1: 4.72, shrink0: 4.62, shrink1: 5.12,
+    bub0: 4.95, bub1: 5.35, type1: 5.6, back0: 4.5, back1: 5.6, out0: 5.85, out1: 6.1
+  };
+  const PAD = 30, DOT_R = 5.5;                    // 胶囊内边距、红点半径
+  const BAR_W = 3, BAR_GAP = 3.4;                 // 竖条宽与间隔；条数按可用宽度算
+  const BX0 = CX - CW / 2 + PAD + 26, BX1 = CX + CW / 2 - PAD - 40;
+  const NB = Math.floor((BX1 - BX0 + BAR_GAP) / (BAR_W + BAR_GAP));
+  const BMID = (BX0 + BX1) / 2;
+
+  // 说话音量包络：几组慢正弦叠加，减去阈值后出现自然的停顿（换气）段
+  function envelope(t) {
+    const a = 0.55 * Math.sin(t * 2.1 + 0.4) + 0.35 * Math.sin(t * 4.7 + 1.3) + 0.22 * Math.sin(t * 9.3 + 2.2);
+    return clamp((a + 0.42) / 1.1, 0.04, 1);
+  }
+  // 第 i 根竖条的高度系数 0..1：包络 × 每根自己的快抖动 × 中间高两边低的钟形
+  function barLevel(i, t) {
+    const d = (i - (NB - 1) / 2) / ((NB - 1) / 2);
+    const bell = 0.35 + 0.65 * Math.exp(-d * d * 2.2);
+    const f1 = 7 + 5 * Math.abs(Math.sin(i * 1.73)), f2 = 13 + 4 * Math.abs(Math.sin(i * 2.91));
+    const jit = 0.55 + 0.28 * Math.sin(t * f1 + i * 0.9) + 0.17 * Math.sin(t * f2 + i * 2.3);
+    return clamp(envelope(t - Math.abs(d) * 0.08) * bell * jit);
+  }
+
+  // 均衡器竖条：rec 段跳动；松开后先由两端往中间压平（flat），再整体向中心收成一条线（conv）
+  function bars(k, u, alpha) {
+    if (alpha <= 0.01) return;
+    const t = Math.min(u, T.up) - T.rec0;
+    const conv = ease(seg(u, T.flat1 - 0.05, T.conv1));
+    const lineA = 1 - seg(u, T.conv1 - 0.06, T.conv1 + 0.08);
+    k.save(); k.globalAlpha = alpha * lineA; k.lineCap = 'round'; k.lineWidth = BAR_W;
+    const grad = k.createLinearGradient(BX0, 0, BX1, 0);
+    grad.addColorStop(0, PAL.bar1); grad.addColorStop(1, PAL.bar2);
+    k.strokeStyle = grad;
+    for (let i = 0; i < NB; i++) {
+      const d = Math.abs((i - (NB - 1) / 2) / ((NB - 1) / 2));
+      // 外侧先压平：d=1 的条从 up 开始，中间的条晚 0.12 秒
+      const fl = ease(seg(u, T.up + (1 - d) * 0.12, T.up + (1 - d) * 0.12 + 0.12));
+      const lv = barLevel(i, t) * (1 - fl);
+      const hh = Math.max(0.01, (BH * 0.5) * lv) / 2;
+      const x = lerp(BX0 + i * (BAR_W + BAR_GAP) + BAR_W / 2, BMID, conv);
+      k.beginPath(); k.moveTo(x, CY - hh); k.lineTo(x, CY + hh); k.stroke();
+    }
+    // 压平后条与条之间连成一条横线，随 conv 收短
+    const lw = seg(u, T.up + 0.08, T.flat1);
+    if (lw > 0) {
+      const half = (BX1 - BX0) / 2 * (1 - conv);
+      k.globalAlpha = alpha * lineA * lw; k.lineWidth = 2.2;
+      k.beginPath(); k.moveTo(BMID - half, CY); k.lineTo(BMID + half, CY); k.stroke();
+    }
+    k.restore();
+  }
+
+  // 左侧录音红点：约 1 秒一次呼吸，外圈柔光同步明暗
+  function recDot(k, x, u, a) {
+    if (a <= 0.01) return;
+    const br = 0.5 + 0.5 * Math.cos((u - T.rec0) * Math.PI * 2 / 1.05);
+    k.save(); k.globalAlpha = a;
+    const gr = k.createRadialGradient(x, CY, 0, x, CY, DOT_R * 3.2);
+    gr.addColorStop(0, `rgba(${PAL.redGlow},${0.55 * br})`); gr.addColorStop(1, `rgba(${PAL.redGlow},0)`);
+    k.fillStyle = gr; k.fillRect(x - DOT_R * 4, CY - DOT_R * 4, DOT_R * 8, DOT_R * 8);
+    k.globalAlpha = a * (0.55 + 0.45 * br);
+    k.beginPath(); k.arc(x, CY, DOT_R * (0.86 + 0.14 * br), 0, Math.PI * 2); k.fillStyle = PAL.red; k.fill();
+    k.globalAlpha = a * 0.7;
+    k.beginPath(); k.arc(x - 1.6, CY - 1.8, 1.6, 0, Math.PI * 2); k.fillStyle = '#fff'; k.fill();
+    k.restore();
+  }
+  // 右侧计时：录音 3.1 秒，走到 0:03；秒位跳变时数字轻微上移淡入
+  function timer(k, x, u, a) {
+    if (a <= 0.01) return;
+    const t = clamp(Math.min(u, T.up) - T.rec0, 0, 59);
+    const s = Math.floor(t), fr = t - s;
+    const pop = s > 0 ? easeOut(fr / 0.18) : 1;
+    k.save(); k.globalAlpha = a; k.textAlign = 'right'; k.textBaseline = 'middle';
+    k.font = `600 15px ${MONO}`; k.fillStyle = 'rgba(255,255,255,0.92)';
+    k.fillText('0:0', x - 9.2, CY + 0.5);
+    k.globalAlpha = a * pop; k.fillText(String(s), x, CY + 0.5 + (1 - pop) * 5);
+    k.restore();
+  }
+  // 转写气泡：底部小尾巴指向按钮；文字逐字出现
+  const TEXT = '明天上午十点开会', META = '语音转文字 · 0:03';
+  const BW = 214, BHB = 46, BY = 22;
+  function bubble(k, u) {
+    const inK = seg(u, T.bub0, T.bub1), outK = ease(seg(u, T.out0, T.out1));
+    if (inK <= 0 || outK >= 1) return;
+    const sc = backOut(inK, 2.0) * lerp(1, 0.94, outK);
+    const x0 = CX - BW / 2, tip = BY + BHB + 9;
+    k.save(); k.globalAlpha = clamp(inK * 3) * (1 - outK);
+    k.translate(CX, tip - outK * 6); k.scale(sc, sc); k.translate(-CX, -tip);
+    const path = () => {
+      rr(k, x0, BY, BW, BHB, 14);
+      k.moveTo(CX - 8, BY + BHB - 0.5); k.quadraticCurveTo(CX - 1, BY + BHB + 2, CX, tip);
+      k.quadraticCurveTo(CX + 1, BY + BHB + 2, CX + 8, BY + BHB - 0.5); k.closePath();
+    };
+    k.save(); k.shadowColor = `rgba(${PAL.shadow},0.20)`; k.shadowBlur = 14; k.shadowOffsetY = 6;
+    k.translate(0, 1.5); path(); k.fillStyle = '#E4E0D8'; k.fill(); k.restore();   // 下移 1.5 的厚度层
+    const gr = k.createLinearGradient(0, BY, 0, BY + BHB);
+    gr.addColorStop(0, PAL.bubble); gr.addColorStop(1, PAL.bubbleLo);
+    path(); k.fillStyle = gr; k.fill();
+    rr(k, x0 + 0.5, BY + 0.5, BW - 1, BHB - 1, 13.5); k.strokeStyle = 'rgba(255,255,255,0.9)'; k.lineWidth = 1; k.stroke();
+    // 左侧紫色小圆标 + 两行文字
+    k.beginPath(); k.arc(x0 + 23, BY + BHB / 2, 10, 0, Math.PI * 2); k.fillStyle = 'rgba(106,87,242,0.12)'; k.fill();
+    k.strokeStyle = '#6A57F2'; k.lineWidth = 1.8; k.lineCap = 'round';
+    for (let i = 0; i < 4; i++) {           // 小圆标里的四根短声波
+      const hh = [3, 6, 4.5, 2.5][i];
+      k.beginPath(); k.moveTo(x0 + 17.6 + i * 3.6, BY + BHB / 2 - hh); k.lineTo(x0 + 17.6 + i * 3.6, BY + BHB / 2 + hh); k.stroke();
+    }
+    const n = Math.round(TEXT.length * seg(u, T.bub0 + 0.12, T.type1));
+    k.textAlign = 'left'; k.textBaseline = 'alphabetic';
+    k.font = `500 11px ${SANS}`; k.fillStyle = PAL.ink3; k.fillText(META, x0 + 42, BY + 18);
+    k.font = `600 15px ${SANS}`; k.fillStyle = PAL.ink; k.fillText(TEXT.slice(0, n), x0 + 42, BY + 36);
+    if (n < TEXT.length) {                    // 打字光标
+      const tw = k.measureText(TEXT.slice(0, n)).width;
+      k.fillStyle = '#6A57F2'; k.fillRect(x0 + 43 + tw, BY + 24, 1.6, 15);
+    }
+    k.restore();
+  }
+
+  const fn = (k, w, h, u) => {
+    u = ((u % CYC) + CYC) % CYC;
+    k.drawImage(bg(), 0, 0, W, H);
+    // 按下深度：按下 0.1 秒到底，松开 0.12 秒回弹
+    const press = ease(seg(u, T.down, T.down + 0.1)) * (1 - ease(seg(u, T.up, T.up + 0.12)));
+    // 宽度：鼓胀带过冲；缩回时 backOut 越过圆形尺寸再弹回
+    const gk = backOut(seg(u, T.grow0, T.grow1), 1.3), sk = backOut(seg(u, T.shrink0, T.shrink1), 1.5);   // 缩回过冲约 7%：圆钮先缩到约 52 再弹回 68
+    const cw = BH + (CW - BH) * (gk - sk);
+    // 横向鼓过头时竖向轻压扁；缩到小于圆钮时保持正圆（高 = 宽）
+    const over = Math.max(0, cw - CW) / CW;
+    const ch = Math.min(cw, BH * (1 - over * 1.6));
+    const rec = ease(seg(u, T.down, T.grow0 + 0.3)) * (1 - ease(seg(u, T.shrink0, T.shrink0 + 0.4)));
+    const cy = CY + press * 2;
+    capsule(k, CX, cy, cw, ch, rec, press);
+    // 圆钮态麦克风：按下即淡出，缩回后带弹性重新出现
+    const micA = (1 - seg(u, T.down, T.down + 0.2)) + seg(u, T.back1 - 0.7, T.back1 - 0.4);
+    const micS = u > T.up ? backOut(seg(u, T.back1 - 0.7, T.back1 - 0.3), 2) : 1 - press * 0.08;
+    mic(k, CX, cy, micS * (ch / BH), clamp(micA));
+    // 录音内容：裁切在当前胶囊轮廓内，随胶囊展开被"揭开"
+    const cA = seg(u, T.rec0, T.grow1) * (1 - seg(u, T.up + 0.15, T.flat1 + 0.15));
+    const barA = seg(u, T.rec0, T.grow1) * (u < T.shrink1 ? 1 : 0);
+    if (cA > 0 || barA > 0) {
+      const x0 = CX - cw / 2, x1 = CX + cw / 2;
+      k.save(); rr(k, x0, cy - ch / 2, cw, ch, Math.min(cw, ch) / 2); k.clip();
+      k.translate(0, cy - CY);
+      // 红点与计时贴着胶囊两端跟着鼓出去；竖条固定位置，被展开的轮廓逐步露出
+      recDot(k, x0 + PAD, u, cA);
+      bars(k, u, barA);
+      timer(k, x1 - PAD + 6, u, cA);
+      k.restore();
+    }
+    // 按钮下方提示语：随状态切换
+    hint(k, u);
+    bubble(k, u);
+    // 光标：候场 → 移到按钮 → 按住 → 松开后退回
+    const mv = ease(seg(u, T.move0, T.move1)) * (1 - ease(seg(u, T.back0 + 0.1, T.back1)));
+    const cx = lerp(REST.x, PRESS.x, mv), cyy = lerp(REST.y, PRESS.y, mv) + press * 2;
+    cursor(k, cx, cyy, 1 - press * 0.12);
+  };
+
+  function hint(k, u) {
+    const a0 = 1 - seg(u, T.down, T.down + 0.2) + seg(u, T.out0, T.out1);
+    const a1 = seg(u, T.grow1, T.grow1 + 0.25) * (1 - seg(u, T.up, T.up + 0.2));
+    k.save(); k.textAlign = 'center'; k.textBaseline = 'alphabetic'; k.font = `500 12px ${SANS}`;
+    if (a0 > 0.01) { k.globalAlpha = clamp(a0); k.fillStyle = PAL.ink3; k.fillText('按住说话', CX, 190); }
+    if (a1 > 0.01) { k.globalAlpha = a1; k.fillStyle = PAL.ink2; k.fillText('松开结束 · 上滑取消', CX, 190); }
+    k.restore();
+  }
+  return fn;
+})();

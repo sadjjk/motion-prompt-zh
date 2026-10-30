@@ -1,8 +1,8 @@
 {
- "version": "1.eb7bc2e745",
+ "version": "1.205eb1df3c",
  "site": "https://sadjjk.github.io/motion-prompt-zh/",
  "repo": "https://github.com/sadjjk/motion-prompt-zh",
- "count": 369,
+ "count": 384,
  "groups": [
   {
    "id": "web",
@@ -95,9 +95,9 @@
      "zh-Hans": "导航与状态"
     }
    ],
-   "count": 52,
+   "count": 56,
    "first": "1-001",
-   "last": "1-150",
+   "last": "1-185",
    "ranges": [
     [
      "1-001",
@@ -114,6 +114,10 @@
     [
      "1-142",
      "1-150"
+    ],
+    [
+     "1-182",
+     "1-185"
     ]
    ],
    "upstreamFirst": "049",
@@ -160,9 +164,9 @@
      "zh-Hans": "加载、导航与循环动效"
     }
    ],
-   "count": 48,
+   "count": 52,
    "first": "1-025",
-   "last": "1-163",
+   "last": "1-189",
    "ranges": [
     [
      "1-025",
@@ -179,6 +183,10 @@
     [
      "1-151",
      "1-163"
+    ],
+    [
+     "1-186",
+     "1-189"
     ]
    ],
    "upstreamFirst": "073",
@@ -299,9 +307,9 @@
      "zh-Hans": "动态图表"
     }
    ],
-   "count": 62,
+   "count": 67,
    "first": "1-061",
-   "last": "1-175",
+   "last": "1-194",
    "ranges": [
     [
      "1-061",
@@ -314,6 +322,10 @@
     [
      "1-164",
      "1-175"
+    ],
+    [
+     "1-190",
+     "1-194"
     ]
    ],
    "upstreamFirst": "189",
@@ -414,9 +426,9 @@
      "zh-Hans": "转场与强调"
     }
    ],
-   "count": 59,
+   "count": 61,
    "first": "2-025",
-   "last": "2-098",
+   "last": "2-100",
    "ranges": [
     [
      "2-025",
@@ -424,7 +436,7 @@
     ],
     [
      "2-064",
-     "2-098"
+     "2-100"
     ]
    ],
    "upstreamFirst": "121",
@@ -4363,6 +4375,327 @@
    ]
   },
   {
+   "id": "1-182",
+   "group": "web",
+   "pack": "ui",
+   "no": "53",
+   "slug": "comet-dial",
+   "category": "select-switch",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 542,
+   "height": 191,
+   "cycle": 4.5,
+   "name": {
+    "ja": "光の尾を引くダイヤル",
+    "en": "Comet-trail dial",
+    "zh-Hans": "彗尾旋钮"
+   },
+   "meaning": {
+    "ja": "回すと光の点が尾を引いて刻みをなぞるつまみ",
+    "en": "A rotary knob whose indicator dot leaves a fading comet tail as it turns",
+    "zh-Hans": "拧动时亮点拖着光尾扫过刻度的旋钮"
+   },
+   "ask": {
+    "ja": "音量つまみを光の尾を引くダイヤルにして。24から72まで回すあいだ光の点が目盛りの内側を走り、直近0.32秒ぶんの尾を引き、通った目盛りは0.4秒で消えるように光らせて。離したらばねのように戻して。",
+    "en": "Make the volume knob a comet-trail dial: as it turns from 24 to 72, a dot runs inside the tick ring trailing the arc of the last 0.32 s, ticks it passes glow and fade over 0.4 s, and on release the knob springs back.",
+    "zh-Hans": "把音量旋钮做成彗尾旋钮：从 24 拧到 72 时，亮点沿刻度环内侧移动，身后拖着最近 0.32 秒的光尾，经过的刻度亮起后 0.4 秒熄灭，松手后旋钮像弹簧一样回弹。"
+   },
+   "summary": {
+    "ja": "暖かいグレーの面に白い陶器風のつまみと目盛りの輪、右に音量の数字。カーソルがつまみをつかんで回すと、青い光点が尾を引きながら輪の内側を進み、通った目盛りが一瞬光って消え、数字とバーが増える。離すと尾が縮んで数字が軽く弾み、そのあとつまみが自ら少し行き過ぎながら元の位置へ戻る。",
+    "en": "A white ceramic knob sits in a ring of ticks on a warm grey panel, with the volume number on the right. The cursor grabs and turns it: a blue dot travels inside the ring with a comet tail, passed ticks flash and fade, and the number and level bar climb. On release the tail shrinks and the number pops, then the knob springs back on its own with a slight overshoot.",
+    "zh-Hans": "暖灰面板上是一颗白陶瓷旋钮和一圈刻度，右侧显示音量数值；光标抓住旋钮拧动，蓝色亮点拖着彗星光尾沿刻度环内侧前进，经过的刻度闪亮后熄灭，数值和电平条同步上涨。松手后光尾收短、数值轻弹，随后旋钮自行回弹，略微过冲后回到原位。"
+   },
+   "spec": {
+    "ja": [
+     "542×191 のカード、4.5秒周期。半径45のつまみを目盛りの輪が囲み、0〜100 を2ずつ刻み、10ごとに長い目盛り。135°から時計回りに270°",
+     "カーソルが0.85秒につまみをつかみ、0.95〜2.35秒に easeInOutCubic で値を24→72へ回す",
+     "光点は半径60の軌道を進み、尾は直近0.32秒に通った弧を14段の薄れる弧で描く。速く回すほど尾が長い",
+     "光点が通った目盛りは青く光り0.4秒で消える。現在値以下の目盛りは墨色のまま",
+     "2.35秒に離すと尾が縮み、数字が0.5秒だけ弾む。2.8〜3.65秒につまみが72→24へ少し行き過ぎながら戻る"
+    ],
+    "en": [
+     "542×191 card, 4.5 s cycle. A knob of radius 45 sits in a tick ring from 0 to 100, one tick every 2 and a long tick every 10, sweeping 270° clockwise from 135°.",
+     "The cursor grabs the knob at 0.85 s and turns the value 24 → 72 over 0.95–2.35 s with easeInOutCubic.",
+     "The dot runs on a radius 60 track; its tail is the arc covered in the last 0.32 s, drawn as 14 fading segments, so faster turns give longer tails.",
+     "Ticks the dot passes glow blue and fade over 0.4 s; ticks at or below the current value stay ink.",
+     "Release at 2.35 s: the tail shrinks and the number pops for 0.5 s. From 2.8–3.65 s the knob springs back 72 → 24 with a slight overshoot."
+    ],
+    "zh-Hans": [
+     "542×191 卡片，周期 4.5 秒。半径 45 的旋钮外围是 0–100 的刻度环，每 2 一格，每 10 一根长刻度，从 135° 顺时针扫 270°。",
+     "光标于 0.85 秒抓住旋钮，0.95–2.35 秒用 easeInOutCubic 把数值从 24 拧到 72。",
+     "亮点沿半径 60 的轨道移动，光尾是它最近 0.32 秒扫过的弧，分 14 段逐渐变淡，转得越快尾巴越长。",
+     "亮点经过的刻度亮成蓝色，0.4 秒内熄灭；当前值以下的刻度保持墨色。",
+     "2.35 秒松手，光尾收短，数值轻弹 0.5 秒；2.8–3.65 秒旋钮从 72 回弹到 24，末段略微过冲。"
+    ]
+   },
+   "use": {
+    "ja": "音量・明るさ・温度など、スマート家電やオーディオアプリで連続した値を回して調整する場面に。",
+    "en": "Use it for volume, brightness or temperature controls in smart-home and audio apps where a value is turned continuously.",
+    "zh-Hans": "适合智能家居、音频应用里调节音量、亮度、温度等连续数值的旋钮。"
+   },
+   "tags": [
+    "knob",
+    "dial",
+    "rotary",
+    "volume",
+    "trail",
+    "comet",
+    "glow",
+    "skeuomorphic"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "光尾旋钮",
+     "拖尾旋钮",
+     "音量旋钮",
+     "刻度盘"
+    ]
+   }
+  },
+  {
+   "id": "1-183",
+   "group": "web",
+   "pack": "ui",
+   "no": "54",
+   "slug": "wake-slider",
+   "category": "select-switch",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 542,
+   "height": 191,
+   "cycle": 4.5,
+   "name": {
+    "ja": "波が尾を引くスライダー",
+    "en": "Wake bar slider",
+    "zh-Hans": "波浪尾迹滑块"
+   },
+   "meaning": {
+    "ja": "細い縦棒が並ぶスライダーで、ドラッグすると棒が波のように盛り上がって尾を引く",
+    "en": "A slider made of thin bars that rise into a trailing wave as you drag",
+    "zh-Hans": "由细竖条组成的滑块，拖动时竖条隆起成一道拖尾的浪"
+   },
+   "ask": {
+    "ja": "明るさスライダーを丸いつまみのない縦棒の列にして。押した所の棒を12px持ち上げ、ドラッグの速さに応じて後ろに波を残し、最大48pxで0.36秒ほどかけて静まるように。",
+    "en": "Turn the brightness slider into a row of bars with no round thumb: lift the bars under the cursor by 12 px and leave a speed-driven wave behind the drag, capped at 48 px and settling with a 0.36 s decay.",
+    "zh-Hans": "把亮度滑块做成没有圆形滑块的一排细竖条：按住处的竖条抬高 12 px，拖动时按速度在身后留下一道浪，浪高上限 48 px，按 0.36 秒衰减平复。"
+   },
+   "summary": {
+    "ja": "白いプラスチック風の台に細い縦棒が並び、値より左は青、右はグレー。カーソルが押さえてゆっくり右へ動かすと押した所が少し盛り上がり、続いて左右に素早く振ると後ろに高い波が尾を引く。止まると波はゆっくり静まり、離したあと値は元に戻る。",
+    "en": "Thin bars line a white plastic-style base, blue to the left of the value and grey to the right. The cursor presses and drags slowly, raising a small bump; then it flicks back and forth and a tall wave trails behind it. When the cursor stops the wave settles, and after release the value eases back.",
+    "zh-Hans": "奶白塑料质感的底座上排着一列细竖条，当前值左侧为蓝、右侧为灰；光标按住后慢慢右拖，按住处微微隆起，接着左右快速甩动，身后拖出一道高浪。光标停住后浪慢慢平复，松手后数值缓回初始值。"
+   },
+   "spec": {
+    "ja": [
+     "542×191 のカード、4.5秒周期。丸いつまみはなく、幅4px・間隔7.5px・静止時の高さ11pxの縦棒が並ぶ。値より左は青、右はグレー",
+     "カーソルが0.78秒に値34の位置を押し、0.90〜1.85秒に34→52とゆっくり動かし、2.82秒までに52→90→24→68と素早く振る",
+     "カーソル下の棒は最大12px持ち上がる。後ろには直近1.4秒の動きから波が残り、速いほど高く、0.36秒の時定数で減衰、上限48px",
+     "3.50秒までカーソルは止まったまま波が静まり、そこで離す",
+     "3.70〜4.15秒に値が34へ戻り、カーソルも待機位置へ戻る"
+    ],
+    "en": [
+     "542×191 card, 4.5 s cycle. No round thumb: a row of bars 4 px wide at a 7.5 px pitch, 11 px tall at rest, blue left of the value and grey to the right.",
+     "The cursor presses at value 34 at 0.78 s, drags slowly 34 → 52 over 0.90–1.85 s, then flicks 52 → 90 → 24 → 68 by 2.82 s.",
+     "Bars under the cursor lift up to 12 px. Behind it a wave built from the last 1.4 s of motion grows with speed, decays with a 0.36 s time constant and is capped at 48 px.",
+     "The cursor holds still until 3.50 s while the wave settles, then lets go.",
+     "From 3.70–4.15 s the value eases back to 34 and the cursor returns to rest."
+    ],
+    "zh-Hans": [
+     "542×191 卡片，周期 4.5 秒。没有圆形滑块，只有一排宽 4 px、间距 7.5 px、静止高 11 px 的竖条；值左侧为蓝，右侧为灰。",
+     "光标于 0.78 秒在数值 34 处按下，0.90–1.85 秒慢拖 34→52，到 2.82 秒前快速甩动 52→90→24→68。",
+     "光标下方竖条最多抬高 12 px；身后的浪由最近 1.4 秒的轨迹生成，速度越快越高，按 0.36 秒时间常数衰减，上限 48 px。",
+     "光标按住不动到 3.50 秒，浪逐渐平复，然后松手。",
+     "3.70–4.15 秒数值缓回 34，光标回到候场点。"
+    ]
+   },
+   "use": {
+    "ja": "明るさ・音量・ズームなど、設定パネルで連続した値をドラッグで調整する場面に。",
+    "en": "Use it for brightness, volume or zoom sliders in settings panels where values are adjusted by dragging.",
+    "zh-Hans": "适合设置面板里拖动调节亮度、音量、缩放等连续数值的滑块。"
+   },
+   "tags": [
+    "slider",
+    "range",
+    "bars",
+    "wave",
+    "trail",
+    "drag",
+    "brightness"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "尾迹滑杆",
+     "竖条滑块",
+     "波浪滑块",
+     "亮度滑块"
+    ]
+   }
+  },
+  {
+   "id": "1-184",
+   "group": "web",
+   "pack": "ui",
+   "no": "55",
+   "slug": "bell-toggle",
+   "category": "select-switch",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 542,
+   "height": 191,
+   "cycle": 4.5,
+   "name": {
+    "ja": "ベル付き通知トグル",
+    "en": "Bell notification toggle",
+    "zh-Hans": "通知铃铛开关"
+   },
+   "meaning": {
+    "ja": "押すとベルが揺れて通知がオンになるボタン",
+    "en": "A button that turns notifications on with a swinging bell",
+    "zh-Hans": "点击后铃铛摇摆、通知开启的按钮"
+   },
+   "ask": {
+    "ja": "通知ボタンをベル付きトグルにして。押すとボタンが青に変わり、ベルが0.42ラジアン・2.4Hzで減衰しながら揺れ、両脇に音の波を3本出して。もう一度押すとベルに斜線が入ってオフに戻る。",
+    "en": "Make the notify button a bell toggle: on click it turns blue, the bell swings 0.42 rad at 2.4 Hz and damps out, and 3 sound arcs spread on both sides. A second click draws a slash over the bell and turns it off.",
+    "zh-Hans": "把通知按钮做成铃铛开关：点击后按钮变蓝，铃铛以 0.42 rad、2.4 Hz 阻尼摆动，两侧发出 3 道声波；再点一次，铃铛上划出斜杠并回到关闭态。"
+   },
+   "summary": {
+    "ja": "白い立体的なカプセルボタンの左に金色のベル、右に「开启通知」の文字。カーソルが押すとボタンが青くなって少し縮み、文字が上へ抜けて「已开启」に替わり、ベルが揺れて音の波が広がる。もう一度押すと白に戻り、ベルに斜線が引かれて軽く揺れ、斜線が消えて最初の画面に戻る。",
+    "en": "A raised white pill button shows a gold bell on the left and the label 「开启通知」 on the right. The cursor clicks: the pill turns blue and narrows, the label slides up into 「已开启」, the bell swings and sound arcs spread out. A second click turns it white again, a slash cuts across the bell with a small shake, and the slash fades to restore the first frame.",
+    "zh-Hans": "立体白色胶囊按钮左侧是金色铃铛，右侧写着「开启通知」；光标点击后按钮变蓝并收窄，文字上移换成「已开启」，铃铛摇摆，两侧扩散声波。再点一次按钮变回白色，铃铛上划出斜杠并轻摇一下，随后斜杠淡去，回到首帧。"
+   },
+   "spec": {
+    "ja": [
+     "542×191 のカード、4.5秒周期。高さ76pxの立体カプセルボタン。左の半径27の凹みに金色のベル、右に文字",
+     "0.9秒にクリック。0.92〜1.32秒にボタンが青へ変わり、短い文字に合わせて幅が縮み、文字は16px上へ抜けて新しい文字が下から入る",
+     "0.95秒からベルが吊り輪を軸に0.42ラジアン・2.4Hzで減衰しながら揺れ、中の玉は0.1秒遅れて追う",
+     "音の波は0.98・1.16・1.34秒に左右へ出て、半径24から19px広がりつつ0.65秒で消える",
+     "2.55秒に再クリック。2.58〜2.98秒にオフへ戻り、2.60〜2.85秒にベルへ斜線が引かれ0.15ラジアン軽く揺れる。斜線は3.75〜4.15秒に消える"
+    ],
+    "en": [
+     "542×191 card, 4.5 s cycle. A raised pill button 76 px tall, with a gold bell in a radius 27 well on the left and the label on the right.",
+     "Click at 0.9 s. Over 0.92–1.32 s the pill turns blue and narrows to fit the shorter label; the old label slides 16 px up and out as the new one rises in.",
+     "From 0.95 s the bell swings about its hook at 0.42 rad and 2.4 Hz, damping out, with the clapper trailing 0.1 s behind.",
+     "Sound arcs start on both sides at 0.98, 1.16 and 1.34 s, each spreading 19 px out from radius 24 and fading over 0.65 s.",
+     "Second click at 2.55 s: it returns to off over 2.58–2.98 s, a slash draws across the bell over 2.60–2.85 s with a 0.15 rad shake, and the slash fades over 3.75–4.15 s."
+    ],
+    "zh-Hans": [
+     "542×191 卡片，周期 4.5 秒。高 76 px 的立体胶囊按钮，左侧半径 27 的凹槽里是金色铃铛，右侧是文字。",
+     "0.9 秒点击；0.92–1.32 秒按钮变蓝，宽度随较短的文字收窄，旧文字上移 16 px 淡出，新文字从下方淡入。",
+     "0.95 秒起铃铛绕挂点以 0.42 rad、2.4 Hz 阻尼摆动，铃舌晚 0.1 秒跟随。",
+     "声波于 0.98、1.16、1.34 秒在两侧出现，每道从半径 24 向外扩 19 px，0.65 秒内淡出。",
+     "2.55 秒再次点击：2.58–2.98 秒回到关闭态，2.60–2.85 秒铃铛上划出斜杠并轻摇 0.15 rad，斜杠在 3.75–4.15 秒淡去。"
+    ]
+   },
+   "use": {
+    "ja": "ニュースレター購読、アプリの通知設定、ライブ配信の通知予約など、通知のオン・オフを切り替える場面に。",
+    "en": "Use it for subscribe-to-updates buttons, app notification settings or stream reminders where notifications are switched on and off.",
+    "zh-Hans": "适合订阅推送、应用通知设置、直播开播提醒等开关通知的场景。"
+   },
+   "tags": [
+    "toggle",
+    "bell",
+    "notification",
+    "subscribe",
+    "button",
+    "swing",
+    "skeuomorphic"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "铃铛开关",
+     "通知开关",
+     "订阅按钮",
+     "提醒按钮"
+    ]
+   }
+  },
+  {
+   "id": "1-185",
+   "group": "web",
+   "pack": "ui",
+   "no": "56",
+   "slug": "swipe-toast",
+   "category": "open-overlay",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 542,
+   "height": 191,
+   "cycle": 4.5,
+   "name": {
+    "ja": "スワイプで消すトースト",
+    "en": "Swipe-to-dismiss toast",
+    "zh-Hans": "下滑关闭提示"
+   },
+   "meaning": {
+    "ja": "下へドラッグすると消せる短い通知",
+    "en": "A short notification you can drag down to dismiss",
+    "zh-Hans": "可以向下拖动关掉的轻提示"
+   },
+   "ask": {
+    "ja": "コピー完了のトーストを下スワイプで消せるようにして。上から落ちてきて下端の細いバーで3.0秒カウントダウンし、押すと止まり、74pxまで引くと縮んで薄くなり、46pxを越えて離すと加速して落ちる。",
+    "en": "Make the copied toast swipe-to-dismiss: it drops in from the top with a 3.0 s countdown bar along its bottom, pressing pauses it, dragging up to 74 px shrinks and fades it, and releasing past 46 px makes it speed off downward.",
+    "zh-Hans": "把复制成功的轻提示做成下滑关闭：从上方落下，底边细条倒计时 3.0 秒，按住时暂停，下拖最多 74 px 时缩小变淡，超过 46 px 松手后加速滑出。"
+   },
+   "summary": {
+    "ja": "暖かいグレーの面に、上から暗いトースト「已复制链接」が弾んで落ちてきて、下端のバーが縮み始める。カーソルが押すとバーが止まり、下へ引くとカードが縮んで薄くなり、下に「下滑关闭」の案内が出て閾値を越えると「松手即关闭」に変わる。離すとカードは加速して落ち、次に「已保存草稿」が落ちてきて時間切れで上へ消える。",
+    "en": "On a warm grey surface a dark toast, 「已复制链接」, bounces down from the top and the bar along its bottom begins to shrink. The cursor presses and the bar freezes; dragging down shrinks and fades the card while a hint below reads 「下滑关闭」, switching to 「松手即关闭」 past the threshold. On release the card speeds away downward; then 「已保存草稿」 drops in, runs out its timer and lifts away.",
+    "zh-Hans": "暖灰底面上，深色提示「已复制链接」从上方弹落，底边细条开始缩短；光标按住后细条暂停，向下拖动时卡片缩小变淡，下方浮出「下滑关闭」，越过阈值变成「松手即关闭」。松手后卡片加速滑出，接着「已保存草稿」弹入，倒计时走完后向上收起。"
+   },
+   "spec": {
+    "ja": [
+     "542×191 のカード、4.5秒周期。300×64・角丸16の暗いトーストが上端から22pxに止まり、下端の細いバーで残り時間を示す",
+     "最初のトーストは0.15〜0.60秒に上から少し行き過ぎて落ち着き、0.60秒から3.0秒のカウントダウンが始まる",
+     "1.10秒に押すとカウントダウンが止まる。1.15〜1.80秒にカードがカーソルについて74px下がり、最大13%縮み、最大42%薄くなり、影のぼかしは7から22へ移る",
+     "46pxを越えると下の案内が「下滑关闭」から「松手即关闭」に変わる。1.80秒に離すとカードは加速し、2.20秒までに150px落ちて消える",
+     "次のトースト「已保存草稿」が2.30〜2.75秒に落ちてきて、3.95秒でカウントダウンが終わり、4.25秒までに上へ消える"
+    ],
+    "en": [
+     "542×191 card, 4.5 s cycle. A dark 300×64 toast with radius 16 rests 22 px from the top; a thin bar along its bottom shows the time left.",
+     "The first toast drops in from above over 0.15–0.60 s with a small overshoot, and its 3.0 s countdown starts at 0.60 s.",
+     "Pressing at 1.10 s pauses the countdown. Over 1.15–1.80 s the card follows the cursor down 74 px, shrinking by up to 13% and fading by up to 42%, while its shadow blur moves from 7 to 22.",
+     "Past 46 px the hint below changes from 「下滑关闭」 to 「松手即关闭」. Released at 1.80 s, the card speeds up and drops 150 px out of view by 2.20 s.",
+     "The next toast, 「已保存草稿」, drops in over 2.30–2.75 s, its countdown ends at 3.95 s and it lifts away by 4.25 s."
+    ],
+    "zh-Hans": [
+     "542×191 卡片，周期 4.5 秒。300×64、圆角 16 的深色提示停在距顶边 22 px 处，底边细条显示剩余时间。",
+     "第一条提示于 0.15–0.60 秒从上方落下并略微过冲，0.60 秒起开始 3.0 秒倒计时。",
+     "1.10 秒按下，倒计时暂停；1.15–1.80 秒卡片跟随光标下移 74 px，最多缩小 13%、变淡 42%，投影模糊从 7 过渡到 22。",
+     "下拖超过 46 px 时，下方提示从「下滑关闭」变成「松手即关闭」；1.80 秒松手，卡片加速下落 150 px，2.20 秒前滑出。",
+     "下一条「已保存草稿」于 2.30–2.75 秒弹入，3.95 秒倒计时结束，4.25 秒前向上收起。"
+    ]
+   },
+   "use": {
+    "ja": "コピー・保存・送信などの完了通知を出し、ユーザーが自分で素早く閉じられるようにしたい場面に。",
+    "en": "Use it for copy, save or send confirmations that users should be able to flick away themselves.",
+    "zh-Hans": "适合复制、保存、发送成功等操作反馈，并允许用户手动快速关掉的场景。"
+   },
+   "tags": [
+    "toast",
+    "snackbar",
+    "notification",
+    "swipe",
+    "dismiss",
+    "drag",
+    "countdown"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "滑动关闭提示",
+     "轻提示",
+     "Toast 提示",
+     "拖动关闭通知"
+    ]
+   }
+  },
+  {
    "id": "1-025",
    "upstream": "073",
    "group": "web",
@@ -7671,6 +8004,334 @@
     "design-tool",
     "loop"
    ]
+  },
+  {
+   "id": "1-186",
+   "group": "web",
+   "pack": "lp",
+   "no": "49",
+   "slug": "tear-ticket",
+   "category": "hover-click",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "チケットのもぎり",
+    "en": "Tear-off ticket stub",
+    "zh-Hans": "撕票根"
+   },
+   "meaning": {
+    "ja": "半券をミシン目に沿ってちぎり取り、本券に検札スタンプが押される",
+    "en": "Drag the stub to tear it off along the perforation, and the ticket gets stamped",
+    "zh-Hans": "拖动票根沿打孔线撕下，主票面盖上检票印章"
+   },
+   "ask": {
+    "ja": "イベントの購入完了画面をチケットのもぎりにして。右の幅82pxの半券をつかんで下に引くと、1.2秒でミシン目に沿って裂けて落ち、本券に「已检票」のスタンプが押される。",
+    "en": "Make the event checkout success screen a tear-off ticket stub: grab the 82 px stub on the right and pull down, it tears along the perforation over 1.2 s and drops away, then a 'checked' stamp lands on the ticket.",
+    "zh-Hans": "把活动购票成功页做成撕票根：拖住右侧 82 px 宽的票根往下拉，1.2 秒内沿打孔线撕开并掉落，主票面随后盖上「已检票」印章。"
+   },
+   "summary": {
+    "ja": "紙の質感があるコンサートチケットの右端の半券を、カーソルがつかんで下へ引く。ミシン目が上から下へ毛羽立ちながら裂け、半券は回転しながら画面外へ落ち、本券が揺れ戻って朱色の「已检票」スタンプが押される。スタンプが消えると半券が元の位置に戻る。",
+    "en": "The cursor grabs the stub at the right end of a papery concert ticket and pulls down. The perforation tears from top to bottom with a fibrous edge, the stub spins out of frame, the main ticket springs back and a red 'checked' stamp lands on it; once the stamp fades, the stub reappears in place.",
+    "zh-Hans": "光标抓住一张纸质音乐会门票右端的票根往下拉；打孔线从上往下撕开，撕口带纸纤维毛边，票根旋转着掉出画面，主票面回弹并盖上朱红「已检票」印章；印章褪去后票根重新回到原位。"
+   },
+   "spec": {
+    "ja": [
+     "本券は幅262px、半券は幅82px、高さはどちらも128pxで、ミシン目で区切られる",
+     "カーソルは0.1〜0.6秒に半券へ移動し、0.66秒に押下",
+     "0.78〜1.98秒に下へドラッグ。裂け目は毛羽立った縁でミシン目を上から下へ進み、半券は0.3radまで開く",
+     "1.98秒にちぎれた半券は回転しながら放物線で落ち、2.9秒で消える。本券は揺れ戻る",
+     "2.42秒に「已检票」スタンプが1.6倍から1倍へ落ちて押される（落下0.12秒）。3.7〜4.05秒に消える",
+     "3.95〜4.45秒に半券が9px上からフェードインして戻り、4.8秒の周期末まで静止"
+    ],
+    "en": [
+     "The main ticket is 262 px wide and the stub 82 px, both 128 px tall, divided by a perforated line.",
+     "The cursor moves to the stub over 0.1–0.6 s and presses at 0.66 s.",
+     "From 0.78–1.98 s it drags down: the tear runs top to bottom along the perforation with a fibrous edge, and the stub swings open to 0.3 rad.",
+     "Torn free at 1.98 s, the stub spins and falls in an arc, gone by 2.9 s, while the main ticket springs back.",
+     "At 2.42 s a 'checked' stamp drops from 1.6× to 1× (a 0.12 s fall) and lands; it fades over 3.7–4.05 s.",
+     "From 3.95–4.45 s the stub fades back in from 9 px above, then holds until the 4.8 s cycle ends."
+    ],
+    "zh-Hans": [
+     "主票面宽 262 px、票根宽 82 px，高都是 128 px，中间以打孔线分开。",
+     "光标 0.1–0.6 秒移到票根，0.66 秒按下。",
+     "0.78–1.98 秒向下拖，撕口带纸纤维毛边沿打孔线从上到下走完，票根张开到 0.3 rad。",
+     "1.98 秒撕断后票根边旋转边沿抛物线下落，2.9 秒掉出画面，主票面回弹。",
+     "2.42 秒「已检票」印章从 1.6 倍落到 1 倍盖上（下落 0.12 秒），3.7–4.05 秒褪去。",
+     "3.95–4.45 秒票根从上方 9 px 淡入回位，静止到 4.8 秒周期结束。"
+    ]
+   },
+   "use": {
+    "ja": "イベントの購入完了、入場チェックイン、クーポン使用など「使った・受け取った」を手触りで見せたい所に。",
+    "en": "Use it for event checkout success, entry check-in or coupon redemption, where using or claiming something should feel tactile.",
+    "zh-Hans": "适合活动购票成功、入场核验、优惠券核销等需要把「已使用 / 已领取」做得有手感的地方。"
+   },
+   "tags": [
+    "ticket",
+    "tear",
+    "drag",
+    "perforation",
+    "stamp",
+    "paper"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "撕门票",
+     "撕下票根",
+     "检票动效",
+     "门票撕开"
+    ]
+   }
+  },
+  {
+   "id": "1-187",
+   "group": "web",
+   "pack": "lp",
+   "no": "50",
+   "slug": "paper-shredder",
+   "category": "hover-click",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "シュレッダーで削除",
+    "en": "Shredder delete",
+    "zh-Hans": "碎纸机删除"
+   },
+   "meaning": {
+    "ja": "ファイルをシュレッダーへドラッグすると細断され、リストが詰まる",
+    "en": "Drag a file into a shredder to delete it, and the list closes the gap",
+    "zh-Hans": "把文件拖进碎纸机粉碎删除，列表随后补位"
+   },
+   "ask": {
+    "ja": "ファイル削除をシュレッダーで削除にして。行をドラッグすると0.6倍のカードに縮んで投入口へ吸い込まれ、本体が震えて15本の紙片が丸まりながら落ち、下の行が33px上がって詰める。",
+    "en": "Make file deletion a shredder delete: dragging a row shrinks it to a 0.6× card that gets sucked into the slot, the machine shakes, 15 paper strips curl down into the bin and the rows below move up 33 px.",
+    "zh-Hans": "把删除文件做成碎纸机删除：拖起的行缩成 0.6 倍卡片被吸进进纸口，机身震动，15 条纸条卷曲着落进纸篓，下方行上移 33 px 补位。"
+   },
+   "summary": {
+    "ja": "左にファイル一覧、右に濃いグレーのシュレッダー。カーソルがPDFの行をつかんで弧を描いて投入口まで運び、離すとカードが吸い込まれ、本体が震えてランプがオレンジに点滅し、窓の中に細い紙片が丸まりながら落ちる。一覧の下の行が上がって空きを埋め、最後に元に戻る。",
+    "en": "A file list sits on the left and a graphite shredder on the right. The cursor picks up the PDF row and carries it in an arc to the slot; once released, the card is sucked in, the machine shakes, its light blinks orange and thin strips curl down behind the bin window. The rows below slide up to fill the gap, then everything resets.",
+    "zh-Hans": "左边是文件列表，右边是一台石墨色碎纸机；光标抓起 PDF 那一行，沿弧线拖到进纸口松手，卡片被吸入，机身震动、指示灯橙色闪烁，纸篓窗里细纸条卷曲着落下；列表下方的行上移补上空位，最后复位。"
+   },
+   "spec": {
+    "ja": [
+     "0.45秒に2行目を押さえ、0.6〜1.55秒に弧を描いて投入口までドラッグ。カードは1.03倍から0.6倍に縮む",
+     "1.7〜2.45秒にカードが最初はゆっくり、次第に速く吸い込まれる。本体は1.7〜2.95秒に震える",
+     "ランプは1.65〜3.0秒に緑の「待機」から7Hzで点滅するオレンジの「粉砕中」に変わる",
+     "紙片15本が1.98秒から刃の下に0.34秒かけて押し出され、外れると丸まりながら落ちて1.15秒以内に消える。真ん中の二本はファイルの色帯付き",
+     "2.05〜2.5秒に下の行が33px上がって詰め、件数は4から3になる",
+     "4.05〜4.45秒に行が戻り、4.3〜4.7秒に消した行が左10pxからフェードイン。4.8秒周期"
+    ],
+    "en": [
+     "At 0.45 s the cursor presses row 2 and over 0.6–1.55 s drags it in an arc to the slot, the card shrinking from 1.03× to 0.6×.",
+     "From 1.7–2.45 s the card is pulled in, slowly at first and then faster; the machine shakes from 1.7–2.95 s.",
+     "From 1.65–3.0 s the light switches from a green 'standby' to an orange 'shredding' that blinks at 7 Hz.",
+     "From 1.98 s, 15 strips are pushed out under the blades over 0.34 s each, then drop free, curling as they fall and fading within 1.15 s; the middle pair carry the file's color band.",
+     "From 2.05–2.5 s the rows below move up 33 px to close the gap, and the count goes from 4 to 3.",
+     "The rows drop back over 4.05–4.45 s and the deleted row fades in from 10 px to the left over 4.3–4.7 s, on a 4.8 s cycle."
+    ],
+    "zh-Hans": [
+     "0.45 秒按住第 2 行，0.6–1.55 秒沿弧线拖到进纸口，卡片从 1.03 倍缩到 0.6 倍。",
+     "1.7–2.45 秒卡片先慢后快被吸入，机身在 1.7–2.95 秒震动。",
+     "1.65–3.0 秒指示灯从绿色「待机」变为以 7 Hz 闪烁的橙色「粉碎中」。",
+     "15 条纸条从 1.98 秒起在刀口下各用 0.34 秒挤出，随后脱落、边落边卷曲，1.15 秒内淡出；中间两条带文件的色带。",
+     "2.05–2.5 秒下方行上移 33 px 补位，计数从 4 变为 3。",
+     "4.05–4.45 秒各行回落，4.3–4.7 秒被删的行从左侧 10 px 处淡入，4.8 秒一个周期。"
+    ]
+   },
+   "use": {
+    "ja": "ファイル管理、クラウドストレージ、プライバシー・セキュリティ機能の紹介など、「完全に消した」ことを伝えたい所に。",
+    "en": "Use it in file managers, cloud storage or privacy and security features where a delete should feel permanent.",
+    "zh-Hans": "适合文件管理、云盘、隐私与安全功能介绍等需要表现「彻底删除」的地方。"
+   },
+   "tags": [
+    "shredder",
+    "delete",
+    "drag-and-drop",
+    "file-list",
+    "shake",
+    "paper"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "拖拽删除",
+     "粉碎文件",
+     "碎纸机动效",
+     "删除文件动画"
+    ]
+   }
+  },
+  {
+   "id": "1-188",
+   "group": "web",
+   "pack": "lp",
+   "no": "51",
+   "slug": "folder-notes",
+   "category": "hover-click",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "フォルダーからカードが飛び出す",
+    "en": "Folder pop-out cards",
+    "zh-Hans": "文件夹弹出卡片"
+   },
+   "meaning": {
+    "ja": "ホバーでフォルダーが開き、中のカードが周りに飛び出して浮かぶ",
+    "en": "On hover a folder opens and the cards inside pop out around it and float",
+    "zh-Hans": "悬停时文件夹翻开，里面的卡片弹到四周并轻轻浮动"
+   },
+   "ask": {
+    "ja": "作品集のフォルダーをホバーでカードが飛び出すようにして。前面を0.5秒で手前に開き、3枚のカードを0.17秒ずつずらして左・上・右へ回転しながら飛ばし、2.6pxの幅でふわふわ浮かせて。",
+    "en": "Make the portfolio folder a folder pop-out on hover: tip the front open over 0.5 s, launch 3 cards 0.17 s apart to the left, top and right with a spin, and let them float by 2.6 px.",
+    "zh-Hans": "把作品集文件夹做成悬停弹出卡片：前片 0.5 秒向前翻开，3 张卡片间隔 0.17 秒带旋转弹到左、上、右三处，并以 2.6 px 幅度轻轻浮动。"
+   },
+   "summary": {
+    "ja": "机の上にオレンジ色の立体フォルダー。カーソルが乗ると前面が手前に倒れて開き、カラーパレット・スケッチの付箋・一言カードの3枚が順に飛び出して左・上・右に散り、少し傾いたままふわふわ浮く。カーソルが離れるとカードが逆順に戻り、前面が閉じて小さく弾む。",
+    "en": "An orange 3D folder sits on a desk. When the cursor hovers, the front flap tips forward and three cards (a color palette, a sketch sticky note and a quote card) pop out one after another to the left, top and right, floating at a slight tilt. When the cursor leaves, they return in reverse order and the flap closes with a small bounce.",
+    "zh-Hans": "桌面上一个橙色立体文件夹；光标悬停时前片向前下方翻开，色板、草图便利贴、一句话卡三张卡片依次弹出，散到左、上、右三处，带点倾斜轻轻浮动；光标移开后卡片按相反顺序收回，前片合上并轻弹一下。"
+   },
+   "spec": {
+    "ja": [
+     "カーソルは0.25〜0.85秒にフォルダーの前面へ移動",
+     "前面（230×89）は底辺を軸に0.72〜1.22秒で手前へ倒れ、高さが0.56倍につぶれ上辺が少し広がる（オーバーシュートあり）",
+     "3枚のカードは0.92秒から0.17秒間隔で、それぞれ0.66秒かけて飛び出す。先に真上へ出てから斜めに飛び、0.86倍から1倍に拡大",
+     "定位置ではカードが周期1.7秒・振幅2.6pxで上下に浮き、少し揺れる",
+     "カーソルは2.95〜3.55秒に離れ、3.02秒から0.13秒間隔・各0.44秒でカードが逆順に戻る",
+     "3.6〜4.05秒に前面が閉じて小さく弾み、4.45秒に静止。4.8秒周期"
+    ],
+    "en": [
+     "The cursor moves onto the front of the folder over 0.25–0.85 s.",
+     "The front flap (230×89) hinges on its bottom edge and tips forward over 0.72–1.22 s, squashing to 0.56× its height with the top edge widening slightly, with an overshoot.",
+     "From 0.92 s, 3 cards pop out 0.17 s apart, each over 0.66 s: first straight up, then diagonally out, scaling from 0.86× to 1×.",
+     "In place, each card bobs 2.6 px on a 1.7 s period with a slight sway.",
+     "The cursor leaves over 2.95–3.55 s, and from 3.02 s the cards return in reverse order, 0.13 s apart and 0.44 s each.",
+     "The flap closes over 3.6–4.05 s with a small bounce and rests by 4.45 s, on a 4.8 s cycle."
+    ],
+    "zh-Hans": [
+     "光标 0.25–0.85 秒移到文件夹前片上。",
+     "前片（230×89）以底边为轴在 0.72–1.22 秒向前翻开，高度压到 0.56 倍、顶边略微变宽，带回弹过冲。",
+     "3 张卡片从 0.92 秒起间隔 0.17 秒、各用 0.66 秒弹出：先竖直冒出再斜飞到位，从 0.86 倍放大到 1 倍。",
+     "到位后每张卡以 1.7 秒周期、2.6 px 幅度上下浮动并轻微摆动。",
+     "光标 2.95–3.55 秒移开，卡片从 3.02 秒起按相反顺序收回，间隔 0.13 秒、各 0.44 秒。",
+     "3.6–4.05 秒前片合上并轻弹，4.45 秒静止，4.8 秒一个周期。"
+    ]
+   },
+   "use": {
+    "ja": "ポートフォリオ、素材ライブラリ、プロジェクト一覧などで、フォルダーの中身をホバーでのぞかせたい所に。",
+    "en": "Use it in portfolios, asset libraries or project lists to give a hover preview of what is inside a folder.",
+    "zh-Hans": "适合作品集、素材库、项目列表等需要悬停预览文件夹内容的地方。"
+   },
+   "tags": [
+    "folder",
+    "hover",
+    "cards",
+    "pop-out",
+    "float",
+    "stagger"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "文件夹弹出便签",
+     "悬停打开文件夹",
+     "文件夹预览",
+     "卡片弹出"
+    ]
+   }
+  },
+  {
+   "id": "1-189",
+   "group": "web",
+   "pack": "lp",
+   "no": "52",
+   "slug": "tree-menu",
+   "category": "loading-loops",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.8,
+   "name": {
+    "ja": "ツリーメニュー",
+    "en": "Tree menu",
+    "zh-Hans": "树状菜单"
+   },
+   "meaning": {
+    "ja": "幹線から枝分かれした線で項目をつなぐサイドナビで、開くと枝が伸び、選ぶと道筋が光る",
+    "en": "A side nav whose items hang off a trunk by branch lines; opening grows new branches and picking an item lights its path",
+    "zh-Hans": "菜单项用枝杈线连到主干的侧边导航，展开时长出子枝，选中时点亮路径"
+   },
+   "ask": {
+    "ja": "管理画面のサイドナビをツリーメニューにして。「产品」を押すと下の項目が54px下がり、子項目3つの枝を0.13秒ずつずらして0.4秒で伸ばし、選んだ子項目までの線を0.58秒で光らせて。",
+    "en": "Turn the dashboard side nav into a tree menu: clicking 'Products' pushes the items below down 54 px, grows 3 child branches 0.13 s apart over 0.4 s each, and lights the line to the chosen child over 0.58 s.",
+    "zh-Hans": "把后台侧边导航做成树状菜单：点击「产品」后下方条目下移 54 px，3 条子枝杈间隔 0.13 秒、各用 0.4 秒长出，再用 0.58 秒点亮到所选子项的连线。"
+   },
+   "summary": {
+    "ja": "白いサイドナビの左に縦の幹線があり、各項目は角丸の枝でつながっている。カーソルが「产品」を押すと下の項目が押し下げられ、3本の子の枝が先端を光らせながら順に伸びて子項目がフェードインする。続いて「案例」を押すと幹線からそこまでの道筋を光が流れ、項目がオレンジに選択される。最後にもう一度「产品」を押して畳む。",
+    "en": "A white side nav has a vertical trunk on the left, with each item joined by a rounded branch. When the cursor clicks 'Products', the items below are pushed down and three child branches grow one by one with a glowing tip as the children fade in. Clicking 'Cases' sends a light along the path from the trunk to it and the item turns orange; a final click on 'Products' folds it all back.",
+    "zh-Hans": "白色侧边导航左侧有一根竖向主干，各菜单项经圆角枝杈接上去；光标点「产品」，下方条目被推下，三条子枝杈带着发光尖端依次长出，子项随之淡入；接着点「案例」，一道光从主干沿路径流到该项，条目变成橙色选中态；最后再点「产品」收起。"
+   },
+   "spec": {
+    "ja": [
+     "一階層5項目は20px間隔、「产品」の下に子項目3つが18px間隔で入り、展開すると下の項目が54px下がる",
+     "クリックは1.0秒、2.25秒、3.75秒の3回で、そのたびにカーソル先端に波紋が広がる",
+     "1.05〜1.5秒に下の項目が下がり、子の枝は1.1秒から0.13秒間隔で各0.4秒かけて長さ順に伸び、先端に小さな光点が付く",
+     "子項目は1.36秒から同じ0.13秒間隔で0.26秒かけてフェードイン",
+     "2.3〜2.88秒に幹線から「案例」までの線を尾を引く光が流れ、着くと節点が塗られ波紋が広がり、項目がオレンジの選択状態になる",
+     "3.8〜4.28秒に畳まれ、カーソルは4.45秒に待機位置へ戻る。4.8秒周期"
+    ],
+    "en": [
+     "5 top-level items sit 20 px apart; 3 children sit 18 px apart under 'Products', and opening pushes the items below down 54 px.",
+     "There are 3 clicks, at 1.0 s, 2.25 s and 3.75 s, each sending a ripple from the cursor tip.",
+     "Over 1.05–1.5 s the items below move down, and from 1.1 s the child branches grow along their length 0.13 s apart, 0.4 s each, with a small glowing dot at the tip.",
+     "From 1.36 s the children fade in over 0.26 s each, with the same 0.13 s stagger.",
+     "From 2.3–2.88 s a light with a trail runs along the line from the trunk to 'Cases'; on arrival the node fills, a ring spreads and the item turns orange as selected.",
+     "It folds back over 3.8–4.28 s and the cursor returns to rest by 4.45 s, on a 4.8 s cycle."
+    ],
+    "zh-Hans": [
+     "一级菜单 5 项、行距 20 px；「产品」下有 3 个子项、行距 18 px，展开时下方条目下移 54 px。",
+     "共 3 次点击，分别在 1.0 秒、2.25 秒、3.75 秒，每次光标尖端放出一圈涟漪。",
+     "1.05–1.5 秒下方条目下移；子枝杈从 1.1 秒起间隔 0.13 秒、各用 0.4 秒按长度长出，尖端带一个发光小点。",
+     "子项从 1.36 秒起以同样 0.13 秒间隔、各用 0.26 秒淡入。",
+     "2.3–2.88 秒一道带拖尾的光从主干沿线流到「案例」，到达后节点填色并扩散一圈环，该项变为橙色选中态。",
+     "3.8–4.28 秒收起，光标 4.45 秒回到候场点，4.8 秒一个周期。"
+    ]
+   },
+   "use": {
+    "ja": "管理画面、ドキュメントサイト、ファイルブラウザーなど、階層のあるナビゲーションで今いる場所をはっきり見せたい所に。",
+    "en": "Use it in dashboards, documentation sites and file browsers where hierarchical navigation should make the current location obvious.",
+    "zh-Hans": "适合后台管理、文档站、文件浏览器等需要清楚展示层级和当前位置的导航。"
+   },
+   "tags": [
+    "tree",
+    "menu",
+    "sidebar",
+    "navigation",
+    "expand",
+    "path"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "树形导航",
+     "侧边栏树形菜单",
+     "展开子菜单",
+     "层级导航"
+    ]
+   }
   },
   {
    "id": "1-049",
@@ -13686,6 +14347,421 @@
    }
   },
   {
+   "id": "1-190",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "63",
+   "slug": "task-status-icon",
+   "category": "feedback",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "タスク状態アイコン",
+    "en": "Task status icon",
+    "zh-Hans": "任务状态图标"
+   },
+   "meaning": {
+    "ja": "待機・実行中・完了・失敗の間を一つのアイコンが連続して変形する",
+    "en": "One icon that morphs smoothly between waiting, running, done and failed",
+    "zh-Hans": "同一个图标在等待、执行中、完成、失败之间连贯变形"
+   },
+   "ask": {
+    "ja": "エージェントのタスク一覧にタスク状態アイコンを入れて。待機は 12 本の破線リング、開始したら 0.35 秒で回転する進捗弧に集め、完了なら緑で塗ってチェック、失敗なら赤くなってバツを描き小さく揺らして。",
+    "en": "Add task status icons to the agent's task list: a ring of 12 dashes while waiting, gathering into a spinning progress arc within 0.35 s on start, filling green with a check when done, and turning red with a shaking cross on failure.",
+    "zh-Hans": "给智能体的任务列表加任务状态图标：等待时是 12 段虚线环，开始后 0.35 秒收拢成旋转的进度弧，完成时填绿画勾，失败时变红画叉并轻轻抖动。"
+   },
+   "summary": {
+    "ja": "3 行のタスク一覧の左に、破線リングを載せた立体的な円盤が並ぶ。上から順に破線が集まって回転する紫の弧になり、弧が閉じると円盤が緑に塗られてチェックが描かれ、右の状態表示も「完了」に変わる。3 行目は途中で弧が止まって赤くなり、中心に縮んでバツになり左右に揺れ、最後に全行が順に待機へ戻る。",
+    "en": "A three-row task list shows a raised disc with a dashed ring at the start of each row. Row by row the dashes gather into a spinning purple arc; when the arc closes the disc fills green, a check is drawn and the status on the right switches to done. The third row's arc stalls, turns red, shrinks to the centre and becomes a cross that shakes, then every row resets to waiting in turn.",
+    "zh-Hans": "3 行任务列表左侧各有一枚带虚线环的立体圆盘；各行依次把虚线收拢成旋转的紫色弧，弧闭合后圆盘填绿、画出对勾，右侧状态同步变为已完成。第三行中途弧线停住变红，收向圆心变成叉并左右抖动，最后各行依次复位回等待。"
+   },
+   "spec": {
+    "ja": [
+     "3 行のタスクは 0.40、1.55、2.75 秒に開始。待機アイコンは 半径 13px の円盤上の 12 本の破線リング（半径 8.6px）",
+     "開始すると 0.35 秒で破線がリングの 22% の弧に集まり、灰から紫に変わって毎秒 1.25 周で回る",
+     "1・2 行目は 1.65 秒と 2.90 秒に弧が閉じ、0.08 秒後に円盤が緑に塗られて 7% 膨らみ、閉じてから 0.22–0.5 秒にチェックを描く",
+     "3 行目は失敗。4.05–4.20 秒に弧が減速して止まり、4.45 秒までに赤くなり、4.80 秒までに中心へ縮み、円盤が赤く塗られてバツを描く（4.75–5.03 秒）",
+     "4.80–5.20 秒に失敗アイコンが左右に 3 回、最大 2.6px で減衰しながら揺れる",
+     "5.6 秒から各行が 0.08 秒ずつずれて 0.35 秒で待機の破線に戻り、6.11–6.4 秒は静止"
+    ],
+    "en": [
+     "The 3 task rows start at 0.40, 1.55 and 2.75 s; the waiting icon is a ring of 12 dashes (8.6 px radius) on a disc of 13 px radius.",
+     "On start the dashes gather within 0.35 s into an arc covering 22% of the ring, turning from grey to purple and spinning at 1.25 turns per second.",
+     "Rows 1 and 2 close their arcs at 1.65 and 2.90 s; 0.08 s later the disc fills green with a 7% pop, and the check is drawn from 0.22–0.5 s after closing.",
+     "Row 3 fails: its arc slows to a stop from 4.05–4.20 s, turns red by 4.45 s and shrinks into the centre by 4.80 s, then the disc fills red and a cross is drawn (4.75–5.03 s).",
+     "From 4.80–5.20 s the failed icon shakes side to side 3 times, up to 2.6 px, decaying.",
+     "From 5.6 s the rows reset to the waiting dashes one by one, 0.08 s apart and 0.35 s each; still from 6.11–6.4 s."
+    ],
+    "zh-Hans": [
+     "3 行任务分别于 0.40、1.55、2.75 秒开始；等待图标是 半径 13 px 的圆盘上一圈 12 段虚线（半径 8.6 px）。",
+     "开始后 0.35 秒内虚线收拢成占整圈 22% 的弧，由灰转紫，以每秒 1.25 圈匀速旋转。",
+     "第 1、2 行在 1.65、2.90 秒弧线闭合，0.08 秒后圆盘填绿并放大 7% 回弹，闭合后 0.22–0.5 秒画出对勾。",
+     "第 3 行失败：4.05–4.20 秒弧线减速停住，4.45 秒前变红，4.80 秒前收向圆心，随后圆盘填红并画叉（4.75–5.03 秒）。",
+     "4.80–5.20 秒失败图标左右抖动 3 次，幅度最大 2.6 px 并逐渐衰减。",
+     "5.6 秒起各行错开 0.08 秒、各用 0.35 秒复位回等待虚线；6.11–6.4 秒静止。"
+    ]
+   },
+   "use": {
+    "ja": "AI エージェントのタスク一覧、CI のステップ表示、一括処理のキューなど、複数ステップの状態を並べて見せる場面に。",
+    "en": "Use it in AI agent task lists, CI step views and batch job queues where several steps show their status side by side.",
+    "zh-Hans": "适合 AI 智能体任务列表、CI 流水线步骤、批量任务队列等需要并排显示多步状态的场景。"
+   },
+   "tags": [
+    "status-icon",
+    "task-list",
+    "agent",
+    "spinner",
+    "checkmark",
+    "error-state",
+    "morph"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "任务状态",
+     "执行状态图标",
+     "加载转对勾",
+     "失败叉号"
+    ]
+   }
+  },
+  {
+   "id": "1-191",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "64",
+   "slug": "thinking-fold",
+   "category": "feedback",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "思考過程の折りたたみ",
+    "en": "Collapsible thinking",
+    "zh-Hans": "思考过程折叠"
+   },
+   "meaning": {
+    "ja": "AI の推論ステップを考え中に並べ、終わると一行に畳んで回答を出す",
+    "en": "AI reasoning steps list up while thinking, then fold into one line as the answer appears",
+    "zh-Hans": "AI 思考时逐条列出推理步骤，结束后收成一行再给出回答"
+   },
+   "ask": {
+    "ja": "AI の回答カードに思考過程の折りたたみを入れて。「考え中」の横で秒数を数え、推論ステップを 0.7 秒ごとに 1 行ずつ出し、終わったら見出しを「4.8 秒考えました」に変えて、ステップを上へ畳んで回答の 1 行目を出して。",
+    "en": "Add collapsible thinking to the AI reply card: count seconds next to “Thinking”, add a reasoning step every 0.7 s, then change the title to “Thought for 4.8 s”, fold the steps upward and fade in the first line of the answer.",
+    "zh-Hans": "给 AI 回复卡片加思考过程折叠：「正在思考」旁边计秒，每 0.7 秒出现一条推理步骤，结束后标题改成「已思考 4.8 秒」，步骤向上收起，再淡入回答的第一行。"
+   },
+   "summary": {
+    "ja": "AI アバターの横のカードで「考え中」の秒数が進み、推論ステップが一行ずつ下から現れて、新しい行には紫の光が走る。考え終わると見出しが「4.8 秒考えました」と矢印に変わり、ステップは下から順に上へ重なって消え、カードが縮んで回答の 1 行目が浮かぶ。",
+    "en": "Next to the AI avatar a card counts up the thinking time while reasoning steps appear one at a time from below, each new line swept by a purple shine. When thinking ends the title becomes “Thought for 4.8 s” with a chevron, the steps stack upward from the bottom and vanish, the card shrinks and the first line of the answer rises in.",
+    "zh-Hans": "AI 头像旁的卡片里「正在思考」计时在跳，推理步骤逐条从下方出现，新一条带紫色微光扫过；思考结束后标题变为「已思考 4.8 秒」并出现小箭头，步骤自下而上叠成一行消失，卡片收矮，回答第一行浮现。"
+   },
+   "spec": {
+    "ja": [
+     "0.2–3.4 秒に見出しの計時が 0.0 から 4.8 秒まで進み、アバターの外周の弧が回る",
+     "4 つの推論ステップが 0.45 秒から 0.7 秒ごとに現れ、それぞれ 0.35 秒で 6px 下から浮かぶ。新しい行には紫の光が 0.85 秒で走る",
+     "3.4 秒に見出しが 0.28 秒で「4.8 秒考えました」にクロスフェードし、矢印が現れる",
+     "3.62–4.36 秒にステップが下の行から 0.06 秒ずつずれて 1 行目の位置へ上がり、0.55 倍に潰れて消える。カードは縮み、矢印は右向きに回る",
+     "4.12–4.6 秒に回答の最初の行が 4px 上がりながらフェードイン",
+     "5.6–6.1 秒にカードが見出しだけの高さへ戻り、6.4 秒まで静止"
+    ],
+    "en": [
+     "From 0.2–3.4 s the title timer counts from 0.0 to 4.8 s while an arc spins around the avatar.",
+     "4 reasoning steps appear every 0.7 s from 0.45 s, each rising 6 px in 0.35 s; a purple shine crosses each new line over 0.85 s.",
+     "At 3.4 s the title cross-fades in 0.28 s to “Thought for 4.8 s” and a chevron appears.",
+     "From 3.62–4.36 s the steps fold up to the 1st row, bottom one first and 0.06 s apart, squashing to 0.55× and fading; the card shrinks and the chevron turns to point right.",
+     "From 4.12–4.6 s the first answer line rises 4 px and fades in.",
+     "From 5.6–6.1 s the card shrinks back to the title alone, then holds until 6.4 s."
+    ],
+    "zh-Hans": [
+     "0.2–3.4 秒标题计时从 0.0 跳到 4.8 秒，头像外圈一段弧在转。",
+     "4 条推理步骤自 0.45 秒起每 0.7 秒出现一条，各用 0.35 秒从下方 6 px 浮上；新一条文字有紫色微光用 0.85 秒扫过。",
+     "3.4 秒标题用 0.28 秒交叉切换为「已思考 4.8 秒」，并出现小箭头。",
+     "3.62–4.36 秒步骤从最下一条开始、每条错开 0.06 秒向第 1 行位置收拢，压扁到 0.55 倍并淡出；卡片同步收矮，箭头转向右。",
+     "4.12–4.6 秒回答第一行上移 4 px 淡入。",
+     "5.6–6.1 秒卡片缩回仅剩标题，静止到 6.4 秒。"
+    ]
+   },
+   "use": {
+    "ja": "AI チャット、コード支援、検索アシスタントで、推論の途中経過を見せつつ最後は回答を主役にしたい場面に。",
+    "en": "Use it in AI chat, coding assistants and search assistants that show reasoning in progress but hand the stage to the answer at the end.",
+    "zh-Hans": "适合 AI 对话、编程助手、搜索助手中，先展示推理过程、最后把版面让给正式回答的场景。"
+   },
+   "tags": [
+    "ai",
+    "reasoning",
+    "thinking",
+    "collapse",
+    "chat",
+    "timer",
+    "accordion"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "深度思考",
+     "推理过程",
+     "思考中折叠",
+     "思维链"
+    ]
+   }
+  },
+  {
+   "id": "1-192",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "65",
+   "slug": "image-gen-stages",
+   "category": "feedback",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "画像の段階的生成",
+    "en": "Staged image generation",
+    "zh-Hans": "AI 生图分阶段进度"
+   },
+   "meaning": {
+    "ja": "固定サイズの枠の中で、ぼかした色の塊からモザイク、鮮明な画像へと段階的に仕上がる",
+    "en": "Inside a fixed frame an image goes from blurred colour blobs through mosaic levels to a sharp picture",
+    "zh-Hans": "固定尺寸的图片框里，画面由模糊色块经马赛克逐级变清晰"
+   },
+   "ask": {
+    "ja": "画像生成の待ち時間を段階的生成にして。228×136px の枠は動かさず、ぼかした色の塊から 6、12、24、48、96 列のモザイクを経て鮮明な画像にし、下に「構図 › 着色 › 細部 › 完成」と進捗バーを出して。",
+    "en": "Make the image-generation wait a staged reveal: keep the 228 × 136 px frame fixed, go from blurred colour blobs through 6, 12, 24, 48 and 96-column mosaics to the sharp image, with a progress bar and “Compose › Colour › Refine › Done” below.",
+    "zh-Hans": "把生图等待做成 AI 生图分阶段进度：228 × 136 px 的图片框不变，从模糊色块经 6、12、24、48、96 列马赛克变成清晰图，下方显示进度条和「构图 › 上色 › 细化 › 完成」。"
+   },
+   "summary": {
+    "ja": "左にプロンプトの吹き出し、右に空の画像枠。枠の中にぼんやりした色の塊が流れて構図に集まり、粗いモザイクになって色が付き、マス目が段々細かくなって夕暮れの灯台の絵がくっきり現れる。完成するとカードが軽く弾み、ダウンロードボタンが出て灯台の光が一度振れ、最後は空の枠に戻る。",
+    "en": "A prompt bubble sits on the left and an empty image frame on the right. Soft colour blobs drift inside the frame and settle into the composition, turn into a coarse coloured mosaic, then the squares get finer until a sunset lighthouse scene comes into focus. On completion the card gives a small bounce, a download button pops in and the lighthouse beam swings once, before it all fades back to the empty frame.",
+    "zh-Hans": "左侧是提示词气泡，右侧是空白图片框；框内先有模糊色块流动并收拢成构图，再变成粗马赛克上色，方格逐级变细，最后清晰呈现黄昏海边的灯塔。完成时卡片轻弹一下，弹出下载按钮，灯塔光束摆动一次，随后淡回空白占位。"
+   },
+   "spec": {
+    "ja": [
+     "画像領域は常に 228 × 136px。0.3–0.65 秒に空の枠がぼかした色の塊に変わり、0.9–1.75 秒に塊が構図の位置へ集まる",
+     "6、12、24、48、96 列のモザイクが 1.75、2.25、2.7、3.08、3.42 秒に順に切り替わり、各 0.09 秒でクロスフェード（最初だけ 0.28 秒）",
+     "3.76–3.98 秒に最も細かいモザイクから鮮明な画像へ変わる",
+     "カード下の進捗バーは構図 0–24%、着色 24–52%、細部 52–97%、完成 97–100%。各段階の中で速く始まり遅くなる",
+     "3.9 秒にカードが最大 3.5% 弾んで戻り、4.12 秒にダウンロードボタンが飛び出し、4.2–5.5 秒に灯台の光が一往復する",
+     "5.62–6.08 秒にすべて空の枠へフェードして戻る"
+    ],
+    "en": [
+     "The image area stays 228 × 136 px; from 0.3–0.65 s the empty frame fades into soft colour blobs, which settle into the composition from 0.9–1.75 s.",
+     "Mosaics of 6, 12, 24, 48 and 96 columns take over at 1.75, 2.25, 2.7, 3.08 and 3.42 s, each cross-fading in 0.09 s (the first in 0.28 s).",
+     "From 3.76–3.98 s the finest mosaic gives way to the sharp image.",
+     "The progress bar below the card covers Compose 0–24%, Colour 24–52%, Refine 52–97% and Done 97–100%, fast then slow within each stage.",
+     "At 3.9 s the card bounces by up to 3.5%, at 4.12 s a download button springs in, and from 4.2–5.5 s the lighthouse beam swings out and back.",
+     "From 5.62–6.08 s everything fades back to the empty frame."
+    ],
+    "zh-Hans": [
+     "图片区始终为 228 × 136 px；0.3–0.65 秒空白占位淡成模糊色块，0.9–1.75 秒色块收拢到构图位置。",
+     "6、12、24、48、96 列马赛克依次在 1.75、2.25、2.7、3.08、3.42 秒接替，每级交叉淡入 0.09 秒（第一级 0.28 秒）。",
+     "3.76–3.98 秒最细一级马赛克切换为清晰图。",
+     "卡片下方进度条按构图 0–24%、上色 24–52%、细化 52–97%、完成 97–100% 推进，每段内先快后慢。",
+     "3.9 秒卡片最多放大 3.5% 后回落，4.12 秒弹出下载按钮，4.2–5.5 秒灯塔光束摆动一个来回。",
+     "5.62–6.08 秒全部淡回空白占位。"
+    ]
+   },
+   "use": {
+    "ja": "AI 画像生成、写真の加工や高解像度化など、数秒かかる画像処理の待ち時間を見せる場面に。",
+    "en": "Use it for AI image generation, photo editing and upscaling, where image processing takes a few seconds and the wait needs to show progress.",
+    "zh-Hans": "适合 AI 生图、图片编辑、高清放大等需要等待几秒的图像处理场景。"
+   },
+   "tags": [
+    "ai",
+    "image-generation",
+    "progressive",
+    "mosaic",
+    "blur-up",
+    "progress",
+    "loading"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "图像分阶段生成",
+     "AI 生图加载",
+     "马赛克渐清晰",
+     "渐进式出图"
+    ]
+   }
+  },
+  {
+   "id": "1-193",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "66",
+   "slug": "voice-capsule",
+   "category": "feedback",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "長押し録音カプセル",
+    "en": "Hold-to-talk capsule",
+    "zh-Hans": "按住说话录音胶囊"
+   },
+   "meaning": {
+    "ja": "マイクボタンを押すと横長のカプセルに伸びて録音し、離すと戻って文字起こしを出す",
+    "en": "A mic button stretches into a recording capsule while held, then shrinks back and shows the transcript",
+    "zh-Hans": "按住麦克风按钮展开成录音胶囊，松开收回并弹出转写文字"
+   },
+   "ask": {
+    "ja": "音声入力に長押し録音カプセルを入れて。68px の丸いマイクボタンを押したら 304px のカプセルに伸ばして赤い点、イコライザーのバー、タイマーを出し、離したらバーを一本の線に畳んで丸に戻し、上に文字起こしの吹き出しを出して。",
+    "en": "Add a hold-to-talk capsule to voice input: when the 68 px round mic button is pressed, stretch it into a 304 px capsule with a red dot, equaliser bars and a timer; on release fold the bars into one line, shrink back to the circle and pop up a transcript bubble above.",
+    "zh-Hans": "给语音输入加按住说话录音胶囊：按住 68 px 的圆形麦克风按钮后横向展开成 304 px 胶囊，显示红点、均衡器竖条和计时；松开后竖条收成一条线，胶囊缩回圆钮，上方弹出转写气泡。"
+   },
+   "summary": {
+    "ja": "ポインタが紫の丸いマイクボタンを押すと、ボタンは横に膨らんで暗いカプセルになり、左で赤い点が呼吸し、中央のバーが声に合わせて跳ね、右のタイマーが進む。離すとバーは両端から平らになって一本の線に縮み、カプセルは弾みながら丸いボタンに戻り、上に文字起こしの吹き出しが現れて文字が打ち込まれる。",
+    "en": "The pointer presses a round purple mic button, which swells sideways into a dark capsule: a red dot breathes on the left, bars bounce with the voice in the middle and a timer runs on the right. On release the bars flatten from the ends into a single line, the capsule springs back into a round button, and a transcript bubble pops up above and types out its text.",
+    "zh-Hans": "光标按下紫色圆形麦克风按钮，按钮横向鼓胀成深色胶囊：左侧红点呼吸，中间竖条随说话跳动，右侧计时走动；松开后竖条从两端压平、收成一条线，胶囊带弹性缩回圆钮，上方弹出转写气泡并逐字打出文字。"
+   },
+   "spec": {
+    "ja": [
+     "0.2–0.9 秒にポインタがボタンへ移動して押し、68px の丸いマイクボタンが 0.1 秒で沈む",
+     "1.0–1.45 秒にボタンが横へオーバーシュートしながら膨らみ、幅 304px の暗いカプセルになる",
+     "録音中は赤い点が 1.05 秒周期で呼吸し、幅 3px のバーが中央で跳ね、タイマーが 0:03 まで進む",
+     "4.3 秒に離すと、バーは両端から 0.12 秒ずつずれて平らになり、4.72 秒までに一本の線に集まる",
+     "4.62–5.12 秒にカプセルがオーバーシュートしながら丸いボタンに戻り、4.95–5.35 秒に上へ文字起こしの吹き出しが弾み出て、5.6 秒までに文字を打ち終える",
+     "4.6–5.6 秒にポインタが元の位置へ戻り、5.85–6.1 秒に吹き出しがフェードアウト"
+    ],
+    "en": [
+     "From 0.2–0.9 s the pointer moves onto the button and presses it; the 68 px round mic button sinks in 0.1 s.",
+     "From 1.0–1.45 s the button swells sideways with overshoot into a dark capsule 304 px wide.",
+     "While recording, the red dot breathes on a 1.05 s cycle, 3 px wide bars bounce in the middle and the timer runs to 0:03.",
+     "Released at 4.3 s, the bars flatten from the ends inward with a 0.12 s stagger and draw together into one line by 4.72 s.",
+     "From 4.62–5.12 s the capsule springs back to a round button with overshoot; from 4.95–5.35 s a transcript bubble pops up above and finishes typing by 5.6 s.",
+     "From 4.6–5.6 s the pointer returns, and from 5.85–6.1 s the bubble fades out."
+    ],
+    "zh-Hans": [
+     "0.2–0.9 秒光标移到按钮上按下，68 px 的圆形麦克风按钮在 0.1 秒内下沉。",
+     "1.0–1.45 秒按钮带过冲横向鼓胀成宽 304 px 的深色胶囊。",
+     "录音中红点以 1.05 秒为周期呼吸，中间 3 px 宽的竖条跳动，计时走到 0:03。",
+     "4.3 秒松开，竖条从两端向中间错开 0.12 秒依次压平，4.72 秒前收拢成一条线。",
+     "4.62–5.12 秒胶囊带过冲缩回圆钮；4.95–5.35 秒上方弹出转写气泡，5.6 秒前逐字打完。",
+     "4.6–5.6 秒光标退回原位，5.85–6.1 秒气泡淡出。"
+    ]
+   },
+   "use": {
+    "ja": "チャットアプリの音声メッセージ、AI アシスタントの音声入力、検索欄の音声検索などに。",
+    "en": "Use it for voice messages in chat apps, voice input to AI assistants and voice search in search boxes.",
+    "zh-Hans": "适合聊天应用的语音消息、AI 助手的语音输入、搜索框的语音搜索。"
+   },
+   "tags": [
+    "voice",
+    "recording",
+    "microphone",
+    "waveform",
+    "press-and-hold",
+    "transcription",
+    "morph"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "语音录制胶囊",
+     "按住说话",
+     "录音按钮",
+     "语音输入"
+    ]
+   }
+  },
+  {
+   "id": "1-194",
+   "group": "web",
+   "pack": "uxmotion",
+   "no": "67",
+   "slug": "grid-loader",
+   "category": "feedback",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 539,
+   "height": 208,
+   "cycle": 6.4,
+   "name": {
+    "ja": "グリッド波ローダー",
+    "en": "Grid wave loader",
+    "zh-Hans": "方格波浪加载"
+   },
+   "meaning": {
+    "ja": "並んだ四角に光の波が繰り返し走り、完了すると一本の進捗バーにまとまる",
+    "en": "A wave of light keeps sweeping across rows of tiles, which merge into one progress bar when done",
+    "zh-Hans": "亮波反复扫过成排方格，完成时方格合并成一条进度条"
+   },
+   "ask": {
+    "ja": "ファイル索引の読み込みをグリッド波ローダーにして。12 列 × 2 行の四角に左から右へ光の波を走らせ、進捗に応じて毎秒 0.6 回から 1.6 回まで速め、完了したら全部光らせて一本の進捗バーにまとめ「完了 · 1,284 / 1,284 個のファイル」と出して。",
+    "en": "Make the file indexing a grid wave loader: sweep a light wave left to right across 12 × 2 tiles, speeding up from 0.6 to 1.6 passes per second with progress, and when done light them all, merge them into one progress bar and show “Done · 1,284 / 1,284 files”.",
+    "zh-Hans": "把文件索引的加载做成方格波浪加载：12 列 × 2 行方格上一道亮波从左往右扫，速度随进度从每秒 0.6 次加快到 1.6 次，完成时全部点亮并合并成一条进度条，显示「完成 · 1,284 / 1,284 个文件」。"
+   },
+   "summary": {
+    "ja": "くぼんだトレイに白い立体の四角が 2 列並び、光の波が左から右へ何度も走って、通った四角が持ち上がって色付きで光り、また落ちる。上には状態と百分率、下には処理中のファイル名と件数、右にはストップウォッチが進む。完了すると四角が一斉に光り、横に寄って紫から緑のグラデーションの進捗バーになり「完了」が出て、最後は元の四角に戻る。",
+    "en": "Two rows of raised white tiles sit in a recessed tray, and a light wave sweeps left to right again and again, lifting each tile it passes, lighting it in colour and dropping it back. Above is the status and percentage, below the current file name and count, and a stopwatch runs on the right. When done all tiles light up at once, slide together into a purple-to-green gradient progress bar with “Done”, then split back into tiles.",
+    "zh-Hans": "凹槽托盘里排着两行白色立体方格，一道亮波从左往右反复扫过，被扫到的方格抬起、上色点亮再落回；上方是状态文字和百分比，下方是当前文件名与计数，右侧秒表在走。完成时所有方格同时亮起，横向收拢成一条紫到绿的渐变进度条并显示「完成」，随后拆回方格。"
+   },
+   "spec": {
+    "ja": [
+     "くぼんだトレイに 12 列 × 2 行の四角（22px、間隔 6px）。読み込みは 0.3–4.0 秒で、途中二度止まる",
+     "光の波が左から右へ走り、速さは進捗に応じて毎秒 0.6 回から 1.6 回に上がる。下の行は 0.45 列遅れ、斜めの光になる",
+     "波が通った四角は持ち上がって紫→青→緑の列ごとの色で光り、落ちて戻る。読み込み済みの列は 16% の色が残る",
+     "右のストップウォッチは針が 10 秒で一周し、外周の弧が進捗を示し、表示は 00:03.7 まで進む",
+     "4.0 秒に全部の四角が 0.3 秒で一斉に光り、4.38–4.92 秒に横に寄って高さ 22px のグラデーションの進捗バーになり、光沢が走って「完了 · 1,284 / 1,284 個のファイル」が出る",
+     "5.6–6.05 秒にバーが四角に戻り、針は 12 時へ戻って、6.4 秒まで静止"
+    ],
+    "en": [
+     "A recessed tray holds 12 columns × 2 rows of tiles (22 px, 6 px gap); loading runs from 0.3–4.0 s with two stalls on the way.",
+     "A light wave sweeps left to right, speeding up from 0.6 to 1.6 passes per second with progress; the lower row trails by 0.45 column, so the sweep runs diagonally.",
+     "Swept tiles lift, light up in their column's purple → blue → green colour and drop back; loaded columns keep a 16% tint.",
+     "On the stopwatch at right the hand turns once every 10 s, the outer arc tracks progress and the readout counts to 00:03.7.",
+     "At 4.0 s all tiles light up together in 0.3 s; from 4.38–4.92 s they slide together into a 22 px gradient progress bar, a sheen crosses it and “Done · 1,284 / 1,284 files” appears.",
+     "From 5.6–6.05 s the bar splits back into tiles and the hand winds back to 12 o'clock; still until 6.4 s."
+    ],
+    "zh-Hans": [
+     "凹槽托盘里是 12 列 × 2 行方格（22 px，间距 6 px）；加载段 0.3–4.0 秒，途中卡顿两次。",
+     "一道亮波从左往右扫，速度随进度从每秒 0.6 次加快到 1.6 次；下排比上排滞后 0.45 列，扫光呈斜向。",
+     "被扫到的方格抬起、按所在列的紫→蓝→绿取色点亮再落回；已加载的列保留 16% 的底色。",
+     "右侧秒表指针 10 秒一圈，外圈弧线显示进度，数字计时走到 00:03.7。",
+     "4.0 秒所有方格用 0.3 秒同时亮起，4.38–4.92 秒横向收拢成高 22 px 的渐变进度条，光泽扫过后显示「完成 · 1,284 / 1,284 个文件」。",
+     "5.6–6.05 秒进度条拆回方格，指针转回 12 点，静止到 6.4 秒。"
+    ]
+   },
+   "use": {
+    "ja": "ファイルの索引作成、データ同期、プロジェクトの読み込みなど、数秒かかる一括処理の待ち時間に。",
+    "en": "Use it for file indexing, data sync and project loading, where a batch job takes a few seconds.",
+    "zh-Hans": "适合文件索引、数据同步、项目载入等需要等待几秒的批量处理场景。"
+   },
+   "tags": [
+    "loader",
+    "grid",
+    "wave",
+    "progress-bar",
+    "indexing",
+    "stopwatch",
+    "merge"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "格点加载",
+     "网格加载",
+     "方格进度条",
+     "波浪加载"
+    ]
+   }
+  },
+  {
    "id": "2-001",
    "upstream": "001",
    "group": "motion",
@@ -19697,6 +20773,168 @@
     "zh-Hans": [
      "声波",
      "音乐播放"
+    ]
+   }
+  },
+  {
+   "id": "2-099",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "60",
+   "slug": "edge-blur",
+   "category": "techniques",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "プログレッシブブラー",
+    "en": "Progressive edge blur",
+    "zh-Hans": "渐进边缘模糊"
+   },
+   "meaning": {
+    "ja": "スクロールする内容が上下の端に近づくほど段階的にぼけて薄れる",
+    "en": "Scrolling content blurs and fades step by step as it nears the top and bottom edges",
+    "zh-Hans": "滚动内容越靠近上下边缘越模糊越淡"
+   },
+   "ask": {
+    "ja": "記事リストの上下の端をプログレッシブブラーにして。上78px・下62pxの帯に1/2、1/4、1/8の3段階のぼかしを重ね、端ほど強くぼかして薄くし、内容は4.7秒ごとに390px上へスクロールしてループさせて。",
+    "en": "Give the article list a progressive edge blur: in a 78 px top band and a 62 px bottom band, stack 1/2, 1/4 and 1/8 blur levels so content gets blurrier and fainter towards the edge, and scroll the content up 390 px every 4.7 s on a loop.",
+    "zh-Hans": "把文章列表的上下边缘做成渐进边缘模糊：顶部 78 px、底部 62 px 的过渡带里叠 1/2、1/4、1/8 三级模糊，越靠边越糊越淡，内容每 4.7 秒上滚 390 px 并循环。"
+   },
+   "summary": {
+    "ja": "濃紺のページで、見出し・本文・湖の写真カード・数値カードが並ぶ記事の列が一定速度で上へスクロールし、継ぎ目なくループする。内容は上下の端に近づくにつれて段階的にぼけて薄れ、霧に沈むように消えていく。上部に浮かぶガラスのナビバーの下には、最も強くぼけた内容が色の塊として透けて見える。",
+    "en": "On a navy page, an article column with a headline, body text, a lake photo card and a stats card scrolls up at a steady pace and loops seamlessly. As the content nears the top or bottom edge it blurs and fades in stages, as if sinking into fog; under the floating glass nav bar at the top, the most heavily blurred content shows through as soft blocks of colour.",
+    "zh-Hans": "深蓝页面上，一列文章内容（标题、正文、湖景图片卡、数据卡）匀速向上滚动并无缝循环。内容滚到上下边缘时逐级变糊、变淡，像沉进雾里；顶部悬浮的玻璃导航栏下，透出的是模糊最重的内容色块。"
+   },
+   "spec": {
+    "ja": [
+     "幅292pxの内容の列が4.7秒ごとに390px等速で上へスクロールし、継ぎ目なくループ",
+     "上78px・下62pxが移行帯。ぼかしは filter を使わず、1/2、1/4、1/8 に縮小してから拡大し直して作る",
+     "最も軽い1/2は端から帯の62%まで不透明で100%で消え、1/4は38%–74%、最も重い1/8は16%–46%で、端ほど重いぼかしが重なる",
+     "その上にページ色への薄れを重ね、端での不透明度は上0.82・下0.88",
+     "上部に浮かぶ332 × 32px、角丸16pxのガラスのナビバーの下には、同じスクロール位置の1/8のぼかしが透ける"
+    ],
+    "en": [
+     "A 292 px wide content column scrolls up 390 px every 4.7 s at constant speed and loops seamlessly.",
+     "The top 78 px and bottom 62 px are transition bands; the blur uses no filter, only downscaling to 1/2, 1/4 and 1/8 and scaling back up.",
+     "The lightest 1/2 level is opaque from the edge to 62% of the band and gone by 100%, 1/4 spans 38%–74%, and the heaviest 1/8 spans 16%–46%, so heavier blur stacks closer to the edge.",
+     "A fade to the page colour sits on top, with edge opacity 0.82 at the top and 0.88 at the bottom.",
+     "A floating 332 × 32 px glass nav bar with 16 px corners shows the 1/8 blur at the same scroll position through it."
+    ],
+    "zh-Hans": [
+     "宽 292 px 的内容列每 4.7 秒匀速上滚 390 px，无缝循环。",
+     "顶部 78 px、底部 62 px 为过渡带；模糊不用 filter，靠缩小到 1/2、1/4、1/8 再放大回来得到。",
+     "最轻的 1/2 级从边缘到过渡带 62% 处全不透明、到 100% 处消失，1/4 级为 38%–74%，最重的 1/8 级为 16%–46%，越靠边叠的模糊越重。",
+     "最上面再叠一层向页面底色的渐隐，边缘不透明度顶部 0.82、底部 0.88。",
+     "顶部悬浮 332 × 32 px、圆角 16 px 的玻璃导航栏，底下透出同一滚动位置的 1/8 级模糊。"
+    ]
+   },
+   "use": {
+    "ja": "記事フィード、チャット履歴、長いリストやスクロールパネルで、端の切れ目を柔らかく見せたい場面に。",
+    "en": "Use it in article feeds, chat histories, long lists and scroll panels to soften the hard cut at the edges.",
+    "zh-Hans": "适合文章流、聊天记录、长列表和滚动面板，让上下边缘不再一刀切开。"
+   },
+   "tags": [
+    "blur",
+    "progressive-blur",
+    "scroll",
+    "fade",
+    "mask",
+    "glass"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "渐进式模糊",
+     "边缘雾化",
+     "滚动边缘模糊",
+     "毛玻璃渐变"
+    ]
+   }
+  },
+  {
+   "id": "2-100",
+   "group": "motion",
+   "pack": "motion2",
+   "no": "61",
+   "slug": "infinite-helix",
+   "category": "techniques",
+   "added": "2026-10-30",
+   "license": "MIT License (c) 2026 sadjjk",
+   "author": "sadjjk",
+   "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+   "width": 539,
+   "height": 208,
+   "cycle": 4.7,
+   "name": {
+    "ja": "無限らせんカルーセル",
+    "en": "Infinite helix carousel",
+    "zh-Hans": "无限螺旋轮播"
+   },
+   "meaning": {
+    "ja": "カードが横向きの3Dらせんに並び、回りながら途切れなく流れていく",
+    "en": "Cards line a horizontal 3D helix and stream along it endlessly as it turns",
+    "zh-Hans": "卡片排在横向 3D 螺旋上，边绕轴翻转边无限向前推进"
+   },
+   "ask": {
+    "ja": "作品集を無限らせんカルーセルにして。70 × 56pxの写真カードを半径55px、一周7枚の横向きのらせんに並べ、4.7秒ごとに6枚1組ぶん右へ進め、継ぎ目で遅く中盤で速くして。",
+    "en": "Turn the portfolio into an infinite helix carousel: put 70 × 56 px photo cards on a horizontal helix with radius 55 px and 7 cards per turn, advance one full set of 6 cards to the right every 4.7 s, slow at the seam and fast in the middle.",
+    "zh-Hans": "把作品集做成无限螺旋轮播：70 × 56 px 的相片卡排在半径 55 px、每圈 7 张的横向螺旋上，每 4.7 秒向右推进一整套 6 张，接缝处慢、中段快。"
+   },
+   "summary": {
+    "ja": "濃紺の背景に小さな写真カードの列が横向きのらせんに沿って並び、軸を中心に回りながら右へ進む。手前に来たカードは大きく明るくなり、影と流れるハイライトがつき、奥へ回ったカードは濃紺の裏面を見せて暗くかすむ。進み方は押して滑るリズムで、周期の継ぎ目ではほぼ止まり、中盤で速く滑り、両端のカードは暗がりへ溶けていく。",
+    "en": "Against a navy background, a row of small photo cards follows a horizontal helix, turning around its axis while moving right. Cards that swing to the front grow larger and brighter, with a shadow and a sweeping highlight; cards that swing to the back show a navy reverse and turn dim and hazy. The motion pushes and glides: it almost stops at the loop seam, speeds through the middle, and cards at both ends melt into the vignette.",
+    "zh-Hans": "深蓝背景中，一串小相片卡沿横向螺旋排开，边绕轴翻转边向右推进；转到前方的卡片变大变亮，带投影和扫过的高光，转到后方的露出深蓝背面并变暗变糊。推进节奏一推一滑：周期接缝处几乎停住，中段加速滑过，两端的卡片淡入暗角。"
+   },
+   "spec": {
+    "ja": [
+     "70 × 56pxのカードを半径55pxの横向きのらせんに、一周7枚、軸方向の間隔36pxで並べる",
+     "焦点距離220pxの透視投影で、カメラは0.24ラジアン見下ろし、奥のカードから順に描く",
+     "4.7秒ごとに内容の異なる6枚ひと組ちょうどぶん右へ進むので、ループは継ぎ目なし",
+     "速度は 1 − 0.8·cos2πt に従い、継ぎ目では平均の20%、中点では180%",
+     "奥へ回ったカードは濃紺の裏面を見せ、真横を向くと幅が0.22倍まで縮む",
+     "奥のカードは暗くかすみ、手前のカードには影とハイライトがつき、左右の端は110pxかけて消える"
+    ],
+    "en": [
+     "70 × 56 px cards sit on a horizontal helix with radius 55 px, 7 cards per turn and 36 px between cards along the axis.",
+     "Perspective uses a 220 px focal length with the camera tilted down 0.24 rad, and cards are drawn far to near.",
+     "Every 4.7 s the helix moves right by exactly one set of 6 different cards, so the loop has no seam.",
+     "Speed follows 1 − 0.8·cos2πt: 20% of the average at the seam and 180% at the midpoint.",
+     "Cards turned away show a navy back, and an edge-on card narrows to 0.22× its width.",
+     "Far cards dim and blur, near cards get a shadow and a highlight, and both ends fade out over 110 px."
+    ],
+    "zh-Hans": [
+     "70 × 56 px 的卡片排在半径 55 px 的横向螺旋上，每圈 7 张，沿轴间距 36 px。",
+     "透视投影焦距 220 px，镜头俯视 0.24 弧度，卡片由远到近绘制。",
+     "每 4.7 秒向右推进正好一整套 6 张不同的卡片，循环无缝。",
+     "速度按 1 − 0.8·cos2πt 变化：接缝处为平均速度的 20%，中点为 180%。",
+     "转到背面的卡片露出深蓝背面，侧对镜头时宽度缩到 0.22 倍。",
+     "远处卡片压暗发糊，近处卡片带投影和高光，左右两端在 110 px 内淡出。"
+    ]
+   },
+   "use": {
+    "ja": "作品集、写真ギャラリー、商品一覧のヒーローで、多数のカードを立体的に流して見せたい場面に。",
+    "en": "Use it in portfolio, photo gallery and product showcase heroes to stream many cards past in 3D.",
+    "zh-Hans": "适合作品集、相册、商品展示的首屏，用立体方式连续展示大量卡片。"
+   },
+   "tags": [
+    "helix",
+    "carousel",
+    "3d",
+    "perspective",
+    "cards",
+    "loop",
+    "gallery"
+   ],
+   "aliases": {
+    "zh-Hans": [
+     "螺旋画廊",
+     "3D 螺旋卡片",
+     "螺旋相册",
+     "无限螺旋"
     ]
    }
   },

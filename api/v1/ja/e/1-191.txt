@@ -1,0 +1,284 @@
+// Motion Prompt #1-191 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// 思考過程の折りたたみ / Collapsible thinking
+// パック: uxmotion (インタラクションとデータの動き) · element 64 · カテゴリ: 進捗フィードバック
+// 何が起きるか: AI アバターの横のカードで「考え中」の秒数が進み、推論ステップが一行ずつ下から現れて、新しい行には紫の光が走る。考え終わると見出しが「4.8 秒考えました」と矢印に変わり、ステップは下から順に上へ重なって消え、カードが縮んで回答の 1 行目が浮かぶ。
+// 動きの仕様:
+//   - 0.2–3.4 秒に見出しの計時が 0.0 から 4.8 秒まで進み、アバターの外周の弧が回る
+//   - 4 つの推論ステップが 0.45 秒から 0.7 秒ごとに現れ、それぞれ 0.35 秒で 6px 下から浮かぶ。新しい行には紫の光が 0.85 秒で走る
+//   - 3.4 秒に見出しが 0.28 秒で「4.8 秒考えました」にクロスフェードし、矢印が現れる
+//   - 3.62–4.36 秒にステップが下の行から 0.06 秒ずつずれて 1 行目の位置へ上がり、0.55 倍に潰れて消える。カードは縮み、矢印は右向きに回る
+//   - 4.12–4.6 秒に回答の最初の行が 4px 上がりながらフェードイン
+//   - 5.6–6.1 秒にカードが見出しだけの高さへ戻り、6.4 秒まで静止
+// 使いどころ: AI チャット、コード支援、検索アシスタントで、推論の途中経過を見せつつ最後は回答を主役にしたい場面に。
+// タグ: ai, reasoning, thinking, collapse, chat, timer, accordion
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-191
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 64
+CELLS[63] = (function () {
+  // 思考过程折叠：AI 回复卡片顶部「正在思考 · x.xs」计时在跳，推理步骤逐条出现（新一条带微光扫过）；
+  // 思考结束标题变为「已思考 4.8 秒」并出现小箭头，步骤向上收拢叠成一行消失，卡片高度平滑收缩，
+  // 正式回答第一行淡入；随后复位回首帧。纯函数：画面只由 u 决定；背景层首次调用时预渲染缓存。
+  const W = 539, H = 208, CYC = 6.4;
+  const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+  const S = 3;                    // 缓存分辨率倍数：调用方最多约 2×dpr 放大
+
+  // 配色：uxmotion 的暖灰纸底 + 紫蓝强调，卡片为微冷的白瓷面
+  const PAL = {
+    bgTop: '#f7f5f1', bgBot: '#e7e3ec', vig: '38,30,70', glow: '122,104,242',
+    cardHi: '#ffffff', cardLo: '#f4f2f9', thick: '#d6d0e3', border: 'rgba(40,32,80,0.11)',
+    ink: '#16151b', ink2: '#57535f', ink3: '#8e8a97', line: 'rgba(22,21,27,0.08)',
+    acc: '#6a57f2', acc2: '#2f8fe0', shine: '#cfc6ff', shadow: '40,30,80'
+  };
+
+  // 卡片几何：左侧头像 + 宽 300 的卡片（约占画宽 56%），整组水平居中；卡片随高度变化保持竖直居中
+  const CX = 136, CWD = 300, R = 14, MIDY = 104;
+  const H0 = 44, ROW = 22, ANS = 30;   // 标题行高（含底部留白）、每条步骤行高、回答行高
+  const AVX = 114;                     // 头像圆心 x
+
+  const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+  const seg = (u, a, b) => clamp((u - a) / (b - a));
+  const ease = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const easeOut = t => 1 - Math.pow(1 - clamp(t), 3);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const rgba = (c, a) => `rgba(${c},${a})`;
+  const TAU = Math.PI * 2;
+
+  function rr(x, px, py, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    x.beginPath(); x.moveTo(px + r, py); x.arcTo(px + w, py, px + w, py + h, r); x.arcTo(px + w, py + h, px, py + h, r);
+    x.arcTo(px, py + h, px, py, r); x.arcTo(px, py, px + w, py, r); x.closePath();
+  }
+
+  // 背景：柔和竖向渐变 + 卡片背后的淡紫光晕 + 稀疏点阵 + 径向暗角
+  let BG = null;
+  function bg() {
+    if (BG) return BG;
+    const c = document.createElement('canvas'); c.width = W * S; c.height = H * S;
+    const x = c.getContext('2d'); x.scale(S, S);
+    const gr = x.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, PAL.bgTop); gr.addColorStop(1, PAL.bgBot);
+    x.fillStyle = gr; x.fillRect(0, 0, W, H);
+    const gl = x.createRadialGradient(W * 0.52, MIDY, 0, W * 0.52, MIDY, 230);
+    gl.addColorStop(0, rgba(PAL.glow, 0.10)); gl.addColorStop(1, rgba(PAL.glow, 0));
+    x.fillStyle = gl; x.fillRect(0, 0, W, H);
+    x.fillStyle = 'rgba(60,50,110,0.07)';
+    for (let yy = 12; yy < H; yy += 16) for (let xx = 12; xx < W; xx += 16) x.fillRect(xx, yy, 1, 1);
+    const vg = x.createRadialGradient(W / 2, H * 0.45, H * 0.35, W / 2, H * 0.45, W * 0.62);
+    vg.addColorStop(0, rgba(PAL.vig, 0)); vg.addColorStop(1, rgba(PAL.vig, 0.16));
+    x.fillStyle = vg; x.fillRect(0, 0, W, H);
+    BG = c; return c;
+  }
+
+  // 卡片材质（高度逐帧变化，不能缓存）：接触影 + 投影 + 右下厚度层 + 竖向渐变 + 左上镜面光斑 + 高光边
+  function card(k, y, h) {
+    const x = CX, w = CWD;
+    const cs = k.createRadialGradient(x + w / 2, y + h + 3, 0, x + w / 2, y + h + 3, w * 0.5);
+    cs.addColorStop(0, rgba(PAL.shadow, 0.16)); cs.addColorStop(1, rgba(PAL.shadow, 0));
+    k.save(); k.translate(0, y + h + 3); k.scale(1, 0.06); k.translate(0, -(y + h + 3));
+    k.fillStyle = cs; k.fillRect(x - 20, y + h + 3 - w * 0.5, w + 40, w); k.restore();
+    k.save(); k.shadowColor = rgba(PAL.shadow, 0.17); k.shadowBlur = 22; k.shadowOffsetY = 9;
+    rr(k, x + 1, y + 2.4, w, h, R); k.fillStyle = PAL.thick; k.fill(); k.restore();
+    const gr = k.createLinearGradient(0, y, 0, y + h);
+    gr.addColorStop(0, PAL.cardHi); gr.addColorStop(1, PAL.cardLo);
+    rr(k, x, y, w, h, R); k.fillStyle = gr; k.fill();
+    k.save(); rr(k, x, y, w, h, R); k.clip();
+    const sp = k.createRadialGradient(x + w * 0.18, y - 10, 0, x + w * 0.18, y - 10, w * 0.6);
+    sp.addColorStop(0, 'rgba(255,255,255,0.9)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    k.fillStyle = sp; k.fillRect(x, y, w, h); k.restore();
+    rr(k, x + 0.5, y + 0.5, w - 1, h - 1, R); k.strokeStyle = PAL.border; k.lineWidth = 1; k.stroke();
+    const hl = k.createLinearGradient(x, y, x + w * 0.5, y + h);
+    hl.addColorStop(0, 'rgba(255,255,255,1)'); hl.addColorStop(0.45, 'rgba(255,255,255,0.25)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    rr(k, x + 1.2, y + 1.2, w - 2.4, h - 2.4, R - 1); k.strokeStyle = hl; k.lineWidth = 1.2; k.stroke();
+  }
+
+  // 推理步骤：具体的排查句子；出现时刻在思考段内均匀排开，条数按数组长度计算
+  const STEPS = [
+    '读取 checkout.ts 里的 applyCoupon()',
+    '折扣先取整再乘数量，误差累积 0.03 元',
+    '对照 order_test.py 第 42 行期望 ¥128.97',
+    '改为汇总后统一取整，保留两位小数'
+  ];
+  const ANSWER = '原因是 applyCoupon() 先取整，已修复：';
+
+  // 时间线（秒）
+  const T = {
+    think0: 0.2, think1: 3.4,        // 计时段：显示值从 0.0 跳到 DONE
+    step0: 0.45, stepGap: 0.7,       // 第 i 条步骤出现于 step0 + i*stepGap
+    stepIn: 0.35, shine: 0.85,       // 单条滑入时长、微光扫过时长
+    title: 3.4, titleD: 0.28,        // 标题交叉切换
+    fold0: 3.62, fold1: 4.36,        // 步骤收拢、卡片收缩
+    ans0: 4.12, ans1: 4.6,           // 回答首行淡入
+    rst0: 5.6, rst1: 6.1             // 复位段；6.1–6.4 静止（与 u=0 同画面）
+  };
+  const DONE = 4.8;                  // 最终显示的思考秒数
+  const RATE = DONE / (T.think1 - T.think0);   // 演示时间到显示秒数的换算
+  const N = STEPS.length;
+  const PADB = 8;                    // 有步骤时卡片底部多出的留白
+  const HMAX = H0 + N * ROW + PADB;
+  const HANS = H0 + ANS;
+  const TOP = (H - HMAX) / 2;        // 卡片最高时上下居中
+  const DRIFT = 0.4;                 // 卡片变矮时顶边下移的比例：兼顾构图居中与标题不乱跑
+
+  const stepT = i => T.step0 + i * T.stepGap;
+  const stepK = (u, i) => easeOut(seg(u, stepT(i), stepT(i) + T.stepIn));
+
+  // 卡片高度：思考段逐条长高 → 收拢段缩到回答高度 → 复位段缩回仅标题
+  function cardH(u) {
+    let hs = H0;
+    for (let i = 0; i < N; i++) hs += ROW * stepK(u, i);
+    hs += PADB * stepK(u, 0);
+    const f = ease(seg(u, T.fold0, T.fold1));
+    const r = ease(seg(u, T.rst0, T.rst1));
+    return lerp(lerp(hs, HANS, f), H0, r);
+  }
+
+  // 四角星：AI 标识
+  function star(k, x, y, r) {
+    k.beginPath();
+    for (let i = 0; i < 4; i++) {
+      const a = i * Math.PI / 2 - Math.PI / 2, b = a + Math.PI / 4;
+      k.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+      k.lineTo(x + Math.cos(b) * r * 0.32, y + Math.sin(b) * r * 0.32);
+    }
+    k.closePath();
+  }
+
+  // 头像：卡片左侧的渐变圆 + 白色四角星；思考中外圈有一段旋转的弧（整数圈/周期，保证无缝）
+  function avatar(k, y, think, u) {
+    const x = AVX, r = 11;
+    k.save(); k.shadowColor = rgba(PAL.glow, 0.35); k.shadowBlur = 8; k.shadowOffsetY = 3;
+    const gr = k.createLinearGradient(x - r, y - r, x + r, y + r);
+    gr.addColorStop(0, '#8a76ff'); gr.addColorStop(1, PAL.acc2);
+    k.beginPath(); k.arc(x, y, r, 0, TAU); k.fillStyle = gr; k.fill(); k.restore();
+    const hi = k.createLinearGradient(0, y - r, 0, y);
+    hi.addColorStop(0, 'rgba(255,255,255,0.45)'); hi.addColorStop(1, 'rgba(255,255,255,0)');
+    k.beginPath(); k.ellipse(x, y - r * 0.45, r * 0.72, r * 0.48, 0, 0, TAU); k.fillStyle = hi; k.fill();
+    star(k, x, y, 6.2); k.fillStyle = '#fff'; k.fill();
+    if (think > 0.01) {
+      const a0 = u * TAU * (5 / CYC);       // 每周期 5 圈
+      k.strokeStyle = rgba(PAL.glow, 0.85 * think); k.lineWidth = 1.6; k.lineCap = 'round';
+      k.beginPath(); k.arc(x, y, r + 3.5, a0, a0 + 1.9); k.stroke();
+      k.strokeStyle = rgba(PAL.glow, 0.14 * think);
+      k.beginPath(); k.arc(x, y, r + 3.5, 0, TAU); k.stroke();
+    }
+  }
+
+  // 标题行：「正在思考 · x.xs」与「已思考 4.8 秒」交叉切换（上下错位 5px）；右侧小箭头展开→收起
+  function header(k, cy, u, done, fold) {
+    const y = cy + 23, x = CX + 18;
+    k.textBaseline = 'middle'; k.textAlign = 'left';
+    const secs = u < T.rst0 ? clamp((u - T.think0) * RATE, 0, DONE) : 0;
+    if (done < 1) {
+      k.globalAlpha = 1 - done;
+      const yy = y - 5 * done;
+      k.font = '600 12.5px ' + SANS; k.fillStyle = PAL.ink;
+      k.fillText('正在思考', x, yy);
+      let xx = x + k.measureText('正在思考').width;
+      k.font = '12.5px ' + SANS; k.fillStyle = PAL.ink3;
+      k.fillText(' · ', xx, yy); xx += k.measureText(' · ').width;
+      // 计时数字固定宽度右对齐，跳动时 s 不左右抖
+      k.fillStyle = PAL.acc; k.textAlign = 'right';
+      k.fillText(secs.toFixed(1), xx + 20, yy); k.textAlign = 'left';
+      k.fillText('s', xx + 21, yy);
+    }
+    if (done > 0) {
+      k.globalAlpha = done;
+      k.font = '600 12.5px ' + SANS; k.fillStyle = PAL.ink2;
+      k.fillText('已思考 ' + DONE.toFixed(1) + ' 秒', x, y + 5 * (1 - done));
+      // 小箭头：出现时朝下（已展开），收拢时转向右（已收起）
+      const ax = CX + CWD - 24, rot = -Math.PI / 2 * ease(fold);
+      k.fillStyle = rgba('106,87,242', 0.08); rr(k, ax - 10, y - 10, 20, 20, 6); k.fill();
+      k.save(); k.translate(ax, y); k.rotate(rot);
+      k.strokeStyle = PAL.ink2; k.lineWidth = 1.6; k.lineCap = 'round'; k.lineJoin = 'round';
+      k.beginPath(); k.moveTo(-4, -2); k.lineTo(0, 2.2); k.lineTo(4, -2); k.stroke();
+      k.restore();
+    }
+    k.globalAlpha = 1;
+  }
+
+  // 推理步骤：逐条从下方 6px 滑入；新一条文字先是浅灰，带一段紫色微光从左往右扫过后定为深灰。
+  // 收拢段每条向第一行位置上移（下面的先动），同时压扁、淡出，叠成一行后消失。
+  const DOTX = CX + 24, TXX = CX + 36, ROW0 = H0 + ROW / 2 - 4;
+  function steps(k, cy, ch, u) {
+    // 收拢后步骤保持隐藏直到周期结束（复位段只收卡片高度，步骤不再回闪）
+    const fold = u >= T.fold0;
+    k.save(); rr(k, CX, cy, CWD, ch, R); k.clip();
+    k.font = '12px ' + SANS; k.textBaseline = 'middle'; k.textAlign = 'left';
+    // 竖向引导线：连接各圆点，随步骤增长、随收拢淡出
+    const shown = stepK(u, 0);
+    let last = 0; for (let i = 0; i < N; i++) last += stepK(u, i);
+    const gA = shown * (1 - ease(seg(u, T.fold0, T.fold0 + 0.3)));
+    if (gA > 0 && last > 1) {
+      k.strokeStyle = rgba('106,87,242', 0.16 * gA); k.lineWidth = 1;
+      k.beginPath(); k.moveTo(DOTX, cy + ROW0); k.lineTo(DOTX, cy + ROW0 + (last - 1) * ROW); k.stroke();
+    }
+    for (let i = 0; i < N; i++) {
+      const a = stepK(u, i); if (a <= 0) continue;
+      // 收拢进度：底部步骤先动，每条错开 0.06 秒
+      const d = fold ? (N - 1 - i) * 0.06 : 0;
+      const f = fold ? ease(seg(u, T.fold0 + d, T.fold0 + d + 0.5)) : 0;
+      const alpha = a * (1 - seg(f, 0.35, 1));
+      if (alpha <= 0.002) continue;
+      const y = cy + lerp(ROW0 + i * ROW + 6 * (1 - a), ROW0, f);
+      k.save(); k.globalAlpha = alpha;
+      k.translate(0, y); k.scale(1, lerp(1, 0.55, f));
+      // 当前进行中的一条：圆点为强调色并带呼吸外圈；已完成的为灰点
+      const isCur = !fold && u < T.think1 && (i === N - 1 || u < stepT(i + 1));
+      if (isCur) {
+        const p = ((u - stepT(i)) / 0.7) % 1;
+        k.fillStyle = rgba('106,87,242', 0.25 * (1 - p));
+        k.beginPath(); k.arc(DOTX, 0, 2.6 + 4 * p, 0, TAU); k.fill();
+      }
+      k.fillStyle = isCur ? PAL.acc : '#b4aec4';
+      k.beginPath(); k.arc(DOTX, 0, 2.6, 0, TAU); k.fill();
+      // 文字微光：p 从 -0.3 走到 1.3，带宽为文字宽度的 ±0.18
+      const tw = k.measureText(STEPS[i]).width;
+      const sp = seg(u, stepT(i) + 0.1, stepT(i) + 0.1 + T.shine);
+      if (sp > 0 && sp < 1) {
+        const c = lerp(-0.3, 1.3, sp);
+        const gr = k.createLinearGradient(TXX + (c - 0.18) * tw, 0, TXX + (c + 0.18) * tw, 0);
+        const base = 'rgba(87,83,95,' + (0.45 + 0.55 * sp).toFixed(3) + ')';
+        gr.addColorStop(0, base); gr.addColorStop(0.5, '#7c66ff'); gr.addColorStop(1, base);
+        k.fillStyle = gr;
+      } else k.fillStyle = sp >= 1 ? PAL.ink2 : 'rgba(87,83,95,0.45)';
+      k.fillText(STEPS[i], TXX, 0);
+      k.restore();
+    }
+    k.restore();
+  }
+
+  // 正式回答首行：上移 4px 淡入，复位段淡出
+  function answer(k, cy, u) {
+    const a = ease(seg(u, T.ans0, T.ans1)) * (1 - ease(seg(u, T.rst0, T.rst0 + 0.3)));
+    if (a <= 0) return;
+    k.globalAlpha = a; k.font = '12.5px ' + SANS; k.fillStyle = PAL.ink;
+    k.textBaseline = 'middle'; k.textAlign = 'left';
+    k.fillText(ANSWER, CX + 18, cy + H0 + ANS / 2 - 6 + 4 * (1 - a));
+    k.globalAlpha = 1;
+  }
+
+  const fn = (k, w, h, u) => {
+    k.drawImage(bg(), 0, 0, W, H);
+    const ch = cardH(u), cy = TOP + (HMAX - ch) * DRIFT;
+    const done = ease(seg(u, T.title, T.title + T.titleD)) * (1 - ease(seg(u, T.rst0, T.rst0 + T.titleD)));
+    const fold = seg(u, T.fold0, T.fold1);
+    card(k, cy, ch);
+    // 标题与正文之间的分隔线：卡片高过标题行时才显出
+    const sepA = clamp((ch - H0) / 12);
+    if (sepA > 0) {
+      k.fillStyle = rgba('40,32,80', 0.07 * sepA); k.fillRect(CX + 16, cy + H0 - 5, CWD - 32, 1);
+      k.fillStyle = rgba('255,255,255', 0.9 * sepA); k.fillRect(CX + 16, cy + H0 - 4, CWD - 32, 1);
+    }
+    avatar(k, cy + 23, 1 - done, u);
+    header(k, cy, u, done, fold);
+    steps(k, cy, ch, u);
+    answer(k, cy, u);
+  };
+  return fn;
+})();

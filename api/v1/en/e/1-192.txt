@@ -1,0 +1,449 @@
+// Motion Prompt #1-192 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// Staged image generation / 画像の段階的生成
+// Pack: uxmotion (Interaction & data motion) · element 65 · Category: Progress feedback
+// What happens: A prompt bubble sits on the left and an empty image frame on the right. Soft colour blobs drift inside the frame and settle into the composition, turn into a coarse coloured mosaic, then the squares get finer until a sunset lighthouse scene comes into focus. On completion the card gives a small bounce, a download button pops in and the lighthouse beam swings once, before it all fades back to the empty frame.
+// Motion spec:
+//   - The image area stays 228 × 136 px; from 0.3–0.65 s the empty frame fades into soft colour blobs, which settle into the composition from 0.9–1.75 s.
+//   - Mosaics of 6, 12, 24, 48 and 96 columns take over at 1.75, 2.25, 2.7, 3.08 and 3.42 s, each cross-fading in 0.09 s (the first in 0.28 s).
+//   - From 3.76–3.98 s the finest mosaic gives way to the sharp image.
+//   - The progress bar below the card covers Compose 0–24%, Colour 24–52%, Refine 52–97% and Done 97–100%, fast then slow within each stage.
+//   - At 3.9 s the card bounces by up to 3.5%, at 4.12 s a download button springs in, and from 4.2–5.5 s the lighthouse beam swings out and back.
+//   - From 5.62–6.08 s everything fades back to the empty frame.
+// When to use it: Use it for AI image generation, photo editing and upscaling, where image processing takes a few seconds and the wait needs to show progress.
+// Tags: ai, image-generation, progressive, mosaic, blur-up, progress, loading
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-192
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 65
+CELLS[64] = (function () {
+  // 图像生成阶段：左侧是已发送的提示词气泡，右侧是固定尺寸的图片框（版面不跳动）。
+  // 图片分四步生成：低饱和大色块流动（构图）→ 粗马赛克并上色（上色）→ 马赛克逐级变细（细化）→ 清晰插画（完成），
+  // 完成后图片框轻弹一下、出现下载按钮，灯塔光束缓慢扫动；最后淡回空白占位并静止，与首帧一致。
+  // 模糊不用 ctx.filter（Safari 不支持）：色块画在极低分辨率离屏画布上，开 imageSmoothing 放大；
+  // 马赛克是插画缩成小图后关 imageSmoothing 放大。静态层首次调用时按 S 倍分辨率预渲染缓存。
+  const W = 539, H = 208, CYC = 6.4;
+  const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+  const S = 3;                                   // 缓存分辨率倍数：预览最高约 2×dpr 放大
+
+  // 配色：沿用 uxmotion 的暖灰底与紫色强调；插画是黄昏海边的冷暖对比
+  const PAL = {
+    bgTop: '#f6f4f0', bgBot: '#e7e2da', vignette: '52,40,70',
+    surface: '#ffffff', surface2: '#eeebe5', line: 'rgba(22,21,27,.09)',
+    ink: '#16151b', ink2: '#57535f', ink3: '#8e8a97',
+    acc: '#6a57f2', accHi: '#8a78ff', accDeep: '#4f3fd6', mint: '#119c72', shadow: '40,30,80',
+    skyTop: '#28305f', skyMid: '#a5577e', skyLow: '#f29a5c', sun: '#ffe2a8',
+    seaTop: '#46466f', seaBot: '#191d3b', rock: '#14162a', tower: '#f4efe6', stripe: '#d9483b', lamp: '#ffd36b'
+  };
+
+  // 版面几何：气泡在左，图片卡在右（卡片外框 + 内部图片区），卡片下方是进度条与阶段标签
+  const BX = 30, BY = 56, BW = 200, BH = 86;     // 提示词气泡
+  const CX = 262, CY = 18, CWD = 240, CHT = 148; // 图片卡外框
+  const IX = CX + 6, IY = CY + 6, IW = 228, IH = 136; // 图片区：尺寸始终不变
+  const IR = 8;
+
+  const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const seg = (u, a, b) => clamp((u - a) / (b - a));
+  const ease = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const easeOut = t => 1 - Math.pow(1 - clamp(t), 3);
+  const backOut = t => { t = clamp(t); const c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+  const hs = (i, s) => { const x = Math.sin(i * 12.9898 + s * 78.233) * 43758.5453; return x - Math.floor(x); };
+  const rgba = (c, a) => `rgba(${c},${a})`;
+
+  function rr(x, px, py, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    x.beginPath(); x.moveTo(px + r, py); x.arcTo(px + w, py, px + w, py + h, r); x.arcTo(px + w, py + h, px, py + h, r);
+    x.arcTo(px, py + h, px, py, r); x.arcTo(px, py, px + w, py, r); x.closePath();
+  }
+  function txt(x, s, px, py, font, col, align) {
+    x.font = font; x.fillStyle = col; x.textAlign = align || 'left'; x.textBaseline = 'alphabetic'; x.fillText(s, px, py);
+  }
+  // 按 S 倍分辨率建离屏画布，绘制坐标仍按逻辑尺寸写
+  function mk(w, h, draw, scale) {
+    const sc = scale || S, c = document.createElement('canvas');
+    c.width = Math.ceil(w * sc); c.height = Math.ceil(h * sc);
+    const x = c.getContext('2d'); x.scale(sc, sc); draw(x); return c;
+  }
+
+  // 背景：柔和竖向渐变 + 径向暗角
+  function drawBg(x) {
+    const gr = x.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, PAL.bgTop); gr.addColorStop(1, PAL.bgBot);
+    x.fillStyle = gr; x.fillRect(0, 0, W, H);
+    const v = x.createRadialGradient(W * 0.5, H * 0.42, 60, W * 0.5, H * 0.5, W * 0.62);
+    v.addColorStop(0, rgba(PAL.vignette, 0)); v.addColorStop(1, rgba(PAL.vignette, 0.13));
+    x.fillStyle = v; x.fillRect(0, 0, W, H);
+  }
+
+  // 提示词气泡（用户消息）：紫色竖向渐变 + 右下厚度层 + 左上高光边 + 镜面光斑，尾巴朝右指向图片卡
+  const BP = 14;                                 // 缓存留边：放投影
+  function bubblePath(x) {
+    const r = 16;
+    x.beginPath();
+    x.moveTo(r, 0); x.lineTo(BW - r, 0); x.arcTo(BW, 0, BW, r, r);
+    x.lineTo(BW, BH - 16); x.quadraticCurveTo(BW + 2, BH - 4, BW + 10, BH);   // 右下尾巴
+    x.quadraticCurveTo(BW - 6, BH + 1, BW - 14, BH);
+    x.lineTo(r, BH); x.arcTo(0, BH, 0, BH - r, r); x.lineTo(0, r); x.arcTo(0, 0, r, 0, r);
+    x.closePath();
+  }
+  function drawBubble(x) {
+    x.translate(BP, BP);
+    x.save(); x.shadowColor = rgba(PAL.shadow, 0.28); x.shadowBlur = 14; x.shadowOffsetY = 5;
+    x.translate(0, 2); bubblePath(x); x.fillStyle = PAL.accDeep; x.fill(); x.restore();
+    const gr = x.createLinearGradient(0, 0, 0, BH);
+    gr.addColorStop(0, PAL.accHi); gr.addColorStop(1, PAL.acc);
+    bubblePath(x); x.fillStyle = gr; x.fill();
+    x.save(); bubblePath(x); x.clip();
+    const sp = x.createRadialGradient(BW * 0.22, -10, 0, BW * 0.22, -10, BW * 0.6);
+    sp.addColorStop(0, 'rgba(255,255,255,0.32)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = sp; x.fillRect(0, 0, BW, BH);
+    x.restore();
+    const hl = x.createLinearGradient(0, 0, BW * 0.5, BH);
+    hl.addColorStop(0, 'rgba(255,255,255,0.75)'); hl.addColorStop(0.6, 'rgba(255,255,255,0.08)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    bubblePath(x); x.strokeStyle = hl; x.lineWidth = 1; x.stroke();
+    txt(x, '黄昏海边的灯塔，', 16, 30, '600 16px ' + SANS, '#ffffff');
+    txt(x, '胶片质感', 16, 52, '600 16px ' + SANS, '#ffffff');
+    x.fillStyle = 'rgba(255,255,255,0.16)'; x.fillRect(16, 62, BW - 32, 1);
+    txt(x, '5:3 · 胶片 35mm · 种子 4127', 16, 77, '11px ' + SANS, 'rgba(255,255,255,0.78)');
+  }
+  // 气泡上方的发送者行与下方的模型行（静态文字，直接画进背景缓存）
+  function drawMeta(x) {
+    x.fillStyle = PAL.acc; x.beginPath(); x.arc(BX + 5, BY - 11, 4, 0, Math.PI * 2); x.fill();
+    txt(x, '你 · 09:41', BX + 14, BY - 7, '500 11px ' + SANS, PAL.ink2);
+    txt(x, '画境 v3 · 约 4 秒', BX + 2, BY + BH + 24, '11px ' + SANS, PAL.ink3);
+  }
+
+  // 图片卡外框：白色卡面 + 右下厚度层 + 柔和投影 + 左上高光边；图片区先挖成浅灰占位
+  const CP = 18;
+  function drawCard(x) {
+    x.translate(CP, CP);
+    x.save(); x.shadowColor = rgba(PAL.shadow, 0.22); x.shadowBlur = 18; x.shadowOffsetY = 7;
+    rr(x, 0, 2, CWD, CHT, 14); x.fillStyle = '#d9d4cc'; x.fill(); x.restore();
+    const gr = x.createLinearGradient(0, 0, 0, CHT);
+    gr.addColorStop(0, '#ffffff'); gr.addColorStop(1, '#f7f5f1');
+    rr(x, 0, 0, CWD, CHT, 14); x.fillStyle = gr; x.fill();
+    const hl = x.createLinearGradient(0, 0, CWD * 0.4, CHT);
+    hl.addColorStop(0, 'rgba(255,255,255,1)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    rr(x, 0.5, 0.5, CWD - 1, CHT - 1, 14); x.strokeStyle = PAL.line; x.lineWidth = 1; x.stroke();
+    rr(x, 1, 1, CWD - 2, CHT - 2, 13); x.strokeStyle = hl; x.stroke();
+  }
+  // 空白占位：浅灰底 + 淡淡的「山与太阳」图标，表示尚未生成
+  function drawHolder(x) {
+    const gr = x.createLinearGradient(0, 0, 0, IH);
+    gr.addColorStop(0, '#efece6'); gr.addColorStop(1, '#e6e2db');
+    rr(x, 0, 0, IW, IH, IR); x.fillStyle = gr; x.fill();
+    x.strokeStyle = 'rgba(22,21,27,0.16)'; x.lineWidth = 1.6; x.lineJoin = 'round';
+    const ox = IW / 2 - 18, oy = IH / 2 - 13;
+    rr(x, ox, oy, 36, 26, 5); x.stroke();
+    x.beginPath(); x.moveTo(ox + 4, oy + 22); x.lineTo(ox + 14, oy + 11); x.lineTo(ox + 21, oy + 18);
+    x.lineTo(ox + 25, oy + 14); x.lineTo(ox + 32, oy + 22); x.stroke();
+    x.beginPath(); x.arc(ox + 27, oy + 7, 3, 0, Math.PI * 2); x.stroke();
+  }
+
+  // 成品插画（局部坐标 0..IW × 0..IH）：黄昏天空渐变、低垂的太阳、海面与碎金倒影、礁石上的红白灯塔、胶片颗粒
+  const HZ = IH * 0.6;                           // 海平线
+  const SUNX = IW * 0.3, SUNY = HZ - 9;          // 太阳半沉在海平线上
+  const LX = IW * 0.74, LTOP = 34;               // 灯塔中心 x 与灯室顶部 y
+  const LAMP = { x: LX, y: LTOP + 13 };           // 灯芯位置：动态光束从这里射出
+  // 灯塔光束：从灯芯向左下海面张开的楔形，沿长度方向由亮到透明；ang 为中心方向，a 为不透明度
+  const BEAM_A = Math.PI + 0.16, BEAM_SPREAD = 0.13, BEAM_LEN = 190;
+  function beam(x, ang, a) {
+    if (a <= 0) return;
+    const ex = LAMP.x + Math.cos(ang) * BEAM_LEN, ey = LAMP.y + Math.sin(ang) * BEAM_LEN;
+    const gr = x.createLinearGradient(LAMP.x, LAMP.y, ex, ey);
+    gr.addColorStop(0, 'rgba(255,230,160,' + a + ')'); gr.addColorStop(0.45, 'rgba(255,214,150,' + a * 0.35 + ')');
+    gr.addColorStop(1, 'rgba(255,214,150,0)');
+    x.fillStyle = gr; x.beginPath(); x.moveTo(LAMP.x, LAMP.y - 1.5);
+    x.lineTo(LAMP.x + Math.cos(ang - BEAM_SPREAD) * BEAM_LEN, LAMP.y + Math.sin(ang - BEAM_SPREAD) * BEAM_LEN);
+    x.lineTo(LAMP.x + Math.cos(ang + BEAM_SPREAD) * BEAM_LEN, LAMP.y + Math.sin(ang + BEAM_SPREAD) * BEAM_LEN);
+    x.lineTo(LAMP.x, LAMP.y + 1.5); x.closePath(); x.fill();
+  }
+  function drawIllus(x) {
+    rr(x, 0, 0, IW, IH, IR); x.clip();
+    const sky = x.createLinearGradient(0, 0, 0, HZ);
+    sky.addColorStop(0, PAL.skyTop); sky.addColorStop(0.55, PAL.skyMid); sky.addColorStop(1, PAL.skyLow);
+    x.fillStyle = sky; x.fillRect(0, 0, IW, HZ + 1);
+    const glow = x.createRadialGradient(SUNX, SUNY, 0, SUNX, SUNY, 90);
+    glow.addColorStop(0, 'rgba(255,214,150,0.75)'); glow.addColorStop(1, 'rgba(255,170,110,0)');
+    x.fillStyle = glow; x.fillRect(0, 0, IW, HZ);
+    x.fillStyle = PAL.sun; x.beginPath(); x.arc(SUNX, SUNY, 15, 0, Math.PI * 2); x.fill();
+    // 几缕横向晚霞云：半透明长椭圆，上缘受光偏暖
+    const clouds = [[40, 30, 46, 0.22], [120, 22, 58, 0.18], [70, 52, 70, 0.2], [176, 44, 40, 0.16]];
+    clouds.forEach(function (cl) {
+      x.fillStyle = 'rgba(255,196,170,' + cl[3] + ')';
+      x.beginPath(); x.ellipse(cl[0], cl[1], cl[2], 3.2, 0, 0, Math.PI * 2); x.fill();
+    });
+    const sea = x.createLinearGradient(0, HZ, 0, IH);
+    sea.addColorStop(0, PAL.seaTop); sea.addColorStop(1, PAL.seaBot);
+    x.fillStyle = sea; x.fillRect(0, HZ, IW, IH - HZ);
+    // 太阳倒影：越近越宽、越稀的碎金短线
+    for (let i = 0; i < 26; i++) {
+      const t = i / 25, y = HZ + 3 + t * (IH - HZ - 8);
+      const half = 6 + t * 26, wob = (hs(i, 2) - 0.5) * half;
+      x.fillStyle = 'rgba(255,200,130,' + (0.75 - t * 0.55) + ')';
+      x.fillRect(SUNX + wob - (4 + hs(i, 3) * 10) / 2, y, 4 + hs(i, 3) * 10, 1.3);
+    }
+    x.fillStyle = 'rgba(255,220,180,0.5)'; x.fillRect(0, HZ, IW, 0.8);
+    beam(x, BEAM_A, 0.5);                       // 光束属于插画本身，马赛克各级里也有它的影子
+    // 礁石：深色剪影，左缘有一点受光
+    x.fillStyle = PAL.rock; x.beginPath();
+    x.moveTo(LX - 46, IH); x.lineTo(LX - 38, HZ + 22); x.lineTo(LX - 22, HZ + 10); x.lineTo(LX - 6, HZ + 4);
+    x.lineTo(LX + 14, HZ + 6); x.lineTo(LX + 30, HZ + 16); x.lineTo(LX + 52, HZ + 30); x.lineTo(IW, HZ + 40); x.lineTo(IW, IH);
+    x.closePath(); x.fill();
+    x.strokeStyle = 'rgba(242,154,92,0.45)'; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(LX - 38, HZ + 22); x.lineTo(LX - 22, HZ + 10); x.lineTo(LX - 6, HZ + 4); x.stroke();
+    // 灯塔塔身：上窄下宽的梯形，红白相间，右半边背光
+    const tb = HZ + 6, tt = LTOP + 22, bw = 11, tw = 7;
+    const body = x.createLinearGradient(LX - bw, 0, LX + bw, 0);
+    body.addColorStop(0, '#fffaf0'); body.addColorStop(0.55, PAL.tower); body.addColorStop(1, '#a9a0a8');
+    x.fillStyle = body; x.beginPath();
+    x.moveTo(LX - bw, tb); x.lineTo(LX - tw, tt); x.lineTo(LX + tw, tt); x.lineTo(LX + bw, tb); x.closePath(); x.fill();
+    x.save(); x.clip();
+    for (let i = 0; i < 2; i++) { x.fillStyle = PAL.stripe; x.fillRect(LX - bw, tt + 9 + i * 18, bw * 2, 8); }
+    x.fillStyle = 'rgba(20,16,40,0.28)'; x.fillRect(LX + 2, tt, bw, tb - tt);
+    x.restore();
+    // 灯室：深色栏杆、亮黄灯窗、红色尖顶
+    x.fillStyle = PAL.rock; x.fillRect(LX - 10, tt - 2, 20, 3);
+    x.fillStyle = PAL.lamp; x.fillRect(LX - 5, LTOP + 8, 10, 11);
+    x.fillStyle = PAL.rock; x.fillRect(LX - 0.6, LTOP + 8, 1.2, 11);
+    x.fillStyle = PAL.stripe; x.beginPath(); x.moveTo(LX - 8, LTOP + 8); x.lineTo(LX, LTOP); x.lineTo(LX + 8, LTOP + 8); x.closePath(); x.fill();
+    const lg = x.createRadialGradient(LAMP.x, LAMP.y, 0, LAMP.x, LAMP.y, 22);
+    lg.addColorStop(0, 'rgba(255,226,140,0.7)'); lg.addColorStop(1, 'rgba(255,226,140,0)');
+    x.fillStyle = lg; x.fillRect(LX - 22, LAMP.y - 22, 44, 44);
+    // 胶片质感：确定性颗粒 + 四角压暗
+    for (let i = 0; i < 1400; i++) {
+      x.fillStyle = hs(i, 7) > 0.5 ? 'rgba(255,240,220,0.07)' : 'rgba(10,8,30,0.09)';
+      x.fillRect(hs(i, 5) * IW, hs(i, 6) * IH, 0.7, 0.7);
+    }
+    const vg = x.createRadialGradient(IW / 2, IH / 2, IH * 0.35, IW / 2, IH / 2, IW * 0.62);
+    vg.addColorStop(0, 'rgba(12,8,28,0)'); vg.addColorStop(1, 'rgba(12,8,28,0.38)');
+    x.fillStyle = vg; x.fillRect(0, 0, IW, IH);
+  }
+
+  // 马赛克各级的横向格数（纵向按图片宽高比算）：逐级翻倍，最后一级之后切到清晰图
+  const MOSAIC = [6, 12, 24, 48, 96];
+  // 模糊色块草稿画布的分辨率：越小放大后越糊
+  const BLW = 20, BLH = Math.round(20 * IH / IW);
+
+  // 由清晰插画逐次减半缩小得到各级小图：每次只缩一半，双线性采样近似区域平均，色块不会闪烁失真
+  function buildMosaics(src) {
+    const out = [];
+    let cur = src, cw = src.width, ch = src.height;
+    const targets = MOSAIC.slice().reverse();     // 从最细一级往粗做
+    targets.forEach(function (nx) {
+      const ny = Math.max(2, Math.round(nx * IH / IW));
+      while (cw / 2 > nx) {
+        const nw = Math.max(nx, Math.round(cw / 2)), nh = Math.max(ny, Math.round(ch / 2));
+        const t = document.createElement('canvas'); t.width = nw; t.height = nh;
+        const tx = t.getContext('2d'); tx.imageSmoothingEnabled = true; tx.drawImage(cur, 0, 0, nw, nh);
+        cur = t; cw = nw; ch = nh;
+      }
+      const m = document.createElement('canvas'); m.width = nx; m.height = ny;
+      const mx = m.getContext('2d'); mx.imageSmoothingEnabled = true; mx.drawImage(cur, 0, 0, nx, ny);
+      out.unshift(m); cur = m; cw = nx; ch = ny;
+    });
+    return out;
+  }
+
+  let C = null;                                  // 静态缓存：首次调用时建立，之后只读（blur 是逐帧整体重画的草稿画布，不留跨帧状态）
+  function cache() {
+    if (C) return C;
+    const bg = mk(W, H, function (x) {
+      drawBg(x);
+      x.drawImage(mk(BW + BP * 2 + 12, BH + BP * 2, drawBubble), BX - BP, BY - BP, BW + BP * 2 + 12, BH + BP * 2);
+      drawMeta(x);
+    });
+    const illus = mk(IW, IH, drawIllus);
+    const blur = document.createElement('canvas'); blur.width = BLW; blur.height = BLH;
+    // 图片卡单独缓存：完成时要整体做弹跳缩放，不能烤进背景
+    C = { bg: bg, card: mk(CWD + CP * 2, CHT + CP * 2, drawCard), illus: illus, holder: mk(IW, IH, drawHolder),
+      mosaics: buildMosaics(illus), blur: blur };
+    return C;
+  }
+
+  // ---- 时间线（秒）----
+  const T = {
+    start: 0.3, startEnd: 0.65,                  // 占位淡出、色块淡入
+    color: 1.75,                                 // 「上色」：色块交叉淡入最粗马赛克
+    lv: [1.75, 2.25, 2.7, 3.08, 3.42],           // 各级马赛克开始的时刻，与 MOSAIC 一一对应
+    sharp: 3.76, sharpEnd: 3.98,                 // 最细马赛克 → 清晰图
+    pop: 3.9, btn: 4.12, sweep: 4.2, sweepEnd: 5.5,
+    reset: 5.62, resetEnd: 6.08                  // 之后静止到周期末，与首帧一致
+  };
+  const XF = 0.09;                               // 马赛克相邻两级的交叉淡入时长：比硬切柔和，又保留「一级一级」的节奏
+
+  // 色块草稿：在 BLW×BLH 小画布上画几团沿海报构图分布的低饱和色团，缓慢绕锚点流动；
+  // conv 0→1 时色团从散乱位置收拢到与成图一致的位置，颜色也由灰调转向成图色
+  const BLOBS = [
+    // 锚点 x,y（0..1）、半径（相对宽度）、低饱和色、成图色
+    [0.2, 0.15, 0.55, '96,96,128', '40,48,95'],
+    [0.75, 0.2, 0.5, '120,104,130', '70,60,110'],
+    [0.5, 0.45, 0.5, '170,130,140', '165,87,126'],
+    [0.3, 0.58, 0.38, '220,180,150', '255,190,120'],
+    [0.62, 0.86, 0.6, '80,82,110', '35,36,70'],
+    [0.74, 0.5, 0.18, '200,190,180', '244,239,230']
+  ];
+  // 'r,g,b' 字符串之间插值
+  function mixCol(a, b, t) {
+    const c0 = a.split(','), c1 = b.split(',');
+    return [0, 1, 2].map(function (j) { return Math.round(lerp(+c0[j], +c1[j], t)); }).join(',');
+  }
+  function drawBlobs(c, u, conv) {
+    const x = c.getContext('2d');
+    x.setTransform(1, 0, 0, 1, 0, 0);
+    x.fillStyle = 'rgb(' + mixCol(BLOBS[2][3], BLOBS[2][4], conv) + ')'; x.fillRect(0, 0, BLW, BLH);
+    BLOBS.forEach(function (b, i) {
+      const ph = hs(i, 11) * 6.28, sp = 0.7 + hs(i, 12) * 0.6;
+      const drift = (1 - conv * 0.75) * 0.16;      // 越收拢流动幅度越小
+      const px = (b[0] + Math.sin(u * sp + ph) * drift) * BLW;
+      const py = (b[1] + Math.cos(u * sp * 0.8 + ph) * drift) * BLH;
+      const r = b[2] * BLW * (0.9 + 0.1 * Math.sin(u * 1.3 + ph));
+      const col = mixCol(b[3], b[4], conv);
+      const gr = x.createRadialGradient(px, py, 0, px, py, r);
+      gr.addColorStop(0, 'rgba(' + col + ',0.95)'); gr.addColorStop(1, 'rgba(' + col + ',0)');
+      x.fillStyle = gr; x.fillRect(0, 0, BLW, BLH);
+    });
+  }
+
+  // 生成内容整体的可见度：开始时由占位淡入，复位时淡回占位
+  const genA = u => seg(u, T.start, T.startEnd) * (1 - ease(seg(u, T.reset, T.resetEnd)));
+
+  // 图片区（已在图片卡的弹跳变换内）：占位 → 色块 → 马赛克逐级 → 清晰图 + 光束扫动
+  function drawImage(k, u, c) {
+    k.save(); rr(k, IX, IY, IW, IH, IR); k.clip();
+    k.drawImage(c.holder, IX, IY, IW, IH);
+    const a = genA(u);
+    if (a > 0) {
+      k.globalAlpha = a;
+      // 层序列：0 = 色块，1..5 = 各级马赛克，6 = 清晰图；starts[i] 是第 i 层开始盖上来的时刻
+      const starts = [0].concat(T.lv, [T.sharp]);
+      let ci = 0;
+      for (let i = 1; i < starts.length; i++) if (u >= starts[i]) ci = i;
+      const layer = (i, al) => {
+        if (al <= 0) return;
+        k.globalAlpha = a * al;
+        if (i === 0) {
+          // 色块：在 0.9s 到「上色」之间收拢到成图构图，低分辨率草稿开平滑放大即为柔和模糊
+          drawBlobs(c.blur, u, ease(seg(u, 0.9, T.color)));
+          k.imageSmoothingEnabled = true; k.imageSmoothingQuality = 'high';
+          k.drawImage(c.blur, IX, IY, IW, IH);
+        } else if (i <= MOSAIC.length) {
+          k.imageSmoothingEnabled = false;       // 关平滑：小图放大成清晰方格
+          k.drawImage(c.mosaics[i - 1], IX, IY, IW, IH);
+          k.imageSmoothingEnabled = true;
+        } else k.drawImage(c.illus, IX, IY, IW, IH);
+      };
+      // 第一级马赛克用更长的交叉淡入：从糊色块到方格是「上色」阶段的主要变化
+      const xf = ci === 1 ? 0.28 : (ci === starts.length - 1 ? T.sharpEnd - T.sharp : XF);
+      const t = seg(u, starts[ci], starts[ci] + xf);
+      if (ci > 0 && t < 1) layer(ci - 1, 1);
+      layer(ci, ci > 0 ? t : 1);
+      // 光束扫动：成图后在原光束上叠一束加亮的光，左右摆一个来回后停回原位
+      const sw = seg(u, T.sweep, T.sweepEnd);
+      if (sw > 0 && sw < 1) {
+        const env = Math.sin(sw * Math.PI);
+        k.globalAlpha = a; k.globalCompositeOperation = 'lighter';
+        k.save(); k.translate(IX, IY); beam(k, BEAM_A + 0.2 * Math.sin(sw * Math.PI * 2), 0.32 * env); k.restore();
+        k.globalCompositeOperation = 'source-over';
+      }
+      // 生成中的扫光：一条斜向柔光带从左到右划过，提示「正在计算」
+      const g = seg(u, T.startEnd, T.sharpEnd);
+      if (g > 0 && g < 1) {
+        const p = ((u - T.startEnd) / 1.1) % 1, bx = IX - 60 + p * (IW + 120);
+        const sh = k.createLinearGradient(bx - 40, 0, bx + 40, 0);
+        sh.addColorStop(0, 'rgba(255,255,255,0)'); sh.addColorStop(0.5, 'rgba(255,255,255,0.16)'); sh.addColorStop(1, 'rgba(255,255,255,0)');
+        k.globalAlpha = a * Math.sin(g * Math.PI); k.fillStyle = sh; k.fillRect(IX, IY, IW, IH);
+      }
+    }
+    k.globalAlpha = 1; k.restore();
+    // 图片区内描边：让图片边缘和卡面分开
+    rr(k, IX + 0.5, IY + 0.5, IW - 1, IH - 1, IR); k.strokeStyle = 'rgba(22,21,27,0.08)'; k.lineWidth = 1; k.stroke();
+  }
+
+  // 阶段与进度：每阶段一个百分比区间，阶段内先快后慢地爬升（像真实推理那样越到后面越慢）
+  const STAGES = [
+    { name: '构图', t0: T.startEnd, t1: T.color, p0: 0, p1: 24 },
+    { name: '上色', t0: T.color, t1: T.lv[2], p0: 24, p1: 52 },
+    { name: '细化', t0: T.lv[2], t1: T.sharp, p0: 52, p1: 97 },
+    { name: '完成', t0: T.sharp, t1: T.pop, p0: 97, p1: 100 }
+  ];
+  const pctAt = u => {
+    if (u < T.startEnd) return 0;
+    for (let i = 0; i < STAGES.length; i++) {
+      const s = STAGES[i];
+      if (u < s.t1) return lerp(s.p0, s.p1, easeOut(seg(u, s.t0, s.t1)));
+    }
+    return 100;
+  };
+  const stageAt = u => {
+    if (u < T.start) return -1;
+    for (let i = 0; i < STAGES.length; i++) if (u < STAGES[i].t1) return i;
+    return STAGES.length - 1;
+  };
+
+  // 进度行（卡片正下方，与卡片同宽）：细进度条 + 「构图 › 上色 › 细化 › 完成」+ 右侧百分比
+  const RY = CY + CHT + 12;                      // 进度条 y
+  function drawStatus(k, u) {
+    const back = ease(seg(u, T.reset, T.resetEnd));
+    const pct = pctAt(u) * (1 - back), cur = back > 0.5 ? -1 : stageAt(u);
+    k.fillStyle = 'rgba(22,21,27,0.08)'; rr(k, CX, RY, CWD, 4, 2); k.fill();
+    if (pct > 0.2) {
+      const done = u >= T.pop && back < 0.5;
+      const gr = k.createLinearGradient(CX, 0, CX + CWD, 0);
+      gr.addColorStop(0, done ? PAL.mint : PAL.accHi); gr.addColorStop(1, done ? '#1fb89a' : PAL.acc);
+      k.fillStyle = gr; rr(k, CX, RY, Math.max(4, CWD * pct / 100), 4, 2); k.fill();
+    }
+    k.font = '500 11.5px ' + SANS; k.textBaseline = 'alphabetic'; k.textAlign = 'left';
+    let x = CX;
+    STAGES.forEach(function (s, i) {
+      const on = i === cur, past = cur > i;
+      k.fillStyle = on ? (i === 3 ? PAL.mint : PAL.acc) : past ? PAL.ink2 : PAL.ink3;
+      k.font = (on ? '600' : '500') + ' 11.5px ' + SANS;
+      k.fillText(s.name, x, RY + 21);
+      x += k.measureText(s.name).width + 6;
+      if (i < STAGES.length - 1) { k.fillStyle = PAL.ink3; k.font = '500 11.5px ' + SANS; k.fillText('›', x, RY + 21); x += 12; }
+    });
+    // 百分比用等宽数字占位右对齐，数字变化时不抖动
+    k.font = '600 12px ' + SANS; k.textAlign = 'right'; k.fillStyle = cur === 3 ? PAL.mint : PAL.ink;
+    k.fillText(Math.floor(pct) + '%', CX + CWD, RY + 21);
+  }
+
+  // 下载按钮：图片右下角的白色圆钮（磨砂白 + 投影 + 向下箭头），完成后弹出
+  function drawDownload(k, u) {
+    const t = seg(u, T.btn, T.btn + 0.4), out = ease(seg(u, T.reset - 0.1, T.reset + 0.2));
+    const s = backOut(t) * (1 - out);
+    if (s <= 0.01) return;
+    const bx = IX + IW - 20, by = IY + IH - 20;
+    k.save(); k.translate(bx, by); k.scale(s, s);
+    k.shadowColor = 'rgba(10,8,30,0.35)'; k.shadowBlur = 8; k.shadowOffsetY = 2;
+    k.fillStyle = 'rgba(255,255,255,0.94)'; k.beginPath(); k.arc(0, 0, 12, 0, Math.PI * 2); k.fill();
+    k.shadowColor = 'rgba(0,0,0,0)';
+    k.strokeStyle = PAL.ink; k.lineWidth = 1.7; k.lineCap = 'round'; k.lineJoin = 'round';
+    k.beginPath(); k.moveTo(0, -5.5); k.lineTo(0, 3); k.moveTo(-3.8, -0.6); k.lineTo(0, 3.2); k.lineTo(3.8, -0.6);
+    k.moveTo(-5, 6); k.lineTo(5, 6); k.stroke();
+    k.restore();
+  }
+
+  const fn = (k, w, h, u) => {
+    u = ((u % CYC) + CYC) % CYC;
+    const c = cache();
+    k.imageSmoothingEnabled = true;
+    k.drawImage(c.bg, 0, 0, W, H);
+    // 完成时卡片整体轻弹：先放大约 3.5% 再阻尼回落，只是瞬时缩放，版面尺寸不变
+    const pt = seg(u, T.pop, T.pop + 0.6);
+    const s = 1 + 0.035 * Math.sin(pt * Math.PI * 2.4) * Math.exp(-3.2 * pt) * (1 - pt);
+    k.save();
+    k.translate(CX + CWD / 2, CY + CHT / 2); k.scale(s, s); k.translate(-CX - CWD / 2, -CY - CHT / 2);
+    k.drawImage(c.card, CX - CP, CY - CP, CWD + CP * 2, CHT + CP * 2);
+    drawImage(k, u, c);
+    drawDownload(k, u);
+    k.restore();
+    drawStatus(k, u);
+  };
+  return fn;
+})();

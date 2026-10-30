@@ -1,0 +1,391 @@
+// Motion Prompt #1-186 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// Tear-off ticket stub / チケットのもぎり
+// Pack: lp (Landing page & web effects) · element 49 · Category: Hover & click interactions
+// What happens: The cursor grabs the stub at the right end of a papery concert ticket and pulls down. The perforation tears from top to bottom with a fibrous edge, the stub spins out of frame, the main ticket springs back and a red 'checked' stamp lands on it; once the stamp fades, the stub reappears in place.
+// Motion spec:
+//   - The main ticket is 262 px wide and the stub 82 px, both 128 px tall, divided by a perforated line.
+//   - The cursor moves to the stub over 0.1–0.6 s and presses at 0.66 s.
+//   - From 0.78–1.98 s it drags down: the tear runs top to bottom along the perforation with a fibrous edge, and the stub swings open to 0.3 rad.
+//   - Torn free at 1.98 s, the stub spins and falls in an arc, gone by 2.9 s, while the main ticket springs back.
+//   - At 2.42 s a 'checked' stamp drops from 1.6× to 1× (a 0.12 s fall) and lands; it fades over 3.7–4.05 s.
+//   - From 3.95–4.45 s the stub fades back in from 9 px above, then holds until the 4.8 s cycle ends.
+// When to use it: Use it for event checkout success, entry check-in or coupon redemption, where using or claiming something should feel tactile.
+// Tags: ticket, tear, drag, perforation, stamp, paper
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-186
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 49
+CELLS[48] = (function () {
+  // 撕票根：一张有纸感的活动门票，光标抓住右侧票根往下拖，票根沿打孔线从上往下撕开（撕口带纸纤维毛边），
+  // 撕开后票根旋转掉出画面，主票面回弹，「已检票」印章盖下；随后印章褪去、票根重新出现，回到首帧。
+  // 纯函数：画面只由 u 决定；纸面、阴影、印章等静态层首次调用时预渲染缓存。
+  const W = 539, H = 208, CYC = 4.8;
+  const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+  const MONO = '"SF Mono", Menlo, Consolas, monospace';
+
+  // 配色：暖米色棚拍底 + 奶油纸票 + lp 包的橙色强调 / 墨蓝文字 + 朱红印泥
+  const PAL = {
+    bgTop: '#f7f3ec', bgMid: '#efe9df', bgBot: '#e2d9cb', vignette: '60,44,28',
+    paperHi: '#fffdf8', paperLo: '#f4ecdd', thick: '#d8cab2', edge: '#c9b89a',
+    ink: '#1c2333', ink2: '#4a5368', mut: '#8a8478',
+    acc: '#ff5a2c', accDeep: '#d9431c', perf: '#b9a888',
+    shadow: '58,40,22', stamp: '#e0412f'
+  };
+
+  // 票面几何：主票面 + 票根共宽 340（约占画宽 63%），两者以打孔线 PX 为界
+  const TX = 104, TY = 40, MW = 262, SW = 82, TH = 128;
+  const PX = TX + MW;            // 打孔线 x
+  const N = 9, R = 10;           // 半圆缺口半径、外圆角
+  const P = 6;                   // 缓存留边（放厚度层）
+  const S = 3;                   // 缓存分辨率倍数：调用方最多 2×dpr 放大
+  const REST = { x: 500, y: 186 }, GRIP = { x: 44, y: 14 };  // 光标候场点；票根上的抓取点（票根局部坐标）
+
+  const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+  const ease = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const easeOut = t => 1 - Math.pow(1 - clamp(t), 3);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const hs = (i, s) => { const x = Math.sin(i * 12.9898 + s * 78.233) * 43758.5453; return x - Math.floor(x); };
+  const rgba = (c, a) => `rgba(${c},${a})`;
+
+  // 主票面轮廓（局部坐标 0..MW × 0..TH）：左侧圆角，右侧打孔线处上下各咬一个半圆缺口
+  function mainPath(x) {
+    x.beginPath();
+    x.moveTo(R, 0); x.lineTo(MW - N, 0);
+    x.arc(MW, 0, N, Math.PI, Math.PI / 2, true);
+    x.lineTo(MW, TH - N);
+    x.arc(MW, TH, N, -Math.PI / 2, -Math.PI, true);
+    x.lineTo(R, TH); x.arcTo(0, TH, 0, TH - R, R);
+    x.lineTo(0, R); x.arcTo(0, 0, R, 0, R);
+    x.closePath();
+  }
+  // 票根轮廓（局部坐标 0..SW × 0..TH）：左侧缺口与主票面对齐，右侧圆角
+  function stubPath(x) {
+    x.beginPath();
+    x.moveTo(N, 0); x.lineTo(SW - R, 0); x.arcTo(SW, 0, SW, R, R);
+    x.lineTo(SW, TH - R); x.arcTo(SW, TH, SW - R, TH, R);
+    x.lineTo(N, TH);
+    x.arc(0, TH, N, 0, -Math.PI / 2, true);
+    x.lineTo(0, N);
+    x.arc(0, 0, N, Math.PI / 2, 0, true);
+    x.closePath();
+  }
+
+  function mk(w, h, draw) {
+    const c = document.createElement('canvas'); c.width = Math.ceil(w * S); c.height = Math.ceil(h * S);
+    const x = c.getContext('2d'); x.scale(S, S); draw(x); return c;
+  }
+
+  // 纸张材质：右下厚度层 + 竖向渐变 + 确定性细噪点纤维 + 左上镜面光斑 + 左上高光边
+  function paper(x, path, w, seed) {
+    x.save(); x.translate(1.2, 1.8); path(x); x.fillStyle = PAL.thick; x.fill(); x.restore();
+    path(x);
+    const gr = x.createLinearGradient(0, 0, 0, TH);
+    gr.addColorStop(0, PAL.paperHi); gr.addColorStop(1, PAL.paperLo);
+    x.fillStyle = gr; x.fill();
+    x.save(); path(x); x.clip();
+    for (let i = 0; i < w * 5; i++) {
+      const dark = hs(i, seed + 3) > 0.45;
+      x.fillStyle = dark ? 'rgba(120,96,60,0.07)' : 'rgba(255,255,255,0.5)';
+      const len = 0.6 + hs(i, seed + 4) * 2.2;   // 短纤维：横向小划痕比圆点更像纸
+      x.fillRect(hs(i, seed + 1) * w, hs(i, seed + 2) * TH, len, 0.5);
+    }
+    const sp = x.createRadialGradient(w * 0.2, -8, 0, w * 0.2, -8, w * 0.75);
+    sp.addColorStop(0, 'rgba(255,255,255,0.55)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = sp; x.fillRect(0, 0, w, TH);
+    x.restore();
+    const hl = x.createLinearGradient(0, 0, w * 0.45, TH);
+    hl.addColorStop(0, 'rgba(255,255,255,0.95)'); hl.addColorStop(0.5, 'rgba(255,255,255,0.2)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    path(x); x.strokeStyle = hl; x.lineWidth = 1; x.stroke();
+  }
+
+  // 主票面与票根在打孔线两侧各多画 EXT 的纸：完好时按打孔线裁切拼成一张，撕开时毛边才有纸可露
+  const EXT = 3;
+  function mainShape(x) {
+    x.beginPath();
+    x.moveTo(R, 0); x.lineTo(MW - N, 0);
+    x.arc(MW, 0, N, Math.PI, Math.PI / 2, true);
+    x.lineTo(MW + EXT, N); x.lineTo(MW + EXT, TH - N); x.lineTo(MW, TH - N);
+    x.arc(MW, TH, N, -Math.PI / 2, -Math.PI, true);
+    x.lineTo(R, TH); x.arcTo(0, TH, 0, TH - R, R);
+    x.lineTo(0, R); x.arcTo(0, 0, R, 0, R);
+    x.closePath();
+  }
+  function stubShape(x) {
+    x.beginPath();
+    x.moveTo(N, 0); x.lineTo(SW - R, 0); x.arcTo(SW, 0, SW, R, R);
+    x.lineTo(SW, TH - R); x.arcTo(SW, TH, SW - R, TH, R);
+    x.lineTo(N, TH);
+    x.arc(0, TH, N, 0, -Math.PI / 2, true);
+    x.lineTo(-EXT, TH - N); x.lineTo(-EXT, N); x.lineTo(0, N);
+    x.arc(0, 0, N, Math.PI / 2, 0, true);
+    x.closePath();
+  }
+
+  // 主票面内容（局部坐标）：左侧橙色色条 + 活动名 + 三栏信息 + 座位
+  function mainArt(x) {
+    x.save(); mainPath(x); x.clip();
+    const band = x.createLinearGradient(0, 0, 0, TH);
+    band.addColorStop(0, PAL.acc); band.addColorStop(1, PAL.accDeep);
+    x.fillStyle = band; x.fillRect(0, 0, 8, TH);
+    x.restore();
+    x.textBaseline = 'alphabetic'; x.textAlign = 'left';
+    x.fillStyle = PAL.acc; x.font = `600 9.5px ${SANS}`;
+    x.fillText('LIVE · 2026 秋季巡演', 24, 26);
+    x.fillStyle = PAL.ink; x.font = `700 21px ${SANS}`;
+    x.fillText('夜航星 · 城市音乐会', 24, 54);
+    const cols = [['日期', '11.15 周六'], ['开场', '19:30'], ['场馆', '星海音乐厅']];
+    const cx = [24, 104, 160];
+    cols.forEach(([a, b], i) => {
+      x.fillStyle = PAL.mut; x.font = `500 9px ${SANS}`; x.fillText(a, cx[i], 80);
+      x.fillStyle = PAL.ink2; x.font = `600 11.5px ${SANS}`; x.fillText(b, cx[i], 96);
+    });
+    x.strokeStyle = 'rgba(140,120,90,0.25)'; x.lineWidth = 0.8;
+    x.beginPath(); x.moveTo(24, 106.5); x.lineTo(MW - 22, 106.5); x.stroke();
+    x.fillStyle = PAL.ink; x.font = `600 10.5px ${SANS}`; x.fillText('A 区 12 排 08 座', 24, 121);
+    x.fillStyle = PAL.mut; x.font = `500 9px ${MONO}`; x.textAlign = 'right'; x.fillText('¥ 380', MW - 22, 121);
+  }
+  // 票根内容（局部坐标）：竖排「入场券」+ 编号 + 条码
+  function stubArt(x) {
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillStyle = PAL.acc; x.font = `700 13px ${SANS}`;
+    ['入', '场', '券'].forEach((c, i) => x.fillText(c, SW / 2 + 2, 26 + i * 17));
+    x.fillStyle = PAL.mut; x.font = `500 8.5px ${MONO}`; x.fillText('No.0815', SW / 2 + 2, 86);
+    // 条码：宽窄由哈希决定，固定不变
+    let bx = 16;
+    for (let i = 0; bx < SW - 14; i++) {
+      const bw = hs(i, 9) > 0.6 ? 2 : 1;
+      if (hs(i, 7) > 0.3) { x.fillStyle = PAL.ink2; x.fillRect(bx, 98, bw, 18); }
+      bx += bw + 1;
+    }
+  }
+  // 印章：朱红双圈 + 「已检票」，用哈希小点擦出印泥不匀的斑驳
+  function stampArt(x) {
+    const c = 42;
+    x.strokeStyle = PAL.stamp; x.fillStyle = PAL.stamp;
+    x.lineWidth = 3; x.beginPath(); x.arc(c, c, 36, 0, Math.PI * 2); x.stroke();
+    x.lineWidth = 1.2; x.beginPath(); x.arc(c, c, 30, 0, Math.PI * 2); x.stroke();
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.font = `800 17px ${SANS}`; x.fillText('已检票', c, c - 1);
+    x.font = `700 6.5px ${SANS}`; x.fillText('CHECKED · 11.15', c, c + 16);
+    x.font = `700 6.5px ${SANS}`; x.fillText('★  入场  ★', c, c - 17);
+    x.globalCompositeOperation = 'destination-out';
+    for (let i = 0; i < 140; i++) {
+      x.globalAlpha = 0.35 + hs(i, 12) * 0.6;
+      x.beginPath(); x.arc(hs(i, 10) * 84, hs(i, 11) * 84, 0.4 + hs(i, 13) * 1.3, 0, Math.PI * 2); x.fill();
+    }
+    x.globalAlpha = 1; x.globalCompositeOperation = 'source-over';
+  }
+
+  const PAD = 24;
+  let C = null;
+  function build() {
+    const bg = mk(W, H, x => {
+      const gr = x.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, PAL.bgTop); gr.addColorStop(0.55, PAL.bgMid); gr.addColorStop(1, PAL.bgBot);
+      x.fillStyle = gr; x.fillRect(0, 0, W, H);
+      // 顶部柔光 + 四周暗角：视线落在票面中央
+      const v = x.createRadialGradient(W * 0.48, 70, 40, W * 0.5, 100, 330);
+      v.addColorStop(0, 'rgba(255,255,255,0.5)'); v.addColorStop(0.5, 'rgba(255,255,255,0)'); v.addColorStop(1, rgba(PAL.vignette, 0.2));
+      x.fillStyle = v; x.fillRect(0, 0, W, H);
+    });
+    // 阴影精灵：形状移到画外，只留 shadowBlur 的影子
+    const shadow = (path, w, blur, a) => mk(w + PAD * 2, TH + PAD * 2, x => {
+      x.shadowColor = rgba(PAL.shadow, a); x.shadowBlur = blur * S; x.shadowOffsetY = 3000 * S;
+      x.translate(PAD, PAD - 3000); path(x); x.fillStyle = '#000'; x.fill();
+    });
+    const main = mk(MW + EXT + P * 2, TH + P * 2, x => { x.translate(P, P); paper(x, mainShape, MW + EXT, 1); mainArt(x); });
+    const stub = mk(SW + EXT + P * 2, TH + P * 2, x => { x.translate(P + EXT, P); paper(x, stubShape, SW, 2); stubArt(x); });
+    return {
+      bg, main, stub, stamp: mk(84, 84, stampArt),
+      mainAmb: shadow(mainPath, MW, 14, 0.2), mainCon: shadow(mainPath, MW, 2.5, 0.24),
+      stubAmb: shadow(stubPath, SW, 14, 0.2), stubCon: shadow(stubPath, SW, 2.5, 0.24)
+    };
+  }
+
+  // ---------- 时间线（秒） ----------
+  const T = {
+    go0: 0.1, go1: 0.6,        // 光标从候场点移到票根抓取点
+    press: 0.66,               // 按下
+    drag0: 0.78, drag1: 1.98,  // 往下拖，撕口从上往下走完整条打孔线
+    fall: 1.98, fallEnd: 2.9,  // 票根脱离、旋转掉出画面
+    back0: 2.0, back1: 2.8,    // 光标回候场点
+    hit: 2.42, stampIn: 0.12,  // 印章落下（命中时刻 + 下落时长）
+    out0: 3.7, out1: 4.05,     // 印章褪去
+    ret0: 3.95, ret1: 4.45     // 票根回到原位（之后静止到周期末，与 u=0 相同）
+  };
+  const TILT = 0.3;            // 撕到底时票根相对打孔线的张角
+  const PULL = 0.024;          // 拖拽时主票面被带歪的角度
+  const FALL = { vx: 70, g: 900, w: 2.4 };   // 票根掉落：横向速度、重力、角速度
+
+  // 撕口进度 0..1：前 15% 慢（要用点力才撕开），之后加速
+  const tearP = u => { const t = clamp((u - T.drag0) / (T.drag1 - T.drag0)); return t * t * (1.6 - 0.6 * t); };
+
+  // 主票面姿态：拖拽时被带歪，松手后阻尼回弹；印章命中时轻轻下沉
+  function mainPose(u) {
+    let ang = 0, dy = 0;
+    if (u < T.drag1) ang = PULL * tearP(u);
+    else { const t = u - T.drag1; ang = PULL * Math.exp(-7 * t) * Math.cos(16 * t); }
+    if (u > T.hit) { const t = u - T.hit; dy = 2.2 * Math.exp(-11 * t) * Math.sin(28 * t); }
+    return { ang, dy };
+  }
+  // 主票面坐标变换：绕左缘中点旋转（左缘像被另一只手按着）
+  const PIV = { x: TX, y: TY + TH / 2 };
+  function applyMain(k, m) { k.translate(PIV.x, PIV.y + m.dy); k.rotate(m.ang); k.translate(-PIV.x, -PIV.y); }
+  function mapMain(m, x, y) {
+    const c = Math.cos(m.ang), s = Math.sin(m.ang), dx = x - PIV.x, dy = y - PIV.y;
+    return { x: PIV.x + dx * c - dy * s, y: PIV.y + m.dy + dx * s + dy * c };
+  }
+
+  // 票根状态：附着（整张票根绕撕口前端 front 刚性旋转 a；front 以下那段压在主票面下面，看起来仍连着）/ 掉落 / 隐藏 / 回位淡入
+  function stubState(u) {
+    if (u < T.drag0) return { mode: 'on', front: 0, a: 0, d: 0, alpha: 1, lift: u > T.press ? 0.25 : 0 };
+    if (u < T.fall) { const p = tearP(u); return { mode: 'on', front: p * TH, a: TILT * p, d: 2 * p, alpha: 1, lift: 0.25 + 0.75 * p }; }
+    if (u < T.fallEnd) return { mode: 'fall', t: u - T.fall, front: TH };
+    if (u < T.ret0) return { mode: 'off', front: TH };
+    const e = easeOut((u - T.ret0) / (T.ret1 - T.ret0));
+    return { mode: 'on', front: 0, a: 0, d: -9 * (1 - e), alpha: e, lift: 0 };
+  }
+  // 已撕部分在票面坐标里的变换：绕 (PX, TY+front) 旋转 a，再下移 d
+  function torn(st, x, y) {
+    const c = Math.cos(st.a), s = Math.sin(st.a), dx = x - PX, dy = y - (TY + st.front);
+    return { x: PX + dx * c - dy * s, y: TY + st.front + st.d + dx * s + dy * c };
+  }
+
+  // 锯齿撕边：每 1.6px 一个纤维长度，哈希决定；side 区分主票面与票根两侧
+  const STEP = 1.6;
+  const jag = (i, side) => 0.3 + hs(i, 20 + side) * 2.3;
+
+  // 主票面：未撕段在打孔线处直切（与票根拼成一张），已撕段（0..front）沿锯齿纤维向右伸出
+  function mainClip(k, front) {
+    k.beginPath(); k.moveTo(TX - P, TY - P); k.lineTo(PX, TY - P);
+    const n = Math.floor(front / STEP);
+    for (let i = 0; i <= n; i++) k.lineTo(PX + jag(i, 0), TY + i * STEP);
+    k.lineTo(PX, TY + front); k.lineTo(PX, TY + TH + P); k.lineTo(TX - P, TY + TH + P); k.closePath();
+  }
+  // 撕口纤维的浅色描边：撕开的纸芯比表面更白
+  function fiberEdge(k, front, side, sign) {
+    const n = Math.floor(front / STEP);
+    if (n < 1) return;
+    k.beginPath();
+    for (let i = 0; i <= n; i++) k.lineTo(PX + sign * jag(i, side), TY + i * STEP);
+    k.strokeStyle = 'rgba(255,255,255,0.85)'; k.lineWidth = 0.7; k.stroke();
+  }
+  // 票根已撕段（翻起的那片）的裁切区：撕口前端以上、打孔线左侧锯齿纤维以右
+  function flapClip(k, front) {
+    const n = Math.floor(front / STEP);
+    k.beginPath(); k.moveTo(PX + SW + PAD, TY - PAD); k.lineTo(PX + SW + PAD, TY + front); k.lineTo(PX, TY + front);
+    for (let i = n; i >= 0; i--) k.lineTo(PX - jag(i, 1), TY + i * STEP);
+    k.lineTo(PX - jag(0, 1), TY - PAD); k.closePath();
+  }
+  const stubImg = (k, img) => k.drawImage(img, PX - P - EXT, TY - P, img.width / S, img.height / S);
+  function stubShadow(k, lift) {
+    k.globalAlpha = 0.7 + 0.5 * lift;
+    k.drawImage(C.stubAmb, PX - PAD, TY - PAD + 3 + 6 * lift, C.stubAmb.width / S, C.stubAmb.height / S);
+    k.globalAlpha = 1 - 0.6 * lift;
+    k.drawImage(C.stubCon, PX - PAD, TY - PAD + 1, C.stubCon.width / S, C.stubCon.height / S);
+    k.globalAlpha = 1;
+  }
+
+  // 附着状态的票根（已在主票面坐标系内）：先画未撕段（直切），再画翻起的一片（带锯齿与自身投影）
+  function drawStubOn(k, st) {
+    k.save(); k.globalAlpha = st.alpha;
+    k.save(); k.translate(0, st.d < 0 ? st.d : 0);
+    if (st.front <= 0) stubShadow(k, st.lift);
+    k.beginPath(); k.rect(PX, TY + st.front, SW + PAD, TH - st.front + PAD); k.clip();
+    if (st.front > 0) stubShadow(k, 0);
+    stubImg(k, C.stub);
+    k.restore();
+    if (st.front > 0) {
+      k.save();
+      k.translate(PX, TY + st.front + st.d); k.rotate(st.a); k.translate(-PX, -(TY + st.front));
+      flapClip(k, st.front); k.clip();
+      stubShadow(k, st.lift); stubImg(k, C.stub); fiberEdge(k, st.front, 1, -1);
+      k.restore();
+    }
+    k.restore();
+  }
+  // 打孔线：未撕段才有，一排小圆孔 + 极淡的折痕
+  function perforation(k, front) {
+    const y0 = TY + Math.max(front, N) + 2, y1 = TY + TH - N - 2;
+    if (y1 <= y0) return;
+    k.strokeStyle = 'rgba(150,130,100,0.18)'; k.lineWidth = 0.6;
+    k.beginPath(); k.moveTo(PX + 0.5, y0); k.lineTo(PX + 0.5, y1); k.stroke();
+    k.fillStyle = PAL.perf;
+    for (let y = TY + N + 4; y < y1; y += 5.2) { if (y < y0) continue; k.beginPath(); k.arc(PX, y, 0.95, 0, Math.PI * 2); k.fill(); }
+  }
+  // 自绘箭头光标：深色填充白描边，按下缩小
+  function cursor(k, x, y, down) {
+    k.save(); k.translate(x, y); const sc = down ? 0.86 : 1; k.scale(sc, sc);
+    k.shadowColor = 'rgba(0,0,0,0.28)'; k.shadowBlur = 4; k.shadowOffsetY = 1.5;
+    k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 17); k.lineTo(4.2, 13.2); k.lineTo(7.2, 19.6); k.lineTo(10, 18.4); k.lineTo(7.1, 12.2); k.lineTo(12.4, 12.2); k.closePath();
+    k.fillStyle = PAL.ink; k.fill(); k.shadowColor = 'transparent';
+    k.strokeStyle = '#fff'; k.lineWidth = 1.4; k.lineJoin = 'round'; k.stroke();
+    k.restore();
+  }
+
+  // 抓取点在全局坐标中的位置（随票根已撕段与主票面姿态一起动）
+  function gripAt(u) {
+    const st = stubState(u), m = mainPose(u);
+    const p = st.mode === 'on' && st.front > 0 ? torn(st, PX + GRIP.x, TY + GRIP.y) : { x: PX + GRIP.x, y: TY + GRIP.y };
+    return mapMain(m, p.x, p.y);
+  }
+  function cursorAt(u) {
+    if (u < T.go0) return { ...REST, down: false };
+    if (u < T.go1) { const g = gripAt(T.go1), e = ease((u - T.go0) / (T.go1 - T.go0)); return { x: lerp(REST.x, g.x, e), y: lerp(REST.y, g.y, e), down: false }; }
+    if (u < T.drag1) { const g = gripAt(u); return { x: g.x, y: g.y, down: u >= T.press }; }
+    const g = gripAt(T.drag1 - 1e-4), e = ease((u - T.back0) / (T.back1 - T.back0));
+    return { x: lerp(g.x, REST.x, e), y: lerp(g.y, REST.y, e), down: false };
+  }
+
+  const fn = (k, w, h, u) => {
+    if (!C) C = build();
+    u = ((u % CYC) + CYC) % CYC;
+    k.save();
+    k.drawImage(C.bg, 0, 0, W, H);
+    const m = mainPose(u), st = stubState(u);
+
+    k.save(); applyMain(k, m);
+    // 主票面投影
+    k.drawImage(C.mainAmb, TX - PAD, TY - PAD + 4, C.mainAmb.width / S, C.mainAmb.height / S);
+    k.drawImage(C.mainCon, TX - PAD, TY - PAD + 1, C.mainCon.width / S, C.mainCon.height / S);
+    if (st.mode === 'on') drawStubOn(k, st);
+    // 主票面：已撕段露出锯齿纤维
+    k.save(); mainClip(k, st.front); k.clip();
+    k.drawImage(C.main, TX - P, TY - P, C.main.width / S, C.main.height / S);
+    k.restore();
+    fiberEdge(k, st.front, 0, 1);
+    if (st.mode === 'on' && st.alpha >= 1) perforation(k, st.front);
+    // 印章：从 1.6 倍落下到 1 倍，命中后停留，再淡出
+    const s0 = T.hit - T.stampIn;
+    if (u > s0 && u < T.out1) {
+      const pin = clamp((u - s0) / T.stampIn), sc = lerp(1.6, 1, pin * pin);
+      const a = 0.92 * pin * (1 - clamp((u - T.out0) / (T.out1 - T.out0)));
+      k.save(); k.translate(TX + 206, TY + 66); k.rotate(-0.22); k.scale(sc, sc);
+      k.globalAlpha = a; k.globalCompositeOperation = 'multiply';
+      k.drawImage(C.stamp, -42, -42, 84, 84);
+      k.restore();
+    }
+    k.restore();
+
+    // 掉落中的票根：从撕下那一刻的姿态出发，抛物线下落 + 匀速旋转
+    if (st.mode === 'fall') {
+      const t = st.t, m0 = mainPose(T.fall), p0 = mapMain(m0, PX, TY + TH + 2);
+      k.save();
+      k.translate(p0.x + FALL.vx * t, p0.y + 0.5 * FALL.g * t * t);
+      k.rotate(m0.ang + TILT + FALL.w * t);
+      k.translate(-PX, -(TY + TH));
+      flapClip(k, TH); k.clip();
+      stubShadow(k, 1); stubImg(k, C.stub); fiberEdge(k, TH, 1, -1);
+      k.restore();
+    }
+    const c = cursorAt(u);
+    cursor(k, c.x, c.y, c.down);
+    k.restore();
+  };
+  return fn;
+})();

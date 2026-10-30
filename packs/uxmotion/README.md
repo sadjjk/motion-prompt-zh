@@ -2,7 +2,7 @@
 
 # Interaction & data motion
 
-62 names · #1 061~097 · 129~141 · 164~175 · pack `uxmotion` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+67 names · #1 061~097 · 129~141 · 164~175 · 190~194 · pack `uxmotion` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -82,6 +82,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-169](https://sadjjk.github.io/motion-prompt-zh/#1-169) | **Badge unlock** | A hexagon badge draws in, a star stamps down and rays burst out | Add a badge unlock to the achievement screen: draw the hexagon outline in 0.8 s, stamp a star down from 3× and burst 12 rays. |
 | [#1-170](https://sadjjk.github.io/motion-prompt-zh/#1-170) | **Memory match** | A card memory game: flip two, mismatches flip back, matches stay | Show the mini game as a memory match: flip 4 × 2 cards in 0.4 s, flip mismatches back after 0.8 s, and turn matches accent-coloured with a 1.12× bounce. |
 | [#1-171](https://sadjjk.github.io/motion-prompt-zh/#1-171) | **Copy feedback** | Pressing copy spins the icon into a check and pops a tooltip | Add copy feedback to the code block: on press, spin the icon 90° into a check, show a 'Copied' tooltip above and revert after 1.5 s. |
+| [#1-190](https://sadjjk.github.io/motion-prompt-zh/#1-190) | **Task status icon** | One icon that morphs smoothly between waiting, running, done and failed | Add task status icons to the agent's task list: a ring of 12 dashes while waiting, gathering into a spinning progress arc within 0.35 s on start, filling green with a check when done, and turning red with a shaking cross on failure. |
+| [#1-191](https://sadjjk.github.io/motion-prompt-zh/#1-191) | **Collapsible thinking** | AI reasoning steps list up while thinking, then fold into one line as the answer appears | Add collapsible thinking to the AI reply card: count seconds next to “Thinking”, add a reasoning step every 0.7 s, then change the title to “Thought for 4.8 s”, fold the steps upward and fade in the first line of the answer. |
+| [#1-192](https://sadjjk.github.io/motion-prompt-zh/#1-192) | **Staged image generation** | Inside a fixed frame an image goes from blurred colour blobs through mosaic levels to a sharp picture | Make the image-generation wait a staged reveal: keep the 228 × 136 px frame fixed, go from blurred colour blobs through 6, 12, 24, 48 and 96-column mosaics to the sharp image, with a progress bar and “Compose › Colour › Refine › Done” below. |
+| [#1-193](https://sadjjk.github.io/motion-prompt-zh/#1-193) | **Hold-to-talk capsule** | A mic button stretches into a recording capsule while held, then shrinks back and shows the transcript | Add a hold-to-talk capsule to voice input: when the 68 px round mic button is pressed, stretch it into a 304 px capsule with a red dot, equaliser bars and a timer; on release fold the bars into one line, shrink back to the circle and pop up a transcript bubble above. |
+| [#1-194](https://sadjjk.github.io/motion-prompt-zh/#1-194) | **Grid wave loader** | A wave of light keeps sweeping across rows of tiles, which merge into one progress bar when done | Make the file indexing a grid wave loader: sweep a light wave left to right across 12 × 2 tiles, speeding up from 0.6 to 1.6 passes per second with progress, and when done light them all, merge them into one progress bar and show “Done · 1,284 / 1,284 files”. |
 
 ## Animated charts
 

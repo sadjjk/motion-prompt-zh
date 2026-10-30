@@ -1,0 +1,16 @@
+Please use "Progressive edge blur" (プログレッシブブラー), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-099
+
+What it is: Scrolling content blurs and fades step by step as it nears the top and bottom edges
+What the sample shows: On a navy page, an article column with a headline, body text, a lake photo card and a stats card scrolls up at a steady pace and loops seamlessly. As the content nears the top or bottom edge it blurs and fades in stages, as if sinking into fog; under the floating glass nav bar at the top, the most heavily blurred content shows through as soft blocks of colour.
+Spec:
+- A 292 px wide content column scrolls up 390 px every 4.7 s at constant speed and loops seamlessly.
+- The top 78 px and bottom 62 px are transition bands; the blur uses no filter, only downscaling to 1/2, 1/4 and 1/8 and scaling back up.
+- The lightest 1/2 level is opaque from the edge to 62% of the band and gone by 100%, 1/4 spans 38%–74%, and the heaviest 1/8 spans 16%–46%, so heavier blur stacks closer to the edge.
+- A fade to the page colour sits on top, with edge opacity 0.82 at the top and 0.88 at the bottom.
+- A floating 332 × 32 px glass nav bar with 16 px corners shows the 1/8 blur at the same scroll position through it.
+When to use it: Use it in article feeds, chat histories, long lists and scroll panels to soften the hard cut at the edges.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-099.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

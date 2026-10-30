@@ -1,0 +1,325 @@
+// Motion Prompt #1-182 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// 彗尾旋钮 / Comet-trail dial
+// 分类包: ui (UI 组件) · element 53 · 子分类: 选择与切换
+// 动画表现: 暖灰面板上是一颗白陶瓷旋钮和一圈刻度，右侧显示音量数值；光标抓住旋钮拧动，蓝色亮点拖着彗星光尾沿刻度环内侧前进，经过的刻度闪亮后熄灭，数值和电平条同步上涨。松手后光尾收短、数值轻弹，随后旋钮自行回弹，略微过冲后回到原位。
+// 运动规格:
+//   - 542×191 卡片，周期 4.5 秒。半径 45 的旋钮外围是 0–100 的刻度环，每 2 一格，每 10 一根长刻度，从 135° 顺时针扫 270°。
+//   - 光标于 0.85 秒抓住旋钮，0.95–2.35 秒用 easeInOutCubic 把数值从 24 拧到 72。
+//   - 亮点沿半径 60 的轨道移动，光尾是它最近 0.32 秒扫过的弧，分 14 段逐渐变淡，转得越快尾巴越长。
+//   - 亮点经过的刻度亮成蓝色，0.4 秒内熄灭；当前值以下的刻度保持墨色。
+//   - 2.35 秒松手，光尾收短，数值轻弹 0.5 秒；2.8–3.65 秒旋钮从 72 回弹到 24，末段略微过冲。
+// 适用场景: 适合智能家居、音频应用里调节音量、亮度、温度等连续数值的旋钮。
+// 标签: knob, dial, rotary, volume, trail, comet, glow, skeuomorphic
+// 尺寸: 542x191 px · 周期: 4.5 s
+// 依赖: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-182
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 53
+CELLS[52] = (function () {
+  // 彗星刻度盘：立体陶瓷旋钮 + 外圈刻度环。光标抓住旋钮把音量从 24 拧到 72，
+  // 一颗亮点沿刻度环内侧轨道移动，身后拖着渐隐彗星光尾（尾长 = 亮点在 LAG 秒前到现在走过的弧，天然与转速成正比），
+  // 被经过的刻度短暂点亮再熄灭；松手后光尾收短消失、数值轻弹；随后旋钮自行回弹到 24，画面回到首帧。
+  // 纯函数：画面只由 u 决定；背景、凹槽底盘、旋钮本体首次调用时预渲染缓存。
+  const W = 542, H = 191, CYC = 4.5;
+  const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+
+  // 配色：ui 包的暖灰底 + 墨色文字 + 蓝色强调；旋钮是偏暖的白陶瓷
+  const PAL = {
+    bgTop: '#f7f5f2', bgBot: '#e9e5df', vignette: '70,60,48',
+    plateTop: '#e4e0da', plateBot: '#f3f1ed',
+    faceHi: '#fdfdfc', faceLo: '#d8d5d0', sideHi: '#cfcbc5', sideLo: '#9e9992',
+    ink: '#111111', ink2: '#4a4d55', hint: '#868482', tickOff: '#cdc9c3', tickOn: '#2c2f36',
+    blue: '#1f5ae8', glow: '31,90,232', hot: '#9fc0ff', shadow: '40,32,24'
+  };
+
+  // 几何：旋钮中心、顶面半径、侧面厚度；刻度环与彗星轨道半径；刻度从 135° 顺时针扫 270°，底部留缺口
+  const CX = 190, CY = 94;
+  const KR = 45, KT = 7;               // 顶面半径、圆柱侧面露出的厚度
+  const TRACK = 60;                    // 彗星轨道半径（刻度内侧）
+  const T_IN = 69, T_OUT = 76, T_MAJ = 66;   // 刻度内外半径；整十刻度向内多伸
+  const PLATE = 86;                    // 凹槽底盘半径
+  const A0 = Math.PI * 0.75, SWEEP = Math.PI * 1.5;
+  const VMIN = 0, VMAX = 100, STEP = 2;      // 刻度每 2 一格，整十为长刻度
+  const S = 3;                         // 缓存分辨率倍数：调用方最多 2×dpr 放大
+
+  const clamp = (x, a, b) => Math.max(a === undefined ? 0 : a, Math.min(b === undefined ? 1 : b, x));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const rgba = (c, a) => `rgba(${c},${a})`;
+  const hs = (i, s) => { const x = Math.sin(i * 12.9898 + s * 78.233) * 43758.5453; return x - Math.floor(x); };
+  const ang = v => A0 + (v - VMIN) / (VMAX - VMIN) * SWEEP;
+
+  function mk(draw) {
+    const c = document.createElement('canvas'); c.width = W * S; c.height = H * S;
+    const x = c.getContext('2d'); x.scale(S, S); draw(x); return c;
+  }
+
+  // 背景：竖向渐变 + 径向暗角
+  function background(x) {
+    const gr = x.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, PAL.bgTop); gr.addColorStop(1, PAL.bgBot);
+    x.fillStyle = gr; x.fillRect(0, 0, W, H);
+    const vg = x.createRadialGradient(W * 0.48, H * 0.45, H * 0.35, W * 0.48, H * 0.45, W * 0.62);
+    vg.addColorStop(0, rgba(PAL.vignette, 0)); vg.addColorStop(1, rgba(PAL.vignette, 0.16));
+    x.fillStyle = vg; x.fillRect(0, 0, W, H);
+  }
+
+  // 凹槽底盘：上沿暗（内阴影）下沿亮，像旋钮嵌在面板里的浅碗
+  function plate(x) {
+    const gr = x.createLinearGradient(0, CY - PLATE, 0, CY + PLATE);
+    gr.addColorStop(0, PAL.plateTop); gr.addColorStop(1, PAL.plateBot);
+    x.beginPath(); x.arc(CX, CY, PLATE, 0, Math.PI * 2); x.fillStyle = gr; x.fill();
+    // 内阴影：多层半透明圆环向内收，越往里越淡（不用 filter）
+    for (let i = 0; i < 6; i++) {
+      x.beginPath(); x.arc(CX, CY + 1.2 + i * 0.5, PLATE - 1 - i * 1.4, Math.PI * 1.08, Math.PI * 1.92);
+      x.strokeStyle = rgba(PAL.shadow, 0.07 - i * 0.01); x.lineWidth = 2.2; x.stroke();
+    }
+    // 下沿白高光边：面板被顶光照到的那一侧
+    x.beginPath(); x.arc(CX, CY, PLATE + 0.6, Math.PI * 0.12, Math.PI * 0.88);
+    x.strokeStyle = 'rgba(255,255,255,0.9)'; x.lineWidth = 1.2; x.stroke();
+    x.beginPath(); x.arc(CX, CY, PLATE, Math.PI * 1.15, Math.PI * 1.85);
+    x.strokeStyle = rgba(PAL.shadow, 0.14); x.lineWidth = 1; x.stroke();
+    // 两端刻度标签
+    x.font = `600 10px ${SANS}`; x.fillStyle = PAL.hint; x.textAlign = 'center'; x.textBaseline = 'middle';
+    // 标签放在刻度两端再往底部缺口里偏一点，避免压住端点刻度
+    const lab = (v, s) => { const a = ang(v) + (v === VMIN ? -0.26 : 0.26); x.fillText(s, CX + Math.cos(a) * 71, CY + Math.sin(a) * 71); };
+    lab(VMIN, '0'); lab(VMAX, '100');
+  }
+
+  // 旋钮本体（不随旋转变化的部分全部进缓存）：投影、圆柱侧面、拉丝顶面、各向异性光带、镜面光斑、斜面高光、中心凹窝。
+  // 视角略俯视：顶面圆心 TCY 在上，底面圆心 BCY 在下，两者之间露出 KT 高的侧面月牙。
+  const TCY = CY - 3, BCY = TCY + KT;
+  function knob(x) {
+    const sideGr = x.createLinearGradient(CX - KR, 0, CX + KR, 0);
+    sideGr.addColorStop(0, '#dcd8d2'); sideGr.addColorStop(0.45, '#bcb7b0'); sideGr.addColorStop(1, '#8e8982');
+    const body = () => { x.beginPath(); x.arc(CX, BCY, KR, 0, Math.PI); x.lineTo(CX - KR, TCY); x.arc(CX, TCY, KR, Math.PI, 0); x.closePath(); };
+    // 软投影 + 紧贴接触影：shadow 挂在侧面实体上，实体随后被自己盖住
+    x.save(); x.shadowColor = rgba(PAL.shadow, 0.28); x.shadowBlur = 18; x.shadowOffsetY = 8;
+    body(); x.fillStyle = sideGr; x.fill(); x.restore();
+    x.save(); x.shadowColor = rgba(PAL.shadow, 0.35); x.shadowBlur = 4; x.shadowOffsetY = 2;
+    body(); x.fillStyle = sideGr; x.fill(); x.restore();
+    // 侧面下缘一道暗线，让底边落地
+    x.beginPath(); x.arc(CX, BCY, KR - 0.4, Math.PI * 0.08, Math.PI * 0.92); x.strokeStyle = rgba(PAL.shadow, 0.3); x.lineWidth = 0.8; x.stroke();
+
+    // 顶面：左上偏亮的径向渐变
+    const face = () => { x.beginPath(); x.arc(CX, TCY, KR - 0.5, 0, Math.PI * 2); };
+    const fg = x.createRadialGradient(CX - 16, TCY - 18, 4, CX, TCY, KR * 1.15);
+    fg.addColorStop(0, PAL.faceHi); fg.addColorStop(0.6, '#ecebe8'); fg.addColorStop(1, PAL.faceLo);
+    face(); x.fillStyle = fg; x.fill();
+    x.save(); face(); x.clip();
+    // 同心拉丝：密排细圆，明暗由确定性哈希决定，旋转不变所以可缓存
+    for (let r = 1.5, i = 0; r < KR - 1; r += 0.55, i++) {
+      const v = hs(i, 7);
+      x.beginPath(); x.arc(CX, TCY, r, 0, Math.PI * 2);
+      x.strokeStyle = v > 0.5 ? `rgba(255,255,255,${0.10 + v * 0.18})` : rgba(PAL.shadow, 0.025 + v * 0.06);
+      x.lineWidth = 0.35; x.stroke();
+    }
+    // 各向异性光带：拉丝金属在光源方向上出现的「蝴蝶结」形亮带，用多层窄楔叠加出柔和边缘
+    const wedge = (a, hw, col) => { x.beginPath(); x.moveTo(CX, TCY); x.arc(CX, TCY, KR, a - hw, a + hw); x.closePath(); x.fillStyle = col; x.fill(); };
+    for (let j = 1; j <= 5; j++) {
+      wedge(-Math.PI * 0.75, 0.07 * j, 'rgba(255,255,255,0.07)'); wedge(Math.PI * 0.25, 0.07 * j, 'rgba(255,255,255,0.05)');
+      wedge(-Math.PI * 0.25, 0.06 * j, rgba(PAL.shadow, 0.018)); wedge(Math.PI * 0.75, 0.06 * j, rgba(PAL.shadow, 0.018));
+    }
+    // 镜面光斑
+    const sp = x.createRadialGradient(CX - 17, TCY - 19, 0, CX - 17, TCY - 19, 24);
+    sp.addColorStop(0, 'rgba(255,255,255,0.85)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = sp; x.fillRect(CX - KR, TCY - KR, KR * 2, KR * 2);
+    x.restore();
+    // 斜面：左上白高光边 → 右下暗边
+    const bev = x.createLinearGradient(CX - KR, TCY - KR, CX + KR, TCY + KR);
+    bev.addColorStop(0, 'rgba(255,255,255,1)'); bev.addColorStop(0.5, 'rgba(255,255,255,0.15)'); bev.addColorStop(1, rgba(PAL.shadow, 0.28));
+    face(); x.strokeStyle = bev; x.lineWidth = 1.2; x.stroke();
+    // 中心凹窝：渐变方向与顶面相反，读作向下凹
+    const cg = x.createLinearGradient(CX - 10, TCY - 10, CX + 10, TCY + 10);
+    cg.addColorStop(0, '#d6d3ce'); cg.addColorStop(1, '#f8f7f5');
+    x.beginPath(); x.arc(CX, TCY, 10, 0, Math.PI * 2); x.fillStyle = cg; x.fill();
+    const cr = x.createLinearGradient(CX - 10, TCY - 10, CX + 10, TCY + 10);
+    cr.addColorStop(0, rgba(PAL.shadow, 0.22)); cr.addColorStop(1, 'rgba(255,255,255,0.95)');
+    x.strokeStyle = cr; x.lineWidth = 1; x.stroke();
+  }
+
+  // 右侧信息栏的静态文字（大数值是动态的，不在这里）
+  const PX = 304;
+  function panel(x) {
+    x.textAlign = 'left'; x.textBaseline = 'middle';
+    x.font = `600 11px ${SANS}`; x.fillStyle = PAL.hint; x.fillText('客厅 · HomePod mini', PX, 44);
+    x.font = `600 13px ${SANS}`; x.fillStyle = PAL.ink2; x.fillText('音量', PX, 63);
+    x.font = `500 11px ${SANS}`; x.fillStyle = PAL.hint; x.fillText('正在播放 ·《旅行的意义》', PX, 152);
+  }
+
+  let STATIC = null;
+  function buildStatic() {
+    // 刻度画在旋钮之前：旋钮投影可以轻压在刻度内缘上
+    return mk(x => { background(x); plate(x); ticksOff(x); knob(x); panel(x); });
+  }
+
+  // ---------- 时间线 ----------
+  // 0–0.35 静止 | 0.35–0.85 光标移向旋钮 | 0.85–0.95 按下 | 0.95–2.35 拧 24→72 | 2.35 松手，光尾收短、数值轻弹
+  // 2.4–2.8 光标离开 | 2.8–3.65 旋钮自行回弹 72→24（比手拧快，光尾更长） | 3.65–4.25 光尾与刻度余辉熄灭 | 4.25–4.5 静止
+  const V0 = 24, V1 = 72;
+  const TA = 0.35, TG = 0.85, T1 = 0.95, T2 = 2.35, TL0 = 2.4, TL1 = 2.8, T3 = 2.8, T4 = 3.65;
+  const LAG = 0.32;                    // 光尾回看时长：尾长 = 亮点在 LAG 秒内扫过的弧，转得越快越长
+  const GLOW = 0.4;                    // 刻度被经过后的余辉时长
+  const eio = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const eo = t => 1 - Math.pow(1 - clamp(t), 3);
+  // 回弹：前 80% 走完全程，末段叠一个小正弦过冲，像弹簧把旋钮拽回原位；t=1 时精确归位
+  const back = t => { t = clamp(t); return eio(t / 0.8) + 0.05 * Math.sin(Math.PI * clamp((t - 0.7) / 0.3)); };
+  function valueAt(t) {
+    if (t <= T1) return V0;
+    if (t <= T2) return lerp(V0, V1, eio((t - T1) / (T2 - T1)));
+    if (t <= T3) return V1;
+    if (t <= T4) return lerp(V1, V0, back((t - T3) / (T4 - T3)));
+    return V0;
+  }
+  // 亮点强度：拧动期间亮，松手/停下后渐隐
+  function headAlpha(t) {
+    const a = clamp((t - TG) / 0.12) * (1 - clamp((t - T2 - 0.08) / 0.3));
+    const b = clamp((t - T3) / 0.08) * (1 - clamp((t - T4) / 0.3));
+    return Math.max(a, b);
+  }
+
+  // ---------- 刻度环 ----------
+  const NT = Math.round((VMAX - VMIN) / STEP);   // 刻度格数，按量程与步长算
+  function tickLine(k, i, extra, lw) {
+    const v = VMIN + i * STEP, a = ang(v), major = v % 10 === 0;
+    const r0 = (major ? T_MAJ : T_IN) - extra, r1 = T_OUT + extra * 0.5;
+    k.beginPath(); k.moveTo(CX + Math.cos(a) * r0, CY + Math.sin(a) * r0); k.lineTo(CX + Math.cos(a) * r1, CY + Math.sin(a) * r1);
+    k.lineWidth = lw || (major ? 1.6 : 1.1); k.stroke();
+  }
+  // 熄灭态刻度进缓存
+  function ticksOff(x) {
+    x.lineCap = 'round'; x.strokeStyle = PAL.tickOff;
+    for (let i = 0; i <= NT; i++) tickLine(x, i, 0);
+  }
+  // 余辉：回看 GLOW 秒内亮点扫过的区间，刻度落在某段扫过区间里就按那段的「年龄」点亮。
+  // 采样只依赖 u，所以同一 u 结果一致；不需要跨帧状态。
+  const GS = 16;
+  function tickGlow(t) {
+    const out = new Float32Array(NT + 1);
+    let vPrev = valueAt(t);
+    for (let j = 1; j <= GS; j++) {
+      const tj = t - GLOW * j / GS, vj = valueAt(Math.max(0, tj));
+      const lo = Math.min(vPrev, vj), hi = Math.max(vPrev, vj);
+      if (hi - lo > 1e-3) {
+        const g = 1 - (j - 0.5) / GS;            // 越新越亮
+        const i0 = Math.ceil((lo - VMIN) / STEP - 0.5), i1 = Math.floor((hi - VMIN) / STEP + 0.5);
+        for (let i = Math.max(0, i0); i <= Math.min(NT, i1); i++) out[i] = Math.max(out[i], g);
+      }
+      vPrev = vj;
+    }
+    return out;
+  }
+  function drawTicks(k, t, v) {
+    k.save(); k.lineCap = 'round';
+    // 当前值以下的刻度常亮成墨色，读作电平
+    k.strokeStyle = PAL.tickOn;
+    for (let i = 0; i <= NT; i++) if (VMIN + i * STEP <= v + 1e-6) tickLine(k, i, 0);
+    // 被经过的刻度：蓝色发光 + 略伸长，随年龄熄灭
+    const gl = tickGlow(t);
+    for (let i = 0; i <= NT; i++) {
+      const g = gl[i]; if (g <= 0) continue;
+      k.strokeStyle = rgba(PAL.glow, 0.2 * g); tickLine(k, i, 2 * g, 4.5);
+      k.strokeStyle = `rgba(80,140,255,${0.95 * g})`; tickLine(k, i, 2 * g);
+    }
+    k.restore();
+  }
+
+  // ---------- 彗星 ----------
+  // 光尾 = 多段半透明圆弧叠加：第 i 段连接 t−LAG·i/N 与 t−LAG·(i+1)/N 时刻的亮点位置，越旧越淡越细。
+  const NTAIL = 14;
+  function drawComet(k, t) {
+    k.save(); k.lineCap = 'round';
+    for (let pass = 0; pass < 2; pass++) {       // 先画宽而淡的辉光层，再画细亮芯
+      for (let i = NTAIL - 1; i >= 0; i--) {
+        const a0 = ang(valueAt(Math.max(0, t - LAG * i / NTAIL))), a1 = ang(valueAt(Math.max(0, t - LAG * (i + 1) / NTAIL)));
+        if (Math.abs(a0 - a1) < 1e-4) continue;
+        const f = 1 - i / NTAIL;
+        k.beginPath(); k.arc(CX, CY, TRACK, Math.min(a0, a1), Math.max(a0, a1));
+        if (pass === 0) { k.strokeStyle = rgba(PAL.glow, 0.10 * f); k.lineWidth = 9 * f + 2; }
+        else { k.strokeStyle = `rgba(120,170,255,${0.75 * f * f})`; k.lineWidth = 3.4 * f + 0.4; }
+        k.stroke();
+      }
+    }
+    // 亮点：外辉光 + 白芯
+    const ha = headAlpha(t);
+    if (ha > 0.001) {
+      const a = ang(valueAt(t)), hx = CX + Math.cos(a) * TRACK, hy = CY + Math.sin(a) * TRACK;
+      const rg = k.createRadialGradient(hx, hy, 0, hx, hy, 11);
+      rg.addColorStop(0, rgba(PAL.glow, 0.55 * ha)); rg.addColorStop(1, rgba(PAL.glow, 0));
+      k.fillStyle = rg; k.fillRect(hx - 11, hy - 11, 22, 22);
+      k.beginPath(); k.arc(hx, hy, 3.2, 0, Math.PI * 2); k.fillStyle = `rgba(255,255,255,${ha})`; k.fill();
+      k.beginPath(); k.arc(hx, hy, 3.2, 0, Math.PI * 2); k.strokeStyle = rgba(PAL.glow, 0.9 * ha); k.lineWidth = 1; k.stroke();
+    }
+    k.restore();
+  }
+
+  // 光标：白描边深色箭头，按下时略缩小
+  const REST = { x: 474, y: 168 };
+  function cursor(k, x, y, s) {
+    k.save(); k.translate(x, y); k.scale(s, s);
+    k.shadowColor = 'rgba(0,0,0,0.25)'; k.shadowBlur = 4; k.shadowOffsetY = 1.5;
+    k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 17); k.lineTo(4.2, 13.2); k.lineTo(7.2, 20); k.lineTo(10, 18.8); k.lineTo(7, 12.2); k.lineTo(12.4, 12.2); k.closePath();
+    k.lineJoin = 'round'; k.strokeStyle = '#fff'; k.lineWidth = 2.4; k.stroke();
+    k.shadowColor = 'transparent'; k.fillStyle = PAL.ink; k.fill();
+    k.restore();
+  }
+
+  // 顶面指示槽：随数值转动的一道凹线（暗线 + 下侧白线 = 刻进陶瓷的槽）
+  function indicator(k, v) {
+    const a = ang(v), c = Math.cos(a), s = Math.sin(a);
+    k.save(); k.lineCap = 'round';
+    k.beginPath(); k.moveTo(CX + c * 22 + 0.4, TCY + s * 22 + 0.7); k.lineTo(CX + c * 37 + 0.4, TCY + s * 37 + 0.7);
+    k.strokeStyle = 'rgba(255,255,255,0.9)'; k.lineWidth = 3; k.stroke();
+    k.beginPath(); k.moveTo(CX + c * 22, TCY + s * 22); k.lineTo(CX + c * 37, TCY + s * 37);
+    k.strokeStyle = PAL.tickOn; k.lineWidth = 2.4; k.stroke();
+    k.restore();
+  }
+
+  // 右侧大数值 + 电平条；松手时数值轻弹（放大后阻尼回落）
+  function readout(k, t, v) {
+    const n = Math.round(clamp(v, VMIN, VMAX));
+    const dt = t - T2, pop = dt > 0 && dt < 0.5 ? 0.14 * Math.sin(dt / 0.5 * Math.PI) * (1 - dt / 0.5) : 0;
+    const sc = 1 + pop;
+    k.save(); k.translate(PX, 112); k.scale(sc, sc);
+    k.textAlign = 'left'; k.textBaseline = 'alphabetic';
+    k.font = `700 46px ${SANS}`; k.fillStyle = pop > 0.01 ? PAL.blue : PAL.ink;
+    const s = String(n); k.fillText(s, 0, 0);
+    const wd = k.measureText(s).width;
+    k.font = `600 15px ${SANS}`; k.fillStyle = PAL.hint; k.fillText('%', wd + 4, 0);
+    k.restore();
+    // 电平条：槽 + 蓝色填充，宽度按数值比例
+    const bx = PX, by = 127, bw = 160, bh = 5, f = clamp((v - VMIN) / (VMAX - VMIN));
+    const pill = (x0, w0, col) => { k.beginPath(); k.moveTo(x0 + bh / 2, by); k.arcTo(x0 + w0, by, x0 + w0, by + bh, bh / 2); k.arcTo(x0 + w0, by + bh, x0, by + bh, bh / 2); k.arcTo(x0, by + bh, x0, by, bh / 2); k.arcTo(x0, by, x0 + w0, by, bh / 2); k.closePath(); k.fillStyle = col; k.fill(); };
+    pill(bx, bw, 'rgba(40,32,24,0.10)');
+    if (f > 0.02) pill(bx, Math.max(bh, bw * f), PAL.blue);
+  }
+
+  // 光标抓取点：指示槽中段，随旋钮一起转
+  function gripAt(v) { const a = ang(v); return { x: CX + Math.cos(a) * 30, y: TCY + Math.sin(a) * 30 }; }
+  function cursorPos(t, v) {
+    const g0 = gripAt(V0);
+    if (t < TA) return REST;
+    if (t < TG) { const e = eio((t - TA) / (TG - TA)); return { x: lerp(REST.x, g0.x, e), y: lerp(REST.y, g0.y, e) }; }
+    if (t < TL0) return gripAt(Math.min(v, V1));
+    const g1 = gripAt(V1), e = eio((t - TL0) / (TL1 - TL0));
+    return { x: lerp(g1.x, REST.x, e), y: lerp(g1.y, REST.y, e) };
+  }
+
+  const fn = (k, w, h, u) => {
+    if (!STATIC) STATIC = buildStatic();
+    const t = ((u % CYC) + CYC) % CYC, v = valueAt(t);
+    k.drawImage(STATIC, 0, 0, W, H);
+    drawTicks(k, t, v);
+    drawComet(k, t);
+    indicator(k, v);
+    readout(k, t, v);
+    // 按下时略缩小（按下/松开各 0.08 秒过渡）
+    const press = clamp((t - TG) / 0.08) * (1 - clamp((t - T2) / 0.08));
+    const p = cursorPos(t, v);
+    cursor(k, p.x, p.y, 1 - 0.12 * press);
+  };
+  return fn;
+})();

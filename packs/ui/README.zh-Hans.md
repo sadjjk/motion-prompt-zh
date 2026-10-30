@@ -2,7 +2,7 @@
 
 # UI 组件
 
-52 个效果 · #1 001~024 · 098~102 · 108~121 · 142~150 · 分类包 `ui` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+56 个效果 · #1 001~024 · 098~102 · 108~121 · 142~150 · 182~185 · 分类包 `ui` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -28,6 +28,7 @@
 | [#1-120](https://sadjjk.github.io/motion-prompt-zh/#1-120) | **对折邀请卡** | Folding card | 对折卡片翻开封面露出内页文字 | 邀请函做成对折卡：点封面后以左边为轴打开，内页文字依次淡入。 |
 | [#1-147](https://sadjjk.github.io/motion-prompt-zh/#1-147) | **Cookie 同意横幅** | Cookie banner | 从底部弹出的 Cookie 使用同意卡片 | 网站加 Cookie 同意横幅：从底部弹上来，饼干图标晃一下，点同意后卡片滑出。 |
 | [#1-148](https://sadjjk.github.io/motion-prompt-zh/#1-148) | **浮动按钮展开菜单** | Speed dial | 浮动“+”按钮展开一列小操作按钮 | 右下角新增按钮做成浮动按钮展开菜单：点击后 + 转成 ×，上方小按钮自下而上依次弹出。 |
+| [#1-185](https://sadjjk.github.io/motion-prompt-zh/#1-185) | **下滑关闭提示** | Swipe-to-dismiss toast | 可以向下拖动关掉的轻提示 | 把复制成功的轻提示做成下滑关闭：从上方落下，底边细条倒计时 3.0 秒，按住时暂停，下拖最多 74 px 时缩小变淡，超过 46 px 松手后加速滑出。 |
 
 ## 选择与切换
 
@@ -53,6 +54,9 @@
 | [#1-144](https://sadjjk.github.io/motion-prompt-zh/#1-144) | **错误震动提示** | Shake on error | 输入错误时字段左右震动 | 密码错误时用错误震动提示：输入框左右震动 0.45 秒，边框变红，下方滑出错误提示。 |
 | [#1-145](https://sadjjk.github.io/motion-prompt-zh/#1-145) | **勾选框打勾** | Animated checkbox | 点击时方框弹一下，勾像笔画出 | 待办勾选做成勾选框打勾：方框弹一下，勾从左下画到右上，项目文字加删除线。 |
 | [#1-146](https://sadjjk.github.io/motion-prompt-zh/#1-146) | **标签输入** | Tag input | 输入文字回车后变成标签的输入框 | 兴趣栏做成标签输入：回车后文字变成弹出的标签，点 × 时标签缩小消失、后面补位。 |
+| [#1-182](https://sadjjk.github.io/motion-prompt-zh/#1-182) | **彗尾旋钮** | Comet-trail dial | 拧动时亮点拖着光尾扫过刻度的旋钮 | 把音量旋钮做成彗尾旋钮：从 24 拧到 72 时，亮点沿刻度环内侧移动，身后拖着最近 0.32 秒的光尾，经过的刻度亮起后 0.4 秒熄灭，松手后旋钮像弹簧一样回弹。 |
+| [#1-183](https://sadjjk.github.io/motion-prompt-zh/#1-183) | **波浪尾迹滑块** | Wake bar slider | 由细竖条组成的滑块，拖动时竖条隆起成一道拖尾的浪 | 把亮度滑块做成没有圆形滑块的一排细竖条：按住处的竖条抬高 12 px，拖动时按速度在身后留下一道浪，浪高上限 48 px，按 0.36 秒衰减平复。 |
+| [#1-184](https://sadjjk.github.io/motion-prompt-zh/#1-184) | **通知铃铛开关** | Bell notification toggle | 点击后铃铛摇摆、通知开启的按钮 | 把通知按钮做成铃铛开关：点击后按钮变蓝，铃铛以 0.42 rad、2.4 Hz 阻尼摆动，两侧发出 3 道声波；再点一次，铃铛上划出斜杠并回到关闭态。 |
 
 ## 导航与状态
 

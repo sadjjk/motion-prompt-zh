@@ -2,7 +2,7 @@
 
 # Motion graphics moves, part 2
 
-59 names · #2 025~048 · 064~098 · pack `motion2` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+61 names · #2 025~048 · 064~100 · pack `motion2` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -26,6 +26,8 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-085](https://sadjjk.github.io/motion-prompt-zh/#2-085) | **Fingerprint scan** | A fingerprint is read and access is granted | Add a fingerprint scan to the login screen: ridges draw from the centre out, a light bar sweeps down and up, then it turns green with a check mark. |
 | [#2-097](https://sadjjk.github.io/motion-prompt-zh/#2-097) | **Logo build reveal** | A logo draws itself part by part, then the name slides in | Add a logo build reveal at the start: draw the outer circle, draw and fill a 45° square, pop the centre dot, then slide the name in from the left. |
 | [#2-098](https://sadjjk.github.io/motion-prompt-zh/#2-098) | **Audio waveform** | Bars stretch and shrink like playing audio | Add an audio waveform to the player: thin bars stretch up and down from the centre line at varied heights and speeds, with a play button on the left and the time on the right. |
+| [#2-099](https://sadjjk.github.io/motion-prompt-zh/#2-099) | **Progressive edge blur** | Scrolling content blurs and fades step by step as it nears the top and bottom edges | Give the article list a progressive edge blur: in a 78 px top band and a 62 px bottom band, stack 1/2, 1/4 and 1/8 blur levels so content gets blurrier and fainter towards the edge, and scroll the content up 390 px every 4.7 s on a loop. |
+| [#2-100](https://sadjjk.github.io/motion-prompt-zh/#2-100) | **Infinite helix carousel** | Cards line a horizontal 3D helix and stream along it endlessly as it turns | Turn the portfolio into an infinite helix carousel: put 70 × 56 px photo cards on a horizontal helix with radius 55 px and 7 cards per turn, advance one full set of 6 cards to the right every 4.7 s, slow at the seam and fast in the middle. |
 
 ## Text & shapes
 

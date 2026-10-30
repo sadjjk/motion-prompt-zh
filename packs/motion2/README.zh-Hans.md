@@ -2,7 +2,7 @@
 
 # 动态图形进阶
 
-59 个效果 · #2 025~048 · 064~098 · 分类包 `motion2` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+61 个效果 · #2 025~048 · 064~100 · 分类包 `motion2` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -26,6 +26,8 @@
 | [#2-085](https://sadjjk.github.io/motion-prompt-zh/#2-085) | **指纹扫描解锁** | Fingerprint scan | 读取指纹后验证通过 | 登录页加指纹扫描：纹路由内向外画出，光条上下扫过，最后变绿并打勾。 |
 | [#2-097](https://sadjjk.github.io/motion-prompt-zh/#2-097) | **Logo 组合登场** | Logo build reveal | 标志逐个部件画出组合，再滑入品牌名 | 片头做 Logo 组合登场：先描外圈，再描 45° 方块并填色，中心圆点弹出，最后品牌名从左滑入。 |
 | [#2-098](https://sadjjk.github.io/motion-prompt-zh/#2-098) | **音频波形** | Audio waveform | 细条随播放的声音上下伸缩 | 播放器加音频波形：细条以中线为基准上下伸缩，高度和速度各不相同，左边播放钮，右边时间。 |
+| [#2-099](https://sadjjk.github.io/motion-prompt-zh/#2-099) | **渐进边缘模糊** | Progressive edge blur | 滚动内容越靠近上下边缘越模糊越淡 | 把文章列表的上下边缘做成渐进边缘模糊：顶部 78 px、底部 62 px 的过渡带里叠 1/2、1/4、1/8 三级模糊，越靠边越糊越淡，内容每 4.7 秒上滚 390 px 并循环。 |
+| [#2-100](https://sadjjk.github.io/motion-prompt-zh/#2-100) | **无限螺旋轮播** | Infinite helix carousel | 卡片排在横向 3D 螺旋上，边绕轴翻转边无限向前推进 | 把作品集做成无限螺旋轮播：70 × 56 px 的相片卡排在半径 55 px、每圈 7 张的横向螺旋上，每 4.7 秒向右推进一整套 6 张，接缝处慢、中段快。 |
 
 ## 文字与图形
 

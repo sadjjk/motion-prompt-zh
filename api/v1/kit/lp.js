@@ -1,9 +1,10 @@
-// Motion Prompt #1 025~048 · 103~107 · 122~127 · 151~163 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#073
+// Motion Prompt #1 025~048 · 103~107 · 122~127 · 151~163 · 186~189 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#073
 // Also: MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills (#1 103~107)
 // Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#1 122~127 · 151~163)
+// Also: MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh (#1 186~189)
 //
 // Kit for pack "lp" (Landing page & web effects / LP・Webサイトの演出): the constants and helpers its elements share.
-// Elements #1 025~048 · 103~107 · 122~127 · 151~163 · 539x208 px · cycle 4.8 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #1 025~048 · 103~107 · 122~127 · 151~163 · 186~189 · 539x208 px · cycle 4.8 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

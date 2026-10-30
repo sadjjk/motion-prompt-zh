@@ -1,0 +1,16 @@
+Please use "Swipe-to-dismiss toast" (スワイプで消すトースト), one of the names in "UI component names".
+Motion Prompt #1-185
+
+What it is: A short notification you can drag down to dismiss
+What the sample shows: On a warm grey surface a dark toast, 「已复制链接」, bounces down from the top and the bar along its bottom begins to shrink. The cursor presses and the bar freezes; dragging down shrinks and fades the card while a hint below reads 「下滑关闭」, switching to 「松手即关闭」 past the threshold. On release the card speeds away downward; then 「已保存草稿」 drops in, runs out its timer and lifts away.
+Spec:
+- 542×191 card, 4.5 s cycle. A dark 300×64 toast with radius 16 rests 22 px from the top; a thin bar along its bottom shows the time left.
+- The first toast drops in from above over 0.15–0.60 s with a small overshoot, and its 3.0 s countdown starts at 0.60 s.
+- Pressing at 1.10 s pauses the countdown. Over 1.15–1.80 s the card follows the cursor down 74 px, shrinking by up to 13% and fading by up to 42%, while its shadow blur moves from 7 to 22.
+- Past 46 px the hint below changes from 「下滑关闭」 to 「松手即关闭」. Released at 1.80 s, the card speeds up and drops 150 px out of view by 2.20 s.
+- The next toast, 「已保存草稿」, drops in over 2.30–2.75 s, its countdown ends at 3.95 s and it lifts away by 4.25 s.
+When to use it: Use it for copy, save or send confirmations that users should be able to flick away themselves.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-185.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.
