@@ -22,7 +22,7 @@ const langs = ['zh-Hans', 'en', 'ja'];
 const window = { MP_SITE_CONFIG: CONFIG };
 vm.runInNewContext(read('assets/catalog.js'), { window });
 const cat = window.MP_CATALOG;
-assert.equal(cat.count, 369);
+assert.equal(cat.count, 384);
 assert.equal(cat.packs.length, 10);
 assert.equal(cat.groups.length, 4);
 assert.equal(cat.site, CONFIG.site);
@@ -114,7 +114,7 @@ try {
   page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400 && !r.url().endsWith('/favicon.ico')) errors.push(`${r.status()} ${r.url()}`); });
   const open = async (suffix = '') => {
     await page.goto(base + '/motion-prompt-zh/' + suffix);
-    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 369 && Object.keys(window.MotionPrompt.packs).length === 10);
+    await page.waitForFunction(() => document.querySelectorAll('.tile').length === 384 && Object.keys(window.MotionPrompt.packs).length === 10);
   };
   await open();
   assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
