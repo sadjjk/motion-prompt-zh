@@ -31,6 +31,12 @@
       "ja": "構図",
       "en": "Composition",
       "zh-Hans": "构图"
+    },
+    {
+      "slug": "light-color",
+      "ja": "光源と色",
+      "en": "Light sources & color",
+      "zh-Hans": "光源与色彩"
     }
   ],
   "elements": [
@@ -2031,6 +2037,1042 @@
         "parallax",
         "composition",
         "depth"
+      ]
+    },
+    {
+      "no": "32",
+      "id": "3-068",
+      "slug": "bloom",
+      "category": "lens-camera",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/bloom",
+      "name": {
+        "ja": "ブルーム",
+        "en": "Bloom",
+        "zh-Hans": "泛光"
+      },
+      "meaning": {
+        "ja": "明るい所から光がにじみ出し、暗い所はそのまま残る",
+        "en": "Light spills out of the bright areas while the dark areas keep their detail",
+        "zh-Hans": "亮部向四周晕出柔光，暗部保持原样"
+      },
+      "ask": {
+        "ja": "夜の街角の写真にブルームをかけて。窓と街灯と車のライトだけが光ってにじみ、暗いビルの輪郭はくっきり残して。",
+        "en": "Add bloom to the night street shot: only the windows, street lamps and car lights glow and spread, the dark buildings stay crisp.",
+        "zh-Hans": "给夜晚街角加泛光：只让窗户、路灯和车灯晕开一圈光，暗处的楼房轮廓保持清楚。"
+      },
+      "summary": {
+        "ja": "夜の街角を車が横切る。窓・街灯・車のライトの周りにだけ光のにじみが広がり、暗い空とビルは変わらない。",
+        "en": "A car crosses a night street corner; glows spread only around the windows, street lamps and car lights, while the dark sky and buildings stay unchanged.",
+        "zh-Hans": "夜晚街角有车驶过，只有窗户、路灯和车灯周围晕开光，暗色天空和楼房不变。"
+      },
+      "spec": {
+        "ja": [
+          "場面: 夜の街角（空 #2C3B5E、窓と電球 #FFC75A）。車は1周で x −60 から 600 へ横切る",
+          "光る所だけを別の面に描く: 窓、電球 #FFE3A3、ヘッドライト #FFE9B8、テールライト #FF5B4D",
+          "にじみ: その面を 3px・7px・10px でぼかして加算し、さらに半分の大きさで 5px ぼかした広いにじみ（全面で約 10px）を重ねる",
+          "暗い所は加算でも色が変わらない。右上に「BLOOM n%」",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene: a street corner at night (sky #2C3B5E, windows and bulbs #FFC75A); a car crosses from x −60 to 600 once per pass.",
+          "Only the bright parts go on a separate layer: windows, bulbs #FFE3A3, headlights #FFE9B8 and tail lights #FF5B4D.",
+          "Glow: that layer is blurred by 3, 7 and 10 px and added on, plus a wide glow blurred by 5 px at half size (about 10 px at full size).",
+          "The dark parts do not change under the additive glow; top right reads \"BLOOM n%\".",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景：夜晚街角，天空 #2C3B5E，窗户和灯泡 #FFC75A；车每轮从 x −60 横穿到 600。",
+          "只把发光部分画到单独图层：窗户、灯泡 #FFE3A3、车头灯 #FFE9B8、尾灯 #FF5B4D。",
+          "光晕：该图层分别以 3、7、10 px 模糊后相加，再叠一层半尺寸 5 px 模糊的大范围光晕（约合全尺寸 10 px）。",
+          "暗部在相加后颜色不变；右上显示“BLOOM n%”。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "夜景・ネオン・逆光で、光源を夢のように柔らかく光らせたいとき。",
+        "en": "For night scenes, neon and backlight when the light sources should glow softly and dreamily.",
+        "zh-Hans": "夜景、霓虹、逆光画面中，想让光源柔和发光、带梦幻感时。"
+      },
+      "tags": [
+        "bloom",
+        "glow",
+        "light spill",
+        "night",
+        "highlights",
+        "lens"
+      ]
+    },
+    {
+      "no": "33",
+      "id": "3-069",
+      "slug": "soft-focus",
+      "category": "lens-camera",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/soft-focus",
+      "name": {
+        "ja": "ソフトフォーカス",
+        "en": "Soft focus",
+        "zh-Hans": "柔焦"
+      },
+      "meaning": {
+        "ja": "明るい所が柔らかくにじみ、コントラストが下がるが輪郭は残る",
+        "en": "Highlights spread softly and contrast drops, while the outlines stay",
+        "zh-Hans": "亮部柔和晕开、对比降低，轮廓仍在"
+      },
+      "ask": {
+        "ja": "風景と人物の写真をソフトフォーカスで。光る縁をふんわりにじませて、全体のコントラストを少し下げて。輪郭はぼかさないで。",
+        "en": "Soft focus on the landscape portrait: let the bright edges spread gently and lower the contrast a little, but keep the outlines sharp.",
+        "zh-Hans": "风景人像用柔焦：让亮边柔柔地晕开，整体对比稍降，但轮廓不要糊。"
+      },
+      "summary": {
+        "ja": "場面全体のぼかした写しが明るく重なり、太陽と人物の光る縁がにじむ。暗部が少し浮くが、山・木・人物の輪郭ははっきりしたまま。",
+        "en": "A blurred, brightened copy of the whole scene is layered on; the sun and the lit edge of the person spread, the shadows lift slightly, and the outlines of hills, tree and person remain clear.",
+        "zh-Hans": "整张画面的模糊副本提亮后叠上，太阳和人物亮边晕开，暗部微微发灰，但山、树、人物的轮廓依然清楚。"
+      },
+      "spec": {
+        "ja": [
+          "場面: 太陽 (432, 54) のある風景と、胸から上の人物（頭の中心 x140, y82・半径28px）",
+          "にじみ: 場面の写しを 7px ぼかし、明るさ 1.12 倍にして、不透明度 0.6 のスクリーンで重ねる",
+          "コントラスト: 白を不透明度 0.1 で薄く重ねて暗部を持ち上げる。元の絵が下に残るので輪郭はぼけない",
+          "右上に「SOFT n%」",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene: a landscape with the sun at (432, 54) and a head-and-shoulders figure (head centre x 140, y 82, radius 28 px).",
+          "Glow: a copy of the scene blurred by 7 px and brightened 1.12× is screened on at 0.6 opacity.",
+          "Contrast: white at 0.1 opacity lifts the shadows; the original image stays underneath, so outlines are not blurred.",
+          "Top right reads \"SOFT n%\".",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景：太阳位于 (432, 54) 的风景，加头肩人物，头部中心 x 140、y 82、半径 28 px。",
+          "光晕：画面副本模糊 7 px、亮度 ×1.12，以 0.6 不透明度“滤色”叠加。",
+          "对比：再叠 0.1 不透明度的白色抬起暗部；原图留在下层，所以轮廓不糊。",
+          "右上显示“SOFT n%”。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "ポートレート・ウェディング・思い出の場面で、柔らかく夢のような雰囲気にしたいとき。",
+        "en": "For portraits, weddings and nostalgic scenes that should feel soft and dreamy.",
+        "zh-Hans": "人像、婚礼、回忆画面中，想营造柔和、朦胧的氛围时。"
+      },
+      "tags": [
+        "soft focus",
+        "diffusion",
+        "glow",
+        "dreamy",
+        "low contrast",
+        "lens"
+      ]
+    },
+    {
+      "no": "34",
+      "id": "3-070",
+      "slug": "prism",
+      "category": "lens-camera",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/prism",
+      "name": {
+        "ja": "プリズム",
+        "en": "Prism effect",
+        "zh-Hans": "棱镜彩虹"
+      },
+      "meaning": {
+        "ja": "明るい所の横に虹色にずれた重影が出る",
+        "en": "Rainbow-coloured, offset ghosts appear next to the bright areas",
+        "zh-Hans": "亮处旁边出现彩虹色的偏移重影"
+      },
+      "ask": {
+        "ja": "夜の街角の写真にプリズムを。窓や街灯の明かりの横に虹色の重影を少しずらして出して、淡い虹の帯も一本通して。",
+        "en": "Prism effect on the night street: rainbow ghosts slightly offset next to the window and lamp lights, plus one faint rainbow band across the frame.",
+        "zh-Hans": "夜晚街角加棱镜彩虹：窗户和路灯的亮光旁边错开一圈彩虹色重影，再让一道淡淡的彩虹光带扫过。"
+      },
+      "summary": {
+        "ja": "夜の街角で、窓と電球の明かりだけが赤から紫の6色に分かれて左上へずれた重影になる。淡い虹の帯が斜めに横切る。",
+        "en": "On the night street only the windows and bulbs split into six colours from red to violet, offset towards the upper left; a faint rainbow band slants across.",
+        "zh-Hans": "夜晚街角里，只有窗户和灯泡的亮光分成红到紫 6 色，向左上错开成重影；一道淡彩虹带斜着扫过。"
+      },
+      "spec": {
+        "ja": [
+          "場面: 夜の街角。明るい所（窓・電球 #FFE3A3）だけを別の面に描く",
+          "6色 #FF4D4D・#FF9F3D・#FFE14D・#5CE27A・#4DB8FF・#9B6BFF に塗り替え、i 番目を左へ (i+1)·3.12px、上へ (i+1)·2.4px ずらして不透明度 0.5 で加算",
+          "虹の帯: 幅70pxの斜めの帯が1周で x −160 から 260 へ動く（不透明度 0.16）",
+          "暗い所は変わらない。右上に「PRISM」",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene: the night street corner; only the bright parts (windows, bulbs #FFE3A3) are drawn on a separate layer.",
+          "It is recoloured to six colours #FF4D4D, #FF9F3D, #FFE14D, #5CE27A, #4DB8FF, #9B6BFF; colour i is shifted (i+1)·3.12 px left and (i+1)·2.4 px up and added at 0.5 opacity.",
+          "Rainbow band: a 70 px slanted band moves from x −160 to 260 once per pass (opacity 0.16).",
+          "Dark areas do not change; top right reads \"PRISM\".",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景：夜晚街角；只把亮处（窗户、灯泡 #FFE3A3）画到单独图层。",
+          "分别染成 #FF4D4D、#FF9F3D、#FFE14D、#5CE27A、#4DB8FF、#9B6BFF 六色，第 i 色向左偏 (i+1)·3.12 px、向上偏 (i+1)·2.4 px，以 0.5 不透明度相加。",
+          "彩虹带：宽 70 px 的斜带每轮从 x −160 移到 260，不透明度 0.16。",
+          "暗处不变；右上显示“PRISM”。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "夜景・パーティー・ミュージックビデオで、きらきらした幻想感を足したいとき。",
+        "en": "For night scenes, parties and music videos that need a sparkling, dreamlike touch.",
+        "zh-Hans": "夜景、派对、MV 画面中，想加一点闪烁的梦幻感时。"
+      },
+      "tags": [
+        "prism",
+        "rainbow",
+        "dispersion",
+        "ghosting",
+        "night",
+        "lens"
+      ]
+    },
+    {
+      "no": "35",
+      "id": "3-071",
+      "slug": "god-rays",
+      "category": "lighting",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/god-rays",
+      "name": {
+        "ja": "ゴッドレイ",
+        "en": "God rays",
+        "zh-Hans": "体积光束"
+      },
+      "meaning": {
+        "ja": "光が目に見える束になって場面を斜めに通り抜ける",
+        "en": "Light becomes visible beams that slant through the scene",
+        "zh-Hans": "光线形成看得见的成束光带斜穿画面"
+      },
+      "ask": {
+        "ja": "人物の写真に左上からゴッドレイを。周りを暗くして、明暗の筋になった光の束を何本も斜めに差し込ませて。",
+        "en": "Add god rays from the upper left to the portrait: darken the surroundings and let several striped beams of light slant in.",
+        "zh-Hans": "人像加左上方的体积光束：四周压暗，让几道明暗相间的光束斜着照进来。"
+      },
+      "summary": {
+        "ja": "周りが暗くなり、左上の外の光源から9本の光の束が扇状に差し込んで人物を横切る。束ごとに明るさが揺れ、束の間には暗い隙間が残る。",
+        "en": "The surroundings darken and nine beams fan in from a source beyond the upper left, crossing the person; each beam flickers in brightness and dark gaps stay between them.",
+        "zh-Hans": "四周变暗，9 道光束从画面左上外的光源呈扇形照入、穿过人物；每道亮度各自起伏，束与束之间留着暗缝。"
+      },
+      "spec": {
+        "ja": [
+          "場面①: 胸から上の人物（頭の中心 x270, y78・半径29px）。背景は暗い場面へ 80% 寄る",
+          "光源: 画面外の (−40, −50)。そこから 9 本の細い扇（中心角 0.26〜0.94 rad、半幅 0.012〜0.028 rad）を長さ 900px で描く",
+          "束は #FFE4A8 で光源から 640px で消える。明るさは 0.35 ± 0.3 で、1周に 1〜3 回揺れる",
+          "束の面は 2px ぼかして不透明度 0.75 で加算。人物は左側が明るい #FFC75A、右側が影。右上に「↘ 35°」",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene 1: a head-and-shoulders figure (head centre x 270, y 78, radius 29 px); the background moves 80% of the way to a dark scene.",
+          "Source: off-frame at (−40, −50); 9 thin wedges (centre angles 0.26–0.94 rad, half-width 0.012–0.028 rad) are drawn 900 px long.",
+          "Beams are #FFE4A8, fading out 640 px from the source; brightness is 0.35 ± 0.3, swaying 1–3 times per pass.",
+          "The beam layer is blurred by 2 px and added at 0.75 opacity; the person is lit #FFC75A on the left and shaded on the right; top right reads \"↘ 35°\".",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景 1：头肩人物，头部中心 x 270、y 78、半径 29 px；背景向暗场景过渡 80%。",
+          "光源在画面外 (−40, −50)，从这里画 9 道细扇形，中心角 0.26～0.94 rad，半宽 0.012～0.028 rad，长 900 px。",
+          "光束颜色 #FFE4A8，离光源 640 px 处消失；亮度 0.35 ± 0.3，每轮起伏 1～3 次。",
+          "光束图层模糊 2 px，以 0.75 不透明度相加；人物左侧亮 #FFC75A、右侧暗；右上显示“↘ 35°”。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "教会・森・埃っぽい室内など、神聖さや朝の空気感を出したいとき。",
+        "en": "For churches, forests or dusty rooms that should feel sacred or have a morning atmosphere.",
+        "zh-Hans": "教堂、森林、有浮尘的室内等，想表现神圣感或清晨空气感时。"
+      },
+      "tags": [
+        "god rays",
+        "crepuscular rays",
+        "light beams",
+        "volumetric light",
+        "lighting"
+      ]
+    },
+    {
+      "no": "36",
+      "id": "3-072",
+      "slug": "window-shadow-pattern",
+      "category": "lighting",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/window-shadow-pattern",
+      "name": {
+        "ja": "窓枠の影",
+        "en": "Window shadow pattern",
+        "zh-Hans": "窗格光影"
+      },
+      "meaning": {
+        "ja": "直射日光が窓枠を通り、人物と壁に縁のはっきりした格子の影を落とす",
+        "en": "Direct sun through a window frame casts a crisp grid of shadows on the person and the wall",
+        "zh-Hans": "直射阳光穿过窗框，在人和墙上投下边缘清楚的格子影"
+      },
+      "ask": {
+        "ja": "明るい壁の前の人物に、窓から斜めに差す格子の光と影を落として。時間が進むと影がゆっくり横へ動いて長く伸びるように。",
+        "en": "Cast a slanted grid of window light and shadow on the person in front of a light wall; as time passes the pattern slides sideways and stretches.",
+        "zh-Hans": "浅色墙前的人物身上投下斜射进来的窗格光影，随着时间推移，影子慢慢横移、拉长。"
+      },
+      "summary": {
+        "ja": "明るい壁の前の人物に、3×3 のガラスの形の光が斜めに落ち、それ以外は影になる。15:00 から 15:40 へ時刻が進むにつれ、格子は右へ動いて傾きが強まる。",
+        "en": "Light in the shape of 3×3 panes falls slantwise on the person and the light wall, with shadow everywhere else; as the clock runs from 15:00 to 15:40 the grid slides right and leans further.",
+        "zh-Hans": "浅色墙前的人物身上斜落 3×3 块窗玻璃形状的光，其余为影；时刻从 15:00 走到 15:40，格子右移、倾斜加大。"
+      },
+      "spec": {
+        "ja": [
+          "場面: 壁 #F3EEE6、床 #E4DCCF（y168 から）。胸から上の人物 #5A6884（頭の中心 x270, y78・半径29px）",
+          "ガラス: 52×46px を 3×3、窓枠の幅 9px。ガラスの所は光、それ以外を #AEA9BB の乗算で影にする（縁はくっきり）",
+          "格子は1周で x 96 から 176 へ動き、傾き（y 1px あたりの横ずれ）は 0.42 から 0.72 へ増える",
+          "右上の時刻は 15:00 から 15:40 へ進む",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene: wall #F3EEE6, floor #E4DCCF from y 168; a head-and-shoulders figure #5A6884 (head centre x 270, y 78, radius 29 px).",
+          "Panes: 3×3 panes of 52×46 px with 9 px frame bars; the panes stay lit and everything else is multiplied with #AEA9BB as shadow (hard edges).",
+          "Over one pass the grid moves from x 96 to 176 and its slant (sideways shift per 1 px of y) grows from 0.42 to 0.72.",
+          "The top-right clock runs from 15:00 to 15:40.",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景：墙 #F3EEE6，地面 #E4DCCF 从 y 168 起；头肩人物 #5A6884，头部中心 x 270、y 78、半径 29 px。",
+          "玻璃：3×3 块，每块 52×46 px，窗框宽 9 px；玻璃处为光，其余以 #AEA9BB“正片叠底”成影，边缘清楚。",
+          "格子每轮从 x 96 移到 176，倾斜（每下降 1 px 的横移）从 0.42 增到 0.72。",
+          "右上时刻从 15:00 走到 15:40。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "午後の部屋・カフェ・ノワール調で、時間の流れや静けさを出したいとき。",
+        "en": "For afternoon rooms, cafés or noir looks that should suggest passing time or stillness.",
+        "zh-Hans": "午后房间、咖啡馆或黑色电影风格中，想表现时间流动或安静感时。"
+      },
+      "tags": [
+        "window light pattern",
+        "window shadow",
+        "hard light",
+        "afternoon",
+        "grid shadow",
+        "lighting"
+      ]
+    },
+    {
+      "no": "37",
+      "id": "3-073",
+      "slug": "spotlight",
+      "category": "lighting",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/spotlight",
+      "name": {
+        "ja": "スポットライト",
+        "en": "Follow spotlight",
+        "zh-Hans": "舞台追光"
+      },
+      "meaning": {
+        "ja": "上からの硬い光が暗い舞台に縁のはっきりした丸い光の輪を作る",
+        "en": "A hard light from above draws a sharp-edged circle of light on a dark stage",
+        "zh-Hans": "高处打下的硬光在黑暗舞台上圈出边缘清楚的圆形光区"
+      },
+      "ask": {
+        "ja": "舞台の上を歩く人をスポットライトで追って。周りは真っ暗、丸い光の輪の中だけ明るく、煙の中に光の柱が見えるように。",
+        "en": "Follow the person walking on stage with a spotlight: everything else pitch dark, only the round pool of light bright, with a visible beam in the haze.",
+        "zh-Hans": "用追光跟住舞台上走动的人：四周漆黑，只有圆形光区里亮，烟雾里看得到光柱。"
+      },
+      "summary": {
+        "ja": "舞台の明かりが落ち、左右に歩く人物を丸い光の輪が追う。輪の外はほぼ黒、上から光の柱が差し、手前に客席の頭の影が並ぶ。",
+        "en": "The stage lights drop and a round pool of light follows the person walking left and right; outside it is almost black, a beam comes down from above, and the audience heads are silhouetted in front.",
+        "zh-Hans": "舞台灯光暗下，圆形光区追着左右走动的人物；光区外几乎全黑，上方照下一道光柱，前景排着观众的头部剪影。"
+      },
+      "spec": {
+        "ja": [
+          "舞台: 幕 #4A4C55（縦のひだ18本）、床 #5A5B62（y140 から）。人物は身長104px、x = 270 + 120·sin で1周に1往復",
+          "光の輪: 中心 y110、半径62px。輪の外を #07080B 不透明度 0.92 で沈め、輪の中と床の楕円を #FFE2A8 のスクリーンで明るく",
+          "光の柱: 画面の上の外から輪へ向かう台形、#FFE8B4 で上 0.34・下 0.1 の不透明度で加算",
+          "客席: 手前に頭と肩の影 13 人 #0B0C10、ゆっくり上下に 1.2px 揺れる",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Stage: curtain #4A4C55 with 18 vertical folds, floor #5A5B62 from y 140; the person is 104 px tall and walks x = 270 + 120·sin, one round trip per pass.",
+          "Pool: centre y 110, radius 62 px; outside is darkened with #07080B at 0.92 opacity, the circle and an ellipse on the floor are brightened by screening #FFE2A8.",
+          "Beam: a trapezoid from above the frame down to the circle, #FFE8B4 added at 0.34 opacity at the top and 0.1 at the bottom.",
+          "Audience: 13 head-and-shoulder silhouettes #0B0C10 in front, bobbing slowly by 1.2 px.",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "舞台：幕布 #4A4C55 带 18 道竖褶，地面 #5A5B62 从 y 140 起；人物身高 104 px，x = 270 + 120·sin，每轮往返一次。",
+          "光区：中心 y 110、半径 62 px；圈外用 #07080B 以 0.92 不透明度压暗，圈内和地面椭圆用 #FFE2A8“滤色”提亮。",
+          "光柱：从画面上方外侧伸向光区的梯形，#FFE8B4，相加不透明度上端 0.34、下端 0.1。",
+          "观众：前景 13 个头肩剪影 #0B0C10，上下缓慢浮动 1.2 px。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "舞台・ライブ・主役の登場など、一人に視線を集めたいとき。",
+        "en": "For stage shows, concerts or a lead entrance when all eyes should be on one person.",
+        "zh-Hans": "舞台、演出、主角登场等需要把视线集中到一个人身上时。"
+      },
+      "tags": [
+        "spotlight",
+        "follow spot",
+        "stage light",
+        "hard light",
+        "theatre",
+        "lighting"
+      ]
+    },
+    {
+      "no": "38",
+      "id": "3-074",
+      "slug": "dragged-shutter",
+      "category": "lighting",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/dragged-shutter",
+      "name": {
+        "ja": "スローシンクロ",
+        "en": "Dragging the shutter",
+        "zh-Hans": "慢门闪光"
+      },
+      "meaning": {
+        "ja": "閃光で人物を止め、遅いシャッターで背景の光を色の尾に引く",
+        "en": "The flash freezes the person while the slow shutter drags the background lights into coloured trails",
+        "zh-Hans": "闪光灯把人冻住，慢快门让背景灯光拉出彩色拖影"
+      },
+      "ask": {
+        "ja": "夜のパーティー写真をスローシンクロで。人物は閃光でくっきり止めて、後ろの電球や窓の明かりは弧を描く色の尾にして。",
+        "en": "Night party shot with a dragged shutter: the flash freezes the person sharply, the bulbs and windows behind turn into curved coloured trails.",
+        "zh-Hans": "夜晚派对照用慢门闪光：人物被闪光定格得很清楚，身后的灯泡和窗光拉成弧形彩色拖影。"
+      },
+      "summary": {
+        "ja": "夜の街角の上に色電球の飾り。閃光が一瞬白く光り、人物は明るくくっきり写る。電球・窓・街灯は弧を描く色の尾を引き、右上は 1/60s から「1/4s · ⚡」へ。",
+        "en": "A garland of coloured bulbs hangs over the night street; a flash goes off white for an instant and the person comes out bright and sharp, while bulbs, windows and lamps draw curved coloured trails; the top-right readout changes from 1/60s to \"1/4s · ⚡\".",
+        "zh-Hans": "夜晚街角上方挂着彩色灯串；闪光一瞬泛白，人物变亮且清楚，灯泡、窗户、路灯拖出弧形彩色光尾；右上由 1/60s 变为“1/4s · ⚡”。"
+      },
+      "spec": {
+        "ja": [
+          "場面: 夜の街角。上に2本の垂れた線に沿って色電球 24 個（#FF5A5A・#FFC24D・#5CE27A・#4DB8FF・#C77DFF、半径3.2px）",
+          "尾: 明るい所だけの面を点 (270, 300) を中心に最大 −0.07 rad まで 16 回少しずつ回し、各 0.16 の不透明度で加算",
+          "閃光: 1.45秒を中心に約 0.09 秒、白が最大 0.55 重なる。人物は #1C2439 から明るい #D9D4E6 へ",
+          "右上: 効果が半分を超えると「1/4s · ⚡」、それ以外は「1/60s」",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene: the night street with 24 coloured bulbs (#FF5A5A, #FFC24D, #5CE27A, #4DB8FF, #C77DFF, radius 3.2 px) along two sagging wires above.",
+          "Trails: the bright-only layer is rotated about (270, 300) in 16 steps up to −0.07 rad and added at 0.16 opacity each.",
+          "Flash: centred on 1.45 s for about 0.09 s, white up to 0.55 is laid over; the person goes from #1C2439 to a bright #D9D4E6.",
+          "Top right: \"1/4s · ⚡\" once the effect passes half, otherwise \"1/60s\".",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景：夜晚街角，上方两条下垂电线挂 24 颗彩色灯泡（#FF5A5A、#FFC24D、#5CE27A、#4DB8FF、#C77DFF，半径 3.2 px）。",
+          "拖影：只含亮部的图层绕点 (270, 300) 分 16 次逐步旋转，最大 −0.07 rad，每次以 0.16 不透明度相加。",
+          "闪光：以 1.45 秒为中心约 0.09 秒，白色最多叠 0.55；人物由 #1C2439 变为明亮的 #D9D4E6。",
+          "右上：效果过半显示“1/4s · ⚡”，否则显示“1/60s”。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "パーティー・クラブ・夜のストリートで、動きと楽しさを出したいとき。",
+        "en": "For parties, clubs and night streets that should feel lively and fun.",
+        "zh-Hans": "派对、夜店、夜晚街头，想表现动感和热闹时。"
+      },
+      "tags": [
+        "dragging the shutter",
+        "slow sync flash",
+        "light trails",
+        "party",
+        "flash",
+        "lighting"
+      ]
+    },
+    {
+      "no": "39",
+      "id": "3-075",
+      "slug": "under-light",
+      "category": "lighting",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/under-light",
+      "name": {
+        "ja": "アンダーライト",
+        "en": "Under lighting",
+        "zh-Hans": "底光"
+      },
+      "meaning": {
+        "ja": "あごの下から上へ光が当たり、影の向きが逆になって不気味に見える",
+        "en": "Light from below the chin points upwards, the shadows run the wrong way and the face looks eerie",
+        "zh-Hans": "光从下巴下方往上照，阴影方向反常，脸显得诡异"
+      },
+      "ask": {
+        "ja": "暗い部屋の人物を、あごの下の懐中電灯で下から照らして。顔の下が明るく上ほど暗く、後ろの壁に大きな影が伸びるように。",
+        "en": "Light the person in a dark room from a torch under the chin: bright at the bottom of the face, darker towards the top, with a big shadow climbing the wall behind.",
+        "zh-Hans": "暗房间里用下巴下的手电从下往上照人物：脸的下方亮、越往上越暗，身后墙上投出放大的影子。"
+      },
+      "summary": {
+        "ja": "周りが暗くなり、胸の前の懐中電灯が下から照らす。頭は下半分が明るく上ほど暗い。後ろの壁に上へ伸びた大きな影が出る。",
+        "en": "The room darkens and a torch in front of the chest lights the person from below; the head is bright at the bottom and darker towards the top, and a large shadow stretches up the wall behind.",
+        "zh-Hans": "四周变暗，胸前的手电从下往上照；头部下半亮、越往上越暗，身后墙上出现向上拉长的大影子。"
+      },
+      "spec": {
+        "ja": [
+          "場面①: 胸から上の人物（頭の中心 x270, y78・半径29px）。背景は暗い場面と壁 #34363E へ",
+          "光: あごの下 (270, 129) から放射状。中心 #FFE6B0 → #FFC75A → 影 #15161B（半径約75px）",
+          "壁の影 #1C1D22: 人物の形を横 1.45 倍・縦 1.75 倍に広げ、上へ伸ばす",
+          "懐中電灯（幅10px）を胸の前に。配置図は正面下、右上に「0° · ↓60°」",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene 1: a head-and-shoulders figure (head centre x 270, y 78, radius 29 px); the background turns to a dark scene and wall #34363E.",
+          "Light: radial from under the chin at (270, 129); #FFE6B0 at the centre → #FFC75A → shadow #15161B (radius about 75 px).",
+          "Wall shadow #1C1D22: the figure shape scaled 1.45× wide and 1.75× tall, stretching upwards.",
+          "A torch (10 px wide) in front of the chest; the plan shows the light in front and below; top right reads \"0° · ↓60°\".",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景 1：头肩人物，头部中心 x 270、y 78、半径 29 px；背景变为暗场景和墙面 #34363E。",
+          "光：从下巴下方 (270, 129) 径向扩散；中心 #FFE6B0 → #FFC75A → 暗部 #15161B，半径约 75 px。",
+          "墙上影子 #1C1D22：人物形状横向放大 1.45 倍、纵向 1.75 倍，向上拉长。",
+          "胸前画手电（宽 10 px）；灯位图在正前下方；右上显示“0° · ↓60°”。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "ホラー・怪談・ハロウィンなど、不気味さや異様さを出したいとき。",
+        "en": "For horror, ghost stories or Halloween when something should feel eerie or wrong.",
+        "zh-Hans": "恐怖、怪谈、万圣节等需要诡异感时。"
+      },
+      "tags": [
+        "under lighting",
+        "monster lighting",
+        "horror",
+        "flashlight",
+        "uplight",
+        "lighting"
+      ]
+    },
+    {
+      "no": "40",
+      "id": "3-076",
+      "slug": "dappled-light",
+      "category": "light-color",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/dappled-light",
+      "name": {
+        "ja": "木漏れ日",
+        "en": "Dappled light",
+        "zh-Hans": "斑驳树影"
+      },
+      "meaning": {
+        "ja": "葉のすき間を抜けた日の光が、人物と地面に明るい斑を落とす",
+        "en": "Sunlight through the leaves drops bright patches on the person and the ground",
+        "zh-Hans": "阳光穿过树叶，在人物和地面落下一块块亮斑"
+      },
+      "ask": {
+        "ja": "木陰に立つ人物の写真に木漏れ日を。全体は緑がかった木陰で、人物と地面に不規則な光の斑を落とし、風で斑がゆらゆら動くように。",
+        "en": "Dappled light on the person standing under a tree: a greenish shade overall, irregular patches of sun on the person and the ground, swaying in the wind.",
+        "zh-Hans": "树荫下的人物加斑驳树影：整体是偏绿的树荫，人物和地面落着不规则的光斑，随风轻轻晃动。"
+      },
+      "summary": {
+        "ja": "場面が緑がかった木陰に沈み、人物・建物・地面に形のそろわない光の斑が散る。風で斑がまとめて流れ、隣どうしがくっついたり離れたりする。地面には横長の丸い光が並び、上の角にぼけた葉がかかる。",
+        "en": "The scene sinks into greenish shade and uneven patches of sun scatter over the person, buildings and ground; the wind moves them together, neighbouring patches merging and parting; oval spots line the ground and blurred leaves hang into the top corners.",
+        "zh-Hans": "画面沉入偏绿的树荫，人物、建筑和地面散落形状不一的光斑；风吹时光斑一起流动，相邻的时而相连时而分开；地面排着横长的圆形光斑，上方两角挂着虚焦的树叶。"
+      },
+      "spec": {
+        "ja": [
+          "場面①: 胸から上の人物（頭の中心 x270, y78・半径29px）。全体に #7F9682 を乗算して木陰にする",
+          "斑の形: 1/4 の大きさ（135×52）の面に葉のすき間 64 点と地面の横長の楕円 12 個を打ち、1.1px ぼかしてコントラスト 16 倍で二値化（近い点どうしがつながる）",
+          "全面へ引き伸ばして 1.6px ぼかし、#FFE0A0 を乗算してから不透明度 0.92 のスクリーンで重ねる",
+          "風: 全体のずれ = 1.6·sin(T) + 0.6·sin(3T+1)（小さい面の px）に各点の小さな揺れを足す。上の左右の角に 7px ぼかした葉 #3B5442 を不透明度 0.55 で",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene 1: a head-and-shoulders figure (head centre x 270, y 78, radius 29 px); #7F9682 is multiplied over everything as tree shade.",
+          "Patch shapes: 64 leaf-gap dots and 12 flat ellipses for the ground are drawn on a 1/4-size canvas (135×52), blurred by 1.1 px and thresholded with 16× contrast so nearby dots join up.",
+          "It is scaled up to full size, blurred by 1.6 px, multiplied with #FFE0A0 and screened on at 0.92 opacity.",
+          "Wind: overall shift = 1.6·sin(T) + 0.6·sin(3T+1) (in small-canvas px) plus a small sway per dot; leaves #3B5442 blurred by 7 px at 0.55 opacity sit in the top corners.",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景 1：头肩人物，头部中心 x 270、y 78、半径 29 px；整体“正片叠底” #7F9682 作为树荫。",
+          "光斑形状：在 1/4 尺寸（135×52）的小画布上点 64 个叶缝和 12 个地面横椭圆，模糊 1.1 px 后以 16 倍对比度二值化，相近的点会连在一起。",
+          "放大到全尺寸，模糊 1.6 px，“正片叠底” #FFE0A0 后以 0.92 不透明度“滤色”叠加。",
+          "风：整体偏移 = 1.6·sin(T) + 0.6·sin(3T+1)（小画布像素），再加每点各自的小摆动；上方左右角放模糊 7 px 的树叶 #3B5442，不透明度 0.55。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "公園・森・夏の午後の場面で、穏やかで生き生きした光を出したいとき。",
+        "en": "For parks, woods and summer afternoons that should feel calm and alive.",
+        "zh-Hans": "公园、树林、夏日午后的画面，想要安静又有生气的光线时。"
+      },
+      "tags": [
+        "dappled light",
+        "komorebi",
+        "leaf shadows",
+        "tree shade",
+        "sunlight",
+        "light"
+      ]
+    },
+    {
+      "no": "41",
+      "id": "3-077",
+      "slug": "caustics",
+      "category": "light-color",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/caustics",
+      "name": {
+        "ja": "コースティクス",
+        "en": "Caustics",
+        "zh-Hans": "水下焦散"
+      },
+      "meaning": {
+        "ja": "揺れる水面を通った日の光が、肌や水底に明るい網目の波紋を落とす",
+        "en": "Sunlight through a rippling surface throws a bright net of ripples on skin and the pool floor",
+        "zh-Hans": "阳光穿过起伏的水面，在皮肤和池底投下明亮的网状波纹"
+      },
+      "ask": {
+        "ja": "プールの中の人物に水中のコースティクスを。全体を淡い青にして、人物と水底に明るい網目の光をゆらゆら流して。",
+        "en": "Underwater caustics on the person in the pool: tint everything pale blue and let a bright net of light ripple over the person and the floor.",
+        "zh-Hans": "泳池里的人物加水下焦散：整体染成浅蓝，人物和池底上流动着明亮的网状光纹。"
+      },
+      "summary": {
+        "ja": "場面が水の中の淡い青に沈む。上に揺れる水面の線、斜めに差す4本の光の筋。人物と水底に、曲がった網目の明るい線が揺れながら流れる。",
+        "en": "The scene sinks into pale underwater blue; a wavy surface line runs along the top and four light shafts slant down, while a bent net of bright lines ripples over the person and the floor.",
+        "zh-Hans": "画面沉入水下的浅蓝色；顶部有起伏的水面线，4 道光束斜照下来；人物和池底上，弯曲的亮线网格晃动着流过。"
+      },
+      "spec": {
+        "ja": [
+          "場面①: 胸から上の人物。色は #3F8FB0 へ 55% 寄せ、空 #7CC3D9、水底 #5E9FB4、人物 #2E5A78",
+          "網目: 右下がりと左下がりの線を各 34 本、間隔 26px、太さ 0.2〜2.2px の #E8FBFF。線は3つの正弦の揺れ（1周に 1・2・3 回）で曲がる",
+          "網目は 1px ぼかして不透明度 0.5 のスクリーン。光の筋 4 本は x 120 から 110px おき、上で 0.22 の不透明度から下へ消える",
+          "水面: 上端 y≈9 の揺れる線、太さ 2px #EAFBFF",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene 1: the head-and-shoulders figure; colours shift 55% towards #3F8FB0, with sky #7CC3D9, floor #5E9FB4 and person #2E5A78.",
+          "Net: 34 lines slanting each way, 26 px apart, 0.2–2.2 px wide, #E8FBFF; the lines bend with 3 sine wobbles (1, 2 and 3 times per pass).",
+          "The net is blurred by 1 px and screened at 0.5; 4 shafts start at x 120, 110 px apart, fading from 0.22 opacity at the top to nothing at the bottom.",
+          "Surface: a wavy line near the top at y ≈ 9, 2 px wide, #EAFBFF.",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景 1：头肩人物；颜色向 #3F8FB0 偏 55%，天空 #7CC3D9、池底 #5E9FB4、人物 #2E5A78。",
+          "网纹：左右两个斜向各 34 条线，间距 26 px，线宽 0.2～2.2 px，颜色 #E8FBFF；线条按 3 个正弦摆动弯曲（每轮 1、2、3 次）。",
+          "网纹模糊 1 px，以 0.5 不透明度“滤色”；4 道光束从 x 120 起每隔 110 px 一道，顶部不透明度 0.22，向下渐隐。",
+          "水面：顶部 y≈9 的起伏线，线宽 2 px，#EAFBFF。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "プール・海・水族館など、水の中にいる感じを出したいとき。",
+        "en": "For pools, the sea or aquariums when the picture should feel underwater.",
+        "zh-Hans": "泳池、海边、水族馆等，想表现身在水中的感觉时。"
+      },
+      "tags": [
+        "caustics",
+        "underwater",
+        "pool light",
+        "ripples",
+        "water",
+        "light"
+      ]
+    },
+    {
+      "no": "42",
+      "id": "3-078",
+      "slug": "campfire-light",
+      "category": "light-color",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/campfire-light",
+      "name": {
+        "ja": "焚き火の光",
+        "en": "Campfire light",
+        "zh-Hans": "篝火光"
+      },
+      "meaning": {
+        "ja": "夜に前下の焚き火だけが人を照らし、暖かい橙で揺れ、火の外はすぐ闇に沈む",
+        "en": "At night only a fire low in front lights the person, warm orange and flickering, with darkness just beyond it",
+        "zh-Hans": "夜里只有前下方的火堆照亮人，暖橙色、会跳动，火光之外迅速沉入黑暗"
+      },
+      "ask": {
+        "ja": "夜のキャンプの人物を焚き火の光だけで。火に向いた側が橙に揺れて、外は暗く沈み、火の粉が舞うように。",
+        "en": "Light the person at a night camp with only the campfire: the side facing the fire flickers orange, the rest falls into darkness, with sparks drifting up.",
+        "zh-Hans": "夜晚露营的人物只用篝火照明：朝火的一侧被橙光照得一闪一闪，其余沉入黑暗，火星往上飘。"
+      },
+      "summary": {
+        "ja": "深い青の夜。右下の焚き火の橙の光が人物の火に向いた側を照らし、明るさが炎に合わせて揺れる。光はすぐ弱まり、火の粉が上へ舞う。",
+        "en": "Deep blue night; the orange light of a fire at the lower right lights the side of the person facing it, flickering with the flames; the light falls off fast and sparks drift upwards.",
+        "zh-Hans": "深蓝色的夜，右下方火堆的橙光照亮人物朝火的一侧，亮度随火焰跳动；光迅速衰减，火星向上飘。"
+      },
+      "spec": {
+        "ja": [
+          "場面①: 胸から上の人物。空 #16224A の夜へ。焚き火は (382, 188)",
+          "揺れ: fl = 0.95 + 0.06·sin(7T) + 0.04·sin(13T+1) + 0.03·sin(23T+2)。人物への光は焚き火から半径 170·fl で #FF9A3D から影へ",
+          "周りの闇: 半径 330·fl で外側を不透明度 0.72 の #040610 へ。炎は高さ 34/26/15px の3枚（#E8501E・#FF9A2E・#FFE07A）",
+          "火の粉 16 個 #FFB34D が 150px 上へ昇って消え、1周に 1〜2 回。右上に「1800K」",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene 1: the head-and-shoulders figure at night with sky #16224A; the fire sits at (382, 188).",
+          "Flicker: fl = 0.95 + 0.06·sin(7T) + 0.04·sin(13T+1) + 0.03·sin(23T+2); light on the person runs from #FF9A3D to shadow over a radius of 170·fl from the fire.",
+          "Surrounding dark: beyond a radius of 330·fl it fades to #040610 at 0.72 opacity; the flame is 3 tongues 34/26/15 px tall (#E8501E, #FF9A2E, #FFE07A).",
+          "16 sparks #FFB34D rise 150 px and fade, 1–2 times per pass; top right reads \"1800K\".",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景 1：头肩人物，夜空 #16224A；火堆位于 (382, 188)。",
+          "跳动：fl = 0.95 + 0.06·sin(7T) + 0.04·sin(13T+1) + 0.03·sin(23T+2)；照到人物的光从火堆出发，半径 170·fl，由 #FF9A3D 过渡到暗部。",
+          "四周黑暗：半径 330·fl 外过渡到 0.72 不透明度的 #040610；火焰分 3 层，高 34/26/15 px（#E8501E、#FF9A2E、#FFE07A）。",
+          "16 颗火星 #FFB34D 上升 150 px 后消失，每轮 1～2 次；右上显示“1800K”。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "キャンプ・野外・語り合いの夜など、温かく親密な雰囲気にしたいとき。",
+        "en": "For camping, outdoor nights and late talks that should feel warm and intimate.",
+        "zh-Hans": "露营、野外、围炉夜谈等，想要温暖亲密的氛围时。"
+      },
+      "tags": [
+        "campfire light",
+        "firelight",
+        "warm light",
+        "flicker",
+        "night",
+        "light"
+      ]
+    },
+    {
+      "no": "43",
+      "id": "3-079",
+      "slug": "screen-glow",
+      "category": "light-color",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/screen-glow",
+      "name": {
+        "ja": "画面の光",
+        "en": "Screen glow",
+        "zh-Hans": "屏幕光"
+      },
+      "meaning": {
+        "ja": "暗い部屋で画面だけが光り、冷たい白い光が前から顔と手を照らす",
+        "en": "In a dark room only a screen is lit, its cool white light reaching the face and hands from the front",
+        "zh-Hans": "黑暗房间里只有屏幕亮着，冷白光从前方照亮脸和手"
+      },
+      "ask": {
+        "ja": "夜の部屋でノートPCを見る人物を画面の光だけで。冷たい白い光が顔と胸元だけを照らし、後ろは真っ暗に。",
+        "en": "Light the person looking at a laptop at night with only the screen glow: cool white light on the face and chest only, darkness behind.",
+        "zh-Hans": "夜里看笔记本电脑的人物只用屏幕光：冷白光只照亮脸和胸前，身后一片黑。"
+      },
+      "summary": {
+        "ja": "部屋が暗くなり、人物の前のノートPCだけが光る。冷たい白い光が少し下から顔と胸元を照らしてすぐ弱まり、画面が切り替わる瞬間に明るさが跳ねる。",
+        "en": "The room goes dark and only the laptop in front of the person glows; cool white light from slightly below reaches the face and chest and falls off fast, jumping in brightness whenever the screen changes.",
+        "zh-Hans": "房间暗下来，只有人物面前的笔记本亮着；冷白光从稍低处照亮脸和胸前，很快衰减；画面切换的瞬间亮度跳一下。"
+      },
+      "spec": {
+        "ja": [
+          "場面①: 胸から上の人物。部屋は暗い場面にさらに #0F1116 を 0.8 重ねる",
+          "光源: ノートPC（116×50px、背中向き）が (270, 176)。顔へは半径 120px で #DCE8FF から影へ",
+          "周りのにじみ: 半径 110px の #BED7FF、不透明度 0.32 で加算。画面の上端から 2px の光がもれる",
+          "切り替え: 1.9秒と3.1秒に約 0.06 秒、光の半径が最大 1.18 倍に跳ねる。右上に「6500K」",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene 1: the head-and-shoulders figure; the room turns to the dark scene with #0F1116 at 0.8 laid over it.",
+          "Source: a laptop (116×50 px, seen from behind) at (270, 176); light on the person runs from #DCE8FF to shadow over a radius of 120 px.",
+          "Spill: #BED7FF over a radius of 110 px added at 0.32 opacity; a 2 px line of light leaks from the top edge of the screen.",
+          "Screen changes: at 1.9 s and 3.1 s, for about 0.06 s, the light radius jumps by up to 1.18×; top right reads \"6500K\".",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景 1：头肩人物；房间变为暗场景，再叠 0.8 的 #0F1116。",
+          "光源：笔记本（116×50 px，背面朝镜头）位于 (270, 176)；照到人物的光半径 120 px，由 #DCE8FF 过渡到暗部。",
+          "外溢光：半径 110 px 的 #BED7FF，以 0.32 不透明度相加；屏幕上沿漏出 2 px 的光。",
+          "画面切换：在 1.9 秒和 3.1 秒约 0.06 秒内，光照半径最多跳到 1.18 倍；右上显示“6500K”。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "夜の作業・ゲーム・SNSを見る場面で、孤独感や没入感を出したいとき。",
+        "en": "For late-night work, gaming or scrolling scenes that should feel lonely or absorbed.",
+        "zh-Hans": "深夜工作、打游戏、刷手机等画面，想表现孤独或沉浸感时。"
+      },
+      "tags": [
+        "screen glow",
+        "monitor light",
+        "laptop light",
+        "cool light",
+        "night",
+        "light"
+      ]
+    },
+    {
+      "no": "44",
+      "id": "3-080",
+      "slug": "foggy-light",
+      "category": "light-color",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/foggy-light",
+      "name": {
+        "ja": "霧の中の光",
+        "en": "Foggy light",
+        "zh-Hans": "雾中光"
+      },
+      "meaning": {
+        "ja": "霧で遠くほど白く淡くなり、光が空気の中で広がって層が奥へ退いていく",
+        "en": "Fog makes the distance paler and whiter, light spreads in the air and the layers recede one by one",
+        "zh-Hans": "雾气让远处变淡变白，光在空气里散开，层次一层层退远"
+      },
+      "ask": {
+        "ja": "夕方の街並みに霧を出して。遠い山とビルほど白くかすみ、街灯は霧の中で大きな光の輪になり、手前の人物はくっきり残して。",
+        "en": "Add fog to the evening street: the far hills and buildings fade whiter the further they are, street lamps become big halos in the mist, the person in front stays sharp.",
+        "zh-Hans": "傍晚街景加雾：越远的山和楼越白越淡，路灯在雾里变成大光晕，近处的人物保持清楚。"
+      },
+      "summary": {
+        "ja": "夕方の街に霧が出る。遠い山・ビル・並木と街灯・手前の人物の4層が、遠いほど霧の色に近づいてコントラストを失う。霧の帯が地平線をゆっくり流れ、街灯に大きな光の輪と下への光の円錐が出る。",
+        "en": "Fog rolls into the evening street; of the four layers — far hills, buildings, trees with street lamps, and the person in front — the further ones turn closer to the fog colour and lose contrast; a fog band drifts along the horizon and each lamp gets a large halo and a cone of light below.",
+        "zh-Hans": "傍晚街道起雾；远山、楼群、行道树与路灯、近处人物四层，越远越接近雾色、对比越低；一条雾带沿地平线缓缓飘过，路灯出现大光晕和向下的光锥。"
+      },
+      "spec": {
+        "ja": [
+          "場面: 夕方の街角（空 #C9D1DA、遠い山 #56677C、ビル #4F5D73、木 #34493F、人物 #232A38）",
+          "霧の重ね: 霧の色 #D5DADF を、山の後に 0.42、ビルの後に 0.32、並木と街灯の後に 0.22 重ねる。遠い層ほど何度もかぶる。人物にはかけない",
+          "霧の帯: 68×26 の小さな面に白い塊 7 つを描き、y 50〜150 に引き伸ばして不透明度 0.7。塊は1周で 1〜2 回横へ流れる",
+          "街灯 3 本（x 114・292・494）: 電球の周りに半径 18〜44px の光の輪 #FFD68C（中心 0.6）と、下へ広がる幅 44px の光の円錐。右上に「FOG n%」",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene: an evening street corner (sky #C9D1DA, far hills #56677C, buildings #4F5D73, trees #34493F, person #232A38).",
+          "Fog layers: fog colour #D5DADF is laid on at 0.42 after the hills, 0.32 after the buildings and 0.22 after the trees and lamps, so further layers are covered more often; none goes over the person.",
+          "Fog band: 7 white puffs are drawn on a 68×26 canvas and stretched over y 50–150 at 0.7 opacity; the puffs drift sideways 1–2 times per pass.",
+          "3 street lamps (x 114, 292, 494): a halo #FFD68C of radius 18–44 px around each bulb (0.6 at the centre) and a 44 px wide cone spreading down; top right reads \"FOG n%\".",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景：傍晚街角（天空 #C9D1DA、远山 #56677C、楼 #4F5D73、树 #34493F、人物 #232A38）。",
+          "叠雾：雾色 #D5DADF 在画完远山后叠 0.42、画完楼群后叠 0.32、画完树和路灯后叠 0.22；越远的层被盖的次数越多；人物不加雾。",
+          "雾带：在 68×26 的小画布上画 7 团白雾，拉伸到 y 50～150，不透明度 0.7；雾团每轮横向漂移 1～2 次。",
+          "3 盏路灯（x 114、292、494）：灯泡周围有半径 18～44 px 的光晕 #FFD68C（中心 0.6），并向下展开宽 44 px 的光锥；右上显示“FOG n%”。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "早朝・雨上がり・ミステリーの場面で、奥行きと静けさを出したいとき。",
+        "en": "For early mornings, after rain or mysteries when the picture should feel deep and quiet.",
+        "zh-Hans": "清晨、雨后、悬疑画面中，想表现纵深和安静感时。"
+      },
+      "tags": [
+        "foggy light",
+        "fog",
+        "mist",
+        "atmospheric perspective",
+        "halo",
+        "light"
+      ]
+    },
+    {
+      "no": "45",
+      "id": "3-081",
+      "slug": "moonlight",
+      "category": "light-color",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/moonlight",
+      "name": {
+        "ja": "月夜",
+        "en": "Moonlight",
+        "zh-Hans": "月光夜景"
+      },
+      "meaning": {
+        "ja": "冷たい青の弱い光が高い所から差し、影ははっきりだが暗部は深く、色が少ない",
+        "en": "Weak, cold blue light comes from high up; shadows are clear but deep and there is little colour",
+        "zh-Hans": "冷蓝色的弱光从高处照来，影子清楚但暗部很深，色彩很少"
+      },
+      "ask": {
+        "ja": "人物の写真を月夜にして。空は黒に近い青、高い所からの冷たい光で片側だけ照らし、地面に銀色の照り返しを入れて。",
+        "en": "Turn the portrait into a moonlit night: a near-black blue sky, cold light from high up on one side only, and a silver glint on the ground.",
+        "zh-Hans": "把人像改成月光夜景：天空接近黑色的深蓝，高处冷光只照亮一侧，地面加一道银色反光。"
+      },
+      "summary": {
+        "ja": "空が黒に近い深い青になり、左上に満月が昇る。人物は高い所からの冷たい青い光で片側だけ照らされ、影ははっきり。地面に銀色の照り返しが揺れ、窓は灯らない。",
+        "en": "The sky turns a deep near-black blue and a full moon rises at the upper left; the person is lit on one side by cold blue light from above, with clear shadows; a silver glint shimmers on the ground and the windows stay dark.",
+        "zh-Hans": "天空变成接近黑色的深蓝，左上方升起满月；人物只被高处的冷蓝光照亮一侧，影子清楚；地面一道银色反光微微晃动，窗户不亮。"
+      },
+      "spec": {
+        "ja": [
+          "場面①: 胸から上の人物。空 #0D1630、窓と電球は灯らず #1C2640",
+          "月: x 84 で y 70 から 38 へ昇る。半径16px #EEF4FF と、半径30px のかさ #C9DAF5（0.25）",
+          "人物: 光の側 #9DB4DE、影 #0E1424。照り返しは月の下 y156〜192 に 5 本の細い帯 #BFD3F2（0.7）、1周に2回揺れる",
+          "配置図は青い灯 #9DB4DE、右上に「4100K · ↑60°」",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene 1: the head-and-shoulders figure; sky #0D1630, windows and bulbs unlit #1C2640.",
+          "Moon: at x 84, rising from y 70 to 38; radius 16 px #EEF4FF with a 30 px halo #C9DAF5 at 0.25.",
+          "Person: lit side #9DB4DE, shadow #0E1424; the glint is 5 thin strips #BFD3F2 (0.7) under the moon at y 156–192, swaying 2 times per pass.",
+          "The plan shows a blue light #9DB4DE; top right reads \"4100K · ↑60°\".",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景 1：头肩人物；天空 #0D1630，窗户和灯泡不亮，为 #1C2640。",
+          "月亮：x 84，从 y 70 升到 38；半径 16 px #EEF4FF，外圈半径 30 px 的光晕 #C9DAF5（0.25）。",
+          "人物：亮侧 #9DB4DE、暗侧 #0E1424；反光为月亮下方 y 156～192 的 5 条细带 #BFD3F2（0.7），每轮晃动 2 次。",
+          "灯位图用蓝色灯 #9DB4DE；右上显示“4100K · ↑60°”。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "夜の散歩・別れ・静かな物語の場面で、冷たく寂しい雰囲気にしたいとき。",
+        "en": "For night walks, farewells or quiet stories that should feel cold and lonely.",
+        "zh-Hans": "夜晚散步、离别、安静叙事的画面，想要清冷孤寂的氛围时。"
+      },
+      "tags": [
+        "moonlight",
+        "night",
+        "cool light",
+        "blue hour",
+        "moon",
+        "light"
+      ]
+    },
+    {
+      "no": "46",
+      "id": "3-082",
+      "slug": "bicolor-lighting",
+      "category": "light-color",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/bicolor-lighting",
+      "name": {
+        "ja": "バイカラー",
+        "en": "Bicolor lighting",
+        "zh-Hans": "双色光"
+      },
+      "meaning": {
+        "ja": "色の違う2灯が左右から当たり、顔の片側がマゼンタ、反対側がシアンになる",
+        "en": "Two lights of different colours hit from both sides, turning one side of the face magenta and the other cyan",
+        "zh-Hans": "两盏不同颜色的灯从两侧照来，脸一边偏品红、一边偏青蓝"
+      },
+      "ask": {
+        "ja": "暗い背景の人物に左からマゼンタ、右からシアンの光を当てて。真ん中は2色が混ざって淡い紫に。",
+        "en": "Light the person on a dark background with magenta from the left and cyan from the right, mixing to a pale violet in the middle.",
+        "zh-Hans": "暗背景的人物左边打品红、右边打青蓝，中间两色混成淡紫。"
+      },
+      "summary": {
+        "ja": "周りが暗くなり、左にマゼンタ、右にシアンの灯がともる。人物の左右が別の色に染まり、鼻筋のあたりで淡い紫に混ざる。壁にも2色がこぼれる。",
+        "en": "The surroundings darken as a magenta light comes on at the left and a cyan one at the right; each side of the person takes one colour, blending to pale violet down the middle, and both colours spill onto the wall.",
+        "zh-Hans": "四周变暗，左侧亮起品红灯、右侧亮起青蓝灯；人物左右各染一色，在鼻梁附近混成淡紫；墙上也溢出两种颜色。"
+      },
+      "spec": {
+        "ja": [
+          "場面①: 胸から上の人物（頭の中心 x270, y78・半径29px）。背景は暗い場面へ",
+          "人物の色: x 206〜334 の横グラデーション。0〜42% マゼンタ #FF3FA4、50% 淡い紫 #A98CFF、58〜100% シアン #33D6FF。下ほど暗く",
+          "壁のこぼれ: (60, 80) にマゼンタ、(480, 80) にシアンの半径200pxの光を不透明度 0.32 で加算",
+          "配置図は左右 90° の2灯（マゼンタとシアン）、右上に「MAGENTA · CYAN」",
+          "時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）"
+        ],
+        "en": [
+          "Scene 1: a head-and-shoulders figure (head centre x 270, y 78, radius 29 px); the background turns to the dark scene.",
+          "Colour on the person: a horizontal gradient over x 206–334 — magenta #FF3FA4 for 0–42%, pale violet #A98CFF at 50%, cyan #33D6FF for 58–100% — darker towards the bottom.",
+          "Wall spill: radial light of radius 200 px, magenta at (60, 80) and cyan at (480, 80), added at 0.32 opacity.",
+          "The plan shows two lights at 90° left and right (magenta and cyan); top right reads \"MAGENTA · CYAN\".",
+          "Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out)."
+        ],
+        "zh-Hans": [
+          "场景 1：头肩人物，头部中心 x 270、y 78、半径 29 px；背景变为暗场景。",
+          "人物颜色：x 206～334 的横向渐变，0～42% 品红 #FF3FA4，50% 淡紫 #A98CFF，58～100% 青蓝 #33D6FF；越往下越暗。",
+          "墙面溢光：(60, 80) 处品红、(480, 80) 处青蓝，各半径 200 px，以 0.32 不透明度相加。",
+          "灯位图为左右 90° 两盏灯（品红和青蓝）；右上显示“MAGENTA · CYAN”。",
+          "效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。"
+        ]
+      },
+      "use": {
+        "ja": "ミュージックビデオ・ゲーム・夜の街など、ネオンのような強い色の雰囲気がほしいとき。",
+        "en": "For music videos, games and night city scenes that want a strong, neon-like colour mood.",
+        "zh-Hans": "MV、游戏、夜晚城市等，想要霓虹般强烈色彩氛围时。"
+      },
+      "tags": [
+        "bicolor lighting",
+        "two-tone light",
+        "magenta",
+        "cyan",
+        "neon",
+        "light"
+      ]
+    },
+    {
+      "no": "47",
+      "id": "3-083",
+      "slug": "color-temperature",
+      "category": "light-color",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/color-temperature",
+      "name": {
+        "ja": "色温度",
+        "en": "Color temperature",
+        "zh-Hans": "色温"
+      },
+      "meaning": {
+        "ja": "光が暖かい橙か冷たい青かをケルビン（K）で表す",
+        "en": "Whether light is warm orange or cool blue, measured in kelvin (K)",
+        "zh-Hans": "光偏暖橙还是偏冷蓝，用开尔文（K）表示"
+      },
+      "ask": {
+        "ja": "風景の写真の色温度を動かして。5500K から 2000K で暖かい橙へ、次に 10000K で冷たい青へ、最後に 5500K へ戻して、目盛りで数値を見せて。",
+        "en": "Sweep the colour temperature of the landscape: from 5500 K to a warm orange 2000 K, then to a cold blue 10000 K and back to 5500 K, with a scale showing the value.",
+        "zh-Hans": "让风景画面的色温变化：从 5500K 到暖橙的 2000K，再到冷蓝的 10000K，最后回到 5500K，并用刻度条显示数值。"
+      },
+      "summary": {
+        "ja": "右下に K の目盛り。針が 5500K → 2000K → 10000K → 5500K と動き、画面は数値が低いと橙に、高いと青に染まる。",
+        "en": "A kelvin scale sits at the lower right; its pointer moves 5500 K → 2000 K → 10000 K → 5500 K, and the picture turns orange at low values and blue at high ones.",
+        "zh-Hans": "右下有开尔文刻度条，指针按 5500K → 2000K → 10000K → 5500K 移动；数值低时画面偏橙，高时偏蓝。"
+      },
+      "spec": {
+        "ja": [
+          "場面: 太陽 (432, 54) のある風景と、胸から上の人物（頭の中心 x140, y82・半径28px）",
+          "K の動き: 0.4〜1.4秒で 5500 → 2000K、2.0〜3.0秒で → 10000K、3.6〜4.6秒で → 5500K（各イーズインアウト）",
+          "色: 2000K #FF8A2A・2700K #FFA552・3500K #FFC489・5500K 無色・7500K #A9C8FF・10000K #7FA8FF を間で補い、乗算で重ねる（濃さは最大 0.67）",
+          "目盛り: 右下 150×34px の白い札に 2000〜10000K の色帯と三角の針。右上に 100K 単位の値"
+        ],
+        "en": [
+          "Scene: a landscape with the sun at (432, 54) and a head-and-shoulders figure (head centre x 140, y 82, radius 28 px).",
+          "Kelvin path: 5500 → 2000 K over 0.4–1.4 s, → 10000 K over 2.0–3.0 s, → 5500 K over 3.6–4.6 s (each ease-in-out).",
+          "Colour: 2000 K #FF8A2A, 2700 K #FFA552, 3500 K #FFC489, 5500 K neutral, 7500 K #A9C8FF, 10000 K #7FA8FF, interpolated between and multiplied over the picture (strength up to 0.67).",
+          "Scale: a 150×34 px white tag at the lower right with a 2000–10000 K colour strip and a triangular pointer; top right shows the value rounded to 100 K."
+        ],
+        "zh-Hans": [
+          "场景：太阳位于 (432, 54) 的风景，加头肩人物，头部中心 x 140、y 82、半径 28 px。",
+          "K 值变化：0.4～1.4 秒 5500 → 2000K，2.0～3.0 秒 → 10000K，3.6～4.6 秒 → 5500K，各段缓入缓出。",
+          "颜色：2000K #FF8A2A、2700K #FFA552、3500K #FFC489、5500K 无色、7500K #A9C8FF、10000K #7FA8FF，之间插值，以“正片叠底”叠加，最大强度 0.67。",
+          "刻度条：右下 150×34 px 白色标签，内有 2000～10000K 色带和三角指针；右上显示取整到 100K 的数值。"
+        ]
+      },
+      "use": {
+        "ja": "白とびや色かぶりを説明するとき、時間帯や気分を色で表したいとき。",
+        "en": "To explain white balance and colour casts, or to show time of day and mood through colour.",
+        "zh-Hans": "讲解白平衡和偏色，或想用颜色表达时段与情绪时。"
+      },
+      "tags": [
+        "color temperature",
+        "kelvin",
+        "white balance",
+        "warm",
+        "cool",
+        "light"
       ]
     }
   ]

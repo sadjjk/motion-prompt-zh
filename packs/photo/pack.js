@@ -1,7 +1,8 @@
 /* Motion Prompt · pack "photo" · MIT License (c) 2026 Shohei Ohtaki · https://github.com/showheyohtaki/motion-prompt */
 MotionPrompt.pack('photo', function () {
   // @kit
-  // 写真の表現・光と画風 31（カード 539x208、1周 5秒）。各コマは時間 u の純関数。
+  // 写真の表現・光と画風 47（カード 539x208、1周 5秒）。各コマは時間 u の純関数。
+  // 32〜47 は光（镜语の用語による）。レンズの光 3・ライティング 5・光源と色 8。
   // 25〜31 は構図。同じ平らな場面で、env(u) に合わせて主役を構図どおりの位置へ動かし、補助線を出す。
   // 絵は平らな図形だけで描く。場面は3つを全コマで使い回す: ①光＝地平線の前の胸像 ②レンズ＝街角 ③仕上げ＝胸像と風景。
   // 人物は顔・髪のない丸い頭のピクト。光はアンバー1色の面、影は一段濃い平らな面で表す。
@@ -210,7 +211,8 @@ MotionPrompt.pack('photo', function () {
     k.fillStyle = '#6E6E73'; k.textAlign = 'right'; k.textBaseline = 'middle'; k.fillText(s, CW - m - 14, m + 18);
     k.restore();
   }
-  // 右下の、真上から見た配置図: 頭（下がカメラ側）と光の位置。lights = [[角度, 明るさ0..1]]、角度は 0 = カメラ側、+90° = 画面の左
+  // 右下の、真上から見た配置図: 頭（下がカメラ側）と光の位置。lights = [[角度, 明るさ0..1, 色]]、角度は 0 = カメラ側、+90° = 画面の左
+  // 色は省略可（既定はアンバー）。2色の光（バイカラー）で灯ごとに色を変えるときだけ渡す
   function plan(k, lights) {
     const w = 66, h = 66, x = CW - 13 - w, y = CH - 13 - h, cx = x + w / 2, cy = y + h / 2 - 3;
     k.save();
@@ -219,11 +221,11 @@ MotionPrompt.pack('photo', function () {
     k.fillStyle = '#CFCECB'; k.beginPath(); k.roundRect(cx - 6, y + h - 10, 12, 6, 2); k.fill();
     k.fillStyle = '#A9A8A5'; k.beginPath(); k.arc(cx, cy, 8, 0, TAU); k.fill();
     k.beginPath(); k.moveTo(cx - 3.5, cy + 7); k.lineTo(cx + 3.5, cy + 7); k.lineTo(cx, cy + 12); k.fill();
-    for (const [az, a] of lights) {
+    for (const [az, a, col = '#F5A524'] of lights) {
       const lx = cx - Math.sin(az) * 22, ly = cy + Math.cos(az) * 22;
       k.globalAlpha = a;
-      k.strokeStyle = '#F5A524'; k.lineWidth = 1.4; k.setLineDash([2.5, 2.5]); k.beginPath(); k.moveTo(lx, ly); k.lineTo(lerp(lx, cx, 0.55), lerp(ly, cy, 0.55)); k.stroke(); k.setLineDash([]);
-      k.fillStyle = '#F5A524'; k.beginPath(); k.arc(lx, ly, 4.5, 0, TAU); k.fill();
+      k.strokeStyle = col; k.lineWidth = 1.4; k.setLineDash([2.5, 2.5]); k.beginPath(); k.moveTo(lx, ly); k.lineTo(lerp(lx, cx, 0.55), lerp(ly, cy, 0.55)); k.stroke(); k.setLineDash([]);
+      k.fillStyle = col; k.beginPath(); k.arc(lx, ly, 4.5, 0, TAU); k.fill();
     }
     k.restore();
   }
@@ -233,6 +235,18 @@ MotionPrompt.pack('photo', function () {
     const c = LAYERS[name] || (LAYERS[name] = (() => { const e = document.createElement('canvas'); e.width = CW; e.height = CH; return e; })());
     const kk = c.getContext('2d'); kk.globalAlpha = 1; kk.filter = 'none'; kk.globalCompositeOperation = 'source-over'; kk.clearRect(0, 0, CW, CH);
     return [c, kk];
+  }
+  // 明るい所だけの面: 透明な面に paint(kk) で灯り・窓・太陽などを描いて返す（泛光・柔焦・プリズムの元）
+  // 場面と位置を合わせるため、paint の中では場面と同じ座標の定数（LAMPS・BLD・QX など）を使う
+  function brights(name, paint) { const [c, kk] = layer(name); paint(kk, pen(kk)); return c; }
+  // 色温度（K）→ 画面に重ねる色と濃さ。5500K（昼光）は重ねない。間は隣の2点を混ぜる
+  const KELVIN = [[2000, '#FF8A2A', 0.42], [2700, '#FFA552', 0.3], [3500, '#FFC489', 0.16], [5500, '#FFFFFF', 0], [7500, '#A9C8FF', 0.2], [10000, '#7FA8FF', 0.36]];
+  function kelvin(K) {
+    let i = 0; while (i < KELVIN.length - 2 && K > KELVIN[i + 1][0]) i++;
+    const [k0, c0, a0] = KELVIN[i], [k1, c1, a1] = KELVIN[i + 1], t = clamp((K - k0) / (k1 - k0));
+    // 5500K の白は色を持たないので、混ぜるときは相手の色のまま濃さだけ変える
+    const col = a0 === 0 ? c1 : a1 === 0 ? c0 : mixc(c0, c1, t);
+    return [col, lerp(a0, a1, t)];
   }
   const cell = fn => (k, w, h, u) => { k.save(); fn(k, u); k.restore(); };
 
@@ -734,6 +748,524 @@ MotionPrompt.pack('photo', function () {
     [[30, 206, 26], [96, 212, 18], [470, 204, 28], [530, 212, 20]].forEach(([x, y, r]) => { D.circ(x, y, r, BASE.tree); D.circ(x - r * 0.3, y - r * 0.5, 4, BASE.sun); });
     k.restore();
     tag(k, '后景', 90 + s * 6, 70, a); tag(k, '中景', CW / 2 + 52 + s * 18, 120, a); tag(k, '前景', 96 + s * 48, 182, a);
+  });
+
+  // @element 32
+  // 泛光（ブルーム）: 夜の街角で、窓・街灯・車のライトの明るい所からだけ光がにじみ出す。暗い建物の輪郭はそのまま
+  CELLS[31] = cell((k, u) => {
+    const a = env(u), x = lerp(-60, 600, u / CYC);
+    const lights = { head: '#FFE9B8', tail: '#FF5B4D' };
+    stageStreet(k, NIGHT, { car: x, carLights: lights });
+    if (a < 0.002) { hud(k, 'BLOOM 0%'); return; }
+    // 明るい所だけ: 同じ場面を、窓と電球と車のライト以外を透明にした色で描く
+    const NONE = 'rgba(0,0,0,0)', BR = mapPal(NIGHT, () => NONE);
+    Object.assign(BR, { win: NIGHT.win, bulb: '#FFE3A3' });
+    const L = brights('bloom', kk => stageStreet(kk, BR, { car: x, carLights: lights, person: false }));
+    const [G, kg] = layer('bloom-g');
+    kg.globalCompositeOperation = 'lighter';
+    for (const [b, al] of [[3, 0.9], [7, 0.85], [10, 0.8]]) { kg.filter = `blur(${b}px)`; kg.globalAlpha = al; kg.drawImage(L, 0, 0); }
+    kg.filter = 'none';
+    // 広いにじみ: 半分の大きさで 10px ぼかす（全面で 20px 相当）
+    const [Hh, kh] = layer('bloom-h'); kh.filter = 'blur(5px)'; kh.drawImage(L, 0, 0, CW / 2, CH / 2); kh.filter = 'none';
+    k.save(); k.globalCompositeOperation = 'lighter';
+    k.globalAlpha = a; k.drawImage(G, 0, 0);
+    k.globalAlpha = 0.9 * a; k.drawImage(Hh, 0, 0, CW / 2, CH / 2, 0, 0, CW, CH);
+    k.restore();
+    hud(k, `BLOOM ${Math.round(a * 100)}%`);
+  });
+
+  // @element 33
+  // 柔焦（ソフトフォーカス）: 画面全体のぼかした写しを明るくしてスクリーンで重ねる。太陽と人物の光る縁がにじみ、
+  // 全体のコントラストが下がって暗部が浮くが、山・木・人物の輪郭は元の絵が残るのでくっきりしたまま
+  CELLS[32] = cell((k, u) => {
+    const a = env(u);
+    stageLand(k, BASE);
+    if (a < 0.002) { hud(k, 'SOFT 0%'); return; }
+    const [S, ks] = layer('soft'); stageLand(ks, BASE);
+    const [B, kb] = layer('soft-b'); kb.filter = 'blur(7px) brightness(1.12)'; kb.drawImage(S, 0, 0); kb.filter = 'none';
+    k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.6 * a; k.drawImage(B, 0, 0);
+    // 暗部が浮く: ごく薄い白を重ねてコントラストを下げる
+    k.globalCompositeOperation = 'source-over'; k.globalAlpha = 0.1 * a; k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+    k.restore();
+    hud(k, `SOFT ${Math.round(a * 100)}%`);
+  });
+
+  // @element 34
+  // 棱镜彩虹（プリズム）: 夜の街角で、明るい所だけが赤〜紫の6色に分かれて左上へずれた虹色の重影になる。
+  // 暗い所はそのまま。淡い虹の帯がゆっくり画面の左側を横切る
+  CELLS[33] = cell((k, u) => {
+    const a = env(u);
+    stageStreet(k, NIGHT);
+    if (a < 0.002) { hud(k, 'PRISM'); return; }
+    const NONE = 'rgba(0,0,0,0)', BR = mapPal(NIGHT, () => NONE);
+    Object.assign(BR, { win: NIGHT.win, bulb: '#FFE3A3' });
+    const L = brights('prism', kk => stageStreet(kk, BR, { person: false }));
+    const RAINBOW = ['#FF4D4D', '#FF9F3D', '#FFE14D', '#5CE27A', '#4DB8FF', '#9B6BFF'];
+    const [C, kc] = layer('prism-c');
+    k.save(); k.globalCompositeOperation = 'lighter';
+    RAINBOW.forEach((col, i) => {
+      // 明るい所の形を1色に塗り替えて、色ごとに少しずつ左上へずらす
+      kc.globalCompositeOperation = 'source-over'; kc.clearRect(0, 0, CW, CH); kc.drawImage(L, 0, 0);
+      kc.globalCompositeOperation = 'source-in'; kc.fillStyle = col; kc.fillRect(0, 0, CW, CH);
+      const d = (i + 1) * 2.4 * a;
+      k.globalAlpha = 0.5 * a; k.drawImage(C, -d * 1.3, -d);
+    });
+    // 虹の帯: 斜めの帯が左から右へ（端では a = 0 なので位置の飛びは見えない）
+    const bx = lerp(-160, 260, u / CYC), g = k.createLinearGradient(bx, 0, bx + 90, 40);
+    RAINBOW.forEach((col, i) => g.addColorStop(i / 5, col));
+    k.globalAlpha = 0.16 * a; k.fillStyle = g;
+    k.beginPath(); k.moveTo(bx, -10); k.lineTo(bx + 70, -10); k.lineTo(bx + 150, CH + 10); k.lineTo(bx + 80, CH + 10); k.closePath(); k.fill();
+    k.restore();
+    hud(k, 'PRISM');
+  });
+
+  // @element 35
+  // 体積光束（ゴッドレイ）: 周りが暗くなり、左上の外にある一つの光源から明暗の筋になった光の束が斜めに差し込み、人物を横切る。
+  // 束ごとに明るさがゆっくり揺れ、束と束の間には暗い隙間が残る
+  CELLS[34] = cell((k, u) => {
+    const a = env(u), T = u / CYC * TAU, W = torsoW(PR);
+    stagePortrait(k, pal(BASE, DARK, 0.8 * a));
+    const lit = mixc(BASE.person, BASE.lit, a), sh = mixc(BASE.person, BASE.shade, a);
+    bust(k, PX, PY, PR, BASE.person, kk => {
+      kk.fillStyle = lit; kk.beginPath(); kk.arc(PX, PY, PR, 0, TAU); kk.fill();
+      headShade(kk, PX, PY, PR, 0.9, 1, sh);
+      torso(kk, PX, PY, PR, PX + 0.15 * W, PX + W, sh);
+    });
+    if (a < 0.002) { hud(k, '↘ 35°'); return; }
+    // 光の束: 光源 (SX,SY) から放射状の細い扇を9本。角度と幅は固定、明るさだけ整数倍の周期で揺れる
+    const SX = -40, SY = -50, [R, kr] = layer('rays');
+    const g = kr.createRadialGradient(SX, SY, 0, SX, SY, 640);
+    g.addColorStop(0, 'rgba(255,228,168,0.95)'); g.addColorStop(1, 'rgba(255,228,168,0)');
+    kr.fillStyle = g;
+    const rays = once('rays', () => { const r = rng(35), o = []; for (let i = 0; i < 9; i++) o.push([0.26 + i * 0.085 + r() * 0.02, 0.012 + r() * 0.016, r() * TAU, 1 + Math.floor(r() * 3)]); return o; });
+    for (const [ang, hw, ph, n] of rays) {
+      kr.globalAlpha = 0.35 + 0.3 * Math.sin(T * n + ph);
+      kr.beginPath(); kr.moveTo(SX, SY);
+      kr.lineTo(SX + Math.cos(ang - hw) * 900, SY + Math.sin(ang - hw) * 900); kr.lineTo(SX + Math.cos(ang + hw) * 900, SY + Math.sin(ang + hw) * 900);
+      kr.closePath(); kr.fill();
+    }
+    k.save(); k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.75 * a; k.filter = 'blur(2px)'; k.drawImage(R, 0, 0); k.restore();
+    hud(k, '↘ 35°');
+  });
+
+  // @element 36
+  // 窗格光影: 明るい壁の前の胸像。窓枠の格子の影が斜めに壁と人物へ落ち、時間とともにゆっくり横へ動いて長く伸びる。
+  // 光の当たる所は格子のガラスの形、それ以外は影（縁はくっきり）
+  CELLS[35] = cell((k, u) => {
+    const a = env(u), s = u / CYC, D = pen(k);
+    D.rect(0, 0, CW, CH, '#F3EEE6'); D.rect(0, 168, CW, CH - 168, '#E4DCCF'); D.rect(0, 166, CW, 3, '#D6CCBC');
+    bust(k, PX, PY, PR, '#5A6884');
+    if (a > 0.002) {
+      // ガラス1枚の四隅を、光の傾き sh で右下へ流して壁に写す
+      const tx = lerp(96, 176, s), sh = lerp(0.42, 0.72, s), PW = 52, PH = 46, G = 9;
+      const mp = (x, y) => [tx + x + sh * y, y];
+      k.save(); k.globalCompositeOperation = 'multiply'; k.globalAlpha = a; k.fillStyle = '#AEA9BB';
+      k.beginPath(); k.rect(0, 0, CW, CH);
+      for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
+        const x0 = i * (PW + G), y0 = 14 + j * (PH + G) * 1.08;
+        const q = [mp(x0, y0), mp(x0 + PW, y0), mp(x0 + PW, y0 + PH), mp(x0, y0 + PH)];
+        k.moveTo(q[0][0], q[0][1]); for (const [x, y] of q.slice(1)) k.lineTo(x, y); k.closePath();
+      }
+      k.fill('evenodd');
+      k.restore();
+    }
+    hud(k, clock(lerp(900, 940, s)));
+  });
+
+  // @element 37
+  // 舞台追光（スポットライト）: 舞台の明かりが落ち、上からの追いかけ照明だけが歩く人を丸く照らす。
+  // 丸の外はほぼ真っ黒、煙の中で光の柱が見え、手前に客席の頭の影が並ぶ
+  CELLS[36] = cell((k, u) => {
+    const a = env(u), x = 270 + 120 * Math.sin(u / CYC * TAU), FEET = 170, SY = 110, SR = 62;
+    const D = pen(k);
+    // 舞台: 奥の幕（縦のひだ）と床
+    D.rect(0, 0, CW, CH, '#4A4C55');
+    for (let i = 0; i < 18; i++) D.rect(i * 30 + 8, 0, 12, 140, '#42444C');
+    D.rect(0, 140, CW, CH - 140, '#5A5B62'); D.rect(0, 140, CW, 3, '#3A3B42');
+    figure(D, x, FEET, 104, '#33384A');
+    // 暗転: 丸の外を黒く沈める（縁はくっきり）
+    k.save(); k.globalAlpha = 0.92 * a; k.fillStyle = '#07080B';
+    k.beginPath(); k.rect(0, 0, CW, CH); k.arc(x, SY, SR, 0, TAU); k.fill('evenodd'); k.restore();
+    // 丸の中は明るく暖かく（スクリーンで持ち上げる）
+    k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.55 * a; k.fillStyle = '#FFE2A8';
+    k.beginPath(); k.arc(x, SY, SR, 0, TAU); k.fill();
+    k.globalAlpha = 0.5 * a; k.beginPath(); k.ellipse(x, FEET, SR * 0.9, 9, 0, 0, TAU); k.fill();   // 床の光の楕円
+    k.restore();
+    // 光の柱: 画面上の外の灯体から丸へ。煙で見える柱は薄い台形
+    const sx = lerp(x, CW / 2, 0.45), top = -20;
+    k.save(); k.globalCompositeOperation = 'lighter';
+    const g = k.createLinearGradient(sx, top, x, SY);
+    g.addColorStop(0, `rgba(255,232,180,${(0.34 * a).toFixed(3)})`); g.addColorStop(1, `rgba(255,232,180,${(0.1 * a).toFixed(3)})`);
+    k.fillStyle = g; k.beginPath(); k.moveTo(sx - 6, top); k.lineTo(sx + 6, top); k.lineTo(x + SR * 0.96, SY - 12); k.lineTo(x - SR * 0.96, SY - 12); k.closePath(); k.fill();
+    k.restore();
+    // 客席: 手前に頭と肩の影（ゆっくり小さく揺れる）
+    const crowd = once('crowd', () => { const r = rng(37), o = []; for (let i = 0; i < 13; i++) o.push([i * 44 + r() * 18 - 6, 8 + r() * 6, r() * TAU, 1 + Math.floor(r() * 2)]); return o; });
+    for (const [cx, hr, ph, n] of crowd) {
+      const cy = 196 + 1.2 * Math.sin(u / CYC * TAU * n + ph);
+      D.circ(cx, cy - hr * 1.2, hr, '#0B0C10'); D.rr(cx - hr * 2.1, cy, hr * 4.2, 30, hr, '#0B0C10');
+    }
+  });
+
+  // @element 38
+  // 慢门闪光（スローシンクロ）: 夜の街角、上に色電球の飾り。閃光が一瞬光って人物はくっきり明るく止まり、
+  // 背景の電球・街灯・窓は長い露光の間にカメラが回った分だけ弧を描く色の尾になる
+  CELLS[37] = cell((k, u) => {
+    const a = env(u);
+    // 色電球の飾り: 2本の垂れた線に沿って12個ずつ
+    const BULBS = once('garland', () => { const o = [], C = ['#FF5A5A', '#FFC24D', '#5CE27A', '#4DB8FF', '#C77DFF']; for (let s = 0; s < 2; s++) for (let i = 0; i < 12; i++) { const t = (i + 0.5) / 12, x = s * 270 + t * 270; o.push([x, 18 + 26 * Math.sin(t * Math.PI), C[(i + s * 2) % 5]]); } return o; });
+    const garland = (kk, bright) => {
+      kk.strokeStyle = bright ? 'rgba(0,0,0,0)' : '#1A2238'; kk.lineWidth = 1.2;
+      for (let s = 0; s < 2; s++) { kk.beginPath(); for (let i = 0; i <= 24; i++) { const t = i / 24; kk.lineTo(s * 270 + t * 270, 18 + 26 * Math.sin(t * Math.PI)); } kk.stroke(); }
+      for (const [x, y, c] of BULBS) { kk.fillStyle = c; kk.beginPath(); kk.arc(x, y, 3.2, 0, TAU); kk.fill(); }
+    };
+    stageStreet(k, NIGHT, { person: false, after: () => garland(k, false) });
+    // 尾: 明るい所だけの面を、画面上の点 (270, 300) を中心に少しずつ回して重ねる
+    const NONE = 'rgba(0,0,0,0)', BR = mapPal(NIGHT, () => NONE);
+    Object.assign(BR, { win: NIGHT.win, bulb: '#FFE3A3' });
+    const L = brights('drag', kk => { stageStreet(kk, BR, { person: false }); garland(kk, true); });
+    if (a > 0.002) {
+      k.save(); k.globalCompositeOperation = 'lighter';
+      for (let i = 1; i <= 16; i++) {
+        k.save(); k.translate(270, 300); k.rotate(-0.07 * a * i / 16); k.translate(-270, -300);
+        k.globalAlpha = 0.16 * a; k.drawImage(L, 0, 0); k.restore();
+      }
+      k.restore();
+    }
+    // 人物: 閃光で止まり、明るい色で写る（閃光の瞬間 1.3〜1.7 秒に白く光る）
+    const flash = Math.exp(-(((u - 1.45) / 0.09) ** 2));
+    figure(pen(k), FIG[0], FIG[1], FIG[2], mixc(NIGHT.person, '#D9D4E6', a));
+    k.save(); k.globalAlpha = 0.55 * flash; k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH); k.restore();
+    hud(k, a > 0.5 ? '1/4s · ⚡' : '1/60s');
+  });
+
+  // @element 39
+  // 底光（アンダーライト）: 周りが暗くなり、胸の前の懐中電灯があごの下から上へ照らす。頭は下半分が明るく上ほど暗い。
+  // 後ろの壁に、上へ伸びて大きくなった影が出る
+  CELLS[38] = cell((k, u) => {
+    const a = env(u), D = pen(k);
+    stagePortrait(k, pal(BASE, DARK, a));
+    // 壁と影: 暗い壁を重ね、胸像の形を上へ大きく伸ばした影を落とす
+    k.save(); k.globalAlpha = a; D.rect(0, 0, CW, CH, '#34363E');
+    k.translate(PX, PY + 70); k.scale(1.45, 1.75); k.translate(-PX, -(PY + 70) - 14);
+    bustPath(k, PX, PY, PR); k.fillStyle = '#1C1D22'; k.fill();
+    k.restore();
+    const lit = BASE.lit, sh = mixc(BASE.person, '#15161B', a), FY = PY + PR * 1.75;
+    bust(k, PX, PY, PR, mixc(BASE.person, sh, 0.6 * a), kk => {
+      // 光の中心はあごの下（懐中電灯の位置）。上へ行くほど暗くなる
+      const g = kk.createRadialGradient(PX, FY, 4, PX, FY, PR * 2.6);
+      g.addColorStop(0, mixc(BASE.person, '#FFE6B0', a)); g.addColorStop(0.45, mixc(BASE.person, lit, a)); g.addColorStop(1, sh);
+      kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+    });
+    // 懐中電灯と光の点
+    k.save(); k.globalAlpha = a;
+    D.rr(PX - 5, FY + 2, 10, 26, 3, '#2A2C33'); D.circ(PX, FY + 2, 5.5, '#FFF4D6');
+    k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.35 * a; D.circ(PX, FY, 14, '#FFE3A3'); k.restore();
+    plan(k, [[0, a]]);
+    hud(k, '0° · ↓60°');
+  });
+
+  // @element 40
+  // 斑驳树影（木漏れ日）: 画面の外の木の下に入り、全体が緑がかった木陰に沈む。日の光は葉のすき間だけを抜けて、
+  // 人物・建物・地面に形のそろわない光の斑が散る。風が吹くと斑がまとめて流れ、隣どうしがくっついたり離れたりして形が変わる。
+  // 地面には、すき間がピンホールになった太陽の像が横長の丸い光で並ぶ。手前の上の角にはピントの外れた葉がぼんやりかかる
+  // 斑の形: 1/4 の小さな面に白い点を打ち、ぼかしてからコントラストを上げて二値化する（点どうしが有機的につながる）。
+  // それを等倍に引き伸ばして少しぼかすと、縁の柔らかい斑になる
+  const DLW = 135, DLH = 52;
+  const DAPPLE = once('dapple-lo', () => {
+    const mk = () => { const c = document.createElement('canvas'); c.width = DLW; c.height = DLH; return c; };
+    return { s: mk(), t: mk() };
+  });
+  CELLS[39] = cell((k, u) => {
+    const a = env(u), T = u / CYC * TAU;
+    stagePortrait(k, BASE);
+    if (a < 0.002) return;
+    // 木陰: 緑がかった色を乗算で重ねて全体を沈める
+    k.save(); k.globalCompositeOperation = 'multiply'; k.globalAlpha = a; k.fillStyle = '#7F9682'; k.fillRect(0, 0, CW, CH); k.restore();
+    // 葉のすき間（小さな面の座標）。[x, y, 半径, 位相, 揺れの回数]。地面の帯（y ≥ 38）は横長の太陽の像
+    const gaps = once('dapple-gap', () => {
+      const r = rng(40), o = [];
+      for (let i = 0; i < 64; i++) o.push([r() * DLW, r() * 36, 1.3 + r() * 1.5, r() * TAU, 1 + Math.floor(r() * 2), 0]);
+      for (let i = 0; i < 12; i++) o.push([4 + i * 11 + r() * 5, 39 + r() * 11, 1.6 + r() * 0.8, r() * TAU, 1, 1]);
+      return o;
+    });
+    const gs = DAPPLE.s.getContext('2d'), gt = DAPPLE.t.getContext('2d');
+    gs.fillStyle = '#000'; gs.fillRect(0, 0, DLW, DLH); gs.fillStyle = '#FFF';
+    const wind = 1.6 * Math.sin(T) + 0.6 * Math.sin(T * 3 + 1);   // 全体を流す風（1周と3周の重ね）
+    for (const [x, y, r, ph, n, ground] of gaps) {
+      const sx = x + wind + 0.9 * Math.sin(T * n + ph), sy = y + 0.5 * Math.cos(T * n + ph);
+      gs.beginPath();
+      if (ground) gs.ellipse(sx, sy, r * 1.9, r * 0.7, 0, 0, TAU); else gs.arc(sx, sy, r, 0, TAU);
+      gs.fill();
+    }
+    gt.clearRect(0, 0, DLW, DLH); gt.filter = 'blur(1.1px) contrast(16)'; gt.drawImage(DAPPLE.s, 0, 0); gt.filter = 'none';
+    // 光の面: 二値の斑を等倍へ → 暖かい日の色を乗算で乗せる（黒は黒のまま）→ スクリーンで場面に足す
+    const [L, kl] = layer('dapple');
+    kl.imageSmoothingEnabled = true; kl.filter = 'blur(1.6px)'; kl.drawImage(DAPPLE.t, 0, 0, CW, CH); kl.filter = 'none';
+    kl.globalCompositeOperation = 'multiply'; kl.fillStyle = '#FFE0A0'; kl.fillRect(0, 0, CW, CH);
+    k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.92 * a; k.drawImage(L, 0, 0); k.restore();
+    // 手前のぼけた葉: 上の左右の角に、風に合わせてゆっくり揺れる
+    k.save(); k.globalAlpha = 0.55 * a; k.filter = 'blur(7px)'; k.fillStyle = '#3B5442';
+    for (const [x, y, r, ph] of [[-6, -14, 46, 0], [46, -24, 34, 1.4], [512, -18, 48, 2.2], [470, -30, 30, 3.1]]) {
+      k.beginPath(); k.arc(x + 4 * Math.sin(T + ph) + wind * 2, y + 3 * Math.cos(T + ph), r, 0, TAU); k.fill();
+    }
+    k.restore();
+  });
+
+  // @element 41
+  // 水下焦散（コースティクス）: 場面が水の中の淡い青に沈む。上に揺れる水面の線、斜めに差し込む光の筋。
+  // 人物と水底に、水面の揺れで曲がった網目の明るい線が流れる
+  CELLS[40] = cell((k, u) => {
+    const a = env(u), T = u / CYC * TAU;
+    const WATER = mapPal(BASE, c => mixc(c, '#3F8FB0', 0.55));
+    Object.assign(WATER, { sky: '#7CC3D9', sky2: '#5FAFCB', ground: '#5E9FB4', person: '#2E5A78', shade: '#24485F' });
+    stagePortrait(k, pal(BASE, WATER, a));
+    bust(k, PX, PY, PR, mixc(BASE.person, WATER.person, a));
+    if (a < 0.002) return;
+    // 網目: 2方向に走る曲がった線。線の位置は水面の揺れ（整数倍の周期）で変形する
+    const [L, kl] = layer('caustic');
+    kl.strokeStyle = '#E8FBFF'; kl.lineCap = 'round';
+    const wob = (x, y) => 7 * Math.sin(x * 0.045 + T * 2) + 5 * Math.sin(y * 0.07 - T + x * 0.02) + 3 * Math.sin((x + y) * 0.09 + T * 3);
+    for (let dir = 0; dir < 2; dir++) {
+      for (let i = -6; i < 28; i++) {
+        kl.lineWidth = 1.2 + (i % 3) * 0.5; kl.beginPath();
+        for (let s = 0; s <= 60; s++) {
+          const t = s / 60;
+          // dir 0: 右下がりの線、dir 1: 左下がりの線。交わって網になる
+          const bx = dir ? i * 26 - t * 120 : i * 26 - 160 + t * 120, by = 30 + t * (CH - 30);
+          const x = bx + wob(bx, by), y = by + 0.6 * wob(by, bx);
+          s ? kl.lineTo(x, y) : kl.moveTo(x, y);
+        }
+        kl.stroke();
+      }
+    }
+    k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.5 * a; k.filter = 'blur(1px)'; k.drawImage(L, 0, 0); k.restore();
+    // 光の筋と水面
+    k.save(); k.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 4; i++) {
+      const x0 = 120 + i * 110 + 10 * Math.sin(T + i), g = k.createLinearGradient(0, 0, 0, CH);
+      g.addColorStop(0, `rgba(220,248,255,${(0.22 * a).toFixed(3)})`); g.addColorStop(1, 'rgba(220,248,255,0)');
+      k.fillStyle = g; k.beginPath(); k.moveTo(x0, 0); k.lineTo(x0 + 26, 0); k.lineTo(x0 + 26 - 70, CH); k.lineTo(x0 - 40 - 70, CH); k.closePath(); k.fill();
+    }
+    k.restore();
+    k.save(); k.globalAlpha = a; k.strokeStyle = '#EAFBFF'; k.lineWidth = 2; k.beginPath();
+    for (let x = 0; x <= CW; x += 6) { const y = 9 + 3 * Math.sin(x * 0.05 + T * 2) + 2 * Math.sin(x * 0.11 - T * 3); x ? k.lineTo(x, y) : k.moveTo(x, y); }
+    k.stroke(); k.restore();
+  });
+
+  // @element 42
+  // 篝火光（焚き火の光）: 深い青の夜。画面右下の焚き火の低い橙の光が、人物の火に向いた側だけを下から照らし、
+  // 明るさは炎に合わせて揺れる。光はすぐ弱まり、遠い所は闇に沈む。火の粉が上へ舞う
+  CELLS[41] = cell((k, u) => {
+    const a = env(u), T = u / CYC * TAU;
+    const NIGHTB = Object.assign({}, mapPal(NIGHT, c => mixc(c, '#0E1530', 0.45)), { win: '#25304E', bulb: '#25304E', sky: '#16224A', sky2: '#1E2C58' });
+    const p = pal(BASE, NIGHTB, a);
+    stagePortrait(k, p);
+    // 揺れ: 整数倍の周波数を重ねたちらつき（0.8〜1.1）
+    const fl = 0.95 + 0.06 * Math.sin(T * 7) + 0.04 * Math.sin(T * 13 + 1) + 0.03 * Math.sin(T * 23 + 2);
+    const FX = 382, FY = 188, warm = mixc(BASE.person, '#FF9A3D', a), sh = mixc(BASE.person, '#10162C', a), W = torsoW(PR);
+    bust(k, PX, PY, PR, sh, kk => {
+      const g = kk.createRadialGradient(FX, FY, 10, FX, FY, 170 * fl);
+      g.addColorStop(0, warm); g.addColorStop(0.75, mixc(warm, sh, 0.55)); g.addColorStop(1, sh);
+      kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+      headShade(kk, PX, PY, PR, 1.0, -1, mixc(sh, '#000000', 0.2 * a));
+      torso(kk, PX, PY, PR, PX - W, PX - 0.1 * W, mixc(sh, '#000000', 0.2 * a));
+    });
+    if (a < 0.002) return;
+    // 周りの闇と地面の照り返し
+    k.save();
+    const d = k.createRadialGradient(FX, FY, 20, FX, FY, 330 * fl);
+    d.addColorStop(0, 'rgba(255,140,50,0.28)'); d.addColorStop(0.35, 'rgba(40,20,20,0)'); d.addColorStop(1, 'rgba(4,6,16,0.72)');
+    k.globalAlpha = a; k.fillStyle = d; k.fillRect(0, 0, CW, CH);
+    // 炎: 3枚の揺れる滴形（橙→黄）
+    const flame = (h, w, col, ph) => {
+      const sw = 3 * Math.sin(T * 9 + ph);
+      k.fillStyle = col; k.beginPath(); k.moveTo(FX - w, FY);
+      k.quadraticCurveTo(FX - w, FY - h * 0.5, FX + sw, FY - h * (0.92 + 0.08 * Math.sin(T * 11 + ph)));
+      k.quadraticCurveTo(FX + w, FY - h * 0.5, FX + w, FY); k.closePath(); k.fill();
+    };
+    k.globalCompositeOperation = 'lighter';
+    flame(34 * fl, 14, '#E8501E', 0); flame(26 * fl, 10, '#FF9A2E', 1.3); flame(15 * fl, 6, '#FFE07A', 2.1);
+    k.globalCompositeOperation = 'source-over';
+    k.fillStyle = '#3A2418'; k.beginPath(); k.roundRect(FX - 22, FY - 2, 44, 6, 3); k.fill();
+    // 火の粉: 決まった種で作り、周期ごとに下から上へ（1周で整数回）
+    const sparks = once('embers', () => { const r = rng(42), o = []; for (let i = 0; i < 16; i++) o.push([r(), r() * TAU, 1 + Math.floor(r() * 2), 1 + r() * 1.2]); return o; });
+    k.globalCompositeOperation = 'lighter'; k.fillStyle = '#FFB34D';
+    for (const [o0, ph, n, sz] of sparks) {
+      const t = (u / CYC * n + o0) % 1, x = FX + 12 * Math.sin(ph) + 18 * t * Math.sin(T + ph), y = FY - 10 - t * 150;
+      k.globalAlpha = a * (1 - t); k.beginPath(); k.arc(x, y, sz, 0, TAU); k.fill();
+    }
+    k.restore();
+    hud(k, '1800K');
+  });
+
+  // @element 43
+  // 屏幕光（画面の光）: 部屋が暗くなり、人物の前の背中向きのノートPCだけが光る。冷たい白い光が正面の少し下から顔と胸元を照らし、
+  // 外へはすぐ弱まる。画面の中身が切り替わる瞬間に明るさが少し跳ねる
+  CELLS[42] = cell((k, u) => {
+    const a = env(u), D = pen(k);
+    stagePortrait(k, pal(BASE, DARK, a));
+    k.save(); k.globalAlpha = 0.8 * a; D.rect(0, 0, CW, CH, '#0F1116'); k.restore();
+    // 切り替え: 1.9 秒・3.1 秒に一瞬明るくなる
+    const jump = 1 + 0.18 * (Math.exp(-(((u - 1.9) / 0.06) ** 2)) + Math.exp(-(((u - 3.1) / 0.06) ** 2)));
+    const LX = PX, LY = 176, cool = mixc(BASE.person, '#DCE8FF', a), sh = mixc(BASE.person, '#0C0E14', a);
+    bust(k, PX, PY, PR, sh, kk => {
+      const g = kk.createRadialGradient(LX, LY, 6, LX, LY, 120 * jump);
+      g.addColorStop(0, cool); g.addColorStop(0.55, mixc(cool, sh, 0.5)); g.addColorStop(1, sh);
+      kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+    });
+    if (a > 0.002) {
+      k.save(); k.globalCompositeOperation = 'lighter';
+      const s = k.createRadialGradient(LX, LY, 4, LX, LY, 110 * jump);
+      s.addColorStop(0, `rgba(190,215,255,${(0.32 * a).toFixed(3)})`); s.addColorStop(1, 'rgba(190,215,255,0)');
+      k.fillStyle = s; k.fillRect(0, 0, CW, CH); k.restore();
+      // ノートPC（背中向き）: 天板と、縁からもれる光
+      k.save(); k.globalAlpha = a;
+      D.rr(LX - 58, LY - 18, 116, 50, 5, '#272A32'); D.circ(LX, LY + 6, 4, '#3A3E48');
+      k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.6 * a * jump; D.rect(LX - 56, LY - 20, 112, 2, '#CFE0FF');
+      k.restore();
+    }
+    hud(k, '6500K');
+  });
+
+  // @element 44
+  // 雾中光（霧の中の光）: 夕方の街並みに霧が出る。遠い山・建物の列・並木と街灯・手前の人物の4層があり、
+  // 1層描くごとに霧の色を薄く重ねるので、遠い層ほど何度も霧をかぶって霧の色に近づき、コントラストが下がる（空気遠近）。
+  // 地平線のあたりを霧の帯がゆっくり流れ、街灯は霧の中で大きな光の輪になる。手前の人物はくっきり残る
+  const FOGW = 68, FOGH = 26;
+  const FOGLO = once('fog-lo', () => { const c = document.createElement('canvas'); c.width = FOGW; c.height = FOGH; return c; });
+  CELLS[43] = cell((k, u) => {
+    const a = env(u), T = u / CYC * TAU, D = pen(k), FOG = '#D5DADF';
+    // 夕方の色: 晴れた昼（BASE）から、街灯の灯る青灰色の夕方へ。霧の差が見えるよう、建物と木は濃い色にする
+    const DUSK = Object.assign({}, BASE, {
+      sky: '#C9D1DA', sky2: '#D3D9DF', far: '#56677C', bld: '#4F5D73', edge: '#3F4B5E', win: '#FFD27A', winOff: '#435064',
+      tree: '#34493F', trunk: '#2B3330', post: '#262C36', bulb: '#FFD27A', ground: '#8C949E', ground2: '#5D6672', mark: '#8C949E', person: '#232A38'
+    });
+    const p = pal(BASE, DUSK, a);
+    // 霧を1枚かぶせる（深さ d ぶん）。下ほど少し薄くして、地面に近い霧が溜まって見えるように
+    const veil = d => {
+      if (a < 0.002) return;
+      const g = k.createLinearGradient(0, 40, 0, CH);
+      g.addColorStop(0, mixc(FOG, '#FFFFFF', 0.2)); g.addColorStop(1, FOG);
+      k.save(); k.globalAlpha = d * a; k.fillStyle = g; k.fillRect(0, 0, CW, CH); k.restore();
+    };
+    D.rect(0, 0, CW, CH, p.sky);
+    // 4: 遠い山
+    D.poly([[0, 112], [70, 82], [150, 100], [232, 66], [318, 96], [400, 74], [480, 94], [539, 80], [539, ROAD], [0, ROAD]], p.far);
+    veil(0.42);
+    // 3: 建物の列（窓は夕方に灯る）
+    BLD.forEach(([x, w, h], i) => building(D, x, ROAD, w, h * 0.8, p, i));
+    veil(0.32);
+    // 霧の帯: 小さな面に白い塊を描いて引き伸ばす（ぼかし代わり）。1周で整数回横に流れる
+    if (a > 0.002) {
+      const g = FOGLO.getContext('2d');
+      g.clearRect(0, 0, FOGW, FOGH);
+      for (let i = 0; i < 7; i++) {
+        const x = ((i * 13 + u / CYC * FOGW * (1 + (i % 2))) % (FOGW + 24)) - 12, y = 12 + 4 * Math.sin(i * 2.1), r = 7 + (i % 3) * 3;
+        const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(240,243,246,0.9)'); gr.addColorStop(1, 'rgba(240,243,246,0)');
+        g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+      }
+      k.save(); k.globalAlpha = 0.7 * a; k.imageSmoothingEnabled = true; k.drawImage(FOGLO, 0, 50, CW, 100); k.restore();
+    }
+    // 2: 並木・街灯・道
+    TREES.forEach(([x, r]) => tree(D, x, ROAD, r, p));
+    LAMPS.forEach(x => lamp(D, x, ROAD, 58, p));
+    D.rect(0, ROAD, CW, WALK - ROAD, p.ground2); D.line([[0, 147], [CW, 147]], 2, p.mark, [14, 12]);
+    veil(0.22);
+    // 街灯の光の輪: 霧の粒が光を散らすので、電球の周りに大きな輪と下へ広がる光の円錐が出る
+    if (a > 0.002) {
+      k.save(); k.globalCompositeOperation = 'lighter';
+      for (const x of LAMPS) {
+        const bx = x + 9, by = ROAD - 53, R = 18 + 26 * a;
+        const g = k.createRadialGradient(bx, by, 1, bx, by, R);
+        g.addColorStop(0, `rgba(255,214,140,${(0.6 * a).toFixed(3)})`); g.addColorStop(0.35, `rgba(255,214,140,${(0.2 * a).toFixed(3)})`); g.addColorStop(1, 'rgba(255,214,140,0)');
+        k.fillStyle = g; k.fillRect(bx - R, by - R, R * 2, R * 2);
+        const c = k.createLinearGradient(0, by, 0, ROAD + 4);
+        c.addColorStop(0, `rgba(255,214,140,${(0.22 * a).toFixed(3)})`); c.addColorStop(1, 'rgba(255,214,140,0)');
+        k.fillStyle = c; k.beginPath(); k.moveTo(bx - 3, by); k.lineTo(bx + 3, by); k.lineTo(bx + 22, ROAD + 4); k.lineTo(bx - 22, ROAD + 4); k.closePath(); k.fill();
+      }
+      k.restore();
+    }
+    // 1: 手前の歩道と人物（霧はかけない）
+    D.rect(0, WALK, CW, CH - WALK, p.ground); D.line([[0, WALK], [CW, WALK]], 1.4, p.edge);
+    figure(D, FIG[0], FIG[1], FIG[2], p.person);
+    hud(k, `FOG ${Math.round(a * 100)}%`);
+  });
+
+  // @element 45
+  // 月光夜景（月夜）: 空が黒に近い深い青になり、左上に満月が昇る。人物は高い所からの冷たい青い光で片側だけ照らされ、影ははっきり。
+  // 地面に銀色の照り返しが一筋。窓は灯らず、色はごく少ない
+  CELLS[44] = cell((k, u) => {
+    const a = env(u), W = torsoW(PR);
+    const MOON = Object.assign(mapPal(NIGHT, c => mixc(c, '#0A1020', 0.5)), { win: '#1C2640', winOff: '#1C2640', bulb: '#1C2640', sky: '#0D1630', sky2: '#122042', person: '#2A3550', shade: '#0E1424' });
+    const p = pal(BASE, MOON, a);
+    stagePortrait(k, p, { after: D => {
+      if (a < 0.002) return;
+      const my = lerp(70, 38, a);
+      D.k.save(); D.k.globalAlpha = 0.25 * a; D.circ(84, my, 30, '#C9DAF5'); D.k.globalAlpha = a; D.circ(84, my, 16, '#EEF4FF'); D.k.restore();
+      // 地面の銀色の照り返し（月の下にゆれる細い帯）
+      D.k.save(); D.k.globalAlpha = 0.7 * a;
+      for (let i = 0; i < 5; i++) D.rect(66 - i * 3 + 6 * Math.sin(u * TAU / CYC * 2 + i), 156 + i * 9, 36 + i * 6, 2.2, '#BFD3F2');
+      D.k.restore();
+    } });
+    const lit = mixc(BASE.person, '#9DB4DE', a), sh = mixc(BASE.person, MOON.shade, a);
+    bust(k, PX, PY, PR, BASE.person, kk => {
+      kk.fillStyle = lit; kk.beginPath(); kk.arc(PX, PY, PR, 0, TAU); kk.fill();
+      headShade(kk, PX, PY, PR, 1.1, 1, sh);
+      torso(kk, PX, PY, PR, PX - W, PX - 0.35 * W, lit); torso(kk, PX, PY, PR, PX - 0.35 * W, PX + W, sh);
+    });
+    plan(k, [[1.1, a, '#9DB4DE']]);
+    hud(k, '4100K · ↑60°');
+  });
+
+  // @element 46
+  // 双色光（バイカラー）: 周りが暗くなり、左にマゼンタ、右にシアンの灯がともる。人物の左右が別の色に染まり、
+  // 鼻筋のあたりで2色が混ざって淡い紫になる。配置図にも色の違う2灯
+  CELLS[45] = cell((k, u) => {
+    const a = env(u), MG = '#FF3FA4', CY = '#33D6FF';
+    stagePortrait(k, pal(BASE, DARK, a));
+    bust(k, PX, PY, PR, BASE.person, kk => {
+      if (a < 0.002) return;
+      const g = kk.createLinearGradient(PX - 2.2 * PR, 0, PX + 2.2 * PR, 0);
+      g.addColorStop(0, MG); g.addColorStop(0.42, MG); g.addColorStop(0.5, '#A98CFF'); g.addColorStop(0.58, CY); g.addColorStop(1, CY);
+      kk.globalAlpha = a; kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+      // 胴の陰り: 下ほど暗く
+      const v = kk.createLinearGradient(0, PY, 0, CH); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,10,20,0.45)');
+      kk.fillStyle = v; kk.fillRect(0, 0, CW, CH);
+    });
+    // 壁に色のこぼれ
+    if (a > 0.002) {
+      k.save(); k.globalCompositeOperation = 'lighter';
+      for (const [x, c] of [[60, '255,63,164'], [480, '51,214,255']]) {
+        const g = k.createRadialGradient(x, 80, 6, x, 80, 200); g.addColorStop(0, `rgba(${c},${(0.32 * a).toFixed(3)})`); g.addColorStop(1, `rgba(${c},0)`);
+        k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+      }
+      k.restore();
+    }
+    plan(k, [[Math.PI / 2, a, MG], [-Math.PI / 2, a, CY]]);
+    hud(k, 'MAGENTA · CYAN');
+  });
+
+  // @element 47
+  // 色温（色温度）: 右下に K の目盛り。針が 5500K → 2000K（画面が橙）→ 10000K（画面が青）→ 5500K と動き、
+  // 画面の冷暖が数値に合わせて変わる。数値が低いほど暖かい
+  CELLS[46] = cell((k, u) => {
+    // K の動き: 0.4〜1.4 で 2000K へ、2.0〜3.0 で 10000K へ、3.6〜4.6 で 5500K へ戻る
+    const K = 5500 + (2000 - 5500) * eIO(P(u, 0.4, 1.4)) + (10000 - 2000) * eIO(P(u, 2.0, 3.0)) + (5500 - 10000) * eIO(P(u, 3.6, 4.6));
+    stageLand(k, BASE);
+    const [col, al] = kelvin(K);
+    if (al > 0.001) { k.save(); k.globalCompositeOperation = 'multiply'; k.globalAlpha = al * 1.6; k.fillStyle = col; k.fillRect(0, 0, CW, CH); k.restore(); }
+    // 目盛り: 2000〜10000K のグラデーション帯と針
+    const x = CW - 13 - 150, y = CH - 13 - 34, w = 150, D = pen(k);
+    k.save();
+    k.fillStyle = 'rgba(255,255,255,.9)'; k.beginPath(); k.roundRect(x, y, w, 34, 8); k.fill();
+    const g = k.createLinearGradient(x + 10, 0, x + w - 10, 0);
+    for (const [kv, c] of KELVIN) g.addColorStop((kv - 2000) / 8000, kv === 5500 ? '#FFFFFF' : c);
+    k.fillStyle = g; k.beginPath(); k.roundRect(x + 10, y + 8, w - 20, 8, 4); k.fill();
+    k.strokeStyle = '#CFCECB'; k.lineWidth = 1; k.stroke();
+    const px = x + 10 + (w - 20) * (K - 2000) / 8000;
+    D.poly([[px, y + 18], [px - 4, y + 25], [px + 4, y + 25]], '#6E6E73');
+    k.restore();
+    hud(k, `${Math.round(K / 100) * 100}K`);
   });
 
   // @end
