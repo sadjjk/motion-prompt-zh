@@ -310,6 +310,37 @@ lists it after the pack's own line. To ask for a removal or a correction, use th
 | `#4-041` | `scenes` | 文字走廊 Text Corridor (#56) |
 | `#4-042` | `scenes` | 起伏線條 Wavy Lines (#230) |
 
+## 镜语 jingyu-skill by 阿梦freedom (elements `#3-049`–`#3-067`)
+
+The 19 elements `#3-049`–`#3-067` (shot sizes, composition and shot-to-shot continuity, in packs `camera` and
+`photo`) take their terms and definitions from 阿梦freedom's [镜语](https://idea.ameng.dev/) and its skill
+[hemengke1997/jingyu-skill](https://github.com/hemengke1997/jingyu-skill) (`skills/jingyu/references/camera.md`).
+The moving samples are Canvas 2D drawings written for this repository with the existing `camera` and `photo`
+scenes; no demo code, image or text from 镜语 is copied. Each element carries the line
+`MIT License (c) 2026 阿梦freedom` and links to its term page. The license notice:
+
+> MIT License
+>
+> Copyright (c) 2026 阿梦freedom
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat
