@@ -1,7 +1,8 @@
 /* Motion Prompt · pack "photo" · MIT License (c) 2026 Shohei Ohtaki · https://github.com/showheyohtaki/motion-prompt */
 MotionPrompt.pack('photo', function () {
   // @kit
-  // 写真の表現・光と画風 24（カード 539x208、1周 5秒）。各コマは時間 u の純関数。
+  // 写真の表現・光と画風 31（カード 539x208、1周 5秒）。各コマは時間 u の純関数。
+  // 25〜31 は構図。同じ平らな場面で、env(u) に合わせて主役を構図どおりの位置へ動かし、補助線を出す。
   // 絵は平らな図形だけで描く。場面は3つを全コマで使い回す: ①光＝地平線の前の胸像 ②レンズ＝街角 ③仕上げ＝胸像と風景。
   // 人物は顔・髪のない丸い頭のピクト。光はアンバー1色の面、影は一段濃い平らな面で表す。
   // 色が主役の効果（モノクロ・デュオトーンなど）は、同じ場面の色の割り当て（パレット）を差し替えて見せる。
@@ -612,6 +613,127 @@ MotionPrompt.pack('photo', function () {
     if (a < 0.002) return;
     const [L, kl] = layer('dx'); draw(kl);   // 入り・戻りの途中は、別の面に描いて重ねる
     k.save(); k.globalAlpha = a; k.drawImage(L, 0, 0); k.restore();
+  });
+
+  // @shared
+  // 构图（25〜31）：同一个平面场景，env(u) 从「普通摆法」过渡到「按构图规则摆好 + 画出辅助线」，再回到普通摆法。
+  // 构图概念参考 jingyu-skill（MIT · 阿梦freedom）。辅助线用本包的强调色（琥珀），标注用中文字体栈。
+  const ZH = '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif';
+  const GUIDE = BASE.sun, T3 = [CW / 3, CW * 2 / 3], H3 = [CH / 3, CH * 2 / 3];
+  // 辅助线：pts 为折线点列，a 为不透明度（跟着 env 渐显）。调用方可在外面设 lineDashOffset 让虚线流动
+  function guide(k, pts, a, dash = [6, 5]) {
+    if (a <= 0.01) return;
+    k.save(); k.globalAlpha = a; k.strokeStyle = GUIDE; k.lineWidth = 1.6; k.setLineDash(dash);
+    k.beginPath(); pts.forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.stroke(); k.restore();
+  }
+  // 标注小牌：琥珀底白字，居中于 (x, y)
+  function tag(k, s, x, y, a) {
+    if (a <= 0.01) return;
+    k.save(); k.globalAlpha = a; k.font = `600 12px ${ZH}`; const w = k.measureText(s).width + 12;
+    k.fillStyle = GUIDE; k.beginPath(); k.roundRect(x - w / 2, y - 10, w, 20, 5); k.fill();
+    k.fillStyle = '#FFFFFF'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(s, x, y); k.restore();
+  }
+  // 构图用的空场景：天空、远山、地平线 hz 以下是地面；返回画笔 D 供后续加元素
+  function field(k, p, hz) {
+    const D = pen(k);
+    D.rect(0, 0, CW, CH, p.sky);
+    D.poly([[0, hz], [0, hz - 14], [120, hz - 22], [240, hz - 10], [360, hz - 24], [460, hz - 12], [539, hz - 18], [539, hz]], p.far);
+    D.rect(0, hz, CW, CH - hz, p.ground);
+    return D;
+  }
+
+  // @element 25
+  // 三分法: 主体从中央移到左三分线，地平线从中线降到下三分线；辅助线只是参照，不要求压线
+  CELLS[24] = cell((k, u) => {
+    const a = env(u), hz = lerp(CH / 2, H3[1], a);
+    const D = field(k, BASE, hz);
+    tree(D, lerp(CW / 2 + 120, T3[1], a), hz, 16, BASE);
+    figure(D, lerp(CW / 2, T3[0], a), hz + 30, 92, BASE.person);   // 头顶约在上三分线附近
+    T3.forEach(X => guide(k, [[X, 0], [X, CH]], a)); H3.forEach(Y => guide(k, [[0, Y], [CW, Y]], a));
+    k.save(); k.globalAlpha = a; k.fillStyle = GUIDE;   // 四个交点
+    T3.forEach(X => H3.forEach(Y => { k.beginPath(); k.arc(X, Y, 3.5, 0, TAU); k.fill(); })); k.restore();
+  });
+
+  // @element 26
+  // 居中构图: 主体移到中轴，标出中轴与视觉重心；背景故意不镜像（左建筑、右树），说明居中看的是重心，不是对称
+  CELLS[25] = cell((k, u) => {
+    const a = env(u), D = field(k, BASE, 150);
+    building(D, 60, 150, 40, 46, BASE, 1); tree(D, 470, 150, 18, BASE); tree(D, 432, 150, 11, BASE);
+    figure(D, lerp(150, CW / 2, a), 178, 110, BASE.person);
+    guide(k, [[CW / 2, 0], [CW / 2, CH]], a);
+    k.save(); k.globalAlpha = a; k.strokeStyle = GUIDE; k.lineWidth = 2; k.beginPath(); k.arc(CW / 2, 118, 28, 0, TAU); k.stroke(); k.restore();
+    tag(k, '视觉重心', CW / 2 + 76, 118, a);
+  });
+
+  // @element 27
+  // 对称构图: 中间的踏脚石一直在；两侧的树随 a 由近到远逐对长出，围绕中轴呼应
+  CELLS[26] = cell((k, u) => {
+    const a = env(u), D = field(k, BASE, 120);
+    [[196, 18], [172, 13], [152, 9], [136, 6]].forEach(([y, r]) => D.rr(CW / 2 - r, y, r * 2, r * 0.6, r * 0.3, BASE.edge));
+    for (let i = 0; i < 4; i++) {   // 第 i 对在 a 走到 0.2i 时开始长，0.4 内长满（近大远小）
+      const g = P(a, i * 0.2, i * 0.2 + 0.4); if (g <= 0) continue;
+      const off = 70 + i * 50, r = (20 - i * 3.5) * g, base = 196 - i * 20;
+      tree(D, CW / 2 - off, base, r, BASE); tree(D, CW / 2 + off, base, r, BASE);
+    }
+    guide(k, [[CW / 2, 0], [CW / 2, CH]], a); tag(k, '对称轴', CW / 2, 22, a);
+  });
+
+  // @element 28
+  // 引导线: 道路边线从画面下沿汇聚到远处；主体从路外移到汇聚点，虚线沿边线流向主体
+  CELLS[27] = cell((k, u) => {
+    const a = env(u), VX = 380, VY = 112, D = field(k, BASE, VY);
+    D.poly([[150, CH], [VX - 6, VY], [VX + 6, VY], [CW + 60, CH]], BASE.ground2);
+    figure(D, lerp(120, VX, a), VY + 4, 40, BASE.person);
+    // 虚线每秒流动 28 px；[8,6] 一周 14 px，5 秒正好 10 周，循环无缝
+    k.save(); k.lineDashOffset = -u * 28;
+    guide(k, [[150, CH], [VX - 6, VY + 2]], a, [8, 6]); guide(k, [[CW + 60, CH], [VX + 6, VY + 2]], a, [8, 6]);
+    k.restore();
+    tag(k, '引导线', 250, 176, a);
+  });
+
+  // @element 29
+  // 留白: 主体移到左侧、面朝右；右侧的建筑和树淡出，空出的大片简单区域标为留白
+  CELLS[28] = cell((k, u) => {
+    const a = env(u), D = field(k, BASE, 150);
+    k.save(); k.globalAlpha = 1 - a; building(D, 360, 150, 36, 40, BASE, 2); building(D, 420, 150, 30, 28, BASE, 3); tree(D, 488, 150, 16, BASE); k.restore();
+    figure(D, lerp(CW / 2, 110, a), 176, 100, BASE.person);
+    k.save(); k.globalAlpha = 0.35 * a; k.fillStyle = BASE.glow; k.fillRect(200, 20, 320, 170); k.restore();
+    guide(k, [[200, 20], [520, 20], [520, 190], [200, 190], [200, 20]], a);
+    tag(k, '留白', 360, 100, a);
+  });
+
+  // @element 30
+  // 框中框: 近处的门框淡入，把远处的主体再框一次；门框内沿留一条浅色边，表示它有厚度（不是后期加的装饰边框）
+  CELLS[29] = cell((k, u) => {
+    const a = env(u), D = field(k, BASE, 150);
+    tree(D, 120, 150, 14, BASE); building(D, 400, 150, 44, 50, BASE, 4);
+    figure(D, CW / 2, 162, 56, BASE.person);
+    const hx = CW / 2 - 84, hy = 30, hw = 168, hh = CH - 30;
+    k.save(); k.globalAlpha = a;
+    k.fillStyle = BASE.shade; k.beginPath(); k.rect(0, 0, CW, CH); k.rect(hx, hy, hw, hh); k.fill('evenodd');
+    k.fillStyle = BASE.edge; k.fillRect(hx - 6, hy - 6, hw + 12, 6); k.fillRect(hx - 6, hy, 6, hh); k.fillRect(hx + hw, hy, 6, hh);
+    k.restore();
+    guide(k, [[hx, hy], [hx + hw, hy], [hx + hw, CH], [hx, CH], [hx, hy]], a);
+    tag(k, '框中框', CW / 2, 16, a);
+  });
+
+  // @element 31
+  // 前中后景: 三层以不同幅度横移（视差）：后景（湖与对岸树林）最慢、中景（人物）中速、前景（花丛）最快
+  CELLS[30] = cell((k, u) => {
+    const a = env(u), s = Math.sin(u / CYC * TAU) * a;   // 摆幅跟着 env 渐入；sin 以 CYC 为周期，首尾相接
+    const D = pen(k);
+    D.rect(0, 0, CW, CH, BASE.sky);
+    k.save(); k.translate(s * 6, 0);
+    D.poly([[-20, 118], [-20, 96], [90, 86], [200, 98], [330, 82], [450, 96], [560, 88], [560, 118]], BASE.far);
+    [40, 120, 210, 300, 390, 480].forEach((x, i) => tree(D, x, 118, 9 + (i % 2) * 3, BASE));
+    D.rect(-20, 118, CW + 40, 18, BASE.mid);   // 湖面
+    k.restore();
+    D.rect(0, 136, CW, CH - 136, BASE.ground);
+    k.save(); k.translate(s * 18, 0); figure(D, CW / 2, 170, 66, BASE.person); k.restore();
+    k.save(); k.translate(s * 48, 0);
+    [[30, 206, 26], [96, 212, 18], [470, 204, 28], [530, 212, 20]].forEach(([x, y, r]) => { D.circ(x, y, r, BASE.tree); D.circ(x - r * 0.3, y - r * 0.5, 4, BASE.sun); });
+    k.restore();
+    tag(k, '后景', 90 + s * 6, 70, a); tag(k, '中景', CW / 2 + 52 + s * 18, 120, a); tag(k, '前景', 96 + s * 48, 182, a);
   });
 
   // @end

@@ -25,6 +25,12 @@
       "ja": "切り替え（トランジション）",
       "en": "Transitions",
       "zh-Hans": "剪辑与转场"
+    },
+    {
+      "slug": "shot-size",
+      "ja": "ショットサイズ",
+      "en": "Shot size",
+      "zh-Hans": "景别"
     }
   ],
   "elements": [
@@ -1647,6 +1653,798 @@
         "sound carries over",
         "audio transition",
         "edit"
+      ]
+    },
+    {
+      "no": "25",
+      "id": "3-049",
+      "slug": "extreme-long-shot",
+      "category": "shot-size",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/extreme-long-shot",
+      "name": {
+        "ja": "超ロングショット",
+        "en": "Extreme long shot",
+        "zh-Hans": "大远景"
+      },
+      "meaning": {
+        "ja": "人物は小さく、画面は主に場所を見せる",
+        "en": "The person is tiny; the frame is mostly about the place",
+        "zh-Hans": "人物很小，画面主要交代环境"
+      },
+      "ask": {
+        "ja": "谷を一人で歩く彼を超ロングショットで、人物は画面の高さの1割ほど、4秒。",
+        "en": "Extreme long shot of him walking alone through a valley, the figure about a tenth of the frame height, for 4 seconds.",
+        "zh-Hans": "用大远景拍他独自走过山谷，人物只占画面高度的十分之一，持续 4 秒。"
+      },
+      "summary": {
+        "ja": "遠く少し高いカメラから、山・建物・木・雲が画面を埋め、身長約20pxの人物がその中を歩いて行って戻ってくる。",
+        "en": "From a distant, slightly high camera, mountains, buildings, trees and clouds fill the frame while a person only about 20 px tall walks across and back.",
+        "zh-Hans": "机位远而略高，山、建筑、树和云铺满画面，人物只有约 20 px，在其中走过去再走回来。"
+      },
+      "spec": {
+        "ja": [
+          "画角: カメラの高さ2.2m、人物まで30m、焦点距離330px。身長約1.8mの人物は画面上で約20px",
+          "動き: 1周で片側へ6m歩いて戻る（計12m）。速度は余弦カーブ、歩行8周期",
+          "環境: 山・建物・木・雲が画面を埋め、雲は2m左右に漂う",
+          "表示: 右上に「大远景 ELS」。右下の比例尺の人形は全身が青い帯に入る（全身が余裕を持って入る）",
+          "カメラは最後まで動かない。1周4.7秒で、最初と最後の画面は同じ"
+        ],
+        "en": [
+          "Framing: camera 2.2 m high, 30 m from the person, focal length 330 px; the person (about 1.8 m tall) is about 20 px tall.",
+          "Action: walks 6 m to one side and back each pass (12 m in total) at cosine speed, with 8 stride cycles.",
+          "Setting: mountains, buildings, trees and clouds fill the frame; the clouds drift by 2 m.",
+          "Labels: top right reads \"大远景 ELS\"; the scale figure at bottom right is shaded from head to toe (the whole body fits with room to spare).",
+          "The camera never moves; one pass = 4.7 s and the first and last frames match."
+        ],
+        "zh-Hans": [
+          "机位高 2.2 m，距人物 30 m，焦距 330 px；身高约 1.8 m 的人物在画面中约 20 px。",
+          "动作：每轮向一侧走 6 m 再走回，共 12 m，余弦速度，迈步 8 个周期。",
+          "环境：远山、建筑、树和云铺满画面，云左右飘动 2 m。",
+          "右上角固定显示“大远景 ELS”；右下角比例尺小人整身都被蓝色带覆盖，表示全身入画还远有余量。",
+          "机位全程不动；每轮 4.7 秒，首尾画面相同。"
+        ]
+      },
+      "use": {
+        "ja": "人物がどこにいるかを示す、または場所の中で人を小さく孤独に見せたいとき。",
+        "en": "To establish where a character is, or to make a person look small or alone in a place.",
+        "zh-Hans": "交代人物身处何地、显出人在环境中的渺小或孤独时。"
+      },
+      "tags": [
+        "extreme long shot",
+        "els",
+        "extreme wide shot",
+        "ews",
+        "shot size",
+        "framing",
+        "landscape"
+      ]
+    },
+    {
+      "no": "26",
+      "id": "3-050",
+      "slug": "full-shot",
+      "category": "shot-size",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/full-shot",
+      "name": {
+        "ja": "フルショット",
+        "en": "Full shot",
+        "zh-Hans": "全景"
+      },
+      "meaning": {
+        "ja": "一人を頭から足まで収める",
+        "en": "One person framed from head to toe",
+        "zh-Hans": "从头到脚完整框住一个人"
+      },
+      "ask": {
+        "ja": "大きく一歩踏み出す彼女をフルショットで、頭上と足元に少し余白を残して、3秒。",
+        "en": "Full shot of her taking one big step forward, a little room above the head and below the feet, for 3 seconds.",
+        "zh-Hans": "用全景拍她向前迈出一大步，头顶和脚下各留一点空间，持续 3 秒。"
+      },
+      "summary": {
+        "ja": "人物が頭から足までちょうど収まり、腕を振って大きく一歩踏み出し、少し止まってから戻る。",
+        "en": "The person fits the frame from head to toe, takes one big step with the arms swinging, holds and then draws back.",
+        "zh-Hans": "人物从头到脚刚好入画，向前迈出一大步、手臂跟着摆动，停一会儿再收回。"
+      },
+      "spec": {
+        "ja": [
+          "画框: 足元の下0.12mから2.0mまで（頭から足まで＋少しの余白）。カメラは5.2m先、画框の中心の高さ",
+          "動き: 0.4〜1.0秒で0.42m踏み出し腕も振る。3.4〜4.0秒で足をそろえて戻る",
+          "背景の建物と木はくっきり残し、人物の立つ場所を見せる",
+          "表示: 右上に「全景 FS」。比例尺の青い帯は足元から頭の上まで全体",
+          "カメラは最後まで動かない。1周4.7秒で、最初と最後の画面は同じ"
+        ],
+        "en": [
+          "Frame: from 0.12 m below the feet to 2.0 m (head to toe plus a little room); camera 5.2 m away at the frame centre height.",
+          "Action: steps forward 0.42 m from 0.4 s to 1.0 s with the arms swinging, then draws back to feet together from 3.4 s to 4.0 s.",
+          "Background buildings and trees stay sharp, showing where the person stands.",
+          "Labels: top right reads \"全景 FS\"; the blue band on the scale figure covers the whole body from feet to head.",
+          "The camera never moves; one pass = 4.7 s and the first and last frames match."
+        ],
+        "zh-Hans": [
+          "画框：从脚下 0.12 m 到 2.0 m，即头到脚再加一点余量；机位距人物 5.2 m，对准画框中心高度。",
+          "动作：0.4 秒至 1.0 秒向前迈出 0.42 m，手臂随步伐摆动；3.4 秒至 4.0 秒收回并脚。",
+          "背景的建筑和树保持清晰，交代人物站在哪里。",
+          "右上角显示“全景 FS”；右下角比例尺的蓝色带覆盖从脚下到头顶的整段。",
+          "机位全程不动；每轮 4.7 秒，首尾画面相同。"
+        ]
+      },
+      "use": {
+        "ja": "全身の動きと、その場所を同時に見せたいとき。",
+        "en": "When you need the whole body movement and the place it happens in at the same time.",
+        "zh-Hans": "需要同时看清人物全身动作和他所在的场地时。"
+      },
+      "tags": [
+        "full shot",
+        "fs",
+        "wide shot",
+        "ws",
+        "head to toe",
+        "shot size",
+        "framing"
+      ]
+    },
+    {
+      "no": "27",
+      "id": "3-051",
+      "slug": "medium-long-shot",
+      "category": "shot-size",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/medium-long-shot",
+      "name": {
+        "ja": "ニーショット",
+        "en": "Medium long shot",
+        "zh-Hans": "中全景"
+      },
+      "meaning": {
+        "ja": "膝から上を収め、動きと表情の両方を見せる",
+        "en": "Framed from the knees up, keeping both movement and expression",
+        "zh-Hans": "框到膝盖以上，兼顾动作与表情"
+      },
+      "ask": {
+        "ja": "低い段差をまたぐ彼をニーショットで、画框の下端は膝、3秒。",
+        "en": "Medium long shot of him stepping over a low kerb, the bottom edge of the frame at the knees, for 3 seconds.",
+        "zh-Hans": "用中全景拍他跨过一道矮坎，画框下沿在膝盖，持续 3 秒。"
+      },
+      "summary": {
+        "ja": "画框の下端は膝。人物が脚を上げて一歩出し戻る。太ももの上がり下がりの弧がよく見え、背景は少しぼける。",
+        "en": "The bottom edge falls at the knees; the person lifts a leg, steps out and draws back, so the arc of the thigh rising and falling is clear against a softly blurred background.",
+        "zh-Hans": "画框下沿落在膝盖，人物抬腿跨出一步再收回，大腿抬起落下的弧线看得清楚，背景轻微虚化。"
+      },
+      "spec": {
+        "ja": [
+          "画框: 0.42mから1.92m（膝から頭の上まで）。カメラは4.2m先",
+          "動き: 0.4〜1.0秒で0.28m踏み出す。脚の上げ下ろしは画面内。3.4〜4.0秒で戻る",
+          "人物は前景の層でくっきり、背景は少しぼかす",
+          "表示: 右上に「中全景 MLS」。比例尺の青い帯は膝から頭まで",
+          "カメラは最後まで動かない。1周4.7秒で、最初と最後の画面は同じ"
+        ],
+        "en": [
+          "Frame: 0.42 m to 1.92 m (knees to the top of the head); camera 4.2 m away.",
+          "Action: steps out 0.28 m from 0.4 s to 1.0 s with the leg lifting and landing inside the frame; draws back from 3.4 s to 4.0 s.",
+          "The person stays sharp on the foreground layer; the background is softly blurred.",
+          "Labels: top right reads \"中全景 MLS\"; the blue band on the scale figure runs from the knees to the head.",
+          "The camera never moves; one pass = 4.7 s and the first and last frames match."
+        ],
+        "zh-Hans": [
+          "画框：0.42 m 至 1.92 m，即膝盖以上到头顶；机位距人物 4.2 m。",
+          "动作：0.4 秒至 1.0 秒跨出 0.28 m，腿的抬起和落下都在画内；3.4 秒至 4.0 秒收回。",
+          "人物在前景层保持清晰，背景轻微虚化。",
+          "右上角显示“中全景 MLS”；右下角比例尺的蓝色带从膝盖到头顶。",
+          "机位全程不动；每轮 4.7 秒，首尾画面相同。"
+        ]
+      },
+      "use": {
+        "ja": "人物が動いたり身振りをしつつ表情も見せたいとき。2〜3人の会話場面によく使う。",
+        "en": "When a character moves or gestures but you still want the face readable; common in scenes with two or three people.",
+        "zh-Hans": "人物有走动或肢体动作，又想让观众看到表情时，常用于两三人的对话场面。"
+      },
+      "tags": [
+        "medium long shot",
+        "mls",
+        "medium full shot",
+        "cowboy shot",
+        "knee shot",
+        "shot size",
+        "framing"
+      ]
+    },
+    {
+      "no": "28",
+      "id": "3-052",
+      "slug": "medium-shot",
+      "category": "shot-size",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/medium-shot",
+      "name": {
+        "ja": "ウエストショット",
+        "en": "Medium shot",
+        "zh-Hans": "中景"
+      },
+      "meaning": {
+        "ja": "腰から上を収め、手の動きがよく見える",
+        "en": "Framed from the waist up, so hand gestures read clearly",
+        "zh-Hans": "框到腰部以上，看清手部动作"
+      },
+      "ask": {
+        "ja": "右手を上げて手を振る彼女をウエストショットで、画框の下端は腰、3秒。",
+        "en": "Medium shot of her raising her right hand to wave, the bottom edge of the frame at the waist, for 3 seconds.",
+        "zh-Hans": "用中景拍她举起右手招手，画框下沿在腰部，持续 3 秒。"
+      },
+      "summary": {
+        "ja": "画框の下端は腰。人物が片腕を頭の横まで上げて左右に振り、最後に下ろす。",
+        "en": "The bottom edge falls at the waist; the person raises one arm beside the head, waves it back and forth and lowers it again.",
+        "zh-Hans": "画框下沿落在腰部，人物举起一只手臂到头侧来回招手，最后放下。"
+      },
+      "spec": {
+        "ja": [
+          "画框: 0.88mから1.92m（腰から頭の上まで）。カメラは4.2m先",
+          "動き: 0.4〜1.0秒で片腕を頭の横へ上げ、1周4回のリズムで左右に振る。3.4〜4.0秒で下ろす",
+          "もう一方の腕は自然に下ろしたまま。人物は前景でくっきり、背景は少しぼかす",
+          "表示: 右上に「中景 MS」。比例尺の青い帯は腰から頭まで",
+          "カメラは最後まで動かない。1周4.7秒で、最初と最後の画面は同じ"
+        ],
+        "en": [
+          "Frame: 0.88 m to 1.92 m (waist to the top of the head); camera 4.2 m away.",
+          "Action: one arm rises beside the head from 0.4 s to 1.0 s and swings back and forth on a rhythm of 4 per pass; it lowers from 3.4 s to 4.0 s.",
+          "The other arm hangs naturally; the person stays sharp on the foreground layer and the background is softly blurred.",
+          "Labels: top right reads \"中景 MS\"; the blue band on the scale figure runs from the waist to the head.",
+          "The camera never moves; one pass = 4.7 s and the first and last frames match."
+        ],
+        "zh-Hans": [
+          "画框：0.88 m 至 1.92 m，即腰部以上到头顶；机位距人物 4.2 m。",
+          "动作：0.4 秒至 1.0 秒举起一只手臂，在头侧以每轮 4 次的节奏来回摆；3.4 秒至 4.0 秒放下。",
+          "另一只手自然下垂；人物在前景层保持清晰，背景轻微虚化。",
+          "右上角显示“中景 MS”；右下角比例尺的蓝色带从腰部到头顶。",
+          "机位全程不动；每轮 4.7 秒，首尾画面相同。"
+        ]
+      },
+      "use": {
+        "ja": "会話・説明・物を持つ場面など、身振りと表情の両方が大事なとき。",
+        "en": "For dialogue, presenting or handling an object, where gestures and faces both matter.",
+        "zh-Hans": "对话、讲解、手持物品等需要同时看清手势和表情的场面。"
+      },
+      "tags": [
+        "medium shot",
+        "ms",
+        "waist shot",
+        "mid shot",
+        "shot size",
+        "framing",
+        "gesture"
+      ]
+    },
+    {
+      "no": "29",
+      "id": "3-053",
+      "slug": "medium-close-up",
+      "category": "shot-size",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/medium-close-up",
+      "name": {
+        "ja": "バストショット",
+        "en": "Medium close-up",
+        "zh-Hans": "中近景"
+      },
+      "meaning": {
+        "ja": "胸から上を収め、話す様子と表情に寄る",
+        "en": "Framed from the chest up, centred on speech and expression",
+        "zh-Hans": "框到胸口以上，重点在说话和表情"
+      },
+      "ask": {
+        "ja": "話している彼女をバストショットで、画框の下端は胸、3秒。",
+        "en": "Medium close-up of her speaking, the bottom edge of the frame at her chest, for 3 seconds.",
+        "zh-Hans": "用中近景拍她说话，画框下沿落在胸口，持续 3 秒。"
+      },
+      "summary": {
+        "ja": "胸から上の人物がやや左寄りで2回話す。口が動き字幕が出て、間で1回まばたきし、最後に頭上に「！」が出る。",
+        "en": "The person, chest up and slightly left of centre, says two lines: the mouth moves and a subtitle appears with each line, there is a blink in the pause between them, and a \"！\" pops up above the head at the end.",
+        "zh-Hans": "人物胸部以上略偏左，说两句话：嘴跟着开合，字幕随话出现；两句之间眨一次眼，最后头顶冒出“！”。"
+      },
+      "spec": {
+        "ja": [
+          "画框: 1.2mから1.9m、下端は胸。カメラは2.2m先、人物は0.35m左寄りで右側は字幕用",
+          "話すのは0.4〜2.0秒と2.9〜4.3秒の2回。口が開閉し、それぞれ後半で1回大きく開く",
+          "字幕バー239×26pxが話に合わせて出入りする。文言は「今天的风，比昨天轻一点。」（中国語）",
+          "2.55秒、間でまばたき1回。4.25〜4.5秒に頭上へ青地に白の「！」。話す間は体が少し揺れる",
+          "表示: 右上に「中近景 MCU」。比例尺は胸から頭まで。背景は少しぼかす。1周4.7秒"
+        ],
+        "en": [
+          "Frame: 1.2 m to 1.9 m, bottom edge at the chest; camera 2.2 m away, the person 0.35 m left of centre leaving the right side for the subtitle.",
+          "Speech in two parts, 0.4 s to 2.0 s and 2.9 s to 4.3 s; the mouth opens and closes with each, with one wide opening late in each part.",
+          "A 239×26 px subtitle bar fades in and out with the speech, reading \"今天的风，比昨天轻一点。\"",
+          "A blink in the pause at 2.55 s; a white \"！\" on a blue dot pops up above the head from 4.25 s to 4.5 s. The body sways slightly while speaking.",
+          "Labels: top right reads \"中近景 MCU\"; the scale band runs from the chest to the head; background softly blurred; one pass = 4.7 s."
+        ],
+        "zh-Hans": [
+          "画框：1.2 m 至 1.9 m，下沿落在胸口；机位距人物 2.2 m，人物偏左 0.35 m，右侧留给字幕。",
+          "说话两段：0.4 秒至 2.0 秒、2.9 秒至 4.3 秒；嘴跟着开合，每段后半有一次大张口。",
+          "字幕条 239×26 px 随说话淡入淡出，内容为“今天的风，比昨天轻一点。”",
+          "2.55 秒在停顿中眨一次眼；4.25 秒至 4.5 秒头顶冒出蓝底白色“！”。身体随说话轻晃。",
+          "右上角显示“中近景 MCU”；比例尺蓝色带从胸口到头顶；背景轻微虚化；每轮 4.7 秒。"
+        ]
+      },
+      "use": {
+        "ja": "インタビュー・会話・独白など、話すことが中心の場面。",
+        "en": "For interviews, dialogue and monologues where speaking is the point.",
+        "zh-Hans": "采访、对话、独白等以说话为主的场面。"
+      },
+      "tags": [
+        "medium close-up",
+        "mcu",
+        "bust shot",
+        "chest up",
+        "talking head",
+        "shot size",
+        "dialogue"
+      ]
+    },
+    {
+      "no": "30",
+      "id": "3-054",
+      "slug": "close-up",
+      "category": "shot-size",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/close-up",
+      "name": {
+        "ja": "クローズアップ",
+        "en": "Close-up",
+        "zh-Hans": "特写"
+      },
+      "meaning": {
+        "ja": "頭と肩で画面を埋め、表情の細部が主役になる",
+        "en": "Head and shoulders fill the frame, so small expressions lead",
+        "zh-Hans": "框住头部和肩部，表情细节成为主角"
+      },
+      "ask": {
+        "ja": "物音に気づいて目線が動き、1回まばたきする彼をクローズアップで、肩まで、3秒。",
+        "en": "Close-up of him hearing a sound, his eyes flicking and blinking once, framed down to the shoulders, for 3 seconds.",
+        "zh-Hans": "用特写拍他听到声音后眼神一动、眨一下眼，画面只到肩膀，持续 3 秒。"
+      },
+      "summary": {
+        "ja": "頭と肩で画面がいっぱい。目線が横へ動き、まばたきし、体が少し引き、最後に正面へ戻る。",
+        "en": "Head and shoulders fill the frame: the eyes shift to one side, there is a blink, the body leans back a little, and finally the gaze returns to the front.",
+        "zh-Hans": "头和肩占满画面：视线先移向一侧，接着眨一次眼，身体轻轻后退半步，最后回到正视。"
+      },
+      "spec": {
+        "ja": [
+          "画框: 1.4mから1.85m（肩から頭の上まで）。カメラは2.6m先",
+          "目線: 0.4〜0.9秒で横へ0.05m動き、3.7〜4.4秒で戻る",
+          "1.55秒にまばたき1回。0.9〜1.3秒で体が0.05m引き、目線と一緒に戻る",
+          "背景ははっきりぼかす。右上に「特写 CU」、比例尺は肩から頭まで",
+          "カメラは最後まで動かない。1周4.7秒で、最初と最後の画面は同じ"
+        ],
+        "en": [
+          "Frame: 1.4 m to 1.85 m (shoulders to the top of the head); camera 2.6 m away.",
+          "Gaze: shifts 0.05 m to one side from 0.4 s to 0.9 s and returns from 3.7 s to 4.4 s.",
+          "A blink at 1.55 s; the body leans back 0.05 m from 0.9 s to 1.3 s and returns with the gaze.",
+          "The background is clearly blurred; top right reads \"特写 CU\" and the scale band runs from the shoulders to the head.",
+          "The camera never moves; one pass = 4.7 s and the first and last frames match."
+        ],
+        "zh-Hans": [
+          "画框：1.4 m 至 1.85 m，即肩部到头顶；机位距人物 2.6 m。",
+          "视线：0.4 秒至 0.9 秒移向一侧 0.05 m，3.7 秒至 4.4 秒回正。",
+          "1.55 秒眨一次眼；0.9 秒至 1.3 秒身体后退 0.05 m，与视线一起复原。",
+          "背景明显虚化；右上角显示“特写 CU”，比例尺蓝色带从肩部到头顶。",
+          "机位全程不动；每轮 4.7 秒，首尾画面相同。"
+        ]
+      },
+      "use": {
+        "ja": "感情の変化や反応、細かな表情に気づかせたいとき。",
+        "en": "For moments where the audience should catch a feeling, a reaction or a small change in expression.",
+        "zh-Hans": "需要观众注意情绪变化、反应或细微表情的时刻。"
+      },
+      "tags": [
+        "close-up",
+        "cu",
+        "close up",
+        "head and shoulders",
+        "reaction",
+        "shot size",
+        "emotion"
+      ]
+    },
+    {
+      "no": "31",
+      "id": "3-055",
+      "slug": "extreme-close-up",
+      "category": "shot-size",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/extreme-close-up",
+      "name": {
+        "ja": "大クローズアップ",
+        "en": "Extreme close-up",
+        "zh-Hans": "大特写"
+      },
+      "meaning": {
+        "ja": "目など一部分だけを収め、ごく小さな変化を大きく見せる",
+        "en": "Only a detail such as the eyes, magnifying the smallest change",
+        "zh-Hans": "只框住眼睛等局部，放大最细的变化"
+      },
+      "ask": {
+        "ja": "彼女の目を大クローズアップで、目のあたりだけ。目線を横へ流してからまばたき、2秒。",
+        "en": "Extreme close-up of her eyes, nothing but the eye area, the gaze sweeping to one side and then a blink, for 2 seconds.",
+        "zh-Hans": "用大特写拍她的眼睛，画面只有眼部，视线扫向一侧后眨一下眼，持续 2 秒。"
+      },
+      "summary": {
+        "ja": "画面は目の帯だけ。目線が左右に1回流れ、途中で素早く1回まばたきする。",
+        "en": "The frame holds only a band across the eyes: the gaze sweeps left and right once, with one quick blink along the way.",
+        "zh-Hans": "画面只剩眼部一条：视线左右扫一次，中途利落地眨一次眼。"
+      },
+      "spec": {
+        "ja": [
+          "画框: 1.58mから1.72m、高さ0.14mの目の帯だけ。カメラは2.0m先",
+          "目線: 1周で正弦カーブに沿って左右に1回、振れ幅0.05m。最初と最後は正面",
+          "まばたき: 2.4〜2.5秒で閉じ、2.6〜2.75秒で開く",
+          "背景は強くぼかす。右上に「大特写 ECU」、比例尺は目の細い帯だけ",
+          "カメラは最後まで動かない。1周4.7秒で、最初と最後の画面は同じ"
+        ],
+        "en": [
+          "Frame: 1.58 m to 1.72 m, a band across the eyes only 0.14 m tall; camera 2.0 m away.",
+          "Gaze: sweeps left and right once per pass on a sine, 0.05 m each way, centred at the start and end.",
+          "Blink: the eyes close from 2.4 s to 2.5 s and reopen from 2.6 s to 2.75 s.",
+          "The background is heavily blurred; top right reads \"大特写 ECU\" and the scale shows only a thin band at the eyes.",
+          "The camera never moves; one pass = 4.7 s and the first and last frames match."
+        ],
+        "zh-Hans": [
+          "画框：1.58 m 至 1.72 m，只有 0.14 m 高的眼部；机位距人物 2.0 m。",
+          "视线：每轮按正弦左右扫一次，幅度 0.05 m，首尾都在正中。",
+          "眨眼：2.4 秒至 2.5 秒闭眼，2.6 秒至 2.75 秒睁开。",
+          "背景强烈虚化；右上角显示“大特写 ECU”，比例尺只有眼部一条细带。",
+          "机位全程不动；每轮 4.7 秒，首尾画面相同。"
+        ]
+      },
+      "use": {
+        "ja": "緊張感を高める、重要な細部を強調する、心の動きを見せるとき。",
+        "en": "To build tension, stress a key detail or show a character's inner moment.",
+        "zh-Hans": "制造紧张感、强调关键细节，或表现角色内心的瞬间。"
+      },
+      "tags": [
+        "extreme close-up",
+        "ecu",
+        "xcu",
+        "eyes",
+        "detail",
+        "shot size",
+        "tension"
+      ]
+    },
+    {
+      "no": "32",
+      "id": "3-056",
+      "slug": "macro-shot",
+      "category": "shot-size",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/macro-shot",
+      "name": {
+        "ja": "マクロ撮影",
+        "en": "Macro shot",
+        "zh-Hans": "微距"
+      },
+      "meaning": {
+        "ja": "ごく小さな被写体を画面いっぱいに写す",
+        "en": "A very small subject shot so it fills the frame",
+        "zh-Hans": "把很小的物体拍到撑满画面"
+      },
+      "ask": {
+        "ja": "小さなキノコをマクロ撮影で。ピントがゆっくり合い、かさの上を這う小さな虫が見えてくる、4秒。",
+        "en": "Macro shot of a small mushroom, the focus slowly pulling sharp until a tiny bug crawling over the cap is visible, for 4 seconds.",
+        "zh-Hans": "用微距拍一朵小蘑菇，焦点慢慢拉实后能看见伞盖上爬过的小虫，持续 4 秒。"
+      },
+      "summary": {
+        "ja": "高さ約0.26mのキノコが画面を埋める。ピントがぼけから合い、かさの白い斑点・ひだ・縁を這う虫が見えてくる。後ろの木の幹と人の脚はぼけたまま。",
+        "en": "A mushroom about 0.26 m tall fills the frame; focus pulls from soft to sharp so the white spots on the cap, the gills and a bug crawling along the rim come through, while the tree trunks and a person's legs behind stay blurred.",
+        "zh-Hans": "一朵约 0.26 m 高的蘑菇撑满画面，焦点从虚拉到实，伞盖的白点、菌褶和沿伞缘爬动的小虫逐渐清晰；后面的树干和人腿一直虚化。"
+      },
+      "spec": {
+        "ja": [
+          "画框: 地面の下0.02mから0.26mまで。カメラは地面すれすれ、キノコまで0.9m",
+          "ピント: 0.4〜1.1秒でぼけから合い、4.3〜4.7秒で再びぼける",
+          "キノコ: かさは赤茶 #C34F40、中間の輪 #D97B57、中心 #E7E0CE。白い斑点が3周、かさの下に放射状のひだ、柄に細い線が2本",
+          "虫: 1周で縁を右から左へ行って戻る。脚の動きの速さは移動速度に合わせる",
+          "後ろの2本の木と人物の脚は常にぼけたまま。右上に「微距 MACRO」。1周4.7秒"
+        ],
+        "en": [
+          "Frame: from 0.02 m below the ground to 0.26 m; camera close to the ground, 0.9 m from the mushroom.",
+          "Focus: pulls from soft to sharp from 0.4 s to 1.1 s and goes soft again from 4.3 s to 4.7 s.",
+          "Mushroom: cap red-brown #C34F40 with a #D97B57 middle ring and a #E7E0CE centre, three rings of white spots, radial gills under the cap and two fine lines on the stem.",
+          "Bug: crawls along the rim from right to left and back once per pass; its legs move faster or slower with its speed.",
+          "The two trees and the person's legs behind always stay blurred; top right reads \"微距 MACRO\"; one pass = 4.7 s."
+        ],
+        "zh-Hans": [
+          "画框：地面以下 0.02 m 至 0.26 m；机位贴近地面，距蘑菇 0.9 m。",
+          "对焦：0.4 秒至 1.1 秒从虚拉到实，4.3 秒至 4.7 秒回虚。",
+          "蘑菇：伞面红棕 #C34F40、中环 #D97B57、中心 #E7E0CE，三圈白点，伞下有放射状菌褶，茎上两道细纹。",
+          "小虫：每轮沿伞缘从右到左再回来一次，腿的摆动快慢跟着移动速度。",
+          "后景的两棵树和人物的腿始终虚化；右上角显示“微距 MACRO”；每轮 4.7 秒。"
+        ]
+      },
+      "use": {
+        "ja": "虫・花・料理・製品の質感など、肉眼では見えにくい細部を見せるとき。",
+        "en": "For insects, flowers, food or product textures, details the eye barely sees.",
+        "zh-Hans": "表现昆虫、花、食物、产品纹理等肉眼难以看清的细节时。"
+      },
+      "tags": [
+        "macro shot",
+        "macro",
+        "macro photography",
+        "focus pull",
+        "detail",
+        "shallow depth of field",
+        "shot size"
+      ]
+    },
+    {
+      "no": "33",
+      "id": "3-064",
+      "slug": "establishing-shot",
+      "category": "transitions",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/establishing-shot",
+      "name": {
+        "ja": "エスタブリッシングショット",
+        "en": "Establishing shot",
+        "zh-Hans": "建立镜头"
+      },
+      "meaning": {
+        "ja": "先に引きの画で場所と位置関係を見せてから寄る",
+        "en": "A wide shot that sets up the place and who stands where, before cutting closer",
+        "zh-Hans": "先用远景交代场地和人物位置，再切近"
+      },
+      "ask": {
+        "ja": "カフェで向かい合う2人を2秒のエスタブリッシングショットで見せてから、片方の寄りに切り替える。",
+        "en": "Open with a 2-second establishing shot of two people sitting opposite each other in a café, then cut to a close shot of one of them.",
+        "zh-Hans": "先用 2 秒建立镜头拍下咖啡馆里相对而坐的两个人，再切到其中一人的近景。"
+      },
+      "summary": {
+        "ja": "まず高い位置の引きの画で、2人が左右に立つ様子を見せる。2.4秒で左の人物の寄りにカットで切り替え、彼が話し始める。観客はもう一人が右にいると分かっている。",
+        "en": "A high wide shot first shows two people standing left and right in the space; at 2.4 s it cuts straight to a close shot of the one on the left, who starts speaking. The audience already knows the other person is to his right.",
+        "zh-Hans": "先从高处远景看到两人一左一右站在场地中，2.4 秒硬切到左边那人的近景，他开始说话；观众已经知道另一人在他右边。"
+      },
+      "spec": {
+        "ja": [
+          "カット1: カメラの高さ4.5m、2人まで20m、少し見下ろす。左にA（青）、右にB（墨色）、間隔2.4m",
+          "切り替え: 2.4秒でカット。カメラは2つの位置の間を移動しない",
+          "カット2: Aの寄り。カメラの高さ1.45m、Aまで3.2m、背景は少しぼかす。Aは2.8〜4.1秒に話す",
+          "右上は「建立 WIDE」、切り替え後は「近景 A」",
+          "戻り: 最後の0.5秒で最初のカットへクロスフェード（1周4.7秒）"
+        ],
+        "en": [
+          "Shot 1: camera 4.5 m high, 20 m from the pair, tilted slightly down; A (blue) on the left and B (ink) on the right, 2.4 m apart.",
+          "Cut: straight cut at 2.4 s; the camera does not travel between the two positions.",
+          "Shot 2: close shot of A from a camera 1.45 m high and 3.2 m away, background softly blurred; A speaks from 2.8 s to 4.1 s.",
+          "Top right reads \"建立 WIDE\" and then \"近景 A\" after the cut.",
+          "Return: cross-fade back to the first shot over the last 0.5 s (one pass = 4.7 s)."
+        ],
+        "zh-Hans": [
+          "镜头 1：机位高 4.5 m，距两人 20 m，略微俯拍；A 蓝色在左，B 墨色在右，相距 2.4 m。",
+          "切点：2.4 秒硬切，机位之间不移动。",
+          "镜头 2：A 的近景，机位高 1.45 m、距 A 3.2 m，背景轻微虚化；A 在 2.8 秒至 4.1 秒说话。",
+          "右上角先显示“建立 WIDE”，切换后显示“近景 A”。",
+          "最后 0.5 秒交叉淡化回第一个镜头，每轮 4.7 秒。"
+        ]
+      },
+      "use": {
+        "ja": "新しい場面の頭で、どこで誰がいるかを先に伝えてから細部へ入るとき。",
+        "en": "At the start of a new scene, so the audience knows where we are and who is there before the details.",
+        "zh-Hans": "新场景开头，让观众先知道在哪里、谁在场，再进入细节。"
+      },
+      "tags": [
+        "establishing shot",
+        "master shot",
+        "wide shot",
+        "scene setting",
+        "cut",
+        "editing",
+        "continuity"
+      ]
+    },
+    {
+      "no": "34",
+      "id": "3-065",
+      "slug": "shot-reverse-shot",
+      "category": "transitions",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/shot-reverse-shot",
+      "name": {
+        "ja": "切り返し",
+        "en": "Shot/reverse shot",
+        "zh-Hans": "正反打"
+      },
+      "meaning": {
+        "ja": "会話する2人を肩越しの2つの画角で交互に切り替える",
+        "en": "Cutting back and forth between two over-the-shoulder angles of a conversation",
+        "zh-Hans": "两个过肩机位交替切换，拍对话的两个人"
+      },
+      "ask": {
+        "ja": "2人の会話を切り返しで。肩越しのカットを1.5秒ごとに切り替え、話す人がいつもカメラを向く。",
+        "en": "Shoot the two-person dialogue as shot/reverse shot, cutting between over-the-shoulder angles every 1.5 seconds, the speaker always facing the camera.",
+        "zh-Hans": "用正反打拍两人对话，过肩镜头每 1.5 秒切换一次，说话的人始终正对镜头。"
+      },
+      "summary": {
+        "ja": "Bの肩越しにAが話し、Aの肩越しのBの返事に切り替え、またAに戻る。聞き手は肩と背中だけ。Aは常に画面の左、Bは右。",
+        "en": "Over B's shoulder we see A speak, then a cut over A's shoulder to B answering, then back to A; the listener shows only shoulders and back. A stays on the left of the frame and B on the right throughout.",
+        "zh-Hans": "越过 B 的肩拍 A 说话，切到越过 A 的肩拍 B 回话，再切回 A；听的人只露肩背。A 一直在画面左边，B 一直在右边。"
+      },
+      "spec": {
+        "ja": [
+          "正打: カメラはBの後ろ右2.6m、高さ1.5m、0.741rad振ってBの肩越しにA。逆打は左右対称",
+          "切り替え: 1.4秒で逆打へ、2.8秒で正打へ戻る。カメラは間を移動しない",
+          "話す: Aは0.2〜1.3秒と3.0〜4.0秒、Bは1.6〜2.7秒。背中を向けた人は顔を描かない",
+          "2つのカメラは軸の同じ側にあり、Aは左・Bは右のまま。右上に「正打 A」「反打 B」",
+          "戻り: 最後の0.5秒で最初のカットへクロスフェード（1周4.7秒）"
+        ],
+        "en": [
+          "Shot: camera 2.6 m to the right behind B, 1.5 m high, turned 0.741 rad to look at A over B's shoulder; the reverse is its mirror image.",
+          "Cuts: to the reverse at 1.4 s and back at 2.8 s; the camera does not travel between them.",
+          "Speech: A from 0.2 s to 1.3 s and 3.0 s to 4.0 s, B from 1.6 s to 2.7 s; the person with their back to the camera has no face drawn.",
+          "Both cameras are on the same side of the line, so A stays left and B right; top right reads \"正打 A\" / \"反打 B\".",
+          "Return: cross-fade back to the first shot over the last 0.5 s (one pass = 4.7 s)."
+        ],
+        "zh-Hans": [
+          "正打：机位在 B 身后右侧 2.6 m、高 1.5 m，转向 0.741 rad 越肩看 A；反打与之左右对称。",
+          "切点：1.4 秒切到反打，2.8 秒切回正打；机位之间不移动。",
+          "说话：A 在 0.2 秒至 1.3 秒、3.0 秒至 4.0 秒，B 在 1.6 秒至 2.7 秒；背对镜头的人不画脸。",
+          "两个机位都在轴线同侧，A 始终在左、B 始终在右；右上角显示“正打 A”/“反打 B”。",
+          "最后 0.5 秒交叉淡化回第一个镜头，每轮 4.7 秒。"
+        ]
+      },
+      "use": {
+        "ja": "2人の会話を撮る基本の方法。話す人と聞く人の反応を両方見せる。",
+        "en": "The standard way to film a two-person conversation, showing both the speaker and the listener's reaction.",
+        "zh-Hans": "拍两人对话的标准做法，让观众看到说话的人和听的人的反应。"
+      },
+      "tags": [
+        "shot reverse shot",
+        "shot/reverse shot",
+        "ots",
+        "over the shoulder",
+        "dialogue",
+        "cut",
+        "editing"
+      ]
+    },
+    {
+      "no": "35",
+      "id": "3-066",
+      "slug": "match-on-action",
+      "category": "transitions",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/match-on-action",
+      "name": {
+        "ja": "アクションつなぎ",
+        "en": "Match on action",
+        "zh-Hans": "动作衔接"
+      },
+      "meaning": {
+        "ja": "動きの途中でカメラを切り替え、次のカットで動きの続きを見せる",
+        "en": "Cut mid-movement so the action carries on in the next shot",
+        "zh-Hans": "在动作进行中切换机位，动作在下一个镜头里接着做完"
+      },
+      "ask": {
+        "ja": "ドアを押して部屋に入る彼をアクションつなぎで。押す途中で室内側のカメラに切り替え、次のカットでドアが開ききる。",
+        "en": "Use a match on action as he pushes open a door: cut to the inside angle halfway through, and the door keeps opening in the next shot.",
+        "zh-Hans": "用动作衔接拍他推门走进房间，推到一半切到屋内机位，门在下一个镜头里接着打开。"
+      },
+      "summary": {
+        "ja": "人物が一定の速さで横切り、途中で正面のカメラから斜め前のカメラへカットで切り替える。位置と歩みは切れ目の前後でつながり、足元に青い点線が一瞬出て同じ動きだと示す。",
+        "en": "A person walks across at a steady pace; halfway, the picture cuts from a front camera to a three-quarter camera. Position and stride carry straight through the cut, and a blue dashed mark flashes under the feet to show it is the same movement.",
+        "zh-Hans": "人物匀速横穿画面，走到一半从正面机位硬切到侧前方机位；位置和步伐在切点前后连贯，脚下闪一下蓝色虚线表示是同一个动作。"
+      },
+      "spec": {
+        "ja": [
+          "人物: 0〜4.2秒で x −3.2m から3.2m まで一定速度で歩く（6.4m）。歩みは途切れない",
+          "カメラ1: 正面、高さ1.4m、人物まで8m",
+          "カメラ2: 2.3秒で切り替え。右へ1.4m、高さ1.2m、人物まで3m、0.35rad振る",
+          "切り替え後0.35秒、足元に青い短い点線が出て消える。右上に「机位 1」「机位 2 · 动作延续」",
+          "戻り: 最後の0.5秒で最初のカットへクロスフェード（1周4.7秒）"
+        ],
+        "en": [
+          "Subject: walks from x −3.2 m to 3.2 m at constant speed from 0 s to 4.2 s (6.4 m), with a continuous stride.",
+          "Camera 1: frontal, 1.4 m high, 8 m from the subject.",
+          "Camera 2: cut at 2.3 s, placed 1.4 m to the right, 1.2 m high, 3 m from the subject, turned 0.35 rad.",
+          "For 0.35 s after the cut a short blue dashed mark shows under the feet and fades; top right reads \"机位 1\" / \"机位 2 · 动作延续\".",
+          "Return: cross-fade back to the first shot over the last 0.5 s (one pass = 4.7 s)."
+        ],
+        "zh-Hans": [
+          "人物：0 秒至 4.2 秒从 x −3.2 m 匀速走到 3.2 m，共 6.4 m，步伐连续。",
+          "机位 1：正面，高 1.4 m，距人物 8 m。",
+          "机位 2：2.3 秒切换，位于右侧 1.4 m、高 1.2 m、距人物 3 m，转向 0.35 rad。",
+          "切换后 0.35 秒内，脚下显示蓝色虚线短标并淡出；右上角显示“机位 1”/“机位 2 · 动作延续”。",
+          "最后 0.5 秒交叉淡化回第一个镜头，每轮 4.7 秒。"
+        ]
+      },
+      "use": {
+        "ja": "動きの流れを切らずに角度を変えたいとき。ドアを開ける、座る、物を渡す、パンチなど。",
+        "en": "To change angle without breaking the flow of a movement, such as opening a door, sitting down, handing something over or throwing a punch.",
+        "zh-Hans": "想换角度又不打断动作流畅感时，比如开门、坐下、递东西、出拳。"
+      },
+      "tags": [
+        "match on action",
+        "cutting on action",
+        "match cut",
+        "action continuity",
+        "cut",
+        "editing",
+        "continuity"
+      ]
+    },
+    {
+      "no": "36",
+      "id": "3-067",
+      "slug": "180-degree-rule",
+      "category": "transitions",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 阿梦freedom",
+      "attribution": "https://idea.ameng.dev/terms/180-degree-rule",
+      "name": {
+        "ja": "イマジナリーライン（180度ルール）",
+        "en": "180-degree rule",
+        "zh-Hans": "180 度轴线"
+      },
+      "meaning": {
+        "ja": "カメラを2人を結ぶ線の同じ側に置き、左右が入れ替わらないようにする",
+        "en": "Keep every camera on one side of the line between two people so left and right never flip",
+        "zh-Hans": "机位留在两人连线的同一侧，左右关系才不会颠倒"
+      },
+      "ask": {
+        "ja": "2人の会話はイマジナリーラインを守り、全カメラを同じ側に。ヒロインはいつも画面の左。",
+        "en": "Follow the 180-degree rule for the two-person dialogue: every camera on the same side, the heroine always on the left of the frame.",
+        "zh-Hans": "拍两人对话时遵守 180 度轴线，所有机位都在同一侧，女主始终在画面左边。"
+      },
+      "summary": {
+        "ja": "右下の小さな俯瞰図に2人の間の軸線を描き、カメラ側は薄い青、越えてはいけない側は斜線。2つのカットは同じ側にあり、Aはいつも画面の左。",
+        "en": "A small top-down map at bottom right shows the line between the two people, the camera side in pale blue and the far side hatched as off limits; both shots stay on one side, so A is always on the left.",
+        "zh-Hans": "右下角俯视小图画出两人之间的轴线，机位所在一侧涂浅蓝，越轴一侧打斜线；两个镜头都在同一侧，A 一直在画面左边。"
+      },
+      "spec": {
+        "ja": [
+          "カメラ1: 2人の正面、5m先、高さ1.5m。Aは0.5〜1.9秒に話す",
+          "カメラ2: 2.4秒で切り替え。左へ2.2m、2.8m先、0.702rad振る。軸の同じ側のまま。Bは2.7〜4.0秒に話す",
+          "俯瞰図66×66px: 青い点線が軸線、青い点がA、墨色の点がB。カメラ側は薄い青、反対側は斜線で「越轴」",
+          "図では今のカメラが青、もう一方は灰色。本画面ではAは左、Bは右のまま",
+          "戻り: 最後の0.5秒で最初のカットへクロスフェード（1周4.7秒）"
+        ],
+        "en": [
+          "Camera 1: square on to the pair, 5 m away and 1.5 m high; A speaks from 0.5 s to 1.9 s.",
+          "Camera 2: cut at 2.4 s, 2.2 m to the left and 2.8 m away, turned 0.702 rad, still on the same side of the line; B speaks from 2.7 s to 4.0 s.",
+          "Top-down map, 66×66 px: a blue dashed line for the axis, a blue dot for A and an ink dot for B; the camera side is pale blue and the other side hatched and labelled \"越轴\".",
+          "In the map the active camera is blue and the other grey; in the main picture A stays on the left and B on the right.",
+          "Return: cross-fade back to the first shot over the last 0.5 s (one pass = 4.7 s)."
+        ],
+        "zh-Hans": [
+          "机位 1：正对两人，距 5 m、高 1.5 m；A 在 0.5 秒至 1.9 秒说话。",
+          "机位 2：2.4 秒切换，位于左侧 2.2 m、距 2.8 m，转向 0.702 rad，仍在轴线同侧；B 在 2.7 秒至 4.0 秒说话。",
+          "俯视小图 66×66 px：蓝色虚线为轴线，蓝点 A、墨色点 B；机位一侧浅蓝，另一侧斜线并标“越轴”。",
+          "小图中当前机位为蓝色，另一个为灰色；主画面里 A 始终在左、B 始终在右。",
+          "最后 0.5 秒交叉淡化回第一个镜头，每轮 4.7 秒。"
+        ]
+      },
+      "use": {
+        "ja": "会話・追跡・対峙など複数カメラの場面で、誰がどちら側か観客を迷わせないために。",
+        "en": "For dialogue, chases or stand-offs shot from several angles, so the audience never loses track of who is on which side.",
+        "zh-Hans": "拍对话、追逐、对峙等多机位场面，保证观众不会弄混谁在哪边。"
+      },
+      "tags": [
+        "180-degree rule",
+        "180 degree rule",
+        "axis of action",
+        "imaginary line",
+        "crossing the line",
+        "screen direction",
+        "continuity"
       ]
     }
   ]
