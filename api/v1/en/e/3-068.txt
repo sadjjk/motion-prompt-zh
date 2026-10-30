@@ -1,0 +1,43 @@
+// Motion Prompt #3-068 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/bloom
+//
+// Bloom / ブルーム
+// Pack: photo (Photo looks, lighting & styles) · element 32 · Category: Lens & camera effects
+// What happens: A car crosses a night street corner; glows spread only around the windows, street lamps and car lights, while the dark sky and buildings stay unchanged.
+// Motion spec:
+//   - Scene: a street corner at night (sky #2C3B5E, windows and bulbs #FFC75A); a car crosses from x −60 to 600 once per pass.
+//   - Only the bright parts go on a separate layer: windows, bulbs #FFE3A3, headlights #FFE9B8 and tail lights #FF5B4D.
+//   - Glow: that layer is blurred by 3, 7 and 10 px and added on, plus a wide glow blurred by 5 px at half size (about 10 px at full size).
+//   - The dark parts do not change under the additive glow; top right reads "BLOOM n%".
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For night scenes, neon and backlight when the light sources should glow softly and dreamily.
+// Tags: bloom, glow, light spill, night, highlights, lens
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-068
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 32
+// 泛光（ブルーム）: 夜の街角で、窓・街灯・車のライトの明るい所からだけ光がにじみ出す。暗い建物の輪郭はそのまま
+CELLS[31] = cell((k, u) => {
+  const a = env(u), x = lerp(-60, 600, u / CYC);
+  const lights = { head: '#FFE9B8', tail: '#FF5B4D' };
+  stageStreet(k, NIGHT, { car: x, carLights: lights });
+  if (a < 0.002) { hud(k, 'BLOOM 0%'); return; }
+  // 明るい所だけ: 同じ場面を、窓と電球と車のライト以外を透明にした色で描く
+  const NONE = 'rgba(0,0,0,0)', BR = mapPal(NIGHT, () => NONE);
+  Object.assign(BR, { win: NIGHT.win, bulb: '#FFE3A3' });
+  const L = brights('bloom', kk => stageStreet(kk, BR, { car: x, carLights: lights, person: false }));
+  const [G, kg] = layer('bloom-g');
+  kg.globalCompositeOperation = 'lighter';
+  for (const [b, al] of [[3, 0.9], [7, 0.85], [10, 0.8]]) { kg.filter = `blur(${b}px)`; kg.globalAlpha = al; kg.drawImage(L, 0, 0); }
+  kg.filter = 'none';
+  // 広いにじみ: 半分の大きさで 10px ぼかす（全面で 20px 相当）
+  const [Hh, kh] = layer('bloom-h'); kh.filter = 'blur(5px)'; kh.drawImage(L, 0, 0, CW / 2, CH / 2); kh.filter = 'none';
+  k.save(); k.globalCompositeOperation = 'lighter';
+  k.globalAlpha = a; k.drawImage(G, 0, 0);
+  k.globalAlpha = 0.9 * a; k.drawImage(Hh, 0, 0, CW / 2, CH / 2, 0, 0, CW, CH);
+  k.restore();
+  hud(k, `BLOOM ${Math.round(a * 100)}%`);
+});

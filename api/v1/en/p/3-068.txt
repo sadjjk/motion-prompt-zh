@@ -1,0 +1,16 @@
+Please use "Bloom" (ブルーム), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-068
+
+What it is: Light spills out of the bright areas while the dark areas keep their detail
+What the sample shows: A car crosses a night street corner; glows spread only around the windows, street lamps and car lights, while the dark sky and buildings stay unchanged.
+Spec:
+- Scene: a street corner at night (sky #2C3B5E, windows and bulbs #FFC75A); a car crosses from x −60 to 600 once per pass.
+- Only the bright parts go on a separate layer: windows, bulbs #FFE3A3, headlights #FFE9B8 and tail lights #FF5B4D.
+- Glow: that layer is blurred by 3, 7 and 10 px and added on, plus a wide glow blurred by 5 px at half size (about 10 px at full size).
+- The dark parts do not change under the additive glow; top right reads "BLOOM n%".
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+When to use it: For night scenes, neon and backlight when the light sources should glow softly and dreamily.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-068.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

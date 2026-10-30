@@ -1,4 +1,4 @@
-// Motion Prompt #3 025~048 · 057~063 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#097
+// Motion Prompt #3 025~048 · 057~063 · 068~083 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#097
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/rule-of-thirds (#3-057)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/centered-composition (#3-058)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/symmetry (#3-059)
@@ -6,9 +6,25 @@
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/negative-space (#3-061)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/frame-within-frame (#3-062)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/depth-layering (#3-063)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/bloom (#3-068)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/soft-focus (#3-069)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/prism (#3-070)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/god-rays (#3-071)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/window-shadow-pattern (#3-072)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/spotlight (#3-073)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/dragged-shutter (#3-074)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/under-light (#3-075)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/dappled-light (#3-076)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/caustics (#3-077)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/campfire-light (#3-078)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/screen-glow (#3-079)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/foggy-light (#3-080)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/moonlight (#3-081)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/bicolor-lighting (#3-082)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/color-temperature (#3-083)
 //
 // Kit for pack "photo" (Photo looks, lighting & styles / 写真の表現・光と画風): the constants and helpers its elements share.
-// Elements #3 025~048 · 057~063 · 539x208 px · cycle 5 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #3 025~048 · 057~063 · 068~083 · 539x208 px · cycle 5 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,
@@ -25,7 +41,8 @@
 // Every cell is a pure function of u, so the same call renders video frames: u = frame / fps.
 
 // @kit
-// 写真の表現・光と画風 31（カード 539x208、1周 5秒）。各コマは時間 u の純関数。
+// 写真の表現・光と画風 47（カード 539x208、1周 5秒）。各コマは時間 u の純関数。
+// 32〜47 は光（镜语の用語による）。レンズの光 3・ライティング 5・光源と色 8。
 // 25〜31 は構図。同じ平らな場面で、env(u) に合わせて主役を構図どおりの位置へ動かし、補助線を出す。
 // 絵は平らな図形だけで描く。場面は3つを全コマで使い回す: ①光＝地平線の前の胸像 ②レンズ＝街角 ③仕上げ＝胸像と風景。
 // 人物は顔・髪のない丸い頭のピクト。光はアンバー1色の面、影は一段濃い平らな面で表す。
@@ -234,7 +251,8 @@ function hud(k, s) {
   k.fillStyle = '#6E6E73'; k.textAlign = 'right'; k.textBaseline = 'middle'; k.fillText(s, CW - m - 14, m + 18);
   k.restore();
 }
-// 右下の、真上から見た配置図: 頭（下がカメラ側）と光の位置。lights = [[角度, 明るさ0..1]]、角度は 0 = カメラ側、+90° = 画面の左
+// 右下の、真上から見た配置図: 頭（下がカメラ側）と光の位置。lights = [[角度, 明るさ0..1, 色]]、角度は 0 = カメラ側、+90° = 画面の左
+// 色は省略可（既定はアンバー）。2色の光（バイカラー）で灯ごとに色を変えるときだけ渡す
 function plan(k, lights) {
   const w = 66, h = 66, x = CW - 13 - w, y = CH - 13 - h, cx = x + w / 2, cy = y + h / 2 - 3;
   k.save();
@@ -243,11 +261,11 @@ function plan(k, lights) {
   k.fillStyle = '#CFCECB'; k.beginPath(); k.roundRect(cx - 6, y + h - 10, 12, 6, 2); k.fill();
   k.fillStyle = '#A9A8A5'; k.beginPath(); k.arc(cx, cy, 8, 0, TAU); k.fill();
   k.beginPath(); k.moveTo(cx - 3.5, cy + 7); k.lineTo(cx + 3.5, cy + 7); k.lineTo(cx, cy + 12); k.fill();
-  for (const [az, a] of lights) {
+  for (const [az, a, col = '#F5A524'] of lights) {
     const lx = cx - Math.sin(az) * 22, ly = cy + Math.cos(az) * 22;
     k.globalAlpha = a;
-    k.strokeStyle = '#F5A524'; k.lineWidth = 1.4; k.setLineDash([2.5, 2.5]); k.beginPath(); k.moveTo(lx, ly); k.lineTo(lerp(lx, cx, 0.55), lerp(ly, cy, 0.55)); k.stroke(); k.setLineDash([]);
-    k.fillStyle = '#F5A524'; k.beginPath(); k.arc(lx, ly, 4.5, 0, TAU); k.fill();
+    k.strokeStyle = col; k.lineWidth = 1.4; k.setLineDash([2.5, 2.5]); k.beginPath(); k.moveTo(lx, ly); k.lineTo(lerp(lx, cx, 0.55), lerp(ly, cy, 0.55)); k.stroke(); k.setLineDash([]);
+    k.fillStyle = col; k.beginPath(); k.arc(lx, ly, 4.5, 0, TAU); k.fill();
   }
   k.restore();
 }
@@ -257,6 +275,18 @@ function layer(name) {
   const c = LAYERS[name] || (LAYERS[name] = (() => { const e = document.createElement('canvas'); e.width = CW; e.height = CH; return e; })());
   const kk = c.getContext('2d'); kk.globalAlpha = 1; kk.filter = 'none'; kk.globalCompositeOperation = 'source-over'; kk.clearRect(0, 0, CW, CH);
   return [c, kk];
+}
+// 明るい所だけの面: 透明な面に paint(kk) で灯り・窓・太陽などを描いて返す（泛光・柔焦・プリズムの元）
+// 場面と位置を合わせるため、paint の中では場面と同じ座標の定数（LAMPS・BLD・QX など）を使う
+function brights(name, paint) { const [c, kk] = layer(name); paint(kk, pen(kk)); return c; }
+// 色温度（K）→ 画面に重ねる色と濃さ。5500K（昼光）は重ねない。間は隣の2点を混ぜる
+const KELVIN = [[2000, '#FF8A2A', 0.42], [2700, '#FFA552', 0.3], [3500, '#FFC489', 0.16], [5500, '#FFFFFF', 0], [7500, '#A9C8FF', 0.2], [10000, '#7FA8FF', 0.36]];
+function kelvin(K) {
+  let i = 0; while (i < KELVIN.length - 2 && K > KELVIN[i + 1][0]) i++;
+  const [k0, c0, a0] = KELVIN[i], [k1, c1, a1] = KELVIN[i + 1], t = clamp((K - k0) / (k1 - k0));
+  // 5500K の白は色を持たないので、混ぜるときは相手の色のまま濃さだけ変える
+  const col = a0 === 0 ? c1 : a1 === 0 ? c0 : mixc(c0, c1, t);
+  return [col, lerp(a0, a1, t)];
 }
 const cell = fn => (k, w, h, u) => { k.save(); fn(k, u); k.restore(); };
 

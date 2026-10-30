@@ -14,7 +14,7 @@ A pack is one field's set of names. Each list below is readable here on GitHub; 
 | #2 025~048 · 064~100 | `motion2` — Motion graphics moves, part 2 | 61 | [English](motion2/README.md) · [日本語](motion2/README.ja.md) · [简体中文](motion2/README.zh-Hans.md) |
 | #2 049~063 | `mgstyles` — MG styles | 15 | [English](mgstyles/README.md) · [日本語](mgstyles/README.ja.md) · [简体中文](mgstyles/README.zh-Hans.md) |
 | #3 001~024 · 049~056 · 064~067 | `camera` — Camera moves & transitions | 36 | [English](camera/README.md) · [日本語](camera/README.ja.md) · [简体中文](camera/README.zh-Hans.md) |
-| #3 025~048 · 057~063 | `photo` — Photo looks, lighting & styles | 31 | [English](photo/README.md) · [日本語](photo/README.ja.md) · [简体中文](photo/README.zh-Hans.md) |
+| #3 025~048 · 057~063 · 068~083 | `photo` — Photo looks, lighting & styles | 47 | [English](photo/README.md) · [日本語](photo/README.ja.md) · [简体中文](photo/README.zh-Hans.md) |
 | #4 001~042 | `scenes` — Styled scenes | 42 | [English](scenes/README.md) · [日本語](scenes/README.ja.md) · [简体中文](scenes/README.zh-Hans.md) |
 
 To add a pack for your field, or a language to an existing pack, see [CONTRIBUTING.md](../CONTRIBUTING.md).

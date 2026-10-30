@@ -1,0 +1,60 @@
+// Motion Prompt #3-077 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/caustics
+//
+// Caustics / コースティクス
+// Pack: photo (Photo looks, lighting & styles) · element 41 · Category: Light sources & color
+// What happens: The scene sinks into pale underwater blue; a wavy surface line runs along the top and four light shafts slant down, while a bent net of bright lines ripples over the person and the floor.
+// Motion spec:
+//   - Scene 1: the head-and-shoulders figure; colours shift 55% towards #3F8FB0, with sky #7CC3D9, floor #5E9FB4 and person #2E5A78.
+//   - Net: 34 lines slanting each way, 26 px apart, 0.2–2.2 px wide, #E8FBFF; the lines bend with 3 sine wobbles (1, 2 and 3 times per pass).
+//   - The net is blurred by 1 px and screened at 0.5; 4 shafts start at x 120, 110 px apart, fading from 0.22 opacity at the top to nothing at the bottom.
+//   - Surface: a wavy line near the top at y ≈ 9, 2 px wide, #EAFBFF.
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For pools, the sea or aquariums when the picture should feel underwater.
+// Tags: caustics, underwater, pool light, ripples, water, light
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-077
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 41
+// 水下焦散（コースティクス）: 場面が水の中の淡い青に沈む。上に揺れる水面の線、斜めに差し込む光の筋。
+// 人物と水底に、水面の揺れで曲がった網目の明るい線が流れる
+CELLS[40] = cell((k, u) => {
+  const a = env(u), T = u / CYC * TAU;
+  const WATER = mapPal(BASE, c => mixc(c, '#3F8FB0', 0.55));
+  Object.assign(WATER, { sky: '#7CC3D9', sky2: '#5FAFCB', ground: '#5E9FB4', person: '#2E5A78', shade: '#24485F' });
+  stagePortrait(k, pal(BASE, WATER, a));
+  bust(k, PX, PY, PR, mixc(BASE.person, WATER.person, a));
+  if (a < 0.002) return;
+  // 網目: 2方向に走る曲がった線。線の位置は水面の揺れ（整数倍の周期）で変形する
+  const [L, kl] = layer('caustic');
+  kl.strokeStyle = '#E8FBFF'; kl.lineCap = 'round';
+  const wob = (x, y) => 7 * Math.sin(x * 0.045 + T * 2) + 5 * Math.sin(y * 0.07 - T + x * 0.02) + 3 * Math.sin((x + y) * 0.09 + T * 3);
+  for (let dir = 0; dir < 2; dir++) {
+    for (let i = -6; i < 28; i++) {
+      kl.lineWidth = 1.2 + (i % 3) * 0.5; kl.beginPath();
+      for (let s = 0; s <= 60; s++) {
+        const t = s / 60;
+        // dir 0: 右下がりの線、dir 1: 左下がりの線。交わって網になる
+        const bx = dir ? i * 26 - t * 120 : i * 26 - 160 + t * 120, by = 30 + t * (CH - 30);
+        const x = bx + wob(bx, by), y = by + 0.6 * wob(by, bx);
+        s ? kl.lineTo(x, y) : kl.moveTo(x, y);
+      }
+      kl.stroke();
+    }
+  }
+  k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.5 * a; k.filter = 'blur(1px)'; k.drawImage(L, 0, 0); k.restore();
+  // 光の筋と水面
+  k.save(); k.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 4; i++) {
+    const x0 = 120 + i * 110 + 10 * Math.sin(T + i), g = k.createLinearGradient(0, 0, 0, CH);
+    g.addColorStop(0, `rgba(220,248,255,${(0.22 * a).toFixed(3)})`); g.addColorStop(1, 'rgba(220,248,255,0)');
+    k.fillStyle = g; k.beginPath(); k.moveTo(x0, 0); k.lineTo(x0 + 26, 0); k.lineTo(x0 + 26 - 70, CH); k.lineTo(x0 - 40 - 70, CH); k.closePath(); k.fill();
+  }
+  k.restore();
+  k.save(); k.globalAlpha = a; k.strokeStyle = '#EAFBFF'; k.lineWidth = 2; k.beginPath();
+  for (let x = 0; x <= CW; x += 6) { const y = 9 + 3 * Math.sin(x * 0.05 + T * 2) + 2 * Math.sin(x * 0.11 - T * 3); x ? k.lineTo(x, y) : k.moveTo(x, y); }
+  k.stroke(); k.restore();
+});

@@ -2,7 +2,7 @@
 
 # 摄影光线与风格
 
-31 个效果 · #3 025~048 · 057~063 · 分类包 `photo` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+47 个效果 · #3 025~048 · 057~063 · 068~083 · 分类包 `photo` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -18,6 +18,11 @@
 | [#3-030](https://sadjjk.github.io/motion-prompt-zh/#3-030) | **蝴蝶光** | Butterfly lighting | 正前方高位光在鼻下形成蝴蝶状阴影 | 美妆人像用蝴蝶光，灯在正前方上仰 45°，鼻下留小型蝴蝶状阴影。 |
 | [#3-031](https://sadjjk.github.io/motion-prompt-zh/#3-031) | **黄金时刻** | Golden hour | 日出后或日落前的低角度暖光 | 黄金时刻的田野人物，太阳贴近地平线，长阴影，整体暖橙色。 |
 | [#3-032](https://sadjjk.github.io/motion-prompt-zh/#3-032) | **蓝调时刻** | Blue hour | 日落后或日出前天空呈深蓝的时段 | 港口城市蓝调时刻，深蓝天空，暖色窗灯和街灯倒映水中。 |
+| [#3-071](https://sadjjk.github.io/motion-prompt-zh/#3-071) | **体积光束** | God rays | 光线形成看得见的成束光带斜穿画面 | 人像加左上方的体积光束：四周压暗，让几道明暗相间的光束斜着照进来。 |
+| [#3-072](https://sadjjk.github.io/motion-prompt-zh/#3-072) | **窗格光影** | Window shadow pattern | 直射阳光穿过窗框，在人和墙上投下边缘清楚的格子影 | 浅色墙前的人物身上投下斜射进来的窗格光影，随着时间推移，影子慢慢横移、拉长。 |
+| [#3-073](https://sadjjk.github.io/motion-prompt-zh/#3-073) | **舞台追光** | Follow spotlight | 高处打下的硬光在黑暗舞台上圈出边缘清楚的圆形光区 | 用追光跟住舞台上走动的人：四周漆黑，只有圆形光区里亮，烟雾里看得到光柱。 |
+| [#3-074](https://sadjjk.github.io/motion-prompt-zh/#3-074) | **慢门闪光** | Dragging the shutter | 闪光灯把人冻住，慢快门让背景灯光拉出彩色拖影 | 夜晚派对照用慢门闪光：人物被闪光定格得很清楚，身后的灯泡和窗光拉成弧形彩色拖影。 |
+| [#3-075](https://sadjjk.github.io/motion-prompt-zh/#3-075) | **底光** | Under lighting | 光从下巴下方往上照，阴影方向反常，脸显得诡异 | 暗房间里用下巴下的手电从下往上照人物：脸的下方亮、越往上越暗，身后墙上投出放大的影子。 |
 
 ## 镜头与相机效果
 
@@ -31,6 +36,9 @@
 | [#3-038](https://sadjjk.github.io/motion-prompt-zh/#3-038) | **鱼眼镜头** | Fisheye lens | 超广角使中央鼓起、直线弯曲 | 用鱼眼镜头拍城市街道，视野 180°，建筑边缘向外弯曲。 |
 | [#3-039](https://sadjjk.github.io/motion-prompt-zh/#3-039) | **色差** | Chromatic aberration | 高反差边缘出现红色和蓝紫色边 | 白天空前的黑树枝加轻微色差，边缘有红色、蓝紫色镶边，越靠角落越强。 |
 | [#3-040](https://sadjjk.github.io/motion-prompt-zh/#3-040) | **暗角** | Vignette | 边角变暗，将视线引向中心 | 海滩照片加明显暗角，四角渐暗，让视线聚焦中央人物。 |
+| [#3-068](https://sadjjk.github.io/motion-prompt-zh/#3-068) | **泛光** | Bloom | 亮部向四周晕出柔光，暗部保持原样 | 给夜晚街角加泛光：只让窗户、路灯和车灯晕开一圈光，暗处的楼房轮廓保持清楚。 |
+| [#3-069](https://sadjjk.github.io/motion-prompt-zh/#3-069) | **柔焦** | Soft focus | 亮部柔和晕开、对比降低，轮廓仍在 | 风景人像用柔焦：让亮边柔柔地晕开，整体对比稍降，但轮廓不要糊。 |
+| [#3-070](https://sadjjk.github.io/motion-prompt-zh/#3-070) | **棱镜彩虹** | Prism effect | 亮处旁边出现彩虹色的偏移重影 | 夜晚街角加棱镜彩虹：窗户和路灯的亮光旁边错开一圈彩虹色重影，再让一道淡淡的彩虹光带扫过。 |
 
 ## 色调与后期风格
 
@@ -56,6 +64,19 @@
 | [#3-061](https://sadjjk.github.io/motion-prompt-zh/#3-061) | **留白** | Negative space | 让大片简单区域包围主体，突出主体和情绪 | 用留白构图拍站在雪地左侧的一个人，画面右边三分之二只有空白的雪。 |
 | [#3-062](https://sadjjk.github.io/motion-prompt-zh/#3-062) | **框中框** | Frame within a frame | 用门窗、拱洞等前景把主体再框一次 | 用框中框构图拍门外院子里的孩子，近处的门框把孩子框在画面中央。 |
 | [#3-063](https://sadjjk.github.io/motion-prompt-zh/#3-063) | **前中后景** | Foreground, middle ground & background | 前景、中景、后景分层排布，画面更有纵深 | 拍湖边的人物时做出前中后景：前景是花丛，中景是人物，后景是湖和对岸的树林。 |
+
+## 光源与色彩
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#3-076](https://sadjjk.github.io/motion-prompt-zh/#3-076) | **斑驳树影** | Dappled light | 阳光穿过树叶，在人物和地面落下一块块亮斑 | 树荫下的人物加斑驳树影：整体是偏绿的树荫，人物和地面落着不规则的光斑，随风轻轻晃动。 |
+| [#3-077](https://sadjjk.github.io/motion-prompt-zh/#3-077) | **水下焦散** | Caustics | 阳光穿过起伏的水面，在皮肤和池底投下明亮的网状波纹 | 泳池里的人物加水下焦散：整体染成浅蓝，人物和池底上流动着明亮的网状光纹。 |
+| [#3-078](https://sadjjk.github.io/motion-prompt-zh/#3-078) | **篝火光** | Campfire light | 夜里只有前下方的火堆照亮人，暖橙色、会跳动，火光之外迅速沉入黑暗 | 夜晚露营的人物只用篝火照明：朝火的一侧被橙光照得一闪一闪，其余沉入黑暗，火星往上飘。 |
+| [#3-079](https://sadjjk.github.io/motion-prompt-zh/#3-079) | **屏幕光** | Screen glow | 黑暗房间里只有屏幕亮着，冷白光从前方照亮脸和手 | 夜里看笔记本电脑的人物只用屏幕光：冷白光只照亮脸和胸前，身后一片黑。 |
+| [#3-080](https://sadjjk.github.io/motion-prompt-zh/#3-080) | **雾中光** | Foggy light | 雾气让远处变淡变白，光在空气里散开，层次一层层退远 | 傍晚街景加雾：越远的山和楼越白越淡，路灯在雾里变成大光晕，近处的人物保持清楚。 |
+| [#3-081](https://sadjjk.github.io/motion-prompt-zh/#3-081) | **月光夜景** | Moonlight | 冷蓝色的弱光从高处照来，影子清楚但暗部很深，色彩很少 | 把人像改成月光夜景：天空接近黑色的深蓝，高处冷光只照亮一侧，地面加一道银色反光。 |
+| [#3-082](https://sadjjk.github.io/motion-prompt-zh/#3-082) | **双色光** | Bicolor lighting | 两盏不同颜色的灯从两侧照来，脸一边偏品红、一边偏青蓝 | 暗背景的人物左边打品红、右边打青蓝，中间两色混成淡紫。 |
+| [#3-083](https://sadjjk.github.io/motion-prompt-zh/#3-083) | **色温** | Color temperature | 光偏暖橙还是偏冷蓝，用开尔文（K）表示 | 让风景画面的色温变化：从 5500K 到暖橙的 2000K，再到冷蓝的 10000K，最后回到 5500K，并用刻度条显示数值。 |
 
 点击编号查看动画演示。单项的时序、缓动和参考代码： `api/v1/zh-Hans/e/<id>.txt` ([#3-025](../../api/v1/zh-Hans/e/3-025.txt)).
 

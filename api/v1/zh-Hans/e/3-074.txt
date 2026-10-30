@@ -1,0 +1,51 @@
+// Motion Prompt #3-074 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/dragged-shutter
+//
+// 慢门闪光 / Dragging the shutter
+// 分类包: photo (摄影光线与风格) · element 38 · 子分类: 布光与时段
+// 动画表现: 夜晚街角上方挂着彩色灯串；闪光一瞬泛白，人物变亮且清楚，灯泡、窗户、路灯拖出弧形彩色光尾；右上由 1/60s 变为“1/4s · ⚡”。
+// 运动规格:
+//   - 场景：夜晚街角，上方两条下垂电线挂 24 颗彩色灯泡（#FF5A5A、#FFC24D、#5CE27A、#4DB8FF、#C77DFF，半径 3.2 px）。
+//   - 拖影：只含亮部的图层绕点 (270, 300) 分 16 次逐步旋转，最大 −0.07 rad，每次以 0.16 不透明度相加。
+//   - 闪光：以 1.45 秒为中心约 0.09 秒，白色最多叠 0.55；人物由 #1C2439 变为明亮的 #D9D4E6。
+//   - 右上：效果过半显示“1/4s · ⚡”，否则显示“1/60s”。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 派对、夜店、夜晚街头，想表现动感和热闹时。
+// 标签: dragging the shutter, slow sync flash, light trails, party, flash, lighting
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-074
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 38
+// 慢门闪光（スローシンクロ）: 夜の街角、上に色電球の飾り。閃光が一瞬光って人物はくっきり明るく止まり、
+// 背景の電球・街灯・窓は長い露光の間にカメラが回った分だけ弧を描く色の尾になる
+CELLS[37] = cell((k, u) => {
+  const a = env(u);
+  // 色電球の飾り: 2本の垂れた線に沿って12個ずつ
+  const BULBS = once('garland', () => { const o = [], C = ['#FF5A5A', '#FFC24D', '#5CE27A', '#4DB8FF', '#C77DFF']; for (let s = 0; s < 2; s++) for (let i = 0; i < 12; i++) { const t = (i + 0.5) / 12, x = s * 270 + t * 270; o.push([x, 18 + 26 * Math.sin(t * Math.PI), C[(i + s * 2) % 5]]); } return o; });
+  const garland = (kk, bright) => {
+    kk.strokeStyle = bright ? 'rgba(0,0,0,0)' : '#1A2238'; kk.lineWidth = 1.2;
+    for (let s = 0; s < 2; s++) { kk.beginPath(); for (let i = 0; i <= 24; i++) { const t = i / 24; kk.lineTo(s * 270 + t * 270, 18 + 26 * Math.sin(t * Math.PI)); } kk.stroke(); }
+    for (const [x, y, c] of BULBS) { kk.fillStyle = c; kk.beginPath(); kk.arc(x, y, 3.2, 0, TAU); kk.fill(); }
+  };
+  stageStreet(k, NIGHT, { person: false, after: () => garland(k, false) });
+  // 尾: 明るい所だけの面を、画面上の点 (270, 300) を中心に少しずつ回して重ねる
+  const NONE = 'rgba(0,0,0,0)', BR = mapPal(NIGHT, () => NONE);
+  Object.assign(BR, { win: NIGHT.win, bulb: '#FFE3A3' });
+  const L = brights('drag', kk => { stageStreet(kk, BR, { person: false }); garland(kk, true); });
+  if (a > 0.002) {
+    k.save(); k.globalCompositeOperation = 'lighter';
+    for (let i = 1; i <= 16; i++) {
+      k.save(); k.translate(270, 300); k.rotate(-0.07 * a * i / 16); k.translate(-270, -300);
+      k.globalAlpha = 0.16 * a; k.drawImage(L, 0, 0); k.restore();
+    }
+    k.restore();
+  }
+  // 人物: 閃光で止まり、明るい色で写る（閃光の瞬間 1.3〜1.7 秒に白く光る）
+  const flash = Math.exp(-(((u - 1.45) / 0.09) ** 2));
+  figure(pen(k), FIG[0], FIG[1], FIG[2], mixc(NIGHT.person, '#D9D4E6', a));
+  k.save(); k.globalAlpha = 0.55 * flash; k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH); k.restore();
+  hud(k, a > 0.5 ? '1/4s · ⚡' : '1/60s');
+});

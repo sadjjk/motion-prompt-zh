@@ -1,0 +1,48 @@
+// Motion Prompt #3-079 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/screen-glow
+//
+// 画面の光 / Screen glow
+// パック: photo (写真の表現・光と画風) · element 43 · カテゴリ: 光源と色
+// 何が起きるか: 部屋が暗くなり、人物の前のノートPCだけが光る。冷たい白い光が少し下から顔と胸元を照らしてすぐ弱まり、画面が切り替わる瞬間に明るさが跳ねる。
+// 動きの仕様:
+//   - 場面①: 胸から上の人物。部屋は暗い場面にさらに #0F1116 を 0.8 重ねる
+//   - 光源: ノートPC（116×50px、背中向き）が (270, 176)。顔へは半径 120px で #DCE8FF から影へ
+//   - 周りのにじみ: 半径 110px の #BED7FF、不透明度 0.32 で加算。画面の上端から 2px の光がもれる
+//   - 切り替え: 1.9秒と3.1秒に約 0.06 秒、光の半径が最大 1.18 倍に跳ねる。右上に「6500K」
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: 夜の作業・ゲーム・SNSを見る場面で、孤独感や没入感を出したいとき。
+// タグ: screen glow, monitor light, laptop light, cool light, night, light
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-079
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 43
+// 屏幕光（画面の光）: 部屋が暗くなり、人物の前の背中向きのノートPCだけが光る。冷たい白い光が正面の少し下から顔と胸元を照らし、
+// 外へはすぐ弱まる。画面の中身が切り替わる瞬間に明るさが少し跳ねる
+CELLS[42] = cell((k, u) => {
+  const a = env(u), D = pen(k);
+  stagePortrait(k, pal(BASE, DARK, a));
+  k.save(); k.globalAlpha = 0.8 * a; D.rect(0, 0, CW, CH, '#0F1116'); k.restore();
+  // 切り替え: 1.9 秒・3.1 秒に一瞬明るくなる
+  const jump = 1 + 0.18 * (Math.exp(-(((u - 1.9) / 0.06) ** 2)) + Math.exp(-(((u - 3.1) / 0.06) ** 2)));
+  const LX = PX, LY = 176, cool = mixc(BASE.person, '#DCE8FF', a), sh = mixc(BASE.person, '#0C0E14', a);
+  bust(k, PX, PY, PR, sh, kk => {
+    const g = kk.createRadialGradient(LX, LY, 6, LX, LY, 120 * jump);
+    g.addColorStop(0, cool); g.addColorStop(0.55, mixc(cool, sh, 0.5)); g.addColorStop(1, sh);
+    kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+  });
+  if (a > 0.002) {
+    k.save(); k.globalCompositeOperation = 'lighter';
+    const s = k.createRadialGradient(LX, LY, 4, LX, LY, 110 * jump);
+    s.addColorStop(0, `rgba(190,215,255,${(0.32 * a).toFixed(3)})`); s.addColorStop(1, 'rgba(190,215,255,0)');
+    k.fillStyle = s; k.fillRect(0, 0, CW, CH); k.restore();
+    // ノートPC（背中向き）: 天板と、縁からもれる光
+    k.save(); k.globalAlpha = a;
+    D.rr(LX - 58, LY - 18, 116, 50, 5, '#272A32'); D.circ(LX, LY + 6, 4, '#3A3E48');
+    k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.6 * a * jump; D.rect(LX - 56, LY - 20, 112, 2, '#CFE0FF');
+    k.restore();
+  }
+  hud(k, '6500K');
+});

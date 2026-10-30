@@ -1,0 +1,41 @@
+// Motion Prompt #3-083 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/color-temperature
+//
+// 色温 / Color temperature
+// 分类包: photo (摄影光线与风格) · element 47 · 子分类: 光源与色彩
+// 动画表现: 右下有开尔文刻度条，指针按 5500K → 2000K → 10000K → 5500K 移动；数值低时画面偏橙，高时偏蓝。
+// 运动规格:
+//   - 场景：太阳位于 (432, 54) 的风景，加头肩人物，头部中心 x 140、y 82、半径 28 px。
+//   - K 值变化：0.4～1.4 秒 5500 → 2000K，2.0～3.0 秒 → 10000K，3.6～4.6 秒 → 5500K，各段缓入缓出。
+//   - 颜色：2000K #FF8A2A、2700K #FFA552、3500K #FFC489、5500K 无色、7500K #A9C8FF、10000K #7FA8FF，之间插值，以“正片叠底”叠加，最大强度 0.67。
+//   - 刻度条：右下 150×34 px 白色标签，内有 2000～10000K 色带和三角指针；右上显示取整到 100K 的数值。
+// 适用场景: 讲解白平衡和偏色，或想用颜色表达时段与情绪时。
+// 标签: color temperature, kelvin, white balance, warm, cool, light
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-083
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 47
+// 色温（色温度）: 右下に K の目盛り。針が 5500K → 2000K（画面が橙）→ 10000K（画面が青）→ 5500K と動き、
+// 画面の冷暖が数値に合わせて変わる。数値が低いほど暖かい
+CELLS[46] = cell((k, u) => {
+  // K の動き: 0.4〜1.4 で 2000K へ、2.0〜3.0 で 10000K へ、3.6〜4.6 で 5500K へ戻る
+  const K = 5500 + (2000 - 5500) * eIO(P(u, 0.4, 1.4)) + (10000 - 2000) * eIO(P(u, 2.0, 3.0)) + (5500 - 10000) * eIO(P(u, 3.6, 4.6));
+  stageLand(k, BASE);
+  const [col, al] = kelvin(K);
+  if (al > 0.001) { k.save(); k.globalCompositeOperation = 'multiply'; k.globalAlpha = al * 1.6; k.fillStyle = col; k.fillRect(0, 0, CW, CH); k.restore(); }
+  // 目盛り: 2000〜10000K のグラデーション帯と針
+  const x = CW - 13 - 150, y = CH - 13 - 34, w = 150, D = pen(k);
+  k.save();
+  k.fillStyle = 'rgba(255,255,255,.9)'; k.beginPath(); k.roundRect(x, y, w, 34, 8); k.fill();
+  const g = k.createLinearGradient(x + 10, 0, x + w - 10, 0);
+  for (const [kv, c] of KELVIN) g.addColorStop((kv - 2000) / 8000, kv === 5500 ? '#FFFFFF' : c);
+  k.fillStyle = g; k.beginPath(); k.roundRect(x + 10, y + 8, w - 20, 8, 4); k.fill();
+  k.strokeStyle = '#CFCECB'; k.lineWidth = 1; k.stroke();
+  const px = x + 10 + (w - 20) * (K - 2000) / 8000;
+  D.poly([[px, y + 18], [px - 4, y + 25], [px + 4, y + 25]], '#6E6E73');
+  k.restore();
+  hud(k, `${Math.round(K / 100) * 100}K`);
+});

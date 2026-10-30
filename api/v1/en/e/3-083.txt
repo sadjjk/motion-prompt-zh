@@ -1,0 +1,41 @@
+// Motion Prompt #3-083 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/color-temperature
+//
+// Color temperature / 色温度
+// Pack: photo (Photo looks, lighting & styles) · element 47 · Category: Light sources & color
+// What happens: A kelvin scale sits at the lower right; its pointer moves 5500 K → 2000 K → 10000 K → 5500 K, and the picture turns orange at low values and blue at high ones.
+// Motion spec:
+//   - Scene: a landscape with the sun at (432, 54) and a head-and-shoulders figure (head centre x 140, y 82, radius 28 px).
+//   - Kelvin path: 5500 → 2000 K over 0.4–1.4 s, → 10000 K over 2.0–3.0 s, → 5500 K over 3.6–4.6 s (each ease-in-out).
+//   - Colour: 2000 K #FF8A2A, 2700 K #FFA552, 3500 K #FFC489, 5500 K neutral, 7500 K #A9C8FF, 10000 K #7FA8FF, interpolated between and multiplied over the picture (strength up to 0.67).
+//   - Scale: a 150×34 px white tag at the lower right with a 2000–10000 K colour strip and a triangular pointer; top right shows the value rounded to 100 K.
+// When to use it: To explain white balance and colour casts, or to show time of day and mood through colour.
+// Tags: color temperature, kelvin, white balance, warm, cool, light
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-083
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 47
+// 色温（色温度）: 右下に K の目盛り。針が 5500K → 2000K（画面が橙）→ 10000K（画面が青）→ 5500K と動き、
+// 画面の冷暖が数値に合わせて変わる。数値が低いほど暖かい
+CELLS[46] = cell((k, u) => {
+  // K の動き: 0.4〜1.4 で 2000K へ、2.0〜3.0 で 10000K へ、3.6〜4.6 で 5500K へ戻る
+  const K = 5500 + (2000 - 5500) * eIO(P(u, 0.4, 1.4)) + (10000 - 2000) * eIO(P(u, 2.0, 3.0)) + (5500 - 10000) * eIO(P(u, 3.6, 4.6));
+  stageLand(k, BASE);
+  const [col, al] = kelvin(K);
+  if (al > 0.001) { k.save(); k.globalCompositeOperation = 'multiply'; k.globalAlpha = al * 1.6; k.fillStyle = col; k.fillRect(0, 0, CW, CH); k.restore(); }
+  // 目盛り: 2000〜10000K のグラデーション帯と針
+  const x = CW - 13 - 150, y = CH - 13 - 34, w = 150, D = pen(k);
+  k.save();
+  k.fillStyle = 'rgba(255,255,255,.9)'; k.beginPath(); k.roundRect(x, y, w, 34, 8); k.fill();
+  const g = k.createLinearGradient(x + 10, 0, x + w - 10, 0);
+  for (const [kv, c] of KELVIN) g.addColorStop((kv - 2000) / 8000, kv === 5500 ? '#FFFFFF' : c);
+  k.fillStyle = g; k.beginPath(); k.roundRect(x + 10, y + 8, w - 20, 8, 4); k.fill();
+  k.strokeStyle = '#CFCECB'; k.lineWidth = 1; k.stroke();
+  const px = x + 10 + (w - 20) * (K - 2000) / 8000;
+  D.poly([[px, y + 18], [px - 4, y + 25], [px + 4, y + 25]], '#6E6E73');
+  k.restore();
+  hud(k, `${Math.round(K / 100) * 100}K`);
+});

@@ -1,0 +1,60 @@
+// Motion Prompt #3-077 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/caustics
+//
+// 水下焦散 / Caustics
+// 分类包: photo (摄影光线与风格) · element 41 · 子分类: 光源与色彩
+// 动画表现: 画面沉入水下的浅蓝色；顶部有起伏的水面线，4 道光束斜照下来；人物和池底上，弯曲的亮线网格晃动着流过。
+// 运动规格:
+//   - 场景 1：头肩人物；颜色向 #3F8FB0 偏 55%，天空 #7CC3D9、池底 #5E9FB4、人物 #2E5A78。
+//   - 网纹：左右两个斜向各 34 条线，间距 26 px，线宽 0.2～2.2 px，颜色 #E8FBFF；线条按 3 个正弦摆动弯曲（每轮 1、2、3 次）。
+//   - 网纹模糊 1 px，以 0.5 不透明度“滤色”；4 道光束从 x 120 起每隔 110 px 一道，顶部不透明度 0.22，向下渐隐。
+//   - 水面：顶部 y≈9 的起伏线，线宽 2 px，#EAFBFF。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 泳池、海边、水族馆等，想表现身在水中的感觉时。
+// 标签: caustics, underwater, pool light, ripples, water, light
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-077
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 41
+// 水下焦散（コースティクス）: 場面が水の中の淡い青に沈む。上に揺れる水面の線、斜めに差し込む光の筋。
+// 人物と水底に、水面の揺れで曲がった網目の明るい線が流れる
+CELLS[40] = cell((k, u) => {
+  const a = env(u), T = u / CYC * TAU;
+  const WATER = mapPal(BASE, c => mixc(c, '#3F8FB0', 0.55));
+  Object.assign(WATER, { sky: '#7CC3D9', sky2: '#5FAFCB', ground: '#5E9FB4', person: '#2E5A78', shade: '#24485F' });
+  stagePortrait(k, pal(BASE, WATER, a));
+  bust(k, PX, PY, PR, mixc(BASE.person, WATER.person, a));
+  if (a < 0.002) return;
+  // 網目: 2方向に走る曲がった線。線の位置は水面の揺れ（整数倍の周期）で変形する
+  const [L, kl] = layer('caustic');
+  kl.strokeStyle = '#E8FBFF'; kl.lineCap = 'round';
+  const wob = (x, y) => 7 * Math.sin(x * 0.045 + T * 2) + 5 * Math.sin(y * 0.07 - T + x * 0.02) + 3 * Math.sin((x + y) * 0.09 + T * 3);
+  for (let dir = 0; dir < 2; dir++) {
+    for (let i = -6; i < 28; i++) {
+      kl.lineWidth = 1.2 + (i % 3) * 0.5; kl.beginPath();
+      for (let s = 0; s <= 60; s++) {
+        const t = s / 60;
+        // dir 0: 右下がりの線、dir 1: 左下がりの線。交わって網になる
+        const bx = dir ? i * 26 - t * 120 : i * 26 - 160 + t * 120, by = 30 + t * (CH - 30);
+        const x = bx + wob(bx, by), y = by + 0.6 * wob(by, bx);
+        s ? kl.lineTo(x, y) : kl.moveTo(x, y);
+      }
+      kl.stroke();
+    }
+  }
+  k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.5 * a; k.filter = 'blur(1px)'; k.drawImage(L, 0, 0); k.restore();
+  // 光の筋と水面
+  k.save(); k.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 4; i++) {
+    const x0 = 120 + i * 110 + 10 * Math.sin(T + i), g = k.createLinearGradient(0, 0, 0, CH);
+    g.addColorStop(0, `rgba(220,248,255,${(0.22 * a).toFixed(3)})`); g.addColorStop(1, 'rgba(220,248,255,0)');
+    k.fillStyle = g; k.beginPath(); k.moveTo(x0, 0); k.lineTo(x0 + 26, 0); k.lineTo(x0 + 26 - 70, CH); k.lineTo(x0 - 40 - 70, CH); k.closePath(); k.fill();
+  }
+  k.restore();
+  k.save(); k.globalAlpha = a; k.strokeStyle = '#EAFBFF'; k.lineWidth = 2; k.beginPath();
+  for (let x = 0; x <= CW; x += 6) { const y = 9 + 3 * Math.sin(x * 0.05 + T * 2) + 2 * Math.sin(x * 0.11 - T * 3); x ? k.lineTo(x, y) : k.moveTo(x, y); }
+  k.stroke(); k.restore();
+});

@@ -1,0 +1,43 @@
+// Motion Prompt #3-068 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/bloom
+//
+// ブルーム / Bloom
+// パック: photo (写真の表現・光と画風) · element 32 · カテゴリ: レンズ・カメラの効果
+// 何が起きるか: 夜の街角を車が横切る。窓・街灯・車のライトの周りにだけ光のにじみが広がり、暗い空とビルは変わらない。
+// 動きの仕様:
+//   - 場面: 夜の街角（空 #2C3B5E、窓と電球 #FFC75A）。車は1周で x −60 から 600 へ横切る
+//   - 光る所だけを別の面に描く: 窓、電球 #FFE3A3、ヘッドライト #FFE9B8、テールライト #FF5B4D
+//   - にじみ: その面を 3px・7px・10px でぼかして加算し、さらに半分の大きさで 5px ぼかした広いにじみ（全面で約 10px）を重ねる
+//   - 暗い所は加算でも色が変わらない。右上に「BLOOM n%」
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: 夜景・ネオン・逆光で、光源を夢のように柔らかく光らせたいとき。
+// タグ: bloom, glow, light spill, night, highlights, lens
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-068
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 32
+// 泛光（ブルーム）: 夜の街角で、窓・街灯・車のライトの明るい所からだけ光がにじみ出す。暗い建物の輪郭はそのまま
+CELLS[31] = cell((k, u) => {
+  const a = env(u), x = lerp(-60, 600, u / CYC);
+  const lights = { head: '#FFE9B8', tail: '#FF5B4D' };
+  stageStreet(k, NIGHT, { car: x, carLights: lights });
+  if (a < 0.002) { hud(k, 'BLOOM 0%'); return; }
+  // 明るい所だけ: 同じ場面を、窓と電球と車のライト以外を透明にした色で描く
+  const NONE = 'rgba(0,0,0,0)', BR = mapPal(NIGHT, () => NONE);
+  Object.assign(BR, { win: NIGHT.win, bulb: '#FFE3A3' });
+  const L = brights('bloom', kk => stageStreet(kk, BR, { car: x, carLights: lights, person: false }));
+  const [G, kg] = layer('bloom-g');
+  kg.globalCompositeOperation = 'lighter';
+  for (const [b, al] of [[3, 0.9], [7, 0.85], [10, 0.8]]) { kg.filter = `blur(${b}px)`; kg.globalAlpha = al; kg.drawImage(L, 0, 0); }
+  kg.filter = 'none';
+  // 広いにじみ: 半分の大きさで 10px ぼかす（全面で 20px 相当）
+  const [Hh, kh] = layer('bloom-h'); kh.filter = 'blur(5px)'; kh.drawImage(L, 0, 0, CW / 2, CH / 2); kh.filter = 'none';
+  k.save(); k.globalCompositeOperation = 'lighter';
+  k.globalAlpha = a; k.drawImage(G, 0, 0);
+  k.globalAlpha = 0.9 * a; k.drawImage(Hh, 0, 0, CW / 2, CH / 2, 0, 0, CW, CH);
+  k.restore();
+  hud(k, `BLOOM ${Math.round(a * 100)}%`);
+});

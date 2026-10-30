@@ -1,0 +1,53 @@
+// Motion Prompt #3-073 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/spotlight
+//
+// Follow spotlight / スポットライト
+// Pack: photo (Photo looks, lighting & styles) · element 37 · Category: Lighting & time of day
+// What happens: The stage lights drop and a round pool of light follows the person walking left and right; outside it is almost black, a beam comes down from above, and the audience heads are silhouetted in front.
+// Motion spec:
+//   - Stage: curtain #4A4C55 with 18 vertical folds, floor #5A5B62 from y 140; the person is 104 px tall and walks x = 270 + 120·sin, one round trip per pass.
+//   - Pool: centre y 110, radius 62 px; outside is darkened with #07080B at 0.92 opacity, the circle and an ellipse on the floor are brightened by screening #FFE2A8.
+//   - Beam: a trapezoid from above the frame down to the circle, #FFE8B4 added at 0.34 opacity at the top and 0.1 at the bottom.
+//   - Audience: 13 head-and-shoulder silhouettes #0B0C10 in front, bobbing slowly by 1.2 px.
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For stage shows, concerts or a lead entrance when all eyes should be on one person.
+// Tags: spotlight, follow spot, stage light, hard light, theatre, lighting
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-073
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 37
+// 舞台追光（スポットライト）: 舞台の明かりが落ち、上からの追いかけ照明だけが歩く人を丸く照らす。
+// 丸の外はほぼ真っ黒、煙の中で光の柱が見え、手前に客席の頭の影が並ぶ
+CELLS[36] = cell((k, u) => {
+  const a = env(u), x = 270 + 120 * Math.sin(u / CYC * TAU), FEET = 170, SY = 110, SR = 62;
+  const D = pen(k);
+  // 舞台: 奥の幕（縦のひだ）と床
+  D.rect(0, 0, CW, CH, '#4A4C55');
+  for (let i = 0; i < 18; i++) D.rect(i * 30 + 8, 0, 12, 140, '#42444C');
+  D.rect(0, 140, CW, CH - 140, '#5A5B62'); D.rect(0, 140, CW, 3, '#3A3B42');
+  figure(D, x, FEET, 104, '#33384A');
+  // 暗転: 丸の外を黒く沈める（縁はくっきり）
+  k.save(); k.globalAlpha = 0.92 * a; k.fillStyle = '#07080B';
+  k.beginPath(); k.rect(0, 0, CW, CH); k.arc(x, SY, SR, 0, TAU); k.fill('evenodd'); k.restore();
+  // 丸の中は明るく暖かく（スクリーンで持ち上げる）
+  k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.55 * a; k.fillStyle = '#FFE2A8';
+  k.beginPath(); k.arc(x, SY, SR, 0, TAU); k.fill();
+  k.globalAlpha = 0.5 * a; k.beginPath(); k.ellipse(x, FEET, SR * 0.9, 9, 0, 0, TAU); k.fill();   // 床の光の楕円
+  k.restore();
+  // 光の柱: 画面上の外の灯体から丸へ。煙で見える柱は薄い台形
+  const sx = lerp(x, CW / 2, 0.45), top = -20;
+  k.save(); k.globalCompositeOperation = 'lighter';
+  const g = k.createLinearGradient(sx, top, x, SY);
+  g.addColorStop(0, `rgba(255,232,180,${(0.34 * a).toFixed(3)})`); g.addColorStop(1, `rgba(255,232,180,${(0.1 * a).toFixed(3)})`);
+  k.fillStyle = g; k.beginPath(); k.moveTo(sx - 6, top); k.lineTo(sx + 6, top); k.lineTo(x + SR * 0.96, SY - 12); k.lineTo(x - SR * 0.96, SY - 12); k.closePath(); k.fill();
+  k.restore();
+  // 客席: 手前に頭と肩の影（ゆっくり小さく揺れる）
+  const crowd = once('crowd', () => { const r = rng(37), o = []; for (let i = 0; i < 13; i++) o.push([i * 44 + r() * 18 - 6, 8 + r() * 6, r() * TAU, 1 + Math.floor(r() * 2)]); return o; });
+  for (const [cx, hr, ph, n] of crowd) {
+    const cy = 196 + 1.2 * Math.sin(u / CYC * TAU * n + ph);
+    D.circ(cx, cy - hr * 1.2, hr, '#0B0C10'); D.rr(cx - hr * 2.1, cy, hr * 4.2, 30, hr, '#0B0C10');
+  }
+});

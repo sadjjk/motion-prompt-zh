@@ -1,0 +1,48 @@
+// Motion Prompt #3-079 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/screen-glow
+//
+// Screen glow / 画面の光
+// Pack: photo (Photo looks, lighting & styles) · element 43 · Category: Light sources & color
+// What happens: The room goes dark and only the laptop in front of the person glows; cool white light from slightly below reaches the face and chest and falls off fast, jumping in brightness whenever the screen changes.
+// Motion spec:
+//   - Scene 1: the head-and-shoulders figure; the room turns to the dark scene with #0F1116 at 0.8 laid over it.
+//   - Source: a laptop (116×50 px, seen from behind) at (270, 176); light on the person runs from #DCE8FF to shadow over a radius of 120 px.
+//   - Spill: #BED7FF over a radius of 110 px added at 0.32 opacity; a 2 px line of light leaks from the top edge of the screen.
+//   - Screen changes: at 1.9 s and 3.1 s, for about 0.06 s, the light radius jumps by up to 1.18×; top right reads "6500K".
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For late-night work, gaming or scrolling scenes that should feel lonely or absorbed.
+// Tags: screen glow, monitor light, laptop light, cool light, night, light
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-079
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 43
+// 屏幕光（画面の光）: 部屋が暗くなり、人物の前の背中向きのノートPCだけが光る。冷たい白い光が正面の少し下から顔と胸元を照らし、
+// 外へはすぐ弱まる。画面の中身が切り替わる瞬間に明るさが少し跳ねる
+CELLS[42] = cell((k, u) => {
+  const a = env(u), D = pen(k);
+  stagePortrait(k, pal(BASE, DARK, a));
+  k.save(); k.globalAlpha = 0.8 * a; D.rect(0, 0, CW, CH, '#0F1116'); k.restore();
+  // 切り替え: 1.9 秒・3.1 秒に一瞬明るくなる
+  const jump = 1 + 0.18 * (Math.exp(-(((u - 1.9) / 0.06) ** 2)) + Math.exp(-(((u - 3.1) / 0.06) ** 2)));
+  const LX = PX, LY = 176, cool = mixc(BASE.person, '#DCE8FF', a), sh = mixc(BASE.person, '#0C0E14', a);
+  bust(k, PX, PY, PR, sh, kk => {
+    const g = kk.createRadialGradient(LX, LY, 6, LX, LY, 120 * jump);
+    g.addColorStop(0, cool); g.addColorStop(0.55, mixc(cool, sh, 0.5)); g.addColorStop(1, sh);
+    kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+  });
+  if (a > 0.002) {
+    k.save(); k.globalCompositeOperation = 'lighter';
+    const s = k.createRadialGradient(LX, LY, 4, LX, LY, 110 * jump);
+    s.addColorStop(0, `rgba(190,215,255,${(0.32 * a).toFixed(3)})`); s.addColorStop(1, 'rgba(190,215,255,0)');
+    k.fillStyle = s; k.fillRect(0, 0, CW, CH); k.restore();
+    // ノートPC（背中向き）: 天板と、縁からもれる光
+    k.save(); k.globalAlpha = a;
+    D.rr(LX - 58, LY - 18, 116, 50, 5, '#272A32'); D.circ(LX, LY + 6, 4, '#3A3E48');
+    k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.6 * a * jump; D.rect(LX - 56, LY - 20, 112, 2, '#CFE0FF');
+    k.restore();
+  }
+  hud(k, '6500K');
+});

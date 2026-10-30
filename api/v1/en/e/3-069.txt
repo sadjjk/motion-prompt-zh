@@ -1,0 +1,35 @@
+// Motion Prompt #3-069 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/soft-focus
+//
+// Soft focus / ソフトフォーカス
+// Pack: photo (Photo looks, lighting & styles) · element 33 · Category: Lens & camera effects
+// What happens: A blurred, brightened copy of the whole scene is layered on; the sun and the lit edge of the person spread, the shadows lift slightly, and the outlines of hills, tree and person remain clear.
+// Motion spec:
+//   - Scene: a landscape with the sun at (432, 54) and a head-and-shoulders figure (head centre x 140, y 82, radius 28 px).
+//   - Glow: a copy of the scene blurred by 7 px and brightened 1.12× is screened on at 0.6 opacity.
+//   - Contrast: white at 0.1 opacity lifts the shadows; the original image stays underneath, so outlines are not blurred.
+//   - Top right reads "SOFT n%".
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For portraits, weddings and nostalgic scenes that should feel soft and dreamy.
+// Tags: soft focus, diffusion, glow, dreamy, low contrast, lens
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-069
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 33
+// 柔焦（ソフトフォーカス）: 画面全体のぼかした写しを明るくしてスクリーンで重ねる。太陽と人物の光る縁がにじみ、
+// 全体のコントラストが下がって暗部が浮くが、山・木・人物の輪郭は元の絵が残るのでくっきりしたまま
+CELLS[32] = cell((k, u) => {
+  const a = env(u);
+  stageLand(k, BASE);
+  if (a < 0.002) { hud(k, 'SOFT 0%'); return; }
+  const [S, ks] = layer('soft'); stageLand(ks, BASE);
+  const [B, kb] = layer('soft-b'); kb.filter = 'blur(7px) brightness(1.12)'; kb.drawImage(S, 0, 0); kb.filter = 'none';
+  k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.6 * a; k.drawImage(B, 0, 0);
+  // 暗部が浮く: ごく薄い白を重ねてコントラストを下げる
+  k.globalCompositeOperation = 'source-over'; k.globalAlpha = 0.1 * a; k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+  k.restore();
+  hud(k, `SOFT ${Math.round(a * 100)}%`);
+});

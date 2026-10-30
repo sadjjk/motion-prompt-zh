@@ -2,7 +2,7 @@
 
 # Photo looks, lighting & styles
 
-31 names · #3 025~048 · 057~063 · pack `photo` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+47 names · #3 025~048 · 057~063 · 068~083 · pack `photo` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -18,6 +18,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#3-030](https://sadjjk.github.io/motion-prompt-zh/#3-030) | **Butterfly lighting** | High frontal light that casts a butterfly shadow under the nose | Beauty portrait with butterfly lighting: light straight in front and 45° above, a small butterfly-shaped shadow under the nose. |
 | [#3-031](https://sadjjk.github.io/motion-prompt-zh/#3-031) | **Golden hour** | The low, warm light just after sunrise or before sunset | A person in a field at golden hour: the sun near the horizon, long shadows, everything warm orange. |
 | [#3-032](https://sadjjk.github.io/motion-prompt-zh/#3-032) | **Blue hour** | The time after sunset or before sunrise when the sky turns deep blue | Harbour city at blue hour: deep blue sky, warm windows and streetlights reflected in the water. |
+| [#3-071](https://sadjjk.github.io/motion-prompt-zh/#3-071) | **God rays** | Light becomes visible beams that slant through the scene | Add god rays from the upper left to the portrait: darken the surroundings and let several striped beams of light slant in. |
+| [#3-072](https://sadjjk.github.io/motion-prompt-zh/#3-072) | **Window shadow pattern** | Direct sun through a window frame casts a crisp grid of shadows on the person and the wall | Cast a slanted grid of window light and shadow on the person in front of a light wall; as time passes the pattern slides sideways and stretches. |
+| [#3-073](https://sadjjk.github.io/motion-prompt-zh/#3-073) | **Follow spotlight** | A hard light from above draws a sharp-edged circle of light on a dark stage | Follow the person walking on stage with a spotlight: everything else pitch dark, only the round pool of light bright, with a visible beam in the haze. |
+| [#3-074](https://sadjjk.github.io/motion-prompt-zh/#3-074) | **Dragging the shutter** | The flash freezes the person while the slow shutter drags the background lights into coloured trails | Night party shot with a dragged shutter: the flash freezes the person sharply, the bulbs and windows behind turn into curved coloured trails. |
+| [#3-075](https://sadjjk.github.io/motion-prompt-zh/#3-075) | **Under lighting** | Light from below the chin points upwards, the shadows run the wrong way and the face looks eerie | Light the person in a dark room from a torch under the chin: bright at the bottom of the face, darker towards the top, with a big shadow climbing the wall behind. |
 
 ## Lens & camera effects
 
@@ -31,6 +36,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#3-038](https://sadjjk.github.io/motion-prompt-zh/#3-038) | **Fisheye lens** | Ultra-wide lens that bulges the centre and bends straight lines | City street through a fisheye lens, 180° view, the building edges bowing outward. |
 | [#3-039](https://sadjjk.github.io/motion-prompt-zh/#3-039) | **Chromatic aberration** | Red and blue-violet colour fringes along high-contrast edges | Black branches against a white sky with slight chromatic aberration: red and blue-violet fringes on the edges, stronger toward the corners. |
 | [#3-040](https://sadjjk.github.io/motion-prompt-zh/#3-040) | **Vignette** | The corners darken and draw the eye to the centre | Beach photo with a strong vignette: the corners darken gradually so the eye goes to the person in the middle. |
+| [#3-068](https://sadjjk.github.io/motion-prompt-zh/#3-068) | **Bloom** | Light spills out of the bright areas while the dark areas keep their detail | Add bloom to the night street shot: only the windows, street lamps and car lights glow and spread, the dark buildings stay crisp. |
+| [#3-069](https://sadjjk.github.io/motion-prompt-zh/#3-069) | **Soft focus** | Highlights spread softly and contrast drops, while the outlines stay | Soft focus on the landscape portrait: let the bright edges spread gently and lower the contrast a little, but keep the outlines sharp. |
+| [#3-070](https://sadjjk.github.io/motion-prompt-zh/#3-070) | **Prism effect** | Rainbow-coloured, offset ghosts appear next to the bright areas | Prism effect on the night street: rainbow ghosts slightly offset next to the window and lamp lights, plus one faint rainbow band across the frame. |
 
 ## Tones & finishing looks
 
@@ -56,6 +64,19 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#3-061](https://sadjjk.github.io/motion-prompt-zh/#3-061) | **Negative space** | A large plain area around the subject sets it off and carries mood | Negative-space composition of a person standing at the left of a snowfield, the right two thirds of the frame nothing but empty snow. |
 | [#3-062](https://sadjjk.github.io/motion-prompt-zh/#3-062) | **Frame within a frame** | A door, window or arch in the foreground frames the subject a second time | Frame-within-a-frame composition of a child in the yard outside, the nearby doorframe enclosing the child in the middle of the picture. |
 | [#3-063](https://sadjjk.github.io/motion-prompt-zh/#3-063) | **Foreground, middle ground & background** | Foreground, middle ground and background are laid out in layers for depth | Shoot the person by the lake in three layers: flowers in the foreground, the person in the middle ground, the lake and the woods across it in the background. |
+
+## Light sources & color
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#3-076](https://sadjjk.github.io/motion-prompt-zh/#3-076) | **Dappled light** | Sunlight through the leaves drops bright patches on the person and the ground | Dappled light on the person standing under a tree: a greenish shade overall, irregular patches of sun on the person and the ground, swaying in the wind. |
+| [#3-077](https://sadjjk.github.io/motion-prompt-zh/#3-077) | **Caustics** | Sunlight through a rippling surface throws a bright net of ripples on skin and the pool floor | Underwater caustics on the person in the pool: tint everything pale blue and let a bright net of light ripple over the person and the floor. |
+| [#3-078](https://sadjjk.github.io/motion-prompt-zh/#3-078) | **Campfire light** | At night only a fire low in front lights the person, warm orange and flickering, with darkness just beyond it | Light the person at a night camp with only the campfire: the side facing the fire flickers orange, the rest falls into darkness, with sparks drifting up. |
+| [#3-079](https://sadjjk.github.io/motion-prompt-zh/#3-079) | **Screen glow** | In a dark room only a screen is lit, its cool white light reaching the face and hands from the front | Light the person looking at a laptop at night with only the screen glow: cool white light on the face and chest only, darkness behind. |
+| [#3-080](https://sadjjk.github.io/motion-prompt-zh/#3-080) | **Foggy light** | Fog makes the distance paler and whiter, light spreads in the air and the layers recede one by one | Add fog to the evening street: the far hills and buildings fade whiter the further they are, street lamps become big halos in the mist, the person in front stays sharp. |
+| [#3-081](https://sadjjk.github.io/motion-prompt-zh/#3-081) | **Moonlight** | Weak, cold blue light comes from high up; shadows are clear but deep and there is little colour | Turn the portrait into a moonlit night: a near-black blue sky, cold light from high up on one side only, and a silver glint on the ground. |
+| [#3-082](https://sadjjk.github.io/motion-prompt-zh/#3-082) | **Bicolor lighting** | Two lights of different colours hit from both sides, turning one side of the face magenta and the other cyan | Light the person on a dark background with magenta from the left and cyan from the right, mixing to a pale violet in the middle. |
+| [#3-083](https://sadjjk.github.io/motion-prompt-zh/#3-083) | **Color temperature** | Whether light is warm orange or cool blue, measured in kelvin (K) | Sweep the colour temperature of the landscape: from 5500 K to a warm orange 2000 K, then to a cold blue 10000 K and back to 5500 K, with a scale showing the value. |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#3-025](../../api/v1/en/e/3-025.txt)).
 

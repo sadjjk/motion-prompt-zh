@@ -1,0 +1,48 @@
+// Motion Prompt #3-071 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/god-rays
+//
+// 体积光束 / God rays
+// 分类包: photo (摄影光线与风格) · element 35 · 子分类: 布光与时段
+// 动画表现: 四周变暗，9 道光束从画面左上外的光源呈扇形照入、穿过人物；每道亮度各自起伏，束与束之间留着暗缝。
+// 运动规格:
+//   - 场景 1：头肩人物，头部中心 x 270、y 78、半径 29 px；背景向暗场景过渡 80%。
+//   - 光源在画面外 (−40, −50)，从这里画 9 道细扇形，中心角 0.26～0.94 rad，半宽 0.012～0.028 rad，长 900 px。
+//   - 光束颜色 #FFE4A8，离光源 640 px 处消失；亮度 0.35 ± 0.3，每轮起伏 1～3 次。
+//   - 光束图层模糊 2 px，以 0.75 不透明度相加；人物左侧亮 #FFC75A、右侧暗；右上显示“↘ 35°”。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 教堂、森林、有浮尘的室内等，想表现神圣感或清晨空气感时。
+// 标签: god rays, crepuscular rays, light beams, volumetric light, lighting
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-071
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 35
+// 体積光束（ゴッドレイ）: 周りが暗くなり、左上の外にある一つの光源から明暗の筋になった光の束が斜めに差し込み、人物を横切る。
+// 束ごとに明るさがゆっくり揺れ、束と束の間には暗い隙間が残る
+CELLS[34] = cell((k, u) => {
+  const a = env(u), T = u / CYC * TAU, W = torsoW(PR);
+  stagePortrait(k, pal(BASE, DARK, 0.8 * a));
+  const lit = mixc(BASE.person, BASE.lit, a), sh = mixc(BASE.person, BASE.shade, a);
+  bust(k, PX, PY, PR, BASE.person, kk => {
+    kk.fillStyle = lit; kk.beginPath(); kk.arc(PX, PY, PR, 0, TAU); kk.fill();
+    headShade(kk, PX, PY, PR, 0.9, 1, sh);
+    torso(kk, PX, PY, PR, PX + 0.15 * W, PX + W, sh);
+  });
+  if (a < 0.002) { hud(k, '↘ 35°'); return; }
+  // 光の束: 光源 (SX,SY) から放射状の細い扇を9本。角度と幅は固定、明るさだけ整数倍の周期で揺れる
+  const SX = -40, SY = -50, [R, kr] = layer('rays');
+  const g = kr.createRadialGradient(SX, SY, 0, SX, SY, 640);
+  g.addColorStop(0, 'rgba(255,228,168,0.95)'); g.addColorStop(1, 'rgba(255,228,168,0)');
+  kr.fillStyle = g;
+  const rays = once('rays', () => { const r = rng(35), o = []; for (let i = 0; i < 9; i++) o.push([0.26 + i * 0.085 + r() * 0.02, 0.012 + r() * 0.016, r() * TAU, 1 + Math.floor(r() * 3)]); return o; });
+  for (const [ang, hw, ph, n] of rays) {
+    kr.globalAlpha = 0.35 + 0.3 * Math.sin(T * n + ph);
+    kr.beginPath(); kr.moveTo(SX, SY);
+    kr.lineTo(SX + Math.cos(ang - hw) * 900, SY + Math.sin(ang - hw) * 900); kr.lineTo(SX + Math.cos(ang + hw) * 900, SY + Math.sin(ang + hw) * 900);
+    kr.closePath(); kr.fill();
+  }
+  k.save(); k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.75 * a; k.filter = 'blur(2px)'; k.drawImage(R, 0, 0); k.restore();
+  hud(k, '↘ 35°');
+});

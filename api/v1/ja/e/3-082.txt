@@ -1,0 +1,47 @@
+// Motion Prompt #3-082 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/bicolor-lighting
+//
+// バイカラー / Bicolor lighting
+// パック: photo (写真の表現・光と画風) · element 46 · カテゴリ: 光源と色
+// 何が起きるか: 周りが暗くなり、左にマゼンタ、右にシアンの灯がともる。人物の左右が別の色に染まり、鼻筋のあたりで淡い紫に混ざる。壁にも2色がこぼれる。
+// 動きの仕様:
+//   - 場面①: 胸から上の人物（頭の中心 x270, y78・半径29px）。背景は暗い場面へ
+//   - 人物の色: x 206〜334 の横グラデーション。0〜42% マゼンタ #FF3FA4、50% 淡い紫 #A98CFF、58〜100% シアン #33D6FF。下ほど暗く
+//   - 壁のこぼれ: (60, 80) にマゼンタ、(480, 80) にシアンの半径200pxの光を不透明度 0.32 で加算
+//   - 配置図は左右 90° の2灯（マゼンタとシアン）、右上に「MAGENTA · CYAN」
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: ミュージックビデオ・ゲーム・夜の街など、ネオンのような強い色の雰囲気がほしいとき。
+// タグ: bicolor lighting, two-tone light, magenta, cyan, neon, light
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-082
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 46
+// 双色光（バイカラー）: 周りが暗くなり、左にマゼンタ、右にシアンの灯がともる。人物の左右が別の色に染まり、
+// 鼻筋のあたりで2色が混ざって淡い紫になる。配置図にも色の違う2灯
+CELLS[45] = cell((k, u) => {
+  const a = env(u), MG = '#FF3FA4', CY = '#33D6FF';
+  stagePortrait(k, pal(BASE, DARK, a));
+  bust(k, PX, PY, PR, BASE.person, kk => {
+    if (a < 0.002) return;
+    const g = kk.createLinearGradient(PX - 2.2 * PR, 0, PX + 2.2 * PR, 0);
+    g.addColorStop(0, MG); g.addColorStop(0.42, MG); g.addColorStop(0.5, '#A98CFF'); g.addColorStop(0.58, CY); g.addColorStop(1, CY);
+    kk.globalAlpha = a; kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+    // 胴の陰り: 下ほど暗く
+    const v = kk.createLinearGradient(0, PY, 0, CH); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,10,20,0.45)');
+    kk.fillStyle = v; kk.fillRect(0, 0, CW, CH);
+  });
+  // 壁に色のこぼれ
+  if (a > 0.002) {
+    k.save(); k.globalCompositeOperation = 'lighter';
+    for (const [x, c] of [[60, '255,63,164'], [480, '51,214,255']]) {
+      const g = k.createRadialGradient(x, 80, 6, x, 80, 200); g.addColorStop(0, `rgba(${c},${(0.32 * a).toFixed(3)})`); g.addColorStop(1, `rgba(${c},0)`);
+      k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+    }
+    k.restore();
+  }
+  plan(k, [[Math.PI / 2, a, MG], [-Math.PI / 2, a, CY]]);
+  hud(k, 'MAGENTA · CYAN');
+});

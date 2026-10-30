@@ -1,0 +1,48 @@
+// Motion Prompt #3-079 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/screen-glow
+//
+// 屏幕光 / Screen glow
+// 分类包: photo (摄影光线与风格) · element 43 · 子分类: 光源与色彩
+// 动画表现: 房间暗下来，只有人物面前的笔记本亮着；冷白光从稍低处照亮脸和胸前，很快衰减；画面切换的瞬间亮度跳一下。
+// 运动规格:
+//   - 场景 1：头肩人物；房间变为暗场景，再叠 0.8 的 #0F1116。
+//   - 光源：笔记本（116×50 px，背面朝镜头）位于 (270, 176)；照到人物的光半径 120 px，由 #DCE8FF 过渡到暗部。
+//   - 外溢光：半径 110 px 的 #BED7FF，以 0.32 不透明度相加；屏幕上沿漏出 2 px 的光。
+//   - 画面切换：在 1.9 秒和 3.1 秒约 0.06 秒内，光照半径最多跳到 1.18 倍；右上显示“6500K”。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 深夜工作、打游戏、刷手机等画面，想表现孤独或沉浸感时。
+// 标签: screen glow, monitor light, laptop light, cool light, night, light
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-079
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 43
+// 屏幕光（画面の光）: 部屋が暗くなり、人物の前の背中向きのノートPCだけが光る。冷たい白い光が正面の少し下から顔と胸元を照らし、
+// 外へはすぐ弱まる。画面の中身が切り替わる瞬間に明るさが少し跳ねる
+CELLS[42] = cell((k, u) => {
+  const a = env(u), D = pen(k);
+  stagePortrait(k, pal(BASE, DARK, a));
+  k.save(); k.globalAlpha = 0.8 * a; D.rect(0, 0, CW, CH, '#0F1116'); k.restore();
+  // 切り替え: 1.9 秒・3.1 秒に一瞬明るくなる
+  const jump = 1 + 0.18 * (Math.exp(-(((u - 1.9) / 0.06) ** 2)) + Math.exp(-(((u - 3.1) / 0.06) ** 2)));
+  const LX = PX, LY = 176, cool = mixc(BASE.person, '#DCE8FF', a), sh = mixc(BASE.person, '#0C0E14', a);
+  bust(k, PX, PY, PR, sh, kk => {
+    const g = kk.createRadialGradient(LX, LY, 6, LX, LY, 120 * jump);
+    g.addColorStop(0, cool); g.addColorStop(0.55, mixc(cool, sh, 0.5)); g.addColorStop(1, sh);
+    kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+  });
+  if (a > 0.002) {
+    k.save(); k.globalCompositeOperation = 'lighter';
+    const s = k.createRadialGradient(LX, LY, 4, LX, LY, 110 * jump);
+    s.addColorStop(0, `rgba(190,215,255,${(0.32 * a).toFixed(3)})`); s.addColorStop(1, 'rgba(190,215,255,0)');
+    k.fillStyle = s; k.fillRect(0, 0, CW, CH); k.restore();
+    // ノートPC（背中向き）: 天板と、縁からもれる光
+    k.save(); k.globalAlpha = a;
+    D.rr(LX - 58, LY - 18, 116, 50, 5, '#272A32'); D.circ(LX, LY + 6, 4, '#3A3E48');
+    k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.6 * a * jump; D.rect(LX - 56, LY - 20, 112, 2, '#CFE0FF');
+    k.restore();
+  }
+  hud(k, '6500K');
+});

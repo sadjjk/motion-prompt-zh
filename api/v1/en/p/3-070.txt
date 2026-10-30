@@ -1,0 +1,16 @@
+Please use "Prism effect" (プリズム), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-070
+
+What it is: Rainbow-coloured, offset ghosts appear next to the bright areas
+What the sample shows: On the night street only the windows and bulbs split into six colours from red to violet, offset towards the upper left; a faint rainbow band slants across.
+Spec:
+- Scene: the night street corner; only the bright parts (windows, bulbs #FFE3A3) are drawn on a separate layer.
+- It is recoloured to six colours #FF4D4D, #FF9F3D, #FFE14D, #5CE27A, #4DB8FF, #9B6BFF; colour i is shifted (i+1)·3.12 px left and (i+1)·2.4 px up and added at 0.5 opacity.
+- Rainbow band: a 70 px slanted band moves from x −160 to 260 once per pass (opacity 0.16).
+- Dark areas do not change; top right reads "PRISM".
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+When to use it: For night scenes, parties and music videos that need a sparkling, dreamlike touch.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-070.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,65 @@
+// Motion Prompt #3-078 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/campfire-light
+//
+// Campfire light / 焚き火の光
+// Pack: photo (Photo looks, lighting & styles) · element 42 · Category: Light sources & color
+// What happens: Deep blue night; the orange light of a fire at the lower right lights the side of the person facing it, flickering with the flames; the light falls off fast and sparks drift upwards.
+// Motion spec:
+//   - Scene 1: the head-and-shoulders figure at night with sky #16224A; the fire sits at (382, 188).
+//   - Flicker: fl = 0.95 + 0.06·sin(7T) + 0.04·sin(13T+1) + 0.03·sin(23T+2); light on the person runs from #FF9A3D to shadow over a radius of 170·fl from the fire.
+//   - Surrounding dark: beyond a radius of 330·fl it fades to #040610 at 0.72 opacity; the flame is 3 tongues 34/26/15 px tall (#E8501E, #FF9A2E, #FFE07A).
+//   - 16 sparks #FFB34D rise 150 px and fade, 1–2 times per pass; top right reads "1800K".
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For camping, outdoor nights and late talks that should feel warm and intimate.
+// Tags: campfire light, firelight, warm light, flicker, night, light
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-078
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 42
+// 篝火光（焚き火の光）: 深い青の夜。画面右下の焚き火の低い橙の光が、人物の火に向いた側だけを下から照らし、
+// 明るさは炎に合わせて揺れる。光はすぐ弱まり、遠い所は闇に沈む。火の粉が上へ舞う
+CELLS[41] = cell((k, u) => {
+  const a = env(u), T = u / CYC * TAU;
+  const NIGHTB = Object.assign({}, mapPal(NIGHT, c => mixc(c, '#0E1530', 0.45)), { win: '#25304E', bulb: '#25304E', sky: '#16224A', sky2: '#1E2C58' });
+  const p = pal(BASE, NIGHTB, a);
+  stagePortrait(k, p);
+  // 揺れ: 整数倍の周波数を重ねたちらつき（0.8〜1.1）
+  const fl = 0.95 + 0.06 * Math.sin(T * 7) + 0.04 * Math.sin(T * 13 + 1) + 0.03 * Math.sin(T * 23 + 2);
+  const FX = 382, FY = 188, warm = mixc(BASE.person, '#FF9A3D', a), sh = mixc(BASE.person, '#10162C', a), W = torsoW(PR);
+  bust(k, PX, PY, PR, sh, kk => {
+    const g = kk.createRadialGradient(FX, FY, 10, FX, FY, 170 * fl);
+    g.addColorStop(0, warm); g.addColorStop(0.75, mixc(warm, sh, 0.55)); g.addColorStop(1, sh);
+    kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+    headShade(kk, PX, PY, PR, 1.0, -1, mixc(sh, '#000000', 0.2 * a));
+    torso(kk, PX, PY, PR, PX - W, PX - 0.1 * W, mixc(sh, '#000000', 0.2 * a));
+  });
+  if (a < 0.002) return;
+  // 周りの闇と地面の照り返し
+  k.save();
+  const d = k.createRadialGradient(FX, FY, 20, FX, FY, 330 * fl);
+  d.addColorStop(0, 'rgba(255,140,50,0.28)'); d.addColorStop(0.35, 'rgba(40,20,20,0)'); d.addColorStop(1, 'rgba(4,6,16,0.72)');
+  k.globalAlpha = a; k.fillStyle = d; k.fillRect(0, 0, CW, CH);
+  // 炎: 3枚の揺れる滴形（橙→黄）
+  const flame = (h, w, col, ph) => {
+    const sw = 3 * Math.sin(T * 9 + ph);
+    k.fillStyle = col; k.beginPath(); k.moveTo(FX - w, FY);
+    k.quadraticCurveTo(FX - w, FY - h * 0.5, FX + sw, FY - h * (0.92 + 0.08 * Math.sin(T * 11 + ph)));
+    k.quadraticCurveTo(FX + w, FY - h * 0.5, FX + w, FY); k.closePath(); k.fill();
+  };
+  k.globalCompositeOperation = 'lighter';
+  flame(34 * fl, 14, '#E8501E', 0); flame(26 * fl, 10, '#FF9A2E', 1.3); flame(15 * fl, 6, '#FFE07A', 2.1);
+  k.globalCompositeOperation = 'source-over';
+  k.fillStyle = '#3A2418'; k.beginPath(); k.roundRect(FX - 22, FY - 2, 44, 6, 3); k.fill();
+  // 火の粉: 決まった種で作り、周期ごとに下から上へ（1周で整数回）
+  const sparks = once('embers', () => { const r = rng(42), o = []; for (let i = 0; i < 16; i++) o.push([r(), r() * TAU, 1 + Math.floor(r() * 2), 1 + r() * 1.2]); return o; });
+  k.globalCompositeOperation = 'lighter'; k.fillStyle = '#FFB34D';
+  for (const [o0, ph, n, sz] of sparks) {
+    const t = (u / CYC * n + o0) % 1, x = FX + 12 * Math.sin(ph) + 18 * t * Math.sin(T + ph), y = FY - 10 - t * 150;
+    k.globalAlpha = a * (1 - t); k.beginPath(); k.arc(x, y, sz, 0, TAU); k.fill();
+  }
+  k.restore();
+  hud(k, '1800K');
+});

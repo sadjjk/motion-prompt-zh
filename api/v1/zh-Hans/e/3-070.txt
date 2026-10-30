@@ -1,0 +1,48 @@
+// Motion Prompt #3-070 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/prism
+//
+// 棱镜彩虹 / Prism effect
+// 分类包: photo (摄影光线与风格) · element 34 · 子分类: 镜头与相机效果
+// 动画表现: 夜晚街角里，只有窗户和灯泡的亮光分成红到紫 6 色，向左上错开成重影；一道淡彩虹带斜着扫过。
+// 运动规格:
+//   - 场景：夜晚街角；只把亮处（窗户、灯泡 #FFE3A3）画到单独图层。
+//   - 分别染成 #FF4D4D、#FF9F3D、#FFE14D、#5CE27A、#4DB8FF、#9B6BFF 六色，第 i 色向左偏 (i+1)·3.12 px、向上偏 (i+1)·2.4 px，以 0.5 不透明度相加。
+//   - 彩虹带：宽 70 px 的斜带每轮从 x −160 移到 260，不透明度 0.16。
+//   - 暗处不变；右上显示“PRISM”。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 夜景、派对、MV 画面中，想加一点闪烁的梦幻感时。
+// 标签: prism, rainbow, dispersion, ghosting, night, lens
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-070
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 34
+// 棱镜彩虹（プリズム）: 夜の街角で、明るい所だけが赤〜紫の6色に分かれて左上へずれた虹色の重影になる。
+// 暗い所はそのまま。淡い虹の帯がゆっくり画面の左側を横切る
+CELLS[33] = cell((k, u) => {
+  const a = env(u);
+  stageStreet(k, NIGHT);
+  if (a < 0.002) { hud(k, 'PRISM'); return; }
+  const NONE = 'rgba(0,0,0,0)', BR = mapPal(NIGHT, () => NONE);
+  Object.assign(BR, { win: NIGHT.win, bulb: '#FFE3A3' });
+  const L = brights('prism', kk => stageStreet(kk, BR, { person: false }));
+  const RAINBOW = ['#FF4D4D', '#FF9F3D', '#FFE14D', '#5CE27A', '#4DB8FF', '#9B6BFF'];
+  const [C, kc] = layer('prism-c');
+  k.save(); k.globalCompositeOperation = 'lighter';
+  RAINBOW.forEach((col, i) => {
+    // 明るい所の形を1色に塗り替えて、色ごとに少しずつ左上へずらす
+    kc.globalCompositeOperation = 'source-over'; kc.clearRect(0, 0, CW, CH); kc.drawImage(L, 0, 0);
+    kc.globalCompositeOperation = 'source-in'; kc.fillStyle = col; kc.fillRect(0, 0, CW, CH);
+    const d = (i + 1) * 2.4 * a;
+    k.globalAlpha = 0.5 * a; k.drawImage(C, -d * 1.3, -d);
+  });
+  // 虹の帯: 斜めの帯が左から右へ（端では a = 0 なので位置の飛びは見えない）
+  const bx = lerp(-160, 260, u / CYC), g = k.createLinearGradient(bx, 0, bx + 90, 40);
+  RAINBOW.forEach((col, i) => g.addColorStop(i / 5, col));
+  k.globalAlpha = 0.16 * a; k.fillStyle = g;
+  k.beginPath(); k.moveTo(bx, -10); k.lineTo(bx + 70, -10); k.lineTo(bx + 150, CH + 10); k.lineTo(bx + 80, CH + 10); k.closePath(); k.fill();
+  k.restore();
+  hud(k, 'PRISM');
+});

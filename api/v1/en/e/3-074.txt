@@ -1,0 +1,51 @@
+// Motion Prompt #3-074 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/dragged-shutter
+//
+// Dragging the shutter / スローシンクロ
+// Pack: photo (Photo looks, lighting & styles) · element 38 · Category: Lighting & time of day
+// What happens: A garland of coloured bulbs hangs over the night street; a flash goes off white for an instant and the person comes out bright and sharp, while bulbs, windows and lamps draw curved coloured trails; the top-right readout changes from 1/60s to "1/4s · ⚡".
+// Motion spec:
+//   - Scene: the night street with 24 coloured bulbs (#FF5A5A, #FFC24D, #5CE27A, #4DB8FF, #C77DFF, radius 3.2 px) along two sagging wires above.
+//   - Trails: the bright-only layer is rotated about (270, 300) in 16 steps up to −0.07 rad and added at 0.16 opacity each.
+//   - Flash: centred on 1.45 s for about 0.09 s, white up to 0.55 is laid over; the person goes from #1C2439 to a bright #D9D4E6.
+//   - Top right: "1/4s · ⚡" once the effect passes half, otherwise "1/60s".
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For parties, clubs and night streets that should feel lively and fun.
+// Tags: dragging the shutter, slow sync flash, light trails, party, flash, lighting
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-074
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 38
+// 慢门闪光（スローシンクロ）: 夜の街角、上に色電球の飾り。閃光が一瞬光って人物はくっきり明るく止まり、
+// 背景の電球・街灯・窓は長い露光の間にカメラが回った分だけ弧を描く色の尾になる
+CELLS[37] = cell((k, u) => {
+  const a = env(u);
+  // 色電球の飾り: 2本の垂れた線に沿って12個ずつ
+  const BULBS = once('garland', () => { const o = [], C = ['#FF5A5A', '#FFC24D', '#5CE27A', '#4DB8FF', '#C77DFF']; for (let s = 0; s < 2; s++) for (let i = 0; i < 12; i++) { const t = (i + 0.5) / 12, x = s * 270 + t * 270; o.push([x, 18 + 26 * Math.sin(t * Math.PI), C[(i + s * 2) % 5]]); } return o; });
+  const garland = (kk, bright) => {
+    kk.strokeStyle = bright ? 'rgba(0,0,0,0)' : '#1A2238'; kk.lineWidth = 1.2;
+    for (let s = 0; s < 2; s++) { kk.beginPath(); for (let i = 0; i <= 24; i++) { const t = i / 24; kk.lineTo(s * 270 + t * 270, 18 + 26 * Math.sin(t * Math.PI)); } kk.stroke(); }
+    for (const [x, y, c] of BULBS) { kk.fillStyle = c; kk.beginPath(); kk.arc(x, y, 3.2, 0, TAU); kk.fill(); }
+  };
+  stageStreet(k, NIGHT, { person: false, after: () => garland(k, false) });
+  // 尾: 明るい所だけの面を、画面上の点 (270, 300) を中心に少しずつ回して重ねる
+  const NONE = 'rgba(0,0,0,0)', BR = mapPal(NIGHT, () => NONE);
+  Object.assign(BR, { win: NIGHT.win, bulb: '#FFE3A3' });
+  const L = brights('drag', kk => { stageStreet(kk, BR, { person: false }); garland(kk, true); });
+  if (a > 0.002) {
+    k.save(); k.globalCompositeOperation = 'lighter';
+    for (let i = 1; i <= 16; i++) {
+      k.save(); k.translate(270, 300); k.rotate(-0.07 * a * i / 16); k.translate(-270, -300);
+      k.globalAlpha = 0.16 * a; k.drawImage(L, 0, 0); k.restore();
+    }
+    k.restore();
+  }
+  // 人物: 閃光で止まり、明るい色で写る（閃光の瞬間 1.3〜1.7 秒に白く光る）
+  const flash = Math.exp(-(((u - 1.45) / 0.09) ** 2));
+  figure(pen(k), FIG[0], FIG[1], FIG[2], mixc(NIGHT.person, '#D9D4E6', a));
+  k.save(); k.globalAlpha = 0.55 * flash; k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH); k.restore();
+  hud(k, a > 0.5 ? '1/4s · ⚡' : '1/60s');
+});

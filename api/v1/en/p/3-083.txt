@@ -1,0 +1,15 @@
+Please use "Color temperature" (色温度), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-083
+
+What it is: Whether light is warm orange or cool blue, measured in kelvin (K)
+What the sample shows: A kelvin scale sits at the lower right; its pointer moves 5500 K → 2000 K → 10000 K → 5500 K, and the picture turns orange at low values and blue at high ones.
+Spec:
+- Scene: a landscape with the sun at (432, 54) and a head-and-shoulders figure (head centre x 140, y 82, radius 28 px).
+- Kelvin path: 5500 → 2000 K over 0.4–1.4 s, → 10000 K over 2.0–3.0 s, → 5500 K over 3.6–4.6 s (each ease-in-out).
+- Colour: 2000 K #FF8A2A, 2700 K #FFA552, 3500 K #FFC489, 5500 K neutral, 7500 K #A9C8FF, 10000 K #7FA8FF, interpolated between and multiplied over the picture (strength up to 0.67).
+- Scale: a 150×34 px white tag at the lower right with a 2000–10000 K colour strip and a triangular pointer; top right shows the value rounded to 100 K.
+When to use it: To explain white balance and colour casts, or to show time of day and mood through colour.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-083.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

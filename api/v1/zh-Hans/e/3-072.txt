@@ -1,0 +1,43 @@
+// Motion Prompt #3-072 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/window-shadow-pattern
+//
+// 窗格光影 / Window shadow pattern
+// 分类包: photo (摄影光线与风格) · element 36 · 子分类: 布光与时段
+// 动画表现: 浅色墙前的人物身上斜落 3×3 块窗玻璃形状的光，其余为影；时刻从 15:00 走到 15:40，格子右移、倾斜加大。
+// 运动规格:
+//   - 场景：墙 #F3EEE6，地面 #E4DCCF 从 y 168 起；头肩人物 #5A6884，头部中心 x 270、y 78、半径 29 px。
+//   - 玻璃：3×3 块，每块 52×46 px，窗框宽 9 px；玻璃处为光，其余以 #AEA9BB“正片叠底”成影，边缘清楚。
+//   - 格子每轮从 x 96 移到 176，倾斜（每下降 1 px 的横移）从 0.42 增到 0.72。
+//   - 右上时刻从 15:00 走到 15:40。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 午后房间、咖啡馆或黑色电影风格中，想表现时间流动或安静感时。
+// 标签: window light pattern, window shadow, hard light, afternoon, grid shadow, lighting
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-072
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 36
+// 窗格光影: 明るい壁の前の胸像。窓枠の格子の影が斜めに壁と人物へ落ち、時間とともにゆっくり横へ動いて長く伸びる。
+// 光の当たる所は格子のガラスの形、それ以外は影（縁はくっきり）
+CELLS[35] = cell((k, u) => {
+  const a = env(u), s = u / CYC, D = pen(k);
+  D.rect(0, 0, CW, CH, '#F3EEE6'); D.rect(0, 168, CW, CH - 168, '#E4DCCF'); D.rect(0, 166, CW, 3, '#D6CCBC');
+  bust(k, PX, PY, PR, '#5A6884');
+  if (a > 0.002) {
+    // ガラス1枚の四隅を、光の傾き sh で右下へ流して壁に写す
+    const tx = lerp(96, 176, s), sh = lerp(0.42, 0.72, s), PW = 52, PH = 46, G = 9;
+    const mp = (x, y) => [tx + x + sh * y, y];
+    k.save(); k.globalCompositeOperation = 'multiply'; k.globalAlpha = a; k.fillStyle = '#AEA9BB';
+    k.beginPath(); k.rect(0, 0, CW, CH);
+    for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
+      const x0 = i * (PW + G), y0 = 14 + j * (PH + G) * 1.08;
+      const q = [mp(x0, y0), mp(x0 + PW, y0), mp(x0 + PW, y0 + PH), mp(x0, y0 + PH)];
+      k.moveTo(q[0][0], q[0][1]); for (const [x, y] of q.slice(1)) k.lineTo(x, y); k.closePath();
+    }
+    k.fill('evenodd');
+    k.restore();
+  }
+  hud(k, clock(lerp(900, 940, s)));
+});

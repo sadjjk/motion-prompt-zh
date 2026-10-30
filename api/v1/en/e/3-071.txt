@@ -1,0 +1,48 @@
+// Motion Prompt #3-071 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/god-rays
+//
+// God rays / ゴッドレイ
+// Pack: photo (Photo looks, lighting & styles) · element 35 · Category: Lighting & time of day
+// What happens: The surroundings darken and nine beams fan in from a source beyond the upper left, crossing the person; each beam flickers in brightness and dark gaps stay between them.
+// Motion spec:
+//   - Scene 1: a head-and-shoulders figure (head centre x 270, y 78, radius 29 px); the background moves 80% of the way to a dark scene.
+//   - Source: off-frame at (−40, −50); 9 thin wedges (centre angles 0.26–0.94 rad, half-width 0.012–0.028 rad) are drawn 900 px long.
+//   - Beams are #FFE4A8, fading out 640 px from the source; brightness is 0.35 ± 0.3, swaying 1–3 times per pass.
+//   - The beam layer is blurred by 2 px and added at 0.75 opacity; the person is lit #FFC75A on the left and shaded on the right; top right reads "↘ 35°".
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For churches, forests or dusty rooms that should feel sacred or have a morning atmosphere.
+// Tags: god rays, crepuscular rays, light beams, volumetric light, lighting
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-071
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 35
+// 体積光束（ゴッドレイ）: 周りが暗くなり、左上の外にある一つの光源から明暗の筋になった光の束が斜めに差し込み、人物を横切る。
+// 束ごとに明るさがゆっくり揺れ、束と束の間には暗い隙間が残る
+CELLS[34] = cell((k, u) => {
+  const a = env(u), T = u / CYC * TAU, W = torsoW(PR);
+  stagePortrait(k, pal(BASE, DARK, 0.8 * a));
+  const lit = mixc(BASE.person, BASE.lit, a), sh = mixc(BASE.person, BASE.shade, a);
+  bust(k, PX, PY, PR, BASE.person, kk => {
+    kk.fillStyle = lit; kk.beginPath(); kk.arc(PX, PY, PR, 0, TAU); kk.fill();
+    headShade(kk, PX, PY, PR, 0.9, 1, sh);
+    torso(kk, PX, PY, PR, PX + 0.15 * W, PX + W, sh);
+  });
+  if (a < 0.002) { hud(k, '↘ 35°'); return; }
+  // 光の束: 光源 (SX,SY) から放射状の細い扇を9本。角度と幅は固定、明るさだけ整数倍の周期で揺れる
+  const SX = -40, SY = -50, [R, kr] = layer('rays');
+  const g = kr.createRadialGradient(SX, SY, 0, SX, SY, 640);
+  g.addColorStop(0, 'rgba(255,228,168,0.95)'); g.addColorStop(1, 'rgba(255,228,168,0)');
+  kr.fillStyle = g;
+  const rays = once('rays', () => { const r = rng(35), o = []; for (let i = 0; i < 9; i++) o.push([0.26 + i * 0.085 + r() * 0.02, 0.012 + r() * 0.016, r() * TAU, 1 + Math.floor(r() * 3)]); return o; });
+  for (const [ang, hw, ph, n] of rays) {
+    kr.globalAlpha = 0.35 + 0.3 * Math.sin(T * n + ph);
+    kr.beginPath(); kr.moveTo(SX, SY);
+    kr.lineTo(SX + Math.cos(ang - hw) * 900, SY + Math.sin(ang - hw) * 900); kr.lineTo(SX + Math.cos(ang + hw) * 900, SY + Math.sin(ang + hw) * 900);
+    kr.closePath(); kr.fill();
+  }
+  k.save(); k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.75 * a; k.filter = 'blur(2px)'; k.drawImage(R, 0, 0); k.restore();
+  hud(k, '↘ 35°');
+});

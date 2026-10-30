@@ -1,0 +1,43 @@
+// Motion Prompt #3-072 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/window-shadow-pattern
+//
+// 窓枠の影 / Window shadow pattern
+// パック: photo (写真の表現・光と画風) · element 36 · カテゴリ: 光の当て方・時間帯
+// 何が起きるか: 明るい壁の前の人物に、3×3 のガラスの形の光が斜めに落ち、それ以外は影になる。15:00 から 15:40 へ時刻が進むにつれ、格子は右へ動いて傾きが強まる。
+// 動きの仕様:
+//   - 場面: 壁 #F3EEE6、床 #E4DCCF（y168 から）。胸から上の人物 #5A6884（頭の中心 x270, y78・半径29px）
+//   - ガラス: 52×46px を 3×3、窓枠の幅 9px。ガラスの所は光、それ以外を #AEA9BB の乗算で影にする（縁はくっきり）
+//   - 格子は1周で x 96 から 176 へ動き、傾き（y 1px あたりの横ずれ）は 0.42 から 0.72 へ増える
+//   - 右上の時刻は 15:00 から 15:40 へ進む
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: 午後の部屋・カフェ・ノワール調で、時間の流れや静けさを出したいとき。
+// タグ: window light pattern, window shadow, hard light, afternoon, grid shadow, lighting
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-072
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 36
+// 窗格光影: 明るい壁の前の胸像。窓枠の格子の影が斜めに壁と人物へ落ち、時間とともにゆっくり横へ動いて長く伸びる。
+// 光の当たる所は格子のガラスの形、それ以外は影（縁はくっきり）
+CELLS[35] = cell((k, u) => {
+  const a = env(u), s = u / CYC, D = pen(k);
+  D.rect(0, 0, CW, CH, '#F3EEE6'); D.rect(0, 168, CW, CH - 168, '#E4DCCF'); D.rect(0, 166, CW, 3, '#D6CCBC');
+  bust(k, PX, PY, PR, '#5A6884');
+  if (a > 0.002) {
+    // ガラス1枚の四隅を、光の傾き sh で右下へ流して壁に写す
+    const tx = lerp(96, 176, s), sh = lerp(0.42, 0.72, s), PW = 52, PH = 46, G = 9;
+    const mp = (x, y) => [tx + x + sh * y, y];
+    k.save(); k.globalCompositeOperation = 'multiply'; k.globalAlpha = a; k.fillStyle = '#AEA9BB';
+    k.beginPath(); k.rect(0, 0, CW, CH);
+    for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
+      const x0 = i * (PW + G), y0 = 14 + j * (PH + G) * 1.08;
+      const q = [mp(x0, y0), mp(x0 + PW, y0), mp(x0 + PW, y0 + PH), mp(x0, y0 + PH)];
+      k.moveTo(q[0][0], q[0][1]); for (const [x, y] of q.slice(1)) k.lineTo(x, y); k.closePath();
+    }
+    k.fill('evenodd');
+    k.restore();
+  }
+  hud(k, clock(lerp(900, 940, s)));
+});
