@@ -10,13 +10,13 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { resolveConfig } from './config.mjs';
 
-const VERSION = '0.2.0-zh.1';
 const SELF = fileURLToPath(import.meta.url);
 const ENV = process.env;
 const SOURCE_ROOT = path.resolve(path.dirname(SELF), '..', '..', '..');
 const CONFIG_FILE = fs.existsSync(path.join(SOURCE_ROOT, 'site.config.json')) && fs.existsSync(path.join(SOURCE_ROOT, 'packs'))
   ? path.join(SOURCE_ROOT, 'site.config.json') : new URL('./site-config.json', import.meta.url);
 const CONFIG = resolveConfig(JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8')));
+const VERSION = CONFIG.version || 'dev'; // 发布版本号，来自 site.config.json（build 同步到 site-config.json）
 const SITE = CONFIG.site;
 const REMOTES = [...new Set([CONFIG.apiBase, CONFIG.rawApiBase])];
 const normalizeLang = value => value === 'zh' || value === 'zh-Hans' ? 'zh-Hans' : ['en', 'ja'].includes(value) ? value : null;
