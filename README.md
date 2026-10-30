@@ -60,4 +60,4 @@ python3 -m http.server 8000
 - `#1-108`～`#1-113`、`#4-033`～`#4-035`、`#2-065`～`#2-067` 改写自 [ui2v](https://ui2v.com/) 上 illli Ai Studio 的动效包，MIT-0（MIT No Attribution）；未使用原作的代码与字体。我们仍在版权行中署名作者。
 - `#1-114`～`#1-181`、`#2-068`～`#2-098`、`#4-036`～`#4-042` 改写自 Hannah 整理的 [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/)；原站声明「僅供個人參考學習」，未使用原站的提示词、代码与字体，名称、说明与提示词为本仓库自写，详见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。版权行署名 Hannah。
 - `#1-182`～`#1-194`、`#2-099`～`#2-100` 为本仓库原创，MIT License © 2026 sadjjk。使用这部分代码时保留其版权行。
-- `#3-049`～`#3-067` 的术语与定义参考 [镜语](https://idea.ameng.dev/)（[jingyu-skill](https://github.com/hemengke1997/jingyu-skill)，作者阿梦freedom，MIT License）；动画为本仓库实现，未使用原站的演示代码、图片与文字。使用这部分代码时保留其版权行。
+- `#3-049`～`#3-083` 的术语与定义参考 [镜语](https://idea.ameng.dev/)（[jingyu-skill](https://github.com/hemengke1997/jingyu-skill)，作者阿梦freedom，MIT License）；动画为本仓库实现，未使用原站的演示代码、图片与文字。使用这部分代码时保留其版权行。

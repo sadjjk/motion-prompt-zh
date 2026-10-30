@@ -41,7 +41,7 @@ attribution links to the original site.
 | 2 `motion` | `motion2` | 61 | #2 025~048 · 064~100 | 121–144 | Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾 (064 after [skills](https://github.com/emilkowalski/skills), Emil Kowalski; 065~067 after [ui2v](https://ui2v.com/), illli Ai Studio; 068~098 after [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/), Hannah; 099~100 original to [this repository](https://github.com/sadjjk/motion-prompt-zh), sadjjk) |
 | 2 `motion` | `mgstyles` | 15 | #2 049~063 | — | MG styles / モーショングラフィックスのスタイル (after [mg-styles-15](https://github.com/Vincentwei1021/mg-styles-15), Vincentwei1021) |
 | 3 `film` | `camera` | 36 | #3 001~024 · 049~056 · 064~067 | 025–048 | Camera moves & transitions / カメラワークと切り替え (049~056 · 064~067 after [jingyu-skill](https://github.com/hemengke1997/jingyu-skill), 阿梦freedom) |
-| 3 `film` | `photo` | 31 | #3 025~048 · 057~063 | 097–120 | Photo looks, lighting & styles / 写真の表現・光と画風 (057~063 after [jingyu-skill](https://github.com/hemengke1997/jingyu-skill), 阿梦freedom) |
+| 3 `film` | `photo` | 47 | #3 025~048 · 057~063 · 068~083 | 097–120 | Photo looks, lighting & styles / 写真の表現・光と画風 (057~063 · 068~083 after [jingyu-skill](https://github.com/hemengke1997/jingyu-skill), 阿梦freedom) |
 | 4 `ambient` | `scenes` | 42 | #4 001~042 | — | Styled scenes / スタイルシーン (after [Motion Atlas](https://github.com/skylarzzzz/motion-atlas), Yun; 033~035 after [ui2v](https://ui2v.com/), illli Ai Studio; 036~042 after [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/), Hannah) |
 
 A range is written `#<group> <first>~<last>` (e.g. `#1 025~048`); a pack whose IDs come in several runs

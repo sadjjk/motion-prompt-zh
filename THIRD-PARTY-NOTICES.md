@@ -310,11 +310,13 @@ lists it after the pack's own line. To ask for a removal or a correction, use th
 | `#4-041` | `scenes` | 文字走廊 Text Corridor (#56) |
 | `#4-042` | `scenes` | 起伏線條 Wavy Lines (#230) |
 
-## 镜语 jingyu-skill by 阿梦freedom (elements `#3-049`–`#3-067`)
+## 镜语 jingyu-skill by 阿梦freedom (elements `#3-049`–`#3-083`)
 
-The 19 elements `#3-049`–`#3-067` (shot sizes, composition and shot-to-shot continuity, in packs `camera` and
-`photo`) take their terms and definitions from 阿梦freedom's [镜语](https://idea.ameng.dev/) and its skill
-[hemengke1997/jingyu-skill](https://github.com/hemengke1997/jingyu-skill) (`skills/jingyu/references/camera.md`).
+The 35 elements `#3-049`–`#3-083` (shot sizes, composition and shot-to-shot continuity, plus lens light,
+lighting setups, light sources and colour, in packs `camera` and `photo`) take their terms and definitions from
+阿梦freedom's [镜语](https://idea.ameng.dev/) and its skill
+[hemengke1997/jingyu-skill](https://github.com/hemengke1997/jingyu-skill) (`skills/jingyu/references/camera.md`
+and the light and colour terms).
 The moving samples are Canvas 2D drawings written for this repository with the existing `camera` and `photo`
 scenes; no demo code, image or text from 镜语 is copied. Each element carries the line
 `MIT License (c) 2026 阿梦freedom` and links to its term page. The license notice:
