@@ -1,0 +1,373 @@
+// Motion Prompt #1-188 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// フォルダーからカードが飛び出す / Folder pop-out cards
+// パック: lp (LP・Webサイトの演出) · element 51 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: 机の上にオレンジ色の立体フォルダー。カーソルが乗ると前面が手前に倒れて開き、カラーパレット・スケッチの付箋・一言カードの3枚が順に飛び出して左・上・右に散り、少し傾いたままふわふわ浮く。カーソルが離れるとカードが逆順に戻り、前面が閉じて小さく弾む。
+// 動きの仕様:
+//   - カーソルは0.25〜0.85秒にフォルダーの前面へ移動
+//   - 前面（230×89）は底辺を軸に0.72〜1.22秒で手前へ倒れ、高さが0.56倍につぶれ上辺が少し広がる（オーバーシュートあり）
+//   - 3枚のカードは0.92秒から0.17秒間隔で、それぞれ0.66秒かけて飛び出す。先に真上へ出てから斜めに飛び、0.86倍から1倍に拡大
+//   - 定位置ではカードが周期1.7秒・振幅2.6pxで上下に浮き、少し揺れる
+//   - カーソルは2.95〜3.55秒に離れ、3.02秒から0.13秒間隔・各0.44秒でカードが逆順に戻る
+//   - 3.6〜4.05秒に前面が閉じて小さく弾み、4.45秒に静止。4.8秒周期
+// 使いどころ: ポートフォリオ、素材ライブラリ、プロジェクト一覧などで、フォルダーの中身をホバーでのぞかせたい所に。
+// タグ: folder, hover, cards, pop-out, float, stagger
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-188
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 51
+CELLS[50] = (function () {
+  // 文件夹弹出便签：桌面中央一个立体文件夹（后片 + 前片分层），光标悬停时前片向前下方翻开，
+  // 三张便签卡（色板 / 草图 / 一句话）依次带旋转弹到文件夹上方与两侧并轻轻浮动；光标移开后依次收回、前片合上，复位。
+  // 纯函数：画面只由 u 决定；背景、文件夹各片、卡面、阴影块首次调用时按 3 倍分辨率预渲染缓存。
+  const W = 539, H = 208, CYC = 4.8;
+  const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+  const MONO = '"SF Mono", Menlo, Consolas, monospace';
+  const S = 3;   // 缓存分辨率倍数：调用方最多约 2×dpr 放大
+
+  // 配色：lp 包的冷灰桌面 + 朱橙文件夹（取自 lp 差し色 #FF5A2C）+ 墨蓝文字；三张卡用白 / 奶黄 / 浅蓝
+  const PAL = {
+    bgTop: '#f1f3f7', bgBot: '#dde2ea', vignette: '28,35,51', shadow: '40,30,40',
+    backHi: '#e8643a', backLo: '#c9471f', inner: '#a83a1a',
+    frontHi: '#ff9566', frontLo: '#f0602e', thick: '#b8441f', tab: '#e25a30',
+    sheet: '#fbfaf7', sheetEdge: '#e6e1d8',
+    ink: '#1c2333', ink2: '#4a5368', mut: '#7d879b', acc: '#ff5a2c', blue: '#3b64e8',
+    cardW: '#ffffff', cardY: '#ffe9a6', cardB: '#dfe7ff'
+  };
+
+  // 文件夹几何：后片带左上标签页；前片略宽、顶边低于后片，底边是翻开时的转轴
+  const BK = { x: 160, y: 80, w: 220, h: 106, r: 7 };
+  const TAB = { x: 170, y: 64, w: 86, h: 20 };
+  const FR = { x: 155, y: 97, w: 230, h: 89, r: 8 };
+  const GROUND = 186;   // 文件夹底边 / 桌面接触线
+
+  const clamp = (x, a, b) => Math.max(a === undefined ? 0 : a, Math.min(b === undefined ? 1 : b, x));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const seg = (u, a, b) => clamp((u - a) / (b - a));
+  const eIO = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const eOut = t => 1 - Math.pow(1 - clamp(t), 3);
+  const eBack = t => { t = clamp(t); const c = 1.6; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+  const rgba = (c, a) => 'rgba(' + c + ',' + a + ')';
+
+  // 圆角矩形路径（Safari 兼容：用 arcTo 自绘）；r 可为 [左上, 右上, 右下, 左下]
+  function rr(x, X, Y, w, h, r) {
+    const q = Array.isArray(r) ? r : [r, r, r, r];
+    x.beginPath(); x.moveTo(X + q[0], Y);
+    x.arcTo(X + w, Y, X + w, Y + h, q[1]); x.arcTo(X + w, Y + h, X, Y + h, q[2]);
+    x.arcTo(X, Y + h, X, Y, q[3]); x.arcTo(X, Y, X + w, Y, q[0]); x.closePath();
+  }
+  function mk(w, h, draw) {
+    const c = document.createElement('canvas'); c.width = Math.ceil(w * S); c.height = Math.ceil(h * S);
+    const x = c.getContext('2d'); x.scale(S, S); draw(x); return c;
+  }
+
+  // 背景：柔和竖向渐变 + 径向暗角 + 桌面上的一道淡光
+  function bgArt(x) {
+    const gr = x.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, PAL.bgTop); gr.addColorStop(1, PAL.bgBot);
+    x.fillStyle = gr; x.fillRect(0, 0, W, H);
+    const sp = x.createRadialGradient(W * 0.5, H * 0.32, 10, W * 0.5, H * 0.32, W * 0.42);
+    sp.addColorStop(0, 'rgba(255,255,255,0.55)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = sp; x.fillRect(0, 0, W, H);
+    x.save(); x.translate(W / 2, H / 2); x.scale(1, H / W);
+    const vg = x.createRadialGradient(0, 0, W * 0.3, 0, 0, W * 0.62);
+    vg.addColorStop(0, rgba(PAL.vignette, 0)); vg.addColorStop(1, rgba(PAL.vignette, 0.16));
+    x.fillStyle = vg; x.fillRect(-W, -W, W * 2, W * 2); x.restore();
+  }
+
+  // 柔影块：把圆角矩形画到画布外，只让 shadow 落在画布内（shadowBlur / offset 不受 transform 影响，需乘 S）
+  function blob(w, h, r, blur) {
+    const p = blur * 2 + 2;
+    return { c: mk(w + p * 2, h + p * 2, x => {
+      x.shadowColor = 'rgba(0,0,0,1)'; x.shadowBlur = blur * S; x.shadowOffsetX = 2000 * S;
+      x.fillStyle = '#000'; rr(x, p - 2000, p, w, h, r); x.fill();
+    }), p: p, w: w, h: h };
+  }
+  // 后片轮廓：主体 + 左上标签页（标签两侧斜肩，圆角顶）
+  function backPath(x) {
+    const b = BK, t = TAB;
+    x.beginPath();
+    x.moveTo(b.x, b.y + b.r);
+    x.arcTo(b.x, b.y, b.x + b.r, b.y, b.r);
+    x.lineTo(t.x, b.y);
+    x.lineTo(t.x + 6, t.y + 4); x.arcTo(t.x + 8, t.y, t.x + 14, t.y, 4);
+    x.lineTo(t.x + t.w - 14, t.y); x.arcTo(t.x + t.w - 8, t.y, t.x + t.w - 6, t.y + 4, 4);
+    x.lineTo(t.x + t.w, b.y);
+    x.arcTo(b.x + b.w, b.y, b.x + b.w, b.y + b.h, b.r);
+    x.arcTo(b.x + b.w, b.y + b.h, b.x, b.y + b.h, 3);
+    x.arcTo(b.x, b.y + b.h, b.x, b.y, 3);
+    x.closePath();
+  }
+  // 夹在后片与前片之间的两张纸（静态）：一张奶白、一张浅蓝，顶边从前片上沿露出
+  function sheetArt(x, cx, top, w, rot, col, edge) {
+    x.save(); x.translate(cx, GROUND); x.rotate(rot);
+    rr(x, -w / 2, top - GROUND, w, GROUND - top + 6, 3);
+    x.fillStyle = col; x.fill(); x.strokeStyle = edge; x.lineWidth = 0.8; x.stroke();
+    x.fillStyle = 'rgba(28,35,51,0.10)';
+    for (let i = 0; i < 4; i++) x.fillRect(-w / 2 + 12, top - GROUND + 10 + i * 9, (i === 3 ? 0.5 : 0.8) * (w - 24), 2);
+    x.restore();
+  }
+  // 后片（文件夹的内壁）：渐变 + 底部折痕暗部 + 标签页文字 + 左上高光边
+  function backArt(x) {
+    backPath(x);
+    const gr = x.createLinearGradient(0, TAB.y, 0, GROUND);
+    gr.addColorStop(0, PAL.backHi); gr.addColorStop(1, PAL.backLo);
+    x.fillStyle = gr; x.fill();
+    x.save(); backPath(x); x.clip();
+    const cr = x.createLinearGradient(0, GROUND - 40, 0, GROUND);
+    cr.addColorStop(0, 'rgba(90,20,5,0)'); cr.addColorStop(1, 'rgba(90,20,5,0.38)');
+    x.fillStyle = cr; x.fillRect(BK.x, GROUND - 40, BK.w, 40);
+    sheetArt(x, 262, 86, 168, -0.025, PAL.sheet, PAL.sheetEdge);
+    sheetArt(x, 290, 90, 150, 0.035, '#eef2fb', '#d5dcec');
+    x.restore();
+    x.fillStyle = 'rgba(255,255,255,0.96)'; x.font = '600 11px ' + SANS; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText('设计灵感', TAB.x + TAB.w / 2, TAB.y + 9.5);
+    const hl = x.createLinearGradient(BK.x, TAB.y, BK.x + 120, GROUND);
+    hl.addColorStop(0, 'rgba(255,255,255,0.75)'); hl.addColorStop(0.6, 'rgba(255,255,255,0)');
+    backPath(x); x.strokeStyle = hl; x.lineWidth = 1; x.stroke();
+  }
+
+  // 前片（局部坐标 0..FR.w × 0..FR.h，缓存留边 FP 放厚度层）：
+  // 右下暗厚度层 + 竖向渐变 + 顶边受光的纸板截面 + 左上镜面光斑 + 压印的小字与文件夹图标
+  const FP = 4;
+  function frontArt(x) {
+    x.translate(FP, FP);
+    const w = FR.w, h = FR.h;
+    rr(x, 1.5, 2.5, w, h, FR.r); x.fillStyle = PAL.thick; x.fill();
+    rr(x, 0, 0, w, h, FR.r);
+    const gr = x.createLinearGradient(0, 0, 0, h);
+    gr.addColorStop(0, PAL.frontHi); gr.addColorStop(1, PAL.frontLo);
+    x.fillStyle = gr; x.fill();
+    x.save(); rr(x, 0, 0, w, h, FR.r); x.clip();
+    x.fillStyle = 'rgba(255,236,220,0.9)'; x.fillRect(0, 0, w, 2.2);          // 顶边截面（纸板厚度朝上受光）
+    x.fillStyle = 'rgba(150,50,20,0.25)'; x.fillRect(0, 2.2, w, 1);
+    const sp = x.createRadialGradient(w * 0.22, -10, 0, w * 0.22, -10, w * 0.6);
+    sp.addColorStop(0, 'rgba(255,255,255,0.42)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = sp; x.fillRect(0, 0, w, h);
+    const bt = x.createLinearGradient(0, h - 22, 0, h);
+    bt.addColorStop(0, 'rgba(120,30,8,0)'); bt.addColorStop(1, 'rgba(120,30,8,0.22)');
+    x.fillStyle = bt; x.fillRect(0, h - 22, w, 22);
+    x.restore();
+    // 压印：左下小标签 + 右下页数
+    x.textBaseline = 'alphabetic'; x.textAlign = 'left';
+    x.fillStyle = 'rgba(255,255,255,0.92)'; x.font = '700 13px ' + SANS;
+    x.fillText('2026 秋季提案', 16, h - 30);
+    x.fillStyle = 'rgba(255,255,255,0.7)'; x.font = '500 9.5px ' + SANS;
+    x.fillText('品牌视觉 · 共 3 份素材', 16, h - 15);
+    x.fillStyle = 'rgba(255,255,255,0.7)'; x.font = '600 9px ' + MONO; x.textAlign = 'right';
+    x.fillText('FN-1030', w - 14, h - 15);
+    x.strokeStyle = 'rgba(160,50,18,0.35)'; x.lineWidth = 1;                  // 压线：一道横向折痕
+    x.beginPath(); x.moveTo(12, 16.5); x.lineTo(w - 12, 16.5); x.stroke();
+    x.strokeStyle = 'rgba(255,220,200,0.45)';
+    x.beginPath(); x.moveTo(12, 17.5); x.lineTo(w - 12, 17.5); x.stroke();
+    const hl = x.createLinearGradient(0, 0, w * 0.5, h);
+    hl.addColorStop(0, 'rgba(255,255,255,0.95)'); hl.addColorStop(0.5, 'rgba(255,255,255,0.15)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    rr(x, 0.5, 0.5, w - 1, h - 1, FR.r); x.strokeStyle = hl; x.lineWidth = 1; x.stroke();
+  }
+
+  // 三张卡：起点都在文件夹内（前片后面），终点分在左侧 / 上方 / 右侧；rot 为终点旋转，fp 为浮动相位
+  const CARDS = [
+    { w: 100, h: 76, col: PAL.cardW, ex: 98, ey: 98, rot: -0.17, sx: 236, sy: 174, fp: 0.0 },
+    { w: 86, h: 76, col: PAL.cardY, ex: 292, ey: 50, rot: 0.06, sx: 270, sy: 176, fp: 1.9 },
+    { w: 110, h: 68, col: PAL.cardB, ex: 444, ey: 100, rot: 0.14, sx: 304, sy: 172, fp: 3.7 }
+  ];
+  const CP = 3;   // 卡片缓存留边
+  // 卡片底材：右下厚度 + 竖向渐变 + 左上镜面 + 左上高光边
+  function cardBase(x, c, hi, lo, thick) {
+    rr(x, 0.8, 1.2, c.w, c.h, 4); x.fillStyle = thick; x.fill();
+    rr(x, 0, 0, c.w, c.h, 4);
+    const gr = x.createLinearGradient(0, 0, 0, c.h); gr.addColorStop(0, hi); gr.addColorStop(1, lo);
+    x.fillStyle = gr; x.fill();
+    x.save(); rr(x, 0, 0, c.w, c.h, 4); x.clip();
+    const sp = x.createRadialGradient(c.w * 0.2, -6, 0, c.w * 0.2, -6, c.w * 0.7);
+    sp.addColorStop(0, 'rgba(255,255,255,0.6)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = sp; x.fillRect(0, 0, c.w, c.h); x.restore();
+    const hl = x.createLinearGradient(0, 0, c.w * 0.5, c.h);
+    hl.addColorStop(0, 'rgba(255,255,255,1)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    rr(x, 0.5, 0.5, c.w - 1, c.h - 1, 4); x.strokeStyle = hl; x.lineWidth = 1; x.stroke();
+  }
+  function label(x, s, X, Y, font, col, al) {
+    x.font = font; x.fillStyle = col; x.textAlign = al || 'left'; x.textBaseline = 'alphabetic'; x.fillText(s, X, Y);
+  }
+  // 卡 1：色板照片卡（白底），五块色样 + 色值
+  function card0(x) {
+    const c = CARDS[0]; cardBase(x, c, '#ffffff', '#f2f0ec', '#d6d1c8');
+    label(x, '秋日色板', 9, 15, '700 9.5px ' + SANS, PAL.ink);
+    label(x, '05 色', c.w - 9, 15, '500 7.5px ' + SANS, PAL.mut, 'right');
+    const sw = ['#ff5a2c', '#f6b34a', '#e9dcc4', '#3b64e8', '#1c2333'];
+    const hex = ['FF5A2C', 'F6B34A', 'E9DCC4', '3B64E8', '1C2333'];
+    for (let i = 0; i < 5; i++) {
+      const X = 9 + i * 17;
+      rr(x, X, 22, 14, 30, 2.5); x.fillStyle = sw[i]; x.fill();
+      x.fillStyle = 'rgba(255,255,255,0.25)'; x.fillRect(X + 1, 23, 12, 3);
+      x.save(); x.translate(X + 7, 56); x.rotate(-Math.PI / 2);
+      label(x, hex[i], -2, 2.5, '500 5.6px ' + MONO, PAL.ink2, 'right'); x.restore();
+    }
+    label(x, '主色 #FF5A2C', 9, 70, '600 7.5px ' + SANS, PAL.ink2);
+  }
+  // 卡 2：便利贴（奶黄），铅笔画的 App 首页草图 + 手写式标注
+  function card1(x) {
+    const c = CARDS[1]; cardBase(x, c, '#fff0b8', '#ffe08a', '#e3bf5a');
+    x.fillStyle = 'rgba(255,255,255,0.45)'; x.save(); x.translate(c.w / 2, -1); x.rotate(-0.04);
+    x.fillRect(-16, -4, 32, 10); x.restore();                                       // 顶部半透明胶带
+    x.strokeStyle = 'rgba(60,52,40,0.78)'; x.lineWidth = 1.1; x.lineJoin = 'round'; x.lineCap = 'round';
+    rr(x, 12, 14, 34, 52, 5); x.stroke();                                          // 手机外框
+    x.beginPath(); x.moveTo(25, 18); x.lineTo(33, 18); x.stroke();
+    x.beginPath(); x.arc(29, 32, 7, 0, Math.PI * 2); x.stroke();                   // 头像圆
+    x.beginPath(); x.moveTo(17, 45); x.lineTo(41, 45); x.moveTo(17, 51); x.lineTo(35, 51); x.stroke();
+    rr(x, 17, 56, 24, 6, 3); x.fillStyle = 'rgba(255,90,44,0.85)'; x.fill();        // 橙色按钮
+    x.strokeStyle = 'rgba(255,90,44,0.9)'; x.lineWidth = 1;                         // 标注箭头
+    x.beginPath(); x.moveTo(50, 30); x.quadraticCurveTo(46, 32, 38, 31); x.stroke();
+    x.beginPath(); x.moveTo(41, 28.5); x.lineTo(37.5, 31); x.lineTo(41, 33.5); x.stroke();
+    label(x, '头像', 52, 33, '600 8px ' + SANS, PAL.ink2);
+    label(x, '按钮', 52, 61, '600 8px ' + SANS, PAL.ink2);
+    label(x, 'v2', 52, 21, '700 8px ' + MONO, PAL.acc);
+    label(x, '首页草图', 52, 47, '700 7.5px ' + SANS, PAL.ink);
+  }
+  // 卡 3：一句话卡（浅蓝），引号 + 文案 + 署名
+  function card2(x) {
+    const c = CARDS[2]; cardBase(x, c, '#eef2ff', '#d7e1ff', '#b5c3ef');
+    label(x, '\u201C', 8, 26, '700 26px Georgia, serif', PAL.blue);
+    label(x, '留白不是空，', 24, 26, '700 11px ' + SANS, PAL.ink);
+    label(x, '是给内容呼吸。', 24, 41, '700 11px ' + SANS, PAL.ink);
+    x.fillStyle = PAL.blue; x.fillRect(24, 49, 14, 1.4);
+    label(x, '林夏 · 10/28 例会', 24, 60, '500 7.5px ' + SANS, PAL.ink2);
+  }
+
+  let C = null;   // 预渲染缓存
+  function build() {
+    const arts = [card0, card1, card2];
+    C = {
+      bg: mk(W, H, bgArt),
+      back: mk(W, H, backArt),
+      front: mk(FR.w + FP * 2, FR.h + FP * 2, frontArt),
+      cards: CARDS.map((c, i) => mk(c.w + CP * 2, c.h + CP * 2, x => { x.translate(CP, CP); arts[i](x); })),
+      cardSoft: CARDS.map(c => blob(c.w, c.h, 5, 7)),     // 卡片悬空时的柔和投影
+      cardTight: CARDS.map(c => blob(c.w, c.h, 4, 1.6)),  // 卡片贴身的接触影
+      folderSoft: blob(BK.w + 6, 60, 20, 12),             // 文件夹落在桌面上的大投影
+      folderTight: blob(FR.w - 4, 4, 2, 2),               // 文件夹底边的接触影
+      ground: blob(90, 8, 4, 6)                            // 卡片投到桌面上的椭圆影
+    };
+  }
+  // 把柔影块画在 (cx, cy) 为中心、可旋转缩放的位置
+  function drawBlob(k, b, cx, cy, rot, sx, sy, a) {
+    k.save(); k.globalAlpha = a; k.translate(cx, cy); k.rotate(rot); k.scale(sx, sy);
+    k.drawImage(b.c, -b.w / 2 - b.p, -b.h / 2 - b.p, b.w + b.p * 2, b.h + b.p * 2); k.restore();
+  }
+
+  // 时间线（秒）：光标进入 → 前片翻开 → 卡片依次弹出、悬浮 → 光标离开 → 卡片依次收回 → 前片合上并回弹 → 静止
+  const T = {
+    curIn: [0.25, 0.85], open: [0.72, 1.22], pop0: 0.92, popGap: 0.17, popDur: 0.66,
+    curOut: [2.95, 3.55], back0: 3.02, backGap: 0.13, backDur: 0.44, close: [3.6, 4.05], settle: 4.45
+  };
+  const OPEN_SY = 0.56;   // 前片翻开时的纵向压缩（越小翻得越开）
+  const OPEN_WIDEN = 0.1; // 翻开后前片顶边离观者更近，横向放宽的比例
+  const OPEN_SKEW = 0.05; // 翻开时整体轻微右斜切，模拟视角偏左上
+
+  // 前片开合量 0..1（合上后带一次衰减回弹，周期末尾回到 0）
+  function openAmt(u) {
+    if (u < T.open[0]) return 0;
+    if (u < T.close[0]) return eBack(seg(u, T.open[0], T.open[1])) ;
+    if (u < T.close[1]) return 1 - eIO(seg(u, T.close[0], T.close[1]));
+    const d = u - T.close[1];
+    return u < T.settle ? 0.07 * Math.abs(Math.sin(d * Math.PI / 0.24)) * Math.exp(-d * 9) : 0;
+  }
+  // 卡片 i 的状态：q 为出场进度（0 在夹内，1 在终点），float 为悬浮位移的权重
+  function cardState(i, u) {
+    const c = CARDS[i];
+    const t0 = T.pop0 + i * T.popGap, tb = T.back0 + (CARDS.length - 1 - i) * T.backGap;  // 先出的后回
+    let qx, qy, sc;
+    if (u < tb) {
+      const t = seg(u, t0, t0 + T.popDur);
+      qy = eBack(seg(t, 0, 0.8)); qx = eBack(seg(t, 0.14, 1)); sc = lerp(0.86, 1, eOut(t));
+    } else {
+      const q = 1 - eIO(seg(u, tb, tb + T.backDur)); qx = q; qy = q; sc = lerp(0.86, 1, q);
+    }
+    // x 比 y 晚 14% 起步，路径先竖直冒出再斜飞向终点；悬浮权重随 qx 收放，收回时浮动自然归零
+    const flo = clamp(qx);
+    const fy = 2.6 * Math.sin((u - t0) * Math.PI * 2 / 1.7 + c.fp) * flo;
+    const fr = 0.022 * Math.sin((u - t0) * Math.PI * 2 / 2.3 + c.fp * 1.3) * flo;
+    return {
+      x: lerp(c.sx, c.ex, qx), y: lerp(c.sy, c.ey, qy) + fy, fy: fy,
+      rot: c.rot * qx + fr, sc: sc, vis: u >= t0 && u < tb + T.backDur, q: clamp(qy)
+    };
+  }
+
+  // 前片：以底边为转轴，按横条切片绘制——纵向压缩 + 越靠上越宽（离观者更近）+ 轻微斜切，近似透视翻开
+  const STRIPS = 16;
+  function drawFront(k, a) {
+    const sy = lerp(1, OPEN_SY, a), cw = FR.w + FP * 2, ch = FR.h + FP * 2, base = FP + FR.h;
+    k.save(); k.translate(FR.x + FR.w / 2, GROUND); k.transform(1, 0, OPEN_SKEW * a, 1, 0, 0);
+    for (let j = 0; j < STRIPS; j++) {
+      const y0 = ch * j / STRIPS, hh = ch / STRIPS;
+      const f = 1 + OPEN_WIDEN * a * clamp(1 - (y0 + hh / 2 - FP) / FR.h);
+      const dw = cw * f;
+      k.drawImage(C.front, 0, y0 * S, cw * S, hh * S, -dw / 2, (y0 - base) * sy, dw, hh * sy + 0.6);
+    }
+    // 翻开后正面朝向桌面、背离顶光：整体压暗一层，顶端更暗
+    if (a > 0.01) {
+      const top = -FR.h * sy, tw = FR.w * (1 + OPEN_WIDEN * a);
+      const dk = k.createLinearGradient(0, top, 0, 0);
+      dk.addColorStop(0, 'rgba(110,30,10,' + (0.26 * a) + ')'); dk.addColorStop(1, 'rgba(110,30,10,' + (0.08 * a) + ')');
+      k.fillStyle = dk; k.beginPath();
+      k.moveTo(-tw / 2 + 3, top); k.lineTo(tw / 2 - 3, top); k.lineTo(FR.w / 2, 0); k.lineTo(-FR.w / 2, 0); k.closePath(); k.fill();
+    }
+    k.restore();
+  }
+  // 箭头光标：白描边深色填充
+  function cursor(k, x, y) {
+    k.save(); k.translate(x, y); k.scale(1.2, 1.2);
+    k.shadowColor = 'rgba(28,35,51,0.3)'; k.shadowBlur = 3; k.shadowOffsetY = 1.5;
+    k.beginPath();
+    [[0, 0], [0, 16.5], [4.2, 12.6], [7, 19], [9.8, 17.8], [7.1, 11.6], [12.6, 11.6]].forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1]));
+    k.closePath(); k.lineJoin = 'round'; k.lineWidth = 1.6; k.strokeStyle = '#fff'; k.fillStyle = PAL.ink;
+    k.stroke(); k.shadowColor = 'rgba(0,0,0,0)'; k.fill(); k.stroke(); k.restore();
+  }
+  const REST = { x: 498, y: 196 }, HOVER = { x: 322, y: 158 };
+
+  const fn = (k, w, h, u) => {
+    if (!C) build();
+    u = ((u % CYC) + CYC) % CYC;
+    k.save();
+    k.drawImage(C.bg, 0, 0, W, H);
+    const a = openAmt(u);
+    const st = CARDS.map((c, i) => cardState(i, u));
+    // 桌面投影：文件夹大投影 + 底边接触影（翻开时前片向前探，影子向下长一点）+ 卡片投到桌面的椭圆影
+    drawBlob(k, C.folderSoft, W / 2 + 5, GROUND - 6 + 4 * a, 0, 1, 0.42 + 0.12 * a, 0.3);
+    drawBlob(k, C.folderTight, W / 2 + 1, GROUND + 0.5 + 2 * a, 0, 1 + 0.06 * a, 1, 0.5);
+    st.forEach((s, i) => {
+      if (!s.vis) return;
+      const c = CARDS[i], hgt = GROUND - (s.y + c.h / 2);
+      drawBlob(k, C.ground, s.x + 6 + hgt * 0.12, GROUND + 4, 0, c.w / 90 * (1 + hgt / 160), 1, 0.16 * s.q * clamp(1 - hgt / 200));
+    });
+    k.drawImage(C.back, 0, 0, W, H);
+    // 卡片：在后片与前片之间绘制（出发时被前片挡住），裁到桌面线以上
+    k.save(); k.beginPath(); k.rect(0, 0, W, GROUND - 1); k.clip();
+    st.forEach((s, i) => {
+      if (!s.vis) return;
+      const c = CARDS[i], ts = C.cardTight[i];
+      const lift = 3 + 7 * s.q - s.fy * 0.6;      // 浮得越高，投影越远越淡
+      drawBlob(k, C.cardSoft[i], s.x + 2 + lift * 0.35, s.y + lift, s.rot, s.sc * 1.02, s.sc * 1.02, 0.12 + 0.12 * s.q);
+      drawBlob(k, ts, s.x + 0.6, s.y + 1.6, s.rot, s.sc, s.sc, 0.28);
+      k.save(); k.translate(s.x, s.y); k.rotate(s.rot); k.scale(s.sc, s.sc);
+      k.drawImage(C.cards[i], -c.w / 2 - CP, -c.h / 2 - CP, c.w + CP * 2, c.h + CP * 2); k.restore();
+    });
+    k.restore();
+    // 前片上沿在内壁上的接触暗影（合上时贴着，翻开时随前片顶边下移并变淡）
+    const ft = GROUND - FR.h * lerp(1, OPEN_SY, a);
+    const ao = k.createLinearGradient(0, ft - 9, 0, ft);
+    ao.addColorStop(0, 'rgba(70,15,3,0)'); ao.addColorStop(1, 'rgba(70,15,3,' + (0.3 - 0.12 * a) + ')');
+    k.fillStyle = ao; k.fillRect(BK.x + 2, ft - 9, BK.w - 4, 9);
+    drawFront(k, a);
+    // 光标：从右下进入悬停在前片上，稍后移开回原位
+    const ci = eIO(seg(u, T.curIn[0], T.curIn[1])) * (1 - eIO(seg(u, T.curOut[0], T.curOut[1])));
+    const dr = Math.sin(seg(u, T.curIn[1], T.curOut[0]) * Math.PI) * 4;   // 悬停时手的轻微漂移
+    cursor(k, lerp(REST.x, HOVER.x, ci) + dr, lerp(REST.y, HOVER.y, ci) - dr * 0.4);
+    k.restore();
+  };
+  return fn;
+})();

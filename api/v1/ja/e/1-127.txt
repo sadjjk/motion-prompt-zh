@@ -1,0 +1,67 @@
+// Motion Prompt #1-127 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// アニメーション天気アイコン / Animated weather icons
+// パック: lp (LP・Webサイトの演出) · element 35 · カテゴリ: 読み込み・移動・動き続ける演出
+// 何が起きるか: 4枚の小さなカードで、太陽の光が回り、雲が左右に漂い、雨粒が順に落ち、雷雲の稲妻が時々光る。
+// 動きの仕様:
+//   - 4枚の小さなカード（110×128・間隔14）：晴れ・くもり・雨・雷。どのループも4.8秒周期の中で整数回くり返す
+//   - 晴れ: 12本の光が1周期に1回転。くもり: 雲が左右に ±6px 漂い、1周期に2往復
+//   - 雨: 3粒が0.27秒ずつずれ、0.8秒ごとに30px落ち、始めと終わりでフェード
+//   - 雷: 1.2・1.5・3.6秒に各0.12秒光り、同時にカードの地がほんのり明るくなる
+// 使いどころ: 天気・旅行・イベントの案内や、状態を表すアイコンを少し生き生きさせたい所に。
+// タグ: weather, icons, loop, sun, rain, lightning, micro-animation
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-127
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 35
+// 改写自 KittenJam Motion Library #324 天气图标动画：4 张 110×128 小卡（间距 14）各放一个线性图标，全部为周期内整数次循环：
+// 晴：12 道光芒每周期自转 1 圈；多云：云朵左右飘 ±6px（每周期 2 次往返）；雨：3 滴雨错开 0.27 秒、每 0.8 秒落下一次；
+// 雷暴：闪电在 1.2、1.5、3.6 秒各闪一下（0.12 秒），闪时卡片底色微亮。
+const WX_W = 110, WX_H = 128, WX_GAP = 14;
+CELLS[34] = (k, w, h, u) => {
+  frame(k, 'example.com/weather');
+  const x0 = (VW - (WX_W * 4 + WX_GAP * 3)) / 2, y0 = 18;
+  const cloud = (x, y, s, col) => {
+    k.fillStyle = col; k.beginPath();
+    k.arc(x - 14 * s, y + 4 * s, 12 * s, 0, 7); k.arc(x + 2 * s, y - 6 * s, 16 * s, 0, 7); k.arc(x + 18 * s, y + 4 * s, 11 * s, 0, 7); k.fill();
+    rr(k, x - 26 * s, y + 2 * s, 55 * s, 14 * s, 7 * s); k.fill();
+  };
+  const flash = [1.2, 1.5, 3.6].reduce((a, tc) => Math.max(a, u >= tc && u < tc + 0.12 ? 1 - (u - tc) / 0.12 : 0), 0);
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    ['晴', '多云', '小雨', '雷暴'].forEach((lab, i) => {
+      const x = x0 + i * (WX_W + WX_GAP), mx = x + WX_W / 2, my = y0 + 50;
+      k.fillStyle = '#fff'; rr(k, x, y0, WX_W, WX_H, 12); k.fill();
+      if (i === 3 && flash > 0) { k.fillStyle = `rgba(255,229,219,${flash})`; rr(k, x, y0, WX_W, WX_H, 12); k.fill(); }
+      txt(k, lab, mx, y0 + 108, `700 12px ${JP}`, C.ink, 'center', 'middle');
+      if (i === 0) {
+        const a = u / CYC * Math.PI * 2;
+        k.save(); k.translate(mx, my); k.rotate(a); k.strokeStyle = C.acc; k.lineWidth = 3; k.lineCap = 'round';
+        for (let r = 0; r < 12; r++) { k.rotate(Math.PI / 6); k.beginPath(); k.moveTo(0, -22); k.lineTo(0, -30); k.stroke(); }
+        k.restore(); k.fillStyle = C.acc; k.beginPath(); k.arc(mx, my, 16, 0, 7); k.fill(); k.lineCap = 'butt';
+      } else if (i === 1) {
+        k.fillStyle = '#FFB199'; k.beginPath(); k.arc(mx + 14, my - 12, 13, 0, 7); k.fill();
+        cloud(mx + 6 * Math.sin(u / CYC * Math.PI * 4) - 4, my + 4, 1, C.blueL);
+      } else if (i === 2) {
+        k.strokeStyle = C.blue; k.lineWidth = 2.5; k.lineCap = 'round';
+        [-14, 0, 14].forEach((dx, j) => {
+          const q = mod(u - j * 0.27, 0.8) / 0.8;
+          // 起落两端淡入淡出，避免雨滴突然出现
+          k.globalAlpha = Math.min(1, q / 0.15, (1 - q) / 0.2);
+          k.beginPath(); k.moveTo(mx + dx, my + 6 + 30 * q); k.lineTo(mx + dx - 2, my + 13 + 30 * q); k.stroke();
+        });
+        k.globalAlpha = 1; k.lineCap = 'butt';
+        cloud(mx, my - 4, 1, '#A9B4CC');
+      } else {
+        cloud(mx, my - 4, 1, '#5C6680');
+        k.fillStyle = flash > 0 ? '#FFC93C' : '#E7C35A'; k.globalAlpha = 0.35 + 0.65 * flash;
+        k.beginPath(); k.moveTo(mx + 2, my + 6); k.lineTo(mx - 8, my + 24); k.lineTo(mx, my + 24); k.lineTo(mx - 5, my + 38); k.lineTo(mx + 10, my + 18); k.lineTo(mx + 2, my + 18); k.closePath(); k.fill();
+        k.globalAlpha = 1;
+      }
+    });
+  });
+};

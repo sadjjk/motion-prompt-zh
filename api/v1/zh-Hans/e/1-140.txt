@@ -1,0 +1,39 @@
+// Motion Prompt #1-140 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 圆形扩张转场 / Circle reveal transition
+// 分类包: uxmotion (交互与数据动效) · element 49 · 子分类: 滚动交互
+// 动画表现: 随滚动推进，深色第二章从浅色第一章中央以圆形扩开直到铺满；第一章标题缩小淡出，第二章标题由大缩回原尺寸；滚回时圆形缩回。
+// 运动规格:
+//   - 滚动进度在 0.5–4.4 秒由 0 到 1（inOut3），右侧滚动条同步。
+//   - 圆形遮罩半径随进度成比例地从 0 扩大到画面半对角线。
+//   - 第一章标题缩到 0.8 并淡出；第二章标题从 1.2 倍缩回 1 倍。
+//   - 5.4–6.3 秒滚动回退，圆形缩回。
+// 适用场景: 适合叙事型页面与产品介绍，强调章节或场景的切换。
+// 标签: circle-reveal, clip-path, transition, scroll, scrub, section
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-140
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 49
+// 49 圆形扩张转场（KittenJam #161）：滚动进度 0.5–4.4 秒由 0 到 1（inOut3，右侧滚动条同步），第二章从中央以圆形遮罩出现，
+// 半径随进度从 0 扩到画面半对角线；第一章标题缩到 0.8 并淡出，第二章标题从 1.2 倍缩回 1；5.4–6.3 秒滚回，圆形缩回。
+const CRV_RMAX = Math.hypot(CW / 2, CH / 2);
+CELLS[48] = (k, w, h, u) => {
+  const p = UXA_scroll(u, 0.5, 4.4), r = CRV_RMAX * p;
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  const s1 = 1 - 0.2 * p;
+  k.save(); k.globalAlpha = 1 - p; k.translate(CW / 2, CH / 2); k.scale(s1, s1);
+  txt(k, '第一章', 0, -26, UXB_f(800, 12), UX.ink3, 'center'); txt(k, '启程', 0, 18, UXB_f(900, 40, SERIF), UX.ink, 'center');
+  k.restore();
+  if (r > 0.5) {
+    k.save(); k.beginPath(); k.arc(CW / 2, CH / 2, r, 0, TAU); k.clip();
+    k.fillStyle = UXD.page; k.fillRect(0, 0, CW, CH); glow(k, CW / 2, CH / 2, 200, '183,164,255', 0.25);
+    const s2 = 1.2 - 0.2 * p; k.translate(CW / 2, CH / 2); k.scale(s2, s2);
+    txt(k, '第二章', 0, -26, UXB_f(800, 12), UXD.ink3, 'center'); txt(k, '远方', 0, 18, UXB_f(900, 40, SERIF), UXD.ink, 'center');
+    k.restore();
+  }
+  scrollbar(k, p, 0.3, CW - 8, 10, CH - 10, p > 0.85);
+};

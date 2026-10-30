@@ -1,0 +1,27 @@
+// Motion Prompt #3-051 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-long-shot
+//
+// ニーショット / Medium long shot
+// パック: camera (カメラワークと切り替え) · element 27 · カテゴリ: ショットサイズ
+// 何が起きるか: 画框の下端は膝。人物が脚を上げて一歩出し戻る。太ももの上がり下がりの弧がよく見え、背景は少しぼける。
+// 動きの仕様:
+//   - 画框: 0.42mから1.92m（膝から頭の上まで）。カメラは4.2m先
+//   - 動き: 0.4〜1.0秒で0.28m踏み出す。脚の上げ下ろしは画面内。3.4〜4.0秒で戻る
+//   - 人物は前景の層でくっきり、背景は少しぼかす
+//   - 表示: 右上に「中全景 MLS」。比例尺の青い帯は膝から頭まで
+//   - カメラは最後まで動かない。1周4.7秒で、最初と最後の画面は同じ
+// 使いどころ: 人物が動いたり身振りをしつつ表情も見せたいとき。2〜3人の会話場面によく使う。
+// タグ: medium long shot, mls, medium full shot, cowboy shot, knee shot, shot size, framing
+// サイズ: 539x208 px · 1周: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-051
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 27
+CELLS[26] = shot(frameCell({ lo: 0.42, hi: 1.92, name: '中全景', abbr: 'MLS', draw: (k, w, h, u) => {
+  const step = eIO(P(u, 0.4, 1.0)) * (1 - P(u, 3.4, 4.0));   // 跨步弧线：抬腿 → 落脚 → 收回
+  world(k, w, h, fit(0.42, 1.92, 4.2), {
+    person: { x: step * 0.28, walk: step * Math.PI * 0.8, z: 8, fg: true }, blurBg: 1.4
+  });
+} }));

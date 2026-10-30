@@ -1,0 +1,17 @@
+Please use "Folder pop-out cards" (フォルダーからカードが飛び出す), one of the names in "Landing page & web effects".
+Motion Prompt #1-188
+
+What it is: On hover a folder opens and the cards inside pop out around it and float
+What the sample shows: An orange 3D folder sits on a desk. When the cursor hovers, the front flap tips forward and three cards (a color palette, a sketch sticky note and a quote card) pop out one after another to the left, top and right, floating at a slight tilt. When the cursor leaves, they return in reverse order and the flap closes with a small bounce.
+Spec:
+- The cursor moves onto the front of the folder over 0.25–0.85 s.
+- The front flap (230×89) hinges on its bottom edge and tips forward over 0.72–1.22 s, squashing to 0.56× its height with the top edge widening slightly, with an overshoot.
+- From 0.92 s, 3 cards pop out 0.17 s apart, each over 0.66 s: first straight up, then diagonally out, scaling from 0.86× to 1×.
+- In place, each card bobs 2.6 px on a 1.7 s period with a slight sway.
+- The cursor leaves over 2.95–3.55 s, and from 3.02 s the cards return in reverse order, 0.13 s apart and 0.44 s each.
+- The flap closes over 3.6–4.05 s with a small bounce and rests by 4.45 s, on a 4.8 s cycle.
+When to use it: Use it in portfolios, asset libraries or project lists to give a hover preview of what is inside a folder.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-188.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

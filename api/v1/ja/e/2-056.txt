@@ -1,0 +1,90 @@
+// Motion Prompt #2-056 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// リキッドモーション / Liquid motion
+// パック: mgstyles (モーショングラフィックスのスタイル) · element 08 · カテゴリ: 空間・質感
+// 何が起きるか: 上の液帯からしずくが膨らんでくびれ、ちぎれて落ち、小さな滴が後を追い、下の液だまりで平たく広がって跳ねる。
+// 動きの仕様:
+//   - 上の液帯の下に 6 レーン、3.2 秒ごとに滴る（周期ごとに 2 回、位相はずらす）
+//   - 0–40% で膨らみ首が伸び、40–75% でちぎれて落下（小さな滴が 0.12 遅れて追う）、75–100% で液だまりに落ちて横に広がる
+//   - メタボールは半分の解像度 270×104 で「4px ぼかし + コントラスト 24」で接合し、#FF5C0F→#FF1A70→#8F1FFF のグラデを掛ける
+//   - マスクを 1.5px ずらした差分で左上の光る縁を作る。中央に drop. のロゴ（60px）が常駐
+// 使いどころ: 飲料・コスメの広告、音楽やイベントのティザー、なめらかさを強調したいブランドのオープニングに。
+// タグ: liquid, metaball, gooey, drip, fluid, gradient, glossy
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-056
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 08
+// 08 液态流动（drop.「万物始于一滴」）：深梅紫底，顶部液带下 6 条泳道每 3.2 秒滴一次（每周期 2 次、相位按 hash 错开）：0–40% 液泡在带下鼓起拉颈、40–75% 断颈下落（次级小液滴晚 0.12 跟随）、75–100% 落入底部液池并左右压扁溅开；融球用半分辨率离屏图「模糊 4px + 对比度 24 阈值」粘连，再乘橙→粉→紫糖果渐变（#FF5C0F→#FF1A70→#8F1FFF），并以掩膜差分得到左上高光边模拟 fresnel；中央 drop. 衬线字标与「万物始于一滴」常驻
+const LIQ_W = 270, LIQ_H = 104;
+const LIQ_CV = (() => { const mk = () => { const c = document.createElement('canvas'); c.width = LIQ_W; c.height = LIQ_H; return c; }; return { a: mk(), b: mk(), c: mk(), s: mk() }; })();
+const LIQ_LANES = [46, 112, 178, 362, 428, 494];
+function LIQ_blobs(g, u) {                            // 在全尺寸坐标里画融球源（白色圆）
+  g.fillStyle = '#fff';
+  const C = (x, y, r) => { if (r > 0.3) { g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); } };
+  const E = (x, y, rx, ry) => { if (rx > 0.3 && ry > 0.3) { g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, TAU); g.fill(); } };
+  for (let x = -10; x <= CW + 20; x += 26) C(x, -8 + 3 * Math.sin(TAU * u / CYC + x * 0.03), 17);     // 顶部液带
+  for (let x = -10; x <= CW + 20; x += 26) C(x, 218 + 3 * Math.sin(TAU * u / CYC * 2 + x * 0.02), 22); // 底部液池
+  LIQ_LANES.forEach((lx, i) => {
+    const l = (u / 3.2 + hash(i * 5 + 1)) % 1;
+    if (l < 0.4) {                                    // 鼓起 + 拉颈
+      const e = out3(l / 0.4), y = 12 + 28 * e, r = 5 + 8 * e;
+      C(lx, y, r); C(lx, (y + 4) / 2, r * 0.55);
+    } else if (l < 0.75) {                            // 断颈下落 + 次级液滴
+      const p = (l - 0.4) / 0.35, y = 40 + 158 * p * p;
+      E(lx, y, 11 * (1 - 0.15 * p), 12 * (1 + 0.35 * p));
+      const q = Math.max(0, p - 0.12), y2 = 30 + 160 * q * q; if (p > 0.08) C(lx + 1, y2, 4.5);
+      C(lx, 12 * (1 - p), 7 * (1 - clamp(p * 2)) + 3 * Math.sin(Math.PI * clamp(p * 3)));   // 断颈后回弹的残余
+    } else {                                          // 落池压扁 + 溅开
+      const p = (l - 0.75) / 0.25, s = Math.sin(Math.PI * p);
+      E(lx, 196, 13 + 16 * p, 10 * (1 - 0.5 * p) + 2);
+      C(lx - 22 * p, 188 - 16 * s, 4 * (1 - p)); C(lx + 22 * p, 188 - 16 * s, 4 * (1 - p));
+    }
+  });
+}
+CELLS[7] = (k, w, h, u) => {
+  const { a, b, c } = LIQ_CV;
+  k.drawImage(layer('LIQ_BG', g => {
+    const gr = g.createLinearGradient(0, 0, 0, CH); gr.addColorStop(0, '#12051a'); gr.addColorStop(0.6, '#2a0b30'); gr.addColorStop(1, '#34103c');
+    g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+    const sp = g.createRadialGradient(270, 110, 10, 270, 110, 220); sp.addColorStop(0, 'rgba(158,41,107,0.35)'); sp.addColorStop(1, 'rgba(158,41,107,0)');
+    g.fillStyle = sp; g.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+  // 1) 模糊源
+  const ga = a.getContext('2d');
+  // 融球源先清晰地画进草稿图 s，再整张一次性模糊到 a（filter 只作用一次绘制，而不是每个圆各算一次）
+  const gs = LIQ_CV.s.getContext('2d');
+  gs.save(); gs.fillStyle = '#000'; gs.fillRect(0, 0, LIQ_W, LIQ_H); gs.scale(LIQ_W / CW, LIQ_H / CH); LIQ_blobs(gs, u); gs.restore();
+  ga.save(); ga.globalCompositeOperation = 'source-over'; ga.filter = 'none'; ga.fillStyle = '#000'; ga.fillRect(0, 0, LIQ_W, LIQ_H);
+  ga.filter = 'blur(4px)'; ga.drawImage(LIQ_CV.s, 0, 0); ga.restore(); ga.filter = 'none';
+  // 2) 对比度阈值 → 黑白掩膜
+  const gb = b.getContext('2d');
+  gb.save(); gb.globalCompositeOperation = 'source-over'; gb.filter = 'contrast(24)'; gb.drawImage(a, 0, 0); gb.restore(); gb.filter = 'none';
+  // 3) 高光边：掩膜 与 右下偏移的掩膜 求差，再乘回掩膜 → 只留左上内缘
+  const gc = c.getContext('2d');
+  gc.save(); gc.globalCompositeOperation = 'source-over'; gc.drawImage(b, 0, 0);
+  gc.globalCompositeOperation = 'difference'; gc.drawImage(b, 1.5, 1.5);
+  gc.globalCompositeOperation = 'multiply'; gc.drawImage(b, 0, 0); gc.restore();
+  // 4) 掩膜乘糖果渐变
+  gb.save(); gb.globalCompositeOperation = 'multiply';
+  const gr = gb.createLinearGradient(0, 0, LIQ_W, LIQ_H); gr.addColorStop(0, '#FF5C0F'); gr.addColorStop(0.5, '#FF1A70'); gr.addColorStop(1, '#8F1FFF');
+  gb.fillStyle = gr; gb.fillRect(0, 0, LIQ_W, LIQ_H); gb.restore();
+  k.save(); k.imageSmoothingEnabled = true;
+  k.globalCompositeOperation = 'lighter'; k.drawImage(b, 0, 0, CW, CH);
+  k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.7; k.drawImage(c, 0, 0, CW, CH);
+  k.restore();
+  // 字标
+  k.save();
+  k.textAlign = 'center'; k.textBaseline = 'alphabetic'; k.font = `italic 900 60px ${SERIF}`;
+  k.fillStyle = 'rgba(120,10,60,0.6)'; k.fillText('drop.', 272, 118);
+  const tg = k.createLinearGradient(220, 70, 330, 120); tg.addColorStop(0, '#FFBD4D'); tg.addColorStop(0.5, '#ff1f73'); tg.addColorStop(1, '#c061ff');
+  k.fillStyle = tg; k.fillText('drop.', 270, 115);
+  k.globalAlpha = 0.55; k.fillStyle = '#fff7f0'; k.font = `italic 900 60px ${SERIF}`; k.save(); k.beginPath(); k.rect(0, 60, CW, 22); k.clip(); k.fillText('drop.', 269, 114); k.restore();
+  k.restore();
+  k.letterSpacing = '5px'; txt(k, '万物始于一滴', 272, 142, `600 13px ${SERIF}`, '#ffe8f0', 'center');
+  k.letterSpacing = '2px'; txt(k, 'EVERYTHING BEGINS AS A DROP', 271, 158, `600 7.5px ${DISP}`, 'rgba(255,200,224,0.75)', 'center');
+  k.letterSpacing = '0px';
+};

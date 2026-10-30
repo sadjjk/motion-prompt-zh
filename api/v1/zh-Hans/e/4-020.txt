@@ -1,0 +1,62 @@
+// Motion Prompt #4-020 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 防伪钞票纹 / Guilloche
+// 分类包: scenes (风格画面) · element 20 · 子分类: 纹样与图形
+// 动画表现: 翡翠绿与金色细线叠成的玫瑰窗各层反向缓缓转动，两侧波纹带左右流动。
+// 运动规格:
+//   - 32 条内摆线分 4 组叠成玫瑰窗，外圈半径 96px；颜色为翡翠绿 #0F5A4A 与金色 #B88A2E
+//   - 4 组分别为 13 / 13 / 17 / 11 瓣，每 6.4 秒各转过整 1 瓣，相邻组方向交替
+//   - 两侧波纹带：绿、金 2 族各 10 条正弦线，波长 48px、振幅 10px，反向平移，每周期 1 个波长
+//   - 玫瑰窗外有半径 115px 与 118px 的 2 道细圆框，左下角为 7px 等宽字体的序列号
+// 适用场景: 适合金融、金融科技与奢侈品牌的视频开场，证书或票券风格设计的背景，或演示中庄重的封面页。
+// 标签: guilloche, banknote, security-pattern, rosette, line-art, luxury, seamless-loop
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-020
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 20
+// 20 防伪钞票纹：翡翠绿与金色共 32 条内摆线叠成玫瑰窗，四组按各自对称角整周期旋转（13/17/11 瓣，每周期转 1 瓣），两侧波纹带每周期平移一个波长
+const GU_S = 0.24;                                            // 原作尺寸 ×0.24（外圈 R=400 → 96px）
+const GU_GROUPS = (() => {                                    // 四组摆线：[R, r, d, 透明度, 初始转角]，预先算好点列（常量）
+  const groups = [[], [], [], []], cols = ['#0F5A4A', '#0F5A4A', '#B88A2E', '#0F5A4A'];
+  for (let i = 0; i < 14; i++) groups[i % 2].push([400, 400 / 13, 150 + i * 10, 0.5, i * 0.045]);
+  for (let i = 0; i < 10; i++) groups[2].push([270, 270 / 17, 90 + i * 8, 0.7, i * 0.04]);
+  for (let i = 0; i < 8; i++) groups[3].push([140, 140 / 11, 46 + i * 6, 0.8, i * 0.05]);
+  return groups.map((gr, gi) => ({ col: cols[gi], curves: gr.map(([R, r, d, al, rot]) => {
+    const n = Math.round(R / r), N = n * 30, pts = new Float32Array(N * 2 + 2);   // r = R/n 时 t 走一圈即闭合，取 30n 点：转 1/n 圈后采样点与起点逐一重合
+    for (let i = 0; i <= N; i++) {
+      const t = i / N * TAU, x = (R - r) * Math.cos(t) + d * Math.cos((R - r) / r * t), y = (R - r) * Math.sin(t) - d * Math.sin((R - r) / r * t);
+      pts[i * 2] = (x * Math.cos(rot) - y * Math.sin(rot)) * GU_S; pts[i * 2 + 1] = (x * Math.sin(rot) + y * Math.cos(rot)) * GU_S;
+    }
+    return { al, pts };
+  }) }));
+})();
+const GU_SPIN = [-1 / 13, 1 / 13, -1 / 17, 1 / 11];          // 每周期转过的圈数 = 1/瓣数（转一瓣后与起点重合）
+CELLS[19] = (k, w, h, u) => {
+  k.fillStyle = '#F1ECDF'; k.fillRect(0, 0, CW, CH);
+  const cx = 269.5, cy = 104, ph = TAU * u / CYC;
+  // 两侧波纹带：两族各 10 条正弦线（波长 48px、振幅 10px），绿金反向，裁掉玫瑰窗所在圆
+  k.save(); k.beginPath(); k.rect(0, 0, CW, CH); k.arc(cx, cy, 124, 0, TAU, true); k.clip('evenodd'); k.lineWidth = 0.8;
+  for (let fam = 0; fam < 2; fam++) {
+    k.strokeStyle = fam ? 'rgba(184,138,46,.7)' : 'rgba(15,90,74,.55)'; k.beginPath();
+    for (let j = 0; j < 10; j++) {
+      const y0 = cy + (j - 4.5) * 14, p0 = (fam ? -ph : ph) + j * 0.6;
+      for (let x = 0; x <= CW; x += 3) { const y = y0 + 10 * Math.sin(x / 48 * TAU + p0); x ? k.lineTo(x, y) : k.moveTo(x, y); }
+    }
+    k.stroke();
+  }
+  k.restore();
+  k.lineWidth = 1;
+  GU_GROUPS.forEach((gr, i) => {
+    k.save(); k.translate(cx, cy); k.rotate(ph * GU_SPIN[i]); k.strokeStyle = gr.col;
+    for (const { al, pts } of gr.curves) { k.globalAlpha = al; k.beginPath(); k.moveTo(pts[0], pts[1]); for (let j = 2; j < pts.length; j += 2) k.lineTo(pts[j], pts[j + 1]); k.stroke(); }
+    k.restore();
+  });
+  k.strokeStyle = '#0F5A4A'; k.lineWidth = 1.2; k.beginPath(); k.arc(cx, cy, 115, 0, TAU); k.stroke();
+  k.lineWidth = 0.6; k.beginPath(); k.arc(cx, cy, 118, 0, TAU); k.stroke();
+  txt(k, 'SERIAL  A 0 2 6 1 4 9 5 5', 10, 201, `500 7px ${MONO}`, '#0F5A4A');
+  grain(k, 0.05, 'multiply');
+};

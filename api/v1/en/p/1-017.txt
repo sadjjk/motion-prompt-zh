@@ -1,0 +1,15 @@
+Please use "Hamburger menu" (ハンバーガーメニュー), one of the names in "UI component names".
+Motion Prompt #1-017
+
+What it is: A three-line icon that opens the menu
+What the sample shows: Clicking the three-line icon at the header's right turns it into ×, and a menu drops down from under the header; clicking again closes it.
+Spec:
+- 4.5 s cycle on a 542×191 card. A white 44-tall header; three lines (24 long, 3 thick, 8 px apart) at (500, 22) on the right.
+- The cursor clicks at 1.0 s and 3.3 s. Open amount a: 0→1 over 1.0–1.3 s, 1→0 over 3.3–3.6 s, easeInOutCubic.
+- Lines to ×: the top and bottom lines move 8 px to the centre and rotate ±45°; the middle line fades with opacity 1 − a. Blue while open.
+- Menu: white, 140 tall, top at y = 44 − 140 + 140·a so it drops from under the header (clipped below the header), shadow blur 16, four items, the first blue.
+When to use it: Use it on narrow screens to tuck the main navigation behind one button.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-017.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

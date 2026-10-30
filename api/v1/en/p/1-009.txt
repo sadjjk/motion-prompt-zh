@@ -1,0 +1,16 @@
+Please use "Tabs" (タブ), one of the names in "UI component names".
+Motion Prompt #1-009
+
+What it is: Click a label to switch which panel is shown
+What the sample shows: Clicking the tabs "Overview, Pricing, Reviews" in turn slides a blue underline across and swaps the content below.
+Spec:
+- 4.5 s cycle on a 542×191 card. Three tabs at x 24, 114, 204, widths 70, 70, 100; a 2 px divider at y 50 and a 4 px blue underline.
+- The cursor clicks the second tab at 1.0 s, the third at 2.2 s and the first at 3.4 s.
+- Underline: position and width move to the new tab over 0.25 s from each click with easeInOutCubic (from the third back to the first it passes through the middle).
+- Labels: selected is blue and bold, others grey; the switch happens at 1.1, 2.3 and 3.5 s.
+- Content: the old panel fades out linearly in 0.2 s; 0.1 s later the new one fades in over 0.2 s while rising 8 px.
+When to use it: Use it to show several related views in the same space and let people switch between them.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-009.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,101 @@
+// Motion Prompt #2-055 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// 3D 渲染系 / 3D render look
+// 分类包: mgstyles (MG 风格) · element 07 · 子分类: 空间与质感
+// 动画表现: 软胶立体字母依次落下、挤压回弹，镀铬小球作句号落地，底部一排光面胶囊随落地泛起涟漪。
+// 运动规格:
+//   - 棚拍背景 #efe2ea；112 px 的字母 s/o/f/t 各用 0.32 秒下落，于 0.5 / 1.0 / 1.5 / 2.0 秒着地，下落时纵向拉伸 12%。
+//   - 着地后阻尼弹簧挤压：初始 28%、衰减系数 5.5，约 0.6 秒平复；接地影随高度收放。
+//   - 2.8 秒半径 14 px 的镀铬小球作句号落下；材质 = 竖向渐变 + 左上白色高光边 + 右下暗色厚度层 + 镜面光斑。
+//   - 底部 2 排 × 21 颗胶囊每周期起伏 2 次、幅度 2.5 px，每次落地激起 7 px 涟漪向外传 1.6 秒；3.2 秒标语淡入。
+// 适用场景: 适合美妆、生活好物与 App 宣传片，以及柔软可爱调性的品牌 logo 演绎和社媒广告。
+// 标签: 3d-render, soft-body, squash-and-stretch, spring, glossy, chrome, studio-backdrop
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-055
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 07
+// 07 3D 渲染系（soft.「柔软着陆」）：淡紫粉棚拍无缝背景 #efe2ea，软胶字母 s/o/f/t 在 0.5/1.0/1.5/2.0 秒按拍落下：下落时纵向拉伸 12%，着地后阻尼弹簧挤压回弹（初始 28%、约 0.6 秒衰减）、地面接触影随高度收放；2.8 秒镀铬小球作句号落下；底部一排光面胶囊克隆阵列做每周期 2 次的波浪起伏，每次落地再激起一圈向外传播的涟漪；材质用竖向渐变 + 左上白色高光边 + 右下暗色厚度层 + 镜面光斑模拟；3.2 秒标语淡入；5.4–6.0 秒字母弹回上方出画
+const SOFT_MAT = [
+  { c: '#ff5aa6', lt: '#ffc0dc', dk: '#c2357a' },    // 糖果粉软胶
+  { c: '#b4a4be', lt: '#eee6f0', dk: '#7d6a8e' },    // 丁香亮面塑料
+  { c: '#f4e8ef', lt: '#ffffff', dk: '#bdacb8' },    // 奶油亮面
+  { c: '#ff5aa6', lt: '#ffc0dc', dk: '#c2357a' },
+];
+const SOFT_LAND = [0.5, 1.0, 1.5, 2.0], SOFT_BALL = 2.8, SOFT_BASE = 156;
+const SOFT_PILL = (() => {                             // 胶囊克隆体精灵（2 倍分辨率）
+  return ['#f4e8ef', '#b4a4be', '#ff8fc4'].map(col => {
+    const c = document.createElement('canvas'); c.width = 56; c.height = 28; const g = c.getContext('2d');
+    g.scale(2, 2);
+    const gr = g.createLinearGradient(0, 1, 0, 13); gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.35, col); gr.addColorStop(1, '#725f6a');
+    rr(g, 1, 1, 26, 12, 6); g.fillStyle = gr; g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.7)'; rr(g, 6, 2.5, 12, 3, 1.5); g.fill();
+    return c;
+  });
+})();
+function SOFT_spring(dt) { return dt < 0 ? 0 : 0.28 * Math.exp(-5.5 * dt) * Math.cos(16 * dt); }
+CELLS[6] = (k, w, h, u) => {
+  const rk = resetK(u), out = rk * rk;
+  k.drawImage(layer('SOFT_BG', g => {
+    const gr = g.createLinearGradient(0, 0, 0, CH); gr.addColorStop(0, '#f4e8ef'); gr.addColorStop(0.62, '#efe2ea'); gr.addColorStop(0.8, '#e6d2df'); gr.addColorStop(1, '#dcc6d6');
+    g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+    const v = g.createRadialGradient(270, 90, 60, 270, 104, 320); v.addColorStop(0, 'rgba(255,255,255,0.35)'); v.addColorStop(1, 'rgba(58,30,66,0.12)');
+    g.fillStyle = v; g.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+  // 胶囊阵列：周期波 + 落地涟漪
+  for (let row = 0; row < 2; row++) for (let i = 0; i < 21; i++) {
+    const x = -6 + i * 27 + row * 13, base = 178 + row * 15;
+    let dy = 2.5 * Math.sin(TAU * u / CYC * 2 - i * 0.55 - row);
+    for (let j = 0; j < 5; j++) {
+      const L = j < 4 ? SOFT_LAND[j] : SOFT_BALL, dt = u - L; if (dt <= 0 || dt > 1.6) continue;
+      const lx = 150 + j * 62, d = Math.abs(x + 14 - lx);
+      dy -= 7 * Math.exp(-2.5 * dt) * Math.max(0, Math.cos((d - 150 * dt) / 16)) * Math.exp(-d / 220) * (1 - rk);
+    }
+    k.drawImage(SOFT_PILL[(i + row) % 3], x, base + dy, 28, 14);
+  }
+  // 字母
+  k.font = `900 112px ${DISP}`; k.textAlign = 'center'; k.textBaseline = 'alphabetic';
+  const ch = ['s', 'o', 'f', 't'], wd = ch.map(c => k.measureText(c).width), tot = wd.reduce((a, b) => a + b, 0) + 34;
+  let x = 270 - tot / 2;
+  ch.forEach((c, i) => {
+    const cx = x + wd[i] / 2; x += wd[i];
+    const L = SOFT_LAND[i], p = seg(u, L - 0.32, L);
+    if (p <= 0) return;
+    let y = SOFT_BASE - (1 - p * p) * 230 - out * 240, sx = 1, sy = 1;
+    if (p < 1) { sy = 1.12; sx = 0.9; } else { const a = SOFT_spring(u - L); sy = 1 - a; sx = 1 + a * 0.8; }
+    const air = clamp((SOFT_BASE - y) / 120);
+    k.fillStyle = rgba([74, 46, 78], 0.22 * (1 - air)); k.beginPath(); k.ellipse(cx, SOFT_BASE + 4, wd[i] * 0.45 * (1 - air * 0.5) * sx, 4, 0, 0, TAU); k.fill();
+    const M = SOFT_MAT[i];
+    k.save(); k.translate(cx, y); k.scale(sx, sy);
+    k.fillStyle = M.dk; k.fillText(c, 2.5, 3.5);                                     // 厚度/暗部
+    k.fillStyle = 'rgba(255,255,255,0.75)'; k.fillText(c, -1.5, -2);               // 左上高光边
+    const gr = k.createLinearGradient(0, -82, 0, 0); gr.addColorStop(0, M.lt); gr.addColorStop(0.45, M.c); gr.addColorStop(1, M.dk);
+    k.fillStyle = gr; k.fillText(c, 0, 0);
+    glow(k, -wd[i] * 0.18, -62, 12, '255,255,255', 0.55);                          // 镜面光斑
+    k.restore();
+  });
+  // 镀铬句号
+  const bp = seg(u, SOFT_BALL - 0.3, SOFT_BALL);
+  if (bp > 0) {
+    const R = 14, bx = x + 18;
+    let by = SOFT_BASE - R - (1 - bp * bp) * 230 - out * 240, sq = bp < 1 ? -0.08 : SOFT_spring(u - SOFT_BALL) * 0.6;
+    const air = clamp((SOFT_BASE - R - by) / 120);
+    k.fillStyle = rgba([9, 16, 21], 0.25 * (1 - air)); k.beginPath(); k.ellipse(bx, SOFT_BASE + 3, R * (1 - air * 0.5), 3.5, 0, 0, TAU); k.fill();
+    k.save(); k.translate(bx, by + R * sq); k.scale(1 + sq, 1 - sq);
+    const g1 = k.createLinearGradient(0, -R, 0, R); g1.addColorStop(0, '#ffffff'); g1.addColorStop(0.42, '#bdacb8'); g1.addColorStop(0.5, '#4a2e4e'); g1.addColorStop(0.62, '#7d6a8e'); g1.addColorStop(1, '#efe2ea');
+    k.fillStyle = g1; k.beginPath(); k.arc(0, 0, R, 0, TAU); k.fill();
+    glow(k, -5, -6, 7, '255,255,255', 0.95);
+    k.restore();
+  }
+  const ta = seg(u, 3.2, 3.8) * (1 - rk);
+  if (ta > 0) {
+    k.save(); k.globalAlpha = ta;
+    k.letterSpacing = '5px'; txt(k, '柔软自有分量', 520, 30 + 8 * (1 - ta), `500 11px ${SANS}`, '#4a2e4e', 'right');
+    k.letterSpacing = '2.5px'; txt(k, 'SOFTNESS CARRIES WEIGHT', 520, 44 + 8 * (1 - ta), `600 7.5px ${DISP}`, '#725f6a', 'right');
+    k.letterSpacing = '0px'; k.restore();
+  }
+  grain(k, 0.07, 'overlay');
+};

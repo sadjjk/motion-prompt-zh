@@ -1,0 +1,80 @@
+// Motion Prompt #1-097 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 季度气泡移动 / Quarterly bubble motion
+// 分类包: uxmotion (交互与数据动效) · element 37 · 子分类: 动态图表
+// 动画表现: 季度大字作背景，App 气泡边缩放边在坐标上滑动，一个留下虚线轨迹；拖动可快进倒回。
+// 运动规格:
+//   - 8 个 App 气泡，半径 4 + √营收 × 2.6；横轴为月活用户（对数），纵轴为 30 日留存 10–70%。
+//   - 关键帧在第 0、8、16、23 季度，之间用 smoothstep 插值，用户数按对数插值。
+//   - 演示中 0.2–2.8 秒自动播放，每秒 2.4 个季度；拖动背景时每 8 px 前进或后退 1 个季度。
+//   - 「照片编辑」留下虚线轨迹与逐季圆点；背景大号季度字样从 2021 Q1 到 2026 Q4。
+// 适用场景: 适合市场分析、投资人材料、年度报告中的数据故事，展示多项指标随时间的变化。
+// 标签: bubble-chart, time-series, scrubbing, data-viz, motion-chart, log-scale
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-097
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 37
+// 37 季度气泡移动：8 个 App 气泡（面积≈营收，半径 4+√营收×2.6）在"月活用户（对数 1万–1000万）× 30 日留存（10–70%）"坐标上随季度沿各自路径滑动，
+// 背后是大号季度字样，"照片编辑"留着虚线轨迹与逐季点。0.2–2.8 秒自动播放（每秒 2.4 个季度）；2.8 秒指针按住背景，2.9–3.9 秒向右拖（每 8px 一个季度）快进到 2026 Q4；
+// 4.6 秒再次按住，4.7–5.8 秒向左拖回 2021 Q1；6.0 秒点右上角播放键恢复播放状态，指针离开。关键帧在 0/8/16/23 季度，之间 smoothstep 插值（用户数取对数插值）。
+const QBB_NAME = ['笔记', '待办', '健走', '冥想', '照片编辑', '阅读', '记账', '投资'];
+const QBB_CAT = ['效率', '健康', '爱好', '金融'], QBB_COL = ['#6366F1', '#10B981', '#F59E0B', '#EC4899'], QBB_C = [0, 0, 1, 1, 2, 2, 3, 3];
+const QBB_KQ = [0, 8, 16, 23];
+const QBB_K = [[[30, 42, 5], [60, 46, 8], [90, 48, 10], [110, 50, 12]], [[8, 30, 2], [40, 38, 6], [150, 44, 15], [300, 47, 26]], [[200, 25, 4], [500, 22, 6], [420, 28, 7], [380, 34, 9]], [[15, 50, 6], [80, 55, 14], [60, 52, 12], [45, 58, 13]],
+  [[120, 35, 10], [180, 30, 12], [260, 33, 18], [600, 38, 32]], [[5, 60, 3], [9, 62, 4], [20, 64, 6], [35, 66, 8]], [[50, 28, 3], [70, 31, 4], [140, 40, 9], [180, 45, 12]], [[2, 20, 1], [260, 18, 10], [90, 24, 6], [70, 35, 7]]];
+const QBB_PL = 46, QBB_PR = 512, QBB_PT = 38, QBB_PB = 170, QBB_NQ = 23;
+function QBB_at(i, q) {
+  let s = 1; for (; s < QBB_KQ.length; s++) if (q <= QBB_KQ[s]) break;
+  s = Math.min(s, QBB_KQ.length - 1);
+  const a = QBB_K[i][s - 1], b = QBB_K[i][s]; let f = (q - QBB_KQ[s - 1]) / (QBB_KQ[s] - QBB_KQ[s - 1]); f = f * f * (3 - 2 * f);
+  return [Math.exp(Math.log(a[0]) + (Math.log(b[0]) - Math.log(a[0])) * f), a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f];
+}
+const QBB_px = v => QBB_PL + Math.log(v) / Math.LN10 / 3 * (QBB_PR - QBB_PL);
+const QBB_py = r => QBB_PB - (r - 10) / 60 * (QBB_PB - QBB_PT);
+const QBB_rad = v => 4 + Math.sqrt(v) * 2.6;
+const QBB_KEYS = [[0, 560, 240], [2.3, 560, 240], [2.75, 200, 100], [2.9, 200, 100], [3.9, 200 + (QBB_NQ - 2.6 * 2.4) * 8, 100], [4.45, 380, 120], [4.7, 380, 120], [5.8, 380 - QBB_NQ * 8, 120], [6.0, 509, 24], [6.38, 570, 6]];
+function QBB_q(u) {
+  if (u < 0.2) return 0;
+  if (u < 2.8) return (u - 0.2) * 2.4;
+  const c = UXB_path(u, QBB_KEYS);
+  if (u < 4.6) return clamp(2.6 * 2.4 + (c[0] - 200) / 8, 0, QBB_NQ);
+  if (u < 5.8) return clamp(QBB_NQ + (c[0] - 380) / 8, 0, QBB_NQ);
+  return 0;
+}
+CELLS[36] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  const q = QBB_q(u), qk = Math.floor(q + 1e-4);
+  k.save(); k.globalAlpha = 0.07; txt(k, `${2021 + Math.floor(qk / 4)} Q${qk % 4 + 1}`, (QBB_PL + QBB_PR) / 2, 124, UXB_f(900, 52), UX.ink, 'center'); k.restore();
+  k.strokeStyle = 'rgba(22,21,27,.09)'; k.lineWidth = 1; const tf = UXB_f(700, 9);
+  [['1万', 0], ['10万', 1], ['100万', 2], ['1000万', 3]].forEach(([s, j]) => {
+    const x = QBB_PL + j / 3 * (QBB_PR - QBB_PL); k.beginPath(); k.moveTo(x + 0.5, QBB_PT); k.lineTo(x + 0.5, QBB_PB); k.stroke();
+    txt(k, s, x, QBB_PB + 12, tf, UX.ink3, j === 0 ? 'left' : j === 3 ? 'right' : 'center');
+  });
+  [20, 40, 60].forEach(r => { const y = QBB_py(r); k.beginPath(); k.moveTo(QBB_PL, y + 0.5); k.lineTo(QBB_PR, y + 0.5); k.stroke(); txt(k, r + '%', QBB_PL - 5, y + 3, tf, UX.ink3, 'right'); });
+  txt(k, '月活用户 →', QBB_PR, QBB_PB + 26, tf, UX.ink3, 'right'); txt(k, '30 日留存', 16, 24, tf, UX.ink3);
+  let lx = 150; QBB_CAT.forEach((c, i) => { k.fillStyle = QBB_COL[i]; k.beginPath(); k.arc(lx + 4, 20, 4, 0, TAU); k.fill(); txt(k, c, lx + 11, 24, UXB_f(750, 10), UX.ink2); lx += 54; });
+  // "照片编辑"的虚线轨迹与逐季点
+  const ti = 4; k.save(); k.strokeStyle = QBB_COL[QBB_C[ti]]; k.fillStyle = QBB_COL[QBB_C[ti]]; k.setLineDash([3, 3]); k.lineWidth = 1.4; k.globalAlpha = 0.6; k.beginPath();
+  for (let s = 0; s <= q; s += 0.25) { const p = QBB_at(ti, s); if (s === 0) k.moveTo(QBB_px(p[0]), QBB_py(p[1])); else k.lineTo(QBB_px(p[0]), QBB_py(p[1])); }
+  const pe = QBB_at(ti, q); k.lineTo(QBB_px(pe[0]), QBB_py(pe[1])); k.stroke(); k.setLineDash([]);
+  for (let s = 0; s <= Math.floor(q); s++) { const p = QBB_at(ti, s); k.beginPath(); k.arc(QBB_px(p[0]), QBB_py(p[1]), 1.8, 0, TAU); k.fill(); }
+  k.restore();
+  const cur = QBB_NAME.map((n, i) => { const p = QBB_at(i, q); return { i, x: QBB_px(p[0]), y: QBB_py(p[1]), r: QBB_rad(p[2]) }; }).sort((a, b) => b.r - a.r);
+  cur.forEach(b => {
+    k.globalAlpha = 0.85; k.fillStyle = QBB_COL[QBB_C[b.i]]; k.beginPath(); k.arc(b.x, b.y, b.r, 0, TAU); k.fill();
+    k.globalAlpha = 1; k.strokeStyle = 'rgba(255,255,255,.75)'; k.lineWidth = 1.2; k.stroke();
+    if (b.i === ti) txt(k, QBB_NAME[b.i], b.x, b.y - b.r - 5, UXB_f(800, 10), UX.ink, 'center');
+  });
+  const paused = u >= 2.8 && u < 6.0;
+  k.fillStyle = UX.ink; k.beginPath(); k.arc(509, 24, 11, 0, TAU); k.fill(); k.fillStyle = UX.surface;
+  if (paused) { k.beginPath(); k.moveTo(505.5, 18.5); k.lineTo(514, 24); k.lineTo(505.5, 29.5); k.closePath(); k.fill(); }
+  else { rr(k, 504.5, 18.5, 3.2, 11, 1); k.fill(); rr(k, 510.3, 18.5, 3.2, 11, 1); k.fill(); }
+  const c = UXB_path(u, QBB_KEYS);
+  const hold = (a, b) => (u >= a - 0.08 && u < b + 0.14 ? Math.min(1, seg(u, a - 0.08, a)) * (1 - seg(u, b, b + 0.14)) : 0);
+  ripple(k, c[0], c[1], seg(u, 6.0, 6.4));
+  if (u > 2.3 && u < 6.38) cursor(k, c[0], c[1], Math.max(hold(2.8, 3.9), hold(4.6, 5.8), UXB_press(u, 6.0)));
+};

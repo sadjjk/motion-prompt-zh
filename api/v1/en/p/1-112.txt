@@ -1,0 +1,16 @@
+Please use "Code diff highlight" (コード差分のハイライト), one of the names in "UI component names".
+Motion Prompt #1-112
+
+What it is: Removed and added code lines appear in red and green
+What the sample shows: In a dark five-line editor the context lines brighten, then a red removed line and a green added line slide in from the left, and the added line's background deepens once before settling.
+Spec:
+- A dark "motions.ts" editor, 510×173, title bar 29.7, monospace 14.8px, line height 25.2. 5 lines in all: context lines 41 / 43 / 44 and the 2 removed/added versions of line 42.
+- Context lines brighten from 35% to 100% over 0.7–1.1 s. The removed line (1.2–1.65 s) and the added line (1.75–2.2 s) fade in one after the other, sliding 6.4px from the left into place (quadratic ease-out).
+- Removed line: background rgba(239,68,68,.12), text #fecaca; added line: background rgba(16,185,129,.14), text #a7f3d0. Over 2.4–2.75 s the added background deepens to .28 and returns to .14 over 2.85–3.3 s.
+- Over 3.2–3.95 s the editor rises 4.2px with sine.inOut. Reset over 3.95–4.35 s (easeInOutCubic): the removed and added lines fade and the context lines return to 35%.
+- Versus Skeleton screen: it shows a before/after code change with red removals and green additions appearing line by line, not a loading placeholder.
+When to use it: Use it on landing pages for developer tools and code review services, in changelogs, or in technical posts that walk through a fix.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-112.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

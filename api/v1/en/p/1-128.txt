@@ -1,0 +1,15 @@
+Please use "Sunburst rays" (サンバースト), one of the names in "Glow & liquid".
+Motion Prompt #1-128
+
+What it is: Radiating light rays that slowly turn behind a headline
+What the sample shows: On a dark background, golden rays fan out from behind a centred headline and turn slowly, fading into the background towards the edges.
+Spec:
+- 12 rays, each 45% of its spacing, fan out from the headline centre to a 300 px radius.
+- The rays turn at a constant speed, exactly one spacing (30°) per 4.8 s cycle, so the loop is seamless.
+- A radial mask keeps the centre brightest and fades the rays into the background; a warm core glow of 120 px radius sits behind the headline.
+- The headline brightness breathes gently by ±6%.
+When to use it: Use it for award and prize reveals, achievement badges and campaign headlines that should feel celebratory.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-128.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

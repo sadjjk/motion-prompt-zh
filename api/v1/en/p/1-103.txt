@@ -1,0 +1,16 @@
+Please use "Press / tap feedback" (押したときの縮み), one of the names in "Landing page & web effects".
+Motion Prompt #1-103
+
+What it is: A button shrinks slightly while pressed, so a tap feels physical
+What the sample shows: Two identical buttons: the left one does nothing when pressed; the right one shrinks a little with a tighter shadow and recovers on release.
+Spec:
+- 2 identical "Buy now" buttons (170×50), left and right: the left does not change on press or release; the right gives feedback.
+- On press it shrinks to 0.97 within 0.1 s with easeOut (power 3), and the shadow tightens from blur 14 / offset 6 to blur 4 / offset 2.
+- On release it returns to 1 over 0.25 s with easeOut (power 3).
+- Pressed intervals: left 0.80–1.15 s; right 2.20–2.55 and 3.05–3.40 s. The cursor returns to its start over 3.6–4.2 s.
+- Versus Click ripple: no ripple at all, only the button itself shrinking with a tighter shadow.
+When to use it: Use it on buttons, cards and list items — anything tappable, especially in touch apps, to make taps feel responsive.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-103.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

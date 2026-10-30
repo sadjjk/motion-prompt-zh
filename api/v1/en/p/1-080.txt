@@ -1,0 +1,15 @@
+Please use "Particles that form words" (粒子が文字になる), one of the names in "Interaction & data motion".
+Motion Prompt #1-080
+
+What it is: A hero background where hundreds of glowing particles gather into a word and scatter when touched
+What the sample shows: On a dark violet background, glowing dots form HELLO, part around the passing pointer, and burst apart on each click to re-form as NICE, then LUCIAN.
+Spec:
+- 720 particles spring (stiffness 38, damping 7.5) into a 5 × 7 dot-matrix font, 3 × 3 dots per cell at 4 px spacing; spare particles scatter on an outer ring at 0.18 opacity.
+- The pointer pushes away particles within 60 px, displacing them by up to 26 px.
+- In the demo, a click at 1.8 s switches to NICE, 3.6 s to LUCIAN, and 5.4 s back to HELLO; each switch gives every particle a random kick of ±130 px/s.
+- Additive blending; hues span 250–330, and faster particles shift hue by up to 60 and brighten from 68% to 88% lightness.
+When to use it: Use it in the hero of a product launch or event landing page to make a brand name or tagline memorable.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-080.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

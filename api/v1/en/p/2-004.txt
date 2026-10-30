@@ -1,0 +1,17 @@
+Please use "Line draw" (ラインドロー), one of the names in "Motion graphics moves".
+Motion Prompt #2-004
+
+What it is: A line extends as if it were being drawn
+What the sample shows: A chart line draws itself on, and is later erased from its starting end.
+Spec:
+- One pass per 4.7 s. Drawn as a trim path: animate the visible range (start fraction to end fraction) of each stroke.
+- Axes (L shape, width 6) draw at 0.08–0.7 s; the line (mint, width 11, a smooth curve through 7 points, round caps) draws at 0.4–1.95 s. Both use cubic ease-in-out.
+- While drawing, a yellow dot (radius 12, white centre radius 5) rides the leading tip.
+- Arrowhead: opens at 1.9–2.2 s with backOut (s = 2.5); wings 26 long, 20 wide.
+- A coral circle (radius 26, width 7) is drawn around one peak at 2.2–2.8 s, clockwise from the top.
+- Erase: circle 3.5–4.0 s, line 3.65–4.45 s, axes 3.85–4.55 s, each shrinking from its starting end. The arrowhead fades at 4.3–4.45 s.
+When to use it: Use it when the stroke itself is the point: charts, routes, underlines, hand-drawn circles.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-004.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

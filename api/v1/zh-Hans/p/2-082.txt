@@ -1,0 +1,17 @@
+请使用“心电图线条（ECG heartbeat line）”，属于“动态图形进阶”。
+Motion Prompt #2-082
+
+效果解释：心电波形从左往右持续扫出
+动画表现：深绿格子屏上，发光的心电波形从左往右扫出，旧波形逐渐变暗，右侧爱心随每拍放大。
+实现规格与关键运动参数：
+- 深色屏幕带 16 px 细格（每 80 px 一条深线）；波形每 96 px 重复 P 波、QRS（向上 62 px）、T 波。
+- 扫描前端 2.35 秒从左扫到右；前端前方 8% 留空，越早的波形越暗（最暗 25%）。
+- 波形为 2 px 亮绿线加 7 px 光晕；前端有发光点（半径 3.5 px、光晕 9 px）。
+- R 波经过前端时爱心放大到 1.25 倍再回落，心率数字按拍切换。
+适用场景：适合医疗、健康、健身讲解，或表现「心跳」「生命力」。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-082
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-082.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Hannah 的 MIT 版权标识。

@@ -1,0 +1,40 @@
+// Motion Prompt #2-022 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#022
+//
+// ライトスイープ / Light sweep
+// パック: motion (モーショングラフィックスの動き) · element 22 · カテゴリ: 切り替え・見せ場
+// 何が起きるか: ロゴの表面を、光の帯が斜めに横切る。
+// 動きの仕様:
+//   - 2.35秒で1回。バッジ（400×112・角丸28・青のグラデーション）の形で切り抜いた中だけ光を描く
+//   - 光の帯: 幅116pxの白いグラデーション（中央の透明度0.72、両端0）＋ 78px離れた幅12pxの細い帯（透明度0.5）。0.42rad（約24°）傾ける
+//   - 0.45〜1.5秒でバッジの左130px外から右130px外まで（660px）進む。easeInOut（2乗）
+//   - きらめき: 1.38〜1.98秒、右上の角に4角の星。大きさ 30 × sin(πq) × (1 + 0.2(1 − q))、0.9rad回す
+//   - バッジ自体は動かさない
+// 使いどころ: ロゴ・バッジ・ボタンに上質な印象を足したいとき。
+// タグ: light-sweep, shine, sheen, glint, highlight, logo, badge, premium
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-022
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 22
+// 22 ライトスイープ（ロゴの表面を、光の帯が斜めに横切る）
+CELLS[21] = (k, w, h, u) => {
+  stage(k);
+  const T = CYC / 2, lu = mod(u, T), p = eIOs(P(lu, 0.45, 1.5));
+  const BW = 400, BH = 112, X = w / 2 - BW / 2, Y = h / 2 - BH / 2;
+  k.fillStyle = 'rgba(0,0,0,.3)'; rr(k, X + 3, Y + 9, BW, BH, 28); k.fill();
+  const g = k.createLinearGradient(X, Y, X + BW, Y + BH); g.addColorStop(0, '#2B62E0'); g.addColorStop(1, '#4E8BFF'); k.fillStyle = g; rr(k, X, Y, BW, BH, 28); k.fill();
+  k.fillStyle = C.yel; star(k, X + 64, Y + BH / 2, 30, 0, 0.5); k.lineJoin = 'round'; k.strokeStyle = C.yel; k.lineWidth = 5; k.stroke(); k.fill();
+  txt(k, 'PREMIUM', X + 112, Y + BH / 2 + 3, `800 50px ${DISP}`, '#fff', 'left', 'middle', '3px');
+  if (p > 0 && p < 1) {
+    k.save(); rr(k, X, Y, BW, BH, 28); k.clip();
+    k.translate(lerp(X - 130, X + BW + 130, p), Y + BH / 2); k.rotate(0.42);
+    const gr = k.createLinearGradient(-58, 0, 58, 0); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.5, 'rgba(255,255,255,.72)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    k.fillStyle = gr; k.fillRect(-58, -160, 116, 320); k.fillStyle = 'rgba(255,255,255,.5)'; k.fillRect(78, -160, 12, 320);
+    k.restore();
+  }
+  // 抜けぎわのきらめき
+  const tt = lu - 1.38; if (tt > 0 && tt < 0.6) { const q = tt / 0.6, sc = Math.sin(Math.PI * q) * (1 + 0.2 * (1 - q)); k.save(); k.translate(X + BW - 8, Y + 6); k.rotate(q * 0.9); k.fillStyle = '#fff'; star(k, 0, 0, 30 * sc, 0, 0.22, 4); k.fill(); k.restore(); }
+};

@@ -1,0 +1,15 @@
+Please use "Flat vector motion" (フラット・ベクター), one of the names in "MG styles".
+Motion Prompt #2-049
+
+What it is: Flat vector animation: solid colour shapes with no gradients and a bouncy, squash-and-stretch hero
+What the sample shows: A coral dot drops from an ultramarine sky and hops 5 times; each landing springs up flat coloured buildings, then a wordmark bounces in.
+Spec:
+- Sky #2B2BFF, ground #FFF6E9, and a single coral dot #FF5A4E of radius 16 px that falls in from the top over 0.2 s.
+- 5 hops during 0.4–4.4 s (0.8 s each, 72 px high): an 18% squash for 0.16 s on landing, a 10% stretch in the air, and 3 ghost trails.
+- 6 landing spots, each with 2 buildings behind it (12 in total), popping up with elasticOut over 0.6 s at 0 / 0.1 s after the landing.
+- The popwise wordmark (46 px) bounces in at 4.6–5.2 s; buildings, text and dot shrink away at 5.4–6.0 s.
+When to use it: Use it for app explainers, product intros and cheerful brand openers where you want a friendly, simple look.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-049.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

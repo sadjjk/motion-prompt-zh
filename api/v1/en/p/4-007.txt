@@ -1,0 +1,15 @@
+Please use "Dot-matrix sign" (LED ドットマトリクス), one of the names in "Styled scenes".
+Motion Prompt #4-007
+
+What it is: An amber LED dot-matrix sign scrolling a station message
+What the sample shows: On an angled LED board, amber dot letters scroll right to left, with lit dots glowing softly.
+Spec:
+- 64 columns × 7 rows of amber LED dots using a 5 × 7 font: 5 columns per glyph plus 1 spacer column.
+- The message NEXT TRAIN · PLATFORM 07 · ON TIME scrolls right to left once every 6.4 s, stepping column by column.
+- Angled perspective: dot size and pitch are 0.55× at the left end and 1.3× at the right; base dot 2.2 px, pitch 7.2 px.
+- Lit dots #FFE3A0 carry a glow 2.6× the dot radius; unlit dots are #2A1C10.
+When to use it: Use it to open transport, city or retro-tech videos, as an announcement banner, or as looping venue signage.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-007.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,38 @@
+// Motion Prompt #2-071 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 文字旗帜 / Flag wave
+// 分类包: motion2 (动态图形进阶) · element 32 · 子分类: 文字与图形
+// 动画表现: 4 个字挂在左侧旗杆上，逐字延后地收窄、倾斜、上抬，波浪向右传。
+// 运动规格:
+//   - 左侧旗杆（宽 8 px、顶端黄色圆球），4 个字（58 px）向右排开。
+//   - 每字以左边为轴：scaleX = cos(38°·f)、skewY −9°·f、上移 4 px·f。
+//   - f 在 1.175 秒内 0→1→0（余弦），每字相位延后 0.17 秒。
+//   - 偶数位字为珊瑚色，奇数位为白色。
+// 适用场景: 适合应援、口号与体育类标题。
+// 标签: flag, wave, wind, slogan, ripple, text
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-071
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 32
+// 改写自 KittenJam Motion Library #19（Hannah）· 文字旗帜：左侧旗杆，每个字以左边为轴做 scaleX = cos(38°·f)、skewY −9°·f、上移 4px·f 的波浪（f 每 1.175 秒一个来回），字与字相位依次延后 0.17 秒，偶数位字用珊瑚色。
+CELLS[31] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '乘风破浪', F = `900 58px ${JP}`, PX = 118, TOP = 30, BOT = 186, CY = 82;
+  k.fillStyle = C.navy3; rr(k, PX - 22, BOT - 6, 44, 8, 3); k.fill();
+  k.fillStyle = '#9AA6CC'; rr(k, PX - 4, TOP, 8, BOT - TOP, 3); k.fill();
+  k.fillStyle = C.yel; k.beginPath(); k.arc(PX, TOP - 4, 7, 0, 7); k.fill();
+  const cs = chars(k, S, F, 10), x0 = PX + 14 - (cs[0].x - cs[0].w / 2);
+  cs.forEach((c, i) => {
+    const f = (1 - Math.cos(Math.PI * 2 * (u - 0.17 * i) / 1.175)) / 2;
+    k.save(); k.translate(x0 + c.x - c.w / 2, CY - 4 * f);
+    k.transform(1, Math.tan(-9 * Math.PI / 180 * f), 0, 1, 0, 0);
+    k.scale(Math.cos(38 * Math.PI / 180 * f), 1);
+    txt(k, c.ch, 0, 0, F, i % 2 ? C.coral : '#fff', 'left', 'middle');
+    k.restore();
+  });
+};

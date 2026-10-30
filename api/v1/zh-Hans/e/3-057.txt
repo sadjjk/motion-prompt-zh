@@ -1,0 +1,31 @@
+// Motion Prompt #3-057 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/rule-of-thirds
+//
+// 三分法 / Rule of thirds
+// 分类包: photo (摄影光线与风格) · element 25 · 子分类: 构图
+// 动画表现: 人物从画面正中移到左三分线，地平线从中线降到下三分线，同时显出两横两竖的三分线和四个交点。
+// 运动规格:
+//   - 人物：x 270 移到左三分线 x 180；地平线：y 104 降到下三分线 y 139。
+//   - 树从 x 390 移到右三分线 x 360，与人物左右呼应。
+//   - 三分线：竖线 x 180、x 360，横线 y 69、y 139；四个交点画半径 3.5 px 的圆点。
+//   - 辅助线为琥珀色 #F5A524 虚线，线宽 1.6 px，随效果强度渐显。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 风景、人像、街拍等想让画面平衡又不呆板的时候。
+// 标签: rule of thirds, thirds, grid, composition, horizon, balance
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-057
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 25
+// 三分法: 主体从中央移到左三分线，地平线从中线降到下三分线；辅助线只是参照，不要求压线
+CELLS[24] = cell((k, u) => {
+  const a = env(u), hz = lerp(CH / 2, H3[1], a);
+  const D = field(k, BASE, hz);
+  tree(D, lerp(CW / 2 + 120, T3[1], a), hz, 16, BASE);
+  figure(D, lerp(CW / 2, T3[0], a), hz + 30, 92, BASE.person);   // 头顶约在上三分线附近
+  T3.forEach(X => guide(k, [[X, 0], [X, CH]], a)); H3.forEach(Y => guide(k, [[0, Y], [CW, Y]], a));
+  k.save(); k.globalAlpha = a; k.fillStyle = GUIDE;   // 四个交点
+  T3.forEach(X => H3.forEach(Y => { k.beginPath(); k.arc(X, Y, 3.5, 0, TAU); k.fill(); })); k.restore();
+});

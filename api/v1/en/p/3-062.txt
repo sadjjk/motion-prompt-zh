@@ -1,0 +1,16 @@
+Please use "Frame within a frame" (フレームインフレーム), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-062
+
+What it is: A door, window or arch in the foreground frames the subject a second time
+What the sample shows: A dark doorway fades in close to the camera and frames the distant person a second time; a light strip along its inner edge shows that it has thickness.
+Spec:
+- The person stands at the centre, x 270, 56 px tall; a tree on the left and a building on the right behind.
+- Doorway: 168 px wide from y 30 to the bottom edge, centred; everything outside it is filled with dark #33405A.
+- A 6 px light edge #CFCECB runs along the inside of the frame to show its thickness; a dashed line traces the opening and "框中框" is labelled at the top.
+- Guides: amber #F5A524 dashed lines, 1.6 px wide, fading in with the effect amount.
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+When to use it: To pull the eye to the subject, add layers, or suggest peeking or separation.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-062.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

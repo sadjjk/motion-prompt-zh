@@ -1,0 +1,16 @@
+Please use "Metaballs" (メタボール), one of the names in "Glow & liquid".
+Motion Prompt #1-176
+
+What it is: Floating balls that merge like liquid when they come close
+What the sample shows: On a dark background, purple-to-blue balls drift slowly, grow a neck and join when they meet, then snap apart into separate balls again.
+Spec:
+- 5 balls with radii of 22–36 px follow Lissajous paths with horizontal amplitudes of 70–150 px and vertical ones of 30–45 px, 1 or 2 swings per cycle.
+- The area where the field Σ r²/d² exceeds 1 is filled as liquid, so close balls grow a neck and distant ones thin out and split.
+- The contour comes from marching squares on a 3 px grid, giving a smooth outline that stays sharp when scaled.
+- The liquid uses a horizontal hue gradient from 265° to 190°; a 16% white core where the field exceeds 1.8 adds depth.
+- Every path repeats a whole number of times per 4.8 s cycle, so the loop is seamless.
+When to use it: Use it behind heroes, idle screens and brand visuals that need a soft, organic, lava-lamp feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-176.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

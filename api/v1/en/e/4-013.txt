@@ -1,0 +1,44 @@
+// Motion Prompt #4-013 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Electron orbital / 電子雲
+// Pack: scenes (Styled scenes) · element 13 · Category: Tech moods
+// What happens: A cloud of blue and orange dots in the shape of a 3d orbital turns slowly on a dark background, with a white core glow and an elliptical orbit line.
+// Motion spec:
+//   - Probability cloud of a 3d orbital (n = 3, l = 2, m = 0), made of 1600 dots sampled by the squared wavefunction.
+//   - Positive phase is blue rgba(90, 170, 255), negative phase orange rgba(255, 130, 90); dots are 1.3 px.
+//   - The cloud rotates 1 lap around its vertical axis every 6.4 s, tilted 0.5 rad, with additive blending.
+//   - A white glow of radius 12 px at the centre and an elliptical orbit line with semi-axes 120 / 32 px.
+// When to use it: Use it as a hero background for science education or research institutes, an opener for physics or chemistry videos, or a talk transition.
+// Tags: electron-cloud, orbital, quantum, physics, particles, science, tech
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-013
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 13
+// 13 电子云：3d 轨道（n=3, l=2, m=0）的概率云由点阵构成，正负相位分蓝橙两色，整体缓慢旋转
+const ORB = (() => { // 按波函数平方做确定性拒绝采样（常量）
+  const out = [];
+  for (let i = 0; out.length < 1600 && i < 60000; i++) {
+    const x = (hash(i * 4 + 1) - 0.5) * 36, y = (hash(i * 4 + 2) - 0.5) * 36, z = (hash(i * 4 + 3) - 0.5) * 36;
+    const r = Math.hypot(x, y, z), ct = z / (r || 1), psi = r * r * Math.exp(-r / 3) * (3 * ct * ct - 1);
+    if (hash(i * 4 + 4) * 3 < psi * psi / 30) out.push([x, y, z, psi > 0]);
+  }
+  return out;
+})();
+CELLS[12] = (k, w, h, u) => {
+  k.fillStyle = '#05060F'; k.fillRect(0, 0, CW, CH);
+  const a = TAU * u / CYC, b = 0.5, ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);   // 每周期转一圈
+  k.save(); k.globalCompositeOperation = 'lighter';
+  for (const [x, y, z, pos] of ORB) {
+    const x1 = x * ca - y * sa, y1 = x * sa + y * ca, y2 = y1 * cb - z * sb, z2 = y1 * sb + z * cb, s = 90 / (60 + y2);
+    k.fillStyle = pos ? 'rgba(90,170,255,.55)' : 'rgba(255,130,90,.55)'; k.fillRect(269.5 + x1 * s * 2.6, 104 - z2 * s * 2.6, 1.3, 1.3);
+  }
+  k.restore();
+  glow(k, 269.5, 104, 12, '255,255,255', 0.6);
+  k.strokeStyle = 'rgba(180,200,255,.25)'; k.lineWidth = 0.8; k.beginPath(); k.ellipse(269.5, 104, 120, 32, 0, 0, TAU); k.stroke();
+  txt(k, 'ψ₃₂₀ · n = 3  l = 2  m = 0', 400, 190, `500 8px ${MONO}`, 'rgba(190,205,255,.7)');
+  grain(k, 0.05);
+};

@@ -1,0 +1,16 @@
+Please use "Symmetrical composition" (シンメトリー構図), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-059
+
+What it is: The two halves of the frame mirror each other across a centre line
+What the sample shows: A line of stepping stones runs up the middle the whole time; pairs of trees grow on both sides from near to far, mirroring each other across the centre line.
+Spec:
+- 4 stepping stones sit on the centre line at x 270, larger near and smaller far, from y 196 up to y 136.
+- 4 pairs of trees at 70, 120, 170 and 220 px from the centre line; pair i starts growing when the effect reaches 0.2i and is full within 0.4.
+- The centre line is a vertical dashed line at x 270 labelled "对称轴" at the top.
+- Guides: amber #F5A524 dashed lines, 1.6 px wide, fading in with the effect amount.
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+When to use it: For architecture, corridors or reflections that are symmetrical already, or when the picture should feel stable and solemn.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-059.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

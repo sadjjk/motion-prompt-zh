@@ -1,0 +1,30 @@
+// Motion Prompt #2-048 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#144
+//
+// スプリットスクリーン / Split screen
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 24 · カテゴリ: 切り替え・見せ場
+// 何が起きるか: 1枚の画面が2つ、3つに分かれて、別々の場面が同時に動く。
+// 動きの仕様:
+//   - 画面いっぱいの海の場面が、0.45〜0.95秒に2分割（境目 539→269.5）、1.4〜1.9秒に3分割（境目は 1/3 と 2/3）になる。3.75〜4.4秒に1画面へ戻る。どれも easeInOut（3乗）
+//   - 3つの場面（海・街・野原）は、それぞれ自分の枠の中で中央に置き、枠で切り抜く。中は動き続ける（波とヨット、街の窓が4.7秒に8回点滅、風車が4.7秒に2回転）
+//   - 枠の境目に白い線（幅6）
+// 使いどころ: 比較・同時進行・複数の人や場所を並べて見せたいとき。ビフォーアフターや選択肢の紹介に。
+// タグ: split-screen, multi-screen, panels, side-by-side, comparison, layout
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-048
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 24
+// 24 スプリットスクリーン（1枚の画面が2つ、3つに分かれて、別々の場面が同時に動く）
+CELLS[23] = (k, w, h, u) => {
+  u = snapU(u);
+  const s2 = eIO(P(u, 0.45, 0.95)), s3 = eIO(P(u, 1.4, 1.9)), m = eIO(P(u, 3.75, 4.4));
+  let b1 = lerp(lerp(w, w / 2, s2), w / 3, s3), b2 = lerp(w, 2 * w / 3, s3);
+  b1 = lerp(b1, w, m); b2 = lerp(b2, w, m);
+  pnSea(k, 0, b1, h, u, false);
+  if (b1 < w - 0.5) pnCity(k, b1, Math.max(b1, b2), h, u, false);
+  if (b2 < w - 0.5) pnField(k, b2, w, h, u, false);
+  k.fillStyle = '#fff';[b1, b2].forEach(b => { if (b < w - 0.5) k.fillRect(b - 3, 0, 6, h); });
+};

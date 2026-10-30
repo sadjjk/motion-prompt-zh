@@ -1,0 +1,61 @@
+// Motion Prompt #1-119 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// ページめくり / Page flip
+// パック: ui (UIパーツの名前) · element 41 · カテゴリ: 開く・重なるパーツ
+// 何が起きるか: 開いた本の右ページをカーソルが2回押し、そのたびに1枚が背を軸に横に縮んで裏返り左へ移り、最後に左ページを押すと2枚がまとめて戻る。
+// 動きの仕様:
+//   - 開いた本。150×148のページ2枚が x 271 の背で接する
+//   - カーソルが0.9秒と2.1秒に右ページを押し、そのたびに1枚が0.7秒で背を軸にめくれる：scaleX は cos(π·easeInOut) で1から −1 へ
+//   - 0を過ぎると裏のページが見え、0付近では最大0.25の影を重ねて立体感を出す。見開きは 1-2 → 3-4 → 5-6
+//   - 3.4秒に左ページを押すと、上の紙が3.5秒・下の紙が3.6秒から各0.55秒でめくり戻り、1-2 に戻る
+// 使いどころ: カタログ・絵本・作品集・年次報告など、紙をめくる感覚を残したい閲覧画面に。
+// タグ: page-flip, book, flipbook, catalog, 3d-flip, click
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-119
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 41
+// 改写自 KittenJam Motion Library #309 翻页书：两页 150×148 的书摊开（书脊 x=271），光标在 0.9、2.1 秒点右页，
+// 每次一张纸以书脊为轴翻到左侧 0.7 秒：scaleX 按 cos(π·easeInOut) 从 1 到 −1，过 0 后显示背面页码，近 0 时加最多 0.25 的暗影模拟 3D。
+// 页码 1-2 → 3-4 → 5-6；3.4 秒点左页，上层纸 3.5 秒、下层纸 3.6 秒起各 0.55 秒翻回，回到 1-2。
+const BOOK_SP = 271, BOOK_PW = 150, BOOK_Y = 22, BOOK_H = 148;
+CELLS[40] = ui((w, h, t) => {
+  X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+  const page = (n, x) => {
+    X.fillStyle = '#fff'; X.fillRect(x, BOOK_Y, BOOK_PW, BOOK_H);
+    bar(x + 16, BOOK_Y + 18, 70, C.line2, 9);
+    for (let i = 0; i < 5; i++) bar(x + 16, BOOK_Y + 40 + i * 16, i === 4 ? 70 : 118, C.line, 6);
+    if (n % 2 === 0) mountains(x + 16, BOOK_Y + 92, 118, 34, n % 4 === 0 ? 1 : 0);
+    text(String(n), x + BOOK_PW / 2, BOOK_Y + BOOK_H - 10, 10, C.hint, 600, 'center', NUMF);
+  };
+  // 两张纸：A 正面 2 背面 3，B 正面 4 背面 5；s = 1 在右、−1 在左
+  const flip = (a, b) => Math.cos(Math.PI * eio(seg(t, a, b)));
+  const sA = t < 3 ? flip(.95, 1.65) : -flip(3.6, 4.15), sB = t < 3 ? flip(2.15, 2.85) : -flip(3.5, 4.05);   // 翻回时上层的 B 先翻
+  shadowed(() => { X.fillStyle = '#fff'; X.fillRect(BOOK_SP - BOOK_PW, BOOK_Y, BOOK_PW * 2, BOOK_H); }, 16, 6, .16);
+  page(1, BOOK_SP - BOOK_PW); page(6, BOOK_SP);
+  const sheet = (s, front, back) => {
+    const wpx = BOOK_PW * Math.abs(s);
+    if (wpx < .5) return;
+    X.save();
+    if (s > 0) { X.translate(BOOK_SP, 0); X.scale(Math.abs(s), 1); page(front, 0); }
+    else { X.translate(BOOK_SP, 0); X.scale(Math.abs(s), 1); page(back, -BOOK_PW); }
+    const d = .25 * (1 - Math.abs(s));
+    if (d > 0) { X.fillStyle = `rgba(20,24,40,${d})`; X.fillRect(s > 0 ? 0 : -BOOK_PW, BOOK_Y, BOOK_PW, BOOK_H); }
+    X.restore();
+  };
+  // 绘制顺序：左侧纸 A 在下、B 在上；右侧纸 B 在下、A 在上；正在翻的放最上
+  const moving = s => Math.abs(s) < 1;
+  const order = [];
+  if (sA <= -1) order.push(['A', sA]);
+  if (sB <= -1) order.push(['B', sB]);
+  if (sB >= 1) order.push(['B', sB]);
+  if (sA >= 1) order.push(['A', sA]);
+  if (moving(sB)) order.push(['B', sB]);
+  if (moving(sA)) order.push(['A', sA]);
+  order.forEach(([id, s]) => id === 'A' ? sheet(s, 2, 3) : sheet(s, 4, 5));
+  X.fillStyle = 'rgba(20,24,40,.12)'; X.fillRect(BOOK_SP - 1, BOOK_Y, 2, BOOK_H);
+  pointer([[0, w + 30, h + 30], [.8, 380, 100], [2.2, 380, 100], [2.9, 380, 100], [3.3, 165, 100], [3.6, 165, 100], [4.4, w + 30, h + 30]], [.9, 2.1, 3.4], t);
+});

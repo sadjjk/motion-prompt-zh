@@ -1,0 +1,60 @@
+// Motion Prompt #1-105 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills
+//
+// 共享元素转场 / Shared element transition
+// 分类包: lp (落地页与网页动效) · element 27 · 子分类: 加载、导航与循环动效
+// 动画表现: 列表缩略图一路移动放大成详情页大图，其余内容淡出淡入；返回时沿原路缩回。
+// 运动规格:
+//   - 列表第 2 行的缩略图（56×32、圆角 5）在 0.80–1.40 秒（0.6 秒 easeInOut 3 次方）连续移动并放大成详情页大图（250×140、圆角 10）。
+//   - 位置、尺寸、圆角同时插值；其余列表 0.25 秒淡出，详情文字 1.25–1.55 秒淡入。
+//   - 3.0 秒点“← 返回”，3.10–3.70 秒同一张图沿原路缩回列表，列表 3.45–3.75 秒淡入。
+//   - 与页面转场不同：没有遮罩切换，同一个元素从旧位置一路变形到新位置，把两页连起来。
+// 适用场景: 适合相册、商品、联系人等从列表进入详情的场景，让用户不丢失所点的对象。
+// 标签: shared-element, hero-transition, page-transition, list-detail, magic-move, morph
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-105
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 27
+// 27 共享元素转场（Shared element transition）：列表第 2 行的缩略图（56×32、圆角 5）在 0.80–1.40 秒（0.6 秒 easeInOut 3 次方）
+// 连续移动并放大成详情页大图（250×140、圆角 10），位置、尺寸、圆角同时插值；其余列表 0.25 秒淡出，详情文字 1.25–1.55 秒淡入。
+// 3.0 秒点「← 返回」，3.10–3.70 秒同一张图沿原路缩回列表，列表 3.45–3.75 秒淡入。
+// 与「页面转场」的区别：没有遮罩切换，同一个元素从旧位置一路变形到新位置，两页靠它连起来。
+const SHARED_A = [36, 69, 56, 32, 5], SHARED_B = [24, 14, 250, 140, 10];
+CELLS[26] = (k, w, h, u) => {
+  frame(k, u >= 1.1 && u < 3.4 ? 'example.com/photos/02' : 'example.com/photos');
+  const q = eIO(P(u, 0.8, 1.4)) * (1 - eIO(P(u, 3.1, 3.7)));
+  const la = u < 2 ? 1 - eOut(P(u, 0.8, 1.05)) : eOut(P(u, 3.45, 3.75));
+  const da = eOut(P(u, 1.25, 1.55)) * (1 - eOut(P(u, 3.05, 3.2)));
+  const [cx, cy] = path([[0, 420, 150], [0.6, 200, 85], [1.6, 200, 85], [2.8, 322, 24], [3.3, 322, 24], [4.4, 420, 150], [4.8, 420, 150]], u);
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    if (la > 0) {
+      k.save(); k.globalAlpha = la;
+      const NAMES = ['海边清晨', '山间日落', '夜色湖面'];
+      for (let i = 0; i < 3; i++) {
+        const top = 14 + i * 50;
+        k.fillStyle = '#fff'; rr(k, 30, top, 451, 42, 8); k.fill();
+        if (i !== 1) pic(k, 36, top + 5, 56, 32, i === 0 ? 0 : 2, 5);
+        txt(k, NAMES[i], 106, top + 19, `800 13px ${JP}`, C.ink); bars(k, 106, top + 26, [160, 130, 180][i], 1);
+        txt(k, '›', 462, top + 22, `700 18px ${EN}`, C.sub, 'center', 'middle');
+      }
+      k.restore();
+    }
+    if (da > 0) {
+      k.save(); k.globalAlpha = da;
+      txt(k, '← 返回', 300, 24, `700 12px ${JP}`, C.sub, 'left', 'middle');
+      txt(k, '山间日落', 300, 66, `800 22px ${JP}`, C.ink);
+      bars(k, 300, 82, 180, 3);
+      k.fillStyle = C.accL; rr(k, 300, 124, 64, 20, 10); k.fill(); txt(k, '风景', 332, 134.5, `700 11px ${JP}`, C.acc, 'center', 'middle');
+      k.restore();
+    }
+    // 共享元素：同一张图，位置、尺寸、圆角连续插值
+    const R = SHARED_A.map((a, i) => lerp(a, SHARED_B[i], q));
+    if (q > 0.001) { k.save(); k.shadowColor = `rgba(28,35,51,${0.22 * Math.sin(Math.PI * clamp(q))})`; k.shadowBlur = 16; k.shadowOffsetY = 6; k.fillStyle = '#fff'; rr(k, R[0], R[1], R[2], R[3], R[4]); k.fill(); k.restore(); }
+    pic(k, R[0], R[1], R[2], R[3], 1, R[4]);
+    click(k, cx, cy, u, [0.7, 3.0]);
+  });
+};

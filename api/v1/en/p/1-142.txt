@@ -1,0 +1,16 @@
+Please use "Swipe to delete" (スワイプで削除), one of the names in "UI component names".
+Motion Prompt #1-142
+
+What it is: Slide a row left to reveal delete and remove it
+What the sample shows: A finger drags the second row left to uncover a red "Delete" area; on release the row slides out, its height collapses and the rows below move up, then the row returns.
+Spec:
+- A 4-row list, 280 wide with rows 38 high.
+- The finger presses row 2 at 0.8 s and drags it 150px left over 0.8–1.5 s (easeInOut power 3); the red "Delete" area underneath fades in with the distance.
+- Released at 1.5 s, the row slides out past the left edge in 0.3 s (easeIn power 3).
+- Over 1.8–2.1 s the row height collapses from 38 to 0 and the rows below move up.
+- Over 3.7–4.2 s the row grows back to 38 in place and fades in, returning to the start.
+When to use it: Use it in mobile lists such as notifications, mail or to-dos where items are removed quickly.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-142.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

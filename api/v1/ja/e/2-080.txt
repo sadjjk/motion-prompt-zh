@@ -1,0 +1,65 @@
+// Motion Prompt #2-080 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// サイン描画 / Signature animation
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 41 · カテゴリ: 動きのテクニック
+// 何が起きるか: 一筆書きの筆記体サインがペン先の珊瑚色の点に先導されて左から右へ書かれ、書き終わると下に緩い弧の下線がさっと引かれる。
+// 動きの仕様:
+//   - 一筆の経路：大きな頭文字の弧、6つの連続ループ、右上へ払う終筆
+//   - 0.3〜2.9秒に sine の easeInOut で書き進め、ペン先の点（半径4px、光の輪8px）が先端に付く
+//   - 線幅は線の向きに応じて2〜4.2pxで変わり、ペンの強弱を出す
+//   - 2.95〜3.4秒に緩い弧の下線（2.4px）が三次の ease-out で引かれ、4.0〜4.5秒で全体が消える
+// 使いどころ: ポートフォリオの冒頭、ブランドのサイン、手紙やエンディングの署名に。
+// タグ: signature, handwriting, cursive, draw, stroke, line-art
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-080
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 41
+// 改写自 KittenJam Motion Library #134（Hannah）· 手写签名：单笔草写路径（起笔大写弧 + 6 个连写圈 + 上扬收笔）在 0.3–2.9 秒按 sine 缓入缓出逐段写出，珊瑚色笔尖圆点跟随，线宽随方向 2–4.2px 变化；写完后 2.95–3.4 秒补一道微弯底线，4.0–4.5 秒淡出。
+const SIGN_PTS = (() => {
+  const pts = [];
+  const bez = (a, b, c, d, n) => { for (let i = pts.length ? 1 : 0; i <= n; i++) { const t = i / n, m = 1 - t; pts.push([m * m * m * a[0] + 3 * m * m * t * b[0] + 3 * m * t * t * c[0] + t * t * t * d[0], m * m * m * a[1] + 3 * m * m * t * b[1] + 3 * m * t * t * c[1] + t * t * t * d[1]]); } };
+  bez([70, 140], [80, 70], [118, 22], [128, 46], 24);
+  bez([128, 46], [136, 72], [104, 150], [96, 158], 24);
+  bez([96, 158], [90, 164], [118, 124], [150, 122], 20);
+  for (let i = 1; i <= 300; i++) {   // 连写圈：x 前进 + 正弦回绕，顶点处向后形成圈
+    const t = i / 300, om = Math.PI * 2 * 6 * t, hh = 34 + 14 * Math.sin(t * 11.3 + 0.8);
+    pts.push([150 + 290 * t + 12 * Math.sin(om), 122 - hh * (1 - Math.cos(om)) / 2]);
+  }
+  bez([440, 122], [470, 124], [486, 96], [500, 58], 24);
+  return pts;
+})();
+const SIGN_CUM = pathLen(SIGN_PTS);
+const SIGN_LINE = (() => { const p = []; for (let i = 0; i <= 30; i++) { const t = i / 30, m = 1 - t; p.push([m * m * m * 96 + 3 * m * m * t * 220 + 3 * m * t * t * 380 + t * t * t * 486, m * m * m * 178 + 3 * m * m * t * 168 + 3 * m * t * t * 168 + t * t * t * 174]); } return p; })();
+const SIGN_LCUM = pathLen(SIGN_LINE);
+CELLS[40] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  txt(k, '签名', 30, 34, `700 12px ${JP}`, C.dim);
+  const fade = 1 - P(u, 4.0, 4.5);
+  const f = -(Math.cos(Math.PI * P(u, 0.3, 2.9)) - 1) / 2;
+  if (f > 0 && fade > 0) {
+    k.save(); k.globalAlpha = fade; k.strokeStyle = C.cream; k.lineCap = 'round';
+    const L = SIGN_CUM[SIGN_CUM.length - 1] * f;
+    for (let i = 1; i < SIGN_PTS.length && SIGN_CUM[i - 1] < L; i++) {
+      const a = SIGN_PTS[i - 1], b = SIGN_PTS[i], q = Math.min(1, (L - SIGN_CUM[i - 1]) / Math.max(1e-6, SIGN_CUM[i] - SIGN_CUM[i - 1]));
+      k.lineWidth = 2 + 2.2 * Math.abs(Math.sin(Math.atan2(b[1] - a[1], b[0] - a[0]) - Math.PI / 4));
+      k.beginPath(); k.moveTo(a[0], a[1]); k.lineTo(lerp(a[0], b[0], q), lerp(a[1], b[1], q)); k.stroke();
+    }
+    const ul = eOut(P(u, 2.95, 3.4));
+    if (ul > 0) {
+      const Lu = SIGN_LCUM[SIGN_LCUM.length - 1] * ul; k.lineWidth = 2.4; k.beginPath(); k.moveTo(SIGN_LINE[0][0], SIGN_LINE[0][1]);
+      for (let i = 1; i < SIGN_LINE.length && SIGN_LCUM[i - 1] < Lu; i++) { const q = Math.min(1, (Lu - SIGN_LCUM[i - 1]) / (SIGN_LCUM[i] - SIGN_LCUM[i - 1])); k.lineTo(lerp(SIGN_LINE[i - 1][0], SIGN_LINE[i][0], q), lerp(SIGN_LINE[i - 1][1], SIGN_LINE[i][1], q)); }
+      k.stroke();
+    }
+    k.restore();
+  }
+  if (u > 0.3 && u < 2.9) {
+    const [x, y] = ptAt(SIGN_PTS, SIGN_CUM, f);
+    k.fillStyle = 'rgba(255,107,92,.3)'; k.beginPath(); k.arc(x, y, 8, 0, 7); k.fill();
+    k.fillStyle = C.coral; k.beginPath(); k.arc(x, y, 4, 0, 7); k.fill();
+  }
+};

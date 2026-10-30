@@ -1,0 +1,58 @@
+// Motion Prompt #2-068 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 闪电砸落 / Lightning strike
+// 分类包: motion2 (动态图形进阶) · element 29 · 子分类: 文字与图形
+// 动画表现: 画面闪白两次并劈下一道闪电，「雷鸣」从大尺寸砸下、晃动后带着黄色外发光停住。
+// 运动规格:
+//   - 0.84–1.0 秒文字从 2.4 倍缩到 0.9 倍出现（三次缓入）。
+//   - 1.0–1.12 秒回弹到 1.06 倍并偏移 (−4, 3) px，1.24 秒回到 1 倍、偏移 (3, −2) px，1.36 秒静止。
+//   - 两次闪白：0.86–1.04 秒（峰值 0.85）与 1.04–1.24 秒（峰值 0.55）；6 点折线闪电闪烁着在 1.3 秒前消失。
+//   - 1.24–1.6 秒黄色外发光（3 层描边，宽 30/18/9 px）淡入并保持；落地时椭圆冲击环扩散 0.5 秒。
+//   - 4.0–4.6 秒文字淡出，回到空的暗色初始画面。
+// 适用场景: 适合节目标题、比赛开场或重磅发布的标题。
+// 标签: lightning, slam, impact, flash, title, text
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-068
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 29
+// 改写自 KittenJam Motion Library #1（Hannah）· 闪电砸落：两次闪白伴随折线闪电，「雷鸣」从 2.4 倍砸到 0.9 倍、回弹 1.06 倍并微震后停在 1 倍，之后保持黄色外发光；4.0–4.6 秒淡出复位。
+// 外发光用多层描边代替 shadowBlur，放大绘制时光晕比例不变。
+const LSTR_BOLT = [[318, 0], [280, 64], [312, 72], [254, 130], [290, 138], [238, 208]];
+CELLS[28] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k, '#0A1230');
+  // 闪白两次：0.86–1.04 秒峰值 0.85，1.04–1.24 秒峰值 0.55
+  const fl = u < 0.86 ? 0 : u < 0.9 ? 0.85 * P(u, 0.86, 0.9) : u < 1.04 ? 0.85 * (1 - P(u, 0.9, 1.04)) : u < 1.1 ? 0.55 * P(u, 1.04, 1.1) : 0.55 * (1 - P(u, 1.1, 1.24));
+  let sc = 1, dx = 0, dy = 0, al = 1;
+  if (u < 0.84) al = 0;
+  else if (u < 1.0) { const q = eIn(P(u, 0.84, 1.0)); sc = lerp(2.4, 0.9, q); al = q; }
+  else if (u < 1.12) { const q = P(u, 1.0, 1.12); sc = lerp(0.9, 1.06, q); dx = -4 * q; dy = 3 * q; }
+  else if (u < 1.24) { const q = P(u, 1.12, 1.24); sc = lerp(1.06, 1, q); dx = lerp(-4, 3, q); dy = lerp(3, -2, q); }
+  else if (u < 1.36) { const q = P(u, 1.24, 1.36); dx = 3 * (1 - q); dy = -2 * (1 - q); }
+  al *= 1 - P(u, 4.0, 4.6);
+  const glow = smooth(P(u, 1.24, 1.6));
+  // 落地冲击环
+  const ring = P(u, 1.0, 1.5);
+  if (ring > 0 && ring < 1) { k.save(); k.globalAlpha = 0.6 * (1 - ring); k.strokeStyle = C.yel; k.lineWidth = 3; k.beginPath(); k.ellipse(w / 2, h / 2 + 46, 60 + 200 * eOut(ring), 8 + 18 * eOut(ring), 0, 0, 7); k.stroke(); k.restore(); }
+  if (al > 0) {
+    k.save(); k.translate(w / 2 + dx, h / 2 + 4 + dy); k.scale(sc, sc);
+    k.font = `900 96px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round';
+    if (glow > 0) [[30, 0.1], [18, 0.16], [9, 0.28]].forEach(([lw, a]) => { k.globalAlpha = al * a * glow; k.strokeStyle = C.yel; k.lineWidth = lw; k.strokeText('雷鸣', 0, 0); });
+    k.globalAlpha = al; k.fillStyle = '#fff'; k.fillText('雷鸣', 0, 0);
+    k.restore();
+  }
+  // 闪电折线：0.86–1.3 秒逐渐变淡并闪烁
+  const ba = u > 0.86 && u < 1.3 ? (1 - P(u, 0.86, 1.3)) * (H01(Math.floor(u * 40)) > 0.3 ? 1 : 0.4) : 0;
+  if (ba > 0) {
+    k.save(); k.lineJoin = 'round'; k.lineCap = 'round';
+    const path = () => { k.beginPath(); LSTR_BOLT.forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); };
+    k.globalAlpha = 0.35 * ba; k.strokeStyle = C.yel; k.lineWidth = 12; path(); k.stroke();
+    k.globalAlpha = ba; k.strokeStyle = '#fff'; k.lineWidth = 3.2; path(); k.stroke();
+    k.restore();
+  }
+  if (fl > 0) { k.fillStyle = `rgba(255,255,255,${0.75 * fl})`; k.fillRect(0, 0, w, h); }
+};

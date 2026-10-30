@@ -1,0 +1,15 @@
+Please use "Payment ring & check" (支払いリングとチェック), one of the names in "Interaction & data motion".
+Motion Prompt #1-087
+
+What it is: A pay button that morphs into a progress ring and ends with a check mark
+What the sample shows: The pay button shrinks into a circle on click, a ring fills while 3 steps light up, it turns green with a check, and a receipt bounces up from below.
+Spec:
+- On click the button shrinks from 214 px wide into a 44 px circle over 0.5 s with overshoot; the label fades in 0.2 s.
+- After a 0.25 s delay a 29 px-radius ring appears and fills in 2.6 s (power-2.2 ease-out).
+- 3 steps — requesting, bank check, done — light up at 2%, 45% and 99.9% progress, each dot springing to 1.3×.
+- The full ring turns green #119C72 and, after 0.2 s, draws a check in 0.45 s; 0.9 s later a receipt card springs up from below in 0.6 s.
+When to use it: Use it in e-commerce checkouts and in-app purchases to show payment progress and success.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-087.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

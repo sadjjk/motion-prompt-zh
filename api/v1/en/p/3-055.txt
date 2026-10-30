@@ -1,0 +1,16 @@
+Please use "Extreme close-up" (大クローズアップ), one of the names in "Camera moves & transitions".
+Motion Prompt #3-055
+
+What it is: Only a detail such as the eyes, magnifying the smallest change
+What the sample shows: The frame holds only a band across the eyes: the gaze sweeps left and right once, with one quick blink along the way.
+Spec:
+- Frame: 1.58 m to 1.72 m, a band across the eyes only 0.14 m tall; camera 2.0 m away.
+- Gaze: sweeps left and right once per pass on a sine, 0.05 m each way, centred at the start and end.
+- Blink: the eyes close from 2.4 s to 2.5 s and reopen from 2.6 s to 2.75 s.
+- The background is heavily blurred; top right reads "大特写 ECU" and the scale shows only a thin band at the eyes.
+- The camera never moves; one pass = 4.7 s and the first and last frames match.
+When to use it: To build tension, stress a key detail or show a character's inner moment.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-055.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

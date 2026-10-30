@@ -1,0 +1,15 @@
+Please use "Crosshair cursor" (クロスヘアカーソル), one of the names in "Interaction & data motion".
+Motion Prompt #1-168
+
+What it is: Thin cross lines follow the cursor with live coordinates beside it
+What the sample shows: On a dark background with a faint grid, a horizontal and a vertical line span the frame and cross at the cursor. A small ring marks the crossing, and a label at the lower right updates the coordinates as it moves.
+Spec:
+- The cross lines are 1 px wide and span edge to edge; a 6 px radius ring marks the crossing.
+- The label's X and Y are the position scaled to 1920 × 1080, zero-padded to 4 digits.
+- The label sits 12 px below and right of the cursor and flips to the other side near the right or bottom edge.
+- The crosshair fades in from 0.4–0.8 s and out from 4.4–4.9 s.
+When to use it: Use it for design tools, technical products and blueprint-style portfolios.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-168.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

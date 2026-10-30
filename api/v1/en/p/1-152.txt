@@ -1,0 +1,14 @@
+Please use "Focus dim siblings" (フォーカス＆ディム), one of the names in "Landing page & web effects".
+Motion Prompt #1-152
+
+What it is: Lifts the hovered card while the other cards fade and shrink
+What the sample shows: As the cursor moves over 4 cards, only the pointed card lifts and grows a little while the others turn faint, greyish and smaller.
+Spec:
+- A row of 4 cards (100×120, 16 apart). While the cursor is over the row, the pointed card rises 8px and scales to 1.04 over 0.45 s (easeOut power 3).
+- The other cards fade to opacity 0.45, shrink to 0.95 and get a 35% grey wash that mutes their colour.
+- The cursor rests on cards 1, 2 and 4 in turn; after it leaves the row at about 4.1 s, everything returns to normal.
+When to use it: Use it for pricing plans, product lists or portfolio cards where attention should go to one item in a row.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-152.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

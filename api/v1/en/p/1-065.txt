@@ -1,0 +1,15 @@
+Please use "Hand-drawn annotations" (手描きの注釈), one of the names in "Interaction & data motion".
+Motion Prompt #1-065
+
+What it is: Hand-drawn red-pen marks that circle, box or underline key words
+What the sample shows: Each time a style is picked, the old marks rewind away and new red strokes are drawn word by word, each followed by a lighter second pass.
+Spec:
+- 3 words are marked in red #D93A55: a 2.4 px main stroke plus a 1.6 px second pass at 70% opacity.
+- 4 styles: underline, circle, box and strike-through; switching first rewinds the old marks (.26 s).
+- New marks are drawn word by word, .24 s apart, the second pass .13 s later; each stroke lasts .25 s + path length × 0.9 ms.
+- Easing cubic-bezier(.55,.1,.35,1); in the demo the style switches at 0.2 / 1.75 / 3.3 / 4.9 s.
+When to use it: Use it in marketing taglines, pricing comparisons or an article's key sentence to make words stand out with a handwritten feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-065.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,15 @@
+Please use "Morphing" (シェイプモーフ), one of the names in "MG styles".
+Motion Prompt #2-051
+
+What it is: Morphing style: a single shape keeps transforming into new shapes in time with the beat
+What the sample shows: The main shape squeezes back to a circle before opening into the next form, wobbling as it turns, while the background wipes in a new colour and the caption swaps.
+Spec:
+- The shape changes every 0.8 s (2 beats at 150 BPM): a 0.35 s hold plus a 0.45 s morph; 8 forms make one cycle.
+- Each morph runs A → circle → B in 2 halves, each with inOut3; 120 vertices, base radius 62 px.
+- During a morph it squashes and stretches by up to 13% and swings 0.35 rad.
+- Palette #16151B / #F4EEE3 / #FFB627 / #FF4F2B / #2438E8; the background wipes with a 600 px circle from the centre, and the 40 px caption slides 24 px up as it swaps.
+When to use it: Use it for beat-synced social shorts, brand key-visual sequences and title sequences that cycle through themes.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-051.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

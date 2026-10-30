@@ -1,0 +1,321 @@
+// Motion Prompt #1-185 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// Swipe-to-dismiss toast / スワイプで消すトースト
+// Pack: ui (UI component names) · element 56 · Category: Opening & overlays
+// What happens: On a warm grey surface a dark toast, 「已复制链接」, bounces down from the top and the bar along its bottom begins to shrink. The cursor presses and the bar freezes; dragging down shrinks and fades the card while a hint below reads 「下滑关闭」, switching to 「松手即关闭」 past the threshold. On release the card speeds away downward; then 「已保存草稿」 drops in, runs out its timer and lifts away.
+// Motion spec:
+//   - 542×191 card, 4.5 s cycle. A dark 300×64 toast with radius 16 rests 22 px from the top; a thin bar along its bottom shows the time left.
+//   - The first toast drops in from above over 0.15–0.60 s with a small overshoot, and its 3.0 s countdown starts at 0.60 s.
+//   - Pressing at 1.10 s pauses the countdown. Over 1.15–1.80 s the card follows the cursor down 74 px, shrinking by up to 13% and fading by up to 42%, while its shadow blur moves from 7 to 22.
+//   - Past 46 px the hint below changes from 「下滑关闭」 to 「松手即关闭」. Released at 1.80 s, the card speeds up and drops 150 px out of view by 2.20 s.
+//   - The next toast, 「已保存草稿」, drops in over 2.30–2.75 s, its countdown ends at 3.95 s and it lifts away by 4.25 s.
+// When to use it: Use it for copy, save or send confirmations that users should be able to flick away themselves.
+// Tags: toast, snackbar, notification, swipe, dismiss, drag, countdown
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-185
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 56
+CELLS[55] = (function () {
+  // 下滑消失提示：深色立体轻提示卡从上方弹入，底边光泽细条倒计时；光标按住卡片下拖，卡片跟手下移、缩小变淡、
+  // 阴影变远，倒计时暂停；过阈值松手后加速滑出。随后「已保存草稿」弹入、自然倒计时结束并向上收起，回到空场景。
+  // 纯函数：画面只由 u 决定；背景、卡片本体、投影精灵首次调用时按 3 倍分辨率预渲染缓存。
+  const W = 542, H = 191, CYC = 4.5;
+  const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+  const S = 3;                      // 缓存分辨率倍数：预览最多放大约 2×dpr
+
+  // 配色：ui 包的暖灰纸底 + 石墨色卡片；两条提示各一种强调色（复制=薄荷绿、保存=ui 包的蓝）
+  const PAL = {
+    bgTop: '#f5f3f0', bgBot: '#e3dfd9', vignette: '58,48,38', dot: 'rgba(90,80,70,0.07)',
+    cardHi: '#3a3e47', cardLo: '#1c1e23', thick: '#0d0e11', rim: 'rgba(255,255,255,0.22)',
+    title: '#ffffff', sub: 'rgba(235,238,245,0.58)', key: 'rgba(255,255,255,0.09)', keyTx: 'rgba(240,242,248,0.72)',
+    track: 'rgba(255,255,255,0.08)', shadow: '24,20,16', ink: '#26282c', hint: '#7b7975'
+  };
+  const TOASTS = [
+    { title: '已复制链接', sub: 'mp.design/s/ui-24 · 已放入剪贴板', key: '⌘C', a: '#5fe3a8', b: '#1fae78', icon: 'link' },
+    { title: '已保存草稿', sub: '周报_10月第4周.md · 3 处修改', key: '⌘S', a: '#6aa8ff', b: '#1f5ae8', icon: 'doc' }
+  ];
+
+  // 卡片几何：宽 300（约占画宽 55%），居中，静止时顶边 y=22
+  const CWD = 300, CHT = 64, CR = 16, CX = W / 2, TOP = 22, PAD = 8;
+
+  const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const eio = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const eOut = t => 1 - Math.pow(1 - clamp(t), 3);
+  const eIn = t => (t = clamp(t), t * t * t);
+  const backOut = t => { t = clamp(t); const c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+  const rgba = (c, a) => `rgba(${c},${a})`;
+
+  function rr(x, px, py, w, h, r) {
+    r = Math.min(r, w / 2, h / 2); x.beginPath();
+    x.moveTo(px + r, py); x.arcTo(px + w, py, px + w, py + h, r); x.arcTo(px + w, py + h, px, py + h, r);
+    x.arcTo(px, py + h, px, py, r); x.arcTo(px, py, px + w, py, r); x.closePath();
+  }
+  function mk(w, h, draw) {
+    const c = document.createElement('canvas'); c.width = Math.ceil(w * S); c.height = Math.ceil(h * S);
+    const x = c.getContext('2d'); x.scale(S, S); draw(x); return c;
+  }
+
+  // 背景：柔和竖向渐变 + 极淡点阵 + 径向暗角
+  function bgArt(x) {
+    const gr = x.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, PAL.bgTop); gr.addColorStop(1, PAL.bgBot);
+    x.fillStyle = gr; x.fillRect(0, 0, W, H);
+    x.fillStyle = PAL.dot;
+    for (let yy = 12; yy < H; yy += 16) for (let xx = 13; xx < W; xx += 16) x.fillRect(xx, yy, 1.2, 1.2);
+    const vg = x.createRadialGradient(W / 2, H * 0.42, H * 0.35, W / 2, H * 0.5, W * 0.62);
+    vg.addColorStop(0, rgba(PAL.vignette, 0)); vg.addColorStop(1, rgba(PAL.vignette, 0.16));
+    x.fillStyle = vg; x.fillRect(0, 0, W, H);
+  }
+
+  // 投影精灵：在画布外画形状、用 shadowOffset 把影子拉回来，只留下模糊影本身。
+  // shadowBlur/shadowOffset 不受 scale 影响，所以按 S 换算成设备像素。
+  function shadowArt(blur, alpha) {
+    const m = blur * 2 + 4, w = CWD + m * 2, h = CHT + m * 2;
+    const c = mk(w, h, x => {
+      x.shadowColor = rgba(PAL.shadow, alpha); x.shadowBlur = blur * S;
+      x.shadowOffsetX = 0; x.shadowOffsetY = -1000 * S;
+      rr(x, m, m + 1000, CWD, CHT, CR); x.fillStyle = '#000'; x.fill();
+    });
+    c.m = m; return c;
+  }
+
+  // 卡片本体（局部坐标，卡片左上在 PAD,PAD）：底部厚度层 + 石墨竖向渐变 + 上半玻璃光泽 + 左上镜面光斑 + 高光边
+  function bodyArt(x, T) {
+    rr(x, PAD, PAD + 3, CWD, CHT, CR); x.fillStyle = PAL.thick; x.fill();        // 厚度：向下错 3px 的更暗底板
+    rr(x, PAD + 0.5, PAD + 1.6, CWD - 1, CHT, CR); x.fillStyle = '#2a2d34'; x.fill(); // 厚度侧面的一线反光
+    rr(x, PAD, PAD, CWD, CHT, CR);
+    const gr = x.createLinearGradient(0, PAD, 0, PAD + CHT);
+    gr.addColorStop(0, PAL.cardHi); gr.addColorStop(0.55, '#262930'); gr.addColorStop(1, PAL.cardLo);
+    x.fillStyle = gr; x.fill();
+    x.save(); rr(x, PAD, PAD, CWD, CHT, CR); x.clip();
+    const gl = x.createLinearGradient(0, PAD, 0, PAD + CHT * 0.5);              // 上半玻璃光泽
+    gl.addColorStop(0, 'rgba(255,255,255,0.10)'); gl.addColorStop(1, 'rgba(255,255,255,0.0)');
+    x.fillStyle = gl; x.fillRect(PAD, PAD, CWD, CHT * 0.5);
+    const sp = x.createRadialGradient(PAD + 40, PAD - 6, 0, PAD + 40, PAD - 6, 120);
+    sp.addColorStop(0, 'rgba(255,255,255,0.16)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = sp; x.fillRect(PAD, PAD, CWD, CHT);
+    const tint = x.createRadialGradient(PAD + 34, PAD + CHT / 2, 0, PAD + 34, PAD + CHT / 2, 70); // 图标色的环境反光
+    tint.addColorStop(0, T.b + '33'); tint.addColorStop(1, T.b + '00');
+    x.fillStyle = tint; x.fillRect(PAD, PAD, CWD, CHT);
+    x.restore();
+    const hl = x.createLinearGradient(PAD, PAD, PAD + CWD * 0.6, PAD + CHT);   // 左上亮、右下渐隐的高光边
+    hl.addColorStop(0, 'rgba(255,255,255,0.42)'); hl.addColorStop(0.45, 'rgba(255,255,255,0.10)'); hl.addColorStop(1, 'rgba(255,255,255,0.03)');
+    rr(x, PAD + 0.5, PAD + 0.5, CWD - 1, CHT - 1, CR - 0.5); x.strokeStyle = hl; x.lineWidth = 1; x.stroke();
+  }
+
+  // 卡片内容：左侧宝石感圆形图标 + 标题 + 一行小字 + 右侧快捷键小键帽 + 倒计时细条的凹槽
+  function contentArt(x, T) {
+    const ix = PAD + 34, iy = PAD + CHT / 2 - 2, ir = 17;
+    x.beginPath(); x.arc(ix, iy + 1.5, ir, 0, Math.PI * 2); x.fillStyle = 'rgba(0,0,0,0.45)'; x.fill();  // 图标厚度
+    const ig = x.createLinearGradient(0, iy - ir, 0, iy + ir);
+    ig.addColorStop(0, T.a); ig.addColorStop(1, T.b);
+    x.beginPath(); x.arc(ix, iy, ir, 0, Math.PI * 2); x.fillStyle = ig; x.fill();
+    const ish = x.createLinearGradient(0, iy - ir, 0, iy);                     // 图标上半月牙高光
+    ish.addColorStop(0, 'rgba(255,255,255,0.55)'); ish.addColorStop(1, 'rgba(255,255,255,0)');
+    x.beginPath(); x.ellipse(ix, iy - ir * 0.45, ir * 0.72, ir * 0.48, 0, 0, Math.PI * 2); x.fillStyle = ish; x.fill();
+    x.beginPath(); x.arc(ix, iy, ir - 0.5, 0, Math.PI * 2); x.strokeStyle = 'rgba(255,255,255,0.35)'; x.lineWidth = 1; x.stroke();
+    x.strokeStyle = '#fff'; x.fillStyle = '#fff'; x.lineWidth = 2.2; x.lineCap = 'round'; x.lineJoin = 'round';
+    if (T.icon === 'link') {
+      // 两个交错的圆角链环
+      x.save(); x.translate(ix, iy); x.rotate(-Math.PI / 4);
+      rr(x, -9.5, -4, 11, 8, 4); x.stroke(); rr(x, -1.5, -4, 11, 8, 4); x.stroke();
+      x.restore();
+    } else {
+      // 折角文档 + 对勾
+      x.beginPath(); x.moveTo(ix - 6, iy - 8); x.lineTo(ix + 2, iy - 8); x.lineTo(ix + 6.5, iy - 3.5);
+      x.lineTo(ix + 6.5, iy + 8); x.lineTo(ix - 6, iy + 8); x.closePath(); x.stroke();
+      x.beginPath(); x.moveTo(ix - 3, iy + 1.5); x.lineTo(ix - 0.5, iy + 4); x.lineTo(ix + 3.5, iy - 1); x.stroke();
+    }
+    x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+    x.fillStyle = PAL.title; x.font = `600 15px ${SANS}`; x.fillText(T.title, PAD + 62, PAD + 27);
+    x.fillStyle = PAL.sub; x.font = `400 11px ${SANS}`; x.fillText(T.sub, PAD + 62, PAD + 45);
+    const kw = 32, kx = PAD + CWD - 18 - kw, ky = PAD + 16;                    // 快捷键键帽：小厚度 + 浅底
+    rr(x, kx, ky + 1.5, kw, 20, 6); x.fillStyle = 'rgba(0,0,0,0.35)'; x.fill();
+    rr(x, kx, ky, kw, 20, 6); x.fillStyle = PAL.key; x.fill();
+    rr(x, kx + 0.5, ky + 0.5, kw - 1, 19, 5.5); x.strokeStyle = 'rgba(255,255,255,0.12)'; x.lineWidth = 1; x.stroke();
+    x.textAlign = 'center'; x.fillStyle = PAL.keyTx; x.font = `500 11px ${SANS}`; x.fillText(T.key, kx + kw / 2, ky + 14);
+    rr(x, PAD + BX, PAD + BY, BW, 3, 1.5); x.fillStyle = PAL.track; x.fill();  // 进度条凹槽
+  }
+  // 倒计时细条的位置（卡片局部，相对卡片左上）
+  const BX = 18, BW = CWD - 36, BY = CHT - 8;
+
+  let cache = null;
+  function build() {
+    cache = {
+      bg: mk(W, H, bgArt),
+      near: shadowArt(7, 0.34), far: shadowArt(22, 0.22),
+      cards: TOASTS.map(T => mk(CWD + PAD * 2, CHT + PAD * 2, x => { bodyArt(x, T); contentArt(x, T); }))
+    };
+  }
+
+  // ---------- 时间线（秒） ----------
+  // 第一条：0.15–0.60 弹入；0.60 起倒计时；1.10 按下（暂停）；1.15–1.80 下拖 0→DMAX；1.80 松手；1.80–2.20 加速滑出
+  // 第二条：2.30–2.75 弹入；2.75–3.95 倒计时走完；3.95–4.25 向上收起；4.25–4.5 静止空场景
+  const T1 = { inA: 0.15, inB: 0.60, press: 1.10, dragA: 1.15, dragB: 1.80, outB: 2.20, life: 3.0 };
+  const T2 = { inA: 2.30, inB: 2.75, endB: 3.95, upB: 4.25 };
+  const DMAX = 74, THRESH = 46;               // 下拖距离与关闭阈值（px）
+  const REST = { x: 474, y: 170 };            // 光标候场点
+  const GRIP = { x: 46, y: 6 };               // 抓取点：相对卡片中心
+
+  // 弹入：从画面上方落下，backOut 带一点过冲
+  function dropIn(t, a, b) {
+    const k = seg(t, a, b);
+    return { dy: lerp(-CHT - 40, 0, backOut(k)), s: lerp(0.94, 1, eOut(k)), al: eOut(seg(t, a, a + (b - a) * 0.5)) };
+  }
+
+  // 第一条提示在 t 时的状态：dy 下移量、s 缩放、al 透明度、lift 0..1（离开桌面程度）、p 剩余进度、paused
+  function state1(t) {
+    if (t < T1.inA || t > T1.outB) return null;
+    const st = dropIn(t, T1.inA, T1.inB);
+    const run = Math.min(t, T1.press) - T1.inB;              // 按下后时间条冻结
+    st.p = 1 - clamp(run / T1.life);
+    st.paused = t >= T1.press;
+    const d = DMAX * eio(seg(t, T1.dragA, T1.dragB));         // 跟手：卡片位移就是光标位移
+    const fall = eIn(seg(t, T1.dragB, T1.outB));             // 松手后加速下落
+    const f = d / DMAX;
+    st.dy += d + fall * 150;
+    st.s *= 1 - 0.13 * f - 0.12 * fall;
+    st.al *= (1 - 0.42 * f) * (1 - fall);
+    st.lift = clamp(f + fall * 0.5);
+    st.d = d; st.fall = fall;
+    return st;
+  }
+  // 第二条：弹入 → 自然倒计时 → 向上收起
+  function state2(t) {
+    if (t < T2.inA || t > T2.upB) return null;
+    const st = dropIn(t, T2.inA, T2.inB);
+    st.p = 1 - seg(t, T2.inB, T2.endB);
+    st.paused = false;
+    const up = seg(t, T2.endB, T2.upB);
+    st.dy -= eIn(up) * (CHT + 50);
+    st.s *= 1 - 0.05 * eOut(up);
+    st.al *= 1 - eIn(up);
+    st.lift = 0; st.d = 0; st.fall = 0;
+    return st;
+  }
+
+  // 卡片中心
+  const cardC = st => ({ x: CX, y: TOP + CHT / 2 + st.dy });
+
+  // 一条提示：投影（近影→远影随 lift 交叉，并向下拉远）+ 预渲染卡体 + 逐帧倒计时细条
+  function drawToast(k, i, st, u) {
+    if (st.al <= 0.003) return;
+    const T = TOASTS[i], c = cardC(st), s = st.s, L = st.lift;
+    k.save(); k.globalAlpha = clamp(st.al);
+    const sh = [[cache.near, 1 - L, 3], [cache.far, 0.35 + 0.65 * L, 8 + 26 * L]];
+    for (let j = 0; j < 2; j++) {
+      const im = sh[j][0], a = sh[j][1]; if (a <= 0.01) continue;
+      const ss = s * (1 + 0.06 * L * j);                       // 远影略放大：光源下离桌面越高影子越散
+      const ww = (CWD + im.m * 2) * ss, hh = (CHT + im.m * 2) * ss;
+      k.globalAlpha = clamp(st.al) * a;
+      k.drawImage(im, c.x - ww / 2, c.y + sh[j][2] - hh / 2, ww, hh);
+    }
+    k.globalAlpha = clamp(st.al);
+    k.translate(c.x, c.y); k.scale(s, s); k.translate(-CWD / 2, -CHT / 2);
+    k.drawImage(cache.cards[i], -PAD, -PAD, CWD + PAD * 2, CHT + PAD * 2);
+    drawBar(k, T, st, u);
+    k.restore();
+  }
+
+  // 光泽进度细条：双色渐变 + 顶部亮线 + 头部小光点 + 沿条滑动的反光；暂停时反光冻结、条变浅并出现暂停符
+  function drawBar(k, T, st, u) {
+    const bw = Math.max(0, BW * st.p); if (bw < 0.5) return;
+    const y = BY, x0 = BX;
+    k.save();
+    rr(k, x0, y, bw, 3, 1.5);
+    const g1 = k.createLinearGradient(x0, 0, x0 + BW, 0);
+    g1.addColorStop(0, T.b); g1.addColorStop(1, T.a);
+    k.fillStyle = g1; k.shadowColor = T.a; k.shadowBlur = 6; k.fill();
+    k.shadowBlur = 0;
+    k.fillStyle = 'rgba(255,255,255,0.55)'; k.fillRect(x0 + 1.5, y + 0.4, Math.max(0, bw - 3), 0.8);  // 顶部亮线
+    const tt = st.paused ? T1.press : u;                     // 暂停时反光停在按下那一刻
+    const sx = x0 + ((tt * 150) % (BW + 60)) - 30;
+    if (sx < x0 + bw) {
+      k.save(); rr(k, x0, y, bw, 3, 1.5); k.clip();
+      const g2 = k.createLinearGradient(sx - 22, 0, sx + 22, 0);
+      g2.addColorStop(0, 'rgba(255,255,255,0)'); g2.addColorStop(0.5, 'rgba(255,255,255,0.75)'); g2.addColorStop(1, 'rgba(255,255,255,0)');
+      k.fillStyle = g2; k.fillRect(sx - 22, y, 44, 3); k.restore();
+    }
+    const hx = x0 + bw - 1.5;                                 // 头部光点
+    const hg = k.createRadialGradient(hx, y + 1.5, 0, hx, y + 1.5, 6);
+    hg.addColorStop(0, 'rgba(255,255,255,0.9)'); hg.addColorStop(0.35, T.a + 'aa'); hg.addColorStop(1, T.a + '00');
+    k.fillStyle = hg; k.fillRect(hx - 6, y - 4.5, 12, 12);
+    if (st.paused) {
+      const pa = clamp((u - T1.press) / 0.15);
+      k.fillStyle = `rgba(28,30,35,${0.35 * pa})`; rr(k, x0, y, bw, 3, 1.5); k.fill();   // 冻结：条压暗一点
+      k.fillStyle = `rgba(255,255,255,${0.8 * pa})`;                                      // 暂停符贴在光点上方
+      k.fillRect(hx - 3, y - 9, 1.6, 5); k.fillRect(hx + 0.4, y - 9, 1.6, 5);
+    }
+    k.restore();
+  }
+
+  // 拖动时底部浮现的阈值提示：「下滑关闭」→ 越过阈值变「松手即关闭」并点亮强调色
+  function drawHint(k, st) {
+    const show = clamp(st.d / 14) * (1 - clamp(st.fall * 2.5));
+    if (show <= 0.01) return;
+    const over = st.d >= THRESH, T = TOASTS[0];
+    const label = over ? '松手即关闭' : '下滑关闭';
+    k.save(); k.globalAlpha = show;
+    k.font = `500 11px ${SANS}`;
+    const tw = k.measureText(label).width, pw = tw + 34, px = CX - pw / 2, py = 168;
+    k.shadowColor = rgba(PAL.shadow, 0.18); k.shadowBlur = 8; k.shadowOffsetY = 2;
+    rr(k, px, py, pw, 20, 10); k.fillStyle = over ? '#1f2a25' : 'rgba(255,255,255,0.86)'; k.fill();
+    k.shadowColor = 'rgba(0,0,0,0)';
+    rr(k, px + 0.5, py + 0.5, pw - 1, 19, 9.5); k.strokeStyle = over ? T.b : 'rgba(255,255,255,0.95)'; k.lineWidth = 1; k.stroke();
+    const ax = px + 14, ay = py + 10;                         // 向下箭头
+    k.strokeStyle = over ? T.a : PAL.hint; k.lineWidth = 1.6; k.lineCap = 'round'; k.lineJoin = 'round';
+    k.beginPath(); k.moveTo(ax, ay - 4); k.lineTo(ax, ay + 4); k.moveTo(ax - 3, ay + 1); k.lineTo(ax, ay + 4); k.lineTo(ax + 3, ay + 1); k.stroke();
+    k.fillStyle = over ? T.a : PAL.ink; k.textAlign = 'left'; k.textBaseline = 'middle';
+    k.fillText(label, px + 24, py + 10.5);
+    k.restore();
+  }
+
+  // 光标路径：候场 → 移到卡片右侧抓取点 → 按下后与卡片同步下移 → 松手停顿 → 回候场
+  function cursorAt(u) {
+    const grip = { x: CX + GRIP.x, y: TOP + CHT / 2 + GRIP.y };
+    if (u < 0.62) return { x: REST.x, y: REST.y };
+    if (u < 1.05) { const e = eio(seg(u, 0.62, 1.05)); return { x: lerp(REST.x, grip.x, e), y: lerp(REST.y, grip.y, e) }; }
+    if (u < T1.dragA) return grip;
+    const st = state1(Math.min(u, T1.dragB)), c = cardC(st);
+    const p = { x: c.x + GRIP.x * st.s, y: c.y - st.fall * 150 + GRIP.y * st.s };
+    if (u < 2.0) return p;
+    const e = eio(seg(u, 2.0, 2.7));
+    return { x: lerp(p.x, REST.x, e), y: lerp(p.y, REST.y, e) };
+  }
+  // 干净的箭头光标：白描边深色填充 + 轻投影；按下时缩小，并在落点画一圈按压涟漪
+  function drawCursor(k, u) {
+    const p = cursorAt(u), down = u >= T1.press && u < T1.dragB;
+    const ps = clamp((u - T1.press) / 0.08) * (1 - clamp((u - T1.dragB) / 0.08));
+    const rp = (u - T1.press) / 0.4;
+    if (rp > 0 && rp < 1) {
+      k.beginPath(); k.arc(p.x, p.y, 6 + 16 * eOut(rp), 0, Math.PI * 2);
+      k.strokeStyle = `rgba(31,90,232,${0.5 * (1 - rp)})`; k.lineWidth = 2; k.stroke();
+    }
+    if (down) { k.beginPath(); k.arc(p.x, p.y, 7, 0, Math.PI * 2); k.fillStyle = 'rgba(31,90,232,0.16)'; k.fill(); }
+    k.save(); k.translate(p.x, p.y); const sc = 1.08 - 0.14 * ps; k.scale(sc, sc);
+    k.shadowColor = 'rgba(0,0,0,0.28)'; k.shadowBlur = 4; k.shadowOffsetY = 1.5;
+    k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 17); k.lineTo(4.2, 13.2); k.lineTo(7.2, 19.8); k.lineTo(9.8, 18.6);
+    k.lineTo(6.9, 12.2); k.lineTo(12.3, 12.2); k.closePath();
+    k.lineJoin = 'round'; k.strokeStyle = '#fff'; k.lineWidth = 2.6; k.stroke();
+    k.shadowColor = 'rgba(0,0,0,0)'; k.fillStyle = PAL.ink; k.fill();
+    k.restore();
+  }
+
+  const fn = (k, w, h, u) => {
+    if (!cache) build();
+    u = ((u % CYC) + CYC) % CYC;
+    k.drawImage(cache.bg, 0, 0, W, H);
+    const s1 = state1(u), s2 = state2(u);
+    if (s1) drawHint(k, s1);
+    if (s1) drawToast(k, 0, s1, u);
+    if (s2) drawToast(k, 1, s2, u);
+    drawCursor(k, u);
+  };
+  return fn;
+})();

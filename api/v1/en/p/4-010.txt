@@ -1,0 +1,15 @@
+Please use "Flight paths" (世界の航路), one of the names in "Styled scenes".
+Motion Prompt #4-010
+
+What it is: Flight arcs and moving lights criss-crossing an angled dot-matrix map
+What the sample shows: On an angled dot map, orange arcs spring from hubs one after another, and lights travel along each finished arc to the far end.
+Spec:
+- An angled, top-down dot-matrix map with 8 hubs and 14 routes on #060912.
+- Routes appear one by one between 0 and 2 s, each arc drawn in 1.2 s; arc height is 0.28× the route length.
+- Once drawn, a light loops along each arc, covering 0.35 of the route per second.
+- Routes are orange rgba(255, 170, 90), hubs glow blue; routes fade from 5.4 to 6.0 s while the map stays.
+When to use it: Use it as a hero background for logistics, airline or global companies, an opener for talks on international reach, or a data-viz transition.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-010.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

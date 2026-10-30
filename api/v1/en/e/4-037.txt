@@ -1,0 +1,74 @@
+// Motion Prompt #4-037 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Falling petals / 花びらの舞い落ち
+// Pack: scenes (Styled scenes) · element 37 · Category: Patterns & graphics
+// What happens: Pink petals sway, spin and flip as they fall over a dark plum background; a cursor sweeps once from left to right, pushing petals along its path aside before they settle back into their fall.
+// Motion spec:
+//   - 40 elliptical petals with a radius of 4–8px; each falls through a 248px span 1 or 2 times per 6.4 s and sways 8–22px sideways 1–3 times.
+//   - Each petal turns 1–2 times per 6.4 s and flips 2–4 times by driving its horizontal scale with cos.
+//   - The cursor sweeps from x -16 to 555 over 0.8–4.0 s (cubic ease-in-out), with y going from 64 to 132 plus a 22px wave.
+//   - Petals within 52px of the cursor are pushed up to 46px along its direction and away from it, peaking at 0.35 s and easing exponentially back to their paths.
+//   - Any remaining push fades to 0 over 5.4–6.2 s; falling, swaying, turning and flipping are whole counts per 6.4 s, so the loop is seamless.
+// When to use it: Use it behind spring campaigns, Japanese-style titles or wedding invitations; swap the petals for snow or rain for other seasons.
+// Tags: petals, sakura, falling, particles, cursor, interactive, spring
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-037
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 37
+// 改写自 KittenJam Motion Library #174 飘落花瓣（Hannah 整理）：40 片花瓣下落、左右摆、旋转，scaleX = cos 模拟翻面；
+// 模拟光标 0.8–4.0 秒从左到右横扫一次，经过 52px 内的花瓣被推开最多 46px（随光标方向并背离光标），0.35 秒达到最远后指数回落到原轨迹。
+// 下落、摆动、旋转、翻面在 6.4 秒内都是整数圈，被推的时刻按光标轨迹预先解出，因此每帧只按 u 解析计算。
+const PET_N = 40, PET_SPAN = CH + 40, PET_R = 52, PET_PUSH = 46, PET_TAU = 0.35;
+const PET_cur = s => { const e = inOut3(seg(s, 0.8, 4.0)); return [mix(-16, 555, e), mix(64, 132, e) + 22 * Math.sin(e * TAU)]; };
+const PET_nat = (p, s) => [p.x0 + p.amp * Math.sin(TAU * p.m * s / CYC + p.ph), ((p.y0 + p.n * PET_SPAN * s / CYC) % PET_SPAN) - 20];
+const PET = Array.from({ length: PET_N }, (_, i) => {
+  const p = {
+    x0: kjHash(i, 11) * CW, y0: kjHash(i, 12) * PET_SPAN, n: 1 + Math.floor(kjHash(i, 13) * 2),   // 每周期落 1 或 2 个跨度（248px）
+    amp: 8 + 14 * kjHash(i, 14), m: 1 + Math.floor(kjHash(i, 15) * 3), ph: kjHash(i, 16) * TAU,     // 摆幅 8–22px，每周期 1–3 次
+    r: 4 + 4 * kjHash(i, 17), a0: kjHash(i, 18) * TAU, rv: [-2, -1, 1, 2][Math.floor(kjHash(i, 19) * 4)],
+    f: 2 + Math.floor(kjHash(i, 20) * 3), fp: kjHash(i, 21) * TAU, tc: -1, k: 0, dx: 0, dy: 0
+  };
+  // 解光标经过该花瓣的时刻：光标 x 单调，反复用"花瓣此刻的 x"反查光标时刻（二分），三次即收敛
+  let s = 2.4;
+  for (let j = 0; j < 3; j++) {
+    const px = PET_nat(p, s)[0];
+    if (px < -16 || px > 555) { s = -1; break; }
+    let lo = 0.8, hi = 4.0;
+    for (let q = 0; q < 18; q++) { const mid = (lo + hi) / 2; if (PET_cur(mid)[0] < px) lo = mid; else hi = mid; }
+    s = (lo + hi) / 2;
+  }
+  if (s > 0) {
+    const [px, py] = PET_nat(p, s), [cx, cy] = PET_cur(s), d = Math.hypot(px - cx, py - cy);
+    if (d < PET_R) {
+      const a = PET_cur(s - 0.01), b = PET_cur(s + 0.01), vl = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+      let dx = (px - cx) / (d || 1) * 0.6 + (b[0] - a[0]) / vl, dy = (py - cy) / (d || 1) * 0.6 + (b[1] - a[1]) / vl;
+      const dl = Math.hypot(dx, dy) || 1;
+      Object.assign(p, { tc: s, k: 1 - d / PET_R, dx: dx / dl, dy: dy / dl });
+    }
+  }
+  return p;
+});
+CELLS[36] = (k, w, h, u) => {
+  k.drawImage(layer('PET_bg', g => {
+    const gr = g.createLinearGradient(0, 0, 0, CH); gr.addColorStop(0, '#1b1426'); gr.addColorStop(1, '#2e1b2f');
+    g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+  for (const p of PET) {
+    let [x, y] = PET_nat(p, u);
+    if (p.tc > 0 && u > p.tc) {                                                 // 推开位移：t/τ·e^(1−t/τ)，τ 时最远
+      const q = (u - p.tc) / PET_TAU, g = q * Math.exp(1 - q) * p.k * PET_PUSH * (1 - seg(u, 5.4, 6.2)); // 残余位移在 6.2 秒前归零
+      x += p.dx * g; y += p.dy * g;
+    }
+    k.save(); k.translate(x, y); k.rotate(p.a0 + TAU * p.rv * u / CYC);
+    k.scale(Math.cos(TAU * p.f * u / CYC + p.fp), 1);                           // 翻面：每周期 2–4 次
+    k.fillStyle = 'rgba(255,183,213,.9)'; k.beginPath(); k.ellipse(0, 0, p.r, p.r * 0.62, 0, 0, TAU); k.fill();
+    k.fillStyle = 'rgba(255,140,190,.9)'; k.beginPath(); k.ellipse(p.r * 0.35, 0, p.r * 0.3, p.r * 0.2, 0, 0, TAU); k.fill();
+    k.restore();
+  }
+  const [cx, cy] = PET_cur(u);
+  kjCursor(k, cx, cy);
+};

@@ -1,0 +1,30 @@
+// Motion Prompt #3-047 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#119
+//
+// Light leak / ライトリーク
+// Pack: photo (Photo looks, lighting & styles) · element 23 · Category: Tones & finishing looks
+// What happens: From the right edge of the same landscape a band of leaked light comes in, pale yellow on the inside and red at the edge, swaying slowly.
+// Motion spec:
+//   - Scene 3: a bust on the left (head centre x 140, y 82, radius 28 px) and hills, a house, trees and the sun (x 432, y 54, radius 15 px) on the right. 
+//   - Shape: four tall ellipses centred 30 px outside the right edge (swaying ±6 px over the loop), vertical radius 1.1× the frame height
+//   - Horizontal radius and colour: 250 px #FFD089 at 35%, 170 px #FF9A3D at 40%, 95 px #FF5A3A at 45%, 45 px #FF3B30 at 50% (each grows from 0 to this radius)
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1)))
+// When to use it: For nostalgic, summery, accidental-looking memories.
+// Tags: light leak, film leak, vintage, analog, lomo, warm glow
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-047
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 23
+// ライトリーク: 右端から、フィルムに光がもれたような赤と橙のにじみが帯になって入る
+CELLS[22] = cell((k, u) => {
+  const a = env(u), w = Math.sin(u / CYC * TAU);
+  stageLand(k, BASE);
+  k.save();
+  // 縦長の楕円を右端の外に中心を置いて重ねる（外ほど淡い黄、端ほど赤）
+  const band = (rx, col, al) => { k.globalAlpha = al * a; k.fillStyle = col; k.beginPath(); k.ellipse(CW + 30 + 6 * w, CH / 2, rx * a, CH * 1.1, 0, 0, TAU); k.fill(); };
+  band(250, '#FFD089', 0.35); band(170, '#FF9A3D', 0.4); band(95, '#FF5A3A', 0.45); band(45, '#FF3B30', 0.5);
+  k.restore();
+});

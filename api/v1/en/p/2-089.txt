@@ -1,0 +1,15 @@
+Please use "Text tunnel" (文字トンネル), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-089
+
+What it is: Layers of a word fly past as if through a tunnel
+What the sample shows: Layers of 穿越 keep growing out of a tiny point in the centre and rush off the edges, alternating white and coral, with a dark glow at the centre.
+Spec:
+- 8 layers of one word scale exponentially from 0.04× to 9× from the centre.
+- Each layer takes 4.7 s to pass, phases offset by 1/8.
+- Each fades in over the first 25% and out over the last 40%.
+- Layers alternate white and coral, with a dark glow of radius 70 px at the centre.
+When to use it: Use it for openings, warp-in moments or scene changes.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-089.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

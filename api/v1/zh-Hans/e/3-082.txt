@@ -1,0 +1,47 @@
+// Motion Prompt #3-082 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/bicolor-lighting
+//
+// 双色光 / Bicolor lighting
+// 分类包: photo (摄影光线与风格) · element 46 · 子分类: 光源与色彩
+// 动画表现: 四周变暗，左侧亮起品红灯、右侧亮起青蓝灯；人物左右各染一色，在鼻梁附近混成淡紫；墙上也溢出两种颜色。
+// 运动规格:
+//   - 场景 1：头肩人物，头部中心 x 270、y 78、半径 29 px；背景变为暗场景。
+//   - 人物颜色：x 206～334 的横向渐变，0～42% 品红 #FF3FA4，50% 淡紫 #A98CFF，58～100% 青蓝 #33D6FF；越往下越暗。
+//   - 墙面溢光：(60, 80) 处品红、(480, 80) 处青蓝，各半径 200 px，以 0.32 不透明度相加。
+//   - 灯位图为左右 90° 两盏灯（品红和青蓝）；右上显示“MAGENTA · CYAN”。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: MV、游戏、夜晚城市等，想要霓虹般强烈色彩氛围时。
+// 标签: bicolor lighting, two-tone light, magenta, cyan, neon, light
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-082
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 46
+// 双色光（バイカラー）: 周りが暗くなり、左にマゼンタ、右にシアンの灯がともる。人物の左右が別の色に染まり、
+// 鼻筋のあたりで2色が混ざって淡い紫になる。配置図にも色の違う2灯
+CELLS[45] = cell((k, u) => {
+  const a = env(u), MG = '#FF3FA4', CY = '#33D6FF';
+  stagePortrait(k, pal(BASE, DARK, a));
+  bust(k, PX, PY, PR, BASE.person, kk => {
+    if (a < 0.002) return;
+    const g = kk.createLinearGradient(PX - 2.2 * PR, 0, PX + 2.2 * PR, 0);
+    g.addColorStop(0, MG); g.addColorStop(0.42, MG); g.addColorStop(0.5, '#A98CFF'); g.addColorStop(0.58, CY); g.addColorStop(1, CY);
+    kk.globalAlpha = a; kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+    // 胴の陰り: 下ほど暗く
+    const v = kk.createLinearGradient(0, PY, 0, CH); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,10,20,0.45)');
+    kk.fillStyle = v; kk.fillRect(0, 0, CW, CH);
+  });
+  // 壁に色のこぼれ
+  if (a > 0.002) {
+    k.save(); k.globalCompositeOperation = 'lighter';
+    for (const [x, c] of [[60, '255,63,164'], [480, '51,214,255']]) {
+      const g = k.createRadialGradient(x, 80, 6, x, 80, 200); g.addColorStop(0, `rgba(${c},${(0.32 * a).toFixed(3)})`); g.addColorStop(1, `rgba(${c},0)`);
+      k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+    }
+    k.restore();
+  }
+  plan(k, [[Math.PI / 2, a, MG], [-Math.PI / 2, a, CY]]);
+  hud(k, 'MAGENTA · CYAN');
+});

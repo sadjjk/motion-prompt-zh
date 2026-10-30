@@ -1,0 +1,15 @@
+Please use "Page flip" (ページめくり), one of the names in "UI component names".
+Motion Prompt #1-119
+
+What it is: A book page turns over the spine to the other side
+What the sample shows: The cursor clicks the right page of an open book twice; each time a leaf narrows over the spine, flips and lands on the left; a final click on the left page turns both leaves back.
+Spec:
+- An open book: 2 pages of 150×148 meeting at a spine at x 271.
+- The cursor clicks the right page at 0.9 s and 2.1 s; each time one leaf turns over the spine in 0.7 s, its scaleX following cos(π·easeInOut) from 1 to −1.
+- Past 0 the back of the leaf shows, and near 0 a shade of up to 0.25 suggests depth. The spreads go 1-2 → 3-4 → 5-6.
+- At 3.4 s the left page is clicked: the upper leaf from 3.5 s and the lower leaf from 3.6 s each turn back in 0.55 s, returning to 1-2.
+When to use it: Use it for catalogues, picture books, portfolios or annual reports that should feel like turning paper.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-119.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

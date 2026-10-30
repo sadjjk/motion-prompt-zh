@@ -1,0 +1,89 @@
+// Motion Prompt #1-090 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// Heart burst like / ハートがはじける「いいね」
+// Pack: uxmotion (Interaction & data motion) · element 30 · Category: Progress feedback
+// What happens: On click the heart squashes then pops, filling red as a ring and coloured dots burst out; the count rolls from 842 to 843 and back on a second click.
+// Motion spec:
+//   - Clicking runs a 0.7 s beat: 1 → 0.72 → 1.24 → 0.94 → 1, while a red gradient #FF4D6D→#FF8A5B fills from the centre.
+//   - After a 0.1 s delay a pink ring expands from 0.3× to 1× over 0.6 s, thinning out as it fades.
+//   - 7 pairs of coloured dots burst outward about 51° apart, flying from 30 px to 62 px while shrinking away.
+//   - The count rolls up from 842 → 843 in 0.45 s; in the demo a second click at 4.0 s unlikes, the heart returns to an outline and the count rolls down to 842.
+// When to use it: Use it on like or favourite buttons in social, community and content apps to give clear tap feedback.
+// Tags: like, heart, burst, micro-interaction, button, counter, social
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-090
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 30
+// 30 点赞爱心迸发：圆形按钮里一颗爱心；0.8 秒点击：.7 秒节拍（1 → .72 → 1.24 → .94 → 1），渐变红 #FF4D6D→#FF8A5B 由中心填满，
+// 粉色圆环 .6 秒从 .3 倍扩到 1 倍并变细消失（延迟 .1 秒），7 对彩色小点沿 51° 间隔向外迸发；点赞数 842 → 843 向上滚动；
+// 4.0 秒再点一次取消：爱心变回描边、数字向下滚回 842；周期末回到未点赞状态
+const HEART_C1 = 0.8, HEART_C2 = 4.0, HEART_X = 200, HEART_Y = 96;
+const HEART_DOTS = [['#FF4D6D', '#FFB26B'], ['#8B6CFF', '#FF7A93'], ['#FFB547', '#22C3A6'], ['#FF4D6D', '#8B6CFF'], ['#22C3A6', '#FFB547'], ['#FF7A93', '#5B8CFF'], ['#FFB547', '#FF4D6D']];
+// 爱心路径（中心在原点，宽约 2r）
+function HEART_path(k, r) {
+  k.beginPath(); k.moveTo(0, r * 0.95);
+  k.bezierCurveTo(-r * 1.25, r * 0.15, -r * 1.05, -r * 0.95, 0, -r * 0.42);
+  k.bezierCurveTo(r * 1.05, -r * 0.95, r * 1.25, r * 0.15, 0, r * 0.95); k.closePath();
+}
+// .7 秒节拍关键帧（0, .18, .48, .70, 1 → 1, .72, 1.24, .94, 1）
+function HEART_beat(t) {
+  const K = [[0, 1], [0.18, 0.72], [0.48, 1.24], [0.7, 0.94], [1, 1]];
+  for (let i = 1; i < K.length; i++) if (t <= K[i][0]) return mix(K[i - 1][1], K[i][1], inOut3((t - K[i - 1][0]) / (K[i][0] - K[i - 1][0])));
+  return 1;
+}
+CELLS[29] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  const on = u >= HEART_C1 && u < HEART_C2, tp = u - HEART_C1;
+  const beat = tp >= 0 && tp < 0.7 ? HEART_beat(tp / 0.7) : 1;
+  const fill = on ? (tp < 0.7 * 0.18 ? 0 : tp < 0.7 * 0.48 ? inOut3((tp - 0.126) / 0.21) : 1) : 0;
+  const press = Math.max(clamp(1 - Math.abs(u - HEART_C1) / 0.1), clamp(1 - Math.abs(u - HEART_C2) / 0.1));
+  // 按钮
+  k.save(); k.translate(HEART_X, HEART_Y); k.scale(1 - 0.1 * press, 1 - 0.1 * press);
+  k.save(); k.shadowColor = on ? 'rgba(255,77,109,.5)' : 'rgba(40,30,80,.25)'; k.shadowBlur = 22; k.shadowOffsetY = 10;
+  k.fillStyle = UX.surface; k.beginPath(); k.arc(0, 0, 50, 0, TAU); k.fill(); k.restore();
+  k.strokeStyle = on ? 'rgba(255,77,109,.3)' : UX.line; k.lineWidth = 1; k.beginPath(); k.arc(0, 0, 50, 0, TAU); k.stroke();
+  // 圆环：.6 秒，延迟 .1 秒，从 .3 倍扩到 1 倍，线宽 22→0、透明度 1→0
+  const rt = on ? (tp - 0.1) / 0.6 : -1;
+  if (rt > 0 && rt < 1) { const e = out3(rt); k.strokeStyle = `rgba(255,122,147,${1 - e})`; k.lineWidth = 12 * (1 - e) + 0.5; k.beginPath(); k.arc(0, 0, 62 * mix(0.3, 1, e), 0, TAU); k.stroke(); }
+  // 小点迸发：每组两颗，沿各自角度飞出 30→62px 并缩小消失
+  const dt = on ? (tp - 0.25) / 0.6 : -1;
+  if (dt > 0 && dt < 1) {
+    const e = out3(dt);
+    HEART_DOTS.forEach(([c1, c2], i) => {
+      const a = (i * 51.4 - 90) * Math.PI / 180, r = mix(30, 62, e), s = 4 * (1 - e);
+      k.fillStyle = c1; k.beginPath(); k.arc(Math.cos(a) * r, Math.sin(a) * r, s, 0, TAU); k.fill();
+      const a2 = a + 0.28; k.fillStyle = c2; k.beginPath(); k.arc(Math.cos(a2) * (r - 9), Math.sin(a2) * (r - 9), s * 0.7, 0, TAU); k.fill();
+    });
+  }
+  k.scale(beat, beat); k.translate(0, 1);
+  if (fill > 0) { k.save(); k.scale(fill, fill); const g = k.createLinearGradient(-24, -24, 24, 24); g.addColorStop(0, '#FF4D6D'); g.addColorStop(1, '#FF8A5B'); k.fillStyle = g; HEART_path(k, 23); k.fill(); k.restore(); }
+  if (fill < 1) { k.strokeStyle = UX.ink2; k.lineWidth = 2.6; k.lineJoin = 'round'; HEART_path(k, 23); k.stroke(); }
+  k.restore();
+  // 点赞数：向上滚动到 843（点赞），向下滚回 842（取消），各 .45 秒
+  const tr = u >= HEART_C2 ? -out3(seg(u, HEART_C2, HEART_C2 + 0.45)) : out3(seg(u, HEART_C1, HEART_C1 + 0.45));
+  const n0 = u >= HEART_C2 ? 843 : 842, n1 = u >= HEART_C2 ? 842 : 843, dir = u >= HEART_C2 ? -1 : 1, p = Math.abs(tr);
+  k.save(); k.beginPath(); k.rect(HEART_X - 40, 150, 80, 26); k.clip();
+  txt(k, String(n0), HEART_X, 168 - dir * 22 * p, `800 18px ${SANS}`, rgba([22, 21, 27], 1 - p), 'center');
+  txt(k, String(n1), HEART_X, 168 + dir * 22 * (1 - p), `800 18px ${SANS}`, rgba([22, 21, 27], p), 'center');
+  k.restore();
+  // 右侧帖子摘要
+  card(k, 300, 34, 210, 128, 16);
+  const av = k.createLinearGradient(316, 50, 344, 78); av.addColorStop(0, '#FF8A5B'); av.addColorStop(1, '#B49CFF');
+  k.fillStyle = av; k.beginPath(); k.arc(330, 64, 14, 0, TAU); k.fill();
+  txt(k, '金夏琳', 352, 61, `800 11px ${SANS}`, UX.ink); txt(k, '3 分钟前', 352, 75, `600 9px ${SANS}`, UX.ink3);
+  txt(k, '新做的动效终于上线了，', 316, 102, `600 11px ${SANS}`, UX.ink2); txt(k, '大家觉得节奏怎么样？', 316, 120, `600 11px ${SANS}`, UX.ink2);
+  txt(k, on ? '你和其他 842 人赞了' : '842 人赞了', 316, 146, `700 9.5px ${SANS}`, on ? '#FF4D6D' : UX.ink3);
+  // 模拟指针
+  let cx, cy;
+  if (u < 0.6) { const q = inOut3(seg(u, 0, 0.6)); cx = mix(290, HEART_X + 6, q); cy = mix(180, HEART_Y + 8, q); }
+  else if (u < 1.6) { cx = HEART_X + 6; cy = HEART_Y + 8; }
+  else if (u < 3.6) { const q = inOut3(seg(u, 1.6, 2.4)) - inOut3(seg(u, 3.0, 3.6)); cx = mix(HEART_X + 6, 330, q); cy = mix(HEART_Y + 8, 150, q); }
+  else if (u < 4.6) { cx = HEART_X + 6; cy = HEART_Y + 8; }
+  else { const q = inOut3(seg(u, 4.6, 6.2)); cx = mix(HEART_X + 6, 290, q); cy = mix(HEART_Y + 8, 180, q); }
+  cursor(k, cx, cy, press);
+  ripple(k, HEART_X, HEART_Y, seg(u, HEART_C1, HEART_C1 + 0.5), '255,77,109');
+};

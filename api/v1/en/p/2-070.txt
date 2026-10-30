@@ -1,0 +1,15 @@
+Please use "Water reflection" (水面の反射), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-070
+
+What it is: Text with a rippling upside-down reflection below
+What the sample shows: Under a night sky white text floats gently; below the line a coral upside-down copy sways, skews and breaks into horizontal ripples.
+Spec:
+- Above a horizon line (y = 118, a 1 px line brightest in the middle) sits white text; below it a vertically flipped coral copy.
+- The copy skews ±7°, stretches 0.92–1.04x vertically and sways ±3 px on a 2.35 s cycle.
+- The copy fades from 0.55 to 0 opacity over 80 px below the line and is split into 3 px bands shifted ±2.5 px to read as ripples.
+- The text above bobs 2.5 px on the 2.35 s cycle while background stars twinkle slowly.
+When to use it: Use it for calm titles about night, lakes or quiet brands, or a gentle end card.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-070.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

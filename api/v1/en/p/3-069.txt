@@ -1,0 +1,16 @@
+Please use "Soft focus" (ソフトフォーカス), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-069
+
+What it is: Highlights spread softly and contrast drops, while the outlines stay
+What the sample shows: A blurred, brightened copy of the whole scene is layered on; the sun and the lit edge of the person spread, the shadows lift slightly, and the outlines of hills, tree and person remain clear.
+Spec:
+- Scene: a landscape with the sun at (432, 54) and a head-and-shoulders figure (head centre x 140, y 82, radius 28 px).
+- Glow: a copy of the scene blurred by 7 px and brightened 1.12× is screened on at 0.6 opacity.
+- Contrast: white at 0.1 opacity lifts the shadows; the original image stays underneath, so outlines are not blurred.
+- Top right reads "SOFT n%".
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+When to use it: For portraits, weddings and nostalgic scenes that should feel soft and dreamy.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-069.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

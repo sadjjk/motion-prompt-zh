@@ -1,0 +1,59 @@
+// Motion Prompt #1-108 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+//
+// 验证码逐格填入 / OTP input fill
+// 分类包: ui (UI 组件) · element 30 · 子分类: 选择与切换
+// 动画表现: 6 个格子依次跳入数字，正在输入的格子亮起蓝边；填满后全部变蓝，提示换成“已验证”，整组轻轻上浮。
+// 运动规格:
+//   - 6 个验证码格（66×77、间距 13.2、圆角 11），数字 35px；未填格不透明度 0.55，填后为 1。
+//   - 数字 8 4 2 9 1 6 每隔 0.35 秒瞬时填入一格（0.95–2.70 秒）；刚填的格描边变蓝 #60a5fa 并带 3.3px 浅蓝外圈，其余格回到灰边 #374151。
+//   - 3.2 秒 6 格同时亮蓝边，提示由“验证码已发送至 ····4821”换成“已验证 · 正在继续”；3.4–3.95 秒整组以 sine.inOut 上浮 4.4px。
+//   - 复位：3.95–4.35 秒 easeInOutCubic 数字淡出、蓝边与上浮退回，4.35–4.5 秒停在空白初始画面。
+//   - 与数字步进器不同：逐格输入固定位数的验证码，填满即自动校验，不是用加减按钮调一个数值。
+// 适用场景: 适合登录、注册、支付确认时的短信或邮箱验证码输入，以及两步验证页面。
+// 标签: otp, verification-code, pin-input, two-factor, form, input
+// 尺寸: 542x191 px · 周期: 4.5 s
+// 依赖: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-108
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 30
+// 改写自 ui2v · illli Ai Studio · hero-otp-fill（MIT-0）
+// 验证码逐格填入：深色底上 6 个验证码格，数字 8 4 2 9 1 6 每隔 0.35 秒依次填入一格（0.95 / 1.30 / 1.65 / 2.00 / 2.35 / 2.70 秒，瞬时出现），
+// 刚填的格描边变蓝 #60a5fa 并带 3.3px 浅蓝外圈，其余格回到灰边；未填格不透明度 0.55，填后为 1。
+// 3.2 秒 6 格同时亮蓝边，提示由「验证码已发送至 ····4821」（#6b7280）换成「已验证 · 正在继续」（#60a5fa）；
+// 3.4–3.95 秒整组以 sine.inOut 上浮 4.4px。复位：3.95–4.35 秒 easeInOutCubic 数字淡出、蓝边与上浮退回，4.35–4.5 秒停在空白初始画面。
+// 尺寸换算：原作 1920×1080 中的格子组按 0.55 倍放到卡片中央（格 120×140→66×77、间距 24→13.2、圆角 20→11、数字 64→35px、提示 26→14px），
+// 去掉顶部标题区，提示上移到格子下方 30px。时间与原作 4.5 秒一一对应，原作 1.0 秒的上浮缩到 0.55 秒以留出复位段。
+// 配色取原作：底 #1f2937→#111827 径向渐变，格 #1f2937 / 边 #374151，数字 #f9fafb。
+const OTP_DIG = ['8', '4', '2', '9', '1', '6'];
+const OTP_S = 0.55;
+const OTP_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
+const OTP_MIX = (a, b, k) => { const p = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(',')})`; };
+CELLS[29] = ui((w, h, t) => {
+  const g = X.createRadialGradient(w * .5, h * .4, 0, w * .5, h * .4, w * .62);
+  g.addColorStop(0, '#1f2937'); g.addColorStop(1, '#111827'); X.fillStyle = g; X.fillRect(0, 0, w, h);
+  const keep = 1 - eio(seg(t, 3.95, 4.35));
+  const dy = -8 * OTP_S * OTP_SINE(seg(t, 3.4, 3.95)) * keep;
+  const cw = 66, ch = 77, gap = 13.2, x0 = (w - (6 * cw + 5 * gap)) / 2, y0 = 36 + dy;
+  const done = t >= 3.2;
+  let cur = -1; for (let i = 0; i < 6; i++) if (t >= 0.95 + i * 0.35) cur = i;
+  for (let i = 0; i < 6; i++) {
+    const x = x0 + i * (cw + gap), filled = i <= cur, on = done || i === cur;
+    const a = filled ? lerp(.55, 1, keep) : .55;
+    X.save(); X.globalAlpha = a;
+    X.save(); X.shadowColor = 'rgba(0,0,0,.25)'; X.shadowBlur = 22; X.shadowOffsetY = 8.8; fillRR(x, y0, cw, ch, 11, '#1f2937'); X.restore();
+    const onK = on ? keep : 0;
+    if (onK > 0) strokeRR(x - 1.65, y0 - 1.65, cw + 3.3, ch + 3.3, 12.65, `rgba(96,165,250,${.18 * onK})`, 3.3);
+    strokeRR(x, y0, cw, ch, 11, OTP_MIX('#374151', '#60a5fa', onK), 1.2);
+    if (filled) { X.globalAlpha = a * keep; text(OTP_DIG[i], x + cw / 2, y0 + ch / 2 + 1, 35, '#f9fafb', 700, 'center', NUMF); }
+    X.restore();
+  }
+  const hy = 150 + dy;
+  if (!done) text('验证码已发送至 ····4821', w / 2, hy, 14, '#6b7280', 500, 'center');
+  else {
+    X.save(); X.globalAlpha = 1 - keep; text('验证码已发送至 ····4821', w / 2, hy, 14, '#6b7280', 500, 'center');
+    X.globalAlpha = keep; text('已验证 · 正在继续', w / 2, hy, 14, '#60a5fa', 600, 'center'); X.restore();
+  }
+});

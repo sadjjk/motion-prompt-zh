@@ -1,0 +1,15 @@
+Please use "Analog clock" (アナログ時計), one of the names in "Landing page & web effects".
+Motion Prompt #1-162
+
+What it is: A clock whose second hand ticks with a small overshoot
+What the sample shows: On a white face with 60 ticks, the hour and minute hands stay at 10:10 while the orange second hand jumps from major tick to major tick, overshooting slightly each time.
+Spec:
+- A 140px clock face with 60 ticks (every 5th thicker and longer); the hour and minute hands rest at a sample time of 10:10 instead of reading the real time.
+- The accent second hand jumps to the next major tick (30°) every 0.4 s.
+- Each jump takes 0.15 s with back-out (overshoot 1.7), passing slightly beyond the tick and settling back.
+- 12 jumps per cycle make exactly one turn, so the loop is seamless.
+When to use it: Use it as an accent on screens about time, such as opening hours, time zones or countdowns.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-162.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

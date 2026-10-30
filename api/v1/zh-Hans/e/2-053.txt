@@ -1,0 +1,122 @@
+// Motion Prompt #2-053 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// 逐帧手绘 / 线条沸腾 / Cel animation / line boil
+// 分类包: mgstyles (MG 风格) · element 05 · 子分类: 平面与线条
+// 动画表现: 火柴头上的火苗精灵挤压弹跳，烟团升起、星形火花爆开，黄色手写 HAND MADE 字样持续沸腾抖动。
+// 运动规格:
+//   - 纸色 #f4e9d0，墨 #1c1613、红 #e5402b、黄 #ffc425；整格按 12fps 取整，线稿每帧轮换 4 张微差版本。
+//   - 变宽笔刷，两头收锋到 45%；填色与线错位 2 px。
+//   - 火苗精灵每 0.8 秒挤压 14% 弹跳一次，7 颗星形火花每 1.6 秒一轮，3 团烟 3.2 秒升起。
+//   - HAND MADE 字高 40 px，12 px 黑描边上叠 6 px 黄字身，带 4 px 块状投影。
+// 适用场景: 适合想要手作感的品牌片、儿童内容、手作或食品广告，以及温暖风格的社媒短片。
+// 标签: cel-animation, line-boil, hand-drawn, frame-by-frame, on-twos, 12fps, squash-and-stretch
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-053
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 05
+// 05 逐帧手绘 / 线条沸腾（手作 HAND MADE）：奶油纸 #f4e9d0 + 墨黑 #1c1613、番茄红 #e5402b、向日葵黄 #ffc425 三色；整格按 12fps（一拍二）取整时间，静物线稿每帧换 4 张微差版本循环（line boil），变宽笔刷、两头收锋、填色错位 2px；左侧火柴头上的火苗精灵每 0.8 秒一次挤压弹跳，星形火花每 1.6 秒爆一轮，烟团 3.2 秒升起；右侧手写 HAND MADE 黄字黑描边带块状投影持续沸腾；全部周期运动，76 帧 = 4 的整数倍
+const CEL_P = { ink: '#1c1613', red: '#e5402b', yel: '#ffc425', cream: '#f4e9d0', hi: '#fff6e2', wood: '#f0d794' };
+const CEL_LET = {
+  H: { w: 0.62, s: [[[0, 0], [0, 1]], [[0.62, 0], [0.62, 1]], [[0, 0.5], [0.62, 0.48]]] },
+  A: { w: 0.7, s: [[[0, 1], [0.35, 0], [0.7, 1]], [[0.15, 0.64], [0.55, 0.62]]] },
+  N: { w: 0.62, s: [[[0, 1], [0, 0], [0.62, 1], [0.62, 0]]] },
+  D: { w: 0.62, s: [[[0, 0], [0, 1]], [[0, 0], [0.34, 0.02], [0.52, 0.12], [0.6, 0.28], [0.62, 0.52], [0.56, 0.8], [0.44, 0.92], [0.32, 0.99], [0, 1]]] },
+  M: { w: 0.8, s: [[[0, 1], [0.03, 0], [0.4, 0.68], [0.77, 0], [0.8, 1]]] },
+  E: { w: 0.54, s: [[[0.54, 0], [0, 0], [0, 1], [0.56, 1]], [[0, 0.5], [0.44, 0.49]]] },
+};
+function CEL_res(P, step) {                         // 折线按固定步长重采样
+  const out = [P[0]];
+  for (let i = 1; i < P.length; i++) {
+    const a = P[i - 1], b = P[i], n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step));
+    for (let j = 1; j <= n; j++) out.push([mix(a[0], b[0], j / n), mix(a[1], b[1], j / n)]);
+  }
+  return out;
+}
+// 沸腾：世界坐标噪声位移，seed 每张画换一次
+const CEL_boil = (pts, sd, amp) => pts.map(([x, y]) => [x + amp * (vnoise(x / 18 + sd * 7.31, y / 18 + 3.1) * 2 - 1), y + amp * (vnoise(x / 18 - 11.7, y / 18 + sd * 5.13) * 2 - 1)]);
+// 变宽笔刷：轮廓多边形 + 圆头，两端收锋到 45%
+function CEL_ink(k, pts, wd, col, sd) {
+  const n = pts.length; if (n < 2) return;
+  const S = [0]; for (let i = 1; i < n; i++) S.push(S[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const tot = S[n - 1] || 1, Lp = [], Rp = [], W = [];
+  for (let i = 0; i < n; i++) {
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)];
+    let tx = b[0] - a[0], ty = b[1] - a[1]; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+    const taper = 0.45 + 0.55 * Math.min(1, S[i] / 7, (tot - S[i]) / 7);
+    const ww = wd * taper * (0.85 + 0.3 * vnoise(S[i] / 14, sd * 3.7)) / 2; W.push(ww);
+    Lp.push([pts[i][0] - ty * ww, pts[i][1] + tx * ww]); Rp.push([pts[i][0] + ty * ww, pts[i][1] - tx * ww]);
+  }
+  k.fillStyle = col; k.beginPath(); k.moveTo(Lp[0][0], Lp[0][1]);
+  for (let i = 1; i < n; i++) k.lineTo(Lp[i][0], Lp[i][1]);
+  for (let i = n - 1; i >= 0; i--) k.lineTo(Rp[i][0], Rp[i][1]);
+  k.closePath(); k.fill();
+  k.beginPath(); k.arc(pts[0][0], pts[0][1], W[0], 0, TAU); k.arc(pts[n - 1][0], pts[n - 1][1], W[n - 1], 0, TAU); k.fill();
+}
+// 闭合形：错位色块 + 墨线
+function CEL_shape(k, pts, fill, sd, amp, wd) {
+  const b = CEL_boil(pts, sd, amp);
+  k.fillStyle = fill; k.beginPath(); b.forEach((p, i) => (i ? k.lineTo(p[0] - 2, p[1] + 1.5) : k.moveTo(p[0] - 2, p[1] + 1.5))); k.closePath(); k.fill();
+  CEL_ink(k, b.concat([b[0], b[1]]), wd, CEL_P.ink, sd);
+}
+// 标题 4 张沸腾版本缓存成图层
+function CEL_title(v) {
+  return layer('CEL_T' + v, g => {
+    const word = 'HAND MADE', hh = 40, tr = 0.36, y0 = 84;
+    let x = 0; const gl = [];
+    for (let i = 0; i < word.length; i++) { const ch = word[i]; if (ch === ' ') { x += hh * 0.55; continue; } gl.push({ L: CEL_LET[ch], x, i }); x += (CEL_LET[ch].w + tr) * hh; }
+    const x0 = 345 - (x - tr * hh) / 2, strokes = [];
+    gl.forEach(({ L, x: gx, i }) => L.s.forEach((S, si) => {
+      const by = Math.sin(i * 2.1) * hh * 0.06;
+      const P = S.map(([a, b]) => [x0 + gx + a * hh, y0 + by + (b - 0.5) * hh]);
+      strokes.push({ pts: CEL_boil(CEL_res(P, 3), 8000 + i * 13 + si + v * 101, 1.3), sd: i * 7 + si + v * 11 });
+    }));
+    strokes.forEach(s => CEL_ink(g, s.pts.map(p => [p[0] + 4, p[1] + 4]), 12, CEL_P.ink, s.sd));   // 块状投影
+    strokes.forEach(s => CEL_ink(g, s.pts, 12, CEL_P.ink, s.sd));                                   // 墨描边
+    strokes.forEach(s => CEL_ink(g, s.pts.map(p => [p[0] - 0.6, p[1] - 0.6]), 6, CEL_P.yel, s.sd)); // 黄字身
+  });
+}
+const CEL_DROP = (cx, cy, wd, ht, tipDx) => {         // 水滴形火苗：尖端朝上
+  const P = [];
+  for (let i = 0; i < 28; i++) { const t = TAU * i / 28, x = Math.sin(t) * Math.sin(t / 2), y = -Math.cos(t); P.push([cx + x * wd * 0.65 + tipDx * Math.max(0, -y) * Math.max(0, -y), cy + y * ht / 2]); }
+  return P;
+};
+CELLS[4] = (k, w, h, u) => {
+  const P = CEL_P, tq = stepT(u, 12), fr = Math.round(tq * 12), v = fr % 4, sd = v + 1;
+  k.fillStyle = P.cream; k.fillRect(0, 0, CW, CH);
+  paper(k, [28, 22, 19], 1500, 51);
+  // 火柴梗与红色火柴头
+  CEL_shape(k, CEL_res([[80, 210], [82, 132], [91, 132], [90, 210]], 4), P.wood, sd * 3, 1.2, 3);
+  CEL_shape(k, Array.from({ length: 20 }, (_, i) => [86 + 11 * Math.cos(TAU * i / 20), 126 + 13 * Math.sin(TAU * i / 20)]), P.red, sd * 5, 1.2, 3.2);
+  // 火苗精灵：每 0.8 秒一次弹跳（8 次/周期），落下时挤压
+  const ph = TAU * tq / 0.8, bob = Math.max(0, Math.sin(ph)), sq = 0.14 * Math.cos(ph);
+  const fh = 50 * (1 + sq), fw = 36 * (1 - sq * 0.8), fy = 112 - fh / 2 - bob * 10, tip = 7 * Math.sin(ph * 2);
+  CEL_shape(k, CEL_DROP(86, fy, fw, fh, tip), P.yel, sd * 7, 1.4, 3.4);
+  CEL_shape(k, CEL_DROP(86, fy + fh * 0.18, fw * 0.5, fh * 0.55, tip * 0.6), P.red, sd * 9, 1.1, 2.2);
+  k.fillStyle = P.ink;
+  k.beginPath(); k.arc(80, fy + fh * 0.12, 2.4, 0, TAU); k.arc(92, fy + fh * 0.12, 2.4, 0, TAU); k.fill();
+  CEL_ink(k, CEL_boil(CEL_res([[81, fy + fh * 0.24], [86, fy + fh * 0.29], [91, fy + fh * 0.24]], 2), sd * 13, 0.6), 2, P.ink, sd);
+  // 烟团：3.2 秒升起一轮（2 轮/周期），3 团错相
+  for (let i = 0; i < 3; i++) {
+    const p = (tq / 3.2 + i / 3) % 1, r = 11 * Math.sin(Math.PI * p);
+    if (r < 1.5) continue;
+    const cx = 112 + p * 52 + 6 * Math.sin(p * 6 + i), cy = 68 - p * 50;
+    CEL_shape(k, Array.from({ length: 14 }, (_, j) => [cx + r * Math.cos(TAU * j / 14), cy + r * Math.sin(TAU * j / 14)]), P.hi, sd * 17 + i, 1.0, 2.4);
+  }
+  // 标题（沸腾 4 版循环）
+  k.drawImage(CEL_title(v), 0, 0);
+  // 星形火花：1.6 秒一轮（4 轮/周期），弹出 0.5 秒
+  const SP = [[40, 40], [150, 30], [190, 152], [505, 30], [520, 140], [140, 178], [300, 30]];
+  SP.forEach(([sx, sy], i) => {
+    const l = (tq / 1.6 + hash(i * 9 + 2)) % 1; if (l > 0.32) return;
+    const s = Math.sin(Math.PI * l / 0.32) * (7 + 5 * hash(i)), pts = [];
+    for (let j = 0; j < 8; j++) { const a = -Math.PI / 2 + Math.PI * j / 4, r = j % 2 ? s * 0.35 : s; pts.push([sx + r * Math.cos(a), sy + r * Math.sin(a)]); }
+    CEL_shape(k, CEL_res(pts.concat([pts[0]]), 3), i % 2 ? P.yel : P.red, sd * 19 + i, 0.8, 2.2);
+  });
+  txt(k, '一帧一帧，亲手点亮', 345, 150, `600 13px ${SANS}`, P.ink, 'center');
+  txt(k, '星火牌安全火柴 · 第 146 张', 345, 168, `500 8px ${SANS}`, P.red, 'center');
+  grain(k, 0.12, 'multiply');
+};

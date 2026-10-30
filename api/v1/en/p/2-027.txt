@@ -1,0 +1,16 @@
+Please use "Bounce" (バウンス), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-027
+
+What it is: Falls and bounces lower until it stops
+What the sample shows: A ball drops and bounces lower each time until it comes to rest.
+Spec:
+- One drop per 2.35 s (twice per 4.7 s: yellow first, then coral). The ball has radius 26.
+- From 0.1 s it falls from 190 px above the floor. Gravity 1900 px/s²; each bounce keeps 56% of the speed (restitution 0.56); it stops when the rebound speed is below 35 px/s.
+- Sideways it moves x = 150→390 over 0.1–1.8 s with cubic ease-out.
+- Squash for 0.045 s either side of each impact: width 1 + sq, height 1 − sq, with sq up to 0.4 × min(1, impact speed ÷ 850). Impacts faster than 200 px/s flick short white lines left and right for 0.3 s.
+- The shadow gets smaller with height. Exit: 1.95–2.25 s, scale multiplied by (1 − backIn, s = 2).
+When to use it: Use it whenever something drops and lands: an icon, a word or a product that should feel heavy and springy.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-027.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

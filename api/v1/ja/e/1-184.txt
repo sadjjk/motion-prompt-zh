@@ -1,0 +1,294 @@
+// Motion Prompt #1-184 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// ベル付き通知トグル / Bell notification toggle
+// パック: ui (UIパーツの名前) · element 55 · カテゴリ: 選ぶ・切り替えるパーツ
+// 何が起きるか: 白い立体的なカプセルボタンの左に金色のベル、右に「开启通知」の文字。カーソルが押すとボタンが青くなって少し縮み、文字が上へ抜けて「已开启」に替わり、ベルが揺れて音の波が広がる。もう一度押すと白に戻り、ベルに斜線が引かれて軽く揺れ、斜線が消えて最初の画面に戻る。
+// 動きの仕様:
+//   - 542×191 のカード、4.5秒周期。高さ76pxの立体カプセルボタン。左の半径27の凹みに金色のベル、右に文字
+//   - 0.9秒にクリック。0.92〜1.32秒にボタンが青へ変わり、短い文字に合わせて幅が縮み、文字は16px上へ抜けて新しい文字が下から入る
+//   - 0.95秒からベルが吊り輪を軸に0.42ラジアン・2.4Hzで減衰しながら揺れ、中の玉は0.1秒遅れて追う
+//   - 音の波は0.98・1.16・1.34秒に左右へ出て、半径24から19px広がりつつ0.65秒で消える
+//   - 2.55秒に再クリック。2.58〜2.98秒にオフへ戻り、2.60〜2.85秒にベルへ斜線が引かれ0.15ラジアン軽く揺れる。斜線は3.75〜4.15秒に消える
+// 使いどころ: ニュースレター購読、アプリの通知設定、ライブ配信の通知予約など、通知のオン・オフを切り替える場面に。
+// タグ: toggle, bell, notification, subscribe, button, swing, skeuomorphic
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-184
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 55
+CELLS[54] = (function () {
+  // 铃铛开关：立体胶囊按钮（左铃铛徽章 + 右文案）。光标点一下开启：铃铛绕挂点阻尼摆动、铃舌晚半拍，
+  // 两侧弹出声波弧；文案「开启通知」→「已开启」上移交叉淡换，胶囊宽度平滑收窄并换成蓝色开启态。
+  // 再点一下关闭：铃铛上划出斜杠、轻摇一下，回到「开启通知」；随后斜杠淡去、光标回位，首尾一致。
+  // 纯函数：画面只由 u 决定；背景首次调用时按 3 倍分辨率预渲染缓存。
+  const W = 542, H = 191, CYC = 4.5;
+  const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+
+  // 配色：沿用 ui 包的暖灰地 + 蓝色强调；关闭态珍珠白胶囊，开启态蓝色胶囊；铃铛为黄铜金属
+  const PAL = {
+    bgTop: '#f7f6f4', bgBot: '#e8e6e2', vignette: '40,36,30', hint: '#86847f',
+    offTop: '#ffffff', offBot: '#eceef2', offThick: '#cdd2da', offWell: '#e3e7ee', offWell2: '#f4f6f9', offText: '#1b1f27',
+    onTop: '#5089ff', onBot: '#1f5ae8', onThick: '#143d9c', onWell: '#2f66ee', onWell2: '#6f9cff', onText: '#ffffff',
+    gold0: '#fff4c8', gold1: '#f6c445', gold2: '#d39417', gold3: '#94640b',
+    blue: '#1f5ae8', shadow: '24,30,52', slash: '#2a2f3a'
+  };
+
+  // 几何：胶囊以 (CX, CY) 为中心，宽度由文案实测宽度决定（关闭态约占画宽 44%）
+  const CX = 271, CY = 84, BH = 76;
+  const PAD_L = 92, PAD_R = 40, BADGE_DX = 40, BADGE_R = 27, FS = 28;
+  const TXT_OFF = '开启通知', TXT_ON = '已开启';
+  const CAP_OFF = '订阅「星图周报」· 每周一 09:30 推送', CAP_ON = '已订阅 · 下次推送 11月3日 09:30';
+  const S = 3;                       // 缓存分辨率倍数：调用方最多 2×dpr 放大
+
+  const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const ease = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const easeOut = t => 1 - Math.pow(1 - clamp(t), 3);
+  const rgba = (c, a) => `rgba(${c},${a})`;
+  const HEX = {};
+  const rgb = h => HEX[h] || (HEX[h] = [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16)));
+  // 两色按 t 线性混合，开启态配色过渡用
+  const mix = (a, b, t) => { const p = rgb(a), q = rgb(b); return `rgb(${p.map((v, i) => Math.round(lerp(v, q[i], t))).join(',')})`; };
+
+  function capsulePath(x, l, top, w, h) {
+    const r = h / 2;
+    x.beginPath(); x.moveTo(l + r, top); x.lineTo(l + w - r, top);
+    x.arc(l + w - r, top + r, r, -Math.PI / 2, Math.PI / 2); x.lineTo(l + r, top + h);
+    x.arc(l + r, top + r, r, Math.PI / 2, Math.PI * 1.5); x.closePath();
+  }
+
+  let BG = null, WOFF = 0, WON = 0;
+  function init() {
+    BG = document.createElement('canvas'); BG.width = W * S; BG.height = H * S;
+    const x = BG.getContext('2d'); x.scale(S, S);
+    const lg = x.createLinearGradient(0, 0, 0, H);
+    lg.addColorStop(0, PAL.bgTop); lg.addColorStop(1, PAL.bgBot);
+    x.fillStyle = lg; x.fillRect(0, 0, W, H);
+    // 径向暗角：中心偏上提亮，四角压暗
+    const rg = x.createRadialGradient(W / 2, H * 0.42, 40, W / 2, H * 0.5, W * 0.62);
+    rg.addColorStop(0, rgba('255,255,255', 0.35)); rg.addColorStop(0.55, rgba(PAL.vignette, 0));
+    rg.addColorStop(1, rgba(PAL.vignette, 0.16));
+    x.fillStyle = rg; x.fillRect(0, 0, W, H);
+    x.font = `600 ${FS}px ${SANS}`;
+    WOFF = PAD_L + x.measureText(TXT_OFF).width + PAD_R;
+    WON = PAD_L + x.measureText(TXT_ON).width + PAD_R;
+  }
+
+  // 时间线（秒）：0–0.35 静止 → 0.35–0.85 光标移入 → 0.90 第一次点击（开启）
+  // 0.92–1.32 换色/换字/变宽，0.95–2.45 铃铛阻尼摆动，0.98 起三道声波 → 1.55–2.15 光标让开再回来
+  // 2.55 第二次点击（关闭）2.58–2.98 回到关闭态，2.60–2.85 划出斜杠并轻摇 → 2.75–3.30 光标回位
+  // 3.75–4.15 斜杠淡去复位 → 4.15–4.5 静止，与 u=0 完全一致
+  const CLICKS = [0.9, 2.55];
+  const WAVES = [0.98, 1.16, 1.34], WAVE_LIFE = 0.65;
+  // 候场点 (466,148)：光标高约 29px，须完整留在 191 高的画面内
+  const CUR = [[0, 466, 148], [0.35, 466, 148], [0.85, 330, 98], [1.55, 330, 98], [1.95, 446, 116],
+    [2.15, 446, 116], [2.5, 328, 99], [2.75, 328, 99], [3.3, 466, 148]];
+
+  // 开启时的大摆：衰减正弦，末段再乘一个淡出窗，保证在第二次点击前精确归零
+  function swing(u) {
+    let a = 0;
+    const t1 = u - 0.95;
+    if (t1 > 0) a += 0.42 * Math.exp(-2.2 * t1) * Math.sin(2 * Math.PI * 2.4 * t1) * (1 - ease(seg(t1, 1.1, 1.5)));
+    const t2 = u - 2.6;     // 关闭时只轻摇一下
+    if (t2 > 0) a += 0.15 * Math.exp(-4 * t2) * Math.sin(2 * Math.PI * 3 * t2) * (1 - ease(seg(t2, 0.5, 0.85)));
+    return a;
+  }
+  function track(t) {
+    if (t <= CUR[0][0]) return [CUR[0][1], CUR[0][2]];
+    for (let i = 1; i < CUR.length; i++) {
+      const a = CUR[i - 1], b = CUR[i];
+      if (t <= b[0]) { const e = ease((t - a[0]) / (b[0] - a[0] || 1)); return [lerp(a[1], b[1], e), lerp(a[2], b[2], e)]; }
+    }
+    const l = CUR[CUR.length - 1]; return [l[1], l[2]];
+  }
+  function state(u) {
+    const c = ease(seg(u, 0.92, 1.32)) - ease(seg(u, 2.58, 2.98));
+    let press = 0;
+    for (const t0 of CLICKS) {
+      const d = u - t0;
+      if (d > -0.08 && d < 0) press = Math.max(press, (d + 0.08) / 0.08);
+      else if (d >= 0 && d < 0.2) press = Math.max(press, 1 - easeOut(d / 0.2));
+    }
+    const theta = swing(u);
+    // 铃舌晚半拍：取 0.1 秒前的铃身角度，相对铃身的偏差放大一点更显惯性
+    // 限幅 ±0.4 rad，保证小球始终露在铃口范围内（铃口半宽 15、铃舌半径 28）
+    const rel = clamp((swing(u - 0.1) - theta) * 0.7, -0.4, 0.4);
+    const cur = track(u);
+    return {
+      c, w: lerp(WOFF, WON, c), press, txt: c, theta, rel,
+      slash: ease(seg(u, 2.6, 2.85)), slashA: 1 - ease(seg(u, 3.75, 4.15)),
+      cx: cur[0], cy: cur[1], down: press > 0.35
+    };
+  }
+
+  const fn = (k, w, h, u) => {
+    if (!BG) init();
+    k.drawImage(BG, 0, 0, W, H);
+    const st = state(u); st.u = u;
+    drawCapsule(k, st);
+    drawCaption(k, st);
+    drawCursor(k, st, u);
+  };
+  function drawCapsule(k, st) {
+    const c = st.c, w = st.w, l = CX - w / 2;
+    const sink = st.press * 3;                   // 按下时面板下沉，厚度层随之变薄
+    const top = CY - BH / 2 + sink, th = 6 - sink;
+    // 接触影：贴地的椭圆软影，按下时更紧更深
+    k.save(); k.translate(CX, CY + BH / 2 + 8); k.scale(1, 0.16);
+    const cg = k.createRadialGradient(0, 0, 0, 0, 0, w * 0.52);
+    cg.addColorStop(0, rgba(PAL.shadow, 0.22 + 0.08 * st.press)); cg.addColorStop(1, rgba(PAL.shadow, 0));
+    k.fillStyle = cg; k.beginPath(); k.arc(0, 0, w * 0.52, 0, Math.PI * 2); k.fill(); k.restore();
+    // 投影 + 厚度层：同一条路径下移 th，用 shadowBlur 一次画出柔和投影（开启态带一点蓝色环境光）
+    k.save();
+    k.shadowColor = c > 0 ? `rgba(${Math.round(lerp(24, 31, c))},${Math.round(lerp(30, 70, c))},${Math.round(lerp(52, 180, c))},${0.2 + 0.12 * c})` : rgba(PAL.shadow, 0.2);
+    k.shadowBlur = 24 - 8 * st.press; k.shadowOffsetY = 10 - 4 * st.press;
+    capsulePath(k, l, top + th, w, BH); k.fillStyle = mix(PAL.offThick, PAL.onThick, c); k.fill();
+    k.restore();
+    // 正面：竖向渐变
+    const fg = k.createLinearGradient(0, top, 0, top + BH);
+    fg.addColorStop(0, mix(PAL.offTop, PAL.onTop, c)); fg.addColorStop(1, mix(PAL.offBot, PAL.onBot, c));
+    capsulePath(k, l, top, w, BH); k.fillStyle = fg; k.fill();
+    // 高光边：内缩 1px 描边，上沿亮、往下渐隐；底沿一条暗线做厚度交界
+    const hg = k.createLinearGradient(0, top, 0, top + BH);
+    hg.addColorStop(0, rgba('255,255,255', 0.95 - 0.35 * c)); hg.addColorStop(0.45, rgba('255,255,255', 0));
+    hg.addColorStop(0.8, rgba('0,0,0', 0)); hg.addColorStop(1, rgba('0,0,0', 0.08 + 0.1 * c));
+    capsulePath(k, l + 1, top + 1, w - 2, BH - 2); k.strokeStyle = hg; k.lineWidth = 1.6; k.stroke();
+    // 镜面光斑：左上一条压扁的椭圆亮带
+    k.save(); capsulePath(k, l, top, w, BH); k.clip();
+    k.translate(l + w * 0.36, top + 12); k.scale(1, 0.16);
+    const sg = k.createRadialGradient(0, 0, 0, 0, 0, w * 0.34);
+    sg.addColorStop(0, rgba('255,255,255', 0.55 - 0.2 * c)); sg.addColorStop(1, rgba('255,255,255', 0));
+    k.fillStyle = sg; k.beginPath(); k.arc(0, 0, w * 0.34, 0, Math.PI * 2); k.fill();
+    k.restore();
+    const bx = l + BADGE_DX, by = top + BH / 2;
+    drawWell(k, bx, by, c);
+    drawWaves(k, bx, by, st.u);
+    drawBell(k, bx, by, st);
+    drawLabel(k, l, top, w, st);
+  }
+  // 铃铛底座：凹进去的圆槽（上暗下亮的内凹渐变 + 下沿高光），开启态变成稍深的蓝
+  function drawWell(k, bx, by, c) {
+    const r = BADGE_R;
+    const wg = k.createLinearGradient(0, by - r, 0, by + r);
+    wg.addColorStop(0, mix(PAL.offWell, PAL.onWell, c)); wg.addColorStop(1, mix(PAL.offWell2, PAL.onWell2, c));
+    k.beginPath(); k.arc(bx, by, r, 0, Math.PI * 2); k.fillStyle = wg; k.fill();
+    // 内阴影：上半圈一道暗弧
+    k.save(); k.beginPath(); k.arc(bx, by, r, 0, Math.PI * 2); k.clip();
+    k.beginPath(); k.arc(bx, by + 3, r + 2, 0, Math.PI * 2); k.lineWidth = 6;
+    k.strokeStyle = rgba(c > 0.5 ? '6,24,80' : '60,70,90', 0.12 + 0.08 * c); k.stroke();
+    k.restore();
+    k.beginPath(); k.arc(bx, by, r - 0.5, Math.PI * 0.15, Math.PI * 0.85);
+    k.strokeStyle = rgba('255,255,255', 0.7 - 0.35 * c); k.lineWidth = 1.2; k.stroke();
+  }
+  // 声波：每道是左右对称的两段圆弧，从铃铛外缘向外扩并淡出；按「u − 出生时刻」解析计算
+  function drawWaves(k, bx, by, u) {
+    k.save(); k.lineCap = 'round';
+    for (let i = 0; i < WAVES.length; i++) {
+      const p = (u - WAVES[i]) / WAVE_LIFE;
+      if (p <= 0 || p >= 1) continue;
+      const r = 24 + 19 * easeOut(p), a = (1 - p) * (p < 0.15 ? p / 0.15 : 1);
+      const span = 0.55 - 0.18 * p;          // 越往外弧越短，像声音散开
+      k.lineWidth = 3.2 - 1.6 * p;
+      for (const side of [0, Math.PI]) {
+        k.beginPath(); k.arc(bx, by - 2, r, side - span, side + span);
+        k.strokeStyle = rgba('31,90,232', 0.5 * a); k.stroke();          // 深色底，在浅色背景上也看得清
+        k.beginPath(); k.arc(bx, by - 2, r, side - span * 0.8, side + span * 0.8);
+        k.strokeStyle = rgba('255,255,255', 0.75 * a); k.lineWidth *= 0.45; k.stroke(); k.lineWidth /= 0.45;
+      }
+    }
+    k.restore();
+  }
+  // 铃身轮廓（局部坐标，原点 = 顶部挂点）：圆顶、收腰、下摆外扩
+  function bellPath(k) {
+    k.beginPath(); k.moveTo(0, 3);
+    k.bezierCurveTo(-8, 3, -10, 9, -10, 15); k.lineTo(-11, 19.5);
+    k.quadraticCurveTo(-14, 21.5, -14.5, 24); k.lineTo(14.5, 24);
+    k.quadraticCurveTo(14, 21.5, 11, 19.5); k.lineTo(10, 15);
+    k.bezierCurveTo(10, 9, 8, 3, 0, 3); k.closePath();
+  }
+  function drawBell(k, bx, by, st) {
+    const px = bx, py = by - 15;              // 挂点
+    k.save(); k.translate(px, py); k.rotate(st.theta);
+    // 铃舌：绕同一挂点再多转 rel，先画在铃身后面，只露出下摆下方的小球
+    k.save(); k.rotate(st.rel);
+    const qg = k.createRadialGradient(-1.2, 26.8, 0.5, 0, 28, 4.5);
+    qg.addColorStop(0, PAL.gold0); qg.addColorStop(0.5, PAL.gold2); qg.addColorStop(1, PAL.gold3);
+    k.beginPath(); k.arc(0, 28, 4.2, 0, Math.PI * 2); k.fillStyle = qg; k.fill();
+    k.restore();
+    // 铃身：投影 + 暗色厚度（右下错开 1px）+ 金属径向渐变
+    k.save(); k.shadowColor = rgba(PAL.shadow, 0.35); k.shadowBlur = 6; k.shadowOffsetY = 3;
+    k.translate(0.8, 1); bellPath(k); k.fillStyle = PAL.gold3; k.fill(); k.restore();
+    const bg = k.createRadialGradient(-4.5, 9, 1, -1, 13, 17);
+    bg.addColorStop(0, PAL.gold0); bg.addColorStop(0.35, PAL.gold1); bg.addColorStop(0.8, PAL.gold2); bg.addColorStop(1, PAL.gold3);
+    bellPath(k); k.fillStyle = bg; k.fill();
+    // 左侧竖向镜面光条
+    k.save(); bellPath(k); k.clip();
+    k.beginPath(); k.ellipse(-5.5, 13, 1.8, 7, 0.12, 0, Math.PI * 2); k.fillStyle = rgba('255,255,255', 0.7); k.fill();
+    k.restore();
+    // 下沿铃口：一条圆角厚边，上亮下暗
+    const rg = k.createLinearGradient(0, 22.5, 0, 27);
+    rg.addColorStop(0, PAL.gold1); rg.addColorStop(1, PAL.gold3);
+    k.beginPath(); k.moveTo(-15, 24); k.arcTo(-16.5, 24, -16.5, 25.4, 1.6); k.arcTo(-16.5, 26.8, -15, 26.8, 1.6);
+    k.lineTo(15, 26.8); k.arcTo(16.5, 26.8, 16.5, 25.4, 1.6); k.arcTo(16.5, 24, 15, 24, 1.6); k.closePath();
+    k.fillStyle = rg; k.fill();
+    // 顶部挂环
+    k.beginPath(); k.arc(0, 1.2, 2.6, 0, Math.PI * 2); k.strokeStyle = PAL.gold2; k.lineWidth = 1.8; k.stroke();
+    k.restore();
+    // 斜杠：不随铃身摆动，先描一道底色宽线做「切开」效果，再画深色细线；长度按 slash 从左上往右下展开
+    if (st.slash > 0 && st.slashA > 0) {
+      const x0 = bx - 16, y0 = by - 16, L = 32 * st.slash;
+      k.save(); k.lineCap = 'round'; k.globalAlpha = st.slashA;
+      k.beginPath(); k.moveTo(x0, y0); k.lineTo(x0 + L, y0 + L);
+      k.strokeStyle = mix(PAL.offWell2, PAL.onWell2, st.c); k.lineWidth = 6.5; k.stroke();
+      k.strokeStyle = PAL.slash; k.lineWidth = 2.6; k.stroke();
+      k.restore();
+    }
+  }
+  // 文案：旧字上移淡出、新字从下方淡入；两者都左对齐在徽章右侧，裁剪在胶囊内部
+  function drawLabel(k, l, top, w, st) {
+    const t = st.txt, x = l + PAD_L - 6, y = top + BH / 2 + 1, D = 16;
+    k.save(); capsulePath(k, l, top, w, BH); k.clip();
+    k.font = `600 ${FS}px ${SANS}`; k.textAlign = 'left'; k.textBaseline = 'middle';
+    const col = mix(PAL.offText, PAL.onText, st.c);
+    const items = [[TXT_OFF, 1 - t, -D * t], [TXT_ON, t, D * (1 - t)]];
+    for (const it of items) {
+      if (it[1] <= 0.01) continue;
+      k.globalAlpha = it[1];
+      // 刻字感：开启态下方一道浅阴影，关闭态下方一道白色压印
+      k.fillStyle = st.c > 0.5 ? rgba('8,30,100', 0.35) : rgba('255,255,255', 0.9);
+      k.fillText(it[0], x, y + it[2] + 1);
+      k.fillStyle = col; k.fillText(it[0], x, y + it[2]);
+    }
+    k.restore();
+  }
+  // 胶囊下方的说明行：同样交叉淡换
+  function drawCaption(k, st) {
+    const t = st.txt, y = CY + BH / 2 + 30;
+    k.save(); k.font = `500 13px ${SANS}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+    k.globalAlpha = 1 - t; k.fillStyle = PAL.hint; k.fillText(CAP_OFF, CX, y - 6 * t);
+    k.globalAlpha = t; k.fillStyle = PAL.blue; k.fillText(CAP_ON, CX, y + 6 * (1 - t));
+    k.restore();
+  }
+  // 箭头光标：白描边深色填充，按下时缩小；点击处一圈蓝色涟漪
+  function drawCursor(k, st, u) {
+    for (const t0 of CLICKS) {
+      const p = (u - t0) / 0.45;
+      if (p < 0 || p > 1) continue;
+      k.beginPath(); k.arc(st.cx, st.cy, 6 + 20 * easeOut(p), 0, Math.PI * 2);
+      k.strokeStyle = rgba('31,90,232', 0.6 * (1 - p)); k.lineWidth = 2.5; k.stroke();
+    }
+    k.save(); k.translate(st.cx, st.cy); const s = 1.12 - 0.14 * st.press; k.scale(s, s);
+    k.shadowColor = rgba(PAL.shadow, 0.3); k.shadowBlur = 4; k.shadowOffsetY = 2;
+    k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 22); k.lineTo(5.5, 17); k.lineTo(9.5, 26); k.lineTo(13, 24.5);
+    k.lineTo(9, 15.8); k.lineTo(16, 15.8); k.closePath();
+    k.lineJoin = 'round'; k.strokeStyle = '#fff'; k.lineWidth = 3; k.stroke();
+    k.shadowColor = 'transparent'; k.fillStyle = '#15171c'; k.fill();
+    k.restore();
+  }
+
+  return fn;
+})();

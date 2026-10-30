@@ -1,0 +1,15 @@
+Please use "Marquee" (マーキー), one of the names in "Landing page & web effects".
+Motion Prompt #1-046
+
+What it is: Text or logos scroll across in an endless band
+What the sample shows: Inside a navy band, large service names separated by orange dots keep moving to the left without a gap.
+Spec:
+- Band: 58 tall, navy, full viewport width. Text: 30 px, heavy weight, 1 px letter spacing, white.
+- One set is four words (WEB DESIGN / BRANDING / MOTION / UI/UX), 64 px apart, with an orange dot (radius 6) in each gap.
+- Each cycle (4.8 s) moves left by the width of one set (about 881 px here) at constant speed. The set is measured and the offset wraps by that width, so there is no visible seam.
+- The set is repeated until the viewport width is filled.
+When to use it: Use it to show service names, client logos or a tagline with energy.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-046.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,63 @@
+// Motion Prompt #1-129 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 折れ線グラフの描画 / Line chart draw
+// パック: uxmotion (インタラクションとデータの動き) · element 38 · カテゴリ: 動くチャート
+// 何が起きるか: 淡い横線の上で折れ線が左から右へ伸び、点が順にはじけ、線の下に面のグラデーションがにじみ、最後に伸び率のラベルが浮かぶ。
+// 動きの仕様:
+//   - データ点 10 個。折れ線（太さ 2.5px）は 0.3–1.9 秒に等速で左から右へ描かれる
+//   - 線の先端が通るたびに点（半径 4px）が 0 から 0.3 秒の backOut ではじける
+//   - 線が 60% まで進んだところから、線の下の面グラデーションが 0.6 秒で現れる
+//   - 1.9–2.3 秒に終点の上へ伸び率ラベルが 8px 上がりながら現れる。5.4–6.0 秒に全体が消えて戻る
+// 使いどころ: ダッシュボードや成長を伝えるスライドで、推移をひと目で読ませたいときに。
+// タグ: line-chart, chart-draw, data-viz, dashboard, trend, growth
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-129
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 38
+// 38 折线图绘制（KittenJam #197）：淡格线上，折线 0.3–1.9 秒由左到右匀速画出；线头经过时 10 个数据点依次弹出（0.3 秒 backOut），
+// 画到 60% 起线下渐变面积 0.6 秒淡入；1.9–2.3 秒终点上方浮出增长标签；5.4–6.0 秒全部淡出复位。
+const LCD_V = [12, 18, 15, 24, 22, 31, 29, 38, 44, 52];
+const LCD_X0 = 60, LCD_X1 = 500, LCD_Y0 = 50, LCD_Y1 = 176, LCD_MAX = 60, LCD_T0 = 0.3, LCD_DUR = 1.6;
+const LCD_pt = i => [mix(LCD_X0, LCD_X1, i / (LCD_V.length - 1)), LCD_Y1 - LCD_V[i] / LCD_MAX * (LCD_Y1 - LCD_Y0)];
+CELLS[37] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  txt(k, '月营收增长', 22, 28, UXB_f(900, 14), UX.ink); txt(k, '单位：万元', CW - 20, 28, UXB_f(700, 10.5), UX.ink3, 'right');
+  k.strokeStyle = UX.line; k.lineWidth = 1;
+  [0, 20, 40, 60].forEach(v => {
+    const y = Math.round(LCD_Y1 - v / LCD_MAX * (LCD_Y1 - LCD_Y0)) + 0.5;
+    k.beginPath(); k.moveTo(LCD_X0, y); k.lineTo(LCD_X1, y); k.stroke(); txt(k, String(v), LCD_X0 - 10, y + 3.5, UXB_f(700, 9), UX.ink3, 'right');
+  });
+  const fa = fadeIn(u), p = seg(u, LCD_T0, LCD_T0 + LCD_DUR), hx = mix(LCD_X0, LCD_X1, p);
+  if (fa <= 0 || p <= 0) return;
+  const pts = LCD_V.map((_, i) => LCD_pt(i));
+  k.save(); k.globalAlpha = fa;
+  k.save(); k.beginPath(); k.rect(0, 0, hx, CH); k.clip();
+  // 线下面积：线画到 60% 时开始淡入
+  const aa = seg(u, LCD_T0 + LCD_DUR * 0.6, LCD_T0 + LCD_DUR * 0.6 + 0.6);
+  if (aa > 0) {
+    const g = k.createLinearGradient(0, LCD_Y0, 0, LCD_Y1); g.addColorStop(0, 'rgba(106,87,242,.28)'); g.addColorStop(1, 'rgba(106,87,242,0)');
+    k.globalAlpha = fa * aa; k.fillStyle = g; k.beginPath(); k.moveTo(pts[0][0], LCD_Y1);
+    pts.forEach(q => k.lineTo(q[0], q[1])); k.lineTo(pts[pts.length - 1][0], LCD_Y1); k.closePath(); k.fill(); k.globalAlpha = fa;
+  }
+  k.strokeStyle = UX.accent; k.lineWidth = 2.5; k.lineJoin = 'round'; k.lineCap = 'round';
+  k.beginPath(); pts.forEach((q, i) => (i ? k.lineTo(q[0], q[1]) : k.moveTo(q[0], q[1]))); k.stroke();
+  k.restore();
+  // 数据点：线头经过（间隔 = 描绘时长 ÷ 段数）时从 0 弹出
+  pts.forEach((q, i) => {
+    const s = backOut(seg(u, LCD_T0 + LCD_DUR * i / (LCD_V.length - 1), LCD_T0 + LCD_DUR * i / (LCD_V.length - 1) + 0.3));
+    if (s <= 0) return;
+    k.fillStyle = UX.surface; k.strokeStyle = UX.accent; k.lineWidth = 2;
+    k.beginPath(); k.arc(q[0], q[1], 4 * s, 0, TAU); k.fill(); k.stroke();
+  });
+  const la = out3(seg(u, 1.9, 2.3));
+  if (la > 0) {
+    const q = pts[pts.length - 1], y = q[1] - 22 + 8 * (1 - la);
+    k.globalAlpha = fa * la; rr(k, q[0] - 30, y - 12, 50, 20, 10); k.fillStyle = UX.mint; k.fill();
+    txt(k, '+333%', q[0] - 5, y + 2, UXB_f(800, 10.5), '#FFFFFF', 'center');
+  }
+  k.restore();
+};

@@ -1,0 +1,16 @@
+Please use "Back-to-top progress ring" (進捗リング付きトップへ戻る), one of the names in "Interaction & data motion".
+Motion Prompt #1-174
+
+What it is: A back-to-top button that appears on scroll with a reading-progress ring
+What the sample shows: As the article scrolls down, a round button appears at the lower right and its outer arc grows with the amount read. The pointer clicks it, the page glides back to the top and the button shrinks away.
+Spec:
+- From 0.4–3.0 s the article scrolls to 86% (inOut3, with the scrollbar on the right in sync).
+- Past 12% the button scales 0.6 → 1 and fades in (0.25 s).
+- The outer arc (23 px radius, 3 px stroke) runs clockwise from the top with length = reading progress.
+- The button is clicked at 3.6 s and the page returns to the top from 3.65–4.45 s, taking 0.8 s (inOut3).
+- When progress drops below 12% the button shrinks away.
+When to use it: Use it on long articles, docs and blogs to show reading progress and a way back up in one control.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-174.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

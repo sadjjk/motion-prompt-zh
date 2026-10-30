@@ -1,0 +1,16 @@
+Please use "Macro shot" (マクロ撮影), one of the names in "Camera moves & transitions".
+Motion Prompt #3-056
+
+What it is: A very small subject shot so it fills the frame
+What the sample shows: A mushroom about 0.26 m tall fills the frame; focus pulls from soft to sharp so the white spots on the cap, the gills and a bug crawling along the rim come through, while the tree trunks and a person's legs behind stay blurred.
+Spec:
+- Frame: from 0.02 m below the ground to 0.26 m; camera close to the ground, 0.9 m from the mushroom.
+- Focus: pulls from soft to sharp from 0.4 s to 1.1 s and goes soft again from 4.3 s to 4.7 s.
+- Mushroom: cap red-brown #C34F40 with a #D97B57 middle ring and a #E7E0CE centre, three rings of white spots, radial gills under the cap and two fine lines on the stem.
+- Bug: crawls along the rim from right to left and back once per pass; its legs move faster or slower with its speed.
+- The two trees and the person's legs behind always stay blurred; top right reads "微距 MACRO"; one pass = 4.7 s.
+When to use it: For insects, flowers, food or product textures, details the eye barely sees.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-056.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

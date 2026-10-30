@@ -1,0 +1,49 @@
+// Motion Prompt #2-075 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 崩落 / Crumble
+// 分类包: motion2 (动态图形进阶) · element 36 · 子分类: 文字与图形
+// 动画表现: 4 个字依次微微歪斜，随后旋转加速下坠、掉出碎屑并消失，再从上方落回原位。
+// 运动规格:
+//   - 4 个字（64 px），0.3 秒起每字错开 0.16 秒；单字一轮 3.6 秒。
+//   - 22–27% 歪斜到 ±12° 以内的随机角度，保持到 30%。
+//   - 30–62%：三次缓入下坠 109 px，旋转到 ±90° 以内并淡出；5 片碎屑一起落下。
+//   - 80–92%：从上方 32 px 处缓出落下并淡入，回到原位。
+// 适用场景: 适合表现结束、崩塌、失败的字幕或片尾。
+// 标签: crumble, fall, collapse, debris, outro, text
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-075
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 36
+// 改写自 KittenJam Motion Library #39（Hannah）· 崩落：每个字（间隔 0.16 秒）先歪斜 ±12° 以内，再加速下坠 109px、旋转 ±90° 以内并淡出，带碎屑；随后从上方 32px 处缓出落回原位重组。每字一轮 3.6 秒。
+const CRUM_R = (() => { const r = rand(3939); return Array.from({ length: 4 }, () => ({ r0: (r() * 2 - 1) * 12, r1: (r() * 2 - 1) * 90, bits: Array.from({ length: 5 }, () => [(r() - 0.5) * 50, (r() - 0.5) * 40, 1.2 + r() * 0.8, r() * 6, 3 + r() * 4]) })); })();
+CELLS[35] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '土崩瓦解', F = `900 64px ${JP}`, CY = 92, D2R = Math.PI / 180;
+  k.fillStyle = C.navy2; rr(k, 70, 132, w - 140, 4, 2); k.fill();
+  chars(k, S, F, 18).forEach((c, i) => {
+    const t = (u - 0.3 - 0.16 * i) / 3.6, R = CRUM_R[i % CRUM_R.length];   // 取模：脚本被按非 UTF-8 解码时字符数会变多
+    let y = 0, rot = 0, op = 1;
+    if (t > 0.22 && t < 0.27) rot = R.r0 * D2R * P(t, 0.22, 0.27);
+    else if (t >= 0.27 && t < 0.3) rot = R.r0 * D2R;
+    else if (t >= 0.3 && t < 0.62) { const q = P(t, 0.3, 0.62), e = eIn(q); y = 109 * e; rot = lerp(R.r0, R.r1, e) * D2R; op = 1 - q; }
+    else if (t >= 0.62 && t < 0.8) op = 0;
+    else if (t >= 0.8 && t < 0.92) { const q = eOut(P(t, 0.8, 0.92)); y = -32 * (1 - q); op = q; }
+    // 碎屑跟随下坠
+    if (t >= 0.3 && t < 0.62) {
+      const q = P(t, 0.3, 0.62);
+      R.bits.forEach(([bx, by, sp, a, s]) => {
+        k.save(); k.globalAlpha = 0.8 * (1 - q); k.translate(w / 2 + c.x + bx * (0.4 + q), CY + by + 140 * sp * eIn(q)); k.rotate(a + q * 6);
+        k.fillStyle = i % 2 ? C.yel : '#fff'; k.fillRect(-s / 2, -s / 2, s, s); k.restore();
+      });
+    }
+    if (op <= 0) return;
+    k.save(); k.globalAlpha = op; k.translate(w / 2 + c.x, CY + y); k.rotate(rot);
+    txt(k, c.ch, 0, 0, F, i % 2 ? C.yel : '#fff', 'center', 'middle');
+    k.restore();
+  });
+};

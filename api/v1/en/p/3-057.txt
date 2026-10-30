@@ -1,0 +1,16 @@
+Please use "Rule of thirds" (三分割法), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-057
+
+What it is: Put the subject and the horizon near lines that split the frame in thirds
+What the sample shows: The person moves from the centre to the left third line and the horizon drops from the middle to the lower third, while two horizontal and two vertical third lines and their four crossings appear.
+Spec:
+- Subject: x 270 → left third line at x 180; horizon: y 104 → lower third line at y 139.
+- A tree moves from x 390 to the right third line at x 360, balancing the person.
+- Third lines: verticals at x 180 and x 360, horizontals at y 69 and y 139; dots of radius 3.5 px mark the four crossings.
+- Guides: amber #F5A524 dashed lines, 1.6 px wide, fading in with the effect amount.
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+When to use it: For landscapes, portraits or street shots that should feel balanced but not stiff.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-057.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

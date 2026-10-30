@@ -1,0 +1,45 @@
+// Motion Prompt #1-163 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// マーチングアンツ / Marching ants selection
+// パック: lp (LP・Webサイトの演出) · element 48 · カテゴリ: 読み込み・移動・動き続ける演出
+// 何が起きるか: デザインツール風の画面で、レイヤーを囲む青い破線が同じ向きに流れ続け、枠が大きくなったり小さくなったりするたびに下の寸法の数字が変わる。
+// 動きの仕様:
+//   - 青い1.5pxの破線の選択枠（線6・すき間5）。破線のオフセットは0.48秒ごとに −11 進み（1周期に10回）、同じ向きに流れ続ける
+//   - 四隅に白地・青枠の8×8のハンドル
+//   - 枠のサイズは200×90と280×120の間で変わる: 0.4〜2.0秒に拡大、2.8〜4.4秒に縮小（easeInOut 3乗）
+//   - 下のラベルが四捨五入した幅 × 高さをその場で表示
+// 使いどころ: デザインツール・画像編集・ノーコード製品の紹介など、「選択して編集する」操作を見せたい所に。
+// タグ: marching-ants, selection, dashed, handles, design-tool, loop
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-163
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 48
+// 改写自 KittenJam Motion Library #325 选取框蚂蚁线：蓝色 1.5px 虚线选取框（线段 6、间隔 5），虚线偏移每 0.48 秒走 −11（一周期 10 轮），持续同向流动；
+// 四角各一个 8×8 白底蓝框控制点。框尺寸在 200×90 与 280×120 之间变化（0.4–2.0 秒放大、2.8–4.4 秒缩小，easeInOut 3 次方），下方标签实时显示取整后的宽 × 高。
+const ANTS_DASH = [6, 5], ANTS_STEP = 0.48;
+CELLS[47] = (k, w, h, u) => {
+  frame(k, 'example.com/editor');
+  const s = steps([[0.4, 0], [2.0, 1], [2.8, 1], [4.4, 0]], u);
+  const bw = lerp(200, 280, s), bh = lerp(90, 120, s), x = VW / 2 - bw / 2, y = 72 - bh / 2;
+  view(k, () => {
+    k.fillStyle = '#F7F8FA'; k.fillRect(0, 0, VW, VH);
+    k.fillStyle = C.faint; for (let gx = 12; gx < VW; gx += 20) for (let gy = 12; gy < VH; gy += 20) k.fillRect(gx, gy, 2, 2);
+    // 被选中的图层（随选取框一起改变尺寸）
+    k.fillStyle = C.blueL; k.fillRect(x, y, bw, bh);
+    k.fillStyle = C.acc; k.beginPath(); k.arc(x + 30, y + bh / 2, 14, 0, 7); k.fill();
+    txt(k, '设计工具', x + 54, y + bh / 2 + 1, `800 16px ${JP}`, C.ink, 'left', 'middle');
+    // 先描一圈白线垫底，虚线的间隙才看得清
+    k.lineWidth = 1.5; k.strokeStyle = '#fff'; k.strokeRect(x, y, bw, bh);
+    k.strokeStyle = C.blue; k.setLineDash(ANTS_DASH); k.lineDashOffset = -11 * (mod(u, ANTS_STEP) / ANTS_STEP); k.strokeRect(x, y, bw, bh);
+    k.setLineDash([]); k.lineDashOffset = 0;
+    [[x, y], [x + bw, y], [x, y + bh], [x + bw, y + bh]].forEach(([a, b]) => { k.fillStyle = '#fff'; k.fillRect(a - 4, b - 4, 8, 8); k.strokeStyle = C.blue; k.strokeRect(a - 4, b - 4, 8, 8); });
+    const lab = `${Math.round(bw)} × ${Math.round(bh)}`;
+    k.font = `700 11px ${EN}`; const lw = k.measureText(lab).width + 16;
+    k.fillStyle = C.blue; rr(k, VW / 2 - lw / 2, y + bh + 10, lw, 18, 4); k.fill();
+    txt(k, lab, VW / 2, y + bh + 19.5, `700 11px ${EN}`, '#fff', 'center', 'middle');
+  });
+};

@@ -1,0 +1,54 @@
+// Motion Prompt #1-118 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// コマンドパレット / Command palette
+// パック: ui (UIパーツの名前) · element 40 · カテゴリ: 開く・重なるパーツ
+// 何が起きるか: ⌘K のキーが押されると背景が暗くなりパネルが現れ、「設定」と打つと一覧が絞られて一致した文字が青くなり、ハイライトが1行下がって決定される。
+// 動きの仕様:
+//   - 右下に ⌘ K のキー表示。0.5秒に2つのキーが2px沈む
+//   - 0.6〜0.85秒にページが0.4まで暗くなり、300×159のパネルが easeOut 3乗で0.94 → 1に拡大しながらフェードイン
+//   - 1.3秒・1.5秒に「設定」を1文字ずつ入力。一覧は5項目 → 3項目 → 2項目に絞られ、一致した文字が青くなる
+//   - 2.3秒にハイライトが0.2秒（easeInOut 3乗）で1行下がり、2.9秒に Enter で一瞬濃くなり、3.1〜3.4秒にパネルと暗い層が消える
+// 使いどころ: 開発ツール・管理画面・エディタなど、キーボードで素早く操作させたいアプリに。
+// タグ: command-palette, cmdk, search, modal, keyboard, filter, shortcut
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-118
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 40
+// 改写自 KittenJam Motion Library #321 命令面板：页面右下角键帽提示「⌘ K」，0.5 秒两键按下（下沉 2px）；
+// 0.6–0.85 秒背景变暗到 0.4，面板以 easeOut 3 次方从 0.94 放大到 1 并淡入（300×159）。1.3、1.5 秒逐字输入「设置」，
+// 列表由 5 项筛成 3 项再筛成 2 项，匹配字标蓝；高亮条 2.3 秒 0.2 秒 easeInOut 下移一行，2.9 秒回车闪一下，3.1–3.4 秒面板与暗层淡出。
+const CMDK_ALL = ['新建文件', '打开设置', '切换主题', '设置快捷键', '设备信息'];
+CELLS[39] = ui((w, h, t) => {
+  pageLines(24, 18, 494); fillRR(24, 84, 239, 92, 8, C.block); fillRR(279, 84, 239, 92, 8, C.block);
+  // 键帽提示
+  const pk = t >= .5 && t < .7 ? 2 : 0;
+  [['⌘', 456], ['K', 488]].forEach(([s, x]) => { fillRR(x, 150 + 2, 26, 24, 5, C.line2); fillRR(x, 150 + pk, 26, 24 - 2, 5, '#fff'); strokeRR(x, 150 + pk, 26, 22, 5, C.line2, 1); text(s, x + 13, 161 + pk, 12, C.ink, 700, 'center', NUMF); });
+  const a = eo(seg(t, .6, .85)) * (1 - eio(seg(t, 3.1, 3.4)));
+  if (a <= 0) return;
+  X.fillStyle = `rgba(18,20,28,${.4 * a})`; X.fillRect(0, 0, w, h);
+  const s = .94 + .06 * a, px = 121, py = 16, pw = 300;
+  const q = t < 1.3 ? '' : t < 1.5 ? '设' : '设置';
+  const list = CMDK_ALL.filter(x => [...q].every(c => x.includes(c)));
+  const ph = 36 + 5 * 24 + 3;
+  X.save(); X.globalAlpha = a; X.translate(271, py + ph / 2); X.scale(s, s); X.translate(-271, -py - ph / 2);
+  shadowed(() => fillRR(px, py, pw, ph, 12, '#fff'), 26, 10, .28);
+  X.fillStyle = C.sep; X.fillRect(px, py + 36, pw, 1);
+  ring(px + 18, py + 17, 5.5, C.hint, 1.8); X.strokeStyle = C.hint; X.lineWidth = 1.8; X.beginPath(); X.moveTo(px + 22, py + 21); X.lineTo(px + 26, py + 25); X.stroke();
+  if (q) text(q, px + 34, py + 18, 14, C.ink, 600); else text('输入命令或搜索…', px + 34, py + 18, 14, C.hint, 500);
+  if (t >= .85 && t < 3.1 && Math.floor((t - .85) / .5) % 2 === 0) { X.fillStyle = C.blue; X.fillRect(px + 35 + (q ? tw(q, 14, 600) : 0), py + 10, 1.5, 16); }
+  // 高亮条：在当前列表内的行号，2.3 秒下移一行；2.9 秒回车时加深
+  const hi = eio(seg(t, 2.3, 2.5)), flash = t >= 2.9 && t < 3.05 ? 1 : 0;
+  fillRR(px + 6, py + 40 + 24 * hi, pw - 12, 22, 6, flash ? C.mb : C.lb);
+  list.forEach((it, i) => {
+    const iy = py + 51 + i * 24;
+    fillRR(px + 16, iy - 6, 12, 12, 3, C.line2);
+    let x = px + 38;
+    for (const c of it) { text(c, x, iy, 13, q.includes(c) ? C.blue : C.ink, q.includes(c) ? 700 : 500); x += tw(c, 13, 500); }
+  });
+  if (q) text(`${list.length} 项`, px + pw - 14, py + 18, 11, C.hint, 500, 'right');
+  X.restore();
+});

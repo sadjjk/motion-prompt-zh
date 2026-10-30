@@ -1,0 +1,17 @@
+请使用“线条动画（Line art animation）”，属于“MG 风格”。
+Motion Prompt #2-050
+
+效果解释：一根线一笔连续画出场景并收成标志的线条动画
+动画表现：镜头跟着发光笔尖平移，金线一笔画出幼苗与塔楼，最后拉远成海报构图，环形标志内填满金色。
+实现规格与关键运动参数：
+- 底色 #0B1320，一根 2.5 px 圆头香槟金线 #E9D7A5 在 0.3–4.5 秒一笔连续画完。
+- 镜头跟随发光笔尖平移；画过的线降到 35% 亮度，只有最近 240 px 保持全亮。
+- 4.4–5.0 秒拉远到 0.56 倍成海报构图，整根线恢复全亮。
+- 4.7–5.1 秒半径 42 px 的环内填金，4.9 秒起 ATELIER LINEA 衬线字标（17 px）淡入。
+适用场景：适合高端品牌片、设计或建筑工作室片头，以及展示标志由来的 logo 演绎。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-050
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-050.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Vincentwei1021 的 MIT 版权标识。

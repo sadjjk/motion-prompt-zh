@@ -1,0 +1,42 @@
+// Motion Prompt #4-002 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Sphere of words / 文字の球
+// Pack: scenes (Styled scenes) · element 02 · Category: Type moods
+// What happens: Characters scattered over a sphere slowly spin; those in front turn bold and dark while those behind fade to pale shadows.
+// Motion spec:
+//   - 160 characters from the Thousand Character Classic placed on a sphere of radius 84 px by a Fibonacci spiral; background #F2EEE6.
+//   - The sphere spins 1 lap around its vertical axis every 6.4 s, tilted by 0.35 rad.
+//   - Glyph size 11 px times the perspective factor 2.4 /(2.4 − z); front glyphs use weight 900, back glyphs weight 400 as faint shadows.
+//   - The frontmost glyphs (z > 0.9) turn vermilion #C8231B.
+// When to use it: Use it as a hero background for publishing, education or culture brands, or as a transition in talks about language and characters.
+// Tags: sphere, characters, chinese, globe, rotation, 3d, type
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-002
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 02
+// 02 字之球：《千字文》的字按斐波那契分布贴在旋转的球面上，近处清晰加粗、远处退成淡影
+const QZW = '天地玄黄宇宙洪荒日月盈昃辰宿列张寒来暑往秋收冬藏闰余成岁律吕调阳云腾致雨露结为霜金生丽水玉出昆冈剑号巨阙珠称夜光果珍李柰菜重芥姜海咸河淡鳞潜羽翔';
+CELLS[1] = (k, w, h, u) => {
+  k.fillStyle = '#F2EEE6'; k.fillRect(0, 0, CW, CH);
+  const cx = 269.5, cy = 104, R = 84, N = 160;      // 球半径 84px、160 个字（原 400px、420 个）
+  const a1 = TAU * u / CYC, a2 = 0.35;              // 每周期自转一圈，俯角 0.35 rad
+  const items = [];
+  for (let i = 0; i < N; i++) {
+    const y = 1 - (i + 0.5) / N * 2, r = Math.sqrt(1 - y * y), th = i * 2.39996;
+    let x = Math.cos(th) * r, z = Math.sin(th) * r;
+    [x, z] = [x * Math.cos(a1) - z * Math.sin(a1), x * Math.sin(a1) + z * Math.cos(a1)];
+    const yy = y * Math.cos(a2) - z * Math.sin(a2); z = y * Math.sin(a2) + z * Math.cos(a2);
+    items.push([x, yy, z, QZW[i % QZW.length]]);
+  }
+  items.sort((a, b) => a[2] - b[2]);
+  for (const [x, y, z, ch] of items) {
+    const persp = 2.4 / (2.4 - z), sz = 11 * persp;
+    const col = z > 0.9 ? '#C8231B' : z > 0 ? `rgba(20,20,20,${0.35 + 0.65 * z})` : `rgba(20,20,20,${0.08 + 0.1 * (1 + z)})`;
+    txt(k, ch, cx + x * R * persp, cy - y * R * persp, `${z > 0 ? 900 : 400} ${sz.toFixed(1)}px ${SERIF}`, col, 'center', 'middle');
+  }
+  grain(k, 0.05, 'multiply');
+};

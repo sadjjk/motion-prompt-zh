@@ -1,0 +1,40 @@
+// Motion Prompt #3-067 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/180-degree-rule
+//
+// 180 度轴线 / 180-degree rule
+// 分类包: camera (镜头运动与剪辑) · element 36 · 子分类: 剪辑与转场
+// 动画表现: 右下角俯视小图画出两人之间的轴线，机位所在一侧涂浅蓝，越轴一侧打斜线；两个镜头都在同一侧，A 一直在画面左边。
+// 运动规格:
+//   - 机位 1：正对两人，距 5 m、高 1.5 m；A 在 0.5 秒至 1.9 秒说话。
+//   - 机位 2：2.4 秒切换，位于左侧 2.2 m、距 2.8 m，转向 0.702 rad，仍在轴线同侧；B 在 2.7 秒至 4.0 秒说话。
+//   - 俯视小图 66×66 px：蓝色虚线为轴线，蓝点 A、墨色点 B；机位一侧浅蓝，另一侧斜线并标“越轴”。
+//   - 小图中当前机位为蓝色，另一个为灰色；主画面里 A 始终在左、B 始终在右。
+//   - 最后 0.5 秒交叉淡化回第一个镜头，每轮 4.7 秒。
+// 适用场景: 拍对话、追逐、对峙等多机位场面，保证观众不会弄混谁在哪边。
+// 标签: 180-degree rule, 180 degree rule, axis of action, imaginary line, crossing the line, screen direction, continuity
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-067
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 36
+// 36 180 度轴线：右下角俯视小图画出 A—B 连线（轴线），两次机位都在同一侧；主画面里 A 始终在左
+function axisMap(k, w, h, camIdx) {
+  const s = 66, x0 = w - 13 - 14 - s, y0 = h - 13 - 10 - s, cx = x0 + s / 2, cy = y0 + 26;
+  k.save();
+  k.fillStyle = 'rgba(255,255,255,.92)'; rr(k, x0, y0, s, s, 8); k.fill(); k.strokeStyle = C.border; k.lineWidth = 1.2; k.stroke();
+  k.save(); rr(k, x0, y0, s, s, 8); k.clip();
+  k.fillStyle = C.blueBg; k.fillRect(x0, cy, s, s);   // 摄影机所在的一侧（俯视图里画在下半）
+  k.strokeStyle = C.g2; k.lineWidth = 1; for (let i = -s; i < s; i += 6) { k.beginPath(); k.moveTo(x0 + i, y0); k.lineTo(x0 + i + 26, cy); k.stroke(); }   // 越轴一侧打斜线
+  k.restore();
+  k.strokeStyle = C.blue; k.lineWidth = 1.6; k.setLineDash([3, 3]); k.beginPath(); k.moveTo(x0 + 6, cy); k.lineTo(x0 + s - 6, cy); k.stroke(); k.setLineDash([]);
+  [[-14, C.blue], [14, C.ink]].forEach(([dx, col]) => { k.fillStyle = col; k.beginPath(); k.arc(cx + dx, cy, 4.5, 0, 7); k.fill(); });
+  [[cx, cy + 26], [cx - 22, cy + 16]].forEach(([x, y], i) => { k.fillStyle = i === camIdx ? C.blue : C.g4; rr(k, x - 5, y - 3.5, 10, 7, 2); k.fill(); });
+  txt(k, '越轴', cx, y0 + 11, `600 10px ${JP}`, C.sub, 'center', 'middle');
+  k.restore();
+}
+CELLS[35] = shot(cutCell([
+  [0, (k, w, h, u) => { world(k, w, h, cam({ y: 1.5, z: 3 }), two({ buildings: false, talkA: mouth(u, 0.5, 1.9) })); axisMap(k, w, h, 0); }, '机位 1'],
+  [2.4, (k, w, h, u) => { world(k, w, h, cam({ x: -2.2, y: 1.5, z: 5.2, yaw: 0.702 }), two({ buildings: false, talkB: mouth(u, 2.7, 4.0) })); axisMap(k, w, h, 1); }, '机位 2 · 同侧']
+]));

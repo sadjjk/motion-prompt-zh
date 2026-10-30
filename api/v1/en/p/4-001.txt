@@ -1,0 +1,15 @@
+Please use "Dry brush" (書の筆致), one of the names in "Styled scenes".
+Motion Prompt #4-001
+
+What it is: A calligraphy scene where a brush writes the character 永 on rice paper, with dry-brush streaks and a red seal
+What the sample shows: A brush writes 永 stroke by stroke on rice paper with streaky dry edges; a red seal then shrinks into place, holds, and fades away.
+Spec:
+- Canvas 539 × 208 px on cream paper #EDE6D6. A 196 px character box; the 8 strokes of 永 are written from 0.2 to 4.2 s, 0.5 s per stroke.
+- Each stroke is built from 60 fine hairs; past 45% of the stroke, edge hairs break up by noise to form dry-brush gaps.
+- The seal is 44 × 44 px in #B5281D; from 4.4 s it shrinks from 1.6× to full size over 0.3 s.
+- Cycle 6.4 s: ink and seal fade out from 5.4 to 6.0 s, returning to blank paper by 6.4 s.
+When to use it: Use it as a video opener for East Asian or heritage brands, or as the hero of a calligraphy, tea or cultural event page.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-001.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

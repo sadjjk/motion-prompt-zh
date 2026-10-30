@@ -1,0 +1,45 @@
+// Motion Prompt #1-157 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Icon slide button / アイコンスライドボタン
+// Pack: lp (Landing page & web effects) · element 42 · Category: Hover & click interactions
+// What happens: When the cursor lands, the arrow on the right of the button slides out and fades while a matching arrow slides in from outside the left edge, and the label moves right to make room.
+// Motion spec:
+//   - A 180×50 ink pill button with the label and an arrow on its right; the cursor moves onto it in 0.6 s.
+//   - Over 0.4 s (easeInOut power 3) the right arrow slides 40px out to the right and fades out.
+//   - A second arrow slides in from outside the left edge (−16px) to just left of the label (+30px) and fades in, while the label moves 20px right.
+//   - The cursor leaves at 3.4 s and everything slides back.
+// When to use it: Use it on buttons that lead onward, such as 'Next' or 'Learn more'.
+// Tags: button, arrow, icon-slide, hover, cta, relay
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-157
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 42
+// 改写自 KittenJam Motion Library #237 箭头接力按钮：180×50 墨色胶囊按钮，文字「了解更多」右侧一个箭头。光标 0.6 秒移入后 0.4 秒 easeInOut 3 次方：
+// 右侧箭头向右滑出 40px 并淡出，另一个箭头从按钮左外侧（−16px）滑到文字左边（+30px）并淡入，文字同步右移 20px 让位；3.4 秒移开后反向复原。
+const ISLIDE_W = 180, ISLIDE_H = 50;
+CELLS[41] = (k, w, h, u) => {
+  frame(k, 'example.com/about');
+  const bx = (VW - ISLIDE_W) / 2, by = (VH - ISLIDE_H) / 2, my = by + ISLIDE_H / 2;
+  const cur = t => path([[0, 430, 150], [0.6, 250, 90], [3.4, 250, 90], [4.0, 430, 150], [4.8, 430, 150]], t);
+  const on = t => { const [a, b] = cur(t); return a > bx && a < bx + ISLIDE_W && b > by && b < by + ISLIDE_H; };
+  const q = trans(on, u, 0.4, eIO);
+  const arrow = (x, a) => {
+    if (a <= 0) return;
+    k.save(); k.globalAlpha = a; k.strokeStyle = '#fff'; k.lineWidth = 2.2; k.lineCap = 'round'; k.lineJoin = 'round';
+    k.beginPath(); k.moveTo(x - 7, my); k.lineTo(x + 7, my); k.moveTo(x + 2, my - 5); k.lineTo(x + 7, my); k.lineTo(x + 2, my + 5); k.stroke(); k.restore();
+  };
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    k.save(); k.shadowColor = 'rgba(28,35,51,.25)'; k.shadowBlur = 12; k.shadowOffsetY = 4; k.fillStyle = C.ink; rr(k, bx, by, ISLIDE_W, ISLIDE_H, ISLIDE_H / 2); k.fill(); k.restore();
+    k.save(); rr(k, bx, by, ISLIDE_W, ISLIDE_H, ISLIDE_H / 2); k.clip();
+    txt(k, '了解更多', bx + 78 + 20 * q, my + 1, `700 15px ${JP}`, '#fff', 'center', 'middle');
+    arrow(bx + 140 + 40 * q, 1 - q);
+    arrow(bx - 16 + 46 * q, q);
+    k.restore();
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
+  });
+};

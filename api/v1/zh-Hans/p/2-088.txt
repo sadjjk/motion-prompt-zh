@@ -1,0 +1,17 @@
+请使用“钟摆摇晃（Swing letters）”，属于“动态图形进阶”。
+Motion Prompt #2-088
+
+效果解释：吊在一点上的字像钟摆一样摆动
+动画表现：4 个字用细线挂在横杆下，以上方黄色支点为中心缓缓左右摆动，相邻字相位略有错开。
+实现规格与关键运动参数：
+- 每个字吊在上方支点，摆幅 ±14°
+- 4.7 秒摆 3 个来回（每个约 1.57 秒），余弦曲线
+- 相邻字相位错开 0.27 秒
+- 偶数位字为珊瑚色，其余白色
+适用场景：适合慵懒可爱的 Logo、角色介绍或待机画面。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-088
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-088.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Hannah 的 MIT 版权标识。

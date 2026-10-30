@@ -1,0 +1,27 @@
+// Motion Prompt #3-050 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/full-shot
+//
+// 全景 / Full shot
+// 分类包: camera (镜头运动与剪辑) · element 26 · 子分类: 景别
+// 动画表现: 人物从头到脚刚好入画，向前迈出一大步、手臂跟着摆动，停一会儿再收回。
+// 运动规格:
+//   - 画框：从脚下 0.12 m 到 2.0 m，即头到脚再加一点余量；机位距人物 5.2 m，对准画框中心高度。
+//   - 动作：0.4 秒至 1.0 秒向前迈出 0.42 m，手臂随步伐摆动；3.4 秒至 4.0 秒收回并脚。
+//   - 背景的建筑和树保持清晰，交代人物站在哪里。
+//   - 右上角显示“全景 FS”；右下角比例尺的蓝色带覆盖从脚下到头顶的整段。
+//   - 机位全程不动；每轮 4.7 秒，首尾画面相同。
+// 适用场景: 需要同时看清人物全身动作和他所在的场地时。
+// 标签: full shot, fs, wide shot, ws, head to toe, shot size, framing
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-050
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 26
+CELLS[25] = shot(frameCell({ lo: -0.12, hi: 2.0, name: '全景', abbr: 'FS', draw: (k, w, h, u) => {
+  const step = eIO(P(u, 0.4, 1.0)) * (1 - P(u, 3.4, 4.0));   // 踏出一大步再收回来，首尾并脚
+  world(k, w, h, fit(-0.12, 2.0, 5.2), {
+    person: { x: step * 0.42, walk: step * Math.PI * 0.9, z: 8 }   // 大步幅 + 手臂摆动
+  });
+} }));

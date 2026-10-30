@@ -1,0 +1,108 @@
+// Motion Prompt #2 049~063 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// Kit for pack "mgstyles" (MG styles / モーショングラフィックスのスタイル): the constants and helpers its elements share.
+// Elements #2 049~063 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+//
+// Run one element standalone in a browser:
+//   1. paste this file into a <script>,
+//   2. paste the element code below it (it assigns CELLS[n - 1], n = the element number inside the pack),
+//   3. then add:
+//        const c = document.createElement('canvas'); c.width = 539; c.height = 208; document.body.append(c);
+//        const k = c.getContext('2d'), cell = CELLS.find(Boolean), t0 = performance.now();
+//        (function loop() {
+//          const u = ((performance.now() - t0) / 1000) % 6.4;   // seconds, 0 <= u < 6.4
+//          k.setTransform(1, 0, 0, 1, 0, 0); k.clearRect(0, 0, 539, 208);
+//          k.save(); cell(k, 539, 208, u); k.restore();
+//          requestAnimationFrame(loop);
+//        })();
+// Every cell is a pure function of u, so the same call renders video frames: u = frame / fps.
+
+// @kit
+// MG 风格（每格 539x208、6.4 秒周期；每格都是只依赖时间 u 的纯函数）
+// 按 mg-styles-15（Vincentwei1021，MIT）15 支短片各自的配色、构图、节奏与标志手法，在 Canvas 2D 中重画为卡片循环动画；
+// 不使用原作的照片、贴纸、纹理、HDRI、字形轮廓与音频。多数元素 0–5.4 秒展示、5.4–6.4 秒复位；周期运动按整数圈设计；随机按下标确定性生成。
+const CW = 539, CH = 208;
+const CYC = 6.4;
+const SHOW = 5.4;                                   // 展示段结束、复位段开始的时刻
+const TAU = Math.PI * 2;
+// 系统字体栈：不打包字体文件
+const SANS = "'PingFang SC', 'Noto Sans CJK SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif";
+const SERIF = "'Songti SC', 'Noto Serif CJK SC', 'STSong', 'SimSun', serif";
+const MONO = "'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace";
+const DISP = "-apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif";
+
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const mix = (a, b, t) => a + (b - a) * t;
+const seg = (u, a, b) => clamp((u - a) / (b - a));
+const inOut3 = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const out3 = t => 1 - Math.pow(1 - t, 3);
+const backOut = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+// 确定性"随机"：同一下标永远得到同一个 0..1 的值
+const hash = i => { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
+// 复位段：0 = 展示中，1 = 完全复位（淡出）
+const resetK = u => inOut3(seg(u, SHOW, SHOW + 0.6));
+// 复位后的淡入：u 接近 CYC 时从 0 回到展示起点
+const fadeIn = u => 1 - resetK(u);
+
+function font(k, w, s, f) { k.font = `${w} ${s}px ${f}`; }
+function txt(k, s, x, y, f, col, align = 'left', base = 'alphabetic') {
+  k.font = f; k.fillStyle = col; k.textAlign = align; k.textBaseline = base; k.fillText(s, x, y);
+}
+function rr(k, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  k.beginPath(); k.moveTo(x + r, y); k.arcTo(x + w, y, x + w, y + h, r); k.arcTo(x + w, y + h, x, y + h, r);
+  k.arcTo(x, y + h, x, y, r); k.arcTo(x, y, x + w, y, r); k.closePath();
+}
+const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+const lerpC = (a, b, t) => [Math.round(mix(a[0], b[0], t)), Math.round(mix(a[1], b[1], t)), Math.round(mix(a[2], b[2], t))];
+
+// 颗粒：初始化时用 hash 画一张 64×64 的灰度噪点图（常量），绘制时只平铺，不再取随机数
+const GRAIN = (() => {
+  const c = document.createElement('canvas'); c.width = 64; c.height = 64;
+  const g = c.getContext('2d');
+  for (let i = 0; i < 64 * 64; i++) { const v = Math.floor(hash(i + 7) * 255); g.fillStyle = `rgb(${v},${v},${v})`; g.fillRect(i % 64, Math.floor(i / 64), 1, 1); }
+  return c;
+})();
+function grain(k, a, mode = 'overlay') {
+  k.save(); k.globalAlpha = a; k.globalCompositeOperation = mode;
+  k.fillStyle = k.createPattern(GRAIN, 'repeat'); k.fillRect(0, 0, CW, CH); k.restore();
+}
+// 纸纹：固定位置的细短划（宣纸、笺纸底色用），按参数缓存成一张常量图层，绘制时只贴图
+const PAPERS = {};
+function paper(k, col, n, seed) {
+  const key = col.join() + n + '/' + seed;
+  if (!PAPERS[key]) {
+    const c = document.createElement('canvas'); c.width = CW; c.height = CH; const g = c.getContext('2d');
+    for (let i = 0; i < n; i++) {
+      g.fillStyle = rgba(col, hash(seed + i * 3) * 0.08);
+      g.fillRect(hash(seed + i * 3 + 1) * CW, hash(seed + i * 3 + 2) * CH, 1 + hash(seed + i) * 2, 1);
+    }
+    PAPERS[key] = c;
+  }
+  k.drawImage(PAPERS[key], 0, 0);
+}
+// 二维值噪声与分形叠加（确定性，替代原作者的 fbm2）：返回 0..1
+function vnoise(x, y) {
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+  const sx = xf * xf * (3 - 2 * xf), sy = yf * yf * (3 - 2 * yf);
+  const h = (a, b) => hash(a * 157 + b * 311);
+  return mix(mix(h(xi, yi), h(xi + 1, yi), sx), mix(h(xi, yi + 1), h(xi + 1, yi + 1), sx), sy);
+}
+function fbm2(x, y, oct = 4) { let s = 0, a = 0.5, n = 0; for (let i = 0; i < oct; i++) { s += a * vnoise(x, y); n += a; x = x * 2.03 + 1.7; y = y * 2.03 + 9.2; a *= 0.5; } return s / n; }
+// 径向光晕
+function glow(k, x, y, r, c, a) {
+  if (a <= 0) return;
+  const g = k.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(${c},${a})`); g.addColorStop(1, `rgba(${c},0)`);
+  k.fillStyle = g; k.fillRect(x - r, y - r, r * 2, r * 2);
+}
+// 一次性计算并缓存的静态图层（背景、地图、走线等不随时间变化的部分），绘制时只贴图
+const LAYERS = {};
+function layer(name, draw) {
+  if (!LAYERS[name]) { const c = document.createElement('canvas'); c.width = CW; c.height = CH; draw(c.getContext('2d')); LAYERS[name] = c; }
+  return LAYERS[name];
+}
+// 弹性缓动（扁平矢量、花字的弹出）：t 0→1，末端带衰减振荡
+const elasticOut = t => (t <= 0 ? 0 : t >= 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * (TAU / 3)) + 1);
+// 逐帧取整时间（手绘线条沸腾 12fps、像素风 8fps 等）：把 u 落到 1/fps 的格子上，画面按帧跳动
+const stepT = (u, fps) => Math.floor(u * fps + 1e-6) / fps;
+const CELLS = [];

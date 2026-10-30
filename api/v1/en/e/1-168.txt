@@ -1,0 +1,44 @@
+// Motion Prompt #1-168 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Crosshair cursor / クロスヘアカーソル
+// Pack: uxmotion (Interaction & data motion) · element 55 · Category: Cursor interactions
+// What happens: On a dark background with a faint grid, a horizontal and a vertical line span the frame and cross at the cursor. A small ring marks the crossing, and a label at the lower right updates the coordinates as it moves.
+// Motion spec:
+//   - The cross lines are 1 px wide and span edge to edge; a 6 px radius ring marks the crossing.
+//   - The label's X and Y are the position scaled to 1920 × 1080, zero-padded to 4 digits.
+//   - The label sits 12 px below and right of the cursor and flips to the other side near the right or bottom edge.
+//   - The crosshair fades in from 0.4–0.8 s and out from 4.4–4.9 s.
+// When to use it: Use it for design tools, technical products and blueprint-style portfolios.
+// Tags: crosshair, cursor, coordinates, blueprint, tech, monospace
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-168
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 55
+// 55 十字准星坐标（KittenJam #256）：淡格线暗底上，一横一竖两条细线跨满画面交于光标处，交点画半径 6px 小圆；
+// 右下方标签用等宽字实时显示换算到 1920×1080 的 X、Y（补零到 4 位），靠近右缘或下缘时翻到另一侧；0.4–0.8 秒淡入、4.4–4.9 秒淡出离开。
+const XHR_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, 140, 60], [1.6, 380, 140], [2.2, 500, 40], [2.9, 90, 180], [3.6, 269.5, 104], [4.3, 269.5, 104], [5.0, 570, 230]];
+const XHR_BW = 112, XHR_BH = 20;
+CELLS[54] = (k, w, h, u) => {
+  k.fillStyle = '#0E1016'; k.fillRect(0, 0, CW, CH);
+  k.strokeStyle = 'rgba(255,255,255,.05)'; k.lineWidth = 1;
+  for (let x = 26.5; x < CW; x += 27) { k.beginPath(); k.moveTo(x, 0); k.lineTo(x, CH); k.stroke(); }
+  for (let y = 5.5; y < CH; y += 27) { k.beginPath(); k.moveTo(0, y); k.lineTo(CW, y); k.stroke(); }
+  txt(k, '精准定位', 269.5, 96, UXB_f(900, 34), 'rgba(244,240,232,.85)', 'center');
+  txt(k, 'PRECISION · 1920 × 1080', 269.5, 120, UXB_f(700, 10, MONO), UXD.ink3, 'center');
+  const hv = pingPong(u, 0.4, 0.8, 4.4, 4.9);
+  if (hv <= 0) return;
+  const c = UXB_path(u, XHR_KEYS), x = c[0], y = c[1];
+  k.save(); k.globalAlpha = hv;
+  k.strokeStyle = 'rgba(125,180,255,.6)'; k.lineWidth = 1;
+  k.beginPath(); k.moveTo(0, Math.round(y) + 0.5); k.lineTo(CW, Math.round(y) + 0.5); k.moveTo(Math.round(x) + 0.5, 0); k.lineTo(Math.round(x) + 0.5, CH); k.stroke();
+  k.strokeStyle = UXD.accent2; k.lineWidth = 1.5; k.beginPath(); k.arc(x, y, 6, 0, TAU); k.stroke();
+  const X = String(Math.round(clamp(x / CW) * 1920)).padStart(4, '0'), Y = String(Math.round(clamp(y / CH) * 1080)).padStart(4, '0');
+  const lx = x + 12 + XHR_BW > CW - 6 ? x - 12 - XHR_BW : x + 12, ly = y + 12 + XHR_BH > CH - 6 ? y - 12 - XHR_BH : y + 12;
+  rr(k, lx, ly, XHR_BW, XHR_BH, 5); k.fillStyle = 'rgba(125,180,255,.16)'; k.fill(); k.strokeStyle = 'rgba(125,180,255,.4)'; k.lineWidth = 1; k.stroke();
+  txt(k, `X ${X}  Y ${Y}`, lx + XHR_BW / 2, ly + 14, UXB_f(700, 10.5, MONO), '#DDE9FF', 'center');
+  k.restore();
+};

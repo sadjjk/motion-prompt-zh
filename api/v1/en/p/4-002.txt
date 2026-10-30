@@ -1,0 +1,15 @@
+Please use "Sphere of words" (文字の球), one of the names in "Styled scenes".
+Motion Prompt #4-002
+
+What it is: A globe made of Chinese characters, mapped onto a rotating sphere
+What the sample shows: Characters scattered over a sphere slowly spin; those in front turn bold and dark while those behind fade to pale shadows.
+Spec:
+- 160 characters from the Thousand Character Classic placed on a sphere of radius 84 px by a Fibonacci spiral; background #F2EEE6.
+- The sphere spins 1 lap around its vertical axis every 6.4 s, tilted by 0.35 rad.
+- Glyph size 11 px times the perspective factor 2.4 /(2.4 − z); front glyphs use weight 900, back glyphs weight 400 as faint shadows.
+- The frontmost glyphs (z > 0.9) turn vermilion #C8231B.
+When to use it: Use it as a hero background for publishing, education or culture brands, or as a transition in talks about language and characters.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-002.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

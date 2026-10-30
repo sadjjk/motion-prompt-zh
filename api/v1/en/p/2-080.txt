@@ -1,0 +1,15 @@
+Please use "Signature animation" (サイン描画), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-080
+
+What it is: A cursive signature writes itself on
+What the sample shows: A one-stroke cursive signature is written left to right behind a coral pen-tip dot, then a gently curved underline sweeps in beneath it.
+Spec:
+- A single-stroke path: a large initial loop, 6 joined loops, and an upward exit stroke to the right.
+- It writes on over 0.3–2.9 s with a sine ease-in-out; a pen-tip dot (4 px radius, 8 px halo) rides the tip.
+- Line width varies 2–4.2 px with the stroke direction, like pen pressure.
+- Over 2.95–3.4 s a gently curved underline (2.4 px) sweeps in (cubic ease-out); everything fades over 4.0–4.5 s.
+When to use it: Use it for a portfolio intro, a brand signature, or signing off a letter or video.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-080.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

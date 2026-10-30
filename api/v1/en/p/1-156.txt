@@ -1,0 +1,15 @@
+Please use "Border draw button" (ボーダードローボタン), one of the names in "Landing page & web effects".
+Motion Prompt #1-156
+
+What it is: On hover the four edges draw in turn to frame the button
+What the sample shows: When the cursor lands, an orange line runs clockwise from the top-left corner around the thinly outlined button and the label turns orange; when it leaves, the line retracts in reverse.
+Spec:
+- A 180×52 button with only a faint 1px outline; the cursor moves onto it in 0.6 s.
+- A 2px accent border draws from the top-left corner: top edge rightward → right edge down → bottom edge leftward → left edge up, 0.18 s per edge (0.72 s total, linear).
+- The label turns accent orange while the last edge draws.
+- The cursor leaves at 3.2 s and the border retracts in reverse order.
+When to use it: Use it on minimal sites where a quiet outline button needs a clear hover cue.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-156.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

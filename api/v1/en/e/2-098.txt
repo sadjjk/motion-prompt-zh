@@ -1,0 +1,42 @@
+// Motion Prompt #2-098 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Audio waveform / オーディオ波形
+// Pack: motion2 (Motion graphics moves, part 2) · element 59 · Category: Motion techniques
+// What happens: On a player panel 44 thin rounded bars stretch and shrink unevenly about the centre line, the played part in coral, while a ripple spreads around the play button on the left.
+// Motion spec:
+//   - 44 bars (3.6 px wide) grow symmetrically about the centre line, up to 72 px.
+//   - Each bar runs 12–18 segments per 4.7 s (about 0.26–0.39 s each).
+//   - Each segment eases (sine in-out) to a fixed random height between 0.12× and 1×.
+//   - The left 17 bars are coral (played); the play button ripples every 1.175 s.
+// When to use it: Use it for podcasts, music, voice notes or any audio feature.
+// Tags: audio, waveform, equalizer, music, player, podcast
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-098
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 59
+// 改写自 KittenJam Motion Library #193（Hannah）· 音频波形：播放器面板上 44 根圆角细条以中线为基准上下伸缩，每根每 4.7 秒走 12–18 段（各 0.26–0.39 秒），每段在 0.12–1 倍高度（最高 72px）之间按 ease-in-out 换一个固定的随机值；左侧播放钮外圈每 1.175 秒扩散一次，已播放部分为珊瑚色。
+const WAVE_N = 44;
+const WAVE_M = Array.from({ length: WAVE_N }, (_, i) => 12 + Math.floor(H01(i * 7 + 1) * 7));
+CELLS[58] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const CY = 104, BX = 84, X0 = 138, X1 = 416;
+  k.fillStyle = C.navy2; rr(k, 24, 44, w - 48, 120, 22); k.fill();
+  const pq = mod(u / (CYC / 4), 1);
+  k.strokeStyle = `rgba(255,107,92,${0.5 * (1 - pq)})`; k.lineWidth = 2; k.beginPath(); k.arc(BX, CY, 30 + 12 * eOut(pq), 0, 7); k.stroke();
+  k.fillStyle = C.coral; k.beginPath(); k.arc(BX, CY, 30, 0, 7); k.fill();
+  k.fillStyle = '#fff'; rr(k, BX - 9, CY - 11, 6, 22, 2); k.fill(); rr(k, BX + 3, CY - 11, 6, 22, 2); k.fill();
+  const step = (X1 - X0) / WAVE_N;
+  for (let i = 0; i < WAVE_N; i++) {
+    const M = WAVE_M[i], f = u / CYC * M, j = Math.floor(f), q = f - j;
+    const a = 0.12 + 0.88 * H01(i * 131 + mod(j, M)), b = 0.12 + 0.88 * H01(i * 131 + mod(j + 1, M));
+    const hh = 72 * lerp(a, b, eIOs(q));
+    k.fillStyle = i < 17 ? C.coral : '#8FA0D6'; rr(k, X0 + i * step, CY - hh / 2, 3.6, hh, 1.8); k.fill();
+  }
+  txt(k, '1:24', 440, 100, `700 20px ui-monospace, Menlo, monospace`, '#fff');
+  txt(k, '/ 3:45', 442, 122, `600 12px ui-monospace, Menlo, monospace`, C.dim);
+};

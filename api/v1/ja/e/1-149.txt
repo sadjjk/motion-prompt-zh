@@ -1,0 +1,47 @@
+// Motion Prompt #1-149 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 3D リングカルーセル / 3D ring carousel
+// パック: ui (UIパーツの名前) · element 51 · カテゴリ: 案内する・状態を伝えるパーツ
+// 何が起きるか: 8枚のカードが輪になってゆっくり回り、手前ほど大きく明るく、奥ほど小さく暗い。途中で指が右へドラッグして輪を回す。
+// 動きの仕様:
+//   - 84×108のカード8枚が半径190の輪に並び、24秒で一周する速さで回る
+//   - 各カードは z=cos(角度) で大きさ0.55〜1、幅にさらに 0.3+0.7·|z| を掛けて横向きを表す。奥ほど上へ寄り、最大0.45の暗さが重なる
+//   - z の奥から手前の順に描き、裏を向いたカードは裏面だけを描く
+//   - 指が1.6〜2.6秒に右へ160pxドラッグし、輪が easeInOut 3乗で逆向きに67.5°余分に回る。周期4.5秒分の自転と相殺され、周期の始めと終わりで角度が揃う
+// 使いどころ: 作品集・商品紹介・ヒーローの展示など、多くの画像を一つの場所で見せたいときに。
+// タグ: 3d-carousel, ring, carousel, gallery, rotate, drag
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-149
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 51
+// 改写自 KittenJam Motion Library #306 3D 环形轮播：8 张 84×108 卡片围成半径 190 的圆环，以 24 秒一圈的速度自转；
+// 每张按 z=cos(角度) 计算缩放 0.55–1、宽度再乘 0.3+0.7·|z| 模拟侧转，越远越高、越暗（最多叠 0.45 暗层），按 z 由远到近绘制，背面朝外的只画卡背。
+// 手指 1.6–2.6 秒向右拖 160px，圆环额外按 easeInOut 3 次方反向转 67.5°（正好抵消一个周期 4.5 秒的自转），周期首尾角度一致。
+const RING_LAB = ['海边', '山林', '夜空', '午后', '城市', '森林', '湖畔', '沙漠'];
+CELLS[50] = ui((w, h, t) => {
+  X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+  const cx = 271, cy = 90, R = 190, N = 8, CWD = 84, CHT = 108;
+  const base = -Math.PI * 2 * t / 24 + (Math.PI * 2 * CYC / 24) * eio(seg(t, 1.6, 2.6));
+  X.fillStyle = 'rgba(20,24,40,.06)'; X.beginPath(); X.ellipse(cx, cy + 74, R + 30, 14, 0, 0, Math.PI * 2); X.fill();
+  const cards = RING_LAB.map((lab, i) => { const th = base + i * Math.PI * 2 / N; return { lab, i, z: Math.cos(th), x: cx + R * Math.sin(th) }; });
+  cards.sort((a, b) => a.z - b.z);
+  cards.forEach(({ lab, i, z, x }) => {
+    const d = (z + 1) / 2, s = .55 + .45 * d, sx = s * (.3 + .7 * Math.abs(z));
+    X.save(); X.translate(x, cy - 14 * (1 - d)); X.scale(sx, s);
+    if (z >= 0) {
+      shadowed(() => fillRR(-CWD / 2, -CHT / 2, CWD, CHT, 8, '#fff'), 10, 4, .14);
+      mountains(-CWD / 2 + 7, -CHT / 2 + 7, CWD - 14, 64, i % 2);
+      text(lab, 0, CHT / 2 - 18, 14, C.ink, 700, 'center');
+    } else {
+      fillRR(-CWD / 2, -CHT / 2, CWD, CHT, 8, '#e4e2df');
+    }
+    const dim = .45 * (1 - d);
+    if (dim > 0) fillRR(-CWD / 2, -CHT / 2, CWD, CHT, 8, `rgba(20,24,40,${dim})`);
+    X.restore();
+  });
+  finger([[0, 190, 100], [1.6, 190, 100], [2.6, 350, 100]], [1.6], t, t > 1.4 && t < 2.7);
+});

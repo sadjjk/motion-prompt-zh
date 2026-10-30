@@ -1,0 +1,16 @@
+Please use "Interruptible animation" (中断できるアニメーション), one of the names in "UI component names".
+Motion Prompt #1-101
+
+What it is: An animation can change course mid-way, continuing from where it is
+What the sample shows: Tapping again while the drawer is half open does not wait for it to finish; it carries on a little, then turns smoothly and closes.
+Spec:
+- A 304×171 phone screen on the left. The cursor taps the menu button at 1.0 s and a 160-wide drawer opens on a critically damped spring, ω = 10 rad/s: p = 1 − (1 + ωs)e^(−ωs).
+- At 1.2 s, with the drawer 59% open and moving at 2.7/s, a second tap retargets it to closed, continuing from the current position and velocity: p = (p₀ + (v₀ + ωp₀)s)e^(−ωs).
+- It coasts to about 63%, turns smoothly and reaches 0 in about 0.7 s; velocity stays continuous throughout. Scrim 0.36·p.
+- Curve panel on the right (0.9–2.1 s): the solid blue position curve has no corner; the dashed grey "finish opening, then close" (0.35 s open, 0.35 s close) has a sharp peak.
+- Versus a plain open/close: a new command mid-animation neither queues nor jumps; it redirects from the current state.
+When to use it: Use it for drawers, menus, toggles and draggable cards — anywhere users may act again quickly before an animation ends.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-101.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,111 @@
+// Motion Prompt #2-067 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+//
+// ネットワーク拡散 / Network diffusion
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 28 · カテゴリ: 文字・図形の演出
+// 何が起きるか: 左の起点が光って波紋を広げ、信号がつながりを段ごとに右へ伝わり、通った線は珊瑚色に光り、届いたノードが弾んで点灯し、ホップ数と到達数が増えていく。
+// 動きの仕様:
+//   - 起点と16個のノード、16本の曲線の辺からなる暗いネットワーク（背景 #071421・暗い辺 #315365）。信号の色は珊瑚 #ff7058
+//   - 起点は0.13〜0.4秒に0.35倍から弾んで現れる。波紋3つが0.18秒から0.11秒おきに出て、0.78秒で0.3倍から4.8倍へ広がりながら消える
+//   - 16本の辺が0.35秒から3.08秒にかけて順に点灯し、各0.36秒で描き終わる（三次の easeInOut）。描き始めの0.24秒後に先のノードが0.25倍から弾んで点灯する（0.18秒）
+//   - 左上にホップ数 = min(4, ⌊i/2⌋+1)、到達数 = i + 2 をリアルタイム表示。3.4秒から3つの光の輪が1.2倍に広がって薄れ、4.05〜4.23秒に信号の層が消えて暗い辺だけの初期状態に戻る
+//   - ニューラルネットとの違い: 信号は1つの起点から段ごとに外へ広がり、通った辺は光ったまま残る。層の間をパルスが繰り返し流れるものではない
+// 使いどころ: SNS での情報の広がり、感染症の拡散、P2P・ブロックチェーン、紹介プログラムなどを説明する動画やプレゼンに。
+// タグ: network, diffusion, graph, propagation, nodes, data-visualization
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-067
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 28
+// 改写自 ui2v · illli Ai Studio · broll-network-diffusion（MIT-0）
+// 28 网络扩散：左侧源点亮起并放出 3 圈涟漪，信号沿 16 条曲线边一跳一跳向右传到 16 个节点，经过的边变成珊瑚色发光、到达的节点回弹点亮，左上角实时显示跳数与已触达节点数。
+// 时间按原作 8.5 秒 × 0.5 映射：源点 0.13–0.4 秒从 0.35 倍回弹出现（back 1.8）；3 圈涟漪 0.18 秒起每隔 0.11 秒放出、0.78 秒内由 0.3 倍扩到 4.8 倍并淡出（三次缓出）；
+// 16 条边的点亮时刻 0.35 / 0.46 / 1.03 / 1.13 / 1.21 / 1.31 / 1.73 / 1.81 / 1.9 / 1.99 / 2.08 / 2.17 / 2.26 / 2.83 / 2.95 / 3.08 秒，
+// 每条边 0.36 秒画完（三次缓入缓出 = power2.inOut），起点后 0.24 秒节点由 0.25 倍回弹出现（0.18 秒、back 1.7），跳数 = min(4, ⌊i/2⌋+1)、触达数 = i + 2；
+// 3.4 秒起三个光环依次放大到 1.2 倍并变淡；4.05–4.23 秒信号层淡出，回到只有暗色边的初始网络（与 u=0 相同）。
+// 尺寸换算：网络 1740×760 → 节点区 x 200–1640 映射到 20–519（×0.3465），y 30–730 映射到 8–200（×0.274），圆半径 ×0.31。
+// 配色照抄：底 #071421、信号 #ff7058、暗边 #315365、节点描边 #9bb0b8、字 #e8efe9 / #6f8794；节点标签译为「源」与 N1–N6。
+const NETD_KX = 499 / 1440, NETD_KY = 192 / 700, NETD_KR = 0.31, NETD_S = 0.5;
+const NETD_X = x => 20 + (x - 200) * NETD_KX, NETD_Y = y => 8 + (y - 30) * NETD_KY;
+const NETD_NODES = [[260, 380, 27, 58, '源'], [570, 220, 18, 39, 'N1'], [590, 500, 18, 39, 'N2'], [850, 115, 15, 0, 'N3'], [875, 300, 15, 0, 'N4'], [890, 415, 15, 0, 'N5'], [900, 625, 15, 0, 'N6'],
+  [1165, 65, 12, 0], [1180, 195, 12, 0], [1200, 275, 12, 0], [1215, 365, 12, 0], [1230, 465, 12, 0], [1240, 570, 12, 0], [1280, 690, 12, 0], [1530, 115, 10, 0], [1580, 325, 10, 0], [1600, 500, 10, 0]];
+// 边：[起点节点, 终点节点, 控制点1 x, 控制点2 x]（原作三次贝塞尔，控制点 y 分别取起点、终点 y）
+const NETD_EDGES = [[0, 1, 390, 430], [0, 2, 400, 445], [1, 3, 690, 730], [1, 4, 700, 735], [2, 5, 715, 755], [2, 6, 720, 760], [3, 7, 990, 1025], [3, 8, 995, 1035],
+  [4, 9, 1015, 1050], [4, 10, 1020, 1060], [5, 11, 1030, 1080], [6, 12, 1040, 1090], [6, 13, 1060, 1110], [7, 14, 1300, 1380], [10, 15, 1360, 1410], [11, 16, 1380, 1430]].map(([a, b, c1, c2]) => {
+  const A = NETD_NODES[a], B = NETD_NODES[b], pts = [], cum = [0];
+  for (let i = 0; i <= 24; i++) {
+    const t = i / 24, m = 1 - t;
+    const x = m * m * m * A[0] + 3 * m * m * t * c1 + 3 * m * t * t * c2 + t * t * t * B[0], y = m * m * m * A[1] + 3 * m * m * t * A[1] + 3 * m * t * t * B[1] + t * t * t * B[1];
+    pts.push([NETD_X(x), NETD_Y(y)]); if (i) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  }
+  return { b, pts, cum };
+});
+const NETD_START = [0.7, 0.92, 2.05, 2.25, 2.42, 2.62, 3.45, 3.62, 3.8, 3.98, 4.16, 4.34, 4.52, 5.65, 5.9, 6.15];
+const NETD_sIO = x => -(Math.cos(Math.PI * x) - 1) / 2;
+const NETD_BG = (() => {
+  const c = mkCanvas(CW, CH), g = c.getContext('2d');
+  g.fillStyle = '#071421'; g.fillRect(0, 0, CW, CH);
+  const a = g.createRadialGradient(CW * 0.37, CH * 0.52, 0, CW * 0.37, CH * 0.52, CW * 0.26); a.addColorStop(0, 'rgba(255,112,88,.13)'); a.addColorStop(1, 'rgba(255,112,88,0)'); g.fillStyle = a; g.fillRect(0, 0, CW, CH);
+  const b = g.createRadialGradient(CW * 0.78, CH * 0.48, 0, CW * 0.78, CH * 0.48, CW * 0.34); b.addColorStop(0, 'rgba(60,117,142,.2)'); b.addColorStop(1, 'rgba(60,117,142,0)'); g.fillStyle = b; g.fillRect(0, 0, CW, CH);
+  for (let x = 4; x < CW; x += 9) for (let y = 4; y < CH; y += 9) {                     // 点阵（原 30px）两侧渐隐
+    const f = clamp(Math.min(x, CW - x) / (CW * 0.16)); g.fillStyle = `rgba(232,239,233,${0.11 * f})`; g.fillRect(x, y, 1, 1);
+  }
+  g.strokeStyle = '#315365'; g.lineWidth = 1.3; g.lineCap = 'round';
+  for (const e of NETD_EDGES) { g.beginPath(); e.pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); }
+  return c;
+})();
+CELLS[27] = (k, w, h, u) => {
+  u = snapU(u);
+  const t = u / NETD_S;
+  k.drawImage(NETD_BG, 0, 0);
+  const out = 1 - eIn(P(t, 8.1, 8.45));
+  if (out <= 0 || t < 0.25) return;
+  k.save(); k.globalAlpha = out;
+  // 亮边：按虚线偏移逐段画出
+  k.lineCap = 'round'; k.lineJoin = 'round';
+  let hop = 0, reached = 1;
+  NETD_EDGES.forEach((e, i) => {
+    const s = NETD_START[i]; if (t < s) return;
+    const L = e.cum[e.cum.length - 1] * eIO(P(t, s, s + 0.72));
+    k.beginPath(); k.moveTo(e.pts[0][0], e.pts[0][1]);
+    for (let j = 1; j < e.pts.length; j++) {
+      if (e.cum[j] <= L) { k.lineTo(e.pts[j][0], e.pts[j][1]); continue; }
+      const q = (L - e.cum[j - 1]) / (e.cum[j] - e.cum[j - 1]); k.lineTo(lerp(e.pts[j - 1][0], e.pts[j][0], q), lerp(e.pts[j - 1][1], e.pts[j][1], q)); break;
+    }
+    k.strokeStyle = 'rgba(255,112,88,.28)'; k.lineWidth = 5; k.stroke();             // 原 drop-shadow 9px 光晕
+    k.strokeStyle = '#ff7058'; k.lineWidth = 1.9; k.stroke();
+    if (t >= s + 0.5) { hop = Math.min(4, Math.floor(i / 2) + 1); reached = i + 2; }
+  });
+  // 源点涟漪
+  for (let r = 0; r < 3; r++) {
+    const q = P(t, 0.35 + r * 0.22, 1.9 + r * 0.22); if (q <= 0 || q >= 1) continue;
+    const e = eOut(q);
+    k.save(); k.globalAlpha = out * 0.55 * (1 - e); k.strokeStyle = '#ff7058'; k.lineWidth = 1;
+    k.beginPath(); k.arc(NETD_X(260), NETD_Y(380), 58 * NETD_KR * lerp(0.3, 4.8, e), 0, 7); k.stroke(); k.restore();
+  }
+  // 节点
+  NETD_NODES.forEach(([x, y, cr, hr, lb], n) => {
+    const s0 = n === 0 ? 0.25 : NETD_START[NETD_EDGES.findIndex(e => e.b === n)] + 0.48;
+    const q = P(t, s0, s0 + (n === 0 ? 0.55 : 0.36)); if (q <= 0) return;
+    const sc = lerp(n === 0 ? 0.35 : 0.25, 1, backOut(q, n === 0 ? 1.8 : 1.7)), active = n === 0 || t >= s0 - 0.01;
+    const X = NETD_X(x), Y = NETD_Y(y);
+    k.save(); k.globalAlpha = out * clamp(q * 1.6); k.translate(X, Y); k.scale(sc, sc);
+    if (hr) {
+      const hp = NETD_sIO(P(t, 6.8 + n * 0.025, 7.45 + n * 0.025));
+      k.save(); k.globalAlpha *= lerp(0.35, 0.08, hp) / 1; k.strokeStyle = '#ff7058'; k.lineWidth = 1;
+      k.beginPath(); k.arc(0, 0, hr * NETD_KR * (1 + 0.2 * hp), 0, 7); k.stroke(); k.restore();
+    }
+    k.fillStyle = active ? '#ff7058' : '#071421'; k.strokeStyle = active ? '#e8efe9' : '#9bb0b8'; k.lineWidth = n === 0 ? 1.9 : 1.25;
+    k.beginPath(); k.arc(0, 0, Math.max(3, cr * NETD_KR), 0, 7); k.fill(); k.stroke();
+    if (lb) txt(k, lb, 0, Math.max(3, cr * NETD_KR) + (n === 0 ? 13 : 10), `700 ${n === 0 ? 10 : 8}px ${n === 0 ? JP : 'ui-monospace, Menlo, monospace'}`, '#e8efe9', 'center', 'alphabetic');
+    k.restore();
+  });
+  // 左上遥测（随原作状态栏 0.15–0.65 秒淡入）
+  k.globalAlpha = out * eOut(P(t, 0.25, 0.75));
+  txt(k, '跳数', 18, 22, `700 9px ${JP}`, '#6f8794');
+  txt(k, String(hop).padStart(2, '0'), 44, 23, `700 13px ui-monospace, Menlo, monospace`, '#e8efe9');
+  txt(k, `${String(reached).padStart(2, '0')} 个节点已触达`, 18, 38, `700 9px ${JP}`, '#e8efe9');
+  k.restore();
+};

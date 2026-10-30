@@ -1,0 +1,15 @@
+Please use "Scroll-filled sentence" (スクロールで塗られる文), one of the names in "Interaction & data motion".
+Motion Prompt #1-070
+
+What it is: A large sentence that fills in word by word as you scroll
+What the sample shows: As you scroll, the pale sentence darkens word by word from the start, key words light up purple, and a button springs up at the end.
+Spec:
+- The sentence starts pale grey and fills word by word with scroll progress: each word takes 1/N of the progress, sped up ×1.15 so it finishes early.
+- The 2 key phrases turn purple #6A57F2 once filled and light up with a glow at .16 opacity.
+- When reading ends, a 'Next →' button springs up from 12 px below (.35 s fade, .5 s spring).
+- A 3 px wide, 120 px tall progress bar on the right grows in step; demo scrolls over 0.4→4.4 s and back over 5.4→6.3 s, fading the text again.
+When to use it: Use it for brand stories, manifesto pages or long-read intros to pace reading with the scroll.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-070.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

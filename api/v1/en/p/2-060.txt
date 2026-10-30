@@ -1,0 +1,15 @@
+Please use "Pixel art / 8-bit" (ピクセルアート), one of the names in "MG styles".
+Motion Prompt #2-060
+
+What it is: An 8-bit game look built from low-res pixels, a limited palette and frame-stepped motion
+What the sample shows: A red-hooded hero runs across 3 parallax layers, jumps for coins and squashes a slime, while a blocky pixel logo drops in frame by frame and bounces.
+Spec:
+- Drawn on a 108 × 42 low-res frame and scaled up 5× with nearest-neighbour. The sky is a Bayer 4 × 4 dithered gradient, with CRT scanlines and a vignette on top.
+- Sprites and scrolling run at 48 frames per cycle (7.5 fps): the hero has a 6-frame run cycle, far hills, bushes and ground tiles scroll at 1/4, 1/2 and 1× parallax, and the ground travels 192 pixels per cycle.
+- Along the way the hero jumps through an arc of 3 coins, stomps a pink slime into a puff of smoke, then runs over 3 ground coins. Coins spin in 4 frames.
+- From 0.4 s the blocky logo PIXEL QUEST drops and bounces at 8 fps; from 1.1 s the Chinese subtitle appears character by character. Highlights sweep diagonally at 1.5 and 3.5 s, and the logo steps up and out at 5.4 s.
+When to use it: Game promos, retro-themed social shorts, and openings for tech or programming explainer videos.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-060.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

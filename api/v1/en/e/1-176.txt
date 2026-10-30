@@ -1,0 +1,47 @@
+// Motion Prompt #1-176 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Metaballs / メタボール
+// Pack: aiux (Glow & liquid) · element 14 · Category: Liquid interactions
+// What happens: On a dark background, purple-to-blue balls drift slowly, grow a neck and join when they meet, then snap apart into separate balls again.
+// Motion spec:
+//   - 5 balls with radii of 22–36 px follow Lissajous paths with horizontal amplitudes of 70–150 px and vertical ones of 30–45 px, 1 or 2 swings per cycle.
+//   - The area where the field Σ r²/d² exceeds 1 is filled as liquid, so close balls grow a neck and distant ones thin out and split.
+//   - The contour comes from marching squares on a 3 px grid, giving a smooth outline that stays sharp when scaled.
+//   - The liquid uses a horizontal hue gradient from 265° to 190°; a 16% white core where the field exceeds 1.8 adds depth.
+//   - Every path repeats a whole number of times per 4.8 s cycle, so the loop is seamless.
+// When to use it: Use it behind heroes, idle screens and brand visuals that need a soft, organic, lava-lamp feel.
+// Tags: metaballs, liquid, gooey, blob, lava-lamp, merge, background
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-176
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 14
+// 14 融合球（改写自 KittenJam #176，Hannah，MIT）：5 颗圆球沿整数频率的利萨如轨迹漂浮，势场 Σr²/d² 超过 1 的区域填色，
+// 靠近时自然黏连、分开时颈部拉细断开；用 marching squares（步长 3px）求等值线，边缘干净且放大不糊。
+// 每颗球：[中心 x, 中心 y, x 振幅, y 振幅, x 每周期圈数, y 每周期圈数, x 相位, y 相位, 半径]
+const MB_BALLS = [
+  [150, 104, 70, 40, 1, 2, 0.0, 0.5, 34],
+  [270, 100, 120, 45, 1, 1, 2.1, 0.0, 30],
+  [390, 108, 70, 38, 1, 2, 4.0, 1.7, 36],
+  [220, 110, 150, 30, 2, 1, 1.0, 3.0, 22],
+  [330, 96, 140, 35, 1, 2, 3.3, 5.0, 26],
+];
+const MB_STEP = 3;
+CELLS[13] = (k, w, h, u) => {
+  bg(k); grid(k);
+  const ph = TAU * u / CYC;
+  const balls = MB_BALLS.map(([bx, by, ax, ay, fx, fy, px, py, r]) => [bx + ax * Math.sin(fx * ph + px), by + ay * Math.sin(fy * ph + py), r * r]);
+  const field = (x, y) => {
+    let f = 0;
+    for (const [bx, by, r2] of balls) f += r2 / ((x - bx) * (x - bx) + (y - by) * (y - by) + 1e-3);
+    return f;
+  };
+  // 外层：势场阈值 1；内层：阈值 1.8 的亮芯，给液体一点厚度
+  const g = k.createLinearGradient(60, 0, 480, 0);
+  g.addColorStop(0, hsla(265, 90, 64, 1)); g.addColorStop(1, hsla(190, 95, 58, 1));
+  k.fillStyle = g; liquid(k, (x, y) => 1 - field(x, y), 0, 0, CW, CH, MB_STEP);
+  k.fillStyle = 'rgba(255,255,255,0.16)'; liquid(k, (x, y) => 1.8 - field(x, y), 0, 0, CW, CH, MB_STEP);
+};

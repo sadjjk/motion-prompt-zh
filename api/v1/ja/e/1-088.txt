@@ -1,0 +1,86 @@
+// Motion Prompt #1-088 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// アイコン上のインストール進捗 / Install progress on icon
+// パック: uxmotion (インタラクションとデータの動き) · element 28 · カテゴリ: 進捗フィードバック
+// 何が起きるか: グラデーションのアプリアイコンを覆う暗い扇形が時計回りに消えていき、途中でタップして一時停止・再開し、完了するとアイコンが弾んで「開く」ボタンが出る。
+// 動きの仕様:
+//   - 120px のグラデーションアイコン #FFB547→#FF6B8B→#7B61FF、角丸 29px。不透明度 0.55 の暗い覆いが進捗に合わせて時計回りに晴れる
+//   - 進む速さは 2×(0.16+0.04·sin 2.5t)。右側のパーセントと 186 MB 中の MB 数が連動して増える
+//   - デモでは 1.8 秒のタップで一時停止（中央が再生の三角に 0.2 秒で変わる）、2.7 秒のタップで再開
+//   - 完了すると覆いが 0.5 秒で消え、中央の円は 0.45 秒で 0.4 倍に縮む。アイコンは 0.7 秒で弾み（0.9 倍に縮み、1.08 倍に膨らんで 4px 上がる）、「開く」ボタンが 0.5 秒で弾んで現れる
+// 使いどころ: アプリストア風の画面やランチャー、ソフトウェアのダウンロード・アップデート表示で。
+// タグ: install, download, progress, app-icon, pause-resume, radial-progress
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-088
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 28
+// 28 图标安装进度：渐变 App 图标（#FFB547→#FF6B8B→#7B61FF）上的暗色罩 rgba(12,10,24,.55) 按进度顺时针扫开，右侧百分比与 MB 数同步上涨；
+// 速度 0.16+0.04·sin(2.5t)（原作每秒进度，此处 ×2 以便 6.4 秒内装完）；1.8 秒指针点图标暂停（中心圈换成播放三角 .2s），2.7 秒再点继续；
+// 约 4.25 秒装满：罩层 .5s 淡出、中心圈 .45s 缩到 .4，图标 .7s 弹跳（30% 缩到 .9、60% 放大 1.08 并上移 4px），"打开"按钮 .5s 回弹出现；5.6–6.2 秒交叉淡化复位。
+const INS_SIZE = 186, INS_P1 = 1.8, INS_P2 = 2.7;
+const INS_A = u => (u < 0.3 ? 0 : u < INS_P1 ? u - 0.3 : u < INS_P2 ? INS_P1 - 0.3 : u - INS_P2 + INS_P1 - 0.3);
+const INS_p = A => Math.min(1, 2 * (0.16 * A + 0.016 * (1 - Math.cos(2.5 * A))));
+const INS_DONE = (() => { let A = 0; while (INS_p(A) < 1) A += 1 / 2000; return INS_P2 + A - (INS_P1 - 0.3); })();
+const INS_KEYS = [[0, -20, 230], [1.2, -20, 230], [1.7, 110, 112], [2.85, 110, 112], [3.4, -20, 232]];
+function INS_draw(k, u) {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 10, 10, CW - 20, CH - 20, 18);
+  const A = INS_A(u), p = INS_p(A), done = u >= INS_DONE, paused = u >= INS_P1 && u < INS_P2;
+  let sc = 1 - 0.06 * Math.max(UXB_press(u, INS_P1), UXB_press(u, INS_P2)), ty = 0;
+  if (done) {
+    const hp = seg(u, INS_DONE, INS_DONE + 0.7);
+    if (hp < 0.3) sc *= mix(1, 0.9, inOut3(hp / 0.3));
+    else if (hp < 0.6) { const e = inOut3((hp - 0.3) / 0.3); sc *= mix(0.9, 1.08, e); ty = -4 * e; }
+    else { const e = inOut3((hp - 0.6) / 0.4); sc *= mix(1.08, 1, e); ty = -4 * (1 - e); }
+  }
+  const S = 120, cx = 46 + S / 2, cy = 44 + S / 2;
+  k.save(); k.translate(cx, cy + ty); k.scale(sc, sc); k.translate(-S / 2, -S / 2);
+  const g = k.createLinearGradient(S * 0.2, 0, S * 0.8, S); g.addColorStop(0, '#FFB547'); g.addColorStop(0.5, '#FF6B8B'); g.addColorStop(1, '#7B61FF');
+  k.save(); k.shadowColor = 'rgba(120,50,120,.45)'; k.shadowBlur = 24; k.shadowOffsetY = 14; rr(k, 0, 0, S, S, 29); k.fillStyle = g; k.fill(); k.restore();
+  rr(k, 0, 0, S, S, 29); k.clip();
+  k.fillStyle = 'rgba(255,255,255,.92)'; k.beginPath(); k.moveTo(60, 29.4); k.lineTo(90.5, 60); k.lineTo(60, 90.6); k.lineTo(29.5, 60); k.closePath(); k.fill();
+  glow(k, 111, 0, 54.5 * 0.65 / 0.65, '255,255,255', 0.45);
+  const fade = 1 - seg(u, INS_DONE, INS_DONE + 0.5);
+  if (p < 1 && fade > 0) {
+    k.fillStyle = `rgba(12,10,24,${0.55 * fade})`; k.beginPath(); k.moveTo(60, 60);
+    k.arc(60, 60, 100, -Math.PI / 2 + p * TAU, -Math.PI / 2 + TAU); k.closePath(); k.fill();
+  }
+  const ra = 1 - seg(u, INS_DONE, INS_DONE + 0.4);
+  if (ra > 0) {
+    const rs = done ? mix(1, 0.4, backOut(seg(u, INS_DONE, INS_DONE + 0.45))) : 1;
+    k.save(); k.globalAlpha = ra; k.translate(60, 60); k.scale(rs, rs);
+    k.fillStyle = 'rgba(12,10,24,.5)'; k.beginPath(); k.arc(0, 0, 26.4, 0, TAU); k.fill();
+    k.strokeStyle = 'rgba(255,255,255,.9)'; k.lineWidth = 3; k.beginPath(); k.arc(0, 0, 27.9, 0, TAU); k.stroke();
+    const pl = u < INS_P1 ? 0 : u < INS_P2 ? seg(u, INS_P1, INS_P1 + 0.2) : 1 - seg(u, INS_P2, INS_P2 + 0.2);
+    k.fillStyle = '#FFFFFF';
+    if (pl < 1) { k.globalAlpha = ra * (1 - pl); rr(k, -6.4, -7.3, 4.5, 14.5, 1.4); k.fill(); rr(k, 1.8, -7.3, 4.5, 14.5, 1.4); k.fill(); }
+    if (pl > 0) { k.globalAlpha = ra * pl; k.beginPath(); k.moveTo(-4.5, -7.3); k.lineTo(8.2, 0); k.lineTo(-4.5, 7.3); k.closePath(); k.fill(); }
+    k.restore();
+  }
+  k.restore();
+  // 右侧文字
+  const X = 196, speed = 0.16 + 0.04 * Math.sin(2.5 * A), mb = Math.round(p * INS_SIZE);
+  txt(k, 'Lumen Studio', X, 66, UXB_f(850, 22), UX.ink);
+  const meta = done ? `已安装 · ${INS_SIZE} MB` : paused ? `已暂停 · ${mb} MB / ${INS_SIZE} MB` : `安装中 · ${mb} MB / ${INS_SIZE} MB · ${(speed * INS_SIZE / 10).toFixed(1)} MB/s`;
+  txt(k, meta, X, 90, UXB_f(650, 12), UX.ink3);
+  const pf = UXB_f(850, 40), ps = String(Math.floor(p * 100)); k.font = pf;
+  txt(k, ps, X, 138, pf, UX.ink); txt(k, '%', X + k.measureText(ps).width + 3, 138, UXB_f(800, 18), UX.ink3);
+  rr(k, X, 152, 86, 32, 16); k.fillStyle = UX.surface2; k.fill();
+  txt(k, done ? '重新安装' : '重新开始', X + 43, 172, UXB_f(780, 12), UX.ink, 'center');
+  if (done) {
+    const e = seg(u, INS_DONE, INS_DONE + 0.5), s2 = 0.6 + 0.4 * backOut(e);
+    k.save(); k.globalAlpha = clamp(e * 2); k.translate(X + 96 + 32, 168); k.scale(s2, s2);
+    rr(k, -32, -16, 64, 32, 16); k.fillStyle = UX.accent; k.fill(); txt(k, '打开', 0, 4, UXB_f(780, 12), '#FFFFFF', 'center');
+    k.restore();
+  }
+}
+CELLS[27] = (k, w, h, u) => {
+  UXB_xfade(k, INS_draw, u, 5.6, 6.2);
+  const c = UXB_path(u, INS_KEYS);
+  ripple(k, c[0], c[1], seg(u, INS_P1, INS_P1 + 0.5), '255,255,255'); ripple(k, c[0], c[1], seg(u, INS_P2, INS_P2 + 0.5), '255,255,255');
+  if (u > 1.2 && u < 3.4) cursor(k, c[0], c[1], Math.max(UXB_press(u, INS_P1), UXB_press(u, INS_P2)));
+};

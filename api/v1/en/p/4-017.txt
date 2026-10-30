@@ -1,0 +1,15 @@
+Please use "Risograph" (リソグラフ), one of the names in "Styled scenes".
+Motion Prompt #4-017
+
+What it is: A risograph-style poster where fluorescent pink and teal plates are printed slightly out of register
+What the sample shows: Pink and teal circles, squares and heavy type overlap on cream paper into a third colour, while the plates drift slightly back and forth.
+Spec:
+- Frame 539 × 208 px on cream #F4F0E6. The 2 plates, fluorescent pink #FF48B0 and teal #00A69C, are multiplied to form a third colour.
+- Pink plate: a radius 78 px circle, an 84 × 84 px square and 100 px heavy RISO. Teal plate: a radius 66 px circle, 64 px heavy PRINT and 8 bars 4 px thick.
+- The 2 plates are offset by 3 ± 2 px (1–5 px), following a sine 3 times per 6.4 s; the pink plate shifts right and the teal plate shifts up.
+- 1500 fixed pale ink-skip specks plus multiply grain at 0.1 opacity.
+When to use it: Posters and covers for zines or music events, or a hero background that gives a creative brand a retro print feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-017.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

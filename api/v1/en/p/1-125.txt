@@ -1,0 +1,15 @@
+Please use "Photo stack shuffle" (フォトスタックシャッフル), one of the names in "Landing page & web effects".
+Motion Prompt #1-125
+
+What it is: Pulls the top photo off a pile and tucks it underneath
+What the sample shows: Each time the cursor clicks a pile of 4 tilted polaroids, the top one slides out to the right and goes to the bottom while the rest move up a place.
+Spec:
+- A pile of 4 tilted polaroids (96×112) whose slots are angled −3°, 4°, −7° and 6°.
+- The cursor clicks the top card at 0.6, 1.5, 2.4 and 3.3 s; each shuffle starts 0.05 s after the click and lasts 0.75 s.
+- The top card slides 170px to the right and turns 10° more with easeOut power 3 over the first 0.36 s, then tucks into the bottom slot over the remaining 0.39 s (easeInOut power 3).
+- The other 3 cards each move up one slot at the same time (easeInOut power 3); after 4 shuffles the order is back to the start, matching the first frame.
+When to use it: Use it in travel stories, albums or portfolios to flip through photos one at a time.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-125.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

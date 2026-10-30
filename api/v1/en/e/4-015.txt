@@ -1,0 +1,46 @@
+// Motion Prompt #4-015 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Memphis / メンフィス
+// Pack: scenes (Styled scenes) · element 15 · Category: Patterns & graphics
+// What happens: Circles, triangles, squiggles, dot grids and bars bob up and down across a peach ground, each spinning its own way.
+// Motion spec:
+//   - 36 shapes on pastel #FDE3D6, laid on a jittered 9 × 4 grid, sized 18–48 px.
+//   - 5 shape types (circle, triangle, squiggle, 4 × 4 dot grid, bar) in 5 colours.
+//   - Each shape bobs with a 5 px amplitude, 2 or 3 times per 6.4 s.
+//   - Each also spins -1, 0 or 1 laps per 6.4 s.
+// When to use it: Use it as a hero background for playful brands or events, an opener for youth or kids' videos, or a social media cover.
+// Tags: memphis, geometric, pastel, playful, shapes, 80s, pattern
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-015
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 15
+// 15 孟菲斯：粉彩底上 36 个圆、三角、波浪线、点阵和条块各自上下弹跳（每周期 2 或 3 次）并旋转（每周期 -1/0/+1 圈）
+const MEM_COLS = ['#1A1A1A', '#FF5C8A', '#2EC4B6', '#FFC93C', '#5B5BF0'];
+const MEM_SHAPES = Array.from({ length: 36 }, (_, i) => {   // 9 列 × 4 行抖动网格铺满卡片
+  const c = i % 9, r = Math.floor(i / 9), q = j => hash(i * 7 + j);
+  return { x: 30 + c * 60 + (q(1) - 0.5) * 34, y: 26 + r * 52 + (q(2) - 0.5) * 26, s: 18 + q(3) * 30,
+    col: MEM_COLS[Math.floor(q(4) * 5)], ty: Math.floor(q(5) * 5), rot: q(6) * 6,
+    spin: Math.round((q(7) - 0.5) * 2.4), bob: 2 + (i % 2) };
+});
+CELLS[14] = (k, w, h, u) => {
+  k.fillStyle = '#FDE3D6'; k.fillRect(0, 0, CW, CH);
+  const ph = TAU * u / CYC;
+  k.lineCap = 'round';
+  MEM_SHAPES.forEach((m, i) => {
+    const s = m.s;
+    k.save(); k.translate(m.x, m.y + Math.sin(ph * m.bob + i) * 5);   // 弹跳振幅 5px
+    k.rotate(m.rot + m.spin * ph);
+    k.fillStyle = m.col; k.strokeStyle = m.col; k.lineWidth = 3;
+    if (m.ty === 0) { k.beginPath(); k.arc(0, 0, s * 0.5, 0, TAU); k.fill(); }
+    else if (m.ty === 1) { k.beginPath(); k.moveTo(0, -s * 0.5); k.lineTo(s * 0.5, s * 0.45); k.lineTo(-s * 0.5, s * 0.45); k.fill(); }
+    else if (m.ty === 2) { k.beginPath(); for (let j = 0; j <= 30; j++) k.lineTo(-s + j / 30 * s * 2, Math.sin(j / 30 * 12) * s * 0.18); k.stroke(); }
+    else if (m.ty === 3) { k.beginPath(); for (let a = 0; a < 4; a++) for (let b = 0; b < 4; b++) { k.moveTo(a * 6 - 9 + 1.6, b * 6 - 9); k.arc(a * 6 - 9, b * 6 - 9, 1.6, 0, TAU); } k.fill(); }
+    else { k.fillRect(-s * 0.5, -s * 0.12, s, s * 0.24); k.fillStyle = '#1A1A1A'; k.fillRect(-s * 0.5, s * 0.12, s, 2); }
+    k.restore();
+  });
+  grain(k, 0.06, 'multiply');
+};

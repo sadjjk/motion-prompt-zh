@@ -1,0 +1,35 @@
+// Motion Prompt #3-069 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/soft-focus
+//
+// ソフトフォーカス / Soft focus
+// パック: photo (写真の表現・光と画風) · element 33 · カテゴリ: レンズ・カメラの効果
+// 何が起きるか: 場面全体のぼかした写しが明るく重なり、太陽と人物の光る縁がにじむ。暗部が少し浮くが、山・木・人物の輪郭ははっきりしたまま。
+// 動きの仕様:
+//   - 場面: 太陽 (432, 54) のある風景と、胸から上の人物（頭の中心 x140, y82・半径28px）
+//   - にじみ: 場面の写しを 7px ぼかし、明るさ 1.12 倍にして、不透明度 0.6 のスクリーンで重ねる
+//   - コントラスト: 白を不透明度 0.1 で薄く重ねて暗部を持ち上げる。元の絵が下に残るので輪郭はぼけない
+//   - 右上に「SOFT n%」
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: ポートレート・ウェディング・思い出の場面で、柔らかく夢のような雰囲気にしたいとき。
+// タグ: soft focus, diffusion, glow, dreamy, low contrast, lens
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-069
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 33
+// 柔焦（ソフトフォーカス）: 画面全体のぼかした写しを明るくしてスクリーンで重ねる。太陽と人物の光る縁がにじみ、
+// 全体のコントラストが下がって暗部が浮くが、山・木・人物の輪郭は元の絵が残るのでくっきりしたまま
+CELLS[32] = cell((k, u) => {
+  const a = env(u);
+  stageLand(k, BASE);
+  if (a < 0.002) { hud(k, 'SOFT 0%'); return; }
+  const [S, ks] = layer('soft'); stageLand(ks, BASE);
+  const [B, kb] = layer('soft-b'); kb.filter = 'blur(7px) brightness(1.12)'; kb.drawImage(S, 0, 0); kb.filter = 'none';
+  k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.6 * a; k.drawImage(B, 0, 0);
+  // 暗部が浮く: ごく薄い白を重ねてコントラストを下げる
+  k.globalCompositeOperation = 'source-over'; k.globalAlpha = 0.1 * a; k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+  k.restore();
+  hud(k, `SOFT ${Math.round(a * 100)}%`);
+});

@@ -1,0 +1,16 @@
+Please use "Smooth scroll" (スムーススクロール), one of the names in "Landing page & web effects".
+Motion Prompt #1-045
+
+What it is: In-page links glide to their target instead of jumping
+What the sample shows: Clicking "Pricing" in the menu glides the page down to the pricing section; the up arrow at the bottom right glides it back to the top.
+Spec:
+- At 0.9 s the "Pricing" menu item is clicked; scroll goes 0→296 px over 0.95–2.0 s (1.05 s, cubic ease-in-out).
+- Stop position = top of the pricing section (330 px) − fixed header height (34 px).
+- Once scroll passes 60 px, a round back-to-top button (radius 15) fades in over the next 40 px at the bottom right.
+- At 3.1 s that button is clicked; scroll goes 296→0 over 3.15–4.2 s (cubic ease-in-out).
+- While the pricing section is in view, "Pricing" in the menu turns orange.
+When to use it: Use it when a menu or table of contents jumps within the same page, so the reader sees where they went.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-045.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

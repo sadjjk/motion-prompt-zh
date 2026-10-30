@@ -1,0 +1,15 @@
+Please use "Rippling letters" (文字のばね波紋), one of the names in "Interaction & data motion".
+Motion Prompt #1-068
+
+What it is: A headline whose letters bob like springs as the pointer passes
+What the sample shows: As the pointer glides left to right, the big letters beneath lift and tint purple, then bounce down; a button sends a wave across them.
+Spec:
+- The 6 letters of MOTION sit 66 px apart, weight 900, 62 px, and only move up and down.
+- Letters near the pointer lift by a Gaussian (σ 34 px), up to 34 px; each has a spring: per frame v += (target − y)×0.16, v ×= 0.8.
+- The higher a letter rises, the more purple it turns (mixed by y / 50), and its floor shadow gets fainter and narrower.
+- 'Send wave' runs a 1.1 s pulse at 1.35× amplitude from left to right; demo sweeps at 0.4–3.0 s and clicks at 3.4 s.
+When to use it: Use it on brand-site headlines, portfolio names or big event-page type to add a tactile hover response.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-068.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

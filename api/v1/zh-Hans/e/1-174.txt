@@ -1,0 +1,54 @@
+// Motion Prompt #1-174 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 回到顶部进度环 / Back-to-top progress ring
+// 分类包: uxmotion (交互与数据动效) · element 61 · 子分类: 滚动交互
+// 动画表现: 文章向下滚动后，右下角浮出圆形按钮，外环弧线随阅读量增长；指针点击按钮，页面平滑回到顶部，按钮缩小消失。
+// 运动规格:
+//   - 0.4–3.0 秒文章向下滚到 86%（inOut3，右侧滚动条同步）。
+//   - 滚过 12% 时按钮从 0.6→1 倍放大淡入（0.25 秒）。
+//   - 外环弧线（半径 23 px，线宽 3 px）从正上方顺时针，弧长 = 阅读进度。
+//   - 3.6 秒点击按钮，页面 3.65–4.45 秒用 0.8 秒回到顶部（inOut3）。
+//   - 进度低于 12% 时按钮缩回消失。
+// 适用场景: 适合长文、文档和博客，用一个控件同时显示阅读量并提供回顶入口。
+// 标签: back-to-top, scroll, progress-ring, reading-progress, button, smooth-scroll
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-174
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 61
+// 61 回到顶部进度环（KittenJam #211）：文章 0.4–3.0 秒向下滚到 86%（inOut3，右侧滚动条同步）；滚过 12% 时右下角按钮放大淡入（0.25 秒），外环弧长 = 阅读进度；
+// 指针 3.6 秒点击按钮，页面 3.65–4.45 秒平滑回到顶部（0.8 秒 inOut3），进度跌回 12% 以下时按钮缩回；指针 4.0–4.6 秒离开。
+const BTP_MAX = 0.86, BTP_TH = 0.12, BTP_CLICK = 3.6, BTP_BX = CW - 52, BTP_BY = CH - 42, BTP_PAGE = 560;
+const BTP_ON = 0.4 + 2.6 * UXA_inv(BTP_TH / BTP_MAX), BTP_OFF = 3.65 + 0.8 * UXA_inv(1 - BTP_TH / BTP_MAX);
+const BTP_KEYS = [[0, 570, 230], [3.0, 570, 230], [3.5, BTP_BX + 3, BTP_BY + 4], [3.75, BTP_BX + 3, BTP_BY + 4], [4.6, 570, 230]];
+const BTP_p = u => (u < 3.65 ? BTP_MAX * inOut3(seg(u, 0.4, 3.0)) : BTP_MAX * (1 - inOut3(seg(u, 3.65, 4.45))));
+CELLS[60] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  const p = BTP_p(u), oy = -p * (BTP_PAGE - CH);
+  k.save(); k.translate(0, oy);
+  txt(k, '设计笔记', 60, 34, UXB_f(800, 10.5), UX.accent);
+  txt(k, '好的动效，是让用户感觉不到它', 60, 62, UXB_f(900, 20), UX.ink);
+  for (let i = 0; i < 26; i++) {
+    const y = 92 + i * 18 + Math.floor(i / 5) * 14, wl = i % 5 === 4 ? 0.45 + 0.3 * hash(i + 3) : 0.82 + 0.18 * hash(i + 7);
+    k.fillStyle = i % 5 === 0 && i ? UX.ink2 : UX.surface3; rr(k, 60, y, 400 * wl, i % 5 === 0 && i ? 8 : 7, 3.5); k.fill();
+  }
+  k.restore();
+  scrollbar(k, p, CH / BTP_PAGE);
+  const sv = UXB_ramp(u, [[-1, 0], [BTP_ON, 1], [BTP_OFF, 0]], 0.25), pr = UXB_press(u, BTP_CLICK);
+  if (sv > 0.01) {
+    const s = (0.6 + 0.4 * sv) * (1 - 0.08 * pr);
+    k.save(); k.globalAlpha = sv; k.translate(BTP_BX, BTP_BY); k.scale(s, s);
+    k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 12; k.shadowOffsetY = 4; k.fillStyle = UX.surface; k.beginPath(); k.arc(0, 0, 20, 0, TAU); k.fill(); k.restore();
+    k.lineWidth = 3; k.strokeStyle = UX.surface3; k.beginPath(); k.arc(0, 0, 23, 0, TAU); k.stroke();
+    k.strokeStyle = UX.accent; k.lineCap = 'round'; k.beginPath(); k.arc(0, 0, 23, -Math.PI / 2, -Math.PI / 2 + TAU * p); k.stroke();
+    k.strokeStyle = UX.ink; k.lineWidth = 2; k.lineJoin = 'round';
+    k.beginPath(); k.moveTo(0, 7); k.lineTo(0, -6); k.moveTo(-5, -1); k.lineTo(0, -6); k.lineTo(5, -1); k.stroke();
+    k.restore();
+  }
+  ripple(k, BTP_BX, BTP_BY, (u - BTP_CLICK) / 0.5);
+  const c = UXB_path(u, BTP_KEYS);
+  if (u > 3.0 && u < 4.6) cursor(k, c[0], c[1], pr);
+};

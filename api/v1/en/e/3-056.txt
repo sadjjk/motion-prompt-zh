@@ -1,0 +1,35 @@
+// Motion Prompt #3-056 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/macro-shot
+//
+// Macro shot / マクロ撮影
+// Pack: camera (Camera moves & transitions) · element 32 · Category: Shot size
+// What happens: A mushroom about 0.26 m tall fills the frame; focus pulls from soft to sharp so the white spots on the cap, the gills and a bug crawling along the rim come through, while the tree trunks and a person's legs behind stay blurred.
+// Motion spec:
+//   - Frame: from 0.02 m below the ground to 0.26 m; camera close to the ground, 0.9 m from the mushroom.
+//   - Focus: pulls from soft to sharp from 0.4 s to 1.1 s and goes soft again from 4.3 s to 4.7 s.
+//   - Mushroom: cap red-brown #C34F40 with a #D97B57 middle ring and a #E7E0CE centre, three rings of white spots, radial gills under the cap and two fine lines on the stem.
+//   - Bug: crawls along the rim from right to left and back once per pass; its legs move faster or slower with its speed.
+//   - The two trees and the person's legs behind always stay blurred; top right reads "微距 MACRO"; one pass = 4.7 s.
+// When to use it: For insects, flowers, food or product textures, details the eye barely sees.
+// Tags: macro shot, macro, macro photography, focus pull, detail, shallow depth of field, shot size
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-056
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 32
+// 32 微距：0.26 m 的蘑菇撑满画面，对焦拉实（0.4–1.1s）后能看清伞盖的白点花纹、菌褶和沿伞缘爬的小虫；
+// 后景是虚化的树干，人物只剩一双虚化的腿（贴着地面看的视角）；结尾回虚，循环无缝
+CELLS[31] = shot(frameCell({ lo: -0.02, hi: 0.26, name: '微距', abbr: 'MACRO', draw: (k, w, h, u) => {
+  const sharp = eIO(P(u, 0.4, 1.1)) * (1 - eIOs(P(u, 4.3, 4.7)));   // 1 = 对上焦；结尾回虚，循环无缝
+  const bug = 0.5 - 0.5 * wave(u, 1);   // 小虫沿伞盖外缘来回走（0 = 右缘，1 = 左缘）
+  world(k, w, h, fit(-0.02, 0.26, 0.9, { z: 7 }), {
+    person: { x: 0.2, z: 7.6 }, blurBg: 4, blurFg: 4 * (1 - sharp),
+    extra: [
+      [0.3, 0, 7.4, (kk, s) => mushroom(kk, s, bug, 1.5), true],
+      [-0.13, 0, 7.9, (kk, s) => tree(kk, s, 4, '#8FA98F')],
+      [0.45, 0, 8.2, (kk, s) => tree(kk, s, 4.6, '#9DB3A0')]
+    ]
+  });
+} }));

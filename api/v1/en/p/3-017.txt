@@ -1,0 +1,17 @@
+Please use "Jump cut" (ジャンプカット), one of the names in "Camera moves & transitions".
+Motion Prompt #3-017
+
+What it is: Same framing, skip ahead in time
+What the sample shows: Camera position and framing stay the same while the person's position and the clock jump; time is skipped inside one scene.
+Spec:
+- Join: a straight cut with no effect (0 frames); 5 shots of 0.94 s each (4.7 s ÷ 5)
+- Camera: identical position and framing in every shot (height 1.4 m, facing forward); the background does not move by a pixel
+- What changes: the person (7 m away) jumps in sideways position, -2.2 m → 1.4 m → -0.4 m → 2.4 m → 0.6 m; in shots 2 and 4 both arms are raised
+- Within each shot the person is still (the jump is shown only by the difference in position and pose)
+- Top-right clock: 10:02 → 10:17 → 10:41 → 11:06 → 11:30, showing that time was skipped in the same place
+- Shot 5 cuts straight back to shot 1
+When to use it: To tighten pauses in talk or work and raise the pace, or to show time passing quickly.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-017.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

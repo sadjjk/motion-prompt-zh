@@ -1,0 +1,16 @@
+Please use "Text morph" (テキストモーフ), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-064
+
+What it is: Shared letters stay and slide while only the changed ones swap
+What the sample shows: The button label cycles through 保存, 已保存 and 再次保存; shared characters slide into place, new ones roll up from below and dropped ones drift away upward.
+Spec:
+- The blue button's label changes in order: 保存 → 已保存 → 再次保存 → 保存 (Save → Saved → Save again → Save). Changes at 0.6, 2.0 and 3.4 s; font size 60px.
+- The two words are matched by longest common subsequence: shared characters stay and slide to their new spots over 0.5 s (easeInOut, power 3); leaving characters rise 16px and fade within 0.25 s.
+- New characters start at 0.15 s, staggered 0.06 s apart, rolling up from 18px below over 0.3 s (easeOut, power 3); they appear yellow and turn white within 0.4 s.
+- The button width (text width + 48px each side) also eases over 0.5 s with easeInOut. From 3.95 s it rests on 保存.
+- Versus Digit roll and Text scramble: no garbled glyphs and no rolling columns — unchanged characters stay visible and only move, while just the changed ones swap.
+When to use it: Use it for button states (Save → Saved), tab labels, plan names and other short text that changes state.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-064.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

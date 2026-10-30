@@ -1,0 +1,16 @@
+Please use "Medium long shot" (ニーショット), one of the names in "Camera moves & transitions".
+Motion Prompt #3-051
+
+What it is: Framed from the knees up, keeping both movement and expression
+What the sample shows: The bottom edge falls at the knees; the person lifts a leg, steps out and draws back, so the arc of the thigh rising and falling is clear against a softly blurred background.
+Spec:
+- Frame: 0.42 m to 1.92 m (knees to the top of the head); camera 4.2 m away.
+- Action: steps out 0.28 m from 0.4 s to 1.0 s with the leg lifting and landing inside the frame; draws back from 3.4 s to 4.0 s.
+- The person stays sharp on the foreground layer; the background is softly blurred.
+- Labels: top right reads "中全景 MLS"; the blue band on the scale figure runs from the knees to the head.
+- The camera never moves; one pass = 4.7 s and the first and last frames match.
+When to use it: When a character moves or gestures but you still want the face readable; common in scenes with two or three people.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-051.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

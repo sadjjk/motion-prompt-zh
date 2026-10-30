@@ -1,0 +1,70 @@
+// Motion Prompt #1-104 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills
+//
+// 長押しで確定 / Hold to confirm
+// パック: lp (LP・Webサイトの演出) · element 26 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: 1回目は途中で離して進みが戻り、2回目は1.2秒押し切ってファイルのカードが消え、ボタンが「削除済み」になる。
+// 動きの仕様:
+//   - 220×46 の「押して削除」ボタンを押し続けると、濃い進みが左から右へ一定の速さで満ちる。1.2秒押し切って初めて実行
+//   - 1回目は0.70〜1.40秒、0.7秒（約58%）で離す。進みは0.35秒の easeOut（3乗）で0へ戻る
+//   - 2回目は2.00〜3.20秒で押し切り、3.20秒に実行。上のファイルカードが0.35秒でフェードアウトしながらつぶれ、ボタンは「削除済み」
+//   - 4.30〜4.70秒にリセット: 進みは easeInOut（3乗）で戻り、カードがフェードイン、文字が「押して削除」に戻る
+//   - ふつうのクリックとの違い: クリックだけでは動かず、途中で離すと進みが戻るのが見える
+// 使いどころ: 削除・送金・送信など取り消せない操作で、うっかり押しを防ぎたいとき。
+// タグ: hold-to-confirm, long-press, progress, destructive-action, button, confirm
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-104
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 26
+// 26 长按确认（Hold to confirm）：按住「按住删除」按钮，深色进度从左向右匀速填满（需按满 1.2 秒）才执行删除。
+// 第 1 次 0.70–1.40 秒只按了 0.7 秒（约 58%）就松手，进度 0.35 秒 easeOut（3 次方）退回 0；
+// 第 2 次 2.00–3.20 秒按满，3.20 秒执行：上方文件卡片 0.35 秒淡出并压扁，按钮显示「已删除」。
+// 4.30–4.70 秒复位：进度 easeInOut（3 次方）退回、卡片淡入、文字换回「按住删除」。
+// 与普通点击的区别：单击不触发，必须持续按住到进度满；中途松手会看到进度回退。
+const HOLD_NEED = 1.2, HOLD_DOWN = [[0.7, 1.4], [2.0, 3.2]], HOLD_DONE = 3.2, HOLD_RESET = 4.3;
+const HOLD_PROG = u => {
+  const [a, b] = HOLD_DOWN;
+  if (u < a[0]) return 0;
+  if (u < a[1]) return (u - a[0]) / HOLD_NEED;
+  if (u < b[0]) return (a[1] - a[0]) / HOLD_NEED * (1 - eOut(P(u, a[1], a[1] + 0.35)));
+  if (u < b[1]) return (u - b[0]) / HOLD_NEED;
+  if (u < HOLD_RESET) return 1;
+  return 1 - eIO(P(u, HOLD_RESET, HOLD_RESET + 0.4));
+};
+CELLS[25] = (k, w, h, u) => {
+  frame(k, 'example.com/files');
+  const B = { x: 145, y: 96, w: 220, h: 46 };
+  const prog = clamp(HOLD_PROG(u)), done = u >= HOLD_DONE && u < HOLD_RESET;
+  const gone = u < HOLD_RESET ? eOut(P(u, HOLD_DONE, HOLD_DONE + 0.35)) : 1 - eOut(P(u, HOLD_RESET, HOLD_RESET + 0.4));
+  let press = 0; for (const [d, r] of HOLD_DOWN) if (u >= d && u < r) press = eOut(P(u, d, d + 0.08));
+  const [cx, cy] = path([[0, 420, 150], [0.55, 262, 122], [3.6, 262, 122], [4.3, 420, 150], [4.8, 420, 150]], u);
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    // 要删除的文件卡片（执行后淡出并压扁）
+    if (gone < 1) {
+      k.save(); k.globalAlpha = 1 - gone; k.translate(VW / 2, 47); k.scale(1, 1 - 0.4 * gone); k.translate(-VW / 2, -47);
+      k.fillStyle = '#fff'; rr(k, 105, 20, 300, 54, 8); k.fill();
+      pic(k, 113, 28, 56, 38, 2, 5);
+      txt(k, '季度报告.pdf', 182, 42, `800 13px ${JP}`, C.ink); bars(k, 182, 54, 120, 1);
+      k.restore();
+    }
+    if (gone > 0.5) txt(k, '文件已删除', VW / 2, 47, `700 12px ${JP}`, C.sub, 'center', 'middle');
+    // 按钮底色 + 进度
+    const label = done ? '已删除' : '按住删除';
+    k.fillStyle = C.accL; rr(k, B.x, B.y, B.w, B.h, B.h / 2); k.fill();
+    txt(k, label, B.x + B.w / 2, B.y + B.h / 2 + 1, `800 15px ${JP}`, C.acc, 'center', 'middle');
+    if (prog > 0) {
+      k.save(); rr(k, B.x, B.y, B.w, B.h, B.h / 2); k.clip();
+      k.beginPath(); k.rect(B.x, B.y, B.w * prog, B.h); k.clip();
+      k.fillStyle = C.acc; k.fillRect(B.x, B.y, B.w, B.h);
+      txt(k, label, B.x + B.w / 2, B.y + B.h / 2 + 1, `800 15px ${JP}`, '#fff', 'center', 'middle');
+      k.restore();
+    }
+    const cancel = u >= 1.4 && u < 1.95;
+    txt(k, done ? '已执行' : cancel ? '未按满，已取消' : '按住 1.2 秒确认', VW / 2, 156, `600 11px ${JP}`, done ? C.acc : C.sub, 'center', 'middle');
+    cursor(k, cx, cy, press);
+  });
+};

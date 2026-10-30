@@ -1,0 +1,37 @@
+// Motion Prompt #1-166 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 反色混合光标 / Blend difference cursor
+// 分类包: uxmotion (交互与数据动效) · element 53 · 子分类: 光标交互
+// 动画表现: 光标变成白色圆，经过之处文字与背景颜色反转；移到大标题上时圆变大、反转范围扩大，离开后缩回。
+// 运动规格:
+//   - 白色圆用 difference 混合模式叠加，底下颜色反转。
+//   - 圆比指针轨迹晚 0.08 秒跟随。
+//   - 在标题上半径 12→46 px（0.45 秒 inOut3），离开后恢复。
+//   - 指针 0.3 秒进场，4.1–4.8 秒移出画面。
+// 适用场景: 适合作品集、设计工作室网站，需要有趣的自定义光标时使用。
+// 标签: cursor, blend-mode, difference, invert, custom-cursor, hover
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-166
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 53
+// 53 反色混合光标（KittenJam #252）：光标换成白色实心圆（比指针轨迹晚 0.08 秒跟随），用 difference 混合与底下内容反色；
+// 移到大标题上时半径 12→46px（0.45 秒 inOut3），离开后缩回；指针 0.3 秒进场、4.1–4.8 秒离开。
+const BLD_T = [165, 50, 380, 104], BLD_LAG = 0.08, BLD_RS = 12, BLD_RB = 46;
+const BLD_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, 420, 160], [1.5, 150, 150], [2.1, 190, 80], [2.9, 350, 74], [3.5, 270, 86], [4.1, 300, 160], [4.8, 570, 230]];
+const BLD_pos = t => UXB_path(Math.max(0, t - BLD_LAG), BLD_KEYS);
+const BLD_HEV = UXB_changes(t => { const p = BLD_pos(t); return p[0] > BLD_T[0] && p[0] < BLD_T[2] && p[1] > BLD_T[1] && p[1] < BLD_T[3] ? 1 : 0; });
+CELLS[52] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  txt(k, '设计工作室 · 2026', 269.5, 36, UXB_f(700, 10.5), UX.ink3, 'center');
+  txt(k, '反转视界', 269.5, 96, UXB_f(900, 52), UX.ink, 'center');
+  txt(k, '把光标移到标题上，圆形会放大', 269.5, 142, UXB_f(600, 12), UX.ink2, 'center');
+  txt(k, '重叠的部分颜色互相反转', 269.5, 162, UXB_f(600, 12), UX.ink2, 'center');
+  const p = BLD_pos(u), r = mix(BLD_RS, BLD_RB, UXB_ramp(u, BLD_HEV, 0.45, inOut3));
+  k.globalCompositeOperation = 'difference'; k.fillStyle = '#FFFFFF';
+  k.beginPath(); k.arc(p[0], p[1], r, 0, TAU); k.fill();
+  k.globalCompositeOperation = 'source-over';
+};

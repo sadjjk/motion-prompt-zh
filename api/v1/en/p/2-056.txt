@@ -1,0 +1,15 @@
+Please use "Liquid motion" (リキッドモーション), one of the names in "MG styles".
+Motion Prompt #2-056
+
+What it is: Liquid motion: glossy fluid that swells, pinches off, drips and merges back together
+What the sample shows: Drops bulge out of the top band, neck and break free, a small droplet follows, and each splashes flat into the pool below.
+Spec:
+- 6 lanes under the top band, each dripping once every 3.2 s (2 times per cycle, phases staggered).
+- 0–40%: the drop bulges and necks; 40–75%: it breaks off and falls (a smaller droplet trails 0.12 behind); 75–100%: it lands in the pool and spreads flat.
+- Metaballs merge on a half-resolution 270×104 buffer via 4 px blur + contrast 24, then take the #FF5C0F→#FF1A70→#8F1FFF gradient.
+- A mask differenced against itself shifted 1.5 px gives a top-left glossy rim; the drop. wordmark (60 px) stays in the centre.
+When to use it: Use it for drink and cosmetics ads, music or event teasers, and brand openers that need a smooth, fluid feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-056.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

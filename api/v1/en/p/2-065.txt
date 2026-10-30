@@ -1,0 +1,16 @@
+Please use "Wave interference" (波の干渉), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-065
+
+What it is: Two waves travelling in opposite directions add up, reinforcing and cancelling
+What the sample shows: A cyan wave A and an orange wave B flow in opposite directions while the combined wave below swells and flattens, and 3 dots on a vertical dashed line track the values.
+Spec:
+- 3 lanes: wave A (cyan #67e8f9) and wave B (orange #ffb454) travel in opposite directions, and the sum lane adds them point by point, y₁ + y₂. a = sin(0.012x + φ), b = sin(0.012x − 0.62φ + 1.08); source amplitude 58, sum 66.
+- The panel scales up from 0.96 and fades in over 0.07–0.42 s. Waves A and B slide in 20px from the left starting at 0.25 / 0.34 s over 0.36 s; the sum lane slides up 20px from 0.59 s.
+- The sum's amplitude grows from 0 to full over 0.88–1.62 s; the phase advances 5π at a constant rate over 0.6–3.74 s; the "+" sign pops in over 0.23 s from 0.8 s.
+- The vertical dashed line fades in at 1.4 s, and 3 sample dots pop in 0.044 s apart from 1.44 s. The sum's stroke pulses 2 times on a sine over 1.87–2.97 s (2.7→3.9px). Content fades over 4.22–4.39 s, leaving only the background grid.
+- Versus Wave text: it is a physics diagram of 2 waves adding into one, with readouts that follow the phase, rather than letters bobbing in a wave.
+When to use it: Use it in physics or signal processing lessons, education apps, explainers on audio and communications tech, or as an insert in data videos.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-065.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

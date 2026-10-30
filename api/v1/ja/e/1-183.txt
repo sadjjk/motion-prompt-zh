@@ -1,0 +1,261 @@
+// Motion Prompt #1-183 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// 波が尾を引くスライダー / Wake bar slider
+// パック: ui (UIパーツの名前) · element 54 · カテゴリ: 選ぶ・切り替えるパーツ
+// 何が起きるか: 白いプラスチック風の台に細い縦棒が並び、値より左は青、右はグレー。カーソルが押さえてゆっくり右へ動かすと押した所が少し盛り上がり、続いて左右に素早く振ると後ろに高い波が尾を引く。止まると波はゆっくり静まり、離したあと値は元に戻る。
+// 動きの仕様:
+//   - 542×191 のカード、4.5秒周期。丸いつまみはなく、幅4px・間隔7.5px・静止時の高さ11pxの縦棒が並ぶ。値より左は青、右はグレー
+//   - カーソルが0.78秒に値34の位置を押し、0.90〜1.85秒に34→52とゆっくり動かし、2.82秒までに52→90→24→68と素早く振る
+//   - カーソル下の棒は最大12px持ち上がる。後ろには直近1.4秒の動きから波が残り、速いほど高く、0.36秒の時定数で減衰、上限48px
+//   - 3.50秒までカーソルは止まったまま波が静まり、そこで離す
+//   - 3.70〜4.15秒に値が34へ戻り、カーソルも待機位置へ戻る
+// 使いどころ: 明るさ・音量・ズームなど、設定パネルで連続した値をドラッグで調整する場面に。
+// タグ: slider, range, bars, wave, trail, drag, brightness
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-183
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 54
+CELLS[53] = (function () {
+  // 尾迹滑杆：没有圆形滑块的亮度滑杆。凹槽底座上排一列细竖条，值左侧高亮、右侧灰；
+  // 光标按住拖动时，光标处竖条抬高，并按速度历史向后拖出一道会衰减的“浪”，停下后慢慢平复。
+  // 纯函数：竖条高度 = f(竖条到历史光标位置的距离, 历史光标速度)，速度由时间线函数数值求导，不存跨帧状态。
+  const W = 542, H = 191, CYC = 4.5;
+  const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+
+  // 配色：沿用 ui 包的暖灰地 + 品牌蓝，底座做成奶白塑料质感
+  const PAL = {
+    bgTop: '#f8f7f5', bgBot: '#e8e5e1', vignette: '60,52,44',
+    plateHi: '#ffffff', plateLo: '#eeece9', thick: '#d2cec9', shadow: '40,34,28',
+    chanTop: '#dedbd7', chanBot: '#f0eeeb',
+    blue: '#1f5ae8', blueHi: '#6f9bff', blueDeep: '#1747c4',
+    greyTop: '#d9d6d2', greyBot: '#b9b5b0',
+    ink: '#111111', ink2: '#4b4844', hint: '#8a8682'
+  };
+
+  // 几何：底座约占画宽 63%；竖条数按轨道宽 / 间距计算
+  const PX0 = 62, PX1 = 404, PY = 103, PH = 38;          // 底座外框
+  const TX0 = 76, TX1 = 390;                              // 竖条轨道（值 0~100 映射到这里）
+  const PITCH = 7.5, NB = Math.floor((TX1 - TX0) / PITCH);
+  const BAR_W = 4, BAR_BASE = 11, BAR_BOT = 128.5;      // 竖条宽、静止高度、底端 y（向上长）
+  const GY = 122;                                         // 光标按压的 y
+  const S = 3;                                            // 缓存分辨率倍数
+
+  const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const eio = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const rgba = (c, a) => `rgba(${c},${a})`;
+  const xv = v => TX0 + (TX1 - TX0) * v / 100;            // 值 → 轨道 x
+
+  // 圆角矩形路径（兼容 Safari，自己用 arcTo 画）
+  function rr(k, x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    k.beginPath(); k.moveTo(x + r, y);
+    k.arcTo(x + w, y, x + w, y + h, r); k.arcTo(x + w, y + h, x, y + h, r);
+    k.arcTo(x, y + h, x, y, r); k.arcTo(x, y, x + w, y, r); k.closePath();
+  }
+  const CH0 = 110, CHH = 24;                              // 内凹槽 y 与高度
+
+  // 底座：柔和投影 + 接触影 + 右下厚度层 + 竖向渐变 + 左上镜面光斑 + 高光边 + 内凹槽
+  function drawPlate(x) {
+    const pw = PX1 - PX0;
+    x.save(); x.shadowColor = rgba(PAL.shadow, 0.16); x.shadowBlur = 18; x.shadowOffsetY = 7;
+    rr(x, PX0, PY, pw, PH, PH / 2); x.fillStyle = PAL.plateLo; x.fill(); x.restore();
+    x.save(); x.shadowColor = rgba(PAL.shadow, 0.22); x.shadowBlur = 3; x.shadowOffsetY = 1.5;
+    rr(x, PX0 + 1, PY + 2.5, pw - 1, PH, PH / 2); x.fillStyle = PAL.thick; x.fill(); x.restore();
+    rr(x, PX0, PY, pw, PH, PH / 2);
+    const gr = x.createLinearGradient(0, PY, 0, PY + PH);
+    gr.addColorStop(0, PAL.plateHi); gr.addColorStop(1, PAL.plateLo);
+    x.fillStyle = gr; x.fill();
+    x.save(); rr(x, PX0, PY, pw, PH, PH / 2); x.clip();
+    const sp = x.createRadialGradient(PX0 + pw * 0.22, PY - 6, 0, PX0 + pw * 0.22, PY - 6, pw * 0.5);
+    sp.addColorStop(0, 'rgba(255,255,255,0.9)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = sp; x.fillRect(PX0, PY, pw, PH); x.restore();
+    const hl = x.createLinearGradient(PX0, PY, PX0 + pw * 0.4, PY + PH);
+    hl.addColorStop(0, 'rgba(255,255,255,1)'); hl.addColorStop(1, 'rgba(255,255,255,0.15)');
+    rr(x, PX0 + 0.5, PY + 0.5, pw - 1, PH - 1, PH / 2); x.strokeStyle = hl; x.lineWidth = 1; x.stroke();
+    // 内凹槽：上暗下亮 + 顶部内阴影 + 下沿白色唇边，读作“凹进去”
+    const cx = TX0 - 9, cw = TX1 - TX0 + 18;
+    rr(x, cx, CH0, cw, CHH, CHH / 2);
+    const cg = x.createLinearGradient(0, CH0, 0, CH0 + CHH);
+    cg.addColorStop(0, PAL.chanTop); cg.addColorStop(1, PAL.chanBot);
+    x.fillStyle = cg; x.fill();
+    x.save(); rr(x, cx, CH0, cw, CHH, CHH / 2); x.clip();
+    x.shadowColor = rgba(PAL.shadow, 0.28); x.shadowBlur = 5; x.shadowOffsetY = 2;
+    rr(x, cx - 4, CH0 - 6, cw + 8, 8, 4); x.fillStyle = '#000'; x.fill();
+    x.restore();
+    x.beginPath(); x.moveTo(cx + CHH / 2, CH0 + CHH + 0.6); x.lineTo(cx + cw - CHH / 2, CH0 + CHH + 0.6);
+    x.strokeStyle = 'rgba(255,255,255,0.95)'; x.lineWidth = 1; x.stroke();
+  }
+
+  // 小太阳图标：亮度语义
+  function sun(x, cx, cy, r, col) {
+    x.fillStyle = col; x.strokeStyle = col; x.lineWidth = 1.4; x.lineCap = 'round';
+    x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill();
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4;
+      x.beginPath(); x.moveTo(cx + Math.cos(a) * (r + 2.4), cy + Math.sin(a) * (r + 2.4));
+      x.lineTo(cx + Math.cos(a) * (r + 4.6), cy + Math.sin(a) * (r + 4.6)); x.stroke();
+    }
+  }
+  // 静态文案：左上设备名、底座下刻度、右侧数值标签（数字本身每帧画）
+  const VX = 478;                                         // 数值区中心 x
+  function drawLabels(x) {
+    x.textBaseline = 'middle'; x.textAlign = 'left';
+    x.font = `600 14px ${SANS}`; x.fillStyle = PAL.ink; x.fillText('Studio Display', PX0 + 6, 27);
+    x.font = `400 11px ${SANS}`; x.fillStyle = PAL.hint; x.fillText('外接显示器 · 自动调节已关闭', PX0 + 6, 44);
+    x.font = `500 10px ${SANS}`; x.fillStyle = PAL.hint;
+    x.fillText('0', TX0 - 3, 156); x.textAlign = 'right'; x.fillText('100', TX1 + 4, 156);
+    x.textAlign = 'center'; x.fillText('50', xv(50), 156);
+    sun(x, VX - 20, 84, 3.4, PAL.ink2);
+    x.textAlign = 'left'; x.font = `500 12px ${SANS}`; x.fillStyle = PAL.ink2; x.fillText('亮度', VX - 10, 84.5);
+    // 分隔细线：把数值区和滑杆分开
+    x.beginPath(); x.moveTo(424.5, 78); x.lineTo(424.5, 150); x.strokeStyle = 'rgba(0,0,0,0.07)'; x.lineWidth = 1; x.stroke();
+  }
+
+  // 静态层：背景渐变 + 暗角 + 底座（投影、厚度、渐变、高光边）+ 内凹槽 + 刻度 + 标题
+  let cache = null;
+  function buildStatic() {
+    const c = document.createElement('canvas'); c.width = W * S; c.height = H * S;
+    const x = c.getContext('2d'); x.scale(S, S);
+    const bg = x.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, PAL.bgTop); bg.addColorStop(1, PAL.bgBot);
+    x.fillStyle = bg; x.fillRect(0, 0, W, H);
+    const vg = x.createRadialGradient(W * 0.45, H * 0.45, H * 0.3, W * 0.45, H * 0.45, W * 0.7);
+    vg.addColorStop(0, rgba(PAL.vignette, 0)); vg.addColorStop(1, rgba(PAL.vignette, 0.13));
+    x.fillStyle = vg; x.fillRect(0, 0, W, H);
+    drawPlate(x);
+    drawLabels(x);
+    return c;
+  }
+
+  // ---------- 时间线 ----------
+  // 0.00–0.30 静止 · 0.30–0.75 光标移到值 34 处 · 0.78–0.90 按下 · 0.90–1.85 慢拖 34→52
+  // 1.85–2.82 快速甩动 52→90→24→68 · 2.82–3.50 按住不动，浪平复 · 3.50–3.65 松手
+  // 3.70–4.15 复位（光标回候场点、数值回 34）· 4.15–4.50 静止
+  const REST = { x: 492, y: 176 };
+  const V0 = 34;
+  const DRAG = [[0.90, 34], [1.85, 52], [2.15, 90], [2.50, 24], [2.82, 68]];   // [时刻, 值]
+  const T_DOWN = 0.78, T_UP = 3.50, T_RS0 = 3.70, T_RS1 = 4.15;
+
+  // 拖动期间的值：分段 easeInOut，相邻关键帧处速度为 0（甩动换向时自然停顿）
+  function dragVal(t) {
+    if (t <= DRAG[0][0]) return DRAG[0][1];
+    for (let i = 1; i < DRAG.length; i++) {
+      const a = DRAG[i - 1], b = DRAG[i];
+      if (t <= b[0]) return lerp(a[1], b[1], eio((t - a[0]) / (b[0] - a[0])));
+    }
+    return DRAG[DRAG.length - 1][1];
+  }
+  // 当前滑杆值：复位段把末值缓回 V0
+  function value(t) {
+    if (t < T_RS0) return dragVal(t);
+    return lerp(DRAG[DRAG.length - 1][1], V0, eio((t - T_RS0) / (T_RS1 - T_RS0)));
+  }
+  // 按压程度 0~1：只有按住时才产生抬升与尾迹
+  function press(t) {
+    return eio((t - T_DOWN) / 0.12) * (1 - eio((t - T_UP) / 0.15));
+  }
+  // 光标位置：入场、拖动、复位三段
+  function cursor(t) {
+    const gx = xv(dragVal(t));
+    if (t < 0.75) { const e = eio((t - 0.30) / 0.45); return { x: lerp(REST.x, xv(V0), e), y: lerp(REST.y, GY, e) }; }
+    if (t < T_RS0) return { x: gx, y: GY - 4 * eio((t - T_UP) / 0.2) };   // 松手后光标微微抬起
+    const e = eio((t - T_RS0) / (T_RS1 - T_RS0));
+    return { x: lerp(gx, REST.x, e), y: lerp(GY - 4, REST.y, e) };
+  }
+  // 光标速度（px/s）：对时间线函数做中心差分，不存帧间状态
+  const DT = 0.004;
+  const speed = t => Math.abs(xv(dragVal(t + DT)) - xv(dragVal(t - DT))) / (2 * DT);
+
+  // ---------- 尾迹 ----------
+  // 把过去 HIST 秒按 DS 采样：每个历史时刻 s 在当时光标处留下一团浪，
+  // 强度 ∝ 速度^1.6（采样点间距 ∝ 速度，抵消后浪高 ∝ 速度^0.6：慢拖也有一道矮浪，快甩明显更高），
+  // 随年龄指数衰减并横向摊开。
+  const HIST = 1.4, DS = 0.02, TAU = 0.36, KW = 1350, VREF = 600, VMAX = 900;
+  const HMAX = 48;                                        // 浪高软上限，避免压到标题
+  function wake(bx, t, samp) {
+    let sum = 0;
+    for (let j = 0; j < samp.length; j++) {
+      const p = samp[j]; if (p.a <= 0) continue;
+      const d = bx - p.x, sg = 6 + 46 * p.age;
+      sum += p.a * (6 / sg) * Math.exp(-d * d / (2 * sg * sg));
+    }
+    return HMAX * (1 - Math.exp(-sum / HMAX));
+  }
+  // 每帧先算一次历史采样，所有竖条共用
+  function samples(t) {
+    const out = [];
+    for (let age = DS; age <= HIST; age += DS) {
+      const s = t - age, v = Math.min(speed(s), VMAX) * press(s);
+      const fade = Math.exp(-age / TAU) * Math.pow(1 - age / HIST, 2);   // 窗口末端强制归零，保证循环干净
+      const roll = 0.68 + 0.32 * Math.cos(age * 24);                    // 尾迹里起伏的小波峰
+      out.push({ x: xv(dragVal(s)), age, a: KW * Math.pow(v / VREF, 1.6) * DS * fade * roll });
+    }
+    return out;
+  }
+
+  // ---------- 动态层 ----------
+  // 竖条：底端固定在凹槽里向上长；整列共用两条绝对坐标渐变，越高越亮
+  function drawBars(k, t, cx) {
+    const val = value(t), vx = xv(val), pr = press(t), samp = samples(t);
+    const top = BAR_BOT - BAR_BASE - HMAX - 12;
+    const gb = k.createLinearGradient(0, top, 0, BAR_BOT);
+    gb.addColorStop(0, PAL.blueHi); gb.addColorStop(0.55, PAL.blue); gb.addColorStop(1, PAL.blueDeep);
+    const gg = k.createLinearGradient(0, top, 0, BAR_BOT);
+    gg.addColorStop(0, PAL.greyTop); gg.addColorStop(1, PAL.greyBot);
+    // 已选段：凹槽里铺一层浅蓝底光，越靠近当前值越亮（先画，竖条压在上面）
+    k.save(); rr(k, TX0 - 9, CH0, TX1 - TX0 + 18, CHH, CHH / 2); k.clip();
+    const glow = k.createLinearGradient(TX0 - 9, 0, vx + 6, 0);
+    glow.addColorStop(0, 'rgba(31,90,232,0.10)'); glow.addColorStop(1, 'rgba(31,90,232,0.26)');
+    k.fillStyle = glow; k.fillRect(TX0 - 9, CH0, vx - TX0 + 15, CHH); k.restore();
+    for (let i = 0; i <= NB; i++) {
+      const bx = TX0 + i * PITCH, d = bx - cx;
+      const lift = 12 * pr * Math.exp(-d * d / (2 * 8 * 8));        // 按住处被抬起
+      const hgt = BAR_BASE + lift + wake(bx, t, samp);
+      const lit = bx <= vx + 0.5, x0 = bx - BAR_W / 2, y0 = BAR_BOT - hgt;
+      // 高出凹槽的竖条在底座上投一小片影
+      if (hgt > BAR_BASE + 3) { k.fillStyle = rgba(PAL.shadow, Math.min(0.12, (hgt - BAR_BASE) * 0.004)); k.fillRect(x0 + 1.2, y0 + 2, BAR_W, hgt - 2); }
+      rr(k, x0, y0, BAR_W, hgt, BAR_W / 2); k.fillStyle = lit ? gb : gg; k.fill();
+      // 左侧细高光，读作圆柱
+      k.fillStyle = lit ? 'rgba(255,255,255,0.38)' : 'rgba(255,255,255,0.55)';
+      k.fillRect(x0 + 0.5, y0 + 1.4, 0.9, Math.max(0, hgt - 2.8));
+    }
+    return val;
+  }
+  // 数值：大号百分比，拖动时轻微放大并变蓝
+  function drawValue(k, val, pr) {
+    const n = Math.round(val);
+    k.save(); k.translate(VX, 117); const s = 1 + 0.06 * pr; k.scale(s, s);
+    k.textAlign = 'center'; k.textBaseline = 'middle';
+    k.font = `600 32px ${SANS}`;
+    const nw = k.measureText(String(n)).width;
+    k.fillStyle = pr > 0.5 ? PAL.blue : PAL.ink; k.fillText(String(n), -6, 0);
+    k.font = `500 15px ${SANS}`; k.fillStyle = PAL.ink2; k.textAlign = 'left'; k.fillText('%', nw / 2 - 4, 3);
+    k.restore();
+  }
+  // 箭头光标：白描边深色填充，按下缩小
+  function drawCursor(k, p, pr) {
+    k.save(); k.translate(p.x, p.y); const s = 1.1 - 0.14 * pr; k.scale(s, s);
+    k.shadowColor = 'rgba(0,0,0,0.25)'; k.shadowBlur = 4; k.shadowOffsetY = 1.5;
+    k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 20); k.lineTo(5, 15.6); k.lineTo(8.7, 23.6); k.lineTo(11.8, 22.2);
+    k.lineTo(8.2, 14.4); k.lineTo(14.5, 14.4); k.closePath();
+    k.lineJoin = 'round'; k.strokeStyle = '#fff'; k.lineWidth = 2.8; k.stroke();
+    k.shadowColor = 'rgba(0,0,0,0)'; k.fillStyle = '#16171a'; k.fill();
+    k.restore();
+  }
+
+  const fn = (k, w, h, u) => {
+    if (!cache) cache = buildStatic();
+    const t = ((u % CYC) + CYC) % CYC;
+    k.drawImage(cache, 0, 0, W, H);
+    const p = cursor(t), pr = press(t);
+    const val = drawBars(k, t, p.x);
+    drawValue(k, val, pr);
+    drawCursor(k, p, pr);
+  };
+  return fn;
+})();

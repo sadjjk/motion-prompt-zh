@@ -1,0 +1,54 @@
+// Motion Prompt #4-028 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 不可能な三角形 / Impossible triangle
+// パック: scenes (スタイルシーン) · element 28 · カテゴリ: 器物・空間
+// 何が起きるか: パステルの地に色違いのブロックが上から一つずつ落ちて3辺を作り、最後に端と端がつながって不可能な三角形がゆっくり回る。
+// 動きの仕様:
+//   - ブロック 18 個を 3 辺に 6 個ずつ並べるアイソメ投影、外接円の直径 196px
+//   - ブロックは 1/6 秒間隔で上から順に落ち、0.5 秒で着地。0.2〜3.5 秒ですべて揃う
+//   - 1 個目のブロックを最後のブロックと重なる六角形に切り抜いて描き直し、端と端がつながって見える錯視を作る
+//   - 全体は 6.4 秒に 1 周回転し、上下に ±4px 浮かぶ。5.4〜6.0 秒でフェードアウト
+// 使いどころ: 錯視・数学・デザイン思考をテーマにした動画の開場、クリエイティブ系サイトのファーストビュー、ポスターに。
+// タグ: penrose, impossible-triangle, isometric, optical-illusion, blocks, 3d, geometry
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-028
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 28
+// 28 不可能三角：18 块方块沿三条边依次从上方落下（0.2–3.5 秒），在等轴视角里首尾相接成彭罗斯三角；整体每周期在画面内转一整圈并轻轻浮动，5.4–6.0 秒淡出
+const PENR_PAL = [['#FFFFFF', '#FF8A5B', '#3D4FD8'], ['#FFF4D6', '#F6B93B', '#2B7A78'], ['#FDE7EF', '#E85D75', '#4A3F8C']];
+const PENR_CUBES = (() => { const c = []; for (let i = 0; i < 6; i++) c.push([i, 0, 0]); for (let i = 0; i < 6; i++) c.push([6, i, 0]); for (let i = 0; i < 6; i++) c.push([6, 6, i]); return c; })();
+const PENR_ISO = (x, y, z) => [(x - y) * 0.866, (x + y) * 0.5 - z];        // 单位等轴投影（边长 1）
+const PENR_BOX = (() => { // 成品三角的中心与外接半径（常量），用来定比例
+  const pts = []; for (const [x, y, z] of PENR_CUBES) for (let q = 0; q < 8; q++) pts.push(PENR_ISO(x + (q & 1), y + ((q >> 1) & 1), z + ((q >> 2) & 1)));
+  const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length, cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+  return [cx, cy, Math.max(...pts.map(p => Math.hypot(p[0] - cx, p[1] - cy)))];
+})();
+CELLS[27] = (k, w, h, u) => {
+  const g = k.createLinearGradient(0, 0, CW, CH); g.addColorStop(0, '#F6E7DC'); g.addColorStop(1, '#DCE3F2');
+  k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  const S = 98 / PENR_BOX[2], fade = fadeIn(u);                               // 外接圆直径 196px
+  const iso = (x, y, z) => { const p = PENR_ISO(x, y, z); return [(p[0] - PENR_BOX[0]) * S, (p[1] - PENR_BOX[1]) * S]; };
+  const face = (pts, c) => { k.fillStyle = c; k.strokeStyle = c; k.beginPath(); pts.forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.closePath(); k.fill(); k.stroke(); };
+  const drawCube = (c, idx) => {
+    const kk = out3(clamp(((u - 0.2) * 6 - idx) / 3)); if (kk <= 0) return;   // 每块间隔 1/6 秒，0.5 秒落定
+    const [x, y, z0] = c, z = z0 + (1 - kk) * 4, p = PENR_PAL[Math.floor(idx / 6)];
+    k.globalAlpha = Math.min(1, kk * 1.5) * fade;
+    face([iso(x, y, z + 1), iso(x + 1, y, z + 1), iso(x + 1, y + 1, z + 1), iso(x, y + 1, z + 1)], p[0]);
+    face([iso(x + 1, y, z), iso(x + 1, y + 1, z), iso(x + 1, y + 1, z + 1), iso(x + 1, y, z + 1)], p[1]);
+    face([iso(x, y + 1, z), iso(x + 1, y + 1, z), iso(x + 1, y + 1, z + 1), iso(x, y + 1, z + 1)], p[2]);
+    k.globalAlpha = 1;
+  };
+  k.save(); k.translate(269.5, 104 + Math.sin(TAU * u / CYC) * 4); k.rotate(TAU * u / CYC);   // 每周期转一圈、浮动 ±4px
+  k.lineWidth = 0.6;
+  PENR_CUBES.map((c, i) => [c, i]).sort((a, b) => (a[0][0] + a[0][1] + a[0][2]) - (b[0][0] + b[0][1] + b[0][2])).forEach(([c, i]) => drawCube(c, i));
+  // 首块再画一次并裁到它与末块交叠的六边形里：造成首尾相接的错觉
+  k.beginPath(); [iso(0, 1, 0), iso(1, 1, 0), iso(1, 0, 0), iso(1, 0, 1), iso(0, 0, 1), iso(0, 1, 1)].forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1]));
+  k.closePath(); k.clip(); drawCube(PENR_CUBES[0], 0);
+  k.restore();
+  txt(k, 'x + y + z  →  0', 520, 194, `500 8px ${MONO}`, 'rgba(40,40,70,.5)', 'right');
+  grain(k, 0.05, 'multiply');
+};

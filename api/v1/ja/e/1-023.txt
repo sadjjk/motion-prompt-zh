@@ -1,0 +1,41 @@
+// Motion Prompt #1-023 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#071
+//
+// バッジ / Badge
+// パック: ui (UIパーツの名前) · element 23 · カテゴリ: 案内する・状態を伝えるパーツ
+// 何が起きるか: ヘッダーのベルに通知が届くたび、右上の青い丸の数が1・2・3と増える。ベルを押すと消える。
+// 動きの仕様:
+//   - 4.5秒周期・カード542×191。高さ54のヘッダー。右の (482, 27) にベルの線画
+//   - バッジ: ベル右上（+12, −12）に半径12の青い丸、白い2.5pxの縁、白い14pxの数字
+//   - 通知が0.7・1.3・1.9秒に届き、数が 1→2→3。1つ目は0.7〜0.9秒に easeOutCubic で拡大して出る
+//   - 届くたびに拡大率 1.3→1 を0.3秒で戻し、同時に波紋（半径 12→28、不透明度 0.5→0）を0.5秒で広げる
+//   - カーソルが2.95秒にベルへ着き3.0秒にクリック。3.0〜3.25秒に easeInOutCubic でバッジを0まで縮める
+// 使いどころ: 未読・新着・カートの中身など、件数を目立たせたいとき。
+// タグ: badge, notification-badge, counter, count, dot, unread
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-023
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 23
+// 23 バッジ（Badge）
+CELLS[22] = ui((w, h, t) => {
+  X.fillStyle = '#fff'; X.fillRect(0, 0, w, 54); X.fillStyle = C.line; X.fillRect(0, 54, w, 1.5);
+  fillRR(24, 19, 76, 16, 4, C.mb);
+  // ベル
+  const bx = w - 60, by = 27; X.save(); X.translate(bx, by);
+  X.beginPath(); X.moveTo(-12, 8); X.quadraticCurveTo(-11, -12, 0, -13); X.quadraticCurveTo(11, -12, 12, 8); X.lineTo(15, 11); X.lineTo(-15, 11); X.closePath();
+  X.strokeStyle = '#333'; X.lineWidth = 2.4; X.lineJoin = 'round'; X.stroke(); X.beginPath(); X.arc(0, 14, 4, 0, Math.PI); X.stroke(); X.restore();
+  const arr = [.7, 1.3, 1.9]; let n = 0; arr.forEach(c => { if (t >= c) n++; });
+  const clear = eio(seg(t, 3.0, 3.25));
+  if (n > 0 && clear < 1) {
+    const last = arr.filter(c => t >= c).pop(), pop = 1 - seg(t, last, last + .3);
+    const s = (n === 1 ? eo(seg(t, .7, .9)) : 1) * (1 + .3 * pop) * (1 - clear);
+    // 届いた合図の波紋
+    const k = seg(t, last, last + .5); if (k > 0 && k < 1) ring(bx + 12, by - 12, 12 + 16 * k, `rgba(31,90,232,${.5 * (1 - k)})`, 2.5);
+    X.save(); X.translate(bx + 12, by - 12); X.scale(s, s); circle(0, 0, 12, C.blue); ring(0, 0, 12, '#fff', 2.5); text(String(n), 0, 1, 14, '#fff', 800, 'center', NUMF); X.restore();
+  }
+  bar(24, 76, 220, C.line2, 12); bar(24, 102, 494); bar(24, 120, 400); fillRR(24, 140, 494, 40, 8, C.block);
+  pointer([[.3, w + 30, h + 30], [2.3, w + 30, h + 30], [2.95, bx + 2, by + 4], [3.4, bx + 2, by + 4], [4.1, w + 30, h + 30]], [3.0], t);
+});

@@ -1,0 +1,44 @@
+// Motion Prompt #4-013 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 电子云 / Electron orbital
+// 分类包: scenes (风格画面) · element 13 · 子分类: 科技氛围
+// 动画表现: 深色底上，蓝橙两色点阵组成的 3d 轨道云缓缓旋转，中心一团白光，外绕一道椭圆轨迹线。
+// 运动规格:
+//   - 3d 轨道（n = 3、l = 2、m = 0）概率云，由按波函数平方采样的 1600 个点构成。
+//   - 正相位为蓝色 rgba(90, 170, 255)、负相位为橙色 rgba(255, 130, 90)，点大小 1.3 px。
+//   - 点云每 6.4 秒绕竖轴转 1 圈，俯仰 0.5 rad，叠加发光混合。
+//   - 中心白色光晕半径 12 px，外绕半轴 120 / 32 px 的椭圆轨迹线。
+// 适用场景: 适合科普教育、科研机构的首屏背景，物理化学主题视频开场，或演示过场。
+// 标签: electron-cloud, orbital, quantum, physics, particles, science, tech
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-013
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 13
+// 13 电子云：3d 轨道（n=3, l=2, m=0）的概率云由点阵构成，正负相位分蓝橙两色，整体缓慢旋转
+const ORB = (() => { // 按波函数平方做确定性拒绝采样（常量）
+  const out = [];
+  for (let i = 0; out.length < 1600 && i < 60000; i++) {
+    const x = (hash(i * 4 + 1) - 0.5) * 36, y = (hash(i * 4 + 2) - 0.5) * 36, z = (hash(i * 4 + 3) - 0.5) * 36;
+    const r = Math.hypot(x, y, z), ct = z / (r || 1), psi = r * r * Math.exp(-r / 3) * (3 * ct * ct - 1);
+    if (hash(i * 4 + 4) * 3 < psi * psi / 30) out.push([x, y, z, psi > 0]);
+  }
+  return out;
+})();
+CELLS[12] = (k, w, h, u) => {
+  k.fillStyle = '#05060F'; k.fillRect(0, 0, CW, CH);
+  const a = TAU * u / CYC, b = 0.5, ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);   // 每周期转一圈
+  k.save(); k.globalCompositeOperation = 'lighter';
+  for (const [x, y, z, pos] of ORB) {
+    const x1 = x * ca - y * sa, y1 = x * sa + y * ca, y2 = y1 * cb - z * sb, z2 = y1 * sb + z * cb, s = 90 / (60 + y2);
+    k.fillStyle = pos ? 'rgba(90,170,255,.55)' : 'rgba(255,130,90,.55)'; k.fillRect(269.5 + x1 * s * 2.6, 104 - z2 * s * 2.6, 1.3, 1.3);
+  }
+  k.restore();
+  glow(k, 269.5, 104, 12, '255,255,255', 0.6);
+  k.strokeStyle = 'rgba(180,200,255,.25)'; k.lineWidth = 0.8; k.beginPath(); k.ellipse(269.5, 104, 120, 32, 0, 0, TAU); k.stroke();
+  txt(k, 'ψ₃₂₀ · n = 3  l = 2  m = 0', 400, 190, `500 8px ${MONO}`, 'rgba(190,205,255,.7)');
+  grain(k, 0.05);
+};

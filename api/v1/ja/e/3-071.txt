@@ -1,0 +1,48 @@
+// Motion Prompt #3-071 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/god-rays
+//
+// ゴッドレイ / God rays
+// パック: photo (写真の表現・光と画風) · element 35 · カテゴリ: 光の当て方・時間帯
+// 何が起きるか: 周りが暗くなり、左上の外の光源から9本の光の束が扇状に差し込んで人物を横切る。束ごとに明るさが揺れ、束の間には暗い隙間が残る。
+// 動きの仕様:
+//   - 場面①: 胸から上の人物（頭の中心 x270, y78・半径29px）。背景は暗い場面へ 80% 寄る
+//   - 光源: 画面外の (−40, −50)。そこから 9 本の細い扇（中心角 0.26〜0.94 rad、半幅 0.012〜0.028 rad）を長さ 900px で描く
+//   - 束は #FFE4A8 で光源から 640px で消える。明るさは 0.35 ± 0.3 で、1周に 1〜3 回揺れる
+//   - 束の面は 2px ぼかして不透明度 0.75 で加算。人物は左側が明るい #FFC75A、右側が影。右上に「↘ 35°」
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: 教会・森・埃っぽい室内など、神聖さや朝の空気感を出したいとき。
+// タグ: god rays, crepuscular rays, light beams, volumetric light, lighting
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-071
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 35
+// 体積光束（ゴッドレイ）: 周りが暗くなり、左上の外にある一つの光源から明暗の筋になった光の束が斜めに差し込み、人物を横切る。
+// 束ごとに明るさがゆっくり揺れ、束と束の間には暗い隙間が残る
+CELLS[34] = cell((k, u) => {
+  const a = env(u), T = u / CYC * TAU, W = torsoW(PR);
+  stagePortrait(k, pal(BASE, DARK, 0.8 * a));
+  const lit = mixc(BASE.person, BASE.lit, a), sh = mixc(BASE.person, BASE.shade, a);
+  bust(k, PX, PY, PR, BASE.person, kk => {
+    kk.fillStyle = lit; kk.beginPath(); kk.arc(PX, PY, PR, 0, TAU); kk.fill();
+    headShade(kk, PX, PY, PR, 0.9, 1, sh);
+    torso(kk, PX, PY, PR, PX + 0.15 * W, PX + W, sh);
+  });
+  if (a < 0.002) { hud(k, '↘ 35°'); return; }
+  // 光の束: 光源 (SX,SY) から放射状の細い扇を9本。角度と幅は固定、明るさだけ整数倍の周期で揺れる
+  const SX = -40, SY = -50, [R, kr] = layer('rays');
+  const g = kr.createRadialGradient(SX, SY, 0, SX, SY, 640);
+  g.addColorStop(0, 'rgba(255,228,168,0.95)'); g.addColorStop(1, 'rgba(255,228,168,0)');
+  kr.fillStyle = g;
+  const rays = once('rays', () => { const r = rng(35), o = []; for (let i = 0; i < 9; i++) o.push([0.26 + i * 0.085 + r() * 0.02, 0.012 + r() * 0.016, r() * TAU, 1 + Math.floor(r() * 3)]); return o; });
+  for (const [ang, hw, ph, n] of rays) {
+    kr.globalAlpha = 0.35 + 0.3 * Math.sin(T * n + ph);
+    kr.beginPath(); kr.moveTo(SX, SY);
+    kr.lineTo(SX + Math.cos(ang - hw) * 900, SY + Math.sin(ang - hw) * 900); kr.lineTo(SX + Math.cos(ang + hw) * 900, SY + Math.sin(ang + hw) * 900);
+    kr.closePath(); kr.fill();
+  }
+  k.save(); k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.75 * a; k.filter = 'blur(2px)'; k.drawImage(R, 0, 0); k.restore();
+  hud(k, '↘ 35°');
+});

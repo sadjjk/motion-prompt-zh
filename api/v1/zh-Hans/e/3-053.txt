@@ -1,0 +1,54 @@
+// Motion Prompt #3-053 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-close-up
+//
+// 中近景 / Medium close-up
+// 分类包: camera (镜头运动与剪辑) · element 29 · 子分类: 景别
+// 动画表现: 人物胸部以上略偏左，说两句话：嘴跟着开合，字幕随话出现；两句之间眨一次眼，最后头顶冒出“！”。
+// 运动规格:
+//   - 画框：1.2 m 至 1.9 m，下沿落在胸口；机位距人物 2.2 m，人物偏左 0.35 m，右侧留给字幕。
+//   - 说话两段：0.4 秒至 2.0 秒、2.9 秒至 4.3 秒；嘴跟着开合，每段后半有一次大张口。
+//   - 字幕条 239×26 px 随说话淡入淡出，内容为“今天的风，比昨天轻一点。”
+//   - 2.55 秒在停顿中眨一次眼；4.25 秒至 4.5 秒头顶冒出蓝底白色“！”。身体随说话轻晃。
+//   - 右上角显示“中近景 MCU”；比例尺蓝色带从胸口到头顶；背景轻微虚化；每轮 4.7 秒。
+// 适用场景: 采访、对话、独白等以说话为主的场面。
+// 标签: medium close-up, mcu, bust shot, chest up, talking head, shot size, dialogue
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-053
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 29
+// 29 中近景：胸部以上，下沿 1.2 m 落在胸口。画的不是大动作，是「正在说话」：
+// 身体轻晃、嘴跟着说话包络开合（说两段、停一拍眨一次眼），字幕跟着说话出现，最后头顶冒「！」
+CELLS[28] = shot(frameCell({ lo: 1.2, hi: 1.9, name: '中近景', abbr: 'MCU', draw: (k, w, h, u) => {
+  const X = -0.35;   // 人物略偏左，右侧留给字幕和气泡
+  // 说话包络：两段（0.4–2.0、2.9–4.4），段间停一拍；首尾安静，正好接 RESET 的淡出
+  const sp = P(u, 0.4, 0.7) * (1 - P(u, 1.7, 2.0)) + P(u, 2.9, 3.2) * (1 - P(u, 4.0, 4.3));
+  // 口型：小开合为主 + 每段中后段一次大张口收尾；停顿时合拢
+  const talk = sp > 0.01 ? sp * (0.30 + 0.32 * Math.max(0, wave(u, 9))) + sp * 0.36 * P(wave(u, 3, -0.9), 0, 0.9) : 0;
+  const blink = clamp(1 - Math.abs(u - 2.55) / 0.09);   // 停顿中的眨眼
+  const sway = wave(u, 2) * 0.014 + sp * wave(u, 1) * 0.02;   // 身体轻晃，说话时加大
+  world(k, w, h, fit(1.2, 1.9, 2.2), {
+    person: { x: X + sway, z: 8, fg: true }, blurBg: 1.6,   // 人物和脸在前景层，背景只轻微虚化
+    extra: [[X + sway, 0, 7.99, (kk, s) => face(kk, s, { talk, blink }), true]],
+    after: (kk, cc) => {
+      if (sp > 0.01) {   // 字幕：跟着说话出现，显示的就是这一句的内容
+        kk.save(); kk.globalAlpha = sp;
+        kk.fillStyle = 'rgba(255,255,255,.92)'; rr(kk, 150, 158, 239, 26, 13); kk.fill();
+        kk.fillStyle = C.ink; kk.font = `600 13px ${JP}`; kk.textAlign = 'center'; kk.textBaseline = 'middle';
+        kk.fillText('今天的风，比昨天轻一点。', 270, 172);
+        kk.restore();
+      }
+      // 最后一拍：头顶冒「！」，跟着 RESET 一起淡出
+      const q = P(u, 4.25, 4.5);
+      if (q > 0.01) {
+        const p = proj(cc, X, 1.78, 8);
+        kk.save(); kk.globalAlpha = q;
+        kk.fillStyle = C.blue; kk.beginPath(); kk.arc(p.x + 30, p.y - 16, 11, 0, TAU); kk.fill();
+        kk.fillStyle = '#FFFFFF'; kk.font = `700 14px ${JP}`; kk.textAlign = 'center'; kk.textBaseline = 'middle';
+        kk.fillText('！', p.x + 30, p.y - 15); kk.restore();
+      }
+    }
+  });
+} }));

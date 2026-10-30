@@ -1,0 +1,16 @@
+请使用“旋转光边按钮（Rotating gradient border）”，属于“落地页与网页动效”。
+Motion Prompt #1-122
+
+效果解释：按钮外框的渐变光持续绕圈
+动画表现：深色页面上按钮外框的多色渐变一直绕圈，光标悬停时转速加快并亮起外光晕。
+实现规格与关键运动参数：
+- 深色页面中央 200×52 胶囊按钮，外框是 3px 锥形渐变（朱 → 蓝 → 紫 → 朱）。
+- 渐变角度基础转速为每周期 1 圈；光标悬停期间（0.7–3.8 秒，easeInOut 2 次方）额外加 2 圈，每 4.8 秒周期合计整数 3 圈，首尾无缝。
+- 光标 0.6 秒移到按钮上，外光晕（shadowBlur 26）用 0.25 秒 easeOut 亮起；3.8 秒移开后 0.25 秒熄灭。
+适用场景：适合深色首屏或价格页里最想让人点的主按钮。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-122
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-122.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Hannah 的 MIT 版权标识。

@@ -1,0 +1,38 @@
+// Motion Prompt #3-063 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/depth-layering
+//
+// Foreground, middle ground & background / 前景・中景・背景
+// Pack: photo (Photo looks, lighting & styles) · element 31 · Category: Composition
+// What happens: The lake and woods behind, the person in the middle and the flowers in front slide sideways by different amounts, creating parallax; each layer is labelled.
+// Motion spec:
+//   - Background: far hills, 6 trees across the water and the lake surface, sliding by 6 px.
+//   - Middle ground: the person at x 270, 66 px tall, sliding by 18 px.
+//   - Foreground: 4 clumps of flowers along the bottom edge sliding by 48 px; the nearer the layer, the more it moves.
+//   - The sideways slide follows one sine per pass and grows with the effect; each layer carries a moving label "后景", "中景" or "前景".
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For landscapes, travel and story pictures that should show depth on a flat image.
+// Tags: foreground middle ground background, depth layering, layers, parallax, composition, depth
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-063
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 31
+// 前中后景: 三层以不同幅度横移（视差）：后景（湖与对岸树林）最慢、中景（人物）中速、前景（花丛）最快
+CELLS[30] = cell((k, u) => {
+  const a = env(u), s = Math.sin(u / CYC * TAU) * a;   // 摆幅跟着 env 渐入；sin 以 CYC 为周期，首尾相接
+  const D = pen(k);
+  D.rect(0, 0, CW, CH, BASE.sky);
+  k.save(); k.translate(s * 6, 0);
+  D.poly([[-20, 118], [-20, 96], [90, 86], [200, 98], [330, 82], [450, 96], [560, 88], [560, 118]], BASE.far);
+  [40, 120, 210, 300, 390, 480].forEach((x, i) => tree(D, x, 118, 9 + (i % 2) * 3, BASE));
+  D.rect(-20, 118, CW + 40, 18, BASE.mid);   // 湖面
+  k.restore();
+  D.rect(0, 136, CW, CH - 136, BASE.ground);
+  k.save(); k.translate(s * 18, 0); figure(D, CW / 2, 170, 66, BASE.person); k.restore();
+  k.save(); k.translate(s * 48, 0);
+  [[30, 206, 26], [96, 212, 18], [470, 204, 28], [530, 212, 20]].forEach(([x, y, r]) => { D.circ(x, y, r, BASE.tree); D.circ(x - r * 0.3, y - r * 0.5, 4, BASE.sun); });
+  k.restore();
+  tag(k, '后景', 90 + s * 6, 70, a); tag(k, '中景', CW / 2 + 52 + s * 18, 120, a); tag(k, '前景', 96 + s * 48, 182, a);
+});

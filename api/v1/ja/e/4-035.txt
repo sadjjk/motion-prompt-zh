@@ -1,0 +1,84 @@
+// Motion Prompt #4-035 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+//
+// オシロスコープの波形 / Oscilloscope trace
+// パック: scenes (スタイルシーン) · element 35 · カテゴリ: テックのムード
+// 何が起きるか: 暗い計測パネルが現れ、縦の光の線が左から右へ進みながらシアンの波形を描き、波は3回うねって次第に小さくなり、描き終えると光が消える。
+// 動きの仕様:
+//   - 暗いパネル 511×188（#04111d・枠 #164e63）、方眼 44×16、波形の枠 467×120
+//   - パネルは 0.3〜0.96 秒にフェードインして 6px 上がる（二次の easeOut）。縦の走査線が 0.84〜1.08 秒に点く
+//   - 0.96〜4.08 秒に波形と走査線が一緒に等速で左から右へ進む。シアンの波形 #22d3ee は 3 回うねり、振幅は少しずつ小さくなる。走査線は 4.08〜4.44 秒に消える
+//   - 4.2〜5.4 秒にパネルが正弦の easeInOut で 2px 浮き、5.4〜6.0 秒に全体がフェードアウトし、6.4 秒で空の背景に戻る
+//   - SF の計器との違い: 一本の波形を走査線が少しずつ描き、信号を測っているように見せる。たくさんの計器の数値が同時に動く画面ではない
+// 使いどころ: 電子工作・計測機器・オーディオ・医療機器の紹介や、科学技術系の動画の場面転換、ローディング画面に。
+// タグ: oscilloscope, waveform, signal, sweep, electronics, tech
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-035
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 35
+// 改写自 ui2v · illli Ai Studio · hero-scope-trace（MIT-0）
+// 35 示波器描线：深色示波器面板上，一道竖直扫描光束从左走到右，身后画出青色脉冲波形（三个起伏、振幅逐次减小）。
+// 时间按原作 4.5 秒 × 1.2 映射：面板 0.3–0.96 秒淡入、上移 6px（二次缓出）；光束 0.84–1.08 秒亮起；
+// 0.96–4.08 秒波形与光束同时匀速推进（原 0.8 秒起 2.6 秒、ease none），波形按原作 1400 的虚线长度推进、到原路径全长即画完；
+// 光束 4.08–4.44 秒熄灭；4.2–5.4 秒面板以正弦缓入缓出上浮 2px；5.4–6.0 秒整体淡出，6.4 秒回到空背景。
+// 尺寸换算：面板 920×720 → 511×188；波形框 840×200 → 467×120（横 ×0.556、纵 ×0.6，纵向放大让波形更醒目），网格 80×60 → 44×16。
+// 配色照抄：底 #020617、面板 #04111d / 边 #164e63、网格 rgba(34,211,238,.08/.05)、波形 #22d3ee、光束 rgba(34,211,238,.55)。
+const SCOPE_X = 14, SCOPE_Y = 10, SCOPE_W = 511, SCOPE_H = 188, SCOPE_WX = 22.2, SCOPE_WY = 34, SCOPE_KX = 0.5554, SCOPE_KY = 0.6;
+const SCOPE_PATH = (() => { // 原作 SVG 路径（840×200 坐标）：C 段后接 6 个 S 段，S 的第一控制点取上一段第二控制点的对称点
+  const segs = [[[0, 100], [60, 100], [60, 30], [120, 30]]];
+  const S = [[180, 170, 240, 170], [300, 40, 360, 40], [420, 160, 480, 160], [540, 50, 600, 50], [660, 140, 720, 140], [780, 100, 840, 100]];
+  for (const [c2x, c2y, ex, ey] of S) { const p = segs[segs.length - 1]; segs.push([p[3], [2 * p[3][0] - p[2][0], 2 * p[3][1] - p[2][1]], [c2x, c2y], [ex, ey]]); }
+  const pts = [[0, 100]], cum = [0];
+  for (const [a, b, c, d] of segs) for (let i = 1; i <= 40; i++) {
+    const t = i / 40, m = 1 - t;
+    const x = m * m * m * a[0] + 3 * m * m * t * b[0] + 3 * m * t * t * c[0] + t * t * t * d[0];
+    const y = m * m * m * a[1] + 3 * m * m * t * b[1] + 3 * m * t * t * c[1] + t * t * t * d[1];
+    const q = pts[pts.length - 1]; cum.push(cum[cum.length - 1] + Math.hypot(x - q[0], y - q[1])); pts.push([x, y]);
+  }
+  return { pts, cum, L: cum[cum.length - 1] };
+})();
+const SCOPE_qOut = t => 1 - (1 - t) * (1 - t);
+const SCOPE_sIO = t => -(Math.cos(Math.PI * t) - 1) / 2;
+CELLS[34] = (k, w, h, u) => {
+  k.fillStyle = '#020617'; k.fillRect(0, 0, CW, CH);
+  const e = SCOPE_qOut(seg(u, 0.3, 0.96)), a = e * fadeIn(u);
+  if (a <= 0) return;
+  const dy = 6 * (1 - e) - 2 * SCOPE_sIO(seg(u, 4.2, 5.4));
+  k.save(); k.globalAlpha = a; k.translate(0, dy);
+  k.drawImage(layer('SCOPE_panel', g => {
+    g.fillStyle = '#04111d'; rr(g, SCOPE_X, SCOPE_Y, SCOPE_W, SCOPE_H, 6); g.fill();
+    g.save(); rr(g, SCOPE_X, SCOPE_Y, SCOPE_W, SCOPE_H, 6); g.clip();
+    g.fillStyle = 'rgba(34,211,238,.08)'; for (let y = 0; y < SCOPE_H; y += 16) g.fillRect(SCOPE_X, SCOPE_Y + y, SCOPE_W, 1);
+    g.fillStyle = 'rgba(34,211,238,.05)'; for (let x = 0; x < SCOPE_W; x += 44) g.fillRect(SCOPE_X + x, SCOPE_Y, 1, SCOPE_H);
+    g.restore();
+    g.strokeStyle = '#164e63'; g.lineWidth = 1.2; rr(g, SCOPE_X + 0.6, SCOPE_Y + 0.6, SCOPE_W - 1.2, SCOPE_H - 1.2, 6); g.stroke();
+  }), 0, 0);
+  const p = seg(u, 0.96, 4.08), vis = Math.min(SCOPE_PATH.L, 1400 * p);      // 原作 dasharray 1400：可见长度 = 1400 × 进度
+  const ox = SCOPE_X + SCOPE_WX, oy = SCOPE_Y + SCOPE_WY;
+  if (vis > 0) {
+    const { pts, cum } = SCOPE_PATH;
+    k.beginPath(); k.moveTo(ox + pts[0][0] * SCOPE_KX, oy + pts[0][1] * SCOPE_KY);
+    for (let i = 1; i < pts.length; i++) {
+      if (cum[i] <= vis) { k.lineTo(ox + pts[i][0] * SCOPE_KX, oy + pts[i][1] * SCOPE_KY); continue; }
+      const t = (vis - cum[i - 1]) / (cum[i] - cum[i - 1]);
+      k.lineTo(ox + mix(pts[i - 1][0], pts[i][0], t) * SCOPE_KX, oy + mix(pts[i - 1][1], pts[i][1], t) * SCOPE_KY); break;
+    }
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    k.strokeStyle = 'rgba(34,211,238,.22)'; k.lineWidth = 7; k.stroke();      // 原 drop-shadow 8px 的光晕
+    k.strokeStyle = '#22d3ee'; k.lineWidth = 2.2; k.stroke();
+  }
+  const ba = SCOPE_qOut(seg(u, 0.84, 1.08)) * (1 - SCOPE_qOut(seg(u, 4.08, 4.44)));
+  if (ba > 0) {
+    const bx = ox + 840 * p * SCOPE_KX;
+    k.save(); k.beginPath(); rr(k, SCOPE_X, SCOPE_Y, SCOPE_W, SCOPE_H, 6); k.clip();
+    const gb = k.createLinearGradient(bx - 9, 0, bx + 9, 0);
+    gb.addColorStop(0, 'rgba(34,211,238,0)'); gb.addColorStop(0.5, 'rgba(34,211,238,.6)'); gb.addColorStop(1, 'rgba(34,211,238,0)');
+    k.globalAlpha = a * ba * 0.45; k.fillStyle = gb; k.fillRect(bx - 9, SCOPE_Y, 18, SCOPE_H);
+    k.globalAlpha = a * ba; k.fillStyle = 'rgba(34,211,238,.55)'; k.fillRect(bx - 0.85, SCOPE_Y, 1.7, SCOPE_H);
+    k.restore();
+  }
+  k.restore();
+};

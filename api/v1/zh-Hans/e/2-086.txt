@@ -1,0 +1,56 @@
+// Motion Prompt #2-086 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 激光切断 / Laser cut
+// 分类包: motion2 (动态图形进阶) · element 47 · 子分类: 文字与图形
+// 动画表现: 带火花的激光沿字的中线从左扫到右，扫过后上半截向左上、下半截向右下错开并微倾，停留后合回。
+// 运动规格:
+//   - 0.3–1.2 秒激光（2.5 px 白芯＋16/8 px 珊瑚色光晕）沿中线从左扫到右，前端有 8 颗火花
+//   - 1.2–1.55 秒上半截移到 (−16, −12 px)、−3°，下半截移到 (16, 12 px)、2°，三次缓出
+//   - 切口出现红色余热边，2.6 秒前消失
+//   - 3.7–4.3 秒以三次缓入缓出合回原位
+// 适用场景: 适合科幻、动作类标题，或切断式的转场。
+// 标签: laser, cut, slice, split, sci-fi, title
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-086
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 47
+// 改写自 KittenJam Motion Library #2（Hannah）· 雷射切断：0.3–1.2 秒发光激光沿字的中线从左扫到右，前端迸出火花；扫完后 1.2–1.55 秒上半截向左上（−16, −12px、−3°）、下半截向右下（16, 12px、2°）错开，停留到 3.7 秒，3.7–4.3 秒合回。
+// 上下两半各在自己的局部坐标里裁切，错开后切口边缘仍是一条直线。
+CELLS[46] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '切断', F = `900 104px ${JP}`, CX = w / 2, CY = 104, XL = 70, XR = w - 70;
+  const lx = lerp(XL, XR, eIOs(P(u, 0.3, 1.2)));
+  const la = u < 0.3 ? 0 : 1 - P(u, 1.25, 1.55);
+  const sp = eOut(P(u, 1.2, 1.55)) * (1 - eIO(P(u, 3.7, 4.3)));
+  [1, -1].forEach(s => {   // s=1 上半截，s=−1 下半截
+    k.save();
+    k.translate(CX - 16 * s * sp, CY - 12 * s * sp); k.rotate((s > 0 ? -3 : 2) * Math.PI / 180 * sp);
+    k.beginPath(); s > 0 ? k.rect(-w, -h, 2 * w, h) : k.rect(-w, 0, 2 * w, h); k.clip();
+    txt(k, S, 0, 0, F, '#fff', 'center', 'middle');
+    // 切口刚分开时的余热红边
+    const hot = sp * (1 - P(u, 1.55, 2.6));
+    if (hot > 0) { k.fillStyle = `rgba(255,107,92,${0.8 * hot})`; k.fillRect(-tw(k, S, F) / 2 - 6, s > 0 ? -2 : 0, tw(k, S, F) + 12, 2); }
+    k.restore();
+  });
+  if (la > 0) {
+    k.save(); k.globalAlpha = la; k.lineCap = 'round';
+    [[16, 0.14], [8, 0.3]].forEach(([lw, a]) => { k.strokeStyle = `rgba(255,107,92,${a})`; k.lineWidth = lw; k.beginPath(); k.moveTo(XL - 24, CY); k.lineTo(lx, CY); k.stroke(); });
+    k.strokeStyle = '#fff'; k.lineWidth = 2.5; k.beginPath(); k.moveTo(XL - 24, CY); k.lineTo(lx, CY); k.stroke();
+    if (u < 1.2) {
+      k.fillStyle = 'rgba(255,107,92,.4)'; k.beginPath(); k.arc(lx, CY, 11, 0, 7); k.fill();
+      k.fillStyle = '#fff'; k.beginPath(); k.arc(lx, CY, 4.5, 0, 7); k.fill();
+      // 火花：8 颗按下标取固定方向，沿各自的寿命循环飞出
+      for (let i = 0; i < 8; i++) {
+        const q = mod(u * 5 + H01(i + 470), 1), a = Math.PI * (0.75 + 0.5 * H01(i + 480)) + (i % 2 ? 0.5 : -0.5), r = 6 + 34 * q;
+        k.fillStyle = i % 3 ? C.yel : '#fff'; k.globalAlpha = la * (1 - q);
+        k.fillRect(lx + Math.cos(a) * r - 1.5, CY + Math.sin(a) * r - 1.5, 3, 3);
+      }
+    }
+    k.restore();
+  }
+};

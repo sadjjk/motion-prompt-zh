@@ -1,0 +1,15 @@
+Please use "Slide to confirm" (スライドして確定), one of the names in "Interaction & data motion".
+Motion Prompt #1-139
+
+What it is: A control that confirms only when the knob is slid to the end, and springs back otherwise
+What the sample shows: The capsule knob is first dragged partway and released, bouncing back; the second drag reaches the end, the whole track fills green and the label changes to confirmed. A shine sweeps the hint text.
+Spec:
+- Track 300 × 56 px with a 23 px knob; a shine sweeps the hint text from left to right every 1.6 s.
+- The first drag goes to 60% from 0.9–1.7 s and is released; the knob springs back to the start over 0.6 s with damping.
+- The second drag reaches the end from 2.65–3.45 s and releases at 3.55 s; past 85% counts as confirmed.
+- After confirming, the track fills green within 0.3 s and shows the confirmed label; it cross-fades back to the start from 5.4–6.0 s.
+When to use it: Use it for payments, transfers and deletions where an accidental tap would be costly.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-139.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

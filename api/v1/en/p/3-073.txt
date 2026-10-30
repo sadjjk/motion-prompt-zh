@@ -1,0 +1,16 @@
+Please use "Follow spotlight" (スポットライト), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-073
+
+What it is: A hard light from above draws a sharp-edged circle of light on a dark stage
+What the sample shows: The stage lights drop and a round pool of light follows the person walking left and right; outside it is almost black, a beam comes down from above, and the audience heads are silhouetted in front.
+Spec:
+- Stage: curtain #4A4C55 with 18 vertical folds, floor #5A5B62 from y 140; the person is 104 px tall and walks x = 270 + 120·sin, one round trip per pass.
+- Pool: centre y 110, radius 62 px; outside is darkened with #07080B at 0.92 opacity, the circle and an ellipse on the floor are brightened by screening #FFE2A8.
+- Beam: a trapezoid from above the frame down to the circle, #FFE8B4 added at 0.34 opacity at the top and 0.1 at the bottom.
+- Audience: 13 head-and-shoulder silhouettes #0B0C10 in front, bobbing slowly by 1.2 px.
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+When to use it: For stage shows, concerts or a lead entrance when all eyes should be on one person.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-073.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

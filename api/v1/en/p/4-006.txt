@@ -1,0 +1,15 @@
+Please use "Glitch" (グリッチ), one of the names in "Styled scenes".
+Motion Prompt #4-006
+
+What it is: A glitch-art poster torn apart by signal interference
+What the sample shows: SIGNAL LOST splits into RGB ghosts on a dark poster while horizontal slices jump sideways under coloured noise bars and scanlines.
+Spec:
+- Poster text SIGNAL LOST in 64 px black weight on dark #0B0B0E, with red accents #FF3B5C.
+- The 3 RGB channels split 3–9 px apart horizontally, peaking 3 times every 6.4 s.
+- Interference changes 10 times per second: each frame shifts 7 horizontal slices 2–20 px tall by up to ±32 px, plus 5 red or cyan noise bars.
+- A scanline every 3 px; one cycle has 64 frames and the last reuses frame 0, so the loop is seamless.
+When to use it: Use it to open game, music or tech videos, on error or maintenance pages, or as a cyber-styled poster.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-006.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

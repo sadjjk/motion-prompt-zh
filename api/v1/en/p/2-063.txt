@@ -1,0 +1,15 @@
+Please use "Variety-show captions" (バラエティ番組のテロップ), one of the names in "MG styles".
+Motion Prompt #2-063
+
+What it is: Variety-show styling: loud multi-outlined captions with comic burst bubbles and speed lines
+What the sample shows: Over a ginger cat, captions spring in letter by letter and sway, question marks hop and a sweat drop slides, then the camera punches in, a burst bubble and speed lines pop and a red stamp lands.
+Spec:
+- Captions have 3 layers: a gradient fill, a thick white outline, and a coloured outer outline with a dark extruded shadow (title: #FFFBD6→#FFE23A→#FF9A1F, white, #FF3D7F, #A3124F).
+- Entrances use a damped spring 0→1.15→1 (ζ=0.517, ω=22) with a drop and a spin-in, each character 2 frames after the last; held text sways slightly.
+- The title enters at 0.3 s and a whispered aside at 1.2 s; both pop away at 2.3 s. At 2.4 s cyan question marks pop in one by one and hop, and the cat's eyes turn to dots.
+- At 2.9 s the camera zoom jumps by 0.14 and shakes for 3 frames; white speed lines boil at 12 fps behind a 2-layer yellow #FFF15A / pink #FF3D7F burst bubble. A stamp slams down in 4 frames at 4.3 s, and from 5.4 s everything pops out in turn (0.17 s each).
+When to use it: Variety-show packaging, pet and vlog shorts, and captions on livestream clips.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-063.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

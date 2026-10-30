@@ -1,0 +1,47 @@
+// Motion Prompt #1-149 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 3D ring carousel / 3D リングカルーセル
+// Pack: ui (UI component names) · element 51 · Category: Navigation & status
+// What happens: 8 cards in a ring turn slowly, larger and brighter in front, smaller and darker behind; partway through a finger drags right to spin the ring.
+// Motion spec:
+//   - 8 cards, 84×108, sit on a ring of radius 190 that turns at one revolution per 24 s.
+//   - Each card scales 0.55–1 by z=cos(angle), and its width is further multiplied by 0.3+0.7·|z| to show it turning; farther cards sit higher and take up to 0.45 of darkening.
+//   - Cards are drawn from far to near by z, and those facing away show only their back.
+//   - A finger drags 160px right over 1.6–2.6 s, turning the ring an extra 67.5° the other way (easeInOut power 3), which cancels one 4.5 s cycle of rotation so the angle matches at the start and end.
+// When to use it: Use it for portfolios, product showcases or hero displays that present many images in one spot.
+// Tags: 3d-carousel, ring, carousel, gallery, rotate, drag
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-149
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 51
+// 改写自 KittenJam Motion Library #306 3D 环形轮播：8 张 84×108 卡片围成半径 190 的圆环，以 24 秒一圈的速度自转；
+// 每张按 z=cos(角度) 计算缩放 0.55–1、宽度再乘 0.3+0.7·|z| 模拟侧转，越远越高、越暗（最多叠 0.45 暗层），按 z 由远到近绘制，背面朝外的只画卡背。
+// 手指 1.6–2.6 秒向右拖 160px，圆环额外按 easeInOut 3 次方反向转 67.5°（正好抵消一个周期 4.5 秒的自转），周期首尾角度一致。
+const RING_LAB = ['海边', '山林', '夜空', '午后', '城市', '森林', '湖畔', '沙漠'];
+CELLS[50] = ui((w, h, t) => {
+  X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+  const cx = 271, cy = 90, R = 190, N = 8, CWD = 84, CHT = 108;
+  const base = -Math.PI * 2 * t / 24 + (Math.PI * 2 * CYC / 24) * eio(seg(t, 1.6, 2.6));
+  X.fillStyle = 'rgba(20,24,40,.06)'; X.beginPath(); X.ellipse(cx, cy + 74, R + 30, 14, 0, 0, Math.PI * 2); X.fill();
+  const cards = RING_LAB.map((lab, i) => { const th = base + i * Math.PI * 2 / N; return { lab, i, z: Math.cos(th), x: cx + R * Math.sin(th) }; });
+  cards.sort((a, b) => a.z - b.z);
+  cards.forEach(({ lab, i, z, x }) => {
+    const d = (z + 1) / 2, s = .55 + .45 * d, sx = s * (.3 + .7 * Math.abs(z));
+    X.save(); X.translate(x, cy - 14 * (1 - d)); X.scale(sx, s);
+    if (z >= 0) {
+      shadowed(() => fillRR(-CWD / 2, -CHT / 2, CWD, CHT, 8, '#fff'), 10, 4, .14);
+      mountains(-CWD / 2 + 7, -CHT / 2 + 7, CWD - 14, 64, i % 2);
+      text(lab, 0, CHT / 2 - 18, 14, C.ink, 700, 'center');
+    } else {
+      fillRR(-CWD / 2, -CHT / 2, CWD, CHT, 8, '#e4e2df');
+    }
+    const dim = .45 * (1 - d);
+    if (dim > 0) fillRR(-CWD / 2, -CHT / 2, CWD, CHT, 8, `rgba(20,24,40,${dim})`);
+    X.restore();
+  });
+  finger([[0, 190, 100], [1.6, 190, 100], [2.6, 350, 100]], [1.6], t, t > 1.4 && t < 2.7);
+});

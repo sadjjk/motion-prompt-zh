@@ -1,0 +1,49 @@
+// Motion Prompt #1-130 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// ドーナツグラフの分割描画 / Donut chart segments
+// パック: uxmotion (インタラクションとデータの動き) · element 39 · カテゴリ: 動くチャート
+// 何が起きるか: 真上から最初の区分の弧が時計回りに描かれ、前の弧の終わりから次の弧が続いて一周し、中央に合計、右に凡例が順に滑り込む。
+// 動きの仕様:
+//   - 4 区分 42/28/18/12%。リングは半径 62px、太さ 20px、区分の間に 2° のすき間
+//   - 0.3 秒から真上を起点に時計回りで、1 区分ずつ 0.45 秒（inOut3）で描く
+//   - 中央の合計は 0.3–0.8 秒にフェードイン
+//   - 凡例は 0.5 秒から 0.12 秒ずつずらして右 24px から 0.4 秒（out3）で滑り込む。5.4–6.0 秒に消えて戻る
+// 使いどころ: 割合や構成比を示すダッシュボード、レポートのデータ紹介に。
+// タグ: donut-chart, pie-chart, segments, data-viz, breakdown, legend
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-130
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 39
+// 39 环形图分段（KittenJam #199）：4 段环（42/28/18/12%）从正上方起顺时针依次画出，每段 0.45 秒（inOut3）、段间留 2° 间隙；
+// 中心总数 0.3–0.8 秒淡入；右侧图例从 0.5 秒起每隔 0.12 秒从右 24px 滑入（0.4 秒 out3）；5.4–6.0 秒淡出复位。
+const DNT_V = [42, 28, 18, 12], DNT_N = ['自然搜索', '社交媒体', '直接访问', '邮件推广'];
+const DNT_COL = ['#6A57F2', '#2F8FE0', '#1FB89A', '#D6731E'];
+const DNT_CX = 170, DNT_CY = 108, DNT_R = 62, DNT_LW = 20, DNT_GAP = 2 * Math.PI / 180, DNT_T0 = 0.3, DNT_SEG = 0.45;
+CELLS[38] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  txt(k, '流量来源', 22, 28, UXB_f(900, 14), UX.ink);
+  k.strokeStyle = UX.surface2; k.lineWidth = DNT_LW; k.beginPath(); k.arc(DNT_CX, DNT_CY, DNT_R, 0, TAU); k.stroke();
+  const fa = fadeIn(u);
+  k.save(); k.globalAlpha = fa; k.lineCap = 'butt';
+  let a0 = -Math.PI / 2;
+  DNT_V.forEach((v, i) => {
+    const span = v / 100 * TAU, t = inOut3(seg(u, DNT_T0 + i * DNT_SEG, DNT_T0 + (i + 1) * DNT_SEG));
+    if (t > 0) { k.strokeStyle = DNT_COL[i]; k.beginPath(); k.arc(DNT_CX, DNT_CY, DNT_R, a0 + DNT_GAP / 2, a0 + DNT_GAP / 2 + (span - DNT_GAP) * t); k.stroke(); }
+    a0 += span;
+  });
+  k.globalAlpha = fa * out3(seg(u, 0.3, 0.8));
+  txt(k, '12.4万', DNT_CX, DNT_CY + 4, UXB_f(900, 20), UX.ink, 'center');
+  txt(k, '本月访问', DNT_CX, DNT_CY + 22, UXB_f(700, 10), UX.ink3, 'center');
+  DNT_V.forEach((v, i) => {
+    const t = out3(seg(u, 0.5 + i * 0.12, 0.9 + i * 0.12)), y = 62 + i * 30, dx = 24 * (1 - t);
+    k.globalAlpha = fa * t;
+    rr(k, 300 + dx, y - 9, 10, 10, 3); k.fillStyle = DNT_COL[i]; k.fill();
+    txt(k, DNT_N[i], 318 + dx, y, UXB_f(750, 12), UX.ink2);
+    txt(k, v + '%', 500 + dx, y, UXB_f(900, 12), UX.ink, 'right');
+  });
+  k.restore();
+};

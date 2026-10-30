@@ -1,0 +1,15 @@
+Please use "Line art animation" (ラインアート), one of the names in "MG styles".
+Motion Prompt #2-050
+
+What it is: Line art animation: one continuous stroke draws itself into a scene and, finally, a logo
+What the sample shows: The camera follows a glowing pen tip as a gold line draws sprouts and towers in one stroke, then pulls back as the ring fills with gold.
+Spec:
+- Background #0B1320; a 2.5 px round-capped champagne gold line #E9D7A5 draws everything in one stroke during 0.3–4.5 s.
+- The camera pans with the glowing pen tip; drawn line drops to 35% brightness, and only the latest 240 px stays fully lit.
+- At 4.4–5.0 s the view pulls back to 0.56× into a poster layout, and the whole line returns to full brightness.
+- At 4.7–5.1 s the 42 px-radius ring fills with gold, and from 4.9 s the ATELIER LINEA serif wordmark (17 px) fades in.
+When to use it: Use it for premium brand films, studio or architecture openers, and reveals that show how a logo comes to be.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-050.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

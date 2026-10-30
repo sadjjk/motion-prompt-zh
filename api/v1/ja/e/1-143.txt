@@ -1,0 +1,74 @@
+// Motion Prompt #1-143 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 複数選択カード / Selectable cards
+// パック: ui (UIパーツの名前) · element 45 · カテゴリ: 選ぶ・切り替えるパーツ
+// 何が起きるか: カーソルが4枚中3枚を順に押すと、カードに青い枠とチェックが付き、下からバーが跳ね上がって選択数が繰り上がる。「クリア」で全部外れてバーが下がる。
+// 動きの仕様:
+//   - 110×100の画像カード4枚（間隔14）。カーソルが0.8・1.5・2.2秒に1・3・4枚目を押す
+//   - 選んだカードは0.25秒 easeOut で0.96に縮み、2.5pxの青い枠が付く。右上の丸いチェック欄は1.25倍に膨らんで戻り、青く塗られて白いチェックが描かれる
+//   - 最初の選択で、220×38の操作バーが back.out(1.4) で0.4秒かけて y 136 へ跳ね上がる。「N件選択」の数字は0.25秒で上へ繰り上がる
+//   - 3.4秒に「クリア」を押すと、選択が0.25秒で外れ、バーは3.45〜3.8秒に下へ抜ける
+// 使いどころ: 画像の一括選択・テンプレート選び・興味のオンボーディングなど、複数を選んで次へ進む画面に。
+// タグ: multi-select, selectable-cards, checkbox, action-bar, cards, click
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-143
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 45
+// 改写自 KittenJam Motion Library #304 多选卡片：四张 110×100 图片卡（间距 14）。光标在 0.8 / 1.5 / 2.2 秒点选第 1 / 3 / 4 张：
+// 卡片 0.25 秒 easeOut 缩到 0.96 并描 2.5px 蓝框，右上圆形勾选框放大到 1.25 倍再回落、填蓝并画出白勾；
+// 首次选中后底部 220×38 操作栏按 back.out(1.4) 0.4 秒弹到 y 136，「已选 N 项」数字 0.25 秒上滚；3.4 秒点「清空」，选中 0.25 秒全部取消，操作栏 3.45–3.8 秒滑出。
+const SELC_LAB = ['海边', '山林', '夜空', '午后'], SELC_T = [.8, -1, 1.5, 2.2];
+const SELC_back = x => 1 + 2.4 * Math.pow(x - 1, 3) + 1.4 * Math.pow(x - 1, 2);
+// 按进度 p 画出部分勾（从左下到右上），用来模拟笔画
+function SELC_tick(x, y, s, p, c, lw) {
+  if (p <= 0) return;
+  const P = [[x - s, y], [x - s * .3, y + s * .7], [x + s, y - s * .7]];
+  const L1 = Math.hypot(P[1][0] - P[0][0], P[1][1] - P[0][1]), L2 = Math.hypot(P[2][0] - P[1][0], P[2][1] - P[1][1]);
+  const d = Math.min(1, p) * (L1 + L2);
+  X.beginPath(); X.moveTo(P[0][0], P[0][1]);
+  if (d <= L1) X.lineTo(lerp(P[0][0], P[1][0], d / L1), lerp(P[0][1], P[1][1], d / L1));
+  else { X.lineTo(P[1][0], P[1][1]); const k = (d - L1) / L2; X.lineTo(lerp(P[1][0], P[2][0], k), lerp(P[1][1], P[2][1], k)); }
+  X.strokeStyle = c; X.lineWidth = lw; X.lineCap = 'round'; X.lineJoin = 'round'; X.stroke(); X.lineCap = 'butt';
+}
+CELLS[44] = ui((w, h, t) => {
+  X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+  const clr = eio(seg(t, 3.4, 3.65));
+  let n = 0, last = -1;
+  SELC_LAB.forEach((lab, i) => {
+    const x = 30 + i * 124, y = 20, cw = 110, ch = 100, tc = SELC_T[i];
+    if (tc >= 0 && t >= tc) { n++; last = Math.max(last, tc); }
+    const sel = tc < 0 ? 0 : eo(seg(t, tc, tc + .25)) * (1 - clr);
+    const s = 1 - .04 * sel;
+    X.save(); X.translate(x + cw / 2, y + ch / 2); X.scale(s, s); X.translate(-x - cw / 2, -y - ch / 2);
+    shadowed(() => fillRR(x, y, cw, ch, 10, '#fff'), 12, 3, .1);
+    mountains(x + 8, y + 8, cw - 16, 62, i % 2);
+    text(lab, x + 12, y + 86, 13, C.ink, 700);
+    if (sel > 0) strokeRR(x, y, cw, ch, 10, `rgba(31,90,232,${sel})`, 2.5);
+    // 勾选框：点中瞬间放大再回落
+    const bump = tc >= 0 && t < 3.4 ? 1 + .25 * Math.sin(Math.PI * seg(t, tc, tc + .3)) : 1;
+    const ox = x + cw - 18, oy = y + 18;
+    circle(ox, oy, 9 * bump, 'rgba(255,255,255,.9)'); ring(ox, oy, 9 * bump, sel > .5 ? C.blue : C.line2, 1.5);
+    if (sel > 0) circle(ox, oy, 9 * bump, `rgba(31,90,232,${sel})`);
+    SELC_tick(ox, oy, 4.5, tc < 0 ? 0 : eo(seg(t, tc + .08, tc + .3)) * (1 - clr), '#fff', 2);
+    X.restore();
+  });
+  // 底部操作栏：弹入后数字随选中数上滚
+  const k = SELC_back(seg(t, .85, 1.25)) * (1 - eio(seg(t, 3.45, 3.8)));
+  if (k > 0) {
+    const bx = 161, bw = 220, bh = 38, by = lerp(h + 10, 136, k);
+    fillRR(bx, by, bw, bh, 19, C.dark);
+    text('已选', bx + 18, by + 19, 13, '#fff', 600);
+    const q = last >= 0 ? eo(seg(t, last, last + .25)) : 1;
+    X.save(); X.beginPath(); X.rect(bx + 46, by + 6, 22, 26); X.clip();
+    text(String(Math.max(0, n - 1)), bx + 57, by + 19 - 16 * q, 14, '#fff', 800, 'center', NUMF);
+    text(String(n), bx + 57, by + 19 + 16 * (1 - q), 14, '#fff', 800, 'center', NUMF);
+    X.restore();
+    text('项', bx + 70, by + 19, 13, '#fff', 600);
+    fillRR(bx + bw - 74, by + 6, 66, 26, 13, '#fff'); text('清空', bx + bw - 41, by + 19, 12, C.ink, 700, 'center');
+  }
+  pointer([[0, w + 30, h + 30], [.7, 85, 72], [.9, 85, 72], [1.4, 333, 72], [1.6, 333, 72], [2.1, 457, 72], [2.3, 457, 72], [3.25, 340, 157], [3.5, 340, 157], [4.4, w + 30, h + 30]], [.8, 1.5, 2.2, 3.4], t);
+});

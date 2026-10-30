@@ -1,0 +1,38 @@
+// Motion Prompt #2-071 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Flag wave / フラッグウェーブ
+// Pack: motion2 (Motion graphics moves, part 2) · element 32 · Category: Text & shapes
+// What happens: Four characters hang from a pole on the left; each narrows, tilts and lifts slightly later than the last, so a wave runs to the right.
+// Motion spec:
+//   - A pole on the left (8 px wide, yellow knob on top) with 4 characters (58 px) running to the right.
+//   - Each character, pivoting on its left edge, takes scaleX = cos(38°·f), skewY −9°·f and moves up 4 px·f.
+//   - f goes 0→1→0 over 1.175 s (cosine), delayed 0.17 s per character.
+//   - Even-position characters are coral, odd ones white.
+// When to use it: Use it for cheers, slogans and sports titles.
+// Tags: flag, wave, wind, slogan, ripple, text
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-071
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 32
+// 改写自 KittenJam Motion Library #19（Hannah）· 文字旗帜：左侧旗杆，每个字以左边为轴做 scaleX = cos(38°·f)、skewY −9°·f、上移 4px·f 的波浪（f 每 1.175 秒一个来回），字与字相位依次延后 0.17 秒，偶数位字用珊瑚色。
+CELLS[31] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '乘风破浪', F = `900 58px ${JP}`, PX = 118, TOP = 30, BOT = 186, CY = 82;
+  k.fillStyle = C.navy3; rr(k, PX - 22, BOT - 6, 44, 8, 3); k.fill();
+  k.fillStyle = '#9AA6CC'; rr(k, PX - 4, TOP, 8, BOT - TOP, 3); k.fill();
+  k.fillStyle = C.yel; k.beginPath(); k.arc(PX, TOP - 4, 7, 0, 7); k.fill();
+  const cs = chars(k, S, F, 10), x0 = PX + 14 - (cs[0].x - cs[0].w / 2);
+  cs.forEach((c, i) => {
+    const f = (1 - Math.cos(Math.PI * 2 * (u - 0.17 * i) / 1.175)) / 2;
+    k.save(); k.translate(x0 + c.x - c.w / 2, CY - 4 * f);
+    k.transform(1, Math.tan(-9 * Math.PI / 180 * f), 0, 1, 0, 0);
+    k.scale(Math.cos(38 * Math.PI / 180 * f), 1);
+    txt(k, c.ch, 0, 0, F, i % 2 ? C.coral : '#fff', 'left', 'middle');
+    k.restore();
+  });
+};

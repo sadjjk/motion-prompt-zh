@@ -1,0 +1,48 @@
+// Motion Prompt #3-070 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/prism
+//
+// Prism effect / プリズム
+// Pack: photo (Photo looks, lighting & styles) · element 34 · Category: Lens & camera effects
+// What happens: On the night street only the windows and bulbs split into six colours from red to violet, offset towards the upper left; a faint rainbow band slants across.
+// Motion spec:
+//   - Scene: the night street corner; only the bright parts (windows, bulbs #FFE3A3) are drawn on a separate layer.
+//   - It is recoloured to six colours #FF4D4D, #FF9F3D, #FFE14D, #5CE27A, #4DB8FF, #9B6BFF; colour i is shifted (i+1)·3.12 px left and (i+1)·2.4 px up and added at 0.5 opacity.
+//   - Rainbow band: a 70 px slanted band moves from x −160 to 260 once per pass (opacity 0.16).
+//   - Dark areas do not change; top right reads "PRISM".
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For night scenes, parties and music videos that need a sparkling, dreamlike touch.
+// Tags: prism, rainbow, dispersion, ghosting, night, lens
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-070
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 34
+// 棱镜彩虹（プリズム）: 夜の街角で、明るい所だけが赤〜紫の6色に分かれて左上へずれた虹色の重影になる。
+// 暗い所はそのまま。淡い虹の帯がゆっくり画面の左側を横切る
+CELLS[33] = cell((k, u) => {
+  const a = env(u);
+  stageStreet(k, NIGHT);
+  if (a < 0.002) { hud(k, 'PRISM'); return; }
+  const NONE = 'rgba(0,0,0,0)', BR = mapPal(NIGHT, () => NONE);
+  Object.assign(BR, { win: NIGHT.win, bulb: '#FFE3A3' });
+  const L = brights('prism', kk => stageStreet(kk, BR, { person: false }));
+  const RAINBOW = ['#FF4D4D', '#FF9F3D', '#FFE14D', '#5CE27A', '#4DB8FF', '#9B6BFF'];
+  const [C, kc] = layer('prism-c');
+  k.save(); k.globalCompositeOperation = 'lighter';
+  RAINBOW.forEach((col, i) => {
+    // 明るい所の形を1色に塗り替えて、色ごとに少しずつ左上へずらす
+    kc.globalCompositeOperation = 'source-over'; kc.clearRect(0, 0, CW, CH); kc.drawImage(L, 0, 0);
+    kc.globalCompositeOperation = 'source-in'; kc.fillStyle = col; kc.fillRect(0, 0, CW, CH);
+    const d = (i + 1) * 2.4 * a;
+    k.globalAlpha = 0.5 * a; k.drawImage(C, -d * 1.3, -d);
+  });
+  // 虹の帯: 斜めの帯が左から右へ（端では a = 0 なので位置の飛びは見えない）
+  const bx = lerp(-160, 260, u / CYC), g = k.createLinearGradient(bx, 0, bx + 90, 40);
+  RAINBOW.forEach((col, i) => g.addColorStop(i / 5, col));
+  k.globalAlpha = 0.16 * a; k.fillStyle = g;
+  k.beginPath(); k.moveTo(bx, -10); k.lineTo(bx + 70, -10); k.lineTo(bx + 150, CH + 10); k.lineTo(bx + 80, CH + 10); k.closePath(); k.fill();
+  k.restore();
+  hud(k, 'PRISM');
+});

@@ -1,0 +1,57 @@
+// Motion Prompt #1-120 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 对折邀请卡 / Folding card
+// 分类包: ui (UI 组件) · element 42 · 子分类: 弹出与覆盖
+// 动画表现: 光标点深蓝封面，封面以左边为轴翻开露出内页左半，右半 3 行文字依次浮现，最后合上复原。
+// 运动规格:
+//   - 合起的 150×130 卡片，深蓝封面写“邀请函”。
+//   - 光标 0.8 秒点封面；0.9–1.6 秒封面以左边为轴打开（scaleX 1 → −1，easeInOut 3 次方），过 0 后显示内页左半，同时整张卡右移 75px 保持居中。
+//   - 内页 3 行文字在 1.6、1.8、2.0 秒起各 0.3 秒淡入并上移 6px。
+//   - 3.4 秒点内页：文字 3.4–3.6 秒淡出，3.6–4.2 秒封面合上、卡片回到原位。
+// 适用场景: 适合邀请函、贺卡、通知等想营造打开惊喜感的消息。
+// 标签: folding-card, invitation, card-open, reveal, greeting, click
+// 尺寸: 542x191 px · 周期: 4.5 s
+// 依赖: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-120
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 42
+// 改写自 KittenJam Motion Library #311 对折邀请卡：150×130 合起的卡片居中，封面深蓝带「邀请函」。
+// 光标 0.8 秒点封面，0.9–1.6 秒封面以左边为轴打开（scaleX 1→−1，easeInOut 3 次方），过 0 后显示浅色内页左半；
+// 同时整张卡右移 75px 保持居中。内页右半三行文字 1.6 / 1.8 / 2.0 秒起各 0.3 秒淡入并上移 6px；
+// 3.4 秒点内页左半，文字 3.4–3.6 秒淡出，3.6–4.2 秒封面合上、卡片回到原位。
+const INVITE_W = 150, INVITE_H = 130, INVITE_Y = 30;
+const INVITE_L = [['诚邀您参加', 12, 500, C.hint], ['年度设计之夜', 18, 800, C.ink], ['10 月 29 日 19:00', 12, 600, C.blue]];
+CELLS[41] = ui((w, h, t) => {
+  X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+  const q = eio(seg(t, .9, 1.6)) * (1 - eio(seg(t, 3.6, 4.2)));
+  const s = Math.cos(Math.PI * q), hx = 196 + 75 * q;
+  // 内页右半（被封面盖住的那面）
+  shadowed(() => fillRR(hx, INVITE_Y, INVITE_W, INVITE_H, 6, '#fffdf8'), 14, 4, .14);
+  const fade = 1 - seg(t, 3.4, 3.6);
+  INVITE_L.forEach(([s0, sz, wt, col], i) => {
+    const p = eo(seg(t, 1.6 + i * .2, 1.9 + i * .2)) * fade;
+    if (p <= 0) return;
+    X.save(); X.globalAlpha = p; text(s0, hx + INVITE_W / 2, INVITE_Y + 40 + i * 26 + 6 * (1 - p), sz, col, wt, 'center', i === 2 ? NUMF : JP); X.restore();
+  });
+  // 封面 / 内页左半：以 hx 为轴压缩
+  const cw = INVITE_W * Math.abs(s);
+  if (cw > .5) {
+    X.save(); X.translate(hx, 0); X.scale(Math.abs(s), 1);
+    if (s > 0) {
+      fillRR(0, INVITE_Y, INVITE_W, INVITE_H, 6, '#1d3a8a');
+      strokeRR(10, INVITE_Y + 10, INVITE_W - 20, INVITE_H - 20, 4, 'rgba(255,255,255,.35)', 1);
+      text('邀请函', INVITE_W / 2, INVITE_Y + 58, 20, '#fff', 800, 'center');
+      bar(INVITE_W / 2 - 24, INVITE_Y + 80, 48, 'rgba(255,255,255,.4)', 4);
+    } else {
+      fillRR(-INVITE_W, INVITE_Y, INVITE_W, INVITE_H, 6, '#f6f1e7');
+      circle(-INVITE_W / 2, INVITE_Y + INVITE_H / 2, 22, C.lb); text('★', -INVITE_W / 2, INVITE_Y + INVITE_H / 2 + 1, 18, C.blue, 700, 'center', NUMF);
+    }
+    const d = .3 * (1 - Math.abs(s));
+    if (d > 0) { X.fillStyle = `rgba(20,24,40,${d})`; X.fillRect(s > 0 ? 0 : -INVITE_W, INVITE_Y, INVITE_W, INVITE_H); }
+    X.restore();
+  }
+  pointer([[0, w + 30, h + 30], [.7, 290, 110], [1.2, 290, 110], [2.0, 470, 170], [3.0, 470, 170], [3.35, 200, 120], [3.6, 200, 120], [4.4, w + 30, h + 30]], [.8, 3.4], t);
+});

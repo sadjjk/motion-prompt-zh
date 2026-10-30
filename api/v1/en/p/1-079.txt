@@ -1,0 +1,15 @@
+Please use "Dot grid ripple" (ドットグリッドの波紋), one of the names in "Interaction & data motion".
+Motion Prompt #1-079
+
+What it is: A dot-grid background where ripples spread from wherever the pointer goes
+What the sample shows: As the pointer crosses the calm grey grid, rings spread from its trail; dots on the wave swell, lift and shift from blue-violet to teal.
+Spec:
+- A dot grid at 17 px spacing; at rest the dots are grey at 55% opacity.
+- The pointer drops a small ripple every 110 ms (amplitude .55) and a click a big wave (amplitude 1.6); up to 14 run at once.
+- Wavefronts spread at 170 px/s with shape sin(k/14)·e^(k/60), decaying by e^(−1.3·age) and gone after 2.6 s.
+- Raised dots grow to radius 1.6 + m × 3.4, lift m × 3 px and shift hue 230 − m × 110 from blue-violet to teal; demo clicks at 2.4 s.
+When to use it: Use it as a hero or section background on product sites to add mouse-responsive feedback to a calm page.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-079.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

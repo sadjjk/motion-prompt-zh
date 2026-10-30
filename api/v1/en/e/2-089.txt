@@ -1,0 +1,38 @@
+// Motion Prompt #2-089 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Text tunnel / 文字トンネル
+// Pack: motion2 (Motion graphics moves, part 2) · element 50 · Category: Text & shapes
+// What happens: Layers of 穿越 keep growing out of a tiny point in the centre and rush off the edges, alternating white and coral, with a dark glow at the centre.
+// Motion spec:
+//   - 8 layers of one word scale exponentially from 0.04× to 9× from the centre.
+//   - Each layer takes 4.7 s to pass, phases offset by 1/8.
+//   - Each fades in over the first 25% and out over the last 40%.
+//   - Layers alternate white and coral, with a dark glow of radius 70 px at the centre.
+// When to use it: Use it for openings, warp-in moments or scene changes.
+// Tags: tunnel, zoom, warp, depth, loop, intro
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-089
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 50
+// 改写自 KittenJam Motion Library #55（Hannah）· 文字隧道：8 层「穿越」从中心 0.04 倍按指数放大到 9 倍冲出画面，每层走完需 4.7 秒、相位依次错开 1/8；前 25% 淡入、后 40% 淡出，相邻层白色与珊瑚色交替，中心有暗色光晕。
+const TUNL_N = 8;
+CELLS[49] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k, '#0A1230');
+  const L = [];
+  for (let i = 0; i < TUNL_N; i++) L.push([mod(u / CYC + i / TUNL_N, 1), i]);
+  L.sort((a, b) => a[0] - b[0]).forEach(([p, i]) => {
+    const s = 0.04 * Math.pow(9 / 0.04, p), a = P(p, 0, 0.25) * (1 - P(p, 0.6, 1));
+    if (a <= 0) return;
+    k.save(); k.globalAlpha = a; k.translate(w / 2, h / 2); k.scale(s, s);
+    txt(k, '穿越', 0, 0, `900 44px ${JP}`, i % 2 ? C.coral : '#fff', 'center', 'middle');
+    k.restore();
+  });
+  const g = k.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, 70);
+  g.addColorStop(0, 'rgba(5,9,26,.75)'); g.addColorStop(1, 'rgba(5,9,26,0)');
+  k.fillStyle = g; k.fillRect(0, 0, w, h);
+};

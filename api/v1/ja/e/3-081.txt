@@ -1,0 +1,45 @@
+// Motion Prompt #3-081 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/moonlight
+//
+// 月夜 / Moonlight
+// パック: photo (写真の表現・光と画風) · element 45 · カテゴリ: 光源と色
+// 何が起きるか: 空が黒に近い深い青になり、左上に満月が昇る。人物は高い所からの冷たい青い光で片側だけ照らされ、影ははっきり。地面に銀色の照り返しが揺れ、窓は灯らない。
+// 動きの仕様:
+//   - 場面①: 胸から上の人物。空 #0D1630、窓と電球は灯らず #1C2640
+//   - 月: x 84 で y 70 から 38 へ昇る。半径16px #EEF4FF と、半径30px のかさ #C9DAF5（0.25）
+//   - 人物: 光の側 #9DB4DE、影 #0E1424。照り返しは月の下 y156〜192 に 5 本の細い帯 #BFD3F2（0.7）、1周に2回揺れる
+//   - 配置図は青い灯 #9DB4DE、右上に「4100K · ↑60°」
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: 夜の散歩・別れ・静かな物語の場面で、冷たく寂しい雰囲気にしたいとき。
+// タグ: moonlight, night, cool light, blue hour, moon, light
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-081
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 45
+// 月光夜景（月夜）: 空が黒に近い深い青になり、左上に満月が昇る。人物は高い所からの冷たい青い光で片側だけ照らされ、影ははっきり。
+// 地面に銀色の照り返しが一筋。窓は灯らず、色はごく少ない
+CELLS[44] = cell((k, u) => {
+  const a = env(u), W = torsoW(PR);
+  const MOON = Object.assign(mapPal(NIGHT, c => mixc(c, '#0A1020', 0.5)), { win: '#1C2640', winOff: '#1C2640', bulb: '#1C2640', sky: '#0D1630', sky2: '#122042', person: '#2A3550', shade: '#0E1424' });
+  const p = pal(BASE, MOON, a);
+  stagePortrait(k, p, { after: D => {
+    if (a < 0.002) return;
+    const my = lerp(70, 38, a);
+    D.k.save(); D.k.globalAlpha = 0.25 * a; D.circ(84, my, 30, '#C9DAF5'); D.k.globalAlpha = a; D.circ(84, my, 16, '#EEF4FF'); D.k.restore();
+    // 地面の銀色の照り返し（月の下にゆれる細い帯）
+    D.k.save(); D.k.globalAlpha = 0.7 * a;
+    for (let i = 0; i < 5; i++) D.rect(66 - i * 3 + 6 * Math.sin(u * TAU / CYC * 2 + i), 156 + i * 9, 36 + i * 6, 2.2, '#BFD3F2');
+    D.k.restore();
+  } });
+  const lit = mixc(BASE.person, '#9DB4DE', a), sh = mixc(BASE.person, MOON.shade, a);
+  bust(k, PX, PY, PR, BASE.person, kk => {
+    kk.fillStyle = lit; kk.beginPath(); kk.arc(PX, PY, PR, 0, TAU); kk.fill();
+    headShade(kk, PX, PY, PR, 1.1, 1, sh);
+    torso(kk, PX, PY, PR, PX - W, PX - 0.35 * W, lit); torso(kk, PX, PY, PR, PX - 0.35 * W, PX + W, sh);
+  });
+  plan(k, [[1.1, a, '#9DB4DE']]);
+  hud(k, '4100K · ↑60°');
+});

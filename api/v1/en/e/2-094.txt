@@ -1,0 +1,34 @@
+// Motion Prompt #2-094 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Echo stack / エコースタック
+// Pack: motion2 (Motion graphics moves, part 2) · element 55 · Category: Text & shapes
+// What happens: Five coral outline copies step out one by one to the upper right behind the bold white 回声, fainter further back, then slide back under it.
+// Motion spec:
+//   - 5 outline copies (2 px stroke), opacity 0.85 − 0.14 × layer.
+//   - From 0.4 s, 0.06 s apart and 0.7 s each, they move out by (14, −11 px) per layer with a cubic ease-in-out.
+//   - From 3.0 s they return in the same steps, outermost first.
+//   - The front word is white and always on top.
+// When to use it: Use it for poster-style headings, music or event promos, or a word you want to stress.
+// Tags: echo, outline, stack, offset, retro, heading
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-094
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 55
+// 改写自 KittenJam Motion Library #299（Hannah）· 残影堆叠：白色粗体「回声」后面叠 5 层珊瑚色空心描边副本，越后越淡（0.85 − 0.14×层）；0.4 秒起各层依次（间隔 0.06 秒、各 0.7 秒）向右上展开到每层 14px、−11px，停留后 3.0 秒起由外到内收回重叠。
+CELLS[54] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '回声', X = w / 2 - 30, Y = 118;
+  k.font = `900 92px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round';
+  for (let i = 5; i >= 1; i--) {
+    const o = 0.4 + 0.06 * i, c = 3.0 + 0.06 * (5 - i);
+    const e = eIO(P(u, o, o + 0.7)) * (1 - eIO(P(u, c, c + 0.7)));
+    k.globalAlpha = 0.85 - 0.14 * i; k.strokeStyle = C.coral; k.lineWidth = 2;
+    k.strokeText(S, X + 14 * i * e, Y - 11 * i * e);
+  }
+  k.globalAlpha = 1; k.fillStyle = '#fff'; k.fillText(S, X, Y);
+};

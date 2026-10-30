@@ -1,0 +1,94 @@
+// Motion Prompt #2-050 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// ラインアート / Line art animation
+// パック: mgstyles (モーショングラフィックスのスタイル) · element 02 · カテゴリ: フラット・線
+// 何が起きるか: 光るペン先を追ってカメラが横に流れ、金の線が芽や塔を一筆で描き、最後に引きの構図でリングが金色に塗られる。
+// 動きの仕様:
+//   - 背景 #0B1320、線は太さ 2.5px・丸端のシャンパンゴールド #E9D7A5。0.3–4.5 秒に一筆で描き切る
+//   - カメラは光るペン先を追って横移動。描いた線は 35% の明るさに落とし、直近 240px だけ全光量
+//   - 4.4–5.0 秒に 0.56 倍まで引いてポスター構図にし、線も全光量に戻る
+//   - 4.7–5.1 秒に半径 42px のリング内を金で塗り、4.9 秒から ATELIER LINEA（17px 明朝体）がフェードイン
+// 使いどころ: 高級感のあるブランド動画、建築・デザイン事務所のオープニング、ロゴの成り立ちを見せる演出に。
+// タグ: line-art, one-line-drawing, stroke-reveal, logo-reveal, gold, camera-pan
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-050
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 02
+// 02 线条动画（ATELIER LINEA「一笔画」）：午夜蓝 #0B1320 底上一根 2.5px 圆头香槟金线 #E9D7A5，0.3–4.5 秒一笔连续画出 地平线→种子→幼苗→亭子→塔楼天际线→海平面波纹→环形字标；镜头跟随发光笔尖平移，走过的线降到 35% 亮度；4.4–5.0 秒拉远成海报构图，4.7 秒环内由线转面填金，4.9 秒 ATELIER LINEA 衬线字标淡入；5.4–6.0 秒整体淡出
+const LINE_GOLD = [233, 215, 165];
+const LINE_PATH = (() => {
+  const P = [];
+  const L = (x, y) => P.push([x, y]);
+  const A = (cx, cy, r, a0, a1, n = 24) => { for (let i = 1; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; P.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); } };
+  L(-40, 172); L(118, 172);
+  A(118, 165, 7, Math.PI / 2, Math.PI / 2 - TAU, 20);          // 种子：一个小环
+  L(150, 172); L(152, 140); L(176, 126); L(166, 118); L(153, 128);   // 幼苗与第一片叶
+  L(155, 100); L(130, 90); L(138, 82); L(156, 94); L(158, 72);
+  A(166, 72, 8, Math.PI, Math.PI - TAU, 18);                   // 卷须
+  L(185, 104); L(185, 172); L(185, 104); L(240, 70); L(295, 104); L(185, 104);   // 亭子：柱、屋顶、檐
+  L(280, 104); L(280, 172); L(310, 172);
+  L(310, 52); L(330, 32); L(350, 52); L(350, 172); L(370, 172); // 塔楼
+  L(370, 92); L(410, 92); L(410, 172); L(430, 172);
+  L(430, 62); L(448, 62); L(448, 40); L(458, 40); L(458, 62); L(476, 62); L(476, 172);
+  L(600, 172);
+  for (let x = 604; x <= 760; x += 4) L(x, 172 - 6 * Math.sin((x - 600) / 160 * TAU * 2));   // 海平面波纹
+  L(790, 170); L(815, 162); L(840, 150);
+  A(840, 108, 42, Math.PI / 2, Math.PI / 2 + TAU, 48);         // 环形字标
+  L(820, 140); L(820, 110); A(840, 110, 20, Math.PI, TAU, 16); L(860, 140);   // 环内拱门
+  // 累计长度
+  const S = [0];
+  for (let i = 1; i < P.length; i++) S.push(S[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]));
+  return { P, S, len: S[S.length - 1] };
+})();
+function LINE_at(d) {
+  const { P, S } = LINE_PATH;
+  let lo = 0, hi = S.length - 1;
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (S[m] <= d) lo = m; else hi = m; }
+  const t = (d - S[lo]) / Math.max(1e-6, S[hi] - S[lo]);
+  return { i: lo, x: mix(P[lo][0], P[hi][0], clamp(t)), y: mix(P[lo][1], P[hi][1], clamp(t)) };
+}
+function LINE_trace(k, d0, d1) {
+  const { P } = LINE_PATH;
+  if (d1 <= d0) return;
+  const a = LINE_at(d0), b = LINE_at(d1);
+  k.beginPath(); k.moveTo(a.x, a.y);
+  for (let i = a.i + 1; i <= b.i; i++) k.lineTo(P[i][0], P[i][1]);
+  k.lineTo(b.x, b.y); k.stroke();
+}
+CELLS[1] = (k, w, h, u) => {
+  const f = fadeIn(u);
+  k.fillStyle = '#0B1320'; k.fillRect(0, 0, CW, CH);
+  glow(k, 270, 104, 300, '233,215,165', 0.04);
+  const e = seg(u, 0.3, 4.5);
+  const D = LINE_PATH.len * (0.6 * e + 0.4 * (3 * e * e - 2 * e * e * e));   // 转角处略减速的描绘进度
+  const tip = LINE_at(D);
+  const camX = clamp(tip.x - 300, -40, 361);
+  const z = inOut3(seg(u, 4.4, 5.0)), sf = 0.56;
+  const s = mix(1, sf, z);
+  k.save();
+  k.globalAlpha = f;
+  k.translate(mix(-camX, 270 - 430 * sf, z), mix(0, 80 - 100 * sf, z)); k.scale(s, s);
+  // 线转面：4.7–5.1 秒环内填金
+  const fill = seg(u, 4.7, 5.1);
+  if (fill > 0) { k.fillStyle = rgba(LINE_GOLD, 0.9 * fill); k.beginPath(); k.arc(840, 108, 42 * out3(fill), 0, TAU); k.fill(); }
+  k.lineCap = 'round'; k.lineJoin = 'round'; k.lineWidth = 2.5 / s;
+  k.strokeStyle = rgba(LINE_GOLD, mix(0.35, 1, z));                    // 旧线 35%，拉远后整幅回到全亮
+  LINE_trace(k, 0, D);
+  k.strokeStyle = '#E9D7A5';
+  LINE_trace(k, Math.max(0, D - 240), D);                              // 最近 240px 全亮
+  if (fill > 0) { k.strokeStyle = rgba([11, 19, 32], fill); k.lineWidth = 2.5 / s; k.beginPath(); k.moveTo(820, 140); k.lineTo(820, 110); k.arc(840, 110, 20, Math.PI, TAU); k.lineTo(860, 140); k.stroke(); }
+  const ta = seg(u, 0.15, 0.3) * (1 - seg(u, 4.5, 4.8));
+  if (ta > 0) { glow(k, tip.x, tip.y, 16 / s, '255,246,220', 0.8 * ta); k.fillStyle = '#FFFAEC'; k.beginPath(); k.arc(tip.x, tip.y, 2.2 / s, 0, TAU); k.fill(); }
+  k.restore();
+  const wa = seg(u, 4.9, 5.3) * f;
+  if (wa > 0) {
+    k.save(); k.globalAlpha = wa;
+    k.letterSpacing = '7px'; txt(k, 'ATELIER LINEA', 273, 166, `400 17px ${SERIF}`, '#E9D7A5', 'center');
+    k.letterSpacing = '4px'; txt(k, '始于一线', 272, 186, `400 10px ${SERIF}`, '#A8874E', 'center');
+    k.letterSpacing = '0px'; k.restore();
+  }
+};

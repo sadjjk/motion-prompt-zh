@@ -1,0 +1,43 @@
+// Motion Prompt #1-158 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// エキスパンディングボタン / Expanding button
+// パック: lp (LP・Webサイトの演出) · element 43 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: カーソルが丸い「＋」ボタンに乗ると、ボタンが右へ伸びてカプセル型になり、＋が回って「新規プロジェクト」の文字が現れる。離れると丸に戻る。
+// 動きの仕様:
+//   - 直径52pxの朱色の丸いボタンで「＋」だけ。カーソルは0.6秒で乗る
+//   - 0.5秒（easeInOut 3乗）でボタンが右へ伸び幅140pxのカプセルになり、＋が90°回る
+//   - 文字は伸びが半分（進み具合0.5）を過ぎてからフェードイン
+//   - 3.4秒でカーソルが左下へ離れ、ボタンは丸に戻る
+// 使いどころ: フローティングの追加ボタンなど、ふだんは小さく、ホバーで用途を伝えたいボタンに。
+// タグ: button, expand, fab, plus, hover, label
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-158
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 43
+// 改写自 KittenJam Motion Library #240 展开文字按钮：平时是直径 52 的朱色圆形「+」按钮。光标 0.6 秒移上去后 0.5 秒 easeInOut 3 次方：
+// 按钮向右展开成 140px 宽的胶囊，加号旋转 90°；文字「新建项目」在展开过半（进度 0.5 之后）才淡入。3.4 秒光标往左下移开后收回成圆形。
+const EXPB_D = 52, EXPB_W = 140;
+CELLS[42] = (k, w, h, u) => {
+  frame(k, 'example.com/projects');
+  const bx = (VW - EXPB_W) / 2, by = (VH - EXPB_D) / 2, ccx = bx + EXPB_D / 2, ccy = by + EXPB_D / 2;
+  const cur = t => path([[0, 110, 150], [0.6, ccx + 4, ccy + 4], [3.4, ccx + 4, ccy + 4], [4.0, 110, 150], [4.8, 110, 150]], t);
+  // 判定只看原来的圆，光标从左下离开，避免展开后的胶囊挡住离开路线
+  const on = t => { const [a, b] = cur(t); return Math.hypot(a - ccx, b - ccy) < EXPB_D / 2; };
+  const q = trans(on, u, 0.5, eIO), bw = lerp(EXPB_D, EXPB_W, q), ta = clamp((q - 0.5) / 0.5);
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    k.save(); k.shadowColor = 'rgba(255,90,44,.35)'; k.shadowBlur = 14; k.shadowOffsetY = 5; k.fillStyle = C.acc; rr(k, bx, by, bw, EXPB_D, EXPB_D / 2); k.fill(); k.restore();
+    if (ta > 0) {
+      k.save(); rr(k, bx, by, bw, EXPB_D, EXPB_D / 2); k.clip();
+      k.globalAlpha = ta; txt(k, '新建项目', bx + EXPB_D - 4, ccy + 1, `700 15px ${JP}`, '#fff', 'left', 'middle');
+      k.restore();
+    }
+    k.save(); k.translate(ccx, ccy); k.rotate(Math.PI / 2 * q); k.strokeStyle = '#fff'; k.lineWidth = 3; k.lineCap = 'round';
+    k.beginPath(); k.moveTo(-9, 0); k.lineTo(9, 0); k.moveTo(0, -9); k.lineTo(0, 9); k.stroke(); k.restore();
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
+  });
+};

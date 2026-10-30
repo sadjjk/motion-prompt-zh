@@ -1,0 +1,68 @@
+// Motion Prompt #4-041 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 文字走廊 / Text corridor
+// 分类包: scenes (风格画面) · element 41 · 子分类: 文字氛围
+// 动画表现: 一点透视的走廊里，地板、天花板和左右墙铺满不同颜色的「文字走廊」，持续朝观众流动，中心消失点沉在暗处。
+// 运动规格:
+//   - 一点透视，焦距 300 px，走廊半宽 1、半高 0.5
+//   - 深度 z = 0.5–8 切成 15 段（每段深 0.5），每个面贴文字带
+//   - 6.4 秒匀速前进 4 段（段深的整数倍，循环无缝）
+//   - 最远 3 个单位内淡入，消失点有半径 90 px 的暗色光晕，地板、天花板、左右墙各用一种颜色
+// 适用场景: 适合沉浸式开场、音乐或展览影像，以及标题背景。
+// 标签: corridor, perspective, tunnel, kinetic-type, depth, immersive
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-041
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 41
+// 改写自 KittenJam Motion Library #56 文字走廊（Hannah 整理）：一点透视的走廊，地板、天花板、左右墙面铺满重复的「文字走廊」，深度 z = 0.5–8 切成 15 段（段深 0.5），
+// 所有段向观者移动，6.4 秒前进 4 段（段深的整数倍，循环无缝）；远处 3 个单位内淡入、近处移出画面，消失点有暗色光晕。焦距 300px，走廊半宽 1、半高 0.5。
+const CORR_F = 300, CORR_DZ = 0.5, CORR_N = 15, CORR_Z0 = 0.5, CORR_TXT = '文字走廊文字走廊';
+const CORR_COLS = ['#ff8c78', '#96aaff', '#ffd678', '#78e6c8'];   // 地板、天花板、左墙、右墙
+const CORR_STRIP = CORR_COLS.map(col => {                          // 每面一张预先上色的字带（常量）
+  const c = document.createElement('canvas'); c.width = 512; c.height = 64; const g = c.getContext('2d');
+  g.font = `900 52px ${SANS}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = col;
+  [...CORR_TXT].forEach((ch, i, a) => g.fillText(ch, (i + 0.5) * 512 / a.length, 34));
+  return c;
+});
+CELLS[40] = (k, w, h, u) => {
+  k.fillStyle = '#0d0b1a'; k.fillRect(0, 0, CW, CH);
+  const cx = CW / 2, cy = CH / 2, ZF = CORR_Z0 + CORR_N * CORR_DZ;
+  const sx = z => CORR_F / z, sy = z => 0.5 * CORR_F / z;
+  const nx = sx(CORR_Z0), ny = sy(CORR_Z0), fx = sx(ZF), fy = sy(ZF);
+  // 四个面在 z=0.5 与 z=8 之间的梯形，用来裁切每段的字带
+  const SURF = [
+    { poly: [[cx - nx, cy + ny], [cx + nx, cy + ny], [cx + fx, cy + fy], [cx - fx, cy + fy]], wall: false, s: 1 },
+    { poly: [[cx - nx, cy - ny], [cx + nx, cy - ny], [cx + fx, cy - fy], [cx - fx, cy - fy]], wall: false, s: -1 },
+    { poly: [[cx - nx, cy - ny], [cx - fx, cy - fy], [cx - fx, cy + fy], [cx - nx, cy + ny]], wall: true, s: -1 },
+    { poly: [[cx + nx, cy - ny], [cx + fx, cy - fy], [cx + fx, cy + fy], [cx + nx, cy + ny]], wall: true, s: 1 }
+  ];
+  const off = (u / CYC * 4 * CORR_DZ) % CORR_DZ;
+  for (let i = CORR_N - 1; i >= -1; i--) {                                        // 由远到近画；i = −1 是正在移出画面的一段
+    const z = Math.max(0.1, CORR_Z0 + i * CORR_DZ + CORR_DZ - off), z2 = CORR_Z0 + (i + 2) * CORR_DZ - off;   // 本段近边 z、远边 z2
+    const a = clamp((ZF - z) / 3) * 0.8;
+    if (a <= 0) continue;
+    SURF.forEach((S, si) => {
+      k.save(); k.beginPath(); S.poly.forEach((p, q) => q ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.closePath(); k.clip();
+      k.globalAlpha = a;
+      if (!S.wall) {
+        const y1 = cy + S.s * sy(z), y2 = cy + S.s * sy(z2);
+        k.translate(cx, (y1 + y2) / 2); if (S.s < 0) k.scale(1, -1);
+        k.drawImage(CORR_STRIP[si], -sx(z), -Math.abs(y1 - y2) / 2, 2 * sx(z), Math.abs(y1 - y2));
+      } else {
+        const x1 = cx + S.s * sx(z), x2 = cx + S.s * sx(z2);
+        k.translate((x1 + x2) / 2, cy); k.rotate(S.s * Math.PI / 2);              // 旋转后局部 x 轴沿屏幕竖直方向
+        k.drawImage(CORR_STRIP[si], -sy(z), -Math.abs(x1 - x2) / 2, 2 * sy(z), Math.abs(x1 - x2));
+      }
+      k.restore();
+    });
+  }
+  k.strokeStyle = 'rgba(255,255,255,.12)'; k.lineWidth = 1;
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => { k.beginPath(); k.moveTo(cx + a * nx, cy + b * ny); k.lineTo(cx + a * fx, cy + b * fy); k.stroke(); });
+  const gr = k.createRadialGradient(cx, cy, 0, cx, cy, 90);
+  gr.addColorStop(0, 'rgba(8,6,16,1)'); gr.addColorStop(0.45, 'rgba(8,6,16,.75)'); gr.addColorStop(1, 'rgba(8,6,16,0)');
+  k.fillStyle = gr; k.fillRect(0, 0, CW, CH);
+};

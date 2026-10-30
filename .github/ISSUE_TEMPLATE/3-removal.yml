@@ -1,0 +1,52 @@
+name: "申请删除或更正"
+description: "申请删除或更正本站及本仓库中的案例、名称或素材"
+labels: ["removal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        核实后会尽快删除（或更正），范围包括社区案例页中的嵌入、链接和介绍，以及仓库中的相关文件。
+
+        Issue 是公开的，请不要填写邮箱、电话、住址等个人信息。
+  - type: input
+    id: target
+    attributes:
+      label: "对象链接"
+      description: "案例请填写原帖或文章链接，仓库内容请填写文件链接。"
+    validations:
+      required: true
+  - type: dropdown
+    id: request
+    attributes:
+      label: "申请类型"
+      options:
+        - "删除"
+        - "更正"
+    validations:
+      required: true
+  - type: dropdown
+    id: who
+    attributes:
+      label: "你的身份"
+      options:
+        - "内容作者本人"
+        - "内容中作品的作者或权利人"
+        - "代表以上人员"
+        - "其他（报告错误）"
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: "原因"
+      description: "如申请更正，请写明正确内容。"
+    validations:
+      required: true
+  - type: textarea
+    id: verify
+    attributes:
+      label: "身份确认方式"
+      description: |
+        例如：用发布该内容的账号发帖、评论或私信，注明本 Issue 编号（确认后可删除）；或在 GitHub 个人资料中关联该账号。
+    validations:
+      required: true

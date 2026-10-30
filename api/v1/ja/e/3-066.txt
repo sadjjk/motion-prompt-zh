@@ -1,0 +1,35 @@
+// Motion Prompt #3-066 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/match-on-action
+//
+// アクションつなぎ / Match on action
+// パック: camera (カメラワークと切り替え) · element 35 · カテゴリ: 切り替え（トランジション）
+// 何が起きるか: 人物が一定の速さで横切り、途中で正面のカメラから斜め前のカメラへカットで切り替える。位置と歩みは切れ目の前後でつながり、足元に青い点線が一瞬出て同じ動きだと示す。
+// 動きの仕様:
+//   - 人物: 0〜4.2秒で x −3.2m から3.2m まで一定速度で歩く（6.4m）。歩みは途切れない
+//   - カメラ1: 正面、高さ1.4m、人物まで8m
+//   - カメラ2: 2.3秒で切り替え。右へ1.4m、高さ1.2m、人物まで3m、0.35rad振る
+//   - 切り替え後0.35秒、足元に青い短い点線が出て消える。右上に「机位 1」「机位 2 · 动作延续」
+//   - 戻り: 最後の0.5秒で最初のカットへクロスフェード（1周4.7秒）
+// 使いどころ: 動きの流れを切らずに角度を変えたいとき。ドアを開ける、座る、物を渡す、パンチなど。
+// タグ: match on action, cutting on action, match cut, action continuity, cut, editing, continuity
+// サイズ: 539x208 px · 1周: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-066
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 35
+// 35 动作衔接：A 匀速横穿，走到一半从正面机位切到侧前方机位；走位与步态都由 u 连续算出，切点前后动作不重来
+const walkX = u => lerp(-3.2, 3.2, Math.min(1, u / 4.2));
+const walker = u => ({ person: { x: walkX(u), z: 8, walk: u * 7, col: C.blue } });
+CELLS[34] = shot(cutCell([
+  [0, (k, w, h, u) => world(k, w, h, cam({ y: 1.4 }), walker(u)), '机位 1'],
+  [2.3, (k, w, h, u) => world(k, w, h, cam({ x: 1.4, y: 1.2, z: 5, yaw: -0.35 }), Object.assign(walker(u), {
+    after: (kk, cc) => {   // 切点后 0.35 秒：脚下的蓝色虚线短标，说明是同一个动作
+      const g = 1 - P(u, 2.3, 2.65); if (g <= 0) return;
+      const p = proj(cc, walkX(u), 0, 8);
+      kk.save(); kk.globalAlpha = g; kk.strokeStyle = C.blue; kk.lineWidth = 2; kk.setLineDash([5, 4]);
+      kk.beginPath(); kk.moveTo(p.x - 40, p.y + 6); kk.lineTo(p.x + 40, p.y + 6); kk.stroke(); kk.restore();
+    }
+  })), '机位 2 · 动作延续']
+]));

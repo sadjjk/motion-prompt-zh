@@ -1,0 +1,51 @@
+name: "推荐案例"
+description: "推荐一条用名称配合动态示例的帖子或文章（X、小红书、公众号等均可，欢迎自荐）"
+labels: ["example"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        [社区案例页](https://sadjjk.github.io/motion-prompt-zh/found.html)中，X 帖子以官方嵌入显示，其他平台只展示链接和我们写的一句话介绍，不会把图片、视频或正文复制到本仓库。
+
+        收录的帖子或文章需包含作者本人制作的示例（带名称的动态示例、速查图等）。使用他人作品或以推广为主的内容不收录。
+  - type: dropdown
+    id: platform
+    attributes:
+      label: "平台"
+      options:
+        - "X"
+        - "小红书"
+        - "微信公众号"
+        - "其他"
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: "帖子或文章链接"
+      placeholder: "X、小红书或公众号文章链接"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: "推荐理由"
+      description: "涉及哪个领域的名称、示例哪里清楚易懂等，我们会参考它撰写介绍。"
+    validations:
+      required: true
+  - type: dropdown
+    id: who
+    attributes:
+      label: "你的身份"
+      options:
+        - "作者本人"
+        - "不是作者"
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: "确认"
+      options:
+        - label: "据我所知，示例由作者本人制作（不是转载他人的视频或图片）。"
+          required: true

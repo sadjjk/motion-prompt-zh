@@ -1,0 +1,47 @@
+// Motion Prompt #1-152 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// フォーカス＆ディム / Focus dim siblings
+// パック: lp (LP・Webサイトの演出) · element 37 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: 4枚のカードの上をカーソルが移ると、指したカードだけが浮いて少し大きくなり、ほかのカードは薄く・灰色がかって・小さくなる。
+// 動きの仕様:
+//   - 4枚のカード（100×120・間隔16）。カーソルが列の上にある間、指したカードは0.45秒の easeOut 3乗で8px浮き、1.04倍になる
+//   - ほかのカードは不透明度0.45・0.95倍に縮み、35%の灰色をかぶせて彩度を下げる
+//   - カーソルは1・2・4枚目に順にとどまり、約4.1秒で列から離れるとすべて元に戻る
+// 使いどころ: 料金プラン・商品一覧・作品カードなど、並んだ中の1つに視線を集めたい所に。
+// タグ: focus, dim, cards, hover, siblings, spotlight
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-152
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 37
+// 改写自 KittenJam Motion Library #220 聚焦淡化其他：一排 4 张 100×120 卡片（间距 16）。光标进入整排后，被指的卡 0.45 秒 easeOut 上浮 8px、放大到 1.04；
+// 其他卡同时淡到不透明度 0.45、缩小到 0.95，并蒙上 35% 的灰（降低饱和）。光标依次停在第 1、2、4 张，约 4.1 秒离开整排后全部复原。
+const FOCUS_W = 100, FOCUS_H = 120, FOCUS_GAP = 16;
+CELLS[36] = (k, w, h, u) => {
+  frame(k, 'example.com/plans');
+  const x0 = (VW - (FOCUS_W * 4 + FOCUS_GAP * 3)) / 2, y0 = 26, rowW = FOCUS_W * 4 + FOCUS_GAP * 3;
+  const cur = t => path([[0, 255, 162], [0.5, 84, 90], [1.4, 84, 90], [1.7, 200, 90], [2.6, 200, 90], [2.9, 432, 90], [3.8, 432, 90], [4.3, 255, 162], [4.8, 255, 162]], t);
+  // 整排的悬停（像 CSS 的容器 :hover），卡片间的空隙也算在内
+  const inRow = t => { const [a, b] = cur(t); return a > x0 && a < x0 + rowW && b > y0 && b < y0 + FOCUS_H; };
+  const row = trans(inRow, u, 0.45);
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 4; i++) {
+      const x = x0 + i * (FOCUS_W + FOCUS_GAP);
+      const on = t => { const [a, b] = cur(t); return a > x && a < x + FOCUS_W && b > y0 && b < y0 + FOCUS_H; };
+      const f = trans(on, u, 0.45), dim = clamp(row - f), s = 1 + 0.04 * f - 0.05 * dim;
+      k.save(); k.globalAlpha = 1 - 0.55 * dim;
+      k.translate(x + FOCUS_W / 2, y0 + FOCUS_H / 2 - 8 * f); k.scale(s, s); k.translate(-FOCUS_W / 2, -FOCUS_H / 2);
+      k.save(); k.shadowColor = `rgba(28,35,51,${0.08 + 0.16 * f})`; k.shadowBlur = 6 + 14 * f; k.shadowOffsetY = 2 + 8 * f;
+      k.fillStyle = '#fff'; rr(k, 0, 0, FOCUS_W, FOCUS_H, 10); k.fill(); k.restore();
+      pic(k, 6, 6, FOCUS_W - 12, 58, i, 6);
+      txt(k, ['入门', '标准', '专业', '团队'][i], 10, 82, `800 13px ${JP}`, C.ink); bars(k, 10, 92, 70, 2, C.faint, 5, 9);
+      if (dim > 0) { k.fillStyle = `rgba(200,204,212,${0.35 * dim})`; rr(k, 0, 0, FOCUS_W, FOCUS_H, 10); k.fill(); }
+      k.restore();
+    }
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
+  });
+};

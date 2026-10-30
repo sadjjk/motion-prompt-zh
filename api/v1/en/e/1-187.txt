@@ -1,0 +1,382 @@
+// Motion Prompt #1-187 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// Shredder delete / シュレッダーで削除
+// Pack: lp (Landing page & web effects) · element 50 · Category: Hover & click interactions
+// What happens: A file list sits on the left and a graphite shredder on the right. The cursor picks up the PDF row and carries it in an arc to the slot; once released, the card is sucked in, the machine shakes, its light blinks orange and thin strips curl down behind the bin window. The rows below slide up to fill the gap, then everything resets.
+// Motion spec:
+//   - At 0.45 s the cursor presses row 2 and over 0.6–1.55 s drags it in an arc to the slot, the card shrinking from 1.03× to 0.6×.
+//   - From 1.7–2.45 s the card is pulled in, slowly at first and then faster; the machine shakes from 1.7–2.95 s.
+//   - From 1.65–3.0 s the light switches from a green 'standby' to an orange 'shredding' that blinks at 7 Hz.
+//   - From 1.98 s, 15 strips are pushed out under the blades over 0.34 s each, then drop free, curling as they fall and fading within 1.15 s; the middle pair carry the file's color band.
+//   - From 2.05–2.5 s the rows below move up 33 px to close the gap, and the count goes from 4 to 3.
+//   - The rows drop back over 4.05–4.45 s and the deleted row fades in from 10 px to the left over 4.3–4.7 s, on a 4.8 s cycle.
+// When to use it: Use it in file managers, cloud storage or privacy and security features where a delete should feel permanent.
+// Tags: shredder, delete, drag-and-drop, file-list, shake, paper
+// Size: 539x208 px · Cycle: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-187
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 50
+CELLS[49] = (function () {
+  'use strict';
+  // 碎纸机样稿：左侧文件列表，光标把一行拖进右侧碎纸机，机身震动、纸条卷曲落入纸篓，其余行上移补位，周期末复位。
+  const W = 539, H = 208, CYC = 4.8;
+  // 配色：沿用 lp 包的冷灰桌面 + 墨蓝字 + 橙色强调，碎纸机用石墨深色压住右侧重心
+  const C = {
+    bgTop: '#F2F4F8', bgMid: '#E7EAF1', bgBot: '#D6DCE6',
+    ink: '#1C2333', sub: '#7D879B', faint: '#DCE1EA', soft: '#F3F5F9',
+    paper: '#FFFFFF', paper2: '#F1F3F8', edge: '#C6CDDA',
+    acc: '#FF5A2C', accL: '#FFE5DB', blue: '#3B64E8', blueL: '#E8EDFF',
+    gTop: '#5E6880', gMid: '#373F53', gBot: '#1D2231', slot: '#07090E',
+  };
+  const SANS = '-apple-system, "PingFang SC", "Helvetica Neue", sans-serif';
+  const TAU = Math.PI * 2;
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const lerp = (a, b, x) => a + (b - a) * x;
+  const P = (t, a, b) => clamp((t - a) / (b - a));
+  const eIO = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  const eOut = x => 1 - Math.pow(1 - x, 3);
+  const eIn = x => x * x;
+  // 确定性哈希：代替 Math.random，保证同一 u 画面一致
+  const hash = (i, s) => { const x = Math.sin(i * 12.9898 + s * 78.233) * 43758.5453; return x - Math.floor(x); };
+  function rr(k, x, y, w, h, r) {
+    k.beginPath(); k.moveTo(x + r, y);
+    k.arcTo(x + w, y, x + w, y + h, r); k.arcTo(x + w, y + h, x, y + h, r);
+    k.arcTo(x, y + h, x, y, r); k.arcTo(x, y, x + w, y, r); k.closePath();
+  }
+  // 静态层按 2 倍分辨率预渲染一次；缓存只存不随 u 变化的像素，不算跨帧状态
+  const SS = 2, cache = {};
+  function sprite(key, w, h, draw) {
+    let c = cache[key];
+    if (!c) {
+      c = document.createElement('canvas'); c.width = Math.ceil(w * SS); c.height = Math.ceil(h * SS);
+      const x = c.getContext('2d'); x.scale(SS, SS); draw(x); cache[key] = c;
+    }
+    return c;
+  }
+
+  // 布局：列表面板占左侧约 42% 宽，碎纸机居右偏下，两者之间留出拖拽路径
+  const LIST = { x: 26, y: 20, w: 228, h: 168, r: 12 };
+  const ROW = { x: 36, y0: 52, h: 30, w: 208 };
+  const SHR = { cx: 407, x0: 322, x1: 492, topBack: 84, slotY: 91, topFront: 96, faceBot: 136, binBot: 194 };
+
+  function drawBG(x) {
+    const gr = x.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, C.bgTop); gr.addColorStop(0.6, C.bgMid); gr.addColorStop(1, C.bgBot);
+    x.fillStyle = gr; x.fillRect(0, 0, W, H);
+    const hl = x.createRadialGradient(300, 60, 20, 300, 60, 340);
+    hl.addColorStop(0, 'rgba(255,255,255,0.55)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = hl; x.fillRect(0, 0, W, H);
+    const vg = x.createRadialGradient(W / 2, H * 0.42, 110, W / 2, H * 0.5, 360);
+    vg.addColorStop(0, 'rgba(28,35,51,0)'); vg.addColorStop(1, 'rgba(28,35,51,0.2)');
+    x.fillStyle = vg; x.fillRect(0, 0, W, H);
+    // 碎纸机地面接触影（机身只做亚像素震动，影子可静态烘焙）
+    x.save(); x.translate(SHR.cx, SHR.binBot + 3); x.scale(1, 0.09);
+    const sh = x.createRadialGradient(0, 0, 0, 0, 0, 100);
+    sh.addColorStop(0, 'rgba(20,26,40,0.42)'); sh.addColorStop(1, 'rgba(20,26,40,0)');
+    x.fillStyle = sh; x.beginPath(); x.arc(0, 0, 100, 0, TAU); x.fill(); x.restore();
+    drawPanel(x);
+  }
+
+  // 列表面板：柔和投影 + 右下厚度层 + 竖向渐变 + 左上高光边
+  function drawPanel(x) {
+    const { x: px, y: py, w, h, r } = LIST;
+    x.save(); x.shadowColor = 'rgba(28,35,51,0.18)'; x.shadowBlur = 18; x.shadowOffsetY = 8;
+    rr(x, px + 1.5, py + 3, w, h, r); x.fillStyle = C.edge; x.fill(); x.restore();
+    const gr = x.createLinearGradient(0, py, 0, py + h);
+    gr.addColorStop(0, C.paper); gr.addColorStop(1, C.paper2);
+    rr(x, px, py, w, h, r); x.fillStyle = gr; x.fill();
+    const hl = x.createLinearGradient(px, py, px + w * 0.6, py + h * 0.6);
+    hl.addColorStop(0, 'rgba(255,255,255,1)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    rr(x, px + 0.75, py + 0.75, w - 1.5, h - 1.5, r - 0.75); x.strokeStyle = hl; x.lineWidth = 1.5; x.stroke();
+    x.font = `600 12px ${SANS}`; x.fillStyle = C.ink; x.textAlign = 'left'; x.textBaseline = 'middle';
+    x.fillText('项目文件', px + 14, py + 16);
+    x.fillStyle = C.faint; x.fillRect(px + 10, py + 29, w - 20, 1);
+  }
+
+  // 文件列表：第 TGT 行被拖去粉碎；图标色带区分类型
+  const FILES = [
+    { name: '需求说明.docx', ext: 'DOC', size: '128 KB', col: '#3B64E8' },
+    { name: '季度报表_草稿.pdf', ext: 'PDF', size: '2.4 MB', col: '#FF5A2C' },
+    { name: '会议纪要.txt', ext: 'TXT', size: '16 KB', col: '#8A93A6' },
+    { name: '旧版设计稿.fig', ext: 'FIG', size: '8.1 MB', col: '#8C5CE6' },
+  ];
+  const TGT = 1, PITCH = 33;
+  const rowY = i => ROW.y0 + i * PITCH;
+
+  // 文件图标：折角纸页 + 类型色带，带轻微厚度
+  function icon(x, ix, iy, f) {
+    const w = 15, h = 19, fo = 5;
+    x.fillStyle = 'rgba(28,35,51,0.12)';
+    x.beginPath(); x.moveTo(ix + 1, iy + 1.5); x.lineTo(ix + w - fo + 1, iy + 1.5); x.lineTo(ix + w + 1, iy + fo + 1.5);
+    x.lineTo(ix + w + 1, iy + h + 1.5); x.lineTo(ix + 1, iy + h + 1.5); x.fill();
+    const gr = x.createLinearGradient(0, iy, 0, iy + h); gr.addColorStop(0, '#FFFFFF'); gr.addColorStop(1, '#E9EDF4');
+    x.beginPath(); x.moveTo(ix, iy); x.lineTo(ix + w - fo, iy); x.lineTo(ix + w, iy + fo); x.lineTo(ix + w, iy + h); x.lineTo(ix, iy + h); x.closePath();
+    x.fillStyle = gr; x.fill(); x.strokeStyle = C.edge; x.lineWidth = 0.8; x.stroke();
+    x.fillStyle = C.faint; x.beginPath(); x.moveTo(ix + w - fo, iy); x.lineTo(ix + w - fo, iy + fo); x.lineTo(ix + w, iy + fo); x.fill();
+    x.fillStyle = f.col; rr(x, ix - 2, iy + 10, w - 1, 7, 1.5); x.fill();
+    x.font = `700 5px ${SANS}`; x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText(f.ext, ix - 2 + (w - 1) / 2, iy + 13.7);
+  }
+  // 行内容精灵（透明底）：图标 + 文件名 + 大小
+  function rowSprite(i) {
+    const f = FILES[i];
+    return sprite('row' + i, ROW.w, ROW.h, x => {
+      icon(x, 12, 5, f);
+      x.font = `500 11px ${SANS}`; x.fillStyle = C.ink; x.textAlign = 'left'; x.textBaseline = 'middle';
+      x.fillText(f.name, 36, ROW.h / 2);
+      x.font = `400 9.5px ${SANS}`; x.fillStyle = C.sub; x.textAlign = 'right';
+      x.fillText(f.size, ROW.w - 10, ROW.h / 2);
+    });
+  }
+  // 被拖起的卡片：白色底 + 预烘焙柔和投影（避免逐帧 shadowBlur）
+  function cardSprite() {
+    return sprite('card', ROW.w + 40, ROW.h + 40, x => {
+      x.save(); x.shadowColor = 'rgba(28,35,51,0.28)'; x.shadowBlur = 14; x.shadowOffsetY = 6;
+      rr(x, 20, 20, ROW.w, ROW.h, 7); x.fillStyle = '#fff'; x.fill(); x.restore();
+      const gr = x.createLinearGradient(0, 20, 0, 20 + ROW.h); gr.addColorStop(0, '#FFFFFF'); gr.addColorStop(1, '#F2F4F9');
+      rr(x, 20, 20, ROW.w, ROW.h, 7); x.fillStyle = gr; x.fill();
+      x.strokeStyle = 'rgba(59,100,232,0.35)'; x.lineWidth = 1; x.stroke();
+      x.drawImage(rowSprite(TGT), 20, 20, ROW.w, ROW.h);
+    });
+  }
+  // 箭头光标：深色填充 + 白描边，按下时缩小
+  function cursor(k, x, y, press) {
+    const s = 1.05 * (1 - 0.14 * press);
+    k.save(); k.translate(x, y); k.scale(s, s);
+    k.shadowColor = 'rgba(0,0,0,0.25)'; k.shadowBlur = 3; k.shadowOffsetY = 1.5;
+    k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 16); k.lineTo(4, 12.4); k.lineTo(6.8, 18.6); k.lineTo(9.4, 17.4);
+    k.lineTo(6.7, 11.4); k.lineTo(11.6, 11.2); k.closePath();
+    k.lineJoin = 'round'; k.lineWidth = 1.6; k.strokeStyle = '#fff'; k.stroke(); k.shadowColor = 'transparent';
+    k.fillStyle = C.ink; k.fill(); k.restore();
+  }
+
+  // 纸篓窗口：烟色玻璃，纸条在其中可见
+  const WINB = { x: SHR.x0 + 18, y: SHR.faceBot + 4, w: SHR.x1 - SHR.x0 - 36, h: SHR.binBot - SHR.faceBot - 14, r: 6 };
+  // 纸篓：比机头略窄的石墨箱体，正面开窗（窗内为暗色底，纸条另画）
+  function drawBin(x) {
+    const bx = SHR.x0 + 7, bw = SHR.x1 - SHR.x0 - 14, by = SHR.faceBot - 4, bh = SHR.binBot - by;
+    rr(x, bx + 2, by + 2, bw, bh, 8); x.fillStyle = C.gBot; x.fill();               // 右下厚度层
+    const gr = x.createLinearGradient(bx, 0, bx + bw, 0);
+    gr.addColorStop(0, '#4A5268'); gr.addColorStop(0.45, '#3A4256'); gr.addColorStop(1, '#262C3C');
+    rr(x, bx, by, bw, bh, 8); x.fillStyle = gr; x.fill();
+    const hl = x.createLinearGradient(bx, by, bx + bw * 0.5, by + bh);
+    hl.addColorStop(0, 'rgba(255,255,255,0.35)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    rr(x, bx + 0.6, by + 0.6, bw - 1.2, bh - 1.2, 7.5); x.strokeStyle = hl; x.lineWidth = 1.2; x.stroke();
+    const { x: wx, y: wy, w: ww, h: wh, r } = WINB;
+    const wg = x.createLinearGradient(0, wy, 0, wy + wh);
+    wg.addColorStop(0, '#10131C'); wg.addColorStop(1, '#1E2433');
+    rr(x, wx, wy, ww, wh, r); x.fillStyle = wg; x.fill();
+  }
+  // 玻璃覆层：斜向反光带 + 内阴影边，盖在纸条之上
+  function drawGlass(x) {
+    const { x: wx, y: wy, w: ww, h: wh, r } = WINB;
+    x.save(); rr(x, wx, wy, ww, wh, r); x.clip();
+    x.fillStyle = 'rgba(120,140,190,0.10)'; x.fillRect(wx, wy, ww, wh);
+    x.globalCompositeOperation = 'lighter';
+    x.fillStyle = 'rgba(255,255,255,0.07)';
+    x.beginPath(); x.moveTo(wx + 18, wy); x.lineTo(wx + 52, wy); x.lineTo(wx + 22, wy + wh); x.lineTo(wx - 12, wy + wh); x.fill();
+    x.fillStyle = 'rgba(255,255,255,0.04)';
+    x.beginPath(); x.moveTo(wx + 60, wy); x.lineTo(wx + 70, wy); x.lineTo(wx + 40, wy + wh); x.lineTo(wx + 30, wy + wh); x.fill();
+    x.restore();
+    rr(x, wx, wy, ww, wh, r); x.strokeStyle = 'rgba(0,0,0,0.45)'; x.lineWidth = 1.2; x.stroke();
+    rr(x, wx - 1, wy - 1, ww + 2, wh + 2, r + 1); x.strokeStyle = 'rgba(255,255,255,0.12)'; x.lineWidth = 0.8; x.stroke();
+  }
+  // 机头：后窄前宽的顶面（含进纸口暗缝）+ 正面面板（品牌字、指示灯底座）
+  function drawHead(x) {
+    const { x0, x1, topBack: tb, slotY: sy, topFront: tf, faceBot: fb, cx } = SHR;
+    rr(x, x0 + 2, tf - 2, x1 - x0, fb - tf + 5, 9); x.fillStyle = C.gBot; x.fill();   // 厚度
+    // 顶面
+    const tg = x.createLinearGradient(0, tb, 0, tf);
+    tg.addColorStop(0, '#7C869E'); tg.addColorStop(1, '#5A6379');
+    x.beginPath(); x.moveTo(x0 + 10, tb); x.lineTo(x1 - 10, tb); x.quadraticCurveTo(x1 - 2, tb, x1, tf);
+    x.lineTo(x0, tf); x.quadraticCurveTo(x0 + 2, tb, x0 + 10, tb); x.closePath(); x.fillStyle = tg; x.fill();
+    x.strokeStyle = 'rgba(255,255,255,0.4)'; x.lineWidth = 1; x.beginPath(); x.moveTo(x0 + 10, tb + 0.5); x.lineTo(x1 - 10, tb + 0.5); x.stroke();
+    // 进纸口：外凹槽 + 暗缝 + 下唇反光
+    const sw = 66;
+    rr(x, cx - sw - 4, sy - 3.2, sw * 2 + 8, 6.4, 3.2); x.fillStyle = 'rgba(30,36,50,0.55)'; x.fill();
+    rr(x, cx - sw, sy - 1.4, sw * 2, 2.8, 1.4); x.fillStyle = C.slot; x.fill();
+    x.fillStyle = 'rgba(255,255,255,0.28)'; x.fillRect(cx - sw + 2, sy + 1.9, sw * 2 - 4, 0.7);
+    // 正面
+    const fg = x.createLinearGradient(0, tf, 0, fb);
+    fg.addColorStop(0, C.gTop); fg.addColorStop(0.35, C.gMid); fg.addColorStop(1, '#2A3142');
+    rr(x, x0, tf - 2, x1 - x0, fb - tf + 2, 9); x.fillStyle = fg; x.fill();
+    x.fillStyle = 'rgba(255,255,255,0.22)'; x.fillRect(x0 + 6, tf - 1, x1 - x0 - 12, 1);   // 顶棱高光
+    const sp = x.createRadialGradient(x0 + 40, tf + 6, 0, x0 + 40, tf + 6, 60);             // 镜面光斑
+    sp.addColorStop(0, 'rgba(255,255,255,0.20)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = sp; x.fillRect(x0, tf - 2, 120, fb - tf);
+    // 正面细分割线与品牌字
+    x.fillStyle = 'rgba(0,0,0,0.25)'; x.fillRect(x0 + 8, fb - 9, x1 - x0 - 16, 1);
+    x.fillStyle = 'rgba(255,255,255,0.08)'; x.fillRect(x0 + 8, fb - 8, x1 - x0 - 16, 1);
+    x.font = `600 10px ${SANS}`; x.textAlign = 'left'; x.textBaseline = 'middle';
+    x.fillStyle = 'rgba(255,255,255,0.82)'; x.fillText('安全粉碎', x0 + 16, tf + 17);
+    x.font = `500 7px ${SANS}`; x.fillStyle = 'rgba(255,255,255,0.42)'; x.fillText('CROSS-CUT · P-4', x0 + 16, tf + 29);
+    // 指示灯底座（灯光逐帧画）
+    x.beginPath(); x.arc(x1 - 24, tf + 20, 6.5, 0, TAU); x.fillStyle = '#151924'; x.fill();
+    x.strokeStyle = 'rgba(255,255,255,0.18)'; x.lineWidth = 0.8; x.stroke();
+  }
+
+  // 时间线（秒）：光标移入 0–0.45 → 按下 0.45–0.6 → 拖拽 0.6–1.55 → 对准松手 1.55–1.7 →
+  // 吸入 1.7–2.45（震动 1.7–2.95，灯闪）→ 纸条 1.95–3.9 → 补位 2.05–2.5 → 复位 4.05–4.7 → 静止至 4.8
+  const T = { hov: 0.3, grab: 0.45, drag0: 0.6, drag1: 1.55, rel: 1.68, feed0: 1.7, feed1: 2.45,
+    up0: 2.05, up1: 2.5, back0: 4.05, back1: 4.45, in0: 4.3, in1: 4.7 };
+  const REST = { x: 300, y: 170 };                          // 光标静止点：首尾帧一致
+  const CARD_S = 0.6;                                       // 卡片进纸时缩到与进纸口等宽
+  const GRIP = { x: -40, y: 2 };                            // 光标抓在卡片中心偏左处
+  const rowCenter = () => ({ x: ROW.x + ROW.w / 2, y: rowY(TGT) + ROW.h / 2 });
+
+  // 卡片姿态：返回中心、缩放、旋转；无卡片时返回 null
+  function cardPose(u) {
+    if (u < T.grab || u > T.feed1) return null;
+    const a = rowCenter(), b = { x: SHR.cx, y: SHR.slotY - ROW.h * CARD_S / 2 - 3 };
+    if (u < T.drag0) { const q = eOut(P(u, T.grab, T.drag0)); return { x: a.x, y: a.y - 2 * q, s: 1 + 0.03 * q, r: 0 }; }
+    if (u < T.drag1) {
+      const q = eIO(P(u, T.drag0, T.drag1));
+      // 二次贝塞尔：先上抬再落向进纸口
+      const mx = (a.x + b.x) / 2, my = Math.min(a.y, b.y) - 46;
+      const x = (1 - q) * (1 - q) * a.x + 2 * q * (1 - q) * mx + q * q * b.x;
+      const y = (1 - q) * (1 - q) * (a.y - 2) + 2 * q * (1 - q) * my + q * q * b.y;
+      return { x, y, s: lerp(1.03, CARD_S, eIO(q)), r: Math.sin(q * Math.PI) * 0.12 };
+    }
+    if (u < T.feed0) return { x: b.x, y: b.y, s: CARD_S, r: 0 };
+    const q = eIn(P(u, T.feed0, T.feed1));                  // 先慢后快地被吸入
+    return { x: b.x, y: b.y + q * (ROW.h * CARD_S + 6), s: CARD_S, r: 0 };
+  }
+  function cursorPose(u) {
+    const a = rowCenter(), g0 = { x: a.x + GRIP.x, y: a.y + GRIP.y };
+    if (u < T.grab) { const q = eIO(P(u, 0, T.grab - 0.05)); return { x: lerp(REST.x, g0.x, q), y: lerp(REST.y, g0.y, q), p: 0 }; }
+    if (u < T.rel) {
+      const c = cardPose(u), p = u < T.drag0 ? P(u, T.grab, T.grab + 0.1) : 1 - P(u, T.drag1 + 0.05, T.rel);
+      return { x: c.x + GRIP.x * c.s, y: c.y + GRIP.y * c.s, p };
+    }
+    const r0 = { x: SHR.cx + GRIP.x * CARD_S, y: SHR.slotY - ROW.h * CARD_S / 2 - 3 + GRIP.y * CARD_S };
+    const q = eIO(P(u, T.rel + 0.15, T.rel + 1.0));
+    return { x: lerp(r0.x, REST.x, q), y: lerp(r0.y, REST.y, q), p: 0 };
+  }
+
+  // 列表：悬停高亮 → 原位留虚线空位 → 下方行上移补位 → 复位时下方行回落、目标行淡入
+  function drawRows(k, u) {
+    const up = eIO(P(u, T.up0, T.up1)) * (1 - eIO(P(u, T.back0, T.back1)));
+    const n = u >= T.up1 - 0.2 && u < T.back0 + 0.2 ? FILES.length - 1 : FILES.length;
+    k.font = `500 9.5px ${SANS}`; k.fillStyle = C.sub; k.textAlign = 'right'; k.textBaseline = 'middle';
+    k.fillText(n + ' 项', LIST.x + LIST.w - 14, LIST.y + 16);
+    k.save(); rr(k, LIST.x, LIST.y + 30, LIST.w, LIST.h - 30, LIST.r); k.clip();
+    // 悬停与按住时的行底色
+    const hv = P(u, T.hov, T.hov + 0.12) * (1 - P(u, T.grab, T.drag0));
+    if (hv > 0) { k.globalAlpha = hv; rr(k, ROW.x, rowY(TGT), ROW.w, ROW.h, 7); k.fillStyle = C.blueL; k.fill(); k.globalAlpha = 1; }
+    // 空位虚线：卡片被拿起后出现，补位时被下一行盖过而淡出
+    const ph = P(u, T.grab, T.drag0) * (1 - P(u, T.up0, T.up0 + 0.25));
+    if (ph > 0) {
+      k.globalAlpha = ph; k.setLineDash([3, 3]); k.lineWidth = 1; k.strokeStyle = C.edge;
+      rr(k, ROW.x + 0.5, rowY(TGT) + 0.5, ROW.w - 1, ROW.h - 1, 7); k.stroke(); k.setLineDash([]); k.globalAlpha = 1;
+    }
+    for (let i = 0; i < FILES.length; i++) {
+      let y = rowY(i), a = 1, dx = 0;
+      if (i === TGT) {
+        if (u >= T.grab && u < T.in0) continue;            // 被拖走期间由卡片代替
+        if (u >= T.in0) { const q = eOut(P(u, T.in0, T.in1)); a = q; dx = -10 * (1 - q); }
+      } else if (i > TGT) y -= PITCH * up;
+      k.globalAlpha = a; k.drawImage(rowSprite(i), ROW.x + dx, y, ROW.w, ROW.h);
+      // 行间分隔线：最后一行不画；目标行淡入前不画，免得补位时出现悬空细线
+      if (i < FILES.length - 1 && !(i === TGT && u < T.in1 && u >= T.grab)) {
+        k.fillStyle = 'rgba(220,225,234,0.7)'; k.fillRect(ROW.x + 36 + dx, y + ROW.h + 1.5, ROW.w - 46, 1);
+      }
+    }
+    k.globalAlpha = 1; k.restore();
+  }
+  function drawCard(k, c, u) {
+    k.save();
+    if (u >= T.drag1) { k.beginPath(); k.rect(0, 0, W, SHR.slotY + shake(u).y); k.clip(); }
+    k.translate(c.x, c.y); k.rotate(c.r); k.scale(c.s, c.s);
+    k.drawImage(cardSprite(), -ROW.w / 2 - 20, -ROW.h / 2 - 20, ROW.w + 40, ROW.h + 40);
+    k.restore();
+  }
+  // 震动：起止有包络，频率取整数倍以免出现突变
+  function shake(u) {
+    const env = P(u, T.feed0, T.feed0 + 0.1) * (1 - P(u, 2.7, 2.95));
+    return { x: env * 0.9 * Math.sin(u * 95), y: env * 0.5 * Math.sin(u * 71 + 1.3) };
+  }
+
+  // 纸条：每条有出生时刻 tb，按 d = u − tb 解析计算——先从刀口挤出（长度增长），再脱落下坠、卷曲、淡出
+  const NS = 15, EXT = 0.34, FALL = 1.15;
+  const STRIPS = Array.from({ length: NS }, (_, i) => {
+    const r1 = hash(i, 1), r2 = hash(i, 2), r3 = hash(i, 3);
+    return {
+      x: SHR.cx - 60 + (i + 0.5) * (120 / NS) + (r1 - 0.5) * 3,
+      tb: 1.98 + 0.32 * (i % 5) / 5 + r2 * 0.12 + (i % 3) * 0.04,
+      len: 26 + r3 * 16, curl: (r1 > 0.5 ? 1 : -1) * (0.9 + r2 * 0.9), drift: (r3 - 0.5) * 18,
+      tint: i === 6 || i === 7 ? FILES[TGT].col : null,      // 中间两条带有文件色带的碎片
+    };
+  });
+  function drawStrips(k, u, ox, oy) {
+    const { x: wx, y: wy, w: ww, h: wh, r } = WINB;
+    k.save(); rr(k, wx + ox, wy + oy, ww, wh, r); k.clip();
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    const top = SHR.faceBot + oy;
+    for (const s of STRIPS) {
+      const d = u - s.tb;
+      if (d <= 0 || d > EXT + FALL) continue;
+      const grow = clamp(d / EXT), fall = Math.max(0, d - EXT);
+      const L = s.len * eOut(grow);
+      const y0 = top + 0.5 * 120 * fall * fall + 18 * fall;  // 解析抛物下坠
+      const x0 = s.x + ox + s.drift * fall;
+      const bend = s.curl * (0.15 + 1.6 * fall);             // 脱落后越卷越紧
+      const a = 1 - P(fall, FALL * 0.55, FALL);
+      if (a <= 0 || L < 1) continue;
+      const seg = 9, dl = L / seg;
+      let x = x0, y = y0, ang = Math.PI / 2;
+      const pts = [[x, y]];
+      for (let j = 0; j < seg; j++) { ang += bend * dl / 22 * (0.4 + j / seg); x += Math.cos(ang) * dl; y += Math.sin(ang) * dl; pts.push([x, y]); }
+      k.globalAlpha = a;
+      // 厚度/背面：略偏移的暗线
+      k.strokeStyle = 'rgba(150,160,180,0.9)'; k.lineWidth = 3.4; k.beginPath();
+      pts.forEach((p, j) => j ? k.lineTo(p[0] + 0.7, p[1] + 0.5) : k.moveTo(p[0] + 0.7, p[1] + 0.5)); k.stroke();
+      k.strokeStyle = s.tint || '#F6F8FC'; k.lineWidth = 2.8; k.beginPath();
+      pts.forEach((p, j) => j ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.stroke();
+      // 卷曲受光面：前半段一道细高光
+      k.strokeStyle = 'rgba(255,255,255,0.9)'; k.lineWidth = 0.8; k.beginPath();
+      for (let j = 0; j < 5; j++) j ? k.lineTo(pts[j][0] - 0.6, pts[j][1] - 0.3) : k.moveTo(pts[j][0] - 0.6, pts[j][1] - 0.3); k.stroke();
+    }
+    k.globalAlpha = 1; k.restore();
+  }
+
+  // 机身合成：纸篓 → 纸条 → 玻璃 → 机头（机头与纸篓一起震动）→ 指示灯
+  const MW = SHR.x1 - SHR.x0 + 8, MY0 = SHR.topBack - 2, MH = SHR.binBot - MY0 + 6;
+  function drawMachine(k, u) {
+    const sk = shake(u), ox = sk.x, oy = sk.y;
+    const box = (key, f) => sprite(key, MW, MH, x => { x.translate(-SHR.x0 + 2, -MY0); f(x); });
+    k.drawImage(box('bin', drawBin), SHR.x0 - 2 + ox, MY0 + oy, MW, MH);
+    drawStrips(k, u, ox, oy);
+    k.drawImage(box('glass', drawGlass), SHR.x0 - 2 + ox, MY0 + oy, MW, MH);
+    k.drawImage(box('head', drawHead), SHR.x0 - 2 + ox, MY0 + oy, MW, MH);
+    // 指示灯：待机为柔和绿；工作期间橙色以 7 Hz 闪动，带外发光
+    const lx = SHR.x1 - 24 + ox, ly = SHR.topFront + 20 + oy;
+    const on = u >= T.feed0 - 0.05 && u < 3.0;
+    const blink = on ? 0.55 + 0.45 * Math.cos((u - T.feed0) * TAU * 7) : 0;
+    const col = on ? '255,122,60' : '86,214,140', lv = on ? blink : 0.75;
+    const gl = k.createRadialGradient(lx, ly, 0, lx, ly, 15);
+    gl.addColorStop(0, `rgba(${col},${0.55 * lv})`); gl.addColorStop(1, `rgba(${col},0)`);
+    k.fillStyle = gl; k.fillRect(lx - 15, ly - 15, 30, 30);
+    const core = k.createRadialGradient(lx - 1.2, ly - 1.2, 0, lx, ly, 4.2);
+    core.addColorStop(0, `rgba(255,255,255,${0.6 + 0.4 * lv})`); core.addColorStop(0.45, `rgba(${col},${0.5 + 0.5 * lv})`); core.addColorStop(1, `rgba(${col},${0.25 + 0.4 * lv})`);
+    k.fillStyle = core; k.beginPath(); k.arc(lx, ly, 4.2, 0, TAU); k.fill();
+    k.font = `500 7.5px ${SANS}`; k.textAlign = 'right'; k.textBaseline = 'middle';
+    k.fillStyle = on ? 'rgba(255,190,160,0.9)' : 'rgba(255,255,255,0.45)';
+    k.fillText(on ? '粉碎中' : '待机', lx - 11, ly + 0.5);
+  }
+
+  const fn = (k, w, h, u) => {
+    u = ((u % CYC) + CYC) % CYC;
+    k.drawImage(sprite('bg', W, H, drawBG), 0, 0, W, H);
+    drawRows(k, u);
+    drawMachine(k, u);
+    const c = cardPose(u);
+    if (c) drawCard(k, c, u);
+    const cp = cursorPose(u);
+    cursor(k, cp.x, cp.y, cp.p);
+  };
+  return fn;
+})();

@@ -1,0 +1,16 @@
+Please use "Highlighter animation" (マーカーアニメーション), one of the names in "Landing page & web effects".
+Motion Prompt #1-032
+
+What it is: A highlighter stroke is drawn under key words
+What the sample shows: As the copy scrolls into view, a yellow highlighter stroke is drawn left to right across the lower half of the key words.
+Spec:
+- Scroll: 0→90 px at 0.35–1.0 s, 90→180 px at 1.6–2.2 s, 180→0 at 3.3–4.4 s (cubic ease-in-out).
+- Two lines of copy (20 px, bold) at 190 px and 290 px down the page, hidden below the view at first.
+- When a line's top passes the trigger line (80% of the viewport height, 134 px), the stroke under its key words starts.
+- Stroke: yellow #FFE36B, 11 tall, in the lower part of the text (8 px above to 3 px below the baseline). Width 0 → word width from the left over 0.8 s (cubic ease-out), drawn behind the text.
+- Lines that leave the bottom of the view are reset out of sight.
+When to use it: Use it in landing-page copy to make the one phrase that matters stand out as it is read.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-032.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

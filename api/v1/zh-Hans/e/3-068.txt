@@ -1,0 +1,43 @@
+// Motion Prompt #3-068 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/bloom
+//
+// 泛光 / Bloom
+// 分类包: photo (摄影光线与风格) · element 32 · 子分类: 镜头与相机效果
+// 动画表现: 夜晚街角有车驶过，只有窗户、路灯和车灯周围晕开光，暗色天空和楼房不变。
+// 运动规格:
+//   - 场景：夜晚街角，天空 #2C3B5E，窗户和灯泡 #FFC75A；车每轮从 x −60 横穿到 600。
+//   - 只把发光部分画到单独图层：窗户、灯泡 #FFE3A3、车头灯 #FFE9B8、尾灯 #FF5B4D。
+//   - 光晕：该图层分别以 3、7、10 px 模糊后相加，再叠一层半尺寸 5 px 模糊的大范围光晕（约合全尺寸 10 px）。
+//   - 暗部在相加后颜色不变；右上显示“BLOOM n%”。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 夜景、霓虹、逆光画面中，想让光源柔和发光、带梦幻感时。
+// 标签: bloom, glow, light spill, night, highlights, lens
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-068
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 32
+// 泛光（ブルーム）: 夜の街角で、窓・街灯・車のライトの明るい所からだけ光がにじみ出す。暗い建物の輪郭はそのまま
+CELLS[31] = cell((k, u) => {
+  const a = env(u), x = lerp(-60, 600, u / CYC);
+  const lights = { head: '#FFE9B8', tail: '#FF5B4D' };
+  stageStreet(k, NIGHT, { car: x, carLights: lights });
+  if (a < 0.002) { hud(k, 'BLOOM 0%'); return; }
+  // 明るい所だけ: 同じ場面を、窓と電球と車のライト以外を透明にした色で描く
+  const NONE = 'rgba(0,0,0,0)', BR = mapPal(NIGHT, () => NONE);
+  Object.assign(BR, { win: NIGHT.win, bulb: '#FFE3A3' });
+  const L = brights('bloom', kk => stageStreet(kk, BR, { car: x, carLights: lights, person: false }));
+  const [G, kg] = layer('bloom-g');
+  kg.globalCompositeOperation = 'lighter';
+  for (const [b, al] of [[3, 0.9], [7, 0.85], [10, 0.8]]) { kg.filter = `blur(${b}px)`; kg.globalAlpha = al; kg.drawImage(L, 0, 0); }
+  kg.filter = 'none';
+  // 広いにじみ: 半分の大きさで 10px ぼかす（全面で 20px 相当）
+  const [Hh, kh] = layer('bloom-h'); kh.filter = 'blur(5px)'; kh.drawImage(L, 0, 0, CW / 2, CH / 2); kh.filter = 'none';
+  k.save(); k.globalCompositeOperation = 'lighter';
+  k.globalAlpha = a; k.drawImage(G, 0, 0);
+  k.globalAlpha = 0.9 * a; k.drawImage(Hh, 0, 0, CW / 2, CH / 2, 0, 0, CW, CH);
+  k.restore();
+  hud(k, `BLOOM ${Math.round(a * 100)}%`);
+});

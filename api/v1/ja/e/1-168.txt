@@ -1,0 +1,44 @@
+// Motion Prompt #1-168 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// クロスヘアカーソル / Crosshair cursor
+// パック: uxmotion (インタラクションとデータの動き) · element 55 · カテゴリ: カーソル連動
+// 何が起きるか: 薄い格子の暗い背景で、横線と縦線が画面いっぱいに伸びてカーソル位置で交わる。交点に小さな円、右下のラベルに座標の数字が動きに合わせて変わる。
+// 動きの仕様:
+//   - 縦横の線は 1px で画面の端から端まで、交点に半径 6px の円
+//   - ラベルの X、Y は位置を 1920 × 1080 に換算し、4 桁にゼロ埋め
+//   - ラベルはカーソルの右下 12px。右端や下端に近いと反対側へ回る
+//   - 十字は 0.4–0.8 秒にフェードインし、4.4–4.9 秒にフェードアウト
+// 使いどころ: デザインツール、技術系サービス、設計図風のポートフォリオに。
+// タグ: crosshair, cursor, coordinates, blueprint, tech, monospace
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-168
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 55
+// 55 十字准星坐标（KittenJam #256）：淡格线暗底上，一横一竖两条细线跨满画面交于光标处，交点画半径 6px 小圆；
+// 右下方标签用等宽字实时显示换算到 1920×1080 的 X、Y（补零到 4 位），靠近右缘或下缘时翻到另一侧；0.4–0.8 秒淡入、4.4–4.9 秒淡出离开。
+const XHR_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, 140, 60], [1.6, 380, 140], [2.2, 500, 40], [2.9, 90, 180], [3.6, 269.5, 104], [4.3, 269.5, 104], [5.0, 570, 230]];
+const XHR_BW = 112, XHR_BH = 20;
+CELLS[54] = (k, w, h, u) => {
+  k.fillStyle = '#0E1016'; k.fillRect(0, 0, CW, CH);
+  k.strokeStyle = 'rgba(255,255,255,.05)'; k.lineWidth = 1;
+  for (let x = 26.5; x < CW; x += 27) { k.beginPath(); k.moveTo(x, 0); k.lineTo(x, CH); k.stroke(); }
+  for (let y = 5.5; y < CH; y += 27) { k.beginPath(); k.moveTo(0, y); k.lineTo(CW, y); k.stroke(); }
+  txt(k, '精准定位', 269.5, 96, UXB_f(900, 34), 'rgba(244,240,232,.85)', 'center');
+  txt(k, 'PRECISION · 1920 × 1080', 269.5, 120, UXB_f(700, 10, MONO), UXD.ink3, 'center');
+  const hv = pingPong(u, 0.4, 0.8, 4.4, 4.9);
+  if (hv <= 0) return;
+  const c = UXB_path(u, XHR_KEYS), x = c[0], y = c[1];
+  k.save(); k.globalAlpha = hv;
+  k.strokeStyle = 'rgba(125,180,255,.6)'; k.lineWidth = 1;
+  k.beginPath(); k.moveTo(0, Math.round(y) + 0.5); k.lineTo(CW, Math.round(y) + 0.5); k.moveTo(Math.round(x) + 0.5, 0); k.lineTo(Math.round(x) + 0.5, CH); k.stroke();
+  k.strokeStyle = UXD.accent2; k.lineWidth = 1.5; k.beginPath(); k.arc(x, y, 6, 0, TAU); k.stroke();
+  const X = String(Math.round(clamp(x / CW) * 1920)).padStart(4, '0'), Y = String(Math.round(clamp(y / CH) * 1080)).padStart(4, '0');
+  const lx = x + 12 + XHR_BW > CW - 6 ? x - 12 - XHR_BW : x + 12, ly = y + 12 + XHR_BH > CH - 6 ? y - 12 - XHR_BH : y + 12;
+  rr(k, lx, ly, XHR_BW, XHR_BH, 5); k.fillStyle = 'rgba(125,180,255,.16)'; k.fill(); k.strokeStyle = 'rgba(125,180,255,.4)'; k.lineWidth = 1; k.stroke();
+  txt(k, `X ${X}  Y ${Y}`, lx + XHR_BW / 2, ly + 14, UXB_f(700, 10.5, MONO), '#DDE9FF', 'center');
+  k.restore();
+};

@@ -1,0 +1,73 @@
+// Motion Prompt #4-034 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+//
+// 条码扫描 / Barcode scan
+// 分类包: scenes (风格画面) · element 34 · 子分类: 科技氛围
+// 动画表现: 灰色台面上一张白色装箱单落定，青色激光从左到右扫过条码后熄灭，绿色“已核验 · 可发货”浮现。
+// 运动规格:
+//   - 浅灰台面 #e2e8f0→#cbd5e1 上白色装箱单 491×180；条码 29 根（宽度 ×0.8、间距 5.6px，共 399px 宽、68px 高）
+//   - 装箱单 0.18–1.02 秒淡入、上移 9px，由 -0.6° 转正（四次缓出）
+//   - 青色激光 #06b6d4 0.9–1.14 秒亮起，1.02–3.6 秒以二次缓入缓出从左扫过 412px，3.78–4.2 秒熄灭
+//   - 绿色状态“已核验 · 可发货”#059669 3.66–4.2 秒淡入并上移 3px；5.4–6.0 秒整单淡出，6.4 秒回到空台面
+//   - 与雷达扫描不同：扫描线只单向扫过条码一次，扫完给出核验结果，不是绕圈循环探测
+// 适用场景: 适合物流、仓储、库存系统、电商发货流程的介绍，以及表示核验或认证完成的场景。
+// 标签: barcode, scanner, laser, logistics, warehouse, tech
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-034
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 34
+// 改写自 ui2v · illli Ai Studio · hero-barcode-scan（MIT-0）
+// 34 条码扫描：浅灰台面上一张白色装箱单落定，青色激光从左向右扫过 29 根条码，扫完后绿色「已核验 · 可发货」浮现、激光熄灭。
+// 时间按原作 4.5 秒 × 1.2 映射：装箱单 0.18–1.02 秒淡入、上移 9px、由 -0.6° 转正（四次缓出，对应 power3.out）；
+// 激光 0.9–1.14 秒亮起，1.02–3.6 秒以二次缓入缓出扫过 412px（原 2.15 秒扫 1040px，×0.396）；状态字 3.66–4.2 秒淡入上移 3px；
+// 激光 3.78–4.2 秒熄灭；5.4–6.0 秒整单淡出，6.4 秒回到空台面。尺寸换算：装箱单 1240×800 → 491×180，
+// 条码宽度 ×0.8、7px 间距 → 5.6px（共 399px 宽、68px 高）。去掉原作大标题「Barcode Scan」，保留眉题、SKU 行、角标与状态行。
+// 配色照抄：台面 #e2e8f0→#cbd5e1（160°）、单 #fff、条 #0f172a、虚线 #cbd5e1、角标 #94a3b8、眉题 #64748b、SKU #475569、
+// 激光 #06b6d4 / 光晕 #22d3ee、状态 #059669。
+const BARC_W = [12, 4, 18, 6, 10, 4, 22, 7, 5, 15, 4, 20, 8, 6, 14, 4, 24, 9, 5, 16, 7, 11, 4, 19, 8, 6, 13, 5, 17];
+const BARC_SX = 24, BARC_SY = 14, BARC_SW = 491, BARC_SH = 180;
+const BARC_q4o = t => 1 - Math.pow(1 - t, 4);                           // GSAP power3.out
+const BARC_qIO = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2); // GSAP power1.inOut
+const BARC_qOut = t => 1 - (1 - t) * (1 - t);                            // GSAP 默认 power1.out
+CELLS[33] = (k, w, h, u) => {
+  k.fillStyle = '#e2e8f0'; k.fillRect(0, 0, CW, CH);
+  k.drawImage(layer('BARC_bg', g => {
+    const gr = g.createLinearGradient(200, -80, 339, 288); gr.addColorStop(0, '#e2e8f0'); gr.addColorStop(1, '#cbd5e1');
+    g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+  const e = BARC_q4o(seg(u, 0.18, 1.02)), a = e * fadeIn(u);
+  if (a <= 0) return;
+  k.save(); k.globalAlpha = a;
+  k.translate(BARC_SX + BARC_SW / 2, BARC_SY + BARC_SH / 2 + 9 * (1 - e)); k.rotate(-0.6 * Math.PI / 180 * (1 - e));
+  k.translate(-BARC_SW / 2, -BARC_SH / 2);
+  // 投影（原 0 28px 70px rgba(15,23,42,.18)）
+  for (let i = 0; i < 4; i++) { k.fillStyle = 'rgba(15,23,42,.045)'; rr(k, -i * 3, 6 + i * 2, BARC_SW + i * 6, BARC_SH + i * 2, 4 + i * 3); k.fill(); }
+  k.fillStyle = '#fff'; rr(k, 0, 0, BARC_SW, BARC_SH, 3); k.fill();
+  // 角标
+  k.strokeStyle = '#94a3b8'; k.lineWidth = 1.5; k.beginPath(); k.moveTo(BARC_SW - 58, 22); k.lineTo(BARC_SW - 22, 22); k.lineTo(BARC_SW - 22, 58); k.stroke();
+  txt(k, '装 箱 单', 22, 27, `600 9px ${SANS}`, '#64748b');
+  txt(k, 'SKU · UI2V-MOTION-2048 · 数量 1', 22, 47, `500 12px ${SANS}`, '#475569');
+  // 条码区：上下虚线 y=60 / 136，条高 64–132
+  k.strokeStyle = '#cbd5e1'; k.lineWidth = 1; k.setLineDash([3, 3]);
+  k.beginPath(); k.moveTo(22, 60.5); k.lineTo(BARC_SW - 22, 60.5); k.moveTo(22, 135.5); k.lineTo(BARC_SW - 22, 135.5); k.stroke(); k.setLineDash([]);
+  k.fillStyle = '#0f172a';
+  let bx = 22; for (const bw of BARC_W) { k.fillRect(bx, 64, bw * 0.8, 68); bx += bw * 0.8 + 5.6; }
+  // 激光
+  const la = BARC_qOut(seg(u, 0.9, 1.14)) * (1 - BARC_qOut(seg(u, 3.78, 4.2)));
+  if (la > 0) {
+    const lx = 22 + 412 * BARC_qIO(seg(u, 1.02, 3.6));
+    k.save(); k.globalAlpha = a * la;
+    const gl = k.createLinearGradient(lx - 14, 0, lx + 17, 0);
+    gl.addColorStop(0, 'rgba(34,211,238,0)'); gl.addColorStop(0.45, 'rgba(34,211,238,.85)'); gl.addColorStop(0.55, 'rgba(34,211,238,.85)'); gl.addColorStop(1, 'rgba(34,211,238,0)');
+    k.globalAlpha = a * la * 0.55; k.fillStyle = gl; k.fillRect(lx - 14, 60, 31, 76);
+    k.globalAlpha = a * la; k.fillStyle = '#06b6d4'; k.fillRect(lx, 60, 3, 76);
+    k.restore();
+  }
+  // 状态行
+  const sq = BARC_qOut(seg(u, 3.66, 4.2));
+  if (sq > 0) { k.globalAlpha = a * sq; txt(k, '已核验 · 可发货', 22, 164 + 3 * (1 - sq), `600 15px ${SANS}`, '#059669'); }
+  k.restore();
+};

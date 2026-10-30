@@ -1,0 +1,37 @@
+// Motion Prompt #2-038 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#134
+//
+// リピーター / Repeater
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 14 · カテゴリ: 文字・図形の演出
+// 何が起きるか: 1つの図形が複製されて円に並び、少しずつずれながら回る。
+// 動きの仕様:
+//   - 角丸の棒（24×60・角丸12）を中央の半径58の円に最大12個並べる。それぞれ外向きに回す（角度 + 90°）
+//   - 個数: 0.35〜1.7秒に1→12、3.6〜4.45秒に12→1（easeInOut・2乗）。新しい複製は前の位置から30°先の自分の位置へ滑って出る（easeOut・3乗）
+//   - 全体を4.7秒で1回転。各複製の大きさを 1 ± 0.22 で4.7秒に2回脈打たせ、1つ先ほど0.55radずつ遅らせる（輪をまわる波になる）
+//   - 色は青・コーラル・黄・ミントの順。元の1個には白いふち。右上に「×個数」
+// 使いどころ: ローディング・背景の模様・花や光の放射など、同じ形をくり返して並べたいとき。
+// タグ: repeater, duplicate, radial, array, clone, pattern, loader
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-038
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 14
+// 14 リピーター（1つの図形が複製されて円に並び、少しずつずれながら回る）
+CELLS[13] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const N = 12, X = w / 2, Y = h / 2, R = 58, spin = 2 * Math.PI * u / CYC;
+  const cnt = 1 + (N - 1) * (eIOs(P(u, 0.35, 1.7)) - eIOs(P(u, 3.6, 4.45)));
+  for (let i = N - 1; i >= 0; i--) {
+    const vis = i === 0 ? 1 : clamp(cnt - i); if (vis <= 0) continue;
+    const ang = spin + (i === 0 ? 0 : (i - 1 + eOut(vis))) * 2 * Math.PI / N;
+    const pul = (1 + 0.22 * Math.sin(2 * Math.PI * 2 * u / CYC - i * 0.55)) * (0.55 + 0.45 * vis);
+    k.save(); k.translate(X + Math.cos(ang) * R, Y + Math.sin(ang) * R); k.rotate(ang + Math.PI / 2); k.scale(pul, pul);
+    k.fillStyle = PAL[i % 4]; rr(k, -12, -30, 24, 60, 12); k.fill();
+    if (i === 0) { k.strokeStyle = '#fff'; k.lineWidth = 4; rr(k, -12, -30, 24, 60, 12); k.stroke(); }
+    k.restore();
+  }
+  txt(k, '×' + Math.round(cnt), w - 34, 46, `800 40px ${DISP}`, C.yel, 'right', 'middle');
+};

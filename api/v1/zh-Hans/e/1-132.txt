@@ -1,0 +1,68 @@
+// Motion Prompt #1-132 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 3D 倾斜视差图片 / Tilt parallax image
+// 分类包: uxmotion (交互与数据动效) · element 41 · 子分类: 光标交互
+// 动画表现: 光标在夕照山景图上移动，图片倾斜并微微放大，天空、太阳、山脊按层错动，底部说明文字滑上来。
+// 运动规格:
+//   - 图片 280 × 150 px，圆角 14 px；朝光标方向最多倾斜 10°，放大到 1.04。
+//   - 天空、太阳、远山、中景、近景分别向光标反方向位移，最多 2/3/5/10/18 px。
+//   - 白色柔光（半径 120 px）跟随光标；底部说明从下方 18 px 滑上。
+//   - 演示中 0.7–1.0 秒开始悬停；4.6–4.95 秒光标离开，全部平滑回正。
+// 适用场景: 适合作品集、旅行或商品照片、专题缩略图，让图片更有纵深。
+// 标签: tilt, parallax, 3d, image, hover, glare, depth
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-132
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 41
+// 41 3D 倾斜视差图片（KittenJam #105）：指针在风景图上游走，整图朝指针方向倾斜（最大 10°）并放大到 1.04；
+// 天空/太阳/远山/中丘/近景分层向指针反方向位移 2/3/5/10/18px 形成景深；柔光（半径 120px）跟随指针；说明文字从下方 18px 滑上；4.6–4.95 秒指针离开，全部回正。
+const TPI_CX = 269.5, TPI_CY = 100, TPI_W = 280, TPI_H = 150, TPI_MAX = 10 * Math.PI / 180;
+const TPI_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, 340, 62], [1.7, 176, 146], [2.5, 364, 146], [3.3, 186, 58], [4.1, 300, 106], [4.6, 290, 98], [5.2, 570, 230]];
+const TPI_FAR = [[-20, 110], [30, 72], [70, 92], [120, 58], [170, 88], [220, 64], [300, 104]];
+const TPI_MID = [[-20, 124], [50, 100], [110, 118], [180, 94], [240, 112], [300, 98]];
+const TPI_NEAR = [[-20, 136], [80, 126], [160, 138], [300, 128]];
+function TPI_ridge(k, pts, dx, dy, col) {
+  k.fillStyle = col; k.beginPath(); pts.forEach(([x, y], i) => (i ? k.lineTo(x + dx, y + dy) : k.moveTo(x + dx, y + dy)));
+  k.lineTo(300 + dx, TPI_H + 30); k.lineTo(-20 + dx, TPI_H + 30); k.closePath(); k.fill();
+}
+CELLS[40] = (k, w, h, u) => {
+  k.fillStyle = UXD.page; k.fillRect(0, 0, CW, CH);
+  const c = UXB_path(u, TPI_KEYS), hv = pingPong(u, 0.7, 1.0, 4.6, 4.95);
+  const px = clamp((c[0] - (TPI_CX - TPI_W / 2)) / TPI_W), py = clamp((c[1] - (TPI_CY - TPI_H / 2)) / TPI_H);
+  const ry = (px - 0.5) * 2 * TPI_MAX * hv, rx = (py - 0.5) * 2 * TPI_MAX * hv, sc = 1 + 0.04 * hv;
+  k.fillStyle = 'rgba(0,0,0,.5)'; k.beginPath(); k.ellipse(TPI_CX, TPI_CY + TPI_H / 2 + 12, TPI_W * 0.42, 5, 0, 0, TAU); k.fill();
+  k.save(); UXC_tilt(k, TPI_W, TPI_H, rx, ry, TPI_CX, TPI_CY, sc);
+  rr(k, 0, 0, TPI_W, TPI_H, 14); k.clip();
+  // 视差方向与指针相反，系数越大越靠前
+  const ox = -(px - 0.5) * 2 * hv, oy = -(py - 0.5) * 2 * hv;
+  const sky = k.createLinearGradient(0, -20, 0, TPI_H); sky.addColorStop(0, '#2B2D6E'); sky.addColorStop(0.75, '#F08A5D'); sky.addColorStop(1, '#F6C177');
+  k.fillStyle = sky; k.fillRect(-20 + ox * 2, -20 + oy * 2, TPI_W + 40, TPI_H + 40);
+  const sx = TPI_W * 0.62 + ox * 3, sy = 70 + oy * 3;
+  glow(k, sx, sy, 60, '255,227,163', 0.45); k.fillStyle = '#FFE3A3'; k.beginPath(); k.arc(sx, sy, 20, 0, TAU); k.fill();
+  TPI_ridge(k, TPI_FAR, ox * 5, oy * 5, 'rgba(92,70,140,.9)');
+  TPI_ridge(k, TPI_MID, ox * 10, oy * 10, '#3A2F63');
+  TPI_ridge(k, TPI_NEAR, ox * 18, oy * 18, '#1A1530');
+  k.fillStyle = '#1A1530';
+  [[26, 128, 30], [44, 124, 38], [238, 126, 34], [256, 128, 26]].forEach(([x, y, th]) => {
+    k.beginPath(); k.moveTo(x + ox * 18 - 8, y + oy * 18); k.lineTo(x + ox * 18, y - th + oy * 18); k.lineTo(x + ox * 18 + 8, y + oy * 18); k.closePath(); k.fill();
+  });
+  const gx = px * TPI_W, gy = py * TPI_H, gl = k.createRadialGradient(gx, gy, 0, gx, gy, 120);
+  gl.addColorStop(0, `rgba(255,255,255,${0.3 * hv})`); gl.addColorStop(1, 'rgba(255,255,255,0)');
+  k.fillStyle = gl; k.fillRect(0, 0, TPI_W, TPI_H);
+  // 说明：底部暗渐变 + 小标与标题从下方滑上
+  if (hv > 0) {
+    const cg = k.createLinearGradient(0, TPI_H - 60, 0, TPI_H); cg.addColorStop(0, 'rgba(0,0,0,0)'); cg.addColorStop(1, `rgba(0,0,0,${0.55 * hv})`);
+    k.fillStyle = cg; k.fillRect(0, TPI_H - 60, TPI_W, 60);
+    const dy = 18 * (1 - out3(hv));
+    k.globalAlpha = hv; txt(k, '摄影 · 2026', 14, TPI_H - 30 + dy, UXB_f(700, 9.5), 'rgba(255,255,255,.75)');
+    txt(k, '山岚 夕照', 14, TPI_H - 12 + dy, UXB_f(900, 16), '#FFFFFF'); k.globalAlpha = 1;
+  }
+  k.restore();
+  k.save(); UXC_tilt(k, TPI_W, TPI_H, rx, ry, TPI_CX, TPI_CY, sc);
+  k.strokeStyle = 'rgba(255,255,255,.18)'; k.lineWidth = 1; rr(k, 0.5, 0.5, TPI_W - 1, TPI_H - 1, 14); k.stroke(); k.restore();
+  if (u > 0.3 && u < 5.2) cursor(k, c[0], c[1]);
+};

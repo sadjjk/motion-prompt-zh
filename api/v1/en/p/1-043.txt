@@ -1,0 +1,15 @@
+Please use "Infinite scroll" (無限スクロール), one of the names in "Landing page & web effects".
+Motion Prompt #1-043
+
+What it is: More items load automatically at the bottom
+What the sample shows: Scrolling down to the end of the list brings up a spinner, then three new items are added so reading can go on.
+Spec:
+- A list of items (331 × 44, radius 8, 52 apart) with a spinner (radius 10, one turn per 0.8 s) under the last item.
+- Scroll: 38→116 px at 0.25–0.85 s, 116→194 px at 1.15–1.75 s (cubic ease-in-out); it stops with the end of the list in view.
+- At 2.6 s three items are added: each fades 0→1 and rises from 10 px below over 0.35 s (cubic ease-out). The spinner moves to the new end.
+- Each cycle advances by three items (156 px). The content repeats every three items, so the end of the cycle looks the same as the start.
+When to use it: Use it for feeds and news lists that people should keep reading without paging.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-043.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,45 @@
+// Motion Prompt #3-075 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/under-light
+//
+// アンダーライト / Under lighting
+// パック: photo (写真の表現・光と画風) · element 39 · カテゴリ: 光の当て方・時間帯
+// 何が起きるか: 周りが暗くなり、胸の前の懐中電灯が下から照らす。頭は下半分が明るく上ほど暗い。後ろの壁に上へ伸びた大きな影が出る。
+// 動きの仕様:
+//   - 場面①: 胸から上の人物（頭の中心 x270, y78・半径29px）。背景は暗い場面と壁 #34363E へ
+//   - 光: あごの下 (270, 129) から放射状。中心 #FFE6B0 → #FFC75A → 影 #15161B（半径約75px）
+//   - 壁の影 #1C1D22: 人物の形を横 1.45 倍・縦 1.75 倍に広げ、上へ伸ばす
+//   - 懐中電灯（幅10px）を胸の前に。配置図は正面下、右上に「0° · ↓60°」
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: ホラー・怪談・ハロウィンなど、不気味さや異様さを出したいとき。
+// タグ: under lighting, monster lighting, horror, flashlight, uplight, lighting
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-075
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 39
+// 底光（アンダーライト）: 周りが暗くなり、胸の前の懐中電灯があごの下から上へ照らす。頭は下半分が明るく上ほど暗い。
+// 後ろの壁に、上へ伸びて大きくなった影が出る
+CELLS[38] = cell((k, u) => {
+  const a = env(u), D = pen(k);
+  stagePortrait(k, pal(BASE, DARK, a));
+  // 壁と影: 暗い壁を重ね、胸像の形を上へ大きく伸ばした影を落とす
+  k.save(); k.globalAlpha = a; D.rect(0, 0, CW, CH, '#34363E');
+  k.translate(PX, PY + 70); k.scale(1.45, 1.75); k.translate(-PX, -(PY + 70) - 14);
+  bustPath(k, PX, PY, PR); k.fillStyle = '#1C1D22'; k.fill();
+  k.restore();
+  const lit = BASE.lit, sh = mixc(BASE.person, '#15161B', a), FY = PY + PR * 1.75;
+  bust(k, PX, PY, PR, mixc(BASE.person, sh, 0.6 * a), kk => {
+    // 光の中心はあごの下（懐中電灯の位置）。上へ行くほど暗くなる
+    const g = kk.createRadialGradient(PX, FY, 4, PX, FY, PR * 2.6);
+    g.addColorStop(0, mixc(BASE.person, '#FFE6B0', a)); g.addColorStop(0.45, mixc(BASE.person, lit, a)); g.addColorStop(1, sh);
+    kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+  });
+  // 懐中電灯と光の点
+  k.save(); k.globalAlpha = a;
+  D.rr(PX - 5, FY + 2, 10, 26, 3, '#2A2C33'); D.circ(PX, FY + 2, 5.5, '#FFF4D6');
+  k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.35 * a; D.circ(PX, FY, 14, '#FFE3A3'); k.restore();
+  plan(k, [[0, a]]);
+  hud(k, '0° · ↓60°');
+});

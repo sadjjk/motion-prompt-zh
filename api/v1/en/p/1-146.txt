@@ -1,0 +1,15 @@
+Please use "Tag input" (タグ入力), one of the names in "UI component names".
+Motion Prompt #1-146
+
+What it is: A field where typed words become tags on Enter
+What the sample shows: Two words are typed one after another and each pops out as a pill tag on Enter; then the cursor clicks × twice and the tags shrink away as the rest closes up.
+Spec:
+- A 400×48 input that starts with one tag, "Design".
+- From 0.6 s a word is typed at 0.25 s per character and Enter is pressed at 1.3 s: the text becomes a pill tag that pops from 0 in 0.35 s with back.out(1.4), and the Enter keycap at lower right sinks at the same time.
+- From 1.8 s a second word is typed and pops out the same way on Enter at 2.5 s.
+- The cursor clicks a tag's × at 3.3 s and 3.9 s; each tag shrinks away in 0.25 s (easeInOut power 3) and the rest closes up to the left, back to the first tag.
+When to use it: Use it in forms that collect several short values such as interests, skills, keywords or recipients.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-146.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

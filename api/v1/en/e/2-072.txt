@@ -1,0 +1,47 @@
+// Motion Prompt #2-072 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Gravity flip / グラビティフリップ
+// Pack: motion2 (Motion graphics moves, part 2) · element 33 · Category: Text & shapes
+// What happens: Four characters accelerate up to the ceiling in turn, rotating 180° to hang upside down, bounce off it, then fall back to the floor completing 360° and bounce.
+// Motion spec:
+//   - 4 characters (60 px) starting at 0.3 s, 0.12 s apart; one character's cycle is 3.6 s.
+//   - 10–33%: rises 90 px with a cubic ease-in while rotating 180°.
+//   - 33–46%: rebounds 19% of the way off the ceiling and back, then hangs upside down until 58%.
+//   - 58–80%: falls with ease-in while turning to 360°; hops 16 px until 87% and rests at 93%.
+// When to use it: Use it for copy about reversal or upending norms, or a playful logo animation.
+// Tags: gravity, flip, upside-down, bounce, playful, text
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-072
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 33
+// 改写自 KittenJam Motion Library #20（Hannah）· 重力反转：每个字（间隔 0.12 秒）加速往上「掉」90px 并转 180° 倒立，撞顶回弹后停住，再加速落回并转满 360°，落地小弹 16px；每字一轮 3.6 秒。
+function GRAV_k(t) {   // 返回 [上移比例 0..1, 旋转角]
+  if (t < 0.1) return [0, 0];
+  if (t < 0.33) { const e = eIn(P(t, 0.1, 0.33)); return [e, Math.PI * e]; }
+  if (t < 0.4) return [lerp(1, 0.81, eOut(P(t, 0.33, 0.4))), Math.PI];
+  if (t < 0.46) return [lerp(0.81, 1, eIn(P(t, 0.4, 0.46))), Math.PI];
+  if (t < 0.58) return [1, Math.PI];
+  if (t < 0.8) { const e = eIn(P(t, 0.58, 0.8)); return [1 - e, Math.PI * (1 + e)]; }
+  if (t < 0.87) return [16 / 90 * eOut(P(t, 0.8, 0.87)), 0];
+  if (t < 0.93) return [16 / 90 * (1 - eIn(P(t, 0.87, 0.93))), 0];
+  return [0, 0];
+}
+CELLS[32] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '重力反转', F = `900 60px ${JP}`, REST = 136, UP = 90;
+  k.strokeStyle = C.navy3; k.lineWidth = 3; k.setLineDash([10, 8]);
+  k.beginPath(); k.moveTo(60, 12); k.lineTo(w - 60, 12); k.stroke(); k.setLineDash([]);
+  k.fillStyle = C.navy3; rr(k, 60, 170, w - 120, 4, 2); k.fill();
+  const cs = chars(k, S, F, 16);
+  cs.forEach((c, i) => {
+    const [p, r] = GRAV_k((u - 0.3 - 0.12 * i) / 3.6);
+    k.save(); k.translate(w / 2 + c.x, REST - UP * p); k.rotate(r);
+    txt(k, c.ch, 0, 0, F, i % 2 ? C.coral : '#fff', 'center', 'middle');
+    k.restore();
+  });
+};

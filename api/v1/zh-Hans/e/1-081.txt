@@ -1,0 +1,65 @@
+// Motion Prompt #1-081 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 光标聚光边框 / Cursor-lit borders
+// 分类包: uxmotion (交互与数据动效) · element 21 · 子分类: 光标交互
+// 动画表现: 指针波浪形横扫 4 张深色卡片，附近卡片的描边泛起紫到蓝的光，指针离开后缓缓熄灭。
+// 运动规格:
+//   - 暗色底 #0A0B10 上 4 张卡片，圆角 18 px，描边 1.5 px。
+//   - 以指针为圆心、半径 160 px 的渐变光晕（紫到蓝，半径 70% 处透明）同时点亮相邻卡片的描边。
+//   - 卡片内部再叠一层 220 px、强度 0.14 的淡紫光。
+//   - 进入后亮度以 8/秒逼近 1，离开后以 2.5/秒熄灭；演示中指针在 0.3–4.9 秒波浪形横扫。
+// 适用场景: 适合深色主题的 SaaS、开发者工具落地页中的功能卡片、价格方案卡片。
+// 标签: cursor, spotlight, border-glow, cards, hover, dark-theme
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-081
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 21
+// 21 光标聚光边框：暗色底 #0A0B10 上一行四张功能卡；模拟指针 0.3–4.9 秒自左向右波浪形横扫（竖向 1.5 个正弦周期），
+// 以指针为圆心的 160px 光晕（rgba(132,94,247) → 40% 处 rgba(77,171,247,.5) → 70% 透明）同时点亮相邻卡片的 1.5px 描边，
+// 卡内叠 220px、.14 强度的淡紫光；进入后亮度以 8/秒逼近 1，离开后以 2.5/秒缓慢熄灭（原作逐帧缓动改写为指数解析式）。
+const CSB_CARDS = [['极速部署', '一次推送，全球生效'], ['实时分析', '数字即时跳动'], ['安全登录', '无需密码即可登录'], ['自动扩容', '从容应对高峰']];
+const CSB_X0 = 14, CSB_G = 10, CSB_W = (CW - 28 - 30) / 4, CSB_Y = 14, CSB_H = CH - 28;
+// 指针 x = -30 + 600·s（s 为 0.3→4.9 秒进度）：s=0.05 进入画面、s≈0.948 离开
+const CSB_TIN = 0.3 + (30 / 600) * 4.6, CSB_TOUT = 0.3 + (569 / 600) * 4.6;
+function CSB_icon(k, i, x, y) {
+  // 原作 24 单位 viewBox 的图标，缩放到 16px 放进 30px 图标框
+  k.save(); k.translate(x + 7, y + 7); k.scale(16 / 24, 16 / 24); k.lineCap = 'round'; k.lineJoin = 'round';
+  if (i === 0) { k.fillStyle = '#B197FC'; k.beginPath(); k.moveTo(5, 19); k.lineTo(12, 5); k.lineTo(19, 19); k.lineTo(12, 16); k.closePath(); k.fill(); }
+  else if (i === 1) { k.strokeStyle = '#74C0FC'; k.lineWidth = 2.2; k.beginPath(); k.moveTo(4, 18); k.lineTo(4, 9); k.moveTo(10, 18); k.lineTo(10, 5); k.moveTo(16, 18); k.lineTo(16, 12); k.moveTo(22, 18); k.lineTo(2, 18); k.stroke(); }
+  else if (i === 2) { k.fillStyle = '#63E6BE'; k.beginPath(); k.moveTo(12, 3); k.lineTo(19, 6); k.lineTo(19, 11); k.bezierCurveTo(19, 16, 16, 19, 12, 21); k.bezierCurveTo(8, 19, 5, 16, 5, 11); k.lineTo(5, 6); k.closePath(); k.fill(); }
+  else { k.strokeStyle = '#FFA94D'; k.lineWidth = 2.2; k.beginPath(); k.moveTo(4, 14); k.lineTo(8, 10); k.lineTo(12, 14); k.lineTo(20, 6); k.moveTo(14, 6); k.lineTo(20, 6); k.lineTo(20, 12); k.stroke(); }
+  k.restore();
+}
+CELLS[20] = (k, w, h, u) => {
+  k.fillStyle = '#0A0B10'; k.fillRect(0, 0, CW, CH);
+  const s = seg(u, 0.3, 4.9), px = -30 + 600 * s, py = 104 + 50 * Math.sin(s * TAU * 1.5);
+  let o = 0;
+  if (u >= CSB_TIN && u < CSB_TOUT) o = 1 - Math.exp(-8 * (u - CSB_TIN));
+  else if (u >= CSB_TOUT) o = (1 - Math.exp(-8 * (CSB_TOUT - CSB_TIN))) * Math.exp(-2.5 * (u - CSB_TOUT)) * (1 - seg(u, 6.0, 6.4));
+  for (let i = 0; i < 4; i++) {
+    const x = CSB_X0 + i * (CSB_W + CSB_G), y = CSB_Y;
+    // 外层 = 1.5px 描边：底色 rgba(255,255,255,.08) + 跨卡共享的同一盏"灯"
+    rr(k, x, y, CSB_W, CSB_H, 18); k.fillStyle = 'rgba(255,255,255,.08)'; k.fill();
+    if (o > 0.003) {
+      const g = k.createRadialGradient(px, py, 0, px, py, 160);
+      g.addColorStop(0, `rgba(132,94,247,${o})`); g.addColorStop(0.4, `rgba(77,171,247,${o * 0.5})`); g.addColorStop(0.7, 'rgba(77,171,247,0)');
+      k.fillStyle = g; k.fill();
+    }
+    rr(k, x + 1.5, y + 1.5, CSB_W - 3, CSB_H - 3, 16.5); k.fillStyle = '#12141C'; k.fill();
+    if (o > 0.003) {
+      const g = k.createRadialGradient(px, py, 0, px, py, 220);
+      g.addColorStop(0, `rgba(132,94,247,${o * 0.14})`); g.addColorStop(0.6, 'rgba(132,94,247,0)');
+      k.fillStyle = g; k.fill();
+    }
+    rr(k, x + 14, y + 14, 30, 30, 10); k.fillStyle = 'rgba(255,255,255,.06)'; k.fill();
+    k.strokeStyle = 'rgba(255,255,255,.08)'; k.lineWidth = 1; k.stroke();
+    CSB_icon(k, i, x + 14, y + 14);
+    txt(k, CSB_CARDS[i][0], x + 14, y + CSB_H - 34, UXB_f(800, 13.5), '#E9ECF5');
+    txt(k, CSB_CARDS[i][1], x + 14, y + CSB_H - 16, UXB_f(600, 10.5), '#8A90A6');
+  }
+  if (px > -20 && px < CW + 4) cursor(k, px, py);
+};

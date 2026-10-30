@@ -1,0 +1,37 @@
+// Motion Prompt #1-166 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Blend difference cursor / 反転ブレンドカーソル
+// Pack: uxmotion (Interaction & data motion) · element 53 · Category: Cursor interactions
+// What happens: The cursor becomes a white circle that inverts the text and background beneath it. Over the big headline the circle grows to cover more letters, and shrinks again when it leaves.
+// Motion spec:
+//   - A white circle is drawn with the difference blend mode, inverting what lies underneath.
+//   - The circle trails the pointer path by 0.08 s.
+//   - Over the headline the radius goes 12 → 46 px (0.45 s inOut3) and returns when it leaves.
+//   - The pointer enters at 0.3 s and leaves the frame from 4.1–4.8 s.
+// When to use it: Use it on portfolio and agency sites that want a playful custom cursor.
+// Tags: cursor, blend-mode, difference, invert, custom-cursor, hover
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-166
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 53
+// 53 反色混合光标（KittenJam #252）：光标换成白色实心圆（比指针轨迹晚 0.08 秒跟随），用 difference 混合与底下内容反色；
+// 移到大标题上时半径 12→46px（0.45 秒 inOut3），离开后缩回；指针 0.3 秒进场、4.1–4.8 秒离开。
+const BLD_T = [165, 50, 380, 104], BLD_LAG = 0.08, BLD_RS = 12, BLD_RB = 46;
+const BLD_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, 420, 160], [1.5, 150, 150], [2.1, 190, 80], [2.9, 350, 74], [3.5, 270, 86], [4.1, 300, 160], [4.8, 570, 230]];
+const BLD_pos = t => UXB_path(Math.max(0, t - BLD_LAG), BLD_KEYS);
+const BLD_HEV = UXB_changes(t => { const p = BLD_pos(t); return p[0] > BLD_T[0] && p[0] < BLD_T[2] && p[1] > BLD_T[1] && p[1] < BLD_T[3] ? 1 : 0; });
+CELLS[52] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  txt(k, '设计工作室 · 2026', 269.5, 36, UXB_f(700, 10.5), UX.ink3, 'center');
+  txt(k, '反转视界', 269.5, 96, UXB_f(900, 52), UX.ink, 'center');
+  txt(k, '把光标移到标题上，圆形会放大', 269.5, 142, UXB_f(600, 12), UX.ink2, 'center');
+  txt(k, '重叠的部分颜色互相反转', 269.5, 162, UXB_f(600, 12), UX.ink2, 'center');
+  const p = BLD_pos(u), r = mix(BLD_RS, BLD_RB, UXB_ramp(u, BLD_HEV, 0.45, inOut3));
+  k.globalCompositeOperation = 'difference'; k.fillStyle = '#FFFFFF';
+  k.beginPath(); k.arc(p[0], p[1], r, 0, TAU); k.fill();
+  k.globalCompositeOperation = 'source-over';
+};

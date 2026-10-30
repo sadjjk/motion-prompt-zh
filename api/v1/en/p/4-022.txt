@@ -1,0 +1,15 @@
+Please use "Girih stars" (ギリ星文様), one of the names in "Styled scenes".
+Motion Prompt #4-022
+
+What it is: An Islamic girih tiling of eight-point stars and crosses that lights up from the centre
+What the sample shows: Turquoise tiles with cobalt eight-point stars light up one by one outward from the centre on dark navy, each star scaling open.
+Spec:
+- Dark navy background #0F1E3A. 11 × 7 tiles of 62 px, the whole grid tilted 0.12 rad.
+- Each tile: turquoise #1F8A8A ground, cream cross, cobalt #1C3F94 eight-point star (16 vertices), gold #D9A93C outline and 8 radiating lines.
+- From 0.2 s tiles light up in order of distance from the centre, stars scaling up from small; all are lit in about 2.5 s.
+- Holds until 5.4 s, then fades out over 5.4–6.0 s.
+When to use it: Openers for Middle Eastern culture or travel content, backgrounds for Ramadan and other seasonal events, or title slides for architecture and craft talks.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-022.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,64 @@
+// Motion Prompt #1-146 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// タグ入力 / Tag input
+// パック: ui (UIパーツの名前) · element 48 · カテゴリ: 選ぶ・切り替えるパーツ
+// 何が起きるか: 入力欄に2語が順に打たれ、Enterのたびに文字が丸いタグになって弾み出る。その後カーソルが×を2回押し、タグが縮んで消えて後ろが詰まる。
+// 動きの仕様:
+//   - 400×48の入力欄。最初はタグ「デザイン」だけ
+//   - 0.6秒から文字ごとに0.25秒で入力し、1.3秒にEnter。文字が丸いタグになり、back.out(1.4) で0.35秒かけて0から弾み出る。右下のEnterキーも同時に沈む
+//   - 1.8秒から次の語を入力し、2.5秒のEnterで同じように弾み出る
+//   - カーソルが3.3秒・3.9秒にタグの×を押す。タグは各0.25秒 easeInOut 3乗で縮んで消え、後ろが左へ詰まって最初のタグだけに戻る
+// 使いどころ: 興味・スキル・キーワード・宛先など、複数の短い値を入れるフォームに。
+// タグ: tag-input, chips, token-field, keywords, form, input
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-146
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 48
+// 改写自 KittenJam Motion Library #249 标签输入：400×48 输入框内已有标签「设计」。0.6 秒起逐字输入「动态」（每字 0.25 秒），1.3 秒回车：
+// 文字变成胶囊标签，按 back.out(1.4) 0.35 秒从 0 弹大，右下「回车」键帽同时下沉；1.8 秒起输入「前端」，2.5 秒回车同样弹出。
+// 光标 3.3 秒点「动态」的 ×、3.9 秒点「前端」的 ×：标签各 0.25 秒 easeInOut 3 次方缩小消失，后面的内容向左补位，回到只剩「设计」。
+const TAGI_ADD = [['动态', .6, 1.3], ['前端', 1.8, 2.5]], TAGI_RM = [3.3, 3.9];
+const TAGI_back = x => 1 + 2.4 * Math.pow(x - 1, 3) + 1.4 * Math.pow(x - 1, 2);
+CELLS[47] = ui((w, h, t) => {
+  const bx = 71, by = 62, bw = 400, bh = 48, cy = by + bh / 2;
+  text('兴趣标签', bx, 42, 12, C.hint, 600);
+  const fo = eo(seg(t, .4, .6)) * (1 - eo(seg(t, 4.2, 4.4)));
+  fillRR(bx, by, bw, bh, 10, '#fff'); strokeRR(bx, by, bw, bh, 10, C.line2, 1.5);
+  if (fo > 0) strokeRR(bx, by, bw, bh, 10, `rgba(31,90,232,${fo})`, 2);
+  // 标签列表：[文字, 占位宽度比例, 视觉缩放]
+  const chips = [['设计', 1, 1]];
+  let typed = '';
+  TAGI_ADD.forEach(([s, t0, te], i) => {
+    if (t >= t0 && t < te) typed = s.slice(0, Math.min(s.length, Math.floor((t - t0) / .25) + 1));
+    if (t < te) return;
+    const ap = seg(t, te, te + .35), rm = eio(seg(t, TAGI_RM[i], TAGI_RM[i] + .25));
+    chips.push([s, eo(ap) * (1 - rm), TAGI_back(ap) * (1 - rm)]);
+  });
+  let x = bx + 10;
+  chips.forEach(([s, g, sc]) => {
+    const cw = tw(s, 13, 600) + 38;
+    if (sc > .01) {
+      X.save(); X.translate(x + cw * g / 2, cy); X.scale(sc, sc);
+      fillRR(-cw / 2, -13, cw, 26, 13, C.lb);
+      text(s, -cw / 2 + 12, 0, 13, C.blue, 600); text('×', cw / 2 - 12, 0, 13, C.blue, 600, 'center', NUMF);
+      X.restore();
+    }
+    x += (cw + 6) * g;
+  });
+  if (typed) text(typed, x + 4, cy, 14, C.ink, 600);
+  else if (fo < .5) text('输入后按回车', x + 4, cy, 13, C.hint, 500);
+  if (fo > .5 && Math.floor((t - .4) / .5) % 2 === 0) { X.fillStyle = C.blue; X.fillRect(x + 4 + (typed ? tw(typed, 14, 600) : 0), cy - 9, 1.5, 18); }
+  // 回车键帽：回车瞬间下沉
+  const pk = TAGI_ADD.some(([, , te]) => t >= te - .05 && t < te + .15) ? 2 : 0;
+  const kx = bx + bw - 64, ky = by + bh + 16;
+  fillRR(kx, ky + 2, 64, 26, 6, C.line2); fillRR(kx, ky + pk, 64, 24, 6, pk ? C.lb : '#fff'); strokeRR(kx, ky + pk, 64, 24, 6, C.line2, 1);
+  text('回车 ↵', kx + 32, ky + 12 + pk, 12, pk ? C.blue : C.ink, 700, 'center');
+  // × 位置按标签宽度计算：先点「动态」，「前端」补位后再点它
+  const wD = tw('设计', 13, 600) + 38, wA = tw('动态', 13, 600) + 38, wF = tw('前端', 13, 600) + 38;
+  const xA = bx + 10 + wD + 6 + wA - 12, xF = bx + 10 + wD + 6 + wF - 12;
+  pointer([[0, w + 30, h + 30], [2.6, w + 30, h + 30], [3.2, xA, cy], [3.4, xA, cy], [3.8, xF, cy], [4.0, xF, cy], [4.45, w + 30, h + 30]], [3.3, 3.9], t);
+});

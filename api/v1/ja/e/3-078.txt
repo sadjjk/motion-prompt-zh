@@ -1,0 +1,65 @@
+// Motion Prompt #3-078 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/campfire-light
+//
+// 焚き火の光 / Campfire light
+// パック: photo (写真の表現・光と画風) · element 42 · カテゴリ: 光源と色
+// 何が起きるか: 深い青の夜。右下の焚き火の橙の光が人物の火に向いた側を照らし、明るさが炎に合わせて揺れる。光はすぐ弱まり、火の粉が上へ舞う。
+// 動きの仕様:
+//   - 場面①: 胸から上の人物。空 #16224A の夜へ。焚き火は (382, 188)
+//   - 揺れ: fl = 0.95 + 0.06·sin(7T) + 0.04·sin(13T+1) + 0.03·sin(23T+2)。人物への光は焚き火から半径 170·fl で #FF9A3D から影へ
+//   - 周りの闇: 半径 330·fl で外側を不透明度 0.72 の #040610 へ。炎は高さ 34/26/15px の3枚（#E8501E・#FF9A2E・#FFE07A）
+//   - 火の粉 16 個 #FFB34D が 150px 上へ昇って消え、1周に 1〜2 回。右上に「1800K」
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: キャンプ・野外・語り合いの夜など、温かく親密な雰囲気にしたいとき。
+// タグ: campfire light, firelight, warm light, flicker, night, light
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-078
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 42
+// 篝火光（焚き火の光）: 深い青の夜。画面右下の焚き火の低い橙の光が、人物の火に向いた側だけを下から照らし、
+// 明るさは炎に合わせて揺れる。光はすぐ弱まり、遠い所は闇に沈む。火の粉が上へ舞う
+CELLS[41] = cell((k, u) => {
+  const a = env(u), T = u / CYC * TAU;
+  const NIGHTB = Object.assign({}, mapPal(NIGHT, c => mixc(c, '#0E1530', 0.45)), { win: '#25304E', bulb: '#25304E', sky: '#16224A', sky2: '#1E2C58' });
+  const p = pal(BASE, NIGHTB, a);
+  stagePortrait(k, p);
+  // 揺れ: 整数倍の周波数を重ねたちらつき（0.8〜1.1）
+  const fl = 0.95 + 0.06 * Math.sin(T * 7) + 0.04 * Math.sin(T * 13 + 1) + 0.03 * Math.sin(T * 23 + 2);
+  const FX = 382, FY = 188, warm = mixc(BASE.person, '#FF9A3D', a), sh = mixc(BASE.person, '#10162C', a), W = torsoW(PR);
+  bust(k, PX, PY, PR, sh, kk => {
+    const g = kk.createRadialGradient(FX, FY, 10, FX, FY, 170 * fl);
+    g.addColorStop(0, warm); g.addColorStop(0.75, mixc(warm, sh, 0.55)); g.addColorStop(1, sh);
+    kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+    headShade(kk, PX, PY, PR, 1.0, -1, mixc(sh, '#000000', 0.2 * a));
+    torso(kk, PX, PY, PR, PX - W, PX - 0.1 * W, mixc(sh, '#000000', 0.2 * a));
+  });
+  if (a < 0.002) return;
+  // 周りの闇と地面の照り返し
+  k.save();
+  const d = k.createRadialGradient(FX, FY, 20, FX, FY, 330 * fl);
+  d.addColorStop(0, 'rgba(255,140,50,0.28)'); d.addColorStop(0.35, 'rgba(40,20,20,0)'); d.addColorStop(1, 'rgba(4,6,16,0.72)');
+  k.globalAlpha = a; k.fillStyle = d; k.fillRect(0, 0, CW, CH);
+  // 炎: 3枚の揺れる滴形（橙→黄）
+  const flame = (h, w, col, ph) => {
+    const sw = 3 * Math.sin(T * 9 + ph);
+    k.fillStyle = col; k.beginPath(); k.moveTo(FX - w, FY);
+    k.quadraticCurveTo(FX - w, FY - h * 0.5, FX + sw, FY - h * (0.92 + 0.08 * Math.sin(T * 11 + ph)));
+    k.quadraticCurveTo(FX + w, FY - h * 0.5, FX + w, FY); k.closePath(); k.fill();
+  };
+  k.globalCompositeOperation = 'lighter';
+  flame(34 * fl, 14, '#E8501E', 0); flame(26 * fl, 10, '#FF9A2E', 1.3); flame(15 * fl, 6, '#FFE07A', 2.1);
+  k.globalCompositeOperation = 'source-over';
+  k.fillStyle = '#3A2418'; k.beginPath(); k.roundRect(FX - 22, FY - 2, 44, 6, 3); k.fill();
+  // 火の粉: 決まった種で作り、周期ごとに下から上へ（1周で整数回）
+  const sparks = once('embers', () => { const r = rng(42), o = []; for (let i = 0; i < 16; i++) o.push([r(), r() * TAU, 1 + Math.floor(r() * 2), 1 + r() * 1.2]); return o; });
+  k.globalCompositeOperation = 'lighter'; k.fillStyle = '#FFB34D';
+  for (const [o0, ph, n, sz] of sparks) {
+    const t = (u / CYC * n + o0) % 1, x = FX + 12 * Math.sin(ph) + 18 * t * Math.sin(T + ph), y = FY - 10 - t * 150;
+    k.globalAlpha = a * (1 - t); k.beginPath(); k.arc(x, y, sz, 0, TAU); k.fill();
+  }
+  k.restore();
+  hud(k, '1800K');
+});

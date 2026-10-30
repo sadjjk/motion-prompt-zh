@@ -1,0 +1,32 @@
+// Motion Prompt #3-052 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-shot
+//
+// 中景 / Medium shot
+// 分类包: camera (镜头运动与剪辑) · element 28 · 子分类: 景别
+// 动画表现: 画框下沿落在腰部，人物举起一只手臂到头侧来回招手，最后放下。
+// 运动规格:
+//   - 画框：0.88 m 至 1.92 m，即腰部以上到头顶；机位距人物 4.2 m。
+//   - 动作：0.4 秒至 1.0 秒举起一只手臂，在头侧以每轮 4 次的节奏来回摆；3.4 秒至 4.0 秒放下。
+//   - 另一只手自然下垂；人物在前景层保持清晰，背景轻微虚化。
+//   - 右上角显示“中景 MS”；右下角比例尺的蓝色带从腰部到头顶。
+//   - 机位全程不动；每轮 4.7 秒，首尾画面相同。
+// 适用场景: 对话、讲解、手持物品等需要同时看清手势和表情的场面。
+// 标签: medium shot, ms, waist shot, mid shot, shot size, framing, gesture
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-052
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 28
+CELLS[27] = shot(frameCell({ lo: 0.88, hi: 1.92, name: '中景', abbr: 'MS', draw: (k, w, h, u) => {
+  const arm = eIO(P(u, 0.4, 1.0)) * (1 - P(u, 3.4, 4.0));   // 招手：手臂举到头侧来回摆
+  const ang = arm * (0.55 + 0.5 * Math.sin(u / CYC * TAU * 4));   // 举手期间摆 4 次，首尾收住
+  world(k, w, h, fit(0.88, 1.92, 4.2), {
+    person: { x: -0.1, z: 8, fg: true }, blurBg: 1.4,   // 本体双手自然下垂
+    extra: [[-0.1, 0, 7.99, (kk, s) => {   // 挥动的那只手臂（本体 walk=0 不会画摆臂）
+      kk.save(); kk.translate(0.25, 1.38); kk.rotate(-1.9 - ang * 0.4);
+      kk.fillStyle = C.blue; rr(kk, -0.06, -0.6, 0.12, 0.6, 0.06); kk.fill(); kk.restore();
+    }, true]]
+  });
+} }));

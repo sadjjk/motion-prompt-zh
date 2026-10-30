@@ -1,0 +1,15 @@
+Please use "Table crosshair highlight" (表のクロスハイライト), one of the names in "Interaction & data motion".
+Motion Prompt #1-173
+
+What it is: The pointed cell's row and column light up and the cell enlarges
+What the sample shows: A pointer moves across a 4 × 4 table of numbers. The whole row and column of the cell it rests on tint softly into a cross, and that cell fills with the accent colour with its number bold, white and larger. Leaving the table clears it.
+Spec:
+- The row and column are tinted with the accent at 0.1 opacity (0.25 s out3).
+- The pointed cell fills with the accent, its number turns bold white and it scales to 1.12×.
+- The pointer moves to 4 cells at 0.9, 1.8, 2.7 and 3.6 s, resting 0.5 s on each.
+- From 4.1–4.8 s it leaves the table and all highlights fade.
+When to use it: Use it on pricing comparisons, score tables and spec sheets where rows and columns are cross-checked.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-173.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

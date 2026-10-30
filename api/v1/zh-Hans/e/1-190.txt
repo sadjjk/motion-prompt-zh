@@ -1,0 +1,318 @@
+// Motion Prompt #1-190 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// 任务状态图标 / Task status icon
+// 分类包: uxmotion (交互与数据动效) · element 63 · 子分类: 进度反馈
+// 动画表现: 3 行任务列表左侧各有一枚带虚线环的立体圆盘；各行依次把虚线收拢成旋转的紫色弧，弧闭合后圆盘填绿、画出对勾，右侧状态同步变为已完成。第三行中途弧线停住变红，收向圆心变成叉并左右抖动，最后各行依次复位回等待。
+// 运动规格:
+//   - 3 行任务分别于 0.40、1.55、2.75 秒开始；等待图标是 半径 13 px 的圆盘上一圈 12 段虚线（半径 8.6 px）。
+//   - 开始后 0.35 秒内虚线收拢成占整圈 22% 的弧，由灰转紫，以每秒 1.25 圈匀速旋转。
+//   - 第 1、2 行在 1.65、2.90 秒弧线闭合，0.08 秒后圆盘填绿并放大 7% 回弹，闭合后 0.22–0.5 秒画出对勾。
+//   - 第 3 行失败：4.05–4.20 秒弧线减速停住，4.45 秒前变红，4.80 秒前收向圆心，随后圆盘填红并画叉（4.75–5.03 秒）。
+//   - 4.80–5.20 秒失败图标左右抖动 3 次，幅度最大 2.6 px 并逐渐衰减。
+//   - 5.6 秒起各行错开 0.08 秒、各用 0.35 秒复位回等待虚线；6.11–6.4 秒静止。
+// 适用场景: 适合 AI 智能体任务列表、CI 流水线步骤、批量任务队列等需要并排显示多步状态的场景。
+// 标签: status-icon, task-list, agent, spinner, checkmark, error-state, morph
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-190
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 63
+CELLS[62] = (function () {
+  // 任务状态图标：智能体任务列表 3 行，每行左侧立体圆盘图标在「虚线待机环 → 收拢成旋转进度弧 → 闭合 → 填色画勾」间连贯变形；
+  // 三行依次接力，第三行中途失败：弧停住、变红、收成叉并轻微抖动；最后全部复位回待机。
+  // 纯函数：画面只由 u 决定；背景、卡片、圆盘底座首次调用时预渲染缓存（3 倍分辨率）。
+  const W = 539, H = 208, CYC = 6.4;
+  const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+  const MONO = '"SF Mono", Menlo, Consolas, monospace';
+  const TAU = Math.PI * 2;
+  const S = 3;                    // 缓存分辨率倍数：调用方最多约 2×dpr 放大
+
+  // 配色：沿用 uxmotion 的暖灰纸底 + 紫色强调 / 薄荷绿成功 / 玫红失败
+  const PAL = {
+    bgTop: '#f7f5f1', bgBot: '#e6e2da', vignette: '40,32,60',
+    cardHi: '#ffffff', cardLo: '#f8f6f2', thick: '#dcd7ce', line: 'rgba(22,21,27,0.08)',
+    ink: '#16151B', ink2: '#57535F', ink3: '#8E8A97',
+    acc: [106, 87, 242], mint: [17, 156, 114], danger: [217, 58, 85], idle: [174, 170, 184],
+    shadow: '40,30,80'
+  };
+
+  // 卡片几何：宽 348（约占画宽 65%），表头 + 3 行任务
+  const CX = 96, CY = 18, CWD = 348, CHT = 172, RAD = 14;
+  const HEAD = 32;                          // 表头高度
+  const ROW0 = CY + HEAD + 20, ROWH = 40;    // 第一行中心 y、行距
+  const IX = CX + 28;                       // 图标圆心 x
+  const DR = 13, RR = 8.6, RW = 2.4;        // 圆盘半径、状态环半径、环线宽
+  const N = 12;                             // 待机虚线段数
+
+  // 三行任务：s 为开始时刻；spin 为从开始到弧闭合的秒数；fail 为失败行在开始后多少秒停住；sec 为最终显示的耗时
+  // 时间线：行1 0.40 起、1.65 闭合、1.73–2.01 填绿、1.87–2.15 画勾；行2 1.55 起、2.90 闭合、2.98–3.26 填绿、3.12–3.40 画勾；
+  // 行3 2.75 起、4.05–4.20 减速停住、4.20–4.45 变红、4.45–4.80 弧收向圆心、4.65–4.95 填红、4.75–5.03 画叉、4.80–5.20 抖动；
+  // 5.60–6.11 三行错开 0.08 秒依次复位，6.11–6.4 静止
+  const ROWS = [
+    { name: '读取依赖清单', meta: 'read_file · package.json', s: 0.40, spin: 1.25, sec: 1.6 },
+    { name: '运行单元测试', meta: 'bash · pnpm test --run', s: 1.55, spin: 1.35, sec: 12.4 },
+    { name: '推送 release 分支', meta: 'git push origin release/2.4', s: 2.75, spin: 2.2, fail: 1.3, sec: 8.3 }
+  ];
+  const GATHER = 0.35;            // 虚线收拢成弧的时长
+  const L0 = 0.22;                // 收拢后进度弧占整圈的比例
+  const OMEGA = TAU * 1.25;       // 进度弧匀速转速（rad/s）
+  const RESET0 = 5.6, RESET1 = 6.05;
+
+  const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+  const seg = (u, a, b) => clamp((u - a) / (b - a));
+  const ease = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const easeOut = t => 1 - Math.pow(1 - clamp(t), 3);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const mixC = (a, b, t) => [0, 1, 2].map(i => Math.round(lerp(a[i], b[i], t)));
+  const rgb = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a === undefined ? 1 : a})`;
+
+  function rr(x, l, t, w, h, r) {
+    x.beginPath(); x.moveTo(l + r, t); x.arcTo(l + w, t, l + w, t + h, r); x.arcTo(l + w, t + h, l, t + h, r);
+    x.arcTo(l, t + h, l, t, r); x.arcTo(l, t, l + w, t, r); x.closePath();
+  }
+  function mk(w, h, draw) {
+    const c = document.createElement('canvas'); c.width = Math.ceil(w * S); c.height = Math.ceil(h * S);
+    const x = c.getContext('2d'); x.scale(S, S); draw(x); return c;
+  }
+
+  // 静态底图：竖向渐变 + 径向暗角 + 卡片（投影、厚度、渐变、高光边）+ 表头 + 行分隔线
+  let BG = null;
+  function bg() {
+    if (BG) return BG;
+    BG = mk(W, H, x => {
+      const gr = x.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, PAL.bgTop); gr.addColorStop(1, PAL.bgBot);
+      x.fillStyle = gr; x.fillRect(0, 0, W, H);
+      const vg = x.createRadialGradient(W / 2, H * 0.45, H * 0.3, W / 2, H * 0.45, W * 0.62);
+      vg.addColorStop(0, 'rgba(' + PAL.vignette + ',0)'); vg.addColorStop(1, 'rgba(' + PAL.vignette + ',0.13)');
+      x.fillStyle = vg; x.fillRect(0, 0, W, H);
+      // 接触影（贴底的窄暗带）+ 大范围柔和投影
+      x.save(); x.shadowColor = 'rgba(' + PAL.shadow + ',0.20)'; x.shadowBlur = 22 * S; x.shadowOffsetY = 9 * S;
+      x.fillStyle = PAL.cardLo; rr(x, CX, CY, CWD, CHT, RAD); x.fill(); x.restore();
+      x.save(); x.shadowColor = 'rgba(' + PAL.shadow + ',0.16)'; x.shadowBlur = 4 * S; x.shadowOffsetY = 1.5 * S;
+      x.fillStyle = PAL.thick; rr(x, CX, CY + 1.6, CWD, CHT, RAD); x.fill(); x.restore();
+      // 卡面：竖向渐变 + 左上镜面光斑 + 左上白高光边
+      const cg = x.createLinearGradient(0, CY, 0, CY + CHT);
+      cg.addColorStop(0, PAL.cardHi); cg.addColorStop(1, PAL.cardLo);
+      x.fillStyle = cg; rr(x, CX, CY, CWD, CHT, RAD); x.fill();
+      x.save(); rr(x, CX, CY, CWD, CHT, RAD); x.clip();
+      const sp = x.createRadialGradient(CX + 60, CY - 10, 0, CX + 60, CY - 10, 180);
+      sp.addColorStop(0, 'rgba(255,255,255,0.9)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = sp; x.fillRect(CX, CY, CWD, CHT);
+      // 表头底色与分隔线
+      x.fillStyle = 'rgba(22,21,27,0.025)'; x.fillRect(CX, CY, CWD, HEAD);
+      x.fillStyle = PAL.line; x.fillRect(CX, CY + HEAD, CWD, 1);
+      for (let i = 1; i < 3; i++) x.fillRect(CX + 16, ROW0 + ROWH * (i - 0.5), CWD - 32, 1);
+      x.restore();
+      const hl = x.createLinearGradient(CX, CY, CX + CWD * 0.5, CY + CHT);
+      hl.addColorStop(0, 'rgba(255,255,255,1)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+      x.strokeStyle = hl; x.lineWidth = 1; rr(x, CX + 0.5, CY + 0.5, CWD - 1, CHT - 1, RAD - 0.5); x.stroke();
+      x.strokeStyle = PAL.line; rr(x, CX, CY, CWD, CHT, RAD); x.stroke();
+      // 表头文案：任务组名 + 智能体名 + 右侧「3 项任务」
+      x.textBaseline = 'middle'; x.textAlign = 'left';
+      x.font = '600 12px ' + SANS; x.fillStyle = PAL.ink; x.fillText('发布前检查', CX + 18, CY + HEAD / 2 + 0.5);
+      x.font = '11px ' + SANS; x.fillStyle = PAL.ink3; x.fillText('智能体 Atlas · v2.4.0', CX + 86, CY + HEAD / 2 + 0.5);
+      x.textAlign = 'right'; x.fillText('3 项任务', CX + CWD - 64, CY + HEAD / 2 + 0.5);
+      // 任务名与工具调用说明（静态文字，状态相关的耗时在动态层画）
+      ROWS.forEach((r, i) => {
+        const y = ROW0 + ROWH * i;
+        x.textAlign = 'left';
+        x.font = '600 13px ' + SANS; x.fillStyle = PAL.ink; x.fillText(r.name, IX + DR + 13, y - 6);
+        x.font = '10px ' + MONO; x.fillStyle = PAL.ink3; x.fillText(r.meta, IX + DR + 13, y + 9);
+      });
+    });
+    return BG;
+  }
+
+  // 立体圆盘底座（所有行共用）：投影 + 接触影 + 竖向渐变 + 右下暗厚度 + 内凹环槽 + 左上高光边
+  const DP = 8, DS = (DR + DP) * 2;
+  let DISC = null, GLOSS = null;
+  function disc() {
+    if (DISC) return DISC;
+    DISC = mk(DS, DS, x => {
+      const c = DR + DP;
+      x.save(); x.shadowColor = 'rgba(' + PAL.shadow + ',0.22)'; x.shadowBlur = 6 * S; x.shadowOffsetY = 2.5 * S;
+      x.fillStyle = '#d9d5ce'; x.beginPath(); x.arc(c, c + 0.8, DR, 0, TAU); x.fill(); x.restore();
+      const gr = x.createLinearGradient(0, c - DR, 0, c + DR);
+      gr.addColorStop(0, '#ffffff'); gr.addColorStop(1, '#ebe8f0');
+      x.fillStyle = gr; x.beginPath(); x.arc(c, c, DR, 0, TAU); x.fill();
+      // 环槽：状态环落在一圈浅凹槽里，上沿暗、下沿亮，读作压进盘面
+      const gg = x.createLinearGradient(0, c - RR, 0, c + RR);
+      gg.addColorStop(0, 'rgba(60,50,90,0.13)'); gg.addColorStop(1, 'rgba(255,255,255,0.7)');
+      x.strokeStyle = gg; x.lineWidth = RW + 1.6; x.beginPath(); x.arc(c, c, RR, 0, TAU); x.stroke();
+      const hl = x.createLinearGradient(c - DR, c - DR, c + DR, c + DR);
+      hl.addColorStop(0, 'rgba(255,255,255,1)'); hl.addColorStop(0.5, 'rgba(255,255,255,0)');
+      hl.addColorStop(0.75, 'rgba(70,60,100,0)'); hl.addColorStop(1, 'rgba(70,60,100,0.22)');
+      x.strokeStyle = hl; x.lineWidth = 1.1; x.beginPath(); x.arc(c, c, DR - 0.55, 0, TAU); x.stroke();
+    });
+    // 镜面光斑：盖在彩色填充之上，让填色后的圆盘也有玻璃感
+    GLOSS = mk(DS, DS, x => {
+      const c = DR + DP;
+      const sp = x.createRadialGradient(c - 4, c - 6, 0, c - 4, c - 6, DR * 0.95);
+      sp.addColorStop(0, 'rgba(255,255,255,0.55)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = sp; x.beginPath(); x.arc(c, c, DR - 1, 0, TAU); x.fill();
+    });
+    return DISC;
+  }
+
+  // 进度时间轴：失败行在 tf 处线性减速、D 秒内停住（速度从 1 线性降到 0）
+  const STOP = 0.15;
+  function tau(r, t) {
+    if (!r.fail || t <= r.fail) return t;
+    const x = seg(t, r.fail, r.fail + STOP);
+    return r.fail + STOP * (x - x * x / 2);
+  }
+  // 弧中心角：开始时从 0 速度平滑加速到 OMEGA（GATHER 内线性加速）
+  function rot(tt) {
+    if (tt <= 0) return -Math.PI / 2;
+    if (tt < GATHER) return -Math.PI / 2 + OMEGA * tt * tt / (2 * GATHER);
+    return -Math.PI / 2 + OMEGA * (tt - GATHER / 2);
+  }
+  // 虚线环：N 段以 c 为中心按 f 压缩角距，段长系数 lenK（=1 时相邻段首尾相接成整圈）
+  function dashes(k, f, lenK, c, col) {
+    if (lenK <= 0.01) return;
+    k.strokeStyle = col; k.lineWidth = RW; k.lineCap = 'round';
+    const half = TAU / N * f * lenK / 2;
+    for (let i = 0; i < N; i++) {
+      const a = c + ((i + 0.5) / N * TAU - Math.PI) * f;
+      k.beginPath(); k.arc(0, 0, RR, a - half, a + half); k.stroke();
+    }
+  }
+
+  // 单个图标：t 为本行局部时刻（<0 待机），R 为复位进度（0 = 当前状态，1 = 回到待机）
+  function icon(k, r, cy, t, R) {
+    const IDLE_LEN = 0.42;
+    const ok = !r.fail, tEnd = ok ? r.spin : r.fail + STOP;          // 成功：弧闭合；失败：弧停住
+    // 抖动：失败成叉后左右衰减摆动 3 次
+    let dx = 0;
+    if (!ok) { const s = seg(t, tEnd + 0.6, tEnd + 1.0); if (s > 0 && s < 1) dx = Math.sin(s * TAU * 3) * 2.6 * (1 - s); }
+    // 结果圆盘的弹跳：填色瞬间放大 7% 再回落
+    const fillT = seg(t, tEnd + (ok ? 0.08 : 0.45), tEnd + (ok ? 0.36 : 0.75));
+    const pop = 1 + 0.07 * Math.sin(Math.PI * clamp(fillT * 1.4)) * (1 - R);
+    k.save(); k.translate(IX + dx, cy); k.scale(pop, pop);
+    const resCol = ok ? PAL.mint : PAL.danger;
+    // 结果填色的彩色光晕：画在圆盘之下，像有色投影
+    const fa = easeOut(fillT) * (1 - R);
+    if (fa > 0) {
+      const gl = k.createRadialGradient(0, 3, 0, 0, 3, DR + 8);
+      gl.addColorStop(0, rgb(resCol, 0.35 * fa)); gl.addColorStop(1, rgb(resCol, 0));
+      k.fillStyle = gl; k.fillRect(-DR - 9, -DR - 6, DS + 2, DS + 2);
+    }
+    k.drawImage(disc(), -DR - DP, -DR - DP, DS, DS);
+    if (t < 0 || R >= 1) {
+      dashes(k, 1, IDLE_LEN, -Math.PI / 2, rgb(PAL.idle));
+    } else {
+      const sa = 1 - R;                 // 当前状态的可见度
+      const tt = tau(r, t);
+      const c = rot(tt);
+      if (t < GATHER) {
+        // 收拢：角距压缩到 L0、段长拉满，12 段首尾相接成一段弧；颜色由灰转紫
+        const e = ease(t / GATHER);
+        dashes(k, lerp(1, L0, e), lerp(IDLE_LEN, 1, e), c, rgb(mixC(PAL.idle, PAL.acc, e), sa));
+      } else {
+        let L = L0 + (1 - L0) * ease(seg(tt, GATHER, r.spin));
+        let col = PAL.acc, rad = RR;
+        if (!ok) {
+          col = mixC(PAL.acc, PAL.danger, ease(seg(t, tEnd, tEnd + 0.25)));
+          const m = ease(seg(t, tEnd + 0.25, tEnd + 0.6));     // 弧收向圆心
+          L *= 1 - m; rad = RR * (1 - 0.75 * m);
+        }
+        if (L > 0.004) {
+          k.strokeStyle = rgb(col, sa); k.lineWidth = RW; k.lineCap = 'round';
+          k.beginPath(); k.arc(0, 0, rad, c - L * Math.PI, c + L * Math.PI); k.stroke();
+        }
+      }
+      // 结果填色：从圆心扩成整盘，竖向渐变；复位时向圆心收回
+      if (fa > 0) {
+        const fr = (DR - 0.6) * easeOut(fillT) * (1 - ease(R));
+        const fg = k.createLinearGradient(0, -fr, 0, fr);
+        fg.addColorStop(0, rgb(mixC(resCol, [255, 255, 255], 0.22))); fg.addColorStop(1, rgb(mixC(resCol, [0, 0, 0], 0.12)));
+        k.fillStyle = fg; k.beginPath(); k.arc(0, 0, fr, 0, TAU); k.fill();
+        k.globalAlpha = fa; k.drawImage(GLOSS, -DR - DP, -DR - DP, DS, DS); k.globalAlpha = 1;
+      }
+      glyph(k, ok, t - tEnd, sa);
+      // 复位：待机虚线从零长度长回来
+      if (R > 0) dashes(k, 1, IDLE_LEN * ease(R), -Math.PI / 2, rgb(PAL.idle, ease(R)));
+    }
+    k.restore();
+  }
+
+  // 按进度 p 描出折线的前一段（用于对勾 / 叉的书写动画）
+  function partial(k, pts, p) {
+    let tot = 0; const ls = [];
+    for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); ls.push(l); tot += l; }
+    let rem = tot * p; k.beginPath(); k.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length && rem > 0; i++) {
+      const f = Math.min(1, rem / ls[i - 1]); rem -= ls[i - 1];
+      k.lineTo(lerp(pts[i - 1][0], pts[i][0], f), lerp(pts[i - 1][1], pts[i][1], f));
+    }
+    k.stroke();
+  }
+  // 结果符号：白色粗线 + 下方一层半透明暗线作压印阴影；dt 为相对弧闭合 / 停住的时刻
+  const CHECK = [[-4.6, 0.4], [-1.5, 3.5], [4.9, -3.3]];
+  const X1 = [[-3.6, -3.6], [3.6, 3.6]], X2 = [[3.6, -3.6], [-3.6, 3.6]];
+  function glyph(k, ok, dt, a) {
+    const ps = ok ? [ease(seg(dt, 0.22, 0.5))] : [ease(seg(dt, 0.55, 0.72)), ease(seg(dt, 0.66, 0.83))];
+    if (ps[0] <= 0 || a <= 0) return;
+    k.lineCap = 'round'; k.lineJoin = 'round'; k.lineWidth = 2.3;
+    const lines = ok ? [CHECK] : [X1, X2];
+    for (let pass = 0; pass < 2; pass++) {
+      k.save();
+      if (pass === 0) { k.translate(0, 0.9); k.strokeStyle = 'rgba(0,0,0,' + 0.16 * a + ')'; }
+      else k.strokeStyle = 'rgba(255,255,255,' + a + ')';
+      lines.forEach((pts, i) => { if (ps[i] > 0) partial(k, pts, ps[i]); });
+      k.restore();
+    }
+  }
+
+  const fn = (k, w, h, u) => {
+    u = ((u % CYC) + CYC) % CYC;
+    k.drawImage(bg(), 0, 0, W, H);
+    let done = 0;
+    ROWS.forEach((r, i) => {
+      const cy = ROW0 + ROWH * i, t = u - r.s;
+      const R = ease(seg(u, RESET0 + 0.08 * i, RESET0 + 0.08 * i + 0.35));   // 三行错开 0.08 秒依次复位
+      const ok = !r.fail, tEnd = ok ? r.spin : r.fail + STOP;
+      // 行底带：执行中淡紫，结束后过渡成淡绿 / 淡红并保留到复位，让整张列表读出进度
+      const on = seg(t, 0, 0.25) * (1 - R), toRes = ease(seg(t, tEnd, tEnd + 0.4));
+      if (on > 0) {
+        const bc = mixC(PAL.acc, ok ? PAL.mint : PAL.danger, toRes);
+        const bl = CX + 8, bt = cy - ROWH / 2 + 3, bw = CWD - 16, bh = ROWH - 6;
+        k.fillStyle = rgb(bc, lerp(0.11, 0.08, toRes) * on); rr(k, bl, bt, bw, bh, 9); k.fill();
+        // 执行中底带内一条细进度线：随弧的进度从左向右推进
+        const pp = clamp(tau(r, t) / r.spin) * (1 - toRes);
+        if (pp > 0.01) { k.fillStyle = rgb(PAL.acc, 0.5 * on); rr(k, bl + 6, bt + bh - 3, (bw - 12) * pp, 2, 1); k.fill(); }
+      }
+      icon(k, r, cy, t, R);
+      // 右侧：状态词 + 耗时。执行中耗时随进度增长，结束后定格
+      const st = t < 0 ? 0 : t < tEnd ? 1 : 2;
+      const words = ['等待中', '执行中', ok ? '已完成' : '失败'];
+      const cols = [PAL.ink3, rgb(PAL.acc), ok ? rgb(PAL.mint) : rgb(PAL.danger)];
+      const sec = st === 0 ? '—' : (r.sec * clamp(t / tEnd)).toFixed(1) + 's';
+      // 状态切换时旧文字上移淡出、新文字自下而上淡入（0.2 秒）
+      const sw = st === 0 ? 1 : seg(t, st === 1 ? 0 : tEnd, (st === 1 ? 0 : tEnd) + 0.2);
+      k.textBaseline = 'middle'; k.textAlign = 'right';
+      const tx = CX + CWD - 18, wx = tx - 52;
+      const drawState = (s, a, oy) => {
+        if (a <= 0.01) return;
+        k.globalAlpha = a;
+        k.font = '600 11px ' + SANS; k.fillStyle = cols[s]; k.fillText(words[s], wx, cy + oy);
+        k.font = '11px ' + MONO; k.fillStyle = s === 0 ? PAL.ink3 : PAL.ink2;
+        k.fillText(s === 0 ? '—' : sec, tx, cy + oy);
+        k.globalAlpha = 1;
+      };
+      if (R > 0) { drawState(st, 1 - R, -5 * R); drawState(0, R, 5 * (1 - R)); }
+      else { if (st > 0 && sw < 1) drawState(st - 1, 1 - sw, -5 * sw); drawState(st, sw, 5 * (1 - sw)); }
+      if (ok && st === 2) done += 1 - R;
+    });
+    // 表头右侧：完成进度条（已完成 / 3）
+    const bx = CX + CWD - 56, by = CY + HEAD / 2 - 2;
+    k.fillStyle = 'rgba(22,21,27,0.08)'; rr(k, bx, by, 40, 4, 2); k.fill();
+    const pw = 40 * done / ROWS.length;
+    if (pw > 0.5) { k.fillStyle = rgb(PAL.mint); rr(k, bx, by, Math.max(4, pw), 4, 2); k.fill(); }
+  };
+  return fn;
+})();

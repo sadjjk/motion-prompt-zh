@@ -1,0 +1,58 @@
+// Motion Prompt #1-103 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills
+//
+// 押したときの縮み / Press / tap feedback
+// パック: lp (LP・Webサイトの演出) · element 25 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: 同じボタン2つを比べる。左は押しても何も変わらず、右は押すと少し縮んで影が締まり、離すと戻る。
+// 動きの仕様:
+//   - 左右に同じ「今すぐ購入」ボタン 170×50 を2つ並べて比べる。左は押しても離しても変わらず、右は反応がある
+//   - 押すと0.1秒以内に easeOut（3乗）で0.97へ縮み、影は blur 14・下へ6 から blur 4・下へ2 に締まる
+//   - 離すと0.25秒の easeOut（3乗）で1へ戻る
+//   - 押している区間: 左 0.80〜1.15秒、右 2.20〜2.55・3.05〜3.40秒。カーソルは3.6〜4.2秒に出発点へ戻る
+//   - クリックの波紋との違い: 波紋は出ず、ボタン自身が縮んで影が締まるだけ
+// 使いどころ: ボタン・カード・リスト項目など押せるものすべてに。特にタッチ操作のアプリで、押した手応えを返したいとき。
+// タグ: press, tap, active-state, button, feedback, scale, micro-interaction
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-103
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 25
+// 25 按压缩小（Press / Tap feedback）：左右两颗同样的「立即购买」按钮做对比。光标先按左边（无反馈：按下、松开按钮都不变），
+// 再按右边两次（有反馈）：按下后 0.1 秒内 easeOut（3 次方）缩到 0.97，阴影由 blur 14 / 下移 6 收紧到 blur 4 / 下移 2；
+// 松开后 0.25 秒 easeOut（3 次方）回到 1。按下区间：左 0.80–1.15 秒；右 2.20–2.55、3.05–3.40 秒。光标 3.6–4.2 秒回到起点。
+// 与「点击涟漪」的区别：没有任何波纹，只有按钮本身的缩小与阴影收紧，像真的被按下去。
+const PRESS_L = [[0.8, 1.15]], PRESS_R = [[2.2, 2.55], [3.05, 3.4]];
+const PRESS_AMT = (u, list) => {
+  for (const [d, r] of list) {
+    if (u >= d && u < r) return eOut(P(u, d, d + 0.1));
+    if (u >= r && u < r + 0.25) return 1 - eOut(P(u, r, r + 0.25));
+  }
+  return 0;
+};
+CELLS[24] = (k, w, h, u) => {
+  frame(k);
+  const BW = 170, BH = 50, BY = 46, LX = 70, RX = 271;
+  const [cx, cy] = path([[0, 255, 150], [0.6, 160, 74], [1.4, 160, 74], [2.0, 360, 74], [3.6, 360, 74], [4.2, 255, 150], [4.8, 255, 150]], u);
+  const pl = PRESS_AMT(u, PRESS_L), pr = PRESS_AMT(u, PRESS_R);
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    // 按钮：p 为按下程度（0〜1），fb 为是否有反馈
+    const button = (x, p) => {
+      const s = 1 - 0.03 * p;
+      k.save(); k.translate(x + BW / 2, BY + BH / 2); k.scale(s, s);
+      k.shadowColor = 'rgba(255,90,44,.38)'; k.shadowBlur = lerp(14, 4, p); k.shadowOffsetY = lerp(6, 2, p);
+      k.fillStyle = C.acc; rr(k, -BW / 2, -BH / 2, BW, BH, BH / 2); k.fill(); k.shadowColor = 'transparent';
+      txt(k, '立即购买', 0, 1, `800 16px ${JP}`, '#fff', 'center', 'middle');
+      k.restore();
+    };
+    button(LX, 0); button(RX, pr);
+    txt(k, '无反馈', LX + BW / 2, 124, `700 13px ${JP}`, C.sub, 'center', 'middle');
+    txt(k, '按下缩小', RX + BW / 2, 124, `700 13px ${JP}`, C.acc, 'center', 'middle');
+    txt(k, 'scale 1.00', LX + BW / 2, 143, `600 11px ${EN}`, C.sub, 'center', 'middle');
+    txt(k, `scale ${(1 - 0.03 * pr).toFixed(2)}`, RX + BW / 2, 143, `600 11px ${EN}`, C.acc, 'center', 'middle');
+    k.fillStyle = C.faint; k.fillRect(VW / 2 - 0.5, 40, 1, 110);
+    cursor(k, cx, cy, Math.max(pl, pr));
+  });
+};

@@ -1,0 +1,14 @@
+Please use "Blinds transition" (ブラインド), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-042
+
+What it is: The next scene opens through thin strips
+What the sample shows: Gaps in a row of thin strips widen until the next scene is fully open.
+Spec:
+- Day scene → night scene → day, 2.35 s each. Seven horizontal strips (208 ÷ 7 ≈ 29.7 px each).
+- 0.4–1.65 s (1.25 s), quadratic ease-in-out: in every strip at once, the next scene is revealed from the strip's top edge downward, opening from 0 to the full strip height.
+- The previous scene stays underneath. Neither picture moves.
+When to use it: Use it for a clear switch between two scenes, such as day and night or before and after, or for a retro feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-042.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

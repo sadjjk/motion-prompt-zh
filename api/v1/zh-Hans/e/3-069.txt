@@ -1,0 +1,35 @@
+// Motion Prompt #3-069 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/soft-focus
+//
+// 柔焦 / Soft focus
+// 分类包: photo (摄影光线与风格) · element 33 · 子分类: 镜头与相机效果
+// 动画表现: 整张画面的模糊副本提亮后叠上，太阳和人物亮边晕开，暗部微微发灰，但山、树、人物的轮廓依然清楚。
+// 运动规格:
+//   - 场景：太阳位于 (432, 54) 的风景，加头肩人物，头部中心 x 140、y 82、半径 28 px。
+//   - 光晕：画面副本模糊 7 px、亮度 ×1.12，以 0.6 不透明度“滤色”叠加。
+//   - 对比：再叠 0.1 不透明度的白色抬起暗部；原图留在下层，所以轮廓不糊。
+//   - 右上显示“SOFT n%”。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 人像、婚礼、回忆画面中，想营造柔和、朦胧的氛围时。
+// 标签: soft focus, diffusion, glow, dreamy, low contrast, lens
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-069
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 33
+// 柔焦（ソフトフォーカス）: 画面全体のぼかした写しを明るくしてスクリーンで重ねる。太陽と人物の光る縁がにじみ、
+// 全体のコントラストが下がって暗部が浮くが、山・木・人物の輪郭は元の絵が残るのでくっきりしたまま
+CELLS[32] = cell((k, u) => {
+  const a = env(u);
+  stageLand(k, BASE);
+  if (a < 0.002) { hud(k, 'SOFT 0%'); return; }
+  const [S, ks] = layer('soft'); stageLand(ks, BASE);
+  const [B, kb] = layer('soft-b'); kb.filter = 'blur(7px) brightness(1.12)'; kb.drawImage(S, 0, 0); kb.filter = 'none';
+  k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.6 * a; k.drawImage(B, 0, 0);
+  // 暗部が浮く: ごく薄い白を重ねてコントラストを下げる
+  k.globalCompositeOperation = 'source-over'; k.globalAlpha = 0.1 * a; k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+  k.restore();
+  hud(k, `SOFT ${Math.round(a * 100)}%`);
+});

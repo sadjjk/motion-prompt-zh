@@ -1,0 +1,15 @@
+Please use "Cube flip wave" (キューブの反転波), one of the names in "Styled scenes".
+Motion Prompt #4-026
+
+What it is: An isometric array of cubes that flip in a diagonal wave and change colour
+What the sample shows: On a dark ground, a slab of cubes rolls over in a diagonal wave, their tops cycling through 4 colours like a flipping display.
+Spec:
+- A 22 × 6 cube array in orthographic isometric view (yaw 0.42, pitch 0.62 rad) on dark #121214.
+- A diagonal wave flips them in turn; each cube rolls 90° 8 times per 6.4 s, each roll taking about 0.4 s.
+- Top faces cycle through 4 colours #FF5C40, #F5F0E6, #3C5AE6 and #FFC83C, going round 2 times per cycle back to the start.
+- Side faces blend between the current and next colour and darken according to their facing.
+When to use it: Openers for tech brands or design studios, hero sections for product launches, or rhythmic section transitions in a presentation.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-026.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,15 @@
+Please use "Circle reveal transition" (円形リビール), one of the names in "Interaction & data motion".
+Motion Prompt #1-140
+
+What it is: A circular mask grows from the centre with scrolling to reveal the next section
+What the sample shows: As scrolling progresses, a dark chapter 2 grows as a circle from the centre of the light chapter 1 until it covers the card; the first title shrinks away while the second settles from larger to normal size, and scrolling back shrinks the circle.
+Spec:
+- Scroll progress goes 0 → 1 from 0.5–4.4 s (inOut3), with the scrollbar on the right in sync.
+- The circular mask radius grows in proportion to progress, from 0 to half the card diagonal.
+- The first chapter's title shrinks to 0.8 as it fades; the second chapter's title shrinks from 1.2 to 1.
+- From 5.4–6.3 s the scroll returns and the circle shrinks back.
+When to use it: Use it on story-led pages and product tours to mark a change of chapter or scene.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-140.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

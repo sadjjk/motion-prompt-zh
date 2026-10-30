@@ -1,0 +1,17 @@
+请使用“手写签名（Signature animation）”，属于“动态图形进阶”。
+Motion Prompt #2-080
+
+效果解释：草写签名一笔笔写出来
+动画表现：一笔连写的草写签名由珊瑚色笔尖圆点引领从左写到右，写完后下方快速划出一道微弯底线。
+实现规格与关键运动参数：
+- 单笔路径：大写起笔弧、6 个连写圈、向右上扬的收笔。
+- 0.3–2.9 秒按 sine 缓入缓出写出，笔尖圆点（半径 4 px、光圈 8 px）跟在前端。
+- 线宽随笔画方向在 2–4.2 px 间变化，模拟笔压。
+- 2.95–3.4 秒微弯底线（2.4 px）以三次缓出划出；4.0–4.5 秒整体淡出。
+适用场景：适合作品集开场、品牌签名或信件、视频结尾的署名。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-080
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-080.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Hannah 的 MIT 版权标识。

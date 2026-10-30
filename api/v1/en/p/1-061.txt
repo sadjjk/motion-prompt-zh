@@ -1,0 +1,15 @@
+Please use "Rolling word cube" (単語キューブの回転), one of the names in "Interaction & data motion".
+Motion Prompt #1-061
+
+What it is: A headline whose keywords sit on the faces of a cube that rolls to the next one
+What the sample shows: The cube rolls down one face at a time to reveal the next word, the caption below flips with it, and a progress bar fills between rolls.
+Spec:
+- 4 keywords on 4 faces; face height 72 px, half-depth 36 px, perspective 520 px. It rolls down 1 face every 1.6 s, each roll taking 0.9 s.
+- Roll easing cubic-bezier(.5,-.25,.3,1.3) overshoots at both ends; the old front face dims to brightness .55 while the new one lights up.
+- The caption flips: the old line slides up and out, the new one springs in from below (.7 s spring, .4 s opacity); the current dot scales to 1.3×.
+- The bottom progress bar fills linearly over 1.6 s; 4 rolls make a full 360° and return to word 1.
+When to use it: Use it in a landing-page hero or 'What we do' section to cycle through services, stages or selling points.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-061.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,17 @@
+Please use "Tree menu" (ツリーメニュー), one of the names in "Landing page & web effects".
+Motion Prompt #1-189
+
+What it is: A side nav whose items hang off a trunk by branch lines; opening grows new branches and picking an item lights its path
+What the sample shows: A white side nav has a vertical trunk on the left, with each item joined by a rounded branch. When the cursor clicks 'Products', the items below are pushed down and three child branches grow one by one with a glowing tip as the children fade in. Clicking 'Cases' sends a light along the path from the trunk to it and the item turns orange; a final click on 'Products' folds it all back.
+Spec:
+- 5 top-level items sit 20 px apart; 3 children sit 18 px apart under 'Products', and opening pushes the items below down 54 px.
+- There are 3 clicks, at 1.0 s, 2.25 s and 3.75 s, each sending a ripple from the cursor tip.
+- Over 1.05–1.5 s the items below move down, and from 1.1 s the child branches grow along their length 0.13 s apart, 0.4 s each, with a small glowing dot at the tip.
+- From 1.36 s the children fade in over 0.26 s each, with the same 0.13 s stagger.
+- From 2.3–2.88 s a light with a trail runs along the line from the trunk to 'Cases'; on arrival the node fills, a ring spreads and the item turns orange as selected.
+- It folds back over 3.8–4.28 s and the cursor returns to rest by 4.45 s, on a 4.8 s cycle.
+When to use it: Use it in dashboards, documentation sites and file browsers where hierarchical navigation should make the current location obvious.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-189.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

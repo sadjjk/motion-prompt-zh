@@ -1,0 +1,15 @@
+Please use "Möbius strip" (メビウスの帯), one of the names in "Styled scenes".
+Motion Prompt #4-029
+
+What it is: A one-sided Möbius strip swaying in space with stripes flowing along it
+What the sample shows: A Möbius strip sways gently in a dark space while orange-pink and white stripes flow along it, front quietly becoming back.
+Spec:
+- Dark gradient background #1A1C2A → #0B0C12. Strip radius 1.7, band width 1, perspective projection.
+- It swings about the vertical axis between -0.1 and 0.7 rad and tilts between 0.04 and 0.16 rad, each 1 swing per 6.4 s.
+- 40 stripes, each 0.375 orange-pink gradient and 0.625 white, advancing 8 stripes per cycle.
+- Shaded with diffuse light and a power-40 specular highlight; back-facing normals flip toward the camera so it reads as one surface.
+When to use it: Openers for maths or science videos, hero sections for brands themed on infinity or loops, or presentation title slides.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-029.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

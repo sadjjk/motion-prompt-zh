@@ -1,0 +1,16 @@
+Please use "Medium close-up" (バストショット), one of the names in "Camera moves & transitions".
+Motion Prompt #3-053
+
+What it is: Framed from the chest up, centred on speech and expression
+What the sample shows: The person, chest up and slightly left of centre, says two lines: the mouth moves and a subtitle appears with each line, there is a blink in the pause between them, and a "！" pops up above the head at the end.
+Spec:
+- Frame: 1.2 m to 1.9 m, bottom edge at the chest; camera 2.2 m away, the person 0.35 m left of centre leaving the right side for the subtitle.
+- Speech in two parts, 0.4 s to 2.0 s and 2.9 s to 4.3 s; the mouth opens and closes with each, with one wide opening late in each part.
+- A 239×26 px subtitle bar fades in and out with the speech, reading "今天的风，比昨天轻一点。"
+- A blink in the pause at 2.55 s; a white "！" on a blue dot pops up above the head from 4.25 s to 4.5 s. The body sways slightly while speaking.
+- Labels: top right reads "中近景 MCU"; the scale band runs from the chest to the head; background softly blurred; one pass = 4.7 s.
+When to use it: For interviews, dialogue and monologues where speaking is the point.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-053.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

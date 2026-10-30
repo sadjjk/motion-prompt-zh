@@ -1,0 +1,49 @@
+// Motion Prompt #4-016 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Art Deco / アール・デコ
+// Pack: scenes (Styled scenes) · element 16 · Category: Patterns & graphics
+// What happens: Gold rays and fan arcs spread layer by layer from the bottom centre of a black field, framed by stepped arches, as a warm band of light sweeps across.
+// Motion spec:
+//   - Gold lines rgba(214, 176, 98) on black #0B0B0D; 25 rays extend to 300 px between 0.2 and 1.8 s.
+//   - 9 fan arcs: arc i starts at 0.4 + 0.18i s and opens over 0.8 s, with radius 26 + 19i px.
+//   - 5 stepped arches stay on screen, starting 182 px wide and narrowing by 26 px per step.
+//   - A warm 60 px light band sweeps left to right 1 time every 6.4 s; rays and arcs retract from 5.4 to 6.2 s.
+// When to use it: Use it as a hero background for hotels, luxury brands or jazz events, an opener for award or gala videos, or an animated invitation.
+// Tags: art-deco, gold, sunburst, luxury, ornament, 1920s, pattern
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-016
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 16
+// 16 装饰艺术：黑底金线，25 道放射线与 9 层扇形弧从底部中心逐层展开，五重阶梯拱门常驻，一道暖光每周期扫过一次；复位段收回
+CELLS[15] = (k, w, h, u) => {
+  k.fillStyle = '#0B0B0D'; k.fillRect(0, 0, CW, CH);
+  const cx = 269.5, by = 190, gold = a => `rgba(214,176,98,${a})`;
+  const back = 1 - inOut3(seg(u, SHOW, SHOW + 0.8));       // 5.4–6.2 秒收回
+  const gR = out3(seg(u, 0.2, 1.8)) * back;                  // 放射线 0.2–1.8 秒伸到 300px
+  k.lineWidth = 0.8; k.strokeStyle = gold(0.5);
+  if (gR > 0) {
+    k.beginPath();
+    for (let i = 0; i <= 24; i++) { const a = Math.PI + i / 24 * Math.PI; k.moveTo(cx + Math.cos(a) * 26, by + Math.sin(a) * 26); k.lineTo(cx + Math.cos(a) * (26 + 300 * gR), by + Math.sin(a) * (26 + 300 * gR)); }
+    k.stroke();
+  }
+  k.lineWidth = 1;
+  for (let i = 0; i < 9; i++) {                              // 第 i 层弧 0.4 + 0.18i 秒起、0.8 秒展开，半径 26 + 19i
+    const g = out3(seg(u, 0.4 + i * 0.18, 1.2 + i * 0.18)) * back; if (g <= 0) continue;
+    k.strokeStyle = gold(0.9 - i * 0.06); k.beginPath(); k.arc(cx, by, (26 + i * 19) * g, Math.PI, 0); k.stroke();
+  }
+  for (let s = 0; s < 5; s++) {                              // 阶梯拱门：宽 182 − 26s，常驻
+    const wA = 182 - s * 26; k.strokeStyle = gold(0.8); k.lineWidth = s === 0 ? 1.4 : 0.8;
+    k.beginPath(); k.moveTo(cx - wA / 2, by); k.lineTo(cx - wA / 2, by - wA / 2); k.arc(cx, by - wA / 2, wA / 2, Math.PI, 0); k.lineTo(cx + wA / 2, by); k.stroke();
+  }
+  const sx = -60 + (u / CYC) * (CW + 120);                   // 光带每周期从画外左侧扫到画外右侧
+  const sg = k.createLinearGradient(sx, 0, sx + 60, 0);
+  sg.addColorStop(0, 'rgba(255,240,200,0)'); sg.addColorStop(0.5, 'rgba(255,240,200,.18)'); sg.addColorStop(1, 'rgba(255,240,200,0)');
+  k.fillStyle = sg; k.fillRect(0, 0, CW, by);
+  k.fillStyle = gold(1); k.fillRect(10, by, CW - 20, 1.2);
+  k.letterSpacing = '5px'; txt(k, 'GRAND  LOBBY', cx, by + 13, `300 9px ${DISP}`, gold(1), 'center'); k.letterSpacing = '0px';
+  grain(k, 0.05);
+};

@@ -1,0 +1,15 @@
+Please use "Scroll snap" (スクロールスナップ), one of the names in "Landing page & web effects".
+Motion Prompt #1-030
+
+What it is: Scrolling settles exactly on the next section
+What the sample shows: After a small scroll, the page carries itself the rest of the way until the next section's top lines up with the top of the view.
+Spec:
+- Each section is as tall as the viewport (168 px). The first is pale blue, the second navy.
+- One snap per 2.4 s. At 0.45–0.85 s the user scrolls only 34 px (cubic ease-out).
+- At 0.9–1.5 s the page moves the remaining 134 px by itself and lines up the next section's top (cubic ease-out).
+- The second 2.4 s does the same upward, back to the first section (the behaviour of scroll-snap-type: y mandatory).
+When to use it: Use it for a page that should read one full screen at a time, like slides.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-030.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

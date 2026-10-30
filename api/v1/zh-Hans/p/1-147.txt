@@ -1,0 +1,17 @@
+请使用“Cookie 同意横幅（Cookie banner）”，属于“UI 组件”。
+Motion Prompt #1-147
+
+效果解释：从底部弹出的 Cookie 使用同意卡片
+动画表现：页面底部弹上 Cookie 卡片，饼干图标从倾斜弹正后晃 2 下；光标点“全部同意”，按钮压下，卡片向下滑出。
+实现规格与关键运动参数：
+- 360×74 卡片在 0.3–0.9 秒以 back.out(1.4) 从画面底部外弹到 y 108 并淡入。
+- 左侧饼干图标 0.5–1.1 秒从 0.4 倍、倾斜 −0.6 弧度弹正放大；1.2–1.8 秒再晃 2 下（幅度 0.3 弧度递减）。
+- 光标 2.4 秒点“全部同意”，按钮 0.08 秒压到 0.92、0.15 秒回弹。
+- 卡片 2.55–2.95 秒以 easeIn 3 次方滑出底部并淡出。
+适用场景：适合 Cookie、隐私授权等首次访问时只确认一次的提示。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-147
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-147.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Hannah 的 MIT 版权标识。

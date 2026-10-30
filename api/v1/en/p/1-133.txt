@@ -1,0 +1,15 @@
+Please use "Following eyes" (目で追うキャラクター), one of the names in "Interaction & data motion".
+Motion Prompt #1-133
+
+What it is: A pair of big eyes whose pupils keep looking at the cursor and blink now and then
+What the sample shows: Inside the big white eyes of a purple mascot, the black pupils follow the cursor, moving closer to the rim the farther away it is; now and then both eyes blink together.
+Spec:
+- Eye whites of 30 × 34 px radii, pupils of 13 px radius with a small highlight.
+- Each pupil moves along the angle to the cursor (atan2) by min(1, distance/150) × 14 px, trailing by 0.06 s.
+- Both eyes blink together at 1.9 s and 3.9 s, squashing to 10% height and back within 0.15 s.
+- The cursor enters from 0.3–0.8 s and leaves from 4.9–5.4 s, and the pupils return to centre.
+When to use it: Use it on 404 pages, sign-in screens and mascot-led products to add a playful response.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-133.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

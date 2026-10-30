@@ -1,0 +1,53 @@
+// Motion Prompt #4-036 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Confetti burst / 紙吹雪
+// Pack: scenes (Styled scenes) · element 36 · Category: Patterns & graphics
+// What happens: On a dark purple background the word "恭喜" dips and springs back while confetti in 5 colors fans up from below, spinning and falling in arcs before fading; it repeats every 3.2 s.
+// Motion spec:
+//   - A 64px bold "恭喜" shrinks to 0.6× over 0.25 s, then springs back to 1× over 0.8 s with elastic.out(1, 0.4).
+//   - As the shrink ends, 60 confetti pieces of 8×5 in 5 colors burst from 62% of the card height, at 187–374px/s and angles of 215°–325°.
+//   - They fall in arcs under 395px/s² of gravity, rotate ±540° over 2 s, and flip 1–2 times per second (vertical scale driven by cos).
+//   - Each piece lives 2 s and fades out over 1.5–2.0 s.
+//   - A burst fires every 3.2 s, 2 per 6.4 s cycle; all pieces are gone and the title is back at 1× before the next burst.
+// When to use it: Use it to celebrate a milestone, a win, a birthday or a launch announcement.
+// Tags: confetti, celebration, burst, particles, party, congrats
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-036
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 36
+// 改写自 KittenJam Motion Library #99 彩纸爆发（Hannah 整理）：标题「恭喜」先 0.25 秒收缩到 0.6 倍，再以 elastic.out(1, 0.4) 0.8 秒弹回，
+// 同时从卡片 62% 高处喷出 60 片彩纸：初速 187–374px/s、角度 215°–325°、重力 395px/s² 的抛物线，旋转 ±540°/2 秒并翻面，2 秒寿命的最后 0.5 秒淡出。
+// 每 3.2 秒喷一次、一个周期两次；两次之间彩纸已全部消失、标题回到 1 倍，因此循环无缝。原作每次 36 片、无收缩预备。
+const CONF_N = 60, CONF_GAP = 3.2, CONF_T0 = 0.25, CONF_LIFE = 2.0;
+const CONF_X = 269.5, CONF_Y = 129, CONF_G = 395;   // 喷口 = 卡片宽的中点、高的 62%；重力 = 1.9 × 卡片高
+const CONF_COLS = ['#ff5d73', '#ffd23f', '#3ec7ff', '#7cf29a', '#b78bff'];
+const CONF_el = t => (t <= 0 ? 0 : t >= 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t - 0.1) * TAU / 0.4) + 1); // GSAP elastic.out(1, .4)
+CELLS[35] = (k, w, h, u) => {
+  k.drawImage(layer('CONF_bg', g => {
+    g.fillStyle = '#15121f'; g.fillRect(0, 0, CW, CH);
+    const gr = g.createRadialGradient(269.5, 100, 0, 269.5, 100, 260);
+    gr.addColorStop(0, 'rgba(120,80,200,.28)'); gr.addColorStop(1, 'rgba(120,80,200,0)'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+  const b = Math.floor(u / CONF_GAP), tl = u - b * CONF_GAP;                    // 第几次喷发、本次内的时间
+  const sc = tl < CONF_T0 ? 1 - 0.4 * inOut3(tl / CONF_T0) : 0.6 + 0.4 * CONF_el((tl - CONF_T0) / 0.8);
+  k.save(); k.translate(269.5, 100); k.scale(sc, sc);
+  txt(k, '恭喜', 0, 0, `800 64px ${SANS}`, '#ffffff', 'center', 'middle'); k.restore();
+  const t = tl - CONF_T0;
+  if (t <= 0 || t >= CONF_LIFE) return;
+  k.save(); k.globalAlpha = 1 - seg(t, 1.5, 2.0);
+  for (let i = 0; i < CONF_N; i++) {
+    const s = b * CONF_N + i;                                                   // 两次喷发用不同的种子
+    const v = mix(187, 374, kjHash(s, 1)), an = (215 + 110 * kjHash(s, 2)) * Math.PI / 180;
+    const x = CONF_X + v * Math.cos(an) * t, y = CONF_Y + v * Math.sin(an) * t + 0.5 * CONF_G * t * t;
+    if (y > CH + 12 || x < -12 || x > CW + 12) continue;
+    const rot = kjHash(s, 3) * TAU + (kjHash(s, 4) * 2 - 1) * 3 * Math.PI * t / CONF_LIFE;
+    const flip = Math.cos(TAU * (1 + kjHash(s, 5)) * t + kjHash(s, 6) * TAU);  // 每秒翻面 1–2 圈
+    k.save(); k.translate(x, y); k.rotate(rot); k.scale(1, flip);
+    k.fillStyle = CONF_COLS[i % 5]; k.fillRect(-4, -2.5, 8, 5); k.restore();
+  }
+  k.restore();
+};

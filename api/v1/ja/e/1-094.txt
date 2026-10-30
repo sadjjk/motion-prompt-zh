@@ -1,0 +1,86 @@
+// Motion Prompt #1-094 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 新しい行が入るテーブル / Live table insert
+// パック: uxmotion (インタラクションとデータの動き) · element 34 · カテゴリ: 動くチャート
+// 何が起きるか: 注文テーブルに新しい行が上から滑り込んで光り、金額の見出しをクリックすると行同士がすれ違って並び替わり、時間で戻すと元の順に戻る。
+// 動きの仕様:
+//   - 表示は 5 行、行の高さ 24px。新しい注文は上から滑り込んで紫に光り、1.4 秒で消える
+//   - ほかの行は 0.45 秒で新しい位置へ移動し、押し出された行は 0.35 秒でフェードアウト
+//   - デモでは 0.8 秒と 3.1 秒に新しい注文が入り、2.2 秒に「金額」で降順に並べ替え、4.2 秒に「時間」で元に戻す
+//   - 各行の「N 秒前」は時間とともに増え、3 秒未満は「たった今」。見出しの赤い点は 1.4 秒ごとに脈打つ
+// 使いどころ: 注文・取引・ログなどリアルタイムで行が増える管理画面やダッシュボードの表で。
+// タグ: table, realtime, row-insert, sorting, dashboard, flip-animation
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-094
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 34
+// 34 表格实时插入："实时订单"表（红点 1.4s 呼吸）。0.8 秒一笔新订单从顶部滑入并闪一下紫色（1.4s 褪去），下面各行 .45s 滑下；
+// 2.2 秒指针点"金额"表头：行彼此穿过、按金额降序重排；3.1 秒又来一笔，按当前排序从底部滑到位置；4.2 秒点"时间"表头恢复按时间排序；
+// 每行"N 秒前"随时间增长；只显示 5 行，挤出的行 .35s 淡出。5.6–6.2 秒交叉淡化回初始 5 行。
+const LTB_NM = ['Seoyeon K.', 'Junho L.', 'Haeun P.', 'Minjun C.', 'Yuna J.', 'Jiho H.', 'Jia Y.', 'Taemin O.'];
+const LTB_ST = [['已支付', '#10B981'], ['打包中', '#0EA5E9'], ['审核中', '#F59E0B']];
+const LTB_MAX = 5, LTB_RH = 24, LTB_Y0 = 70;
+const LTB_ROWS = [1, 2, 3, 4, 5, 6, 7].map(id => ({ id, a: Math.round(12 + hash(id * 3.1) * 230), n: LTB_NM[id % 8], s: LTB_ST[Math.floor(hash(id * 7.7) * 3)], t: id <= 5 ? -(6 - id) * 7 : id === 6 ? 0.8 : 3.1 }));
+const LTB_EVT = [[0.8, 'add', 6], [2.2, 'sort', 1], [3.1, 'add', 7], [4.2, 'sort', 0]];
+// 每行的槽位与透明度过渡表
+const LTB_TR = (() => {
+  const tr = {}, rows = LTB_ROWS.slice(0, 5); let sort = 0;
+  const order = t => { rows.sort((x, y) => (sort === 1 ? y.a - x.a : y.t - x.t) || y.id - x.id); rows.forEach((o, i) => { tr[o.id].slot.push([t, i]); tr[o.id].op.push([t, i < LTB_MAX ? 1 : 0]); }); };
+  rows.forEach(o => (tr[o.id] = { slot: [[-1, 0]], op: [[-1, 1]] }));
+  rows.sort((x, y) => y.t - x.t).forEach((o, i) => (tr[o.id].slot[0][1] = i));
+  for (const [t, kind, v] of LTB_EVT) {
+    if (kind === 'add') { const o = LTB_ROWS[v - 1]; tr[v] = { slot: [[-1, sort === 0 ? -1 : LTB_MAX]], op: [[-1, 0]], at: t }; rows.push(o); }
+    else sort = v;
+    order(t);
+  }
+  return tr;
+})();
+const LTB_KEYS = [[0, 560, 240], [1.6, 560, 240], [2.1, 262, 60], [3.8, 262, 60], [4.1, 46, 60], [4.3, 46, 60], [4.9, 570, 240]];
+function LTB_draw(k, u) {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 10, 10, CW - 20, CH - 20, 18);
+  const pa = 0.35 + 0.65 * (0.5 + 0.5 * Math.cos(TAU * u / 1.4));
+  k.fillStyle = 'rgba(225,29,72,.25)'; k.beginPath(); k.arc(32, 30, 7, 0, TAU); k.fill();
+  k.fillStyle = `rgba(225,29,72,${pa})`; k.beginPath(); k.arc(32, 30, 4, 0, TAU); k.fill();
+  txt(k, '实时订单', 44, 35, UXB_f(900, 14), UX.ink);
+  rr(k, 452, 18, 60, 24, 12); k.fillStyle = UX.surface2; k.fill(); k.strokeStyle = UX.line; k.lineWidth = 1; k.stroke();
+  k.fillStyle = UX.ink2; k.fillRect(466, 26, 2.5, 8); k.fillRect(470.5, 26, 2.5, 8);
+  txt(k, '暂停', 478, 34, UXB_f(800, 10.5), UX.ink2);
+  k.save(); rr(k, 20, 48, CW - 40, 142, 12); k.fillStyle = UX.surface2; k.fill(); k.clip();
+  const sort = u < 2.2 ? 0 : u < 4.2 ? 1 : 0;
+  [['时间', 34, 0], ['金额', 250, 1], ['状态', 390, -1]].forEach(([s, x, i]) => {
+    const on = i === sort, f = UXB_f(850, 10); k.font = f;
+    txt(k, s, x, 63, f, on ? UX.ink : UX.ink3);
+    if (i >= 0) { const cx = x + k.measureText(s).width + 7; k.strokeStyle = on ? UX.ink : 'rgba(142,138,151,.55)'; k.lineWidth = 1.5; k.lineCap = 'round'; k.lineJoin = 'round'; k.beginPath(); k.moveTo(cx - 3, 58.5); k.lineTo(cx, 61.5); k.lineTo(cx + 3, 58.5); k.stroke(); }
+  });
+  k.fillStyle = UX.line; k.fillRect(20, LTB_Y0, CW - 40, 1);
+  k.beginPath(); k.rect(20, LTB_Y0 + 1, CW - 40, 120); k.clip();
+  for (const o of LTB_ROWS) {
+    const tr = LTB_TR[o.id];
+    if (tr.at !== undefined && u < tr.at) continue;
+    const slot = UXB_ramp(u, tr.slot, 0.45, out3), op = UXB_ramp(u, tr.op, 0.35, x => x);
+    if (op <= 0.01) continue;
+    const y = LTB_Y0 + slot * LTB_RH;
+    k.save(); k.globalAlpha = op;
+    if (tr.at !== undefined) { const g = 1 - seg(u, tr.at, tr.at + 1.4); if (g > 0) { k.fillStyle = `rgba(106,87,242,${0.22 * g})`; k.fillRect(20, y, CW - 40, LTB_RH); } }
+    const s = Math.round(u - o.t);
+    txt(k, o.n, 34, y + 16, UXB_f(850, 11), UX.ink);
+    txt(k, s < 3 ? '刚刚' : `${s} 秒前`, 118, y + 16, UXB_f(700, 9.5), UX.ink3);
+    txt(k, '$' + o.a, 250, y + 16, UXB_f(900, 11), UX.ink);
+    k.fillStyle = o.s[1]; k.beginPath(); k.arc(393, y + 12.5, 3, 0, TAU); k.fill();
+    txt(k, o.s[0], 401, y + 16, UXB_f(800, 10), o.s[1]);
+    k.fillStyle = UX.line; k.fillRect(20, y + LTB_RH - 1, CW - 40, 1);
+    k.restore();
+  }
+  k.restore();
+}
+CELLS[33] = (k, w, h, u) => {
+  UXB_xfade(k, LTB_draw, u, 5.6, 6.2);
+  const c = UXB_path(u, LTB_KEYS);
+  ripple(k, c[0], c[1], seg(u, 2.2, 2.7)); ripple(k, c[0], c[1], seg(u, 4.2, 4.7));
+  if (u > 1.6 && u < 4.9) cursor(k, c[0], c[1], Math.max(UXB_press(u, 2.2), UXB_press(u, 4.2)));
+};

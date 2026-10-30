@@ -1,0 +1,69 @@
+// Motion Prompt #1-083 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// カーソルの写真の軌跡 / Cursor photo trail
+// パック: uxmotion (インタラクションとデータの動き) · element 23 · カテゴリ: カーソル連動
+// 何が起きるか: 大きな見出しの上をポインターが横切ると、白いフチの写真がランダムな角度で弾むように現れては沈んで消え、クリックで5枚が扇形に広がる。
+// 動きの仕様:
+//   - ポインターが 46px 動くごとに 58×72px の白フチ写真を落とす。回転は ±12° のランダム＋横移動量×0.06
+//   - 写真は 0.32 秒で 0.3 倍から弾んで現れ、0.9 秒後に 0.45 秒かけて縮み、14px 沈んでフェードアウト
+//   - 同時に出るのは最大 14 枚。超えると一番古い写真から消え始める
+//   - デモでは 3.5 秒のクリックで 5 枚が扇形に広がる（0.06 秒間隔、横 16px・12° ずつ、表示 1.4 秒）
+// 使いどころ: 写真家や旅行・イベントのサイトのファーストビューで、見出しの周りに遊びを加えたいとき。
+// タグ: cursor-trail, photos, hero, playful, spring, image-trail
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-083
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 23
+// 23 光标图片拖尾：#F4F1EA 底、居中大标题；指针 0.3–2.6 秒自左向右正弦扫过、2.6–3.3 秒回到中间，3.5 秒按下一次（5 张呈扇形散开，
+// 每张间隔 60ms、横向 16px、旋转 12°），3.7–4.6 秒向右离开。指针每移动 46px 落下一张白边照片（旋转 ±12° 随机 + 横移×0.06），
+// .32s 回弹弹入（scale .3→1），存活 0.9 秒（按下的 1.4 秒）后 .45s 缩小下沉淡出；同时最多 14 张。最后一张在 6.2 秒前消失。
+const CPT_ART = [['sky', '#FFB4A2', '#5C7CFA', '#3B5BDB'], ['sun', '#2B8A3E', '#8CE99A', '#FFF3BF'], ['night', '#1B1F3B', '#FCC419'], ['sea', '#FFD8A8', '#E8590C', '#FFF4E6'], ['split', '#E7F5FF', '#748FFC', '#4C6EF5'], ['sky', '#D0BFFF', '#7048E8', '#5F3DC4'], ['sea', '#A5D8FF', '#1864AB', '#E7F5FF'], ['night', '#1A1B4B', '#FFF3BF'], ['sun', '#FFA94D', '#C92A2A', '#FFE8CC'], ['city', '#E3FAFC', '#66D9E8', '#0C8599']];
+const CPT_PW = 58, CPT_PH = 72, CPT_CLICK = 3.5;
+function CPT_ptr(u) {
+  if (u < 2.6) { const s = seg(u, 0.3, 2.6); return [-20 + 490 * s, 104 + 62 * Math.sin(s * TAU * 2)]; }
+  return UXB_path(u, [[2.6, 470, 104], [3.3, 270, 112], [3.7, 270, 112], [4.6, 570, 60]]);
+}
+// 预先模拟落图表：{t 落下, x, y, r 角度, kill 开始淡出, art}
+const CPT_DROPS = (() => {
+  const D = []; let last = null;
+  for (let i = Math.round(0.3 * 240); i <= Math.round(4.7 * 240); i++) {
+    const t = i / 240, q = CPT_ptr(t);
+    if (q[0] < 0 || q[0] > CW || q[1] < 0 || q[1] > CH) { last = null; continue; }
+    if (!last) { last = q; continue; }
+    if (Math.hypot(q[0] - last[0], q[1] - last[1]) > 46) { D.push({ t, x: q[0], y: q[1], r: (hash(D.length + 3) - 0.5) * 24 + (q[0] - last[0]) * 0.06, life: 0.9 }); last = q; }
+  }
+  const c = CPT_ptr(CPT_CLICK);
+  for (let i = 0; i < 5; i++) D.push({ t: CPT_CLICK + i * 0.06, x: c[0] + (i - 2) * 16, y: c[1] + Math.abs(i - 2) * 4, r: (i - 2) * 12, life: 1.4 });
+  D.sort((a, b) => a.t - b.t);
+  const live = [];
+  D.forEach((d, i) => {
+    d.art = i % 10; d.kill = d.t + d.life;
+    for (let j = live.length - 1; j >= 0; j--) if (live[j].kill + 0.46 <= d.t) live.splice(j, 1);
+    live.push(d);
+    if (live.length > 14) { const o = live.shift(); o.kill = Math.min(o.kill, d.t); }
+  });
+  return D;
+})();
+CELLS[22] = (k, w, h, u) => {
+  k.fillStyle = '#F4F1EA'; k.fillRect(0, 0, CW, CH);
+  txt(k, '照片里的四季', CW / 2, 112, UXB_f(900, 40), '#1E1B16', 'center');
+  txt(k, '移动指针，落下照片', CW / 2, 136, UXB_f(700, 11.5), '#8A8274', 'center');
+  for (const d of CPT_DROPS) {
+    if (u < d.t || u > d.kill + 0.45) continue;
+    let sc, al, dy = 0;
+    if (u < d.kill) { const e = seg(u, d.t, d.t + 0.32); sc = 0.3 + 0.7 * backOut(e); al = clamp(e * 1.6); }
+    else { const e = seg(u, d.kill, d.kill + 0.45), ei = e * e; sc = 1 - 0.6 * ei; al = 1 - ei; dy = 14 * ei; }
+    k.save(); k.globalAlpha = al; k.translate(d.x, d.y + dy); k.rotate(d.r * Math.PI / 180); k.scale(sc, sc);
+    k.save(); k.shadowColor = 'rgba(30,27,22,.32)'; k.shadowBlur = 12; k.shadowOffsetY = 6;
+    rr(k, -CPT_PW / 2, -CPT_PH / 2, CPT_PW, CPT_PH, 3); k.fillStyle = '#FFFFFF'; k.fill(); k.restore();
+    UXB_pic(k, -CPT_PW / 2 + 4, -CPT_PH / 2 + 4, CPT_PW - 8, CPT_PH - 14, CPT_ART[d.art]);
+    k.restore();
+  }
+  const c = CPT_ptr(u);
+  ripple(k, c[0], c[1], seg(u, CPT_CLICK, CPT_CLICK + 0.5), '30,27,22');
+  if (u > 0.3 && u < 4.6) cursor(k, c[0], c[1], UXB_press(u, CPT_CLICK));
+};

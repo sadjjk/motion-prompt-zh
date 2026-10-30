@@ -1,0 +1,27 @@
+// Motion Prompt #3-051 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-long-shot
+//
+// Medium long shot / ニーショット
+// Pack: camera (Camera moves & transitions) · element 27 · Category: Shot size
+// What happens: The bottom edge falls at the knees; the person lifts a leg, steps out and draws back, so the arc of the thigh rising and falling is clear against a softly blurred background.
+// Motion spec:
+//   - Frame: 0.42 m to 1.92 m (knees to the top of the head); camera 4.2 m away.
+//   - Action: steps out 0.28 m from 0.4 s to 1.0 s with the leg lifting and landing inside the frame; draws back from 3.4 s to 4.0 s.
+//   - The person stays sharp on the foreground layer; the background is softly blurred.
+//   - Labels: top right reads "中全景 MLS"; the blue band on the scale figure runs from the knees to the head.
+//   - The camera never moves; one pass = 4.7 s and the first and last frames match.
+// When to use it: When a character moves or gestures but you still want the face readable; common in scenes with two or three people.
+// Tags: medium long shot, mls, medium full shot, cowboy shot, knee shot, shot size, framing
+// Size: 539x208 px · Cycle: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-051
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 27
+CELLS[26] = shot(frameCell({ lo: 0.42, hi: 1.92, name: '中全景', abbr: 'MLS', draw: (k, w, h, u) => {
+  const step = eIO(P(u, 0.4, 1.0)) * (1 - P(u, 3.4, 4.0));   // 跨步弧线：抬腿 → 落脚 → 收回
+  world(k, w, h, fit(0.42, 1.92, 4.2), {
+    person: { x: step * 0.28, walk: step * Math.PI * 0.8, z: 8, fg: true }, blurBg: 1.4
+  });
+} }));

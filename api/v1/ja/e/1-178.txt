@@ -1,0 +1,46 @@
+// Motion Prompt #1-178 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// オーロラグラデーション / Aurora gradient
+// パック: aiux (グロー・リキッド) · element 16 · カテゴリ: 読み込み・思考中
+// 何が起きるか: 暗い背景で緑・青・紫・ピンクの大きな光がそれぞれ別の軌道で漂って重なり合い、その上に挨拶の見出しが乗る。
+// 動きの仕様:
+//   - 光 4 つ、半径 160–210px、色相 165°・205°・270°・320°。加算合成（lighter）で重ねる
+//   - 各光は横 70–120px・縦 25–40px の範囲で、1 周期に 1 回か 2 回往復する閉じた軌道を漂う
+//   - 半径は 1 周期に 1 回 ±12% 呼吸する
+//   - 放射グラデーションの不透明度は中心 0.4、半径の半分で 0.15、外周で 0
+//   - 見出し 24px と補足 14px は光の上に描き、はっきり読める
+// 使いどころ: ウェルカム画面、AI の待機画面、ヒーローの背景など、静かに動き続ける雰囲気がほしいときに。
+// タグ: aurora, gradient, mesh-gradient, glow, blur, background, hero
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-178
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 16
+// 16 流动光晕渐变（改写自 KittenJam #106，Hannah，MIT）：4 团半径 160–210px 的大光晕以叠加（lighter）混合，
+// 各自沿不同的椭圆轨迹漂移、半径 ±12% 呼吸，交融成极光；前景标题保持清楚。
+// 每团：[中心 x, 中心 y, x 振幅, y 振幅, x 每周期圈数, y 每周期圈数, 相位, 半径, 色相]
+const AUR_BLOBS = [
+  [170, 70, 80, 30, 1, 1, 0.0, 190, 165],
+  [320, 140, 100, 35, 1, 1, 2.1, 210, 270],
+  [420, 70, 70, 40, 1, 2, 4.2, 170, 320],
+  [250, 110, 120, 25, 2, 1, 1.0, 160, 205],
+];
+CELLS[15] = (k, w, h, u) => {
+  bg(k);
+  const ph = TAU * u / CYC;
+  k.save(); k.globalCompositeOperation = 'lighter';
+  for (const [bx, by, ax, ay, fx, fy, p0, r0, hue] of AUR_BLOBS) {
+    const x = bx + ax * Math.sin(fx * ph + p0), y = by + ay * Math.cos(fy * ph + p0);
+    const r = r0 * (1 + 0.12 * Math.sin(ph + p0));
+    const g = k.createRadialGradient(x, y, 0, x, y, r);
+    // 叠加混合下中心透明度 0.4，四团重叠也不至于发白，标题仍清楚
+    g.addColorStop(0, hsla(hue, 90, 58, 0.4)); g.addColorStop(0.5, hsla(hue, 90, 58, 0.15)); g.addColorStop(1, hsla(hue, 90, 58, 0));
+    k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  }
+  k.restore();
+  txt(k, '早上好，今天想做点什么？', 269.5, 96, `700 24px ${FONT}`, '#FFFFFF', 'center');
+  txt(k, '正在为你准备灵感…', 269.5, 128, `400 14px ${FONT}`, 'rgba(236,236,241,0.7)', 'center');
+};

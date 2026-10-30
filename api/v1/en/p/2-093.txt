@@ -1,0 +1,15 @@
+Please use "Strike and rewrite" (取り消して書き直し), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-093
+
+What it is: A word is struck out and a better one handwritten
+What the sample shows: A slanted coral bar strikes through the white word 便宜 from the left and it dims; a curved arrow points down and a yellow brush-style 实惠 is written out character by character behind a pen dot.
+Spec:
+- Over 0–0.3 s the old word fades in; over 0.4–0.85 s a 7 px bar at −4° draws through it from left to right.
+- Over 0.85–1.1 s the old word dims to 0.4; over 0.9–1.15 s a curved arrow draws.
+- The new word, in yellow brush script, writes out left to right from 1.15 s, 0.45 s apart and 0.4 s per character, with a pen dot.
+- Over 4.0–4.5 s everything fades out.
+When to use it: Use it to stress a better wording in copy, for before/after messages or corrections.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-093.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

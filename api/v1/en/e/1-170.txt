@@ -1,0 +1,62 @@
+// Motion Prompt #1-170 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Memory match / 神経衰弱カード
+// Pack: uxmotion (Interaction & data motion) · element 57 · Category: Progress feedback
+// What happens: A pointer flips 2 of 8 face-down cards; the pictures differ, so after a pause both flip back. It then flips the 2 matching moons, which turn accent-coloured and bounce, and the progress reads 1/4.
+// Motion spec:
+//   - There are 4 × 2 cards of 52 × 64 px; each flip takes 0.4 s, squashing sideways and opening again (inOut3).
+//   - At 0.9 s and 1.7 s two different cards flip; after a 0.8 s pause both flip back at 2.9 s.
+//   - At 3.4 s and 4.0 s two matching cards flip, and they match at 4.4 s.
+//   - Matched cards get an accent outline and bounce to 1.12× within 0.3 s; progress goes 0 / 4 → 1 / 4.
+//   - A crossfade from 5.4–6.0 s resets it.
+// When to use it: Use it for campaign mini games, kids' apps and playable loading screens.
+// Tags: memory-game, card-flip, match, game, flip, gamification
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-170
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 57
+// 57 翻牌配对游戏（KittenJam #307）：4×2 张牌背面朝上；指针 0.9、1.7 秒翻开两张不同的牌（每次翻转 0.4 秒，横向压扁再展开），停 0.8 秒后 2.9 秒一起翻回；
+// 3.4、4.0 秒翻开两张相同的月亮，4.4 秒配对成功：底色转强调色、放大到 1.12 再回落（0.3 秒），进度 0/4→1/4；5.4–6.0 秒交叉淡化复位。
+const MMG_X0 = 147.5, MMG_CW = 52, MMG_CH = 64, MMG_GAP = 12, MMG_Y = [26, 102], MMG_FD = 0.4, MMG_MATCH = 4.4;
+const MMG_DECK = [0, 1, 2, 3, 1, 0, 3, 2];
+const MMG_COL = ['#F5B301', '#6A57F2', '#119C72', '#D93A55'];
+const MMG_EV = { 0: [[0.9, 1], [2.9, 0], [3.4, 1]], 1: [[1.7, 1], [2.9, 0]], 5: [[4.0, 1]] };
+const MMG_cx = i => MMG_X0 + (i % 4) * (MMG_CW + MMG_GAP) + MMG_CW / 2, MMG_cy = i => MMG_Y[i < 4 ? 0 : 1] + MMG_CH / 2;
+const MMG_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.8, MMG_cx(0) + 4, MMG_cy(0) + 6], [1.0, MMG_cx(0) + 4, MMG_cy(0) + 6], [1.6, MMG_cx(1) + 4, MMG_cy(1) + 6],
+  [2.9, MMG_cx(1) + 4, MMG_cy(1) + 6], [3.3, MMG_cx(0) + 4, MMG_cy(0) + 6], [3.5, MMG_cx(0) + 4, MMG_cy(0) + 6], [3.9, MMG_cx(5) + 4, MMG_cy(5) + 6], [4.1, MMG_cx(5) + 4, MMG_cy(5) + 6], [4.7, 570, 230]];
+const MMG_flip = (i, u) => { let v = 0; for (const [t, to] of MMG_EV[i] || []) { if (u < t) break; v = mix(v, to, inOut3(seg(u, t, t + MMG_FD))); } return v; };
+function MMG_sym(k, s, col) {
+  k.fillStyle = col; k.beginPath();
+  if (s === 0) { k.save(); k.arc(0, 0, 12, 0, TAU); k.clip(); k.beginPath(); k.arc(0, 0, 12, 0, TAU); k.moveTo(16, -4); k.arc(6, -4, 10, 0, TAU); k.fill('evenodd'); k.restore(); }   // 月牙：外圆减去偏移圆（裁在外圆内）
+  else if (s === 1) { for (let j = 0; j < 10; j++) { const r = j % 2 ? 5.5 : 13, a = -Math.PI / 2 + j * Math.PI / 5; k.lineTo(Math.cos(a) * r, Math.sin(a) * r); } k.closePath(); k.fill(); }
+  else if (s === 2) { [0, 1, 2, 3].forEach(j => { const a = j * Math.PI / 2; k.moveTo(Math.cos(a) * 6 + 6, Math.sin(a) * 6); k.arc(Math.cos(a) * 6, Math.sin(a) * 6, 6, 0, TAU); }); k.fill(); }
+  else { for (let j = 0; j < 5; j++) { const a = -Math.PI / 2 + j * TAU / 5; k.moveTo(Math.cos(a) * 7 + 5, Math.sin(a) * 7); k.arc(Math.cos(a) * 7, Math.sin(a) * 7, 5, 0, TAU); } k.fill(); k.fillStyle = '#FFE39A'; k.beginPath(); k.arc(0, 0, 3.5, 0, TAU); k.fill(); }
+}
+function MMG_draw(k, u) {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  const mt = seg(u, MMG_MATCH, MMG_MATCH + 0.2), bs = 1 + 0.12 * Math.sin(Math.PI * seg(u, MMG_MATCH, MMG_MATCH + 0.3));
+  for (let i = 0; i < 8; i++) {
+    const f = MMG_flip(i, u), sx = Math.max(0.02, Math.abs(Math.cos(Math.PI * f))), face = f >= 0.5, hit = i === 0 || i === 5, s = hit ? bs : 1;
+    k.save(); k.translate(MMG_cx(i), MMG_cy(i)); k.scale(sx * s, s);
+    k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 8; k.shadowOffsetY = 3;
+    rr(k, -MMG_CW / 2, -MMG_CH / 2, MMG_CW, MMG_CH, 9);
+    if (face) k.fillStyle = hit && mt > 0 ? rgba(UXB_mix('#FFFFFF', '#DCD5FF', mt), 1) : '#FFFFFF';
+    else { const g = k.createLinearGradient(0, -MMG_CH / 2, 0, MMG_CH / 2); g.addColorStop(0, '#7B61FF'); g.addColorStop(1, '#5A47D8'); k.fillStyle = g; }
+    k.fill(); k.restore();
+    if (face) {
+      if (hit && mt > 0) { k.strokeStyle = `rgba(106,87,242,${mt})`; k.lineWidth = 2; rr(k, -MMG_CW / 2 + 1, -MMG_CH / 2 + 1, MMG_CW - 2, MMG_CH - 2, 8); k.stroke(); }
+      MMG_sym(k, MMG_DECK[i], MMG_COL[MMG_DECK[i]]);
+    } else txt(k, '?', 0, 7, UXB_f(900, 20), 'rgba(255,255,255,.9)', 'center');
+    k.restore();
+  }
+  const msg = u >= MMG_MATCH ? '配对成功  1 / 4' : u >= 2.1 && u < 2.9 ? '不一样，翻回去' : '配对进度  0 / 4';
+  txt(k, msg, 269.5, 194, UXB_f(800, 11.5), u >= MMG_MATCH ? UX.accent : UX.ink3, 'center');
+  const c = UXB_path(u, MMG_KEYS);
+  let pr = 0; for (const t of [0.9, 1.7, 3.4, 4.0]) pr = Math.max(pr, UXB_press(u, t));
+  if (u > 0.3 && u < 4.7) cursor(k, c[0], c[1], pr);
+}
+CELLS[56] = (k, w, h, u) => UXB_xfade(k, MMG_draw, u, SHOW, SHOW + 0.6);

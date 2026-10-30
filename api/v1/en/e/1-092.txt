@@ -1,0 +1,87 @@
+// Motion Prompt #1-092 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// Isometric data blocks / アイソメトリックのデータブロック
+// Pack: uxmotion (Interaction & data motion) · element 32 · Category: Animated charts
+// What happens: Isometric blocks rise from the front with a bounce; hovering greys out all but the bar's row and column and shows its value, and switching metrics re-stacks heights in a wave.
+// Motion spec:
+//   - Isometric blocks for 4 regions × 6 months; grid spacing 32 × 12 px, bars 0.72 of a cell wide.
+//   - Rows rise from the front with a delay of (8 − row − column) × 70 ms, a 650 ms duration and a bouncy ease.
+//   - Hovering keeps colour only on the bar's row and column and greys the rest in 0.2 s; the value tooltip springs in over 0.22 s. The demo hovers from 1.9–2.7 s and 4.0–4.7 s.
+//   - In the demo the metric switches at 3.1 s and heights re-stack in a (row + column) × 45 ms wave; from 5.4 s blocks drop to the floor in 0.5 s, staggered by (row + column) × 30 ms.
+// When to use it: Use it in regional sales or traffic dashboards and report pages to compare two dimensions in 3D.
+// Tags: isometric, 3d-chart, bar-chart, dashboard, data-viz, hover
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-092
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 32
+// 32 等轴数据积木：4 个地区 × 6 个月的等轴积木城（格距 DX 32、DY 12，柱宽 0.72 格）。0.2 秒起从最前排开始逐排升起
+// （延迟 (8-行-列)×70ms，时长 650ms，缓动 1-(1-t)³·cos(4.2t)·(1-0.2t) 带回弹）；1.9–2.7 秒指针悬停"釜山·3月"：只留同行同列着色、其余变灰（.2s），
+// 值浮出；3.1 秒点"访问"：高度按 (行+列)×45ms 波浪重排；4.0–4.7 秒悬停"首尔·6月"；5.4 秒起按 (行+列)×30ms 依次 .5s 落回地面、切回"订单"。
+const ISO_REG = ['首尔', '釜山', '大邱', '光州'], ISO_MON = ['1月', '2月', '3月', '4月', '5月', '6月'];
+const ISO_COL = [['#7C8CFF', '#5A69E6', '#4352C4'], ['#4FD1C5', '#2FB3A8', '#22948A'], ['#FFB86B', '#F2994A', '#D97F2E'], ['#F78FB3', '#E26D98', '#C4537D']];
+const ISO_DIM = ['#E4E7F1', '#D2D7E5', '#C0C6D9'];
+const ISO_D = [[[42, 55, 61, 58, 74, 88], [30, 34, 41, 47, 45, 52], [22, 25, 24, 31, 36, 40], [15, 19, 23, 21, 27, 33]], [[66, 70, 64, 80, 85, 92], [48, 44, 57, 60, 66, 63], [35, 41, 38, 46, 44, 55], [28, 26, 34, 38, 41, 47]]];
+const ISO_OX = 238, ISO_OY = 88, ISO_DX = 32, ISO_DY = 12, ISO_FW = 0.72, ISO_SW = 3.1;
+const ISO_iso = (c, r) => [ISO_OX + (c - r) * ISO_DX, ISO_OY + (c + r) * ISO_DY];
+const ISO_ease = t => 1 - Math.pow(1 - t, 3) * Math.cos(t * 4.2) * (1 - t * 0.2);
+const ISO_ORDER = (() => { const B = []; for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) B.push([r, c]); return B.sort((a, b) => (a[0] + a[1]) - (b[0] + b[1]) || a[1] - b[1]); })();
+const ISO_H1 = [1, 2], ISO_H2 = [0, 5];
+function ISO_h(r, c, u) {
+  const d0 = ISO_D[0][r][c], d1 = ISO_D[1][r][c];
+  if (u < ISO_SW) { const a = 0.2 + (8 - r - c) * 0.07, t = seg(u, a, a + 0.65); return t <= 0 ? 0 : d0 * ISO_ease(t); }
+  if (u < SHOW) { const a = ISO_SW + (c + r) * 0.045, t = seg(u, a, a + 0.65); return mix(d0, d1, t <= 0 ? 0 : ISO_ease(t)); }
+  const a = SHOW + (c + r) * 0.03; return mix(d1, 0, inOut3(seg(u, a, a + 0.5)));
+}
+const ISO_top = ([r, c], m) => { const q = ISO_iso(c, r); return [q[0], q[1] - ISO_D[m][r][c]]; };
+const ISO_KEYS = (() => { const a = ISO_top(ISO_H1, 0), b = ISO_top(ISO_H2, 1); return [[0, 560, 240], [1.4, 560, 240], [1.85, a[0], a[1]], [2.7, a[0] + 2, a[1] + 2], [3.0, 501, 24], [3.25, 501, 24], [3.95, b[0], b[1] + 2], [4.7, b[0] + 2, b[1] + 4], [5.2, 570, 240]]; })();
+const ISO_HOV = [[-1, 0], [1.9, 1], [2.7, 0], [4.0, 1], [4.7, 0]];
+const ISO_CHIP = [[-1, 0], [ISO_SW, 1], [SHOW, 0]];
+CELLS[31] = (k, w, h, u) => {
+  k.drawImage(layer('ISO_BG', g => {
+    const bg = g.createLinearGradient(0, 0, CW * 0.4, CH * 1.2); bg.addColorStop(0, '#F5F7FF'); bg.addColorStop(1, '#E9EEFB');
+    g.fillStyle = bg; g.fillRect(0, 0, CW, CH);
+    const f = [ISO_iso(-0.6, -0.6), ISO_iso(5.6, -0.6), ISO_iso(5.6, 3.6), ISO_iso(-0.6, 3.6)];
+    g.beginPath(); f.forEach((p, i) => (i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]))); g.closePath();
+    g.fillStyle = 'rgba(30,36,64,.05)'; g.fill(); g.strokeStyle = 'rgba(30,36,64,.1)'; g.lineWidth = 1; g.stroke();
+    txt(g, '按地区', 18, 29, UXB_f(800, 13.5), '#1E2440');
+    let x = 18; ISO_REG.forEach((n, i) => { g.fillStyle = ISO_COL[i][0]; rr(g, x, 189, 8, 8, 2); g.fill(); txt(g, n, x + 12, 197, UXB_f(700, 10), '#525A7A'); x += 50; });
+  }), 0, 0);
+  const hk = UXB_ramp(u, ISO_HOV, 0.2, x => x), ref = u < 3.4 ? ISO_H1 : ISO_H2, metric = u >= ISO_SW && u < SHOW ? 1 : 0;
+  const hw = ISO_FW / 2;
+  for (const [r, c] of ISO_ORDER) {
+    const hh = ISO_h(r, c, u), line = r === ref[0] || c === ref[1], on = r === ref[0] && c === ref[1];
+    const dimK = line ? 0 : hk;
+    const P = (dc, dr, up) => { const q = ISO_iso(c + dc, r + dr); return [q[0], q[1] - up]; };
+    const faces = [[P(-hw, -hw, hh), P(hw, -hw, hh), P(hw, hw, hh), P(-hw, hw, hh)], [P(-hw, hw, hh), P(hw, hw, hh), P(hw, hw, 0), P(-hw, hw, 0)], [P(hw, -hw, hh), P(hw, hw, hh), P(hw, hw, 0), P(hw, -hw, 0)]];
+    faces.forEach((f, j) => {
+      k.beginPath(); f.forEach((p, i) => (i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1]))); k.closePath();
+      k.fillStyle = rgba(UXB_mix(ISO_COL[r][j], ISO_DIM[j], dimK), 1); k.fill();
+      if (on && hk > 0.01) { k.strokeStyle = `rgba(255,255,255,${hk})`; k.lineWidth = 1.2; k.lineJoin = 'round'; k.stroke(); }
+    });
+  }
+  // 筛选芯片（.2s 切换）
+  const ck = UXB_ramp(u, ISO_CHIP, 0.2, x => x);
+  rr(k, 444, 12, 78, 24, 12); k.fillStyle = 'rgba(30,36,64,.07)'; k.fill();
+  [['订单', 447, 1 - ck], ['访问', 483, ck]].forEach(([s, x, a]) => {
+    if (a > 0) { k.save(); k.globalAlpha = a; rr(k, x, 15, 36, 18, 9); k.fillStyle = '#1E2440'; k.fill(); k.restore(); }
+    txt(k, s, x + 18, 28, UXB_f(750, 10.5), rgba(lerpC([82, 90, 122], [255, 255, 255], a), 1), 'center');
+  });
+  // 提示框（.15s 淡入、.22s 回弹）
+  if (hk > 0.01) {
+    const [r, c] = ref, m = ref === ISO_H1 ? 0 : 1, q = ISO_iso(c, r), y = q[1] - ISO_h(r, c, u) - 6, sc = 0.92 + 0.08 * UXB_ramp(u, ISO_HOV, 0.22, backOut);
+    const v = Math.round(ISO_D[m][r][c] * 37).toLocaleString('en-US') + (m ? ' 次访问' : ' 单');
+    k.save(); k.globalAlpha = hk; k.translate(q[0], y); k.scale(sc, sc);
+    k.font = UXB_f(800, 12); const tw = Math.max(k.measureText(v).width, 56) + 18;
+    rr(k, -tw / 2, -40, tw, 34, 9); k.fillStyle = '#1E2440'; k.fill();
+    txt(k, `${ISO_REG[r]} · ${ISO_MON[c]}`, -tw / 2 + 9, -27, UXB_f(700, 9.5), 'rgba(255,255,255,.8)');
+    txt(k, v, -tw / 2 + 9, -12, UXB_f(800, 12), '#FFFFFF');
+    k.restore();
+  }
+  const cp = UXB_path(u, ISO_KEYS);
+  ripple(k, cp[0], cp[1], seg(u, ISO_SW, ISO_SW + 0.5), '30,36,64');
+  if (u > 1.4 && u < 5.2) cursor(k, cp[0], cp[1], UXB_press(u, ISO_SW));
+};

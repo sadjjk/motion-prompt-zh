@@ -1,0 +1,14 @@
+Please use "Rotating gradient border" (回転グラデーションボーダー), one of the names in "Landing page & web effects".
+Motion Prompt #1-122
+
+What it is: A gradient light keeps circling the button border
+What the sample shows: A multicolour gradient circles the border of a button on a dark page; when the cursor hovers, it spins faster and a glow appears around it.
+Spec:
+- A 200×52 pill button on a dark page with a 3px conic-gradient border (vermilion → blue → purple → vermilion).
+- The gradient angle turns 1 full turn per cycle at base speed; while the cursor hovers (0.7–3.8 s, easeInOut power 2) it adds 2 more turns, a whole 3 turns per 4.8 s cycle, so the loop is seamless.
+- The cursor reaches the button at 0.6 s; an outer glow (shadowBlur 26) comes on over 0.25 s with easeOut and goes off over 0.25 s after the cursor leaves at 3.8 s.
+When to use it: Use it to make the main call to action stand out on dark heroes or pricing pages.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-122.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

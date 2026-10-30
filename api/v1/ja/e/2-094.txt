@@ -1,0 +1,34 @@
+// Motion Prompt #2-094 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// エコースタック / Echo stack
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 55 · カテゴリ: 文字・図形の演出
+// 何が起きるか: 白い太字の「回声」の後ろからコーラルの輪郭だけの複製5枚が順に右上へ階段状に広がり、奥ほど薄く、しばらくして元へ重なる。
+// 動きの仕様:
+//   - 輪郭（線幅2px）の複製5枚、透明度は 0.85 − 0.14×層
+//   - 0.4秒から0.06秒間隔・各0.7秒で、1層あたり (14, −11px) へ三次の easeInOut で開く
+//   - 3.0秒から外側の層から順に同じ間隔で戻る
+//   - 正面の字は白で、常に一番上
+// 使いどころ: ポスター風の見出し、音楽・イベント告知、強調したい一語に。
+// タグ: echo, outline, stack, offset, retro, heading
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-094
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 55
+// 改写自 KittenJam Motion Library #299（Hannah）· 残影堆叠：白色粗体「回声」后面叠 5 层珊瑚色空心描边副本，越后越淡（0.85 − 0.14×层）；0.4 秒起各层依次（间隔 0.06 秒、各 0.7 秒）向右上展开到每层 14px、−11px，停留后 3.0 秒起由外到内收回重叠。
+CELLS[54] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '回声', X = w / 2 - 30, Y = 118;
+  k.font = `900 92px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round';
+  for (let i = 5; i >= 1; i--) {
+    const o = 0.4 + 0.06 * i, c = 3.0 + 0.06 * (5 - i);
+    const e = eIO(P(u, o, o + 0.7)) * (1 - eIO(P(u, c, c + 0.7)));
+    k.globalAlpha = 0.85 - 0.14 * i; k.strokeStyle = C.coral; k.lineWidth = 2;
+    k.strokeText(S, X + 14 * i * e, Y - 11 * i * e);
+  }
+  k.globalAlpha = 1; k.fillStyle = '#fff'; k.fillText(S, X, Y);
+};

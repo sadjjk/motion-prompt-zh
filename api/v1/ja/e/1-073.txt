@@ -1,0 +1,84 @@
+// Motion Prompt #1-073 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 回転する章番号 / Rolling chapter numbers
+// パック: uxmotion (インタラクションとデータの動き) · element 13 · カテゴリ: スクロール連動
+// 何が起きるか: 本文をスクロールすると左の大きな章番号が数字の帯のように次へ回り、章名が上へ差し替わり、リングが章の読了率で満ちる。
+// 動きの仕様:
+//   - 左欄の大きな章番号は数字の帯のように連続してロールし、目盛りあたり 64px。各章を 75% 読んでから次の章へ回り始める
+//   - 章が変わると下の章名が上へスライドして差し替わる：移動 .45 秒スプリング、不透明度 .3 秒
+//   - 進捗リングは半径 16px・線幅 4px、その章の読了率で満ちる
+//   - 全 4 章。デモでは 0.4→4.8 秒に本文が第 4 章までスクロールし、5.4→6.3 秒に先頭へ戻る
+// 使いどころ: 長いケーススタディ、年次レポート、ブランドストーリーなど章立ての長文で、サイドバーのナビゲーションとして。
+// タグ: chapter-number, rolling-digits, scroll, progress-ring, long-form, sidebar
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-073
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 13
+// 13 翻滚章节数字：左栏大号章节数字像数字带一样连续滚动（每章读到 75% 后才开始滚向下一章，一格 78px，这里 64px），
+// 下方章节名在换章时上滑替换（.45 秒弹簧），圆环按本章阅读比例填满。右侧正文 0.4→4.8 秒滚到第 4 章，5.4→6.3 秒回顶
+const CHAP = [['萌芽', '每个故事都始于一个小问题：为什么这个按钮总让人困惑？'], ['观察', '我们花了一周观察大家真实的使用方式，手总在意想不到的地方停住。'], ['尝试', '我们做了二十种不同的方案逐一测试，大多失败了，但留下了两个。'], ['打磨', '我们把两个合成一个，一直删减到不需要任何解释。']];
+const CHAP_SIDE = 150, CHAP_TX = 166, CHAP_TW = 340, CHAP_LH = 22;
+let CHAP_LAY = null;                                 // 惰性常量：每章正文折行与章节起点/高度
+CELLS[12] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  if (!CHAP_LAY) {
+    k.font = `400 13.5px ${SANS}`; let y = 16;
+    CHAP_LAY = CHAP.map((c, i) => {
+      const lines = []; let cur = '';
+      for (const ch of c[1]) { if (k.measureText(cur + ch).width > CHAP_TW && cur) { lines.push(cur); cur = ch; } else cur += ch; }
+      lines.push(cur);
+      const top = y, hh = 6 + 20 + lines.length * CHAP_LH + 10 + 50 + 30; y += hh;
+      return { top, hh, lines };
+    });
+  }
+  const L = CHAP_LAY, maxS = L[3].top + L[3].hh * 0.8 - 20;
+  const st = UXA_scroll(u, 0.4, 4.8) * maxS, yy = st + 20;
+  let f = 0; L.forEach((s, i) => { if (yy >= s.top) f = i + Math.min(1, (yy - s.top) / s.hh); });
+  const ci = Math.min(3, Math.floor(f)), inCh = f - ci;
+  const roll = clamp(ci + Math.max(0, inCh - 0.75) / 0.25, 0, 3);
+  // 正文
+  k.save(); k.beginPath(); k.rect(CHAP_SIDE, 0, CW - CHAP_SIDE, CH); k.clip();
+  L.forEach((s, i) => {
+    const y0 = s.top - st;
+    if (y0 > CH || y0 + s.hh < 0) return;
+    txt(k, `${String(i + 1).padStart(2, '0')} · ${CHAP[i][0]}`, CHAP_TX, y0 + 22, `850 16px ${SANS}`, UX.ink);
+    s.lines.forEach((ln, j) => txt(k, ln, CHAP_TX, y0 + 46 + j * CHAP_LH, `400 13.5px ${SANS}`, UX.ink2));
+    k.fillStyle = UX.surface2; rr(k, CHAP_TX, y0 + 32 + s.lines.length * CHAP_LH + 10, CHAP_TW, 50, 12); k.fill();
+  });
+  k.restore();
+  // 左栏
+  k.fillStyle = UX.surface2; k.fillRect(0, 0, CHAP_SIDE, CH);
+  k.fillStyle = UX.line; k.fillRect(CHAP_SIDE, 0, 1, CH);
+  txt(k, 'CH', CHAP_SIDE / 2, 30, `800 11px ${MONO}`, UX.ink3, 'center');
+  // 数字带：上下 22% 渐隐遮罩（用逐行透明度模拟）
+  const NH = 64, ny = 40;
+  k.save(); k.beginPath(); k.rect(0, ny, CHAP_SIDE, NH); k.clip();
+  for (let i = 0; i < 4; i++) {
+    const y = ny + (i - roll) * NH; if (y < ny - NH || y > ny + NH) continue;
+    const d = Math.abs(y - ny) / NH;
+    k.globalAlpha = clamp(1 - Math.max(0, d - 0.0) * 1.6);
+    k.letterSpacing = '-3px';
+    txt(k, String(i + 1).padStart(2, '0'), CHAP_SIDE / 2 + 2, y + NH / 2 + 2, `900 58px ${MONO}`, UX.ink, 'center', 'middle');
+    k.letterSpacing = '0px';
+  }
+  k.restore(); k.globalAlpha = 1;
+  // 章节名：换章时旧名上移淡出、新名从下方弹入（.45 秒弹簧、透明度 .3 秒）
+  // 换章时刻：在一个周期内按 128 步扫描章节号的变化，取 u 之前最近一次
+  const chAt = uu => { const s2 = UXA_scroll(uu, 0.4, 4.8) * maxS + 20; let c2 = 0; L.forEach((s, i) => { if (s2 >= s.top) c2 = i + (s2 - s.top >= s.hh ? 1 : 0); }); return Math.min(3, c2); };
+  const tch = []; let prev = 0;
+  for (let j = 1; j <= 128; j++) { const uu = j * CYC / 128; if (uu > u) break; const c2 = chAt(uu); if (c2 !== prev) tch.push([uu, prev, c2]); prev = c2; }
+  const last = tch.length ? tch[tch.length - 1] : null, dt = last ? u - last[0] : 9;
+  k.save(); k.beginPath(); k.rect(0, 110, CHAP_SIDE, 22); k.clip();
+  const sp = UXA_spring(clamp(dt / 0.45)), op = clamp(dt / 0.3);
+  if (last && op < 1) { k.globalAlpha = 1 - op; txt(k, CHAP[last[1]][0], CHAP_SIDE / 2, 121 - 20 * sp, `800 13px ${SANS}`, UX.ink, 'center', 'middle'); }
+  k.globalAlpha = last ? op : 1; txt(k, CHAP[ci][0], CHAP_SIDE / 2, 121 + (last ? 20 * (1 - sp) : 0), `800 13px ${SANS}`, UX.ink, 'center', 'middle');
+  k.restore(); k.globalAlpha = 1;
+  // 进度圆环（r 16、线宽 4）
+  k.lineWidth = 4; k.strokeStyle = UX.line2; k.beginPath(); k.arc(CHAP_SIDE / 2, 162, 16, 0, TAU); k.stroke();
+  if (inCh > 0.003) { k.strokeStyle = UX.accent; k.lineCap = 'round'; k.beginPath(); k.arc(CHAP_SIDE / 2, 162, 16, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, inCh)); k.stroke(); }
+  scrollbar(k, st / maxS, 0.3, CW - 8);
+};

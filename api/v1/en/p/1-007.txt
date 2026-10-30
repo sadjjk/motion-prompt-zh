@@ -1,0 +1,16 @@
+Please use "Popover" (ポップオーバー), one of the names in "UI component names".
+Motion Prompt #1-007
+
+What it is: Click a button to open a small panel pointing at it
+What the sample shows: Clicking "Details" opens a small white panel to its right with a pointer at the button; clicking OK inside closes it.
+Spec:
+- 4.5 s cycle on a 542×191 card. An outlined blue "Details" button (108×36) at (24, 112); the cursor clicks it at 1.0 s.
+- Show amount a: 0→1 over 1.0–1.28 s with easeOutCubic; opacity a, sliding 6 px in from the right.
+- Panel: white 300×120, radius 10, at (156, 62), 1 px border, shadow blur 22, offset y 6. A 10-wide triangle on its left edge (y 122–138) points at the button.
+- Inside: a bold title bar, two text lines, an outlined 70×26 button and a blue 72×26 OK button.
+- Close: the cursor moves to OK (402, 157) by 3.0 s and clicks at 3.3 s; a is multiplied by (1 − easeInOutCubic over 3.3–3.5 s).
+When to use it: Use it for a short setting or confirmation that belongs right next to the button that opened it.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-007.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

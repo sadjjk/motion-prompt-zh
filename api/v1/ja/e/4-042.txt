@@ -1,0 +1,46 @@
+// Motion Prompt #4-042 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// うねる線 / Wavy lines
+// パック: scenes (スタイルシーン) · element 42 · カテゴリ: 文様・グラフィック
+// 何が起きるか: 暗い背景に26本の細い横線が地形線のようにうねり、数本おきに明るい太い線が入り、模擬カーソルが左から右へ通ると近くの線がふわりと持ち上がって戻る。
+// 動きの仕様:
+//   - 横線26本・各80点、y = 基準 + 7·sin(0.018x + 位相 + 0.35j) + 4·sin(0.043x − 2×位相 + 0.35j)
+//   - 位相は6.4秒で1周、2つ目の波は逆向きに2周
+//   - 5本ごとに1本、線幅2pxの明るい線、ほかは1px
+//   - 模擬カーソルが0.8〜5.4秒に左外 −200px から右外 740px へ上下46pxに揺れながら移動し、近くの線をガウス形（σx 56px・σy 40px）で最大26px持ち上げる
+// 使いどころ: ヒーロー背景、音楽・テック系のサイト、触れると反応するインタラクションの見本に。
+// タグ: wavy, lines, contour, sine, cursor, interactive
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-042
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 42
+// 改写自 KittenJam Motion Library #230 起伏线条（Hannah 整理）：26 条水平细线，每条取 80 个点，y = 基准 + 7·sin(0.018x + 2πu/6.4 + 0.35j) + 4·sin(0.043x − 4πu/6.4 + 0.35j)，
+// 相邻线相位错开，每 5 条有一条较粗较亮。模拟光标 0.8–5.4 秒从卡片左外侧 −200px 扫到右外侧 740px（上下起伏 46px），附近的线被高斯形（σx 56px、σy 40px）平滑拱起最多 26px，离开后恢复。原作为真实鼠标。
+const WAVY_N = 26, WAVY_P = 80;
+const WAVY_cur = u => { const e = inOut3(seg(u, 0.8, 5.4)); return [mix(-200, 740, e), 104 + 46 * Math.sin(e * TAU * 1.25)]; };
+CELLS[41] = (k, w, h, u) => {
+  k.drawImage(layer('WAVY_bg', g => {
+    const gr = g.createLinearGradient(0, 0, CW, CH); gr.addColorStop(0, '#101828'); gr.addColorStop(1, '#1d1430');
+    g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+  const [mx, my] = WAVY_cur(u);
+  const ph = TAU * u / CYC, gap = (CH - 24) / (WAVY_N - 1);
+  k.lineJoin = 'round';
+  for (let j = 0; j < WAVY_N; j++) {
+    const base = 12 + j * gap, hi = j % 5 === 2;
+    k.beginPath();
+    for (let p = 0; p < WAVY_P; p++) {
+      const x = p / (WAVY_P - 1) * CW;
+      let y = base + 7 * Math.sin(x * 0.018 + ph + j * 0.35) + 4 * Math.sin(x * 0.043 - 2 * ph + j * 0.35);
+      y -= 26 * Math.exp(-((x - mx) * (x - mx)) / (2 * 56 * 56) - ((base - my) * (base - my)) / (2 * 40 * 40));
+      p ? k.lineTo(x, y) : k.moveTo(x, y);
+    }
+    k.strokeStyle = hi ? 'rgba(140,220,255,.85)' : `rgba(170,160,230,${(0.22 + 0.12 * Math.sin(j * 0.7)).toFixed(3)})`;
+    k.lineWidth = hi ? 2 : 1; k.stroke();
+  }
+  kjCursor(k, mx, my);
+};

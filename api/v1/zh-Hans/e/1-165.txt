@@ -1,0 +1,42 @@
+// Motion Prompt #1-165 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 光源投影字 / Light source shadow
+// 分类包: uxmotion (交互与数据动效) · element 52 · 子分类: 光标交互
+// 动画表现: 暗色背景上，一盏暖色小灯绕着大标题游走；标题背后的长阴影始终朝灯的反方向延伸并随之转向；灯熄灭后阴影收回字下。
+// 运动规格:
+//   - 阴影共 18 层，第 i 层偏移 = 方向 × i × 3.2 px。
+//   - 方向 =（标题中心 − 光源）分别除以画布宽、高。
+//   - 层不透明度由最近的 0.6 线性递减到最远处。
+//   - 光源 0.6–1.0 秒亮起，4.7–5.2 秒熄灭离开，熄灭后阴影叠回字下。
+// 适用场景: 适合主视觉大标题或作品集首页，需要随光标产生立体感时使用。
+// 标签: long-shadow, light, cursor, text-shadow, 3d-text, headline
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-165
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 52
+// 52 光源投影字（KittenJam #294）：光标是一盏暖光小灯，在大标题四周游走；标题背后 18 层投影沿「标题中心 − 光源」方向排开，
+// 每层偏移 = 方向（按画布宽高归一）× 层号 × 3.2px，越远越淡；光源 0.6–1.0 秒亮起、4.7–5.2 秒熄灭离开，投影收回字下。
+const LSH_CX = 269.5, LSH_CY = 100, LSH_N = 18, LSH_STEP = 3.2;
+const LSH_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, 120, 40], [1.7, 420, 36], [2.5, 440, 176], [3.3, 110, 170], [4.1, 269, 26], [4.7, 200, 56], [5.3, 570, 230]];
+CELLS[51] = (k, w, h, u) => {
+  k.fillStyle = '#14121C'; k.fillRect(0, 0, CW, CH);
+  const c = UXB_path(u, LSH_KEYS), hv = pingPong(u, 0.6, 1.0, 4.7, 5.2);
+  glow(k, c[0], c[1], 170, '255,214,150', 0.2 * hv);
+  const dx = (LSH_CX - c[0]) / CW * hv, dy = (LSH_CY - c[1]) / CH * hv;
+  k.font = UXB_f(900, 72); k.textAlign = 'center'; k.textBaseline = 'middle';
+  // 由远到近叠层，最后画正面字
+  for (let i = LSH_N; i >= 1; i--) {
+    k.fillStyle = `rgba(106,87,242,${(0.6 * (1 - (i - 1) / LSH_N)).toFixed(3)})`;
+    k.fillText('光与影', LSH_CX + dx * i * LSH_STEP, LSH_CY + dy * i * LSH_STEP);
+  }
+  k.fillStyle = '#F4F0E8'; k.fillText('光与影', LSH_CX, LSH_CY);
+  txt(k, '移动光源，影子随之转向', LSH_CX, 186, UXB_f(600, 10.5), UXD.ink3, 'center');
+  if (hv > 0) {
+    glow(k, c[0], c[1], 22, '255,230,180', 0.9 * hv);
+    k.globalAlpha = hv; k.fillStyle = '#FFF6E2'; k.beginPath(); k.arc(c[0], c[1], 4, 0, TAU); k.fill(); k.globalAlpha = 1;
+  }
+};

@@ -1,0 +1,57 @@
+// Motion Prompt #4-026 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Cube flip wave / キューブの反転波
+// Pack: scenes (Styled scenes) · element 26 · Category: Objects & space
+// What happens: On a dark ground, a slab of cubes rolls over in a diagonal wave, their tops cycling through 4 colours like a flipping display.
+// Motion spec:
+//   - A 22 × 6 cube array in orthographic isometric view (yaw 0.42, pitch 0.62 rad) on dark #121214.
+//   - A diagonal wave flips them in turn; each cube rolls 90° 8 times per 6.4 s, each roll taking about 0.4 s.
+//   - Top faces cycle through 4 colours #FF5C40, #F5F0E6, #3C5AE6 and #FFC83C, going round 2 times per cycle back to the start.
+//   - Side faces blend between the current and next colour and darken according to their facing.
+// When to use it: Openers for tech brands or design studios, hero sections for product launches, or rhythmic section transitions in a presentation.
+// Tags: cubes, isometric, flip, wave, 3d, grid, colorful
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-026
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 26
+// 26 方块翻转：22×6 的立方体阵列被斜向波浪依次翻转，每格每周期翻 8 次（每次 90°、0.4 秒），每翻一次顶面换成下一种颜色，4 色循环两轮回到原色
+const CUBE_COLS = [[255, 92, 64], [245, 240, 230], [60, 90, 230], [255, 200, 60]];
+const CUBE_NI = 22, CUBE_NJ = 6, CUBE_G = 0.6, CUBE_H = 0.26, CUBE_SC = 41;
+const CUBE_CA = Math.cos(0.42), CUBE_SA = Math.sin(0.42), CUBE_CB = Math.cos(0.62), CUBE_SB = Math.sin(0.62);
+// 正交轴测：绕 y 轴偏航 0.42、俯仰 0.62；返回 [屏幕 x 分量, 屏幕 y 分量, 深度]
+const CUBE_R = (x, y, z) => { const x1 = x * CUBE_CA + z * CUBE_SA, z1 = -x * CUBE_SA + z * CUBE_CA; return [x1, y * CUBE_CB + z1 * CUBE_SB, -y * CUBE_SB + z1 * CUBE_CB]; };
+const CUBE_C0 = CUBE_R((CUBE_NI - 1) * CUBE_G / 2, 0, (CUBE_NJ - 1) * CUBE_G / 2);
+const CUBE_ORDER = (() => { const o = []; for (let i = 0; i < CUBE_NI; i++) for (let j = 0; j < CUBE_NJ; j++) o.push([i, j, CUBE_R(i * CUBE_G, 0, j * CUBE_G)[2]]); return o.sort((a, b) => b[2] - a[2]); })();
+// 六个面：[局部法线, 四个角, 颜色偏移]；顶面 = 当前色，前面 = 下一色，底面 = 再下一色（翻 90° 后前面转到顶、底面转到前）
+const CUBE_FACES = [
+  [[0, 1, 0], [[-1, 1, -1], [1, 1, -1], [1, 1, 1], [-1, 1, 1]], 0], [[0, 0, -1], [[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1]], 1],
+  [[0, -1, 0], [[-1, -1, -1], [1, -1, -1], [1, -1, 1], [-1, -1, 1]], 2], [[0, 0, 1], [[-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]], 3],
+  [[1, 0, 0], [[1, -1, -1], [1, 1, -1], [1, 1, 1], [1, -1, 1]], -1], [[-1, 0, 0], [[-1, -1, -1], [-1, 1, -1], [-1, 1, 1], [-1, -1, 1]], -1]];
+CELLS[25] = (k, w, h, u) => {
+  k.fillStyle = '#121214'; k.fillRect(0, 0, CW, CH);
+  for (const [i, j] of CUBE_ORDER) {
+    const ph = 8 * u / CYC - (i * 0.6 + j) * 0.09, kf = Math.floor(ph), f = clamp((ph - kf) * 2), ci = ((kf % 4) + 4) % 4;
+    const ang = inOut3(f) * Math.PI / 2, ca = Math.cos(ang), sa = Math.sin(ang);
+    const cx = i * CUBE_G, cz = j * CUBE_G;
+    for (const [n, pts, off] of CUBE_FACES) {
+      const ny = n[1] * ca - n[2] * sa, nz = n[1] * sa + n[2] * ca, nx = n[0];
+      // 正交视线：深度梯度 (-sa·cb, -sb, ca·cb)，点积为负即朝向相机
+      if (-nx * CUBE_SA * CUBE_CB - ny * CUBE_SB + nz * CUBE_CA * CUBE_CB >= 0) continue;
+      const col = off < 0 ? lerpC(CUBE_COLS[ci], CUBE_COLS[(ci + 1) % 4], f) : CUBE_COLS[(ci + off) % 4];
+      const sh = clamp(0.5 - 0.5 * ny + 0.15 * nz);
+      k.fillStyle = `rgb(${lerpC(col, [0, 0, 0], sh).join()})`; k.beginPath();
+      pts.forEach(([px, py, pz], q) => {
+        const yy = (py * ca - pz * sa) * CUBE_H, zz = (py * sa + pz * ca) * CUBE_H;
+        const r = CUBE_R(cx + px * CUBE_H, yy, cz + zz);
+        const sx = 269.5 + (r[0] - CUBE_C0[0]) * CUBE_SC, sy = 104 - (r[1] - CUBE_C0[1]) * CUBE_SC;
+        q ? k.lineTo(sx, sy) : k.moveTo(sx, sy);
+      });
+      k.closePath(); k.fill();
+    }
+  }
+  grain(k, 0.05);
+};

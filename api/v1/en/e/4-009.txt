@@ -1,0 +1,43 @@
+// Motion Prompt #4-009 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Radar sweep / レーダースキャン
+// Pack: scenes (Styled scenes) · element 09 · Category: Tech moods
+// What happens: A trailing sweep circles a dark green scope; coastline dots and targets brighten as it passes, then dim gradually.
+// Motion spec:
+//   - Radar radius 92 px with 4 range rings and a tick every 10° around the rim (longer every 30°).
+//   - The sweep turns 2 laps per 6.4 s, its trail fading across 40 wedge slices.
+//   - Coastline dots sit on a 3 px grid, lighting up when swept and decaying exponentially; 7 targets carry glows.
+//   - Palette: background #030805, scope #061810, lit dots rgba(90, 255, 150).
+// When to use it: Use it to open security, monitoring or exploration videos, as a searching or scanning idle screen, or as a transition.
+// Tags: radar, sweep, scan, sonar, military, monitor, tech
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-009
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 09
+// 09 雷达扫描：深绿雷达屏上扫描线转动，扫过的海岸线与目标点亮起再慢慢暗下去
+const RADAR_PTS = (() => { // 海岸线点阵（常量）：按值噪声阈值取点
+  const out = [], R = 92;
+  for (let y = -R; y < R; y += 3) for (let x = -R; x < R; x += 3) { if (x * x + y * y > R * R) continue; if (fbm2((x + 200) / 56, (y + 70) / 56, 4) < 0.56) continue; out.push([x, y, Math.atan2(y, x)]); }
+  return out;
+})();
+const RADAR_TGT = Array.from({ length: 7 }, (_, i) => { const a = hash(i * 7 + 1) * TAU, d = 18 + hash(i * 7 + 2) * 70; return [Math.cos(a) * d, Math.sin(a) * d, a]; });
+CELLS[8] = (k, w, h, u) => {
+  k.fillStyle = '#030805'; k.fillRect(0, 0, CW, CH);
+  const cx = 269.5, cy = 104, R = 92, ang = TAU * u / CYC * 2;   // 扫描线每周期 2 圈
+  const fall = a => { const d = ((ang - a) % TAU + TAU * 2) % TAU; return d; };
+  k.save(); k.beginPath(); k.arc(cx, cy, R, 0, TAU); k.clip(); k.fillStyle = '#061810'; k.fillRect(0, 0, CW, CH);
+  for (const [x, y, a] of RADAR_PTS) { const b = Math.exp(-fall(a) * 1.1); k.fillStyle = `rgba(90,255,150,${0.08 + 0.6 * b})`; k.fillRect(cx + x, cy + y, 2.2, 2.2); }
+  for (const [x, y, a] of RADAR_TGT) { const b = Math.exp(-fall(a) * 0.8); glow(k, cx + x, cy + y, 8, '140,255,180', b * 0.9); k.fillStyle = `rgba(200,255,220,${0.2 + b})`; k.fillRect(cx + x - 1.5, cy + y - 1.5, 3, 3); }
+  k.globalCompositeOperation = 'lighter';
+  for (let q = 0; q < 40; q++) { const a0 = ang - q * 0.018; k.fillStyle = `rgba(60,255,130,${0.25 * Math.pow(1 - q / 40, 2)})`; k.beginPath(); k.moveTo(cx, cy); k.arc(cx, cy, R, a0 - 0.018, a0); k.closePath(); k.fill(); }
+  k.restore();
+  k.strokeStyle = 'rgba(100,230,150,.4)'; k.lineWidth = 0.8;
+  for (let i = 1; i <= 4; i++) { k.beginPath(); k.arc(cx, cy, R * i / 4, 0, TAU); k.stroke(); }
+  for (let i = 0; i < 360; i += 10) { const a = i / 180 * Math.PI, l = i % 30 ? 3 : 6; k.beginPath(); k.moveTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); k.lineTo(cx + Math.cos(a) * (R + l), cy + Math.sin(a) * (R + l)); k.stroke(); }
+  for (let i = 0; i < 360; i += 90) { const a = (i - 90) / 180 * Math.PI; txt(k, String(i).padStart(3, '0'), cx + Math.cos(a) * (R + 14), cy + Math.sin(a) * (R + 14), `500 7px ${MONO}`, 'rgba(120,240,160,.7)', 'center', 'middle'); }
+  grain(k, 0.06);
+};

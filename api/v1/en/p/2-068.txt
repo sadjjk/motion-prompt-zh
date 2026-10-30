@@ -1,0 +1,16 @@
+Please use "Lightning strike" (ライトニングストライク), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-068
+
+What it is: Text slams down with a flash of lightning
+What the sample shows: The screen flashes white twice as a bolt cuts through, the word slams down from large, jolts, and stays with a yellow glow.
+Spec:
+- From 0.84 to 1.0 s the text appears while shrinking from 2.4x to 0.9x (cubic ease-in).
+- Over 1.0–1.12 s it rebounds to 1.06x while shifting (−4, 3) px, at 1.24 s it is 1x at (3, −2) px, and it settles at 1.36 s.
+- Two flashes: 0.86–1.04 s (peak 0.85) and 1.04–1.24 s (peak 0.55); a 6-point zigzag bolt flickers and fades by 1.3 s.
+- From 1.24 to 1.6 s a yellow outer glow (3 strokes, 30/18/9 px wide) fades in and stays; an elliptical impact ring spreads for 0.5 s on landing.
+- Over 4.0–4.6 s the text fades, back to the empty dark start.
+When to use it: Use it for show titles, match openers or the headline of a big announcement.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-068.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,16 @@
+Please use "Accordion" (アコーディオン), one of the names in "UI component names".
+Motion Prompt #1-004
+
+What it is: Click a heading to show or hide its content
+What the sample shows: Clicking the first of three headings opens its content and pushes the rows below down; clicking again closes it.
+Spec:
+- 4.5 s cycle on a 542×191 card. Three headings (494 wide, 34 tall, radius 8, gap 6) with a down chevron at the right.
+- The cursor reaches the first heading at 0.95 s and clicks at 1.0 s and 3.3 s.
+- Open amount ex: 0→1 over 1.0–1.35 s with easeInOutCubic, then 1→0 over 3.3–3.62 s.
+- The first row grows from 34 to 92 tall (+58·ex) and pushes the rows below down; its two content lines are clipped to the row and fade in with opacity ex.
+- While open, the chevron rotates 180°·ex, the border turns light blue and the heading blue.
+When to use it: Use it for FAQs or long details where people scan the headings and open only what they need.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-004.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

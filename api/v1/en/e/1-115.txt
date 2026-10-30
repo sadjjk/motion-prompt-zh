@@ -1,0 +1,52 @@
+// Motion Prompt #1-115 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Liquid radio / リキッドラジオボタン
+// Pack: ui (UI component names) · element 37 · Category: Choosing & switching
+// What happens: The cursor picks 4 stacked options in turn; the selection dot flows to each new ring stretched like a droplet and rounds off, and the card on the right updates.
+// Motion spec:
+//   - 4 stacked options (38 apart; ring radius 10, dot radius 5.5).
+//   - The cursor clicks options 2, 3, 4 and 1 at 0.8, 1.7, 2.6 and 3.5 s.
+//   - The dot travels to the new centre in 0.45 s: the head arrives first with easeOut power 3 and the tail follows with easeInOut power 3, joined into a tapering droplet whose tail shrinks to 0.6× radius before it becomes round again.
+//   - A summary card on the right shows the current choice.
+// When to use it: Use it in settings, surveys or checkout options where choosing should feel soft and fluid.
+// Tags: radio, liquid, gooey, form, selection, droplet
+// Size: 542x191 px · Cycle: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-115
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 37
+// 改写自 KittenJam Motion Library #250 水滴单选：竖排 4 个选项（行距 38，外圈半径 10、选中点半径 5.5）。
+// 光标在 0.8 / 1.7 / 2.6 / 3.5 秒依次点第 2 / 3 / 4 / 1 项；选中点 0.45 秒内从旧圆心移到新圆心：
+// 头部按 easeOut 3 次方先到、尾部按 easeInOut 3 次方后到，中间连成渐细的水滴形，尾端半径缩到 0.6 倍，到位后收回正圆。
+const DROP_Y = i => 34 + i * 38, DROP_X = 64, DROP_LAB = ['按月提醒', '按周提醒', '每天提醒', '不提醒'];
+const DROP_CLICKS = [[0.8, 0, 1], [1.7, 1, 2], [2.6, 2, 3], [3.5, 3, 0]];
+CELLS[36] = ui((w, h, t) => {
+  let cur = 0, from = -1, q = 0;
+  for (const [tc, a, b] of DROP_CLICKS) if (t >= tc) { if (t < tc + .45) { from = a; cur = b; q = (t - tc) / .45; } else cur = b; }
+  text('提醒频率', 40, 12, 12, C.hint, 600);
+  for (let i = 0; i < 4; i++) {
+    const on = from < 0 ? i === cur : (q > .5 ? i === cur : i === from);
+    ring(DROP_X, DROP_Y(i), 10, on ? C.blue : C.line2, 2);
+    text(DROP_LAB[i], DROP_X + 24, DROP_Y(i), 15, on ? C.ink : C.en, on ? 700 : 500);
+  }
+  // 选中点：静止时正圆，移动时为头圆 + 尾圆 + 两条切线围成的水滴
+  X.fillStyle = C.blue;
+  if (from < 0) circle(DROP_X, DROP_Y(cur), 5.5, C.blue);
+  else {
+    const ya = DROP_Y(from), yb = DROP_Y(cur);
+    const hy = lerp(ya, yb, eo(q)), ty0 = lerp(ya, yb, eio(q));
+    const stretch = Math.min(1, Math.abs(hy - ty0) / 20), rh = 5.5, rt = 5.5 * (1 - .4 * stretch);
+    X.beginPath(); X.moveTo(DROP_X - rh, hy); X.lineTo(DROP_X - rt, ty0); X.lineTo(DROP_X + rt, ty0); X.lineTo(DROP_X + rh, hy); X.closePath(); X.fill();
+    circle(DROP_X, hy, rh, C.blue); circle(DROP_X, ty0, rt, C.blue);
+  }
+  // 右侧摘要卡跟随当前选项
+  shadowed(() => fillRR(300, 48, 210, 96, 12, '#fff'), 14, 4, .1);
+  text('当前设置', 320, 72, 12, C.hint, 600);
+  text(DROP_LAB[cur], 320, 102, 20, C.ink, 800);
+  bar(320, 124, 120, C.line, 7);
+  const cx = DROP_X + 50;
+  pointer([[0, w + 30, h + 30], [.7, cx, DROP_Y(1) + 2], [1.6, cx, DROP_Y(2) + 2], [2.5, cx, DROP_Y(3) + 2], [3.4, cx, DROP_Y(0) + 2], [3.75, cx, DROP_Y(0) + 2], [4.45, w + 30, h + 30]], DROP_CLICKS.map(c => c[0]), t);
+});

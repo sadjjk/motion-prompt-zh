@@ -1,0 +1,15 @@
+Please use "Tracking expand" (トラッキング展開), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-092
+
+What it is: Overlapping letters spread to normal spacing as they appear
+What the sample shows: On a cream ground the blurred, overlapping 展开视野 spreads out from the centre and sharpens while the rule below stretches with it, then blurs away again.
+Spec:
+- Letter spacing goes from −0.55 em (overlapping) to 0.06 em.
+- It opens over 0.3–1.4 s with a cubic ease-out, blur 6 px → 0, fading in over 0.3–1.0 s.
+- A 3 px coral rule below stretches to the line's width.
+- Over 3.8–4.4 s it blurs up to 4 px and fades out.
+When to use it: Use it for refined headings, brand taglines or chapter titles.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-092.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

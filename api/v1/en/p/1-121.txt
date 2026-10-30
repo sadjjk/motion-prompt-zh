@@ -1,0 +1,15 @@
+Please use "Pull to refresh" (プルトゥリフレッシュ), one of the names in "UI component names".
+Motion Prompt #1-121
+
+What it is: Pull the list down and let go to reload it
+What the sample shows: In a phone screen a finger drags the list down; it follows with resistance as the arrow at the top turns, then on release the icon spins, the list springs back and a new message slides in at the top.
+Spec:
+- A message list (rows 30 high) inside a 150×179 phone frame; the finger presses at 0.8 s and drags down 120px over 0.8–1.8 s.
+- With resistance the list moves only 90·(1−e^(−drag/90)), about 66px; the round arrow at the top turns up to 270° with the distance.
+- Released at 1.8 s, the list settles at 44px over 0.25 s and the icon spins (1 turn per 0.8 s).
+- Over 2.9–3.2 s the list eases back to 0 and over 3.0–3.4 s a blue "New message" row is inserted at the top; over 4.0–4.4 s that row folds away to reset.
+When to use it: Use it in mobile feeds such as messages, news or social timelines that fetch the latest items.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-121.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

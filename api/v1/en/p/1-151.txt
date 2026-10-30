@@ -1,0 +1,15 @@
+Please use "Icon micro-animations" (アイコンマイクロアニメーション), one of the names in "Landing page & web effects".
+Motion Prompt #1-151
+
+What it is: Hovered icons each make a small move that fits their meaning
+What the sample shows: As the cursor passes along 4 icons, each tile lights up: the bell swings, the heart fills and pops, the gear turns and the envelope flap opens.
+Spec:
+- A row of 4 icon tiles (64×64, centres 90 apart); the cursor rests 0.7 s on each, the tile background lights up over 0.2 s (easeOut) and the icon turns accent orange.
+- Bell: swings ±18° from its top, one back-and-forth every 0.3 s, fading linearly to 0 within 0.7 s.
+- Heart: fills in and pops to 1.25 and back to 1 within 0.35 s. Gear: turns 90° over 0.5 s with back-out (overshoot 1.7).
+- Envelope: the flap opens over 0.35 s (easeOut) and the letter rises 10px; each icon resets after the cursor leaves, and the cursor is back at its start by 4.25 s.
+When to use it: Use it on toolbars, navigation or settings screens where icon buttons should feel responsive.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-151.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

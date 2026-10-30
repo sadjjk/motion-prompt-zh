@@ -1,0 +1,15 @@
+Please use "Shrinking sticky card stack" (カードの積み重ね固定), one of the names in "Interaction & data motion".
+Motion Prompt #1-069
+
+What it is: Cards that stick to the top one after another and stack as you scroll
+What the sample shows: Gradient cards scroll up and pin near the top; each time the next card slides over, the ones beneath shrink and darken into steps.
+Spec:
+- 4 gradient cards, 150 px tall with 16 px gaps; each pins at 14 + index × 8 px from the top.
+- When the next card overlaps, the one beneath shrinks (−6% per layer) and darkens (18% black per layer) in proportion to the overlap.
+- Cards have a 22 px corner radius and end up as a stepped stack at the last card.
+- Demo scrolls to the bottom over 0.4→4.6 s and back to the top over 5.4→6.3 s.
+When to use it: Use it for 'How it works' or feature-highlight sections on product pages that explain steps one card at a time.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-069.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

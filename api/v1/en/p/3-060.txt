@@ -1,0 +1,16 @@
+Please use "Leading lines" (リーディングライン), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-060
+
+What it is: Roads, rails and other lines carry the eye to the subject
+What the sample shows: The two edges of a road converge from the bottom of the frame to a point in the distance; the person moves from off the road onto that point, and dashed lines flow along the edges towards him.
+Spec:
+- Vanishing point at (380, 112); the road edges run from (150, 208) and (599, 208) to it.
+- Subject: moves from x 120 off the road to the vanishing point at x 380, 40 px tall.
+- Guide dashes are 8/6 px and flow towards the subject at 28 px per second, exactly 10 repeats per pass; labelled "引导线".
+- Guides: amber #F5A524 dashed lines, 1.6 px wide, fading in with the effect amount.
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+When to use it: To make the viewer find the subject at once, or to stress depth and direction.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-060.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

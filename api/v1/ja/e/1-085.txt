@@ -1,0 +1,63 @@
+// Motion Prompt #1-085 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// カーソルのレンズで現れる文 / Cursor lens reveal
+// パック: uxmotion (インタラクションとデータの動き) · element 25 · カテゴリ: カーソル連動
+// 何が起きるか: 明るい背景の大きな2行の文の上を丸いレンズがばねのように追いかけ、中に暗い背景の別の文が見え、クリックで全体に広がってまた縮む。
+// 動きの仕様:
+//   - 58px の太字 2 行、背景 #F5F1E8。半径 54px の丸いレンズの中に #1D1A16 背景の別の文（#FFD43B / #FF8787 で強調）
+//   - レンズはばね（剛性 260・減衰 24）でポインターを追い、速く動かすと速度方向へ最大 35% 伸びる
+//   - デモでは 2.8 秒のクリックでレンズが毎秒 5 の速さでカード全体へ広がり、4.1 秒の再クリックで半径 54px に戻る（毎秒 12）
+//   - ポインターが画面外に出るとレンズは 0 に縮む。縁に 1.5px の黄色い線
+// 使いどころ: ブランドサイトやキャンペーンページの見出しで、隠れたメッセージを探す楽しさを足したいとき。
+// タグ: cursor, lens, reveal, mask, spring, headline, hero
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-085
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 25
+// 25 光标透镜揭示：#F5F1E8 底上两行 58px 粗体句子；指针 0.3 秒进入，圆形窗（半径 54，原作 66 按卡片缩放）以弹簧
+// （刚度 260、阻尼 24）跟随，窗内露出反色 #1D1A16 底的另一句（#FFD43B / #FF8787），快速移动时窗沿速度方向最多拉伸 35%；
+// 2.8 秒点击：窗以 5/秒扩满全卡揭示整句；4.1 秒再点：缩回 54（12/秒）；5.0 秒移出画面窗收为 0。弹簧逐帧积分预先算成 240Hz 表。
+const CLR_KEYS = [[0.3, -20, 150], [0.7, 70, 120], [1.4, 210, 70], [2.0, 330, 140], [2.6, 420, 96], [3.4, 430, 100], [3.9, 300, 120], [4.4, 260, 110], [5.0, 560, 150]];
+const CLR_CLICK = [2.8, 4.1], CLR_R = 54, CLR_FULL = 620;
+const CLR_SIM = (() => {
+  const dt = 1 / 240, n = Math.round(CYC / dt) + 1, S = new Float32Array(n * 5);
+  let sx = 270, sy = 104, vx = 0, vy = 0, r = 0, rT = 0, full = false, pos = [270, 104], wasIn = false, prev = null;
+  for (let i = 0; i < n; i++) {
+    const t = i * dt, p = UXB_path(t, CLR_KEYS), inside = p[0] >= 0 && p[0] <= CW && p[1] >= 0 && p[1] <= CH;
+    const moved = !prev || p[0] !== prev[0] || p[1] !== prev[1];
+    if (inside && moved) { if (!rT && !full) { sx = p[0]; sy = p[1]; } pos = p; if (!full) rT = CLR_R; }
+    if (!inside && wasIn && !full) rT = 0;
+    for (const c of CLR_CLICK) if (i === Math.round(c * 240)) { full = !full; rT = full ? CLR_FULL : CLR_R; }
+    vx += ((pos[0] - sx) * 260 - vx * 24) * dt; vy += ((pos[1] - sy) * 260 - vy * 24) * dt; sx += vx * dt; sy += vy * dt;
+    r += (rT - r) * Math.min(1, dt * (full ? 5 : 12));
+    S.set([sx, sy, vx, vy, r], i * 5); wasIn = inside; prev = p;
+  }
+  return S;
+})();
+function CLR_text(g, bg, c1, c2) {
+  g.fillStyle = bg; g.fillRect(0, 0, CW, CH);
+  const f = UXB_f(900, 58);
+  const put = (parts, y) => { let x = 60; g.font = f; for (const [s, c] of parts) { txt(g, s, x, y, f, c); x += g.measureText(s).width; } };
+  return put;
+}
+CELLS[24] = (k, w, h, u) => {
+  k.drawImage(layer('CLR_A', g => { const put = CLR_text(g, '#F5F1E8'); put([['再普通的按钮', '#1D1A16']], 93); put([['也藏着一个故事', '#1D1A16']], 155); }), 0, 0);
+  const i = Math.min(Math.round(u * 240), CLR_SIM.length / 5 - 1) * 5;
+  const sx = CLR_SIM[i], sy = CLR_SIM[i + 1], vx = CLR_SIM[i + 2], vy = CLR_SIM[i + 3], r = CLR_SIM[i + 4];
+  if (r > 0.5) {
+    const spd = Math.min(1, Math.hypot(vx, vy) / 1600), ang = Math.atan2(vy, vx);
+    const rx = r * (1 + spd * 0.35 * Math.abs(Math.cos(ang))), ry = r * (1 + spd * 0.35 * Math.abs(Math.sin(ang)));
+    k.save(); k.beginPath(); k.ellipse(sx, sy, rx, ry, 0, 0, TAU); k.clip();
+    k.drawImage(layer('CLR_B', g => { const put = CLR_text(g, '#1D1A16'); put([['微小的', '#FFD43B'], ['动效', '#FF8787']], 93); put([['也能', '#FFD43B'], ['打动人心', '#FF8787']], 155); }), 0, 0);
+    k.restore();
+    const ra = clamp((r - 4) / 6) * (1 - clamp((r - CLR_R - 6) / 20));
+    if (ra > 0) { k.strokeStyle = `rgba(255,212,59,${0.9 * ra})`; k.lineWidth = 1.5; k.beginPath(); k.ellipse(sx, sy, rx, ry, 0, 0, TAU); k.stroke(); }
+  }
+  const c = UXB_path(u, CLR_KEYS);
+  for (const t of CLR_CLICK) ripple(k, c[0], c[1], seg(u, t, t + 0.5), '255,212,59');
+  if (u > 0.3 && u < 5.0) cursor(k, c[0], c[1], Math.max(UXB_press(u, CLR_CLICK[0]), UXB_press(u, CLR_CLICK[1])));
+};

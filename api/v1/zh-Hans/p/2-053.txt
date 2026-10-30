@@ -1,0 +1,17 @@
+请使用“逐帧手绘 / 线条沸腾（Cel animation / line boil）”，属于“MG 风格”。
+Motion Prompt #2-053
+
+效果解释：低帧率逐帧、线条每帧微微抖动的手绘赛璐璐质感风格
+动画表现：火柴头上的火苗精灵挤压弹跳，烟团升起、星形火花爆开，黄色手写 HAND MADE 字样持续沸腾抖动。
+实现规格与关键运动参数：
+- 纸色 #f4e9d0，墨 #1c1613、红 #e5402b、黄 #ffc425；整格按 12fps 取整，线稿每帧轮换 4 张微差版本。
+- 变宽笔刷，两头收锋到 45%；填色与线错位 2 px。
+- 火苗精灵每 0.8 秒挤压 14% 弹跳一次，7 颗星形火花每 1.6 秒一轮，3 团烟 3.2 秒升起。
+- HAND MADE 字高 40 px，12 px 黑描边上叠 6 px 黄字身，带 4 px 块状投影。
+适用场景：适合想要手作感的品牌片、儿童内容、手作或食品广告，以及温暖风格的社媒短片。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-053
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-053.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Vincentwei1021 的 MIT 版权标识。

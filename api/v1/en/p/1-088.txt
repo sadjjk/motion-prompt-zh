@@ -1,0 +1,15 @@
+Please use "Install progress on icon" (アイコン上のインストール進捗), one of the names in "Interaction & data motion".
+Motion Prompt #1-088
+
+What it is: Install progress shown as a dark overlay sweeping clockwise off an app icon
+What the sample shows: A dark wedge over a gradient app icon sweeps away clockwise, pauses and resumes on taps, and on completion the icon bounces and an Open button pops in.
+Spec:
+- A 120 px gradient icon #FFB547→#FF6B8B→#7B61FF with 29 px corner radius; a dark overlay at 0.55 opacity sweeps away clockwise with progress.
+- Progress speed is 2 × (0.16 + 0.04·sin 2.5t); the percentage and MB count out of 186 MB rise in sync on the right.
+- In the demo a tap at 1.8 s pauses (the centre switches to a play triangle in 0.2 s) and a tap at 2.7 s resumes.
+- On completion the overlay fades in 0.5 s and the centre ring shrinks to 0.4× in 0.45 s; the icon bounces over 0.7 s (down to 0.9×, up to 1.08× and 4 px higher) and an Open button springs in over 0.5 s.
+When to use it: Use it in app-store style screens, launchers, and software download or update indicators.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-088.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

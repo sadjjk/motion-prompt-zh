@@ -1,0 +1,31 @@
+// Motion Prompt #3-055 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/extreme-close-up
+//
+// 大クローズアップ / Extreme close-up
+// パック: camera (カメラワークと切り替え) · element 31 · カテゴリ: ショットサイズ
+// 何が起きるか: 画面は目の帯だけ。目線が左右に1回流れ、途中で素早く1回まばたきする。
+// 動きの仕様:
+//   - 画框: 1.58mから1.72m、高さ0.14mの目の帯だけ。カメラは2.0m先
+//   - 目線: 1周で正弦カーブに沿って左右に1回、振れ幅0.05m。最初と最後は正面
+//   - まばたき: 2.4〜2.5秒で閉じ、2.6〜2.75秒で開く
+//   - 背景は強くぼかす。右上に「大特写 ECU」、比例尺は目の細い帯だけ
+//   - カメラは最後まで動かない。1周4.7秒で、最初と最後の画面は同じ
+// 使いどころ: 緊張感を高める、重要な細部を強調する、心の動きを見せるとき。
+// タグ: extreme close-up, ecu, xcu, eyes, detail, shot size, tension
+// サイズ: 539x208 px · 1周: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-055
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 31
+// 31 大特写：只框住眼带。视线左右扫一眼 + 一次干净利落的眨眼（wave 首尾回 0，循环无缝）
+CELLS[30] = shot(frameCell({ lo: 1.58, hi: 1.72, name: '大特写', abbr: 'ECU', draw: (k, w, h, u) => {
+  const gaze = 0.05 * wave(u, 1);                         // 一次左右扫视
+  const blink = P(u, 2.4, 2.5) * (1 - P(u, 2.6, 2.75));   // 干净利落的眨眼
+  world(k, w, h, fit(1.58, 1.72, 2.0), {
+    person: { z: 8, fg: true },
+    extra: [[0, 0, 7.99, (kk, s) => face(kk, s, { gaze, blink }), true]],
+    blurBg: 2.4
+  });
+} }));

@@ -1,0 +1,17 @@
+Please use "Staged image generation" (画像の段階的生成), one of the names in "Interaction & data motion".
+Motion Prompt #1-192
+
+What it is: Inside a fixed frame an image goes from blurred colour blobs through mosaic levels to a sharp picture
+What the sample shows: A prompt bubble sits on the left and an empty image frame on the right. Soft colour blobs drift inside the frame and settle into the composition, turn into a coarse coloured mosaic, then the squares get finer until a sunset lighthouse scene comes into focus. On completion the card gives a small bounce, a download button pops in and the lighthouse beam swings once, before it all fades back to the empty frame.
+Spec:
+- The image area stays 228 × 136 px; from 0.3–0.65 s the empty frame fades into soft colour blobs, which settle into the composition from 0.9–1.75 s.
+- Mosaics of 6, 12, 24, 48 and 96 columns take over at 1.75, 2.25, 2.7, 3.08 and 3.42 s, each cross-fading in 0.09 s (the first in 0.28 s).
+- From 3.76–3.98 s the finest mosaic gives way to the sharp image.
+- The progress bar below the card covers Compose 0–24%, Colour 24–52%, Refine 52–97% and Done 97–100%, fast then slow within each stage.
+- At 3.9 s the card bounces by up to 3.5%, at 4.12 s a download button springs in, and from 4.2–5.5 s the lighthouse beam swings out and back.
+- From 5.62–6.08 s everything fades back to the empty frame.
+When to use it: Use it for AI image generation, photo editing and upscaling, where image processing takes a few seconds and the wait needs to show progress.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-192.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

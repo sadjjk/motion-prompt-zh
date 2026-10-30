@@ -1,0 +1,14 @@
+Please use "Saturate on hover" (ホバーで彩度を戻す), one of the names in "Landing page & web effects".
+Motion Prompt #1-161
+
+What it is: A muted image regains full colour and zooms slightly on hover
+What the sample shows: Of 4 muted, dim pictures, the 1st and then the 3rd come back to vivid colour and zoom slightly as the cursor rests on them, with a name tag rising from the bottom.
+Spec:
+- A row of 4 geometric pictures (104×118, 16 apart) that rest muted and dim: 90% desaturated and darkened by 20%.
+- The hovered picture regains full colour and brightness over 0.6 s (easeOut power 3) and its image scales to 1.05 inside the frame.
+- A name tag at the bottom rises 10px and fades in; the cursor rests on pictures 1 and 3 in turn, and each returns to muted after it leaves.
+When to use it: Use it for team pages, portfolio grids or client logos where a row of images should stay calm until one is pointed at.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-161.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

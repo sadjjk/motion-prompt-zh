@@ -1,0 +1,17 @@
+请使用“倒数砸落（Countdown slam）”，属于“动态图形进阶”。
+Motion Prompt #2-096
+
+效果解释：倒数数字逐个从大处砸下
+动画表现：「3」「2」「1」依次从巨大砸下，每次落地画面震动并扩出冲击环，最后「GO!」为珊瑚色并迸出放射线。
+实现规格与关键运动参数：
+- 0.3 秒起每 0.75 秒出现「3・2・1・GO!」
+- 每个 0.7 秒：从 3 倍在 35% 处落到 0.9 倍，55% 时 1.05 倍，最后停在 1 倍
+- 落地时画面震动 5 px，冲击环半径从 60 px 扩到 200 px
+- GO! 为珊瑚色带 12 道放射线，3.9–4.4 秒淡出
+适用场景：适合开始前的倒数、直播开场或游戏回合开始。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-096
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-096.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Hannah 的 MIT 版权标识。

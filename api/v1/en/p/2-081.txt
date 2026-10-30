@@ -1,0 +1,15 @@
+Please use "Map route animation" (ルートアニメーション), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-081
+
+What it is: Pins drop on a map and a route draws between them
+What the sample shows: On a faint map with grid lines, three pins drop and bounce in turn; a blue line draws along the dashed planned route, a glowing dot travels with it, and the end pin pops.
+Spec:
+- A faint landmass with a 54 px grid; the route (2 cubic Béziers) is shown dashed from the start.
+- 3 pins drop from 30 px above with a bounce over 0.6 s, starting at 0.3 s and 0.18 s apart.
+- Over 1.3–3.5 s a blue line (3.5 px, 9 px glow) draws with a sine ease-in-out, a dot with a halo riding its tip.
+- Over 3.5–3.85 s the end pin pops to 1.25x; pins and line fade over 4.1–4.55 s.
+When to use it: Use it for travel stories, delivery and logistics explainers, or directions to a store.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-081.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

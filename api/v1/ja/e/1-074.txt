@@ -1,0 +1,74 @@
+// Motion Prompt #1-074 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// ドラム式時刻ピッカー / Drum time picker
+// パック: uxmotion (インタラクションとデータの動き) · element 14 · カテゴリ: スクロール連動
+// 何が起きるか: ドラムを上へドラッグすると数字が回って中央線に止まり、離れた値は奥へ倒れて薄れ、上の時刻と鳴るまでの時間が書き換わる。
+// 動きの仕様:
+//   - 午前/午後・時・分の 3 ドラム、目盛り間隔 34px。中央の高さ 36px の淡いバー上の値が選択値
+//   - 中央線から d 目盛り離れた値は奥へ傾き（rotateX d × 22°、最大 80°）、不透明度 1 − |d| × 0.28、最低 .15
+//   - 回転のイージング cubic-bezier(.2,.8,.2,1)。止まって 120ms 後に見出しと「あと X 時間 Y 分で鳴る」が更新
+//   - デモでは 0.5–1.5 秒に時を 6 から 9、2.0–3.0 秒に分を 30 から 45、3.5–4.1 秒に午後へ回し、5.4–6.3 秒に戻す
+// 使いどころ: アラーム、予約、スケジュール系アプリで時刻や日付を選ばせるとき。
+// タグ: time-picker, drum-picker, wheel, scroll, mobile, alarm, 3d
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-074
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 14
+// 14 滚筒时间选择器：上午/下午、小时、分钟三个滚筒，中线（高 36 的浅色条）上的值即选中值；离中线的值按距离 d 绕滚筒背面倾斜（rotateX d×22°，限 80°）并变淡（1 − |d|×0.28，最低 .15）。
+// 指针 0.5–1.5 秒把小时从 6 拨到 9，2.0–3.0 秒把分钟从 30 拨到 45，3.5–4.1 秒把上午拨到下午；停下 120ms 后标题与「还有 X 小时 Y 分响铃」更新（现在 22:40）；5.4–6.3 秒全部拨回
+const DRUM_DATA = [['上午', '下午'], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(String), Array.from({ length: 12 }, (_, m) => String(m * 5).padStart(2, '0'))];
+const DRUM_EV = [[1, 5, 8, 0.5, 1.5], [2, 6, 9, 2.0, 3.0], [0, 0, 1, 3.5, 4.1]];   // [列, 起始下标, 目标下标, 开始, 结束]
+const DRUM_IH = 34, DRUM_CX = [318, 398, 478], DRUM_CY = 112, DRUM_COLW = 72;
+const DRUM_idx = (ci, u) => {
+  const e = DRUM_EV.find(x => x[0] === ci);
+  if (u >= SHOW) return mix(e[2], e[1], inOut3(seg(u, SHOW, SHOW + 0.9)));
+  return mix(e[1], e[2], UXA_bz(.2, .8, .2, 1)(seg(u, e[3], e[4])));
+};
+CELLS[13] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 10, 10, CW - 20, CH - 20, 22);
+  // 选中值：每列停下 120ms 后才更新文字
+  const sel = [0, 1, 2].map(ci => Math.round(DRUM_idx(ci, Math.max(0, u - 0.12))));
+  const hour = +DRUM_DATA[1][sel[1]], mm = DRUM_DATA[2][sel[2]];
+  txt(k, `闹钟 ${DRUM_DATA[0][sel[0]]} ${hour}:${mm}`, 30, 52, `850 22px ${SANS}`, UX.ink);
+  const target = (hour % 12 + (sel[0] ? 12 : 0)) * 60 + (+mm), diff = (target - (22 * 60 + 40) + 1440) % 1440;
+  txt(k, `还有 ${Math.floor(diff / 60)} 小时 ${diff % 60} 分响铃 · 工作日重复`, 30, 76, `700 12.5px ${SANS}`, UX.ink3);
+  // 小星期标记
+  ['一', '二', '三', '四', '五', '六', '日'].forEach((d, i) => {
+    const on = i < 5; k.fillStyle = on ? UX.accentSoft : UX.surface2; k.beginPath(); k.arc(42 + i * 26, 152, 10, 0, TAU); k.fill();
+    txt(k, d, 42 + i * 26, 152.5, `700 11px ${SANS}`, on ? UX.accent : UX.ink3, 'center', 'middle');
+  });
+  // 中线浅色条
+  k.fillStyle = UX.surface2; rr(k, 276, DRUM_CY - DRUM_IH / 2, 244, DRUM_IH, 12); k.fill();
+  k.strokeStyle = UX.line; k.lineWidth = 1; rr(k, 276.5, DRUM_CY - DRUM_IH / 2 + 0.5, 243, DRUM_IH - 1, 12); k.stroke();
+  // 三个滚筒：位置线性排列，按 rotateX 的 cos 压扁、按距离变淡，再乘上下 30% 的遮罩渐隐
+  k.save(); k.beginPath(); k.rect(270, 20, 260, 168); k.clip();
+  for (let ci = 0; ci < 3; ci++) {
+    const idx = DRUM_idx(ci, u), F = `750 ${ci ? 22 : 17}px ${SANS}`;
+    DRUM_DATA[ci].forEach((v, j) => {
+      const d = j - idx; if (Math.abs(d) > 3) return;
+      const y = DRUM_CY + d * DRUM_IH, a = clamp(d * 22, -80, 80) * Math.PI / 180;
+      const fade = clamp(Math.min(y - 20, 188 - y) / (168 * 0.3));
+      const op = Math.max(0.15, 1 - Math.abs(d) * 0.28) * fade;
+      if (op <= 0.01) return;
+      k.save(); k.translate(DRUM_CX[ci], y); k.scale(1 - Math.abs(d) * 0.012, Math.cos(a)); k.globalAlpha = op;
+      txt(k, v, 0, 1, F, UX.ink, 'center', 'middle'); k.restore();
+    });
+  }
+  k.restore();
+  // 指针：按住滚筒往上拖（拖动时跟随滚筒移动）
+  const pts = [];
+  pts.push([0, 590, 240], [0.1, 590, 240]);
+  DRUM_EV.forEach(([ci, a, b, t0, t1]) => {
+    const x = DRUM_CX[ci] + 6, dy = (b - a) * DRUM_IH;
+    pts.push([t0 - 0.35, x, DRUM_CY + 30], [t0, x, DRUM_CY + 30], [t1, x, DRUM_CY + 30 - Math.min(dy, 60)]);
+  });
+  pts.push([4.9, 590, 240], [6.4, 590, 240]);
+  const [px, py] = UXA_path(pts, u);
+  let press = 0; DRUM_EV.forEach(e => { press = Math.max(press, pingPong(u, e[3] - 0.1, e[3], e[4], e[4] + 0.12)); });
+  cursor(k, px, py, press);
+};

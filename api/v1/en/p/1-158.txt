@@ -1,0 +1,15 @@
+Please use "Expanding button" (エキスパンディングボタン), one of the names in "Landing page & web effects".
+Motion Prompt #1-158
+
+What it is: A round plus button widens on hover to reveal its label
+What the sample shows: When the cursor lands on a round plus button, it stretches to the right into a pill, the plus turns and the label 'New project' appears; it folds back into a circle when the cursor leaves.
+Spec:
+- A 52px round accent button showing only a plus sign; the cursor moves onto it in 0.6 s.
+- Over 0.5 s (easeInOut power 3) the button widens to the right into a 140px pill and the plus turns 90°.
+- The label fades in only after the expansion passes halfway (progress 0.5).
+- The cursor leaves at 3.4 s toward the lower left and the button folds back into a circle.
+When to use it: Use it for floating add buttons that stay compact and explain themselves on hover.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-158.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,16 @@
+Please use "Campfire light" (焚き火の光), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-078
+
+What it is: At night only a fire low in front lights the person, warm orange and flickering, with darkness just beyond it
+What the sample shows: Deep blue night; the orange light of a fire at the lower right lights the side of the person facing it, flickering with the flames; the light falls off fast and sparks drift upwards.
+Spec:
+- Scene 1: the head-and-shoulders figure at night with sky #16224A; the fire sits at (382, 188).
+- Flicker: fl = 0.95 + 0.06·sin(7T) + 0.04·sin(13T+1) + 0.03·sin(23T+2); light on the person runs from #FF9A3D to shadow over a radius of 170·fl from the fire.
+- Surrounding dark: beyond a radius of 330·fl it fades to #040610 at 0.72 opacity; the flame is 3 tongues 34/26/15 px tall (#E8501E, #FF9A2E, #FFE07A).
+- 16 sparks #FFB34D rise 150 px and fade, 1–2 times per pass; top right reads "1800K".
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+When to use it: For camping, outdoor nights and late talks that should feel warm and intimate.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-078.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,16 @@
+Please use "Keyboard shortcut press" (ショートカットキーの点灯), one of the names in "UI component names".
+Motion Prompt #1-111
+
+What it is: The keys of a shortcut press down and light up one by one
+What the sample shows: On a dark keyboard plate Ctrl, Shift and P press down and glow amber in turn; the caption builds up, the plate gives a small pulse and the text changes to "Queued".
+Spec:
+- A dark keyboard plate, 510×168, with 3 keys Ctrl / Shift / P (87 / 87 / 55 wide, 55 high, 8.7 apart, radius 8.7), pressed and held in turn at 1.10 / 1.45 / 1.85 s.
+- When pressed, the keycap turns from #292524 to amber #fbbf24 with a #f59e0b border and sinks 2.5px; the base shadow shrinks from a 5px black #0c0a09 to a 2.5px brown #92400e (instant switch).
+- Caption: "Press to publish" → at 1.45 s "Ctrl + Shift + P" → at 1.85 s all amber with "· Publish" added → at 2.6 s "Queued". Over 2.2–2.6 s the plate scales to 1.02 and back to 1 (0.2 s each way).
+- Over 3.2–3.95 s the plate rises 5px with sine.inOut. Reset over 3.95–4.35 s (easeInOutCubic): the 3 keys lift together and the caption crossfades back to "Press to publish".
+- Versus Tooltip: the shortcut is shown by keys actually pressing, and the caption completes as each key goes down, rather than a note attached beside a button.
+When to use it: Use it in feature tours, onboarding, shortcut cheat sheets and release notes for apps and developer tools.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-111.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

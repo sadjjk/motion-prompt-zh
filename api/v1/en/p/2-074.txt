@@ -1,0 +1,15 @@
+Please use "Ink bleed" (インクブリード), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-074
+
+What it is: Blurry ink gathers into crisp letters, then bleeds away
+What the sample shows: On rice-paper beige, four characters in turn tighten from soft ink blots into crisp shapes, hold, then spread and vanish.
+Spec:
+- 4 characters (68 px) starting at 0.3 s, 0.25 s apart; one character's cycle is 3.6 s.
+- 0–55%: blur from 16 px to 0 px and scale from 1.3x to 1x (smoothstep), appearing over the first 15%.
+- 55–80% holds sharp; 80–100% spreads to 16 px blur and 1.2x while fading.
+- The blurred ink is thresholded with contrast(16) so blots merge at the edges, then multiplied onto the paper.
+When to use it: Use it for titles with an East Asian ink, calligraphy, tea or sake feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-074.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

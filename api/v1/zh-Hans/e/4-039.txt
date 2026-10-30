@@ -1,0 +1,44 @@
+// Motion Prompt #4-039 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 封锁胶带 / Caution tape cross
+// 分类包: scenes (风格画面) · element 39 · 子分类: 文字氛围
+// 动画表现: 深色背景上，2 条黄底黑边的胶带交叉成 X，各自印着重复的「禁止进入」，文字朝相反方向持续滑动。
+// 运动规格:
+//   - 每条胶带长 840px、高 34px，黄色 #ffd400，上下各 4px 黑边 #111111，投影模糊 18px、下移 8px
+//   - 两条都以卡片中心为中心：下层胶带 y 112、倾斜 13°，上层胶带 y 96、倾斜 -15°
+//   - 胶带上是重复的 16px 粗体「禁止进入 · 」
+//   - 6.4 秒内上层胶带匀速左移 4 个文字单元，下层右移 3 个；滑动量是单元宽的整数倍，循环无缝
+// 适用场景: 适合施工中、即将上线、限制访问、剧透警告等提示，或街头风格的标题背景。
+// 标签: caution-tape, warning, marquee, crossed, street, banner
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-039
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 39
+// 改写自 KittenJam Motion Library #54 封锁胶带（Hannah 整理）：两条黄色警示胶带（高 34px、上下 4px 黑边、投影）分别倾斜 −15° 与 13° 交叉成 X，
+// 带上重复的「禁止进入 · 」反向滑动：上层每周期左移 4 个文字单元、下层右移 3 个；滑动距离是单元宽的整数倍，循环无缝。
+const TAPE_TXT = '禁止进入 · ', TAPE_H = 34, TAPE_B = 4, TAPE_L = 840;
+const TAPE_BANDS = [{ y: 112, deg: 13, dir: 1, n: 3 }, { y: 96, deg: -15, dir: -1, n: 4 }]; // 先画下层（13°），再画上层（−15°）
+CELLS[38] = (k, w, h, u) => {
+  k.drawImage(layer('TAPE_bg', g => {
+    g.fillStyle = '#18171d'; g.fillRect(0, 0, CW, CH);
+    const gr = g.createRadialGradient(269.5, 104, 40, 269.5, 104, 320);
+    gr.addColorStop(0, 'rgba(255,255,255,.05)'); gr.addColorStop(1, 'rgba(0,0,0,.35)'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+  k.font = `800 16px ${SANS}`;
+  const uw = k.measureText(TAPE_TXT).width;                                       // 文字单元宽，随系统字体而定
+  for (const b of TAPE_BANDS) {
+    k.save(); k.translate(269.5, b.y); k.rotate(b.deg * Math.PI / 180);
+    k.save(); k.shadowColor = 'rgba(0,0,0,.55)'; k.shadowBlur = 18; k.shadowOffsetY = 8;
+    k.fillStyle = '#ffd400'; k.fillRect(-TAPE_L / 2, -TAPE_H / 2, TAPE_L, TAPE_H); k.restore();
+    k.fillStyle = '#111111';
+    k.fillRect(-TAPE_L / 2, -TAPE_H / 2, TAPE_L, TAPE_B); k.fillRect(-TAPE_L / 2, TAPE_H / 2 - TAPE_B, TAPE_L, TAPE_B);
+    const off = (((b.dir * b.n * uw * u / CYC) % uw) + uw) % uw;
+    k.textAlign = 'left'; k.textBaseline = 'middle';
+    for (let x = -TAPE_L / 2 - uw + off; x < TAPE_L / 2; x += uw) k.fillText(TAPE_TXT, x, 1);
+    k.restore();
+  }
+};

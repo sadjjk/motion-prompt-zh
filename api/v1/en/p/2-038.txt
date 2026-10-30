@@ -1,0 +1,15 @@
+Please use "Repeater" (リピーター), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-038
+
+What it is: Duplicates a shape and turns the copies
+What the sample shows: One shape is duplicated around a circle, and the copies turn and pulse slightly out of step.
+Spec:
+- A rounded bar (24 × 60, radius 12) is copied up to 12 times around a circle of radius 58 at the centre, each turned to face outward (angle + 90°).
+- Count: 1→12 at 0.35–1.7 s and 12→1 at 3.6–4.45 s (quadratic ease-in-out). Each new copy slides from the previous slot to its own, 30° further on (cubic ease-out).
+- The whole ring turns once per 4.7 s. Each copy pulses in size by 1 ± 0.22 twice per 4.7 s, each one 0.55 rad later than the last, so a ripple runs round the ring.
+- Colours go blue, coral, yellow, mint. The original copy has a white outline. A "×N" counter at the top right.
+When to use it: Use it for loaders, background patterns, flowers or rays: anything built from one shape repeated.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-038.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

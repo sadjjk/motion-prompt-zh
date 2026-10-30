@@ -1,0 +1,17 @@
+请使用“扁平矢量动画（Flat vector motion）”，属于“MG 风格”。
+Motion Prompt #2-049
+
+效果解释：纯色平涂、无渐变，靠弹跳挤压的主角讲故事的扁平矢量动画
+动画表现：珊瑚圆点从群青天空落下连跳 5 下，每次落地弹出彩色扁平小楼，最后字标弹性入场。
+实现规格与关键运动参数：
+- 天空 #2B2BFF、地面 #FFF6E9，唯一主角是半径 16 px 的珊瑚圆点 #FF5A4E，0.2 秒从顶部落下。
+- 0.4–4.4 秒连跳 5 下（每跳 0.8 秒、高 72 px）：落地 0.16 秒挤压 18%，空中拉伸 10%，带 3 个残影。
+- 6 个落点身后各 2 栋楼，共 12 栋，在落地后 0 / 0.1 秒用 elasticOut 弹出，历时 0.6 秒。
+- 4.6–5.2 秒 popwise 字标（46 px）弹性放大入场；5.4–6.0 秒楼、字、圆点缩回。
+适用场景：适合 App 介绍、产品讲解视频和轻快的品牌片头，想要亲切简洁观感的短片。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-049
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/2-049.txt
+共享辅助代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Vincentwei1021 的 MIT 版权标识。

@@ -1,0 +1,52 @@
+// Motion Prompt #1-147 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Cookie 同意横幅 / Cookie banner
+// 分类包: ui (UI 组件) · element 49 · 子分类: 弹出与覆盖
+// 动画表现: 页面底部弹上 Cookie 卡片，饼干图标从倾斜弹正后晃 2 下；光标点“全部同意”，按钮压下，卡片向下滑出。
+// 运动规格:
+//   - 360×74 卡片在 0.3–0.9 秒以 back.out(1.4) 从画面底部外弹到 y 108 并淡入。
+//   - 左侧饼干图标 0.5–1.1 秒从 0.4 倍、倾斜 −0.6 弧度弹正放大；1.2–1.8 秒再晃 2 下（幅度 0.3 弧度递减）。
+//   - 光标 2.4 秒点“全部同意”，按钮 0.08 秒压到 0.92、0.15 秒回弹。
+//   - 卡片 2.55–2.95 秒以 easeIn 3 次方滑出底部并淡出。
+// 适用场景: 适合 Cookie、隐私授权等首次访问时只确认一次的提示。
+// 标签: cookie-banner, consent, privacy, gdpr, banner, notice
+// 尺寸: 542x191 px · 周期: 4.5 s
+// 依赖: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-147
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 49
+// 改写自 KittenJam Motion Library #317 Cookie 同意横幅：360×74 卡片 0.3–0.9 秒按 back.out(1.4) 从底部外弹到 y 108 并淡入；
+// 左侧饼干图标 0.5–1.1 秒从 0.4 倍、倾斜 −0.6 弧度弹正放大，1.2–1.8 秒再晃 2 下（幅度 0.3 弧度递减）。
+// 光标 2.4 秒点「全部同意」：按钮 0.08 秒压到 0.92、0.15 秒回弹；卡片 2.55–2.95 秒按 easeIn 3 次方滑出底部并淡出。
+const COOK_back = x => 1 + 2.4 * Math.pow(x - 1, 3) + 1.4 * Math.pow(x - 1, 2);
+CELLS[48] = ui((w, h, t) => {
+  pageLines(40, 20, 462);
+  for (let i = 0; i < 3; i++) fillRR(40 + i * 160, 80, 142, 70, 8, C.block);
+  const up = COOK_back(seg(t, .3, .9)), out = Math.pow(seg(t, 2.55, 2.95), 3);
+  const a = seg(t, .3, .6) * (1 - out);
+  if (a <= 0) return;
+  const cx = 91, cw = 360, ch = 74, y0 = 108;
+  const y = lerp(h + 10, y0, up) + (h + 10 - y0) * out;
+  X.save(); X.globalAlpha = a;
+  shadowed(() => fillRR(cx, y, cw, ch, 12, '#fff'), 18, 6, .16);
+  // 饼干图标：先弹正，再晃两下
+  const ip = seg(t, .5, 1.1), wg = seg(t, 1.2, 1.8);
+  const rot = -.6 * (1 - COOK_back(ip)) + .3 * Math.sin(wg * Math.PI * 4) * (1 - wg), sc = .4 + .6 * COOK_back(ip);
+  X.save(); X.translate(cx + 34, y + 37); X.rotate(rot); X.scale(sc, sc);
+  circle(0, 0, 16, '#d9a066'); circle(12, -10, 6, '#fff');
+  [[-6, -4], [5, 5], [-3, 8], [2, -7], [9, 1]].forEach(([dx, dy]) => circle(dx, dy, 2.4, '#7a4a21'));
+  X.restore();
+  text('本网站使用 Cookie', cx + 62, y + 26, 14, C.ink, 800);
+  bar(cx + 62, y + 42, 130, C.line, 7); bar(cx + 62, y + 54, 90, C.line, 7);
+  fillRR(cx + 222, y + 22, 56, 30, 8, '#fff'); strokeRR(cx + 222, y + 22, 56, 30, 8, C.line2, 1);
+  text('仅必要', cx + 250, y + 37, 12, C.ink, 600, 'center');
+  const bp = t >= 2.4 && t < 2.48 ? .92 : t >= 2.48 && t < 2.63 ? lerp(.92, 1, (t - 2.48) / .15) : 1;
+  X.save(); X.translate(cx + 317, y + 37); X.scale(bp, bp);
+  fillRR(-33, -15, 66, 30, 8, C.blue); text('全部同意', 0, 0, 12, '#fff', 700, 'center');
+  X.restore();
+  X.restore();
+  pointer([[0, w + 30, h + 30], [1.2, w + 30, h + 30], [2.2, 410, 147], [2.6, 410, 147], [3.4, w + 30, h + 30]], [2.4], t);
+});

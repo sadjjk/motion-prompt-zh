@@ -1,0 +1,15 @@
+Please use "Star rating" (星評価), one of the names in "Interaction & data motion".
+Motion Prompt #1-138
+
+What it is: A rating where the stars fill and bounce from left to right up to the chosen one
+What the sample shows: Hovering the 2nd star tints 2 stars and shows a label; clicking the 4th then fills stars 1 to 4 in gold from left to right with a bounce and a "very good" label floats up.
+Spec:
+- 5 stars (outer radius 17 px, inner radius 7.5 px, 48 px apart).
+- At 0.9 s the cursor hovers the 2nd star; 2 stars tint lightly over 0.15 s and a word appears below.
+- Clicking the 4th star at 2.2 s fills stars 1 to 4 at 0.08 s intervals, each bouncing to 1.35 and back within 0.3 s.
+- The cursor leaves from 2.3–3.0 s; it cross-fades back to the start from 5.4–6.0 s.
+When to use it: Use it for in-app review prompts, post-purchase surveys and support satisfaction ratings.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-138.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

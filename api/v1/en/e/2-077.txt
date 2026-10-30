@@ -1,0 +1,38 @@
+// Motion Prompt #2-077 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Text cylinder / テキストシリンダー
+// Pack: motion2 (Motion graphics moves, part 2) · element 38 · Category: Text & shapes
+// What happens: Three cylinders, each wrapped in ten copies of one character, spin about a horizontal axis in alternating directions; near copies are larger and brighter, far ones hidden.
+// Motion spec:
+//   - 3 cylinders sit 150 px apart; each wraps 10 copies of one character (50 px) at 36° steps on a 62 px radius.
+//   - One turn per 4.7 s, neighbours turning the opposite way; the middle cylinder is coral, the outer ones white.
+//   - Each copy is squashed vertically by its depth z, scaled by perspective 400 / (400 − 62z), at opacity 0.2 + 0.8z.
+//   - Copies on the back (z < 0.05) are not drawn.
+// When to use it: Use it for a 3D-looking logo, a looping title backdrop or a tech opener.
+// Tags: cylinder, 3d, rotate, spin, loop, text
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-077
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 38
+// 改写自 KittenJam Motion Library #57（Hannah）· 文字圆柱：三根圆柱各由同一字的 10 个副本（间隔 36°）环绕水平轴排成，每 4.7 秒转一圈，相邻两根方向相反，中间一根用珊瑚色；背面不画，近处更亮更大。
+CELLS[37] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '立体字', R = 62, CY = 104, th = Math.PI * 2 * u / CYC;
+  [...S].forEach((ch, c) => {
+    const cx = w / 2 + (c - 1) * 150, dir = c % 2 ? -1 : 1, col = c === 1 ? C.coral : '#fff';
+    const list = [];
+    for (let i = 0; i < 10; i++) { const a = i * 36 * Math.PI / 180 + dir * th; list.push([Math.cos(a), Math.sin(a)]); }
+    list.sort((A, B) => A[0] - B[0]).forEach(([z, s]) => {
+      if (z < 0.05) return;
+      const per = 400 / (400 - R * z);
+      k.save(); k.globalAlpha = 0.2 + 0.8 * z; k.translate(cx, CY - R * s * per); k.scale(per, z * per);
+      txt(k, ch, 0, 0, `900 50px ${JP}`, col, 'center', 'middle');
+      k.restore();
+    });
+  });
+};

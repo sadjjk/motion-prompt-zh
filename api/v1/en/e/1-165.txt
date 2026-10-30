@@ -1,0 +1,42 @@
+// Motion Prompt #1-165 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Light source shadow / 光源のロングシャドウ
+// Pack: uxmotion (Interaction & data motion) · element 52 · Category: Cursor interactions
+// What happens: On a dark background a small warm light circles a big headline. The long shadow behind the headline always points away from the light and swings round as it moves; when the light goes out the shadow folds back under the text.
+// Motion spec:
+//   - The shadow has 18 layers; layer i is offset by direction × i × 3.2 px.
+//   - Direction = (headline centre − light) divided by the canvas width and height.
+//   - Layer opacity falls linearly from 0.6 at the front toward the far end.
+//   - The light turns on from 0.6–1.0 s and goes out from 4.7–5.2 s, after which the shadow sits right under the text.
+// When to use it: Use it on hero headlines or portfolio landing pages that should react with depth when touched.
+// Tags: long-shadow, light, cursor, text-shadow, 3d-text, headline
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-165
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 52
+// 52 光源投影字（KittenJam #294）：光标是一盏暖光小灯，在大标题四周游走；标题背后 18 层投影沿「标题中心 − 光源」方向排开，
+// 每层偏移 = 方向（按画布宽高归一）× 层号 × 3.2px，越远越淡；光源 0.6–1.0 秒亮起、4.7–5.2 秒熄灭离开，投影收回字下。
+const LSH_CX = 269.5, LSH_CY = 100, LSH_N = 18, LSH_STEP = 3.2;
+const LSH_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, 120, 40], [1.7, 420, 36], [2.5, 440, 176], [3.3, 110, 170], [4.1, 269, 26], [4.7, 200, 56], [5.3, 570, 230]];
+CELLS[51] = (k, w, h, u) => {
+  k.fillStyle = '#14121C'; k.fillRect(0, 0, CW, CH);
+  const c = UXB_path(u, LSH_KEYS), hv = pingPong(u, 0.6, 1.0, 4.7, 5.2);
+  glow(k, c[0], c[1], 170, '255,214,150', 0.2 * hv);
+  const dx = (LSH_CX - c[0]) / CW * hv, dy = (LSH_CY - c[1]) / CH * hv;
+  k.font = UXB_f(900, 72); k.textAlign = 'center'; k.textBaseline = 'middle';
+  // 由远到近叠层，最后画正面字
+  for (let i = LSH_N; i >= 1; i--) {
+    k.fillStyle = `rgba(106,87,242,${(0.6 * (1 - (i - 1) / LSH_N)).toFixed(3)})`;
+    k.fillText('光与影', LSH_CX + dx * i * LSH_STEP, LSH_CY + dy * i * LSH_STEP);
+  }
+  k.fillStyle = '#F4F0E8'; k.fillText('光与影', LSH_CX, LSH_CY);
+  txt(k, '移动光源，影子随之转向', LSH_CX, 186, UXB_f(600, 10.5), UXD.ink3, 'center');
+  if (hv > 0) {
+    glow(k, c[0], c[1], 22, '255,230,180', 0.9 * hv);
+    k.globalAlpha = hv; k.fillStyle = '#FFF6E2'; k.beginPath(); k.arc(c[0], c[1], 4, 0, TAU); k.fill(); k.globalAlpha = 1;
+  }
+};

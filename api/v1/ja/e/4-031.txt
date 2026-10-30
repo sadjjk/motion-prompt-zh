@@ -1,0 +1,59 @@
+// Motion Prompt #4-031 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 回るレコード / Spinning vinyl
+// パック: scenes (スタイルシーン) · element 31 · カテゴリ: 器物・空間
+// 何が起きるか: 赤い地でレコードのラベルが一定の速さで回り、溝の反射光は光源の方向に留まり、銀のトーンアームは静止している。
+// 動きの仕様:
+//   - 赤のグラデーション地 #E6513A → #C23A26。レコードは半径 150px、中心 (215, 104)、大きく画面外へはみ出す
+//   - 溝は 1.1px ごとの細い同心円。2 本の対向する扇形ハイライトは光源方向に固定され回らない
+//   - ラベルは半径 49px、半分が生成りで半分が赤、6.4 秒に 4 回転（37.5 RPM）
+//   - 銀のトーンアームは溝に針を落とした状態で静止
+// 使いどころ: 音楽配信・レーベル・ポッドキャストの動画開場、アルバムやプレイリストのカバー、音楽イベントのファーストビューに。
+// タグ: vinyl, record, music, turntable, spin, retro, product-shot
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-031
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 31
+// 31 黑胶唱片：红底上一张放大裁切的黑胶，沟槽高光固定在光源方向，标签每周期转 4 整圈（37.5 RPM），唱臂已落在沟槽上静止
+const VIN_CX = 215, VIN_CY = 104, VIN_R = 150;
+CELLS[30] = (k, w, h, u) => {
+  k.fillStyle = '#E6513A'; k.fillRect(0, 0, CW, CH);
+  k.drawImage(layer('VIN_base', g => {
+    const bg = g.createLinearGradient(0, 0, 0, CH); bg.addColorStop(0, '#E6513A'); bg.addColorStop(1, '#C23A26'); g.fillStyle = bg; g.fillRect(0, 0, CW, CH);
+    g.save(); g.shadowColor = 'rgba(60,10,0,.45)'; g.shadowBlur = 20; g.shadowOffsetY = 10; g.fillStyle = '#0D0D0F'; g.beginPath(); g.arc(VIN_CX, VIN_CY, VIN_R, 0, TAU); g.fill(); g.restore();
+    g.lineWidth = 0.6;
+    for (let r = VIN_R - 4; r > 52; r -= 1.1) { g.strokeStyle = `rgba(255,255,255,${0.025 + 0.02 * Math.sin(r * 2.6)})`; g.beginPath(); g.arc(VIN_CX, VIN_CY, r, 0, TAU); g.stroke(); }
+    // 两道对置的锥形高光（固定在光源方向，不随唱片转）
+    if (g.createConicGradient) {
+      g.save(); g.globalCompositeOperation = 'lighter';
+      for (const off of [0, Math.PI]) {
+        const cg = g.createConicGradient(-0.75 + off - 0.25, VIN_CX, VIN_CY);
+        cg.addColorStop(0, 'rgba(255,255,255,0)'); cg.addColorStop(0.04, 'rgba(255,255,255,.22)'); cg.addColorStop(0.08, 'rgba(255,255,255,0)'); cg.addColorStop(1, 'rgba(255,255,255,0)');
+        g.fillStyle = cg; g.beginPath(); g.arc(VIN_CX, VIN_CY, VIN_R - 4, 0, TAU); g.arc(VIN_CX, VIN_CY, 52, 0, TAU, true); g.fill();
+      }
+      g.restore();
+    }
+  }), 0, 0);
+  k.save(); k.translate(VIN_CX, VIN_CY); k.rotate(TAU * 4 * u / CYC);          // 每周期 4 圈
+  k.fillStyle = '#F3E9D6'; k.beginPath(); k.arc(0, 0, 49, 0, TAU); k.fill();
+  k.fillStyle = '#E6513A'; k.beginPath(); k.arc(0, 0, 49, -Math.PI / 2, Math.PI / 2); k.fill();
+  txt(k, 'SIDE A', 0, -20, `900 10px ${DISP}`, '#141414', 'center', 'middle');
+  txt(k, '37.5 RPM', 0, 28, `500 7px ${MONO}`, '#141414', 'center', 'middle');
+  k.fillStyle = '#141414'; k.beginPath(); k.arc(0, 0, 3.2, 0, TAU); k.fill();
+  k.restore();
+  k.drawImage(layer('VIN_arm', g => { // 唱臂：支点 (420,24) → 肘 (402,128) → 唱头 (330,150)
+    g.save(); g.fillStyle = 'rgba(60,10,0,.25)'; g.beginPath(); g.arc(424, 30, 20, 0, TAU); g.fill();
+    g.strokeStyle = 'rgba(60,10,0,.3)'; g.lineWidth = 5; g.lineCap = 'round'; g.beginPath(); g.moveTo(424, 30); g.lineTo(406, 134); g.lineTo(334, 156); g.stroke();
+    g.strokeStyle = '#D9D9DC'; g.lineWidth = 4.5; g.beginPath(); g.moveTo(420, 24); g.lineTo(402, 128); g.lineTo(330, 150); g.stroke();
+    g.save(); g.translate(330, 150); g.rotate(-0.3); g.fillStyle = '#2A2A2E'; g.fillRect(-12, -6, 20, 12); g.restore();
+    g.fillStyle = '#E2E2E5'; g.beginPath(); g.arc(420, 24, 15, 0, TAU); g.fill();
+    g.fillStyle = '#B9B9BE'; g.beginPath(); g.arc(420, 24, 6, 0, TAU); g.fill();
+    g.fillStyle = '#2A2A2E'; g.fillRect(412, -6, 16, 14);
+    g.restore();
+  }), 0, 0);
+  grain(k, 0.05);
+};

@@ -1,0 +1,15 @@
+Please use "Spirograph" (スピログラフ), one of the names in "Styled scenes".
+Motion Prompt #4-018
+
+What it is: A spirograph where gears roll inside rings and draw floral curves in 3 inks
+What the sample shows: Translucent gears roll around 3 rings on cream paper in turn, their pen tips tracing red, blue and green rosettes that close and hold.
+Spec:
+- Cream background #F2EDE3. 3 fixed rings of radius 84 px; the gears roll inside them.
+- Gear radii 32 / 18 / 13 px, pen offsets 25 / 14 / 8 px, inked red #D2452F, blue #1F3B8A and green #2E7D63.
+- The 3 curves start 0.4 s apart and each takes 3.6 s to draw, closing after 8 / 3 / 13 laps.
+- A translucent gear and pen dot show while drawing; the closed curves hold, then fade out over 5.4–6.0 s (6.4 s cycle).
+When to use it: Openers for handmade, stationery or education brands, poster backgrounds, or section breaks in a presentation.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-018.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

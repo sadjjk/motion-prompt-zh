@@ -1,0 +1,43 @@
+// Motion Prompt #1-158 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 展开文字按钮 / Expanding button
+// 分类包: lp (落地页与网页动效) · element 43 · 子分类: 悬停与点击交互
+// 动画表现: 光标放到圆形「+」按钮上，按钮向右伸成胶囊，加号旋转，露出「新建项目」；光标移开后收回成圆形。
+// 运动规格:
+//   - 直径 52px 的朱色圆形按钮，只有「+」；光标 0.6 秒移上去。
+//   - 0.5 秒内（easeInOut 3 次方）按钮向右展开成 140px 宽的胶囊，加号旋转 90°。
+//   - 文字在展开过半（进度 0.5）之后才淡入。
+//   - 3.4 秒光标往左下移开，按钮收回成圆形。
+// 适用场景: 适合浮动新增按钮等平时小巧、悬停时再说明用途的按钮。
+// 标签: button, expand, fab, plus, hover, label
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-158
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 43
+// 改写自 KittenJam Motion Library #240 展开文字按钮：平时是直径 52 的朱色圆形「+」按钮。光标 0.6 秒移上去后 0.5 秒 easeInOut 3 次方：
+// 按钮向右展开成 140px 宽的胶囊，加号旋转 90°；文字「新建项目」在展开过半（进度 0.5 之后）才淡入。3.4 秒光标往左下移开后收回成圆形。
+const EXPB_D = 52, EXPB_W = 140;
+CELLS[42] = (k, w, h, u) => {
+  frame(k, 'example.com/projects');
+  const bx = (VW - EXPB_W) / 2, by = (VH - EXPB_D) / 2, ccx = bx + EXPB_D / 2, ccy = by + EXPB_D / 2;
+  const cur = t => path([[0, 110, 150], [0.6, ccx + 4, ccy + 4], [3.4, ccx + 4, ccy + 4], [4.0, 110, 150], [4.8, 110, 150]], t);
+  // 判定只看原来的圆，光标从左下离开，避免展开后的胶囊挡住离开路线
+  const on = t => { const [a, b] = cur(t); return Math.hypot(a - ccx, b - ccy) < EXPB_D / 2; };
+  const q = trans(on, u, 0.5, eIO), bw = lerp(EXPB_D, EXPB_W, q), ta = clamp((q - 0.5) / 0.5);
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    k.save(); k.shadowColor = 'rgba(255,90,44,.35)'; k.shadowBlur = 14; k.shadowOffsetY = 5; k.fillStyle = C.acc; rr(k, bx, by, bw, EXPB_D, EXPB_D / 2); k.fill(); k.restore();
+    if (ta > 0) {
+      k.save(); rr(k, bx, by, bw, EXPB_D, EXPB_D / 2); k.clip();
+      k.globalAlpha = ta; txt(k, '新建项目', bx + EXPB_D - 4, ccy + 1, `700 15px ${JP}`, '#fff', 'left', 'middle');
+      k.restore();
+    }
+    k.save(); k.translate(ccx, ccy); k.rotate(Math.PI / 2 * q); k.strokeStyle = '#fff'; k.lineWidth = 3; k.lineCap = 'round';
+    k.beginPath(); k.moveTo(-9, 0); k.lineTo(9, 0); k.moveTo(0, -9); k.lineTo(0, 9); k.stroke(); k.restore();
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
+  });
+};

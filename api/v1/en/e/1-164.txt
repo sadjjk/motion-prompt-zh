@@ -1,0 +1,61 @@
+// Motion Prompt #1-164 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Chat message pop / チャットメッセージの出現
+// Pack: uxmotion (Interaction & data motion) · element 51 · Category: Interactive type
+// What happens: The other person's bubble pops in on the left with 3 dots bouncing in turn; it widens into a text message, and an accent-coloured reply pops out on the right. Both then drift up and fade.
+// Motion spec:
+//   - The other bubble pops in at 0.3 s from its bottom-left corner over 0.35 s (backOut, overshoot factor 2).
+//   - Inside, 3 dots of radius 3 px bounce up to 4 px on a 0.9 s cycle, each 0.15 s behind the last.
+//   - At 2.05 s the bubble widens from 58 → 128 px, swaps to text and springs from 0.85 → 1 (0.3 s, factor 3).
+//   - At 3.05 s the accent reply pops in from its bottom-right corner over 0.4 s.
+//   - From 4.8 s both bubbles rise 10 px and fade over 0.4 s, 0.08 s apart.
+// When to use it: Use it for support chat, messaging apps and chatbot introductions.
+// Tags: chat, message, typing-indicator, bubble, conversation, messaging
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-164
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 51
+// 51 聊天消息出现（KittenJam #298）：对方气泡 0.3 秒以左下角为原点弹出（0.35 秒 backOut 过冲 2），内含 3 个依次跳动的点；
+// 2.05 秒变成文字消息，宽度 58→128px、缩放 .85→1 回弹；3.05 秒右侧强调色回复从右下角弹出（0.4 秒）；4.8 秒起两条依次上移 10px 淡出（间隔 0.08 秒）。
+const CHT_T0 = 0.3, CHT_MSG = 2.05, CHT_ME = 3.05, CHT_OUT = 4.8;
+const CHT_TW = 58, CHT_MW = 128, CHT_RW = 112, CHT_BH = 30;
+const CHT_back = (t, c1) => (t <= 0 ? 0 : 1 + (c1 + 1) * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2));
+CELLS[50] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 130, 12, 279, 184, 16);
+  k.fillStyle = UX.accentSoft; k.beginPath(); k.arc(156, 37, 12, 0, TAU); k.fill();
+  txt(k, '林', 156, 41.5, UXB_f(800, 12), UX.accent, 'center');
+  txt(k, '小林', 176, 35, UXB_f(800, 12.5), UX.ink);
+  txt(k, u >= CHT_T0 && u < CHT_MSG ? '对方正在输入…' : '在线', 176, 50, UXB_f(600, 9.5), UX.ink3);
+  k.fillStyle = UX.line; k.fillRect(131, 61, 277, 1);
+  txt(k, '今天 14:32', 269.5, 80, UXB_f(600, 9), UX.ink3, 'center');
+  // 对方气泡：以左下角 (150, 126) 为原点缩放
+  const o1 = seg(u, CHT_OUT, CHT_OUT + 0.4), o2 = seg(u, CHT_OUT + 0.08, CHT_OUT + 0.48);
+  const s1 = CHT_back(seg(u, CHT_T0, CHT_T0 + 0.35), 2);
+  if (s1 > 0 && o1 < 1) {
+    const m = u >= CHT_MSG ? out3(seg(u, CHT_MSG, CHT_MSG + 0.3)) : 0;
+    const sm = u >= CHT_MSG ? 0.85 + 0.15 * CHT_back(seg(u, CHT_MSG, CHT_MSG + 0.3), 3) : 1;
+    const bw = mix(CHT_TW, CHT_MW, m);
+    k.save(); k.globalAlpha = 1 - o1; k.translate(150, 126 - 10 * out3(o1)); k.scale(s1 * sm, s1 * sm);
+    rr(k, 0, -CHT_BH, bw, CHT_BH, 14); k.fillStyle = UX.surface3; k.fill();
+    const ta = clamp(m * 2);
+    if (ta < 1) {
+      k.globalAlpha = (1 - o1) * (1 - ta); k.fillStyle = UX.ink3;
+      for (let i = 0; i < 3; i++) { const b = Math.max(0, Math.sin(TAU * (u - i * 0.15) / 0.9)); k.beginPath(); k.arc(17 + i * 12, -15 - 4 * b, 3, 0, TAU); k.fill(); }
+    }
+    if (ta > 0) { k.globalAlpha = (1 - o1) * ta; txt(k, '在吗？想问一下～', 14, -10.5, UXB_f(600, 12.5), UX.ink); }
+    k.restore();
+  }
+  // 你的回复：以右下角 (389, 168) 为原点缩放
+  const t2 = seg(u, CHT_ME, CHT_ME + 0.4), s2 = CHT_back(t2, 2);
+  if (s2 > 0 && o2 < 1) {
+    k.save(); k.globalAlpha = clamp(t2 * 2.5) * (1 - o2); k.translate(389, 168 - 10 * out3(o2)); k.scale(s2, s2);
+    rr(k, -CHT_RW, -CHT_BH, CHT_RW, CHT_BH, 14); k.fillStyle = UX.accent; k.fill();
+    txt(k, '在的，你说～', -CHT_RW / 2, -10.5, UXB_f(600, 12.5), '#FFFFFF', 'center');
+    k.restore();
+  }
+};

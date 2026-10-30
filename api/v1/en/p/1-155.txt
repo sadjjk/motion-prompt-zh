@@ -1,0 +1,15 @@
+Please use "Dock magnification" (Dock 拡大), one of the names in "Landing page & web effects".
+Motion Prompt #1-155
+
+What it is: Icons near the cursor grow by distance and push neighbours aside
+What the sample shows: As the cursor sweeps across a dock of 7 icons, the nearby icons swell into a smooth peak that pushes the neighbours aside and travels with the cursor.
+Spec:
+- 7 rounded icons (40×40, 10 apart) sit in a dock with their bottoms aligned.
+- Each icon scales by its horizontal distance from the cursor: scale = 1 + 0.9 × max(0, 1 − distance / 110), so the nearest reaches about 1.9×.
+- Wider icons push their neighbours outward, and the magnification fades in and out over 0.2 s (easeOut) as the cursor enters and leaves the dock.
+- Cursor path: enters at 0.5 s, sweeps right until 2.3 s, sweeps back left until 3.8 s, leaves at 4.3 s.
+When to use it: Use it for app launchers, tool switchers or rows of social links where an icon bar should feel playful.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-155.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

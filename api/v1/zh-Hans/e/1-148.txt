@@ -1,0 +1,53 @@
+// Motion Prompt #1-148 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 浮动按钮展开菜单 / Speed dial
+// 分类包: ui (UI 组件) · element 50 · 子分类: 弹出与覆盖
+// 动画表现: 光标点右下蓝色 +，按钮旋转 135° 变成 ×，页面变暗；上方 3 个带标签的小按钮自下而上弹出，再点一次按相反顺序收回。
+// 运动规格:
+//   - 右下半径 22 的蓝色 + 按钮；光标 0.9 秒点击，按钮 0.3 秒（easeOut 3 次方）旋转 135° 成 ×，页面盖上 0.35 的暗层。
+//   - 上方 3 个半径 16 的小按钮（间距 44）自下而上每隔 0.06 秒弹出，各 0.3 秒以 back.out(1.4) 从 0.3 倍、低 12px 处放大，左侧带文字标签。
+//   - 1.9–2.6 秒光标停在“拍照”上，底色变浅蓝。
+//   - 3.2 秒再点一次，小按钮自上而下每隔 0.05 秒、各 0.2 秒收回，按钮转回 +。
+// 适用场景: 适合把笔记、拍照、分享等常用新建操作收进一个按钮的移动应用。
+// 标签: speed-dial, fab, floating-action-button, menu, expand, click
+// 尺寸: 542x191 px · 周期: 4.5 s
+// 依赖: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-148
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 50
+// 改写自 KittenJam Motion Library #318 浮动按钮展开菜单：右下半径 22 的蓝色「+」按钮。光标 0.9 秒点击：按钮 0.3 秒 easeOut 3 次方旋转 135° 成「×」，
+// 页面盖上 0.35 的暗层；上方三个半径 16 的小按钮（间距 44）自下而上每隔 0.06 秒按 back.out(1.4) 0.3 秒从 0.3 倍、低 12px 处弹出，左侧带文字标签。
+// 1.9–2.6 秒光标停在「拍照」上（底色变浅蓝）；3.2 秒再点按钮，小按钮自上而下每隔 0.05 秒 0.2 秒收回，按钮转回「+」。
+const FAB_ITEMS = ['新建笔记', '拍照', '分享链接'];
+const FAB_back = x => 1 + 2.4 * Math.pow(x - 1, 3) + 1.4 * Math.pow(x - 1, 2);
+CELLS[49] = ui((w, h, t) => {
+  pageLines(30, 20, 400);
+  for (let i = 0; i < 3; i++) fillRR(30, 82 + i * 34, 400, 26, 6, C.block);
+  const op = eo(seg(t, .9, 1.2)) * (1 - eio(seg(t, 3.2, 3.45)));
+  if (op > 0) { X.fillStyle = `rgba(18,20,28,${.35 * op})`; X.fillRect(0, 0, w, h); }
+  const fx = 490, fy = 158;
+  const hv = seg(t, 1.9, 2.05) * (1 - seg(t, 2.6, 2.75));
+  FAB_ITEMS.forEach((s, i) => {
+    const k = FAB_back(seg(t, 1.0 + i * .06, 1.3 + i * .06)) * (1 - eio(seg(t, 3.2 + (2 - i) * .05, 3.4 + (2 - i) * .05)));
+    if (k <= .01) return;
+    const y = fy - 44 * (i + 1) + 12 * (1 - k), sc = .3 + .7 * k;
+    X.save(); X.globalAlpha = clamp(k);
+    const lw = tw(s, 12, 600) + 20;
+    fillRR(fx - 28 - lw, y - 12, lw, 24, 12, '#fff'); text(s, fx - 28 - lw / 2, y, 12, C.ink, 600, 'center');
+    X.translate(fx, y); X.scale(sc, sc);
+    shadowed(() => circle(0, 0, 16, i === 1 && hv > 0 ? C.lb : '#fff'), 10, 3, .2);
+    if (i === 0) fillRR(-5, -6, 10, 12, 2, C.blue);
+    else if (i === 1) { fillRR(-7, -4, 14, 10, 2, C.blue); circle(0, 1, 3, '#fff'); }
+    else { circle(-4, 0, 2.5, C.blue); circle(4, -4, 2.5, C.blue); circle(4, 4, 2.5, C.blue); }
+    X.restore();
+  });
+  shadowed(() => circle(fx, fy, 22, C.blue), 14, 5, .25);
+  X.save(); X.translate(fx, fy); X.rotate(Math.PI * .75 * op);
+  X.strokeStyle = '#fff'; X.lineWidth = 2.6; X.lineCap = 'round';
+  X.beginPath(); X.moveTo(-9, 0); X.lineTo(9, 0); X.moveTo(0, -9); X.lineTo(0, 9); X.stroke();
+  X.restore();
+  pointer([[0, w + 30, h + 30], [.8, fx, fy + 2], [1.0, fx, fy + 2], [1.9, fx, 72], [2.6, fx, 72], [3.1, fx, fy + 2], [3.3, fx, fy + 2], [4.4, w + 30, h + 30]], [.9, 3.2], t);
+});

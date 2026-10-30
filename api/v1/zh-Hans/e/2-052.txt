@@ -1,0 +1,75 @@
+// Motion Prompt #2-052 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// 几何构成 / 包豪斯 / Geometric / Bauhaus
+// 分类包: mgstyles (MG 风格) · element 04 · 子分类: 平面与线条
+// 动画表现: 网格纸上每拍一个动作：红圆落下、黑柱下拉、三角翻转、蓝方从角点放大，最后 BAUHAUS 字样硬切入。
+// 运动规格:
+//   - 纸色 #F1E9DA，52 px 模数网格（10 列 × 4 行）；红 #E03C31、黄 #F2B705、蓝 #1E4FA3、黑 #111111。
+//   - 120 BPM 每拍 0.5 秒一个动作：拍点前 0.25 秒启动，用 power2 inOut 正好落在拍点，无回弹。
+//   - 从 0.5 秒红圆到 4.5 秒横线共 9 个动作，落点都在网格线上；网格线 0–0.5 秒画出。
+//   - 5.0 秒 BAUHAUS（21 px）硬切入，左下计拍；5.4–6.0 秒淡回空纸。
+// 适用场景: 适合设计展、美术馆宣传，品牌理念短片，以及卡拍点的构成式标题演绎。
+// 标签: bauhaus, geometric, grid, primary-colors, beat-sync, modernism, constructivism
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-052
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 04
+// 04 几何构成 / 包豪斯（KONSTRUKTION · 20 SCHLÄGE）：奶油纸 #F1E9DA 上 52px 模数网格，红 #E03C31 黄 #F2B705 蓝 #1E4FA3 黑 #111；120 BPM 每拍 0.5 秒一个动作、power2.inOut 无回弹、落点都在网格线上：0.5 红圆落下 → 1.0 黑柱下拉 → 1.5 黄三角出现 → 2.0 三角翻转 → 2.5 蓝方从角点放大 → 3.0 红圆右移一模 → 3.5 黑四分之一圆绕角点转 90° → 4.0 蓝半圆滑一模 → 4.5 横线画出 → 5.0 BAUHAUS 与 FORM · FARBE · FUNKTION 硬切入；左下 SCHLAG 计拍；5.4–6.0 秒淡回空纸
+const BAU_C = { paper: '#F1E9DA', R: '#E03C31', Y: '#F2B705', B: '#1E4FA3', K: '#111111' };
+const BAU_M = 52, BAU_OX = 9.5;
+const BAU_io2 = x => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
+CELLS[3] = (k, w, h, u) => {
+  const M = BAU_M, ox = BAU_OX, C = BAU_C, f = fadeIn(u);
+  const pr = b => BAU_io2(seg(u, b - 0.25, b));        // 动作在拍点前 0.25 秒启动、正好在拍点落定
+  k.fillStyle = C.paper; k.fillRect(0, 0, CW, CH);
+  paper(k, [17, 17, 17], 1200, 91);
+  k.save(); k.globalAlpha = f;
+  // 网格线 0–0.5 秒画出
+  const gA = seg(u, 0, 0.5);
+  k.strokeStyle = rgba([17, 17, 17], 0.2); k.lineWidth = 0.6; k.beginPath();
+  for (let c = 0; c <= 10; c++) { k.moveTo(ox + c * M, 0); k.lineTo(ox + c * M, CH * gA); }
+  for (let r = 1; r < 4; r++) { k.moveTo(0, r * M); k.lineTo(CW * gA, r * M); }
+  k.stroke();
+  // 4.5 横线（y = 2M）
+  const ru = pr(4.5); if (ru > 0) { k.fillStyle = C.K; k.fillRect(ox, 2 * M - 1.5, 10 * M * ru, 3); }
+  // 2.5 蓝方 2×2 模，从右下角点放大
+  const bs = pr(2.5); if (bs > 0) { k.fillStyle = C.B; k.fillRect(ox + 10 * M - 2 * M * bs, 4 * M - 2 * M * bs, 2 * M * bs, 2 * M * bs); }
+  // 1.5 黄三角（底边在 y=2M，先朝下出现，2.0 翻转朝上）
+  if (u >= 1.25) {
+    const sy = u < 1.5 ? -pr(1.5) : mix(-1, 1, pr(2.0));
+    if (Math.abs(sy) > 0.002) { k.fillStyle = C.Y; k.beginPath(); k.moveTo(ox + 6 * M, 2 * M); k.lineTo(ox + 9 * M, 2 * M); k.lineTo(ox + 7.5 * M, 2 * M - 2 * M * sy); k.closePath(); k.fill(); }
+  }
+  // 4.0 蓝半圆（直边贴在网格线上）向右滑一模
+  if (u >= 3.75) {
+    const cx = ox + M * pr(4.0);
+    k.fillStyle = C.B; k.beginPath(); k.moveTo(cx, 0); k.arc(cx, M, M, -Math.PI / 2, Math.PI / 2); k.closePath(); k.fill();
+  }
+  // 0.5 红圆自上方落下（power2.in 落死），3.0 向右滑一模
+  if (u >= 0.25) {
+    const d = seg(u, 0.25, 0.5), y = 2 * M - (1 - d * d) * 3 * M;
+    k.fillStyle = C.R; k.beginPath(); k.arc(ox + 2 * M + M * pr(3.0), y, M, 0, TAU); k.fill();
+  }
+  // 1.0 黑柱自顶向下拉满
+  if (u >= 0.75) { const d = seg(u, 0.75, 1.0); k.fillStyle = C.K; k.fillRect(ox + 5 * M, 0, M / 2, CH * d * d); }
+  // 3.5 黑四分之一圆：绕底边角点 (7M, 4M) 转 90°
+  if (u >= 3.25) {
+    const a0 = Math.PI + Math.PI / 2 * pr(3.5);
+    k.fillStyle = C.K; k.beginPath(); k.moveTo(ox + 7 * M, 4 * M); k.arc(ox + 7 * M, 4 * M, M, a0, a0 + Math.PI / 2); k.closePath(); k.fill();
+  }
+  // 5.0 字体硬切入
+  if (u >= 5.0) {
+    txt(k, 'BAUHAUS', ox + 6 * M + 4, 2 * M + 30, `900 21px ${DISP}`, C.K);
+    txt(k, 'FORM · FARBE · FUNKTION', ox + 6 * M + 5, 2 * M + 44, `700 7.5px ${DISP}`, C.K);
+  }
+  k.save(); k.translate(ox + 9 * M + 34, 6); k.rotate(Math.PI / 2);
+  txt(k, 'KONSTRUKTION · 20 SCHLÄGE', 0, 0, `700 8px ${MONO}`, C.K);
+  k.restore();
+  const n = clamp(Math.floor(u / 0.5 + 1e-6), 0, 10);
+  txt(k, 'SCHLAG ' + String(n).padStart(2, '0') + ' · 120 BPM', ox + 4, 4 * M - 6, `700 8px ${MONO}`, C.K);
+  k.restore();
+  grain(k, 0.06, 'multiply');
+};

@@ -1,0 +1,37 @@
+// Motion Prompt #3-036 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#108
+//
+// 流し撮り / Panning shot
+// パック: photo (写真の表現・光と画風) · element 12 · カテゴリ: レンズ・カメラの効果
+// 何が起きるか: 走る車をカメラが追い、車は画面の中央でくっきりしたまま、背景の建物や木や街灯だけが横に流れる。
+// 動きの仕様:
+//   - 街角: 奥に建物の列・木・街灯、道は y132〜162（手前の人物なし）
+//   - 車: 効果なしでは5秒で x−80 → 620 を走る。効果ありでは x270 ±10px にとどまる
+//   - 流れ: 背景を横に46pxの幅へ12枚ずらして重ね、平均をとる（幅 0 → 46px）
+//   - 車輪: 線が5秒で12回転
+//   - 右上のシャッター速度 1/1000 → 1/15
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、3次のイーズインアウト（cubic-bezier(0.65,0,0.35,1) 相当））
+// 使いどころ: 車・自転車・ランナーなどのスピード感を、1枚の写真で見せたいとき。
+// タグ: panning, panning shot, motion blur, speed, sports photography, slow shutter
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-036
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 12
+// 流し撮り: 走る車を追ってカメラを振ると、車はくっきり、背景だけ横に流れる
+CELLS[11] = cell((k, u) => {
+  const a = env(u);
+  const drive = lerp(-80, 620, u / CYC), x = lerp(drive, 270 + 10 * Math.sin(u / CYC * TAU), a);
+  const S = 46 * a, n = S < 0.5 ? 1 : 12;
+  for (let i = 0; i < n; i++) {   // 背景を横にずらして重ね、平均をとる（流れ）
+    k.save(); k.globalAlpha = 1 / (i + 1); k.translate(n > 1 ? lerp(-S / 2, S / 2, i / (n - 1)) : 0, 0); stageStreet(k, BASE, { car: false, person: false }); k.restore();
+  }
+  const D = pen(k); car(D, x, BASE, { head: BASE.lit });
+  // 車輪の回転（1周に12回転＝継ぎ目なし）
+  k.save(); k.strokeStyle = BASE.tire; k.lineWidth = 1.6;
+  for (const wx of [x - 21, x + 21]) { const t = u / CYC * TAU * 12; k.beginPath(); k.moveTo(wx - Math.cos(t) * 5, 156 - Math.sin(t) * 5); k.lineTo(wx + Math.cos(t) * 5, 156 + Math.sin(t) * 5); k.stroke(); }
+  k.restore();
+  hud(k, a > 0.5 ? '1/15' : '1/1000');
+});

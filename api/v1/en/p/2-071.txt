@@ -1,0 +1,15 @@
+Please use "Flag wave" (フラッグウェーブ), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-071
+
+What it is: Text ripples like a flag in the wind
+What the sample shows: Four characters hang from a pole on the left; each narrows, tilts and lifts slightly later than the last, so a wave runs to the right.
+Spec:
+- A pole on the left (8 px wide, yellow knob on top) with 4 characters (58 px) running to the right.
+- Each character, pivoting on its left edge, takes scaleX = cos(38°·f), skewY −9°·f and moves up 4 px·f.
+- f goes 0→1→0 over 1.175 s (cosine), delayed 0.17 s per character.
+- Even-position characters are coral, odd ones white.
+When to use it: Use it for cheers, slogans and sports titles.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-071.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

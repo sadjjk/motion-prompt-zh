@@ -1,0 +1,53 @@
+// Motion Prompt #1-079 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 点阵涟漪 / Dot grid ripple
+// 分类包: uxmotion (交互与数据动效) · element 19 · 子分类: 首屏背景
+// 动画表现: 指针划过安静的灰点阵，经过处一圈圈涟漪荡开，波峰上的点变大上浮，并从蓝紫转为青绿。
+// 运动规格:
+//   - 17px 间距的点阵，静止时为灰色、不透明度 55%。
+//   - 指针划过时每 110ms 在经过处投下一圈小涟漪（振幅 .55），点击投下大波（振幅 1.6），同时最多 14 道。
+//   - 波前以 170 px/s 扩散，波形 sin(k/14)·e^(k/60)，按 e^(−1.3·年龄) 衰减，2.6 秒后消失。
+//   - 隆起的点半径变为 1.6 + m × 3.4、上浮 m × 3px，色相按 230 − m × 110 由蓝紫转向青绿；演示中 2.4 秒点击。
+// 适用场景: 适合产品官网首屏或区块背景，给静态页面加上跟随鼠标的反馈。
+// 标签: dot-grid, ripple, wave, hero, background, cursor, interactive
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-079
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 19
+// 19 点阵涟漪：17px 间距的点阵（静止时 ink-3、55% 透明）；指针划过时每 110ms 在经过处投下一圈小涟漪（振幅 .55），2.4 秒按下投下大波（振幅 1.6）；
+// 波前以 170 px/s 扩散，波形 sin(k/14)·e^(k/60)，按 e^(−1.3·年龄) 衰减、2.6 秒消失，同时最多 14 道；隆起的点变大（1.6+m×3.4）、上浮 m×3 并由蓝紫转到青绿（色相 230−m×110）。上一周期的余波计入，循环无缝
+const DOTW_GAP = 17;
+const DOTW_DOTS = (() => { const d = []; for (let y = 12; y < CH - 4; y += DOTW_GAP) for (let x = 14; x < CW - 4; x += DOTW_GAP) d.push([x, y]); return d; })();
+const DOTW_ptr = u => UXA_path([[0, 590, 240], [0.4, 520, 170], [1.4, 360, 60], [2.4, 270, 110], [2.6, 270, 110], [3.6, 130, 150], [4.4, 60, 60], [5.0, -40, -40], [6.4, -40, -40]], u);
+const DOTW_WAVES = (() => {
+  const W = [];
+  for (let t = 0.45; t < 4.95; t += 0.11) { const [x, y] = DOTW_ptr(t); if (x > 0 && x < CW && y > 0 && y < CH) W.push([t, x, y, 0.55]); }
+  W.push([2.4, 270, 110, 1.6]);
+  return W.sort((a, b) => a[0] - b[0]);
+})();
+CELLS[18] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  // 当前存活的波（含上一周期，年龄 < 2.6 秒），只保留最近 14 道
+  const live = [];
+  for (const wv of DOTW_WAVES) for (const off of [0, CYC]) { const age = u - wv[0] + off; if (age >= 0 && age < 2.6) live.push([age, wv[1], wv[2], wv[3]]); }
+  live.sort((a, b) => a[0] - b[0]); live.length = Math.min(live.length, 14);
+  for (const d of DOTW_DOTS) {
+    let hsum = 0;
+    for (const [age, x, y, a] of live) {
+      const kk = Math.hypot(d[0] - x, d[1] - y) - age * 170;
+      if (kk > 0 || kk < -90) continue;
+      hsum += Math.sin(kk / 14) * Math.exp(kk / 60) * a * Math.exp(-age * 1.3);
+    }
+    const m = clamp(hsum, -1, 1.6), calm = Math.abs(m) < 0.04;
+    k.globalAlpha = calm ? 0.55 : 1;
+    k.fillStyle = calm ? UX.ink3 : `hsl(${(230 - Math.max(0, m) * 110).toFixed(0)} 85% ${(58 - Math.min(0, m) * 10).toFixed(0)}%)`;
+    k.beginPath(); k.arc(d[0], d[1] - m * 3, 1.6 + Math.max(0, m) * 3.4, 0, TAU); k.fill();
+  }
+  k.globalAlpha = 1;
+  const [px, py] = DOTW_ptr(u);
+  cursor(k, px, py, pingPong(u, 2.3, 2.4, 2.42, 2.56));
+};

@@ -1,0 +1,15 @@
+Please use "Market candles" (ローソク足チャート), one of the names in "Styled scenes".
+Motion Prompt #4-011
+
+What it is: A stock chart where candlesticks and moving averages grow across the screen
+What the sample shows: Candles grow one by one from the left on a dark chart, red for up and green for down, with moving averages curving along and volume bars below.
+Spec:
+- 48 candles fill in from the left between 0.2 and 4.6 s; up candles red #F0443A, down candles green #22B573.
+- The price area spans y 20–140 px; volume bars at opacity 0.5 grow below alongside each candle.
+- MA5 #F5C14B and MA20 #7FA8FF: 2 moving averages extend with the candles.
+- The latest close gets a red dashed line (3 px dashes) and a 46 × 14 px price tag; everything fades out from 5.4 to 6.0 s.
+When to use it: Use it as a hero background for finance or investing services, an opener for earnings or market videos, or a transition in investment talks.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-011.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

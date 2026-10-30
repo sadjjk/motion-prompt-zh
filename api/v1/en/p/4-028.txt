@@ -1,0 +1,15 @@
+Please use "Impossible triangle" (不可能な三角形), one of the names in "Styled scenes".
+Motion Prompt #4-028
+
+What it is: A Penrose impossible triangle assembled from falling blocks in isometric view
+What the sample shows: Coloured blocks drop one by one onto a pastel ground to build 3 edges whose ends meet into an impossible triangle that slowly turns.
+Spec:
+- 18 blocks, 6 per edge on 3 edges, in isometric projection; the bounding circle is 196 px across.
+- Blocks drop from above 1/6 s apart and settle in 0.5 s; all are in place over 0.2–3.5 s.
+- Block 1 is redrawn clipped to the hexagon where it overlaps the last block, creating the illusion that the ends join.
+- The whole figure makes 1 full turn per 6.4 s and floats ±4 px; it fades out over 5.4–6.0 s.
+When to use it: Openers for videos on illusions, maths or design thinking, hero sections on creative sites, or posters.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-028.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

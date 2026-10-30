@@ -1,0 +1,15 @@
+Please use "Bold-outline sticker explainer" (太線ステッカー解説), one of the names in "MG styles".
+Motion Prompt #2-062
+
+What it is: A flat explainer style built from thick white-outlined stickers and a single accent colour
+What the sample shows: A phone sticker slaps down with a bounce and callout lines draw out; the camera flies to a periodic table that lights up in a cascade, then to a chart that grows bar by bar.
+Spec:
+- Blue-grey background #E9EEF2, slate #25313D and just 1 accent colour, #FF5A36. Stickers have a white outline and a soft shadow and slap down with an overshooting ease.
+- A phone sticker lands at 0.2 s, 2 title stickers at 0.35 and 0.5 s, and from 0.6 s 4 callout lines label the parts with element badges in turn.
+- At 1.6–2.2 s the camera flies diagonally to a periodic table (dipping to 0.9 zoom mid-flight). 118 tiles pop in, the first 10 elements light at 2.45 s, the other 60 cascade on at 2.5–3.2 s, and the counter reaches 70.
+- At 3.5–4.1 s the camera flies to a bar chart; from 4.15 s 70 small squares stack up one by one into 5 bars (23, 16, 12, 11, 8), and an orange 'about 70' sticker slaps down at 4.95 s. The camera flies back to the start at 5.4–6.2 s.
+When to use it: Science and knowledge explainers, product teardown videos, data reports and infographic shorts.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-062.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,48 @@
+// Motion Prompt #4-018 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// スピログラフ / Spirograph
+// パック: scenes (スタイルシーン) · element 18 · カテゴリ: 文様・グラフィック
+// 何が起きるか: 生成りの紙の上で半透明の歯車が3つのリングを順に転がり、ペン先が赤・青・緑の花曲線を描き切って止まる。
+// 動きの仕様:
+//   - 生成りの地 #F2EDE3。半径 84px の固定リングが 3 つ並び、歯車はその内側を転がる
+//   - 歯車の半径 32 / 18 / 13 px、ペン距離 25 / 14 / 8 px。色は赤 #D2452F、青 #1F3B8A、緑 #2E7D63
+//   - 3 本の曲線は 0.4 秒ずつずれて描き始め、それぞれ 3.6 秒で描き終える。8 / 3 / 13 周で閉じる
+//   - 描画中は半透明の歯車とペン先を表示。閉じた後は止まり、5.4〜6.0 秒でフェードアウト（周期 6.4 秒）
+// 使いどころ: 手作り感のあるブランドや文具・教育系コンテンツの開場、ポスターの背景、プレゼンの章間に。
+// タグ: spirograph, hypotrochoid, gears, line-art, handmade, drawing, pattern
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-018
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 18
+// 18 万花尺：三组齿轮各在半径 84 的圆环内滚动，笔尖错峰 0.4 秒画出红、蓝、绿三朵繁花曲线（各 3.6 秒），闭合后停留，5.4 秒淡出
+const SPIRO_R = 84;
+const SPIRO_SETS = [[100, 32, 25, '#D2452F', 8], [269.5, 18, 14, '#1F3B8A', 3], [439, 13, 8, '#2E7D63', 13]]; // [cx, r, d, 墨色, 闭合圈数 r/gcd(R,r)]
+CELLS[17] = (k, w, h, u) => {
+  k.fillStyle = '#F2EDE3'; k.fillRect(0, 0, CW, CH);
+  const cy = 104, R = SPIRO_R;
+  k.strokeStyle = 'rgba(40,40,40,.25)'; k.lineWidth = 4;
+  for (const s of SPIRO_SETS) { k.beginPath(); k.arc(s[0], cy, R + 3, 0, TAU); k.stroke(); }
+  const fade = fadeIn(u);
+  SPIRO_SETS.forEach(([cx, r, d, col, turns], si) => {
+    const tm = seg(u, 0.2 + si * 0.4, 3.8 + si * 0.4); if (tm <= 0) return;
+    const T = turns * TAU * tm; let px = cx + R - r + d, py = cy;
+    k.save(); k.globalAlpha = 0.85 * fade; k.strokeStyle = col; k.lineWidth = 0.9; k.beginPath(); k.moveTo(px, py);
+    for (let t = 0.03; ; t += 0.03) {                       // 步长 0.03 rad，最后一点落在 T
+      const tt = Math.min(t, T);
+      px = cx + (R - r) * Math.cos(tt) + d * Math.cos((R - r) / r * tt); py = cy + (R - r) * Math.sin(tt) - d * Math.sin((R - r) / r * tt); k.lineTo(px, py);
+      if (tt >= T) break;
+    }
+    k.stroke(); k.restore();
+    if (tm < 1) {                                            // 画线中显示半透明齿轮与笔尖
+      const gx = cx + (R - r) * Math.cos(T), gy = cy + (R - r) * Math.sin(T);
+      k.strokeStyle = 'rgba(40,40,40,.35)'; k.fillStyle = 'rgba(255,255,255,.35)'; k.lineWidth = 0.8;
+      k.beginPath(); k.arc(gx, gy, r, 0, TAU); k.fill(); k.stroke();
+      k.fillStyle = col; k.beginPath(); k.arc(px, py, 2, 0, TAU); k.fill();
+    }
+  });
+  grain(k, 0.07, 'multiply');
+};

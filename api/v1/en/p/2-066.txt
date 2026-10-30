@@ -1,0 +1,16 @@
+Please use "Dots settling into a normal distribution" (点が正規分布にまとまる), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-066
+
+What it is: Scattered observations gather into a bell-shaped distribution
+What the sample shows: Dots pop up like a cloud inside a purple plot, fly off with slight staggers to stack into bell-shaped columns, the counter climbs to 098 and the mean line turns solid.
+Spec:
+- A purple plot area, 479×192, with 98 observation dots (purple #8a72ff; 1 in every 6 is a large orange dot #ffbf69); dot diameters 5.4 / 7px.
+- From 0.11 s the dots pop in from the centre outward, 0.0022 s apart, forming a cloud. The mean line μ grows upward over 0.28–0.58 s. 1 in every 3 dots shrinks to 0.82 over 0.44–1.1 s.
+- From 1.13 s each dot, offset by (i mod 13)×0.0066 s, flies over 1.29–1.46 s (quartic ease-in-out) into 13 bell-shaped columns with heights 1-2-4-7-11-15-18-15-11-7-4-2-1.
+- The counter rises from 000 to 098 over 1.13–2.6 s; the status reads "Distribution emerging" at 2.0 s and "Mean locked" at 3.05 s. The mean line turns solid from 2.61 s, and the large orange dots swell to 1.28 and settle from 2.83 s. Everything fades over 4.19–4.38 s.
+- Versus Candlestick chart: the columns are built from dots flying in one at a time to show a sample settling into a normal distribution, rather than price bars drawn one by one.
+When to use it: Use it in statistics and data science lessons, analytics product promos, or videos explaining survey results and reports.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-066.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

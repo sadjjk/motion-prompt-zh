@@ -1,0 +1,82 @@
+// Motion Prompt #1-095 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// Bar chart race / 順位が入れ替わる棒グラフ
+// Pack: uxmotion (Interaction & data motion) · element 35 · Category: Animated charts
+// What happens: Drink bars grow year by year, overtaking bars slide up to swap ranks and a large year ticks on; dragging the slider back plays the ranking in reverse.
+// Motion spec:
+//   - 8 drinks race on sales from 2019–2026, showing only the top 6, with 22 px rows.
+//   - Rank positions approach their targets at 10/s (16/s while dragging); the axis maximum is 1.08 × the leader and follows at 4/s.
+//   - In the demo it autoplays from 0.3–4.5 s at 0.6 s per year; a 58 px year in the lower right and the bar-end values update in sync.
+//   - In the demo the year slider is grabbed at 5.0 s and dragged back to 2019 from 5.05–5.8 s, replaying ranks in reverse; the play button is clicked at 6.0 s.
+// When to use it: Use it in data stories, annual reports and marketing pages that show how market share or sales rankings changed over time.
+// Tags: bar-chart-race, ranking, time-series, data-viz, slider, animation
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-095
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 35
+// 35 排名赛跑柱状图：8 种饮品 2019–2026 年销量（单位万杯）赛跑，只显示前 6 名；变长的柱子上移与上一名交换位置（位置以 10/秒、拖动时 16/秒逼近，
+// 刻度最大值 = 第一名×1.08、以 4/秒逼近），右下角大年份与柱端数字同步跳动。0.3–4.5 秒自动播放（每年 0.6 秒，原作 1.5 秒）；
+// 5.0 秒指针按住年份滑块，5.05–5.8 秒向左拖回 2019（排名倒放）；6.0 秒点播放键恢复播放状态，指针离开。逐帧平滑预先模拟两轮、取第二轮，首尾连续。
+const RACE_N = ['美式', '拿铁', '冷萃', '抹茶拿铁', '奶茶', '柠檬水', '西柚', '香草拿铁'];
+const RACE_COL = ['#6366F1', '#F59E0B', '#10B981', '#84CC16', '#A855F7', '#EAB308', '#F43F5E', '#0EA5E9'];
+const RACE_V = [[120, 128, 135, 140, 146, 150, 153, 156], [95, 100, 104, 108, 110, 112, 113, 115], [20, 38, 60, 82, 104, 121, 138, 152], [30, 34, 45, 63, 80, 102, 118, 130], [70, 75, 72, 66, 62, 58, 55, 52], [50, 48, 52, 56, 58, 60, 57, 55], [40, 55, 64, 68, 66, 63, 60, 56], [60, 63, 66, 70, 74, 79, 86, 98]];
+const RACE_SL0 = 52, RACE_SL1 = 516, RACE_RH = 22, RACE_TOP = 36, RACE_BW = 330, RACE_SHOW = 6;
+const RACE_t = u => (u < 0.3 ? 0 : u < 4.5 ? (u - 0.3) / 0.6 : u < 5.05 ? 7 : u < 5.8 ? 7 * (1 - inOut3(seg(u, 5.05, 5.8))) : 0);
+const RACE_KEYS = [[0, 560, 240], [4.5, 560, 240], [4.95, RACE_SL1, 189], [5.05, RACE_SL1, 189], [5.8, RACE_SL0, 189], [6.0, 31, 188], [6.36, -20, 236]];
+const RACE_val = (i, t) => { const a = Math.floor(t), b = Math.min(7, a + 1), f = t - a; return RACE_V[i][a] + (RACE_V[i][b] - RACE_V[i][a]) * f; };
+const RACE_tgt = t => {
+  const vals = RACE_N.map((n, i) => RACE_val(i, t)), order = vals.map((v, i) => i).sort((a, b) => vals[b] - vals[a]), rank = [];
+  order.forEach((i, r) => (rank[i] = r));
+  return { vals, rank, mx: vals[order[0]] * 1.08 };
+};
+const RACE_SIM = (() => {
+  const dt = 1 / 120, n = Math.round(CYC / dt), out = new Float32Array(n * 17);
+  const t0 = RACE_tgt(0), y = t0.rank.map(r => (r < RACE_SHOW ? r * RACE_RH : RACE_SHOW * RACE_RH + 8)), o = t0.rank.map(r => (r < RACE_SHOW ? 1 : 0));
+  let sc = t0.mx;
+  for (let cyc = 0; cyc < 2; cyc++) for (let i = 0; i < n; i++) {
+    const u = i * dt, T = RACE_tgt(RACE_t(u)), drag = u >= 5.0 && u < 5.8, kk = Math.min(1, dt * (drag ? 16 : 10));
+    sc += (T.mx - sc) * Math.min(1, dt * 4);
+    for (let j = 0; j < 8; j++) { const r = T.rank[j]; y[j] += ((r < RACE_SHOW ? r * RACE_RH : RACE_SHOW * RACE_RH + 8) - y[j]) * kk; o[j] += ((r < RACE_SHOW ? 1 : 0) - o[j]) * kk; }
+    if (cyc === 1) { for (let j = 0; j < 8; j++) { out[i * 17 + j] = y[j]; out[i * 17 + 8 + j] = o[j]; } out[i * 17 + 16] = sc; }
+  }
+  return out;
+})();
+CELLS[34] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  txt(k, '饮品销量排行', 20, 25, UXB_f(900, 13), UX.ink); txt(k, '单位：万杯', CW - 20, 25, UXB_f(700, 10), UX.ink3, 'right');
+  const t = RACE_t(u), T = RACE_tgt(t), n = RACE_SIM.length / 17, i0 = (Math.round(u * 120) % n) * 17, sc = RACE_SIM[i0 + 16];
+  k.save(); k.globalAlpha = 0.1; txt(k, String(2019 + Math.floor(t + 1e-4)), CW - 20, 166, UXB_f(900, 58), UX.ink, 'right'); k.restore();
+  k.save(); k.beginPath(); k.rect(0, RACE_TOP - 2, CW, RACE_SHOW * RACE_RH + 2); k.clip();
+  const ord = RACE_N.map((nm, i) => i).sort((a, b) => T.rank[b] - T.rank[a]);
+  for (const i of ord) {
+    const y = RACE_TOP + RACE_SIM[i0 + i], o = RACE_SIM[i0 + 8 + i];
+    if (o < 0.01) continue;
+    k.save(); k.globalAlpha = o;
+    const bw = Math.max(4, T.vals[i] / sc * RACE_BW);
+    txt(k, RACE_N[i], 88, y + 14, UXB_f(800, 11), UX.ink, 'right');
+    rr(k, 94, y + 3, bw, 16, 5); k.fillStyle = RACE_COL[i]; k.fill();
+    k.save(); k.clip(); k.fillStyle = 'rgba(0,0,0,.12)'; k.fillRect(94, y + 16, bw, 3); k.restore();
+    txt(k, String(Math.round(T.vals[i])), 94 + bw + 6, y + 15, UXB_f(800, 10.5), UX.ink2);
+    k.restore();
+  }
+  k.restore();
+  // 播放键与年份滑块
+  const paused = u >= 4.95 && u < 6.0;
+  k.fillStyle = UX.ink; k.beginPath(); k.arc(31, 188, 11, 0, TAU); k.fill(); k.fillStyle = UX.surface;
+  if (paused) { k.beginPath(); k.moveTo(27.5, 182.5); k.lineTo(36, 188); k.lineTo(27.5, 193.5); k.closePath(); k.fill(); }
+  else { rr(k, 26.5, 182.5, 3.2, 11, 1); k.fill(); rr(k, 32.3, 182.5, 3.2, 11, 1); k.fill(); }
+  const L = RACE_SL1 - RACE_SL0, tx = RACE_SL0 + L * t / 7;
+  rr(k, RACE_SL0, 186, L, 4, 2); k.fillStyle = UX.line; k.fill();
+  rr(k, RACE_SL0, 186, Math.max(4, tx - RACE_SL0), 4, 2); k.fillStyle = UX.accent; k.fill();
+  k.fillStyle = 'rgba(142,138,151,.5)'; for (let j = 0; j < 8; j++) k.fillRect(RACE_SL0 + L * j / 7, 194, 1, 3);
+  k.save(); k.shadowColor = 'rgba(40,30,80,.3)'; k.shadowBlur = 6; k.shadowOffsetY = 2;
+  k.fillStyle = UX.accent; k.beginPath(); k.arc(tx, 188, 8.5, 0, TAU); k.fill(); k.restore();
+  k.fillStyle = UX.surface; k.beginPath(); k.arc(tx, 188, 5.5, 0, TAU); k.fill();
+  const c = UXB_path(u, RACE_KEYS), pr = u >= 4.92 && u < 5.8 ? Math.min(1, seg(u, 4.92, 5.0)) * (1 - seg(u, 5.8, 5.9)) : UXB_press(u, 6.0);
+  ripple(k, c[0], c[1], seg(u, 6.0, 6.4), '255,255,255');
+  if (u > 4.5 && u < 6.36) cursor(k, c[0], c[1], pr);
+};

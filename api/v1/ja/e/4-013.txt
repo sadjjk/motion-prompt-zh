@@ -1,0 +1,44 @@
+// Motion Prompt #4-013 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 電子雲 / Electron orbital
+// パック: scenes (スタイルシーン) · element 13 · カテゴリ: テックのムード
+// 何が起きるか: 暗い背景に、青と橙の点でできた 3d 軌道の雲がゆっくり回り、中心に白い光、周りに楕円の軌跡線がある。
+// 動きの仕様:
+//   - 3d 軌道（n = 3、l = 2、m = 0）の確率雲、波動関数の確率密度で選んだ 1600 個の点
+//   - 正の位相は青 rgba(90, 170, 255)、負の位相は橙 rgba(255, 130, 90)、点の大きさ 1.3 px
+//   - 点群は 6.4 秒で縦軸まわりに 1 回転、傾き 0.5 rad、加算合成で重ねる
+//   - 中心に半径 12 px の白い光暈、外側に半軸 120 / 32 px の楕円の軌跡線
+// 使いどころ: 科学教育・研究機関の首画面背景や、物理・化学をテーマにした動画のオープニング、発表の幕間に。
+// タグ: electron-cloud, orbital, quantum, physics, particles, science, tech
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-013
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 13
+// 13 电子云：3d 轨道（n=3, l=2, m=0）的概率云由点阵构成，正负相位分蓝橙两色，整体缓慢旋转
+const ORB = (() => { // 按波函数平方做确定性拒绝采样（常量）
+  const out = [];
+  for (let i = 0; out.length < 1600 && i < 60000; i++) {
+    const x = (hash(i * 4 + 1) - 0.5) * 36, y = (hash(i * 4 + 2) - 0.5) * 36, z = (hash(i * 4 + 3) - 0.5) * 36;
+    const r = Math.hypot(x, y, z), ct = z / (r || 1), psi = r * r * Math.exp(-r / 3) * (3 * ct * ct - 1);
+    if (hash(i * 4 + 4) * 3 < psi * psi / 30) out.push([x, y, z, psi > 0]);
+  }
+  return out;
+})();
+CELLS[12] = (k, w, h, u) => {
+  k.fillStyle = '#05060F'; k.fillRect(0, 0, CW, CH);
+  const a = TAU * u / CYC, b = 0.5, ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);   // 每周期转一圈
+  k.save(); k.globalCompositeOperation = 'lighter';
+  for (const [x, y, z, pos] of ORB) {
+    const x1 = x * ca - y * sa, y1 = x * sa + y * ca, y2 = y1 * cb - z * sb, z2 = y1 * sb + z * cb, s = 90 / (60 + y2);
+    k.fillStyle = pos ? 'rgba(90,170,255,.55)' : 'rgba(255,130,90,.55)'; k.fillRect(269.5 + x1 * s * 2.6, 104 - z2 * s * 2.6, 1.3, 1.3);
+  }
+  k.restore();
+  glow(k, 269.5, 104, 12, '255,255,255', 0.6);
+  k.strokeStyle = 'rgba(180,200,255,.25)'; k.lineWidth = 0.8; k.beginPath(); k.ellipse(269.5, 104, 120, 32, 0, 0, TAU); k.stroke();
+  txt(k, 'ψ₃₂₀ · n = 3  l = 2  m = 0', 400, 190, `500 8px ${MONO}`, 'rgba(190,205,255,.7)');
+  grain(k, 0.05);
+};

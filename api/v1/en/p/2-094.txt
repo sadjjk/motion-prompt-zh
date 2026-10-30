@@ -1,0 +1,15 @@
+Please use "Echo stack" (エコースタック), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-094
+
+What it is: Outlined copies step out behind the text like an echo
+What the sample shows: Five coral outline copies step out one by one to the upper right behind the bold white 回声, fainter further back, then slide back under it.
+Spec:
+- 5 outline copies (2 px stroke), opacity 0.85 − 0.14 × layer.
+- From 0.4 s, 0.06 s apart and 0.7 s each, they move out by (14, −11 px) per layer with a cubic ease-in-out.
+- From 3.0 s they return in the same steps, outermost first.
+- The front word is white and always on top.
+When to use it: Use it for poster-style headings, music or event promos, or a word you want to stress.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-094.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

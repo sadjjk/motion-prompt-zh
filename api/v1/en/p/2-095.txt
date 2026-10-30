@@ -1,0 +1,15 @@
+Please use "Multilingual greeting" (多言語あいさつ), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-095
+
+What it is: Greetings in different languages take turns
+What the sample shows: Inside a pill-shaped frame 你好, Hello, こんにちは and Bonjour blur out upward and blur in from below, while the frame width and the dot after it glide to fit each word.
+Spec:
+- 4 words switch every 1.175 s (one round in 4.7 s).
+- The old word moves up 18 px and blurs to 6 px as it fades over 0.3 s.
+- The new word comes in from 18 px below over 0.15–0.5 s, blur 6 px → 0.
+- Over 0–0.5 s the frame width eases (cubic in-out) to the new word plus 30 px each side, carrying the dot.
+When to use it: Use it in heroes for global brands, travel or language services, or on welcome screens.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-095.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

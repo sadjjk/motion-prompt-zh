@@ -1,0 +1,15 @@
+Please use "Teal and orange" (ティール＆オレンジ), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-045
+
+What it is: Pushes shadows to teal and skin and highlights to orange
+What the sample shows: In the same landscape the sky, hills, ground and the shadowed figure shift to teal while the sunlit edge of the figure and the sun shift to orange, a complementary contrast.
+Spec:
+- Scene 3: a bust on the left (head centre x 140, y 82, radius 28 px) and hills, a house, trees and the sun (x 432, y 54, radius 15 px) on the right. 
+- Teal: sky #CFE6E3, hills #8CC1BE and #62A2A1, ground #3F8083, trees #2F6A6E, figure #1D4E53
+- Orange: the light on the figure #FF9248, sun #FF8236, sun rings #FFC48C
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1)))
+When to use it: For a blockbuster, trailer-like look with strong colour contrast.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-045.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

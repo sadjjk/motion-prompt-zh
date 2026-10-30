@@ -1,0 +1,89 @@
+// Motion Prompt #2-051 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+//
+// Morphing / シェイプモーフ
+// Pack: mgstyles (MG styles) · element 03 · Category: Flat & line
+// What happens: The main shape squeezes back to a circle before opening into the next form, wobbling as it turns, while the background wipes in a new colour and the caption swaps.
+// Motion spec:
+//   - The shape changes every 0.8 s (2 beats at 150 BPM): a 0.35 s hold plus a 0.45 s morph; 8 forms make one cycle.
+//   - Each morph runs A → circle → B in 2 halves, each with inOut3; 120 vertices, base radius 62 px.
+//   - During a morph it squashes and stretches by up to 13% and swings 0.35 rad.
+//   - Palette #16151B / #F4EEE3 / #FFB627 / #FF4F2B / #2438E8; the background wipes with a 600 px circle from the centre, and the 40 px caption slides 24 px up as it swaps.
+// When to use it: Use it for beat-synced social shorts, brand key-visual sequences and title sequences that cycle through themes.
+// Tags: shape-morph, morphing, beat-sync, color-wipe, squash-and-stretch, social-short
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit mgstyles -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-051
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 03
+// 03 形变动画（morphe.「一形万象」）：一个主形每 0.8 秒（150 BPM 两拍）变一次：圆→太阳→落日胶囊→纸飞机三角→地图钉→心→星→方→圆，8 形整周期回到起点；每次 0.45 秒形变都先收成中介圆再展开（A→圆→B，各约 7 帧），全程 13% 挤压拉伸 + 0.35 弧度摆转，速度曲线中段最快；同时背景色块从主形中心圆形擦除换色，右侧中文字幕同步换词
+const MORPH_C = { ink: '#16151B', cream: '#F4EEE3', mari: '#FFB627', verm: '#FF4F2B', ultra: '#2438E8' };
+const MORPH_N = 120;
+const MORPH_SH = (() => {
+  const N = MORPH_N, ang = i => -Math.PI / 2 + TAU * i / N;
+  const polar = fn => Array.from({ length: N }, (_, i) => fn(ang(i)));
+  // 以原点为中心的闭合多边形 → 每个角度上射线与边界的交点半径（星形域，顶点一一对应，不会打结）
+  const fromPoly = pts => polar(a => {
+    const dx = Math.cos(a), dy = Math.sin(a); let best = 0;
+    for (let j = 0; j < pts.length; j++) {
+      const p = pts[j], q = pts[(j + 1) % pts.length], ex = q[0] - p[0], ey = q[1] - p[1];
+      const den = dx * ey - dy * ex; if (Math.abs(den) < 1e-9) continue;
+      const t = (p[0] * ey - p[1] * ex) / den, s = (p[0] * dy - p[1] * dx) / den;
+      if (t > 0 && s >= 0 && s <= 1) best = Math.max(best, t);
+    }
+    return best;
+  });
+  const heart = []; for (let i = 0; i < 160; i++) { const t = TAU * i / 160; heart.push([16 * Math.pow(Math.sin(t), 3) / 17, -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) / 17 - 0.12]); }
+  const pin = []; for (let i = 0; i <= 60; i++) { const a = Math.PI / 2 + 0.55 + (TAU - 1.1) * i / 60; pin.push([0.72 * Math.cos(a), -0.22 + 0.72 * Math.sin(a)]); } pin.push([0, 1.1]);
+  const star = []; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + Math.PI * i / 5, r = i % 2 ? 0.5 : 1.15; star.push([r * Math.cos(a), r * Math.sin(a)]); }
+  const shapes = [
+    polar(() => 1),                                                                          // 圆
+    polar(a => 0.82 + 0.26 * Math.pow(0.5 + 0.5 * Math.cos(12 * (a + Math.PI / 2)), 5)),     // 太阳（12 道光芒）
+    polar(a => Math.pow(Math.pow(Math.abs(Math.cos(a) / 1.25), 4) + Math.pow(Math.abs(Math.sin(a) / 0.6), 4), -0.25)),   // 落日胶囊
+    fromPoly([[0.15, -1.05], [1.0, 0.75], [0.1, 0.3], [-0.9, 0.7]]),                         // 纸飞机
+    fromPoly(pin),                                                                           // 地图钉
+    fromPoly(heart),                                                                         // 心
+    fromPoly(star),                                                                          // 星
+    polar(a => 0.9 * Math.pow(Math.pow(Math.abs(Math.cos(a)), 6) + Math.pow(Math.abs(Math.sin(a)), 6), -1 / 6)),   // 方
+  ];
+  return shapes.map(r => { const m = Math.sqrt(r.reduce((s, v) => s + v * v, 0) / N); return r.map(v => v / m); });
+})();
+// 每一形：[背景, 主形填色, 字幕]
+const MORPH_ST = [['cream', 'verm', '早安'], ['mari', 'verm', '日出'], ['verm', 'mari', '日落'], ['ultra', 'cream', '远行'], ['cream', 'ultra', '抵达'], ['verm', 'cream', '心动'], ['ink', 'mari', '一形万象'], ['ultra', 'mari', '海风']];
+const MORPH_CX = 160, MORPH_CY = 104, MORPH_R = 62;
+const MORPH_hex = s => [parseInt(s.slice(1, 3), 16), parseInt(s.slice(3, 5), 16), parseInt(s.slice(5, 7), 16)];
+CELLS[2] = (k, w, h, u) => {
+  const C = MORPH_C, N = MORPH_N;
+  const tt = ((u % CYC) + CYC) % CYC, j = Math.floor(tt / 0.8) % 8, dt = tt - j * 0.8, nj = (j + 1) % 8;
+  const m = seg(dt, 0.35, 0.8);                          // 0.35 秒定格 + 0.45 秒形变
+  const A = MORPH_ST[j], B = MORPH_ST[nj];
+  k.fillStyle = C[A[0]]; k.fillRect(0, 0, CW, CH);
+  if (m > 0) { k.fillStyle = C[B[0]]; k.beginPath(); k.arc(MORPH_CX, MORPH_CY, 600 * inOut3(m), 0, TAU); k.fill(); }   // 色块擦除
+  const ra = MORPH_SH[j], rb = MORPH_SH[nj];
+  const e1 = inOut3(clamp(m * 2)), e2 = inOut3(clamp(m * 2 - 1));
+  const sq = 0.13 * Math.sin(Math.PI * m), rot = 0.35 * Math.sin(Math.PI * m) * (j % 2 ? 1 : -1);
+  k.save(); k.translate(MORPH_CX, MORPH_CY); k.rotate(rot); k.scale(1 + sq, 1 - sq);
+  k.beginPath();
+  for (let i = 0; i < N; i++) {
+    const r = (m < 0.5 ? mix(ra[i], 1, e1) : mix(1, rb[i], e2)) * MORPH_R, a = -Math.PI / 2 + TAU * i / N;
+    if (i) k.lineTo(Math.cos(a) * r, Math.sin(a) * r); else k.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+  }
+  k.closePath();
+  k.fillStyle = `rgb(${lerpC(MORPH_hex(C[A[1]]), MORPH_hex(C[B[1]]), inOut3(m)).join(',')})`; k.fill();
+  k.restore();
+  // 字幕：旧词上移淡出，新词自下方 10px 升入
+  const ink = bg => (bg === 'cream' || bg === 'mari') ? C.ink : C.cream;
+  const tm = inOut3(seg(dt, 0.55, 0.8));
+  const capBg = m > 0.55 ? B[0] : A[0];
+  k.save(); k.beginPath(); k.rect(270, 50, 269, 74); k.clip();
+  if (tm < 1) txt(k, A[2], 290, 104 - 24 * tm, `900 40px ${SANS}`, ink(capBg));
+  if (tm > 0) txt(k, B[2], 290, 128 - 24 * tm, `900 40px ${SANS}`, ink(capBg));
+  k.restore();
+  const ic = ink(capBg);
+  txt(k, 'morphe.', 292, 150, `600 22px ${DISP}`, ic);
+  txt(k, '形变动画 · ONE SHAPE, EVERYTHING', 292, 168, `500 8px ${DISP}`, ic);
+  for (let i = 0; i < 8; i++) { k.fillStyle = ic; k.globalAlpha = i === (m > 0.5 ? nj : j) ? 1 : 0.3; k.beginPath(); k.arc(296 + i * 14, 186, 3, 0, TAU); k.fill(); }
+  k.globalAlpha = 1;
+};

@@ -1,0 +1,16 @@
+Please use "Fireworks" (花火), one of the names in "Styled scenes".
+Motion Prompt #4-038
+
+What it is: A firework rises and bursts where you click
+What the sample shows: On a starry night sky a cursor clicks 3 spots in turn; each click sends out a ripple and a rocket rises from the bottom to burst into gold, blue or pink sparks that droop and fade.
+Spec:
+- The cursor starts at the bottom right (470, 176), moves to (150, 62), (392, 52) and (268, 86) over 0.3–0.85, 1.6–2.25 and 3.0–3.65 s (cubic ease-in-out), and returns over 4.6–5.6 s.
+- Clicks land at 0.9, 2.3 and 3.7 s: the arrow shrinks 12% and a 22px ripple grows and fades over 0.5 s.
+- Each click launches a rocket from the bottom edge, within ±30px of the click x, rising to the point in 0.7 s (cubic ease-out) with a 0.1 s trail.
+- On arrival a 34px flash fades over 0.3 s and 40 sparks fly out at 70–140px/s in every direction, with drag of 1.8/s and gravity of 120px/s², fading over 1.4 s.
+- The last sparks are gone by 5.8 s, and at 6.4 s the sky and cursor match the start.
+When to use it: Use it for event pages, festivals, countdowns or a completion celebration that reacts to clicks.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-038.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,15 @@
+Please use "Copy feedback" (コピー完了のフィードバック), one of the names in "Interaction & data motion".
+Motion Prompt #1-171
+
+What it is: Pressing copy spins the icon into a check and pops a tooltip
+What the sample shows: A pointer presses the copy button beside a command line. The copy icon spins away, a check springs in, the button turns accent-coloured and a 'Copied' tooltip pops up above it; shortly after, everything returns.
+Spec:
+- The button is pressed at 1.0 s (shrinks to 0.92).
+- The copy icon spins 90° and shrinks to 0 while the check scales up and the fill turns accent (0.35 s cubic-bezier(.3,1.5,.5,1)).
+- The 'Copied' tooltip pops up from 6 px lower, scaling 0.8 → 1.
+- After 1.5 s (at 2.5 s) everything reverses on the same curve.
+When to use it: Use it wherever something is copied: code samples in docs, invite links or coupon codes.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-171.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

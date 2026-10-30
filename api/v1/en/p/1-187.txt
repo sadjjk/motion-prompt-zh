@@ -1,0 +1,17 @@
+Please use "Shredder delete" (シュレッダーで削除), one of the names in "Landing page & web effects".
+Motion Prompt #1-187
+
+What it is: Drag a file into a shredder to delete it, and the list closes the gap
+What the sample shows: A file list sits on the left and a graphite shredder on the right. The cursor picks up the PDF row and carries it in an arc to the slot; once released, the card is sucked in, the machine shakes, its light blinks orange and thin strips curl down behind the bin window. The rows below slide up to fill the gap, then everything resets.
+Spec:
+- At 0.45 s the cursor presses row 2 and over 0.6–1.55 s drags it in an arc to the slot, the card shrinking from 1.03× to 0.6×.
+- From 1.7–2.45 s the card is pulled in, slowly at first and then faster; the machine shakes from 1.7–2.95 s.
+- From 1.65–3.0 s the light switches from a green 'standby' to an orange 'shredding' that blinks at 7 Hz.
+- From 1.98 s, 15 strips are pushed out under the blades over 0.34 s each, then drop free, curling as they fall and fading within 1.15 s; the middle pair carry the file's color band.
+- From 2.05–2.5 s the rows below move up 33 px to close the gap, and the count goes from 4 to 3.
+- The rows drop back over 4.05–4.45 s and the deleted row fades in from 10 px to the left over 4.3–4.7 s, on a 4.8 s cycle.
+When to use it: Use it in file managers, cloud storage or privacy and security features where a delete should feel permanent.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-187.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

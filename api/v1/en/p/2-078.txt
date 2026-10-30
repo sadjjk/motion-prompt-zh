@@ -1,0 +1,15 @@
+Please use "Slot machine" (スロットマシン), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-078
+
+What it is: Reels spin and stop left to right on the result
+What the sample shows: Random characters stream vertically in four windows, slowing left to right to land on the result; when all stop the frame flashes twice.
+Spec:
+- 4 windows (76×92 px, 14 px apart); reel i is a strip of 18 + 6i characters whose first and last are the target.
+- From 0.3 s each strip scrolls up over 1.4 + 0.5i s with cubic-bezier(.2,.75,.25,1.04), overshooting slightly and settling.
+- At speed, ghost copies sit 14 px above and below; the top and bottom 22% of each window get a dark inner shadow.
+- Over 3.2–4.2 s the frame flashes yellow twice on a 0.5 s period; the strip starts and ends on the same character, so the loop is seamless.
+When to use it: Use it to build suspense before a result: draws, fortunes, rankings or prizes.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-078.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

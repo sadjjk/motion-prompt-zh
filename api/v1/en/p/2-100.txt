@@ -1,0 +1,17 @@
+Please use "Infinite helix carousel" (無限らせんカルーセル), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-100
+
+What it is: Cards line a horizontal 3D helix and stream along it endlessly as it turns
+What the sample shows: Against a navy background, a row of small photo cards follows a horizontal helix, turning around its axis while moving right. Cards that swing to the front grow larger and brighter, with a shadow and a sweeping highlight; cards that swing to the back show a navy reverse and turn dim and hazy. The motion pushes and glides: it almost stops at the loop seam, speeds through the middle, and cards at both ends melt into the vignette.
+Spec:
+- 70 × 56 px cards sit on a horizontal helix with radius 55 px, 7 cards per turn and 36 px between cards along the axis.
+- Perspective uses a 220 px focal length with the camera tilted down 0.24 rad, and cards are drawn far to near.
+- Every 4.7 s the helix moves right by exactly one set of 6 different cards, so the loop has no seam.
+- Speed follows 1 − 0.8·cos2πt: 20% of the average at the seam and 180% at the midpoint.
+- Cards turned away show a navy back, and an edge-on card narrows to 0.22× its width.
+- Far cards dim and blur, near cards get a shadow and a highlight, and both ends fade out over 110 px.
+When to use it: Use it in portfolio, photo gallery and product showcase heroes to stream many cards past in 3D.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-100.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

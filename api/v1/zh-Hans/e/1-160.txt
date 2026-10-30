@@ -1,0 +1,53 @@
+// Motion Prompt #1-160 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 展开式图片面板 / Expanding panels
+// 分类包: lp (落地页与网页动效) · element 45 · 子分类: 悬停与点击交互
+// 动画表现: 5 片竖条图片面板中，光标先停第 2 片、再停第 4 片，被指的展开、其他变窄，展开那片的左下角出现标题。
+// 运动规格:
+//   - 5 片等宽竖条面板（总宽 471、高 136、间距 6px），平时各 flex 1，画面是按面板中心裁切的几何示意图。
+//   - 被指的面板 0.6 秒 easeOut 3 次方展开到 flex 4，其他同步缩窄。
+//   - 展开进度超过 0.6 后左下角标题淡入。
+//   - 时间线：0.35–1.75 秒停第 2 片 → 1.75–3.6 秒第 4 片接棒 → 之后全部回到等宽。
+// 适用场景: 适合作品分类、旅行目的地、图库入口等用图片来选择的地方。
+// 标签: panels, accordion, gallery, expand, hover, flex
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-160
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 45
+// 改写自 KittenJam Motion Library #168 展开式图片面板：5 片等宽竖条面板（总宽 471、高 136、间距 6，平时各 flex 1）。
+// 光标停在哪片，那片 0.6 秒 easeOut 3 次方展开到 flex 4、其他同步缩窄；展开进度超过 0.6 后左下角标题淡入。
+// 时间线：0.35–1.75 秒停第 2 片 → 1.75–3.6 秒移到第 4 片接棒 → 移出后全部回到等宽。面板画面是几何示意图，按面板中心裁切、不变形。
+const XPAN = { x: 20, y: 14, w: 471, h: 136, gap: 6, n: 5 };
+const XPAN_LAY = fl => {
+  const tot = fl.reduce((a, b) => a + b, 0), aw = XPAN.w - XPAN.gap * (XPAN.n - 1);
+  let x = XPAN.x;
+  return fl.map(f => { const r = [x, aw * f / tot]; x += r[1] + XPAN.gap; return r; });
+};
+// 与 Bento 款同样：悬停目标按时间表决定，光标落点取目标完全展开后的中心
+const XPAN_PT = i => { const fl = Array(XPAN.n).fill(1); fl[i] = 4; const [x, pw] = XPAN_LAY(fl)[i]; return [x + pw / 2, XPAN.y + XPAN.h / 2]; };
+const XPAN_TGT = t => { t = mod(t, CYC); return t >= 0.35 && t < 1.75 ? 1 : t >= 1.75 && t < 3.6 ? 3 : -1; };
+CELLS[44] = (k, w, h, u) => {
+  frame(k, 'example.com/explore');
+  const A = XPAN_PT(1), B = XPAN_PT(3);
+  const [cx, cy] = path([[0, 256, 162], [0.35, A[0], A[1]], [1.6, A[0], A[1]], [1.9, B[0], B[1]], [3.5, B[0], B[1]], [3.9, 256, 162], [4.8, 256, 162]], u);
+  const q = Array.from({ length: XPAN.n }, (_, i) => trans(t => XPAN_TGT(t) === i, u, 0.6));
+  const lay = XPAN_LAY(q.map(v => 1 + 3 * v));
+  view(k, () => {
+    k.fillStyle = '#fff'; k.fillRect(0, 0, VW, VH);
+    lay.forEach(([x, pw], i) => {
+      k.save(); rr(k, x, XPAN.y, pw, XPAN.h, 10); k.clip();
+      pic(k, x + pw / 2 - 130, XPAN.y, 260, XPAN.h, i, 0);
+      const ta = clamp((q[i] - 0.6) / 0.4);
+      if (ta > 0) {
+        k.globalAlpha = ta; k.fillStyle = 'rgba(28,35,51,.35)'; k.fillRect(x, XPAN.y + XPAN.h - 34, pw, 34);
+        txt(k, ['山野', '海岸', '城市', '森林', '星空'][i], x + 12, XPAN.y + XPAN.h - 12, `800 15px ${JP}`, '#fff');
+      }
+      k.restore();
+    });
+    cursor(k, cx, cy);
+  });
+};

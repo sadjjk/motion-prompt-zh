@@ -1,0 +1,49 @@
+// Motion Prompt #4-010 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// 全球航线 / Flight paths
+// 分类包: scenes (风格画面) · element 10 · 子分类: 科技氛围
+// 动画表现: 斜俯视的点阵地图上，橙色航线从枢纽依次弹射成弧，画完后光点沿弧线飞向另一端。
+// 运动规格:
+//   - 斜俯视点阵地图，8 个枢纽、14 条航线，底色 #060912。
+//   - 各航线在 0–2 秒内依次出现，每条 1.2 秒画完弧线，弧高为航程的 0.28 倍。
+//   - 弧线画完后光点沿航线循环飞行，每秒走完航程的 0.35。
+//   - 航线为橙色 rgba(255, 170, 90)，枢纽带蓝色光晕；5.4–6.0 秒航线淡出，地图常驻。
+// 适用场景: 适合物流、航空、跨国企业的首屏背景，讲全球布局的演示开场，或数据可视化过场。
+// 标签: flight-paths, map, routes, global, arcs, network, tech
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-010
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 10
+// 10 全球航线：点阵地图斜铺在桌面上，航线从枢纽弹射成弧线，光点沿弧线飞向另一端
+const HUBS = [[-2.2, 0.5], [0.4, -0.6], [2.1, 2.2], [3.6, 0.1], [-0.8, 3.1], [1.6, -1.6], [-3.2, -1.4], [4, 3.4]];
+const ROUTES = (() => { const out = []; for (let i = 0; i < 22 && out.length < 14; i++) { const a = HUBS[Math.floor(hash(i * 5 + 1) * HUBS.length)], b = HUBS[Math.floor(hash(i * 5 + 2) * HUBS.length)]; if (a !== b) out.push([a, b, hash(i * 5 + 3)]); } return out; })();
+// 斜俯视投影：地面 (x, 0, z) 与弧高 y → 画面坐标
+// 斜俯视投影：地面 (x, 0, z) 与弧高 y → 画面坐标。z 从 -2.5（近，画面底部）到 4.5（远，画面上方）
+const FP = (x, y, z) => { const d = z + 4.5, s = 230 / d; return [269.5 + (x - 0.6) * s, 4 + 400 / d - y * s * 0.9, d]; };
+CELLS[9] = (k, w, h, u) => {
+  k.drawImage(layer('flights', g => {
+    g.fillStyle = '#060912'; g.fillRect(0, 0, CW, CH);
+    for (let gz = -2.5; gz <= 4.5; gz += 0.14) for (let gx = -5.5; gx <= 6.5; gx += 0.14) {
+      if (fbm2(gx * 0.45 + 4, gz * 0.45 + 1, 4) < 0.5) continue;
+      const [sx, sy, d] = FP(gx, 0, gz); g.fillStyle = `rgba(120,150,210,${Math.min(0.8, 6 / d)})`; const r = Math.max(0.8, 6 / d); g.fillRect(sx - r / 2, sy - r / 2, r, r);
+    }
+  }), 0, 0);
+  const fade = fadeIn(u);
+  k.save(); k.globalCompositeOperation = 'lighter'; k.globalAlpha = fade;
+  for (const [a, b, kk] of ROUTES) {
+    const d = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const arc = s => FP(a[0] + (b[0] - a[0]) * s, Math.sin(s * Math.PI) * d * 0.28, a[1] + (b[1] - a[1]) * s);
+    const grow = clamp((u - kk * 2) / 1.2); if (grow <= 0) continue;   // 各航线在 0–2 秒内依次出现，1.2 秒画完
+    k.strokeStyle = 'rgba(255,170,90,.45)'; k.lineWidth = 0.9; k.beginPath();
+    for (let i = 0; i <= 40 * grow; i++) { const [sx, sy] = arc(i / 40); if (i) k.lineTo(sx, sy); else k.moveTo(sx, sy); }
+    k.stroke();
+    if (grow >= 1) { const [sx, sy] = arc((u * 0.35 + kk) % 1); glow(k, sx, sy, 5, '255,210,150', 0.9); }
+  }
+  k.restore();
+  for (const hb of HUBS) { const [sx, sy] = FP(hb[0], 0, hb[1]); glow(k, sx, sy, 9, '120,200,255', 0.5); k.fillStyle = '#DDEBFF'; k.beginPath(); k.arc(sx, sy, 1.6, 0, TAU); k.fill(); }
+  grain(k, 0.05);
+};

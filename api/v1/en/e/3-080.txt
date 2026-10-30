@@ -1,0 +1,83 @@
+// Motion Prompt #3-080 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/foggy-light
+//
+// Foggy light / 霧の中の光
+// Pack: photo (Photo looks, lighting & styles) · element 44 · Category: Light sources & color
+// What happens: Fog rolls into the evening street; of the four layers — far hills, buildings, trees with street lamps, and the person in front — the further ones turn closer to the fog colour and lose contrast; a fog band drifts along the horizon and each lamp gets a large halo and a cone of light below.
+// Motion spec:
+//   - Scene: an evening street corner (sky #C9D1DA, far hills #56677C, buildings #4F5D73, trees #34493F, person #232A38).
+//   - Fog layers: fog colour #D5DADF is laid on at 0.42 after the hills, 0.32 after the buildings and 0.22 after the trees and lamps, so further layers are covered more often; none goes over the person.
+//   - Fog band: 7 white puffs are drawn on a 68×26 canvas and stretched over y 50–150 at 0.7 opacity; the puffs drift sideways 1–2 times per pass.
+//   - 3 street lamps (x 114, 292, 494): a halo #FFD68C of radius 18–44 px around each bulb (0.6 at the centre) and a 44 px wide cone spreading down; top right reads "FOG n%".
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For early mornings, after rain or mysteries when the picture should feel deep and quiet.
+// Tags: foggy light, fog, mist, atmospheric perspective, halo, light
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-080
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 44
+// 雾中光（霧の中の光）: 夕方の街並みに霧が出る。遠い山・建物の列・並木と街灯・手前の人物の4層があり、
+// 1層描くごとに霧の色を薄く重ねるので、遠い層ほど何度も霧をかぶって霧の色に近づき、コントラストが下がる（空気遠近）。
+// 地平線のあたりを霧の帯がゆっくり流れ、街灯は霧の中で大きな光の輪になる。手前の人物はくっきり残る
+const FOGW = 68, FOGH = 26;
+const FOGLO = once('fog-lo', () => { const c = document.createElement('canvas'); c.width = FOGW; c.height = FOGH; return c; });
+CELLS[43] = cell((k, u) => {
+  const a = env(u), T = u / CYC * TAU, D = pen(k), FOG = '#D5DADF';
+  // 夕方の色: 晴れた昼（BASE）から、街灯の灯る青灰色の夕方へ。霧の差が見えるよう、建物と木は濃い色にする
+  const DUSK = Object.assign({}, BASE, {
+    sky: '#C9D1DA', sky2: '#D3D9DF', far: '#56677C', bld: '#4F5D73', edge: '#3F4B5E', win: '#FFD27A', winOff: '#435064',
+    tree: '#34493F', trunk: '#2B3330', post: '#262C36', bulb: '#FFD27A', ground: '#8C949E', ground2: '#5D6672', mark: '#8C949E', person: '#232A38'
+  });
+  const p = pal(BASE, DUSK, a);
+  // 霧を1枚かぶせる（深さ d ぶん）。下ほど少し薄くして、地面に近い霧が溜まって見えるように
+  const veil = d => {
+    if (a < 0.002) return;
+    const g = k.createLinearGradient(0, 40, 0, CH);
+    g.addColorStop(0, mixc(FOG, '#FFFFFF', 0.2)); g.addColorStop(1, FOG);
+    k.save(); k.globalAlpha = d * a; k.fillStyle = g; k.fillRect(0, 0, CW, CH); k.restore();
+  };
+  D.rect(0, 0, CW, CH, p.sky);
+  // 4: 遠い山
+  D.poly([[0, 112], [70, 82], [150, 100], [232, 66], [318, 96], [400, 74], [480, 94], [539, 80], [539, ROAD], [0, ROAD]], p.far);
+  veil(0.42);
+  // 3: 建物の列（窓は夕方に灯る）
+  BLD.forEach(([x, w, h], i) => building(D, x, ROAD, w, h * 0.8, p, i));
+  veil(0.32);
+  // 霧の帯: 小さな面に白い塊を描いて引き伸ばす（ぼかし代わり）。1周で整数回横に流れる
+  if (a > 0.002) {
+    const g = FOGLO.getContext('2d');
+    g.clearRect(0, 0, FOGW, FOGH);
+    for (let i = 0; i < 7; i++) {
+      const x = ((i * 13 + u / CYC * FOGW * (1 + (i % 2))) % (FOGW + 24)) - 12, y = 12 + 4 * Math.sin(i * 2.1), r = 7 + (i % 3) * 3;
+      const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(240,243,246,0.9)'); gr.addColorStop(1, 'rgba(240,243,246,0)');
+      g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    k.save(); k.globalAlpha = 0.7 * a; k.imageSmoothingEnabled = true; k.drawImage(FOGLO, 0, 50, CW, 100); k.restore();
+  }
+  // 2: 並木・街灯・道
+  TREES.forEach(([x, r]) => tree(D, x, ROAD, r, p));
+  LAMPS.forEach(x => lamp(D, x, ROAD, 58, p));
+  D.rect(0, ROAD, CW, WALK - ROAD, p.ground2); D.line([[0, 147], [CW, 147]], 2, p.mark, [14, 12]);
+  veil(0.22);
+  // 街灯の光の輪: 霧の粒が光を散らすので、電球の周りに大きな輪と下へ広がる光の円錐が出る
+  if (a > 0.002) {
+    k.save(); k.globalCompositeOperation = 'lighter';
+    for (const x of LAMPS) {
+      const bx = x + 9, by = ROAD - 53, R = 18 + 26 * a;
+      const g = k.createRadialGradient(bx, by, 1, bx, by, R);
+      g.addColorStop(0, `rgba(255,214,140,${(0.6 * a).toFixed(3)})`); g.addColorStop(0.35, `rgba(255,214,140,${(0.2 * a).toFixed(3)})`); g.addColorStop(1, 'rgba(255,214,140,0)');
+      k.fillStyle = g; k.fillRect(bx - R, by - R, R * 2, R * 2);
+      const c = k.createLinearGradient(0, by, 0, ROAD + 4);
+      c.addColorStop(0, `rgba(255,214,140,${(0.22 * a).toFixed(3)})`); c.addColorStop(1, 'rgba(255,214,140,0)');
+      k.fillStyle = c; k.beginPath(); k.moveTo(bx - 3, by); k.lineTo(bx + 3, by); k.lineTo(bx + 22, ROAD + 4); k.lineTo(bx - 22, ROAD + 4); k.closePath(); k.fill();
+    }
+    k.restore();
+  }
+  // 1: 手前の歩道と人物（霧はかけない）
+  D.rect(0, WALK, CW, CH - WALK, p.ground); D.line([[0, WALK], [CW, WALK]], 1.4, p.edge);
+  figure(D, FIG[0], FIG[1], FIG[2], p.person);
+  hud(k, `FOG ${Math.round(a * 100)}%`);
+});

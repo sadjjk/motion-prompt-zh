@@ -1,0 +1,16 @@
+Please use "Barcode scan" (バーコードスキャン), one of the names in "Styled scenes".
+Motion Prompt #4-034
+
+What it is: A cyan laser reading the barcode on a packing slip
+What the sample shows: A white packing slip settles onto a grey desk, a cyan laser sweeps the barcode left to right and switches off, and a green "Verified · ready to ship" rises in.
+Spec:
+- A white packing slip, 491×180, on a pale grey desk #e2e8f0→#cbd5e1. The barcode has 29 bars (width ×0.8, 5.6px gaps; 399px wide and 68px tall overall).
+- The slip fades in over 0.18–1.02 s, rising 9px and straightening from -0.6° (quartic ease-out).
+- A cyan laser #06b6d4 switches on over 0.9–1.14 s, sweeps 412px from the left over 1.02–3.6 s with a quadratic ease-in-out, and switches off over 3.78–4.2 s.
+- A green status "Verified · ready to ship" #059669 rises 3px into view over 3.66–4.2 s. The slip fades over 5.4–6.0 s, leaving the empty desk by 6.4 s.
+- Versus Radar sweep: the scan line passes over the barcode once in one direction and then gives a result, instead of circling continuously.
+When to use it: Use it for logistics, warehouse, inventory or e-commerce fulfilment promos, or to signal that an item or check has been verified.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-034.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

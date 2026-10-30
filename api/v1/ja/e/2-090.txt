@@ -1,0 +1,36 @@
+// Motion Prompt #2-090 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 押し出し文字 / Extruded text
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 51 · カテゴリ: 文字・図形の演出
+// 何が起きるか: 白い正面の後ろに暗いコーラルの層が重なって厚みを作る「立体」が縦軸でゆっくり1回転し、横向きになると厚みが見える。
+// 動きの仕様:
+//   - 正面は白、後ろに珊瑚色の階調14層（1層の奥行き2.6px、奥ほど暗い）
+//   - 4.7秒で縦軸に等速1回転（scaleX = cos）
+//   - 12°の俯角で層が少し上へずれる
+//   - 背面を向くと重なり順を入れ替え、手前が最も深い層になる
+// 使いどころ: ロゴ、タイトル、ゲーム風の見出しに。
+// タグ: extrude, 3d, depth, rotate, title, logo
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-090
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 51
+// 改写自 KittenJam Motion Library #61（Hannah）· 立体字：「立体」由 14 层珊瑚色阶（每层深 2.6px，越深越暗）叠出厚度，正面白色；整组绕竖轴每 4.7 秒匀速转一圈（scaleX = cos），带 12° 俯角的上下错位，转到侧面能看到厚度。
+CELLS[50] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '立体', F = `900 96px ${JP}`, th = Math.PI * 2 * u / CYC, c = Math.cos(th), s = Math.sin(th), TX = Math.tan(12 * Math.PI / 180);
+  const sx = Math.abs(c) < 0.02 ? (c < 0 ? -0.02 : 0.02) : c;
+  k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(w / 2, 172, 130 * Math.max(0.3, Math.abs(c)), 7, 0, 0, 7); k.fill();
+  const ids = []; for (let i = 14; i >= 0; i--) ids.push(i);   // 0 = 正面
+  if (c < 0) ids.reverse();                                     // 转到背面时近处是最深一层
+  ids.forEach(i => {
+    const d = i * 2.6;
+    k.save(); k.translate(w / 2 - d * s, h / 2 - 4 - d * TX); k.scale(sx, 1);
+    txt(k, S, 0, 0, F, i ? `hsl(6,72%,${54 - i * 2}%)` : '#fff', 'center', 'middle');
+    k.restore();
+  });
+};

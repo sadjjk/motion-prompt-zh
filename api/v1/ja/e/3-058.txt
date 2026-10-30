@@ -1,0 +1,30 @@
+// Motion Prompt #3-058 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/centered-composition
+//
+// 日の丸構図 / Centered composition
+// パック: photo (写真の表現・光と画風) · element 26 · カテゴリ: 構図
+// 何が起きるか: 人物が左から画面の中心線へ移り、中心線と頭から胸にかけての視覚の重心を示す円が現れる。背景は左に建物、右に木で左右対称ではない。
+// 動きの仕様:
+//   - 人物: x 150 から中心線 x 270 へ、身長110px
+//   - 中心線は x 270 の縦の破線。重心の円は半径28px・中心 y 118、右に「视觉重心」
+//   - 背景は鏡像にしない。左 x 60 に建物、右 x 432・x 470 に木2本。真ん中に置くのは重心のためで対称のためではない
+//   - 補助線: 琥珀色 #F5A524 の破線、太さ1.6px。効果の量に合わせて現れる
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: 商品写真・正面の人物写真など、主役を一つに絞りたいときや改まった印象にしたいとき。
+// タグ: centered composition, central composition, center framing, bullseye, composition, visual weight
+// サイズ: 539x208 px · 1周: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-058
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 26
+// 居中构图: 主体移到中轴，标出中轴与视觉重心；背景故意不镜像（左建筑、右树），说明居中看的是重心，不是对称
+CELLS[25] = cell((k, u) => {
+  const a = env(u), D = field(k, BASE, 150);
+  building(D, 60, 150, 40, 46, BASE, 1); tree(D, 470, 150, 18, BASE); tree(D, 432, 150, 11, BASE);
+  figure(D, lerp(150, CW / 2, a), 178, 110, BASE.person);
+  guide(k, [[CW / 2, 0], [CW / 2, CH]], a);
+  k.save(); k.globalAlpha = a; k.strokeStyle = GUIDE; k.lineWidth = 2; k.beginPath(); k.arc(CW / 2, 118, 28, 0, TAU); k.stroke(); k.restore();
+  tag(k, '视觉重心', CW / 2 + 76, 118, a);
+});

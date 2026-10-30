@@ -1,0 +1,15 @@
+Please use "Neural net" (ニューラルネット), one of the names in "Styled scenes".
+Motion Prompt #4-012
+
+What it is: A layered neural network with signal lights flowing from left to right
+What the sample shows: Over deep navy, orange signal lights run rightward along the strongest weights of a layered graph while nodes brighten and dim with activation.
+Spec:
+- A 6-layer network with 4-7-9-9-7-3 nodes, 72 px between layers and 19 px between nodes.
+- Links with weight above 0.62 are highlighted, carrying orange signals left to right 3 times per 6.4 s.
+- Nodes have a 5 px radius; activation pulses 2 times per 6.4 s, phase-shifted layer by layer.
+- Radial background #0E1230 → #04050B; node glows have a 13 px radius.
+When to use it: Use it as a hero background for AI products or research, to open talks explaining machine learning, or as a transition in tech videos.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-012.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

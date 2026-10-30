@@ -1,0 +1,16 @@
+Please use "Receipt printing" (レシート印字), one of the names in "Styled scenes".
+Motion Prompt #4-033
+
+What it is: A thermal receipt slowly feeding out of a register's paper slot
+What the sample shows: A dark paper slot fades in and a white receipt eases out from the top, revealing the shop name, 3 item lines and "Total · Shipped" under a dashed rule, before everything fades.
+Spec:
+- A dark paper slot, 341×188 (#1f2937, inner border #374151), with an 11px lip at the top shaded #4b5563→#1f2937. The receipt is 301×130 on #f9fafb.
+- The slot fades in and rises 5px over 0.36–0.96 s (quadratic ease-out).
+- The receipt feeds out 165px over 1.08–3.96 s with a quadratic ease-out, then another 5px over 4.08–5.28 s with a sine ease-in-out, its top edge stopping at 16% of the slot height.
+- On the paper: shop name, 3 item lines, and "Total · Shipped" under a dashed #9ca3af rule. Everything fades over 5.4–6.0 s, back to the empty background by 6.4 s.
+- Versus Split-flap board: the information appears as paper feeds out, not by flaps flipping to new characters.
+When to use it: Use it for e-commerce, payment or POS promos, order-complete and shipping notices, or videos that reveal a monthly report or results.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-033.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

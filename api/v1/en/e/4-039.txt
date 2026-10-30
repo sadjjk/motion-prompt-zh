@@ -1,0 +1,44 @@
+// Motion Prompt #4-039 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// Caution tape cross / 立入禁止テープ
+// Pack: scenes (Styled scenes) · element 39 · Category: Type moods
+// What happens: Over a dark background, 2 yellow tapes with black edges cross in an X, each carrying a repeated "禁止进入" that scrolls in the opposite direction to the other.
+// Motion spec:
+//   - Each tape is 840px long and 34px tall, yellow #ffd400 with 4px black #111111 edges top and bottom, and an 18px blur shadow offset 8px down.
+//   - Both are centered on the card: the lower tape at y 112 tilted 13°, the upper tape at y 96 tilted -15°.
+//   - The tapes carry a repeated 16px bold "禁止进入 · ".
+//   - Over 6.4 s the upper tape scrolls 4 text units left and the lower tape 3 units right at a constant rate; whole units keep the loop seamless.
+// When to use it: Use it for under-construction, coming-soon, restricted or spoiler notices, or behind street-style titles.
+// Tags: caution-tape, warning, marquee, crossed, street, banner
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-039
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 39
+// 改写自 KittenJam Motion Library #54 封锁胶带（Hannah 整理）：两条黄色警示胶带（高 34px、上下 4px 黑边、投影）分别倾斜 −15° 与 13° 交叉成 X，
+// 带上重复的「禁止进入 · 」反向滑动：上层每周期左移 4 个文字单元、下层右移 3 个；滑动距离是单元宽的整数倍，循环无缝。
+const TAPE_TXT = '禁止进入 · ', TAPE_H = 34, TAPE_B = 4, TAPE_L = 840;
+const TAPE_BANDS = [{ y: 112, deg: 13, dir: 1, n: 3 }, { y: 96, deg: -15, dir: -1, n: 4 }]; // 先画下层（13°），再画上层（−15°）
+CELLS[38] = (k, w, h, u) => {
+  k.drawImage(layer('TAPE_bg', g => {
+    g.fillStyle = '#18171d'; g.fillRect(0, 0, CW, CH);
+    const gr = g.createRadialGradient(269.5, 104, 40, 269.5, 104, 320);
+    gr.addColorStop(0, 'rgba(255,255,255,.05)'); gr.addColorStop(1, 'rgba(0,0,0,.35)'); g.fillStyle = gr; g.fillRect(0, 0, CW, CH);
+  }), 0, 0);
+  k.font = `800 16px ${SANS}`;
+  const uw = k.measureText(TAPE_TXT).width;                                       // 文字单元宽，随系统字体而定
+  for (const b of TAPE_BANDS) {
+    k.save(); k.translate(269.5, b.y); k.rotate(b.deg * Math.PI / 180);
+    k.save(); k.shadowColor = 'rgba(0,0,0,.55)'; k.shadowBlur = 18; k.shadowOffsetY = 8;
+    k.fillStyle = '#ffd400'; k.fillRect(-TAPE_L / 2, -TAPE_H / 2, TAPE_L, TAPE_H); k.restore();
+    k.fillStyle = '#111111';
+    k.fillRect(-TAPE_L / 2, -TAPE_H / 2, TAPE_L, TAPE_B); k.fillRect(-TAPE_L / 2, TAPE_H / 2 - TAPE_B, TAPE_L, TAPE_B);
+    const off = (((b.dir * b.n * uw * u / CYC) % uw) + uw) % uw;
+    k.textAlign = 'left'; k.textBaseline = 'middle';
+    for (let x = -TAPE_L / 2 - uw + off; x < TAPE_L / 2; x += uw) k.fillText(TAPE_TXT, x, 1);
+    k.restore();
+  }
+};

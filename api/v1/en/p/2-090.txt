@@ -1,0 +1,15 @@
+Please use "Extruded text" (押し出し文字), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-090
+
+What it is: Text with real depth turns to show its side
+What the sample shows: 立体 with a white face and darker coral layers stacked behind for depth turns slowly once around the vertical axis, showing its thickness side-on.
+Spec:
+- A white face with 14 coral layers behind it (2.6 px deep each, darker further back).
+- It turns once around the vertical axis every 4.7 s at a constant rate (scaleX = cos).
+- A 12° tilt shifts the layers slightly upward.
+- When it faces away the draw order flips so the deepest layer is in front.
+When to use it: Use it for logos, titles or game-style headings.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-090.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

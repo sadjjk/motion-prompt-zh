@@ -1,0 +1,75 @@
+// Motion Prompt #2-081 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 地图路线导航 / Map route animation
+// 分类包: motion2 (动态图形进阶) · element 42 · 子分类: 运动技法
+// 动画表现: 淡色地图与格线上，3 枚地标依次弹跳落下，蓝线沿虚线预定路线画出，发光小点同步前进，终点地标弹一下。
+// 运动规格:
+//   - 淡色陆地加 54 px 间隔格线，路线（2 段三次贝塞尔）先以虚线显示。
+//   - 3 枚地标从上方 30 px 处以 bounce 用 0.6 秒落下，0.3 秒起每枚错开 0.18 秒。
+//   - 1.3–3.5 秒蓝线（3.5 px、光晕 9 px）按 sine 缓入缓出画出，带光圈的小点跟在前端。
+//   - 3.5–3.85 秒终点地标弹到 1.25 倍；4.1–4.55 秒地标与路线淡出。
+// 适用场景: 适合旅行记录、配送物流讲解或门店路线指引。
+// 标签: map, route, pin, navigation, path, travel
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-081
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 42
+// 改写自 KittenJam Motion Library #322（Hannah）· 地图路线导航：淡色陆地与格线的地图上，三枚地标针从 30px 高处依次（间隔 0.18 秒）弹跳落下，1.3–3.5 秒实线路线沿弯曲路径画到终点，带光圈的小点同步前进，抵达后终点针放大 1.25 倍弹一下；4.1–4.55 秒淡出。
+const MAPR_PINS = [[86, 150, '起点'], [262, 100, '中转'], [452, 62, '终点']];
+const MAPR_PTS = (() => {
+  const p = [], bez = (a, b, c, d) => { for (let i = p.length ? 1 : 0; i <= 40; i++) { const t = i / 40, m = 1 - t; p.push([m * m * m * a[0] + 3 * m * m * t * b[0] + 3 * m * t * t * c[0] + t * t * t * d[0], m * m * m * a[1] + 3 * m * m * t * b[1] + 3 * m * t * t * c[1] + t * t * t * d[1]]); } };
+  bez([86, 150], [130, 60], [200, 176], [262, 100]); bez([262, 100], [320, 30], [380, 134], [452, 62]); return p;
+})();
+const MAPR_CUM = pathLen(MAPR_PTS);
+const MAPR_BG = (() => {
+  const c = mkCanvas(CW, CH), g = c.getContext('2d');
+  g.fillStyle = '#0D173A'; g.fillRect(0, 0, CW, CH);
+  const blob = (cx, cy, rx, ry, s) => { g.beginPath(); for (let i = 0; i <= 72; i++) { const a = i / 72 * Math.PI * 2, r = 1 + 0.08 * Math.sin(3 * a + s) + 0.05 * Math.sin(5 * a + s * 2); const x = cx + Math.cos(a) * rx * r, y = cy + Math.sin(a) * ry * r; i ? g.lineTo(x, y) : g.moveTo(x, y); } g.closePath(); g.fill(); g.stroke(); };
+  g.fillStyle = '#18275A'; g.strokeStyle = '#26397A'; g.lineWidth = 1.5;
+  blob(270, 104, 236, 84, 1); blob(500, 182, 40, 18, 4);
+  g.strokeStyle = 'rgba(127,144,196,.14)'; g.lineWidth = 1;
+  for (let x = 0; x <= CW; x += 54) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, CH); g.stroke(); }
+  for (let y = 24; y <= CH; y += 54) { g.beginPath(); g.moveTo(0, y); g.lineTo(CW, y); g.stroke(); }
+  g.strokeStyle = 'rgba(255,241,214,.28)'; g.lineWidth = 2; g.setLineDash([5, 6]);
+  g.beginPath(); MAPR_PTS.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke();
+  return c;
+})();
+function MAPR_bounce(x) { const n = 7.5625, d = 2.75; if (x < 1 / d) return n * x * x; if (x < 2 / d) return n * (x -= 1.5 / d) * x + 0.75; if (x < 2.5 / d) return n * (x -= 2.25 / d) * x + 0.9375; return n * (x -= 2.625 / d) * x + 0.984375; }
+CELLS[41] = (k, w, h, u) => {
+  u = snapU(u);
+  k.drawImage(MAPR_BG, 0, 0);
+  const fade = 1 - P(u, 4.1, 4.55);
+  if (fade <= 0) return;
+  k.save(); k.globalAlpha = fade;
+  const f = -(Math.cos(Math.PI * P(u, 1.3, 3.5)) - 1) / 2;
+  if (f > 0) {
+    const L = MAPR_CUM[MAPR_CUM.length - 1] * f;
+    k.lineCap = 'round'; k.lineJoin = 'round'; k.beginPath(); k.moveTo(MAPR_PTS[0][0], MAPR_PTS[0][1]);
+    for (let i = 1; i < MAPR_PTS.length && MAPR_CUM[i - 1] < L; i++) { const q = Math.min(1, (L - MAPR_CUM[i - 1]) / (MAPR_CUM[i] - MAPR_CUM[i - 1])); k.lineTo(lerp(MAPR_PTS[i - 1][0], MAPR_PTS[i][0], q), lerp(MAPR_PTS[i - 1][1], MAPR_PTS[i][1], q)); }
+    k.strokeStyle = 'rgba(59,123,255,.3)'; k.lineWidth = 9; k.stroke();
+    k.strokeStyle = C.blue; k.lineWidth = 3.5; k.stroke();
+  }
+  MAPR_PINS.forEach(([x, y, lb], i) => {
+    const s = 0.3 + 0.18 * i, q = P(u, s, s + 0.6); if (q <= 0) return;
+    const dy = -30 * (1 - MAPR_bounce(q));
+    const pop = i === 2 && u > 3.5 ? 1 + 0.25 * Math.sin(Math.PI * P(u, 3.5, 3.85)) : 1;
+    k.save(); k.globalAlpha = fade * clamp(q * 4);
+    k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(x, y, 6, 2.5, 0, 0, 7); k.fill();
+    k.translate(x, y + dy); k.scale(pop, pop);
+    k.fillStyle = i === 2 ? C.coral : i === 0 ? C.mint : C.yel;
+    k.beginPath(); k.moveTo(0, 0); k.bezierCurveTo(-8, -10, -11, -15, -11, -20); k.arc(0, -20, 11, Math.PI, 0); k.bezierCurveTo(11, -15, 8, -10, 0, 0); k.fill();
+    k.fillStyle = C.navy; k.beginPath(); k.arc(0, -20, 4, 0, 7); k.fill();
+    k.restore();
+    txt(k, lb, x, y + 18, `700 12px ${JP}`, C.cream, 'center', 'alphabetic');
+  });
+  if (f > 0) {
+    const [x, y] = ptAt(MAPR_PTS, MAPR_CUM, f), r = 9 + 3 * Math.sin(Math.PI * 2 * u / (CYC / 6));
+    k.fillStyle = 'rgba(255,255,255,.22)'; k.beginPath(); k.arc(x, y, r, 0, 7); k.fill();
+    k.fillStyle = '#fff'; k.beginPath(); k.arc(x, y, 4.5, 0, 7); k.fill();
+  }
+  k.restore();
+};

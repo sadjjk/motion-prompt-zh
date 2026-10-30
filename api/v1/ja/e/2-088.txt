@@ -1,0 +1,37 @@
+// Motion Prompt #2-088 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 振り子の揺れ / Swing letters
+// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 49 · カテゴリ: 文字・図形の演出
+// 何が起きるか: 横棒から糸で吊られた4文字が、上の黄色い支点を中心に左右へゆったり揺れ、隣の字と少しずつ位相がずれている。
+// 動きの仕様:
+//   - 各字は上の支点から吊られ、±14°で振れる
+//   - 4.7秒で3往復（1往復約1.57秒）の余弦カーブ
+//   - 隣の字は0.27秒ずつ位相がずれる
+//   - 偶数番目の字はコーラル、ほかは白
+// 使いどころ: ゆるい雰囲気のロゴやキャラクター紹介、待機画面に。
+// タグ: swing, pendulum, sway, hanging, cute, idle
+// サイズ: 539x208 px · 1周: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-088
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 49
+// 改写自 KittenJam Motion Library #26（Hannah）· 钟摆摇晃：每个字用细线挂在横杆下，以字上方的小圆点为支点 ±14° 左右摆，4.7 秒摆 3 个来回（ease-in-out 的余弦），相邻字相位错开 0.27 秒，偶数位字用珊瑚色。
+const SWNG_T = CYC / 3;
+CELLS[48] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '悠然自得', F = `900 56px ${JP}`, RAIL = 34, PIV = 50;
+  k.fillStyle = C.navy3; rr(k, 70, RAIL - 2, w - 140, 4, 2); k.fill();
+  chars(k, S, F, 34).forEach((c, i) => {
+    const a = 14 * Math.PI / 180 * Math.cos(Math.PI * 2 * (u + 0.27 * i) / SWNG_T), x = w / 2 + c.x;
+    k.strokeStyle = C.dim; k.lineWidth = 1.5; k.beginPath(); k.moveTo(x, RAIL); k.lineTo(x, PIV); k.stroke();
+    k.save(); k.translate(x, PIV); k.rotate(a);
+    k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 30); k.stroke();
+    txt(k, c.ch, 0, 62, F, i % 2 ? C.coral : '#fff', 'center', 'middle');
+    k.restore();
+    k.fillStyle = C.yel; k.beginPath(); k.arc(x, PIV, 4.5, 0, 7); k.fill();
+  });
+};

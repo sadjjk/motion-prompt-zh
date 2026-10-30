@@ -1,0 +1,117 @@
+// Motion Prompt #1-064 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 単語ごとのキネティック字幕 / Word-by-word kinetic captions
+// パック: uxmotion (インタラクションとデータの動き) · element 04 · カテゴリ: インタラクティブな文字
+// 何が起きるか: 再生すると字幕が単語ごとに下から弾んで現れ、強調語は大きく傾いてから黄色で着地し、文が終わると行ごと上へ折れて消える。
+// 動きの仕様:
+//   - 単語は話す速さで出る：各語 .30 秒＋ランダム 0–.08 秒、強調語の前に .12 秒、後に .22 秒長く止まる
+//   - 通常の語は .35 秒で下 12px・縮小 .6 から弾み出る。イージング cubic-bezier(.3,1.6,.5,1)
+//   - 強調語は .6 秒のうちに 1.45 倍・-3° まで膨らみ、1 倍に戻りながら黄色 #FFE066 に変わる
+//   - 文が終わると行全体が 70° 上へ折れ 26px 上がって消える（.45 秒）。下部の 26 本の音声バーは 90ms ごとに高さが変わる
+// 使いどころ: ショート動画、製品デモ動画、ポッドキャストの切り抜きで、重要な数字や売りを強調する動く字幕に。
+// タグ: kinetic-captions, subtitles, word-by-word, video, emphasis, pop-in
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-064
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 04
+// 04 逐词卡点字幕：0.2 秒指针按下播放，字幕按语速逐词弹出（每词 .30 秒 + 随机 0–.08，重点词前后各多停 .12/.22 秒），
+// 普通词 .35 秒从下 12px、缩放 .6 弹入，重点词 .6 秒先放大到 1.45 倍（转 -3°）再落回并变黄 #FFE066；整句结束后整行上折淡出（.45 秒），下方 26 根声波条随说话起伏
+const CAP_SCRIPT = [['今天', '我们', '只改了', '*一个*', '按钮'], ['结果', '注册量', '*翻了一倍*']];
+const CAP_T0 = 0.25;                                  // 播放开始时刻（原作 WORD .36、GAP 1.0，为装进一个周期改为 .30 / .8，并只保留前两句）
+const CAP_TL = (() => {
+  let t = 0.3; const lines = [];
+  CAP_SCRIPT.forEach((sent, si) => {
+    const start = t;
+    const words = sent.map((wd, wi) => {
+      const em = wd[0] === '*'; if (em) t += 0.12;
+      const at = t; t += 0.30 + (em ? 0.22 : 0) + hash(si * 10 + wi + 5) * 0.08;
+      return { text: em ? wd.slice(1, -1) : wd, em, at };
+    });
+    lines.push({ start, end: t + 0.8 * 0.6, words });
+    t += 0.8;
+  });
+  return { lines, total: t };
+})();
+const CAP_pop = UXA_bz(.3, 1.6, .5, 1), CAP_em = UXA_bz(.3, 1.4, .5, 1), CAP_out = UXA_bz(.6, 0, .3, 1);
+let CAP_W = null;                                    // 惰性常量：每句每词的宽度
+CELLS[3] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  const F = `900 24px ${SANS}`;
+  if (!CAP_W) { k.font = F; CAP_W = CAP_TL.lines.map(l => l.words.map(x => k.measureText(x.text).width)); }
+  const pos = u - CAP_T0, playing = pos >= 0 && pos < CAP_TL.total;
+  k.drawImage(layer('CAP_scr', g => {
+    g.save(); rr(g, 10, 10, 519, 146, 16); g.clip();
+    g.fillStyle = '#0B0C12'; g.fillRect(10, 10, 519, 146);
+    let gr = g.createRadialGradient(166, 54, 0, 166, 54, 230); gr.addColorStop(0, '#3A2F7A'); gr.addColorStop(1, 'rgba(58,47,122,0)'); g.fillStyle = gr; g.fillRect(10, 10, 519, 146);
+    gr = g.createRadialGradient(425, 127, 0, 425, 127, 210); gr.addColorStop(0, '#0E6B63'); gr.addColorStop(1, 'rgba(14,107,99,0)'); g.fillStyle = gr; g.fillRect(10, 10, 519, 146);
+    g.restore();
+    g.fillStyle = 'rgba(0,0,0,.35)'; rr(g, 22, 22, 84, 20, 10); g.fill();
+    txt(g, '设计复盘 · 02', 64, 32.5, `700 11px ${SANS}`, 'rgba(255,255,255,.8)', 'center', 'middle');
+  }), 0, 0);
+  k.save(); rr(k, 10, 10, 519, 146, 16); k.clip();
+  // 说话的人：播放中 .5 秒往返轻微上下点头（-2px、.6°）
+  let tk = 0;
+  if (playing) { const p = pos / 0.5, fr = p - Math.floor(p); tk = (Math.floor(p) % 2 ? 1 - fr : fr); tk = 0.5 - 0.5 * Math.cos(tk * Math.PI); }
+  k.save(); k.translate(270, 126 - 2 * tk); k.rotate(0.6 * tk * Math.PI / 180); k.globalAlpha = 0.9;
+  let gp = k.createLinearGradient(0, -47, 0, 47); gp.addColorStop(0, '#5B4FA8'); gp.addColorStop(1, '#2E2867');
+  k.fillStyle = gp; k.beginPath(); k.moveTo(-41.5, 47); k.lineTo(-41.5, 0); k.arc(0, 0, 41.5, Math.PI, 0); k.lineTo(41.5, 47); k.closePath(); k.fill();
+  gp = k.createLinearGradient(0, -78, 0, -44); gp.addColorStop(0, '#7C6FD0'); gp.addColorStop(1, '#4A3F96');
+  k.fillStyle = gp; k.beginPath(); k.arc(0, -61, 17, 0, TAU); k.fill();
+  k.restore();
+  // 字幕：当前句逐词出现；结束的句子整行上折（rotateX 70°、上移 26px）淡出
+  const drawLine = (li, lineAlpha, q) => {
+    const L = CAP_TL.lines[li], ws = CAP_W[li], tot = ws.reduce((a, b) => a + b, 0) + 7 * (ws.length - 1);
+    let x = 270 - tot / 2;
+    k.save();
+    if (q > 0) { k.translate(270, 108); k.translate(0, -26 * q); k.scale(1, Math.max(0.02, Math.cos(70 * q * Math.PI / 180))); k.translate(-270, -108); }
+    k.font = F; k.textAlign = 'center'; k.textBaseline = 'alphabetic';
+    L.words.forEach((wd, i) => {
+      const cx = x + ws[i] / 2; x += ws[i] + 7;
+      const dt = pos - wd.at; if (dt < 0) return;
+      const op = clamp(dt / 0.15) * lineAlpha;
+      let sc, ty = 0, rot = 0, col = '#FFFFFF';
+      if (wd.em) {
+        const p = clamp(dt / 0.6);
+        if (p < 0.45) { const e = CAP_em(p / 0.45); sc = mix(0.4, 1.45, e); rot = -3 * e; }
+        else { const e = CAP_em((p - 0.45) / 0.55); sc = mix(1.45, 1, e); rot = -3 * (1 - e); col = rgba(lerpC([255, 255, 255], [255, 224, 102], e), 1); }
+      } else { const e = CAP_pop(clamp(dt / 0.35)); sc = mix(0.6, 1, e); ty = 12 * (1 - e); }
+      k.save(); k.translate(cx, 126 + ty); k.rotate(rot * Math.PI / 180); k.scale(sc, sc);
+      k.globalAlpha = op * 0.45; k.fillStyle = '#000'; k.fillText(wd.text, 0, 10);
+      k.globalAlpha = op; k.fillStyle = col; k.fillText(wd.text, 0, 8);
+      k.restore();
+    });
+    k.restore();
+  };
+  CAP_TL.lines.forEach((L, li) => {
+    if (pos >= L.start && pos < L.end) drawLine(li, 1, 0);
+    else if (pos >= L.end && pos < L.end + 0.45) { const o = pos - L.end; drawLine(li, 1 - clamp(o / 0.35), CAP_out(o / 0.45)); }
+  });
+  k.restore();
+  // 底栏：播放/暂停、声波条（每 90ms 换一组高度，.09 秒线性过渡）、回到开头
+  k.fillStyle = UX.ink; k.beginPath(); k.arc(30, 182, 17, 0, TAU); k.fill();
+  k.fillStyle = UX.page;
+  if (playing) { k.fillRect(24, 175, 4, 14); k.fillRect(32, 175, 4, 14); }
+  else { k.beginPath(); k.moveTo(26, 174); k.lineTo(26, 190); k.lineTo(38, 182); k.closePath(); k.fill(); }
+  k.fillStyle = UX.surface2; k.beginPath(); k.arc(509, 182, 17, 0, TAU); k.fill();
+  k.strokeStyle = UX.ink; k.lineWidth = 1.8; k.lineCap = 'round'; k.lineJoin = 'round';
+  k.beginPath(); k.arc(509, 182, 6.5, Math.PI * 1.25, Math.PI * 1.25 + Math.PI * 1.6, false); k.stroke();
+  k.beginPath(); k.moveTo(503.5, 173.5); k.lineTo(503.5, 177.5); k.lineTo(507.5, 177.5); k.stroke();
+  const talk = t => CAP_TL.lines.some(L => t >= L.start && t < L.end - 0.4);
+  const bv = (st, i) => (talk(st * 0.09) ? 0.25 + hash(st * 31 + i) * 0.75 * Math.sin((i + 2) / 28 * Math.PI) : 0.08 + hash(st * 31 + i) * 0.06);
+  const st = Math.floor(Math.max(0, pos) / 0.09), sf = clamp((pos - st * 0.09) / 0.09), bw = (418 - 25 * 3) / 26;
+  k.fillStyle = UX.accent; k.globalAlpha = 0.75;
+  for (let i = 0; i < 26; i++) {
+    const v = playing ? mix(st > 0 ? bv(st - 1, i) : 0.08, bv(st, i), sf) : 0.08, bh = Math.max(3, 30 * v);
+    rr(k, 58 + i * (bw + 3), 182 - bh / 2, bw, bh, 1.5); k.fill();
+  }
+  k.globalAlpha = 1;
+  // 指针：0.2 秒按下播放后移出，5.6 秒起回到播放键
+  const KF = [[0, 34, 186], [0.25, 34, 186], [1.0, 590, 240], [5.6, 590, 240], [6.4, 34, 186]];
+  const cp = UXA_path(KF, u);
+  ripple(k, 34, 186, (u - 0.2) / 0.5);
+  cursor(k, cp[0], cp[1], pingPong(u, 0.1, 0.2, 0.22, 0.34));
+};

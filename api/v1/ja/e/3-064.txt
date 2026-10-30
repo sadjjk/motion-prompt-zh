@@ -1,0 +1,26 @@
+// Motion Prompt #3-064 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/establishing-shot
+//
+// エスタブリッシングショット / Establishing shot
+// パック: camera (カメラワークと切り替え) · element 33 · カテゴリ: 切り替え（トランジション）
+// 何が起きるか: まず高い位置の引きの画で、2人が左右に立つ様子を見せる。2.4秒で左の人物の寄りにカットで切り替え、彼が話し始める。観客はもう一人が右にいると分かっている。
+// 動きの仕様:
+//   - カット1: カメラの高さ4.5m、2人まで20m、少し見下ろす。左にA（青）、右にB（墨色）、間隔2.4m
+//   - 切り替え: 2.4秒でカット。カメラは2つの位置の間を移動しない
+//   - カット2: Aの寄り。カメラの高さ1.45m、Aまで3.2m、背景は少しぼかす。Aは2.8〜4.1秒に話す
+//   - 右上は「建立 WIDE」、切り替え後は「近景 A」
+//   - 戻り: 最後の0.5秒で最初のカットへクロスフェード（1周4.7秒）
+// 使いどころ: 新しい場面の頭で、どこで誰がいるかを先に伝えてから細部へ入るとき。
+// タグ: establishing shot, master shot, wide shot, scene setting, cut, editing, continuity
+// サイズ: 539x208 px · 1周: 9.4 s
+// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-064
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 33
+// 33 建立镜头：先用远景交代两人和场地的位置，再切到 A 的近景（观众已经知道 B 在 A 右边）
+CELLS[32] = shot(cutCell([
+  [0, (k, w, h) => world(k, w, h, cam({ y: 4.5, z: -12, pitch: -0.12 }), two()), '建立 WIDE'],
+  [2.4, (k, w, h, u) => world(k, w, h, cam({ x: -0.6, y: 1.45, z: 4.8 }), two({ talkA: mouth(u, 2.8, 4.1), blurBg: 1.2 })), '近景 A']
+]));

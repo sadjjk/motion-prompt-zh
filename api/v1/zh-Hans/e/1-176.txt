@@ -1,0 +1,47 @@
+// Motion Prompt #1-176 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 融合球 / Metaballs
+// 分类包: aiux (光效与液态) · element 14 · 子分类: 液态交互
+// 动画表现: 深色背景上，紫到蓝渐变的圆球缓缓漂浮，相遇时拉出颈部连在一起，分开时断成独立的球。
+// 运动规格:
+//   - 5 颗球，半径 22–36 px，沿利萨如轨迹运动：水平振幅 70–150 px、垂直振幅 30–45 px，每周期往返 1 或 2 次。
+//   - 势场 Σ r²/d² 超过 1 的区域填成液体：靠近的球自然长出颈部，远离时颈部变细断开。
+//   - 等值线用 3 px 网格的 marching squares 求出，轮廓平滑，放大也不糊。
+//   - 液体是水平方向色相 265° 到 190° 的渐变；势场超过 1.8 的内芯叠一层 16% 白色，增加厚度。
+//   - 所有轨迹在 4.8 s 周期内都走整数次，循环无缝。
+// 适用场景: 适合 Hero、待机画面背景和品牌装饰，需要柔软、有机、像熔岩灯一样的氛围时。
+// 标签: metaballs, liquid, gooey, blob, lava-lamp, merge, background
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-176
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 14
+// 14 融合球（改写自 KittenJam #176，Hannah，MIT）：5 颗圆球沿整数频率的利萨如轨迹漂浮，势场 Σr²/d² 超过 1 的区域填色，
+// 靠近时自然黏连、分开时颈部拉细断开；用 marching squares（步长 3px）求等值线，边缘干净且放大不糊。
+// 每颗球：[中心 x, 中心 y, x 振幅, y 振幅, x 每周期圈数, y 每周期圈数, x 相位, y 相位, 半径]
+const MB_BALLS = [
+  [150, 104, 70, 40, 1, 2, 0.0, 0.5, 34],
+  [270, 100, 120, 45, 1, 1, 2.1, 0.0, 30],
+  [390, 108, 70, 38, 1, 2, 4.0, 1.7, 36],
+  [220, 110, 150, 30, 2, 1, 1.0, 3.0, 22],
+  [330, 96, 140, 35, 1, 2, 3.3, 5.0, 26],
+];
+const MB_STEP = 3;
+CELLS[13] = (k, w, h, u) => {
+  bg(k); grid(k);
+  const ph = TAU * u / CYC;
+  const balls = MB_BALLS.map(([bx, by, ax, ay, fx, fy, px, py, r]) => [bx + ax * Math.sin(fx * ph + px), by + ay * Math.sin(fy * ph + py), r * r]);
+  const field = (x, y) => {
+    let f = 0;
+    for (const [bx, by, r2] of balls) f += r2 / ((x - bx) * (x - bx) + (y - by) * (y - by) + 1e-3);
+    return f;
+  };
+  // 外层：势场阈值 1；内层：阈值 1.8 的亮芯，给液体一点厚度
+  const g = k.createLinearGradient(60, 0, 480, 0);
+  g.addColorStop(0, hsla(265, 90, 64, 1)); g.addColorStop(1, hsla(190, 95, 58, 1));
+  k.fillStyle = g; liquid(k, (x, y) => 1 - field(x, y), 0, 0, CW, CH, MB_STEP);
+  k.fillStyle = 'rgba(255,255,255,0.16)'; liquid(k, (x, y) => 1.8 - field(x, y), 0, 0, CW, CH, MB_STEP);
+};

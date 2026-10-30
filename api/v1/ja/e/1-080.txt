@@ -1,0 +1,91 @@
+// Motion Prompt #1-080 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 粒子が文字になる / Particles that form words
+// パック: uxmotion (インタラクションとデータの動き) · element 20 · カテゴリ: ヒーロー背景
+// 何が起きるか: 暗い紫の背景で光の粒が HELLO を形づくり、ポインターがなぞると押しのけられ、クリックのたびに弾けて NICE、LUCIAN へと組み替わる。
+// 動きの仕様:
+//   - 光の粒 720 個。ばね（剛性 38・減衰 7.5）で 5×7 のドット文字に集まる（各マス 3×3 粒、間隔 4px）。文字に入らない粒は外周に散らばり、不透明度 0.18
+//   - ポインターから 60px 以内の粒を押しのけ、最大 26px ずれる
+//   - デモでは 1.8 秒のクリックで NICE、3.6 秒で LUCIAN、5.4 秒で HELLO に戻る。切り替えのたびに全粒へ ±130 px/s のランダムな初速
+//   - 加算合成で光らせる。色相 250–330、速い粒ほど色相が最大 60 ずれ、明度が 68% から 88% へ上がる
+// 使いどころ: プロダクトのローンチページやイベントLPのファーストビューで、ブランド名やキャッチコピーを印象づけたいとき。
+// タグ: particles, hero, text, spring, interactive, glow, landing-page
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-080
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 20
+// 20 粒子聚合成字：720 颗光点以弹簧（刚度 38、阻尼 7.5）聚成单词，叠加发光（lighter），速度越快越偏暖越亮；不在字上的光点散在外圈（透明度 .18）。
+// 指针 0.6–1.5 秒划过字面把光点推开（60px 内）；1.8 秒点击换成 NICE、3.6 秒换成 LUCIAN，每次给所有光点 ±130 px/s 的随机冲量；5.4 秒回到 HELLO，6.0–6.4 秒精确归位
+const PWORD_WORDS = ['HELLO', 'NICE', 'LUCIAN'];
+const PWORD_FONT = { H: ['10001', '10001', '10001', '11111', '10001', '10001', '10001'], E: ['11111', '10000', '10000', '11110', '10000', '10000', '11111'], L: ['10000', '10000', '10000', '10000', '10000', '10000', '11111'], O: ['01110', '10001', '10001', '10001', '10001', '10001', '01110'], N: ['10001', '11001', '11001', '10101', '10011', '10011', '10001'], I: ['11111', '00100', '00100', '00100', '00100', '00100', '11111'], C: ['01111', '10000', '10000', '10000', '10000', '10000', '01111'], U: ['10001', '10001', '10001', '10001', '10001', '10001', '01110'], A: ['01110', '10001', '10001', '11111', '10001', '10001', '10001'] };
+const PWORD_N = 720, PWORD_CELL = 12, PWORD_EV = [[1.8, 1], [3.6, 2], [5.4, 0]];
+const PWORD_W2 = 38, PWORD_C = 7.5, PWORD_AL = PWORD_C / 2, PWORD_WD = Math.sqrt(PWORD_W2 - PWORD_AL * PWORD_AL);
+// 每个词的目标点：5×7 点阵字，每格 3×3 个点（间距 4px，抖动 ±.75），确定性洗牌；不在字上的点放到外圈椭圆
+const PWORD_T = PWORD_WORDS.map((wd, wi) => {
+  const cols = wd.length * 6 - 1, x0 = CW / 2 - cols * PWORD_CELL / 2, y0 = CH / 2 - 7 * PWORD_CELL / 2, pts = [];
+  Array.from(wd).forEach((ch, li) => PWORD_FONT[ch].forEach((row, r) => Array.from(row).forEach((b, c) => {
+    if (b !== '1') return;
+    for (let a = 0; a < 3; a++) for (let bb = 0; bb < 3; bb++) pts.push([x0 + (li * 6 + c) * PWORD_CELL + 2 + a * 4, y0 + r * PWORD_CELL + 2 + bb * 4]);
+  })));
+  for (let i = pts.length - 1; i > 0; i--) { const j = Math.floor(hash(wi * 9000 + i) * (i + 1)); const t = pts[i]; pts[i] = pts[j]; pts[j] = t; }
+  return Array.from({ length: PWORD_N }, (_, i) => {
+    if (i < pts.length) return [pts[i][0] + (hash(wi * 7000 + i) - 0.5) * 1.5, pts[i][1] + (hash(wi * 7100 + i) - 0.5) * 1.5, 1];
+    const a = hash(wi * 7200 + i) * TAU, r = 1 + hash(wi * 7300 + i) * 0.4;
+    return [CW / 2 + Math.cos(a) * 200 * r, CH / 2 + Math.sin(a) * 78 * r, 0];
+  });
+});
+// 阻尼弹簧闭式解：位移 d、速度 v0 经过 t 秒后的 [位移, 速度]
+const PWORD_spr = (d, v0, t) => {
+  const e = Math.exp(-PWORD_AL * t), c = Math.cos(PWORD_WD * t), s = Math.sin(PWORD_WD * t), B = (v0 + PWORD_AL * d) / PWORD_WD;
+  return [e * (d * c + B * s), e * (-PWORD_AL * (d * c + B * s) + (-d * PWORD_WD * s + B * PWORD_WD * c))];
+};
+// 每个事件开始时每颗点的位移与速度（链式计算一次）
+const PWORD_ST = (() => {
+  const st = [];
+  let prev = PWORD_T[0].map(() => [0, 0, 0, 0]), tp = 0, wp = 0;   // [dx, dy, vx, vy]（相对当前目标）
+  PWORD_EV.forEach(([t, wi], ei) => {
+    const cur = PWORD_T[wi].map((T, i) => {
+      const [dx, vx] = PWORD_spr(prev[i][0], prev[i][2], t - tp), [dy, vy] = PWORD_spr(prev[i][1], prev[i][3], t - tp);
+      const P = PWORD_T[wp][i];
+      return [P[0] + dx - T[0], P[1] + dy - T[1], vx + (hash(ei * 5000 + i * 2) - 0.5) * 260, vy + (hash(ei * 5000 + i * 2 + 1) - 0.5) * 260];
+    });
+    st.push(cur); prev = cur; tp = t; wp = wi;
+  });
+  return st;
+})();
+const PWORD_ptr = u => UXA_path([[0, 590, 240], [0.4, 520, 200], [0.9, 340, 96], [1.5, 200, 112], [1.8, 200, 112], [2.4, 330, 180], [3.4, 400, 178], [3.6, 400, 178], [4.4, 590, 240], [6.4, 590, 240]], u);
+const PWORD_HUE = Array.from({ length: PWORD_N }, (_, i) => 250 + hash(i + 8000) * 80);
+CELLS[19] = (k, w, h, u) => {
+  k.drawImage(layer('PWORD_bg', g => {
+    g.fillStyle = '#0A0716'; g.fillRect(0, 0, CW, CH);
+    g.save(); g.translate(CW / 2, CH * 0.45); g.scale(1, 0.7 * CH / (0.9 * CW) * 2.6);
+    const rg = g.createRadialGradient(0, 0, 0, 0, 0, CW * 0.9 * 0.7 / 1.4); rg.addColorStop(0, '#22144A'); rg.addColorStop(1, 'rgba(34,20,74,0)');
+    g.fillStyle = rg; g.fillRect(-CW, -CW, CW * 2, CW * 2); g.restore();
+  }), 0, 0);
+  let ei = -1; for (let j = 0; j < PWORD_EV.length; j++) if (u >= PWORD_EV[j][0]) ei = j;
+  const wi = ei < 0 ? 0 : PWORD_EV[ei][1], T = PWORD_T[wi], t = ei < 0 ? 0 : u - PWORD_EV[ei][0];
+  const settle = inOut3(seg(u, 6.0, CYC));             // 周期末把残余振动精确归零
+  const [mx, my] = PWORD_ptr(u), push = clamp(seg(u, 0.5, 0.8)) * (1 - clamp(seg(u, 1.5, 1.9)));
+  k.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < PWORD_N; i++) {
+    let x = T[i][0], y = T[i][1], sp = 0;
+    if (ei >= 0) {
+      const S = PWORD_ST[ei][i], [dx, vx] = PWORD_spr(S[0], S[2], t), [dy, vy] = PWORD_spr(S[1], S[3], t);
+      x += dx * (1 - settle); y += dy * (1 - settle); sp = Math.min(1, Math.hypot(vx, vy) / 300) * (1 - settle);
+    }
+    if (push > 0) {
+      const dx = x - mx, dy = y - my, d2 = dx * dx + dy * dy;
+      if (d2 < 3600) { const d = Math.sqrt(d2) + 0.01, f = (1 - d2 / 3600) * 26 * push; x += dx / d * f; y += dy / d * f; }
+    }
+    k.fillStyle = `hsla(${(PWORD_HUE[i] - sp * 60).toFixed(0)},90%,${(68 + sp * 20).toFixed(0)}%,${T[i][2] ? 0.9 : 0.18})`;
+    k.fillRect(x - 1.3, y - 1.3, 2.6, 2.6);
+  }
+  k.globalCompositeOperation = 'source-over';
+  let press = 0; for (const [tt] of PWORD_EV.slice(0, 2)) press = Math.max(press, pingPong(u, tt - 0.1, tt, tt + 0.02, tt + 0.16));
+  for (const [tt] of PWORD_EV.slice(0, 2)) { const [rx, ry] = PWORD_ptr(tt); ripple(k, rx, ry, (u - tt) / 0.5, '183,164,255'); }
+  cursor(k, mx, my, press, false);
+};

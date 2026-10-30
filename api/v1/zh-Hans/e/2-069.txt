@@ -1,0 +1,51 @@
+// Motion Prompt #2-069 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 硬币翻转 / Coin flip
+// 分类包: motion2 (动态图形进阶) · element 30 · 子分类: 文字与图形
+// 动画表现: 写着字的 4 枚金币依次跳起翻两圈，落地后小弹一下，背面是星。
+// 运动规格:
+//   - 4 枚半径 36 px 的硬币间隔 96 px 排列，0.35 秒起每枚错开 0.2 秒开始，每枚动作 1.7 秒。
+//   - 前 28% 上升 96 px（三次缓出）并转一圈，到 42% 下落时再转一圈（以 scaleX = cos 表现翻转）。
+//   - 到 48% 再小跳 17 px，54% 落地；影子随高度缩小。
+//   - 正面是字、背面是星；币边用向翻转方向偏移 4 px 的深色圆表现厚度。
+// 适用场景: 适合福袋、抽奖、奖励等轻快的文字演出。
+// 标签: coin, flip, spin, hop, playful, text
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-069
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 30
+// 改写自 KittenJam Motion Library #3（Hannah）· 硬币翻转：4 枚字币依次（间隔 0.2 秒）绕 Y 轴翻两圈（scaleX = cos）并上跳 96px，落地后再小跳 17px；正面是字，背面是星。
+const COIN_S = '好运连连', COIN_D = 0.2, COIN_T0 = 0.35, COIN_L = 1.7;
+CELLS[29] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const R = 36, GAP = 96, FLOOR = 170;
+  k.fillStyle = C.navy2; rr(k, 40, FLOOR, w - 80, 4, 2); k.fill();
+  [...COIN_S].forEach((ch, i) => {
+    const x = w / 2 + (i - 1.5) * GAP, t = (u - COIN_T0 - i * COIN_D) / COIN_L;
+    let y = 0, rot = 0;
+    if (t > 0 && t < 1) {
+      if (t < 0.28) { const q = t / 0.28; y = -96 * eOut(q); rot = Math.PI * 2 * q; }
+      else if (t < 0.42) { const q = (t - 0.28) / 0.14; y = -96 * (1 - eIn(q)); rot = Math.PI * 2 * (1 + q); }
+      else if (t < 0.48) { const q = (t - 0.42) / 0.06; y = -17 * eOut(q); }
+      else if (t < 0.54) { const q = (t - 0.48) / 0.06; y = -17 * (1 - eIn(q)); }
+    }
+    // 影子随高度变小
+    const hk = 1 + y / 160;
+    k.fillStyle = 'rgba(0,0,0,.35)'; k.beginPath(); k.ellipse(x, FLOOR - 1, R * hk, 5 * hk, 0, 0, 7); k.fill();
+    const c = Math.cos(rot), sx = Math.max(0.04, Math.abs(c));
+    k.save(); k.translate(x, FLOOR - R - 6 + y);
+    // 硬币厚度：深色边先画，随翻转方向左右偏移
+    k.save(); k.translate(4 * Math.sin(rot), 0); k.scale(sx, 1); k.fillStyle = '#B87A0C'; k.beginPath(); k.arc(0, 0, R, 0, 7); k.fill(); k.restore();
+    k.scale(sx, 1);
+    k.fillStyle = c >= 0 ? C.yel : '#F0B429'; k.beginPath(); k.arc(0, 0, R, 0, 7); k.fill();
+    k.strokeStyle = 'rgba(15,26,61,.35)'; k.lineWidth = 3; k.beginPath(); k.arc(0, 0, R - 6, 0, 7); k.stroke();
+    if (c >= 0) txt(k, ch, 0, 2, `900 36px ${JP}`, C.navy, 'center', 'middle');
+    else { k.fillStyle = C.navy; star(k, 0, 1, 15, 0, 0.45); k.fill(); }
+    k.restore();
+  });
+};

@@ -1,0 +1,86 @@
+// Motion Prompt #1-061 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// 単語キューブの回転 / Rolling word cube
+// パック: uxmotion (インタラクションとデータの動き) · element 01 · カテゴリ: インタラクティブな文字
+// 何が起きるか: 立方体が一定間隔で下へ一面転がって次の言葉を見せ、下の説明文も上下にめくれ、進捗バーが伸びていく。
+// 動きの仕様:
+//   - 4 面に 4 つのキーワード。面の高さ 72px、奥行きの半分 36px、パース 520px。1.6 秒ごとに下へ 1 面、回転は 0.9 秒
+//   - 回転のイージングは cubic-bezier(.5,-.25,.3,1.3) で両端が跳ね返る。古い正面は brightness .55 まで暗くなり、新しい正面が明るくなる
+//   - 説明文は古い行が上へ消え、新しい行が下から入る：移動 .7 秒のスプリング、不透明度 .4 秒。現在のドットは 1.3 倍に拡大
+//   - 下部の進捗バーは 1.6 秒で線形に満ちる。4 回転で 360° 回り、1 語目に戻る
+// 使いどころ: ランディングページのファーストビューや「私たちの仕事」セクションで、サービスや工程、強みのキーワードを順に見せるとき。
+// タグ: word-cube, rolling-text, 3d-flip, headline, rotating-words, landing-page, kinetic-type
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-061
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 01
+// 01 词立方翻滚：关键词贴在 3D 方块的 4 个面上（面高 72、半深 36、透视 520），每 1.6 秒向下翻一面（0.9 秒，cubic-bezier(.5,-.25,.3,1.3) 两端回弹）；
+// 翻转时旧正面变暗到 brightness .55、新正面变亮，下方说明同步上下翻页（.7 秒弹簧、透明度 .4 秒），底部进度条 1.6 秒线性填满；4 次翻转正好转满一圈回到首词
+const CUBE_WORDS = ['规划', '设计', '开发', '运营'];
+const CUBE_DESC = ['把问题拆开，排好先后顺序', '画出让人想伸手去点的界面', '又快又稳地把它做出来', '上线之后也一直陪着你'];
+const CUBE_STEP = 1.6, CUBE_ROLL = 0.9;              // 原作每 2.6 秒自动前进；为让 6.4 秒内 4 个词各出现一次改为 1.6 秒
+const CUBE_roll = UXA_bz(.5, -.25, .3, 1.3);
+CELLS[0] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 10, 10, CW - 20, CH - 20, 22);
+  txt(k, '我们做什么', 30, 38, `700 12px ${SANS}`, UX.ink3);
+  // n：当前段的目标面；每段开头 0.9 秒翻转，其余时间停住
+  const n = Math.floor(u / CUBE_STEP), fr = u - n * CUBE_STEP;
+  const e = CUBE_roll(clamp(fr / CUBE_ROLL)), lit = inOut3(clamp(fr / CUBE_ROLL));
+  const idx = n % 4, prev = (n + 3) % 4, ang = (n - 1 + e) * 90;
+  const X0 = 30, X1 = 462, FW = X1 - X0, FH = 72, R = 36, cx = (X0 + X1) / 2, cy = 88, P = 520;
+  const faces = [];
+  for (let i = 0; i < 4; i++) {
+    // 第 i 面的转角 φ：φ=-90° 在顶上，0° 正对，90° 转到底下
+    const ph = ((((ang - 90 * i) % 360) + 540) % 360 - 180) * Math.PI / 180, c = Math.cos(ph), s = Math.sin(ph);
+    if (c > 0.02) faces.push({ i, c, s });
+  }
+  faces.sort((a, b) => a.c - b.c);
+  for (const f of faces) {
+    // 面的上下边在 yz 平面的位置 → 透视投影（整体 translateZ(-36px)）
+    const zT = R * f.c + R * f.s - R, zB = R * f.c - R * f.s - R;
+    const sT = P / (P - zT), sB = P / (P - zB);
+    const yT = cy + (R * f.s - R * f.c) * sT, yB = cy + (R * f.s + R * f.c) * sB;
+    const hh = yB - yT;
+    if (hh < 0.5) continue;
+    k.save(); k.translate(cx, (yT + yB) / 2); k.scale((sT + sB) / 2, hh / FH);
+    const odd = f.i % 2 === 1;
+    k.fillStyle = odd ? UX.accent : UX.ink; rr(k, -FW / 2, -FH / 2, FW, FH, 16); k.fill();
+    k.letterSpacing = '-2px';
+    txt(k, CUBE_WORDS[f.i], -FW / 2 + 18, 2, `800 42px ${SANS}`, odd ? '#FFFFFF' : UX.page, 'left', 'middle');
+    k.letterSpacing = '0px';
+    const on = f.i === idx ? lit : f.i === prev ? 1 - lit : 0;
+    if (on < 1) { k.fillStyle = `rgba(0,0,0,${0.45 * (1 - on)})`; rr(k, -FW / 2, -FH / 2, FW, FH, 16); k.fill(); }
+    k.restore();
+  }
+  // 上/下箭头按钮（36×33、圆角 11）
+  k.lineWidth = 2.2; k.lineCap = 'round'; k.lineJoin = 'round';
+  for (let j = 0; j < 2; j++) {
+    const by = j ? 91 : 52, mx = 492, my = by + 16.5;
+    k.fillStyle = UX.surface2; rr(k, 474, by, 36, 33, 11); k.fill();
+    k.strokeStyle = UX.ink; k.beginPath();
+    if (j) { k.moveTo(mx - 4.5, my - 2.2); k.lineTo(mx, my + 2.3); k.lineTo(mx + 4.5, my - 2.2); }
+    else { k.moveTo(mx - 4.5, my + 2.2); k.lineTo(mx, my - 2.3); k.lineTo(mx + 4.5, my + 2.2); }
+    k.stroke();
+  }
+  // 说明文字：旧行上移淡出、新行从下方弹入
+  const q = UXA_spring(clamp(fr / 0.7)), op = clamp(fr / 0.4), F = `600 16px ${SANS}`;
+  k.save(); k.beginPath(); k.rect(30, 134, 470, 26); k.clip();
+  if (op < 1) { k.globalAlpha = 1 - op; txt(k, CUBE_DESC[prev], 30, 153 - 26 * q, F, UX.ink2); }
+  k.globalAlpha = op; txt(k, CUBE_DESC[idx], 30, 153 + 26 * (1 - q), F, UX.ink2);
+  k.restore();
+  // 圆点（当前点放大 1.3 倍、.4 秒弹簧）与进度条
+  const dq = UXA_spring(clamp(fr / 0.4)), dc = clamp(fr / 0.3);
+  for (let i = 0; i < 4; i++) {
+    let sc = 1, t = 0;
+    if (i === idx) { sc = 1 + 0.3 * dq; t = dc; } else if (i === prev) { sc = 1.3 - 0.3 * dq; t = 1 - dc; }
+    k.fillStyle = rgba(lerpC([215, 215, 216], [22, 21, 27], t), 1);
+    k.beginPath(); k.arc(43 + i * 32, 178, 4 * sc, 0, TAU); k.fill();
+  }
+  k.fillStyle = UX.line; rr(k, 162, 176.5, 347, 3, 1.5); k.fill();
+  k.fillStyle = UX.accent; rr(k, 162, 176.5, 347 * (fr / CUBE_STEP), 3, 1.5); k.fill();
+};

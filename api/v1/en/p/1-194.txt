@@ -1,0 +1,17 @@
+Please use "Grid wave loader" (グリッド波ローダー), one of the names in "Interaction & data motion".
+Motion Prompt #1-194
+
+What it is: A wave of light keeps sweeping across rows of tiles, which merge into one progress bar when done
+What the sample shows: Two rows of raised white tiles sit in a recessed tray, and a light wave sweeps left to right again and again, lifting each tile it passes, lighting it in colour and dropping it back. Above is the status and percentage, below the current file name and count, and a stopwatch runs on the right. When done all tiles light up at once, slide together into a purple-to-green gradient progress bar with “Done”, then split back into tiles.
+Spec:
+- A recessed tray holds 12 columns × 2 rows of tiles (22 px, 6 px gap); loading runs from 0.3–4.0 s with two stalls on the way.
+- A light wave sweeps left to right, speeding up from 0.6 to 1.6 passes per second with progress; the lower row trails by 0.45 column, so the sweep runs diagonally.
+- Swept tiles lift, light up in their column's purple → blue → green colour and drop back; loaded columns keep a 16% tint.
+- On the stopwatch at right the hand turns once every 10 s, the outer arc tracks progress and the readout counts to 00:03.7.
+- At 4.0 s all tiles light up together in 0.3 s; from 4.38–4.92 s they slide together into a 22 px gradient progress bar, a sheen crosses it and “Done · 1,284 / 1,284 files” appears.
+- From 5.6–6.05 s the bar splits back into tiles and the hand winds back to 12 o'clock; still until 6.4 s.
+When to use it: Use it for file indexing, data sync and project loading, where a batch job takes a few seconds.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-194.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

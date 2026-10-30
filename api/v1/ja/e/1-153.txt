@@ -1,0 +1,51 @@
+// Motion Prompt #1-153 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// ベントーグリッド展開 / Bento grid expand
+// パック: lp (LP・Webサイトの演出) · element 38 · カテゴリ: マウス・クリックへの反応
+// 何が起きるか: 3×2のベントーグリッドで、カーソルが左上、次に右下の区画に乗るたび、その区画が大きく広がって見出しも大きくなり、ほかの区画が縮んで譲る。
+// 動きの仕様:
+//   - 3×2のベントーグリッド（471×144・区画の間8px）。列も行も最初はすべて1fr
+//   - カーソルが区画に乗ると、その列が2.4fr・その行が1.8frに0.55秒の easeInOut 3乗で広がり、ほかの列と行が同時に縮む
+//   - 広がった区画の見出しは13pxから18pxになる
+//   - タイムライン: 0.45〜2.0秒に左上 → 2.0〜3.6秒に右下 → カーソルが離れ、均等に戻る
+// 使いどころ: 機能紹介・ダッシュボード・作品集など、区画で並べた情報を1つずつ大きく見せたい所に。
+// タグ: bento, grid, expand, layout, hover, dashboard
+// サイズ: 539x208 px · 1周: 4.8 s
+// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-153
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 38
+// 改写自 KittenJam Motion Library #209 Bento 格局展开：3×2 便当盒格局（471×144、格间距 8），各栏各列平时都是 1fr。
+// 光标停在某格时，该格所在栏 0.55 秒 easeInOut 3 次方放大到 2.4fr、所在列放大到 1.8fr，其他栏列同步让位；该格标题字号 13px → 18px。
+// 时间线：0.45–2.0 秒指左上格 → 2.0–3.6 秒指右下格 → 光标移出，全部回到平均。
+const BENTO = { x: 20, y: 12, w: 471, h: 144, gap: 8 };
+const BENTO_LAY = (fc, fr) => {
+  const cw = BENTO.w - BENTO.gap * 2, ch = BENTO.h - BENTO.gap, sc = fc[0] + fc[1] + fc[2], sr = fr[0] + fr[1];
+  const ws = fc.map(f => cw * f / sc), hs = fr.map(f => ch * f / sr);
+  return { ws, hs, xs: [BENTO.x, BENTO.x + ws[0] + BENTO.gap, BENTO.x + ws[0] + ws[1] + BENTO.gap * 2], ys: [BENTO.y, BENTO.y + hs[0] + BENTO.gap] };
+};
+// 光标落点 = 目标格完全展开后的中心；悬停目标按时间表决定，避免「布局决定悬停、悬停又改布局」的循环
+const BENTO_PT = (c, r) => { const fc = [1, 1, 1], fr = [1, 1]; fc[c] = 2.4; fr[r] = 1.8; const L = BENTO_LAY(fc, fr); return [L.xs[c] + L.ws[c] / 2, L.ys[r] + L.hs[r] / 2]; };
+const BENTO_TGT = t => { t = mod(t, CYC); return t >= 0.45 && t < 2.0 ? [0, 0] : t >= 2.0 && t < 3.6 ? [2, 1] : null; };
+CELLS[37] = (k, w, h, u) => {
+  frame(k, 'example.com/dashboard');
+  const A = BENTO_PT(0, 0), B = BENTO_PT(2, 1);
+  const [cx, cy] = path([[0, 470, 162], [0.45, A[0], A[1]], [1.9, A[0], A[1]], [2.15, B[0], B[1]], [3.6, B[0], B[1]], [4.0, 470, 162], [4.8, 470, 162]], u);
+  const cq = [0, 1, 2].map(j => trans(t => { const g = BENTO_TGT(t); return !!g && g[0] === j; }, u, 0.55, eIO));
+  const rq = [0, 1].map(j => trans(t => { const g = BENTO_TGT(t); return !!g && g[1] === j; }, u, 0.55, eIO));
+  const L = BENTO_LAY(cq.map(q => 1 + 1.4 * q), rq.map(q => 1 + 0.8 * q));
+  const COLS = [C.blueL, C.accL, '#E6F4EC', '#EEE8FF', '#FFF3D6', C.skel], DOTS = [C.blue, C.acc, '#3FA56B', '#8A6BEA', '#E0A21C', C.sub];
+  view(k, () => {
+    k.fillStyle = '#fff'; k.fillRect(0, 0, VW, VH);
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) {
+      const i = r * 3 + c, x = L.xs[c], y = L.ys[r], cw = L.ws[c], ch = L.hs[r], e = cq[c] * rq[r];
+      k.fillStyle = COLS[i]; rr(k, x, y, cw, ch, 10); k.fill();
+      k.fillStyle = DOTS[i]; k.beginPath(); k.arc(x + cw - 18, y + 18, 7, 0, 7); k.fill();
+      txt(k, ['数据', '团队', '设计', '日程', '消息', '发布'][i], x + 12, y + ch - 14, `800 ${13 + 5 * e}px ${JP}`, C.ink);
+    }
+    cursor(k, cx, cy);
+  });
+};

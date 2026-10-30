@@ -1,0 +1,59 @@
+// Motion Prompt #1-136 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// カートに飛び込む / Add to cart fly
+// パック: uxmotion (インタラクションとデータの動き) · element 45 · カテゴリ: 進捗フィードバック
+// 何が起きるか: 商品カードのボタンが押されると、陶器のカップの画像が弧を描いて右上のカートへ縮みながら飛び込み、カートが弾んで数字のバッジが 2 から 3 に変わる。
+// 動きの仕様:
+//   - 1.0 秒にボタンを押す（0.95 倍に沈む）
+//   - 1.05–1.8 秒に商品画像の複製がカートへ飛ぶ：x は t² で加速、y は直線に 40px の山なりの弧を加え、大きさ 1→0.15
+//   - 到着でカートが 0.35 秒で 1.25 倍に弾み、バッジが 2→3 に変わって 0.3 秒の backOut で飛び出す
+//   - 5.4–6.0 秒に初期画面へクロスフェードして戻る
+// 使いどころ: ECサイトの商品一覧や詳細ページで、カートに入ったことをはっきり伝えたいときに。
+// タグ: add-to-cart, fly-to-cart, ecommerce, arc, badge, feedback
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-136
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 45
+// 45 加入购物车飞入（KittenJam #221）：指针 1.0 秒点「加入购物车」（按钮缩到 .95）；商品缩略图复制一份 1.05–1.8 秒飞向右上角购物车：
+// x 按 t² 加速、y 线性并叠加 40px 上拱弧，尺寸 1→0.15；抵达时购物车放大 1.25 弹一下（0.35 秒），角标 2→3 弹出（0.3 秒 backOut）；5.4–6.0 秒交叉淡化复位。
+const CRT_T = 1.0, CRT_F0 = 1.05, CRT_F1 = 1.8, CRT_CX = 470, CRT_CY = 42, CRT_IX = 134, CRT_IY = 104, CRT_IS = 124;
+const CRT_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.85, 282, 150], [1.1, 282, 150], [1.75, 570, 230]];
+function CRT_cup(k, x, y, s) {
+  const g = k.createLinearGradient(x, y - s / 2, x, y + s / 2); g.addColorStop(0, '#F3E3CF'); g.addColorStop(1, '#E7CBA9');
+  k.fillStyle = g; rr(k, x - s / 2, y - s / 2, s, s, s * 0.1); k.fill();
+  k.fillStyle = '#8E4A2B'; k.beginPath(); k.ellipse(x - s * 0.02, y + s * 0.25, s * 0.3, s * 0.04, 0, 0, TAU); k.fill();
+  k.strokeStyle = '#B0623B'; k.lineWidth = s * 0.05; k.beginPath(); k.arc(x + s * 0.17, y + s * 0.03, s * 0.1, -Math.PI / 2, Math.PI / 2); k.stroke();
+  k.fillStyle = '#B0623B'; rr(k, x - s * 0.2, y - s * 0.16, s * 0.36, s * 0.4, s * 0.06); k.fill();
+}
+function CRT_draw(k, u) {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 60, 30, 300, 148, 14);
+  CRT_cup(k, CRT_IX, CRT_IY, CRT_IS);
+  txt(k, '手工陶杯', 212, 66, UXB_f(900, 16), UX.ink); txt(k, '柴烧 · 320 ml', 212, 86, UXB_f(700, 10.5), UX.ink3);
+  txt(k, '¥128', 212, 116, UXB_f(900, 18), UX.ink);
+  const pr = UXB_press(u, CRT_T), bs = 1 - 0.05 * pr;
+  k.save(); k.translate(280, 150); k.scale(bs, bs); rr(k, -68, -17, 136, 34, 17); k.fillStyle = UX.accent; k.fill();
+  txt(k, '加入购物车', 0, 4.5, UXB_f(800, 12.5), '#FFFFFF', 'center'); k.restore();
+  const bt = seg(u, CRT_F1, CRT_F1 + 0.35), cs = 1 + 0.25 * Math.sin(Math.PI * bt);
+  k.save(); k.translate(CRT_CX, CRT_CY); k.scale(cs, cs);
+  k.fillStyle = UX.surface; k.beginPath(); k.arc(0, 0, 22, 0, TAU); k.fill(); k.strokeStyle = UX.line2; k.lineWidth = 1; k.stroke();
+  k.strokeStyle = UX.ink; k.lineWidth = 2; k.lineJoin = 'round'; k.lineCap = 'round';
+  k.beginPath(); k.moveTo(-11, -8); k.lineTo(-7, -8); k.lineTo(-3, 5); k.lineTo(9, 5); k.lineTo(11, -4); k.lineTo(-5, -4); k.stroke();
+  k.fillStyle = UX.ink; k.beginPath(); k.arc(-1, 9.5, 1.8, 0, TAU); k.arc(7, 9.5, 1.8, 0, TAU); k.fill();
+  k.restore();
+  const n = u >= CRT_F1 ? 3 : 2, ps = u >= CRT_F1 ? 0.4 + 0.6 * backOut(seg(u, CRT_F1, CRT_F1 + 0.3)) : 1;
+  k.save(); k.translate(CRT_CX + 16, CRT_CY - 16); k.scale(ps, ps);
+  k.fillStyle = UX.danger; k.beginPath(); k.arc(0, 0, 9, 0, TAU); k.fill(); txt(k, String(n), 0, 3.8, UXB_f(900, 11), '#FFFFFF', 'center'); k.restore();
+  const ft = seg(u, CRT_F0, CRT_F1);
+  if (ft > 0 && ft < 1) {
+    const x = mix(CRT_IX, CRT_CX, ft * ft), y = mix(CRT_IY, CRT_CY, ft) - 40 * Math.sin(Math.PI * ft);
+    k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 12; CRT_cup(k, x, y, CRT_IS * mix(1, 0.15, ft)); k.restore();
+  }
+  const c = UXB_path(u, CRT_KEYS);
+  if (u > 0.3 && u < 1.75) cursor(k, c[0], c[1], pr);
+}
+CELLS[44] = (k, w, h, u) => UXB_xfade(k, CRT_draw, u, SHOW, SHOW + 0.6);

@@ -1,0 +1,16 @@
+Please use "Foggy light" (霧の中の光), one of the names in "Photo looks, lighting & styles".
+Motion Prompt #3-080
+
+What it is: Fog makes the distance paler and whiter, light spreads in the air and the layers recede one by one
+What the sample shows: Fog rolls into the evening street; of the four layers — far hills, buildings, trees with street lamps, and the person in front — the further ones turn closer to the fog colour and lose contrast; a fog band drifts along the horizon and each lamp gets a large halo and a cone of light below.
+Spec:
+- Scene: an evening street corner (sky #C9D1DA, far hills #56677C, buildings #4F5D73, trees #34493F, person #232A38).
+- Fog layers: fog colour #D5DADF is laid on at 0.42 after the hills, 0.32 after the buildings and 0.22 after the trees and lamps, so further layers are covered more often; none goes over the person.
+- Fog band: 7 white puffs are drawn on a 68×26 canvas and stretched over y 50–150 at 0.7 opacity; the puffs drift sideways 1–2 times per pass.
+- 3 street lamps (x 114, 292, 494): a halo #FFD68C of radius 18–44 px around each bulb (0.6 at the centre) and a 44 px wide cone spreading down; top right reads "FOG n%".
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+When to use it: For early mornings, after rain or mysteries when the picture should feel deep and quiet.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-080.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

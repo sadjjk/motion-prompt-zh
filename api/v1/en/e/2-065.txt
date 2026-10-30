@@ -1,0 +1,114 @@
+// Motion Prompt #2-065 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+//
+// Wave interference / 波の干渉
+// Pack: motion2 (Motion graphics moves, part 2) · element 26 · Category: Text & shapes
+// What happens: A cyan wave A and an orange wave B flow in opposite directions while the combined wave below swells and flattens, and 3 dots on a vertical dashed line track the values.
+// Motion spec:
+//   - 3 lanes: wave A (cyan #67e8f9) and wave B (orange #ffb454) travel in opposite directions, and the sum lane adds them point by point, y₁ + y₂. a = sin(0.012x + φ), b = sin(0.012x − 0.62φ + 1.08); source amplitude 58, sum 66.
+//   - The panel scales up from 0.96 and fades in over 0.07–0.42 s. Waves A and B slide in 20px from the left starting at 0.25 / 0.34 s over 0.36 s; the sum lane slides up 20px from 0.59 s.
+//   - The sum's amplitude grows from 0 to full over 0.88–1.62 s; the phase advances 5π at a constant rate over 0.6–3.74 s; the "+" sign pops in over 0.23 s from 0.8 s.
+//   - The vertical dashed line fades in at 1.4 s, and 3 sample dots pop in 0.044 s apart from 1.44 s. The sum's stroke pulses 2 times on a sine over 1.87–2.97 s (2.7→3.9px). Content fades over 4.22–4.39 s, leaving only the background grid.
+//   - Versus Wave text: it is a physics diagram of 2 waves adding into one, with readouts that follow the phase, rather than letters bobbing in a wave.
+// When to use it: Use it in physics or signal processing lessons, education apps, explainers on audio and communications tech, or as an insert in data videos.
+// Tags: wave, interference, physics, sine-wave, diagram, education, data-visualization
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-065
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 26
+// 改写自 ui2v · illli Ai Studio · broll-wave-interference（MIT-0）
+// 26 波的干涉：三条横向泳道，上两条是向相反方向行进的波 A（青 #67e8f9）与波 B（橙 #ffb454），下方合成泳道把两者逐点相加 y₁ + y₂，
+// 一根竖直采样虚线上三个圆点实时读出 A、B 与合成值，合成波时而相长（加高）时而相消（压平）。
+// 时间按原作 8 秒 × 0.55 映射：面板 0.07–0.42 秒由 0.96 倍放大并淡入（三次缓出 = power2.out）；波 A、B 0.25 / 0.34 秒起 0.36 秒从左 20px 滑入（四次缓出 = power3.out）；
+// 合成泳道 0.59 秒起从下 20px 滑入；「+」号 0.8 秒起 0.23 秒回弹放大（back 1.8）；合成波振幅 0.88–1.62 秒由 0 增到满（三次缓入缓出）；
+// 相位 0.6–3.74 秒匀速走 5π；采样线 1.4 秒淡入，三个采样点 1.44 秒起每隔 0.044 秒回弹出现（back 2）；合成线宽 1.87–2.97 秒按正弦脉动 2 次（2.7→3.9px）。
+// 4.22–4.39 秒内容淡出（原 7.68 秒 0.3 秒淡出），只留背景网格，与 u=0 画面相同。
+// 波函数照抄：a = sin(0.012x + φ)，b = sin(0.012x − 0.62φ + 1.08)，x 取原作 190–1660；源波振幅 58、合成 66（原 1740×730 坐标）。
+// 尺寸换算：面板 1740×730 → 523×196（横 ×0.3006、纵 ×0.2685），去掉标题与页脚；标签字号放大到 10px / 8px。配色照抄原作 CSS 变量。
+const WAVE_SX = 8, WAVE_SY = 6, WAVE_KX = 523 / 1740, WAVE_KY = 196 / 730, WAVE_S = 0.55;
+const WAVE_q4o = x => 1 - Math.pow(1 - x, 4);                               // power3.out
+const WAVE_sIO = x => -(Math.cos(Math.PI * x) - 1) / 2;                    // sine.inOut
+const WAVE_X = (x) => WAVE_SX + x * WAVE_KX, WAVE_Y = (y) => WAVE_SY + y * WAVE_KY;
+const WAVE_LANES = [[26, 188, 120, '波 A', 'y₁(x,t)', '#eefdf8'], [238, 188, 332, '波 B', 'y₂(x,t)', '#eefdf8'], [486, 218, 595, '合成', 'y₁ + y₂', '#d8fff2']];
+function WAVE_lane(k, i) {
+  const [y0, hh, base, lb, fm, col] = WAVE_LANES[i];
+  k.fillStyle = '#101b1f'; k.strokeStyle = '#29464e'; k.lineWidth = 0.8;
+  rr(k, WAVE_X(26), WAVE_Y(y0), 1688 * WAVE_KX, hh * WAVE_KY, 7); k.fill(); k.stroke();
+  k.strokeStyle = '#46636a'; k.lineWidth = 0.8; k.setLineDash([2.1, 3.3]);
+  k.beginPath(); k.moveTo(WAVE_X(190), WAVE_Y(base)); k.lineTo(WAVE_X(1660), WAVE_Y(base)); k.stroke(); k.setLineDash([]);
+  txt(k, lb, WAVE_X(52), WAVE_Y(base) - 3, `900 10px ${JP}`, col);
+  txt(k, fm, WAVE_X(52), WAVE_Y(base) + 9, `700 8px ui-monospace, Menlo, monospace`, '#91aaa5');
+}
+function WAVE_curve(k, base, amp, kind, ph, col, lw) {
+  k.beginPath();
+  for (let x = 190; x <= 1660; x += 15) {
+    const a = Math.sin(x * 0.012 + ph), b = Math.sin(x * 0.012 - ph * 0.62 + 1.08), v = kind === 0 ? a : kind === 1 ? b : a + b;
+    const px = WAVE_X(x), py = WAVE_Y(base - v * amp); x === 190 ? k.moveTo(px, py) : k.lineTo(px, py);
+  }
+  k.lineCap = 'round'; k.lineJoin = 'round';
+  const ga = k.globalAlpha; k.strokeStyle = col; k.lineWidth = lw * 2.6; k.globalAlpha = ga * 0.22; k.stroke();   // 原 drop-shadow 12px 光晕
+  k.globalAlpha = ga; k.lineWidth = lw; k.stroke();
+}
+const WAVE_BG = (() => {                                                   // 静态底：右上径向光 + 14.4px 网格（原 48px）
+  const c = mkCanvas(CW, CH), g = c.getContext('2d');
+  const r = g.createRadialGradient(CW * 0.76, CH * 0.2, 0, CW * 0.76, CH * 0.2, CW * 0.3); r.addColorStop(0, '#123139'); r.addColorStop(1, 'rgba(18,49,57,0)');
+  g.fillStyle = r; g.fillRect(0, 0, CW, CH);
+  g.fillStyle = 'rgba(103,232,249,.055)'; for (let x = 0; x < CW; x += 14.4) g.fillRect(x, 0, 1, CH); for (let y = 0; y < CH; y += 14.4) g.fillRect(0, y, CW, 1);
+  return c;
+})();
+// GSAP yoyo：从 t0 起每 d 秒走半程，共 n 个半程，返回 0..1..0 的正弦缓动值
+const WAVE_yoyo = (t, t0, d, n) => { const q = (t - t0) / d; if (q <= 0 || q >= n) return 0; const f = q % 1; return WAVE_sIO(Math.floor(q) % 2 ? 1 - f : f); };
+CELLS[25] = (k, w, h, u) => {
+  u = snapU(u);
+  const t = u / WAVE_S;                                                      // 换回原作时间轴
+  stage(k, '#081013');
+  k.drawImage(WAVE_BG, 0, 0);
+  const out = 1 - eIn(P(t, 7.68, 7.98));                                      // 原 power2.in 淡出
+  const sc = eOut(P(t, 0.12, 0.77));
+  if (sc <= 0 || out <= 0) return;
+  const ph = Math.PI * 5 * P(t, 1.1, 6.8), mixA = eIO(P(t, 1.6, 2.95));
+  k.save(); k.globalAlpha = sc * out;
+  k.translate(w / 2, h / 2); k.scale(0.96 + 0.04 * sc, 0.96 + 0.04 * sc); k.translate(-w / 2, -h / 2);
+  k.fillStyle = 'rgba(5,13,16,.68)'; k.fillRect(WAVE_SX, WAVE_SY, 1740 * WAVE_KX, 730 * WAVE_KY);
+  k.strokeStyle = '#31515a'; k.lineWidth = 0.8; k.strokeRect(WAVE_SX + 0.4, WAVE_SY + 0.4, 1740 * WAVE_KX - 0.8, 730 * WAVE_KY - 0.8);
+  // 波 A、B：从左 70（→20px）滑入
+  [[0.45, 0, '#67e8f9'], [0.61, 1, '#ffb454']].forEach(([s, i, col]) => {
+    const e = WAVE_q4o(P(t, s, s + 0.65)); if (e <= 0) return;
+    k.save(); k.globalAlpha = sc * out * e; k.translate(-20 * (1 - e), 0);
+    WAVE_lane(k, i); WAVE_curve(k, WAVE_LANES[i][2], 58, i, ph, col, 2.1); k.restore();
+  });
+  // 合成：从下 70（→19px）滑入
+  const er = WAVE_q4o(P(t, 1.08, 1.73));
+  if (er > 0) {
+    k.save(); k.globalAlpha = sc * out * er; k.translate(0, 19 * (1 - er));
+    WAVE_lane(k, 2);
+    const pulse = 4 * WAVE_yoyo(t, 3.4, 0.5, 4);                             // 线宽 9→13 往返 2 次（原 yoyo repeat 3）
+    if (mixA > 0) WAVE_curve(k, 595, 66 * mixA, 2, ph, '#d8fff2', (9 + pulse) * 0.3);
+    // 采样线与三个采样点（x = 1160）
+    const sl = P(t, 2.55, 2.9);
+    const sa = Math.sin(1160 * 0.012 + ph), sb = Math.sin(1160 * 0.012 - ph * 0.62 + 1.08);
+    if (sl > 0) {
+      k.save(); k.globalAlpha *= sl * 0.55; k.strokeStyle = '#d8fff2'; k.lineWidth = 0.8; k.setLineDash([1.5, 2.4]);
+      k.beginPath(); k.moveTo(WAVE_X(1160), WAVE_Y(45)); k.lineTo(WAVE_X(1160), WAVE_Y(686)); k.stroke(); k.restore();
+      k.save(); k.globalAlpha *= sl;
+      txt(k, `振幅 ${(sa + sb) * mixA >= 0 ? '+' : '−'}${Math.abs((sa + sb) * mixA).toFixed(2)}`, WAVE_X(1160) + 7, WAVE_Y(510), `700 9px ui-monospace, Menlo, monospace`, '#d8fff2');
+      k.restore();
+    }
+    [[120 - sa * 58, 2.1], [332 - sb * 58, 2.1], [595 - (sa + sb) * 66 * mixA, 3]].forEach(([cy, r], i) => {
+      const d = backOut(P(t, 2.62 + i * 0.08, 2.97 + i * 0.08), 2); if (d <= 0) return;
+      k.fillStyle = '#d8fff2'; k.beginPath(); k.arc(WAVE_X(1160), WAVE_Y(cy), r * d, 0, 7); k.fill();
+    });
+    k.restore();
+  }
+  // 「+」号
+  const pl = P(t, 1.45, 1.87);
+  if (pl > 0) {
+    const s = 0.2 + 0.8 * backOut(pl, 1.8);
+    k.save(); k.globalAlpha = sc * out * clamp(pl * 1.5); k.translate(WAVE_X(870), WAVE_Y(452)); k.scale(s, s);
+    txt(k, '+', 0, 0, `900 16px ${DISP}`, '#d8fff2', 'center', 'middle'); k.restore();
+  }
+  k.restore();
+};

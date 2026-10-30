@@ -1,0 +1,15 @@
+Please use "Isometric data blocks" (アイソメトリックのデータブロック), one of the names in "Interaction & data motion".
+Motion Prompt #1-092
+
+What it is: An isometric 3D chart of blocks showing data by region and month
+What the sample shows: Isometric blocks rise from the front with a bounce; hovering greys out all but the bar's row and column and shows its value, and switching metrics re-stacks heights in a wave.
+Spec:
+- Isometric blocks for 4 regions × 6 months; grid spacing 32 × 12 px, bars 0.72 of a cell wide.
+- Rows rise from the front with a delay of (8 − row − column) × 70 ms, a 650 ms duration and a bouncy ease.
+- Hovering keeps colour only on the bar's row and column and greys the rest in 0.2 s; the value tooltip springs in over 0.22 s. The demo hovers from 1.9–2.7 s and 4.0–4.7 s.
+- In the demo the metric switches at 3.1 s and heights re-stack in a (row + column) × 45 ms wave; from 5.4 s blocks drop to the floor in 0.5 s, staggered by (row + column) × 30 ms.
+When to use it: Use it in regional sales or traffic dashboards and report pages to compare two dimensions in 3D.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-092.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,45 @@
+// Motion Prompt #3-081 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/moonlight
+//
+// Moonlight / 月夜
+// Pack: photo (Photo looks, lighting & styles) · element 45 · Category: Light sources & color
+// What happens: The sky turns a deep near-black blue and a full moon rises at the upper left; the person is lit on one side by cold blue light from above, with clear shadows; a silver glint shimmers on the ground and the windows stay dark.
+// Motion spec:
+//   - Scene 1: the head-and-shoulders figure; sky #0D1630, windows and bulbs unlit #1C2640.
+//   - Moon: at x 84, rising from y 70 to 38; radius 16 px #EEF4FF with a 30 px halo #C9DAF5 at 0.25.
+//   - Person: lit side #9DB4DE, shadow #0E1424; the glint is 5 thin strips #BFD3F2 (0.7) under the moon at y 156–192, swaying 2 times per pass.
+//   - The plan shows a blue light #9DB4DE; top right reads "4100K · ↑60°".
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
+// When to use it: For night walks, farewells or quiet stories that should feel cold and lonely.
+// Tags: moonlight, night, cool light, blue hour, moon, light
+// Size: 539x208 px · Cycle: 5 s
+// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-081
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 45
+// 月光夜景（月夜）: 空が黒に近い深い青になり、左上に満月が昇る。人物は高い所からの冷たい青い光で片側だけ照らされ、影ははっきり。
+// 地面に銀色の照り返しが一筋。窓は灯らず、色はごく少ない
+CELLS[44] = cell((k, u) => {
+  const a = env(u), W = torsoW(PR);
+  const MOON = Object.assign(mapPal(NIGHT, c => mixc(c, '#0A1020', 0.5)), { win: '#1C2640', winOff: '#1C2640', bulb: '#1C2640', sky: '#0D1630', sky2: '#122042', person: '#2A3550', shade: '#0E1424' });
+  const p = pal(BASE, MOON, a);
+  stagePortrait(k, p, { after: D => {
+    if (a < 0.002) return;
+    const my = lerp(70, 38, a);
+    D.k.save(); D.k.globalAlpha = 0.25 * a; D.circ(84, my, 30, '#C9DAF5'); D.k.globalAlpha = a; D.circ(84, my, 16, '#EEF4FF'); D.k.restore();
+    // 地面の銀色の照り返し（月の下にゆれる細い帯）
+    D.k.save(); D.k.globalAlpha = 0.7 * a;
+    for (let i = 0; i < 5; i++) D.rect(66 - i * 3 + 6 * Math.sin(u * TAU / CYC * 2 + i), 156 + i * 9, 36 + i * 6, 2.2, '#BFD3F2');
+    D.k.restore();
+  } });
+  const lit = mixc(BASE.person, '#9DB4DE', a), sh = mixc(BASE.person, MOON.shade, a);
+  bust(k, PX, PY, PR, BASE.person, kk => {
+    kk.fillStyle = lit; kk.beginPath(); kk.arc(PX, PY, PR, 0, TAU); kk.fill();
+    headShade(kk, PX, PY, PR, 1.1, 1, sh);
+    torso(kk, PX, PY, PR, PX - W, PX - 0.35 * W, lit); torso(kk, PX, PY, PR, PX - 0.35 * W, PX + W, sh);
+  });
+  plan(k, [[1.1, a, '#9DB4DE']]);
+  hud(k, '4100K · ↑60°');
+});

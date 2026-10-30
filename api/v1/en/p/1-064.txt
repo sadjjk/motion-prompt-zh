@@ -1,0 +1,15 @@
+Please use "Word-by-word kinetic captions" (単語ごとのキネティック字幕), one of the names in "Interaction & data motion".
+Motion Prompt #1-064
+
+What it is: Video captions that pop in word by word in time with speech
+What the sample shows: When playback starts, words bounce up one at a time, key words swell and tilt before landing in yellow, and finished lines fold up and vanish.
+Spec:
+- Words follow the speech rhythm: .30 s each plus a random 0–.08 s; key words get an extra .12 s before and .22 s after.
+- Normal words pop in over .35 s from 12 px below at .6 scale, easing cubic-bezier(.3,1.6,.5,1).
+- Key words swell to 1.45× and tilt -3° within .6 s, then settle back to 1× while turning yellow #FFE066.
+- A finished line folds up 70° and rises 26 px as it fades (.45 s); 26 voice bars below change height every 90 ms.
+When to use it: Use it as motion captions in short videos, product demos and podcast clips to stress key numbers or selling points.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-064.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

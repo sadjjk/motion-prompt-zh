@@ -1,0 +1,15 @@
+Please use "Neon flicker" (ネオン点灯), one of the names in "Motion graphics moves, part 2".
+Motion Prompt #2-091
+
+What it is: Neon tubes flicker before they light up
+What the sample shows: On a dark brick wall the tubes of 营业中 flicker irregularly and light, washing the wall in coral; later only the last character drops out briefly, then the whole sign flickers once more.
+Spec:
+- The unlit tubes are 3 px outlines; over 0.45–0.92 s they flicker irregularly 3 times and light.
+- The glow is 3 strokes of 24/14/7 px plus a 3.5 px bright core, with a 240 px radial light on the wall.
+- From 1.6 s only the last character drops out 2 times; at 3.1 s the whole sign flickers once more.
+- Over 4.25–4.55 s it switches off and resets.
+When to use it: Use it for night-life, bar or game titles and sign-style shots.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-091.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,14 @@
+Please use "Image zoom on hover" (ホバーで画像ズーム), one of the names in "Landing page & web effects".
+Motion Prompt #1-034
+
+What it is: The photo enlarges inside a fixed frame
+What the sample shows: The photo under the cursor slowly enlarges while its frame stays the same size, and shrinks back when the cursor leaves.
+Spec:
+- Two photo frames, 222 × 118 (radius 8). The cursor rests on the left one, then the right one, for about 1.5 s each.
+- On hover the content scales 1→1.15 from the centre over 0.5 s (cubic ease-out); on leave it returns over 0.5 s.
+- Anything outside the frame is clipped (overflow: hidden). The frame and the caption do not move.
+When to use it: Use it on photo grids (work, products, articles) to show which item is about to be chosen.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-034.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

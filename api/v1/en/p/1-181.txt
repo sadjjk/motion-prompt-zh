@@ -1,0 +1,15 @@
+Please use "Liquid fill icon" (リキッドフィルアイコン), one of the names in "Glow & liquid".
+Motion Prompt #1-181
+
+What it is: A wavy liquid level rises inside an icon as a percentage counts up
+What the sample shows: Inside a drop outline on a dark background, 2 crossing wave layers rise from the bottom until the drop is full, while the number on the right climbs from 0% to 100% and reads complete, then everything resets.
+Spec:
+- Drop icon 92 px wide and 126 px tall, 2.5 px outline, hue 195°.
+- The level rises at a constant speed from below the base to above the tip over 0.3–4.0 s, while a 46 px number on the right counts from 0% to 100%.
+- There are 2 wave layers: 120 px wavelength, 6 px amplitude, 2 laps per cycle; and 90 px wavelength, 5 px amplitude, 3 laps the other way; both are clipped to the icon shape.
+- At 100% the label reads complete and holds until 4.2 s; the liquid and text fade out over 4.2–4.5 s, and the 0% state fades in over 4.5–4.8 s.
+When to use it: Use it for upload and download progress, goal completion or fill levels where a percentage should feel friendly.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-181.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

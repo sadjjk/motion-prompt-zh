@@ -1,0 +1,67 @@
+// Motion Prompt #1-112 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+//
+// コード差分のハイライト / Code diff highlight
+// パック: ui (UIパーツの名前) · element 34 · カテゴリ: 案内する・状態を伝えるパーツ
+// 何が起きるか: 暗いエディタの5行のうち、前後の行が明るくなり、赤い削除行と緑の追加行が順に左から滑り込み、追加行の背景が一度濃くなって戻る。
+// 動きの仕様:
+//   - 暗いエディタ「motions.ts」510×173、タイトルバー29.7、等幅14.8px、行の高さ25.2。全5行: 前後の行 41 / 43 / 44 と、42行目の削除・追加の2行
+//   - 前後の行は0.7〜1.1秒に35%から100%へ明るくなる。削除行は1.2〜1.65秒、追加行は1.75〜2.2秒に順に現れ、左6.4pxから元の位置へ滑る（二次の easeOut）
+//   - 削除行の背景 rgba(239,68,68,.12)・文字 #fecaca、追加行の背景 rgba(16,185,129,.14)・文字 #a7f3d0。2.4〜2.75秒に追加行の背景が.28へ濃くなり、2.85〜3.3秒に.14へ戻る
+//   - 3.2〜3.95秒にエディタが sine.inOut で4.2px浮く。リセット 3.95〜4.35秒 easeInOutCubic: 削除行と追加行が消え、前後の行は35%に戻る
+//   - スケルトンとの違い: 見せるのはコード変更の前後比較で、赤の削除と緑の追加が行ごとに現れる。読み込み中の仮表示ではない
+// 使いどころ: 開発ツールやコードレビューサービスの紹介ページ、変更履歴、技術記事で修正点を見せるときに。
+// タグ: code-diff, code-editor, syntax, developer-tools, highlight, code-review
+// サイズ: 542x191 px · 1周: 4.5 s
+// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-112
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 34
+// 改写自 ui2v · illli Ai Studio · hero-diff-highlight（MIT-0）
+// 代码差异高亮：深色编辑器「motions.ts」中 5 行代码，上下文行（41 / 43 / 44）0.7–1.1 秒由 35% 亮到 100%；
+// 删除行「- if (count >= limit) …」1.2–1.65 秒、新增行「+ if (!isStaff && …) …」1.75–2.2 秒依次淡入并从左 6.4px 滑到原位（power2.out 即二次缓出），
+// 删除行底 rgba(239,68,68,.12)、字 #fecaca，新增行底 rgba(16,185,129,.14)、字 #a7f3d0；
+// 2.4–2.75 秒新增行底加深到 .28，2.85–3.3 秒回到 .14（各 power1.out）。3.2–3.95 秒编辑器以 sine.inOut 上浮 4.2px。
+// 复位：3.95–4.35 秒 easeInOutCubic 删除行与新增行淡出、上下文行回到 35%。
+// 尺寸换算：原作 980 宽编辑器按 0.53 倍铺满卡片（510×173，标题栏 56→29.7、字号 28→14.8px、行高 47.6→25.2、行左右内边距 36→19），
+// 代码区上下内边距 36→9 以装进 191 高，去掉左侧标题区。时间与原作一一对应，上浮由 1.2 秒缩到 0.75 秒。
+const DIFF_S = 0.53;
+const DIFF_MONO = 'Menlo, Consolas, "Courier New", monospace';
+const DIFF_LINES = [
+  ['41', ' ', 'const limit = hourlyNewMotionLimit;', 0],
+  ['42', '-', 'if (count >= limit) throw rateLimit;', 'del'],
+  ['42', '+', 'if (!isStaff && count >= limit) throw rateLimit;', 'add'],
+  ['43', ' ', 'return await insertMotion(ctx, args);', 0],
+  ['44', ' ', '}', 0]];
+const DIFF_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
+CELLS[33] = ui((w, h, t) => {
+  X.fillStyle = '#0c0f14'; X.fillRect(0, 0, w, h);
+  const keep = 1 - eio(seg(t, 3.95, 4.35));
+  const q1 = x => 1 - (1 - x) * (1 - x);
+  const dy = -8 * DIFF_S * DIFF_SINE(seg(t, 3.2, 3.95)) * keep;
+  const ex = 16, ey = 9 + dy, ew = 510, eh = 173, er = 10.6;
+  X.save(); X.shadowColor = 'rgba(0,0,0,.45)'; X.shadowBlur = 37; X.shadowOffsetY = 15; fillRR(ex, ey, ew, eh, er, '#111827'); X.restore();
+  X.save(); rr(ex, ey, ew, eh, er); X.clip();
+  X.fillStyle = '#0b1220'; X.fillRect(ex, ey, ew, 29.7); X.fillStyle = '#1f2937'; X.fillRect(ex, ey + 29.2, ew, 1);
+  ['#f87171', '#fbbf24', '#34d399'].forEach((c, i) => circle(ex + 14.9 + i * 11.7, ey + 14.85, 3.2, c));
+  text('motions.ts', ex + 14.9 + 2 * 11.7 + 3.2 + 7.4, ey + 15, 10.6, '#6b7280', 500, 'left', NUMF);
+  const ctxA = lerp(.35, lerp(.35, 1, q1(seg(t, 0.7, 1.1))), keep);
+  const enter = [0, q1(seg(t, 1.2, 1.65)), q1(seg(t, 1.75, 2.2)), 0, 0];
+  const addBg = .14 + .14 * q1(seg(t, 2.4, 2.75)) - .14 * q1(seg(t, 2.85, 3.3));
+  DIFF_LINES.forEach(([ln, mk, code, kind], i) => {
+    const ly = ey + 29.7 + 9 + i * 25.2, a = kind ? enter[i] * keep : ctxA, ox = kind ? -6.4 * (1 - enter[i]) : 0;
+    if (a <= 0) return;
+    X.save(); X.globalAlpha = a; X.translate(ox, 0);
+    if (kind === 'del') { X.fillStyle = 'rgba(239,68,68,.12)'; X.fillRect(ex, ly, ew, 25.2); }
+    if (kind === 'add') { X.fillStyle = `rgba(16,185,129,${addBg})`; X.fillRect(ex, ly, ew, 25.2); }
+    const col = kind === 'del' ? '#fecaca' : kind === 'add' ? '#a7f3d0' : '#d1d5db', my = ly + 12.6;
+    text(ln, ex + 38, my, 14.8, '#4b5563', 400, 'right', DIFF_MONO);
+    text(mk, ex + 52.8, my, 14.8, col, 400, 'left', DIFF_MONO);
+    text(code, ex + 77.1, my, 14.8, col, 400, 'left', DIFF_MONO);
+    X.restore();
+  });
+  X.restore();
+  strokeRR(ex, ey, ew, eh, er, '#1f2937', 1);
+});

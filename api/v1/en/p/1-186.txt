@@ -1,0 +1,17 @@
+Please use "Tear-off ticket stub" (チケットのもぎり), one of the names in "Landing page & web effects".
+Motion Prompt #1-186
+
+What it is: Drag the stub to tear it off along the perforation, and the ticket gets stamped
+What the sample shows: The cursor grabs the stub at the right end of a papery concert ticket and pulls down. The perforation tears from top to bottom with a fibrous edge, the stub spins out of frame, the main ticket springs back and a red 'checked' stamp lands on it; once the stamp fades, the stub reappears in place.
+Spec:
+- The main ticket is 262 px wide and the stub 82 px, both 128 px tall, divided by a perforated line.
+- The cursor moves to the stub over 0.1–0.6 s and presses at 0.66 s.
+- From 0.78–1.98 s it drags down: the tear runs top to bottom along the perforation with a fibrous edge, and the stub swings open to 0.3 rad.
+- Torn free at 1.98 s, the stub spins and falls in an arc, gone by 2.9 s, while the main ticket springs back.
+- At 2.42 s a 'checked' stamp drops from 1.6× to 1× (a 0.12 s fall) and lands; it fades over 3.7–4.05 s.
+- From 3.95–4.45 s the stub fades back in from 9 px above, then holds until the 4.8 s cycle ends.
+When to use it: Use it for event checkout success, entry check-in or coupon redemption, where using or claiming something should feel tactile.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-186.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

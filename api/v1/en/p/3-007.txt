@@ -1,0 +1,17 @@
+Please use "Crane up" (クレーンアップ), one of the names in "Camera moves & transitions".
+Motion Prompt #3-007
+
+What it is: Lift the camera up
+What the sample shows: The camera rises while tilting down until it looks down on the person.
+Spec:
+- Camera: rises from 1.4 m to 9 m while moving forward 0 m → 1.5 m
+- Direction: tilts down to keep the person (8 m ahead) in frame; pitch = -0.86 × atan2(height - 1.0, 8 - forward), about -2.5° → -44°
+- Timing: 0.5 s to 3.4 s (2.9 s), cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1))
+- Subject: the person does not move; they get smaller as the camera rises, the ground grid fills the frame and the horizon leaves at the top
+- Return: hold 3.4–4.2 s, then cross-fade back to the start over the last 0.5 s (one pass = 4.7 s)
+- Top-right readout shows the height (↑ 1.4m → ↑ 9.0m)
+When to use it: To pull away from a person at the end of a scene or to reveal how large the location is.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-007.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

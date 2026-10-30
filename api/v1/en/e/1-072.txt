@@ -1,0 +1,72 @@
+// Motion Prompt #1-072 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// Velocity-lean list / 速度で傾くリスト
+// Pack: uxmotion (Interaction & data motion) · element 12 · Category: Scroll interactions
+// What happens: A fast flick skews and slightly stretches the column of cards, which springs straight again on stopping; slow scrolling barely tilts it.
+// Motion spec:
+//   - The list leans with speed: skewY = −speed × 3.2°, clamped to ±10°; it stretches 0.6% per 1° of lean, up to 6%.
+//   - Speed is smoothed (.4 new, .6 old); the lean is driven by a spring closing 0.2 per frame with 0.72 damping.
+//   - The red needle of a semicircle gauge at the top swings from −88° to +80° with speed.
+//   - Demo: fast scroll at 0.4–0.9 s, slow scroll at 1.9–3.5 s, quick return to top at 4.2–4.6 s.
+// When to use it: Use it on content feeds, product lists and long portfolio lists to give fast scrolling a sense of inertia.
+// Tags: velocity, skew, scroll, spring, list, inertia
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-072
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 12
+// 12 速度倾斜列表：快速滚动时整列卡片朝滚动方向倾斜（skewY = −速度×3.2°，限 ±10°）并轻微拉长（每度 +0.6%，最多 6%），停下立刻弹回（弹簧：每帧 0.2 逼近、0.72 阻尼）；
+// 慢慢滚几乎不倾斜。顶部半圆仪表指针按速度从 −88° 转到 +80°。周期：0.4–0.9 秒快滚、1.9–3.5 秒慢滚、4.2–4.6 秒快速回顶
+const LEAN_ITEMS = ['首尔林散步', '乙支路胶片冲印', '望远市场炒年糕', '圣水工作室参观', '汉江日落骑行', '益善洞喝茶', '北村巷子拍照', '延南公园野餐', '西村书店巡游', '南山夜游'];
+const LEAN_C = [['#FF8787', '#FFD43B'], ['#74C0FC', '#B197FC'], ['#63E6BE', '#4DABF7'], ['#FFA94D', '#F783AC'], ['#A9E34B', '#38D9A9']];
+const LEAN_IH = 46, LEAN_GAP = 8, LEAN_TOP = 50, LEAN_VIEW = CH - LEAN_TOP;
+const LEAN_MAX = LEAN_ITEMS.length * (LEAN_IH + LEAN_GAP) - LEAN_GAP + 12 - LEAN_VIEW;
+// 滚动位置（像素）：快滚 0→240、慢滚 240→MAX、快速回顶
+const LEAN_Y = u => (u < 1.9 ? 240 * inOut3(seg(u, 0.4, 0.9)) : u < 4.2 ? mix(240, LEAN_MAX, seg(u, 1.9, 3.5)) : LEAN_MAX * (1 - inOut3(seg(u, 4.2, 4.6))));
+// 一次性按 60 帧/秒模拟原作的速度平滑（vel = .6 旧 + .4 新）与倾斜弹簧，得到每帧的 skew 与速度
+const LEAN_SIM = (() => {
+  const F = 384, S = new Float32Array(F + 1), V = new Float32Array(F + 1);
+  let vel = 0, skew = 0, sv = 0, py = LEAN_Y(0);
+  for (let f = 0; f <= F; f++) {
+    const y = LEAN_Y(f / 60), v = (y - py) / 16.67; py = y;
+    vel = vel * 0.6 + v * 0.4;
+    const target = clamp(-vel * 3.2, -10, 10);
+    sv += (target - skew) * 0.2; sv *= 0.72; skew += sv;
+    S[f] = skew; V[f] = vel;
+  }
+  return { S, V, F };
+})();
+CELLS[11] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  const fx = clamp(u / CYC) * LEAN_SIM.F, f0 = Math.min(LEAN_SIM.F - 1, Math.floor(fx)), ft = fx - f0;
+  const skew = mix(LEAN_SIM.S[f0], LEAN_SIM.S[f0 + 1], ft), vel = mix(LEAN_SIM.V[f0], LEAN_SIM.V[f0 + 1], ft);
+  const sy = LEAN_Y(u);
+  txt(k, '周末计划', 22, 32, `850 17px ${SANS}`, UX.ink);
+  // 速度仪表：半圆轨 + 红色指针
+  txt(k, '滚动速度', 456, 32, `750 11px ${SANS}`, UX.ink3, 'right');
+  k.strokeStyle = UX.line2; k.lineWidth = 4; k.lineCap = 'round';
+  k.beginPath(); k.arc(486, 38, 18, Math.PI, 0); k.stroke();
+  const na = clamp(-88 + Math.min(1, Math.abs(vel) / 3) * 176, -80, 80) * Math.PI / 180;
+  const nv = Math.abs(vel) < 0.01 && Math.abs(skew) < 0.02 ? -88 * Math.PI / 180 : na;
+  k.strokeStyle = UX.danger; k.lineWidth = 2.5;
+  k.beginPath(); k.moveTo(486, 38); k.lineTo(486 + Math.sin(nv) * 15, 38 - Math.cos(nv) * 15); k.stroke();
+  // 列表：以可视区中心为原点做 skewY + scaleY
+  k.save(); k.beginPath(); k.rect(0, LEAN_TOP - 4, CW, CH - LEAN_TOP + 4); k.clip();
+  const cy = LEAN_TOP + LEAN_VIEW / 2, sc = 1 + Math.min(0.06, Math.abs(skew) * 0.006);
+  k.translate(CW / 2, cy); k.transform(1, Math.tan(skew * Math.PI / 180), 0, sc, 0, 0); k.translate(-CW / 2, -cy);
+  LEAN_ITEMS.forEach((s, i) => {
+    const y = LEAN_TOP + i * (LEAN_IH + LEAN_GAP) - sy;
+    if (y > CH + 20 || y + LEAN_IH < LEAN_TOP - 30) return;
+    k.fillStyle = UX.surface2; rr(k, 16, y, CW - 40, LEAN_IH, 14); k.fill();
+    k.strokeStyle = UX.line; k.lineWidth = 1; rr(k, 16.5, y + 0.5, CW - 41, LEAN_IH - 1, 14); k.stroke();
+    const g = k.createLinearGradient(28, y + 7, 60, y + 39); g.addColorStop(0, LEAN_C[i % 5][0]); g.addColorStop(1, LEAN_C[i % 5][1]);
+    k.fillStyle = g; rr(k, 28, y + 7, 32, 32, 10); k.fill();
+    txt(k, s, 72, y + 21, `780 14px ${SANS}`, UX.ink);
+    txt(k, `${1 + (i * 7) % 5}.${(i * 3) % 10} 公里 · ${30 + i * 15} 分钟`, 72, y + 37, `650 11px ${SANS}`, UX.ink3);
+  });
+  k.restore();
+  scrollbar(k, sy / LEAN_MAX, LEAN_VIEW / (LEAN_VIEW + LEAN_MAX), CW - 14, LEAN_TOP, CH - 8);
+};

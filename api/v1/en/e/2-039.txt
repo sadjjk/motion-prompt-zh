@@ -1,0 +1,43 @@
+// Motion Prompt #2-039 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#135
+//
+// Kaleidoscope / カレイドスコープ
+// Pack: motion2 (Motion graphics moves, part 2) · element 15 · Category: Text & shapes
+// What happens: An 8-way symmetrical pattern turns and spreads out from the centre, like a kaleidoscope.
+// Motion spec:
+//   - The area around the centre is split into eight 45° wedges; every other wedge is drawn mirrored, giving eight mirror-symmetric sections.
+//   - One wedge holds 13 shapes (circles, diamonds, triangles; four colours; fixed random seed). They travel outward from the centre to radius 300, one full radius per 4.7 s, wrapping back to the centre.
+//   - Shapes grow as they go out ((5 + 0.1r) × 0.7–1.4) and spin 0.02 rad per px. They fade in over the first 30 px and out over the last 70 px; each sways ±0.08 rad once per 4.7 s.
+//   - The whole pattern turns 90° per 4.7 s (two wedges, so the loop joins up).
+//   - A white eight-point star at the centre (radius 20 ± 4, pulsing twice per 4.7 s).
+// When to use it: Use it for music videos, live backdrops or dreamy scene changes, wherever a pattern has to hold up on repeat.
+// Tags: kaleidoscope, symmetry, mirror, mandala, pattern, radial, psychedelic
+// Size: 539x208 px · Cycle: 4.7 s
+// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-039
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 15
+// 15 カレイドスコープ（万華鏡のように、8分割の対称な模様が回りながら広がる）
+const KAL = (() => { const R = rand(1515), a = []; for (let i = 0; i < 13; i++) a.push({ r0: R() * 300, th: 0.06 + R() * 0.66, kind: i % 3, col: PAL[i % 4], sz: 0.7 + R() * 0.7, ph: R() * 6 }); return a; })();
+CELLS[14] = (k, w, h, u) => {
+  stage(k);
+  const X = w / 2, Y = h / 2, RM = 300, rot = (Math.PI / 2) * u / CYC, W8 = Math.PI / 4;
+  for (let s = 0; s < 8; s++) {
+    k.save(); k.translate(X, Y);
+    if (s % 2) { k.rotate(rot + (s + 1) * W8); k.scale(1, -1); } else k.rotate(rot + s * W8);
+    k.beginPath(); k.moveTo(0, 0); k.arc(0, 0, RM + 60, -0.006, W8 + 0.006); k.closePath(); k.clip();
+    for (const it of KAL) {
+      const r = mod(it.r0 + (u / CYC) * RM, RM), th = it.th + 0.08 * Math.sin(2 * Math.PI * u / CYC + it.ph), sz = (5 + r * 0.1) * it.sz;
+      const a = smooth(P(r, 0, 30)) * (1 - smooth(P(r, RM - 70, RM))); if (a <= 0) continue;
+      k.globalAlpha = a; k.fillStyle = it.col; k.save(); k.translate(Math.cos(th) * r, Math.sin(th) * r); k.rotate(r * 0.02);
+      if (it.kind === 0) { k.beginPath(); k.arc(0, 0, sz, 0, 7); k.fill(); }
+      else if (it.kind === 1) { k.beginPath(); k.moveTo(0, -sz * 1.2); k.lineTo(sz * 0.8, 0); k.lineTo(0, sz * 1.2); k.lineTo(-sz * 0.8, 0); k.closePath(); k.fill(); }
+      else { k.beginPath(); k.moveTo(0, -sz); k.lineTo(sz * 0.95, sz * 0.7); k.lineTo(-sz * 0.95, sz * 0.7); k.closePath(); k.fill(); }
+      k.restore();
+    }
+    k.globalAlpha = 1; k.restore();
+  }
+  k.fillStyle = '#fff'; star(k, X, Y, 20 + 4 * Math.sin(2 * Math.PI * 2 * u / CYC), rot, 0.5, 8); k.fill();
+};

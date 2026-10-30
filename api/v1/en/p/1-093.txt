@@ -1,0 +1,15 @@
+Please use "Regrouping bubbles" (グループが組み替わるバブル), one of the names in "Interaction & data motion".
+Motion Prompt #1-093
+
+What it is: A bubble chart where bubbles jostle and regroup by the chosen category
+What the sample shows: A cluster of coloured bubbles jostles apart into 4, then 3 groups as tabs switch, then merges back; labels above each group show budget totals.
+Spec:
+- 36 project bubbles with radius (4.5 + √budget × 5) × 0.85, coloured by 4 teams.
+- Force layout: pull toward the group centre with strength 5, velocity damping e^(−5·dt), and 3 collision passes with 1.5 px spacing.
+- In the demo, by-team at 1.0 s forms 4 clusters, by-status at 2.6 s forms 3, and all at 4.2 s merges them; each switch adds a random kick of ±30.
+- Hovering drops other bubbles to 0.45 opacity and shows a tooltip; group labels move with their cluster, show the budget total, and fade in 0.3 s after a switch.
+When to use it: Use it in project-management or portfolio-analysis dashboards to show the same data from different groupings.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-093.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

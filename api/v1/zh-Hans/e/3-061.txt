@@ -1,0 +1,30 @@
+// Motion Prompt #3-061 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/negative-space
+//
+// 留白 / Negative space
+// 分类包: photo (摄影光线与风格) · element 29 · 子分类: 构图
+// 动画表现: 人物移到左侧，右边的建筑和树淡出，空出来的一大片浅色区域被框出并标为留白。
+// 运动规格:
+//   - 人物：x 270 移到左侧 x 110，身高 100 px。
+//   - 右侧的两栋建筑和一棵树随效果淡出。
+//   - 留白区域：(200, 20) 起 320×170 px，铺一层 35% 的浅琥珀 #FFE3A3，四周虚线框，中间标“留白”。
+//   - 辅助线为琥珀色 #F5A524 虚线，线宽 1.6 px，随效果强度渐显。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 想表现孤独、安静、简洁，或给文字、标题留位置时。
+// 标签: negative space, empty space, minimalism, breathing room, composition, copy space
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-061
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 29
+// 留白: 主体移到左侧、面朝右；右侧的建筑和树淡出，空出的大片简单区域标为留白
+CELLS[28] = cell((k, u) => {
+  const a = env(u), D = field(k, BASE, 150);
+  k.save(); k.globalAlpha = 1 - a; building(D, 360, 150, 36, 40, BASE, 2); building(D, 420, 150, 30, 28, BASE, 3); tree(D, 488, 150, 16, BASE); k.restore();
+  figure(D, lerp(CW / 2, 110, a), 176, 100, BASE.person);
+  k.save(); k.globalAlpha = 0.35 * a; k.fillStyle = BASE.glow; k.fillRect(200, 20, 320, 170); k.restore();
+  guide(k, [[200, 20], [520, 20], [520, 190], [200, 190], [200, 20]], a);
+  tag(k, '留白', 360, 100, a);
+});

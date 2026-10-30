@@ -1,0 +1,56 @@
+// Motion Prompt #1-171 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// コピー完了のフィードバック / Copy feedback
+// パック: uxmotion (インタラクションとデータの動き) · element 58 · カテゴリ: 進捗フィードバック
+// 何が起きるか: コマンドの行の右にあるコピーボタンをポインタが押す。コピーのアイコンが回りながら消えてチェックが弾んで現れ、ボタンが強調色に、上に「コピーしました」の吹き出しが出る。少しして元に戻る。
+// 動きの仕様:
+//   - 1.0 秒にボタンを押す（0.92 倍に縮む）
+//   - コピーアイコンは 90° 回って 0 に縮み、チェックが拡大、背景は強調色へ（0.35 秒 cubic-bezier(.3,1.5,.5,1)）
+//   - 上の「コピーしました」は 6px 下から 0.8→1 倍で弾み出る
+//   - 1.5 秒後（2.5 秒）に同じ曲線ですべて元に戻る
+// 使いどころ: ドキュメントのコード例、招待リンク、クーポンコードなどコピー操作のある所に。
+// タグ: copy, clipboard, check, tooltip, feedback, code
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-171
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 58
+// 58 复制成功反馈（KittenJam #239）：指针 1.0 秒点代码行右侧的复制按钮；复制图标旋转 90° 缩到 0，对勾带回弹放大出现，按钮底色转强调色，
+// 上方「已复制」提示从下 6px 弹出（均为 0.35 秒 cubic-bezier(.3,1.5,.5,1)）；1.5 秒后（2.5 秒）全部反向恢复；指针 1.15–1.8 秒离开。
+const CPY_T = 1.0, CPY_BACK = 2.5, CPY_D = 0.35, CPY_BX = 406, CPY_BY = 108;
+const CPY_ez = UXA_bz(.3, 1.5, .5, 1);
+const CPY_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, CPY_BX + 3, CPY_BY + 4], [1.15, CPY_BX + 3, CPY_BY + 4], [1.8, 570, 230]];
+CELLS[57] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  txt(k, '安装', 100, 72, UXB_f(800, 11), UX.ink3);
+  k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 14; k.shadowOffsetY = 4; rr(k, 99.5, 84, 340, 48, 12); k.fillStyle = '#16151B'; k.fill(); k.restore();
+  txt(k, '$', 120, 112.5, UXB_f(700, 13, MONO), UXD.ink3); txt(k, 'npm i motion-kit', 136, 112.5, UXB_f(700, 13, MONO), UXD.ink);
+  const on = UXB_ramp(u, [[-1, 0], [CPY_T, 1], [CPY_BACK, 0]], CPY_D, CPY_ez), oc = clamp(on), pr = UXB_press(u, CPY_T);
+  const bs = 1 - 0.08 * pr;
+  k.save(); k.translate(CPY_BX, CPY_BY); k.scale(bs, bs);
+  rr(k, -16, -16, 32, 32, 8); k.fillStyle = rgba(UXB_mix('#2A2933', UX.accent, oc), 1); k.fill();
+  k.lineWidth = 1.8; k.lineJoin = 'round'; k.lineCap = 'round';
+  const cs = Math.max(0, 1 - on);
+  if (cs > 0.01) {
+    k.save(); k.globalAlpha = 1 - oc; k.rotate(on * Math.PI / 2); k.scale(cs, cs); k.strokeStyle = '#FFFFFF';
+    rr(k, -3, -6, 9, 11, 2); k.stroke(); k.beginPath(); k.moveTo(-6, 3); k.lineTo(-6, -7); k.quadraticCurveTo(-6, -9, -4, -9); k.lineTo(3, -9); k.stroke(); k.restore();
+  }
+  if (on > 0.01) {
+    k.save(); k.globalAlpha = oc; k.scale(on, on); k.strokeStyle = '#FFFFFF'; k.lineWidth = 2.2;
+    k.beginPath(); k.moveTo(-6, 0); k.lineTo(-2, 4); k.lineTo(6, -5); k.stroke(); k.restore();
+  }
+  k.restore();
+  ripple(k, CPY_BX, CPY_BY, (u - CPY_T) / 0.5, '183,164,255');
+  if (on > 0.01) {
+    const ty = 66 + 6 * (1 - on), ts = 0.8 + 0.2 * on;
+    k.save(); k.globalAlpha = oc; k.translate(CPY_BX, ty); k.scale(ts, ts);
+    rr(k, -30, -12, 60, 24, 7); k.fillStyle = UX.ink; k.fill();
+    k.beginPath(); k.moveTo(-5, 12); k.lineTo(0, 17); k.lineTo(5, 12); k.closePath(); k.fill();
+    txt(k, '已复制', 0, 4, UXB_f(800, 11), '#FFFFFF', 'center'); k.restore();
+  }
+  const c = UXB_path(u, CPY_KEYS);
+  if (u > 0.3 && u < 1.8) cursor(k, c[0], c[1], pr);
+};

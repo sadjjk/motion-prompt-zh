@@ -1,0 +1,56 @@
+// Motion Prompt #1-167 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// コンテキストカーソル / Contextual cursor
+// パック: uxmotion (インタラクションとデータの動き) · element 54 · カテゴリ: カーソル連動
+// 何が起きるか: 作品カードが3枚並ぶ。普段のカーソルは小さな点で、カードの上に来ると濃い色の大きな円に弾んで広がり、中にアイコンと動作の文字（再生・表示・ドラッグ）が出る。離れると点に戻る。
+// 動きの仕様:
+//   - 普段のカーソルは半径 5px の点
+//   - カードの上では半径 34px に広がる（0.4 秒 cubic-bezier(.34,1.45,.64,1)）
+//   - 円の中にアイコンと文字。カードごとに再生・表示・ドラッグ
+//   - ポインタは 0.3 秒に入り、3 枚を順に巡って 4.3–5.0 秒に出る
+// 使いどころ: 動画・作品・カルーセルが混ざるポートフォリオで、クリックで何が起きるかを示したいときに。
+// タグ: cursor, contextual, label, hover, portfolio, custom-cursor
+// サイズ: 539x208 px · 1周: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-167
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+
+// @element 54
+// 54 情境标签光标（KittenJam #255）：平时光标是半径 5px 的小圆点；移到三张卡片上时弹性放大成半径 34px 的深色圆（0.4 秒 cubic-bezier(.34,1.45,.64,1)），
+// 圆内显示对应图标与动作文字（播放 / 查看 / 拖动），离开卡片缩回小圆点；指针 0.3 秒进场、4.3–5.0 秒离开。
+const CTC_X = [30, 194.5, 359], CTC_Y = 40, CTC_W = 150, CTC_H = 128, CTC_RS = 5, CTC_RB = 34;
+const CTC_LAB = ['播放', '查看', '拖动'], CTC_NAME = ['品牌宣传片', '视觉识别', '作品轮播'];
+const CTC_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.9, 110, 96], [1.5, 88, 122], [1.9, 262, 88], [2.6, 282, 118], [3.0, 430, 96], [3.7, 452, 112], [4.3, 452, 112], [5.0, 570, 230]];
+const CTC_hit = p => { for (let i = 0; i < 3; i++) if (p[0] > CTC_X[i] && p[0] < CTC_X[i] + CTC_W && p[1] > CTC_Y && p[1] < CTC_Y + CTC_H) return i + 1; return 0; };
+const CTC_HEV = UXB_changes(t => CTC_hit(UXB_path(t, CTC_KEYS)));
+const CTC_SEV = [[-1, 0], ...CTC_HEV.slice(1).map(([t, v]) => [t, v ? 1 : 0])];
+function CTC_icon(k, i, x, y) {
+  k.strokeStyle = '#FFFFFF'; k.fillStyle = '#FFFFFF'; k.lineWidth = 2; k.lineCap = 'round'; k.lineJoin = 'round';
+  if (i === 0) { k.beginPath(); k.moveTo(x - 4, y - 6); k.lineTo(x + 6, y); k.lineTo(x - 4, y + 6); k.closePath(); k.fill(); }
+  else if (i === 1) { k.beginPath(); k.moveTo(x - 5, y + 5); k.lineTo(x + 5, y - 5); k.moveTo(x - 2, y - 5); k.lineTo(x + 5, y - 5); k.lineTo(x + 5, y + 2); k.stroke(); }
+  else { k.beginPath(); k.moveTo(x - 7, y - 3); k.lineTo(x + 7, y - 3); k.moveTo(x + 4, y - 6); k.lineTo(x + 7, y - 3); k.lineTo(x + 4, y); k.moveTo(x + 7, y + 3); k.lineTo(x - 7, y + 3); k.moveTo(x - 4, y); k.lineTo(x - 7, y + 3); k.lineTo(x - 4, y + 6); k.stroke(); }
+}
+CELLS[53] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  txt(k, '精选作品', 30, 26, UXB_f(900, 13), UX.ink);
+  CTC_X.forEach((x, i) => {
+    card(k, x, CTC_Y, CTC_W, CTC_H, 12);
+    k.save(); rr(k, x + 6, CTC_Y + 6, CTC_W - 12, 90, 8); k.clip();
+    if (i === 0) UXB_pic(k, x + 6, CTC_Y + 6, CTC_W - 12, 90, ['night', '#1E2147', '#F6E7B0']);
+    else if (i === 1) UXB_pic(k, x + 6, CTC_Y + 6, CTC_W - 12, 90, ['sun', '#FDB98A', '#C86CF0', '#FFF2C6']);
+    else { [0, 1, 2].forEach(j => UXB_pic(k, x + 6 + j * 50, CTC_Y + 6, 46, 90, ['split', ['#7B61FF', '#3D8BFF', '#1FB89A'][j], '#EAE7E1'])); }
+    k.restore();
+    if (i === 0) { k.fillStyle = 'rgba(255,255,255,.85)'; k.beginPath(); k.arc(x + 75, CTC_Y + 51, 13, 0, TAU); k.fill(); k.fillStyle = UX.ink; k.beginPath(); k.moveTo(x + 71, CTC_Y + 45); k.lineTo(x + 80, CTC_Y + 51); k.lineTo(x + 71, CTC_Y + 57); k.closePath(); k.fill(); }
+    txt(k, CTC_NAME[i], x + 12, CTC_Y + 116, UXB_f(800, 12), UX.ink);
+  });
+  const p = UXB_path(u, CTC_KEYS), e = UXB_ramp(u, CTC_SEV, 0.4, UXA_spring), r = Math.max(1, mix(CTC_RS, CTC_RB, e));
+  let last = 0; for (const [t, v] of CTC_HEV) if (t <= u && v) last = v;
+  k.fillStyle = 'rgba(22,21,27,.92)'; k.beginPath(); k.arc(p[0], p[1], r, 0, TAU); k.fill();
+  const a = clamp((r - 14) / 20);
+  if (a > 0 && last) {
+    k.save(); k.globalAlpha = a; CTC_icon(k, last - 1, p[0], p[1] - 7);
+    txt(k, CTC_LAB[last - 1], p[0], p[1] + 15, UXB_f(800, 10.5), '#FFFFFF', 'center'); k.restore();
+  }
+};

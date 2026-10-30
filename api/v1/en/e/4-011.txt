@@ -1,0 +1,49 @@
+// Motion Prompt #4-011 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+//
+// Market candles / ローソク足チャート
+// Pack: scenes (Styled scenes) · element 11 · Category: Tech moods
+// What happens: Candles grow one by one from the left on a dark chart, red for up and green for down, with moving averages curving along and volume bars below.
+// Motion spec:
+//   - 48 candles fill in from the left between 0.2 and 4.6 s; up candles red #F0443A, down candles green #22B573.
+//   - The price area spans y 20–140 px; volume bars at opacity 0.5 grow below alongside each candle.
+//   - MA5 #F5C14B and MA20 #7FA8FF: 2 moving averages extend with the candles.
+//   - The latest close gets a red dashed line (3 px dashes) and a 46 × 14 px price tag; everything fades out from 5.4 to 6.0 s.
+// When to use it: Use it as a hero background for finance or investing services, an opener for earnings or market videos, or a transition in investment talks.
+// Tags: candlestick, stock, chart, finance, trading, moving-average, tech
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-011
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 11
+// 11 行情 K 线：K 线从左往右逐根长出，红涨绿跌，均线顺着走势弯过去，下方成交量柱跟着起伏
+const KDATA = (() => { const N = 48, out = []; let p = 100; for (let i = 0; i < N; i++) { const o = p, c = o + (hash(i * 4 + 1) - 0.47) * 6 + Math.sin(i * 0.15) * 1.5; out.push([o, c, Math.max(o, c) + hash(i * 4 + 2) * 3, Math.min(o, c) - hash(i * 4 + 3) * 3, 30 + hash(i * 4 + 4) * 70 + Math.abs(c - o) * 12]); p = c; } return out; })();
+CELLS[10] = (k, w, h, u) => {
+  k.fillStyle = '#0B0F1A'; k.fillRect(0, 0, CW, CH);
+  const x0 = 40, x1 = 470, y0 = 20, y1 = 140, N = KDATA.length;
+  k.strokeStyle = 'rgba(140,160,200,.1)'; k.lineWidth = 1;
+  for (let i = 0; i <= 6; i++) { const y = y0 + (y1 - y0) * i / 6; k.beginPath(); k.moveTo(x0, y); k.lineTo(x1, y); k.stroke(); }
+  const mn = Math.min(...KDATA.map(d => d[3])), mx = Math.max(...KDATA.map(d => d[2]));
+  const Y = v => y1 - (v - mn) / (mx - mn) * (y1 - y0), cw = (x1 - x0) / N;
+  const shown = Math.min(N, seg(u, 0.2, 4.6) * N + (u > 0.2 ? 0.001 : 0));   // 4.4 秒长满 48 根
+  const fade = fadeIn(u);
+  k.save(); k.globalAlpha = fade;
+  for (let i = 0; i < shown; i++) {
+    const [o, c, hi, lo, vol] = KDATA[i], up = c >= o, col = up ? '#F0443A' : '#22B573', x = x0 + i * cw + cw / 2, kk = clamp(shown - i);
+    k.strokeStyle = col; k.lineWidth = 0.8; k.beginPath(); k.moveTo(x, Y(hi)); k.lineTo(x, Y(lo)); k.stroke();
+    const yt = Y(Math.max(o, c)), yb = Y(Math.min(o, c)); k.fillStyle = col; k.fillRect(x - cw * 0.35, yb - (yb - yt) * kk, cw * 0.7, Math.max(1, (yb - yt) * kk));
+    k.globalAlpha = 0.5 * fade; k.fillRect(x - cw * 0.35, 196 - vol * 0.42 * kk, cw * 0.7, vol * 0.42 * kk); k.globalAlpha = fade;
+  }
+  const ma = (n, c) => { k.strokeStyle = c; k.lineWidth = 1.2; k.beginPath(); for (let i = n; i < shown; i++) { let s = 0; for (let j = 0; j < n; j++) s += KDATA[i - j][1]; const x = x0 + i * cw + cw / 2, y = Y(s / n); if (i === n) k.moveTo(x, y); else k.lineTo(x, y); } k.stroke(); };
+  ma(5, '#F5C14B'); ma(20, '#7FA8FF');
+  if (shown >= 1) {
+    const last = KDATA[Math.max(0, Math.floor(shown) - 1)];
+    k.setLineDash([3, 3]); k.strokeStyle = 'rgba(240,68,58,.6)'; k.beginPath(); k.moveTo(x0, Y(last[1])); k.lineTo(x1, Y(last[1])); k.stroke(); k.setLineDash([]);
+    k.fillStyle = '#F0443A'; k.fillRect(x1 + 4, Y(last[1]) - 7, 46, 14); txt(k, last[1].toFixed(2), x1 + 8, Y(last[1]) + 3, `700 9px ${MONO}`, '#fff');
+  }
+  k.restore();
+  txt(k, 'MA5', x0, 14, `500 8px ${MONO}`, '#F5C14B'); txt(k, 'MA20', x0 + 28, 14, `500 8px ${MONO}`, '#7FA8FF');
+  grain(k, 0.05);
+};

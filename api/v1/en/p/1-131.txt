@@ -1,0 +1,15 @@
+Please use "Holographic card" (ホログラムカード), one of the names in "Interaction & data motion".
+Motion Prompt #1-131
+
+What it is: A collectible card that tilts with the cursor while rainbow foil and glare shift across it
+What the sample shows: As the cursor moves over a card on a dark background, the card tilts in 3D, rainbow foil streams across its face and a soft glare follows; it straightens when the cursor leaves.
+Spec:
+- Card 112 × 164 px, corner radius 10 px; tilts up to 13° by the cursor position on it (perspective 600 px).
+- Rainbow diagonal stripes blend with color-dodge and follow the cursor; their opacity rises from 0.15 to 0.75 as the tilt grows.
+- A white radial glare (radius 90 px, opacity 0.35) follows the cursor.
+- In the demo hover starts from 0.7–0.95 s; from 4.6–4.9 s the cursor leaves, the card straightens and the foil dims.
+When to use it: Use it for collectibles, membership cards and reward showcases that should feel tangible and premium.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-131.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

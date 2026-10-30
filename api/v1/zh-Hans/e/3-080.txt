@@ -1,0 +1,83 @@
+// Motion Prompt #3-080 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/foggy-light
+//
+// 雾中光 / Foggy light
+// 分类包: photo (摄影光线与风格) · element 44 · 子分类: 光源与色彩
+// 动画表现: 傍晚街道起雾；远山、楼群、行道树与路灯、近处人物四层，越远越接近雾色、对比越低；一条雾带沿地平线缓缓飘过，路灯出现大光晕和向下的光锥。
+// 运动规格:
+//   - 场景：傍晚街角（天空 #C9D1DA、远山 #56677C、楼 #4F5D73、树 #34493F、人物 #232A38）。
+//   - 叠雾：雾色 #D5DADF 在画完远山后叠 0.42、画完楼群后叠 0.32、画完树和路灯后叠 0.22；越远的层被盖的次数越多；人物不加雾。
+//   - 雾带：在 68×26 的小画布上画 7 团白雾，拉伸到 y 50～150，不透明度 0.7；雾团每轮横向漂移 1～2 次。
+//   - 3 盏路灯（x 114、292、494）：灯泡周围有半径 18～44 px 的光晕 #FFD68C（中心 0.6），并向下展开宽 44 px 的光锥；右上显示“FOG n%”。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 清晨、雨后、悬疑画面中，想表现纵深和安静感时。
+// 标签: foggy light, fog, mist, atmospheric perspective, halo, light
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-080
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 44
+// 雾中光（霧の中の光）: 夕方の街並みに霧が出る。遠い山・建物の列・並木と街灯・手前の人物の4層があり、
+// 1層描くごとに霧の色を薄く重ねるので、遠い層ほど何度も霧をかぶって霧の色に近づき、コントラストが下がる（空気遠近）。
+// 地平線のあたりを霧の帯がゆっくり流れ、街灯は霧の中で大きな光の輪になる。手前の人物はくっきり残る
+const FOGW = 68, FOGH = 26;
+const FOGLO = once('fog-lo', () => { const c = document.createElement('canvas'); c.width = FOGW; c.height = FOGH; return c; });
+CELLS[43] = cell((k, u) => {
+  const a = env(u), T = u / CYC * TAU, D = pen(k), FOG = '#D5DADF';
+  // 夕方の色: 晴れた昼（BASE）から、街灯の灯る青灰色の夕方へ。霧の差が見えるよう、建物と木は濃い色にする
+  const DUSK = Object.assign({}, BASE, {
+    sky: '#C9D1DA', sky2: '#D3D9DF', far: '#56677C', bld: '#4F5D73', edge: '#3F4B5E', win: '#FFD27A', winOff: '#435064',
+    tree: '#34493F', trunk: '#2B3330', post: '#262C36', bulb: '#FFD27A', ground: '#8C949E', ground2: '#5D6672', mark: '#8C949E', person: '#232A38'
+  });
+  const p = pal(BASE, DUSK, a);
+  // 霧を1枚かぶせる（深さ d ぶん）。下ほど少し薄くして、地面に近い霧が溜まって見えるように
+  const veil = d => {
+    if (a < 0.002) return;
+    const g = k.createLinearGradient(0, 40, 0, CH);
+    g.addColorStop(0, mixc(FOG, '#FFFFFF', 0.2)); g.addColorStop(1, FOG);
+    k.save(); k.globalAlpha = d * a; k.fillStyle = g; k.fillRect(0, 0, CW, CH); k.restore();
+  };
+  D.rect(0, 0, CW, CH, p.sky);
+  // 4: 遠い山
+  D.poly([[0, 112], [70, 82], [150, 100], [232, 66], [318, 96], [400, 74], [480, 94], [539, 80], [539, ROAD], [0, ROAD]], p.far);
+  veil(0.42);
+  // 3: 建物の列（窓は夕方に灯る）
+  BLD.forEach(([x, w, h], i) => building(D, x, ROAD, w, h * 0.8, p, i));
+  veil(0.32);
+  // 霧の帯: 小さな面に白い塊を描いて引き伸ばす（ぼかし代わり）。1周で整数回横に流れる
+  if (a > 0.002) {
+    const g = FOGLO.getContext('2d');
+    g.clearRect(0, 0, FOGW, FOGH);
+    for (let i = 0; i < 7; i++) {
+      const x = ((i * 13 + u / CYC * FOGW * (1 + (i % 2))) % (FOGW + 24)) - 12, y = 12 + 4 * Math.sin(i * 2.1), r = 7 + (i % 3) * 3;
+      const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(240,243,246,0.9)'); gr.addColorStop(1, 'rgba(240,243,246,0)');
+      g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+    k.save(); k.globalAlpha = 0.7 * a; k.imageSmoothingEnabled = true; k.drawImage(FOGLO, 0, 50, CW, 100); k.restore();
+  }
+  // 2: 並木・街灯・道
+  TREES.forEach(([x, r]) => tree(D, x, ROAD, r, p));
+  LAMPS.forEach(x => lamp(D, x, ROAD, 58, p));
+  D.rect(0, ROAD, CW, WALK - ROAD, p.ground2); D.line([[0, 147], [CW, 147]], 2, p.mark, [14, 12]);
+  veil(0.22);
+  // 街灯の光の輪: 霧の粒が光を散らすので、電球の周りに大きな輪と下へ広がる光の円錐が出る
+  if (a > 0.002) {
+    k.save(); k.globalCompositeOperation = 'lighter';
+    for (const x of LAMPS) {
+      const bx = x + 9, by = ROAD - 53, R = 18 + 26 * a;
+      const g = k.createRadialGradient(bx, by, 1, bx, by, R);
+      g.addColorStop(0, `rgba(255,214,140,${(0.6 * a).toFixed(3)})`); g.addColorStop(0.35, `rgba(255,214,140,${(0.2 * a).toFixed(3)})`); g.addColorStop(1, 'rgba(255,214,140,0)');
+      k.fillStyle = g; k.fillRect(bx - R, by - R, R * 2, R * 2);
+      const c = k.createLinearGradient(0, by, 0, ROAD + 4);
+      c.addColorStop(0, `rgba(255,214,140,${(0.22 * a).toFixed(3)})`); c.addColorStop(1, 'rgba(255,214,140,0)');
+      k.fillStyle = c; k.beginPath(); k.moveTo(bx - 3, by); k.lineTo(bx + 3, by); k.lineTo(bx + 22, ROAD + 4); k.lineTo(bx - 22, ROAD + 4); k.closePath(); k.fill();
+    }
+    k.restore();
+  }
+  // 1: 手前の歩道と人物（霧はかけない）
+  D.rect(0, WALK, CW, CH - WALK, p.ground); D.line([[0, WALK], [CW, WALK]], 1.4, p.edge);
+  figure(D, FIG[0], FIG[1], FIG[2], p.person);
+  hud(k, `FOG ${Math.round(a * 100)}%`);
+});

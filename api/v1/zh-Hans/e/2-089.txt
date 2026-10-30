@@ -1,0 +1,38 @@
+// Motion Prompt #2-089 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 文字隧道 / Text tunnel
+// 分类包: motion2 (动态图形进阶) · element 50 · 子分类: 文字与图形
+// 动画表现: 「穿越」一层层从中心的小点放大并冲出画面，白色与珊瑚色交替，中心有暗色光晕。
+// 运动规格:
+//   - 同一个词 8 层从中心按指数从 0.04 倍放大到 9 倍
+//   - 每层穿过需 4.7 秒，相位依次错开 1/8
+//   - 前 25% 淡入，后 40% 淡出
+//   - 相邻层白色与珊瑚色交替，中心半径 70 px 暗色光晕
+// 适用场景: 适合开场、穿越突入或场景切换。
+// 标签: tunnel, zoom, warp, depth, loop, intro
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-089
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 50
+// 改写自 KittenJam Motion Library #55（Hannah）· 文字隧道：8 层「穿越」从中心 0.04 倍按指数放大到 9 倍冲出画面，每层走完需 4.7 秒、相位依次错开 1/8；前 25% 淡入、后 40% 淡出，相邻层白色与珊瑚色交替，中心有暗色光晕。
+const TUNL_N = 8;
+CELLS[49] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k, '#0A1230');
+  const L = [];
+  for (let i = 0; i < TUNL_N; i++) L.push([mod(u / CYC + i / TUNL_N, 1), i]);
+  L.sort((a, b) => a[0] - b[0]).forEach(([p, i]) => {
+    const s = 0.04 * Math.pow(9 / 0.04, p), a = P(p, 0, 0.25) * (1 - P(p, 0.6, 1));
+    if (a <= 0) return;
+    k.save(); k.globalAlpha = a; k.translate(w / 2, h / 2); k.scale(s, s);
+    txt(k, '穿越', 0, 0, `900 44px ${JP}`, i % 2 ? C.coral : '#fff', 'center', 'middle');
+    k.restore();
+  });
+  const g = k.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, 70);
+  g.addColorStop(0, 'rgba(5,9,26,.75)'); g.addColorStop(1, 'rgba(5,9,26,0)');
+  k.fillStyle = g; k.fillRect(0, 0, w, h);
+};

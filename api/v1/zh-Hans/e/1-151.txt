@@ -1,0 +1,69 @@
+// Motion Prompt #1-151 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+//
+// 图标微动画 / Icon micro-animations
+// 分类包: lp (落地页与网页动效) · element 36 · 子分类: 悬停与点击交互
+// 动画表现: 光标依次滑过 4 个图标，底色亮起：铃铛摇摆、爱心填色跳动、齿轮转动、信封盖翻开。
+// 运动规格:
+//   - 一排 4 个图标格（64×64、中心间距 90），光标在每格停 0.7 秒，底色 0.2 秒 easeOut 亮起、图标变朱色。
+//   - 铃铛：以顶端为轴摇 ±18°，每 0.3 秒一个来回，0.7 秒内线性衰减到 0。
+//   - 爱心：填色并在 0.35 秒内放大到 1.25 再回到 1。齿轮：0.5 秒转 90°，back-out（过冲 1.7）。
+//   - 信封：盖子 0.35 秒 easeOut 翻开、信纸上移 10px；光标离开后各自复原，4.25 秒光标回到起点。
+// 适用场景: 适合工具栏、导航、设置页等想让图标按钮更有手感的地方。
+// 标签: icon, micro-animation, hover, bell, heart, gear, toolbar
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-151
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+
+// @element 36
+// 改写自 KittenJam Motion Library #285 图标微动画：一排 4 个 64×64 图标格（中心间距 90），光标依次在每格停 0.7 秒，悬停时底色 0.2 秒 easeOut 亮起、图标变朱色。
+// 铃铛以顶端为轴摇 ±18°（每 0.3 秒一个来回、0.7 秒内线性衰减到 0）；爱心填色并在 0.35 秒内放大到 1.25 再回到 1；
+// 齿轮 0.5 秒转 90° 带回弹（back-out 过冲 1.7）；信封盖 0.35 秒 easeOut 翻开、信纸上移 10px。离开后各自复原，4.25 秒光标回到起点。
+const ICON_X = [120, 210, 300, 390], ICON_Y = 76, ICON_S = 64;
+const ICON_BACK = x => { const s = 1.7; return 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2); };
+CELLS[35] = (k, w, h, u) => {
+  frame(k, 'example.com/app');
+  const cur = t => path([[0, 255, 150], [0.35, 124, 80], [1.05, 124, 80], [1.3, 214, 80], [2.0, 214, 80], [2.25, 304, 80], [2.95, 304, 80], [3.2, 394, 80], [3.9, 394, 80], [4.25, 255, 150], [4.8, 255, 150]], t);
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    ICON_X.forEach((x, i) => {
+      const on = t => { const [a, b] = cur(t); return Math.abs(a - x) < ICON_S / 2 && Math.abs(b - ICON_Y) < ICON_S / 2; };
+      const q = trans(on, u, 0.2), fa = flipAt(on, u), d = on(u) && fa !== null ? u - fa : -1;
+      const bg = mixHex('#FFFFFF', C.accL, q), col = mixHex(C.ink, C.acc, q);
+      k.fillStyle = bg; rr(k, x - ICON_S / 2, ICON_Y - ICON_S / 2, ICON_S, ICON_S, 14); k.fill();
+      txt(k, ['通知', '收藏', '设置', '邮件'][i], x, ICON_Y + 50, `600 11px ${JP}`, C.sub, 'center', 'middle');
+      k.save(); k.translate(x, ICON_Y); k.strokeStyle = col; k.fillStyle = col; k.lineWidth = 2.4; k.lineJoin = 'round'; k.lineCap = 'round';
+      if (i === 0) {
+        // 铃铛：以顶端挂点 (0,−15) 为轴摇摆，振幅随悬停时间线性衰减
+        const a = d >= 0 && d < 0.7 ? 18 * Math.sin(2 * Math.PI * d / 0.3) * (1 - d / 0.7) : 0;
+        k.translate(0, -15); k.rotate(a * Math.PI / 180); k.translate(0, 15);
+        k.beginPath(); k.moveTo(-13, 8); k.lineTo(-11, 5); k.lineTo(-11, -3); k.arc(0, -3, 11, Math.PI, 0); k.lineTo(11, 5); k.lineTo(13, 8); k.closePath(); k.stroke();
+        k.beginPath(); k.arc(0, 12, 3, 0, 7); k.fill();
+        k.beginPath(); k.moveTo(0, -14); k.lineTo(0, -17); k.stroke();
+      } else if (i === 1) {
+        // 爱心：悬停开始 0.35 秒内跳一下，填色随底色一起淡入
+        const s = d >= 0 && d < 0.35 ? 1 + 0.25 * Math.sin(Math.PI * d / 0.35) : 1;
+        k.scale(s, s);
+        k.beginPath(); k.moveTo(0, 12); k.bezierCurveTo(-20, 0, -12, -16, 0, -6); k.bezierCurveTo(12, -16, 20, 0, 0, 12); k.closePath();
+        k.globalAlpha = q; k.fill(); k.globalAlpha = 1; k.stroke();
+      } else if (i === 2) {
+        // 齿轮：8 个齿，悬停转 90°（离开时同样带回弹转回）
+        k.rotate(90 * trans(on, u, 0.5, ICON_BACK) * Math.PI / 180);
+        k.lineWidth = 5; k.lineCap = 'butt';
+        for (let j = 0; j < 8; j++) { const b = j * Math.PI / 4; k.beginPath(); k.moveTo(Math.cos(b) * 10, Math.sin(b) * 10); k.lineTo(Math.cos(b) * 16, Math.sin(b) * 16); k.stroke(); }
+        k.beginPath(); k.arc(0, 0, 11, 0, 7); k.fill();
+        k.fillStyle = bg; k.beginPath(); k.arc(0, 0, 5, 0, 7); k.fill();
+      } else {
+        // 信封：先画信纸，再用底色盖住信封身体，最后画翻开的盖子
+        const f = trans(on, u, 0.35);
+        k.fillStyle = '#fff'; k.fillRect(-10, -6 - 10 * f, 20, 14); k.lineWidth = 1.6; k.strokeRect(-10, -6 - 10 * f, 20, 14);
+        k.lineWidth = 2.4; k.fillStyle = bg; rr(k, -16, -10, 32, 22, 3); k.fill(); k.stroke();
+        k.beginPath(); k.moveTo(-16, -10); k.lineTo(0, -10 + 12 * (1 - 2 * f)); k.lineTo(16, -10); k.stroke();
+      }
+      k.restore();
+    });
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
+  });
+};

@@ -1,0 +1,17 @@
+Please use "Impact shake" (インパクトシェイク), one of the names in "Motion graphics moves".
+Motion Prompt #2-024
+
+What it is: The whole frame shakes when something lands
+What the sample shows: A heavy headline slab drops with a thud and the whole frame shakes from the impact.
+Spec:
+- One drop per 2.35 s (a yellow slab first, then a coral one). The slab is 250 × 100, radius 18.
+- Fall: 0.3–0.62 s from above the frame to the floor, cubic ease-in (accelerating). While falling it is stretched 1.12× vertically.
+- Lands at 0.62 s. The whole frame shakes for 1.1 s: x 15 px × e^(−5t) × sin(2π·5t), y 11 px × e^(−5t) × cos(2π·6.5t), rotation 0.02 rad × e^(−5t) × sin(2π·5t + 0.6).
+- For 0.3 s after landing the slab squashes vertically by up to 22% and recovers (it widens by the same amount; anchored at its base).
+- Four background blocks hop up to 24 px, 0.03–0.06 s late, over 0.5 s. Six white lines and six dust puffs spread from the floor and fade within 0.55 s.
+- Exit: the slab moves 300 px up at 1.85–2.2 s (backIn, s = 1.6).
+When to use it: Use it to land an important headline or number with weight and force.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-024.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

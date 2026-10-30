@@ -1,0 +1,14 @@
+Please use "Direction-aware fill button" (方向認識フィルボタン), one of the names in "Landing page & web effects".
+Motion Prompt #1-159
+
+What it is: Colour spreads from where the cursor enters and drains toward the exit
+What the sample shows: On a dark page the cursor enters an outlined button from the lower left and an orange circle spreads from that point to fill it; when the cursor leaves upward, the circle shrinks away toward the exit point.
+Spec:
+- A 200×52 pill button with an accent outline on a dark page.
+- The cursor enters from the lower left; an accent circle centred on the entry point grows from 0 to the radius that covers the farthest corner over 0.55 s (easeInOut power 3), and the label turns from accent to white.
+- After 3.0 s the cursor leaves upward; the circle re-centres on the exit point and shrinks away over 0.55 s, so the colour drains toward the exit.
+When to use it: Use it on contact or sign-up CTAs where the button should visibly respond to the cursor's direction.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-159.txt
+Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

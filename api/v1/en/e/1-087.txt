@@ -1,0 +1,104 @@
+// Motion Prompt #1-087 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+//
+// Payment ring & check / 支払いリングとチェック
+// Pack: uxmotion (Interaction & data motion) · element 27 · Category: Progress feedback
+// What happens: The pay button shrinks into a circle on click, a ring fills while 3 steps light up, it turns green with a check, and a receipt bounces up from below.
+// Motion spec:
+//   - On click the button shrinks from 214 px wide into a 44 px circle over 0.5 s with overshoot; the label fades in 0.2 s.
+//   - After a 0.25 s delay a 29 px-radius ring appears and fills in 2.6 s (power-2.2 ease-out).
+//   - 3 steps — requesting, bank check, done — light up at 2%, 45% and 99.9% progress, each dot springing to 1.3×.
+//   - The full ring turns green #119C72 and, after 0.2 s, draws a check in 0.45 s; 0.9 s later a receipt card springs up from below in 0.6 s.
+// When to use it: Use it in e-commerce checkouts and in-app purchases to show payment progress and success.
+// Tags: payment, checkout, progress-ring, success, check-mark, button-morph
+// Size: 539x208 px · Cycle: 6.4 s
+// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-087
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// Element code starts here. CELLS, constants and helpers live in the kit.
+
+// @element 27
+// 27 支付成功对勾：左栏订单摘要与支付卡，右栏"支付 ₩32,000"按钮。0.6 秒指针点击：按钮 .5s 回弹收成 44px 圆，文字 .2s 淡出；
+// 延迟 .25s 环形进度出现，0.95 秒起 2.6 秒画满一圈（缓动 1-(1-k)^2.2），三步"请求中/银行确认/完成"在进度 2%、45%、99.9% 依次点亮；
+// 3.55 秒满环转绿 #119C72，延迟 .2s 用 .45s 画出对勾；再过 .9 秒收据卡从下方 .6s 回弹滑入；5.8–6.3 秒交叉淡化回到初始。
+const PAY_BX = 296, PAY_BY = 126, PAY_BW = 214, PAY_BH = 44, PAY_CX = PAY_BX + PAY_BW / 2, PAY_CY = PAY_BY + PAY_BH / 2;
+const PAY_T = 0.6, PAY_P0 = 0.95, PAY_OK = PAY_P0 + 2.6, PAY_REC = PAY_OK + 0.9;
+const PAY_ST = [0.02, 0.45, 0.999].map(th => PAY_P0 + (1 - Math.pow(1 - th, 1 / 2.2)) * 2.6);
+const PAY_KEYS = [[0, 560, 240], [0.15, 560, 240], [0.5, PAY_CX + 20, PAY_CY + 4], [0.8, PAY_CX + 20, PAY_CY + 4], [1.3, 500, 200], [1.7, 570, 240]];
+function PAY_draw(k, u) {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  card(k, 10, 10, CW - 20, CH - 20, 18);
+  // 左栏：订单摘要
+  rr(k, 24, 22, 250, 84, 14); k.fillStyle = UX.surface2; k.fill();
+  const f1 = UXB_f(650, 10.5);
+  txt(k, 'Daily Bottle 500 · 珊瑚色', 38, 42, f1, UX.ink2); txt(k, '₩29,000', 260, 42, f1, UX.ink2, 'right');
+  txt(k, '运费', 38, 59, f1, UX.ink2); txt(k, '₩3,000', 260, 59, f1, UX.ink2, 'right');
+  k.setLineDash([3, 3]); k.strokeStyle = UX.line2; k.lineWidth = 1; k.beginPath(); k.moveTo(38, 69.5); k.lineTo(260, 69.5); k.stroke(); k.setLineDash([]);
+  txt(k, '合计', 38, 93, UXB_f(850, 13), UX.ink); txt(k, '₩32,000', 260, 93, UXB_f(850, 13), UX.ink, 'right');
+  rr(k, 24.75, 114.75, 248.5, 30.5, 12); k.strokeStyle = UX.line2; k.lineWidth = 1.5; k.stroke();
+  const cg = k.createLinearGradient(34, 120, 64, 140); cg.addColorStop(0, '#2B1B6B'); cg.addColorStop(0.5, '#5B3FD9'); cg.addColorStop(1, '#1E7BD9');
+  rr(k, 34, 120, 30, 20, 4); k.fillStyle = cg; k.fill();
+  txt(k, 'Lumen Card', 74, 134, UXB_f(700, 11.5), UX.ink); txt(k, '•••• 0818', 262, 134, UXB_f(650, 10.5), UX.ink3, 'right');
+  txt(k, '分期', 28, 170, f1, UX.ink3); txt(k, '一次付清', 270, 170, UXB_f(750, 10.5), UX.ink, 'right');
+  txt(k, '可得积分', 28, 188, f1, UX.ink3); txt(k, '+ 960P', 270, 188, UXB_f(750, 10.5), UX.mint, 'right');
+  // 右栏
+  txt(k, '订单支付', PAY_BX, 46, UXB_f(850, 15), UX.ink); txt(k, '确认金额后点击支付', PAY_BX, 63, f1, UX.ink3);
+  const stA = 1 - seg(u, PAY_REC, PAY_REC + 0.3), run = seg(u, PAY_T, PAY_T + 0.3) * stA;
+  const kk = seg(u, PAY_P0, PAY_OK), e = 1 - Math.pow(1 - kk, 2.2), okK = seg(u, PAY_OK, PAY_OK + 0.4);
+  const accent = UXB_rgb(UX.accent), mint = UXB_rgb(UX.mint), okC = rgba(lerpC(accent, mint, okK), 1);
+  if (run > 0) {
+    // 三个步骤点：亮起时 .3s 变色、圆点 .4s 回弹放大到 1.3 倍
+    k.save(); k.globalAlpha = run;
+    const labels = ['请求中', '银行确认', '完成'], f2 = UXB_f(700, 10.5); k.font = f2;
+    const ws = labels.map(s => 12 + k.measureText(s).width), tot = ws.reduce((a, b) => a + b, 0) + 12;
+    let x = PAY_CX - tot / 2;
+    labels.forEach((s, i) => {
+      const on = seg(u, PAY_ST[i], PAY_ST[i] + 0.3), sc = 1 + 0.3 * backOut(seg(u, PAY_ST[i], PAY_ST[i] + 0.4));
+      k.fillStyle = on > 0 ? rgba(lerpC(UXB_rgb('#D4D3D8'), lerpC(accent, mint, okK), on), 1) : 'rgba(22,21,27,.17)';
+      k.beginPath(); k.arc(x + 3.5, 98, 3.5 * sc, 0, TAU); k.fill();
+      txt(k, s, x + 12, 102, f2, rgba(lerpC(UXB_rgb(UX.ink3), UXB_rgb(UX.ink), on), 1));
+      x += ws[i] + 6;
+    });
+    k.restore();
+  }
+  if (stA > 0) {
+    k.save(); k.globalAlpha = stA;
+    const sh = backOut(seg(u, PAY_T, PAY_T + 0.5)), bw = Math.max(38, mix(PAY_BW, PAY_BH, sh)), ps = 1 - 0.03 * UXB_press(u, PAY_T);
+    k.translate(PAY_CX, PAY_CY); k.scale(ps, ps);
+    rr(k, -bw / 2, -PAY_BH / 2, bw, PAY_BH, mix(14, 22, clamp(sh))); k.fillStyle = rgba(lerpC(UXB_rgb(UX.ink), mint, okK), 1); k.fill();
+    const ta = 1 - seg(u, PAY_T, PAY_T + 0.2);
+    if (ta > 0) { k.globalAlpha = stA * ta; txt(k, '支付 ₩32,000', 0, 5, UXB_f(800, 13.5), UX.page, 'center'); k.globalAlpha = stA; }
+    const ra = seg(u, PAY_T + 0.25, PAY_T + 0.55);
+    if (ra > 0) {
+      k.globalAlpha = stA * ra; k.lineCap = 'round'; k.lineWidth = 4.5;
+      k.strokeStyle = UX.surface3; k.beginPath(); k.arc(0, 0, 29, 0, TAU); k.stroke();
+      if (e > 0.001) { k.strokeStyle = okC; k.beginPath(); k.arc(0, 0, 29, -Math.PI / 2, -Math.PI / 2 + TAU * e); k.stroke(); }
+      k.globalAlpha = stA;
+    }
+    const ck = uxEase(seg(u, PAY_OK + 0.2, PAY_OK + 0.65));
+    if (ck > 0) { k.strokeStyle = '#FFFFFF'; k.lineWidth = 3.2; k.lineCap = 'round'; k.lineJoin = 'round'; UXB_poly(k, [[-7, 0.5], [-2.5, 5], [7, -4.5]], ck); }
+    k.restore();
+  }
+  // 收据：.6s 回弹从下方滑入（原作 translateY(110%) → 0）
+  if (u >= PAY_REC) {
+    const off = (1 - backOut(seg(u, PAY_REC, PAY_REC + 0.6))) * 1.1 * 172;
+    k.save(); rr(k, 10, 10, CW - 20, CH - 20, 18); k.clip(); k.translate(0, off);
+    rr(k, 282, 18, 236, 172, 16); k.fillStyle = UX.surface2; k.fill();
+    k.fillStyle = 'rgba(17,156,114,.16)'; k.beginPath(); k.arc(312, 52, 23, 0, TAU); k.fill();
+    k.fillStyle = UX.mint; k.beginPath(); k.arc(312, 52, 17, 0, TAU); k.fill();
+    k.strokeStyle = '#FFFFFF'; k.lineWidth = 2.8; k.lineCap = 'round'; k.lineJoin = 'round'; UXB_poly(k, [[305, 52.5], [310, 57.5], [320, 47]], 1);
+    txt(k, '支付完成', 340, 50, UXB_f(850, 16), UX.ink); txt(k, '收据已发送至邮箱', 340, 67, f1, UX.ink3);
+    [['订单号', 'LM-20261010-0428'], ['支付时间', '10月10日 18:42'], ['金额', '₩32,000']].forEach(([a, b], i) => {
+      txt(k, a, 298, 98 + i * 17, UXB_f(650, 10.5), UX.ink3); txt(k, b, 504, 98 + i * 17, UXB_f(750, 10.5), UX.ink, 'right');
+    });
+    rr(k, 298, 148, 206, 30, 10); k.fillStyle = UX.ink; k.fill();
+    txt(k, '重新开始', 401, 167, UXB_f(750, 12), UX.page, 'center');
+    k.restore();
+  }
+}
+CELLS[26] = (k, w, h, u) => {
+  UXB_xfade(k, PAY_draw, u, 5.8, 6.3);
+  const c = UXB_path(u, PAY_KEYS);
+  ripple(k, c[0], c[1], seg(u, PAY_T, PAY_T + 0.5));
+  if (u > 0.15 && u < 1.7) cursor(k, c[0], c[1], UXB_press(u, PAY_T));
+};
