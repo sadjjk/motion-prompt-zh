@@ -91,35 +91,59 @@ MotionPrompt.pack('camera', function () {
   const BLD = [[-17, 4, 9], [-12, 3.2, 13], [-8, 2.6, 7], [11, 3.4, 11], [15.5, 4, 8], [20, 3, 15], [-24, 3.5, 10], [26, 4, 7]];
   const CITY = [[-9, 3.4, 12], [-5.5, 3, 18], [-2, 3.6, 9], [1.8, 3, 22], [5.4, 3.6, 14], [9, 3, 10], [-13, 3.4, 15], [12.8, 3.6, 19]];
 
+  // ぼかしは描画ごとに ctx.filter をかけると 1 回ごとに全面 blur が走って重い（1 格 60ms 前後）。
+  // 同じぼかし量で続く描画は LAYER にまとめて描き、量が変わる時と最後に 1 回だけ blur して重ねる。
+  const LAYERS = new Map();   // canvas の大きさごとに 1 枚（TMP と本番 canvas を交互に使っても作り直さない）
+  function layerFor(cv) {
+    const key = cv.width + 'x' + cv.height;
+    let L = LAYERS.get(key);
+    if (!L) { const lc = mkCanvas(cv.width, cv.height); L = { lc, lk: lc.getContext('2d') }; LAYERS.set(key, L); }
+    return L;
+  }
   function world(ctx, w, h, c, o = {}) {
     ctx.save();
     ctx.translate(w / 2, h / 2); ctx.rotate(c.roll || 0);
     const blurBg = o.blurBg || 0, blurFg = o.blurFg || 0;
-    const setBlur = b => { ctx.filter = b > 0.05 ? `blur(${b.toFixed(2)}px)` : 'none'; };
+    const { lc, lk } = layerFor(ctx.canvas);
+    let cur = 0, d = ctx;   // d = 今の描画先（ぼかし中は lk）
+    const flush = () => {
+      if (d !== lk) return;
+      ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.filter = `blur(${cur}px)`; ctx.drawImage(lc, 0, 0); ctx.restore();
+    };
+    const setBlur = b => {
+      b = b > 0.05 ? +b.toFixed(2) : 0;
+      if (b === cur) return;
+      flush(); cur = b;
+      if (!b) { d = ctx; return; }
+      lk.setTransform(1, 0, 0, 1, 0, 0); lk.clearRect(0, 0, lc.width, lc.height);
+      lk.setTransform(ctx.getTransform()); lk.globalAlpha = 1; lk.filter = 'none'; lk.globalCompositeOperation = 'source-over';
+      d = lk;
+    };
     // sky tint
     if (o.sky) { ctx.fillStyle = o.sky; ctx.fillRect(-w * 2, -h * 3, w * 4, h * 6); }
     setBlur(blurBg);
     // sun / moon
     const sun = o.sun === undefined ? [30, 30, 170] : o.sun;
-    if (sun) { const p = proj(c, ...sun); if (p.z > NEAR) { ctx.fillStyle = o.sunCol || C.blueL; ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(0, 5.5 * p.s * (o.sunScale || 1)), 0, 7); ctx.fill(); } }
-    if (o.clouds) o.clouds.forEach(([X, Y, Z, r]) => { const p = proj(c, X, Y, Z); if (p.z < NEAR) return; ctx.fillStyle = C.g1; ctx.beginPath(); ctx.ellipse(p.x, p.y, r * 2.2 * p.s, r * p.s, 0, 0, 7); ctx.ellipse(p.x + r * 1.2 * p.s, p.y + r * .2 * p.s, r * 1.4 * p.s, r * .8 * p.s, 0, 0, 7); ctx.fill(); });
+    if (sun) { const p = proj(c, ...sun); if (p.z > NEAR) { d.fillStyle = o.sunCol || C.blueL; d.beginPath(); d.arc(p.x, p.y, Math.max(0, 5.5 * p.s * (o.sunScale || 1)), 0, 7); d.fill(); } }
+    if (o.clouds) o.clouds.forEach(([X, Y, Z, r]) => { const p = proj(c, X, Y, Z); if (p.z < NEAR) return; d.fillStyle = C.g1; d.beginPath(); d.ellipse(p.x, p.y, r * 2.2 * p.s, r * p.s, 0, 0, 7); d.ellipse(p.x + r * 1.2 * p.s, p.y + r * .2 * p.s, r * 1.4 * p.s, r * .8 * p.s, 0, 0, 7); d.fill(); });
     // mountains (far planes)
     if (o.mountains !== false) {
       const off = o.mtnZ || 0;
-      ctx.fillStyle = C.blueXL; poly(ctx, c, [...MTN_FAR.map(([x, y]) => [x, y, 175 + off])]); ctx.fill();
-      ctx.fillStyle = C.blueL; poly(ctx, c, [...MTN_NEAR.map(([x, y]) => [x, y, 120 + off])]); ctx.fill();
+      d.fillStyle = C.blueXL; poly(d, c, [...MTN_FAR.map(([x, y]) => [x, y, 175 + off])]); d.fill();
+      d.fillStyle = C.blueL; poly(d, c, [...MTN_NEAR.map(([x, y]) => [x, y, 120 + off])]); d.fill();
     }
     // ground + grid
     if (o.grid !== false) {
-      ctx.save(); setBlur(blurBg * 0.6);
-      ctx.strokeStyle = C.grid; ctx.lineWidth = 1.3; ctx.beginPath();
+      setBlur(blurBg * 0.6);
+      d.save();
+      d.strokeStyle = C.grid; d.lineWidth = 1.3; d.beginPath();
       const z0 = Math.floor(c.z / 2) * 2, xs = o.gridX || 40;
-      for (let z = z0 + 2; z <= z0 + 90; z += (z - z0 < 30 ? 2 : 6)) seg(ctx, c, [-xs + c.x, 0, z], [xs + c.x, 0, z]);
-      for (let x = Math.floor(c.x / 2) * 2 - xs; x <= c.x + xs; x += 2) seg(ctx, c, [x, 0, z0 + 0.5], [x, 0, z0 + 90]);
-      ctx.stroke();
+      for (let z = z0 + 2; z <= z0 + 90; z += (z - z0 < 30 ? 2 : 6)) seg(d, c, [-xs + c.x, 0, z], [xs + c.x, 0, z]);
+      for (let x = Math.floor(c.x / 2) * 2 - xs; x <= c.x + xs; x += 2) seg(d, c, [x, 0, z0 + 0.5], [x, 0, z0 + 90]);
+      d.stroke();
       // horizon
-      ctx.strokeStyle = C.g2; ctx.lineWidth = 1.5; ctx.beginPath(); seg(ctx, c, [c.x - 400, 0, c.z + 300], [c.x + 400, 0, c.z + 300]); ctx.stroke();
-      ctx.restore();
+      d.strokeStyle = C.g2; d.lineWidth = 1.5; d.beginPath(); seg(d, c, [c.x - 400, 0, c.z + 300], [c.x + 400, 0, c.z + 300]); d.stroke();
+      d.restore();
     }
     // sprites sorted by depth
     const list = [];
@@ -132,8 +156,8 @@ MotionPrompt.pack('camera', function () {
     if (o.person) { const pp = o.person; add(pp.x || 0, pp.y || 0, pp.z === undefined ? 8 : pp.z, (k, s) => person(k, s, pp), pp.fg); }
     if (o.fg) o.fg.forEach(([X, Z, kind]) => add(X, 0, Z, (k, s) => kind === 'rock' ? (k.fillStyle = C.g3, k.beginPath(), k.ellipse(0, 0.1, 0.55, 0.38, 0, 0, 7), k.fill()) : post(k, s), true));
     list.sort((a, b) => b.z - a.z);
-    for (const it of list) { setBlur(it.fg ? blurFg : blurBg); sprite(ctx, c, it.X, it.Y, it.Z, it.fn); }
-    ctx.filter = 'none';
+    for (const it of list) { setBlur(it.fg ? blurFg : blurBg); sprite(d, c, it.X, it.Y, it.Z, it.fn); }
+    setBlur(0);
     if (o.after) o.after(ctx, c);
     ctx.restore();
   }
