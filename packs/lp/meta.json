@@ -3025,6 +3025,174 @@
         "design-tool",
         "loop"
       ]
+    },
+    {
+      "no": "49",
+      "id": "1-186",
+      "slug": "tear-ticket",
+      "category": "hover-click",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 sadjjk",
+      "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+      "name": { "ja": "チケットのもぎり", "en": "Tear-off ticket stub", "zh-Hans": "撕票根" },
+      "meaning": { "ja": "半券をミシン目に沿ってちぎり取り、本券に検札スタンプが押される", "en": "Drag the stub to tear it off along the perforation, and the ticket gets stamped", "zh-Hans": "拖动票根沿打孔线撕下，主票面盖上检票印章" },
+      "ask": { "ja": "イベントの購入完了画面をチケットのもぎりにして。右の幅82pxの半券をつかんで下に引くと、1.2秒でミシン目に沿って裂けて落ち、本券に「已检票」のスタンプが押される。", "en": "Make the event checkout success screen a tear-off ticket stub: grab the 82 px stub on the right and pull down, it tears along the perforation over 1.2 s and drops away, then a 'checked' stamp lands on the ticket.", "zh-Hans": "把活动购票成功页做成撕票根：拖住右侧 82 px 宽的票根往下拉，1.2 秒内沿打孔线撕开并掉落，主票面随后盖上「已检票」印章。" },
+      "summary": { "ja": "紙の質感があるコンサートチケットの右端の半券を、カーソルがつかんで下へ引く。ミシン目が上から下へ毛羽立ちながら裂け、半券は回転しながら画面外へ落ち、本券が揺れ戻って朱色の「已检票」スタンプが押される。スタンプが消えると半券が元の位置に戻る。", "en": "The cursor grabs the stub at the right end of a papery concert ticket and pulls down. The perforation tears from top to bottom with a fibrous edge, the stub spins out of frame, the main ticket springs back and a red 'checked' stamp lands on it; once the stamp fades, the stub reappears in place.", "zh-Hans": "光标抓住一张纸质音乐会门票右端的票根往下拉；打孔线从上往下撕开，撕口带纸纤维毛边，票根旋转着掉出画面，主票面回弹并盖上朱红「已检票」印章；印章褪去后票根重新回到原位。" },
+      "spec": {
+        "ja": [
+          "本券は幅262px、半券は幅82px、高さはどちらも128pxで、ミシン目で区切られる",
+          "カーソルは0.1〜0.6秒に半券へ移動し、0.66秒に押下",
+          "0.78〜1.98秒に下へドラッグ。裂け目は毛羽立った縁でミシン目を上から下へ進み、半券は0.3radまで開く",
+          "1.98秒にちぎれた半券は回転しながら放物線で落ち、2.9秒で消える。本券は揺れ戻る",
+          "2.42秒に「已检票」スタンプが1.6倍から1倍へ落ちて押される（落下0.12秒）。3.7〜4.05秒に消える",
+          "3.95〜4.45秒に半券が9px上からフェードインして戻り、4.8秒の周期末まで静止"
+        ],
+        "en": [
+          "The main ticket is 262 px wide and the stub 82 px, both 128 px tall, divided by a perforated line.",
+          "The cursor moves to the stub over 0.1–0.6 s and presses at 0.66 s.",
+          "From 0.78–1.98 s it drags down: the tear runs top to bottom along the perforation with a fibrous edge, and the stub swings open to 0.3 rad.",
+          "Torn free at 1.98 s, the stub spins and falls in an arc, gone by 2.9 s, while the main ticket springs back.",
+          "At 2.42 s a 'checked' stamp drops from 1.6× to 1× (a 0.12 s fall) and lands; it fades over 3.7–4.05 s.",
+          "From 3.95–4.45 s the stub fades back in from 9 px above, then holds until the 4.8 s cycle ends."
+        ],
+        "zh-Hans": [
+          "主票面宽 262 px、票根宽 82 px，高都是 128 px，中间以打孔线分开。",
+          "光标 0.1–0.6 秒移到票根，0.66 秒按下。",
+          "0.78–1.98 秒向下拖，撕口带纸纤维毛边沿打孔线从上到下走完，票根张开到 0.3 rad。",
+          "1.98 秒撕断后票根边旋转边沿抛物线下落，2.9 秒掉出画面，主票面回弹。",
+          "2.42 秒「已检票」印章从 1.6 倍落到 1 倍盖上（下落 0.12 秒），3.7–4.05 秒褪去。",
+          "3.95–4.45 秒票根从上方 9 px 淡入回位，静止到 4.8 秒周期结束。"
+        ]
+      },
+      "use": { "ja": "イベントの購入完了、入場チェックイン、クーポン使用など「使った・受け取った」を手触りで見せたい所に。", "en": "Use it for event checkout success, entry check-in or coupon redemption, where using or claiming something should feel tactile.", "zh-Hans": "适合活动购票成功、入场核验、优惠券核销等需要把「已使用 / 已领取」做得有手感的地方。" },
+      "tags": ["ticket", "tear", "drag", "perforation", "stamp", "paper"],
+      "aliases": { "zh-Hans": ["撕门票", "撕下票根", "检票动效", "门票撕开"] }
+    },
+    {
+      "no": "50",
+      "id": "1-187",
+      "slug": "paper-shredder",
+      "category": "hover-click",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 sadjjk",
+      "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+      "name": { "ja": "シュレッダーで削除", "en": "Shredder delete", "zh-Hans": "碎纸机删除" },
+      "meaning": { "ja": "ファイルをシュレッダーへドラッグすると細断され、リストが詰まる", "en": "Drag a file into a shredder to delete it, and the list closes the gap", "zh-Hans": "把文件拖进碎纸机粉碎删除，列表随后补位" },
+      "ask": { "ja": "ファイル削除をシュレッダーで削除にして。行をドラッグすると0.6倍のカードに縮んで投入口へ吸い込まれ、本体が震えて15本の紙片が丸まりながら落ち、下の行が33px上がって詰める。", "en": "Make file deletion a shredder delete: dragging a row shrinks it to a 0.6× card that gets sucked into the slot, the machine shakes, 15 paper strips curl down into the bin and the rows below move up 33 px.", "zh-Hans": "把删除文件做成碎纸机删除：拖起的行缩成 0.6 倍卡片被吸进进纸口，机身震动，15 条纸条卷曲着落进纸篓，下方行上移 33 px 补位。" },
+      "summary": { "ja": "左にファイル一覧、右に濃いグレーのシュレッダー。カーソルがPDFの行をつかんで弧を描いて投入口まで運び、離すとカードが吸い込まれ、本体が震えてランプがオレンジに点滅し、窓の中に細い紙片が丸まりながら落ちる。一覧の下の行が上がって空きを埋め、最後に元に戻る。", "en": "A file list sits on the left and a graphite shredder on the right. The cursor picks up the PDF row and carries it in an arc to the slot; once released, the card is sucked in, the machine shakes, its light blinks orange and thin strips curl down behind the bin window. The rows below slide up to fill the gap, then everything resets.", "zh-Hans": "左边是文件列表，右边是一台石墨色碎纸机；光标抓起 PDF 那一行，沿弧线拖到进纸口松手，卡片被吸入，机身震动、指示灯橙色闪烁，纸篓窗里细纸条卷曲着落下；列表下方的行上移补上空位，最后复位。" },
+      "spec": {
+        "ja": [
+          "0.45秒に2行目を押さえ、0.6〜1.55秒に弧を描いて投入口までドラッグ。カードは1.03倍から0.6倍に縮む",
+          "1.7〜2.45秒にカードが最初はゆっくり、次第に速く吸い込まれる。本体は1.7〜2.95秒に震える",
+          "ランプは1.65〜3.0秒に緑の「待機」から7Hzで点滅するオレンジの「粉砕中」に変わる",
+          "紙片15本が1.98秒から刃の下に0.34秒かけて押し出され、外れると丸まりながら落ちて1.15秒以内に消える。真ん中の二本はファイルの色帯付き",
+          "2.05〜2.5秒に下の行が33px上がって詰め、件数は4から3になる",
+          "4.05〜4.45秒に行が戻り、4.3〜4.7秒に消した行が左10pxからフェードイン。4.8秒周期"
+        ],
+        "en": [
+          "At 0.45 s the cursor presses row 2 and over 0.6–1.55 s drags it in an arc to the slot, the card shrinking from 1.03× to 0.6×.",
+          "From 1.7–2.45 s the card is pulled in, slowly at first and then faster; the machine shakes from 1.7–2.95 s.",
+          "From 1.65–3.0 s the light switches from a green 'standby' to an orange 'shredding' that blinks at 7 Hz.",
+          "From 1.98 s, 15 strips are pushed out under the blades over 0.34 s each, then drop free, curling as they fall and fading within 1.15 s; the middle pair carry the file's color band.",
+          "From 2.05–2.5 s the rows below move up 33 px to close the gap, and the count goes from 4 to 3.",
+          "The rows drop back over 4.05–4.45 s and the deleted row fades in from 10 px to the left over 4.3–4.7 s, on a 4.8 s cycle."
+        ],
+        "zh-Hans": [
+          "0.45 秒按住第 2 行，0.6–1.55 秒沿弧线拖到进纸口，卡片从 1.03 倍缩到 0.6 倍。",
+          "1.7–2.45 秒卡片先慢后快被吸入，机身在 1.7–2.95 秒震动。",
+          "1.65–3.0 秒指示灯从绿色「待机」变为以 7 Hz 闪烁的橙色「粉碎中」。",
+          "15 条纸条从 1.98 秒起在刀口下各用 0.34 秒挤出，随后脱落、边落边卷曲，1.15 秒内淡出；中间两条带文件的色带。",
+          "2.05–2.5 秒下方行上移 33 px 补位，计数从 4 变为 3。",
+          "4.05–4.45 秒各行回落，4.3–4.7 秒被删的行从左侧 10 px 处淡入，4.8 秒一个周期。"
+        ]
+      },
+      "use": { "ja": "ファイル管理、クラウドストレージ、プライバシー・セキュリティ機能の紹介など、「完全に消した」ことを伝えたい所に。", "en": "Use it in file managers, cloud storage or privacy and security features where a delete should feel permanent.", "zh-Hans": "适合文件管理、云盘、隐私与安全功能介绍等需要表现「彻底删除」的地方。" },
+      "tags": ["shredder", "delete", "drag-and-drop", "file-list", "shake", "paper"],
+      "aliases": { "zh-Hans": ["拖拽删除", "粉碎文件", "碎纸机动效", "删除文件动画"] }
+    },
+    {
+      "no": "51",
+      "id": "1-188",
+      "slug": "folder-notes",
+      "category": "hover-click",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 sadjjk",
+      "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+      "name": { "ja": "フォルダーからカードが飛び出す", "en": "Folder pop-out cards", "zh-Hans": "文件夹弹出卡片" },
+      "meaning": { "ja": "ホバーでフォルダーが開き、中のカードが周りに飛び出して浮かぶ", "en": "On hover a folder opens and the cards inside pop out around it and float", "zh-Hans": "悬停时文件夹翻开，里面的卡片弹到四周并轻轻浮动" },
+      "ask": { "ja": "作品集のフォルダーをホバーでカードが飛び出すようにして。前面を0.5秒で手前に開き、3枚のカードを0.17秒ずつずらして左・上・右へ回転しながら飛ばし、2.6pxの幅でふわふわ浮かせて。", "en": "Make the portfolio folder a folder pop-out on hover: tip the front open over 0.5 s, launch 3 cards 0.17 s apart to the left, top and right with a spin, and let them float by 2.6 px.", "zh-Hans": "把作品集文件夹做成悬停弹出卡片：前片 0.5 秒向前翻开，3 张卡片间隔 0.17 秒带旋转弹到左、上、右三处，并以 2.6 px 幅度轻轻浮动。" },
+      "summary": { "ja": "机の上にオレンジ色の立体フォルダー。カーソルが乗ると前面が手前に倒れて開き、カラーパレット・スケッチの付箋・一言カードの3枚が順に飛び出して左・上・右に散り、少し傾いたままふわふわ浮く。カーソルが離れるとカードが逆順に戻り、前面が閉じて小さく弾む。", "en": "An orange 3D folder sits on a desk. When the cursor hovers, the front flap tips forward and three cards (a color palette, a sketch sticky note and a quote card) pop out one after another to the left, top and right, floating at a slight tilt. When the cursor leaves, they return in reverse order and the flap closes with a small bounce.", "zh-Hans": "桌面上一个橙色立体文件夹；光标悬停时前片向前下方翻开，色板、草图便利贴、一句话卡三张卡片依次弹出，散到左、上、右三处，带点倾斜轻轻浮动；光标移开后卡片按相反顺序收回，前片合上并轻弹一下。" },
+      "spec": {
+        "ja": [
+          "カーソルは0.25〜0.85秒にフォルダーの前面へ移動",
+          "前面（230×89）は底辺を軸に0.72〜1.22秒で手前へ倒れ、高さが0.56倍につぶれ上辺が少し広がる（オーバーシュートあり）",
+          "3枚のカードは0.92秒から0.17秒間隔で、それぞれ0.66秒かけて飛び出す。先に真上へ出てから斜めに飛び、0.86倍から1倍に拡大",
+          "定位置ではカードが周期1.7秒・振幅2.6pxで上下に浮き、少し揺れる",
+          "カーソルは2.95〜3.55秒に離れ、3.02秒から0.13秒間隔・各0.44秒でカードが逆順に戻る",
+          "3.6〜4.05秒に前面が閉じて小さく弾み、4.45秒に静止。4.8秒周期"
+        ],
+        "en": [
+          "The cursor moves onto the front of the folder over 0.25–0.85 s.",
+          "The front flap (230×89) hinges on its bottom edge and tips forward over 0.72–1.22 s, squashing to 0.56× its height with the top edge widening slightly, with an overshoot.",
+          "From 0.92 s, 3 cards pop out 0.17 s apart, each over 0.66 s: first straight up, then diagonally out, scaling from 0.86× to 1×.",
+          "In place, each card bobs 2.6 px on a 1.7 s period with a slight sway.",
+          "The cursor leaves over 2.95–3.55 s, and from 3.02 s the cards return in reverse order, 0.13 s apart and 0.44 s each.",
+          "The flap closes over 3.6–4.05 s with a small bounce and rests by 4.45 s, on a 4.8 s cycle."
+        ],
+        "zh-Hans": [
+          "光标 0.25–0.85 秒移到文件夹前片上。",
+          "前片（230×89）以底边为轴在 0.72–1.22 秒向前翻开，高度压到 0.56 倍、顶边略微变宽，带回弹过冲。",
+          "3 张卡片从 0.92 秒起间隔 0.17 秒、各用 0.66 秒弹出：先竖直冒出再斜飞到位，从 0.86 倍放大到 1 倍。",
+          "到位后每张卡以 1.7 秒周期、2.6 px 幅度上下浮动并轻微摆动。",
+          "光标 2.95–3.55 秒移开，卡片从 3.02 秒起按相反顺序收回，间隔 0.13 秒、各 0.44 秒。",
+          "3.6–4.05 秒前片合上并轻弹，4.45 秒静止，4.8 秒一个周期。"
+        ]
+      },
+      "use": { "ja": "ポートフォリオ、素材ライブラリ、プロジェクト一覧などで、フォルダーの中身をホバーでのぞかせたい所に。", "en": "Use it in portfolios, asset libraries or project lists to give a hover preview of what is inside a folder.", "zh-Hans": "适合作品集、素材库、项目列表等需要悬停预览文件夹内容的地方。" },
+      "tags": ["folder", "hover", "cards", "pop-out", "float", "stagger"],
+      "aliases": { "zh-Hans": ["文件夹弹出便签", "悬停打开文件夹", "文件夹预览", "卡片弹出"] }
+    },
+    {
+      "no": "52",
+      "id": "1-189",
+      "slug": "tree-menu",
+      "category": "loading-loops",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 sadjjk",
+      "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+      "name": { "ja": "ツリーメニュー", "en": "Tree menu", "zh-Hans": "树状菜单" },
+      "meaning": { "ja": "幹線から枝分かれした線で項目をつなぐサイドナビで、開くと枝が伸び、選ぶと道筋が光る", "en": "A side nav whose items hang off a trunk by branch lines; opening grows new branches and picking an item lights its path", "zh-Hans": "菜单项用枝杈线连到主干的侧边导航，展开时长出子枝，选中时点亮路径" },
+      "ask": { "ja": "管理画面のサイドナビをツリーメニューにして。「产品」を押すと下の項目が54px下がり、子項目3つの枝を0.13秒ずつずらして0.4秒で伸ばし、選んだ子項目までの線を0.58秒で光らせて。", "en": "Turn the dashboard side nav into a tree menu: clicking 'Products' pushes the items below down 54 px, grows 3 child branches 0.13 s apart over 0.4 s each, and lights the line to the chosen child over 0.58 s.", "zh-Hans": "把后台侧边导航做成树状菜单：点击「产品」后下方条目下移 54 px，3 条子枝杈间隔 0.13 秒、各用 0.4 秒长出，再用 0.58 秒点亮到所选子项的连线。" },
+      "summary": { "ja": "白いサイドナビの左に縦の幹線があり、各項目は角丸の枝でつながっている。カーソルが「产品」を押すと下の項目が押し下げられ、3本の子の枝が先端を光らせながら順に伸びて子項目がフェードインする。続いて「案例」を押すと幹線からそこまでの道筋を光が流れ、項目がオレンジに選択される。最後にもう一度「产品」を押して畳む。", "en": "A white side nav has a vertical trunk on the left, with each item joined by a rounded branch. When the cursor clicks 'Products', the items below are pushed down and three child branches grow one by one with a glowing tip as the children fade in. Clicking 'Cases' sends a light along the path from the trunk to it and the item turns orange; a final click on 'Products' folds it all back.", "zh-Hans": "白色侧边导航左侧有一根竖向主干，各菜单项经圆角枝杈接上去；光标点「产品」，下方条目被推下，三条子枝杈带着发光尖端依次长出，子项随之淡入；接着点「案例」，一道光从主干沿路径流到该项，条目变成橙色选中态；最后再点「产品」收起。" },
+      "spec": {
+        "ja": [
+          "一階層5項目は20px間隔、「产品」の下に子項目3つが18px間隔で入り、展開すると下の項目が54px下がる",
+          "クリックは1.0秒、2.25秒、3.75秒の3回で、そのたびにカーソル先端に波紋が広がる",
+          "1.05〜1.5秒に下の項目が下がり、子の枝は1.1秒から0.13秒間隔で各0.4秒かけて長さ順に伸び、先端に小さな光点が付く",
+          "子項目は1.36秒から同じ0.13秒間隔で0.26秒かけてフェードイン",
+          "2.3〜2.88秒に幹線から「案例」までの線を尾を引く光が流れ、着くと節点が塗られ波紋が広がり、項目がオレンジの選択状態になる",
+          "3.8〜4.28秒に畳まれ、カーソルは4.45秒に待機位置へ戻る。4.8秒周期"
+        ],
+        "en": [
+          "5 top-level items sit 20 px apart; 3 children sit 18 px apart under 'Products', and opening pushes the items below down 54 px.",
+          "There are 3 clicks, at 1.0 s, 2.25 s and 3.75 s, each sending a ripple from the cursor tip.",
+          "Over 1.05–1.5 s the items below move down, and from 1.1 s the child branches grow along their length 0.13 s apart, 0.4 s each, with a small glowing dot at the tip.",
+          "From 1.36 s the children fade in over 0.26 s each, with the same 0.13 s stagger.",
+          "From 2.3–2.88 s a light with a trail runs along the line from the trunk to 'Cases'; on arrival the node fills, a ring spreads and the item turns orange as selected.",
+          "It folds back over 3.8–4.28 s and the cursor returns to rest by 4.45 s, on a 4.8 s cycle."
+        ],
+        "zh-Hans": [
+          "一级菜单 5 项、行距 20 px；「产品」下有 3 个子项、行距 18 px，展开时下方条目下移 54 px。",
+          "共 3 次点击，分别在 1.0 秒、2.25 秒、3.75 秒，每次光标尖端放出一圈涟漪。",
+          "1.05–1.5 秒下方条目下移；子枝杈从 1.1 秒起间隔 0.13 秒、各用 0.4 秒按长度长出，尖端带一个发光小点。",
+          "子项从 1.36 秒起以同样 0.13 秒间隔、各用 0.26 秒淡入。",
+          "2.3–2.88 秒一道带拖尾的光从主干沿线流到「案例」，到达后节点填色并扩散一圈环，该项变为橙色选中态。",
+          "3.8–4.28 秒收起，光标 4.45 秒回到候场点，4.8 秒一个周期。"
+        ]
+      },
+      "use": { "ja": "管理画面、ドキュメントサイト、ファイルブラウザーなど、階層のあるナビゲーションで今いる場所をはっきり見せたい所に。", "en": "Use it in dashboards, documentation sites and file browsers where hierarchical navigation should make the current location obvious.", "zh-Hans": "适合后台管理、文档站、文件浏览器等需要清楚展示层级和当前位置的导航。" },
+      "tags": ["tree", "menu", "sidebar", "navigation", "expand", "path"],
+      "aliases": { "zh-Hans": ["树形导航", "侧边栏树形菜单", "展开子菜单", "层级导航"] }
     }
   ]
 }

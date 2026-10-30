@@ -3395,6 +3395,162 @@
         "admin",
         "collapse"
       ]
+    },
+    {
+      "no": "53",
+      "id": "1-182",
+      "slug": "comet-dial",
+      "category": "select-switch",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 sadjjk",
+      "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+      "name": { "ja": "光の尾を引くダイヤル", "en": "Comet-trail dial", "zh-Hans": "彗尾旋钮" },
+      "meaning": { "ja": "回すと光の点が尾を引いて刻みをなぞるつまみ", "en": "A rotary knob whose indicator dot leaves a fading comet tail as it turns", "zh-Hans": "拧动时亮点拖着光尾扫过刻度的旋钮" },
+      "ask": { "ja": "音量つまみを光の尾を引くダイヤルにして。24から72まで回すあいだ光の点が目盛りの内側を走り、直近0.32秒ぶんの尾を引き、通った目盛りは0.4秒で消えるように光らせて。離したらばねのように戻して。", "en": "Make the volume knob a comet-trail dial: as it turns from 24 to 72, a dot runs inside the tick ring trailing the arc of the last 0.32 s, ticks it passes glow and fade over 0.4 s, and on release the knob springs back.", "zh-Hans": "把音量旋钮做成彗尾旋钮：从 24 拧到 72 时，亮点沿刻度环内侧移动，身后拖着最近 0.32 秒的光尾，经过的刻度亮起后 0.4 秒熄灭，松手后旋钮像弹簧一样回弹。" },
+      "summary": { "ja": "暖かいグレーの面に白い陶器風のつまみと目盛りの輪、右に音量の数字。カーソルがつまみをつかんで回すと、青い光点が尾を引きながら輪の内側を進み、通った目盛りが一瞬光って消え、数字とバーが増える。離すと尾が縮んで数字が軽く弾み、そのあとつまみが自ら少し行き過ぎながら元の位置へ戻る。", "en": "A white ceramic knob sits in a ring of ticks on a warm grey panel, with the volume number on the right. The cursor grabs and turns it: a blue dot travels inside the ring with a comet tail, passed ticks flash and fade, and the number and level bar climb. On release the tail shrinks and the number pops, then the knob springs back on its own with a slight overshoot.", "zh-Hans": "暖灰面板上是一颗白陶瓷旋钮和一圈刻度，右侧显示音量数值；光标抓住旋钮拧动，蓝色亮点拖着彗星光尾沿刻度环内侧前进，经过的刻度闪亮后熄灭，数值和电平条同步上涨。松手后光尾收短、数值轻弹，随后旋钮自行回弹，略微过冲后回到原位。" },
+      "spec": {
+        "ja": [
+          "542×191 のカード、4.5秒周期。半径45のつまみを目盛りの輪が囲み、0〜100 を2ずつ刻み、10ごとに長い目盛り。135°から時計回りに270°",
+          "カーソルが0.85秒につまみをつかみ、0.95〜2.35秒に easeInOutCubic で値を24→72へ回す",
+          "光点は半径60の軌道を進み、尾は直近0.32秒に通った弧を14段の薄れる弧で描く。速く回すほど尾が長い",
+          "光点が通った目盛りは青く光り0.4秒で消える。現在値以下の目盛りは墨色のまま",
+          "2.35秒に離すと尾が縮み、数字が0.5秒だけ弾む。2.8〜3.65秒につまみが72→24へ少し行き過ぎながら戻る"
+        ],
+        "en": [
+          "542×191 card, 4.5 s cycle. A knob of radius 45 sits in a tick ring from 0 to 100, one tick every 2 and a long tick every 10, sweeping 270° clockwise from 135°.",
+          "The cursor grabs the knob at 0.85 s and turns the value 24 → 72 over 0.95–2.35 s with easeInOutCubic.",
+          "The dot runs on a radius 60 track; its tail is the arc covered in the last 0.32 s, drawn as 14 fading segments, so faster turns give longer tails.",
+          "Ticks the dot passes glow blue and fade over 0.4 s; ticks at or below the current value stay ink.",
+          "Release at 2.35 s: the tail shrinks and the number pops for 0.5 s. From 2.8–3.65 s the knob springs back 72 → 24 with a slight overshoot."
+        ],
+        "zh-Hans": [
+          "542×191 卡片，周期 4.5 秒。半径 45 的旋钮外围是 0–100 的刻度环，每 2 一格，每 10 一根长刻度，从 135° 顺时针扫 270°。",
+          "光标于 0.85 秒抓住旋钮，0.95–2.35 秒用 easeInOutCubic 把数值从 24 拧到 72。",
+          "亮点沿半径 60 的轨道移动，光尾是它最近 0.32 秒扫过的弧，分 14 段逐渐变淡，转得越快尾巴越长。",
+          "亮点经过的刻度亮成蓝色，0.4 秒内熄灭；当前值以下的刻度保持墨色。",
+          "2.35 秒松手，光尾收短，数值轻弹 0.5 秒；2.8–3.65 秒旋钮从 72 回弹到 24，末段略微过冲。"
+        ]
+      },
+      "use": { "ja": "音量・明るさ・温度など、スマート家電やオーディオアプリで連続した値を回して調整する場面に。", "en": "Use it for volume, brightness or temperature controls in smart-home and audio apps where a value is turned continuously.", "zh-Hans": "适合智能家居、音频应用里调节音量、亮度、温度等连续数值的旋钮。" },
+      "tags": ["knob", "dial", "rotary", "volume", "trail", "comet", "glow", "skeuomorphic"],
+      "aliases": { "zh-Hans": ["光尾旋钮", "拖尾旋钮", "音量旋钮", "刻度盘"] }
+    },
+    {
+      "no": "54",
+      "id": "1-183",
+      "slug": "wake-slider",
+      "category": "select-switch",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 sadjjk",
+      "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+      "name": { "ja": "波が尾を引くスライダー", "en": "Wake bar slider", "zh-Hans": "波浪尾迹滑块" },
+      "meaning": { "ja": "細い縦棒が並ぶスライダーで、ドラッグすると棒が波のように盛り上がって尾を引く", "en": "A slider made of thin bars that rise into a trailing wave as you drag", "zh-Hans": "由细竖条组成的滑块，拖动时竖条隆起成一道拖尾的浪" },
+      "ask": { "ja": "明るさスライダーを丸いつまみのない縦棒の列にして。押した所の棒を12px持ち上げ、ドラッグの速さに応じて後ろに波を残し、最大48pxで0.36秒ほどかけて静まるように。", "en": "Turn the brightness slider into a row of bars with no round thumb: lift the bars under the cursor by 12 px and leave a speed-driven wave behind the drag, capped at 48 px and settling with a 0.36 s decay.", "zh-Hans": "把亮度滑块做成没有圆形滑块的一排细竖条：按住处的竖条抬高 12 px，拖动时按速度在身后留下一道浪，浪高上限 48 px，按 0.36 秒衰减平复。" },
+      "summary": { "ja": "白いプラスチック風の台に細い縦棒が並び、値より左は青、右はグレー。カーソルが押さえてゆっくり右へ動かすと押した所が少し盛り上がり、続いて左右に素早く振ると後ろに高い波が尾を引く。止まると波はゆっくり静まり、離したあと値は元に戻る。", "en": "Thin bars line a white plastic-style base, blue to the left of the value and grey to the right. The cursor presses and drags slowly, raising a small bump; then it flicks back and forth and a tall wave trails behind it. When the cursor stops the wave settles, and after release the value eases back.", "zh-Hans": "奶白塑料质感的底座上排着一列细竖条，当前值左侧为蓝、右侧为灰；光标按住后慢慢右拖，按住处微微隆起，接着左右快速甩动，身后拖出一道高浪。光标停住后浪慢慢平复，松手后数值缓回初始值。" },
+      "spec": {
+        "ja": [
+          "542×191 のカード、4.5秒周期。丸いつまみはなく、幅4px・間隔7.5px・静止時の高さ11pxの縦棒が並ぶ。値より左は青、右はグレー",
+          "カーソルが0.78秒に値34の位置を押し、0.90〜1.85秒に34→52とゆっくり動かし、2.82秒までに52→90→24→68と素早く振る",
+          "カーソル下の棒は最大12px持ち上がる。後ろには直近1.4秒の動きから波が残り、速いほど高く、0.36秒の時定数で減衰、上限48px",
+          "3.50秒までカーソルは止まったまま波が静まり、そこで離す",
+          "3.70〜4.15秒に値が34へ戻り、カーソルも待機位置へ戻る"
+        ],
+        "en": [
+          "542×191 card, 4.5 s cycle. No round thumb: a row of bars 4 px wide at a 7.5 px pitch, 11 px tall at rest, blue left of the value and grey to the right.",
+          "The cursor presses at value 34 at 0.78 s, drags slowly 34 → 52 over 0.90–1.85 s, then flicks 52 → 90 → 24 → 68 by 2.82 s.",
+          "Bars under the cursor lift up to 12 px. Behind it a wave built from the last 1.4 s of motion grows with speed, decays with a 0.36 s time constant and is capped at 48 px.",
+          "The cursor holds still until 3.50 s while the wave settles, then lets go.",
+          "From 3.70–4.15 s the value eases back to 34 and the cursor returns to rest."
+        ],
+        "zh-Hans": [
+          "542×191 卡片，周期 4.5 秒。没有圆形滑块，只有一排宽 4 px、间距 7.5 px、静止高 11 px 的竖条；值左侧为蓝，右侧为灰。",
+          "光标于 0.78 秒在数值 34 处按下，0.90–1.85 秒慢拖 34→52，到 2.82 秒前快速甩动 52→90→24→68。",
+          "光标下方竖条最多抬高 12 px；身后的浪由最近 1.4 秒的轨迹生成，速度越快越高，按 0.36 秒时间常数衰减，上限 48 px。",
+          "光标按住不动到 3.50 秒，浪逐渐平复，然后松手。",
+          "3.70–4.15 秒数值缓回 34，光标回到候场点。"
+        ]
+      },
+      "use": { "ja": "明るさ・音量・ズームなど、設定パネルで連続した値をドラッグで調整する場面に。", "en": "Use it for brightness, volume or zoom sliders in settings panels where values are adjusted by dragging.", "zh-Hans": "适合设置面板里拖动调节亮度、音量、缩放等连续数值的滑块。" },
+      "tags": ["slider", "range", "bars", "wave", "trail", "drag", "brightness"],
+      "aliases": { "zh-Hans": ["尾迹滑杆", "竖条滑块", "波浪滑块", "亮度滑块"] }
+    },
+    {
+      "no": "55",
+      "id": "1-184",
+      "slug": "bell-toggle",
+      "category": "select-switch",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 sadjjk",
+      "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+      "name": { "ja": "ベル付き通知トグル", "en": "Bell notification toggle", "zh-Hans": "通知铃铛开关" },
+      "meaning": { "ja": "押すとベルが揺れて通知がオンになるボタン", "en": "A button that turns notifications on with a swinging bell", "zh-Hans": "点击后铃铛摇摆、通知开启的按钮" },
+      "ask": { "ja": "通知ボタンをベル付きトグルにして。押すとボタンが青に変わり、ベルが0.42ラジアン・2.4Hzで減衰しながら揺れ、両脇に音の波を3本出して。もう一度押すとベルに斜線が入ってオフに戻る。", "en": "Make the notify button a bell toggle: on click it turns blue, the bell swings 0.42 rad at 2.4 Hz and damps out, and 3 sound arcs spread on both sides. A second click draws a slash over the bell and turns it off.", "zh-Hans": "把通知按钮做成铃铛开关：点击后按钮变蓝，铃铛以 0.42 rad、2.4 Hz 阻尼摆动，两侧发出 3 道声波；再点一次，铃铛上划出斜杠并回到关闭态。" },
+      "summary": { "ja": "白い立体的なカプセルボタンの左に金色のベル、右に「开启通知」の文字。カーソルが押すとボタンが青くなって少し縮み、文字が上へ抜けて「已开启」に替わり、ベルが揺れて音の波が広がる。もう一度押すと白に戻り、ベルに斜線が引かれて軽く揺れ、斜線が消えて最初の画面に戻る。", "en": "A raised white pill button shows a gold bell on the left and the label 「开启通知」 on the right. The cursor clicks: the pill turns blue and narrows, the label slides up into 「已开启」, the bell swings and sound arcs spread out. A second click turns it white again, a slash cuts across the bell with a small shake, and the slash fades to restore the first frame.", "zh-Hans": "立体白色胶囊按钮左侧是金色铃铛，右侧写着「开启通知」；光标点击后按钮变蓝并收窄，文字上移换成「已开启」，铃铛摇摆，两侧扩散声波。再点一次按钮变回白色，铃铛上划出斜杠并轻摇一下，随后斜杠淡去，回到首帧。" },
+      "spec": {
+        "ja": [
+          "542×191 のカード、4.5秒周期。高さ76pxの立体カプセルボタン。左の半径27の凹みに金色のベル、右に文字",
+          "0.9秒にクリック。0.92〜1.32秒にボタンが青へ変わり、短い文字に合わせて幅が縮み、文字は16px上へ抜けて新しい文字が下から入る",
+          "0.95秒からベルが吊り輪を軸に0.42ラジアン・2.4Hzで減衰しながら揺れ、中の玉は0.1秒遅れて追う",
+          "音の波は0.98・1.16・1.34秒に左右へ出て、半径24から19px広がりつつ0.65秒で消える",
+          "2.55秒に再クリック。2.58〜2.98秒にオフへ戻り、2.60〜2.85秒にベルへ斜線が引かれ0.15ラジアン軽く揺れる。斜線は3.75〜4.15秒に消える"
+        ],
+        "en": [
+          "542×191 card, 4.5 s cycle. A raised pill button 76 px tall, with a gold bell in a radius 27 well on the left and the label on the right.",
+          "Click at 0.9 s. Over 0.92–1.32 s the pill turns blue and narrows to fit the shorter label; the old label slides 16 px up and out as the new one rises in.",
+          "From 0.95 s the bell swings about its hook at 0.42 rad and 2.4 Hz, damping out, with the clapper trailing 0.1 s behind.",
+          "Sound arcs start on both sides at 0.98, 1.16 and 1.34 s, each spreading 19 px out from radius 24 and fading over 0.65 s.",
+          "Second click at 2.55 s: it returns to off over 2.58–2.98 s, a slash draws across the bell over 2.60–2.85 s with a 0.15 rad shake, and the slash fades over 3.75–4.15 s."
+        ],
+        "zh-Hans": [
+          "542×191 卡片，周期 4.5 秒。高 76 px 的立体胶囊按钮，左侧半径 27 的凹槽里是金色铃铛，右侧是文字。",
+          "0.9 秒点击；0.92–1.32 秒按钮变蓝，宽度随较短的文字收窄，旧文字上移 16 px 淡出，新文字从下方淡入。",
+          "0.95 秒起铃铛绕挂点以 0.42 rad、2.4 Hz 阻尼摆动，铃舌晚 0.1 秒跟随。",
+          "声波于 0.98、1.16、1.34 秒在两侧出现，每道从半径 24 向外扩 19 px，0.65 秒内淡出。",
+          "2.55 秒再次点击：2.58–2.98 秒回到关闭态，2.60–2.85 秒铃铛上划出斜杠并轻摇 0.15 rad，斜杠在 3.75–4.15 秒淡去。"
+        ]
+      },
+      "use": { "ja": "ニュースレター購読、アプリの通知設定、ライブ配信の通知予約など、通知のオン・オフを切り替える場面に。", "en": "Use it for subscribe-to-updates buttons, app notification settings or stream reminders where notifications are switched on and off.", "zh-Hans": "适合订阅推送、应用通知设置、直播开播提醒等开关通知的场景。" },
+      "tags": ["toggle", "bell", "notification", "subscribe", "button", "swing", "skeuomorphic"],
+      "aliases": { "zh-Hans": ["铃铛开关", "通知开关", "订阅按钮", "提醒按钮"] }
+    },
+    {
+      "no": "56",
+      "id": "1-185",
+      "slug": "swipe-toast",
+      "category": "open-overlay",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 sadjjk",
+      "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+      "name": { "ja": "スワイプで消すトースト", "en": "Swipe-to-dismiss toast", "zh-Hans": "下滑关闭提示" },
+      "meaning": { "ja": "下へドラッグすると消せる短い通知", "en": "A short notification you can drag down to dismiss", "zh-Hans": "可以向下拖动关掉的轻提示" },
+      "ask": { "ja": "コピー完了のトーストを下スワイプで消せるようにして。上から落ちてきて下端の細いバーで3.0秒カウントダウンし、押すと止まり、74pxまで引くと縮んで薄くなり、46pxを越えて離すと加速して落ちる。", "en": "Make the copied toast swipe-to-dismiss: it drops in from the top with a 3.0 s countdown bar along its bottom, pressing pauses it, dragging up to 74 px shrinks and fades it, and releasing past 46 px makes it speed off downward.", "zh-Hans": "把复制成功的轻提示做成下滑关闭：从上方落下，底边细条倒计时 3.0 秒，按住时暂停，下拖最多 74 px 时缩小变淡，超过 46 px 松手后加速滑出。" },
+      "summary": { "ja": "暖かいグレーの面に、上から暗いトースト「已复制链接」が弾んで落ちてきて、下端のバーが縮み始める。カーソルが押すとバーが止まり、下へ引くとカードが縮んで薄くなり、下に「下滑关闭」の案内が出て閾値を越えると「松手即关闭」に変わる。離すとカードは加速して落ち、次に「已保存草稿」が落ちてきて時間切れで上へ消える。", "en": "On a warm grey surface a dark toast, 「已复制链接」, bounces down from the top and the bar along its bottom begins to shrink. The cursor presses and the bar freezes; dragging down shrinks and fades the card while a hint below reads 「下滑关闭」, switching to 「松手即关闭」 past the threshold. On release the card speeds away downward; then 「已保存草稿」 drops in, runs out its timer and lifts away.", "zh-Hans": "暖灰底面上，深色提示「已复制链接」从上方弹落，底边细条开始缩短；光标按住后细条暂停，向下拖动时卡片缩小变淡，下方浮出「下滑关闭」，越过阈值变成「松手即关闭」。松手后卡片加速滑出，接着「已保存草稿」弹入，倒计时走完后向上收起。" },
+      "spec": {
+        "ja": [
+          "542×191 のカード、4.5秒周期。300×64・角丸16の暗いトーストが上端から22pxに止まり、下端の細いバーで残り時間を示す",
+          "最初のトーストは0.15〜0.60秒に上から少し行き過ぎて落ち着き、0.60秒から3.0秒のカウントダウンが始まる",
+          "1.10秒に押すとカウントダウンが止まる。1.15〜1.80秒にカードがカーソルについて74px下がり、最大13%縮み、最大42%薄くなり、影のぼかしは7から22へ移る",
+          "46pxを越えると下の案内が「下滑关闭」から「松手即关闭」に変わる。1.80秒に離すとカードは加速し、2.20秒までに150px落ちて消える",
+          "次のトースト「已保存草稿」が2.30〜2.75秒に落ちてきて、3.95秒でカウントダウンが終わり、4.25秒までに上へ消える"
+        ],
+        "en": [
+          "542×191 card, 4.5 s cycle. A dark 300×64 toast with radius 16 rests 22 px from the top; a thin bar along its bottom shows the time left.",
+          "The first toast drops in from above over 0.15–0.60 s with a small overshoot, and its 3.0 s countdown starts at 0.60 s.",
+          "Pressing at 1.10 s pauses the countdown. Over 1.15–1.80 s the card follows the cursor down 74 px, shrinking by up to 13% and fading by up to 42%, while its shadow blur moves from 7 to 22.",
+          "Past 46 px the hint below changes from 「下滑关闭」 to 「松手即关闭」. Released at 1.80 s, the card speeds up and drops 150 px out of view by 2.20 s.",
+          "The next toast, 「已保存草稿」, drops in over 2.30–2.75 s, its countdown ends at 3.95 s and it lifts away by 4.25 s."
+        ],
+        "zh-Hans": [
+          "542×191 卡片，周期 4.5 秒。300×64、圆角 16 的深色提示停在距顶边 22 px 处，底边细条显示剩余时间。",
+          "第一条提示于 0.15–0.60 秒从上方落下并略微过冲，0.60 秒起开始 3.0 秒倒计时。",
+          "1.10 秒按下，倒计时暂停；1.15–1.80 秒卡片跟随光标下移 74 px，最多缩小 13%、变淡 42%，投影模糊从 7 过渡到 22。",
+          "下拖超过 46 px 时，下方提示从「下滑关闭」变成「松手即关闭」；1.80 秒松手，卡片加速下落 150 px，2.20 秒前滑出。",
+          "下一条「已保存草稿」于 2.30–2.75 秒弹入，3.95 秒倒计时结束，4.25 秒前向上收起。"
+        ]
+      },
+      "use": { "ja": "コピー・保存・送信などの完了通知を出し、ユーザーが自分で素早く閉じられるようにしたい場面に。", "en": "Use it for copy, save or send confirmations that users should be able to flick away themselves.", "zh-Hans": "适合复制、保存、发送成功等操作反馈，并允许用户手动快速关掉的场景。" },
+      "tags": ["toast", "snackbar", "notification", "swipe", "dismiss", "drag", "countdown"],
+      "aliases": { "zh-Hans": ["滑动关闭提示", "轻提示", "Toast 提示", "拖动关闭通知"] }
     }
   ]
 }

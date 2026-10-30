@@ -1537,6 +1537,1502 @@ MotionPrompt.pack('lp', function () {
     });
   };
 
+  // @element 49
+  CELLS[48] = (function () {
+    // 撕票根：一张有纸感的活动门票，光标抓住右侧票根往下拖，票根沿打孔线从上往下撕开（撕口带纸纤维毛边），
+    // 撕开后票根旋转掉出画面，主票面回弹，「已检票」印章盖下；随后印章褪去、票根重新出现，回到首帧。
+    // 纯函数：画面只由 u 决定；纸面、阴影、印章等静态层首次调用时预渲染缓存。
+    const W = 539, H = 208, CYC = 4.8;
+    const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+    const MONO = '"SF Mono", Menlo, Consolas, monospace';
+
+    // 配色：暖米色棚拍底 + 奶油纸票 + lp 包的橙色强调 / 墨蓝文字 + 朱红印泥
+    const PAL = {
+      bgTop: '#f7f3ec', bgMid: '#efe9df', bgBot: '#e2d9cb', vignette: '60,44,28',
+      paperHi: '#fffdf8', paperLo: '#f4ecdd', thick: '#d8cab2', edge: '#c9b89a',
+      ink: '#1c2333', ink2: '#4a5368', mut: '#8a8478',
+      acc: '#ff5a2c', accDeep: '#d9431c', perf: '#b9a888',
+      shadow: '58,40,22', stamp: '#e0412f'
+    };
+
+    // 票面几何：主票面 + 票根共宽 340（约占画宽 63%），两者以打孔线 PX 为界
+    const TX = 104, TY = 40, MW = 262, SW = 82, TH = 128;
+    const PX = TX + MW;            // 打孔线 x
+    const N = 9, R = 10;           // 半圆缺口半径、外圆角
+    const P = 6;                   // 缓存留边（放厚度层）
+    const S = 3;                   // 缓存分辨率倍数：调用方最多 2×dpr 放大
+    const REST = { x: 500, y: 186 }, GRIP = { x: 44, y: 14 };  // 光标候场点；票根上的抓取点（票根局部坐标）
+
+    const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+    const ease = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const easeOut = t => 1 - Math.pow(1 - clamp(t), 3);
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const hs = (i, s) => { const x = Math.sin(i * 12.9898 + s * 78.233) * 43758.5453; return x - Math.floor(x); };
+    const rgba = (c, a) => `rgba(${c},${a})`;
+
+    // 主票面轮廓（局部坐标 0..MW × 0..TH）：左侧圆角，右侧打孔线处上下各咬一个半圆缺口
+    function mainPath(x) {
+      x.beginPath();
+      x.moveTo(R, 0); x.lineTo(MW - N, 0);
+      x.arc(MW, 0, N, Math.PI, Math.PI / 2, true);
+      x.lineTo(MW, TH - N);
+      x.arc(MW, TH, N, -Math.PI / 2, -Math.PI, true);
+      x.lineTo(R, TH); x.arcTo(0, TH, 0, TH - R, R);
+      x.lineTo(0, R); x.arcTo(0, 0, R, 0, R);
+      x.closePath();
+    }
+    // 票根轮廓（局部坐标 0..SW × 0..TH）：左侧缺口与主票面对齐，右侧圆角
+    function stubPath(x) {
+      x.beginPath();
+      x.moveTo(N, 0); x.lineTo(SW - R, 0); x.arcTo(SW, 0, SW, R, R);
+      x.lineTo(SW, TH - R); x.arcTo(SW, TH, SW - R, TH, R);
+      x.lineTo(N, TH);
+      x.arc(0, TH, N, 0, -Math.PI / 2, true);
+      x.lineTo(0, N);
+      x.arc(0, 0, N, Math.PI / 2, 0, true);
+      x.closePath();
+    }
+
+    function mk(w, h, draw) {
+      const c = document.createElement('canvas'); c.width = Math.ceil(w * S); c.height = Math.ceil(h * S);
+      const x = c.getContext('2d'); x.scale(S, S); draw(x); return c;
+    }
+
+    // 纸张材质：右下厚度层 + 竖向渐变 + 确定性细噪点纤维 + 左上镜面光斑 + 左上高光边
+    function paper(x, path, w, seed) {
+      x.save(); x.translate(1.2, 1.8); path(x); x.fillStyle = PAL.thick; x.fill(); x.restore();
+      path(x);
+      const gr = x.createLinearGradient(0, 0, 0, TH);
+      gr.addColorStop(0, PAL.paperHi); gr.addColorStop(1, PAL.paperLo);
+      x.fillStyle = gr; x.fill();
+      x.save(); path(x); x.clip();
+      for (let i = 0; i < w * 5; i++) {
+        const dark = hs(i, seed + 3) > 0.45;
+        x.fillStyle = dark ? 'rgba(120,96,60,0.07)' : 'rgba(255,255,255,0.5)';
+        const len = 0.6 + hs(i, seed + 4) * 2.2;   // 短纤维：横向小划痕比圆点更像纸
+        x.fillRect(hs(i, seed + 1) * w, hs(i, seed + 2) * TH, len, 0.5);
+      }
+      const sp = x.createRadialGradient(w * 0.2, -8, 0, w * 0.2, -8, w * 0.75);
+      sp.addColorStop(0, 'rgba(255,255,255,0.55)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = sp; x.fillRect(0, 0, w, TH);
+      x.restore();
+      const hl = x.createLinearGradient(0, 0, w * 0.45, TH);
+      hl.addColorStop(0, 'rgba(255,255,255,0.95)'); hl.addColorStop(0.5, 'rgba(255,255,255,0.2)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+      path(x); x.strokeStyle = hl; x.lineWidth = 1; x.stroke();
+    }
+
+    // 主票面与票根在打孔线两侧各多画 EXT 的纸：完好时按打孔线裁切拼成一张，撕开时毛边才有纸可露
+    const EXT = 3;
+    function mainShape(x) {
+      x.beginPath();
+      x.moveTo(R, 0); x.lineTo(MW - N, 0);
+      x.arc(MW, 0, N, Math.PI, Math.PI / 2, true);
+      x.lineTo(MW + EXT, N); x.lineTo(MW + EXT, TH - N); x.lineTo(MW, TH - N);
+      x.arc(MW, TH, N, -Math.PI / 2, -Math.PI, true);
+      x.lineTo(R, TH); x.arcTo(0, TH, 0, TH - R, R);
+      x.lineTo(0, R); x.arcTo(0, 0, R, 0, R);
+      x.closePath();
+    }
+    function stubShape(x) {
+      x.beginPath();
+      x.moveTo(N, 0); x.lineTo(SW - R, 0); x.arcTo(SW, 0, SW, R, R);
+      x.lineTo(SW, TH - R); x.arcTo(SW, TH, SW - R, TH, R);
+      x.lineTo(N, TH);
+      x.arc(0, TH, N, 0, -Math.PI / 2, true);
+      x.lineTo(-EXT, TH - N); x.lineTo(-EXT, N); x.lineTo(0, N);
+      x.arc(0, 0, N, Math.PI / 2, 0, true);
+      x.closePath();
+    }
+
+    // 主票面内容（局部坐标）：左侧橙色色条 + 活动名 + 三栏信息 + 座位
+    function mainArt(x) {
+      x.save(); mainPath(x); x.clip();
+      const band = x.createLinearGradient(0, 0, 0, TH);
+      band.addColorStop(0, PAL.acc); band.addColorStop(1, PAL.accDeep);
+      x.fillStyle = band; x.fillRect(0, 0, 8, TH);
+      x.restore();
+      x.textBaseline = 'alphabetic'; x.textAlign = 'left';
+      x.fillStyle = PAL.acc; x.font = `600 9.5px ${SANS}`;
+      x.fillText('LIVE · 2026 秋季巡演', 24, 26);
+      x.fillStyle = PAL.ink; x.font = `700 21px ${SANS}`;
+      x.fillText('夜航星 · 城市音乐会', 24, 54);
+      const cols = [['日期', '11.15 周六'], ['开场', '19:30'], ['场馆', '星海音乐厅']];
+      const cx = [24, 104, 160];
+      cols.forEach(([a, b], i) => {
+        x.fillStyle = PAL.mut; x.font = `500 9px ${SANS}`; x.fillText(a, cx[i], 80);
+        x.fillStyle = PAL.ink2; x.font = `600 11.5px ${SANS}`; x.fillText(b, cx[i], 96);
+      });
+      x.strokeStyle = 'rgba(140,120,90,0.25)'; x.lineWidth = 0.8;
+      x.beginPath(); x.moveTo(24, 106.5); x.lineTo(MW - 22, 106.5); x.stroke();
+      x.fillStyle = PAL.ink; x.font = `600 10.5px ${SANS}`; x.fillText('A 区 12 排 08 座', 24, 121);
+      x.fillStyle = PAL.mut; x.font = `500 9px ${MONO}`; x.textAlign = 'right'; x.fillText('¥ 380', MW - 22, 121);
+    }
+    // 票根内容（局部坐标）：竖排「入场券」+ 编号 + 条码
+    function stubArt(x) {
+      x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillStyle = PAL.acc; x.font = `700 13px ${SANS}`;
+      ['入', '场', '券'].forEach((c, i) => x.fillText(c, SW / 2 + 2, 26 + i * 17));
+      x.fillStyle = PAL.mut; x.font = `500 8.5px ${MONO}`; x.fillText('No.0815', SW / 2 + 2, 86);
+      // 条码：宽窄由哈希决定，固定不变
+      let bx = 16;
+      for (let i = 0; bx < SW - 14; i++) {
+        const bw = hs(i, 9) > 0.6 ? 2 : 1;
+        if (hs(i, 7) > 0.3) { x.fillStyle = PAL.ink2; x.fillRect(bx, 98, bw, 18); }
+        bx += bw + 1;
+      }
+    }
+    // 印章：朱红双圈 + 「已检票」，用哈希小点擦出印泥不匀的斑驳
+    function stampArt(x) {
+      const c = 42;
+      x.strokeStyle = PAL.stamp; x.fillStyle = PAL.stamp;
+      x.lineWidth = 3; x.beginPath(); x.arc(c, c, 36, 0, Math.PI * 2); x.stroke();
+      x.lineWidth = 1.2; x.beginPath(); x.arc(c, c, 30, 0, Math.PI * 2); x.stroke();
+      x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.font = `800 17px ${SANS}`; x.fillText('已检票', c, c - 1);
+      x.font = `700 6.5px ${SANS}`; x.fillText('CHECKED · 11.15', c, c + 16);
+      x.font = `700 6.5px ${SANS}`; x.fillText('★  入场  ★', c, c - 17);
+      x.globalCompositeOperation = 'destination-out';
+      for (let i = 0; i < 140; i++) {
+        x.globalAlpha = 0.35 + hs(i, 12) * 0.6;
+        x.beginPath(); x.arc(hs(i, 10) * 84, hs(i, 11) * 84, 0.4 + hs(i, 13) * 1.3, 0, Math.PI * 2); x.fill();
+      }
+      x.globalAlpha = 1; x.globalCompositeOperation = 'source-over';
+    }
+
+    const PAD = 24;
+    let C = null;
+    function build() {
+      const bg = mk(W, H, x => {
+        const gr = x.createLinearGradient(0, 0, 0, H);
+        gr.addColorStop(0, PAL.bgTop); gr.addColorStop(0.55, PAL.bgMid); gr.addColorStop(1, PAL.bgBot);
+        x.fillStyle = gr; x.fillRect(0, 0, W, H);
+        // 顶部柔光 + 四周暗角：视线落在票面中央
+        const v = x.createRadialGradient(W * 0.48, 70, 40, W * 0.5, 100, 330);
+        v.addColorStop(0, 'rgba(255,255,255,0.5)'); v.addColorStop(0.5, 'rgba(255,255,255,0)'); v.addColorStop(1, rgba(PAL.vignette, 0.2));
+        x.fillStyle = v; x.fillRect(0, 0, W, H);
+      });
+      // 阴影精灵：形状移到画外，只留 shadowBlur 的影子
+      const shadow = (path, w, blur, a) => mk(w + PAD * 2, TH + PAD * 2, x => {
+        x.shadowColor = rgba(PAL.shadow, a); x.shadowBlur = blur * S; x.shadowOffsetY = 3000 * S;
+        x.translate(PAD, PAD - 3000); path(x); x.fillStyle = '#000'; x.fill();
+      });
+      const main = mk(MW + EXT + P * 2, TH + P * 2, x => { x.translate(P, P); paper(x, mainShape, MW + EXT, 1); mainArt(x); });
+      const stub = mk(SW + EXT + P * 2, TH + P * 2, x => { x.translate(P + EXT, P); paper(x, stubShape, SW, 2); stubArt(x); });
+      return {
+        bg, main, stub, stamp: mk(84, 84, stampArt),
+        mainAmb: shadow(mainPath, MW, 14, 0.2), mainCon: shadow(mainPath, MW, 2.5, 0.24),
+        stubAmb: shadow(stubPath, SW, 14, 0.2), stubCon: shadow(stubPath, SW, 2.5, 0.24)
+      };
+    }
+
+    // ---------- 时间线（秒） ----------
+    const T = {
+      go0: 0.1, go1: 0.6,        // 光标从候场点移到票根抓取点
+      press: 0.66,               // 按下
+      drag0: 0.78, drag1: 1.98,  // 往下拖，撕口从上往下走完整条打孔线
+      fall: 1.98, fallEnd: 2.9,  // 票根脱离、旋转掉出画面
+      back0: 2.0, back1: 2.8,    // 光标回候场点
+      hit: 2.42, stampIn: 0.12,  // 印章落下（命中时刻 + 下落时长）
+      out0: 3.7, out1: 4.05,     // 印章褪去
+      ret0: 3.95, ret1: 4.45     // 票根回到原位（之后静止到周期末，与 u=0 相同）
+    };
+    const TILT = 0.3;            // 撕到底时票根相对打孔线的张角
+    const PULL = 0.024;          // 拖拽时主票面被带歪的角度
+    const FALL = { vx: 70, g: 900, w: 2.4 };   // 票根掉落：横向速度、重力、角速度
+
+    // 撕口进度 0..1：前 15% 慢（要用点力才撕开），之后加速
+    const tearP = u => { const t = clamp((u - T.drag0) / (T.drag1 - T.drag0)); return t * t * (1.6 - 0.6 * t); };
+
+    // 主票面姿态：拖拽时被带歪，松手后阻尼回弹；印章命中时轻轻下沉
+    function mainPose(u) {
+      let ang = 0, dy = 0;
+      if (u < T.drag1) ang = PULL * tearP(u);
+      else { const t = u - T.drag1; ang = PULL * Math.exp(-7 * t) * Math.cos(16 * t); }
+      if (u > T.hit) { const t = u - T.hit; dy = 2.2 * Math.exp(-11 * t) * Math.sin(28 * t); }
+      return { ang, dy };
+    }
+    // 主票面坐标变换：绕左缘中点旋转（左缘像被另一只手按着）
+    const PIV = { x: TX, y: TY + TH / 2 };
+    function applyMain(k, m) { k.translate(PIV.x, PIV.y + m.dy); k.rotate(m.ang); k.translate(-PIV.x, -PIV.y); }
+    function mapMain(m, x, y) {
+      const c = Math.cos(m.ang), s = Math.sin(m.ang), dx = x - PIV.x, dy = y - PIV.y;
+      return { x: PIV.x + dx * c - dy * s, y: PIV.y + m.dy + dx * s + dy * c };
+    }
+
+    // 票根状态：附着（整张票根绕撕口前端 front 刚性旋转 a；front 以下那段压在主票面下面，看起来仍连着）/ 掉落 / 隐藏 / 回位淡入
+    function stubState(u) {
+      if (u < T.drag0) return { mode: 'on', front: 0, a: 0, d: 0, alpha: 1, lift: u > T.press ? 0.25 : 0 };
+      if (u < T.fall) { const p = tearP(u); return { mode: 'on', front: p * TH, a: TILT * p, d: 2 * p, alpha: 1, lift: 0.25 + 0.75 * p }; }
+      if (u < T.fallEnd) return { mode: 'fall', t: u - T.fall, front: TH };
+      if (u < T.ret0) return { mode: 'off', front: TH };
+      const e = easeOut((u - T.ret0) / (T.ret1 - T.ret0));
+      return { mode: 'on', front: 0, a: 0, d: -9 * (1 - e), alpha: e, lift: 0 };
+    }
+    // 已撕部分在票面坐标里的变换：绕 (PX, TY+front) 旋转 a，再下移 d
+    function torn(st, x, y) {
+      const c = Math.cos(st.a), s = Math.sin(st.a), dx = x - PX, dy = y - (TY + st.front);
+      return { x: PX + dx * c - dy * s, y: TY + st.front + st.d + dx * s + dy * c };
+    }
+
+    // 锯齿撕边：每 1.6px 一个纤维长度，哈希决定；side 区分主票面与票根两侧
+    const STEP = 1.6;
+    const jag = (i, side) => 0.3 + hs(i, 20 + side) * 2.3;
+
+    // 主票面：未撕段在打孔线处直切（与票根拼成一张），已撕段（0..front）沿锯齿纤维向右伸出
+    function mainClip(k, front) {
+      k.beginPath(); k.moveTo(TX - P, TY - P); k.lineTo(PX, TY - P);
+      const n = Math.floor(front / STEP);
+      for (let i = 0; i <= n; i++) k.lineTo(PX + jag(i, 0), TY + i * STEP);
+      k.lineTo(PX, TY + front); k.lineTo(PX, TY + TH + P); k.lineTo(TX - P, TY + TH + P); k.closePath();
+    }
+    // 撕口纤维的浅色描边：撕开的纸芯比表面更白
+    function fiberEdge(k, front, side, sign) {
+      const n = Math.floor(front / STEP);
+      if (n < 1) return;
+      k.beginPath();
+      for (let i = 0; i <= n; i++) k.lineTo(PX + sign * jag(i, side), TY + i * STEP);
+      k.strokeStyle = 'rgba(255,255,255,0.85)'; k.lineWidth = 0.7; k.stroke();
+    }
+    // 票根已撕段（翻起的那片）的裁切区：撕口前端以上、打孔线左侧锯齿纤维以右
+    function flapClip(k, front) {
+      const n = Math.floor(front / STEP);
+      k.beginPath(); k.moveTo(PX + SW + PAD, TY - PAD); k.lineTo(PX + SW + PAD, TY + front); k.lineTo(PX, TY + front);
+      for (let i = n; i >= 0; i--) k.lineTo(PX - jag(i, 1), TY + i * STEP);
+      k.lineTo(PX - jag(0, 1), TY - PAD); k.closePath();
+    }
+    const stubImg = (k, img) => k.drawImage(img, PX - P - EXT, TY - P, img.width / S, img.height / S);
+    function stubShadow(k, lift) {
+      k.globalAlpha = 0.7 + 0.5 * lift;
+      k.drawImage(C.stubAmb, PX - PAD, TY - PAD + 3 + 6 * lift, C.stubAmb.width / S, C.stubAmb.height / S);
+      k.globalAlpha = 1 - 0.6 * lift;
+      k.drawImage(C.stubCon, PX - PAD, TY - PAD + 1, C.stubCon.width / S, C.stubCon.height / S);
+      k.globalAlpha = 1;
+    }
+
+    // 附着状态的票根（已在主票面坐标系内）：先画未撕段（直切），再画翻起的一片（带锯齿与自身投影）
+    function drawStubOn(k, st) {
+      k.save(); k.globalAlpha = st.alpha;
+      k.save(); k.translate(0, st.d < 0 ? st.d : 0);
+      if (st.front <= 0) stubShadow(k, st.lift);
+      k.beginPath(); k.rect(PX, TY + st.front, SW + PAD, TH - st.front + PAD); k.clip();
+      if (st.front > 0) stubShadow(k, 0);
+      stubImg(k, C.stub);
+      k.restore();
+      if (st.front > 0) {
+        k.save();
+        k.translate(PX, TY + st.front + st.d); k.rotate(st.a); k.translate(-PX, -(TY + st.front));
+        flapClip(k, st.front); k.clip();
+        stubShadow(k, st.lift); stubImg(k, C.stub); fiberEdge(k, st.front, 1, -1);
+        k.restore();
+      }
+      k.restore();
+    }
+    // 打孔线：未撕段才有，一排小圆孔 + 极淡的折痕
+    function perforation(k, front) {
+      const y0 = TY + Math.max(front, N) + 2, y1 = TY + TH - N - 2;
+      if (y1 <= y0) return;
+      k.strokeStyle = 'rgba(150,130,100,0.18)'; k.lineWidth = 0.6;
+      k.beginPath(); k.moveTo(PX + 0.5, y0); k.lineTo(PX + 0.5, y1); k.stroke();
+      k.fillStyle = PAL.perf;
+      for (let y = TY + N + 4; y < y1; y += 5.2) { if (y < y0) continue; k.beginPath(); k.arc(PX, y, 0.95, 0, Math.PI * 2); k.fill(); }
+    }
+    // 自绘箭头光标：深色填充白描边，按下缩小
+    function cursor(k, x, y, down) {
+      k.save(); k.translate(x, y); const sc = down ? 0.86 : 1; k.scale(sc, sc);
+      k.shadowColor = 'rgba(0,0,0,0.28)'; k.shadowBlur = 4; k.shadowOffsetY = 1.5;
+      k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 17); k.lineTo(4.2, 13.2); k.lineTo(7.2, 19.6); k.lineTo(10, 18.4); k.lineTo(7.1, 12.2); k.lineTo(12.4, 12.2); k.closePath();
+      k.fillStyle = PAL.ink; k.fill(); k.shadowColor = 'transparent';
+      k.strokeStyle = '#fff'; k.lineWidth = 1.4; k.lineJoin = 'round'; k.stroke();
+      k.restore();
+    }
+
+    // 抓取点在全局坐标中的位置（随票根已撕段与主票面姿态一起动）
+    function gripAt(u) {
+      const st = stubState(u), m = mainPose(u);
+      const p = st.mode === 'on' && st.front > 0 ? torn(st, PX + GRIP.x, TY + GRIP.y) : { x: PX + GRIP.x, y: TY + GRIP.y };
+      return mapMain(m, p.x, p.y);
+    }
+    function cursorAt(u) {
+      if (u < T.go0) return { ...REST, down: false };
+      if (u < T.go1) { const g = gripAt(T.go1), e = ease((u - T.go0) / (T.go1 - T.go0)); return { x: lerp(REST.x, g.x, e), y: lerp(REST.y, g.y, e), down: false }; }
+      if (u < T.drag1) { const g = gripAt(u); return { x: g.x, y: g.y, down: u >= T.press }; }
+      const g = gripAt(T.drag1 - 1e-4), e = ease((u - T.back0) / (T.back1 - T.back0));
+      return { x: lerp(g.x, REST.x, e), y: lerp(g.y, REST.y, e), down: false };
+    }
+
+    const fn = (k, w, h, u) => {
+      if (!C) C = build();
+      u = ((u % CYC) + CYC) % CYC;
+      k.save();
+      k.drawImage(C.bg, 0, 0, W, H);
+      const m = mainPose(u), st = stubState(u);
+
+      k.save(); applyMain(k, m);
+      // 主票面投影
+      k.drawImage(C.mainAmb, TX - PAD, TY - PAD + 4, C.mainAmb.width / S, C.mainAmb.height / S);
+      k.drawImage(C.mainCon, TX - PAD, TY - PAD + 1, C.mainCon.width / S, C.mainCon.height / S);
+      if (st.mode === 'on') drawStubOn(k, st);
+      // 主票面：已撕段露出锯齿纤维
+      k.save(); mainClip(k, st.front); k.clip();
+      k.drawImage(C.main, TX - P, TY - P, C.main.width / S, C.main.height / S);
+      k.restore();
+      fiberEdge(k, st.front, 0, 1);
+      if (st.mode === 'on' && st.alpha >= 1) perforation(k, st.front);
+      // 印章：从 1.6 倍落下到 1 倍，命中后停留，再淡出
+      const s0 = T.hit - T.stampIn;
+      if (u > s0 && u < T.out1) {
+        const pin = clamp((u - s0) / T.stampIn), sc = lerp(1.6, 1, pin * pin);
+        const a = 0.92 * pin * (1 - clamp((u - T.out0) / (T.out1 - T.out0)));
+        k.save(); k.translate(TX + 206, TY + 66); k.rotate(-0.22); k.scale(sc, sc);
+        k.globalAlpha = a; k.globalCompositeOperation = 'multiply';
+        k.drawImage(C.stamp, -42, -42, 84, 84);
+        k.restore();
+      }
+      k.restore();
+
+      // 掉落中的票根：从撕下那一刻的姿态出发，抛物线下落 + 匀速旋转
+      if (st.mode === 'fall') {
+        const t = st.t, m0 = mainPose(T.fall), p0 = mapMain(m0, PX, TY + TH + 2);
+        k.save();
+        k.translate(p0.x + FALL.vx * t, p0.y + 0.5 * FALL.g * t * t);
+        k.rotate(m0.ang + TILT + FALL.w * t);
+        k.translate(-PX, -(TY + TH));
+        flapClip(k, TH); k.clip();
+        stubShadow(k, 1); stubImg(k, C.stub); fiberEdge(k, TH, 1, -1);
+        k.restore();
+      }
+      const c = cursorAt(u);
+      cursor(k, c.x, c.y, c.down);
+      k.restore();
+    };
+    return fn;
+  })();
+
+  // @element 50
+  CELLS[49] = (function () {
+    'use strict';
+    // 碎纸机样稿：左侧文件列表，光标把一行拖进右侧碎纸机，机身震动、纸条卷曲落入纸篓，其余行上移补位，周期末复位。
+    const W = 539, H = 208, CYC = 4.8;
+    // 配色：沿用 lp 包的冷灰桌面 + 墨蓝字 + 橙色强调，碎纸机用石墨深色压住右侧重心
+    const C = {
+      bgTop: '#F2F4F8', bgMid: '#E7EAF1', bgBot: '#D6DCE6',
+      ink: '#1C2333', sub: '#7D879B', faint: '#DCE1EA', soft: '#F3F5F9',
+      paper: '#FFFFFF', paper2: '#F1F3F8', edge: '#C6CDDA',
+      acc: '#FF5A2C', accL: '#FFE5DB', blue: '#3B64E8', blueL: '#E8EDFF',
+      gTop: '#5E6880', gMid: '#373F53', gBot: '#1D2231', slot: '#07090E',
+    };
+    const SANS = '-apple-system, "PingFang SC", "Helvetica Neue", sans-serif';
+    const TAU = Math.PI * 2;
+    const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+    const lerp = (a, b, x) => a + (b - a) * x;
+    const P = (t, a, b) => clamp((t - a) / (b - a));
+    const eIO = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+    const eOut = x => 1 - Math.pow(1 - x, 3);
+    const eIn = x => x * x;
+    // 确定性哈希：代替 Math.random，保证同一 u 画面一致
+    const hash = (i, s) => { const x = Math.sin(i * 12.9898 + s * 78.233) * 43758.5453; return x - Math.floor(x); };
+    function rr(k, x, y, w, h, r) {
+      k.beginPath(); k.moveTo(x + r, y);
+      k.arcTo(x + w, y, x + w, y + h, r); k.arcTo(x + w, y + h, x, y + h, r);
+      k.arcTo(x, y + h, x, y, r); k.arcTo(x, y, x + w, y, r); k.closePath();
+    }
+    // 静态层按 2 倍分辨率预渲染一次；缓存只存不随 u 变化的像素，不算跨帧状态
+    const SS = 2, cache = {};
+    function sprite(key, w, h, draw) {
+      let c = cache[key];
+      if (!c) {
+        c = document.createElement('canvas'); c.width = Math.ceil(w * SS); c.height = Math.ceil(h * SS);
+        const x = c.getContext('2d'); x.scale(SS, SS); draw(x); cache[key] = c;
+      }
+      return c;
+    }
+
+    // 布局：列表面板占左侧约 42% 宽，碎纸机居右偏下，两者之间留出拖拽路径
+    const LIST = { x: 26, y: 20, w: 228, h: 168, r: 12 };
+    const ROW = { x: 36, y0: 52, h: 30, w: 208 };
+    const SHR = { cx: 407, x0: 322, x1: 492, topBack: 84, slotY: 91, topFront: 96, faceBot: 136, binBot: 194 };
+
+    function drawBG(x) {
+      const gr = x.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, C.bgTop); gr.addColorStop(0.6, C.bgMid); gr.addColorStop(1, C.bgBot);
+      x.fillStyle = gr; x.fillRect(0, 0, W, H);
+      const hl = x.createRadialGradient(300, 60, 20, 300, 60, 340);
+      hl.addColorStop(0, 'rgba(255,255,255,0.55)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = hl; x.fillRect(0, 0, W, H);
+      const vg = x.createRadialGradient(W / 2, H * 0.42, 110, W / 2, H * 0.5, 360);
+      vg.addColorStop(0, 'rgba(28,35,51,0)'); vg.addColorStop(1, 'rgba(28,35,51,0.2)');
+      x.fillStyle = vg; x.fillRect(0, 0, W, H);
+      // 碎纸机地面接触影（机身只做亚像素震动，影子可静态烘焙）
+      x.save(); x.translate(SHR.cx, SHR.binBot + 3); x.scale(1, 0.09);
+      const sh = x.createRadialGradient(0, 0, 0, 0, 0, 100);
+      sh.addColorStop(0, 'rgba(20,26,40,0.42)'); sh.addColorStop(1, 'rgba(20,26,40,0)');
+      x.fillStyle = sh; x.beginPath(); x.arc(0, 0, 100, 0, TAU); x.fill(); x.restore();
+      drawPanel(x);
+    }
+
+    // 列表面板：柔和投影 + 右下厚度层 + 竖向渐变 + 左上高光边
+    function drawPanel(x) {
+      const { x: px, y: py, w, h, r } = LIST;
+      x.save(); x.shadowColor = 'rgba(28,35,51,0.18)'; x.shadowBlur = 18; x.shadowOffsetY = 8;
+      rr(x, px + 1.5, py + 3, w, h, r); x.fillStyle = C.edge; x.fill(); x.restore();
+      const gr = x.createLinearGradient(0, py, 0, py + h);
+      gr.addColorStop(0, C.paper); gr.addColorStop(1, C.paper2);
+      rr(x, px, py, w, h, r); x.fillStyle = gr; x.fill();
+      const hl = x.createLinearGradient(px, py, px + w * 0.6, py + h * 0.6);
+      hl.addColorStop(0, 'rgba(255,255,255,1)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+      rr(x, px + 0.75, py + 0.75, w - 1.5, h - 1.5, r - 0.75); x.strokeStyle = hl; x.lineWidth = 1.5; x.stroke();
+      x.font = `600 12px ${SANS}`; x.fillStyle = C.ink; x.textAlign = 'left'; x.textBaseline = 'middle';
+      x.fillText('项目文件', px + 14, py + 16);
+      x.fillStyle = C.faint; x.fillRect(px + 10, py + 29, w - 20, 1);
+    }
+
+    // 文件列表：第 TGT 行被拖去粉碎；图标色带区分类型
+    const FILES = [
+      { name: '需求说明.docx', ext: 'DOC', size: '128 KB', col: '#3B64E8' },
+      { name: '季度报表_草稿.pdf', ext: 'PDF', size: '2.4 MB', col: '#FF5A2C' },
+      { name: '会议纪要.txt', ext: 'TXT', size: '16 KB', col: '#8A93A6' },
+      { name: '旧版设计稿.fig', ext: 'FIG', size: '8.1 MB', col: '#8C5CE6' },
+    ];
+    const TGT = 1, PITCH = 33;
+    const rowY = i => ROW.y0 + i * PITCH;
+
+    // 文件图标：折角纸页 + 类型色带，带轻微厚度
+    function icon(x, ix, iy, f) {
+      const w = 15, h = 19, fo = 5;
+      x.fillStyle = 'rgba(28,35,51,0.12)';
+      x.beginPath(); x.moveTo(ix + 1, iy + 1.5); x.lineTo(ix + w - fo + 1, iy + 1.5); x.lineTo(ix + w + 1, iy + fo + 1.5);
+      x.lineTo(ix + w + 1, iy + h + 1.5); x.lineTo(ix + 1, iy + h + 1.5); x.fill();
+      const gr = x.createLinearGradient(0, iy, 0, iy + h); gr.addColorStop(0, '#FFFFFF'); gr.addColorStop(1, '#E9EDF4');
+      x.beginPath(); x.moveTo(ix, iy); x.lineTo(ix + w - fo, iy); x.lineTo(ix + w, iy + fo); x.lineTo(ix + w, iy + h); x.lineTo(ix, iy + h); x.closePath();
+      x.fillStyle = gr; x.fill(); x.strokeStyle = C.edge; x.lineWidth = 0.8; x.stroke();
+      x.fillStyle = C.faint; x.beginPath(); x.moveTo(ix + w - fo, iy); x.lineTo(ix + w - fo, iy + fo); x.lineTo(ix + w, iy + fo); x.fill();
+      x.fillStyle = f.col; rr(x, ix - 2, iy + 10, w - 1, 7, 1.5); x.fill();
+      x.font = `700 5px ${SANS}`; x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillText(f.ext, ix - 2 + (w - 1) / 2, iy + 13.7);
+    }
+    // 行内容精灵（透明底）：图标 + 文件名 + 大小
+    function rowSprite(i) {
+      const f = FILES[i];
+      return sprite('row' + i, ROW.w, ROW.h, x => {
+        icon(x, 12, 5, f);
+        x.font = `500 11px ${SANS}`; x.fillStyle = C.ink; x.textAlign = 'left'; x.textBaseline = 'middle';
+        x.fillText(f.name, 36, ROW.h / 2);
+        x.font = `400 9.5px ${SANS}`; x.fillStyle = C.sub; x.textAlign = 'right';
+        x.fillText(f.size, ROW.w - 10, ROW.h / 2);
+      });
+    }
+    // 被拖起的卡片：白色底 + 预烘焙柔和投影（避免逐帧 shadowBlur）
+    function cardSprite() {
+      return sprite('card', ROW.w + 40, ROW.h + 40, x => {
+        x.save(); x.shadowColor = 'rgba(28,35,51,0.28)'; x.shadowBlur = 14; x.shadowOffsetY = 6;
+        rr(x, 20, 20, ROW.w, ROW.h, 7); x.fillStyle = '#fff'; x.fill(); x.restore();
+        const gr = x.createLinearGradient(0, 20, 0, 20 + ROW.h); gr.addColorStop(0, '#FFFFFF'); gr.addColorStop(1, '#F2F4F9');
+        rr(x, 20, 20, ROW.w, ROW.h, 7); x.fillStyle = gr; x.fill();
+        x.strokeStyle = 'rgba(59,100,232,0.35)'; x.lineWidth = 1; x.stroke();
+        x.drawImage(rowSprite(TGT), 20, 20, ROW.w, ROW.h);
+      });
+    }
+    // 箭头光标：深色填充 + 白描边，按下时缩小
+    function cursor(k, x, y, press) {
+      const s = 1.05 * (1 - 0.14 * press);
+      k.save(); k.translate(x, y); k.scale(s, s);
+      k.shadowColor = 'rgba(0,0,0,0.25)'; k.shadowBlur = 3; k.shadowOffsetY = 1.5;
+      k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 16); k.lineTo(4, 12.4); k.lineTo(6.8, 18.6); k.lineTo(9.4, 17.4);
+      k.lineTo(6.7, 11.4); k.lineTo(11.6, 11.2); k.closePath();
+      k.lineJoin = 'round'; k.lineWidth = 1.6; k.strokeStyle = '#fff'; k.stroke(); k.shadowColor = 'transparent';
+      k.fillStyle = C.ink; k.fill(); k.restore();
+    }
+
+    // 纸篓窗口：烟色玻璃，纸条在其中可见
+    const WINB = { x: SHR.x0 + 18, y: SHR.faceBot + 4, w: SHR.x1 - SHR.x0 - 36, h: SHR.binBot - SHR.faceBot - 14, r: 6 };
+    // 纸篓：比机头略窄的石墨箱体，正面开窗（窗内为暗色底，纸条另画）
+    function drawBin(x) {
+      const bx = SHR.x0 + 7, bw = SHR.x1 - SHR.x0 - 14, by = SHR.faceBot - 4, bh = SHR.binBot - by;
+      rr(x, bx + 2, by + 2, bw, bh, 8); x.fillStyle = C.gBot; x.fill();               // 右下厚度层
+      const gr = x.createLinearGradient(bx, 0, bx + bw, 0);
+      gr.addColorStop(0, '#4A5268'); gr.addColorStop(0.45, '#3A4256'); gr.addColorStop(1, '#262C3C');
+      rr(x, bx, by, bw, bh, 8); x.fillStyle = gr; x.fill();
+      const hl = x.createLinearGradient(bx, by, bx + bw * 0.5, by + bh);
+      hl.addColorStop(0, 'rgba(255,255,255,0.35)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+      rr(x, bx + 0.6, by + 0.6, bw - 1.2, bh - 1.2, 7.5); x.strokeStyle = hl; x.lineWidth = 1.2; x.stroke();
+      const { x: wx, y: wy, w: ww, h: wh, r } = WINB;
+      const wg = x.createLinearGradient(0, wy, 0, wy + wh);
+      wg.addColorStop(0, '#10131C'); wg.addColorStop(1, '#1E2433');
+      rr(x, wx, wy, ww, wh, r); x.fillStyle = wg; x.fill();
+    }
+    // 玻璃覆层：斜向反光带 + 内阴影边，盖在纸条之上
+    function drawGlass(x) {
+      const { x: wx, y: wy, w: ww, h: wh, r } = WINB;
+      x.save(); rr(x, wx, wy, ww, wh, r); x.clip();
+      x.fillStyle = 'rgba(120,140,190,0.10)'; x.fillRect(wx, wy, ww, wh);
+      x.globalCompositeOperation = 'lighter';
+      x.fillStyle = 'rgba(255,255,255,0.07)';
+      x.beginPath(); x.moveTo(wx + 18, wy); x.lineTo(wx + 52, wy); x.lineTo(wx + 22, wy + wh); x.lineTo(wx - 12, wy + wh); x.fill();
+      x.fillStyle = 'rgba(255,255,255,0.04)';
+      x.beginPath(); x.moveTo(wx + 60, wy); x.lineTo(wx + 70, wy); x.lineTo(wx + 40, wy + wh); x.lineTo(wx + 30, wy + wh); x.fill();
+      x.restore();
+      rr(x, wx, wy, ww, wh, r); x.strokeStyle = 'rgba(0,0,0,0.45)'; x.lineWidth = 1.2; x.stroke();
+      rr(x, wx - 1, wy - 1, ww + 2, wh + 2, r + 1); x.strokeStyle = 'rgba(255,255,255,0.12)'; x.lineWidth = 0.8; x.stroke();
+    }
+    // 机头：后窄前宽的顶面（含进纸口暗缝）+ 正面面板（品牌字、指示灯底座）
+    function drawHead(x) {
+      const { x0, x1, topBack: tb, slotY: sy, topFront: tf, faceBot: fb, cx } = SHR;
+      rr(x, x0 + 2, tf - 2, x1 - x0, fb - tf + 5, 9); x.fillStyle = C.gBot; x.fill();   // 厚度
+      // 顶面
+      const tg = x.createLinearGradient(0, tb, 0, tf);
+      tg.addColorStop(0, '#7C869E'); tg.addColorStop(1, '#5A6379');
+      x.beginPath(); x.moveTo(x0 + 10, tb); x.lineTo(x1 - 10, tb); x.quadraticCurveTo(x1 - 2, tb, x1, tf);
+      x.lineTo(x0, tf); x.quadraticCurveTo(x0 + 2, tb, x0 + 10, tb); x.closePath(); x.fillStyle = tg; x.fill();
+      x.strokeStyle = 'rgba(255,255,255,0.4)'; x.lineWidth = 1; x.beginPath(); x.moveTo(x0 + 10, tb + 0.5); x.lineTo(x1 - 10, tb + 0.5); x.stroke();
+      // 进纸口：外凹槽 + 暗缝 + 下唇反光
+      const sw = 66;
+      rr(x, cx - sw - 4, sy - 3.2, sw * 2 + 8, 6.4, 3.2); x.fillStyle = 'rgba(30,36,50,0.55)'; x.fill();
+      rr(x, cx - sw, sy - 1.4, sw * 2, 2.8, 1.4); x.fillStyle = C.slot; x.fill();
+      x.fillStyle = 'rgba(255,255,255,0.28)'; x.fillRect(cx - sw + 2, sy + 1.9, sw * 2 - 4, 0.7);
+      // 正面
+      const fg = x.createLinearGradient(0, tf, 0, fb);
+      fg.addColorStop(0, C.gTop); fg.addColorStop(0.35, C.gMid); fg.addColorStop(1, '#2A3142');
+      rr(x, x0, tf - 2, x1 - x0, fb - tf + 2, 9); x.fillStyle = fg; x.fill();
+      x.fillStyle = 'rgba(255,255,255,0.22)'; x.fillRect(x0 + 6, tf - 1, x1 - x0 - 12, 1);   // 顶棱高光
+      const sp = x.createRadialGradient(x0 + 40, tf + 6, 0, x0 + 40, tf + 6, 60);             // 镜面光斑
+      sp.addColorStop(0, 'rgba(255,255,255,0.20)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = sp; x.fillRect(x0, tf - 2, 120, fb - tf);
+      // 正面细分割线与品牌字
+      x.fillStyle = 'rgba(0,0,0,0.25)'; x.fillRect(x0 + 8, fb - 9, x1 - x0 - 16, 1);
+      x.fillStyle = 'rgba(255,255,255,0.08)'; x.fillRect(x0 + 8, fb - 8, x1 - x0 - 16, 1);
+      x.font = `600 10px ${SANS}`; x.textAlign = 'left'; x.textBaseline = 'middle';
+      x.fillStyle = 'rgba(255,255,255,0.82)'; x.fillText('安全粉碎', x0 + 16, tf + 17);
+      x.font = `500 7px ${SANS}`; x.fillStyle = 'rgba(255,255,255,0.42)'; x.fillText('CROSS-CUT · P-4', x0 + 16, tf + 29);
+      // 指示灯底座（灯光逐帧画）
+      x.beginPath(); x.arc(x1 - 24, tf + 20, 6.5, 0, TAU); x.fillStyle = '#151924'; x.fill();
+      x.strokeStyle = 'rgba(255,255,255,0.18)'; x.lineWidth = 0.8; x.stroke();
+    }
+
+    // 时间线（秒）：光标移入 0–0.45 → 按下 0.45–0.6 → 拖拽 0.6–1.55 → 对准松手 1.55–1.7 →
+    // 吸入 1.7–2.45（震动 1.7–2.95，灯闪）→ 纸条 1.95–3.9 → 补位 2.05–2.5 → 复位 4.05–4.7 → 静止至 4.8
+    const T = { hov: 0.3, grab: 0.45, drag0: 0.6, drag1: 1.55, rel: 1.68, feed0: 1.7, feed1: 2.45,
+      up0: 2.05, up1: 2.5, back0: 4.05, back1: 4.45, in0: 4.3, in1: 4.7 };
+    const REST = { x: 300, y: 170 };                          // 光标静止点：首尾帧一致
+    const CARD_S = 0.6;                                       // 卡片进纸时缩到与进纸口等宽
+    const GRIP = { x: -40, y: 2 };                            // 光标抓在卡片中心偏左处
+    const rowCenter = () => ({ x: ROW.x + ROW.w / 2, y: rowY(TGT) + ROW.h / 2 });
+
+    // 卡片姿态：返回中心、缩放、旋转；无卡片时返回 null
+    function cardPose(u) {
+      if (u < T.grab || u > T.feed1) return null;
+      const a = rowCenter(), b = { x: SHR.cx, y: SHR.slotY - ROW.h * CARD_S / 2 - 3 };
+      if (u < T.drag0) { const q = eOut(P(u, T.grab, T.drag0)); return { x: a.x, y: a.y - 2 * q, s: 1 + 0.03 * q, r: 0 }; }
+      if (u < T.drag1) {
+        const q = eIO(P(u, T.drag0, T.drag1));
+        // 二次贝塞尔：先上抬再落向进纸口
+        const mx = (a.x + b.x) / 2, my = Math.min(a.y, b.y) - 46;
+        const x = (1 - q) * (1 - q) * a.x + 2 * q * (1 - q) * mx + q * q * b.x;
+        const y = (1 - q) * (1 - q) * (a.y - 2) + 2 * q * (1 - q) * my + q * q * b.y;
+        return { x, y, s: lerp(1.03, CARD_S, eIO(q)), r: Math.sin(q * Math.PI) * 0.12 };
+      }
+      if (u < T.feed0) return { x: b.x, y: b.y, s: CARD_S, r: 0 };
+      const q = eIn(P(u, T.feed0, T.feed1));                  // 先慢后快地被吸入
+      return { x: b.x, y: b.y + q * (ROW.h * CARD_S + 6), s: CARD_S, r: 0 };
+    }
+    function cursorPose(u) {
+      const a = rowCenter(), g0 = { x: a.x + GRIP.x, y: a.y + GRIP.y };
+      if (u < T.grab) { const q = eIO(P(u, 0, T.grab - 0.05)); return { x: lerp(REST.x, g0.x, q), y: lerp(REST.y, g0.y, q), p: 0 }; }
+      if (u < T.rel) {
+        const c = cardPose(u), p = u < T.drag0 ? P(u, T.grab, T.grab + 0.1) : 1 - P(u, T.drag1 + 0.05, T.rel);
+        return { x: c.x + GRIP.x * c.s, y: c.y + GRIP.y * c.s, p };
+      }
+      const r0 = { x: SHR.cx + GRIP.x * CARD_S, y: SHR.slotY - ROW.h * CARD_S / 2 - 3 + GRIP.y * CARD_S };
+      const q = eIO(P(u, T.rel + 0.15, T.rel + 1.0));
+      return { x: lerp(r0.x, REST.x, q), y: lerp(r0.y, REST.y, q), p: 0 };
+    }
+
+    // 列表：悬停高亮 → 原位留虚线空位 → 下方行上移补位 → 复位时下方行回落、目标行淡入
+    function drawRows(k, u) {
+      const up = eIO(P(u, T.up0, T.up1)) * (1 - eIO(P(u, T.back0, T.back1)));
+      const n = u >= T.up1 - 0.2 && u < T.back0 + 0.2 ? FILES.length - 1 : FILES.length;
+      k.font = `500 9.5px ${SANS}`; k.fillStyle = C.sub; k.textAlign = 'right'; k.textBaseline = 'middle';
+      k.fillText(n + ' 项', LIST.x + LIST.w - 14, LIST.y + 16);
+      k.save(); rr(k, LIST.x, LIST.y + 30, LIST.w, LIST.h - 30, LIST.r); k.clip();
+      // 悬停与按住时的行底色
+      const hv = P(u, T.hov, T.hov + 0.12) * (1 - P(u, T.grab, T.drag0));
+      if (hv > 0) { k.globalAlpha = hv; rr(k, ROW.x, rowY(TGT), ROW.w, ROW.h, 7); k.fillStyle = C.blueL; k.fill(); k.globalAlpha = 1; }
+      // 空位虚线：卡片被拿起后出现，补位时被下一行盖过而淡出
+      const ph = P(u, T.grab, T.drag0) * (1 - P(u, T.up0, T.up0 + 0.25));
+      if (ph > 0) {
+        k.globalAlpha = ph; k.setLineDash([3, 3]); k.lineWidth = 1; k.strokeStyle = C.edge;
+        rr(k, ROW.x + 0.5, rowY(TGT) + 0.5, ROW.w - 1, ROW.h - 1, 7); k.stroke(); k.setLineDash([]); k.globalAlpha = 1;
+      }
+      for (let i = 0; i < FILES.length; i++) {
+        let y = rowY(i), a = 1, dx = 0;
+        if (i === TGT) {
+          if (u >= T.grab && u < T.in0) continue;            // 被拖走期间由卡片代替
+          if (u >= T.in0) { const q = eOut(P(u, T.in0, T.in1)); a = q; dx = -10 * (1 - q); }
+        } else if (i > TGT) y -= PITCH * up;
+        k.globalAlpha = a; k.drawImage(rowSprite(i), ROW.x + dx, y, ROW.w, ROW.h);
+        // 行间分隔线：最后一行不画；目标行淡入前不画，免得补位时出现悬空细线
+        if (i < FILES.length - 1 && !(i === TGT && u < T.in1 && u >= T.grab)) {
+          k.fillStyle = 'rgba(220,225,234,0.7)'; k.fillRect(ROW.x + 36 + dx, y + ROW.h + 1.5, ROW.w - 46, 1);
+        }
+      }
+      k.globalAlpha = 1; k.restore();
+    }
+    function drawCard(k, c, u) {
+      k.save();
+      if (u >= T.drag1) { k.beginPath(); k.rect(0, 0, W, SHR.slotY + shake(u).y); k.clip(); }
+      k.translate(c.x, c.y); k.rotate(c.r); k.scale(c.s, c.s);
+      k.drawImage(cardSprite(), -ROW.w / 2 - 20, -ROW.h / 2 - 20, ROW.w + 40, ROW.h + 40);
+      k.restore();
+    }
+    // 震动：起止有包络，频率取整数倍以免出现突变
+    function shake(u) {
+      const env = P(u, T.feed0, T.feed0 + 0.1) * (1 - P(u, 2.7, 2.95));
+      return { x: env * 0.9 * Math.sin(u * 95), y: env * 0.5 * Math.sin(u * 71 + 1.3) };
+    }
+
+    // 纸条：每条有出生时刻 tb，按 d = u − tb 解析计算——先从刀口挤出（长度增长），再脱落下坠、卷曲、淡出
+    const NS = 15, EXT = 0.34, FALL = 1.15;
+    const STRIPS = Array.from({ length: NS }, (_, i) => {
+      const r1 = hash(i, 1), r2 = hash(i, 2), r3 = hash(i, 3);
+      return {
+        x: SHR.cx - 60 + (i + 0.5) * (120 / NS) + (r1 - 0.5) * 3,
+        tb: 1.98 + 0.32 * (i % 5) / 5 + r2 * 0.12 + (i % 3) * 0.04,
+        len: 26 + r3 * 16, curl: (r1 > 0.5 ? 1 : -1) * (0.9 + r2 * 0.9), drift: (r3 - 0.5) * 18,
+        tint: i === 6 || i === 7 ? FILES[TGT].col : null,      // 中间两条带有文件色带的碎片
+      };
+    });
+    function drawStrips(k, u, ox, oy) {
+      const { x: wx, y: wy, w: ww, h: wh, r } = WINB;
+      k.save(); rr(k, wx + ox, wy + oy, ww, wh, r); k.clip();
+      k.lineCap = 'round'; k.lineJoin = 'round';
+      const top = SHR.faceBot + oy;
+      for (const s of STRIPS) {
+        const d = u - s.tb;
+        if (d <= 0 || d > EXT + FALL) continue;
+        const grow = clamp(d / EXT), fall = Math.max(0, d - EXT);
+        const L = s.len * eOut(grow);
+        const y0 = top + 0.5 * 120 * fall * fall + 18 * fall;  // 解析抛物下坠
+        const x0 = s.x + ox + s.drift * fall;
+        const bend = s.curl * (0.15 + 1.6 * fall);             // 脱落后越卷越紧
+        const a = 1 - P(fall, FALL * 0.55, FALL);
+        if (a <= 0 || L < 1) continue;
+        const seg = 9, dl = L / seg;
+        let x = x0, y = y0, ang = Math.PI / 2;
+        const pts = [[x, y]];
+        for (let j = 0; j < seg; j++) { ang += bend * dl / 22 * (0.4 + j / seg); x += Math.cos(ang) * dl; y += Math.sin(ang) * dl; pts.push([x, y]); }
+        k.globalAlpha = a;
+        // 厚度/背面：略偏移的暗线
+        k.strokeStyle = 'rgba(150,160,180,0.9)'; k.lineWidth = 3.4; k.beginPath();
+        pts.forEach((p, j) => j ? k.lineTo(p[0] + 0.7, p[1] + 0.5) : k.moveTo(p[0] + 0.7, p[1] + 0.5)); k.stroke();
+        k.strokeStyle = s.tint || '#F6F8FC'; k.lineWidth = 2.8; k.beginPath();
+        pts.forEach((p, j) => j ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.stroke();
+        // 卷曲受光面：前半段一道细高光
+        k.strokeStyle = 'rgba(255,255,255,0.9)'; k.lineWidth = 0.8; k.beginPath();
+        for (let j = 0; j < 5; j++) j ? k.lineTo(pts[j][0] - 0.6, pts[j][1] - 0.3) : k.moveTo(pts[j][0] - 0.6, pts[j][1] - 0.3); k.stroke();
+      }
+      k.globalAlpha = 1; k.restore();
+    }
+
+    // 机身合成：纸篓 → 纸条 → 玻璃 → 机头（机头与纸篓一起震动）→ 指示灯
+    const MW = SHR.x1 - SHR.x0 + 8, MY0 = SHR.topBack - 2, MH = SHR.binBot - MY0 + 6;
+    function drawMachine(k, u) {
+      const sk = shake(u), ox = sk.x, oy = sk.y;
+      const box = (key, f) => sprite(key, MW, MH, x => { x.translate(-SHR.x0 + 2, -MY0); f(x); });
+      k.drawImage(box('bin', drawBin), SHR.x0 - 2 + ox, MY0 + oy, MW, MH);
+      drawStrips(k, u, ox, oy);
+      k.drawImage(box('glass', drawGlass), SHR.x0 - 2 + ox, MY0 + oy, MW, MH);
+      k.drawImage(box('head', drawHead), SHR.x0 - 2 + ox, MY0 + oy, MW, MH);
+      // 指示灯：待机为柔和绿；工作期间橙色以 7 Hz 闪动，带外发光
+      const lx = SHR.x1 - 24 + ox, ly = SHR.topFront + 20 + oy;
+      const on = u >= T.feed0 - 0.05 && u < 3.0;
+      const blink = on ? 0.55 + 0.45 * Math.cos((u - T.feed0) * TAU * 7) : 0;
+      const col = on ? '255,122,60' : '86,214,140', lv = on ? blink : 0.75;
+      const gl = k.createRadialGradient(lx, ly, 0, lx, ly, 15);
+      gl.addColorStop(0, `rgba(${col},${0.55 * lv})`); gl.addColorStop(1, `rgba(${col},0)`);
+      k.fillStyle = gl; k.fillRect(lx - 15, ly - 15, 30, 30);
+      const core = k.createRadialGradient(lx - 1.2, ly - 1.2, 0, lx, ly, 4.2);
+      core.addColorStop(0, `rgba(255,255,255,${0.6 + 0.4 * lv})`); core.addColorStop(0.45, `rgba(${col},${0.5 + 0.5 * lv})`); core.addColorStop(1, `rgba(${col},${0.25 + 0.4 * lv})`);
+      k.fillStyle = core; k.beginPath(); k.arc(lx, ly, 4.2, 0, TAU); k.fill();
+      k.font = `500 7.5px ${SANS}`; k.textAlign = 'right'; k.textBaseline = 'middle';
+      k.fillStyle = on ? 'rgba(255,190,160,0.9)' : 'rgba(255,255,255,0.45)';
+      k.fillText(on ? '粉碎中' : '待机', lx - 11, ly + 0.5);
+    }
+
+    const fn = (k, w, h, u) => {
+      u = ((u % CYC) + CYC) % CYC;
+      k.drawImage(sprite('bg', W, H, drawBG), 0, 0, W, H);
+      drawRows(k, u);
+      drawMachine(k, u);
+      const c = cardPose(u);
+      if (c) drawCard(k, c, u);
+      const cp = cursorPose(u);
+      cursor(k, cp.x, cp.y, cp.p);
+    };
+    return fn;
+  })();
+
+  // @element 51
+  CELLS[50] = (function () {
+    // 文件夹弹出便签：桌面中央一个立体文件夹（后片 + 前片分层），光标悬停时前片向前下方翻开，
+    // 三张便签卡（色板 / 草图 / 一句话）依次带旋转弹到文件夹上方与两侧并轻轻浮动；光标移开后依次收回、前片合上，复位。
+    // 纯函数：画面只由 u 决定；背景、文件夹各片、卡面、阴影块首次调用时按 3 倍分辨率预渲染缓存。
+    const W = 539, H = 208, CYC = 4.8;
+    const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+    const MONO = '"SF Mono", Menlo, Consolas, monospace';
+    const S = 3;   // 缓存分辨率倍数：调用方最多约 2×dpr 放大
+
+    // 配色：lp 包的冷灰桌面 + 朱橙文件夹（取自 lp 差し色 #FF5A2C）+ 墨蓝文字；三张卡用白 / 奶黄 / 浅蓝
+    const PAL = {
+      bgTop: '#f1f3f7', bgBot: '#dde2ea', vignette: '28,35,51', shadow: '40,30,40',
+      backHi: '#e8643a', backLo: '#c9471f', inner: '#a83a1a',
+      frontHi: '#ff9566', frontLo: '#f0602e', thick: '#b8441f', tab: '#e25a30',
+      sheet: '#fbfaf7', sheetEdge: '#e6e1d8',
+      ink: '#1c2333', ink2: '#4a5368', mut: '#7d879b', acc: '#ff5a2c', blue: '#3b64e8',
+      cardW: '#ffffff', cardY: '#ffe9a6', cardB: '#dfe7ff'
+    };
+
+    // 文件夹几何：后片带左上标签页；前片略宽、顶边低于后片，底边是翻开时的转轴
+    const BK = { x: 160, y: 80, w: 220, h: 106, r: 7 };
+    const TAB = { x: 170, y: 64, w: 86, h: 20 };
+    const FR = { x: 155, y: 97, w: 230, h: 89, r: 8 };
+    const GROUND = 186;   // 文件夹底边 / 桌面接触线
+
+    const clamp = (x, a, b) => Math.max(a === undefined ? 0 : a, Math.min(b === undefined ? 1 : b, x));
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const seg = (u, a, b) => clamp((u - a) / (b - a));
+    const eIO = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const eOut = t => 1 - Math.pow(1 - clamp(t), 3);
+    const eBack = t => { t = clamp(t); const c = 1.6; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+    const rgba = (c, a) => 'rgba(' + c + ',' + a + ')';
+
+    // 圆角矩形路径（Safari 兼容：用 arcTo 自绘）；r 可为 [左上, 右上, 右下, 左下]
+    function rr(x, X, Y, w, h, r) {
+      const q = Array.isArray(r) ? r : [r, r, r, r];
+      x.beginPath(); x.moveTo(X + q[0], Y);
+      x.arcTo(X + w, Y, X + w, Y + h, q[1]); x.arcTo(X + w, Y + h, X, Y + h, q[2]);
+      x.arcTo(X, Y + h, X, Y, q[3]); x.arcTo(X, Y, X + w, Y, q[0]); x.closePath();
+    }
+    function mk(w, h, draw) {
+      const c = document.createElement('canvas'); c.width = Math.ceil(w * S); c.height = Math.ceil(h * S);
+      const x = c.getContext('2d'); x.scale(S, S); draw(x); return c;
+    }
+
+    // 背景：柔和竖向渐变 + 径向暗角 + 桌面上的一道淡光
+    function bgArt(x) {
+      const gr = x.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, PAL.bgTop); gr.addColorStop(1, PAL.bgBot);
+      x.fillStyle = gr; x.fillRect(0, 0, W, H);
+      const sp = x.createRadialGradient(W * 0.5, H * 0.32, 10, W * 0.5, H * 0.32, W * 0.42);
+      sp.addColorStop(0, 'rgba(255,255,255,0.55)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = sp; x.fillRect(0, 0, W, H);
+      x.save(); x.translate(W / 2, H / 2); x.scale(1, H / W);
+      const vg = x.createRadialGradient(0, 0, W * 0.3, 0, 0, W * 0.62);
+      vg.addColorStop(0, rgba(PAL.vignette, 0)); vg.addColorStop(1, rgba(PAL.vignette, 0.16));
+      x.fillStyle = vg; x.fillRect(-W, -W, W * 2, W * 2); x.restore();
+    }
+
+    // 柔影块：把圆角矩形画到画布外，只让 shadow 落在画布内（shadowBlur / offset 不受 transform 影响，需乘 S）
+    function blob(w, h, r, blur) {
+      const p = blur * 2 + 2;
+      return { c: mk(w + p * 2, h + p * 2, x => {
+        x.shadowColor = 'rgba(0,0,0,1)'; x.shadowBlur = blur * S; x.shadowOffsetX = 2000 * S;
+        x.fillStyle = '#000'; rr(x, p - 2000, p, w, h, r); x.fill();
+      }), p: p, w: w, h: h };
+    }
+    // 后片轮廓：主体 + 左上标签页（标签两侧斜肩，圆角顶）
+    function backPath(x) {
+      const b = BK, t = TAB;
+      x.beginPath();
+      x.moveTo(b.x, b.y + b.r);
+      x.arcTo(b.x, b.y, b.x + b.r, b.y, b.r);
+      x.lineTo(t.x, b.y);
+      x.lineTo(t.x + 6, t.y + 4); x.arcTo(t.x + 8, t.y, t.x + 14, t.y, 4);
+      x.lineTo(t.x + t.w - 14, t.y); x.arcTo(t.x + t.w - 8, t.y, t.x + t.w - 6, t.y + 4, 4);
+      x.lineTo(t.x + t.w, b.y);
+      x.arcTo(b.x + b.w, b.y, b.x + b.w, b.y + b.h, b.r);
+      x.arcTo(b.x + b.w, b.y + b.h, b.x, b.y + b.h, 3);
+      x.arcTo(b.x, b.y + b.h, b.x, b.y, 3);
+      x.closePath();
+    }
+    // 夹在后片与前片之间的两张纸（静态）：一张奶白、一张浅蓝，顶边从前片上沿露出
+    function sheetArt(x, cx, top, w, rot, col, edge) {
+      x.save(); x.translate(cx, GROUND); x.rotate(rot);
+      rr(x, -w / 2, top - GROUND, w, GROUND - top + 6, 3);
+      x.fillStyle = col; x.fill(); x.strokeStyle = edge; x.lineWidth = 0.8; x.stroke();
+      x.fillStyle = 'rgba(28,35,51,0.10)';
+      for (let i = 0; i < 4; i++) x.fillRect(-w / 2 + 12, top - GROUND + 10 + i * 9, (i === 3 ? 0.5 : 0.8) * (w - 24), 2);
+      x.restore();
+    }
+    // 后片（文件夹的内壁）：渐变 + 底部折痕暗部 + 标签页文字 + 左上高光边
+    function backArt(x) {
+      backPath(x);
+      const gr = x.createLinearGradient(0, TAB.y, 0, GROUND);
+      gr.addColorStop(0, PAL.backHi); gr.addColorStop(1, PAL.backLo);
+      x.fillStyle = gr; x.fill();
+      x.save(); backPath(x); x.clip();
+      const cr = x.createLinearGradient(0, GROUND - 40, 0, GROUND);
+      cr.addColorStop(0, 'rgba(90,20,5,0)'); cr.addColorStop(1, 'rgba(90,20,5,0.38)');
+      x.fillStyle = cr; x.fillRect(BK.x, GROUND - 40, BK.w, 40);
+      sheetArt(x, 262, 86, 168, -0.025, PAL.sheet, PAL.sheetEdge);
+      sheetArt(x, 290, 90, 150, 0.035, '#eef2fb', '#d5dcec');
+      x.restore();
+      x.fillStyle = 'rgba(255,255,255,0.96)'; x.font = '600 11px ' + SANS; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillText('设计灵感', TAB.x + TAB.w / 2, TAB.y + 9.5);
+      const hl = x.createLinearGradient(BK.x, TAB.y, BK.x + 120, GROUND);
+      hl.addColorStop(0, 'rgba(255,255,255,0.75)'); hl.addColorStop(0.6, 'rgba(255,255,255,0)');
+      backPath(x); x.strokeStyle = hl; x.lineWidth = 1; x.stroke();
+    }
+
+    // 前片（局部坐标 0..FR.w × 0..FR.h，缓存留边 FP 放厚度层）：
+    // 右下暗厚度层 + 竖向渐变 + 顶边受光的纸板截面 + 左上镜面光斑 + 压印的小字与文件夹图标
+    const FP = 4;
+    function frontArt(x) {
+      x.translate(FP, FP);
+      const w = FR.w, h = FR.h;
+      rr(x, 1.5, 2.5, w, h, FR.r); x.fillStyle = PAL.thick; x.fill();
+      rr(x, 0, 0, w, h, FR.r);
+      const gr = x.createLinearGradient(0, 0, 0, h);
+      gr.addColorStop(0, PAL.frontHi); gr.addColorStop(1, PAL.frontLo);
+      x.fillStyle = gr; x.fill();
+      x.save(); rr(x, 0, 0, w, h, FR.r); x.clip();
+      x.fillStyle = 'rgba(255,236,220,0.9)'; x.fillRect(0, 0, w, 2.2);          // 顶边截面（纸板厚度朝上受光）
+      x.fillStyle = 'rgba(150,50,20,0.25)'; x.fillRect(0, 2.2, w, 1);
+      const sp = x.createRadialGradient(w * 0.22, -10, 0, w * 0.22, -10, w * 0.6);
+      sp.addColorStop(0, 'rgba(255,255,255,0.42)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = sp; x.fillRect(0, 0, w, h);
+      const bt = x.createLinearGradient(0, h - 22, 0, h);
+      bt.addColorStop(0, 'rgba(120,30,8,0)'); bt.addColorStop(1, 'rgba(120,30,8,0.22)');
+      x.fillStyle = bt; x.fillRect(0, h - 22, w, 22);
+      x.restore();
+      // 压印：左下小标签 + 右下页数
+      x.textBaseline = 'alphabetic'; x.textAlign = 'left';
+      x.fillStyle = 'rgba(255,255,255,0.92)'; x.font = '700 13px ' + SANS;
+      x.fillText('2026 秋季提案', 16, h - 30);
+      x.fillStyle = 'rgba(255,255,255,0.7)'; x.font = '500 9.5px ' + SANS;
+      x.fillText('品牌视觉 · 共 3 份素材', 16, h - 15);
+      x.fillStyle = 'rgba(255,255,255,0.7)'; x.font = '600 9px ' + MONO; x.textAlign = 'right';
+      x.fillText('FN-1030', w - 14, h - 15);
+      x.strokeStyle = 'rgba(160,50,18,0.35)'; x.lineWidth = 1;                  // 压线：一道横向折痕
+      x.beginPath(); x.moveTo(12, 16.5); x.lineTo(w - 12, 16.5); x.stroke();
+      x.strokeStyle = 'rgba(255,220,200,0.45)';
+      x.beginPath(); x.moveTo(12, 17.5); x.lineTo(w - 12, 17.5); x.stroke();
+      const hl = x.createLinearGradient(0, 0, w * 0.5, h);
+      hl.addColorStop(0, 'rgba(255,255,255,0.95)'); hl.addColorStop(0.5, 'rgba(255,255,255,0.15)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+      rr(x, 0.5, 0.5, w - 1, h - 1, FR.r); x.strokeStyle = hl; x.lineWidth = 1; x.stroke();
+    }
+
+    // 三张卡：起点都在文件夹内（前片后面），终点分在左侧 / 上方 / 右侧；rot 为终点旋转，fp 为浮动相位
+    const CARDS = [
+      { w: 100, h: 76, col: PAL.cardW, ex: 98, ey: 98, rot: -0.17, sx: 236, sy: 174, fp: 0.0 },
+      { w: 86, h: 76, col: PAL.cardY, ex: 292, ey: 50, rot: 0.06, sx: 270, sy: 176, fp: 1.9 },
+      { w: 110, h: 68, col: PAL.cardB, ex: 444, ey: 100, rot: 0.14, sx: 304, sy: 172, fp: 3.7 }
+    ];
+    const CP = 3;   // 卡片缓存留边
+    // 卡片底材：右下厚度 + 竖向渐变 + 左上镜面 + 左上高光边
+    function cardBase(x, c, hi, lo, thick) {
+      rr(x, 0.8, 1.2, c.w, c.h, 4); x.fillStyle = thick; x.fill();
+      rr(x, 0, 0, c.w, c.h, 4);
+      const gr = x.createLinearGradient(0, 0, 0, c.h); gr.addColorStop(0, hi); gr.addColorStop(1, lo);
+      x.fillStyle = gr; x.fill();
+      x.save(); rr(x, 0, 0, c.w, c.h, 4); x.clip();
+      const sp = x.createRadialGradient(c.w * 0.2, -6, 0, c.w * 0.2, -6, c.w * 0.7);
+      sp.addColorStop(0, 'rgba(255,255,255,0.6)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = sp; x.fillRect(0, 0, c.w, c.h); x.restore();
+      const hl = x.createLinearGradient(0, 0, c.w * 0.5, c.h);
+      hl.addColorStop(0, 'rgba(255,255,255,1)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+      rr(x, 0.5, 0.5, c.w - 1, c.h - 1, 4); x.strokeStyle = hl; x.lineWidth = 1; x.stroke();
+    }
+    function label(x, s, X, Y, font, col, al) {
+      x.font = font; x.fillStyle = col; x.textAlign = al || 'left'; x.textBaseline = 'alphabetic'; x.fillText(s, X, Y);
+    }
+    // 卡 1：色板照片卡（白底），五块色样 + 色值
+    function card0(x) {
+      const c = CARDS[0]; cardBase(x, c, '#ffffff', '#f2f0ec', '#d6d1c8');
+      label(x, '秋日色板', 9, 15, '700 9.5px ' + SANS, PAL.ink);
+      label(x, '05 色', c.w - 9, 15, '500 7.5px ' + SANS, PAL.mut, 'right');
+      const sw = ['#ff5a2c', '#f6b34a', '#e9dcc4', '#3b64e8', '#1c2333'];
+      const hex = ['FF5A2C', 'F6B34A', 'E9DCC4', '3B64E8', '1C2333'];
+      for (let i = 0; i < 5; i++) {
+        const X = 9 + i * 17;
+        rr(x, X, 22, 14, 30, 2.5); x.fillStyle = sw[i]; x.fill();
+        x.fillStyle = 'rgba(255,255,255,0.25)'; x.fillRect(X + 1, 23, 12, 3);
+        x.save(); x.translate(X + 7, 56); x.rotate(-Math.PI / 2);
+        label(x, hex[i], -2, 2.5, '500 5.6px ' + MONO, PAL.ink2, 'right'); x.restore();
+      }
+      label(x, '主色 #FF5A2C', 9, 70, '600 7.5px ' + SANS, PAL.ink2);
+    }
+    // 卡 2：便利贴（奶黄），铅笔画的 App 首页草图 + 手写式标注
+    function card1(x) {
+      const c = CARDS[1]; cardBase(x, c, '#fff0b8', '#ffe08a', '#e3bf5a');
+      x.fillStyle = 'rgba(255,255,255,0.45)'; x.save(); x.translate(c.w / 2, -1); x.rotate(-0.04);
+      x.fillRect(-16, -4, 32, 10); x.restore();                                       // 顶部半透明胶带
+      x.strokeStyle = 'rgba(60,52,40,0.78)'; x.lineWidth = 1.1; x.lineJoin = 'round'; x.lineCap = 'round';
+      rr(x, 12, 14, 34, 52, 5); x.stroke();                                          // 手机外框
+      x.beginPath(); x.moveTo(25, 18); x.lineTo(33, 18); x.stroke();
+      x.beginPath(); x.arc(29, 32, 7, 0, Math.PI * 2); x.stroke();                   // 头像圆
+      x.beginPath(); x.moveTo(17, 45); x.lineTo(41, 45); x.moveTo(17, 51); x.lineTo(35, 51); x.stroke();
+      rr(x, 17, 56, 24, 6, 3); x.fillStyle = 'rgba(255,90,44,0.85)'; x.fill();        // 橙色按钮
+      x.strokeStyle = 'rgba(255,90,44,0.9)'; x.lineWidth = 1;                         // 标注箭头
+      x.beginPath(); x.moveTo(50, 30); x.quadraticCurveTo(46, 32, 38, 31); x.stroke();
+      x.beginPath(); x.moveTo(41, 28.5); x.lineTo(37.5, 31); x.lineTo(41, 33.5); x.stroke();
+      label(x, '头像', 52, 33, '600 8px ' + SANS, PAL.ink2);
+      label(x, '按钮', 52, 61, '600 8px ' + SANS, PAL.ink2);
+      label(x, 'v2', 52, 21, '700 8px ' + MONO, PAL.acc);
+      label(x, '首页草图', 52, 47, '700 7.5px ' + SANS, PAL.ink);
+    }
+    // 卡 3：一句话卡（浅蓝），引号 + 文案 + 署名
+    function card2(x) {
+      const c = CARDS[2]; cardBase(x, c, '#eef2ff', '#d7e1ff', '#b5c3ef');
+      label(x, '\u201C', 8, 26, '700 26px Georgia, serif', PAL.blue);
+      label(x, '留白不是空，', 24, 26, '700 11px ' + SANS, PAL.ink);
+      label(x, '是给内容呼吸。', 24, 41, '700 11px ' + SANS, PAL.ink);
+      x.fillStyle = PAL.blue; x.fillRect(24, 49, 14, 1.4);
+      label(x, '林夏 · 10/28 例会', 24, 60, '500 7.5px ' + SANS, PAL.ink2);
+    }
+
+    let C = null;   // 预渲染缓存
+    function build() {
+      const arts = [card0, card1, card2];
+      C = {
+        bg: mk(W, H, bgArt),
+        back: mk(W, H, backArt),
+        front: mk(FR.w + FP * 2, FR.h + FP * 2, frontArt),
+        cards: CARDS.map((c, i) => mk(c.w + CP * 2, c.h + CP * 2, x => { x.translate(CP, CP); arts[i](x); })),
+        cardSoft: CARDS.map(c => blob(c.w, c.h, 5, 7)),     // 卡片悬空时的柔和投影
+        cardTight: CARDS.map(c => blob(c.w, c.h, 4, 1.6)),  // 卡片贴身的接触影
+        folderSoft: blob(BK.w + 6, 60, 20, 12),             // 文件夹落在桌面上的大投影
+        folderTight: blob(FR.w - 4, 4, 2, 2),               // 文件夹底边的接触影
+        ground: blob(90, 8, 4, 6)                            // 卡片投到桌面上的椭圆影
+      };
+    }
+    // 把柔影块画在 (cx, cy) 为中心、可旋转缩放的位置
+    function drawBlob(k, b, cx, cy, rot, sx, sy, a) {
+      k.save(); k.globalAlpha = a; k.translate(cx, cy); k.rotate(rot); k.scale(sx, sy);
+      k.drawImage(b.c, -b.w / 2 - b.p, -b.h / 2 - b.p, b.w + b.p * 2, b.h + b.p * 2); k.restore();
+    }
+
+    // 时间线（秒）：光标进入 → 前片翻开 → 卡片依次弹出、悬浮 → 光标离开 → 卡片依次收回 → 前片合上并回弹 → 静止
+    const T = {
+      curIn: [0.25, 0.85], open: [0.72, 1.22], pop0: 0.92, popGap: 0.17, popDur: 0.66,
+      curOut: [2.95, 3.55], back0: 3.02, backGap: 0.13, backDur: 0.44, close: [3.6, 4.05], settle: 4.45
+    };
+    const OPEN_SY = 0.56;   // 前片翻开时的纵向压缩（越小翻得越开）
+    const OPEN_WIDEN = 0.1; // 翻开后前片顶边离观者更近，横向放宽的比例
+    const OPEN_SKEW = 0.05; // 翻开时整体轻微右斜切，模拟视角偏左上
+
+    // 前片开合量 0..1（合上后带一次衰减回弹，周期末尾回到 0）
+    function openAmt(u) {
+      if (u < T.open[0]) return 0;
+      if (u < T.close[0]) return eBack(seg(u, T.open[0], T.open[1])) ;
+      if (u < T.close[1]) return 1 - eIO(seg(u, T.close[0], T.close[1]));
+      const d = u - T.close[1];
+      return u < T.settle ? 0.07 * Math.abs(Math.sin(d * Math.PI / 0.24)) * Math.exp(-d * 9) : 0;
+    }
+    // 卡片 i 的状态：q 为出场进度（0 在夹内，1 在终点），float 为悬浮位移的权重
+    function cardState(i, u) {
+      const c = CARDS[i];
+      const t0 = T.pop0 + i * T.popGap, tb = T.back0 + (CARDS.length - 1 - i) * T.backGap;  // 先出的后回
+      let qx, qy, sc;
+      if (u < tb) {
+        const t = seg(u, t0, t0 + T.popDur);
+        qy = eBack(seg(t, 0, 0.8)); qx = eBack(seg(t, 0.14, 1)); sc = lerp(0.86, 1, eOut(t));
+      } else {
+        const q = 1 - eIO(seg(u, tb, tb + T.backDur)); qx = q; qy = q; sc = lerp(0.86, 1, q);
+      }
+      // x 比 y 晚 14% 起步，路径先竖直冒出再斜飞向终点；悬浮权重随 qx 收放，收回时浮动自然归零
+      const flo = clamp(qx);
+      const fy = 2.6 * Math.sin((u - t0) * Math.PI * 2 / 1.7 + c.fp) * flo;
+      const fr = 0.022 * Math.sin((u - t0) * Math.PI * 2 / 2.3 + c.fp * 1.3) * flo;
+      return {
+        x: lerp(c.sx, c.ex, qx), y: lerp(c.sy, c.ey, qy) + fy, fy: fy,
+        rot: c.rot * qx + fr, sc: sc, vis: u >= t0 && u < tb + T.backDur, q: clamp(qy)
+      };
+    }
+
+    // 前片：以底边为转轴，按横条切片绘制——纵向压缩 + 越靠上越宽（离观者更近）+ 轻微斜切，近似透视翻开
+    const STRIPS = 16;
+    function drawFront(k, a) {
+      const sy = lerp(1, OPEN_SY, a), cw = FR.w + FP * 2, ch = FR.h + FP * 2, base = FP + FR.h;
+      k.save(); k.translate(FR.x + FR.w / 2, GROUND); k.transform(1, 0, OPEN_SKEW * a, 1, 0, 0);
+      for (let j = 0; j < STRIPS; j++) {
+        const y0 = ch * j / STRIPS, hh = ch / STRIPS;
+        const f = 1 + OPEN_WIDEN * a * clamp(1 - (y0 + hh / 2 - FP) / FR.h);
+        const dw = cw * f;
+        k.drawImage(C.front, 0, y0 * S, cw * S, hh * S, -dw / 2, (y0 - base) * sy, dw, hh * sy + 0.6);
+      }
+      // 翻开后正面朝向桌面、背离顶光：整体压暗一层，顶端更暗
+      if (a > 0.01) {
+        const top = -FR.h * sy, tw = FR.w * (1 + OPEN_WIDEN * a);
+        const dk = k.createLinearGradient(0, top, 0, 0);
+        dk.addColorStop(0, 'rgba(110,30,10,' + (0.26 * a) + ')'); dk.addColorStop(1, 'rgba(110,30,10,' + (0.08 * a) + ')');
+        k.fillStyle = dk; k.beginPath();
+        k.moveTo(-tw / 2 + 3, top); k.lineTo(tw / 2 - 3, top); k.lineTo(FR.w / 2, 0); k.lineTo(-FR.w / 2, 0); k.closePath(); k.fill();
+      }
+      k.restore();
+    }
+    // 箭头光标：白描边深色填充
+    function cursor(k, x, y) {
+      k.save(); k.translate(x, y); k.scale(1.2, 1.2);
+      k.shadowColor = 'rgba(28,35,51,0.3)'; k.shadowBlur = 3; k.shadowOffsetY = 1.5;
+      k.beginPath();
+      [[0, 0], [0, 16.5], [4.2, 12.6], [7, 19], [9.8, 17.8], [7.1, 11.6], [12.6, 11.6]].forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1]));
+      k.closePath(); k.lineJoin = 'round'; k.lineWidth = 1.6; k.strokeStyle = '#fff'; k.fillStyle = PAL.ink;
+      k.stroke(); k.shadowColor = 'rgba(0,0,0,0)'; k.fill(); k.stroke(); k.restore();
+    }
+    const REST = { x: 498, y: 196 }, HOVER = { x: 322, y: 158 };
+
+    const fn = (k, w, h, u) => {
+      if (!C) build();
+      u = ((u % CYC) + CYC) % CYC;
+      k.save();
+      k.drawImage(C.bg, 0, 0, W, H);
+      const a = openAmt(u);
+      const st = CARDS.map((c, i) => cardState(i, u));
+      // 桌面投影：文件夹大投影 + 底边接触影（翻开时前片向前探，影子向下长一点）+ 卡片投到桌面的椭圆影
+      drawBlob(k, C.folderSoft, W / 2 + 5, GROUND - 6 + 4 * a, 0, 1, 0.42 + 0.12 * a, 0.3);
+      drawBlob(k, C.folderTight, W / 2 + 1, GROUND + 0.5 + 2 * a, 0, 1 + 0.06 * a, 1, 0.5);
+      st.forEach((s, i) => {
+        if (!s.vis) return;
+        const c = CARDS[i], hgt = GROUND - (s.y + c.h / 2);
+        drawBlob(k, C.ground, s.x + 6 + hgt * 0.12, GROUND + 4, 0, c.w / 90 * (1 + hgt / 160), 1, 0.16 * s.q * clamp(1 - hgt / 200));
+      });
+      k.drawImage(C.back, 0, 0, W, H);
+      // 卡片：在后片与前片之间绘制（出发时被前片挡住），裁到桌面线以上
+      k.save(); k.beginPath(); k.rect(0, 0, W, GROUND - 1); k.clip();
+      st.forEach((s, i) => {
+        if (!s.vis) return;
+        const c = CARDS[i], ts = C.cardTight[i];
+        const lift = 3 + 7 * s.q - s.fy * 0.6;      // 浮得越高，投影越远越淡
+        drawBlob(k, C.cardSoft[i], s.x + 2 + lift * 0.35, s.y + lift, s.rot, s.sc * 1.02, s.sc * 1.02, 0.12 + 0.12 * s.q);
+        drawBlob(k, ts, s.x + 0.6, s.y + 1.6, s.rot, s.sc, s.sc, 0.28);
+        k.save(); k.translate(s.x, s.y); k.rotate(s.rot); k.scale(s.sc, s.sc);
+        k.drawImage(C.cards[i], -c.w / 2 - CP, -c.h / 2 - CP, c.w + CP * 2, c.h + CP * 2); k.restore();
+      });
+      k.restore();
+      // 前片上沿在内壁上的接触暗影（合上时贴着，翻开时随前片顶边下移并变淡）
+      const ft = GROUND - FR.h * lerp(1, OPEN_SY, a);
+      const ao = k.createLinearGradient(0, ft - 9, 0, ft);
+      ao.addColorStop(0, 'rgba(70,15,3,0)'); ao.addColorStop(1, 'rgba(70,15,3,' + (0.3 - 0.12 * a) + ')');
+      k.fillStyle = ao; k.fillRect(BK.x + 2, ft - 9, BK.w - 4, 9);
+      drawFront(k, a);
+      // 光标：从右下进入悬停在前片上，稍后移开回原位
+      const ci = eIO(seg(u, T.curIn[0], T.curIn[1])) * (1 - eIO(seg(u, T.curOut[0], T.curOut[1])));
+      const dr = Math.sin(seg(u, T.curIn[1], T.curOut[0]) * Math.PI) * 4;   // 悬停时手的轻微漂移
+      cursor(k, lerp(REST.x, HOVER.x, ci) + dr, lerp(REST.y, HOVER.y, ci) - dr * 0.4);
+      k.restore();
+    };
+    return fn;
+  })();
+
+  // @element 52
+  CELLS[51] = (function () {
+    // 树状菜单：立体侧边导航面板，左侧竖向主干，菜单项经圆角折线枝杈接到主干。
+    // 光标点「产品」→ 子枝杈从主干按长度逐段长出、子项依次淡入；点「案例」→ 主干到该项的路径被一段光沿线点亮；
+    // 再点「产品」收起，光标回候场点，末尾静止。纯函数：画面只由 u 决定；背景与面板主体首次调用时预渲染缓存。
+    const W = 539, H = 208, CYC = 4.8;
+    const SANS = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+
+    // 配色：取 lp 包的墨蓝文字 / 朱橙强调，底色偏冷灰蓝，与白色面板拉开层次
+    const PAL = {
+      bgTop: '#f3f5f9', bgBot: '#dde3ec', vignette: '28,35,51',
+      panHi: '#ffffff', panLo: '#f2f4f8', thick: '#cdd4df', edge: 'rgba(28,35,51,.10)',
+      ink: '#1c2333', sub: '#7d879b', faint: '#e3e7ee', trunk: '#cbd2de',
+      acc: '#ff5a2c', accDeep: '#e2461d', accL: '#ffe5db', hover: '#eef1f6',
+      shadow: '28,35,51', ok: '#2fb67c'
+    };
+
+    // 面板几何（约占画宽 47%）
+    const PX = 140, PY = 10, PW = 252, PH = 188, PR = 14;
+    const S = 3;                                  // 缓存分辨率倍数：调用方最多 2×dpr 放大
+    // 树的几何：TX 主干（对准页眉 logo 中心）；BE 一级枝杈终点；ICX 图标中心；LX 一级文字；
+    // SX 子菜单在「产品」枝杈上的分叉点；KX 子枝杈终点（接节点圆点）；KLX 子项文字；BR 折角半径
+    const TX = 158, TOP = 32, BE = 174, ICX = 182, LX = 196, SX = 166, KX = 197, KLX = 206, BR = 6;
+    const ROWL = 171, KROWL = 189, ROWR = 382, RX = 373;   // 行底左右边；RX 右侧数值右对齐线
+    const CLIP0 = 38, CLIP1 = 164;                // 列表可视区：展开后被推下去的条目在底部渐隐、被裁掉
+    // 一级菜单：y 为收起时的行中心；下标大于 PARENT 的条目展开时被子菜单往下推
+    const TOPS = [
+      { name: '概览', y: 54, icon: 'grid' },
+      { name: '产品', y: 74, icon: 'box' },
+      { name: '团队', y: 94, icon: 'user', note: '12' },
+      { name: '消息', y: 114, icon: 'chat', badge: '3' },
+      { name: '设置', y: 134, icon: 'gear' }
+    ];
+    const PARENT = 1;
+    // 「产品」的子菜单：KY0 起、KSTEP 行距；SHIFT 为展开后下方条目的位移（按子项数量算）
+    const KIDS = [
+      { name: '定价', note: '¥99 起' },
+      { name: '案例', note: '24 篇' },
+      { name: '文档', note: 'v3.2' }
+    ];
+    const KY0 = TOPS[PARENT].y + 18, KSTEP = 18, SHIFT = KIDS.length * KSTEP;
+    const PICK = 1;                               // 被点开的子项下标（案例）
+    const PY0 = TOPS[PARENT].y, KY = i => KY0 + i * KSTEP;
+
+    // 时间线（秒）：光标路径关键帧 [t, x, y]，点击时刻，展开 / 点亮 / 收起区间
+    const REST = [452, 150], AT_PARENT = [214, 77], AT_PICK = [216, KY(PICK) + 3];
+    const CUR = [[0.3, REST], [0.95, AT_PARENT], [1.65, AT_PARENT], [2.15, AT_PICK], [3.25, AT_PICK], [3.65, AT_PARENT], [3.95, AT_PARENT], [4.45, REST]];
+    const CLICKS = [1.0, 2.25, 3.75];
+    const T = {
+      open0: 1.05, open1: 1.5,                  // 下方条目下移
+      grow0: 1.1, growDur: 0.4, kidGap: 0.13,   // 子枝杈逐条生长
+      fade0: 1.36, fadeDur: 0.26,               // 子项淡入（枝杈快长到时开始）
+      lit0: 2.3, lit1: 2.88,                    // 光从主干流到「案例」
+      close0: 3.8, close1: 4.28                 // 收起
+    };
+
+    // 把带圆角的折线采样成点列：每个中间拐点用二次曲线（控制点即拐点）替换，近似圆角
+    function sample(pts, r) {
+      const out = [pts[0]];
+      for (let i = 1; i < pts.length - 1; i++) {
+        const a = pts[i - 1], b = pts[i], c = pts[i + 1];
+        const d1 = Math.hypot(b[0] - a[0], b[1] - a[1]), d2 = Math.hypot(c[0] - b[0], c[1] - b[1]);
+        const r1 = Math.min(r, d1 / 2), r2 = Math.min(r, d2 / 2);
+        const p0 = [b[0] - (b[0] - a[0]) / d1 * r1, b[1] - (b[1] - a[1]) / d1 * r1];
+        const p2 = [b[0] + (c[0] - b[0]) / d2 * r2, b[1] + (c[1] - b[1]) / d2 * r2];
+        for (let s = 0; s <= 6; s++) {
+          const t = s / 6, m = 1 - t;
+          out.push([m * m * p0[0] + 2 * m * t * b[0] + t * t * p2[0], m * m * p0[1] + 2 * m * t * b[1] + t * t * p2[1]]);
+        }
+      }
+      out.push(pts[pts.length - 1]);
+      // 累计长度，供「按长度画出」与「光沿线流动」使用
+      const L = [0];
+      for (let i = 1; i < out.length; i++) L.push(L[i - 1] + Math.hypot(out[i][0] - out[i - 1][0], out[i][1] - out[i - 1][1]));
+      return { p: out, L: L, len: L[L.length - 1] };
+    }
+    // 只描出 [a, b]（长度）之间的那一段
+    function stroke(k, sp, a, b) {
+      a = Math.max(0, a); b = Math.min(sp.len, b);
+      if (b <= a) return;
+      const at = d => {
+        let i = 1; while (i < sp.L.length - 1 && sp.L[i] < d) i++;
+        const t = (d - sp.L[i - 1]) / ((sp.L[i] - sp.L[i - 1]) || 1);
+        return [lerp(sp.p[i - 1][0], sp.p[i][0], t), lerp(sp.p[i - 1][1], sp.p[i][1], t), i];
+      };
+      const s = at(a), e = at(b);
+      k.beginPath(); k.moveTo(s[0], s[1]);
+      for (let i = s[2]; i < e[2]; i++) k.lineTo(sp.p[i][0], sp.p[i][1]);
+      k.lineTo(e[0], e[1]); k.stroke();
+    }
+    function pointAt(sp, d) {
+      d = clamp(d, 0, sp.len);
+      let i = 1; while (i < sp.L.length - 1 && sp.L[i] < d) i++;
+      const t = (d - sp.L[i - 1]) / ((sp.L[i] - sp.L[i - 1]) || 1);
+      return [lerp(sp.p[i - 1][0], sp.p[i][0], t), lerp(sp.p[i - 1][1], sp.p[i][1], t)];
+    }
+
+    const clamp = (x, a, b) => Math.max(a === undefined ? 0 : a, Math.min(b === undefined ? 1 : b, x));
+    const P = (t, a, b) => clamp((t - a) / (b - a));
+    const eIO = t => (t = clamp(t), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const eOut = t => 1 - Math.pow(1 - clamp(t), 3);
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const rgba = (c, a) => 'rgba(' + c + ',' + a + ')';
+
+    // 圆角矩形路径：用 arcTo 自己画（Safari 旧版没有原生圆角矩形 API）
+    function rr(x, l, t, w, h, r) {
+      x.beginPath(); x.moveTo(l + r, t);
+      x.arcTo(l + w, t, l + w, t + h, r); x.arcTo(l + w, t + h, l, t + h, r);
+      x.arcTo(l, t + h, l, t, r); x.arcTo(l, t, l + w, t, r); x.closePath();
+    }
+    function txt(x, s, px, py, font, col, align) {
+      x.font = font; x.fillStyle = col; x.textAlign = align || 'left'; x.textBaseline = 'middle'; x.fillText(s, px, py);
+    }
+
+    // 静态层：背景（竖向渐变 + 径向暗角）+ 面板（投影、接触影、厚度、渐变、高光边、镜面光斑）+ 页眉页脚
+    let cache = null;
+    function buildCache() {
+      const c = document.createElement('canvas'); c.width = W * S; c.height = H * S;
+      const x = c.getContext('2d'); x.scale(S, S);
+      const bg = x.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, PAL.bgTop); bg.addColorStop(1, PAL.bgBot);
+      x.fillStyle = bg; x.fillRect(0, 0, W, H);
+      const vg = x.createRadialGradient(W / 2, H * 0.45, 60, W / 2, H * 0.5, W * 0.62);
+      vg.addColorStop(0, rgba(PAL.vignette, 0)); vg.addColorStop(1, rgba(PAL.vignette, 0.16));
+      x.fillStyle = vg; x.fillRect(0, 0, W, H);
+      // 柔和投影 + 贴底接触影
+      x.save(); x.shadowColor = rgba(PAL.shadow, 0.22); x.shadowBlur = 22; x.shadowOffsetY = 8;
+      rr(x, PX, PY, PW, PH, PR); x.fillStyle = PAL.thick; x.fill(); x.restore();
+      x.save(); x.shadowColor = rgba(PAL.shadow, 0.28); x.shadowBlur = 5; x.shadowOffsetY = 2;
+      rr(x, PX + 6, PY + PH - 8, PW - 12, 8, 4); x.fillStyle = PAL.thick; x.fill(); x.restore();
+      // 右下厚度层
+      rr(x, PX + 1.5, PY + 2.5, PW, PH, PR); x.fillStyle = PAL.thick; x.fill();
+      // 面板正面
+      rr(x, PX, PY, PW, PH, PR);
+      const pg = x.createLinearGradient(0, PY, 0, PY + PH); pg.addColorStop(0, PAL.panHi); pg.addColorStop(1, PAL.panLo);
+      x.fillStyle = pg; x.fill();
+      x.strokeStyle = PAL.edge; x.lineWidth = 0.8; x.stroke();
+      // 镜面光斑（左上）
+      x.save(); rr(x, PX, PY, PW, PH, PR); x.clip();
+      const sp = x.createRadialGradient(PX + 40, PY + 6, 0, PX + 40, PY + 6, 120);
+      sp.addColorStop(0, 'rgba(255,255,255,.95)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = sp; x.fillRect(PX, PY, PW, PH); x.restore();
+      // 左上白高光边
+      x.save(); rr(x, PX + 0.8, PY + 0.8, PW - 1.6, PH - 1.6, PR - 0.8); x.clip();
+      const hl = x.createLinearGradient(PX, PY, PX + PW * 0.6, PY + PH * 0.6);
+      hl.addColorStop(0, 'rgba(255,255,255,1)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+      x.strokeStyle = hl; x.lineWidth = 1.6; rr(x, PX + 0.8, PY + 0.8, PW - 1.6, PH - 1.6, PR - 0.8); x.stroke(); x.restore();
+      chrome(x);
+      return c;
+    }
+
+    // 页眉（logo 即树根，主干从它正下方出发）与页脚（当前用户）
+    function chrome(x) {
+      const ly = 22;
+      x.save(); x.shadowColor = rgba('226,70,29', 0.35); x.shadowBlur = 4; x.shadowOffsetY = 1;
+      const lg = x.createLinearGradient(TX - 7, ly - 7, TX + 7, ly + 7); lg.addColorStop(0, '#ff8a5c'); lg.addColorStop(1, PAL.accDeep);
+      x.beginPath(); x.arc(TX, ly, 7.5, 0, 7); x.fillStyle = lg; x.fill(); x.restore();
+      x.beginPath(); x.arc(TX - 2.4, ly - 2.6, 2.6, 0, 7); x.fillStyle = 'rgba(255,255,255,.45)'; x.fill();
+      x.strokeStyle = '#fff'; x.lineWidth = 1.4; x.lineCap = 'round';
+      x.beginPath(); x.moveTo(TX - 3, ly + 2.5); x.lineTo(TX, ly - 3); x.lineTo(TX + 3, ly + 2.5); x.stroke();
+      txt(x, '织云', 172, ly, '700 11.5px ' + SANS, PAL.ink);
+      txt(x, '控制台', 197, ly + 0.5, '500 10px ' + SANS, PAL.sub);
+      // ⌘K 快捷键小胶囊：凹进去的效果（上暗下亮）
+      rr(x, 350, ly - 7, 32, 14, 5); x.fillStyle = '#eef1f5'; x.fill();
+      x.strokeStyle = 'rgba(28,35,51,.10)'; x.lineWidth = 0.8; x.stroke();
+      txt(x, '⌘K', 366, ly + 0.5, '600 8.5px ' + SANS, PAL.sub, 'center');
+      x.fillStyle = PAL.faint; x.fillRect(171, 37.5, 211, 1); x.fillRect(171, 166, 211, 1);
+      // 页脚：头像 + 姓名 + 在线状态
+      const fy = 182;
+      const ag = x.createLinearGradient(0, fy - 8, 0, fy + 8); ag.addColorStop(0, '#5b7cf0'); ag.addColorStop(1, '#3654c9');
+      x.beginPath(); x.arc(TX, fy, 8, 0, 7); x.fillStyle = ag; x.fill();
+      x.strokeStyle = 'rgba(255,255,255,.9)'; x.lineWidth = 1.2; x.stroke();
+      txt(x, '陈', TX, fy + 0.5, '600 8.5px ' + SANS, '#fff', 'center');
+      txt(x, '陈思远', 172, fy - 5, '600 10px ' + SANS, PAL.ink);
+      txt(x, '产品设计 · 杭州', 172, fy + 7, '400 8px ' + SANS, PAL.sub);
+      x.beginPath(); x.arc(347, fy, 2.6, 0, 7); x.fillStyle = PAL.ok; x.fill();
+      txt(x, '在线', 354, fy + 0.5, '500 8.5px ' + SANS, PAL.sub);
+    }
+
+    // 线性小图标（约 10px 见方），col 为描边色
+    function icon(k, type, cx, cy, col) {
+      k.save(); k.strokeStyle = col; k.fillStyle = col; k.lineWidth = 1.25; k.lineCap = 'round'; k.lineJoin = 'round';
+      if (type === 'grid') {
+        for (let i = 0; i < 4; i++) { rr(k, cx - 4.5 + (i % 2) * 5, cy - 4.5 + (i > 1 ? 5 : 0), 4, 4, 1); k.stroke(); }
+      } else if (type === 'box') {
+        k.beginPath(); k.moveTo(cx, cy - 5); k.lineTo(cx + 4.5, cy - 2.5); k.lineTo(cx + 4.5, cy + 2.5); k.lineTo(cx, cy + 5);
+        k.lineTo(cx - 4.5, cy + 2.5); k.lineTo(cx - 4.5, cy - 2.5); k.closePath(); k.stroke();
+        k.beginPath(); k.moveTo(cx - 4.5, cy - 2.5); k.lineTo(cx, cy); k.lineTo(cx + 4.5, cy - 2.5); k.moveTo(cx, cy); k.lineTo(cx, cy + 5); k.stroke();
+      } else if (type === 'user') {
+        k.beginPath(); k.arc(cx, cy - 2, 2.3, 0, 7); k.stroke();
+        k.beginPath(); k.arc(cx, cy + 5, 4.3, Math.PI * 1.1, Math.PI * 1.9); k.stroke();
+      } else if (type === 'chat') {
+        rr(k, cx - 4.8, cy - 4, 9.6, 7, 2.2); k.stroke();
+        k.beginPath(); k.moveTo(cx - 2, cy + 3); k.lineTo(cx - 3, cy + 5.2); k.lineTo(cx + 0.5, cy + 3); k.stroke();
+      } else if (type === 'gear') {
+        k.beginPath(); k.arc(cx, cy, 2, 0, 7); k.stroke();
+        for (let i = 0; i < 6; i++) {
+          const a = i * Math.PI / 3; k.beginPath();
+          k.moveTo(cx + Math.cos(a) * 3.4, cy + Math.sin(a) * 3.4); k.lineTo(cx + Math.cos(a) * 4.9, cy + Math.sin(a) * 4.9); k.stroke();
+        }
+        k.beginPath(); k.arc(cx, cy, 3.6, 0, 7); k.stroke();
+      }
+      k.restore();
+    }
+
+    // 光标位置：关键帧之间用 easeInOut 连接
+    function cursorAt(u) {
+      if (u <= CUR[0][0]) return CUR[0][1];
+      for (let i = 1; i < CUR.length; i++) if (u < CUR[i][0]) {
+        const a = CUR[i - 1], b = CUR[i], f = eIO((u - a[0]) / (b[0] - a[0]));
+        return [lerp(a[1][0], b[1][0], f), lerp(a[1][1], b[1][1], f)];
+      }
+      return CUR[CUR.length - 1][1];
+    }
+
+    // 由 u 解析出整帧状态（不保留跨帧状态）
+    function state(u) {
+      const cl = eIO(P(u, T.close0, T.close1));
+      const open = eIO(P(u, T.open0, T.open1)) * (1 - cl);
+      const kids = KIDS.map((_, i) => {
+        const g0 = T.grow0 + i * T.kidGap, f0 = T.fade0 + i * T.kidGap;
+        const r0 = T.close0 + (KIDS.length - 1 - i) * 0.06;     // 收起时由下往上依次缩回
+        return {
+          y: KY(i),
+          grow: eOut(P(u, g0, g0 + T.growDur)) * (1 - eIO(P(u, r0, r0 + 0.3))),
+          a: eOut(P(u, f0, f0 + T.fadeDur)) * (1 - P(u, T.close0, T.close0 + 0.22))
+        };
+      });
+      const litA = 1 - P(u, T.close0 - 0.05, T.close0 + 0.2);
+      return {
+        open: open, kids: kids, shift: SHIFT * open,
+        lit: eIO(P(u, T.lit0, T.lit1)), litA: litA,
+        pick: eOut(P(u, T.lit1 - 0.12, T.lit1 + 0.18)) * litA,
+        cur: cursorAt(u)
+      };
+    }
+
+    // 路径缓存：一级枝杈随位移变化每帧采样；子枝杈与点亮路径固定，只采样一次
+    const KID_SP = KIDS.map((_, i) => sample([[TX, PY0], [SX, PY0], [SX, KY(i)], [KX, KY(i)]], BR));
+    const LIT_SP = sample([[TX, TOP], [TX, PY0], [SX, PY0], [SX, KY(PICK)], [KX, KY(PICK)]], BR);
+    const topY = (i, st) => TOPS[i].y + (i > PARENT ? st.shift : 0);
+
+    // 树线：主干 + 一级枝杈 + 按长度生长的子枝杈 + 生长尖端的小光点
+    function drawTree(k, st) {
+      k.save(); k.lineCap = 'round'; k.lineJoin = 'round'; k.strokeStyle = PAL.trunk; k.lineWidth = 1.5;
+      const last = topY(TOPS.length - 1, st);
+      k.beginPath(); k.moveTo(TX, TOP); k.lineTo(TX, last - BR); k.stroke();
+      for (let i = 0; i < TOPS.length; i++) {
+        const y = topY(i, st);
+        stroke(k, sample([[TX, y - BR - 1], [TX, y], [BE, y]], BR), 0, 1e9);
+      }
+      st.kids.forEach((kd, i) => {
+        if (kd.grow <= 0) return;
+        const sp = KID_SP[i], d = kd.grow * sp.len;
+        k.strokeStyle = PAL.trunk; stroke(k, sp, 0, d);
+        if (kd.grow < 1) {                       // 生长尖端：暖色小亮点，提示「正在长出来」
+          const p = pointAt(sp, d);
+          k.fillStyle = rgba('255,90,44', 0.25); k.beginPath(); k.arc(p[0], p[1], 3.6, 0, 7); k.fill();
+          k.fillStyle = PAL.acc; k.beginPath(); k.arc(p[0], p[1], 1.6, 0, 7); k.fill();
+        }
+        // 枝杈到位后末端出现节点圆点
+        const na = P(kd.grow, 0.9, 1);
+        if (na > 0) {
+          k.globalAlpha = na; k.fillStyle = '#fff'; k.beginPath(); k.arc(KX, kd.y, 2.6, 0, 7); k.fill();
+          k.strokeStyle = PAL.trunk; k.lineWidth = 1.3; k.stroke(); k.globalAlpha = 1; k.lineWidth = 1.5;
+        }
+      });
+      k.restore();
+    }
+
+    // 靠近可视区底边的条目渐隐（被子菜单推下去时自然消失）
+    const edgeA = y => clamp((CLIP1 - 6 - y) / 12);
+    const hoverOn = (st, y, l) => (st.cur[0] > l && st.cur[0] < ROWR && Math.abs(st.cur[1] - 2 - y) < 8.5) ? 1 : 0;
+
+    // 一级菜单行：悬停底、图标、文字、右侧数值 / 角标 /「产品」的展开箭头
+    function drawTops(k, st) {
+      for (let i = 0; i < TOPS.length; i++) {
+        const it = TOPS[i], y = topY(i, st), a = edgeA(y);
+        if (a <= 0) continue;
+        k.globalAlpha = a;
+        const isP = i === PARENT, hv = hoverOn(st, y, ROWL);
+        if (hv || (isP && st.open > 0)) {
+          rr(k, ROWL, y - 8.5, ROWR - ROWL, 17, 6);
+          k.fillStyle = hv ? PAL.hover : rgba('238,241,246', 0.7 * st.open); k.fill();
+        }
+        const col = isP && st.open > 0.5 ? PAL.ink : '#4a5368';
+        icon(k, it.icon, ICX, y, isP ? (st.open > 0.5 ? PAL.acc : '#6b7488') : '#6b7488');
+        txt(k, it.name, LX, y + 0.5, (isP ? '600 ' : '500 ') + '10.5px ' + SANS, col);
+        if (it.note) txt(k, it.note, RX, y + 0.5, '500 9px ' + SANS, PAL.sub, 'right');
+        if (it.badge) {
+          rr(k, RX - 14, y - 6, 15, 12, 6); k.fillStyle = PAL.acc; k.fill();
+          txt(k, it.badge, RX - 6.5, y + 0.5, '700 8px ' + SANS, '#fff', 'center');
+        }
+        if (isP) {                                // 箭头：收起朝右，展开朝下
+          k.save(); k.translate(RX - 3, y); k.rotate(st.open * Math.PI / 2);
+          k.strokeStyle = PAL.sub; k.lineWidth = 1.3; k.lineCap = 'round'; k.lineJoin = 'round';
+          k.beginPath(); k.moveTo(-1.5, -3); k.lineTo(1.5, 0); k.lineTo(-1.5, 3); k.stroke(); k.restore();
+        }
+      }
+      k.globalAlpha = 1;
+    }
+
+    // 子菜单行：依次淡入并略微右移就位；被选中的「案例」有强调色浅底、左侧色条、文字变色
+    function drawKids(k, st) {
+      // 子菜单托盘：凹进面板的一块浅槽（上沿暗线 + 下沿白线），随展开淡入并向下撑开
+      if (st.open > 0) {
+        const t0 = KY0 - 10, th = (SHIFT - 2) * st.open;
+        k.save(); k.globalAlpha = st.open;
+        rr(k, ROWL, t0, ROWR - ROWL, th, 7);
+        const tg = k.createLinearGradient(0, t0, 0, t0 + SHIFT); tg.addColorStop(0, '#e4e9f1'); tg.addColorStop(1, '#edf0f5');
+        k.fillStyle = tg; k.fill();
+        k.clip();
+        k.fillStyle = 'rgba(28,35,51,.08)'; k.fillRect(ROWL, t0, ROWR - ROWL, 1.2);
+        k.fillStyle = 'rgba(255,255,255,.9)'; k.fillRect(ROWL, t0 + th - 1, ROWR - ROWL, 1);
+        k.restore();
+      }
+      st.kids.forEach((kd, i) => {
+        if (kd.a <= 0) return;
+        const y = kd.y, dx = (1 - kd.a) * -6;
+        k.globalAlpha = kd.a;
+        const sel = i === PICK ? st.pick : 0, hv = hoverOn(st, y, KROWL);
+        if (hv && sel < 1) { rr(k, KROWL, y - 8, ROWR - KROWL, 16, 6); k.fillStyle = PAL.hover; k.fill(); }
+        if (sel > 0) {                            // 选中：实心强调色药丸（竖向渐变 + 顶部高光 + 投影）
+          k.save(); k.globalAlpha = kd.a * sel;
+          k.shadowColor = rgba('226,70,29', 0.35); k.shadowBlur = 6; k.shadowOffsetY = 2;
+          const sg = k.createLinearGradient(0, y - 8, 0, y + 8); sg.addColorStop(0, '#ff7646'); sg.addColorStop(1, PAL.accDeep);
+          rr(k, KROWL, y - 8, ROWR - KROWL, 16, 6); k.fillStyle = sg; k.fill(); k.restore();
+          k.globalAlpha = kd.a * sel * 0.5; k.fillStyle = '#fff'; k.fillRect(KROWL + 6, y - 7.5, ROWR - KROWL - 12, 0.8);
+          k.globalAlpha = kd.a;
+        }
+        const on = sel > 0.5;
+        txt(k, KIDS[i].name, KLX + dx, y + 0.5, (on ? '600 ' : '500 ') + '10px ' + SANS, on ? '#fff' : '#4a5368');
+        txt(k, KIDS[i].note, RX - 6 + dx, y + 0.5, '500 8.5px ' + SANS, on ? 'rgba(255,255,255,.85)' : PAL.sub, 'right');
+      });
+      k.globalAlpha = 1;
+    }
+
+    // 点亮路径：已走过的部分是强调色细线 + 柔光，前端是一段更亮的光头（带拖尾）沿线流过去
+    function drawLit(k, st, u) {
+      if (st.lit <= 0 || st.litA <= 0) return;
+      const sp = LIT_SP, d = st.lit * sp.len;
+      k.save(); k.lineCap = 'round'; k.lineJoin = 'round'; k.globalAlpha = st.litA;
+      k.strokeStyle = rgba('255,90,44', 0.18); k.lineWidth = 5; stroke(k, sp, 0, d);
+      k.strokeStyle = PAL.acc; k.lineWidth = 1.7; stroke(k, sp, 0, d);
+      if (st.lit < 1) {
+        // 拖尾：由暗到亮分 6 段叠画
+        for (let j = 0; j < 6; j++) {
+          k.strokeStyle = rgba('255,200,170', 0.15 + j * 0.13); k.lineWidth = 2.2 + j * 0.15;
+          stroke(k, sp, d - 30 + j * 5, d - 24 + j * 5);
+        }
+        const p = pointAt(sp, d);
+        const hg = k.createRadialGradient(p[0], p[1], 0, p[0], p[1], 9);
+        hg.addColorStop(0, 'rgba(255,255,255,1)'); hg.addColorStop(0.3, 'rgba(255,140,90,.8)'); hg.addColorStop(1, 'rgba(255,90,44,0)');
+        k.fillStyle = hg; k.beginPath(); k.arc(p[0], p[1], 9, 0, 7); k.fill();
+      }
+      // 到达后：节点圆点填充强调色，并放出一圈扩散环
+      if (st.lit >= 1) {
+        const y = KY(PICK);
+        k.fillStyle = PAL.acc; k.beginPath(); k.arc(KX, y, 3, 0, 7); k.fill();
+        k.fillStyle = '#fff'; k.beginPath(); k.arc(KX, y, 1.1, 0, 7); k.fill();
+        const r = P(u, T.lit1, T.lit1 + 0.5);
+        if (r > 0 && r < 1) {
+          k.strokeStyle = rgba('255,90,44', 0.5 * (1 - r)); k.lineWidth = 1.2;
+          k.beginPath(); k.arc(KX, y, 3 + eOut(r) * 9, 0, 7); k.stroke();
+        }
+      }
+      k.restore();
+    }
+
+    // 点击涟漪：每次点击在光标尖端放出一圈淡环
+    function drawRipples(k, u) {
+      CLICKS.forEach(t => {
+        const r = P(u, t, t + 0.45);
+        if (r <= 0 || r >= 1) return;
+        const p = cursorAt(t);
+        k.strokeStyle = rgba('28,35,51', 0.28 * (1 - r)); k.lineWidth = 1.2;
+        k.beginPath(); k.arc(p[0], p[1], 3 + eOut(r) * 12, 0, 7); k.stroke();
+      });
+    }
+
+    // 箭头光标：深色填充 + 白描边 + 柔和投影；按下时缩到 0.86
+    function drawCursor(k, st, u) {
+      let press = 0;
+      CLICKS.forEach(t => { press = Math.max(press, Math.sin(Math.PI * P(u, t - 0.06, t + 0.12))); });
+      const s = 1 - 0.14 * press;
+      k.save(); k.translate(st.cur[0], st.cur[1]); k.scale(s, s);
+      k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 14.5); k.lineTo(3.6, 11.2); k.lineTo(6.2, 17); k.lineTo(8.6, 16);
+      k.lineTo(6.1, 10.3); k.lineTo(10.8, 10.3); k.closePath();
+      k.shadowColor = 'rgba(0,0,0,.28)'; k.shadowBlur = 4; k.shadowOffsetY = 1.5;
+      k.fillStyle = PAL.ink; k.fill(); k.shadowColor = 'transparent';
+      k.strokeStyle = '#fff'; k.lineWidth = 1.3; k.lineJoin = 'round'; k.stroke();
+      k.restore();
+    }
+
+    const fn = (k, w, h, u) => {
+      u = ((u % CYC) + CYC) % CYC;
+      if (!cache) cache = buildCache();
+      k.drawImage(cache, 0, 0, W, H);
+      const st = state(u);
+      k.save(); k.beginPath(); k.rect(PX, CLIP0, PW, CLIP1 - CLIP0); k.clip();
+      drawTops(k, st);
+      drawKids(k, st);
+      drawTree(k, st);
+      drawLit(k, st, u);
+      k.restore();
+      drawRipples(k, u);
+      drawCursor(k, st, u);
+    };
+    return fn;
+  })();
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

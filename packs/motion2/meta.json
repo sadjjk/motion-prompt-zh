@@ -3904,6 +3904,87 @@
           "音乐播放"
         ]
       }
+    },
+    {
+      "no": "60",
+      "id": "2-099",
+      "slug": "edge-blur",
+      "category": "techniques",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 sadjjk",
+      "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+      "name": { "ja": "プログレッシブブラー", "en": "Progressive edge blur", "zh-Hans": "渐进边缘模糊" },
+      "meaning": { "ja": "スクロールする内容が上下の端に近づくほど段階的にぼけて薄れる", "en": "Scrolling content blurs and fades step by step as it nears the top and bottom edges", "zh-Hans": "滚动内容越靠近上下边缘越模糊越淡" },
+      "ask": { "ja": "記事リストの上下の端をプログレッシブブラーにして。上78px・下62pxの帯に1/2、1/4、1/8の3段階のぼかしを重ね、端ほど強くぼかして薄くし、内容は4.7秒ごとに390px上へスクロールしてループさせて。", "en": "Give the article list a progressive edge blur: in a 78 px top band and a 62 px bottom band, stack 1/2, 1/4 and 1/8 blur levels so content gets blurrier and fainter towards the edge, and scroll the content up 390 px every 4.7 s on a loop.", "zh-Hans": "把文章列表的上下边缘做成渐进边缘模糊：顶部 78 px、底部 62 px 的过渡带里叠 1/2、1/4、1/8 三级模糊，越靠边越糊越淡，内容每 4.7 秒上滚 390 px 并循环。" },
+      "summary": { "ja": "濃紺のページで、見出し・本文・湖の写真カード・数値カードが並ぶ記事の列が一定速度で上へスクロールし、継ぎ目なくループする。内容は上下の端に近づくにつれて段階的にぼけて薄れ、霧に沈むように消えていく。上部に浮かぶガラスのナビバーの下には、最も強くぼけた内容が色の塊として透けて見える。", "en": "On a navy page, an article column with a headline, body text, a lake photo card and a stats card scrolls up at a steady pace and loops seamlessly. As the content nears the top or bottom edge it blurs and fades in stages, as if sinking into fog; under the floating glass nav bar at the top, the most heavily blurred content shows through as soft blocks of colour.", "zh-Hans": "深蓝页面上，一列文章内容（标题、正文、湖景图片卡、数据卡）匀速向上滚动并无缝循环。内容滚到上下边缘时逐级变糊、变淡，像沉进雾里；顶部悬浮的玻璃导航栏下，透出的是模糊最重的内容色块。" },
+      "spec": {
+        "ja": [
+          "幅292pxの内容の列が4.7秒ごとに390px等速で上へスクロールし、継ぎ目なくループ",
+          "上78px・下62pxが移行帯。ぼかしは filter を使わず、1/2、1/4、1/8 に縮小してから拡大し直して作る",
+          "最も軽い1/2は端から帯の62%まで不透明で100%で消え、1/4は38%–74%、最も重い1/8は16%–46%で、端ほど重いぼかしが重なる",
+          "その上にページ色への薄れを重ね、端での不透明度は上0.82・下0.88",
+          "上部に浮かぶ332 × 32px、角丸16pxのガラスのナビバーの下には、同じスクロール位置の1/8のぼかしが透ける"
+        ],
+        "en": [
+          "A 292 px wide content column scrolls up 390 px every 4.7 s at constant speed and loops seamlessly.",
+          "The top 78 px and bottom 62 px are transition bands; the blur uses no filter, only downscaling to 1/2, 1/4 and 1/8 and scaling back up.",
+          "The lightest 1/2 level is opaque from the edge to 62% of the band and gone by 100%, 1/4 spans 38%–74%, and the heaviest 1/8 spans 16%–46%, so heavier blur stacks closer to the edge.",
+          "A fade to the page colour sits on top, with edge opacity 0.82 at the top and 0.88 at the bottom.",
+          "A floating 332 × 32 px glass nav bar with 16 px corners shows the 1/8 blur at the same scroll position through it."
+        ],
+        "zh-Hans": [
+          "宽 292 px 的内容列每 4.7 秒匀速上滚 390 px，无缝循环。",
+          "顶部 78 px、底部 62 px 为过渡带；模糊不用 filter，靠缩小到 1/2、1/4、1/8 再放大回来得到。",
+          "最轻的 1/2 级从边缘到过渡带 62% 处全不透明、到 100% 处消失，1/4 级为 38%–74%，最重的 1/8 级为 16%–46%，越靠边叠的模糊越重。",
+          "最上面再叠一层向页面底色的渐隐，边缘不透明度顶部 0.82、底部 0.88。",
+          "顶部悬浮 332 × 32 px、圆角 16 px 的玻璃导航栏，底下透出同一滚动位置的 1/8 级模糊。"
+        ]
+      },
+      "use": { "ja": "記事フィード、チャット履歴、長いリストやスクロールパネルで、端の切れ目を柔らかく見せたい場面に。", "en": "Use it in article feeds, chat histories, long lists and scroll panels to soften the hard cut at the edges.", "zh-Hans": "适合文章流、聊天记录、长列表和滚动面板，让上下边缘不再一刀切开。" },
+      "tags": ["blur", "progressive-blur", "scroll", "fade", "mask", "glass"],
+      "aliases": { "zh-Hans": ["渐进式模糊", "边缘雾化", "滚动边缘模糊", "毛玻璃渐变"] }
+    },
+    {
+      "no": "61",
+      "id": "2-100",
+      "slug": "infinite-helix",
+      "category": "techniques",
+      "added": "2026-10-30",
+      "license": "MIT License (c) 2026 sadjjk",
+      "attribution": "https://github.com/sadjjk/motion-prompt-zh",
+      "name": { "ja": "無限らせんカルーセル", "en": "Infinite helix carousel", "zh-Hans": "无限螺旋轮播" },
+      "meaning": { "ja": "カードが横向きの3Dらせんに並び、回りながら途切れなく流れていく", "en": "Cards line a horizontal 3D helix and stream along it endlessly as it turns", "zh-Hans": "卡片排在横向 3D 螺旋上，边绕轴翻转边无限向前推进" },
+      "ask": { "ja": "作品集を無限らせんカルーセルにして。70 × 56pxの写真カードを半径55px、一周7枚の横向きのらせんに並べ、4.7秒ごとに6枚1組ぶん右へ進め、継ぎ目で遅く中盤で速くして。", "en": "Turn the portfolio into an infinite helix carousel: put 70 × 56 px photo cards on a horizontal helix with radius 55 px and 7 cards per turn, advance one full set of 6 cards to the right every 4.7 s, slow at the seam and fast in the middle.", "zh-Hans": "把作品集做成无限螺旋轮播：70 × 56 px 的相片卡排在半径 55 px、每圈 7 张的横向螺旋上，每 4.7 秒向右推进一整套 6 张，接缝处慢、中段快。" },
+      "summary": { "ja": "濃紺の背景に小さな写真カードの列が横向きのらせんに沿って並び、軸を中心に回りながら右へ進む。手前に来たカードは大きく明るくなり、影と流れるハイライトがつき、奥へ回ったカードは濃紺の裏面を見せて暗くかすむ。進み方は押して滑るリズムで、周期の継ぎ目ではほぼ止まり、中盤で速く滑り、両端のカードは暗がりへ溶けていく。", "en": "Against a navy background, a row of small photo cards follows a horizontal helix, turning around its axis while moving right. Cards that swing to the front grow larger and brighter, with a shadow and a sweeping highlight; cards that swing to the back show a navy reverse and turn dim and hazy. The motion pushes and glides: it almost stops at the loop seam, speeds through the middle, and cards at both ends melt into the vignette.", "zh-Hans": "深蓝背景中，一串小相片卡沿横向螺旋排开，边绕轴翻转边向右推进；转到前方的卡片变大变亮，带投影和扫过的高光，转到后方的露出深蓝背面并变暗变糊。推进节奏一推一滑：周期接缝处几乎停住，中段加速滑过，两端的卡片淡入暗角。" },
+      "spec": {
+        "ja": [
+          "70 × 56pxのカードを半径55pxの横向きのらせんに、一周7枚、軸方向の間隔36pxで並べる",
+          "焦点距離220pxの透視投影で、カメラは0.24ラジアン見下ろし、奥のカードから順に描く",
+          "4.7秒ごとに内容の異なる6枚ひと組ちょうどぶん右へ進むので、ループは継ぎ目なし",
+          "速度は 1 − 0.8·cos2πt に従い、継ぎ目では平均の20%、中点では180%",
+          "奥へ回ったカードは濃紺の裏面を見せ、真横を向くと幅が0.22倍まで縮む",
+          "奥のカードは暗くかすみ、手前のカードには影とハイライトがつき、左右の端は110pxかけて消える"
+        ],
+        "en": [
+          "70 × 56 px cards sit on a horizontal helix with radius 55 px, 7 cards per turn and 36 px between cards along the axis.",
+          "Perspective uses a 220 px focal length with the camera tilted down 0.24 rad, and cards are drawn far to near.",
+          "Every 4.7 s the helix moves right by exactly one set of 6 different cards, so the loop has no seam.",
+          "Speed follows 1 − 0.8·cos2πt: 20% of the average at the seam and 180% at the midpoint.",
+          "Cards turned away show a navy back, and an edge-on card narrows to 0.22× its width.",
+          "Far cards dim and blur, near cards get a shadow and a highlight, and both ends fade out over 110 px."
+        ],
+        "zh-Hans": [
+          "70 × 56 px 的卡片排在半径 55 px 的横向螺旋上，每圈 7 张，沿轴间距 36 px。",
+          "透视投影焦距 220 px，镜头俯视 0.24 弧度，卡片由远到近绘制。",
+          "每 4.7 秒向右推进正好一整套 6 张不同的卡片，循环无缝。",
+          "速度按 1 − 0.8·cos2πt 变化：接缝处为平均速度的 20%，中点为 180%。",
+          "转到背面的卡片露出深蓝背面，侧对镜头时宽度缩到 0.22 倍。",
+          "远处卡片压暗发糊，近处卡片带投影和高光，左右两端在 110 px 内淡出。"
+        ]
+      },
+      "use": { "ja": "作品集、写真ギャラリー、商品一覧のヒーローで、多数のカードを立体的に流して見せたい場面に。", "en": "Use it in portfolio, photo gallery and product showcase heroes to stream many cards past in 3D.", "zh-Hans": "适合作品集、相册、商品展示的首屏，用立体方式连续展示大量卡片。" },
+      "tags": ["helix", "carousel", "3d", "perspective", "cards", "loop", "gallery"],
+      "aliases": { "zh-Hans": ["螺旋画廊", "3D 螺旋卡片", "螺旋相册", "无限螺旋"] }
     }
   ]
 }

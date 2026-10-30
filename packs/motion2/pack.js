@@ -1970,6 +1970,568 @@ MotionPrompt.pack('motion2', function () {
     txt(k, '/ 3:45', 442, 122, `600 12px ui-monospace, Menlo, monospace`, C.dim);
   };
 
+  // @element 60
+  CELLS[59] = (function () {
+    // 渐进边缘模糊：内容列匀速上滚，上下两端按纵向分带叠加 1/2、1/4、1/8 降采样副本，越靠边越糊越淡。
+    // 不用 ctx.filter（Safari 不支持），模糊全部靠「缩小 → 开平滑放大」得到。
+    const W = 539, H = 208, CYC = 4.7;
+    const SS = 3;                          // 预渲染倍率：预览最高约 2×dpr，用 3 倍保证清晰
+    const C = {
+      page: '#121D45', navy2: '#1B2A5E', navy3: '#2A3D80', dim: '#7F90C4', body: '#C9D3F0',
+      blue: '#3B7BFF', coral: '#FF6B5C', yel: '#FFC83D', mint: '#2EDBA8', white: '#FFFFFF', cream: '#FFF1D6'
+    };
+    const FONT = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+    const X0 = 124, CW = 292;              // 内容列：约占画面宽 54%
+    const LH = 390;                        // 循环列高度：u 走完一周正好滚过 LH，首尾无缝
+    const TB = 78, BB = 62;                // 顶部 / 底部渐进过渡带高度
+    const clamp = (x, a, b) => Math.min(b === undefined ? 1 : b, Math.max(a === undefined ? 0 : a, x));
+    const mk = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; };
+    // 圆角矩形自己用 arcTo 画（Safari 兼容，不用原生圆角 API）
+    function rr(k, x, y, w, h, r) {
+      k.beginPath(); k.moveTo(x + r, y);
+      k.arcTo(x + w, y, x + w, y + h, r); k.arcTo(x + w, y + h, x, y + h, r);
+      k.arcTo(x, y + h, x, y, r); k.arcTo(x, y, x + w, y, r); k.closePath();
+    }
+    function txt(k, s, x, y, size, col, weight, align) {
+      k.font = (weight || 400) + ' ' + size + 'px ' + FONT; k.fillStyle = col;
+      k.textAlign = align || 'left'; k.textBaseline = 'alphabetic'; k.fillText(s, x, y);
+    }
+
+    // 一份循环内容（y 以循环起点为 0）；在列缓存里画两遍，取景窗口永不跨缝
+    function drawItems(k, y0) {
+      txt(k, '专栏 · 界面细节', X0, y0 + 24, 10, C.coral, 700);
+      txt(k, '渐进模糊，让边缘学会呼吸', X0, y0 + 48, 18, C.white, 700);
+      txt(k, '文 / 林晚　·　6 分钟阅读　·　2.4 万次浏览', X0, y0 + 68, 10.5, C.dim, 400);
+      const p1 = ['滚动列表的边缘如果一刀切开，视线会被硬边打断。', '把模糊分成几级逐级叠加，内容就像从雾里浮出，', '停留片刻，再缓缓沉回页面的另一端。'];
+      p1.forEach((s, i) => txt(k, s, X0, y0 + 94 + i * 19, 12, C.body, 400));
+      const p2 = ['画面先缩小到 1/2、1/4、1/8，再放大回原尺寸，', '得到三张由轻到重的模糊副本，用渐变遮罩拼接。'];
+      p2.forEach((s, i) => txt(k, s, X0, y0 + 290 + i * 19, 12, C.body, 400));
+      drawPhoto(k, X0, y0 + 146, CW, 120);
+      drawStats(k, X0, y0 + 324, CW, 50);
+    }
+
+    // 卡片材质：柔和投影 + 竖向渐变 + 左上白高光边 + 右下暗厚度层
+    function cardBase(k, x, y, w, h, r, top, bot) {
+      k.save();
+      k.shadowColor = 'rgba(2,6,22,0.55)'; k.shadowBlur = 14; k.shadowOffsetY = 5;
+      rr(k, x, y + 1.5, w, h, r); k.fillStyle = '#0A1233'; k.fill();   // 厚度层，被主体盖住后只露出下沿
+      k.restore();
+      const gr = k.createLinearGradient(0, y, 0, y + h);
+      gr.addColorStop(0, top); gr.addColorStop(1, bot);
+      rr(k, x, y, w, h, r); k.fillStyle = gr; k.fill();
+      const hl = k.createLinearGradient(x, y, x + w * 0.6, y + h);
+      hl.addColorStop(0, 'rgba(255,255,255,0.32)'); hl.addColorStop(0.5, 'rgba(255,255,255,0.04)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+      rr(k, x + 0.5, y + 0.5, w - 1, h - 1, r - 0.5); k.strokeStyle = hl; k.lineWidth = 1; k.stroke();
+    }
+
+    // 图片卡片：一张手绘的黄昏湖景插图 + 图注条
+    function drawPhoto(k, x, y, w, h) {
+      cardBase(k, x, y, w, h, 10, '#22346F', '#1A2858');
+      const ih = h - 28;
+      k.save(); rr(k, x + 5, y + 5, w - 10, ih - 5, 7); k.clip();
+      const sky = k.createLinearGradient(0, y, 0, y + ih);
+      sky.addColorStop(0, '#3B5FD9'); sky.addColorStop(0.55, '#E87A8A'); sky.addColorStop(1, '#FFC27A');
+      k.fillStyle = sky; k.fillRect(x, y, w, ih);
+      const sun = k.createRadialGradient(x + w * 0.66, y + ih * 0.56, 2, x + w * 0.66, y + ih * 0.56, 40);
+      sun.addColorStop(0, 'rgba(255,240,190,1)'); sun.addColorStop(0.35, 'rgba(255,200,61,0.9)'); sun.addColorStop(1, 'rgba(255,200,61,0)');
+      k.fillStyle = sun; k.fillRect(x, y, w, ih);
+      // 两层山脊：远山偏紫、近山深蓝
+      const ridge = (base, amp, f, ph, col) => {
+        k.beginPath(); k.moveTo(x, y + ih);
+        for (let i = 0; i <= 24; i++) { const t = i / 24; k.lineTo(x + w * t, y + base - amp * (0.5 + 0.5 * Math.sin(t * f + ph)) * (0.6 + 0.4 * Math.sin(t * 7.3 + ph))); }
+        k.lineTo(x + w, y + ih); k.closePath(); k.fillStyle = col; k.fill();
+      };
+      ridge(ih * 0.72, 26, 5.2, 0.8, '#5A4C9E');
+      ridge(ih * 0.8, 18, 8.1, 2.1, '#22306A');
+      const lake = k.createLinearGradient(0, y + ih * 0.8, 0, y + ih);
+      lake.addColorStop(0, '#2EDBA8'); lake.addColorStop(1, '#1B6E8C');
+      k.fillStyle = lake; k.fillRect(x, y + ih * 0.8, w, ih * 0.2);
+      k.fillStyle = 'rgba(255,241,214,0.75)';           // 湖面倒影的几道亮纹
+      for (let i = 0; i < 4; i++) k.fillRect(x + w * 0.66 - 22 + i * 5, y + ih * 0.84 + i * 3.4, 44 - i * 10, 1.4);
+      k.restore();
+      txt(k, '图 1　洱海日落 · IMG_0428.HEIC', x + 12, y + h - 10, 10.5, C.cream, 600);
+      txt(k, '3024×1964', x + w - 12, y + h - 10, 10, C.dim, 500, 'right');
+    }
+
+    function drawStats(k, x, y, w, h) {
+      cardBase(k, x, y, w, h, 10, '#22346F', '#1A2858');
+      const cols = [['3', '级模糊叠加', C.blue], ['1/8', '最低采样率', C.coral], ['78px', '顶部过渡带', C.mint]];
+      cols.forEach((c, i) => {
+        const cx = x + w * (i + 0.5) / cols.length;
+        txt(k, c[0], cx, y + 26, 17, c[2], 700, 'center');
+        txt(k, c[1], cx, y + 41, 10, C.dim, 500, 'center');
+        if (i) { k.fillStyle = 'rgba(127,144,196,0.25)'; k.fillRect(x + w * i / cols.length, y + 12, 1, h - 24); }
+      });
+    }
+
+    // 列缓存上下各留 PAD：模糊会向外扩散，留白里也画着相邻那份循环内容，取景窗口在 s=0 与 s=LH 处模糊结果一致
+    // CLH 向上取整到 8 的倍数：1/8 降采样尺寸为整数，放大回来时纵向不产生比例漂移
+    const PAD = 28, CLH = Math.ceil((LH + H + PAD * 2) / 8) * 8;
+    let COL = null;                         // 列缓存（整宽、不透明，叠层时不会透出底下的模糊晕）
+    function buildCol() {
+      COL = mk(W * SS, CLH * SS);
+      const k = COL.getContext('2d'); k.scale(SS, SS);
+      k.fillStyle = C.page; k.fillRect(0, 0, W, CLH);
+      k.translate(0, PAD);
+      // 画三份（-LH、0、LH）：上一份卡片的投影与内容也渗进顶部留白，循环缝不可见
+      drawItems(k, -LH); drawItems(k, 0); drawItems(k, LH);
+    }
+
+    let BG = null;                          // 静态叠加层：竖向明暗 + 径向暗角（盖在内容上，内容底色保持均匀）
+    function buildBg() {
+      BG = mk(W * SS, H * SS); const k = BG.getContext('2d'); k.scale(SS, SS);
+      // 越靠边越淡：向页面底色渐隐，最外侧只剩一层雾
+      const fade = (y0, y1, a) => {
+        const gr = k.createLinearGradient(0, y0, 0, y1);
+        gr.addColorStop(0, 'rgba(18,29,69,' + a + ')'); gr.addColorStop(0.55, 'rgba(18,29,69,' + (a * 0.32).toFixed(3) + ')'); gr.addColorStop(1, 'rgba(18,29,69,0)');
+        k.fillStyle = gr; k.fillRect(0, Math.min(y0, y1), W, Math.abs(y1 - y0));
+      };
+      fade(0, TB * 0.95, 0.82); fade(H, H - BB * 0.95, 0.88);
+      const v = k.createLinearGradient(0, 0, 0, H);
+      v.addColorStop(0, 'rgba(60,90,190,0.16)'); v.addColorStop(0.5, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(4,8,28,0.28)');
+      k.fillStyle = v; k.fillRect(0, 0, W, H);
+      const r = k.createRadialGradient(W / 2, H * 0.48, H * 0.35, W / 2, H * 0.5, W * 0.62);
+      r.addColorStop(0, 'rgba(4,8,26,0)'); r.addColorStop(1, 'rgba(4,8,26,0.55)');
+      k.fillStyle = r; k.fillRect(0, 0, W, H);
+    }
+
+    // 模糊等级：每级相对上一级再缩小一半；逐级缩小比一步缩到 1/8 更接近盒式平均，不会闪烁走样
+    const LEVELS = [2, 4, 8];
+    // 各级遮罩：d 为离边缘的距离占过渡带的比例，[全不透明止点, 归零点]；越重的模糊越贴近边缘
+    const RAMP = [[0.62, 1.0], [0.38, 0.74], [0.16, 0.46]];
+    // 内容是刚性平移，模糊与平移可交换：整列只需模糊一次，每帧按 s 取景即可（单帧耗时从 ~8ms 降下来）
+    let BC = null, LY = null, MK = null;
+    function buildBlur() {
+      const base = mk(W, CLH), bk = base.getContext('2d');
+      bk.imageSmoothingEnabled = true; bk.imageSmoothingQuality = 'high';
+      bk.drawImage(COL, 0, 0, W, CLH);
+      let src = base;
+      BC = LEVELS.map(f => {
+        // 缩小：每级在上一级基础上再减半
+        const d = mk(W / f, CLH / f), dk = d.getContext('2d');
+        dk.imageSmoothingEnabled = true; dk.drawImage(src, 0, 0, d.width, d.height); src = d;
+        // 放大：逐级翻倍回到 1x，放大也分步才不显方块
+        let up = d;
+        for (let s = f / 2; s >= 1; s /= 2) {
+          const t = mk(W / s, CLH / s), tk = t.getContext('2d');
+          tk.imageSmoothingEnabled = true; tk.drawImage(up, 0, 0, t.width, t.height); up = t;
+        }
+        return up;
+      });
+      LY = LEVELS.map(() => mk(W / LR, H / LR));
+      MK = RAMP.map(r => {
+        const c = mk(W / LR, H / LR), m = c.getContext('2d');
+        m.scale(1 / LR, 1 / LR);
+        const gr = m.createLinearGradient(0, 0, 0, H);
+        const t1 = TB * r[0] / H, t0 = TB * r[1] / H, b1 = BB * r[0] / H, b0 = BB * r[1] / H;
+        // 中间用 smooth 曲线的几个采样点，避免线性渐变在分级交界处出现可见折痕
+        const st = (a, b, n) => { for (let i = 0; i <= n; i++) { const t = i / n, v = 1 - t * t * (3 - 2 * t); gr.addColorStop(clamp(a + (b - a) * t), 'rgba(0,0,0,' + v.toFixed(3) + ')'); } };
+        st(t1, t0, 6);
+        for (let i = 6; i >= 0; i--) { const t = i / 6, v = 1 - t * t * (3 - 2 * t); gr.addColorStop(clamp(1 - b1 - (b0 - b1) * t), 'rgba(0,0,0,' + v.toFixed(3) + ')'); }
+        gr.addColorStop(1, 'rgba(0,0,0,1)');
+        m.fillStyle = gr; m.fillRect(0, 0, W, H);
+        return c;
+      });
+    }
+
+    // 每帧：从三张整列模糊副本里按滚动位置 s 取景，再用渐变遮罩（destination-in）裁成各自的纵向带
+    // LY 以 1/LR 分辨率存储：最轻一级也已是 1/2 模糊，半分辨率不丢细节，每帧像素量降到 1/4
+    const LR = 2;
+    function blurFrame(s) {
+      LEVELS.forEach((f, i) => {
+        const l = LY[i].getContext('2d');
+        l.imageSmoothingEnabled = true;
+        // 遮罩在中段为 0，只处理该级遮罩非零的那两段，越重的级越窄
+        bandsOf(i).forEach(b => {
+          const y = b[0] / LR, hh = b[1] / LR;
+          l.globalCompositeOperation = 'source-over'; l.clearRect(0, y, W / LR, hh);
+          l.drawImage(BC[i], 0, PAD + s + b[0], W, b[1], 0, y, W / LR, hh);
+          l.globalCompositeOperation = 'destination-in';
+          l.drawImage(MK[i], 0, y, W / LR, hh, 0, y, W / LR, hh);
+        });
+        l.globalCompositeOperation = 'source-over';
+      });
+    }
+    // 第 i 级的 [起点 y, 高度]：顶带 0..TB×归零点，底带同理；取偶数保证半分辨率下行对齐
+    const ev = x => Math.ceil(x / LR) * LR;
+    const bandsOf = i => { const t = ev(TB * RAMP[i][1]), b = ev(BB * RAMP[i][1]); return [[0, t], [H - b, b]]; };
+
+    const fn = (k, w, h, u) => {
+      if (!COL) { buildCol(); buildBg(); }
+      // 滚动按 u 线性推进；四舍五入到 1e-6 防止周期末尾的浮点误差
+      const s = ((Math.round(u / CYC * 1e6) / 1e6) % 1 + 1) % 1 * LH;
+      if (!BC) buildBlur();
+      blurFrame(s);
+      k.save();
+      k.imageSmoothingEnabled = true;
+      // 1) 清晰层（3 倍缓存直接取景）  2) 三级模糊带由轻到重叠上去，形成渐进过渡
+      k.drawImage(COL, 0, (PAD + s) * SS, W * SS, H * SS, 0, 0, W, H);
+      LY.forEach((l, i) => bandsOf(i).forEach(b => k.drawImage(l, 0, b[0] / LR, W / LR, b[1] / LR, 0, b[0], W, b[1])));
+      // 3) 静态叠加层：边缘渐隐 + 竖向明暗 + 暗角
+      k.drawImage(BG, 0, 0, W, H);
+      drawNav(k, s);
+      k.restore();
+    };
+
+    // 悬浮玻璃导航栏：底下透出的是最重一级模糊副本，再罩白雾、高光边与投影
+    const NX = 104, NY = 9, NW = 332, NH = 32;
+    // 导航栏拆成两张静态缓存：NAV_U = 投影底板，NAV_O = 玻璃罩面与文字；每帧只在中间夹一张模糊取景
+    const NP = 24;                          // 缓存四周留给投影的余量
+    let NAV_U = null, NAV_O = null;
+    function buildNav() {
+      const cw = (NW + NP * 2) * SS, ch = (NH + NP * 2) * SS;
+      NAV_U = mk(cw, ch); NAV_O = mk(cw, ch);
+      const u = NAV_U.getContext('2d'); u.scale(SS, SS); u.translate(NP - NX, NP - NY);
+      u.shadowColor = 'rgba(2,6,24,0.5)'; u.shadowBlur = 16 * SS; u.shadowOffsetY = 6 * SS;
+      rr(u, NX, NY, NW, NH, 16); u.fillStyle = 'rgba(18,29,69,0.9)'; u.fill();
+      const o = NAV_O.getContext('2d'); o.scale(SS, SS); o.translate(NP - NX, NP - NY);
+      navTop(o);
+    }
+    function drawNav(k, s) {
+      if (!NAV_U) buildNav();
+      const heavy = BC[BC.length - 1];
+      k.drawImage(NAV_U, NX - NP, NY - NP, NW + NP * 2, NH + NP * 2);
+      k.save(); rr(k, NX, NY, NW, NH, 16); k.clip();
+      // 最重一级（1/8）模糊副本按同一滚动位置取景，玻璃下的文字只剩色块
+      k.drawImage(heavy, NX, PAD + s + NY, NW, NH, NX, NY, NW, NH);
+      k.restore();
+      k.drawImage(NAV_O, NX - NP, NY - NP, NW + NP * 2, NH + NP * 2);
+    }
+    function navTop(k) {
+      k.save(); rr(k, NX, NY, NW, NH, 16); k.clip();
+      const gl = k.createLinearGradient(0, NY, 0, NY + NH);
+      gl.addColorStop(0, 'rgba(255,255,255,0.22)'); gl.addColorStop(0.5, 'rgba(160,180,255,0.1)'); gl.addColorStop(1, 'rgba(255,255,255,0.06)');
+      k.fillStyle = gl; k.fillRect(NX, NY, NW, NH);
+      const sp = k.createRadialGradient(NX + 70, NY - 4, 2, NX + 70, NY - 4, 90);   // 镜面光斑
+      sp.addColorStop(0, 'rgba(255,255,255,0.22)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+      k.fillStyle = sp; k.fillRect(NX, NY, NW, NH);
+      k.restore();
+      const ed = k.createLinearGradient(NX, NY, NX + NW * 0.4, NY + NH * 2);
+      ed.addColorStop(0, 'rgba(255,255,255,0.6)'); ed.addColorStop(0.6, 'rgba(255,255,255,0.12)'); ed.addColorStop(1, 'rgba(255,255,255,0.05)');
+      rr(k, NX + 0.5, NY + 0.5, NW - 1, NH - 1, 15.5); k.strokeStyle = ed; k.lineWidth = 1; k.stroke();
+      // 品牌点 + 刊名
+      const lg = k.createLinearGradient(NX + 10, NY + 8, NX + 26, NY + 24);
+      lg.addColorStop(0, C.coral); lg.addColorStop(1, C.yel);
+      k.beginPath(); k.arc(NX + 18, NY + 16, 7, 0, Math.PI * 2); k.fillStyle = lg; k.fill();
+      txt(k, '设计周刊', NX + 31, NY + 20.5, 12, C.white, 700);
+      // 栏目标签，当前「专栏」用胶囊高亮
+      const tabs = ['推荐', '专栏', '动效', '工具'];
+      tabs.forEach((t, i) => {
+        const tx = NX + 132 + i * 40;
+        if (i === 1) { rr(k, tx - 15, NY + 7, 30, 18, 9); k.fillStyle = 'rgba(59,123,255,0.85)'; k.fill(); }
+        txt(k, t, tx, NY + 20, 11, i === 1 ? C.white : C.body, i === 1 ? 600 : 500, 'center');
+      });
+      // 搜索图标
+      k.beginPath(); k.arc(NX + NW - 22, NY + 15, 4.6, 0, Math.PI * 2);
+      k.moveTo(NX + NW - 18.6, NY + 18.4); k.lineTo(NX + NW - 15, NY + 22);
+      k.strokeStyle = C.body; k.lineWidth = 1.5; k.lineCap = 'round'; k.stroke();
+    }
+    return fn;
+  })();
+
+  // @element 61
+  CELLS[60] = (function () {
+    // 无限螺旋：一串小画卡沿横向 3D 螺旋排列，边转边向右推进；透视投影 + 深度排序。
+    const W = 539, H = 208, CYC = 4.7;
+    // 配色取 motion2 的气质：深海军蓝底 + 蓝 / 珊瑚 / 黄 / 薄荷
+    const C = {
+      navy: '#0F1A3D', navy2: '#1B2A5E', navy3: '#2A3D80', dim: '#7F90C4',
+      blue: '#3B7BFF', coral: '#FF6B5C', yel: '#FFC83D', mint: '#2EDBA8', white: '#FFFFFF', cream: '#FFF1D6'
+    };
+    const FONT = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+    const SS = 3;                                   // 预渲染倍率（预览最高约 2×dpr）
+
+    // 螺旋几何（世界单位 ≈ 屏幕 px，在 z=0 处 1:1）
+    const PER_TURN = 7;                             // 每圈卡片数
+    const DTH = Math.PI * 2 / PER_TURN;             // 相邻卡片的角度差
+    const DX = 36;                                  // 相邻卡片沿轴向的间距
+    const R = 55;                                   // 螺旋半径
+    const TILT = 0.24;                              // 镜头略俯视的角度（弧度）
+    const CAM = 220;                                // 镜头到轴的距离 = 焦距，z=0 处缩放为 1
+    const AXIS_Y = 100;                             // 螺旋轴在画面中的高度
+    const CARD_W = 70, CARD_H = 56;                 // 卡片世界尺寸
+    const PIC_PAD = 3.2, CAP_H = 12;                // 相纸白边、底部标题栏高度
+    // 每个周期推进 ADV 个间距。卡片内容各不相同，只有推进量是「图案种数」的整数倍，
+    // u=CYC 时每个位置上的卡片才和 u=0 时同一张，循环才无缝。ADV 在 SCENES 定义后按其长度计算。
+
+    const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+    const mod = (a, n) => ((a % n) + n) % n;
+    const smooth = x => x * x * (3 - 2 * x);
+    const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+    // 圆角矩形路径（不用 roundRect，Safari 旧版不支持）
+    function rr(k, x, y, w, h, r) {
+      k.beginPath(); k.moveTo(x + r, y);
+      k.arcTo(x + w, y, x + w, y + h, r); k.arcTo(x + w, y + h, x, y + h, r);
+      k.arcTo(x, y + h, x, y, r); k.arcTo(x, y, x + w, y, r); k.closePath();
+    }
+
+    const hash = (i, s) => { const x = Math.sin(i * 12.9898 + s * 78.233) * 43758.5453; return x - Math.floor(x); };
+    const lin = (k, x0, y0, x1, y1, stops) => {
+      const gr = k.createLinearGradient(x0, y0, x1, y1);
+      stops.forEach((c, i) => gr.addColorStop(i / (stops.length - 1), c)); return gr;
+    };
+
+    // ---------- 卡片里的小图：每个函数在 (0,0)-(w,h) 的画框内作画 ----------
+    const SCENES = [
+      { title: '黄昏海湾', tag: 'IMG_0418', paint(k, w, h) {
+        k.fillStyle = lin(k, 0, 0, 0, h * 0.62, ['#FF8A6B', C.coral, C.yel]); k.fillRect(0, 0, w, h);
+        k.fillStyle = C.cream; k.beginPath(); k.arc(w * 0.62, h * 0.6, h * 0.22, 0, Math.PI * 2); k.fill();
+        k.fillStyle = lin(k, 0, h * 0.6, 0, h, [C.navy3, C.navy]); k.fillRect(0, h * 0.6, w, h * 0.4);
+        // 海面上碎开的落日倒影
+        k.fillStyle = 'rgba(255,200,61,0.75)';
+        for (let i = 0; i < 5; i++) { const ww = w * (0.22 - i * 0.035); k.fillRect(w * 0.62 - ww / 2, h * (0.66 + i * 0.065), ww, h * 0.025); }
+      } },
+      { title: '薄荷山谷', tag: 'IMG_0522', paint(k, w, h) {
+        k.fillStyle = lin(k, 0, 0, 0, h, ['#CFF7EA', '#8FE9CF']); k.fillRect(0, 0, w, h);
+        const ridge = (base, amp, seed, col) => {
+          k.fillStyle = col; k.beginPath(); k.moveTo(0, h);
+          for (let i = 0; i <= 8; i++) k.lineTo(w * i / 8, h * (base - amp * hash(i, seed)));
+          k.lineTo(w, h); k.closePath(); k.fill();
+        };
+        ridge(0.55, 0.28, 3, '#5FD9B4'); ridge(0.72, 0.22, 7, C.mint); ridge(0.9, 0.16, 11, '#159E7A');
+        k.fillStyle = C.white; k.beginPath(); k.arc(w * 0.24, h * 0.22, h * 0.09, 0, Math.PI * 2); k.fill();
+      } },
+      { title: '蓝色月夜', tag: 'IMG_0607', paint(k, w, h) {
+        k.fillStyle = lin(k, 0, 0, 0, h, [C.navy, C.navy3, C.blue]); k.fillRect(0, 0, w, h);
+        k.fillStyle = C.white;
+        for (let i = 0; i < 18; i++) { const r = 0.25 + hash(i, 5) * 0.55; k.globalAlpha = 0.4 + hash(i, 9) * 0.6; k.beginPath(); k.arc(hash(i, 1) * w, hash(i, 2) * h * 0.6, r, 0, Math.PI * 2); k.fill(); }
+        k.globalAlpha = 1;
+        // 月牙：两圆相减
+        k.fillStyle = C.cream; k.beginPath(); k.arc(w * 0.72, h * 0.3, h * 0.16, 0, Math.PI * 2); k.fill();
+        k.fillStyle = C.navy3; k.beginPath(); k.arc(w * 0.78, h * 0.26, h * 0.14, 0, Math.PI * 2); k.fill();
+        k.fillStyle = C.navy; k.beginPath(); k.moveTo(0, h);
+        k.quadraticCurveTo(w * 0.3, h * 0.62, w * 0.62, h * 0.82); k.quadraticCurveTo(w * 0.85, h * 0.7, w, h * 0.76); k.lineTo(w, h); k.fill();
+      } },
+      { title: '金色麦田', tag: 'IMG_0715', paint(k, w, h) {
+        k.fillStyle = lin(k, 0, 0, 0, h * 0.5, ['#FFE8A8', '#FFD36B']); k.fillRect(0, 0, w, h);
+        k.fillStyle = C.coral; k.beginPath(); k.arc(w * 0.3, h * 0.4, h * 0.13, 0, Math.PI * 2); k.fill();
+        // 透视田垄：从地平线一点放射出去
+        const hy = h * 0.46;
+        for (let i = 0; i < 9; i++) {
+          k.fillStyle = i % 2 ? C.yel : '#E8A41F';
+          k.beginPath(); k.moveTo(w * 0.55, hy); k.lineTo(w * (i / 9) * 2.2 - w * 0.6, h); k.lineTo(w * ((i + 1) / 9) * 2.2 - w * 0.6, h); k.closePath(); k.fill();
+        }
+        k.fillStyle = '#E8A41F'; k.fillRect(0, hy - 0.5, w, 1.4);
+      } },
+      { title: '几何 No.5', tag: 'GEO_005', paint(k, w, h) {
+        k.fillStyle = C.cream; k.fillRect(0, 0, w, h);
+        const cols = [C.blue, C.coral, C.yel, C.mint, C.navy2], n = 4, m = 3, cw = w / n, ch = h / m;
+        for (let r = 0; r < m; r++) for (let c = 0; c < n; c++) {
+          const id = r * n + c, x = c * cw, y = r * ch, col = cols[Math.floor(hash(id, 4) * 5)];
+          k.fillStyle = col; k.beginPath();
+          const t = Math.floor(hash(id, 8) * 3);   // 0 圆 1 三角 2 四分之一圆
+          if (t === 0) k.arc(x + cw / 2, y + ch / 2, Math.min(cw, ch) * 0.38, 0, Math.PI * 2);
+          else if (t === 1) { k.moveTo(x + cw * 0.15, y + ch * 0.85); k.lineTo(x + cw / 2, y + ch * 0.15); k.lineTo(x + cw * 0.85, y + ch * 0.85); }
+          else { k.moveTo(x, y + ch); k.arc(x, y + ch, Math.min(cw, ch), -Math.PI / 2, 0); }
+          k.closePath(); k.fill();
+        }
+      } },
+      { title: '城市灯火', tag: 'IMG_0903', paint(k, w, h) {
+        k.fillStyle = lin(k, 0, 0, 0, h, ['#3A2A6E', '#7A3F7E', C.coral]); k.fillRect(0, 0, w, h);
+        let x = 0, i = 0;
+        while (x < w) {
+          const bw = w * (0.08 + hash(i, 3) * 0.1), bh = h * (0.3 + hash(i, 6) * 0.5);
+          k.fillStyle = i % 2 ? C.navy : C.navy2; k.fillRect(x, h - bh, bw - 0.4, bh);
+          k.fillStyle = C.yel;
+          for (let yy = h - bh + 2; yy < h - 2; yy += 2.6) for (let xx = x + 1; xx < x + bw - 2; xx += 2.2)
+            if (hash(xx * 7 + yy, i) > 0.62) k.fillRect(xx, yy, 1, 1.2);
+          x += bw; i++;
+        }
+      } }
+    ];
+
+    // 卡片间距按图案种数推进：见 fn 内注释
+    const ADV = SCENES.length;
+    const CR = 4;                                   // 卡片圆角
+
+    // ---------- 卡片预渲染：正面（相纸 + 小图 + 标题栏）、正面的低清版（远处朦胧用）、背面 ----------
+    function paintFront(k, sc, idx) {
+      const w = CARD_W, h = CARD_H;
+      // 相纸：竖向渐变 + 左上亮边 + 右下厚度暗边
+      rr(k, 0, 0, w, h, CR); k.fillStyle = lin(k, 0, 0, 0, h, ['#FFFFFF', '#F3EEE4']); k.fill();
+      const pw = w - PIC_PAD * 2, ph = h - PIC_PAD - CAP_H;
+      k.save(); rr(k, PIC_PAD, PIC_PAD, pw, ph, 2); k.clip();
+      k.translate(PIC_PAD, PIC_PAD); sc.paint(k, pw, ph);
+      // 画面内一层顶部微光，让小图像印在光面相纸上
+      k.fillStyle = lin(k, 0, 0, 0, ph, ['rgba(255,255,255,0.18)', 'rgba(255,255,255,0)', 'rgba(0,0,0,0.12)']);
+      k.fillRect(0, 0, pw, ph); k.restore();
+      // 标题栏：中文标题 + 文件编号 + 张数
+      const cy = h - CAP_H / 2 - 0.6;
+      k.textBaseline = 'middle'; k.textAlign = 'left';
+      k.fillStyle = C.navy; k.font = '600 6.4px ' + FONT; k.fillText(sc.title, PIC_PAD + 0.6, cy);
+      k.textAlign = 'right'; k.fillStyle = C.dim; k.font = '500 4.6px ' + FONT;
+      k.fillText(sc.tag + ' · ' + String(idx + 1).padStart(2, '0') + '/' + String(SCENES.length).padStart(2, '0'), w - PIC_PAD - 0.4, cy + 0.3);
+      // 亮边 / 暗边
+      k.lineWidth = 0.7;
+      k.strokeStyle = 'rgba(255,255,255,0.95)'; k.beginPath(); k.moveTo(CR, 0.4); k.lineTo(w - CR, 0.4); k.moveTo(0.4, CR); k.lineTo(0.4, h - CR); k.stroke();
+      k.strokeStyle = 'rgba(15,26,61,0.22)'; k.beginPath(); k.moveTo(CR, h - 0.4); k.lineTo(w - CR, h - 0.4); k.moveTo(w - 0.4, CR); k.lineTo(w - 0.4, h - CR); k.stroke();
+    }
+    function paintBack(k) {
+      const w = CARD_W, h = CARD_H;
+      rr(k, 0, 0, w, h, CR); k.fillStyle = lin(k, 0, 0, w, h, [C.navy3, C.navy2, C.navy]); k.fill();
+      k.save(); rr(k, 0, 0, w, h, CR); k.clip();
+      // 斜纹底纹
+      k.strokeStyle = 'rgba(127,144,196,0.16)'; k.lineWidth = 0.8;
+      for (let x = -h; x < w; x += 4.5) { k.beginPath(); k.moveTo(x, h); k.lineTo(x + h, 0); k.stroke(); }
+      k.restore();
+      rr(k, 3, 3, w - 6, h - 6, 2.5); k.strokeStyle = 'rgba(255,241,214,0.35)'; k.lineWidth = 0.6; k.stroke();
+      // 四色小螺旋徽记
+      const pal = [C.blue, C.coral, C.yel, C.mint];
+      for (let i = 0; i < 4; i++) { k.fillStyle = pal[i]; k.beginPath(); k.arc(w / 2 - 7.5 + i * 5, h / 2 - 3 + Math.sin(i * 1.6) * 2.2, 1.7, 0, Math.PI * 2); k.fill(); }
+      k.fillStyle = 'rgba(255,241,214,0.7)'; k.font = '600 4.6px ' + FONT; k.textAlign = 'center'; k.textBaseline = 'middle';
+      k.fillText('螺旋相册 · 2026', w / 2, h / 2 + 6);
+    }
+    let CARDS = null;
+    function buildCards() {
+      const mkScaled = (sc, paint) => { const c = mk(Math.ceil(CARD_W * sc), Math.ceil(CARD_H * sc)), k = c.getContext('2d'); k.scale(sc, sc); paint(k); return c; };
+      const fronts = SCENES.map((s, i) => mkScaled(SS, k => paintFront(k, s, i)));
+      // 低清版：把高清图缩到 0.22 倍，放大绘制时自然发糊（代替 ctx.filter）
+      const blurs = fronts.map(f => { const c = mk(Math.ceil(CARD_W * 0.22), Math.ceil(CARD_H * 0.22)), k = c.getContext('2d'); k.drawImage(f, 0, 0, c.width, c.height); return c; });
+      const back = mkScaled(SS, paintBack);
+      const backBlur = mk(Math.ceil(CARD_W * 0.22), Math.ceil(CARD_H * 0.22)); backBlur.getContext('2d').drawImage(back, 0, 0, backBlur.width, backBlur.height);
+      // 投影贴图：卡片形状的柔和暗块（shadowBlur 只在预渲染时用一次，帧内只 drawImage）
+      // 投影本身是糊的，用 1 倍分辨率即可，放大绘制不掉质感，像素少一个数量级
+      const SP = 10, shadow = mk(CARD_W + SP * 2, CARD_H + SP * 2), sk = shadow.getContext('2d');
+      sk.shadowColor = 'rgba(3,6,20,0.85)'; sk.shadowBlur = 7; sk.shadowOffsetX = 2000;
+      rr(sk, SP - 2000, SP, CARD_W, CARD_H, CR); sk.fillStyle = '#000'; sk.fill();
+      // 地面接触影：一团横向压扁的径向暗斑
+      const blob = mk(64 * SS, 16 * SS), bk = blob.getContext('2d');
+      bk.scale(SS * 4, SS); const bg = bk.createRadialGradient(8, 8, 0, 8, 8, 8);
+      bg.addColorStop(0, 'rgba(3,6,20,0.55)'); bg.addColorStop(1, 'rgba(3,6,20,0)'); bk.fillStyle = bg; bk.fillRect(0, 0, 16, 16);
+      return { fronts, blurs, back, backBlur, shadow, SP, blob };
+    }
+
+    // ---------- 螺旋上一点的 3D 位置与投影 ----------
+    // s 为连续卡位（整数处是一张卡）；返回屏幕坐标、缩放、深度 0(远)~1(近)
+    const CT = Math.cos(TILT), ST = Math.sin(TILT);
+    function project(s) {
+      const th = s * DTH, x = s * DX;
+      const y0 = -R * Math.cos(th), z0 = R * Math.sin(th);   // y 朝下，z 朝向镜头
+      const y = y0 * CT + z0 * ST, z = z0 * CT - y0 * ST;     // 镜头略俯视：近处的点落得更低
+      const sc = CAM / (CAM - z);
+      return { th, x: W / 2 + x * sc, y: AXIS_Y + y * sc, sc, d: clamp((z / R + 1) / 2, 0, 1) };
+    }
+
+    // ---------- 背景：竖向渐变 + 中央柔光 + 暗角，首帧预渲染 ----------
+    let BG = null;
+    function buildBg() {
+      const c = mk(W * SS, H * SS), k = c.getContext('2d');
+      k.scale(SS, SS);
+      const lg = k.createLinearGradient(0, 0, 0, H);
+      lg.addColorStop(0, '#1E2F66'); lg.addColorStop(0.55, C.navy2); lg.addColorStop(1, '#0B1430');
+      k.fillStyle = lg; k.fillRect(0, 0, W, H);
+      // 螺旋背后的一团冷光，让卡片从暗处浮出来
+      k.save(); k.translate(W / 2, AXIS_Y); k.scale(1.9, 1);
+      const glow = k.createRadialGradient(0, 0, 0, 0, 0, 120);
+      glow.addColorStop(0, 'rgba(59,123,255,0.30)'); glow.addColorStop(0.6, 'rgba(59,123,255,0.08)'); glow.addColorStop(1, 'rgba(59,123,255,0)');
+      k.fillStyle = glow; k.fillRect(-140, -130, 280, 260); k.restore();
+      // 底部一抹暖色地光（接卡片投影）
+      k.save(); k.translate(W / 2, H - 14); k.scale(3.2, 1);
+      const fl = k.createRadialGradient(0, 0, 0, 0, 0, 60);
+      fl.addColorStop(0, 'rgba(255,107,92,0.14)'); fl.addColorStop(1, 'rgba(255,107,92,0)');
+      k.fillStyle = fl; k.fillRect(-60, -60, 120, 120); k.restore();
+      // 螺旋轨迹细线：远处淡、近处亮，铺在所有卡片下面
+      k.lineWidth = 0.8; k.lineCap = 'round';
+      let prev = project(S_MIN);
+      for (let s = S_MIN + 0.08; s <= S_MAX; s += 0.08) {
+        const q = project(s), a = edgeFade(q.x) * (0.06 + 0.28 * q.d);
+        k.strokeStyle = 'rgba(160,190,255,' + a.toFixed(3) + ')';
+        k.beginPath(); k.moveTo(prev.x, prev.y); k.lineTo(q.x, q.y); k.stroke(); prev = q;
+      }
+      // 径向暗角
+      k.save(); k.translate(W / 2, H / 2); k.scale(W / H, 1);
+      const vg = k.createRadialGradient(0, 0, H * 0.25, 0, 0, H * 0.78);
+      vg.addColorStop(0, 'rgba(5,9,26,0)'); vg.addColorStop(1, 'rgba(5,9,26,0.72)');
+      k.fillStyle = vg; k.fillRect(-W, -H, W * 2, H * 2); k.restore();
+      return c;
+    }
+
+    // ---------- 单张卡片：投影 → 本体（正/背面）→ 朦胧 → 压暗 → 镜面光斑 ----------
+    function drawCard(k, c) {
+      const P = c.P, d = P.d, sc = P.sc;
+      const sx = 0.22 + 0.78 * Math.abs(c.f);       // 横向缩放模拟侧转，最窄时留一点厚度
+      const back = c.f < 0;
+      const cw = CARD_W, ch = CARD_H;
+      k.save();
+      k.translate(P.x, P.y); k.rotate(c.rot); k.scale(sc * sx, sc);
+      k.globalAlpha = c.fade;
+      // 投影：只给前半圈的卡，越近越深、偏移越大
+      if (d > 0.45) {
+        const sa = smooth((d - 0.45) / 0.55);
+        k.globalAlpha = c.fade * sa * 0.75;
+        const SP = CARDS.SP, off = 3 + 5 * sa;
+        k.drawImage(CARDS.shadow, -cw / 2 - SP + off * 0.4, -ch / 2 - SP + off, cw + SP * 2, ch + SP * 2);
+        k.globalAlpha = c.fade;
+      }
+      // 右侧厚度层：转向越侧，露出越多纸边
+      const edge = (1 - Math.abs(c.f)) * 2.4 + 0.8;
+      rr(k, -cw / 2 + edge * 0.6, -ch / 2 + 0.9, cw, ch, CR); k.fillStyle = back ? '#0A1230' : '#B9B2A4'; k.fill();
+      const img = back ? CARDS.back : CARDS.fronts[c.scene];
+      const blr = back ? CARDS.backBlur : CARDS.blurs[c.scene];
+      k.drawImage(img, -cw / 2, -ch / 2, cw, ch);
+      // 远处朦胧：叠一层低清版
+      const haze = clamp(1 - d * 1.6, 0, 1);
+      if (haze > 0.01) { k.globalAlpha = c.fade * haze * 0.9; k.drawImage(blr, -cw / 2, -ch / 2, cw, ch); }
+      // 远处压暗 + 蒙一层大气蓝；背面时额外更暗
+      rr(k, -cw / 2, -ch / 2, cw, ch, CR);
+      const dark = clamp((1 - d) * 0.62 + (back ? 0.18 : 0) + (1 - Math.abs(c.f)) * 0.12, 0, 0.82);
+      k.globalAlpha = c.fade * dark; k.fillStyle = '#0B1536'; k.fill();
+      // 正对镜头时扫过的一道斜向高光
+      if (!back && d > 0.6) {
+        const sp = smooth((d - 0.6) / 0.4);
+        const hx = (1 - c.f) * cw * 1.6 - cw * 0.4;   // 随朝向从左扫到右
+        const gl = k.createLinearGradient(hx - 22, -ch / 2, hx + 10, ch / 2);
+        gl.addColorStop(0, 'rgba(255,255,255,0)'); gl.addColorStop(0.5, 'rgba(255,255,255,0.32)'); gl.addColorStop(1, 'rgba(255,255,255,0)');
+        // 复用上面压暗时建好的圆角路径直接填充，省掉 clip
+        k.globalAlpha = c.fade * sp; k.fillStyle = gl; k.fill();
+      }
+      k.restore();
+    }
+
+    const S_MIN = -12, S_MAX = 12;                  // 计算的卡位范围，两端都在画外
+    const FLOOR_Y = H - 16;                         // 接触影所在的「地面」高度
+    // 左右两端淡出，让无限长的螺旋融进暗角
+    const edgeFade = px => smooth(clamp((W / 2 + 30 - Math.abs(px - W / 2)) / 110, 0, 1));
+
+    const fn = (k, w, h, u) => {
+      if (!BG) BG = buildBg();
+      if (!CARDS) CARDS = buildCards();
+      k.drawImage(BG, 0, 0, W, H);
+      // 防止浮点误差让 u≈CYC 与 u=0 落到不同的取整分支
+      const t = mod(Math.round(u * 1e6) / 1e6, CYC) / CYC;
+      // 本周期已推进的卡位数。速度 = ADV·(1 − PULSE·cos2πt)：周期接缝处放慢到 20%、中段加速，
+      // 形成「一推一滑」的呼吸节奏，且接缝两侧画面几乎静止，循环更稳。
+      const PULSE = 0.8;
+      const p = ADV * (t - PULSE * Math.sin(t * Math.PI * 2) / (Math.PI * 2));
+
+      // 1) 螺旋轨迹线已画进背景：它的形状不随时间变，卡片只是沿它滑动
+      // 2) 收集可见卡片：卡 j 的卡位 s = j + p，内容固定为 j 对图案数取模
+      const list = [];
+      for (let j = Math.ceil(S_MIN - p); j <= Math.floor(S_MAX - p); j++) {
+        const s = j + p, P = project(s), Q = project(s + 0.02);
+        const fade = edgeFade(P.x);
+        if (fade <= 0.001) continue;
+        const f = P.d * 2 - 1;                      // 朝向：+1 正对镜头，-1 背对
+        // 卡片沿屏幕上的螺旋切线略微倾斜（取一半角度，避免过度歪斜）
+        const rot = Math.atan2(Q.y - P.y, Q.x - P.x) * 0.45;
+        list.push({ P, f, rot, fade, scene: mod(j, SCENES.length) });
+      }
+      list.sort((a, b) => a.P.d - b.P.d);           // 远的先画
+
+      // 3) 地面接触影（全部先铺，避免盖住卡片）
+      list.forEach(c => {
+        const a = c.fade * (0.15 + 0.85 * c.P.d) * (0.35 + 0.65 * Math.abs(c.f));
+        k.globalAlpha = a; const bw = CARD_W * c.P.sc * 1.1, bh = 9 * c.P.sc;
+        k.drawImage(CARDS.blob, c.P.x - bw / 2, FLOOR_Y - bh / 2 + (c.P.d - 0.5) * 8, bw, bh);
+      });
+      k.globalAlpha = 1;
+
+      // 4) 卡片本体
+      list.forEach(c => drawCard(k, c));
+    };
+    return fn;
+  })();
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });
