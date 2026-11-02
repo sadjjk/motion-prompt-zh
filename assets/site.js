@@ -42,7 +42,7 @@
       dAsk: '向 AI 提需求的示例',
       dSpec: '运动规格', dUse: '适用场景', tagsLabel: '英文标签', promptLabel: '将被复制的完整 Prompt',
       copyPrompt: '复制 Prompt', copyCode: '复制代码', showCode: '查看代码', prev: '上一个效果', next: '下一个效果', close: '关闭',
-      kitLink: '依赖的公共代码', txtLink: '本效果代码（含规格）', codeLoading: '正在加载…', codeFailed: '代码加载失败。',
+      kitLink: '依赖的公共代码', txtLink: '本效果代码（含规格）', codeLoading: '正在加载…', codeFailed: '代码加载失败。', detailFailed: '详情加载失败，请刷新重试。',
       size: '{w}×{h} px · 周期 {c} 秒',
       pick: '选择', picked: '已选', pickLabel: '选择 #{id} {name}', unpickLabel: '移除 #{id} {name}',
       trayCount: '已选 {n} 项', trayWait: 'AI 正在等待，选好后点击“发送给 AI”。', trayEmpty: '点击效果上的“选择”，即可加入此处。',
@@ -99,7 +99,7 @@
       copyPrompt: 'プロンプトをコピー', copyCode: 'コードをコピー', showCode: 'コードを見る',
       prev: '前の名前', next: '次の名前', close: '閉じる',
       kitLink: '依存する共通コード', txtLink: 'この効果のコード（仕様つき）',
-      codeLoading: '読み込み中です…', codeFailed: 'コードを読み込めませんでした。',
+      codeLoading: '読み込み中です…', codeFailed: 'コードを読み込めませんでした。', detailFailed: '詳細を読み込めませんでした。再読み込みしてください。',
       size: '{w}×{h}px・1周{c}秒',
       pick: '選ぶ', picked: '選択中', pickLabel: '#{id} {name}を選ぶ', unpickLabel: '#{id} {name}を外す',
       trayCount: '選んだ物 {n}個', trayWait: 'AIが待っています。選んだら「AIに渡す」を押してください。',
@@ -159,7 +159,7 @@
       copyPrompt: 'Copy prompt', copyCode: 'Copy code', showCode: 'View code',
       prev: 'Previous name', next: 'Next name', close: 'Close',
       kitLink: 'Shared code it depends on', txtLink: "This effect's code (with spec)",
-      codeLoading: 'Loading…', codeFailed: 'Could not load the code.',
+      codeLoading: 'Loading…', codeFailed: 'Could not load the code.', detailFailed: 'Could not load the details. Please reload.',
       size: '{w}×{h} px, {c} s loop',
       pick: 'Pick', picked: 'Picked', pickLabel: 'Pick #{id} {name}', unpickLabel: 'Remove #{id} {name}',
       trayCount: '{n} picked', trayWait: 'Your AI is waiting. When you are done, press "Send to AI".',
@@ -598,6 +598,20 @@
     }
     return codeCache[key];
   }
+  // 详情长文案（怎么问 / 规格 / 适用场景）不在首页 catalog.js（tools/build.mjs DETAIL_FIELDS），
+  // 打开详情时按款读取 api/v1/d/<id>.json 并缓存；旧版 catalog.js 仍带这些字段时直接用（线上缓存新旧混用也能显示）
+  var detailCache = {};
+  function fetchDetail(el) {
+    if (el.spec) return Promise.resolve(el);
+    if (!detailCache[el.id]) {
+      detailCache[el.id] = fetch('api/v1/d/' + el.id + '.json').then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      }).then(function (d) { return Object.assign({}, el, d); });
+      detailCache[el.id].catch(function () { delete detailCache[el.id]; });
+    }
+    return detailCache[el.id];
+  }
   function sizeDetailCanvas() {
     var el = detail.el;
     if (!el) return;
@@ -624,16 +638,22 @@
     $('#d-sub').textContent = nm.sub + ' · ' + t('size', { w: el.width, h: el.height, c: el.cycle });
     var mean = $('#d-meaning'), ask = $('#d-ask'), askH = $('#d-ask-h');
     mean.textContent = el.meaning ? el.meaning[lang] || el.meaning.en || '' : ''; mean.hidden = !mean.textContent;
-    ask.textContent = el.ask ? el.ask[lang] || el.ask.en || '' : ''; ask.hidden = askH.hidden = !ask.textContent;
     $('#d-summary').textContent = el.summary[lang];
-    var spec = $('#d-spec'); spec.textContent = '';
-    el.spec[lang].forEach(function (s) { spec.appendChild(h('li', { text: s })); });
-    $('#d-use').textContent = el.use[lang];
+    // 长文案与提示词等详情文件到了再填；先清掉上一款的内容
+    ask.textContent = ''; ask.hidden = askH.hidden = true;
+    $('#d-spec').textContent = '';
+    $('#d-use').textContent = $('#d-prompt').textContent = t('codeLoading');
+    $('#d-copy-prompt').disabled = true;
     var tags = $('#d-tags'); tags.textContent = '';
     el.tags.forEach(function (s) { tags.appendChild(h('li', { text: s })); });
-    // 提示词第一句写「分类 / 小类」（与 build 生成的 p/<id>.txt 一致）；效果级版权优先
-    var where = x ? x.s.title[lang] + ' / ' + x.c[lang] : el.category;
-    $('#d-prompt').textContent = PROMPT(el, where, lang, undefined, undefined, el.author || p.author);
+    fetchDetail(el).then(function (full) {
+      if (detail.el !== el || state.lang !== lang) return; // 已切到别的款或语言：丢弃迟到的结果
+      fillLong(full, lang, x, p);
+      $('#d-copy-prompt').disabled = false;
+    }, function () {
+      if (detail.el !== el) return;
+      $('#d-use').textContent = $('#d-prompt').textContent = t('detailFailed');
+    });
     var kit = $('#d-kit'), txt = $('#d-txt');
     // 本效果代码（含规格）+ 它依赖的公共代码（kit 文件名只在网址里）
     txt.href = 'api/v1/' + lang + '/e/' + el.id + '.txt'; txt.textContent = t('txtLink');
@@ -651,6 +671,16 @@
     resetFlash($('#d-copy-prompt')); resetFlash($('#d-copy-code'));
     $('#d-copy-prompt').textContent = t('copyPrompt'); $('#d-copy-code').textContent = t('copyCode');
     document.title = '#' + el.id + ' ' + nm.main + ' | Motion Prompt';
+  }
+  function fillLong(full, lang, x, p) {
+    var ask = $('#d-ask'), askH = $('#d-ask-h');
+    ask.textContent = full.ask ? full.ask[lang] || full.ask.en || '' : ''; ask.hidden = askH.hidden = !ask.textContent;
+    var spec = $('#d-spec'); spec.textContent = '';
+    full.spec[lang].forEach(function (s) { spec.appendChild(h('li', { text: s })); });
+    $('#d-use').textContent = full.use[lang];
+    // 提示词第一句写「分类 / 小类」（与 build 生成的 p/<id>.txt 一致）；效果级版权优先
+    var where = x ? x.s.title[lang] + ' / ' + x.c[lang] : full.category;
+    $('#d-prompt').textContent = PROMPT(full, where, lang, undefined, undefined, full.author || p.author);
   }
   var lastFocus = null;
   function openDetail(id) {
