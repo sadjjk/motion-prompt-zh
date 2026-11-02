@@ -1,26 +1,41 @@
-// Motion Prompt #3-064 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/establishing-shot
+// Motion Prompt #3-064 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/color-temperature
 //
-// Establishing shot / エスタブリッシングショット
-// Pack: camera (Camera moves & transitions) · element 33 · Category: Transitions
-// What happens: A high wide shot first shows two people standing left and right in the space; at 2.4 s it cuts straight to a close shot of the one on the left, who starts speaking. The audience already knows the other person is to his right.
+// Color temperature / 色温度
+// Category: Editing & photography / Light & color / Light sources & color
+// What happens: A kelvin scale sits at the lower right; its pointer moves 5500 K → 2000 K → 10000 K → 5500 K, and the picture turns orange at low values and blue at high ones.
 // Motion spec:
-//   - Shot 1: camera 4.5 m high, 20 m from the pair, tilted slightly down; A (blue) on the left and B (ink) on the right, 2.4 m apart.
-//   - Cut: straight cut at 2.4 s; the camera does not travel between the two positions.
-//   - Shot 2: close shot of A from a camera 1.45 m high and 3.2 m away, background softly blurred; A speaks from 2.8 s to 4.1 s.
-//   - Top right reads "建立 WIDE" and then "近景 A" after the cut.
-//   - Return: cross-fade back to the first shot over the last 0.5 s (one pass = 4.7 s).
-// When to use it: At the start of a new scene, so the audience knows where we are and who is there before the details.
-// Tags: establishing shot, master shot, wide shot, scene setting, cut, editing, continuity
-// Size: 539x208 px · Cycle: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+//   - Scene: a landscape with the sun at (432, 54) and a head-and-shoulders figure (head centre x 140, y 82, radius 28 px).
+//   - Kelvin path: 5500 → 2000 K over 0.4–1.4 s, → 10000 K over 2.0–3.0 s, → 5500 K over 3.6–4.6 s (each ease-in-out).
+//   - Colour: 2000 K #FF8A2A, 2700 K #FFA552, 3500 K #FFC489, 5500 K neutral, 7500 K #A9C8FF, 10000 K #7FA8FF, interpolated between and multiplied over the picture (strength up to 0.67).
+//   - Scale: a 150×34 px white tag at the lower right with a 2000–10000 K colour strip and a triangular pointer; top right shows the value rounded to 100 K.
+// When to use it: To explain white balance and colour casts, or to show time of day and mood through colour.
+// Tags: color temperature, kelvin, white balance, warm, cool, light
+// Size: 539x208 px · Cycle: 5 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-064
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 33
-// 33 建立镜头：先用远景交代两人和场地的位置，再切到 A 的近景（观众已经知道 B 在 A 右边）
-CELLS[32] = shot(cutCell([
-  [0, (k, w, h) => world(k, w, h, cam({ y: 4.5, z: -12, pitch: -0.12 }), two()), '建立 WIDE'],
-  [2.4, (k, w, h, u) => world(k, w, h, cam({ x: -0.6, y: 1.45, z: 4.8 }), two({ talkA: mouth(u, 2.8, 4.1), blurBg: 1.2 })), '近景 A']
-]));
+// @element 47
+// 色温（色温度）: 右下に K の目盛り。針が 5500K → 2000K（画面が橙）→ 10000K（画面が青）→ 5500K と動き、
+// 画面の冷暖が数値に合わせて変わる。数値が低いほど暖かい
+CELLS[46] = cell((k, u) => {
+  // K の動き: 0.4〜1.4 で 2000K へ、2.0〜3.0 で 10000K へ、3.6〜4.6 で 5500K へ戻る
+  const K = 5500 + (2000 - 5500) * eIO(P(u, 0.4, 1.4)) + (10000 - 2000) * eIO(P(u, 2.0, 3.0)) + (5500 - 10000) * eIO(P(u, 3.6, 4.6));
+  stageLand(k, BASE);
+  const [col, al] = kelvin(K);
+  if (al > 0.001) { k.save(); k.globalCompositeOperation = 'multiply'; k.globalAlpha = al * 1.6; k.fillStyle = col; k.fillRect(0, 0, CW, CH); k.restore(); }
+  // 目盛り: 2000〜10000K のグラデーション帯と針
+  const x = CW - 13 - 150, y = CH - 13 - 34, w = 150, D = pen(k);
+  k.save();
+  k.fillStyle = 'rgba(255,255,255,.9)'; k.beginPath(); k.roundRect(x, y, w, 34, 8); k.fill();
+  const g = k.createLinearGradient(x + 10, 0, x + w - 10, 0);
+  for (const [kv, c] of KELVIN) g.addColorStop((kv - 2000) / 8000, kv === 5500 ? '#FFFFFF' : c);
+  k.fillStyle = g; k.beginPath(); k.roundRect(x + 10, y + 8, w - 20, 8, 4); k.fill();
+  k.strokeStyle = '#CFCECB'; k.lineWidth = 1; k.stroke();
+  const px = x + 10 + (w - 20) * (K - 2000) / 8000;
+  D.poly([[px, y + 18], [px - 4, y + 25], [px + 4, y + 25]], '#6E6E73');
+  k.restore();
+  hud(k, `${Math.round(K / 100) * 100}K`);
+});

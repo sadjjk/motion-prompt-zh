@@ -1,7 +1,7 @@
 // Motion Prompt #1-003 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#051
 //
 // Bottom sheet / ボトムシート
-// Pack: ui (UI component names) · element 03 · Category: Opening & overlays
+// Category: UI & Web / Components / Opening & overlays
 // What happens: A finger taps "View details" and a panel rises from the bottom; dragging its handle down closes it.
 // Motion spec:
 //   - 4.5 s cycle on a 542×191 card. A finger (semi-transparent circle, radius 17, white rim) taps the "View details" pill (170×36, bottom centre) at 1.0 s.
@@ -12,11 +12,11 @@
 // When to use it: Use it on mobile to show details or choices while keeping the current screen in view.
 // Tags: bottom-sheet, sheet, modal-sheet, mobile, slide-up, drag-to-dismiss, panel
 // Size: 542x191 px · Cycle: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-003
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
 // @element 03
 // 03 ボトムシート（Bottom sheet）

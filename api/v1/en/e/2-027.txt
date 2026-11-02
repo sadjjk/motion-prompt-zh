@@ -1,47 +1,48 @@
-// Motion Prompt #2-027 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#123
+// Motion Prompt #2-027 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// Bounce / バウンス
-// Pack: motion2 (Motion graphics moves, part 2) · element 03 · Category: Motion techniques
-// What happens: A ball drops and bounces lower each time until it comes to rest.
+// Strike and rewrite / 取り消して書き直し
+// Category: Motion graphics / Text animation / Letter by letter & layout
+// What happens: A slanted coral bar strikes through the white word 便宜 from the left and it dims; a curved arrow points down and a yellow brush-style 实惠 is written out character by character behind a pen dot.
 // Motion spec:
-//   - One drop per 2.35 s (twice per 4.7 s: yellow first, then coral). The ball has radius 26.
-//   - From 0.1 s it falls from 190 px above the floor. Gravity 1900 px/s²; each bounce keeps 56% of the speed (restitution 0.56); it stops when the rebound speed is below 35 px/s.
-//   - Sideways it moves x = 150→390 over 0.1–1.8 s with cubic ease-out.
-//   - Squash for 0.045 s either side of each impact: width 1 + sq, height 1 − sq, with sq up to 0.4 × min(1, impact speed ÷ 850). Impacts faster than 200 px/s flick short white lines left and right for 0.3 s.
-//   - The shadow gets smaller with height. Exit: 1.95–2.25 s, scale multiplied by (1 − backIn, s = 2).
-// When to use it: Use it whenever something drops and lands: an icon, a word or a product that should feel heavy and springy.
-// Tags: bounce, drop, gravity, ball, physics, landing, easing
+//   - Over 0–0.3 s the old word fades in; over 0.4–0.85 s a 7 px bar at −4° draws through it from left to right.
+//   - Over 0.85–1.1 s the old word dims to 0.4; over 0.9–1.15 s a curved arrow draws.
+//   - The new word, in yellow brush script, writes out left to right from 1.15 s, 0.45 s apart and 0.4 s per character, with a pen dot.
+//   - Over 4.0–4.5 s everything fades out.
+// When to use it: Use it to stress a better wording in copy, for before/after messages or corrections.
+// Tags: strikethrough, rewrite, correction, handwriting, copywriting, emphasis
 // Size: 539x208 px · Cycle: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-027
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 03
-// 03 バウンス（ボールが落ちて、だんだん低く弾みながら止まる）
-const BNC = (() => { const g = 1900, e = 0.56, d = 190, t0 = Math.sqrt(2 * d / g), v0 = g * t0; const segs = []; let t = t0, v = v0 * e; while (v > 35) { segs.push({ t, v }); t += 2 * v / g; v *= e; } const imp = [{ t: t0, v: v0 }]; segs.forEach((s, i) => { if (i) imp.push({ t: s.t, v: segs[i - 1].v }); }); return { g, d, t0, segs, imp, end: t }; })();
-function bounceH(t) { const B = BNC; if (t < B.t0) return B.d - 0.5 * B.g * Math.max(0, t) * Math.max(0, t) * (t < 0 ? 0 : 1); for (const s of B.segs) { const tau = t - s.t; if (tau >= 0 && tau < 2 * s.v / B.g) return s.v * tau - 0.5 * B.g * tau * tau; } return 0; }
-CELLS[2] = (k, w, h, u) => {
+// @element 54
+// 改写自 KittenJam Motion Library #297（Hannah）· 划掉改写：旧词「便宜」0.4–0.85 秒被一道 −4° 的 7px 珊瑚色粗线从左到右划掉并变淡到 0.4，0.9–1.15 秒弯箭头指向下方，新词「实惠」以楷体黄色逐字（间隔 0.45 秒、各 0.4 秒）由左往右写出，笔尖圆点跟随；4.0–4.5 秒淡出，0–0.3 秒旧词淡入。
+CELLS[53] = (k, w, h, u) => {
   u = snapU(u);
   stage(k);
-  const T = CYC / 2, n = Math.floor(u / T), lu = u - n * T, t = lu - 0.1;
-  const floor = h - 26, R = 26, rest = floor - R, x = lerp(150, 390, eOut(P(lu, 0.1, 1.8)));
-  const hg = t < 0 ? BNC.d : bounceH(t), out = 1 - backIn(P(lu, 1.95, 2.25), 2);
-  k.fillStyle = C.navy3; rr(k, 26, floor, w - 52, 5, 2.5); k.fill();
-  // 着地の印
-  let sq = 0;
-  for (const im of BNC.imp) {
-    const dtI = t - im.t;
-    if (Math.abs(dtI) < 0.045) sq = Math.max(sq, clamp(im.v / 850) * 0.4 * (1 - Math.abs(dtI) / 0.045));
-    if (dtI > 0 && dtI < 0.3 && im.v > 200) { const q = dtI / 0.3, ix = lerp(150, 390, eOut(P(im.t + 0.1, 0.1, 1.8))); k.strokeStyle = '#fff'; k.globalAlpha = 1 - q; k.lineWidth = 5; k.lineCap = 'round';[-1, 1].forEach(s => { k.beginPath(); k.moveTo(ix + s * (34 + 14 * q), floor - 6 - 8 * q); k.lineTo(ix + s * (48 + 22 * q), floor - 16 - 14 * q); k.stroke(); }); k.globalAlpha = 1; }
+  const OLD = '便宜', NEW = '实惠', FO = `800 60px ${JP}`, FN = `700 62px "Kaiti SC", "STKaiti", KaiTi, ${JP}`, OX = w / 2, OY = 66, NY = 152;
+  const fade = Math.min(P(u, 0, 0.3), 1 - P(u, 4.0, 4.5)); if (fade <= 0) return;   // 开头 0.3 秒淡入旧词，与周期末的空白衔接
+  k.save();
+  k.globalAlpha = fade * (1 - 0.6 * P(u, 0.85, 1.1)); txt(k, OLD, OX, OY, FO, '#fff', 'center', 'middle');
+  const sw = tw(k, OLD, FO) + 28, st = eIOs(P(u, 0.4, 0.85));
+  k.globalAlpha = fade; k.lineCap = 'round'; k.lineJoin = 'round';
+  if (st > 0) { k.save(); k.translate(OX - sw / 2, OY + 6); k.rotate(-4 * Math.PI / 180); k.strokeStyle = C.coral; k.lineWidth = 7; k.beginPath(); k.moveTo(0, 0); k.lineTo(sw * st, 0); k.stroke(); k.restore(); }
+  const ar = eOut(P(u, 0.9, 1.15));
+  if (ar > 0) {
+    k.strokeStyle = C.dim; k.lineWidth = 2.5; k.setLineDash([140 * ar, 400]);
+    k.beginPath(); k.moveTo(OX - 86, OY + 8); k.bezierCurveTo(OX - 124, OY + 40, OX - 120, NY - 10, OX - 92, NY - 4); k.stroke(); k.setLineDash([]);
+    if (ar >= 1) { k.beginPath(); k.moveTo(OX - 102, NY - 14); k.lineTo(OX - 92, NY - 4); k.lineTo(OX - 105, NY + 1); k.stroke(); }
   }
-  const sh = clamp(1 - hg / BNC.d);
-  k.fillStyle = 'rgba(0,0,0,.32)'; k.beginPath(); k.ellipse(x, floor + 7, R * (0.4 + 0.8 * sh) * out, 5 * (0.4 + 0.6 * sh) * out, 0, 0, 7); k.fill();
-  if (out > 0.01) {
-    k.save(); k.translate(x, rest - hg + R); k.scale((1 + sq) * out, (1 - sq) * out);
-    k.fillStyle = n ? C.coral : C.yel; k.beginPath(); k.arc(0, -R, R, 0, 7); k.fill();
-    k.fillStyle = 'rgba(255,255,255,.7)'; k.beginPath(); k.ellipse(-9, -R - 9, 8, 5, -0.6, 0, 7); k.fill();
+  chars(k, NEW, FN, 12).forEach((c, i) => {
+    const s0 = 1.15 + i * 0.45, q = P(u, s0, s0 + 0.4); if (q <= 0) return;
+    const e = eIOs(q);
+    k.save(); k.translate(OX + c.x, NY); k.rotate(-3 * Math.PI / 180);
+    k.beginPath(); k.rect(-c.w / 2 - 4, -50, (c.w + 8) * e, 100); k.clip();
+    txt(k, c.ch, 0, 0, FN, C.yel, 'center', 'middle');
     k.restore();
-  }
+    if (q < 1) { k.fillStyle = '#fff'; k.beginPath(); k.arc(OX + c.x - c.w / 2 + c.w * e, NY + 14 * Math.sin(q * Math.PI * 5), 3.5, 0, 7); k.fill(); }
+  });
+  k.restore();
 };

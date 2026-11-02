@@ -1,7 +1,7 @@
 // Motion Prompt #3-021 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#045
 //
 // ワイプ / Wipe
-// パック: camera (カメラワークと切り替え) · element 21 · カテゴリ: 切り替え（トランジション）
+// 分類: 編集・撮影 / カメラ・編集 / 編集・切り替え
 // 何が起きるか: 縦の境界線が左から右へ動き、通過した側から次の絵に置き換わる。
 // 動きの仕様:
 //   - つなぎ方: 1.7秒から2.8秒までの1.1秒。境界線が左端の外（x=-4px）から右端の外（x=543px）へ移動
@@ -13,11 +13,11 @@
 // 使いどころ: 場面や話題の区切りをはっきり見せたいとき、比較の前後を切り替えるとき。
 // タグ: wipe, linear wipe, reveal, clip, edge, left to right, transition
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-021
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 21
 // 21 ワイプ

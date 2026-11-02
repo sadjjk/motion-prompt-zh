@@ -1,34 +1,43 @@
-// Motion Prompt #2-013 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#013
+// Motion Prompt #2-013 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#124
 //
-// リキッドモーション / Liquid motion
-// パック: motion (モーショングラフィックスの動き) · element 13 · カテゴリ: 動きの味付け
-// 何が起きるか: しずくが伸びて、ちぎれて、ぬるっと1つにまとまる。
+// ウィグル / Wiggle
+// 分類: モーショングラフィックス / 動きの原理 / リズム・ループ
+// 何が起きるか: ベルが小刻みに不規則に揺れ続ける。1回の衝撃ではなく、ずっと続く細かい揺れ。
 // 動きの仕様:
-//   - 先頭の丸（半径44）: 0.35〜1.45秒で右へ300px、cubic-bezier(.7, 0, .2, 1)。移動中は sin の山で34px浮く。2.7〜3.8秒で同じ動きで戻る
-//   - 後ろに7つの丸が0.065秒ずつ遅れて同じ経路を追う。半径は44→15へ小さく、上下に±6px揺れる
-//   - 止まっている間も、まわりで小さな丸3つ（半径15・13・11）が距離34〜64pxを1周期に2回出入りする
-//   - つながる質感: 丸を白で描く → 9pxぼかす → 透明度をしきい値（112〜144の間だけなだらか）で切る → 残った形に色を塗る
-//   - 色はミント → 青 → 紫（#7C5CFF）の斜めグラデーション。先頭に白い楕円のハイライト
-// 使いどころ: 有機的でやわらかい印象を出したいとき。ロゴ・背景・切り替えのつなぎに。
-// タグ: liquid, blob, goo, gooey, metaball, fluid, organic, drip
+//   - 黄色いベル。上端（中央, y=34）を支点に、ずっと揺れ続ける（止まる区間はない）
+//   - 角度 = 4つのsin波の和。4.7秒あたり23・31・43・59回（約4.9・6.6・9.1・12.6Hz）、振幅 0.085・0.065・0.05・0.035rad（重なると最大約0.235rad＝13.5°）
+//   - 位置も揺らす: 横は29・47・61回で振幅4・3・2px、縦は37・53回で振幅2.4・1.8px
+//   - どの周波数も4.7秒にちょうど整数回なのでループがつながる。互いに割り切れない回数を混ぜて、規則的に見えないようにする
+//   - ベルの舌（コーラル・半径13）は逆へ振れる（角度×70px）。両わきに白い振動の弧（半径86と110・線幅6）を明滅させて出し続ける
+// 使いどころ: 通知・着信・注意を引きたい物に。ずっと続く小さな揺れで、落ち着かなさや手持ち感を出したいとき。
+// タグ: wiggle, jitter, shake, random, noise, bell, notification
 // サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-013
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 13
-// 13 リキッドモーション（しずくが伸びて、ちぎれて、ぬるっと1つにまとまる）
-const LQ = bez(.7, 0, .2, 1);
-const lqPos = uu => { const u = mod(uu, CYC); let p; if (u < 0.35) p = 0; else if (u < 1.45) p = LQ(P(u, 0.35, 1.45)); else if (u < 2.7) p = 1; else if (u < 3.8) p = 1 - LQ(P(u, 2.7, 3.8)); else p = 0; const mvp = (u >= 0.35 && u < 1.45) ? P(u, 0.35, 1.45) : (u >= 2.7 && u < 3.8) ? P(u, 2.7, 3.8) : 0; return [lerp(120, 420, p), 104 - 34 * Math.sin(Math.PI * mvp)]; };
-CELLS[12] = (k, w, h, u) => {
+// @element 04
+// 04 ウィグル（ベルが、小刻みに不規則に揺れ続ける。1回の衝撃ではなく、ずっと続く細かい揺れ）
+const WGF = 2 * Math.PI / CYC;
+const wsum = (u, arr) => arr.reduce((s, [kk, am, ph]) => s + am * Math.sin(WGF * kk * u + ph), 0);
+CELLS[3] = (k, w, h, u) => {
   stage(k);
-  const blobs = [];
-  for (let i = 0; i < 8; i++) { const [x, y] = lqPos(u - i * 0.065); blobs.push([x, y + (i ? 6 * Math.sin(u * 2.67 + i) : 0), lerp(44, 15, i / 7)]); }
-  // 止まっている間、まわりで小さなしずくが出入りする
-  for (let j = 0; j < 3; j++) { const [x, y] = lqPos(u - 0.1), a = j * 2.2 + 0.6, d = 34 + 30 * (0.5 - 0.5 * Math.cos(u / CYC * Math.PI * 4 + j * 2.1)); blobs.push([x + Math.cos(a) * d, y + Math.sin(a) * d * 0.8, 15 - j * 2]); }
-  const L = goo(g => { for (const b of blobs) { g.beginPath(); g.arc(b[0], b[1], b[2], 0, 7); g.fill(); } }, 9, g => { const gr = g.createLinearGradient(60, 30, 480, 180); gr.addColorStop(0, C.mint); gr.addColorStop(0.55, C.blue); gr.addColorStop(1, '#7C5CFF'); g.fillStyle = gr; g.fillRect(0, 0, w, h); });
-  k.drawImage(L, 0, 0);
-  const [hx, hy] = lqPos(u); k.fillStyle = 'rgba(255,255,255,.75)'; k.beginPath(); k.ellipse(hx - 14, hy - 17, 10, 6, -0.6, 0, 7); k.fill();
+  const rot = wsum(u, [[23, 0.085, 0.3], [31, 0.065, 1.9], [43, 0.05, 4.2], [59, 0.035, 2.6]]);
+  const dx = wsum(u, [[29, 4, 0.7], [47, 3, 3.1], [61, 2, 5.0]]), dy = wsum(u, [[37, 2.4, 2.2], [53, 1.8, 0.4]]);
+  const X = w / 2 + dx, Y = 34 + dy;
+  // 両わきの振動の線（揺れているあいだ、ずっと出ている）
+  k.strokeStyle = '#fff'; k.lineCap = 'round'; k.lineWidth = 6;
+  [[86, 0.85], [110, 0.5]].forEach(([r, al], j) => { const fl = 0.55 + 0.45 * Math.abs(Math.sin(WGF * (41 + j * 12) * u)); k.globalAlpha = al * fl;[0, Math.PI].forEach(base => { k.beginPath(); k.arc(w / 2, 104, r, base - 0.42, base + 0.42); k.stroke(); }); });
+  k.globalAlpha = 1;
+  k.save(); k.translate(X, Y); k.rotate(rot);
+  // 舌（ベルと逆にふれる）
+  k.fillStyle = C.coral; k.beginPath(); k.arc(-rot * 70, 128, 13, 0, 7); k.fill();
+  k.fillStyle = C.yel;
+  k.beginPath(); k.arc(0, 8, 10, 0, 7); k.fill();
+  k.beginPath(); k.moveTo(-50, 112); k.quadraticCurveTo(-42, 100, -42, 76); k.bezierCurveTo(-42, 36, -22, 18, 0, 18); k.bezierCurveTo(22, 18, 42, 36, 42, 76); k.quadraticCurveTo(42, 100, 50, 112); k.closePath(); k.fill();
+  rr(k, -60, 106, 120, 16, 8); k.fill();
+  k.fillStyle = 'rgba(255,255,255,.35)'; rr(k, -28, 40, 12, 50, 6); k.fill();
+  k.restore();
 };

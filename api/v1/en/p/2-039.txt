@@ -1,16 +1,15 @@
-Please use "Kaleidoscope" (カレイドスコープ), one of the names in "Motion graphics moves, part 2".
+Please use "Neon flicker" (ネオン点灯), filed under "Text animation / Morphing & texture".
 Motion Prompt #2-039
 
-What it is: Mirrored patterns spread out symmetrically
-What the sample shows: An 8-way symmetrical pattern turns and spreads out from the centre, like a kaleidoscope.
+What it is: Neon tubes flicker before they light up
+What the sample shows: On a dark brick wall the tubes of 营业中 flicker irregularly and light, washing the wall in coral; later only the last character drops out briefly, then the whole sign flickers once more.
 Spec:
-- The area around the centre is split into eight 45° wedges; every other wedge is drawn mirrored, giving eight mirror-symmetric sections.
-- One wedge holds 13 shapes (circles, diamonds, triangles; four colours; fixed random seed). They travel outward from the centre to radius 300, one full radius per 4.7 s, wrapping back to the centre.
-- Shapes grow as they go out ((5 + 0.1r) × 0.7–1.4) and spin 0.02 rad per px. They fade in over the first 30 px and out over the last 70 px; each sways ±0.08 rad once per 4.7 s.
-- The whole pattern turns 90° per 4.7 s (two wedges, so the loop joins up).
-- A white eight-point star at the centre (radius 20 ± 4, pulsing twice per 4.7 s).
-When to use it: Use it for music videos, live backdrops or dreamy scene changes, wherever a pattern has to hold up on repeat.
+- The unlit tubes are 3 px outlines; over 0.45–0.92 s they flicker irregularly 3 times and light.
+- The glow is 3 strokes of 24/14/7 px plus a 3.5 px bright core, with a 240 px radial light on the wall.
+- From 1.6 s only the last character drops out 2 times; at 3.1 s the whole sign flickers once more.
+- Over 4.25–4.55 s it switches off and resets.
+When to use it: Use it for night-life, bar or game titles and sign-style shots.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-039.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

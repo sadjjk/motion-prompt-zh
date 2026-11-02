@@ -1,38 +1,47 @@
-// Motion Prompt #3-063 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/depth-layering
+// Motion Prompt #3-063 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/bicolor-lighting
 //
-// 前景・中景・背景 / Foreground, middle ground & background
-// パック: photo (写真の表現・光と画風) · element 31 · カテゴリ: 構図
-// 何が起きるか: 奥の湖と林、中の人物、手前の花が違う幅で左右に動いて視差が生まれ、層ごとに名前が付く。
+// バイカラー / Bicolor lighting
+// 分類: 編集・撮影 / 光と色 / 光源と色
+// 何が起きるか: 周りが暗くなり、左にマゼンタ、右にシアンの灯がともる。人物の左右が別の色に染まり、鼻筋のあたりで淡い紫に混ざる。壁にも2色がこぼれる。
 // 動きの仕様:
-//   - 背景: 遠い山・対岸の木6本・湖面。横移動の幅6px
-//   - 中景: 人物は x 270、身長66px、横移動の幅18px
-//   - 前景: 下端に花の茂み4つ、横移動の幅48px。手前ほど大きく動く
-//   - 横移動は1周に正弦1回、幅は効果に合わせて大きくなる。各層に「后景」「中景」「前景」の札が付いて一緒に動く
+//   - 場面①: 胸から上の人物（頭の中心 x270, y78・半径29px）。背景は暗い場面へ
+//   - 人物の色: x 206〜334 の横グラデーション。0〜42% マゼンタ #FF3FA4、50% 淡い紫 #A98CFF、58〜100% シアン #33D6FF。下ほど暗く
+//   - 壁のこぼれ: (60, 80) にマゼンタ、(480, 80) にシアンの半径200pxの光を不透明度 0.32 で加算
+//   - 配置図は左右 90° の2灯（マゼンタとシアン）、右上に「MAGENTA · CYAN」
 //   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
-// 使いどころ: 風景・旅行・物語の画面で、平面の絵に奥行きを出したいとき。
-// タグ: foreground middle ground background, depth layering, layers, parallax, composition, depth
+// 使いどころ: ミュージックビデオ・ゲーム・夜の街など、ネオンのような強い色の雰囲気がほしいとき。
+// タグ: bicolor lighting, two-tone light, magenta, cyan, neon, light
 // サイズ: 539x208 px · 1周: 5 s
-// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-063
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 31
-// 前中后景: 三层以不同幅度横移（视差）：后景（湖与对岸树林）最慢、中景（人物）中速、前景（花丛）最快
-CELLS[30] = cell((k, u) => {
-  const a = env(u), s = Math.sin(u / CYC * TAU) * a;   // 摆幅跟着 env 渐入；sin 以 CYC 为周期，首尾相接
-  const D = pen(k);
-  D.rect(0, 0, CW, CH, BASE.sky);
-  k.save(); k.translate(s * 6, 0);
-  D.poly([[-20, 118], [-20, 96], [90, 86], [200, 98], [330, 82], [450, 96], [560, 88], [560, 118]], BASE.far);
-  [40, 120, 210, 300, 390, 480].forEach((x, i) => tree(D, x, 118, 9 + (i % 2) * 3, BASE));
-  D.rect(-20, 118, CW + 40, 18, BASE.mid);   // 湖面
-  k.restore();
-  D.rect(0, 136, CW, CH - 136, BASE.ground);
-  k.save(); k.translate(s * 18, 0); figure(D, CW / 2, 170, 66, BASE.person); k.restore();
-  k.save(); k.translate(s * 48, 0);
-  [[30, 206, 26], [96, 212, 18], [470, 204, 28], [530, 212, 20]].forEach(([x, y, r]) => { D.circ(x, y, r, BASE.tree); D.circ(x - r * 0.3, y - r * 0.5, 4, BASE.sun); });
-  k.restore();
-  tag(k, '后景', 90 + s * 6, 70, a); tag(k, '中景', CW / 2 + 52 + s * 18, 120, a); tag(k, '前景', 96 + s * 48, 182, a);
+// @element 46
+// 双色光（バイカラー）: 周りが暗くなり、左にマゼンタ、右にシアンの灯がともる。人物の左右が別の色に染まり、
+// 鼻筋のあたりで2色が混ざって淡い紫になる。配置図にも色の違う2灯
+CELLS[45] = cell((k, u) => {
+  const a = env(u), MG = '#FF3FA4', CY = '#33D6FF';
+  stagePortrait(k, pal(BASE, DARK, a));
+  bust(k, PX, PY, PR, BASE.person, kk => {
+    if (a < 0.002) return;
+    const g = kk.createLinearGradient(PX - 2.2 * PR, 0, PX + 2.2 * PR, 0);
+    g.addColorStop(0, MG); g.addColorStop(0.42, MG); g.addColorStop(0.5, '#A98CFF'); g.addColorStop(0.58, CY); g.addColorStop(1, CY);
+    kk.globalAlpha = a; kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
+    // 胴の陰り: 下ほど暗く
+    const v = kk.createLinearGradient(0, PY, 0, CH); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,10,20,0.45)');
+    kk.fillStyle = v; kk.fillRect(0, 0, CW, CH);
+  });
+  // 壁に色のこぼれ
+  if (a > 0.002) {
+    k.save(); k.globalCompositeOperation = 'lighter';
+    for (const [x, c] of [[60, '255,63,164'], [480, '51,214,255']]) {
+      const g = k.createRadialGradient(x, 80, 6, x, 80, 200); g.addColorStop(0, `rgba(${c},${(0.32 * a).toFixed(3)})`); g.addColorStop(1, `rgba(${c},0)`);
+      k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+    }
+    k.restore();
+  }
+  plan(k, [[Math.PI / 2, a, MG], [-Math.PI / 2, a, CY]]);
+  hud(k, 'MAGENTA · CYAN');
 });

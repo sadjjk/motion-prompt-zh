@@ -1,56 +1,37 @@
 // Motion Prompt #4-024 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// 费尔岛针织 / Fair Isle knit
-// 分类包: scenes (风格画面) · element 24 · 子分类: 纹样与图形
-// 动画表现: 蓬松的 V 字针脚从下往上一行行出现，每行左右往返推进，织出菱格、雪花和驯鹿图案带。
+// 青海波 / Seigaiha waves
+// 分类: 审美风格 / 工艺与纹样 / 几何纹样
+// 动画表现: 米白与靛蓝的同心半圆像鳞片一样相叠，缓缓向下流动，右上一轮金色满月静静悬着。
 // 运动规格:
-//   - 每针为 2 片 V 字毛线圈，10 × 8.5 px，共 26 行
-//   - 4 色 #F2ECE0、#C8322E、#1B2A3A、#E8B44A，以 12 行为一条，菱格、雪花、驯鹿图案带循环
-//   - 0.2–4.6 秒从下往上逐行织出，正在织的一行左右往返推进
-//   - 停留到 5.4 秒，5.4–6.0 秒淡出
-// 适用场景: 适合冬季服饰、手工编织品牌的视频开场，圣诞与年末活动背景，或节日贺卡。
-// 标签: fair-isle, knit, textile, christmas, winter, pattern, reveal
+//   - 深靛底 #0F2447；每组波纹为半径 22px 的 5 重同心半圆，米白 #E9E2D0 与靛蓝交替
+//   - 行距 11px，奇数行错开 22px，后画的行压住前一行
+//   - 纹样每 6.4 秒向下平移 22px（1 个纹样周期），无缝循环
+//   - 右上金色满月半径 46px，圆心 (410, 64)，径向渐变 #F5D58A → #C9952F
+// 适用场景: 适合日料、旅馆、和果子等品牌的视频开场，日本文化主题网站背景，或节令活动海报。
+// 标签: seigaiha, japanese-pattern, waves, indigo, moon, seamless-loop, traditional
 // 尺寸: 539x208 px · 周期: 6.4 s
-// 依赖: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-024
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 24
-// 24 费尔岛针织：V 字毛线圈（10×8.5px）织出菱格、雪花与驯鹿带，0.2–4.6 秒从下往上逐行织出（行内左右往返），5.4 秒淡出
-const KNIT_SW = 10, KNIT_SH = 8.5, KNIT_ROWS = Math.ceil(CH / 8.5) + 1;
-const KNIT_COLS = [[242, 236, 224], [200, 50, 46], [27, 42, 58], [232, 180, 74]];   // #F2ECE0 #C8322E #1B2A3A #E8B44A
-function knitMotif(c, r) {                                    // 原作的三条 12 行图案带：菱格 / 雪花 / 驯鹿
-  const band = Math.floor(r / 12) % 3, rr = r % 12, cc = c % 12;
-  if (band === 1) { const dx = Math.abs(cc - 6), dy = Math.abs(rr - 6); if (dx + dy < 5 && (dx === dy || dx === 0 || dy === 0)) return 0; if (rr === 0 || rr === 11) return 3; return 2; }
-  if (band === 0) { if ((cc + rr) % 6 === 0 || (cc - rr + 12) % 6 === 0) return 1; return 0; }
-  if (rr < 2 || rr > 9) return 3; const d = Math.abs(cc - 6); if (rr > 3 && rr < 8 && d < 4 - Math.abs(rr - 5.5) + 1) return 0; return 1;
-}
-CELLS[23] = (k, w, h, u) => {
-  k.fillStyle = '#1B2A3A'; k.fillRect(0, 0, CW, CH);
-  const sw = KNIT_SW, sh = KNIT_SH;
-  const fab = layer('KNIT_all', g => {                       // 整片织物一次画好（每针两片带渐变的线圈）
-    for (let r = 0; r < KNIT_ROWS; r++) { const y = r * sh;
-      for (let c = 0; c < Math.ceil(CW / sw) + 1; c++) {
-        const x = c * sw, base = KNIT_COLS[knitMotif(c, r)], wave = 0.85 + 0.15 * Math.sin(x / 46) * Math.sin(y / 60);
-        for (const side of [-1, 1]) {
-          g.save(); g.translate(x + sw / 2 + side * sw * 0.22, y + sh * 0.55); g.rotate(side * -0.55);
-          const gr = g.createLinearGradient(-sw * 0.25, 0, sw * 0.25, 0);
-          gr.addColorStop(0, rgba(base.map(v => Math.round(v * 0.55 * wave)), 1)); gr.addColorStop(0.5, rgba(base.map(v => Math.round(Math.min(255, v * 1.05 * wave))), 1)); gr.addColorStop(1, rgba(base.map(v => Math.round(v * 0.6 * wave)), 1));
-          g.fillStyle = gr; g.beginPath(); g.ellipse(0, 0, sw * 0.26, sh * 0.78, 0, 0, TAU); g.fill();
-          g.strokeStyle = 'rgba(0,0,0,.18)'; g.lineWidth = 0.5; g.beginPath();
-          for (let q = -1; q <= 1; q++) { g.moveTo(-sw * 0.2, q * 2.2); g.lineTo(sw * 0.2, q * 2.2 + 1.5); }
-          g.stroke(); g.restore();
-        }
-      } }
-  });
-  const shown = seg(u, 0.2, 4.6) * KNIT_ROWS, full = Math.floor(shown), frac = shown - full, fade = fadeIn(u);
-  if (shown > 0 && fade > 0) {
-    const yCut = (KNIT_ROWS - full) * sh;                    // 自下而上：第 r 行在 r ≥ 行数 − 已织行数 时出现
-    k.save(); k.globalAlpha = fade; k.beginPath(); k.rect(0, yCut, CW, CH + sh - yCut);
-    if (frac > 0 && full < KNIT_ROWS) k.rect(full % 2 ? CW * (1 - frac) : 0, yCut - sh, CW * frac, sh);   // 正在织的一行左右往返
-    k.clip(); k.drawImage(fab, 0, 0); k.restore();
+// @element 21
+// 21 青海波：深靛底上米白与靛蓝五重同心半圆层层相叠，纹样每周期向下平移一个纹样周期（22px），金色满月压在右上
+const SEI_R = 22;                                             // 波纹半径 22px（原 70px）
+CELLS[20] = (k, w, h, u) => {
+  k.fillStyle = '#0F2447'; k.fillRect(0, 0, CW, CH);
+  const shift = (u / CYC) * SEI_R;                           // 纹样竖向周期 = R（两行），每周期平移整一个周期
+  const R = SEI_R;
+  for (let row = -3; row <= Math.ceil((CH + R) / (R / 2)) + 1; row++) {   // 行距 R/2，奇数行错开 R，后画的行压住前一行
+    const y = row * R * 0.5 + shift;
+    for (let col = -1; col <= Math.ceil(CW / (R * 2)) + 1; col++) {
+      const x = col * R * 2 + (((row % 2) + 2) % 2 ? R : 0) - 18;
+      for (let q = 5; q >= 1; q--) { k.fillStyle = q % 2 ? '#0F2447' : '#E9E2D0'; k.beginPath(); k.arc(x, y, R * q / 5, Math.PI, 0); k.fill(); }
+    }
   }
+  const mg = k.createRadialGradient(410, 64, 4, 410, 64, 48); mg.addColorStop(0, '#F5D58A'); mg.addColorStop(1, '#C9952F');
+  k.fillStyle = mg; k.beginPath(); k.arc(410, 64, 46, 0, TAU); k.fill();
   grain(k, 0.07);
 };

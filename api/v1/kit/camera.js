@@ -1,19 +1,19 @@
-// Motion Prompt #3 001~024 · 049~056 · 064~067 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#025
-// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/extreme-long-shot (#3-049)
-// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/full-shot (#3-050)
-// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-long-shot (#3-051)
-// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-shot (#3-052)
-// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-close-up (#3-053)
-// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/close-up (#3-054)
-// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/extreme-close-up (#3-055)
-// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/macro-shot (#3-056)
-// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/establishing-shot (#3-064)
-// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/shot-reverse-shot (#3-065)
-// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/match-on-action (#3-066)
-// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/180-degree-rule (#3-067)
+// Motion Prompt #3 001~036 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#025
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/establishing-shot (#3-025)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/shot-reverse-shot (#3-026)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/match-on-action (#3-027)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/180-degree-rule (#3-028)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/extreme-long-shot (#3-029)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/full-shot (#3-030)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-long-shot (#3-031)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-shot (#3-032)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-close-up (#3-033)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/close-up (#3-034)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/extreme-close-up (#3-035)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/macro-shot (#3-036)
 //
 // Kit for pack "camera" (Camera moves & transitions / カメラワークと切り替え): the constants and helpers its elements share.
-// Elements #3 001~024 · 049~056 · 064~067 · 539x208 px · cycle 9.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #3 001~036 · 539x208 px · cycle 9.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

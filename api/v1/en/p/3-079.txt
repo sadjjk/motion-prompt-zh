@@ -1,16 +1,15 @@
-Please use "Screen glow" (画面の光), one of the names in "Photo looks, lighting & styles".
+Please use "Duotone" (デュオトーン), filed under "Lens effects & finishing / Grading & finishing".
 Motion Prompt #3-079
 
-What it is: In a dark room only a screen is lit, its cool white light reaching the face and hands from the front
-What the sample shows: The room goes dark and only the laptop in front of the person glows; cool white light from slightly below reaches the face and chest and falls off fast, jumping in brightness whenever the screen changes.
+What it is: Show the image in two colours, one for darks and one for lights
+What the sample shows: The colours of the same landscape are replaced by a range between just two colours: indigo in the darks and pink in the lights.
 Spec:
-- Scene 1: the head-and-shoulders figure; the room turns to the dark scene with #0F1116 at 0.8 laid over it.
-- Source: a laptop (116×50 px, seen from behind) at (270, 176); light on the person runs from #DCE8FF to shadow over a radius of 120 px.
-- Spill: #BED7FF over a radius of 110 px added at 0.32 opacity; a 2 px line of light leaks from the top edge of the screen.
-- Screen changes: at 1.9 s and 3.1 s, for about 0.06 s, the light radius jumps by up to 1.18×; top right reads "6500K".
-- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, ease-in-out).
-When to use it: For late-night work, gaming or scrolling scenes that should feel lonely or absorbed.
+- Scene 3: a bust on the left (head centre x 140, y 82, radius 28 px) and hills, a house, trees and the sun (x 432, y 54, radius 15 px) on the right. 
+- Two colours: #1F2A5C for the dark end, #FF9FB2 for the light end
+- Conversion: from each colour’s luminance L, t = ((L − 70) / 180)^2.4, and the two colours are mixed by t (this spreads the light tones apart)
+- Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1)))
+When to use it: To unify posters, music artwork or social images in brand colours.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-079.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

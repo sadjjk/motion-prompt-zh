@@ -1,7 +1,7 @@
 // Motion Prompt #3-002 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#026
 //
 // ティルト / Tilt
-// パック: camera (カメラワークと切り替え) · element 02 · カテゴリ: カメラの動き
+// 分類: 編集・撮影 / カメラ・編集 / カメラの動き
 // 何が起きるか: カメラの位置は変えず、首を下から上へ振る。足元の人物から塔の先端まで見上げていく。
 // 動きの仕様:
 //   - カメラ: 位置固定（高さ1.4m）、ピッチだけ -0.06rad → +0.36rad（-3° → +21°、計約24°）
@@ -13,11 +13,11 @@
 // 使いどころ: 建物や人物の高さ・大きさを見せるとき。
 // タグ: tilt, tilt up, pitch, vertical, look up, camera move
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-002
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 02
 // 02 ティルト

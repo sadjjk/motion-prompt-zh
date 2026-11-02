@@ -1,7 +1,7 @@
 // Motion Prompt #1-004 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#052
 //
 // Accordion / アコーディオン
-// Pack: ui (UI component names) · element 04 · Category: Opening & overlays
+// Category: UI & Web / Components / Opening & overlays
 // What happens: Clicking the first of three headings opens its content and pushes the rows below down; clicking again closes it.
 // Motion spec:
 //   - 4.5 s cycle on a 542×191 card. Three headings (494 wide, 34 tall, radius 8, gap 6) with a down chevron at the right.
@@ -12,11 +12,11 @@
 // When to use it: Use it for FAQs or long details where people scan the headings and open only what they need.
 // Tags: accordion, collapsible, expand, collapse, disclosure, faq, details
 // Size: 542x191 px · Cycle: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-004
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
 // @element 04
 // 04 アコーディオン（Accordion）

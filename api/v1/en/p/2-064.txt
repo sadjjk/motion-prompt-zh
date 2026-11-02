@@ -1,16 +1,15 @@
-Please use "Text morph" (テキストモーフ), one of the names in "Motion graphics moves, part 2".
+Please use "Exploded view" (分解図), filed under "Shapes & objects / Objects & machines".
 Motion Prompt #2-064
 
-What it is: Shared letters stay and slide while only the changed ones swap
-What the sample shows: The button label cycles through 保存, 已保存 and 再次保存; shared characters slide into place, new ones roll up from below and dropped ones drift away upward.
+What it is: Parts separate to show the structure inside
+What the sample shows: A phone separates into its layers to show how it is built, then assembles again.
 Spec:
-- The blue button's label changes in order: 保存 → 已保存 → 再次保存 → 保存 (Save → Saved → Save again → Save). Changes at 0.6, 2.0 and 3.4 s; font size 60px.
-- The two words are matched by longest common subsequence: shared characters stay and slide to their new spots over 0.5 s (easeInOut, power 3); leaving characters rise 16px and fade within 0.25 s.
-- New characters start at 0.15 s, staggered 0.06 s apart, rolling up from 18px below over 0.3 s (easeOut, power 3); they appear yellow and turn white within 0.4 s.
-- The button width (text width + 48px each side) also eases over 0.5 s with easeInOut. From 3.95 s it rests on 保存.
-- Versus Digit roll and Text scramble: no garbled glyphs and no rolling columns — unchanged characters stay visible and only move, while just the changed ones swap.
-When to use it: Use it for button states (Save → Saved), tab labels, plan names and other short text that changes state.
+- An isometric phone built from four layers (back cover, battery, circuit board, screen). Each layer is a flat rounded plate drawn on axes scaled by 0.85 and tilted 30° either way, with 6 px thick sides.
+- Separate: from 0.45 s, 0.75 s per layer, each layer 0.08 s after the one below, backOut (s = 1.3). Height of layer i (0–3 from the bottom) = 7i + 30i × progress, so the back cover stays put.
+- While apart, each layer bobs ±3 px twice per 4.7 s, dotted guide lines join the corners, and name labels with leader lines appear on the right (back cover, battery, board, screen, in Chinese).
+- Reassemble: from 3.25 s, 0.7 s per layer, starting with the top layer, 0.07 s apart, cubic ease-in-out.
+When to use it: Use it to explain what is inside a product, how it works or what it is made of, at a glance.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-064.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

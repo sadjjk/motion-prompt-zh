@@ -1,54 +1,54 @@
-// Motion Prompt #1-174 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+// Motion Prompt #1-174 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
 //
-// 進捗リング付きトップへ戻る / Back-to-top progress ring
-// パック: uxmotion (インタラクションとデータの動き) · element 61 · カテゴリ: スクロール連動
-// 何が起きるか: 記事が下へスクロールすると右下に丸いボタンが現れ、外周の弧が読んだ分だけ伸びる。ポインタがボタンを押すとページがなめらかにトップへ戻り、ボタンは縮んで消える。
+// 思考オーブ・接続中 / Thinking orb: connecting
+// 分類: UI・Web / フィードバック / AI の状態表示
+// 何が起きるか: 回る球の上で星座のように点が一本ずつ結ばれ、そのあと線の上を光の粒が流れ、最後に消えて最初に戻る。
 // 動きの仕様:
-//   - 0.4–3.0 秒に記事が 86% までスクロール（inOut3、右のスクロールバーが同期）
-//   - 12% を過ぎるとボタンが 0.6→1 倍に拡大してフェードイン（0.25 秒）
-//   - 外周の弧（半径 23px、線幅 3px）は上から時計回りに、長さ = 読了率
-//   - 3.6 秒にボタンを押し、3.65–4.45 秒に 0.8 秒でトップへ戻る（inOut3）
-//   - 12% を下回るとボタンが縮んで消える
-// 使いどころ: 長い記事、ドキュメント、ブログで、読んだ量と戻る手段を同時に見せたいときに。
-// タグ: back-to-top, scroll, progress-ring, reading-progress, button, smooth-scroll
-// サイズ: 539x208 px · 1周: 6.4 s
-// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+//   - 球は半径 58px、うすい点 240 個と節点 10 個。1 周期で 1 回自転
+//   - 線 12 本を 0.15 秒から 0.17 秒おきに 1 本ずつ描く（1 本 0.35 秒、easeOut 3 乗）
+//   - 2.4〜4.0 秒：各線の上を光の粒が 0.8 秒で 1 往路ずつ流れる
+//   - 4.0〜4.8 秒で線と粒が消えて元に戻る。右に「Connecting sources…」15px
+// 使いどころ: 外部サービスへの接続・データソースのつなぎ込み・ツールサーバーとの接続中に。
+// タグ: thinking-orb, connecting, network, integration, nodes, constellation
+// サイズ: 539x208 px · 1周: 4.8 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-174
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 61
-// 61 回到顶部进度环（KittenJam #211）：文章 0.4–3.0 秒向下滚到 86%（inOut3，右侧滚动条同步）；滚过 12% 时右下角按钮放大淡入（0.25 秒），外环弧长 = 阅读进度；
-// 指针 3.6 秒点击按钮，页面 3.65–4.45 秒平滑回到顶部（0.8 秒 inOut3），进度跌回 12% 以下时按钮缩回；指针 4.0–4.6 秒离开。
-const BTP_MAX = 0.86, BTP_TH = 0.12, BTP_CLICK = 3.6, BTP_BX = CW - 52, BTP_BY = CH - 42, BTP_PAGE = 560;
-const BTP_ON = 0.4 + 2.6 * UXA_inv(BTP_TH / BTP_MAX), BTP_OFF = 3.65 + 0.8 * UXA_inv(1 - BTP_TH / BTP_MAX);
-const BTP_KEYS = [[0, 570, 230], [3.0, 570, 230], [3.5, BTP_BX + 3, BTP_BY + 4], [3.75, BTP_BX + 3, BTP_BY + 4], [4.6, 570, 230]];
-const BTP_p = u => (u < 3.65 ? BTP_MAX * inOut3(seg(u, 0.4, 3.0)) : BTP_MAX * (1 - inOut3(seg(u, 3.65, 4.45))));
-CELLS[60] = (k, w, h, u) => {
-  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
-  const p = BTP_p(u), oy = -p * (BTP_PAGE - CH);
-  k.save(); k.translate(0, oy);
-  txt(k, '设计笔记', 60, 34, UXB_f(800, 10.5), UX.accent);
-  txt(k, '好的动效，是让用户感觉不到它', 60, 62, UXB_f(900, 20), UX.ink);
-  for (let i = 0; i < 26; i++) {
-    const y = 92 + i * 18 + Math.floor(i / 5) * 14, wl = i % 5 === 4 ? 0.45 + 0.3 * hash(i + 3) : 0.82 + 0.18 * hash(i + 7);
-    k.fillStyle = i % 5 === 0 && i ? UX.ink2 : UX.surface3; rr(k, 60, y, 400 * wl, i % 5 === 0 && i ? 8 : 7, 3.5); k.fill();
-  }
-  k.restore();
-  scrollbar(k, p, CH / BTP_PAGE);
-  const sv = UXB_ramp(u, [[-1, 0], [BTP_ON, 1], [BTP_OFF, 0]], 0.25), pr = UXB_press(u, BTP_CLICK);
-  if (sv > 0.01) {
-    const s = (0.6 + 0.4 * sv) * (1 - 0.08 * pr);
-    k.save(); k.globalAlpha = sv; k.translate(BTP_BX, BTP_BY); k.scale(s, s);
-    k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 12; k.shadowOffsetY = 4; k.fillStyle = UX.surface; k.beginPath(); k.arc(0, 0, 20, 0, TAU); k.fill(); k.restore();
-    k.lineWidth = 3; k.strokeStyle = UX.surface3; k.beginPath(); k.arc(0, 0, 23, 0, TAU); k.stroke();
-    k.strokeStyle = UX.accent; k.lineCap = 'round'; k.beginPath(); k.arc(0, 0, 23, -Math.PI / 2, -Math.PI / 2 + TAU * p); k.stroke();
-    k.strokeStyle = UX.ink; k.lineWidth = 2; k.lineJoin = 'round';
-    k.beginPath(); k.moveTo(0, 7); k.lineTo(0, -6); k.moveTo(-5, -1); k.lineTo(0, -6); k.lineTo(5, -1); k.stroke();
-    k.restore();
-  }
-  ripple(k, BTP_BX, BTP_BY, (u - BTP_CLICK) / 0.5);
-  const c = UXB_path(u, BTP_KEYS);
-  if (u > 3.0 && u < 4.6) cursor(k, c[0], c[1], pr);
+// @element 08
+// 08 思考球·连接（state="connecting"）：球面节点依次连线，数据包沿连线流动，最后淡出复位
+CELLS[7] = (k, w, h, u) => {
+  bg(k);
+  const spin = TAU * u / CYC;
+  const fade = 1 - inOut3(seg(u, 4.0, 4.8));
+  for (const p of SPHERE) dot(k, rot(p, spin, ORB.tilt), 0.35);
+  const E = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [0, 4], [2, 6], [3, 8]];
+  const slerp = (a, b, t) => {
+    const d = clamp(a[0] * b[0] + a[1] * b[1] + a[2] * b[2], -1, 1), om = Math.acos(d);
+    if (om < 1e-4) return a;
+    const s1 = Math.sin((1 - t) * om) / Math.sin(om), s2 = Math.sin(t * om) / Math.sin(om);
+    return [a[0] * s1 + b[0] * s2, a[1] * s1 + b[1] * s2, a[2] * s1 + b[2] * s2];
+  };
+  const P = q => [ORB.x + q[0] * ORB.r, ORB.y - q[1] * ORB.r];
+  const lit = new Array(NODES.length).fill(0);
+  E.forEach(([a, b], e) => {
+    const g = out3(seg(u, 0.15 + e * 0.17, 0.5 + e * 0.17));   // 每条连线 0.35 秒画出，依次错开 0.17 秒
+    if (g <= 0) return;
+    lit[a] = Math.max(lit[a], 1); lit[b] = Math.max(lit[b], g);
+    k.lineWidth = 1.2; k.beginPath();
+    for (let i = 0; i <= 16; i++) {
+      const q = rot(slerp(NODES[a], NODES[b], g * i / 16), spin, ORB.tilt), pt = P(q);
+      k.strokeStyle = `rgba(236,236,241,${(0.25 + 0.4 * (q[2] + 1) / 2) * fade})`;
+      if (i) k.lineTo(pt[0], pt[1]); else k.moveTo(pt[0], pt[1]);
+    }
+    k.stroke();
+    if (u >= 2.4 && u < 4.0) {
+      const t = ((u - 2.4) / 0.8 + e * 0.137) % 1;
+      dot(k, rot(slerp(NODES[a], NODES[b], t), spin, ORB.tilt), fade, 0.6 * fade);
+    }
+  });
+  NODES.forEach((n, i) => dot(k, rot(n, spin, ORB.tilt), 0.6, lit[i] * 0.55 * fade));
+  orbLabel(k, 'Connecting sources…');
 };

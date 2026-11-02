@@ -1,38 +1,42 @@
-// Motion Prompt #1-046 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#094
+// Motion Prompt #1-046 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#068
 //
-// Marquee / マーキー
-// Pack: lp (Landing page & web effects) · element 22 · Category: Loading, navigation & ambient loops
-// What happens: Inside a navy band, large service names separated by orange dots keep moving to the left without a gap.
+// Step indicator / ステップインジケーター
+// Category: UI & Web / Components / Navigation & menus
+// What happens: Each click on "Next" turns the next of four step circles into a check and extends the blue line to the following step.
 // Motion spec:
-//   - Band: 58 tall, navy, full viewport width. Text: 30 px, heavy weight, 1 px letter spacing, white.
-//   - One set is four words (WEB DESIGN / BRANDING / MOTION / UI/UX), 64 px apart, with an orange dot (radius 6) in each gap.
-//   - Each cycle (4.8 s) moves left by the width of one set (about 881 px here) at constant speed. The set is measured and the offset wraps by that width, so there is no visible seam.
-//   - The set is repeated until the viewport width is filled.
-// When to use it: Use it to show service names, client logos or a tagline with energy.
-// Tags: marquee, ticker, infinite-loop, scrolling-text, logo-strip, band, loop
-// Size: 539x208 px · Cycle: 4.8 s
-// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+//   - 4.5 s cycle on a 542×191 card. Four steps ("Details, Review, Payment, Done" in Chinese) at x 80, 207, 334, 461, y 35; circles of radius 17 joined by a 4 px grey line.
+//   - The cursor clicks "Next" (110×38, bottom right) at 0.9, 1.7 and 2.5 s.
+//   - On each click the current step becomes a blue circle with a white check and the next becomes the current one (blue circle, white number). Steps not reached are white with a grey rim.
+//   - The blue line grows 127 px per click over 0.3 s with easeInOutCubic; after the third click all four are checked.
+//   - Reset: the indicator fades out over 3.75–4.05 s and fades back in at step 1 over 4.05–4.3 s.
+// When to use it: Use it in multi-step flows such as sign-up or checkout to show progress and what is left.
+// Tags: step-indicator, stepper, steps, progress-steps, wizard, multi-step, checkout
+// Size: 542x191 px · Cycle: 4.5 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-046
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 22
-// 22 マーキー（文字の帯が、途切れずに横へ流れ続ける）
-CELLS[21] = (k, w, h, u) => {
-  frame(k);
-  const WORDS = ['WEB DESIGN', 'BRANDING', 'MOTION', 'UI/UX'], F = `800 30px ${EN}`, GAPW = 64;
-  view(k, () => {
-    bars(k, 34, 20, 180, 1, C.ink, 10); bars(k, 34, 38, 300, 1);
-    k.fillStyle = C.ink; k.fillRect(0, 58, VW, 58);
-    k.font = F; k.letterSpacing = '1px'; const ws = WORDS.map(s => k.measureText(s).width); k.letterSpacing = '0px';
-    const unit = ws.reduce((a, b) => a + b + GAPW, 0);
-    let x = -mod(u / CYC, 1) * unit;                 // 1周期で1組ぶん左へ
-    for (let rep = 0; x < VW; rep++) WORDS.forEach((s, i) => {
-      txt(k, s, x, 88, F, '#fff', 'left', 'middle', '1px');
-      k.fillStyle = C.acc; k.beginPath(); k.arc(x + ws[i] + GAPW / 2, 88, 6, 0, 7); k.fill();
-      x += ws[i] + GAPW;
-    });
-    for (let i = 0; i < 3; i++) { k.fillStyle = C.soft; rr(k, 34 + i * 152, 130, 136, 30, 6); k.fill(); bars(k, 46 + i * 152, 142, 90, 1, C.faint); }
+// @element 20
+// 20 ステップインジケーター（Step indicator）
+CELLS[19] = ui((w, h, t) => {
+  const clicks = [.9, 1.7, 2.5]; let step = 0; clicks.forEach(c => { if (t >= c) step++; });
+  const reset = seg(t, 3.75, 4.05), back = seg(t, 4.05, 4.3);
+  const showStep = reset >= 1 ? 0 : step;
+  const xs = [80, 207, 334, 461], labs = ['填写', '确认', '支付', '完成'];
+  const prog = clicks.reduce((s, c) => s + eio(seg(t, c, c + .3)), 0);
+  X.save(); X.globalAlpha = reset < 1 ? 1 - reset : back;
+  const pr = reset >= 1 ? 0 : prog;
+  fillRR(xs[0], 33, xs[3] - xs[0], 4, 2, '#e3e1df'); fillRR(xs[0], 33, (xs[1] - xs[0]) * pr, 4, 2, C.blue);
+  xs.forEach((x, i) => {
+    const done = i < showStep || (showStep === 3 && i === 3), cur = i === showStep && showStep < 3;
+    circle(x, 35, 17, done || cur ? C.blue : '#fff'); if (!(done || cur)) ring(x, 35, 16, C.line2, 2);
+    if (done) check(x, 35, 7, '#fff', 2.6); else text(String(i + 1), x, 36, 16, cur ? '#fff' : '#9a9896', 700, 'center', NUMF);
+    text(labs[i], x, 70, 14, done || cur ? C.blue : '#9a9896', 600, 'center');
   });
-};
+  X.restore();
+  strokeRR(24, 96, 494, 30, 7, C.line2, 1.5); bar(36, 106, 160, C.line); bar(24, 148, 200, C.line);
+  fillRR(w - 24 - 110, 142, 110, 38, 8, C.blue); text('下一步', w - 24 - 55, 161, 16, '#fff', 600, 'center');
+  pointer([[.3, w + 30, h + 30], [.85, w - 74, 166], [2.6, w - 74, 166], [3.3, w + 30, h + 30]], clicks, t);
+});

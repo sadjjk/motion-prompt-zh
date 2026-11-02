@@ -1,15 +1,15 @@
-Please use "Line chart draw" (折れ線グラフの描画), one of the names in "Interaction & data motion".
+Please use "Swipeable card stack" (スワイプするカードの山), filed under "Pointer interactions / Cursor".
 Motion Prompt #1-129
 
-What it is: A line chart that draws itself left to right as its points pop in
-What the sample shows: Over faint gridlines the line grows from left to right, points pop in turn, a gradient area fades in below and a growth label floats up at the end.
+What it is: A stacked card UI you swipe left or right to sort
+What the sample shows: The pointer drags the top card right with a tilt, flings it away with a Save stamp, swipes the next one left to Skip, and finally both fly back.
 Spec:
-- 10 data points; the 2.5 px line draws left to right at constant speed from 0.3–1.9 s.
-- Each point (radius 4 px) pops from 0 with a 0.3 s backOut as the line tip passes it.
-- Once the line reaches 60%, the gradient area under it fades in over 0.6 s.
-- From 1.9–2.3 s a growth label rises 8 px into view above the last point; everything fades out and resets from 5.4–6.0 s.
-When to use it: Use it on dashboards and growth slides to make a trend readable at a glance.
+- 4 stacked cards, 190 × 150 px with 18 px corner radius; each lower card sits 9 px lower and 5% smaller.
+- While dragging the card tilts by drag × 0.06°; the Save / Skip stamps fade in with drag distance, fully visible at 110 px, tilted −14° / 14°.
+- On release the card flies a further 270 px off in 0.45 s and the next card moves up.
+- In the demo the top card is dragged 150 px right from 0.5–1.6 s and card 2 left from 2.6–3.7 s; the 2 cards fly back in turn from 5.0–6.1 s.
+When to use it: Use it in recommendation, matching or bookmarking mobile apps where users sort items one by one.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-129.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

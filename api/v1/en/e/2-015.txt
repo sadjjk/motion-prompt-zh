@@ -1,39 +1,38 @@
-// Motion Prompt #2-015 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#015
+// Motion Prompt #2-015 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#126
 //
-// Particles / パーティクル
-// Pack: motion (Motion graphics moves) · element 15 · Category: Motion polish
-// What happens: Particles keep shooting up from an emitter, spread out and fall.
+// Motion path / モーションパス
+// Category: Motion graphics / Motion principles / Rhythm & loops
+// What happens: A paper plane follows a dotted path, turning as it goes and looping the loop on the way.
 // Motion spec:
-//   - 84 particles, emitted from the bottom centre (horizontal centre, 20 px above the bottom edge).
-//   - Initial velocity: ±190 px/s horizontally, 250–400 px/s upward. Gravity 470 px/s² (parabolic paths).
-//   - Each particle repeats with a period of 2.35 s or about 1.57 s, with a random start offset (fixed seed, so every run looks the same).
-//   - Lifetime up to 1.5 s: fade in over the first 0.06 s, fade out over the last 30%. Scale 1.15→0.7.
-//   - Shapes are circles, squares and triangles (size 5–11 px) in blue, coral, yellow and mint, spinning at up to ±4.5 rad/s.
-// When to use it: Use it to add celebration or liveliness, in place of confetti or sparks.
-// Tags: particles, confetti, emitter, fountain, gravity, celebration, sparks
+//   - One pass per 4.7 s, from off-screen left to off-screen right. The path is x = 270 + 112θ − 150·sinθ, y = 106 − 74·cosθ for θ = −π→π, which makes a loop at the top centre.
+//   - θ advances in proportion to time (so the speed along the path is not constant; the loop looks slower).
+//   - The plane turns to the path direction: angle = atan2(74·sinθ, 112 − 150·cosθ).
+//   - The path is shown in advance as a dotted line (width 6, dash 2/15). A mint trail of 24 segments (0.03 in θ each) follows, thinner and fainter towards the back.
+// When to use it: Use it whenever something should follow a set route: a flying object, a car, a journey on a map.
+// Tags: motion-path, path, curve, trajectory, follow-path, orient-to-path, loop
 // Size: 539x208 px · Cycle: 4.7 s
-// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-015
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 15
-// 15 パーティクル（粒が次々と噴き出して、飛び散って落ちる）
-const PARTS = (() => { const R = rand(15), a = []; for (let i = 0; i < 84; i++) { const n = R() < 0.5 ? 2 : 3; a.push({ T: CYC / n, ph: R() * CYC, vx: (R() - 0.5) * 2 * 190, vy: -(250 + R() * 150), sz: 5 + R() * 6, col: PAL[i % 4], kind: i % 3, spin: (R() - 0.5) * 9 }); } return a; })();
-CELLS[14] = (k, w, h, u) => {
+// @element 06
+// 06 モーションパス（点線の道に沿って、紙飛行機が向きを変えながら進む）
+const MPX = th => 270 + 112 * th - 150 * Math.sin(th), MPY = th => 106 - 74 * Math.cos(th);
+const MP = (() => { const pts = []; for (let i = 0; i <= 400; i++) { const th = -Math.PI + 2 * Math.PI * i / 400; pts.push([MPX(th), MPY(th)]); } return pts; })();
+CELLS[5] = (k, w, h, u) => {
   stage(k);
-  const X = w / 2, Y = h - 20, G = 470;
-  for (const p of PARTS) {
-    const t = mod(u + p.ph, p.T), life = Math.min(p.T, 1.5); if (t > life) continue;
-    const x = X + p.vx * t, y = Y + p.vy * t + 0.5 * G * t * t, a = Math.min(1, t / 0.06) * (1 - smooth(P(t, life * 0.7, life))), sc = lerp(1.15, 0.7, t / life);
-    k.globalAlpha = a; k.fillStyle = p.col; k.save(); k.translate(x, y); k.rotate(t * p.spin); k.scale(sc, sc);
-    if (p.kind === 0) { k.beginPath(); k.arc(0, 0, p.sz, 0, 7); k.fill(); }
-    else if (p.kind === 1) { k.fillRect(-p.sz, -p.sz, p.sz * 2, p.sz * 2); }
-    else { k.beginPath(); k.moveTo(0, -p.sz * 1.3); k.lineTo(p.sz * 1.2, p.sz); k.lineTo(-p.sz * 1.2, p.sz); k.closePath(); k.fill(); }
-    k.restore();
-  }
+  k.save(); k.setLineDash([2, 15]); k.lineCap = 'round'; k.strokeStyle = C.dim; k.lineWidth = 6; k.beginPath(); MP.forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.stroke(); k.restore();
+  const th = -Math.PI + 2 * Math.PI * (u / CYC);
+  // 通ったあとの線
+  k.lineCap = 'round';
+  for (let j = 0; j < 24; j++) { const a = th - j * 0.03, b = th - (j + 1) * 0.03; k.strokeStyle = C.mint; k.globalAlpha = 0.9 * (1 - j / 24); k.lineWidth = 7 * (1 - j / 30); k.beginPath(); k.moveTo(MPX(a), MPY(a)); k.lineTo(MPX(b), MPY(b)); k.stroke(); }
   k.globalAlpha = 1;
-  k.fillStyle = C.navy3; rr(k, X - 70, h - 12, 140, 30, 10); k.fill();
-  k.fillStyle = '#fff'; rr(k, X - 30, h - 22, 60, 30, 10); k.fill();
+  const x = MPX(th), y = MPY(th), ang = Math.atan2(74 * Math.sin(th), 112 - 150 * Math.cos(th));
+  k.save(); k.translate(x, y); k.rotate(ang);
+  k.fillStyle = '#fff'; k.beginPath(); k.moveTo(32, 0); k.lineTo(-22, -22); k.lineTo(-12, 0); k.closePath(); k.fill();
+  k.fillStyle = '#C9D6FF'; k.beginPath(); k.moveTo(32, 0); k.lineTo(-22, 22); k.lineTo(-12, 0); k.closePath(); k.fill();
+  k.fillStyle = '#9FB3F0'; k.beginPath(); k.moveTo(32, 0); k.lineTo(-12, 0); k.lineTo(-6, 9); k.closePath(); k.fill();
+  k.restore();
 };

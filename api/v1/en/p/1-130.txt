@@ -1,15 +1,15 @@
-Please use "Donut chart segments" (ドーナツグラフの分割描画), one of the names in "Interaction & data motion".
+Please use "Tilt parallax image" (3Dチルト視差画像), filed under "Pointer interactions / Cursor".
 Motion Prompt #1-130
 
-What it is: A donut chart whose arcs draw in one after another
-What the sample shows: From the top, the first arc draws clockwise and each next arc continues from where the last ended until the ring closes; the total appears in the centre and the legend slides in on the right.
+What it is: An image that tilts towards the cursor while its layers shift for depth
+What the sample shows: As the cursor moves over a sunset mountain image, it tilts and enlarges slightly, the sky, sun and ridges shift by different amounts, and a caption slides up from the bottom.
 Spec:
-- 4 segments of 42/28/18/12%; the ring has a 62 px radius and 20 px width, with a 2° gap between segments.
-- Starting at 0.3 s from the top, segments draw clockwise one at a time, 0.45 s each (inOut3).
-- The total in the centre fades in from 0.3–0.8 s.
-- Legend rows slide in from 24 px to the right over 0.4 s (out3), starting at 0.5 s and 0.12 s apart; it all fades and resets from 5.4–6.0 s.
-When to use it: Use it on dashboards and report pages that show shares or breakdowns.
+- Image 280 × 150 px, corner radius 14 px; tilts up to 10° towards the cursor and scales to 1.04.
+- Sky, sun, far ridge, middle ridge and foreground shift against the cursor by up to 2/3/5/10/18 px.
+- A white glare (radius 120 px) follows the cursor; the caption slides up from 18 px below.
+- In the demo hover starts from 0.7–1.0 s; from 4.6–4.95 s the cursor leaves and everything eases back.
+When to use it: Use it on portfolios, travel or product photos and feature thumbnails to give images depth.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-130.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

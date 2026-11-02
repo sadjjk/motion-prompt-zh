@@ -1,42 +1,38 @@
-// Motion Prompt #1-020 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#068
+// Motion Prompt #1-020 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#058
 //
-// 步骤指示器 / Step indicator
-// 分类包: ui (UI 组件) · element 20 · 子分类: 导航与状态
-// 动画表现: 每点一次“下一步”，当前步骤圆圈变对勾，蓝线延长到后续步骤。
+// 轮播 / Carousel
+// 分类: 界面与网页 / 组件 / 选择与输入
+// 动画表现: 每次点击右箭头，三张不同图片组成的行左移一格，下方指示点同步切换。
 // 运动规格:
-//   - 542×191 卡片，周期 4.5 秒。四步为填写、确认、支付、完成，x 为 80, 207, 334, 461，y 35；圆半径 17，以 4 px 灰线连接。
-//   - 光标在 0.9, 1.7, 2.5 秒点击右下角 110×38 的“下一步”。
-//   - 每次点击后当前步变为蓝圆白色对勾，下一步变为蓝圆白色数字；未到达步骤为白底灰边。
-//   - 每次点击蓝线用 easeInOutCubic 在 0.3 秒内增长 127 px；第三次点击后四步都显示对勾。
-//   - 复位：指示器在 3.75–4.05 秒淡出，4.05–4.3 秒从第 1 步状态淡入。
-// 适用场景: 适合注册、结算等多步骤流程，展示当前进度与剩余步骤。
-// 标签: step-indicator, stepper, steps, progress-steps, wizard, multi-step, checkout
+//   - 542×191 卡片，周期 4.5 秒。图片为 330×138、圆角 8，居中，间隔 18 px，两侧露出相邻图片的一部分。
+//   - 左右为半径 18、阴影模糊 10 的白色圆形箭头按钮；下方三个点，当前为蓝色 16×8，其余 8×8。
+//   - 光标在 1.0, 2.1, 3.2 秒点击右箭头 (514, 88)。
+//   - 每次点击后，整行在 0.4 秒内以 easeInOutCubic 左移 348 px，即一张图片加间隔。
+//   - 三张图片为风景、三个圆、柱状图，循环排列，移动三次后回到首张。
+// 适用场景: 适合在有限空间内逐个展示多张图片或推荐内容。
+// 标签: carousel, slider, slideshow, gallery, swipe, paging-dots
 // 尺寸: 542x191 px · 周期: 4.5 s
-// 依赖: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-020
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 20
-// 20 ステップインジケーター（Step indicator）
-CELLS[19] = ui((w, h, t) => {
-  const clicks = [.9, 1.7, 2.5]; let step = 0; clicks.forEach(c => { if (t >= c) step++; });
-  const reset = seg(t, 3.75, 4.05), back = seg(t, 4.05, 4.3);
-  const showStep = reset >= 1 ? 0 : step;
-  const xs = [80, 207, 334, 461], labs = ['填写', '确认', '支付', '完成'];
-  const prog = clicks.reduce((s, c) => s + eio(seg(t, c, c + .3)), 0);
-  X.save(); X.globalAlpha = reset < 1 ? 1 - reset : back;
-  const pr = reset >= 1 ? 0 : prog;
-  fillRR(xs[0], 33, xs[3] - xs[0], 4, 2, '#e3e1df'); fillRR(xs[0], 33, (xs[1] - xs[0]) * pr, 4, 2, C.blue);
-  xs.forEach((x, i) => {
-    const done = i < showStep || (showStep === 3 && i === 3), cur = i === showStep && showStep < 3;
-    circle(x, 35, 17, done || cur ? C.blue : '#fff'); if (!(done || cur)) ring(x, 35, 16, C.line2, 2);
-    if (done) check(x, 35, 7, '#fff', 2.6); else text(String(i + 1), x, 36, 16, cur ? '#fff' : '#9a9896', 700, 'center', NUMF);
-    text(labs[i], x, 70, 14, done || cur ? C.blue : '#9a9896', 600, 'center');
-  });
+// @element 10
+// 10 カルーセル（Carousel）
+CELLS[9] = ui((w, h, t) => {
+  const p = eio(seg(t, 1.0, 1.4)) + eio(seg(t, 2.1, 2.5)) + eio(seg(t, 3.2, 3.6));
+  const sw = 330, gap = 18, cx = w / 2;
+  X.save(); X.beginPath(); X.rect(0, 0, w, 160); X.clip();
+  for (let j = Math.floor(p) - 2; j <= Math.floor(p) + 2; j++) {
+    const x = cx - sw / 2 + (j - p) * (sw + gap), idx = ((j % 3) + 3) % 3;
+    if (idx === 0) mountains(x, 14, sw, 138);
+    if (idx === 1) { fillRR(x, 14, sw, 138, 8, '#e3ebfd'); circle(x + 90, 83, 34, C.mb); circle(x + 165, 83, 34, C.sb); circle(x + 240, 83, 34, C.mb); }
+    if (idx === 2) { fillRR(x, 14, sw, 138, 8, C.lb); for (let k = 0; k < 5; k++) { const bh = [40, 70, 55, 95, 80][k]; fillRR(x + 60 + k * 46, 132 - bh, 30, bh, 4, k === 3 ? C.blue : C.mb); } }
+  }
   X.restore();
-  strokeRR(24, 96, 494, 30, 7, C.line2, 1.5); bar(36, 106, 160, C.line); bar(24, 148, 200, C.line);
-  fillRR(w - 24 - 110, 142, 110, 38, 8, C.blue); text('下一步', w - 24 - 55, 161, 16, '#fff', 600, 'center');
-  pointer([[.3, w + 30, h + 30], [.85, w - 74, 166], [2.6, w - 74, 166], [3.3, w + 30, h + 30]], clicks, t);
+  [[30, 83, Math.PI / 2], [w - 30, 83, -Math.PI / 2]].forEach(([x, y, r]) => { shadowed(() => circle(x, y, 18, '#fff'), 10, 3, .2); chevron(x, y, 5, r, '#555'); });
+  const act = Math.round(p) % 3;
+  for (let k = 0; k < 3; k++) { const on = k === act; fillRR(w / 2 - 30 + k * 22 - (on ? 4 : 0), 172, on ? 16 : 8, 8, 4, on ? C.blue : C.line2); }
+  pointer([[.3, w + 30, h + 30], [.95, w - 28, 88], [3.4, w - 28, 88], [4.2, w + 30, h + 30]], [1.0, 2.1, 3.2], t);
 });

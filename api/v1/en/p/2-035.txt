@@ -1,15 +1,15 @@
-Please use "Text on a path" (テキストオンパス), one of the names in "Motion graphics moves, part 2".
+Please use "Ink bleed" (インクブリード), filed under "Text animation / Morphing & texture".
 Motion Prompt #2-035
 
-What it is: Text flows along a line or curve
-What the sample shows: A line of text flows along a wavy line, each letter turning to follow it.
+What it is: Blurry ink gathers into crisp letters, then bleeds away
+What the sample shows: On rice-paper beige, four characters in turn tighten from soft ink blots into crisp shapes, hold, then spread and vanish.
 Spec:
-- Path: y = 118 + 42·sin(2πx ÷ 330 + 0.6) for x = −70 to 609, shown 6 px below as a navy dashed line (14/10, width 5).
-- "ALONG THE LINE • " (42 px, bold, 2 px letter spacing) is repeated. Each character is placed at its arc-length position on the path and rotated to the path direction.
-- The text moves along the path by the length of one copy of the string every 4.7 s, so the loop joins up.
-- Letters are white; the bullet is yellow.
-When to use it: Use it to run text along a shape: around a logo, along a road, river or wave, or as a looping band of text.
+- 4 characters (68 px) starting at 0.3 s, 0.25 s apart; one character's cycle is 3.6 s.
+- 0–55%: blur from 16 px to 0 px and scale from 1.3x to 1x (smoothstep), appearing over the first 15%.
+- 55–80% holds sharp; 80–100% spreads to 16 px blur and 1.2x while fading.
+- The blurred ink is thresholded with contrast(16) so blots merge at the edges, then multiplied onto the paper.
+When to use it: Use it for titles with an East Asian ink, calligraphy, tea or sake feel.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-035.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

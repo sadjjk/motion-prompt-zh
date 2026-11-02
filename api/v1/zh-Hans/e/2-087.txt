@@ -1,37 +1,44 @@
-// Motion Prompt #2-087 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+// Motion Prompt #2-087 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// 文字扇 / Text fan
-// 分类包: motion2 (动态图形进阶) · element 48 · 子分类: 文字与图形
-// 动画表现: 7 个叠在一起的「扇」以下方黄色轴点展开成扇形，中间白色一份两侧是半透明珊瑚色副本，停留后收拢。
+// 电子云 / Electron orbital
+// 分类: 动态图形 / 图形与物件 / 信息与科技
+// 动画表现: 深色底上，蓝橙两色点阵组成的 3d 轨道云缓缓旋转，中心一团白光，外绕一道椭圆轨迹线。
 // 运动规格:
-//   - 同一个字 7 份，轴点在字中心下方 112 px
-//   - 0.5–1.9 秒以三次缓入缓出展开到 (i−3)×24°，停到 3.6 秒
-//   - 3.6–4.5 秒收拢
-//   - 中间一份白色不透明，其余为珊瑚色，越外越淡（0.7 − 0.12×距离）
-// 适用场景: 适合和风、传统风格的 Logo 或品牌名登场。
-// 标签: fan, radial, rotate, copies, japanese, logo
-// 尺寸: 539x208 px · 周期: 4.7 s
-// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+//   - 3d 轨道（n = 3、l = 2、m = 0）概率云，由按波函数平方采样的 1600 个点构成。
+//   - 正相位为蓝色 rgba(90, 170, 255)、负相位为橙色 rgba(255, 130, 90)，点大小 1.3 px。
+//   - 点云每 6.4 秒绕竖轴转 1 圈，俯仰 0.5 rad，叠加发光混合。
+//   - 中心白色光晕半径 12 px，外绕半轴 120 / 32 px 的椭圆轨迹线。
+// 适用场景: 适合科普教育、科研机构的首屏背景，物理化学主题视频开场，或演示过场。
+// 标签: electron-cloud, orbital, quantum, physics, particles, science, tech
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-087
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 48
-// 改写自 KittenJam Motion Library #24（Hannah）· 文字扇：同一个「扇」字 7 份，以字下方 112px 的点为轴，0.5–1.9 秒按 (i−3)×24° 展开成扇形，停留到 3.6 秒，3.6–4.5 秒收拢；中间一份白色不透明，两侧珊瑚色、越外越淡。
-const TFAN_ORD = [0, 6, 1, 5, 2, 4, 3];   // 外侧先画，中间一份压在最上面
-CELLS[47] = (k, w, h, u) => {
-  u = snapU(u);
-  stage(k);
-  const PX = w / 2, PY = 196, R = 112, F = `900 80px ${JP}`;
-  const o = eIO(P(u, 0.5, 1.9)) * (1 - eIO(P(u, 3.6, 4.5)));
-  TFAN_ORD.forEach(i => {
-    const a = (i - 3) * 24 * Math.PI / 180 * o;
-    k.save(); k.translate(PX, PY); k.rotate(a);
-    k.strokeStyle = 'rgba(255,241,214,.16)'; k.lineWidth = 2; k.beginPath(); k.moveTo(0, -8); k.lineTo(0, -R + 42); k.stroke();
-    k.globalAlpha = i === 3 ? 1 : 0.7 - Math.abs(i - 3) * 0.12;
-    txt(k, '扇', 0, -R, F, i === 3 ? '#fff' : C.coral, 'center', 'middle');
-    k.restore();
-  });
-  k.fillStyle = C.yel; k.beginPath(); k.arc(PX, PY, 6, 0, 7); k.fill();
+// @element 13
+// 13 电子云：3d 轨道（n=3, l=2, m=0）的概率云由点阵构成，正负相位分蓝橙两色，整体缓慢旋转
+const ORB = (() => { // 按波函数平方做确定性拒绝采样（常量）
+  const out = [];
+  for (let i = 0; out.length < 1600 && i < 60000; i++) {
+    const x = (hash(i * 4 + 1) - 0.5) * 36, y = (hash(i * 4 + 2) - 0.5) * 36, z = (hash(i * 4 + 3) - 0.5) * 36;
+    const r = Math.hypot(x, y, z), ct = z / (r || 1), psi = r * r * Math.exp(-r / 3) * (3 * ct * ct - 1);
+    if (hash(i * 4 + 4) * 3 < psi * psi / 30) out.push([x, y, z, psi > 0]);
+  }
+  return out;
+})();
+CELLS[12] = (k, w, h, u) => {
+  k.fillStyle = '#05060F'; k.fillRect(0, 0, CW, CH);
+  const a = TAU * u / CYC, b = 0.5, ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);   // 每周期转一圈
+  k.save(); k.globalCompositeOperation = 'lighter';
+  for (const [x, y, z, pos] of ORB) {
+    const x1 = x * ca - y * sa, y1 = x * sa + y * ca, y2 = y1 * cb - z * sb, z2 = y1 * sb + z * cb, s = 90 / (60 + y2);
+    k.fillStyle = pos ? 'rgba(90,170,255,.55)' : 'rgba(255,130,90,.55)'; k.fillRect(269.5 + x1 * s * 2.6, 104 - z2 * s * 2.6, 1.3, 1.3);
+  }
+  k.restore();
+  glow(k, 269.5, 104, 12, '255,255,255', 0.6);
+  k.strokeStyle = 'rgba(180,200,255,.25)'; k.lineWidth = 0.8; k.beginPath(); k.ellipse(269.5, 104, 120, 32, 0, 0, TAU); k.stroke();
+  txt(k, 'ψ₃₂₀ · n = 3  l = 2  m = 0', 400, 190, `500 8px ${MONO}`, 'rgba(190,205,255,.7)');
+  grain(k, 0.05);
 };

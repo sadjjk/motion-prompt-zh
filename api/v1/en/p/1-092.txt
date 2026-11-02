@@ -1,15 +1,15 @@
-Please use "Isometric data blocks" (アイソメトリックのデータブロック), one of the names in "Interaction & data motion".
+Please use "Warp starfield" (ワープする星空), filed under "Pages / Hero backgrounds".
 Motion Prompt #1-092
 
-What it is: An isometric 3D chart of blocks showing data by region and month
-What the sample shows: Isometric blocks rise from the front with a bounce; hovering greys out all but the bar's row and column and shows its value, and switching metrics re-stacks heights in a wave.
+What it is: A starfield hero where stars rush toward you and a long press triggers warp
+What the sample shows: Stars drift out from the centre; holding the button accelerates them into blue streaks with a glowing core, and releasing eases back to cruise.
 Spec:
-- Isometric blocks for 4 regions × 6 months; grid spacing 32 × 12 px, bars 0.72 of a cell wide.
-- Rows rise from the front with a delay of (8 − row − column) × 70 ms, a 650 ms duration and a bouncy ease.
-- Hovering keeps colour only on the bar's row and column and greys the rest in 0.2 s; the value tooltip springs in over 0.22 s. The demo hovers from 1.9–2.7 s and 4.0–4.7 s.
-- In the demo the metric switches at 3.1 s and heights re-stack in a (row + column) × 45 ms wave; from 5.4 s blocks drop to the floor in 0.5 s, staggered by (row + column) × 30 ms.
-When to use it: Use it in regional sales or traffic dashboards and report pages to compare two dimensions in 3D.
+- 280 stars fly from the centre toward the camera (focal length 150), getting brighter and thicker as they near.
+- Holding 'Hold to warp' pulls speed toward 3.2, keeping 25% of the gap per second (cruise 0.22); release eases back, keeping 12% per second.
+- During warp stars stretch into lines and turn blue (blueness = (v − 0.22) / 1.6), with a 120 px blue glow at the centre.
+- The pointer shifts the heading (x × 70, y × 60); demo presses at 1.2 s and releases at 3.6 s.
+When to use it: Use it in hero sections for games, space-tech or AI product launches, paired with a long-press 'Start' or 'Launch' button.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-092.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

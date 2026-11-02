@@ -1,16 +1,15 @@
-Please use "Particles" (パーティクル), one of the names in "Motion graphics moves".
+Please use "Motion path" (モーションパス), filed under "Motion principles / Rhythm & loops".
 Motion Prompt #2-015
 
-What it is: Many small pieces fly out and scatter
-What the sample shows: Particles keep shooting up from an emitter, spread out and fall.
+What it is: Moves along a curve that you define
+What the sample shows: A paper plane follows a dotted path, turning as it goes and looping the loop on the way.
 Spec:
-- 84 particles, emitted from the bottom centre (horizontal centre, 20 px above the bottom edge).
-- Initial velocity: ±190 px/s horizontally, 250–400 px/s upward. Gravity 470 px/s² (parabolic paths).
-- Each particle repeats with a period of 2.35 s or about 1.57 s, with a random start offset (fixed seed, so every run looks the same).
-- Lifetime up to 1.5 s: fade in over the first 0.06 s, fade out over the last 30%. Scale 1.15→0.7.
-- Shapes are circles, squares and triangles (size 5–11 px) in blue, coral, yellow and mint, spinning at up to ±4.5 rad/s.
-When to use it: Use it to add celebration or liveliness, in place of confetti or sparks.
+- One pass per 4.7 s, from off-screen left to off-screen right. The path is x = 270 + 112θ − 150·sinθ, y = 106 − 74·cosθ for θ = −π→π, which makes a loop at the top centre.
+- θ advances in proportion to time (so the speed along the path is not constant; the loop looks slower).
+- The plane turns to the path direction: angle = atan2(74·sinθ, 112 − 150·cosθ).
+- The path is shown in advance as a dotted line (width 6, dash 2/15). A mint trail of 24 segments (0.03 in θ each) follows, thinner and fainter towards the back.
+When to use it: Use it whenever something should follow a set route: a flying object, a car, a journey on a map.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-015.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

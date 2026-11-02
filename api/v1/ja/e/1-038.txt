@@ -1,42 +1,57 @@
-// Motion Prompt #1-038 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#086
+// Motion Prompt #1-038 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// 下線アニメーション / Underline animation
-// パック: lp (LP・Webサイトの演出) · element 14 · カテゴリ: マウス・クリックへの反応
-// 何が起きるか: カーソルが乗ったリンクの下に、朱色の線が左から伸び、離れると線は右へ縮んで抜けていく。
+// アニメーションチェックボックス / Animated checkbox
+// 分類: UI・Web / コンポーネント / 選ぶ・入力する
+// 何が起きるか: カーソルが3つのチェック欄を順に押すと、箱が縮んで弾み、青く塗られて白いチェックが描かれ、文字に取り消し線が引かれて薄くなる。最後に「クリア」で戻る。
 // 動きの仕様:
-//   - リンク3つ（20px・太字・間隔56）。カーソルが左から順に約1秒ずつ乗る（当たり判定は文字の左右6px広め）
-//   - 下線: 朱色・太さ3・ベースラインの8px下
-//   - 乗ったら 幅 0→100% を0.3秒で左端から伸ばす（easeOut 3乗）
-//   - 離れたら 左端を右へ0.3秒で動かし、右へ抜けるように消す（transform-origin を右にした scaleX と同じ）
-// 使いどころ: ヘッダーのメニューや本文のリンクで、どこを指しているかを上品に伝えたいとき。
-// タグ: underline, hover, link, navigation, menu, text-link, scalex
-// サイズ: 539x208 px · 1周: 4.8 s
-// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+//   - ToDo 3項目（行間42）、22×22の箱。カーソルが0.8・1.5・2.2秒に順に箱を押す
+//   - 箱は0.4秒の間に0.85へ縮み、1.1へ弾んで1に戻る。地は0.15秒で青く塗られ、白いチェックが0.1〜0.35秒に左下から右上へ描かれる
+//   - 文字には0.2〜0.5秒に左から右へ取り消し線が伸び（easeInOut 3乗）、灰色になる
+//   - 3.35秒に「クリア」を押すと、3項目が0.3秒で同時に元へ戻る
+// 使いどころ: ToDo・買い物リスト・チェックリストなど、完了の手応えを出したい一覧に。
+// タグ: checkbox, check, todo, strikethrough, toggle, click
+// サイズ: 542x191 px · 1周: 4.5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-038
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 14
-// 14 下線アニメーション（リンクにカーソルを乗せると下線が左から伸び、離れると右へ抜ける）
-CELLS[13] = (k, w, h, u) => {
-  frame(k);
-  const LINKS = ['服务', '案例', '公司简介'], F = `800 20px ${JP}`, GAP = 56, LY = 84, DUR = 0.3;
-  const cur = t => path([[0, 120, 150], [0.45, 170, 80], [1.3, 186, 84], [1.55, 268, 80], [2.4, 282, 84], [2.65, 372, 80], [3.5, 390, 84], [3.95, 430, 150], [4.8, 120, 150]], t);
-  view(k, () => {
-    logo(k, 22, 28); bars(k, 90, 132, 331, 2, C.faint, 6, 12, 0.6);
-    k.font = F; const ws = LINKS.map(s => k.measureText(s).width); let x = (VW - ws.reduce((a, b) => a + b, 0) - GAP * (LINKS.length - 1)) / 2;
-    LINKS.forEach((s, i) => {
-      const x0 = x, x1 = x + ws[i], inside = t => { const [a, b] = cur(t); return a > x0 - 6 && a < x1 + 6 && b > LY - 22 && b < LY + 14; };
-      txt(k, s, x0, LY, F, C.ink);
-      // 最後に乗った・離れた時刻から 0.3秒（乗る: 左端から伸びる / 離れる: 左端から縮んで右へ抜ける）
-      const on = inside(u); let tc = null; for (let j = 0, t = u; j < 600; j++, t -= 1 / 120) if (inside(t - 1 / 120) !== on) { tc = t; break; }
-      if (tc !== null) {
-        const q = eOut(P(u, tc, tc + DUR)), a = on ? 0 : q, b = on ? q : 1;
-        if (b > a) { k.fillStyle = C.acc; k.fillRect(x0 + ws[i] * a, LY + 8, ws[i] * (b - a), 3); }
-      }
-      x += ws[i] + GAP;
-    });
-    const [cx, cy] = cur(u); cursor(k, cx, cy);
+// @element 47
+// 改写自 KittenJam Motion Library #242 勾选框打勾：三条待办（行距 42），22×22 方框。光标在 0.8 / 1.5 / 2.2 秒依次点三个方框：
+// 方框 0.4 秒内先缩到 0.85 再弹到 1.1 后回 1；底色 0.15 秒填蓝，白勾 0.1–0.35 秒从左下到右上画出；
+// 文字 0.2–0.5 秒加删除线（easeInOut 3 次方从左向右）并变灰。3.35 秒点「清除」，三项 0.3 秒同时反向复原。
+const CHKB_ITEMS = ['买咖啡豆', '回复邮件', '整理桌面'], CHKB_T = [.8, 1.5, 2.2];
+function CHKB_tick(x, y, s, p, c, lw) {
+  if (p <= 0) return;
+  const P = [[x - s, y], [x - s * .3, y + s * .7], [x + s, y - s * .7]];
+  const L1 = Math.hypot(P[1][0] - P[0][0], P[1][1] - P[0][1]), L2 = Math.hypot(P[2][0] - P[1][0], P[2][1] - P[1][1]);
+  const d = Math.min(1, p) * (L1 + L2);
+  X.beginPath(); X.moveTo(P[0][0], P[0][1]);
+  if (d <= L1) X.lineTo(lerp(P[0][0], P[1][0], d / L1), lerp(P[0][1], P[1][1], d / L1));
+  else { X.lineTo(P[1][0], P[1][1]); const k = (d - L1) / L2; X.lineTo(lerp(P[1][0], P[2][0], k), lerp(P[1][1], P[2][1], k)); }
+  X.strokeStyle = c; X.lineWidth = lw; X.lineCap = 'round'; X.lineJoin = 'round'; X.stroke(); X.lineCap = 'butt';
+}
+CELLS[46] = ui((w, h, t) => {
+  const lx = 150;
+  text('今日待办', lx, 24, 14, C.ink, 800);
+  text('清除', lx + 240, 24, 12, C.blue, 600, 'right');
+  const off = eio(seg(t, 3.35, 3.65));
+  CHKB_ITEMS.forEach((s, i) => {
+    const y = 62 + i * 42, tc = CHKB_T[i], cx = lx + 11;
+    const k = seg(t, tc, tc + .4);
+    const sc = t < tc || t >= 3.35 ? 1 : 1 + (k < .35 ? -.15 * Math.sin(Math.PI * k / .35) : .1 * Math.sin(Math.PI * (k - .35) / .65));
+    const fill = eo(seg(t, tc, tc + .15)) * (1 - off);
+    const tick = eo(seg(t, tc + .1, tc + .35)) * (1 - off);
+    const strike = eio(seg(t, tc + .2, tc + .5)) * (1 - off);
+    X.save(); X.translate(cx, y); X.scale(sc, sc);
+    fillRR(-11, -11, 22, 22, 6, '#fff'); strokeRR(-11, -11, 22, 22, 6, C.line2, 2);
+    if (fill > 0) fillRR(-11, -11, 22, 22, 6, `rgba(31,90,232,${fill})`);
+    CHKB_tick(0, 0, 6, tick, '#fff', 2.4);
+    X.restore();
+    text(s, lx + 36, y, 15, strike > .5 ? C.hint : C.ink, 600);
+    if (strike > 0) { X.fillStyle = C.hint; X.fillRect(lx + 36, y - .75, tw(s, 15, 600) * strike, 1.5); }
+    if (i < 2) { X.fillStyle = C.sep; X.fillRect(lx, y + 21, 240, 1); }
   });
-};
+  pointer([[0, w + 30, h + 30], [.7, 163, 64], [.9, 163, 64], [1.4, 163, 106], [1.6, 163, 106], [2.1, 163, 148], [2.3, 163, 148], [3.15, 378, 26], [3.45, 378, 26], [4.4, w + 30, h + 30]], [.8, 1.5, 2.2, 3.35], t);
+});

@@ -1,16 +1,16 @@
-Please use "Overshoot" (オーバーシュート), one of the names in "Motion graphics moves".
+Please use "Liquid motion" (リキッドモーション), filed under "Motion principles / Rhythm & loops".
 Motion Prompt #2-010
 
-What it is: Goes a little past the target, then settles back
-What the sample shows: A gauge needle swings past its target, comes back and settles.
+What it is: Shapes move and merge like liquid
+What the sample shows: A blob stretches out, breaks into drops and merges back into one.
 Spec:
-- One pass per 4.7 s. Semicircular gauge (radius 128, stroke 26). Target is 0.7 of the sweep (126° from the left end).
-- Starts at 0.25 s: value = 0.7 × (1 − e^(−4.6t)·cos(10.5t)). About 0.3 s later it is roughly 25% past the target, then it oscillates and settles on the target.
-- The part beyond the target is drawn in coral. A yellow tick marks the target.
-- The filled arc is a blue→mint gradient; the needle is white, width 9.
-- Return: from 3.7 s, value = 0.7 × e^(−7.5t)·cos(8.5t) back to 0 (dipping slightly below 0 before it stops).
-When to use it: Use it to give an arriving element energy and a springy feel.
+- Lead circle (radius 44): moves 300 px right at 0.35–1.45 s with cubic-bezier(.7, 0, .2, 1), rising 34 px on a sine arc while moving; returns the same way at 2.7–3.8 s.
+- Seven circles follow the same path, each 0.065 s later, radius tapering 44→15, wobbling ±6 px vertically.
+- Even while it rests, three small circles (radius 15, 13, 11) move in and out between 34 and 64 px from it, twice per cycle.
+- Merged look: draw the circles in white → blur 9 px → threshold the alpha (soft only between 112 and 144) → fill what remains with colour.
+- Fill is a diagonal gradient mint → blue → violet (#7C5CFF), with a white elliptical highlight on the lead circle.
+When to use it: Use it for an organic, soft look in logos, backgrounds and connecting moves.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-010.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

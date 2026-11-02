@@ -1,41 +1,32 @@
-// Motion Prompt #1-021 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#069
+// Motion Prompt #1-021 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#059
 //
-// Skeleton screen / スケルトン
-// Pack: ui (UI component names) · element 21 · Category: Navigation & status
-// What happens: Clicking reload turns the list into grey blocks of the same shape with a sweeping shine; the content returns when loading ends.
+// Toggle switch / トグルスイッチ
+// Category: UI & Web / Components / Choosing & input
+// What happens: The switches on the first two of three setting rows are turned on in turn, then off again.
 // Motion spec:
-//   - 4.5 s cycle on a 542×191 card. A two-row list (a 96×56 picture and three text lines each). The cursor clicks the reload icon at top right at 1.0 s.
-//   - Over 1.05–1.2 s (linear) the content switches to grey #e9e7e5 rounded blocks of the same size and position.
-//   - Shine: a white band 160 wide (transparent at the edges, opacity 0.75 in the middle) sweeps from x −200 to x 742 every 0.9 s, drawn only over the blocks.
-//   - The content returns over 3.0–3.3 s (linear).
-// When to use it: Use it for lists or cards that take a moment to load, so the layout is visible while people wait.
-// Tags: skeleton, skeleton-screen, placeholder, shimmer, loading, ghost-content
+//   - 4.5 s cycle on a 542×191 card. Three setting rows 60 px apart with dividers. At x 450 a 64×34 track (radius 17) and a white knob (radius 13, shadow).
+//   - Clicks: row 1 on at 1.0 s, row 2 on at 1.8 s, row 1 off at 3.0 s, row 2 off at 3.6 s. Row 3 stays off.
+//   - Each switch takes 0.2 s with easeOutCubic; the knob slides 30 px (17 → 47).
+//   - The track colour blends from grey #d9d7d5 to blue #1f5ae8 with the switch progress.
+// When to use it: Use it for settings that take effect immediately and have only two states.
+// Tags: toggle, switch, toggle-switch, on-off, boolean, settings
 // Size: 542x191 px · Cycle: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-021
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 21
-// 21 スケルトン（Skeleton screen）
-CELLS[20] = ui((w, h, t) => {
-  const sk = seg(t, 1.05, 1.2) * (1 - seg(t, 3.0, 3.3));
-  ring(w - 40, 26, 14, C.line2, 1.8); X.beginPath(); X.arc(w - 40, 26, 7, -Math.PI * .1, Math.PI * 1.4); X.strokeStyle = '#666'; X.lineWidth = 2.2; X.stroke();
-  bar(24, 20, 160, C.line2, 12);
-  for (let k = 0; k < 2; k++) {
-    const y = 56 + k * 66;
-    X.save(); X.globalAlpha = 1 - sk; mountains(24, y, 96, 56, k); bar(136, y + 6, 200, C.ink, 11); bar(136, y + 26, 340); bar(136, y + 42, 260); X.restore();
-    if (sk > 0) {
-      X.save(); X.globalAlpha = sk; const g = '#e9e7e5';
-      fillRR(24, y, 96, 56, 8, g); fillRR(136, y + 4, 200, 14, 7, g); fillRR(136, y + 26, 340, 10, 5, g); fillRR(136, y + 42, 260, 10, 5, g);
-      // 光が横に流れる
-      const sx = -200 + ((t - 1.1) % 0.9) / 0.9 * (w + 400);
-      X.globalCompositeOperation = 'source-atop';
-      const gr = X.createLinearGradient(sx - 80, 0, sx + 80, 0); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(.5, 'rgba(255,255,255,.75)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
-      X.fillStyle = gr; X.fillRect(0, y - 2, w, 64);
-      X.restore();
-    }
+// @element 11
+// 11 トグルスイッチ（Toggle switch）
+CELLS[10] = ui((w, h, t) => {
+  const st = [eo(seg(t, 1.0, 1.2)) * (1 - eo(seg(t, 3.0, 3.2))), eo(seg(t, 1.8, 2.0)) * (1 - eo(seg(t, 3.6, 3.8))), 0];
+  for (let i = 0; i < 3; i++) {
+    const y = 14 + i * 60; bar(24, y + 10, [170, 140, 190][i], C.line2, 11); bar(24, y + 30, [260, 220, 240][i], C.line, 8);
+    if (i < 2) { X.fillStyle = C.line; X.fillRect(24, y + 52, 494, 1.5); }
+    const k = st[i], tx = 450, ty = y + 10;
+    fillRR(tx, ty, 64, 34, 17, k > .5 ? C.blue : '#d9d7d5'); if (k > 0 && k < 1) { X.globalAlpha = k; fillRR(tx, ty, 64, 34, 17, C.blue); X.globalAlpha = 1; }
+    shadowed(() => circle(tx + 17 + 30 * k, ty + 17, 13, '#fff'), 4, 1, .25);
   }
-  pointer([[.3, w + 30, h + 30], [.95, w - 38, 30], [1.4, w - 38, 30], [2.1, w + 30, h + 30]], [1.0], t);
+  pointer([[.3, w + 30, h + 30], [.95, 486, 30], [1.35, 486, 30], [1.75, 486, 90], [2.5, 486, 90], [2.95, 486, 30], [3.25, 486, 30], [3.55, 486, 90], [3.85, 486, 90], [4.3, w + 30, h + 30]], [1.0, 1.8, 3.0, 3.6], t);
 });

@@ -1,44 +1,67 @@
 // Motion Prompt #1-141 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// タイムラインの描画 / Timeline draw
-// パック: uxmotion (インタラクションとデータの動き) · element 50 · カテゴリ: スクロール連動
-// 何が起きるか: スクロールが進むと左の細い線が上から下へ伸び、線が届いた節目の点が塗られて、週・見出し・説明が左から滑り込む。戻ると線が縮んで節目も消える。
+// スクラッチ / Scratch reveal
+// 分類: UI・Web / ポインター操作 / 手触り・カード
+// 何が起きるか: 銀色の表面に覆われたクーポンの上で、カーソルが押したまま左右にジグザグに動き、通った跡が削れて下の「送料無料クーポン」が現れ、最後に残りが消える。
 // 動きの仕様:
-//   - スクロール進行は 0.4–4.6 秒で 0→1、右のスクロールバーが同期
-//   - 左の線は上端から下へ 164px 伸びる。節目は 4 つ、点の半径 6px
-//   - 線の先が節目に届くと点が塗られ、週・見出し・説明が左 10px から滑り込みながら現れる（先端が 16px 過ぎるまでに完了）
-//   - 5.4–6.3 秒にスクロールが戻り、節目は下から順にしまわれる
-// 使いどころ: 制作の流れ、沿革、導入ステップなど、順番に読ませたい手順の紹介に。
-// タグ: timeline, steps, process, scroll, line-draw, roadmap
+//   - クーポン 300×140px を、斜めの光沢と「刮开看看」の文字を描いた銀色の表面が覆う
+//   - カーソルは 0.85 秒に押し、7 本のジグザグ（1 本 0.32 秒）で 3.0 秒まで削る。ブラシは丸い先端で太さ 30px
+//   - オフスクリーンキャンバスに表面を毎フレーム描き直し、その時刻までの軌跡全体を destination-out で消す
+//   - 3.1–3.6 秒に残りの表面がフェードアウト。5.4–6.0 秒に表面がフェードインして戻る
+// 使いどころ: 抽選や当たりくじ、クーポン配布、キャンペーンの結果発表など、めくる楽しさを出したいときに。
+// タグ: scratch-card, reveal, coupon, lottery, gamification, canvas-erase
 // サイズ: 539x208 px · 1周: 6.4 s
-// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-141
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 50
-// 50 时间轴延伸（KittenJam #127）：滚动进度 0.4–4.6 秒由 0 到 1（右侧滚动条同步），左侧细线从顶端往下延伸 164px；
-// 线头到达某个节点时，该节点圆点填色、周次 / 标题 / 说明从左 10px 滑入淡现（线头越过节点后 16px 内完成）；5.4–6.3 秒滚回，节点依次收起。
-const TLD_X = 130, TLD_Y0 = 22, TLD_Y1 = 186, TLD_NY = [36, 80, 124, 168];
-const TLD_NODES = [['需求访谈', '了解目标、用户与限制', '第 1 周'], ['概念构思', '草图、方向与评审', '第 2 周'], ['设计制作', '视觉稿与可交互原型', '第 3–5 周'], ['上线交付', '测试、发布与复盘', '第 6 周']];
-CELLS[49] = (k, w, h, u) => {
-  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
-  const p = UXA_scroll(u, 0.4, 4.6), ly = mix(TLD_Y0, TLD_Y1, p);
-  k.lineCap = 'round'; k.lineWidth = 2;
-  k.strokeStyle = UX.line2; k.beginPath(); k.moveTo(TLD_X, TLD_Y0); k.lineTo(TLD_X, TLD_Y1); k.stroke();
-  if (p > 0) { k.strokeStyle = UX.accent; k.beginPath(); k.moveTo(TLD_X, TLD_Y0); k.lineTo(TLD_X, ly); k.stroke(); }
-  TLD_NODES.forEach(([title, desc, week], i) => {
-    const ny = TLD_NY[i], a = out3(clamp((ly - ny + 4) / 16)), dx = -10 * (1 - a);
-    k.fillStyle = UX.surface; k.strokeStyle = UX.line2; k.lineWidth = 1.5; k.beginPath(); k.arc(TLD_X, ny, 6, 0, TAU); k.fill(); k.stroke();
-    if (a > 0) {
-      k.globalAlpha = a; k.fillStyle = UX.accent; k.beginPath(); k.arc(TLD_X, ny, 6, 0, TAU); k.fill();
-      txt(k, week, TLD_X - 18 + dx, ny + 4, UXB_f(700, 10.5), UX.ink3, 'right');
-      txt(k, title, TLD_X + 22 + dx, ny + 4.5, UXB_f(800, 13), UX.ink);
-      txt(k, desc, TLD_X + 100 + dx, ny + 4.5, UXB_f(600, 11), UX.ink3);
-      k.globalAlpha = 1;
+// @element 43
+// 43 刮刮乐揭示（KittenJam #180）：银色表层盖住优惠券；指针 0.85 秒按下，沿 7 段之字形来回刮到 3.0 秒（圆头笔刷 30px），
+// 离屏 canvas 每帧重画表层，再用 destination-out 擦掉截至当前时刻的整条轨迹；3.1–3.6 秒剩余表层淡出；5.4–6.0 秒表层淡回复位。
+const SCR_X = 120, SCR_Y = 34, SCR_W = 300, SCR_H = 140, SCR_BR = 30, SCR_T0 = 0.85, SCR_T1 = 3.0;
+const SCR_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.75, 145, 52], [0.85, 145, 52], [1.17, 395, 62], [1.49, 145, 82], [1.81, 395, 102],
+  [2.13, 145, 122], [2.45, 395, 142], [2.77, 145, 160], [3.0, 262, 158], [3.6, 570, 230]];
+const SCR_OFF = {};                                   // 只缓存离屏画布本身；内容每帧清空重画，不跨帧保留
+function SCR_coat(g) {
+  g.save(); rr(g, SCR_X, SCR_Y, SCR_W, SCR_H, 14); g.clip();
+  const m = g.createLinearGradient(SCR_X, SCR_Y, SCR_X + SCR_W, SCR_Y + SCR_H);
+  m.addColorStop(0, '#B8BCC8'); m.addColorStop(0.45, '#EEF0F4'); m.addColorStop(0.55, '#D9DCE4'); m.addColorStop(1, '#AEB2BE');
+  g.fillStyle = m; g.fillRect(SCR_X, SCR_Y, SCR_W, SCR_H);
+  g.strokeStyle = 'rgba(255,255,255,.22)'; g.lineWidth = 6;
+  for (let x = SCR_X - SCR_H; x < SCR_X + SCR_W; x += 26) { g.beginPath(); g.moveTo(x, SCR_Y + SCR_H); g.lineTo(x + SCR_H, SCR_Y); g.stroke(); }
+  txt(g, '刮开看看', SCR_X + SCR_W / 2, SCR_Y + 74, UXB_f(900, 22), '#5F6370', 'center');
+  txt(g, '按住来回刮开表层', SCR_X + SCR_W / 2, SCR_Y + 96, UXB_f(700, 10.5), '#7A7E8A', 'center');
+  g.restore();
+}
+CELLS[42] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  const cx = SCR_X + SCR_W / 2;
+  card(k, SCR_X, SCR_Y, SCR_W, SCR_H, 14, '#FFF7EC');
+  k.setLineDash([5, 4]); k.strokeStyle = 'rgba(214,115,30,.5)'; k.lineWidth = 1.2; rr(k, SCR_X + 10.5, SCR_Y + 10.5, SCR_W - 21, SCR_H - 21, 10); k.stroke(); k.setLineDash([]);
+  txt(k, '恭喜获得', cx, SCR_Y + 40, UXB_f(700, 11), UX.ink3, 'center');
+  txt(k, '免运费优惠券', cx, SCR_Y + 78, UXB_f(900, 26), UX.warn, 'center');
+  txt(k, '全场满 99 元可用 · 券码 FREESHIP', cx, SCR_Y + 106, UXB_f(700, 10.5), UX.ink2, 'center');
+  if (!SCR_OFF.c) { SCR_OFF.c = document.createElement('canvas'); SCR_OFF.c.width = CW * 2; SCR_OFF.c.height = CH * 2; SCR_OFF.g = SCR_OFF.c.getContext('2d'); }
+  const g = SCR_OFF.g;
+  g.setTransform(2, 0, 0, 2, 0, 0); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, CW, CH);
+  SCR_coat(g);
+  let a;
+  if (u >= SHOW) a = resetK(u);                       // 复位：完整表层淡回
+  else {
+    a = 1 - inOut3(seg(u, 3.1, 3.6));
+    if (u > SCR_T0) {
+      // 从按下时刻起按 1/60 秒取样指针轨迹，整条重画擦除
+      const te = Math.min(u, SCR_T1), n = Math.floor((te - SCR_T0) * 60);
+      g.globalCompositeOperation = 'destination-out'; g.strokeStyle = '#000'; g.lineWidth = SCR_BR; g.lineCap = 'round'; g.lineJoin = 'round';
+      g.beginPath(); let p = UXB_path(SCR_T0, SCR_KEYS); g.moveTo(p[0], p[1]);
+      for (let j = 1; j <= n; j++) { p = UXB_path(SCR_T0 + j / 60, SCR_KEYS); g.lineTo(p[0], p[1]); }
+      p = UXB_path(te, SCR_KEYS); g.lineTo(p[0], p[1]); g.stroke();
+      g.globalCompositeOperation = 'source-over';
     }
-  });
-  if (p > 0 && p < 1) glow(k, TLD_X, ly, 12, '106,87,242', 0.5);
-  scrollbar(k, p);
+  }
+  if (a > 0) { k.save(); k.globalAlpha = a; k.drawImage(SCR_OFF.c, 0, 0, CW, CH); k.restore(); }
+  const c = UXB_path(u, SCR_KEYS);
+  if (u > 0.3 && u < 3.6) cursor(k, c[0], c[1], UXC_hold(u, SCR_T0, SCR_T1));
 };

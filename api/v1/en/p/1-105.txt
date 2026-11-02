@@ -1,15 +1,16 @@
-Please use "Shared element transition" (共有要素トランジション), one of the names in "Landing page & web effects".
+Please use "Press / tap feedback" (押したときの縮み), filed under "Pointer interactions / Buttons".
 Motion Prompt #1-105
 
-What it is: One element morphs from the list into the detail view, linking the two screens
-What the sample shows: A list thumbnail moves and expands straight into the detail page's large image while everything else cross-fades; going back shrinks it along the same path.
+What it is: A button shrinks slightly while pressed, so a tap feels physical
+What the sample shows: Two identical buttons: the left one does nothing when pressed; the right one shrinks a little with a tighter shadow and recovers on release.
 Spec:
-- The thumbnail in list row 2 (56×32, radius 5) moves and grows continuously over 0.80–1.40 s (0.6 s, easeInOut, power 3) into the detail page's large image (250×140, radius 10).
-- Position, size and corner radius interpolate together; the rest of the list fades out in 0.25 s and the detail text fades in over 1.25–1.55 s.
-- "← Back" is clicked at 3.0 s; over 3.10–3.70 s the same image shrinks back along its path into the list, which fades in over 3.45–3.75 s.
-- Versus Page transition: there is no cover wipe; one element keeps morphing from its old place to its new one, tying the two pages together.
-When to use it: Use it when moving from a list to a detail view — photos, products, contacts — so users never lose track of what they opened.
+- 2 identical "Buy now" buttons (170×50), left and right: the left does not change on press or release; the right gives feedback.
+- On press it shrinks to 0.97 within 0.1 s with easeOut (power 3), and the shadow tightens from blur 14 / offset 6 to blur 4 / offset 2.
+- On release it returns to 1 over 0.25 s with easeOut (power 3).
+- Pressed intervals: left 0.80–1.15 s; right 2.20–2.55 and 3.05–3.40 s. The cursor returns to its start over 3.6–4.2 s.
+- Versus Click ripple: no ripple at all, only the button itself shrinking with a tighter shadow.
+When to use it: Use it on buttons, cards and list items — anything tappable, especially in touch apps, to make taps feel responsive.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-105.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

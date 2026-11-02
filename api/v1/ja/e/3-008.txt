@@ -1,7 +1,7 @@
 // Motion Prompt #3-008 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#032
 //
 // ドリーズーム / Dolly zoom (Vertigo)
-// パック: camera (カメラワークと切り替え) · element 08 · カテゴリ: カメラの動き
+// 分類: 編集・撮影 / カメラ・編集 / カメラの動き
 // 何が起きるか: カメラを引きながら同じ比率でズームする。人物の大きさは変わらず、背景だけが迫ってくる。
 // 動きの仕様:
 //   - カメラ: 人物（8m先）との距離 d を 3.2m → 8m に広げる（4.8m後退）。高さ1.3m
@@ -13,11 +13,11 @@
 // 使いどころ: 人物が何かに気づいた瞬間や、不安・動揺を映像で表すとき。
 // タグ: dolly zoom, vertigo, zolly, push pull, background stretch, unease, camera move
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-008
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 08
 // 08 ドリーズーム: 人物の大きさは一定、背景だけ伸び縮み

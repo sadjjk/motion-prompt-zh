@@ -1,57 +1,42 @@
-// Motion Prompt #2-082 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+// Motion Prompt #2-082 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// 心電図ライン / ECG heartbeat line
-// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 43 · カテゴリ: 動きのテクニック
-// 何が起きるか: 暗い緑のマス目の画面で、光る心電図の波形が左から右へ掃引され、古い線は暗くなり、右側のハートが拍ごとに膨らむ。
+// SF の計器 / Sci-fi HUD
+// 分類: モーショングラフィックス / 図形・オブジェクト / 情報・テック
+// 何が起きるか: 濃紺の上で青緑の同心リングがそれぞれ逆向きにも回り、中心の数値と右のデータ列が絶えず変わり、扫描扇が回る。
 // 動きの仕様:
-//   - 16pxの細かいマス目（80pxごとに濃い線）の暗い画面。波形は96pxごとに P波・QRS（上へ62px）・T波を繰り返す
-//   - 掃引の先端が2.35秒で左から右へ進み、先端の前8%は空白、後ろの線は古いほど暗くなる（最暗で25%）
-//   - 線は2pxの明るい緑と7pxの光、先端に光る点（半径3.5px、光9px）
-//   - R波が先端を通るとハートが1.25倍に膨らんで戻り、心拍数の表示が拍ごとに切り替わる
-// 使いどころ: 医療・健康・フィットネスの説明や、「鼓動」「生きている」を表す演出に。
-// タグ: ecg, heartbeat, pulse, monitor, medical, line
-// サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+//   - 中心 (200, 104)、8 重の同心リング。うち 6 本が 6.4 秒あたり 0.5〜3 周で回り、向きは正逆まちまち
+//   - 外周に 120 本の目盛り（10 本ごとに 6 px の長目盛り）。内側の走査扇は 6.4 秒で 2 周
+//   - 中心の数値は 75〜99 の間で正弦的に変わる、28 px の細字
+//   - 右に CH-1〜CH-6 の 6 行、6.4 秒に 2 回増減。線色 rgba(90, 220, 255)、背景 #04101C
+// 使いどころ: テック製品の発表動画のオープニングや、ゲーム・SF 作品の首画面背景、データ系ダッシュボードの待機画面に。
+// タグ: hud, sci-fi, dial, rings, interface, futuristic, tech
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-082
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 43
-// 改写自 KittenJam Motion Library #328（Hannah）· 心电图：深色细格屏上，P 波、QRS 尖波、T 波每 96px 重复，扫描前端每 2.35 秒从左扫到右，前端后面是新画的发光波形，前方留 8% 空隙、更早的波形逐渐变暗；右侧心形随每次 R 波放大 1.25 倍，心率数字按拍切换。
-const ECG_XL = 20, ECG_XR = 404, ECG_YB = 120, ECG_PW = 96;
-const ECG_QRS = [[34, 0], [37, 6], [41, -62], [46, 18], [50, 0]];
-const ECG_BPM = [102, 101, 103, 102, 100, 102, 104, 103];
-function ECG_y(xl) {
-  const x = mod(xl, ECG_PW);
-  if (x > 14 && x < 28) return ECG_YB - 7 * Math.sin(Math.PI * (x - 14) / 14);
-  if (x > 62 && x < 80) return ECG_YB - 14 * Math.sin(Math.PI * (x - 62) / 18);
-  for (let i = 1; i < ECG_QRS.length; i++) if (x >= ECG_QRS[i - 1][0] && x <= ECG_QRS[i][0]) return ECG_YB + lerp(ECG_QRS[i - 1][1], ECG_QRS[i][1], (x - ECG_QRS[i - 1][0]) / (ECG_QRS[i][0] - ECG_QRS[i - 1][0]));
-  return ECG_YB;
-}
-CELLS[42] = (k, w, h, u) => {
-  u = snapU(u);
-  stage(k, '#04100C');
-  k.fillStyle = '#071A13'; rr(k, 10, 10, w - 20, h - 20, 12); k.fill();
-  for (let x = 10; x <= w - 10; x += 16) { k.fillStyle = (x - 10) % 80 ? 'rgba(46,219,168,.06)' : 'rgba(46,219,168,.14)'; k.fillRect(x, 10, 1, h - 20); }
-  for (let y = 10; y <= h - 10; y += 16) { k.fillStyle = (y - 10) % 80 ? 'rgba(46,219,168,.06)' : 'rgba(46,219,168,.14)'; k.fillRect(10, y, w - 20, 1); }
-  const W = ECG_XR - ECG_XL, s = mod(u / (CYC / 2), 1), cx = ECG_XL + s * W;
-  k.lineCap = 'round'; k.lineJoin = 'round';
-  for (let x = ECG_XL; x < ECG_XR; x += 4) {
-    const age = mod(cx - x, W) / W; if (age > 0.92) continue;
-    const a = 1 - 0.75 * age, x2 = Math.min(ECG_XR, x + 4);
-    k.beginPath(); k.moveTo(x, ECG_y(x - ECG_XL)); for (let xx = x + 1; xx <= x2; xx++) k.lineTo(xx, ECG_y(xx - ECG_XL));
-    k.strokeStyle = `rgba(53,242,154,${0.18 * a})`; k.lineWidth = 7; k.stroke();
-    k.strokeStyle = `rgba(53,242,154,${a})`; k.lineWidth = 2; k.stroke();
-  }
-  const cy = ECG_y(cx - ECG_XL);
-  k.fillStyle = 'rgba(53,242,154,.25)'; k.beginPath(); k.arc(cx, cy, 9, 0, 7); k.fill();
-  k.fillStyle = '#D9FFEC'; k.beginPath(); k.arc(cx, cy, 3.5, 0, 7); k.fill();
-  // 右侧读数：R 波（局部 41px）经过后心形跳一下
-  const d = mod(cx - ECG_XL - 41, ECG_PW), pulse = Math.exp(-d / 12);
-  const beat = mod(Math.floor(u / (CYC / 2) * 4 - 41 / 96), 8);
-  k.fillStyle = 'rgba(46,219,168,.2)'; k.fillRect(420, 30, 1, h - 60);
-  txt(k, String(ECG_BPM[beat]), 438, 104, `700 40px ui-monospace, Menlo, monospace`, '#D9FFEC');
-  txt(k, 'BPM', 440, 126, `700 12px ${DISP}`, 'rgba(53,242,154,.8)');
-  k.save(); k.translate(488, 58); k.scale(1 + 0.25 * pulse, 1 + 0.25 * pulse); k.fillStyle = C.coral; heartPath(k, 10); k.fill(); k.restore();
+// @element 08
+// 08 科幻仪表：同心刻度环以不同速度转动，中心读数与侧边数据跳动，青色线条叠在深蓝上
+CELLS[7] = (k, w, h, u) => {
+  k.fillStyle = '#04101C'; k.fillRect(0, 0, CW, CH);
+  const cx = 200, cy = 104, S = 0.2, ph = TAU * u / CYC;   // 环半径按 0.2 倍缩放；转速取每周期整数圈
+  const c = a => `rgba(90,220,255,${a})`;
+  k.save(); k.globalCompositeOperation = 'lighter';
+  const ring = (R, wd, n, turns, gap, a) => {
+    k.strokeStyle = c(a); k.lineWidth = wd;
+    for (let i = 0; i < n; i++) { const a0 = i / n * TAU + ph * turns; k.beginPath(); k.arc(cx, cy, R * S, a0, a0 + TAU / n * (1 - gap)); k.stroke(); }
+  };
+  ring(420, 1, 1, 0, 0, 0.25); ring(400, 3, 36, 1, 0.5, 0.5); ring(360, 1, 3, -1, 0.2, 0.8); ring(320, 6, 60, 0.5, 0.7, 0.35);
+  ring(270, 1.2, 8, 2, 0.3, 0.7); ring(220, 1, 1, 0, 0, 0.5); ring(200, 4, 4, -2, 0.6, 0.6); ring(140, 1, 12, 3, 0.5, 0.9);
+  for (let i = 0; i < 120; i++) { const a = i / 120 * TAU, L = i % 10 === 0 ? 6 : 2.5; k.strokeStyle = c(0.5); k.lineWidth = 0.6; k.beginPath(); k.moveTo(cx + Math.cos(a) * 88, cy + Math.sin(a) * 88); k.lineTo(cx + Math.cos(a) * (88 + L), cy + Math.sin(a) * (88 + L)); k.stroke(); }
+  const sweep = ph * 2, g = k.createConicGradient(sweep, cx, cy);   // 扫描扇区每周期 2 圈
+  g.addColorStop(0, 'rgba(90,220,255,.35)'); g.addColorStop(0.12, 'rgba(90,220,255,0)'); g.addColorStop(1, 'rgba(90,220,255,0)');
+  k.fillStyle = g; k.beginPath(); k.arc(cx, cy, 60, 0, TAU); k.fill();
+  k.restore();
+  txt(k, String(Math.floor(87 + 12 * Math.sin(ph))).padStart(2, '0'), cx, cy + 8, `200 28px ${DISP}`, '#C9F4FF', 'center');
+  txt(k, 'SYNC %', cx, cy + 22, `500 7px ${MONO}`, '#C9F4FF', 'center');
+  for (let q = 0; q < 6; q++) txt(k, `CH-${q + 1}  ${(Math.sin(ph * 2 + q) * 50 + 50).toFixed(2).padStart(6, '0')}`, 340, 58 + q * 18, `500 10px ${MONO}`, 'rgba(160,235,255,.8)');
+  grain(k, 0.05);
 };

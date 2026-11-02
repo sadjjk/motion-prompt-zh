@@ -1,51 +1,63 @@
-// Motion Prompt #1-028 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#076
+// Motion Prompt #1-028 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills
 //
-// ピン留め / Pinning
-// パック: lp (LP・Webサイトの演出) · element 04 · カテゴリ: スクロールで起きる演出
-// 何が起きるか: 濃紺のセクションが画面いっぱいに来たところで止まり、スクロールし続けると番号と写真がステップ1→2→3と切り替わり、終わると再び流れていく。
+// ドラッグで並べ替え / Drag to reorder
+// 分類: UI・Web / コンポーネント / 選ぶ・入力する
+// 何が起きるか: 1行目をつかんで浮かせ、下へ2行ぶん引くと、通り過ぎた行が順に上へよけ、離すと新しい位置に収まる。
 // 動きの仕様:
-//   - スクロール量: 0.3〜3.0秒で 0→500px、3.5〜4.5秒で 500→0（easeInOut 3乗）
-//   - セクション（高さ168・濃紺）はスクロール量110pxで上端に着き、そこから300pxのあいだ止まる（GSAP ScrollTrigger の pin）
-//   - 止まっている間の進み具合 p = (スクロール量 − 110) / 300。左の縦線（長さ124）が p に合わせて朱色で伸びる
-//   - p が 1/3 と 2/3 の所（前後 ±0.07、easeInOut 3乗）で次のステップへ: 番号（46px）が52px、写真（226×124）が124px 上へ送られる
-//   - 300px 進むと止めを外し、セクションは次の白いセクションと一緒に上へ流れる
-// 使いどころ: 手順・特長・ビフォーアフターを、1画面で順番に見せたいとき。
-// タグ: pin, pinning, scrolltrigger, gsap, scroll-driven, steps, storytelling
-// サイズ: 539x208 px · 1周: 4.8 s
-// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+//   - 4行のリスト、行の高さ38・間隔44（y = 12 / 56 / 100 / 144）。カーソルが0.95秒に1行目左のつまみへ着き、1.0秒に押す
+//   - 持ち上げ 1.0〜1.15秒 easeOutCubic: ドラッグ中の行は1.04倍、影のぼかし 4→20・下へ 1→7px、枠が青になる
+//   - 1.15〜2.1秒 easeInOutCubic で下へ88px。2・3行目の半分（22 / 66px）を越えた行は、0.2秒 easeOutCubic で上へ44pxよける。元の場所に水色の破線の枠
+//   - 2.2秒に離し、2.2〜2.4秒で持ち上げ量が0に戻って収まる。3.4〜3.9秒にすべての行が元の順に戻る
+//   - テーブルのリアルタイム挿入との違い: 順番を変えるのはユーザーの手のドラッグで、ほかの行がその場でよける
+// 使いどころ: ToDo・プレイリスト・カンバンのカード・設定項目など、ユーザーが自分で順番を決めるリストに。
+// タグ: drag-and-drop, reorder, sortable, list, drag-handle, placeholder, kanban
+// サイズ: 542x191 px · 1周: 4.5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-028
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 04
-// 04 ピン留め（セクションが画面に止まったまま、中身だけがスクロールで進む）
-CELLS[3] = (k, w, h, u) => {
-  frame(k);
-  const y = steps([[0.3, 0], [3.0, 500], [3.5, 500], [4.5, 0]], u);
-  const PIN0 = 110, PD = 300;
-  const top = y < PIN0 ? PIN0 - y : y < PIN0 + PD ? 0 : PIN0 + PD - y, p = clamp((y - PIN0) / PD);
-  // 中身は 1/3・2/3 の所で次のステップへ（前後 ±0.07 の範囲で easeInOut）
-  const f = eIO(P(p, 1 / 3 - 0.07, 1 / 3 + 0.07)) + eIO(P(p, 2 / 3 - 0.07, 2 / 3 + 0.07));
-  view(k, () => {
-    txt(k, '3 步完成', 34, 56 - y, `800 22px ${JP}`, C.ink); bars(k, 34, 72 - y, 240, 2);
-    k.save(); k.translate(0, top);
-    k.fillStyle = C.ink; k.fillRect(0, 0, VW, VH);
-    // 左: STEP の番号（スクロール量に合わせて回る）
-    txt(k, 'STEP', 34, 40, `700 12px ${EN}`, 'rgba(255,255,255,.6)', 'left', 'alphabetic', '2px');
-    k.save(); k.beginPath(); k.rect(30, 46, 120, 52); k.clip();
-    for (let i = 0; i < 3; i++) txt(k, '0' + (i + 1), 32, 90 + (i - f) * 52, `800 46px ${EN}`, '#fff');
-    k.restore();
-    bars(k, 34, 110, 150, 3, 'rgba(255,255,255,.28)');
-    // 進み具合の線
-    k.fillStyle = 'rgba(255,255,255,.16)'; rr(k, 232, 22, 4, 124, 2); k.fill();
-    k.fillStyle = C.acc; rr(k, 232, 22, 4, 124 * p, 2); k.fill();
-    // 右: 写真が順に入れ替わる
-    k.save(); rr(k, 256, 22, 226, 124, 8); k.clip();
-    for (let i = 0; i < 3; i++) pic(k, 256, 22 + (i - f) * 124, 226, 124, i, 0);
-    k.restore();
-    k.fillStyle = '#fff'; k.fillRect(0, VH, VW, 200); bars(k, 34, VH + 30, 300, 3);
-    k.restore();
-    sbar(k, y / 500, 0.3);
-  });
-};
+// @element 29
+// 30 拖拽排序（Drag to reorder）
+// 4 行列表，行高 38、行距 44（y = 12 / 56 / 100 / 144）。光标 0.95 秒到第 1 行左侧把手，1.0 秒按下。
+// 抬起量 1.0–1.15 秒 easeOutCubic：拖动行放大到 1.04 倍、阴影模糊 4→20、下移 1→7px，边框变蓝。
+// 1.15–2.1 秒 easeInOutCubic 向下拖 88px（两个行距）；拖动行越过第 2、3 行的一半（22 / 66px）时，该行用 0.2 秒 easeOutCubic 上移 44px 让位，
+// 原位留下浅蓝虚线占位框。2.2 秒松手，2.2–2.4 秒抬起量回 0 落位。
+// 复位：3.4–3.9 秒 easeInOutCubic 所有行回到原顺序。
+const REORD_ITEMS = ['设计稿评审', '接口联调', '撰写周报', '发布上线'];
+const REORD_TAG = [C.blue, C.sb, C.mb, C.line2];
+const REORD_Y0 = 12, REORD_GAP = 44, REORD_H = 38;
+const REORD_DY = t => 88 * eio(seg(t, 1.15, 2.1));
+// 越过阈值的时刻：二分求解（只在加载时算一次）
+const REORD_TC = [1, 2].map(j => { const thr = REORD_GAP * (j - .5); let a = 1.15, b = 2.1; for (let i = 0; i < 40; i++) { const m = (a + b) / 2; if (REORD_DY(m) < thr) a = m; else b = m; } return b; });
+CELLS[28] = ui((w, h, t) => {
+  const back = eio(seg(t, 3.4, 3.9));
+  const lift = eo(seg(t, 1.0, 1.15)) * (1 - eo(seg(t, 2.2, 2.4)));
+  const row = (i, y, lf) => {
+    const x = 24, rw = 494;
+    X.save();
+    if (lf > 0) { const cx = x + rw / 2, cy = y + REORD_H / 2, s = 1 + .04 * lf; X.translate(cx, cy); X.scale(s, s); X.translate(-cx, -cy); }
+    shadowed(() => fillRR(x, y, rw, REORD_H, 8, '#fff'), 4 + 16 * lf, 1 + 6 * lf, .06 + .16 * lf);
+    strokeRR(x, y, rw, REORD_H, 8, lf > .05 ? C.sb : C.line2, 1.5);
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 2; c++) circle(x + 16 + c * 6, y + 12 + r * 7, 1.8, lf > .05 ? C.blue : '#aaa');
+    ring(x + 46, y + 19, 8, C.line2, 2);
+    text(REORD_ITEMS[i], x + 64, y + 20, 14, C.ink, 600);
+    fillRR(x + rw - 70, y + 12, 52, 14, 7, REORD_TAG[i]);
+    X.restore();
+  };
+  const dragY = REORD_Y0 + (t < 3.4 ? REORD_DY(t) : 88 * (1 - back));
+  const passed = REORD_TC.filter(c => t >= c).length;
+  if (lift > 0) { const py = REORD_Y0 + REORD_GAP * passed; X.save(); X.globalAlpha = lift; fillRR(24, py, 494, REORD_H, 8, C.lb); X.setLineDash([5, 4]); strokeRR(24, py, 494, REORD_H, 8, C.sb, 1.5); X.restore(); }
+  for (let i = 1; i < 4; i++) {
+    let y = REORD_Y0 + i * REORD_GAP;
+    if (i <= 2) { const sh = t < 3.4 ? eo(seg(t, REORD_TC[i - 1], REORD_TC[i - 1] + .2)) : 1 - back; y -= REORD_GAP * sh; }
+    row(i, y, 0);
+  }
+  row(0, dragY, lift);
+  let pos;
+  if (t < 1.0) pos = track([[.3, w + 30, h + 30], [.95, 44, 33]], t);
+  else if (t < 2.25) pos = [44, dragY + 21];
+  else pos = track([[2.25, 44, dragY + 21], [2.9, w + 30, h + 30]], t);
+  pointer([[0, pos[0], pos[1]]], [1.0, 2.2], t);
+});

@@ -1,63 +1,87 @@
-// Motion Prompt #1-129 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+// Motion Prompt #1-129 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
 //
-// Line chart draw / 折れ線グラフの描画
-// Pack: uxmotion (Interaction & data motion) · element 38 · Category: Animated charts
-// What happens: Over faint gridlines the line grows from left to right, points pop in turn, a gradient area fades in below and a growth label floats up at the end.
+// Swipeable card stack / スワイプするカードの山
+// Category: UI & Web / Pointer interactions / Cursor
+// What happens: The pointer drags the top card right with a tilt, flings it away with a Save stamp, swipes the next one left to Skip, and finally both fly back.
 // Motion spec:
-//   - 10 data points; the 2.5 px line draws left to right at constant speed from 0.3–1.9 s.
-//   - Each point (radius 4 px) pops from 0 with a 0.3 s backOut as the line tip passes it.
-//   - Once the line reaches 60%, the gradient area under it fades in over 0.6 s.
-//   - From 1.9–2.3 s a growth label rises 8 px into view above the last point; everything fades out and resets from 5.4–6.0 s.
-// When to use it: Use it on dashboards and growth slides to make a trend readable at a glance.
-// Tags: line-chart, chart-draw, data-viz, dashboard, trend, growth
+//   - 4 stacked cards, 190 × 150 px with 18 px corner radius; each lower card sits 9 px lower and 5% smaller.
+//   - While dragging the card tilts by drag × 0.06°; the Save / Skip stamps fade in with drag distance, fully visible at 110 px, tilted −14° / 14°.
+//   - On release the card flies a further 270 px off in 0.45 s and the next card moves up.
+//   - In the demo the top card is dragged 150 px right from 0.5–1.6 s and card 2 left from 2.6–3.7 s; the 2 cards fly back in turn from 5.0–6.1 s.
+// When to use it: Use it in recommendation, matching or bookmarking mobile apps where users sort items one by one.
+// Tags: swipe, card-stack, drag, gesture, mobile, tinder-style
 // Size: 539x208 px · Cycle: 6.4 s
-// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-129
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 38
-// 38 折线图绘制（KittenJam #197）：淡格线上，折线 0.3–1.9 秒由左到右匀速画出；线头经过时 10 个数据点依次弹出（0.3 秒 backOut），
-// 画到 60% 起线下渐变面积 0.6 秒淡入；1.9–2.3 秒终点上方浮出增长标签；5.4–6.0 秒全部淡出复位。
-const LCD_V = [12, 18, 15, 24, 22, 31, 29, 38, 44, 52];
-const LCD_X0 = 60, LCD_X1 = 500, LCD_Y0 = 50, LCD_Y1 = 176, LCD_MAX = 60, LCD_T0 = 0.3, LCD_DUR = 1.6;
-const LCD_pt = i => [mix(LCD_X0, LCD_X1, i / (LCD_V.length - 1)), LCD_Y1 - LCD_V[i] / LCD_MAX * (LCD_Y1 - LCD_Y0)];
-CELLS[37] = (k, w, h, u) => {
-  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
-  txt(k, '月营收增长', 22, 28, UXB_f(900, 14), UX.ink); txt(k, '单位：万元', CW - 20, 28, UXB_f(700, 10.5), UX.ink3, 'right');
-  k.strokeStyle = UX.line; k.lineWidth = 1;
-  [0, 20, 40, 60].forEach(v => {
-    const y = Math.round(LCD_Y1 - v / LCD_MAX * (LCD_Y1 - LCD_Y0)) + 0.5;
-    k.beginPath(); k.moveTo(LCD_X0, y); k.lineTo(LCD_X1, y); k.stroke(); txt(k, String(v), LCD_X0 - 10, y + 3.5, UXB_f(700, 9), UX.ink3, 'right');
-  });
-  const fa = fadeIn(u), p = seg(u, LCD_T0, LCD_T0 + LCD_DUR), hx = mix(LCD_X0, LCD_X1, p);
-  if (fa <= 0 || p <= 0) return;
-  const pts = LCD_V.map((_, i) => LCD_pt(i));
-  k.save(); k.globalAlpha = fa;
-  k.save(); k.beginPath(); k.rect(0, 0, hx, CH); k.clip();
-  // 线下面积：线画到 60% 时开始淡入
-  const aa = seg(u, LCD_T0 + LCD_DUR * 0.6, LCD_T0 + LCD_DUR * 0.6 + 0.6);
-  if (aa > 0) {
-    const g = k.createLinearGradient(0, LCD_Y0, 0, LCD_Y1); g.addColorStop(0, 'rgba(106,87,242,.28)'); g.addColorStop(1, 'rgba(106,87,242,0)');
-    k.globalAlpha = fa * aa; k.fillStyle = g; k.beginPath(); k.moveTo(pts[0][0], LCD_Y1);
-    pts.forEach(q => k.lineTo(q[0], q[1])); k.lineTo(pts[pts.length - 1][0], LCD_Y1); k.closePath(); k.fill(); k.globalAlpha = fa;
+// @element 26
+// 26 滑动卡片堆叠：4 张地点卡叠放（下层每张下移 9px、缩小 5%）；模拟指针 0.5–1.6 秒把顶卡向右拖 150px（卡片按 拖动量×0.06° 倾斜），
+// 「收藏」印章随拖动距离显出；松手后 .45 秒飞出画面，下一张以 .5 秒弹簧补上；2.6–3.7 秒把第 2 张向左拖，显出「跳过」印章并飞出；
+// 5.0–6.2 秒两张卡依次从两侧飞回原位（倒放），周期末回到初始那一叠
+const SWIPE_D = [
+  ['延南洞 · 咖啡馆', '午后温室', ['安静', '靠窗座位'], ['#FFB547', '#FF6B8B'], ['#FFE2B8', '#FF8A65']],
+  ['圣水洞 · 展览', '光之花园', ['需预约', '2 小时'], ['#5B8CFF', '#7B61FF'], ['#B7A4FF', '#3D5BFF']],
+  ['望远洞 · 书店', '海边书屋', ['独立出版', '饮品'], ['#22C3A6', '#0E7490'], ['#A5F2D3', '#14B8A6']],
+  ['乙支路 · 酒吧', '霓虹之家', ['爵士', '营业到 23 点'], ['#B04FD0', '#2B1B6B'], ['#FF9BD2', '#B04FD0']],
+];
+const SWIPE_CX = 200, SWIPE_CY = 100, SWIPE_W = 190, SWIPE_H = 150;
+// 第 i 张卡在时刻 u 的拖动偏移 dx（0 = 在叠中）与是否已离开
+function SWIPE_state(i, u) {
+  const ev = i === 0 ? { s: 0.5, e: 1.6, dir: 1, back: [5.0, 5.6] } : i === 1 ? { s: 2.6, e: 3.7, dir: -1, back: [5.5, 6.1] } : null;
+  if (!ev) return { dx: 0, out: 0 };
+  if (u >= ev.back[0]) { const q = inOut3(seg(u, ev.back[0], ev.back[1])); return { dx: ev.dir * 420 * (1 - q), out: 1 - q }; }
+  if (u < ev.s) return { dx: 0, out: 0 };
+  if (u < ev.e) return { dx: ev.dir * 150 * inOut3(seg(u, ev.s, ev.e)), out: 0 };
+  const q = out3(seg(u, ev.e, ev.e + 0.45)); return { dx: ev.dir * (150 + 270 * q), out: q };
+}
+CELLS[25] = (k, w, h, u) => {
+  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
+  // 叠中位置：已离开的卡不占层；depth = 前面仍在叠中的卡数（带 .5 秒弹簧过渡）
+  const outs = SWIPE_D.map((_, i) => SWIPE_state(i, u));
+  const depthOf = i => { let d = 0; for (let j = 0; j < i; j++) d += 1 - outs[j].out; return d; };
+  for (let i = SWIPE_D.length - 1; i >= 0; i--) {
+    const d = Math.min(3, depthOf(i)), { dx } = outs[i];
+    const [place, title, tags, g1, g2] = SWIPE_D[i];
+    k.save(); k.translate(SWIPE_CX + dx, SWIPE_CY + d * 9 + SWIPE_H / 2); k.rotate(dx * 0.06 * Math.PI / 180); k.scale(1 - d * 0.05, 1 - d * 0.05);
+    k.translate(0, -SWIPE_H / 2);
+    k.save(); k.shadowColor = 'rgba(20,10,50,.35)'; k.shadowBlur = 18; k.shadowOffsetY = 10;
+    const bg = k.createLinearGradient(-SWIPE_W / 2, -SWIPE_H / 2, SWIPE_W / 2, SWIPE_H / 2); bg.addColorStop(0, g1[0]); bg.addColorStop(1, g1[1]);
+    k.fillStyle = bg; rr(k, -SWIPE_W / 2, -SWIPE_H / 2, SWIPE_W, SWIPE_H, 18); k.fill(); k.restore();
+    k.save(); rr(k, -SWIPE_W / 2, -SWIPE_H / 2, SWIPE_W, SWIPE_H, 18); k.clip();
+    glow(k, SWIPE_W / 2 - 30, -SWIPE_H / 2 + 10, 90, '255,255,255', 0.45);
+    const sg = k.createLinearGradient(-40, -60, 40, 20); sg.addColorStop(0, g2[0]); sg.addColorStop(1, g2[1]);
+    k.fillStyle = sg; k.beginPath(); k.ellipse(0, -18, 46, 42, 0.3, 0, TAU); k.fill();
+    const sh = k.createLinearGradient(0, 0, 0, SWIPE_H / 2); sh.addColorStop(0, 'rgba(10,6,30,0)'); sh.addColorStop(1, 'rgba(10,6,30,.6)');
+    k.fillStyle = sh; k.fillRect(-SWIPE_W / 2, 0, SWIPE_W, SWIPE_H / 2);
+    txt(k, place, -SWIPE_W / 2 + 14, 34, `700 9px ${SANS}`, 'rgba(255,255,255,.8)');
+    txt(k, title, -SWIPE_W / 2 + 14, 52, `800 16px ${SANS}`, '#fff');
+    let tx = -SWIPE_W / 2 + 14; for (const t of tags) { k.font = `700 8.5px ${SANS}`; const tw = k.measureText(t).width + 14; k.fillStyle = 'rgba(255,255,255,.22)'; rr(k, tx, 58, tw, 14, 7); k.fill(); txt(k, t, tx + 7, 68, `700 8.5px ${SANS}`, '#fff'); tx += tw + 5; }
+    // 印章：右滑「收藏」（左上、−14°），左滑「跳过」（右上、14°），透明度随拖动量
+    const a = clamp(Math.abs(dx) / 110);
+    if (a > 0.02) {
+      const yes = dx > 0; k.save(); k.translate(yes ? -SWIPE_W / 2 + 46 : SWIPE_W / 2 - 46, -SWIPE_H / 2 + 26); k.rotate((yes ? -14 : 14) * Math.PI / 180);
+      k.globalAlpha = a; k.strokeStyle = yes ? '#7EE8C0' : '#FF8FA3'; k.lineWidth = 2.5; rr(k, -30, -12, 60, 24, 7); k.stroke();
+      txt(k, yes ? '收藏' : '跳过', 0, 5, `900 13px ${SANS}`, yes ? '#7EE8C0' : '#FF8FA3', 'center'); k.restore();
+    }
+    k.restore(); k.restore();
   }
-  k.strokeStyle = UX.accent; k.lineWidth = 2.5; k.lineJoin = 'round'; k.lineCap = 'round';
-  k.beginPath(); pts.forEach((q, i) => (i ? k.lineTo(q[0], q[1]) : k.moveTo(q[0], q[1]))); k.stroke();
-  k.restore();
-  // 数据点：线头经过（间隔 = 描绘时长 ÷ 段数）时从 0 弹出
-  pts.forEach((q, i) => {
-    const s = backOut(seg(u, LCD_T0 + LCD_DUR * i / (LCD_V.length - 1), LCD_T0 + LCD_DUR * i / (LCD_V.length - 1) + 0.3));
-    if (s <= 0) return;
-    k.fillStyle = UX.surface; k.strokeStyle = UX.accent; k.lineWidth = 2;
-    k.beginPath(); k.arc(q[0], q[1], 4 * s, 0, TAU); k.fill(); k.stroke();
+  // 右侧按钮栏与计数
+  const saved = outs[0].out > 0.5 ? 1 : 0, passed = outs[1].out > 0.5 ? 1 : 0;
+  txt(k, '今日推荐', 360, 52, `800 15px ${SANS}`, UX.ink);
+  txt(k, `收藏 ${saved} · 跳过 ${passed}`, 360, 72, `700 10px ${SANS}`, UX.ink3);
+  [['✕', UX.danger, 380], ['↺', UX.ink3, 428], ['♥', UX.mint, 476]].forEach(([s, c, x]) => {
+    k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 10; k.shadowOffsetY = 3; k.fillStyle = UX.surface; k.beginPath(); k.arc(x, 128, 18, 0, TAU); k.fill(); k.restore();
+    txt(k, s, x, 133, `800 15px ${SANS}`, c, 'center');
   });
-  const la = out3(seg(u, 1.9, 2.3));
-  if (la > 0) {
-    const q = pts[pts.length - 1], y = q[1] - 22 + 8 * (1 - la);
-    k.globalAlpha = fa * la; rr(k, q[0] - 30, y - 12, 50, 20, 10); k.fillStyle = UX.mint; k.fill();
-    txt(k, '+333%', q[0] - 5, y + 2, UXB_f(800, 10.5), '#FFFFFF', 'center');
-  }
-  k.restore();
+  // 模拟指针：抓住顶卡中部拖动
+  let cx = 330, cy = 170, press = 0;
+  if (u >= 0.3 && u < 1.6) { cx = SWIPE_CX + outs[0].dx + 10; cy = SWIPE_CY + 60; press = u >= 0.5 ? 1 : seg(u, 0.3, 0.5); }
+  else if (u >= 1.6 && u < 2.6) { const q = inOut3(seg(u, 1.7, 2.5)); cx = mix(SWIPE_CX + 160, SWIPE_CX + 10, q); cy = SWIPE_CY + 60; }
+  else if (u >= 2.6 && u < 3.7) { cx = SWIPE_CX + outs[1].dx + 10; cy = SWIPE_CY + 60; press = 1; }
+  else if (u >= 3.7) { const q = inOut3(seg(u, 3.8, 4.6)); cx = mix(SWIPE_CX - 140, 330, q); cy = mix(SWIPE_CY + 60, 170, q); }
+  else { cx = mix(330, SWIPE_CX + 10, inOut3(seg(u, 0, 0.3))); cy = mix(170, SWIPE_CY + 60, inOut3(seg(u, 0, 0.3))); }
+  cursor(k, cx, cy, press);
 };

@@ -1,15 +1,15 @@
-Please use "Isometric 2.5D" (アイソメトリック 2.5D), one of the names in "MG styles".
+Please use "Text corridor" (文字の回廊), filed under "Text animation / Spatial type".
 Motion Prompt #2-054
 
-What it is: Isometric 2.5D: a miniature world seen from above at a fixed angle, with no vanishing point
-What the sample shows: On a lavender floating island, shadows land first, then pastel buildings spring up one after another, roofs drop on, windows light and data pulses between towers.
+What it is: Moving forward through a corridor lined with text
+What the sample shows: In a one-point corridor the floor, ceiling and both walls are filled with 文字走廊 in different colours that keep flowing toward the viewer, with the vanishing point sunk in shadow.
 Spec:
-- True isometric at 30°, 28 px per tile, a 12 × 4 tile island; outline colour #2C2960 with 6 pastel tones.
-- 14 buildings (8 back, 6 front) rise from 0.4 s, staggered by 0.25 s, each growing over 0.4 s with backOut, and the roof drops on 0.1 s later.
-- Windows light up one by one at 3.6–4.6 s; from 4.2 s a cyan #62F0F2 data stream runs between towers (4 trips per cycle).
-- 2 cars drive in opposite directions, 2 laps per cycle, and 5 trees pop up in turn; buildings shrink back into the ground at 5.4–6.0 s.
-When to use it: Use it for SaaS or smart-city explainers, system overviews seen from above and tech product promos.
+- One-point perspective with a 300 px focal length; the corridor is 1 half-wide and 0.5 half-high.
+- Depth z = 0.5–8 is cut into 15 sections (0.5 deep each), each surface carrying a text strip.
+- It moves forward 4 sections per 6.4 s at a constant rate (whole sections, so the loop is seamless).
+- Sections fade in over the far 3 units; a dark glow of radius 90 px sits at the vanishing point; floor, ceiling and walls each have their own colour.
+When to use it: Use it for immersive openings, music or exhibition visuals, or behind a title.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-054.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

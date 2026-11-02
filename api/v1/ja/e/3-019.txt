@@ -1,7 +1,7 @@
 // Motion Prompt #3-019 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#043
 //
 // ホイップパン / Whip pan
-// パック: camera (カメラワークと切り替え) · element 19 · カテゴリ: 切り替え（トランジション）
+// 分類: 編集・撮影 / カメラ・編集 / 編集・切り替え
 // 何が起きるか: カメラを素早く横に振り、流れてぼけた映像の中で次の場面に入れ替える。
 // 動きの仕様:
 //   - つなぎ方: 1.7秒から2.5秒までの0.8秒。前半0.4秒は前の絵を振り出し、後半0.4秒は次の絵が振り込んで止まる
@@ -13,11 +13,11 @@
 // 使いどころ: 勢いを保ったまま場所や話題を切り替えるとき。
 // タグ: whip pan, swish pan, motion blur, fast pan, transition, energy
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-019
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 19
 // 19 ホイップパン（ブレで次の場面へ）

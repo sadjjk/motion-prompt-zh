@@ -1,80 +1,57 @@
 // Motion Prompt #1-068 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
 //
-// 文字のばね波紋 / Rippling letters
-// パック: uxmotion (インタラクションとデータの動き) · element 08 · カテゴリ: インタラクティブな文字
-// 何が起きるか: ポインタが左から右へ滑ると、その下の大きな文字が順に持ち上がって紫がかり、弾みながら着地し、ボタンで波が一気に走る。
+// カードの積み重ね固定 / Shrinking sticky card stack
+// 分類: UI・Web / ページ / スクロール
+// 何が起きるか: スクロールに合わせてグラデーションのカードが下から上がって上部で止まり、次のカードに覆われるたびに奥のカードが縮んで暗くなる。
 // 動きの仕様:
-//   - 単語 MOTION の 6 文字、間隔 66px、ウェイト 900、62px。各文字は上下にだけ動く
-//   - ポインタ近くの文字はガウス分布（σ 34px）で最大 34px 持ち上がる。各文字にばね：毎フレーム v += (目標 − y)×0.16、v ×= 0.8
-//   - 高く上がるほど紫に寄り（y / 50 で混色）、床の影は薄く細くなる
-//   - 「波を送る」で 1.1 秒・振幅 1.35 倍のパルスが左から右へ走る。デモでは 0.4–3.0 秒になぞり、3.4 秒にクリック
-// 使いどころ: ブランドサイトの見出し、ポートフォリオの名前、イベントページの大きな文字で、ホバー時の手触りを加えるとき。
-// タグ: spring, ripple, letters, hover, headline, wave, kinetic-type
+//   - グラデーションカード 4 枚、高さ 150px、間隔 16px。上部の固定位置は 14 + 番号 × 8 px
+//   - 次のカードが重なると、下のカードは重なり率に応じて縮小（層ごとに −6%）・暗転（層ごとに黒 18%）
+//   - カードの角丸 22px。最後のカードまで来ると段々に重なる
+//   - デモでは 0.4→4.6 秒に最下部までスクロールし、5.4→6.3 秒に先頭へ戻る
+// 使いどころ: 製品ページの「使い方」「機能のポイント」など、長いページで手順や特長を 1 枚ずつ説明するとき。
+// タグ: sticky, card-stack, scroll, parallax, feature-section, landing-page
 // サイズ: 539x208 px · 1周: 6.4 s
-// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-068
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 08
-// 08 字母弹簧涟漪：一行 6 个大字母「MOTION」各自停在固定位置，只做上下弹动；模拟指针 0.4–3.0 秒自左向右划过，
-// 靠近的字母按高斯分布（σ 34px）抬起，最高 −34px；每个字母一根弹簧（每帧 v += (目标 − y)×0.16，v ×= 0.8，按 60Hz 预先积分），
-// 抬得越高越偏紫（y/−50）、地面投影越淡越窄；3.4 秒点「发送波浪」，一道 1.1 秒、1.35 倍幅度的脉冲从左到右扫过；6 秒前全部静止
-const RIPL_WORD = 'MOTION', RIPL_SIG = 34, RIPL_AMP = 34, RIPL_N = 384;  // 384 帧 = 6.4 秒 × 60Hz
-const RIPL_X0 = 60, RIPL_GAP = 66, RIPL_BASE = 142;
-const RIPL_PX = u => u < 0.4 || u > 3.0 ? null : mix(RIPL_X0 - 50, RIPL_X0 + RIPL_GAP * 5 + 50, inOut3(seg(u, 0.4, 3.0)));
-const RIPL_PULSE = 3.4;
-// 预先按 60Hz 积分弹簧（纯函数：绘制时只查表）
-const RIPL_SIM = (() => {
-  const y = new Array(6).fill(0), v = new Array(6).fill(0), out = [];
-  const g = (d, s) => Math.exp(-(d * d) / (2 * s * s));
-  for (let f = 0; f <= RIPL_N; f++) {
-    const u = f / 60, px = RIPL_PX(u);
-    const pk = u >= RIPL_PULSE && u < RIPL_PULSE + 1.1 ? (u - RIPL_PULSE) / 1.1 : -1;
-    const pc = pk < 0 ? null : -60 + (RIPL_GAP * 5 + 120) * pk + RIPL_X0 - 30;
-    out.push(y.map((_, i) => {
-      const x = RIPL_X0 + i * RIPL_GAP; let tgt = 0;
-      if (px != null) tgt -= RIPL_AMP * g(x - px, RIPL_SIG);
-      if (pc != null) tgt -= RIPL_AMP * 1.35 * g(x - pc, RIPL_SIG * 1.2);
-      v[i] += (tgt - y[i]) * 0.16; v[i] *= 0.8; y[i] += v[i];
-      return [y[i], v[i]];
-    }));
-  }
-  return out;
-})();
-CELLS[7] = (k, w, h, u) => {
-  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
-  card(k, 12, 10, CW - 24, CH - 20, 24);
-  const sea = k.createLinearGradient(0, 110, 0, CH - 10); sea.addColorStop(0, 'rgba(47,143,224,0)'); sea.addColorStop(1, 'rgba(47,143,224,.1)');
-  k.fillStyle = sea; rr(k, 12, 110, CW - 24, CH - 120, 24); k.fill();
-  const st = RIPL_SIM[Math.min(RIPL_N, Math.round(u * 60))];
-  const ac = [106, 87, 242], ink = [22, 21, 27];
-  for (let i = 0; i < 6; i++) {
-    const [y, v] = st[i], x = RIPL_X0 + i * RIPL_GAP, t = clamp(-y / 50), sy = 1 + Math.max(-0.08, Math.min(0.14, -v * 0.02));
-    // 地面投影：抬得越高越淡越窄
-    k.fillStyle = `rgba(40,30,80,${0.3 * (1 - t * 0.7)})`;
-    k.beginPath(); k.ellipse(x, RIPL_BASE + 10, 18 * (1 - t * 0.5), 3, 0, 0, TAU); k.fill();
-    k.save(); k.translate(x, RIPL_BASE + y); k.scale(1, sy);
-    txt(k, RIPL_WORD[i], 0, 0, `900 62px ${SANS}`, rgba(lerpC(ink, ac, t), 1), 'center', 'alphabetic');
+// @element 09
+// 09 卡片堆叠吸顶：4 张渐变卡片（高 150、间距 16）依次滚到顶部吸住（吸顶位置 14 + 序号×8，原作 14 + 序号×12）；
+// 下一张盖上来时，下面那张按「重叠比例」缩小（每层 −6%）、压暗（每层黑色 18%），到最后一张时叠成台阶。0.4→4.6 秒滚到底，5.4→6.3 秒回顶
+const STACK_C = [['01', '一处规划', '把零散的笔记和文档汇到一块看板上。'], ['02', '一起打磨', '评论和版本都留在同一个地方。'], ['03', '即刻分享', '一个链接就能给团队外的人看。'], ['04', '看看数据', '每天早上收到一份反馈摘要。']];
+const STACK_BG = [['#7048E8', '#4C6EF5'], ['#F76707', '#F59F00'], ['#0CA678', '#15AABF'], ['#E64980', '#BE4BDB']];
+const STACK_H = 150, STACK_GAP = 16, STACK_X = 24, STACK_W = 470, STACK_HEAD = 50;
+const STACK_MAX = STACK_HEAD + 3 * (STACK_H + STACK_GAP) - (14 + 3 * 8);   // 最后一张刚好吸顶时的滚动量
+CELLS[8] = (k, w, h, u) => {
+  k.fillStyle = UX.surface2; k.fillRect(0, 0, CW, CH);
+  const p = UXA_scroll(u), s = p * (STACK_MAX + 40);
+  txt(k, '工作方式', STACK_X + 4, 34 - s, `880 22px ${SANS}`, UX.ink);
+  // 每张卡片的屏幕位置：自然位置 − 滚动量，但不高于吸顶位置
+  const nat = i => STACK_HEAD + i * (STACK_H + STACK_GAP) - s, stick = i => 14 + i * 8;
+  const pos = [0, 1, 2, 3].map(i => Math.max(stick(i), nat(i)));
+  for (let i = 0; i < 4; i++) {
+    let depth = 0;
+    for (let j = i + 1; j < 4; j++) depth += clamp(1 - (pos[j] - stick(j)) / STACK_H);
+    const sc = 1 - depth * 0.06, y = pos[i];
+    if (y > CH) continue;
+    k.save(); k.translate(STACK_X + STACK_W / 2, y); k.scale(sc, sc); k.translate(-STACK_W / 2, 0);
+    // 顶部投影：0 -10px 30px -18px rgba(0,0,0,.35)
+    k.fillStyle = 'rgba(0,0,0,.08)'; rr(k, 6, -3, STACK_W - 12, 20, 18); k.fill();
+    const g = k.createLinearGradient(0, 0, STACK_W * 0.5, STACK_H * 1.2); g.addColorStop(0, STACK_BG[i][0]); g.addColorStop(1, STACK_BG[i][1]);
+    k.fillStyle = g; rr(k, 0, 0, STACK_W, STACK_H, 22); k.fill();
+    k.save(); rr(k, 0, 0, STACK_W, STACK_H, 22); k.clip();
+    // 装饰：旋转 12° 的半透明圆角方块 + 内圆
+    k.save(); k.translate(STACK_W - 70, 62); k.rotate(12 * Math.PI / 180);
+    k.fillStyle = 'rgba(255,255,255,.18)'; rr(k, -40, -40, 80, 80, 22); k.fill();
+    k.fillStyle = 'rgba(255,255,255,.35)'; k.beginPath(); k.arc(0, 0, 20, 0, TAU); k.fill(); k.restore();
+    k.restore();
+    txt(k, STACK_C[i][0], 20, 30, `800 12px ${MONO}`, 'rgba(255,255,255,.7)');
+    txt(k, STACK_C[i][1], 20, 104, `880 26px ${SANS}`, '#FFFFFF');
+    txt(k, STACK_C[i][2], 20, 130, `500 14px ${SANS}`, 'rgba(255,255,255,.85)');
+    if (depth > 0) { k.fillStyle = `rgba(0,0,0,${0.18 * depth})`; rr(k, 0, 0, STACK_W, STACK_H, 22); k.fill(); }
     k.restore();
   }
-  // 右侧控制条：波高读数 + 「发送波浪」按钮（3.4 秒按下）
-  const bp = clamp(1 - Math.abs(u - RIPL_PULSE) / 0.12);
-  k.fillStyle = UX.surface2; rr(k, 446, 72, 72, 64, 14); k.fill();
-  txt(k, '波高', 456, 92, `700 9px ${SANS}`, UX.ink3); txt(k, '34', 456, 112, `800 16px ${SANS}`, UX.ink);
-  k.save(); k.translate(482, 156); k.scale(1 - 0.07 * bp, 1 - 0.07 * bp);
-  k.fillStyle = UX.ink; rr(k, -36, -14, 72, 28, 10); k.fill();
-  txt(k, '发送波浪', 0, 4, `750 10px ${SANS}`, UX.page, 'center');
-  k.restore();
-  ripple(k, 482, 156, seg(u, RIPL_PULSE, RIPL_PULSE + 0.5));
-  // 模拟指针：划过字母后移向按钮，按下后离开
-  const px = RIPL_PX(u);
-  let cx, cy;
-  if (px != null) { cx = px; cy = RIPL_BASE - 30; }
-  else if (u < 0.4) { cx = mix(RIPL_X0 - 70, RIPL_X0 - 50, seg(u, 0, 0.4)); cy = RIPL_BASE - 30; }
-  else if (u < 3.3) { const q = inOut3(seg(u, 3.0, 3.3)); cx = mix(RIPL_X0 + RIPL_GAP * 5 + 50, 480, q); cy = mix(RIPL_BASE - 30, 152, q); }
-  else if (u < 4.2) { cx = 480; cy = 152; }
-  else { const q = inOut3(seg(u, 4.2, 6.0)); cx = mix(480, RIPL_X0 - 70, q); cy = mix(152, RIPL_BASE - 30, q); }
-  cursor(k, cx, cy, bp);
+  scrollbar(k, p, 0.32, CW - 14);
 };

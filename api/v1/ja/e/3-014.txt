@@ -1,7 +1,7 @@
 // Motion Prompt #3-014 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#038
 //
 // スピードランプ / Speed ramp
-// パック: camera (カメラワークと切り替え) · element 14 · カテゴリ: 撮り方・時間の演出
+// 分類: 編集・撮影 / カメラ・編集 / 撮り方・時間の演出
 // 何が起きるか: 1つのショットの途中で再生速度を速い状態から遅い状態へ滑らかに変える。左下のグラフが速度を示す。
 // 動きの仕様:
 //   - カメラ: 完全に固定（高さ1.3m）。変わるのは再生速度だけ
@@ -13,11 +13,11 @@
 // 使いどころ: 動きの見せ場だけをスローにして、前後はテンポよく進めたいとき。
 // タグ: speed ramp, time remap, ramping, fast to slow, variable speed, velocity
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-014
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 14
 // 14 スピードランプ: 速い→遅い（グラフで速さを表示）

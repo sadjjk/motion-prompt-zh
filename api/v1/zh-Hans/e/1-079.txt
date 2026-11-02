@@ -1,53 +1,42 @@
-// Motion Prompt #1-079 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+// Motion Prompt #1-079 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#089
 //
-// 点阵涟漪 / Dot grid ripple
-// 分类包: uxmotion (交互与数据动效) · element 19 · 子分类: 首屏背景
-// 动画表现: 指针划过安静的灰点阵，经过处一圈圈涟漪荡开，波峰上的点变大上浮，并从蓝紫转为青绿。
+// 预加载屏 / Preloader
+// 分类: 界面与网页 / 页面 / 转场与加载
+// 动画表现: 深蓝屏幕上，标志下方数字由 0% 增至 100%，随后屏幕抬升离开，下方页面淡入。
 // 运动规格:
-//   - 17px 间距的点阵，静止时为灰色、不透明度 55%。
-//   - 指针划过时每 110ms 在经过处投下一圈小涟漪（振幅 .55），点击投下大波（振幅 1.6），同时最多 14 道。
-//   - 波前以 170 px/s 扩散，波形 sin(k/14)·e^(k/60)，按 e^(−1.3·年龄) 衰减，2.6 秒后消失。
-//   - 隆起的点半径变为 1.6 + m × 3.4、上浮 m × 3px，色相按 230 − m × 110 由蓝紫转向青绿；演示中 2.4 秒点击。
-// 适用场景: 适合产品官网首屏或区块背景，给静态页面加上跟随鼠标的反馈。
-// 标签: dot-grid, ripple, wave, hero, background, cursor, interactive
-// 尺寸: 539x208 px · 周期: 6.4 s
-// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+//   - 深蓝屏铺满视口，内有标志、28 px 数字和 180 × 4 进度条。
+//   - 0.25–2.1 秒从 0→100%，采用三次缓出并取整数，橙色进度条同比填充。
+//   - 2.3–2.85 秒整屏上移 168 px 离场，采用三次缓入缓出。
+//   - 2.35–2.95 秒页面标题和照片透明度 0→1，并从下方 14 px 上移，采用三次缓出。
+//   - 4.25–4.75 秒加载屏从顶部返回，显示 0%，模拟下一次加载。
+// 适用场景: 适合图片或视频较多的网站，将等待过程融入品牌展示。
+// 标签: preloader, loading-screen, loader, percentage, intro, splash, curtain
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-079
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 19
-// 19 点阵涟漪：17px 间距的点阵（静止时 ink-3、55% 透明）；指针划过时每 110ms 在经过处投下一圈小涟漪（振幅 .55），2.4 秒按下投下大波（振幅 1.6）；
-// 波前以 170 px/s 扩散，波形 sin(k/14)·e^(k/60)，按 e^(−1.3·年龄) 衰减、2.6 秒消失，同时最多 14 道；隆起的点变大（1.6+m×3.4）、上浮 m×3 并由蓝紫转到青绿（色相 230−m×110）。上一周期的余波计入，循环无缝
-const DOTW_GAP = 17;
-const DOTW_DOTS = (() => { const d = []; for (let y = 12; y < CH - 4; y += DOTW_GAP) for (let x = 14; x < CW - 4; x += DOTW_GAP) d.push([x, y]); return d; })();
-const DOTW_ptr = u => UXA_path([[0, 590, 240], [0.4, 520, 170], [1.4, 360, 60], [2.4, 270, 110], [2.6, 270, 110], [3.6, 130, 150], [4.4, 60, 60], [5.0, -40, -40], [6.4, -40, -40]], u);
-const DOTW_WAVES = (() => {
-  const W = [];
-  for (let t = 0.45; t < 4.95; t += 0.11) { const [x, y] = DOTW_ptr(t); if (x > 0 && x < CW && y > 0 && y < CH) W.push([t, x, y, 0.55]); }
-  W.push([2.4, 270, 110, 1.6]);
-  return W.sort((a, b) => a[0] - b[0]);
-})();
-CELLS[18] = (k, w, h, u) => {
-  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
-  // 当前存活的波（含上一周期，年龄 < 2.6 秒），只保留最近 14 道
-  const live = [];
-  for (const wv of DOTW_WAVES) for (const off of [0, CYC]) { const age = u - wv[0] + off; if (age >= 0 && age < 2.6) live.push([age, wv[1], wv[2], wv[3]]); }
-  live.sort((a, b) => a[0] - b[0]); live.length = Math.min(live.length, 14);
-  for (const d of DOTW_DOTS) {
-    let hsum = 0;
-    for (const [age, x, y, a] of live) {
-      const kk = Math.hypot(d[0] - x, d[1] - y) - age * 170;
-      if (kk > 0 || kk < -90) continue;
-      hsum += Math.sin(kk / 14) * Math.exp(kk / 60) * a * Math.exp(-age * 1.3);
+// @element 17
+// 17 ローディング画面（数字が100%まで進むと、幕が上がってページが現れる）
+CELLS[16] = (k, w, h, u) => {
+  frame(k);
+  const n = Math.round(100 * eOut(P(u, 0.25, 2.1)));
+  const cy = u < 4.25 ? -VH * eIO(P(u, 2.3, 2.85)) : -VH * (1 - eIO(P(u, 4.25, 4.75)));
+  const show = eOut(P(u, 2.35, 2.95));
+  view(k, () => {
+    header(k, 0);
+    k.save(); k.globalAlpha = show; k.translate(0, 14 * (1 - show));
+    txt(k, '欢迎。', 34, 82, `800 26px ${JP}`, C.ink); bars(k, 34, 98, 200, 3); btn(k, 34, 136, 96, 24, '开始');
+    pic(k, 270, 46, 214, 112, 0, 8); k.restore();
+    if (cy > -VH) {
+      k.save(); k.translate(0, cy); k.fillStyle = C.ink; k.fillRect(0, 0, VW, VH);
+      logo(k, VW / 2 - 40, 56, '#fff');
+      txt(k, (u >= 4.25 ? 0 : n) + '%', VW / 2, 98, `800 28px ${EN}`, '#fff', 'center', 'middle');
+      k.fillStyle = 'rgba(255,255,255,.15)'; rr(k, VW / 2 - 90, 122, 180, 4, 2); k.fill();
+      k.fillStyle = C.acc; rr(k, VW / 2 - 90, 122, 180 * (u >= 4.25 ? 0 : n / 100), 4, 2); k.fill();
+      k.restore();
     }
-    const m = clamp(hsum, -1, 1.6), calm = Math.abs(m) < 0.04;
-    k.globalAlpha = calm ? 0.55 : 1;
-    k.fillStyle = calm ? UX.ink3 : `hsl(${(230 - Math.max(0, m) * 110).toFixed(0)} 85% ${(58 - Math.min(0, m) * 10).toFixed(0)}%)`;
-    k.beginPath(); k.arc(d[0], d[1] - m * 3, 1.6 + Math.max(0, m) * 3.4, 0, TAU); k.fill();
-  }
-  k.globalAlpha = 1;
-  const [px, py] = DOTW_ptr(u);
-  cursor(k, px, py, pingPong(u, 2.3, 2.4, 2.42, 2.56));
+  });
 };

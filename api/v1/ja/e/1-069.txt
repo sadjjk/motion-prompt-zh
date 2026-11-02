@@ -1,57 +1,60 @@
 // Motion Prompt #1-069 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
 //
-// カードの積み重ね固定 / Shrinking sticky card stack
-// パック: uxmotion (インタラクションとデータの動き) · element 09 · カテゴリ: スクロール連動
-// 何が起きるか: スクロールに合わせてグラデーションのカードが下から上がって上部で止まり、次のカードに覆われるたびに奥のカードが縮んで暗くなる。
+// スクロールで塗られる文 / Scroll-filled sentence
+// 分類: UI・Web / ページ / スクロール
+// 何が起きるか: スクロールが進むほど薄灰色の文が頭から単語ごとに濃くなり、強調語は紫に光り、最後に下からボタンが弾み出る。
 // 動きの仕様:
-//   - グラデーションカード 4 枚、高さ 150px、間隔 16px。上部の固定位置は 14 + 番号 × 8 px
-//   - 次のカードが重なると、下のカードは重なり率に応じて縮小（層ごとに −6%）・暗転（層ごとに黒 18%）
-//   - カードの角丸 22px。最後のカードまで来ると段々に重なる
-//   - デモでは 0.4→4.6 秒に最下部までスクロールし、5.4→6.3 秒に先頭へ戻る
-// 使いどころ: 製品ページの「使い方」「機能のポイント」など、長いページで手順や特長を 1 枚ずつ説明するとき。
-// タグ: sticky, card-stack, scroll, parallax, feature-section, landing-page
+//   - 大きな文は最初は薄灰色。スクロール進捗に応じて頭から単語ごとに実色へ：各語が進捗の 1/N、全体を ×1.15 で早めに満たす
+//   - 2 か所の強調語は満ちると紫 #6A57F2 になり、不透明度 .16 の光彩が灯る
+//   - 読み終えると「次の記事 →」ボタンが下 12px から弾み出る：フェード .35 秒、スプリング .5 秒
+//   - 右側の幅 3px・高さ 120px の進捗バーが同時に伸びる。デモでは 0.4→4.4 秒に最下部へ、5.4→6.3 秒に戻って文が薄くなる
+// 使いどころ: ブランドストーリー、宣言ページ、長文の導入で、スクロールのリズムで読み進めてもらうとき。
+// タグ: scroll-fill, text-reveal, scroll, manifesto, highlight, storytelling
 // サイズ: 539x208 px · 1周: 6.4 s
-// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-069
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 09
-// 09 卡片堆叠吸顶：4 张渐变卡片（高 150、间距 16）依次滚到顶部吸住（吸顶位置 14 + 序号×8，原作 14 + 序号×12）；
-// 下一张盖上来时，下面那张按「重叠比例」缩小（每层 −6%）、压暗（每层黑色 18%），到最后一张时叠成台阶。0.4→4.6 秒滚到底，5.4→6.3 秒回顶
-const STACK_C = [['01', '一处规划', '把零散的笔记和文档汇到一块看板上。'], ['02', '一起打磨', '评论和版本都留在同一个地方。'], ['03', '即刻分享', '一个链接就能给团队外的人看。'], ['04', '看看数据', '每天早上收到一份反馈摘要。']];
-const STACK_BG = [['#7048E8', '#4C6EF5'], ['#F76707', '#F59F00'], ['#0CA678', '#15AABF'], ['#E64980', '#BE4BDB']];
-const STACK_H = 150, STACK_GAP = 16, STACK_X = 24, STACK_W = 470, STACK_HEAD = 50;
-const STACK_MAX = STACK_HEAD + 3 * (STACK_H + STACK_GAP) - (14 + 3 * 8);   // 最后一张刚好吸顶时的滚动量
-CELLS[8] = (k, w, h, u) => {
-  k.fillStyle = UX.surface2; k.fillRect(0, 0, CW, CH);
-  const p = UXA_scroll(u), s = p * (STACK_MAX + 40);
-  txt(k, '工作方式', STACK_X + 4, 34 - s, `880 22px ${SANS}`, UX.ink);
-  // 每张卡片的屏幕位置：自然位置 − 滚动量，但不高于吸顶位置
-  const nat = i => STACK_HEAD + i * (STACK_H + STACK_GAP) - s, stick = i => 14 + i * 8;
-  const pos = [0, 1, 2, 3].map(i => Math.max(stick(i), nat(i)));
-  for (let i = 0; i < 4; i++) {
-    let depth = 0;
-    for (let j = i + 1; j < 4; j++) depth += clamp(1 - (pos[j] - stick(j)) / STACK_H);
-    const sc = 1 - depth * 0.06, y = pos[i];
-    if (y > CH) continue;
-    k.save(); k.translate(STACK_X + STACK_W / 2, y); k.scale(sc, sc); k.translate(-STACK_W / 2, 0);
-    // 顶部投影：0 -10px 30px -18px rgba(0,0,0,.35)
-    k.fillStyle = 'rgba(0,0,0,.08)'; rr(k, 6, -3, STACK_W - 12, 20, 18); k.fill();
-    const g = k.createLinearGradient(0, 0, STACK_W * 0.5, STACK_H * 1.2); g.addColorStop(0, STACK_BG[i][0]); g.addColorStop(1, STACK_BG[i][1]);
-    k.fillStyle = g; rr(k, 0, 0, STACK_W, STACK_H, 22); k.fill();
-    k.save(); rr(k, 0, 0, STACK_W, STACK_H, 22); k.clip();
-    // 装饰：旋转 12° 的半透明圆角方块 + 内圆
-    k.save(); k.translate(STACK_W - 70, 62); k.rotate(12 * Math.PI / 180);
-    k.fillStyle = 'rgba(255,255,255,.18)'; rr(k, -40, -40, 80, 80, 22); k.fill();
-    k.fillStyle = 'rgba(255,255,255,.35)'; k.beginPath(); k.arc(0, 0, 20, 0, TAU); k.fill(); k.restore();
-    k.restore();
-    txt(k, STACK_C[i][0], 20, 30, `800 12px ${MONO}`, 'rgba(255,255,255,.7)');
-    txt(k, STACK_C[i][1], 20, 104, `880 26px ${SANS}`, '#FFFFFF');
-    txt(k, STACK_C[i][2], 20, 130, `500 14px ${SANS}`, 'rgba(255,255,255,.85)');
-    if (depth > 0) { k.fillStyle = `rgba(0,0,0,${0.18 * depth})`; rr(k, 0, 0, STACK_W, STACK_H, 22); k.fill(); }
-    k.restore();
+// @element 10
+// 10 滚动填色文字：大句子先是淡灰（line-2），滚到哪里就按词从头填成实色（每词占进度 1/N，整体 ×1.15 提前填满）；
+// 两处重点词填满时变成紫色并亮起光晕，读完后「下一篇 →」按钮从下方 12px 弹起（.35 秒淡入、.5 秒弹簧）；右侧 3px 进度条同步伸长。0.4→4.4 秒滚到底，5.4→6.3 秒回顶、文字重新变淡
+const FILL_T = '我们每天都在把*复杂的事情*变简单。因为我们相信，一个按钮、一句话，就能*省下某人的一个下午*。';
+const FILL_WORDS = (() => {
+  // 中文没有空格：按标点与 2–4 字的短语切词（重点词整体作为一个词）
+  const out = [];
+  FILL_T.split('*').forEach((chunk, ci) => {
+    if (ci % 2) { out.push({ s: chunk, em: true }); return; }
+    const parts = chunk.match(/[^，。、]{1,3}[，。、]?/g) || [];
+    parts.forEach(s => out.push({ s, em: false }));
+  });
+  return out;
+})();
+const FILL_F = `820 28px ${SANS}`, FILL_X = 30, FILL_W = 468, FILL_LH = 39;
+let FILL_LAY = null;                                 // 惰性常量：每个词的位置
+CELLS[9] = (k, w, h, u) => {
+  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
+  k.font = FILL_F;
+  if (!FILL_LAY) { let x = 0, y = 0; FILL_LAY = FILL_WORDS.map(wd => { const ww = k.measureText(wd.s).width; if (x + ww > FILL_W) { x = 0; y += FILL_LH; } const r = { x: FILL_X + x, y: 66 + y, w: ww }; x += ww; return r; }); }
+  const t = u < SHOW ? inOut3(seg(u, 0.4, 4.4)) : 1 - inOut3(seg(u, SHOW, SHOW + 0.9));
+  const N = FILL_WORDS.length, f = t * 1.15 * N;
+  txt(k, '我们为什么做这件事', FILL_X, 34, `750 12px ${SANS}`, UX.ink3);
+  const grey = [215, 215, 216];
+  FILL_WORDS.forEach((wd, i) => {
+    const v = clamp(f - i), r = FILL_LAY[i];
+    if (wd.em && v >= 1) glow(k, r.x + r.w / 2, r.y - 9, r.w * 0.7, '106,87,242', 0.16);
+    txt(k, wd.s, r.x, r.y, FILL_F, rgba(lerpC(grey, wd.em ? [106, 87, 242] : [22, 21, 27], v), 1));
+  });
+  // 「下一篇 →」：进度 ×1.15 ≥ 1 时出现（按到达/离开时刻做 .35 秒淡入与 .5 秒弹簧）
+  const tOn = 0.4 + 4.0 * UXA_inv(1 / 1.15), tOff = SHOW + 0.9 * (1 - UXA_inv(1 / 1.15));
+  const on = u < tOff ? (u >= tOn ? 1 : 0) : 0, dt = on ? u - tOn : u - tOff;
+  const op = on ? clamp(dt / 0.35) : (u >= tOff ? 1 - clamp(dt / 0.35) : 0), ty = on ? 12 * (1 - UXA_spring(clamp(dt / 0.5))) : 12 * UXA_spring(clamp(dt / 0.5));
+  if (op > 0) {
+    k.globalAlpha = op; k.fillStyle = UX.ink; rr(k, FILL_X, 154 + ty, 106, 34, 17); k.fill();
+    txt(k, '下一篇 →', FILL_X + 53, 171.5 + ty, `750 13px ${SANS}`, UX.page, 'center', 'middle'); k.globalAlpha = 1;
   }
-  scrollbar(k, p, 0.32, CW - 14);
+  // 右侧进度条：高 120、宽 3
+  k.fillStyle = UX.line; rr(k, 516, 24, 3, 120, 1.5); k.fill();
+  k.fillStyle = UX.ink; rr(k, 516, 24, 3, 120 * Math.min(1, t * 1.15), 1.5); k.fill();
 };

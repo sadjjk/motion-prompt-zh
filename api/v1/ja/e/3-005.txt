@@ -1,7 +1,7 @@
 // Motion Prompt #3-005 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#029
 //
 // トラッキング / Tracking shot
-// パック: camera (カメラワークと切り替え) · element 05 · カテゴリ: カメラの動き
+// 分類: 編集・撮影 / カメラ・編集 / カメラの動き
 // 何が起きるか: 歩く人物と同じ速さでカメラが真横に並走する。人物は画面中央のまま、手前の杭ほど速く後ろへ流れる。
 // 動きの仕様:
 //   - カメラ: 右へ等速 1.7m/s で横移動（x = -4.0m → +4.0m、4.7秒）。高さ1.3m、向きは正面のまま。イージングなし
@@ -12,11 +12,11 @@
 // 使いどころ: 歩く・走る人物に付いていき、移動している感じを保ったまま表情や動作を見せるとき。
 // タグ: tracking, tracking shot, follow, truck, lateral, sideways, parallax, walk
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-005
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 05
 // 05 トラッキング: 人物と並んで横移動（手前ほど速く流れる）

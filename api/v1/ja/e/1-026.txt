@@ -1,44 +1,34 @@
-// Motion Prompt #1-026 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#074
+// Motion Prompt #1-026 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#064
 //
-// スクロールでフェードイン / Fade-in on scroll
-// パック: lp (LP・Webサイトの演出) · element 02 · カテゴリ: スクロールで起きる演出
-// 何が起きるか: スクロールで画面に入った見出し・カード・本文が、それぞれ下から浮かび上がりながら現れる。
+// ページネーション / Pagination
+// 分類: UI・Web / コンポーネント / 選ぶ・入力する
+// 何が起きるか: 下の番号で2、3と押すと青い丸が移り、上の一覧が切り替わる。最後に1へ戻る。
 // 動きの仕様:
-//   - スクロール量: 0.35〜1.0秒で 0→95px、1.5〜2.1秒で 95→200px、3.2〜4.4秒で 200→0（いずれも easeInOut 3乗）
-//   - 判定線は表示域の高さの85%（上から143px）。要素の上端がこの線より上に来た時刻に発火（Intersection Observer の考え方）
-//   - 発火から0.7秒で 不透明度 0→1、下から28px → 0 へ（easeOut 3乗）
-//   - 要素は見出し（ページ上 172px）・カード3枚の列（206px）・本文（334px）の3つ。最初はどれも画面の下に隠れている。列のカードは同時に出る
-//   - スクロールで戻って画面の下へ出た要素は、見えない所で元の状態に戻る（次に入るとまた出る）
-// 使いどころ: 縦に長いLPで、読み進めるごとに内容を一つずつ見せたいとき。
-// タグ: fade-in, scroll-reveal, reveal-on-scroll, intersection-observer, aos, entrance, scroll
-// サイズ: 539x208 px · 1周: 4.8 s
-// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+//   - 4.5秒周期・カード542×191。「‹ 1 2 3 4 5 ›」を直径36・間隔8で中央に並べる（y 160）。今のページに青い丸（半径18）、文字は白
+//   - カーソルが1.0秒に2、2.1秒に3、3.3秒に1をクリック
+//   - 青い丸は各0.2秒、easeInOutCubic で1ページ44pxずつ移る（3から1へは一度に88px）
+//   - 上の一覧（3行）は1.05・2.15・3.35秒の前後0.2秒で不透明度を 1→0→1 と下げて、中身を入れ替える
+// 使いどころ: 検索結果や記事一覧など、長い一覧をページに分けて見せたいとき。
+// タグ: pagination, pager, page-numbers, paging, next-prev, navigation
+// サイズ: 542x191 px · 1周: 4.5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-026
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 02
-// 02 スクロールでフェードイン（画面に入った要素が、下から浮かび上がって現れる）
-CELLS[1] = (k, w, h, u) => {
-  frame(k);
-  const SY = t => steps([[0.35, 0], [1.0, 95], [1.5, 95], [2.1, 200], [3.2, 200], [4.4, 0]], t), y = SY(u);
-  const LINE = VH * 0.85, DUR = 0.7, RISE = 28;
-  view(k, () => {
-    k.save(); k.translate(0, -y);
-    txt(k, '让生活更轻松。', 34, 52, `800 24px ${JP}`, C.ink); bars(k, 34, 68, 190, 3); btn(k, 34, 108, 96, 26, '了解更多');
-    pic(k, 286, 18, 196, 110, 0, 8);
-    const items = [
-      [172, () => txt(k, '选择我们的 3 个理由', VW / 2, 172 + 20, `800 18px ${JP}`, C.ink, 'center')],
-      [206, () => { for (let i = 0; i < 3; i++) { const x = 34 + i * 152; k.fillStyle = C.soft; rr(k, x, 206, 136, 106, 8); k.fill(); pic(k, x + 8, 214, 120, 56, i, 5); bars(k, x + 10, 280, 112, 2, '#CBD2DE'); } }],
-      [334, () => bars(k, 110, 334, 290, 3, C.faint, 7, 13)]
-    ];
-    for (const [top, draw] of items) {
-      const t0 = enteredAt(SY, top, LINE, u); if (t0 === null) continue;
-      const q = eOut(P(u, t0, t0 + DUR));
-      k.save(); k.globalAlpha = q; k.translate(0, RISE * (1 - q)); draw(); k.restore();
-    }
-    k.restore();
-    sbar(k, y / 200, 0.5);
-  });
-};
+// @element 16
+// 16 ページネーション（Pagination）
+CELLS[15] = ui((w, h, t) => {
+  const page = t < 1.05 ? 0 : t < 2.15 ? 1 : t < 3.35 ? 2 : 0;
+  const fade = Math.min(...[1.05, 2.15, 3.35].map(c => Math.abs(t - c) < .2 ? Math.abs(t - c) / .2 : 1));
+  X.save(); X.globalAlpha = fade;
+  for (let k = 0; k < 3; k++) { const y = 10 + k * 40; fillRR(24, y, 52, 32, 6, (k + page) % 3 === 0 ? C.mb : C.line); bar(90, y + 4, [200, 160, 240, 180][(k + page) % 4], C.line2, 10); bar(90, y + 20, [320, 280, 360][(k + 2 * page) % 3], C.line, 7); }
+  X.restore();
+  const items = ['‹', '1', '2', '3', '4', '5', '›'], d = 36, g = 8, total = items.length * d + (items.length - 1) * g, x0 = (w - total) / 2;
+  const pos = eio(seg(t, 1.0, 1.2)) + eio(seg(t, 2.1, 2.3)) - 2 * eio(seg(t, 3.3, 3.5));
+  circle(x0 + (1 + pos) * (d + g) + d / 2, 160, d / 2, C.blue);
+  items.forEach((s, i) => { const cx = x0 + i * (d + g) + d / 2; const on = i >= 1 && i <= 5 && Math.abs(pos - (i - 1)) < .5; text(s, cx, 161, i === 0 || i === 6 ? 22 : 16, on ? '#fff' : '#666', 700, 'center', NUMF); });
+  const px = i => x0 + i * (d + g) + d / 2 + 4;
+  pointer([[.3, w + 30, h + 30], [.95, px(2), 166], [1.6, px(2), 166], [2.05, px(3), 166], [2.8, px(3), 166], [3.25, px(1), 166], [3.65, px(1), 166], [4.25, w + 30, h + 30]], [1.0, 2.1, 3.3], t);
+});

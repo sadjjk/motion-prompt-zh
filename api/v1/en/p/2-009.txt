@@ -1,17 +1,16 @@
-Please use "Easing" (イージング), one of the names in "Motion graphics moves".
+Please use "Bounce" (バウンス), filed under "Motion principles / Entrances & easing".
 Motion Prompt #2-009
 
-What it is: Motion speeds up and slows down instead of moving at one speed
-What the sample shows: Two squares cover the same distance in the same time: the top one at constant speed, the bottom one eased.
+What it is: Falls and bounces lower until it stops
+What the sample shows: A ball drops and bounces lower each time until it comes to rest.
 Spec:
-- One round trip per 4.7 s. Two 62 px squares (radius 16) travel 316 px horizontally: out at 0.2–1.75 s (1.55 s), hold 0.8 s, back at 2.55–4.1 s.
-- Top (constant): linear motion; shape and colour never change.
-- Bottom (eased): cubic-bezier(.86, 0, .14, 1). Slow start, very fast middle, slow stop.
-- The bottom square stretches horizontally up to 1.5× and flattens to 0.8× in proportion to speed (speed ÷ 3.6, clamped to 0–1).
-- Behind it: 3 speed lines (up to 150 px × 0.8–1.25) and 4 ghost copies lagging 0.035 s each.
-- Each rail shows 12 dots marking positions at equal time intervals (evenly spaced on top, bunched at both ends below).
-When to use it: Use it on any move, scale or rotation so the motion accelerates and decelerates instead of looking mechanical.
+- One drop per 2.35 s (twice per 4.7 s: yellow first, then coral). The ball has radius 26.
+- From 0.1 s it falls from 190 px above the floor. Gravity 1900 px/s²; each bounce keeps 56% of the speed (restitution 0.56); it stops when the rebound speed is below 35 px/s.
+- Sideways it moves x = 150→390 over 0.1–1.8 s with cubic ease-out.
+- Squash for 0.045 s either side of each impact: width 1 + sq, height 1 − sq, with sq up to 0.4 × min(1, impact speed ÷ 850). Impacts faster than 200 px/s flick short white lines left and right for 0.3 s.
+- The shadow gets smaller with height. Exit: 1.95–2.25 s, scale multiplied by (1 − backIn, s = 2).
+When to use it: Use it whenever something drops and lands: an icon, a word or a product that should feel heavy and springy.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-009.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

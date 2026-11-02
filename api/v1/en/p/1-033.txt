@@ -1,15 +1,15 @@
-Please use "Hover lift" (ホバーで浮き上がる), one of the names in "Landing page & web effects".
+Please use "Floating label" (フローティングラベル), filed under "Components / Choosing & input".
 Motion Prompt #1-033
 
-What it is: On hover, the element rises with a deeper shadow
-What the sample shows: Only the card under the cursor lifts slightly and its shadow spreads; it settles back when the cursor leaves.
+What it is: The label shrinks and floats up when the field is focused
+What the sample shows: The cursor clicks the field: the label shrinks, moves up and turns blue, the underline spreads from the centre and an email address is typed letter by letter; it is then cleared and blurred.
 Spec:
-- Three cards (146 × 128, radius 10). The cursor rests on each, left to right, for about 1 s.
-- On hover the card rises 10 px over 0.3 s (cubic ease-out); on leave it returns over the same 0.3 s (like a CSS transition).
-- Shadow, changed together with the lift: blur 6→22 px, y offset 2→12 px, opacity 0.08→0.22.
-- Light grey page, white cards, so the shadow reads.
-When to use it: Use it to make cards and buttons look clickable.
+- A 350×52 input; the label "Email address" starts inside the field in grey at 15px.
+- The cursor clicks in at 0.9 s: over 0.25 s (easeOut power 3) the label shrinks to 11px, rises 15px and turns blue, and the blue underline grows from the centre to 334px over 0.3 s.
+- From 1.4 s "hello@kitten.cn" is typed at 0.08 s per character, with the caret blinking every 0.5 s.
+- From 3.3 s it is deleted at 0.025 s per character; at 3.85 s a click outside blurs the field and the label and underline return over 0.25 s.
+When to use it: Use it in sign-in, sign-up or contact forms where the field name should stay visible while typing.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-033.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

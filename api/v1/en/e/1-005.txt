@@ -1,7 +1,7 @@
 // Motion Prompt #1-005 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#053
 //
 // Dropdown (select) / ドロップダウン
-// Pack: ui (UI component names) · element 05 · Category: Opening & overlays
+// Category: UI & Web / Components / Opening & overlays
 // What happens: Clicking the field opens four options below it; picking "Nagoya" closes the list and fills the field.
 // Motion spec:
 //   - 4.5 s cycle on a 542×191 card. A 260×38 field (radius 8) shows a placeholder and a chevron; the cursor clicks it at 1.0 s.
@@ -12,11 +12,11 @@
 // When to use it: Use it in a form when people pick one value from a fixed list.
 // Tags: dropdown, dropdown-menu, select, picker, combobox, options, form
 // Size: 542x191 px · Cycle: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-005
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
 // @element 05
 // 05 ドロップダウン（Dropdown menu）

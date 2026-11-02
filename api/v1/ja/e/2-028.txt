@@ -1,43 +1,38 @@
-// Motion Prompt #2-028 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#124
+// Motion Prompt #2-028 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// ウィグル / Wiggle
-// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 04 · カテゴリ: 動きのテクニック
-// 何が起きるか: ベルが小刻みに不規則に揺れ続ける。1回の衝撃ではなく、ずっと続く細かい揺れ。
+// 多言語あいさつ / Multilingual greeting
+// 分類: モーショングラフィックス / 文字アニメーション / 一文字ずつ・組版
+// 何が起きるか: カプセル形の枠の中で「你好」「Hello」「こんにちは」「Bonjour」が上へぼけて消え下からぼけて現れ、枠の幅と後ろの点が語の長さに合わせて滑らかに動く。
 // 動きの仕様:
-//   - 黄色いベル。上端（中央, y=34）を支点に、ずっと揺れ続ける（止まる区間はない）
-//   - 角度 = 4つのsin波の和。4.7秒あたり23・31・43・59回（約4.9・6.6・9.1・12.6Hz）、振幅 0.085・0.065・0.05・0.035rad（重なると最大約0.235rad＝13.5°）
-//   - 位置も揺らす: 横は29・47・61回で振幅4・3・2px、縦は37・53回で振幅2.4・1.8px
-//   - どの周波数も4.7秒にちょうど整数回なのでループがつながる。互いに割り切れない回数を混ぜて、規則的に見えないようにする
-//   - ベルの舌（コーラル・半径13）は逆へ振れる（角度×70px）。両わきに白い振動の弧（半径86と110・線幅6）を明滅させて出し続ける
-// 使いどころ: 通知・着信・注意を引きたい物に。ずっと続く小さな揺れで、落ち着かなさや手持ち感を出したいとき。
-// タグ: wiggle, jitter, shake, random, noise, bell, notification
+//   - 4語を1.175秒ごとに切り替える（4.7秒で1巡）
+//   - 旧語は0.3秒で上へ18px、ぼかし6pxまで消える
+//   - 新語は0.15〜0.5秒に下18pxから、ぼかし6px→0で現れる
+//   - 枠の幅は0〜0.5秒に三次の easeInOut で新しい語の幅＋左右30pxへ、後ろの点も一緒に動く
+// 使いどころ: 国際的なブランドや旅行・語学サービスのヒーロー、ウェルカム画面に。
+// タグ: greeting, multilingual, hello, rotate-words, blur, hero
 // サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-028
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 04
-// 04 ウィグル（ベルが、小刻みに不規則に揺れ続ける。1回の衝撃ではなく、ずっと続く細かい揺れ）
-const WGF = 2 * Math.PI / CYC;
-const wsum = (u, arr) => arr.reduce((s, [kk, am, ph]) => s + am * Math.sin(WGF * kk * u + ph), 0);
-CELLS[3] = (k, w, h, u) => {
+// @element 56
+// 改写自 KittenJam Motion Library #301（Hannah）· 多语问候切换：胶囊框里每 1.175 秒换一种语言的问候（你好 → Hello → こんにちは → Bonjour）：旧词 0.3 秒上移 18px、模糊到 6px 淡出，新词 0.15–0.5 秒从下方模糊淡入；框宽以三次缓入缓出平滑变为新词宽度，后面的圆点跟着移动。
+const GRT_W = ['你好', 'Hello', 'こんにちは', 'Bonjour'];
+CELLS[55] = (k, w, h, u) => {
+  u = snapU(u);
   stage(k);
-  const rot = wsum(u, [[23, 0.085, 0.3], [31, 0.065, 1.9], [43, 0.05, 4.2], [59, 0.035, 2.6]]);
-  const dx = wsum(u, [[29, 4, 0.7], [47, 3, 3.1], [61, 2, 5.0]]), dy = wsum(u, [[37, 2.4, 2.2], [53, 1.8, 0.4]]);
-  const X = w / 2 + dx, Y = 34 + dy;
-  // 両わきの振動の線（揺れているあいだ、ずっと出ている）
-  k.strokeStyle = '#fff'; k.lineCap = 'round'; k.lineWidth = 6;
-  [[86, 0.85], [110, 0.5]].forEach(([r, al], j) => { const fl = 0.55 + 0.45 * Math.abs(Math.sin(WGF * (41 + j * 12) * u)); k.globalAlpha = al * fl;[0, Math.PI].forEach(base => { k.beginPath(); k.arc(w / 2, 104, r, base - 0.42, base + 0.42); k.stroke(); }); });
-  k.globalAlpha = 1;
-  k.save(); k.translate(X, Y); k.rotate(rot);
-  // 舌（ベルと逆にふれる）
-  k.fillStyle = C.coral; k.beginPath(); k.arc(-rot * 70, 128, 13, 0, 7); k.fill();
-  k.fillStyle = C.yel;
-  k.beginPath(); k.arc(0, 8, 10, 0, 7); k.fill();
-  k.beginPath(); k.moveTo(-50, 112); k.quadraticCurveTo(-42, 100, -42, 76); k.bezierCurveTo(-42, 36, -22, 18, 0, 18); k.bezierCurveTo(22, 18, 42, 36, 42, 76); k.quadraticCurveTo(42, 100, 50, 112); k.closePath(); k.fill();
-  rr(k, -60, 106, 120, 16, 8); k.fill();
-  k.fillStyle = 'rgba(255,255,255,.35)'; rr(k, -28, 40, 12, 50, 6); k.fill();
+  const F = `800 44px ${JP}`, N = GRT_W.length, T = CYC / N, n = Math.min(N - 1, Math.floor(u / T)), lt = u - n * T;
+  const cur = GRT_W[n], prev = GRT_W[mod(n - 1, N)], PAD = 30, H = 76, CY = 92;
+  const pw = lerp(tw(k, prev, F) + PAD * 2, tw(k, cur, F) + PAD * 2, eIO(P(lt, 0, 0.5)));
+  const x0 = w / 2 - (pw + 30) / 2;
+  rr(k, x0, CY - H / 2, pw, H, H / 2); k.fillStyle = C.navy2; k.fill(); k.strokeStyle = C.navy3; k.lineWidth = 2; k.stroke();
+  k.save(); rr(k, x0, CY - H / 2, pw, H, H / 2); k.clip();
+  const qo = P(lt, 0, 0.3), qi = P(lt, 0.15, 0.5);
+  if (qo < 1) { k.globalAlpha = 1 - qo; k.filter = `blur(${(6 * qo).toFixed(2)}px)`; txt(k, prev, x0 + pw / 2, CY - 18 * eOut(qo), F, '#fff', 'center', 'middle'); }
+  if (qi > 0) { k.globalAlpha = qi; k.filter = `blur(${(6 * (1 - qi)).toFixed(2)}px)`; txt(k, cur, x0 + pw / 2, CY + 18 * (1 - eOut(qi)), F, '#fff', 'center', 'middle'); }
   k.restore();
+  k.fillStyle = C.coral; k.beginPath(); k.arc(x0 + pw + 18, CY + 16, 7, 0, 7); k.fill();
+  txt(k, '来自世界各地的问候', w / 2, 172, `600 14px ${JP}`, C.dim, 'center', 'alphabetic');
 };

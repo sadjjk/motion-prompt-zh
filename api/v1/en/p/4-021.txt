@@ -1,15 +1,15 @@
-Please use "Seigaiha waves" (青海波), one of the names in "Styled scenes".
+Please use "Glass mosaic" (ガラスモザイク), filed under "Craft & patterns / Print & handmade".
 Motion Prompt #4-021
 
-What it is: A Japanese seigaiha wave pattern on deep indigo with a golden full moon
-What the sample shows: Cream and indigo concentric arcs overlap like scales and slide slowly downward, under a still golden moon at the top right.
+What it is: A glass mosaic whose small tiles flip into place to form a sunset seascape
+What the sample shows: Coloured glass tiles flip over in a wave from right to left to form a sunset over the sea, hold, then flip away again from the right.
 Spec:
-- Deep indigo background #0F2447. Each wave is 5 concentric semicircles of radius 22 px, alternating cream #E9E2D0 and indigo.
-- Rows are 11 px apart; odd rows shift by 22 px, and each later row overlaps the one before.
-- The pattern moves down 22 px (1 pattern period) every 6.4 s, looping seamlessly.
-- A gold moon of radius 46 px sits at (410, 64) with a radial gradient #F5D58A → #C9952F.
-When to use it: Openers for Japanese food, ryokan or confectionery brands, backgrounds for Japan-themed sites, or seasonal campaign posters.
+- 45 × 18 glass tiles of 12 px with 1.5 px grout; each tile's brightness varies between 0.85 and 1.15.
+- Sunset seascape: the top 55% is an orange-to-purple sky with an oval sun; below is a deep blue sea with a sun reflection on alternate rows.
+- From 0.2 s tiles flip into place from right to left, 0.35 s each, all in place by about 3.65 s.
+- From 5.4 s they flip away again from right to left, 0.25 s each, finishing by 6.3 s.
+When to use it: Openers for travel, resort, architecture or interior content, a hero image reveal, or section breaks in a presentation.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-021.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

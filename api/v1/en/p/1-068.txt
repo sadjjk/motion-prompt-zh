@@ -1,15 +1,15 @@
-Please use "Rippling letters" (文字のばね波紋), one of the names in "Interaction & data motion".
+Please use "Shrinking sticky card stack" (カードの積み重ね固定), filed under "Pages / Scrolling".
 Motion Prompt #1-068
 
-What it is: A headline whose letters bob like springs as the pointer passes
-What the sample shows: As the pointer glides left to right, the big letters beneath lift and tint purple, then bounce down; a button sends a wave across them.
+What it is: Cards that stick to the top one after another and stack as you scroll
+What the sample shows: Gradient cards scroll up and pin near the top; each time the next card slides over, the ones beneath shrink and darken into steps.
 Spec:
-- The 6 letters of MOTION sit 66 px apart, weight 900, 62 px, and only move up and down.
-- Letters near the pointer lift by a Gaussian (σ 34 px), up to 34 px; each has a spring: per frame v += (target − y)×0.16, v ×= 0.8.
-- The higher a letter rises, the more purple it turns (mixed by y / 50), and its floor shadow gets fainter and narrower.
-- 'Send wave' runs a 1.1 s pulse at 1.35× amplitude from left to right; demo sweeps at 0.4–3.0 s and clicks at 3.4 s.
-When to use it: Use it on brand-site headlines, portfolio names or big event-page type to add a tactile hover response.
+- 4 gradient cards, 150 px tall with 16 px gaps; each pins at 14 + index × 8 px from the top.
+- When the next card overlaps, the one beneath shrinks (−6% per layer) and darkens (18% black per layer) in proportion to the overlap.
+- Cards have a 22 px corner radius and end up as a stepped stack at the last card.
+- Demo scrolls to the bottom over 0.4→4.6 s and back to the top over 5.4→6.3 s.
+When to use it: Use it for 'How it works' or feature-highlight sections on product pages that explain steps one card at a time.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-068.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

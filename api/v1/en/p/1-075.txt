@@ -1,15 +1,15 @@
-Please use "Grid-beam background" (グリッドビーム背景), one of the names in "Interaction & data motion".
+Please use "Timeline draw" (タイムラインの描画), filed under "Pages / Scrolling".
 Motion Prompt #1-075
 
-What it is: A dark grid hero background with light beams racing along the lines
-What the sample shows: Coloured beams with fading tails streak across a faint dark grid, and the grid lights up indigo only around the pointer.
+What it is: A vertical timeline whose line grows down and reveals each step as it arrives
+What the sample shows: As scrolling progresses, a thin line on the left grows from top to bottom; each node it reaches fills in and its week, title and note slide in from the left. Scrolling back shrinks the line and hides the steps.
 Spec:
-- A dark #07080F background with a 34 px grid (white at 7% opacity), faded at the edges by a central elliptical mask.
-- 8 beam lanes run along the grid lines horizontally and vertically, 2 or 3 passes per cycle; tails fade over 50–90 px with a 1.8 px bright head.
-- Beams come in 3 colours: 129,140,248 / 45,212,191 / 244,114,182.
-- The grid within a 90 px radius of the pointer glows indigo (129,140,248 at .55 opacity).
-When to use it: Use it as the hero background for developer tools, cloud services and AI products.
+- Scroll progress goes 0 → 1 from 0.4–4.6 s, with the scrollbar on the right in sync.
+- The line on the left grows 164 px down from the top; there are 4 nodes with 6 px dots.
+- When the line tip reaches a node, its dot fills and the week, title and note slide in from 10 px to the left, finishing within 16 px past the node.
+- From 5.4–6.3 s the scroll returns and the steps fold away from the bottom up.
+When to use it: Use it for process overviews, company histories and onboarding steps that should be read in order.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-075.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,16 +1,17 @@
-Please use "Liquid transition" (リキッドトランジション), one of the names in "Motion graphics moves".
+Please use "Typewriter" (タイプライター), filed under "Text animation / Letter by letter & layout".
 Motion Prompt #2-019
 
-What it is: Liquid flows in and replaces the scene
-What the sample shows: Paint-like liquid drips down from the top and fills the frame, becoming the next scene.
+What it is: Text appears one character at a time, as if typed
+What the sample shows: Text is typed into an input field one character at a time, then the send button lights up and is pressed.
 Spec:
-- Day → night → day, 2.35 s each. Two liquid layers, both moving top to bottom with quadratic ease-in-out.
-- Layer 1 (flat colour: blue for day→night, coral for night→day): 0.35–1.5 s. Layer 2 (the next scene itself, clipped to the liquid shape): 0.7–1.8 s.
-- The liquid front moves from y = −110 to 130 px below the bottom edge. Its edge waves with two sine waves (amplitudes 13 px and 8 px), strongest midway.
-- Seven drips (30–54 px wide, round tips) hang from the front; length = base 30–110 px × (0.25 + 0.9 × wave strength), greatest midway.
-- Merged look: draw the shape in white → blur 7 px → threshold the alpha → fill with the colour (or the next scene).
-When to use it: Use it for a soft, organic scene change, for example in food, beauty or creative videos.
+- One pass per 4.7 s. Nine characters appear in a white input field (471 × 92, radius 30), one every 0.24 s starting at 0.3 s (typing ends at 2.46 s).
+- Each new character settles from scale 1.35 to 1: 1 + 0.35·e^(−16t).
+- Cursor (coral, 5 × 44) sits after the last character: solid while typing, otherwise blinking with a 0.94 s period (on for 0.5 s).
+- Send button (radius 30): grey, then a blue disc appears from 2.58 s with spring 1 − e^(−6.5t)·cos(15t).
+- Press: the button shrinks by up to 20% at 2.96–3.21 s (half sine). At 3.13–3.41 s the text moves 70 px up while fading out.
+- The cursor returns to the start once the text is half faded (about 3.27 s); at 3.51–3.81 s the blue fades.
+When to use it: Use it to show someone typing: a prompt, a search query, a chat message.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-019.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

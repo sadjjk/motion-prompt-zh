@@ -1,45 +1,62 @@
 // Motion Prompt #1-157 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// Icon slide button / アイコンスライドボタン
-// Pack: lp (Landing page & web effects) · element 42 · Category: Hover & click interactions
-// What happens: When the cursor lands, the arrow on the right of the button slides out and fades while a matching arrow slides in from outside the left edge, and the label moves right to make room.
+// Badge unlock / バッジ解除
+// Category: UI & Web / Feedback / Action feedback
+// What happens: A hexagon outline draws in one stroke and fills with gold; a large rotated star shrinks and stamps into the centre. Short rays shoot outward as the badge gives a small bounce, and the achievement name and 'Unlocked' rise in below.
 // Motion spec:
-//   - A 180×50 ink pill button with the label and an arrow on its right; the cursor moves onto it in 0.6 s.
-//   - Over 0.4 s (easeInOut power 3) the right arrow slides 40px out to the right and fades out.
-//   - A second arrow slides in from outside the left edge (−16px) to just left of the label (+30px) and fades in, while the label moves 20px right.
-//   - The cursor leaves at 3.4 s and everything slides back.
-// When to use it: Use it on buttons that lead onward, such as 'Next' or 'Learn more'.
-// Tags: button, arrow, icon-slide, hover, cta, relay
-// Size: 539x208 px · Cycle: 4.8 s
-// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+//   - The hexagon outline draws in one stroke from 0.3–1.1 s (inOut3), then fills from 1.1–1.4 s.
+//   - The star goes from 3× and -60° to 1× and 0° from 1.4–1.9 s (backOut).
+//   - From 1.8–2.35 s, 12 rays shoot from a 58 px to an 80 px radius and vanish while the badge bounces to 1.08×.
+//   - The achievement name rises 8 px at 2.1 s and 'Unlocked' at 2.25 s (0.4 s out3).
+//   - Everything fades out from 5.4–6.0 s to reset.
+// When to use it: Use it for gamification, learning apps and streak rewards.
+// Tags: badge, achievement, unlock, reward, gamification, star
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-157
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 42
-// 改写自 KittenJam Motion Library #237 箭头接力按钮：180×50 墨色胶囊按钮，文字「了解更多」右侧一个箭头。光标 0.6 秒移入后 0.4 秒 easeInOut 3 次方：
-// 右侧箭头向右滑出 40px 并淡出，另一个箭头从按钮左外侧（−16px）滑到文字左边（+30px）并淡入，文字同步右移 20px 让位；3.4 秒移开后反向复原。
-const ISLIDE_W = 180, ISLIDE_H = 50;
-CELLS[41] = (k, w, h, u) => {
-  frame(k, 'example.com/about');
-  const bx = (VW - ISLIDE_W) / 2, by = (VH - ISLIDE_H) / 2, my = by + ISLIDE_H / 2;
-  const cur = t => path([[0, 430, 150], [0.6, 250, 90], [3.4, 250, 90], [4.0, 430, 150], [4.8, 430, 150]], t);
-  const on = t => { const [a, b] = cur(t); return a > bx && a < bx + ISLIDE_W && b > by && b < by + ISLIDE_H; };
-  const q = trans(on, u, 0.4, eIO);
-  const arrow = (x, a) => {
-    if (a <= 0) return;
-    k.save(); k.globalAlpha = a; k.strokeStyle = '#fff'; k.lineWidth = 2.2; k.lineCap = 'round'; k.lineJoin = 'round';
-    k.beginPath(); k.moveTo(x - 7, my); k.lineTo(x + 7, my); k.moveTo(x + 2, my - 5); k.lineTo(x + 7, my); k.lineTo(x + 2, my + 5); k.stroke(); k.restore();
-  };
-  view(k, () => {
-    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
-    k.save(); k.shadowColor = 'rgba(28,35,51,.25)'; k.shadowBlur = 12; k.shadowOffsetY = 4; k.fillStyle = C.ink; rr(k, bx, by, ISLIDE_W, ISLIDE_H, ISLIDE_H / 2); k.fill(); k.restore();
-    k.save(); rr(k, bx, by, ISLIDE_W, ISLIDE_H, ISLIDE_H / 2); k.clip();
-    txt(k, '了解更多', bx + 78 + 20 * q, my + 1, `700 15px ${JP}`, '#fff', 'center', 'middle');
-    arrow(bx + 140 + 40 * q, 1 - q);
-    arrow(bx - 16 + 46 * q, q);
-    k.restore();
-    const [cx, cy] = cur(u); cursor(k, cx, cy);
-  });
+// @element 56
+// 56 成就徽章解锁（KittenJam #327）：六角徽章外框 0.3–1.1 秒一笔描出（inOut3），1.1–1.4 秒内部填色；星星 1.4–1.9 秒从 3 倍、-60° 缩回 1 倍落定（backOut）；
+// 1.8–2.35 秒 12 道光芒从半径 58 射到 80px 后消失，徽章同时弹到 1.08；2.1 / 2.25 秒成就名与「成就解锁」依次上浮 8px 淡入；5.4–6.0 秒淡出复位。
+const BDG_CX = 269.5, BDG_CY = 78, BDG_R = 46, BDG_RAY = 12;
+const BDG_HEX = Array.from({ length: 7 }, (_, i) => { const a = -Math.PI / 2 + i * Math.PI / 3; return [Math.cos(a) * BDG_R, Math.sin(a) * BDG_R]; });
+function BDG_hex(k) { k.beginPath(); BDG_HEX.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); k.closePath(); }
+CELLS[55] = (k, w, h, u) => {
+  k.fillStyle = UXD.page; k.fillRect(0, 0, CW, CH);
+  const fa = fadeIn(u), fill = seg(u, 1.1, 1.4), sc = 1 + 0.08 * Math.sin(Math.PI * seg(u, 1.8, 2.15));
+  glow(k, BDG_CX, BDG_CY, 120, '245,196,81', 0.2 * fill * fa);
+  k.save(); k.translate(BDG_CX, BDG_CY); k.scale(sc, sc);
+  k.lineJoin = 'round'; k.lineCap = 'round'; k.lineWidth = 3;
+  k.strokeStyle = 'rgba(255,255,255,.08)'; BDG_hex(k); k.stroke();
+  k.globalAlpha = fa;
+  if (fill > 0) {
+    const g = k.createLinearGradient(0, -BDG_R, 0, BDG_R); g.addColorStop(0, '#F5C451'); g.addColorStop(1, '#D9892B');
+    k.globalAlpha = fa * fill; k.fillStyle = g; BDG_hex(k); k.fill(); k.globalAlpha = fa;
+  }
+  k.strokeStyle = '#F5C451'; UXB_poly(k, BDG_HEX, inOut3(seg(u, 0.3, 1.1)));
+  const st = seg(u, 1.4, 1.9);
+  if (st > 0) {
+    const e = backOut(st), s = mix(3, 1, e);
+    k.save(); k.globalAlpha = fa * seg(u, 1.4, 1.6); k.rotate(mix(-60, 0, e) * Math.PI / 180); k.scale(s, s);
+    k.fillStyle = '#FFFFFF'; k.beginPath();
+    for (let j = 0; j < 10; j++) { const r = j % 2 ? 8 : 19, a = -Math.PI / 2 + j * Math.PI / 5; k.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+    k.closePath(); k.fill(); k.restore();
+  }
+  // 光芒：线头先射出，线尾随后追上（描边 0%→100%→收尾）
+  const hd = out3(seg(u, 1.8, 2.05)), tl = out3(seg(u, 2.05, 2.35));
+  if (hd > 0 && tl < 1) {
+    k.strokeStyle = '#FFE39A'; k.lineWidth = 2.5;
+    for (let j = 0; j < BDG_RAY; j++) {
+      const a = (j + 0.5) * TAU / BDG_RAY, r0 = mix(58, 80, tl), r1 = mix(58, 80, hd);
+      k.beginPath(); k.moveTo(Math.cos(a) * r0, Math.sin(a) * r0); k.lineTo(Math.cos(a) * r1, Math.sin(a) * r1); k.stroke();
+    }
+  }
+  k.restore();
+  const a1 = out3(seg(u, 2.1, 2.5)), a2 = out3(seg(u, 2.25, 2.65));
+  k.globalAlpha = fa * a1; txt(k, '连续登录 7 天', BDG_CX, 158 + 8 * (1 - a1), UXB_f(900, 15), UXD.ink, 'center');
+  k.globalAlpha = fa * a2; txt(k, '成就解锁', BDG_CX, 180 + 8 * (1 - a2), UXB_f(700, 10.5), '#F5C451', 'center');
+  k.globalAlpha = 1;
 };

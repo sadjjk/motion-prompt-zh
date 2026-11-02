@@ -1,54 +1,70 @@
-// Motion Prompt #2-008 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#008
+// Motion Prompt #2-008 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#122
 //
-// キネティックタイポグラフィ / Kinetic typography
-// パック: motion (モーショングラフィックスの動き) · element 08 · カテゴリ: 登場・文字の演出
-// 何が起きるか: 言葉の意味に合わせて文字が動く（のびる／はねる／まわる／ドン！）。
+// フォロースルー / Follow-through
+// 分類: モーショングラフィックス / 動きの原理 / 登場・イージング
+// 何が起きるか: 滑ってきた丸いキャラクターが急に止まり、頭の旗としっぽだけが遅れて揺れて収まる。
 // 動きの仕様:
-//   - 4語を1.175秒ずつ（太字88px）。各語は最後の0.2秒でフェードアウトしながら上へ46px（easeIn 3乗）
-//   - のびる（青）: 横の拡大率 0.3→1 を ばね 1 − e^(−4.2t)·cos(12t) で。縦は 1/√(横) で少し縮める
-//   - はねる（黄）: 1文字ずつ0.1秒ずらす。高さ 78px × |sin(πt/0.4)| × e^(−2.6t) で弾む。接地の瞬間は縦に最大16%つぶす
-//   - まわる（ミント）: 1文字ずつ0.12秒ずらす。0.62秒で −360°→0° を backOut（s=1.3）。拡大率 0→1 を0.25秒で easeOut（3乗）
-//   - ドン!（コーラル・100px・斜体風に傾ける）: 0.02〜0.2秒で拡大率 3.4→1（easeIn 3乗）で叩きつける
-//   - 着地後: 横揺れ 10px × e^(−9t) × sin(38t)、縦つぶれ 20% × e^(−11t)、放射の線8本を0.4秒
-// 使いどころ: ナレーションや歌詞のキーワードを、意味ごと印象に残したいとき。
-// タグ: kinetic-typography, text, typography, lyric, word, bounce, spin, slam
+//   - 2.35秒で1回（4.7秒に2回、向きを交互に）。体はミントの丸（半径38）。0.15〜0.85秒で303px進む: 最初の30%で加速し、あとは一定の速さのまま0.85秒で急に止まる
+//   - 旗（白い棒58px＋黄色い旗）: 角度を体の加速度で押されるばねとして計算。a″ = −121a − 5.5a′ − 0.0175×加速度（固有角振動数11rad/s）。旗の布は棒の角度のさらに0.6倍曲げる
+//   - しっぽ: 14pxの節7つ（コーラル・線幅14→6）。遅いばね b″ = −56b − 2.8b′ − 0.012×加速度。節 j は 22/600秒（約0.037秒）×j 遅れた値を使い、振れ幅を ×(0.55 + 0.16j)
+//   - 計算は1/600秒刻みで先に表にしておく（描画時は表を引くだけ）
+//   - 各回の最後の0.3秒で、旗としっぽの振れを smoothstep で0にする（ループの継ぎ目を出さない）
+// 使いどころ: キャラクターの髪・服・アクセサリー、ロゴの飾りなど、本体に付いている部分に自然な重さを出したいとき。
+// タグ: follow-through, overlapping-action, secondary-motion, spring, drag, character, animation-principle
 // サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-008
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 08
-// 08 キネティックタイポグラフィ（言葉の意味に合わせて文字が動く：のびる／はねる／まわる／ドン！）
-CELLS[7] = (k, w, h, u) => {
-  stage(k);
-  const T = CYC / 4, n = Math.min(3, Math.floor(u / T)), lu = u - n * T, X = w / 2, Y = h / 2 + 6;
-  const out = P(lu, T - 0.2, T - 0.02), oa = 1 - out, oy = -46 * eIn(out);
-  const f = `800 88px ${JP}`;
-  k.save(); k.translate(X, Y + oy); k.globalAlpha = oa;
-  if (n === 0) {
-    const sp = spring(lu - 0.05, 12, 4.2), sx = 0.3 + 0.7 * sp, sy = 1 / Math.sqrt(Math.max(0.75, sx));
-    k.globalAlpha = oa * P(lu, 0.03, 0.12); k.scale(sx, sy); txt(k, '拉伸', 0, 0, f, C.blue, 'center', 'middle', '4px');
-  } else if (n === 1) {
-    chars(k, '弹跳', f, 6).forEach((c, i) => {
-      const tt = lu - 0.06 - i * 0.1; if (tt < 0) return;
-      const y = -78 * Math.abs(Math.sin(Math.PI * tt / 0.4)) * Math.exp(-2.6 * tt), near = Math.abs(Math.sin(Math.PI * tt / 0.4)) < 0.25 ? 1 : 0;
-      const sq = 1 - 0.16 * near * Math.exp(-2.6 * tt), a = P(tt, 0, 0.08);
-      k.save(); k.globalAlpha = oa * a; k.translate(c.x, y + 44); k.scale(2 - sq, sq); txt(k, c.ch, 0, -44, f, C.yel, 'center', 'middle'); k.restore();
-    });
-  } else if (n === 2) {
-    chars(k, '旋转', f, 6).forEach((c, i) => {
-      const tt = lu - 0.05 - i * 0.12; if (tt < 0) return;
-      const q = backOut(P(tt, 0, 0.62), 1.3), sc = eOut(P(tt, 0, 0.25));
-      k.save(); k.translate(c.x, 0); k.rotate((1 - q) * -Math.PI * 2); k.scale(sc, sc); txt(k, c.ch, 0, 0, f, C.mint, 'center', 'middle'); k.restore();
-    });
-  } else {
-    const hit = 0.2, tt = lu - hit, sc = tt < 0 ? lerp(3.4, 1, eIn(P(lu, 0.02, hit))) : 1;
-    const dx = tt > 0 ? 10 * Math.exp(-9 * tt) * Math.sin(38 * tt) : 0, sy = tt > 0 ? 1 - 0.2 * Math.exp(-11 * tt) : 1;
-    k.globalAlpha = oa * P(lu, 0.02, 0.1);
-    if (tt > 0 && tt < 0.4) { const q = eOut(tt / 0.4); k.strokeStyle = C.yel; k.lineWidth = 7 * (1 - q); k.lineCap = 'round'; for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + 0.2, r0 = 120 + 50 * q, r1 = r0 + 26; k.beginPath(); k.moveTo(Math.cos(a) * r0 * 1.35, Math.sin(a) * r0 * 0.5); k.lineTo(Math.cos(a) * r1 * 1.35, Math.sin(a) * r1 * 0.5); if (q < 0.97) k.stroke(); } }
-    k.translate(dx, 44); k.scale(sc * (2 - sy), sc * sy); k.transform(1, 0, -0.14, 1, 0, 0); txt(k, '咚！', 0, -44, `800 100px ${JP}`, C.coral, 'center', 'middle');
+// @element 02
+// 02 フォロースルー（体が止まった後も、旗としっぽだけが遅れて揺れて収まる）
+const FTAB = (() => {
+  const T = CYC / 2, dt = 1 / 600, N = Math.ceil(T / dt) + 2, D = CW - 2 * 118;
+  const pos = lu => { const q = P(lu, 0.15, 0.85), c = 1 / 0.85; return (q < 0.3 ? q * q / 0.6 : 0.15 + (q - 0.3)) * c; };
+  const A = new Float32Array(N), B = new Float32Array(N);
+  let a = 0, va = 0, b = 0, vb = 0, xp = 0, vp = 0;
+  for (let i = 0; i < N; i++) {
+    const lu = i * dt, x = pos(lu) * D, v = (x - xp) / dt, acc = i ? (v - vp) / dt : 0; xp = x; vp = v;
+    va += (-121 * a - 5.5 * va - acc * 0.0175) * dt; a += va * dt;
+    vb += (-56 * b - 2.8 * vb - acc * 0.012) * dt; b += vb * dt;
+    const fade = 1 - smooth(P(lu, T - 0.3, T)); A[i] = a * fade; B[i] = b * fade;
   }
+  return { A, B, pos, D };
+})();
+CELLS[1] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const T = CYC / 2, n = Math.floor(u / T), lu = u - n * T, dir = n % 2 ? -1 : 1;
+  const i = Math.min(FTAB.A.length - 1, Math.round(lu * 600)), q = FTAB.pos(lu);
+  const xs = dir > 0 ? 118 : w - 118, x = xs + dir * q * FTAB.D;
+  const floor = h - 26, R = 38, cy = floor - R, a = dir * FTAB.A[i];
+  k.fillStyle = C.navy3; rr(k, 26, floor, w - 52, 5, 2.5); k.fill();
+  k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(x, floor + 8, R * 1.1, 6, 0, 0, 7); k.fill();
+  // 滑っている間のスピード線
+  const moving = lu > 0.2 && lu < 0.85;
+  if (moving) { k.strokeStyle = C.dim; k.lineCap = 'round'; k.lineWidth = 6; k.globalAlpha = 0.7;[[-18, 70], [6, 100], [26, 56]].forEach(([dy, L]) => { const x0 = x - dir * (R + 30); k.beginPath(); k.moveTo(x0, cy + dy); k.lineTo(x0 - dir * L, cy + dy); k.stroke(); }); k.globalAlpha = 1; }
+  // しっぽ（体の後ろ）
+  let px = x - dir * (R - 8), py = cy + 10; const pts = [[px, py]];
+  for (let j = 1; j <= 7; j++) {
+    const ij = Math.max(0, i - j * 22), d = FTAB.B[ij] * (0.55 + j * 0.16), ang0 = Math.PI + 0.25 + d;
+    const ang = dir > 0 ? ang0 : Math.PI - ang0; px += Math.cos(ang) * 14; py += Math.sin(ang) * 14; pts.push([px, py]);
+  }
+  k.lineCap = 'round'; k.lineJoin = 'round'; k.strokeStyle = C.coral;
+  for (let j = 1; j < pts.length; j++) { k.lineWidth = lerp(14, 6, j / pts.length); k.beginPath(); k.moveTo(pts[j - 1][0], pts[j - 1][1]); k.lineTo(pts[j][0], pts[j][1]); k.stroke(); }
+  k.fillStyle = C.coral; k.beginPath(); k.arc(px, py, 9, 0, 7); k.fill();
+  // 体
+  k.fillStyle = C.mint; k.beginPath(); k.arc(x, cy, R, 0, 7); k.fill();
+  k.fillStyle = 'rgba(255,255,255,.18)'; k.beginPath(); k.arc(x - 10, cy - 12, R * 0.55, 0, 7); k.fill();
+  k.fillStyle = '#fff'; k.beginPath(); k.arc(x + dir * 16, cy - 6, 9, 0, 7); k.fill();
+  k.fillStyle = C.navy; k.beginPath(); k.arc(x + dir * 19, cy - 6, 4.5, 0, 7); k.fill();
+  // アンテナの旗
+  const L = 58, top = cy - R + 4;
+  k.save(); k.translate(x, top); k.rotate(a);
+  k.strokeStyle = '#fff'; k.lineWidth = 5; k.beginPath(); k.moveTo(0, 0); k.lineTo(0, -L); k.stroke();
+  k.rotate(a * 0.6);
+  k.fillStyle = C.yel; k.beginPath(); k.moveTo(0, -L); k.quadraticCurveTo(-dir * 22, -L + 4 + 8 * a * dir, -dir * 44, -L + 12); k.lineTo(0, -L + 28); k.closePath(); k.fill();
   k.restore();
+  k.fillStyle = '#fff'; k.beginPath(); k.arc(x + Math.sin(a) * L, top - Math.cos(a) * L, 6, 0, 7); k.fill();
 };

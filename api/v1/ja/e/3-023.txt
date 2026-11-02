@@ -1,7 +1,7 @@
 // Motion Prompt #3-023 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#047
 //
 // Jカット / J-cut
-// パック: camera (カメラワークと切り替え) · element 23 · カテゴリ: 切り替え（トランジション）
+// 分類: 編集・撮影 / カメラ・編集 / 編集・切り替え
 // 何が起きるか: 映像が切り替わる前に、次の場面の音が先に入る。上に映像、下に映像と音のタイムラインを表示する。
 // 動きの仕様:
 //   - つなぎ方: 映像は直結。音だけ映像より先に次の場面（B）へ切り替える。ずれはタイムライン全体の20%（0.72秒）
@@ -13,11 +13,11 @@
 // 使いどころ: 次の場面への期待を先に作りたいとき、会話や場面転換を自然につなぐとき。
 // タグ: j-cut, j cut, split edit, audio lead, sound first, audio transition, edit
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-023
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 23
 // 23 Jカット: 音が先に次の場面（B）へ切り替わり、映像が後から追う

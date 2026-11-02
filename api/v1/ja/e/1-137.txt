@@ -1,54 +1,57 @@
 // Motion Prompt #1-137 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// 紙飛行機の送信ボタン / Send plane button
-// パック: uxmotion (インタラクションとデータの動き) · element 46 · カテゴリ: 進捗フィードバック
-// 何が起きるか: 紫のボタンが押されると沈んで戻り、文字が右へ消え、紙飛行機が後ろにためてから右上へ飛び去る。ボタンが緑になり「已发送 ✓」が左から入り、しばらくして元に戻って飛行機も帰ってくる。
+// 二つ折りカード / Folding card
+// 分類: UI・Web / ポインター操作 / 手触り・カード
+// 何が起きるか: カーソルが紺の表紙を押すと、表紙が左端を軸に開いて中の左半分が見え、右半分の3行が順に浮かび上がり、最後は閉じて元に戻る。
 // 動きの仕様:
-//   - ボタン 210×54px。0.95 秒に押して 0.94 倍に沈んで戻る
-//   - 1.0–1.3 秒に文字が右へ 16px 動きながら消える。紙飛行機は 1.0–1.2 秒に 6px 後ろへためる
-//   - 1.2–1.8 秒に t³ で加速して右上へ（+300px、−60px、−25° 回転）、ボタンの外は切り取る
-//   - 1.75–2.05 秒にボタンが緑になり「已发送 ✓」が左から入る。3.3–3.9 秒に元の文字に戻り、飛行機が左下 40px・24px から帰ってくる
-// 使いどころ: メッセージ送信、問い合わせフォーム、メール配信などの送信完了を楽しく伝えたいときに。
-// タグ: send-button, paper-plane, submit, success, button, micro-interaction
-// サイズ: 539x208 px · 1周: 6.4 s
-// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+//   - 閉じた150×130のカード。紺の表紙に「招待状」
+//   - カーソルが0.8秒に表紙を押す。0.9〜1.6秒に表紙が左端を軸に開き（scaleX 1 → −1、easeInOut 3乗）、0を過ぎると中の左半分が見える。同時にカード全体が右へ75px動いて中央を保つ
+//   - 中の3行は1.6・1.8・2.0秒から各0.3秒でフェードインしながら6px上がる
+//   - 3.4秒に中を押すと、文字が3.4〜3.6秒に消え、3.6〜4.2秒に表紙が閉じてカードが元の位置へ戻る
+// 使いどころ: 招待状・グリーティングカード・お知らせなど、開く楽しさを演出したいメッセージに。
+// タグ: folding-card, invitation, card-open, reveal, greeting, click
+// サイズ: 542x191 px · 1周: 4.5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-137
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 46
-// 46 纸飞机发送（KittenJam #241）：指针 0.95 秒按下发送按钮（缩到 .94 回弹）；1.0–1.3 秒文字右移 16px 淡出，纸飞机 1.0–1.2 秒后撤 6px 蓄力，
-// 1.2–1.8 秒按 t³ 加速向右上飞出按钮（+300px、-60px、转 -25°，被按钮裁切）；1.75–2.05 秒按钮转绿、「已发送 ✓」从左滑入；3.3–3.9 秒换回原文，飞机从左下飞回。
-const SND_CX = 269.5, SND_CY = 104, SND_W = 210, SND_H = 54;
-const SND_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.85, 300, 118], [1.05, 300, 118], [1.7, 570, 230]];
-function SND_plane(k, x, y, rot) {
-  k.save(); k.translate(x, y); k.rotate(rot);
-  k.fillStyle = '#FFFFFF'; k.beginPath(); k.moveTo(-10, -1); k.lineTo(11, -9); k.lineTo(4, 10); k.lineTo(1, 2); k.closePath(); k.fill();
-  k.strokeStyle = 'rgba(0,0,0,.18)'; k.lineWidth = 1; k.beginPath(); k.moveTo(1, 2); k.lineTo(11, -9); k.stroke();
-  k.restore();
-}
-CELLS[45] = (k, w, h, u) => {
-  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
-  const pr = UXB_press(u, 0.95), bs = 1 - 0.06 * pr, x0 = SND_CX - SND_W / 2, y0 = SND_CY - SND_H / 2;
-  const si = out3(seg(u, 1.75, 2.05)), so = out3(seg(u, 3.3, 3.55));
-  const col = UXB_mix(UX.accent, UX.mint, inOut3(seg(u, 1.75, 2.05)) * (1 - inOut3(seg(u, 3.3, 3.6))));
-  k.save(); k.translate(SND_CX, SND_CY); k.scale(bs, bs); k.translate(-SND_CX, -SND_CY);
-  k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 16; k.shadowOffsetY = 6; rr(k, x0, y0, SND_W, SND_H, SND_H / 2); k.fillStyle = rgba(col, 1); k.fill(); k.restore();
-  rr(k, x0, y0, SND_W, SND_H, SND_H / 2); k.clip();
-  const to = out3(seg(u, 1.0, 1.3)), ti = out3(seg(u, 3.45, 3.75));
-  k.globalAlpha = u < 3.45 ? 1 - to : ti;
-  txt(k, '发送消息', SND_CX + 14 + (u < 3.45 ? 16 * to : -10 * (1 - ti)), SND_CY + 5.5, UXB_f(800, 15), '#FFFFFF', 'center');
-  k.globalAlpha = si * (1 - so);
-  txt(k, '已发送 ✓', SND_CX - 16 * (1 - si) + 10 * so, SND_CY + 5.5, UXB_f(800, 15), '#FFFFFF', 'center');
-  k.globalAlpha = 1;
-  let px = x0 + 44, py = SND_CY, rot = 0;
-  if (u >= 1.0 && u < 3.4) {
-    const w1 = inOut3(seg(u, 1.0, 1.2)), f = Math.pow(seg(u, 1.2, 1.8), 3);
-    px += -6 * w1 + 300 * f; py += -60 * f; rot = (-10 * w1 - 15 * f) * Math.PI / 180;
-  } else if (u >= 3.4) { const r = out3(seg(u, 3.4, 3.9)); px -= 40 * (1 - r); py += 24 * (1 - r); rot = 20 * (1 - r) * Math.PI / 180; }
-  SND_plane(k, px, py, rot);
-  k.restore();
-  const c = UXB_path(u, SND_KEYS);
-  if (u > 0.3 && u < 1.7) cursor(k, c[0], c[1], pr);
-};
+// @element 42
+// 改写自 KittenJam Motion Library #311 对折邀请卡：150×130 合起的卡片居中，封面深蓝带「邀请函」。
+// 光标 0.8 秒点封面，0.9–1.6 秒封面以左边为轴打开（scaleX 1→−1，easeInOut 3 次方），过 0 后显示浅色内页左半；
+// 同时整张卡右移 75px 保持居中。内页右半三行文字 1.6 / 1.8 / 2.0 秒起各 0.3 秒淡入并上移 6px；
+// 3.4 秒点内页左半，文字 3.4–3.6 秒淡出，3.6–4.2 秒封面合上、卡片回到原位。
+const INVITE_W = 150, INVITE_H = 130, INVITE_Y = 30;
+const INVITE_L = [['诚邀您参加', 12, 500, C.hint], ['年度设计之夜', 18, 800, C.ink], ['10 月 29 日 19:00', 12, 600, C.blue]];
+CELLS[41] = ui((w, h, t) => {
+  X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+  const q = eio(seg(t, .9, 1.6)) * (1 - eio(seg(t, 3.6, 4.2)));
+  const s = Math.cos(Math.PI * q), hx = 196 + 75 * q;
+  // 内页右半（被封面盖住的那面）
+  shadowed(() => fillRR(hx, INVITE_Y, INVITE_W, INVITE_H, 6, '#fffdf8'), 14, 4, .14);
+  const fade = 1 - seg(t, 3.4, 3.6);
+  INVITE_L.forEach(([s0, sz, wt, col], i) => {
+    const p = eo(seg(t, 1.6 + i * .2, 1.9 + i * .2)) * fade;
+    if (p <= 0) return;
+    X.save(); X.globalAlpha = p; text(s0, hx + INVITE_W / 2, INVITE_Y + 40 + i * 26 + 6 * (1 - p), sz, col, wt, 'center', i === 2 ? NUMF : JP); X.restore();
+  });
+  // 封面 / 内页左半：以 hx 为轴压缩
+  const cw = INVITE_W * Math.abs(s);
+  if (cw > .5) {
+    X.save(); X.translate(hx, 0); X.scale(Math.abs(s), 1);
+    if (s > 0) {
+      fillRR(0, INVITE_Y, INVITE_W, INVITE_H, 6, '#1d3a8a');
+      strokeRR(10, INVITE_Y + 10, INVITE_W - 20, INVITE_H - 20, 4, 'rgba(255,255,255,.35)', 1);
+      text('邀请函', INVITE_W / 2, INVITE_Y + 58, 20, '#fff', 800, 'center');
+      bar(INVITE_W / 2 - 24, INVITE_Y + 80, 48, 'rgba(255,255,255,.4)', 4);
+    } else {
+      fillRR(-INVITE_W, INVITE_Y, INVITE_W, INVITE_H, 6, '#f6f1e7');
+      circle(-INVITE_W / 2, INVITE_Y + INVITE_H / 2, 22, C.lb); text('★', -INVITE_W / 2, INVITE_Y + INVITE_H / 2 + 1, 18, C.blue, 700, 'center', NUMF);
+    }
+    const d = .3 * (1 - Math.abs(s));
+    if (d > 0) { X.fillStyle = `rgba(20,24,40,${d})`; X.fillRect(s > 0 ? 0 : -INVITE_W, INVITE_Y, INVITE_W, INVITE_H); }
+    X.restore();
+  }
+  pointer([[0, w + 30, h + 30], [.7, 290, 110], [1.2, 290, 110], [2.0, 470, 170], [3.0, 470, 170], [3.35, 200, 120], [3.6, 200, 120], [4.4, w + 30, h + 30]], [.8, 3.4], t);
+});

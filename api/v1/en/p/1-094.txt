@@ -1,15 +1,15 @@
-Please use "Live table insert" (新しい行が入るテーブル), one of the names in "Interaction & data motion".
+Please use "Dot grid ripple" (ドットグリッドの波紋), filed under "Pages / Hero backgrounds".
 Motion Prompt #1-094
 
-What it is: A live table where new rows slide in and rows pass each other when re-sorted
-What the sample shows: New orders slide into the table with a flash; clicking the amount header makes rows pass each other into a new order, and the time header restores it.
+What it is: A dot-grid background where ripples spread from wherever the pointer goes
+What the sample shows: As the pointer crosses the calm grey grid, rings spread from its trail; dots on the wave swell, lift and shift from blue-violet to teal.
 Spec:
-- 5 visible rows, 24 px tall; a new order slides in from the top with a purple flash that fades in 1.4 s.
-- Other rows move to their new slots in 0.45 s, and rows pushed out fade over 0.35 s.
-- In the demo new orders arrive at 0.8 s and 3.1 s, the amount header sorts descending at 2.2 s, and the time header restores order at 4.2 s.
-- Each row's N s ago label counts up, showing just now under 3 s; the header's red dot pulses every 1.4 s.
-When to use it: Use it in admin panels and dashboards where orders, transactions or logs arrive in real time.
+- A dot grid at 17 px spacing; at rest the dots are grey at 55% opacity.
+- The pointer drops a small ripple every 110 ms (amplitude .55) and a click a big wave (amplitude 1.6); up to 14 run at once.
+- Wavefronts spread at 170 px/s with shape sin(k/14)·e^(k/60), decaying by e^(−1.3·age) and gone after 2.6 s.
+- Raised dots grow to radius 1.6 + m × 3.4, lift m × 3 px and shift hue 230 − m × 110 from blue-violet to teal; demo clicks at 2.4 s.
+When to use it: Use it as a hero or section background on product sites to add mouse-responsive feedback to a calm page.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-094.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

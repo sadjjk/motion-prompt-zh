@@ -1,7 +1,7 @@
 // Motion Prompt #3-007 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#031
 //
 // Crane up / クレーンアップ
-// Pack: camera (Camera moves & transitions) · element 07 · Category: Camera Movement
+// Category: Editing & photography / Camera & editing / Camera movement
 // What happens: The camera rises while tilting down until it looks down on the person.
 // Motion spec:
 //   - Camera: rises from 1.4 m to 9 m while moving forward 0 m → 1.5 m
@@ -13,11 +13,11 @@
 // When to use it: To pull away from a person at the end of a scene or to reveal how large the location is.
 // Tags: crane, crane up, jib, boom up, rise, high angle, camera move
 // Size: 539x208 px · Cycle: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-007
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
 // @element 07
 // 07 クレーンアップ: カメラが上昇し、見下ろしになる

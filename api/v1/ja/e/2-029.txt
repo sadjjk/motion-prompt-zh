@@ -1,35 +1,53 @@
-// Motion Prompt #2-029 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#125
+// Motion Prompt #2-029 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// パルス / Pulse
-// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 05 · カテゴリ: 動きのテクニック
-// 何が起きるか: ハートが鼓動のように、ドクン・ドクンと大きさを脈打たせ、輪が広がる。
+// 反転フラップ表示板 / Split-flap board
+// 分類: モーショングラフィックス / 文字アニメーション / 一文字ずつ・組版
+// 何が起きるか: 暗い案内板の各マスがアルファベットを高速でめくり、時刻・行き先・ゲート・状態に順番に止まり、最後は空白にめくり戻る。
 // 動きの仕様:
-//   - コーラルのハート。1.175秒に1拍（4.7秒に4拍）。1拍は「ドクン・ドクン」の2段
-//   - 拡大率 = 1 + 0.26·G(0.2秒, 幅0.065) + 0.15·G(0.44秒, 幅0.07)。G = e^(−((t − 中心)÷幅)²)（急にふくらんで、すぐ戻る山）
-//   - ハートの輪郭線を2つ広げる: 0.16秒と0.40秒から、0.8秒で拡大率1.2→2.4（easeOut・3乗）
-//   - 輪は広がりながら不透明度0.75→0（2つ目は60%の濃さ）、線幅8.5→1.5px
-// 使いどころ: 「いいね」・録音中・ライブ配信中・押してほしいボタンなど、生きている感じや注目を出したいとき。
-// タグ: pulse, heartbeat, throb, scale, loop, like, attention
-// サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+//   - 3 便 × 4 列（時刻 4 マス・行き先 9 マス・ゲート 3 マス・状態 8 マス）、各マス 13 × 22 px
+//   - 0.3 秒から時差でめくり始める：行ごとに 0.18 秒、列ごとに 0.1 秒、マスごとに 0.04 秒遅れ、1.6 秒めくって目的の文字で止まる
+//   - めくり中は上半分が毎秒 14 回倒れる。BOARDING は緑 #7CE38B、DELAYED は赤 #FF5A3C
+//   - 5.4 秒から各マスが 0.5 秒で空白にめくり戻る（行の差 0.08 秒、マスの差 0.02 秒）
+// 使いどころ: 旅行・交通サービスの動画オープニングや、イベント告知・発表の幕間、レトロなページ首画面に。
+// タグ: split-flap, airport, departures, board, flip, retro, type
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-029
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 05
-// 05 パルス（ハートが鼓動のように、ドクン・ドクンと大きさを脈打たせる）
-CELLS[4] = (k, w, h, u) => {
-  stage(k);
-  const T = CYC / 4, lu = mod(u, T), X = w / 2, Y = h / 2 + 10;
-  const g = (c, s) => Math.exp(-Math.pow((lu - c) / s, 2));
-  const b = 0.26 * g(0.2, 0.065) + 0.15 * g(0.44, 0.07) + 0.26 * Math.exp(-Math.pow((lu - T - 0.2) / 0.065, 2));
-  for (const [t0, s] of [[0.16, 1], [0.4, 0.6]]) {
-    const q = P(lu, t0, t0 + 0.8); if (q <= 0 || q >= 1) continue;
-    k.save(); k.translate(X, Y); const sc = 1.2 + 1.2 * eOut(q); k.scale(sc, sc); heartPath(k, 44);
-    k.strokeStyle = C.coral; k.globalAlpha = (1 - q) * 0.75 * s; k.lineWidth = (7 * (1 - q) + 1.5) / sc; k.stroke(); k.restore();
-  }
-  k.globalAlpha = 1;
-  k.save(); k.translate(X, Y); k.scale(1 + b, 1 + b); heartPath(k, 44); k.fillStyle = C.coral; k.fill();
-  k.fillStyle = 'rgba(255,255,255,.75)'; k.beginPath(); k.ellipse(-30, -28, 9, 6, -0.7, 0, 7); k.fill(); k.restore();
+// @element 03
+// 03 机场翻牌：每格字母快速翻过字母表，再错峰停在航班、时刻与状态上；停留后翻回空白
+const AL = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const FLIGHTS = [['0815', 'TOKYO', 'A12', 'BOARDING'], ['0840', 'PARIS', 'B03', 'ON TIME'], ['0905', 'LISBON', 'A07', 'DELAYED']];
+CELLS[2] = (k, w, h, u) => {
+  k.fillStyle = '#121214'; k.fillRect(0, 0, CW, CH);
+  const cw = 13, chh = 22, gap = 2, cols = [4, 9, 3, 8], colX = [0, 4, 13, 16], cg = 9; // 每格 13×22px
+  const x0 = 34, y0 = 58;
+  txt(k, 'DEPARTURES', x0, 30, `700 12px ${MONO}`, '#E8B23A');
+  ['TIME', 'DESTINATION', 'GATE', 'REMARKS'].forEach((t, i) => txt(k, t, x0 + colX[i] * (cw + gap) + i * cg, 49, `600 8px ${MONO}`, '#8C8670'));
+  const back = u >= SHOW;
+  FLIGHTS.forEach((row, ri) => row.forEach((s, ci) => {
+    for (let q = 0; q < cols[ci]; q++) {
+      const ch = s[q] || ' ', target = AL.indexOf(ch);
+      const x = x0 + (colX[ci] + q) * (cw + gap) + ci * cg, y = y0 + ri * (chh + 10);
+      const st = 0.3 + ri * 0.18 + ci * 0.1 + q * 0.04;  // 错峰开始：每行 0.18 秒、每列 0.1 秒、每格 0.04 秒
+      let prog = clamp((u - st) / 1.6), idx;            // 每格翻 1.6 秒后停在目标字符
+      if (back) { const bp = clamp((u - SHOW - (2 - ri) * 0.08 - q * 0.02) / 0.5); prog = 1 - bp; idx = bp >= 1 ? 0 : Math.floor((1 - bp) * target); }
+      else idx = prog >= 1 ? target : Math.floor(prog * (target + AL.length)) % AL.length;
+      k.fillStyle = '#1F1F23'; rr(k, x, y, cw, chh, 2); k.fill();
+      k.fillStyle = 'rgba(255,255,255,.04)'; k.fillRect(x, y, cw, chh / 2);
+      const red = ci === 3 && s === 'DELAYED', green = ci === 3 && s === 'BOARDING';
+      txt(k, AL[idx] || ' ', x + cw / 2, y + chh / 2 + 1, `700 13px ${MONO}`, red ? '#FF5A3C' : green ? '#7CE38B' : '#F4F1E8', 'center', 'middle');
+      if (prog > 0 && prog < 1) { // 翻动中：上半片按每秒 14 次的节奏翻下
+        const ph = (u * 14 + q) % 1, hh = chh / 2 * Math.abs(Math.cos(ph * Math.PI));
+        k.fillStyle = 'rgba(30,30,34,.92)'; k.fillRect(x, y + chh / 2 - hh, cw, hh);
+      }
+      k.fillStyle = '#0B0B0D'; k.fillRect(x, y + chh / 2 - 0.5, cw, 1);
+    }
+  }));
+  const v = k.createLinearGradient(0, 0, 0, CH); v.addColorStop(0, 'rgba(255,220,160,.06)'); v.addColorStop(1, 'rgba(0,0,0,.25)');
+  k.fillStyle = v; k.fillRect(0, 0, CW, CH);
+  grain(k, 0.05);
 };

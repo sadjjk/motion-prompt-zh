@@ -1,15 +1,15 @@
-Please use "Table crosshair highlight" (表のクロスハイライト), one of the names in "Interaction & data motion".
+Please use "Thinking orb: listening" (思考オーブ・聞き取り中), filed under "Feedback / AI status".
 Motion Prompt #1-173
 
-What it is: The pointed cell's row and column light up and the cell enlarges
-What the sample shows: A pointer moves across a 4 × 4 table of numbers. The whole row and column of the cell it rests on tint softly into a cross, and that cell fills with the accent colour with its number bold, white and larger. Leaving the table clears it.
+What it is: Latitude rings ripple like a sound wave to show the mic is listening
+What the sample shows: Rings of dots swell and shrink one after another from top to bottom, like a wave rolling over the orb.
 Spec:
-- The row and column are tinted with the accent at 0.1 opacity (0.25 s out3).
-- The pointed cell fills with the accent, its number turns bold white and it scales to 1.12×.
-- The pointer moves to 4 cells at 0.9, 1.8, 2.7 and 3.6 s, resting 0.5 s on each.
-- From 4.1–4.8 s it leaves the table and all highlights fade.
-When to use it: Use it on pricing comparisons, score tables and spec sheets where rows and columns are cross-checked.
+- Orb radius 58 px with 11 latitude rings (−75° to 75°, every 15°), 8–34 dots per ring depending on latitude.
+- Each ring's radius swells by up to ±10% (about 6 px); 2 waves per cycle, offset 0.7 rad from ring to ring.
+- Swollen rings are brighter. The orb spins once per cycle.
+- Label "Listening…" at 15 px on the right.
+When to use it: Use it while the mic is open for voice input, voice mode or dictation.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-173.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

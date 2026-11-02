@@ -1,15 +1,15 @@
-Please use "Liquid fill icon" (リキッドフィルアイコン), one of the names in "Glow & liquid".
+Please use "Scatter & reassemble letters" (文字の飛散と再集合), filed under "Text & data / Interactive type".
 Motion Prompt #1-181
 
-What it is: A wavy liquid level rises inside an icon as a percentage counts up
-What the sample shows: Inside a drop outline on a dark background, 2 crossing wave layers rise from the bottom until the drop is full, while the number on the right climbs from 0% to 100% and reads complete, then everything resets.
+What it is: Logo letters that scatter on a click and spring back into place
+What the sample shows: Coloured capital letters fly apart spinning, fall and bounce under gravity, hover briefly, then snap back into the word one by one.
 Spec:
-- Drop icon 92 px wide and 126 px tall, 2.5 px outline, hue 195°.
-- The level rises at a constant speed from below the base to above the tip over 0.3–4.0 s, while a 46 px number on the right counts from 0% to 100%.
-- There are 2 wave layers: 120 px wavelength, 6 px amplitude, 2 laps per cycle; and 90 px wavelength, 5 px amplitude, 3 laps the other way; both are clipped to the icon shape.
-- At 100% the label reads complete and holds until 4.2 s; the liquid and text fade out over 4.2–4.5 s, and the 0% state fades in over 4.5–4.8 s.
-When to use it: Use it for upload and download progress, goal completion or fill levels where a percentage should feel friendly.
+- The 7 letters of PLAYFUL each get a hue (oklch .62 .2, hue 20 + 48i), weight 900, 64 px.
+- On 'scatter' each letter flies off in a random direction at 7–14 px/frame, spinning ±15°/frame, with gravity .05 and damping .985.
+- Edge bounces keep .8 horizontally and .75 vertically; letters hover 1.3 s (each 70 ms later than the previous) before returning.
+- Return uses a spring of .06 with damping .8; 'reset' pulls them back at once. Demo: scatter at 1.0 s, again at 3.4 s, reset at 4.5 s.
+When to use it: Use it for a hidden-fun headline on event pages, creative-studio sites or 404 pages, triggered by a click or button.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-181.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

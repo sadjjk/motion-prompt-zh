@@ -1,89 +1,46 @@
-// Motion Prompt #1-090 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+// Motion Prompt #1-090 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#096
 //
-// 点赞爱心迸发 / Heart burst like
-// 分类包: uxmotion (交互与数据动效) · element 30 · 子分类: 进度反馈
-// 动画表现: 点击后爱心先缩后弹并填满红色，圆环与彩点迸发，点赞数从 842 滚到 843，再点滚回。
+// 悬浮动画 / Floating animation
+// 分类: 界面与网页 / 页面 / 首屏背景
+// 动画表现: 标题旁的手机、心形徽章和评分标签错开节奏轻轻浮动，手机下方阴影随之缩放。
 // 运动规格:
-//   - 点击后 0.7 秒节拍：1 → 0.72 → 1.24 → 0.94 → 1，渐变红 #FF4D6D→#FF8A5B 由中心填满。
-//   - 粉色圆环延迟 0.1 秒，在 0.6 秒内从 0.3 倍扩到 1 倍并变细消失。
-//   - 7 对彩色小点按约 51° 间隔向外迸发，从 30 px 飞到 62 px，同时缩小消失。
-//   - 点赞数用 0.45 秒从 842 → 843 向上滚动；演示中 4.0 秒再点取消，爱心变回描边，数字向下滚回 842。
-// 适用场景: 适合社交、社区、内容类 App 的点赞或收藏按钮，给出明确的点击反馈。
-// 标签: like, heart, burst, micro-interaction, button, counter, social
-// 尺寸: 539x208 px · 周期: 6.4 s
-// 依赖: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+//   - 手机为 92 × 132，y = −8·sin(2πt/2.4)，每 2.4 秒起伏一次；正弦曲线使两端自然减速。
+//   - 心形徽章半径 20，y = −6·sin(2πt/1.6 + 1.2)；评分标签为 76 × 30，y = −6·sin(2πt/2.4 + 2.4)。
+//   - 手机阴影为 54 × 6 椭圆，尺寸和透明度乘以 (1 + y/40)，手机升高时阴影缩小变淡。
+//   - 2.4 秒和 1.6 秒两个周期都能整除 4.8 秒，循环无接缝。
+// 适用场景: 适合产品图片、应用模型和装饰图标的轻量持续动效。
+// 标签: floating, float, bob, hover-animation, keyframes, translatey, decoration, loop
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-090
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 30
-// 30 点赞爱心迸发：圆形按钮里一颗爱心；0.8 秒点击：.7 秒节拍（1 → .72 → 1.24 → .94 → 1），渐变红 #FF4D6D→#FF8A5B 由中心填满，
-// 粉色圆环 .6 秒从 .3 倍扩到 1 倍并变细消失（延迟 .1 秒），7 对彩色小点沿 51° 间隔向外迸发；点赞数 842 → 843 向上滚动；
-// 4.0 秒再点一次取消：爱心变回描边、数字向下滚回 842；周期末回到未点赞状态
-const HEART_C1 = 0.8, HEART_C2 = 4.0, HEART_X = 200, HEART_Y = 96;
-const HEART_DOTS = [['#FF4D6D', '#FFB26B'], ['#8B6CFF', '#FF7A93'], ['#FFB547', '#22C3A6'], ['#FF4D6D', '#8B6CFF'], ['#22C3A6', '#FFB547'], ['#FF7A93', '#5B8CFF'], ['#FFB547', '#FF4D6D']];
-// 爱心路径（中心在原点，宽约 2r）
-function HEART_path(k, r) {
-  k.beginPath(); k.moveTo(0, r * 0.95);
-  k.bezierCurveTo(-r * 1.25, r * 0.15, -r * 1.05, -r * 0.95, 0, -r * 0.42);
-  k.bezierCurveTo(r * 1.05, -r * 0.95, r * 1.25, r * 0.15, 0, r * 0.95); k.closePath();
-}
-// .7 秒节拍关键帧（0, .18, .48, .70, 1 → 1, .72, 1.24, .94, 1）
-function HEART_beat(t) {
-  const K = [[0, 1], [0.18, 0.72], [0.48, 1.24], [0.7, 0.94], [1, 1]];
-  for (let i = 1; i < K.length; i++) if (t <= K[i][0]) return mix(K[i - 1][1], K[i][1], inOut3((t - K[i - 1][0]) / (K[i][0] - K[i - 1][0])));
-  return 1;
-}
-CELLS[29] = (k, w, h, u) => {
-  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
-  const on = u >= HEART_C1 && u < HEART_C2, tp = u - HEART_C1;
-  const beat = tp >= 0 && tp < 0.7 ? HEART_beat(tp / 0.7) : 1;
-  const fill = on ? (tp < 0.7 * 0.18 ? 0 : tp < 0.7 * 0.48 ? inOut3((tp - 0.126) / 0.21) : 1) : 0;
-  const press = Math.max(clamp(1 - Math.abs(u - HEART_C1) / 0.1), clamp(1 - Math.abs(u - HEART_C2) / 0.1));
-  // 按钮
-  k.save(); k.translate(HEART_X, HEART_Y); k.scale(1 - 0.1 * press, 1 - 0.1 * press);
-  k.save(); k.shadowColor = on ? 'rgba(255,77,109,.5)' : 'rgba(40,30,80,.25)'; k.shadowBlur = 22; k.shadowOffsetY = 10;
-  k.fillStyle = UX.surface; k.beginPath(); k.arc(0, 0, 50, 0, TAU); k.fill(); k.restore();
-  k.strokeStyle = on ? 'rgba(255,77,109,.3)' : UX.line; k.lineWidth = 1; k.beginPath(); k.arc(0, 0, 50, 0, TAU); k.stroke();
-  // 圆环：.6 秒，延迟 .1 秒，从 .3 倍扩到 1 倍，线宽 22→0、透明度 1→0
-  const rt = on ? (tp - 0.1) / 0.6 : -1;
-  if (rt > 0 && rt < 1) { const e = out3(rt); k.strokeStyle = `rgba(255,122,147,${1 - e})`; k.lineWidth = 12 * (1 - e) + 0.5; k.beginPath(); k.arc(0, 0, 62 * mix(0.3, 1, e), 0, TAU); k.stroke(); }
-  // 小点迸发：每组两颗，沿各自角度飞出 30→62px 并缩小消失
-  const dt = on ? (tp - 0.25) / 0.6 : -1;
-  if (dt > 0 && dt < 1) {
-    const e = out3(dt);
-    HEART_DOTS.forEach(([c1, c2], i) => {
-      const a = (i * 51.4 - 90) * Math.PI / 180, r = mix(30, 62, e), s = 4 * (1 - e);
-      k.fillStyle = c1; k.beginPath(); k.arc(Math.cos(a) * r, Math.sin(a) * r, s, 0, TAU); k.fill();
-      const a2 = a + 0.28; k.fillStyle = c2; k.beginPath(); k.arc(Math.cos(a2) * (r - 9), Math.sin(a2) * (r - 9), s * 0.7, 0, TAU); k.fill();
-    });
-  }
-  k.scale(beat, beat); k.translate(0, 1);
-  if (fill > 0) { k.save(); k.scale(fill, fill); const g = k.createLinearGradient(-24, -24, 24, 24); g.addColorStop(0, '#FF4D6D'); g.addColorStop(1, '#FF8A5B'); k.fillStyle = g; HEART_path(k, 23); k.fill(); k.restore(); }
-  if (fill < 1) { k.strokeStyle = UX.ink2; k.lineWidth = 2.6; k.lineJoin = 'round'; HEART_path(k, 23); k.stroke(); }
-  k.restore();
-  // 点赞数：向上滚动到 843（点赞），向下滚回 842（取消），各 .45 秒
-  const tr = u >= HEART_C2 ? -out3(seg(u, HEART_C2, HEART_C2 + 0.45)) : out3(seg(u, HEART_C1, HEART_C1 + 0.45));
-  const n0 = u >= HEART_C2 ? 843 : 842, n1 = u >= HEART_C2 ? 842 : 843, dir = u >= HEART_C2 ? -1 : 1, p = Math.abs(tr);
-  k.save(); k.beginPath(); k.rect(HEART_X - 40, 150, 80, 26); k.clip();
-  txt(k, String(n0), HEART_X, 168 - dir * 22 * p, `800 18px ${SANS}`, rgba([22, 21, 27], 1 - p), 'center');
-  txt(k, String(n1), HEART_X, 168 + dir * 22 * (1 - p), `800 18px ${SANS}`, rgba([22, 21, 27], p), 'center');
-  k.restore();
-  // 右侧帖子摘要
-  card(k, 300, 34, 210, 128, 16);
-  const av = k.createLinearGradient(316, 50, 344, 78); av.addColorStop(0, '#FF8A5B'); av.addColorStop(1, '#B49CFF');
-  k.fillStyle = av; k.beginPath(); k.arc(330, 64, 14, 0, TAU); k.fill();
-  txt(k, '金夏琳', 352, 61, `800 11px ${SANS}`, UX.ink); txt(k, '3 分钟前', 352, 75, `600 9px ${SANS}`, UX.ink3);
-  txt(k, '新做的动效终于上线了，', 316, 102, `600 11px ${SANS}`, UX.ink2); txt(k, '大家觉得节奏怎么样？', 316, 120, `600 11px ${SANS}`, UX.ink2);
-  txt(k, on ? '你和其他 842 人赞了' : '842 人赞了', 316, 146, `700 9.5px ${SANS}`, on ? '#FF4D6D' : UX.ink3);
-  // 模拟指针
-  let cx, cy;
-  if (u < 0.6) { const q = inOut3(seg(u, 0, 0.6)); cx = mix(290, HEART_X + 6, q); cy = mix(180, HEART_Y + 8, q); }
-  else if (u < 1.6) { cx = HEART_X + 6; cy = HEART_Y + 8; }
-  else if (u < 3.6) { const q = inOut3(seg(u, 1.6, 2.4)) - inOut3(seg(u, 3.0, 3.6)); cx = mix(HEART_X + 6, 330, q); cy = mix(HEART_Y + 8, 150, q); }
-  else if (u < 4.6) { cx = HEART_X + 6; cy = HEART_Y + 8; }
-  else { const q = inOut3(seg(u, 4.6, 6.2)); cx = mix(HEART_X + 6, 290, q); cy = mix(HEART_Y + 8, 180, q); }
-  cursor(k, cx, cy, press);
-  ripple(k, HEART_X, HEART_Y, seg(u, HEART_C1, HEART_C1 + 0.5), '255,77,109');
+// @element 24
+// 24 ふわふわアニメーション（画面の飾りが、ゆっくり上下に浮き沈みし続ける）
+CELLS[23] = (k, w, h, u) => {
+  frame(k);
+  const bob = (T, A, ph) => -A * Math.sin(2 * Math.PI * u / T + ph);   // 上下（easeInOut に近いサイン波）
+  const y1 = bob(2.4, 8, 0), y2 = bob(1.6, 6, 1.2), y3 = bob(2.4, 6, 2.4);
+  view(k, () => {
+    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+    txt(k, '用 App，', 34, 62, `800 24px ${JP}`, C.ink); txt(k, '更轻松。', 34, 94, `800 24px ${JP}`, C.ink);
+    bars(k, 34, 108, 170, 2); btn(k, 34, 134, 112, 24, '下载');
+    // 影（上がるほど小さく薄く）
+    const sh = 1 + y1 / 40;
+    k.fillStyle = `rgba(28,35,51,${0.16 * sh})`; k.beginPath(); k.ellipse(352, 160, 54 * sh, 6 * sh, 0, 0, 7); k.fill();
+    // スマホ
+    k.save(); k.translate(0, y1);
+    k.fillStyle = C.ink; rr(k, 306, 18, 92, 132, 16); k.fill(); k.fillStyle = '#fff'; rr(k, 312, 24, 80, 120, 11); k.fill();
+    pic(k, 318, 32, 68, 52, 0, 6); bars(k, 318, 92, 68, 3, C.faint, 5, 10);
+    k.restore();
+    // 飾り（ハートの丸と星のチップ）
+    k.save(); k.translate(0, y2); k.shadowColor = 'rgba(28,35,51,.18)'; k.shadowBlur = 10; k.shadowOffsetY = 4;
+    k.fillStyle = C.acc; k.beginPath(); k.arc(268, 54, 20, 0, 7); k.fill(); k.shadowColor = 'transparent';
+    k.fillStyle = '#fff'; k.beginPath(); k.moveTo(268, 62); k.bezierCurveTo(254, 53, 260, 41, 268, 48); k.bezierCurveTo(276, 41, 282, 53, 268, 62); k.fill(); k.restore();
+    k.save(); k.translate(0, y3); k.shadowColor = 'rgba(28,35,51,.16)'; k.shadowBlur = 10; k.shadowOffsetY = 4;
+    k.fillStyle = '#fff'; rr(k, 410, 92, 76, 30, 15); k.fill(); k.shadowColor = 'transparent';
+    txt(k, '★ 4.8', 448, 108, `800 13px ${EN}`, C.acc, 'center', 'middle'); k.restore();
+  });
 };

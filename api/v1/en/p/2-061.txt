@@ -1,15 +1,15 @@
-Please use "Collage / cutout" (コラージュ・切り絵), one of the names in "MG styles".
+Please use "ECG heartbeat line" (心電図ライン), filed under "Shapes & objects / Lines & shapes".
 Motion Prompt #2-061
 
-What it is: A handmade zine-style collage where cut-out pieces are slapped onto paper one by one like stop-motion
-What the sample shows: A cut-out head slaps onto kraft paper, its scalp flips open like a lid, stars, a rocket and a swallow fly out, and letter blocks and a torn banner are pasted on in turn.
+What it is: A heartbeat trace sweeps across a monitor
+What the sample shows: On a dark green grid a glowing ECG trace sweeps left to right, older trace dims, and a heart on the right swells with each beat.
 Spec:
-- Kraft paper #DCC39A with a monospaced masthead. Every cut-out is pre-rendered at 2× resolution with an off-white #F2ECDF scissor rim, a drop shadow and ink #16130F halftone dots.
-- Pieces slap down on a 12 fps stop-motion beat: a gentleman's portrait at 0.25 s (scale 1.3→1.12→0.96→1), a red disc #D2261C at 0.45 s, a newspaper scrap at 0.65 s.
-- At 1.5 s the top of the head flips open along a zigzag cut (6 frames), a POP burst lasts 3 frames, then 5 pieces (star, Saturn, rocket, swallow, rose) arc out of the head.
-- From 2.5 s a ransom-note letter block lands every 1/6 s, 1 at a time; a torn black banner slides in at 3.25 s. Resting pieces jitter ±1.2 px every 1/6 s. At 5.4–6.0 s a torn-edged sheet of kraft paper wipes in from the right to reset.
-When to use it: Openings and social shorts for culture magazines, art exhibitions, podcasts and creative brands.
+- A dark screen with a 16 px fine grid (darker every 80 px); the trace repeats a P wave, QRS (62 px up) and T wave every 96 px.
+- The sweep head crosses left to right in 2.35 s; 8% ahead of it is blank and older trace dims with age (down to 25%).
+- The trace is a 2 px bright green line with a 7 px glow; a glowing dot (3.5 px radius, 9 px halo) marks the head.
+- When an R wave passes the head, the heart swells to 1.25x and settles, and the BPM readout changes per beat.
+When to use it: Use it for medical, health or fitness explainers, or to stand for a heartbeat or being alive.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-061.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

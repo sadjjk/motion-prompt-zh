@@ -1,15 +1,15 @@
-Please use "Drum time picker" (ドラム式時刻ピッカー), one of the names in "Interaction & data motion".
+Please use "Tilt-to-flat product screen" (傾きから正面へのスクリーン), filed under "Pages / Scrolling".
 Motion Prompt #1-074
 
-What it is: A drum-style time picker whose values curve away around a wheel
-What the sample shows: Dragging a wheel rolls the numbers to rest on the centre line, far values tip away and fade, and the alarm time and countdown update.
+What it is: A hero where a tilted product screen rises upright as you scroll
+What the sample shows: Scrolling lifts the backward-tilted product window upright as it grows and its shadow deepens; once flat, the chart bars rise in sequence.
 Spec:
-- 3 wheels for AM/PM, hour and minute, 34 px per step; the value on the 36 px tall light bar at the centre is selected.
-- A value d steps from centre tips back (rotateX d × 22°, max 80°) and fades to 1 − |d| × 0.28 opacity, no lower than .15.
-- Wheels ease with cubic-bezier(.2,.8,.2,1); 120 ms after stopping, the title and 'rings in X h Y min' update.
-- Demo: hour from 6 to 9 at 0.5–1.5 s, minute from 30 to 45 at 2.0–3.0 s, AM to PM at 3.5–4.1 s, all back at 5.4–6.3 s.
-When to use it: Use it for picking times or dates in alarm, booking and calendar apps.
+- The product window starts at .84 scale tilted back 34° (perspective 900 px) and stands up along 1−(1−p)² over 0→210 px of scroll.
+- As it rises it scales to 1 and moves up 18 px, with the shadow deepening from 10/20 px to 34/54 px.
+- Once upright (p > .88) its 8 bars grow in turn: .7 s each, 50 ms apart, cubic-bezier(.3,1.3,.5,1); scrolling back drops them to .15.
+- Before scrolling, a 'Scroll' hint bobs 4 px every 1.6 s; demo scrolls over 0.4→2.6 s and back over 5.4→6.3 s.
+When to use it: Use it in SaaS and data-product heroes to 'stand up' the product screenshot as the visitor scrolls.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-074.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

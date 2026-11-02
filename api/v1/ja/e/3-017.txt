@@ -1,7 +1,7 @@
 // Motion Prompt #3-017 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#041
 //
 // ジャンプカット / Jump cut
-// パック: camera (カメラワークと切り替え) · element 17 · カテゴリ: 切り替え（トランジション）
+// 分類: 編集・撮影 / カメラ・編集 / 編集・切り替え
 // 何が起きるか: カメラの位置も画角も同じまま、人物の位置と時刻だけが飛ぶ。同じ場面の中で時間を省く切り方。
 // 動きの仕様:
 //   - つなぎ方: つなぎの効果なしの直結（0フレーム）。5ショットを0.94秒ずつ（4.7秒÷5）
@@ -13,11 +13,11 @@
 // 使いどころ: 話や作業の間を詰めてテンポを上げるとき、時間の経過を短く示すとき。
 // タグ: jump cut, cut, time skip, same framing, vlog, ellipsis, edit
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-017
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 17
 // 17 ジャンプカット（同じ画角で人物の位置と時刻だけ飛ぶ）

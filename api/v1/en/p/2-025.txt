@@ -1,16 +1,15 @@
-Please use "Anticipation" (アンティシペーション), one of the names in "Motion graphics moves, part 2".
+Please use "Karaoke bouncing ball" (カラオケボール), filed under "Text animation / Letter by letter & layout".
 Motion Prompt #2-025
 
-What it is: Pulls back briefly before moving forward
-What the sample shows: A square character pulls back against its direction of travel, squashes to wind up, then shoots forward.
+What it is: A bouncing ball lights up lyrics one character at a time
+What the sample shows: A glowing yellow ball hops left to right over seven dim characters; each one it lands on turns white, glows and pops. At the end the line dims and starts over.
 Spec:
-- One move per 2.35 s (twice per 4.7 s: left to right, then right to left). A coral rounded square (86 px, radius 24) with a white arrow. It starts 108 px from the edge; the floor is at y = 178.
-- Wind-up: 0.2–0.95 s, quadratic ease-in-out. It backs off 44 px against the direction of travel, squashes to 1.22 wide × 0.76 tall and leans back 0.18 rad.
-- Launch: 0.95–1.38 s (0.43 s). From the backed-off position to the far end with backOut (s = 1.1), a slight overshoot. In the first 60% of the move it stretches up to 1.55 wide × 0.72 tall (half sine) and leans forward 0.08 rad.
-- Landing: from 1.38 s, width and height wobble in opposite directions by 0.13·e^(−7t)·sin(17t).
-- At launch, three dust puffs at the start point (gone within the first 70% of the move) and three yellow speed lines (width 8) behind it.
-When to use it: Use it just before a jump, dash or launch to give the move build-up and weight.
+- 7 characters (44 px) start dim; from 0.3 s the ball hops to the next character every 0.38 s (a 34 px high sine arc).
+- A character it lands on turns from dim to white within 0.14 s, gains a yellow glow (16/8 px strokes) and pops with 1 + 0.12·e^(−9t)·cos(16t).
+- After the last character the ball hops off to the right and fades; over 4.0–4.3 s all characters dim again.
+- Over 4.3–4.65 s the ball fades in left of the first character, matching the frame at 0 s.
+When to use it: Use it for lyric subtitles, read-along captions synced to rhythm, or kids' reading videos.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-025.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

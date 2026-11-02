@@ -1,34 +1,34 @@
-// Motion Prompt #3-049 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/extreme-long-shot
+// Motion Prompt #3-049 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#102
 //
-// Extreme long shot / 超ロングショット
-// Pack: camera (Camera moves & transitions) · element 25 · Category: Shot size
-// What happens: From a distant, slightly high camera, mountains, buildings, trees and clouds fill the frame while a person only about 20 px tall walks across and back.
+// Butterfly lighting / バタフライライティング
+// Category: Editing & photography / Light & color / Lighting & time of day
+// What happens: A light in front of the face and high above comes on; the face lights evenly on both sides and only a small symmetrical shadow falls under the chin.
 // Motion spec:
-//   - Framing: camera 2.2 m high, 30 m from the person, focal length 330 px; the person (about 1.8 m tall) is about 20 px tall.
-//   - Action: walks 6 m to one side and back each pass (12 m in total) at cosine speed, with 8 stride cycles.
-//   - Setting: mountains, buildings, trees and clouds fill the frame; the clouds drift by 2 m.
-//   - Labels: top right reads "大远景 ELS"; the scale figure at bottom right is shaded from head to toe (the whole body fits with room to spare).
-//   - The camera never moves; one pass = 4.7 s and the first and last frames match.
-// When to use it: To establish where a character is, or to make a person look small or alone in a place.
-// Tags: extreme long shot, els, extreme wide shot, ews, shot size, framing, landscape
-// Size: 539x208 px · Cycle: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+//   - Scene 1: a head-and-shoulders figure in front of a horizon at y 150 (head centre x 270, y 78, radius 29 px, no face or hair). the background drops to a darker scene (sky #E7E5E1)
+//   - Head: entirely lit #FFC75A (no shadow side)
+//   - Shadow under the chin: an ellipse centred at y 78+1.06R, 0.72R wide and 0.38R tall (R = 29, about 21×11 px), colour #33405A
+//   - Body: lit within ±0.8×56 px of the centre, thin outer strips keep the base colour; plan shows the light on the camera side (0°), top-right readout "0° · ↑45°"
+//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1)))
+// When to use it: For beauty and fashion portraits that flatter the face.
+// Tags: butterfly lighting, paramount lighting, beauty lighting, portrait lighting, overhead light, glamour
+// Size: 539x208 px · Cycle: 5 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-049
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 25
-// 25 大远景：机位远、略高，人物只有约 20 px，在山野间来回走；看的是人物和环境的关系
-CELLS[24] = shot(frameCell({ lo: -1, hi: 12, name: '大远景', abbr: 'ELS', draw: (k, w, h, u) => {
-  const x = -6 * Math.cos(u / CYC * TAU);   // 一轮走过去再走回来，首尾同一位置
-  world(k, w, h, cam({ y: 2.2, z: -22 }), {
-    person: { x, z: 8, walk: u / CYC * TAU * 8 },
-    clouds: [[-22 + 2 * wave(u, 1), 14, 80, 2.5], [24 + 2 * wave(u, 1, 1), 17, 95, 3]]
+// @element 06
+// バタフライライティング: 顔の正面・高い位置からの光。顔は左右対称に明るく、あごの下にだけ小さな影
+CELLS[5] = cell((k, u) => {
+  const a = env(u), R = PR, W = torsoW(R);
+  stagePortrait(k, pal(BASE, DIM, a));
+  const lit = mixc(BASE.person, BASE.lit, a), sh = mixc(BASE.person, BASE.shade, a);
+  bust(k, PX, PY, R, BASE.person, kk => {
+    torso(kk, PX, PY, R, PX - 0.8 * W, PX + 0.8 * W, lit);
+    kk.fillStyle = sh; kk.beginPath(); kk.ellipse(PX, PY + R * 1.06, R * 0.72, R * 0.38, 0, 0, TAU); kk.fill();    // あごの下の影（左右対称）
+    kk.fillStyle = lit; kk.beginPath(); kk.arc(PX, PY, R, 0, TAU); kk.fill();
   });
-} }));
-
-// 26〜28：动作选这个景别才看得清的东西——
-//   26 全景：完整看到一个人走一步（踏出一大步 + 手臂摆动），脚步出框也没关系
-//   27 中全景：膝盖以上。画的不是走路，是「跨一步」：腿抬起落下的整段弧线
-//   28 中景：腰以上。画的不是腿部动作，是「抬手招手」：手臂从垂下到举过头顶来回摆
+  plan(k, [[0, a]]);
+  hud(k, '0° · ↑45°');
+});

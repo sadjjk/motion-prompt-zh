@@ -1,37 +1,54 @@
-// Motion Prompt #1-015 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#063
+// Motion Prompt #1-015 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// 数字步进器 / Stepper (+/−)
-// 分类包: ui (UI 组件) · element 15 · 子分类: 选择与切换
-// 动画表现: 连续点击三次 +，数字从 1 增至 4，再点击三次 − 回到 1，每次都轻微弹动。
+// 命令面板 / Command palette
+// 分类: 界面与网页 / 组件 / 弹出与覆盖
+// 动画表现: ⌘K 按下后背景变暗、面板出现，输入“设置”时列表被筛选、匹配字标蓝，高亮下移一行后确认。
 // 运动规格:
-//   - 542×191 卡片，周期 4.5 秒。框为 200×60、圆角 12，位于 (171, 52)；左侧 60 px 为“−”，右侧 60 px 为蓝色“+”，中间为 30 px 粗体数字。
-//   - 点击 + 的时间为 0.9, 1.35, 1.8 秒，数值 1 → 4；点击 − 的时间为 2.8, 3.25, 3.7 秒，数值 4 → 1。
-//   - 每次点击前 0.05 秒至点击后 0.15 秒，对应区段填充浅蓝色。
-//   - 每次按下后，数字缩放在 0.25 秒内由 1.18 线性回到 1，期间保持蓝色。
-// 适用场景: 适合逐个调整商品数量、人数等较小整数。
-// 标签: stepper, quantity, number-input, increment, decrement, plus-minus, spin-button
+//   - 右下角键帽提示“⌘ K”，0.5 秒两键下沉 2px。
+//   - 0.6–0.85 秒背景暗到 0.4，300×159 面板以 easeOut 3 次方从 0.94 → 1 放大并淡入。
+//   - 1.3 秒、1.5 秒逐字输入“设置”，列表由 5 项筛成 3 项再筛成 2 项，匹配字标蓝。
+//   - 2.3 秒高亮条 0.2 秒（easeInOut 3 次方）下移一行，2.9 秒回车时加深一下，3.1–3.4 秒面板与暗层淡出。
+// 适用场景: 适合开发工具、管理后台、编辑器等需要键盘快速操作的应用。
+// 标签: command-palette, cmdk, search, modal, keyboard, filter, shortcut
 // 尺寸: 542x191 px · 周期: 4.5 s
-// 依赖: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-015
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 15
-// 15 ステッパー（Stepper (+/−)）
-CELLS[14] = ui((w, h, t) => {
-  bar(171, 24, 90, C.line2, 10);
-  const plus = [.9, 1.35, 1.8], minus = [2.8, 3.25, 3.7];
-  let n = 1; plus.forEach(c => { if (t >= c) n++; }); minus.forEach(c => { if (t >= c) n--; });
-  const last = [...plus, ...minus].filter(c => t >= c).pop();
-  const pop = last !== undefined ? 1 - seg(t, last, last + .25) : 0;
-  const bx = 171, by = 52, bw = 200, bh = 60;
-  strokeRR(bx, by, bw, bh, 12, C.line2, 1.8);
-  const pressP = plus.some(c => t >= c - .05 && t < c + .15), pressM = minus.some(c => t >= c - .05 && t < c + .15);
-  if (pressM) fillRR(bx + 2, by + 2, 58, bh - 4, 10, C.lb); if (pressP) fillRR(bx + bw - 60, by + 2, 58, bh - 4, 10, C.lb);
-  X.fillStyle = C.line2; X.fillRect(bx + 60, by + 10, 1.5, bh - 20); X.fillRect(bx + bw - 61, by + 10, 1.5, bh - 20);
-  text('−', bx + 30, by + bh / 2, 30, '#555', 500, 'center', NUMF); text('+', bx + bw - 30, by + bh / 2, 30, C.blue, 500, 'center', NUMF);
-  X.save(); X.translate(bx + bw / 2, by + bh / 2 + 1); X.scale(1 + .18 * pop, 1 + .18 * pop); text(String(n), 0, 0, 30, pop > .05 ? C.blue : C.ink, 700, 'center', NUMF); X.restore();
-  bar(171, 136, 200, C.line); bar(171, 154, 140, C.line);
-  pointer([[.3, w + 30, h + 30], [.85, 342, 86], [2.3, 342, 86], [2.75, 202, 86], [3.75, 202, 86], [4.3, w + 30, h + 30]], [...plus, ...minus], t);
+// @element 40
+// 改写自 KittenJam Motion Library #321 命令面板：页面右下角键帽提示「⌘ K」，0.5 秒两键按下（下沉 2px）；
+// 0.6–0.85 秒背景变暗到 0.4，面板以 easeOut 3 次方从 0.94 放大到 1 并淡入（300×159）。1.3、1.5 秒逐字输入「设置」，
+// 列表由 5 项筛成 3 项再筛成 2 项，匹配字标蓝；高亮条 2.3 秒 0.2 秒 easeInOut 下移一行，2.9 秒回车闪一下，3.1–3.4 秒面板与暗层淡出。
+const CMDK_ALL = ['新建文件', '打开设置', '切换主题', '设置快捷键', '设备信息'];
+CELLS[39] = ui((w, h, t) => {
+  pageLines(24, 18, 494); fillRR(24, 84, 239, 92, 8, C.block); fillRR(279, 84, 239, 92, 8, C.block);
+  // 键帽提示
+  const pk = t >= .5 && t < .7 ? 2 : 0;
+  [['⌘', 456], ['K', 488]].forEach(([s, x]) => { fillRR(x, 150 + 2, 26, 24, 5, C.line2); fillRR(x, 150 + pk, 26, 24 - 2, 5, '#fff'); strokeRR(x, 150 + pk, 26, 22, 5, C.line2, 1); text(s, x + 13, 161 + pk, 12, C.ink, 700, 'center', NUMF); });
+  const a = eo(seg(t, .6, .85)) * (1 - eio(seg(t, 3.1, 3.4)));
+  if (a <= 0) return;
+  X.fillStyle = `rgba(18,20,28,${.4 * a})`; X.fillRect(0, 0, w, h);
+  const s = .94 + .06 * a, px = 121, py = 16, pw = 300;
+  const q = t < 1.3 ? '' : t < 1.5 ? '设' : '设置';
+  const list = CMDK_ALL.filter(x => [...q].every(c => x.includes(c)));
+  const ph = 36 + 5 * 24 + 3;
+  X.save(); X.globalAlpha = a; X.translate(271, py + ph / 2); X.scale(s, s); X.translate(-271, -py - ph / 2);
+  shadowed(() => fillRR(px, py, pw, ph, 12, '#fff'), 26, 10, .28);
+  X.fillStyle = C.sep; X.fillRect(px, py + 36, pw, 1);
+  ring(px + 18, py + 17, 5.5, C.hint, 1.8); X.strokeStyle = C.hint; X.lineWidth = 1.8; X.beginPath(); X.moveTo(px + 22, py + 21); X.lineTo(px + 26, py + 25); X.stroke();
+  if (q) text(q, px + 34, py + 18, 14, C.ink, 600); else text('输入命令或搜索…', px + 34, py + 18, 14, C.hint, 500);
+  if (t >= .85 && t < 3.1 && Math.floor((t - .85) / .5) % 2 === 0) { X.fillStyle = C.blue; X.fillRect(px + 35 + (q ? tw(q, 14, 600) : 0), py + 10, 1.5, 16); }
+  // 高亮条：在当前列表内的行号，2.3 秒下移一行；2.9 秒回车时加深
+  const hi = eio(seg(t, 2.3, 2.5)), flash = t >= 2.9 && t < 3.05 ? 1 : 0;
+  fillRR(px + 6, py + 40 + 24 * hi, pw - 12, 22, 6, flash ? C.mb : C.lb);
+  list.forEach((it, i) => {
+    const iy = py + 51 + i * 24;
+    fillRR(px + 16, iy - 6, 12, 12, 3, C.line2);
+    let x = px + 38;
+    for (const c of it) { text(c, x, iy, 13, q.includes(c) ? C.blue : C.ink, q.includes(c) ? 700 : 500); x += tw(c, 13, 500); }
+  });
+  if (q) text(`${list.length} 项`, px + pw - 14, py + 18, 11, C.hint, 500, 'right');
+  X.restore();
 });

@@ -1,42 +1,59 @@
-// Motion Prompt #1-029 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#077
+// Motion Prompt #1-029 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
 //
-// 横スクロール / Horizontal scroll
-// パック: lp (LP・Webサイトの演出) · element 05 · カテゴリ: スクロールで起きる演出
-// 何が起きるか: 縦にスクロールすると、セクションが止まったまま、番号付きの作品カード4枚が左へ流れていく。
+// ワンタイムコード入力 / OTP input fill
+// 分類: UI・Web / コンポーネント / 選ぶ・入力する
+// 何が起きるか: 6つのマスに数字が順に入り、入力中のマスの枠が青く光る。そろうと全部が青くなり、案内が「認証済み」に変わって全体が少し浮く。
 // 動きの仕様:
-//   - スクロール量: 0.3〜3.0秒で 0→420px、3.5〜4.5秒で 420→0（easeInOut 3乗）
-//   - 見出し「WORKS」は上へ流れ、セクションはスクロール量40pxで上端に着いて止まる
-//   - カード: 200×112 を4枚、間隔20、左右の余白34。横に動く量 = 34×2 + 200×4 + 20×3 − 511 = 417px
-//   - カードの横位置 = 元の位置 − p × 417。p = (スクロール量 − 40) / 380（スクロールに比例・イージングなし）
-//   - スクロールバーのつまみは縦に動き、カードは横に動く
-// 使いどころ: 作品・事例・商品を、縦長のページの中で横一列に見せたいとき。
-// タグ: horizontal-scroll, sideways, scrolltrigger, pin, gallery, portfolio, scroll
-// サイズ: 539x208 px · 1周: 4.8 s
-// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+//   - 6つのコード入力マス（66×77・間隔13.2・角丸11）、数字35px。未入力のマスは不透明度0.55、入力後は1
+//   - 数字 8 4 2 9 1 6 が0.35秒ごとにひとマスずつ瞬時に入る（0.95〜2.70秒）。入ったばかりのマスは枠が青 #60a5fa になり3.3pxの淡い青の外枠が付き、ほかのマスは灰色の枠 #374151 に戻る
+//   - 3.2秒に6マスすべての枠が青くなり、案内が「····4821 にコードを送信しました」から「認証済み · 続行中」に変わる。3.4〜3.95秒に全体が sine.inOut で4.4px浮く
+//   - リセット: 3.95〜4.35秒に easeInOutCubic で数字が消え、青い枠と浮きが戻る。4.35〜4.5秒は空の初期画面で止まる
+//   - 数字ステッパーとの違い: 決まった桁数のコードをひとマスずつ入れ、そろうと自動で確認する。＋−ボタンでひとつの値を増減するものではない
+// 使いどころ: ログイン・会員登録・決済確認での SMS／メール認証コード入力や、2段階認証の画面に。
+// タグ: otp, verification-code, pin-input, two-factor, form, input
+// サイズ: 542x191 px · 1周: 4.5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-029
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 05
-// 05 横スクロール（縦にスクロールすると、カードの列が横へ流れる）
-CELLS[4] = (k, w, h, u) => {
-  frame(k);
-  const y = steps([[0.3, 0], [3.0, 420], [3.5, 420], [4.5, 0]], u);
-  const PIN0 = 40, PD = 380, N = 4, PWD = 200, GAP = 20;
-  const top = y < PIN0 ? PIN0 - y : 0, p = clamp((y - PIN0) / PD);
-  const travel = 34 * 2 + N * PWD + (N - 1) * GAP - VW;
-  view(k, () => {
-    txt(k, 'WORKS', 34, 30 - y, `800 20px ${EN}`, C.ink, 'left', 'alphabetic', '2px');
-    k.save(); k.translate(0, top);
-    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH + 40);
-    for (let i = 0; i < N; i++) {
-      const x = 34 + i * (PWD + GAP) - p * travel;
-      pic(k, x, 18, PWD, 112, i % 3, 8);
-      txt(k, '0' + (i + 1), x + 14, 118, `800 22px ${EN}`, '#fff');
-      bars(k, x, 140, 120, 1, '#CBD2DE');
-    }
-    k.restore();
-    sbar(k, y / 420, 0.36);
-  });
-};
+// @element 30
+// 改写自 ui2v · illli Ai Studio · hero-otp-fill（MIT-0）
+// 验证码逐格填入：深色底上 6 个验证码格，数字 8 4 2 9 1 6 每隔 0.35 秒依次填入一格（0.95 / 1.30 / 1.65 / 2.00 / 2.35 / 2.70 秒，瞬时出现），
+// 刚填的格描边变蓝 #60a5fa 并带 3.3px 浅蓝外圈，其余格回到灰边；未填格不透明度 0.55，填后为 1。
+// 3.2 秒 6 格同时亮蓝边，提示由「验证码已发送至 ····4821」（#6b7280）换成「已验证 · 正在继续」（#60a5fa）；
+// 3.4–3.95 秒整组以 sine.inOut 上浮 4.4px。复位：3.95–4.35 秒 easeInOutCubic 数字淡出、蓝边与上浮退回，4.35–4.5 秒停在空白初始画面。
+// 尺寸换算：原作 1920×1080 中的格子组按 0.55 倍放到卡片中央（格 120×140→66×77、间距 24→13.2、圆角 20→11、数字 64→35px、提示 26→14px），
+// 去掉顶部标题区，提示上移到格子下方 30px。时间与原作 4.5 秒一一对应，原作 1.0 秒的上浮缩到 0.55 秒以留出复位段。
+// 配色取原作：底 #1f2937→#111827 径向渐变，格 #1f2937 / 边 #374151，数字 #f9fafb。
+const OTP_DIG = ['8', '4', '2', '9', '1', '6'];
+const OTP_S = 0.55;
+const OTP_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
+const OTP_MIX = (a, b, k) => { const p = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(',')})`; };
+CELLS[29] = ui((w, h, t) => {
+  const g = X.createRadialGradient(w * .5, h * .4, 0, w * .5, h * .4, w * .62);
+  g.addColorStop(0, '#1f2937'); g.addColorStop(1, '#111827'); X.fillStyle = g; X.fillRect(0, 0, w, h);
+  const keep = 1 - eio(seg(t, 3.95, 4.35));
+  const dy = -8 * OTP_S * OTP_SINE(seg(t, 3.4, 3.95)) * keep;
+  const cw = 66, ch = 77, gap = 13.2, x0 = (w - (6 * cw + 5 * gap)) / 2, y0 = 36 + dy;
+  const done = t >= 3.2;
+  let cur = -1; for (let i = 0; i < 6; i++) if (t >= 0.95 + i * 0.35) cur = i;
+  for (let i = 0; i < 6; i++) {
+    const x = x0 + i * (cw + gap), filled = i <= cur, on = done || i === cur;
+    const a = filled ? lerp(.55, 1, keep) : .55;
+    X.save(); X.globalAlpha = a;
+    X.save(); X.shadowColor = 'rgba(0,0,0,.25)'; X.shadowBlur = 22; X.shadowOffsetY = 8.8; fillRR(x, y0, cw, ch, 11, '#1f2937'); X.restore();
+    const onK = on ? keep : 0;
+    if (onK > 0) strokeRR(x - 1.65, y0 - 1.65, cw + 3.3, ch + 3.3, 12.65, `rgba(96,165,250,${.18 * onK})`, 3.3);
+    strokeRR(x, y0, cw, ch, 11, OTP_MIX('#374151', '#60a5fa', onK), 1.2);
+    if (filled) { X.globalAlpha = a * keep; text(OTP_DIG[i], x + cw / 2, y0 + ch / 2 + 1, 35, '#f9fafb', 700, 'center', NUMF); }
+    X.restore();
+  }
+  const hy = 150 + dy;
+  if (!done) text('验证码已发送至 ····4821', w / 2, hy, 14, '#6b7280', 500, 'center');
+  else {
+    X.save(); X.globalAlpha = 1 - keep; text('验证码已发送至 ····4821', w / 2, hy, 14, '#6b7280', 500, 'center');
+    X.globalAlpha = keep; text('已验证 · 正在继续', w / 2, hy, 14, '#60a5fa', 600, 'center'); X.restore();
+  }
+});

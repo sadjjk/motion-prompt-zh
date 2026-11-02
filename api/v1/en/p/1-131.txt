@@ -1,15 +1,15 @@
-Please use "Holographic card" (ホログラムカード), one of the names in "Interaction & data motion".
+Please use "Following eyes" (目で追うキャラクター), filed under "Pointer interactions / Cursor".
 Motion Prompt #1-131
 
-What it is: A collectible card that tilts with the cursor while rainbow foil and glare shift across it
-What the sample shows: As the cursor moves over a card on a dark background, the card tilts in 3D, rainbow foil streams across its face and a soft glare follows; it straightens when the cursor leaves.
+What it is: A pair of big eyes whose pupils keep looking at the cursor and blink now and then
+What the sample shows: Inside the big white eyes of a purple mascot, the black pupils follow the cursor, moving closer to the rim the farther away it is; now and then both eyes blink together.
 Spec:
-- Card 112 × 164 px, corner radius 10 px; tilts up to 13° by the cursor position on it (perspective 600 px).
-- Rainbow diagonal stripes blend with color-dodge and follow the cursor; their opacity rises from 0.15 to 0.75 as the tilt grows.
-- A white radial glare (radius 90 px, opacity 0.35) follows the cursor.
-- In the demo hover starts from 0.7–0.95 s; from 4.6–4.9 s the cursor leaves, the card straightens and the foil dims.
-When to use it: Use it for collectibles, membership cards and reward showcases that should feel tangible and premium.
+- Eye whites of 30 × 34 px radii, pupils of 13 px radius with a small highlight.
+- Each pupil moves along the angle to the cursor (atan2) by min(1, distance/150) × 14 px, trailing by 0.06 s.
+- Both eyes blink together at 1.9 s and 3.9 s, squashing to 10% height and back within 0.15 s.
+- The cursor enters from 0.3–0.8 s and leaves from 4.9–5.4 s, and the pupils return to centre.
+When to use it: Use it on 404 pages, sign-in screens and mascot-led products to add a playful response.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-131.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

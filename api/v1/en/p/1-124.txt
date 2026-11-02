@@ -1,14 +1,15 @@
-Please use "Card deal" (カードディール), one of the names in "Landing page & web effects".
+Please use "Cursor-lit borders" (カーソルで光る枠線), filed under "Pointer interactions / Cursor".
 Motion Prompt #1-124
 
-What it is: Cards are dealt one by one into a fan
-What the sample shows: Pressing Deal sends 5 cards up from the bottom in turn into a fan; later, Collect sends them back down starting with the last card.
+What it is: A cursor-following light that illuminates the borders of nearby cards
+What the sample shows: The pointer sweeps in a wave across four dark cards; borders near it glow from violet to blue, then dim slowly once it passes.
 Spec:
-- The cursor clicks Deal at 0.5 s; 5 cards (60×84) leave the bottom one by one, 0.12 s apart, 0.55 s each.
-- They fan out to −24°…+24° (12° apart) around a shared pivot 132 below the card bottoms; the angle uses back-out with overshoot 1.7 while the cards rise 150px with easeOut power 3.
-- At 3.1 s Collect is clicked; from 3.2 s, starting with the last card, each card folds back and drops 0.1 s apart over 0.35 s (easeInOut power 3).
-When to use it: Use it to reveal a set of card-style products, plans or perks, or for game-like moments.
+- 4 cards on a dark #0A0B10 background, corner radius 18 px, 1.5 px borders.
+- A 160 px gradient glow centred on the pointer (violet to blue, transparent at 70% of the radius) lights the borders of adjacent cards at once.
+- A faint violet glow of 220 px at 0.14 strength is layered inside the cards.
+- Brightness approaches 1 at a rate of 8/s on enter and fades at 2.5/s on leave; in the demo the pointer sweeps across in a wave from 0.3–4.9 s.
+When to use it: Use it on feature grids or pricing cards in dark-themed SaaS and developer-tool landing pages.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-124.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

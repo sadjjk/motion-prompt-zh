@@ -1,38 +1,31 @@
-// Motion Prompt #2-030 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#126
+// Motion Prompt #2-030 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#130
 //
-// モーションパス / Motion path
-// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 06 · カテゴリ: 動きのテクニック
-// 何が起きるか: 点線の道に沿って、紙飛行機が向きを変えながら進み、途中で宙返りする。
+// ウェーブテキスト / Wave text
+// 分類: モーショングラフィックス / 文字アニメーション / 変形・質感
+// 何が起きるか: 「WAVE TEXT」の文字が1文字ずつ、波のように順に上下する。
 // 動きの仕様:
-//   - 4.7秒で1回、左の画面外から右の画面外へ。道は x = 270 + 112θ − 150·sinθ、y = 106 − 74·cosθ（θ = −π→π）。中央の上で輪になる（宙返り）
-//   - θ は時間に比例して進める（道の上の速さは一定でない。輪の部分はゆっくり見える）
-//   - 紙飛行機は道の向きに回す: 角度 = atan2(74·sinθ, 112 − 150·cosθ)
-//   - 道は点線（線幅6・間隔2/15）で先に見せておく。通ったあとにミントの線を24区間（θで0.03ずつ）残し、後ろほど細く薄くする
-// 使いどころ: 飛ぶ物・走る車・地図の上の移動など、決まった道筋を通らせたいとき。
-// タグ: motion-path, path, curve, trajectory, follow-path, orient-to-path, loop
+//   - 「WAVE TEXT」（70px・太字・字間4px）。4.7秒に3回の波（1波1.567秒）
+//   - i 文字目の縦の位置 = −28·sin(φ − 0.62i)。φ = 2π × 3 × 時間 ÷ 4.7（隣の文字は0.62radずつ遅れる）
+//   - 上がっている文字ほど縦に伸ばし（1 + 0.06·s）、色を白→黄に寄せる（s = sin の値。0〜1に制限して混ぜる）
+//   - 各文字の下に影の楕円。文字が上がるほど小さくする
+// 使いどころ: ロゴ・短い見出し・BGMに合わせたテロップに。楽しさやリズム感を出したいとき。
+// タグ: wave-text, wave, text, letters, stagger, bounce, kinetic-type
 // サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-030
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 06
-// 06 モーションパス（点線の道に沿って、紙飛行機が向きを変えながら進む）
-const MPX = th => 270 + 112 * th - 150 * Math.sin(th), MPY = th => 106 - 74 * Math.cos(th);
-const MP = (() => { const pts = []; for (let i = 0; i <= 400; i++) { const th = -Math.PI + 2 * Math.PI * i / 400; pts.push([MPX(th), MPY(th)]); } return pts; })();
-CELLS[5] = (k, w, h, u) => {
+// @element 10
+// 10 ウェーブテキスト（1文字ずつ、波のように順に上下する）
+CELLS[9] = (k, w, h, u) => {
   stage(k);
-  k.save(); k.setLineDash([2, 15]); k.lineCap = 'round'; k.strokeStyle = C.dim; k.lineWidth = 6; k.beginPath(); MP.forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.stroke(); k.restore();
-  const th = -Math.PI + 2 * Math.PI * (u / CYC);
-  // 通ったあとの線
-  k.lineCap = 'round';
-  for (let j = 0; j < 24; j++) { const a = th - j * 0.03, b = th - (j + 1) * 0.03; k.strokeStyle = C.mint; k.globalAlpha = 0.9 * (1 - j / 24); k.lineWidth = 7 * (1 - j / 30); k.beginPath(); k.moveTo(MPX(a), MPY(a)); k.lineTo(MPX(b), MPY(b)); k.stroke(); }
-  k.globalAlpha = 1;
-  const x = MPX(th), y = MPY(th), ang = Math.atan2(74 * Math.sin(th), 112 - 150 * Math.cos(th));
-  k.save(); k.translate(x, y); k.rotate(ang);
-  k.fillStyle = '#fff'; k.beginPath(); k.moveTo(32, 0); k.lineTo(-22, -22); k.lineTo(-12, 0); k.closePath(); k.fill();
-  k.fillStyle = '#C9D6FF'; k.beginPath(); k.moveTo(32, 0); k.lineTo(-22, 22); k.lineTo(-12, 0); k.closePath(); k.fill();
-  k.fillStyle = '#9FB3F0'; k.beginPath(); k.moveTo(32, 0); k.lineTo(-12, 0); k.lineTo(-6, 9); k.closePath(); k.fill();
-  k.restore();
+  const f = `800 70px ${DISP}`, cs = chars(k, 'WAVE TEXT', f, 4), Y = h / 2 + 2, ph = 2 * Math.PI * 3 * u / CYC;
+  cs.forEach((c, i) => {
+    if (c.ch === ' ') return;
+    const s = Math.sin(ph - i * 0.62), y = -28 * s;
+    k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(w / 2 + c.x, Y + 62, c.w * (0.42 - 0.12 * s), 4, 0, 0, 7); k.fill();
+    k.save(); k.translate(w / 2 + c.x, Y + y); k.scale(1, 1 + 0.06 * s); txt(k, c.ch, 0, 0, f, mix('#FFFFFF', C.yel, clamp(s)), 'center', 'middle'); k.restore();
+  });
 };

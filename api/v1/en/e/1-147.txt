@@ -1,52 +1,43 @@
-// Motion Prompt #1-147 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+// Motion Prompt #1-147 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
 //
-// Cookie banner / Cookie 同意バナー
-// Pack: ui (UI component names) · element 49 · Category: Opening & overlays
-// What happens: A cookie card springs up from the bottom of the page while its cookie icon pops upright from a tilt and wobbles twice; the cursor clicks "Accept all", the button dips and the card slides back down.
+// Gooey trail / リキッドの尾
+// Category: UI & Web / Pointer interactions / Liquid interactions
+// What happens: A white indicator moves between three options; the faster it goes, the more it stretches and the bigger the droplet clinging behind it.
 // Motion spec:
-//   - A 360×74 card springs up from below the frame to y 108 over 0.3–0.9 s with back.out(1.4) and fades in.
-//   - The cookie icon on the left pops upright from 0.4 scale and a −0.6 rad tilt over 0.5–1.1 s, then wobbles 2 more times over 1.2–1.8 s (0.3 rad, dying out).
-//   - The cursor clicks "Accept all" at 2.4 s; the button dips to 0.92 in 0.08 s and recovers in 0.15 s.
-//   - Over 2.55–2.95 s the card slides off the bottom with easeIn power 3 and fades out.
-// When to use it: Use it for cookie or privacy consent and other notices asked once on a first visit.
-// Tags: cookie-banner, consent, privacy, gdpr, banner, notice
-// Size: 542x191 px · Cycle: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+//   - Segmented control 288 × 44 px with three options 96 px apart; the indicator is 84 × 34 px.
+//   - It moves every 1.2 s, starting at 0.1, 1.3, 2.5 and 3.7 s, 0.45 s per move (cubic ease-in-out): 1 → 2 → 3 → 2 → 1.
+//   - With speed it widens by up to 25% and flattens by up to 12% (full at 320 px/s).
+//   - The tail sits where the indicator was 0.09 s earlier; its blob grows from 6 to 16 px radius, joined by a neck. Labels invert over the indicator.
+// When to use it: Use it for the sliding indicator of a tab bar or segmented control, or for a slider thumb.
+// Tags: gooey, liquid, tabs, segmented-control, indicator, trail, slider
+// Size: 539x208 px · Cycle: 4.8 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-147
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 49
-// 改写自 KittenJam Motion Library #317 Cookie 同意横幅：360×74 卡片 0.3–0.9 秒按 back.out(1.4) 从底部外弹到 y 108 并淡入；
-// 左侧饼干图标 0.5–1.1 秒从 0.4 倍、倾斜 −0.6 弧度弹正放大，1.2–1.8 秒再晃 2 下（幅度 0.3 弧度递减）。
-// 光标 2.4 秒点「全部同意」：按钮 0.08 秒压到 0.92、0.15 秒回弹；卡片 2.55–2.95 秒按 easeIn 3 次方滑出底部并淡出。
-const COOK_back = x => 1 + 2.4 * Math.pow(x - 1, 3) + 1.4 * Math.pow(x - 1, 2);
-CELLS[48] = ui((w, h, t) => {
-  pageLines(40, 20, 462);
-  for (let i = 0; i < 3; i++) fillRR(40 + i * 160, 80, 142, 70, 8, C.block);
-  const up = COOK_back(seg(t, .3, .9)), out = Math.pow(seg(t, 2.55, 2.95), 3);
-  const a = seg(t, .3, .6) * (1 - out);
-  if (a <= 0) return;
-  const cx = 91, cw = 360, ch = 74, y0 = 108;
-  const y = lerp(h + 10, y0, up) + (h + 10 - y0) * out;
-  X.save(); X.globalAlpha = a;
-  shadowed(() => fillRR(cx, y, cw, ch, 12, '#fff'), 18, 6, .16);
-  // 饼干图标：先弹正，再晃两下
-  const ip = seg(t, .5, 1.1), wg = seg(t, 1.2, 1.8);
-  const rot = -.6 * (1 - COOK_back(ip)) + .3 * Math.sin(wg * Math.PI * 4) * (1 - wg), sc = .4 + .6 * COOK_back(ip);
-  X.save(); X.translate(cx + 34, y + 37); X.rotate(rot); X.scale(sc, sc);
-  circle(0, 0, 16, '#d9a066'); circle(12, -10, 6, '#fff');
-  [[-6, -4], [5, 5], [-3, 8], [2, -7], [9, 1]].forEach(([dx, dy]) => circle(dx, dy, 2.4, '#7a4a21'));
-  X.restore();
-  text('本网站使用 Cookie', cx + 62, y + 26, 14, C.ink, 800);
-  bar(cx + 62, y + 42, 130, C.line, 7); bar(cx + 62, y + 54, 90, C.line, 7);
-  fillRR(cx + 222, y + 22, 56, 30, 8, '#fff'); strokeRR(cx + 222, y + 22, 56, 30, 8, C.line2, 1);
-  text('仅必要', cx + 250, y + 37, 12, C.ink, 600, 'center');
-  const bp = t >= 2.4 && t < 2.48 ? .92 : t >= 2.48 && t < 2.63 ? lerp(.92, 1, (t - 2.48) / .15) : 1;
-  X.save(); X.translate(cx + 317, y + 37); X.scale(bp, bp);
-  fillRR(-33, -15, 66, 30, 8, C.blue); text('全部同意', 0, 0, 12, '#fff', 700, 'center');
-  X.restore();
-  X.restore();
-  pointer([[0, w + 30, h + 30], [1.2, w + 30, h + 30], [2.2, 410, 147], [2.6, 410, 147], [3.4, w + 30, h + 30]], [2.4], t);
-});
+// @element 11
+// 11 液态拖尾（effect="move"）：分段控件的指示块移动时拉长，身后拖出液滴尾巴
+CELLS[10] = (k, w, h, u) => {
+  bg(k); grid(k);
+  const tx = 125.5, ty = 82, TW = 288, TH = 44, step = 96, x0 = tx + 48;
+  const MOVES = [[0.1, 0.55, 0, 1], [1.3, 1.75, 1, 2], [2.5, 2.95, 2, 1], [3.7, 4.15, 1, 0]];   // 每 1.2 秒移动一次，位移 96 px
+  const pos = t => { t = ((t % CYC) + CYC) % CYC; let s = 0; for (const [a, b, f, g] of MOVES) { if (t >= a) s = mix(f, g, inOut3(seg(t, a, b))); } return s; };
+  const s = pos(u), hx = x0 + step * s;
+  const v = (pos(u + 0.01) - pos(u - 0.01)) / 0.02 * step;   // px/s
+  const sp = clamp(Math.abs(v) / 320), dir = Math.sign(v) || 1;
+  k.fillStyle = C.panel; rr(k, tx, ty, TW, TH, TH / 2); k.fill();
+  k.strokeStyle = C.line; k.lineWidth = 1; rr(k, tx + 0.5, ty + 0.5, TW - 1, TH - 1, TH / 2); k.stroke();
+  const PW = 84 * (1 + 0.25 * sp), PH = 34 * (1 - 0.12 * sp);   // 速度越快越扁长（stretch）
+  const lag = x0 + step * pos(u - 0.09);                       // 尾巴滞后 0.09 秒（trail）
+  const tailR = 6 + 10 * sp, tailX = lag - dir * (PW / 2 - 10);
+  const endX = hx - dir * (PW / 2 - PH / 2);
+  k.fillStyle = C.goo;
+  rr(k, hx - PW / 2, ty + TH / 2 - PH / 2, PW, PH, PH / 2); k.fill();
+  if (sp > 0.02) { neck(k, endX, ty + TH / 2, PH / 2, tailX, ty + TH / 2, tailR, PH / 2 + tailR + 40); disc(k, tailX, ty + TH / 2, tailR); }
+  ['Chat', 'Search', 'Agents'].forEach((lab, i) => {
+    const lx = x0 + step * i, on = clamp(1 - Math.abs(lx - hx) / 46);
+    txt(k, lab, lx, ty + TH / 2 + 1, `600 14px ${FONT}`, on > 0.5 ? C.ink : C.muted, 'center');
+  });
+};

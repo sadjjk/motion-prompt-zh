@@ -1,7 +1,7 @@
 // Motion Prompt #1-001 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#049
 //
 // Modal dialog / モーダル
-// Pack: ui (UI component names) · element 01 · Category: Opening & overlays
+// Category: UI & Web / Components / Opening & overlays
 // What happens: Clicking "Open" dims the whole page and a small window scales up slightly into the centre; clicking × closes it.
 // Motion spec:
 //   - 4.5 s cycle on a 542×191 card. The cursor reaches the "Open" button (120×36, lower left) at 0.95 s and clicks at 1.0 s.
@@ -12,11 +12,11 @@
 // When to use it: Use it when the user must stop and deal with one thing, such as a confirmation or a short form.
 // Tags: modal, modal-dialog, dialog, popup, overlay, backdrop, lightbox, confirm
 // Size: 542x191 px · Cycle: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-001
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
 // @element 01
 // 01 モーダル（Modal dialog）

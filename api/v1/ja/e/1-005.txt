@@ -1,7 +1,7 @@
 // Motion Prompt #1-005 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#053
 //
 // ドロップダウン / Dropdown (select)
-// パック: ui (UIパーツの名前) · element 05 · カテゴリ: 開く・重なるパーツ
+// 分類: UI・Web / コンポーネント / 開く・重なる
 // 何が起きるか: 入力欄を押すと下に4つの選択肢が開き、「名古屋」を選ぶと閉じて欄に入る。
 // 動きの仕様:
 //   - 4.5秒周期・カード542×191。入力欄 260×38（角丸8）に「選択してください」と右端の矢印。カーソルが1.0秒にクリック
@@ -12,11 +12,11 @@
 // 使いどころ: フォームで、決まった候補の中から1つを選ばせたいとき。
 // タグ: dropdown, dropdown-menu, select, picker, combobox, options, form
 // サイズ: 542x191 px · 1周: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-005
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 05
 // 05 ドロップダウン（Dropdown menu）

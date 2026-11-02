@@ -1,38 +1,42 @@
-// Motion Prompt #1-046 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#094
+// Motion Prompt #1-046 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#068
 //
-// 无缝跑马灯 / Marquee
-// 分类包: lp (落地页与网页动效) · element 22 · 子分类: 加载、导航与循环动效
-// 动画表现: 深蓝色条带中，大号服务名称以橙点分隔，持续向左移动，没有空隙。
+// 步骤指示器 / Step indicator
+// 分类: 界面与网页 / 组件 / 导航与菜单
+// 动画表现: 每点一次“下一步”，当前步骤圆圈变对勾，蓝线延长到后续步骤。
 // 运动规格:
-//   - 条带高 58、深蓝、视口全宽；文字为 30 px 粗体、字距 1 px、白色。
-//   - 一组为四个词 WEB DESIGN / BRANDING / MOTION / UI/UX，间隔 64 px，每个间隙有半径 6 的橙点。
-//   - 每 4.8 秒匀速左移一组的宽度，本例约 881 px；测量组宽并按组宽循环偏移，避免可见接缝。
-//   - 重复整组直到铺满视口宽度。
-// 适用场景: 适合有动感地展示服务名称、客户标志或标语。
-// 标签: marquee, ticker, infinite-loop, scrolling-text, logo-strip, band, loop
-// 尺寸: 539x208 px · 周期: 4.8 s
-// 依赖: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+//   - 542×191 卡片，周期 4.5 秒。四步为填写、确认、支付、完成，x 为 80, 207, 334, 461，y 35；圆半径 17，以 4 px 灰线连接。
+//   - 光标在 0.9, 1.7, 2.5 秒点击右下角 110×38 的“下一步”。
+//   - 每次点击后当前步变为蓝圆白色对勾，下一步变为蓝圆白色数字；未到达步骤为白底灰边。
+//   - 每次点击蓝线用 easeInOutCubic 在 0.3 秒内增长 127 px；第三次点击后四步都显示对勾。
+//   - 复位：指示器在 3.75–4.05 秒淡出，4.05–4.3 秒从第 1 步状态淡入。
+// 适用场景: 适合注册、结算等多步骤流程，展示当前进度与剩余步骤。
+// 标签: step-indicator, stepper, steps, progress-steps, wizard, multi-step, checkout
+// 尺寸: 542x191 px · 周期: 4.5 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-046
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 22
-// 22 マーキー（文字の帯が、途切れずに横へ流れ続ける）
-CELLS[21] = (k, w, h, u) => {
-  frame(k);
-  const WORDS = ['WEB DESIGN', 'BRANDING', 'MOTION', 'UI/UX'], F = `800 30px ${EN}`, GAPW = 64;
-  view(k, () => {
-    bars(k, 34, 20, 180, 1, C.ink, 10); bars(k, 34, 38, 300, 1);
-    k.fillStyle = C.ink; k.fillRect(0, 58, VW, 58);
-    k.font = F; k.letterSpacing = '1px'; const ws = WORDS.map(s => k.measureText(s).width); k.letterSpacing = '0px';
-    const unit = ws.reduce((a, b) => a + b + GAPW, 0);
-    let x = -mod(u / CYC, 1) * unit;                 // 1周期で1組ぶん左へ
-    for (let rep = 0; x < VW; rep++) WORDS.forEach((s, i) => {
-      txt(k, s, x, 88, F, '#fff', 'left', 'middle', '1px');
-      k.fillStyle = C.acc; k.beginPath(); k.arc(x + ws[i] + GAPW / 2, 88, 6, 0, 7); k.fill();
-      x += ws[i] + GAPW;
-    });
-    for (let i = 0; i < 3; i++) { k.fillStyle = C.soft; rr(k, 34 + i * 152, 130, 136, 30, 6); k.fill(); bars(k, 46 + i * 152, 142, 90, 1, C.faint); }
+// @element 20
+// 20 ステップインジケーター（Step indicator）
+CELLS[19] = ui((w, h, t) => {
+  const clicks = [.9, 1.7, 2.5]; let step = 0; clicks.forEach(c => { if (t >= c) step++; });
+  const reset = seg(t, 3.75, 4.05), back = seg(t, 4.05, 4.3);
+  const showStep = reset >= 1 ? 0 : step;
+  const xs = [80, 207, 334, 461], labs = ['填写', '确认', '支付', '完成'];
+  const prog = clicks.reduce((s, c) => s + eio(seg(t, c, c + .3)), 0);
+  X.save(); X.globalAlpha = reset < 1 ? 1 - reset : back;
+  const pr = reset >= 1 ? 0 : prog;
+  fillRR(xs[0], 33, xs[3] - xs[0], 4, 2, '#e3e1df'); fillRR(xs[0], 33, (xs[1] - xs[0]) * pr, 4, 2, C.blue);
+  xs.forEach((x, i) => {
+    const done = i < showStep || (showStep === 3 && i === 3), cur = i === showStep && showStep < 3;
+    circle(x, 35, 17, done || cur ? C.blue : '#fff'); if (!(done || cur)) ring(x, 35, 16, C.line2, 2);
+    if (done) check(x, 35, 7, '#fff', 2.6); else text(String(i + 1), x, 36, 16, cur ? '#fff' : '#9a9896', 700, 'center', NUMF);
+    text(labs[i], x, 70, 14, done || cur ? C.blue : '#9a9896', 600, 'center');
   });
-};
+  X.restore();
+  strokeRR(24, 96, 494, 30, 7, C.line2, 1.5); bar(36, 106, 160, C.line); bar(24, 148, 200, C.line);
+  fillRR(w - 24 - 110, 142, 110, 38, 8, C.blue); text('下一步', w - 24 - 55, 161, 16, '#fff', 600, 'center');
+  pointer([[.3, w + 30, h + 30], [.85, w - 74, 166], [2.6, w - 74, 166], [3.3, w + 30, h + 30]], clicks, t);
+});

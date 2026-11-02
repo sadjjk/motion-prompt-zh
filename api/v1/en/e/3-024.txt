@@ -1,7 +1,7 @@
 // Motion Prompt #3-024 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#048
 //
 // L-cut / Lカット
-// Pack: camera (Camera moves & transitions) · element 24 · Category: Transitions
+// Category: Editing & photography / Camera & editing / Cuts & transitions
 // What happens: The previous scene's audio carries on for a while after the picture has changed; the picture is shown on top with video and audio timelines below.
 // Motion spec:
 //   - Join: the picture is a straight cut; only the audio switches to the next scene (B) after the picture does. The offset is 20% of the timeline (0.72 s)
@@ -13,11 +13,11 @@
 // When to use it: To keep a speaker's voice running while showing the listener's reaction or related footage.
 // Tags: l-cut, l cut, split edit, audio lag, sound carries over, audio transition, edit
 // Size: 539x208 px · Cycle: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-024
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
 // @element 24
 // 24 Lカット: 映像が先に次の場面（B）へ切り替わり、前の場面（A）の音が残る

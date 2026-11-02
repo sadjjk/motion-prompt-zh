@@ -1,7 +1,7 @@
 // Motion Prompt #3-009 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#033
 //
 // ラックフォーカス / Rack focus
-// パック: camera (カメラワークと切り替え) · element 09 · カテゴリ: 撮り方・時間の演出
+// 分類: 編集・撮影 / カメラ・編集 / 撮り方・時間の演出
 // 何が起きるか: カメラは動かさず、ピントを手前の花から奥の人物へ送る。ぼけている側が入れ替わる。
 // 動きの仕様:
 //   - カメラ: 位置・向き・焦点距離すべて固定（高さ1.1m）。変わるのはぼかしの量だけ
@@ -13,11 +13,11 @@
 // 使いどころ: カットを割らずに、見てほしい対象を手前から奥（または逆）へ移すとき。
 // タグ: rack focus, focus pull, pull focus, depth of field, blur, bokeh, foreground
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-009
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 09
 // 09 ラックフォーカス

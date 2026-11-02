@@ -1,69 +1,40 @@
-// Motion Prompt #1-113 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+// Motion Prompt #1-113 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// デプロイパイプライン / Deploy pipeline
-// パック: ui (UIパーツの名前) · element 35 · カテゴリ: 案内する・状態を伝えるパーツ
-// 何が起きるか: 暗い背景に並ぶ4つの段階カードが左から順に実行され、成功すると枠と丸が緑に光り、次のカードへ線が伸びて、最後の Deploy が「公開済み」になる。
+// 方向認識フィルボタン / Direction-aware fill button
+// 分類: UI・Web / ポインター操作 / ボタン
+// 何が起きるか: 暗いページの枠線ボタンに左下からカーソルが入ると、その点から朱色の円が広がってボタンを満たし、上へ抜けると今度は抜けた点へ縮んで消える。
 // 動きの仕様:
-//   - 4つの段階カード Lint → Test → Build → Deploy（117×124・間隔14）。つなぎ線の高さ2px、カード上端から70の位置
-//   - 0.85秒 段階01 実行中 → 1.25秒「成功 · エラー0件」。1.70秒 段階02 実行 → 2.15秒「成功 · 128件のテスト」。2.60秒 段階03 実行 → 3.05秒「成果物の準備完了」。3.50秒 段階04 がすぐ「公開済み」
-//   - 成功すると枠が緑 #16a34a、右上の丸が #22c55e で光り、状態の文字が緑の太字になる（瞬時）。成功から0.05秒後、つなぎ線が0.35秒（二次の easeOut）で次の段階まで伸びる
-//   - 3.6〜3.95秒に列全体が sine.inOut で2.5px浮く。リセット 3.95〜4.35秒 easeInOutCubic: 緑の枠・丸・つなぎ線・状態の文字が「待機中」に戻る
-//   - ステップインジケーターとの違い: 各段階に実行中と成功の状態と結果の文字があり、自動で順に進む。ユーザーが「次へ」を押して進めるものではない
-// 使いどころ: CI/CD・ホスティング・開発基盤サービスの紹介ページや、ダッシュボードのビルド状況表示に。
-// タグ: deploy, pipeline, ci-cd, build-status, progress, developer-tools, dashboard
-// サイズ: 542x191 px · 1周: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+//   - 暗いページの上に、朱色の枠線の200×52のカプセル型ボタン
+//   - カーソルは左下から入る。入った点を中心に朱色の円が0.55秒の easeInOut 3乗で0から一番遠い角まで届く半径に広がり、文字は朱色から白になる
+//   - 3.0秒の後カーソルが上へ抜けると、円は抜けた点を中心にし直して0.55秒で縮んで消え、色が出口の方へ引く
+// 使いどころ: 問い合わせ・申し込みなどの CTA で、カーソルの動きに反応している感覚を出したい所に。
+// タグ: button, direction-aware, fill, hover, circle, cta
+// サイズ: 539x208 px · 1周: 4.8 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-113
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 35
-// 改写自 ui2v · illli Ai Studio · hero-deploy-pipeline（MIT-0）
-// 部署流水线：深色底上 4 个阶段卡 Lint → Test → Build → Deploy 依次变绿：
-// 0.85 秒阶段 01「运行中…」→ 1.25 秒「通过 · 0 个错误」；1.70 秒阶段 02 运行 → 2.15 秒「通过 · 128 项测试」；
-// 2.60 秒阶段 03 运行 → 3.05 秒「产物就绪」；3.50 秒阶段 04 直接「已上线 ui2v.com」。
-// 通过时卡片描边变绿 #16a34a、右上圆点亮 #22c55e 带光晕、状态字转绿加粗（瞬时）；每段通过后 0.05 秒起，连接线 0.35 秒（power1.out）由 0 填满到下一阶段。
-// 3.6–3.95 秒整排以 sine.inOut 上浮 2.5px。复位：3.95–4.35 秒 easeInOutCubic 绿色描边、圆点、连接线与状态字退回「排队中」。
-// 尺寸换算：原作 1640 宽四列按 510/1640≈0.311 横向换算（卡 389→117 宽、间距 28→14），卡高 280→124；
-// 文字放大以保证可读（阶段名 22→9px、标题 36→18px、状态 24→10px）；连接线保留原作位置关系：
-// 原作连接线行左右各留 12.5% 内边距，每条从本卡约 53% 处画到下一卡约 46% 处（卡中心到卡中心），压在卡片之上，
-// 竖向位于卡高 50%、标题与状态之间（此处卡高 124 → y 偏移 70），线高 4→2px。时间与原作一一对应，上浮由 0.85 秒缩到 0.35 秒。
-const PIPE_S = 510 / 1640;
-const PIPE_ST = [
-  ['阶段 01', 'Lint', 0.85, 1.25, '通过 · 0 个错误'],
-  ['阶段 02', 'Test', 1.7, 2.15, '通过 · 128 项测试'],
-  ['阶段 03', 'Build', 2.6, 3.05, '产物就绪'],
-  ['阶段 04', 'Deploy', null, 3.5, '已上线 ui2v.com']];
-const PIPE_BAR = [[.527, .46], [.532, .465], [.537, .47]];
-const PIPE_SINE = x => -(Math.cos(Math.PI * x) - 1) / 2;
-const PIPE_MIX = (a, b, k) => { const p = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * k)).join(',')})`; };
-CELLS[34] = ui((w, h, t) => {
-  const g = X.createRadialGradient(w * .5, h * .35, 0, w * .5, h * .35, w * .6);
-  g.addColorStop(0, '#0f172a'); g.addColorStop(1, '#020617'); X.fillStyle = g; X.fillRect(0, 0, w, h);
-  const keep = 1 - eio(seg(t, 3.95, 4.35));
-  const dy = -8 * PIPE_S * PIPE_SINE(seg(t, 3.6, 3.95)) * keep;
-  const sw = 117, gap = 14, sh = 124, x0 = 16, y0 = (h - sh) / 2 + dy, SX = i => x0 + i * (sw + gap);
-  PIPE_ST.forEach(([h4, name, tr, tp, ok], i) => {
-    const x = SX(i), p = (t >= tp ? 1 : 0) * keep, run = tr !== null && t >= tr && t < tp;
-    fillRR(x, y0, sw, sh, 8, '#0f172a');
-    if (p > 0) strokeRR(x - 1, y0 - 1, sw + 2, sh + 2, 9, `rgba(34,197,94,${.35 * p})`, 1);
-    strokeRR(x, y0, sw, sh, 8, PIPE_MIX('#1e293b', '#16a34a', p), 1);
-    if (p > 0) { X.save(); X.shadowColor = `rgba(34,197,94,${.7 * p})`; X.shadowBlur = 5; circle(x + sw - 14, y0 + 20, 4.5, PIPE_MIX('#334155', '#22c55e', p)); X.restore(); }
-    else circle(x + sw - 14, y0 + 20, 4.5, '#334155');
-    text(h4, x + 11, y0 + 21, 9, '#64748b', 600);
-    text(name, x + 11, y0 + 52, 18, '#e2e8f0', 700, 'left', NUMF);
-    const sy = y0 + 98;
-    if (t >= tp) {
-      X.save(); X.globalAlpha = keep; text(ok, x + 11, sy, 10, '#22c55e', 700);
-      X.globalAlpha = 1 - keep; text('排队中', x + 11, sy, 10, '#64748b', 500); X.restore();
-    } else text(run ? '运行中…' : '排队中', x + 11, sy, 10, '#64748b', 500);
+// @element 44
+// 改写自 KittenJam Motion Library #103 光标扩散填满按钮：深色页面上 200×52 朱色描边胶囊按钮。光标从左下方进入按钮，
+// 朱色圆以「进入点」为圆心、0.55 秒 easeInOut 3 次方从 0 放大到能盖住最远角的半径，文字由朱色变白；
+// 3.0 秒后光标往上方离开，圆改以「离开点」为圆心 0.55 秒缩小消失，颜色往出口方向收回。
+const DFILL_W = 200, DFILL_H = 52;
+CELLS[43] = (k, w, h, u) => {
+  frame(k, 'example.com/contact');
+  const bx = (VW - DFILL_W) / 2, by = (VH - DFILL_H) / 2;
+  const cur = t => path([[0, 40, 150], [0.9, 250, 86], [3.0, 262, 84], [3.5, 320, 16], [4.2, 40, 16], [4.8, 40, 150]], t);
+  const on = t => { const [a, b] = cur(t); return a > bx && a < bx + DFILL_W && b > by && b < by + DFILL_H; };
+  // 圆心 = 最后一次进入或离开按钮那一刻的光标位置
+  const q = trans(on, u, 0.55, eIO), ft = flipAt(on, u);
+  const [ox, oy] = ft === null ? [bx, by] : cur(ft);
+  const R = Math.max(...[[bx, by], [bx + DFILL_W, by], [bx, by + DFILL_H], [bx + DFILL_W, by + DFILL_H]].map(([a, b]) => Math.hypot(a - ox, b - oy)));
+  view(k, () => {
+    k.fillStyle = '#151A26'; k.fillRect(0, 0, VW, VH);
+    if (q > 0) { k.save(); rr(k, bx, by, DFILL_W, DFILL_H, DFILL_H / 2); k.clip(); k.fillStyle = C.acc; k.beginPath(); k.arc(ox, oy, R * q, 0, 7); k.fill(); k.restore(); }
+    k.strokeStyle = C.acc; k.lineWidth = 2; rr(k, bx, by, DFILL_W, DFILL_H, DFILL_H / 2); k.stroke();
+    txt(k, '立即联系', VW / 2, VH / 2 + 1, `700 16px ${JP}`, mixHex(C.acc, '#FFFFFF', q), 'center', 'middle', '2px');
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
   });
-  // 连接线：画在卡片之上（与原作层级一致）
-  PIPE_BAR.forEach(([fa, fb], i) => {
-    const a = SX(i) + fa * sw, b = SX(i + 1) + fb * sw, by = y0 + 70;
-    fillRR(a, by - 1, b - a, 2, 1, '#1e293b');
-    const q = seg(t, PIPE_ST[i][3] + .05, PIPE_ST[i][3] + .4), p = (1 - (1 - q) * (1 - q)) * keep;
-    if (p > 0) { X.fillStyle = '#22c55e'; X.fillRect(a, by - 1, (b - a) * p, 2); }
-  });
-});
+};

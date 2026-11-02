@@ -1,7 +1,7 @@
 // Motion Prompt #3-006 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#030
 //
 // オービット / Orbit (Arc shot)
-// パック: camera (カメラワークと切り替え) · element 06 · カテゴリ: カメラの動き
+// 分類: 編集・撮影 / カメラ・編集 / カメラの動き
 // 何が起きるか: 被写体を中心に、カメラが円を描いて回り込む。人物は中央のまま、背景の木と建物が横に大きく流れる。
 // 動きの仕様:
 //   - カメラ: 人物（正面9m先）を中心とする半径6mの円周上を -0.95rad → +0.95rad（-54° → +54°、計約109°）移動
@@ -13,11 +13,11 @@
 // 使いどころ: 人物や商品を立体的に見せたいとき、登場や決めの場面を強調するとき。
 // タグ: orbit, arc shot, circle, 360, rotate around, revolve, camera move
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-006
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 06
 // 06 オービット: 被写体を中心に円を描いて回り込む

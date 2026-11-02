@@ -1,47 +1,49 @@
-// Motion Prompt #2-044 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#140
+// Motion Prompt #2-044 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// 卷页转场 / Page curl
-// 分类包: motion2 (动态图形进阶) · element 20 · 子分类: 转场与强调
-// 动画表现: 页面从角落揭起并翻折，露出下方下一页。
+// 崩落 / Crumble
+// 分类: 动态图形 / 文字动画 / 冲击与物理
+// 动画表现: 4 个字依次微微歪斜，随后旋转加速下坠、掉出碎屑并消失，再从上方落回原位。
 // 运动规格:
-//   - 白色第 1 页→奶油色第 2 页→第 1 页，各占 2.35 秒；从右下角开始，在 0.35–1.75 秒卷起，持续 1.4 秒，二次缓入缓出。
-//   - 折线沿归一化方向 (−1, −0.42) 从角落移动 0→600 px。
-//   - 折线外部分沿折线镜像，形成浅灰或米色纸背；投影模糊 14、偏移 4, 4，带白色 2 px 边缘。
-//   - 纸张抬起处显露下一页，折线沿边有 50 px 的阴影渐变。
-// 适用场景: 适合书籍、目录、相册和章节切换，强调纸张与阅读感。
-// 标签: page-curl, page-turn, page-peel, paper, book, transition
+//   - 4 个字（64 px），0.3 秒起每字错开 0.16 秒；单字一轮 3.6 秒。
+//   - 22–27% 歪斜到 ±12° 以内的随机角度，保持到 30%。
+//   - 30–62%：三次缓入下坠 109 px，旋转到 ±90° 以内并淡出；5 片碎屑一起落下。
+//   - 80–92%：从上方 32 px 处缓出落下并淡入，回到原位。
+// 适用场景: 适合表现结束、崩塌、失败的字幕或片尾。
+// 标签: crumble, fall, collapse, debris, outro, text
 // 尺寸: 539x208 px · 周期: 4.7 s
-// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-044
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 20
-// 20 ページめくり（角から紙がめくれて裏返り、下から次のページが現れる）
-function paper(k, w, h, i) {
-  k.fillStyle = i ? C.cream : '#FFFFFF'; k.fillRect(0, 0, w, h);
-  txt(k, i ? 'PAGE 2' : 'PAGE 1', 30, 58, `800 46px ${DISP}`, C.navy, 'left', 'middle', '1px');
-  k.fillStyle = i ? '#EBD9B4' : '#D7DCEA';[[96, 230], [122, 250], [148, 200], [174, 236]].forEach(([y, ww]) => { rr(k, 30, y, ww, 12, 6); k.fill(); });
-  k.fillStyle = i ? C.mint : C.coral; rr(k, 310, 26, 200, 156, 14); k.fill();
-  k.fillStyle = '#fff'; k.beginPath(); k.arc(462, 66, 18, 0, 7); k.fill();
-  k.beginPath(); k.moveTo(326, 168); k.lineTo(390, 92); k.lineTo(440, 150); k.lineTo(462, 126); k.lineTo(496, 168); k.closePath(); k.fill();
-}
-function clipHalf(poly, d, s0, keepLess) { const out = [], f = p => (p[0] - CW) * d[0] + (p[1] - CH) * d[1] - s0; for (let i = 0; i < poly.length; i++) { const A = poly[i], B = poly[(i + 1) % poly.length], fa = f(A), fb = f(B), ia = keepLess ? fa <= 0 : fa >= 0, ib = keepLess ? fb <= 0 : fb >= 0; if (ia) out.push(A); if (ia !== ib) { const t = fa / (fa - fb); out.push([lerp(A[0], B[0], t), lerp(A[1], B[1], t)]); } } return out; }
-CELLS[19] = abCell((k, w, h, u, a, b) => {
-  const dl = Math.hypot(1, 0.42), d = [-1 / dl, -0.42 / dl], sM = 600 * eIOs(P(u, TA - 0.15, TB + 0.25));
-  paper(k, w, h, b);
-  if (sM >= 599) return;
-  const rect = [[0, 0], [w, 0], [w, h], [0, h]], rest = clipHalf(rect, d, sM, false), corner = clipHalf(rect, d, sM, true);
-  if (rest.length > 2) { k.save(); polyPath(k, rest); k.clip(); paper(k, w, h, a); k.restore(); }
-  if (corner.length > 2 && sM > 0.5) {
-    // 折り目の影（下のページ側）
-    k.save(); polyPath(k, corner); k.clip();
-    const mx = w + d[0] * sM, my = h + d[1] * sM, gr = k.createLinearGradient(mx, my, mx - d[0] * 50, my - d[1] * 50);
-    gr.addColorStop(0, 'rgba(15,26,61,.35)'); gr.addColorStop(1, 'rgba(15,26,61,0)'); k.fillStyle = gr; k.fillRect(0, 0, w, h); k.restore();
-    const flap = corner.map(p => { const s = (p[0] - w) * d[0] + (p[1] - h) * d[1], m = 2 * (sM - s); return [p[0] + m * d[0], p[1] + m * d[1]]; });
-    k.save(); k.shadowColor = 'rgba(0,0,0,.35)'; k.shadowBlur = 14; k.shadowOffsetX = 4; k.shadowOffsetY = 4;
-    polyPath(k, flap); k.fillStyle = a ? '#EADBB8' : '#E3E6EF'; k.fill(); k.restore();
-    k.strokeStyle = 'rgba(255,255,255,.8)'; k.lineWidth = 2; polyPath(k, flap); k.stroke();
-  }
-});
+// @element 36
+// 改写自 KittenJam Motion Library #39（Hannah）· 崩落：每个字（间隔 0.16 秒）先歪斜 ±12° 以内，再加速下坠 109px、旋转 ±90° 以内并淡出，带碎屑；随后从上方 32px 处缓出落回原位重组。每字一轮 3.6 秒。
+const CRUM_R = (() => { const r = rand(3939); return Array.from({ length: 4 }, () => ({ r0: (r() * 2 - 1) * 12, r1: (r() * 2 - 1) * 90, bits: Array.from({ length: 5 }, () => [(r() - 0.5) * 50, (r() - 0.5) * 40, 1.2 + r() * 0.8, r() * 6, 3 + r() * 4]) })); })();
+CELLS[35] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const S = '土崩瓦解', F = `900 64px ${JP}`, CY = 92, D2R = Math.PI / 180;
+  k.fillStyle = C.navy2; rr(k, 70, 132, w - 140, 4, 2); k.fill();
+  chars(k, S, F, 18).forEach((c, i) => {
+    const t = (u - 0.3 - 0.16 * i) / 3.6, R = CRUM_R[i % CRUM_R.length];   // 取模：脚本被按非 UTF-8 解码时字符数会变多
+    let y = 0, rot = 0, op = 1;
+    if (t > 0.22 && t < 0.27) rot = R.r0 * D2R * P(t, 0.22, 0.27);
+    else if (t >= 0.27 && t < 0.3) rot = R.r0 * D2R;
+    else if (t >= 0.3 && t < 0.62) { const q = P(t, 0.3, 0.62), e = eIn(q); y = 109 * e; rot = lerp(R.r0, R.r1, e) * D2R; op = 1 - q; }
+    else if (t >= 0.62 && t < 0.8) op = 0;
+    else if (t >= 0.8 && t < 0.92) { const q = eOut(P(t, 0.8, 0.92)); y = -32 * (1 - q); op = q; }
+    // 碎屑跟随下坠
+    if (t >= 0.3 && t < 0.62) {
+      const q = P(t, 0.3, 0.62);
+      R.bits.forEach(([bx, by, sp, a, s]) => {
+        k.save(); k.globalAlpha = 0.8 * (1 - q); k.translate(w / 2 + c.x + bx * (0.4 + q), CY + by + 140 * sp * eIn(q)); k.rotate(a + q * 6);
+        k.fillStyle = i % 2 ? C.yel : '#fff'; k.fillRect(-s / 2, -s / 2, s, s); k.restore();
+      });
+    }
+    if (op <= 0) return;
+    k.save(); k.globalAlpha = op; k.translate(w / 2 + c.x, CY + y); k.rotate(rot);
+    txt(k, c.ch, 0, 0, F, i % 2 ? C.yel : '#fff', 'center', 'middle');
+    k.restore();
+  });
+};

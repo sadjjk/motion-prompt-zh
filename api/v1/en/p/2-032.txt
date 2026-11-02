@@ -1,16 +1,15 @@
-Please use "Stop-motion style" (ストップモーション風), one of the names in "Motion graphics moves, part 2".
+Please use "Text mask" (テキストマスク), filed under "Text animation / Morphing & texture".
 Motion Prompt #2-032
 
-What it is: Moves in choppy steps, with frames dropped
-What the sample shows: A star hops across in choppy steps at about 8 frames per second, each frame slightly off.
+What it is: Letters cut out to show a picture inside
+What the sample shows: Heavy letters are cut out so that a moving seascape shows only inside them; near the end of the cycle the whole picture appears.
 Spec:
-- 38 frames per 4.7 s (about 8 per second, each held for about 0.124 s). Only those frames are drawn; nothing is drawn in between.
-- A yellow star (radius 38) hops from x = −44 to 583 along three arches of height 54·|sin(3πt)|, turning twice.
-- Each frame gets a fixed random jitter: position ±5 px across and ±4.5 px up and down, rotation ±0.15 rad, size ±5%.
-- The previous two frames stay faintly visible (opacity 0.28 and 0.12), like onion skin.
-- Black film-strip bands top and bottom (26 px each, with sprocket holes) and a frames-per-second label.
-When to use it: Use it for a handmade, claymation or collage look, when smooth motion feels too slick.
+- "OCEAN" (weight 900, system-ui, 2 px letter spacing). The font size starts at 172 px and drops 2 px at a time until the word is at most 500 px wide.
+- The scene inside keeps moving: coral sky, a yellow sun bobbing ±6 px, blue sea below y = 116 with four white wavy lines drifting 240 px per 4.7 s in alternating directions, a sailboat crossing once per 4.7 s, clouds drifting 60 px.
+- Method: draw the word on an offscreen canvas, then composite the scene onto it with source-in, so the scene remains only inside the letters. A white 4 px outline around the letters.
+- Outside the letters the scene shows at 12% opacity; it rises to 100% at 3.45–3.85 s and returns to 12% at 4.25–4.65 s (smoothstep).
+When to use it: Use it to show a photo or footage inside a title or brand name, putting the word and the picture together.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-032.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

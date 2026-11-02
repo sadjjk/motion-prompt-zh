@@ -1,16 +1,15 @@
-Please use "Back-to-top progress ring" (進捗リング付きトップへ戻る), one of the names in "Interaction & data motion".
+Please use "Thinking orb: connecting" (思考オーブ・接続中), filed under "Feedback / AI status".
 Motion Prompt #1-174
 
-What it is: A back-to-top button that appears on scroll with a reading-progress ring
-What the sample shows: As the article scrolls down, a round button appears at the lower right and its outer arc grows with the amount read. The pointer clicks it, the page glides back to the top and the button shrinks away.
+What it is: Nodes on the orb join up one by one and packets flow along the links, showing services are being connected
+What the sample shows: On a turning orb, nodes are joined one link at a time like a constellation, then light packets run along the links before it all fades and restarts.
 Spec:
-- From 0.4–3.0 s the article scrolls to 86% (inOut3, with the scrollbar on the right in sync).
-- Past 12% the button scales 0.6 → 1 and fades in (0.25 s).
-- The outer arc (23 px radius, 3 px stroke) runs clockwise from the top with length = reading progress.
-- The button is clicked at 3.6 s and the page returns to the top from 3.65–4.45 s, taking 0.8 s (inOut3).
-- When progress drops below 12% the button shrinks away.
-When to use it: Use it on long articles, docs and blogs to show reading progress and a way back up in one control.
+- Orb radius 58 px: 240 faint dots plus 10 nodes; it spins once per cycle.
+- 12 links are drawn one at a time from 0.15 s, every 0.17 s, each taking 0.35 s (cubic ease-out).
+- At 2.4–4.0 s a light packet runs along each link, one pass every 0.8 s.
+- Links and packets fade out at 4.0–4.8 s and the loop restarts. Label "Connecting sources…" at 15 px.
+When to use it: Use it while connecting to outside services, linking data sources or reaching a tool server.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-174.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

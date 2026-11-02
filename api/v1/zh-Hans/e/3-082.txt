@@ -1,47 +1,30 @@
-// Motion Prompt #3-082 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/bicolor-lighting
+// Motion Prompt #3-082 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#119
 //
-// 双色光 / Bicolor lighting
-// 分类包: photo (摄影光线与风格) · element 46 · 子分类: 光源与色彩
-// 动画表现: 四周变暗，左侧亮起品红灯、右侧亮起青蓝灯；人物左右各染一色，在鼻梁附近混成淡紫；墙上也溢出两种颜色。
+// 漏光 / Light leak
+// 分类: 剪辑与摄影 / 镜头效果与后期 / 调色与后期
+// 动画表现: 风景右侧渗入一条缓慢摆动的漏光带，内侧浅黄、边缘红色。
 // 运动规格:
-//   - 场景 1：头肩人物，头部中心 x 270、y 78、半径 29 px；背景变为暗场景。
-//   - 人物颜色：x 206～334 的横向渐变，0～42% 品红 #FF3FA4，50% 淡紫 #A98CFF，58～100% 青蓝 #33D6FF；越往下越暗。
-//   - 墙面溢光：(60, 80) 处品红、(480, 80) 处青蓝，各半径 200 px，以 0.32 不透明度相加。
-//   - 灯位图为左右 90° 两盏灯（品红和青蓝）；右上显示“MAGENTA · CYAN”。
-//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
-// 适用场景: MV、游戏、夜晚城市等，想要霓虹般强烈色彩氛围时。
-// 标签: bicolor lighting, two-tone light, magenta, cyan, neon, light
+//   - 场景 3：左侧半身像的头部中心 x 140、y 82、半径 28 px；右侧有山丘、房屋、树与太阳，太阳 x 432、y 54、半径 15 px。
+//   - 四个竖长椭圆的中心位于右边缘外 30 px，周期内摆动 ±6 px；纵向半径为画面高的 1.1×。
+//   - 横向半径与颜色分别为 250 px #FFD089、透明度 35%，170 px #FF9A3D、40%，95 px #FF5A3A、45%，45 px #FF3B30、50%；各自半径从 0 增至目标值。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前消失；每轮 5 秒，三次缓入缓出，约 cubic-bezier(0.65,0,0.35,1)。
+// 适用场景: 适合怀旧、夏日和偶然捕捉的记忆感。
+// 标签: light leak, film leak, vintage, analog, lomo, warm glow
 // 尺寸: 539x208 px · 周期: 5 s
-// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-082
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 46
-// 双色光（バイカラー）: 周りが暗くなり、左にマゼンタ、右にシアンの灯がともる。人物の左右が別の色に染まり、
-// 鼻筋のあたりで2色が混ざって淡い紫になる。配置図にも色の違う2灯
-CELLS[45] = cell((k, u) => {
-  const a = env(u), MG = '#FF3FA4', CY = '#33D6FF';
-  stagePortrait(k, pal(BASE, DARK, a));
-  bust(k, PX, PY, PR, BASE.person, kk => {
-    if (a < 0.002) return;
-    const g = kk.createLinearGradient(PX - 2.2 * PR, 0, PX + 2.2 * PR, 0);
-    g.addColorStop(0, MG); g.addColorStop(0.42, MG); g.addColorStop(0.5, '#A98CFF'); g.addColorStop(0.58, CY); g.addColorStop(1, CY);
-    kk.globalAlpha = a; kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
-    // 胴の陰り: 下ほど暗く
-    const v = kk.createLinearGradient(0, PY, 0, CH); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,10,20,0.45)');
-    kk.fillStyle = v; kk.fillRect(0, 0, CW, CH);
-  });
-  // 壁に色のこぼれ
-  if (a > 0.002) {
-    k.save(); k.globalCompositeOperation = 'lighter';
-    for (const [x, c] of [[60, '255,63,164'], [480, '51,214,255']]) {
-      const g = k.createRadialGradient(x, 80, 6, x, 80, 200); g.addColorStop(0, `rgba(${c},${(0.32 * a).toFixed(3)})`); g.addColorStop(1, `rgba(${c},0)`);
-      k.fillStyle = g; k.fillRect(0, 0, CW, CH);
-    }
-    k.restore();
-  }
-  plan(k, [[Math.PI / 2, a, MG], [-Math.PI / 2, a, CY]]);
-  hud(k, 'MAGENTA · CYAN');
+// @element 23
+// ライトリーク: 右端から、フィルムに光がもれたような赤と橙のにじみが帯になって入る
+CELLS[22] = cell((k, u) => {
+  const a = env(u), w = Math.sin(u / CYC * TAU);
+  stageLand(k, BASE);
+  k.save();
+  // 縦長の楕円を右端の外に中心を置いて重ねる（外ほど淡い黄、端ほど赤）
+  const band = (rx, col, al) => { k.globalAlpha = al * a; k.fillStyle = col; k.beginPath(); k.ellipse(CW + 30 + 6 * w, CH / 2, rx * a, CH * 1.1, 0, 0, TAU); k.fill(); };
+  band(250, '#FFD089', 0.35); band(170, '#FF9A3D', 0.4); band(95, '#FF5A3A', 0.45); band(45, '#FF3B30', 0.5);
+  k.restore();
 });

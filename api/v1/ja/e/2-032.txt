@@ -1,43 +1,47 @@
-// Motion Prompt #2-032 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#128
+// Motion Prompt #2-032 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#133
 //
-// ストップモーション風 / Stop-motion style
-// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 08 · カテゴリ: 動きのテクニック
-// 何が起きるか: 星が1秒8コマほどのカクカクした動きで跳ねて進み、コマごとに位置が少しずつぶれる。
+// テキストマスク / Text mask
+// 分類: モーショングラフィックス / 文字アニメーション / 変形・質感
+// 何が起きるか: 太い文字の形にくり抜いて、その中だけに動く海の景色が見える。周期の終わりに外側も見せる。
 // 動きの仕様:
-//   - 4.7秒に38コマ（約8コマ/秒・1コマ約0.124秒）。そのコマの絵だけを出し、間は補わない
-//   - 黄色い星（半径38）が x=−44→583 を、高さ 54·|sin(3πt)| の山3つで跳ねて進み、2回転する
-//   - コマごとに決め打ちの乱数でぶらす: 位置 横±5px・縦±4.5px、角度±0.15rad、大きさ±5%
-//   - 直前の2コマを薄く残す（不透明度0.28と0.12。オニオンスキンのように）
-//   - 上下に黒いフィルムの帯（各26px・送り穴つき）、右上に「8コマ/秒」
-// 使いどころ: 手作り感・クレイアニメ風・コラージュ風の映像に。なめらかすぎる動きを素朴に見せたいとき。
-// タグ: stop-motion, choppy, frame-rate, on-twos, jitter, handmade, claymation
+//   - 「OCEAN」（太さ900・system-ui・字間2px）。幅500px以下に収まるよう、172pxから2pxずつ小さくして文字の大きさを決める
+//   - 中の景色（動き続ける）: コーラルの空、黄色い太陽（上下±6px）、y=116から下は青い海に白い波線4本（4.7秒で240pxずつ交互の向きに流れる）、ヨットが4.7秒で1回横切る、雲が60px流れる
+//   - 作り方: 別のキャンバスに文字を描き、source-in で景色を重ねる（文字の形の中だけ景色が残る）。文字のふちに白い線（線幅4）
+//   - 文字の外では景色を不透明度12%で見せ、3.45〜3.85秒に100%まで上げ、4.25〜4.65秒に12%へ戻す（smoothstep）
+// 使いどころ: タイトル・ブランド名の中に写真や映像を見せたいとき。言葉とイメージを1つにまとめたいとき。
+// タグ: text-mask, mask, clipping-mask, knockout, text, typography, title
 // サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-032
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 08
-// 08 ストップモーション風（1秒8コマのカクカクした動き。コマごとに位置が少しずつぶれる）
-CELLS[7] = (k, w, h, u) => {
-  u = snapU(u);
+// @element 13
+// 13 テキストマスク（太い文字の形にくり抜いて、その中だけに動く景色が見える）
+const G0 = mkCanvas(CW, CH), GK0 = G0.getContext('2d', { willReadFrequently: true });
+function seaPattern(g, w, h, u) {
+  g.fillStyle = C.coral; g.fillRect(0, 0, w, h);
+  g.fillStyle = C.yel; g.beginPath(); g.arc(w * 0.6, 116 + 6 * Math.sin(2 * Math.PI * u / CYC), 60, 0, 7); g.fill();
+  g.fillStyle = C.blue; g.fillRect(0, 116, w, h - 116);
+  const off = (u / CYC) * 240; g.strokeStyle = '#fff'; g.lineWidth = 7; g.lineCap = 'round';
+  for (let j = 0; j < 4; j++) { const y = 128 + j * 22, d = j % 2 ? -1 : 1; g.beginPath(); for (let x = -20; x <= w + 20; x += 6) { const yy = y + 5 * Math.sin((x + off * d + j * 40) * 2 * Math.PI / 120); x === -20 ? g.moveTo(x, yy) : g.lineTo(x, yy); } g.stroke(); }
+  const bx = mod(u / CYC * (w + 160), w + 160) - 80;
+  g.fillStyle = '#fff'; g.beginPath(); g.moveTo(bx, 46); g.lineTo(bx, 100); g.lineTo(bx + 40, 100); g.closePath(); g.fill();
+  g.fillStyle = C.navy; g.beginPath(); g.moveTo(bx - 42, 104); g.lineTo(bx + 52, 104); g.lineTo(bx + 38, 122); g.lineTo(bx - 30, 122); g.closePath(); g.fill();
+  g.fillStyle = '#fff';[[60, 40], [320, 30], [470, 56]].forEach(([x, y]) => { const xx = mod(x + u / CYC * 60, w + 80) - 40; g.beginPath(); g.ellipse(xx, y, 30, 11, 0, 0, 7); g.fill(); });
+}
+CELLS[12] = (k, w, h, u) => {
   stage(k);
-  k.fillStyle = '#0A1230'; k.fillRect(0, 0, w, 26); k.fillRect(0, h - 26, w, 26);
-  k.fillStyle = C.navy3; for (let x = 12; x < w; x += 34) { rr(k, x, 8, 18, 11, 3); k.fill(); rr(k, x, h - 19, 18, 11, 3); k.fill(); }
-  const NS = 38, st = CYC / NS, fi = Math.floor(u / st), floor = h - 44;
-  const pose = f => { const t = f / NS, j = i => H01(f * 7919 + i * 131 + 77) - 0.5; return { x: lerp(-44, w + 44, t) + j(1) * 10, y: floor - 36 - 54 * Math.abs(Math.sin(t * Math.PI * 3)) + j(2) * 9, r: t * Math.PI * 4 + j(3) * 0.3, s: 1 + j(4) * 0.1 }; };
-  const draw = (p, a) => {
-    k.globalAlpha = a;
-    k.save(); k.translate(p.x + 5, p.y + 6); k.rotate(p.r); k.scale(p.s, p.s); k.fillStyle = 'rgba(0,0,0,.35)'; star(k, 0, 0, 38, 0, 0.5); k.fill(); k.restore();
-    k.save(); k.translate(p.x, p.y); k.rotate(p.r); k.scale(p.s, p.s); k.fillStyle = C.yel; star(k, 0, 0, 38, 0, 0.5); k.fill();
-    k.fillStyle = C.coral; k.beginPath(); k.arc(0, 2, 9, 0, 7); k.fill(); k.restore();
-    k.globalAlpha = 1;
-  };
-  draw(pose(mod(fi - 2, NS)), 0.12); draw(pose(mod(fi - 1, NS)), 0.28);
-  const p = pose(fi);
-  k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(p.x, floor + 6, 30, 5, 0, 0, 7); k.fill();
-  draw(p, 1);
-  // 1秒あたりのコマ数
-  txt(k, '8 帧/秒', w - 16, 50, `800 24px ${JP}`, C.dim, 'right', 'middle');
+  let fs = 172; while (fs > 90 && tw(k, 'OCEAN', `900 ${fs}px system-ui`, '2px') > 500) fs -= 2;
+  const font = `900 ${fs}px system-ui`, Y = h / 2 + 6;
+  const open = smooth(P(u, 3.45, 3.85)) * (1 - smooth(P(u, 4.25, 4.65)));
+  TK.setTransform(1, 0, 0, 1, 0, 0); TK.globalCompositeOperation = 'source-over'; TK.clearRect(0, 0, w, h);
+  txt(TK, 'OCEAN', w / 2, Y, font, '#fff', 'center', 'middle', '2px');
+  GK0.setTransform(1, 0, 0, 1, 0, 0); GK0.globalCompositeOperation = 'source-over'; GK0.clearRect(0, 0, w, h); seaPattern(GK0, w, h, u);
+  TK.globalCompositeOperation = 'source-in'; TK.drawImage(G0, 0, 0); TK.globalCompositeOperation = 'source-over';
+  k.globalAlpha = 0.12 + 0.88 * open; seaPattern(k, w, h, u); k.globalAlpha = 1;
+  k.drawImage(TMP, 0, 0);
+  k.font = font; k.textAlign = 'center'; k.textBaseline = 'middle'; k.letterSpacing = '2px'; k.lineJoin = 'round';
+  k.strokeStyle = '#fff'; k.lineWidth = 4; k.strokeText('OCEAN', w / 2, Y); k.letterSpacing = '0px';
 };

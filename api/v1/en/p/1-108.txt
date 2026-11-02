@@ -1,16 +1,14 @@
-Please use "OTP input fill" (ワンタイムコード入力), one of the names in "UI component names".
+Please use "Jelly button" (ゼリーボタン), filed under "Pointer interactions / Buttons".
 Motion Prompt #1-108
 
-What it is: A one-time code fills in box by box and is confirmed once complete
-What the sample shows: Digits drop into six boxes in turn, the active box glowing blue; when all are filled every box turns blue, the hint switches to "Verified" and the group lifts slightly.
+What it is: Wobbles wide and tall like jelly when pressed
+What the sample shows: The cursor presses the button twice; each time it squashes wide, stretches tall and wobbles back, while the caption counts the items added.
 Spec:
-- 6 code boxes (66×77, gap 13.2, radius 11) with 35px digits. Empty boxes sit at opacity 0.55, filled ones at 1.
-- The digits 8 4 2 9 1 6 pop into one box every 0.35 s (0.95–2.70 s). The box just filled gets a blue #60a5fa border with a 3.3px light blue halo, while the others return to the grey border #374151.
-- At 3.2 s all 6 boxes light blue and the hint changes from "Code sent to ····4821" to "Verified · continuing"; over 3.4–3.95 s the group rises 4.4px with sine.inOut.
-- Reset: over 3.95–4.35 s (easeInOutCubic) the digits fade and the blue borders and lift return; 4.35–4.5 s holds the empty starting frame.
-- Versus Stepper: a fixed-length code is typed box by box and checked automatically when complete, rather than one value nudged with plus/minus buttons.
-When to use it: Use it for SMS or email code entry at sign-in, sign-up or payment confirmation, and on two-factor authentication screens.
+- A 160×50 vermilion pill button; the cursor clicks it at 1.0 s and 2.8 s.
+- After each click the scale goes (1, 1) → (1.18, 0.82) at 0.12 s → (0.85, 1.15) at 0.27 s → (1.05, 0.95) at 0.42 s → back to (1, 1) at 0.6 s, each step easeInOut power 3.
+- The caption under the button counts the clicks ("Added 1 item", "Added 2 items"); squashing wide before stretching tall keeps the bounce readable.
+When to use it: Use it on add-to-cart, like or send buttons where a press should feel physical.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-108.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

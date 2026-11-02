@@ -1,15 +1,17 @@
-Please use "Shake on error" (エラー時のシェイク), one of the names in "UI component names".
+Please use "Shredder delete" (シュレッダーで削除), filed under "Pointer interactions / Tactile & cards".
 Motion Prompt #1-144
 
-What it is: A field shakes side to side when the input is wrong
-What the sample shows: Six dots are typed into the password field and "Log in" is pressed; the field shakes, its border turns red and a red error message drops in below.
+What it is: Drag a file into a shredder to delete it, and the list closes the gap
+What the sample shows: A file list sits on the left and a graphite shredder on the right. The cursor picks up the PDF row and carries it in an arc to the slot; once released, the card is sucked in, the machine shakes, its light blinks orange and thin strips curl down behind the bin window. The rows below slide up to fill the gap, then everything resets.
 Spec:
-- A 300×44 password field; from 0.3 s one dot is typed every 0.12 s (6 in all), and "Log in" is pressed at 1.2 s.
-- Over 1.35–1.8 s the field shakes sideways by 10·sin(8πp)·sin(πp), small to large to small; the border turns red in 0.15 s.
-- The error message fades in over 1.45–1.75 s while sliding down 4px from above.
-- Over 3.6–3.9 s the dots, red border and message fade out together to reset.
-When to use it: Use it in login, verification-code or required-field forms that should flag a mistake at once.
+- At 0.45 s the cursor presses row 2 and over 0.6–1.55 s drags it in an arc to the slot, the card shrinking from 1.03× to 0.6×.
+- From 1.7–2.45 s the card is pulled in, slowly at first and then faster; the machine shakes from 1.7–2.95 s.
+- From 1.65–3.0 s the light switches from a green 'standby' to an orange 'shredding' that blinks at 7 Hz.
+- From 1.98 s, 15 strips are pushed out under the blades over 0.34 s each, then drop free, curling as they fall and fading within 1.15 s; the middle pair carry the file's color band.
+- From 2.05–2.5 s the rows below move up 33 px to close the gap, and the count goes from 4 to 3.
+- The rows drop back over 4.05–4.45 s and the deleted row fades in from 10 px to the left over 4.3–4.7 s, on a 4.8 s cycle.
+When to use it: Use it in file managers, cloud storage or privacy and security features where a delete should feel permanent.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-144.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

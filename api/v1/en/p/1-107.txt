@@ -1,15 +1,14 @@
-Please use "Layout animation" (レイアウトアニメーション), one of the names in "Landing page & web effects".
+Please use "Rotating gradient border" (回転グラデーションボーダー), filed under "Pointer interactions / Buttons".
 Motion Prompt #1-107
 
-What it is: When the layout changes, the remaining items glide to their new places
-What the sample shows: Deleting the second card makes the following cards glide into the gap, with the wrapping card moving up diagonally; undo sends each back to its place.
+What it is: A gradient light keeps circling the button border
+What the sample shows: A multicolour gradient circles the border of a button on a dark page; when the cursor hovers, it spins faster and a glow appears around it.
 Spec:
-- A 4×2 card grid (cards 110×66, column pitch 122, row pitch 78). The cursor clicks card 2's × at 1.0 s; that card shrinks to 0.85 and fades out in 0.2 s with easeOut.
-- The other cards glide to their new slots over 1.25–1.75 s (0.5 s, easeInOut, power 3); card 5 moves diagonally from the start of row 2 to the end of row 1.
-- At 1.3 s a "1 item deleted · Undo" toast appears. Undo is clicked at 3.35 s: the cards move back over 3.5–4.0 s and card 2 grows and fades back in over 3.95–4.25 s.
-- Versus Drag to reorder: there is no dragging; items reflow automatically after a delete or restore, never jumping.
-When to use it: Use it for boards, photo grids, carts and tag lists — anywhere adding, removing or filtering changes the layout.
+- A 200×52 pill button on a dark page with a 3px conic-gradient border (vermilion → blue → purple → vermilion).
+- The gradient angle turns 1 full turn per cycle at base speed; while the cursor hovers (0.7–3.8 s, easeInOut power 2) it adds 2 more turns, a whole 3 turns per 4.8 s cycle, so the loop is seamless.
+- The cursor reaches the button at 0.6 s; an outer glow (shadowBlur 26) comes on over 0.25 s with easeOut and goes off over 0.25 s after the cursor leaves at 3.8 s.
+When to use it: Use it to make the main call to action stand out on dark heroes or pricing pages.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-107.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

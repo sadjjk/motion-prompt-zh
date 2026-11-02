@@ -1,15 +1,15 @@
-Please use "Water reflection" (水面の反射), one of the names in "Motion graphics moves, part 2".
+Please use "Impossible triangle" (不可能な三角形), filed under "Shapes & objects / Objects & machines".
 Motion Prompt #2-070
 
-What it is: Text with a rippling upside-down reflection below
-What the sample shows: Under a night sky white text floats gently; below the line a coral upside-down copy sways, skews and breaks into horizontal ripples.
+What it is: A Penrose impossible triangle assembled from falling blocks in isometric view
+What the sample shows: Coloured blocks drop one by one onto a pastel ground to build 3 edges whose ends meet into an impossible triangle that slowly turns.
 Spec:
-- Above a horizon line (y = 118, a 1 px line brightest in the middle) sits white text; below it a vertically flipped coral copy.
-- The copy skews ±7°, stretches 0.92–1.04x vertically and sways ±3 px on a 2.35 s cycle.
-- The copy fades from 0.55 to 0 opacity over 80 px below the line and is split into 3 px bands shifted ±2.5 px to read as ripples.
-- The text above bobs 2.5 px on the 2.35 s cycle while background stars twinkle slowly.
-When to use it: Use it for calm titles about night, lakes or quiet brands, or a gentle end card.
+- 18 blocks, 6 per edge on 3 edges, in isometric projection; the bounding circle is 196 px across.
+- Blocks drop from above 1/6 s apart and settle in 0.5 s; all are in place over 0.2–3.5 s.
+- Block 1 is redrawn clipped to the hexagon where it overlaps the last block, creating the illusion that the ends join.
+- The whole figure makes 1 full turn per 6.4 s and floats ±4 px; it fades out over 5.4–6.0 s.
+When to use it: Openers for videos on illusions, maths or design thinking, hero sections on creative sites, or posters.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-070.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

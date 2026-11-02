@@ -1,34 +1,45 @@
-// Motion Prompt #1-034 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#082
+// Motion Prompt #1-034 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// ホバーで画像ズーム / Image zoom on hover
-// パック: lp (LP・Webサイトの演出) · element 10 · カテゴリ: マウス・クリックへの反応
-// 何が起きるか: カーソルが乗った写真だけが、枠の大きさは変えずに中身がゆっくり拡大し、離れると戻る。
+// 展開する検索ボックス / Expanding search
+// 分類: UI・Web / コンポーネント / 選ぶ・入力する
+// 何が起きるか: カーソルが丸い虫めがねボタンを押すと、右端を固定したまま左へ伸びて検索欄になり、プレースホルダーが出て文字が入り、×で消すと丸いボタンに戻る。
 // 動きの仕様:
-//   - 写真の枠 222×118（角丸8）を2つ並べる。カーソルが左、右の順に約1.5秒ずつ乗る
-//   - 乗ったら0.5秒で中身の拡大率 1→1.15（中心から・easeOut 3乗）。離れたら同じ0.5秒で戻る
-//   - 枠の外にはみ出した部分は切る（overflow: hidden）。枠と下の文字は動かない
-// 使いどころ: 写真の一覧（実績・商品・記事）で、どれを選ぼうとしているかを伝えたいとき。
-// タグ: hover, zoom, image, scale, overflow-hidden, thumbnail, gallery
-// サイズ: 539x208 px · 1周: 4.8 s
-// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+//   - 44×44の丸い検索ボタン。カーソルが0.9秒に押す
+//   - 右端を固定したまま0.95〜1.4秒（easeInOut 3乗）で左へ320×44の検索欄に伸び、虫めがねは左端といっしょに動く
+//   - 1.3〜1.5秒にプレースホルダー「モーションを検索…」がフェードイン。1.8秒から「回転ボタン」を1文字0.18秒で入力し、右に×が出る
+//   - 3.4秒に×を押して消し、3.5〜3.95秒で丸いボタンに戻る
+// 使いどころ: ヘッダーやツールバーなど、普段は場所を取らず必要なときだけ検索欄を出したい所に。
+// タグ: search, expand, input, header, toolbar, morph
+// サイズ: 542x191 px · 1周: 4.5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-034
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 10
-// 10 ホバーで画像ズーム（枠はそのままで、中の写真だけがゆっくり拡大する）
-CELLS[9] = (k, w, h, u) => {
-  frame(k);
-  const FX = [22, 267], FY = 16, FW = 222, FH = 118, ZOOM = 0.15;
-  const cur = t => path([[0, 60, 160], [0.5, 120, 70], [1.8, 140, 84], [2.2, 370, 70], [3.4, 390, 84], [3.9, 470, 160], [4.8, 60, 160]], t);
-  view(k, () => {
-    for (let i = 0; i < 2; i++) {
-      const inside = t => { const [x, y] = cur(t); return x > FX[i] && x < FX[i] + FW && y > FY && y < FY + FH; };
-      const q = trans(inside, u, 0.5);
-      pic(k, FX[i], FY, FW, FH, i, 8, 1 + ZOOM * q);
-      txt(k, ['夏日山间小屋', '海边咖啡馆'][i], FX[i], FY + FH + 20, `800 13px ${JP}`, C.ink); bars(k, FX[i], FY + FH + 28, 150, 1);
-    }
-    const [cx, cy] = cur(u); cursor(k, cx, cy);
-  });
-};
+// @element 39
+// 改写自 KittenJam Motion Library #247 展开搜索框：右侧 44×44 圆形放大镜按钮，光标 0.9 秒点击，
+// 按钮右缘固定、0.45 秒 easeInOut 3 次方向左展开成 320×44 搜索框，放大镜随左缘移动；占位字「搜索动效…」1.3–1.5 秒淡入，
+// 1.8 秒起逐字输入「旋转按钮」（每字 0.18 秒），右侧出现 ×；3.4 秒点 × 清空，3.5–3.95 秒收回圆形按钮。
+const ESEARCH_S = '旋转按钮';
+CELLS[38] = ui((w, h, t) => {
+  bar(24, 18, 90, C.line2, 11); bar(24, 92, 230, C.line); bar(24, 110, 180, C.line); fillRR(24, 132, 230, 44, 8, C.block);
+  const ex = eio(seg(t, .95, 1.4)) * (1 - eio(seg(t, 3.5, 3.95)));
+  const R = 492, by = 50, bh = 44, bw = lerp(44, 320, ex), bx = R - bw;
+  shadowed(() => fillRR(bx, by, bw, bh, 22, '#fff'), 12, 3, .12);
+  strokeRR(bx, by, bw, bh, 22, ex > .02 ? C.sb : C.line2, 1.5);
+  // 放大镜（随左缘移动）
+  const ix = bx + 22, iy = by + 22;
+  ring(ix - 2, iy - 2, 7, ex > .02 ? C.blue : C.ink, 2.2);
+  X.strokeStyle = ex > .02 ? C.blue : C.ink; X.lineWidth = 2.4; X.lineCap = 'round'; X.beginPath(); X.moveTo(ix + 3, iy + 3); X.lineTo(ix + 8, iy + 8); X.stroke(); X.lineCap = 'butt';
+  const n = t < 1.8 || t >= 3.4 ? 0 : Math.min(ESEARCH_S.length, Math.floor((t - 1.8) / .18) + 1);
+  const ph = eo(seg(t, 1.3, 1.5)) * (1 - seg(t, 3.5, 3.6));
+  X.save(); X.beginPath(); X.rect(bx, by, bw, bh); X.clip();
+  if (n === 0 && ph > 0) { X.globalAlpha = ph; text('搜索动效…', ix + 20, iy, 14, C.hint, 500); X.globalAlpha = 1; }
+  if (n > 0) {
+    text(ESEARCH_S.slice(0, n), ix + 20, iy, 14, C.ink, 600);
+    circle(R - 22, iy, 9, C.block); text('×', R - 22, iy, 13, C.en, 600, 'center', NUMF);
+  }
+  X.restore();
+  pointer([[0, w + 30, h + 30], [.8, R - 20, by + 24], [1.4, R - 20, by + 24], [2.0, R - 50, by + 70], [3.0, R - 50, by + 70], [3.35, R - 20, by + 24], [3.6, R - 20, by + 24], [4.4, w + 30, h + 30]], [.9, 3.4], t);
+});

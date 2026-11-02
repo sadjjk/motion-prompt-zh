@@ -1,15 +1,15 @@
-Please use "Aurora gradient & glass" (オーロラグラデーション・グラス), one of the names in "MG styles".
+Please use "Repeater" (リピーター), filed under "Shapes & objects / Lines & shapes".
 Motion Prompt #2-057
 
-What it is: A soft-glow tech look: half-transparent frosted-glass cards floating over a dark aurora gradient
-What the sample shows: Aurora glows flow slowly over a dark background, 2 glass cards bob gently, chat lines appear one by one, and a glass lens sweeps back and forth magnifying the scene.
+What it is: Duplicates a shape and turns the copies
+What the sample shows: One shape is duplicated around a circle, and the copies turn and pulse slightly out of step.
 Spec:
-- Deep indigo-black #040312 background with 5 aurora glows (#7050FF, #2F46F2, #34CFF0, #B653F0, #3320A8), drawn on a 68 × 26 low-res canvas and scaled up into a soft blur; they drift 1 loop per cycle.
-- 2 frosted-glass cards: white fill at 8%, 1 px white border at 30%, a top highlight, and the backdrop scaled 1.08× and offset to fake refraction. They bob 2 times per cycle (2.5 px amplitude).
-- Chat lines fade in one by one while rising 8 px (at 0.6, 1.3, 2.0, 2.7 s). At 3.4–4.0 s a Focus toggle slides on, and 18 waveform bars keep pulsing.
-- A liquid-glass lens of radius 30 px sweeps across 1 round trip per cycle, magnifying what is below 1.35× with cyan/magenta fringes. Text fades out at 5.4–6.0 s.
-When to use it: Openings and feature demos in launch films for AI products, phone operating systems or smart devices.
+- A rounded bar (24 × 60, radius 12) is copied up to 12 times around a circle of radius 58 at the centre, each turned to face outward (angle + 90°).
+- Count: 1→12 at 0.35–1.7 s and 12→1 at 3.6–4.45 s (quadratic ease-in-out). Each new copy slides from the previous slot to its own, 30° further on (cubic ease-out).
+- The whole ring turns once per 4.7 s. Each copy pulses in size by 1 ± 0.22 twice per 4.7 s, each one 0.55 rad later than the last, so a ripple runs round the ring.
+- Colours go blue, coral, yellow, mint. The original copy has a white outline. A "×N" counter at the top right.
+When to use it: Use it for loaders, background patterns, flowers or rays: anything built from one shape repeated.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-057.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,15 +1,15 @@
-Please use "Coin flip" (コインフリップ), one of the names in "Motion graphics moves, part 2".
+Please use "Domino run" (ドミノ倒し), filed under "Shapes & objects / Objects & machines".
 Motion Prompt #2-069
 
-What it is: Letters spin like coins as they hop
-What the sample shows: Four gold coins carrying characters hop up in turn, spin twice, land and bounce once; the back shows a star.
+What it is: Dominoes laid along an S-curve that topple in a chain reaction, then rewind upright
+What the sample shows: Black and red dominoes along an S-curve topple in an accelerating chain, then stand back up in reverse as the clip rewinds.
 Spec:
-- 4 coins of 36 px radius sit 96 px apart; they start at 0.35 s, 0.2 s apart, and each move lasts 1.7 s.
-- In the first 28% a coin rises 96 px (cubic ease-out) through one turn, and by 42% it falls through a second turn (the turn is drawn as scaleX = cos).
-- A 17 px hop follows until 48%, landing at 54%; the shadow shrinks with height.
-- The front shows the character, the back a star; the rim is a darker disc offset 4 px in the turn direction.
-When to use it: Use it for playful captions about luck, prizes, rewards or games.
+- 56 dominoes evenly spaced along an S-curve; every 8th is red, the rest black.
+- Domino 1 falls at 0.3 s and the chain runs until 4.3 s, the gaps shrinking along a power-0.7 curve.
+- Each falls in 0.28 s, tilting 1.22 rad to lean on the next; the final one tips to 1.53 rad.
+- Over 5.4–6.2 s time plays backwards and they stand up in reverse order; each casts an angled ground shadow.
+When to use it: Openers for videos about chain reactions or ripple effects, title slides for process explainers, or campaign teasers.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-069.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

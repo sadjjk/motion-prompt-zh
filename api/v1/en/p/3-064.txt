@@ -1,16 +1,15 @@
-Please use "Establishing shot" (エスタブリッシングショット), one of the names in "Camera moves & transitions".
+Please use "Color temperature" (色温度), filed under "Light & color / Light sources & color".
 Motion Prompt #3-064
 
-What it is: A wide shot that sets up the place and who stands where, before cutting closer
-What the sample shows: A high wide shot first shows two people standing left and right in the space; at 2.4 s it cuts straight to a close shot of the one on the left, who starts speaking. The audience already knows the other person is to his right.
+What it is: Whether light is warm orange or cool blue, measured in kelvin (K)
+What the sample shows: A kelvin scale sits at the lower right; its pointer moves 5500 K → 2000 K → 10000 K → 5500 K, and the picture turns orange at low values and blue at high ones.
 Spec:
-- Shot 1: camera 4.5 m high, 20 m from the pair, tilted slightly down; A (blue) on the left and B (ink) on the right, 2.4 m apart.
-- Cut: straight cut at 2.4 s; the camera does not travel between the two positions.
-- Shot 2: close shot of A from a camera 1.45 m high and 3.2 m away, background softly blurred; A speaks from 2.8 s to 4.1 s.
-- Top right reads "建立 WIDE" and then "近景 A" after the cut.
-- Return: cross-fade back to the first shot over the last 0.5 s (one pass = 4.7 s).
-When to use it: At the start of a new scene, so the audience knows where we are and who is there before the details.
+- Scene: a landscape with the sun at (432, 54) and a head-and-shoulders figure (head centre x 140, y 82, radius 28 px).
+- Kelvin path: 5500 → 2000 K over 0.4–1.4 s, → 10000 K over 2.0–3.0 s, → 5500 K over 3.6–4.6 s (each ease-in-out).
+- Colour: 2000 K #FF8A2A, 2700 K #FFA552, 3500 K #FFC489, 5500 K neutral, 7500 K #A9C8FF, 10000 K #7FA8FF, interpolated between and multiplied over the picture (strength up to 0.67).
+- Scale: a 150×34 px white tag at the lower right with a 2000–10000 K colour strip and a triangular pointer; top right shows the value rounded to 100 K.
+When to use it: To explain white balance and colour casts, or to show time of day and mood through colour.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-064.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

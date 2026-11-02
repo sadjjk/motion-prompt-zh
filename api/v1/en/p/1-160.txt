@@ -1,15 +1,15 @@
-Please use "Expanding panels" (エキスパンディングパネル), one of the names in "Landing page & web effects".
+Please use "Install progress on icon" (アイコン上のインストール進捗), filed under "Feedback / Progress & icons".
 Motion Prompt #1-160
 
-What it is: The hovered panel in a row of narrow images widens and shows its title
-What the sample shows: Among 5 tall image panels, the 2nd and then the 4th widen as the cursor rests on them while the others narrow, and a title appears at the lower left of the wide panel.
+What it is: Install progress shown as a dark overlay sweeping clockwise off an app icon
+What the sample shows: A dark wedge over a gradient app icon sweeps away clockwise, pauses and resumes on taps, and on completion the icon bounces and an Open button pops in.
 Spec:
-- 5 equal vertical panels (471 wide in total, 136 tall, 6px gaps), each flex 1, showing geometric pictures cropped around their centres.
-- The hovered panel widens to flex 4 over 0.6 s (easeOut power 3) while the others narrow.
-- Its title fades in at the lower left once the expansion passes 0.6.
-- Timeline: panel 2 from 0.35 to 1.75 s, panel 4 takes over from 1.75 to 3.6 s, then all panels return to equal width.
-When to use it: Use it for portfolio categories, travel destinations or gallery entrances chosen by picture.
+- A 120 px gradient icon #FFB547→#FF6B8B→#7B61FF with 29 px corner radius; a dark overlay at 0.55 opacity sweeps away clockwise with progress.
+- Progress speed is 2 × (0.16 + 0.04·sin 2.5t); the percentage and MB count out of 186 MB rise in sync on the right.
+- In the demo a tap at 1.8 s pauses (the centre switches to a play triangle in 0.2 s) and a tap at 2.7 s resumes.
+- On completion the overlay fades in 0.5 s and the centre ring shrinks to 0.4× in 0.45 s; the icon bounces over 0.7 s (down to 0.9×, up to 1.08× and 4 px higher) and an Open button springs in over 0.5 s.
+When to use it: Use it in app-store style screens, launchers, and software download or update indicators.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-160.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

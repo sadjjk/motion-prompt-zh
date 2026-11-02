@@ -1,15 +1,15 @@
-Please use "Guilloche" (彩紋（ギョーシェ）), one of the names in "Styled scenes".
+Please use "Risograph" (リソグラフ), filed under "Craft & patterns / Print & handmade".
 Motion Prompt #4-020
 
-What it is: A guilloche pattern of fine banknote-style curves layered into a slowly turning rosette
-What the sample shows: An emerald-and-gold rosette turns slowly with layers rotating in opposite directions, while wavy bands on both sides drift sideways.
+What it is: A risograph-style poster where fluorescent pink and teal plates are printed slightly out of register
+What the sample shows: Pink and teal circles, squares and heavy type overlap on cream paper into a third colour, while the plates drift slightly back and forth.
 Spec:
-- 32 hypotrochoids in 4 groups form a rosette with a 96 px outer radius, in emerald #0F5A4A and gold #B88A2E.
-- The 4 groups have 13 / 13 / 17 / 11 petals and each turns exactly 1 petal per 6.4 s, alternating direction.
-- Side bands: 2 families of 10 sine lines each, green and gold, wavelength 48 px and amplitude 10 px, drifting opposite ways by 1 wavelength per cycle.
-- 2 thin rings of radius 115 px and 118 px frame the rosette; a 7 px monospace serial number sits bottom left.
-When to use it: Openers for finance, fintech or luxury brands, backgrounds for certificate or ticket designs, or a formal title slide.
+- Frame 539 × 208 px on cream #F4F0E6. The 2 plates, fluorescent pink #FF48B0 and teal #00A69C, are multiplied to form a third colour.
+- Pink plate: a radius 78 px circle, an 84 × 84 px square and 100 px heavy RISO. Teal plate: a radius 66 px circle, 64 px heavy PRINT and 8 bars 4 px thick.
+- The 2 plates are offset by 3 ± 2 px (1–5 px), following a sine 3 times per 6.4 s; the pink plate shifts right and the teal plate shifts up.
+- 1500 fixed pale ink-skip specks plus multiply grain at 0.1 opacity.
+When to use it: Posters and covers for zines or music events, or a hero background that gives a creative brand a retro print feel.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-020.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

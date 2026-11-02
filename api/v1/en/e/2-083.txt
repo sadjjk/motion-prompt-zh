@@ -1,58 +1,43 @@
-// Motion Prompt #2-083 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+// Motion Prompt #2-083 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// Growing tree / ツリーグロース
-// Pack: motion2 (Motion graphics moves, part 2) · element 44 · Category: Motion techniques
-// What happens: A ground line spreads, the trunk grows up, 4 branches and 5 twigs sprout in turn, leaves pop open in random order, and a caption rises below.
+// Radar sweep / レーダースキャン
+// Category: Motion graphics / Shapes & objects / Information & tech
+// What happens: A trailing sweep circles a dark green scope; coastline dots and targets brighten as it passes, then dim gradually.
 // Motion spec:
-//   - Over 0.2–0.6 s a ground line grows outward from the centre (cubic ease-out).
-//   - From 0.45 s the trunk (9 px) grows in 0.8 s; 4 branches (5/4 px) follow 0.15 s apart, 0.45 s each; 5 twigs (2.5 px) 0.12 s apart, 0.35 s each (quadratic ease-in-out).
-//   - From 2.6 s, 14 leaves pop from 0 to 1 in random order, 0.07 s apart, 0.32 s each (back 1.7).
-//   - Over 3.4–3.8 s the caption rises 6 px while fading in; everything fades over 4.15–4.6 s.
-// When to use it: Use it for brand stories and themes of growth, sustainability or learning.
-// Tags: tree, grow, branch, leaves, nature, line-art
-// Size: 539x208 px · Cycle: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+//   - Radar radius 92 px with 4 range rings and a tick every 10° around the rim (longer every 30°).
+//   - The sweep turns 2 laps per 6.4 s, its trail fading across 40 wedge slices.
+//   - Coastline dots sit on a 3 px grid, lighting up when swept and decaying exponentially; 7 targets carry glows.
+//   - Palette: background #030805, scope #061810, lit dots rgba(90, 255, 150).
+// When to use it: Use it to open security, monitoring or exploration videos, as a searching or scanning idle screen, or as a transition.
+// Tags: radar, sweep, scan, sonar, military, monitor, tech
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-083
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 44
-// 改写自 KittenJam Motion Library #329（Hannah）· 树枝生长：0.2–0.6 秒地面线向两侧画出，0.45 秒起主干 0.8 秒长出，4 根分枝间隔 0.15 秒、各 0.45 秒，5 根细枝间隔 0.12 秒、各 0.35 秒，2.6 秒起 14 片叶子乱序间隔 0.07 秒回弹长出，3.4 秒文字浮现；4.15–4.6 秒淡出。
-const TREE_BR = [   // [起点, 控制点, 终点, 线宽, 开始秒, 时长]
-  [[270, 170], [266, 120], [272, 62], 9, 0.45, 0.8],
-  [[270, 140], [248, 124], [216, 112], 5, 1.15, 0.45], [[270, 124], [296, 110], [326, 98], 5, 1.3, 0.45],
-  [[271, 98], [250, 84], [238, 62], 4, 1.45, 0.45], [[271, 88], [292, 74], [304, 52], 4, 1.6, 0.45],
-  [[230, 116], [214, 98], [204, 84], 2.5, 1.85, 0.35], [[318, 101], [340, 88], [350, 74], 2.5, 1.97, 0.35],
-  [[244, 76], [226, 64], [220, 50], 2.5, 2.09, 0.35], [[300, 60], [318, 48], [324, 36], 2.5, 2.21, 0.35], [[272, 66], [268, 50], [272, 38], 2.5, 2.33, 0.35]];
-const TREE_LV = (() => {
-  const pos = [[216, 112], [326, 98], [238, 62], [304, 52], [204, 84], [350, 74], [220, 50], [324, 36], [272, 38], [196, 110], [340, 104], [250, 92], [292, 80], [262, 50]];
-  const r = rand(3290), order = pos.map((_, i) => i).sort(() => r() - 0.5);
-  return pos.map((p, i) => [p[0], p[1], H01(i + 7) * Math.PI * 2, order.indexOf(i)]);
+// @element 09
+// 09 雷达扫描：深绿雷达屏上扫描线转动，扫过的海岸线与目标点亮起再慢慢暗下去
+const RADAR_PTS = (() => { // 海岸线点阵（常量）：按值噪声阈值取点
+  const out = [], R = 92;
+  for (let y = -R; y < R; y += 3) for (let x = -R; x < R; x += 3) { if (x * x + y * y > R * R) continue; if (fbm2((x + 200) / 56, (y + 70) / 56, 4) < 0.56) continue; out.push([x, y, Math.atan2(y, x)]); }
+  return out;
 })();
-CELLS[43] = (k, w, h, u) => {
-  u = snapU(u);
-  stage(k);
-  const fade = 1 - P(u, 4.15, 4.6); if (fade <= 0) return;
-  k.save(); k.globalAlpha = fade; k.lineCap = 'round';
-  const gl = eOut(P(u, 0.2, 0.6));
-  if (gl > 0) { k.strokeStyle = C.navy3; k.lineWidth = 3; k.beginPath(); k.moveTo(270 - 120 * gl, 170); k.lineTo(270 + 120 * gl, 170); k.stroke(); }
-  TREE_BR.forEach(([a, c, b, lw, s, d]) => {
-    const f = eIOs(P(u, s, s + d)); if (f <= 0) return;
-    k.strokeStyle = '#C8A27A'; k.lineWidth = lw; k.beginPath(); k.moveTo(a[0], a[1]);
-    const N = Math.max(1, Math.ceil(20 * f));
-    for (let i = 1; i <= N; i++) { const t = f * i / N, m = 1 - t; k.lineTo(m * m * a[0] + 2 * m * t * c[0] + t * t * b[0], m * m * a[1] + 2 * m * t * c[1] + t * t * b[1]); }
-    k.stroke();
-  });
-  TREE_LV.forEach(([x, y, rot, rank], i) => {
-    const s = 2.6 + rank * 0.07, q = P(u, s, s + 0.32); if (q <= 0) return;
-    const sc = backOut(q, 1.7);
-    k.save(); k.translate(x, y); k.rotate(rot); k.scale(sc, sc);
-    k.fillStyle = i % 3 ? C.mint : '#8BE8C4';
-    k.beginPath(); k.moveTo(0, 0); k.bezierCurveTo(4, -6, 11, -6, 14, 0); k.bezierCurveTo(11, 6, 4, 6, 0, 0); k.fill();
-    k.restore();
-  });
-  const tq = eOut(P(u, 3.4, 3.8));
-  if (tq > 0) { k.globalAlpha = fade * tq; txt(k, '持续成长', w / 2, 197 - 6 * tq, `700 15px ${JP}`, C.cream, 'center', 'alphabetic'); }
+const RADAR_TGT = Array.from({ length: 7 }, (_, i) => { const a = hash(i * 7 + 1) * TAU, d = 18 + hash(i * 7 + 2) * 70; return [Math.cos(a) * d, Math.sin(a) * d, a]; });
+CELLS[8] = (k, w, h, u) => {
+  k.fillStyle = '#030805'; k.fillRect(0, 0, CW, CH);
+  const cx = 269.5, cy = 104, R = 92, ang = TAU * u / CYC * 2;   // 扫描线每周期 2 圈
+  const fall = a => { const d = ((ang - a) % TAU + TAU * 2) % TAU; return d; };
+  k.save(); k.beginPath(); k.arc(cx, cy, R, 0, TAU); k.clip(); k.fillStyle = '#061810'; k.fillRect(0, 0, CW, CH);
+  for (const [x, y, a] of RADAR_PTS) { const b = Math.exp(-fall(a) * 1.1); k.fillStyle = `rgba(90,255,150,${0.08 + 0.6 * b})`; k.fillRect(cx + x, cy + y, 2.2, 2.2); }
+  for (const [x, y, a] of RADAR_TGT) { const b = Math.exp(-fall(a) * 0.8); glow(k, cx + x, cy + y, 8, '140,255,180', b * 0.9); k.fillStyle = `rgba(200,255,220,${0.2 + b})`; k.fillRect(cx + x - 1.5, cy + y - 1.5, 3, 3); }
+  k.globalCompositeOperation = 'lighter';
+  for (let q = 0; q < 40; q++) { const a0 = ang - q * 0.018; k.fillStyle = `rgba(60,255,130,${0.25 * Math.pow(1 - q / 40, 2)})`; k.beginPath(); k.moveTo(cx, cy); k.arc(cx, cy, R, a0 - 0.018, a0); k.closePath(); k.fill(); }
   k.restore();
+  k.strokeStyle = 'rgba(100,230,150,.4)'; k.lineWidth = 0.8;
+  for (let i = 1; i <= 4; i++) { k.beginPath(); k.arc(cx, cy, R * i / 4, 0, TAU); k.stroke(); }
+  for (let i = 0; i < 360; i += 10) { const a = i / 180 * Math.PI, l = i % 30 ? 3 : 6; k.beginPath(); k.moveTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); k.lineTo(cx + Math.cos(a) * (R + l), cy + Math.sin(a) * (R + l)); k.stroke(); }
+  for (let i = 0; i < 360; i += 90) { const a = (i - 90) / 180 * Math.PI; txt(k, String(i).padStart(3, '0'), cx + Math.cos(a) * (R + 14), cy + Math.sin(a) * (R + 14), `500 7px ${MONO}`, 'rgba(120,240,160,.7)', 'center', 'middle'); }
+  grain(k, 0.06);
 };

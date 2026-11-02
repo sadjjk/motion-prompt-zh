@@ -1,7 +1,7 @@
 // Motion Prompt #1-008 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#056
 //
 // トースト / Toast notification
-// パック: ui (UIパーツの名前) · element 08 · カテゴリ: 開く・重なるパーツ
+// 分類: UI・Web / コンポーネント / 開く・重なる
 // 何が起きるか: 「保存」を押すと右下に黒い通知が右から滑り込み、残り時間の線が縮みきると右へ消える。
 // 動きの仕様:
 //   - 4.5秒周期・カード542×191。左下の青い「保存」ボタン（110×36）をカーソルが1.0秒にクリックし、左下へ去る
@@ -12,11 +12,11 @@
 // 使いどころ: 保存・送信などの結果を、作業を止めずに短く知らせたいとき。
 // タグ: toast, snackbar, notification, alert, message, auto-dismiss
 // サイズ: 542x191 px · 1周: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-008
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 08
 // 08 トースト（Toast notification）

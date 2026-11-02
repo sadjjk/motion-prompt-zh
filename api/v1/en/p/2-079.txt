@@ -1,15 +1,15 @@
-Please use "Liquid fill" (リキッドフィル), one of the names in "Motion graphics moves, part 2".
+Please use "Fingerprint scan" (指紋スキャン), filed under "Shapes & objects / Information & tech".
 Motion Prompt #2-079
 
-What it is: Outlined text fills with liquid from the bottom
-What the sample shows: Mint-outlined hollow text fills from the bottom with a wavy surface and rising bubbles, holds full, then drains quickly; a percentage shows below.
+What it is: A fingerprint is read and access is granted
+What the sample shows: In a rounded sensor box fingerprint arcs draw from the inside out, a green light bar sweeps down and back, the ridges dim, a check mark draws and the frame glows green.
 Spec:
-- 132 px text outlined in mint at 3 px; the liquid is clipped to the letter shapes.
-- The level rises over 0.3–3.3 s (quadratic ease-in-out) and drops back over 4.2–4.6 s.
-- The surface is two sine waves with height 6 px·sin(π·level) (flat when empty or full), flowing on a 1.57 s period.
-- 10 bubbles rise through the liquid; a 0–100% readout sits below.
-When to use it: Use it for progress, charging, hitting a goal, or a drinks brand headline.
+- 7 elliptical arcs (radii growing 6.2/6.6 px each) draw inside a 112 px rounded box, from 0.3 s, 0.08 s apart, 0.7 s each.
+- A light bar sweeps down over 1.25–2.05 s and back up over 2.05–2.85 s (sine ease-in-out both ways).
+- From 2.95 s the ridges dim to 0.3; over 3.0–3.3 s a check mark (7 px) draws with a cubic ease-out and the frame glows mint.
+- The caption changes from “touch the sensor” to “scanning” to “verified”; over 4.2–4.6 s it returns to the start.
+When to use it: Use it for login, payment, identity checks or showing security features.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-079.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

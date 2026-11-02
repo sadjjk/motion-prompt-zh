@@ -1,35 +1,43 @@
-// Motion Prompt #3-069 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/soft-focus
+// Motion Prompt #3-069 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#109
 //
-// ソフトフォーカス / Soft focus
-// パック: photo (写真の表現・光と画風) · element 33 · カテゴリ: レンズ・カメラの効果
-// 何が起きるか: 場面全体のぼかした写しが明るく重なり、太陽と人物の光る縁がにじむ。暗部が少し浮くが、山・木・人物の輪郭ははっきりしたまま。
+// レンズフレア / Lens flare
+// 分類: 編集・撮影 / レンズ効果・仕上げ / レンズ効果
+// 何が起きるか: 太陽が建物の陰から空へ出ると、太陽に光の筋が出て、太陽から画面の中心をはさんだ反対側まで、光の玉と六角形と輪が一列に並ぶ。
 // 動きの仕様:
-//   - 場面: 太陽 (432, 54) のある風景と、胸から上の人物（頭の中心 x140, y82・半径28px）
-//   - にじみ: 場面の写しを 7px ぼかし、明るさ 1.12 倍にして、不透明度 0.6 のスクリーンで重ねる
-//   - コントラスト: 白を不透明度 0.1 で薄く重ねて暗部を持ち上げる。元の絵が下に残るので輪郭はぼけない
-//   - 右上に「SOFT n%」
-//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
-// 使いどころ: ポートレート・ウェディング・思い出の場面で、柔らかく夢のような雰囲気にしたいとき。
-// タグ: soft focus, diffusion, glow, dreamy, low contrast, lens
+//   - 場面②: 街角。奥に建物の列・木・街灯（x114, 292, 494）、道は y132〜162、人物は左手前（足元 x176, y200・身長124px）。
+//   - 太陽: 半径13px、建物の陰（x428, y74）→ 空（x474, y30）
+//   - 光の筋: 8本、太陽の中心から17pxの所から26px・44pxの所まで交互（長さ9px・27px、アンバー 1.6px・75%）
+//   - 光の玉: 太陽から中心を通る線の上、t = 0.45・0.8・1.15・1.45・1.75・2.0（t=1 が画面の中心）に、円 半径7px・六角形13px・円5px・六角形22px・円9px・輪30px（幅3px）
+//   - 色はアンバー #FFC75A と #FFE3A3、不透明度 40〜70% × 効果の量
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、3次のイーズインアウト（cubic-bezier(0.65,0,0.35,1) 相当））
+// 使いどころ: 太陽や照明のまぶしさ、夏の日差し、映画のような光を足したいとき。
+// タグ: lens flare, flare, ghosting, sun flare, starburst, cinematic
 // サイズ: 539x208 px · 1周: 5 s
-// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-069
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 33
-// 柔焦（ソフトフォーカス）: 画面全体のぼかした写しを明るくしてスクリーンで重ねる。太陽と人物の光る縁がにじみ、
-// 全体のコントラストが下がって暗部が浮くが、山・木・人物の輪郭は元の絵が残るのでくっきりしたまま
-CELLS[32] = cell((k, u) => {
-  const a = env(u);
-  stageLand(k, BASE);
-  if (a < 0.002) { hud(k, 'SOFT 0%'); return; }
-  const [S, ks] = layer('soft'); stageLand(ks, BASE);
-  const [B, kb] = layer('soft-b'); kb.filter = 'blur(7px) brightness(1.12)'; kb.drawImage(S, 0, 0); kb.filter = 'none';
-  k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.6 * a; k.drawImage(B, 0, 0);
-  // 暗部が浮く: ごく薄い白を重ねてコントラストを下げる
-  k.globalCompositeOperation = 'source-over'; k.globalAlpha = 0.1 * a; k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+// @element 13
+// レンズフレア: 建物の陰から太陽が出ると、画面の中心をはさんで反対側へ光の玉が並ぶ
+CELLS[12] = cell((k, u) => {
+  const a = env(u), sx = lerp(428, 474, a), sy = lerp(74, 30, a);
+  stageStreet(k, BASE, { sun: [sx, sy, 13, 1] });
+  const cx = CW / 2, cy = CH / 2, dx = cx - sx, dy = cy - sy;
+  k.save();
+  // 太陽の光の筋
+  k.globalAlpha = 0.75 * a; k.strokeStyle = BASE.lit; k.lineWidth = 1.6; k.lineCap = 'round';
+  for (let i = 0; i < 8; i++) { const t = i / 8 * TAU + 0.2, L = i % 2 ? 26 : 44; k.beginPath(); k.moveTo(sx + Math.cos(t) * 17, sy + Math.sin(t) * 17); k.lineTo(sx + Math.cos(t) * L, sy + Math.sin(t) * L); k.stroke(); }
+  // 光の玉: 太陽から中心を通る線の上（t = 0.45〜2.0）
+  const G = [[0.45, 7, 'c', 0.6], [0.8, 13, 'h', 0.55], [1.15, 5, 'c', 0.7], [1.45, 22, 'h', 0.4], [1.75, 9, 'c', 0.55], [2.0, 30, 'r', 0.55]];
+  for (const [t, r, kind, al] of G) {
+    const x = sx + dx * t, y = sy + dy * t;
+    k.globalAlpha = al * a;
+    if (kind === 'r') { k.strokeStyle = BASE.lit; k.lineWidth = 3; k.beginPath(); k.arc(x, y, r, 0, TAU); k.stroke(); continue; }
+    k.fillStyle = kind === 'h' ? BASE.glow : BASE.lit; k.beginPath();
+    if (kind === 'h') for (let i = 0; i < 6; i++) { const t2 = i / 6 * TAU; k.lineTo(x + Math.cos(t2) * r, y + Math.sin(t2) * r); } else k.arc(x, y, r, 0, TAU);
+    k.closePath(); k.fill();
+  }
   k.restore();
-  hud(k, `SOFT ${Math.round(a * 100)}%`);
 });

@@ -1,16 +1,15 @@
-Please use "Fade-in on scroll" (スクロールでフェードイン), one of the names in "Landing page & web effects".
+Please use "Pagination" (ページネーション), filed under "Components / Choosing & input".
 Motion Prompt #1-026
 
-What it is: Elements fade in as they scroll into view
-What the sample shows: As the page scrolls, the heading, the cards and the body text each rise into place and fade in when they enter the view.
+What it is: Numbered buttons that move between pages
+What the sample shows: Clicking 2 and then 3 in the page numbers moves the blue circle and swaps the list above; finally it goes back to 1.
 Spec:
-- Scroll: 0→95 px at 0.35–1.0 s, 95→200 px at 1.5–2.1 s, 200→0 at 3.2–4.4 s (all cubic ease-in-out).
-- Trigger line at 85% of the viewport height (143 px from the top). An element fires when its top edge passes above it (the Intersection Observer idea).
-- After firing, over 0.7 s: opacity 0→1 and offset 28 px below → 0 (cubic ease-out).
-- Three elements: the heading (172 px down the page), a row of three cards (206 px) and body text (334 px), all below the view at first. The cards in the row appear together.
-- When an element leaves the bottom of the view on the way back up, it is reset out of sight and plays again next time.
-When to use it: Use it on a long landing page to bring content in piece by piece as the reader scrolls.
+- 4.5 s cycle on a 542×191 card. "‹ 1 2 3 4 5 ›" centred, each 36 in diameter with 8 px gaps, at y 160. A blue circle (radius 18) marks the current page, with white text.
+- The cursor clicks 2 at 1.0 s, 3 at 2.1 s and 1 at 3.3 s.
+- The blue circle moves 44 px per page over 0.2 s each with easeInOutCubic (88 px at once from 3 back to 1).
+- The three-row list above dips in opacity 1 → 0 → 1 within 0.2 s either side of 1.05, 2.15 and 3.35 s, and its content changes at the dip.
+When to use it: Use it to split a long list, such as search results or articles, into numbered pages.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-026.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

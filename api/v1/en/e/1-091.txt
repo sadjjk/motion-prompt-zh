@@ -1,81 +1,78 @@
 // Motion Prompt #1-091 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
 //
-// Rolling digits / 桁ごとに回る数字
-// Pack: uxmotion (Interaction & data motion) · element 31 · Category: Progress feedback
-// What happens: Each update of a large live-visitor number rolls only the changed digits with a slight overshoot, while the trend line beside it shifts one step left.
+// Grid-beam background / グリッドビーム背景
+// Category: UI & Web / Pages / Hero backgrounds
+// What happens: Coloured beams with fading tails streak across a faint dark grid, and the grid lights up indigo only around the pointer.
 // Motion spec:
-//   - Only changed digits roll, each for 0.9 s with cubic-bezier(.3,1.25,.5,1) overshoot, staggered 45 ms from left to right.
-//   - 46 px digits roll upward when the value rises and downward when it falls; the top and bottom 14% fade out.
-//   - In the demo the value changes at 1.0, 2.4, 3.8 and 5.2 s: 12,486 → 12,531 → 12,529 → 12,407.
-//   - A 24-point trend line shifts one step left in 0.6 s on each update; a red dot pulses every 1.6 s.
-// When to use it: Use it for frequently changing numbers such as dashboard KPIs, live visitors, sales or prices.
-// Tags: odometer, counter, rolling-digits, dashboard, kpi, realtime
+//   - A dark #07080F background with a 34 px grid (white at 7% opacity), faded at the edges by a central elliptical mask.
+//   - 8 beam lanes run along the grid lines horizontally and vertically, 2 or 3 passes per cycle; tails fade over 50–90 px with a 1.8 px bright head.
+//   - Beams come in 3 colours: 129,140,248 / 45,212,191 / 244,114,182.
+//   - The grid within a 90 px radius of the pointer glows indigo (129,140,248 at .55 opacity).
+// When to use it: Use it as the hero background for developer tools, cloud services and AI products.
+// Tags: grid, beams, hero, background, dark, saas, cursor-glow
 // Size: 539x208 px · Cycle: 6.4 s
-// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-091
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 31
-// 31 数字逐位滚动：「实时访客」大数字，每次变化只有变了的位单独滚动（每位 .9 秒 cubic-bezier(.3,1.25,.5,1)，从左到右每位延迟 45ms），
-// 不变的位保持不动；1.0 / 2.4 / 3.8 秒依次变为 12,486 → 12,531 → 12,529 → 回到 12,407（周期末与开头一致）；
-// 下方 24 点走势线随每次更新向左推进一格并在末端画出新点，「较一小时前」增幅徽标同步更新；红点每 1.6 秒呼吸一次
-const ODO_VALS = [12407, 12486, 12531, 12529];
-const ODO_T = [1.0, 2.4, 3.8, 5.2];                   // 第 i 次更新时刻：第 4 次回到初始值 12,407
-const ODO_bez = UXA_bz(.3, 1.25, .5, 1);
-const ODO_SERIES = (() => { let s = 3, v = 12100; const out = []; for (let i = 0; i < 27; i++) { s = (s * 9301 + 49297) % 233280; v += (s / 233280 - 0.45) * 90; out.push(v); } return out; })();
-const ODO_fmt = n => n.toLocaleString('en-US');
-CELLS[30] = (k, w, h, u) => {
-  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
-  card(k, 12, 10, CW - 24, CH - 20, 22);
-  // 当前与上一个值
-  let idx = 0; for (let i = 0; i < ODO_T.length; i++) if (u >= ODO_T[i]) idx = i + 1;
-  const cur = ODO_VALS[idx % ODO_VALS.length], prev = ODO_VALS[(idx + ODO_VALS.length - 1) % ODO_VALS.length];
-  const tch = idx ? ODO_T[idx - 1] : -9;
-  // 标题行与呼吸红点（1.6 秒一次，每周期 4 次）
-  const lp = (u % 1.6) / 1.6;
-  k.fillStyle = `rgba(217,58,85,${0.5 * (1 - lp)})`; k.beginPath(); k.arc(36, 36, 4 + 8 * lp, 0, TAU); k.fill();
-  k.fillStyle = UX.danger; k.beginPath(); k.arc(36, 36, 4, 0, TAU); k.fill();
-  txt(k, '实时访客', 48, 40, `750 12px ${SANS}`, UX.ink2);
-  // 大数字：逐位比较，只有变了的位滚动
-  const s0 = ODO_fmt(prev), s1 = ODO_fmt(cur), DH = 52, X0 = 30, Y0 = 62;
-  k.font = `850 46px ${SANS}`; const cw = k.measureText('0').width;
-  k.save(); k.beginPath(); k.rect(X0 - 4, Y0, 260, DH); k.clip();
-  let x = X0, di = 0;
-  for (let i = 0; i < s1.length; i++) {
-    const c1 = s1[i], c0 = s0[i] || c1;
-    if (c1 === ',') { txt(k, ',', x, Y0 + 40, `850 46px ${SANS}`, UX.ink); x += cw * 0.45; continue; }
-    const changed = c1 !== c0, t = changed ? clamp((u - tch - di * 0.045) / 0.9) : 1, e = changed ? ODO_bez(t) : 1;
-    // 新值大于旧值时数字从下往上滚，反之从上往下
-    const dir = cur > prev ? 1 : -1;
-    if (changed && e < 1) txt(k, c0, x, Y0 + 40 - dir * DH * e, `850 46px ${SANS}`, UX.ink);
-    txt(k, c1, x, Y0 + 40 + dir * DH * (1 - e), `850 46px ${SANS}`, UX.ink);
-    x += cw; di++;
-  }
-  k.restore();
-  // 渐隐遮罩（上下 14%）
-  const fm = k.createLinearGradient(0, Y0, 0, Y0 + DH);
-  fm.addColorStop(0, UX.surface); fm.addColorStop(0.14, 'rgba(255,255,255,0)'); fm.addColorStop(0.86, 'rgba(255,255,255,0)'); fm.addColorStop(1, UX.surface);
-  k.fillStyle = fm; k.fillRect(X0 - 4, Y0, 260, DH);
-  // 增幅徽标
-  const diff = cur - 12090, up = diff >= 0;
-  k.fillStyle = up ? 'rgba(17,156,114,.12)' : 'rgba(217,58,85,.12)'; rr(k, X0, 126, 74, 20, 10); k.fill();
-  txt(k, `${up ? '▲' : '▼'} ${(Math.abs(diff) / 12090 * 100).toFixed(1)}%`, X0 + 10, 140, `800 10px ${SANS}`, up ? UX.mint : UX.danger);
-  txt(k, '较一小时前', X0 + 84, 140, `600 10px ${SANS}`, UX.ink3);
-  // 右侧走势线：24 个点，每次更新左移一格（.6 秒）
-  const gx = 300, gy = 40, gw = 210, gh = 120, step = gw / 23;
-  const shift = idx + (tch > 0 ? out3(clamp((u - tch) / 0.6)) - 1 : 0);
-  const off = ((shift % 4) + 4) % 4;
-  const pts = []; for (let i = 0; i < 25; i++) pts.push(ODO_SERIES[i + Math.floor(off)] * (1 - (off % 1)) + ODO_SERIES[i + Math.floor(off) + 1] * (off % 1));
-  const mn = 11900, mx = 12700, Y = v => gy + gh - (v - mn) / (mx - mn) * gh;
-  k.save(); k.beginPath(); k.rect(gx, gy - 6, gw, gh + 12); k.clip();
-  const ag = k.createLinearGradient(0, gy, 0, gy + gh); ag.addColorStop(0, 'rgba(106,87,242,.26)'); ag.addColorStop(1, 'rgba(106,87,242,0)');
-  k.beginPath(); pts.forEach((v, i) => { const px = gx + i * step - (off % 1) * step; if (i) k.lineTo(px, Y(v)); else k.moveTo(px, Y(v)); });
-  k.lineTo(gx + gw + step, gy + gh); k.lineTo(gx - step, gy + gh); k.closePath(); k.fillStyle = ag; k.fill();
-  k.beginPath(); pts.forEach((v, i) => { const px = gx + i * step - (off % 1) * step; if (i) k.lineTo(px, Y(v)); else k.moveTo(px, Y(v)); });
-  k.strokeStyle = UX.accent; k.lineWidth = 2; k.lineJoin = 'round'; k.stroke();
-  k.restore();
-  const ly = Y(pts[23]); k.fillStyle = UX.surface; k.beginPath(); k.arc(gx + 23 * step - (off % 1) * step, ly, 4.5, 0, TAU); k.fill();
-  k.strokeStyle = UX.accent; k.lineWidth = 2; k.stroke();
+// @element 15
+// 15 网格光束背景：深色首屏（#07080F）铺 34px 淡网格（白 7%，中心椭圆遮罩），光束沿网格线横竖滑过（三色 129,140,248 / 45,212,191 / 244,114,182，
+// 拖尾 50–90px 渐变、头部 1.8px 亮点，速度约 100–210 px/s）；指针绕 ∞ 字形移动，周围半径 90px 的网格亮成靛蓝（129,140,248 / .55）。光束按每周期 2 或 3 趟排期，循环无缝
+const BEAM_COL = ['129,140,248', '45,212,191', '244,114,182'];
+const BEAM_SLOTS = Array.from({ length: 8 }, (_, s) => ({ v: s % 2 === 1, m: s % 3 === 0 ? 3 : 2, f: s % 2 ? 0.62 + hash(s + 40) * 0.2 : 0.75 + hash(s + 40) * 0.25, off: hash(s + 50), len: 50 + hash(s + 60) * 40 }));
+const BEAM_ptr = u => [270 + 205 * Math.sin(TAU * u / CYC), 104 + 62 * Math.sin(2 * TAU * u / CYC)];
+const BEAM_grid = (g, col) => {
+  g.strokeStyle = col; g.lineWidth = 1; g.beginPath();
+  for (let x = 33; x < CW; x += 34) { g.moveTo(x + 0.5, 0); g.lineTo(x + 0.5, CH); }
+  for (let y = 33; y < CH; y += 34) { g.moveTo(0, y + 0.5); g.lineTo(CW, y + 0.5); }
+  g.stroke();
+};
+CELLS[14] = (k, w, h, u) => {
+  k.drawImage(layer('BEAM_bg', g => {
+    g.fillStyle = '#07080F'; g.fillRect(0, 0, CW, CH);
+    // 淡网格 + 椭圆遮罩（75% × 70%，中心 50% / 45%）
+    const c = document.createElement('canvas'); c.width = CW; c.height = CH; const q = c.getContext('2d');
+    BEAM_grid(q, 'rgba(255,255,255,.07)');
+    q.globalCompositeOperation = 'destination-in'; q.save(); q.translate(CW / 2, CH * 0.45); q.scale(1, 0.7 * CH / (0.75 * CW) * 2.6);
+    const rg = q.createRadialGradient(0, 0, 0, 0, 0, 0.75 * CW / 1.4); rg.addColorStop(0, '#000'); rg.addColorStop(1, 'rgba(0,0,0,0)');
+    q.fillStyle = rg; q.fillRect(-CW, -CW, CW * 2, CW * 2); q.restore();
+    g.drawImage(c, 0, 0);
+  }), 0, 0);
+  // 指针附近的亮网格：三层同心裁剪近似 90px 径向遮罩
+  const [mx, my] = BEAM_ptr(u), lit = layer('BEAM_lit', g => BEAM_grid(g, 'rgba(129,140,248,.55)'));
+  [[90, 0.3], [62, 0.35], [34, 0.45]].forEach(([r, a]) => { k.save(); k.beginPath(); k.arc(mx, my, r, 0, TAU); k.clip(); k.globalAlpha = a; k.drawImage(lit, 0, 0); k.restore(); });
+  // 光束
+  k.lineCap = 'butt';
+  BEAM_SLOTS.forEach((b, s) => {
+    const P = CYC / b.m, ph = u / P + b.off, n = Math.floor(ph), fr = ph - n, kk = ((n % b.m) + b.m) % b.m;
+    const pr = fr / b.f; if (pr >= 1) return;
+    const dim = b.v ? CH : CW, sd = s * 31 + kk * 7, dir = hash(sd + 1) < 0.5 ? 1 : -1;
+    const line = (1 + Math.floor(hash(sd + 2) * (Math.floor(dim === CH ? CW / 34 : CH / 34) - 1))) * 34 - 1;
+    const col = BEAM_COL[Math.floor(hash(sd + 3) * 3)], p = dir > 0 ? -60 + pr * (dim + 120) : dim + 60 - pr * (dim + 120);
+    const x0 = b.v ? line : p - dir * b.len, y0 = b.v ? p - dir * b.len : line, x1 = b.v ? line : p, y1 = b.v ? p : line;
+    const g = k.createLinearGradient(x0, y0, x1, y1); g.addColorStop(0, `rgba(${col},0)`); g.addColorStop(1, `rgba(${col},.95)`);
+    k.strokeStyle = g; k.lineWidth = 1.6; k.beginPath(); k.moveTo(x0 + 0.5, y0 + 0.5); k.lineTo(x1 + 0.5, y1 + 0.5); k.stroke();
+    glow(k, x1 + 0.5, y1 + 0.5, 8, col, 0.6);
+    k.fillStyle = `rgb(${col})`; k.beginPath(); k.arc(x1 + 0.5, y1 + 0.5, 1.8, 0, TAU); k.fill();
+  });
+  // 中央光晕与文案
+  k.drawImage(layer('BEAM_fg', g => {
+    g.save(); g.translate(CW / 2, 92); g.scale(1.6, 0.8);
+    const rg = g.createRadialGradient(0, 0, 0, 0, 0, 120); rg.addColorStop(0, 'rgba(99,102,241,.35)'); rg.addColorStop(1, 'rgba(99,102,241,0)');
+    g.fillStyle = rg; g.fillRect(-140, -140, 280, 280); g.restore();
+    g.fillStyle = 'rgba(255,255,255,.06)'; rr(g, CW / 2 - 34, 30, 68, 20, 10); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 1; rr(g, CW / 2 - 33.5, 30.5, 67, 19, 10); g.stroke();
+    txt(g, '基础设施', CW / 2, 40.5, `800 10px ${SANS}`, '#A5B4FC', 'center', 'middle');
+    const hg = g.createLinearGradient(0, 64, 0, 100); hg.addColorStop(0, '#FFFFFF'); hg.addColorStop(1, '#AEB4D6');
+    g.letterSpacing = '-1px'; txt(g, '部署时间只要十分之一', CW / 2, 96, `900 30px ${SANS}`, hg, 'center'); g.letterSpacing = '0px';
+    txt(g, '推送一下，几秒内全球上线。', CW / 2, 124, `600 12px ${SANS}`, '#9AA0C3', 'center');
+    g.fillStyle = '#FFFFFF'; rr(g, CW / 2 - 92, 142, 88, 30, 15); g.fill();
+    txt(g, '立即部署', CW / 2 - 48, 157.5, `800 11px ${SANS}`, '#07080F', 'center', 'middle');
+    g.fillStyle = 'rgba(255,255,255,.06)'; rr(g, CW / 2 + 4, 142, 88, 30, 15); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,.14)'; rr(g, CW / 2 + 4.5, 142.5, 87, 29, 15); g.stroke();
+    txt(g, '阅读文档', CW / 2 + 48, 157.5, `800 11px ${SANS}`, '#F2F4FF', 'center', 'middle');
+  }), 0, 0);
+  cursor(k, mx, my, 0, false);
 };

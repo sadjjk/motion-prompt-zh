@@ -1,7 +1,7 @@
 // Motion Prompt #3-001 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#025
 //
 // Pan / パン
-// Pack: camera (Camera moves & transitions) · element 01 · Category: Camera Movement
+// Category: Editing & photography / Camera & editing / Camera movement
 // What happens: The camera stays in place and pivots from left to right; because it is a rotation, near and far layers slide sideways by the same amount.
 // Motion spec:
 //   - Camera: position fixed (height 1.5 m); yaw only, -0.32 rad → +0.32 rad (-18° → +18°, about 37° in total)
@@ -13,11 +13,11 @@
 // When to use it: To reveal a wide location or to shift attention from one side of the scene to the other.
 // Tags: pan, panning, yaw, rotate, horizontal, camera move, reveal
 // Size: 539x208 px · Cycle: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-001
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
 // @element 01
 // 01 パン: 回転なので全ての層が同じだけ横に流れる

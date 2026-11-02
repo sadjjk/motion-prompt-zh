@@ -1,15 +1,15 @@
-Please use "Fair Isle knit" (フェアアイル編み), one of the names in "Styled scenes".
+Please use "Seigaiha waves" (青海波), filed under "Craft & patterns / Geometric patterns".
 Motion Prompt #4-024
 
-What it is: A Fair Isle knit that grows row by row from V-shaped stitches
-What the sample shows: Plump V stitches appear row by row from the bottom, each row running back and forth, building bands of lattice, snowflake and reindeer motifs.
+What it is: A Japanese seigaiha wave pattern on deep indigo with a golden full moon
+What the sample shows: Cream and indigo concentric arcs overlap like scales and slide slowly downward, under a still golden moon at the top right.
 Spec:
-- Each stitch is 2 V-shaped loops, 10 × 8.5 px; 26 rows in total.
-- 4 colours #F2ECE0, #C8322E, #1B2A3A and #E8B44A, repeating 12-row bands of lattice, snowflake and reindeer.
-- Rows are knitted from the bottom up over 0.2–4.6 s, the current row advancing back and forth across the width.
-- Holds until 5.4 s, then fades out over 5.4–6.0 s.
-When to use it: Openers for winter apparel or craft brands, backgrounds for Christmas and year-end campaigns, or seasonal greeting cards.
+- Deep indigo background #0F2447. Each wave is 5 concentric semicircles of radius 22 px, alternating cream #E9E2D0 and indigo.
+- Rows are 11 px apart; odd rows shift by 22 px, and each later row overlaps the one before.
+- The pattern moves down 22 px (1 pattern period) every 6.4 s, looping seamlessly.
+- A gold moon of radius 46 px sits at (410, 64) with a radial gradient #F5D58A → #C9952F.
+When to use it: Openers for Japanese food, ryokan or confectionery brands, backgrounds for Japan-themed sites, or seasonal campaign posters.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-024.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,16 +1,15 @@
-Please use "Neon glow button" (ネオングローボタン), one of the names in "Glow & liquid".
+Please use "Circular text badge" (円形テキストバッジ), filed under "Text & data / Interactive type".
 Motion Prompt #1-180
 
-What it is: A button whose neon outline breathes and fills with strong glow on hover
-What the sample shows: On a dark background, a cyan neon-outlined button pulses gently; when the pointer arrives it fills, the label inverts and a large glow appears, then it returns to breathing when the pointer leaves.
+What it is: A circular text badge that spins and speeds up on hover and click
+What the sample shows: Text on a ring spins slowly, accelerates when the pointer arrives, and jumps faster on each click as new words fade in letter by letter.
 Spec:
-- Button 200 × 56 px, corner radius 28 px, hue 185°; the 2 px outline breathes between 0.6 and 1 opacity.
-- The breath lasts 2.4 s (2 per cycle); the outer glow is 5 rings spreading 6–16 px at 0.25–0.6 opacity, plus an inner glow along the edge.
-- The pointer moves onto the button over 1.3–1.85 s and leaves over 3.5–4.1 s (ease-in-out cubic).
-- The hover state arrives over 1.75–2.1 s (0.35 s): the button fills, the label inverts, the outer glow spreads 30 px at 0.75 opacity and the halo behind grows from 130 to 200 px radius.
-- The hover state fades over 3.75–4.1 s and the button returns to breathing.
-When to use it: Use it for primary sign-up or purchase buttons and for gaming or cyberpunk-style sites where a button must catch the eye.
+- Monospaced letters are set around a ring of radius 84 px and spin at a steady 18°/s.
+- On hover the target speed is 150°/s (closing 6% of the gap per frame); after the pointer leaves it coasts back to 18°/s at 2.5% per frame.
+- Each click adds 120°/s and swaps the text; new letters fade in from 120 ms, staggered 22 ms apart, each over .25 s.
+- The centre button grows to 1.06× on hover and its arrow turns from -45° to upright; a click squeezes it to .78 at 30% of a .6 s bounce.
+When to use it: Use it as a corner badge or CTA on portfolio and brand-site heroes, such as 'Scroll to explore' or 'Open for projects'.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-180.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

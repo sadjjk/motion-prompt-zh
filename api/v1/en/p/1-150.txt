@@ -1,15 +1,15 @@
-Please use "Collapsible sidebar" (折りたたみサイドバー), one of the names in "UI component names".
+Please use "Heart burst like" (ハートがはじける「いいね」), filed under "Feedback / Action feedback".
 Motion Prompt #1-150
 
-What it is: A sidebar that folds down to a strip of icons
-What the sample shows: The cursor clicks the button at the foot of the sidebar; it narrows to its icons as the labels fade, the stat cards and chart on the right widen, and a second click later restores it.
+What it is: A like reaction where the heart pulses and bursts with a ring and confetti dots
+What the sample shows: On click the heart squashes then pops, filling red as a ring and coloured dots burst out; the count rolls from 842 to 843 and back on a second click.
 Spec:
-- An admin layout with a 150-wide sidebar on the left (4 nav items; the current one, "Reports", on a light blue fill).
-- The cursor clicks the collapse button at the bottom at 0.9 s; over 0.95–1.4 s (easeInOut power 3) the sidebar narrows to 52, icons only, and the labels fade out in 0.2 s while shifting 8px left.
-- The 3 stat cards and the line chart on the right widen in step with the sidebar.
-- A second click at 2.9 s widens it back to 150 over 2.95–3.4 s, with labels fading in over 3.2–3.4 s; the button arrow flips 180° with the state.
-When to use it: Use it in admin panels, dashboards or docs with a left nav where the content sometimes needs more room.
+- Clicking runs a 0.7 s beat: 1 → 0.72 → 1.24 → 0.94 → 1, while a red gradient #FF4D6D→#FF8A5B fills from the centre.
+- After a 0.1 s delay a pink ring expands from 0.3× to 1× over 0.6 s, thinning out as it fades.
+- 7 pairs of coloured dots burst outward about 51° apart, flying from 30 px to 62 px while shrinking away.
+- The count rolls up from 842 → 843 in 0.45 s; in the demo a second click at 4.0 s unlikes, the heart returns to an outline and the count rolls down to 842.
+When to use it: Use it on like or favourite buttons in social, community and content apps to give clear tap feedback.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-150.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

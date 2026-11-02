@@ -1,37 +1,44 @@
-// Motion Prompt #2-087 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+// Motion Prompt #2-087 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// Text fan / 文字の扇
-// Pack: motion2 (Motion graphics moves, part 2) · element 48 · Category: Text & shapes
-// What happens: Seven stacked copies of 扇 swing open around a yellow pivot below into a fan, with translucent coral copies either side of the white centre one, then fold shut.
+// Electron orbital / 電子雲
+// Category: Motion graphics / Shapes & objects / Information & tech
+// What happens: A cloud of blue and orange dots in the shape of a 3d orbital turns slowly on a dark background, with a white core glow and an elliptical orbit line.
 // Motion spec:
-//   - 7 copies of one character pivot on a point 112 px below the character centre.
-//   - Over 0.5–1.9 s they open to (i−3)×24° with a cubic ease-in-out and hold until 3.6 s.
-//   - Over 3.6–4.5 s they fold back.
-//   - The centre copy is opaque white; the others are coral, fainter further out (0.7 − 0.12 × distance).
-// When to use it: Use it for Japanese-style or traditional logos and brand reveals.
-// Tags: fan, radial, rotate, copies, japanese, logo
-// Size: 539x208 px · Cycle: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+//   - Probability cloud of a 3d orbital (n = 3, l = 2, m = 0), made of 1600 dots sampled by the squared wavefunction.
+//   - Positive phase is blue rgba(90, 170, 255), negative phase orange rgba(255, 130, 90); dots are 1.3 px.
+//   - The cloud rotates 1 lap around its vertical axis every 6.4 s, tilted 0.5 rad, with additive blending.
+//   - A white glow of radius 12 px at the centre and an elliptical orbit line with semi-axes 120 / 32 px.
+// When to use it: Use it as a hero background for science education or research institutes, an opener for physics or chemistry videos, or a talk transition.
+// Tags: electron-cloud, orbital, quantum, physics, particles, science, tech
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-087
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 48
-// 改写自 KittenJam Motion Library #24（Hannah）· 文字扇：同一个「扇」字 7 份，以字下方 112px 的点为轴，0.5–1.9 秒按 (i−3)×24° 展开成扇形，停留到 3.6 秒，3.6–4.5 秒收拢；中间一份白色不透明，两侧珊瑚色、越外越淡。
-const TFAN_ORD = [0, 6, 1, 5, 2, 4, 3];   // 外侧先画，中间一份压在最上面
-CELLS[47] = (k, w, h, u) => {
-  u = snapU(u);
-  stage(k);
-  const PX = w / 2, PY = 196, R = 112, F = `900 80px ${JP}`;
-  const o = eIO(P(u, 0.5, 1.9)) * (1 - eIO(P(u, 3.6, 4.5)));
-  TFAN_ORD.forEach(i => {
-    const a = (i - 3) * 24 * Math.PI / 180 * o;
-    k.save(); k.translate(PX, PY); k.rotate(a);
-    k.strokeStyle = 'rgba(255,241,214,.16)'; k.lineWidth = 2; k.beginPath(); k.moveTo(0, -8); k.lineTo(0, -R + 42); k.stroke();
-    k.globalAlpha = i === 3 ? 1 : 0.7 - Math.abs(i - 3) * 0.12;
-    txt(k, '扇', 0, -R, F, i === 3 ? '#fff' : C.coral, 'center', 'middle');
-    k.restore();
-  });
-  k.fillStyle = C.yel; k.beginPath(); k.arc(PX, PY, 6, 0, 7); k.fill();
+// @element 13
+// 13 电子云：3d 轨道（n=3, l=2, m=0）的概率云由点阵构成，正负相位分蓝橙两色，整体缓慢旋转
+const ORB = (() => { // 按波函数平方做确定性拒绝采样（常量）
+  const out = [];
+  for (let i = 0; out.length < 1600 && i < 60000; i++) {
+    const x = (hash(i * 4 + 1) - 0.5) * 36, y = (hash(i * 4 + 2) - 0.5) * 36, z = (hash(i * 4 + 3) - 0.5) * 36;
+    const r = Math.hypot(x, y, z), ct = z / (r || 1), psi = r * r * Math.exp(-r / 3) * (3 * ct * ct - 1);
+    if (hash(i * 4 + 4) * 3 < psi * psi / 30) out.push([x, y, z, psi > 0]);
+  }
+  return out;
+})();
+CELLS[12] = (k, w, h, u) => {
+  k.fillStyle = '#05060F'; k.fillRect(0, 0, CW, CH);
+  const a = TAU * u / CYC, b = 0.5, ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);   // 每周期转一圈
+  k.save(); k.globalCompositeOperation = 'lighter';
+  for (const [x, y, z, pos] of ORB) {
+    const x1 = x * ca - y * sa, y1 = x * sa + y * ca, y2 = y1 * cb - z * sb, z2 = y1 * sb + z * cb, s = 90 / (60 + y2);
+    k.fillStyle = pos ? 'rgba(90,170,255,.55)' : 'rgba(255,130,90,.55)'; k.fillRect(269.5 + x1 * s * 2.6, 104 - z2 * s * 2.6, 1.3, 1.3);
+  }
+  k.restore();
+  glow(k, 269.5, 104, 12, '255,255,255', 0.6);
+  k.strokeStyle = 'rgba(180,200,255,.25)'; k.lineWidth = 0.8; k.beginPath(); k.ellipse(269.5, 104, 120, 32, 0, 0, TAU); k.stroke();
+  txt(k, 'ψ₃₂₀ · n = 3  l = 2  m = 0', 400, 190, `500 8px ${MONO}`, 'rgba(190,205,255,.7)');
+  grain(k, 0.05);
 };

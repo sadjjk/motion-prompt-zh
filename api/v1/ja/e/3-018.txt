@@ -1,7 +1,7 @@
 // Motion Prompt #3-018 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#042
 //
 // マッチカット / Match cut
-// パック: camera (カメラワークと切り替え) · element 18 · カテゴリ: 切り替え（トランジション）
+// 分類: 編集・撮影 / カメラ・編集 / 編集・切り替え
 // 何が起きるか: 投げ上げたボールが、次のカットでは同じ位置・同じ大きさの太陽になる。形をそろえて別の場面へつなぐ。
 // 動きの仕様:
 //   - つなぎ方: 2.3秒で直結（0フレーム）。前後で青い円の位置（中心から右120px・上46px）と半径17pxを一致させる
@@ -13,11 +13,11 @@
 // 使いどころ: 時間や場所が大きく離れた2つの場面を、形や動きの共通点で意味を持たせてつなぐとき。
 // タグ: match cut, graphic match, shape match, cut, transition, edit
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-018
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 18
 // 18 マッチカット（投げたボール → 同じ位置・大きさの太陽）

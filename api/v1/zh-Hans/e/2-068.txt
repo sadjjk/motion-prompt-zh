@@ -1,58 +1,57 @@
-// Motion Prompt #2-068 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+// Motion Prompt #2-068 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// 闪电砸落 / Lightning strike
-// 分类包: motion2 (动态图形进阶) · element 29 · 子分类: 文字与图形
-// 动画表现: 画面闪白两次并劈下一道闪电，「雷鸣」从大尺寸砸下、晃动后带着黄色外发光停住。
+// 方块翻转 / Cube flip wave
+// 分类: 动态图形 / 图形与物件 / 物件与机械
+// 动画表现: 深色底上整片立方体沿斜向波浪依次翻滚，顶面在 4 色间轮换，像一块会翻页的屏幕。
 // 运动规格:
-//   - 0.84–1.0 秒文字从 2.4 倍缩到 0.9 倍出现（三次缓入）。
-//   - 1.0–1.12 秒回弹到 1.06 倍并偏移 (−4, 3) px，1.24 秒回到 1 倍、偏移 (3, −2) px，1.36 秒静止。
-//   - 两次闪白：0.86–1.04 秒（峰值 0.85）与 1.04–1.24 秒（峰值 0.55）；6 点折线闪电闪烁着在 1.3 秒前消失。
-//   - 1.24–1.6 秒黄色外发光（3 层描边，宽 30/18/9 px）淡入并保持；落地时椭圆冲击环扩散 0.5 秒。
-//   - 4.0–4.6 秒文字淡出，回到空的暗色初始画面。
-// 适用场景: 适合节目标题、比赛开场或重磅发布的标题。
-// 标签: lightning, slam, impact, flash, title, text
-// 尺寸: 539x208 px · 周期: 4.7 s
-// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+//   - 22 × 6 的立方体阵列，正交轴测视角（偏航 0.42、俯仰 0.62 rad），深色底 #121214
+//   - 斜向波浪依次翻转，每块每 6.4 秒翻 8 次，每次 90°、约 0.4 秒
+//   - 顶面颜色在 4 色 #FF5C40、#F5F0E6、#3C5AE6、#FFC83C 间轮换，每周期循环 2 轮回到原色
+//   - 侧面颜色在当前色与下一色间渐变，并按朝向加暗
+// 适用场景: 适合科技品牌、设计工作室的视频开场，产品发布页首屏，或演示中有节奏感的章节转场。
+// 标签: cubes, isometric, flip, wave, 3d, grid, colorful
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-068
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 29
-// 改写自 KittenJam Motion Library #1（Hannah）· 闪电砸落：两次闪白伴随折线闪电，「雷鸣」从 2.4 倍砸到 0.9 倍、回弹 1.06 倍并微震后停在 1 倍，之后保持黄色外发光；4.0–4.6 秒淡出复位。
-// 外发光用多层描边代替 shadowBlur，放大绘制时光晕比例不变。
-const LSTR_BOLT = [[318, 0], [280, 64], [312, 72], [254, 130], [290, 138], [238, 208]];
-CELLS[28] = (k, w, h, u) => {
-  u = snapU(u);
-  stage(k, '#0A1230');
-  // 闪白两次：0.86–1.04 秒峰值 0.85，1.04–1.24 秒峰值 0.55
-  const fl = u < 0.86 ? 0 : u < 0.9 ? 0.85 * P(u, 0.86, 0.9) : u < 1.04 ? 0.85 * (1 - P(u, 0.9, 1.04)) : u < 1.1 ? 0.55 * P(u, 1.04, 1.1) : 0.55 * (1 - P(u, 1.1, 1.24));
-  let sc = 1, dx = 0, dy = 0, al = 1;
-  if (u < 0.84) al = 0;
-  else if (u < 1.0) { const q = eIn(P(u, 0.84, 1.0)); sc = lerp(2.4, 0.9, q); al = q; }
-  else if (u < 1.12) { const q = P(u, 1.0, 1.12); sc = lerp(0.9, 1.06, q); dx = -4 * q; dy = 3 * q; }
-  else if (u < 1.24) { const q = P(u, 1.12, 1.24); sc = lerp(1.06, 1, q); dx = lerp(-4, 3, q); dy = lerp(3, -2, q); }
-  else if (u < 1.36) { const q = P(u, 1.24, 1.36); dx = 3 * (1 - q); dy = -2 * (1 - q); }
-  al *= 1 - P(u, 4.0, 4.6);
-  const glow = smooth(P(u, 1.24, 1.6));
-  // 落地冲击环
-  const ring = P(u, 1.0, 1.5);
-  if (ring > 0 && ring < 1) { k.save(); k.globalAlpha = 0.6 * (1 - ring); k.strokeStyle = C.yel; k.lineWidth = 3; k.beginPath(); k.ellipse(w / 2, h / 2 + 46, 60 + 200 * eOut(ring), 8 + 18 * eOut(ring), 0, 0, 7); k.stroke(); k.restore(); }
-  if (al > 0) {
-    k.save(); k.translate(w / 2 + dx, h / 2 + 4 + dy); k.scale(sc, sc);
-    k.font = `900 96px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.lineJoin = 'round';
-    if (glow > 0) [[30, 0.1], [18, 0.16], [9, 0.28]].forEach(([lw, a]) => { k.globalAlpha = al * a * glow; k.strokeStyle = C.yel; k.lineWidth = lw; k.strokeText('雷鸣', 0, 0); });
-    k.globalAlpha = al; k.fillStyle = '#fff'; k.fillText('雷鸣', 0, 0);
-    k.restore();
+// @element 26
+// 26 方块翻转：22×6 的立方体阵列被斜向波浪依次翻转，每格每周期翻 8 次（每次 90°、0.4 秒），每翻一次顶面换成下一种颜色，4 色循环两轮回到原色
+const CUBE_COLS = [[255, 92, 64], [245, 240, 230], [60, 90, 230], [255, 200, 60]];
+const CUBE_NI = 22, CUBE_NJ = 6, CUBE_G = 0.6, CUBE_H = 0.26, CUBE_SC = 41;
+const CUBE_CA = Math.cos(0.42), CUBE_SA = Math.sin(0.42), CUBE_CB = Math.cos(0.62), CUBE_SB = Math.sin(0.62);
+// 正交轴测：绕 y 轴偏航 0.42、俯仰 0.62；返回 [屏幕 x 分量, 屏幕 y 分量, 深度]
+const CUBE_R = (x, y, z) => { const x1 = x * CUBE_CA + z * CUBE_SA, z1 = -x * CUBE_SA + z * CUBE_CA; return [x1, y * CUBE_CB + z1 * CUBE_SB, -y * CUBE_SB + z1 * CUBE_CB]; };
+const CUBE_C0 = CUBE_R((CUBE_NI - 1) * CUBE_G / 2, 0, (CUBE_NJ - 1) * CUBE_G / 2);
+const CUBE_ORDER = (() => { const o = []; for (let i = 0; i < CUBE_NI; i++) for (let j = 0; j < CUBE_NJ; j++) o.push([i, j, CUBE_R(i * CUBE_G, 0, j * CUBE_G)[2]]); return o.sort((a, b) => b[2] - a[2]); })();
+// 六个面：[局部法线, 四个角, 颜色偏移]；顶面 = 当前色，前面 = 下一色，底面 = 再下一色（翻 90° 后前面转到顶、底面转到前）
+const CUBE_FACES = [
+  [[0, 1, 0], [[-1, 1, -1], [1, 1, -1], [1, 1, 1], [-1, 1, 1]], 0], [[0, 0, -1], [[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1]], 1],
+  [[0, -1, 0], [[-1, -1, -1], [1, -1, -1], [1, -1, 1], [-1, -1, 1]], 2], [[0, 0, 1], [[-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]], 3],
+  [[1, 0, 0], [[1, -1, -1], [1, 1, -1], [1, 1, 1], [1, -1, 1]], -1], [[-1, 0, 0], [[-1, -1, -1], [-1, 1, -1], [-1, 1, 1], [-1, -1, 1]], -1]];
+CELLS[25] = (k, w, h, u) => {
+  k.fillStyle = '#121214'; k.fillRect(0, 0, CW, CH);
+  for (const [i, j] of CUBE_ORDER) {
+    const ph = 8 * u / CYC - (i * 0.6 + j) * 0.09, kf = Math.floor(ph), f = clamp((ph - kf) * 2), ci = ((kf % 4) + 4) % 4;
+    const ang = inOut3(f) * Math.PI / 2, ca = Math.cos(ang), sa = Math.sin(ang);
+    const cx = i * CUBE_G, cz = j * CUBE_G;
+    for (const [n, pts, off] of CUBE_FACES) {
+      const ny = n[1] * ca - n[2] * sa, nz = n[1] * sa + n[2] * ca, nx = n[0];
+      // 正交视线：深度梯度 (-sa·cb, -sb, ca·cb)，点积为负即朝向相机
+      if (-nx * CUBE_SA * CUBE_CB - ny * CUBE_SB + nz * CUBE_CA * CUBE_CB >= 0) continue;
+      const col = off < 0 ? lerpC(CUBE_COLS[ci], CUBE_COLS[(ci + 1) % 4], f) : CUBE_COLS[(ci + off) % 4];
+      const sh = clamp(0.5 - 0.5 * ny + 0.15 * nz);
+      k.fillStyle = `rgb(${lerpC(col, [0, 0, 0], sh).join()})`; k.beginPath();
+      pts.forEach(([px, py, pz], q) => {
+        const yy = (py * ca - pz * sa) * CUBE_H, zz = (py * sa + pz * ca) * CUBE_H;
+        const r = CUBE_R(cx + px * CUBE_H, yy, cz + zz);
+        const sx = 269.5 + (r[0] - CUBE_C0[0]) * CUBE_SC, sy = 104 - (r[1] - CUBE_C0[1]) * CUBE_SC;
+        q ? k.lineTo(sx, sy) : k.moveTo(sx, sy);
+      });
+      k.closePath(); k.fill();
+    }
   }
-  // 闪电折线：0.86–1.3 秒逐渐变淡并闪烁
-  const ba = u > 0.86 && u < 1.3 ? (1 - P(u, 0.86, 1.3)) * (H01(Math.floor(u * 40)) > 0.3 ? 1 : 0.4) : 0;
-  if (ba > 0) {
-    k.save(); k.lineJoin = 'round'; k.lineCap = 'round';
-    const path = () => { k.beginPath(); LSTR_BOLT.forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); };
-    k.globalAlpha = 0.35 * ba; k.strokeStyle = C.yel; k.lineWidth = 12; path(); k.stroke();
-    k.globalAlpha = ba; k.strokeStyle = '#fff'; k.lineWidth = 3.2; path(); k.stroke();
-    k.restore();
-  }
-  if (fl > 0) { k.fillStyle = `rgba(255,255,255,${0.75 * fl})`; k.fillRect(0, 0, w, h); }
+  grain(k, 0.05);
 };

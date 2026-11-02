@@ -1,7 +1,7 @@
 // Motion Prompt #3-020 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#044
 //
 // クロスディゾルブ / Cross dissolve
-// パック: camera (カメラワークと切り替え) · element 20 · カテゴリ: 切り替え（トランジション）
+// 分類: 編集・撮影 / カメラ・編集 / 編集・切り替え
 // 何が起きるか: 前の絵に次の絵を重ね、不透明度を上げていって入れ替える。途中は2つの絵が透けて重なる。
 // 動きの仕様:
 //   - つなぎ方: 1.5秒から3.0秒までの1.5秒。次の絵の不透明度を 0 → 100%
@@ -13,11 +13,11 @@
 // 使いどころ: 時間の経過や場所の移動を穏やかに伝えるとき、回想へ入るとき。
 // タグ: cross dissolve, dissolve, crossfade, fade, opacity, blend, transition
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-020
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 20
 // 20 クロスディゾルブ

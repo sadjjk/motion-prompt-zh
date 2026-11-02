@@ -1,7 +1,7 @@
 // Motion Prompt #3-015 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#039
 //
 // タイムラプス / Time-lapse
-// パック: camera (カメラワークと切り替え) · element 15 · カテゴリ: 撮り方・時間の演出
+// 分類: 編集・撮影 / カメラ・編集 / 撮り方・時間の演出
 // 何が起きるか: 固定カメラのまま、朝6時から夕方18時までを数秒に縮める。太陽・雲・人・影が早送りで動く。
 // 動きの仕様:
 //   - カメラ: 完全に固定（高さ1.6m、ピッチ +0.08rad＝約5°上向き）
@@ -13,11 +13,11 @@
 // 使いどころ: 長い時間の経過や、街・空・作業の変化を短く見せるとき。
 // タグ: time-lapse, timelapse, fast forward, time compression, sun, clouds, day to night
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-015
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 15
 // 15 タイムラプス: 太陽が動き、雲と人が早送り

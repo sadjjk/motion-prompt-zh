@@ -1,16 +1,16 @@
-Please use "Swipe to delete" (スワイプで削除), one of the names in "UI component names".
+Please use "Memory match" (神経衰弱カード), filed under "Pointer interactions / Tactile & cards".
 Motion Prompt #1-142
 
-What it is: Slide a row left to reveal delete and remove it
-What the sample shows: A finger drags the second row left to uncover a red "Delete" area; on release the row slides out, its height collapses and the rows below move up, then the row returns.
+What it is: A card memory game: flip two, mismatches flip back, matches stay
+What the sample shows: A pointer flips 2 of 8 face-down cards; the pictures differ, so after a pause both flip back. It then flips the 2 matching moons, which turn accent-coloured and bounce, and the progress reads 1/4.
 Spec:
-- A 4-row list, 280 wide with rows 38 high.
-- The finger presses row 2 at 0.8 s and drags it 150px left over 0.8–1.5 s (easeInOut power 3); the red "Delete" area underneath fades in with the distance.
-- Released at 1.5 s, the row slides out past the left edge in 0.3 s (easeIn power 3).
-- Over 1.8–2.1 s the row height collapses from 38 to 0 and the rows below move up.
-- Over 3.7–4.2 s the row grows back to 38 in place and fades in, returning to the start.
-When to use it: Use it in mobile lists such as notifications, mail or to-dos where items are removed quickly.
+- There are 4 × 2 cards of 52 × 64 px; each flip takes 0.4 s, squashing sideways and opening again (inOut3).
+- At 0.9 s and 1.7 s two different cards flip; after a 0.8 s pause both flip back at 2.9 s.
+- At 3.4 s and 4.0 s two matching cards flip, and they match at 4.4 s.
+- Matched cards get an accent outline and bounce to 1.12× within 0.3 s; progress goes 0 / 4 → 1 / 4.
+- A crossfade from 5.4–6.0 s resets it.
+When to use it: Use it for campaign mini games, kids' apps and playable loading screens.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-142.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

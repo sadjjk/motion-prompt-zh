@@ -1,7 +1,7 @@
 // Motion Prompt #2-002 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#002
 //
 // 交错入场 / Stagger
-// 分类包: motion (动态图形基础) · element 02 · 子分类: 入场与文字
+// 分类: 动态图形 / 运动原理 / 入场与缓动
 // 动画表现: 图表的柱条从左到右依次升起，每根略有延迟。
 // 运动规格:
 //   - 每 2.35 秒一轮。七根柱条，宽 44、间隔 20、高度为 52, 84, 68, 112, 92, 136, 158，依次循环使用蓝、珊瑚、黄、薄荷色。
@@ -11,11 +11,11 @@
 // 适用场景: 适合列表行、图表柱条、卡片等成组元素，按顺序引导视线。
 // 标签: stagger, sequence, delay, cascade, bar-chart, list, entrance
 // 尺寸: 539x208 px · 周期: 4.7 s
-// 依赖: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-002
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
 // @element 02
 // 02 スタガー（グラフの棒が、少しずつ時間をずらして順に立ち上がる）

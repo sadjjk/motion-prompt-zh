@@ -1,7 +1,7 @@
 // Motion Prompt #3-016 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#040
 //
 // フリーズフレーム / Freeze frame
-// パック: camera (カメラワークと切り替え) · element 16 · カテゴリ: 撮り方・時間の演出
+// 分類: 編集・撮影 / カメラ・編集 / 撮り方・時間の演出
 // 何が起きるか: 跳び上がった人物が頂点に来た瞬間に映像を止め、1.4秒後に続きから再開する。
 // 動きの仕様:
 //   - カメラ: 完全に固定（高さ1.3m）。止まるのは映像の時間
@@ -13,11 +13,11 @@
 // 使いどころ: 決定的な瞬間を強調するとき、止めた画に名前や説明のテロップを載せるとき。
 // タグ: freeze frame, still frame, pause, hold, stop motion, highlight
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-016
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 16
 // 16 フリーズフレーム

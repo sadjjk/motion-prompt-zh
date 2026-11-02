@@ -1,40 +1,52 @@
-// Motion Prompt #2-033 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#129
+// Motion Prompt #2-033 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// テキストスクランブル / Text scramble
-// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 09 · カテゴリ: 文字・図形の演出
-// 何が起きるか: ランダムな文字が入れ替わり続け、左から順に正しい単語に決まる。
+// 水面の反射 / Water reflection
+// 分類: モーショングラフィックス / 文字アニメーション / 変形・質感
+// 何が起きるか: 夜空の下で白い文字がゆっくり浮き沈みし、水平線の下では珊瑚色の逆さ文字が傾きながら揺れ、横縞状にずれる。
 // 動きの仕様:
-//   - 前半2.35秒は「HELLO」、後半は「WORLD」。5文字の等幅フォント（92px）
-//   - 決まっていない文字: A〜Z（IとOを除く）・0〜9・#$%&@? からランダムに選び、4.7秒に76回（約0.062秒ごと）入れ替える。ミントで不透明度0.75
-//   - 左から順に決まる: i 文字目は 0.45 + 0.18i 秒（最後は1.17秒）。決まった瞬間から0.22秒は黄、その後は白。拡大率 1 + 0.2·e^(−14t) で落ち着く
-//   - 1.85秒から右から順にまたランダムへ戻る（i 文字目は 1.85 + 0.08×(4 − i) 秒）
-//   - 各文字の下に横棒: 決まった文字は青、次に決まる文字は黄、それ以外は紺
-// 使いどころ: 見出し・数字・コードネームの登場に。解読・ハッキング・テック系の雰囲気を出したいとき。
-// タグ: text-scramble, scramble, decode, shuffle, random, text, hacker
+//   - 水平線（y = 118、中央が明るいグラデーションの1px線）の上に白い文字、下に縦反転した珊瑚色の写し
+//   - 写しは2.35秒周期で ±7° の skew と縦0.92〜1.04倍の伸縮、横に ±3px 揺れる
+//   - 写しは線から80pxで透明度0.55から0へ消え、3pxの横帯ごとに ±2.5px ずらして波紋にする
+//   - 上の文字は2.35秒周期で2.5px浮き沈みし、背景の星はゆっくり明滅する
+// 使いどころ: 夜景・湖・静かなブランドのタイトルや、落ち着いたエンディングに。
+// タグ: reflection, water, mirror, ripple, calm, text
 // サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-033
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 09
-// 09 テキストスクランブル（ランダムな文字が入れ替わり続け、左から順に正しい単語に決まる）
-const SCR_GL = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&@?';
-CELLS[8] = (k, w, h, u) => {
+// @element 31
+// 改写自 KittenJam Motion Library #17（Hannah）· 水面倒影：细水平线下是上下颠倒、向下渐隐的珊瑚色倒影，倒影以 2.35 秒周期 ±7° 斜切摇晃、纵向 0.92–1.04 倍伸缩，并按水平条带错位成水纹；上方文字轻微浮动 2.5px。
+const WREF_C = mkCanvas(CW, CH), WREF_G = WREF_C.getContext('2d');
+const WREF_STARS = (() => { const r = rand(3117); return Array.from({ length: 26 }, () => [r() * CW, r() * 90, 0.6 + r() * 1.2, r()]); })();
+CELLS[30] = (k, w, h, u) => {
   u = snapU(u);
-  stage(k);
-  const T = CYC / 2, n = Math.floor(u / T), lu = u - n * T, word = n ? 'WORLD' : 'HELLO', N = 5;
-  const f = `700 92px Menlo, "SF Mono", monospace`; k.font = f;
-  const cw = k.measureText('M').width + 16, x0 = w / 2 - cw * (N - 1) / 2, Y = h / 2 - 8;
-  const step = Math.floor(u / (CYC / 76));
-  for (let i = 0; i < N; i++) {
-    const tl = 0.45 + i * 0.18, tu = 1.85 + (N - 1 - i) * 0.08, locked = lu >= tl && lu < tu;
-    let ch, col, sc = 1;
-    if (locked) { ch = word[i]; const age = lu - tl; col = age < 0.22 ? C.yel : '#fff'; sc = 1 + 0.2 * Math.exp(-age * 14); }
-    else { ch = SCR_GL[Math.floor(H01(step * 131 + i * 977 + n * 31) * SCR_GL.length)]; col = C.mint; }
-    k.save(); k.translate(x0 + i * cw, Y); k.scale(sc, sc); k.globalAlpha = locked ? 1 : 0.75; txt(k, ch, 0, 0, f, col, 'center', 'middle'); k.restore();
-    const next = !locked && lu < tl && (i === 0 || lu >= 0.45 + (i - 1) * 0.18);
-    k.fillStyle = locked ? C.blue : next ? C.yel : C.navy3; rr(k, x0 + i * cw - cw / 2 + 8, Y + 58, cw - 16, 8, 4); k.fill();
+  const LY = 118, S = '静水流深', F = `800 60px ${JP}`;
+  const bg = k.createLinearGradient(0, 0, 0, h); bg.addColorStop(0, '#0A1230'); bg.addColorStop(0.57, '#15245A'); bg.addColorStop(1, '#070D24');
+  k.fillStyle = bg; k.fillRect(0, 0, w, h);
+  WREF_STARS.forEach(([x, y, r, p]) => { k.fillStyle = `rgba(255,255,255,${0.25 + 0.35 * (0.5 + 0.5 * Math.sin(Math.PI * 2 * (u / CYC * 2 + p)))})`; k.fillRect(x, y, r, r); });
+  const ph = Math.PI * 2 * u / 2.35;
+  const bob = -2.5 * (1 - Math.cos(ph)) / 2;
+  // 倒影：先在离屏画倒置文字并做向下渐隐，再按水平条带错位贴回
+  const g = WREF_G; g.save(); g.clearRect(0, 0, CW, CH);
+  const skew = 7 * Math.PI / 180 * Math.sin(ph), sy = 0.98 - 0.06 * Math.sin(ph);
+  g.translate(CW / 2 + 3 * Math.sin(ph), LY + 3); g.transform(1, 0, Math.tan(skew), 1, 0, 0); g.scale(1, -sy);
+  g.font = F; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = C.coral; g.fillText(S, 0, -36);
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'destination-in';
+  const m = g.createLinearGradient(0, LY, 0, LY + 80); m.addColorStop(0, 'rgba(0,0,0,.55)'); m.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = m; g.fillRect(0, 0, CW, CH); g.restore();
+  for (let y = LY; y < h; y += 3) {
+    const dx = 2.5 * Math.sin(y * 0.25 - Math.PI * 2 * u / (CYC / 4));
+    k.drawImage(WREF_C, 0, y, CW, 3, dx, y, CW, 3);
   }
+  // 水纹细线
+  for (let j = 0; j < 5; j++) {
+    const y = LY + 14 + j * 15, x = w / 2 + Math.sin(Math.PI * 2 * u / CYC + j * 1.7) * 60 + (j % 2 ? 80 : -90);
+    k.strokeStyle = `rgba(160,190,255,${0.22 - j * 0.03})`; k.lineWidth = 1; k.beginPath(); k.moveTo(x - 30 - j * 6, y); k.lineTo(x + 30 + j * 6, y); k.stroke();
+  }
+  const lg = k.createLinearGradient(w * 0.15, 0, w * 0.85, 0); lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(0.5, 'rgba(255,255,255,.55)'); lg.addColorStop(1, 'rgba(255,255,255,0)');
+  k.fillStyle = lg; k.fillRect(w * 0.15, LY, w * 0.7, 1);
+  txt(k, S, w / 2, LY - 36 + bob, F, '#fff', 'center', 'middle');
 };

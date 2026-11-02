@@ -1,15 +1,15 @@
-Please use "Spirograph" (スピログラフ), one of the names in "Styled scenes".
+Please use "80s Synthwave / VHS" (80s シンセウェイブ・VHS), filed under "Art movements / Digital & retro".
 Motion Prompt #4-018
 
-What it is: A spirograph where gears roll inside rings and draw floral curves in 3 inks
-What the sample shows: Translucent gears roll around 3 rings on cream paper in turn, their pen tips tracing red, blue and green rosettes that close and hold.
+What it is: 1980s retro-futurism: a neon sunset, a perspective grid and videotape picture quality
+What the sample shows: A striped sun sits behind wireframe mountains, a magenta grid rolls toward camera and palms whip past; a chrome title slams down with a white flash and a neon script flickers on.
 Spec:
-- Cream background #F2EDE3. 3 fixed rings of radius 84 px; the gears roll inside them.
-- Gear radii 32 / 18 / 13 px, pen offsets 25 / 14 / 8 px, inked red #D2452F, blue #1F3B8A and green #2E7D63.
-- The 3 curves start 0.4 s apart and each takes 3.6 s to draw, closing after 8 / 3 / 13 laps.
-- A translucent gear and pen dot show while drawing; the closed curves hold, then fade out over 5.4–6.0 s (6.4 s cycle).
-When to use it: Openers for handmade, stationery or education brands, poster backgrounds, or section breaks in a presentation.
+- Deep purple night sky #060212→#751266 with stars. The striped sun is a 5-stop gradient #fff59e→#ff3d8f; the cut-out bands on its lower half widen downward (up to 58%) and slide down 8 bands per cycle.
+- A magenta #FF29D1 one-point perspective grid with a 2-layer glow rolls 12 squares toward camera per cycle. Palm silhouettes pass on alternating sides every 3.2 s.
+- A VHS PLAY ▶ overlay shows at 0.1–1.15 s. At 1.2 s the chrome title NEON DRIVE slams down from 2.1× (in 0.13 s) with a white flash; a highlight sweeps across at 1.8–2.4 s.
+- At 2.6–3.4 s a neon Midnight lights up left to right, then strobes for 8 frames from 3.4 s. RGB split of ±2.5 px, scanlines every 2 px, and 2-frame tape glitches at 0.37, 2.47 and 4.6 s.
+When to use it: Retro music videos, electronic music and game promos, and openings for nostalgia-themed brand films.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-018.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

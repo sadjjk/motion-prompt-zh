@@ -1,4 +1,4 @@
-Please use "Toast notification" (トースト), one of the names in "UI component names".
+Please use "Toast notification" (トースト), filed under "Components / Opening & overlays".
 Motion Prompt #1-008
 
 What it is: A short message appears in a corner and goes away on its own
@@ -12,5 +12,5 @@ Spec:
 When to use it: Use it to confirm a result such as a save or send without interrupting the user.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-008.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

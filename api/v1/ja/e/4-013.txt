@@ -1,44 +1,46 @@
 // Motion Prompt #4-013 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// 電子雲 / Electron orbital
-// パック: scenes (スタイルシーン) · element 13 · カテゴリ: テックのムード
-// 何が起きるか: 暗い背景に、青と橙の点でできた 3d 軌道の雲がゆっくり回り、中心に白い光、周りに楕円の軌跡線がある。
+// メンフィス / Memphis
+// 分類: ビジュアルスタイル / 芸術の流派 / モダン・ポストモダン
+// 何が起きるか: ピーチ色の地に、円・三角・波線・ドット・帯がばらばらに上下に弾み、それぞれの向きで回る。
 // 動きの仕様:
-//   - 3d 軌道（n = 3、l = 2、m = 0）の確率雲、波動関数の確率密度で選んだ 1600 個の点
-//   - 正の位相は青 rgba(90, 170, 255)、負の位相は橙 rgba(255, 130, 90)、点の大きさ 1.3 px
-//   - 点群は 6.4 秒で縦軸まわりに 1 回転、傾き 0.5 rad、加算合成で重ねる
-//   - 中心に半径 12 px の白い光暈、外側に半軸 120 / 32 px の楕円の軌跡線
-// 使いどころ: 科学教育・研究機関の首画面背景や、物理・化学をテーマにした動画のオープニング、発表の幕間に。
-// タグ: electron-cloud, orbital, quantum, physics, particles, science, tech
+//   - パステル地 #FDE3D6 に 36 個の図形、9 列 × 4 行の揺らしたグリッドに配置、大きさ 18〜48 px
+//   - 形は 5 種（円・三角・波線・4 × 4 のドット・帯）、色は 5 色
+//   - 各図形は振幅 5 px で上下に弾み、6.4 秒に 2 回または 3 回
+//   - 同時に回転し、6.4 秒あたり -1、0、1 周のいずれか
+// 使いどころ: ポップなブランドやイベントの首画面背景、子ども向け・若者向け動画のオープニング、SNS 用カバーに。
+// タグ: memphis, geometric, pastel, playful, shapes, 80s, pattern
 // サイズ: 539x208 px · 1周: 6.4 s
-// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-013
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 13
-// 13 电子云：3d 轨道（n=3, l=2, m=0）的概率云由点阵构成，正负相位分蓝橙两色，整体缓慢旋转
-const ORB = (() => { // 按波函数平方做确定性拒绝采样（常量）
-  const out = [];
-  for (let i = 0; out.length < 1600 && i < 60000; i++) {
-    const x = (hash(i * 4 + 1) - 0.5) * 36, y = (hash(i * 4 + 2) - 0.5) * 36, z = (hash(i * 4 + 3) - 0.5) * 36;
-    const r = Math.hypot(x, y, z), ct = z / (r || 1), psi = r * r * Math.exp(-r / 3) * (3 * ct * ct - 1);
-    if (hash(i * 4 + 4) * 3 < psi * psi / 30) out.push([x, y, z, psi > 0]);
-  }
-  return out;
-})();
-CELLS[12] = (k, w, h, u) => {
-  k.fillStyle = '#05060F'; k.fillRect(0, 0, CW, CH);
-  const a = TAU * u / CYC, b = 0.5, ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);   // 每周期转一圈
-  k.save(); k.globalCompositeOperation = 'lighter';
-  for (const [x, y, z, pos] of ORB) {
-    const x1 = x * ca - y * sa, y1 = x * sa + y * ca, y2 = y1 * cb - z * sb, z2 = y1 * sb + z * cb, s = 90 / (60 + y2);
-    k.fillStyle = pos ? 'rgba(90,170,255,.55)' : 'rgba(255,130,90,.55)'; k.fillRect(269.5 + x1 * s * 2.6, 104 - z2 * s * 2.6, 1.3, 1.3);
-  }
-  k.restore();
-  glow(k, 269.5, 104, 12, '255,255,255', 0.6);
-  k.strokeStyle = 'rgba(180,200,255,.25)'; k.lineWidth = 0.8; k.beginPath(); k.ellipse(269.5, 104, 120, 32, 0, 0, TAU); k.stroke();
-  txt(k, 'ψ₃₂₀ · n = 3  l = 2  m = 0', 400, 190, `500 8px ${MONO}`, 'rgba(190,205,255,.7)');
-  grain(k, 0.05);
+// @element 15
+// 15 孟菲斯：粉彩底上 36 个圆、三角、波浪线、点阵和条块各自上下弹跳（每周期 2 或 3 次）并旋转（每周期 -1/0/+1 圈）
+const MEM_COLS = ['#1A1A1A', '#FF5C8A', '#2EC4B6', '#FFC93C', '#5B5BF0'];
+const MEM_SHAPES = Array.from({ length: 36 }, (_, i) => {   // 9 列 × 4 行抖动网格铺满卡片
+  const c = i % 9, r = Math.floor(i / 9), q = j => hash(i * 7 + j);
+  return { x: 30 + c * 60 + (q(1) - 0.5) * 34, y: 26 + r * 52 + (q(2) - 0.5) * 26, s: 18 + q(3) * 30,
+    col: MEM_COLS[Math.floor(q(4) * 5)], ty: Math.floor(q(5) * 5), rot: q(6) * 6,
+    spin: Math.round((q(7) - 0.5) * 2.4), bob: 2 + (i % 2) };
+});
+CELLS[14] = (k, w, h, u) => {
+  k.fillStyle = '#FDE3D6'; k.fillRect(0, 0, CW, CH);
+  const ph = TAU * u / CYC;
+  k.lineCap = 'round';
+  MEM_SHAPES.forEach((m, i) => {
+    const s = m.s;
+    k.save(); k.translate(m.x, m.y + Math.sin(ph * m.bob + i) * 5);   // 弹跳振幅 5px
+    k.rotate(m.rot + m.spin * ph);
+    k.fillStyle = m.col; k.strokeStyle = m.col; k.lineWidth = 3;
+    if (m.ty === 0) { k.beginPath(); k.arc(0, 0, s * 0.5, 0, TAU); k.fill(); }
+    else if (m.ty === 1) { k.beginPath(); k.moveTo(0, -s * 0.5); k.lineTo(s * 0.5, s * 0.45); k.lineTo(-s * 0.5, s * 0.45); k.fill(); }
+    else if (m.ty === 2) { k.beginPath(); for (let j = 0; j <= 30; j++) k.lineTo(-s + j / 30 * s * 2, Math.sin(j / 30 * 12) * s * 0.18); k.stroke(); }
+    else if (m.ty === 3) { k.beginPath(); for (let a = 0; a < 4; a++) for (let b = 0; b < 4; b++) { k.moveTo(a * 6 - 9 + 1.6, b * 6 - 9); k.arc(a * 6 - 9, b * 6 - 9, 1.6, 0, TAU); } k.fill(); }
+    else { k.fillRect(-s * 0.5, -s * 0.12, s, s * 0.24); k.fillStyle = '#1A1A1A'; k.fillRect(-s * 0.5, s * 0.12, s, 2); }
+    k.restore();
+  });
+  grain(k, 0.06, 'multiply');
 };

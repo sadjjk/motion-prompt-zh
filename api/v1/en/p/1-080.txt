@@ -1,15 +1,16 @@
-Please use "Particles that form words" (粒子が文字になる), one of the names in "Interaction & data motion".
+Please use "Lazy loading" (遅延読み込み), filed under "Pages / Page transitions & loading".
 Motion Prompt #1-080
 
-What it is: A hero background where hundreds of glowing particles gather into a word and scatter when touched
-What the sample shows: On a dark violet background, glowing dots form HELLO, part around the passing pointer, and burst apart on each click to re-form as NICE, then LUCIAN.
+What it is: Images load only when they come into view
+What the sample shows: As grey placeholders scroll into view, a spinner turns in each, and the images fade in as they arrive. The top row is loaded from the start.
 Spec:
-- 720 particles spring (stiffness 38, damping 7.5) into a 5 × 7 dot-matrix font, 3 × 3 dots per cell at 4 px spacing; spare particles scatter on an outer ring at 0.18 opacity.
-- The pointer pushes away particles within 60 px, displacing them by up to 26 px.
-- In the demo, a click at 1.8 s switches to NICE, 3.6 s to LUCIAN, and 5.4 s back to HELLO; each switch gives every particle a random kick of ±130 px/s.
-- Additive blending; hues span 250–330, and faster particles shift hue by up to 60 and brighten from 68% to 88% lightness.
-When to use it: Use it in the hero of a product launch or event landing page to make a brand name or tagline memorable.
+- A 3 × 3 grid of 151 × 92 placeholders; the first row is shown from the start. Scroll: 0→110 px at 0.35–1.1 s, 110→225 px at 1.7–2.5 s, 225→0 at 3.5–4.5 s (cubic ease-in-out).
+- Loading starts when a placeholder's top edge passes above the bottom of the viewport (168 px), with each column 0.12 s later than the one to its left.
+- For 0.45 s a spinner (radius 11, one turn per 0.8 s) turns in the placeholder's centre.
+- Then the image fades in 0→1 over 0.35 s (cubic ease-out). Unloaded placeholders show an image icon.
+- Placeholders that leave the bottom of the view are reset out of sight.
+When to use it: Use it on image-heavy pages to make the first view load faster.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-080.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,35 +1,33 @@
-// Motion Prompt #1-022 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#070
+// Motion Prompt #1-022 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#060
 //
-// 加载旋转指示器 / Spinner
-// 分类包: ui (UI 组件) · element 22 · 子分类: 导航与状态
-// 动画表现: 点击“发送”后卡片蒙白，中央蓝色圆弧旋转，完成后变为对勾并淡出。
+// 分段控制器 / Segmented control
+// 分类: 界面与网页 / 组件 / 选择与输入
+// 动画表现: 点击日、周、月后，蓝色选中背景滑动，下方柱状图高度随之改变。
 // 运动规格:
-//   - 542×191 卡片，周期 4.5 秒。光标于 1.0 秒点击底部居中的 120×40“发送”按钮。
-//   - 1.05–1.2 秒线性淡入透明度 0.78 的白色全卡片遮罩和旋转指示器。
-//   - 指示器中心 (271, 92)，浅色环半径 26、线宽 6；上层蓝色圆弧长 243°，即 1.35π，圆形端点，每秒转 1.3 圈，即 468°/s。
-//   - 2.95–3.05 秒旋转环淡出；2.95–3.2 秒带白色对勾的半径 28 蓝圆由 0.7 → 1 放大，使用 easeOutCubic。
-//   - 3.75–4.0 秒全部线性淡出。
-// 适用场景: 适合发送、保存等时长未知的短暂等待。
-// 标签: spinner, loading, loader, activity-indicator, progress-circle, busy
+//   - 542×191 卡片，周期 4.5 秒。灰色底座为 300×40、圆角 10，位于 (121, 12)，分为三个宽 100 的区段：日、周、月。
+//   - 选中背景为蓝色 92×32、圆角 8、阴影模糊 6，选中文字为白色。
+//   - 光标在 1.0 秒点击周、2.1 秒点击月、3.3 秒点击日；每次以 easeInOutCubic 在 0.25 秒内移动选中背景。
+//   - 下方七根柱条宽 34、间距 58 px，第六根为蓝色；高度随选择在约 30–85, 40–100, 60–115 三组数据间变化，使用相同缓动。
+// 适用场景: 适合在同一内容的两到四种视图之间切换，如日、周、月。
+// 标签: segmented-control, segmented-button, button-group, toggle-group, switcher, view-switch
 // 尺寸: 542x191 px · 周期: 4.5 s
-// 依赖: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-022
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 22
-// 22 スピナー（Spinner）
-CELLS[21] = ui((w, h, t) => {
-  const load = seg(t, 1.05, 1.2) * (1 - seg(t, 2.95, 3.05));
-  const done = seg(t, 2.95, 3.15) * (1 - seg(t, 3.75, 4.0));
-  pageLines(24, 18, 494); strokeRR(24, 90, 494, 34, 7, C.line2, 1.5);
-  fillRR(w / 2 - 60, 140, 120, 40, 8, C.blue); text('发送', w / 2, 160, 16, '#fff', 600, 'center');
-  const ov = Math.max(load, done);
-  if (ov > 0) {
-    X.fillStyle = `rgba(255,255,255,${.78 * ov})`; X.fillRect(0, 0, w, h);
-    if (load > 0) { X.save(); X.globalAlpha = load; ring(w / 2, 92, 26, '#e3e8f5', 6); X.beginPath(); const a0 = t * Math.PI * 2 * 1.3; X.arc(w / 2, 92, 26, a0, a0 + Math.PI * 1.35); X.strokeStyle = C.blue; X.lineWidth = 6; X.lineCap = 'round'; X.stroke(); X.restore(); }
-    if (done > 0) { X.save(); X.globalAlpha = done; const s = .7 + .3 * eo(seg(t, 2.95, 3.2)); X.translate(w / 2, 92); X.scale(s, s); circle(0, 0, 28, C.blue); check(0, 0, 11, '#fff', 4); X.restore(); }
-  }
-  pointer([[.3, w + 30, h + 30], [.95, w / 2 + 6, 166], [1.5, w / 2 + 6, 166], [2.2, w + 30, h + 30]], [1.0], t);
+// @element 12
+// 12 セグメントコントロール（Segmented control）
+CELLS[11] = ui((w, h, t) => {
+  const pos = eio(seg(t, 1.0, 1.25)) + eio(seg(t, 2.1, 2.35)) - 2 * eio(seg(t, 3.3, 3.55));
+  const sx = 121, sy = 12, sw = 300, sh = 40, cw = sw / 3;
+  fillRR(sx, sy, sw, sh, 10, '#efedeb');
+  shadowed(() => fillRR(sx + 4 + pos * cw, sy + 4, cw - 8, sh - 8, 8, C.blue), 6, 2, .2);
+  ['日', '周', '月'].forEach((s, i) => { const near = 1 - clamp(Math.abs(pos - i)); text(s, sx + cw * i + cw / 2, sy + sh / 2 + 1, 17, near > .5 ? '#fff' : '#6d6b69', 700, 'center'); });
+  const sets = [[30, 55, 40, 70, 50, 85, 60], [60, 40, 90, 75, 100, 55, 80], [95, 70, 110, 60, 85, 115, 100]];
+  const fi = Math.floor(pos), fr = pos - fi, gi = Math.min(2, fi + 1);
+  X.fillStyle = C.line; X.fillRect(60, 182, 422, 1.5);
+  for (let k = 0; k < 7; k++) { const bh = lerp(sets[fi][k], sets[gi][k], eio(fr)); fillRR(72 + k * 58, 180 - bh, 34, bh, 5, k === 5 ? C.blue : C.mb); }
+  pointer([[.3, w + 30, h + 30], [.95, 276, 36], [1.6, 276, 36], [2.05, 376, 36], [2.8, 376, 36], [3.25, 176, 36], [3.7, 176, 36], [4.25, w + 30, h + 30]], [1.0, 2.1, 3.3], t);
 });

@@ -1,15 +1,15 @@
-Please use "Quarterly bubble motion" (四半期ごとに動くバブル), one of the names in "Interaction & data motion".
+Please use "Flow field" (フローフィールド), filed under "Pages / Hero backgrounds".
 Motion Prompt #1-097
 
-What it is: A time-based bubble chart where bubbles travel along their paths quarter by quarter
-What the sample shows: Behind a large quarter label, app bubbles glide across the chart while changing size, one leaving a dotted trail; dragging fast-forwards or rewinds time.
+What it is: Fine lines drift along an invisible current, and the cursor stirs it
+What the sample shows: Thin purple and blue lines stream across a dark background like wind or water and fade away; where the cursor passes, the flow curls into a swirl.
 Spec:
-- 8 app bubbles with radius 4 + √revenue × 2.6; x is monthly users on a log scale, y is 30-day retention from 10–70%.
-- Keyframes sit at quarters 0, 8, 16 and 23, interpolated with smoothstep, and user counts interpolate logarithmically.
-- In the demo it autoplays from 0.2–2.8 s at 2.4 quarters per second; dragging the background moves 1 quarter per 8 px.
-- The photo-editing app leaves a dotted trail with a dot per quarter; the large background label runs from 2021 Q1 to 2026 Q4.
-When to use it: Use it in market analysis, investor decks and annual-report data stories that show several metrics changing over time.
+- 220 fine lines advance at 60 px/s along a flow field made of 2 summed sines whose phase turns once every 6.4 s.
+- Each trail shows the last 0.6 s; a line lives 1.6 s (4 generations per cycle) and fades in and out with a sine.
+- Birth positions come from the index and generation, and each frame re-integrates from the birth point, so no state is kept.
+- Around the cursor (Gaussian σ 70 px) the flow twists tangentially into a swirl; in the demo it takes hold from 0.9–1.2 s and releases from 4.4–4.8 s.
+When to use it: Use it as a hero or portfolio background, or wherever a generative mood fits.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-097.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

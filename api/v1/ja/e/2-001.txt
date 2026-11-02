@@ -1,7 +1,7 @@
 // Motion Prompt #2-001 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#001
 //
 // ポップイン / Pop-in
-// パック: motion (モーショングラフィックスの動き) · element 01 · カテゴリ: 登場・文字の演出
+// 分類: モーショングラフィックス / 動きの原理 / 登場・イージング
 // 何が起きるか: アプリのアイコンがポンと弾んで現れ、通知バッジが遅れてポンと出る。
 // 動きの仕様:
 //   - 2.35秒で1回（1周期4.7秒に2回。1回目はコーラル地に星、2回目は青地にハート）
@@ -13,11 +13,11 @@
 // 使いどころ: アイコン・ボタン・バッジなど、小さな要素を軽く目立たせて出したいとき。
 // タグ: pop, pop-in, spring, bounce, scale, icon, badge, entrance
 // サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-001
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 01
 // 01 ポップイン（アプリのアイコンがポンと弾んで現れ、通知バッジが遅れてポン）

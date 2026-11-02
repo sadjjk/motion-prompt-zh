@@ -1,111 +1,323 @@
-// Motion Prompt #2-067 · MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/
+// Motion Prompt #2-067 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
 //
-// ネットワーク拡散 / Network diffusion
-// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 28 · カテゴリ: 文字・図形の演出
-// 何が起きるか: 左の起点が光って波紋を広げ、信号がつながりを段ごとに右へ伝わり、通った線は珊瑚色に光り、届いたノードが弾んで点灯し、ホップ数と到達数が増えていく。
+// 無限らせんカルーセル / Infinite helix carousel
+// 分類: モーショングラフィックス / 図形・オブジェクト / 物・機械
+// 何が起きるか: 濃紺の背景に小さな写真カードの列が横向きのらせんに沿って並び、軸を中心に回りながら右へ進む。手前に来たカードは大きく明るくなり、影と流れるハイライトがつき、奥へ回ったカードは濃紺の裏面を見せて暗くかすむ。進み方は押して滑るリズムで、周期の継ぎ目ではほぼ止まり、中盤で速く滑り、両端のカードは暗がりへ溶けていく。
 // 動きの仕様:
-//   - 起点と16個のノード、16本の曲線の辺からなる暗いネットワーク（背景 #071421・暗い辺 #315365）。信号の色は珊瑚 #ff7058
-//   - 起点は0.13〜0.4秒に0.35倍から弾んで現れる。波紋3つが0.18秒から0.11秒おきに出て、0.78秒で0.3倍から4.8倍へ広がりながら消える
-//   - 16本の辺が0.35秒から3.08秒にかけて順に点灯し、各0.36秒で描き終わる（三次の easeInOut）。描き始めの0.24秒後に先のノードが0.25倍から弾んで点灯する（0.18秒）
-//   - 左上にホップ数 = min(4, ⌊i/2⌋+1)、到達数 = i + 2 をリアルタイム表示。3.4秒から3つの光の輪が1.2倍に広がって薄れ、4.05〜4.23秒に信号の層が消えて暗い辺だけの初期状態に戻る
-//   - ニューラルネットとの違い: 信号は1つの起点から段ごとに外へ広がり、通った辺は光ったまま残る。層の間をパルスが繰り返し流れるものではない
-// 使いどころ: SNS での情報の広がり、感染症の拡散、P2P・ブロックチェーン、紹介プログラムなどを説明する動画やプレゼンに。
-// タグ: network, diffusion, graph, propagation, nodes, data-visualization
+//   - 70 × 56pxのカードを半径55pxの横向きのらせんに、一周7枚、軸方向の間隔36pxで並べる
+//   - 焦点距離220pxの透視投影で、カメラは0.24ラジアン見下ろし、奥のカードから順に描く
+//   - 4.7秒ごとに内容の異なる6枚ひと組ちょうどぶん右へ進むので、ループは継ぎ目なし
+//   - 速度は 1 − 0.8·cos2πt に従い、継ぎ目では平均の20%、中点では180%
+//   - 奥へ回ったカードは濃紺の裏面を見せ、真横を向くと幅が0.22倍まで縮む
+//   - 奥のカードは暗くかすみ、手前のカードには影とハイライトがつき、左右の端は110pxかけて消える
+// 使いどころ: 作品集、写真ギャラリー、商品一覧のヒーローで、多数のカードを立体的に流して見せたい場面に。
+// タグ: helix, carousel, 3d, perspective, cards, loop, gallery
 // サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-067
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 28
-// 改写自 ui2v · illli Ai Studio · broll-network-diffusion（MIT-0）
-// 28 网络扩散：左侧源点亮起并放出 3 圈涟漪，信号沿 16 条曲线边一跳一跳向右传到 16 个节点，经过的边变成珊瑚色发光、到达的节点回弹点亮，左上角实时显示跳数与已触达节点数。
-// 时间按原作 8.5 秒 × 0.5 映射：源点 0.13–0.4 秒从 0.35 倍回弹出现（back 1.8）；3 圈涟漪 0.18 秒起每隔 0.11 秒放出、0.78 秒内由 0.3 倍扩到 4.8 倍并淡出（三次缓出）；
-// 16 条边的点亮时刻 0.35 / 0.46 / 1.03 / 1.13 / 1.21 / 1.31 / 1.73 / 1.81 / 1.9 / 1.99 / 2.08 / 2.17 / 2.26 / 2.83 / 2.95 / 3.08 秒，
-// 每条边 0.36 秒画完（三次缓入缓出 = power2.inOut），起点后 0.24 秒节点由 0.25 倍回弹出现（0.18 秒、back 1.7），跳数 = min(4, ⌊i/2⌋+1)、触达数 = i + 2；
-// 3.4 秒起三个光环依次放大到 1.2 倍并变淡；4.05–4.23 秒信号层淡出，回到只有暗色边的初始网络（与 u=0 相同）。
-// 尺寸换算：网络 1740×760 → 节点区 x 200–1640 映射到 20–519（×0.3465），y 30–730 映射到 8–200（×0.274），圆半径 ×0.31。
-// 配色照抄：底 #071421、信号 #ff7058、暗边 #315365、节点描边 #9bb0b8、字 #e8efe9 / #6f8794；节点标签译为「源」与 N1–N6。
-const NETD_KX = 499 / 1440, NETD_KY = 192 / 700, NETD_KR = 0.31, NETD_S = 0.5;
-const NETD_X = x => 20 + (x - 200) * NETD_KX, NETD_Y = y => 8 + (y - 30) * NETD_KY;
-const NETD_NODES = [[260, 380, 27, 58, '源'], [570, 220, 18, 39, 'N1'], [590, 500, 18, 39, 'N2'], [850, 115, 15, 0, 'N3'], [875, 300, 15, 0, 'N4'], [890, 415, 15, 0, 'N5'], [900, 625, 15, 0, 'N6'],
-  [1165, 65, 12, 0], [1180, 195, 12, 0], [1200, 275, 12, 0], [1215, 365, 12, 0], [1230, 465, 12, 0], [1240, 570, 12, 0], [1280, 690, 12, 0], [1530, 115, 10, 0], [1580, 325, 10, 0], [1600, 500, 10, 0]];
-// 边：[起点节点, 终点节点, 控制点1 x, 控制点2 x]（原作三次贝塞尔，控制点 y 分别取起点、终点 y）
-const NETD_EDGES = [[0, 1, 390, 430], [0, 2, 400, 445], [1, 3, 690, 730], [1, 4, 700, 735], [2, 5, 715, 755], [2, 6, 720, 760], [3, 7, 990, 1025], [3, 8, 995, 1035],
-  [4, 9, 1015, 1050], [4, 10, 1020, 1060], [5, 11, 1030, 1080], [6, 12, 1040, 1090], [6, 13, 1060, 1110], [7, 14, 1300, 1380], [10, 15, 1360, 1410], [11, 16, 1380, 1430]].map(([a, b, c1, c2]) => {
-  const A = NETD_NODES[a], B = NETD_NODES[b], pts = [], cum = [0];
-  for (let i = 0; i <= 24; i++) {
-    const t = i / 24, m = 1 - t;
-    const x = m * m * m * A[0] + 3 * m * m * t * c1 + 3 * m * t * t * c2 + t * t * t * B[0], y = m * m * m * A[1] + 3 * m * m * t * A[1] + 3 * m * t * t * B[1] + t * t * t * B[1];
-    pts.push([NETD_X(x), NETD_Y(y)]); if (i) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+// @element 61
+CELLS[60] = (function () {
+  // 无限螺旋：一串小画卡沿横向 3D 螺旋排列，边转边向右推进；透视投影 + 深度排序。
+  const W = 539, H = 208, CYC = 4.7;
+  // 配色取 motion2 的气质：深海军蓝底 + 蓝 / 珊瑚 / 黄 / 薄荷
+  const C = {
+    navy: '#0F1A3D', navy2: '#1B2A5E', navy3: '#2A3D80', dim: '#7F90C4',
+    blue: '#3B7BFF', coral: '#FF6B5C', yel: '#FFC83D', mint: '#2EDBA8', white: '#FFFFFF', cream: '#FFF1D6'
+  };
+  const FONT = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif';
+  const SS = 3;                                   // 预渲染倍率（预览最高约 2×dpr）
+
+  // 螺旋几何（世界单位 ≈ 屏幕 px，在 z=0 处 1:1）
+  const PER_TURN = 7;                             // 每圈卡片数
+  const DTH = Math.PI * 2 / PER_TURN;             // 相邻卡片的角度差
+  const DX = 36;                                  // 相邻卡片沿轴向的间距
+  const R = 55;                                   // 螺旋半径
+  const TILT = 0.24;                              // 镜头略俯视的角度（弧度）
+  const CAM = 220;                                // 镜头到轴的距离 = 焦距，z=0 处缩放为 1
+  const AXIS_Y = 100;                             // 螺旋轴在画面中的高度
+  const CARD_W = 70, CARD_H = 56;                 // 卡片世界尺寸
+  const PIC_PAD = 3.2, CAP_H = 12;                // 相纸白边、底部标题栏高度
+  // 每个周期推进 ADV 个间距。卡片内容各不相同，只有推进量是「图案种数」的整数倍，
+  // u=CYC 时每个位置上的卡片才和 u=0 时同一张，循环才无缝。ADV 在 SCENES 定义后按其长度计算。
+
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const mod = (a, n) => ((a % n) + n) % n;
+  const smooth = x => x * x * (3 - 2 * x);
+  const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+  // 圆角矩形路径（不用 roundRect，Safari 旧版不支持）
+  function rr(k, x, y, w, h, r) {
+    k.beginPath(); k.moveTo(x + r, y);
+    k.arcTo(x + w, y, x + w, y + h, r); k.arcTo(x + w, y + h, x, y + h, r);
+    k.arcTo(x, y + h, x, y, r); k.arcTo(x, y, x + w, y, r); k.closePath();
   }
-  return { b, pts, cum };
-});
-const NETD_START = [0.7, 0.92, 2.05, 2.25, 2.42, 2.62, 3.45, 3.62, 3.8, 3.98, 4.16, 4.34, 4.52, 5.65, 5.9, 6.15];
-const NETD_sIO = x => -(Math.cos(Math.PI * x) - 1) / 2;
-const NETD_BG = (() => {
-  const c = mkCanvas(CW, CH), g = c.getContext('2d');
-  g.fillStyle = '#071421'; g.fillRect(0, 0, CW, CH);
-  const a = g.createRadialGradient(CW * 0.37, CH * 0.52, 0, CW * 0.37, CH * 0.52, CW * 0.26); a.addColorStop(0, 'rgba(255,112,88,.13)'); a.addColorStop(1, 'rgba(255,112,88,0)'); g.fillStyle = a; g.fillRect(0, 0, CW, CH);
-  const b = g.createRadialGradient(CW * 0.78, CH * 0.48, 0, CW * 0.78, CH * 0.48, CW * 0.34); b.addColorStop(0, 'rgba(60,117,142,.2)'); b.addColorStop(1, 'rgba(60,117,142,0)'); g.fillStyle = b; g.fillRect(0, 0, CW, CH);
-  for (let x = 4; x < CW; x += 9) for (let y = 4; y < CH; y += 9) {                     // 点阵（原 30px）两侧渐隐
-    const f = clamp(Math.min(x, CW - x) / (CW * 0.16)); g.fillStyle = `rgba(232,239,233,${0.11 * f})`; g.fillRect(x, y, 1, 1);
+
+  const hash = (i, s) => { const x = Math.sin(i * 12.9898 + s * 78.233) * 43758.5453; return x - Math.floor(x); };
+  const lin = (k, x0, y0, x1, y1, stops) => {
+    const gr = k.createLinearGradient(x0, y0, x1, y1);
+    stops.forEach((c, i) => gr.addColorStop(i / (stops.length - 1), c)); return gr;
+  };
+
+  // ---------- 卡片里的小图：每个函数在 (0,0)-(w,h) 的画框内作画 ----------
+  const SCENES = [
+    { title: '黄昏海湾', tag: 'IMG_0418', paint(k, w, h) {
+      k.fillStyle = lin(k, 0, 0, 0, h * 0.62, ['#FF8A6B', C.coral, C.yel]); k.fillRect(0, 0, w, h);
+      k.fillStyle = C.cream; k.beginPath(); k.arc(w * 0.62, h * 0.6, h * 0.22, 0, Math.PI * 2); k.fill();
+      k.fillStyle = lin(k, 0, h * 0.6, 0, h, [C.navy3, C.navy]); k.fillRect(0, h * 0.6, w, h * 0.4);
+      // 海面上碎开的落日倒影
+      k.fillStyle = 'rgba(255,200,61,0.75)';
+      for (let i = 0; i < 5; i++) { const ww = w * (0.22 - i * 0.035); k.fillRect(w * 0.62 - ww / 2, h * (0.66 + i * 0.065), ww, h * 0.025); }
+    } },
+    { title: '薄荷山谷', tag: 'IMG_0522', paint(k, w, h) {
+      k.fillStyle = lin(k, 0, 0, 0, h, ['#CFF7EA', '#8FE9CF']); k.fillRect(0, 0, w, h);
+      const ridge = (base, amp, seed, col) => {
+        k.fillStyle = col; k.beginPath(); k.moveTo(0, h);
+        for (let i = 0; i <= 8; i++) k.lineTo(w * i / 8, h * (base - amp * hash(i, seed)));
+        k.lineTo(w, h); k.closePath(); k.fill();
+      };
+      ridge(0.55, 0.28, 3, '#5FD9B4'); ridge(0.72, 0.22, 7, C.mint); ridge(0.9, 0.16, 11, '#159E7A');
+      k.fillStyle = C.white; k.beginPath(); k.arc(w * 0.24, h * 0.22, h * 0.09, 0, Math.PI * 2); k.fill();
+    } },
+    { title: '蓝色月夜', tag: 'IMG_0607', paint(k, w, h) {
+      k.fillStyle = lin(k, 0, 0, 0, h, [C.navy, C.navy3, C.blue]); k.fillRect(0, 0, w, h);
+      k.fillStyle = C.white;
+      for (let i = 0; i < 18; i++) { const r = 0.25 + hash(i, 5) * 0.55; k.globalAlpha = 0.4 + hash(i, 9) * 0.6; k.beginPath(); k.arc(hash(i, 1) * w, hash(i, 2) * h * 0.6, r, 0, Math.PI * 2); k.fill(); }
+      k.globalAlpha = 1;
+      // 月牙：两圆相减
+      k.fillStyle = C.cream; k.beginPath(); k.arc(w * 0.72, h * 0.3, h * 0.16, 0, Math.PI * 2); k.fill();
+      k.fillStyle = C.navy3; k.beginPath(); k.arc(w * 0.78, h * 0.26, h * 0.14, 0, Math.PI * 2); k.fill();
+      k.fillStyle = C.navy; k.beginPath(); k.moveTo(0, h);
+      k.quadraticCurveTo(w * 0.3, h * 0.62, w * 0.62, h * 0.82); k.quadraticCurveTo(w * 0.85, h * 0.7, w, h * 0.76); k.lineTo(w, h); k.fill();
+    } },
+    { title: '金色麦田', tag: 'IMG_0715', paint(k, w, h) {
+      k.fillStyle = lin(k, 0, 0, 0, h * 0.5, ['#FFE8A8', '#FFD36B']); k.fillRect(0, 0, w, h);
+      k.fillStyle = C.coral; k.beginPath(); k.arc(w * 0.3, h * 0.4, h * 0.13, 0, Math.PI * 2); k.fill();
+      // 透视田垄：从地平线一点放射出去
+      const hy = h * 0.46;
+      for (let i = 0; i < 9; i++) {
+        k.fillStyle = i % 2 ? C.yel : '#E8A41F';
+        k.beginPath(); k.moveTo(w * 0.55, hy); k.lineTo(w * (i / 9) * 2.2 - w * 0.6, h); k.lineTo(w * ((i + 1) / 9) * 2.2 - w * 0.6, h); k.closePath(); k.fill();
+      }
+      k.fillStyle = '#E8A41F'; k.fillRect(0, hy - 0.5, w, 1.4);
+    } },
+    { title: '几何 No.5', tag: 'GEO_005', paint(k, w, h) {
+      k.fillStyle = C.cream; k.fillRect(0, 0, w, h);
+      const cols = [C.blue, C.coral, C.yel, C.mint, C.navy2], n = 4, m = 3, cw = w / n, ch = h / m;
+      for (let r = 0; r < m; r++) for (let c = 0; c < n; c++) {
+        const id = r * n + c, x = c * cw, y = r * ch, col = cols[Math.floor(hash(id, 4) * 5)];
+        k.fillStyle = col; k.beginPath();
+        const t = Math.floor(hash(id, 8) * 3);   // 0 圆 1 三角 2 四分之一圆
+        if (t === 0) k.arc(x + cw / 2, y + ch / 2, Math.min(cw, ch) * 0.38, 0, Math.PI * 2);
+        else if (t === 1) { k.moveTo(x + cw * 0.15, y + ch * 0.85); k.lineTo(x + cw / 2, y + ch * 0.15); k.lineTo(x + cw * 0.85, y + ch * 0.85); }
+        else { k.moveTo(x, y + ch); k.arc(x, y + ch, Math.min(cw, ch), -Math.PI / 2, 0); }
+        k.closePath(); k.fill();
+      }
+    } },
+    { title: '城市灯火', tag: 'IMG_0903', paint(k, w, h) {
+      k.fillStyle = lin(k, 0, 0, 0, h, ['#3A2A6E', '#7A3F7E', C.coral]); k.fillRect(0, 0, w, h);
+      let x = 0, i = 0;
+      while (x < w) {
+        const bw = w * (0.08 + hash(i, 3) * 0.1), bh = h * (0.3 + hash(i, 6) * 0.5);
+        k.fillStyle = i % 2 ? C.navy : C.navy2; k.fillRect(x, h - bh, bw - 0.4, bh);
+        k.fillStyle = C.yel;
+        for (let yy = h - bh + 2; yy < h - 2; yy += 2.6) for (let xx = x + 1; xx < x + bw - 2; xx += 2.2)
+          if (hash(xx * 7 + yy, i) > 0.62) k.fillRect(xx, yy, 1, 1.2);
+        x += bw; i++;
+      }
+    } }
+  ];
+
+  // 卡片间距按图案种数推进：见 fn 内注释
+  const ADV = SCENES.length;
+  const CR = 4;                                   // 卡片圆角
+
+  // ---------- 卡片预渲染：正面（相纸 + 小图 + 标题栏）、正面的低清版（远处朦胧用）、背面 ----------
+  function paintFront(k, sc, idx) {
+    const w = CARD_W, h = CARD_H;
+    // 相纸：竖向渐变 + 左上亮边 + 右下厚度暗边
+    rr(k, 0, 0, w, h, CR); k.fillStyle = lin(k, 0, 0, 0, h, ['#FFFFFF', '#F3EEE4']); k.fill();
+    const pw = w - PIC_PAD * 2, ph = h - PIC_PAD - CAP_H;
+    k.save(); rr(k, PIC_PAD, PIC_PAD, pw, ph, 2); k.clip();
+    k.translate(PIC_PAD, PIC_PAD); sc.paint(k, pw, ph);
+    // 画面内一层顶部微光，让小图像印在光面相纸上
+    k.fillStyle = lin(k, 0, 0, 0, ph, ['rgba(255,255,255,0.18)', 'rgba(255,255,255,0)', 'rgba(0,0,0,0.12)']);
+    k.fillRect(0, 0, pw, ph); k.restore();
+    // 标题栏：中文标题 + 文件编号 + 张数
+    const cy = h - CAP_H / 2 - 0.6;
+    k.textBaseline = 'middle'; k.textAlign = 'left';
+    k.fillStyle = C.navy; k.font = '600 6.4px ' + FONT; k.fillText(sc.title, PIC_PAD + 0.6, cy);
+    k.textAlign = 'right'; k.fillStyle = C.dim; k.font = '500 4.6px ' + FONT;
+    k.fillText(sc.tag + ' · ' + String(idx + 1).padStart(2, '0') + '/' + String(SCENES.length).padStart(2, '0'), w - PIC_PAD - 0.4, cy + 0.3);
+    // 亮边 / 暗边
+    k.lineWidth = 0.7;
+    k.strokeStyle = 'rgba(255,255,255,0.95)'; k.beginPath(); k.moveTo(CR, 0.4); k.lineTo(w - CR, 0.4); k.moveTo(0.4, CR); k.lineTo(0.4, h - CR); k.stroke();
+    k.strokeStyle = 'rgba(15,26,61,0.22)'; k.beginPath(); k.moveTo(CR, h - 0.4); k.lineTo(w - CR, h - 0.4); k.moveTo(w - 0.4, CR); k.lineTo(w - 0.4, h - CR); k.stroke();
   }
-  g.strokeStyle = '#315365'; g.lineWidth = 1.3; g.lineCap = 'round';
-  for (const e of NETD_EDGES) { g.beginPath(); e.pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); }
-  return c;
-})();
-CELLS[27] = (k, w, h, u) => {
-  u = snapU(u);
-  const t = u / NETD_S;
-  k.drawImage(NETD_BG, 0, 0);
-  const out = 1 - eIn(P(t, 8.1, 8.45));
-  if (out <= 0 || t < 0.25) return;
-  k.save(); k.globalAlpha = out;
-  // 亮边：按虚线偏移逐段画出
-  k.lineCap = 'round'; k.lineJoin = 'round';
-  let hop = 0, reached = 1;
-  NETD_EDGES.forEach((e, i) => {
-    const s = NETD_START[i]; if (t < s) return;
-    const L = e.cum[e.cum.length - 1] * eIO(P(t, s, s + 0.72));
-    k.beginPath(); k.moveTo(e.pts[0][0], e.pts[0][1]);
-    for (let j = 1; j < e.pts.length; j++) {
-      if (e.cum[j] <= L) { k.lineTo(e.pts[j][0], e.pts[j][1]); continue; }
-      const q = (L - e.cum[j - 1]) / (e.cum[j] - e.cum[j - 1]); k.lineTo(lerp(e.pts[j - 1][0], e.pts[j][0], q), lerp(e.pts[j - 1][1], e.pts[j][1], q)); break;
-    }
-    k.strokeStyle = 'rgba(255,112,88,.28)'; k.lineWidth = 5; k.stroke();             // 原 drop-shadow 9px 光晕
-    k.strokeStyle = '#ff7058'; k.lineWidth = 1.9; k.stroke();
-    if (t >= s + 0.5) { hop = Math.min(4, Math.floor(i / 2) + 1); reached = i + 2; }
-  });
-  // 源点涟漪
-  for (let r = 0; r < 3; r++) {
-    const q = P(t, 0.35 + r * 0.22, 1.9 + r * 0.22); if (q <= 0 || q >= 1) continue;
-    const e = eOut(q);
-    k.save(); k.globalAlpha = out * 0.55 * (1 - e); k.strokeStyle = '#ff7058'; k.lineWidth = 1;
-    k.beginPath(); k.arc(NETD_X(260), NETD_Y(380), 58 * NETD_KR * lerp(0.3, 4.8, e), 0, 7); k.stroke(); k.restore();
-  }
-  // 节点
-  NETD_NODES.forEach(([x, y, cr, hr, lb], n) => {
-    const s0 = n === 0 ? 0.25 : NETD_START[NETD_EDGES.findIndex(e => e.b === n)] + 0.48;
-    const q = P(t, s0, s0 + (n === 0 ? 0.55 : 0.36)); if (q <= 0) return;
-    const sc = lerp(n === 0 ? 0.35 : 0.25, 1, backOut(q, n === 0 ? 1.8 : 1.7)), active = n === 0 || t >= s0 - 0.01;
-    const X = NETD_X(x), Y = NETD_Y(y);
-    k.save(); k.globalAlpha = out * clamp(q * 1.6); k.translate(X, Y); k.scale(sc, sc);
-    if (hr) {
-      const hp = NETD_sIO(P(t, 6.8 + n * 0.025, 7.45 + n * 0.025));
-      k.save(); k.globalAlpha *= lerp(0.35, 0.08, hp) / 1; k.strokeStyle = '#ff7058'; k.lineWidth = 1;
-      k.beginPath(); k.arc(0, 0, hr * NETD_KR * (1 + 0.2 * hp), 0, 7); k.stroke(); k.restore();
-    }
-    k.fillStyle = active ? '#ff7058' : '#071421'; k.strokeStyle = active ? '#e8efe9' : '#9bb0b8'; k.lineWidth = n === 0 ? 1.9 : 1.25;
-    k.beginPath(); k.arc(0, 0, Math.max(3, cr * NETD_KR), 0, 7); k.fill(); k.stroke();
-    if (lb) txt(k, lb, 0, Math.max(3, cr * NETD_KR) + (n === 0 ? 13 : 10), `700 ${n === 0 ? 10 : 8}px ${n === 0 ? JP : 'ui-monospace, Menlo, monospace'}`, '#e8efe9', 'center', 'alphabetic');
+  function paintBack(k) {
+    const w = CARD_W, h = CARD_H;
+    rr(k, 0, 0, w, h, CR); k.fillStyle = lin(k, 0, 0, w, h, [C.navy3, C.navy2, C.navy]); k.fill();
+    k.save(); rr(k, 0, 0, w, h, CR); k.clip();
+    // 斜纹底纹
+    k.strokeStyle = 'rgba(127,144,196,0.16)'; k.lineWidth = 0.8;
+    for (let x = -h; x < w; x += 4.5) { k.beginPath(); k.moveTo(x, h); k.lineTo(x + h, 0); k.stroke(); }
     k.restore();
-  });
-  // 左上遥测（随原作状态栏 0.15–0.65 秒淡入）
-  k.globalAlpha = out * eOut(P(t, 0.25, 0.75));
-  txt(k, '跳数', 18, 22, `700 9px ${JP}`, '#6f8794');
-  txt(k, String(hop).padStart(2, '0'), 44, 23, `700 13px ui-monospace, Menlo, monospace`, '#e8efe9');
-  txt(k, `${String(reached).padStart(2, '0')} 个节点已触达`, 18, 38, `700 9px ${JP}`, '#e8efe9');
-  k.restore();
-};
+    rr(k, 3, 3, w - 6, h - 6, 2.5); k.strokeStyle = 'rgba(255,241,214,0.35)'; k.lineWidth = 0.6; k.stroke();
+    // 四色小螺旋徽记
+    const pal = [C.blue, C.coral, C.yel, C.mint];
+    for (let i = 0; i < 4; i++) { k.fillStyle = pal[i]; k.beginPath(); k.arc(w / 2 - 7.5 + i * 5, h / 2 - 3 + Math.sin(i * 1.6) * 2.2, 1.7, 0, Math.PI * 2); k.fill(); }
+    k.fillStyle = 'rgba(255,241,214,0.7)'; k.font = '600 4.6px ' + FONT; k.textAlign = 'center'; k.textBaseline = 'middle';
+    k.fillText('螺旋相册 · 2026', w / 2, h / 2 + 6);
+  }
+  let CARDS = null;
+  function buildCards() {
+    const mkScaled = (sc, paint) => { const c = mk(Math.ceil(CARD_W * sc), Math.ceil(CARD_H * sc)), k = c.getContext('2d'); k.scale(sc, sc); paint(k); return c; };
+    const fronts = SCENES.map((s, i) => mkScaled(SS, k => paintFront(k, s, i)));
+    // 低清版：把高清图缩到 0.22 倍，放大绘制时自然发糊（代替 ctx.filter）
+    const blurs = fronts.map(f => { const c = mk(Math.ceil(CARD_W * 0.22), Math.ceil(CARD_H * 0.22)), k = c.getContext('2d'); k.drawImage(f, 0, 0, c.width, c.height); return c; });
+    const back = mkScaled(SS, paintBack);
+    const backBlur = mk(Math.ceil(CARD_W * 0.22), Math.ceil(CARD_H * 0.22)); backBlur.getContext('2d').drawImage(back, 0, 0, backBlur.width, backBlur.height);
+    // 投影贴图：卡片形状的柔和暗块（shadowBlur 只在预渲染时用一次，帧内只 drawImage）
+    // 投影本身是糊的，用 1 倍分辨率即可，放大绘制不掉质感，像素少一个数量级
+    const SP = 10, shadow = mk(CARD_W + SP * 2, CARD_H + SP * 2), sk = shadow.getContext('2d');
+    sk.shadowColor = 'rgba(3,6,20,0.85)'; sk.shadowBlur = 7; sk.shadowOffsetX = 2000;
+    rr(sk, SP - 2000, SP, CARD_W, CARD_H, CR); sk.fillStyle = '#000'; sk.fill();
+    // 地面接触影：一团横向压扁的径向暗斑
+    const blob = mk(64 * SS, 16 * SS), bk = blob.getContext('2d');
+    bk.scale(SS * 4, SS); const bg = bk.createRadialGradient(8, 8, 0, 8, 8, 8);
+    bg.addColorStop(0, 'rgba(3,6,20,0.55)'); bg.addColorStop(1, 'rgba(3,6,20,0)'); bk.fillStyle = bg; bk.fillRect(0, 0, 16, 16);
+    return { fronts, blurs, back, backBlur, shadow, SP, blob };
+  }
+
+  // ---------- 螺旋上一点的 3D 位置与投影 ----------
+  // s 为连续卡位（整数处是一张卡）；返回屏幕坐标、缩放、深度 0(远)~1(近)
+  const CT = Math.cos(TILT), ST = Math.sin(TILT);
+  function project(s) {
+    const th = s * DTH, x = s * DX;
+    const y0 = -R * Math.cos(th), z0 = R * Math.sin(th);   // y 朝下，z 朝向镜头
+    const y = y0 * CT + z0 * ST, z = z0 * CT - y0 * ST;     // 镜头略俯视：近处的点落得更低
+    const sc = CAM / (CAM - z);
+    return { th, x: W / 2 + x * sc, y: AXIS_Y + y * sc, sc, d: clamp((z / R + 1) / 2, 0, 1) };
+  }
+
+  // ---------- 背景：竖向渐变 + 中央柔光 + 暗角，首帧预渲染 ----------
+  let BG = null;
+  function buildBg() {
+    const c = mk(W * SS, H * SS), k = c.getContext('2d');
+    k.scale(SS, SS);
+    const lg = k.createLinearGradient(0, 0, 0, H);
+    lg.addColorStop(0, '#1E2F66'); lg.addColorStop(0.55, C.navy2); lg.addColorStop(1, '#0B1430');
+    k.fillStyle = lg; k.fillRect(0, 0, W, H);
+    // 螺旋背后的一团冷光，让卡片从暗处浮出来
+    k.save(); k.translate(W / 2, AXIS_Y); k.scale(1.9, 1);
+    const glow = k.createRadialGradient(0, 0, 0, 0, 0, 120);
+    glow.addColorStop(0, 'rgba(59,123,255,0.30)'); glow.addColorStop(0.6, 'rgba(59,123,255,0.08)'); glow.addColorStop(1, 'rgba(59,123,255,0)');
+    k.fillStyle = glow; k.fillRect(-140, -130, 280, 260); k.restore();
+    // 底部一抹暖色地光（接卡片投影）
+    k.save(); k.translate(W / 2, H - 14); k.scale(3.2, 1);
+    const fl = k.createRadialGradient(0, 0, 0, 0, 0, 60);
+    fl.addColorStop(0, 'rgba(255,107,92,0.14)'); fl.addColorStop(1, 'rgba(255,107,92,0)');
+    k.fillStyle = fl; k.fillRect(-60, -60, 120, 120); k.restore();
+    // 螺旋轨迹细线：远处淡、近处亮，铺在所有卡片下面
+    k.lineWidth = 0.8; k.lineCap = 'round';
+    let prev = project(S_MIN);
+    for (let s = S_MIN + 0.08; s <= S_MAX; s += 0.08) {
+      const q = project(s), a = edgeFade(q.x) * (0.06 + 0.28 * q.d);
+      k.strokeStyle = 'rgba(160,190,255,' + a.toFixed(3) + ')';
+      k.beginPath(); k.moveTo(prev.x, prev.y); k.lineTo(q.x, q.y); k.stroke(); prev = q;
+    }
+    // 径向暗角
+    k.save(); k.translate(W / 2, H / 2); k.scale(W / H, 1);
+    const vg = k.createRadialGradient(0, 0, H * 0.25, 0, 0, H * 0.78);
+    vg.addColorStop(0, 'rgba(5,9,26,0)'); vg.addColorStop(1, 'rgba(5,9,26,0.72)');
+    k.fillStyle = vg; k.fillRect(-W, -H, W * 2, H * 2); k.restore();
+    return c;
+  }
+
+  // ---------- 单张卡片：投影 → 本体（正/背面）→ 朦胧 → 压暗 → 镜面光斑 ----------
+  function drawCard(k, c) {
+    const P = c.P, d = P.d, sc = P.sc;
+    const sx = 0.22 + 0.78 * Math.abs(c.f);       // 横向缩放模拟侧转，最窄时留一点厚度
+    const back = c.f < 0;
+    const cw = CARD_W, ch = CARD_H;
+    k.save();
+    k.translate(P.x, P.y); k.rotate(c.rot); k.scale(sc * sx, sc);
+    k.globalAlpha = c.fade;
+    // 投影：只给前半圈的卡，越近越深、偏移越大
+    if (d > 0.45) {
+      const sa = smooth((d - 0.45) / 0.55);
+      k.globalAlpha = c.fade * sa * 0.75;
+      const SP = CARDS.SP, off = 3 + 5 * sa;
+      k.drawImage(CARDS.shadow, -cw / 2 - SP + off * 0.4, -ch / 2 - SP + off, cw + SP * 2, ch + SP * 2);
+      k.globalAlpha = c.fade;
+    }
+    // 右侧厚度层：转向越侧，露出越多纸边
+    const edge = (1 - Math.abs(c.f)) * 2.4 + 0.8;
+    rr(k, -cw / 2 + edge * 0.6, -ch / 2 + 0.9, cw, ch, CR); k.fillStyle = back ? '#0A1230' : '#B9B2A4'; k.fill();
+    const img = back ? CARDS.back : CARDS.fronts[c.scene];
+    const blr = back ? CARDS.backBlur : CARDS.blurs[c.scene];
+    k.drawImage(img, -cw / 2, -ch / 2, cw, ch);
+    // 远处朦胧：叠一层低清版
+    const haze = clamp(1 - d * 1.6, 0, 1);
+    if (haze > 0.01) { k.globalAlpha = c.fade * haze * 0.9; k.drawImage(blr, -cw / 2, -ch / 2, cw, ch); }
+    // 远处压暗 + 蒙一层大气蓝；背面时额外更暗
+    rr(k, -cw / 2, -ch / 2, cw, ch, CR);
+    const dark = clamp((1 - d) * 0.62 + (back ? 0.18 : 0) + (1 - Math.abs(c.f)) * 0.12, 0, 0.82);
+    k.globalAlpha = c.fade * dark; k.fillStyle = '#0B1536'; k.fill();
+    // 正对镜头时扫过的一道斜向高光
+    if (!back && d > 0.6) {
+      const sp = smooth((d - 0.6) / 0.4);
+      const hx = (1 - c.f) * cw * 1.6 - cw * 0.4;   // 随朝向从左扫到右
+      const gl = k.createLinearGradient(hx - 22, -ch / 2, hx + 10, ch / 2);
+      gl.addColorStop(0, 'rgba(255,255,255,0)'); gl.addColorStop(0.5, 'rgba(255,255,255,0.32)'); gl.addColorStop(1, 'rgba(255,255,255,0)');
+      // 复用上面压暗时建好的圆角路径直接填充，省掉 clip
+      k.globalAlpha = c.fade * sp; k.fillStyle = gl; k.fill();
+    }
+    k.restore();
+  }
+
+  const S_MIN = -12, S_MAX = 12;                  // 计算的卡位范围，两端都在画外
+  const FLOOR_Y = H - 16;                         // 接触影所在的「地面」高度
+  // 左右两端淡出，让无限长的螺旋融进暗角
+  const edgeFade = px => smooth(clamp((W / 2 + 30 - Math.abs(px - W / 2)) / 110, 0, 1));
+
+  const fn = (k, w, h, u) => {
+    if (!BG) BG = buildBg();
+    if (!CARDS) CARDS = buildCards();
+    k.drawImage(BG, 0, 0, W, H);
+    // 防止浮点误差让 u≈CYC 与 u=0 落到不同的取整分支
+    const t = mod(Math.round(u * 1e6) / 1e6, CYC) / CYC;
+    // 本周期已推进的卡位数。速度 = ADV·(1 − PULSE·cos2πt)：周期接缝处放慢到 20%、中段加速，
+    // 形成「一推一滑」的呼吸节奏，且接缝两侧画面几乎静止，循环更稳。
+    const PULSE = 0.8;
+    const p = ADV * (t - PULSE * Math.sin(t * Math.PI * 2) / (Math.PI * 2));
+
+    // 1) 螺旋轨迹线已画进背景：它的形状不随时间变，卡片只是沿它滑动
+    // 2) 收集可见卡片：卡 j 的卡位 s = j + p，内容固定为 j 对图案数取模
+    const list = [];
+    for (let j = Math.ceil(S_MIN - p); j <= Math.floor(S_MAX - p); j++) {
+      const s = j + p, P = project(s), Q = project(s + 0.02);
+      const fade = edgeFade(P.x);
+      if (fade <= 0.001) continue;
+      const f = P.d * 2 - 1;                      // 朝向：+1 正对镜头，-1 背对
+      // 卡片沿屏幕上的螺旋切线略微倾斜（取一半角度，避免过度歪斜）
+      const rot = Math.atan2(Q.y - P.y, Q.x - P.x) * 0.45;
+      list.push({ P, f, rot, fade, scene: mod(j, SCENES.length) });
+    }
+    list.sort((a, b) => a.P.d - b.P.d);           // 远的先画
+
+    // 3) 地面接触影（全部先铺，避免盖住卡片）
+    list.forEach(c => {
+      const a = c.fade * (0.15 + 0.85 * c.P.d) * (0.35 + 0.65 * Math.abs(c.f));
+      k.globalAlpha = a; const bw = CARD_W * c.P.sc * 1.1, bh = 9 * c.P.sc;
+      k.drawImage(CARDS.blob, c.P.x - bw / 2, FLOOR_Y - bh / 2 + (c.P.d - 0.5) * 8, bw, bh);
+    });
+    k.globalAlpha = 1;
+
+    // 4) 卡片本体
+    list.forEach(c => drawCard(k, c));
+  };
+  return fn;
+})();

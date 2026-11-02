@@ -1,15 +1,15 @@
-Please use "Add to cart fly" (カートに飛び込む), one of the names in "Interaction & data motion".
+Please use "Page flip" (ページめくり), filed under "Pointer interactions / Tactile & cards".
 Motion Prompt #1-136
 
-What it is: The product thumbnail arcs into the cart and the count bumps up
-What the sample shows: When the product card button is pressed, the cup image arcs to the cart in the top right while shrinking; the cart bounces and the badge changes from 2 to 3.
+What it is: A book page turns over the spine to the other side
+What the sample shows: The cursor clicks the right page of an open book twice; each time a leaf narrows over the spine, flips and lands on the left; a final click on the left page turns both leaves back.
 Spec:
-- The button is pressed at 1.0 s (dips to 0.95).
-- From 1.05–1.8 s a copy of the product image flies to the cart: x accelerates with t², y moves linearly plus a 40 px arc, and its size goes 1 → 0.15.
-- On arrival the cart bounces to 1.25 over 0.35 s and the badge changes 2 → 3, popping with a 0.3 s backOut.
-- It cross-fades back to the starting frame from 5.4–6.0 s.
-When to use it: Use it on e-commerce listings and product pages to make "added to cart" unmistakable.
+- An open book: 2 pages of 150×148 meeting at a spine at x 271.
+- The cursor clicks the right page at 0.9 s and 2.1 s; each time one leaf turns over the spine in 0.7 s, its scaleX following cos(π·easeInOut) from 1 to −1.
+- Past 0 the back of the leaf shows, and near 0 a shade of up to 0.25 suggests depth. The spreads go 1-2 → 3-4 → 5-6.
+- At 3.4 s the left page is clicked: the upper leaf from 3.5 s and the lower leaf from 3.6 s each turn back in 0.55 s, returning to 1-2.
+When to use it: Use it for catalogues, picture books, portfolios or annual reports that should feel like turning paper.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-136.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

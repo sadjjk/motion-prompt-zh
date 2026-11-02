@@ -1,15 +1,15 @@
-Please use "Blue & white" (青花の皿), one of the names in "Styled scenes".
+Please use "Guilloche" (彩紋（ギョーシェ）), filed under "Craft & patterns / Geometric patterns".
 Motion Prompt #4-023
 
-What it is: A top-down view of a turning blue-and-white porcelain plate
-What the sample shows: A white porcelain plate ringed with waves, lotus petals and scrolling vines turns slowly as a warm gold band of light crosses the glaze.
+What it is: A guilloche pattern of fine banknote-style curves layered into a slowly turning rosette
+What the sample shows: An emerald-and-gold rosette turns slowly with layers rotating in opposite directions, while wavy bands on both sides drift sideways.
 Spec:
-- A porcelain plate of radius 152 px, centred and slightly cropped top and bottom, on #E7E2D8.
-- Outside in: 36 wave scrolls, 16 lotus petals, a vine spiral with 9 leaves and an 8-petal centre flower, all in cobalt.
-- The plate turns clockwise 1 full turn every 6.4 s.
-- A 60 px warm gold light band sweeps from outside the left rim to outside the right rim each cycle; a fixed sky reflection sits top left.
-When to use it: Openers for tea, ceramics or museum brands, hero sections on Chinese-culture themes, or exhibition posters.
+- 32 hypotrochoids in 4 groups form a rosette with a 96 px outer radius, in emerald #0F5A4A and gold #B88A2E.
+- The 4 groups have 13 / 13 / 17 / 11 petals and each turns exactly 1 petal per 6.4 s, alternating direction.
+- Side bands: 2 families of 10 sine lines each, green and gold, wavelength 48 px and amplitude 10 px, drifting opposite ways by 1 wavelength per cycle.
+- 2 thin rings of radius 115 px and 118 px frame the rosette; a 7 px monospace serial number sits bottom left.
+When to use it: Openers for finance, fintech or luxury brands, backgrounds for certificate or ticket designs, or a formal title slide.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-023.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

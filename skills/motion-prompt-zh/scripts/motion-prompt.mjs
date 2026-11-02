@@ -35,7 +35,7 @@ class CliError extends Error {
 
 // ---------- arguments ----------
 
-const VALUE_FLAGS = new Set(['lang', 'pack', 'limit', 'out', 'timeout']);
+const VALUE_FLAGS = new Set(['lang', 'group', 'sec', 'cat', 'limit', 'out', 'timeout']);
 const BOOL_FLAGS = new Set(['refresh', 'help', 'version', 'no-open', 'local']);
 
 function parseArgs(argv) {
@@ -48,6 +48,7 @@ function parseArgs(argv) {
     const eq = a.indexOf('=');
     const name = eq === -1 ? a.slice(2) : a.slice(2, eq);
     if (BOOL_FLAGS.has(name)) { flags[name] = true; continue; }
+    if (name === 'pack') throw new CliError(EXIT.USAGE, msg('--pack was removed. Narrow by category instead: --group / --sec / --cat (see "list").', '--pack 已移除，请用 --group / --sec / --cat（可用值见 list）。'));
     if (!VALUE_FLAGS.has(name)) throw new CliError(EXIT.USAGE, msg(`Unknown option --${name}. Run with --help.`, `未知参数 --${name}，请运行 --help 查看用法。`));
     const value = eq === -1 ? argv[++i] : a.slice(eq + 1);
     if (value === undefined || value === '') throw new CliError(EXIT.USAGE, msg(`Option --${name} needs a value.`, `参数 --${name} 需要一个值。`));
@@ -61,15 +62,15 @@ const HELP_ZH = `motion-prompt-zh ${VERSION} — Motion Prompt 中文动效库 S
 
 用法：node motion-prompt.mjs <命令> [参数]
   info                 查看数据来源、版本、元素数量和缓存
-  list                 列出分类；--pack ui 列出该包所有动画
-  search <关键词...>   搜索中文、英文、日文，支持 --pack 和 --limit
-  get <编号...>        获取中文规格与原始代码，每次最多 ${MAX_GET} 项
+  list                 列出大类、分类、小类及款数；加 --group/--sec/--cat 列出范围内的动画
+  search <关键词...>   搜索中文、英文、日文，支持 --group/--sec/--cat 和 --limit
+  get <编号...>        获取中文规格与代码，并附上依赖的公共代码；每次最多 ${MAX_GET} 项
   prompt <编号...>     获取可直接使用的中文 Prompt
-  kit <分类包>         获取原始共享代码，不翻译代码标识符
   pick                 打开效果库并等待选择；完整源码仓库默认使用本地页
 
+范围：--group <大类序号或 id，如 1、web> --sec <分类 slug> --cat <小类 slug>
 参数：--lang zh-Hans|zh|en|ja（默认中文） --out <目录> --refresh
-pick：--local（要求完整源码） --no-open（只打印链接） --pack <分类包>
+pick：--local（要求完整源码） --no-open（只打印链接） --group/--sec/--cat
       --timeout <秒>（默认 ${PICK_TIMEOUT}）
 环境变量：MOTION_PROMPT_BASE（本地 api/v1 或 URL，多个来源用逗号分隔）
           MOTION_PROMPT_CACHE（缓存目录） MOTION_PROMPT_TTL（目录缓存秒数，默认 21600）
@@ -80,19 +81,22 @@ ${SITE}
 
 Usage: node motion-prompt.mjs <command> [options]
 
-  pick                  open the gallery so the user can pick; prints what they picked   [--pack <pack>]
+  pick                  open the gallery so the user can pick; prints what they picked   [--group/--sec/--cat]
                         [--timeout <seconds, default ${PICK_TIMEOUT}>] [--no-open] [--local]
-  search <words...>     best matches (Chinese, English or Japanese)   [--pack <pack>] [--limit N]
-  list                  packs, categories and counts
-  list --pack <pack>    every element in one pack
-  get <id> [<id>...]    code + spec for up to ${MAX_GET} elements (accepts 12, 012, #012 or a demo URL)
+  search <words...>     best matches (Chinese, English or Japanese)   [--group/--sec/--cat] [--limit N]
+  list                  groups, sections and categories with counts
+  list --cat <slug>     every element in a category (or --group <no|id>, --sec <slug>)
+  get <id> [<id>...]    code + spec for up to ${MAX_GET} elements, plus the shared code they depend on (accepts 1-12, #1-012 or a demo URL)
   prompt <id> [...]     the copy-paste prompt for an element
-  kit <pack>            shared constants and helpers the pack's elements need
   info                  data source, counts, version, cache folder
 
+Scope:
+  --group <no|id>       a group: 1 web, 2 motion, 3 film, 4 style
+  --sec <slug>          a section, e.g. text-motion
+  --cat <slug>          a category, e.g. charts
 Options:
   --lang zh-Hans|en|ja  language of names and text (default zh-Hans; zh is an alias)
-  --out <dir>           write files into <dir> instead of printing (get, prompt, kit)
+  --out <dir>           write files into <dir> instead of printing (get, prompt)
   --refresh             ignore the disk cache
   --no-open             pick: print the gallery URL instead of opening a browser
   --local               pick: require a full local clone (a clone is preferred automatically)
@@ -280,14 +284,17 @@ class Store {
 function requireChinese(cat, source) {
   const missing = [];
   const nonempty = s => typeof s === 'string' && s.trim();
-  for (const p of cat.packs || []) {
-    if (!nonempty(p.title?.['zh-Hans']) || !Array.isArray(p.categories) || !p.categories.length || !p.categories.every(c => nonempty(c?.['zh-Hans']))) missing.push(p.pack || 'pack');
+  for (const g of cat.groups || []) {
+    if (!nonempty(g.title?.['zh-Hans']) || !Array.isArray(g.sections) || !g.sections.length) { missing.push(g.id || 'group'); continue; }
+    for (const s of g.sections) {
+      if (!nonempty(s.title?.['zh-Hans']) || !Array.isArray(s.cats) || !s.cats.length || !s.cats.every(c => nonempty(c?.['zh-Hans']))) missing.push(s.slug || 'section');
+    }
   }
   for (const e of cat.elements) {
     if (!['name', 'meaning', 'ask', 'summary', 'use'].every(k => nonempty(e[k]?.['zh-Hans'])) ||
         !Array.isArray(e.spec?.['zh-Hans']) || !e.spec['zh-Hans'].length || !e.spec['zh-Hans'].every(nonempty)) missing.push('#' + e.id);
   }
-  if (!cat.elements.length || !cat.packs?.length || missing.length) throw new CliError(EXIT.NOT_FOUND,
+  if (!cat.elements.length || !cat.groups?.length || missing.length) throw new CliError(EXIT.NOT_FOUND,
     `来源 ${source} 缺少完整简体中文内容${missing.length ? '：' + missing.slice(0, 8).join('、') : ''}。\n未静默回退到原版英文。请设置 MOTION_PROMPT_BASE 指向中文版 api/v1，或重新构建；如确需原文，请明确指定 --lang en 或 --lang ja。`);
 }
 
@@ -296,29 +303,52 @@ function requireChinese(cat, source) {
 const HAS_JA = /[\u3040-\u30ff\uff66-\uff9f]/;
 const tx = (v, lang) => (v == null ? '' : typeof v === 'string' ? v : Array.isArray(v) ? v.join(' ') : String(v[lang] ?? v.en ?? v.ja ?? ''));
 const both = (v) => (v == null ? '' : typeof v === 'string' ? v : Object.values(v).map(both).join(' '));
-const packKey = (p) => String(p.pack ?? p.id ?? p.slug ?? p.name ?? '');
 const pad = (n) => String(n).padStart(3, '0');
 const demoUrl = (id, lang = UI_LANG) => `${SITE}?lang=${lang}#${id}`;
 
-function packsOf(cat) {
-  const listed = Array.isArray(cat.packs) ? cat.packs.map((p) => (typeof p === 'string' ? { pack: p } : p)) : [];
-  const seen = new Set(listed.map(packKey));
-  for (const e of cat.elements) if (!seen.has(e.pack)) { seen.add(e.pack); listed.push({ pack: e.pack }); }
-  return listed;
-}
+// 三级分类：大类（编号前缀）→ 分类 → 小类，来自 catalog.groups[].sections[].cats[]
+const sectionsOf = (cat) => (cat.groups || []).flatMap((g) => (g.sections || []).map((s) => ({ g, s })));
+const catsOf = (cat) => sectionsOf(cat).flatMap(({ g, s }) => (s.cats || []).map((c) => ({ g, s, c })));
+const catInfo = (cat, slug) => catsOf(cat).find((x) => x.c.slug === slug) || null;
 
 function categoryLabel(cat, e, lang) {
-  const p = packsOf(cat).find((x) => packKey(x) === e.pack);
-  const c = p && Array.isArray(p.categories) ? p.categories.find((x) => x.slug === e.category) : null;
-  if (!c) return { label: e.category || '', haystack: e.category || '' };
-  return { label: tx(c, lang) || c.slug, haystack: `${c.slug} ${both(c)}` };
+  const x = catInfo(cat, e.category);
+  if (!x) return { label: e.category || '', haystack: e.category || '' };
+  return { label: `${tx(x.s.title, lang)} / ${tx(x.c, lang)}`, haystack: `${x.g.id} ${both(x.g.title)} ${x.s.slug} ${both(x.s.title)} ${x.c.slug} ${both(x.c)}` };
 }
 
-function requirePack(cat, name) {
-  const wanted = String(name).toLowerCase();
-  const found = packsOf(cat).find((p) => packKey(p).toLowerCase() === wanted);
-  if (!found) throw new CliError(EXIT.NOT_FOUND, msg(`No pack named "${name}". Packs: ${packsOf(cat).map(packKey).join(', ')}`, `没有分类包“${name}”。可用分类：${packsOf(cat).map(packKey).join('、')}`));
-  return packKey(found);
+function requireGroup(cat, value) {
+  const w = String(value).toLowerCase();
+  const g = (cat.groups || []).find((x) => String(x.no) === w || x.id === w);
+  const all = (cat.groups || []).map((x) => `${x.no} ${x.id} ${tx(x.title, UI_LANG)}`);
+  if (!g) throw new CliError(EXIT.NOT_FOUND, msg(`No group "${value}". Groups: ${all.join(', ')}`, `没有大类“${value}”。可选：${all.join('、')}`));
+  return g;
+}
+
+function requireSection(cat, value) {
+  const w = String(value).toLowerCase();
+  const x = sectionsOf(cat).find((y) => y.s.slug === w);
+  const all = sectionsOf(cat).map((y) => `${y.s.slug} ${tx(y.s.title, UI_LANG)}`);
+  if (!x) throw new CliError(EXIT.NOT_FOUND, msg(`No section "${value}". Sections: ${all.join(', ')}`, `没有分类“${value}”。可选：${all.join('、')}`));
+  return x.s;
+}
+
+function requireCat(cat, value) {
+  const w = String(value).toLowerCase();
+  const x = catsOf(cat).find((y) => y.c.slug === w);
+  const all = catsOf(cat).map((y) => `${y.c.slug} ${tx(y.c, UI_LANG)}`);
+  if (!x) throw new CliError(EXIT.NOT_FOUND, msg(`No category "${value}". Categories: ${all.join(', ')}`, `没有小类“${value}”。可选：${all.join('、')}`));
+  return x.c;
+}
+
+// --group / --sec / --cat 组合成一个范围；都没给时返回 null
+function scopeOf(cat, flags) {
+  const g = flags.group ? requireGroup(cat, flags.group) : null;
+  const s = flags.sec ? requireSection(cat, flags.sec) : null;
+  const c = flags.cat ? requireCat(cat, flags.cat) : null;
+  if (!g && !s && !c) return null;
+  const label = [g && tx(g.title, UI_LANG), s && tx(s.title, UI_LANG), c && tx(c, UI_LANG)].filter(Boolean).join(' / ');
+  return { g, s, c, label, has: (e) => (!g || e.group === g.id) && (!s || e.section === s.slug) && (!c || e.category === c.slug) };
 }
 
 // 编号格式 <大类>-<序号>：接受 1-12、1-012、#1-012 或以 #1-012 结尾的演示链接；旧的 3 位纯数字编号不再识别
@@ -377,7 +407,7 @@ function resolveIds(cat, tokens, max) {
 }
 
 function line(cat, e, lang) {
-  return `#${e.id}  ${tx(e.name, lang)}  [${e.pack} / ${categoryLabel(cat, e, lang).label}]  ${tx(e.summary, lang)}`;
+  return `#${e.id}  ${tx(e.name, lang)}  [${categoryLabel(cat, e, lang).label}]  ${tx(e.summary, lang)}`;
 }
 
 // ---------- search ----------
@@ -388,7 +418,7 @@ function score(cat, e, tokens) {
   const aliases = both(e.aliases).toLowerCase();
   const tags = (e.tags || []).map((t) => String(t).toLowerCase());
   const slug = String(e.slug || '').toLowerCase();
-  const catHay = `${categoryLabel(cat, e, 'en').haystack} ${e.pack} ${both((packsOf(cat).find((p) => packKey(p) === e.pack) || {}).title)}`.toLowerCase();
+  const catHay = categoryLabel(cat, e, 'en').haystack.toLowerCase();
   const summary = `${both(e.summary)} ${both(e.meaning)}`.toLowerCase();
   const deep = `${both(e.use)} ${both(e.spec)}`.toLowerCase();
   let total = 0;
@@ -432,49 +462,53 @@ function emit(files, outDir) {
 async function cmdSearch(store, args, flags, lang) {
   if (!args.length) throw new CliError(EXIT.USAGE, msg('search needs at least one word, e.g. "search typewriter" or "search 文字 登場".', 'search 需要关键词，例如 search 弹性、search 文字 入场。'));
   const cat = await store.loadCatalog();
-  const pack = flags.pack ? requirePack(cat, flags.pack) : null;
+  const scope = scopeOf(cat, flags);
   const limit = Math.max(1, Math.min(50, Number(flags.limit) || 8));
   const tokens = args.join(' ').toLowerCase().split(/[\s,、　]+/).filter(Boolean);
   const hits = cat.elements
-    .filter((e) => !pack || e.pack === pack)
+    .filter((e) => !scope || scope.has(e))
     .map((e) => ({ e, ...score(cat, e, tokens) }))
     .filter((h) => h.matched > 0)
     .sort((a, b) => b.matched - a.matched || b.total - a.total || a.e.id.localeCompare(b.e.id));
   if (!hits.length) {
-    console.log(msg(`No match for "${args.join(' ')}"${pack ? ` in pack ${pack}` : ''}. Try other words (English tags match best), or browse with "list --pack <pack>".`, `没有找到“${args.join(' ')}”${pack ? `（分类 ${pack}）` : ''}。请换用中文或英文关键词，或用 list --pack <分类包> 浏览。`));
+    console.log(msg(`No match for "${args.join(' ')}"${scope ? ` in ${scope.label}` : ''}. Try other words (English tags match best), or browse with "list" and "list --cat <slug>".`, `没有找到“${args.join(' ')}”${scope ? `（范围：${scope.label}）` : ''}。请换用中文或英文关键词，或用 list、list --cat <小类> 浏览。`));
     return;
   }
   for (const h of hits.slice(0, limit)) console.log(line(cat, h.e, lang));
-  if (hits.length > limit) console.log(msg(`… ${hits.length - limit} more. Narrow with --pack or raise --limit.`, `… 另有 ${hits.length - limit} 项，可用 --pack 缩小范围或提高 --limit。`));
-  console.log(msg(`\nNext: get <id> for the code and spec. Demo: ${SITE}#<id>`, `\n下一步：get <编号> 读取规格与代码，kit <分类包> 读取共享实现。演示链接使用配置站点 ${SITE}。`));
+  if (hits.length > limit) console.log(msg(`… ${hits.length - limit} more. Narrow with --group/--sec/--cat or raise --limit.`, `… 另有 ${hits.length - limit} 项，可用 --group/--sec/--cat 缩小范围或提高 --limit。`));
+  console.log(msg(`\nNext: get <id> for the code and spec (the shared code it depends on is attached). Demo: ${SITE}#<id>`, `\n下一步：get <编号> 读取规格与代码（会附上依赖的公共代码）。演示链接使用配置站点 ${SITE}。`));
 }
 
 async function cmdList(store, flags, lang) {
   const cat = await store.loadCatalog();
-  if (flags.pack) {
-    const pack = requirePack(cat, flags.pack);
-    const items = cat.elements.filter((e) => e.pack === pack);
+  const scope = scopeOf(cat, flags);
+  if (scope) {
+    const items = cat.elements.filter(scope.has);
+    if (!items.length) { console.log(msg(`Nothing in ${scope.label}.`, `范围“${scope.label}”内没有动画。`)); return; }
     let current = null;
     for (const e of items) {
       const label = categoryLabel(cat, e, lang).label;
       if (label !== current) { console.log(`${current === null ? '' : '\n'}## ${label}`); current = label; }
       console.log(`#${e.id}  ${tx(e.name, lang)}  ${tx(e.summary, lang)}`);
     }
+    console.log(msg(`\n${items.length} elements in ${scope.label}.`, `\n${scope.label}：共 ${items.length} 个动画。`));
     return;
   }
-  for (const p of packsOf(cat)) {
-    const key = packKey(p);
-    const items = cat.elements.filter((e) => e.pack === key);
-    if (!items.length) continue;
-    console.log(`${key}  (${items.length})  ${idRange(items[0].id, items[items.length - 1].id)}  ${tx(p.title, lang)}`);
-    const counts = new Map();
-    for (const e of items) {
-      const label = categoryLabel(cat, e, lang).label;
-      counts.set(label, (counts.get(label) || 0) + 1);
+  const range = (els) => (els.length ? idRange(els[0].id, els[els.length - 1].id) : '');
+  for (const g of cat.groups || []) {
+    const gEls = cat.elements.filter((e) => e.group === g.id);
+    if (!gEls.length) continue;
+    console.log(`${g.no} ${g.id}  ${tx(g.title, lang)} (${gEls.length})  ${range(gEls)}`);
+    for (const s of g.sections || []) {
+      const sEls = gEls.filter((e) => e.section === s.slug);
+      console.log(`  ${s.slug}  ${tx(s.title, lang)} (${sEls.length})`);
+      for (const c of s.cats || []) {
+        const cEls = sEls.filter((e) => e.category === c.slug);
+        console.log(`    - ${c.slug}  ${tx(c, lang)} (${cEls.length})  ${range(cEls)}`);
+      }
     }
-    for (const [label, n] of counts) console.log(`  - ${label} (${n})`);
   }
-  console.log(msg(`\n${cat.elements.length} elements. Browse one pack with: list --pack <pack>`, `\n共 ${cat.elements.length} 个动画。使用 list --pack <分类包> 查看单包内容。`));
+  console.log(msg(`\n${cat.elements.length} elements. List one part with: list --group 1, list --sec text-motion or list --cat charts`, `\n共 ${cat.elements.length} 个动画。用 list --group 1、list --sec text-motion 或 list --cat charts 查看具体效果。`));
 }
 
 async function cmdGet(store, args, flags, lang) {
@@ -485,9 +519,21 @@ async function cmdGet(store, args, flags, lang) {
     const e = cat.elements.find((x) => x.id === id);
     files.push({ name: `${id}-${e.slug || 'element'}.txt`, text: await store.file(`${lang}/e/${id}.txt`) });
   }
+  // 每份公共代码只附一次（多款共用时合并），按首次出现的顺序编号 shared-1.js、shared-2.js…
+  const users = new Map();
+  for (const id of ids) {
+    const p = cat.elements.find((x) => x.id === id).pack;
+    if (!users.has(p)) users.set(p, []);
+    users.get(p).push(id);
+  }
+  let n = 0;
+  for (const [p, who] of users) {
+    n += 1;
+    const head = msg(`Shared code it depends on, used by ${who.map((x) => '#' + x).join(', ')}`, `依赖的公共代码，供 ${who.map((x) => '#' + x).join('、')} 使用`);
+    files.push({ name: `shared-${n}.js`, text: `// ${head}\n${await store.file(`kit/${p}.js`)}` });
+  }
   emit(files, flags.out);
-  const kits = [...new Set(ids.map((id) => cat.elements.find((x) => x.id === id).pack))];
-  const note = msg(`Needs kit: ${kits.join(', ')} — run "kit <pack>" once per pack before using this code.`, `需要共享代码：${kits.join('、')}。使用前对每个分类包运行一次 kit <分类包>；代码标识符与原作者版权行保持原样。`);
+  const note = msg(`Attached ${n} shared code file${n === 1 ? '' : 's'} these effects depend on. Keep code identifiers and the original copyright lines unchanged.`, `已附上依赖的公共代码 ${n} 份；代码标识符与原作者版权行保持原样。`);
   if (flags.out) console.log(note); else process.stdout.write(`\n// ${note}\n`);
 }
 
@@ -497,13 +543,6 @@ async function cmdPrompt(store, args, flags, lang) {
   const files = [];
   for (const id of ids) files.push({ name: `${id}-prompt.txt`, text: await store.file(`${lang}/p/${id}.txt`) });
   emit(files, flags.out);
-}
-
-async function cmdKit(store, args, flags) {
-  if (args.length !== 1) throw new CliError(EXIT.USAGE, msg('kit needs exactly one pack name, e.g. "kit motion".', 'kit 需要一个分类包名称，例如 kit motion。'));
-  const cat = await store.loadCatalog();
-  const pack = requirePack(cat, args[0]);
-  emit([{ name: `kit-${pack}.js`, text: await store.file(`kit/${pack}.js`) }], flags.out);
 }
 
 async function cmdInfo(store) {
@@ -521,9 +560,9 @@ async function cmdInfo(store) {
   if (!cat) { console.log(msg('Catalog: unavailable', '目录：不可用')); throw error; }
   console.log(msg(`In use: ${store.fromCache ? 'disk cache' : store.usedBase}`, `当前读取：${store.fromCache ? '磁盘缓存，原始来源 ' + (store.usedBase || '未知') : store.usedBase}`));
   console.log(msg(`Catalog: version ${cat.version ?? '?'} · ${cat.elements.length} elements`, `目录：版本 ${cat.version ?? '?'} · ${cat.elements.length} 个元素`));
-  for (const p of packsOf(cat)) {
-    const n = cat.elements.filter((e) => e.pack === packKey(p)).length;
-    if (n) console.log(`  ${packKey(p)}: ${n}`);
+  for (const g of cat.groups || []) {
+    const n = cat.elements.filter((e) => e.group === g.id).length;
+    if (n) console.log(`  ${g.no} ${g.id} ${tx(g.title, UI_LANG)}: ${n}`);
   }
   console.log(`Node:           ${process.version}`);
 }
@@ -694,7 +733,7 @@ function printPick(cat, { ids, unknown, note, lang }) {
     const e = cat.elements.find((x) => x.id === id);
     const name = tx(e.name, lang);
     const alt = tx(e.name, other);
-    out.push(`${i + 1}. #${e.id}  ${name}${alt && alt !== name ? ` / ${alt}` : ''}  [${e.pack} / ${categoryLabel(cat, e, lang).label}]`);
+    out.push(`${i + 1}. #${e.id}  ${name}${alt && alt !== name ? ` / ${alt}` : ''}  [${categoryLabel(cat, e, lang).label}]`);
     if (e.meaning) out.push(`   ${msg('Meaning', '效果解释')}：${tx(e.meaning, lang)}`);
     if (e.ask) out.push(`   ${msg('How to ask', '需求示例')}：${tx(e.ask, lang)}`);
     out.push(`   ${msg('Summary', '动画表现')}：${tx(e.summary, lang)}`);
@@ -704,19 +743,18 @@ function printPick(cat, { ids, unknown, note, lang }) {
     out.push('');
   });
   if (unknown.length) out.push(msg(`Ignored (not in the catalog): ${unknown.map((u) => `#${u}`).join(', ')}`, `已忽略未知编号：${unknown.map(u => '#' + u).join('、')}`), '');
-  const packs = [...new Set(ids.map((id) => cat.elements.find((x) => x.id === id).pack))];
-  out.push(msg(`Next: use exactly these elements, no more and no fewer. Run "get ${ids.join(' ')}" for the code (at most ${MAX_GET} ids per call) and "kit <pack>" once for each of: ${packs.join(', ')}.`, `下一步：仅使用以上选择，先检查当前项目框架，再运行 get ${ids.join(' ')} --lang ${lang}（每次最多 ${MAX_GET} 项），并分别运行 ${packs.map(p => 'kit ' + p).join('、')}。根据真实规格与代码完成项目修改，保留关键参数，最后用中文报告实现位置与验证结果。`));
+  out.push(msg(`Next: use exactly these elements, no more and no fewer. Run "get ${ids.join(' ')}" for the code and the shared code it depends on (at most ${MAX_GET} ids per call).`, `下一步：仅使用以上选择，先检查当前项目框架，再运行 get ${ids.join(' ')} --lang ${lang}（每次最多 ${MAX_GET} 项，会附上依赖的公共代码）。根据真实规格与代码完成项目修改，保留关键参数，最后用中文报告实现位置与验证结果。`));
   process.stdout.write(`${out.join('\n')}\n`);
 }
 
 async function cmdPick(store, args, flags, lang) {
-  if (args.length) throw new CliError(EXIT.USAGE, msg('pick takes no ids or words. Options: --pack <pack> --lang zh-Hans|en|ja --timeout <seconds> --no-open --local', 'pick 不接收编号或关键词，可用 --pack、--lang、--timeout、--no-open、--local。'));
+  if (args.length) throw new CliError(EXIT.USAGE, msg('pick takes no ids or words. Options: --group/--sec/--cat --lang zh-Hans|en|ja --timeout <seconds> --no-open --local', 'pick 不接收编号或关键词，可用 --group/--sec/--cat、--lang、--timeout、--no-open、--local。'));
   const timeoutSec = flags.timeout === undefined ? PICK_TIMEOUT : Number(flags.timeout);
   if (!Number.isFinite(timeoutSec) || timeoutSec < 1 || timeoutSec > 86400) throw new CliError(EXIT.USAGE, msg('--timeout must be a number of seconds between 1 and 86400.', '--timeout 必须是 1 到 86400 之间的秒数。'));
   const root = repoRoot(); // Development clones should not open an unpublished production site.
   if (flags.local && !root) throw new CliError(EXIT.USAGE, msg('--local needs a full clone of the repository (index.html and assets/ three folders above this script). Run pick without --local to use the public gallery.', '--local 需要完整中文版源码（含 index.html、assets 和 api/v1）。独立安装版请运行 pick 使用配置的站点。'));
   const cat = await store.loadCatalog(); // fail before opening anything if there is no data
-  const pack = flags.pack ? requirePack(cat, flags.pack) : null;
+  const scope = scopeOf(cat, flags);
 
   const token = crypto.randomBytes(16).toString('hex');
   const server = http.createServer();
@@ -724,7 +762,10 @@ async function cmdPick(store, args, flags, lang) {
   const { port } = server.address();
   const origin = `http://127.0.0.1:${port}`;
   const q = new URLSearchParams({ cb: `${origin}/?t=${token}` });
-  if (pack) q.set('pack', pack);
+  // 网站按 ?group= / ?sec= / ?cat= 打开对应筛选
+  if (scope?.g) q.set('group', scope.g.id);
+  if (scope?.s) q.set('sec', scope.s.slug);
+  if (scope?.c) q.set('cat', scope.c.slug);
   q.set('lang', lang); // Explicitly override a previous English/Japanese browser preference.
   const galleryUrl = `${root ? `${origin}/` : SITE}?${q}`;
   const waiting = waitForPick(server, { port, token, root, cat, flags, timeoutSec });
@@ -754,7 +795,7 @@ async function main() {
     case 'list': return cmdList(store, flags, lang);
     case 'get': return cmdGet(store, args, flags, lang);
     case 'prompt': return cmdPrompt(store, args, flags, lang);
-    case 'kit': return cmdKit(store, args, flags);
+    case 'kit': throw new CliError(EXIT.USAGE, msg('kit was removed: get now attaches the shared code an effect depends on.', 'kit 已移除，get 会自动附上依赖的公共代码。'));
     case 'info': return cmdInfo(store);
     case 'pick': return cmdPick(store, args, flags, lang);
     default: throw new CliError(EXIT.USAGE, msg(`Unknown command "${command}". Run with --help.`, `未知命令“${command}”，请运行 --help。`));

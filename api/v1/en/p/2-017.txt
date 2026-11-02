@@ -1,16 +1,16 @@
-Please use "Mask transition" (マスクトランジション), one of the names in "Motion graphics moves".
+Please use "Stop-motion style" (ストップモーション風), filed under "Motion principles / Rhythm & loops".
 Motion Prompt #2-017
 
-What it is: The next scene appears inside a growing shape
-What the sample shows: A circle- or star-shaped window grows, showing the next scene inside it.
+What it is: Moves in choppy steps, with frames dropped
+What the sample shows: A star hops across in choppy steps at about 8 frames per second, each frame slightly off.
 Spec:
-- Day scene → night scene → day scene, 2.35 s each. The change runs at 0.45–1.6 s of each half (1.15 s), cubic ease-in-out.
-- The next scene is drawn on top of the current one, clipped to a shape; the shape grows until it covers the frame.
-- Day→night: a circle from the sun's centre (112, 104), radius 0→470.
-- Night→day: a five-point star from the moon's centre (427, 104), outer radius 0→1150, rotating 1.2 rad (about 69°) as it grows.
-- While it grows, the edge of the shape has a white outline (width 7).
-When to use it: Use it to change scenes starting from an object in the frame, such as a sun, logo or button.
+- 38 frames per 4.7 s (about 8 per second, each held for about 0.124 s). Only those frames are drawn; nothing is drawn in between.
+- A yellow star (radius 38) hops from x = −44 to 583 along three arches of height 54·|sin(3πt)|, turning twice.
+- Each frame gets a fixed random jitter: position ±5 px across and ±4.5 px up and down, rotation ±0.15 rad, size ±5%.
+- The previous two frames stay faintly visible (opacity 0.28 and 0.12), like onion skin.
+- Black film-strip bands top and bottom (26 px each, with sprocket holes) and a frames-per-second label.
+When to use it: Use it for a handmade, claymation or collage look, when smooth motion feels too slick.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-017.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

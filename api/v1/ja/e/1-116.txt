@@ -1,44 +1,34 @@
-// Motion Prompt #1-116 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+// Motion Prompt #1-116 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#082
 //
-// フローティングラベル / Floating label
-// パック: ui (UIパーツの名前) · element 38 · カテゴリ: 選ぶ・切り替えるパーツ
-// 何が起きるか: カーソルが入力欄を押すと、中のラベルが小さくなって上へ移り青くなり、下線が中央から広がり、メールアドレスが1文字ずつ入る。最後は消して外を押し元に戻る。
+// ホバーで画像ズーム / Image zoom on hover
+// 分類: UI・Web / ポインター操作 / ホバー
+// 何が起きるか: カーソルが乗った写真だけが、枠の大きさは変えずに中身がゆっくり拡大し、離れると戻る。
 // 動きの仕様:
-//   - 350×52の入力欄。ラベル「メールアドレス」は最初、欄の中に15pxの灰色で置く
-//   - カーソルが0.9秒に押すと、0.25秒（easeOut 3乗）でラベルが11pxに縮み15px上がって青くなり、青い下線が0.3秒で中央から334pxまで広がる
-//   - 1.4秒から「hello@kitten.cn」を1文字0.08秒で入力。キャレットは0.5秒ごとに点滅
-//   - 3.3秒から1文字0.025秒で消し、3.85秒に欄の外を押すとラベルと下線が0.25秒で元に戻る
-// 使いどころ: ログイン・会員登録・問い合わせなど、狭い場所でも項目名を見失わせたくないフォームに。
-// タグ: floating-label, input, text-field, form, focus, underline
-// サイズ: 542x191 px · 1周: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+//   - 写真の枠 222×118（角丸8）を2つ並べる。カーソルが左、右の順に約1.5秒ずつ乗る
+//   - 乗ったら0.5秒で中身の拡大率 1→1.15（中心から・easeOut 3乗）。離れたら同じ0.5秒で戻る
+//   - 枠の外にはみ出した部分は切る（overflow: hidden）。枠と下の文字は動かない
+// 使いどころ: 写真の一覧（実績・商品・記事）で、どれを選ぼうとしているかを伝えたいとき。
+// タグ: hover, zoom, image, scale, overflow-hidden, thumbnail, gallery
+// サイズ: 539x208 px · 1周: 4.8 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-116
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 38
-// 改写自 KittenJam Motion Library #148 输入框浮动标签：350×52 输入框，标签「邮箱地址」初始在框内居中 15px 灰字。
-// 光标 0.9 秒点入：标签 0.25 秒 easeOut 缩到 11px、上浮 15px 变蓝；底部蓝线 0.3 秒从中间向两侧展开到 350px。
-// 1.4 秒起逐字输入「hello@kitten.cn」（每字 0.08 秒），光标竖线 0.5 秒闪烁；3.3 秒起每字 0.025 秒删空，3.85 秒点框外失焦，标签与底线 0.25 秒还原。
-const FLOAT_S = 'hello@kitten.cn';
-CELLS[37] = ui((w, h, t) => {
-  pageLines(96, 14, 350);
-  const bx = 96, by = 74, bw = 350, bh = 52;
-  const focus = eo(seg(t, .9, 1.15)) * (1 - eo(seg(t, 3.85, 4.1)));
-  const typed = Math.max(0, Math.min(FLOAT_S.length, Math.floor((t - 1.4) / .08) + 1));
-  const del = t >= 3.3 ? Math.min(FLOAT_S.length, Math.floor((t - 3.3) / .025) + 1) : 0;
-  const n = t < 1.4 ? 0 : Math.max(0, typed - del);
-  fillRR(bx, by, bw, bh, 8, focus > 0 ? '#fff' : C.block); strokeRR(bx, by, bw, bh, 8, C.line2, 1);
-  // 底线：灰色常驻，蓝线从中点展开
-  X.fillStyle = C.line2; X.fillRect(bx + 8, by + bh - 2, bw - 16, 2);
-  const lw = (bw - 16) * eo(seg(t, .9, 1.2)) * (1 - eo(seg(t, 3.85, 4.1)));
-  X.fillStyle = C.blue; X.fillRect(bx + bw / 2 - lw / 2, by + bh - 2, lw, 2);
-  const fl = n > 0 ? 1 : focus;
-  const ls = lerp(15, 11, fl), ly = by + bh / 2 - 15 * fl;
-  text('邮箱地址', bx + 16, ly, ls, fl > .5 ? C.blue : C.hint, fl > .5 ? 600 : 500);
-  const s = FLOAT_S.slice(0, n);
-  text(s, bx + 16, by + 33, 15, C.ink, 500, 'left', NUMF);
-  if (focus > .5 && Math.floor((t - .9) / .5) % 2 === 0) { const cxp = bx + 17 + tw(s, 15, 500, NUMF); X.fillStyle = C.blue; X.fillRect(cxp, by + 24, 1.5, 18); }
-  pointer([[0, w + 30, h + 30], [.8, 300, 104], [1.3, 300, 104], [1.9, 470, 160], [3.7, 470, 160], [4.4, w + 30, h + 30]], [.9, 3.85], t);
-});
+// @element 10
+// 10 ホバーで画像ズーム（枠はそのままで、中の写真だけがゆっくり拡大する）
+CELLS[9] = (k, w, h, u) => {
+  frame(k);
+  const FX = [22, 267], FY = 16, FW = 222, FH = 118, ZOOM = 0.15;
+  const cur = t => path([[0, 60, 160], [0.5, 120, 70], [1.8, 140, 84], [2.2, 370, 70], [3.4, 390, 84], [3.9, 470, 160], [4.8, 60, 160]], t);
+  view(k, () => {
+    for (let i = 0; i < 2; i++) {
+      const inside = t => { const [x, y] = cur(t); return x > FX[i] && x < FX[i] + FW && y > FY && y < FY + FH; };
+      const q = trans(inside, u, 0.5);
+      pic(k, FX[i], FY, FW, FH, i, 8, 1 + ZOOM * q);
+      txt(k, ['夏日山间小屋', '海边咖啡馆'][i], FX[i], FY + FH + 20, `800 13px ${JP}`, C.ink); bars(k, FX[i], FY + FH + 28, 150, 1);
+    }
+    const [cx, cy] = cur(u); cursor(k, cx, cy);
+  });
+};

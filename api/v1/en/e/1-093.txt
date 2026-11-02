@@ -1,109 +1,79 @@
 // Motion Prompt #1-093 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
 //
-// Regrouping bubbles / グループが組み替わるバブル
-// Pack: uxmotion (Interaction & data motion) · element 33 · Category: Animated charts
-// What happens: A cluster of coloured bubbles jostles apart into 4, then 3 groups as tabs switch, then merges back; labels above each group show budget totals.
+// Constellation mesh / 星座のようなメッシュ
+// Category: UI & Web / Pages / Hero backgrounds
+// What happens: Dots drift on a dark field joined by faint lines; the pointer pulls nearby dots in with yellow links, and a click sprays out new dots.
 // Motion spec:
-//   - 36 project bubbles with radius (4.5 + √budget × 5) × 0.85, coloured by 4 teams.
-//   - Force layout: pull toward the group centre with strength 5, velocity damping e^(−5·dt), and 3 collision passes with 1.5 px spacing.
-//   - In the demo, by-team at 1.0 s forms 4 clusters, by-status at 2.6 s forms 3, and all at 4.2 s merges them; each switch adds a random kick of ±30.
-//   - Hovering drops other bubbles to 0.45 opacity and shows a tooltip; group labels move with their cluster, show the budget total, and fade in 0.3 s after a switch.
-// When to use it: Use it in project-management or portfolio-analysis dashboards to show the same data from different groupings.
-// Tags: bubble-chart, force-layout, grouping, dashboard, data-viz, tabs
+//   - 72 dots drift on small closed paths and link within 72 px: hue 210 + x/width × 90, opacity (1 − d/72) × .45.
+//   - The pointer becomes a node, drawing bright yellow links (255,224,130, (1 − d/120) × .8) to dots within 120 px and pulling them in by up to 16 px.
+//   - A click bursts 9 new dots at 60–130 px/s, with speed above 30 px/s decaying at 1.5 per second; their radius shrinks from 4 to 1.6 over .6 s.
+//   - The top-left badge shows the live link count; demo pointer enters at 0.6 s and clicks at 2.8 s.
+// When to use it: Use it as the hero background for tech, data and social-network products.
+// Tags: particles, constellation, network, hero, background, cursor, mesh
 // Size: 539x208 px · Cycle: 6.4 s
-// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-093
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 33
-// 33 气泡分组重排：36 个项目气泡（半径 (4.5+√预算×5)×0.85，按团队着色），力导布局：向组中心的弹力 5、阻尼 e^(-5dt)、3 轮碰撞分离。
-// 指针 1.0 秒点"按团队"→挤开重组成 4 群；2.6 秒点"按状态"→3 群；3.3–3.9 秒悬停最大的气泡（其余 .45 透明、浮出提示框）；4.2 秒点"全部"→聚回一团；
-// 每群顶上的标签随群移动并显示预算合计。物理按 60Hz 预先模拟成帧表；5.3–6.3 秒把位置平滑并回初始的聚团排布，保证首尾一致。
-const BBL_COL = ['#F472B6', '#6366F1', '#F59E0B', '#10B981'], BBL_TEAM = ['设计', '工程', '市场', '运营'], BBL_STAT = ['规划中', '进行中', '已完成'];
-const BBL_CEN = [[[270, 114]], [[78, 114], [205, 114], [334, 114], [461, 114]], [[110, 114], [270, 114], [430, 114]]];
-const BBL_MODES = [[0, 0], [1.0, 1], [2.6, 2], [4.2, 0]];
-const BBL_TW = [46, 57, 57], BBL_TX = [190, 236, 293];
-const BBL_tc = i => BBL_TX[i] + BBL_TW[i] / 2;
-const BBL_C = {};
-function BBL_get() {
-  if (BBL_C.F) return BBL_C;
-  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const TC = [8, 12, 9, 7], SC = [10, 16, 10], si = [], P = [];
-  SC.forEach((c, s) => { for (let j = 0; j < c; j++) si.push(s); });
-  for (let j = si.length - 1; j > 0; j--) { const m = Math.floor(rnd() * (j + 1)), t = si[j]; si[j] = si[m]; si[m] = t; }
-  TC.forEach((c, tm) => { for (let j = 0; j < c; j++) { const v = 0.4 + Math.pow(rnd(), 1.6) * 4.6; P.push({ team: tm, st: si[P.length], v, r: (4.5 + Math.sqrt(v) * 5) * 0.85, x: 270 + (rnd() - 0.5) * 300, y: 114 + (rnd() - 0.5) * 120, vx: 0, vy: 0 }); } });
-  const gOf = (p, m) => (m === 0 ? 0 : m === 1 ? p.team : p.st);
-  const step = (dt, m) => {
-    P.forEach(p => { const c = BBL_CEN[m][gOf(p, m)]; p.vx += (c[0] - p.x) * 5 * dt; p.vy += (c[1] - p.y) * 5 * dt; const d = Math.exp(-5 * dt); p.vx *= d; p.vy *= d; p.x += p.vx * dt * 1.6; p.y += p.vy * dt * 1.6; });
-    for (let it = 0; it < 3; it++) for (let a = 0; a < P.length; a++) for (let b = a + 1; b < P.length; b++) {
-      const A = P[a], B = P[b], dx = B.x - A.x, dy = B.y - A.y, d = Math.sqrt(dx * dx + dy * dy) || 0.01, mm = A.r + B.r + 1.5;
-      if (d < mm) { const o = (mm - d) / 2, ux = dx / d, uy = dy / d; A.x -= ux * o; A.y -= uy * o; B.x += ux * o; B.y += uy * o; }
+// @element 18
+// 18 粒子连线网：72 个点缓慢漂移（约 12 px/s 的闭合小轨迹），相距 72px 内连淡线（色相 210+x/宽×90，透明度 (1−d/72)×.45）；
+// 指针 0.6 秒进入后成为一个节点，120px 内连亮黄线（255,224,130，(1−d/120)×.8）并把点轻轻吸过来；2.8 秒按下在该处炸出 9 个新点（60–130 px/s，超 30 px/s 按每秒 1.5 衰减，出生 .6 秒内半径由 4 缩到 1.6），左上角显示当前连线数
+const MESH_LINK = 72, MESH_PL = 120;
+const MESH_P = Array.from({ length: 72 }, (_, i) => ({ x: 8 + hash(i * 5 + 1) * (CW - 16), y: 8 + hash(i * 5 + 2) * (CH - 16), ax: 6 + hash(i * 5 + 3) * 8, ay: 5 + hash(i * 5 + 4) * 7, n: 1 + (i % 2), ph: hash(i * 5 + 5) * TAU, ph2: hash(i * 5 + 6) * TAU }));
+const MESH_BURST = 2.8;
+const MESH_ptr = u => UXA_path([[0, 590, 240], [0.6, 560, 200], [1.6, 380, 110], [2.8, 250, 96], [3.0, 250, 96], [4.0, 140, 70], [4.8, 90, 140], [5.6, -40, 240], [6.4, -40, 240]], u);
+const MESH_on = u => clamp(seg(u, 0.5, 1.0)) * (1 - clamp(seg(u, 5.0, 5.5)));
+// 反射折叠：让炸出的点在卡片内反弹
+const MESH_fold = (v, L) => { const m = ((v % (2 * L)) + 2 * L) % (2 * L); return m > L ? 2 * L - m : m; };
+CELLS[17] = (k, w, h, u) => {
+  k.drawImage(layer('MESH_bg', g => {
+    g.fillStyle = '#0A0D1F'; g.fillRect(0, 0, CW, CH);
+    g.save(); g.translate(CW * 0.2, 0); g.scale(1, 0.9 * CH / (1.2 * CW) * 2.2);
+    const rg = g.createRadialGradient(0, 0, 0, 0, 0, CW * 0.72); rg.addColorStop(0, '#1E2552'); rg.addColorStop(1, 'rgba(30,37,82,0)');
+    g.fillStyle = rg; g.fillRect(-CW, -CW, CW * 3, CW * 3); g.restore();
+  }), 0, 0);
+  const on = MESH_on(u), [mx, my] = MESH_ptr(u);
+  const pts = MESH_P.map(p => {
+    let x = p.x + p.ax * Math.sin(TAU * p.n * u / CYC + p.ph), y = p.y + p.ay * Math.sin(TAU * p.n * u / CYC + p.ph2);
+    if (on > 0) { const dx = mx - x, dy = my - y, d = Math.hypot(dx, dy); if (d < MESH_PL && d > 12) { const g = 16 * (1 - d / MESH_PL) * on; x += dx / d * g; y += dy / d * g; } }
+    return [x, y, 1.6];
+  });
+  // 炸出的 9 个点：s 为初速，t 秒后的路程 = 30t + (s−30)(1−e^(−1.5t))/1.5；复位段淡出
+  if (u >= MESH_BURST) {
+    const t = u - MESH_BURST, [bx, by] = MESH_ptr(MESH_BURST), fade = fadeIn(u);
+    for (let j = 0; j < 9; j++) {
+      const a = j / 9 * TAU + hash(j + 300) * 0.4, s = 60 + hash(j + 310) * 70, dist = 30 * t + (s - 30) * (1 - Math.exp(-1.5 * t)) / 1.5;
+      if (fade > 0.02) pts.push([MESH_fold(bx + Math.cos(a) * dist, CW), MESH_fold(by + Math.sin(a) * dist, CH), t < 0.6 ? 1.6 + (1 - t / 0.6) * 2.4 : 1.6, fade]);
     }
-    P.forEach(p => { p.x = clamp(p.x, p.r + 4, CW - p.r - 4); p.y = clamp(p.y, p.r + 44, CH - p.r - 28); });
-  };
-  for (let i = 0; i < 600; i++) step(1 / 60, 0);
-  P.forEach(p => { p.vx = 0; p.vy = 0; });
-  const snap = () => { const a = new Float32Array(P.length * 2); P.forEach((p, i) => { a[i * 2] = p.x; a[i * 2 + 1] = p.y; }); return a; };
-  const S0 = snap(), F = [S0], n = Math.round(CYC * 60);
-  let mode = 0;
-  for (let f = 1; f <= n; f++) {
-    const t = f / 60;
-    for (const [mt, m] of BBL_MODES) if (mt > 0 && mt > (f - 1) / 60 && mt <= t) { mode = m; P.forEach(p => { p.vx += (rnd() - 0.5) * 60; p.vy += (rnd() - 0.5) * 60; }); }
-    step(1 / 60, mode); F.push(snap());
   }
-  // 悬停目标：最大的气泡在 3.6 秒的位置
-  let hi = 0; P.forEach((p, i) => { if (p.r > P[hi].r) hi = i; });
-  const hf = F[Math.round(3.6 * 60)], hx = hf[hi * 2], hy = hf[hi * 2 + 1];
-  BBL_C.P = P; BBL_C.S0 = S0; BBL_C.F = F; BBL_C.gOf = gOf;
-  BBL_C.KEYS = [[0, 560, 240], [0.5, 560, 240], [0.92, BBL_tc(1), 23], [1.2, BBL_tc(1), 23], [2.5, BBL_tc(2), 23], [3.25, hx + 2, hy + 2], [3.95, hx + 3, hy + 3], [4.12, BBL_tc(0), 23], [4.35, BBL_tc(0), 23], [4.9, 570, 240]];
-  return BBL_C;
-}
-CELLS[32] = (k, w, h, u) => {
-  const B = BBL_get(), P = B.P, F = B.F;
-  k.fillStyle = UX.surface; k.fillRect(0, 0, CW, CH);
-  const f = clamp(u * 60, 0, F.length - 1), f0 = Math.min(F.length - 2, Math.floor(f)), a = f - f0, wB = inOut3(seg(u, 5.3, 6.3));
-  const X = [], Y = [];
-  P.forEach((p, i) => { X[i] = mix(mix(F[f0][i * 2], F[f0 + 1][i * 2], a), B.S0[i * 2], wB); Y[i] = mix(mix(F[f0][i * 2 + 1], F[f0 + 1][i * 2 + 1], a), B.S0[i * 2 + 1], wB); });
-  let mi = 0; BBL_MODES.forEach((m, i) => { if (u >= m[0]) mi = i; });
-  const mode = BBL_MODES[mi][1], tsw = BBL_MODES[mi][0];
-  const c = UXB_path(u, B.KEYS), cIn = u > 0.5 && u < 4.9;
-  let hov = -1; if (cIn) P.forEach((p, i) => { if ((c[0] - X[i]) ** 2 + (c[1] - Y[i]) ** 2 <= p.r * p.r) hov = i; });
-  P.forEach((p, i) => {
-    k.globalAlpha = hov >= 0 && hov !== i ? 0.45 : 1;
-    k.fillStyle = BBL_COL[p.team]; k.beginPath(); k.arc(X[i], Y[i], p.r, 0, TAU); k.fill();
-    k.fillStyle = 'rgba(255,255,255,.28)'; k.beginPath(); k.arc(X[i] - p.r * 0.3, Y[i] - p.r * 0.35, p.r * 0.35, 0, TAU); k.fill();
-    if (hov === i) { k.globalAlpha = 1; k.strokeStyle = UX.ink; k.lineWidth = 2; k.beginPath(); k.arc(X[i], Y[i], p.r + 2.5, 0, TAU); k.stroke(); }
-  });
+  let links = 0;
+  k.lineWidth = 1;
+  for (let a = 0; a < pts.length; a++) for (let b = a + 1; b < pts.length; b++) {
+    const dx = pts[a][0] - pts[b][0], dy = pts[a][1] - pts[b][1];
+    if (Math.abs(dx) > MESH_LINK || Math.abs(dy) > MESH_LINK) continue;
+    const d = Math.hypot(dx, dy); if (d > MESH_LINK) continue;
+    links++;
+    const al = (1 - d / MESH_LINK) * 0.45 * (pts[a][3] ?? 1) * (pts[b][3] ?? 1);
+    k.strokeStyle = `hsla(${(210 + pts[a][0] / CW * 90).toFixed(0)},90%,75%,${al.toFixed(2)})`;
+    k.beginPath(); k.moveTo(pts[a][0], pts[a][1]); k.lineTo(pts[b][0], pts[b][1]); k.stroke();
+  }
+  if (on > 0.01) {
+    k.lineWidth = 1.3;
+    for (const p of pts) {
+      const d = Math.hypot(p[0] - mx, p[1] - my); if (d > MESH_PL) continue;
+      links++;
+      k.strokeStyle = `rgba(255,224,130,${((1 - d / MESH_PL) * 0.8 * on).toFixed(2)})`;
+      k.beginPath(); k.moveTo(mx, my); k.lineTo(p[0], p[1]); k.stroke();
+    }
+    k.globalAlpha = on; k.fillStyle = '#FFE082'; k.beginPath(); k.arc(mx, my, 3.5, 0, TAU); k.fill(); k.globalAlpha = 1;
+  }
+  k.fillStyle = '#E7ECFF';
+  for (const p of pts) { k.globalAlpha = p[3] ?? 1; k.beginPath(); k.arc(p[0], p[1], p[2], 0, TAU); k.fill(); }
   k.globalAlpha = 1;
-  // 群标签（切换后 .3s 淡入）
-  const names = mode === 0 ? ['全部'] : mode === 1 ? BBL_TEAM : BBL_STAT, la = mi === 0 ? 1 : seg(u, tsw, tsw + 0.3), lf = UXB_f(800, 9.5);
-  k.save(); k.globalAlpha = la; k.font = lf;
-  names.forEach((nm, g) => {
-    let top = 1e9, sx = 0, n = 0, sum = 0;
-    P.forEach((p, i) => { if (B.gOf(p, mode) === g) { top = Math.min(top, Y[i] - p.r); sx += X[i]; n++; sum += p.v; } });
-    const s = mode === 0 ? `全部 ${P.length} 个项目 · ${sum.toFixed(1)}B` : `${nm} · ${sum.toFixed(1)}B`, tw = k.measureText(s).width + 16;
-    const lx = clamp(sx / n - tw / 2, 4, CW - tw - 4), ly = Math.max(40, top - 20);
-    rr(k, lx, ly, tw, 16, 8); k.fillStyle = UX.surface; k.fill(); k.strokeStyle = UX.line; k.lineWidth = 1; k.stroke();
-    txt(k, s, lx + 8, ly + 11.5, lf, UX.ink);
-  });
-  k.restore();
-  // 分组标签页：滑块 .35s 回弹
-  rr(k, 187, 10, 166, 26, 13); k.fillStyle = UX.surface2; k.fill(); k.strokeStyle = UX.line; k.lineWidth = 1; k.stroke();
-  const tabEv = [[-1, 0], ...BBL_MODES.slice(1).map(([t, m]) => [t, m])];
-  const pp = UXB_ramp(u, tabEv, 0.35, backOut), pi0 = clamp(Math.floor(pp), 0, 1), pf = pp - pi0;
-  const px = mix(BBL_TX[pi0], BBL_TX[pi0 + 1], pf), pw = mix(BBL_TW[pi0], BBL_TW[pi0 + 1], pf);
-  rr(k, px, 13, pw, 20, 10); k.fillStyle = UX.ink; k.fill();
-  ['全部', '按团队', '按状态'].forEach((s, i) => txt(k, s, BBL_tc(i), 27, UXB_f(800, 11), Math.abs(pp - i) < 0.5 ? UX.surface : UX.ink2, 'center'));
-  // 图例
-  let lx = 154; BBL_TEAM.forEach((n, i) => { k.fillStyle = BBL_COL[i]; k.beginPath(); k.arc(lx + 4, 196, 4, 0, TAU); k.fill(); txt(k, n, lx + 12, 200, UXB_f(750, 10), UX.ink2); lx += 60; });
-  if (hov >= 0) {
-    const p = P[hov], l1 = `项目 ${hov + 1}`, l2 = `${BBL_TEAM[p.team]} · ${BBL_STAT[p.st]} · ${p.v.toFixed(1)}B`;
-    k.font = UXB_f(700, 9.5); const tw = k.measureText(l2).width + 18, tx = clamp(X[hov], 70, CW - 70), ty = Y[hov] - p.r - 6;
-    rr(k, tx - tw / 2, ty - 34, tw, 32, 9); k.fillStyle = UX.ink; k.fill();
-    txt(k, l1, tx - tw / 2 + 9, ty - 21, UXB_f(900, 9.5), UX.surface); txt(k, l2, tx - tw / 2 + 9, ty - 8, UXB_f(700, 9.5), UX.surface);
-  }
-  for (const [t] of BBL_MODES.slice(1)) ripple(k, c[0], c[1], seg(u, t, t + 0.5));
-  if (cIn) cursor(k, c[0], c[1], Math.max(UXB_press(u, 1.0), UXB_press(u, 2.6), UXB_press(u, 4.2)));
+  k.fillStyle = 'rgba(255,255,255,.1)'; rr(k, 14, 12, 92, 22, 11); k.fill();
+  txt(k, `${links} 条连线`, 60, 23.5, `700 11.5px ${MONO}`, '#C5D0FF', 'center', 'middle');
+  ripple(k, mx, my, (u - MESH_BURST) / 0.5, '255,224,130');
+  cursor(k, mx, my, pingPong(u, MESH_BURST - 0.1, MESH_BURST, MESH_BURST + 0.02, MESH_BURST + 0.16), false);
 };

@@ -1,60 +1,54 @@
-// Motion Prompt #2-046 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#142
+// Motion Prompt #2-046 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// Shatter / ガラス割れ
-// Pack: motion2 (Motion graphics moves, part 2) · element 22 · Category: Transitions & highlights
-// What happens: The picture cracks like glass, the shards fly off and the next scene is revealed.
+// Slot machine / スロットマシン
+// Category: Motion graphics / Text animation / Impact & physics
+// What happens: Random characters stream vertically in four windows, slowing left to right to land on the result; when all stop the frame flashes twice.
 // Motion spec:
-//   - Mountain scene → day scene → mountain, 2.35 s each. The impact point is (304, 92).
-//   - Cracks: 0.3–0.65 s. Thirteen radial lines and rings at radii of about 40, 98 and 175 (each ±15%) appear in order of distance from the centre (cubic ease-out, out to 420 px). A white flash star at the centre fades by 0.6 s.
-//   - The glass breaks at 0.82 s: 52 shards (13 × 4 rings) cut from the old scene fly outward at 220–480 px/s (vertical speed × 0.7, plus up to 120 upward), with gravity 1300 px/s², spinning ±4 rad/s and shrinking up to 35% over 1 s.
-//   - Outer rings leave later (0.035 s per ring plus up to 0.03 s at random). Each shard fades out 0.55–1.0 s after it starts moving.
-//   - Shards have a white 2.5 px edge; the next scene is underneath.
-// When to use it: Use it for an impact, a break or a twist, just before a title or a result that should hit hard.
-// Tags: shatter, glass-break, broken-glass, shards, crack, transition, impact
+//   - 4 windows (76×92 px, 14 px apart); reel i is a strip of 18 + 6i characters whose first and last are the target.
+//   - From 0.3 s each strip scrolls up over 1.4 + 0.5i s with cubic-bezier(.2,.75,.25,1.04), overshooting slightly and settling.
+//   - At speed, ghost copies sit 14 px above and below; the top and bottom 22% of each window get a dark inner shadow.
+//   - Over 3.2–4.2 s the frame flashes yellow twice on a 0.5 s period; the strip starts and ends on the same character, so the loop is seamless.
+// When to use it: Use it to build suspense before a result: draws, fortunes, rankings or prizes.
+// Tags: slot-machine, reel, spin, reveal, lottery, text
 // Size: 539x208 px · Cycle: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-046
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 22
-// 22 ガラス割れ（画面がガラスのようにひび割れ、破片が飛び散って次の画面が現れる）
-const SHARDS = (() => {
-  const R = rand(2222), I = [304, 92], NA = 13, RAD = [0, 40, 98, 175, 360], V = [];
-  const angs = []; for (let i = 0; i < NA; i++) angs.push((i + (R() - 0.5) * 0.6) / NA * Math.PI * 2);
-  for (let r = 0; r < RAD.length; r++) { V.push([]); for (let i = 0; i < NA; i++) { const rr_ = r ? RAD[r] * (0.85 + R() * 0.3) : 0, a = angs[i] + (r ? (R() - 0.5) * 0.12 : 0); V[r].push([I[0] + Math.cos(a) * rr_, I[1] + Math.sin(a) * rr_]); } }
-  const sh = [];
-  for (let r = 0; r < RAD.length - 1; r++) for (let i = 0; i < NA; i++) {
-    const j = (i + 1) % NA, poly = r ? [V[r][i], V[r][j], V[r + 1][j], V[r + 1][i]] : [I, V[1][j], V[1][i]];
-    const cxp = poly.reduce((s, p) => s + p[0], 0) / poly.length, cyp = poly.reduce((s, p) => s + p[1], 0) / poly.length;
-    const dx = cxp - I[0], dy = cyp - I[1], dd = Math.hypot(dx, dy) || 1, sp = 220 + R() * 260;
-    sh.push({ poly, c: [cxp, cyp], vx: dx / dd * sp, vy: dy / dd * sp * 0.7 - 120 * R(), spin: (R() - 0.5) * 8, dl: r * 0.035 + R() * 0.03 });
-  }
-  return { I, V, RAD, NA, sh };
-})();
-CELLS[21] = abCell((k, w, h, u, a, b) => {
-  const S = [scMtn, scrA], crack = eOut(P(u, TA - 0.2, TA + 0.15)) * 420, tb = TA + 0.32;
-  if (u < tb) {
-    S[a](k, w, h);
-    if (crack > 0) {
-      const { I, V, RAD, NA } = SHARDS; k.strokeStyle = '#fff'; k.lineWidth = 3; k.lineCap = 'round'; k.lineJoin = 'round'; k.globalAlpha = 0.95;
-      for (let i = 0; i < NA; i++) { k.beginPath(); k.moveTo(I[0], I[1]); for (let r = 1; r < RAD.length; r++) { if (RAD[r] * 0.85 > crack) break; k.lineTo(V[r][i][0], V[r][i][1]); } k.stroke(); }
-      for (let r = 1; r < RAD.length - 1; r++) { if (RAD[r] * 1.4 > crack) break; k.beginPath(); for (let i = 0; i <= NA; i++) { const p = V[r][i % NA]; i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1]); } k.stroke(); }
-      k.globalAlpha = 1;
-      const fl = 1 - P(u, TA - 0.2, TA + 0.1); if (fl > 0) { k.fillStyle = '#fff'; star(k, I[0], I[1], 26 * fl + 6, 0.3, 0.3, 6); k.fill(); }
+// @element 39
+// 改写自 KittenJam Motion Library #65（Hannah）· 拉霸：4 个窗格里的滚带向上快速滚动随机字，从左到右依次减速（各 1.4 + 0.5i 秒，cubic-bezier(.2,.75,.25,1.04) 带轻微回弹）停在「大吉大利」，全部停下后边框闪两下；滚带首尾都是目标字，循环无缝。
+const SLOT_POOL = [...'大吉利福寿财中凶7★♥'], SLOT_TG = [...'大吉大利'];
+const SLOT_STRIPS = SLOT_TG.map((t, i) => { const r = rand(6565 + i * 17), n = 18 + i * 6; return Array.from({ length: n }, (_, j) => j === 0 || j === n - 1 ? t : SLOT_POOL[Math.floor(r() * SLOT_POOL.length)]); });
+function SLOT_bz(x) {   // cubic-bezier(.2,.75,.25,1.04)：二分求 t 再取 y
+  const bx = t => 3 * (1 - t) * (1 - t) * t * 0.2 + 3 * (1 - t) * t * t * 0.25 + t * t * t;
+  let a = 0, b = 1; for (let i = 0; i < 24; i++) { const m = (a + b) / 2; if (bx(m) < x) a = m; else b = m; }
+  const t = (a + b) / 2; return 3 * (1 - t) * (1 - t) * t * 0.75 + 3 * (1 - t) * t * t * 1.04 + t * t * t;
+}
+CELLS[38] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const RW = 76, RH = 92, GAPR = 14, X0 = (w - (4 * RW + 3 * GAPR)) / 2, Y0 = (h - RH) / 2;
+  const flash = u > 3.2 && u < 4.2 ? 0.5 - 0.5 * Math.cos(Math.PI * 2 * (u - 3.2) / 0.5) : 0;
+  k.fillStyle = C.navy2; rr(k, X0 - 18, Y0 - 18, 4 * RW + 3 * GAPR + 36, RH + 36, 16); k.fill();
+  k.strokeStyle = mix(C.navy3, C.yel, flash); k.lineWidth = 3; k.stroke();
+  SLOT_STRIPS.forEach((st, i) => {
+    const x = X0 + i * (RW + GAPR), n = st.length, dur = 1.4 + 0.5 * i;
+    const p = SLOT_bz(P(u, 0.3, 0.3 + dur)), off = p * (n - 1) * RH;
+    const sp = Math.abs(SLOT_bz(P(u + 0.02, 0.3, 0.3 + dur)) - p) * (n - 1) * RH / 0.02;   // 滚动速度 px/s，用于拖影
+    k.save(); rr(k, x, Y0, RW, RH, 10); k.fillStyle = '#16204A'; k.fill(); k.clip();
+    const j0 = Math.floor(off / RH);
+    for (let j = j0 - 1; j <= j0 + 1; j++) {
+      const ch = st[mod(j, n)], y = Y0 + RH / 2 + j * RH - off;
+      const blur = Math.min(1, sp / 1800);
+      if (blur > 0.05) { k.globalAlpha = 0.25 * blur; txt(k, ch, x + RW / 2, y - 14 * blur, `900 58px ${JP}`, C.yel, 'center', 'middle'); txt(k, ch, x + RW / 2, y + 14 * blur, `900 58px ${JP}`, C.yel, 'center', 'middle'); }
+      k.globalAlpha = 1 - 0.5 * blur; txt(k, ch, x + RW / 2, y, `900 58px ${JP}`, C.yel, 'center', 'middle');
     }
-    return;
-  }
-  S[b](k, w, h);
-  TK.setTransform(1, 0, 0, 1, 0, 0); TK.globalCompositeOperation = 'source-over'; TK.clearRect(0, 0, w, h); S[a](TK, w, h);
-  for (const s of SHARDS.sh) {
-    const t = u - tb - s.dl; let al = 1, x = 0, y = 0, rt = 0, sc = 1;
-    if (t > 0) { x = s.vx * t; y = s.vy * t + 0.5 * 1300 * t * t; rt = s.spin * t; sc = 1 - 0.35 * Math.min(1, t); al = 1 - P(t, 0.55, 1.0); }
-    if (al <= 0) continue;
-    k.save(); k.globalAlpha = al; k.translate(s.c[0] + x, s.c[1] + y); k.rotate(rt); k.scale(sc, sc); k.translate(-s.c[0], -s.c[1]);
-    polyPath(k, s.poly); k.save(); k.clip(); k.drawImage(TMP, 0, 0); k.restore();
-    k.strokeStyle = 'rgba(255,255,255,.85)'; k.lineWidth = 2.5; polyPath(k, s.poly); k.stroke();
+    k.globalAlpha = 1;
+    const gt = k.createLinearGradient(0, Y0, 0, Y0 + RH);
+    gt.addColorStop(0, 'rgba(0,0,0,.6)'); gt.addColorStop(0.22, 'rgba(0,0,0,0)'); gt.addColorStop(0.78, 'rgba(0,0,0,0)'); gt.addColorStop(1, 'rgba(0,0,0,.6)');
+    k.fillStyle = gt; k.fillRect(x, Y0, RW, RH);
     k.restore();
-  }
-});
+  });
+};

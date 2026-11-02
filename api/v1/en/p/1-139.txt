@@ -1,15 +1,15 @@
-Please use "Slide to confirm" (スライドして確定), one of the names in "Interaction & data motion".
+Please use "Photo stack shuffle" (フォトスタックシャッフル), filed under "Pointer interactions / Tactile & cards".
 Motion Prompt #1-139
 
-What it is: A control that confirms only when the knob is slid to the end, and springs back otherwise
-What the sample shows: The capsule knob is first dragged partway and released, bouncing back; the second drag reaches the end, the whole track fills green and the label changes to confirmed. A shine sweeps the hint text.
+What it is: Pulls the top photo off a pile and tucks it underneath
+What the sample shows: Each time the cursor clicks a pile of 4 tilted polaroids, the top one slides out to the right and goes to the bottom while the rest move up a place.
 Spec:
-- Track 300 × 56 px with a 23 px knob; a shine sweeps the hint text from left to right every 1.6 s.
-- The first drag goes to 60% from 0.9–1.7 s and is released; the knob springs back to the start over 0.6 s with damping.
-- The second drag reaches the end from 2.65–3.45 s and releases at 3.55 s; past 85% counts as confirmed.
-- After confirming, the track fills green within 0.3 s and shows the confirmed label; it cross-fades back to the start from 5.4–6.0 s.
-When to use it: Use it for payments, transfers and deletions where an accidental tap would be costly.
+- A pile of 4 tilted polaroids (96×112) whose slots are angled −3°, 4°, −7° and 6°.
+- The cursor clicks the top card at 0.6, 1.5, 2.4 and 3.3 s; each shuffle starts 0.05 s after the click and lasts 0.75 s.
+- The top card slides 170px to the right and turns 10° more with easeOut power 3 over the first 0.36 s, then tucks into the bottom slot over the remaining 0.39 s (easeInOut power 3).
+- The other 3 cards each move up one slot at the same time (easeInOut power 3); after 4 shuffles the order is back to the start, matching the first frame.
+When to use it: Use it in travel stories, albums or portfolios to flip through photos one at a time.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-139.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

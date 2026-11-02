@@ -1,16 +1,15 @@
-Please use "Hold to confirm" (長押しで確定), one of the names in "Landing page & web effects".
+Please use "Ripple effect" (リップルエフェクト), filed under "Pointer interactions / Buttons".
 Motion Prompt #1-104
 
-What it is: An action runs only after the button is held until its progress fills
-What the sample shows: The first hold is released early and the fill drains back; the second lasts the full 1.2 s, the file card disappears and the button reads "Deleted".
+What it is: A ripple spreads from the point that was pressed
+What the sample shows: Each click sends a white circle out from the click point to fill the button, then it fades away.
 Spec:
-- Holding the 220×46 "Hold to delete" button fills a dark bar from left to right at a steady rate; the action runs only after a full 1.2 s.
-- Hold 1, 0.70–1.40 s: released after 0.7 s (about 58%); the fill drains to 0 over 0.35 s with easeOut (power 3).
-- Hold 2, 2.00–3.20 s reaches full and runs at 3.20 s: the file card above fades out and flattens over 0.35 s, and the button reads "Deleted".
-- Reset over 4.30–4.70 s: the fill drains with easeInOut (power 3), the card fades back in and the label returns to "Hold to delete".
-- Versus a normal click: a single click does nothing, and letting go early visibly drains the progress.
-When to use it: Use it for irreversible actions such as delete, transfer or submit, to prevent accidental taps.
+- Button 280 × 56 (orange, radius 10). Clicks at 0.7 s (left of centre) and 2.9 s (right of centre).
+- The circle is centred on the click point; its radius grows from 0 to the distance to the button's farthest corner over 0.6 s (cubic ease-out).
+- White at 0.4 opacity, fading to 0 between 0.3 and 0.8 s after the click.
+- The circle is clipped to the button (overflow: hidden); the label sits above it.
+When to use it: Use it to confirm a press on a button or list item right where it happened.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-104.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,37 +1,52 @@
 // Motion Prompt #4-021 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// Seigaiha waves / 青海波
-// Pack: scenes (Styled scenes) · element 21 · Category: Patterns & graphics
-// What happens: Cream and indigo concentric arcs overlap like scales and slide slowly downward, under a still golden moon at the top right.
+// Glass mosaic / ガラスモザイク
+// Category: Visual styles / Craft & patterns / Print & handmade
+// What happens: Coloured glass tiles flip over in a wave from right to left to form a sunset over the sea, hold, then flip away again from the right.
 // Motion spec:
-//   - Deep indigo background #0F2447. Each wave is 5 concentric semicircles of radius 22 px, alternating cream #E9E2D0 and indigo.
-//   - Rows are 11 px apart; odd rows shift by 22 px, and each later row overlaps the one before.
-//   - The pattern moves down 22 px (1 pattern period) every 6.4 s, looping seamlessly.
-//   - A gold moon of radius 46 px sits at (410, 64) with a radial gradient #F5D58A → #C9952F.
-// When to use it: Openers for Japanese food, ryokan or confectionery brands, backgrounds for Japan-themed sites, or seasonal campaign posters.
-// Tags: seigaiha, japanese-pattern, waves, indigo, moon, seamless-loop, traditional
+//   - 45 × 18 glass tiles of 12 px with 1.5 px grout; each tile's brightness varies between 0.85 and 1.15.
+//   - Sunset seascape: the top 55% is an orange-to-purple sky with an oval sun; below is a deep blue sea with a sun reflection on alternate rows.
+//   - From 0.2 s tiles flip into place from right to left, 0.35 s each, all in place by about 3.65 s.
+//   - From 5.4 s they flip away again from right to left, 0.25 s each, finishing by 6.3 s.
+// When to use it: Openers for travel, resort, architecture or interior content, a hero image reveal, or section breaks in a presentation.
+// Tags: mosaic, tiles, glass, sunset, flip, reveal, pixel
 // Size: 539x208 px · Cycle: 6.4 s
-// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-021
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 21
-// 21 青海波：深靛底上米白与靛蓝五重同心半圆层层相叠，纹样每周期向下平移一个纹样周期（22px），金色满月压在右上
-const SEI_R = 22;                                             // 波纹半径 22px（原 70px）
-CELLS[20] = (k, w, h, u) => {
-  k.fillStyle = '#0F2447'; k.fillRect(0, 0, CW, CH);
-  const shift = (u / CYC) * SEI_R;                           // 纹样竖向周期 = R（两行），每周期平移整一个周期
-  const R = SEI_R;
-  for (let row = -3; row <= Math.ceil((CH + R) / (R / 2)) + 1; row++) {   // 行距 R/2，奇数行错开 R，后画的行压住前一行
-    const y = row * R * 0.5 + shift;
-    for (let col = -1; col <= Math.ceil(CW / (R * 2)) + 1; col++) {
-      const x = col * R * 2 + (((row % 2) + 2) % 2 ? R : 0) - 18;
-      for (let q = 5; q >= 1; q--) { k.fillStyle = q % 2 ? '#0F2447' : '#E9E2D0'; k.beginPath(); k.arc(x, y, R * q / 5, Math.PI, 0); k.fill(); }
+// @element 25
+// 25 玻璃马赛克：45×18 块 12px 玻璃砖从右往左依次翻面落位（0.2–3.65 秒），拼出日落海景；5.4 秒起再从右往左翻回
+const MOS_SZ = 12, MOS_GAP = 1.5;
+const MOS_TILES = (() => {
+  const out = []; let n = 0;
+  for (let y = 0; y < CH; y += MOS_SZ) for (let x = 0; x < CW; x += MOS_SZ) {
+    const uu = x / CW, v = y / CH; let c;
+    if (v < 0.55) {                                          // 天空：橙红渐变到紫，椭圆落日 rx 46、ry 34
+      c = lerpC([255, 120, 80], [80, 60, 140], Math.pow(1 - v / 0.55, 1.2));
+      if (Math.hypot((x + MOS_SZ / 2 - CW * 0.55) / 46, (y + MOS_SZ / 2 - CH * 0.45) / 34) < 1) c = [255, 226, 170];
+    } else {                                                 // 海面：深蓝渐变，隔行的落日倒影
+      c = lerpC([30, 60, 120], [10, 20, 50], (v - 0.55) / 0.45);
+      if (Math.abs(x + MOS_SZ / 2 - CW * 0.55) < 40 * (1 - (v - 0.55) * 1.5) && Math.floor(y / MOS_SZ) % 2) c = [255, 170, 110];
     }
+    const j = 0.85 + hash(n * 3 + 1) * 0.3; c = c.map(q => Math.min(255, Math.round(q * j)));
+    const t0 = 0.2 + (1 - uu) * 2.6 + hash(n * 3 + 2) * 0.5;       // 翻上：从右往左，0.35 秒
+    const t1 = SHOW + (1 - uu) * 0.5 + hash(n * 3 + 3) * 0.15;     // 翻回：5.4–6.3 秒，0.25 秒
+    out.push({ x, y, c: rgba(c, 1), t0, t1 }); n++;
   }
-  const mg = k.createRadialGradient(410, 64, 4, 410, 64, 48); mg.addColorStop(0, '#F5D58A'); mg.addColorStop(1, '#C9952F');
-  k.fillStyle = mg; k.beginPath(); k.arc(410, 64, 46, 0, TAU); k.fill();
-  grain(k, 0.07);
+  return out;
+})();
+CELLS[24] = (k, w, h, u) => {
+  k.fillStyle = '#E8E2D6'; k.fillRect(0, 0, CW, CH);
+  const s = MOS_SZ - MOS_GAP, hi = new Path2D();
+  for (const t of MOS_TILES) {
+    const kk = out3(seg(u, t.t0, t.t0 + 0.35)) * (1 - out3(seg(u, t.t1, t.t1 + 0.25))); if (kk <= 0) continue;
+    const hh = s * kk, top = t.y + MOS_SZ / 2 - hh / 2;      // 绕水平中线翻转：高度按进度缩放
+    k.fillStyle = t.c; k.fillRect(t.x + MOS_GAP / 2, top, s, hh);
+    hi.rect(t.x + MOS_GAP / 2, top, s, 1.5 * kk);
+  }
+  k.fillStyle = 'rgba(255,255,255,.22)'; k.fill(hi);         // 每块砖顶部的一道光泽
+  grain(k, 0.05, 'multiply');
 };

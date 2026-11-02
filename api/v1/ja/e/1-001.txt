@@ -1,7 +1,7 @@
 // Motion Prompt #1-001 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#049
 //
 // モーダル / Modal dialog
-// パック: ui (UIパーツの名前) · element 01 · カテゴリ: 開く・重なるパーツ
+// 分類: UI・Web / コンポーネント / 開く・重なる
 // 何が起きるか: 「開く」ボタンを押すと画面全体が暗くなり、中央に小窓が少し拡大しながら出る。×を押すと閉じる。
 // 動きの仕様:
 //   - 4.5秒周期・カード542×191。カーソルが0.95秒に左下の「開く」ボタン（120×36）へ着き、1.0秒にクリック
@@ -12,11 +12,11 @@
 // 使いどころ: 確認・入力など、今の作業を止めて1つのことに集中させたいとき。
 // タグ: modal, modal-dialog, dialog, popup, overlay, backdrop, lightbox, confirm
 // サイズ: 542x191 px · 1周: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-001
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 01
 // 01 モーダル（Modal dialog）

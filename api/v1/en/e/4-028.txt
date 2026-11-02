@@ -1,54 +1,52 @@
 // Motion Prompt #4-028 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// Impossible triangle / 不可能な三角形
-// Pack: scenes (Styled scenes) · element 28 · Category: Objects & space
-// What happens: Coloured blocks drop one by one onto a pastel ground to build 3 edges whose ends meet into an impossible triangle that slowly turns.
+// Vertical verse / 縦書きの詩箋
+// Category: Visual styles / East Asian tradition / Calligraphy & painting
+// What happens: On paper ruled in red, Wang Wei's poem fades in column by column from the right with varied ink depth, and a red seal is stamped at the end.
 // Motion spec:
-//   - 18 blocks, 6 per edge on 3 edges, in isometric projection; the bounding circle is 196 px across.
-//   - Blocks drop from above 1/6 s apart and settle in 0.5 s; all are in place over 0.2–3.5 s.
-//   - Block 1 is redrawn clipped to the hexagon where it overlaps the last block, creating the illusion that the ends join.
-//   - The whole figure makes 1 full turn per 6.4 s and floats ±4 px; it fades out over 5.4–6.0 s.
-// When to use it: Openers for videos on illusions, maths or design thinking, hero sections on creative sites, or posters.
-// Tags: penrose, impossible-triangle, isometric, optical-illusion, blocks, 3d, geometry
+//   - Red-ruled letter paper with 9 columns, 40 px per column and 30 px per character, on #E2D7C1.
+//   - The 44 characters of Wang Wei's poem appear from the right column on, 9.5 per second, each fading in over 1.5 s, finishing in about 4.6 s.
+//   - Ink depth varies by character order between 0.78 and 1.0; the title is 21 px bold, the body 23 px.
+//   - 1 character's time after the last, a 30 × 30 px seal 摩詰 in #B3261E is stamped; ink and seal fade out from 5.4 to 6.0 s while the ruling stays.
+// When to use it: Use it as a hero for classical literature or heritage brands, an opener for poetry readings, or a transition in culture talks.
+// Tags: vertical-text, poem, chinese, letter-paper, seal, calligraphy, type
 // Size: 539x208 px · Cycle: 6.4 s
-// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-028
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 28
-// 28 不可能三角：18 块方块沿三条边依次从上方落下（0.2–3.5 秒），在等轴视角里首尾相接成彭罗斯三角；整体每周期在画面内转一整圈并轻轻浮动，5.4–6.0 秒淡出
-const PENR_PAL = [['#FFFFFF', '#FF8A5B', '#3D4FD8'], ['#FFF4D6', '#F6B93B', '#2B7A78'], ['#FDE7EF', '#E85D75', '#4A3F8C']];
-const PENR_CUBES = (() => { const c = []; for (let i = 0; i < 6; i++) c.push([i, 0, 0]); for (let i = 0; i < 6; i++) c.push([6, i, 0]); for (let i = 0; i < 6; i++) c.push([6, 6, i]); return c; })();
-const PENR_ISO = (x, y, z) => [(x - y) * 0.866, (x + y) * 0.5 - z];        // 单位等轴投影（边长 1）
-const PENR_BOX = (() => { // 成品三角的中心与外接半径（常量），用来定比例
-  const pts = []; for (const [x, y, z] of PENR_CUBES) for (let q = 0; q < 8; q++) pts.push(PENR_ISO(x + (q & 1), y + ((q >> 1) & 1), z + ((q >> 2) & 1)));
-  const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length, cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
-  return [cx, cy, Math.max(...pts.map(p => Math.hypot(p[0] - cx, p[1] - cy)))];
-})();
-CELLS[27] = (k, w, h, u) => {
-  const g = k.createLinearGradient(0, 0, CW, CH); g.addColorStop(0, '#F6E7DC'); g.addColorStop(1, '#DCE3F2');
-  k.fillStyle = g; k.fillRect(0, 0, CW, CH);
-  const S = 98 / PENR_BOX[2], fade = fadeIn(u);                               // 外接圆直径 196px
-  const iso = (x, y, z) => { const p = PENR_ISO(x, y, z); return [(p[0] - PENR_BOX[0]) * S, (p[1] - PENR_BOX[1]) * S]; };
-  const face = (pts, c) => { k.fillStyle = c; k.strokeStyle = c; k.beginPath(); pts.forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.closePath(); k.fill(); k.stroke(); };
-  const drawCube = (c, idx) => {
-    const kk = out3(clamp(((u - 0.2) * 6 - idx) / 3)); if (kk <= 0) return;   // 每块间隔 1/6 秒，0.5 秒落定
-    const [x, y, z0] = c, z = z0 + (1 - kk) * 4, p = PENR_PAL[Math.floor(idx / 6)];
-    k.globalAlpha = Math.min(1, kk * 1.5) * fade;
-    face([iso(x, y, z + 1), iso(x + 1, y, z + 1), iso(x + 1, y + 1, z + 1), iso(x, y + 1, z + 1)], p[0]);
-    face([iso(x + 1, y, z), iso(x + 1, y + 1, z), iso(x + 1, y + 1, z + 1), iso(x + 1, y, z + 1)], p[1]);
-    face([iso(x, y + 1, z), iso(x + 1, y + 1, z), iso(x + 1, y + 1, z + 1), iso(x, y + 1, z + 1)], p[2]);
-    k.globalAlpha = 1;
-  };
-  k.save(); k.translate(269.5, 104 + Math.sin(TAU * u / CYC) * 4); k.rotate(TAU * u / CYC);   // 每周期转一圈、浮动 ±4px
-  k.lineWidth = 0.6;
-  PENR_CUBES.map((c, i) => [c, i]).sort((a, b) => (a[0][0] + a[0][1] + a[0][2]) - (b[0][0] + b[0][1] + b[0][2])).forEach(([c, i]) => drawCube(c, i));
-  // 首块再画一次并裁到它与末块交叠的六边形里：造成首尾相接的错觉
-  k.beginPath(); [iso(0, 1, 0), iso(1, 1, 0), iso(1, 0, 0), iso(1, 0, 1), iso(0, 0, 1), iso(0, 1, 1)].forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1]));
-  k.closePath(); k.clip(); drawCube(PENR_CUBES[0], 0);
+// @element 05
+// 05 竖排诗笺：朱丝栏笺纸上，王维《山居秋暝》从右往左逐字浮现，墨色有浓有淡，最后钤一方朱印
+const POEM = ['山居秋暝', '空山新雨後', '天氣晚來秋', '明月松間照', '清泉石上流', '竹喧歸浣女', '蓮動下漁舟', '隨意春芳歇', '王孫自可留'];
+CELLS[4] = (k, w, h, u) => {
+  k.fillStyle = '#E2D7C1'; k.fillRect(0, 0, CW, CH); paper(k, [150, 120, 80], 600, 5);
+  const colW = 40, ch = 30, x0 = 440, y0 = 30, cols = POEM.length;   // 每列 40px、每字 30px
+  const fade = fadeIn(u);
+  // 朱丝栏常驻；淡出复位只作用于墨字与印章，使周期首尾画面一致
+  k.strokeStyle = 'rgba(190,60,40,.55)'; k.lineWidth = 1;
+  const left = x0 - colW * (cols - 1) - colW / 2, top = y0 - 14, bh = ch * 5 + 16;
+  k.strokeRect(left, top, colW * cols, bh);
+  for (let i = 1; i < cols; i++) { const x = left + i * colW; k.beginPath(); k.moveTo(x, top); k.lineTo(x, top + bh); k.stroke(); }
+  k.save(); k.globalAlpha = fade;
+  const speed = 9.5; let n = 0;                     // 每秒写 9.5 个字，44 个字约 4.6 秒写完
+  POEM.forEach((ln, ci) => {
+    const x = x0 - ci * colW;
+    [...ln].forEach((c, q) => {
+      const t = (u - 0.2) * speed - n; n++;
+      if (t <= 0) return;
+      const a = clamp(t / 1.5), ink = 0.78 + 0.22 * Math.sin(n * 2.1);   // 墨色深浅按字序起伏
+      txt(k, c, x, y0 + q * ch + 10 + (ci === 0 ? 6 : 0), `${ci === 0 ? 900 : 700} ${ci === 0 ? 21 : 23}px ${SERIF}`, `rgba(20,16,12,${a * ink})`, 'center', 'middle');
+    });
+  });
+  const sk = clamp((u - 0.2) * speed - n - 1);      // 写完 1 个字的时间后钤印
+  if (sk > 0) {
+    k.save(); k.translate(left - 2, top + bh + 2); k.translate(-20, -20); k.rotate(-0.04); k.globalAlpha = sk * fade;
+    k.fillStyle = '#B3261E'; k.fillRect(-15, -15, 30, 30);
+    txt(k, '摩詰', 0, 1, `900 11px ${SERIF}`, '#F1E4CC', 'center', 'middle');
+    k.restore();
+  }
   k.restore();
-  txt(k, 'x + y + z  →  0', 520, 194, `500 8px ${MONO}`, 'rgba(40,40,70,.5)', 'right');
-  grain(k, 0.05, 'multiply');
+  grain(k, 0.07, 'multiply');
 };

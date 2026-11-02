@@ -1,57 +1,51 @@
 // Motion Prompt #1-120 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// 二つ折りカード / Folding card
-// パック: ui (UIパーツの名前) · element 42 · カテゴリ: 開く・重なるパーツ
-// 何が起きるか: カーソルが紺の表紙を押すと、表紙が左端を軸に開いて中の左半分が見え、右半分の3行が順に浮かび上がり、最後は閉じて元に戻る。
+// ベントーグリッド展開 / Bento grid expand
+// 分類: UI・Web / ポインター操作 / ホバー
+// 何が起きるか: 3×2のベントーグリッドで、カーソルが左上、次に右下の区画に乗るたび、その区画が大きく広がって見出しも大きくなり、ほかの区画が縮んで譲る。
 // 動きの仕様:
-//   - 閉じた150×130のカード。紺の表紙に「招待状」
-//   - カーソルが0.8秒に表紙を押す。0.9〜1.6秒に表紙が左端を軸に開き（scaleX 1 → −1、easeInOut 3乗）、0を過ぎると中の左半分が見える。同時にカード全体が右へ75px動いて中央を保つ
-//   - 中の3行は1.6・1.8・2.0秒から各0.3秒でフェードインしながら6px上がる
-//   - 3.4秒に中を押すと、文字が3.4〜3.6秒に消え、3.6〜4.2秒に表紙が閉じてカードが元の位置へ戻る
-// 使いどころ: 招待状・グリーティングカード・お知らせなど、開く楽しさを演出したいメッセージに。
-// タグ: folding-card, invitation, card-open, reveal, greeting, click
-// サイズ: 542x191 px · 1周: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+//   - 3×2のベントーグリッド（471×144・区画の間8px）。列も行も最初はすべて1fr
+//   - カーソルが区画に乗ると、その列が2.4fr・その行が1.8frに0.55秒の easeInOut 3乗で広がり、ほかの列と行が同時に縮む
+//   - 広がった区画の見出しは13pxから18pxになる
+//   - タイムライン: 0.45〜2.0秒に左上 → 2.0〜3.6秒に右下 → カーソルが離れ、均等に戻る
+// 使いどころ: 機能紹介・ダッシュボード・作品集など、区画で並べた情報を1つずつ大きく見せたい所に。
+// タグ: bento, grid, expand, layout, hover, dashboard
+// サイズ: 539x208 px · 1周: 4.8 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-120
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 42
-// 改写自 KittenJam Motion Library #311 对折邀请卡：150×130 合起的卡片居中，封面深蓝带「邀请函」。
-// 光标 0.8 秒点封面，0.9–1.6 秒封面以左边为轴打开（scaleX 1→−1，easeInOut 3 次方），过 0 后显示浅色内页左半；
-// 同时整张卡右移 75px 保持居中。内页右半三行文字 1.6 / 1.8 / 2.0 秒起各 0.3 秒淡入并上移 6px；
-// 3.4 秒点内页左半，文字 3.4–3.6 秒淡出，3.6–4.2 秒封面合上、卡片回到原位。
-const INVITE_W = 150, INVITE_H = 130, INVITE_Y = 30;
-const INVITE_L = [['诚邀您参加', 12, 500, C.hint], ['年度设计之夜', 18, 800, C.ink], ['10 月 29 日 19:00', 12, 600, C.blue]];
-CELLS[41] = ui((w, h, t) => {
-  X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
-  const q = eio(seg(t, .9, 1.6)) * (1 - eio(seg(t, 3.6, 4.2)));
-  const s = Math.cos(Math.PI * q), hx = 196 + 75 * q;
-  // 内页右半（被封面盖住的那面）
-  shadowed(() => fillRR(hx, INVITE_Y, INVITE_W, INVITE_H, 6, '#fffdf8'), 14, 4, .14);
-  const fade = 1 - seg(t, 3.4, 3.6);
-  INVITE_L.forEach(([s0, sz, wt, col], i) => {
-    const p = eo(seg(t, 1.6 + i * .2, 1.9 + i * .2)) * fade;
-    if (p <= 0) return;
-    X.save(); X.globalAlpha = p; text(s0, hx + INVITE_W / 2, INVITE_Y + 40 + i * 26 + 6 * (1 - p), sz, col, wt, 'center', i === 2 ? NUMF : JP); X.restore();
-  });
-  // 封面 / 内页左半：以 hx 为轴压缩
-  const cw = INVITE_W * Math.abs(s);
-  if (cw > .5) {
-    X.save(); X.translate(hx, 0); X.scale(Math.abs(s), 1);
-    if (s > 0) {
-      fillRR(0, INVITE_Y, INVITE_W, INVITE_H, 6, '#1d3a8a');
-      strokeRR(10, INVITE_Y + 10, INVITE_W - 20, INVITE_H - 20, 4, 'rgba(255,255,255,.35)', 1);
-      text('邀请函', INVITE_W / 2, INVITE_Y + 58, 20, '#fff', 800, 'center');
-      bar(INVITE_W / 2 - 24, INVITE_Y + 80, 48, 'rgba(255,255,255,.4)', 4);
-    } else {
-      fillRR(-INVITE_W, INVITE_Y, INVITE_W, INVITE_H, 6, '#f6f1e7');
-      circle(-INVITE_W / 2, INVITE_Y + INVITE_H / 2, 22, C.lb); text('★', -INVITE_W / 2, INVITE_Y + INVITE_H / 2 + 1, 18, C.blue, 700, 'center', NUMF);
+// @element 38
+// 改写自 KittenJam Motion Library #209 Bento 格局展开：3×2 便当盒格局（471×144、格间距 8），各栏各列平时都是 1fr。
+// 光标停在某格时，该格所在栏 0.55 秒 easeInOut 3 次方放大到 2.4fr、所在列放大到 1.8fr，其他栏列同步让位；该格标题字号 13px → 18px。
+// 时间线：0.45–2.0 秒指左上格 → 2.0–3.6 秒指右下格 → 光标移出，全部回到平均。
+const BENTO = { x: 20, y: 12, w: 471, h: 144, gap: 8 };
+const BENTO_LAY = (fc, fr) => {
+  const cw = BENTO.w - BENTO.gap * 2, ch = BENTO.h - BENTO.gap, sc = fc[0] + fc[1] + fc[2], sr = fr[0] + fr[1];
+  const ws = fc.map(f => cw * f / sc), hs = fr.map(f => ch * f / sr);
+  return { ws, hs, xs: [BENTO.x, BENTO.x + ws[0] + BENTO.gap, BENTO.x + ws[0] + ws[1] + BENTO.gap * 2], ys: [BENTO.y, BENTO.y + hs[0] + BENTO.gap] };
+};
+// 光标落点 = 目标格完全展开后的中心；悬停目标按时间表决定，避免「布局决定悬停、悬停又改布局」的循环
+const BENTO_PT = (c, r) => { const fc = [1, 1, 1], fr = [1, 1]; fc[c] = 2.4; fr[r] = 1.8; const L = BENTO_LAY(fc, fr); return [L.xs[c] + L.ws[c] / 2, L.ys[r] + L.hs[r] / 2]; };
+const BENTO_TGT = t => { t = mod(t, CYC); return t >= 0.45 && t < 2.0 ? [0, 0] : t >= 2.0 && t < 3.6 ? [2, 1] : null; };
+CELLS[37] = (k, w, h, u) => {
+  frame(k, 'example.com/dashboard');
+  const A = BENTO_PT(0, 0), B = BENTO_PT(2, 1);
+  const [cx, cy] = path([[0, 470, 162], [0.45, A[0], A[1]], [1.9, A[0], A[1]], [2.15, B[0], B[1]], [3.6, B[0], B[1]], [4.0, 470, 162], [4.8, 470, 162]], u);
+  const cq = [0, 1, 2].map(j => trans(t => { const g = BENTO_TGT(t); return !!g && g[0] === j; }, u, 0.55, eIO));
+  const rq = [0, 1].map(j => trans(t => { const g = BENTO_TGT(t); return !!g && g[1] === j; }, u, 0.55, eIO));
+  const L = BENTO_LAY(cq.map(q => 1 + 1.4 * q), rq.map(q => 1 + 0.8 * q));
+  const COLS = [C.blueL, C.accL, '#E6F4EC', '#EEE8FF', '#FFF3D6', C.skel], DOTS = [C.blue, C.acc, '#3FA56B', '#8A6BEA', '#E0A21C', C.sub];
+  view(k, () => {
+    k.fillStyle = '#fff'; k.fillRect(0, 0, VW, VH);
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) {
+      const i = r * 3 + c, x = L.xs[c], y = L.ys[r], cw = L.ws[c], ch = L.hs[r], e = cq[c] * rq[r];
+      k.fillStyle = COLS[i]; rr(k, x, y, cw, ch, 10); k.fill();
+      k.fillStyle = DOTS[i]; k.beginPath(); k.arc(x + cw - 18, y + 18, 7, 0, 7); k.fill();
+      txt(k, ['数据', '团队', '设计', '日程', '消息', '发布'][i], x + 12, y + ch - 14, `800 ${13 + 5 * e}px ${JP}`, C.ink);
     }
-    const d = .3 * (1 - Math.abs(s));
-    if (d > 0) { X.fillStyle = `rgba(20,24,40,${d})`; X.fillRect(s > 0 ? 0 : -INVITE_W, INVITE_Y, INVITE_W, INVITE_H); }
-    X.restore();
-  }
-  pointer([[0, w + 30, h + 30], [.7, 290, 110], [1.2, 290, 110], [2.0, 470, 170], [3.0, 470, 170], [3.35, 200, 120], [3.6, 200, 120], [4.4, w + 30, h + 30]], [.8, 3.4], t);
-});
+    cursor(k, cx, cy);
+  });
+};

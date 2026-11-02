@@ -1,7 +1,7 @@
 // Motion Prompt #3-002 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#026
 //
 // Tilt / ティルト
-// Pack: camera (Camera moves & transitions) · element 02 · Category: Camera Movement
+// Category: Editing & photography / Camera & editing / Camera movement
 // What happens: The camera stays in place and pivots upward, from a person at ground level up to the top of a tower.
 // Motion spec:
 //   - Camera: position fixed (height 1.4 m); pitch only, -0.06 rad → +0.36 rad (-3° → +21°, about 24° in total)
@@ -13,11 +13,11 @@
 // When to use it: To show the height or scale of a building or a person.
 // Tags: tilt, tilt up, pitch, vertical, look up, camera move
 // Size: 539x208 px · Cycle: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-002
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
 // @element 02
 // 02 ティルト

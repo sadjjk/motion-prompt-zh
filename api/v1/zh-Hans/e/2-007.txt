@@ -1,49 +1,50 @@
-// Motion Prompt #2-007 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#007
+// Motion Prompt #2-007 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#121
 //
-// 数字递增 / Count-up
-// 分类包: motion (动态图形基础) · element 07 · 子分类: 入场与文字
-// 动画表现: 数字快速上升，最后准确停在目标值。
+// 预备动作 / Anticipation
+// 分类: 动态图形 / 运动原理 / 入场与缓动
+// 动画表现: 方形角色先反向后撤并压扁蓄力，然后向前冲出。
 // 运动规格:
-//   - 每 4.7 秒一轮，在 0.1–0.4 秒淡入，在 4.0–4.4 秒淡出。
-//   - 数字为 104 px 粗体，在 0.45–2.9 秒从 0→2,480；值 = round(target × (1 − (1 − p)^4))，先快后慢。
-//   - 使用千位分隔符；数字等宽并右对齐，避免数值变化时横向抖动。
-//   - 2.9 秒到达目标：从白色切换为黄色，缩放按 1 + 0.07·e^(−7t)·cos(15t) 轻微回弹。
-//   - 左侧向上箭头标记为半径 34 的薄荷色圆，从 0.35 秒起按弹簧公式 1 − e^(−7t)·cos(14t) 出现；计数时按 6 px × (1 − p)^3 × sin(30u) 上下抖动。
-//   - 下方进度条为 330 × 12，蓝到薄荷色渐变，按当前值 ÷ 目标值的比例填充。
-// 适用场景: 适合强调收入、用户数、完成率等数据的规模和增长。
-// 标签: count-up, counter, number, odometer, stats, kpi, progress
+//   - 每 2.35 秒一个动作，每 4.7 秒两次，先左到右再右到左；珊瑚色圆角方块边长 86 px、圆角 24，带白箭头，起点距边缘 108 px，地面 y = 178。
+//   - 蓄力：0.2–0.95 秒，二次缓入缓出；反向退 44 px，压至宽 1.22 × 高 0.76，后仰 0.18 rad。
+//   - 发射：0.95–1.38 秒，持续 0.43 秒，从后撤点到远端，以 backOut（s = 1.1）轻微过冲；前 60% 按半正弦最多拉成宽 1.55 × 高 0.72，前倾 0.08 rad。
+//   - 落定：从 1.38 秒起，宽高按相反方向振荡，幅度 0.13·e^(−7t)·sin(17t)。
+//   - 发射时起点出现三团尘土，在运动前 70% 内消失；身后三条黄色速度线，线宽 8。
+// 适用场景: 适合跳跃、冲刺或发射前，增加铺垫和重量感。
+// 标签: anticipation, wind-up, squash, character, jump, dash, animation-principle
 // 尺寸: 539x208 px · 周期: 4.7 s
-// 依赖: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-007
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 07
-// 07 カウントアップ（数字が勢いよく増えて、最後にピタッと決まる）
-CELLS[6] = (k, w, h, u) => {
+// @element 01
+// 01 アンティシペーション（進む向きと逆へ少し引いて、つぶれて溜めてから、勢いよく飛び出す）
+CELLS[0] = (k, w, h, u) => {
+  u = snapU(u);
   stage(k);
-  const TARGET = 2480, a = P(u, 0.1, 0.4) * (1 - P(u, 4.0, 4.4));
-  const p = P(u, 0.45, 2.9), v = Math.round(TARGET * (1 - Math.pow(1 - p, 4)));
-  const s = v.toLocaleString('en-US'), f = `800 104px ${DISP}`;
-  k.font = f; const dw = k.measureText('0').width + 2, cw = k.measureText(',').width;
-  const full = TARGET.toLocaleString('en-US'); let tot = 0; for (const ch of full) tot += ch === ',' ? cw : dw;
-  const land = u - 2.9, pop = 1 + (land > 0 ? 0.07 * Math.exp(-7 * land) * Math.cos(15 * land) : 0);
-  const X = w / 2 + 42, Y = 96;
-  k.save(); k.globalAlpha = a; k.translate(X, Y); k.scale(pop, pop);
-  let x = tot / 2;   // 右そろえ
-  const speed = p < 1 ? Math.pow(1 - p, 3) : 0;
-  for (const ch of [...s].reverse()) {
-    const cwid = ch === ',' ? cw : dw; x -= cwid;
-    txt(k, ch, x + cwid / 2, 0, f, land > 0 ? C.yel : '#fff', 'center', 'middle');
+  const T = CYC / 2, n = Math.floor(u / T), lu = u - n * T, dir = n % 2 ? -1 : 1;
+  const XL = 108, XR = w - 108, xs = dir > 0 ? XL : XR, xe = dir > 0 ? XR : XL, floor = h - 30, S = 86, BACK = 44;
+  k.fillStyle = C.navy3; rr(k, 26, floor, w - 52, 5, 2.5); k.fill();
+  const wind = eIOs(P(lu, 0.2, 0.95)), go = P(lu, 0.95, 1.38);
+  let x, sx = 1, sy = 1, rot = 0;
+  if (go <= 0) { x = xs - dir * BACK * wind; sx = 1 + 0.22 * wind; sy = 1 - 0.24 * wind; rot = -dir * 0.18 * wind; }
+  else {
+    x = lerp(xs - dir * BACK, xe, backOut(go, 1.1));
+    const st = go < 0.6 ? Math.sin(Math.PI * go / 0.6) : 0;
+    sx = 1 + 0.55 * st; sy = 1 - 0.28 * st; rot = dir * 0.08 * st;
+    const land = lu - 1.38; if (land > 0) { const wob = 0.13 * Math.exp(-7 * land) * Math.sin(17 * land); sy = 1 - wob; sx = 1 + wob; }
   }
+  // 飛び出した地点の土けむり
+  if (go > 0 && go < 0.7) { const q = go / 0.7; k.fillStyle = C.dim; k.globalAlpha = 0.8 * (1 - q); for (let i = 0; i < 3; i++) { k.beginPath(); k.arc(xs - dir * (BACK + 30 + i * 22 + q * 30), floor - 8 - i * 6 - q * 10, 7 + q * 12 - i * 2, 0, 7); k.fill(); } k.globalAlpha = 1; }
+  // 影
+  k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(x, floor + 8, S * 0.62 * sx, 6, 0, 0, 7); k.fill();
+  // スピード線
+  if (go > 0.02 && go < 0.8) { const a = 1 - go / 0.8; k.strokeStyle = C.yel; k.lineCap = 'round'; k.lineWidth = 8; k.globalAlpha = a;[0.28, 0.55, 0.8].forEach((f, i) => { const y = floor - S * sy * f, x0 = x - dir * (S * sx / 2 + 12), L = 120 * a + 20; k.beginPath(); k.moveTo(x0, y); k.lineTo(x0 - dir * L * (i === 1 ? 1 : 0.7), y); k.stroke(); }); k.globalAlpha = 1; }
+  k.save(); k.translate(x, floor); k.rotate(rot); k.scale(sx, sy);
+  k.fillStyle = C.coral; rr(k, -S / 2, -S, S, S, 24); k.fill();
+  k.fillStyle = 'rgba(255,255,255,.16)'; rr(k, -S / 2, -S, S, S / 2, [24, 24, 0, 0]); k.fill();
+  k.strokeStyle = '#fff'; k.lineWidth = 10; k.lineCap = 'round'; k.lineJoin = 'round';
+  k.beginPath(); k.moveTo(-dir * 12, -S / 2 - 20); k.lineTo(dir * 12, -S / 2); k.lineTo(-dir * 12, -S / 2 + 20); k.stroke();
   k.restore();
-  // 上向きの矢印チップ
-  const ar = spring(u - 0.35, 14, 7) * (1 - P(u, 4.0, 4.3)), bob = speed * 6 * Math.sin(u * 30);
-  if (ar > 0.01) { k.save(); k.translate(X - tot / 2 - 58, Y - 2 + bob); k.scale(ar, ar); k.fillStyle = C.mint; k.beginPath(); k.arc(0, 0, 34, 0, 7); k.fill(); k.strokeStyle = C.navy; k.lineWidth = 8; k.lineCap = 'round'; k.lineJoin = 'round'; k.beginPath(); k.moveTo(0, 15); k.lineTo(0, -14); k.moveTo(-13, -1); k.lineTo(0, -15); k.lineTo(13, -1); k.stroke(); k.restore(); }
-  // 下のバー
-  const bw = 330, bx = w / 2 - bw / 2, by = 168;
-  k.globalAlpha = a; k.fillStyle = C.navy3; rr(k, bx, by, bw, 12, 6); k.fill();
-  const g = k.createLinearGradient(bx, 0, bx + bw, 0); g.addColorStop(0, C.blue); g.addColorStop(1, C.mint);
-  k.fillStyle = g; rr(k, bx, by, Math.max(12, bw * (v / TARGET)), 12, 6); k.fill(); k.globalAlpha = 1;
 };

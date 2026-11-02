@@ -1,7 +1,7 @@
 // Motion Prompt #3-006 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#030
 //
 // 环绕镜头 / Orbit (Arc shot)
-// 分类包: camera (镜头运动与剪辑) · element 06 · 子分类: 镜头运动
+// 分类: 剪辑与摄影 / 镜头与剪辑 / 镜头运动
 // 动画表现: 相机沿圆周绕主体移动，人物保持居中，身后的树与建筑横向掠过。
 // 运动规格:
 //   - 相机以位于前方 9 m 的人物为圆心，沿半径 6 m 的圆移动；角度 -0.95 rad → +0.95 rad，即 -54° → +54°，总计约 109°。
@@ -13,11 +13,11 @@
 // 适用场景: 适合立体展示人物或产品，也可突出登场与关键时刻。
 // 标签: orbit, arc shot, circle, 360, rotate around, revolve, camera move
 // 尺寸: 539x208 px · 周期: 9.4 s
-// 依赖: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-006
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
 // @element 06
 // 06 オービット: 被写体を中心に円を描いて回り込む

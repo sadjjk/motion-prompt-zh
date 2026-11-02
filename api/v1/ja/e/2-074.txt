@@ -1,46 +1,56 @@
-// Motion Prompt #2-074 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+// Motion Prompt #2-074 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// インクブリード / Ink bleed
-// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 35 · カテゴリ: 文字・図形の演出
-// 何が起きるか: 和紙色の上で4文字が順に、ぼやけた墨の塊から縁のくっきりした字へ締まり、しばらく留まったあと再び広がって消える。
+// カードの扇開き / Card flourish
+// 分類: モーショングラフィックス / 図形・オブジェクト / 物・機械
+// 何が起きるか: 緑のフェルトの中央の山札からカードが次々に飛び出して扇形に並び、一枚ずつ表に返ってまた裏に戻り、山札へ集まる。
 // 動きの仕様:
-//   - 4文字（68px）、0.3秒から0.25秒ずつずらす。1文字のサイクルは3.6秒
-//   - 0〜55%：ぼかし16pxから0px、1.3倍から1倍へ（smoothstep）、最初の15%で現れる
-//   - 55〜80%はくっきり静止、80〜100%でぼかし16px・1.2倍へ広がりながら消える
-//   - ぼかした墨を contrast(16) でしきい値処理し、にじみ同士がくっつく縁を作って multiply で紙に重ねる
-// 使いどころ: 和風・書道・お茶やお酒のブランドのタイトルに。
-// タグ: ink, bleed, blur, calligraphy, gooey, text
-// サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+//   - 緑のフェルトの放射グラデーション #1F5A3E → #0A2016。カードは 38 × 54 px を 24 枚
+//   - 0.2〜1.95 秒に中央の山札から順に飛び出し、全体の開き 1.7 rad の扇形に並ぶ。扇の上でカードは 6px 揺れる
+//   - 1.9〜3.8 秒に一枚ずつ表へ返り、3.9〜5.35 秒に一枚ずつ暗赤の斜線模様の裏へ戻る
+//   - 5.4〜6.26 秒に逆順で山札へ集まり、各 0.4 秒
+// 使いどころ: マジック・ボードゲーム・カジノ系の動画開場、ゲームイベントの告知、プレゼンで選択肢を広げて見せる場面に。
+// タグ: playing-cards, card-fan, magic, flip, casino, objects, sequence
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-074
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 35
-// 改写自 KittenJam Motion Library #36（Hannah）· 墨水晕开：宣纸色底，每个字（间隔 0.25 秒）先是模糊 16px、1.3 倍的墨团，收敛成清晰字形，停留后再晕开到 1.2 倍消失；离屏画模糊墨字后用 contrast(16) 阈值化做出墨团粘连的边缘，再以 multiply 叠到纸上。
-const INKB_C = mkCanvas(CW, CH), INKB_G = INKB_C.getContext('2d');
-const INKB_FIB = (() => { const r = rand(3636); return Array.from({ length: 40 }, () => [r() * CW, r() * CH, 6 + r() * 18, r() * Math.PI]); })();
-CELLS[34] = (k, w, h, u) => {
-  u = snapU(u);
-  stage(k, '#F2EBDD');
-  k.strokeStyle = 'rgba(150,120,80,.12)'; k.lineWidth = 1;
-  INKB_FIB.forEach(([x, y, l, a]) => { k.beginPath(); k.moveTo(x, y); k.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); k.stroke(); });
-  const S = '墨染江南', F = `900 68px ${JP}`, g = INKB_G;
-  g.save(); g.filter = 'none'; g.globalAlpha = 1; g.fillStyle = '#fff'; g.fillRect(0, 0, CW, CH);
-  g.font = F; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#000';
-  chars(g, S, F, 14).forEach((c, i) => {
-    const t = (u - 0.3 - 0.25 * i) / 3.6; if (t <= 0 || t >= 1) return;
-    let b, op, sc;
-    if (t < 0.55) { const q = smooth(t / 0.55); b = lerp(16, 0, q); sc = lerp(1.3, 1, q); op = clamp(t / 0.15); }
-    else if (t < 0.8) { b = 0; sc = 1; op = 1; }
-    else { const q = smooth((t - 0.8) / 0.2); b = lerp(0, 16, q); sc = lerp(1, 1.2, q); op = 1 - q; }
-    g.filter = `blur(${b.toFixed(2)}px)`; g.globalAlpha = op;
-    g.save(); g.translate(CW / 2 + c.x, CH / 2); g.scale(sc, sc); g.fillText(c.ch, 0, 0); g.restore();
-  });
-  g.restore();
-  k.save(); k.filter = 'contrast(16)'; k.globalCompositeOperation = 'multiply'; k.drawImage(INKB_C, 0, 0); k.restore();
-  // 角落朱印
-  k.fillStyle = '#C8372D'; rr(k, w - 62, h - 54, 30, 30, 4); k.fill();
-  txt(k, '印', w - 47, h - 38, `900 18px ${JP}`, '#F2EBDD', 'center', 'middle');
+// @element 32
+// 32 扑克飞牌：绿呢台面上 24 张牌从中间牌堆依次飞出（0.2–1.95 秒）排成扇形，1.9–3.8 秒逐张翻到正面、3.9–5.35 秒逐张翻回背面，5.4–6.26 秒收拢回牌堆
+const CARD_N = 24, CARD_W = 38, CARD_H = 54;
+const CARD_SUIT = ['♠', '♥', '♦', '♣'], CARD_RANK = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+const CARD_HATCH = (() => { // 牌背斜纹贴图（常量）
+  const c = document.createElement('canvas'); c.width = 8; c.height = 8; const g = c.getContext('2d');
+  g.fillStyle = '#8E1E2A'; g.fillRect(0, 0, 8, 8); g.strokeStyle = 'rgba(255,230,200,.35)'; g.lineWidth = 0.7;
+  g.beginPath(); g.moveTo(0, 0); g.lineTo(8, 8); g.moveTo(8, 0); g.lineTo(0, 8); g.stroke(); return c;
+})();
+CELLS[31] = (k, w, h, u) => {
+  k.fillStyle = '#0A2016'; k.fillRect(0, 0, CW, CH);
+  k.drawImage(layer('CARD_bg', g => { const bg = g.createRadialGradient(269.5, 104, 0, 269.5, 104, 300); bg.addColorStop(0, '#1F5A3E'); bg.addColorStop(1, '#0A2016'); g.fillStyle = bg; g.fillRect(0, 0, CW, CH); }), 0, 0);
+  const hatch = k.createPattern(CARD_HATCH, 'repeat');
+  for (let i = 0; i < CARD_N; i++) {
+    const t = i / (CARD_N - 1), back = CARD_N - 1 - i;
+    const e = inOut3(seg(u, 0.2 + i * 0.05, 0.8 + i * 0.05)) * (1 - inOut3(seg(u, SHOW + back * 0.02, SHOW + back * 0.02 + 0.4)));
+    const a = (t - 0.5) * 1.7 * e;                                              // 扇面总张角 1.7 rad
+    const fx = 269.5 + Math.sin(a) * 270, fy = 336 - Math.cos(a) * 270 + Math.sin(t * TAU + TAU * u / CYC) * 6 * e;
+    const x = mix(269.5, fx, e), y = mix(118, fy, e) - i * 0.3 * (1 - e);       // 牌堆：每张高 0.3px 叠起
+    const fa = Math.PI * (inOut3(seg(u, 1.9 + i * 0.07, 2.2 + i * 0.07)) - inOut3(seg(u, 3.9 + i * 0.05, 4.2 + i * 0.05)));
+    const cs = Math.cos(fa), sx = Math.max(0.03, Math.abs(cs)), face = cs < 0;
+    k.save(); k.translate(x, y); k.rotate(a); k.scale(sx, 1);
+    k.fillStyle = 'rgba(0,0,0,.3)'; rr(k, -CARD_W / 2 + 1.5, -CARD_H / 2 + 2.5, CARD_W, CARD_H, 2.4); k.fill();
+    k.fillStyle = '#FAF8F2'; rr(k, -CARD_W / 2, -CARD_H / 2, CARD_W, CARD_H, 2.4); k.fill();
+    if (face) {
+      const su = CARD_SUIT[i % 4], col = (su === '♥' || su === '♦') ? '#C8282E' : '#141414';
+      txt(k, CARD_RANK[(i * 5) % 13], -CARD_W / 2 + 3, -CARD_H / 2 + 9, `700 8px ${SERIF}`, col);
+      txt(k, su, -CARD_W / 2 + 3, -CARD_H / 2 + 17, `400 7px ${SANS}`, col);
+      txt(k, su, 0, 4, `400 22px ${SANS}`, col, 'center', 'middle');
+    } else {
+      k.fillStyle = hatch; rr(k, -CARD_W / 2 + 2.2, -CARD_H / 2 + 2.2, CARD_W - 4.4, CARD_H - 4.4, 1.6); k.fill();
+      k.strokeStyle = '#F4E6D0'; k.lineWidth = 0.7; k.strokeRect(-CARD_W / 2 + 3.7, -CARD_H / 2 + 3.7, CARD_W - 7.4, CARD_H - 7.4);
+    }
+    k.restore();
+  }
+  grain(k, 0.05);
 };

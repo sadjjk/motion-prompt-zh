@@ -1,17 +1,16 @@
-Please use "Kinetic typography" (キネティックタイポグラフィ), one of the names in "Motion graphics moves".
+Please use "Follow-through" (フォロースルー), filed under "Motion principles / Entrances & easing".
 Motion Prompt #2-008
 
-What it is: Words move, scale and turn in time with what is said
-What the sample shows: Words move the way they mean: one stretches, one bounces, one spins, one slams down.
+What it is: Parts keep swinging after the body stops
+What the sample shows: A round character slides in and stops suddenly; only the flag on its head and its tail keep swinging, then settle.
 Spec:
-- Four words, 1.175 s each (bold 88 px). Each exits in its last 0.2 s, fading out while moving 46 px up (cubic ease-in).
-- Stretch (blue): horizontal scale 0.3→1 with spring 1 − e^(−4.2t)·cos(12t); vertical scale is 1/√(horizontal).
-- Bounce (yellow): characters staggered by 0.1 s; height 78 px × |sin(πt/0.4)| × e^(−2.6t); squashed vertically by up to 16% at each contact.
-- Spin (mint): characters staggered by 0.12 s; rotation −360°→0° over 0.62 s with backOut (s = 1.3); scale 0→1 over 0.25 s, cubic ease-out.
-- Slam (coral, 100 px, slanted): scale 3.4→1 at 0.02–0.2 s with cubic ease-in.
-- After impact: horizontal shake 10 px × e^(−9t) × sin(38t), vertical squash 20% × e^(−11t), and 8 radial lines for 0.4 s.
-When to use it: Use it to make key words from narration or lyrics memorable through how they move.
+- One move per 2.35 s (twice per 4.7 s, alternating direction). The body is a mint circle (radius 38). It travels 303 px at 0.15–0.85 s: it speeds up over the first 30%, then keeps a constant speed and stops abruptly at 0.85 s.
+- Flag (58 px white pole with a yellow flag): its angle is a spring pushed by the body's acceleration, a″ = −121a − 5.5a′ − 0.0175 × acceleration (natural frequency 11 rad/s). The cloth bends a further 0.6 × the pole angle.
+- Tail: seven 14 px segments (coral, width 14→6) on a slower spring, b″ = −56b − 2.8b′ − 0.012 × acceleration. Segment j uses the value from j × 22/600 s (about 0.037 s) earlier, scaled by (0.55 + 0.16j).
+- Both springs are precomputed in 1/600 s steps; drawing only looks values up.
+- In the last 0.3 s of each move the swing is faded to 0 with smoothstep, so the loop has no seam.
+When to use it: Use it on hair, clothes, accessories or the trim of a logo, so that the parts attached to the main body feel weighted.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-008.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

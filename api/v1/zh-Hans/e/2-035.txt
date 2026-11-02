@@ -1,37 +1,46 @@
-// Motion Prompt #2-035 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#131
+// Motion Prompt #2-035 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// 沿路径文字 / Text on a path
-// 分类包: motion2 (动态图形进阶) · element 11 · 子分类: 文字与图形
-// 动画表现: 一行文字沿波浪曲线流动，每个字符随路径方向旋转。
+// 墨水晕开 / Ink bleed
+// 分类: 动态图形 / 文字动画 / 变形与质感
+// 动画表现: 宣纸色底上，4 个字依次由模糊墨团收紧成边缘清晰的字，停留后再晕开消失。
 // 运动规格:
-//   - 路径 y = 118 + 42·sin(2πx ÷ 330 + 0.6)，x = −70 至 609；下移 6 px 显示深蓝虚线，节距 14/10、线宽 5。
-//   - 重复“ALONG THE LINE • ”，42 px 粗体、字距 2 px；各字符按路径弧长定位，并旋转至路径方向。
-//   - 文字每 4.7 秒沿路径移动一个完整字符串的长度，保证无缝循环。
-//   - 字母白色，圆点黄色。
-// 适用场景: 适合沿标志、道路、河流或波浪排字，也可做循环文字带。
-// 标签: text-on-path, path-text, curved-text, text, marquee, wave, scroll
+//   - 4 个字（68 px），0.3 秒起每字错开 0.25 秒；单字一轮 3.6 秒。
+//   - 0–55%：模糊由 16 px 到 0 px、缩放由 1.3 倍到 1 倍（smoothstep），前 15% 内显现。
+//   - 55–80% 保持清晰；80–100% 扩散到模糊 16 px、1.2 倍并淡出。
+//   - 模糊墨字用 contrast(16) 阈值化，使墨团边缘相互粘连，再以 multiply 叠到纸面上。
+// 适用场景: 适合国风、书法、茶酒品牌的标题。
+// 标签: ink, bleed, blur, calligraphy, gooey, text
 // 尺寸: 539x208 px · 周期: 4.7 s
-// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-035
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 11
-// 11 テキストオンパス（文字列が、波打つ線に沿って流れていく）
-const TOP = (() => { const pts = []; for (let x = -70; x <= CW + 70; x += 4) pts.push([x, 118 + 42 * Math.sin(x * 2 * Math.PI / 330 + 0.6)]); return { pts, cum: pathLen(pts) }; })();
-CELLS[10] = (k, w, h, u) => {
-  stage(k);
-  k.save(); k.setLineDash([14, 10]); k.strokeStyle = C.navy3; k.lineWidth = 5; k.lineCap = 'round'; k.beginPath(); TOP.pts.forEach((p, i) => i ? k.lineTo(p[0], p[1] + 6) : k.moveTo(p[0], p[1] + 6)); k.stroke(); k.restore();
-  const f = `800 42px ${DISP}`, S = 'ALONG THE LINE • '; k.font = f;
-  const ws = [...S].map(ch => k.measureText(ch).width + 2), run = ws.reduce((a, b) => a + b, 0), L = TOP.cum[TOP.cum.length - 1], shift = (u / CYC) * run;
-  for (let r = -2; r * run + shift < L; r++) {
-    let s = r * run + shift;
-    [...S].forEach((ch, j) => {
-      const c = s + ws[j] / 2; s += ws[j];
-      if (c < 0 || c > L || ch === ' ') return;
-      const p = ptAt(TOP.pts, TOP.cum, c / L);
-      k.save(); k.translate(p[0], p[1]); k.rotate(p[2]); txt(k, ch, 0, 0, f, ch === '•' ? C.yel : '#fff', 'center', 'alphabetic'); k.restore();
-    });
-  }
+// @element 35
+// 改写自 KittenJam Motion Library #36（Hannah）· 墨水晕开：宣纸色底，每个字（间隔 0.25 秒）先是模糊 16px、1.3 倍的墨团，收敛成清晰字形，停留后再晕开到 1.2 倍消失；离屏画模糊墨字后用 contrast(16) 阈值化做出墨团粘连的边缘，再以 multiply 叠到纸上。
+const INKB_C = mkCanvas(CW, CH), INKB_G = INKB_C.getContext('2d');
+const INKB_FIB = (() => { const r = rand(3636); return Array.from({ length: 40 }, () => [r() * CW, r() * CH, 6 + r() * 18, r() * Math.PI]); })();
+CELLS[34] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k, '#F2EBDD');
+  k.strokeStyle = 'rgba(150,120,80,.12)'; k.lineWidth = 1;
+  INKB_FIB.forEach(([x, y, l, a]) => { k.beginPath(); k.moveTo(x, y); k.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); k.stroke(); });
+  const S = '墨染江南', F = `900 68px ${JP}`, g = INKB_G;
+  g.save(); g.filter = 'none'; g.globalAlpha = 1; g.fillStyle = '#fff'; g.fillRect(0, 0, CW, CH);
+  g.font = F; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#000';
+  chars(g, S, F, 14).forEach((c, i) => {
+    const t = (u - 0.3 - 0.25 * i) / 3.6; if (t <= 0 || t >= 1) return;
+    let b, op, sc;
+    if (t < 0.55) { const q = smooth(t / 0.55); b = lerp(16, 0, q); sc = lerp(1.3, 1, q); op = clamp(t / 0.15); }
+    else if (t < 0.8) { b = 0; sc = 1; op = 1; }
+    else { const q = smooth((t - 0.8) / 0.2); b = lerp(0, 16, q); sc = lerp(1, 1.2, q); op = 1 - q; }
+    g.filter = `blur(${b.toFixed(2)}px)`; g.globalAlpha = op;
+    g.save(); g.translate(CW / 2 + c.x, CH / 2); g.scale(sc, sc); g.fillText(c.ch, 0, 0); g.restore();
+  });
+  g.restore();
+  k.save(); k.filter = 'contrast(16)'; k.globalCompositeOperation = 'multiply'; k.drawImage(INKB_C, 0, 0); k.restore();
+  // 角落朱印
+  k.fillStyle = '#C8372D'; rr(k, w - 62, h - 54, 30, 30, 4); k.fill();
+  txt(k, '印', w - 47, h - 38, `900 18px ${JP}`, '#F2EBDD', 'center', 'middle');
 };

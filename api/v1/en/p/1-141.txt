@@ -1,15 +1,15 @@
-Please use "Timeline draw" (タイムラインの描画), one of the names in "Interaction & data motion".
+Please use "Scratch reveal" (スクラッチ), filed under "Pointer interactions / Tactile & cards".
 Motion Prompt #1-141
 
-What it is: A vertical timeline whose line grows down and reveals each step as it arrives
-What the sample shows: As scrolling progresses, a thin line on the left grows from top to bottom; each node it reaches fills in and its week, title and note slide in from the left. Scrolling back shrinks the line and hides the steps.
+What it is: A scratch card whose coating rubs away to reveal what is underneath
+What the sample shows: Over a coupon covered by a silver coating, the cursor holds and zigzags side to side; its path rubs the coating away to show the free-shipping coupon, and the rest then fades.
 Spec:
-- Scroll progress goes 0 → 1 from 0.4–4.6 s, with the scrollbar on the right in sync.
-- The line on the left grows 164 px down from the top; there are 4 nodes with 6 px dots.
-- When the line tip reaches a node, its dot fills and the week, title and note slide in from 10 px to the left, finishing within 16 px past the node.
-- From 5.4–6.3 s the scroll returns and the steps fold away from the bottom up.
-When to use it: Use it for process overviews, company histories and onboarding steps that should be read in order.
+- A 300 × 140 px coupon is covered by a silver coating with diagonal sheen and a scratch-here label.
+- The cursor presses at 0.85 s and scratches along 7 zigzag strokes (0.32 s each) until 3.0 s, with a 30 px round brush.
+- Each frame redraws the coating on an offscreen canvas and erases the whole path up to that moment with destination-out.
+- The remaining coating fades out from 3.1–3.6 s; it fades back in to reset from 5.4–6.0 s.
+When to use it: Use it for lucky draws, coupon drops and campaign result reveals that should feel like a game.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-141.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

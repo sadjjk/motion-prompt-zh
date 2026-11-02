@@ -1,32 +1,48 @@
-// Motion Prompt #3-052 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-shot
+// Motion Prompt #3-052 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/god-rays
 //
-// 中景 / Medium shot
-// 分类包: camera (镜头运动与剪辑) · element 28 · 子分类: 景别
-// 动画表现: 画框下沿落在腰部，人物举起一只手臂到头侧来回招手，最后放下。
+// 体积光束 / God rays
+// 分类: 剪辑与摄影 / 光线与色彩 / 布光与时段
+// 动画表现: 四周变暗，9 道光束从画面左上外的光源呈扇形照入、穿过人物；每道亮度各自起伏，束与束之间留着暗缝。
 // 运动规格:
-//   - 画框：0.88 m 至 1.92 m，即腰部以上到头顶；机位距人物 4.2 m。
-//   - 动作：0.4 秒至 1.0 秒举起一只手臂，在头侧以每轮 4 次的节奏来回摆；3.4 秒至 4.0 秒放下。
-//   - 另一只手自然下垂；人物在前景层保持清晰，背景轻微虚化。
-//   - 右上角显示“中景 MS”；右下角比例尺的蓝色带从腰部到头顶。
-//   - 机位全程不动；每轮 4.7 秒，首尾画面相同。
-// 适用场景: 对话、讲解、手持物品等需要同时看清手势和表情的场面。
-// 标签: medium shot, ms, waist shot, mid shot, shot size, framing, gesture
-// 尺寸: 539x208 px · 周期: 9.4 s
-// 依赖: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+//   - 场景 1：头肩人物，头部中心 x 270、y 78、半径 29 px；背景向暗场景过渡 80%。
+//   - 光源在画面外 (−40, −50)，从这里画 9 道细扇形，中心角 0.26～0.94 rad，半宽 0.012～0.028 rad，长 900 px。
+//   - 光束颜色 #FFE4A8，离光源 640 px 处消失；亮度 0.35 ± 0.3，每轮起伏 1～3 次。
+//   - 光束图层模糊 2 px，以 0.75 不透明度相加；人物左侧亮 #FFC75A、右侧暗；右上显示“↘ 35°”。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 教堂、森林、有浮尘的室内等，想表现神圣感或清晨空气感时。
+// 标签: god rays, crepuscular rays, light beams, volumetric light, lighting
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-052
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 28
-CELLS[27] = shot(frameCell({ lo: 0.88, hi: 1.92, name: '中景', abbr: 'MS', draw: (k, w, h, u) => {
-  const arm = eIO(P(u, 0.4, 1.0)) * (1 - P(u, 3.4, 4.0));   // 招手：手臂举到头侧来回摆
-  const ang = arm * (0.55 + 0.5 * Math.sin(u / CYC * TAU * 4));   // 举手期间摆 4 次，首尾收住
-  world(k, w, h, fit(0.88, 1.92, 4.2), {
-    person: { x: -0.1, z: 8, fg: true }, blurBg: 1.4,   // 本体双手自然下垂
-    extra: [[-0.1, 0, 7.99, (kk, s) => {   // 挥动的那只手臂（本体 walk=0 不会画摆臂）
-      kk.save(); kk.translate(0.25, 1.38); kk.rotate(-1.9 - ang * 0.4);
-      kk.fillStyle = C.blue; rr(kk, -0.06, -0.6, 0.12, 0.6, 0.06); kk.fill(); kk.restore();
-    }, true]]
+// @element 35
+// 体積光束（ゴッドレイ）: 周りが暗くなり、左上の外にある一つの光源から明暗の筋になった光の束が斜めに差し込み、人物を横切る。
+// 束ごとに明るさがゆっくり揺れ、束と束の間には暗い隙間が残る
+CELLS[34] = cell((k, u) => {
+  const a = env(u), T = u / CYC * TAU, W = torsoW(PR);
+  stagePortrait(k, pal(BASE, DARK, 0.8 * a));
+  const lit = mixc(BASE.person, BASE.lit, a), sh = mixc(BASE.person, BASE.shade, a);
+  bust(k, PX, PY, PR, BASE.person, kk => {
+    kk.fillStyle = lit; kk.beginPath(); kk.arc(PX, PY, PR, 0, TAU); kk.fill();
+    headShade(kk, PX, PY, PR, 0.9, 1, sh);
+    torso(kk, PX, PY, PR, PX + 0.15 * W, PX + W, sh);
   });
-} }));
+  if (a < 0.002) { hud(k, '↘ 35°'); return; }
+  // 光の束: 光源 (SX,SY) から放射状の細い扇を9本。角度と幅は固定、明るさだけ整数倍の周期で揺れる
+  const SX = -40, SY = -50, [R, kr] = layer('rays');
+  const g = kr.createRadialGradient(SX, SY, 0, SX, SY, 640);
+  g.addColorStop(0, 'rgba(255,228,168,0.95)'); g.addColorStop(1, 'rgba(255,228,168,0)');
+  kr.fillStyle = g;
+  const rays = once('rays', () => { const r = rng(35), o = []; for (let i = 0; i < 9; i++) o.push([0.26 + i * 0.085 + r() * 0.02, 0.012 + r() * 0.016, r() * TAU, 1 + Math.floor(r() * 3)]); return o; });
+  for (const [ang, hw, ph, n] of rays) {
+    kr.globalAlpha = 0.35 + 0.3 * Math.sin(T * n + ph);
+    kr.beginPath(); kr.moveTo(SX, SY);
+    kr.lineTo(SX + Math.cos(ang - hw) * 900, SY + Math.sin(ang - hw) * 900); kr.lineTo(SX + Math.cos(ang + hw) * 900, SY + Math.sin(ang + hw) * 900);
+    kr.closePath(); kr.fill();
+  }
+  k.save(); k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.75 * a; k.filter = 'blur(2px)'; k.drawImage(R, 0, 0); k.restore();
+  hud(k, '↘ 35°');
+});

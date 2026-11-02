@@ -1,40 +1,40 @@
-// Motion Prompt #2-022 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#022
+// Motion Prompt #2-022 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#129
 //
-// 扫光 / Light sweep
-// 分类包: motion (动态图形基础) · element 22 · 子分类: 转场与强调
-// 动画表现: 光带斜向掠过标志徽章的表面。
+// 文字乱码解码 / Text scramble
+// 分类: 动态图形 / 文字动画 / 逐字与排版
+// 动画表现: 随机字符持续变化，随后从左到右固定成正确单词。
 // 运动规格:
-//   - 每 2.35 秒扫光一次；光仅绘制在徽章裁剪区域内，徽章为 400 × 112、圆角半径 28、蓝色渐变。
-//   - 光带为宽 116 px 的白色渐变，中心透明度 0.72、两边 0；另有宽 12 px、透明度 0.5 的细带，间距 78 px；整体倾斜 0.42 rad，约 24°。
-//   - 在 0.45–1.5 秒从徽章左侧外 130 px 移至右侧外 130 px，共 660 px，采用二次缓入缓出。
-//   - 闪光：1.38–1.98 秒在右上角显示四角星，尺寸为 30 × sin(πq) × (1 + 0.2(1 − q))，旋转 0.9 rad。
-//   - 徽章本身保持静止。
-// 适用场景: 适合为标志、徽章或按钮增添精致质感。
-// 标签: light-sweep, shine, sheen, glint, highlight, logo, badge, premium
+//   - 前 2.35 秒显示“HELLO”，后半显示“WORLD”；五个 92 px 等宽字符。
+//   - 未锁定位置从 A–Z 中排除 I、O，加上 0–9 和 #$%&@? 随机选字，每 4.7 秒变化 76 次，约每 0.062 秒一次，薄荷色、透明度 75%。
+//   - 从左向右锁定，第 i 位在 0.45 + 0.18i 秒锁定，最后一位为 1.17 秒；新锁定字符先黄 0.22 秒再变白，缩放按 1 + 0.2·e^(−14t) 回落。
+//   - 从 1.85 秒起由右向左恢复随机，第 i 位在 1.85 + 0.08 × (4 − i) 秒解锁。
+//   - 每个字符下有横条：已锁定蓝色、下一个待锁定黄色，其余深蓝。
+// 适用场景: 适合标题、数字或代号的解码、黑客、科技感入场。
+// 标签: text-scramble, scramble, decode, shuffle, random, text, hacker
 // 尺寸: 539x208 px · 周期: 4.7 s
-// 依赖: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-022
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 22
-// 22 ライトスイープ（ロゴの表面を、光の帯が斜めに横切る）
-CELLS[21] = (k, w, h, u) => {
+// @element 09
+// 09 テキストスクランブル（ランダムな文字が入れ替わり続け、左から順に正しい単語に決まる）
+const SCR_GL = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&@?';
+CELLS[8] = (k, w, h, u) => {
+  u = snapU(u);
   stage(k);
-  const T = CYC / 2, lu = mod(u, T), p = eIOs(P(lu, 0.45, 1.5));
-  const BW = 400, BH = 112, X = w / 2 - BW / 2, Y = h / 2 - BH / 2;
-  k.fillStyle = 'rgba(0,0,0,.3)'; rr(k, X + 3, Y + 9, BW, BH, 28); k.fill();
-  const g = k.createLinearGradient(X, Y, X + BW, Y + BH); g.addColorStop(0, '#2B62E0'); g.addColorStop(1, '#4E8BFF'); k.fillStyle = g; rr(k, X, Y, BW, BH, 28); k.fill();
-  k.fillStyle = C.yel; star(k, X + 64, Y + BH / 2, 30, 0, 0.5); k.lineJoin = 'round'; k.strokeStyle = C.yel; k.lineWidth = 5; k.stroke(); k.fill();
-  txt(k, 'PREMIUM', X + 112, Y + BH / 2 + 3, `800 50px ${DISP}`, '#fff', 'left', 'middle', '3px');
-  if (p > 0 && p < 1) {
-    k.save(); rr(k, X, Y, BW, BH, 28); k.clip();
-    k.translate(lerp(X - 130, X + BW + 130, p), Y + BH / 2); k.rotate(0.42);
-    const gr = k.createLinearGradient(-58, 0, 58, 0); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.5, 'rgba(255,255,255,.72)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
-    k.fillStyle = gr; k.fillRect(-58, -160, 116, 320); k.fillStyle = 'rgba(255,255,255,.5)'; k.fillRect(78, -160, 12, 320);
-    k.restore();
+  const T = CYC / 2, n = Math.floor(u / T), lu = u - n * T, word = n ? 'WORLD' : 'HELLO', N = 5;
+  const f = `700 92px Menlo, "SF Mono", monospace`; k.font = f;
+  const cw = k.measureText('M').width + 16, x0 = w / 2 - cw * (N - 1) / 2, Y = h / 2 - 8;
+  const step = Math.floor(u / (CYC / 76));
+  for (let i = 0; i < N; i++) {
+    const tl = 0.45 + i * 0.18, tu = 1.85 + (N - 1 - i) * 0.08, locked = lu >= tl && lu < tu;
+    let ch, col, sc = 1;
+    if (locked) { ch = word[i]; const age = lu - tl; col = age < 0.22 ? C.yel : '#fff'; sc = 1 + 0.2 * Math.exp(-age * 14); }
+    else { ch = SCR_GL[Math.floor(H01(step * 131 + i * 977 + n * 31) * SCR_GL.length)]; col = C.mint; }
+    k.save(); k.translate(x0 + i * cw, Y); k.scale(sc, sc); k.globalAlpha = locked ? 1 : 0.75; txt(k, ch, 0, 0, f, col, 'center', 'middle'); k.restore();
+    const next = !locked && lu < tl && (i === 0 || lu >= 0.45 + (i - 1) * 0.18);
+    k.fillStyle = locked ? C.blue : next ? C.yel : C.navy3; rr(k, x0 + i * cw - cw / 2 + 8, Y + 58, cw - 16, 8, 4); k.fill();
   }
-  // 抜けぎわのきらめき
-  const tt = lu - 1.38; if (tt > 0 && tt < 0.6) { const q = tt / 0.6, sc = Math.sin(Math.PI * q) * (1 + 0.2 * (1 - q)); k.save(); k.translate(X + BW - 8, Y + 6); k.rotate(q * 0.9); k.fillStyle = '#fff'; star(k, 0, 0, 30 * sc, 0, 0.22, 4); k.fill(); k.restore(); }
 };

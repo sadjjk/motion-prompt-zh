@@ -1,51 +1,46 @@
-// Motion Prompt #1-100 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills
+// Motion Prompt #1-100 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// ラバーバンド / Rubber-banding
-// パック: ui (UIパーツの名前) · element 27 · カテゴリ: 開く・重なるパーツ
-// 何が起きるか: 開ききったボトムシートをさらに上へ引くと、引くほど重くなって指から遅れ、離すと境界へ戻る。
+// オーロラグラデーション / Aurora gradient
+// 分類: UI・Web / ページ / ヒーロー背景
+// 何が起きるか: 暗い背景で緑・青・紫・ピンクの大きな光がそれぞれ別の軌道で漂って重なり合い、その上に挨拶の見出しが乗る。
 // 動きの仕様:
-//   - ボトムシートは開ききり、上辺が境界 y = 64 に止まっている。指が0.9秒につまみを押さえ、0.95〜2.35秒に easeInOutCubic で上へ120px引く
-//   - シートは減衰関数 f(x) = (1 − 1 / (0.55·x / 190 + 1)) × 190 だけ動く。指 40 / 80 / 120px でシート 20 / 36 / 49px、引くほど重い
-//   - 2.6秒に指を離し、シートは2.6〜3.0秒に easeOutCubic で境界へ戻る
-//   - 右側の2本のバーで指の移動量（灰）とシートの移動量（青）を比べる
-//   - ボトムシートとの違い: 開く動きではなく、もう端に着いたあとの引っ張りに抵抗をつけて戻す
-// 使いどころ: リストのスクロール端、シートやカルーセルを端まで引いたときに、それ以上は進めないことを伝えたいとき。
-// タグ: rubber-banding, overscroll, elastic, drag, bottom-sheet, damping, bounce-back
-// サイズ: 542x191 px · 1周: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+//   - 光 4 つ、半径 160–210px、色相 165°・205°・270°・320°。加算合成（lighter）で重ねる
+//   - 各光は横 70–120px・縦 25–40px の範囲で、1 周期に 1 回か 2 回往復する閉じた軌道を漂う
+//   - 半径は 1 周期に 1 回 ±12% 呼吸する
+//   - 放射グラデーションの不透明度は中心 0.4、半径の半分で 0.15、外周で 0
+//   - 見出し 24px と補足 14px は光の上に描き、はっきり読める
+// 使いどころ: ウェルカム画面、AI の待機画面、ヒーローの背景など、静かに動き続ける雰囲気がほしいときに。
+// タグ: aurora, gradient, mesh-gradient, glow, blur, background, hero
+// サイズ: 539x208 px · 1周: 4.8 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-100
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 27
-// 28 橡皮筋回弹（Rubber-banding）
-// 底部面板已完全展开，顶边停在边界 y = 64（蓝色虚线）。手指 0.9 秒按住把手，0.95–2.35 秒 easeInOutCubic 向上拖 120px。
-// 面板只按阻尼函数 f(x) = (1 − 1 / (0.55·x / 190 + 1)) × 190 移动：手指 40 / 80 / 120px 时面板 20 / 36 / 49px，越拉越重，把手逐渐落后于手指。
-// 2.6 秒松手，面板 2.6–3.0 秒 easeOutCubic 弹回边界。面板右侧两条进度条对比手指位移（灰）与面板位移（蓝）。
-const RUBBER_D = 190, RUBBER_C = 0.55;
-const RUBBER_F = x => (1 - 1 / (x * RUBBER_C / RUBBER_D + 1)) * RUBBER_D;
-CELLS[26] = ui((w, h, t) => {
-  pageLines(24, 14, 494); fillRR(24, 74, 239, 54, 8, C.block); fillRR(279, 74, 239, 54, 8, C.block);
-  X.fillStyle = 'rgba(18,20,28,.36)'; X.fillRect(0, 0, w, h);
-  const d = 120 * eio(seg(t, 0.95, 2.35)), rel = eo(seg(t, 2.6, 3.0));
-  const off = t < 2.6 ? RUBBER_F(d) : RUBBER_F(120) * (1 - rel);
-  const fd = t < 2.6 ? d : 120 * (1 - eo(seg(t, 2.6, 2.8)));
-  const y0 = 64, sy = y0 - off, act = t > .9 && t < 2.6;
-  shadowed(() => { rr(0, sy, w, h - sy + 30, 18); X.fillStyle = '#fff'; X.fill(); }, 22, -4, .2);
-  fillRR(w / 2 - 26, sy + 10, 52, 6, 3, act ? C.sb : C.line2);
-  bar(28, sy + 30, 150, C.ink, 11);
-  for (let i = 0; i < 3; i++) { const y = sy + 54 + i * 36; fillRR(28, y, 26, 26, 6, i ? C.mb : C.blue); bar(66, y + 4, 200, C.line); bar(66, y + 17, 130, C.line, 7); }
-  // 位移对比
-  const mx = 336, tx = 372, tw0 = 120;
-  text('手指', mx, sy + 60, 12, '#777', 600); fillRR(tx, sy + 56, tw0, 8, 4, '#eceae8'); if (fd > .5) fillRR(tx, sy + 56, fd, 8, 4, '#9a9896');
-  text(Math.round(fd) + 'px', w - 20, sy + 60, 12, '#777', 700, 'right', NUMF);
-  text('面板', mx, sy + 86, 12, C.blue, 600); fillRR(tx, sy + 82, tw0, 8, 4, '#eceae8'); if (off > .5) fillRR(tx, sy + 82, off, 8, 4, C.blue);
-  text(Math.round(off) + 'px', w - 20, sy + 86, 12, C.blue, 700, 'right', NUMF);
-  text('阻尼：越拉越重', mx, sy + 112, 11, '#9a9896', 600);
-  // 边界线
-  X.save(); X.setLineDash([5, 4]); X.strokeStyle = C.blue; X.globalAlpha = .85; X.lineWidth = 1.5; X.beginPath(); X.moveTo(0, y0); X.lineTo(w, y0); X.stroke(); X.restore();
-  text('边界', w - 20, y0 - 9, 11, '#fff', 700, 'right');
-  const fp = t < 0.95 ? track([[.3, w / 2, h + 30], [.9, w / 2, y0 + 13]], t) : [w / 2, y0 + 13 - d];
-  finger([[0, fp[0], fp[1]]], [0.95], t, t > .55 && t < 2.62);
-});
+// @element 16
+// 16 流动光晕渐变（改写自 KittenJam #106，Hannah，MIT）：4 团半径 160–210px 的大光晕以叠加（lighter）混合，
+// 各自沿不同的椭圆轨迹漂移、半径 ±12% 呼吸，交融成极光；前景标题保持清楚。
+// 每团：[中心 x, 中心 y, x 振幅, y 振幅, x 每周期圈数, y 每周期圈数, 相位, 半径, 色相]
+const AUR_BLOBS = [
+  [170, 70, 80, 30, 1, 1, 0.0, 190, 165],
+  [320, 140, 100, 35, 1, 1, 2.1, 210, 270],
+  [420, 70, 70, 40, 1, 2, 4.2, 170, 320],
+  [250, 110, 120, 25, 2, 1, 1.0, 160, 205],
+];
+CELLS[15] = (k, w, h, u) => {
+  bg(k);
+  const ph = TAU * u / CYC;
+  k.save(); k.globalCompositeOperation = 'lighter';
+  for (const [bx, by, ax, ay, fx, fy, p0, r0, hue] of AUR_BLOBS) {
+    const x = bx + ax * Math.sin(fx * ph + p0), y = by + ay * Math.cos(fy * ph + p0);
+    const r = r0 * (1 + 0.12 * Math.sin(ph + p0));
+    const g = k.createRadialGradient(x, y, 0, x, y, r);
+    // 叠加混合下中心透明度 0.4，四团重叠也不至于发白，标题仍清楚
+    g.addColorStop(0, hsla(hue, 90, 58, 0.4)); g.addColorStop(0.5, hsla(hue, 90, 58, 0.15)); g.addColorStop(1, hsla(hue, 90, 58, 0));
+    k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  }
+  k.restore();
+  txt(k, '早上好，今天想做点什么？', 269.5, 96, `700 24px ${FONT}`, '#FFFFFF', 'center');
+  txt(k, '正在为你准备灵感…', 269.5, 128, `400 14px ${FONT}`, 'rgba(236,236,241,0.7)', 'center');
+};

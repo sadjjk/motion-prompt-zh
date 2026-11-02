@@ -1,57 +1,56 @@
 // Motion Prompt #4-026 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// キューブの反転波 / Cube flip wave
-// パック: scenes (スタイルシーン) · element 26 · カテゴリ: 器物・空間
-// 何が起きるか: 暗い地の上で立方体の板が斜めの波に沿って次々に転がり、上面が4色を順に入れ替わってめくれる画面のように見える。
+// フェアアイル編み / Fair Isle knit
+// 分類: ビジュアルスタイル / 工芸・文様 / 幾何学文様
+// 何が起きるか: ふっくらしたV字の編み目が下から一段ずつ左右に往復しながら現れ、菱形・雪の結晶・トナカイの帯模様が編み上がる。
 // 動きの仕様:
-//   - 22 × 6 の立方体配列、正投影のアイソメ視点（ヨー 0.42・ピッチ 0.62 rad）、暗い地 #121214
-//   - 斜めの波で順に反転し、各キューブは 6.4 秒に 8 回、各回 90°・約 0.4 秒で転がる
-//   - 上面の色は 4 色 #FF5C40・#F5F0E6・#3C5AE6・#FFC83C を巡り、周期ごとに 2 巡して元の色に戻る
-//   - 側面は今の色と次の色の間で変化し、面の向きに応じて暗くなる
-// 使いどころ: テック系・デザインスタジオの動画開場、プロダクト発表のファーストビュー、プレゼンの章間のリズミカルな転換に。
-// タグ: cubes, isometric, flip, wave, 3d, grid, colorful
+//   - 各目は V 字の 2 枚の編み目で 10 × 8.5 px、全 26 段
+//   - 4 色 #F2ECE0・#C8322E・#1B2A3A・#E8B44A。12 段ずつの菱形・雪の結晶・トナカイの帯を繰り返す
+//   - 0.2〜4.6 秒で下から一段ずつ編み上がり、編んでいる段は左右に往復しながら進む
+//   - 5.4 秒まで保持し、5.4〜6.0 秒でフェードアウト
+// 使いどころ: 冬物アパレルや手芸ブランドの動画開場、クリスマス・年末キャンペーンの背景、季節の挨拶カードに。
+// タグ: fair-isle, knit, textile, christmas, winter, pattern, reveal
 // サイズ: 539x208 px · 1周: 6.4 s
-// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-026
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 26
-// 26 方块翻转：22×6 的立方体阵列被斜向波浪依次翻转，每格每周期翻 8 次（每次 90°、0.4 秒），每翻一次顶面换成下一种颜色，4 色循环两轮回到原色
-const CUBE_COLS = [[255, 92, 64], [245, 240, 230], [60, 90, 230], [255, 200, 60]];
-const CUBE_NI = 22, CUBE_NJ = 6, CUBE_G = 0.6, CUBE_H = 0.26, CUBE_SC = 41;
-const CUBE_CA = Math.cos(0.42), CUBE_SA = Math.sin(0.42), CUBE_CB = Math.cos(0.62), CUBE_SB = Math.sin(0.62);
-// 正交轴测：绕 y 轴偏航 0.42、俯仰 0.62；返回 [屏幕 x 分量, 屏幕 y 分量, 深度]
-const CUBE_R = (x, y, z) => { const x1 = x * CUBE_CA + z * CUBE_SA, z1 = -x * CUBE_SA + z * CUBE_CA; return [x1, y * CUBE_CB + z1 * CUBE_SB, -y * CUBE_SB + z1 * CUBE_CB]; };
-const CUBE_C0 = CUBE_R((CUBE_NI - 1) * CUBE_G / 2, 0, (CUBE_NJ - 1) * CUBE_G / 2);
-const CUBE_ORDER = (() => { const o = []; for (let i = 0; i < CUBE_NI; i++) for (let j = 0; j < CUBE_NJ; j++) o.push([i, j, CUBE_R(i * CUBE_G, 0, j * CUBE_G)[2]]); return o.sort((a, b) => b[2] - a[2]); })();
-// 六个面：[局部法线, 四个角, 颜色偏移]；顶面 = 当前色，前面 = 下一色，底面 = 再下一色（翻 90° 后前面转到顶、底面转到前）
-const CUBE_FACES = [
-  [[0, 1, 0], [[-1, 1, -1], [1, 1, -1], [1, 1, 1], [-1, 1, 1]], 0], [[0, 0, -1], [[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1]], 1],
-  [[0, -1, 0], [[-1, -1, -1], [1, -1, -1], [1, -1, 1], [-1, -1, 1]], 2], [[0, 0, 1], [[-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]], 3],
-  [[1, 0, 0], [[1, -1, -1], [1, 1, -1], [1, 1, 1], [1, -1, 1]], -1], [[-1, 0, 0], [[-1, -1, -1], [-1, 1, -1], [-1, 1, 1], [-1, -1, 1]], -1]];
-CELLS[25] = (k, w, h, u) => {
-  k.fillStyle = '#121214'; k.fillRect(0, 0, CW, CH);
-  for (const [i, j] of CUBE_ORDER) {
-    const ph = 8 * u / CYC - (i * 0.6 + j) * 0.09, kf = Math.floor(ph), f = clamp((ph - kf) * 2), ci = ((kf % 4) + 4) % 4;
-    const ang = inOut3(f) * Math.PI / 2, ca = Math.cos(ang), sa = Math.sin(ang);
-    const cx = i * CUBE_G, cz = j * CUBE_G;
-    for (const [n, pts, off] of CUBE_FACES) {
-      const ny = n[1] * ca - n[2] * sa, nz = n[1] * sa + n[2] * ca, nx = n[0];
-      // 正交视线：深度梯度 (-sa·cb, -sb, ca·cb)，点积为负即朝向相机
-      if (-nx * CUBE_SA * CUBE_CB - ny * CUBE_SB + nz * CUBE_CA * CUBE_CB >= 0) continue;
-      const col = off < 0 ? lerpC(CUBE_COLS[ci], CUBE_COLS[(ci + 1) % 4], f) : CUBE_COLS[(ci + off) % 4];
-      const sh = clamp(0.5 - 0.5 * ny + 0.15 * nz);
-      k.fillStyle = `rgb(${lerpC(col, [0, 0, 0], sh).join()})`; k.beginPath();
-      pts.forEach(([px, py, pz], q) => {
-        const yy = (py * ca - pz * sa) * CUBE_H, zz = (py * sa + pz * ca) * CUBE_H;
-        const r = CUBE_R(cx + px * CUBE_H, yy, cz + zz);
-        const sx = 269.5 + (r[0] - CUBE_C0[0]) * CUBE_SC, sy = 104 - (r[1] - CUBE_C0[1]) * CUBE_SC;
-        q ? k.lineTo(sx, sy) : k.moveTo(sx, sy);
-      });
-      k.closePath(); k.fill();
-    }
+// @element 24
+// 24 费尔岛针织：V 字毛线圈（10×8.5px）织出菱格、雪花与驯鹿带，0.2–4.6 秒从下往上逐行织出（行内左右往返），5.4 秒淡出
+const KNIT_SW = 10, KNIT_SH = 8.5, KNIT_ROWS = Math.ceil(CH / 8.5) + 1;
+const KNIT_COLS = [[242, 236, 224], [200, 50, 46], [27, 42, 58], [232, 180, 74]];   // #F2ECE0 #C8322E #1B2A3A #E8B44A
+function knitMotif(c, r) {                                    // 原作的三条 12 行图案带：菱格 / 雪花 / 驯鹿
+  const band = Math.floor(r / 12) % 3, rr = r % 12, cc = c % 12;
+  if (band === 1) { const dx = Math.abs(cc - 6), dy = Math.abs(rr - 6); if (dx + dy < 5 && (dx === dy || dx === 0 || dy === 0)) return 0; if (rr === 0 || rr === 11) return 3; return 2; }
+  if (band === 0) { if ((cc + rr) % 6 === 0 || (cc - rr + 12) % 6 === 0) return 1; return 0; }
+  if (rr < 2 || rr > 9) return 3; const d = Math.abs(cc - 6); if (rr > 3 && rr < 8 && d < 4 - Math.abs(rr - 5.5) + 1) return 0; return 1;
+}
+CELLS[23] = (k, w, h, u) => {
+  k.fillStyle = '#1B2A3A'; k.fillRect(0, 0, CW, CH);
+  const sw = KNIT_SW, sh = KNIT_SH;
+  const fab = layer('KNIT_all', g => {                       // 整片织物一次画好（每针两片带渐变的线圈）
+    for (let r = 0; r < KNIT_ROWS; r++) { const y = r * sh;
+      for (let c = 0; c < Math.ceil(CW / sw) + 1; c++) {
+        const x = c * sw, base = KNIT_COLS[knitMotif(c, r)], wave = 0.85 + 0.15 * Math.sin(x / 46) * Math.sin(y / 60);
+        for (const side of [-1, 1]) {
+          g.save(); g.translate(x + sw / 2 + side * sw * 0.22, y + sh * 0.55); g.rotate(side * -0.55);
+          const gr = g.createLinearGradient(-sw * 0.25, 0, sw * 0.25, 0);
+          gr.addColorStop(0, rgba(base.map(v => Math.round(v * 0.55 * wave)), 1)); gr.addColorStop(0.5, rgba(base.map(v => Math.round(Math.min(255, v * 1.05 * wave))), 1)); gr.addColorStop(1, rgba(base.map(v => Math.round(v * 0.6 * wave)), 1));
+          g.fillStyle = gr; g.beginPath(); g.ellipse(0, 0, sw * 0.26, sh * 0.78, 0, 0, TAU); g.fill();
+          g.strokeStyle = 'rgba(0,0,0,.18)'; g.lineWidth = 0.5; g.beginPath();
+          for (let q = -1; q <= 1; q++) { g.moveTo(-sw * 0.2, q * 2.2); g.lineTo(sw * 0.2, q * 2.2 + 1.5); }
+          g.stroke(); g.restore();
+        }
+      } }
+  });
+  const shown = seg(u, 0.2, 4.6) * KNIT_ROWS, full = Math.floor(shown), frac = shown - full, fade = fadeIn(u);
+  if (shown > 0 && fade > 0) {
+    const yCut = (KNIT_ROWS - full) * sh;                    // 自下而上：第 r 行在 r ≥ 行数 − 已织行数 时出现
+    k.save(); k.globalAlpha = fade; k.beginPath(); k.rect(0, yCut, CW, CH + sh - yCut);
+    if (frac > 0 && full < KNIT_ROWS) k.rect(full % 2 ? CW * (1 - frac) : 0, yCut - sh, CW * frac, sh);   // 正在织的一行左右往返
+    k.clip(); k.drawImage(fab, 0, 0); k.restore();
   }
-  grain(k, 0.05);
+  grain(k, 0.07);
 };

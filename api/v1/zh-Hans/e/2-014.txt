@@ -1,36 +1,35 @@
-// Motion Prompt #2-014 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#014
+// Motion Prompt #2-014 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#125
 //
-// 运动拖尾 / Motion trail
-// 分类包: motion (动态图形基础) · element 14 · 子分类: 运动润饰
-// 动画表现: 圆球沿八字轨迹运动，身后留下逐渐变淡的残影。
+// 脉冲缩放 / Pulse
+// 分类: 动态图形 / 运动原理 / 节奏与循环
+// 动画表现: 心形以双拍节奏跳动，并向外扩散心形轮廓。
 // 运动规格:
-//   - 珊瑚色球半径 25、白色内芯半径 11，每 4.7 秒走完一次八字：x = 196·sin(a)，y = 62·sin(2a)，a 匀速增加。
-//   - 15 个残影，每个沿路径后退 0.105 rad，约 0.079 秒。
-//   - 残影半径从 22→6，透明度为 0.9 × (1 − i/15) + 0.05；越早的残影越小越淡。
-//   - 残影颜色从新到旧依次为珊瑚→黄→蓝。
-//   - 先绘制最旧残影，最后绘制球体本身。
-// 适用场景: 适合表现速度或路径，如飞行物、光点和光标。
-// 标签: trail, motion-trail, echo, afterimage, ghost, path, speed
+//   - 珊瑚色心形，每 1.175 秒一拍，每 4.7 秒四拍；每拍都是“咚咚”双拍。
+//   - 缩放 = 1 + 0.26·G(0.2 秒, 宽度 0.065) + 0.15·G(0.44 秒, 宽度 0.07)，G = e^(−((t − centre) ÷ width)²)，迅速膨胀后立即回落。
+//   - 两条心形轮廓分别从 0.16 秒和 0.40 秒开始扩散，在 0.8 秒内由缩放 1.2→2.4，采用三次缓出。
+//   - 扩散时透明度 0.75→0，第二条为此值的 60%；线宽 8.5→1.5 px。
+// 适用场景: 适合点赞、录制或直播指示、重点按钮，增加生命感。
+// 标签: pulse, heartbeat, throb, scale, loop, like, attention
 // 尺寸: 539x208 px · 周期: 4.7 s
-// 依赖: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-014
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 14
-// 14 モーショントレイル（動いた跡に、残像が尾を引く）
-CELLS[13] = (k, w, h, u) => {
+// @element 05
+// 05 パルス（ハートが鼓動のように、ドクン・ドクンと大きさを脈打たせる）
+CELLS[4] = (k, w, h, u) => {
   stage(k);
-  const X = w / 2, Y = h / 2 + 2, A = 196, B = 62, th = u / CYC * Math.PI * 2;
-  const pt = a => [X + A * Math.sin(a), Y + B * Math.sin(2 * a)];
-  const N = 15;
-  for (let i = N; i >= 1; i--) {
-    const [x, y] = pt(th - i * 0.105), f = i / N;
-    k.globalAlpha = 0.9 * (1 - f) + 0.05; k.fillStyle = f < 0.5 ? mix(C.coral, C.yel, f * 2) : mix(C.yel, C.blue, (f - 0.5) * 2);
-    k.beginPath(); k.arc(x, y, lerp(22, 6, f), 0, 7); k.fill();
+  const T = CYC / 4, lu = mod(u, T), X = w / 2, Y = h / 2 + 10;
+  const g = (c, s) => Math.exp(-Math.pow((lu - c) / s, 2));
+  const b = 0.26 * g(0.2, 0.065) + 0.15 * g(0.44, 0.07) + 0.26 * Math.exp(-Math.pow((lu - T - 0.2) / 0.065, 2));
+  for (const [t0, s] of [[0.16, 1], [0.4, 0.6]]) {
+    const q = P(lu, t0, t0 + 0.8); if (q <= 0 || q >= 1) continue;
+    k.save(); k.translate(X, Y); const sc = 1.2 + 1.2 * eOut(q); k.scale(sc, sc); heartPath(k, 44);
+    k.strokeStyle = C.coral; k.globalAlpha = (1 - q) * 0.75 * s; k.lineWidth = (7 * (1 - q) + 1.5) / sc; k.stroke(); k.restore();
   }
-  k.globalAlpha = 1; const [x, y] = pt(th);
-  k.fillStyle = C.coral; k.beginPath(); k.arc(x, y, 25, 0, 7); k.fill();
-  k.fillStyle = '#fff'; k.beginPath(); k.arc(x, y, 11, 0, 7); k.fill();
+  k.globalAlpha = 1;
+  k.save(); k.translate(X, Y); k.scale(1 + b, 1 + b); heartPath(k, 44); k.fillStyle = C.coral; k.fill();
+  k.fillStyle = 'rgba(255,255,255,.75)'; k.beginPath(); k.ellipse(-30, -28, 9, 6, -0.7, 0, 7); k.fill(); k.restore();
 };

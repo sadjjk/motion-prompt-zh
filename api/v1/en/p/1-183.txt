@@ -1,16 +1,15 @@
-Please use "Wake bar slider" (波が尾を引くスライダー), one of the names in "UI component names".
+Please use "Hand-drawn annotations" (手描きの注釈), filed under "Text & data / Interactive type".
 Motion Prompt #1-183
 
-What it is: A slider made of thin bars that rise into a trailing wave as you drag
-What the sample shows: Thin bars line a white plastic-style base, blue to the left of the value and grey to the right. The cursor presses and drags slowly, raising a small bump; then it flicks back and forth and a tall wave trails behind it. When the cursor stops the wave settles, and after release the value eases back.
+What it is: Hand-drawn red-pen marks that circle, box or underline key words
+What the sample shows: Each time a style is picked, the old marks rewind away and new red strokes are drawn word by word, each followed by a lighter second pass.
 Spec:
-- 542×191 card, 4.5 s cycle. No round thumb: a row of bars 4 px wide at a 7.5 px pitch, 11 px tall at rest, blue left of the value and grey to the right.
-- The cursor presses at value 34 at 0.78 s, drags slowly 34 → 52 over 0.90–1.85 s, then flicks 52 → 90 → 24 → 68 by 2.82 s.
-- Bars under the cursor lift up to 12 px. Behind it a wave built from the last 1.4 s of motion grows with speed, decays with a 0.36 s time constant and is capped at 48 px.
-- The cursor holds still until 3.50 s while the wave settles, then lets go.
-- From 3.70–4.15 s the value eases back to 34 and the cursor returns to rest.
-When to use it: Use it for brightness, volume or zoom sliders in settings panels where values are adjusted by dragging.
+- 3 words are marked in red #D93A55: a 2.4 px main stroke plus a 1.6 px second pass at 70% opacity.
+- 4 styles: underline, circle, box and strike-through; switching first rewinds the old marks (.26 s).
+- New marks are drawn word by word, .24 s apart, the second pass .13 s later; each stroke lasts .25 s + path length × 0.9 ms.
+- Easing cubic-bezier(.55,.1,.35,1); in the demo the style switches at 0.2 / 1.75 / 3.3 / 4.9 s.
+When to use it: Use it in marketing taglines, pricing comparisons or an article's key sentence to make words stand out with a handwritten feel.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-183.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

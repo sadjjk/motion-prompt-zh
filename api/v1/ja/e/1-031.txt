@@ -1,36 +1,59 @@
-// Motion Prompt #1-031 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#079
+// Motion Prompt #1-031 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// スクロールプログレスバー / Scroll progress bar
-// パック: lp (LP・Webサイトの演出) · element 07 · カテゴリ: スクロールで起きる演出
-// 何が起きるか: 記事を少しずつ読み進めるごとに、画面の上端の線が左から伸び、最後まで来ると端まで届く。
+// 料金プラン切り替え / Pricing toggle
+// 分類: UI・Web / コンポーネント / 選ぶ・入力する
+// 何が起きるか: カーソルが「年払い」を押すとつまみが移り、3枚のカードの価格が順に回って下がり、中央のおすすめカードが大きくなって青く縁取られ、後で月払いに戻る。
 // 動きの仕様:
-//   - 記事のページを 0→430px までスクロール。110pxずつ4回、それぞれ0.45秒で動いて0.4秒止まる（easeInOut 3乗）
-//   - 3.75〜4.55秒で 430→0 に戻る
-//   - 表示域の上端に高さ6pxの線。地は薄いグレー、伸びる部分は朱色
-//   - 伸びる幅 = 511px × スクロール量 / 430（スクロールの割合そのまま。CSS の animation-timeline: scroll() と同じ）
-// 使いどころ: 長い記事やコラムで、あとどれくらいで読み終わるかを伝えたいとき。
-// タグ: progress-bar, reading-progress, scroll-progress, indicator, scroll-driven, article
-// サイズ: 539x208 px · 1周: 4.8 s
-// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+//   - 160×30の「月払い／年払い」カプセル型スイッチと、3枚の価格カード（150×124・間隔18）
+//   - カーソルが1.0秒に「年払い」を押し、つまみが0.3秒（easeInOut 3乗）で右へ移る
+//   - 価格はカードごとに0.08秒ずつずれ、各0.4秒で上へ回って新しい値になる：¥29 / 59 / 99 → ¥23 / 47 / 79
+//   - 中央のおすすめカードは0.35秒で1.06倍になり2pxの青い縁取り、スイッチの横に「20%お得」が出る
+//   - 3.2秒に「月払い」を押すと同じ動きで逆に戻る
+// 使いどころ: SaaS の料金ページなど、支払い周期で価格が変わるプラン比較に。
+// タグ: pricing, toggle, billing, number-roll, plans, switch
+// サイズ: 542x191 px · 1周: 4.5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-031
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 07
-// 07 スクロールプログレスバー（読み進めた分だけ、画面上の線が伸びる）
-CELLS[6] = (k, w, h, u) => {
-  frame(k);
-  const MAX = 430;
-  const y = steps([[0.3, 0], [0.75, 110], [1.15, 110], [1.6, 220], [2.0, 220], [2.45, 330], [2.85, 330], [3.3, MAX], [3.75, MAX], [4.55, 0]], u);
-  view(k, () => {
-    k.save(); k.translate(0, -y);
-    txt(k, '网页设计入门', 70, 44, `800 20px ${JP}`, C.ink); bars(k, 70, 56, 120, 1, C.faint, 5);
-    pic(k, 70, 74, 371, 112, 0, 8);
-    for (let b = 0; b < 4; b++) { const y0 = 204 + b * 82; k.fillStyle = C.ink; rr(k, 70, y0, 140, 9, 4.5); k.fill(); bars(k, 70, y0 + 22, 371, 4, C.faint, 6, 12); }
-    k.restore();
-    k.fillStyle = C.faint; k.fillRect(0, 0, VW, 6);
-    k.fillStyle = C.acc; k.fillRect(0, 0, VW * (y / MAX), 6);
-    sbar(k, y / MAX, 0.3);
-  });
-};
+// @element 36
+// 改写自 KittenJam Motion Library #215 价格方案切换：顶部 160×30「月付 / 年付」胶囊开关，三张 150×124 价格卡（间距 18）。
+// 光标 1.0 秒点「年付」：滑块 0.3 秒 easeInOut 3 次方右移，三张卡价格数字依次（间隔 0.08 秒、各 0.4 秒）向上滚动到新值
+// （¥29/59/99 → ¥23/47/79），中间推荐卡 0.35 秒放大到 1.06 并描蓝边 2px，开关旁「省 20%」淡入。3.2 秒点「月付」全部反向切回。
+const PRICE_M = [29, 59, 99], PRICE_Y = [23, 47, 79], PRICE_NAME = ['基础版', '专业版', '团队版'];
+CELLS[35] = ui((w, h, t) => {
+  X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+  const yr = eio(seg(t, 1.0, 1.3)) * (1 - eio(seg(t, 3.2, 3.5)));
+  const tx = 191, ty = 10, tw0 = 160, th = 30;
+  fillRR(tx, ty, tw0, th, 15, '#fff'); strokeRR(tx, ty, tw0, th, 15, C.border, 1);
+  fillRR(tx + 3 + 77 * yr, ty + 3, 77, 24, 12, C.blue);
+  text('月付', tx + 41.5, ty + 15, 13, yr < .5 ? '#fff' : C.en, 600, 'center');
+  text('年付', tx + 118.5, ty + 15, 13, yr >= .5 ? '#fff' : C.en, 600, 'center');
+  X.save(); X.globalAlpha = yr; fillRR(tx + tw0 + 10, ty + 6, 54, 18, 9, C.lb); text('省 20%', tx + tw0 + 37, ty + 15, 11, C.blue, 700, 'center'); X.restore();
+  // 当前滚动方向：去程月→年，回程年→月
+  const back = t >= 2.2, t0 = back ? 3.2 : 1.0;
+  for (let i = 0; i < 3; i++) {
+    const x = 28 + i * 168, y = 54, cw = 150, ch = 124;
+    const rec = i === 1 ? eio(seg(t, 1.0, 1.35)) * (1 - eio(seg(t, 3.2, 3.55))) : 0;
+    const s = 1 + 0.06 * rec;
+    X.save(); X.translate(x + cw / 2, y + ch / 2); X.scale(s, s); X.translate(-x - cw / 2, -y - ch / 2);
+    shadowed(() => fillRR(x, y, cw, ch, 10, '#fff'), 12 + 10 * rec, 3, .08 + .1 * rec);
+    if (rec > 0) strokeRR(x, y, cw, ch, 10, `rgba(31,90,232,${rec})`, 2);
+    text(PRICE_NAME[i], x + 14, y + 20, 12, C.en, 600);
+    if (i === 1) { fillRR(x + cw - 50, y + 11, 38, 18, 9, C.lb); text('推荐', x + cw - 31, y + 20, 10, C.blue, 700, 'center'); }
+    // 价格数字滚动：旧值向上滚出、新值从下滚入，裁在一行高度内
+    const q = eio(seg(t, t0 + .1 + i * .08, t0 + .5 + i * .08));
+    const from = back ? PRICE_Y[i] : PRICE_M[i], to = back ? PRICE_M[i] : PRICE_Y[i];
+    text('¥', x + 14, y + 54, 14, C.ink, 700, 'left', NUMF);
+    X.save(); X.beginPath(); X.rect(x + 26, y + 38, 70, 32); X.clip();
+    text(String(from), x + 27, y + 54 - 30 * q, 26, C.ink, 800, 'left', NUMF);
+    text(String(to), x + 27, y + 54 + 30 * (1 - q), 26, C.ink, 800, 'left', NUMF);
+    X.restore();
+    text('/ 月', x + 64, y + 58, 11, C.hint, 500);
+    bar(x + 14, y + 82, 110, C.line, 7); bar(x + 14, y + 96, 84, C.line, 7);
+    X.restore();
+  }
+  pointer([[0, w + 30, h + 30], [.9, tx + 118, ty + 17], [1.6, tx + 118, ty + 17], [3.0, tx + 42, ty + 17], [3.6, tx + 42, ty + 17], [4.4, w + 30, h + 30]], [1.0, 3.2], t);
+});

@@ -1,50 +1,80 @@
-// Motion Prompt #2-024 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#024
+// Motion Prompt #2-024 · MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills
 //
-// 冲击震屏 / Impact shake
-// 分类包: motion (动态图形基础) · element 24 · 子分类: 转场与强调
-// 动画表现: 沉重的标题板砸落地面，冲击使整幅画面震动。
+// 文字逐字变换 / Text morph
+// 分类: 动态图形 / 文字动画 / 逐字与排版
+// 动画表现: 按钮文字在“保存、已保存、再次保存”间切换，共有的字滑到新位置，新增的字翻入、多余的字向上飘走。
 // 运动规格:
-//   - 每 2.35 秒落下一次，先黄色板，再珊瑚色板；板为 250 × 100、圆角半径 18。
-//   - 0.3–0.62 秒从画面上方落到地面，采用三次缓入加速，落下时纵向拉伸 1.12×。
-//   - 0.62 秒落地，整幅画面震动 1.1 秒：x 15 px × e^(−5t) × sin(2π·5t)，y 11 px × e^(−5t) × cos(2π·6.5t)，旋转 0.02 rad × e^(−5t) × sin(2π·5t + 0.6)。
-//   - 落地后 0.3 秒内纵向最多压扁 22% 再恢复，横向相应变宽，锚点为底边。
-//   - 四个背景块延迟 0.03–0.06 秒，在 0.5 秒内最多跳高 24 px；六根白线和六团圆形尘土从地面散开，并在 0.55 秒内消失。
-//   - 退场：1.85–2.2 秒标题板上移 300 px，使用 backIn（s = 1.6）。
-// 适用场景: 适合用重量和冲击感突出重要标题或数字。
-// 标签: shake, impact, camera-shake, slam, drop, thud, headline, emphasis
+//   - 蓝色按钮里的文字按“保存 → 已保存 → 再次保存 → 保存”依次变化，变化时刻 0.6、2.0、3.4 秒；字号 60px。
+//   - 按最长公共子序列配对：相同的字留下，0.5 秒 easeInOut（3 次方）平移到新位置；消失的字 0.25 秒内上移 16px 并淡出。
+//   - 新出现的字从 0.15 秒起每字错开 0.06 秒，0.3 秒 easeOut（3 次方）从下方 18px 翻入，刚出现时为黄色，0.4 秒内变回白色。
+//   - 按钮宽度（文字宽 + 左右各 48px）同样 0.5 秒 easeInOut 平滑变化；3.95 秒后回到“保存”静止。
+//   - 与数字逐位滚动、文字乱码解码不同：不出现乱码也不整列滚动，没变的字始终可见只挪位置，只有变化的字在换。
+// 适用场景: 适合按钮状态（保存 → 已保存）、标签名、套餐名等短文本的状态切换。
+// 标签: text-morph, text-transition, button-state, micro-interaction, typography, label
 // 尺寸: 539x208 px · 周期: 4.7 s
-// 依赖: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-024
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 24
-// 24 インパクトシェイク（重い見出しの板がドンと落ち、その衝撃で画面ごと揺れる）
-CELLS[23] = (k, w, h, u) => {
-  const T = CYC / 2, n = Math.floor(u / T), lu = u - n * T;
-  const floor = h - 30, SW = 250, SH = 100, tI = 0.62, tau = lu - tI;
-  let y = lu < 0.3 ? -SH - 20 : lu < tI ? lerp(-SH - 20, floor - SH, eIn(P(lu, 0.3, tI))) : floor - SH;
-  y -= 300 * backIn(P(lu, 1.85, 2.2), 1.6);
-  let dx = 0, dy = 0, rot = 0;
-  if (tau > 0 && tau < 1.1) { const e = Math.exp(-5 * tau), ph = 2 * Math.PI * 5 * tau; dx = 15 * e * Math.sin(ph); dy = 11 * e * Math.cos(ph * 1.3); rot = 0.02 * e * Math.sin(ph + 0.6); }
-  k.fillStyle = C.navy; k.fillRect(0, 0, w, h);
-  k.save(); k.translate(w / 2 + dx, h / 2 + dy); k.rotate(rot); k.translate(-w / 2, -h / 2);
-  k.fillStyle = C.navy; k.fillRect(-40, -40, w + 80, h + 80);
-  // 背景の小物（衝撃で少し跳ねる）
-  [[34, 62, 86, C.navy2, 0.06], [104, 46, 54, C.navy3, 0.03], [w - 150, 50, 66, C.navy3, 0.03], [w - 90, 62, 104, C.navy2, 0.06]].forEach(([x, bw, bh, col, dl]) => { const t = tau - dl, hop = t > 0 && t < 0.5 ? -24 * Math.sin(Math.PI * t / 0.5) * (1 - t) : 0; k.fillStyle = col; rr(k, x, floor - bh + hop, bw, bh, [10, 10, 0, 0]); k.fill(); k.fillStyle = C.blue; k.globalAlpha = 0.55; rr(k, x + 10, floor - bh + 12 + hop, bw - 20, 8, 4); k.fill(); k.globalAlpha = 1; });
-  k.fillStyle = C.navy3; k.fillRect(-40, floor, w + 80, 5);
-  // 衝撃の線とほこり
-  if (tau > 0 && tau < 0.55) {
-    const q = eOut(tau / 0.55); k.strokeStyle = '#fff'; k.lineCap = 'round'; k.lineWidth = 7 * (1 - q);
-    for (let i = 0; i < 6; i++) { const s = i % 2 ? 1 : -1, j = Math.floor(i / 2), a = -0.12 - j * 0.34, r0 = 140 + 46 * q, r1 = r0 + 32; k.beginPath(); k.moveTo(w / 2 + s * Math.cos(a) * r0, floor - 4 + Math.sin(a) * r0); k.lineTo(w / 2 + s * Math.cos(a) * r1, floor - 4 + Math.sin(a) * r1); if (q < 0.97) k.stroke(); }
-    k.fillStyle = C.dim; k.globalAlpha = 0.8 * (1 - q); for (let i = 0; i < 6; i++) { const s = i % 2 ? 1 : -1, d = 130 + q * (50 + i * 14); k.beginPath(); k.arc(w / 2 + s * d, floor - 8 - q * (6 + i * 4), 9 + q * 8 - i, 0, 7); k.fill(); } k.globalAlpha = 1;
+// @element 25
+// 25 テキストモーフ / 文字逐字变换（Text morph）：蓝色按钮里的文字按「保存 → 已保存 → 再次保存 → 保存」依次变化，变化时刻 0.6、2.0、3.4 秒。
+// 两个词之间按最长公共子序列配对：相同的字（如「保存」）留下来，只用 0.5 秒 easeInOut（3 次方）平移到新位置；
+// 消失的字 0.25 秒内向上移 16px 并淡出；新出现的字从 0.15 秒起每字错开 0.06 秒，0.3 秒 easeOut（3 次方）从下方 18px 翻入，刚出现时为黄色、0.4 秒内变回白色。
+// 按钮宽度（文字宽 + 左右各 48px）同样 0.5 秒 easeInOut 平滑变化。字号 60px。3.95 秒后回到「保存」静止，到周期末与开头一致。
+// 与「文字乱码解码」「打字机效果」的区别：不出现乱码、也不逐字敲出，没变的字始终可见只是挪位置，只有变化的那几个字在换。
+const TMORPH_W = ['保存', '已保存', '再次保存'], TMORPH_SEQ = [[0.6, 0, 1], [2.0, 1, 2], [3.4, 2, 0]], TMORPH_F = `800 60px ${JP}`, TMORPH_PAD = 48;
+const TMORPH_LAY = TMORPH_W.map(s => chars(TK, s, TMORPH_F, 2));
+// 两个词的最长公共子序列：返回 [[旧下标, 新下标], …]
+const TMORPH_LCS = (a, b) => {
+  const A = [...a], B = [...b], L = A.map(() => B.map(() => 0));
+  const g = (i, j) => (i < A.length && j < B.length ? L[i][j] : 0);
+  for (let i = A.length - 1; i >= 0; i--) for (let j = B.length - 1; j >= 0; j--) L[i][j] = A[i] === B[j] ? 1 + g(i + 1, j + 1) : Math.max(g(i + 1, j), g(i, j + 1));
+  const out = []; let i = 0, j = 0;
+  while (i < A.length && j < B.length) { if (A[i] === B[j]) { out.push([i, j]); i++; j++; } else if (g(i + 1, j) >= g(i, j + 1)) i++; else j++; }
+  return out;
+};
+const TMORPH_PAIRS = TMORPH_SEQ.map(([, a, b]) => TMORPH_LCS(TMORPH_W[a], TMORPH_W[b]));
+const TMORPH_WID = i => { const c = TMORPH_LAY[i]; return c[c.length - 1].x + c[c.length - 1].w / 2 - (c[0].x - c[0].w / 2); };
+CELLS[24] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const CX = w / 2, Y = 92;
+  // 当前所处的变化段
+  let si = -1; for (let i = 0; i < TMORPH_SEQ.length; i++) if (u >= TMORPH_SEQ[i][0]) si = i;
+  const glyphs = [];   // [字, x, dy, alpha, 黄色程度]
+  let bw;
+  if (si < 0) { TMORPH_LAY[0].forEach(c => glyphs.push([c.ch, c.x, 0, 1, 0])); bw = TMORPH_WID(0); }
+  else {
+    const [t0, a, b] = TMORPH_SEQ[si], d = u - t0, la = TMORPH_LAY[a], lb = TMORPH_LAY[b], pairs = TMORPH_PAIRS[si];
+    const mv = eIO(P(d, 0, 0.5));
+    const keptA = new Set(pairs.map(p => p[0])), keptB = new Set(pairs.map(p => p[1]));
+    pairs.forEach(([i, j]) => glyphs.push([lb[j].ch, lerp(la[i].x, lb[j].x, mv), 0, 1, 0]));
+    // 消失的字：向上 16px 淡出
+    la.forEach((c, i) => { if (keptA.has(i)) return; const q = P(d, 0, 0.25); if (q < 1) glyphs.push([c.ch, c.x, -16 * eOut(q), 1 - q, 0]); });
+    // 新出现的字：错开 0.06 秒，从下方 18px 翻入
+    let n = 0;
+    lb.forEach((c, j) => {
+      if (keptB.has(j)) return;
+      const s = 0.15 + 0.06 * n++, q = eOut(P(d, s, s + 0.3));
+      if (q > 0) glyphs.push([c.ch, c.x, 18 * (1 - q), q, 1 - P(d, s, s + 0.4)]);
+    });
+    bw = lerp(TMORPH_WID(a), TMORPH_WID(b), mv);
   }
-  const sq = tau > 0 && tau < 0.3 ? 1 - 0.22 * Math.sin(tau / 0.3 * Math.PI) : (lu < tI && lu > 0.3 ? 1.12 : 1);
-  k.save(); k.translate(w / 2, y + SH); k.scale(2 - sq, sq);
-  k.fillStyle = n ? C.coral : C.yel; rr(k, -SW / 2, -SH, SW, SH, 18); k.fill();
-  k.fillStyle = 'rgba(15,26,61,.14)'; rr(k, -SW / 2, -16, SW, 16, [0, 0, 18, 18]); k.fill();
-  txt(k, n ? 'SALE' : 'NEW!', 0, -SH / 2 + 4, `800 74px ${DISP}`, n ? '#fff' : C.navy, 'center', 'middle', '2px');
-  k.restore();
-  k.restore();
+  // 按钮（宽度平滑变化）
+  const BW = bw + TMORPH_PAD * 2, BH = 96;
+  k.fillStyle = 'rgba(0,0,0,.3)'; k.beginPath(); k.ellipse(CX, Y + BH / 2 + 14, BW * 0.46, 6, 0, 0, 7); k.fill();
+  k.fillStyle = C.blue; rr(k, CX - BW / 2, Y - BH / 2, BW, BH, BH / 2); k.fill();
+  k.fillStyle = 'rgba(255,255,255,.14)'; rr(k, CX - BW / 2, Y - BH / 2, BW, BH / 2, [BH / 2, BH / 2, 0, 0]); k.fill();
+  k.save(); rr(k, CX - BW / 2, Y - BH / 2, BW, BH, BH / 2); k.clip();
+  for (const [ch, x, dy, al, yl] of glyphs) { k.globalAlpha = al; txt(k, ch, CX + x, Y + 2 + dy, TMORPH_F, mix(C.white, C.yel, clamp(yl)), 'center', 'middle'); }
+  k.globalAlpha = 1; k.restore();
+  // 下方：三个状态的进度标记
+  const cur = si < 0 ? 0 : TMORPH_SEQ[si][2], LX = [w / 2 - 150, w / 2, w / 2 + 150];
+  k.fillStyle = C.navy3; rr(k, LX[0], 182, LX[2] - LX[0], 4, 2); k.fill();
+  TMORPH_W.forEach((s, i) => {
+    k.fillStyle = i === cur ? C.yel : C.navy3; k.beginPath(); k.arc(LX[i], 184, i === cur ? 8 : 6, 0, 7); k.fill();
+    txt(k, s, LX[i] + (i === 2 ? 14 : i === 0 ? -14 : 0), 184 + (i === 1 ? -20 : 0), `700 16px ${JP}`, i === cur ? '#fff' : C.dim, i === 0 ? 'right' : i === 2 ? 'left' : 'center', 'middle');
+  });
 };

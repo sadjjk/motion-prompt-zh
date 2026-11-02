@@ -1,7 +1,7 @@
 // Motion Prompt #3-003 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#027
 //
 // ドリーイン / Dolly in
-// パック: camera (カメラワークと切り替え) · element 03 · カテゴリ: カメラの動き
+// 分類: 編集・撮影 / カメラ・編集 / カメラの動き
 // 何が起きるか: カメラそのものが被写体へ前進する。手前の物ほど大きく速く流れ、奥の山はほとんど変わらない。
 // 動きの仕様:
 //   - カメラ: 前（奥行き方向）へ 0m → 5.8m 進む。高さ1.5m、向きと焦点距離（330px＝24mm表示）は固定
@@ -13,11 +13,11 @@
 // 使いどころ: 人物の感情や一点へ、空間の奥行きを感じさせながら寄るとき。
 // タグ: dolly, dolly in, push in, track in, move forward, parallax, camera move
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-003
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 03
 // 03 ドリーイン: カメラ位置が前へ（手前は大きく、奥はほぼそのまま）

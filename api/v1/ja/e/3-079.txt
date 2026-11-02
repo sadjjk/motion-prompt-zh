@@ -1,48 +1,26 @@
-// Motion Prompt #3-079 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/screen-glow
+// Motion Prompt #3-079 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#116
 //
-// 画面の光 / Screen glow
-// パック: photo (写真の表現・光と画風) · element 43 · カテゴリ: 光源と色
-// 何が起きるか: 部屋が暗くなり、人物の前のノートPCだけが光る。冷たい白い光が少し下から顔と胸元を照らしてすぐ弱まり、画面が切り替わる瞬間に明るさが跳ねる。
+// デュオトーン / Duotone
+// 分類: 編集・撮影 / レンズ効果・仕上げ / 色調・仕上げ
+// 何が起きるか: 同じ風景の色が、暗い所は藍、明るい所はピンクの2色の間だけに置き換わる。
 // 動きの仕様:
-//   - 場面①: 胸から上の人物。部屋は暗い場面にさらに #0F1116 を 0.8 重ねる
-//   - 光源: ノートPC（116×50px、背中向き）が (270, 176)。顔へは半径 120px で #DCE8FF から影へ
-//   - 周りのにじみ: 半径 110px の #BED7FF、不透明度 0.32 で加算。画面の上端から 2px の光がもれる
-//   - 切り替え: 1.9秒と3.1秒に約 0.06 秒、光の半径が最大 1.18 倍に跳ねる。右上に「6500K」
-//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
-// 使いどころ: 夜の作業・ゲーム・SNSを見る場面で、孤独感や没入感を出したいとき。
-// タグ: screen glow, monitor light, laptop light, cool light, night, light
+//   - 場面③: 左に胸像（頭の中心 x140, y82・半径28px）、右に丘・家・木・太陽（x432, y54・半径15px）。
+//   - 2色: 暗い側 #1F2A5C、明るい側 #FF9FB2
+//   - 変換: 各色の明るさ L から t = ((L − 70) / 180)^2.4 を求め、2色を t で混ぜる（明るい色どうしの差を広げる）
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、3次のイーズインアウト（cubic-bezier(0.65,0,0.35,1) 相当））
+// 使いどころ: ポスター・音楽・SNSの画像を、ブランドの色で統一したいとき。
+// タグ: duotone, two-tone, gradient map, color overlay, poster, graphic
 // サイズ: 539x208 px · 1周: 5 s
-// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-079
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 43
-// 屏幕光（画面の光）: 部屋が暗くなり、人物の前の背中向きのノートPCだけが光る。冷たい白い光が正面の少し下から顔と胸元を照らし、
-// 外へはすぐ弱まる。画面の中身が切り替わる瞬間に明るさが少し跳ねる
-CELLS[42] = cell((k, u) => {
-  const a = env(u), D = pen(k);
-  stagePortrait(k, pal(BASE, DARK, a));
-  k.save(); k.globalAlpha = 0.8 * a; D.rect(0, 0, CW, CH, '#0F1116'); k.restore();
-  // 切り替え: 1.9 秒・3.1 秒に一瞬明るくなる
-  const jump = 1 + 0.18 * (Math.exp(-(((u - 1.9) / 0.06) ** 2)) + Math.exp(-(((u - 3.1) / 0.06) ** 2)));
-  const LX = PX, LY = 176, cool = mixc(BASE.person, '#DCE8FF', a), sh = mixc(BASE.person, '#0C0E14', a);
-  bust(k, PX, PY, PR, sh, kk => {
-    const g = kk.createRadialGradient(LX, LY, 6, LX, LY, 120 * jump);
-    g.addColorStop(0, cool); g.addColorStop(0.55, mixc(cool, sh, 0.5)); g.addColorStop(1, sh);
-    kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
-  });
-  if (a > 0.002) {
-    k.save(); k.globalCompositeOperation = 'lighter';
-    const s = k.createRadialGradient(LX, LY, 4, LX, LY, 110 * jump);
-    s.addColorStop(0, `rgba(190,215,255,${(0.32 * a).toFixed(3)})`); s.addColorStop(1, 'rgba(190,215,255,0)');
-    k.fillStyle = s; k.fillRect(0, 0, CW, CH); k.restore();
-    // ノートPC（背中向き）: 天板と、縁からもれる光
-    k.save(); k.globalAlpha = a;
-    D.rr(LX - 58, LY - 18, 116, 50, 5, '#272A32'); D.circ(LX, LY + 6, 4, '#3A3E48');
-    k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.6 * a * jump; D.rect(LX - 56, LY - 20, 112, 2, '#CFE0FF');
-    k.restore();
-  }
-  hud(k, '6500K');
+// @element 20
+// デュオトーン: 暗い所を藍、明るい所をピンクの2色だけに置き換える
+CELLS[19] = cell((k, u) => {
+  const a = env(u);
+  const DUO = mapPal(BASE, c => mixc('#1F2A5C', '#FF9FB2', Math.pow(clamp((lum(c) - 70) / (250 - 70)), 2.4)));
+  stageLand(k, pal(BASE, DUO, a));
 });

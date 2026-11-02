@@ -1,37 +1,51 @@
-// Motion Prompt #2-019 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#019
+// Motion Prompt #2-019 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#006
 //
-// 液态转场 / Liquid transition
-// 分类包: motion (动态图形基础) · element 19 · 子分类: 转场与强调
-// 动画表现: 油漆般的液体从顶部滴入，逐渐填满画面并变为下一场景。
+// 打字机效果 / Typewriter
+// 分类: 动态图形 / 文字动画 / 逐字与排版
+// 动画表现: 输入框内逐字输入，完成后发送按钮亮起并被按下。
 // 运动规格:
-//   - 日景→夜景→日景，各占 2.35 秒；两层液体均由上向下，采用二次缓入缓出。
-//   - 第 1 层为纯色，日转夜用蓝色、夜转日用珊瑚色，时间 0.35–1.5 秒；第 2 层把下一场景裁剪为液体形状，时间 0.7–1.8 秒。
-//   - 液面从 y = −110 移至底边下方 130 px；边缘叠加振幅为 13 px 和 8 px 的两条正弦波，中途最强。
-//   - 七条末端圆润、宽 30–54 px 的液滴从液面垂下，长度 = 基准 30–110 px × (0.25 + 0.9 × 波动强度)，中途最长。
-//   - 融合效果：白色画形状→模糊 7 px→对透明度做阈值处理→填充颜色或下一场景。
-// 适用场景: 适合食品、美妆、创意视频等柔和、有机的场景切换。
-// 标签: liquid, transition, drip, paint, goo, fluid, wipe, scene-change
+//   - 每 4.7 秒一轮。在 471 × 92、圆角半径 30 的白色输入框内，从 0.3 秒开始每 0.24 秒出现一个字符，共九个字符，于 2.46 秒输入完成。
+//   - 每个新字符从缩放 1.35 回落至 1，公式为 1 + 0.35·e^(−16t)。
+//   - 光标为珊瑚色，5 × 44，位于最后一个字符之后；输入时常亮，其余时间以 0.94 秒为周期闪烁，每次亮 0.5 秒。
+//   - 发送按钮半径 30，初始为灰色；从 2.58 秒起按弹簧公式 1 − e^(−6.5t)·cos(15t) 显现蓝色圆面。
+//   - 按下：2.96–3.21 秒内，按钮按半个正弦波最多缩小 20%；3.13–3.41 秒文字上移 70 px 并淡出。
+//   - 文字淡出一半时，约 3.27 秒，光标返回起点；3.51–3.81 秒按钮的蓝色淡出。
+// 适用场景: 适合表现提示词、搜索词、聊天消息等文字输入过程。
+// 标签: typewriter, typing, text, cursor, input, prompt, chat, type-on
 // 尺寸: 539x208 px · 周期: 4.7 s
-// 依赖: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-019
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 19
-// 19 リキッドトランジション（ペンキのような液体が上から垂れて流れ込み、次の画面になる）
-const DRIPS = [0, 1].map(s => { const R = rand(190 + s * 7), a = []; for (let i = 0; i < 7; i++) a.push({ x: 36 + i * 78 + (R() - 0.5) * 30, len: 30 + R() * 80, wd: 15 + R() * 12, ph: R() * 6 }); return a; });
-function liquidShape(g, w, h, p, set, u) {
-  const base = lerp(-110, h + 130, p), amp = Math.sin(Math.PI * clamp(p * 1.1));
-  g.beginPath(); g.moveTo(-20, -40);
-  for (let x = -20; x <= w + 20; x += 10) g.lineTo(x, base + amp * (13 * Math.sin(x * 0.021 + u * 3 + set) + 8 * Math.sin(x * 0.05 + u * 4.3)));
-  g.lineTo(w + 20, -40); g.closePath(); g.fill();
-  for (const d of DRIPS[set]) { const L = d.len * (0.25 + amp * 0.9), y0 = base - 20; g.beginPath(); g.roundRect(d.x - d.wd, y0, d.wd * 2, L + 20, d.wd); g.fill(); g.beginPath(); g.arc(d.x, y0 + L + 18, d.wd * 1.25, 0, 7); g.fill(); }
-}
-CELLS[18] = abCell((k, w, h, u, a, b) => {
-  const p1 = eIOs(P(u, TA - 0.15, TB)), p2 = eIOs(P(u, TA + 0.2, TB + 0.3));
-  SCR[a](k, w, h);
-  if (p1 > 0 && p2 < 1) k.drawImage(goo(g => liquidShape(g, w, h, p1, 0, u), 7, g => { g.fillStyle = a === 0 ? C.blue : C.coral; g.fillRect(0, 0, w, h); }), 0, 0);
-  if (p2 >= 1) SCR[b](k, w, h);
-  else if (p2 > 0) k.drawImage(goo(g => liquidShape(g, w, h, p2, 1, u + 1), 7, g => SCR[b](g, w, h)), 0, 0);
-});
+// @element 06
+// 06 タイプライター（入力欄に1文字ずつ打たれ、打ち終わると送信ボタンが点く）
+CELLS[5] = (k, w, h, u) => {
+  stage(k);
+  // 中文 8 字：逐字间隔按原 9 字 × 0.24 秒 = 2.16 秒的总打字时长换算为 0.27 秒，送信等后续时间点不变
+  const S = '帮我做个猫咪视频', N = [...S].length, t0 = 0.3, dt = 2.16 / N, done = t0 + N * dt;
+  const BX = 34, BY = 58, BW = w - 68, BH = 92;
+  const sendT = done + 0.55, clr = P(u, sendT + 0.12, sendT + 0.4);
+  k.fillStyle = '#fff'; rr(k, BX, BY, BW, BH, 30); k.fill();
+  const f = `600 36px ${JP}`; k.font = f;
+  let n = clamp(Math.floor((u - t0) / dt) + 1, 0, N); if (u < t0) n = 0;
+  let x = BX + 32; const y = BY + BH / 2 + 2;
+  k.save(); rr(k, BX, BY, BW - 86, BH, 30); k.clip();
+  [...S].slice(0, n).forEach((ch, i) => {
+    const age = u - (t0 + i * dt), pop = 1 + 0.35 * Math.exp(-age * 16), cw = k.measureText(ch).width;
+    k.save(); k.translate(x + cw / 2, y - clr * 70); k.scale(pop, pop); k.globalAlpha = 1 - clr;
+    txt(k, ch, 0, 0, f, C.navy, 'center', 'middle'); k.restore(); k.font = f; x += cw + 1;
+  });
+  k.restore();
+  if (clr > 0.5) x = BX + 32;
+  // カーソル（打っている間は点灯。待ちの間は0.94秒周期でゆっくり明滅）
+  const typing = u >= t0 - 0.05 && u < done + 0.1, blink = typing ? 1 : (mod(u, 0.94) < 0.5 ? 1 : 0);
+  if (blink) { k.fillStyle = C.coral; rr(k, x + 4, y - 23, 5, 44, 2.5); k.fill(); }
+  // 送信ボタン
+  const on = spring(u - done - 0.12, 15, 6.5) * (1 - P(u, sendT + 0.5, sendT + 0.8)), press = 1 - 0.2 * Math.sin(Math.PI * P(u, sendT - 0.05, sendT + 0.2));
+  const bx = BX + BW - 48, by = BY + BH / 2;
+  k.fillStyle = '#DDE3F3'; k.beginPath(); k.arc(bx, by, 30, 0, 7); k.fill();
+  if (on > 0.01) { k.fillStyle = C.blue; k.beginPath(); k.arc(bx, by, 30 * Math.min(on, 1.25) * press, 0, 7); k.fill(); }
+  k.strokeStyle = '#fff'; k.lineWidth = 6; k.lineCap = 'round'; k.lineJoin = 'round'; k.beginPath(); k.moveTo(bx, by + 12); k.lineTo(bx, by - 12); k.moveTo(bx - 11, by - 2); k.lineTo(bx, by - 13); k.lineTo(bx + 11, by - 2); k.stroke();
+};

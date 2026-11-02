@@ -1,35 +1,41 @@
-// Motion Prompt #1-052 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+// Motion Prompt #1-052 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#071
 //
-// Outer pulse / アウターパルス
-// Pack: aiux (Glow & liquid) · element 04 · Category: Loading & thinking
-// What happens: Layered rainbow rings spread out around a dark input and shrink back, while the field itself stays crisp.
+// Badge / バッジ
+// Category: UI & Web / Components / Status & developer UI
+// What happens: Each time a notification arrives, the blue dot on the bell in the header counts up 1, 2, 3; clicking the bell clears it.
 // Motion spec:
-//   - Input 380 × 64 px, corner radius 16 px. The light is drawn only outside the field.
-//   - One breath is 2.4 s (2 per cycle); the glow spreads from 4 to 18 px outward.
-//   - 4 rings (3 px wide, 18 px blur), fainter toward the outside; opacity 0.25 to 0.7.
-//   - The rainbow gradient turns once per cycle.
-// When to use it: Use it on the main input of an empty state or landing page, or on a featured pricing card.
-// Tags: pulse, input, highlight, glow, landing, featured
-// Size: 539x208 px · Cycle: 4.8 s
-// Needs: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+//   - 4.5 s cycle on a 542×191 card. A 54-tall header with a line-drawn bell at (482, 27) on the right.
+//   - Badge: a blue circle of radius 12 at the bell's top right (+12, −12), 2.5 px white rim, white 14 px number.
+//   - Notifications arrive at 0.7, 1.3 and 1.9 s: the count goes 1 → 2 → 3. The first scales in over 0.7–0.9 s with easeOutCubic.
+//   - Each arrival pops the scale from 1.3 back to 1 over 0.3 s and sends out a ripple ring (radius 12 → 28, opacity 0.5 → 0) over 0.5 s.
+//   - The cursor reaches the bell at 2.95 s and clicks at 3.0 s; the badge shrinks to 0 over 3.0–3.25 s with easeInOutCubic.
+// When to use it: Use it to call attention to a count, such as unread messages or items in a cart.
+// Tags: badge, notification-badge, counter, count, dot, unread
+// Size: 542x191 px · Cycle: 4.5 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-052
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 04
-// 04 外扩呼吸光晕（border-beam size="pulse-outside"）：彩色光晕在输入框外侧向外扩散再收回
-CELLS[3] = (k, w, h, u) => {
-  bg(k);
-  const x = 79.5, y = 72, W = 380, H = 64, R = 16;
-  const s = 0.5 - 0.5 * Math.cos(TAU * u / 2.4);
-  const e = 4 + 14 * s, rot0 = TAU * u / CYC;
-  for (let i = 4; i >= 1; i--) {
-    const ex = e * i / 4;
-    k.strokeStyle = conic(k, x + W / 2, y + H / 2, rot0, (0.25 + 0.45 * s) * (1.15 - i / 4));
-    k.lineWidth = 3; k.shadowColor = hsla(200 + 360 * u / CYC, 100, 60, 0.5 * s); k.shadowBlur = 18;
-    rr(k, x - ex, y - ex, W + ex * 2, H + ex * 2, R + ex); k.stroke();
+// @element 23
+// 23 バッジ（Badge）
+CELLS[22] = ui((w, h, t) => {
+  X.fillStyle = '#fff'; X.fillRect(0, 0, w, 54); X.fillStyle = C.line; X.fillRect(0, 54, w, 1.5);
+  fillRR(24, 19, 76, 16, 4, C.mb);
+  // ベル
+  const bx = w - 60, by = 27; X.save(); X.translate(bx, by);
+  X.beginPath(); X.moveTo(-12, 8); X.quadraticCurveTo(-11, -12, 0, -13); X.quadraticCurveTo(11, -12, 12, 8); X.lineTo(15, 11); X.lineTo(-15, 11); X.closePath();
+  X.strokeStyle = '#333'; X.lineWidth = 2.4; X.lineJoin = 'round'; X.stroke(); X.beginPath(); X.arc(0, 14, 4, 0, Math.PI); X.stroke(); X.restore();
+  const arr = [.7, 1.3, 1.9]; let n = 0; arr.forEach(c => { if (t >= c) n++; });
+  const clear = eio(seg(t, 3.0, 3.25));
+  if (n > 0 && clear < 1) {
+    const last = arr.filter(c => t >= c).pop(), pop = 1 - seg(t, last, last + .3);
+    const s = (n === 1 ? eo(seg(t, .7, .9)) : 1) * (1 + .3 * pop) * (1 - clear);
+    // 届いた合図の波紋
+    const k = seg(t, last, last + .5); if (k > 0 && k < 1) ring(bx + 12, by - 12, 12 + 16 * k, `rgba(31,90,232,${.5 * (1 - k)})`, 2.5);
+    X.save(); X.translate(bx + 12, by - 12); X.scale(s, s); circle(0, 0, 12, C.blue); ring(0, 0, 12, '#fff', 2.5); text(String(n), 0, 1, 14, '#fff', 800, 'center', NUMF); X.restore();
   }
-  k.shadowBlur = 0; k.shadowColor = 'transparent';
-  field(k, x, y, W, H, R, 'Describe what you want to build…');
-};
+  bar(24, 76, 220, C.line2, 12); bar(24, 102, 494); bar(24, 120, 400); fillRR(24, 140, 494, 40, 8, C.block);
+  pointer([[.3, w + 30, h + 30], [2.3, w + 30, h + 30], [2.95, bx + 2, by + 4], [3.4, bx + 2, by + 4], [4.1, w + 30, h + 30]], [3.0], t);
+});

@@ -1,7 +1,7 @@
 // Motion Prompt #1-006 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#054
 //
 // ツールチップ / Tooltip
-// パック: ui (UIパーツの名前) · element 06 · カテゴリ: 開く・重なるパーツ
+// 分類: UI・Web / コンポーネント / 開く・重なる
 // 何が起きるか: カーソルを「?」に乗せると、上に黒い吹き出しで短い説明が出る。離れると消える。
 // 動きの仕様:
 //   - 4.5秒周期・カード542×191。見出しの横に「?」（半径13の青い丸枠）を (196, 121) に置く
@@ -12,11 +12,11 @@
 // 使いどころ: アイコンや略語など、見ればすぐ分かる補足を1行だけ添えたいとき。
 // タグ: tooltip, hint, hover, help, info, title
 // サイズ: 542x191 px · 1周: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-006
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 06
 // 06 ツールチップ（Tooltip）

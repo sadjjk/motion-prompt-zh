@@ -1,15 +1,15 @@
-Please use "Rolling text button" (ローリングテキストボタン), one of the names in "Landing page & web effects".
+Please use "Star rating" (星評価), filed under "Feedback / Action feedback".
 Motion Prompt #1-154
 
-What it is: On hover the label rolls up letter by letter and swaps
-What the sample shows: When the cursor lands, the label's characters roll up one after another and the same characters come up from below; the button flips from white to ink and the round arrow turns to point up-right.
+What it is: A rating where the stars fill and bounce from left to right up to the chosen one
+What the sample shows: Hovering the 2nd star tints 2 stars and shows a label; clicking the 4th then fills stars 1 to 4 in gold from left to right with a bounce and a "very good" label floats up.
 Spec:
-- A 220×56 pill button with the label on the left and a 40px round arrow on the right; the cursor moves onto it in 0.6 s.
-- Each character rolls up one line (26px) over 0.55 s (easeInOut power 3), staggered 0.035 s per character, while an identical character rolls in from below.
-- At the same time the button turns from white to ink, the text from ink to white, the circle from ink to accent orange, and the arrow turns from → to ↗ (−45°).
-- The cursor leaves at 3.4 s and everything rolls back in reverse.
-When to use it: Use it for the main buttons of portfolio or brand sites where the CTA should feel playful.
+- 5 stars (outer radius 17 px, inner radius 7.5 px, 48 px apart).
+- At 0.9 s the cursor hovers the 2nd star; 2 stars tint lightly over 0.15 s and a word appears below.
+- Clicking the 4th star at 2.2 s fills stars 1 to 4 at 0.08 s intervals, each bouncing to 1.35 and back within 0.3 s.
+- The cursor leaves from 2.3–3.0 s; it cross-fades back to the start from 5.4–6.0 s.
+When to use it: Use it for in-app review prompts, post-purchase surveys and support satisfaction ratings.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-154.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

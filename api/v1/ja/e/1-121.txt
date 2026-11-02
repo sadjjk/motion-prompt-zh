@@ -1,70 +1,53 @@
 // Motion Prompt #1-121 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// プルトゥリフレッシュ / Pull to refresh
-// パック: ui (UIパーツの名前) · element 43 · カテゴリ: 案内する・状態を伝えるパーツ
-// 何が起きるか: スマホの画面で指がリストを押して下へ引き、リストは抵抗を受けながら下がって上の矢印が回る。離すと回転して読み込み、戻ると一番上に新しいメッセージが入る。
+// エキスパンディングパネル / Expanding panels
+// 分類: UI・Web / ポインター操作 / ホバー
+// 何が起きるか: 縦長の画像パネル5枚のうち、カーソルが乗った2枚目、次に4枚目が広がり、ほかが細くなって、広がった1枚の左下に見出しが現れる。
 // 動きの仕様:
-//   - 150×179のスマホ枠の中のメッセージ一覧（行の高さ30）。指が0.8秒に押し、0.8〜1.8秒で120px下へ引く
-//   - 抵抗があるため一覧は 90·(1−e^(−引いた量/90)) しか動かず約66px。上の丸い矢印は距離に応じて270°まで回る
-//   - 1.8秒に離すと、一覧が0.25秒で44pxの位置に止まり、アイコンが回転する（0.8秒で1回転）
-//   - 2.9〜3.2秒に一覧が0へ戻り、3.0〜3.4秒に一番上へ青い「新着メッセージ」の行が入る。4.0〜4.4秒にその行がたたまれて元に戻る
-// 使いどころ: メッセージ・ニュース・SNS のフィードなど、最新の内容を取りに行くモバイルの一覧に。
-// タグ: pull-to-refresh, refresh, mobile, list, gesture, loading, spinner
-// サイズ: 542x191 px · 1周: 4.5 s
-// Needs: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+//   - 5枚の同じ幅の縦長パネル（全幅471・高さ136・間隔6px）。ふだんは各 flex 1。絵は幾何学的な図で、パネルの中心に合わせて切り抜く
+//   - ホバーしたパネルは0.6秒の easeOut 3乗で flex 4 に広がり、ほかは同時に細くなる
+//   - 広がりの進み具合が0.6を超えると左下の見出しがフェードイン
+//   - タイムライン: 0.35〜1.75秒に2枚目 → 1.75〜3.6秒に4枚目へ交代 → すべて同じ幅に戻る
+// 使いどころ: 作品のカテゴリ・旅行先・ギャラリーの入口など、画像で選ばせたい所に。
+// タグ: panels, accordion, gallery, expand, hover, flex
+// サイズ: 539x208 px · 1周: 4.8 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-121
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 43
-// 改写自 KittenJam Motion Library #142 下拉刷新：150×179 手机框内的消息列表（行高 30）。手指 0.8 秒按住列表，
-// 0.8–1.8 秒向下拖 120px，列表位移按阻力曲线 90·(1−e^(−拖动/90)) 只走约 66px，顶部圆形箭头随位移转到 270°；
-// 1.8 秒松手：列表 0.25 秒回到 44px 处停住，图标变转圈（0.8 秒 1 圈）；2.9–3.2 秒列表回弹到 0，3.0–3.4 秒顶部插入一条蓝色「新消息」行；
-// 复位：4.0–4.4 秒新消息行收起，回到初始列表。
-const PULL_ROWS = ['设计周报', '小林', '项目群', '日程提醒', '系统通知'];
-CELLS[42] = ui((w, h, t) => {
-  X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
-  const fx = 196, fy = 6, fw = 150, fh = 179, sx = fx + 6, sy = fy + 6, sw = fw - 12, shh = fh - 12;
-  fillRR(fx, fy, fw, fh, 20, C.dark); fillRR(sx, sy, sw, shh, 15, '#fff');
-  X.save(); rr(sx, sy, sw, shh, 15); X.clip();
-  // 顶部栏
-  X.fillStyle = '#fff'; text('消息', sx + sw / 2, sy + 15, 12, C.ink, 700, 'center');
-  X.fillStyle = C.sep; X.fillRect(sx, sy + 28, sw, 1);
-  const top = sy + 29;
-  const drag = 120 * eio(seg(t, .8, 1.8));
-  const pull = 90 * (1 - Math.exp(-drag / 90));
-  const PEAK = 90 * (1 - Math.exp(-120 / 90));
-  let off;
-  if (t < 1.8) off = pull;
-  else if (t < 2.9) off = lerp(PEAK, 44, eo(seg(t, 1.8, 2.05)));
-  else off = 44 * (1 - eo(seg(t, 2.9, 3.2)));
-  // 刷新图标：拖动时按位移旋转，松手后匀速转圈
-  if (off > 2) {
-    const iy = top + off / 2, al = Math.min(1, off / 30);
-    X.save(); X.globalAlpha = al; X.translate(sx + sw / 2, iy);
-    const ang = t < 1.8 ? (off / PEAK) * Math.PI * 1.5 : Math.PI * 1.5 + (t - 1.8) / .8 * Math.PI * 2;
-    X.rotate(ang);
-    X.beginPath(); X.arc(0, 0, 8, 0, Math.PI * 1.5); X.strokeStyle = C.blue; X.lineWidth = 2.2; X.lineCap = 'round'; X.stroke();
-    if (t < 1.8) { X.beginPath(); X.moveTo(0, -11); X.lineTo(4, -8); X.lineTo(0, -5); X.fillStyle = C.blue; X.fill(); }
-    X.restore();
-  }
-  // 新消息行高度：插入 0→30，复位时收起
-  const nh = 30 * eio(seg(t, 3.0, 3.4)) * (1 - eio(seg(t, 4.0, 4.4)));
-  let y = top + off;
-  if (nh > .5) {
-    X.save(); X.beginPath(); X.rect(sx, y, sw, nh); X.clip(); X.globalAlpha = nh / 30;
-    X.fillStyle = C.lb; X.fillRect(sx, y, sw, 30); circle(sx + 18, y + 15, 9, C.blue);
-    text('新消息', sx + 34, y + 11, 11, C.blue, 700); bar(sx + 34, y + 19, 60, C.mb, 5);
-    X.restore(); y += nh;
-  }
-  PULL_ROWS.forEach((r, i) => {
-    const ry = y + i * 30;
-    circle(sx + 18, ry + 15, 9, [C.mb, C.sb, C.line2, C.mb, C.line2][i]);
-    text(r, sx + 34, ry + 11, 11, C.ink, 600); bar(sx + 34, ry + 19, 70 - i * 6, C.line, 5);
-    X.fillStyle = C.sep; X.fillRect(sx + 34, ry + 29.5, sw - 40, 1);
+// @element 45
+// 改写自 KittenJam Motion Library #168 展开式图片面板：5 片等宽竖条面板（总宽 471、高 136、间距 6，平时各 flex 1）。
+// 光标停在哪片，那片 0.6 秒 easeOut 3 次方展开到 flex 4、其他同步缩窄；展开进度超过 0.6 后左下角标题淡入。
+// 时间线：0.35–1.75 秒停第 2 片 → 1.75–3.6 秒移到第 4 片接棒 → 移出后全部回到等宽。面板画面是几何示意图，按面板中心裁切、不变形。
+const XPAN = { x: 20, y: 14, w: 471, h: 136, gap: 6, n: 5 };
+const XPAN_LAY = fl => {
+  const tot = fl.reduce((a, b) => a + b, 0), aw = XPAN.w - XPAN.gap * (XPAN.n - 1);
+  let x = XPAN.x;
+  return fl.map(f => { const r = [x, aw * f / tot]; x += r[1] + XPAN.gap; return r; });
+};
+// 与 Bento 款同样：悬停目标按时间表决定，光标落点取目标完全展开后的中心
+const XPAN_PT = i => { const fl = Array(XPAN.n).fill(1); fl[i] = 4; const [x, pw] = XPAN_LAY(fl)[i]; return [x + pw / 2, XPAN.y + XPAN.h / 2]; };
+const XPAN_TGT = t => { t = mod(t, CYC); return t >= 0.35 && t < 1.75 ? 1 : t >= 1.75 && t < 3.6 ? 3 : -1; };
+CELLS[44] = (k, w, h, u) => {
+  frame(k, 'example.com/explore');
+  const A = XPAN_PT(1), B = XPAN_PT(3);
+  const [cx, cy] = path([[0, 256, 162], [0.35, A[0], A[1]], [1.6, A[0], A[1]], [1.9, B[0], B[1]], [3.5, B[0], B[1]], [3.9, 256, 162], [4.8, 256, 162]], u);
+  const q = Array.from({ length: XPAN.n }, (_, i) => trans(t => XPAN_TGT(t) === i, u, 0.6));
+  const lay = XPAN_LAY(q.map(v => 1 + 3 * v));
+  view(k, () => {
+    k.fillStyle = '#fff'; k.fillRect(0, 0, VW, VH);
+    lay.forEach(([x, pw], i) => {
+      k.save(); rr(k, x, XPAN.y, pw, XPAN.h, 10); k.clip();
+      pic(k, x + pw / 2 - 130, XPAN.y, 260, XPAN.h, i, 0);
+      const ta = clamp((q[i] - 0.6) / 0.4);
+      if (ta > 0) {
+        k.globalAlpha = ta; k.fillStyle = 'rgba(28,35,51,.35)'; k.fillRect(x, XPAN.y + XPAN.h - 34, pw, 34);
+        txt(k, ['山野', '海岸', '城市', '森林', '星空'][i], x + 12, XPAN.y + XPAN.h - 12, `800 15px ${JP}`, '#fff');
+      }
+      k.restore();
+    });
+    cursor(k, cx, cy);
   });
-  X.restore();
-  const lx = sx + sw / 2 + 20;
-  finger([[0, lx, 50], [.8, lx, 50], [1.8, lx, 170]], [.8], t, t > .55 && t < 1.85);
-});
+};

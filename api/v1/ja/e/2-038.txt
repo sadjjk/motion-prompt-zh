@@ -1,37 +1,37 @@
-// Motion Prompt #2-038 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#134
+// Motion Prompt #2-038 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// リピーター / Repeater
-// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 14 · カテゴリ: 文字・図形の演出
-// 何が起きるか: 1つの図形が複製されて円に並び、少しずつずれながら回る。
+// 文字の扇 / Text fan
+// 分類: モーショングラフィックス / 文字アニメーション / 変形・質感
+// 何が起きるか: 重なった7つの「扇」が下の黄色い要を軸に扇形に開き、中央の白い1枚の両側にコーラルの半透明な字が並び、しばらくして閉じる。
 // 動きの仕様:
-//   - 角丸の棒（24×60・角丸12）を中央の半径58の円に最大12個並べる。それぞれ外向きに回す（角度 + 90°）
-//   - 個数: 0.35〜1.7秒に1→12、3.6〜4.45秒に12→1（easeInOut・2乗）。新しい複製は前の位置から30°先の自分の位置へ滑って出る（easeOut・3乗）
-//   - 全体を4.7秒で1回転。各複製の大きさを 1 ± 0.22 で4.7秒に2回脈打たせ、1つ先ほど0.55radずつ遅らせる（輪をまわる波になる）
-//   - 色は青・コーラル・黄・ミントの順。元の1個には白いふち。右上に「×個数」
-// 使いどころ: ローディング・背景の模様・花や光の放射など、同じ形をくり返して並べたいとき。
-// タグ: repeater, duplicate, radial, array, clone, pattern, loader
+//   - 同じ字7枚、軸は字の中心から下へ112px
+//   - 0.5〜1.9秒に (i−3)×24° まで三次の easeInOut で開き、3.6秒まで止まる
+//   - 3.6〜4.5秒に閉じる
+//   - 中央は白で不透明、両側はコーラルで外ほど薄い（0.7 − 0.12×距離）
+// 使いどころ: 和風・伝統系のロゴや、ブランド名の登場に。
+// タグ: fan, radial, rotate, copies, japanese, logo
 // サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-038
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 14
-// 14 リピーター（1つの図形が複製されて円に並び、少しずつずれながら回る）
-CELLS[13] = (k, w, h, u) => {
+// @element 48
+// 改写自 KittenJam Motion Library #24（Hannah）· 文字扇：同一个「扇」字 7 份，以字下方 112px 的点为轴，0.5–1.9 秒按 (i−3)×24° 展开成扇形，停留到 3.6 秒，3.6–4.5 秒收拢；中间一份白色不透明，两侧珊瑚色、越外越淡。
+const TFAN_ORD = [0, 6, 1, 5, 2, 4, 3];   // 外侧先画，中间一份压在最上面
+CELLS[47] = (k, w, h, u) => {
   u = snapU(u);
   stage(k);
-  const N = 12, X = w / 2, Y = h / 2, R = 58, spin = 2 * Math.PI * u / CYC;
-  const cnt = 1 + (N - 1) * (eIOs(P(u, 0.35, 1.7)) - eIOs(P(u, 3.6, 4.45)));
-  for (let i = N - 1; i >= 0; i--) {
-    const vis = i === 0 ? 1 : clamp(cnt - i); if (vis <= 0) continue;
-    const ang = spin + (i === 0 ? 0 : (i - 1 + eOut(vis))) * 2 * Math.PI / N;
-    const pul = (1 + 0.22 * Math.sin(2 * Math.PI * 2 * u / CYC - i * 0.55)) * (0.55 + 0.45 * vis);
-    k.save(); k.translate(X + Math.cos(ang) * R, Y + Math.sin(ang) * R); k.rotate(ang + Math.PI / 2); k.scale(pul, pul);
-    k.fillStyle = PAL[i % 4]; rr(k, -12, -30, 24, 60, 12); k.fill();
-    if (i === 0) { k.strokeStyle = '#fff'; k.lineWidth = 4; rr(k, -12, -30, 24, 60, 12); k.stroke(); }
+  const PX = w / 2, PY = 196, R = 112, F = `900 80px ${JP}`;
+  const o = eIO(P(u, 0.5, 1.9)) * (1 - eIO(P(u, 3.6, 4.5)));
+  TFAN_ORD.forEach(i => {
+    const a = (i - 3) * 24 * Math.PI / 180 * o;
+    k.save(); k.translate(PX, PY); k.rotate(a);
+    k.strokeStyle = 'rgba(255,241,214,.16)'; k.lineWidth = 2; k.beginPath(); k.moveTo(0, -8); k.lineTo(0, -R + 42); k.stroke();
+    k.globalAlpha = i === 3 ? 1 : 0.7 - Math.abs(i - 3) * 0.12;
+    txt(k, '扇', 0, -R, F, i === 3 ? '#fff' : C.coral, 'center', 'middle');
     k.restore();
-  }
-  txt(k, '×' + Math.round(cnt), w - 34, 46, `800 40px ${DISP}`, C.yel, 'right', 'middle');
+  });
+  k.fillStyle = C.yel; k.beginPath(); k.arc(PX, PY, 6, 0, 7); k.fill();
 };

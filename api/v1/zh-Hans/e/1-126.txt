@@ -1,56 +1,69 @@
-// Motion Prompt #1-126 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+// Motion Prompt #1-126 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
 //
-// 切片转场 / Slice transition
-// 分类包: lp (落地页与网页动效) · element 34 · 子分类: 加载、导航与循环动效
-// 动画表现: 画框里的图分成 6 条竖条，从左到右依次上、下、上…滑走，露出下一张；之后同样切回第一张。
+// 光标图片拖尾 / Cursor photo trail
+// 分类: 界面与网页 / 指针交互 / 光标
+// 动画表现: 指针扫过大标题时，白边照片以随机角度弹出又下沉消失，点击时 5 张照片扇形散开。
 // 运动规格:
-//   - 431×128 画框内两张几何示意图交替出现。
-//   - 当前图切成 6 条竖条，每条间隔 0.08 秒、各 0.5 秒 easeInOut 3 次方滑出 148px，第 1、3、5 条向上，第 2、4、6 条向下。
-//   - 时间线：图 A 停留到 0.9 秒 → 0.9–1.8 秒切走露出图 B → 停到 3.3 秒 → 3.3–4.2 秒切走回到图 A。
-// 适用场景: 适合首屏轮播、作品切换、章节过渡等想让换图更有冲击力的地方。
-// 标签: slice, transition, slider, strips, image-reveal, stagger
-// 尺寸: 539x208 px · 周期: 4.8 s
-// 依赖: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+//   - 指针每移动 46 px 落下一张 58 × 72 px 的白边照片，旋转角为 ±12° 随机值加横移量 × 0.06。
+//   - 照片 0.32 秒从 0.3 倍回弹弹入，0.9 秒后用 0.45 秒缩小、下沉 14 px 并淡出。
+//   - 同时最多 14 张，超出时最早的一张提前淡出。
+//   - 演示中 3.5 秒点击，5 张照片呈扇形散开（间隔 0.06 秒，每张横移 16 px、转 12°，停留 1.4 秒）。
+// 适用场景: 适合摄影师、旅行或活动网站的首屏，给主标题周围增加趣味互动。
+// 标签: cursor-trail, photos, hero, playful, spring, image-trail
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-126
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 34
-// 改写自 KittenJam Motion Library #269 切片转场：431×128 画框内两张几何示意图交替。当前图被切成 6 条竖条，
-// 每条间隔 0.08 秒、各 0.5 秒 easeInOut 3 次方滑出 148px，单数条向上、双数条向下，露出下面的另一张图。
-// 时间线：图 A 停留到 0.9 秒 → 0.9–1.8 秒切走露出图 B → 停到 3.3 秒 → 3.3–4.2 秒切走露出图 A，周期首尾都是图 A。
-const SLICE_N = 6, SLICE_X = 40, SLICE_Y = 20, SLICE_W = 431, SLICE_H = 128;
-CELLS[33] = (k, w, h, u) => {
-  frame(k, 'example.com/gallery');
-  const art = (v) => {
-    if (v === 0) {
-      k.fillStyle = C.blueL; k.fillRect(SLICE_X, SLICE_Y, SLICE_W, SLICE_H);
-      k.fillStyle = C.blue; k.beginPath(); k.arc(SLICE_X + 120, SLICE_Y + 64, 40, 0, 7); k.fill();
-      k.fillStyle = C.acc; k.beginPath(); k.moveTo(SLICE_X + 230, SLICE_Y + 104); k.lineTo(SLICE_X + 290, SLICE_Y + 24); k.lineTo(SLICE_X + 350, SLICE_Y + 104); k.closePath(); k.fill();
-      txt(k, '01', SLICE_X + 16, SLICE_Y + 22, `800 13px ${EN}`, C.blue);
-    } else {
-      k.fillStyle = C.accL; k.fillRect(SLICE_X, SLICE_Y, SLICE_W, SLICE_H);
-      k.fillStyle = C.ink; rr(k, SLICE_X + 90, SLICE_Y + 28, 72, 72, 10); k.fill();
-      k.fillStyle = C.acc; k.save(); k.translate(SLICE_X + 270, SLICE_Y + 64); k.rotate(Math.PI / 4); k.fillRect(-32, -32, 64, 64); k.restore();
-      k.strokeStyle = C.blue; k.lineWidth = 8; k.beginPath(); k.arc(SLICE_X + 360, SLICE_Y + 64, 26, 0, 7); k.stroke();
-      txt(k, '02', SLICE_X + 16, SLICE_Y + 22, `800 13px ${EN}`, C.acc);
-    }
-  };
-  // 当前要切走的图与底图
-  const t0 = u < 2.55 ? 0.9 : 3.3, top = u < 2.55 ? 0 : 1;
-  view(k, () => {
-    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
-    k.save(); k.beginPath(); k.rect(SLICE_X, SLICE_Y, SLICE_W, SLICE_H); k.clip();
-    art(1 - top);
-    const sw = SLICE_W / SLICE_N;
-    for (let i = 0; i < SLICE_N; i++) {
-      const q = eIO(P(u, t0 + i * 0.08, t0 + i * 0.08 + 0.5));
-      if (q >= 1) continue;
-      k.save(); k.beginPath(); k.rect(SLICE_X + i * sw, SLICE_Y, sw + 0.5, SLICE_H); k.clip();
-      k.translate(0, (i % 2 ? 1 : -1) * 148 * q); art(top); k.restore();
-    }
-    k.restore();
-    bars(k, SLICE_X, SLICE_Y + SLICE_H + 8, 180, 1);
+// @element 23
+// 23 光标图片拖尾：#F4F1EA 底、居中大标题；指针 0.3–2.6 秒自左向右正弦扫过、2.6–3.3 秒回到中间，3.5 秒按下一次（5 张呈扇形散开，
+// 每张间隔 60ms、横向 16px、旋转 12°），3.7–4.6 秒向右离开。指针每移动 46px 落下一张白边照片（旋转 ±12° 随机 + 横移×0.06），
+// .32s 回弹弹入（scale .3→1），存活 0.9 秒（按下的 1.4 秒）后 .45s 缩小下沉淡出；同时最多 14 张。最后一张在 6.2 秒前消失。
+const CPT_ART = [['sky', '#FFB4A2', '#5C7CFA', '#3B5BDB'], ['sun', '#2B8A3E', '#8CE99A', '#FFF3BF'], ['night', '#1B1F3B', '#FCC419'], ['sea', '#FFD8A8', '#E8590C', '#FFF4E6'], ['split', '#E7F5FF', '#748FFC', '#4C6EF5'], ['sky', '#D0BFFF', '#7048E8', '#5F3DC4'], ['sea', '#A5D8FF', '#1864AB', '#E7F5FF'], ['night', '#1A1B4B', '#FFF3BF'], ['sun', '#FFA94D', '#C92A2A', '#FFE8CC'], ['city', '#E3FAFC', '#66D9E8', '#0C8599']];
+const CPT_PW = 58, CPT_PH = 72, CPT_CLICK = 3.5;
+function CPT_ptr(u) {
+  if (u < 2.6) { const s = seg(u, 0.3, 2.6); return [-20 + 490 * s, 104 + 62 * Math.sin(s * TAU * 2)]; }
+  return UXB_path(u, [[2.6, 470, 104], [3.3, 270, 112], [3.7, 270, 112], [4.6, 570, 60]]);
+}
+// 预先模拟落图表：{t 落下, x, y, r 角度, kill 开始淡出, art}
+const CPT_DROPS = (() => {
+  const D = []; let last = null;
+  for (let i = Math.round(0.3 * 240); i <= Math.round(4.7 * 240); i++) {
+    const t = i / 240, q = CPT_ptr(t);
+    if (q[0] < 0 || q[0] > CW || q[1] < 0 || q[1] > CH) { last = null; continue; }
+    if (!last) { last = q; continue; }
+    if (Math.hypot(q[0] - last[0], q[1] - last[1]) > 46) { D.push({ t, x: q[0], y: q[1], r: (hash(D.length + 3) - 0.5) * 24 + (q[0] - last[0]) * 0.06, life: 0.9 }); last = q; }
+  }
+  const c = CPT_ptr(CPT_CLICK);
+  for (let i = 0; i < 5; i++) D.push({ t: CPT_CLICK + i * 0.06, x: c[0] + (i - 2) * 16, y: c[1] + Math.abs(i - 2) * 4, r: (i - 2) * 12, life: 1.4 });
+  D.sort((a, b) => a.t - b.t);
+  const live = [];
+  D.forEach((d, i) => {
+    d.art = i % 10; d.kill = d.t + d.life;
+    for (let j = live.length - 1; j >= 0; j--) if (live[j].kill + 0.46 <= d.t) live.splice(j, 1);
+    live.push(d);
+    if (live.length > 14) { const o = live.shift(); o.kill = Math.min(o.kill, d.t); }
   });
+  return D;
+})();
+CELLS[22] = (k, w, h, u) => {
+  k.fillStyle = '#F4F1EA'; k.fillRect(0, 0, CW, CH);
+  txt(k, '照片里的四季', CW / 2, 112, UXB_f(900, 40), '#1E1B16', 'center');
+  txt(k, '移动指针，落下照片', CW / 2, 136, UXB_f(700, 11.5), '#8A8274', 'center');
+  for (const d of CPT_DROPS) {
+    if (u < d.t || u > d.kill + 0.45) continue;
+    let sc, al, dy = 0;
+    if (u < d.kill) { const e = seg(u, d.t, d.t + 0.32); sc = 0.3 + 0.7 * backOut(e); al = clamp(e * 1.6); }
+    else { const e = seg(u, d.kill, d.kill + 0.45), ei = e * e; sc = 1 - 0.6 * ei; al = 1 - ei; dy = 14 * ei; }
+    k.save(); k.globalAlpha = al; k.translate(d.x, d.y + dy); k.rotate(d.r * Math.PI / 180); k.scale(sc, sc);
+    k.save(); k.shadowColor = 'rgba(30,27,22,.32)'; k.shadowBlur = 12; k.shadowOffsetY = 6;
+    rr(k, -CPT_PW / 2, -CPT_PH / 2, CPT_PW, CPT_PH, 3); k.fillStyle = '#FFFFFF'; k.fill(); k.restore();
+    UXB_pic(k, -CPT_PW / 2 + 4, -CPT_PH / 2 + 4, CPT_PW - 8, CPT_PH - 14, CPT_ART[d.art]);
+    k.restore();
+  }
+  const c = CPT_ptr(u);
+  ripple(k, c[0], c[1], seg(u, CPT_CLICK, CPT_CLICK + 0.5), '30,27,22');
+  if (u > 0.3 && u < 4.6) cursor(k, c[0], c[1], UXB_press(u, CPT_CLICK));
 };

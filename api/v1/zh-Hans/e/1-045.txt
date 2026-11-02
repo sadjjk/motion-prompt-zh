@@ -1,47 +1,39 @@
-// Motion Prompt #1-045 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#093
+// Motion Prompt #1-045 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#067
 //
-// 平滑滚动 / Smooth scroll
-// 分类包: lp (落地页与网页动效) · element 21 · 子分类: 加载、导航与循环动效
-// 动画表现: 点击菜单“价格”后页面平滑下滚至价格区，右下角向上箭头平滑返回顶部。
+// 大型下拉菜单 / Mega menu
+// 分类: 界面与网页 / 组件 / 导航与菜单
+// 动画表现: 悬停页头“产品”，全宽面板下拉，内含三列链接和图片；移开后关闭。
 // 运动规格:
-//   - 0.9 秒点击价格菜单；0.95–2.0 秒滚动从 0→296 px，持续 1.05 秒，采用三次缓入缓出。
-//   - 停止位置 = 价格区顶部 330 px − 固定页头高度 34 px。
-//   - 滚动超过 60 px 后，右下角半径 15 的返回顶部按钮在后续 40 px 内淡入。
-//   - 3.1 秒点击返回顶部；3.15–4.2 秒滚动从 296→0，采用三次缓入缓出。
-//   - 价格区可见时，菜单中的“价格”变为橙色。
-// 适用场景: 适合页内导航或目录，让读者理解移动方向与位置。
-// 标签: smooth-scroll, scroll-behavior, anchor-link, in-page-link, back-to-top, navigation
-// 尺寸: 539x208 px · 周期: 4.8 s
-// 依赖: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+//   - 542×191 卡片，周期 4.5 秒。页头高 42，使用 16 px 的产品、价格、支持，各有下箭头。
+//   - 光标仅悬停，1.0 秒到达“产品”；展开量 a 在 1.05–1.3 秒以 easeOutCubic 从 0→1，“产品”变蓝并显示下划线。
+//   - 白色面板全宽、高 146，在页头下方向下移动 12 px 到位，同时以 a 淡入；阴影模糊 18、y 偏移 8。
+//   - 内部三列间隔 130 px，每列含蓝色标题和三个链接，右侧为 104×112 图片；光标向下移动，第二列第二链接在 1.75 至 2.9 秒高亮浅蓝。
+//   - 光标从 2.9 秒起离开，面板在 3.15–3.4 秒用 (1 − easeInOutCubic) 淡出。
+// 适用场景: 适合产品或栏目较多的网站，让访客一次看到整体范围。
+// 标签: mega-menu, megamenu, dropdown-navigation, navigation, header-menu, multi-column
+// 尺寸: 542x191 px · 周期: 4.5 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-045
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 21
-// 21 スムーススクロール（メニューを押すと、ページがなめらかに目的の場所まで動く）
-CELLS[20] = (k, w, h, u) => {
-  frame(k);
-  const TO = 296;   // 「料金」セクションの頭（330）− ヘッダーの高さ（34）
-  const y = TO * eIO(P(u, 0.95, 2.0)) * (1 - eIO(P(u, 3.15, 4.2)));
-  const [cx, cy] = path([[0, 380, 132], [0.75, 360, 18], [1.0, 360, 18], [2.9, 478, 140], [3.25, 478, 140], [4.8, 380, 132]], u);
-  view(k, () => {
-    k.save(); k.translate(0, -y);
-    pic(k, 24, 46, 222, 110, 0, 8); txt(k, '恰到好处的工具。', 264, 84, `800 19px ${JP}`, C.ink); bars(k, 264, 98, 210, 3);
-    k.fillStyle = C.soft; k.fillRect(0, 170, VW, 160);
-    txt(k, '特色', VW / 2, 206, `800 17px ${JP}`, C.ink, 'center');
-    for (let i = 0; i < 3; i++) { const x = 100 + i * 155; k.fillStyle = C.blueL; k.beginPath(); k.arc(x, 252, 24, 0, 7); k.fill(); bars(k, x - 46, 288, 92, 2); }
-    txt(k, '价格', VW / 2, 370, `800 17px ${JP}`, C.ink, 'center');
-    ['¥0', '¥980', '¥2,980'].forEach((s, i) => {
-      const x = 50 + i * 143, hi = i === 1; k.fillStyle = '#fff'; rr(k, x, 388, 125, 96, 8); k.fill();
-      k.lineWidth = hi ? 2.5 : 1.5; k.strokeStyle = hi ? C.acc : C.faint; k.stroke();
-      txt(k, s, x + 62.5, 428, `800 20px ${EN}`, hi ? C.acc : C.ink, 'center'); bars(k, x + 22, 444, 81, 2);
-    });
-    k.restore();
-    header(k, 0, y > 250 ? 1 : -1);
-    const tb = clamp((y - 60) / 40);   // ページトップへ戻るボタン
-    if (tb > 0) { k.globalAlpha = tb; k.fillStyle = C.ink; k.beginPath(); k.arc(478, 140, 15, 0, 7); k.fill(); k.strokeStyle = '#fff'; k.lineWidth = 2.4; k.lineCap = 'round'; k.lineJoin = 'round'; k.beginPath(); k.moveTo(472, 143); k.lineTo(478, 136.5); k.lineTo(484, 143); k.stroke(); k.globalAlpha = 1; }
-    sbar(k, y / TO * 0.7, 0.36);
-    click(k, cx, cy, u, [0.9, 3.1]);
-  });
-};
+// @element 19
+// 19 メガメニュー（Mega menu）
+CELLS[18] = ui((w, h, t) => {
+  const a = eo(seg(t, 1.05, 1.3)) * (1 - eio(seg(t, 3.15, 3.4)));
+  pageLines(24, 62, 494); fillRR(24, 130, 494, 50, 8, C.block);
+  X.fillStyle = '#fff'; X.fillRect(0, 0, w, 42); X.fillStyle = C.line; X.fillRect(0, 42, w, 1.5);
+  fillRR(24, 14, 70, 16, 4, C.mb);
+  const nav = [['产品', 190], ['价格', 262], ['支持', 334]];
+  nav.forEach(([s, x], i) => { const on = i === 0 && a > .3; text(s, x, 22, 16, on ? C.blue : '#555', on ? 700 : 600); if (on) fillRR(x, 36, tw(s, 16, 700), 3, 1.5, C.blue); chevron(x + tw(s, 16, 700) + 10, 22, 3.5, 0, on ? C.blue : '#999', 1.8); });
+  if (a > 0) {
+    X.save(); X.globalAlpha = a; X.beginPath(); X.rect(0, 43, w, h); X.clip(); const py = 43 - 12 * (1 - a);
+    shadowed(() => { X.fillStyle = '#fff'; X.fillRect(0, py, w, 146); }, 18, 8, .16);
+    for (let c = 0; c < 3; c++) { const cx = 24 + c * 130; bar(cx, py + 16, 80, C.blue, 10); for (let k = 0; k < 3; k++) { const hov = c === 1 && k === 1 && t > 1.75 && t < 2.9; if (hov) fillRR(cx - 6, py + 34 + k * 26, 112, 22, 5, C.lb); bar(cx, py + 40 + k * 26, [90, 70, 100][(k + c) % 3], hov ? C.sb : C.line2, 9); } }
+    mountains(414, py + 14, 104, 112);
+    X.restore();
+  }
+  // 乗せるだけで開く（クリックしない）
+  pointer([[.3, w + 30, h + 30], [1.0, 205, 26], [1.4, 205, 26], [1.8, 196, 98], [2.9, 196, 98], [3.2, 300, 200], [3.9, w + 30, h + 30]], [], t);
+});

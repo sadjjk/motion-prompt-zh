@@ -1,47 +1,55 @@
-// Motion Prompt #1-024 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#072
+// Motion Prompt #1-024 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#062
 //
-// 空状态 / Empty state
-// 分类包: ui (UI 组件) · element 24 · 子分类: 导航与状态
-// 动画表现: 通过垃圾桶图标删除两行列表后，出现空盒子插画、“暂无内容”和“添加”按钮。
+// 区间滑块 / Range slider
+// 分类: 界面与网页 / 组件 / 选择与输入
+// 动画表现: 价格滑轨左滑块向右、右滑块向左拖动以收窄区间，随后都返回原位。
 // 运动规格:
-//   - 542×191 卡片，周期 4.5 秒。两行列表，尺寸 494×48、圆角 8，右侧有垃圾桶图标。
-//   - 光标在 0.95 秒和 1.65 秒点击删除；每行在 0.3 秒内以 easeInOutCubic 左移 60 px 并淡出；第二行上移 58 px 填补首行位置。
-//   - 1.95–2.3 秒空状态线性淡入并上移 8 px，包括蓝色线描收件盘、16 px “暂无内容”和 112×34 蓝色“添加”按钮。
-//   - 光标于 3.3 秒点击添加；空状态在 3.25–3.45 秒淡出，两行列表在 3.35–3.7 秒以 easeOutCubic 从左侧返回。
-// 适用场景: 适合首次使用或无结果页面，告诉用户下一步可做什么。
-// 标签: empty-state, no-data, zero-state, blank-state, no-results, onboarding
+//   - 542×191 卡片，周期 4.5 秒。轨道 x 54–488，高 8，y 120；两滑块之间为蓝色，范围 ¥0–¥10,000。
+//   - 滑块为半径 13 的白圆，蓝边宽 3 px；拖动时半径变为 15，外加半径 24 的浅蓝光晕。
+//   - 下限在 1.0–1.6 秒从 0.1 → 0.3，即 ¥1,000 → ¥3,000，3.55–3.9 秒返回；上限在 2.1–2.6 秒从 1.0 → 0.8，即 ¥10,000 → ¥8,000，2.95–3.3 秒返回；均用 easeInOutCubic。
+//   - 各滑块上方有高 28 的数值气泡，拖动时蓝底白字；右上角蓝色显示“¥1,000 – ¥10,000”，按 ¥100 步进更新。
+//   - 光标始终位于被拖动滑块上，在 1.0, 2.1, 2.95, 3.55 秒按下。
+// 适用场景: 适合筛选价格、日期、尺寸等带最小值和最大值的范围。
+// 标签: range-slider, slider, dual-thumb, min-max, price-filter, range
 // 尺寸: 542x191 px · 周期: 4.5 s
-// 依赖: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-024
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 24
-// 24 エンプティステート（Empty state）
-CELLS[23] = ui((w, h, t) => {
-  const r1 = eio(seg(t, 0.95, 1.25)), r2 = eio(seg(t, 1.65, 1.95));
-  const back = eo(seg(t, 3.35, 3.7));
-  const empty = seg(t, 1.95, 2.3) * (1 - seg(t, 3.25, 3.45));
-  bar(24, 14, 130, C.line2, 11);
-  const rows = [[r1, 0], [r2, 1]];
-  rows.forEach(([g, i]) => {
-    const gone = back > 0 ? 1 - back : g; if (gone >= 1) return;
-    const y = 40 + i * 58 - (i === 1 ? 58 * (back > 0 ? 0 : r1) : 0);
-    X.save(); X.globalAlpha = 1 - gone; X.translate(-60 * gone, 0);
-    strokeRR(24, y, 494, 48, 8, C.line2, 1.5); ring(48, y + 24, 9, C.line2, 2); bar(70, y + 12, 200, C.line2, 10); bar(70, y + 28, 140, C.line, 7);
-    // ゴミ箱
-    X.strokeStyle = '#888'; X.lineWidth = 2; X.lineJoin = 'round'; X.strokeRect(476, y + 18, 16, 18); X.beginPath(); X.moveTo(472, y + 17); X.lineTo(496, y + 17); X.moveTo(480, y + 13); X.lineTo(488, y + 13); X.stroke();
-    X.restore();
+// @element 14
+// 14 レンジスライダー（Range slider）
+CELLS[13] = ui((w, h, t) => {
+  // つまみ2つで範囲を選ぶ：下限 ¥1,000→¥3,000、上限 ¥10,000→¥8,000、のち元へ戻す
+  const LO = tt => .1 + .2 * eio(seg(tt, 1.0, 1.6)) - .2 * eio(seg(tt, 3.55, 3.9));
+  const HI = tt => 1.0 - .2 * eio(seg(tt, 2.1, 2.6)) + .2 * eio(seg(tt, 2.95, 3.3));
+  const x0 = 54, x1 = 488, ty = 120, X_ = v => lerp(x0, x1, v);
+  const lo = LO(t), hi = HI(t), lx = X_(lo), hx = X_(hi);
+  const yen = v => '¥' + (Math.round(v * 100) * 100).toLocaleString('en-US');
+  text('价格', 24, 26, 16, '#555', 700);
+  text(yen(lo) + ' 〜 ' + yen(hi), w - 24, 26, 17, C.blue, 700, 'right', NUMF);
+  fillRR(x0, ty - 4, x1 - x0, 8, 4, '#e3e1df'); fillRR(lx, ty - 4, hx - lx, 8, 4, C.blue);
+  const loAct = (t > 1.0 && t < 1.7) || (t > 3.55 && t < 3.95), hiAct = t > 2.1 && t < 3.3;
+  [[lx, lo, loAct], [hx, hi, hiAct]].forEach(([kx, v, act]) => {
+    if (act) circle(kx, ty, 24, 'rgba(31,90,232,.14)');
+    shadowed(() => circle(kx, ty, act ? 15 : 13, '#fff'), 6, 2, .25); ring(kx, ty, act ? 15 : 13, C.blue, 3);
+    const val = yen(v), bw = tw(val, 15, 700, NUMF) + 18, bx = clamp(kx - bw / 2, 4, w - 4 - bw);
+    fillRR(bx, ty - 60, bw, 28, 7, act ? C.blue : C.lb);
+    X.beginPath(); X.moveTo(kx - 6, ty - 32); X.lineTo(kx, ty - 26); X.lineTo(kx + 6, ty - 32); X.fillStyle = act ? C.blue : C.lb; X.fill();
+    text(val, bx + bw / 2, ty - 46, 15, act ? '#fff' : C.blue, 700, 'center', NUMF);
   });
-  if (empty > 0) {
-    X.save(); X.globalAlpha = empty; const cy = 70 + 8 * (1 - empty);
-    X.strokeStyle = C.blue; X.lineWidth = 2.6; X.lineJoin = 'round';
-    X.beginPath(); X.moveTo(w / 2 - 26, cy - 4); X.lineTo(w / 2 - 18, cy - 22); X.lineTo(w / 2 + 18, cy - 22); X.lineTo(w / 2 + 26, cy - 4); X.lineTo(w / 2 + 26, cy + 16); X.lineTo(w / 2 - 26, cy + 16); X.closePath(); X.stroke();
-    X.beginPath(); X.moveTo(w / 2 - 26, cy - 4); X.lineTo(w / 2 - 9, cy - 4); X.lineTo(w / 2 - 6, cy + 3); X.lineTo(w / 2 + 6, cy + 3); X.lineTo(w / 2 + 9, cy - 4); X.lineTo(w / 2 + 26, cy - 4); X.stroke();
-    text('暂无内容', w / 2, cy + 40, 16, '#555', 600, 'center');
-    fillRR(w / 2 - 56, cy + 62, 112, 34, 8, C.blue); text('添加', w / 2, cy + 79, 15, '#fff', 600, 'center');
-    X.restore();
-  }
-  pointer([[.3, w + 30, h + 30], [.9, 486, 67], [1.25, 486, 67], [1.6, 486, 67], [2.4, 486, 67], [3.2, w / 2 + 4, 156], [3.5, w / 2 + 4, 156], [4.2, w + 30, h + 30]], [0.95, 1.65, 3.3], t);
+  text('¥0', x0, 154, 14, '#9a9896', 500, 'center', NUMF); text('¥10,000', x1 - 10, 154, 14, '#9a9896', 500, 'center', NUMF);
+  bar(24, 174, 220, C.line, 8);
+  const off = [w + 30, h + 30], L = tt => [X_(LO(tt)), ty + 4], Hh = tt => [X_(HI(tt)), ty + 4];
+  const mv = (a, b, ta, tb) => track([[ta, a[0], a[1]], [tb, b[0], b[1]]], t);
+  let pos;
+  if (t < 1.0) pos = mv(off, L(1.0), .3, .95);
+  else if (t < 1.7) pos = L(t);
+  else if (t < 2.1) pos = mv(L(1.7), Hh(2.1), 1.7, 2.05);
+  else if (t < 3.3) pos = Hh(t);
+  else if (t < 3.55) pos = mv(Hh(3.3), L(3.55), 3.3, 3.52);
+  else if (t < 3.95) pos = L(t);
+  else pos = mv(L(3.95), off, 3.95, 4.3);
+  pointer([[0, pos[0], pos[1]]], [1.0, 2.1, 2.95, 3.55], t);
 });

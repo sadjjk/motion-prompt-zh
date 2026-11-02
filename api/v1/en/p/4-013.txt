@@ -1,15 +1,15 @@
-Please use "Electron orbital" (電子雲), one of the names in "Styled scenes".
+Please use "Memphis" (メンフィス), filed under "Art movements / Modern & postmodern".
 Motion Prompt #4-013
 
-What it is: An atomic orbital's probability cloud drawn in dots and slowly rotating
-What the sample shows: A cloud of blue and orange dots in the shape of a 3d orbital turns slowly on a dark background, with a white core glow and an elliptical orbit line.
+What it is: Memphis-style bold geometric shapes bouncing and spinning on a pastel ground
+What the sample shows: Circles, triangles, squiggles, dot grids and bars bob up and down across a peach ground, each spinning its own way.
 Spec:
-- Probability cloud of a 3d orbital (n = 3, l = 2, m = 0), made of 1600 dots sampled by the squared wavefunction.
-- Positive phase is blue rgba(90, 170, 255), negative phase orange rgba(255, 130, 90); dots are 1.3 px.
-- The cloud rotates 1 lap around its vertical axis every 6.4 s, tilted 0.5 rad, with additive blending.
-- A white glow of radius 12 px at the centre and an elliptical orbit line with semi-axes 120 / 32 px.
-When to use it: Use it as a hero background for science education or research institutes, an opener for physics or chemistry videos, or a talk transition.
+- 36 shapes on pastel #FDE3D6, laid on a jittered 9 × 4 grid, sized 18–48 px.
+- 5 shape types (circle, triangle, squiggle, 4 × 4 dot grid, bar) in 5 colours.
+- Each shape bobs with a 5 px amplitude, 2 or 3 times per 6.4 s.
+- Each also spins -1, 0 or 1 laps per 6.4 s.
+When to use it: Use it as a hero background for playful brands or events, an opener for youth or kids' videos, or a social media cover.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-013.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

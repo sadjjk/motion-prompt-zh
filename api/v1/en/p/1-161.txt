@@ -1,14 +1,15 @@
-Please use "Saturate on hover" (ホバーで彩度を戻す), one of the names in "Landing page & web effects".
+Please use "Indeterminate to determinate" (不確定から確定への進捗), filed under "Feedback / Progress & icons".
 Motion Prompt #1-161
 
-What it is: A muted image regains full colour and zooms slightly on hover
-What the sample shows: Of 4 muted, dim pictures, the 1st and then the 3rd come back to vivid colour and zoom slightly as the cursor rests on them, with a name tag rising from the bottom.
+What it is: An indeterminate progress bar that turns into step-by-step determinate progress
+What the sample shows: On a deploy card, streaks sliding through the bar give way to the same bar filling step by step, log lines float in and tick off, and the status pill turns green.
 Spec:
-- A row of 4 geometric pictures (104×118, 16 apart) that rest muted and dim: 90% desaturated and darkened by 20%.
-- The hovered picture regains full colour and brightness over 0.6 s (easeOut power 3) and its image scales to 1.05 inside the frame.
-- A name tag at the bottom rises 10px and fades in; the cursor rests on pictures 1 and 3 in turn, and each returns to muted after it leaves.
-When to use it: Use it for team pages, portfolio grids or client logos where a row of images should stay calm until one is pointed at.
+- A 256 × 6 px track; while queued, 2 streaks stretch and slide through on a 1.6 s cycle, streak 2 delayed by 0.55 s, both arriving at 60% of the cycle.
+- In the demo the bar switches to determinate progress at 1.8 s and advances through 5 steps to 22%, 38%, 70%, 85% and 100%.
+- Step i lasts (650 + 120i) ms × 0.6 and the fill eases over 0.5 s; log lines float up 8 px one by one and spinners turn into checks.
+- The status pill goes queued #D6731E → building #6A57F2 → ready #119C72 with 0.4 s colour changes; the run completes at about 4.5 s.
+When to use it: Use it for deploys, builds or exports whose duration is unknown at first and becomes measurable partway through.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-161.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

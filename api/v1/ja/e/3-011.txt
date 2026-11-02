@@ -1,7 +1,7 @@
 // Motion Prompt #3-011 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#035
 //
 // FPV / FPV drone shot
-// パック: camera (カメラワークと切り替え) · element 11 · カテゴリ: 撮り方・時間の演出
+// 分類: 編集・撮影 / カメラ・編集 / 撮り方・時間の演出
 // 何が起きるか: 並木の間を低空・高速で前進しながら、機体を左右に傾けて蛇行する一人称視点。
 // 動きの仕様:
 //   - カメラ: 前へ等速 14m/s（50km/h表示）。イージングなしで進み続ける。ピッチは -0.05rad で固定
@@ -13,11 +13,11 @@
 // 使いどころ: スピード感と没入感を出すとき。場所の中を一気に通り抜けて見せるとき。
 // タグ: fpv, drone, fly through, first person, banking, speed, aerial
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-011
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 11
 // 11 FPV

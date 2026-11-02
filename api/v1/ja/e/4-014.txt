@@ -1,40 +1,49 @@
 // Motion Prompt #4-014 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// 構成主義 / Constructivist
-// パック: scenes (スタイルシーン) · element 14 · カテゴリ: 文様・グラフィック
-// 何が起きるか: 傾いた生成りの画面に、赤い円が膨らみ、黒い横棒と縦棒、太字の FORWARD、赤いくさびが順に飛び込み、最後は逆順に退く。
+// アール・デコ / Art Deco
+// 分類: ビジュアルスタイル / 芸術の流派 / モダン・ポストモダン
+// 何が起きるか: 黒地の下中央から金の放射線と扇形の弧が層ごとに広がり、階段状のアーチが重なり、暖かい光の帯が横切る。
 // 動きの仕様:
-//   - 画面全体を -0.42 rad 傾ける。生成り #E9E0CC の地に赤 #C8231B と黒 #141414 の 2 色
-//   - 5 つの要素が 0.2 + 0.35i 秒に 0.5 秒ずつで登場：半径 92 px の赤い円、840 px の横棒、460 px の縦棒、62 px の FORWARD、250 px の赤いくさび
-//   - 横棒は左の画面外 1000 px から滑り込み、縦棒は上 700 px から落ち、FORWARD は右 1000 px から飛び込む
-//   - 5.4 秒から逆順に退場、間隔 0.12 秒、各 0.4 秒
-// 使いどころ: 力強い告知動画のオープニングや、デザイン・美術展の首画面、キャンペーンポスターの動画版に。
-// タグ: constructivist, poster, geometric, red-black, bold-type, avant-garde, pattern
+//   - 黒地 #0B0B0D に金の線 rgba(214, 176, 98)。放射線 25 本が 0.2〜1.8 秒で 300 px まで伸びる
+//   - 扇形の弧 9 層、第 i 層は 0.4 + 0.18i 秒に始まり 0.8 秒で広がる、半径 26 + 19i px
+//   - 5 重の階段状アーチは常に表示、幅 182 px から層ごとに 26 px 狭まる
+//   - 幅 60 px の暖かい光の帯が 6.4 秒に 1 回左から右へ。5.4〜6.2 秒で放射線と弧が縮んで戻る
+// 使いどころ: ホテル・高級ブランド・ジャズイベントの首画面背景や、授賞式・ガラの動画オープニング、招待状の動画版に。
+// タグ: art-deco, gold, sunburst, luxury, ornament, 1920s, pattern
 // サイズ: 539x208 px · 1周: 6.4 s
-// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-014
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 14
-// 14 构成主义：红黑两色，大红圆、黑色横杠与竖杠、粗体 FORWARD、红色楔形依次砸进倾斜 -0.42 rad 的画面；停留后逆序退场
-CELLS[13] = (k, w, h, u) => {
-  k.fillStyle = '#E9E0CC'; k.fillRect(0, 0, CW, CH);
-  // 第 i 个元素在 0.2 + 0.35i 秒入场（0.5 秒 out3，最后一个 1.9 秒到位）；5.4 秒起逆序退场，间隔 0.12 秒、每个 0.4 秒
-  const e = i => out3(seg(u, 0.2 + i * 0.35, 0.7 + i * 0.35)) * (1 - inOut3(seg(u, SHOW + (4 - i) * 0.12, SHOW + 0.4 + (4 - i) * 0.12)));
-  k.save(); k.translate(300, 104); k.rotate(-0.42);
-  const r0 = 92 * e(0);                                        // 红圆半径 92px，从中心胀开
-  if (r0 > 0) { k.fillStyle = '#C8231B'; k.beginPath(); k.arc(40, -14, r0, 0, TAU); k.fill(); }
-  k.fillStyle = '#141414';
-  k.fillRect(-420 - (1 - e(1)) * 1000, 34, 840, 21);          // 横杠从左侧画外 1000px 处滑入
-  k.fillRect(-18, -230 - (1 - e(2)) * 700, 18, 460);          // 竖杠从上方画外落下
-  k.letterSpacing = '-3px';
-  txt(k, 'FORWARD', -250 + (1 - e(3)) * 1000, -40, `900 62px ${DISP}`, '#141414');   // 粗体字从右侧画外冲入
-  k.letterSpacing = '0px';
-  const tw = 250 * e(4);                                       // 红色楔形向右拉长到 250px
-  if (tw > 0) { k.fillStyle = '#C8231B'; k.beginPath(); k.moveTo(70, 70); k.lineTo(70 + tw, 70); k.lineTo(70, 98); k.fill(); }
-  k.restore();
-  txt(k, 'No. 21  ·  1926 → 2026', 12, 199, `700 8px ${DISP}`, '#141414');
-  grain(k, 0.08, 'multiply');
+// @element 16
+// 16 装饰艺术：黑底金线，25 道放射线与 9 层扇形弧从底部中心逐层展开，五重阶梯拱门常驻，一道暖光每周期扫过一次；复位段收回
+CELLS[15] = (k, w, h, u) => {
+  k.fillStyle = '#0B0B0D'; k.fillRect(0, 0, CW, CH);
+  const cx = 269.5, by = 190, gold = a => `rgba(214,176,98,${a})`;
+  const back = 1 - inOut3(seg(u, SHOW, SHOW + 0.8));       // 5.4–6.2 秒收回
+  const gR = out3(seg(u, 0.2, 1.8)) * back;                  // 放射线 0.2–1.8 秒伸到 300px
+  k.lineWidth = 0.8; k.strokeStyle = gold(0.5);
+  if (gR > 0) {
+    k.beginPath();
+    for (let i = 0; i <= 24; i++) { const a = Math.PI + i / 24 * Math.PI; k.moveTo(cx + Math.cos(a) * 26, by + Math.sin(a) * 26); k.lineTo(cx + Math.cos(a) * (26 + 300 * gR), by + Math.sin(a) * (26 + 300 * gR)); }
+    k.stroke();
+  }
+  k.lineWidth = 1;
+  for (let i = 0; i < 9; i++) {                              // 第 i 层弧 0.4 + 0.18i 秒起、0.8 秒展开，半径 26 + 19i
+    const g = out3(seg(u, 0.4 + i * 0.18, 1.2 + i * 0.18)) * back; if (g <= 0) continue;
+    k.strokeStyle = gold(0.9 - i * 0.06); k.beginPath(); k.arc(cx, by, (26 + i * 19) * g, Math.PI, 0); k.stroke();
+  }
+  for (let s = 0; s < 5; s++) {                              // 阶梯拱门：宽 182 − 26s，常驻
+    const wA = 182 - s * 26; k.strokeStyle = gold(0.8); k.lineWidth = s === 0 ? 1.4 : 0.8;
+    k.beginPath(); k.moveTo(cx - wA / 2, by); k.lineTo(cx - wA / 2, by - wA / 2); k.arc(cx, by - wA / 2, wA / 2, Math.PI, 0); k.lineTo(cx + wA / 2, by); k.stroke();
+  }
+  const sx = -60 + (u / CYC) * (CW + 120);                   // 光带每周期从画外左侧扫到画外右侧
+  const sg = k.createLinearGradient(sx, 0, sx + 60, 0);
+  sg.addColorStop(0, 'rgba(255,240,200,0)'); sg.addColorStop(0.5, 'rgba(255,240,200,.18)'); sg.addColorStop(1, 'rgba(255,240,200,0)');
+  k.fillStyle = sg; k.fillRect(0, 0, CW, by);
+  k.fillStyle = gold(1); k.fillRect(10, by, CW - 20, 1.2);
+  k.letterSpacing = '5px'; txt(k, 'GRAND  LOBBY', cx, by + 13, `300 9px ${DISP}`, gold(1), 'center'); k.letterSpacing = '0px';
+  grain(k, 0.05);
 };

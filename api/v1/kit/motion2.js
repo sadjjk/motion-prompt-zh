@@ -1,11 +1,11 @@
-// Motion Prompt #2 025~048 · 064~100 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#121
-// Also: MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills (#2-064)
-// Also: MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/ (#2 065~067)
-// Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#2 068~098)
-// Also: MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh (#2 099~100)
+// Motion Prompt #1-078 · #2 007~009 · 013~018 · 022~028 · 030~040 · 042~051 · 057~067 · 076~080 · 105~111 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#121
+// Also: MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh (#1-078 · #2-067)
+// Also: MIT License (c) 2026 Emil Kowalski · https://github.com/emilkowalski/skills (#2-024)
+// Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#2 025~028 · 033~040 · 042~051 · 060~063 · 065~066 · 078~080)
+// Also: MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/ (#2 059 · 076~077)
 //
 // Kit for pack "motion2" (Motion graphics moves, part 2 / モーショングラフィックスの演出 第2弾): the constants and helpers its elements share.
-// Elements #2 025~048 · 064~100 · 539x208 px · cycle 4.7 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #1-078 · #2 007~009 · 013~018 · 022~028 · 030~040 · 042~051 · 057~067 · 076~080 · 105~111 · 539x208 px · cycle 4.7 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

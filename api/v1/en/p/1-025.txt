@@ -1,16 +1,15 @@
-Please use "Parallax scrolling" (パララックススクロール), one of the names in "Landing page & web effects".
+Please use "Stepper (+/−)" (ステッパー), filed under "Components / Choosing & input".
 Motion Prompt #1-025
 
-What it is: On scroll, background layers move slower than the content
-What the sample shows: As the page scrolls down, the headline moves up normally while the sky and sun, far hills and near hills move more slowly.
+What it is: Plus and minus buttons that change a number by one
+What the sample shows: Pressing + three times raises the number from 1 to 4, and pressing − three times brings it back to 1; the number pops on each press.
 Spec:
-- A browser window with a 511 × 168 viewport. Scroll: 0→120 px at 0.3–1.9 s, 120→0 at 2.9–4.3 s (cubic ease-in-out).
-- Each layer moves by scroll × factor: sky and sun 0.15, far hills 0.4, near hills 0.7.
-- Headline (28 px), button and the next section move at 1.0 (normal scrolling).
-- The next section (white) starts at the bottom of the hero (168 px) and slides over the slower background.
-- The scrollbar thumb on the right moves with the scroll.
-When to use it: Use it to give the hero or a section photo a sense of depth.
+- 4.5 s cycle on a 542×191 card. A 200×60 box (radius 12) at (171, 52): "−" in the left 60 px, a blue "+" in the right 60 px, and a bold 30 px number in the middle.
+- Clicks: + at 0.9, 1.35, 1.8 s (1 → 4), − at 2.8, 3.25, 3.7 s (4 → 1).
+- The pressed segment is tinted light blue from 0.05 s before to 0.15 s after each click.
+- Number: on each press its scale goes linearly from 1.18 back to 1 over 0.25 s, and it is blue meanwhile.
+When to use it: Use it for small whole numbers changed one at a time, such as quantity or number of guests.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-025.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

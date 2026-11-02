@@ -1,39 +1,38 @@
-// Motion Prompt #2-015 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#015
+// Motion Prompt #2-015 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#126
 //
-// パーティクル / Particles
-// パック: motion (モーショングラフィックスの動き) · element 15 · カテゴリ: 動きの味付け
-// 何が起きるか: 粒が下の口から次々と噴き出して、飛び散って落ちる。
+// モーションパス / Motion path
+// 分類: モーショングラフィックス / 動きの原理 / リズム・ループ
+// 何が起きるか: 点線の道に沿って、紙飛行機が向きを変えながら進み、途中で宙返りする。
 // 動きの仕様:
-//   - 粒84個。下中央（横の中央・下端から20px上）から出る
-//   - 初速: 横 ±190px/秒、上向き 250〜400px/秒。重力 470px/秒²（放物線）
-//   - 各粒は 2.35秒 または 約1.57秒 の周期で繰り返し、開始のずれは乱数（シード固定なので毎回同じ絵になる）
-//   - 寿命は最長1.5秒。出た直後0.06秒でフェードイン、寿命の最後30%でフェードアウト。拡大率 1.15→0.7
-//   - 形は丸・四角・三角（大きさ5〜11px）、色は青・コーラル・黄・ミント。最大 ±4.5rad/秒で回転
-// 使いどころ: お祝い・達成・にぎやかさを足したいとき。紙吹雪や火花の代わりに。
-// タグ: particles, confetti, emitter, fountain, gravity, celebration, sparks
+//   - 4.7秒で1回、左の画面外から右の画面外へ。道は x = 270 + 112θ − 150·sinθ、y = 106 − 74·cosθ（θ = −π→π）。中央の上で輪になる（宙返り）
+//   - θ は時間に比例して進める（道の上の速さは一定でない。輪の部分はゆっくり見える）
+//   - 紙飛行機は道の向きに回す: 角度 = atan2(74·sinθ, 112 − 150·cosθ)
+//   - 道は点線（線幅6・間隔2/15）で先に見せておく。通ったあとにミントの線を24区間（θで0.03ずつ）残し、後ろほど細く薄くする
+// 使いどころ: 飛ぶ物・走る車・地図の上の移動など、決まった道筋を通らせたいとき。
+// タグ: motion-path, path, curve, trajectory, follow-path, orient-to-path, loop
 // サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-015
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 15
-// 15 パーティクル（粒が次々と噴き出して、飛び散って落ちる）
-const PARTS = (() => { const R = rand(15), a = []; for (let i = 0; i < 84; i++) { const n = R() < 0.5 ? 2 : 3; a.push({ T: CYC / n, ph: R() * CYC, vx: (R() - 0.5) * 2 * 190, vy: -(250 + R() * 150), sz: 5 + R() * 6, col: PAL[i % 4], kind: i % 3, spin: (R() - 0.5) * 9 }); } return a; })();
-CELLS[14] = (k, w, h, u) => {
+// @element 06
+// 06 モーションパス（点線の道に沿って、紙飛行機が向きを変えながら進む）
+const MPX = th => 270 + 112 * th - 150 * Math.sin(th), MPY = th => 106 - 74 * Math.cos(th);
+const MP = (() => { const pts = []; for (let i = 0; i <= 400; i++) { const th = -Math.PI + 2 * Math.PI * i / 400; pts.push([MPX(th), MPY(th)]); } return pts; })();
+CELLS[5] = (k, w, h, u) => {
   stage(k);
-  const X = w / 2, Y = h - 20, G = 470;
-  for (const p of PARTS) {
-    const t = mod(u + p.ph, p.T), life = Math.min(p.T, 1.5); if (t > life) continue;
-    const x = X + p.vx * t, y = Y + p.vy * t + 0.5 * G * t * t, a = Math.min(1, t / 0.06) * (1 - smooth(P(t, life * 0.7, life))), sc = lerp(1.15, 0.7, t / life);
-    k.globalAlpha = a; k.fillStyle = p.col; k.save(); k.translate(x, y); k.rotate(t * p.spin); k.scale(sc, sc);
-    if (p.kind === 0) { k.beginPath(); k.arc(0, 0, p.sz, 0, 7); k.fill(); }
-    else if (p.kind === 1) { k.fillRect(-p.sz, -p.sz, p.sz * 2, p.sz * 2); }
-    else { k.beginPath(); k.moveTo(0, -p.sz * 1.3); k.lineTo(p.sz * 1.2, p.sz); k.lineTo(-p.sz * 1.2, p.sz); k.closePath(); k.fill(); }
-    k.restore();
-  }
+  k.save(); k.setLineDash([2, 15]); k.lineCap = 'round'; k.strokeStyle = C.dim; k.lineWidth = 6; k.beginPath(); MP.forEach((p, i) => i ? k.lineTo(p[0], p[1]) : k.moveTo(p[0], p[1])); k.stroke(); k.restore();
+  const th = -Math.PI + 2 * Math.PI * (u / CYC);
+  // 通ったあとの線
+  k.lineCap = 'round';
+  for (let j = 0; j < 24; j++) { const a = th - j * 0.03, b = th - (j + 1) * 0.03; k.strokeStyle = C.mint; k.globalAlpha = 0.9 * (1 - j / 24); k.lineWidth = 7 * (1 - j / 30); k.beginPath(); k.moveTo(MPX(a), MPY(a)); k.lineTo(MPX(b), MPY(b)); k.stroke(); }
   k.globalAlpha = 1;
-  k.fillStyle = C.navy3; rr(k, X - 70, h - 12, 140, 30, 10); k.fill();
-  k.fillStyle = '#fff'; rr(k, X - 30, h - 22, 60, 30, 10); k.fill();
+  const x = MPX(th), y = MPY(th), ang = Math.atan2(74 * Math.sin(th), 112 - 150 * Math.cos(th));
+  k.save(); k.translate(x, y); k.rotate(ang);
+  k.fillStyle = '#fff'; k.beginPath(); k.moveTo(32, 0); k.lineTo(-22, -22); k.lineTo(-12, 0); k.closePath(); k.fill();
+  k.fillStyle = '#C9D6FF'; k.beginPath(); k.moveTo(32, 0); k.lineTo(-22, 22); k.lineTo(-12, 0); k.closePath(); k.fill();
+  k.fillStyle = '#9FB3F0'; k.beginPath(); k.moveTo(32, 0); k.lineTo(-12, 0); k.lineTo(-6, 9); k.closePath(); k.fill();
+  k.restore();
 };

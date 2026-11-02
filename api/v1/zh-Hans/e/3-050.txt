@@ -1,27 +1,41 @@
-// Motion Prompt #3-050 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/full-shot
+// Motion Prompt #3-050 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#103
 //
-// 全景 / Full shot
-// 分类包: camera (镜头运动与剪辑) · element 26 · 子分类: 景别
-// 动画表现: 人物从头到脚刚好入画，向前迈出一大步、手臂跟着摆动，停一会儿再收回。
+// 黄金时刻 / Golden hour
+// 分类: 剪辑与摄影 / 光线与色彩 / 布光与时段
+// 动画表现: 太阳降到地平线上方，天空和地面变橙，人物左侧受光，路灯与树影向右拉长。
 // 运动规格:
-//   - 画框：从脚下 0.12 m 到 2.0 m，即头到脚再加一点余量；机位距人物 5.2 m，对准画框中心高度。
-//   - 动作：0.4 秒至 1.0 秒向前迈出 0.42 m，手臂随步伐摆动；3.4 秒至 4.0 秒收回并脚。
-//   - 背景的建筑和树保持清晰，交代人物站在哪里。
-//   - 右上角显示“全景 FS”；右下角比例尺的蓝色带覆盖从脚下到头顶的整段。
-//   - 机位全程不动；每轮 4.7 秒，首尾画面相同。
-// 适用场景: 需要同时看清人物全身动作和他所在的场地时。
-// 标签: full shot, fs, wide shot, ws, head to toe, shot size, framing
-// 尺寸: 539x208 px · 周期: 9.4 s
-// 依赖: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+//   - 场景 1：地平线 y 150 前的头肩人物，头部中心 x 270、y 78、半径 29 px，不绘制五官和头发。
+//   - 太阳半径 18 px，从 (x 110, y −30) 移至 (x 96, y 136)，被山丘遮住一半。
+//   - 天空 #FAF9F7 → 顶部 #FFE8BC、地平线附近 #FFCF80；地面 #F1F0EE → #F6DDB0，人物亮部 #FFB547、暗部 #3E3650。
+//   - 头部从左侧约 66° 受光，边界右侧为阴影；身体左亮右暗。
+//   - 路灯和树的影子从根部向右延伸，长度 0 → 150 px，颜色 #DDAA6E；右上时间 12:00 → 17:40。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前消失；每轮 5 秒，三次缓入缓出，约 cubic-bezier(0.65,0,0.35,1)。
+// 适用场景: 适合温暖、怀旧、柔和的画面。
+// 标签: golden hour, magic hour, sunset light, warm light, long shadows, low sun
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-050
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 26
-CELLS[25] = shot(frameCell({ lo: -0.12, hi: 2.0, name: '全景', abbr: 'FS', draw: (k, w, h, u) => {
-  const step = eIO(P(u, 0.4, 1.0)) * (1 - P(u, 3.4, 4.0));   // 踏出一大步再收回来，首尾并脚
-  world(k, w, h, fit(-0.12, 2.0, 5.2), {
-    person: { x: step * 0.42, walk: step * Math.PI * 0.9, z: 8 }   // 大步幅 + 手臂摆动
+// @element 07
+// ゴールデンアワー: 太陽が地平線近くまで下り、全体が橙に染まって影が長く伸びる
+CELLS[6] = cell((k, u) => {
+  const a = env(u), R = PR, W = torsoW(R);
+  const GOLD = {
+    sky: '#FFE8BC', sky2: '#FFCF80', far: '#F2C58C', mid: '#E8B27A', ground: '#F6DDB0', ground2: '#ECC892', mark: '#F6DDB0', cast: '#DDAA6E',
+    bld: '#F7DCAE', edge: '#D9AE76', win: '#ECC892', winOff: '#ECC892', tree: '#E9C08A', trunk: '#C9965E', post: '#B98A58', bulb: '#C9965E',
+    person: '#5C5470', shade: '#3E3650', lit: '#FFB547', car: '#A08E8E', glass: '#F6DDB0', tire: '#3E3650', sun: '#F59A24', glow: '#FFD48A'
+  };
+  const p = pal(BASE, GOLD, a);
+  stagePortrait(k, p, { sun: [lerp(110, 96, a), lerp(-30, 136, a), 18, 1], cast: lerp(0, 150, a) });
+  const lit = mixc(p.person, GOLD.lit, a), sh = mixc(p.person, GOLD.shade, a);
+  bust(k, PX, PY, R, p.person, kk => {
+    kk.fillStyle = lit; kk.beginPath(); kk.arc(PX, PY, R, 0, TAU); kk.fill();
+    headShade(kk, PX, PY, R, 1.15, 1, sh);
+    torso(kk, PX, PY, R, PX - W, PX - 0.5 * W, lit);
+    torso(kk, PX, PY, R, PX + 0.4 * W, PX + W, sh);
   });
-} }));
+  hud(k, clock(lerp(720, 1060, a)));
+});

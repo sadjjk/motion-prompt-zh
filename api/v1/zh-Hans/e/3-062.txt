@@ -1,34 +1,45 @@
-// Motion Prompt #3-062 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/frame-within-frame
+// Motion Prompt #3-062 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/moonlight
 //
-// 框中框 / Frame within a frame
-// 分类包: photo (摄影光线与风格) · element 30 · 子分类: 构图
-// 动画表现: 近处的深色门框淡入，把远处站着的人物再框一次；门框内沿有一条浅色边，看得出它有厚度。
+// 月光夜景 / Moonlight
+// 分类: 剪辑与摄影 / 光线与色彩 / 光源与色彩
+// 动画表现: 天空变成接近黑色的深蓝，左上方升起满月；人物只被高处的冷蓝光照亮一侧，影子清楚；地面一道银色反光微微晃动，窗户不亮。
 // 运动规格:
-//   - 人物站在画面中央 x 270，身高 56 px；背景左侧有树、右侧有建筑。
-//   - 门洞：宽 168 px，从 y 30 到画面底边，左右居中；门洞外填深色 #33405A。
-//   - 门框内沿留 6 px 浅色边 #CFCECB，表示门框有厚度；虚线勾出门洞，顶部标“框中框”。
-//   - 辅助线为琥珀色 #F5A524 虚线，线宽 1.6 px，随效果强度渐显。
+//   - 场景 1：头肩人物；天空 #0D1630，窗户和灯泡不亮，为 #1C2640。
+//   - 月亮：x 84，从 y 70 升到 38；半径 16 px #EEF4FF，外圈半径 30 px 的光晕 #C9DAF5（0.25）。
+//   - 人物：亮侧 #9DB4DE、暗侧 #0E1424；反光为月亮下方 y 156～192 的 5 条细带 #BFD3F2（0.7），每轮晃动 2 次。
+//   - 灯位图用蓝色灯 #9DB4DE；右上显示“4100K · ↑60°”。
 //   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
-// 适用场景: 想把视线收拢到主体、增加层次，或表现窥视、隔阂感时。
-// 标签: frame within a frame, framing, doorway, window, composition, depth
+// 适用场景: 夜晚散步、离别、安静叙事的画面，想要清冷孤寂的氛围时。
+// 标签: moonlight, night, cool light, blue hour, moon, light
 // 尺寸: 539x208 px · 周期: 5 s
-// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-062
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 30
-// 框中框: 近处的门框淡入，把远处的主体再框一次；门框内沿留一条浅色边，表示它有厚度（不是后期加的装饰边框）
-CELLS[29] = cell((k, u) => {
-  const a = env(u), D = field(k, BASE, 150);
-  tree(D, 120, 150, 14, BASE); building(D, 400, 150, 44, 50, BASE, 4);
-  figure(D, CW / 2, 162, 56, BASE.person);
-  const hx = CW / 2 - 84, hy = 30, hw = 168, hh = CH - 30;
-  k.save(); k.globalAlpha = a;
-  k.fillStyle = BASE.shade; k.beginPath(); k.rect(0, 0, CW, CH); k.rect(hx, hy, hw, hh); k.fill('evenodd');
-  k.fillStyle = BASE.edge; k.fillRect(hx - 6, hy - 6, hw + 12, 6); k.fillRect(hx - 6, hy, 6, hh); k.fillRect(hx + hw, hy, 6, hh);
-  k.restore();
-  guide(k, [[hx, hy], [hx + hw, hy], [hx + hw, CH], [hx, CH], [hx, hy]], a);
-  tag(k, '框中框', CW / 2, 16, a);
+// @element 45
+// 月光夜景（月夜）: 空が黒に近い深い青になり、左上に満月が昇る。人物は高い所からの冷たい青い光で片側だけ照らされ、影ははっきり。
+// 地面に銀色の照り返しが一筋。窓は灯らず、色はごく少ない
+CELLS[44] = cell((k, u) => {
+  const a = env(u), W = torsoW(PR);
+  const MOON = Object.assign(mapPal(NIGHT, c => mixc(c, '#0A1020', 0.5)), { win: '#1C2640', winOff: '#1C2640', bulb: '#1C2640', sky: '#0D1630', sky2: '#122042', person: '#2A3550', shade: '#0E1424' });
+  const p = pal(BASE, MOON, a);
+  stagePortrait(k, p, { after: D => {
+    if (a < 0.002) return;
+    const my = lerp(70, 38, a);
+    D.k.save(); D.k.globalAlpha = 0.25 * a; D.circ(84, my, 30, '#C9DAF5'); D.k.globalAlpha = a; D.circ(84, my, 16, '#EEF4FF'); D.k.restore();
+    // 地面の銀色の照り返し（月の下にゆれる細い帯）
+    D.k.save(); D.k.globalAlpha = 0.7 * a;
+    for (let i = 0; i < 5; i++) D.rect(66 - i * 3 + 6 * Math.sin(u * TAU / CYC * 2 + i), 156 + i * 9, 36 + i * 6, 2.2, '#BFD3F2');
+    D.k.restore();
+  } });
+  const lit = mixc(BASE.person, '#9DB4DE', a), sh = mixc(BASE.person, MOON.shade, a);
+  bust(k, PX, PY, PR, BASE.person, kk => {
+    kk.fillStyle = lit; kk.beginPath(); kk.arc(PX, PY, PR, 0, TAU); kk.fill();
+    headShade(kk, PX, PY, PR, 1.1, 1, sh);
+    torso(kk, PX, PY, PR, PX - W, PX - 0.35 * W, lit); torso(kk, PX, PY, PR, PX - 0.35 * W, PX + W, sh);
+  });
+  plan(k, [[1.1, a, '#9DB4DE']]);
+  hud(k, '4100K · ↑60°');
 });

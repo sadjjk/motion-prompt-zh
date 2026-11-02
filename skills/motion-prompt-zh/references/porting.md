@@ -1,15 +1,15 @@
 # Porting a Motion Prompt element
 
-`get <id>` returns one text file per element:
+`get <id>` returns one text file per element, followed by the shared code (kit) those elements depend on as `shared-1.js`, `shared-2.js` … (each kit once, even when several elements use it):
 
 ```js
-// Motion Prompt #2-012 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#012
-// name, what it shows, spec lines, when to use it, size, cycle, "Needs: kit <pack>", live demo URL
+// Motion Prompt #2-056 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#012
+// name, what it shows, spec lines, when to use it, size, cycle, "Shared code it depends on: …/kit/<file>.js", live demo URL
 // @element 12
 CELLS[11] = (k, w, h, u) => { … };     // k = CanvasRenderingContext2D, w/h = card size, u = seconds in [0, cycle)
 ```
 
-`kit <pack>` returns the code the element depends on: the card size, the cycle length, the palette object `C`, font stacks and helper functions (easing, text, shapes). The kit's own header shows how to run one element by itself. Read it; it is the reference for how the pack expects to be called.
+The shared code (`shared-<n>.js`, first line names the elements that use it) holds the card size, the cycle length, the palette object `C`, font stacks and helper functions (easing, text, shapes). The kit's own header shows how to run one element by itself. Read it; it is the reference for how the pack expects to be called.
 
 Before porting, read the element's **spec** lines. They state the order of the motion and every number that matters. The code is the source of truth; the spec is the same information in words.
 
@@ -30,7 +30,7 @@ Every element is written as a loop of `cycle` seconds. Most contain an entrance,
 
 ## 1. A plain Canvas engine (a function of time that draws a frame)
 
-Set the code up once per pack, in one scope:
+Set the code up once per shared-code file, in one scope:
 
 1. the kit (keep its first line),
 2. the element blocks you fetched (keep each first line),
@@ -38,12 +38,14 @@ Set the code up once per pack, in one scope:
 
 If the project is a module, put these in one file and export the cells. Do not copy helpers into each element; they share the kit.
 
+In the text below a **pack** means one kit together with the elements that depend on it.
+
 **Two packs never share a scope.** Every kit declares the same top-level names (`CW`, `CH`, `CYC`, `C`, `CELLS` and its own helpers), so pasting two kits into one script or module is a syntax error. Give each pack its own module or its own function scope, and export what you need under names that say which pack they come from:
 
 ```js
-// motion-prompt-motion.js      (kit "motion" + elements #2-012 …)
+// motion-prompt-motion.js      (kit motion.js + elements #2-056 …)
 export const morph = CELLS[11];  export const MOTION = { w: CW, h: CH, cycle: CYC };
-// motion-prompt-camera.js      (kit "camera" + elements #3-021 …)
+// motion-prompt-camera.js      (kit camera.js + elements #3-021 …)
 export const wipe = CELLS[20];   export const CAMERA = { w: CW, h: CH, cycle: 9.4 };  // use the Cycle value in the element header; in this kit CYC is half of it
 ```
 

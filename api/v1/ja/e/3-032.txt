@@ -1,33 +1,32 @@
-// Motion Prompt #3-032 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#104
+// Motion Prompt #3-032 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/medium-shot
 //
-// ブルーアワー / Blue hour
-// パック: photo (写真の表現・光と画風) · element 08 · カテゴリ: 光の当て方・時間帯
-// 何が起きるか: 太陽が沈みきると、空が深い青の2段になり、建物の窓と街灯がアンバーに灯り、人物は青い影の形になる。
+// ウエストショット / Medium shot
+// 分類: 編集・撮影 / ショットサイズ・構図 / ショットサイズ
+// 何が起きるか: 画框の下端は腰。人物が片腕を頭の横まで上げて左右に振り、最後に下ろす。
 // 動きの仕様:
-//   - 場面①: 地平線（y150）の前に胸から上の人物（頭の中心 x270, y78・半径29px、顔・髪なし）。
-//   - 太陽: 半径18px、x120 で y40 → y190 へ沈む（効果の量が70%に達するまで）。40〜80%で消える
-//   - 色: 空 上 #2C3B5E・地平線近く #4A6191、地面 #283452、建物 #34446B、人物 #1C2439
-//   - 灯り: 窓の3つに1つと街灯の電球が #FFC75A。電球の周りに半径13px・8pxの平らな光の輪（#FFE3A3、35%・60%）
-//   - 右上の時刻 12:00 → 18:35
-//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、3次のイーズインアウト（cubic-bezier(0.65,0,0.35,1) 相当））
-// 使いどころ: 夜景を、真っ暗になる前の青い空と街の灯りの両方で見せたいとき。
-// タグ: blue hour, twilight, dusk, night city, cityscape, deep blue sky
-// サイズ: 539x208 px · 1周: 5 s
-// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+//   - 画框: 0.88mから1.92m（腰から頭の上まで）。カメラは4.2m先
+//   - 動き: 0.4〜1.0秒で片腕を頭の横へ上げ、1周4回のリズムで左右に振る。3.4〜4.0秒で下ろす
+//   - もう一方の腕は自然に下ろしたまま。人物は前景でくっきり、背景は少しぼかす
+//   - 表示: 右上に「中景 MS」。比例尺の青い帯は腰から頭まで
+//   - カメラは最後まで動かない。1周4.7秒で、最初と最後の画面は同じ
+// 使いどころ: 会話・説明・物を持つ場面など、身振りと表情の両方が大事なとき。
+// タグ: medium shot, ms, waist shot, mid shot, shot size, framing, gesture
+// サイズ: 539x208 px · 1周: 9.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-032
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 08
-// ブルーアワー: 日が沈んだ後、空が深い青になり、窓と街灯の暖かい光が灯る
-CELLS[7] = cell((k, u) => {
-  const a = env(u);
-  const p = pal(BASE, NIGHT, a);
-  stagePortrait(k, p, {
-    sun: [120, lerp(40, 190, P(a, 0, 0.7)), 18, 1 - P(a, 0.4, 0.8)],
-    after: D => { const k2 = D.k; k2.save(); k2.globalAlpha = 0.35 * a; D.circ(413, HZ - 53, 13, BASE.glow); k2.globalAlpha = 0.6 * a; D.circ(413, HZ - 53, 8, BASE.glow); k2.restore(); D.circ(413, HZ - 53, 4, p.bulb); }
+// @element 28
+CELLS[27] = shot(frameCell({ lo: 0.88, hi: 1.92, name: '中景', abbr: 'MS', draw: (k, w, h, u) => {
+  const arm = eIO(P(u, 0.4, 1.0)) * (1 - P(u, 3.4, 4.0));   // 招手：手臂举到头侧来回摆
+  const ang = arm * (0.55 + 0.5 * Math.sin(u / CYC * TAU * 4));   // 举手期间摆 4 次，首尾收住
+  world(k, w, h, fit(0.88, 1.92, 4.2), {
+    person: { x: -0.1, z: 8, fg: true }, blurBg: 1.4,   // 本体双手自然下垂
+    extra: [[-0.1, 0, 7.99, (kk, s) => {   // 挥动的那只手臂（本体 walk=0 不会画摆臂）
+      kk.save(); kk.translate(0.25, 1.38); kk.rotate(-1.9 - ang * 0.4);
+      kk.fillStyle = C.blue; rr(kk, -0.06, -0.6, 0.12, 0.6, 0.06); kk.fill(); kk.restore();
+    }, true]]
   });
-  bust(k, PX, PY, PR, p.person);
-  hud(k, clock(lerp(720, 1115, a)));
-});
+} }));

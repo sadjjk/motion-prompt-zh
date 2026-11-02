@@ -1,34 +1,43 @@
-// Motion Prompt #2-013 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#013
+// Motion Prompt #2-013 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#124
 //
-// Liquid motion / リキッドモーション
-// Pack: motion (Motion graphics moves) · element 13 · Category: Motion polish
-// What happens: A blob stretches out, breaks into drops and merges back into one.
+// Wiggle / ウィグル
+// Category: Motion graphics / Motion principles / Rhythm & loops
+// What happens: A bell keeps jittering irregularly: not one hit, but a small shake that never stops.
 // Motion spec:
-//   - Lead circle (radius 44): moves 300 px right at 0.35–1.45 s with cubic-bezier(.7, 0, .2, 1), rising 34 px on a sine arc while moving; returns the same way at 2.7–3.8 s.
-//   - Seven circles follow the same path, each 0.065 s later, radius tapering 44→15, wobbling ±6 px vertically.
-//   - Even while it rests, three small circles (radius 15, 13, 11) move in and out between 34 and 64 px from it, twice per cycle.
-//   - Merged look: draw the circles in white → blur 9 px → threshold the alpha (soft only between 112 and 144) → fill what remains with colour.
-//   - Fill is a diagonal gradient mint → blue → violet (#7C5CFF), with a white elliptical highlight on the lead circle.
-// When to use it: Use it for an organic, soft look in logos, backgrounds and connecting moves.
-// Tags: liquid, blob, goo, gooey, metaball, fluid, organic, drip
+//   - A yellow bell pivoting at its top (centre, y = 34). It never stops moving.
+//   - Angle = the sum of four sine waves: 23, 31, 43 and 59 cycles per 4.7 s (about 4.9, 6.6, 9.1 and 12.6 Hz), amplitudes 0.085, 0.065, 0.05 and 0.035 rad (up to about 0.235 rad, 13.5°, when they line up).
+//   - Position also jitters: x with 29, 47 and 61 cycles (4, 3, 2 px), y with 37 and 53 cycles (2.4, 1.8 px).
+//   - Every frequency is a whole number of cycles per 4.7 s, so the loop joins up; the counts share no common factor, so it does not look regular.
+//   - The clapper (coral, radius 13) swings the other way (angle × 70 px). White vibration arcs (radius 86 and 110, width 6) flicker on both sides the whole time.
+// When to use it: Use it on a notification, an incoming call or anything that should catch the eye, or to add a restless, handheld feel.
+// Tags: wiggle, jitter, shake, random, noise, bell, notification
 // Size: 539x208 px · Cycle: 4.7 s
-// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-013
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 13
-// 13 リキッドモーション（しずくが伸びて、ちぎれて、ぬるっと1つにまとまる）
-const LQ = bez(.7, 0, .2, 1);
-const lqPos = uu => { const u = mod(uu, CYC); let p; if (u < 0.35) p = 0; else if (u < 1.45) p = LQ(P(u, 0.35, 1.45)); else if (u < 2.7) p = 1; else if (u < 3.8) p = 1 - LQ(P(u, 2.7, 3.8)); else p = 0; const mvp = (u >= 0.35 && u < 1.45) ? P(u, 0.35, 1.45) : (u >= 2.7 && u < 3.8) ? P(u, 2.7, 3.8) : 0; return [lerp(120, 420, p), 104 - 34 * Math.sin(Math.PI * mvp)]; };
-CELLS[12] = (k, w, h, u) => {
+// @element 04
+// 04 ウィグル（ベルが、小刻みに不規則に揺れ続ける。1回の衝撃ではなく、ずっと続く細かい揺れ）
+const WGF = 2 * Math.PI / CYC;
+const wsum = (u, arr) => arr.reduce((s, [kk, am, ph]) => s + am * Math.sin(WGF * kk * u + ph), 0);
+CELLS[3] = (k, w, h, u) => {
   stage(k);
-  const blobs = [];
-  for (let i = 0; i < 8; i++) { const [x, y] = lqPos(u - i * 0.065); blobs.push([x, y + (i ? 6 * Math.sin(u * 2.67 + i) : 0), lerp(44, 15, i / 7)]); }
-  // 止まっている間、まわりで小さなしずくが出入りする
-  for (let j = 0; j < 3; j++) { const [x, y] = lqPos(u - 0.1), a = j * 2.2 + 0.6, d = 34 + 30 * (0.5 - 0.5 * Math.cos(u / CYC * Math.PI * 4 + j * 2.1)); blobs.push([x + Math.cos(a) * d, y + Math.sin(a) * d * 0.8, 15 - j * 2]); }
-  const L = goo(g => { for (const b of blobs) { g.beginPath(); g.arc(b[0], b[1], b[2], 0, 7); g.fill(); } }, 9, g => { const gr = g.createLinearGradient(60, 30, 480, 180); gr.addColorStop(0, C.mint); gr.addColorStop(0.55, C.blue); gr.addColorStop(1, '#7C5CFF'); g.fillStyle = gr; g.fillRect(0, 0, w, h); });
-  k.drawImage(L, 0, 0);
-  const [hx, hy] = lqPos(u); k.fillStyle = 'rgba(255,255,255,.75)'; k.beginPath(); k.ellipse(hx - 14, hy - 17, 10, 6, -0.6, 0, 7); k.fill();
+  const rot = wsum(u, [[23, 0.085, 0.3], [31, 0.065, 1.9], [43, 0.05, 4.2], [59, 0.035, 2.6]]);
+  const dx = wsum(u, [[29, 4, 0.7], [47, 3, 3.1], [61, 2, 5.0]]), dy = wsum(u, [[37, 2.4, 2.2], [53, 1.8, 0.4]]);
+  const X = w / 2 + dx, Y = 34 + dy;
+  // 両わきの振動の線（揺れているあいだ、ずっと出ている）
+  k.strokeStyle = '#fff'; k.lineCap = 'round'; k.lineWidth = 6;
+  [[86, 0.85], [110, 0.5]].forEach(([r, al], j) => { const fl = 0.55 + 0.45 * Math.abs(Math.sin(WGF * (41 + j * 12) * u)); k.globalAlpha = al * fl;[0, Math.PI].forEach(base => { k.beginPath(); k.arc(w / 2, 104, r, base - 0.42, base + 0.42); k.stroke(); }); });
+  k.globalAlpha = 1;
+  k.save(); k.translate(X, Y); k.rotate(rot);
+  // 舌（ベルと逆にふれる）
+  k.fillStyle = C.coral; k.beginPath(); k.arc(-rot * 70, 128, 13, 0, 7); k.fill();
+  k.fillStyle = C.yel;
+  k.beginPath(); k.arc(0, 8, 10, 0, 7); k.fill();
+  k.beginPath(); k.moveTo(-50, 112); k.quadraticCurveTo(-42, 100, -42, 76); k.bezierCurveTo(-42, 36, -22, 18, 0, 18); k.bezierCurveTo(22, 18, 42, 36, 42, 76); k.quadraticCurveTo(42, 100, 50, 112); k.closePath(); k.fill();
+  rr(k, -60, 106, 120, 16, 8); k.fill();
+  k.fillStyle = 'rgba(255,255,255,.35)'; rr(k, -28, 40, 12, 50, 6); k.fill();
+  k.restore();
 };

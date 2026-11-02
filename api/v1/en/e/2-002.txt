@@ -1,7 +1,7 @@
 // Motion Prompt #2-002 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#002
 //
 // Stagger / スタガー
-// Pack: motion (Motion graphics moves) · element 02 · Category: Entrances & text
+// Category: Motion graphics / Motion principles / Entrances & easing
 // What happens: Chart bars rise one after another from the left, each slightly delayed.
 // Motion spec:
 //   - One pass per 2.35 s. Seven bars (width 44, gap 20, heights 52, 84, 68, 112, 92, 136, 158), coloured blue, coral, yellow, mint in rotation.
@@ -11,11 +11,11 @@
 // When to use it: Use it to bring in several items (list rows, chart bars, cards) in sequence and lead the eye across them.
 // Tags: stagger, sequence, delay, cascade, bar-chart, list, entrance
 // Size: 539x208 px · Cycle: 4.7 s
-// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-002
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
 // @element 02
 // 02 スタガー（グラフの棒が、少しずつ時間をずらして順に立ち上がる）

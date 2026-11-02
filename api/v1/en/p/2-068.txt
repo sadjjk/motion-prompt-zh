@@ -1,16 +1,15 @@
-Please use "Lightning strike" (ライトニングストライク), one of the names in "Motion graphics moves, part 2".
+Please use "Cube flip wave" (キューブの反転波), filed under "Shapes & objects / Objects & machines".
 Motion Prompt #2-068
 
-What it is: Text slams down with a flash of lightning
-What the sample shows: The screen flashes white twice as a bolt cuts through, the word slams down from large, jolts, and stays with a yellow glow.
+What it is: An isometric array of cubes that flip in a diagonal wave and change colour
+What the sample shows: On a dark ground, a slab of cubes rolls over in a diagonal wave, their tops cycling through 4 colours like a flipping display.
 Spec:
-- From 0.84 to 1.0 s the text appears while shrinking from 2.4x to 0.9x (cubic ease-in).
-- Over 1.0–1.12 s it rebounds to 1.06x while shifting (−4, 3) px, at 1.24 s it is 1x at (3, −2) px, and it settles at 1.36 s.
-- Two flashes: 0.86–1.04 s (peak 0.85) and 1.04–1.24 s (peak 0.55); a 6-point zigzag bolt flickers and fades by 1.3 s.
-- From 1.24 to 1.6 s a yellow outer glow (3 strokes, 30/18/9 px wide) fades in and stays; an elliptical impact ring spreads for 0.5 s on landing.
-- Over 4.0–4.6 s the text fades, back to the empty dark start.
-When to use it: Use it for show titles, match openers or the headline of a big announcement.
+- A 22 × 6 cube array in orthographic isometric view (yaw 0.42, pitch 0.62 rad) on dark #121214.
+- A diagonal wave flips them in turn; each cube rolls 90° 8 times per 6.4 s, each roll taking about 0.4 s.
+- Top faces cycle through 4 colours #FF5C40, #F5F0E6, #3C5AE6 and #FFC83C, going round 2 times per cycle back to the start.
+- Side faces blend between the current and next colour and darken according to their facing.
+When to use it: Openers for tech brands or design studios, hero sections for product launches, or rhythmic section transitions in a presentation.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-068.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

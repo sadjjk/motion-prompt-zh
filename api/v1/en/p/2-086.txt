@@ -1,15 +1,15 @@
-Please use "Laser cut" (レーザーカット), one of the names in "Motion graphics moves, part 2".
+Please use "Neural net" (ニューラルネット), filed under "Shapes & objects / Information & tech".
 Motion Prompt #2-086
 
-What it is: A laser line slices the text into two offset halves
-What the sample shows: A sparking laser runs left to right along the middle of the word; once it passes, the top half slides up-left and the bottom half down-right with a slight tilt, then they rejoin.
+What it is: A layered neural network with signal lights flowing from left to right
+What the sample shows: Over deep navy, orange signal lights run rightward along the strongest weights of a layered graph while nodes brighten and dim with activation.
 Spec:
-- Over 0.3–1.2 s a laser (2.5 px white core with 16/8 px coral glow) runs along the middle from left to right, with 8 sparks at its tip.
-- Over 1.2–1.55 s the top half moves to (−16, −12 px) at −3° and the bottom half to (16, 12 px) at 2°, with a cubic ease-out.
-- A red hot edge shows along the cut and fades by 2.6 s.
-- Over 3.7–4.3 s the halves return with a cubic ease-in-out.
-When to use it: Use it for sci-fi or action titles, or as a cut between scenes.
+- A 6-layer network with 4-7-9-9-7-3 nodes, 72 px between layers and 19 px between nodes.
+- Links with weight above 0.62 are highlighted, carrying orange signals left to right 3 times per 6.4 s.
+- Nodes have a 5 px radius; activation pulses 2 times per 6.4 s, phase-shifted layer by layer.
+- Radial background #0E1230 → #04050B; node glows have a 13 px radius.
+When to use it: Use it as a hero background for AI products or research, to open talks explaining machine learning, or as a transition in tech videos.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-086.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

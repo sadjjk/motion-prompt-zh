@@ -1,7 +1,7 @@
 // Motion Prompt #3-004 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#028
 //
 // ズームイン / Zoom in
-// パック: camera (カメラワークと切り替え) · element 04 · カテゴリ: カメラの動き
+// 分類: 編集・撮影 / カメラ・編集 / カメラの動き
 // 何が起きるか: カメラの位置は動かさず、レンズの焦点距離だけを伸ばす。画面全体が同じ比率で拡大する。
 // 動きの仕様:
 //   - カメラ: 位置・向きは固定（高さ1.5m）。焦点距離だけ 330px → 1200px（24mm → 87mm表示、約3.6倍）
@@ -13,11 +13,11 @@
 // 使いどころ: その場から動かずに一点へ注目を集めるとき。ドリーインより平面的で観察する印象になる。
 // タグ: zoom, zoom in, focal length, lens, magnify, telephoto, camera move
 // サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-004
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 04
 // 04 ズームイン: 位置は固定・焦点距離だけ伸びる（全体が同じ比率で拡大）

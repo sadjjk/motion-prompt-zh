@@ -1,35 +1,45 @@
-// Motion Prompt #3-056 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/macro-shot
+// Motion Prompt #3-056 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/under-light
 //
-// マクロ撮影 / Macro shot
-// パック: camera (カメラワークと切り替え) · element 32 · カテゴリ: ショットサイズ
-// 何が起きるか: 高さ約0.26mのキノコが画面を埋める。ピントがぼけから合い、かさの白い斑点・ひだ・縁を這う虫が見えてくる。後ろの木の幹と人の脚はぼけたまま。
+// アンダーライト / Under lighting
+// 分類: 編集・撮影 / 光と色 / 光の当て方・時間帯
+// 何が起きるか: 周りが暗くなり、胸の前の懐中電灯が下から照らす。頭は下半分が明るく上ほど暗い。後ろの壁に上へ伸びた大きな影が出る。
 // 動きの仕様:
-//   - 画框: 地面の下0.02mから0.26mまで。カメラは地面すれすれ、キノコまで0.9m
-//   - ピント: 0.4〜1.1秒でぼけから合い、4.3〜4.7秒で再びぼける
-//   - キノコ: かさは赤茶 #C34F40、中間の輪 #D97B57、中心 #E7E0CE。白い斑点が3周、かさの下に放射状のひだ、柄に細い線が2本
-//   - 虫: 1周で縁を右から左へ行って戻る。脚の動きの速さは移動速度に合わせる
-//   - 後ろの2本の木と人物の脚は常にぼけたまま。右上に「微距 MACRO」。1周4.7秒
-// 使いどころ: 虫・花・料理・製品の質感など、肉眼では見えにくい細部を見せるとき。
-// タグ: macro shot, macro, macro photography, focus pull, detail, shallow depth of field, shot size
-// サイズ: 539x208 px · 1周: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+//   - 場面①: 胸から上の人物（頭の中心 x270, y78・半径29px）。背景は暗い場面と壁 #34363E へ
+//   - 光: あごの下 (270, 129) から放射状。中心 #FFE6B0 → #FFC75A → 影 #15161B（半径約75px）
+//   - 壁の影 #1C1D22: 人物の形を横 1.45 倍・縦 1.75 倍に広げ、上へ伸ばす
+//   - 懐中電灯（幅10px）を胸の前に。配置図は正面下、右上に「0° · ↓60°」
+//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+// 使いどころ: ホラー・怪談・ハロウィンなど、不気味さや異様さを出したいとき。
+// タグ: under lighting, monster lighting, horror, flashlight, uplight, lighting
+// サイズ: 539x208 px · 1周: 5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-056
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 32
-// 32 微距：0.26 m 的蘑菇撑满画面，对焦拉实（0.4–1.1s）后能看清伞盖的白点花纹、菌褶和沿伞缘爬的小虫；
-// 后景是虚化的树干，人物只剩一双虚化的腿（贴着地面看的视角）；结尾回虚，循环无缝
-CELLS[31] = shot(frameCell({ lo: -0.02, hi: 0.26, name: '微距', abbr: 'MACRO', draw: (k, w, h, u) => {
-  const sharp = eIO(P(u, 0.4, 1.1)) * (1 - eIOs(P(u, 4.3, 4.7)));   // 1 = 对上焦；结尾回虚，循环无缝
-  const bug = 0.5 - 0.5 * wave(u, 1);   // 小虫沿伞盖外缘来回走（0 = 右缘，1 = 左缘）
-  world(k, w, h, fit(-0.02, 0.26, 0.9, { z: 7 }), {
-    person: { x: 0.2, z: 7.6 }, blurBg: 4, blurFg: 4 * (1 - sharp),
-    extra: [
-      [0.3, 0, 7.4, (kk, s) => mushroom(kk, s, bug, 1.5), true],
-      [-0.13, 0, 7.9, (kk, s) => tree(kk, s, 4, '#8FA98F')],
-      [0.45, 0, 8.2, (kk, s) => tree(kk, s, 4.6, '#9DB3A0')]
-    ]
+// @element 39
+// 底光（アンダーライト）: 周りが暗くなり、胸の前の懐中電灯があごの下から上へ照らす。頭は下半分が明るく上ほど暗い。
+// 後ろの壁に、上へ伸びて大きくなった影が出る
+CELLS[38] = cell((k, u) => {
+  const a = env(u), D = pen(k);
+  stagePortrait(k, pal(BASE, DARK, a));
+  // 壁と影: 暗い壁を重ね、胸像の形を上へ大きく伸ばした影を落とす
+  k.save(); k.globalAlpha = a; D.rect(0, 0, CW, CH, '#34363E');
+  k.translate(PX, PY + 70); k.scale(1.45, 1.75); k.translate(-PX, -(PY + 70) - 14);
+  bustPath(k, PX, PY, PR); k.fillStyle = '#1C1D22'; k.fill();
+  k.restore();
+  const lit = BASE.lit, sh = mixc(BASE.person, '#15161B', a), FY = PY + PR * 1.75;
+  bust(k, PX, PY, PR, mixc(BASE.person, sh, 0.6 * a), kk => {
+    // 光の中心はあごの下（懐中電灯の位置）。上へ行くほど暗くなる
+    const g = kk.createRadialGradient(PX, FY, 4, PX, FY, PR * 2.6);
+    g.addColorStop(0, mixc(BASE.person, '#FFE6B0', a)); g.addColorStop(0.45, mixc(BASE.person, lit, a)); g.addColorStop(1, sh);
+    kk.fillStyle = g; kk.fillRect(0, 0, CW, CH);
   });
-} }));
+  // 懐中電灯と光の点
+  k.save(); k.globalAlpha = a;
+  D.rr(PX - 5, FY + 2, 10, 26, 3, '#2A2C33'); D.circ(PX, FY + 2, 5.5, '#FFF4D6');
+  k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.35 * a; D.circ(PX, FY, 14, '#FFE3A3'); k.restore();
+  plan(k, [[0, a]]);
+  hud(k, '0° · ↓60°');
+});

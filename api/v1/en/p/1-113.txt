@@ -1,16 +1,14 @@
-Please use "Deploy pipeline" (デプロイパイプライン), one of the names in "UI component names".
+Please use "Direction-aware fill button" (方向認識フィルボタン), filed under "Pointer interactions / Buttons".
 Motion Prompt #1-113
 
-What it is: Build stages run in sequence, turning green and linking up
-What the sample shows: Four stage cards on a dark background run left to right; each one that passes glows green at its border and dot, a line extends to the next, and the final Deploy card reads "Live".
+What it is: Colour spreads from where the cursor enters and drains toward the exit
+What the sample shows: On a dark page the cursor enters an outlined button from the lower left and an orange circle spreads from that point to fill it; when the cursor leaves upward, the circle shrinks away toward the exit point.
 Spec:
-- 4 stage cards Lint → Test → Build → Deploy (117×124, 14 apart), joined by 2px connector lines placed 70 down from the card top.
-- 0.85 s stage 01 running → 1.25 s "Passed · 0 errors"; 1.70 s stage 02 running → 2.15 s "Passed · 128 tests"; 2.60 s stage 03 running → 3.05 s "Artifacts ready"; 3.50 s stage 04 goes straight to "Live".
-- On passing, the border turns green #16a34a, the top-right dot glows #22c55e and the status text turns bold green (instant); 0.05 s later the connector fills to the next stage over 0.35 s (quadratic ease-out).
-- Over 3.6–3.95 s the whole row rises 2.5px with sine.inOut. Reset over 3.95–4.35 s (easeInOutCubic): the green borders, dots, connectors and status text return to "Queued".
-- Versus Step indicator: each stage has running and passed states with result text and advances on its own, rather than waiting for the user to press Next.
-When to use it: Use it on landing pages for CI/CD, hosting and developer platforms, or for build status in dashboards.
+- A 200×52 pill button with an accent outline on a dark page.
+- The cursor enters from the lower left; an accent circle centred on the entry point grows from 0 to the radius that covers the farthest corner over 0.55 s (easeInOut power 3), and the label turns from accent to white.
+- After 3.0 s the cursor leaves upward; the circle re-centres on the exit point and shrinks away over 0.55 s, so the colour drains toward the exit.
+When to use it: Use it on contact or sign-up CTAs where the button should visibly respond to the cursor's direction.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-113.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

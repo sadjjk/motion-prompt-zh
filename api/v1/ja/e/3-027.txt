@@ -1,31 +1,35 @@
-// Motion Prompt #3-027 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#099
+// Motion Prompt #3-027 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/match-on-action
 //
-// シルエット / Silhouette
-// パック: photo (写真の表現・光と画風) · element 03 · カテゴリ: 光の当て方・時間帯
-// 何が起きるか: 露出を明るい夕空に合わせていくと、人物・建物・街灯・木が細部のない黒い形になり、空だけが明るく残る。
+// アクションつなぎ / Match on action
+// 分類: 編集・撮影 / カメラ・編集 / 編集・切り替え
+// 何が起きるか: 人物が一定の速さで横切り、途中で正面のカメラから斜め前のカメラへカットで切り替える。位置と歩みは切れ目の前後でつながり、足元に青い点線が一瞬出て同じ動きだと示す。
 // 動きの仕様:
-//   - 場面①: 地平線（y150）の前に胸から上の人物（頭の中心 x270, y78・半径29px、顔・髪なし）。
-//   - 空: #FAF9F7 → 上 #FFEDC4・地平線近くの帯（y92〜150）#FFCF73
-//   - 空以外の形はすべて #2A2D36、遠くの丘は #4A4546。人物は #22252D
-//   - 太陽: 半径20px、x404 で y60 → y128 へ沈み、丘に半分隠れる
-//   - 右上の表示: ±0.0 EV → −2.0 EV
-//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、3次のイーズインアウト（cubic-bezier(0.65,0,0.35,1) 相当））
-// 使いどころ: 夕日や窓の光を背景に、形とポーズだけで印象を残したいとき。
-// タグ: silhouette, backlit, sunset, contre-jour, black shape, underexposed
-// サイズ: 539x208 px · 1周: 5 s
-// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+//   - 人物: 0〜4.2秒で x −3.2m から3.2m まで一定速度で歩く（6.4m）。歩みは途切れない
+//   - カメラ1: 正面、高さ1.4m、人物まで8m
+//   - カメラ2: 2.3秒で切り替え。右へ1.4m、高さ1.2m、人物まで3m、0.35rad振る
+//   - 切り替え後0.35秒、足元に青い短い点線が出て消える。右上に「机位 1」「机位 2 · 动作延续」
+//   - 戻り: 最後の0.5秒で最初のカットへクロスフェード（1周4.7秒）
+// 使いどころ: 動きの流れを切らずに角度を変えたいとき。ドアを開ける、座る、物を渡す、パンチなど。
+// タグ: match on action, cutting on action, match cut, action continuity, cut, editing, continuity
+// サイズ: 539x208 px · 1周: 9.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-027
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 03
-// シルエット: 露出を明るい空に合わせると、人物も建物も木も黒い形だけになる
-CELLS[2] = cell((k, u) => {
-  const a = env(u), INK = '#2A2D36';
-  const SILH = mapPal(BASE, () => INK);
-  Object.assign(SILH, { sky: '#FFEDC4', sky2: '#FFCF73', far: '#4A4546', sun: BASE.sun, glow: BASE.glow });
-  stagePortrait(k, pal(BASE, SILH, a), { sun: [404, lerp(60, 128, a), 20, a] });
-  bust(k, PX, PY, PR, mixc(BASE.person, '#22252D', a));
-  hud(k, `${(-2 * a).toFixed(1).replace('-0.0', '±0.0')} EV`);
-});
+// @element 35
+// 35 动作衔接：A 匀速横穿，走到一半从正面机位切到侧前方机位；走位与步态都由 u 连续算出，切点前后动作不重来
+const walkX = u => lerp(-3.2, 3.2, Math.min(1, u / 4.2));
+const walker = u => ({ person: { x: walkX(u), z: 8, walk: u * 7, col: C.blue } });
+CELLS[34] = shot(cutCell([
+  [0, (k, w, h, u) => world(k, w, h, cam({ y: 1.4 }), walker(u)), '机位 1'],
+  [2.3, (k, w, h, u) => world(k, w, h, cam({ x: 1.4, y: 1.2, z: 5, yaw: -0.35 }), Object.assign(walker(u), {
+    after: (kk, cc) => {   // 切点后 0.35 秒：脚下的蓝色虚线短标，说明是同一个动作
+      const g = 1 - P(u, 2.3, 2.65); if (g <= 0) return;
+      const p = proj(cc, walkX(u), 0, 8);
+      kk.save(); kk.globalAlpha = g; kk.strokeStyle = C.blue; kk.lineWidth = 2; kk.setLineDash([5, 4]);
+      kk.beginPath(); kk.moveTo(p.x - 40, p.y + 6); kk.lineTo(p.x + 40, p.y + 6); kk.stroke(); kk.restore();
+    }
+  })), '机位 2 · 动作延续']
+]));

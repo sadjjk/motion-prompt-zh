@@ -1,42 +1,41 @@
-// Motion Prompt #1-043 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#091
+// Motion Prompt #1-043 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#065
 //
-// 無限スクロール / Infinite scroll
-// パック: lp (LP・Webサイトの演出) · element 19 · カテゴリ: 読み込み・移動・動き続ける演出
-// 何が起きるか: 一覧を下へスクロールして最後まで来ると、読み込み中の印が回り、新しい項目が3件足されて続きが読めるようになる。
+// ハンバーガーメニュー / Hamburger menu
+// 分類: UI・Web / コンポーネント / ナビゲーション・メニュー
+// 何が起きるか: ヘッダー右の三本線を押すと×に変わり、ヘッダーの下からメニューが下りてくる。もう一度押すと閉じる。
 // 動きの仕様:
-//   - 項目（331×44・角丸8・間隔52）の一覧。最後の項目の下に読み込み中の印（半径10・0.8秒で1回転）
-//   - スクロール量: 0.25〜0.85秒で 38→116px、1.15〜1.75秒で 116→194px（easeInOut 3乗）。一覧の終わりが見えて止まる
-//   - 2.6秒に3件を足す: 各項目 0.35秒で 不透明度 0→1、10px下から上がる（easeOut 3乗）。印は新しい終わりへ移る
-//   - 1周期で3件（156px）ぶん進む。中身は3件ごとにくり返すので、周期の終わりと始まりは同じ見た目
-// 使いどころ: SNSのタイムラインやお知らせ一覧のように、終わりを気にせず読み続けてほしいとき。
-// タグ: infinite-scroll, endless-scroll, load-more, feed, pagination, spinner, list
-// サイズ: 539x208 px · 1周: 4.8 s
-// Needs: kit lp -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+//   - 4.5秒周期・カード542×191。高さ44の白いヘッダー。右の (500, 22) に三本線（長さ24・太さ3・8px間隔）
+//   - カーソルが1.0秒と3.3秒にクリック。開く量 a: 1.0〜1.3秒に easeInOutCubic で 0→1、3.3〜3.6秒に 1→0
+//   - 三本線→×: 上下の線を中央へ8px寄せつつ ±45°回し、中の線を不透明度 1−a で消す。開いている間は青
+//   - メニュー: 白・高さ140。上端 y = 44 − 140 + 140×a でヘッダーの下から下りる（ヘッダーの下だけ見せる）。影 blur 16。中に4項目、1つ目は青
+// 使いどころ: スマホなど幅の狭い画面で、全体メニューを1つのボタンにしまいたいとき。
+// タグ: hamburger-menu, hamburger, menu-icon, nav-toggle, mobile-menu, menu
+// サイズ: 542x191 px · 1周: 4.5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-043
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 19
-// 19 無限スクロール（いちばん下まで来ると読み込み表示が出て、続きが足される）
-CELLS[18] = (k, w, h, u) => {
-  frame(k);
-  // 1周期で 3件（156px）ぶん進む。周期の終わりは始まりと同じ見た目（内容は3件ごとにくり返す）
-  const PITCH = 52, BATCH = 3, L0 = 6, TL = 2.6;
-  const y = steps([[0.25, 38], [0.85, 116], [1.15, 116], [1.75, 194], [4.8, 194]], u);
-  const n = u < TL ? L0 : L0 + BATCH, end = 10 + n * PITCH;
-  view(k, () => {
-    k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
-    k.save(); k.translate(0, -y);
-    for (let i = 0; i < n; i++) {
-      const top = 10 + i * PITCH, v = i % 3, fresh = i >= L0 ? eOut(P(u, TL, TL + 0.35)) : 1;
-      if (top - y > VH || top + 44 - y < 0) continue;
-      k.save(); k.globalAlpha = fresh; k.translate(0, 10 * (1 - fresh));
-      k.fillStyle = '#fff'; rr(k, 90, top, 331, 44, 8); k.fill(); pic(k, 98, top + 6, 48, 32, v, 5);
-      bars(k, 158, top + 12, [180, 140, 200][v], 1, C.ink, 7); bars(k, 158, top + 26, [120, 150, 100][v], 1, C.faint, 6);
-      k.restore();
-    }
-    spinner(k, VW / 2, end + 18, 10, u);
-    k.restore();
-  });
-};
+// @element 17
+// 17 ハンバーガーメニュー（Hamburger menu）
+CELLS[16] = ui((w, h, t) => {
+  const a = eio(seg(t, 1.0, 1.3)) * (1 - eio(seg(t, 3.3, 3.6)));
+  pageLines(24, 66, 494); fillRR(24, 134, 494, 46, 8, C.block);
+  if (a > 0) {
+    X.save(); X.beginPath(); X.rect(0, 44, w, h); X.clip();
+    const mh = 140, my = 44 - mh + mh * a;
+    shadowed(() => { X.fillStyle = '#fff'; X.fillRect(0, my, w, mh); }, 16, 6, .16);
+    for (let k = 0; k < 4; k++) { const y = my + 14 + k * 32; bar(24, y + 6, [110, 150, 90, 130][k], k === 0 ? C.blue : C.line2, 11); if (k < 3) { X.fillStyle = C.line; X.fillRect(24, y + 26, w - 48, 1); } }
+    X.restore();
+  }
+  X.fillStyle = '#fff'; X.fillRect(0, 0, w, 44); X.fillStyle = C.line; X.fillRect(0, 44, w, 1.5);
+  fillRR(24, 15, 76, 16, 4, C.mb);
+  // 三本線 → ×
+  const hx = w - 42, hy = 22; X.save(); X.translate(hx, hy); X.strokeStyle = a > .02 ? C.blue : '#333'; X.lineWidth = 3; X.lineCap = 'round';
+  X.save(); X.translate(0, -8 * (1 - a)); X.rotate(Math.PI / 4 * a); X.beginPath(); X.moveTo(-12, 0); X.lineTo(12, 0); X.stroke(); X.restore();
+  X.globalAlpha = 1 - a; X.beginPath(); X.moveTo(-12, 0); X.lineTo(12, 0); X.stroke(); X.globalAlpha = 1;
+  X.save(); X.translate(0, 8 * (1 - a)); X.rotate(-Math.PI / 4 * a); X.beginPath(); X.moveTo(-12, 0); X.lineTo(12, 0); X.stroke(); X.restore();
+  X.restore();
+  pointer([[.3, w + 30, h + 30], [.95, w - 38, 26], [3.5, w - 38, 26], [4.2, w + 30, h + 30]], [1.0, 3.3], t);
+});

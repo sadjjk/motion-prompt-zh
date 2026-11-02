@@ -1,36 +1,35 @@
-// Motion Prompt #2-014 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#014
+// Motion Prompt #2-014 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#125
 //
-// Motion trail / モーショントレイル
-// Pack: motion (Motion graphics moves) · element 14 · Category: Motion polish
-// What happens: A ball moving in a figure eight leaves a fading trail of copies behind it.
+// Pulse / パルス
+// Category: Motion graphics / Motion principles / Rhythm & loops
+// What happens: A heart throbs like a heartbeat, a double beat each time, with rings spreading out.
 // Motion spec:
-//   - A ball (coral, radius 25, white centre radius 11) traces a figure eight once per 4.7 s: x = 196·sin(a), y = 62·sin(2a), with a advancing at constant speed.
-//   - 15 copies, each placed 0.105 rad (about 0.079 s) further back along the path.
-//   - Copy radius goes 22→6 and opacity is 0.9 × (1 − i/15) + 0.05, so older copies are smaller and fainter.
-//   - Copy colour runs coral → yellow → blue from newest to oldest.
-//   - Draw the oldest copy first and the ball itself last.
-// When to use it: Use it to show speed or a path: flying objects, cursors, points of light.
-// Tags: trail, motion-trail, echo, afterimage, ghost, path, speed
+//   - A coral heart. One beat per 1.175 s (four per 4.7 s); each beat is a double "lub-dub".
+//   - Scale = 1 + 0.26·G(0.2 s, width 0.065) + 0.15·G(0.44 s, width 0.07), where G = e^(−((t − centre) ÷ width)²): a quick swell that drops straight back.
+//   - Two heart-shaped outlines spread from 0.16 s and 0.40 s: scale 1.2→2.4 over 0.8 s, cubic ease-out.
+//   - As they spread, their opacity goes 0.75→0 (the second at 60%) and the line width 8.5→1.5 px.
+// When to use it: Use it for a like, a recording or live indicator, or a button you want pressed, to make it feel alive.
+// Tags: pulse, heartbeat, throb, scale, loop, like, attention
 // Size: 539x208 px · Cycle: 4.7 s
-// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-014
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 14
-// 14 モーショントレイル（動いた跡に、残像が尾を引く）
-CELLS[13] = (k, w, h, u) => {
+// @element 05
+// 05 パルス（ハートが鼓動のように、ドクン・ドクンと大きさを脈打たせる）
+CELLS[4] = (k, w, h, u) => {
   stage(k);
-  const X = w / 2, Y = h / 2 + 2, A = 196, B = 62, th = u / CYC * Math.PI * 2;
-  const pt = a => [X + A * Math.sin(a), Y + B * Math.sin(2 * a)];
-  const N = 15;
-  for (let i = N; i >= 1; i--) {
-    const [x, y] = pt(th - i * 0.105), f = i / N;
-    k.globalAlpha = 0.9 * (1 - f) + 0.05; k.fillStyle = f < 0.5 ? mix(C.coral, C.yel, f * 2) : mix(C.yel, C.blue, (f - 0.5) * 2);
-    k.beginPath(); k.arc(x, y, lerp(22, 6, f), 0, 7); k.fill();
+  const T = CYC / 4, lu = mod(u, T), X = w / 2, Y = h / 2 + 10;
+  const g = (c, s) => Math.exp(-Math.pow((lu - c) / s, 2));
+  const b = 0.26 * g(0.2, 0.065) + 0.15 * g(0.44, 0.07) + 0.26 * Math.exp(-Math.pow((lu - T - 0.2) / 0.065, 2));
+  for (const [t0, s] of [[0.16, 1], [0.4, 0.6]]) {
+    const q = P(lu, t0, t0 + 0.8); if (q <= 0 || q >= 1) continue;
+    k.save(); k.translate(X, Y); const sc = 1.2 + 1.2 * eOut(q); k.scale(sc, sc); heartPath(k, 44);
+    k.strokeStyle = C.coral; k.globalAlpha = (1 - q) * 0.75 * s; k.lineWidth = (7 * (1 - q) + 1.5) / sc; k.stroke(); k.restore();
   }
-  k.globalAlpha = 1; const [x, y] = pt(th);
-  k.fillStyle = C.coral; k.beginPath(); k.arc(x, y, 25, 0, 7); k.fill();
-  k.fillStyle = '#fff'; k.beginPath(); k.arc(x, y, 11, 0, 7); k.fill();
+  k.globalAlpha = 1;
+  k.save(); k.translate(X, Y); k.scale(1 + b, 1 + b); heartPath(k, 44); k.fillStyle = C.coral; k.fill();
+  k.fillStyle = 'rgba(255,255,255,.75)'; k.beginPath(); k.ellipse(-30, -28, 9, 6, -0.7, 0, 7); k.fill(); k.restore();
 };

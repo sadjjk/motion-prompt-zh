@@ -1,15 +1,15 @@
-Please use "Constructivist" (構成主義), one of the names in "Styled scenes".
+Please use "Art Deco" (アール・デコ), filed under "Art movements / Modern & postmodern".
 Motion Prompt #4-014
 
-What it is: A Constructivist poster where red and black shapes and bold type slam into a tilted layout
-What the sample shows: On a tilted cream canvas a red circle swells, then black bars, bold FORWARD and a red wedge slam in one after another, and later leave in reverse.
+What it is: An Art Deco ornament of gold rays and fan arcs unfolding on black
+What the sample shows: Gold rays and fan arcs spread layer by layer from the bottom centre of a black field, framed by stepped arches, as a warm band of light sweeps across.
 Spec:
-- The whole layout is tilted -0.42 rad; red #C8231B and black #141414 on cream #E9E0CC, 2 colours only.
-- 5 elements enter at 0.2 + 0.35i s, 0.5 s each: a 92 px-radius red circle, an 840 px bar, a 460 px post, 62 px FORWARD and a 250 px red wedge.
-- The bar slides in from 1000 px off the left, the post drops from 700 px above, and FORWARD rushes in from 1000 px off the right.
-- From 5.4 s they leave in reverse order, 0.12 s apart, 0.4 s each.
-When to use it: Use it to open bold announcement videos, as a hero for design or art exhibitions, or as a moving version of a campaign poster.
+- Gold lines rgba(214, 176, 98) on black #0B0B0D; 25 rays extend to 300 px between 0.2 and 1.8 s.
+- 9 fan arcs: arc i starts at 0.4 + 0.18i s and opens over 0.8 s, with radius 26 + 19i px.
+- 5 stepped arches stay on screen, starting 182 px wide and narrowing by 26 px per step.
+- A warm 60 px light band sweeps left to right 1 time every 6.4 s; rays and arcs retract from 5.4 to 6.2 s.
+When to use it: Use it as a hero background for hotels, luxury brands or jazz events, an opener for award or gala videos, or an animated invitation.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-014.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

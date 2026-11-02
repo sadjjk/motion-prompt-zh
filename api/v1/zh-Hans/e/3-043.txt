@@ -1,26 +1,38 @@
-// Motion Prompt #3-043 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#115
+// Motion Prompt #3-043 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/depth-layering
 //
-// 黑白摄影 / Black and white
-// 分类包: photo (摄影光线与风格) · element 19 · 子分类: 色调与后期风格
-// 动画表现: 同一风景逐渐褪色，太阳和人物受光边变灰，只靠亮度区分形状。
+// 前中后景 / Foreground, middle ground & background
+// 分类: 剪辑与摄影 / 景别与构图 / 构图
+// 动画表现: 后景的湖和树林、中景的人物、前景的花丛以不同幅度左右平移，形成视差，每层都标出名称。
 // 运动规格:
-//   - 场景 3：左侧半身像的头部中心 x 140、y 82、半径 28 px；右侧有山丘、房屋、树与太阳，太阳 x 432、y 54、半径 15 px。
-//   - 每种颜色按亮度 0.2126R + 0.7152G + 0.0722B 转灰，再以 140 为中心将对比放大 ×1.25。
-//   - 例如人物 #4D5A75 → 约 #4D4D4D，太阳 #F5A524 → 约 #B5B5B5。
-//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前消失；每轮 5 秒，三次缓入缓出，约 cubic-bezier(0.65,0,0.35,1)。
-// 适用场景: 适合经典、恒久的观感，或让形状、光线、表情优先于颜色。
-// 标签: black and white, monochrome, b&w, grayscale, desaturated, classic
+//   - 后景：远山、对岸 6 棵树和湖面，横移幅度 6 px。
+//   - 中景：人物位于 x 270，身高 66 px，横移幅度 18 px。
+//   - 前景：画面下沿 4 丛花，横移幅度 48 px，层越近移得越多。
+//   - 横移按正弦每轮一次，幅度随效果渐入；三层各有“后景”“中景”“前景”标签跟着移动。
+//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前回到原样；每轮 5 秒，缓入缓出。
+// 适用场景: 风景、旅行、叙事画面中，想让平面画面显出空间深度时。
+// 标签: foreground middle ground background, depth layering, layers, parallax, composition, depth
 // 尺寸: 539x208 px · 周期: 5 s
-// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-043
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 19
-// モノクロ: 色を抜き、明るさだけで見せる（コントラストを少し強める）
-CELLS[18] = cell((k, u) => {
-  const a = env(u);
-  const GRAY = mapPal(BASE, c => { const g = clamp((lum(c) - 140) * 1.25 + 140, 0, 255); return toHex([g, g, g]); });
-  stageLand(k, pal(BASE, GRAY, a));
+// @element 31
+// 前中后景: 三层以不同幅度横移（视差）：后景（湖与对岸树林）最慢、中景（人物）中速、前景（花丛）最快
+CELLS[30] = cell((k, u) => {
+  const a = env(u), s = Math.sin(u / CYC * TAU) * a;   // 摆幅跟着 env 渐入；sin 以 CYC 为周期，首尾相接
+  const D = pen(k);
+  D.rect(0, 0, CW, CH, BASE.sky);
+  k.save(); k.translate(s * 6, 0);
+  D.poly([[-20, 118], [-20, 96], [90, 86], [200, 98], [330, 82], [450, 96], [560, 88], [560, 118]], BASE.far);
+  [40, 120, 210, 300, 390, 480].forEach((x, i) => tree(D, x, 118, 9 + (i % 2) * 3, BASE));
+  D.rect(-20, 118, CW + 40, 18, BASE.mid);   // 湖面
+  k.restore();
+  D.rect(0, 136, CW, CH - 136, BASE.ground);
+  k.save(); k.translate(s * 18, 0); figure(D, CW / 2, 170, 66, BASE.person); k.restore();
+  k.save(); k.translate(s * 48, 0);
+  [[30, 206, 26], [96, 212, 18], [470, 204, 28], [530, 212, 20]].forEach(([x, y, r]) => { D.circ(x, y, r, BASE.tree); D.circ(x - r * 0.3, y - r * 0.5, 4, BASE.sun); });
+  k.restore();
+  tag(k, '后景', 90 + s * 6, 70, a); tag(k, '中景', CW / 2 + 52 + s * 18, 120, a); tag(k, '前景', 96 + s * 48, 182, a);
 });

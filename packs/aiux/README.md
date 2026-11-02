@@ -2,39 +2,54 @@
 
 # Glow & liquid
 
-19 names · #1 049~060 · 128 · 176~181 · pack `aiux` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+19 names · #1 096 · 098~101 · 114 · 146~148 · 164 · 167~175 · pack `aiux` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
-## Loading & thinking
+## Pages / Hero backgrounds
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
-| [#1-049](https://sadjjk.github.io/motion-prompt-zh/#1-049) | **Border beam** | A coloured light travels around the border to show that work is in progress | While the AI reply is generating, add a border beam that travels around the input: one lap every 4.8 s. |
-| [#1-050](https://sadjjk.github.io/motion-prompt-zh/#1-050) | **Line beam** | A light sweeps back and forth along the bottom edge of a field to show a search is running | From submit until results arrive, add a line beam that sweeps along the bottom of the search field: 2.2 s each way. |
-| [#1-051](https://sadjjk.github.io/motion-prompt-zh/#1-051) | **Inner pulse** | Coloured light breathes inside a button to draw attention to it | Give the Ask AI button an inner pulse: coloured light breathing inside it, 2.4 s per breath, never spilling outside. |
-| [#1-052](https://sadjjk.github.io/motion-prompt-zh/#1-052) | **Outer pulse** | Coloured light blooms outside an input and pulls back, inviting the user to type there | Add an outer pulse around the main input on the landing page: light spreading 4–18 px outside, 2.4 s per breath. |
-| [#1-053](https://sadjjk.github.io/motion-prompt-zh/#1-053) | **Thinking orb: working** | Particles circle a dotted orb on tilted orbits to show the AI is working | While a tool is running, show a thinking orb next to "Working…": particles circling a dotted orb on three orbits. |
-| [#1-054](https://sadjjk.github.io/motion-prompt-zh/#1-054) | **Thinking orb: searching** | A bright meridian scans a dotted globe to show the AI is searching | While searching the web, show a thinking orb beside "Searching the web…": a light line scanning a dotted globe. |
-| [#1-055](https://sadjjk.github.io/motion-prompt-zh/#1-055) | **Thinking orb: listening** | Latitude rings ripple like a sound wave to show the mic is listening | While the mic is open for voice input, show a thinking orb by "Listening…" whose latitude rings ripple like sound. |
-| [#1-056](https://sadjjk.github.io/motion-prompt-zh/#1-056) | **Thinking orb: connecting** | Nodes on the orb join up one by one and packets flow along the links, showing services are being connected | While connecting to services, show a thinking orb by "Connecting sources…": nodes linking up, then packets flowing. |
-| [#1-057](https://sadjjk.github.io/motion-prompt-zh/#1-057) | **Thinking orb: composing** | Bands of dots flow and undulate around the orb to show the AI is writing | While the AI drafts text, show a thinking orb by "Writing…" with bands of dots undulating around it. |
-| [#1-128](https://sadjjk.github.io/motion-prompt-zh/#1-128) | **Sunburst rays** | Radiating light rays that slowly turn behind a headline | Put sunburst rays behind the award headline: 12 rays turning by one ray spacing every 4.8 s. |
-| [#1-178](https://sadjjk.github.io/motion-prompt-zh/#1-178) | **Aurora gradient** | Blurred glows drift and blend, flowing like an aurora | Give the welcome screen an aurora gradient background: 4 large glows each drifting slowly and blending, with the heading kept clearly readable. |
-| [#1-179](https://sadjjk.github.io/motion-prompt-zh/#1-179) | **Flowing gradient stroke** | A gradient flows along a line while a spark of light travels around it | Draw an infinity-shaped line next to the logo, keep its gradient flowing and send a spark around it once every 4.8 s. |
-| [#1-180](https://sadjjk.github.io/motion-prompt-zh/#1-180) | **Neon glow button** | A button whose neon outline breathes and fills with strong glow on hover | Make the sign-up button a neon glow button: the glow breathes every 2.4 s at rest, and on hover it fills and glows strongly over 0.35 s. |
-| [#1-181](https://sadjjk.github.io/motion-prompt-zh/#1-181) | **Liquid fill icon** | A wavy liquid level rises inside an icon as a percentage counts up | Show the upload progress as a liquid fill icon in a drop shape: the wavy level fills in 3.7 s while the percentage beside it counts from 0% to 100%. |
+| [#1-096](https://sadjjk.github.io/motion-prompt-zh/#1-096) | **Sunburst rays** | Radiating light rays that slowly turn behind a headline | Put sunburst rays behind the award headline: 12 rays turning by one ray spacing every 4.8 s. |
+| [#1-098](https://sadjjk.github.io/motion-prompt-zh/#1-098) | **Metaballs** | Floating balls that merge like liquid when they come close | Float 5 metaballs in the hero background; they should stick together like liquid when close and pull apart when they drift away. |
+| [#1-099](https://sadjjk.github.io/motion-prompt-zh/#1-099) | **Organic blob** | A soft, shapeless colour blob that keeps slowly changing shape | Place an organic blob behind the heading: its outline slowly wobbles on a 4.8 s loop, with a faint offset shadow following behind. |
+| [#1-100](https://sadjjk.github.io/motion-prompt-zh/#1-100) | **Aurora gradient** | Blurred glows drift and blend, flowing like an aurora | Give the welcome screen an aurora gradient background: 4 large glows each drifting slowly and blending, with the heading kept clearly readable. |
+| [#1-101](https://sadjjk.github.io/motion-prompt-zh/#1-101) | **Flowing gradient stroke** | A gradient flows along a line while a spark of light travels around it | Draw an infinity-shaped line next to the logo, keep its gradient flowing and send a spark around it once every 4.8 s. |
 
-## Liquid interactions
+## Pointer interactions / Buttons
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
-| [#1-058](https://sadjjk.github.io/motion-prompt-zh/#1-058) | **Gooey morph menu** | Action buttons are pulled out of a plus button like liquid and pinch off on their own | Make the + button open a gooey menu: three actions stretch out of it like liquid and split off, 550 ms each, staggered 40 ms, with a slight bounce. |
-| [#1-059](https://sadjjk.github.io/motion-prompt-zh/#1-059) | **Gooey trail** | A moving indicator stretches and trails a droplet tail behind it | Make the tab indicator liquid: it stretches when it moves and trails a droplet tail, 0.45 s per move, tail lagging 0.09 s. |
-| [#1-060](https://sadjjk.github.io/motion-prompt-zh/#1-060) | **Gooey bend** | A dragged card bows softly against the direction it moves | Make the dragged card bend like liquid against its motion, in proportion to speed, up to 9 px. |
-| [#1-176](https://sadjjk.github.io/motion-prompt-zh/#1-176) | **Metaballs** | Floating balls that merge like liquid when they come close | Float 5 metaballs in the hero background; they should stick together like liquid when close and pull apart when they drift away. |
-| [#1-177](https://sadjjk.github.io/motion-prompt-zh/#1-177) | **Organic blob** | A soft, shapeless colour blob that keeps slowly changing shape | Place an organic blob behind the heading: its outline slowly wobbles on a 4.8 s loop, with a faint offset shadow following behind. |
+| [#1-114](https://sadjjk.github.io/motion-prompt-zh/#1-114) | **Neon glow button** | A button whose neon outline breathes and fills with strong glow on hover | Make the sign-up button a neon glow button: the glow breathes every 2.4 s at rest, and on hover it fills and glows strongly over 0.35 s. |
 
-Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#1-049](../../api/v1/en/e/1-049.txt)).
+## Pointer interactions / Liquid interactions
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#1-146](https://sadjjk.github.io/motion-prompt-zh/#1-146) | **Gooey morph menu** | Action buttons are pulled out of a plus button like liquid and pinch off on their own | Make the + button open a gooey menu: three actions stretch out of it like liquid and split off, 550 ms each, staggered 40 ms, with a slight bounce. |
+| [#1-147](https://sadjjk.github.io/motion-prompt-zh/#1-147) | **Gooey trail** | A moving indicator stretches and trails a droplet tail behind it | Make the tab indicator liquid: it stretches when it moves and trails a droplet tail, 0.45 s per move, tail lagging 0.09 s. |
+| [#1-148](https://sadjjk.github.io/motion-prompt-zh/#1-148) | **Gooey bend** | A dragged card bows softly against the direction it moves | Make the dragged card bend like liquid against its motion, in proportion to speed, up to 9 px. |
+
+## Feedback / Progress & icons
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#1-164](https://sadjjk.github.io/motion-prompt-zh/#1-164) | **Liquid fill icon** | A wavy liquid level rises inside an icon as a percentage counts up | Show the upload progress as a liquid fill icon in a drop shape: the wavy level fills in 3.7 s while the percentage beside it counts from 0% to 100%. |
+
+## Feedback / AI status
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#1-167](https://sadjjk.github.io/motion-prompt-zh/#1-167) | **Border beam** | A coloured light travels around the border to show that work is in progress | While the AI reply is generating, add a border beam that travels around the input: one lap every 4.8 s. |
+| [#1-168](https://sadjjk.github.io/motion-prompt-zh/#1-168) | **Line beam** | A light sweeps back and forth along the bottom edge of a field to show a search is running | From submit until results arrive, add a line beam that sweeps along the bottom of the search field: 2.2 s each way. |
+| [#1-169](https://sadjjk.github.io/motion-prompt-zh/#1-169) | **Inner pulse** | Coloured light breathes inside a button to draw attention to it | Give the Ask AI button an inner pulse: coloured light breathing inside it, 2.4 s per breath, never spilling outside. |
+| [#1-170](https://sadjjk.github.io/motion-prompt-zh/#1-170) | **Outer pulse** | Coloured light blooms outside an input and pulls back, inviting the user to type there | Add an outer pulse around the main input on the landing page: light spreading 4–18 px outside, 2.4 s per breath. |
+| [#1-171](https://sadjjk.github.io/motion-prompt-zh/#1-171) | **Thinking orb: working** | Particles circle a dotted orb on tilted orbits to show the AI is working | While a tool is running, show a thinking orb next to "Working…": particles circling a dotted orb on three orbits. |
+| [#1-172](https://sadjjk.github.io/motion-prompt-zh/#1-172) | **Thinking orb: searching** | A bright meridian scans a dotted globe to show the AI is searching | While searching the web, show a thinking orb beside "Searching the web…": a light line scanning a dotted globe. |
+| [#1-173](https://sadjjk.github.io/motion-prompt-zh/#1-173) | **Thinking orb: listening** | Latitude rings ripple like a sound wave to show the mic is listening | While the mic is open for voice input, show a thinking orb by "Listening…" whose latitude rings ripple like sound. |
+| [#1-174](https://sadjjk.github.io/motion-prompt-zh/#1-174) | **Thinking orb: connecting** | Nodes on the orb join up one by one and packets flow along the links, showing services are being connected | While connecting to services, show a thinking orb by "Connecting sources…": nodes linking up, then packets flowing. |
+| [#1-175](https://sadjjk.github.io/motion-prompt-zh/#1-175) | **Thinking orb: composing** | Bands of dots flow and undulate around the orb to show the AI is writing | While the AI drafts text, show a thinking orb by "Writing…" with bands of dots undulating around it. |
+
+Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#1-096](../../api/v1/en/e/1-096.txt)).
 
 [All packs](../README.md)

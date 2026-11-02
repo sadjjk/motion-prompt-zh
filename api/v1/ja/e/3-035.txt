@@ -1,46 +1,31 @@
-// Motion Prompt #3-035 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#107
+// Motion Prompt #3-035 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/extreme-close-up
 //
-// 長時間露光 / Long exposure
-// パック: photo (写真の表現・光と画風) · element 11 · カテゴリ: レンズ・カメラの効果
-// 何が起きるか: 街が夜になり、走る車の本体は薄く消えていき、後ろに赤い尾灯の線が伸び、反対車線には白とアンバーの光の線が通る。
+// 大クローズアップ / Extreme close-up
+// 分類: 編集・撮影 / ショットサイズ・構図 / ショットサイズ
+// 何が起きるか: 画面は目の帯だけ。目線が左右に1回流れ、途中で素早く1回まばたきする。
 // 動きの仕様:
-//   - 場面②: 街角。奥に建物の列・木・街灯（x114, 292, 494）、道は y132〜162、人物は左手前（足元 x176, y200・身長124px）。色は夜（空 #2C3B5E、窓の3つに1つが #FFC75A）へ
-//   - 車: 5秒で x−60 → 600。本体の不透明度 100% → 10%
-//   - 尾灯の線: x−60 から車の位置まで。y145 に #FF5B4D 2.6px、y149 に #FF8A6E 1.4px
-//   - 反対車線の線: 画面幅いっぱい。y135 #FFE9B8 2.6px、y138.5 #FFC75A 1.6px、y141.5 #FFE9B8 1.2px（効果の量で濃くなる）
-//   - 右上のシャッター速度 1/250 → 8″
-//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、3次のイーズインアウト（cubic-bezier(0.65,0,0.35,1) 相当））
-// 使いどころ: 夜の街の流れや、水・雲のなめらかな動きを1枚で見せたいとき。
-// タグ: long exposure, light trails, slow shutter, night photography, car trails, motion
-// サイズ: 539x208 px · 1周: 5 s
-// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+//   - 画框: 1.58mから1.72m、高さ0.14mの目の帯だけ。カメラは2.0m先
+//   - 目線: 1周で正弦カーブに沿って左右に1回、振れ幅0.05m。最初と最後は正面
+//   - まばたき: 2.4〜2.5秒で閉じ、2.6〜2.75秒で開く
+//   - 背景は強くぼかす。右上に「大特写 ECU」、比例尺は目の細い帯だけ
+//   - カメラは最後まで動かない。1周4.7秒で、最初と最後の画面は同じ
+// 使いどころ: 緊張感を高める、重要な細部を強調する、心の動きを見せるとき。
+// タグ: extreme close-up, ecu, xcu, eyes, detail, shot size, tension
+// サイズ: 539x208 px · 1周: 9.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-035
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 11
-// 長時間露光: シャッターを開け続けると、夜道の車は消え、ライトだけが光の線になる
-CELLS[10] = cell((k, u) => {
-  const a = env(u), x = lerp(-60, 600, u / CYC);
-  const p = pal(BASE, NIGHT, a);
-  stageStreet(k, p, {
-    car: false, person: false,
-    after: D => {
-      const kk = D.k;
-      // 車の通った跡: 尾灯（赤）と前照灯（白〜アンバー）の線。車の後ろに伸びる
-      kk.save(); kk.globalAlpha = a; kk.lineCap = 'round';
-      const x0 = -60, x1 = Math.min(x, CW + 40);
-      const ln = (ya, yb, c1, c2, w1, w2) => { kk.strokeStyle = c1; kk.lineWidth = w1; kk.beginPath(); kk.moveTo(x0, ya); kk.lineTo(x1, ya); kk.stroke(); kk.strokeStyle = c2; kk.lineWidth = w2; kk.beginPath(); kk.moveTo(x0, yb); kk.lineTo(x1, yb); kk.stroke(); };
-      ln(145, 149, '#FF5B4D', '#FF8A6E', 2.6, 1.4);
-      // 反対車線の車たちの跡（画面いっぱい）
-      for (const [y, c, lw] of [[135, '#FFE9B8', 2.6], [138.5, BASE.lit, 1.6], [141.5, '#FFE9B8', 1.2]]) { kk.strokeStyle = c; kk.lineWidth = lw; kk.beginPath(); kk.moveTo(-10, y); kk.lineTo(CW + 10, y); kk.stroke(); }
-      kk.restore();
-    }
+// @element 31
+// 31 大特写：只框住眼带。视线左右扫一眼 + 一次干净利落的眨眼（wave 首尾回 0，循环无缝）
+CELLS[30] = shot(frameCell({ lo: 1.58, hi: 1.72, name: '大特写', abbr: 'ECU', draw: (k, w, h, u) => {
+  const gaze = 0.05 * wave(u, 1);                         // 一次左右扫视
+  const blink = P(u, 2.4, 2.5) * (1 - P(u, 2.6, 2.75));   // 干净利落的眨眼
+  world(k, w, h, fit(1.58, 1.72, 2.0), {
+    person: { z: 8, fg: true },
+    extra: [[0, 0, 7.99, (kk, s) => face(kk, s, { gaze, blink }), true]],
+    blurBg: 2.4
   });
-  // 車の本体は露光が長いほど薄く写る
-  k.save(); k.globalAlpha = 1 - 0.9 * a; const D = pen(k);
-  car(D, x, p, { head: BASE.lit, tail: '#FF5B4D' }); k.restore();
-  figure(pen(k), FIG[0], FIG[1], FIG[2], p.person);
-  hud(k, a > 0.5 ? '8″' : '1/250');
-});
+} }));

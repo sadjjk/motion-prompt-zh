@@ -1,15 +1,16 @@
-Please use "Warp starfield" (ワープする星空), one of the names in "Interaction & data motion".
+Please use "Scroll zoom to full" (スクロールで全画面ズーム), filed under "Pages / Scrolling".
 Motion Prompt #1-077
 
-What it is: A starfield hero where stars rush toward you and a long press triggers warp
-What the sample shows: Stars drift out from the centre; holding the button accelerates them into blue streaks with a glowing core, and releasing eases back to cruise.
+What it is: A small image grows to fill the screen as you scroll
+What the sample shows: A small rounded image sits in the middle of a dark screen. As scrolling progresses it grows to fill the frame, its corners turn square and the scene inside eases back; late in the scroll a title rises in from below, and scrolling back reverses it all.
 Spec:
-- 280 stars fly from the centre toward the camera (focal length 150), getting brighter and thicker as they near.
-- Holding 'Hold to warp' pulls speed toward 3.2, keeping 25% of the gap per second (cruise 0.22); release eases back, keeping 12% per second.
-- During warp stars stretch into lines and turn blue (blueness = (v − 0.22) / 1.6), with a 120 px blue glow at the centre.
-- The pointer shifts the heading (x × 70, y × 60); demo presses at 1.2 s and releases at 3.6 s.
-When to use it: Use it in hero sections for games, space-tech or AI product launches, paired with a long-press 'Start' or 'Launch' button.
+- Scroll progress goes 0 → 1 from 0.4–4.6 s, with the scrollbar on the right in sync.
+- The image grows linearly from 38% × 46% of the frame to 100%, with corners going 16 → 0 px.
+- Inside, the scene scales from 1.3× down to 1× at the same time.
+- From 70%–100% progress the title rises 20 px and fades in.
+- From 5.4–6.3 s the scroll returns and everything plays in reverse.
+When to use it: Use it in travel stories, product features and brand stories to give one image a dramatic reveal.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-077.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

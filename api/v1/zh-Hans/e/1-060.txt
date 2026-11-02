@@ -1,45 +1,44 @@
-// Motion Prompt #1-060 · MIT License (c) 2026 Jakub Antalik · https://libraries.dev/
+// Motion Prompt #1-060 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#074
 //
-// 液态弯曲 / Gooey bend
-// 分类包: aiux (光效与液态) · element 12 · 子分类: 液态交互
-// 动画表现: 白色卡片被左右拖动，速度越快左右两边越向后弯，减速时恢复平直。
+// 滚动淡入 / Fade-in on scroll
+// 分类: 界面与网页 / 页面 / 滚动
+// 动画表现: 随页面滚动，标题、卡片和正文进入视口后分别上移到位并淡入。
 // 运动规格:
-//   - 卡片 170 × 100 px，圆角 16 px；中心每周期左右往返一次，幅度 ±90 px（正弦）。
-//   - 左右两边的中部向运动反方向弯曲，弯曲量与速度成正比，最多约 9 px。
-//   - 卡片内容行也跟着偏移，最多约 6 px。
-//   - 顶边有拖动指针（5 px 圆点加 10 px 圆环），下方有投影。
-// 适用场景: 适合可排序的卡片和列表行、可拖动的面板，让拖动更有手感。
-// 标签: gooey, liquid, bend, drag, card, sortable, elastic
+//   - 滚动：0.35–1.0 秒为 0→95 px，1.5–2.1 秒为 95→200 px，3.2–4.4 秒为 200→0，均用三次缓入缓出。
+//   - 触发线为视口高度的 85%，距顶 143 px；元素顶边越过此线时触发，类似 Intersection Observer。
+//   - 触发后在 0.7 秒内，透明度 0→1，下方偏移 28 px → 0，采用三次缓出。
+//   - 三个元素初始均在视口下方：标题距页面顶 172 px，一行三张卡片在 206 px，正文在 334 px；卡片同时出现。
+//   - 向上滚回时，元素离开视口底部后恢复隐藏，下次进入重新播放。
+// 适用场景: 适合长落地页，让内容随阅读逐段出现。
+// 标签: fade-in, scroll-reveal, reveal-on-scroll, intersection-observer, aos, entrance, scroll
 // 尺寸: 539x208 px · 周期: 4.8 s
-// 依赖: kit aiux -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-060
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 12
-// 12 液态弯曲（effect="bend"）：卡片被左右拖动，卡身向运动反方向弯曲，速度越快弯得越多
-CELLS[11] = (k, w, h, u) => {
-  bg(k); grid(k);
-  const th = TAU * u / CYC, cx = 269.5 + 90 * Math.sin(th), cy = 104;
-  const b = -16 * Math.cos(th);                             // 弯曲量与速度成正比，最大约 9 px
-  const W = 170, H = 100, r = 16, x0 = cx - W / 2, x1 = cx + W / 2, y0 = cy - H / 2, y1 = cy + H / 2;
-  k.fillStyle = 'rgba(0,0,0,0.35)'; k.beginPath(); k.ellipse(cx, y1 + 14, W * 0.42, 6, 0, 0, TAU); k.fill();
-  k.fillStyle = C.goo; k.beginPath();
-  k.moveTo(x0 + r, y0); k.lineTo(x1 - r, y0);
-  k.quadraticCurveTo(x1, y0, x1 + b * 0.15, y0 + r);
-  k.quadraticCurveTo(x1 + b, cy, x1 + b * 0.15, y1 - r);
-  k.quadraticCurveTo(x1, y1, x1 - r, y1); k.lineTo(x0 + r, y1);
-  k.quadraticCurveTo(x0, y1, x0 + b * 0.15, y1 - r);
-  k.quadraticCurveTo(x0 + b, cy, x0 + b * 0.15, y0 + r);
-  k.quadraticCurveTo(x0, y0, x0 + r, y0); k.closePath(); k.fill();
-  // 卡片内容随弯曲轻微偏移（中间行偏得最多）
-  const row = (yy, f) => cx + b * 0.4 * f;
-  k.fillStyle = C.ink; k.beginPath(); k.arc(row(0, 0.6) - 52, cy - 14, 13, 0, TAU); k.fill();
-  k.fillStyle = 'rgba(23,23,29,0.75)'; rr(k, row(0, 0.6) - 30, cy - 21, 82, 7, 3.5); k.fill();
-  k.fillStyle = 'rgba(23,23,29,0.35)'; rr(k, row(0, 0.9) - 30, cy - 8, 60, 6, 3); k.fill();
-  rr(k, row(0, 0.9) - 65, cy + 14, 130, 6, 3); k.fill(); rr(k, row(0, 0.6) - 65, cy + 26, 96, 6, 3); k.fill();
-  // 拖动手势：卡片顶部的指针
-  k.fillStyle = 'rgba(236,236,241,0.9)'; k.beginPath(); k.arc(cx, y0 - 2, 5, 0, TAU); k.fill();
-  k.strokeStyle = 'rgba(236,236,241,0.35)'; k.lineWidth = 1.5; k.beginPath(); k.arc(cx, y0 - 2, 10, 0, TAU); k.stroke();
+// @element 02
+// 02 スクロールでフェードイン（画面に入った要素が、下から浮かび上がって現れる）
+CELLS[1] = (k, w, h, u) => {
+  frame(k);
+  const SY = t => steps([[0.35, 0], [1.0, 95], [1.5, 95], [2.1, 200], [3.2, 200], [4.4, 0]], t), y = SY(u);
+  const LINE = VH * 0.85, DUR = 0.7, RISE = 28;
+  view(k, () => {
+    k.save(); k.translate(0, -y);
+    txt(k, '让生活更轻松。', 34, 52, `800 24px ${JP}`, C.ink); bars(k, 34, 68, 190, 3); btn(k, 34, 108, 96, 26, '了解更多');
+    pic(k, 286, 18, 196, 110, 0, 8);
+    const items = [
+      [172, () => txt(k, '选择我们的 3 个理由', VW / 2, 172 + 20, `800 18px ${JP}`, C.ink, 'center')],
+      [206, () => { for (let i = 0; i < 3; i++) { const x = 34 + i * 152; k.fillStyle = C.soft; rr(k, x, 206, 136, 106, 8); k.fill(); pic(k, x + 8, 214, 120, 56, i, 5); bars(k, x + 10, 280, 112, 2, '#CBD2DE'); } }],
+      [334, () => bars(k, 110, 334, 290, 3, C.faint, 7, 13)]
+    ];
+    for (const [top, draw] of items) {
+      const t0 = enteredAt(SY, top, LINE, u); if (t0 === null) continue;
+      const q = eOut(P(u, t0, t0 + DUR));
+      k.save(); k.globalAlpha = q; k.translate(0, RISE * (1 - q)); draw(); k.restore();
+    }
+    k.restore();
+    sbar(k, y / 200, 0.5);
+  });
 };

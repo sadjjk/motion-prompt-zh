@@ -1,44 +1,48 @@
 // Motion Prompt #4-022 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// ギリ星文様 / Girih stars
-// パック: scenes (スタイルシーン) · element 22 · カテゴリ: 文様・グラフィック
-// 何が起きるか: 濃紺の地に、ターコイズのタイルとコバルトの八芒星が中心から一枚ずつ広がるように灯り、星が小さくから大きく開く。
+// スピログラフ / Spirograph
+// 分類: ビジュアルスタイル / 工芸・文様 / 幾何学文様
+// 何が起きるか: 生成りの紙の上で半透明の歯車が3つのリングを順に転がり、ペン先が赤・青・緑の花曲線を描き切って止まる。
 // 動きの仕様:
-//   - 濃紺の地 #0F1E3A。62px のタイル 11 × 7 枚を全体で 0.12 rad 傾ける
-//   - 各タイル：ターコイズ #1F8A8A の地、生成りの十字、コバルト #1C3F94 の八芒星（頂点 16）、金 #D9A93C の輪郭線と放射線 8 本
-//   - 0.2 秒から中心からの距離順にタイルが灯り、星は縮小状態から開く。約 2.5 秒ですべて点灯
-//   - 5.4 秒まで保持し、5.4〜6.0 秒でフェードアウト
-// 使いどころ: 中東・イスラム文化や旅行テーマの動画開場、ラマダンなど季節イベントの背景、建築・工芸系プレゼンの扉に。
-// タグ: girih, islamic-pattern, geometric, tiles, stars, reveal, ornament
+//   - 生成りの地 #F2EDE3。半径 84px の固定リングが 3 つ並び、歯車はその内側を転がる
+//   - 歯車の半径 32 / 18 / 13 px、ペン距離 25 / 14 / 8 px。色は赤 #D2452F、青 #1F3B8A、緑 #2E7D63
+//   - 3 本の曲線は 0.4 秒ずつずれて描き始め、それぞれ 3.6 秒で描き終える。8 / 3 / 13 周で閉じる
+//   - 描画中は半透明の歯車とペン先を表示。閉じた後は止まり、5.4〜6.0 秒でフェードアウト（周期 6.4 秒）
+// 使いどころ: 手作り感のあるブランドや文具・教育系コンテンツの開場、ポスターの背景、プレゼンの章間に。
+// タグ: spirograph, hypotrochoid, gears, line-art, handmade, drawing, pattern
 // サイズ: 539x208 px · 1周: 6.4 s
-// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-022
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 22
-// 22 伊斯兰星纹：松石绿方格上钴蓝八角星、米白十字与金色描线，从中心一格格向外点亮（0.2–2.5 秒），停留后 5.4 秒淡出
-const GIR_S = 62;                                             // 格宽 62px（原 210px），整体转 0.12 rad
-const GIR_STAR = r => { const p = new Path2D(); for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, q = i % 2 ? r * 0.62 : r; i ? p.lineTo(Math.cos(a) * q, Math.sin(a) * q) : p.moveTo(q, 0); } p.closePath(); return p; };
-const GIR_P = { big: GIR_STAR(GIR_S * 0.44), small: GIR_STAR(GIR_S * 0.2) };
-const GIR_GRID = []; for (let gy = -3; gy <= 3; gy++) for (let gx = -5; gx <= 5; gx++) GIR_GRID.push([gx, gy, Math.hypot(gx, gy)]);
-function girCell(k, x, y, a) {                                // a：点亮进度 0..1（透明度与星形缩放）
-  const S = GIR_S; k.save(); k.translate(x, y); k.globalAlpha = a;
-  k.fillStyle = '#1F8A8A'; k.fillRect(-S / 2, -S / 2, S, S);
-  k.fillStyle = '#F2EBDC'; k.beginPath();
-  for (let i = 0; i < 4; i++) { k.rotate(Math.PI / 2); k.moveTo(-S * 0.12, -S / 2); k.lineTo(S * 0.12, -S / 2); k.lineTo(S * 0.12, -S * 0.3); k.lineTo(-S * 0.12, -S * 0.3); }
-  k.fill();
-  k.save(); k.scale(a, a); k.fillStyle = '#1C3F94'; k.fill(GIR_P.big); k.fillStyle = '#F2EBDC'; k.fill(GIR_P.small);
-  k.fillStyle = '#D9A93C'; k.beginPath(); k.arc(0, 0, S * 0.06, 0, TAU); k.fill(); k.restore();
-  k.strokeStyle = '#D9A93C'; k.lineWidth = 1.1; k.stroke(GIR_P.big); k.beginPath();
-  for (let i = 0; i < 8; i++) { const t = i / 8 * TAU; k.moveTo(Math.cos(t) * S * 0.44, Math.sin(t) * S * 0.44); k.lineTo(Math.cos(t) * S * 0.72, Math.sin(t) * S * 0.72); }
-  k.stroke(); k.restore();
-}
-function girAll(k, p) { k.save(); k.translate(269.5, 104); k.rotate(0.12); for (const [gx, gy, d] of GIR_GRID) { const a = out3(clamp(p - d * 0.45)); if (a > 0) girCell(k, gx * GIR_S, gy * GIR_S, a); } k.restore(); }
-CELLS[21] = (k, w, h, u) => {
-  k.fillStyle = '#0F1E3A'; k.fillRect(0, 0, CW, CH);
-  const p = (u - 0.2) * 1.6, fade = fadeIn(u);                // 距中心 d 格的格子在 p = 0.45d 时开始点亮；最远 d≈5.83，约 2.5 秒全部点亮
-  if (p > 0 && fade > 0) { k.save(); k.globalAlpha = fade; girAll(k, p); k.restore(); }
-  grain(k, 0.06);
+// @element 18
+// 18 万花尺：三组齿轮各在半径 84 的圆环内滚动，笔尖错峰 0.4 秒画出红、蓝、绿三朵繁花曲线（各 3.6 秒），闭合后停留，5.4 秒淡出
+const SPIRO_R = 84;
+const SPIRO_SETS = [[100, 32, 25, '#D2452F', 8], [269.5, 18, 14, '#1F3B8A', 3], [439, 13, 8, '#2E7D63', 13]]; // [cx, r, d, 墨色, 闭合圈数 r/gcd(R,r)]
+CELLS[17] = (k, w, h, u) => {
+  k.fillStyle = '#F2EDE3'; k.fillRect(0, 0, CW, CH);
+  const cy = 104, R = SPIRO_R;
+  k.strokeStyle = 'rgba(40,40,40,.25)'; k.lineWidth = 4;
+  for (const s of SPIRO_SETS) { k.beginPath(); k.arc(s[0], cy, R + 3, 0, TAU); k.stroke(); }
+  const fade = fadeIn(u);
+  SPIRO_SETS.forEach(([cx, r, d, col, turns], si) => {
+    const tm = seg(u, 0.2 + si * 0.4, 3.8 + si * 0.4); if (tm <= 0) return;
+    const T = turns * TAU * tm; let px = cx + R - r + d, py = cy;
+    k.save(); k.globalAlpha = 0.85 * fade; k.strokeStyle = col; k.lineWidth = 0.9; k.beginPath(); k.moveTo(px, py);
+    for (let t = 0.03; ; t += 0.03) {                       // 步长 0.03 rad，最后一点落在 T
+      const tt = Math.min(t, T);
+      px = cx + (R - r) * Math.cos(tt) + d * Math.cos((R - r) / r * tt); py = cy + (R - r) * Math.sin(tt) - d * Math.sin((R - r) / r * tt); k.lineTo(px, py);
+      if (tt >= T) break;
+    }
+    k.stroke(); k.restore();
+    if (tm < 1) {                                            // 画线中显示半透明齿轮与笔尖
+      const gx = cx + (R - r) * Math.cos(T), gy = cy + (R - r) * Math.sin(T);
+      k.strokeStyle = 'rgba(40,40,40,.35)'; k.fillStyle = 'rgba(255,255,255,.35)'; k.lineWidth = 0.8;
+      k.beginPath(); k.arc(gx, gy, r, 0, TAU); k.fill(); k.stroke();
+      k.fillStyle = col; k.beginPath(); k.arc(px, py, 2, 0, TAU); k.fill();
+    }
+  });
+  grain(k, 0.07, 'multiply');
 };

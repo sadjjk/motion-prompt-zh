@@ -1,9 +1,9 @@
-// Motion Prompt #1 061~097 · 129~141 · 164~175 · 190~194 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
-// Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#1 129~141 · 164~175)
-// Also: MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh (#1 190~194)
+// Motion Prompt #1 068~077 · 087 · 091~095 · 097 · 124~135 · 140~142 · 149~158 · 160~161 · 165~166 · 176~196 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+// Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#1 075~077 · 087 · 097 · 130~135 · 140~142 · 152~158 · 193~196)
+// Also: MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh (#1 165~166 · 176~178)
 //
 // Kit for pack "uxmotion" (Interaction & data motion / インタラクションとデータの動き): the constants and helpers its elements share.
-// Elements #1 061~097 · 129~141 · 164~175 · 190~194 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #1 068~077 · 087 · 091~095 · 097 · 124~135 · 140~142 · 149~158 · 160~161 · 165~166 · 176~196 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

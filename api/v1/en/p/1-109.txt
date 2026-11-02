@@ -1,16 +1,15 @@
-Please use "Password strength meter" (パスワード強度メーター), one of the names in "UI component names".
+Please use "Rolling text button" (ローリングテキストボタン), filed under "Pointer interactions / Buttons".
 Motion Prompt #1-109
 
-What it is: Strength bars fill segment by segment as the password grows
-What the sample shows: As the dots in the "New password" field grow from 4 to 16, the four bars below light up one at a time and the strength label shifts from red to green.
+What it is: On hover the label rolls up letter by letter and swaps
+What the sample shows: When the cursor lands, the label's characters roll up one after another and the same characters come up from below; the button flips from white to ink and the round arrow turns to point up-right.
 Spec:
-- A "New password" card (429 wide, radius 15.4) with a 48.4-high field. The masked dots grow from 4 to 8 / 12 / 16 (1.00 / 1.55 / 2.15 s).
-- 4 strength segments (7.7 high, 6.6 apart) fill in turn: 1.05 s red #ef4444 "Weak", 1.60 s orange #f59e0b "Fair", 2.20 s yellow-green #84cc16 "Good", 2.75 s green #22c55e "Strong".
-- Each colour change takes 0.25 s (0.3 s for the last) with a quadratic ease-out; the label at lower left changes with it, while the lower right always reads "At least 12 characters · mixed case".
-- Over 3.2–3.95 s the card rises 4.4px with sine.inOut. Reset over 3.95–4.35 s (easeInOutCubic): the extra dots fade, the 4 segments return to grey #44403c and the label returns to amber "Weak".
-- Versus Step indicator: the segments show password strength and react to typing; they do not mark which step of a flow you are on.
-When to use it: Use it in sign-up, password change and account settings forms where you want to nudge users toward a strong password.
+- A 220×56 pill button with the label on the left and a 40px round arrow on the right; the cursor moves onto it in 0.6 s.
+- Each character rolls up one line (26px) over 0.55 s (easeInOut power 3), staggered 0.035 s per character, while an identical character rolls in from below.
+- At the same time the button turns from white to ink, the text from ink to white, the circle from ink to accent orange, and the arrow turns from → to ↗ (−45°).
+- The cursor leaves at 3.4 s and everything rolls back in reverse.
+When to use it: Use it for the main buttons of portfolio or brand sites where the CTA should feel playful.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-109.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

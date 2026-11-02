@@ -1,64 +1,93 @@
-// Motion Prompt #4-001 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+// Motion Prompt #4-001 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
 //
-// 書の筆致 / Dry brush
-// パック: scenes (スタイルシーン) · element 01 · カテゴリ: 文字のムード
-// 何が起きるか: 和紙の上で筆が一画ずつ「永」を書き、線の縁はかすれる。書き終わると朱印が大きい状態から縮んで押され、少し残ってから消える。
+// フラット・ベクター / Flat vector motion
+// 分類: ビジュアルスタイル / アニメーションの画風 / フラット・線
+// 何が起きるか: 群青の空からサンゴ色の丸が落ちて 5 回跳ね、着地のたびに色とりどりの平面ビルが弾んで現れ、最後にロゴが弾むように入る。
 // 動きの仕様:
-//   - 画面 539 × 208 px、生成りの和紙 #EDE6D6。字枠 196 px、「永」の 8 画を 0.2〜4.2 秒で書き、各画 0.5 秒
-//   - 各画は 60 本の細い線を重ねて描き、画の後半（45% 以降）の縁の線をノイズで途切れさせてかすれを作る
-//   - 朱印は 44 × 44 px・#B5281D。4.4 秒から 0.3 秒で 1.6 倍から原寸へ縮んで押される
-//   - 周期 6.4 秒：5.4〜6.0 秒で墨字と印がフェードアウトし、6.4 秒で白紙に戻る
-// 使いどころ: 和風・中華風ブランドの動画オープニングや、書道・茶道・文化イベントのページ冒頭に。
-// タグ: calligraphy, brush, ink, dry-brush, chinese, seal, type
+//   - 空 #2B2BFF、地面 #FFF6E9、主役は半径 16px のサンゴ色の丸 #FF5A4E。0.2 秒で上から落ちる
+//   - 0.4–4.4 秒に 5 回ジャンプ（各 0.8 秒、高さ 72px）。着地 0.16 秒で 18% つぶれ、空中は 10% 伸び、残像 3 つ
+//   - 落点 6 か所の後ろにビル 2 棟ずつ、計 12 棟。着地から 0 / 0.1 秒ずらして elasticOut で 0.6 秒かけて飛び出す
+//   - 4.6–5.2 秒にロゴ popwise（46px）が弾んで拡大。5.4–6.0 秒にビル・文字・丸が縮んで消える
+// 使いどころ: アプリ紹介やサービス解説動画、明るいブランドのオープニングなど、親しみやすさを出したい短い動画に。
+// タグ: flat-design, vector, squash-and-stretch, bounce, elastic, explainer, brand-intro
 // サイズ: 539x208 px · 1周: 6.4 s
-// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-001
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 01
-// 01 书法笔触：一笔一笔写出「永」字，飞白由细丝叠成，最后盖朱红印章；停留后淡出复位
-const YONG = [ // 永字八笔：[[起点, 控制点, 终点], 起笔宽, 收笔宽]（坐标为字框 0..1）
-  [[[.47, .07], [.505, .12], [.53, .175]], 34, 22], [[[.33, .27], [.47, .265], [.61, .255]], 30, 26],
-  [[[.6, .26], [.585, .5], [.57, .86]], 36, 30], [[[.57, .86], [.53, .83], [.48, .79]], 30, 6],
-  [[[.22, .47], [.32, .455], [.42, .45]], 26, 24], [[[.42, .45], [.33, .6], [.2, .73]], 28, 6],
-  [[[.77, .33], [.71, .4], [.635, .47]], 26, 8], [[[.62, .47], [.74, .63], [.9, .8]], 16, 46]];
-CELLS[0] = (k, w, h, u) => {
-  k.fillStyle = '#EDE6D6'; k.fillRect(0, 0, CW, CH); paper(k, [120, 100, 70], 700, 3);
-  const ox = 200, oy = 6, S = 196, WS = 0.22;      // 字框 196px（原 900px 按比例缩小），笔宽同比缩放
-  const prog = seg(u, 0.2, 4.2) * YONG.length;     // 4 秒写完 8 笔，每笔 0.5 秒
-  const fade = fadeIn(u);
-  k.save(); k.globalAlpha = fade; k.lineCap = 'round';
-  YONG.forEach(([pts, w0, w1], si) => {
-    const pr = clamp(prog - si); if (pr <= 0) return;
-    const sm = [];
-    for (let q = 0; q <= 40; q++) { const t = q / 40, [a, b, c] = pts; sm.push([(1 - t) * (1 - t) * a[0] + 2 * (1 - t) * t * b[0] + t * t * c[0], (1 - t) * (1 - t) * a[1] + 2 * (1 - t) * t * b[1] + t * t * c[1]]); }
-    const n = Math.max(2, Math.floor(sm.length * pr));
-    for (let hb = 0; hb < 60; hb++) {                // 60 根细丝叠成笔画（原 220 根）
-      const off = (hash(si * 997 + hb) - 0.5) * 2, dry = hash(si * 131 + hb * 7);
-      k.strokeStyle = `rgba(14,12,10,${0.25 + 0.55 * hash(si * 53 + hb * 3)})`; k.lineWidth = 0.5 + hash(hb + si) * 0.7;
-      k.beginPath(); let pen = false;
-      for (let q = 0; q < n; q++) {
-        const t = q / 40, press = Math.min(1, t * 6 + 0.35), wd = (w0 + (w1 - w0) * t) * press * 1.25 * WS;
-        const [x, y] = sm[q], [x2, y2] = sm[Math.min(40, q + 1)], tx = x2 - x, ty = y2 - y, tl = Math.hypot(tx, ty) || 1;
-        const px = ox + x * S - ty / tl * off * wd, py = oy + y * S + tx / tl * off * wd;
-        // 飞白：笔画后半段、靠边缘的细丝按确定性噪声断开
-        const gap = t > 0.45 && Math.abs(off) > 0.45 && hash(q * 17 + hb * 31 + si) < 0.3 + dry * 0.35;
-        if (gap) { pen = false; continue; }
-        if (!pen) { k.moveTo(px, py); pen = true; } else k.lineTo(px, py);
-      }
-      k.stroke();
+// 01 扁平矢量（popwise「One Dot」）：群青天空 #2B2BFF + 奶油地面 #FFF6E9，唯一主角珊瑚圆点 #FF5A4E 0.2 秒从顶部落下，0.4–4.4 秒连跳 5 下（每跳 0.8 秒：落地 0.16 秒挤压 18%、空中拉伸 10%、3 个残影模拟运动模糊），每次落地错峰 0.1 秒用 elasticOut 弹出两栋扁平楼；4.6 秒 popwise 字标与 EVERY DAY, A LITTLE WISER 弹性入场；5.4–6.0 秒楼、字、圆点缩回
+const FLAT_C = { U: '#2B2BFF', UD: '#1F1FCC', UL: '#4D4DFF', CO: '#FF5A4E', COD: '#E0433A', SU: '#FFC62B', SUD: '#F0A91A', MI: '#2EE6A8', MID: '#1FC28C', CR: '#FFF6E9', CRD: '#F1E3CC', INK: '#151433' };
+const FLAT_GY = 168;                                  // 地平线 y
+const FLAT_HOPX = [44, 132, 220, 308, 396, 484];      // 6 个落点（第 0 次为入场落地）
+// 楼：每个落点身后两栋，弹出时刻 = 该落点着地时刻 + 0 / 0.1 秒
+const FLAT_BLD = (() => {
+  const cols = [[FLAT_C.SU, FLAT_C.SUD], [FLAT_C.MI, FLAT_C.MID], [FLAT_C.CR, FLAT_C.CRD], [FLAT_C.CO, FLAT_C.COD], [FLAT_C.UL, FLAT_C.UD]];
+  const out = [];
+  FLAT_HOPX.forEach((x, i) => {
+    for (let j = 0; j < 2; j++) {
+      const n = i * 2 + j;
+      out.push({ x: x - 40 + j * 38 + hash(n * 3) * 6, w: 30 + hash(n * 5) * 12, h: 34 + hash(n * 7) * 36, c: cols[(n * 2 + i) % 5], roof: n % 3, t: 0.4 + 0.8 * i + 0.1 * j });
     }
   });
-  // 朱印：4.4 秒盖下（0.3 秒由大到小落定）
-  const sa = out3(seg(u, 4.4, 4.7));
-  if (sa > 0) {
-    k.save(); k.translate(452, 160); k.scale(1 + (1 - sa) * 0.6, 1 + (1 - sa) * 0.6); k.globalAlpha = sa * fade;
-    k.fillStyle = '#B5281D'; k.fillRect(-22, -22, 44, 44);
-    txt(k, '永', 0, -2, `900 17px ${SERIF}`, '#EDE6D6', 'center', 'middle'); txt(k, '字', 0, 14, `900 17px ${SERIF}`, '#EDE6D6', 'center', 'middle');
+  return out;
+})();
+function FLAT_dot(t) {
+  const R = 16, G = FLAT_GY - R;
+  if (t < 0.4) { const p = seg(t, 0.2, 0.4); return { x: FLAT_HOPX[0], y: mix(-30, G, p * p), sx: 0.9, sy: 1.12, air: p > 0 && p < 1 }; }
+  const i = Math.min(5, Math.floor((t - 0.4) / 0.8)), dt = t - (0.4 + 0.8 * i);
+  if (i >= 5 || dt < 0.12) {                          // 着地：先挤压后回弹（预备）
+    const q = dt < 0.16 ? Math.sin(Math.PI * dt / 0.16) * 0.18 : 0;
+    const sy = 1 - q;
+    return { x: FLAT_HOPX[i], y: G + R * (1 - sy), sx: 1 + q, sy, air: false };
+  }
+  const p = (dt - 0.12) / 0.68;                       // 空中：抛物线，速度越快拉伸越大
+  const st = 1 + 0.1 * Math.abs(1 - 2 * p);
+  return { x: mix(FLAT_HOPX[i], FLAT_HOPX[i + 1], p), y: G - 72 * 4 * p * (1 - p), sx: 1 / st, sy: st, air: true };
+}
+CELLS[0] = (k, w, h, u) => {
+  const C = FLAT_C, rk = resetK(u), keep = 1 - rk;
+  k.fillStyle = C.U; k.fillRect(0, 0, CW, CH);
+  // 两朵扁平云：整周期 1 次往返漂移
+  for (let i = 0; i < 2; i++) {
+    const cx = 150 + i * 230 + 10 * Math.sin(TAU * u / CYC + i * 2), cy = 26 + i * 14;
+    k.fillStyle = C.UL; rr(k, cx - 34, cy - 7, 68, 14, 7); k.fill();
+    k.beginPath(); k.arc(cx - 6, cy - 7, 11, 0, TAU); k.fill();
+  }
+  // 楼（在地面线之上，从底边弹出）
+  for (const b of FLAT_BLD) {
+    const s = elasticOut(seg(u, b.t, b.t + 0.6)) * keep;
+    if (s <= 0.001) continue;
+    const bh = b.h * s, x0 = b.x, y0 = FLAT_GY - bh;
+    k.fillStyle = b.c[0]; k.fillRect(x0, y0, b.w, bh);
+    k.fillStyle = b.c[1]; k.fillRect(x0 + b.w * 0.72, y0, b.w * 0.28, bh);     // 无渐变的扁平侧面
+    if (b.roof === 0) { k.beginPath(); k.moveTo(x0 - 3, y0); k.lineTo(x0 + b.w / 2, y0 - 12 * s); k.lineTo(x0 + b.w + 3, y0); k.closePath(); k.fillStyle = C.INK; k.fill(); }
+    else if (b.roof === 1) { k.fillStyle = C.INK; k.fillRect(x0 - 2, y0 - 4, b.w + 4, 4); }
+    k.fillStyle = b.c[0] === C.CR ? C.U : C.CR;
+    for (let yy = y0 + 8; yy < FLAT_GY - 10; yy += 12) for (let xx = x0 + 5; xx < x0 + b.w * 0.7 - 5; xx += 9) k.fillRect(xx, yy, 5, 6);
+  }
+  k.fillStyle = C.CR; k.fillRect(0, FLAT_GY, CW, CH - FLAT_GY);
+  k.fillStyle = C.CRD; k.fillRect(0, FLAT_GY + 14, CW, 3);
+  // 字标 popwise + 标语（4.6 秒弹性放大入场）
+  const ls = elasticOut(seg(u, 4.6, 5.2)) * keep;
+  if (ls > 0.001) {
+    k.save(); k.translate(28, 68); k.scale(ls, ls);
+    txt(k, 'popwise', 0, 0, `800 46px ${DISP}`, C.CR);
+    txt(k, 'EVERY DAY, A LITTLE WISER', 2, 18, `600 9px ${DISP}`, '#CFCFFF');
     k.restore();
   }
-  k.restore();
-  grain(k, 0.06, 'multiply');
+  // 圆点影子 + 残影 + 本体
+  const d = FLAT_dot(u), R = 16 * keep;
+  if (R > 0.2) {
+    k.fillStyle = rgba([21, 20, 51], 0.18 * clamp(1 - (FLAT_GY - 16 - d.y) / 90));
+    k.beginPath(); k.ellipse(d.x, FLAT_GY + 2, R * 1.1, 3.5, 0, 0, TAU); k.fill();
+    if (d.air) for (let j = 3; j >= 1; j--) {
+      const g = FLAT_dot(Math.max(0.2, u - j * 0.03));
+      k.fillStyle = rgba([255, 90, 78], 0.32 - j * 0.08);
+      k.beginPath(); k.ellipse(g.x, g.y, R * g.sx, R * g.sy, 0, 0, TAU); k.fill();
+    }
+    k.fillStyle = C.CO; k.beginPath(); k.ellipse(d.x, d.y, R * d.sx, R * d.sy, 0, 0, TAU); k.fill();
+  }
 };

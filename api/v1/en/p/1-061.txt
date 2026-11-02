@@ -1,15 +1,16 @@
-Please use "Rolling word cube" (単語キューブの回転), one of the names in "Interaction & data motion".
+Please use "Sticky header" (追従ヘッダー), filed under "Pages / Scrolling".
 Motion Prompt #1-061
 
-What it is: A headline whose keywords sit on the faces of a cube that rolls to the next one
-What the sample shows: The cube rolls down one face at a time to reveal the next word, the caption below flips with it, and a progress bar fills between rolls.
+What it is: The header stays at the top while the page scrolls
+What the sample shows: The announcement strip scrolls away, but the header below it stops at the top edge and the content scrolls underneath.
 Spec:
-- 4 keywords on 4 faces; face height 72 px, half-depth 36 px, perspective 520 px. It rolls down 1 face every 1.6 s, each roll taking 0.9 s.
-- Roll easing cubic-bezier(.5,-.25,.3,1.3) overshoots at both ends; the old front face dims to brightness .55 while the new one lights up.
-- The caption flips: the old line slides up and out, the new one springs in from below (.7 s spring, .4 s opacity); the current dot scales to 1.3×.
-- The bottom progress bar fills linearly over 1.6 s; 4 rolls make a full 360° and return to word 1.
-When to use it: Use it in a landing-page hero or 'What we do' section to cycle through services, stages or selling points.
+- Scroll: 0→110 px at 0.4–1.3 s, 110→250 px at 1.9–2.8 s, 250→0 at 3.4–4.4 s (cubic ease-in-out).
+- At the very top, a 22 px announcement strip (navy); below it a 34 px header (logo, three menu items, button).
+- Header position = max(22 − scroll, 0): once the strip is gone, it stops at the top edge (position: sticky; top: 0).
+- Over the next 24 px of scroll, a 12 px shadow under the header fades from 0 to 0.16 opacity.
+- The content (photo, heading, three cards) scrolls normally under the header.
+When to use it: Use it to keep the menu and the call-to-action within reach on a long page.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-061.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

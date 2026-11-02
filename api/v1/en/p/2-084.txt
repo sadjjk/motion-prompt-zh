@@ -1,15 +1,15 @@
-Please use "Gear train" (ギアトレイン), one of the names in "Motion graphics moves, part 2".
+Please use "Flight paths" (世界の航路), filed under "Shapes & objects / Information & tech".
 Motion Prompt #2-084
 
-What it is: Meshed gears turning at their tooth ratios
-What the sample shows: A large blue gear turns clockwise while coral and yellow pinions meshed with it spin faster the other way, teeth staying in each other's gaps; a status line sits beside them.
+What it is: Flight arcs and moving lights criss-crossing an angled dot-matrix map
+What the sample shows: On an angled dot map, orange arcs spring from hubs one after another, and lights travel along each finished arc to the far end.
 Spec:
-- Gears of 16, 10 and 8 teeth (module 6.4 px, pitch radius = 6.4 × teeth ÷ 2); the two small ones mesh with the big gear at −20° and 160°.
-- The big gear turns 180° (8 teeth) clockwise per 4.7 s; the small ones counter-rotate at their tooth ratios (all 8 teeth per cycle).
-- Starting angles are computed along each contact direction so teeth sit in gaps.
-- 6, 5 and 4 holes; on the right a status line with dots that grow every 0.39 s.
-When to use it: Use it for processing, settings or system status, or to explain how parts work together.
+- An angled, top-down dot-matrix map with 8 hubs and 14 routes on #060912.
+- Routes appear one by one between 0 and 2 s, each arc drawn in 1.2 s; arc height is 0.28× the route length.
+- Once drawn, a light loops along each arc, covering 0.35 of the route per second.
+- Routes are orange rgba(255, 170, 90), hubs glow blue; routes fade from 5.4 to 6.0 s while the map stays.
+When to use it: Use it as a hero background for logistics, airline or global companies, an opener for talks on international reach, or a data-viz transition.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-084.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

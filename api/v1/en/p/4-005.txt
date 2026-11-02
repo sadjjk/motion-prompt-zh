@@ -1,15 +1,15 @@
-Please use "Vertical verse" (縦書きの詩箋), one of the names in "Styled scenes".
+Please use "Isometric 2.5D" (アイソメトリック 2.5D), filed under "Animation styles / Space & material".
 Motion Prompt #4-005
 
-What it is: A classical Chinese poem appearing character by character in vertical columns on ruled letter paper
-What the sample shows: On paper ruled in red, Wang Wei's poem fades in column by column from the right with varied ink depth, and a red seal is stamped at the end.
+What it is: Isometric 2.5D: a miniature world seen from above at a fixed angle, with no vanishing point
+What the sample shows: On a lavender floating island, shadows land first, then pastel buildings spring up one after another, roofs drop on, windows light and data pulses between towers.
 Spec:
-- Red-ruled letter paper with 9 columns, 40 px per column and 30 px per character, on #E2D7C1.
-- The 44 characters of Wang Wei's poem appear from the right column on, 9.5 per second, each fading in over 1.5 s, finishing in about 4.6 s.
-- Ink depth varies by character order between 0.78 and 1.0; the title is 21 px bold, the body 23 px.
-- 1 character's time after the last, a 30 × 30 px seal 摩詰 in #B3261E is stamped; ink and seal fade out from 5.4 to 6.0 s while the ruling stays.
-When to use it: Use it as a hero for classical literature or heritage brands, an opener for poetry readings, or a transition in culture talks.
+- True isometric at 30°, 28 px per tile, a 12 × 4 tile island; outline colour #2C2960 with 6 pastel tones.
+- 14 buildings (8 back, 6 front) rise from 0.4 s, staggered by 0.25 s, each growing over 0.4 s with backOut, and the roof drops on 0.1 s later.
+- Windows light up one by one at 3.6–4.6 s; from 4.2 s a cyan #62F0F2 data stream runs between towers (4 trips per cycle).
+- 2 cars drive in opposite directions, 2 laps per cycle, and 5 trees pop up in turn; buildings shrink back into the ground at 5.4–6.0 s.
+When to use it: Use it for SaaS or smart-city explainers, system overviews seen from above and tech product promos.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-005.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

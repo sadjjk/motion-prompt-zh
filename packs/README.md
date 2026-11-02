@@ -2,19 +2,72 @@
 
 # Packs
 
-A pack is one field's set of names. Each list below is readable here on GitHub; the gallery shows the same names moving.
+The gallery and the skill sort every name into groups, sections and categories (`packs/categories.json`). A pack is only the folder its code lives in: one shared canvas size, cycle and helper code.
+
+## Categories
+
+| Group | Section | Category | Names | Numbers |
+|---|---|---|---|---|
+| 1 UI & Web | Components | Opening & overlays | 18 | #1 001~018 |
+| 1 UI & Web | Components | Choosing & input | 24 | #1 019~042 |
+| 1 UI & Web | Components | Navigation & menus | 8 | #1 043~050 |
+| 1 UI & Web | Components | Status & developer UI | 8 | #1 051~058 |
+| 1 UI & Web | Pages | Scrolling | 20 | #1 059~078 |
+| 1 UI & Web | Pages | Page transitions & loading | 9 | #1 079~087 |
+| 1 UI & Web | Pages | Hero backgrounds | 15 | #1 088~102 |
+| 1 UI & Web | Pointer interactions | Buttons | 12 | #1 103~114 |
+| 1 UI & Web | Pointer interactions | Hover | 8 | #1 115~122 |
+| 1 UI & Web | Pointer interactions | Cursor | 13 | #1 123~135 |
+| 1 UI & Web | Pointer interactions | Tactile & cards | 10 | #1 136~145 |
+| 1 UI & Web | Pointer interactions | Liquid interactions | 3 | #1 146~148 |
+| 1 UI & Web | Feedback | Action feedback | 10 | #1 149~158 |
+| 1 UI & Web | Feedback | Progress & icons | 8 | #1 159~166 |
+| 1 UI & Web | Feedback | AI status | 12 | #1 167~178 |
+| 1 UI & Web | Text & data | Interactive type | 8 | #1 179~186 |
+| 1 UI & Web | Text & data | Charts | 10 | #1 187~196 |
+| 2 Motion graphics | Motion principles | Entrances & easing | 9 | #2 001~009 |
+| 2 Motion graphics | Motion principles | Rhythm & loops | 9 | #2 010~018 |
+| 2 Motion graphics | Text animation | Letter by letter & layout | 11 | #2 019~029 |
+| 2 Motion graphics | Text animation | Morphing & texture | 12 | #2 030~041 |
+| 2 Motion graphics | Text animation | Impact & physics | 7 | #2 042~048 |
+| 2 Motion graphics | Text animation | Spatial type | 6 | #2 049~054 |
+| 2 Motion graphics | Shapes & objects | Lines & shapes | 9 | #2 055~063 |
+| 2 Motion graphics | Shapes & objects | Objects & machines | 12 | #2 064~075 |
+| 2 Motion graphics | Shapes & objects | Information & tech | 16 | #2 076~091 |
+| 2 Motion graphics | Effects & transitions | Particles & light | 8 | #2 092~099 |
+| 2 Motion graphics | Effects & transitions | Transitions | 12 | #2 100~111 |
+| 3 Editing & photography | Camera & editing | Camera movement | 8 | #3 001~008 |
+| 3 Editing & photography | Camera & editing | Shooting style & time | 8 | #3 009~016 |
+| 3 Editing & photography | Camera & editing | Cuts & transitions | 12 | #3 017~028 |
+| 3 Editing & photography | Shot size & composition | Shot size | 8 | #3 029~036 |
+| 3 Editing & photography | Shot size & composition | Composition | 7 | #3 037~043 |
+| 3 Editing & photography | Light & color | Lighting & time of day | 13 | #3 044~056 |
+| 3 Editing & photography | Light & color | Light sources & color | 8 | #3 057~064 |
+| 3 Editing & photography | Lens effects & finishing | Lens effects | 11 | #3 065~075 |
+| 3 Editing & photography | Lens effects & finishing | Grading & finishing | 8 | #3 076~083 |
+| 4 Visual styles | Animation styles | Flat & line | 4 | #4 001~004 |
+| 4 Visual styles | Animation styles | Space & material | 4 | #4 005~008 |
+| 4 Visual styles | Animation styles | Media & genres | 3 | #4 009~011 |
+| 4 Visual styles | Art movements | Modern & postmodern | 4 | #4 012~015 |
+| 4 Visual styles | Art movements | Digital & retro | 4 | #4 016~019 |
+| 4 Visual styles | Craft & patterns | Print & handmade | 2 | #4 020~021 |
+| 4 Visual styles | Craft & patterns | Geometric patterns | 5 | #4 022~026 |
+| 4 Visual styles | East Asian tradition | Calligraphy & painting | 2 | #4 027~028 |
+| 4 Visual styles | East Asian tradition | Objects & folk crafts | 1 | #4-029 |
+
+## Packs
 
 | Numbers | Pack | Names | Lists |
 |---|---|---|---|
-| #1 001~024 · 098~102 · 108~121 · 142~150 · 182~185 | `ui` — UI component names | 56 | [English](ui/README.md) · [日本語](ui/README.ja.md) · [简体中文](ui/README.zh-Hans.md) |
-| #1 025~048 · 103~107 · 122~127 · 151~163 · 186~189 | `lp` — Landing page & web effects | 52 | [English](lp/README.md) · [日本語](lp/README.ja.md) · [简体中文](lp/README.zh-Hans.md) |
-| #1 049~060 · 128 · 176~181 | `aiux` — Glow & liquid | 19 | [English](aiux/README.md) · [日本語](aiux/README.ja.md) · [简体中文](aiux/README.zh-Hans.md) |
-| #1 061~097 · 129~141 · 164~175 · 190~194 | `uxmotion` — Interaction & data motion | 67 | [English](uxmotion/README.md) · [日本語](uxmotion/README.ja.md) · [简体中文](uxmotion/README.zh-Hans.md) |
-| #2 001~024 | `motion` — Motion graphics moves | 24 | [English](motion/README.md) · [日本語](motion/README.ja.md) · [简体中文](motion/README.zh-Hans.md) |
-| #2 025~048 · 064~100 | `motion2` — Motion graphics moves, part 2 | 61 | [English](motion2/README.md) · [日本語](motion2/README.ja.md) · [简体中文](motion2/README.zh-Hans.md) |
-| #2 049~063 | `mgstyles` — MG styles | 15 | [English](mgstyles/README.md) · [日本語](mgstyles/README.ja.md) · [简体中文](mgstyles/README.zh-Hans.md) |
-| #3 001~024 · 049~056 · 064~067 | `camera` — Camera moves & transitions | 36 | [English](camera/README.md) · [日本語](camera/README.ja.md) · [简体中文](camera/README.zh-Hans.md) |
-| #3 025~048 · 057~063 · 068~083 | `photo` — Photo looks, lighting & styles | 47 | [English](photo/README.md) · [日本語](photo/README.ja.md) · [简体中文](photo/README.zh-Hans.md) |
-| #4 001~042 | `scenes` — Styled scenes | 42 | [English](scenes/README.md) · [日本語](scenes/README.ja.md) · [简体中文](scenes/README.zh-Hans.md) |
+| #2 001~006 · 010~012 · 019~021 · 055~056 · 092~096 · 100~104 | `motion` — Motion graphics moves | 24 | [English](motion/README.md) · [日本語](motion/README.ja.md) · [简体中文](motion/README.zh-Hans.md) |
+| #3 001~036 | `camera` — Camera moves & transitions | 36 | [English](camera/README.md) · [日本語](camera/README.ja.md) · [简体中文](camera/README.zh-Hans.md) |
+| #1 001~008 · 010~026 · 028~048 · 051~057 · 136~137 · 159 | `ui` — UI component names | 56 | [English](ui/README.md) · [日本語](ui/README.ja.md) · [简体中文](ui/README.zh-Hans.md) |
+| #1 009 · 027 · 049~050 · 058~067 · 079~086 · 088~090 · 103~113 · 115~123 · 138~139 · 143~145 · 162~163 | `lp` — Landing page & web effects | 52 | [English](lp/README.md) · [日本語](lp/README.ja.md) · [简体中文](lp/README.zh-Hans.md) |
+| #3 037~083 | `photo` — Photo looks, lighting & styles | 47 | [English](photo/README.md) · [日本語](photo/README.ja.md) · [简体中文](photo/README.zh-Hans.md) |
+| #1-078 · #2 007~009 · 013~018 · 022~028 · 030~040 · 042~051 · 057~067 · 076~080 · 105~111 | `motion2` — Motion graphics moves, part 2 | 61 | [English](motion2/README.md) · [日本語](motion2/README.ja.md) · [简体中文](motion2/README.zh-Hans.md) |
+| #1 096 · 098~101 · 114 · 146~148 · 164 · 167~175 | `aiux` — Glow & liquid | 19 | [English](aiux/README.md) · [日本語](aiux/README.ja.md) · [简体中文](aiux/README.zh-Hans.md) |
+| #1-102 · #2 029 · 041 · 052~054 · 068~075 · 081~091 · 097~099 · #4 012~014 · 016 · 020~029 | `scenes` — Styled scenes | 42 | [English](scenes/README.md) · [日本語](scenes/README.ja.md) · [简体中文](scenes/README.zh-Hans.md) |
+| #1 068~077 · 087 · 091~095 · 097 · 124~135 · 140~142 · 149~158 · 160~161 · 165~166 · 176~196 | `uxmotion` — Interaction & data motion | 67 | [English](uxmotion/README.md) · [日本語](uxmotion/README.ja.md) · [简体中文](uxmotion/README.zh-Hans.md) |
+| #4 001~011 · 015 · 017~019 | `mgstyles` — MG styles | 15 | [English](mgstyles/README.md) · [日本語](mgstyles/README.ja.md) · [简体中文](mgstyles/README.zh-Hans.md) |
 
 To add a pack for your field, or a language to an existing pack, see [CONTRIBUTING.md](../CONTRIBUTING.md).

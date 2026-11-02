@@ -1,52 +1,44 @@
 // Motion Prompt #4-025 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 //
-// Glass mosaic / ガラスモザイク
-// Pack: scenes (Styled scenes) · element 25 · Category: Patterns & graphics
-// What happens: Coloured glass tiles flip over in a wave from right to left to form a sunset over the sea, hold, then flip away again from the right.
+// Girih stars / ギリ星文様
+// Category: Visual styles / Craft & patterns / Geometric patterns
+// What happens: Turquoise tiles with cobalt eight-point stars light up one by one outward from the centre on dark navy, each star scaling open.
 // Motion spec:
-//   - 45 × 18 glass tiles of 12 px with 1.5 px grout; each tile's brightness varies between 0.85 and 1.15.
-//   - Sunset seascape: the top 55% is an orange-to-purple sky with an oval sun; below is a deep blue sea with a sun reflection on alternate rows.
-//   - From 0.2 s tiles flip into place from right to left, 0.35 s each, all in place by about 3.65 s.
-//   - From 5.4 s they flip away again from right to left, 0.25 s each, finishing by 6.3 s.
-// When to use it: Openers for travel, resort, architecture or interior content, a hero image reveal, or section breaks in a presentation.
-// Tags: mosaic, tiles, glass, sunset, flip, reveal, pixel
+//   - Dark navy background #0F1E3A. 11 × 7 tiles of 62 px, the whole grid tilted 0.12 rad.
+//   - Each tile: turquoise #1F8A8A ground, cream cross, cobalt #1C3F94 eight-point star (16 vertices), gold #D9A93C outline and 8 radiating lines.
+//   - From 0.2 s tiles light up in order of distance from the centre, stars scaling up from small; all are lit in about 2.5 s.
+//   - Holds until 5.4 s, then fades out over 5.4–6.0 s.
+// When to use it: Openers for Middle Eastern culture or travel content, backgrounds for Ramadan and other seasonal events, or title slides for architecture and craft talks.
+// Tags: girih, islamic-pattern, geometric, tiles, stars, reveal, ornament
 // Size: 539x208 px · Cycle: 6.4 s
-// Needs: kit scenes -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-025
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 25
-// 25 玻璃马赛克：45×18 块 12px 玻璃砖从右往左依次翻面落位（0.2–3.65 秒），拼出日落海景；5.4 秒起再从右往左翻回
-const MOS_SZ = 12, MOS_GAP = 1.5;
-const MOS_TILES = (() => {
-  const out = []; let n = 0;
-  for (let y = 0; y < CH; y += MOS_SZ) for (let x = 0; x < CW; x += MOS_SZ) {
-    const uu = x / CW, v = y / CH; let c;
-    if (v < 0.55) {                                          // 天空：橙红渐变到紫，椭圆落日 rx 46、ry 34
-      c = lerpC([255, 120, 80], [80, 60, 140], Math.pow(1 - v / 0.55, 1.2));
-      if (Math.hypot((x + MOS_SZ / 2 - CW * 0.55) / 46, (y + MOS_SZ / 2 - CH * 0.45) / 34) < 1) c = [255, 226, 170];
-    } else {                                                 // 海面：深蓝渐变，隔行的落日倒影
-      c = lerpC([30, 60, 120], [10, 20, 50], (v - 0.55) / 0.45);
-      if (Math.abs(x + MOS_SZ / 2 - CW * 0.55) < 40 * (1 - (v - 0.55) * 1.5) && Math.floor(y / MOS_SZ) % 2) c = [255, 170, 110];
-    }
-    const j = 0.85 + hash(n * 3 + 1) * 0.3; c = c.map(q => Math.min(255, Math.round(q * j)));
-    const t0 = 0.2 + (1 - uu) * 2.6 + hash(n * 3 + 2) * 0.5;       // 翻上：从右往左，0.35 秒
-    const t1 = SHOW + (1 - uu) * 0.5 + hash(n * 3 + 3) * 0.15;     // 翻回：5.4–6.3 秒，0.25 秒
-    out.push({ x, y, c: rgba(c, 1), t0, t1 }); n++;
-  }
-  return out;
-})();
-CELLS[24] = (k, w, h, u) => {
-  k.fillStyle = '#E8E2D6'; k.fillRect(0, 0, CW, CH);
-  const s = MOS_SZ - MOS_GAP, hi = new Path2D();
-  for (const t of MOS_TILES) {
-    const kk = out3(seg(u, t.t0, t.t0 + 0.35)) * (1 - out3(seg(u, t.t1, t.t1 + 0.25))); if (kk <= 0) continue;
-    const hh = s * kk, top = t.y + MOS_SZ / 2 - hh / 2;      // 绕水平中线翻转：高度按进度缩放
-    k.fillStyle = t.c; k.fillRect(t.x + MOS_GAP / 2, top, s, hh);
-    hi.rect(t.x + MOS_GAP / 2, top, s, 1.5 * kk);
-  }
-  k.fillStyle = 'rgba(255,255,255,.22)'; k.fill(hi);         // 每块砖顶部的一道光泽
-  grain(k, 0.05, 'multiply');
+// @element 22
+// 22 伊斯兰星纹：松石绿方格上钴蓝八角星、米白十字与金色描线，从中心一格格向外点亮（0.2–2.5 秒），停留后 5.4 秒淡出
+const GIR_S = 62;                                             // 格宽 62px（原 210px），整体转 0.12 rad
+const GIR_STAR = r => { const p = new Path2D(); for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, q = i % 2 ? r * 0.62 : r; i ? p.lineTo(Math.cos(a) * q, Math.sin(a) * q) : p.moveTo(q, 0); } p.closePath(); return p; };
+const GIR_P = { big: GIR_STAR(GIR_S * 0.44), small: GIR_STAR(GIR_S * 0.2) };
+const GIR_GRID = []; for (let gy = -3; gy <= 3; gy++) for (let gx = -5; gx <= 5; gx++) GIR_GRID.push([gx, gy, Math.hypot(gx, gy)]);
+function girCell(k, x, y, a) {                                // a：点亮进度 0..1（透明度与星形缩放）
+  const S = GIR_S; k.save(); k.translate(x, y); k.globalAlpha = a;
+  k.fillStyle = '#1F8A8A'; k.fillRect(-S / 2, -S / 2, S, S);
+  k.fillStyle = '#F2EBDC'; k.beginPath();
+  for (let i = 0; i < 4; i++) { k.rotate(Math.PI / 2); k.moveTo(-S * 0.12, -S / 2); k.lineTo(S * 0.12, -S / 2); k.lineTo(S * 0.12, -S * 0.3); k.lineTo(-S * 0.12, -S * 0.3); }
+  k.fill();
+  k.save(); k.scale(a, a); k.fillStyle = '#1C3F94'; k.fill(GIR_P.big); k.fillStyle = '#F2EBDC'; k.fill(GIR_P.small);
+  k.fillStyle = '#D9A93C'; k.beginPath(); k.arc(0, 0, S * 0.06, 0, TAU); k.fill(); k.restore();
+  k.strokeStyle = '#D9A93C'; k.lineWidth = 1.1; k.stroke(GIR_P.big); k.beginPath();
+  for (let i = 0; i < 8; i++) { const t = i / 8 * TAU; k.moveTo(Math.cos(t) * S * 0.44, Math.sin(t) * S * 0.44); k.lineTo(Math.cos(t) * S * 0.72, Math.sin(t) * S * 0.72); }
+  k.stroke(); k.restore();
+}
+function girAll(k, p) { k.save(); k.translate(269.5, 104); k.rotate(0.12); for (const [gx, gy, d] of GIR_GRID) { const a = out3(clamp(p - d * 0.45)); if (a > 0) girCell(k, gx * GIR_S, gy * GIR_S, a); } k.restore(); }
+CELLS[21] = (k, w, h, u) => {
+  k.fillStyle = '#0F1E3A'; k.fillRect(0, 0, CW, CH);
+  const p = (u - 0.2) * 1.6, fade = fadeIn(u);                // 距中心 d 格的格子在 p = 0.45d 时开始点亮；最远 d≈5.83，约 2.5 秒全部点亮
+  if (p > 0 && fade > 0) { k.save(); k.globalAlpha = fade; girAll(k, p); k.restore(); }
+  grain(k, 0.06);
 };

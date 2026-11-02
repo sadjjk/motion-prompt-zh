@@ -1,7 +1,7 @@
 // Motion Prompt #3-015 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#039
 //
 // Time-lapse / タイムラプス
-// Pack: camera (Camera moves & transitions) · element 15 · Category: Shooting Style & Time
+// Category: Editing & photography / Camera & editing / Shooting style & time
 // What happens: With a fixed camera, 06:00 to 18:00 is compressed into a few seconds; sun, clouds, people and shadows move in fast forward.
 // Motion spec:
 //   - Camera: completely fixed (height 1.6 m, pitch +0.08 rad, about 5° up)
@@ -13,11 +13,11 @@
 // When to use it: To show a long stretch of time, or how a city, sky or task changes, in a short clip.
 // Tags: time-lapse, timelapse, fast forward, time compression, sun, clouds, day to night
 // Size: 539x208 px · Cycle: 9.4 s
-// Needs: kit camera -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-015
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
 // @element 15
 // 15 タイムラプス: 太陽が動き、雲と人が早送り

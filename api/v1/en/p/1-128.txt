@@ -1,15 +1,15 @@
-Please use "Sunburst rays" (サンバースト), one of the names in "Glow & liquid".
+Please use "Cursor lens reveal" (カーソルのレンズで現れる文), filed under "Pointer interactions / Cursor".
 Motion Prompt #1-128
 
-What it is: Radiating light rays that slowly turn behind a headline
-What the sample shows: On a dark background, golden rays fan out from behind a centred headline and turn slowly, fading into the background towards the edges.
+What it is: A round lens at the cursor that reveals a different message underneath
+What the sample shows: A round lens chases the pointer springily over a two-line headline, revealing another sentence on dark ground; a click expands it to full size, another shrinks it back.
 Spec:
-- 12 rays, each 45% of its spacing, fan out from the headline centre to a 300 px radius.
-- The rays turn at a constant speed, exactly one spacing (30°) per 4.8 s cycle, so the loop is seamless.
-- A radial mask keeps the centre brightest and fades the rays into the background; a warm core glow of 120 px radius sits behind the headline.
-- The headline brightness breathes gently by ±6%.
-When to use it: Use it for award and prize reveals, achievement badges and campaign headlines that should feel celebratory.
+- 2 lines of 58 px bold text on #F5F1E8; a 54 px round lens reveals another sentence on #1D1A16, highlighted in #FFD43B / #FF8787.
+- The lens follows the pointer on a spring (stiffness 260, damping 24) and stretches up to 35% along the direction of fast motion.
+- In the demo, a click at 2.8 s expands the lens to the whole card at a rate of 5/s; a second click at 4.1 s shrinks it back to 54 px at 12/s.
+- When the pointer leaves the area the lens shrinks to 0; its edge has a 1.5 px yellow stroke.
+When to use it: Use it on brand or campaign page headlines to add the fun of discovering a hidden message.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-128.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

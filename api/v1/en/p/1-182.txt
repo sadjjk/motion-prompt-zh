@@ -1,16 +1,15 @@
-Please use "Comet-trail dial" (光の尾を引くダイヤル), one of the names in "UI component names".
+Please use "Word-by-word kinetic captions" (単語ごとのキネティック字幕), filed under "Text & data / Interactive type".
 Motion Prompt #1-182
 
-What it is: A rotary knob whose indicator dot leaves a fading comet tail as it turns
-What the sample shows: A white ceramic knob sits in a ring of ticks on a warm grey panel, with the volume number on the right. The cursor grabs and turns it: a blue dot travels inside the ring with a comet tail, passed ticks flash and fade, and the number and level bar climb. On release the tail shrinks and the number pops, then the knob springs back on its own with a slight overshoot.
+What it is: Video captions that pop in word by word in time with speech
+What the sample shows: When playback starts, words bounce up one at a time, key words swell and tilt before landing in yellow, and finished lines fold up and vanish.
 Spec:
-- 542×191 card, 4.5 s cycle. A knob of radius 45 sits in a tick ring from 0 to 100, one tick every 2 and a long tick every 10, sweeping 270° clockwise from 135°.
-- The cursor grabs the knob at 0.85 s and turns the value 24 → 72 over 0.95–2.35 s with easeInOutCubic.
-- The dot runs on a radius 60 track; its tail is the arc covered in the last 0.32 s, drawn as 14 fading segments, so faster turns give longer tails.
-- Ticks the dot passes glow blue and fade over 0.4 s; ticks at or below the current value stay ink.
-- Release at 2.35 s: the tail shrinks and the number pops for 0.5 s. From 2.8–3.65 s the knob springs back 72 → 24 with a slight overshoot.
-When to use it: Use it for volume, brightness or temperature controls in smart-home and audio apps where a value is turned continuously.
+- Words follow the speech rhythm: .30 s each plus a random 0–.08 s; key words get an extra .12 s before and .22 s after.
+- Normal words pop in over .35 s from 12 px below at .6 scale, easing cubic-bezier(.3,1.6,.5,1).
+- Key words swell to 1.45× and tilt -3° within .6 s, then settle back to 1× while turning yellow #FFE066.
+- A finished line folds up 70° and rises 26 px as it fades (.45 s); 26 voice bars below change height every 90 ms.
+When to use it: Use it as motion captions in short videos, product demos and podcast clips to stress key numbers or selling points.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-182.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,15 +1,15 @@
-Please use "Sci-fi HUD" (SF の計器), one of the names in "Styled scenes".
+Please use "Aurora gradient & glass" (オーロラグラデーション・グラス), filed under "Animation styles / Space & material".
 Motion Prompt #4-008
 
-What it is: A sci-fi heads-up display of turning concentric dials and live readouts
-What the sample shows: Cyan concentric rings turn in opposite directions on deep navy while a scan sector sweeps and the central readout and side data keep changing.
+What it is: A soft-glow tech look: half-transparent frosted-glass cards floating over a dark aurora gradient
+What the sample shows: Aurora glows flow slowly over a dark background, 2 glass cards bob gently, chat lines appear one by one, and a glass lens sweeps back and forth magnifying the scene.
 Spec:
-- Centred at (200, 104) with 8 concentric rings; 6 of them turn 0.5–3 laps per 6.4 s in mixed directions.
-- An outer scale of 120 ticks (a 6 px long tick every 10); an inner scan sector turns 2 laps per 6.4 s.
-- The central readout swings between 75 and 99 along a sine, set in 28 px thin type.
-- 6 data rows CH-1 to CH-6 on the right rise and fall 2 times per 6.4 s; lines rgba(90, 220, 255) on #04101C.
-When to use it: Use it to open tech launch videos, as a hero background for games or sci-fi titles, or as an idle screen for data dashboards.
+- Deep indigo-black #040312 background with 5 aurora glows (#7050FF, #2F46F2, #34CFF0, #B653F0, #3320A8), drawn on a 68 × 26 low-res canvas and scaled up into a soft blur; they drift 1 loop per cycle.
+- 2 frosted-glass cards: white fill at 8%, 1 px white border at 30%, a top highlight, and the backdrop scaled 1.08× and offset to fake refraction. They bob 2 times per cycle (2.5 px amplitude).
+- Chat lines fade in one by one while rising 8 px (at 0.6, 1.3, 2.0, 2.7 s). At 3.4–4.0 s a Focus toggle slides on, and 18 waveform bars keep pulsing.
+- A liquid-glass lens of radius 30 px sweeps across 1 round trip per cycle, magnifying what is below 1.35× with cyan/magenta fringes. Text fades out at 5.4–6.0 s.
+When to use it: Openings and feature demos in launch films for AI products, phone operating systems or smart devices.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-008.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

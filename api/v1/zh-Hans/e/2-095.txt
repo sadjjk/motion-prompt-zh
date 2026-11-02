@@ -1,38 +1,42 @@
-// Motion Prompt #2-095 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
+// Motion Prompt #2-095 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#023
 //
-// 多语问候切换 / Multilingual greeting
-// 分类包: motion2 (动态图形进阶) · element 56 · 子分类: 文字与图形
-// 动画表现: 胶囊框里「你好」「Hello」「こんにちは」「Bonjour」向上模糊淡出、从下方模糊淡入，框宽与后面的圆点随词长平滑移动。
+// 故障干扰 / Glitch
+// 分类: 动态图形 / 特效与转场 / 粒子与光效
+// 动画表现: 文字切片横向错位，颜色分离并出现短色条，不产生亮度闪烁。
 // 运动规格:
-//   - 4 个词每 1.175 秒切换一次（4.7 秒一轮）
-//   - 旧词在 0.3 秒内上移 18 px、模糊到 6 px 淡出
-//   - 新词 0.15–0.5 秒从下方 18 px 处出现，模糊 6 px → 0
-//   - 0–0.5 秒框宽以三次缓入缓出变为新词宽度加左右各 30 px，后面的圆点同步移动
-// 适用场景: 适合国际化品牌、旅行或语言服务的首屏和欢迎页。
-// 标签: greeting, multilingual, hello, rotate-words, blur, hero
+//   - 文字为 104 px 白色粗体；每 4.7 秒干扰两次：0.55–1.25 秒为 5 帧，2.9–3.74 秒为 6 帧，其余时间静止。
+//   - 每帧持续 0.14 秒，显示固定的干扰状态，逐帧跳变而非平滑运动。
+//   - 颜色分离：珊瑚色副本左移 7–16 px、下移 2 px；青色（#22D3EE）副本等量右移并上移 2 px；最上层叠白色文字。
+//   - 切片错位：2–4 条横向切片，高 10–35 px、y 40–150，向左或向右错开 18–64 px。
+//   - 随机放置三根小色条，颜色为珊瑚、青、黄，宽 30–120、高 5–12。
+//   - 背景亮度不变，不做全屏闪烁；随机数使用固定种子。
+// 适用场景: 适合为标题或转场添加数字、报错或不安氛围。
+// 标签: glitch, rgb-split, chromatic-aberration, distortion, digital, error, slice
 // 尺寸: 539x208 px · 周期: 4.7 s
-// 依赖: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-095
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 56
-// 改写自 KittenJam Motion Library #301（Hannah）· 多语问候切换：胶囊框里每 1.175 秒换一种语言的问候（你好 → Hello → こんにちは → Bonjour）：旧词 0.3 秒上移 18px、模糊到 6px 淡出，新词 0.15–0.5 秒从下方模糊淡入；框宽以三次缓入缓出平滑变为新词宽度，后面的圆点跟着移动。
-const GRT_W = ['你好', 'Hello', 'こんにちは', 'Bonjour'];
-CELLS[55] = (k, w, h, u) => {
-  u = snapU(u);
+// @element 23
+// 23 グリッチ（文字が横にずれ、色がずれ、帯が走る。明るさの点滅はさせない）
+const TMP = mkCanvas(CW, CH), TK = TMP.getContext('2d');
+const GL = (() => { const R = rand(231), st = []; for (let s = 0; s < 12; s++) { const sl = [], n = 2 + Math.floor(R() * 3); for (let i = 0; i < n; i++) sl.push({ y: Math.floor(40 + R() * 110), h: 10 + Math.floor(R() * 26), dx: Math.round((R() < .5 ? -1 : 1) * (18 + R() * 46)) }); const bars = []; for (let i = 0; i < 3; i++) bars.push({ x: 30 + R() * 420, y: 30 + R() * 150, w: 30 + R() * 90, h: 5 + R() * 7, c: i }); st.push({ sl, bars, rgb: 7 + Math.round(R() * 9) }); } return st; })();
+const GLC = mkCanvas(CW, CH), GK = GLC.getContext('2d'), GLT = mkCanvas(CW, CH), GT = GLT.getContext('2d');
+CELLS[22] = (k, w, h, u) => {
+  const content = kk => { txt(kk, 'GLITCH', w / 2, h / 2 + 4, `800 104px ${DISP}`, '#fff', 'center', 'middle', '2px'); };
+  const step = 0.14; let si = -1;
+  if (u >= 0.55 && u < 0.55 + step * 5) si = Math.floor((u - 0.55) / step);
+  else if (u >= 2.9 && u < 2.9 + step * 6) si = 5 + Math.floor((u - 2.9) / step);
   stage(k);
-  const F = `800 44px ${JP}`, N = GRT_W.length, T = CYC / N, n = Math.min(N - 1, Math.floor(u / T)), lt = u - n * T;
-  const cur = GRT_W[n], prev = GRT_W[mod(n - 1, N)], PAD = 30, H = 76, CY = 92;
-  const pw = lerp(tw(k, prev, F) + PAD * 2, tw(k, cur, F) + PAD * 2, eIO(P(lt, 0, 0.5)));
-  const x0 = w / 2 - (pw + 30) / 2;
-  rr(k, x0, CY - H / 2, pw, H, H / 2); k.fillStyle = C.navy2; k.fill(); k.strokeStyle = C.navy3; k.lineWidth = 2; k.stroke();
-  k.save(); rr(k, x0, CY - H / 2, pw, H, H / 2); k.clip();
-  const qo = P(lt, 0, 0.3), qi = P(lt, 0.15, 0.5);
-  if (qo < 1) { k.globalAlpha = 1 - qo; k.filter = `blur(${(6 * qo).toFixed(2)}px)`; txt(k, prev, x0 + pw / 2, CY - 18 * eOut(qo), F, '#fff', 'center', 'middle'); }
-  if (qi > 0) { k.globalAlpha = qi; k.filter = `blur(${(6 * (1 - qi)).toFixed(2)}px)`; txt(k, cur, x0 + pw / 2, CY + 18 * (1 - eOut(qi)), F, '#fff', 'center', 'middle'); }
-  k.restore();
-  k.fillStyle = C.coral; k.beginPath(); k.arc(x0 + pw + 18, CY + 16, 7, 0, 7); k.fill();
-  txt(k, '来自世界各地的问候', w / 2, 172, `600 14px ${JP}`, C.dim, 'center', 'alphabetic');
+  if (si < 0) { content(k); return; }
+  const S = GL[si];
+  TK.setTransform(1, 0, 0, 1, 0, 0); TK.clearRect(0, 0, w, h); content(TK);
+  const tint = col => { GT.setTransform(1, 0, 0, 1, 0, 0); GT.globalCompositeOperation = 'source-over'; GT.clearRect(0, 0, w, h); GT.drawImage(TMP, 0, 0); GT.globalCompositeOperation = 'source-in'; GT.fillStyle = col; GT.fillRect(0, 0, w, h); GT.globalCompositeOperation = 'source-over'; return GLT; };
+  GK.setTransform(1, 0, 0, 1, 0, 0); GK.fillStyle = C.navy; GK.fillRect(0, 0, w, h);
+  GK.drawImage(tint(C.coral), -S.rgb, 2); GK.drawImage(tint('#22D3EE'), S.rgb, -2); GK.drawImage(TMP, 0, 0);
+  k.drawImage(GLC, 0, 0);
+  for (const sl of S.sl) { k.fillStyle = C.navy; k.fillRect(0, sl.y, w, sl.h); k.drawImage(GLC, 0, sl.y, w, sl.h, sl.dx, sl.y, w, sl.h); }
+  for (const b of S.bars) { k.fillStyle = [C.coral, '#22D3EE', C.yel][b.c]; k.fillRect(b.x, b.y, b.w, b.h); }
 };

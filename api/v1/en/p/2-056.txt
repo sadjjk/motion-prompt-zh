@@ -1,15 +1,17 @@
-Please use "Liquid motion" (リキッドモーション), one of the names in "MG styles".
+Please use "Shape morph" (モーフィング), filed under "Shapes & objects / Lines & shapes".
 Motion Prompt #2-056
 
-What it is: Liquid motion: glossy fluid that swells, pinches off, drips and merges back together
-What the sample shows: Drops bulge out of the top band, neck and break free, a small droplet follows, and each splashes flat into the pool below.
+What it is: One shape turns smoothly into another
+What the sample shows: A shape changes smoothly from circle to square to star to heart, with its colour.
 Spec:
-- 6 lanes under the top band, each dripping once every 3.2 s (2 times per cycle, phases staggered).
-- 0–40%: the drop bulges and necks; 40–75%: it breaks off and falls (a smaller droplet trails 0.12 behind); 75–100%: it lands in the pool and spreads flat.
-- Metaballs merge on a half-resolution 270×104 buffer via 4 px blur + contrast 24, then take the #FF5C0F→#FF1A70→#8F1FFF gradient.
-- A mask differenced against itself shifted 1.5 px gives a top-left glossy rim; the drop. wordmark (60 px) stays in the centre.
-When to use it: Use it for drink and cosmetics ads, music or event teasers, and brand openers that need a smooth, fluid feel.
+- Four shapes, 1.175 s each: circle → square with rounded-off corners → star → heart → back to circle. Base radius 64.
+- Each segment holds first, then morphs to the next shape between 0.62 s and 0.04 s before its end (0.58 s).
+- Every outline is stored as 240 points; points with the same index are linearly interpolated. Progress uses backOut (s = 1.6), so it overshoots slightly.
+- Colour: blue → coral → yellow → mint, blended with quadratic ease-in-out.
+- During the morph the scale swells by 1 + 0.07 × sin(π × progress).
+- Four dots below; the dot for the current shape is larger and coloured.
+When to use it: Use it to turn one icon or logo into another without a cut.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-056.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

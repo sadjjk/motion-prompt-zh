@@ -1,15 +1,15 @@
-Please use "Glass mosaic" (ガラスモザイク), one of the names in "Styled scenes".
+Please use "Girih stars" (ギリ星文様), filed under "Craft & patterns / Geometric patterns".
 Motion Prompt #4-025
 
-What it is: A glass mosaic whose small tiles flip into place to form a sunset seascape
-What the sample shows: Coloured glass tiles flip over in a wave from right to left to form a sunset over the sea, hold, then flip away again from the right.
+What it is: An Islamic girih tiling of eight-point stars and crosses that lights up from the centre
+What the sample shows: Turquoise tiles with cobalt eight-point stars light up one by one outward from the centre on dark navy, each star scaling open.
 Spec:
-- 45 × 18 glass tiles of 12 px with 1.5 px grout; each tile's brightness varies between 0.85 and 1.15.
-- Sunset seascape: the top 55% is an orange-to-purple sky with an oval sun; below is a deep blue sea with a sun reflection on alternate rows.
-- From 0.2 s tiles flip into place from right to left, 0.35 s each, all in place by about 3.65 s.
-- From 5.4 s they flip away again from right to left, 0.25 s each, finishing by 6.3 s.
-When to use it: Openers for travel, resort, architecture or interior content, a hero image reveal, or section breaks in a presentation.
+- Dark navy background #0F1E3A. 11 × 7 tiles of 62 px, the whole grid tilted 0.12 rad.
+- Each tile: turquoise #1F8A8A ground, cream cross, cobalt #1C3F94 eight-point star (16 vertices), gold #D9A93C outline and 8 radiating lines.
+- From 0.2 s tiles light up in order of distance from the centre, stars scaling up from small; all are lit in about 2.5 s.
+- Holds until 5.4 s, then fades out over 5.4–6.0 s.
+When to use it: Openers for Middle Eastern culture or travel content, backgrounds for Ramadan and other seasonal events, or title slides for architecture and craft talks.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-025.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

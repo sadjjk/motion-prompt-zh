@@ -1,54 +1,57 @@
 // Motion Prompt #1-137 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// Send plane button / 紙飛行機の送信ボタン
-// Pack: uxmotion (Interaction & data motion) · element 46 · Category: Progress feedback
-// What happens: The purple button dips and recovers, its label slides off to the right, and the paper plane winds back before shooting off to the top right; the button turns green with a sent label sliding in, then everything returns and the plane flies back.
+// Folding card / 二つ折りカード
+// Category: UI & Web / Pointer interactions / Tactile & cards
+// What happens: The cursor clicks the navy cover; it swings open on its left edge to show the inner left half while 3 lines on the right fade up in turn, and it closes again at the end.
 // Motion spec:
-//   - Button 210 × 54 px; pressed at 0.95 s, it dips to 0.94 and springs back.
-//   - From 1.0–1.3 s the label moves 16 px right as it fades; the plane winds back 6 px from 1.0–1.2 s.
-//   - From 1.2–1.8 s it accelerates with t³ to the top right (+300 px, −60 px, rotating −25°), clipped by the button.
-//   - From 1.75–2.05 s the button turns green and the sent label slides in from the left; from 3.3–3.9 s the original label returns and the plane flies back from 40 px left and 24 px below.
-// When to use it: Use it on message, contact-form and newsletter submit buttons to confirm sending with some delight.
-// Tags: send-button, paper-plane, submit, success, button, micro-interaction
-// Size: 539x208 px · Cycle: 6.4 s
-// Needs: kit uxmotion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+//   - A closed 150×130 card with a navy cover reading "Invitation".
+//   - The cursor clicks the cover at 0.8 s; over 0.9–1.6 s the cover opens on its left edge (scaleX 1 → −1, easeInOut power 3), showing the inner left half once past 0, while the whole card moves 75px right to stay centred.
+//   - The 3 lines inside fade in and rise 6px from 1.6, 1.8 and 2.0 s, 0.3 s each.
+//   - At 3.4 s the inside is clicked: the text fades out over 3.4–3.6 s, and over 3.6–4.2 s the cover closes and the card slides back.
+// When to use it: Use it for invitations, greeting cards or announcements where opening should feel like a small reveal.
+// Tags: folding-card, invitation, card-open, reveal, greeting, click
+// Size: 542x191 px · Cycle: 4.5 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-137
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 46
-// 46 纸飞机发送（KittenJam #241）：指针 0.95 秒按下发送按钮（缩到 .94 回弹）；1.0–1.3 秒文字右移 16px 淡出，纸飞机 1.0–1.2 秒后撤 6px 蓄力，
-// 1.2–1.8 秒按 t³ 加速向右上飞出按钮（+300px、-60px、转 -25°，被按钮裁切）；1.75–2.05 秒按钮转绿、「已发送 ✓」从左滑入；3.3–3.9 秒换回原文，飞机从左下飞回。
-const SND_CX = 269.5, SND_CY = 104, SND_W = 210, SND_H = 54;
-const SND_KEYS = [[0, 570, 230], [0.3, 570, 230], [0.85, 300, 118], [1.05, 300, 118], [1.7, 570, 230]];
-function SND_plane(k, x, y, rot) {
-  k.save(); k.translate(x, y); k.rotate(rot);
-  k.fillStyle = '#FFFFFF'; k.beginPath(); k.moveTo(-10, -1); k.lineTo(11, -9); k.lineTo(4, 10); k.lineTo(1, 2); k.closePath(); k.fill();
-  k.strokeStyle = 'rgba(0,0,0,.18)'; k.lineWidth = 1; k.beginPath(); k.moveTo(1, 2); k.lineTo(11, -9); k.stroke();
-  k.restore();
-}
-CELLS[45] = (k, w, h, u) => {
-  k.fillStyle = UX.page; k.fillRect(0, 0, CW, CH);
-  const pr = UXB_press(u, 0.95), bs = 1 - 0.06 * pr, x0 = SND_CX - SND_W / 2, y0 = SND_CY - SND_H / 2;
-  const si = out3(seg(u, 1.75, 2.05)), so = out3(seg(u, 3.3, 3.55));
-  const col = UXB_mix(UX.accent, UX.mint, inOut3(seg(u, 1.75, 2.05)) * (1 - inOut3(seg(u, 3.3, 3.6))));
-  k.save(); k.translate(SND_CX, SND_CY); k.scale(bs, bs); k.translate(-SND_CX, -SND_CY);
-  k.save(); k.shadowColor = UX.shadow; k.shadowBlur = 16; k.shadowOffsetY = 6; rr(k, x0, y0, SND_W, SND_H, SND_H / 2); k.fillStyle = rgba(col, 1); k.fill(); k.restore();
-  rr(k, x0, y0, SND_W, SND_H, SND_H / 2); k.clip();
-  const to = out3(seg(u, 1.0, 1.3)), ti = out3(seg(u, 3.45, 3.75));
-  k.globalAlpha = u < 3.45 ? 1 - to : ti;
-  txt(k, '发送消息', SND_CX + 14 + (u < 3.45 ? 16 * to : -10 * (1 - ti)), SND_CY + 5.5, UXB_f(800, 15), '#FFFFFF', 'center');
-  k.globalAlpha = si * (1 - so);
-  txt(k, '已发送 ✓', SND_CX - 16 * (1 - si) + 10 * so, SND_CY + 5.5, UXB_f(800, 15), '#FFFFFF', 'center');
-  k.globalAlpha = 1;
-  let px = x0 + 44, py = SND_CY, rot = 0;
-  if (u >= 1.0 && u < 3.4) {
-    const w1 = inOut3(seg(u, 1.0, 1.2)), f = Math.pow(seg(u, 1.2, 1.8), 3);
-    px += -6 * w1 + 300 * f; py += -60 * f; rot = (-10 * w1 - 15 * f) * Math.PI / 180;
-  } else if (u >= 3.4) { const r = out3(seg(u, 3.4, 3.9)); px -= 40 * (1 - r); py += 24 * (1 - r); rot = 20 * (1 - r) * Math.PI / 180; }
-  SND_plane(k, px, py, rot);
-  k.restore();
-  const c = UXB_path(u, SND_KEYS);
-  if (u > 0.3 && u < 1.7) cursor(k, c[0], c[1], pr);
-};
+// @element 42
+// 改写自 KittenJam Motion Library #311 对折邀请卡：150×130 合起的卡片居中，封面深蓝带「邀请函」。
+// 光标 0.8 秒点封面，0.9–1.6 秒封面以左边为轴打开（scaleX 1→−1，easeInOut 3 次方），过 0 后显示浅色内页左半；
+// 同时整张卡右移 75px 保持居中。内页右半三行文字 1.6 / 1.8 / 2.0 秒起各 0.3 秒淡入并上移 6px；
+// 3.4 秒点内页左半，文字 3.4–3.6 秒淡出，3.6–4.2 秒封面合上、卡片回到原位。
+const INVITE_W = 150, INVITE_H = 130, INVITE_Y = 30;
+const INVITE_L = [['诚邀您参加', 12, 500, C.hint], ['年度设计之夜', 18, 800, C.ink], ['10 月 29 日 19:00', 12, 600, C.blue]];
+CELLS[41] = ui((w, h, t) => {
+  X.fillStyle = C.bg; X.fillRect(0, 0, w, h);
+  const q = eio(seg(t, .9, 1.6)) * (1 - eio(seg(t, 3.6, 4.2)));
+  const s = Math.cos(Math.PI * q), hx = 196 + 75 * q;
+  // 内页右半（被封面盖住的那面）
+  shadowed(() => fillRR(hx, INVITE_Y, INVITE_W, INVITE_H, 6, '#fffdf8'), 14, 4, .14);
+  const fade = 1 - seg(t, 3.4, 3.6);
+  INVITE_L.forEach(([s0, sz, wt, col], i) => {
+    const p = eo(seg(t, 1.6 + i * .2, 1.9 + i * .2)) * fade;
+    if (p <= 0) return;
+    X.save(); X.globalAlpha = p; text(s0, hx + INVITE_W / 2, INVITE_Y + 40 + i * 26 + 6 * (1 - p), sz, col, wt, 'center', i === 2 ? NUMF : JP); X.restore();
+  });
+  // 封面 / 内页左半：以 hx 为轴压缩
+  const cw = INVITE_W * Math.abs(s);
+  if (cw > .5) {
+    X.save(); X.translate(hx, 0); X.scale(Math.abs(s), 1);
+    if (s > 0) {
+      fillRR(0, INVITE_Y, INVITE_W, INVITE_H, 6, '#1d3a8a');
+      strokeRR(10, INVITE_Y + 10, INVITE_W - 20, INVITE_H - 20, 4, 'rgba(255,255,255,.35)', 1);
+      text('邀请函', INVITE_W / 2, INVITE_Y + 58, 20, '#fff', 800, 'center');
+      bar(INVITE_W / 2 - 24, INVITE_Y + 80, 48, 'rgba(255,255,255,.4)', 4);
+    } else {
+      fillRR(-INVITE_W, INVITE_Y, INVITE_W, INVITE_H, 6, '#f6f1e7');
+      circle(-INVITE_W / 2, INVITE_Y + INVITE_H / 2, 22, C.lb); text('★', -INVITE_W / 2, INVITE_Y + INVITE_H / 2 + 1, 18, C.blue, 700, 'center', NUMF);
+    }
+    const d = .3 * (1 - Math.abs(s));
+    if (d > 0) { X.fillStyle = `rgba(20,24,40,${d})`; X.fillRect(s > 0 ? 0 : -INVITE_W, INVITE_Y, INVITE_W, INVITE_H); }
+    X.restore();
+  }
+  pointer([[0, w + 30, h + 30], [.7, 290, 110], [1.2, 290, 110], [2.0, 470, 170], [3.0, 470, 170], [3.35, 200, 120], [3.6, 200, 120], [4.4, w + 30, h + 30]], [.8, 3.4], t);
+});

@@ -1,45 +1,47 @@
-// Motion Prompt #1-009 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#057
+// Motion Prompt #1-009 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#088
 //
-// 标签页 / Tabs
-// 分类包: ui (UI 组件) · element 09 · 子分类: 选择与切换
-// 动画表现: 依次点击“概览、价格、评价”，蓝色下划线移动，下方内容切换。
+// 离站挽留弹窗 / Exit-intent popup
+// 分类: 界面与网页 / 组件 / 弹出与覆盖
+// 动画表现: 光标向页顶浏览器标签和关闭按钮移动时，页面变暗并弹出“稍等”窗口，点 × 关闭。
 // 运动规格:
-//   - 542×191 卡片，周期 4.5 秒。三个标签 x 为 24, 114, 204，宽为 70, 70, 100；y 50 处有 2 px 分隔线和 4 px 蓝色下划线。
-//   - 光标于 1.0 秒点击第二项、2.2 秒第三项、3.4 秒第一项。
-//   - 每次点击后，下划线的位置与宽度在 0.25 秒内以 easeInOutCubic 移至新标签；从第三项返回第一项时经过中间。
-//   - 选中标签为蓝色粗体，其余灰色；状态在 1.1, 2.3, 3.5 秒切换。
-//   - 旧内容在 0.2 秒内线性淡出；0.1 秒后新内容开始用 0.2 秒淡入，同时上移 8 px。
-// 适用场景: 适合在同一空间切换多个相关视图。
-// 标签: tabs, tab-bar, tabbed, navigation, switch-view, underline
-// 尺寸: 542x191 px · 周期: 4.5 s
-// 依赖: kit ui -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/ui.js
+//   - 光标在 0.7–1.25 秒从页面上移至浏览器地址栏，采用三次缓入缓出。
+//   - 光标越过视口顶边 y = 0 时触发，约 1.07 秒，等价于 document 的 mouseleave 且 clientY ≤ 0。
+//   - 触发后 0.05–0.45 秒以三次缓出打开；深蓝遮罩透明度 0→0.5，弹窗为 260 × 132、圆角 12，透明度 0→1、缩放 0.9→1。
+//   - 内部有标题、橙色折扣说明、优惠券按钮和右上角 ×。
+//   - 2.9 秒点击 ×，随后 0.03–0.25 秒线性消失。
+// 适用场景: 适合向尚未转化、准备离开的访客提供最后一次优惠。
+// 标签: exit-intent, popup, mouseleave, coupon, conversion, retention, lp
+// 尺寸: 539x208 px · 周期: 4.8 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-009
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 09
-// 09 タブ（Tabs）
-CELLS[8] = ui((w, h, t) => {
-  const labs = ['概览', '价格', '评价'], xs = [24, 114, 204], ws = [70, 70, 100];
-  const c1 = eio(seg(t, 1.0, 1.25)), c2 = eio(seg(t, 2.2, 2.45)), c3 = eio(seg(t, 3.4, 3.65));
-  const pos = c1 + c2 - 2 * c3; // 0 -> 1 -> 2 -> 0
-  const fi = Math.floor(pos), fr = pos - fi, gi = Math.min(2, fi + 1);
-  const ux = lerp(xs[fi], xs[gi], fr), uw = lerp(ws[fi], ws[gi], fr);
-  const act = t < 1.1 ? 0 : t < 2.3 ? 1 : t < 3.5 ? 2 : 0;
-  labs.forEach((s, i) => text(s, xs[i] + ws[i] / 2, 28, 17, i === act ? C.blue : '#8a8886', i === act ? 700 : 500, 'center'));
-  X.fillStyle = C.line; X.fillRect(0, 50, w, 2); fillRR(ux, 48, uw, 4, 2, C.blue);
-  // 中身（切替時にクロスフェード）
-  const tabAlpha = [
-    1 - seg(t, 1.0, 1.2) + seg(t, 3.45, 3.65),
-    seg(t, 1.1, 1.3) - seg(t, 2.2, 2.4),
-    seg(t, 2.3, 2.5) - seg(t, 3.4, 3.6)];
-  tabAlpha.forEach((a, i) => {
-    a = clamp(a); if (a <= 0) return; X.save(); X.globalAlpha = a; X.translate(0, 8 * (1 - a));
-    if (i === 0) { bar(24, 70, 220, C.line2, 11); bar(24, 94, 494); bar(24, 112, 400); fillRR(24, 134, 494, 46, 8, C.block); }
-    if (i === 1) { for (let k = 0; k < 3; k++) { const x = 24 + k * 168; fillRR(x, 68, 158, 112, 10, k === 1 ? C.lb : '#f6f5f3'); strokeRR(x, 68, 158, 112, 10, k === 1 ? C.sb : C.line, 1.5); bar(x + 16, 84, 60, k === 1 ? C.blue : C.line2, 10); text(['¥0', '¥980', '¥1,980'][k], x + 16, 118, 22, k === 1 ? C.blue : '#555', 700, 'left', NUMF); bar(x + 16, 148, 110); } }
-    if (i === 2) { for (let k = 0; k < 3; k++) { const y = 70 + k * 38; circle(40, y + 14, 14, k === 0 ? C.mb : C.line); bar(64, y + 4, 120, C.line2, 10); bar(64, y + 20, 360); } }
-    X.restore();
+// @element 16
+// 16 離脱防止ポップアップ（カーソルがタブや閉じるボタンの方へ出ていくと、引き止める小窓が出る）
+CELLS[15] = (k, w, h, u) => {
+  frame(k);
+  const OX = WIN.x, OY = WIN.y + WIN.bar;               // カーソルは窓の外（タブ・アドレスバー）まで出るので、カードの座標で描く
+  const [cx, cy] = path([[0, 440, 150], [0.7, 300, 120], [1.25, 360, -18], [1.9, 372, -20], [2.6, 366, 38], [3.3, 366, 38], [4.4, 440, 150], [4.8, 440, 150]], u);
+  const CLOSE = 2.9;
+  let TRIG = 0.7; while (TRIG < 1.3 && path([[0.7, 300, 120], [1.25, 360, -18]], TRIG)[1] >= 0) TRIG += 1 / 240;   // 表示域の上端（y = 0）を越えた時刻（約1.07秒）
+  const m = eOut(P(u, TRIG + 0.05, TRIG + 0.45)) * (1 - P(u, CLOSE + 0.03, CLOSE + 0.25));
+  const D = { x: 125.5, y: 18, w: 260, h: 132 };
+  view(k, () => {
+    header(k, 0);
+    pic(k, 24, 46, 222, 110, 0, 8); txt(k, '新用户指南', 264, 82, `800 19px ${JP}`, C.ink); bars(k, 264, 96, 210, 3); btn(k, 264, 132, 100, 24, '立即申请');
+    if (m > 0) {
+      k.fillStyle = `rgba(28,35,51,${0.5 * m})`; k.fillRect(0, 0, VW, VH);
+      k.save(); k.globalAlpha = m; k.translate(D.x + D.w / 2, D.y + D.h / 2); const s = 0.9 + 0.1 * m; k.scale(s, s); k.translate(-D.w / 2, -D.h / 2);
+      k.fillStyle = '#fff'; rr(k, 0, 0, D.w, D.h, 12); k.fill();
+      txt(k, '请稍等！', D.w / 2, 34, `800 17px ${JP}`, C.ink, 'center');
+      txt(k, '首单立减 10%', D.w / 2, 60, `800 15px ${JP}`, C.acc, 'center');
+      btn(k, D.w / 2 - 75, 80, 150, 30, '领取优惠券', C.acc, '#fff', 12);
+      k.strokeStyle = C.sub; k.lineWidth = 2; k.lineCap = 'round'; k.beginPath(); k.moveTo(D.w - 26, 14); k.lineTo(D.w - 14, 26); k.moveTo(D.w - 14, 14); k.lineTo(D.w - 26, 26); k.stroke();
+      k.restore();
+    }
   });
-  pointer([[.3, w + 30, h + 30], [.95, 152, 34], [1.6, 152, 34], [2.15, 256, 34], [2.8, 256, 34], [3.35, 62, 34], [3.7, 62, 34], [4.25, w + 30, h + 30]], [1.0, 2.2, 3.4], t);
-});
+  // カーソルの × のクリック（窓の中）と、窓の外への移動
+  k.save(); k.beginPath(); k.rect(0, 0, CW, CH); k.clip(); k.translate(OX, OY); click(k, cx, cy, u, [CLOSE]); k.restore();
+};

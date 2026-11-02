@@ -1,36 +1,32 @@
-// Motion Prompt #3-034 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#106
+// Motion Prompt #3-034 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/close-up
 //
-// 移轴微缩效果 / Tilt-shift
-// 分类包: photo (摄影光线与风格) · element 10 · 子分类: 镜头与相机效果
-// 动画表现: 街景上下模糊，只有中间道路、汽车和小人物清晰，使街道像模型。
+// 特写 / Close-up
+// 分类: 剪辑与摄影 / 景别与构图 / 景别
+// 动画表现: 头和肩占满画面：视线先移向一侧，接着眨一次眼，身体轻轻后退半步，最后回到正视。
 // 运动规格:
-//   - 街角有建筑、树和路灯，道路 y 132–162，无前景大人物；四个小人物高 23–26 px，站在人行道上，脚底 y 172；汽车每 5 秒从 x −60 行驶到 600。
-//   - 清晰带为 y 66–176。
-//   - 模糊：y 0–42 与 y 190–208 从 0 → 7 px，y 42–66 与 y 176–190 从 0 → 3 px。
-//   - 清晰带边缘有虚线，线段 6 px、间隔 5 px，颜色 #8E8E93、透明度 75%。
-//   - 效果在 0.4 秒至 1.4 秒进入，保持到 4.0 秒，在 4.8 秒前消失；每轮 5 秒，三次缓入缓出，约 cubic-bezier(0.65,0,0.35,1)。
-// 适用场景: 适合把城市或活动现场表现为玩具模型世界。
-// 标签: tilt-shift, miniature, miniature effect, fake miniature, selective focus, toy town, focus band
-// 尺寸: 539x208 px · 周期: 5 s
-// 依赖: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+//   - 画框：1.4 m 至 1.85 m，即肩部到头顶；机位距人物 2.6 m。
+//   - 视线：0.4 秒至 0.9 秒移向一侧 0.05 m，3.7 秒至 4.4 秒回正。
+//   - 1.55 秒眨一次眼；0.9 秒至 1.3 秒身体后退 0.05 m，与视线一起复原。
+//   - 背景明显虚化；右上角显示“特写 CU”，比例尺蓝色带从肩部到头顶。
+//   - 机位全程不动；每轮 4.7 秒，首尾画面相同。
+// 适用场景: 需要观众注意情绪变化、反应或细微表情的时刻。
+// 标签: close-up, cu, close up, head and shoulders, reaction, shot size, emotion
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-034
 //
 // cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
-// 以下为元素代码，CELLS、常量和辅助函数位于共享 kit 中。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
 
-// @element 10
-// ティルトシフト: 上下の帯がぼけて中央の帯だけピントが合い、街と小さな人と車が模型のように見える
-CELLS[9] = cell((k, u) => {
-  const a = env(u), carX = lerp(-60, 600, u / CYC);
-  const minis = D => { [[196, 26], [322, 26], [340, 23], [452, 25]].forEach(([x, h]) => figure(D, x, 172, h, BASE.person)); };
-  const [S, ks] = layer('tilt'); stageStreet(ks, BASE, { car: carX, person: false, after: minis });
-  const [B1, k1] = layer('tilt-1'); k1.filter = `blur(${(3 * a).toFixed(2)}px)`; k1.drawImage(S, 0, 0); k1.filter = 'none';
-  const [B2, k2] = layer('tilt-2'); k2.filter = `blur(${(7 * a).toFixed(2)}px)`; k2.drawImage(S, 0, 0); k2.filter = 'none';
-  k.drawImage(S, 0, 0);
-  const band = (img, y0, y1) => { k.save(); k.beginPath(); k.rect(0, y0, CW, y1 - y0); k.clip(); k.drawImage(img, 0, 0); k.restore(); };
-  band(B2, 0, 42); band(B1, 42, 66); band(B1, 176, 190); band(B2, 190, CH);
-  // ピントの帯の目印（写真アプリの線）
-  k.save(); k.globalAlpha = 0.75 * a; k.strokeStyle = '#8E8E93'; k.lineWidth = 1.4; k.setLineDash([6, 5]);
-  k.beginPath(); k.moveTo(0, 66); k.lineTo(CW, 66); k.moveTo(0, 176); k.lineTo(CW, 176); k.stroke(); k.setLineDash([]);
-  k.restore();
-});
+// @element 30
+// 30 特写：胸像。动作只有特写才看得清：视线先动（被什么吸引）、一次眨眼、身体轻轻退半步，末段复原；首尾正视，循环无缝
+CELLS[29] = shot(frameCell({ lo: 1.4, hi: 1.85, name: '特写', abbr: 'CU', draw: (k, w, h, u) => {
+  const gaze = 0.05 * eOut(P(u, 0.4, 0.9)) * (1 - P(u, 3.7, 4.4));   // 视线先动：被什么吸引
+  const sway = -0.05 * eOut(P(u, 0.9, 1.3)) * (1 - P(u, 3.7, 4.4));  // 身体轻轻退半步
+  const blink = clamp(1 - Math.abs(u - 1.55) / 0.09);                // 注意到时眨一次眼
+  world(k, w, h, fit(1.4, 1.85, 2.6), {
+    person: { x: sway, z: 8, fg: true },
+    extra: [[sway, 0, 7.99, (kk, s) => face(kk, s, { gaze, blink }), true]],
+    blurBg: 2.0
+  });
+} }));

@@ -1,15 +1,15 @@
-Please use "Payment ring & check" (支払いリングとチェック), one of the names in "Interaction & data motion".
+Please use "Circle reveal transition" (円形リビール), filed under "Pages / Page transitions & loading".
 Motion Prompt #1-087
 
-What it is: A pay button that morphs into a progress ring and ends with a check mark
-What the sample shows: The pay button shrinks into a circle on click, a ring fills while 3 steps light up, it turns green with a check, and a receipt bounces up from below.
+What it is: A circular mask grows from the centre with scrolling to reveal the next section
+What the sample shows: As scrolling progresses, a dark chapter 2 grows as a circle from the centre of the light chapter 1 until it covers the card; the first title shrinks away while the second settles from larger to normal size, and scrolling back shrinks the circle.
 Spec:
-- On click the button shrinks from 214 px wide into a 44 px circle over 0.5 s with overshoot; the label fades in 0.2 s.
-- After a 0.25 s delay a 29 px-radius ring appears and fills in 2.6 s (power-2.2 ease-out).
-- 3 steps — requesting, bank check, done — light up at 2%, 45% and 99.9% progress, each dot springing to 1.3×.
-- The full ring turns green #119C72 and, after 0.2 s, draws a check in 0.45 s; 0.9 s later a receipt card springs up from below in 0.6 s.
-When to use it: Use it in e-commerce checkouts and in-app purchases to show payment progress and success.
+- Scroll progress goes 0 → 1 from 0.5–4.4 s (inOut3), with the scrollbar on the right in sync.
+- The circular mask radius grows in proportion to progress, from 0 to half the card diagonal.
+- The first chapter's title shrinks to 0.8 as it fades; the second chapter's title shrinks from 1.2 to 1.
+- From 5.4–6.3 s the scroll returns and the circle shrinks back.
+When to use it: Use it on story-led pages and product tours to mark a change of chapter or scene.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-087.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

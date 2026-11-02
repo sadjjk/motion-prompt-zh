@@ -1,15 +1,15 @@
-Please use "Icon micro-animations" (アイコンマイクロアニメーション), one of the names in "Landing page & web effects".
+Please use "Rolling digits" (桁ごとに回る数字), filed under "Feedback / Action feedback".
 Motion Prompt #1-151
 
-What it is: Hovered icons each make a small move that fits their meaning
-What the sample shows: As the cursor passes along 4 icons, each tile lights up: the bell swings, the heart fills and pops, the gear turns and the envelope flap opens.
+What it is: A counter where only the changed digits roll vertically to update
+What the sample shows: Each update of a large live-visitor number rolls only the changed digits with a slight overshoot, while the trend line beside it shifts one step left.
 Spec:
-- A row of 4 icon tiles (64×64, centres 90 apart); the cursor rests 0.7 s on each, the tile background lights up over 0.2 s (easeOut) and the icon turns accent orange.
-- Bell: swings ±18° from its top, one back-and-forth every 0.3 s, fading linearly to 0 within 0.7 s.
-- Heart: fills in and pops to 1.25 and back to 1 within 0.35 s. Gear: turns 90° over 0.5 s with back-out (overshoot 1.7).
-- Envelope: the flap opens over 0.35 s (easeOut) and the letter rises 10px; each icon resets after the cursor leaves, and the cursor is back at its start by 4.25 s.
-When to use it: Use it on toolbars, navigation or settings screens where icon buttons should feel responsive.
+- Only changed digits roll, each for 0.9 s with cubic-bezier(.3,1.25,.5,1) overshoot, staggered 45 ms from left to right.
+- 46 px digits roll upward when the value rises and downward when it falls; the top and bottom 14% fade out.
+- In the demo the value changes at 1.0, 2.4, 3.8 and 5.2 s: 12,486 → 12,531 → 12,529 → 12,407.
+- A 24-point trend line shifts one step left in 0.6 s on each update; a red dot pulses every 1.6 s.
+When to use it: Use it for frequently changing numbers such as dashboard KPIs, live visitors, sales or prices.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-151.txt
-Shared helper code: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
 Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,47 +1,48 @@
-// Motion Prompt #2-027 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#123
+// Motion Prompt #2-027 · MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/
 //
-// バウンス / Bounce
-// パック: motion2 (モーショングラフィックスの演出 第2弾) · element 03 · カテゴリ: 動きのテクニック
-// 何が起きるか: ボールが落ちて、だんだん低く弾みながら止まる。
+// 取り消して書き直し / Strike and rewrite
+// 分類: モーショングラフィックス / 文字アニメーション / 一文字ずつ・組版
+// 何が起きるか: 白い「便宜」に斜めのコーラルの太線が左から引かれて薄くなり、曲がった矢印が下を指し、黄色い楷書の「实惠」がペン先の点とともに1字ずつ書かれる。
 // 動きの仕様:
-//   - 2.35秒で1回（4.7秒に2回。1回目は黄、2回目はコーラル）。半径26のボール
-//   - 0.1秒から、床の190px上から落とす。重力1900px/s²、弾むたびに速さを56%に（反発係数0.56）、跳ね返りの速さが35px/s未満で止まる
-//   - 横は x=150→390 を 0.1〜1.8秒の easeOut（3乗）で移動
-//   - 着地の前後0.045秒だけつぶす: 横 1+sq・縦 1−sq、sq は最大 0.4 × min(1, 着地の速さ÷850)。速さ200px/s以上の着地では左右に白い短い線を0.3秒出す
-//   - 影は高いほど小さく薄く。退場: 1.95〜2.25秒に拡大率へ (1 − backIn(s=2)) を掛けて消す
-// 使いどころ: 物が落ちて着地するところ。アイコン・文字・商品を、重さと弾力を感じさせて置きたいとき。
-// タグ: bounce, drop, gravity, ball, physics, landing, easing
+//   - 0〜0.3秒に旧語が現れ、0.4〜0.85秒に −4° の太線（7px）が左から右へ引かれる
+//   - 0.85〜1.1秒に旧語が0.4まで薄くなり、0.9〜1.15秒に曲がった矢印が描かれる
+//   - 新語は楷書の黄色で、1.15秒から0.45秒間隔・各0.4秒で左から右へ書き出し、ペン先の点が付く
+//   - 4.0〜4.5秒に全体が消える
+// 使いどころ: 言い換えで価値を強調するコピー、ビフォー・アフター、訂正の演出に。
+// タグ: strikethrough, rewrite, correction, handwriting, copywriting, emphasis
 // サイズ: 539x208 px · 1周: 4.7 s
-// Needs: kit motion2 -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
 // 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-027
 //
 // cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
-// ここから要素のコード。CELLS や定数・補助関数は kit にある。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
-// @element 03
-// 03 バウンス（ボールが落ちて、だんだん低く弾みながら止まる）
-const BNC = (() => { const g = 1900, e = 0.56, d = 190, t0 = Math.sqrt(2 * d / g), v0 = g * t0; const segs = []; let t = t0, v = v0 * e; while (v > 35) { segs.push({ t, v }); t += 2 * v / g; v *= e; } const imp = [{ t: t0, v: v0 }]; segs.forEach((s, i) => { if (i) imp.push({ t: s.t, v: segs[i - 1].v }); }); return { g, d, t0, segs, imp, end: t }; })();
-function bounceH(t) { const B = BNC; if (t < B.t0) return B.d - 0.5 * B.g * Math.max(0, t) * Math.max(0, t) * (t < 0 ? 0 : 1); for (const s of B.segs) { const tau = t - s.t; if (tau >= 0 && tau < 2 * s.v / B.g) return s.v * tau - 0.5 * B.g * tau * tau; } return 0; }
-CELLS[2] = (k, w, h, u) => {
+// @element 54
+// 改写自 KittenJam Motion Library #297（Hannah）· 划掉改写：旧词「便宜」0.4–0.85 秒被一道 −4° 的 7px 珊瑚色粗线从左到右划掉并变淡到 0.4，0.9–1.15 秒弯箭头指向下方，新词「实惠」以楷体黄色逐字（间隔 0.45 秒、各 0.4 秒）由左往右写出，笔尖圆点跟随；4.0–4.5 秒淡出，0–0.3 秒旧词淡入。
+CELLS[53] = (k, w, h, u) => {
   u = snapU(u);
   stage(k);
-  const T = CYC / 2, n = Math.floor(u / T), lu = u - n * T, t = lu - 0.1;
-  const floor = h - 26, R = 26, rest = floor - R, x = lerp(150, 390, eOut(P(lu, 0.1, 1.8)));
-  const hg = t < 0 ? BNC.d : bounceH(t), out = 1 - backIn(P(lu, 1.95, 2.25), 2);
-  k.fillStyle = C.navy3; rr(k, 26, floor, w - 52, 5, 2.5); k.fill();
-  // 着地の印
-  let sq = 0;
-  for (const im of BNC.imp) {
-    const dtI = t - im.t;
-    if (Math.abs(dtI) < 0.045) sq = Math.max(sq, clamp(im.v / 850) * 0.4 * (1 - Math.abs(dtI) / 0.045));
-    if (dtI > 0 && dtI < 0.3 && im.v > 200) { const q = dtI / 0.3, ix = lerp(150, 390, eOut(P(im.t + 0.1, 0.1, 1.8))); k.strokeStyle = '#fff'; k.globalAlpha = 1 - q; k.lineWidth = 5; k.lineCap = 'round';[-1, 1].forEach(s => { k.beginPath(); k.moveTo(ix + s * (34 + 14 * q), floor - 6 - 8 * q); k.lineTo(ix + s * (48 + 22 * q), floor - 16 - 14 * q); k.stroke(); }); k.globalAlpha = 1; }
+  const OLD = '便宜', NEW = '实惠', FO = `800 60px ${JP}`, FN = `700 62px "Kaiti SC", "STKaiti", KaiTi, ${JP}`, OX = w / 2, OY = 66, NY = 152;
+  const fade = Math.min(P(u, 0, 0.3), 1 - P(u, 4.0, 4.5)); if (fade <= 0) return;   // 开头 0.3 秒淡入旧词，与周期末的空白衔接
+  k.save();
+  k.globalAlpha = fade * (1 - 0.6 * P(u, 0.85, 1.1)); txt(k, OLD, OX, OY, FO, '#fff', 'center', 'middle');
+  const sw = tw(k, OLD, FO) + 28, st = eIOs(P(u, 0.4, 0.85));
+  k.globalAlpha = fade; k.lineCap = 'round'; k.lineJoin = 'round';
+  if (st > 0) { k.save(); k.translate(OX - sw / 2, OY + 6); k.rotate(-4 * Math.PI / 180); k.strokeStyle = C.coral; k.lineWidth = 7; k.beginPath(); k.moveTo(0, 0); k.lineTo(sw * st, 0); k.stroke(); k.restore(); }
+  const ar = eOut(P(u, 0.9, 1.15));
+  if (ar > 0) {
+    k.strokeStyle = C.dim; k.lineWidth = 2.5; k.setLineDash([140 * ar, 400]);
+    k.beginPath(); k.moveTo(OX - 86, OY + 8); k.bezierCurveTo(OX - 124, OY + 40, OX - 120, NY - 10, OX - 92, NY - 4); k.stroke(); k.setLineDash([]);
+    if (ar >= 1) { k.beginPath(); k.moveTo(OX - 102, NY - 14); k.lineTo(OX - 92, NY - 4); k.lineTo(OX - 105, NY + 1); k.stroke(); }
   }
-  const sh = clamp(1 - hg / BNC.d);
-  k.fillStyle = 'rgba(0,0,0,.32)'; k.beginPath(); k.ellipse(x, floor + 7, R * (0.4 + 0.8 * sh) * out, 5 * (0.4 + 0.6 * sh) * out, 0, 0, 7); k.fill();
-  if (out > 0.01) {
-    k.save(); k.translate(x, rest - hg + R); k.scale((1 + sq) * out, (1 - sq) * out);
-    k.fillStyle = n ? C.coral : C.yel; k.beginPath(); k.arc(0, -R, R, 0, 7); k.fill();
-    k.fillStyle = 'rgba(255,255,255,.7)'; k.beginPath(); k.ellipse(-9, -R - 9, 8, 5, -0.6, 0, 7); k.fill();
+  chars(k, NEW, FN, 12).forEach((c, i) => {
+    const s0 = 1.15 + i * 0.45, q = P(u, s0, s0 + 0.4); if (q <= 0) return;
+    const e = eIOs(q);
+    k.save(); k.translate(OX + c.x, NY); k.rotate(-3 * Math.PI / 180);
+    k.beginPath(); k.rect(-c.w / 2 - 4, -50, (c.w + 8) * e, 100); k.clip();
+    txt(k, c.ch, 0, 0, FN, C.yel, 'center', 'middle');
     k.restore();
-  }
+    if (q < 1) { k.fillStyle = '#fff'; k.beginPath(); k.arc(OX + c.x - c.w / 2 + c.w * e, NY + 14 * Math.sin(q * Math.PI * 5), 3.5, 0, 7); k.fill(); }
+  });
+  k.restore();
 };

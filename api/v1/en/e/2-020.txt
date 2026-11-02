@@ -1,36 +1,49 @@
-// Motion Prompt #2-020 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#020
+// Motion Prompt #2-020 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#007
 //
-// Zoom through / ズームスルー
-// Pack: motion (Motion graphics moves) · element 20 · Category: Transitions & highlights
-// What happens: The camera pushes into the hole of a letter O and comes out in the next scene.
+// Count-up / カウントアップ
+// Category: Motion graphics / Text animation / Letter by letter & layout
+// What happens: A number races upward and locks onto its final value.
 // Motion spec:
-//   - Scene X (ZOOM on yellow) → scene Y (GO! on blue) → scene X, 2.35 s each.
-//   - The current scene is scaled around the centre of an O's hole (radius 24.5). Maximum scale is 1.08× the value at which the hole covers the whole frame (about 14×).
-//   - Scale = maxScale^p (exponential zoom, which reads as constant speed).
-//   - p = 0.8 × cubic ease-in (0.25–1.2 s) + 0.2 × cubic ease-out (1.2–1.65 s): accelerate in, slow down at the end.
-//   - Inside the hole the next scene is placed at 1/maxScale. When the zoom ends it is exactly at full size, and the view switches to the next scene.
-// When to use it: Use it to dive into a logo or letter and move to the next scene with momentum.
-// Tags: zoom, zoom-through, transition, push-in, scale, tunnel, scene-change
+//   - One pass per 4.7 s. Fades in at 0.1–0.4 s and out at 4.0–4.4 s.
+//   - Number (bold 104 px): 0→2,480 over 0.45–2.9 s. Value = round(target × (1 − (1 − p)^4)): fast at first, slow at the end.
+//   - Thousands separator included. Every digit has the same width and the number is right-aligned, so it does not jitter sideways.
+//   - Lands at 2.9 s: colour switches white→yellow and scale does a small bounce, 1 + 0.07·e^(−7t)·cos(15t).
+//   - Up-arrow chip on the left (mint circle, radius 34): appears from 0.35 s with spring 1 − e^(−7t)·cos(14t); while counting it shakes vertically by 6 px × (1 − p)^3 × sin(30u).
+//   - Bar below (330 × 12, blue→mint gradient): fills in proportion to value ÷ target.
+// When to use it: Use it to make a figure feel big or growing: revenue, user counts, completion rates.
+// Tags: count-up, counter, number, odometer, stats, kpi, progress
 // Size: 539x208 px · Cycle: 4.7 s
-// Needs: kit motion -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-020
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 20
-// 20 ズームスルー（文字の「O」の穴へ突っ込んで、その先の画面へ抜ける）
-function ring(k, x, y, col) { k.strokeStyle = col; k.lineWidth = 21; k.beginPath(); k.arc(x, y, 35, 0, 7); k.stroke(); }
-const ZP = [{ x: 228, y: 106, r: 24.5 }, { x: 300, y: 106, r: 24.5 }];
-function scrX(k, w, h) { k.fillStyle = C.yel; k.fillRect(0, 0, w, h); const f = `800 118px ${DISP}`; txt(k, 'Z', 128, 110, f, C.navy, 'center', 'middle'); ring(k, 228, 106, C.navy); ring(k, 324, 106, C.navy); txt(k, 'M', 432, 110, f, C.navy, 'center', 'middle'); }
-function scrY(k, w, h) { k.fillStyle = C.blue; k.fillRect(0, 0, w, h); const f = `800 118px ${DISP}`; txt(k, 'G', 208, 110, f, '#fff', 'center', 'middle'); ring(k, 300, 106, '#fff'); txt(k, '!', 372, 110, f, C.yel, 'center', 'middle'); }
-const SCZ = [scrX, scrY], ZBG = [C.yel, C.blue];
-CELLS[19] = abCell((k, w, h, u, a, b) => {
-  const po = ZP[a], Smax = Math.hypot(Math.max(po.x, w - po.x), Math.max(po.y, h - po.y)) / po.r * 1.08;
-  const p = eIn(P(u, TA - 0.25, TB - 0.3)) * 0.8 + eOut(P(u, TB - 0.3, TB + 0.15)) * 0.2;
-  if (p >= 1) return SCZ[b](k, w, h);
-  const s = Math.pow(Smax, p), Z = (kk, sc) => { kk.translate(po.x, po.y); kk.scale(sc, sc); kk.translate(-po.x, -po.y); };
-  k.save(); Z(k, s); SCZ[a](k, w, h);
-  k.save(); k.beginPath(); k.arc(po.x, po.y, po.r, 0, 7); k.clip(); k.fillStyle = ZBG[b]; k.fillRect(0, 0, w, h); Z(k, 1 / Smax); SCZ[b](k, w, h); k.restore();
+// @element 07
+// 07 カウントアップ（数字が勢いよく増えて、最後にピタッと決まる）
+CELLS[6] = (k, w, h, u) => {
+  stage(k);
+  const TARGET = 2480, a = P(u, 0.1, 0.4) * (1 - P(u, 4.0, 4.4));
+  const p = P(u, 0.45, 2.9), v = Math.round(TARGET * (1 - Math.pow(1 - p, 4)));
+  const s = v.toLocaleString('en-US'), f = `800 104px ${DISP}`;
+  k.font = f; const dw = k.measureText('0').width + 2, cw = k.measureText(',').width;
+  const full = TARGET.toLocaleString('en-US'); let tot = 0; for (const ch of full) tot += ch === ',' ? cw : dw;
+  const land = u - 2.9, pop = 1 + (land > 0 ? 0.07 * Math.exp(-7 * land) * Math.cos(15 * land) : 0);
+  const X = w / 2 + 42, Y = 96;
+  k.save(); k.globalAlpha = a; k.translate(X, Y); k.scale(pop, pop);
+  let x = tot / 2;   // 右そろえ
+  const speed = p < 1 ? Math.pow(1 - p, 3) : 0;
+  for (const ch of [...s].reverse()) {
+    const cwid = ch === ',' ? cw : dw; x -= cwid;
+    txt(k, ch, x + cwid / 2, 0, f, land > 0 ? C.yel : '#fff', 'center', 'middle');
+  }
   k.restore();
-});
+  // 上向きの矢印チップ
+  const ar = spring(u - 0.35, 14, 7) * (1 - P(u, 4.0, 4.3)), bob = speed * 6 * Math.sin(u * 30);
+  if (ar > 0.01) { k.save(); k.translate(X - tot / 2 - 58, Y - 2 + bob); k.scale(ar, ar); k.fillStyle = C.mint; k.beginPath(); k.arc(0, 0, 34, 0, 7); k.fill(); k.strokeStyle = C.navy; k.lineWidth = 8; k.lineCap = 'round'; k.lineJoin = 'round'; k.beginPath(); k.moveTo(0, 15); k.lineTo(0, -14); k.moveTo(-13, -1); k.lineTo(0, -15); k.lineTo(13, -1); k.stroke(); k.restore(); }
+  // 下のバー
+  const bw = 330, bx = w / 2 - bw / 2, by = 168;
+  k.globalAlpha = a; k.fillStyle = C.navy3; rr(k, bx, by, bw, 12, 6); k.fill();
+  const g = k.createLinearGradient(bx, 0, bx + bw, 0); g.addColorStop(0, C.blue); g.addColorStop(1, C.mint);
+  k.fillStyle = g; rr(k, bx, by, Math.max(12, bw * (v / TARGET)), 12, 6); k.fill(); k.globalAlpha = 1;
+};

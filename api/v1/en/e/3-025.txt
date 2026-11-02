@@ -1,32 +1,26 @@
-// Motion Prompt #3-025 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#097
+// Motion Prompt #3-025 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/establishing-shot
 //
-// Backlighting / 逆光
-// Pack: photo (Photo looks, lighting & styles) · element 01 · Category: Lighting & time of day
-// What happens: The sun moves from outside the frame to directly behind the person's head; a thin bright edge appears around the figure, a pale warm haze covers the frame and the side facing the camera darkens.
+// Establishing shot / エスタブリッシングショット
+// Category: Editing & photography / Camera & editing / Cuts & transitions
+// What happens: A high wide shot first shows two people standing left and right in the space; at 2.4 s it cuts straight to a close shot of the one on the left, who starts speaking. The audience already knows the other person is to his right.
 // Motion spec:
-//   - Scene 1: a head-and-shoulders figure in front of a horizon at y 150 (head centre x 270, y 78, radius 29 px, no face or hair). light is a flat amber #FFC75A shape, shadow a flat #33405A one
-//   - Sun: radius 20 px, from outside the frame (top left, x 40, y −40) to directly behind the head (x 270, y 56), with flat rings of 2.6× and 1.7× the radius (#FFE3A3 at 35% and 60%)
-//   - Outline: the figure is stroked with a 7 px line and then filled, leaving a 3.5 px bright edge outside it
-//   - Figure #4D5A75 → #33405A; sky #FAF9F7 → #FFF4DC; #FFE3A3 laid over the whole frame at 22%
-//   - Timing: the effect comes in from 0.4 s to 1.4 s, holds until 4.0 s and is gone again by 4.8 s (one pass = 5 s, cubic ease-in-out (about cubic-bezier(0.65,0,0.35,1)))
-// When to use it: For airy, glowing portraits or any image that should feel bathed in light.
-// Tags: backlighting, backlit, contre-jour, sun behind, haze, glow, halo
-// Size: 539x208 px · Cycle: 5 s
-// Needs: kit photo -> https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+//   - Shot 1: camera 4.5 m high, 20 m from the pair, tilted slightly down; A (blue) on the left and B (ink) on the right, 2.4 m apart.
+//   - Cut: straight cut at 2.4 s; the camera does not travel between the two positions.
+//   - Shot 2: close shot of A from a camera 1.45 m high and 3.2 m away, background softly blurred; A speaks from 2.8 s to 4.1 s.
+//   - Top right reads "建立 WIDE" and then "近景 A" after the cut.
+//   - Return: cross-fade back to the first shot over the last 0.5 s (one pass = 4.7 s).
+// When to use it: At the start of a new scene, so the audience knows where we are and who is there before the details.
+// Tags: establishing shot, master shot, wide shot, scene setting, cut, editing, continuity
+// Size: 539x208 px · Cycle: 9.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
 // Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-025
 //
 // cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
-// Element code starts here. CELLS, constants and helpers live in the kit.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
-// @element 01
-// 逆光: 太陽が画面の外から頭の真後ろへ回り込み、輪郭が光って人物は暗くなる
-CELLS[0] = cell((k, u) => {
-  const a = env(u);
-  const BACK = Object.assign({}, BASE, { sky: '#FFF4DC', sky2: '#FFEBC4', far: '#F6E2BE', ground: '#F7EAD3', bld: '#F7E9D2', winOff: '#EEDCBF', win: '#EEDCBF', tree: '#EEDCBF', edge: '#E3CFAE', post: '#CDB894', trunk: '#E3CFAE', bulb: '#E3CFAE' });
-  stagePortrait(k, pal(BASE, BACK, a), { sun: [lerp(40, PX, a), lerp(-40, PY - 22, a), 20, 1] });
-  // 輪郭の光: 胸像の形を太い線でなぞってから中を塗り、縁だけを残す
-  k.save(); k.globalAlpha = a; bustPath(k, PX, PY, PR); k.strokeStyle = BASE.lit; k.lineWidth = 7; k.lineJoin = 'round'; k.stroke(); k.restore();
-  bust(k, PX, PY, PR, mixc(BASE.person, BASE.shade, a));
-  // かすみ: 全体に光の色を薄く重ねる
-  k.save(); k.globalAlpha = 0.22 * a; k.fillStyle = BASE.glow; k.fillRect(0, 0, CW, CH); k.restore();
-});
+// @element 33
+// 33 建立镜头：先用远景交代两人和场地的位置，再切到 A 的近景（观众已经知道 B 在 A 右边）
+CELLS[32] = shot(cutCell([
+  [0, (k, w, h) => world(k, w, h, cam({ y: 4.5, z: -12, pitch: -0.12 }), two()), '建立 WIDE'],
+  [2.4, (k, w, h, u) => world(k, w, h, cam({ x: -0.6, y: 1.45, z: 4.8 }), two({ talkA: mouth(u, 2.8, 4.1), blurBg: 1.2 })), '近景 A']
+]));
