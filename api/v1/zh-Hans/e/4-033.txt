@@ -1,0 +1,153 @@
+// Motion Prompt #4-033 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/ukiyo-e
+//
+// 浮世绘 / Ukiyo-e
+// 分类: 审美风格 / 工艺与纹样 / 版画与手工
+// 动画表现: 雨中一座大木桥横贯画面，2 个撑伞的人在桥上相向走过。墨线勾轮廓，几种平涂套色，套色相对墨线略有错位；天空上沿和水面下沿用渐染，远山不描线、只用灰蓝平涂。雨是固定角度的细刻线，水面上雨圈扩散，右上角一枝前景松树裁掉画面一角。
+// 运动规格:
+//   - 6.4 秒周期；连续循环，不设复位段
+//   - 套色相对墨线横向错开 2 px、纵向 1.5 px
+//   - 2 人每周期各从画外走到画外一趟（18 步），伞挡住脸
+//   - 雨线 110 条，每周期落 2 遍；水面雨圈扩散 2 次，波纹纹样每周期平移一个纹样宽度
+// 适用场景: 适合日式、旅行、节气主题的视觉，或想表现雨天氛围的场景。
+// 标签: ukiyo-e, woodblock, japanese, rain, bridge, print
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-033
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 46
+// 46 浮世绘（参考 jingyu-skill「浮世绘木版画」词条的说明重新实现，MIT · 阿梦freedom）：雨里一座大木桥横贯画面，两个撑伞的人在桥上相向走过。
+// 木版画的做法：墨线描轮廓，几种平涂套色，填色相对墨线错开 2px（套印没对准的样子）；天空上沿和水面下沿用渐染；
+// 雨是固定角度的细刻线；右上角一枝松树压在前景，裁掉画面一角。不照搬任何名作的构图。
+// 动作：两人各走一趟（从画外到画外，一周期一趟，各 18 步），雨丝落 2 遍，水面雨圈扩散 2 次，波纹平移一个纹样宽度；连续循环，不设复位段。
+const UK_INK = '#2b2420';
+const UK_REG = [2, 1.5];                                     // 套色相对墨线的错位
+const UK_DECK = x => 120 - 30 * Math.sin(Math.PI * clamp((x + 60) / (CW + 120)));   // 桥面高度：一道拱贯穿全画
+const UK_PIERS = [-10, 70, 150, 230, 310, 390, 470, 550];   // 桥墩 x
+const UK_RAIN = 110;
+// 套色 + 墨线：先按错位平涂填色，再在原位描墨线
+function ukShape(g, path, fill, lw = 1.2) {
+  g.save(); g.translate(UK_REG[0], UK_REG[1]); path(); g.fillStyle = fill; g.fill(); g.restore();
+  path(); g.strokeStyle = UK_INK; g.lineWidth = lw; g.lineJoin = 'round'; g.stroke();
+}
+function ukPoly(g, pts) { g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); }
+// 撑伞的行人：伞挡住脸，只露发髻；dir 为行走方向，f 为这一趟走了多少（0..1）
+function ukPerson(k, x, dir, umb, robe, f, sc) {
+  const s = f * 18, st = Math.sin(TAU * s), bob = -Math.abs(Math.cos(Math.PI * s)) * 1.2;
+  k.save(); k.translate(x, UK_DECK(x) - 1 + bob); k.scale(sc * dir, sc);
+  k.strokeStyle = UK_INK; k.lineCap = 'round';
+  [1, -1].forEach(sg => {
+    const fx = sg * st * 3.2;
+    k.lineWidth = 2.2; k.beginPath(); k.moveTo(sg * 1.5, -10); k.lineTo(fx, -1.5); k.stroke();
+    k.lineWidth = 1.8; k.beginPath(); k.moveTo(fx - 2.4, 0); k.lineTo(fx + 2.6, 0); k.stroke();
+  });
+  const robeP = () => ukPoly(k, [[-5, -28], [5, -28], [8.5, -8], [-8.5, -8]]);
+  ukShape(k, robeP, robe);
+  k.save(); robeP(); k.clip(); k.fillStyle = 'rgba(236,226,200,.75)';
+  for (let i = 0; i < 7; i++) { k.beginPath(); k.arc(-6 + (i % 4) * 4 + (i > 3 ? 2 : 0), -24 + Math.floor(i / 4) * 9 + (i % 2) * 2, 1, 0, TAU); k.fill(); }
+  k.restore();
+  k.fillStyle = '#b8443a'; k.fillRect(-5.6, -19.5, 11.2, 3);
+  k.fillStyle = UK_INK; k.beginPath(); k.ellipse(0.5, -31, 3.6, 3.4, 0, 0, TAU); k.fill();   // 后脑与发髻（不画五官）
+  k.beginPath(); k.arc(-1, -34.5, 1.8, 0, TAU); k.fill();
+  k.lineWidth = 2; k.beginPath(); k.moveTo(3, -25); k.lineTo(4.5, -21); k.stroke();
+  k.lineWidth = 1.1; k.beginPath(); k.moveTo(4.5, -20); k.lineTo(3.5, -42); k.stroke();
+  k.save(); k.translate(3.5, -41); k.rotate(0.22);
+  const can = () => {
+    k.beginPath(); k.moveTo(-21, 6); k.quadraticCurveTo(-15, -8, 0, -9.5); k.quadraticCurveTo(15, -8, 21, 6);
+    for (let i = 0; i < 6; i++) { const x0 = 21 - i * 7; k.quadraticCurveTo(x0 - 3.5, 3.6, x0 - 7, 6); }
+    k.closePath();
+  };
+  ukShape(k, can, umb);
+  k.strokeStyle = 'rgba(43,36,32,.6)'; k.lineWidth = 0.6;
+  for (let i = 1; i < 6; i++) { k.beginPath(); k.moveTo(0, -9.5); k.lineTo(-21 + i * 7, 6); k.stroke(); }
+  k.fillStyle = UK_INK; k.fillRect(-1.2, -12, 2.4, 3);
+  k.restore();
+  k.restore();
+}
+CELLS[45] = (k, w, h, u) => {
+  const f = u / CYC;
+  k.drawImage(layer('UK_bg', g => {
+    g.fillStyle = '#ece2c8'; g.fillRect(0, 0, CW, CH);
+    const sk = g.createLinearGradient(0, 0, 0, 96);
+    sk.addColorStop(0, 'rgba(28,44,78,1)'); sk.addColorStop(0.5, 'rgba(52,74,110,.55)'); sk.addColorStop(1, 'rgba(52,74,110,0)');
+    g.fillStyle = sk; g.fillRect(0, 0, CW, 96);
+    // 远山不描线，只用灰蓝平涂，两层由浅到深
+    [[98, 40, 3, '#9aa8b2'], [108, 26, 8, '#7a8c9c']].forEach(([base, amp, sd, col]) => {
+      g.beginPath(); g.moveTo(0, 114);
+      for (let x = 0; x <= CW; x += 6) g.lineTo(x, base - amp * fbm2(x / 90 + sd, sd, 3));
+      g.lineTo(CW, 114); g.closePath(); g.fillStyle = col; g.fill();
+    });
+    g.fillStyle = '#5d735c'; g.fillRect(0, 108, CW, 6);
+    for (let x = 4; x < CW; x += 9) { g.beginPath(); g.ellipse(x + hash(x) * 4, 107, 4 + hash(x + 1) * 3, 3, 0, 0, TAU); g.fill(); }
+    const rv = g.createLinearGradient(0, 114, 0, CH); rv.addColorStop(0, '#7099b2'); rv.addColorStop(0.55, '#5a86a3'); rv.addColorStop(1, '#2c4f6e');
+    g.fillStyle = rv; g.fillRect(0, 114, CW, CH - 114);
+    g.beginPath(); g.moveTo(0, 114); g.lineTo(CW, 114); g.strokeStyle = UK_INK; g.lineWidth = 1; g.stroke();
+    // 桥墩倒影
+    g.strokeStyle = 'rgba(30,48,70,.35)'; g.lineWidth = 5;
+    UK_PIERS.forEach(px => { g.beginPath(); for (let y = 198; y < CH; y += 2) g.lineTo(px + 3.5 + 2 * Math.sin(y / 3), y); g.stroke(); });
+  }), 0, 0);
+  // 水面：波纹纹样每周期平移一个纹样宽度；雨圈扩散 2 次
+  k.save(); k.strokeStyle = 'rgba(32,52,82,.5)'; k.lineWidth = 1;
+  for (let r = 0; r < 6; r++) {
+    const y = 124 + r * 15, sh = (r % 2 ? 1 : -1) * 40 * f + (r % 2) * 20;
+    for (let x0 = -40; x0 < CW + 40; x0 += 40) {
+      k.beginPath(); for (let i = 0; i <= 8; i++) k.lineTo(x0 + sh + i * 3, y + 1.6 * Math.sin(i / 8 * TAU)); k.stroke();
+    }
+  }
+  for (let i = 0; i < 14; i++) {
+    const p = (hash(i * 7 + 1) + 2 * f) % 1, r = 1.5 + 9 * p;
+    k.strokeStyle = `rgba(236,226,200,${0.6 * (1 - p)})`; k.beginPath(); k.ellipse(hash(i * 7 + 2) * CW, 130 + hash(i * 7 + 3) * 72, r, r * 0.32, 0, 0, TAU); k.stroke();
+  }
+  k.restore();
+  k.drawImage(layer('UK_bridge', g => {
+    UK_PIERS.forEach((px, i) => {
+      const top = UK_DECK(px) + 8;
+      ukShape(g, () => { g.beginPath(); g.rect(px, top, 7, 198 - top); }, '#6b4a32');
+      const nx = UK_PIERS[i + 1];
+      if (nx !== undefined) {
+        g.strokeStyle = UK_INK; g.lineWidth = 1.4;
+        g.beginPath(); g.moveTo(px + 7, 150); g.lineTo(nx, 184); g.moveTo(px + 7, 184); g.lineTo(nx, 150); g.stroke();
+        g.beginPath(); g.moveTo(px + 7, 150); g.lineTo(nx, 150); g.stroke();
+      }
+    });
+    const deck = () => {
+      g.beginPath(); for (let x = -12; x <= CW + 12; x += 4) g.lineTo(x, UK_DECK(x));
+      for (let x = CW + 12; x >= -12; x -= 4) g.lineTo(x, UK_DECK(x) + 9);
+      g.closePath();
+    };
+    ukShape(g, deck, '#9c6b45');
+    g.strokeStyle = 'rgba(43,36,32,.55)'; g.lineWidth = 0.7;
+    for (let x = -8; x < CW + 8; x += 9) { g.beginPath(); g.moveTo(x, UK_DECK(x) + 1.5); g.lineTo(x, UK_DECK(x) + 8); g.stroke(); }
+  }), 0, 0);
+  ukPerson(k, CW + 40 - (CW + 80) * ((f + 0.5) % 1), -1, '#d8a64e', '#3c3f4c', (f + 0.5) % 1, 1.5);
+  ukPerson(k, -40 + (CW + 80) * f, 1, '#c8553d', '#2f4a7a', f, 1.7);
+  // 栏杆压在行人腿前
+  k.drawImage(layer('UK_rail', g => {
+    for (let x = -6; x < CW + 12; x += 23) ukShape(g, () => { g.beginPath(); g.rect(x, UK_DECK(x) - 15, 3, 15); }, '#8a5d3c', 0.9);
+    [[-16, -13], [-8, -6.5]].forEach(([a, b]) => ukShape(g, () => {
+      g.beginPath(); for (let x = -12; x <= CW + 12; x += 4) g.lineTo(x, UK_DECK(x) + a);
+      for (let x = CW + 12; x >= -12; x -= 4) g.lineTo(x, UK_DECK(x) + b); g.closePath();
+    }, '#a2714a', 1));
+  }), 0, 0);
+  // 雨：固定角度的细刻线，一周期落 2 遍；深色与纸色两种，深浅底上都看得见
+  k.lineWidth = 0.8;
+  for (let i = 0; i < UK_RAIN; i++) {
+    const y = ((hash(i * 5 + 11) + 2 * f) % 1) * (CH + 60) - 40, x = hash(i * 5 + 12) * (CW + 90) + 10 - y * 0.23;
+    k.strokeStyle = i % 3 ? 'rgba(43,36,32,.32)' : 'rgba(236,226,200,.5)';
+    k.beginPath(); k.moveTo(x, y); k.lineTo(x - 6.4, y + 28); k.stroke();
+  }
+  // 前景松枝：裁掉右上角
+  k.drawImage(layer('UK_pine', g => {
+    const br = () => { g.beginPath(); g.moveTo(CW + 12, -8); g.quadraticCurveTo(500, 4, 446, 26); };
+    g.lineCap = 'round'; br(); g.strokeStyle = UK_INK; g.lineWidth = 9; g.stroke(); br(); g.strokeStyle = '#5a3e2c'; g.lineWidth = 6.5; g.stroke();
+    [[CW + 4, 18, 0.3], [512, 30, 0.1], [478, 40, -0.1], [450, 30, -0.3], [500, 8, 0.2], [530, 46, 0.25]].forEach(([x, y, r]) => {
+      ukShape(g, () => { g.beginPath(); g.ellipse(x, y, 20, 9, r, 0, Math.PI); g.closePath(); }, '#2f4a36');
+      g.strokeStyle = 'rgba(43,36,32,.75)'; g.lineWidth = 0.8;
+      for (let i = 0; i <= 10; i++) { const a = r + Math.PI * i / 10; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 20 * Math.cos(a) * Math.cos(r) - 9 * Math.sin(a) * Math.sin(r), y + 20 * Math.cos(a) * Math.sin(r) + 9 * Math.sin(a) * Math.cos(r)); g.stroke(); }
+    });
+  }), 0, 0);
+  paper(k, [110, 90, 60], 900, 46);
+  grain(k, 0.06);
+};

@@ -1,0 +1,150 @@
+// Motion Prompt #4-037 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/blue-green-landscape
+//
+// 青緑山水 / Blue-green landscape
+// 分類: ビジュアルスタイル / 東洋の伝統 / 書画
+// 何が起きるか: 絹の絵巻がゆっくり横へ流れ、遠・中・近の3層の山がそれぞれ違う速さで動く。山は主峰の両脇に小さな峰が重なって群れをなし、頂は丸く、山肌は切り立っている。最初は墨線と披麻皴の線だけで、やがて石青・石緑が上から下へ染まり、山すそは赭石。尾根には苔点と小さな松、中景の山頂に小さな亭、山すそに雲の帯がたなびき、近景の谷には石橋とその上の人物、川には小舟が浮かぶ。最後に色が引いて墨線に戻る。
+// 動きの仕様:
+//   - 6.4秒周期。遠・中・近の3層の絵巻の周期は540 / 810 / 1080pxで、速さは0.5 / 0.75 / 1。1周期でちょうど1周期分ずれるので首尾がつながる
+//   - 0.6〜2.6秒で石青・石緑・赭石が上から下へ染まる
+//   - 水面の波紋は45px間隔、小舟は1周期に2回上下に揺れる
+//   - 5.4〜6.0秒で色が引いて墨線に戻る
+// 使いどころ: 中国風・古典文化・観光地の紹介、和やかな背景映像に。
+// タグ: blue-green landscape, chinese painting, handscroll, mountains, silk, shanshui
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-037
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 50
+// 50 青绿山水（参考 jingyu-skill「青绿山水」词条的说明重新实现，MIT · 阿梦freedom）：绢本长卷横向缓缓展开，
+// 远、中、近三重山以不同速度平移。每座山由主峰加两座子峰叠成，山顶圆、山壁陡；山体先只有墨线和披麻皴，
+// 0.6–2.6 秒石青、石绿自上而下染开，山脚压赭石；山腰有云带，中景山头一座小亭，近景山谷里一座石桥、桥上一人，江上一叶小舟。
+// 三层的画卷周期是 540 / 810 / 1080 像素，一个周期分别平移正好 1 个画卷周期，首尾帧一致。
+// 5.4–6.0 秒颜色退回墨线，回到开头。
+const QL_SILK = [214, 192, 150], QL_INK = 'rgba(46,40,30,.9)';
+const QL_LAYERS = [
+  // 远山：周期 540、半速；[中心, 高, 半宽]（画卷坐标）
+  { P: 540, base: 132, sp: 0.5, ink: 0.4, a: 0.5, step: 6, hs: 0.85,
+    bumps: [[20, 44, 30], [80, 62, 28], [150, 40, 24], [220, 66, 32], [300, 48, 26], [370, 60, 30], [440, 42, 24], [500, 56, 30]] },
+  // 中景：周期 810、3/4 速
+  { P: 810, base: 160, sp: 0.75, ink: 0.7, a: 0.78, step: 9, hs: 0.72,
+    bumps: [[30, 70, 40], [110, 96, 42], [200, 60, 30], [290, 104, 44], [380, 74, 36], [470, 92, 40], [560, 62, 30], [650, 100, 46], [740, 70, 36]] },
+  // 近景：周期 1080、全速；500–660 留出山谷给石桥与江面
+  { P: 1080, base: 210, sp: 1, ink: 1, a: 0.95, step: 12, hs: 0.78,
+    bumps: [[50, 120, 46], [170, 146, 52], [270, 84, 34], [430, 132, 46], [740, 140, 50], [860, 96, 38], [980, 150, 54]] },
+].map(L => ({ ...L, bumps: L.bumps.map(([c, H, B]) => [c, H * L.hs, B]) })).map(L => ({ ...L, top: L.base - Math.max(...L.bumps.map(b => b[1])) - 6,
+  // 主峰两侧各叠一座矮一些的子峰，让山成簇，不再是一排单尖
+  all: L.bumps.flatMap(([c, H, B]) => [[c, H, B], [c - 0.5 * B, 0.68 * H, 0.5 * B], [c + 0.55 * B, 0.6 * H, 0.45 * B]]) }));
+const QL_BRIDGE = 590, QL_BOAT = 530, QL_PAV = 290;   // 石桥、小舟（近景坐标）与小亭（中景坐标）
+// 画卷坐标 X 处的山高：各峰取最大值，峰形 cos^0.55（顶圆、壁陡），再叠一点按周期整数倍起伏的碎纹
+function qlH(L, X) {
+  let h = 0;
+  for (const [c, H, B] of L.all) {
+    let d = X - c; d -= L.P * Math.round(d / L.P);   // 取最近的那一份，保证画卷首尾相接
+    const t = Math.abs(d) / B;
+    if (t < 1) h = Math.max(h, H * Math.pow(Math.cos(t * Math.PI / 2), 0.55));
+  }
+  if (h > 0) h += (3 * Math.sin(TAU * 37 * X / L.P) + 2 * Math.sin(TAU * 61 * X / L.P)) * Math.min(1, h / 30);
+  return Math.max(0, h);
+}
+// 画卷坐标 → 屏幕 x（落在可见范围附近的那一份）
+const qlScr = (X, sh, P) => { let x = ((X - sh) % P + P) % P; if (x > CW + 80) x -= P; return x; };
+function qlLayer(k, L, sh, rev, near) {
+  const ys = [];
+  for (let x = -3; x <= CW + 3; x += 3) ys.push([x, L.base - qlH(L, x + sh)]);
+  const ridge = () => { k.beginPath(); ys.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); };
+  ridge(); k.lineTo(CW + 3, CH + 2); k.lineTo(-3, CH + 2); k.closePath();
+  k.fillStyle = rgba(near ? QL_SILK : lerpC(QL_SILK, [236, 224, 196], 0.25), 1); k.fill();
+  if (rev > L.top) {                                  // 染色只到 rev 这条水平线（自上而下染开）
+    k.save(); k.clip();
+    const g = k.createLinearGradient(0, L.top, 0, L.base);
+    g.addColorStop(0, '#24557e'); g.addColorStop(0.38, '#2f8a78'); g.addColorStop(0.72, '#7fa56c'); g.addColorStop(1, '#b37a45');
+    k.globalAlpha = L.a; k.fillStyle = g; k.fillRect(-3, L.top, CW + 6, Math.min(CH + 2, rev) - L.top);
+    k.restore();
+  }
+  // 披麻皴：顺着山势向下的长短墨线，钉在画卷坐标上随山平移
+  k.beginPath();
+  for (let X = Math.ceil(sh / L.step) * L.step; X - sh <= CW + 3; X += L.step) {
+    const x = X - sh, h = qlH(L, X); if (h < 8) continue;
+    const s = Math.sign(qlH(L, X + 2) - qlH(L, X - 2)) || 1, y = L.base - h, len = Math.min(h * 0.5, 34 * L.ink);
+    k.moveTo(x, y + 2); k.quadraticCurveTo(x - s * 5, y + len * 0.5, x - s * 3, y + len);
+    if (h > 34) { k.moveTo(x - s * 3, y + len + 5); k.quadraticCurveTo(x - s * 7, y + len + 14, x - s * 4, y + Math.min(h - 4, len + 26)); }
+  }
+  k.strokeStyle = `rgba(46,40,30,${0.45 * L.ink + 0.1})`; k.lineWidth = 0.7; k.stroke();
+  // 山脊上的苔点与松树：按画卷格子编号取确定性哈希，位置随山走
+  const n = L.P / L.step;
+  for (let X = Math.ceil(sh / L.step) * L.step; X - sh <= CW + 3; X += L.step) {
+    const idx = ((Math.round(X / L.step) % n) + n) % n, hv = hash(idx * 7 + L.P), x = X - sh, h = qlH(L, X), y = L.base - h;
+    if (h < 14 || hv < 0.45) continue;
+    if (near && hv > 0.62) {                          // 小松：一根干、三层针叶
+      k.strokeStyle = QL_INK; k.lineWidth = 0.8; k.beginPath(); k.moveTo(x, y + 2); k.lineTo(x + 0.5, y - 9); k.stroke();
+      k.fillStyle = 'rgba(28,70,52,.9)';
+      [[-9, 3.2], [-6, 4.6], [-3, 5.6]].forEach(([dy, rx]) => { k.beginPath(); k.ellipse(x, y + dy, rx, 1.6, 0, 0, TAU); k.fill(); });
+    } else {
+      k.fillStyle = `rgba(30,50,36,${0.5 + 0.3 * L.ink})`;
+      k.beginPath(); k.arc(x - 1.5, y + 2, 0.9 + 0.5 * L.ink, 0, TAU); k.arc(x + 2, y + 3.5, 0.7 + 0.4 * L.ink, 0, TAU); k.fill();
+    }
+  }
+  ridge(); k.strokeStyle = QL_INK; k.lineWidth = 0.5 + 0.7 * L.ink; k.stroke();
+}
+// 山脚的云带：底部渐浓的米白色带，加几团随该层平移的云头
+function qlMist(k, L, sh, a) {
+  const y = L.base, g = k.createLinearGradient(0, y - 26, 0, y + 6);
+  g.addColorStop(0, 'rgba(244,236,214,0)'); g.addColorStop(0.7, `rgba(244,236,214,${a})`); g.addColorStop(1, 'rgba(244,236,214,0)');
+  k.fillStyle = g; k.fillRect(0, y - 26, CW, 32);
+  k.fillStyle = `rgba(246,238,218,${a * 0.8})`;
+  for (let i = 0; i < L.P / 90; i++) {
+    if (hash(i + L.P * 3) < 0.4) continue;
+    const x = qlScr(i * 90 + 30, sh, L.P); if (x < -40 || x > CW + 40) continue;
+    k.beginPath(); k.ellipse(x, y - 10, 26, 5, 0, 0, TAU); k.ellipse(x + 16, y - 14, 14, 4, 0, 0, TAU); k.fill();
+  }
+}
+CELLS[49] = (k, w, h, u) => {
+  const off = u / CYC * 1080;                         // 近景平移量；远、中景按各自 sp 换算
+  const fill = inOut3(seg(u, 0.6, 2.6)) * (1 - inOut3(seg(u, SHOW, SHOW + 0.6)));
+  const rev = mix(-10, CH + 10, fill);
+  const [FAR, MID, NEAR] = QL_LAYERS, sh = L => (off * L.sp) % L.P;
+  k.fillStyle = rgba(QL_SILK, 1); k.fillRect(0, 0, CW, CH);
+  paper(k, [120, 90, 50], 900, 50);
+  const sky = k.createLinearGradient(0, 0, 0, 120); sky.addColorStop(0, 'rgba(120,80,40,.10)'); sky.addColorStop(1, 'rgba(120,80,40,0)');
+  k.fillStyle = sky; k.fillRect(0, 0, CW, 120);
+  qlLayer(k, FAR, sh(FAR), rev, false); qlMist(k, FAR, sh(FAR), 0.7);
+  qlLayer(k, MID, sh(MID), rev, false);
+  // 中景山头的小亭
+  { const x = qlScr(QL_PAV, sh(MID), MID.P), y = MID.base - qlH(MID, QL_PAV);
+    if (x > -20 && x < CW + 20) {
+      k.strokeStyle = QL_INK; k.lineWidth = 0.9; k.beginPath(); k.moveTo(x - 4, y + 1); k.lineTo(x - 4, y - 7); k.moveTo(x + 4, y + 1); k.lineTo(x + 4, y - 7); k.stroke();
+      k.fillStyle = '#7a2e1c'; k.beginPath(); k.moveTo(x - 10, y - 6); k.quadraticCurveTo(x, y - 9, x + 10, y - 6); k.lineTo(x + 2, y - 13); k.lineTo(x - 2, y - 13); k.closePath(); k.fill();
+    } }
+  qlMist(k, MID, sh(MID), 0.8);
+  // 江面与水纹（水纹间距 45 像素，1080 / 45 为整数，首尾一致）
+  k.fillStyle = rgba(lerpC(QL_SILK, [170, 196, 176], 0.25 + 0.3 * fill), 1); k.fillRect(0, 170, CW, CH - 170);
+  k.beginPath();
+  for (let r = 0; r < 6; r++) for (let x = -((off + r * 17) % 45); x < CW; x += 45) { const y = 175 + r * 5.5; k.moveTo(x, y); k.quadraticCurveTo(x + 8, y - 2, x + 16, y); }
+  k.strokeStyle = 'rgba(60,70,60,.35)'; k.lineWidth = 0.7; k.stroke();
+  // 小舟：在近景坐标里，随画卷平移，轻轻起伏
+  { const x = qlScr(QL_BOAT, sh(NEAR), NEAR.P), y = 186 + 1.2 * Math.sin(TAU * 2 * u / CYC);
+    if (x > -30 && x < CW + 30) {
+      k.beginPath(); k.moveTo(x - 15, y); k.quadraticCurveTo(x, y + 6, x + 15, y); k.closePath(); k.fillStyle = '#5a3d24'; k.fill();
+      k.beginPath(); k.moveTo(x + 2, y - 1); k.lineTo(x + 2, y - 19); k.lineTo(x + 11, y - 3); k.closePath(); k.fillStyle = 'rgba(236,222,190,.92)'; k.fill(); k.strokeStyle = QL_INK; k.lineWidth = 0.7; k.stroke();
+      k.fillStyle = QL_INK; k.beginPath(); k.moveTo(x - 9, y - 1); k.lineTo(x - 5, y - 1); k.lineTo(x - 7, y - 6); k.fill();
+    } }
+  qlLayer(k, NEAR, sh(NEAR), rev, true);
+  // 石桥与桥上的人（斗笠 + 红衫，只有几笔）
+  { const bx = qlScr(QL_BRIDGE, sh(NEAR), NEAR.P);
+    if (bx > -60 && bx < CW + 60) {
+      k.fillStyle = rgba(lerpC(QL_SILK, [150, 120, 90], 0.3), 1);
+      k.beginPath(); k.moveTo(bx - 40, 184); k.quadraticCurveTo(bx, 156, bx + 40, 184); k.lineTo(bx + 40, 188); k.lineTo(bx + 14, 188); k.quadraticCurveTo(bx, 168, bx - 14, 188); k.lineTo(bx - 40, 188); k.closePath(); k.fill();
+      k.strokeStyle = QL_INK; k.lineWidth = 1; k.stroke();
+      const px = bx - 5, py = 169;
+      k.fillStyle = '#c94a32'; k.beginPath(); k.moveTo(px - 2.5, py); k.lineTo(px + 2.5, py); k.lineTo(px + 1.5, py - 8); k.lineTo(px - 1.5, py - 8); k.fill();
+      k.fillStyle = QL_INK; k.beginPath(); k.moveTo(px - 4.5, py - 8); k.lineTo(px + 4.5, py - 8); k.lineTo(px, py - 11.5); k.fill();
+    } }
+  // 卷轴两端的木轴与朱印
+  k.fillStyle = '#6b4226'; k.fillRect(0, 0, 6, CH); k.fillRect(CW - 6, 0, 6, CH);
+  k.fillStyle = '#b3261e'; k.fillRect(CW - 30, 14, 12, 16);
+  txt(k, '印', CW - 24, 26, `600 10px ${SERIF}`, '#f4e2c4', 'center');
+  grain(k, 0.08);
+};

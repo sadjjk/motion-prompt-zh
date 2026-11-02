@@ -1,0 +1,131 @@
+// Motion Prompt #4-038 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/chinese-paper-cutting
+//
+// Chinese paper cutting / 中国の切り紙
+// Category: Visual styles / East Asian tradition / Objects & folk crafts
+// What happens: A knife carves a folded half-circle of red paper cut by cut, from the top down; the pattern appears where it has cut and the rest is still plain red. Then the paper opens into a round, symmetric window flower: a sawtooth border, 2 plump carp facing each other head-up on either side, a lotus kept as outlines with its seed pod in the middle, lotus leaves and waves below, and curling cloud motifs filling the gaps. The scales are rows of crescent cut-outs, and every red line connects. The background is cream paper with a faint shadow under the cut.
+// Motion spec:
+//   - 6.4 s cycle. Over 0.2–2.6 s the knife carves along the half-circle from top to bottom.
+//   - Over 2.7–3.3 s the right half opens as a mirror of the left, slightly darker on the way.
+//   - The paper's radius is 92 px, with 26 sawtooth notches around each half of the border.
+//   - It returns to the folded red sheet over 5.4–6.0 s.
+// When to use it: Use it for Lunar New Year, wedding and celebration cards, or to introduce traditional Chinese culture.
+// Tags: paper cutting, chinese, red, symmetry, carp, folk art
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-038
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 51
+// 51 中国剪纸（参考 jingyu-skill「中国剪纸」词条的说明重新实现，MIT · 阿梦freedom）：对折的红纸被刻刀从上往下一刀刀刻开，
+// 展开后是一幅左右对称的团花：外圈锯齿纹，左右两条细长的鲤鱼头朝上相对跃起，中间一朵大荷花，下方荷叶与水波，
+// 空处填满卷云纹；鱼鳞是成排的月牙镂空，花瓣只留轮廓线，所有红线彼此相连。
+// 节奏：0.2–2.6 秒刀尖沿半圆从上往下刻（已刻区域露出图案，未刻区域仍是整张红纸）；2.7–3.3 秒展开；展示到 5.4 秒，复位段淡回对折红纸。
+const PC_C = [270, 104], PC_R = 92;
+const PC_RED = '#c8161d';
+let PC_BUF = null;                                  // 离屏画布：每帧整张重画，不跨帧保留状态
+// 在离屏 g 上画「左半边」完整图案（坐标以圆心为原点，x ≤ 0）。先铺红，再用 destination-out 挖镂空、source-over 补红线
+function pcPattern(g) {
+  const cut = fn => { g.globalCompositeOperation = 'destination-out'; g.fillStyle = '#000'; g.strokeStyle = '#000'; fn(); g.globalCompositeOperation = 'source-over'; g.fillStyle = PC_RED; g.strokeStyle = PC_RED; };
+  g.fillStyle = PC_RED; g.strokeStyle = PC_RED; g.lineCap = 'round'; g.lineJoin = 'round';
+  g.beginPath(); g.arc(0, 0, PC_R, Math.PI / 2, Math.PI * 1.5); g.closePath(); g.fill();
+  // 外圈：r 84–92 留红并刻一圈锯齿；内圈整片挖空，之后只把图案补回来
+  cut(() => {
+    for (let i = 0; i < 26; i++) {
+      const a0 = Math.PI / 2 + i / 26 * Math.PI, a1 = a0 + Math.PI / 26;
+      g.beginPath(); g.moveTo(84 * Math.cos(a0), 84 * Math.sin(a0)); g.lineTo(90 * Math.cos((a0 + a1) / 2), 90 * Math.sin((a0 + a1) / 2)); g.lineTo(84 * Math.cos(a1), 84 * Math.sin(a1)); g.closePath(); g.fill();
+    }
+    g.beginPath(); g.arc(0, 0, 81, Math.PI / 2, Math.PI * 1.5); g.closePath(); g.fill();
+  });
+  g.lineWidth = 2.6; g.beginPath(); g.arc(0, 0, 77, Math.PI / 2, Math.PI * 1.5); g.stroke();
+  g.lineWidth = 2; for (let i = 0; i < 20; i++) { const a = Math.PI / 2 + (i + 0.5) / 20 * Math.PI; g.beginPath(); g.moveTo(77 * Math.cos(a), 77 * Math.sin(a)); g.lineTo(83 * Math.cos(a), 83 * Math.sin(a)); g.stroke(); }
+  // 卷云纹：空处的小漩涡，线宽 1.8，彼此和外圈相接
+  g.lineWidth = 1.8;
+  [[-62, -40, 7, 0.4], [-70, -10, 6, 1.6], [-50, -62, 6, 2.6], [-26, -70, 5, 0.9], [-72, 22, 6, 3.4], [-12, -56, 5, 2], [-64, 46, 5, 0.2]].forEach(([x, y, r, rot]) => {
+    g.beginPath(); for (let t = 0; t <= 1; t += 0.04) { const ang = rot + t * 9, rr0 = r * (1 - t * 0.85); g.lineTo(x + rr0 * Math.cos(ang), y + rr0 * Math.sin(ang)); } g.stroke();
+    g.beginPath(); g.moveTo(x + r * Math.cos(rot), y + r * Math.sin(rot)); g.lineTo(x + (r + 7) * Math.cos(rot), y + (r + 7) * Math.sin(rot)); g.stroke();
+  });
+  // 水波：底部三排鱼鳞状波纹
+  g.lineWidth = 2;
+  for (let r = 0; r < 3; r++) for (let i = 0; i < 4; i++) { const x = -6 - i * 13 - (r % 2) * 6, y = 50 + r * 8; if (Math.hypot(x, y) > 76) continue; g.beginPath(); g.arc(x, y, 6.5, Math.PI, TAU); g.stroke(); }
+  // 荷叶：左下一片，叶脉是放射的镂空
+  g.beginPath(); g.ellipse(-40, 40, 22, 12, -0.25, 0, TAU); g.fill();
+  cut(() => { for (let i = 0; i < 7; i++) { const a = -0.25 + Math.PI * (0.1 + i / 7.5); g.beginPath(); g.ellipse(-40 + 11 * Math.cos(a), 40 + 6 * Math.sin(a), 7, 1.3, a, 0, TAU); g.fill(); } });
+  // 鲤鱼（左边一条，头朝上）：身子饱满呈弧形，最宽处约 38 像素；尾柄收细后分成两叶扇形尾
+  const body = new Path2D('M -20 -60 C -6 -56 -4 -36 -10 -18 C -14 0 -18 18 -22 30 L -30 32 C -42 16 -50 -2 -48 -24 C -46 -44 -34 -58 -20 -60 Z');
+  g.fill(body);
+  g.fill(new Path2D('M -22 29 C -12 38 -8 52 -12 64 C -18 58 -22 52 -26 45 C -30 53 -38 59 -48 61 C -45 50 -38 40 -30 31 Z'));   // 尾：上下两叶
+  g.fill(new Path2D('M -47 -32 C -58 -31 -63 -16 -59 -5 C -55 -10 -51 -12 -48 -12 Z'));                                            // 背鳍
+  g.fill(new Path2D('M -10 -26 C -2 -24 2 -16 0 -9 C -4 -13 -8 -15 -12 -15 Z'));                                                  // 胸鳍
+  g.fill(new Path2D('M -16 8 C -8 10 -6 18 -8 22 C -11 18 -14 16 -18 16 Z'));                                                     // 腹鳍
+  cut(() => {
+    // 月牙鳞：在身子内部按交错网格排，只留完全落在身内的
+    for (let y = -38, r = 0; y <= 22; y += 6.5, r++) for (let x = -48 + (r % 2) * 3.5; x <= -10; x += 7) {
+      const X = x + PC_C[0], Y = y + PC_C[1];
+      if (![[0, 0], [-4.5, 0], [4.5, 0], [0, 4]].every(([dx, dy]) => g.isPointInPath(body, X + dx, Y + dy))) continue;
+      g.beginPath(); g.arc(x, y, 3.4, 0.12 * Math.PI, 0.88 * Math.PI); g.arc(x, y - 1.8, 2.8, 0.85 * Math.PI, 0.15 * Math.PI, true); g.closePath(); g.fill();
+    }
+    g.beginPath(); g.arc(-22, -50, 2.8, 0, TAU); g.fill();                    // 眼
+    g.lineWidth = 1.3; g.beginPath(); g.arc(-26, -58, 15, 0.2 * Math.PI, 0.75 * Math.PI); g.stroke();   // 鳃线
+    g.lineWidth = 1.1;
+    for (let i = 0; i < 5; i++) { const t = i / 4; g.beginPath(); g.moveTo(-25, 36); g.lineTo(mix(-14, -44, t), mix(60, 58, t) - Math.sin(t * Math.PI) * 10); g.stroke(); }   // 尾纹放射
+    for (let i = 0; i < 3; i++) { g.beginPath(); g.moveTo(-48, -28 + i * 6); g.lineTo(-57 + i * 1.5, -24 + i * 6); g.stroke(); }                                          // 背鳍纹
+  });
+  g.fillStyle = PC_RED; g.beginPath(); g.arc(-22, -50, 1.2, 0, TAU); g.fill();
+  g.lineWidth = 1.6; g.beginPath(); g.moveTo(-14, -58); g.quadraticCurveTo(-4, -64, -8, -74); g.stroke();   // 须
+  // 荷花：只画左半（花心在对称轴上，镜像后成整朵）；花瓣只留轮廓线，瓣内一道细脉
+  const petal = (x, y, rx, ry, rot) => {
+    g.save(); g.translate(x, y); g.rotate(rot);
+    g.beginPath(); g.moveTo(0, ry); g.quadraticCurveTo(-rx * 1.3, 0, 0, -ry); g.quadraticCurveTo(rx * 1.3, 0, 0, ry); g.closePath();
+    g.lineWidth = 2.2; g.stroke(); g.lineWidth = 1.2; g.beginPath(); g.moveTo(0, ry * 0.7); g.lineTo(0, -ry * 0.6); g.stroke();
+    g.restore();
+  };
+  g.fillStyle = PC_RED;
+  g.lineWidth = 2.4; g.beginPath(); g.moveTo(0, 30); g.lineTo(0, 76); g.stroke();                              // 茎
+  petal(-24, 16, 7, 15, -1.15); petal(-16, 6, 7, 17, -0.6); petal(0, -2, 8, 22, 0);
+  g.beginPath(); g.moveTo(-14, 24); g.quadraticCurveTo(-26, 30, -32, 26); g.lineWidth = 2; g.stroke();
+  g.beginPath(); g.rect(-14, 20, 14, 10); g.fill();                                                                // 莲蓬
+  cut(() => { [[-10, 23], [-4, 23], [-7, 27.5]].forEach(([x, y]) => { g.beginPath(); g.arc(x, y, 1.5, 0, TAU); g.fill(); }); });
+  // 对称轴上留一条红线，保证左右两半展开后连成一片
+  g.fillStyle = PC_RED; g.fillRect(-1.2, -77, 1.2, 154);
+}
+CELLS[50] = (k, w, h, u) => {
+  if (!PC_BUF) { PC_BUF = document.createElement('canvas'); PC_BUF.width = CW; PC_BUF.height = CH; }
+  const g = PC_BUF.getContext('2d');
+  const cutP = inOut3(seg(u, 0.2, 2.6)), open = inOut3(seg(u, 2.7, 3.3)), back = resetK(u);
+  // 刻到的位置：从顶部（角度 1.5π）沿左半圆转到底部（0.5π）
+  const edge = Math.PI * 1.5 - cutP * Math.PI;
+  k.fillStyle = '#efe6d2'; k.fillRect(0, 0, CW, CH); paper(k, [150, 120, 80], 700, 51);
+  g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, CW, CH); g.globalAlpha = 1;
+  g.translate(PC_C[0], PC_C[1]);
+  pcPattern(g);
+  // 还没刻到的扇区补回整张红纸
+  if (cutP < 1) { g.fillStyle = PC_RED; g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, PC_R, Math.PI / 2, edge); g.closePath(); g.fill(); }
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  k.save(); k.globalAlpha = 1 - back;
+  k.shadowColor = 'rgba(80,30,10,.28)'; k.shadowBlur = 6; k.shadowOffsetY = 2;
+  k.drawImage(PC_BUF, 0, 0);
+  if (open > 0.001) {                                  // 右半边：左半镜像，宽度从 0 展开到 1，途中稍暗表示纸面翻转
+    k.translate(PC_C[0], 0); k.scale(-open, 1); k.translate(-PC_C[0], 0);
+    k.filter = `brightness(${mix(0.7, 1, open)})`; k.drawImage(PC_BUF, 0, 0); k.filter = 'none';
+  }
+  k.restore();
+  if (back > 0) {                                      // 复位：对折的整张红纸淡入，与 u = 0 一致
+    k.save(); k.globalAlpha = back; k.shadowColor = 'rgba(80,30,10,.28)'; k.shadowBlur = 6; k.shadowOffsetY = 2;
+    k.beginPath(); k.arc(PC_C[0], PC_C[1], PC_R, Math.PI / 2, Math.PI * 1.5); k.closePath(); k.fillStyle = PC_RED; k.fill(); k.restore();
+  }
+  if (open < 1) {                                      // 对折线
+    k.strokeStyle = `rgba(90,10,10,${0.5 * (1 - open)})`; k.lineWidth = 1.2;
+    k.beginPath(); k.moveTo(PC_C[0], PC_C[1] - PC_R); k.lineTo(PC_C[0], PC_C[1] + PC_R); k.stroke();
+  }
+  // 刻刀：刀尖落在刻线上，沿半径来回走（每段 0.3 秒一个来回）
+  const kn = seg(u, 0.05, 0.2) * (1 - seg(u, 2.6, 2.8));
+  if (kn > 0) {
+    const r = 16 + 62 * Math.abs(Math.sin(TAU * u / 0.6)), x = PC_C[0] + r * Math.cos(edge), y = PC_C[1] + r * Math.sin(edge);
+    k.save(); k.globalAlpha = kn; k.translate(x, y); k.rotate(-0.5);
+    k.fillStyle = '#d9dde2'; k.beginPath(); k.moveTo(0, 0); k.lineTo(3, -14); k.lineTo(-3, -14); k.closePath(); k.fill();
+    k.fillStyle = '#8a5a2b'; rr(k, -3.5, -48, 7, 34, 2); k.fill();
+    k.restore();
+  }
+};

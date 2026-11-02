@@ -1,0 +1,15 @@
+Please use "Flat lay" (フラットレイ), filed under "Shot size & composition / Composition".
+Motion Prompt #3-084
+
+What it is: A composition shot straight down at 90° onto objects laid out flat
+What the sample shows: We look straight down at a linen cloth on a wooden table. A soy-milk bowl, a plate of buns, a plate of fried dough sticks, a teacup and chopsticks drop in one after another; while falling each is slightly larger with a far, soft shadow, and once it lands the shadow shrinks to a short, faint ring. The dishes stay perfect circles throughout and the chopsticks run parallel to the cloth's lower edge. Then guide lines and the labels "circle", "parallel" and "space" appear, and finally everything is cleared in reverse order back to the empty cloth.
+Spec:
+- 5 s cycle. The 5 items drop from 0.3 s, one every 0.25 s, each settling in 0.45 s.
+- While falling an item is scaled up to 1.22× and its shadow offset shrinks from 19 px to 3 px.
+- Guide lines appear over 1.9–2.4 s and fade over 3.6–4.0 s; the empty-space box at the bottom right is 124 × 80 px.
+- From 4.0 s items are cleared last-in first-out, one every 0.08 s, each in 0.3 s. A "90°" readout sits at the top right.
+When to use it: Use it for food, stationery, desk setups and product kits, whenever you want to show every piece at a glance.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-084.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

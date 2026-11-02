@@ -2,7 +2,7 @@
 
 # Photo looks, lighting & styles
 
-47 names · #3 037~083 · pack `photo` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+48 names · #3 037~084 · pack `photo` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -17,6 +17,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#3-041](https://sadjjk.github.io/motion-prompt-zh/#3-041) | **Negative space** | A large plain area around the subject sets it off and carries mood | Negative-space composition of a person standing at the left of a snowfield, the right two thirds of the frame nothing but empty snow. |
 | [#3-042](https://sadjjk.github.io/motion-prompt-zh/#3-042) | **Frame within a frame** | A door, window or arch in the foreground frames the subject a second time | Frame-within-a-frame composition of a child in the yard outside, the nearby doorframe enclosing the child in the middle of the picture. |
 | [#3-043](https://sadjjk.github.io/motion-prompt-zh/#3-043) | **Foreground, middle ground & background** | Foreground, middle ground and background are laid out in layers for depth | Shoot the person by the lake in three layers: flowers in the foreground, the person in the middle ground, the lake and the woods across it in the background. |
+| [#3-084](https://sadjjk.github.io/motion-prompt-zh/#3-084) | **Flat lay** | A composition shot straight down at 90° onto objects laid out flat | Make a breakfast flat lay: shoot a linen cloth from straight above, set down a soy-milk bowl, buns, fried dough sticks, a teacup and chopsticks one by one, keep every dish a perfect circle, chopsticks parallel to the cloth edge, and the bottom right left empty. |
 
 ## Light & color / Lighting & time of day
 

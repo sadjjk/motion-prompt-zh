@@ -1,0 +1,175 @@
+// Motion Prompt #4-039 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/shadow-puppet
+//
+// Shadow puppets / 影絵人形
+// Category: Visual styles / East Asian tradition / Objects & folk crafts
+// What happens: Warm yellow light shines through a white screen where 2 shadow puppets face each other in profile. On the left is a tall, slender lady with a high bun and hairpins, a 3-tiered skirt and long translucent silk sleeves; on the right a general rides a horse whose body is one continuous curve, with each leg in 2 segments. Every part is filled with translucent colour and carved inside with fine dots, crescents and diamonds, with a bright cut-out line along its edge, rivets at the joints and rods attached to the hands and bodies. The lady raises her arm and flicks her sleeve, the horse marks time and the general bobs with it. A slightly blurred pavilion shadow stands at the left and the light flickers faintly.
+// Motion spec:
+//   - 6.4 s cycle; continuous loop with no reset segment.
+//   - The lady raises her arm 1 time per cycle; her sleeve and body sway 2 times.
+//   - The horse steps 3 times per cycle with diagonal legs in phase; the general and horse are scaled 1.15×.
+//   - The light flickers with 7 and 13 ripples per cycle at 3.5% and 2%.
+// When to use it: Use it to open folk tales, traditional-theatre and Chinese-style stories, or for a nostalgic touch.
+// Tags: shadow puppet, chinese opera, folk art, leather, silhouette, theatre
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-039
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 52
+// 52 皮影（参考 jingyu-skill「皮影」词条的说明重新实现，MIT · 阿梦freedom）：暖黄灯光透过白幕，两个侧脸皮影隔幕相对。
+// 左边女子身形修长（头小、身长约 8 个头高），高髻插簪，长裙分三层，水袖是半透明的长绸；右边武将骑马，马身是连贯的曲线，
+// 腿分大腿、小腿两节。每块部件先填半透明色，再在部件内刻满细密的圆点与月牙纹（透出幕布的亮色），边缘留一道细镂空线，
+// 关节处一颗铆钉，竹签连在手上和身上。女子抬臂甩袖，马踏步、武将随马颠动，灯光轻闪；全部用整数倍频率，首尾一致。
+const PY_INK = 'rgba(38,16,8,.95)', PY_LIT = 'rgba(255,228,168,.9)';
+const PY_COL = { red: 'rgba(190,36,26,.82)', green: 'rgba(36,112,58,.8)', yel: 'rgba(228,164,36,.82)', blk: 'rgba(32,14,8,.9)', blue: 'rgba(40,70,140,.78)' };
+// 刻纹：在当前路径内按网格刻小孔。kind 0 圆点、1 月牙、2 菱格，step 为网格间距
+function pyCarve(k, path, kind, step, x0, y0, x1, y1) {
+  k.save(); k.clip(path); k.fillStyle = PY_LIT; k.beginPath();
+  for (let y = y0, r = 0; y < y1; y += step, r++) for (let x = x0 + (r % 2) * step / 2; x < x1; x += step) {
+    if (kind === 0) { k.moveTo(x + step * 0.18, y); k.arc(x, y, step * 0.18, 0, TAU); }
+    else if (kind === 1) { k.moveTo(x + step * 0.3, y); k.arc(x, y, step * 0.3, 0, Math.PI); k.arc(x, y - step * 0.1, step * 0.24, Math.PI, 0, true); }
+    else { k.moveTo(x, y - step * 0.22); k.lineTo(x + step * 0.22, y); k.lineTo(x, y + step * 0.22); k.lineTo(x - step * 0.22, y); k.closePath(); }
+  }
+  k.fill(); k.restore();
+}
+// 一块部件：填色 → 刻纹 → 边内一道亮线（镂空的描边）→ 墨色外轮廓
+function pyPart(k, d, col, carve) {
+  const p = typeof d === 'string' ? new Path2D(d) : d;
+  k.fillStyle = col; k.fill(p);
+  if (carve) pyCarve(k, p, ...carve);
+  k.save(); k.clip(p); k.strokeStyle = PY_LIT; k.lineWidth = 2.2; k.stroke(p); k.restore();
+  k.strokeStyle = PY_INK; k.lineWidth = 1.1; k.stroke(p);
+  return p;
+}
+const pyRivet = (k, x, y) => { k.beginPath(); k.arc(x, y, 2, 0, TAU); k.fillStyle = '#2a140a'; k.fill(); k.beginPath(); k.arc(x - 0.5, y - 0.5, 0.7, 0, TAU); k.fillStyle = 'rgba(255,220,160,.6)'; k.fill(); };
+function pyRod(k, x, y, lean) { k.beginPath(); k.moveTo(x, y); k.lineTo(x + lean, CH + 4); k.strokeStyle = 'rgba(30,14,8,.55)'; k.lineWidth = 1.2; k.stroke(); }
+function pyJoint(k, x, y, a, fn) { k.save(); k.translate(x, y); k.rotate(a); fn(); k.restore(); pyRivet(k, x, y); }
+function pyLady(k, a) {
+  const x = 160, y = 30 + 1.2 * Math.sin(a * 2);
+  k.save(); k.translate(x, y);
+  // 后侧的水袖（随甩动在身后飘）
+  const sw = Math.sin(a * 2);
+  pyPart(k, `M 8 40 C 30 ${70 + 10 * sw} 24 ${110 + 8 * sw} ${6 + 10 * sw} 150 C 0 140 10 100 0 46 Z`, 'rgba(250,232,196,.38)', [0, 7, -10, 30, 40, 160]);
+  // 裙：三层，最下层拖地
+  pyPart(k, 'M -6 96 C -20 120 -30 146 -40 168 L 34 168 C 26 146 18 120 12 96 Z', PY_COL.red, [1, 9, -44, 96, 40, 172]);
+  pyPart(k, 'M -4 76 C -14 92 -20 108 -24 124 C -6 130 10 130 22 124 C 18 108 14 92 10 76 Z', PY_COL.green, [2, 7, -26, 76, 24, 132]);
+  pyPart(k, 'M -16 118 C -6 124 10 124 22 118 L 24 126 C 8 132 -8 132 -18 126 Z', PY_COL.yel);
+  // 上身与云肩
+  pyPart(k, 'M -4 30 C -8 44 -8 62 -6 80 L 12 80 C 14 62 14 44 8 30 Z', PY_COL.red, [0, 6, -10, 30, 16, 82]);
+  pyPart(k, 'M -8 30 C -2 26 8 26 14 30 C 16 38 12 44 2 46 C -6 44 -10 38 -8 30 Z', PY_COL.blue, [1, 5, -10, 26, 16, 48]);
+  // 腰带与垂下的流苏
+  k.strokeStyle = PY_COL.yel; k.lineWidth = 1.6;
+  for (let i = 0; i < 3; i++) { k.beginPath(); k.moveTo(2 + i * 3, 80); k.quadraticCurveTo(4 + i * 3 + 3 * sw, 100, 2 + i * 4, 116); k.stroke(); }
+  // 头：侧脸（额、鼻、唇、下巴）连着后脑勺，是一整颗头；脸是镂空的亮色，只留细眉眼
+  pyPart(k, 'M 6 2 C 9 4 10 7 11 11 L 13 14 L 11 15 C 12 17 11 19 9 20 C 8 23 4 25 0 25 C -6 24 -10 18 -10 12 C -10 4 -4 0 6 2 Z', 'rgba(255,238,206,.5)');
+  k.strokeStyle = PY_INK; k.lineWidth = 0.9; k.beginPath(); k.moveTo(4, 9); k.quadraticCurveTo(7, 8, 9, 10); k.moveTo(5, 12); k.lineTo(8.5, 12.5); k.stroke();
+  // 头发：沿头顶外缘（半径 11.5）包住后脑，内缘（半径 8）就是发际线，紧贴头皮；后上方再盘一大一小两个发髻
+  const hair = new Path2D();
+  hair.arc(0, 11, 11.5, 0.78 * Math.PI, 1.8 * Math.PI); hair.arc(0, 11, 8, 1.78 * Math.PI, 0.9 * Math.PI, true); hair.closePath();
+  hair.moveTo(-1 + 7.5, -5); hair.arc(-1, -5, 7.5, 0, TAU);
+  hair.moveTo(-9 + 4.5, 0); hair.arc(-9, 0, 4.5, 0, TAU);
+  pyPart(k, hair, PY_COL.blk, [0, 4, -16, -14, 14, 22]);
+  k.strokeStyle = PY_COL.yel; k.lineWidth = 1.4; k.beginPath(); k.moveTo(-12, -4); k.lineTo(12, -11); k.stroke();
+  [[12, -11], [-6, -12]].forEach(([px, py]) => { k.beginPath(); k.arc(px, py, 2.4, 0, TAU); k.fillStyle = PY_COL.red; k.fill(); k.strokeStyle = PY_INK; k.lineWidth = 0.8; k.stroke(); });
+  k.strokeStyle = PY_COL.yel; k.lineWidth = 1; k.beginPath(); k.moveTo(12, -9); k.lineTo(13 + 2 * sw, 2); k.stroke();
+  k.beginPath(); k.arc(13 + 2 * sw, 3, 1.6, 0, TAU); k.fillStyle = PY_COL.yel; k.fill();
+  k.restore();
+  // 前臂：肩 → 肘 → 腕，抬起又放下；水袖挂在腕上向下飘
+  const sx = x + 6, sy = y + 34, s1 = -0.15 - 0.55 * (1 - Math.cos(a)) / 2, s2 = 0.35 + 0.3 * Math.sin(a * 2);
+  let hx, hy;
+  pyJoint(k, sx, sy, s1, () => {
+    pyPart(k, 'M 0 -3.5 L 24 -3 L 24 3 L 0 3.5 Z', PY_COL.red, [0, 4, 0, -4, 24, 4]);
+    pyJoint(k, 24, 0, s2, () => {
+      pyPart(k, 'M 0 -3 L 20 -2.5 L 20 2.5 L 0 3 Z', PY_COL.blue);
+      k.save(); k.translate(20, 0); k.rotate(-s1 - s2 + 0.9 + 0.25 * Math.sin(a * 2 + 1));
+      pyPart(k, 'M 0 -4 C 20 -6 34 0 44 10 C 38 24 30 34 24 46 C 18 30 8 14 0 4 Z', 'rgba(250,232,196,.42)', [1, 7, -2, -8, 46, 48]);
+      k.restore();
+    });
+  });
+  hx = sx + 24 * Math.cos(s1) + 20 * Math.cos(s1 + s2); hy = sy + 24 * Math.sin(s1) + 20 * Math.sin(s1 + s2);
+  pyRod(k, hx, hy, 10); pyRod(k, x + 2, y + 60, -6);
+}
+function pyGeneral(k, a) {
+  k.save(); k.translate(392, 190); k.scale(1.15, 1.15); k.translate(-392, -190);
+  const mx = 392, bob = 2.4 * Math.abs(Math.sin(a * 3)), my = 124 - bob;
+  // 四条腿：大腿绕髋、小腿绕膝，对角两两同相
+  const leg = (hx, ph, front) => {
+    const t = a * 3 + ph, th = 0.3 * Math.sin(t), sh = front ? -0.35 * Math.max(0, Math.sin(t + 0.8)) : 0.45 * Math.max(0, Math.sin(t - 0.6));
+    pyJoint(k, mx + hx, my + 8, th, () => {
+      pyPart(k, 'M -6 -4 C -7 8 -5 18 -3 24 L 4 24 C 6 16 7 6 6 -4 Z', PY_COL.blk, [0, 4, -7, -4, 7, 24]);
+      pyJoint(k, 0, 23, sh, () => { pyPart(k, 'M -3 0 L 3 0 L 2.5 18 L 5 22 L -4 22 L -2.5 18 Z', PY_COL.blk); });
+    });
+  };
+  k.save(); k.globalAlpha = 0.6; leg(24, 0, true); leg(-36, Math.PI, false); k.restore();
+  leg(30, Math.PI, true); leg(-30, 0, false);
+  // 尾：几缕长条，末端随步子甩
+  const tw = 4 * Math.sin(a * 3);
+  pyPart(k, `M ${mx + 46} ${my - 6} C ${mx + 64} ${my - 4} ${mx + 70} ${my + 14} ${mx + 66 + tw} ${my + 34} C ${mx + 58} ${my + 22} ${mx + 54} ${my + 8} ${mx + 44} ${my + 2} Z`, PY_COL.blk, [1, 4, mx + 44, my - 8, mx + 72, my + 36]);
+  // 马身：一条连贯的曲线（背、臀、腹、胸）
+  pyPart(k, `M ${mx - 34} ${my - 14} C ${mx - 10} ${my - 22} ${mx + 26} ${my - 22} ${mx + 46} ${my - 10} C ${mx + 54} ${my - 2} ${mx + 50} ${my + 12} ${mx + 36} ${my + 14} C ${mx + 10} ${my + 18} ${mx - 16} ${my + 18} ${mx - 32} ${my + 12} C ${mx - 42} ${my + 6} ${mx - 42} ${my - 6} ${mx - 34} ${my - 14} Z`,
+    PY_COL.blk, [0, 6, mx - 44, my - 22, mx + 54, my + 18]);
+  // 颈与头：颈向前上弓起，马头细长
+  const nod = 0.06 * Math.sin(a * 3 + 0.5);
+  k.save(); k.translate(mx - 30, my - 8); k.rotate(nod);
+  pyPart(k, 'M 0 -6 C -6 -22 -14 -36 -22 -44 L -30 -46 C -38 -44 -46 -38 -50 -30 C -48 -26 -44 -26 -40 -28 C -34 -28 -28 -24 -24 -18 C -18 -8 -10 4 6 8 Z', PY_COL.blk, [0, 5, -52, -48, 8, 10]);
+  k.fillStyle = PY_LIT; k.beginPath(); k.arc(-34, -38, 1.6, 0, TAU); k.fill();
+  k.strokeStyle = PY_COL.red; k.lineWidth = 1.4; k.beginPath(); k.moveTo(-44, -30); k.lineTo(-30, -40); k.lineTo(-20, -20); k.stroke();   // 笼头
+  // 鬃毛：一排细长的刻条
+  k.fillStyle = PY_COL.blk;
+  for (let i = 0; i < 7; i++) { const t = i / 6; k.beginPath(); k.moveTo(-22 + t * 18, -44 + t * 34); k.lineTo(-14 + t * 20 + 2 * Math.sin(a * 3 + i), -46 + t * 32); k.lineTo(-18 + t * 18, -40 + t * 34); k.fill(); }
+  k.restore();
+  // 鞍鞯：红底，刻菱格，下沿一排流苏
+  pyPart(k, `M ${mx - 18} ${my - 20} C ${mx - 6} ${my - 24} ${mx + 16} ${my - 24} ${mx + 26} ${my - 18} L ${mx + 22} ${my + 4} C ${mx + 6} ${my + 8} ${mx - 10} ${my + 8} ${mx - 20} ${my + 4} Z`, PY_COL.red, [2, 6, mx - 22, my - 26, mx + 28, my + 10]);
+  k.strokeStyle = PY_COL.yel; k.lineWidth = 1.2;
+  for (let i = 0; i < 9; i++) { const fx = mx - 18 + i * 5; k.beginPath(); k.moveTo(fx, my + 5); k.lineTo(fx + 0.6 * Math.sin(a * 3), my + 12); k.stroke(); }
+  // 武将：靠旗、铠甲（鱼鳞刻纹）、护腰、腿、侧脸与盔
+  const rx = mx, ry = my - 20;
+  const flag = (dx, rot) => pyPart(k, `M ${rx + 4} ${ry - 40} L ${rx + 4 + 30 * Math.cos(rot)} ${ry - 40 + 30 * Math.sin(rot)} L ${rx + 4 + 28 * Math.cos(rot + 0.32)} ${ry - 40 + 28 * Math.sin(rot + 0.32)} Z`, dx ? PY_COL.green : PY_COL.red, [1, 5, rx - 40, ry - 80, rx + 40, ry - 20]);
+  flag(0, -0.75 + 0.04 * Math.sin(a * 3)); flag(1, -0.35 + 0.04 * Math.sin(a * 3 + 1));
+  pyPart(k, `M ${rx - 4} ${ry} L ${rx + 10} ${ry} L ${rx + 6} ${ry + 26} L ${rx - 2} ${ry + 30} Z`, PY_COL.blue, [1, 4, rx - 6, ry, rx + 12, ry + 32]);   // 腿（搭在马侧）
+  pyPart(k, `M ${rx - 10} ${ry - 42} C ${rx - 14} ${ry - 28} ${rx - 12} ${ry - 12} ${rx - 10} ${ry + 2} L ${rx + 14} ${ry + 2} C ${rx + 14} ${ry - 14} ${rx + 12} ${ry - 30} ${rx + 8} ${ry - 42} Z`, PY_COL.green, [1, 5, rx - 16, ry - 44, rx + 16, ry + 4]);
+  pyPart(k, `M ${rx - 12} ${ry - 10} L ${rx + 14} ${ry - 10} L ${rx + 16} ${ry - 2} L ${rx - 13} ${ry - 2} Z`, PY_COL.yel, [2, 4, rx - 14, ry - 12, rx + 18, ry]);
+  pyPart(k, `M ${rx - 12} ${ry - 44} C ${rx - 6} ${ry - 48} ${rx + 6} ${ry - 48} ${rx + 12} ${ry - 44} L ${rx + 10} ${ry - 36} C ${rx + 2} ${ry - 34} ${rx - 6} ${ry - 34} ${rx - 12} ${ry - 36} Z`, PY_COL.red, [0, 4, rx - 14, ry - 50, rx + 14, ry - 32]);  // 护肩
+  // 侧脸朝左：额、鼻、唇、下巴，三缕长须
+  pyPart(k, `M ${rx + 2} ${ry - 66} C ${rx - 4} ${ry - 66} ${rx - 8} ${ry - 62} ${rx - 9} ${ry - 58} L ${rx - 11} ${ry - 55} L ${rx - 9} ${ry - 54} C ${rx - 10} ${ry - 51} ${rx - 8} ${ry - 49} ${rx - 6} ${ry - 48} L ${rx + 4} ${ry - 46} Z`, 'rgba(255,238,206,.5)');
+  k.strokeStyle = PY_INK; k.lineWidth = 0.9; k.beginPath(); k.moveTo(rx - 2, ry - 61); k.quadraticCurveTo(rx - 5, ry - 62.5, rx - 7, ry - 61); k.stroke();
+  k.lineWidth = 0.8; for (let i = 0; i < 3; i++) { k.beginPath(); k.moveTo(rx - 6 + i * 2, ry - 49); k.quadraticCurveTo(rx - 8 + i * 2 + 1.5 * Math.sin(a * 3), ry - 40, rx - 6 + i * 2, ry - 32); k.stroke(); }
+  pyPart(k, `M ${rx - 10} ${ry - 64} C ${rx - 8} ${ry - 76} ${rx + 8} ${ry - 78} ${rx + 10} ${ry - 64} L ${rx + 6} ${ry - 46} L ${rx + 2} ${ry - 64} Z`, PY_COL.blk, [0, 3.5, rx - 12, ry - 80, rx + 12, ry - 44]);
+  k.strokeStyle = PY_COL.red; k.lineWidth = 2.4; k.beginPath(); k.moveTo(rx, ry - 76); k.quadraticCurveTo(rx + 12 + 3 * Math.sin(a * 3), ry - 92, rx + 24, ry - 84); k.stroke();   // 盔缨
+  // 持枪的手臂：肩 → 肘两节，枪随肘摆动
+  const s1 = Math.PI - 0.7, s2 = -0.45 + 0.2 * Math.sin(a * 2);
+  pyJoint(k, rx - 6, ry - 38, s1, () => {
+    pyPart(k, 'M 0 -3.5 L 18 -3 L 18 3 L 0 3.5 Z', PY_COL.green);
+    pyJoint(k, 18, 0, s2, () => pyPart(k, 'M 0 -3 L 16 -2.5 L 16 2.5 L 0 3 Z', PY_COL.yel));
+  });
+  const ex = rx - 6 + 18 * Math.cos(s1), ey = ry - 38 + 18 * Math.sin(s1), hx = ex + 16 * Math.cos(s1 + s2), hy = ey + 16 * Math.sin(s1 + s2);
+  const sa = -1.35 + 0.15 * Math.sin(a * 2);
+  k.strokeStyle = PY_INK; k.lineWidth = 2; k.beginPath(); k.moveTo(hx - 50 * Math.cos(sa), hy - 50 * Math.sin(sa)); k.lineTo(hx + 52 * Math.cos(sa), hy + 52 * Math.sin(sa)); k.stroke();
+  const tx = hx + 52 * Math.cos(sa), ty = hy + 52 * Math.sin(sa);
+  k.fillStyle = '#d9dde2'; k.beginPath(); k.moveTo(tx + 10 * Math.cos(sa), ty + 10 * Math.sin(sa)); k.lineTo(tx + 3 * Math.cos(sa + 1.6), ty + 3 * Math.sin(sa + 1.6)); k.lineTo(tx + 3 * Math.cos(sa - 1.6), ty + 3 * Math.sin(sa - 1.6)); k.fill();
+  k.fillStyle = PY_COL.red; k.beginPath(); k.arc(tx - 1, ty + 1, 3, 0, TAU); k.fill();
+  pyRod(k, hx, hy, -6); pyRod(k, mx + 4, my + 6, 6);
+  k.restore();
+}
+CELLS[51] = (k, w, h, u) => {
+  const a = TAU * u / CYC;
+  const fl = 1 + 0.035 * Math.sin(a * 7) + 0.02 * Math.sin(a * 13);   // 灯光闪烁
+  const g = k.createRadialGradient(286, 92, 20, 286, 110, 330);
+  g.addColorStop(0, `rgb(255,${Math.round(Math.min(255, 216 * fl))},${Math.round(144 * fl)})`);
+  g.addColorStop(0.6, '#c98a3e'); g.addColorStop(1, '#4a2610');
+  k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  // 左侧亭子剪影：飞檐、两根柱、栏杆格子，稍虚（离幕较远）
+  k.save(); k.filter = 'blur(0.8px)'; k.fillStyle = 'rgba(60,24,10,.5)';
+  k.beginPath(); k.moveTo(0, 34); k.quadraticCurveTo(56, 44, 96, 20); k.lineTo(90, 40); k.quadraticCurveTo(50, 52, 0, 50); k.closePath(); k.fill();
+  k.fillRect(10, 50, 5, 140); k.fillRect(76, 46, 5, 144);
+  k.beginPath(); for (let x = 15; x < 76; x += 8) k.rect(x, 140, 1.6, 28); k.rect(15, 138, 61, 2.5); k.rect(15, 166, 61, 2.5);
+  for (let x = 18; x < 74; x += 14) { k.moveTo(x + 5, 58); k.arc(x, 58, 5, 0, TAU); } k.fill();
+  k.restore();
+  pyLady(k, a);
+  pyGeneral(k, a);
+  // 幕布下沿的木框与纹理
+  k.fillStyle = 'rgba(40,18,8,.85)'; k.fillRect(0, CH - 6, CW, 6);
+  grain(k, 0.07);
+};

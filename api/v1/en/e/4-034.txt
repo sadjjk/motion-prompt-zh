@@ -1,0 +1,157 @@
+// Motion Prompt #4-034 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/woodcut
+//
+// Woodcut / 木版画（白黒）
+// Category: Visual styles / Craft & patterns / Print & handmade
+// What happens: Only 2 colours, black and paper. The sky is rows of parallel black gouge lines that thicken towards the top, with the sun cut away completely. The sea is a big black mass; spray and currents are white cuts that follow the wave shapes, and the crests are upturned triangular nicks. A fisherman in a straw hat (no face drawn) leans back on the rocking boat and hauls up a net, showing the fish inside. Gulls flap overhead. Wood grain shows faintly in the black and coarse paper texture sits over everything.
+// Motion spec:
+//   - 6.4 s cycle; continuous loop with no reset segment.
+//   - The front and back waves each roll forward 1 lap per cycle; the fine ripples go 2 laps.
+//   - The boat rides up and down with the front wave, and the fisherman leans back to haul the net 1 time per cycle.
+//   - Gulls flap 3–5 times per cycle. The sky and headland are drawn directly every frame so they stay crisp when enlarged.
+// When to use it: Use it for posters, book covers, folk tales and sea stories that want strength and a handmade feel.
+// Tags: woodcut, linocut, black and white, print, sea, fisherman
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-034
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 47
+// 47 木刻版画（参考 jingyu-skill「木刻版画」词条的说明重新实现，MIT · 阿梦freedom）：只有黑与纸色两种颜色，渔民在浪里的木船上拉网。
+// 天空是一排排刻刀留下的平行黑线，越往上越粗，太阳处整块刻空；海是大块黑色，浪花和水纹是顺着浪形刻出的白色刀痕，浪尖是向上挑起的三角刀口；
+// 船身刻出木板缝，渔民戴斗笠（不画五官），黑色区域透出淡淡木纹，最后压一层粗纸纹。
+// 动作：两道浪各自向前推（前浪 1 圈、后浪 1 圈，细浪 2 圈 / 周期），船随前浪起伏摇摆，渔民一周期后仰拉一次网，网兜随之提起、露出鱼；海鸥扇翅；连续循环。
+const WC_INK = '#161310', WC_PAPER = '#e9e0ca';
+const WC_BOAT = 300;
+const WC_FRONT = (x, u) => { const s1 = Math.sin(TAU * (x / 190 - u / CYC)), s2 = Math.sin(TAU * (x / 74 + 2 * u / CYC) + 1.3); return 168 - 14 * (Math.pow((1 + s1) / 2, 2.4) * 2 - 1) - 3 * s2; };
+const WC_BACK = (x, u) => { const s1 = Math.sin(TAU * (x / 130 - u / CYC) + 2.1), s2 = Math.sin(TAU * (x / 52 - 2 * u / CYC)); return 128 - 6 * (Math.pow((1 + s1) / 2, 2) * 2 - 1) - 2 * s2; };
+// 一条两头尖的刀痕：只往当前路径里加子路径，由调用方统一填色
+function wcCut(k, pts, w) {
+  const n = pts.length; if (n < 2) return;
+  const L = [], R = [];
+  for (let i = 0; i < n; i++) {
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1;
+    const hw = w * 0.5 * Math.pow(Math.sin(Math.PI * i / (n - 1)), 0.6);
+    L.push([pts[i][0] - dy / d * hw, pts[i][1] + dx / d * hw]); R.push([pts[i][0] + dy / d * hw, pts[i][1] - dx / d * hw]);
+  }
+  L.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); for (let i = n - 1; i >= 0; i--) k.lineTo(R[i][0], R[i][1]); k.closePath();
+}
+// 海面：黑色水体 + 顺浪形的白色刀痕（断成长短不一的段，位置按屏幕 x 固定）
+function wcSea(k, surf, u, rows, w0, seed) {
+  k.beginPath(); k.moveTo(0, CH);
+  for (let x = 0; x <= CW; x += 4) k.lineTo(x, surf(x, u));
+  k.lineTo(CW, CH); k.closePath(); k.fillStyle = WC_INK; k.fill();
+  k.beginPath();
+  rows.forEach((d, r) => {
+    let x = -10 + hash(seed + r) * 20;
+    for (let s = 0; x < CW + 10; s++) {
+      const len = 18 + hash(seed + r * 31 + s) * (60 - r * 6), pts = [];
+      for (let xx = x; xx <= x + len; xx += 4) pts.push([xx, surf(xx, u) + d + 1.4 * Math.sin(xx / 23 + d)]);
+      wcCut(k, pts, mix(w0, 1.5, r / rows.length));   // 最细 1.5px，理由同天空的刻线
+      x += len + 4 + hash(seed + r * 17 + s) * (6 + r * 3);
+    }
+  });
+  k.fillStyle = WC_PAPER; k.fill();
+}
+CELLS[46] = (k, w, h, u) => {
+  const f = u / CYC, pull = 0.5 - 0.5 * Math.cos(TAU * f);
+  // 天空和礁岬每帧直接画，不走缓存图层：缓存图层放大显示会被插值变糊，详情页里刻线就不清楚了
+  (g => {
+    g.fillStyle = WC_PAPER; g.fillRect(0, 0, CW, CH);
+    const SUN = [118, 50, 26];
+    g.beginPath();
+    for (let y = 3, r = 0; y < 112; y += 5.5, r++) {
+      const wd = mix(3.6, 1.3, y / 112); let pts = [];
+      const flush = () => { if (pts.length > 2) wcCut(g, pts, wd); pts = []; };
+      for (let x = -10; x <= CW + 10; x += 6) {
+        const yy = y + 0.8 * Math.sin(x / 37 + r);
+        if (Math.hypot(x - SUN[0], yy - SUN[1]) < SUN[2] + 5 || hash(r * 97 + x) > 0.965) { flush(); continue; }
+        pts.push([x, yy]);
+      }
+      flush();
+    }
+    g.fillStyle = WC_INK; g.fill();
+    g.beginPath(); g.arc(SUN[0], SUN[1], SUN[2], 0, TAU); g.strokeStyle = WC_INK; g.lineWidth = 1.6; g.stroke();
+    // 右边的礁岬：整块黑，刻出顺坡的白线
+    g.beginPath(); g.moveTo(396, 126); g.lineTo(430, 100); g.lineTo(468, 74); g.lineTo(506, 62); g.lineTo(CW, 68); g.lineTo(CW, 130); g.closePath(); g.fillStyle = WC_INK; g.fill();
+    g.beginPath();
+    for (let i = 0; i < 9; i++) { const x0 = 424 + i * 13; wcCut(g, [[x0, 108 - i * 3], [x0 + 14, 92 - i * 3], [x0 + 26, 78 - i * 2]].map(([x, y]) => [x, Math.max(y, 70 + (x > 506 ? 0 : (506 - x) * 0.3))]), 1.6); }
+    g.fillStyle = WC_PAPER; g.fill();
+  })(k);
+  // 海鸥：在原地附近绕小圈，扇翅 3～5 次 / 周期
+  [[208, 78, 0], [252, 64, 1], [360, 84, 2]].forEach(([x0, y0, i]) => {
+    const x = x0 + 8 * Math.sin(TAU * f + i), y = y0 + 4 * Math.sin(TAU * 2 * f + i), fl = 5 * Math.sin(TAU * (3 + i) * f);
+    const wing = () => { k.beginPath(); k.moveTo(x - 13, y - fl); k.quadraticCurveTo(x - 6, y - 6 - fl * 0.4, x, y); k.quadraticCurveTo(x + 6, y - 6 - fl * 0.4, x + 13, y - fl); };
+    k.lineCap = 'round'; wing(); k.strokeStyle = WC_INK; k.lineWidth = 3.4; k.stroke(); wing(); k.strokeStyle = WC_PAPER; k.lineWidth = 1.3; k.stroke();
+  });
+  wcSea(k, WC_BACK, u, [5, 10, 16, 23, 31, 40, 50], 2.2, 300);
+  // 船随前浪起伏摇摆
+  const yb = 0.5 * WC_BACK(WC_BOAT, u) + 0.5 * WC_FRONT(WC_BOAT, u) - 12;
+  const tilt = Math.atan2(WC_FRONT(WC_BOAT + 60, u) - WC_FRONT(WC_BOAT - 60, u), 120) * 0.5;
+  k.save(); k.translate(WC_BOAT, yb); k.rotate(tilt);
+  // 渔民：先画，船帮挡住腿；身体绕脚后仰
+  const lean = -0.12 - 0.3 * pull, hand = [54 - 12 * pull, -30 + 2 * pull];
+  k.save(); k.translate(30, -6); k.rotate(lean);
+  k.fillStyle = WC_INK; k.strokeStyle = WC_INK; k.lineCap = 'round';
+  k.lineWidth = 5; k.beginPath(); k.moveTo(-4, -14); k.lineTo(-6, 0); k.moveTo(5, -14); k.lineTo(7, 0); k.stroke();
+  k.beginPath(); k.moveTo(-7, -15); k.lineTo(7, -15); k.lineTo(9, -38); k.quadraticCurveTo(1, -42, -7, -38); k.closePath(); k.fill();
+  k.beginPath(); for (let i = 0; i < 5; i++) wcCut(k, [[-5 + i * 3, -17], [-3 + i * 3.4, -26], [-1 + i * 3.6, -36]], 1.3); k.fillStyle = WC_PAPER; k.fill();
+  k.fillStyle = WC_INK; k.beginPath(); k.arc(1, -45, 5.5, 0, TAU); k.fill();
+  const hat = () => { k.beginPath(); k.moveTo(-14, -46); k.lineTo(1, -59); k.lineTo(17, -45); k.quadraticCurveTo(1, -42, -14, -46); k.closePath(); };
+  hat(); k.fillStyle = WC_PAPER; k.fill(); k.lineWidth = 1.6; k.strokeStyle = WC_INK; k.stroke();
+  k.lineWidth = 0.9; for (let i = 0; i < 6; i++) { k.beginPath(); k.moveTo(1, -58); k.lineTo(-11 + i * 5.5, -45.5); k.stroke(); }
+  k.restore();
+  // 手臂从肩膀伸到手上的绳子（肩膀位置按后仰角算）
+  const sh = [30 + 37 * Math.sin(-lean) * -1 + 2, -6 - 37 * Math.cos(lean)];
+  k.strokeStyle = WC_INK; k.lineWidth = 4.5; k.beginPath(); k.moveTo(sh[0], sh[1]); k.lineTo(hand[0], hand[1]); k.moveTo(sh[0] - 4, sh[1] + 3); k.lineTo(hand[0] - 2, hand[1] + 2); k.stroke();
+  k.lineWidth = 1.8; k.beginPath(); k.moveTo(hand[0] - 4, hand[1] + 1); k.lineTo(80, -9); k.lineTo(98, 10); k.stroke();
+  // 船身：整块黑，刻出船帮高光与木板缝
+  const hull = () => { k.beginPath(); k.moveTo(-86, -16); k.quadraticCurveTo(0, -3, 82, -10); k.quadraticCurveTo(70, 14, 40, 20); k.lineTo(-40, 20); k.quadraticCurveTo(-74, 12, -86, -16); k.closePath(); };
+  hull(); k.fillStyle = WC_INK; k.fill();
+  k.beginPath();
+  [0.28, 0.52, 0.76].forEach(t => { const pts = []; for (let x = -72; x <= 70; x += 6) { const top = -9.5 + 0.0009 * x * x * -1 + 0.03 * x, bot = 20 - Math.max(0, Math.abs(x) - 40) * 0.5; pts.push([x, mix(top, bot, t)]); } wcCut(k, pts, 1.7); });
+  { const pts = []; for (let x = -80; x <= 78; x += 6) pts.push([x, -9.5 + 0.03 * x - 0.0009 * x * x - 4 * Math.max(0, -x - 60) / 26]); wcCut(k, pts, 2); }
+  k.fillStyle = WC_PAPER; k.fill();
+  k.strokeStyle = WC_INK; k.lineWidth = 3; k.beginPath(); k.moveTo(-24, -8); k.lineTo(-24, -74); k.stroke();
+  k.lineWidth = 0.9; k.beginPath(); k.moveTo(-24, -72); k.lineTo(-84, -16); k.moveTo(-24, -72); k.lineTo(78, -10); k.stroke();
+  k.lineWidth = 2.2; k.beginPath(); k.moveTo(-40, -60); k.lineTo(-6, -64); k.stroke();
+  k.restore();
+  wcSea(k, WC_FRONT, u, [6, 12, 19, 27, 36], 2.8, 700);
+  // 浪尖：随浪走的向上挑起的三角刀口和飞沫
+  const shift = 190 * f, off = shift % 7, base = Math.floor(shift / 7);
+  k.beginPath();
+  for (let j = -2; j * 7 < CW + 14; j++) {
+    const x = j * 7 + off, c = (1 + Math.sin(TAU * (x / 190 - f))) / 2;
+    if (c < 0.8) continue;
+    const L = (6 + 10 * hash(j - base + 900)) * (c - 0.8) / 0.2, y = WC_FRONT(x, u);
+    wcCut(k, [[x + 1, y + 3], [x - L * 0.3, y - L * 0.6], [x - L * 0.6, y - L]], 3);
+    if (hash(j - base + 500) > 0.5) k.rect(x - L * 0.8, y - L - 5, 1.8, 1.8);
+  }
+  k.fillStyle = WC_PAPER; k.fill();
+  // 网兜在船尾外的水里，拉网时提起，露出鱼
+  k.save(); k.translate(WC_BOAT, yb); k.rotate(tilt);
+  const bag = [[88, 6], [150, 10], [124, 34 - 16 * pull]];
+  k.save(); k.beginPath(); k.moveTo(bag[0][0], bag[0][1]); k.lineTo(bag[1][0], bag[1][1]); k.quadraticCurveTo(146, 30 - 10 * pull, bag[2][0], bag[2][1]); k.quadraticCurveTo(96, 34 - 14 * pull, bag[0][0], bag[0][1]); k.closePath(); k.clip();
+  k.strokeStyle = WC_PAPER; k.lineWidth = 0.9; k.beginPath();
+  for (let i = -6; i < 12; i++) { k.moveTo(80 + i * 7, 0); k.lineTo(110 + i * 7, 40); k.moveTo(80 + i * 7, 40); k.lineTo(110 + i * 7, 0); }
+  k.stroke();
+  k.globalAlpha = seg(pull, 0.4, 0.9);
+  [[110, 20, 0.3], [126, 16, -0.4], [118, 26, 0.1]].forEach(([x, y, r]) => {
+    k.save(); k.translate(x, y - 6 * pull); k.rotate(r);
+    k.beginPath(); k.ellipse(0, 0, 7, 2.6, 0, 0, TAU); k.moveTo(6, 0); k.lineTo(11, -3); k.lineTo(11, 3); k.closePath(); k.fillStyle = WC_PAPER; k.fill(); k.strokeStyle = WC_INK; k.lineWidth = 0.8; k.stroke();
+    k.restore();
+  });
+  k.restore();
+  k.strokeStyle = WC_PAPER; k.lineWidth = 1.2; k.beginPath(); k.moveTo(96, 6); k.lineTo(152, 10); k.stroke();
+  k.restore();
+  // 黑色里透出的木纹 + 粗纸纹
+  k.save(); k.globalCompositeOperation = 'screen';
+  k.drawImage(layer('WC_wood', g => {
+    g.strokeStyle = 'rgba(200,190,170,.14)'; g.lineWidth = 1;
+    for (let y = 0; y < CH; y += 3) { g.beginPath(); for (let x = 0; x <= CW; x += 8) g.lineTo(x, y + 3 * Math.sin(x / 61 + y / 9) + 2 * fbm2(x / 40, y / 13, 2)); g.stroke(); }
+  }), 0, 0);
+  k.restore();
+  paper(k, [70, 50, 30], 1400, 47);
+  grain(k, 0.09);
+};

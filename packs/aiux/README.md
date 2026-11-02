@@ -2,7 +2,7 @@
 
 # Glow & liquid
 
-19 names · #1 096 · 098~101 · 114 · 146~148 · 164 · 167~175 · pack `aiux` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+20 names · #1 096 · 098~101 · 114 · 146~148 · 164 · 167~175 · 197 · pack `aiux` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -29,6 +29,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-146](https://sadjjk.github.io/motion-prompt-zh/#1-146) | **Gooey morph menu** | Action buttons are pulled out of a plus button like liquid and pinch off on their own | Make the + button open a gooey menu: three actions stretch out of it like liquid and split off, 550 ms each, staggered 40 ms, with a slight bounce. |
 | [#1-147](https://sadjjk.github.io/motion-prompt-zh/#1-147) | **Gooey trail** | A moving indicator stretches and trails a droplet tail behind it | Make the tab indicator liquid: it stretches when it moves and trails a droplet tail, 0.45 s per move, tail lagging 0.09 s. |
 | [#1-148](https://sadjjk.github.io/motion-prompt-zh/#1-148) | **Gooey bend** | A dragged card bows softly against the direction it moves | Make the dragged card bend like liquid against its motion, in proportion to speed, up to 9 px. |
+| [#1-197](https://sadjjk.github.io/motion-prompt-zh/#1-197) | **Liquid glass lens** | A glass lens glides over the content, bending the background at its rim with colour fringes | Slide a capsule-shaped liquid glass lens back and forth over a headline and colour chips: the middle shows the background as is, while within 26 px of the rim the background bends inwards and red, green and blue separate into colour fringes. |
 
 ## Feedback / Progress & icons
 

@@ -1741,6 +1741,1040 @@ MotionPrompt.pack('scenes', function () {
     grain(k, 0.06);
   };
 
+  // @element 45
+  // 45 波普艺术（参考 jingyu-skill「波普艺术」词条的说明重新实现，MIT · 阿梦freedom）：一碗汤面被放大成占满画面的符号。
+  // 粗黑轮廓、硬边色块，背后是放射光芒，背景和碗的暗部用印刷网点（越靠外网点越大）；碗上没有任何品牌字样。
+  // 节奏：0–2.3 秒单幅，筷子把面条提起又放下、热气上飘；2.3–2.8 秒画面切成 2×2 宫格；2.9 秒起四格按顺序各换一套撞色，
+  // 换色时那一格轻轻一弹；5.4–6.0 秒宫格合回单幅并恢复原配色。筷子与热气每周期 2 次，首尾一致。
+  const PA_P = [
+    { bg: '#ffd23f', ray: '#ff5a36', dot: '#e8371f', bowl: '#fffaf0', pat: '#e8371f', soup: '#c76a2a' },
+    { bg: '#38c6f4', ray: '#ff4fa3', dot: '#1d4fd6', bowl: '#fffaf0', pat: '#1d4fd6', soup: '#d08a3a' },
+    { bg: '#7be07b', ray: '#ffe04a', dot: '#1f9e4a', bowl: '#fff2fa', pat: '#ff3d8b', soup: '#c76a2a' },
+    { bg: '#ff7ab8', ray: '#7a3cff', dot: '#d8166c', bowl: '#fffaf0', pat: '#ffb800', soup: '#b05a24' },
+    { bg: '#ff9f1c', ray: '#2ec4b6', dot: '#e85d04', bowl: '#f4fffd', pat: '#2ec4b6', soup: '#a8541f' }];
+  const PA_C = [270, 132];                                   // 放射光芒中心
+  const PA_SWAP = [2.9, 3.35, 3.8, 4.25];                    // 四格依次换色的时刻
+  const PA_BOWL = new Path2D('M 118 108 C 124 170 190 192 232 194 L 308 194 C 350 192 416 170 422 108 Z');
+  const PA_INK = '#141414';
+  // 网点：交错网格，半径由 r(x, y) 给出（单位 px），一条 path 一次填完
+  function paDots(k, r, x0, y0, x1, y1, col) {
+    k.beginPath();
+    for (let y = y0, row = 0; y < y1; y += 8, row++) for (let x = x0 + (row % 2) * 4; x < x1; x += 8) {
+      const d = r(x, y); if (d > 0.35) { k.moveTo(x + d, y); k.arc(x, y, d, 0, TAU); }
+    }
+    k.fillStyle = col; k.fill();
+  }
+  // 描粗黑边的线：先黑后色，得到漫画式的包边
+  function paLine(k, pts, w, col) {
+    const path = () => { k.beginPath(); pts.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); };
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    path(); k.strokeStyle = PA_INK; k.lineWidth = w + 2.6; k.stroke();
+    path(); k.strokeStyle = col; k.lineWidth = w; k.stroke();
+  }
+  function paScene(k, P, u) {
+    const a = TAU * 2 * u / CYC, lift = 9 * (1 - Math.cos(a)) / 2;
+    k.fillStyle = P.bg; k.fillRect(0, 0, CW, CH);
+    k.beginPath();
+    for (let i = 0; i < 28; i += 2) { const a0 = i / 28 * TAU, a1 = (i + 1) / 28 * TAU; k.moveTo(PA_C[0], PA_C[1]); k.lineTo(PA_C[0] + 700 * Math.cos(a0), PA_C[1] + 700 * Math.sin(a0)); k.lineTo(PA_C[0] + 700 * Math.cos(a1), PA_C[1] + 700 * Math.sin(a1)); k.closePath(); }
+    k.fillStyle = P.ray; k.fill();
+    paDots(k, (x, y) => 3.4 * clamp(Math.hypot(x - PA_C[0], (y - PA_C[1]) * 1.6) / 300 - 0.35, 0, 1), 0, 0, CW + 8, CH + 8, P.dot);
+    // 热气：两条粗黑边的白色波浪，往上飘
+    for (let s = 0; s < 2; s++) {
+      const pts = [];
+      for (let i = 0; i <= 16; i++) { const t = i / 16; pts.push([196 + s * 58 + 10 * Math.sin(t * 5 - a + s * 2) * (0.4 + t), 100 - t * 96]); }
+      paLine(k, pts, 9, '#fffdf5');
+    }
+    // 碗身：白底、一圈红色椭圆纹，右下暗部是网点
+    k.save(); k.clip(PA_BOWL);
+    k.fillStyle = P.bowl; k.fillRect(110, 100, 320, 100);
+    k.fillStyle = P.pat; for (let i = 0; i < 9; i++) { k.beginPath(); k.ellipse(146 + i * 31, 150 + Math.abs(i - 4) * -2, 10, 22 - Math.abs(i - 4) * 1.5, 0, 0, TAU); k.fill(); }
+    paDots(k, (x, y) => 3.2 * clamp((x - 250) / 170 + (y - 130) / 120, 0, 1), 110, 100, 430, 200, PA_INK);
+    k.restore();
+    k.lineJoin = 'round'; k.strokeStyle = PA_INK; k.lineWidth = 4; k.stroke(PA_BOWL);
+    k.beginPath(); k.ellipse(270, 197, 46, 6, 0, 0, TAU); k.fillStyle = P.bowl; k.fill(); k.stroke();
+    // 碗口、汤面、汤里的面、溏心蛋、葱花
+    k.beginPath(); k.ellipse(270, 108, 152, 26, 0, 0, TAU); k.fillStyle = P.bowl; k.fill(); k.lineWidth = 4; k.stroke();
+    k.save(); k.beginPath(); k.ellipse(270, 110, 140, 19, 0, 0, TAU); k.fillStyle = P.soup; k.fill(); k.clip();
+    for (let r = 0; r < 5; r++) { const pts = []; for (let x = 140; x <= 400; x += 6) pts.push([x, 98 + r * 5 + 2.2 * Math.sin(x / 7 + r * 1.7)]); paLine(k, pts, 3, '#ffd84a'); }
+    k.restore();
+    k.beginPath(); k.ellipse(270, 110, 140, 19, 0, 0, TAU); k.lineWidth = 2.5; k.stroke();
+    k.beginPath(); k.ellipse(212, 106, 27, 13, -0.08, 0, TAU); k.fillStyle = '#fffaf0'; k.fill(); k.lineWidth = 2.5; k.stroke();
+    k.beginPath(); k.ellipse(216, 106, 13, 7, -0.08, 0, TAU); k.fillStyle = '#ffae00'; k.fill(); k.stroke();
+    k.beginPath(); k.ellipse(213, 104, 5, 2.5, -0.08, 0, TAU); k.fillStyle = '#fff3c4'; k.fill();
+    [[250, 100], [262, 112], [282, 104], [300, 114], [178, 114]].forEach(([x, y]) => { k.beginPath(); k.ellipse(x, y, 5.5, 3, 0, 0, TAU); k.strokeStyle = PA_INK; k.lineWidth = 5; k.stroke(); k.strokeStyle = '#3fbf4a'; k.lineWidth = 2.6; k.stroke(); });
+    // 被筷子提起的面条（一周期提起放下 2 次）
+    for (let i = 0; i < 5; i++) {
+      const pts = [];
+      for (let y = 112; y >= 34 - lift; y -= 4) { const t = (112 - y) / 80; pts.push([318 + i * 5 + (14 - i * 2) * t + 3.2 * Math.sin(y / 5 + i * 1.3), y]); }
+      paLine(k, pts, 3.4, '#ffd84a');
+    }
+    paLine(k, [[330, 30 - lift], [560, -20 - lift * 0.4]], 6, '#c4462b');
+    paLine(k, [[344, 40 - lift], [570, 2 - lift * 0.4]], 6, '#c4462b');
+  }
+  // 宫格节奏：整幅先缩进左上格（2.3–2.7 秒），另外三格依次弹出；结尾三格倒序收回，左上格再放大回整幅
+  const PA_IN = [2.7, 2.84, 2.98], PA_OUT = [5.42, 5.32, 5.22];
+  const paPop = t => (t <= 0 ? 0 : t >= 1 ? 1 : 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2));
+  CELLS[44] = (k, w, h, u) => {
+    const e = inOut3(seg(u, 2.3, 2.7)) * (1 - inOut3(seg(u, 5.55, 6.0)));
+    if (e < 0.001) { paScene(k, PA_P[0], u); return; }
+    k.fillStyle = PA_INK; k.fillRect(0, 0, CW, CH);
+    for (let q = 0; q < 4; q++) {
+      const qx = q % 2, qy = q >> 1, on = u >= PA_SWAP[q] && u < 5.2;
+      // 左上格跟着 e 缩放；其余三格只在弹出/收回时缩放，换色那一下轻弹
+      const s0 = q ? paPop(seg(u, PA_IN[q - 1], PA_IN[q - 1] + 0.26)) * (1 - inOut3(seg(u, PA_OUT[q - 1], PA_OUT[q - 1] + 0.14))) : 1;
+      if (s0 < 0.001) continue;
+      const bump = on ? 0.05 * Math.sin(Math.PI * seg(u, PA_SWAP[q], PA_SWAP[q] + 0.3)) : 0;
+      const sw = (q ? 0.5 * s0 : mix(1, 0.5, e)) * (1 + bump);
+      const cx = q ? (qx + 0.5) * CW / 2 : mix(CW / 2, CW / 4, e), cy = q ? (qy + 0.5) * CH / 2 : mix(CH / 2, CH / 4, e);
+      const g = 2.5;                                          // 格与格之间留出黑色描边
+      k.save(); k.beginPath();
+      k.rect(cx - CW * sw / 2 + g * e, cy - CH * sw / 2 + g * e, CW * sw - 2 * g * e, CH * sw - 2 * g * e); k.clip();
+      k.translate(cx, cy); k.scale(sw, sw); k.translate(-CW / 2, -CH / 2);
+      paScene(k, on ? PA_P[q + 1] : PA_P[0], u);
+      k.restore();
+    }
+  };
+
+  // @element 46
+  // 46 浮世绘（参考 jingyu-skill「浮世绘木版画」词条的说明重新实现，MIT · 阿梦freedom）：雨里一座大木桥横贯画面，两个撑伞的人在桥上相向走过。
+  // 木版画的做法：墨线描轮廓，几种平涂套色，填色相对墨线错开 2px（套印没对准的样子）；天空上沿和水面下沿用渐染；
+  // 雨是固定角度的细刻线；右上角一枝松树压在前景，裁掉画面一角。不照搬任何名作的构图。
+  // 动作：两人各走一趟（从画外到画外，一周期一趟，各 18 步），雨丝落 2 遍，水面雨圈扩散 2 次，波纹平移一个纹样宽度；连续循环，不设复位段。
+  const UK_INK = '#2b2420';
+  const UK_REG = [2, 1.5];                                     // 套色相对墨线的错位
+  const UK_DECK = x => 120 - 30 * Math.sin(Math.PI * clamp((x + 60) / (CW + 120)));   // 桥面高度：一道拱贯穿全画
+  const UK_PIERS = [-10, 70, 150, 230, 310, 390, 470, 550];   // 桥墩 x
+  const UK_RAIN = 110;
+  // 套色 + 墨线：先按错位平涂填色，再在原位描墨线
+  function ukShape(g, path, fill, lw = 1.2) {
+    g.save(); g.translate(UK_REG[0], UK_REG[1]); path(); g.fillStyle = fill; g.fill(); g.restore();
+    path(); g.strokeStyle = UK_INK; g.lineWidth = lw; g.lineJoin = 'round'; g.stroke();
+  }
+  function ukPoly(g, pts) { g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); }
+  // 撑伞的行人：伞挡住脸，只露发髻；dir 为行走方向，f 为这一趟走了多少（0..1）
+  function ukPerson(k, x, dir, umb, robe, f, sc) {
+    const s = f * 18, st = Math.sin(TAU * s), bob = -Math.abs(Math.cos(Math.PI * s)) * 1.2;
+    k.save(); k.translate(x, UK_DECK(x) - 1 + bob); k.scale(sc * dir, sc);
+    k.strokeStyle = UK_INK; k.lineCap = 'round';
+    [1, -1].forEach(sg => {
+      const fx = sg * st * 3.2;
+      k.lineWidth = 2.2; k.beginPath(); k.moveTo(sg * 1.5, -10); k.lineTo(fx, -1.5); k.stroke();
+      k.lineWidth = 1.8; k.beginPath(); k.moveTo(fx - 2.4, 0); k.lineTo(fx + 2.6, 0); k.stroke();
+    });
+    const robeP = () => ukPoly(k, [[-5, -28], [5, -28], [8.5, -8], [-8.5, -8]]);
+    ukShape(k, robeP, robe);
+    k.save(); robeP(); k.clip(); k.fillStyle = 'rgba(236,226,200,.75)';
+    for (let i = 0; i < 7; i++) { k.beginPath(); k.arc(-6 + (i % 4) * 4 + (i > 3 ? 2 : 0), -24 + Math.floor(i / 4) * 9 + (i % 2) * 2, 1, 0, TAU); k.fill(); }
+    k.restore();
+    k.fillStyle = '#b8443a'; k.fillRect(-5.6, -19.5, 11.2, 3);
+    k.fillStyle = UK_INK; k.beginPath(); k.ellipse(0.5, -31, 3.6, 3.4, 0, 0, TAU); k.fill();   // 后脑与发髻（不画五官）
+    k.beginPath(); k.arc(-1, -34.5, 1.8, 0, TAU); k.fill();
+    k.lineWidth = 2; k.beginPath(); k.moveTo(3, -25); k.lineTo(4.5, -21); k.stroke();
+    k.lineWidth = 1.1; k.beginPath(); k.moveTo(4.5, -20); k.lineTo(3.5, -42); k.stroke();
+    k.save(); k.translate(3.5, -41); k.rotate(0.22);
+    const can = () => {
+      k.beginPath(); k.moveTo(-21, 6); k.quadraticCurveTo(-15, -8, 0, -9.5); k.quadraticCurveTo(15, -8, 21, 6);
+      for (let i = 0; i < 6; i++) { const x0 = 21 - i * 7; k.quadraticCurveTo(x0 - 3.5, 3.6, x0 - 7, 6); }
+      k.closePath();
+    };
+    ukShape(k, can, umb);
+    k.strokeStyle = 'rgba(43,36,32,.6)'; k.lineWidth = 0.6;
+    for (let i = 1; i < 6; i++) { k.beginPath(); k.moveTo(0, -9.5); k.lineTo(-21 + i * 7, 6); k.stroke(); }
+    k.fillStyle = UK_INK; k.fillRect(-1.2, -12, 2.4, 3);
+    k.restore();
+    k.restore();
+  }
+  CELLS[45] = (k, w, h, u) => {
+    const f = u / CYC;
+    k.drawImage(layer('UK_bg', g => {
+      g.fillStyle = '#ece2c8'; g.fillRect(0, 0, CW, CH);
+      const sk = g.createLinearGradient(0, 0, 0, 96);
+      sk.addColorStop(0, 'rgba(28,44,78,1)'); sk.addColorStop(0.5, 'rgba(52,74,110,.55)'); sk.addColorStop(1, 'rgba(52,74,110,0)');
+      g.fillStyle = sk; g.fillRect(0, 0, CW, 96);
+      // 远山不描线，只用灰蓝平涂，两层由浅到深
+      [[98, 40, 3, '#9aa8b2'], [108, 26, 8, '#7a8c9c']].forEach(([base, amp, sd, col]) => {
+        g.beginPath(); g.moveTo(0, 114);
+        for (let x = 0; x <= CW; x += 6) g.lineTo(x, base - amp * fbm2(x / 90 + sd, sd, 3));
+        g.lineTo(CW, 114); g.closePath(); g.fillStyle = col; g.fill();
+      });
+      g.fillStyle = '#5d735c'; g.fillRect(0, 108, CW, 6);
+      for (let x = 4; x < CW; x += 9) { g.beginPath(); g.ellipse(x + hash(x) * 4, 107, 4 + hash(x + 1) * 3, 3, 0, 0, TAU); g.fill(); }
+      const rv = g.createLinearGradient(0, 114, 0, CH); rv.addColorStop(0, '#7099b2'); rv.addColorStop(0.55, '#5a86a3'); rv.addColorStop(1, '#2c4f6e');
+      g.fillStyle = rv; g.fillRect(0, 114, CW, CH - 114);
+      g.beginPath(); g.moveTo(0, 114); g.lineTo(CW, 114); g.strokeStyle = UK_INK; g.lineWidth = 1; g.stroke();
+      // 桥墩倒影
+      g.strokeStyle = 'rgba(30,48,70,.35)'; g.lineWidth = 5;
+      UK_PIERS.forEach(px => { g.beginPath(); for (let y = 198; y < CH; y += 2) g.lineTo(px + 3.5 + 2 * Math.sin(y / 3), y); g.stroke(); });
+    }), 0, 0);
+    // 水面：波纹纹样每周期平移一个纹样宽度；雨圈扩散 2 次
+    k.save(); k.strokeStyle = 'rgba(32,52,82,.5)'; k.lineWidth = 1;
+    for (let r = 0; r < 6; r++) {
+      const y = 124 + r * 15, sh = (r % 2 ? 1 : -1) * 40 * f + (r % 2) * 20;
+      for (let x0 = -40; x0 < CW + 40; x0 += 40) {
+        k.beginPath(); for (let i = 0; i <= 8; i++) k.lineTo(x0 + sh + i * 3, y + 1.6 * Math.sin(i / 8 * TAU)); k.stroke();
+      }
+    }
+    for (let i = 0; i < 14; i++) {
+      const p = (hash(i * 7 + 1) + 2 * f) % 1, r = 1.5 + 9 * p;
+      k.strokeStyle = `rgba(236,226,200,${0.6 * (1 - p)})`; k.beginPath(); k.ellipse(hash(i * 7 + 2) * CW, 130 + hash(i * 7 + 3) * 72, r, r * 0.32, 0, 0, TAU); k.stroke();
+    }
+    k.restore();
+    k.drawImage(layer('UK_bridge', g => {
+      UK_PIERS.forEach((px, i) => {
+        const top = UK_DECK(px) + 8;
+        ukShape(g, () => { g.beginPath(); g.rect(px, top, 7, 198 - top); }, '#6b4a32');
+        const nx = UK_PIERS[i + 1];
+        if (nx !== undefined) {
+          g.strokeStyle = UK_INK; g.lineWidth = 1.4;
+          g.beginPath(); g.moveTo(px + 7, 150); g.lineTo(nx, 184); g.moveTo(px + 7, 184); g.lineTo(nx, 150); g.stroke();
+          g.beginPath(); g.moveTo(px + 7, 150); g.lineTo(nx, 150); g.stroke();
+        }
+      });
+      const deck = () => {
+        g.beginPath(); for (let x = -12; x <= CW + 12; x += 4) g.lineTo(x, UK_DECK(x));
+        for (let x = CW + 12; x >= -12; x -= 4) g.lineTo(x, UK_DECK(x) + 9);
+        g.closePath();
+      };
+      ukShape(g, deck, '#9c6b45');
+      g.strokeStyle = 'rgba(43,36,32,.55)'; g.lineWidth = 0.7;
+      for (let x = -8; x < CW + 8; x += 9) { g.beginPath(); g.moveTo(x, UK_DECK(x) + 1.5); g.lineTo(x, UK_DECK(x) + 8); g.stroke(); }
+    }), 0, 0);
+    ukPerson(k, CW + 40 - (CW + 80) * ((f + 0.5) % 1), -1, '#d8a64e', '#3c3f4c', (f + 0.5) % 1, 1.5);
+    ukPerson(k, -40 + (CW + 80) * f, 1, '#c8553d', '#2f4a7a', f, 1.7);
+    // 栏杆压在行人腿前
+    k.drawImage(layer('UK_rail', g => {
+      for (let x = -6; x < CW + 12; x += 23) ukShape(g, () => { g.beginPath(); g.rect(x, UK_DECK(x) - 15, 3, 15); }, '#8a5d3c', 0.9);
+      [[-16, -13], [-8, -6.5]].forEach(([a, b]) => ukShape(g, () => {
+        g.beginPath(); for (let x = -12; x <= CW + 12; x += 4) g.lineTo(x, UK_DECK(x) + a);
+        for (let x = CW + 12; x >= -12; x -= 4) g.lineTo(x, UK_DECK(x) + b); g.closePath();
+      }, '#a2714a', 1));
+    }), 0, 0);
+    // 雨：固定角度的细刻线，一周期落 2 遍；深色与纸色两种，深浅底上都看得见
+    k.lineWidth = 0.8;
+    for (let i = 0; i < UK_RAIN; i++) {
+      const y = ((hash(i * 5 + 11) + 2 * f) % 1) * (CH + 60) - 40, x = hash(i * 5 + 12) * (CW + 90) + 10 - y * 0.23;
+      k.strokeStyle = i % 3 ? 'rgba(43,36,32,.32)' : 'rgba(236,226,200,.5)';
+      k.beginPath(); k.moveTo(x, y); k.lineTo(x - 6.4, y + 28); k.stroke();
+    }
+    // 前景松枝：裁掉右上角
+    k.drawImage(layer('UK_pine', g => {
+      const br = () => { g.beginPath(); g.moveTo(CW + 12, -8); g.quadraticCurveTo(500, 4, 446, 26); };
+      g.lineCap = 'round'; br(); g.strokeStyle = UK_INK; g.lineWidth = 9; g.stroke(); br(); g.strokeStyle = '#5a3e2c'; g.lineWidth = 6.5; g.stroke();
+      [[CW + 4, 18, 0.3], [512, 30, 0.1], [478, 40, -0.1], [450, 30, -0.3], [500, 8, 0.2], [530, 46, 0.25]].forEach(([x, y, r]) => {
+        ukShape(g, () => { g.beginPath(); g.ellipse(x, y, 20, 9, r, 0, Math.PI); g.closePath(); }, '#2f4a36');
+        g.strokeStyle = 'rgba(43,36,32,.75)'; g.lineWidth = 0.8;
+        for (let i = 0; i <= 10; i++) { const a = r + Math.PI * i / 10; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 20 * Math.cos(a) * Math.cos(r) - 9 * Math.sin(a) * Math.sin(r), y + 20 * Math.cos(a) * Math.sin(r) + 9 * Math.sin(a) * Math.cos(r)); g.stroke(); }
+      });
+    }), 0, 0);
+    paper(k, [110, 90, 60], 900, 46);
+    grain(k, 0.06);
+  };
+
+  // @element 47
+  // 47 木刻版画（参考 jingyu-skill「木刻版画」词条的说明重新实现，MIT · 阿梦freedom）：只有黑与纸色两种颜色，渔民在浪里的木船上拉网。
+  // 天空是一排排刻刀留下的平行黑线，越往上越粗，太阳处整块刻空；海是大块黑色，浪花和水纹是顺着浪形刻出的白色刀痕，浪尖是向上挑起的三角刀口；
+  // 船身刻出木板缝，渔民戴斗笠（不画五官），黑色区域透出淡淡木纹，最后压一层粗纸纹。
+  // 动作：两道浪各自向前推（前浪 1 圈、后浪 1 圈，细浪 2 圈 / 周期），船随前浪起伏摇摆，渔民一周期后仰拉一次网，网兜随之提起、露出鱼；海鸥扇翅；连续循环。
+  const WC_INK = '#161310', WC_PAPER = '#e9e0ca';
+  const WC_BOAT = 300;
+  const WC_FRONT = (x, u) => { const s1 = Math.sin(TAU * (x / 190 - u / CYC)), s2 = Math.sin(TAU * (x / 74 + 2 * u / CYC) + 1.3); return 168 - 14 * (Math.pow((1 + s1) / 2, 2.4) * 2 - 1) - 3 * s2; };
+  const WC_BACK = (x, u) => { const s1 = Math.sin(TAU * (x / 130 - u / CYC) + 2.1), s2 = Math.sin(TAU * (x / 52 - 2 * u / CYC)); return 128 - 6 * (Math.pow((1 + s1) / 2, 2) * 2 - 1) - 2 * s2; };
+  // 一条两头尖的刀痕：只往当前路径里加子路径，由调用方统一填色
+  function wcCut(k, pts, w) {
+    const n = pts.length; if (n < 2) return;
+    const L = [], R = [];
+    for (let i = 0; i < n; i++) {
+      const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1;
+      const hw = w * 0.5 * Math.pow(Math.sin(Math.PI * i / (n - 1)), 0.6);
+      L.push([pts[i][0] - dy / d * hw, pts[i][1] + dx / d * hw]); R.push([pts[i][0] + dy / d * hw, pts[i][1] - dx / d * hw]);
+    }
+    L.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); for (let i = n - 1; i >= 0; i--) k.lineTo(R[i][0], R[i][1]); k.closePath();
+  }
+  // 海面：黑色水体 + 顺浪形的白色刀痕（断成长短不一的段，位置按屏幕 x 固定）
+  function wcSea(k, surf, u, rows, w0, seed) {
+    k.beginPath(); k.moveTo(0, CH);
+    for (let x = 0; x <= CW; x += 4) k.lineTo(x, surf(x, u));
+    k.lineTo(CW, CH); k.closePath(); k.fillStyle = WC_INK; k.fill();
+    k.beginPath();
+    rows.forEach((d, r) => {
+      let x = -10 + hash(seed + r) * 20;
+      for (let s = 0; x < CW + 10; s++) {
+        const len = 18 + hash(seed + r * 31 + s) * (60 - r * 6), pts = [];
+        for (let xx = x; xx <= x + len; xx += 4) pts.push([xx, surf(xx, u) + d + 1.4 * Math.sin(xx / 23 + d)]);
+        wcCut(k, pts, mix(w0, 1.5, r / rows.length));   // 最细 1.5px，理由同天空的刻线
+        x += len + 4 + hash(seed + r * 17 + s) * (6 + r * 3);
+      }
+    });
+    k.fillStyle = WC_PAPER; k.fill();
+  }
+  CELLS[46] = (k, w, h, u) => {
+    const f = u / CYC, pull = 0.5 - 0.5 * Math.cos(TAU * f);
+    // 天空和礁岬每帧直接画，不走缓存图层：缓存图层放大显示会被插值变糊，详情页里刻线就不清楚了
+    (g => {
+      g.fillStyle = WC_PAPER; g.fillRect(0, 0, CW, CH);
+      const SUN = [118, 50, 26];
+      g.beginPath();
+      for (let y = 3, r = 0; y < 112; y += 5.5, r++) {
+        const wd = mix(3.6, 1.3, y / 112); let pts = [];
+        const flush = () => { if (pts.length > 2) wcCut(g, pts, wd); pts = []; };
+        for (let x = -10; x <= CW + 10; x += 6) {
+          const yy = y + 0.8 * Math.sin(x / 37 + r);
+          if (Math.hypot(x - SUN[0], yy - SUN[1]) < SUN[2] + 5 || hash(r * 97 + x) > 0.965) { flush(); continue; }
+          pts.push([x, yy]);
+        }
+        flush();
+      }
+      g.fillStyle = WC_INK; g.fill();
+      g.beginPath(); g.arc(SUN[0], SUN[1], SUN[2], 0, TAU); g.strokeStyle = WC_INK; g.lineWidth = 1.6; g.stroke();
+      // 右边的礁岬：整块黑，刻出顺坡的白线
+      g.beginPath(); g.moveTo(396, 126); g.lineTo(430, 100); g.lineTo(468, 74); g.lineTo(506, 62); g.lineTo(CW, 68); g.lineTo(CW, 130); g.closePath(); g.fillStyle = WC_INK; g.fill();
+      g.beginPath();
+      for (let i = 0; i < 9; i++) { const x0 = 424 + i * 13; wcCut(g, [[x0, 108 - i * 3], [x0 + 14, 92 - i * 3], [x0 + 26, 78 - i * 2]].map(([x, y]) => [x, Math.max(y, 70 + (x > 506 ? 0 : (506 - x) * 0.3))]), 1.6); }
+      g.fillStyle = WC_PAPER; g.fill();
+    })(k);
+    // 海鸥：在原地附近绕小圈，扇翅 3～5 次 / 周期
+    [[208, 78, 0], [252, 64, 1], [360, 84, 2]].forEach(([x0, y0, i]) => {
+      const x = x0 + 8 * Math.sin(TAU * f + i), y = y0 + 4 * Math.sin(TAU * 2 * f + i), fl = 5 * Math.sin(TAU * (3 + i) * f);
+      const wing = () => { k.beginPath(); k.moveTo(x - 13, y - fl); k.quadraticCurveTo(x - 6, y - 6 - fl * 0.4, x, y); k.quadraticCurveTo(x + 6, y - 6 - fl * 0.4, x + 13, y - fl); };
+      k.lineCap = 'round'; wing(); k.strokeStyle = WC_INK; k.lineWidth = 3.4; k.stroke(); wing(); k.strokeStyle = WC_PAPER; k.lineWidth = 1.3; k.stroke();
+    });
+    wcSea(k, WC_BACK, u, [5, 10, 16, 23, 31, 40, 50], 2.2, 300);
+    // 船随前浪起伏摇摆
+    const yb = 0.5 * WC_BACK(WC_BOAT, u) + 0.5 * WC_FRONT(WC_BOAT, u) - 12;
+    const tilt = Math.atan2(WC_FRONT(WC_BOAT + 60, u) - WC_FRONT(WC_BOAT - 60, u), 120) * 0.5;
+    k.save(); k.translate(WC_BOAT, yb); k.rotate(tilt);
+    // 渔民：先画，船帮挡住腿；身体绕脚后仰
+    const lean = -0.12 - 0.3 * pull, hand = [54 - 12 * pull, -30 + 2 * pull];
+    k.save(); k.translate(30, -6); k.rotate(lean);
+    k.fillStyle = WC_INK; k.strokeStyle = WC_INK; k.lineCap = 'round';
+    k.lineWidth = 5; k.beginPath(); k.moveTo(-4, -14); k.lineTo(-6, 0); k.moveTo(5, -14); k.lineTo(7, 0); k.stroke();
+    k.beginPath(); k.moveTo(-7, -15); k.lineTo(7, -15); k.lineTo(9, -38); k.quadraticCurveTo(1, -42, -7, -38); k.closePath(); k.fill();
+    k.beginPath(); for (let i = 0; i < 5; i++) wcCut(k, [[-5 + i * 3, -17], [-3 + i * 3.4, -26], [-1 + i * 3.6, -36]], 1.3); k.fillStyle = WC_PAPER; k.fill();
+    k.fillStyle = WC_INK; k.beginPath(); k.arc(1, -45, 5.5, 0, TAU); k.fill();
+    const hat = () => { k.beginPath(); k.moveTo(-14, -46); k.lineTo(1, -59); k.lineTo(17, -45); k.quadraticCurveTo(1, -42, -14, -46); k.closePath(); };
+    hat(); k.fillStyle = WC_PAPER; k.fill(); k.lineWidth = 1.6; k.strokeStyle = WC_INK; k.stroke();
+    k.lineWidth = 0.9; for (let i = 0; i < 6; i++) { k.beginPath(); k.moveTo(1, -58); k.lineTo(-11 + i * 5.5, -45.5); k.stroke(); }
+    k.restore();
+    // 手臂从肩膀伸到手上的绳子（肩膀位置按后仰角算）
+    const sh = [30 + 37 * Math.sin(-lean) * -1 + 2, -6 - 37 * Math.cos(lean)];
+    k.strokeStyle = WC_INK; k.lineWidth = 4.5; k.beginPath(); k.moveTo(sh[0], sh[1]); k.lineTo(hand[0], hand[1]); k.moveTo(sh[0] - 4, sh[1] + 3); k.lineTo(hand[0] - 2, hand[1] + 2); k.stroke();
+    k.lineWidth = 1.8; k.beginPath(); k.moveTo(hand[0] - 4, hand[1] + 1); k.lineTo(80, -9); k.lineTo(98, 10); k.stroke();
+    // 船身：整块黑，刻出船帮高光与木板缝
+    const hull = () => { k.beginPath(); k.moveTo(-86, -16); k.quadraticCurveTo(0, -3, 82, -10); k.quadraticCurveTo(70, 14, 40, 20); k.lineTo(-40, 20); k.quadraticCurveTo(-74, 12, -86, -16); k.closePath(); };
+    hull(); k.fillStyle = WC_INK; k.fill();
+    k.beginPath();
+    [0.28, 0.52, 0.76].forEach(t => { const pts = []; for (let x = -72; x <= 70; x += 6) { const top = -9.5 + 0.0009 * x * x * -1 + 0.03 * x, bot = 20 - Math.max(0, Math.abs(x) - 40) * 0.5; pts.push([x, mix(top, bot, t)]); } wcCut(k, pts, 1.7); });
+    { const pts = []; for (let x = -80; x <= 78; x += 6) pts.push([x, -9.5 + 0.03 * x - 0.0009 * x * x - 4 * Math.max(0, -x - 60) / 26]); wcCut(k, pts, 2); }
+    k.fillStyle = WC_PAPER; k.fill();
+    k.strokeStyle = WC_INK; k.lineWidth = 3; k.beginPath(); k.moveTo(-24, -8); k.lineTo(-24, -74); k.stroke();
+    k.lineWidth = 0.9; k.beginPath(); k.moveTo(-24, -72); k.lineTo(-84, -16); k.moveTo(-24, -72); k.lineTo(78, -10); k.stroke();
+    k.lineWidth = 2.2; k.beginPath(); k.moveTo(-40, -60); k.lineTo(-6, -64); k.stroke();
+    k.restore();
+    wcSea(k, WC_FRONT, u, [6, 12, 19, 27, 36], 2.8, 700);
+    // 浪尖：随浪走的向上挑起的三角刀口和飞沫
+    const shift = 190 * f, off = shift % 7, base = Math.floor(shift / 7);
+    k.beginPath();
+    for (let j = -2; j * 7 < CW + 14; j++) {
+      const x = j * 7 + off, c = (1 + Math.sin(TAU * (x / 190 - f))) / 2;
+      if (c < 0.8) continue;
+      const L = (6 + 10 * hash(j - base + 900)) * (c - 0.8) / 0.2, y = WC_FRONT(x, u);
+      wcCut(k, [[x + 1, y + 3], [x - L * 0.3, y - L * 0.6], [x - L * 0.6, y - L]], 3);
+      if (hash(j - base + 500) > 0.5) k.rect(x - L * 0.8, y - L - 5, 1.8, 1.8);
+    }
+    k.fillStyle = WC_PAPER; k.fill();
+    // 网兜在船尾外的水里，拉网时提起，露出鱼
+    k.save(); k.translate(WC_BOAT, yb); k.rotate(tilt);
+    const bag = [[88, 6], [150, 10], [124, 34 - 16 * pull]];
+    k.save(); k.beginPath(); k.moveTo(bag[0][0], bag[0][1]); k.lineTo(bag[1][0], bag[1][1]); k.quadraticCurveTo(146, 30 - 10 * pull, bag[2][0], bag[2][1]); k.quadraticCurveTo(96, 34 - 14 * pull, bag[0][0], bag[0][1]); k.closePath(); k.clip();
+    k.strokeStyle = WC_PAPER; k.lineWidth = 0.9; k.beginPath();
+    for (let i = -6; i < 12; i++) { k.moveTo(80 + i * 7, 0); k.lineTo(110 + i * 7, 40); k.moveTo(80 + i * 7, 40); k.lineTo(110 + i * 7, 0); }
+    k.stroke();
+    k.globalAlpha = seg(pull, 0.4, 0.9);
+    [[110, 20, 0.3], [126, 16, -0.4], [118, 26, 0.1]].forEach(([x, y, r]) => {
+      k.save(); k.translate(x, y - 6 * pull); k.rotate(r);
+      k.beginPath(); k.ellipse(0, 0, 7, 2.6, 0, 0, TAU); k.moveTo(6, 0); k.lineTo(11, -3); k.lineTo(11, 3); k.closePath(); k.fillStyle = WC_PAPER; k.fill(); k.strokeStyle = WC_INK; k.lineWidth = 0.8; k.stroke();
+      k.restore();
+    });
+    k.restore();
+    k.strokeStyle = WC_PAPER; k.lineWidth = 1.2; k.beginPath(); k.moveTo(96, 6); k.lineTo(152, 10); k.stroke();
+    k.restore();
+    // 黑色里透出的木纹 + 粗纸纹
+    k.save(); k.globalCompositeOperation = 'screen';
+    k.drawImage(layer('WC_wood', g => {
+      g.strokeStyle = 'rgba(200,190,170,.14)'; g.lineWidth = 1;
+      for (let y = 0; y < CH; y += 3) { g.beginPath(); for (let x = 0; x <= CW; x += 8) g.lineTo(x, y + 3 * Math.sin(x / 61 + y / 9) + 2 * fbm2(x / 40, y / 13, 2)); g.stroke(); }
+    }), 0, 0);
+    k.restore();
+    paper(k, [70, 50, 30], 1400, 47);
+    grain(k, 0.09);
+  };
+
+  // @element 48
+  // 48 刺绣（参考 jingyu-skill「刺绣」词条的说明重新实现，MIT · 阿梦freedom）：木绣绷绷着奶白丝绸，针一针针绣出荷叶、荷花、花苞和一只鸳鸯。
+  // 花瓣、叶片用「鱼骨绣」：针脚从中脉斜向边缘，方向随形而走；荷叶用放射的长短针；鸳鸯各部分用平行的缎面绣，方向顺着羽毛。
+  // 每针颜色由深到浅渐变；亮度随针脚方向与光的夹角变化，所以同一种颜色因走向不同而有丝光差别；每针下面垫一道阴影，显出凸起。
+  // 节奏：0.15–4.2 秒按顺序绣完（针跟着最后一针走，丝线连到画外），4.2–4.6 秒针离开，4.35–5.25 秒一道斜向丝光扫过，5.4–6.4 秒绣线淡出复位。
+  const EM_C = [270, 104], EM_R = 92;                              // 绣绷圆心与内半径
+  const EM_LIGHT = 0.6;                                            // 光的方向角：针脚与它平行时最亮
+  const EM_ST = (() => {
+    const st = [];
+    const q = v => Math.max(0, Math.min(255, Math.round(v / 6) * 6));
+    const add = (x1, y1, x2, y2, c, j) => { const t = 1 + (hash(j) - 0.5) * 0.12; st.push({ x1, y1, x2, y2, c: [q(c[0] * t), q(c[1] * t), q(c[2] * t)], a: Math.atan2(y2 - y1, x2 - x1) }); };
+    let J = 1;
+    // 鱼骨绣花瓣：从 base 朝 ang 方向长 len，最宽 wid，颜色 c0（根部）→ c1（尖）
+    const petal = (bx, by, ang, len, wid, c0, c1, bend = 0) => {
+      const dx = Math.cos(ang), dy = Math.sin(ang), n = Math.max(6, Math.round(len / 1.5));
+      const sp = t => [bx + dx * len * t - dy * bend * Math.sin(Math.PI * t), by + dy * len * t + dx * bend * Math.sin(Math.PI * t)];
+      const hw = t => wid * Math.pow(Math.sin(Math.PI * Math.pow(clamp(t), 0.85)), 0.75);
+      for (let i = 0; i < n; i++) {
+        const t = i / n, t2 = Math.min(1, t + 0.14), [x, y] = sp(t), [x2, y2] = sp(t2), w = hw(t2), c = lerpC(c0, c1, t);
+        [1, -1].forEach(sg => add(x, y, x2 - dy * w * sg, y2 + dx * w * sg, c, J++));
+      }
+    };
+    // 放射长短针的荷叶（透视压扁的圆）
+    const leaf = (cx, cy, rx, ry, c0, c1) => {
+      for (let i = 0; i < 96; i++) {
+        const a = i / 96 * TAU + (i % 2) * 0.02, R = 1 + 0.06 * Math.sin(5 * a), vein = i % 8 === 0;
+        const rs = [0.12, 0.38, 0.64, 0.86, 1];
+        for (let r = 0; r < 4; r++) {
+          const r0 = rs[r] - (i % 2 ? 0.04 : 0), r1 = Math.min(1, rs[r + 1] + (i % 2 ? 0 : 0.05));
+          const c = vein ? lerpC(c0, [40, 70, 40], 0.5) : lerpC(c0, c1, r / 3);
+          add(cx + Math.cos(a) * rx * r0 * R, cy + Math.sin(a) * ry * r0 * R, cx + Math.cos(a) * rx * r1 * R, cy + Math.sin(a) * ry * r1 * R, c, J++);
+        }
+      }
+    };
+    // 缎面绣：在多边形内按角度 ang 铺平行线，长线拆成不超过 12px 的针，错开接缝
+    const fill = (poly, ang, gap, col) => {
+      const ca = Math.cos(-ang), sa = Math.sin(-ang), rot = ([x, y]) => [x * ca - y * sa, x * sa + y * ca];
+      const back = ([x, y]) => [x * ca + y * sa, -x * sa + y * ca], P = poly.map(rot);
+      const ys = P.map(p => p[1]), y0 = Math.min(...ys), y1 = Math.max(...ys);
+      for (let y = y0 + gap / 2, row = 0; y < y1; y += gap, row++) {
+        const xs = [];
+        for (let i = 0; i < P.length; i++) { const a = P[i], b = P[(i + 1) % P.length]; if ((a[1] <= y) !== (b[1] <= y)) xs.push(a[0] + (y - a[1]) / (b[1] - a[1]) * (b[0] - a[0])); }
+        xs.sort((a, b) => a - b);
+        for (let i = 0; i + 1 < xs.length; i += 2) {
+          const L = xs[i + 1] - xs[i], n = Math.max(1, Math.ceil(L / 12)), sh = row % 2 ? 0.5 : 0;
+          for (let s = 0; s < n; s++) {
+            const a0 = xs[i] + L * Math.max(0, (s - sh) / n), a1 = xs[i] + L * Math.min(1, (s + 1 - sh) / n);
+            if (a1 - a0 < 1) continue;
+            const p = back([a0, y]), p2 = back([a1, y]);
+            add(p[0], p[1], p2[0], p2[1], col((p[0] + p2[0]) / 2, (p[1] + p2[1]) / 2), J++);
+          }
+        }
+      }
+    };
+    const ell = (cx, cy, rx, ry, r = 0, n = 28) => Array.from({ length: n }, (_, i) => { const a = i / n * TAU; return [cx + Math.cos(a) * rx * Math.cos(r) - Math.sin(a) * ry * Math.sin(r), cy + Math.cos(a) * rx * Math.sin(r) + Math.sin(a) * ry * Math.cos(r)]; });
+    // 劈线绣的茎：沿折线的短针
+    const stem = (pts, c) => { for (let i = 0; i + 1 < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[i + 1], n = Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 3.5); for (let s = 0; s < n; s++) add(mix(x1, x2, s / n) - 0.6, mix(y1, y2, s / n), mix(x1, x2, (s + 1.4) / n) + 0.6, mix(y1, y2, (s + 1.4) / n), c, J++); } };
+    const G0 = [52, 92, 58], G1 = [128, 170, 110], P0 = [246, 228, 222], P1 = [216, 100, 132];
+    leaf(222, 156, 46, 19, G0, G1);
+    leaf(346, 58, 20, 9, G0, G1);
+    stem([[272, 100], [270, 130], [264, 160], [256, 192]], [86, 120, 66]);
+    stem([[214, 70], [218, 100], [222, 130], [226, 150]], [86, 120, 66]);
+    petal(214, 72, -1.57 - 0.24, 24, 7.5, P0, P1); petal(214, 72, -1.57 + 0.24, 24, 7.5, P0, P1); petal(214, 72, -1.57, 26, 6.5, [236, 210, 206], [200, 84, 118]);
+    [-2.2, -1.57, -0.94].forEach(a => petal(272, 98, a, 44, 14, [228, 196, 196], [196, 78, 112], 2));
+    fill(ell(272, 80, 10, 5.5), 0.2, 1.6, () => [206, 196, 96]);
+    [-2.65, -1.95, -1.2, -0.5].forEach((a, i) => petal(272, 99, a, 40, 16, P0, P1, i < 2 ? -2 : 2));
+    [-3.05, -0.1].forEach(a => petal(272, 100, a, 30, 10, P0, [222, 130, 150]));
+    const DUCK0 = st.length;
+    // 水纹：鸳鸯下方的跑针
+    [[326, 168, 44, 6], [330, 176, 60, 8]].forEach(([cx, cy, rx, ry], r) => { for (let i = 0; i < 18; i++) { const a0 = Math.PI * (0.08 + i * 0.05), a1 = a0 + 0.03; if (i % 2) continue; add(cx + Math.cos(a0) * rx, cy + Math.sin(a0) * ry * -0.2 + ry, cx + Math.cos(a1) * rx, cy + Math.sin(a1) * ry * -0.2 + ry, [150, 176, 196], J++); for (let s = 0; s < 1; s++); } for (let i = 0; i < 10; i++) { const x = cx - rx + i * rx * 0.2; add(x, cy, x + 5, cy + 0.5, [160, 186, 204], J++); } });
+    // 鸳鸯（朝左）：身体、胸、帆羽、尾、头、冠、喙
+    fill(ell(328, 152, 30, 13.5, -0.08), -0.3, 1.5, (x, y) => lerpC([196, 120, 60], [236, 186, 110], clamp((y - 140) / 24)));
+    fill(ell(303, 150, 10, 11.5, 0.2), 1.25, 1.5, (x, y) => lerpC([70, 46, 92], [126, 88, 140], clamp((y - 140) / 22)));
+    [-1.95, -1.75, -1.55].forEach((a, i) => petal(336 + i * 3, 142, a, 17 - i, 6, [196, 110, 50], [240, 160, 70]));
+    [0.15, 0.32].forEach(a => petal(350, 150, a, 15, 5, [96, 70, 60], [150, 120, 96]));
+    petal(338, 148, 0.05, 20, 5, [60, 70, 110], [120, 140, 190]);
+    fill(ell(299, 130, 10.5, 9.5), 0.45, 1.4, (x, y) => {
+      const dy = y - 130, dx = x - 299;
+      if (dy < -3.2) return [48, 92, 72];
+      if (dy < 0.4 && dx > -4) return [242, 234, 216];
+      return [200, 110, 64];
+    });
+    petal(304, 123, -0.25, 15, 4, [40, 84, 66], [70, 130, 96]);
+    fill([[291, 129], [279, 132.5], [291, 136]], 0.1, 1.2, () => [208, 70, 58]);
+    st.push({ knot: true, x1: 295, y1: 128.5, x2: 295, y2: 128.5, c: [30, 24, 22], a: 0 });
+    // 鸳鸯与水纹按小尺寸设计，整体绕 (328, 150) 放大 1.45 倍，再平移到绣绷右下（针脚方向不变）
+    for (let i = DUCK0; i < st.length; i++) { const s = st[i]; ['1', '2'].forEach(n => { s['x' + n] = 316 + (s['x' + n] - 328) * 1.45; s['y' + n] = 146 + (s['y' + n] - 150) * 1.45; }); }
+    return st;
+  })();
+  CELLS[47] = (k, w, h, u) => {
+    k.drawImage(layer('EM_bg', g => {
+      g.fillStyle = '#e6ddcf'; g.fillRect(0, 0, CW, CH);
+      for (let i = 0; i < 7; i++) { const x = hash(i + 30) * CW, gr = g.createLinearGradient(x - 40, 0, x + 40, 0); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.5, `rgba(${i % 2 ? '255,255,255' : '150,130,110'},.18)`); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(x - 40, 0, 80, CH); }
+      glow(g, EM_C[0] + 6, EM_C[1] + 8, EM_R + 22, '90,70,50', 0.35);
+      g.save(); g.beginPath(); g.arc(EM_C[0], EM_C[1], EM_R, 0, TAU); g.clip();
+      g.fillStyle = '#f5eedf'; g.fillRect(0, 0, CW, CH);
+      g.fillStyle = 'rgba(150,130,100,.06)'; for (let y = 0; y < CH; y += 2) g.fillRect(0, y, CW, 0.7); for (let x = 0; x < CW; x += 2) g.fillRect(x, 0, 0.7, CH);
+      const sg = g.createRadialGradient(EM_C[0] - 30, EM_C[1] - 40, 10, EM_C[0], EM_C[1], EM_R); sg.addColorStop(0, 'rgba(255,255,255,.35)'); sg.addColorStop(1, 'rgba(120,100,70,.12)'); g.fillStyle = sg; g.fillRect(0, 0, CW, CH);
+      g.restore();
+    }), 0, 0);
+    const fade = 1 - resetK(u), n = EM_ST.length * seg(u, 0.15, 4.2), cnt = Math.floor(n);
+    const sweep = seg(u, 4.35, 5.25), sp = mix(-130, 130, sweep), sx = Math.cos(EM_LIGHT + 0.4), sy = Math.sin(EM_LIGHT + 0.4);
+    const end = (s, i) => (i === cnt ? [mix(s.x1, s.x2, n - cnt), mix(s.y1, s.y2, n - cnt)] : [s.x2, s.y2]);
+    k.save(); k.beginPath(); k.arc(EM_C[0], EM_C[1], EM_R - 1, 0, TAU); k.clip(); k.globalAlpha = fade; k.lineCap = 'round';
+    // 每针下的阴影：一次画完
+    k.beginPath();
+    for (let i = 0; i <= cnt && i < EM_ST.length; i++) { const s = EM_ST[i], [x2, y2] = end(s, i); k.moveTo(s.x1 + 0.8, s.y1 + 1); k.lineTo(x2 + 0.8, y2 + 1); }
+    k.strokeStyle = 'rgba(90,70,50,.22)'; k.lineWidth = 1.9; k.stroke();
+    // 按颜色分组一次描一批：颜色 = 底色 × 方向丝光，扫光时再提亮
+    const B = new Map();
+    for (let i = 0; i <= cnt && i < EM_ST.length; i++) {
+      const s = EM_ST[i]; if (s.knot) continue;
+      let b = 0.82 + 0.3 * Math.abs(Math.cos(s.a - EM_LIGHT)), wv = 0;
+      if (sweep > 0 && sweep < 1) { const pr = (s.x1 - EM_C[0]) * sx + (s.y1 - EM_C[1]) * sy; wv = Math.exp(-Math.pow((pr - sp) / 20, 2)) * Math.abs(Math.cos(s.a - EM_LIGHT - 0.4)); }
+      const c = s.c.map(v => Math.round(Math.min(255, v * b + (255 - v * b) * wv * 0.55) / 8) * 8), key = `rgb(${c})`;
+      if (!B.has(key)) B.set(key, []);
+      B.get(key).push(i);
+    }
+    k.lineWidth = 1.5;
+    B.forEach((ids, key) => { k.beginPath(); ids.forEach(i => { const s = EM_ST[i], [x2, y2] = end(s, i); k.moveTo(s.x1, s.y1); k.lineTo(x2, y2); }); k.strokeStyle = key; k.stroke(); });
+    if (cnt >= EM_ST.length) { const e = EM_ST[EM_ST.length - 1]; k.fillStyle = '#1e1816'; k.beginPath(); k.arc(e.x1, e.y1, 1.7, 0, TAU); k.fill(); k.fillStyle = 'rgba(255,255,255,.7)'; k.beginPath(); k.arc(e.x1 - 0.5, e.y1 - 0.5, 0.5, 0, TAU); k.fill(); }
+    k.restore();
+    // 绣针跟着最后一针，丝线连到画外；绣完后向右上离开
+    const out = seg(u, 4.2, 4.6), na = (1 - out) * fade;
+    if (na > 0.01 && u > 0.15) {
+      const s = EM_ST[Math.min(cnt, EM_ST.length - 1)], [px, py] = end(s, Math.min(cnt, EM_ST.length - 1));
+      const nx = px + 40 * out, ny = py - 60 * out;
+      k.save(); k.globalAlpha = na;
+      k.strokeStyle = `rgb(${s.c})`; k.lineWidth = 1; k.beginPath(); k.moveTo(nx + 10, ny - 16); k.quadraticCurveTo(nx + 40, ny - 40, 420, -4); k.stroke();
+      k.strokeStyle = '#8e9aa6'; k.lineWidth = 1.6; k.beginPath(); k.moveTo(nx, ny); k.lineTo(nx + 11, ny - 18); k.stroke();
+      k.strokeStyle = '#e8eef4'; k.lineWidth = 0.6; k.beginPath(); k.moveTo(nx + 0.6, ny - 1); k.lineTo(nx + 10.6, ny - 17.5); k.stroke();
+      k.restore();
+    }
+    // 木绣绷：两层木圈 + 右上的铜螺丝
+    k.drawImage(layer('EM_hoop', g => {
+      [[EM_R + 9, 9, '#b98a56'], [EM_R + 3.5, 3, '#9a6c3c']].forEach(([r, lw, col]) => { g.beginPath(); g.arc(EM_C[0], EM_C[1], r - lw / 2, 0, TAU); g.strokeStyle = col; g.lineWidth = lw; g.stroke(); });
+      const hg = g.createLinearGradient(EM_C[0] - EM_R, EM_C[1] - EM_R, EM_C[0] + EM_R, EM_C[1] + EM_R); hg.addColorStop(0, 'rgba(255,235,200,.45)'); hg.addColorStop(1, 'rgba(60,30,10,.35)');
+      g.beginPath(); g.arc(EM_C[0], EM_C[1], EM_R + 4.5, 0, TAU); g.strokeStyle = hg; g.lineWidth = 9; g.stroke();
+      g.strokeStyle = 'rgba(70,40,20,.5)'; g.lineWidth = 0.8; [EM_R, EM_R + 9].forEach(r => { g.beginPath(); g.arc(EM_C[0], EM_C[1], r, 0, TAU); g.stroke(); });
+      const a = -1.05, x = EM_C[0] + (EM_R + 9) * Math.cos(a), y = EM_C[1] + (EM_R + 9) * Math.sin(a);
+      g.save(); g.translate(x, y); g.rotate(a + Math.PI / 2);
+      g.fillStyle = '#9a6c3c'; g.fillRect(-7, -9, 14, 9); g.fillStyle = '#c9a86a'; g.fillRect(-2, -16, 4, 8); g.fillStyle = '#e0c88c'; g.fillRect(-6, -19, 12, 4);
+      g.restore();
+    }), 0, 0);
+    grain(k, 0.05);
+  };
+
+  // @element 49
+  // 49 彩色玻璃（参考 jingyu-skill「彩色玻璃」词条的说明重新实现，MIT · 阿梦freedom）：暗色石墙上的弧顶窗，窗上是凤鸟、花丛和远山后的太阳。
+  // 每块玻璃是一个多边形，粗黑铅条包边；玻璃颜色按背后光源的远近决定亮度，块内有深浅与气泡；亮的玻璃泛光，并在窗下地面投出拉长、倒置的彩色光斑。
+  // 节奏：0.2–3.8 秒背后的光从窗下升到太阳的位置，玻璃从暗到亮一块块透光（离光近的先亮），地面光斑随光升高而缩短；5.4–6.4 秒暗回起点。
+  const SG_SUN = [334, 120];
+  const SG_WIN = g => { g.beginPath(); g.moveTo(140, 158); g.lineTo(140, 54); g.arc(270, 206, 200, Math.atan2(-152, -130), Math.atan2(-152, 130)); g.lineTo(400, 158); g.closePath(); };
+  const SG_TILES = (() => {
+    const T = [], add = (pts, c) => T.push({ pts, c, cx: pts.reduce((s, p) => s + p[0], 0) / pts.length, cy: pts.reduce((s, p) => s + p[1], 0) / pts.length });
+    const arcPts = (cx, cy, r, a0, a1, n = 3) => Array.from({ length: n + 1 }, (_, i) => [cx + r * Math.cos(mix(a0, a1, i / n)), cy + r * Math.sin(mix(a0, a1, i / n))]);
+    const wedge = (cx, cy, r0, r1, a0, a1, c) => add([...arcPts(cx, cy, r1, a0, a1), ...arcPts(cx, cy, r0, a1, a0)], c);
+    // 天空：以太阳为中心的放射光芒，金色与蓝色相间
+    const RINGS = [14, 34, 60, 92, 132, 180, 250];
+    const GOLD = [[252, 214, 90], [246, 182, 52], [236, 150, 40], [226, 128, 36], [214, 110, 40], [200, 96, 44]];
+    const BLUE = [[120, 180, 230], [70, 140, 214], [46, 104, 196], [36, 80, 170], [30, 62, 150], [26, 50, 130]];
+    for (let r = 0; r + 1 < RINGS.length; r++) {
+      const n = r === 0 ? 10 : 20;
+      for (let j = 0; j < n; j++) wedge(SG_SUN[0], SG_SUN[1], RINGS[r], RINGS[r + 1], Math.PI + j * Math.PI / n, Math.PI + (j + 1) * Math.PI / n, (r === 0 || j % 2 === 0) ? GOLD[r] : BLUE[r]);
+    }
+    add(arcPts(SG_SUN[0], SG_SUN[1], 14, 0, TAU, 16), [255, 232, 130]);
+    // 远山与湖面
+    const ridge = (x, b, a, s) => b - a * Math.abs(Math.sin(x / s + b));
+    for (let x = 136; x < 404; x += 34) add([[x, 136], [x, ridge(x, 122, 12, 31)], [x + 17, ridge(x + 17, 122, 12, 31) - 4], [x + 34, ridge(x + 34, 122, 12, 31)], [x + 34, 136]], [128, 104, 176]);
+    for (let x = 136; x < 404; x += 27) add([[x, 140], [x, ridge(x, 132, 6, 19)], [x + 27, ridge(x + 27, 132, 6, 19)], [x + 27, 140]], [86, 74, 150]);
+    for (let y = 140, r = 0; y < 160; y += 6, r++) for (let x = 136 + (r % 2) * 14; x < 404; x += 30) add([[x, y], [x + 30, y], [x + 30, y + 6], [x, y + 6]], Math.abs(x + 15 - SG_SUN[0]) < 22 ? [246, 196, 80] : [[40, 110, 190], [60, 140, 210]][(r + x) % 2 ? 0 : 1]);
+    // 凤鸟：尾羽 → 两翼 → 身、颈、头、喙、冠
+    const RED = [200, 40, 34], ORG = [236, 112, 34], GLD = [250, 192, 62];
+    const bez = (p0, p1, p2, t) => [mix(mix(p0[0], p1[0], t), mix(p1[0], p2[0], t), t), mix(mix(p0[1], p1[1], t), mix(p1[1], p2[1], t), t)];
+    [[[250, 104], [210, 116], [172, 118]], [[254, 108], [234, 146], [192, 140]], [[258, 110], [256, 150], [224, 152]]].forEach(([p0, p1, p2]) => {
+      const N = 6;
+      for (let i = 0; i < N; i++) {
+        const t0 = i / N, t1 = (i + 1) / N, a = bez(p0, p1, p2, t0), b = bez(p0, p1, p2, t1), dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy), w0 = mix(8, 5, t0), w1 = mix(8, 5, t1);
+        add([[a[0] - dy / d * w0, a[1] + dx / d * w0], [b[0] - dy / d * w1, b[1] + dx / d * w1], [b[0] + dy / d * w1, b[1] - dx / d * w1], [a[0] + dy / d * w0, a[1] - dx / d * w0]], [RED, ORG, GLD][i % 3]);
+      }
+      add(arcPts(p2[0], p2[1], 7, 0, TAU, 12), GLD); add(arcPts(p2[0], p2[1], 3.6, 0, TAU, 10), [40, 90, 200]);
+    });
+    const SW = [262, 80];
+    const feather = (a, len, curv) => {
+      const dx = Math.cos(a), dy = Math.sin(a), sp = t => [SW[0] + dx * len * t - dy * curv * Math.sin(Math.PI * t), SW[1] + dy * len * t + dx * curv * Math.sin(Math.PI * t)], hw = t => 10 * (1 - 0.75 * t);
+      [0, 0.38, 0.7, 1].reduce((t0, t1) => {
+        const a0 = sp(t0), a1 = sp(t1);
+        add([[a0[0] - dy * hw(t0), a0[1] + dx * hw(t0)], [a1[0] - dy * hw(t1), a1[1] + dx * hw(t1)], [a1[0] + dy * hw(t1), a1[1] - dx * hw(t1)], [a0[0] + dy * hw(t0), a0[1] - dx * hw(t0)]], t0 === 0 ? RED : t0 < 0.5 ? ORG : GLD);
+        return t1;
+      });
+    };
+    for (let i = 0; i < 8; i++) feather(-2.78 + i * 0.14, 74 - i * 3, -5);
+    for (let i = 0; i < 7; i++) feather(-1.32 + i * 0.14, 64 - i * 4, 5);
+    const body = Array.from({ length: 16 }, (_, i) => { const a = i / 16 * TAU; return [262 + 12 * Math.cos(a) * Math.cos(0.5) - 22 * Math.sin(a) * Math.sin(0.5), 92 + 12 * Math.cos(a) * Math.sin(0.5) + 22 * Math.sin(a) * Math.cos(0.5)]; });
+    add(body.slice(0, 9), ORG); add([...body.slice(8), body[0]], RED);
+    add([[266, 74], [276, 78], [295, 58], [289, 50]], ORG);
+    add(arcPts(293, 53, 7, 0, TAU, 12), RED);
+    add([[299, 50], [309, 53], [299, 56]], GLD);
+    [[[288, 47], [278, 36], [284, 46]], [[291, 46], [286, 32], [293, 45]], [[294, 46], [296, 34], [297, 47]]].forEach(p => add(p, GLD));
+    // 花丛：玫瑰（三层花瓣）与叶子
+    const leaf = (x, y, a, len, wd) => { const dx = Math.cos(a), dy = Math.sin(a), m = [x + dx * len / 2, y + dy * len / 2], tip = [x + dx * len, y + dy * len]; add([[x, y], [m[0] - dy * wd, m[1] + dx * wd], tip], [36, 120, 56]); add([[x, y], tip, [m[0] + dy * wd, m[1] - dx * wd]], [70, 160, 70]); };
+    [[156, 154, -0.5, 26, 7], [150, 132, -1.3, 24, 6], [176, 158, -0.1, 22, 6], [404, 126, -2.0, 26, 7], [372, 136, -2.5, 24, 6], [350, 156, -2.9, 22, 6]].forEach(l => leaf(...l));
+    const rose = (cx, cy, r) => {
+      for (let j = 0; j < 6; j++) wedge(cx, cy, r * 0.66, r, j / 6 * TAU, (j + 1) / 6 * TAU, [226, 70, 62]);
+      for (let j = 0; j < 5; j++) wedge(cx, cy, r * 0.3, r * 0.68, j / 5 * TAU + 0.3, (j + 1) / 5 * TAU + 0.3, [196, 40, 46]);
+      add(arcPts(cx, cy, r * 0.32, 0, TAU, 8), [140, 20, 34]);
+    };
+    rose(158, 148, 12); rose(190, 150, 9); rose(386, 146, 13); rose(362, 154, 9);
+    return T;
+  })();
+  const SG_T = document.createElement('canvas'); SG_T.width = CW; SG_T.height = CH;
+  const sgPath = (g, pts) => { g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); };
+  // 按铺块顺序生成的图层：先擦掉被后画玻璃盖住的部分，再画本块，遮挡关系与玻璃一致
+  const sgOrdered = (name, each) => layer(name, g => {
+    g.save(); SG_WIN(g); g.clip();
+    SG_TILES.forEach((t, i) => { g.globalCompositeOperation = 'destination-out'; sgPath(g, t.pts); g.fill(); g.globalCompositeOperation = 'source-over'; each(g, t, i); });
+    g.restore();
+  });
+  CELLS[48] = (k, w, h, u) => {
+    const rise = inOut3(seg(u, 0.2, 3.8)), I = rise * (1 - resetK(u));
+    const L = [SG_SUN[0], mix(250, SG_SUN[1] - 10, rise)];
+    const g = SG_T.getContext('2d');
+    g.clearRect(0, 0, CW, CH); g.save(); SG_WIN(g); g.clip();
+    SG_TILES.forEach(t => {
+      const d = Math.hypot(t.cx - L[0], t.cy - L[1]), b = 0.16 + I * (0.4 + 0.75 * Math.exp(-d * d / (2 * 95 * 95)));
+      const c = t.c.map(v => Math.round(b <= 1 ? v * b : v + (255 - v) * (b - 1) * 0.6));
+      sgPath(g, t.pts); g.fillStyle = `rgb(${c})`; g.fill();
+    });
+    g.drawImage(sgOrdered('SG_tex', (q, t, i) => {
+      q.save(); sgPath(q, t.pts); q.clip();
+      const r = Math.max(...t.pts.map(p => Math.hypot(p[0] - t.cx, p[1] - t.cy))), gr = q.createRadialGradient(t.cx - r * 0.3, t.cy - r * 0.3, 0, t.cx, t.cy, r);
+      gr.addColorStop(0, 'rgba(255,255,255,.16)'); gr.addColorStop(1, 'rgba(0,0,0,.2)'); q.fillStyle = gr; q.fillRect(t.cx - r, t.cy - r, 2 * r, 2 * r);
+      q.strokeStyle = 'rgba(255,255,255,.3)'; q.lineWidth = 0.6;
+      for (let b = 0; b < 3; b++) if (hash(i * 7 + b) > 0.4) { q.beginPath(); q.arc(t.cx + (hash(i * 7 + b + 1) - 0.5) * r, t.cy + (hash(i * 7 + b + 2) - 0.5) * r, 0.6 + hash(i + b) * 1.1, 0, TAU); q.stroke(); }
+      q.restore();
+    }), 0, 0);
+    g.restore();
+    k.drawImage(layer('SG_wall', q => {
+      const wg = q.createLinearGradient(0, 0, 0, CH); wg.addColorStop(0, '#1a171d'); wg.addColorStop(1, '#25201f'); q.fillStyle = wg; q.fillRect(0, 0, CW, 166);
+      q.strokeStyle = 'rgba(255,240,220,.05)'; q.lineWidth = 1;
+      for (let y = 0, r = 0; y < 166; y += 22, r++) { q.beginPath(); q.moveTo(0, y); q.lineTo(CW, y); q.stroke(); for (let x = (r % 2) * 30; x < CW; x += 60) { q.beginPath(); q.moveTo(x, y); q.lineTo(x, y + 22); q.stroke(); } }
+      q.fillStyle = '#1b1715'; q.fillRect(0, 166, CW, CH - 166);
+      q.strokeStyle = 'rgba(255,240,220,.05)'; for (let i = -12; i < 14; i++) { q.beginPath(); q.moveTo(270 + i * 24, 166); q.lineTo(270 + i * 44, CH); q.stroke(); }
+      q.fillStyle = '#3a332e'; q.fillRect(126, 158, 288, 8); q.fillStyle = 'rgba(255,240,220,.12)'; q.fillRect(126, 158, 288, 1.5);
+    }), 0, 0);
+    glow(k, 270, 96, 240, '255,196,120', 0.16 * I);
+    // 地面光斑：窗的倒影拉长、模糊后叠加；光越高，光斑越短
+    const sy = mix(0.62, 0.34, rise);
+    k.save(); k.beginPath(); k.rect(0, 166, CW, CH - 166); k.clip();
+    k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.55 * I; k.filter = 'blur(3px)';
+    k.transform(1.3, 0, 0, -sy, 270 - 1.3 * 270, 166 + 158 * sy); k.drawImage(SG_T, 0, 0);
+    k.restore();
+    k.drawImage(SG_T, 0, 0);
+    k.drawImage(sgOrdered('SG_lead', (q, t) => { sgPath(q, t.pts); q.strokeStyle = '#15110f'; q.lineWidth = 2.4; q.lineJoin = 'round'; q.stroke(); }), 0, 0);
+    k.drawImage(layer('SG_frame', q => {
+      q.fillStyle = '#15110f'; q.beginPath(); q.arc(295, 51.5, 1.7, 0, TAU); q.fill();
+      q.save(); SG_WIN(q); q.clip(); q.fillStyle = '#211b18'; [84, 122].forEach(y => q.fillRect(130, y - 1.2, 280, 2.4)); q.restore();
+      SG_WIN(q); q.strokeStyle = '#3e3732'; q.lineWidth = 10; q.stroke(); q.strokeStyle = '#15110f'; q.lineWidth = 3; q.stroke();
+    }), 0, 0);
+    // 亮的玻璃泛光
+    k.save(); k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.32 * I; k.filter = 'blur(6px)'; k.drawImage(SG_T, 0, 0); k.restore();
+    grain(k, 0.05);
+  };
+
+  // @element 50
+  // 50 青绿山水（参考 jingyu-skill「青绿山水」词条的说明重新实现，MIT · 阿梦freedom）：绢本长卷横向缓缓展开，
+  // 远、中、近三重山以不同速度平移。每座山由主峰加两座子峰叠成，山顶圆、山壁陡；山体先只有墨线和披麻皴，
+  // 0.6–2.6 秒石青、石绿自上而下染开，山脚压赭石；山腰有云带，中景山头一座小亭，近景山谷里一座石桥、桥上一人，江上一叶小舟。
+  // 三层的画卷周期是 540 / 810 / 1080 像素，一个周期分别平移正好 1 个画卷周期，首尾帧一致。
+  // 5.4–6.0 秒颜色退回墨线，回到开头。
+  const QL_SILK = [214, 192, 150], QL_INK = 'rgba(46,40,30,.9)';
+  const QL_LAYERS = [
+    // 远山：周期 540、半速；[中心, 高, 半宽]（画卷坐标）
+    { P: 540, base: 132, sp: 0.5, ink: 0.4, a: 0.5, step: 6, hs: 0.85,
+      bumps: [[20, 44, 30], [80, 62, 28], [150, 40, 24], [220, 66, 32], [300, 48, 26], [370, 60, 30], [440, 42, 24], [500, 56, 30]] },
+    // 中景：周期 810、3/4 速
+    { P: 810, base: 160, sp: 0.75, ink: 0.7, a: 0.78, step: 9, hs: 0.72,
+      bumps: [[30, 70, 40], [110, 96, 42], [200, 60, 30], [290, 104, 44], [380, 74, 36], [470, 92, 40], [560, 62, 30], [650, 100, 46], [740, 70, 36]] },
+    // 近景：周期 1080、全速；500–660 留出山谷给石桥与江面
+    { P: 1080, base: 210, sp: 1, ink: 1, a: 0.95, step: 12, hs: 0.78,
+      bumps: [[50, 120, 46], [170, 146, 52], [270, 84, 34], [430, 132, 46], [740, 140, 50], [860, 96, 38], [980, 150, 54]] },
+  ].map(L => ({ ...L, bumps: L.bumps.map(([c, H, B]) => [c, H * L.hs, B]) })).map(L => ({ ...L, top: L.base - Math.max(...L.bumps.map(b => b[1])) - 6,
+    // 主峰两侧各叠一座矮一些的子峰，让山成簇，不再是一排单尖
+    all: L.bumps.flatMap(([c, H, B]) => [[c, H, B], [c - 0.5 * B, 0.68 * H, 0.5 * B], [c + 0.55 * B, 0.6 * H, 0.45 * B]]) }));
+  const QL_BRIDGE = 590, QL_BOAT = 530, QL_PAV = 290;   // 石桥、小舟（近景坐标）与小亭（中景坐标）
+  // 画卷坐标 X 处的山高：各峰取最大值，峰形 cos^0.55（顶圆、壁陡），再叠一点按周期整数倍起伏的碎纹
+  function qlH(L, X) {
+    let h = 0;
+    for (const [c, H, B] of L.all) {
+      let d = X - c; d -= L.P * Math.round(d / L.P);   // 取最近的那一份，保证画卷首尾相接
+      const t = Math.abs(d) / B;
+      if (t < 1) h = Math.max(h, H * Math.pow(Math.cos(t * Math.PI / 2), 0.55));
+    }
+    if (h > 0) h += (3 * Math.sin(TAU * 37 * X / L.P) + 2 * Math.sin(TAU * 61 * X / L.P)) * Math.min(1, h / 30);
+    return Math.max(0, h);
+  }
+  // 画卷坐标 → 屏幕 x（落在可见范围附近的那一份）
+  const qlScr = (X, sh, P) => { let x = ((X - sh) % P + P) % P; if (x > CW + 80) x -= P; return x; };
+  function qlLayer(k, L, sh, rev, near) {
+    const ys = [];
+    for (let x = -3; x <= CW + 3; x += 3) ys.push([x, L.base - qlH(L, x + sh)]);
+    const ridge = () => { k.beginPath(); ys.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); };
+    ridge(); k.lineTo(CW + 3, CH + 2); k.lineTo(-3, CH + 2); k.closePath();
+    k.fillStyle = rgba(near ? QL_SILK : lerpC(QL_SILK, [236, 224, 196], 0.25), 1); k.fill();
+    if (rev > L.top) {                                  // 染色只到 rev 这条水平线（自上而下染开）
+      k.save(); k.clip();
+      const g = k.createLinearGradient(0, L.top, 0, L.base);
+      g.addColorStop(0, '#24557e'); g.addColorStop(0.38, '#2f8a78'); g.addColorStop(0.72, '#7fa56c'); g.addColorStop(1, '#b37a45');
+      k.globalAlpha = L.a; k.fillStyle = g; k.fillRect(-3, L.top, CW + 6, Math.min(CH + 2, rev) - L.top);
+      k.restore();
+    }
+    // 披麻皴：顺着山势向下的长短墨线，钉在画卷坐标上随山平移
+    k.beginPath();
+    for (let X = Math.ceil(sh / L.step) * L.step; X - sh <= CW + 3; X += L.step) {
+      const x = X - sh, h = qlH(L, X); if (h < 8) continue;
+      const s = Math.sign(qlH(L, X + 2) - qlH(L, X - 2)) || 1, y = L.base - h, len = Math.min(h * 0.5, 34 * L.ink);
+      k.moveTo(x, y + 2); k.quadraticCurveTo(x - s * 5, y + len * 0.5, x - s * 3, y + len);
+      if (h > 34) { k.moveTo(x - s * 3, y + len + 5); k.quadraticCurveTo(x - s * 7, y + len + 14, x - s * 4, y + Math.min(h - 4, len + 26)); }
+    }
+    k.strokeStyle = `rgba(46,40,30,${0.45 * L.ink + 0.1})`; k.lineWidth = 0.7; k.stroke();
+    // 山脊上的苔点与松树：按画卷格子编号取确定性哈希，位置随山走
+    const n = L.P / L.step;
+    for (let X = Math.ceil(sh / L.step) * L.step; X - sh <= CW + 3; X += L.step) {
+      const idx = ((Math.round(X / L.step) % n) + n) % n, hv = hash(idx * 7 + L.P), x = X - sh, h = qlH(L, X), y = L.base - h;
+      if (h < 14 || hv < 0.45) continue;
+      if (near && hv > 0.62) {                          // 小松：一根干、三层针叶
+        k.strokeStyle = QL_INK; k.lineWidth = 0.8; k.beginPath(); k.moveTo(x, y + 2); k.lineTo(x + 0.5, y - 9); k.stroke();
+        k.fillStyle = 'rgba(28,70,52,.9)';
+        [[-9, 3.2], [-6, 4.6], [-3, 5.6]].forEach(([dy, rx]) => { k.beginPath(); k.ellipse(x, y + dy, rx, 1.6, 0, 0, TAU); k.fill(); });
+      } else {
+        k.fillStyle = `rgba(30,50,36,${0.5 + 0.3 * L.ink})`;
+        k.beginPath(); k.arc(x - 1.5, y + 2, 0.9 + 0.5 * L.ink, 0, TAU); k.arc(x + 2, y + 3.5, 0.7 + 0.4 * L.ink, 0, TAU); k.fill();
+      }
+    }
+    ridge(); k.strokeStyle = QL_INK; k.lineWidth = 0.5 + 0.7 * L.ink; k.stroke();
+  }
+  // 山脚的云带：底部渐浓的米白色带，加几团随该层平移的云头
+  function qlMist(k, L, sh, a) {
+    const y = L.base, g = k.createLinearGradient(0, y - 26, 0, y + 6);
+    g.addColorStop(0, 'rgba(244,236,214,0)'); g.addColorStop(0.7, `rgba(244,236,214,${a})`); g.addColorStop(1, 'rgba(244,236,214,0)');
+    k.fillStyle = g; k.fillRect(0, y - 26, CW, 32);
+    k.fillStyle = `rgba(246,238,218,${a * 0.8})`;
+    for (let i = 0; i < L.P / 90; i++) {
+      if (hash(i + L.P * 3) < 0.4) continue;
+      const x = qlScr(i * 90 + 30, sh, L.P); if (x < -40 || x > CW + 40) continue;
+      k.beginPath(); k.ellipse(x, y - 10, 26, 5, 0, 0, TAU); k.ellipse(x + 16, y - 14, 14, 4, 0, 0, TAU); k.fill();
+    }
+  }
+  CELLS[49] = (k, w, h, u) => {
+    const off = u / CYC * 1080;                         // 近景平移量；远、中景按各自 sp 换算
+    const fill = inOut3(seg(u, 0.6, 2.6)) * (1 - inOut3(seg(u, SHOW, SHOW + 0.6)));
+    const rev = mix(-10, CH + 10, fill);
+    const [FAR, MID, NEAR] = QL_LAYERS, sh = L => (off * L.sp) % L.P;
+    k.fillStyle = rgba(QL_SILK, 1); k.fillRect(0, 0, CW, CH);
+    paper(k, [120, 90, 50], 900, 50);
+    const sky = k.createLinearGradient(0, 0, 0, 120); sky.addColorStop(0, 'rgba(120,80,40,.10)'); sky.addColorStop(1, 'rgba(120,80,40,0)');
+    k.fillStyle = sky; k.fillRect(0, 0, CW, 120);
+    qlLayer(k, FAR, sh(FAR), rev, false); qlMist(k, FAR, sh(FAR), 0.7);
+    qlLayer(k, MID, sh(MID), rev, false);
+    // 中景山头的小亭
+    { const x = qlScr(QL_PAV, sh(MID), MID.P), y = MID.base - qlH(MID, QL_PAV);
+      if (x > -20 && x < CW + 20) {
+        k.strokeStyle = QL_INK; k.lineWidth = 0.9; k.beginPath(); k.moveTo(x - 4, y + 1); k.lineTo(x - 4, y - 7); k.moveTo(x + 4, y + 1); k.lineTo(x + 4, y - 7); k.stroke();
+        k.fillStyle = '#7a2e1c'; k.beginPath(); k.moveTo(x - 10, y - 6); k.quadraticCurveTo(x, y - 9, x + 10, y - 6); k.lineTo(x + 2, y - 13); k.lineTo(x - 2, y - 13); k.closePath(); k.fill();
+      } }
+    qlMist(k, MID, sh(MID), 0.8);
+    // 江面与水纹（水纹间距 45 像素，1080 / 45 为整数，首尾一致）
+    k.fillStyle = rgba(lerpC(QL_SILK, [170, 196, 176], 0.25 + 0.3 * fill), 1); k.fillRect(0, 170, CW, CH - 170);
+    k.beginPath();
+    for (let r = 0; r < 6; r++) for (let x = -((off + r * 17) % 45); x < CW; x += 45) { const y = 175 + r * 5.5; k.moveTo(x, y); k.quadraticCurveTo(x + 8, y - 2, x + 16, y); }
+    k.strokeStyle = 'rgba(60,70,60,.35)'; k.lineWidth = 0.7; k.stroke();
+    // 小舟：在近景坐标里，随画卷平移，轻轻起伏
+    { const x = qlScr(QL_BOAT, sh(NEAR), NEAR.P), y = 186 + 1.2 * Math.sin(TAU * 2 * u / CYC);
+      if (x > -30 && x < CW + 30) {
+        k.beginPath(); k.moveTo(x - 15, y); k.quadraticCurveTo(x, y + 6, x + 15, y); k.closePath(); k.fillStyle = '#5a3d24'; k.fill();
+        k.beginPath(); k.moveTo(x + 2, y - 1); k.lineTo(x + 2, y - 19); k.lineTo(x + 11, y - 3); k.closePath(); k.fillStyle = 'rgba(236,222,190,.92)'; k.fill(); k.strokeStyle = QL_INK; k.lineWidth = 0.7; k.stroke();
+        k.fillStyle = QL_INK; k.beginPath(); k.moveTo(x - 9, y - 1); k.lineTo(x - 5, y - 1); k.lineTo(x - 7, y - 6); k.fill();
+      } }
+    qlLayer(k, NEAR, sh(NEAR), rev, true);
+    // 石桥与桥上的人（斗笠 + 红衫，只有几笔）
+    { const bx = qlScr(QL_BRIDGE, sh(NEAR), NEAR.P);
+      if (bx > -60 && bx < CW + 60) {
+        k.fillStyle = rgba(lerpC(QL_SILK, [150, 120, 90], 0.3), 1);
+        k.beginPath(); k.moveTo(bx - 40, 184); k.quadraticCurveTo(bx, 156, bx + 40, 184); k.lineTo(bx + 40, 188); k.lineTo(bx + 14, 188); k.quadraticCurveTo(bx, 168, bx - 14, 188); k.lineTo(bx - 40, 188); k.closePath(); k.fill();
+        k.strokeStyle = QL_INK; k.lineWidth = 1; k.stroke();
+        const px = bx - 5, py = 169;
+        k.fillStyle = '#c94a32'; k.beginPath(); k.moveTo(px - 2.5, py); k.lineTo(px + 2.5, py); k.lineTo(px + 1.5, py - 8); k.lineTo(px - 1.5, py - 8); k.fill();
+        k.fillStyle = QL_INK; k.beginPath(); k.moveTo(px - 4.5, py - 8); k.lineTo(px + 4.5, py - 8); k.lineTo(px, py - 11.5); k.fill();
+      } }
+    // 卷轴两端的木轴与朱印
+    k.fillStyle = '#6b4226'; k.fillRect(0, 0, 6, CH); k.fillRect(CW - 6, 0, 6, CH);
+    k.fillStyle = '#b3261e'; k.fillRect(CW - 30, 14, 12, 16);
+    txt(k, '印', CW - 24, 26, `600 10px ${SERIF}`, '#f4e2c4', 'center');
+    grain(k, 0.08);
+  };
+
+  // @element 51
+  // 51 中国剪纸（参考 jingyu-skill「中国剪纸」词条的说明重新实现，MIT · 阿梦freedom）：对折的红纸被刻刀从上往下一刀刀刻开，
+  // 展开后是一幅左右对称的团花：外圈锯齿纹，左右两条细长的鲤鱼头朝上相对跃起，中间一朵大荷花，下方荷叶与水波，
+  // 空处填满卷云纹；鱼鳞是成排的月牙镂空，花瓣只留轮廓线，所有红线彼此相连。
+  // 节奏：0.2–2.6 秒刀尖沿半圆从上往下刻（已刻区域露出图案，未刻区域仍是整张红纸）；2.7–3.3 秒展开；展示到 5.4 秒，复位段淡回对折红纸。
+  const PC_C = [270, 104], PC_R = 92;
+  const PC_RED = '#c8161d';
+  let PC_BUF = null;                                  // 离屏画布：每帧整张重画，不跨帧保留状态
+  // 在离屏 g 上画「左半边」完整图案（坐标以圆心为原点，x ≤ 0）。先铺红，再用 destination-out 挖镂空、source-over 补红线
+  function pcPattern(g) {
+    const cut = fn => { g.globalCompositeOperation = 'destination-out'; g.fillStyle = '#000'; g.strokeStyle = '#000'; fn(); g.globalCompositeOperation = 'source-over'; g.fillStyle = PC_RED; g.strokeStyle = PC_RED; };
+    g.fillStyle = PC_RED; g.strokeStyle = PC_RED; g.lineCap = 'round'; g.lineJoin = 'round';
+    g.beginPath(); g.arc(0, 0, PC_R, Math.PI / 2, Math.PI * 1.5); g.closePath(); g.fill();
+    // 外圈：r 84–92 留红并刻一圈锯齿；内圈整片挖空，之后只把图案补回来
+    cut(() => {
+      for (let i = 0; i < 26; i++) {
+        const a0 = Math.PI / 2 + i / 26 * Math.PI, a1 = a0 + Math.PI / 26;
+        g.beginPath(); g.moveTo(84 * Math.cos(a0), 84 * Math.sin(a0)); g.lineTo(90 * Math.cos((a0 + a1) / 2), 90 * Math.sin((a0 + a1) / 2)); g.lineTo(84 * Math.cos(a1), 84 * Math.sin(a1)); g.closePath(); g.fill();
+      }
+      g.beginPath(); g.arc(0, 0, 81, Math.PI / 2, Math.PI * 1.5); g.closePath(); g.fill();
+    });
+    g.lineWidth = 2.6; g.beginPath(); g.arc(0, 0, 77, Math.PI / 2, Math.PI * 1.5); g.stroke();
+    g.lineWidth = 2; for (let i = 0; i < 20; i++) { const a = Math.PI / 2 + (i + 0.5) / 20 * Math.PI; g.beginPath(); g.moveTo(77 * Math.cos(a), 77 * Math.sin(a)); g.lineTo(83 * Math.cos(a), 83 * Math.sin(a)); g.stroke(); }
+    // 卷云纹：空处的小漩涡，线宽 1.8，彼此和外圈相接
+    g.lineWidth = 1.8;
+    [[-62, -40, 7, 0.4], [-70, -10, 6, 1.6], [-50, -62, 6, 2.6], [-26, -70, 5, 0.9], [-72, 22, 6, 3.4], [-12, -56, 5, 2], [-64, 46, 5, 0.2]].forEach(([x, y, r, rot]) => {
+      g.beginPath(); for (let t = 0; t <= 1; t += 0.04) { const ang = rot + t * 9, rr0 = r * (1 - t * 0.85); g.lineTo(x + rr0 * Math.cos(ang), y + rr0 * Math.sin(ang)); } g.stroke();
+      g.beginPath(); g.moveTo(x + r * Math.cos(rot), y + r * Math.sin(rot)); g.lineTo(x + (r + 7) * Math.cos(rot), y + (r + 7) * Math.sin(rot)); g.stroke();
+    });
+    // 水波：底部三排鱼鳞状波纹
+    g.lineWidth = 2;
+    for (let r = 0; r < 3; r++) for (let i = 0; i < 4; i++) { const x = -6 - i * 13 - (r % 2) * 6, y = 50 + r * 8; if (Math.hypot(x, y) > 76) continue; g.beginPath(); g.arc(x, y, 6.5, Math.PI, TAU); g.stroke(); }
+    // 荷叶：左下一片，叶脉是放射的镂空
+    g.beginPath(); g.ellipse(-40, 40, 22, 12, -0.25, 0, TAU); g.fill();
+    cut(() => { for (let i = 0; i < 7; i++) { const a = -0.25 + Math.PI * (0.1 + i / 7.5); g.beginPath(); g.ellipse(-40 + 11 * Math.cos(a), 40 + 6 * Math.sin(a), 7, 1.3, a, 0, TAU); g.fill(); } });
+    // 鲤鱼（左边一条，头朝上）：身子饱满呈弧形，最宽处约 38 像素；尾柄收细后分成两叶扇形尾
+    const body = new Path2D('M -20 -60 C -6 -56 -4 -36 -10 -18 C -14 0 -18 18 -22 30 L -30 32 C -42 16 -50 -2 -48 -24 C -46 -44 -34 -58 -20 -60 Z');
+    g.fill(body);
+    g.fill(new Path2D('M -22 29 C -12 38 -8 52 -12 64 C -18 58 -22 52 -26 45 C -30 53 -38 59 -48 61 C -45 50 -38 40 -30 31 Z'));   // 尾：上下两叶
+    g.fill(new Path2D('M -47 -32 C -58 -31 -63 -16 -59 -5 C -55 -10 -51 -12 -48 -12 Z'));                                            // 背鳍
+    g.fill(new Path2D('M -10 -26 C -2 -24 2 -16 0 -9 C -4 -13 -8 -15 -12 -15 Z'));                                                  // 胸鳍
+    g.fill(new Path2D('M -16 8 C -8 10 -6 18 -8 22 C -11 18 -14 16 -18 16 Z'));                                                     // 腹鳍
+    cut(() => {
+      // 月牙鳞：在身子内部按交错网格排，只留完全落在身内的
+      for (let y = -38, r = 0; y <= 22; y += 6.5, r++) for (let x = -48 + (r % 2) * 3.5; x <= -10; x += 7) {
+        const X = x + PC_C[0], Y = y + PC_C[1];
+        if (![[0, 0], [-4.5, 0], [4.5, 0], [0, 4]].every(([dx, dy]) => g.isPointInPath(body, X + dx, Y + dy))) continue;
+        g.beginPath(); g.arc(x, y, 3.4, 0.12 * Math.PI, 0.88 * Math.PI); g.arc(x, y - 1.8, 2.8, 0.85 * Math.PI, 0.15 * Math.PI, true); g.closePath(); g.fill();
+      }
+      g.beginPath(); g.arc(-22, -50, 2.8, 0, TAU); g.fill();                    // 眼
+      g.lineWidth = 1.3; g.beginPath(); g.arc(-26, -58, 15, 0.2 * Math.PI, 0.75 * Math.PI); g.stroke();   // 鳃线
+      g.lineWidth = 1.1;
+      for (let i = 0; i < 5; i++) { const t = i / 4; g.beginPath(); g.moveTo(-25, 36); g.lineTo(mix(-14, -44, t), mix(60, 58, t) - Math.sin(t * Math.PI) * 10); g.stroke(); }   // 尾纹放射
+      for (let i = 0; i < 3; i++) { g.beginPath(); g.moveTo(-48, -28 + i * 6); g.lineTo(-57 + i * 1.5, -24 + i * 6); g.stroke(); }                                          // 背鳍纹
+    });
+    g.fillStyle = PC_RED; g.beginPath(); g.arc(-22, -50, 1.2, 0, TAU); g.fill();
+    g.lineWidth = 1.6; g.beginPath(); g.moveTo(-14, -58); g.quadraticCurveTo(-4, -64, -8, -74); g.stroke();   // 须
+    // 荷花：只画左半（花心在对称轴上，镜像后成整朵）；花瓣只留轮廓线，瓣内一道细脉
+    const petal = (x, y, rx, ry, rot) => {
+      g.save(); g.translate(x, y); g.rotate(rot);
+      g.beginPath(); g.moveTo(0, ry); g.quadraticCurveTo(-rx * 1.3, 0, 0, -ry); g.quadraticCurveTo(rx * 1.3, 0, 0, ry); g.closePath();
+      g.lineWidth = 2.2; g.stroke(); g.lineWidth = 1.2; g.beginPath(); g.moveTo(0, ry * 0.7); g.lineTo(0, -ry * 0.6); g.stroke();
+      g.restore();
+    };
+    g.fillStyle = PC_RED;
+    g.lineWidth = 2.4; g.beginPath(); g.moveTo(0, 30); g.lineTo(0, 76); g.stroke();                              // 茎
+    petal(-24, 16, 7, 15, -1.15); petal(-16, 6, 7, 17, -0.6); petal(0, -2, 8, 22, 0);
+    g.beginPath(); g.moveTo(-14, 24); g.quadraticCurveTo(-26, 30, -32, 26); g.lineWidth = 2; g.stroke();
+    g.beginPath(); g.rect(-14, 20, 14, 10); g.fill();                                                                // 莲蓬
+    cut(() => { [[-10, 23], [-4, 23], [-7, 27.5]].forEach(([x, y]) => { g.beginPath(); g.arc(x, y, 1.5, 0, TAU); g.fill(); }); });
+    // 对称轴上留一条红线，保证左右两半展开后连成一片
+    g.fillStyle = PC_RED; g.fillRect(-1.2, -77, 1.2, 154);
+  }
+  CELLS[50] = (k, w, h, u) => {
+    if (!PC_BUF) { PC_BUF = document.createElement('canvas'); PC_BUF.width = CW; PC_BUF.height = CH; }
+    const g = PC_BUF.getContext('2d');
+    const cutP = inOut3(seg(u, 0.2, 2.6)), open = inOut3(seg(u, 2.7, 3.3)), back = resetK(u);
+    // 刻到的位置：从顶部（角度 1.5π）沿左半圆转到底部（0.5π）
+    const edge = Math.PI * 1.5 - cutP * Math.PI;
+    k.fillStyle = '#efe6d2'; k.fillRect(0, 0, CW, CH); paper(k, [150, 120, 80], 700, 51);
+    g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, CW, CH); g.globalAlpha = 1;
+    g.translate(PC_C[0], PC_C[1]);
+    pcPattern(g);
+    // 还没刻到的扇区补回整张红纸
+    if (cutP < 1) { g.fillStyle = PC_RED; g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, PC_R, Math.PI / 2, edge); g.closePath(); g.fill(); }
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    k.save(); k.globalAlpha = 1 - back;
+    k.shadowColor = 'rgba(80,30,10,.28)'; k.shadowBlur = 6; k.shadowOffsetY = 2;
+    k.drawImage(PC_BUF, 0, 0);
+    if (open > 0.001) {                                  // 右半边：左半镜像，宽度从 0 展开到 1，途中稍暗表示纸面翻转
+      k.translate(PC_C[0], 0); k.scale(-open, 1); k.translate(-PC_C[0], 0);
+      k.filter = `brightness(${mix(0.7, 1, open)})`; k.drawImage(PC_BUF, 0, 0); k.filter = 'none';
+    }
+    k.restore();
+    if (back > 0) {                                      // 复位：对折的整张红纸淡入，与 u = 0 一致
+      k.save(); k.globalAlpha = back; k.shadowColor = 'rgba(80,30,10,.28)'; k.shadowBlur = 6; k.shadowOffsetY = 2;
+      k.beginPath(); k.arc(PC_C[0], PC_C[1], PC_R, Math.PI / 2, Math.PI * 1.5); k.closePath(); k.fillStyle = PC_RED; k.fill(); k.restore();
+    }
+    if (open < 1) {                                      // 对折线
+      k.strokeStyle = `rgba(90,10,10,${0.5 * (1 - open)})`; k.lineWidth = 1.2;
+      k.beginPath(); k.moveTo(PC_C[0], PC_C[1] - PC_R); k.lineTo(PC_C[0], PC_C[1] + PC_R); k.stroke();
+    }
+    // 刻刀：刀尖落在刻线上，沿半径来回走（每段 0.3 秒一个来回）
+    const kn = seg(u, 0.05, 0.2) * (1 - seg(u, 2.6, 2.8));
+    if (kn > 0) {
+      const r = 16 + 62 * Math.abs(Math.sin(TAU * u / 0.6)), x = PC_C[0] + r * Math.cos(edge), y = PC_C[1] + r * Math.sin(edge);
+      k.save(); k.globalAlpha = kn; k.translate(x, y); k.rotate(-0.5);
+      k.fillStyle = '#d9dde2'; k.beginPath(); k.moveTo(0, 0); k.lineTo(3, -14); k.lineTo(-3, -14); k.closePath(); k.fill();
+      k.fillStyle = '#8a5a2b'; rr(k, -3.5, -48, 7, 34, 2); k.fill();
+      k.restore();
+    }
+  };
+
+  // @element 52
+  // 52 皮影（参考 jingyu-skill「皮影」词条的说明重新实现，MIT · 阿梦freedom）：暖黄灯光透过白幕，两个侧脸皮影隔幕相对。
+  // 左边女子身形修长（头小、身长约 8 个头高），高髻插簪，长裙分三层，水袖是半透明的长绸；右边武将骑马，马身是连贯的曲线，
+  // 腿分大腿、小腿两节。每块部件先填半透明色，再在部件内刻满细密的圆点与月牙纹（透出幕布的亮色），边缘留一道细镂空线，
+  // 关节处一颗铆钉，竹签连在手上和身上。女子抬臂甩袖，马踏步、武将随马颠动，灯光轻闪；全部用整数倍频率，首尾一致。
+  const PY_INK = 'rgba(38,16,8,.95)', PY_LIT = 'rgba(255,228,168,.9)';
+  const PY_COL = { red: 'rgba(190,36,26,.82)', green: 'rgba(36,112,58,.8)', yel: 'rgba(228,164,36,.82)', blk: 'rgba(32,14,8,.9)', blue: 'rgba(40,70,140,.78)' };
+  // 刻纹：在当前路径内按网格刻小孔。kind 0 圆点、1 月牙、2 菱格，step 为网格间距
+  function pyCarve(k, path, kind, step, x0, y0, x1, y1) {
+    k.save(); k.clip(path); k.fillStyle = PY_LIT; k.beginPath();
+    for (let y = y0, r = 0; y < y1; y += step, r++) for (let x = x0 + (r % 2) * step / 2; x < x1; x += step) {
+      if (kind === 0) { k.moveTo(x + step * 0.18, y); k.arc(x, y, step * 0.18, 0, TAU); }
+      else if (kind === 1) { k.moveTo(x + step * 0.3, y); k.arc(x, y, step * 0.3, 0, Math.PI); k.arc(x, y - step * 0.1, step * 0.24, Math.PI, 0, true); }
+      else { k.moveTo(x, y - step * 0.22); k.lineTo(x + step * 0.22, y); k.lineTo(x, y + step * 0.22); k.lineTo(x - step * 0.22, y); k.closePath(); }
+    }
+    k.fill(); k.restore();
+  }
+  // 一块部件：填色 → 刻纹 → 边内一道亮线（镂空的描边）→ 墨色外轮廓
+  function pyPart(k, d, col, carve) {
+    const p = typeof d === 'string' ? new Path2D(d) : d;
+    k.fillStyle = col; k.fill(p);
+    if (carve) pyCarve(k, p, ...carve);
+    k.save(); k.clip(p); k.strokeStyle = PY_LIT; k.lineWidth = 2.2; k.stroke(p); k.restore();
+    k.strokeStyle = PY_INK; k.lineWidth = 1.1; k.stroke(p);
+    return p;
+  }
+  const pyRivet = (k, x, y) => { k.beginPath(); k.arc(x, y, 2, 0, TAU); k.fillStyle = '#2a140a'; k.fill(); k.beginPath(); k.arc(x - 0.5, y - 0.5, 0.7, 0, TAU); k.fillStyle = 'rgba(255,220,160,.6)'; k.fill(); };
+  function pyRod(k, x, y, lean) { k.beginPath(); k.moveTo(x, y); k.lineTo(x + lean, CH + 4); k.strokeStyle = 'rgba(30,14,8,.55)'; k.lineWidth = 1.2; k.stroke(); }
+  function pyJoint(k, x, y, a, fn) { k.save(); k.translate(x, y); k.rotate(a); fn(); k.restore(); pyRivet(k, x, y); }
+  function pyLady(k, a) {
+    const x = 160, y = 30 + 1.2 * Math.sin(a * 2);
+    k.save(); k.translate(x, y);
+    // 后侧的水袖（随甩动在身后飘）
+    const sw = Math.sin(a * 2);
+    pyPart(k, `M 8 40 C 30 ${70 + 10 * sw} 24 ${110 + 8 * sw} ${6 + 10 * sw} 150 C 0 140 10 100 0 46 Z`, 'rgba(250,232,196,.38)', [0, 7, -10, 30, 40, 160]);
+    // 裙：三层，最下层拖地
+    pyPart(k, 'M -6 96 C -20 120 -30 146 -40 168 L 34 168 C 26 146 18 120 12 96 Z', PY_COL.red, [1, 9, -44, 96, 40, 172]);
+    pyPart(k, 'M -4 76 C -14 92 -20 108 -24 124 C -6 130 10 130 22 124 C 18 108 14 92 10 76 Z', PY_COL.green, [2, 7, -26, 76, 24, 132]);
+    pyPart(k, 'M -16 118 C -6 124 10 124 22 118 L 24 126 C 8 132 -8 132 -18 126 Z', PY_COL.yel);
+    // 上身与云肩
+    pyPart(k, 'M -4 30 C -8 44 -8 62 -6 80 L 12 80 C 14 62 14 44 8 30 Z', PY_COL.red, [0, 6, -10, 30, 16, 82]);
+    pyPart(k, 'M -8 30 C -2 26 8 26 14 30 C 16 38 12 44 2 46 C -6 44 -10 38 -8 30 Z', PY_COL.blue, [1, 5, -10, 26, 16, 48]);
+    // 腰带与垂下的流苏
+    k.strokeStyle = PY_COL.yel; k.lineWidth = 1.6;
+    for (let i = 0; i < 3; i++) { k.beginPath(); k.moveTo(2 + i * 3, 80); k.quadraticCurveTo(4 + i * 3 + 3 * sw, 100, 2 + i * 4, 116); k.stroke(); }
+    // 头：侧脸（额、鼻、唇、下巴）连着后脑勺，是一整颗头；脸是镂空的亮色，只留细眉眼
+    pyPart(k, 'M 6 2 C 9 4 10 7 11 11 L 13 14 L 11 15 C 12 17 11 19 9 20 C 8 23 4 25 0 25 C -6 24 -10 18 -10 12 C -10 4 -4 0 6 2 Z', 'rgba(255,238,206,.5)');
+    k.strokeStyle = PY_INK; k.lineWidth = 0.9; k.beginPath(); k.moveTo(4, 9); k.quadraticCurveTo(7, 8, 9, 10); k.moveTo(5, 12); k.lineTo(8.5, 12.5); k.stroke();
+    // 头发：沿头顶外缘（半径 11.5）包住后脑，内缘（半径 8）就是发际线，紧贴头皮；后上方再盘一大一小两个发髻
+    const hair = new Path2D();
+    hair.arc(0, 11, 11.5, 0.78 * Math.PI, 1.8 * Math.PI); hair.arc(0, 11, 8, 1.78 * Math.PI, 0.9 * Math.PI, true); hair.closePath();
+    hair.moveTo(-1 + 7.5, -5); hair.arc(-1, -5, 7.5, 0, TAU);
+    hair.moveTo(-9 + 4.5, 0); hair.arc(-9, 0, 4.5, 0, TAU);
+    pyPart(k, hair, PY_COL.blk, [0, 4, -16, -14, 14, 22]);
+    k.strokeStyle = PY_COL.yel; k.lineWidth = 1.4; k.beginPath(); k.moveTo(-12, -4); k.lineTo(12, -11); k.stroke();
+    [[12, -11], [-6, -12]].forEach(([px, py]) => { k.beginPath(); k.arc(px, py, 2.4, 0, TAU); k.fillStyle = PY_COL.red; k.fill(); k.strokeStyle = PY_INK; k.lineWidth = 0.8; k.stroke(); });
+    k.strokeStyle = PY_COL.yel; k.lineWidth = 1; k.beginPath(); k.moveTo(12, -9); k.lineTo(13 + 2 * sw, 2); k.stroke();
+    k.beginPath(); k.arc(13 + 2 * sw, 3, 1.6, 0, TAU); k.fillStyle = PY_COL.yel; k.fill();
+    k.restore();
+    // 前臂：肩 → 肘 → 腕，抬起又放下；水袖挂在腕上向下飘
+    const sx = x + 6, sy = y + 34, s1 = -0.15 - 0.55 * (1 - Math.cos(a)) / 2, s2 = 0.35 + 0.3 * Math.sin(a * 2);
+    let hx, hy;
+    pyJoint(k, sx, sy, s1, () => {
+      pyPart(k, 'M 0 -3.5 L 24 -3 L 24 3 L 0 3.5 Z', PY_COL.red, [0, 4, 0, -4, 24, 4]);
+      pyJoint(k, 24, 0, s2, () => {
+        pyPart(k, 'M 0 -3 L 20 -2.5 L 20 2.5 L 0 3 Z', PY_COL.blue);
+        k.save(); k.translate(20, 0); k.rotate(-s1 - s2 + 0.9 + 0.25 * Math.sin(a * 2 + 1));
+        pyPart(k, 'M 0 -4 C 20 -6 34 0 44 10 C 38 24 30 34 24 46 C 18 30 8 14 0 4 Z', 'rgba(250,232,196,.42)', [1, 7, -2, -8, 46, 48]);
+        k.restore();
+      });
+    });
+    hx = sx + 24 * Math.cos(s1) + 20 * Math.cos(s1 + s2); hy = sy + 24 * Math.sin(s1) + 20 * Math.sin(s1 + s2);
+    pyRod(k, hx, hy, 10); pyRod(k, x + 2, y + 60, -6);
+  }
+  function pyGeneral(k, a) {
+    k.save(); k.translate(392, 190); k.scale(1.15, 1.15); k.translate(-392, -190);
+    const mx = 392, bob = 2.4 * Math.abs(Math.sin(a * 3)), my = 124 - bob;
+    // 四条腿：大腿绕髋、小腿绕膝，对角两两同相
+    const leg = (hx, ph, front) => {
+      const t = a * 3 + ph, th = 0.3 * Math.sin(t), sh = front ? -0.35 * Math.max(0, Math.sin(t + 0.8)) : 0.45 * Math.max(0, Math.sin(t - 0.6));
+      pyJoint(k, mx + hx, my + 8, th, () => {
+        pyPart(k, 'M -6 -4 C -7 8 -5 18 -3 24 L 4 24 C 6 16 7 6 6 -4 Z', PY_COL.blk, [0, 4, -7, -4, 7, 24]);
+        pyJoint(k, 0, 23, sh, () => { pyPart(k, 'M -3 0 L 3 0 L 2.5 18 L 5 22 L -4 22 L -2.5 18 Z', PY_COL.blk); });
+      });
+    };
+    k.save(); k.globalAlpha = 0.6; leg(24, 0, true); leg(-36, Math.PI, false); k.restore();
+    leg(30, Math.PI, true); leg(-30, 0, false);
+    // 尾：几缕长条，末端随步子甩
+    const tw = 4 * Math.sin(a * 3);
+    pyPart(k, `M ${mx + 46} ${my - 6} C ${mx + 64} ${my - 4} ${mx + 70} ${my + 14} ${mx + 66 + tw} ${my + 34} C ${mx + 58} ${my + 22} ${mx + 54} ${my + 8} ${mx + 44} ${my + 2} Z`, PY_COL.blk, [1, 4, mx + 44, my - 8, mx + 72, my + 36]);
+    // 马身：一条连贯的曲线（背、臀、腹、胸）
+    pyPart(k, `M ${mx - 34} ${my - 14} C ${mx - 10} ${my - 22} ${mx + 26} ${my - 22} ${mx + 46} ${my - 10} C ${mx + 54} ${my - 2} ${mx + 50} ${my + 12} ${mx + 36} ${my + 14} C ${mx + 10} ${my + 18} ${mx - 16} ${my + 18} ${mx - 32} ${my + 12} C ${mx - 42} ${my + 6} ${mx - 42} ${my - 6} ${mx - 34} ${my - 14} Z`,
+      PY_COL.blk, [0, 6, mx - 44, my - 22, mx + 54, my + 18]);
+    // 颈与头：颈向前上弓起，马头细长
+    const nod = 0.06 * Math.sin(a * 3 + 0.5);
+    k.save(); k.translate(mx - 30, my - 8); k.rotate(nod);
+    pyPart(k, 'M 0 -6 C -6 -22 -14 -36 -22 -44 L -30 -46 C -38 -44 -46 -38 -50 -30 C -48 -26 -44 -26 -40 -28 C -34 -28 -28 -24 -24 -18 C -18 -8 -10 4 6 8 Z', PY_COL.blk, [0, 5, -52, -48, 8, 10]);
+    k.fillStyle = PY_LIT; k.beginPath(); k.arc(-34, -38, 1.6, 0, TAU); k.fill();
+    k.strokeStyle = PY_COL.red; k.lineWidth = 1.4; k.beginPath(); k.moveTo(-44, -30); k.lineTo(-30, -40); k.lineTo(-20, -20); k.stroke();   // 笼头
+    // 鬃毛：一排细长的刻条
+    k.fillStyle = PY_COL.blk;
+    for (let i = 0; i < 7; i++) { const t = i / 6; k.beginPath(); k.moveTo(-22 + t * 18, -44 + t * 34); k.lineTo(-14 + t * 20 + 2 * Math.sin(a * 3 + i), -46 + t * 32); k.lineTo(-18 + t * 18, -40 + t * 34); k.fill(); }
+    k.restore();
+    // 鞍鞯：红底，刻菱格，下沿一排流苏
+    pyPart(k, `M ${mx - 18} ${my - 20} C ${mx - 6} ${my - 24} ${mx + 16} ${my - 24} ${mx + 26} ${my - 18} L ${mx + 22} ${my + 4} C ${mx + 6} ${my + 8} ${mx - 10} ${my + 8} ${mx - 20} ${my + 4} Z`, PY_COL.red, [2, 6, mx - 22, my - 26, mx + 28, my + 10]);
+    k.strokeStyle = PY_COL.yel; k.lineWidth = 1.2;
+    for (let i = 0; i < 9; i++) { const fx = mx - 18 + i * 5; k.beginPath(); k.moveTo(fx, my + 5); k.lineTo(fx + 0.6 * Math.sin(a * 3), my + 12); k.stroke(); }
+    // 武将：靠旗、铠甲（鱼鳞刻纹）、护腰、腿、侧脸与盔
+    const rx = mx, ry = my - 20;
+    const flag = (dx, rot) => pyPart(k, `M ${rx + 4} ${ry - 40} L ${rx + 4 + 30 * Math.cos(rot)} ${ry - 40 + 30 * Math.sin(rot)} L ${rx + 4 + 28 * Math.cos(rot + 0.32)} ${ry - 40 + 28 * Math.sin(rot + 0.32)} Z`, dx ? PY_COL.green : PY_COL.red, [1, 5, rx - 40, ry - 80, rx + 40, ry - 20]);
+    flag(0, -0.75 + 0.04 * Math.sin(a * 3)); flag(1, -0.35 + 0.04 * Math.sin(a * 3 + 1));
+    pyPart(k, `M ${rx - 4} ${ry} L ${rx + 10} ${ry} L ${rx + 6} ${ry + 26} L ${rx - 2} ${ry + 30} Z`, PY_COL.blue, [1, 4, rx - 6, ry, rx + 12, ry + 32]);   // 腿（搭在马侧）
+    pyPart(k, `M ${rx - 10} ${ry - 42} C ${rx - 14} ${ry - 28} ${rx - 12} ${ry - 12} ${rx - 10} ${ry + 2} L ${rx + 14} ${ry + 2} C ${rx + 14} ${ry - 14} ${rx + 12} ${ry - 30} ${rx + 8} ${ry - 42} Z`, PY_COL.green, [1, 5, rx - 16, ry - 44, rx + 16, ry + 4]);
+    pyPart(k, `M ${rx - 12} ${ry - 10} L ${rx + 14} ${ry - 10} L ${rx + 16} ${ry - 2} L ${rx - 13} ${ry - 2} Z`, PY_COL.yel, [2, 4, rx - 14, ry - 12, rx + 18, ry]);
+    pyPart(k, `M ${rx - 12} ${ry - 44} C ${rx - 6} ${ry - 48} ${rx + 6} ${ry - 48} ${rx + 12} ${ry - 44} L ${rx + 10} ${ry - 36} C ${rx + 2} ${ry - 34} ${rx - 6} ${ry - 34} ${rx - 12} ${ry - 36} Z`, PY_COL.red, [0, 4, rx - 14, ry - 50, rx + 14, ry - 32]);  // 护肩
+    // 侧脸朝左：额、鼻、唇、下巴，三缕长须
+    pyPart(k, `M ${rx + 2} ${ry - 66} C ${rx - 4} ${ry - 66} ${rx - 8} ${ry - 62} ${rx - 9} ${ry - 58} L ${rx - 11} ${ry - 55} L ${rx - 9} ${ry - 54} C ${rx - 10} ${ry - 51} ${rx - 8} ${ry - 49} ${rx - 6} ${ry - 48} L ${rx + 4} ${ry - 46} Z`, 'rgba(255,238,206,.5)');
+    k.strokeStyle = PY_INK; k.lineWidth = 0.9; k.beginPath(); k.moveTo(rx - 2, ry - 61); k.quadraticCurveTo(rx - 5, ry - 62.5, rx - 7, ry - 61); k.stroke();
+    k.lineWidth = 0.8; for (let i = 0; i < 3; i++) { k.beginPath(); k.moveTo(rx - 6 + i * 2, ry - 49); k.quadraticCurveTo(rx - 8 + i * 2 + 1.5 * Math.sin(a * 3), ry - 40, rx - 6 + i * 2, ry - 32); k.stroke(); }
+    pyPart(k, `M ${rx - 10} ${ry - 64} C ${rx - 8} ${ry - 76} ${rx + 8} ${ry - 78} ${rx + 10} ${ry - 64} L ${rx + 6} ${ry - 46} L ${rx + 2} ${ry - 64} Z`, PY_COL.blk, [0, 3.5, rx - 12, ry - 80, rx + 12, ry - 44]);
+    k.strokeStyle = PY_COL.red; k.lineWidth = 2.4; k.beginPath(); k.moveTo(rx, ry - 76); k.quadraticCurveTo(rx + 12 + 3 * Math.sin(a * 3), ry - 92, rx + 24, ry - 84); k.stroke();   // 盔缨
+    // 持枪的手臂：肩 → 肘两节，枪随肘摆动
+    const s1 = Math.PI - 0.7, s2 = -0.45 + 0.2 * Math.sin(a * 2);
+    pyJoint(k, rx - 6, ry - 38, s1, () => {
+      pyPart(k, 'M 0 -3.5 L 18 -3 L 18 3 L 0 3.5 Z', PY_COL.green);
+      pyJoint(k, 18, 0, s2, () => pyPart(k, 'M 0 -3 L 16 -2.5 L 16 2.5 L 0 3 Z', PY_COL.yel));
+    });
+    const ex = rx - 6 + 18 * Math.cos(s1), ey = ry - 38 + 18 * Math.sin(s1), hx = ex + 16 * Math.cos(s1 + s2), hy = ey + 16 * Math.sin(s1 + s2);
+    const sa = -1.35 + 0.15 * Math.sin(a * 2);
+    k.strokeStyle = PY_INK; k.lineWidth = 2; k.beginPath(); k.moveTo(hx - 50 * Math.cos(sa), hy - 50 * Math.sin(sa)); k.lineTo(hx + 52 * Math.cos(sa), hy + 52 * Math.sin(sa)); k.stroke();
+    const tx = hx + 52 * Math.cos(sa), ty = hy + 52 * Math.sin(sa);
+    k.fillStyle = '#d9dde2'; k.beginPath(); k.moveTo(tx + 10 * Math.cos(sa), ty + 10 * Math.sin(sa)); k.lineTo(tx + 3 * Math.cos(sa + 1.6), ty + 3 * Math.sin(sa + 1.6)); k.lineTo(tx + 3 * Math.cos(sa - 1.6), ty + 3 * Math.sin(sa - 1.6)); k.fill();
+    k.fillStyle = PY_COL.red; k.beginPath(); k.arc(tx - 1, ty + 1, 3, 0, TAU); k.fill();
+    pyRod(k, hx, hy, -6); pyRod(k, mx + 4, my + 6, 6);
+    k.restore();
+  }
+  CELLS[51] = (k, w, h, u) => {
+    const a = TAU * u / CYC;
+    const fl = 1 + 0.035 * Math.sin(a * 7) + 0.02 * Math.sin(a * 13);   // 灯光闪烁
+    const g = k.createRadialGradient(286, 92, 20, 286, 110, 330);
+    g.addColorStop(0, `rgb(255,${Math.round(Math.min(255, 216 * fl))},${Math.round(144 * fl)})`);
+    g.addColorStop(0.6, '#c98a3e'); g.addColorStop(1, '#4a2610');
+    k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+    // 左侧亭子剪影：飞檐、两根柱、栏杆格子，稍虚（离幕较远）
+    k.save(); k.filter = 'blur(0.8px)'; k.fillStyle = 'rgba(60,24,10,.5)';
+    k.beginPath(); k.moveTo(0, 34); k.quadraticCurveTo(56, 44, 96, 20); k.lineTo(90, 40); k.quadraticCurveTo(50, 52, 0, 50); k.closePath(); k.fill();
+    k.fillRect(10, 50, 5, 140); k.fillRect(76, 46, 5, 144);
+    k.beginPath(); for (let x = 15; x < 76; x += 8) k.rect(x, 140, 1.6, 28); k.rect(15, 138, 61, 2.5); k.rect(15, 166, 61, 2.5);
+    for (let x = 18; x < 74; x += 14) { k.moveTo(x + 5, 58); k.arc(x, 58, 5, 0, TAU); } k.fill();
+    k.restore();
+    pyLady(k, a);
+    pyGeneral(k, a);
+    // 幕布下沿的木框与纹理
+    k.fillStyle = 'rgba(40,18,8,.85)'; k.fillRect(0, CH - 6, CW, 6);
+    grain(k, 0.07);
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

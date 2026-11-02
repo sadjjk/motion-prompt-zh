@@ -2,7 +2,7 @@
 
 # 摄影光线与风格
 
-47 个效果 · #3 037~083 · 分类包 `photo` · 其他语言: [English](README.md) / [日本語](README.ja.md)
+48 个效果 · #3 037~084 · 分类包 `photo` · 其他语言: [English](README.md) / [日本語](README.ja.md)
 
 找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。
 
@@ -17,6 +17,7 @@
 | [#3-041](https://sadjjk.github.io/motion-prompt-zh/#3-041) | **留白** | Negative space | 让大片简单区域包围主体，突出主体和情绪 | 用留白构图拍站在雪地左侧的一个人，画面右边三分之二只有空白的雪。 |
 | [#3-042](https://sadjjk.github.io/motion-prompt-zh/#3-042) | **框中框** | Frame within a frame | 用门窗、拱洞等前景把主体再框一次 | 用框中框构图拍门外院子里的孩子，近处的门框把孩子框在画面中央。 |
 | [#3-043](https://sadjjk.github.io/motion-prompt-zh/#3-043) | **前中后景** | Foreground, middle ground & background | 前景、中景、后景分层排布，画面更有纵深 | 拍湖边的人物时做出前中后景：前景是花丛，中景是人物，后景是湖和对岸的树林。 |
+| [#3-084](https://sadjjk.github.io/motion-prompt-zh/#3-084) | **平铺俯拍** | Flat lay | 相机在正上方 90° 往下拍，把物品平铺排开的构图 | 做一个早餐平铺俯拍：从正上方拍亚麻桌布，依次放下豆浆碗、包子、油条、茶杯和筷子，碗盘保持正圆，筷子和桌布边平行，右下角留白。 |
 
 ## 光线与色彩 / 布光与时段
 

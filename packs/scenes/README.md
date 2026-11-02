@@ -2,7 +2,7 @@
 
 # Styled scenes
 
-44 names · #1-102 · #2 029 · 041 · 052~054 · 068~075 · 081~091 · 097~099 · 116 · #4 012~014 · 016 · 020~030 · pack `scenes` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+52 names · #1-102 · #2 029 · 041 · 052~054 · 068~075 · 081~091 · 097~099 · 116 · #4 012~014 · 016 · 020~030 · 032~039 · pack `scenes` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -77,6 +77,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-012](https://sadjjk.github.io/motion-prompt-zh/#4-012) | **Constructivist** | A Constructivist poster where red and black shapes and bold type slam into a tilted layout | Animate a Constructivist poster: 5 elements, including a red circle, black bars and bold FORWARD, slam in 0.35 s apart. |
 | [#4-013](https://sadjjk.github.io/motion-prompt-zh/#4-013) | **Memphis** | Memphis-style bold geometric shapes bouncing and spinning on a pastel ground | Make a Memphis background: 36 circles, triangles and squiggles bouncing 2 or 3 times every 6.4 s on a pastel ground. |
 | [#4-014](https://sadjjk.github.io/motion-prompt-zh/#4-014) | **Art Deco** | An Art Deco ornament of gold rays and fan arcs unfolding on black | Make an Art Deco scene: 25 gold rays and 9 fan arcs unfold from the bottom on black, with a light sweep every 6.4 s. |
+| [#4-032](https://sadjjk.github.io/motion-prompt-zh/#4-032) | **Pop art** | A modern art style that blows up everyday objects with thick outlines, flat primary colours and halftone dots | Draw a bowl of noodles in pop art: thick black outlines, rays behind it and halftone dots in the shadows. Midway, split the frame into a 2×2 grid, let the 4 panels switch to different colour schemes one by one, then merge back into one. |
 
 ## Art movements / Digital & retro
 
@@ -91,6 +92,10 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-020](https://sadjjk.github.io/motion-prompt-zh/#4-020) | **Risograph** | A risograph-style poster where fluorescent pink and teal plates are printed slightly out of register | Make an animated risograph poster: fluorescent pink and teal plates multiplied together, with the misregistration swaying between 1 and 5 px, 3 times per 6.4 s loop. |
 | [#4-021](https://sadjjk.github.io/motion-prompt-zh/#4-021) | **Glass mosaic** | A glass mosaic whose small tiles flip into place to form a sunset seascape | Animate a glass mosaic: 45 × 18 tiles of 12 px flip in from right to left to form a sunset seascape, complete in about 3.65 s. |
 | [#4-030](https://sadjjk.github.io/motion-prompt-zh/#4-030) | **Halftone** | Dots of varying size carry the light and shade, giving a printed look | Render a ball and the words HALF / TONE as halftone: dots on a 7 px grid, bigger where it's darker, changing size as the light circles the ball; partway through split into CMYK plates for colour, then return to black only. |
+| [#4-033](https://sadjjk.github.io/motion-prompt-zh/#4-033) | **Ukiyo-e** | The Edo-period woodblock print style: ink outlines with a few flat colour blocks | In ukiyo-e style, draw 2 people with umbrellas passing each other on a big wooden bridge in the rain: ink outlines, flat colour blocks printed slightly off-register, rain as fine lines at one fixed angle, and a pine branch cutting across the top right. |
+| [#4-034](https://sadjjk.github.io/motion-prompt-zh/#4-034) | **Woodcut** | A print cut into wood with gouges and printed in just 2 colours, black and paper | Make a black-and-white woodcut of a fisherman hauling a net from a wooden boat in the waves: the sky in parallel gouge lines, the sea a black mass with white cuts for waves, and a faint wood grain showing through the black. |
+| [#4-035](https://sadjjk.github.io/motion-prompt-zh/#4-035) | **Embroidery** | A craft that stitches a design into cloth with needle and thread, using stitch direction for sheen and relief | In embroidery style, show a lotus leaf, flower, bud and a mandarin duck being stitched one stitch at a time into silk on a wooden hoop; let the sheen change with stitch direction, and run a diagonal gleam across once it's done. |
+| [#4-036](https://sadjjk.github.io/motion-prompt-zh/#4-036) | **Stained glass** | A window of coloured glass pieces joined with lead, seen with light shining through | In stained-glass style, make an arched window in a dark stone wall showing a phoenix, flowers and a sun behind distant hills: thick lead lines between the pieces, and as the light behind it rises from below, the glass lights up nearest-first and casts coloured light onto the floor. |
 
 ## Craft & patterns / Geometric patterns
 
@@ -108,12 +113,15 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 |---|---|---|---|
 | [#4-027](https://sadjjk.github.io/motion-prompt-zh/#4-027) | **Dry brush** | A calligraphy scene where a brush writes the character 永 on rice paper, with dry-brush streaks and a red seal | Make a calligraphy opener: a brush writes the 8 strokes of 永 in 4 s, then a red seal stamps down. |
 | [#4-028](https://sadjjk.github.io/motion-prompt-zh/#4-028) | **Vertical verse** | A classical Chinese poem appearing character by character in vertical columns on ruled letter paper | Make a vertical verse scene: Wang Wei's 44-character poem appears right to left at 9.5 characters per second, then a red seal is stamped. |
+| [#4-037](https://sadjjk.github.io/motion-prompt-zh/#4-037) | **Blue-green landscape** | A Chinese landscape painting style that colours the mountains richly with azurite blue and malachite green | Pan slowly along a blue-green landscape handscroll on silk: move 3 layers of mountains (far, middle, near) at different speeds, wash the ink-outlined mountains with azurite and malachite from the top down, ochre at their feet, bands of cloud at mid-height, and a tiny figure on a bridge. |
 
 ## East Asian tradition / Objects & folk crafts
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
 | [#4-029](https://sadjjk.github.io/motion-prompt-zh/#4-029) | **Blue & white** | A top-down view of a turning blue-and-white porcelain plate | Make a loop of a blue-and-white plate seen from above: it turns clockwise once every 6.4 s while a warm gold highlight sweeps left to right. |
+| [#4-038](https://sadjjk.github.io/motion-prompt-zh/#4-038) | **Chinese paper cutting** | A folk craft of folding red paper and cutting it so it opens into a symmetric pattern | Make a Chinese paper cut: a knife carves a folded sheet of red paper from the top down, and it opens into a round, symmetric window flower with 2 carp facing each other, a lotus in the middle, a sawtooth border and crescent-shaped cut-out scales. |
+| [#4-039](https://sadjjk.github.io/motion-prompt-zh/#4-039) | **Shadow puppets** | A traditional theatre of carved leather figures lit from behind a screen and worked with rods | Do a shadow-puppet scene: in front of a warm-lit screen, a lady in a long skirt and a general on horseback face each other in profile. Make their bodies translucent red, green, yellow and black with fine cut-out patterns, rivets at the joints and rods on the hands and bodies; the lady flicks her sleeve and the horse marks time. |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#1-102](../../api/v1/en/e/1-102.txt)).
 

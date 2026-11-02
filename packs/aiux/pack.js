@@ -692,6 +692,87 @@ MotionPrompt.pack('aiux', function () {
     txt(k, p >= 1 ? '已完成' : '上传中…', 302, 134, `500 15px ${FONT}`, C.muted);
     k.restore();
   };
+
+  // @element 20
+  // 20 液态玻璃透镜（改写自 liquid-glass，Sam Asante，MIT）：胶囊形玻璃透镜在文字与色块上 0.4–2.0 秒向右扫、
+  // 2.8–4.4 秒扫回。透镜中部原样透出背景，边缘 26 px 内向内取样形成弯折，红绿蓝三通道取样距离不同而在边缘分色。
+  // 原版用 SVG feDisplacementMap 逐像素位移；这里把边缘按 1 px 一圈切开，每圈把更靠里的一块背景拉伸贴上，
+  // 只用 drawImage 与裁切，不读像素，保证放大绘制时画面一致。
+  const LGL_W = 176, LGL_H = 92, LGL_R = 46, LGL_CY = 104;
+  const LGL_X0 = 108, LGL_X1 = 431;                  // 透镜中心横向扫动范围（画布宽的 20%–80%）
+  const LGL_BEND = 26, LGL_PULL = 11;                // 弯折带宽 26 px；最外圈向内取样 11 px
+  const LGL_DISP = [1, 1.18, 1.36];                  // 红、绿、蓝的取样距离倍率，差值形成边缘色散
+  const LGL_S = 2;                                   // 背景离屏图按 2 倍分辨率绘制，放大显示仍清晰
+  let lglCache = null;                               // 背景与三张单通道图只依赖常量，生成一次后复用
+  function lglScene(x) {
+    x.fillStyle = C.bg; x.fillRect(0, 0, CW, CH);
+    x.strokeStyle = 'rgba(255,255,255,0.05)'; x.lineWidth = 1;
+    for (let gx = 0.5; gx < CW; gx += 24) { x.beginPath(); x.moveTo(gx, 0); x.lineTo(gx, CH); x.stroke(); }
+    for (let gy = 8.5; gy < CH; gy += 24) { x.beginPath(); x.moveTo(0, gy); x.lineTo(CW, gy); x.stroke(); }
+    txt(x, 'Liquid Glass', CW / 2, 74, `800 56px ${FONT}`, C.text, 'center');
+    const hues = [350, 25, 50, 150, 200, 265];
+    for (let i = 0; i < hues.length; i++) {
+      x.fillStyle = hsla(hues[i], 85, 58, 1); rr(x, 92 + i * 62, 116, 44, 26, 13); x.fill();
+    }
+    txt(x, '折射 · 色散 · 高光', CW / 2, 170, `500 15px ${FONT}`, C.muted, 'center');
+  }
+  function lglBuild() {
+    const mk = draw => {
+      const c = document.createElement('canvas'); c.width = CW * LGL_S; c.height = CH * LGL_S;
+      const x = c.getContext('2d'); x.scale(LGL_S, LGL_S); draw(x); return c;
+    };
+    const scene = mk(lglScene);
+    // 单通道图：背景乘以纯红 / 纯绿 / 纯蓝，三张用 lighter 叠回即还原原色
+    const chan = ['#FF0000', '#00FF00', '#0000FF'].map(col => mk(x => {
+      x.drawImage(scene, 0, 0, CW, CH);
+      x.globalCompositeOperation = 'multiply'; x.fillStyle = col; x.fillRect(0, 0, CW, CH);
+    }));
+    return { scene, chan };
+  }
+  // 往当前路径追加一个圆角矩形子路径（不 beginPath），用于拼出 evenodd 的圆环
+  function lglSub(k, x, y, w, h, r) {
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    k.moveTo(x + r, y); k.arcTo(x + w, y, x + w, y + h, r); k.arcTo(x + w, y + h, x, y + h, r);
+    k.arcTo(x, y + h, x, y, r); k.arcTo(x, y, x + w, y, r); k.closePath();
+  }
+  CELLS[19] = (k, w, h, u) => {
+    if (!lglCache) lglCache = lglBuild();
+    const { scene, chan } = lglCache;
+    k.drawImage(scene, 0, 0, CW, CH);
+    const m = u < 2.4 ? inOut3(seg(u, 0.4, 2.0)) : 1 - inOut3(seg(u, 2.8, 4.4));
+    const lx = mix(LGL_X0, LGL_X1, m) - LGL_W / 2, ly = LGL_CY - LGL_H / 2;
+    // 投影：先画一块带阴影的透镜底，随后被折射内容盖住，只留外侧阴影
+    k.save(); k.shadowColor = 'rgba(0,0,0,0.55)'; k.shadowBlur = 24; k.shadowOffsetY = 8;
+    k.fillStyle = C.bg; rr(k, lx, ly, LGL_W, LGL_H, LGL_R); k.fill(); k.restore();
+    k.save(); rr(k, lx, ly, LGL_W, LGL_H, LGL_R); k.clip();
+    k.drawImage(scene, 0, 0, CW, CH);                // 中部：背景原样透出
+    // 边缘：第 d 圈（距边 d px）取样自距边 g(d) 处，g 从 d+11 平滑降到 d；三通道按倍率各取一次
+    for (let d = 0; d < LGL_BEND; d++) {
+      k.save(); k.beginPath();
+      lglSub(k, lx + d, ly + d, LGL_W - 2 * d, LGL_H - 2 * d, LGL_R - d);
+      lglSub(k, lx + d + 1, ly + d + 1, LGL_W - 2 * d - 2, LGL_H - 2 * d - 2, LGL_R - d - 1);
+      k.clip('evenodd');
+      k.fillStyle = '#000'; k.fillRect(lx, ly, LGL_W, LGL_H);
+      k.globalCompositeOperation = 'lighter';
+      const f = Math.pow(1 - d / LGL_BEND, 2);
+      for (let c = 0; c < 3; c++) {
+        const g = d + LGL_PULL * LGL_DISP[c] * f;
+        const sx = lx + g, sy = ly + g, sw = LGL_W - 2 * g, sh = LGL_H - 2 * g;
+        k.drawImage(chan[c], sx * LGL_S, sy * LGL_S, sw * LGL_S, sh * LGL_S, lx + d, ly + d, LGL_W - 2 * d, LGL_H - 2 * d);
+      }
+      k.restore();
+    }
+    // 玻璃表面：极淡的白色提亮 + 上缘弧形高光
+    k.fillStyle = 'rgba(255,255,255,0.05)'; k.fillRect(lx, ly, LGL_W, LGL_H);
+    const sp = k.createLinearGradient(0, ly, 0, ly + LGL_H * 0.5);
+    sp.addColorStop(0, 'rgba(255,255,255,0.22)'); sp.addColorStop(1, 'rgba(255,255,255,0)');
+    k.fillStyle = sp; rr(k, lx + 10, ly + 3, LGL_W - 20, LGL_H * 0.42, LGL_R - 10); k.fill();
+    k.restore();
+    // 边框：左上亮、右下暗的 1 px 描边
+    const rim = k.createLinearGradient(lx, ly, lx + LGL_W, ly + LGL_H);
+    rim.addColorStop(0, 'rgba(255,255,255,0.6)'); rim.addColorStop(0.5, 'rgba(255,255,255,0.12)'); rim.addColorStop(1, 'rgba(255,255,255,0.35)');
+    k.strokeStyle = rim; k.lineWidth = 1; rr(k, lx + 0.5, ly + 0.5, LGL_W - 1, LGL_H - 1, LGL_R - 0.5); k.stroke();
+  };
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

@@ -1,0 +1,15 @@
+Please use "Low poly" (ローポリ), filed under "Animation styles / Space & material".
+Motion Prompt #4-031
+
+What it is: A 3D look built from a few triangles, each painted a single flat shade
+What the sample shows: Three mountains, the pines along the shore and a raft on the lake are all built from a handful of triangles, each a single shade. The light swings around horizontally along with a hexagonal sun at the top right; each face's brightness comes from its facing against the light and is quantised into a few steps, so as the light turns, the facets flip lighter and darker one by one. The lake mirrors the mountains, darkened and broken by horizontal ripples.
+Spec:
+- 6.4 s cycle: the light makes 1 full turn around the vertical axis; continuous loop with no reset segment.
+- Each mountain's triangle (peak and base) is subdivided into 5 rows, with interior points jittered by a hash.
+- Face brightness = face normal · light direction, quantised into 6 steps.
+- The shoreline is at y = 128; the lake is the mountains mirrored, darkened and shifted by horizontal ripples.
+When to use it: Use it for games, tech and outdoor visuals, or as a light 3D backdrop behind a title.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-031.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/mgstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

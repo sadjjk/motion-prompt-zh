@@ -1760,6 +1760,116 @@ MotionPrompt.pack('mgstyles', function () {
     txt(k, '喵呜日记', 22, by + 17, `900 14px ${SANS}`, '#FFE14D');
     txt(k, 'EP.07', 84, by + 16.5, `900 11px ${DISP}`, '#FF7FC8');
   };
+
+  // @element 16
+  // 16 低多边形（概念参考 jingyu-skill「低多边形 Low Poly」，MIT · 阿梦freedom）：三座山、湖岸松树和湖上竹筏都由少量三角面拼成，
+  // 每个面只有一种亮度。光源绕竖直轴一周 / 6.4 秒（右上角六边形太阳跟着走），每个面的亮度 = 面法线 · 光线，量化成 LP_STEPS 档，
+  // 所以光一转，切面按朝向一块块跳亮、跳暗。湖面是山的倒影（压暗 + 横向波纹错位）。整周期连续循环，不设复位段。
+  const LP_HZ = 128;                                    // 湖岸线 y
+  const LP_STEPS = 6;                                   // 亮度档数
+  const LP_N = 5;                                       // 每座山的三角细分层数
+  // 山：峰顶 (px, py)、底边左右 x、基色；按从远到近的顺序画
+  const LP_MTS = [
+    { px: 318, py: 18, l: 150, r: 500, c: [92, 118, 160], seed: 11 },
+    { px: 140, py: 40, l: -30, r: 300, c: [104, 142, 150], seed: 37 },
+    { px: 468, py: 54, l: 360, r: 580, c: [122, 150, 142], seed: 73 }
+  ];
+  // 每座山：在三角形 (峰, 左底, 右底) 内按重心坐标细分，内部点用 hash 抖开；z 是朝观者的鼓起量，用来求面法线
+  const LP_MESH = LP_MTS.map(m => {
+    const pts = [];
+    for (let i = 0; i <= LP_N; i++) {
+      const row = [];
+      for (let j = 0; j <= i; j++) {
+        const s = i ? j / i : 0.5, f = i / LP_N;
+        let x = m.px + f * ((m.l - m.px) * (1 - s) + (m.r - m.px) * s), y = m.py + f * (LP_HZ - m.py);
+        const id = m.seed + i * 17 + j * 5, edge = j === 0 || j === i, base = i === LP_N;
+        if (i > 0 && !base) { x += (hash(id) - 0.5) * (edge ? 8 : 18); y += (hash(id + 1) - 0.5) * (edge ? 4 : 12); }
+        const z = i ? Math.sin(Math.PI * s) * 46 * Math.sqrt(f) + hash(id + 2) * 14 : 18;
+        row.push([x, y, z]);
+      }
+      pts.push(row);
+    }
+    const tris = [];
+    for (let i = 0; i < LP_N; i++) for (let j = 0; j <= i; j++) {
+      tris.push([pts[i][j], pts[i + 1][j], pts[i + 1][j + 1]]);
+      if (j < i) tris.push([pts[i][j], pts[i + 1][j + 1], pts[i][j + 1]]);
+    }
+    return tris.map(t => {                               // 预先算好每个面的单位法线（朝向观者一侧）
+      const a = t[1].map((v, q) => v - t[0][q]), b = t[2].map((v, q) => v - t[0][q]);
+      let n = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+      if (n[2] < 0) n = n.map(v => -v);
+      const L = Math.hypot(...n) || 1;
+      return { p: t, n: n.map(v => v / L) };
+    });
+  });
+  // 湖岸松树：两片三角（左右两个面各自受光）叠 3 层
+  const LP_PINES = [[38, 0.9], [66, 0.7], [214, 0.8], [246, 1], [404, 0.75], [520, 0.9]];
+  const LP_BUF = (() => { const c = document.createElement('canvas'); c.width = CW; c.height = CH; return c; })();   // 每帧整张重画的山体缓冲，用来做倒影
+  const LP_light = u => { const a = TAU * u / CYC; return [Math.cos(a) * 0.82, -0.5, Math.sin(a) * 0.82 + 0.28]; };
+  // 亮度 → 量化 → 颜色：暗部压到基色 45%，亮部提到 125%
+  function LP_shade(c, n, L) {
+    const d = Math.max(0, n[0] * L[0] + n[1] * L[1] + n[2] * L[2]) / Math.hypot(...L);
+    const q = Math.round((0.22 + 0.78 * d) * LP_STEPS) / LP_STEPS;
+    const f = mix(0.45, 1.25, q);
+    return `rgb(${Math.min(255, c[0] * f) | 0},${Math.min(255, c[1] * f) | 0},${Math.min(255, c[2] * f) | 0})`;
+  }
+  function LP_tri(k, p, col) { k.beginPath(); k.moveTo(p[0][0], p[0][1]); k.lineTo(p[1][0], p[1][1]); k.lineTo(p[2][0], p[2][1]); k.closePath(); k.fillStyle = col; k.fill(); k.strokeStyle = col; k.lineWidth = 0.8; k.stroke(); }
+  CELLS[15] = (k, w, h, u) => {
+    const L = LP_light(u), a = TAU * u / CYC;
+    // 天空：静态的几块大三角
+    k.drawImage(layer('LP_sky', g => {
+      const band = [[0, 0, '#F3D9C4'], [0, 70, '#F7E6D3']];
+      g.fillStyle = '#EFCFB8'; g.fillRect(0, 0, CW, LP_HZ);
+      [[[0, 0], [260, 0], [0, 90]], [[260, 0], [539, 0], [539, 70]], [[0, 90], [300, 0], [539, 70], [539, LP_HZ], [0, LP_HZ]]].forEach((p, i) => {
+        g.beginPath(); p.forEach((q, j) => j ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.closePath();
+        g.fillStyle = ['#EBC6AE', '#F1D4BE', '#F6E2CF'][i]; g.fill();
+      });
+      void band;
+    }), 0, 0);
+    // 六边形太阳：位置表示光从哪边来（cos 为左右，sin > 0 为在观者身后、靠上）
+    const sx = CW / 2 + Math.cos(a) * 220, sy = 34 - Math.sin(a) * 12, sr = 13 + Math.sin(a) * 3;
+    k.save(); k.globalAlpha = 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(a));
+    k.beginPath(); for (let i = 0; i < 6; i++) { const q = i / 6 * TAU + 0.3; k.lineTo(sx + Math.cos(q) * sr, sy + Math.sin(q) * sr); } k.closePath();
+    k.fillStyle = '#FFB866'; k.fill(); k.restore();
+    // 山体画进缓冲，再贴到主画面并做倒影
+    const g = LP_BUF.getContext('2d'); g.clearRect(0, 0, CW, CH);
+    LP_MTS.forEach((m, mi) => LP_MESH[mi].forEach(t => LP_tri(g, t.p, LP_shade(m.c, t.n, L))));
+    // 松树：每层两片三角，左片法线朝左、右片朝右
+    LP_PINES.forEach(([x, s]) => {
+      for (let i = 0; i < 3; i++) {
+        const top = LP_HZ - (34 - i * 9) * s, bot = LP_HZ - (14 - i * 7) * s - 2, hw = (8 + i * 3) * s;
+        LP_tri(g, [[x, top], [x - hw, bot], [x, bot]], LP_shade([70, 118, 96], [-0.8, -0.2, 0.56], L));
+        LP_tri(g, [[x, top], [x, bot], [x + hw, bot]], LP_shade([70, 118, 96], [0.8, -0.2, 0.56], L));
+      }
+      g.fillStyle = '#6B4E3D'; g.fillRect(x - 1.5, LP_HZ - 4 * s - 2, 3, 4 * s + 2);
+    });
+    k.drawImage(LP_BUF, 0, 0);
+    // 湖面：底色 + 倒影（每 3px 一条，从岸线往下翻转取样，按 2 圈 / 周期的波纹横向错位）
+    k.fillStyle = '#5E7F96'; k.fillRect(0, LP_HZ, CW, CH - LP_HZ);
+    k.save(); k.globalAlpha = 0.5;
+    for (let y = LP_HZ; y < CH; y += 3) {
+      const sy0 = LP_HZ - (y - LP_HZ) * 1.1 - 3; if (sy0 < 0) break;
+      const dx = 3 * Math.sin(y * 0.22 - 2 * a);
+      k.drawImage(LP_BUF, 0, sy0, CW, 3, dx, y, CW, 3);
+    }
+    k.restore();
+    // 水面切面：几块浅色横向三角
+    k.save(); k.globalAlpha = 0.22;
+    for (let i = 0; i < 7; i++) {
+      const x = (hash(i * 9 + 1) * CW + 30 * Math.sin(a + i)) % CW, y = LP_HZ + 10 + hash(i * 9 + 2) * 66, ww = 40 + hash(i) * 50;
+      LP_tri(k, [[x, y], [x + ww, y + 2], [x + ww * 0.4, y + 5]], '#DDEBF2');
+    }
+    k.restore();
+    // 竹筏：一周期左右漂一次；筏面 4 根竹子（各自单一亮度），船夫是两面受光的斗笠 + 身体三角
+    const rx = 250 + 46 * Math.sin(a), ry = 172 + 1.5 * Math.sin(2 * a);
+    for (let i = 0; i < 4; i++) LP_tri(k, [[rx - 40, ry + i * 3], [rx + 40, ry + i * 3 - 1], [rx + 36, ry + i * 3 + 3]], LP_shade([196, 160, 96], [0, -0.3 + i * 0.25, 0.9], L));
+    LP_tri(k, [[rx - 4, ry - 26], [rx - 10, ry - 2], [rx + 4, ry - 2]], LP_shade([70, 84, 110], [-0.7, 0, 0.7], L));
+    LP_tri(k, [[rx - 4, ry - 26], [rx + 4, ry - 2], [rx + 6, ry - 10]], LP_shade([70, 84, 110], [0.7, 0, 0.7], L));
+    LP_tri(k, [[rx - 16, ry - 26], [rx - 4, ry - 36], [rx - 4, ry - 26]], LP_shade([222, 190, 120], [-0.6, -0.5, 0.6], L));
+    LP_tri(k, [[rx - 4, ry - 36], [rx + 8, ry - 26], [rx - 4, ry - 26]], LP_shade([222, 190, 120], [0.6, -0.5, 0.6], L));
+    k.strokeStyle = '#6B4E3D'; k.lineWidth = 1.5; k.beginPath(); k.moveTo(rx + 6, ry - 14); k.lineTo(rx + 26, ry + 12); k.stroke();   // 竹篙
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

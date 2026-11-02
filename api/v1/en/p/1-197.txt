@@ -1,0 +1,16 @@
+Please use "Liquid glass lens" (リキッドグラスレンズ), filed under "Pointer interactions / Liquid interactions".
+Motion Prompt #1-197
+
+What it is: A glass lens glides over the content, bending the background at its rim with colour fringes
+What the sample shows: Over a dark grid with a large headline and 6 colour chips, a capsule-shaped glass lens glides right, pauses, then glides back. The middle of the lens is clear, while content near the rim is pulled inwards and bent, with red and blue fringes along the edge; an arched highlight sits on top and a soft shadow falls outside.
+Spec:
+- The lens is a 176 × 92 px capsule with a 46 px radius; its centre travels from 20% to 80% of the width.
+- It slides right over 0.4–2.0 s and back over 2.8–4.4 s with a cubic ease-in-out.
+- Refraction lives in a 26 px band at the rim: the outermost ring samples 11 px further in, falling off quadratically to 0 towards the inside.
+- Dispersion: red, green and blue sample at distances in the ratio 1 : 1.18 : 1.36.
+- An arched highlight of 22% white covers the top 42%, with a 24 px blur shadow offset 8 px down and a 1 px rim.
+When to use it: Use it for navigation bars, tab selection indicators, draggable magnifiers or hero decorations where a glass material should add depth.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-197.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/aiux.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

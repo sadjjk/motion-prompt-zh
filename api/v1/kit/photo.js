@@ -1,4 +1,4 @@
-// Motion Prompt #3 037~083 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#097
+// Motion Prompt #3 037~084 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#097
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/rule-of-thirds (#3-037)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/centered-composition (#3-038)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/symmetry (#3-039)
@@ -22,9 +22,10 @@
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/bloom (#3-073)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/soft-focus (#3-074)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/prism (#3-075)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/flat-lay (#3-084)
 //
 // Kit for pack "photo" (Photo looks, lighting & styles / 写真の表現・光と画風): the constants and helpers its elements share.
-// Elements #3 037~083 · 539x208 px · cycle 5 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #3 037~084 · 539x208 px · cycle 5 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

@@ -1,0 +1,15 @@
+Please use "Shadow puppets" (影絵人形), filed under "East Asian tradition / Objects & folk crafts".
+Motion Prompt #4-039
+
+What it is: A traditional theatre of carved leather figures lit from behind a screen and worked with rods
+What the sample shows: Warm yellow light shines through a white screen where 2 shadow puppets face each other in profile. On the left is a tall, slender lady with a high bun and hairpins, a 3-tiered skirt and long translucent silk sleeves; on the right a general rides a horse whose body is one continuous curve, with each leg in 2 segments. Every part is filled with translucent colour and carved inside with fine dots, crescents and diamonds, with a bright cut-out line along its edge, rivets at the joints and rods attached to the hands and bodies. The lady raises her arm and flicks her sleeve, the horse marks time and the general bobs with it. A slightly blurred pavilion shadow stands at the left and the light flickers faintly.
+Spec:
+- 6.4 s cycle; continuous loop with no reset segment.
+- The lady raises her arm 1 time per cycle; her sleeve and body sway 2 times.
+- The horse steps 3 times per cycle with diagonal legs in phase; the general and horse are scaled 1.15×.
+- The light flickers with 7 and 13 ripples per cycle at 3.5% and 2%.
+When to use it: Use it to open folk tales, traditional-theatre and Chinese-style stories, or for a nostalgic touch.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-039.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

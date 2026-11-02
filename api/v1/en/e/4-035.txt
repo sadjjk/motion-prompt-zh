@@ -1,0 +1,165 @@
+// Motion Prompt #4-035 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/embroidery
+//
+// Embroidery / 刺繍
+// Category: Visual styles / Craft & patterns / Print & handmade
+// What happens: Cream silk is stretched on a wooden hoop and a needle stitches a lotus leaf, flower, bud and a mandarin duck one stitch at a time. Petals and leaves use fishbone stitch running diagonally from the midrib to the edge, the lotus pad uses radiating long-and-short stitch, and the duck uses parallel satin stitch following its feathers. Each stitch shades from dark to light, and its brightness depends on its angle to the light, so the same thread gleams differently by direction. A shadow under every stitch shows the raised thread. When the stitching is done the needle leaves and a diagonal gleam sweeps across.
+// Motion spec:
+//   - 6.4 s cycle. Stitching proceeds in order over 0.15–4.2 s; the needle follows the latest stitch with its thread running off-frame.
+//   - The hoop's inner radius is 92 px; a stitch is brightest when parallel to the light angle of 0.6 rad.
+//   - The needle leaves towards the top right over 4.2–4.6 s, and a diagonal gleam sweeps across over 4.35–5.25 s.
+//   - The stitches fade out over 5.4–6.0 s to reset.
+// When to use it: Use it to present traditional crafts, Chinese-style clothing or handmade brands.
+// Tags: embroidery, stitch, silk, lotus, handmade, craft
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-035
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 48
+// 48 刺绣（参考 jingyu-skill「刺绣」词条的说明重新实现，MIT · 阿梦freedom）：木绣绷绷着奶白丝绸，针一针针绣出荷叶、荷花、花苞和一只鸳鸯。
+// 花瓣、叶片用「鱼骨绣」：针脚从中脉斜向边缘，方向随形而走；荷叶用放射的长短针；鸳鸯各部分用平行的缎面绣，方向顺着羽毛。
+// 每针颜色由深到浅渐变；亮度随针脚方向与光的夹角变化，所以同一种颜色因走向不同而有丝光差别；每针下面垫一道阴影，显出凸起。
+// 节奏：0.15–4.2 秒按顺序绣完（针跟着最后一针走，丝线连到画外），4.2–4.6 秒针离开，4.35–5.25 秒一道斜向丝光扫过，5.4–6.4 秒绣线淡出复位。
+const EM_C = [270, 104], EM_R = 92;                              // 绣绷圆心与内半径
+const EM_LIGHT = 0.6;                                            // 光的方向角：针脚与它平行时最亮
+const EM_ST = (() => {
+  const st = [];
+  const q = v => Math.max(0, Math.min(255, Math.round(v / 6) * 6));
+  const add = (x1, y1, x2, y2, c, j) => { const t = 1 + (hash(j) - 0.5) * 0.12; st.push({ x1, y1, x2, y2, c: [q(c[0] * t), q(c[1] * t), q(c[2] * t)], a: Math.atan2(y2 - y1, x2 - x1) }); };
+  let J = 1;
+  // 鱼骨绣花瓣：从 base 朝 ang 方向长 len，最宽 wid，颜色 c0（根部）→ c1（尖）
+  const petal = (bx, by, ang, len, wid, c0, c1, bend = 0) => {
+    const dx = Math.cos(ang), dy = Math.sin(ang), n = Math.max(6, Math.round(len / 1.5));
+    const sp = t => [bx + dx * len * t - dy * bend * Math.sin(Math.PI * t), by + dy * len * t + dx * bend * Math.sin(Math.PI * t)];
+    const hw = t => wid * Math.pow(Math.sin(Math.PI * Math.pow(clamp(t), 0.85)), 0.75);
+    for (let i = 0; i < n; i++) {
+      const t = i / n, t2 = Math.min(1, t + 0.14), [x, y] = sp(t), [x2, y2] = sp(t2), w = hw(t2), c = lerpC(c0, c1, t);
+      [1, -1].forEach(sg => add(x, y, x2 - dy * w * sg, y2 + dx * w * sg, c, J++));
+    }
+  };
+  // 放射长短针的荷叶（透视压扁的圆）
+  const leaf = (cx, cy, rx, ry, c0, c1) => {
+    for (let i = 0; i < 96; i++) {
+      const a = i / 96 * TAU + (i % 2) * 0.02, R = 1 + 0.06 * Math.sin(5 * a), vein = i % 8 === 0;
+      const rs = [0.12, 0.38, 0.64, 0.86, 1];
+      for (let r = 0; r < 4; r++) {
+        const r0 = rs[r] - (i % 2 ? 0.04 : 0), r1 = Math.min(1, rs[r + 1] + (i % 2 ? 0 : 0.05));
+        const c = vein ? lerpC(c0, [40, 70, 40], 0.5) : lerpC(c0, c1, r / 3);
+        add(cx + Math.cos(a) * rx * r0 * R, cy + Math.sin(a) * ry * r0 * R, cx + Math.cos(a) * rx * r1 * R, cy + Math.sin(a) * ry * r1 * R, c, J++);
+      }
+    }
+  };
+  // 缎面绣：在多边形内按角度 ang 铺平行线，长线拆成不超过 12px 的针，错开接缝
+  const fill = (poly, ang, gap, col) => {
+    const ca = Math.cos(-ang), sa = Math.sin(-ang), rot = ([x, y]) => [x * ca - y * sa, x * sa + y * ca];
+    const back = ([x, y]) => [x * ca + y * sa, -x * sa + y * ca], P = poly.map(rot);
+    const ys = P.map(p => p[1]), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    for (let y = y0 + gap / 2, row = 0; y < y1; y += gap, row++) {
+      const xs = [];
+      for (let i = 0; i < P.length; i++) { const a = P[i], b = P[(i + 1) % P.length]; if ((a[1] <= y) !== (b[1] <= y)) xs.push(a[0] + (y - a[1]) / (b[1] - a[1]) * (b[0] - a[0])); }
+      xs.sort((a, b) => a - b);
+      for (let i = 0; i + 1 < xs.length; i += 2) {
+        const L = xs[i + 1] - xs[i], n = Math.max(1, Math.ceil(L / 12)), sh = row % 2 ? 0.5 : 0;
+        for (let s = 0; s < n; s++) {
+          const a0 = xs[i] + L * Math.max(0, (s - sh) / n), a1 = xs[i] + L * Math.min(1, (s + 1 - sh) / n);
+          if (a1 - a0 < 1) continue;
+          const p = back([a0, y]), p2 = back([a1, y]);
+          add(p[0], p[1], p2[0], p2[1], col((p[0] + p2[0]) / 2, (p[1] + p2[1]) / 2), J++);
+        }
+      }
+    }
+  };
+  const ell = (cx, cy, rx, ry, r = 0, n = 28) => Array.from({ length: n }, (_, i) => { const a = i / n * TAU; return [cx + Math.cos(a) * rx * Math.cos(r) - Math.sin(a) * ry * Math.sin(r), cy + Math.cos(a) * rx * Math.sin(r) + Math.sin(a) * ry * Math.cos(r)]; });
+  // 劈线绣的茎：沿折线的短针
+  const stem = (pts, c) => { for (let i = 0; i + 1 < pts.length; i++) { const [x1, y1] = pts[i], [x2, y2] = pts[i + 1], n = Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 3.5); for (let s = 0; s < n; s++) add(mix(x1, x2, s / n) - 0.6, mix(y1, y2, s / n), mix(x1, x2, (s + 1.4) / n) + 0.6, mix(y1, y2, (s + 1.4) / n), c, J++); } };
+  const G0 = [52, 92, 58], G1 = [128, 170, 110], P0 = [246, 228, 222], P1 = [216, 100, 132];
+  leaf(222, 156, 46, 19, G0, G1);
+  leaf(346, 58, 20, 9, G0, G1);
+  stem([[272, 100], [270, 130], [264, 160], [256, 192]], [86, 120, 66]);
+  stem([[214, 70], [218, 100], [222, 130], [226, 150]], [86, 120, 66]);
+  petal(214, 72, -1.57 - 0.24, 24, 7.5, P0, P1); petal(214, 72, -1.57 + 0.24, 24, 7.5, P0, P1); petal(214, 72, -1.57, 26, 6.5, [236, 210, 206], [200, 84, 118]);
+  [-2.2, -1.57, -0.94].forEach(a => petal(272, 98, a, 44, 14, [228, 196, 196], [196, 78, 112], 2));
+  fill(ell(272, 80, 10, 5.5), 0.2, 1.6, () => [206, 196, 96]);
+  [-2.65, -1.95, -1.2, -0.5].forEach((a, i) => petal(272, 99, a, 40, 16, P0, P1, i < 2 ? -2 : 2));
+  [-3.05, -0.1].forEach(a => petal(272, 100, a, 30, 10, P0, [222, 130, 150]));
+  const DUCK0 = st.length;
+  // 水纹：鸳鸯下方的跑针
+  [[326, 168, 44, 6], [330, 176, 60, 8]].forEach(([cx, cy, rx, ry], r) => { for (let i = 0; i < 18; i++) { const a0 = Math.PI * (0.08 + i * 0.05), a1 = a0 + 0.03; if (i % 2) continue; add(cx + Math.cos(a0) * rx, cy + Math.sin(a0) * ry * -0.2 + ry, cx + Math.cos(a1) * rx, cy + Math.sin(a1) * ry * -0.2 + ry, [150, 176, 196], J++); for (let s = 0; s < 1; s++); } for (let i = 0; i < 10; i++) { const x = cx - rx + i * rx * 0.2; add(x, cy, x + 5, cy + 0.5, [160, 186, 204], J++); } });
+  // 鸳鸯（朝左）：身体、胸、帆羽、尾、头、冠、喙
+  fill(ell(328, 152, 30, 13.5, -0.08), -0.3, 1.5, (x, y) => lerpC([196, 120, 60], [236, 186, 110], clamp((y - 140) / 24)));
+  fill(ell(303, 150, 10, 11.5, 0.2), 1.25, 1.5, (x, y) => lerpC([70, 46, 92], [126, 88, 140], clamp((y - 140) / 22)));
+  [-1.95, -1.75, -1.55].forEach((a, i) => petal(336 + i * 3, 142, a, 17 - i, 6, [196, 110, 50], [240, 160, 70]));
+  [0.15, 0.32].forEach(a => petal(350, 150, a, 15, 5, [96, 70, 60], [150, 120, 96]));
+  petal(338, 148, 0.05, 20, 5, [60, 70, 110], [120, 140, 190]);
+  fill(ell(299, 130, 10.5, 9.5), 0.45, 1.4, (x, y) => {
+    const dy = y - 130, dx = x - 299;
+    if (dy < -3.2) return [48, 92, 72];
+    if (dy < 0.4 && dx > -4) return [242, 234, 216];
+    return [200, 110, 64];
+  });
+  petal(304, 123, -0.25, 15, 4, [40, 84, 66], [70, 130, 96]);
+  fill([[291, 129], [279, 132.5], [291, 136]], 0.1, 1.2, () => [208, 70, 58]);
+  st.push({ knot: true, x1: 295, y1: 128.5, x2: 295, y2: 128.5, c: [30, 24, 22], a: 0 });
+  // 鸳鸯与水纹按小尺寸设计，整体绕 (328, 150) 放大 1.45 倍，再平移到绣绷右下（针脚方向不变）
+  for (let i = DUCK0; i < st.length; i++) { const s = st[i]; ['1', '2'].forEach(n => { s['x' + n] = 316 + (s['x' + n] - 328) * 1.45; s['y' + n] = 146 + (s['y' + n] - 150) * 1.45; }); }
+  return st;
+})();
+CELLS[47] = (k, w, h, u) => {
+  k.drawImage(layer('EM_bg', g => {
+    g.fillStyle = '#e6ddcf'; g.fillRect(0, 0, CW, CH);
+    for (let i = 0; i < 7; i++) { const x = hash(i + 30) * CW, gr = g.createLinearGradient(x - 40, 0, x + 40, 0); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.5, `rgba(${i % 2 ? '255,255,255' : '150,130,110'},.18)`); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(x - 40, 0, 80, CH); }
+    glow(g, EM_C[0] + 6, EM_C[1] + 8, EM_R + 22, '90,70,50', 0.35);
+    g.save(); g.beginPath(); g.arc(EM_C[0], EM_C[1], EM_R, 0, TAU); g.clip();
+    g.fillStyle = '#f5eedf'; g.fillRect(0, 0, CW, CH);
+    g.fillStyle = 'rgba(150,130,100,.06)'; for (let y = 0; y < CH; y += 2) g.fillRect(0, y, CW, 0.7); for (let x = 0; x < CW; x += 2) g.fillRect(x, 0, 0.7, CH);
+    const sg = g.createRadialGradient(EM_C[0] - 30, EM_C[1] - 40, 10, EM_C[0], EM_C[1], EM_R); sg.addColorStop(0, 'rgba(255,255,255,.35)'); sg.addColorStop(1, 'rgba(120,100,70,.12)'); g.fillStyle = sg; g.fillRect(0, 0, CW, CH);
+    g.restore();
+  }), 0, 0);
+  const fade = 1 - resetK(u), n = EM_ST.length * seg(u, 0.15, 4.2), cnt = Math.floor(n);
+  const sweep = seg(u, 4.35, 5.25), sp = mix(-130, 130, sweep), sx = Math.cos(EM_LIGHT + 0.4), sy = Math.sin(EM_LIGHT + 0.4);
+  const end = (s, i) => (i === cnt ? [mix(s.x1, s.x2, n - cnt), mix(s.y1, s.y2, n - cnt)] : [s.x2, s.y2]);
+  k.save(); k.beginPath(); k.arc(EM_C[0], EM_C[1], EM_R - 1, 0, TAU); k.clip(); k.globalAlpha = fade; k.lineCap = 'round';
+  // 每针下的阴影：一次画完
+  k.beginPath();
+  for (let i = 0; i <= cnt && i < EM_ST.length; i++) { const s = EM_ST[i], [x2, y2] = end(s, i); k.moveTo(s.x1 + 0.8, s.y1 + 1); k.lineTo(x2 + 0.8, y2 + 1); }
+  k.strokeStyle = 'rgba(90,70,50,.22)'; k.lineWidth = 1.9; k.stroke();
+  // 按颜色分组一次描一批：颜色 = 底色 × 方向丝光，扫光时再提亮
+  const B = new Map();
+  for (let i = 0; i <= cnt && i < EM_ST.length; i++) {
+    const s = EM_ST[i]; if (s.knot) continue;
+    let b = 0.82 + 0.3 * Math.abs(Math.cos(s.a - EM_LIGHT)), wv = 0;
+    if (sweep > 0 && sweep < 1) { const pr = (s.x1 - EM_C[0]) * sx + (s.y1 - EM_C[1]) * sy; wv = Math.exp(-Math.pow((pr - sp) / 20, 2)) * Math.abs(Math.cos(s.a - EM_LIGHT - 0.4)); }
+    const c = s.c.map(v => Math.round(Math.min(255, v * b + (255 - v * b) * wv * 0.55) / 8) * 8), key = `rgb(${c})`;
+    if (!B.has(key)) B.set(key, []);
+    B.get(key).push(i);
+  }
+  k.lineWidth = 1.5;
+  B.forEach((ids, key) => { k.beginPath(); ids.forEach(i => { const s = EM_ST[i], [x2, y2] = end(s, i); k.moveTo(s.x1, s.y1); k.lineTo(x2, y2); }); k.strokeStyle = key; k.stroke(); });
+  if (cnt >= EM_ST.length) { const e = EM_ST[EM_ST.length - 1]; k.fillStyle = '#1e1816'; k.beginPath(); k.arc(e.x1, e.y1, 1.7, 0, TAU); k.fill(); k.fillStyle = 'rgba(255,255,255,.7)'; k.beginPath(); k.arc(e.x1 - 0.5, e.y1 - 0.5, 0.5, 0, TAU); k.fill(); }
+  k.restore();
+  // 绣针跟着最后一针，丝线连到画外；绣完后向右上离开
+  const out = seg(u, 4.2, 4.6), na = (1 - out) * fade;
+  if (na > 0.01 && u > 0.15) {
+    const s = EM_ST[Math.min(cnt, EM_ST.length - 1)], [px, py] = end(s, Math.min(cnt, EM_ST.length - 1));
+    const nx = px + 40 * out, ny = py - 60 * out;
+    k.save(); k.globalAlpha = na;
+    k.strokeStyle = `rgb(${s.c})`; k.lineWidth = 1; k.beginPath(); k.moveTo(nx + 10, ny - 16); k.quadraticCurveTo(nx + 40, ny - 40, 420, -4); k.stroke();
+    k.strokeStyle = '#8e9aa6'; k.lineWidth = 1.6; k.beginPath(); k.moveTo(nx, ny); k.lineTo(nx + 11, ny - 18); k.stroke();
+    k.strokeStyle = '#e8eef4'; k.lineWidth = 0.6; k.beginPath(); k.moveTo(nx + 0.6, ny - 1); k.lineTo(nx + 10.6, ny - 17.5); k.stroke();
+    k.restore();
+  }
+  // 木绣绷：两层木圈 + 右上的铜螺丝
+  k.drawImage(layer('EM_hoop', g => {
+    [[EM_R + 9, 9, '#b98a56'], [EM_R + 3.5, 3, '#9a6c3c']].forEach(([r, lw, col]) => { g.beginPath(); g.arc(EM_C[0], EM_C[1], r - lw / 2, 0, TAU); g.strokeStyle = col; g.lineWidth = lw; g.stroke(); });
+    const hg = g.createLinearGradient(EM_C[0] - EM_R, EM_C[1] - EM_R, EM_C[0] + EM_R, EM_C[1] + EM_R); hg.addColorStop(0, 'rgba(255,235,200,.45)'); hg.addColorStop(1, 'rgba(60,30,10,.35)');
+    g.beginPath(); g.arc(EM_C[0], EM_C[1], EM_R + 4.5, 0, TAU); g.strokeStyle = hg; g.lineWidth = 9; g.stroke();
+    g.strokeStyle = 'rgba(70,40,20,.5)'; g.lineWidth = 0.8; [EM_R, EM_R + 9].forEach(r => { g.beginPath(); g.arc(EM_C[0], EM_C[1], r, 0, TAU); g.stroke(); });
+    const a = -1.05, x = EM_C[0] + (EM_R + 9) * Math.cos(a), y = EM_C[1] + (EM_R + 9) * Math.sin(a);
+    g.save(); g.translate(x, y); g.rotate(a + Math.PI / 2);
+    g.fillStyle = '#9a6c3c'; g.fillRect(-7, -9, 14, 9); g.fillStyle = '#c9a86a'; g.fillRect(-2, -16, 4, 8); g.fillStyle = '#e0c88c'; g.fillRect(-6, -19, 12, 4);
+    g.restore();
+  }), 0, 0);
+  grain(k, 0.05);
+};

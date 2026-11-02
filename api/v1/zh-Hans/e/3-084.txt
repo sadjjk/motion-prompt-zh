@@ -1,0 +1,103 @@
+// Motion Prompt #3-084 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/flat-lay
+//
+// 平铺俯拍 / Flat lay
+// 分类: 剪辑与摄影 / 景别与构图 / 构图
+// 动画表现: 从正上方看铺在木桌上的亚麻桌布。豆浆碗、包子盘、油条盘、茶杯、筷子依次落下：落下时略大、影子偏远偏虚，落定后影子缩成短而淡的一圈。碗盘从头到尾都是正圆，筷子与桌布下沿平行。摆好后出现辅助线和「正圆」「平行」「留白」标注，最后逆序收走，回到空桌布。
+// 运动规格:
+//   - 5 秒周期。5 件物品从 0.3 秒起每隔 0.25 秒落下一件，每件 0.45 秒落定
+//   - 落下途中最大放大到 1.22 倍，影子偏移从 19 px 缩到 3 px
+//   - 1.9–2.4 秒出现辅助线，3.6–4.0 秒淡出；右下留白框 124 × 80 px
+//   - 4.0 秒起从最后放下的一件开始，每隔 0.08 秒收走一件，每件 0.3 秒；右上角显示「90°」
+// 适用场景: 适合美食、文具、桌面好物、套装产品的展示，想一眼看清所有物件时用。
+// 标签: flat lay, top view, overhead, composition, still life, product
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-084
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 48
+// 平铺俯拍（概念参考 jingyu-skill「平铺俯拍 Flat Lay」，MIT · 阿梦freedom）: 相机在正上方 90°，看铺在木桌上的亚麻桌布。
+// 豆浆碗、包子盘、油条盘、茶杯、筷子依次落到桌布上：落下时略大（离镜头近）、影子偏远偏虚，落定后影子缩成短而淡的一圈。
+// 碗盘从头到尾都是正圆（没有透视），筷子与桌布下沿平行，右下角留白。之后出辅助线与标注，最后逆序收走，回到空桌布（与 0 秒相同）。
+const FL_CLOTH = { x: 34, y: 12, w: 420, h: 184 };
+const FL_T0 = 0.3, FL_GAP = 0.25, FL_DROP = 0.45;      // 第 i 件在 FL_T0 + i·FL_GAP 起落，FL_DROP 秒落定
+const FL_OUT0 = 4.0, FL_OUT_GAP = 0.08, FL_OUT = 0.3;  // 收走：最后落下的先收
+const FL_GUIDE = [1.9, 2.4, 3.6, 4.0];                 // 辅助线淡入起止、淡出起止
+const FL_SPACE = { x: 318, y: 108, w: 124, h: 80 };    // 留白区（右下）
+// 每件的中心与绘制函数（以中心为原点画，缩放时圆仍是圆）
+const FL_ITEMS = [
+  { x: 104, y: 64, r: 34, draw(D) {                    // 豆浆碗
+    D.circ(0, 0, 34, '#FFFFFF'); D.circ(0, 0, 28, '#E9E6E0'); D.circ(0, 0, 26, '#F3E9D2');
+    D.k.save(); D.k.globalAlpha = 0.7; D.circ(-8, -8, 7, '#FBF6EA'); D.k.restore();
+  } },
+  { x: 104, y: 150, r: 36, draw(D) {                   // 包子盘：3 个包子，褶子是螺旋短线
+    D.circ(0, 0, 36, '#FFFFFF'); D.circ(0, 0, 30, '#F1F0EE');
+    [[-12, -8], [12, -8], [0, 13]].forEach(([x, y]) => {
+      D.circ(x, y, 12.5, '#F7F1E3');
+      const k = D.k; k.save(); k.strokeStyle = '#DCCFB4'; k.lineWidth = 1.2;
+      for (let j = 0; j < 6; j++) { const a = j / 6 * TAU; k.beginPath(); k.moveTo(x + Math.cos(a) * 3, y + Math.sin(a) * 3); k.quadraticCurveTo(x + Math.cos(a + 0.5) * 7, y + Math.sin(a + 0.5) * 7, x + Math.cos(a + 0.9) * 10, y + Math.sin(a + 0.9) * 10); k.stroke(); }
+      k.restore(); D.circ(x, y, 2, '#DCCFB4');
+    });
+  } },
+  { x: 246, y: 64, r: 52, draw(D) {                    // 油条盘：长圆角盘 + 两根油条（斜短线表示拧过的面）
+    D.rr(-82, -34, 164, 68, 14, '#FFFFFF'); D.rr(-76, -28, 152, 56, 10, '#F1F0EE');
+    [-11, 11].forEach(y => {
+      D.rr(-66, y - 8, 132, 16, 8, '#E3A857');
+      for (let x = -58; x < 60; x += 12) D.line([[x, y - 4], [x + 7, y + 4]], 1.6, '#C98A3E');
+    });
+  } },
+  { x: 384, y: 62, r: 24, draw(D) {                    // 茶杯
+    D.circ(0, 0, 24, '#FFFFFF'); D.circ(0, 0, 19, '#E9E6E0'); D.circ(0, 0, 17, '#C9A46B');
+    D.k.save(); D.k.globalAlpha = 0.5; D.circ(-5, -5, 4, '#E6CFA0'); D.k.restore();
+  } },
+  { x: 238, y: 164, r: 60, draw(D) {                   // 一双筷子 + 筷架：与桌布下沿平行
+    D.rr(-70, -12, 10, 30, 4, '#CFCECB');
+    [-5, 5].forEach(y => D.poly([[-74, y - 2.6], [70, y - 1.4], [70, y + 1.4], [-74, y + 2.6]], '#8B5A3C'));
+  } }
+];
+// 桌面与桌布：不随时间变化，只画一次
+const FL_BG = () => once('FL_BG', () => {
+  const c = document.createElement('canvas'); c.width = CW; c.height = CH; const g = c.getContext('2d'), D = pen(g);
+  D.rect(0, 0, CW, CH, '#D9C2A0');
+  for (let i = 0; i < 14; i++) {                       // 木纹：横向缓波
+    const y0 = 6 + i * 15; g.beginPath();
+    for (let x = 0; x <= CW; x += 12) g.lineTo(x, y0 + 2 * Math.sin(x * 0.02 + i * 1.7));
+    g.strokeStyle = '#CDB28C'; g.lineWidth = 1; g.stroke();
+  }
+  const { x, y, w, h } = FL_CLOTH;
+  g.save(); g.shadowColor = 'rgba(90,60,30,.18)'; g.shadowBlur = 6; g.shadowOffsetY = 2; D.rect(x, y, w, h, '#F3EEE4'); g.restore();
+  g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); g.strokeStyle = 'rgba(200,188,166,.28)'; g.lineWidth = 1;   // 亚麻织纹
+  for (let xx = x + 2; xx < x + w; xx += 4) { g.beginPath(); g.moveTo(xx, y); g.lineTo(xx, y + h); g.stroke(); }
+  for (let yy = y + 2; yy < y + h; yy += 4) { g.beginPath(); g.moveTo(x, yy); g.lineTo(x + w, yy); g.stroke(); }
+  g.restore();
+  D.frame(x + 6, y + 6, w - 12, h - 12, 1, '#E2D8C6');  // 桌布折边
+  return c;
+});
+CELLS[47] = cell((k, u) => {
+  k.drawImage(FL_BG(), 0, 0);
+  const D = pen(k), n = FL_ITEMS.length;
+  FL_ITEMS.forEach((it, i) => {
+    const t0 = FL_T0 + i * FL_GAP, o0 = FL_OUT0 + (n - 1 - i) * FL_OUT_GAP;
+    const vis = (1 - Math.pow(1 - P(u, t0, t0 + FL_DROP), 3)) * (1 - eIO(P(u, o0, o0 + FL_OUT)));
+    if (vis <= 0.001) return;
+    const s = 1 + 0.22 * (1 - vis), off = 3 + 16 * (1 - vis);   // 离镜头越近越大，影子越远越虚
+    k.save(); k.translate(it.x, it.y); k.scale(s, s); k.globalAlpha = clamp(vis * 1.6);
+    // 影子：日光从左上方来，影子落在右下；落定后只剩短而淡的一圈
+    k.save(); k.shadowColor = `rgba(90,60,30,${0.22 * vis})`; k.shadowBlur = 2 + 8 * (1 - vis); k.shadowOffsetX = off * 0.6; k.shadowOffsetY = off;
+    it.draw(D); k.restore();
+    it.draw(D);
+    k.restore();
+  });
+  // 辅助线：碗外一圈同心虚线圆（仍是正圆）、筷子下的水平线（与桌布边平行）、右下留白框
+  const a = eIO(P(u, FL_GUIDE[0], FL_GUIDE[1])) * (1 - eIO(P(u, FL_GUIDE[2], FL_GUIDE[3])));
+  const bowl = FL_ITEMS[0], sticks = FL_ITEMS[4];
+  guide(k, arcPts(bowl.x, bowl.y, bowl.r + 6, 48).concat([[bowl.x + bowl.r + 6, bowl.y]]), a, [4, 4]);
+  tag(k, '正圆', bowl.x + 62, bowl.y - 26, a);
+  guide(k, [[FL_CLOTH.x + 10, sticks.y + 16], [FL_CLOTH.x + FL_CLOTH.w - 10, sticks.y + 16]], a);
+  tag(k, '平行', sticks.x + 92, sticks.y + 16, a);
+  const S = FL_SPACE; guide(k, [[S.x, S.y], [S.x + S.w, S.y], [S.x + S.w, S.y + S.h], [S.x, S.y + S.h], [S.x, S.y]], a);
+  tag(k, '留白', S.x + S.w / 2, S.y + S.h / 2, a);
+  hud(k, '90°');
+});

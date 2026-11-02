@@ -1,11 +1,19 @@
-// Motion Prompt #1-102 · #2 029 · 041 · 052~054 · 068~075 · 081~091 · 097~099 · 116 · #4 012~014 · 016 · 020~030 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
+// Motion Prompt #1-102 · #2 029 · 041 · 052~054 · 068~075 · 081~091 · 097~099 · 116 · #4 012~014 · 016 · 020~030 · 032~039 · MIT License (c) 2026 Yun · https://github.com/skylarzzzz/motion-atlas
 // Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#1-102 · #2 041 · 054 · 091 · 097~099)
 // Also: MIT-0 License (c) 2026 illli Ai Studio · https://ui2v.com/ (#2 075 · 089~090)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/snowfall (#2-116)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/halftone (#4-030)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/pop-art (#4-032)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/ukiyo-e (#4-033)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/woodcut (#4-034)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/embroidery (#4-035)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/stained-glass (#4-036)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/blue-green-landscape (#4-037)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/chinese-paper-cutting (#4-038)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/shadow-puppet (#4-039)
 //
 // Kit for pack "scenes" (Styled scenes / スタイルシーン): the constants and helpers its elements share.
-// Elements #1-102 · #2 029 · 041 · 052~054 · 068~075 · 081~091 · 097~099 · 116 · #4 012~014 · 016 · 020~030 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #1-102 · #2 029 · 041 · 052~054 · 068~075 · 081~091 · 097~099 · 116 · #4 012~014 · 016 · 020~030 · 032~039 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

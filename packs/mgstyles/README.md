@@ -2,7 +2,7 @@
 
 # MG styles
 
-15 names · #4 001~011 · 015 · 017~019 · pack `mgstyles` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+16 names · #4 001~011 · 015 · 017~019 · 031 · pack `mgstyles` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -23,6 +23,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-006](https://sadjjk.github.io/motion-prompt-zh/#4-006) | **3D render look** | 3D render look: soft rubbery and glossy objects that bounce with real weight | Make a 3D render-style clip: squishy 3D letters s, o, f, t drop onto a soft pink studio backdrop every 0.5 s and squash and bounce on landing. |
 | [#4-007](https://sadjjk.github.io/motion-prompt-zh/#4-007) | **Liquid motion** | Liquid motion: glossy fluid that swells, pinches off, drips and merges back together | Do a liquid-motion piece on dark plum: 6 orange-to-pink-to-purple drops fall from a top band into a pool below and merge, about 3.2 s per drip. |
 | [#4-008](https://sadjjk.github.io/motion-prompt-zh/#4-008) | **Aurora gradient & glass** | A soft-glow tech look: half-transparent frosted-glass cards floating over a dark aurora gradient | Give the AI product launch film an aurora-gradient glassmorphism look: 5 aurora-coloured glows drifting slowly over a dark background, with 2 frosted-glass cards floating on top. |
+| [#4-031](https://sadjjk.github.io/motion-prompt-zh/#4-031) | **Low poly** | A 3D look built from a few triangles, each painted a single flat shade | Make a low-poly mountain lake: build 3 mountains, the pines on the shore and a raft on the lake out of triangles, and as the light circles once every 6.4 s, let each face step brighter or darker by its facing. |
 
 ## Animation styles / Media & genres
 

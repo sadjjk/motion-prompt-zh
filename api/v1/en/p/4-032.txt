@@ -1,0 +1,15 @@
+Please use "Pop art" (ポップアート), filed under "Art movements / Modern & postmodern".
+Motion Prompt #4-032
+
+What it is: A modern art style that blows up everyday objects with thick outlines, flat primary colours and halftone dots
+What the sample shows: A steaming bowl of noodles fills the frame, drawn with thick black outlines, red and yellow rays behind it, and halftone dots in the background and on the bowl's shadow side that grow larger towards the edges. The bowl has a red oval pattern and no brand text. Chopsticks lift the noodles and lower them again. Then the picture shrinks into the top-left panel, the other 3 panels pop out one by one, and each of the 4 switches to its own bold colour scheme. Finally they retract in reverse order and it becomes a single picture again.
+Spec:
+- 6.4 s cycle. 0–2.3 s is a single picture; the chopsticks lift and the steam sways 2 times per cycle, raising the noodles up to 9 px.
+- 14 rays; halftone dots sit on an 8 px grid with a radius of up to 3.4 px.
+- Over 2.3–2.7 s the picture shrinks into the top-left panel; the other 3 panels pop in from 2.7, 2.84 and 2.98 s, each over 0.26 s.
+- At 2.9, 3.35, 3.8 and 4.25 s each panel switches colour scheme (5 schemes in all); they retract in reverse over 5.22–5.56 s and the picture merges back over 5.55–6.0 s.
+When to use it: Use it for food and consumer-goods ads, punchy banners and social media eye-catchers.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-032.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

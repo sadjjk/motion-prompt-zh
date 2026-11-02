@@ -1,0 +1,15 @@
+Please use "Ukiyo-e" (浮世絵), filed under "Craft & patterns / Print & handmade".
+Motion Prompt #4-033
+
+What it is: The Edo-period woodblock print style: ink outlines with a few flat colour blocks
+What the sample shows: In the rain a big wooden bridge spans the frame, and 2 people with umbrellas walk across it in opposite directions, passing each other. Outlines are in ink with a few flat colours on top, printed slightly off-register from the line. The top of the sky and the bottom of the water use graded printing; the distant hills are flat grey-blue with no outline. Rain falls as fine cut lines at a fixed angle, rings spread on the water, and a foreground pine branch cuts off the top-right corner.
+Spec:
+- 6.4 s cycle; continuous loop with no reset segment.
+- Colour blocks are printed 2 px across and 1.5 px down from the ink line.
+- Each of the 2 walkers crosses from off-screen to off-screen once per cycle (18 steps), the umbrella hiding the face.
+- 110 rain lines fall 2 times per cycle, rain rings on the water spread 2 times, and the wave pattern shifts by one motif per cycle.
+When to use it: Use it for Japanese-themed, travel and seasonal visuals, or whenever you want the mood of a rainy day.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-033.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

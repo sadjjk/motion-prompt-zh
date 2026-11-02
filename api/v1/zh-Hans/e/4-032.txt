@@ -1,0 +1,112 @@
+// Motion Prompt #4-032 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/pop-art
+//
+// 波普艺术 / Pop art
+// 分类: 审美风格 / 艺术流派 / 现代与后现代
+// 动画表现: 一碗冒着热气的汤面占满画面：粗黑轮廓，背后是红黄相间的放射光芒，背景和碗的暗面是越往外越大的网点；碗上是红色椭圆纹样，没有品牌字样。筷子把面条提起又放下。随后整幅缩进左上格，另外 3 格依次弹出，4 格各换一套撞色；最后倒序收回，合成一幅。
+// 运动规格:
+//   - 6.4 秒周期。0–2.3 秒为单幅，筷子提放和热气每周期 2 次，面条最多提起 9 px
+//   - 放射光芒 14 道；网点为 8 px 网格，半径最大 3.4 px
+//   - 2.3–2.7 秒整幅缩进左上格；其余 3 格从 2.7、2.84、2.98 秒起各用 0.26 秒弹出
+//   - 2.9、3.35、3.8、4.25 秒各格依次换配色（共 5 套）；5.22–5.56 秒倒序收回，5.55–6.0 秒合回单幅
+// 适用场景: 适合食品与日用品广告、活泼的横幅和社交媒体封面。
+// 标签: pop art, halftone, comic, bold outline, grid, retro
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-032
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 45
+// 45 波普艺术（参考 jingyu-skill「波普艺术」词条的说明重新实现，MIT · 阿梦freedom）：一碗汤面被放大成占满画面的符号。
+// 粗黑轮廓、硬边色块，背后是放射光芒，背景和碗的暗部用印刷网点（越靠外网点越大）；碗上没有任何品牌字样。
+// 节奏：0–2.3 秒单幅，筷子把面条提起又放下、热气上飘；2.3–2.8 秒画面切成 2×2 宫格；2.9 秒起四格按顺序各换一套撞色，
+// 换色时那一格轻轻一弹；5.4–6.0 秒宫格合回单幅并恢复原配色。筷子与热气每周期 2 次，首尾一致。
+const PA_P = [
+  { bg: '#ffd23f', ray: '#ff5a36', dot: '#e8371f', bowl: '#fffaf0', pat: '#e8371f', soup: '#c76a2a' },
+  { bg: '#38c6f4', ray: '#ff4fa3', dot: '#1d4fd6', bowl: '#fffaf0', pat: '#1d4fd6', soup: '#d08a3a' },
+  { bg: '#7be07b', ray: '#ffe04a', dot: '#1f9e4a', bowl: '#fff2fa', pat: '#ff3d8b', soup: '#c76a2a' },
+  { bg: '#ff7ab8', ray: '#7a3cff', dot: '#d8166c', bowl: '#fffaf0', pat: '#ffb800', soup: '#b05a24' },
+  { bg: '#ff9f1c', ray: '#2ec4b6', dot: '#e85d04', bowl: '#f4fffd', pat: '#2ec4b6', soup: '#a8541f' }];
+const PA_C = [270, 132];                                   // 放射光芒中心
+const PA_SWAP = [2.9, 3.35, 3.8, 4.25];                    // 四格依次换色的时刻
+const PA_BOWL = new Path2D('M 118 108 C 124 170 190 192 232 194 L 308 194 C 350 192 416 170 422 108 Z');
+const PA_INK = '#141414';
+// 网点：交错网格，半径由 r(x, y) 给出（单位 px），一条 path 一次填完
+function paDots(k, r, x0, y0, x1, y1, col) {
+  k.beginPath();
+  for (let y = y0, row = 0; y < y1; y += 8, row++) for (let x = x0 + (row % 2) * 4; x < x1; x += 8) {
+    const d = r(x, y); if (d > 0.35) { k.moveTo(x + d, y); k.arc(x, y, d, 0, TAU); }
+  }
+  k.fillStyle = col; k.fill();
+}
+// 描粗黑边的线：先黑后色，得到漫画式的包边
+function paLine(k, pts, w, col) {
+  const path = () => { k.beginPath(); pts.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); };
+  k.lineCap = 'round'; k.lineJoin = 'round';
+  path(); k.strokeStyle = PA_INK; k.lineWidth = w + 2.6; k.stroke();
+  path(); k.strokeStyle = col; k.lineWidth = w; k.stroke();
+}
+function paScene(k, P, u) {
+  const a = TAU * 2 * u / CYC, lift = 9 * (1 - Math.cos(a)) / 2;
+  k.fillStyle = P.bg; k.fillRect(0, 0, CW, CH);
+  k.beginPath();
+  for (let i = 0; i < 28; i += 2) { const a0 = i / 28 * TAU, a1 = (i + 1) / 28 * TAU; k.moveTo(PA_C[0], PA_C[1]); k.lineTo(PA_C[0] + 700 * Math.cos(a0), PA_C[1] + 700 * Math.sin(a0)); k.lineTo(PA_C[0] + 700 * Math.cos(a1), PA_C[1] + 700 * Math.sin(a1)); k.closePath(); }
+  k.fillStyle = P.ray; k.fill();
+  paDots(k, (x, y) => 3.4 * clamp(Math.hypot(x - PA_C[0], (y - PA_C[1]) * 1.6) / 300 - 0.35, 0, 1), 0, 0, CW + 8, CH + 8, P.dot);
+  // 热气：两条粗黑边的白色波浪，往上飘
+  for (let s = 0; s < 2; s++) {
+    const pts = [];
+    for (let i = 0; i <= 16; i++) { const t = i / 16; pts.push([196 + s * 58 + 10 * Math.sin(t * 5 - a + s * 2) * (0.4 + t), 100 - t * 96]); }
+    paLine(k, pts, 9, '#fffdf5');
+  }
+  // 碗身：白底、一圈红色椭圆纹，右下暗部是网点
+  k.save(); k.clip(PA_BOWL);
+  k.fillStyle = P.bowl; k.fillRect(110, 100, 320, 100);
+  k.fillStyle = P.pat; for (let i = 0; i < 9; i++) { k.beginPath(); k.ellipse(146 + i * 31, 150 + Math.abs(i - 4) * -2, 10, 22 - Math.abs(i - 4) * 1.5, 0, 0, TAU); k.fill(); }
+  paDots(k, (x, y) => 3.2 * clamp((x - 250) / 170 + (y - 130) / 120, 0, 1), 110, 100, 430, 200, PA_INK);
+  k.restore();
+  k.lineJoin = 'round'; k.strokeStyle = PA_INK; k.lineWidth = 4; k.stroke(PA_BOWL);
+  k.beginPath(); k.ellipse(270, 197, 46, 6, 0, 0, TAU); k.fillStyle = P.bowl; k.fill(); k.stroke();
+  // 碗口、汤面、汤里的面、溏心蛋、葱花
+  k.beginPath(); k.ellipse(270, 108, 152, 26, 0, 0, TAU); k.fillStyle = P.bowl; k.fill(); k.lineWidth = 4; k.stroke();
+  k.save(); k.beginPath(); k.ellipse(270, 110, 140, 19, 0, 0, TAU); k.fillStyle = P.soup; k.fill(); k.clip();
+  for (let r = 0; r < 5; r++) { const pts = []; for (let x = 140; x <= 400; x += 6) pts.push([x, 98 + r * 5 + 2.2 * Math.sin(x / 7 + r * 1.7)]); paLine(k, pts, 3, '#ffd84a'); }
+  k.restore();
+  k.beginPath(); k.ellipse(270, 110, 140, 19, 0, 0, TAU); k.lineWidth = 2.5; k.stroke();
+  k.beginPath(); k.ellipse(212, 106, 27, 13, -0.08, 0, TAU); k.fillStyle = '#fffaf0'; k.fill(); k.lineWidth = 2.5; k.stroke();
+  k.beginPath(); k.ellipse(216, 106, 13, 7, -0.08, 0, TAU); k.fillStyle = '#ffae00'; k.fill(); k.stroke();
+  k.beginPath(); k.ellipse(213, 104, 5, 2.5, -0.08, 0, TAU); k.fillStyle = '#fff3c4'; k.fill();
+  [[250, 100], [262, 112], [282, 104], [300, 114], [178, 114]].forEach(([x, y]) => { k.beginPath(); k.ellipse(x, y, 5.5, 3, 0, 0, TAU); k.strokeStyle = PA_INK; k.lineWidth = 5; k.stroke(); k.strokeStyle = '#3fbf4a'; k.lineWidth = 2.6; k.stroke(); });
+  // 被筷子提起的面条（一周期提起放下 2 次）
+  for (let i = 0; i < 5; i++) {
+    const pts = [];
+    for (let y = 112; y >= 34 - lift; y -= 4) { const t = (112 - y) / 80; pts.push([318 + i * 5 + (14 - i * 2) * t + 3.2 * Math.sin(y / 5 + i * 1.3), y]); }
+    paLine(k, pts, 3.4, '#ffd84a');
+  }
+  paLine(k, [[330, 30 - lift], [560, -20 - lift * 0.4]], 6, '#c4462b');
+  paLine(k, [[344, 40 - lift], [570, 2 - lift * 0.4]], 6, '#c4462b');
+}
+// 宫格节奏：整幅先缩进左上格（2.3–2.7 秒），另外三格依次弹出；结尾三格倒序收回，左上格再放大回整幅
+const PA_IN = [2.7, 2.84, 2.98], PA_OUT = [5.42, 5.32, 5.22];
+const paPop = t => (t <= 0 ? 0 : t >= 1 ? 1 : 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2));
+CELLS[44] = (k, w, h, u) => {
+  const e = inOut3(seg(u, 2.3, 2.7)) * (1 - inOut3(seg(u, 5.55, 6.0)));
+  if (e < 0.001) { paScene(k, PA_P[0], u); return; }
+  k.fillStyle = PA_INK; k.fillRect(0, 0, CW, CH);
+  for (let q = 0; q < 4; q++) {
+    const qx = q % 2, qy = q >> 1, on = u >= PA_SWAP[q] && u < 5.2;
+    // 左上格跟着 e 缩放；其余三格只在弹出/收回时缩放，换色那一下轻弹
+    const s0 = q ? paPop(seg(u, PA_IN[q - 1], PA_IN[q - 1] + 0.26)) * (1 - inOut3(seg(u, PA_OUT[q - 1], PA_OUT[q - 1] + 0.14))) : 1;
+    if (s0 < 0.001) continue;
+    const bump = on ? 0.05 * Math.sin(Math.PI * seg(u, PA_SWAP[q], PA_SWAP[q] + 0.3)) : 0;
+    const sw = (q ? 0.5 * s0 : mix(1, 0.5, e)) * (1 + bump);
+    const cx = q ? (qx + 0.5) * CW / 2 : mix(CW / 2, CW / 4, e), cy = q ? (qy + 0.5) * CH / 2 : mix(CH / 2, CH / 4, e);
+    const g = 2.5;                                          // 格与格之间留出黑色描边
+    k.save(); k.beginPath();
+    k.rect(cx - CW * sw / 2 + g * e, cy - CH * sw / 2 + g * e, CW * sw - 2 * g * e, CH * sw - 2 * g * e); k.clip();
+    k.translate(cx, cy); k.scale(sw, sw); k.translate(-CW / 2, -CH / 2);
+    paScene(k, on ? PA_P[q + 1] : PA_P[0], u);
+    k.restore();
+  }
+};

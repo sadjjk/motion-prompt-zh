@@ -1,0 +1,135 @@
+// Motion Prompt #4-036 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/stained-glass
+//
+// Stained glass / ステンドグラス
+// Category: Visual styles / Craft & patterns / Print & handmade
+// What happens: An arched window in a dark stone wall shows a phoenix, a rose bush and a sun behind distant hills in stained glass. Every piece is edged with a thick black lead line and has its own shading and bubbles. The light behind it rises from below the window to the sun's position, and the pieces nearest the light turn from dark to glowing first. Bright glass gives off a glow, and on the floor below the window lies a stretched, upside-down patch of coloured light that shortens as the light climbs.
+// Motion spec:
+//   - 6.4 s cycle. Over 0.2–3.8 s the light behind rises from below the window to the sun's position.
+//   - Lead lines are 2.4 px thick; each piece's brightness depends on its distance to the light, so nearer pieces light up first.
+//   - The floor patch is the window flipped and stretched vertically, blurred by 3 px and added on top.
+//   - It goes dark again over 5.4–6.0 s.
+// When to use it: Use it for celebrations, story openings, fantasy themes and architecture or interior features.
+// Tags: stained glass, window, lead line, phoenix, light, mosaic
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-036
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 49
+// 49 彩色玻璃（参考 jingyu-skill「彩色玻璃」词条的说明重新实现，MIT · 阿梦freedom）：暗色石墙上的弧顶窗，窗上是凤鸟、花丛和远山后的太阳。
+// 每块玻璃是一个多边形，粗黑铅条包边；玻璃颜色按背后光源的远近决定亮度，块内有深浅与气泡；亮的玻璃泛光，并在窗下地面投出拉长、倒置的彩色光斑。
+// 节奏：0.2–3.8 秒背后的光从窗下升到太阳的位置，玻璃从暗到亮一块块透光（离光近的先亮），地面光斑随光升高而缩短；5.4–6.4 秒暗回起点。
+const SG_SUN = [334, 120];
+const SG_WIN = g => { g.beginPath(); g.moveTo(140, 158); g.lineTo(140, 54); g.arc(270, 206, 200, Math.atan2(-152, -130), Math.atan2(-152, 130)); g.lineTo(400, 158); g.closePath(); };
+const SG_TILES = (() => {
+  const T = [], add = (pts, c) => T.push({ pts, c, cx: pts.reduce((s, p) => s + p[0], 0) / pts.length, cy: pts.reduce((s, p) => s + p[1], 0) / pts.length });
+  const arcPts = (cx, cy, r, a0, a1, n = 3) => Array.from({ length: n + 1 }, (_, i) => [cx + r * Math.cos(mix(a0, a1, i / n)), cy + r * Math.sin(mix(a0, a1, i / n))]);
+  const wedge = (cx, cy, r0, r1, a0, a1, c) => add([...arcPts(cx, cy, r1, a0, a1), ...arcPts(cx, cy, r0, a1, a0)], c);
+  // 天空：以太阳为中心的放射光芒，金色与蓝色相间
+  const RINGS = [14, 34, 60, 92, 132, 180, 250];
+  const GOLD = [[252, 214, 90], [246, 182, 52], [236, 150, 40], [226, 128, 36], [214, 110, 40], [200, 96, 44]];
+  const BLUE = [[120, 180, 230], [70, 140, 214], [46, 104, 196], [36, 80, 170], [30, 62, 150], [26, 50, 130]];
+  for (let r = 0; r + 1 < RINGS.length; r++) {
+    const n = r === 0 ? 10 : 20;
+    for (let j = 0; j < n; j++) wedge(SG_SUN[0], SG_SUN[1], RINGS[r], RINGS[r + 1], Math.PI + j * Math.PI / n, Math.PI + (j + 1) * Math.PI / n, (r === 0 || j % 2 === 0) ? GOLD[r] : BLUE[r]);
+  }
+  add(arcPts(SG_SUN[0], SG_SUN[1], 14, 0, TAU, 16), [255, 232, 130]);
+  // 远山与湖面
+  const ridge = (x, b, a, s) => b - a * Math.abs(Math.sin(x / s + b));
+  for (let x = 136; x < 404; x += 34) add([[x, 136], [x, ridge(x, 122, 12, 31)], [x + 17, ridge(x + 17, 122, 12, 31) - 4], [x + 34, ridge(x + 34, 122, 12, 31)], [x + 34, 136]], [128, 104, 176]);
+  for (let x = 136; x < 404; x += 27) add([[x, 140], [x, ridge(x, 132, 6, 19)], [x + 27, ridge(x + 27, 132, 6, 19)], [x + 27, 140]], [86, 74, 150]);
+  for (let y = 140, r = 0; y < 160; y += 6, r++) for (let x = 136 + (r % 2) * 14; x < 404; x += 30) add([[x, y], [x + 30, y], [x + 30, y + 6], [x, y + 6]], Math.abs(x + 15 - SG_SUN[0]) < 22 ? [246, 196, 80] : [[40, 110, 190], [60, 140, 210]][(r + x) % 2 ? 0 : 1]);
+  // 凤鸟：尾羽 → 两翼 → 身、颈、头、喙、冠
+  const RED = [200, 40, 34], ORG = [236, 112, 34], GLD = [250, 192, 62];
+  const bez = (p0, p1, p2, t) => [mix(mix(p0[0], p1[0], t), mix(p1[0], p2[0], t), t), mix(mix(p0[1], p1[1], t), mix(p1[1], p2[1], t), t)];
+  [[[250, 104], [210, 116], [172, 118]], [[254, 108], [234, 146], [192, 140]], [[258, 110], [256, 150], [224, 152]]].forEach(([p0, p1, p2]) => {
+    const N = 6;
+    for (let i = 0; i < N; i++) {
+      const t0 = i / N, t1 = (i + 1) / N, a = bez(p0, p1, p2, t0), b = bez(p0, p1, p2, t1), dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy), w0 = mix(8, 5, t0), w1 = mix(8, 5, t1);
+      add([[a[0] - dy / d * w0, a[1] + dx / d * w0], [b[0] - dy / d * w1, b[1] + dx / d * w1], [b[0] + dy / d * w1, b[1] - dx / d * w1], [a[0] + dy / d * w0, a[1] - dx / d * w0]], [RED, ORG, GLD][i % 3]);
+    }
+    add(arcPts(p2[0], p2[1], 7, 0, TAU, 12), GLD); add(arcPts(p2[0], p2[1], 3.6, 0, TAU, 10), [40, 90, 200]);
+  });
+  const SW = [262, 80];
+  const feather = (a, len, curv) => {
+    const dx = Math.cos(a), dy = Math.sin(a), sp = t => [SW[0] + dx * len * t - dy * curv * Math.sin(Math.PI * t), SW[1] + dy * len * t + dx * curv * Math.sin(Math.PI * t)], hw = t => 10 * (1 - 0.75 * t);
+    [0, 0.38, 0.7, 1].reduce((t0, t1) => {
+      const a0 = sp(t0), a1 = sp(t1);
+      add([[a0[0] - dy * hw(t0), a0[1] + dx * hw(t0)], [a1[0] - dy * hw(t1), a1[1] + dx * hw(t1)], [a1[0] + dy * hw(t1), a1[1] - dx * hw(t1)], [a0[0] + dy * hw(t0), a0[1] - dx * hw(t0)]], t0 === 0 ? RED : t0 < 0.5 ? ORG : GLD);
+      return t1;
+    });
+  };
+  for (let i = 0; i < 8; i++) feather(-2.78 + i * 0.14, 74 - i * 3, -5);
+  for (let i = 0; i < 7; i++) feather(-1.32 + i * 0.14, 64 - i * 4, 5);
+  const body = Array.from({ length: 16 }, (_, i) => { const a = i / 16 * TAU; return [262 + 12 * Math.cos(a) * Math.cos(0.5) - 22 * Math.sin(a) * Math.sin(0.5), 92 + 12 * Math.cos(a) * Math.sin(0.5) + 22 * Math.sin(a) * Math.cos(0.5)]; });
+  add(body.slice(0, 9), ORG); add([...body.slice(8), body[0]], RED);
+  add([[266, 74], [276, 78], [295, 58], [289, 50]], ORG);
+  add(arcPts(293, 53, 7, 0, TAU, 12), RED);
+  add([[299, 50], [309, 53], [299, 56]], GLD);
+  [[[288, 47], [278, 36], [284, 46]], [[291, 46], [286, 32], [293, 45]], [[294, 46], [296, 34], [297, 47]]].forEach(p => add(p, GLD));
+  // 花丛：玫瑰（三层花瓣）与叶子
+  const leaf = (x, y, a, len, wd) => { const dx = Math.cos(a), dy = Math.sin(a), m = [x + dx * len / 2, y + dy * len / 2], tip = [x + dx * len, y + dy * len]; add([[x, y], [m[0] - dy * wd, m[1] + dx * wd], tip], [36, 120, 56]); add([[x, y], tip, [m[0] + dy * wd, m[1] - dx * wd]], [70, 160, 70]); };
+  [[156, 154, -0.5, 26, 7], [150, 132, -1.3, 24, 6], [176, 158, -0.1, 22, 6], [404, 126, -2.0, 26, 7], [372, 136, -2.5, 24, 6], [350, 156, -2.9, 22, 6]].forEach(l => leaf(...l));
+  const rose = (cx, cy, r) => {
+    for (let j = 0; j < 6; j++) wedge(cx, cy, r * 0.66, r, j / 6 * TAU, (j + 1) / 6 * TAU, [226, 70, 62]);
+    for (let j = 0; j < 5; j++) wedge(cx, cy, r * 0.3, r * 0.68, j / 5 * TAU + 0.3, (j + 1) / 5 * TAU + 0.3, [196, 40, 46]);
+    add(arcPts(cx, cy, r * 0.32, 0, TAU, 8), [140, 20, 34]);
+  };
+  rose(158, 148, 12); rose(190, 150, 9); rose(386, 146, 13); rose(362, 154, 9);
+  return T;
+})();
+const SG_T = document.createElement('canvas'); SG_T.width = CW; SG_T.height = CH;
+const sgPath = (g, pts) => { g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath(); };
+// 按铺块顺序生成的图层：先擦掉被后画玻璃盖住的部分，再画本块，遮挡关系与玻璃一致
+const sgOrdered = (name, each) => layer(name, g => {
+  g.save(); SG_WIN(g); g.clip();
+  SG_TILES.forEach((t, i) => { g.globalCompositeOperation = 'destination-out'; sgPath(g, t.pts); g.fill(); g.globalCompositeOperation = 'source-over'; each(g, t, i); });
+  g.restore();
+});
+CELLS[48] = (k, w, h, u) => {
+  const rise = inOut3(seg(u, 0.2, 3.8)), I = rise * (1 - resetK(u));
+  const L = [SG_SUN[0], mix(250, SG_SUN[1] - 10, rise)];
+  const g = SG_T.getContext('2d');
+  g.clearRect(0, 0, CW, CH); g.save(); SG_WIN(g); g.clip();
+  SG_TILES.forEach(t => {
+    const d = Math.hypot(t.cx - L[0], t.cy - L[1]), b = 0.16 + I * (0.4 + 0.75 * Math.exp(-d * d / (2 * 95 * 95)));
+    const c = t.c.map(v => Math.round(b <= 1 ? v * b : v + (255 - v) * (b - 1) * 0.6));
+    sgPath(g, t.pts); g.fillStyle = `rgb(${c})`; g.fill();
+  });
+  g.drawImage(sgOrdered('SG_tex', (q, t, i) => {
+    q.save(); sgPath(q, t.pts); q.clip();
+    const r = Math.max(...t.pts.map(p => Math.hypot(p[0] - t.cx, p[1] - t.cy))), gr = q.createRadialGradient(t.cx - r * 0.3, t.cy - r * 0.3, 0, t.cx, t.cy, r);
+    gr.addColorStop(0, 'rgba(255,255,255,.16)'); gr.addColorStop(1, 'rgba(0,0,0,.2)'); q.fillStyle = gr; q.fillRect(t.cx - r, t.cy - r, 2 * r, 2 * r);
+    q.strokeStyle = 'rgba(255,255,255,.3)'; q.lineWidth = 0.6;
+    for (let b = 0; b < 3; b++) if (hash(i * 7 + b) > 0.4) { q.beginPath(); q.arc(t.cx + (hash(i * 7 + b + 1) - 0.5) * r, t.cy + (hash(i * 7 + b + 2) - 0.5) * r, 0.6 + hash(i + b) * 1.1, 0, TAU); q.stroke(); }
+    q.restore();
+  }), 0, 0);
+  g.restore();
+  k.drawImage(layer('SG_wall', q => {
+    const wg = q.createLinearGradient(0, 0, 0, CH); wg.addColorStop(0, '#1a171d'); wg.addColorStop(1, '#25201f'); q.fillStyle = wg; q.fillRect(0, 0, CW, 166);
+    q.strokeStyle = 'rgba(255,240,220,.05)'; q.lineWidth = 1;
+    for (let y = 0, r = 0; y < 166; y += 22, r++) { q.beginPath(); q.moveTo(0, y); q.lineTo(CW, y); q.stroke(); for (let x = (r % 2) * 30; x < CW; x += 60) { q.beginPath(); q.moveTo(x, y); q.lineTo(x, y + 22); q.stroke(); } }
+    q.fillStyle = '#1b1715'; q.fillRect(0, 166, CW, CH - 166);
+    q.strokeStyle = 'rgba(255,240,220,.05)'; for (let i = -12; i < 14; i++) { q.beginPath(); q.moveTo(270 + i * 24, 166); q.lineTo(270 + i * 44, CH); q.stroke(); }
+    q.fillStyle = '#3a332e'; q.fillRect(126, 158, 288, 8); q.fillStyle = 'rgba(255,240,220,.12)'; q.fillRect(126, 158, 288, 1.5);
+  }), 0, 0);
+  glow(k, 270, 96, 240, '255,196,120', 0.16 * I);
+  // 地面光斑：窗的倒影拉长、模糊后叠加；光越高，光斑越短
+  const sy = mix(0.62, 0.34, rise);
+  k.save(); k.beginPath(); k.rect(0, 166, CW, CH - 166); k.clip();
+  k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.55 * I; k.filter = 'blur(3px)';
+  k.transform(1.3, 0, 0, -sy, 270 - 1.3 * 270, 166 + 158 * sy); k.drawImage(SG_T, 0, 0);
+  k.restore();
+  k.drawImage(SG_T, 0, 0);
+  k.drawImage(sgOrdered('SG_lead', (q, t) => { sgPath(q, t.pts); q.strokeStyle = '#15110f'; q.lineWidth = 2.4; q.lineJoin = 'round'; q.stroke(); }), 0, 0);
+  k.drawImage(layer('SG_frame', q => {
+    q.fillStyle = '#15110f'; q.beginPath(); q.arc(295, 51.5, 1.7, 0, TAU); q.fill();
+    q.save(); SG_WIN(q); q.clip(); q.fillStyle = '#211b18'; [84, 122].forEach(y => q.fillRect(130, y - 1.2, 280, 2.4)); q.restore();
+    SG_WIN(q); q.strokeStyle = '#3e3732'; q.lineWidth = 10; q.stroke(); q.strokeStyle = '#15110f'; q.lineWidth = 3; q.stroke();
+  }), 0, 0);
+  // 亮的玻璃泛光
+  k.save(); k.globalCompositeOperation = 'lighter'; k.globalAlpha = 0.32 * I; k.filter = 'blur(6px)'; k.drawImage(SG_T, 0, 0); k.restore();
+  grain(k, 0.05);
+};

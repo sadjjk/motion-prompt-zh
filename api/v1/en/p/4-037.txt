@@ -1,0 +1,15 @@
+Please use "Blue-green landscape" (青緑山水), filed under "East Asian tradition / Calligraphy & painting".
+Motion Prompt #4-037
+
+What it is: A Chinese landscape painting style that colours the mountains richly with azurite blue and malachite green
+What the sample shows: A silk handscroll pans slowly sideways, its far, middle and near mountain layers moving at different speeds. Each mountain is a cluster, a main peak flanked by smaller ones, with rounded tops and steep sides. At first there are only ink outlines and hemp-fibre texture strokes; then azurite and malachite wash down from the top, with ochre at the feet. Moss dots and small pines line the ridges, a little pavilion sits on a middle-ground peak, cloud bands drift at the mountains' feet, a stone bridge with a figure crosses a near valley, and a small boat floats on the river. At the end the colour drains back to bare ink.
+Spec:
+- 6.4 s cycle. The 3 scroll layers (far, middle, near) repeat every 540 / 810 / 1080 px and move at speeds 0.5 / 0.75 / 1, each shifting exactly one repeat per cycle so the loop is seamless.
+- Azurite, malachite and ochre wash down from the top over 0.6–2.6 s.
+- Water ripples are spaced 45 px apart; the boat bobs 2 times per cycle.
+- The colour drains back to bare ink over 5.4–6.0 s.
+When to use it: Use it for Chinese-style, classical-culture and scenic-travel features, or as a calm background loop.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-037.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

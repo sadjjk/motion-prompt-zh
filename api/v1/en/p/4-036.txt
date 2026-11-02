@@ -1,0 +1,15 @@
+Please use "Stained glass" (ステンドグラス), filed under "Craft & patterns / Print & handmade".
+Motion Prompt #4-036
+
+What it is: A window of coloured glass pieces joined with lead, seen with light shining through
+What the sample shows: An arched window in a dark stone wall shows a phoenix, a rose bush and a sun behind distant hills in stained glass. Every piece is edged with a thick black lead line and has its own shading and bubbles. The light behind it rises from below the window to the sun's position, and the pieces nearest the light turn from dark to glowing first. Bright glass gives off a glow, and on the floor below the window lies a stretched, upside-down patch of coloured light that shortens as the light climbs.
+Spec:
+- 6.4 s cycle. Over 0.2–3.8 s the light behind rises from below the window to the sun's position.
+- Lead lines are 2.4 px thick; each piece's brightness depends on its distance to the light, so nearer pieces light up first.
+- The floor patch is the window flipped and stretched vertically, blurred by 3 px and added on top.
+- It goes dark again over 5.4–6.0 s.
+When to use it: Use it for celebrations, story openings, fantasy themes and architecture or interior features.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-036.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

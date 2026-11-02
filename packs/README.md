@@ -19,7 +19,7 @@ The gallery and the skill sort every name into groups, sections and categories (
 | 1 UI & Web | Pointer interactions | Hover | 8 | #1 115~122 |
 | 1 UI & Web | Pointer interactions | Cursor | 13 | #1 123~135 |
 | 1 UI & Web | Pointer interactions | Tactile & cards | 10 | #1 136~145 |
-| 1 UI & Web | Pointer interactions | Liquid interactions | 3 | #1 146~148 |
+| 1 UI & Web | Pointer interactions | Liquid interactions | 4 | #1 146~148 · 197 |
 | 1 UI & Web | Feedback | Action feedback | 10 | #1 149~158 |
 | 1 UI & Web | Feedback | Progress & icons | 8 | #1 159~166 |
 | 1 UI & Web | Feedback | AI status | 12 | #1 167~178 |
@@ -40,20 +40,20 @@ The gallery and the skill sort every name into groups, sections and categories (
 | 3 Editing & photography | Camera & editing | Shooting style & time | 8 | #3 009~016 |
 | 3 Editing & photography | Camera & editing | Cuts & transitions | 12 | #3 017~028 |
 | 3 Editing & photography | Shot size & composition | Shot size | 8 | #3 029~036 |
-| 3 Editing & photography | Shot size & composition | Composition | 7 | #3 037~043 |
+| 3 Editing & photography | Shot size & composition | Composition | 8 | #3 037~043 · 084 |
 | 3 Editing & photography | Light & color | Lighting & time of day | 13 | #3 044~056 |
 | 3 Editing & photography | Light & color | Light sources & color | 8 | #3 057~064 |
 | 3 Editing & photography | Lens effects & finishing | Lens effects | 11 | #3 065~075 |
 | 3 Editing & photography | Lens effects & finishing | Grading & finishing | 8 | #3 076~083 |
 | 4 Visual styles | Animation styles | Flat & line | 4 | #4 001~004 |
-| 4 Visual styles | Animation styles | Space & material | 4 | #4 005~008 |
+| 4 Visual styles | Animation styles | Space & material | 5 | #4 005~008 · 031 |
 | 4 Visual styles | Animation styles | Media & genres | 3 | #4 009~011 |
-| 4 Visual styles | Art movements | Modern & postmodern | 4 | #4 012~015 |
+| 4 Visual styles | Art movements | Modern & postmodern | 5 | #4 012~015 · 032 |
 | 4 Visual styles | Art movements | Digital & retro | 4 | #4 016~019 |
-| 4 Visual styles | Craft & patterns | Print & handmade | 3 | #4 020~021 · 030 |
+| 4 Visual styles | Craft & patterns | Print & handmade | 7 | #4 020~021 · 030 · 033~036 |
 | 4 Visual styles | Craft & patterns | Geometric patterns | 5 | #4 022~026 |
-| 4 Visual styles | East Asian tradition | Calligraphy & painting | 2 | #4 027~028 |
-| 4 Visual styles | East Asian tradition | Objects & folk crafts | 1 | #4-029 |
+| 4 Visual styles | East Asian tradition | Calligraphy & painting | 3 | #4 027~028 · 037 |
+| 4 Visual styles | East Asian tradition | Objects & folk crafts | 3 | #4 029 · 038~039 |
 
 ## Packs
 
@@ -63,11 +63,11 @@ The gallery and the skill sort every name into groups, sections and categories (
 | #3 001~036 | `camera` — Camera moves & transitions | 36 | [English](camera/README.md) · [日本語](camera/README.ja.md) · [简体中文](camera/README.zh-Hans.md) |
 | #1 001~008 · 010~026 · 028~048 · 051~057 · 136~137 · 159 | `ui` — UI component names | 56 | [English](ui/README.md) · [日本語](ui/README.ja.md) · [简体中文](ui/README.zh-Hans.md) |
 | #1 009 · 027 · 049~050 · 058~067 · 079~086 · 088~090 · 103~113 · 115~123 · 138~139 · 143~145 · 162~163 | `lp` — Landing page & web effects | 52 | [English](lp/README.md) · [日本語](lp/README.ja.md) · [简体中文](lp/README.zh-Hans.md) |
-| #3 037~083 | `photo` — Photo looks, lighting & styles | 47 | [English](photo/README.md) · [日本語](photo/README.ja.md) · [简体中文](photo/README.zh-Hans.md) |
+| #3 037~084 | `photo` — Photo looks, lighting & styles | 48 | [English](photo/README.md) · [日本語](photo/README.ja.md) · [简体中文](photo/README.zh-Hans.md) |
 | #1-078 · #2 007~009 · 013~018 · 022~028 · 030~040 · 042~051 · 057~067 · 076~080 · 105~115 | `motion2` — Motion graphics moves, part 2 | 65 | [English](motion2/README.md) · [日本語](motion2/README.ja.md) · [简体中文](motion2/README.zh-Hans.md) |
-| #1 096 · 098~101 · 114 · 146~148 · 164 · 167~175 | `aiux` — Glow & liquid | 19 | [English](aiux/README.md) · [日本語](aiux/README.ja.md) · [简体中文](aiux/README.zh-Hans.md) |
-| #1-102 · #2 029 · 041 · 052~054 · 068~075 · 081~091 · 097~099 · 116 · #4 012~014 · 016 · 020~030 | `scenes` — Styled scenes | 44 | [English](scenes/README.md) · [日本語](scenes/README.ja.md) · [简体中文](scenes/README.zh-Hans.md) |
+| #1 096 · 098~101 · 114 · 146~148 · 164 · 167~175 · 197 | `aiux` — Glow & liquid | 20 | [English](aiux/README.md) · [日本語](aiux/README.ja.md) · [简体中文](aiux/README.zh-Hans.md) |
+| #1-102 · #2 029 · 041 · 052~054 · 068~075 · 081~091 · 097~099 · 116 · #4 012~014 · 016 · 020~030 · 032~039 | `scenes` — Styled scenes | 52 | [English](scenes/README.md) · [日本語](scenes/README.ja.md) · [简体中文](scenes/README.zh-Hans.md) |
 | #1 068~077 · 087 · 091~095 · 097 · 124~135 · 140~142 · 149~158 · 160~161 · 165~166 · 176~196 | `uxmotion` — Interaction & data motion | 67 | [English](uxmotion/README.md) · [日本語](uxmotion/README.ja.md) · [简体中文](uxmotion/README.zh-Hans.md) |
-| #4 001~011 · 015 · 017~019 | `mgstyles` — MG styles | 15 | [English](mgstyles/README.md) · [日本語](mgstyles/README.ja.md) · [简体中文](mgstyles/README.zh-Hans.md) |
+| #4 001~011 · 015 · 017~019 · 031 | `mgstyles` — MG styles | 16 | [English](mgstyles/README.md) · [日本語](mgstyles/README.ja.md) · [简体中文](mgstyles/README.zh-Hans.md) |
 
 To add a pack for your field, or a language to an existing pack, see [CONTRIBUTING.md](../CONTRIBUTING.md).

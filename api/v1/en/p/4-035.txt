@@ -1,0 +1,15 @@
+Please use "Embroidery" (刺繍), filed under "Craft & patterns / Print & handmade".
+Motion Prompt #4-035
+
+What it is: A craft that stitches a design into cloth with needle and thread, using stitch direction for sheen and relief
+What the sample shows: Cream silk is stretched on a wooden hoop and a needle stitches a lotus leaf, flower, bud and a mandarin duck one stitch at a time. Petals and leaves use fishbone stitch running diagonally from the midrib to the edge, the lotus pad uses radiating long-and-short stitch, and the duck uses parallel satin stitch following its feathers. Each stitch shades from dark to light, and its brightness depends on its angle to the light, so the same thread gleams differently by direction. A shadow under every stitch shows the raised thread. When the stitching is done the needle leaves and a diagonal gleam sweeps across.
+Spec:
+- 6.4 s cycle. Stitching proceeds in order over 0.15–4.2 s; the needle follows the latest stitch with its thread running off-frame.
+- The hoop's inner radius is 92 px; a stitch is brightest when parallel to the light angle of 0.6 rad.
+- The needle leaves towards the top right over 4.2–4.6 s, and a diagonal gleam sweeps across over 4.35–5.25 s.
+- The stitches fade out over 5.4–6.0 s to reset.
+When to use it: Use it to present traditional crafts, Chinese-style clothing or handmade brands.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-035.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

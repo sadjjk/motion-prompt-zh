@@ -40,7 +40,7 @@ The 12 elements by Jakub Antalik in `packs/aiux/` are Canvas 2D implementations
 written for this repository after the effects and published parameters of three
 [Libraries.dev](https://libraries.dev/) packages by Jakub Antalik: `border-beam`, `thinking-orbs` and
 `liquid-gooey` ([Jakubantalik/Libraries.dev](https://github.com/Jakubantalik/Libraries.dev)). No source file of
-those packages is copied. Every `e/<id>.txt` and `kit/aiux.js` of this pack carries the copyright line below.
+those packages is copied. The `e/<id>.txt` of these 12 elements and `kit/aiux.js` carry the copyright line below.
 
 > MIT License
 >
@@ -310,21 +310,51 @@ lists it after the pack's own line. To ask for a removal or a correction, use th
 | `#2-098` | `scenes` | 飄落花瓣 Falling Petals (#174) |
 | `#2-099` | `scenes` | 煙火 Fireworks (#181) |
 
-## 镜语 jingyu-skill by 阿梦freedom (41 elements in packs `camera`, `photo`, `motion2` and `scenes`)
+## 镜语 jingyu-skill by 阿梦freedom (51 elements in packs `camera`, `photo`, `motion2`, `scenes` and `mgstyles`)
 
-The 41 elements (12 in pack `camera`, 23 in pack `photo`, 4 in pack `motion2`, 2 in pack `scenes`: shot sizes, composition and
-shot-to-shot continuity, lens light, lighting setups, light sources and colour, plus transitions, text and packaging, particles
-and texture) take their terms and definitions from
+The 51 elements (12 in pack `camera`, 24 in pack `photo`, 4 in pack `motion2`, 10 in pack `scenes`, 1 in pack `mgstyles`: shot
+sizes, composition and shot-to-shot continuity, lens light, lighting setups, light sources and colour, plus transitions, text
+and packaging, particles and texture, and visual styles) take their terms and definitions from
 阿梦freedom's [镜语](https://idea.ameng.dev/) and its skill
 [hemengke1997/jingyu-skill](https://github.com/hemengke1997/jingyu-skill) (`skills/jingyu/references/camera.md`
 and the light, colour, effect and transition terms).
-The moving samples are Canvas 2D drawings written for this repository with the existing `camera`, `photo`, `motion2`
-and `scenes` scenes; no demo code, image or text from 镜语 is copied. Each element carries the line
+The moving samples are Canvas 2D drawings written for this repository with the existing `camera`, `photo`, `motion2`,
+`scenes` and `mgstyles` scenes; no demo code, image or text from 镜语 is copied. Each element carries the line
 `MIT License (c) 2026 阿梦freedom` and links to its term page. The license notice:
 
 > MIT License
 >
 > Copyright (c) 2026 阿梦freedom
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
+
+## liquid-glass by Sam Asante (1 element in pack `aiux`)
+
+The element `#1-197` 液态玻璃透镜 (Liquid glass lens) in `packs/aiux/` is a Canvas 2D implementation written for this
+repository after the lens effect of [samasante/liquid-glass](https://github.com/samasante/liquid-glass)
+([demo](https://glass.samasante.com)). The original refracts the live DOM with SVG displacement maps; this version
+redraws a fixed background with rings of stretched `drawImage` calls. No source file of that package is copied. The
+element's `e/<id>.txt` and the `kit/aiux.js` header carry the copyright line below.
+
+> MIT License
+>
+> Copyright (c) 2026 Sam Asante
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal

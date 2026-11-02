@@ -1,0 +1,15 @@
+Please use "Chinese paper cutting" (中国の切り紙), filed under "East Asian tradition / Objects & folk crafts".
+Motion Prompt #4-038
+
+What it is: A folk craft of folding red paper and cutting it so it opens into a symmetric pattern
+What the sample shows: A knife carves a folded half-circle of red paper cut by cut, from the top down; the pattern appears where it has cut and the rest is still plain red. Then the paper opens into a round, symmetric window flower: a sawtooth border, 2 plump carp facing each other head-up on either side, a lotus kept as outlines with its seed pod in the middle, lotus leaves and waves below, and curling cloud motifs filling the gaps. The scales are rows of crescent cut-outs, and every red line connects. The background is cream paper with a faint shadow under the cut.
+Spec:
+- 6.4 s cycle. Over 0.2–2.6 s the knife carves along the half-circle from top to bottom.
+- Over 2.7–3.3 s the right half opens as a mirror of the left, slightly darker on the way.
+- The paper's radius is 92 px, with 26 sawtooth notches around each half of the border.
+- It returns to the folded red sheet over 5.4–6.0 s.
+When to use it: Use it for Lunar New Year, wedding and celebration cards, or to introduce traditional Chinese culture.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-038.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.
