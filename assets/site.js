@@ -209,7 +209,7 @@
     var m = /^#?([1-9])-(\d{1,3})$/.exec(String(x == null ? '' : x).trim());
     return m ? m[1] + '-' + ('000' + m[2]).slice(-3) : null;
   }
-  // 编号范围（与 build 生成的 README、kit 一致）：#1 001~018；断开处用 · 分段，跨大类时重写前缀：#1 001~002 · 005 · #2-003；单个写 #1-150
+  // 编号范围（与 build 生成的 README、kit 一致）：#1 001–018；断开处用 · 分段，跨大类时重写前缀：#1 001–002 · 005 · #2-003；单个写 #1-150
   // ids 须已按编号排序
   function idRange(ids) {
     var p3 = function (n) { return ('00' + n).slice(-3); };
@@ -222,7 +222,7 @@
         runs.push([a, b]); i++;
       }
       if (runs.length === 1 && runs[0][0] === runs[0][1]) parts.push('#' + g + '-' + p3(runs[0][0]));
-      else parts.push('#' + g + ' ' + runs.map(function (r) { return r[0] === r[1] ? p3(r[0]) : p3(r[0]) + '~' + p3(r[1]); }).join(' · '));
+      else parts.push('#' + g + ' ' + runs.map(function (r) { return r[0] === r[1] ? p3(r[0]) : p3(r[0]) + '–' + p3(r[1]); }).join(' · '));
     }
     return parts.join(' · ');
   }

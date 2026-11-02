@@ -70,9 +70,9 @@ A sample is the small animation shown next to the name. The look is yours: color
 
 Every text field in `packs/<pack>/meta.json` is an object keyed by language code, for example `"name": { "ja": "パン", "en": "Pan" }`.
 
-1. Add your language code (`es`, `ko`, `zh-Hans`, `fr` ...) to `title`, to each entry of `categories`, and to each element's `name`, `meaning` and `ask`.
+1. Add your language code (`es`, `ko`, `zh-Hans`, `fr` ...) to `title`, to each group, category and subcategory in `packs/categories.json`, and to each element's `name`, `meaning` and `ask`.
 2. Optional: add it to `summary`, `use` and `spec` as well. Where you leave it out, the English text is shown.
-3. Run `node tools/build.mjs`. It checks the file and writes `packs/<pack>/README.<lang>.md`, a list that is readable on GitHub, and links it from the other lists.
+3. Run `node tools/build.mjs`. It checks the file and writes `packs/README.<lang>.md`, a list that is readable on GitHub, and links it from the other lists.
 4. Open a pull request with `meta.json` and the generated files, and say where you checked the names.
 
 You can ask a coding AI to do steps 1 to 3 ("add Spanish to packs/camera/meta.json following CONTRIBUTING.md; list every name you are not sure about"). Then check the names yourself; that part is the contribution.

@@ -1,4 +1,4 @@
-// Motion Prompt #3 001~036 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#025
+// Motion Prompt #3 001–036 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#025
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/establishing-shot (#3-025)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/shot-reverse-shot (#3-026)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/match-on-action (#3-027)
@@ -13,7 +13,7 @@
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/macro-shot (#3-036)
 //
 // Kit for pack "camera" (Camera moves & transitions / カメラワークと切り替え): the constants and helpers its elements share.
-// Elements #3 001~036 · 539x208 px · cycle 9.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #3 001–036 · 539x208 px · cycle 9.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

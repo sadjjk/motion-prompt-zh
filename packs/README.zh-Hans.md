@@ -1,0 +1,768 @@
+<!-- 由 tools/build.mjs 从 meta.json 与 packs/categories.json 生成，请修改源文件后重新构建。 -->
+
+# 效果名称表
+
+436 个效果 · 其他语言: [English](README.md) / [日本語](README.ja.md)
+
+找到效果名称后，直接告诉 AI；补充持续时间、强度与运动对象，结果会更接近你的想法。点击编号查看动画演示。
+
+## 总览
+
+| 大类 | 分类 | 小类 | 款数 | 编号 |
+|---|---|---|---|---|
+| 1 界面与网页 | 组件 | 弹出与覆盖 | 18 | #1 001–018 |
+| 1 界面与网页 | 组件 | 选择与输入 | 24 | #1 019–042 |
+| 1 界面与网页 | 组件 | 导航与菜单 | 8 | #1 043–050 |
+| 1 界面与网页 | 组件 | 状态与开发者界面 | 8 | #1 051–058 |
+| 1 界面与网页 | 页面 | 滚动 | 20 | #1 059–078 |
+| 1 界面与网页 | 页面 | 转场与加载 | 9 | #1 079–087 |
+| 1 界面与网页 | 页面 | 首屏背景 | 15 | #1 088–102 |
+| 1 界面与网页 | 指针交互 | 按钮 | 12 | #1 103–114 |
+| 1 界面与网页 | 指针交互 | 悬停 | 8 | #1 115–122 |
+| 1 界面与网页 | 指针交互 | 光标 | 13 | #1 123–135 |
+| 1 界面与网页 | 指针交互 | 拟物与卡片 | 10 | #1 136–145 |
+| 1 界面与网页 | 指针交互 | 液态交互 | 4 | #1 146–148 · 197 |
+| 1 界面与网页 | 反馈 | 操作反馈 | 10 | #1 149–158 |
+| 1 界面与网页 | 反馈 | 进度与图标 | 8 | #1 159–166 |
+| 1 界面与网页 | 反馈 | AI 状态 | 12 | #1 167–178 |
+| 1 界面与网页 | 文字与数据 | 交互文字 | 8 | #1 179–186 |
+| 1 界面与网页 | 文字与数据 | 数据图表 | 10 | #1 187–196 |
+| 2 动态图形 | 运动原理 | 入场与缓动 | 9 | #2 001–009 |
+| 2 动态图形 | 运动原理 | 节奏与循环 | 9 | #2 010–018 |
+| 2 动态图形 | 文字动画 | 逐字与排版 | 13 | #2 019–029 · 113–114 |
+| 2 动态图形 | 文字动画 | 变形与质感 | 12 | #2 030–041 |
+| 2 动态图形 | 文字动画 | 冲击与物理 | 7 | #2 042–048 |
+| 2 动态图形 | 文字动画 | 空间文字 | 6 | #2 049–054 |
+| 2 动态图形 | 图形与物件 | 线条与图形 | 9 | #2 055–063 |
+| 2 动态图形 | 图形与物件 | 物件与机械 | 12 | #2 064–075 |
+| 2 动态图形 | 图形与物件 | 信息与科技 | 17 | #2 076–091 · 115 |
+| 2 动态图形 | 特效与转场 | 粒子与光效 | 9 | #2 092–099 · 116 |
+| 2 动态图形 | 特效与转场 | 转场 | 13 | #2 100–112 |
+| 3 剪辑与摄影 | 镜头与剪辑 | 镜头运动 | 8 | #3 001–008 |
+| 3 剪辑与摄影 | 镜头与剪辑 | 拍法与时间 | 8 | #3 009–016 |
+| 3 剪辑与摄影 | 镜头与剪辑 | 剪辑与转场 | 12 | #3 017–028 |
+| 3 剪辑与摄影 | 景别与构图 | 景别 | 8 | #3 029–036 |
+| 3 剪辑与摄影 | 景别与构图 | 构图 | 8 | #3 037–043 · 084 |
+| 3 剪辑与摄影 | 光线与色彩 | 布光与时段 | 13 | #3 044–056 |
+| 3 剪辑与摄影 | 光线与色彩 | 光源与色彩 | 8 | #3 057–064 |
+| 3 剪辑与摄影 | 镜头效果与后期 | 镜头效果 | 11 | #3 065–075 |
+| 3 剪辑与摄影 | 镜头效果与后期 | 调色与后期 | 8 | #3 076–083 |
+| 4 审美风格 | 动画画风 | 平面与线条 | 4 | #4 001–004 |
+| 4 审美风格 | 动画画风 | 空间与质感 | 5 | #4 005–008 · 031 |
+| 4 审美风格 | 动画画风 | 媒介与题材 | 3 | #4 009–011 |
+| 4 审美风格 | 艺术流派 | 现代与后现代 | 5 | #4 012–015 · 032 |
+| 4 审美风格 | 艺术流派 | 数字与复古 | 4 | #4 016–019 |
+| 4 审美风格 | 工艺与纹样 | 版画与手工 | 7 | #4 020–021 · 030 · 033–036 |
+| 4 审美风格 | 工艺与纹样 | 几何纹样 | 5 | #4 022–026 |
+| 4 审美风格 | 东方传统 | 书画 | 3 | #4 027–028 · 037 |
+| 4 审美风格 | 东方传统 | 器物与民艺 | 3 | #4 029 · 038–039 |
+
+## 1 界面与网页
+
+### 组件
+
+#### 弹出与覆盖 · #1 001–018
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-001](https://sadjjk.github.io/motion-prompt-zh/#1-001) | **模态对话框** | Modal dialog | 居中弹出窗口，后方页面变暗 | 点击删除按钮时显示模态确认框，背景约变暗 40%，用 0.3 秒淡入并略微放大。 |
+| [#1-002](https://sadjjk.github.io/motion-prompt-zh/#1-002) | **侧边抽屉** | Drawer (Off-canvas) | 菜单面板从屏幕侧边滑入 | 点击菜单按钮后从左侧打开抽屉，宽度为屏幕的 40%，滑入耗时 0.4 秒，背景略微变暗。 |
+| [#1-003](https://sadjjk.github.io/motion-prompt-zh/#1-003) | **底部弹出面板** | Bottom sheet | 面板从屏幕底部向上滑出 | 点击“查看详情”后弹出底部面板，高度为屏幕的 40%，用 0.4 秒升起，下拖关闭。 |
+| [#1-004](https://sadjjk.github.io/motion-prompt-zh/#1-004) | **折叠面板** | Accordion | 点击标题展开或收起对应内容 | FAQ 用折叠面板，点击项在 0.35 秒内展开，箭头转动 180°。 |
+| [#1-005](https://sadjjk.github.io/motion-prompt-zh/#1-005) | **下拉选择器** | Dropdown (select) | 点击字段后在下方展开选项 | 地区字段用下拉选择器，0.25 秒展开下方选项，选中后关闭并填入值。 |
+| [#1-006](https://sadjjk.github.io/motion-prompt-zh/#1-006) | **悬浮提示** | Tooltip | 悬停时显示简短说明 | 给“?”图标加悬浮提示，悬停 0.2 秒后在上方显示，移开即隐藏。 |
+| [#1-007](https://sadjjk.github.io/motion-prompt-zh/#1-007) | **气泡弹出框** | Popover | 点击按钮打开指向该按钮的小面板 | 给“详情”按钮加气泡弹出框，点击后用 0.3 秒在右侧打开，点“确定”关闭。 |
+| [#1-008](https://sadjjk.github.io/motion-prompt-zh/#1-008) | **轻提示通知** | Toast notification | 角落短暂出现消息，随后自动消失 | 保存后在右下角显示“已保存”轻提示，用 0.35 秒从右侧滑入，两秒后自动关闭。 |
+| [#1-009](https://sadjjk.github.io/motion-prompt-zh/#1-009) | **离站挽留弹窗** | Exit-intent popup | 访客准备离开时出现弹窗 | 落地页增加一次性的离站挽留弹窗，光标从顶部移出时展示优惠券。 |
+| [#1-010](https://sadjjk.github.io/motion-prompt-zh/#1-010) | **缩放淡入** | Scale in | 弹层从略小尺寸放大到原尺寸并淡入 | 弹窗出现时用缩放淡入：从 0.95 倍放大到原尺寸并淡入，0.25 秒 ease-out，不要回弹。 |
+| [#1-011](https://sadjjk.github.io/motion-prompt-zh/#1-011) | **从触发点展开** | Origin-aware animation | 弹出菜单从触发它的按钮处长出 | 下拉菜单的 transform-origin 设在触发按钮上，从 0.5 倍放大展开，0.3 秒 ease-out。 |
+| [#1-012](https://sadjjk.github.io/motion-prompt-zh/#1-012) | **橡皮筋回弹** | Rubber-banding | 拖过边界时带阻力移动，松手后弹回 | 底部面板拖到顶后加橡皮筋阻尼：手指多拖 120px 面板只移动约 49px，松手后弹回。 |
+| [#1-013](https://sadjjk.github.io/motion-prompt-zh/#1-013) | **可打断动画** | Interruptible animation | 动画进行中可随时改向，从当前状态接续 | 抽屉开关用弹簧动画并支持中途打断：开到一半再点，就从当前位置和速度直接折返（ω = 10）。 |
+| [#1-014](https://sadjjk.github.io/motion-prompt-zh/#1-014) | **拖拽上传** | Drag-and-drop upload | 文件拖进上传区后区域激活并开始上传 | 做一个拖拽上传区：文件拖进来后虚线框变成绿色实线，进度条从 0 走到 100%，最后显示“可以发布”。 |
+| [#1-015](https://sadjjk.github.io/motion-prompt-zh/#1-015) | **命令面板** | Command palette | 快捷键唤出、边输入边筛选命令 | 按 ⌘K 唤出命令面板：背景变暗、面板微微放大出现，输入时实时筛选列表。 |
+| [#1-016](https://sadjjk.github.io/motion-prompt-zh/#1-016) | **Cookie 同意横幅** | Cookie banner | 从底部弹出的 Cookie 使用同意卡片 | 网站加 Cookie 同意横幅：从底部弹上来，饼干图标晃一下，点同意后卡片滑出。 |
+| [#1-017](https://sadjjk.github.io/motion-prompt-zh/#1-017) | **浮动按钮展开菜单** | Speed dial | 浮动“+”按钮展开一列小操作按钮 | 右下角新增按钮做成浮动按钮展开菜单：点击后 + 转成 ×，上方小按钮自下而上依次弹出。 |
+| [#1-018](https://sadjjk.github.io/motion-prompt-zh/#1-018) | **下滑关闭提示** | Swipe-to-dismiss toast | 可以向下拖动关掉的轻提示 | 把复制成功的轻提示做成下滑关闭：从上方落下，底边细条倒计时 3.0 秒，按住时暂停，下拖最多 74 px 时缩小变淡，超过 46 px 松手后加速滑出。 |
+
+#### 选择与输入 · #1 019–042
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-019](https://sadjjk.github.io/motion-prompt-zh/#1-019) | **标签页** | Tabs | 点击标签切换显示的内容面板 | 价格页顶部放三个标签页，点击后下划线用 0.25 秒滑动，内容用 0.2 秒交叉淡化。 |
+| [#1-020](https://sadjjk.github.io/motion-prompt-zh/#1-020) | **轮播** | Carousel | 横向滑动，每次展示一个项目 | 顶部图片做成轮播，点击右箭头用 0.4 秒切一张，下方显示位置指示点。 |
+| [#1-021](https://sadjjk.github.io/motion-prompt-zh/#1-021) | **开关** | Toggle switch | 在开启和关闭之间切换设置 | 每个通知设置加开关，滑块用 0.2 秒移动，开启时轨道变蓝。 |
+| [#1-022](https://sadjjk.github.io/motion-prompt-zh/#1-022) | **分段控制器** | Segmented control | 一组相连按钮用于切换视图 | 图表上方加日、周、月分段控制器，选中背景用 0.25 秒滑动，图表同步变化。 |
+| [#1-023](https://sadjjk.github.io/motion-prompt-zh/#1-023) | **筛选标签** | Filter chips | 点击胶囊标签添加或移除筛选条件 | 列表上方加筛选标签，选中后变蓝并出现对勾，列表在 0.15 秒内筛选完成。 |
+| [#1-024](https://sadjjk.github.io/motion-prompt-zh/#1-024) | **区间滑块** | Range slider | 在同一轨道上用两个滑块选择上下限 | 价格筛选使用双滑块区间选择器，拖动时在气泡中显示数值。 |
+| [#1-025](https://sadjjk.github.io/motion-prompt-zh/#1-025) | **数字步进器** | Stepper (+/−) | 通过加减按钮逐个调整数值 | 数量字段用数字步进器，+ 和 − 每次改变一，按下后数字用 0.25 秒轻微弹动。 |
+| [#1-026](https://sadjjk.github.io/motion-prompt-zh/#1-026) | **分页器** | Pagination | 使用带页码的按钮切换页面 | 搜索结果下方加分页器，当前页用蓝圆标记，点击后用 0.2 秒移动并替换列表。 |
+| [#1-027](https://sadjjk.github.io/motion-prompt-zh/#1-027) | **前后对比滑块** | Before/after slider | 拖动分隔线比较处理前后 | 项目照片做前后对比滑块，拖动中线比较左侧处理前与右侧处理后。 |
+| [#1-028](https://sadjjk.github.io/motion-prompt-zh/#1-028) | **拖拽排序** | Drag to reorder | 按住拖动列表项，其他项让位改变顺序 | 待办列表支持拖拽排序：按住把手时行抬起放大到 1.04 倍，其他行用 0.2 秒滑开让位。 |
+| [#1-029](https://sadjjk.github.io/motion-prompt-zh/#1-029) | **验证码逐格填入** | OTP input fill | 验证码一格一位依次填满后自动确认 | 做一个验证码输入动画：6 个格子每隔 0.35 秒填入一位数字，填满后所有格子亮蓝边并提示已验证。 |
+| [#1-030](https://sadjjk.github.io/motion-prompt-zh/#1-030) | **密码强度条** | Password strength meter | 密码越输越长，强度条逐段着色 | 在密码框下加强度条：4 段强度条随输入依次变红、橙、黄绿、绿，文字从“弱”变到“强”。 |
+| [#1-031](https://sadjjk.github.io/motion-prompt-zh/#1-031) | **价格方案切换** | Pricing toggle | 切换月付 / 年付时价格数字滚动变化 | 价格表加月付 / 年付切换：切换后价格数字向上滚动到新值，推荐方案略微放大并描边。 |
+| [#1-032](https://sadjjk.github.io/motion-prompt-zh/#1-032) | **水滴单选** | Liquid radio | 选中点像水滴一样拉长移到新选项 | 单选框做成水滴单选：换选时选中点像水滴一样拉长，0.45 秒移到新选项后收回圆形。 |
+| [#1-033](https://sadjjk.github.io/motion-prompt-zh/#1-033) | **输入框浮动标签** | Floating label | 聚焦输入框时标签缩小上浮 | 邮箱输入框用浮动标签：聚焦时标签缩小上浮，底线从中间向两侧展开。 |
+| [#1-034](https://sadjjk.github.io/motion-prompt-zh/#1-034) | **展开搜索框** | Expanding search | 圆形放大镜按钮横向展开成搜索框 | 顶栏搜索做成展开搜索框：点放大镜后 0.45 秒向左展开成输入框。 |
+| [#1-035](https://sadjjk.github.io/motion-prompt-zh/#1-035) | **滑动删除** | Swipe to delete | 列表项左滑露出删除，滑到底即移除 | 通知列表做滑动删除：向左拖露出红色删除区，松手后该行滑出，下方行补位上移。 |
+| [#1-036](https://sadjjk.github.io/motion-prompt-zh/#1-036) | **多选卡片** | Selectable cards | 点选多张卡片，底部出现已选数量栏 | 图片卡片做成多选卡片：选中时出现框线与勾，底部弹出“已选 N 项”操作栏。 |
+| [#1-037](https://sadjjk.github.io/motion-prompt-zh/#1-037) | **错误震动提示** | Shake on error | 输入错误时字段左右震动 | 密码错误时用错误震动提示：输入框左右震动 0.45 秒，边框变红，下方滑出错误提示。 |
+| [#1-038](https://sadjjk.github.io/motion-prompt-zh/#1-038) | **勾选框打勾** | Animated checkbox | 点击时方框弹一下，勾像笔画出 | 待办勾选做成勾选框打勾：方框弹一下，勾从左下画到右上，项目文字加删除线。 |
+| [#1-039](https://sadjjk.github.io/motion-prompt-zh/#1-039) | **标签输入** | Tag input | 输入文字回车后变成标签的输入框 | 兴趣栏做成标签输入：回车后文字变成弹出的标签，点 × 时标签缩小消失、后面补位。 |
+| [#1-040](https://sadjjk.github.io/motion-prompt-zh/#1-040) | **彗尾旋钮** | Comet-trail dial | 拧动时亮点拖着光尾扫过刻度的旋钮 | 把音量旋钮做成彗尾旋钮：从 24 拧到 72 时，亮点沿刻度环内侧移动，身后拖着最近 0.32 秒的光尾，经过的刻度亮起后 0.4 秒熄灭，松手后旋钮像弹簧一样回弹。 |
+| [#1-041](https://sadjjk.github.io/motion-prompt-zh/#1-041) | **波浪尾迹滑块** | Wake bar slider | 由细竖条组成的滑块，拖动时竖条隆起成一道拖尾的浪 | 把亮度滑块做成没有圆形滑块的一排细竖条：按住处的竖条抬高 12 px，拖动时按速度在身后留下一道浪，浪高上限 48 px，按 0.36 秒衰减平复。 |
+| [#1-042](https://sadjjk.github.io/motion-prompt-zh/#1-042) | **通知铃铛开关** | Bell notification toggle | 点击后铃铛摇摆、通知开启的按钮 | 把通知按钮做成铃铛开关：点击后按钮变蓝，铃铛以 0.42 rad、2.4 Hz 阻尼摆动，两侧发出 3 道声波；再点一次，铃铛上划出斜杠并回到关闭态。 |
+
+#### 导航与菜单 · #1 043–050
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-043](https://sadjjk.github.io/motion-prompt-zh/#1-043) | **汉堡菜单** | Hamburger menu | 点击三横线图标打开菜单 | 移动端页头右侧放汉堡菜单，点击后用 0.3 秒把三条线变成 ×，菜单从顶部下拉。 |
+| [#1-044](https://sadjjk.github.io/motion-prompt-zh/#1-044) | **面包屑导航** | Breadcrumbs | 用链接路径标明当前页面在站点中的位置 | 文章上方加“首页 › 课程 › 网页设计”面包屑，当前页加粗且不可点击。 |
+| [#1-045](https://sadjjk.github.io/motion-prompt-zh/#1-045) | **大型下拉菜单** | Mega menu | 从主导航展开含分组链接的宽面板 | 页头“产品”用大型下拉菜单，悬停后用 0.25 秒展开全宽面板，放三列链接和一张图。 |
+| [#1-046](https://sadjjk.github.io/motion-prompt-zh/#1-046) | **步骤指示器** | Step indicator | 显示流程当前进行到哪一步 | 注册表单上方放四步指示器：资料、确认、支付、完成，已完成步骤显示对勾。 |
+| [#1-047](https://sadjjk.github.io/motion-prompt-zh/#1-047) | **3D 环形轮播** | 3D ring carousel | 卡片围成一圈在 3D 中旋转的轮播 | 作品集做成 3D 环形轮播：8 张卡片围成一圈 24 秒转一周，可以拖动转动。 |
+| [#1-048](https://sadjjk.github.io/motion-prompt-zh/#1-048) | **侧栏收合** | Collapsible sidebar | 侧边栏收成只剩图标的窄条 | 后台左侧菜单做成侧栏收合：点按钮后 0.45 秒收成只剩图标，主内容区变宽。 |
+| [#1-049](https://sadjjk.github.io/motion-prompt-zh/#1-049) | **Dock 放大菜单** | Dock magnification | 离光标越近的图标越大，并推开邻居 | 应用切换菜单做成 Dock 放大：最近的图标放大到约 1.9 倍，110px 范围内按距离放大。 |
+| [#1-050](https://sadjjk.github.io/motion-prompt-zh/#1-050) | **树状菜单** | Tree menu | 菜单项用枝杈线连到主干的侧边导航，展开时长出子枝，选中时点亮路径 | 把后台侧边导航做成树状菜单：点击「产品」后下方条目下移 54 px，3 条子枝杈间隔 0.13 秒、各用 0.4 秒长出，再用 0.58 秒点亮到所选子项的连线。 |
+
+#### 状态与开发者界面 · #1 051–058
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-051](https://sadjjk.github.io/motion-prompt-zh/#1-051) | **骨架屏** | Skeleton screen | 加载时用灰色形状占据内容位置 | 列表加载时显示骨架屏，用灰块保持内容形状，每 0.9 秒从左向右扫过一道光。 |
+| [#1-052](https://sadjjk.github.io/motion-prompt-zh/#1-052) | **数字角标** | Badge | 用小圆点中的数字提示数量 | 页头铃铛加未读角标，计数增加时用 0.3 秒弹动，打开后消失。 |
+| [#1-053](https://sadjjk.github.io/motion-prompt-zh/#1-053) | **空状态** | Empty state | 没有可列出的内容时展示引导界面 | 列表为空时显示线描图标、“暂无内容”和添加按钮，在 0.35 秒内淡入。 |
+| [#1-054](https://sadjjk.github.io/motion-prompt-zh/#1-054) | **快捷键逐键点亮** | Keyboard shortcut press | 组合键一枚枚按下并点亮 | 做一个快捷键演示：Ctrl、Shift、P 三枚键依次按下变琥珀色，下方提示随按键逐步拼出，最后显示“已排队”。 |
+| [#1-055](https://sadjjk.github.io/motion-prompt-zh/#1-055) | **代码差异高亮** | Code diff highlight | 代码删除行与新增行以红绿两色依次出现 | 做一个编辑器代码差异动画：上下文行亮起后，红色删除行和绿色新增行依次从左 6.4px 滑入，新增行再闪亮一次。 |
+| [#1-056](https://sadjjk.github.io/motion-prompt-zh/#1-056) | **部署流水线** | Deploy pipeline | 构建各阶段依次运行通过并连成一线 | 做一个部署进度动画：Lint、Test、Build、Deploy 4 张阶段卡依次由“运行中”变绿“通过”，连接线逐段接通，最后显示“已上线”。 |
+| [#1-057](https://sadjjk.github.io/motion-prompt-zh/#1-057) | **下拉刷新** | Pull to refresh | 下拉列表松手后重新加载 | 消息列表加下拉刷新：越拉越沉，图标随距离转动，松手后转圈加载，顶部插入新消息。 |
+| [#1-058](https://sadjjk.github.io/motion-prompt-zh/#1-058) | **选取框蚂蚁线** | Marching ants selection | 虚线选取框的线条持续流动，四角带控制点 | 编辑器选区做成选取框蚂蚁线：线段 6、间隔 5 持续流动，框变大小时宽 × 高标签跟着更新。 |
+
+### 页面
+
+#### 滚动 · #1 059–078
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-059](https://sadjjk.github.io/motion-prompt-zh/#1-059) | **视差滚动** | Parallax scrolling | 页面滚动时背景图层比内容移动得慢 | 首屏背景做视差滚动，位移为滚动距离的 0.3×。 |
+| [#1-060](https://sadjjk.github.io/motion-prompt-zh/#1-060) | **滚动淡入** | Fade-in on scroll | 元素滚入视口时逐渐显现 | 各区标题和卡片滚入时，从下方 30 px 处用 0.6 秒上移淡入。 |
+| [#1-061](https://sadjjk.github.io/motion-prompt-zh/#1-061) | **吸顶页头** | Sticky header | 页面滚动时页头固定在顶部 | 页头设置吸顶，固定后增加柔和阴影。 |
+| [#1-062](https://sadjjk.github.io/motion-prompt-zh/#1-062) | **滚动固定分区** | Pinning | 分区保持固定，滚动推进内部内容 | 固定三步介绍分区，用户滚动时逐步切换图片和编号。 |
+| [#1-063](https://sadjjk.github.io/motion-prompt-zh/#1-063) | **横向滚动** | Horizontal scroll | 向下滚动，内容横向移动 | 作品区做横向滚动，用户下滚时卡片向左移动相应距离。 |
+| [#1-064](https://sadjjk.github.io/motion-prompt-zh/#1-064) | **滚动吸附** | Scroll snap | 滚动后准确停在下一分区边缘 | 每个分区加滚动吸附，轻微滚动后自动停在下一分区顶部。 |
+| [#1-065](https://sadjjk.github.io/motion-prompt-zh/#1-065) | **阅读进度条** | Scroll progress bar | 顶部进度条显示阅读位置 | 文章页顶部加 4 px 品牌橙色阅读进度条。 |
+| [#1-066](https://sadjjk.github.io/motion-prompt-zh/#1-066) | **荧光笔划线** | Highlighter animation | 关键词下方逐渐画出高亮笔迹 | 关键词滚入视口后，用 0.8 秒从左向右画出黄色荧光笔高亮。 |
+| [#1-067](https://sadjjk.github.io/motion-prompt-zh/#1-067) | **平滑滚动** | Smooth scroll | 页内链接平滑移动到目标，而非直接跳转 | 菜单页内链接使用平滑滚动，停在固定页头下方。 |
+| [#1-068](https://sadjjk.github.io/motion-prompt-zh/#1-068) | **卡片堆叠吸顶** | Shrinking sticky card stack | 滚动时卡片依次吸在顶部、层层叠起的堆叠效果 | 功能介绍区做卡片堆叠吸顶：4 张卡片滚动时依次吸在顶部，被盖住的每层缩小 6%、压暗 18%。 |
+| [#1-069](https://sadjjk.github.io/motion-prompt-zh/#1-069) | **滚动填色文字** | Scroll-filled sentence | 随滚动逐词由灰变实色的大段文字 | 品牌理念段落做滚动填色：句子随滚动逐词由灰变黑，重点词变紫并发光，读完弹出「下一篇」按钮。 |
+| [#1-070](https://sadjjk.github.io/motion-prompt-zh/#1-070) | **分区背景切换** | Per-section background shift | 滚过每个分区时整页背景色平滑过渡的商品页 | 做一个按口味分区的商品页：滚动时背景在 4 种颜色间平滑过渡，中间的易拉罐跟着换色、换标签并轻微倾斜。 |
+| [#1-071](https://sadjjk.github.io/motion-prompt-zh/#1-071) | **速度倾斜列表** | Velocity-lean list | 滚得越快列表越朝滚动方向倾斜的效果 | 列表加速度倾斜：滚得越快越朝滚动方向斜，skewY 为速度 ×3.2°、最多 10°，停下后弹回。 |
+| [#1-072](https://sadjjk.github.io/motion-prompt-zh/#1-072) | **翻滚章节数字** | Rolling chapter numbers | 读到哪章、章节号就像数字带一样滚到哪章的侧栏 | 长文左侧加翻滚章节号：数字带随滚动连续滚动，每章读到 75% 时开始滚向下一章，旁边圆环显示本章进度。 |
+| [#1-073](https://sadjjk.github.io/motion-prompt-zh/#1-073) | **滚筒时间选择器** | Drum time picker | 拨动滚筒选时间、数值沿滚筒弯向背面的选择器 | 闹钟 App 做滚筒时间选择器：3 列滚筒，离中线越远每格多倾斜 22° 并变淡，停下 120ms 后更新响铃倒计时。 |
+| [#1-074](https://sadjjk.github.io/motion-prompt-zh/#1-074) | **产品屏由斜到正** | Tilt-to-flat product screen | 滚动时向后倾倒的产品屏立起转正的首屏 | SaaS 首屏的产品截图做成由斜到正：初始后倾 34°、缩到 0.84，滚动 210px 内立正放大，之后图表柱子依次长高。 |
+| [#1-075](https://sadjjk.github.io/motion-prompt-zh/#1-075) | **时间轴延伸** | Timeline draw | 线条往下延伸、碰到哪一步就出现哪一步的纵向时间轴 | 用时间轴延伸展示制作流程：随滚动让线往下延伸，到达的节点标题从左侧 10 px 滑入。 |
+| [#1-076](https://sadjjk.github.io/motion-prompt-zh/#1-076) | **回到顶部进度环** | Back-to-top progress ring | 滚动后浮出、外环显示阅读进度的回顶按钮 | 给文章加回到顶部进度环：滚过 12% 后右下角浮出按钮，外环弧长表示阅读进度，点击后 0.8 秒回到顶部。 |
+| [#1-077](https://sadjjk.github.io/motion-prompt-zh/#1-077) | **滚动放大全幅图片** | Scroll zoom to full | 随滚动小图放大到满幅 | 把专题的重点画面做成滚动放大全幅图片：38% × 46% 的图片随滚动放大到满幅，圆角从 16 px 变为 0，最后浮出标题。 |
+| [#1-078](https://sadjjk.github.io/motion-prompt-zh/#1-078) | **渐进边缘模糊** | Progressive edge blur | 滚动内容越靠近上下边缘越模糊越淡 | 把文章列表的上下边缘做成渐进边缘模糊：顶部 78 px、底部 62 px 的过渡带里叠 1/2、1/4、1/8 三级模糊，越靠边越糊越淡，内容每 4.7 秒上滚 390 px 并循环。 |
+
+#### 转场与加载 · #1 079–087
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-079](https://sadjjk.github.io/motion-prompt-zh/#1-079) | **预加载屏** | Preloader | 页面加载期间显示的过渡屏幕 | 站点加载时显示标志和百分比，达到 100% 后整屏向上移走。 |
+| [#1-080](https://sadjjk.github.io/motion-prompt-zh/#1-080) | **懒加载** | Lazy loading | 图片进入视口后才开始加载 | 图库图片使用懒加载，完成前显示灰色占位，加载后用 0.3 秒淡入。 |
+| [#1-081](https://sadjjk.github.io/motion-prompt-zh/#1-081) | **无限滚动** | Infinite scroll | 到达列表底部时自动加载更多 | 新闻列表做无限滚动，底部显示旋转指示器，每次追加十条。 |
+| [#1-082](https://sadjjk.github.io/motion-prompt-zh/#1-082) | **页面转场** | Page transition | 用动画连接两个页面 | 点击链接后让橙色面板从左向右扫过，再显示下一页面。 |
+| [#1-083](https://sadjjk.github.io/motion-prompt-zh/#1-083) | **共享元素转场** | Shared element transition | 同一元素从列表变形到详情页，把两页连起来 | 从相册列表进详情页时做共享元素转场：缩略图用 0.6 秒移动并放大成详情大图。 |
+| [#1-084](https://sadjjk.github.io/motion-prompt-zh/#1-084) | **方向感知转场** | Direction-aware transition | 前进与后退时页面滑动方向相反 | 多步表单切换跟随方向：下一步向左推，返回向右推，0.5 秒 ease-in-out。 |
+| [#1-085](https://sadjjk.github.io/motion-prompt-zh/#1-085) | **布局动画** | Layout animation | 布局变化时，其余元素平滑移到新位置 | 删除卡片后其余卡片用布局动画补位，0.5 秒 ease-in-out 平滑移到新位置。 |
+| [#1-086](https://sadjjk.github.io/motion-prompt-zh/#1-086) | **切片转场** | Slice transition | 图片切成竖条交替上下滑走露出下一张 | 轮播切换用切片转场：当前图切成 6 条，间隔 0.08 秒交替向上、向下滑走。 |
+| [#1-087](https://sadjjk.github.io/motion-prompt-zh/#1-087) | **圆形扩张转场** | Circle reveal transition | 随滚动从中央扩大的圆形遮罩揭开下一章 | 章节之间用圆形扩张转场：随滚动从中央扩出圆形直到铺满画面，上一章标题缩到 0.8 并淡出。 |
+
+#### 首屏背景 · #1 088–102
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-088](https://sadjjk.github.io/motion-prompt-zh/#1-088) | **无缝跑马灯** | Marquee | 文字或标志沿条带持续循环滚动 | 服务名称从右向左无缝跑马灯滚动，速度约每秒 80 px。 |
+| [#1-089](https://sadjjk.github.io/motion-prompt-zh/#1-089) | **动态渐变** | Animated gradient | 背景颜色持续漂移融合 | 首屏使用橙蓝缓慢融合的动态渐变背景，每十秒一轮。 |
+| [#1-090](https://sadjjk.github.io/motion-prompt-zh/#1-090) | **悬浮动画** | Floating animation | 元素轻柔地上下浮动 | 首屏手机图加悬浮动画，上下 8 px，每 2.4 秒起伏一次。 |
+| [#1-091](https://sadjjk.github.io/motion-prompt-zh/#1-091) | **网格光束背景** | Grid-beam background | 光束沿深色网格线滑过的科技感首屏背景 | SaaS 首屏背景铺深色网格：光束沿网格线滑过，鼠标周围半径 90px 的网格亮成靛蓝色。 |
+| [#1-092](https://sadjjk.github.io/motion-prompt-zh/#1-092) | **星空跃迁** | Warp starfield | 星星朝镜头飞来、按住按钮即可跃迁的星空首屏 | 首屏做星空跃迁：280 颗星飞向镜头，按住按钮速度从 0.22 升到 3.2，星星拉成蓝色光线。 |
+| [#1-093](https://sadjjk.github.io/motion-prompt-zh/#1-093) | **粒子连线网** | Constellation mesh | 漂移的点彼此靠近就连线的星座网状背景 | 首屏背景做粒子连线网：72 个点相距 72px 内连线，鼠标 120px 内的点连到指针，点击炸出 9 个新点。 |
+| [#1-094](https://sadjjk.github.io/motion-prompt-zh/#1-094) | **点阵涟漪** | Dot grid ripple | 指针经过处在点阵上荡开涟漪的背景 | 首屏铺 17px 间距的点阵：鼠标划过时每 110ms 留下一圈小涟漪，点击激起大波，以 170px/s 扩散。 |
+| [#1-095](https://sadjjk.github.io/motion-prompt-zh/#1-095) | **粒子聚合成字** | Particles that form words | 成百上千的光点聚成单词、一碰就散开的首屏背景 | 给落地页首屏做一个粒子背景：720 颗光点用弹簧聚成单词，点击换成下一个词，指针靠近时把 60 px 内的光点推开。 |
+| [#1-096](https://sadjjk.github.io/motion-prompt-zh/#1-096) | **旋转光芒** | Sunburst rays | 标题背后缓缓旋转的放射状光芒 | 在获奖标题后面加旋转光芒：12 条放射光纹，每 4.8 秒转过一个光纹间距。 |
+| [#1-097](https://sadjjk.github.io/motion-prompt-zh/#1-097) | **流场线条** | Flow field | 细线顺着看不见的气流流动，光标搅动气流 | 把首屏背景做成流场线条：220 条细线以 60 px/s 顺着流场前进，光标周围卷成漩涡。 |
+| [#1-098](https://sadjjk.github.io/motion-prompt-zh/#1-098) | **融合球** | Metaballs | 漂浮的圆球靠近时像液体一样黏连 | 在 Hero 背景里放 5 颗融合球漂浮，靠近时像液体一样黏在一起，远离时拉细断开。 |
+| [#1-099](https://sadjjk.github.io/motion-prompt-zh/#1-099) | **有机流动色块** | Organic blob | 一团不规则的柔软色块持续缓慢变形 | 在标题后面放一团有机流动色块，轮廓按 4.8 秒周期缓慢蠕动，后面跟一层错开的淡影子。 |
+| [#1-100](https://sadjjk.github.io/motion-prompt-zh/#1-100) | **流动光晕渐变** | Aurora gradient | 几团模糊光晕漂移交融，像极光一样流动 | 给欢迎页背景加流动光晕渐变：4 团大光晕各自缓慢漂移交融，标题保持清楚可读。 |
+| [#1-101](https://sadjjk.github.io/motion-prompt-zh/#1-101) | **渐变光流线条** | Flowing gradient stroke | 曲线上的渐变持续流动，一个光点沿线绕行 | 在 Logo 旁画一条无限符号曲线，线上渐变持续流动，再让一个光点每 4.8 秒沿线绕一圈。 |
+| [#1-102](https://sadjjk.github.io/motion-prompt-zh/#1-102) | **起伏线条** | Wavy lines | 细线像布料一样起伏，光标经过处被拱起 | 背景用起伏线条：水平线由 2 组正弦波叠加像布料一样起伏，光标经过的地方线条被平滑拱起。 |
+
+### 指针交互
+
+#### 按钮 · #1 103–114
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-103](https://sadjjk.github.io/motion-prompt-zh/#1-103) | **磁吸按钮** | Magnetic button | 按钮被附近的光标轻微吸引 | 联系按钮做磁吸效果，向光标移动距离的 0.3×，移开后弹回。 |
+| [#1-104](https://sadjjk.github.io/motion-prompt-zh/#1-104) | **点击涟漪** | Ripple effect | 波纹从按下位置向外扩散 | 提交按钮加点击涟漪，白圆从点击点扩散，并在 0.6 秒内淡出。 |
+| [#1-105](https://sadjjk.github.io/motion-prompt-zh/#1-105) | **按压缩小** | Press / tap feedback | 按下时按钮微微缩小，让点击有按下去的实感 | 所有按钮加按压反馈：按下 0.1 秒缩到 0.97，松开 0.25 秒恢复到 1。 |
+| [#1-106](https://sadjjk.github.io/motion-prompt-zh/#1-106) | **长按确认** | Hold to confirm | 按住按钮直到进度填满才执行操作 | 删除按钮改成长按确认：按住 1.2 秒填满进度才删除，中途松手进度回退。 |
+| [#1-107](https://sadjjk.github.io/motion-prompt-zh/#1-107) | **旋转光边按钮** | Rotating gradient border | 按钮外框的渐变光持续绕圈 | 给主按钮加旋转光边：锥形渐变外框持续绕圈，悬停时加速并亮起外光晕。 |
+| [#1-108](https://sadjjk.github.io/motion-prompt-zh/#1-108) | **果冻弹跳按钮** | Jelly button | 点击后像果冻一样横竖弹动再复原 | 把“加入购物车”按钮做成果冻弹跳：点击后先横向压扁再纵向拉高，0.6 秒内回弹复原。 |
+| [#1-109](https://sadjjk.github.io/motion-prompt-zh/#1-109) | **文字翻滚按钮** | Rolling text button | 悬停时按钮文字逐字往上翻滚替换 | 把「查看作品」按钮做成文字翻滚按钮：每个字错开 0.035 秒往上翻滚，按钮同时反色。 |
+| [#1-110](https://sadjjk.github.io/motion-prompt-zh/#1-110) | **边框描绘按钮** | Border draw button | 悬停时四条边框依次画出围住按钮 | 把「联系我们」按钮做成边框描绘按钮：从左上角起按上、右、下、左的顺序，每段 0.18 秒画出边框。 |
+| [#1-111](https://sadjjk.github.io/motion-prompt-zh/#1-111) | **箭头接力按钮** | Icon slide button | 右侧箭头滑出，新箭头从左侧滑入 | 把「了解更多」按钮做成箭头接力按钮：0.4 秒内右侧箭头滑出，新箭头从左侧滑入，文字右移让位。 |
+| [#1-112](https://sadjjk.github.io/motion-prompt-zh/#1-112) | **展开文字按钮** | Expanding button | 圆形「+」按钮悬停时向右展开出文字 | 新建按钮做成展开文字按钮：悬停 0.5 秒向右展开，加号转 90°，展开过半后文字才淡入。 |
+| [#1-113](https://sadjjk.github.io/motion-prompt-zh/#1-113) | **光标扩散填满按钮** | Direction-aware fill button | 从光标进入处圆形扩散填满，离开时往出口收回 | 把「立即联系」按钮做成光标扩散填满按钮：从进入点 0.55 秒圆形扩散填满，离开时向离开点缩小消失。 |
+| [#1-114](https://sadjjk.github.io/motion-prompt-zh/#1-114) | **霓虹呼吸按钮** | Neon glow button | 霓虹外框与光晕呼吸，悬停时填满并大量发光的按钮 | 把注册按钮做成霓虹呼吸按钮：平时光晕 2.4 秒呼吸一次，悬停时 0.35 秒内填满并大量发光。 |
+
+#### 悬停 · #1 115–122
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-115](https://sadjjk.github.io/motion-prompt-zh/#1-115) | **悬停抬升** | Hover lift | 悬停时元素上浮，阴影加深 | 卡片悬停时用 0.3 秒上浮 8 px，阴影加深。 |
+| [#1-116](https://sadjjk.github.io/motion-prompt-zh/#1-116) | **悬停图片放大** | Image zoom on hover | 固定边框内的照片逐渐放大 | 作品照片悬停时保持边框不变，内部用 0.5 秒放大到 1.1×。 |
+| [#1-117](https://sadjjk.github.io/motion-prompt-zh/#1-117) | **下划线动画** | Underline animation | 悬停链接时，下划线从左侧伸展 | 菜单链接悬停时用 0.3 秒从左侧画出下划线，移开后向右消退。 |
+| [#1-118](https://sadjjk.github.io/motion-prompt-zh/#1-118) | **图标微动画** | Icon micro-animations | 悬停的图标各做符合意思的小动作 | 给工具栏图标加微动画：悬停时铃铛摇、爱心跳、齿轮转 90°、信封打开。 |
+| [#1-119](https://sadjjk.github.io/motion-prompt-zh/#1-119) | **聚焦淡化其他** | Focus dim siblings | 悬停的卡片浮起，其他卡片变淡缩小 | 价格方案卡片做成聚焦淡化其他：悬停的卡上浮 8px，其他卡 0.45 秒内变淡缩小。 |
+| [#1-120](https://sadjjk.github.io/motion-prompt-zh/#1-120) | **Bento 格局展开** | Bento grid expand | 悬停的格子变大，其他格子同步让位 | 功能介绍做成 Bento 格局展开：悬停格所在栏 0.55 秒放大到 2.4fr、所在列放大到 1.8fr。 |
+| [#1-121](https://sadjjk.github.io/motion-prompt-zh/#1-121) | **展开式图片面板** | Expanding panels | 一排窄图片面板中被悬停的一片展开并显示标题 | 分类入口做成展开式图片面板：悬停的一片 0.6 秒展开到其他片的 4 倍宽，展开后再显示标题。 |
+| [#1-122](https://sadjjk.github.io/motion-prompt-zh/#1-122) | **低饱和唤醒** | Saturate on hover | 低饱和的图片悬停时恢复鲜艳并微微放大 | 团队照片做成低饱和唤醒：平时去饱和 90% 且偏暗，悬停 0.6 秒恢复色彩并放大到 1.05。 |
+
+#### 光标 · #1 123–135
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-123](https://sadjjk.github.io/motion-prompt-zh/#1-123) | **光标跟随** | Cursor follower | 图形稍有延迟地跟随鼠标 | 全站增加光标跟随，30 px 橙色圆略微落后于鼠标。 |
+| [#1-124](https://sadjjk.github.io/motion-prompt-zh/#1-124) | **光标聚光边框** | Cursor-lit borders | 跟随光标的光晕把附近卡片的边框照亮 | 给功能卡片行加光标聚光效果：以光标为中心 160 px 的光晕点亮卡片描边，移开后慢慢熄灭。 |
+| [#1-125](https://sadjjk.github.io/motion-prompt-zh/#1-125) | **悬停跟随预览图** | Hover-follow preview | 悬停作品列表的某一行，预览图跟着光标移动 | 作品列表悬停某行时，在光标右侧 18 px 显示预览图，稍微滞后跟随，按水平速度最多倾斜 12°。 |
+| [#1-126](https://sadjjk.github.io/motion-prompt-zh/#1-126) | **光标图片拖尾** | Cursor photo trail | 光标移动时沿路径不断落下照片的趣味效果 | 在首屏标题上做光标图片拖尾：指针每移动 46 px 落下一张照片，0.9 秒后缩小消失。 |
+| [#1-127](https://sadjjk.github.io/motion-prompt-zh/#1-127) | **方向感知遮罩** | Direction-aware overlay | 遮罩从光标进入的方向滑入的作品格 | 作品网格悬停时，说明面板从光标进入的那条边 0.32 秒滑入，离开时朝光标离开的方向滑出。 |
+| [#1-128](https://sadjjk.github.io/motion-prompt-zh/#1-128) | **光标透镜揭示** | Cursor lens reveal | 光标处的圆形透镜里露出另一句隐藏文案 | 在大标题上给光标加一个半径 54 px 的圆形透镜，透镜内露出反色的另一句话；点击后透镜扩满整块区域。 |
+| [#1-129](https://sadjjk.github.io/motion-prompt-zh/#1-129) | **滑动卡片堆叠** | Swipeable card stack | 把叠放的卡片左右滑动来收藏或跳过 | 把 4 张推荐地点卡叠放，拖动时按拖动量 × 0.06° 倾斜，右滑显示「收藏」、左滑显示「跳过」印章，松手后飞出。 |
+| [#1-130](https://sadjjk.github.io/motion-prompt-zh/#1-130) | **3D 倾斜视差图片** | Tilt parallax image | 图片朝光标方向倾斜、景物分层错动形成景深 | 给作品图加 3D 倾斜视差：朝光标最多倾斜 10° 并放大到 1.04，远景到近景分层向反方向位移。 |
+| [#1-131](https://sadjjk.github.io/motion-prompt-zh/#1-131) | **眼睛跟随** | Following eyes | 一对大眼睛的眼珠一直盯着光标，偶尔眨眼 | 给 404 吉祥物加眼睛跟随：眼珠朝光标方向最多偏移 14 px，每 2 秒用 0.15 秒眨一次眼。 |
+| [#1-132](https://sadjjk.github.io/motion-prompt-zh/#1-132) | **光源投影字** | Light source shadow | 光标当作灯，文字的长阴影朝反方向延伸 | 给标题加光源投影字：把光标当成光源，让 18 层阴影朝光标的反方向延伸。 |
+| [#1-133](https://sadjjk.github.io/motion-prompt-zh/#1-133) | **反色混合光标** | Blend difference cursor | 圆形光标经过文字时放大，重叠处颜色反转 | 标题区使用反色混合光标：白色圆以差值混合叠加，移到标题上时半径用 0.45 秒从 12 px 放大到 46 px。 |
+| [#1-134](https://sadjjk.github.io/motion-prompt-zh/#1-134) | **情境标签光标** | Contextual cursor | 移到不同内容上变成带动作文字的大圆 | 作品列表使用情境标签光标：平时是半径 5 px 的小点，移到卡片上弹性放大成半径 34 px 的圆并显示「播放」「查看」等文字。 |
+| [#1-135](https://sadjjk.github.io/motion-prompt-zh/#1-135) | **十字准星坐标** | Crosshair cursor | 横竖细线跟随光标，旁边实时显示坐标 | 给主视觉加十字准星坐标：横竖两条线贯穿画面交于光标，右下方用等宽字显示换算到 1920 × 1080 的坐标。 |
+
+#### 拟物与卡片 · #1 136–145
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-136](https://sadjjk.github.io/motion-prompt-zh/#1-136) | **翻页书** | Page flip | 书页以书脊为轴翻到另一侧 | 把产品目录做成翻页书：点右页后以书脊为轴 0.7 秒翻到左侧。 |
+| [#1-137](https://sadjjk.github.io/motion-prompt-zh/#1-137) | **对折邀请卡** | Folding card | 对折卡片翻开封面露出内页文字 | 邀请函做成对折卡：点封面后以左边为轴打开，内页文字依次淡入。 |
+| [#1-138](https://sadjjk.github.io/motion-prompt-zh/#1-138) | **发牌展开** | Card deal | 卡片依次发出并展开成扇形 | 点“发牌”后 5 张卡片从底部依次发出，回弹展开成约 ±24° 的扇形。 |
+| [#1-139](https://sadjjk.github.io/motion-prompt-zh/#1-139) | **拍立得洗牌** | Photo stack shuffle | 叠放照片的顶张抽出插回底部 | 把回忆照片做成拍立得洗牌：每次点击把顶张向右抽出，再插回最底下。 |
+| [#1-140](https://sadjjk.github.io/motion-prompt-zh/#1-140) | **全息闪卡** | Holographic card | 随光标倾斜、表面炫彩箔光与反光流动的收藏卡 | 把收藏卡做成全息闪卡：随光标位置最多倾斜 13°，炫彩箔光与反光随角度流动。 |
+| [#1-141](https://sadjjk.github.io/motion-prompt-zh/#1-141) | **刮刮乐揭示** | Scratch reveal | 刮开表层露出下方内容的刮刮卡 | 用刮刮乐揭示优惠券：用 30 px 圆头笔刷刮掉银色表层，刮得够多后剩余表层 0.5 秒淡出。 |
+| [#1-142](https://sadjjk.github.io/motion-prompt-zh/#1-142) | **翻牌配对游戏** | Memory match | 翻开两张牌，不同翻回，相同留下 | 用翻牌配对游戏展示小游戏：4 × 2 张牌每次 0.4 秒翻开，不同则 0.8 秒后翻回，相同则变强调色并弹到 1.12 倍。 |
+| [#1-143](https://sadjjk.github.io/motion-prompt-zh/#1-143) | **撕票根** | Tear-off ticket stub | 拖动票根沿打孔线撕下，主票面盖上检票印章 | 把活动购票成功页做成撕票根：拖住右侧 82 px 宽的票根往下拉，1.2 秒内沿打孔线撕开并掉落，主票面随后盖上「已检票」印章。 |
+| [#1-144](https://sadjjk.github.io/motion-prompt-zh/#1-144) | **碎纸机删除** | Shredder delete | 把文件拖进碎纸机粉碎删除，列表随后补位 | 把删除文件做成碎纸机删除：拖起的行缩成 0.6 倍卡片被吸进进纸口，机身震动，15 条纸条卷曲着落进纸篓，下方行上移 33 px 补位。 |
+| [#1-145](https://sadjjk.github.io/motion-prompt-zh/#1-145) | **文件夹弹出卡片** | Folder pop-out cards | 悬停时文件夹翻开，里面的卡片弹到四周并轻轻浮动 | 把作品集文件夹做成悬停弹出卡片：前片 0.5 秒向前翻开，3 张卡片间隔 0.17 秒带旋转弹到左、上、右三处，并以 2.6 px 幅度轻轻浮动。 |
+
+#### 液态交互 · #1 146–148 · 197
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-146](https://sadjjk.github.io/motion-prompt-zh/#1-146) | **液态分裂菜单** | Gooey morph menu | 操作按钮像液体一样从“+”按钮里被拉出，再拉断成独立的按钮 | 点“+”按钮后展开液态菜单：三个操作按钮像液体一样拉出并分离，各 550 ms，依次错开 40 ms，带一点回弹。 |
+| [#1-147](https://sadjjk.github.io/motion-prompt-zh/#1-147) | **液态拖尾** | Gooey trail | 移动的指示块被拉长，身后拖出液滴尾巴 | 把标签切换的指示块做成液态：移动时拉长并拖出液滴尾巴，每次移动 0.45 秒，尾巴滞后 0.09 秒。 |
+| [#1-148](https://sadjjk.github.io/motion-prompt-zh/#1-148) | **液态弯曲** | Gooey bend | 被拖动的卡片向运动反方向柔软地弯曲 | 拖动卡片时让它像液体一样向运动反方向弯曲，弯曲量与速度成正比，最多 9 px。 |
+| [#1-197](https://sadjjk.github.io/motion-prompt-zh/#1-197) | **液态玻璃透镜** | Liquid glass lens | 玻璃透镜滑过内容，在边缘把背景弯折并分出彩边 | 让胶囊形液态玻璃透镜在标题和色块上左右来回滑动：中部原样透出背景，边缘 26 px 内背景向内弯折，红绿蓝错开形成彩边。 |
+
+### 反馈
+
+#### 操作反馈 · #1 149–158
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-149](https://sadjjk.github.io/motion-prompt-zh/#1-149) | **支付成功对勾** | Payment ring & check | 支付按钮变成环形进度，最后画出成功对勾 | 点击支付按钮后收成 44 px 圆，环形进度 2.6 秒画满一圈，转绿并画出对勾，然后收据卡从下方滑入。 |
+| [#1-150](https://sadjjk.github.io/motion-prompt-zh/#1-150) | **点赞爱心迸发** | Heart burst like | 点赞时爱心跳动、圆环和彩点迸发的反馈 | 点赞时让爱心 0.7 秒先缩后弹，迸出粉色圆环和 7 对彩色小点，点赞数向上滚动加 1。 |
+| [#1-151](https://sadjjk.github.io/motion-prompt-zh/#1-151) | **数字逐位滚动** | Rolling digits | 只有变化的数位上下滚动来更新的数字计数器 | 实时访客数变化时，只让变了的位滚动 0.9 秒，从左到右每位延迟 45 毫秒。 |
+| [#1-152](https://sadjjk.github.io/motion-prompt-zh/#1-152) | **加入购物车飞入** | Add to cart fly | 商品缩略图沿弧线飞进购物车，数量跳一下 | 点「加入购物车」后让商品图飞入购物车：0.75 秒沿弧线飞行并缩到 0.15，抵达后角标弹一下。 |
+| [#1-153](https://sadjjk.github.io/motion-prompt-zh/#1-153) | **纸飞机发送** | Send plane button | 按下后纸飞机飞走、文字换成「已发送」的发送按钮 | 按下发送时让纸飞机飞走：先向后蓄力，再加速飞向右上方，文字换成「已发送」，约 1.3 秒后换回。 |
+| [#1-154](https://sadjjk.github.io/motion-prompt-zh/#1-154) | **星星评分** | Star rating | 星星由左到右依次填满并弹跳的评分 | 把评价区做成星星评分：点第 4 颗时，第 1 到 4 颗每隔 0.08 秒依次填满，各自弹到 1.35 倍。 |
+| [#1-155](https://sadjjk.github.io/motion-prompt-zh/#1-155) | **滑动确认** | Slide to confirm | 把手拖到底才确认、中途松开会弹回的操作 | 把付款按钮做成滑动确认：超过 85% 松开即确认，不到则把手弹回起点。 |
+| [#1-156](https://sadjjk.github.io/motion-prompt-zh/#1-156) | **聊天消息出现** | Chat message pop | 输入中的点变成消息，再弹出你的回复 | 用聊天消息出现展示对话界面：对方先显示输入中的点 1.75 秒，再把气泡换成文字，然后用 0.4 秒从右下角弹出你的回复。 |
+| [#1-157](https://sadjjk.github.io/motion-prompt-zh/#1-157) | **成就徽章解锁** | Badge unlock | 六角徽章描边画出，星星盖上，光芒放射 | 成就页加入成就徽章解锁：0.8 秒画出六角外框，星星从 3 倍大像盖章一样落下，再放射 12 道光芒。 |
+| [#1-158](https://sadjjk.github.io/motion-prompt-zh/#1-158) | **复制成功反馈** | Copy feedback | 点复制后图标旋转变成勾，弹出提示 | 给代码块加复制成功反馈：按下后图标旋转 90° 变成勾，上方弹出「已复制」，1.5 秒后恢复。 |
+
+#### 进度与图标 · #1 159–166
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-159](https://sadjjk.github.io/motion-prompt-zh/#1-159) | **加载旋转指示器** | Spinner | 旋转圆环表示正在等待 | 发送时在表单上显示加载旋转指示器，每秒转略多于一圈，完成后换成蓝色对勾。 |
+| [#1-160](https://sadjjk.github.io/motion-prompt-zh/#1-160) | **图标安装进度** | Install progress on icon | App 图标上的暗罩顺时针扫开，表示安装进度 | App 下载时，让图标上的暗罩随进度顺时针扫开，点击可暂停；安装包 186 MB。 |
+| [#1-161](https://sadjjk.github.io/motion-prompt-zh/#1-161) | **不定转确定进度** | Indeterminate to determinate | 排队时的不定进度条直接转为分步的确定进度 | 部署页排队时用 1.6 秒一周期的不定进度条，开始构建后同一根进度条切换为 5 个步骤的确定进度。 |
+| [#1-162](https://sadjjk.github.io/motion-prompt-zh/#1-162) | **天气图标动画** | Animated weather icons | 晴、云、雨、雷图标各自小幅循环动 | 让天气预报图标动起来：太阳光芒自转、云朵飘动、雨滴错时落下、闪电闪烁。 |
+| [#1-163](https://sadjjk.github.io/motion-prompt-zh/#1-163) | **指针时钟** | Analog clock | 秒针逐格跳动并带一点回弹的指针时钟 | 在营业时间旁放一个指针时钟，秒针每跳一格 0.15 秒内略超过再弹回。 |
+| [#1-164](https://sadjjk.github.io/motion-prompt-zh/#1-164) | **液体填充图标** | Liquid fill icon | 图标内液面带波浪上升，百分比同步增加 | 用水滴形液体填充图标显示上传进度：带波浪的液面 3.7 秒填满，旁边百分比从 0% 数到 100%。 |
+| [#1-165](https://sadjjk.github.io/motion-prompt-zh/#1-165) | **任务状态图标** | Task status icon | 同一个图标在等待、执行中、完成、失败之间连贯变形 | 给智能体的任务列表加任务状态图标：等待时是 12 段虚线环，开始后 0.35 秒收拢成旋转的进度弧，完成时填绿画勾，失败时变红画叉并轻轻抖动。 |
+| [#1-166](https://sadjjk.github.io/motion-prompt-zh/#1-166) | **方格波浪加载** | Grid wave loader | 亮波反复扫过成排方格，完成时方格合并成一条进度条 | 把文件索引的加载做成方格波浪加载：12 列 × 2 行方格上一道亮波从左往右扫，速度随进度从每秒 0.6 次加快到 1.6 次，完成时全部点亮并合并成一条进度条，显示「完成 · 1,284 / 1,284 个文件」。 |
+
+#### AI 状态 · #1 167–178
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-167](https://sadjjk.github.io/motion-prompt-zh/#1-167) | **环绕光束** | Border beam | 一道彩色光沿边框绕行，表示正在处理 | AI 生成回复期间，给输入框加环绕光束，光沿边框绕一圈 4.8 秒。 |
+| [#1-168](https://sadjjk.github.io/motion-prompt-zh/#1-168) | **底边光束** | Line beam | 光沿输入框底边左右扫动，表示正在搜索 | 提交搜索到结果返回之间，给搜索框加底边光束，光沿底边左右往返，单程 2.2 秒。 |
+| [#1-169](https://sadjjk.github.io/motion-prompt-zh/#1-169) | **内呼吸光晕** | Inner pulse | 彩色光在按钮内部明暗呼吸，吸引注意 | 给“Ask AI”按钮加内呼吸光晕，彩光在按钮内部明暗呼吸，一次 2.4 秒，不溢出按钮。 |
+| [#1-170](https://sadjjk.github.io/motion-prompt-zh/#1-170) | **外扩呼吸光晕** | Outer pulse | 彩光在输入框外侧扩散又收回，引导用户在这里输入 | 给首页主输入框加外扩呼吸光晕，光向外扩 4–18 px，一次呼吸 2.4 秒。 |
+| [#1-171](https://sadjjk.github.io/motion-prompt-zh/#1-171) | **思考球·运转** | Thinking orb: working | 粒子沿倾斜轨道绕点阵球运行，表示 AI 正在工作 | 工具执行期间，在“Working…”旁放思考球，粒子沿三条轨道绕点阵球运行。 |
+| [#1-172](https://sadjjk.github.io/motion-prompt-zh/#1-172) | **思考球·搜索** | Thinking orb: searching | 一条亮经线扫过点阵地球，表示 AI 正在搜索 | 联网搜索期间，在“Searching the web…”旁放思考球，一条光线扫过点阵地球。 |
+| [#1-173](https://sadjjk.github.io/motion-prompt-zh/#1-173) | **思考球·聆听** | Thinking orb: listening | 纬线环像声波一样起伏，表示正在聆听语音 | 语音输入开麦期间，在“Listening…”旁放思考球，纬线环像声波一样起伏。 |
+| [#1-174](https://sadjjk.github.io/motion-prompt-zh/#1-174) | **思考球·连接** | Thinking orb: connecting | 球面节点依次连线、数据沿线流动，表示正在连接服务 | 连接外部服务期间，在“Connecting sources…”旁放思考球，节点依次连线，然后数据沿线流动。 |
+| [#1-175](https://sadjjk.github.io/motion-prompt-zh/#1-175) | **思考球·写作** | Thinking orb: composing | 点阵波带绕球起伏流动，表示 AI 正在写作 | AI 生成文字期间，在“Writing…”旁放思考球，点阵波带绕球起伏流动。 |
+| [#1-176](https://sadjjk.github.io/motion-prompt-zh/#1-176) | **思考过程折叠** | Collapsible thinking | AI 思考时逐条列出推理步骤，结束后收成一行再给出回答 | 给 AI 回复卡片加思考过程折叠：「正在思考」旁边计秒，每 0.7 秒出现一条推理步骤，结束后标题改成「已思考 4.8 秒」，步骤向上收起，再淡入回答的第一行。 |
+| [#1-177](https://sadjjk.github.io/motion-prompt-zh/#1-177) | **AI 生图分阶段进度** | Staged image generation | 固定尺寸的图片框里，画面由模糊色块经马赛克逐级变清晰 | 把生图等待做成 AI 生图分阶段进度：228 × 136 px 的图片框不变，从模糊色块经 6、12、24、48、96 列马赛克变成清晰图，下方显示进度条和「构图 › 上色 › 细化 › 完成」。 |
+| [#1-178](https://sadjjk.github.io/motion-prompt-zh/#1-178) | **按住说话录音胶囊** | Hold-to-talk capsule | 按住麦克风按钮展开成录音胶囊，松开收回并弹出转写文字 | 给语音输入加按住说话录音胶囊：按住 68 px 的圆形麦克风按钮后横向展开成 304 px 胶囊，显示红点、均衡器竖条和计时；松开后竖条收成一条线，胶囊缩回圆钮，上方弹出转写气泡。 |
+
+### 文字与数据
+
+#### 交互文字 · #1 179–186
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-179](https://sadjjk.github.io/motion-prompt-zh/#1-179) | **词立方翻滚** | Rolling word cube | 关键词贴在立方体各面上、依次翻滚切换的标题 | 在「我们做什么」标题里放一个词立方：4 个关键词每 1.6 秒向下翻一面，翻转 0.9 秒、两端带回弹。 |
+| [#1-180](https://sadjjk.github.io/motion-prompt-zh/#1-180) | **环形文字徽章** | Circular text badge | 文字沿圆周旋转、悬停和点击会加速的环形徽章 | 给作品集首页加一个环形文字徽章：平时每秒转 18°，悬停加速到 150°/s，每点一下换一段文字。 |
+| [#1-181](https://sadjjk.github.io/motion-prompt-zh/#1-181) | **字母飞散重组** | Scatter & reassemble letters | 点击后字母四散飞出、再像弹簧一样归位的标题字 | 把品牌标题做成可玩的字母：点一下 7 个字母四散弹飞、撞墙反弹，1.3 秒后像弹簧一样归位。 |
+| [#1-182](https://sadjjk.github.io/motion-prompt-zh/#1-182) | **逐词卡点字幕** | Word-by-word kinetic captions | 按语速逐词弹出、重点词放大变色的视频字幕 | 给产品介绍视频做逐词卡点字幕：每词约 0.3 秒弹出，重点词放大到 1.45 倍并变黄。 |
+| [#1-183](https://sadjjk.github.io/motion-prompt-zh/#1-183) | **手绘圈画标注** | Hand-drawn annotations | 用红笔在句中关键词上手绘圈画的标注 | 给落地页标语里的 3 个关键词加手绘红笔标注，可切换圈出、方框、删除线、下划线，每词间隔 0.24 秒画出。 |
+| [#1-184](https://sadjjk.github.io/motion-prompt-zh/#1-184) | **剧透沙粒遮挡** | Spoiler sand cover | 剧透内容盖着闪烁沙粒、点击后炸开显出的遮挡 | 聊天里的剧透内容盖一层闪烁沙粒，点一下沙粒以每帧 2–5px 炸开，文字 0.5 秒显出。 |
+| [#1-185](https://sadjjk.github.io/motion-prompt-zh/#1-185) | **阅读句子聚焦** | Sentence reading focus | 只让指针下那句话保持清晰的阅读聚焦模式 | 长文页面加阅读聚焦：只让鼠标下那句清晰，其余降到 25% 透明度并模糊，0.45 秒过渡。 |
+| [#1-186](https://sadjjk.github.io/motion-prompt-zh/#1-186) | **字母弹簧涟漪** | Rippling letters | 指针划过时字母像弹簧一样起伏的标题 | 标题字母做弹簧涟漪：鼠标划过时附近字母按 σ 34px 的高斯范围抬起，再弹回原位。 |
+
+#### 数据图表 · #1 187–196
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#1-187](https://sadjjk.github.io/motion-prompt-zh/#1-187) | **等轴数据积木** | Isometric data blocks | 用等轴积木柱展示地区 × 月份数据的立体图表 | 用等轴积木展示 4 个地区 × 6 个月的数据，从最前排开始每排错开 70 毫秒弹起；悬停时只保留同行同列的颜色。 |
+| [#1-188](https://sadjjk.github.io/motion-prompt-zh/#1-188) | **气泡分组重排** | Regrouping bubbles | 气泡互相推挤、按所选条件重新分组的图表 | 用气泡表示 36 个项目（大小代表预算），切换「按团队」「按状态」时气泡互相推挤，分成 4 群或 3 群。 |
+| [#1-189](https://sadjjk.github.io/motion-prompt-zh/#1-189) | **表格实时插入** | Live table insert | 新行实时滑入、排序时各行互相穿过的表格 | 实时订单表中，新订单从顶部滑入并闪一下紫色，1.4 秒褪去；点表头排序时各行 0.45 秒移动到新位置。 |
+| [#1-190](https://sadjjk.github.io/motion-prompt-zh/#1-190) | **排名赛跑柱状图** | Bar chart race | 按年份推进、排名不断交换的横向柱状赛跑图 | 把 8 种饮品 2019–2026 年的销量做成排名赛跑柱状图，只显示前 6 名，每年播放 0.6 秒，可拖动年份滑块。 |
+| [#1-191](https://sadjjk.github.io/motion-prompt-zh/#1-191) | **华夫格翻转** | Waffle chart flip | 100 格华夫图中只有变了的格子翻转来更新占比 | 把 100 人的通勤方式做成 10 × 10 华夫图，切换年龄段时只让换了归属的格子沿对角线波浪翻转，每格 380 毫秒。 |
+| [#1-192](https://sadjjk.github.io/motion-prompt-zh/#1-192) | **季度气泡移动** | Quarterly bubble motion | 气泡随季度沿各自路径移动的时间轴气泡图 | 把 8 个 App 画成月活用户（对数轴）× 30 日留存的气泡图，按季度移动气泡，拖动背景时每 8 px 前进或后退 1 个季度。 |
+| [#1-193](https://sadjjk.github.io/motion-prompt-zh/#1-193) | **折线图绘制** | Line chart draw | 折线由左到右画出、数据点依次弹出的图表进场 | 把月营收做成折线图绘制：折线 1.6 秒由左到右画出，线头经过时数据点依次弹出。 |
+| [#1-194](https://sadjjk.github.io/motion-prompt-zh/#1-194) | **环形图分段** | Donut chart segments | 环形图的弧段一段接一段画出的进场 | 把流量来源做成环形图分段：从正上方顺时针画，每段 0.45 秒，图例从右侧依次滑入。 |
+| [#1-195](https://sadjjk.github.io/motion-prompt-zh/#1-195) | **数据仪表卡片** | Stat cards | 数据卡依次浮上，数字累加，迷你折线画出 | 用数据仪表卡片作为仪表盘开场：3 张卡片相隔 0.12 秒从下方 30 px 浮上，数字用 1.2 秒累加。 |
+| [#1-196](https://sadjjk.github.io/motion-prompt-zh/#1-196) | **表格十字高亮** | Table crosshair highlight | 指到的格子整行整列亮起，该格放大 | 给对比表加表格十字高亮：指到的格子所在行与列用 0.25 秒铺上淡强调色，该格放大到 1.12 倍。 |
+
+## 2 动态图形
+
+### 运动原理
+
+#### 入场与缓动 · #2 001–009
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#2-001](https://sadjjk.github.io/motion-prompt-zh/#2-001) | **弹性弹入** | Pop-in | 带轻微回弹地出现 | 让标志以弹性弹入方式出现，约 0.4 秒，稍微超出目标尺寸再回落。 |
+| [#2-002](https://sadjjk.github.io/motion-prompt-zh/#2-002) | **交错入场** | Stagger | 多个元素依次出现，时间略有错开 | 让五张卡片交错入场，从左到右每张间隔 0.08 秒。 |
+| [#2-003](https://sadjjk.github.io/motion-prompt-zh/#2-003) | **遮罩揭示** | Mask reveal | 文字从不可见的边缘后方升起 | 标题从下方以遮罩揭示方式升起，持续 0.6 秒，各行略微错开。 |
+| [#2-004](https://sadjjk.github.io/motion-prompt-zh/#2-004) | **缓动** | Easing | 运动有加速与减速，而非始终匀速 | 给这段运动加缓动，用 ease-out，在停止前逐渐减速。 |
+| [#2-005](https://sadjjk.github.io/motion-prompt-zh/#2-005) | **过冲回弹** | Overshoot | 先超过目标位置，再回落稳定 | 仪表指针加过冲，超过目标约 10% 后再回落。 |
+| [#2-006](https://sadjjk.github.io/motion-prompt-zh/#2-006) | **挤压与拉伸** | Squash & stretch | 通过压扁和拉长表现弹性 | 球落地时加挤压与拉伸，压扁幅度轻一些。 |
+| [#2-007](https://sadjjk.github.io/motion-prompt-zh/#2-007) | **预备动作** | Anticipation | 先短暂反向蓄力，再向前运动 | 按钮向右飞出前加预备动作，先用 0.3 秒轻微后退并压缩，再冲出。 |
+| [#2-008](https://sadjjk.github.io/motion-prompt-zh/#2-008) | **跟随惯性** | Follow-through | 主体停下后，附属部分继续摆动 | 角色停止后，头发与旗子保留约 0.5 秒的跟随惯性，继续摆动再稳定。 |
+| [#2-009](https://sadjjk.github.io/motion-prompt-zh/#2-009) | **落地弹跳** | Bounce | 落下后反复弹起，幅度逐渐降低 | 球从上方落下，弹跳三次，每次高度都比上次低。 |
+
+#### 节奏与循环 · #2 010–018
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#2-010](https://sadjjk.github.io/motion-prompt-zh/#2-010) | **液态运动** | Liquid motion | 形状像液体一样运动并融合 | 标志用液态运动入场，让液滴聚拢成形。 |
+| [#2-011](https://sadjjk.github.io/motion-prompt-zh/#2-011) | **运动拖尾** | Motion trail | 移动物体身后留下逐渐消失的轨迹 | 给飞行圆球加运动拖尾，身后五个副本逐渐淡出。 |
+| [#2-012](https://sadjjk.github.io/motion-prompt-zh/#2-012) | **视差运动** | Parallax | 远近图层以不同速度移动，形成空间深度 | 把风景分成三层做视差滚动，越近的图层移动越快。 |
+| [#2-013](https://sadjjk.github.io/motion-prompt-zh/#2-013) | **不规则抖动** | Wiggle | 持续细小、不规则地晃动 | 通知铃响起时持续轻微抖动，幅度不超过约 10°。 |
+| [#2-014](https://sadjjk.github.io/motion-prompt-zh/#2-014) | **脉冲缩放** | Pulse | 尺寸像心跳一样周期起伏 | 心形图标做脉冲缩放，每 1.2 秒放大约 10% 再恢复。 |
+| [#2-015](https://sadjjk.github.io/motion-prompt-zh/#2-015) | **运动路径** | Motion path | 沿预先定义的曲线移动 | 纸飞机沿这条运动路径飞行四秒，朝向始终跟随运动方向。 |
+| [#2-016](https://sadjjk.github.io/motion-prompt-zh/#2-016) | **往返循环** | Ping-pong loop | 正向播放后再反向播放，持续重复 | 加载圆点做往返循环，单程一秒。 |
+| [#2-017](https://sadjjk.github.io/motion-prompt-zh/#2-017) | **定格动画风格** | Stop-motion style | 通过跳帧产生逐格、顿挫的运动 | 这段运动做定格动画风格，每秒八帧，每帧加轻微抖动。 |
+| [#2-018](https://sadjjk.github.io/motion-prompt-zh/#2-018) | **手绘线条抖动** | Line boil | 手绘轮廓在逐帧重画时轻微变化 | 手绘插画加线条抖动，每秒十帧，线条仅移动 2–3 px。 |
+
+### 文字动画
+
+#### 逐字与排版 · #2 019–029 · 113–114
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#2-019](https://sadjjk.github.io/motion-prompt-zh/#2-019) | **打字机效果** | Typewriter | 文字像键盘输入一样逐字出现 | 这句话用打字机效果呈现，每字 0.05 秒，末尾加光标。 |
+| [#2-020](https://sadjjk.github.io/motion-prompt-zh/#2-020) | **数字递增** | Count-up | 数字快速增长，最终停在目标值 | 数字从 0 递增到 1,280，用 1.5 秒完成，接近终点时减速。 |
+| [#2-021](https://sadjjk.github.io/motion-prompt-zh/#2-021) | **动态字体编排** | Kinetic typography | 文字随语义和节奏移动、缩放、旋转 | 把这段旁白做成动态字体编排，重读词放大，并在节拍上落定。 |
+| [#2-022](https://sadjjk.github.io/motion-prompt-zh/#2-022) | **文字乱码解码** | Text scramble | 字符随机变化，随后逐个锁定为目标文字 | 标题用文字乱码解码入场，随机字符持续约一秒，再从左到右锁定。 |
+| [#2-023](https://sadjjk.github.io/motion-prompt-zh/#2-023) | **可变字重动画** | Variable font animation | 字形粗细连续变化 | 标题做可变字重动画，用一秒从 Thin 变到 Black，字重从 100 到 900。 |
+| [#2-024](https://sadjjk.github.io/motion-prompt-zh/#2-024) | **文字逐字变换** | Text morph | 相同的字留下平移，只有不同的字替换 | 保存按钮的文字变化用文字逐字变换：相同的字平移 0.5 秒，新字错开 0.06 秒翻入，按钮宽度同步变化。 |
+| [#2-025](https://sadjjk.github.io/motion-prompt-zh/#2-025) | **卡拉 OK 小球** | Karaoke bouncing ball | 跳动小球逐字点亮歌词 | 歌词加卡拉 OK 小球：发光小球每 0.38 秒跳一个字，落到的字亮起。 |
+| [#2-026](https://sadjjk.github.io/motion-prompt-zh/#2-026) | **字距展开** | Tracking expand | 叠在一起的字散开成正常字距 | 标题用字距展开：从叠在一起的模糊状态，约 1 秒内字距散开并变清晰。 |
+| [#2-027](https://sadjjk.github.io/motion-prompt-zh/#2-027) | **划掉改写** | Strike and rewrite | 一笔划掉旧词，再手写出新词 | 文案里的「便宜」用一笔划掉，下面手写出「实惠」，逐字写出。 |
+| [#2-028](https://sadjjk.github.io/motion-prompt-zh/#2-028) | **多语问候切换** | Multilingual greeting | 不同语言的问候轮流出现 | 首屏放多语问候切换：每隔一秒多换一种语言，模糊淡入淡出，外框宽度平滑跟随新词。 |
+| [#2-029](https://sadjjk.github.io/motion-prompt-zh/#2-029) | **机场翻牌** | Split-flap board | 机场出发信息板式的翻牌字画面 | 做一块机场出发翻牌：3 行航班，每格翻 1.6 秒后错峰停住。 |
+| [#2-113](https://sadjjk.github.io/motion-prompt-zh/#2-113) | **弹幕** | Danmaku comments | 观众评论从右往左横穿视频画面 | 在海景视频上铺 5 行弹幕，每行速度不同、互相超车；几条用黄色、浅绿，自己发的一条带白框，人物周围把弹幕抠掉，不挡脸。 |
+| [#2-114](https://sadjjk.github.io/motion-prompt-zh/#2-114) | **金句卡** | Quote card | 纸色卡片上引号落下，句子逐行出现，关键词被刷上色块 | 把一句话做成金句卡：纸色卡片弹出，红色大引号从上方落下回弹，两行文字依次从下方升起，「不必要的」刷上黄色色块，最后右下角出现出处。 |
+
+#### 变形与质感 · #2 030–041
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#2-030](https://sadjjk.github.io/motion-prompt-zh/#2-030) | **波浪文字** | Wave text | 字符依次上下起伏，形成波浪 | 标志字符做波浪文字，依次略微延迟，上下约 20 px。 |
+| [#2-031](https://sadjjk.github.io/motion-prompt-zh/#2-031) | **沿路径文字** | Text on a path | 文字沿线条或曲线流动 | 标语沿波浪路径从左向右滚动，每五秒走完一轮。 |
+| [#2-032](https://sadjjk.github.io/motion-prompt-zh/#2-032) | **文字遮罩** | Text mask | 用文字轮廓裁出内部图像 | 把 OCEAN 作为文字遮罩，内部播放海面素材，最后一秒显露完整画面。 |
+| [#2-033](https://sadjjk.github.io/motion-prompt-zh/#2-033) | **水面倒影** | Water reflection | 文字下方有摇晃的倒置倒影 | 给标题加水面倒影：细水平线下是向下渐隐、摇晃的倒置文字。 |
+| [#2-034](https://sadjjk.github.io/motion-prompt-zh/#2-034) | **文字旗帜** | Flag wave | 文字像旗子一样迎风飘动 | 口号做成文字旗帜：左边立旗杆，字依次波浪飘动。 |
+| [#2-035](https://sadjjk.github.io/motion-prompt-zh/#2-035) | **墨水晕开** | Ink bleed | 晕开的墨团收敛成字，再晕散消失 | 标题做墨水晕开：每字从模糊墨团收成清晰字形，最后再晕开消失。 |
+| [#2-036](https://sadjjk.github.io/motion-prompt-zh/#2-036) | **液体填满** | Liquid fill | 空心字被液体由下往上填满 | 标题做液体填满：描边空心字在 3 秒内被波动液体由下往上填满，最后清空。 |
+| [#2-037](https://sadjjk.github.io/motion-prompt-zh/#2-037) | **激光切断** | Laser cut | 激光把文字上下切开错位 | 标题用激光切断：发光线横扫中线，上下两半斜着错开，停一下再合回。 |
+| [#2-038](https://sadjjk.github.io/motion-prompt-zh/#2-038) | **文字扇** | Text fan | 同一个字像扇子一样展开 | 把「扇」字复制 7 份做文字扇：以下方一点为轴像扇子一样展开再收拢。 |
+| [#2-039](https://sadjjk.github.io/motion-prompt-zh/#2-039) | **霓虹闪烁** | Neon flicker | 霓虹灯管闪几下后点亮 | 招牌风标题加霓虹闪烁：先不规则闪 2、3 下再点亮，偶尔有一个字接触不良地闪。 |
+| [#2-040](https://sadjjk.github.io/motion-prompt-zh/#2-040) | **残影堆叠** | Echo stack | 空心描边副本阶梯状错开成残影 | 标题加残影堆叠：5 层空心描边副本依次向右上展开，停一下再收回重叠。 |
+| [#2-041](https://sadjjk.github.io/motion-prompt-zh/#2-041) | **封锁胶带** | Caution tape cross | 印字的警示胶带交叉成 X | 用 2 条黄底黑边的警示胶带交叉成 X，胶带上重复的「禁止进入」反向滑动，并加投影。 |
+
+#### 冲击与物理 · #2 042–048
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#2-042](https://sadjjk.github.io/motion-prompt-zh/#2-042) | **闪电砸落** | Lightning strike | 文字伴随闪电强光重重砸下 | 标题用闪电砸落登场：两次闪白加一道闪电，文字从 2.4 倍砸下并轻微震动。 |
+| [#2-043](https://sadjjk.github.io/motion-prompt-zh/#2-043) | **重力反转** | Gravity flip | 文字往上掉、倒立后再落回 | logo 文字做重力反转：每字往上掉并倒立，停一下再落回并小弹。 |
+| [#2-044](https://sadjjk.github.io/motion-prompt-zh/#2-044) | **崩落** | Crumble | 文字崩塌坠落，再落回重组 | 片尾文字做崩落：每字先歪斜，旋转下坠淡出，再从上方落回。 |
+| [#2-045](https://sadjjk.github.io/motion-prompt-zh/#2-045) | **印章** | Rubber stamp | 带框印章啪地盖上 | 在文件画面上盖两枚印章：从 2.4 倍斜着砸下，印面带斑驳质感。 |
+| [#2-046](https://sadjjk.github.io/motion-prompt-zh/#2-046) | **拉霸** | Slot machine | 滚轮快速转动后从左到右停在结果 | 结果揭晓做成拉霸：4 个滚轮转动，从左到右减速并略带回弹停下。 |
+| [#2-047](https://sadjjk.github.io/motion-prompt-zh/#2-047) | **钟摆摇晃** | Swing letters | 吊在一点上的字像钟摆一样摆动 | 角色名用钟摆摇晃：每个字吊在上方一点，±14° 左右摆，相位错开。 |
+| [#2-048](https://sadjjk.github.io/motion-prompt-zh/#2-048) | **倒数砸落** | Countdown slam | 倒数数字逐个从大处砸下 | 开场加倒数砸落：3、2、1、GO! 每个 0.75 秒，从 3 倍砸下并轻微回弹。 |
+
+#### 空间文字 · #2 049–054
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#2-049](https://sadjjk.github.io/motion-prompt-zh/#2-049) | **文字圆柱** | Text cylinder | 同一个字环绕成圆柱并旋转 | 3 个字做成文字圆柱，相邻反向旋转，中间那根用强调色。 |
+| [#2-050](https://sadjjk.github.io/motion-prompt-zh/#2-050) | **文字隧道** | Text tunnel | 像穿过一层层文字组成的隧道 | 开场加文字隧道：同一个词的多层副本从中心依次放大并冲出画面。 |
+| [#2-051](https://sadjjk.github.io/motion-prompt-zh/#2-051) | **立体字** | Extruded text | 有厚度的 3D 字转动露出侧面 | 把标题做成立体字，绕竖轴约 5 秒转一圈，能看到厚度。 |
+| [#2-052](https://sadjjk.github.io/motion-prompt-zh/#2-052) | **字之球** | Sphere of words | 汉字贴满球面并不停旋转的文字球画面 | 做一个字之球：160 个《千字文》汉字贴在球面上，6.4 秒自转一圈。 |
+| [#2-053](https://sadjjk.github.io/motion-prompt-zh/#2-053) | **文字海浪** | Type ocean | 字母铺成海面并随波起伏的文字海浪画面 | 做一片文字海浪：11 排 × 31 列字母随 2 组波起伏，浪尖变白加粗。 |
+| [#2-054](https://sadjjk.github.io/motion-prompt-zh/#2-054) | **文字走廊** | Text corridor | 在铺满文字的走廊里不断前进 | 开场做文字走廊：地板、天花板与左右墙铺满重复文字，一点透视，文字朝观众流过来。 |
+
+### 图形与物件
+
+#### 线条与图形 · #2 055–063
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#2-055](https://sadjjk.github.io/motion-prompt-zh/#2-055) | **路径描边** | Line draw | 线条像被画出来一样逐渐延伸 | 让图表折线从左侧开始路径描边，用 1.2 秒画完。 |
+| [#2-056](https://sadjjk.github.io/motion-prompt-zh/#2-056) | **形状变形** | Shape morph | 一个形状平滑过渡为另一个形状 | 用 0.8 秒把圆形变成星形，同时颜色从蓝色变成黄色。 |
+| [#2-057](https://sadjjk.github.io/motion-prompt-zh/#2-057) | **图形重复器** | Repeater | 复制图形，并对副本做旋转排列 | 用重复器把花瓣复制十二份围成圆，每四秒转一圈。 |
+| [#2-058](https://sadjjk.github.io/motion-prompt-zh/#2-058) | **万花筒** | Kaleidoscope | 镜像图案对称扩散 | 标志后加万花筒，八向镜像对称，缓慢转动并向外扩散。 |
+| [#2-059](https://sadjjk.github.io/motion-prompt-zh/#2-059) | **波的干涉** | Wave interference | 两列反向行进的波叠加，时而相长时而相消的图解 | 做一个波的干涉图解动画：上面 2 条泳道是反向行进的波 A、B，下方泳道画出两者相加的合成波，竖直虚线上 3 个点实时读数。 |
+| [#2-060](https://sadjjk.github.io/motion-prompt-zh/#2-060) | **手写签名** | Signature animation | 草写签名一笔笔写出来 | 结尾加手写签名：草写线条在 2.6 秒内随笔尖圆点写出，最后补一道底线。 |
+| [#2-061](https://sadjjk.github.io/motion-prompt-zh/#2-061) | **心电图线条** | ECG heartbeat line | 心电波形从左往右持续扫出 | 健康 App 画面加心电图线条：深色格子屏上波形从左往右扫出，心率数字与爱心跟着跳。 |
+| [#2-062](https://sadjjk.github.io/motion-prompt-zh/#2-062) | **树枝生长** | Growing tree | 树从主干到分枝再到叶子逐步长出 | 品牌故事用树枝生长开场：地面与主干、分枝、细枝、叶子依次长出，最后出现文字。 |
+| [#2-063](https://sadjjk.github.io/motion-prompt-zh/#2-063) | **Logo 组合登场** | Logo build reveal | 标志逐个部件画出组合，再滑入品牌名 | 片头做 Logo 组合登场：先描外圈，再描 45° 方块并填色，中心圆点弹出，最后品牌名从左滑入。 |
+
+#### 物件与机械 · #2 064–075
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#2-064](https://sadjjk.github.io/motion-prompt-zh/#2-064) | **爆炸分解图** | Exploded view | 将零件分离，展示内部结构 | 产品做爆炸分解图，四个部件在一秒内分开，各带名称标签。 |
+| [#2-065](https://sadjjk.github.io/motion-prompt-zh/#2-065) | **硬币翻转** | Coin flip | 每个字像硬币一样翻转跳起 | 4 个字做硬币翻转：每字绕竖轴转两圈并跳起，间隔 0.2 秒。 |
+| [#2-066](https://sadjjk.github.io/motion-prompt-zh/#2-066) | **齿轮联动** | Gear train | 咬合齿轮按齿数比转动 | 处理中画面放齿轮联动：一大两小齿轮咬合，按齿数比反向转动。 |
+| [#2-067](https://sadjjk.github.io/motion-prompt-zh/#2-067) | **无限螺旋轮播** | Infinite helix carousel | 卡片排在横向 3D 螺旋上，边绕轴翻转边无限向前推进 | 把作品集做成无限螺旋轮播：70 × 56 px 的相片卡排在半径 55 px、每圈 7 张的横向螺旋上，每 4.7 秒向右推进一整套 6 张，接缝处慢、中段快。 |
+| [#2-068](https://sadjjk.github.io/motion-prompt-zh/#2-068) | **方块翻转** | Cube flip wave | 立方体阵列被斜向波浪依次翻转、逐次换色的轴测画面 | 做一个立方体阵列波浪翻转的循环：22×6 个立方体每 6.4 秒各翻 8 次，每次 90°，每翻一次顶面换色。 |
+| [#2-069](https://sadjjk.github.io/motion-prompt-zh/#2-069) | **多米诺** | Domino run | 沿 S 形排开的骨牌连锁倒下、再倒放立回的画面 | 做一个多米诺动画：56 块骨牌沿 S 形曲线排开，0.3 秒第 1 块倒下，连锁越来越快一直传到 4.3 秒，最后倒放复原。 |
+| [#2-070](https://sadjjk.github.io/motion-prompt-zh/#2-070) | **不可能三角** | Impossible triangle | 方块依次落下、在等轴视角里首尾相接成彭罗斯三角的画面 | 做一个不可能三角拼成的动画：18 块方块沿 3 条边从上方依次落下，0.2–3.5 秒拼成彭罗斯三角。 |
+| [#2-071](https://sadjjk.github.io/motion-prompt-zh/#2-071) | **莫比乌斯环** | Möbius strip | 只有一个面的环带在空中摆动、条纹沿带流动的莫比乌斯环 | 做一个莫比乌斯环 3D 循环：40 道橙粉条纹沿带子流动，每 6.4 秒前进 8 道。 |
+| [#2-072](https://sadjjk.github.io/motion-prompt-zh/#2-072) | **无限镜屋** | Infinity room | 黑色镜屋里彩色小灯无限延伸的沉浸空间画面 | 做一段无限镜屋的循环画面：镜头每 6.4 秒在 4 色小灯间向前推进 4 排，灯光呼吸 2 次。 |
+| [#2-073](https://sadjjk.github.io/motion-prompt-zh/#2-073) | **黑胶唱片** | Spinning vinyl | 红底上放大裁切的黑胶唱片转动、像封套产品照的画面 | 做一段黑胶唱片旋转的循环：红底上放一张半径 150px 的大唱片，标签每 6.4 秒转 4 圈，唱臂落在沟槽上不动。 |
+| [#2-074](https://sadjjk.github.io/motion-prompt-zh/#2-074) | **扑克飞牌** | Card flourish | 绿呢台面上扑克牌飞出成扇、逐张翻面的魔术画面 | 做一个扑克牌展扇动画：24 张牌从牌堆依次飞出排成扇形，1.9–3.8 秒逐张翻到正面。 |
+| [#2-075](https://sadjjk.github.io/motion-prompt-zh/#2-075) | **小票打印** | Receipt printing | 收银机出纸口缓缓送出一张热敏小票的画面 | 做一个小票打印动画：白色小票从深色出纸口缓缓送出 165px，依次露出店名、3 行明细和合计。 |
+
+#### 信息与科技 · #2 076–091 · 115
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#2-076](https://sadjjk.github.io/motion-prompt-zh/#2-076) | **散点聚成正态分布** | Dots settling into a normal distribution | 散乱的观测点聚拢成钟形分布的统计图解 | 做一个正态分布形成动画：98 个点先散成一团云，再一个个落进 13 列钟形柱，均值线 μ 亮起锁定。 |
+| [#2-077](https://sadjjk.github.io/motion-prompt-zh/#2-077) | **网络扩散** | Network diffusion | 信号从一个源点沿连线逐跳扩散的网络图解 | 做一个网络扩散动画：左侧源点亮起放出 3 圈涟漪，信号沿 16 条曲线边依次传到右侧 16 个节点，左上角显示跳数和已触达节点数。 |
+| [#2-078](https://sadjjk.github.io/motion-prompt-zh/#2-078) | **地图路线导航** | Map route animation | 地图上落下地标并画出路线 | 地图上做路线导航：3 枚地标弹跳落下，从起点到终点画线，小点沿线前进。 |
+| [#2-079](https://sadjjk.github.io/motion-prompt-zh/#2-079) | **指纹扫描解锁** | Fingerprint scan | 读取指纹后验证通过 | 登录页加指纹扫描：纹路由内向外画出，光条上下扫过，最后变绿并打勾。 |
+| [#2-080](https://sadjjk.github.io/motion-prompt-zh/#2-080) | **音频波形** | Audio waveform | 细条随播放的声音上下伸缩 | 播放器加音频波形：细条以中线为基准上下伸缩，高度和速度各不相同，左边播放钮，右边时间。 |
+| [#2-081](https://sadjjk.github.io/motion-prompt-zh/#2-081) | **LED 点阵屏** | Dot-matrix sign | 车站信息屏式的琥珀色 LED 点阵滚动字幕画面 | 做一块车站 LED 点阵屏：64 × 7 个琥珀色灯点，NEXT TRAIN 消息每 6.4 秒滚过一遍。 |
+| [#2-082](https://sadjjk.github.io/motion-prompt-zh/#2-082) | **科幻仪表** | Sci-fi HUD | 同心刻度环转动、数据跳动的科幻仪表画面 | 做一个科幻仪表：8 层同心刻度环以不同速度转动，右侧 6 行数据跳动。 |
+| [#2-083](https://sadjjk.github.io/motion-prompt-zh/#2-083) | **雷达扫描** | Radar sweep | 绿色雷达屏上扫描线转动、海岸与目标被扫亮的画面 | 做一个雷达扫描屏：扫描线 6.4 秒转 2 圈，7 个目标被扫到时亮起再慢慢暗下。 |
+| [#2-084](https://sadjjk.github.io/motion-prompt-zh/#2-084) | **全球航线** | Flight paths | 斜铺的点阵地图上航线弧与光点往来的画面 | 做一张全球航线图：14 条弧线在 2 秒内从 8 个枢纽依次弹出，光点沿弧线飞行。 |
+| [#2-085](https://sadjjk.github.io/motion-prompt-zh/#2-085) | **行情 K 线** | Market candles | K 线与均线逐根长出的行情图画面 | 做一段行情 K 线动画：48 根 K 线 4.4 秒内从左往右长满，MA5 和 MA20 均线跟着延伸。 |
+| [#2-086](https://sadjjk.github.io/motion-prompt-zh/#2-086) | **神经网络** | Neural net | 信号沿多层网络从左往右传递的神经网络画面 | 做一张神经网络动画：信号光点穿过 6 层节点从左往右传递，每 6.4 秒 3 轮。 |
+| [#2-087](https://sadjjk.github.io/motion-prompt-zh/#2-087) | **电子云** | Electron orbital | 用点阵描绘原子轨道概率云并缓慢旋转的科学画面 | 做一个电子云动画：3d 轨道概率云由 1600 个点组成，6.4 秒转一圈。 |
+| [#2-088](https://sadjjk.github.io/motion-prompt-zh/#2-088) | **桑基图** | Sankey flow | 用带子粗细展示能量流向的桑基图信息画面 | 做一个从 4 种能源流向 4 类用途的桑基图动画，13 条带子在 0.2–3.2 秒内从左往右依次流入。 |
+| [#2-089](https://sadjjk.github.io/motion-prompt-zh/#2-089) | **条码扫描** | Barcode scan | 青色激光扫过装箱单条码的物流画面 | 做一个条码扫描动画：青色激光从左到右扫过白色单据上的 29 根条码，扫完后绿色显示“已核验 · 可发货”。 |
+| [#2-090](https://sadjjk.github.io/motion-prompt-zh/#2-090) | **示波器描线** | Oscilloscope trace | 扫描光束在深色屏上描出青色波形的仪器画面 | 做一个示波器动画：竖直扫描光束从左走到右，身后画出青色波形，3 个起伏的振幅逐次减小。 |
+| [#2-091](https://sadjjk.github.io/motion-prompt-zh/#2-091) | **数字雨** | Matrix rain | 一列列字符像雨一样落下 | 黑客风背景用数字雨：绿色字符一列列落下，最前端发白光，后面逐渐变暗拖尾。 |
+| [#2-115](https://sadjjk.github.io/motion-prompt-zh/#2-115) | **放大镜局部放大** | Zoom callout | 小圈标出位置，连线引出的大圆里显示该处放大后的细节 | 给城市夜景加放大镜局部放大：半径 18 px 的黄色小圈沿 8 字路线移动，右上角半径 56 px 的白边大圆显示该处 3 倍放大，用虚线连起来，下方标签写倍数和坐标。 |
+
+### 特效与转场
+
+#### 粒子与光效 · #2 092–099 · 116
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#2-092](https://sadjjk.github.io/motion-prompt-zh/#2-092) | **放射迸发** | Burst | 元素出现时，线条和圆点向外迸发 | 心形出现的瞬间加一圈放射迸发：八根短线，在 0.3 秒内淡出。 |
+| [#2-093](https://sadjjk.github.io/motion-prompt-zh/#2-093) | **粒子喷发** | Particles | 大量小颗粒飞出并散开 | 成功时从底部向上喷出四色粒子，在 1.5 秒内全部落下。 |
+| [#2-094](https://sadjjk.github.io/motion-prompt-zh/#2-094) | **扫光** | Light sweep | 一束光带掠过物体表面 | 标志停稳后加一次轻微扫光，从左上向右下掠过。 |
+| [#2-095](https://sadjjk.github.io/motion-prompt-zh/#2-095) | **故障干扰** | Glitch | 画面像信号故障一样错位破碎 | 标题加短暂故障干扰，持续 0.3 秒，色差轻一些，不要闪屏。 |
+| [#2-096](https://sadjjk.github.io/motion-prompt-zh/#2-096) | **冲击震屏** | Impact shake | 物体落地时带动整幅画面震动 | 标题砸下的一瞬间加冲击震屏，约 0.4 秒内平稳下来。 |
+| [#2-097](https://sadjjk.github.io/motion-prompt-zh/#2-097) | **彩纸爆发** | Confetti burst | 标题弹起的同时喷出一把彩纸 | 让「恭喜」两个字弹性放大，同时从下方喷出约 60 片彩纸，抛物线落下、边转边翻，最后 0.5 秒淡出。 |
+| [#2-098](https://sadjjk.github.io/motion-prompt-zh/#2-098) | **飘落花瓣** | Falling petals | 花瓣摇曳飘落，光标经过时被吹开 | 背景飘落约 40 片花瓣，左右摆动并翻面；光标经过时把附近花瓣推开，再慢慢回到原来的轨迹。 |
+| [#2-099](https://sadjjk.github.io/motion-prompt-zh/#2-099) | **烟火** | Fireworks | 点击处升起烟火并炸开 | 夜空背景，点击哪里就从底部用 0.7 秒升起一枚烟火到那里，炸开 40 颗火花，减速、受重力下坠并淡出。 |
+| [#2-116](https://sadjjk.github.io/motion-prompt-zh/#2-116) | **飘雪** | Snowfall | 大小、速度不同的雪片有前后层次地缓缓飘落 | 让夜晚街道下雪：分远、中、近三层，远处小而慢，近处是大而虚的光斑、落得快，都边落边左右漂，经过路灯光锥的雪片被照成暖色。 |
+
+#### 转场 · #2 100–112
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#2-100](https://sadjjk.github.io/motion-prompt-zh/#2-100) | **遮罩转场** | Mask transition | 下一场景从扩张的形状内部显现 | 用遮罩转场切换场景，让圆形从中心扩张，持续 0.7 秒。 |
+| [#2-101](https://sadjjk.github.io/motion-prompt-zh/#2-101) | **图形转场** | Shape transition | 图形覆盖画面后离开，显露下一场景 | 用图形转场切换场景，四条斜向彩带从左侧扫入覆盖画面。 |
+| [#2-102](https://sadjjk.github.io/motion-prompt-zh/#2-102) | **液态转场** | Liquid transition | 液体流入并替换当前场景 | 这里用液态转场，蓝色墨水从顶部滴落并铺满画面。 |
+| [#2-103](https://sadjjk.github.io/motion-prompt-zh/#2-103) | **穿越放大转场** | Zoom through | 放大进入物体内部，并穿越到下一场景 | 加速穿过标志中“O”的孔洞进入下一场景，持续 0.6 秒。 |
+| [#2-104](https://sadjjk.github.io/motion-prompt-zh/#2-104) | **卡片翻转** | Flip | 像卡片一样翻到另一面 | 价格卡片用 0.5 秒翻转，显示背面的详情。 |
+| [#2-105](https://sadjjk.github.io/motion-prompt-zh/#2-105) | **推移转场** | Push transition | 下一场景滑入，同时把当前场景推出 | 下一页从右侧推入转场，持续 0.8 秒。 |
+| [#2-106](https://sadjjk.github.io/motion-prompt-zh/#2-106) | **百叶窗转场** | Blinds transition | 通过多条窄带逐渐打开下一场景 | 用七条横带做百叶窗转场，在一秒内展开。 |
+| [#2-107](https://sadjjk.github.io/motion-prompt-zh/#2-107) | **立方体转场** | Cube transition | 像立方体转动一样切换场景 | 产品图片用立方体转场，用 0.8 秒向左转 90°。 |
+| [#2-108](https://sadjjk.github.io/motion-prompt-zh/#2-108) | **卷页转场** | Page curl | 像纸张卷起一样显露下一页 | 从右下角卷页进入下一章节，持续 1.2 秒。 |
+| [#2-109](https://sadjjk.github.io/motion-prompt-zh/#2-109) | **像素化转场** | Pixelate | 画面变成粗方块，在最粗时切换 | 做像素化转场，马赛克用 0.6 秒变粗，在最粗时切换场景。 |
+| [#2-110](https://sadjjk.github.io/motion-prompt-zh/#2-110) | **碎裂转场** | Shatter | 像玻璃一样破碎，碎片飞散 | 标题出现前让旧场景碎裂，先出现裂纹，再让碎片在约一秒内落走。 |
+| [#2-111](https://sadjjk.github.io/motion-prompt-zh/#2-111) | **分屏** | Split screen | 分割画面，同时并列展示多个场景 | 同时显示三个场景，从一屏变两屏、再变三屏，每次 0.5 秒。 |
+| [#2-112](https://sadjjk.github.io/motion-prompt-zh/#2-112) | **燃烧转场** | Burn transition | 画面中间被烧出一个洞，焦边向外扩开，露出下一个画面 | 用燃烧转场从城市夜景切到山景：画面中间烧出一个洞，不规则的焦边在 1.3 秒内扩到画面外，边上带一圈发亮的橙色火线和几颗火星。 |
+
+## 3 剪辑与摄影
+
+### 镜头与剪辑
+
+#### 镜头运动 · #3 001–008
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#3-001](https://sadjjk.github.io/motion-prompt-zh/#3-001) | **水平摇镜** | Pan | 机位固定，镜头向左或向右转动 | 固定机位，用五秒从左向右缓慢摇过城市天际线。 |
+| [#3-002](https://sadjjk.github.io/motion-prompt-zh/#3-002) | **俯仰摇镜** | Tilt | 机位固定，镜头向上或向下转动 | 镜头从人物脚部缓慢上摇到塔顶。 |
+| [#3-003](https://sadjjk.github.io/motion-prompt-zh/#3-003) | **镜头推进** | Dolly in | 相机向主体移动 | 缓慢向她的脸推进，移动相机，不要变焦。 |
+| [#3-004](https://sadjjk.github.io/motion-prompt-zh/#3-004) | **变焦放大** | Zoom in | 机位不动，通过镜头焦距放大画面 | 相机保持不动，用三秒变焦放大窗边的人物。 |
+| [#3-005](https://sadjjk.github.io/motion-prompt-zh/#3-005) | **跟拍镜头** | Tracking shot | 相机与主体同向同行 | 从侧面跟拍行走的人物，相机与人物同速移动。 |
+| [#3-006](https://sadjjk.github.io/motion-prompt-zh/#3-006) | **环绕镜头** | Orbit (Arc shot) | 相机围绕主体做弧形运动 | 围绕站立人物拍半圈，保持人物位于画面中心。 |
+| [#3-007](https://sadjjk.github.io/motion-prompt-zh/#3-007) | **升降镜头上升** | Crane up | 抬升相机机位 | 相机从视线高度向上升，直到整个城镇进入画面。 |
+| [#3-008](https://sadjjk.github.io/motion-prompt-zh/#3-008) | **滑动变焦（希区柯克变焦）** | Dolly zoom (Vertigo) | 主体大小不变，背景透视发生变化 | 他恍然大悟时对脸做滑动变焦，人物大小不变，背景向远处拉伸。 |
+
+#### 拍法与时间 · #3 009–016
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#3-009](https://sadjjk.github.io/motion-prompt-zh/#3-009) | **焦点转移** | Rack focus | 焦点在近景与远景间切换 | 用一秒把焦点从前景杯子转移到后方人物。 |
+| [#3-010](https://sadjjk.github.io/motion-prompt-zh/#3-010) | **手持摄影** | Handheld | 像手持相机拍摄一样轻微晃动 | 用手持镜头从后方跟随行人，只保留轻微晃动。 |
+| [#3-011](https://sadjjk.github.io/motion-prompt-zh/#3-011) | **FPV 穿越机镜头** | FPV drone shot | 快速、沉浸式的第一人称飞行 | 用 FPV 穿越机镜头穿过树林，再飞到河面上方。 |
+| [#3-012](https://sadjjk.github.io/motion-prompt-zh/#3-012) | **荷兰角** | Dutch angle | 让画面倾斜构图 | 这个不安的场景用约十五度的荷兰角。 |
+| [#3-013](https://sadjjk.github.io/motion-prompt-zh/#3-013) | **慢动作** | Slow motion | 以更慢速度播放动作 | 用慢动作呈现水花溅起的瞬间。 |
+| [#3-014](https://sadjjk.github.io/motion-prompt-zh/#3-014) | **速度渐变** | Speed ramp | 同一镜头中平滑改变播放速度 | 做速度渐变：正常速度起步，到跳跃顶点放慢，再恢复正常。 |
+| [#3-015](https://sadjjk.github.io/motion-prompt-zh/#3-015) | **延时摄影** | Time-lapse | 把数小时压缩为几秒 | 用延时摄影表现城市从黄昏到夜晚、灯光逐渐亮起。 |
+| [#3-016](https://sadjjk.github.io/motion-prompt-zh/#3-016) | **定格** | Freeze frame | 将动作暂停片刻 | 她转身时定格一秒，并显示名字。 |
+
+#### 剪辑与转场 · #3 017–028
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#3-017](https://sadjjk.github.io/motion-prompt-zh/#3-017) | **跳切** | Jump cut | 保持构图，跳过一段时间 | 用相同构图的跳切，快速呈现准备过程。 |
+| [#3-018](https://sadjjk.github.io/motion-prompt-zh/#3-018) | **匹配剪辑** | Match cut | 利用相似形状或动作连接两个镜头 | 从圆形咖啡杯匹配切到相同位置的满月。 |
+| [#3-019](https://sadjjk.github.io/motion-prompt-zh/#3-019) | **甩镜转场** | Whip pan | 快速摇镜，在运动模糊中切换镜头 | 向右甩镜，落到下一个地点。 |
+| [#3-020](https://sadjjk.github.io/motion-prompt-zh/#3-020) | **交叉溶解** | Cross dissolve | 前后两个镜头逐渐叠化 | 从早晨的房间交叉溶解到夜晚的同一房间，持续一秒。 |
+| [#3-021](https://sadjjk.github.io/motion-prompt-zh/#3-021) | **划像转场** | Wipe | 移动的边界逐步替换画面 | 用从左向右的划像转场进入下一场景。 |
+| [#3-022](https://sadjjk.github.io/motion-prompt-zh/#3-022) | **冲击硬切** | Smash cut | 突然切到反差强烈的场景 | 从安静卧室冲击硬切到嘈杂路口。 |
+| [#3-023](https://sadjjk.github.io/motion-prompt-zh/#3-023) | **J 型剪辑（声音先入）** | J-cut | 下一场景的声音先于画面出现 | 用 J 型剪辑，让下一场景的海浪声先响起，再切到海面。 |
+| [#3-024](https://sadjjk.github.io/motion-prompt-zh/#3-024) | **L 型剪辑（声音延续）** | L-cut | 上一场景的声音延续到下一画面 | 用 L 型剪辑，切到倾听者面部时继续保留她的声音。 |
+| [#3-025](https://sadjjk.github.io/motion-prompt-zh/#3-025) | **建立镜头** | Establishing shot | 先用远景交代场地和人物位置，再切近 | 先用 2 秒建立镜头拍下咖啡馆里相对而坐的两个人，再切到其中一人的近景。 |
+| [#3-026](https://sadjjk.github.io/motion-prompt-zh/#3-026) | **正反打** | Shot/reverse shot | 两个过肩机位交替切换，拍对话的两个人 | 用正反打拍两人对话，过肩镜头每 1.5 秒切换一次，说话的人始终正对镜头。 |
+| [#3-027](https://sadjjk.github.io/motion-prompt-zh/#3-027) | **动作衔接** | Match on action | 在动作进行中切换机位，动作在下一个镜头里接着做完 | 用动作衔接拍他推门走进房间，推到一半切到屋内机位，门在下一个镜头里接着打开。 |
+| [#3-028](https://sadjjk.github.io/motion-prompt-zh/#3-028) | **180 度轴线** | 180-degree rule | 机位留在两人连线的同一侧，左右关系才不会颠倒 | 拍两人对话时遵守 180 度轴线，所有机位都在同一侧，女主始终在画面左边。 |
+
+### 景别与构图
+
+#### 景别 · #3 029–036
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#3-029](https://sadjjk.github.io/motion-prompt-zh/#3-029) | **大远景** | Extreme long shot | 人物很小，画面主要交代环境 | 用大远景拍他独自走过山谷，人物只占画面高度的十分之一，持续 4 秒。 |
+| [#3-030](https://sadjjk.github.io/motion-prompt-zh/#3-030) | **全景** | Full shot | 从头到脚完整框住一个人 | 用全景拍她向前迈出一大步，头顶和脚下各留一点空间，持续 3 秒。 |
+| [#3-031](https://sadjjk.github.io/motion-prompt-zh/#3-031) | **中全景** | Medium long shot | 框到膝盖以上，兼顾动作与表情 | 用中全景拍他跨过一道矮坎，画框下沿在膝盖，持续 3 秒。 |
+| [#3-032](https://sadjjk.github.io/motion-prompt-zh/#3-032) | **中景** | Medium shot | 框到腰部以上，看清手部动作 | 用中景拍她举起右手招手，画框下沿在腰部，持续 3 秒。 |
+| [#3-033](https://sadjjk.github.io/motion-prompt-zh/#3-033) | **中近景** | Medium close-up | 框到胸口以上，重点在说话和表情 | 用中近景拍她说话，画框下沿落在胸口，持续 3 秒。 |
+| [#3-034](https://sadjjk.github.io/motion-prompt-zh/#3-034) | **特写** | Close-up | 框住头部和肩部，表情细节成为主角 | 用特写拍他听到声音后眼神一动、眨一下眼，画面只到肩膀，持续 3 秒。 |
+| [#3-035](https://sadjjk.github.io/motion-prompt-zh/#3-035) | **大特写** | Extreme close-up | 只框住眼睛等局部，放大最细的变化 | 用大特写拍她的眼睛，画面只有眼部，视线扫向一侧后眨一下眼，持续 2 秒。 |
+| [#3-036](https://sadjjk.github.io/motion-prompt-zh/#3-036) | **微距** | Macro shot | 把很小的物体拍到撑满画面 | 用微距拍一朵小蘑菇，焦点慢慢拉实后能看见伞盖上爬过的小虫，持续 4 秒。 |
+
+#### 构图 · #3 037–043 · 084
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#3-037](https://sadjjk.github.io/motion-prompt-zh/#3-037) | **三分法** | Rule of thirds | 把主体和地平线放在三等分线附近 | 按三分法拍海边的一个人，人物在左三分线上，地平线压在下三分线。 |
+| [#3-038](https://sadjjk.github.io/motion-prompt-zh/#3-038) | **居中构图** | Centered composition | 把主体放在画面正中，视线直接落在它身上 | 用居中构图拍站在空旷广场中央的一个人，人物正好在画面中轴上。 |
+| [#3-039](https://sadjjk.github.io/motion-prompt-zh/#3-039) | **对称构图** | Symmetrical composition | 画面左右以中轴互为镜像 | 用对称构图拍一条林荫道，两侧的树左右对应，中轴线对准道路中心。 |
+| [#3-040](https://sadjjk.github.io/motion-prompt-zh/#3-040) | **引导线** | Leading lines | 用道路、栏杆等线条把视线引向主体 | 用引导线构图拍一条伸向远方的铁轨，两条铁轨汇聚到站在尽头的人身上。 |
+| [#3-041](https://sadjjk.github.io/motion-prompt-zh/#3-041) | **留白** | Negative space | 让大片简单区域包围主体，突出主体和情绪 | 用留白构图拍站在雪地左侧的一个人，画面右边三分之二只有空白的雪。 |
+| [#3-042](https://sadjjk.github.io/motion-prompt-zh/#3-042) | **框中框** | Frame within a frame | 用门窗、拱洞等前景把主体再框一次 | 用框中框构图拍门外院子里的孩子，近处的门框把孩子框在画面中央。 |
+| [#3-043](https://sadjjk.github.io/motion-prompt-zh/#3-043) | **前中后景** | Foreground, middle ground & background | 前景、中景、后景分层排布，画面更有纵深 | 拍湖边的人物时做出前中后景：前景是花丛，中景是人物，后景是湖和对岸的树林。 |
+| [#3-084](https://sadjjk.github.io/motion-prompt-zh/#3-084) | **平铺俯拍** | Flat lay | 相机在正上方 90° 往下拍，把物品平铺排开的构图 | 做一个早餐平铺俯拍：从正上方拍亚麻桌布，依次放下豆浆碗、包子、油条、茶杯和筷子，碗盘保持正圆，筷子和桌布边平行，右下角留白。 |
+
+### 光线与色彩
+
+#### 布光与时段 · #3 044–056
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#3-044](https://sadjjk.github.io/motion-prompt-zh/#3-044) | **逆光** | Backlighting | 光源位于主体后方 | 草地逆光人像，低位太阳在人物头后，发丝轮廓发亮，带柔和光雾。 |
+| [#3-045](https://sadjjk.github.io/motion-prompt-zh/#3-045) | **轮廓光** | Rim light | 后方光源勾勒主体边缘 | 黑背景人像，后方两侧布轮廓光，面部保持暗，只照亮头肩外轮廓。 |
+| [#3-046](https://sadjjk.github.io/motion-prompt-zh/#3-046) | **剪影** | Silhouette | 主体在亮天空前呈现为暗色轮廓 | 夕阳海滩上的跳跃人物剪影，按天空曝光，让人物和棕榈树呈纯黑。 |
+| [#3-047](https://sadjjk.github.io/motion-prompt-zh/#3-047) | **分割光** | Split lighting | 侧光将面部分成明暗两半 | 人像使用分割光，灯位在侧面 90°，沿鼻梁分割面部，远侧一半处于阴影。 |
+| [#3-048](https://sadjjk.github.io/motion-prompt-zh/#3-048) | **伦勃朗光** | Rembrandt lighting | 高位侧光在暗侧脸颊留下三角亮区 | 老人肖像用伦勃朗光，从侧上方 45° 照射，暗侧脸颊保留小三角亮区。 |
+| [#3-049](https://sadjjk.github.io/motion-prompt-zh/#3-049) | **蝴蝶光** | Butterfly lighting | 正前方高位光在鼻下形成蝴蝶状阴影 | 美妆人像用蝴蝶光，灯在正前方上仰 45°，鼻下留小型蝴蝶状阴影。 |
+| [#3-050](https://sadjjk.github.io/motion-prompt-zh/#3-050) | **黄金时刻** | Golden hour | 日出后或日落前的低角度暖光 | 黄金时刻的田野人物，太阳贴近地平线，长阴影，整体暖橙色。 |
+| [#3-051](https://sadjjk.github.io/motion-prompt-zh/#3-051) | **蓝调时刻** | Blue hour | 日落后或日出前天空呈深蓝的时段 | 港口城市蓝调时刻，深蓝天空，暖色窗灯和街灯倒映水中。 |
+| [#3-052](https://sadjjk.github.io/motion-prompt-zh/#3-052) | **体积光束** | God rays | 光线形成看得见的成束光带斜穿画面 | 人像加左上方的体积光束：四周压暗，让几道明暗相间的光束斜着照进来。 |
+| [#3-053](https://sadjjk.github.io/motion-prompt-zh/#3-053) | **窗格光影** | Window shadow pattern | 直射阳光穿过窗框，在人和墙上投下边缘清楚的格子影 | 浅色墙前的人物身上投下斜射进来的窗格光影，随着时间推移，影子慢慢横移、拉长。 |
+| [#3-054](https://sadjjk.github.io/motion-prompt-zh/#3-054) | **舞台追光** | Follow spotlight | 高处打下的硬光在黑暗舞台上圈出边缘清楚的圆形光区 | 用追光跟住舞台上走动的人：四周漆黑，只有圆形光区里亮，烟雾里看得到光柱。 |
+| [#3-055](https://sadjjk.github.io/motion-prompt-zh/#3-055) | **慢门闪光** | Dragging the shutter | 闪光灯把人冻住，慢快门让背景灯光拉出彩色拖影 | 夜晚派对照用慢门闪光：人物被闪光定格得很清楚，身后的灯泡和窗光拉成弧形彩色拖影。 |
+| [#3-056](https://sadjjk.github.io/motion-prompt-zh/#3-056) | **底光** | Under lighting | 光从下巴下方往上照，阴影方向反常，脸显得诡异 | 暗房间里用下巴下的手电从下往上照人物：脸的下方亮、越往上越暗，身后墙上投出放大的影子。 |
+
+#### 光源与色彩 · #3 057–064
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#3-057](https://sadjjk.github.io/motion-prompt-zh/#3-057) | **斑驳树影** | Dappled light | 阳光穿过树叶，在人物和地面落下一块块亮斑 | 树荫下的人物加斑驳树影：整体是偏绿的树荫，人物和地面落着不规则的光斑，随风轻轻晃动。 |
+| [#3-058](https://sadjjk.github.io/motion-prompt-zh/#3-058) | **水下焦散** | Caustics | 阳光穿过起伏的水面，在皮肤和池底投下明亮的网状波纹 | 泳池里的人物加水下焦散：整体染成浅蓝，人物和池底上流动着明亮的网状光纹。 |
+| [#3-059](https://sadjjk.github.io/motion-prompt-zh/#3-059) | **篝火光** | Campfire light | 夜里只有前下方的火堆照亮人，暖橙色、会跳动，火光之外迅速沉入黑暗 | 夜晚露营的人物只用篝火照明：朝火的一侧被橙光照得一闪一闪，其余沉入黑暗，火星往上飘。 |
+| [#3-060](https://sadjjk.github.io/motion-prompt-zh/#3-060) | **屏幕光** | Screen glow | 黑暗房间里只有屏幕亮着，冷白光从前方照亮脸和手 | 夜里看笔记本电脑的人物只用屏幕光：冷白光只照亮脸和胸前，身后一片黑。 |
+| [#3-061](https://sadjjk.github.io/motion-prompt-zh/#3-061) | **雾中光** | Foggy light | 雾气让远处变淡变白，光在空气里散开，层次一层层退远 | 傍晚街景加雾：越远的山和楼越白越淡，路灯在雾里变成大光晕，近处的人物保持清楚。 |
+| [#3-062](https://sadjjk.github.io/motion-prompt-zh/#3-062) | **月光夜景** | Moonlight | 冷蓝色的弱光从高处照来，影子清楚但暗部很深，色彩很少 | 把人像改成月光夜景：天空接近黑色的深蓝，高处冷光只照亮一侧，地面加一道银色反光。 |
+| [#3-063](https://sadjjk.github.io/motion-prompt-zh/#3-063) | **双色光** | Bicolor lighting | 两盏不同颜色的灯从两侧照来，脸一边偏品红、一边偏青蓝 | 暗背景的人物左边打品红、右边打青蓝，中间两色混成淡紫。 |
+| [#3-064](https://sadjjk.github.io/motion-prompt-zh/#3-064) | **色温** | Color temperature | 光偏暖橙还是偏冷蓝，用开尔文（K）表示 | 让风景画面的色温变化：从 5500K 到暖橙的 2000K，再到冷蓝的 10000K，最后回到 5500K，并用刻度条显示数值。 |
+
+### 镜头效果与后期
+
+#### 镜头效果 · #3 065–075
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#3-065](https://sadjjk.github.io/motion-prompt-zh/#3-065) | **散景光斑** | Bokeh | 失焦点光源化为柔和圆形光斑 | 夜城人物，身后街灯形成大圆散景，f/1.4，对焦人物。 |
+| [#3-066](https://sadjjk.github.io/motion-prompt-zh/#3-066) | **移轴微缩效果** | Tilt-shift | 上下模糊，让真实场景像微缩模型 | 俯拍城镇做移轴效果，中间窄带清晰，上下强模糊，色彩增强，像微缩模型。 |
+| [#3-067](https://sadjjk.github.io/motion-prompt-zh/#3-067) | **长曝光** | Long exposure | 延长快门时间，让移动光源形成光轨 | 夜间道路做长曝光，快门八秒，车辆消失，只留白色车头灯和红色尾灯光轨。 |
+| [#3-068](https://sadjjk.github.io/motion-prompt-zh/#3-068) | **追随摄影** | Panning shot | 跟随运动主体，使背景形成横向拖影 | 红车驶过时做追随摄影，快门 1/15 秒，车身清晰，树和建筑横向拖影。 |
+| [#3-069](https://sadjjk.github.io/motion-prompt-zh/#3-069) | **镜头眩光** | Lens flare | 强光进入镜头后形成光环与光斑 | 山景中让太阳入镜，彩色眩光鬼影从太阳经画面中心排列到对侧。 |
+| [#3-070](https://sadjjk.github.io/motion-prompt-zh/#3-070) | **鱼眼镜头** | Fisheye lens | 超广角使中央鼓起、直线弯曲 | 用鱼眼镜头拍城市街道，视野 180°，建筑边缘向外弯曲。 |
+| [#3-071](https://sadjjk.github.io/motion-prompt-zh/#3-071) | **色差** | Chromatic aberration | 高反差边缘出现红色和蓝紫色边 | 白天空前的黑树枝加轻微色差，边缘有红色、蓝紫色镶边，越靠角落越强。 |
+| [#3-072](https://sadjjk.github.io/motion-prompt-zh/#3-072) | **暗角** | Vignette | 边角变暗，将视线引向中心 | 海滩照片加明显暗角，四角渐暗，让视线聚焦中央人物。 |
+| [#3-073](https://sadjjk.github.io/motion-prompt-zh/#3-073) | **泛光** | Bloom | 亮部向四周晕出柔光，暗部保持原样 | 给夜晚街角加泛光：只让窗户、路灯和车灯晕开一圈光，暗处的楼房轮廓保持清楚。 |
+| [#3-074](https://sadjjk.github.io/motion-prompt-zh/#3-074) | **柔焦** | Soft focus | 亮部柔和晕开、对比降低，轮廓仍在 | 风景人像用柔焦：让亮边柔柔地晕开，整体对比稍降，但轮廓不要糊。 |
+| [#3-075](https://sadjjk.github.io/motion-prompt-zh/#3-075) | **棱镜彩虹** | Prism effect | 亮处旁边出现彩虹色的偏移重影 | 夜晚街角加棱镜彩虹：窗户和路灯的亮光旁边错开一圈彩虹色重影，再让一道淡淡的彩虹光带扫过。 |
+
+#### 调色与后期 · #3 076–083
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#3-076](https://sadjjk.github.io/motion-prompt-zh/#3-076) | **高调摄影** | High-key | 整体明亮偏白，阴影很浅 | 白桌上的杯瓶静物用高调摄影，纯白背景，阴影极淡，整体浅色。 |
+| [#3-077](https://sadjjk.github.io/motion-prompt-zh/#3-077) | **低调摄影** | Low-key | 整体暗，只有受光区域突出 | 黑底威士忌瓶用低调摄影，单侧光，只显露受光边缘，画面大部分深黑。 |
+| [#3-078](https://sadjjk.github.io/motion-prompt-zh/#3-078) | **黑白摄影** | Black and white | 移除颜色，只用明暗表现画面 | 海滩快照转为黑白，略增对比，保留天空与沙滩的亮度层次。 |
+| [#3-079](https://sadjjk.github.io/motion-prompt-zh/#3-079) | **双色调** | Duotone | 用两种颜色分别映射暗部和亮部 | 人像做深蓝粉色双色调，暗部深蓝，亮部粉色，不使用其他色相。 |
+| [#3-080](https://sadjjk.github.io/motion-prompt-zh/#3-080) | **青橙调色** | Teal and orange | 暗部偏青，肤色与高光偏橙 | 城市行人做电影感青橙调色，阴影与天空偏青，肤色和阳光偏橙。 |
+| [#3-081](https://sadjjk.github.io/motion-prompt-zh/#3-081) | **胶片颗粒** | Film grain | 在画面上叠加细腻胶片质感颗粒 | 海滩照片加细腻胶片颗粒，遍布全图，黑位稍抬并偏暖。 |
+| [#3-082](https://sadjjk.github.io/motion-prompt-zh/#3-082) | **漏光** | Light leak | 模拟光线漏入胶片形成红橙光晕 | 夏日回忆照片加右边缘漏光，红橙色光线渗入。 |
+| [#3-083](https://sadjjk.github.io/motion-prompt-zh/#3-083) | **双重曝光** | Double exposure | 将两张照片叠合在同一画面 | 侧面人像剪影与森林山景做双重曝光，白色背景，风景只显示在头部内部。 |
+
+## 4 审美风格
+
+### 动画画风
+
+#### 平面与线条 · #4 001–004
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#4-001](https://sadjjk.github.io/motion-prompt-zh/#4-001) | **扁平矢量动画** | Flat vector motion | 纯色平涂、无渐变，靠弹跳挤压的主角讲故事的扁平矢量动画 | 做一段 6 秒左右的扁平矢量动画：珊瑚色圆点在蓝天奶油地面上连跳 5 下，每次落地弹出扁平小楼。 |
+| [#4-002](https://sadjjk.github.io/motion-prompt-zh/#4-002) | **线条动画** | Line art animation | 一根线一笔连续画出场景并收成标志的线条动画 | 做一段线条动画：午夜蓝底上一根金线一笔画出地平线、幼苗、建筑和海浪，最后收成环形标志，画线约 4 秒。 |
+| [#4-003](https://sadjjk.github.io/motion-prompt-zh/#4-003) | **形变动画** | Morphing | 一个主形随节拍不断变成另一个形状的形变动画风格 | 做一个主形按节拍变成 8 种形状（圆、太阳、纸飞机、心、星……），每次形变背景从中心圆形擦除换色，每形 0.8 秒。 |
+| [#4-004](https://sadjjk.github.io/motion-prompt-zh/#4-004) | **逐帧手绘 / 线条沸腾** | Cel animation / line boil | 低帧率逐帧、线条每帧微微抖动的手绘赛璐璐质感风格 | 做成逐帧手绘风：12fps 一拍二、线条沸腾抖动，奶油纸上只用墨、红、黄 3 色，画一个火柴火苗角色在跳。 |
+
+#### 空间与质感 · #4 005–008 · 031
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#4-005](https://sadjjk.github.io/motion-prompt-zh/#4-005) | **等轴 2.5D** | Isometric 2.5D | 无灭点的等轴投影，从斜上方俯看微缩城市或系统的 2.5D 风格 | 做一段等轴 2.5D 城市：浮岛上马卡龙色楼房每 0.25 秒依次长出来，窗户亮起，小车沿路行驶。 |
+| [#4-006](https://sadjjk.github.io/motion-prompt-zh/#4-006) | **3D 渲染系** | 3D render look | 软胶与亮面塑料般的立体材质、带重量感弹跳的 3D 渲染风格 | 做成 3D 渲染风：淡粉棚拍背景上，软胶立体字 s、o、f、t 每隔 0.5 秒落下，落地挤压回弹。 |
+| [#4-007](https://sadjjk.github.io/motion-prompt-zh/#4-007) | **液态流动** | Liquid motion | 液体鼓起、断开、滴落又粘连融合，配糖果色光泽的液态流动风格 | 做液态流动风格：深梅紫底上，6 条橙粉紫渐变液滴从顶部液带滴下、落入底部液池融合，每滴约 3.2 秒。 |
+| [#4-008](https://sadjjk.github.io/motion-prompt-zh/#4-008) | **弥散渐变 / 玻璃拟态** | Aurora gradient & glass | 深色极光渐变背景上叠半透明磨砂玻璃卡片的柔光科技风 | 给 AI 产品发布片做弥散渐变加玻璃拟态风格：深色底上 5 团极光色斑缓慢漂移，2 张磨砂玻璃卡浮在上面。 |
+| [#4-031](https://sadjjk.github.io/motion-prompt-zh/#4-031) | **低多边形** | Low poly | 用少量三角面拼成立体，每个面只填一种颜色 | 做一个低多边形风格的山湖：3 座山、湖岸松树和湖上竹筏都用三角面拼成，光源 6.4 秒转一圈，每个面按朝向一档一档跳亮、跳暗。 |
+
+#### 媒介与题材 · #4 009–011
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#4-009](https://sadjjk.github.io/motion-prompt-zh/#4-009) | **拼贴剪贴** | Collage / cutout | 剪报拼贴的手工杂志风，像定格动画一样把剪纸一件件拍到纸上 | 做一段拼贴剪贴风格的杂志片头：剪纸人像、报纸碎片和勒索信字块按 12 fps 定格节奏一件件拍到牛皮纸上。 |
+| [#4-010](https://sadjjk.github.io/motion-prompt-zh/#4-010) | **粗描边贴纸人科普** | Bold-outline sticker explainer | 粗白描边贴纸配单一强调色的扁平科普讲解风 | 做一段粗描边贴纸风的科普讲解：手机贴纸拍下后引线标注，镜头飞到周期表点亮 70 种元素，再长成 5 根柱状图。 |
+| [#4-011](https://sadjjk.github.io/motion-prompt-zh/#4-011) | **综艺花字** | Variety-show captions | 多层描边的彩色大字配爆炸框和集中线的综艺节目包装风 | 给萌宠短片加综艺花字：标题字弹簧弹入、逐字错 2 帧，2.9 秒镜头猛推配集中线和爆炸框打出「震惊！！」。 |
+
+### 艺术流派
+
+#### 现代与后现代 · #4 012–015 · 032
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#4-012](https://sadjjk.github.io/motion-prompt-zh/#4-012) | **构成主义** | Constructivist | 红黑几何块与粗体字砸进倾斜构图的构成主义海报画面 | 做一张构成主义动态海报：红圆、黑杠、粗体 FORWARD 等 5 个元素每隔 0.35 秒依次砸入。 |
+| [#4-013](https://sadjjk.github.io/motion-prompt-zh/#4-013) | **孟菲斯** | Memphis | 粉彩底上撞色几何图形弹跳旋转的孟菲斯风画面 | 做一张孟菲斯风背景：36 个圆、三角、波浪线在粉彩底上弹跳，每 6.4 秒跳 2 或 3 次。 |
+| [#4-014](https://sadjjk.github.io/motion-prompt-zh/#4-014) | **装饰艺术** | Art Deco | 黑底金线放射纹与扇形层层展开的装饰艺术画面 | 做一个装饰艺术画面：黑底上 25 道金色放射线和 9 层扇形弧从底部展开，暖光每 6.4 秒扫过一次。 |
+| [#4-015](https://sadjjk.github.io/motion-prompt-zh/#4-015) | **几何构成 / 包豪斯** | Geometric / Bauhaus | 在网格上用圆、三角、方与三原色逐步搭出构图的包豪斯几何动画 | 做包豪斯风格构成动画：奶油色纸上画网格，红圆、黄三角、蓝方、黑柱按 120 BPM 每拍放上一个。 |
+| [#4-032](https://sadjjk.github.io/motion-prompt-zh/#4-032) | **波普艺术** | Pop art | 把日常物品放大，用粗轮廓、原色平涂和网点表现的现代艺术风格 | 用波普艺术画一碗汤面：粗黑轮廓，背后放射光芒，暗部用网点。中途把画面分成 2×2 宫格，4 格依次换成不同配色，再合回一幅。 |
+
+#### 数字与复古 · #4 016–019
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#4-016](https://sadjjk.github.io/motion-prompt-zh/#4-016) | **故障艺术** | Glitch | 海报文字在信号干扰下错位撕裂的故障艺术画面 | 做一张「SIGNAL LOST」故障海报：RGB 通道错开 3–9 px，干扰每秒跳 10 次。 |
+| [#4-017](https://sadjjk.github.io/motion-prompt-zh/#4-017) | **赛博朋克 HUD / FUI** | Cyberpunk HUD / FUI | 科幻电影里的青色线框抬头显示界面，层层展开后锁定目标 | 做一段赛博朋克 HUD 风格的目标锁定动画：青色线框逐层展开，雷达 1.6 秒扫一圈，3.8 秒锁定时全屏转洋红。 |
+| [#4-018](https://sadjjk.github.io/motion-prompt-zh/#4-018) | **复古 80s Synthwave / VHS** | 80s Synthwave / VHS | 霓虹落日、透视网格加录像带画质的 80 年代复古未来风 | 做一个 80s Synthwave 风格的片头：条纹落日、品红透视网格向镜头滚动，1.2 秒铬字标题砸下，带 VHS 扫描线和磁带抖动。 |
+| [#4-019](https://sadjjk.github.io/motion-prompt-zh/#4-019) | **像素风** | Pixel art / 8-bit | 低分辨率色块、有限色板加逐帧跳动的 8-bit 游戏画面风 | 做一段像素风游戏片头：小人跑过横版卷轴吃金币、踩史莱姆，每周期 48 帧，画面按 5 倍放大保持像素颗粒。 |
+
+### 工艺与纹样
+
+#### 版画与手工 · #4 020–021 · 030 · 033–036
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#4-020](https://sadjjk.github.io/motion-prompt-zh/#4-020) | **孔版印刷** | Risograph | 荧光粉与青绿两版故意错位套印的孔版印刷海报画面 | 做一张孔版印刷风格的动态海报：荧光粉和青绿两版正片叠底，套印错位在 1–5px 间来回晃，6.4 秒循环 3 次。 |
+| [#4-021](https://sadjjk.github.io/motion-prompt-zh/#4-021) | **玻璃马赛克** | Glass mosaic | 小玻璃砖依次翻面拼出日落海景的马赛克画面 | 做一个玻璃马赛克动画：45×18 块 12px 玻璃砖从右往左依次翻面，拼出日落海景，约 3.65 秒拼完。 |
+| [#4-030](https://sadjjk.github.io/motion-prompt-zh/#4-030) | **半调网点** | Halftone | 用大小不同的网点表现明暗，形成印刷质感 | 把一个球和「HALF / TONE」两行字做成半调网点：7 px 间距的网点，越暗点越大；光源绕球转动时网点大小跟着变，中途分成 CMYK 四个版叠出彩色，再回到单色黑版。 |
+| [#4-033](https://sadjjk.github.io/motion-prompt-zh/#4-033) | **浮世绘** | Ukiyo-e | 用墨线和几种平涂套色表现的江户时代木版画风格 | 用浮世绘风格画雨中大木桥上 2 个撑伞的人相向走过：墨线勾边，平涂套色并略微错位，雨是固定角度的细线，右上角压一枝松树。 |
+| [#4-034](https://sadjjk.github.io/motion-prompt-zh/#4-034) | **木刻版画** | Woodcut | 用刻刀在木板上刻出、只有黑和纸色两种颜色的版画 | 用黑白木刻版画画一个渔民在浪里的木船上拉网：天空是刻刀的平行线，海是大块黑色加白色刀痕刻出的浪，黑色区域透出淡淡木纹。 |
+| [#4-035](https://sadjjk.github.io/motion-prompt-zh/#4-035) | **刺绣** | Embroidery | 用针线在布上绣出图案，靠针脚方向表现丝光和立体感的工艺 | 用刺绣风格做木绣绷上的丝绸被一针针绣出荷叶、荷花、花苞和一只鸳鸯的过程：丝光随针脚方向变化，绣完后一道斜向丝光扫过。 |
+| [#4-036](https://sadjjk.github.io/motion-prompt-zh/#4-036) | **彩色玻璃** | Stained glass | 用铅条把小块彩色玻璃拼成窗，让背后的光透过来 | 用彩色玻璃风格做暗色石墙上的弧顶窗，窗上是凤鸟、花丛和远山后的太阳：粗铅条分隔，背后的光从下往上升，玻璃按离光源远近依次透亮，并在地上投出彩色光斑。 |
+
+#### 几何纹样 · #4 022–026
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#4-022](https://sadjjk.github.io/motion-prompt-zh/#4-022) | **万花尺** | Spirograph | 齿轮在圆环里滚动、用 3 色墨水画出繁花曲线的万花尺 | 做一个万花尺动画：3 个齿轮在圆环里滚动，画出红、蓝、绿 3 朵繁花曲线，每朵 3.6 秒画完闭合。 |
+| [#4-023](https://sadjjk.github.io/motion-prompt-zh/#4-023) | **防伪钞票纹** | Guilloche | 钞票式精密曲线层层缠绕、缓缓转动的防伪花纹画面 | 做一个钞票防伪纹风格的背景：32 条内摆线用翡翠绿和金色叠成玫瑰窗，6.4 秒无缝循环。 |
+| [#4-024](https://sadjjk.github.io/motion-prompt-zh/#4-024) | **青海波** | Seigaiha waves | 深靛底上青海波层层相叠、金色满月高悬的和风纹样画面 | 做一个循环的青海波背景：5 重半圆相叠，纹样每 6.4 秒向下平移 22px 无缝衔接，右上加一轮金色满月。 |
+| [#4-025](https://sadjjk.github.io/motion-prompt-zh/#4-025) | **伊斯兰星纹** | Girih stars | 八角星与十字铺满墙面、从中心一格格点亮的伊斯兰星纹画面 | 做一个伊斯兰星纹背景动画：62px 方格里画八角星，从中心向外一格格点亮，约 2.5 秒全部亮起。 |
+| [#4-026](https://sadjjk.github.io/motion-prompt-zh/#4-026) | **费尔岛针织** | Fair Isle knit | V 字毛线圈一行行织出图案的费尔岛针织画面 | 做一段费尔岛针织从下往上织出的动画：V 字针脚共 26 行，在 0.2–4.6 秒内一行行织完。 |
+
+### 东方传统
+
+#### 书画 · #4 027–028 · 037
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#4-027](https://sadjjk.github.io/motion-prompt-zh/#4-027) | **书法笔触** | Dry brush | 毛笔在宣纸上写出「永」字、带飞白和朱印的书法画面 | 做一段书法开场：毛笔 4 秒写完「永」字 8 笔，最后盖上朱红印章。 |
+| [#4-028](https://sadjjk.github.io/motion-prompt-zh/#4-028) | **竖排诗笺** | Vertical verse | 朱丝栏笺纸上古诗竖排逐字浮现的画面 | 做一张竖排诗笺：王维的诗 44 个字从右往左每秒浮现 9.5 个，最后钤一方朱印。 |
+| [#4-037](https://sadjjk.github.io/motion-prompt-zh/#4-037) | **青绿山水** | Blue-green landscape | 用石青、石绿矿物颜料重彩画山的中国山水画风格 | 让一幅青绿山水绢本长卷缓缓横向展开：远、中、近 3 层山以不同速度平移，只有墨线的山体自上而下染上石青、石绿，山脚压赭石，山腰有云带，桥上有一个小人。 |
+
+#### 器物与民艺 · #4 029 · 038–039
+
+| 编号 | 中文名称 | 英文名称 | 名称解释 | 向 AI 提需求的示例 |
+|---|---|---|---|---|
+| [#4-029](https://sadjjk.github.io/motion-prompt-zh/#4-029) | **青花瓷盘** | Blue & white | 俯视一只缓缓转动的白釉钴蓝青花瓷盘画面 | 做一段俯视青花瓷盘的循环画面：瓷盘每 6.4 秒顺时针转 1 圈，一道暖金高光从左扫到右。 |
+| [#4-038](https://sadjjk.github.io/motion-prompt-zh/#4-038) | **中国剪纸** | Chinese paper cutting | 把红纸对折后剪刻，展开成左右对称图案的民间工艺 | 用中国剪纸做：刻刀在对折的红纸上从上往下刻，展开后是左右对称的圆形团花，2 条鲤鱼相对，中间一朵荷花，外圈锯齿纹，鱼鳞是月牙镂空。 |
+| [#4-039](https://sadjjk.github.io/motion-prompt-zh/#4-039) | **皮影** | Shadow puppets | 用雕刻镂空的皮制人偶在幕后打光、用竹签操纵的传统戏剧 | 用皮影做：暖黄灯光的幕布前，长裙女子和骑马的武将侧脸相对。人物是半透明的红、绿、黄、黑色块，刻满细密镂空，关节有铆钉，手上和身上连着竹签；女子甩袖，马原地踏步。 |
+
+单项的时序、缓动和参考代码： `api/v1/zh-Hans/e/<id>.txt` ([#1-001](../api/v1/zh-Hans/e/1-001.txt)).

@@ -1,8 +1,8 @@
-// Motion Prompt #4 001~011 · 015 · 017~019 · 031 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
+// Motion Prompt #4 001–011 · 015 · 017–019 · 031 · MIT License (c) 2026 Vincentwei1021 · https://github.com/Vincentwei1021/mg-styles-15
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/low-poly (#4-031)
 //
 // Kit for pack "mgstyles" (MG styles / モーショングラフィックスのスタイル): the constants and helpers its elements share.
-// Elements #4 001~011 · 015 · 017~019 · 031 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #4 001–011 · 015 · 017–019 · 031 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

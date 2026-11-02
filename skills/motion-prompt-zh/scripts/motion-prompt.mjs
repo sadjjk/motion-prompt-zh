@@ -366,11 +366,11 @@ function suggestForNumber(cat, token, lang) {
   }).filter(Boolean);
 }
 
-// 编号范围：#1 001~024（大类前缀只写一次）；单个元素仍写 #1-001
+// 编号范围：#1 001–024（大类前缀只写一次）；单个元素仍写 #1-001
 function idRange(first, last) {
   if (first === last) return `#${first}`;
   const [g, x] = first.split('-');
-  return `#${g} ${x}~${last.split('-')[1]}`;
+  return `#${g} ${x}–${last.split('-')[1]}`;
 }
 
 function groupRanges(cat) {
