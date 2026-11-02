@@ -1,0 +1,61 @@
+// Motion Prompt #2-112 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/burn-transition
+//
+// バーントランジション / Burn transition
+// 分類: モーショングラフィックス / エフェクト・トランジション / トランジション
+// 何が起きるか: 街の夜景の中央付近に小さな焼け穴があき、波打つ不規則な縁がゆっくり、やがて速く外へ広がっていく。縁の外側は焦げ茶の帯、すぐ内側にはオレンジに光る火の線が走り、火の粉がいくつか縁から外上方へ漂って消える。穴の中には山の景色が現れ、画面全体が焼け開くと切り替わりが終わる。後半は同じやり方で街の夜景へ焼け戻る。
+// 動きの仕様:
+//   - 4.7秒で街 → 山 → 街。半周期2.35秒ごとに1回、0.4〜1.7秒の1.3秒で焼け開く
+//   - 穴の中心は画面の横46%・縦52%。基準半径 R = 560 × 進行度^1.7 で、最初はゆっくり、後半は速く広がる
+//   - 縁の半径 = R × (1 + 0.22·sin(3θ+…) + 0.12·sin(7θ+…) + 0.06·sin(13θ+…))。位相が進行度とともに動くので、縁は広がりながら形を変える
+//   - 縁の外側に幅34pxの淡い焦げ、幅12pxの焦げ茶の帯、内側に幅5pxのオレンジの火の線（発光ぼかし12px）
+//   - 火の粉8粒が縁から外へ24px、上へ10px漂って消え、切り替えの最初と最後の1/8でフェードする
+// 使いどころ: 旧い写真や手紙、思い出の場面の切り替えに。焼けて消えるイメージを持つ内容や、雰囲気の強い章の区切りに。
+// タグ: burn, transition, fire, reveal, scorched edge, sparks
+// サイズ: 539x208 px · 1周: 4.7 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-112
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 62
+// 62 燃烧转场（参考镜语「燃烧转场」词条的说明重新实现）：A 画面中间烧出一个洞，边界不规则地向外扩，洞里露出 B。
+// 边界是多频正弦叠加的极坐标曲线，相位随进度走，所以边一边扩一边变形；沿边一圈亮橙火线，外侧是焦褐带，几颗火星从边上飘出。
+// 不是整屏变亮的胶片灼烧，也不是规则的圆形擦除。
+const BURN_C = [CW * 0.46, CH * 0.52], BURN_N = 120;
+// 角度 a 处的边界半径。最小系数 1 − 0.22 − 0.12 − 0.06 = 0.6，R 到 560 时最近的边也超过最远的角（约 310px）
+const burnR = (a, R, p) => R * (1 + 0.22 * Math.sin(3 * a + 1.3 + p * 2.2) + 0.12 * Math.sin(7 * a + 0.4 - p * 3.1) + 0.06 * Math.sin(13 * a + p * 5));
+function burnPath(k, R, p, grow) {
+  k.beginPath();
+  for (let i = 0; i <= BURN_N; i++) {
+    const a = i / BURN_N * Math.PI * 2, r = burnR(a, R, p) + grow;
+    const x = BURN_C[0] + Math.cos(a) * r, y = BURN_C[1] + Math.sin(a) * r;
+    i ? k.lineTo(x, y) : k.moveTo(x, y);
+  }
+  k.closePath();
+}
+const SC62 = [scCity, scMtn];
+CELLS[61] = abCell((k, w, h, u, a, b) => {
+  const p = P(u, TA - 0.1, TB + 0.2);
+  if (p <= 0) return SC62[a](k, w, h);
+  if (p >= 1) return SC62[b](k, w, h);
+  const R = 560 * Math.pow(p, 1.7);                 // 起步慢，像火苗先烧穿一个小点再蔓延
+  SC62[a](k, w, h);
+  k.save(); k.lineJoin = 'round';
+  burnPath(k, R, p, 12); k.strokeStyle = 'rgba(40,20,8,.32)'; k.lineWidth = 34; k.stroke();     // 外圈烤焦的淡褐
+  burnPath(k, R, p, 5); k.strokeStyle = 'rgba(58,28,10,.9)'; k.lineWidth = 12; k.stroke();      // 焦褐带
+  burnPath(k, R, p, 1); k.shadowColor = '#FF7A1A'; k.shadowBlur = 12; k.strokeStyle = '#FFB34D'; k.lineWidth = 5; k.stroke();   // 发光的火线
+  k.restore();
+  k.save(); burnPath(k, R, p, -2); k.clip(); SC62[b](k, w, h); k.restore();
+  // 火星：沿边界取固定角度，离开边界向外上方飘 24px 后熄灭；首尾 1/8 进度内淡入淡出
+  const edge = Math.min(1, p * 8, (1 - p) * 8);
+  k.save(); k.shadowColor = '#FF8A2A'; k.shadowBlur = 6;
+  for (let i = 0; i < 8; i++) {
+    const ang = H01(i * 31 + 7) * Math.PI * 2, life = mod(p * 2.5 + H01(i * 17 + 3), 1);
+    const r = burnR(ang, R, p) + 6 + 24 * life;
+    const x = BURN_C[0] + Math.cos(ang) * r, y = BURN_C[1] + Math.sin(ang) * r - 10 * life;
+    k.globalAlpha = (1 - life) * edge; k.fillStyle = '#FFD27A';
+    k.beginPath(); k.arc(x, y, 2.2 - 1.2 * life, 0, 7); k.fill();
+  }
+  k.restore();
+});

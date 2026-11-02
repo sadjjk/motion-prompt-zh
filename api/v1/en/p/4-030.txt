@@ -1,0 +1,16 @@
+Please use "Halftone" (ハーフトーン), filed under "Craft & patterns / Print & handmade".
+Motion Prompt #4-030
+
+What it is: Dots of varying size carry the light and shade, giving a printed look
+What the sample shows: On cream paper, a ball and the 2 big words HALF and TONE are made entirely of dots. As the light circles the ball, dots on the lit side shrink and dots on the shadow side grow, so the shading turns smoothly around it. A bright band moves left to right across the words. Partway through, the dots split into cyan, magenta, yellow and black plates, overlapping at different angles to turn the ball red and the words blue, then they go back to black dots only.
+Spec:
+- Dots sit on a 7 px grid, and each dot's area equals the darkness there (radius = 7·√(darkness / π)·1.05).
+- The ball is centred at (150, 100) with a 78 px radius; brightness = 0.1 + 0.9 × max(0, normal · light direction), and the light circles the ball once per 6.4 s.
+- The words are 80 px at weight 900; brightness = 0.5 + 0.36·sin(0.022x − light angle), so a bright band moves right.
+- Over 2.8–3.3 s the dots move to 4 CMYK plates and over 4.3–4.8 s they return to the black plate alone; screen angles are C 15°, M 75°, Y 0° and K 45°, combined with multiply.
+- The ball's shadow (an ellipse 74 px wide and 11 px tall) is on the black plate only. The bottom right shows the current plates (K, or C · M · Y · K).
+When to use it: Use it for retro posters, magazine-style collages and openers, comic or pop-art illustration, or a transition that turns a photo into dots.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-030.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

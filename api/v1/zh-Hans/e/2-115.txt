@@ -1,0 +1,48 @@
+// Motion Prompt #2-115 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/zoom-callout
+//
+// 放大镜局部放大 / Zoom callout
+// 分类: 动态图形 / 图形与物件 / 信息与科技
+// 动画表现: 城市夜景上，一个黄色小圈沿 8 字路线在楼群间缓慢移动。一条虚线从小圈连到右上方的白色大圆，大圆里是小圈位置放大 3 倍的同一画面，窗灯的明灭也同步变化。大圆下方的标签显示倍数和小圈坐标，数字随移动变化。原画面本身不缩放、不移动。
+// 运动规格:
+//   - 小圈半径 18 px、黄色线宽 2.5 px；圆心沿 x = 196 + 92·sin a、y = 142 + 26·sin 2a（a = 2π·t/4.7）的 8 字路线，4.7 秒走一圈
+//   - 大圆圆心 (432, 60)、半径 56 px，4 px 白边（阴影模糊 10 px）；圆内以小圈圆心为基准把同一画面放大 3 倍重画
+//   - 小圈和大圆的边缘用 1.5 px 白色虚线（4 px 实、4 px 空）相连
+//   - 大圆下方 104 × 22 px 的标签「×3 · x, y」，坐标为小圈圆心取整
+//   - 原画面不动，循环无缝
+// 适用场景: 适合测评展示材质、做工，教程放大按钮或小字，讲解画面里容易忽略的细节。
+// 标签: zoom, callout, magnifier, detail, annotation, loupe
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-115
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 65
+// 65 放大镜局部放大（参考镜语「放大镜局部放大」词条的说明重新实现）：城市夜景上，一个小圈标出要看的位置，
+// 一条线连到右上方的大圆，大圆里是小圈位置放大 3 倍的同一画面（窗灯的明灭也同步），下面标着倍数和坐标。
+// 小圈沿一条闭合曲线缓慢移动，大圆内容跟着变；原画面本身不缩放、不移动。区别于整屏推镜（画面整体放大）。
+// 大圆中心 x、y、半径；小圈半径；放大倍数（大圆半径 ≈ 小圈 × 倍数）。大圆整个盖住月亮（月亮在 419,46 半径 22），避免边上露出半个月牙
+const ZC_BIG = [432, 60, 56], ZC_R = 18, ZC_Z = 3;
+CELLS[64] = (k, w, h, u) => {
+  u = snapU(u);
+  const a = 2 * Math.PI * u / CYC;
+  const px = 196 + 92 * Math.sin(a), py = 142 + 26 * Math.sin(2 * a);   // 横向一圈、纵向两圈的 8 字路径，首尾相接
+  pnCity(k, 0, w, h, u, false);
+  const [bx, by, br] = ZC_BIG;
+  // 连线：从小圈边缘指向大圆边缘
+  const dx = bx - px, dy = by - py, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
+  k.strokeStyle = 'rgba(255,255,255,.85)'; k.lineWidth = 1.5; k.setLineDash([4, 4]);
+  k.beginPath(); k.moveTo(px + ux * ZC_R, py + uy * ZC_R); k.lineTo(bx - ux * br, by - uy * br); k.stroke(); k.setLineDash([]);
+  // 大圆：裁成圆形，以小圈中心为原点放大 3 倍重画同一画面
+  k.save(); k.beginPath(); k.arc(bx, by, br, 0, 7); k.clip();
+  k.translate(bx, by); k.scale(ZC_Z, ZC_Z); k.translate(-px, -py);
+  pnCity(k, 0, w, h, u, false);
+  k.restore();
+  k.save(); k.shadowColor = 'rgba(0,0,0,.45)'; k.shadowBlur = 10;
+  k.strokeStyle = '#fff'; k.lineWidth = 4; k.beginPath(); k.arc(bx, by, br, 0, 7); k.stroke(); k.restore();
+  k.strokeStyle = C.yel; k.lineWidth = 2.5; k.beginPath(); k.arc(px, py, ZC_R, 0, 7); k.stroke();
+  // 标签：倍数 + 小圈的坐标
+  k.fillStyle = 'rgba(15,26,61,.8)'; rr(k, bx - 52, by + br + 8, 104, 22, 11); k.fill();
+  txt(k, `×${ZC_Z}  ·  ${Math.round(px)}, ${Math.round(py)}`, bx, by + br + 19, `600 12px ${DISP}`, '#fff', 'center', 'middle');
+};

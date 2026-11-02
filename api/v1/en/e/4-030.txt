@@ -1,0 +1,77 @@
+// Motion Prompt #4-030 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/halftone
+//
+// Halftone / ハーフトーン
+// Category: Visual styles / Craft & patterns / Print & handmade
+// What happens: On cream paper, a ball and the 2 big words HALF and TONE are made entirely of dots. As the light circles the ball, dots on the lit side shrink and dots on the shadow side grow, so the shading turns smoothly around it. A bright band moves left to right across the words. Partway through, the dots split into cyan, magenta, yellow and black plates, overlapping at different angles to turn the ball red and the words blue, then they go back to black dots only.
+// Motion spec:
+//   - Dots sit on a 7 px grid, and each dot's area equals the darkness there (radius = 7·√(darkness / π)·1.05).
+//   - The ball is centred at (150, 100) with a 78 px radius; brightness = 0.1 + 0.9 × max(0, normal · light direction), and the light circles the ball once per 6.4 s.
+//   - The words are 80 px at weight 900; brightness = 0.5 + 0.36·sin(0.022x − light angle), so a bright band moves right.
+//   - Over 2.8–3.3 s the dots move to 4 CMYK plates and over 4.3–4.8 s they return to the black plate alone; screen angles are C 15°, M 75°, Y 0° and K 45°, combined with multiply.
+//   - The ball's shadow (an ellipse 74 px wide and 11 px tall) is on the black plate only. The bottom right shows the current plates (K, or C · M · Y · K).
+// When to use it: Use it for retro posters, magazine-style collages and openers, comic or pop-art illustration, or a transition that turns a photo into dots.
+// Tags: halftone, dots, print, cmyk, retro, texture, pop art
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-030
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 44
+// 半调网点（参考镜语「半调网点」词条的说明重新实现）：米白纸上，一个球和「HALF / TONE」两行大字全部由网点组成。
+// 网点排在 7px 间距的网格上，每个网点的面积 = 该处暗度，所以光源绕球转动（一圈 / 6.4 秒）时，网点大小跟着明暗实时变化；
+// 大字的明暗是一条从左往右移动的亮带。2.8–4.8 秒叠成青、品红、黄、黑四个版（15°、75°、0°、45°），正片叠底出彩色，然后回到单色黑版。
+// 明暗都由解析函数直接算出（球面法线 · 光源方向），不读像素。区别于均匀的装饰圆点：点的大小一直在变。
+const HT_S = 7, HT_BALL = [150, 100, 78];
+const HT_O = document.createElement('canvas'), HT_T = document.createElement('canvas');
+HT_O.width = HT_T.width = CW; HT_O.height = HT_T.height = CH;
+const HT_INK = { c: '#00a3e0', m: '#e4007f', y: '#ffd800', k: '#1d2236' };
+const HT_PLATES = [['c', 15], ['m', 75], ['y', 0], ['k', 45]];   // [版, 网角°]
+// 以 (cx, cy) 为原点、按网角 ang 排的网点；cov(x, y) 返回该点覆盖率 0..1，面积按覆盖率换算成半径
+function htDots(g, ang, cx, cy, half, cov) {
+  const ca = Math.cos(ang), sa = Math.sin(ang), n = Math.ceil(half / HT_S) + 1;
+  g.beginPath();
+  for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
+    const x = cx + (i * ca - j * sa) * HT_S, y = cy + (i * sa + j * ca) * HT_S;
+    const v = cov(x, y); if (v <= 0.01) continue;
+    const r = HT_S * Math.sqrt(Math.min(1, v) / Math.PI) * 1.05;
+    g.moveTo(x + r, y); g.arc(x, y, r, 0, TAU);
+  }
+  g.fill();
+}
+// 一个版在某处的覆盖率：单色时黑版 = 暗度；彩色时青品黄 = 1 − 受光颜色的对应通道，黑版只留最暗的部分
+function htInk(pl, b, rgb, cm) {
+  if (pl === 'k') return (1 - cm) * (1 - b) + cm * Math.max(0, 0.38 - b) * 1.4;
+  return cm * (1 - rgb['cmy'.indexOf(pl)] * b);
+}
+CELLS[43] = (k, w, h, u) => {
+  const phi = TAU * u / CYC;
+  const L = [0.72 * Math.cos(phi), 0.72 * Math.sin(phi), 0.69];
+  const cm = Math.min(seg(u, 2.8, 3.3), 1 - seg(u, 4.3, 4.8));   // 彩色版的比例
+  const [bx, by, br] = HT_BALL, ballRGB = [0.93, 0.32, 0.27], textRGB = [0.12, 0.42, 1];
+  const shx = bx - 34 * Math.cos(phi), shy = 188;                  // 桌面投影在光源对面
+  const ballLit = (x, y) => { const nx = (x - bx) / br, ny = (y - by) / br, d = nx * nx + ny * ny; if (d >= 1) return -1; const nz = Math.sqrt(1 - d); return 0.1 + 0.9 * Math.max(0, nx * L[0] + ny * L[1] + nz * L[2]); };
+  const textLit = x => 0.5 + 0.36 * Math.sin(x * 0.022 - phi);
+  k.fillStyle = '#F3ECDD'; k.fillRect(0, 0, w, h); paper(k, [120, 100, 70], 900, 11);
+  const glyph = layer('HT_glyph', g => { g.font = `900 80px ${DISP}`; g.fillStyle = '#000'; g.textBaseline = 'alphabetic'; g.fillText('HALF', 268, 96); g.fillText('TONE', 268, 182); });
+  const o = HT_O.getContext('2d'), t = HT_T.getContext('2d');
+  for (const [pl, deg] of HT_PLATES) {
+    if (pl !== 'k' && cm <= 0.001) continue;
+    const ang = deg * Math.PI / 180;
+    o.clearRect(0, 0, CW, CH); o.fillStyle = HT_INK[pl];
+    htDots(o, ang, bx, by, 150, (x, y) => {
+      const b = ballLit(x, y); if (b >= 0) return htInk(pl, b, ballRGB, cm);
+      const e = 1 - ((x - shx) / 74) ** 2 - ((y - shy) / 11) ** 2;   // 投影只用黑版
+      return pl === 'k' && e > 0 ? 0.5 * e : 0;
+    });
+    t.clearRect(0, 0, CW, CH); t.fillStyle = HT_INK[pl];
+    // 彩色阶段把字的明暗整体抬高：暗部四色墨叠满会接近黑色，抬高后青、品红多、黄少，读得出蓝色；亮带仍然在走
+    htDots(t, ang, 400, 140, 170, x => { const b = textLit(x); return htInk(pl, b + cm * 0.6 * (1 - b), textRGB, cm); });
+    t.globalCompositeOperation = 'destination-in'; t.drawImage(glyph, 0, 0); t.globalCompositeOperation = 'source-over';
+    o.drawImage(HT_T, 0, 0);
+    k.save(); k.globalCompositeOperation = 'multiply'; k.drawImage(HT_O, 0, 0); k.restore();
+  }
+  txt(k, cm > 0.5 ? 'C · M · Y · K' : 'K', w - 12, h - 10, `10px ${MONO}`, '#7a6f58', 'right', 'alphabetic');
+  grain(k, 0.06);
+};

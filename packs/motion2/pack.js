@@ -2532,6 +2532,169 @@ MotionPrompt.pack('motion2', function () {
     return fn;
   })();
 
+  // @element 62
+  // 62 燃烧转场（参考镜语「燃烧转场」词条的说明重新实现）：A 画面中间烧出一个洞，边界不规则地向外扩，洞里露出 B。
+  // 边界是多频正弦叠加的极坐标曲线，相位随进度走，所以边一边扩一边变形；沿边一圈亮橙火线，外侧是焦褐带，几颗火星从边上飘出。
+  // 不是整屏变亮的胶片灼烧，也不是规则的圆形擦除。
+  const BURN_C = [CW * 0.46, CH * 0.52], BURN_N = 120;
+  // 角度 a 处的边界半径。最小系数 1 − 0.22 − 0.12 − 0.06 = 0.6，R 到 560 时最近的边也超过最远的角（约 310px）
+  const burnR = (a, R, p) => R * (1 + 0.22 * Math.sin(3 * a + 1.3 + p * 2.2) + 0.12 * Math.sin(7 * a + 0.4 - p * 3.1) + 0.06 * Math.sin(13 * a + p * 5));
+  function burnPath(k, R, p, grow) {
+    k.beginPath();
+    for (let i = 0; i <= BURN_N; i++) {
+      const a = i / BURN_N * Math.PI * 2, r = burnR(a, R, p) + grow;
+      const x = BURN_C[0] + Math.cos(a) * r, y = BURN_C[1] + Math.sin(a) * r;
+      i ? k.lineTo(x, y) : k.moveTo(x, y);
+    }
+    k.closePath();
+  }
+  const SC62 = [scCity, scMtn];
+  CELLS[61] = abCell((k, w, h, u, a, b) => {
+    const p = P(u, TA - 0.1, TB + 0.2);
+    if (p <= 0) return SC62[a](k, w, h);
+    if (p >= 1) return SC62[b](k, w, h);
+    const R = 560 * Math.pow(p, 1.7);                 // 起步慢，像火苗先烧穿一个小点再蔓延
+    SC62[a](k, w, h);
+    k.save(); k.lineJoin = 'round';
+    burnPath(k, R, p, 12); k.strokeStyle = 'rgba(40,20,8,.32)'; k.lineWidth = 34; k.stroke();     // 外圈烤焦的淡褐
+    burnPath(k, R, p, 5); k.strokeStyle = 'rgba(58,28,10,.9)'; k.lineWidth = 12; k.stroke();      // 焦褐带
+    burnPath(k, R, p, 1); k.shadowColor = '#FF7A1A'; k.shadowBlur = 12; k.strokeStyle = '#FFB34D'; k.lineWidth = 5; k.stroke();   // 发光的火线
+    k.restore();
+    k.save(); burnPath(k, R, p, -2); k.clip(); SC62[b](k, w, h); k.restore();
+    // 火星：沿边界取固定角度，离开边界向外上方飘 24px 后熄灭；首尾 1/8 进度内淡入淡出
+    const edge = Math.min(1, p * 8, (1 - p) * 8);
+    k.save(); k.shadowColor = '#FF8A2A'; k.shadowBlur = 6;
+    for (let i = 0; i < 8; i++) {
+      const ang = H01(i * 31 + 7) * Math.PI * 2, life = mod(p * 2.5 + H01(i * 17 + 3), 1);
+      const r = burnR(ang, R, p) + 6 + 24 * life;
+      const x = BURN_C[0] + Math.cos(ang) * r, y = BURN_C[1] + Math.sin(ang) * r - 10 * life;
+      k.globalAlpha = (1 - life) * edge; k.fillStyle = '#FFD27A';
+      k.beginPath(); k.arc(x, y, 2.2 - 1.2 * life, 0, 7); k.fill();
+    }
+    k.restore();
+  });
+
+  // @element 63
+  // 63 弹幕（参考镜语「弹幕」词条的说明重新实现）：一段视频画面上，多行评论从右往左匀速横穿。
+  // 每行的跨度和速度不同（约 150～300px/s），行与行之间互相超车；几条彩色，一条带白框表示自己发的。
+  // 人物所在区域的弹幕被抠掉（防挡脸），人物始终露在弹幕前面。每条在 4.7 秒内正好走完整数个跨度，循环无缝。
+  // 区别于跑马灯（单行、同一句反复）和固定字幕。
+  const DM_ROWS = [   // y：行基线；span：一个跨度（px）；n：4.7 秒走几个跨度；items：[文字, 起点占跨度的比例, 颜色, 是否自己发的]
+    { y: 30, span: 720, n: 1, items: [['前方高能', 0, C.white], ['哈哈哈哈哈哈', 0.5, C.white]] },
+    { y: 54, span: 780, n: 1, items: [['这个转场好看', 0.2, C.yel], ['第一！', 0.72, C.white]] },
+    { y: 78, span: 700, n: 2, items: [['求 BGM', 0.1, C.white], ['泪目', 0.45, C.mint], ['awsl', 0.8, C.white]] },
+    { y: 102, span: 840, n: 1, items: [['我来了我来了', 0.35, C.white, true], ['镜头好稳', 0.85, C.coral]] },
+    { y: 126, span: 760, n: 1, items: [['画质好清楚', 0.05, C.white], ['打卡', 0.6, C.white]] }
+  ];
+  const DM_PX = 160;   // 人物（主播）的中心 x
+  function dmPerson(k, bob, grow) {   // 头 + 肩的剪影路径；grow 用于把抠图范围放大一圈
+    k.beginPath(); k.arc(DM_PX, 120 + bob, 24 + grow, 0, 7);
+    k.moveTo(DM_PX - 74 - grow, CH); k.bezierCurveTo(DM_PX - 72 - grow, 158 + bob - grow, DM_PX - 30, 150 + bob - grow, DM_PX, 150 + bob - grow);
+    k.bezierCurveTo(DM_PX + 30, 150 + bob - grow, DM_PX + 72 + grow, 158 + bob - grow, DM_PX + 74 + grow, CH); k.closePath();
+  }
+  CELLS[62] = (k, w, h, u) => {
+    u = snapU(u);
+    pnSea(k, 0, w, h, u, false);
+    const bob = 2 * Math.sin(2 * Math.PI * 2 * u / CYC);
+    k.fillStyle = C.navy2; dmPerson(k, bob, 0); k.fill();
+    k.fillStyle = C.navy; k.beginPath(); k.arc(DM_PX, 112 + bob, 25, Math.PI, 0); k.fill();   // 头发
+    // 播放器底栏（静态）
+    k.fillStyle = 'rgba(8,14,40,.45)'; k.fillRect(0, h - 22, w, 22);
+    k.fillStyle = 'rgba(255,255,255,.35)'; k.fillRect(36, h - 12, w - 110, 3); k.fillStyle = C.coral; k.fillRect(36, h - 12, (w - 110) * 0.42, 3);
+    k.fillStyle = '#fff'; k.beginPath(); k.moveTo(14, h - 17); k.lineTo(24, h - 11); k.lineTo(14, h - 5); k.closePath(); k.fill();
+    k.strokeStyle = '#fff'; k.lineWidth = 1.2; rr(k, w - 56, h - 19, 22, 16, 4); k.stroke(); txt(k, '弹', w - 45, h - 11, `600 11px ${JP}`, '#fff', 'center', 'middle');
+    // 弹幕先画到临时画布，再把人物范围抠掉
+    TK.setTransform(1, 0, 0, 1, 0, 0); TK.clearRect(0, 0, CW, CH);
+    TK.font = `600 15px ${JP}`; TK.textAlign = 'left'; TK.textBaseline = 'alphabetic'; TK.lineJoin = 'round';
+    for (const row of DM_ROWS) for (const [s, off, col, own] of row.items) {
+      const x = CW + 20 - mod((u / CYC) * row.n * row.span + off * row.span, row.span);
+      TK.strokeStyle = 'rgba(0,0,0,.6)'; TK.lineWidth = 3; TK.strokeText(s, x, row.y);
+      TK.fillStyle = col; TK.fillText(s, x, row.y);
+      if (own) { const tw0 = TK.measureText(s).width; TK.strokeStyle = '#fff'; TK.lineWidth = 1.5; rr(TK, x - 5, row.y - 16, tw0 + 10, 21, 4); TK.stroke(); }
+    }
+    TK.globalCompositeOperation = 'destination-out'; TK.filter = 'blur(3px)'; TK.fillStyle = '#000';
+    dmPerson(TK, bob, 8); TK.fill();
+    TK.globalCompositeOperation = 'source-over'; TK.filter = 'none';
+    k.drawImage(TMP, 0, 0);
+  };
+
+  // @element 64
+  // 64 金句卡（参考镜语「金句卡」词条的说明重新实现）：深色底上弹出一张纸色卡片，红色大引号从上方落下并回弹，
+  // 两行引文逐行升起，关键词下方从左往右刷出黄色色块，最后浮出署名；停留后整张卡缩小淡出，周期末尾回到空场。
+  // 区别于普通字幕：有独立的卡片衬底、引号和署名，是一张可单独截图转发的「卡」。
+  const QC = { x: 270, y: 104, w: 380, h: 172 };                      // 卡片中心与尺寸
+  const QC_L1 = '好的设计，', QC_L2 = '是把不必要的都拿掉。', QC_KEY = '不必要的', QC_BY = '— 设计笔记 · 第 12 页';
+  CELLS[63] = (k, w, h, u) => {
+    u = snapU(u);
+    stage(k);
+    const pin = P(u, 0, 0.45), pout = P(u, 4.0, 4.45);
+    if (pin <= 0 || pout >= 1) return;
+    const sc = (pin < 1 ? backOut(pin, 1.4) : 1) * (1 - 0.12 * eIn(pout));
+    k.save(); k.globalAlpha = 1 - pout; k.translate(QC.x, QC.y); k.scale(sc, sc);
+    k.fillStyle = 'rgba(0,0,0,.28)'; rr(k, -QC.w / 2 + 4, -QC.h / 2 + 8, QC.w, QC.h, 14); k.fill();   // 投影
+    k.fillStyle = C.cream; rr(k, -QC.w / 2, -QC.h / 2, QC.w, QC.h, 14); k.fill();
+    const L = -QC.w / 2 + 64, top = -QC.h / 2;
+    // 大引号：0.35–0.85 秒从上方 60px 落下，弹簧回弹到位
+    const pq = P(u, 0.35, 0.85);
+    if (pq > 0) {
+      const dy = -60 * (1 - spring(pq * 1.1, 16, 6));
+      k.save(); k.globalAlpha *= Math.min(1, pq * 4);
+      txt(k, '“', L - 40, top + 78 + dy, `900 96px Georgia, ${JP}`, C.coral, 'left', 'alphabetic');
+      k.restore();
+    }
+    // 引文：每行 0.4 秒内从下方 14px 升起并淡入，第二行晚 0.25 秒
+    const FONT = `700 28px ${JP}`;
+    // 一行可以分成几段，每段 [文字, 段前留白 px]；整行一起升起淡入
+    const line = (parts, y, t0) => {
+      const q = eOut(P(u, t0, t0 + 0.4)); if (q <= 0) return;
+      k.save(); k.globalAlpha *= q; let x = L;
+      for (const [s, gap] of parts) { x += gap; txt(k, s, x, y + 14 * (1 - q), FONT, C.navy); x += tw(k, s, FONT); }
+      k.restore();
+    };
+    // 关键词色块：1.75–2.2 秒从左往右刷开，盖住整个字身（第二行基线 top + 118，28px 字从约 top + 94 起），上下各留 2～4px；
+    // 文字后画，所以仍压在色块上面。中文字身左右几乎没有空隙，色块按字宽画会贴到前后不强调的「把」「都」，
+    // 所以关键词前后各多留 QC_GAP 的字距，色块向外伸出 QC_PAD，两侧各剩 QC_GAP − QC_PAD 的纸色把它和邻字隔开
+    const QC_GAP = 8, QC_PAD = 3;
+    const i0 = QC_L2.indexOf(QC_KEY), pre = QC_L2.slice(0, i0), post = QC_L2.slice(i0 + QC_KEY.length);
+    const kx = L + tw(k, pre, FONT) + QC_GAP, kw = tw(k, QC_KEY, FONT);
+    const pk = eIOs(P(u, 1.75, 2.2));
+    if (pk > 0) { k.fillStyle = C.yel; k.fillRect(kx - QC_PAD, top + 92, (kw + QC_PAD * 2) * pk, 32); }
+    line([[QC_L1, 0]], top + 76, 0.85); line([[pre, 0], [QC_KEY, QC_GAP], [post, QC_GAP]], top + 118, 1.1);
+    // 署名：2.3–2.7 秒淡入，右对齐
+    const pb = P(u, 2.3, 2.7);
+    if (pb > 0) { k.save(); k.globalAlpha *= pb; txt(k, QC_BY, QC.w / 2 - 28, QC.h / 2 - 22, `500 14px ${JP}`, C.navy3, 'right'); k.restore(); }
+    k.restore();
+  };
+
+  // @element 65
+  // 65 放大镜局部放大（参考镜语「放大镜局部放大」词条的说明重新实现）：城市夜景上，一个小圈标出要看的位置，
+  // 一条线连到右上方的大圆，大圆里是小圈位置放大 3 倍的同一画面（窗灯的明灭也同步），下面标着倍数和坐标。
+  // 小圈沿一条闭合曲线缓慢移动，大圆内容跟着变；原画面本身不缩放、不移动。区别于整屏推镜（画面整体放大）。
+  // 大圆中心 x、y、半径；小圈半径；放大倍数（大圆半径 ≈ 小圈 × 倍数）。大圆整个盖住月亮（月亮在 419,46 半径 22），避免边上露出半个月牙
+  const ZC_BIG = [432, 60, 56], ZC_R = 18, ZC_Z = 3;
+  CELLS[64] = (k, w, h, u) => {
+    u = snapU(u);
+    const a = 2 * Math.PI * u / CYC;
+    const px = 196 + 92 * Math.sin(a), py = 142 + 26 * Math.sin(2 * a);   // 横向一圈、纵向两圈的 8 字路径，首尾相接
+    pnCity(k, 0, w, h, u, false);
+    const [bx, by, br] = ZC_BIG;
+    // 连线：从小圈边缘指向大圆边缘
+    const dx = bx - px, dy = by - py, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
+    k.strokeStyle = 'rgba(255,255,255,.85)'; k.lineWidth = 1.5; k.setLineDash([4, 4]);
+    k.beginPath(); k.moveTo(px + ux * ZC_R, py + uy * ZC_R); k.lineTo(bx - ux * br, by - uy * br); k.stroke(); k.setLineDash([]);
+    // 大圆：裁成圆形，以小圈中心为原点放大 3 倍重画同一画面
+    k.save(); k.beginPath(); k.arc(bx, by, br, 0, 7); k.clip();
+    k.translate(bx, by); k.scale(ZC_Z, ZC_Z); k.translate(-px, -py);
+    pnCity(k, 0, w, h, u, false);
+    k.restore();
+    k.save(); k.shadowColor = 'rgba(0,0,0,.45)'; k.shadowBlur = 10;
+    k.strokeStyle = '#fff'; k.lineWidth = 4; k.beginPath(); k.arc(bx, by, br, 0, 7); k.stroke(); k.restore();
+    k.strokeStyle = C.yel; k.lineWidth = 2.5; k.beginPath(); k.arc(px, py, ZC_R, 0, 7); k.stroke();
+    // 标签：倍数 + 小圈的坐标
+    k.fillStyle = 'rgba(15,26,61,.8)'; rr(k, bx - 52, by + br + 8, 104, 22, 11); k.fill();
+    txt(k, `×${ZC_Z}  ·  ${Math.round(px)}, ${Math.round(py)}`, bx, by + br + 19, `600 12px ${DISP}`, '#fff', 'center', 'middle');
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

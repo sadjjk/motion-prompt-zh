@@ -2,7 +2,7 @@
 
 # Motion graphics moves, part 2
 
-61 names · #1-078 · #2 007~009 · 013~018 · 022~028 · 030~040 · 042~051 · 057~067 · 076~080 · 105~111 · pack `motion2` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+65 names · #1-078 · #2 007~009 · 013~018 · 022~028 · 030~040 · 042~051 · 057~067 · 076~080 · 105~115 · pack `motion2` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -42,6 +42,8 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-026](https://sadjjk.github.io/motion-prompt-zh/#2-026) | **Tracking expand** | Overlapping letters spread to normal spacing as they appear | Bring the heading in with a tracking expand: from overlapping and blurred, the letter spacing opens up and sharpens in about 1 s. |
 | [#2-027](https://sadjjk.github.io/motion-prompt-zh/#2-027) | **Strike and rewrite** | A word is struck out and a better one handwritten | Do a strike and rewrite on the copy: cross out 便宜 with one stroke and handwrite 实惠 below it one character at a time. |
 | [#2-028](https://sadjjk.github.io/motion-prompt-zh/#2-028) | **Multilingual greeting** | Greetings in different languages take turns | Put a multilingual greeting in the hero: the word swaps with a blur every second or so, and the frame width eases to fit the new word. |
+| [#2-113](https://sadjjk.github.io/motion-prompt-zh/#2-113) | **Danmaku comments** | Viewer comments stream across the video from right to left | Run 5 rows of danmaku comments over the sea footage, each row at a different speed so they overtake each other; make a few yellow or mint, give my own comment a white frame, and cut the comments out around the person so the face stays clear. |
+| [#2-114](https://sadjjk.github.io/motion-prompt-zh/#2-114) | **Quote card** | A quote mark drops onto a paper card, the quote rises in line by line and its key words get highlighted | Turn one line into a quote card: a paper-coloured card pops in, a big red quote mark drops from above and bounces, the 2 lines rise in one after the other, a yellow marker sweeps under 不必要的, and the source fades in at the bottom right. |
 
 ## Text animation / Morphing & texture
 
@@ -109,6 +111,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-078](https://sadjjk.github.io/motion-prompt-zh/#2-078) | **Map route animation** | Pins drop on a map and a route draws between them | Add a map route animation: three pins bounce in, then a line draws from start to destination with a dot travelling along it. |
 | [#2-079](https://sadjjk.github.io/motion-prompt-zh/#2-079) | **Fingerprint scan** | A fingerprint is read and access is granted | Add a fingerprint scan to the login screen: ridges draw from the centre out, a light bar sweeps down and up, then it turns green with a check mark. |
 | [#2-080](https://sadjjk.github.io/motion-prompt-zh/#2-080) | **Audio waveform** | Bars stretch and shrink like playing audio | Add an audio waveform to the player: thin bars stretch up and down from the centre line at varied heights and speeds, with a play button on the left and the time on the right. |
+| [#2-115](https://sadjjk.github.io/motion-prompt-zh/#2-115) | **Zoom callout** | A small circle marks a spot and a linked big circle shows that spot magnified | Add a zoom callout to the city night view: an 18 px yellow circle moves along a figure-8, the big white-rimmed 56 px circle at the top right shows that spot at 3×, a dashed line links them, and a label shows the zoom and coordinates. |
 
 ## Effects & transitions / Transitions
 
@@ -121,6 +124,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-109](https://sadjjk.github.io/motion-prompt-zh/#2-109) | **Pixelate** | Turns into coarse blocks, then switches | Use a pixelate transition: the mosaic gets coarser over 0.6 s and the scene changes at the coarsest point. |
 | [#2-110](https://sadjjk.github.io/motion-prompt-zh/#2-110) | **Shatter** | Breaks like glass and the shards fly off | Before the title appears, break the previous scene with a shatter: cracks first, then the shards fall away in about 1 s. |
 | [#2-111](https://sadjjk.github.io/motion-prompt-zh/#2-111) | **Split screen** | Divides the frame to show scenes side by side | Show three scenes at once with a split screen: from one panel to two, then three, 0.5 s each. |
+| [#2-112](https://sadjjk.github.io/motion-prompt-zh/#2-112) | **Burn transition** | A hole burns through the middle of the frame and its charred edge spreads to reveal the next shot | Switch from the city night view to the mountains with a burn transition: a hole burns open in the middle, its irregular charred edge spreads past the frame over 1.3 s, with a glowing orange fire line and a few sparks on the edge. |
 
 Each number opens the moving sample in the gallery. Timings, easing values and reference code for one name: `api/v1/en/e/<id>.txt` ([#1-078](../../api/v1/en/e/1-078.txt)).
 

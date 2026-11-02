@@ -1627,6 +1627,120 @@ MotionPrompt.pack('scenes', function () {
     kjCursor(k, mx, my);
   };
 
+  // @element 43
+  // 飘雪（参考镜语「飘雪」词条的说明重新实现）：夜晚街道，雪片分远、中、近三层。远层小而清楚、落得慢；
+  // 近层大而虚成光斑、落得快；每片一边下落一边左右漂。经过路灯的光锥时被照成暖白色。
+  // 循环无缝：每层在 6.4 秒内正好落完整数趟（远 1 趟、中 2 趟、近 3 趟），左右漂移也是整数个来回。持续下雪，不走复位段。
+  // 区别于均匀下落的白点：大小、速度、虚实都随深度变化。
+  const SN_LAMP = [392, 70], SN_GROUND = 186;            // 灯头位置；地面高度
+  const SN_LAYERS = [                                    // n：每周期落几趟；r：半径范围；a：不透明度；soft：画成柔边光斑
+    { count: 70, n: 1, r: [0.7, 1.3], a: 0.75, sway: 6, soft: false },
+    { count: 36, n: 2, r: [1.6, 2.4], a: 0.85, sway: 12, soft: false },
+    { count: 9, n: 3, r: [6, 10], a: 0.32, sway: 22, soft: true }
+  ];
+  const SN_M = 14;                                       // 上下各留出的余量，雪片在画面外换行
+  // 光锥：从灯头往下张开，到地面时半宽 118px；返回 0..1 的照亮程度，边缘柔和过渡
+  const snLit = (x, y) => { const dy = y - SN_LAMP[1]; if (dy < 4) return 0; const half = 10 + 108 * dy / (SN_GROUND - SN_LAMP[1]); return clamp(1.4 * (1 - Math.abs(x - SN_LAMP[0]) / half)); };
+  CELLS[42] = (k, w, h, u) => {
+    k.drawImage(layer('SN_bg', g => {
+      const sky = g.createLinearGradient(0, 0, 0, CH); sky.addColorStop(0, '#0b1230'); sky.addColorStop(1, '#1d2a52');
+      g.fillStyle = sky; g.fillRect(0, 0, CW, CH);
+      g.fillStyle = '#121a38';                           // 远处楼群剪影 + 几扇亮窗
+      [[0, 96, 70], [64, 120, 56], [124, 80, 90], [208, 108, 64], [266, 70, 84], [440, 100, 99], [500, 84, 39]].forEach(([x, y, bw], i) => {
+        g.fillStyle = '#121a38'; g.fillRect(x, y, bw, SN_GROUND - y);
+        for (let j = 0; j < 6; j++) if (hash(i * 13 + j) > 0.55) { g.fillStyle = 'rgba(255,200,120,.55)'; g.fillRect(x + 8 + (j % 3) * 20, y + 12 + Math.floor(j / 3) * 22, 7, 9); }
+      });
+      g.fillStyle = '#d9e2f2'; g.fillRect(0, SN_GROUND, CW, CH - SN_GROUND);   // 积雪路面
+      g.fillStyle = 'rgba(120,140,180,.35)'; g.fillRect(0, SN_GROUND, CW, 2);
+      g.fillStyle = '#0a0f24'; g.fillRect(SN_LAMP[0] - 2, SN_LAMP[1], 4, SN_GROUND - SN_LAMP[1]);   // 灯杆
+      g.fillRect(SN_LAMP[0] - 14, SN_LAMP[1] - 6, 28, 7);
+      const cone = g.createLinearGradient(0, SN_LAMP[1], 0, SN_GROUND);       // 光锥与地上的光斑
+      cone.addColorStop(0, 'rgba(255,214,150,.30)'); cone.addColorStop(1, 'rgba(255,214,150,.06)');
+      g.fillStyle = cone; g.beginPath(); g.moveTo(SN_LAMP[0] - 10, SN_LAMP[1]); g.lineTo(SN_LAMP[0] + 10, SN_LAMP[1]);
+      g.lineTo(SN_LAMP[0] + 118, SN_GROUND); g.lineTo(SN_LAMP[0] - 118, SN_GROUND); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,214,150,.35)'; g.beginPath(); g.ellipse(SN_LAMP[0], SN_GROUND + 6, 120, 9, 0, 0, TAU); g.fill();
+    }), 0, 0);
+    glow(k, SN_LAMP[0], SN_LAMP[1] + 2, 34, '255,220,160', 0.75);
+    const span = CH + SN_M * 2;
+    SN_LAYERS.forEach((L, li) => {
+      for (let i = 0; i < L.count; i++) {
+        const s = li * 1000 + i * 7;
+        const r = mix(L.r[0], L.r[1], hash(s + 1));
+        const y = ((hash(s + 2) * span + L.n * span * u / CYC) % span) - SN_M;
+        const x = hash(s + 3) * (CW + 40) - 20 + L.sway * Math.sin(TAU * (1 + (i % 2)) * u / CYC + hash(s + 4) * TAU);
+        if (y > SN_GROUND + r && li < 2) continue;        // 远、中层落到地面以下就不画（被路面挡住）
+        const lit = snLit(x, y);
+        const col = lit > 0 ? lerpC([235, 242, 255], [255, 236, 200], lit) : [225, 233, 250];
+        const a = L.a * (0.6 + 0.4 * lit);
+        if (L.soft) {
+          const g = k.createRadialGradient(x, y, 0, x, y, r);
+          g.addColorStop(0, rgba(col, a)); g.addColorStop(0.5, rgba(col, a * 0.55)); g.addColorStop(1, rgba(col, 0));
+          k.fillStyle = g; k.fillRect(x - r, y - r, r * 2, r * 2);
+        } else {
+          k.fillStyle = rgba(col, a); k.beginPath(); k.arc(x, y, r * (1 + 0.35 * lit), 0, TAU); k.fill();
+        }
+      }
+    });
+  };
+
+  // @element 44
+  // 半调网点（参考镜语「半调网点」词条的说明重新实现）：米白纸上，一个球和「HALF / TONE」两行大字全部由网点组成。
+  // 网点排在 7px 间距的网格上，每个网点的面积 = 该处暗度，所以光源绕球转动（一圈 / 6.4 秒）时，网点大小跟着明暗实时变化；
+  // 大字的明暗是一条从左往右移动的亮带。2.8–4.8 秒叠成青、品红、黄、黑四个版（15°、75°、0°、45°），正片叠底出彩色，然后回到单色黑版。
+  // 明暗都由解析函数直接算出（球面法线 · 光源方向），不读像素。区别于均匀的装饰圆点：点的大小一直在变。
+  const HT_S = 7, HT_BALL = [150, 100, 78];
+  const HT_O = document.createElement('canvas'), HT_T = document.createElement('canvas');
+  HT_O.width = HT_T.width = CW; HT_O.height = HT_T.height = CH;
+  const HT_INK = { c: '#00a3e0', m: '#e4007f', y: '#ffd800', k: '#1d2236' };
+  const HT_PLATES = [['c', 15], ['m', 75], ['y', 0], ['k', 45]];   // [版, 网角°]
+  // 以 (cx, cy) 为原点、按网角 ang 排的网点；cov(x, y) 返回该点覆盖率 0..1，面积按覆盖率换算成半径
+  function htDots(g, ang, cx, cy, half, cov) {
+    const ca = Math.cos(ang), sa = Math.sin(ang), n = Math.ceil(half / HT_S) + 1;
+    g.beginPath();
+    for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
+      const x = cx + (i * ca - j * sa) * HT_S, y = cy + (i * sa + j * ca) * HT_S;
+      const v = cov(x, y); if (v <= 0.01) continue;
+      const r = HT_S * Math.sqrt(Math.min(1, v) / Math.PI) * 1.05;
+      g.moveTo(x + r, y); g.arc(x, y, r, 0, TAU);
+    }
+    g.fill();
+  }
+  // 一个版在某处的覆盖率：单色时黑版 = 暗度；彩色时青品黄 = 1 − 受光颜色的对应通道，黑版只留最暗的部分
+  function htInk(pl, b, rgb, cm) {
+    if (pl === 'k') return (1 - cm) * (1 - b) + cm * Math.max(0, 0.38 - b) * 1.4;
+    return cm * (1 - rgb['cmy'.indexOf(pl)] * b);
+  }
+  CELLS[43] = (k, w, h, u) => {
+    const phi = TAU * u / CYC;
+    const L = [0.72 * Math.cos(phi), 0.72 * Math.sin(phi), 0.69];
+    const cm = Math.min(seg(u, 2.8, 3.3), 1 - seg(u, 4.3, 4.8));   // 彩色版的比例
+    const [bx, by, br] = HT_BALL, ballRGB = [0.93, 0.32, 0.27], textRGB = [0.12, 0.42, 1];
+    const shx = bx - 34 * Math.cos(phi), shy = 188;                  // 桌面投影在光源对面
+    const ballLit = (x, y) => { const nx = (x - bx) / br, ny = (y - by) / br, d = nx * nx + ny * ny; if (d >= 1) return -1; const nz = Math.sqrt(1 - d); return 0.1 + 0.9 * Math.max(0, nx * L[0] + ny * L[1] + nz * L[2]); };
+    const textLit = x => 0.5 + 0.36 * Math.sin(x * 0.022 - phi);
+    k.fillStyle = '#F3ECDD'; k.fillRect(0, 0, w, h); paper(k, [120, 100, 70], 900, 11);
+    const glyph = layer('HT_glyph', g => { g.font = `900 80px ${DISP}`; g.fillStyle = '#000'; g.textBaseline = 'alphabetic'; g.fillText('HALF', 268, 96); g.fillText('TONE', 268, 182); });
+    const o = HT_O.getContext('2d'), t = HT_T.getContext('2d');
+    for (const [pl, deg] of HT_PLATES) {
+      if (pl !== 'k' && cm <= 0.001) continue;
+      const ang = deg * Math.PI / 180;
+      o.clearRect(0, 0, CW, CH); o.fillStyle = HT_INK[pl];
+      htDots(o, ang, bx, by, 150, (x, y) => {
+        const b = ballLit(x, y); if (b >= 0) return htInk(pl, b, ballRGB, cm);
+        const e = 1 - ((x - shx) / 74) ** 2 - ((y - shy) / 11) ** 2;   // 投影只用黑版
+        return pl === 'k' && e > 0 ? 0.5 * e : 0;
+      });
+      t.clearRect(0, 0, CW, CH); t.fillStyle = HT_INK[pl];
+      // 彩色阶段把字的明暗整体抬高：暗部四色墨叠满会接近黑色，抬高后青、品红多、黄少，读得出蓝色；亮带仍然在走
+      htDots(t, ang, 400, 140, 170, x => { const b = textLit(x); return htInk(pl, b + cm * 0.6 * (1 - b), textRGB, cm); });
+      t.globalCompositeOperation = 'destination-in'; t.drawImage(glyph, 0, 0); t.globalCompositeOperation = 'source-over';
+      o.drawImage(HT_T, 0, 0);
+      k.save(); k.globalCompositeOperation = 'multiply'; k.drawImage(HT_O, 0, 0); k.restore();
+    }
+    txt(k, cm > 0.5 ? 'C · M · Y · K' : 'K', w - 12, h - 10, `10px ${MONO}`, '#7a6f58', 'right', 'alphabetic');
+    grain(k, 0.06);
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

@@ -1,0 +1,17 @@
+Please use "Danmaku comments" (弾幕コメント), filed under "Text animation / Letter by letter & layout".
+Motion Prompt #2-113
+
+What it is: Viewer comments stream across the video from right to left
+What the sample shows: A person's silhouette stands in front of seaside footage while short comments in 5 rows above slide from right to left at steady speeds. Rows move at different speeds, so comments in the fast row overtake the slow ones. Most are white with a dark outline, a few are yellow, mint or coral, and my own comment has a white frame. Around the person's head and shoulders the comments are softly cut away, so the person always sits in front of them. A player bar with a 弹 button runs along the bottom.
+Spec:
+- 5 rows with baselines at y = 30, 54, 78, 102 and 126 px (24 px apart); text is 15 px at weight 600 with a 3 px dark outline.
+- Each row covers a span of 700–840 px once per 4.7 s (one row twice), about 150–300 px/s, so fast rows overtake slow ones.
+- Every row moves a whole number of spans, so the 4.7 s loop has no seam.
+- 3 comments are yellow, mint and coral; my own comment has a 1.5 px white frame.
+- Comments are cut out inside the person's outline (24 px head radius plus shoulders) grown by 8 px and blurred 3 px.
+- A 22 px player bar at the bottom shows 42% progress and a 弹 button.
+When to use it: Use it to fake audience reactions in an edit, to keep the live feel in stream clips, or to bring up viewer questions in a talking-head video.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-113.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

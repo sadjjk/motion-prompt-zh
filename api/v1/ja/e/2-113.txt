@@ -1,0 +1,64 @@
+// Motion Prompt #2-113 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/danmaku
+//
+// 弾幕コメント / Danmaku comments
+// 分類: モーショングラフィックス / 文字アニメーション / 一文字ずつ・組版
+// 何が起きるか: 海辺の映像の手前に人物のシルエットがあり、上の5行には短いコメントが右から左へ一定速度で流れていく。行によって速さが違うので、速い行のコメントが遅い行を追い越していく。ほとんどは黒い縁取りの白文字で、数本が黄色・水色・コーラル、自分のコメントには白い枠がつく。人物の頭と肩の周りでは弾幕が柔らかく抜け、人物はいつもコメントの手前に見える。下には再生バーと「弾」ボタンがある。
+// 動きの仕様:
+//   - 5行、ベースライン y = 30・54・78・102・126px（行間24px）、文字は太さ600の15px、黒の縁取り3px
+//   - 各行は幅700〜840pxの区間を4.7秒で1回（1行だけ2回）流れる。速さは約150〜300px/s で、速い行が遅い行を追い越す
+//   - 区間の整数回ぶん進むので、4.7秒でループの継ぎ目なし
+//   - 色つきは黄・水色・コーラルの3本、自分のコメント1本は1.5pxの白い枠
+//   - 人物（頭の半径24px＋肩）の輪郭を8px広げ、3pxぼかして弾幕を抜く
+//   - 下に高さ22pxの再生バー（進捗42%）と「弾」ボタン
+// 使いどころ: 編集で視聴者の反応を演出したいとき、配信の切り抜き、口頭解説で視聴者の質問を拾う場面に。
+// タグ: danmaku, bullet comments, comments, scrolling text, video, overlay
+// サイズ: 539x208 px · 1周: 4.7 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-113
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 63
+// 63 弹幕（参考镜语「弹幕」词条的说明重新实现）：一段视频画面上，多行评论从右往左匀速横穿。
+// 每行的跨度和速度不同（约 150～300px/s），行与行之间互相超车；几条彩色，一条带白框表示自己发的。
+// 人物所在区域的弹幕被抠掉（防挡脸），人物始终露在弹幕前面。每条在 4.7 秒内正好走完整数个跨度，循环无缝。
+// 区别于跑马灯（单行、同一句反复）和固定字幕。
+const DM_ROWS = [   // y：行基线；span：一个跨度（px）；n：4.7 秒走几个跨度；items：[文字, 起点占跨度的比例, 颜色, 是否自己发的]
+  { y: 30, span: 720, n: 1, items: [['前方高能', 0, C.white], ['哈哈哈哈哈哈', 0.5, C.white]] },
+  { y: 54, span: 780, n: 1, items: [['这个转场好看', 0.2, C.yel], ['第一！', 0.72, C.white]] },
+  { y: 78, span: 700, n: 2, items: [['求 BGM', 0.1, C.white], ['泪目', 0.45, C.mint], ['awsl', 0.8, C.white]] },
+  { y: 102, span: 840, n: 1, items: [['我来了我来了', 0.35, C.white, true], ['镜头好稳', 0.85, C.coral]] },
+  { y: 126, span: 760, n: 1, items: [['画质好清楚', 0.05, C.white], ['打卡', 0.6, C.white]] }
+];
+const DM_PX = 160;   // 人物（主播）的中心 x
+function dmPerson(k, bob, grow) {   // 头 + 肩的剪影路径；grow 用于把抠图范围放大一圈
+  k.beginPath(); k.arc(DM_PX, 120 + bob, 24 + grow, 0, 7);
+  k.moveTo(DM_PX - 74 - grow, CH); k.bezierCurveTo(DM_PX - 72 - grow, 158 + bob - grow, DM_PX - 30, 150 + bob - grow, DM_PX, 150 + bob - grow);
+  k.bezierCurveTo(DM_PX + 30, 150 + bob - grow, DM_PX + 72 + grow, 158 + bob - grow, DM_PX + 74 + grow, CH); k.closePath();
+}
+CELLS[62] = (k, w, h, u) => {
+  u = snapU(u);
+  pnSea(k, 0, w, h, u, false);
+  const bob = 2 * Math.sin(2 * Math.PI * 2 * u / CYC);
+  k.fillStyle = C.navy2; dmPerson(k, bob, 0); k.fill();
+  k.fillStyle = C.navy; k.beginPath(); k.arc(DM_PX, 112 + bob, 25, Math.PI, 0); k.fill();   // 头发
+  // 播放器底栏（静态）
+  k.fillStyle = 'rgba(8,14,40,.45)'; k.fillRect(0, h - 22, w, 22);
+  k.fillStyle = 'rgba(255,255,255,.35)'; k.fillRect(36, h - 12, w - 110, 3); k.fillStyle = C.coral; k.fillRect(36, h - 12, (w - 110) * 0.42, 3);
+  k.fillStyle = '#fff'; k.beginPath(); k.moveTo(14, h - 17); k.lineTo(24, h - 11); k.lineTo(14, h - 5); k.closePath(); k.fill();
+  k.strokeStyle = '#fff'; k.lineWidth = 1.2; rr(k, w - 56, h - 19, 22, 16, 4); k.stroke(); txt(k, '弹', w - 45, h - 11, `600 11px ${JP}`, '#fff', 'center', 'middle');
+  // 弹幕先画到临时画布，再把人物范围抠掉
+  TK.setTransform(1, 0, 0, 1, 0, 0); TK.clearRect(0, 0, CW, CH);
+  TK.font = `600 15px ${JP}`; TK.textAlign = 'left'; TK.textBaseline = 'alphabetic'; TK.lineJoin = 'round';
+  for (const row of DM_ROWS) for (const [s, off, col, own] of row.items) {
+    const x = CW + 20 - mod((u / CYC) * row.n * row.span + off * row.span, row.span);
+    TK.strokeStyle = 'rgba(0,0,0,.6)'; TK.lineWidth = 3; TK.strokeText(s, x, row.y);
+    TK.fillStyle = col; TK.fillText(s, x, row.y);
+    if (own) { const tw0 = TK.measureText(s).width; TK.strokeStyle = '#fff'; TK.lineWidth = 1.5; rr(TK, x - 5, row.y - 16, tw0 + 10, 21, 4); TK.stroke(); }
+  }
+  TK.globalCompositeOperation = 'destination-out'; TK.filter = 'blur(3px)'; TK.fillStyle = '#000';
+  dmPerson(TK, bob, 8); TK.fill();
+  TK.globalCompositeOperation = 'source-over'; TK.filter = 'none';
+  k.drawImage(TMP, 0, 0);
+};

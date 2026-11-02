@@ -1,0 +1,48 @@
+// Motion Prompt #2-115 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/zoom-callout
+//
+// ズームコールアウト / Zoom callout
+// 分類: モーショングラフィックス / 図形・オブジェクト / 情報・テック
+// 何が起きるか: 街の夜景の上で、黄色い小さな円がビル街を8の字を描いてゆっくり動く。小円から右上の大きな白い円へ点線が伸び、大円の中には小円の位置を3倍に拡大した同じ景色が映る。窓の明かりの点滅も大円の中で同時に変わる。大円の下のラベルには倍率と小円の座標が出て、移動に合わせて数字が変わる。元の画面は拡大も移動もしない。
+// 動きの仕様:
+//   - 小円は半径18px・黄色の線2.5px。中心は x = 196 + 92·sin a、y = 142 + 26·sin 2a（a = 2π·t/4.7）の8の字を4.7秒で1周
+//   - 大円は中心 (432, 60)・半径56px、白い枠4px（影のぼかし10px）。中は小円の中心を基準に同じ画面を3倍で描き直す
+//   - 小円と大円の縁を幅1.5pxの白い点線（4px・4px）でつなぐ
+//   - 大円の下に104 × 22pxのラベル「×3 · x, y」、座標は小円の中心を整数で表示
+//   - 元の画面は動かず、ループの継ぎ目なし
+// 使いどころ: レビューで素材や作りの細部を見せるとき、チュートリアルで小さなボタンや文字を拡大するとき、見落としやすい細部の解説に。
+// タグ: zoom, callout, magnifier, detail, annotation, loupe
+// サイズ: 539x208 px · 1周: 4.7 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-115
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 65
+// 65 放大镜局部放大（参考镜语「放大镜局部放大」词条的说明重新实现）：城市夜景上，一个小圈标出要看的位置，
+// 一条线连到右上方的大圆，大圆里是小圈位置放大 3 倍的同一画面（窗灯的明灭也同步），下面标着倍数和坐标。
+// 小圈沿一条闭合曲线缓慢移动，大圆内容跟着变；原画面本身不缩放、不移动。区别于整屏推镜（画面整体放大）。
+// 大圆中心 x、y、半径；小圈半径；放大倍数（大圆半径 ≈ 小圈 × 倍数）。大圆整个盖住月亮（月亮在 419,46 半径 22），避免边上露出半个月牙
+const ZC_BIG = [432, 60, 56], ZC_R = 18, ZC_Z = 3;
+CELLS[64] = (k, w, h, u) => {
+  u = snapU(u);
+  const a = 2 * Math.PI * u / CYC;
+  const px = 196 + 92 * Math.sin(a), py = 142 + 26 * Math.sin(2 * a);   // 横向一圈、纵向两圈的 8 字路径，首尾相接
+  pnCity(k, 0, w, h, u, false);
+  const [bx, by, br] = ZC_BIG;
+  // 连线：从小圈边缘指向大圆边缘
+  const dx = bx - px, dy = by - py, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
+  k.strokeStyle = 'rgba(255,255,255,.85)'; k.lineWidth = 1.5; k.setLineDash([4, 4]);
+  k.beginPath(); k.moveTo(px + ux * ZC_R, py + uy * ZC_R); k.lineTo(bx - ux * br, by - uy * br); k.stroke(); k.setLineDash([]);
+  // 大圆：裁成圆形，以小圈中心为原点放大 3 倍重画同一画面
+  k.save(); k.beginPath(); k.arc(bx, by, br, 0, 7); k.clip();
+  k.translate(bx, by); k.scale(ZC_Z, ZC_Z); k.translate(-px, -py);
+  pnCity(k, 0, w, h, u, false);
+  k.restore();
+  k.save(); k.shadowColor = 'rgba(0,0,0,.45)'; k.shadowBlur = 10;
+  k.strokeStyle = '#fff'; k.lineWidth = 4; k.beginPath(); k.arc(bx, by, br, 0, 7); k.stroke(); k.restore();
+  k.strokeStyle = C.yel; k.lineWidth = 2.5; k.beginPath(); k.arc(px, py, ZC_R, 0, 7); k.stroke();
+  // 标签：倍数 + 小圈的坐标
+  k.fillStyle = 'rgba(15,26,61,.8)'; rr(k, bx - 52, by + br + 8, 104, 22, 11); k.fill();
+  txt(k, `×${ZC_Z}  ·  ${Math.round(px)}, ${Math.round(py)}`, bx, by + br + 19, `600 12px ${DISP}`, '#fff', 'center', 'middle');
+};

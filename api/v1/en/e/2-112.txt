@@ -1,0 +1,61 @@
+// Motion Prompt #2-112 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/burn-transition
+//
+// Burn transition / バーントランジション
+// Category: Motion graphics / Effects & transitions / Transitions
+// What happens: A small hole burns open near the middle of the city night view, and its wavy, irregular edge spreads outward slowly at first, then faster. A dark brown scorched band runs outside the edge with a glowing orange fire line just inside it, and a few sparks drift up and out from the edge before dying. The mountain view shows through the hole, and the switch is done once the whole frame has burned open. The second half burns back to the city the same way.
+// Motion spec:
+//   - City → mountains → city every 4.7 s: one burn per 2.35 s half cycle, opening over the 1.3 s from 0.4 to 1.7 s.
+//   - The hole is centred at 46% across and 52% down the frame. Base radius R = 560 × progress^1.7, so it starts slowly and spreads faster later.
+//   - Edge radius = R × (1 + 0.22·sin(3θ + …) + 0.12·sin(7θ + …) + 0.06·sin(13θ + …)); the phases move with progress, so the edge changes shape as it spreads.
+//   - Outside the edge: a faint 34 px scorch and a 12 px dark brown band; inside it, a 5 px orange fire line with a 12 px glow.
+//   - 8 sparks drift 24 px out and 10 px up from the edge and die, fading in and out over the first and last 1/8 of the switch.
+// When to use it: Use it to switch between old photos, letters or memory scenes, and for chapter breaks where something burning away fits the story.
+// Tags: burn, transition, fire, reveal, scorched edge, sparks
+// Size: 539x208 px · Cycle: 4.7 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-112
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 62
+// 62 燃烧转场（参考镜语「燃烧转场」词条的说明重新实现）：A 画面中间烧出一个洞，边界不规则地向外扩，洞里露出 B。
+// 边界是多频正弦叠加的极坐标曲线，相位随进度走，所以边一边扩一边变形；沿边一圈亮橙火线，外侧是焦褐带，几颗火星从边上飘出。
+// 不是整屏变亮的胶片灼烧，也不是规则的圆形擦除。
+const BURN_C = [CW * 0.46, CH * 0.52], BURN_N = 120;
+// 角度 a 处的边界半径。最小系数 1 − 0.22 − 0.12 − 0.06 = 0.6，R 到 560 时最近的边也超过最远的角（约 310px）
+const burnR = (a, R, p) => R * (1 + 0.22 * Math.sin(3 * a + 1.3 + p * 2.2) + 0.12 * Math.sin(7 * a + 0.4 - p * 3.1) + 0.06 * Math.sin(13 * a + p * 5));
+function burnPath(k, R, p, grow) {
+  k.beginPath();
+  for (let i = 0; i <= BURN_N; i++) {
+    const a = i / BURN_N * Math.PI * 2, r = burnR(a, R, p) + grow;
+    const x = BURN_C[0] + Math.cos(a) * r, y = BURN_C[1] + Math.sin(a) * r;
+    i ? k.lineTo(x, y) : k.moveTo(x, y);
+  }
+  k.closePath();
+}
+const SC62 = [scCity, scMtn];
+CELLS[61] = abCell((k, w, h, u, a, b) => {
+  const p = P(u, TA - 0.1, TB + 0.2);
+  if (p <= 0) return SC62[a](k, w, h);
+  if (p >= 1) return SC62[b](k, w, h);
+  const R = 560 * Math.pow(p, 1.7);                 // 起步慢，像火苗先烧穿一个小点再蔓延
+  SC62[a](k, w, h);
+  k.save(); k.lineJoin = 'round';
+  burnPath(k, R, p, 12); k.strokeStyle = 'rgba(40,20,8,.32)'; k.lineWidth = 34; k.stroke();     // 外圈烤焦的淡褐
+  burnPath(k, R, p, 5); k.strokeStyle = 'rgba(58,28,10,.9)'; k.lineWidth = 12; k.stroke();      // 焦褐带
+  burnPath(k, R, p, 1); k.shadowColor = '#FF7A1A'; k.shadowBlur = 12; k.strokeStyle = '#FFB34D'; k.lineWidth = 5; k.stroke();   // 发光的火线
+  k.restore();
+  k.save(); burnPath(k, R, p, -2); k.clip(); SC62[b](k, w, h); k.restore();
+  // 火星：沿边界取固定角度，离开边界向外上方飘 24px 后熄灭；首尾 1/8 进度内淡入淡出
+  const edge = Math.min(1, p * 8, (1 - p) * 8);
+  k.save(); k.shadowColor = '#FF8A2A'; k.shadowBlur = 6;
+  for (let i = 0; i < 8; i++) {
+    const ang = H01(i * 31 + 7) * Math.PI * 2, life = mod(p * 2.5 + H01(i * 17 + 3), 1);
+    const r = burnR(ang, R, p) + 6 + 24 * life;
+    const x = BURN_C[0] + Math.cos(ang) * r, y = BURN_C[1] + Math.sin(ang) * r - 10 * life;
+    k.globalAlpha = (1 - life) * edge; k.fillStyle = '#FFD27A';
+    k.beginPath(); k.arc(x, y, 2.2 - 1.2 * life, 0, 7); k.fill();
+  }
+  k.restore();
+});

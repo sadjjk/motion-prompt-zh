@@ -1,0 +1,68 @@
+// Motion Prompt #2-114 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/quote-card
+//
+// Quote card / 名言カード
+// Category: Motion graphics / Text animation / Letter by letter & layout
+// What happens: In the middle of a navy screen a rounded paper-coloured card pops in with a slight overshoot. A big coral quote mark drops in at the top left and bounces to a stop, then the 2 lines 好的设计， and 是把不必要的都拿掉。 rise in one after the other. A yellow marker then sweeps left to right across the 4 characters 不必要的, set a little apart from their neighbours so they stand out. The source fades in at the bottom right; after a pause the card shrinks slightly and fades, leaving the empty screen.
+// Motion spec:
+//   - The card is 380 × 172 px with 14 px corners and pops in over 0–0.45 s (back-out, overshoot 1.4).
+//   - A 96 px quote mark drops 60 px on a spring over 0.35–0.85 s.
+//   - Body text is 28 px at weight 700; the 2 lines rise 14 px over 0.4 s, starting at 0.85 s and 1.1 s.
+//   - Over 1.75–2.2 s a 32 px tall yellow marker sweeps left to right across the whole glyphs. The key words get 8 px extra spacing on each side and the marker overhangs 3 px, leaving about 5 px of paper between it and the neighbouring characters.
+//   - The 14 px source line fades in over 2.3–2.7 s.
+//   - Over 4.0–4.45 s the card shrinks by 12% and fades out; the screen stays empty until 4.7 s.
+// When to use it: Use it to quote a passage in book or knowledge videos, to land the key line of a talk, or to highlight a memorable sentence.
+// Tags: quote, pull quote, card, highlight, typography, title
+// Size: 539x208 px · Cycle: 4.7 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-114
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 64
+// 64 金句卡（参考镜语「金句卡」词条的说明重新实现）：深色底上弹出一张纸色卡片，红色大引号从上方落下并回弹，
+// 两行引文逐行升起，关键词下方从左往右刷出黄色色块，最后浮出署名；停留后整张卡缩小淡出，周期末尾回到空场。
+// 区别于普通字幕：有独立的卡片衬底、引号和署名，是一张可单独截图转发的「卡」。
+const QC = { x: 270, y: 104, w: 380, h: 172 };                      // 卡片中心与尺寸
+const QC_L1 = '好的设计，', QC_L2 = '是把不必要的都拿掉。', QC_KEY = '不必要的', QC_BY = '— 设计笔记 · 第 12 页';
+CELLS[63] = (k, w, h, u) => {
+  u = snapU(u);
+  stage(k);
+  const pin = P(u, 0, 0.45), pout = P(u, 4.0, 4.45);
+  if (pin <= 0 || pout >= 1) return;
+  const sc = (pin < 1 ? backOut(pin, 1.4) : 1) * (1 - 0.12 * eIn(pout));
+  k.save(); k.globalAlpha = 1 - pout; k.translate(QC.x, QC.y); k.scale(sc, sc);
+  k.fillStyle = 'rgba(0,0,0,.28)'; rr(k, -QC.w / 2 + 4, -QC.h / 2 + 8, QC.w, QC.h, 14); k.fill();   // 投影
+  k.fillStyle = C.cream; rr(k, -QC.w / 2, -QC.h / 2, QC.w, QC.h, 14); k.fill();
+  const L = -QC.w / 2 + 64, top = -QC.h / 2;
+  // 大引号：0.35–0.85 秒从上方 60px 落下，弹簧回弹到位
+  const pq = P(u, 0.35, 0.85);
+  if (pq > 0) {
+    const dy = -60 * (1 - spring(pq * 1.1, 16, 6));
+    k.save(); k.globalAlpha *= Math.min(1, pq * 4);
+    txt(k, '“', L - 40, top + 78 + dy, `900 96px Georgia, ${JP}`, C.coral, 'left', 'alphabetic');
+    k.restore();
+  }
+  // 引文：每行 0.4 秒内从下方 14px 升起并淡入，第二行晚 0.25 秒
+  const FONT = `700 28px ${JP}`;
+  // 一行可以分成几段，每段 [文字, 段前留白 px]；整行一起升起淡入
+  const line = (parts, y, t0) => {
+    const q = eOut(P(u, t0, t0 + 0.4)); if (q <= 0) return;
+    k.save(); k.globalAlpha *= q; let x = L;
+    for (const [s, gap] of parts) { x += gap; txt(k, s, x, y + 14 * (1 - q), FONT, C.navy); x += tw(k, s, FONT); }
+    k.restore();
+  };
+  // 关键词色块：1.75–2.2 秒从左往右刷开，盖住整个字身（第二行基线 top + 118，28px 字从约 top + 94 起），上下各留 2～4px；
+  // 文字后画，所以仍压在色块上面。中文字身左右几乎没有空隙，色块按字宽画会贴到前后不强调的「把」「都」，
+  // 所以关键词前后各多留 QC_GAP 的字距，色块向外伸出 QC_PAD，两侧各剩 QC_GAP − QC_PAD 的纸色把它和邻字隔开
+  const QC_GAP = 8, QC_PAD = 3;
+  const i0 = QC_L2.indexOf(QC_KEY), pre = QC_L2.slice(0, i0), post = QC_L2.slice(i0 + QC_KEY.length);
+  const kx = L + tw(k, pre, FONT) + QC_GAP, kw = tw(k, QC_KEY, FONT);
+  const pk = eIOs(P(u, 1.75, 2.2));
+  if (pk > 0) { k.fillStyle = C.yel; k.fillRect(kx - QC_PAD, top + 92, (kw + QC_PAD * 2) * pk, 32); }
+  line([[QC_L1, 0]], top + 76, 0.85); line([[pre, 0], [QC_KEY, QC_GAP], [post, QC_GAP]], top + 118, 1.1);
+  // 署名：2.3–2.7 秒淡入，右对齐
+  const pb = P(u, 2.3, 2.7);
+  if (pb > 0) { k.save(); k.globalAlpha *= pb; txt(k, QC_BY, QC.w / 2 - 28, QC.h / 2 - 22, `500 14px ${JP}`, C.navy3, 'right'); k.restore(); }
+  k.restore();
+};

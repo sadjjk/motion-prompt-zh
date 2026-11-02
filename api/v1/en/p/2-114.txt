@@ -1,0 +1,17 @@
+Please use "Quote card" (名言カード), filed under "Text animation / Letter by letter & layout".
+Motion Prompt #2-114
+
+What it is: A quote mark drops onto a paper card, the quote rises in line by line and its key words get highlighted
+What the sample shows: In the middle of a navy screen a rounded paper-coloured card pops in with a slight overshoot. A big coral quote mark drops in at the top left and bounces to a stop, then the 2 lines 好的设计， and 是把不必要的都拿掉。 rise in one after the other. A yellow marker then sweeps left to right across the 4 characters 不必要的, set a little apart from their neighbours so they stand out. The source fades in at the bottom right; after a pause the card shrinks slightly and fades, leaving the empty screen.
+Spec:
+- The card is 380 × 172 px with 14 px corners and pops in over 0–0.45 s (back-out, overshoot 1.4).
+- A 96 px quote mark drops 60 px on a spring over 0.35–0.85 s.
+- Body text is 28 px at weight 700; the 2 lines rise 14 px over 0.4 s, starting at 0.85 s and 1.1 s.
+- Over 1.75–2.2 s a 32 px tall yellow marker sweeps left to right across the whole glyphs. The key words get 8 px extra spacing on each side and the marker overhangs 3 px, leaving about 5 px of paper between it and the neighbouring characters.
+- The 14 px source line fades in over 2.3–2.7 s.
+- Over 4.0–4.45 s the card shrinks by 12% and fades out; the screen stays empty until 4.7 s.
+When to use it: Use it to quote a passage in book or knowledge videos, to land the key line of a talk, or to highlight a memorable sentence.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-114.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

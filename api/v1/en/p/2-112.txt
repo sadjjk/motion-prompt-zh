@@ -1,0 +1,16 @@
+Please use "Burn transition" (バーントランジション), filed under "Effects & transitions / Transitions".
+Motion Prompt #2-112
+
+What it is: A hole burns through the middle of the frame and its charred edge spreads to reveal the next shot
+What the sample shows: A small hole burns open near the middle of the city night view, and its wavy, irregular edge spreads outward slowly at first, then faster. A dark brown scorched band runs outside the edge with a glowing orange fire line just inside it, and a few sparks drift up and out from the edge before dying. The mountain view shows through the hole, and the switch is done once the whole frame has burned open. The second half burns back to the city the same way.
+Spec:
+- City → mountains → city every 4.7 s: one burn per 2.35 s half cycle, opening over the 1.3 s from 0.4 to 1.7 s.
+- The hole is centred at 46% across and 52% down the frame. Base radius R = 560 × progress^1.7, so it starts slowly and spreads faster later.
+- Edge radius = R × (1 + 0.22·sin(3θ + …) + 0.12·sin(7θ + …) + 0.06·sin(13θ + …)); the phases move with progress, so the edge changes shape as it spreads.
+- Outside the edge: a faint 34 px scorch and a 12 px dark brown band; inside it, a 5 px orange fire line with a 12 px glow.
+- 8 sparks drift 24 px out and 10 px up from the edge and die, fading in and out over the first and last 1/8 of the switch.
+When to use it: Use it to switch between old photos, letters or memory scenes, and for chapter breaks where something burning away fits the story.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-112.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

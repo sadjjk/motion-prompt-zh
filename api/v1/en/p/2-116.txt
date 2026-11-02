@@ -1,0 +1,16 @@
+Please use "Snowfall" (降雪), filed under "Effects & transitions / Particles & light".
+Motion Prompt #2-116
+
+What it is: Snowflakes of different sizes and speeds drift down with real depth
+What the sample shows: On a night street with a navy sky, building silhouettes and a snowy road, snow falls without a break. Far flakes are small and crisp and fall slowly, middle flakes are a bit bigger and faster, and near flakes are large, faint out-of-focus bokeh that cross quickly. Every flake sways gently side to side as it falls. Flakes passing through the street lamp's cone of light turn warm white and look a little bigger, and the light pools on the ground.
+Spec:
+- 3 layers: 70 far flakes (0.7–1.3 px radius, 0.75 opacity), 36 middle flakes (1.6–2.4 px, 0.85) and 9 near flakes (6–10 px soft bokeh, 0.32).
+- In 6.4 s the far layer falls 1 screen, the middle 2 and the near 3, so nearer flakes are faster and the loop has no seam.
+- Side-to-side sway is 6 px far, 12 px middle and 22 px near, swinging 1 or 2 times per 6.4 s.
+- The lamp head is at (392, 70); its cone widens to a 118 px half-width at the ground (y = 186), and flakes inside turn warm white and grow by up to 35%.
+- Far and middle flakes are not drawn below the ground. There is no reset segment; the snow keeps falling.
+When to use it: Use it for winter scenes, seasonal or holiday moods, or whenever you need slow, continuous background motion.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-116.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/scenes.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,16 @@
+Please use "Zoom callout" (ズームコールアウト), filed under "Shapes & objects / Information & tech".
+Motion Prompt #2-115
+
+What it is: A small circle marks a spot and a linked big circle shows that spot magnified
+What the sample shows: Over the city night view a small yellow circle drifts through the buildings along a figure-8. A dashed line runs from it to a big white circle at the top right, which shows the same scene at 3× around the small circle's position; the flicker of the window lights changes inside it at the same moment. A label under the big circle shows the zoom and the small circle's coordinates, which change as it moves. The original frame itself never zooms or moves.
+Spec:
+- The small circle has an 18 px radius and a 2.5 px yellow line; its centre follows the figure-8 x = 196 + 92·sin a, y = 142 + 26·sin 2a (a = 2π·t / 4.7), once per 4.7 s.
+- The big circle is centred at (432, 60) with a 56 px radius and a 4 px white rim (10 px shadow blur); inside, the same scene is redrawn at 3× around the small circle's centre.
+- A 1.5 px white dashed line (4 px on, 4 px off) joins the edges of the two circles.
+- A 104 × 22 px label under the big circle reads ×3 · x, y, with the small circle's centre as whole numbers.
+- The original frame stays still, and the loop has no seam.
+When to use it: Use it in reviews to show material and build details, in tutorials to enlarge small buttons or text, or to point out details people miss.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-115.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

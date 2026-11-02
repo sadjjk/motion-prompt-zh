@@ -1,0 +1,48 @@
+// Motion Prompt #2-115 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/zoom-callout
+//
+// Zoom callout / ズームコールアウト
+// Category: Motion graphics / Shapes & objects / Information & tech
+// What happens: Over the city night view a small yellow circle drifts through the buildings along a figure-8. A dashed line runs from it to a big white circle at the top right, which shows the same scene at 3× around the small circle's position; the flicker of the window lights changes inside it at the same moment. A label under the big circle shows the zoom and the small circle's coordinates, which change as it moves. The original frame itself never zooms or moves.
+// Motion spec:
+//   - The small circle has an 18 px radius and a 2.5 px yellow line; its centre follows the figure-8 x = 196 + 92·sin a, y = 142 + 26·sin 2a (a = 2π·t / 4.7), once per 4.7 s.
+//   - The big circle is centred at (432, 60) with a 56 px radius and a 4 px white rim (10 px shadow blur); inside, the same scene is redrawn at 3× around the small circle's centre.
+//   - A 1.5 px white dashed line (4 px on, 4 px off) joins the edges of the two circles.
+//   - A 104 × 22 px label under the big circle reads ×3 · x, y, with the small circle's centre as whole numbers.
+//   - The original frame stays still, and the loop has no seam.
+// When to use it: Use it in reviews to show material and build details, in tutorials to enlarge small buttons or text, or to point out details people miss.
+// Tags: zoom, callout, magnifier, detail, annotation, loupe
+// Size: 539x208 px · Cycle: 4.7 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-115
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 65
+// 65 放大镜局部放大（参考镜语「放大镜局部放大」词条的说明重新实现）：城市夜景上，一个小圈标出要看的位置，
+// 一条线连到右上方的大圆，大圆里是小圈位置放大 3 倍的同一画面（窗灯的明灭也同步），下面标着倍数和坐标。
+// 小圈沿一条闭合曲线缓慢移动，大圆内容跟着变；原画面本身不缩放、不移动。区别于整屏推镜（画面整体放大）。
+// 大圆中心 x、y、半径；小圈半径；放大倍数（大圆半径 ≈ 小圈 × 倍数）。大圆整个盖住月亮（月亮在 419,46 半径 22），避免边上露出半个月牙
+const ZC_BIG = [432, 60, 56], ZC_R = 18, ZC_Z = 3;
+CELLS[64] = (k, w, h, u) => {
+  u = snapU(u);
+  const a = 2 * Math.PI * u / CYC;
+  const px = 196 + 92 * Math.sin(a), py = 142 + 26 * Math.sin(2 * a);   // 横向一圈、纵向两圈的 8 字路径，首尾相接
+  pnCity(k, 0, w, h, u, false);
+  const [bx, by, br] = ZC_BIG;
+  // 连线：从小圈边缘指向大圆边缘
+  const dx = bx - px, dy = by - py, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
+  k.strokeStyle = 'rgba(255,255,255,.85)'; k.lineWidth = 1.5; k.setLineDash([4, 4]);
+  k.beginPath(); k.moveTo(px + ux * ZC_R, py + uy * ZC_R); k.lineTo(bx - ux * br, by - uy * br); k.stroke(); k.setLineDash([]);
+  // 大圆：裁成圆形，以小圈中心为原点放大 3 倍重画同一画面
+  k.save(); k.beginPath(); k.arc(bx, by, br, 0, 7); k.clip();
+  k.translate(bx, by); k.scale(ZC_Z, ZC_Z); k.translate(-px, -py);
+  pnCity(k, 0, w, h, u, false);
+  k.restore();
+  k.save(); k.shadowColor = 'rgba(0,0,0,.45)'; k.shadowBlur = 10;
+  k.strokeStyle = '#fff'; k.lineWidth = 4; k.beginPath(); k.arc(bx, by, br, 0, 7); k.stroke(); k.restore();
+  k.strokeStyle = C.yel; k.lineWidth = 2.5; k.beginPath(); k.arc(px, py, ZC_R, 0, 7); k.stroke();
+  // 标签：倍数 + 小圈的坐标
+  k.fillStyle = 'rgba(15,26,61,.8)'; rr(k, bx - 52, by + br + 8, 104, 22, 11); k.fill();
+  txt(k, `×${ZC_Z}  ·  ${Math.round(px)}, ${Math.round(py)}`, bx, by + br + 19, `600 12px ${DISP}`, '#fff', 'center', 'middle');
+};

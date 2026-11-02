@@ -2,7 +2,7 @@
 
 # Styled scenes
 
-42 names · #1-102 · #2 029 · 041 · 052~054 · 068~075 · 081~091 · 097~099 · #4 012~014 · 016 · 020~029 · pack `scenes` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+44 names · #1-102 · #2 029 · 041 · 052~054 · 068~075 · 081~091 · 097~099 · 116 · #4 012~014 · 016 · 020~030 · pack `scenes` · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind.
 
@@ -68,6 +68,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-097](https://sadjjk.github.io/motion-prompt-zh/#2-097) | **Confetti burst** | Confetti shoots up as the title springs in | Make the word "Congrats" spring in while about 60 pieces of confetti burst up from below, falling in arcs, spinning, and fading over the last 0.5 s. |
 | [#2-098](https://sadjjk.github.io/motion-prompt-zh/#2-098) | **Falling petals** | Petals drift down and scatter at the cursor | Fill the background with about 40 falling petals that sway and flip; when the cursor passes, push nearby petals aside and let them drift back to their paths. |
 | [#2-099](https://sadjjk.github.io/motion-prompt-zh/#2-099) | **Fireworks** | A firework rises and bursts where you click | On a night sky, launch a firework from the bottom to wherever I click in 0.7 s, bursting into 40 sparks that slow down, fall under gravity and fade. |
+| [#2-116](https://sadjjk.github.io/motion-prompt-zh/#2-116) | **Snowfall** | Snowflakes of different sizes and speeds drift down with real depth | Make it snow on the night street in 3 layers: far flakes small and slow, near flakes big blurred bokeh and faster, all swaying side to side as they fall, and make the flakes passing through the street lamp's light glow warm. |
 
 ## Art movements / Modern & postmodern
 
@@ -89,6 +90,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 |---|---|---|---|
 | [#4-020](https://sadjjk.github.io/motion-prompt-zh/#4-020) | **Risograph** | A risograph-style poster where fluorescent pink and teal plates are printed slightly out of register | Make an animated risograph poster: fluorescent pink and teal plates multiplied together, with the misregistration swaying between 1 and 5 px, 3 times per 6.4 s loop. |
 | [#4-021](https://sadjjk.github.io/motion-prompt-zh/#4-021) | **Glass mosaic** | A glass mosaic whose small tiles flip into place to form a sunset seascape | Animate a glass mosaic: 45 × 18 tiles of 12 px flip in from right to left to form a sunset seascape, complete in about 3.65 s. |
+| [#4-030](https://sadjjk.github.io/motion-prompt-zh/#4-030) | **Halftone** | Dots of varying size carry the light and shade, giving a printed look | Render a ball and the words HALF / TONE as halftone: dots on a 7 px grid, bigger where it's darker, changing size as the light circles the ball; partway through split into CMYK plates for colour, then return to black only. |
 
 ## Craft & patterns / Geometric patterns
 

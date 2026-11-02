@@ -1,0 +1,64 @@
+// Motion Prompt #2-113 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/danmaku
+//
+// Danmaku comments / 弾幕コメント
+// Category: Motion graphics / Text animation / Letter by letter & layout
+// What happens: A person's silhouette stands in front of seaside footage while short comments in 5 rows above slide from right to left at steady speeds. Rows move at different speeds, so comments in the fast row overtake the slow ones. Most are white with a dark outline, a few are yellow, mint or coral, and my own comment has a white frame. Around the person's head and shoulders the comments are softly cut away, so the person always sits in front of them. A player bar with a 弹 button runs along the bottom.
+// Motion spec:
+//   - 5 rows with baselines at y = 30, 54, 78, 102 and 126 px (24 px apart); text is 15 px at weight 600 with a 3 px dark outline.
+//   - Each row covers a span of 700–840 px once per 4.7 s (one row twice), about 150–300 px/s, so fast rows overtake slow ones.
+//   - Every row moves a whole number of spans, so the 4.7 s loop has no seam.
+//   - 3 comments are yellow, mint and coral; my own comment has a 1.5 px white frame.
+//   - Comments are cut out inside the person's outline (24 px head radius plus shoulders) grown by 8 px and blurred 3 px.
+//   - A 22 px player bar at the bottom shows 42% progress and a 弹 button.
+// When to use it: Use it to fake audience reactions in an edit, to keep the live feel in stream clips, or to bring up viewer questions in a talking-head video.
+// Tags: danmaku, bullet comments, comments, scrolling text, video, overlay
+// Size: 539x208 px · Cycle: 4.7 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-113
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 63
+// 63 弹幕（参考镜语「弹幕」词条的说明重新实现）：一段视频画面上，多行评论从右往左匀速横穿。
+// 每行的跨度和速度不同（约 150～300px/s），行与行之间互相超车；几条彩色，一条带白框表示自己发的。
+// 人物所在区域的弹幕被抠掉（防挡脸），人物始终露在弹幕前面。每条在 4.7 秒内正好走完整数个跨度，循环无缝。
+// 区别于跑马灯（单行、同一句反复）和固定字幕。
+const DM_ROWS = [   // y：行基线；span：一个跨度（px）；n：4.7 秒走几个跨度；items：[文字, 起点占跨度的比例, 颜色, 是否自己发的]
+  { y: 30, span: 720, n: 1, items: [['前方高能', 0, C.white], ['哈哈哈哈哈哈', 0.5, C.white]] },
+  { y: 54, span: 780, n: 1, items: [['这个转场好看', 0.2, C.yel], ['第一！', 0.72, C.white]] },
+  { y: 78, span: 700, n: 2, items: [['求 BGM', 0.1, C.white], ['泪目', 0.45, C.mint], ['awsl', 0.8, C.white]] },
+  { y: 102, span: 840, n: 1, items: [['我来了我来了', 0.35, C.white, true], ['镜头好稳', 0.85, C.coral]] },
+  { y: 126, span: 760, n: 1, items: [['画质好清楚', 0.05, C.white], ['打卡', 0.6, C.white]] }
+];
+const DM_PX = 160;   // 人物（主播）的中心 x
+function dmPerson(k, bob, grow) {   // 头 + 肩的剪影路径；grow 用于把抠图范围放大一圈
+  k.beginPath(); k.arc(DM_PX, 120 + bob, 24 + grow, 0, 7);
+  k.moveTo(DM_PX - 74 - grow, CH); k.bezierCurveTo(DM_PX - 72 - grow, 158 + bob - grow, DM_PX - 30, 150 + bob - grow, DM_PX, 150 + bob - grow);
+  k.bezierCurveTo(DM_PX + 30, 150 + bob - grow, DM_PX + 72 + grow, 158 + bob - grow, DM_PX + 74 + grow, CH); k.closePath();
+}
+CELLS[62] = (k, w, h, u) => {
+  u = snapU(u);
+  pnSea(k, 0, w, h, u, false);
+  const bob = 2 * Math.sin(2 * Math.PI * 2 * u / CYC);
+  k.fillStyle = C.navy2; dmPerson(k, bob, 0); k.fill();
+  k.fillStyle = C.navy; k.beginPath(); k.arc(DM_PX, 112 + bob, 25, Math.PI, 0); k.fill();   // 头发
+  // 播放器底栏（静态）
+  k.fillStyle = 'rgba(8,14,40,.45)'; k.fillRect(0, h - 22, w, 22);
+  k.fillStyle = 'rgba(255,255,255,.35)'; k.fillRect(36, h - 12, w - 110, 3); k.fillStyle = C.coral; k.fillRect(36, h - 12, (w - 110) * 0.42, 3);
+  k.fillStyle = '#fff'; k.beginPath(); k.moveTo(14, h - 17); k.lineTo(24, h - 11); k.lineTo(14, h - 5); k.closePath(); k.fill();
+  k.strokeStyle = '#fff'; k.lineWidth = 1.2; rr(k, w - 56, h - 19, 22, 16, 4); k.stroke(); txt(k, '弹', w - 45, h - 11, `600 11px ${JP}`, '#fff', 'center', 'middle');
+  // 弹幕先画到临时画布，再把人物范围抠掉
+  TK.setTransform(1, 0, 0, 1, 0, 0); TK.clearRect(0, 0, CW, CH);
+  TK.font = `600 15px ${JP}`; TK.textAlign = 'left'; TK.textBaseline = 'alphabetic'; TK.lineJoin = 'round';
+  for (const row of DM_ROWS) for (const [s, off, col, own] of row.items) {
+    const x = CW + 20 - mod((u / CYC) * row.n * row.span + off * row.span, row.span);
+    TK.strokeStyle = 'rgba(0,0,0,.6)'; TK.lineWidth = 3; TK.strokeText(s, x, row.y);
+    TK.fillStyle = col; TK.fillText(s, x, row.y);
+    if (own) { const tw0 = TK.measureText(s).width; TK.strokeStyle = '#fff'; TK.lineWidth = 1.5; rr(TK, x - 5, row.y - 16, tw0 + 10, 21, 4); TK.stroke(); }
+  }
+  TK.globalCompositeOperation = 'destination-out'; TK.filter = 'blur(3px)'; TK.fillStyle = '#000';
+  dmPerson(TK, bob, 8); TK.fill();
+  TK.globalCompositeOperation = 'source-over'; TK.filter = 'none';
+  k.drawImage(TMP, 0, 0);
+};
