@@ -1,0 +1,15 @@
+Please use "Starfield spark" (星空の光点), filed under "Animation styles / Space & material".
+Motion Prompt #4-047
+
+What it is: An explainer set in a deep navy starfield where one gold spark is the hero and changes shape as the idea develops
+What the sample shows: Under a twinkling sky a gold spark rises and traces a glowing light-bulb outline; the bulb fades, the spark splits into 7 that drift apart and link into a constellation. Then the links break and the sparks gather into one and sink.
+Spec:
+- Background gradient #05070F → #0E1430; the 90 stars each twinkle a whole number of times per 6.4 s.
+- 0.3–1.3 s a gold #F2C46D spark rises to the centre; 1.4–2.6 s it traces a 30 px-radius bulb outline in a glowing line (10 px blur), which fades at 2.8–3.1 s.
+- 2.8–3.4 s the spark splits into 7 that drift apart; from 3.4 s, 7 links draw in 0.14 s apart.
+- 5.4–5.7 s the links shrink to their midpoints and break; 5.5–5.9 s the sparks gather into one; 5.9–6.4 s it sinks out of frame.
+When to use it: Use it for the birth of an idea, space and information topics, or abstract concepts connecting together.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-047.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

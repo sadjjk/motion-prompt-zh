@@ -1,0 +1,16 @@
+Please use "Card battle" (カードバトル), filed under "Animation styles / Media & genres".
+Motion Prompt #4-053
+
+What it is: A card-game look on green felt: cards flip face up from the deck, then ram, pop damage numbers and drain HP bars to show attack and defence
+What the sample shows: On green felt, 骑士 and 巨龙 arc out of the deck on the left, flipping face up as they land. The knight rams but is blocked: MISS. The dragon counter-rams, a −5 pops over the knight, its card shakes and its HP bar drops from 8 to 3. Finally both cards flip back and fly home to the deck.
+Spec:
+- Felt radial gradient #1E5A45→#0F3B2E→#082219, card face #FDF7E8→#EADCB8, back #7A1E1E/#5A1414 stripes with a gold #E9C46A border; cards are 74×104 px.
+- 0.3 s the knight and 0.8 s the dragon fly from the deck at (44, 104) along a 30 px arc to x 200 / 380, flipping over on the way (0.5 s each).
+- 1.6–2.1 s the knight dashes 100 px and back; MISS in #FF5A4E pops at the moment of impact.
+- 2.7–3.2 s the dragon counter-attacks: −5 pops over the knight, its card shakes and HP drops 8 → 3.
+- 5.4–6.2 s both cards flip back face down and arc home to the deck.
+When to use it: Use it for showdowns, strategy comparisons and explaining who beats whom like a game.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-053.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

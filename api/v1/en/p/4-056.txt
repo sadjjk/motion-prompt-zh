@@ -1,0 +1,16 @@
+Please use "Neon cyber" (ネオンサイバー), filed under "Art movements / Digital & retro".
+Motion Prompt #4-056
+
+What it is: A cyber night look: magenta and cyan neon tubes glowing against deep-purple rain, reflected on the wet ground
+What the sample shows: A purple night alley with slanting rain. The sign's frame tubes flicker on one side at a time, then 24H, 拉, 面 and 营业中 power up in turn. Afterwards 面 keeps dropping out now and then, splitting into red and cyan. The wet ground holds a squashed reflection of the sign. Finally the power cuts and the tubes go dark one by one in reverse order.
+Spec:
+- Ground #0B0716, neon #FF2BD6 / #00F0FF / #FFE45C, ground line y 140.
+- 0.3 / 0.45 / 0.6 / 0.75 s the 4 frame sides, 1.1 / 1.4 / 1.7 / 2.1 s 24H, 拉, 面 and 营业中 light up, each flickering for 0.35 s.
+- 2.5–5.4 s 面 drops out or splits red and cyan by up to 4 px at 12 frames/s.
+- The reflection flips at the ground line, squashed to 0.6 height, opacity 0.3; 70 rain streaks.
+- From 5.4 s the tubes go dark in reverse order, 0.1 s apart.
+When to use it: Use it for night-city, urban culture, sci-fi and game-world topics that suit a neon mood.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-056.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

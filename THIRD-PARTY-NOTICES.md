@@ -374,6 +374,36 @@ element's `e/<id>.txt` and the `kit/aiux.js` header carry the copyright line bel
 > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 > SOFTWARE.
 
+## vibe-knowledge by Berryxia (32 elements in pack `explainer`)
+
+The 32 elements in pack `explainer` follow the look of 32 styles from Berryxia's
+[vibe-knowledge](https://github.com/andyhuo520/vibe-knowledge) style library (`skills/vibe-knowledge/styles/<style>/STYLE.md`):
+palette, materials and the way things move. The scenes are new, general-purpose examples drawn with Canvas 2D for this
+repository; no style image (`still.jpg`), video, music, voice or font from vibe-knowledge is included (its `NOTICE.md`
+keeps those outside the MIT License). Each element carries the line `MIT License (c) 2026 Berryxia`. The license notice:
+
+> MIT License
+>
+> Copyright (c) 2026 Berryxia (andyhuo520)
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat

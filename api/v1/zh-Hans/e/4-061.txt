@@ -1,0 +1,88 @@
+// Motion Prompt #4-061 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// 手账涂鸦 / Bullet journal
+// 分类: 审美风格 / 工艺与纹样 / 版画与手工
+// 动画表现: 点阵纸上，三条和纸胶带从一端撕拉着贴上；马克笔写出「本周计划」，荧光笔在下面划过；三条待办逐行写出，蓝色圆珠笔依次打勾；黄色便利贴「别忘了 喝水！」弹一下拍上去，最后补画一颗涂鸦星星。复位时便利贴被揭走，字迹和胶带淡去。
+// 运动规格:
+//   - 纸 #FBF8F1，点阵间距 12 px，圆珠笔 #2D5BD8。
+//   - 0.2 / 0.35 / 0.5 秒贴三条胶带，每条 0.3 秒拉开。
+//   - 0.6–1.3 秒写标题，0.9–1.4 秒荧光笔划重点。
+//   - 1.5 / 1.8 / 2.1 秒三条待办各用 0.3 秒写出，2.6 / 3.0 / 3.4 秒打勾。
+//   - 3.9 秒拍上便利贴，4.4–4.9 秒画星星。
+//   - 5.4–5.8 秒揭走便利贴，5.6–6.4 秒整体淡去。
+// 适用场景: 适合学习方法、生活技巧、习惯养成和做计划这类想显得亲切的讲解。
+// 标签: bullet-journal, washi-tape, handwriting, sticky-note, highlighter, doodle, explainer
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-061
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 22
+// 22 手账涂鸦：点阵纸上撕贴和纸胶带，马克笔写出标题「本周计划」，荧光笔划重点，三条待办逐条写出，
+// 圆珠笔逐个打勾，便利贴拍上去，最后补一颗涂鸦星星。复位时便利贴被揭走，笔迹和胶带淡去
+const JN_BG = '#FBF8F1', JN_DOT = '#D6CFC0', JN_INK = '#2B2B2B', JN_BLUE = '#2D5BD8';
+const JN_GRID = 12;                                              // 点阵间距
+// 胶带 [x, y, 长, 角度°, 主色, 浅色, 贴上时刻]
+const JN_TAPES = [[24, 10, 96, -6, '#F7B6C8', '#FCD9E3', 0.2], [436, 182, 90, 8, '#A8DCC9', '#D3EFE4', 0.35], [446, 8, 72, 14, '#F9E08B', '#FCEFC2', 0.5]];
+const JN_TITLE = { text: '本周计划', x: 40, y: 50, t: [0.6, 1.3] };
+const JN_HL = [0.9, 1.4];                                        // 荧光笔划过时段
+const JN_ITEMS = [['周一 背 30 个单词', 1.5], ['周三 跑步 5 公里', 1.8], ['周五 交读书报告', 2.1]];
+const JN_ITEM_Y0 = 96, JN_ITEM_DY = 32, JN_WRITE = 0.3;
+const JN_TICKS = [2.6, 3.0, 3.4], JN_TICK = 0.25;
+const JN_NOTE = { x: 392, y: 64, w: 108, h: 88, t: 3.9, text: ['别忘了', '喝水！'] };
+const JN_STAR = [4.4, 4.9];
+CELLS[21] = (k, w, h, u) => {
+  k.fillStyle = JN_BG; k.fillRect(0, 0, CW, CH);
+  k.fillStyle = JN_DOT; for (let y = JN_GRID / 2; y < CH; y += JN_GRID) for (let x = JN_GRID / 2; x < CW; x += JN_GRID) k.fillRect(x - 0.8, y - 0.8, 1.6, 1.6);
+  const fade = 1 - seg(u, SHOW + 0.2, CYC);
+  if (fade <= 0) return;
+  k.globalAlpha = fade;
+  // 和纸胶带：从左往右撕出来
+  JN_TAPES.forEach(([x, y, len, deg, c1, c2, at]) => {
+    const p = out3(seg(u, at, at + 0.3)); if (p <= 0) return;
+    k.save(); k.translate(x, y); k.rotate(deg * Math.PI / 180);
+    k.beginPath(); k.rect(0, 0, len * p, 16); k.clip();
+    k.fillStyle = c2; k.fillRect(0, 0, len, 16);
+    k.strokeStyle = c1; k.lineWidth = 4; for (let s = -16; s < len; s += 9) { k.beginPath(); k.moveTo(s, 16); k.lineTo(s + 16, 0); k.stroke(); }
+    k.restore();
+  });
+  // 荧光笔：斜切的半透明黄条从左往右划过标题
+  k.font = `700 28px ${KAI}`; const tw = k.measureText(JN_TITLE.text).width;
+  const hp = inOut3(seg(u, JN_HL[0], JN_HL[1]));
+  if (hp > 0) { k.save(); k.translate(JN_TITLE.x - 4, JN_TITLE.y - 2); k.transform(1, 0, -0.2, 1, 0, 0); k.fillStyle = 'rgba(255,226,70,0.6)'; k.fillRect(0, 0, (tw + 10) * hp, 14); k.restore(); }
+  // 手写字：用从左往右展开的裁剪框模拟一笔笔写出
+  const write = (text, x, y, font, color, p) => {
+    if (p <= 0) return;
+    k.font = font; const ww = k.measureText(text).width;
+    k.save(); k.beginPath(); k.rect(x - 2, y - 30, (ww + 4) * p, 50); k.clip();
+    k.fillStyle = color; k.textAlign = 'left'; k.textBaseline = 'alphabetic'; k.fillText(text, x, y); k.restore();
+  };
+  write(JN_TITLE.text, JN_TITLE.x, JN_TITLE.y + 6, `700 28px ${KAI}`, JN_INK, seg(u, JN_TITLE.t[0], JN_TITLE.t[1]));
+  JN_ITEMS.forEach(([text, at], i) => {
+    const y = JN_ITEM_Y0 + i * JN_ITEM_DY;
+    if (u >= at) { k.strokeStyle = JN_INK; k.lineWidth = 1.5; k.strokeRect(44, y - 13, 13, 13); }
+    write(text, 66, y, `700 17px ${KAI}`, JN_INK, seg(u, at, at + JN_WRITE));
+    // 圆珠笔打勾
+    k.strokeStyle = JN_BLUE; k.lineWidth = 2.5; k.lineCap = 'round'; k.lineJoin = 'round';
+    strokeProg(k, [[45, y - 8], [50, y - 1], [62, y - 18]], seg(u, JN_TICKS[i], JN_TICKS[i] + JN_TICK));
+  });
+  // 便利贴：带弹性拍上去
+  const np = seg(u, JN_NOTE.t, JN_NOTE.t + 0.25), lift = inOut3(seg(u, SHOW, SHOW + 0.4));
+  if (np > 0 && lift < 1) {
+    const { x, y, w: nw, h: nh } = JN_NOTE, s = mix(1.3, 1, backOut(np));
+    k.save(); k.globalAlpha = fade * (1 - lift);
+    k.translate(x + nw / 2, y + nh / 2 - lift * 40); k.rotate(0.07 + lift * 0.3); k.scale(s, s);
+    k.fillStyle = 'rgba(0,0,0,0.15)'; k.fillRect(-nw / 2 + 3, -nh / 2 + 5, nw, nh);
+    k.fillStyle = '#FFE873'; k.fillRect(-nw / 2, -nh / 2, nw, nh);
+    k.fillStyle = 'rgba(247,182,200,0.8)'; k.fillRect(-20, -nh / 2 - 6, 40, 12);
+    k.fillStyle = JN_INK; k.font = `700 19px ${KAI}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+    JN_NOTE.text.forEach((s2, i) => k.fillText(s2, 0, -12 + i * 26));
+    k.restore(); k.globalAlpha = fade;
+  }
+  // 涂鸦星星
+  const star = []; for (let i = 0; i <= 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 6 : 15; star.push([300 + Math.cos(a) * r, 46 + Math.sin(a) * r]); }
+  k.strokeStyle = '#F2A900'; k.lineWidth = 2.5; strokeProg(k, star, seg(u, JN_STAR[0], JN_STAR[1]));
+  k.globalAlpha = 1;
+};

@@ -1,0 +1,79 @@
+// Motion Prompt #4-054 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// スイスグリッドのタイポ / Swiss grid kinetic type
+// 分類: ビジュアルスタイル / 芸術の流派 / モダン・ポストモダン
+// 何が起きるか: オフホワイトの地に 12 段のグリッド線が左から順に浮かぶ。特大の黒文字 G・R・I・D が一字ずつ上から叩き込まれ、左端が段の線にそろう。続いて「2026」が下の行へ左から押し込まれる。赤いブロックが下から立ち上がって段の間を左右に伸び縮みし、日付と会場の小さな文字が 8 段目の線に左ぞろえで収まる。最後は文字とブロックが段に沿って右へ滑り出る。
+// 動きの仕様:
+//   - 地 #F2F1EC、文字 #111111、補足 #777777、赤 #E3001B。12 段、余白 20 px、段間 8 px で、すべて段の線にそろえる
+//   - 0.1 秒からグリッド線が 0.03 秒おきに左から浮かぶ
+//   - 0.7 秒から 100 px の G・R・I・D が 0.22 秒おきに上から叩き込まれ、着地で 3 px 沈む。1.8–2.1 秒に 62 px の「2026」が左から入る
+//   - 赤いブロックは 2.3 秒に 8 段目から 1 段幅で立ち上がり、3.1 秒に 7 段目から 3 段幅、3.9 秒に 9 段目から 2 段幅へ動く。3.0 秒から小文字 3 行が 0.15 秒おきに 8 段目へ
+//   - 5.4 秒から右側の要素ほど先に、0.45 秒で右へ滑り出る。グリッド線は 5.7 秒から消える
+// 使いどころ: 主張、データ、キーワードなど、文字そのものを画面の主役にしたい解説やポスターに。
+// タグ: swiss-style, grid, kinetic-typography, poster, international-style, typography, explainer
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-054
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 15
+// 15 瑞士网格动态字：米白底 12 栏网格线淡入，超大黑字「GRID」按栏位一个个砸进来、左边对齐栏线，「2026」随后落在下一行；
+// 红色色块在栏间推拉，日期、地点小字左对齐落位；复位时字和色块沿栏线向右滑出画面
+const SW_BG = '#F2F1EC', SW_INK = '#111111', SW_DIM = '#777777', SW_RED = '#E3001B';
+const SW_COLS = 12, SW_M = 20, SW_G = 8;                        // 栏数、页边距、栏间距
+const SW_CW = (CW - SW_M * 2 - SW_G * (SW_COLS - 1)) / SW_COLS; // 单栏宽
+const swX = c => SW_M + c * (SW_CW + SW_G);                     // 第 c 栏左边线
+const SW_WORD = [['G', 0], ['R', 2], ['I', 4], ['D', 5]];       // [字母, 起始栏]：字母左边贴栏线
+const SW_BIG = 100, SW_BASE = 108, SW_SLAM = 0.7, SW_SDT = 0.22;   // 大字字号、基线、第一个字砸进时刻、间隔
+const SW_YEAR = [1.8, 2.1], SW_YBASE = 182, SW_YSIZE = 62;     // 「2026」落下时段、基线、字号
+const SW_BLOCK = [[2.3, 8, 1], [3.1, 7, 3], [3.9, 9, 2]];      // 红块推拉关键帧：[时刻, 起始栏, 跨栏数]
+const SW_INFO = 3.0;                                             // 小字开始落位
+const SW_OUT = [SHOW, SHOW + 0.7];
+CELLS[14] = (k, w, h, u) => {
+  k.fillStyle = SW_BG; k.fillRect(0, 0, CW, CH);
+  // 网格线：从左到右依次淡入，复位时一起淡出
+  const ga = 1 - seg(u, SW_OUT[0] + 0.3, SW_OUT[1]);
+  k.fillStyle = 'rgba(17,17,17,0.12)';
+  for (let c = 0; c <= SW_COLS; c++) {
+    const a = seg(u, 0.1 + c * 0.03, 0.4 + c * 0.03) * ga; if (a <= 0) continue;
+    k.globalAlpha = a; const x = c < SW_COLS ? swX(c) : CW - SW_M;
+    k.fillRect(x, 0, 1, CH); if (c < SW_COLS) k.fillRect(x + SW_CW, 0, 1, CH);
+  }
+  k.globalAlpha = 1;
+  // 退场：所有元素沿栏线方向（水平）向右滑出，越靠右的越先走
+  const out = c => CW * inOut3(seg(u, SW_OUT[0] + (11 - c) * 0.02, SW_OUT[0] + 0.45 + (11 - c) * 0.02));
+  // 红色色块：在栏之间推拉，宽度与位置都按栏对齐
+  const bt = seg(u, SW_BLOCK[0][0], SW_BLOCK[0][0] + 0.25);
+  if (bt > 0) {
+    let c0 = SW_BLOCK[0][1], n = SW_BLOCK[0][2];
+    for (let j = 1; j < SW_BLOCK.length; j++) { const p = inOut3(seg(u, SW_BLOCK[j][0], SW_BLOCK[j][0] + 0.35)); c0 = mix(c0, SW_BLOCK[j][1], p); n = mix(n, SW_BLOCK[j][2], p); }
+    const x0 = SW_M + c0 * (SW_CW + SW_G), wd = n * (SW_CW + SW_G) - SW_G;
+    k.fillStyle = SW_RED; k.fillRect(x0 + out(c0), CH * (1 - out3(bt)) + 0, wd, 118);
+  }
+  // 大字：每个字母从上方快速砸下，落地时下沉 3 px 再弹回
+  k.fillStyle = SW_INK; k.textAlign = 'left'; k.textBaseline = 'alphabetic';
+  k.font = `800 ${SW_BIG}px ${DISP}`;
+  SW_WORD.forEach(([ch, c], i) => {
+    const t0 = SW_SLAM + i * SW_SDT, d = seg(u, t0, t0 + 0.12); if (d <= 0) return;
+    const land = seg(u, t0 + 0.12, t0 + 0.24), y = SW_BASE - 140 * (1 - d * d) + 3 * Math.sin(Math.PI * land);
+    // 字形左侧有留白，按实际墨迹左缘对齐栏线
+    const lb = k.measureText(ch).actualBoundingBoxLeft || 0;
+    k.fillText(ch, swX(c) + lb + out(c), y);
+  });
+  const yd = seg(u, SW_YEAR[0], SW_YEAR[1]);
+  if (yd > 0) {
+    k.font = `800 ${SW_YSIZE}px ${DISP}`; const lb = k.measureText('2026').actualBoundingBoxLeft || 0;
+    // 「2026」沿基线从左侧推入：竖直落下会穿过上一行大字
+    k.fillText('2026', swX(0) + lb + out(0) - (CW / 2) * (1 - out3(yd)), SW_YBASE);
+  }
+  // 小字信息：左对齐第 8 栏线，逐行从右滑入落位
+  const INFO = [['设计讲座', 700, 13, SW_INK], ['11.20 — 11.22', 500, 11, SW_INK], ['上海 · 西岸艺术中心', 500, 10, SW_DIM]];
+  INFO.forEach(([s, wt, sz, col], i) => {
+    const a = out3(seg(u, SW_INFO + i * 0.15, SW_INFO + 0.35 + i * 0.15)); if (a <= 0) return;
+    k.globalAlpha = a; k.fillStyle = col; k.font = `${wt} ${sz}px ${SANS}`;
+    k.fillText(s, swX(8) + 16 * (1 - a) + out(8), 148 + i * 17);
+  });
+  k.globalAlpha = 1;
+};

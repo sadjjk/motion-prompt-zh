@@ -1,0 +1,86 @@
+// Motion Prompt #4-042 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Dark math explainer / ダークな数学解説
+// Category: Visual styles / Animation styles / Diagrams & boards
+// What happens: On black, axes grow from the origin, ticks light up in turn and y = sin x rises letter by letter; a blue curve traces left to right with a gold dot and tangent riding it, turning red where the slope hits 0; then everything dims out.
+// Motion spec:
+//   - Background #0F1014; 0.2–0.9 s the axes grow from the origin, and ticks π/2, π, 3π/2, 2π and ±1 fade in 0.12 s apart.
+//   - From 0.6 s the blue #58C4DD formula y = sin x rises letter by letter at top right, 0.08 s per letter.
+//   - 1.6–4.6 s the sine curve (2π spans 420 px, amplitude 62 px) traces from the left, with a gold dot #F4D35E and an 84 px tangent riding it.
+//   - The readout k = cos x updates live; near the peak and trough, where the slope is close to 0, tangent and readout turn red #FC6255. 5.4–6.0 s everything dims to black.
+// When to use it: Use it for maths, statistics and AI concept explainers, or whenever a function or graph needs to move.
+// Tags: math, graph, function, dark-mode, explainer, education, minimal
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-042
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 03
+// 03 深色数学：近黑底，坐标轴从原点长出、刻度依次亮起，蓝色 y = sin x 从左描到右，金点沿曲线滑动，
+// 切线随点转动，右上角公式逐字浮现并实时读出斜率；最后所有线条与文字渐暗归零
+const DM_BG = '#0F1014', DM_B = '#58C4DD', DM_Y = '#F4D35E', DM_R = '#FC6255', DM_W = '#ECECEC';
+const DM_O = [56, 112];                                       // 原点
+const DM_SX = 420 / TAU, DM_AMP = 62;                         // x 方向 2π 占 420 px，振幅 62 px
+const DM_N = 160;
+const DM_CURVE = Array.from({ length: DM_N + 1 }, (_, i) => { const x = (i / DM_N) * TAU; return [DM_O[0] + x * DM_SX, DM_O[1] - Math.sin(x) * DM_AMP]; });
+const DM_TICKS = ['π/2', 'π', '3π/2', '2π'];
+const DM_FORM = 'y = sin x';
+CELLS[2] = (k, w, h, u) => {
+  k.fillStyle = DM_BG; k.fillRect(0, 0, CW, CH);
+  k.save(); k.globalAlpha = 1 - resetK(u);
+  k.lineCap = 'round'; k.strokeStyle = DM_W; k.fillStyle = DM_W; k.lineWidth = 1.4;
+  // 坐标轴：从原点向四个方向长出
+  const ax = out3(seg(u, 0.2, 0.9));
+  if (ax > 0) {
+    strokePts(k, [[DM_O[0] - 16 * ax, DM_O[1]], [DM_O[0] + 456 * ax, DM_O[1]]]);
+    strokePts(k, [[DM_O[0], DM_O[1] + 76 * ax], [DM_O[0], DM_O[1] - 80 * ax]]);
+    if (ax >= 1) {
+      k.beginPath(); k.moveTo(DM_O[0] + 462, DM_O[1]); k.lineTo(DM_O[0] + 454, DM_O[1] - 3.5); k.lineTo(DM_O[0] + 454, DM_O[1] + 3.5); k.fill();
+      k.font = `italic 12px ${SERIF}`; k.textAlign = 'left'; k.textBaseline = 'middle'; k.fillText('x', DM_O[0] + 466, DM_O[1]);
+    }
+  }
+  // 刻度错开淡入
+  k.font = `10px ${MONO}`; k.textAlign = 'center'; k.textBaseline = 'top';
+  DM_TICKS.forEach((s, i) => {
+    const a = seg(u, 0.9 + i * 0.12, 1.1 + i * 0.12); if (a <= 0) return;
+    const x = DM_O[0] + (i + 1) * (Math.PI / 2) * DM_SX;
+    k.globalAlpha = (1 - resetK(u)) * a; strokePts(k, [[x, DM_O[1] - 4], [x, DM_O[1] + 4]]); k.fillText(s, x, DM_O[1] + 7);
+  });
+  [[1, '1'], [-1, '-1']].forEach(([v, s], i) => {
+    const a = seg(u, 1.38 + i * 0.12, 1.58 + i * 0.12); if (a <= 0) return;
+    const y = DM_O[1] - v * DM_AMP;
+    k.globalAlpha = (1 - resetK(u)) * a; strokePts(k, [[DM_O[0] - 4, y], [DM_O[0] + 4, y]]);
+    k.textAlign = 'right'; k.textBaseline = 'middle'; k.fillText(s, DM_O[0] - 8, y);
+  });
+  k.globalAlpha = 1 - resetK(u);
+  // 公式逐字浮现（每个字符 0.08 秒，从下方 6 px 升起）
+  k.font = `italic 22px ${SERIF}`; k.textAlign = 'left'; k.textBaseline = 'alphabetic';
+  const fw = k.measureText(DM_FORM).width; let fx = 516 - fw;
+  [...DM_FORM].forEach((c, i) => {
+    const a = seg(u, 0.6 + i * 0.08, 0.85 + i * 0.08);
+    k.globalAlpha = (1 - resetK(u)) * a; k.fillStyle = DM_B; k.fillText(c, fx, 38 + 6 * (1 - out3(a)));
+    fx += k.measureText(c).width;
+  });
+  k.globalAlpha = 1 - resetK(u);
+  // 曲线从左描到右，金点跟随
+  const t = inOut3(seg(u, 1.6, 4.6));
+  if (t > 0) {
+    const x = t * TAU, px = DM_O[0] + x * DM_SX, py = DM_O[1] - Math.sin(x) * DM_AMP;
+    k.strokeStyle = DM_B; k.lineWidth = 2.6; strokePts(k, DM_CURVE.slice(0, Math.max(2, Math.ceil(t * DM_N) + 1)).map((p, i, arr) => (i === arr.length - 1 ? [px, py] : p)));
+    // 点到 x 轴的投影虚线
+    k.save(); k.strokeStyle = DM_B; k.globalAlpha *= 0.35; k.lineWidth = 1; k.setLineDash([3, 3]); strokePts(k, [[px, py], [px, DM_O[1]]]); k.restore();
+    // 切线：屏幕坐标下方向 (1, -AMP·cos x / SX)，长 84 px，以金点为中心
+    const slope = Math.cos(x), dx = 1, dy = -DM_AMP * slope / DM_SX, dl = Math.hypot(dx, dy), L = 42;
+    const flat = Math.abs(slope) < 0.06;                      // 斜率接近 0（波峰、波谷）时切线变红
+    k.strokeStyle = flat ? DM_R : DM_W; k.globalAlpha = (1 - resetK(u)) * 0.85; k.lineWidth = 1.4;
+    strokePts(k, [[px - dx / dl * L, py - dy / dl * L], [px + dx / dl * L, py + dy / dl * L]]);
+    k.globalAlpha = 1 - resetK(u);
+    k.fillStyle = DM_Y; k.beginPath(); k.arc(px, py, 4.5, 0, TAU); k.fill();
+    // 斜率读数
+    k.font = `11px ${MONO}`; k.textAlign = 'right'; k.textBaseline = 'alphabetic';
+    k.fillStyle = flat ? DM_R : DM_Y; k.fillText(`k = cos x = ${(Math.abs(slope) < 0.005 ? 0 : slope).toFixed(2)}`, 516, 58);
+  }
+  k.restore();
+};

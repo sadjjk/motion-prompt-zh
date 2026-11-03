@@ -1,0 +1,16 @@
+Please use "Gufeng" (古風), filed under "East Asian tradition / Calligraphy & painting".
+Motion Prompt #4-064
+
+What it is: A festive period-picture-book look: an indigo-to-orange dusk sky, a vermilion gate tower, red lanterns and sky lanterns, a vermilion seal and gold numerals
+What the sample shows: A dusk sky shading from indigo to orange, with a warm moon. The vermilion gate tower glows through its lattice windows and gateway, with a crowd silhouetted in front. Red lanterns on a rope light one by one from the left and sway, the glow in front of the tower grows, and sky lanterns drift up. A vermilion seal 灯会 stamps down at top left, and a gold 1120 年 floats up at right. On reset the lanterns go out in turn and the seal and numerals fade.
+Spec:
+- Sky #24306A → #5A3F78 → #D9774E, vermilion wall #9A3324, gold #E9B949, vermilion #D93A26.
+- From 0.5 s the 7 lanterns light 0.25 s apart and sway 4 times per 6.4 s.
+- From 1.0 s 5 sky lanterns rise 0.35 s apart, each over 3.2 s.
+- 2.5 s the seal stamps down from 1.6×; 3.2–3.9 s the gold year floats up from 30 px below.
+- From 5.4 s the lanterns go out 0.07 s apart; 5.4–5.9 s the seal and year fade.
+When to use it: Use it for history, folk tales, traditional festivals and stories of historical figures that suit a festive, period feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-064.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

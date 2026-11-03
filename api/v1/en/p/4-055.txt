@@ -1,0 +1,16 @@
+Please use "Cut-paper title sequence" (切り絵のタイトルバック), filed under "Art movements / Modern & postmodern".
+Motion Prompt #4-055
+
+What it is: A cut-paper film-opening look: hard-edged black shapes slice in from off-screen onto vermilion, a vertical line splits the frame, and title and credits cut in
+What the sample shows: On vermilion, black building shapes slice in from the left, right and below one after another to form a city skyline, with window slits cut into them. A black vertical line splits the frame top to bottom, the characters 夜 and 行 cut in on either side, then small credits for director, cast and English title follow. Finally the type exits left and the shapes slice back out the way they came, leaving plain vermilion.
+Spec:
+- Ground #E8562A, shapes #14110F, type #F6EFE3; 10 building shapes.
+- 0.3–1.0 s the 10 shapes slice in from the left, right or below, 0.18 s each.
+- 1.3–1.6 s a 6 px vertical line at x 270 grows from top to bottom.
+- 1.9 s the 52 px serif characters 夜 and 行 cut in either side of the line; 2.5 / 2.8 / 3.1 s three lines of credits.
+- 5.4–5.7 s the type exits left; from 5.4 s the shapes slice back out in reverse, the last in going first, 0.03 s apart.
+When to use it: Use it for suspense, film history and big-event openers that need a bold title card.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-055.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,147 @@
+// Motion Prompt #4-064 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Gufeng / 古風
+// Category: Visual styles / East Asian tradition / Calligraphy & painting
+// What happens: A dusk sky shading from indigo to orange, with a warm moon. The vermilion gate tower glows through its lattice windows and gateway, with a crowd silhouetted in front. Red lanterns on a rope light one by one from the left and sway, the glow in front of the tower grows, and sky lanterns drift up. A vermilion seal 灯会 stamps down at top left, and a gold 1120 年 floats up at right. On reset the lanterns go out in turn and the seal and numerals fade.
+// Motion spec:
+//   - Sky #24306A → #5A3F78 → #D9774E, vermilion wall #9A3324, gold #E9B949, vermilion #D93A26.
+//   - From 0.5 s the 7 lanterns light 0.25 s apart and sway 4 times per 6.4 s.
+//   - From 1.0 s 5 sky lanterns rise 0.35 s apart, each over 3.2 s.
+//   - 2.5 s the seal stamps down from 1.6×; 3.2–3.9 s the gold year floats up from 30 px below.
+//   - From 5.4 s the lanterns go out 0.07 s apart; 5.4–5.9 s the seal and year fade.
+// When to use it: Use it for history, folk tales, traditional festivals and stories of historical figures that suit a festive, period feel.
+// Tags: gufeng, chinese-history, lantern-festival, lanterns, seal, dusk, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-064
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 25
+// 25 古风：上元灯会的黄昏，靛蓝到橘红的天色里挂着一轮暖月；朱墙金边的城楼门洞透出暖光，人群剪影在楼前。
+// 城楼前一串红灯笼一盏盏亮起并轻轻摆动，天灯缓缓升空，朱红印章「灯会」盖下，金色年份数字从下浮上。
+// 复位时灯笼依次熄灭，印章和年份淡出；城楼与天色全程保留，避免整格沉成一片黑
+const GF_GOLD = '#E9B949', GF_RED = '#D93A26', GF_WALL = '#9A3324', GF_ROOF = '#2C2B45', GF_CREAM = '#FFF1D6';
+const GF_LAMPS = 7, GF_LAMP_X0 = 150, GF_LAMP_DX = 40;            // 灯笼数、首盏 x、间距
+const GF_LAMP_ON = i => 0.5 + i * 0.25;
+const GF_LAMP_OFF = i => SHOW + i * 0.07;
+const GF_SWING = 4;                                              // 每个周期摆动的整数次数，保证循环无缝
+const GF_SKY_X = [64, 118, 420, 466, 508];                       // 天灯起飞的 x，避开城楼
+const GF_SKY_ON = i => 1.0 + i * 0.35, GF_SKY_DUR = 3.2;          // 第 i 盏天灯起飞时刻、升空时长
+const GF_SEAL = 2.5, GF_YEAR = [3.2, 3.9], GF_YEAR_TEXT = '1120 年';
+const GF_FADE = [SHOW, SHOW + 0.5];                              // 印章、年份淡出
+CELLS[24] = (k, w, h, u) => {
+  // 黄昏天色：上靛蓝、中紫、近地平线橘红
+  const g = k.createLinearGradient(0, 0, 0, CH);
+  g.addColorStop(0, '#24306A'); g.addColorStop(0.55, '#5A3F78'); g.addColorStop(1, '#D9774E');
+  k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  for (let i = 0; i < 22; i++) { k.fillStyle = `rgba(255,240,210,${(0.3 + hash(i + 500) * 0.4).toFixed(2)})`; k.fillRect(hash(i + 510) * CW, hash(i + 520) * 70, 1.5, 1.5); }
+  // 暖月与月晕
+  const mh = k.createRadialGradient(478, 38, 4, 478, 38, 44); mh.addColorStop(0, 'rgba(255,236,190,0.45)'); mh.addColorStop(1, 'rgba(255,236,190,0)');
+  k.fillStyle = mh; k.fillRect(430, 0, 100, 90);
+  k.fillStyle = '#FBE9BE'; k.beginPath(); k.arc(478, 38, 15, 0, TAU); k.fill();
+  // 亮灯比例：用于整格暖光
+  let lit = 0;
+  const lampOn = i => seg(u, GF_LAMP_ON(i), GF_LAMP_ON(i) + 0.15) * (1 - seg(u, GF_LAMP_OFF(i), GF_LAMP_OFF(i) + 0.1));
+  for (let i = 0; i < GF_LAMPS; i++) lit += lampOn(i) / GF_LAMPS;
+  // 远处街巷屋顶，紫灰剪影
+  k.fillStyle = '#3E2F5E';
+  k.beginPath(); k.moveTo(0, CH);
+  for (let x = 0; x <= CW; x += 28) { const y = 150 + hash(x + 7) * 14; k.lineTo(x, y + 6); k.lineTo(x + 6, y); k.lineTo(x + 22, y); k.lineTo(x + 28, y + 6); }
+  k.lineTo(CW, CH); k.closePath(); k.fill();
+  // 城楼台基：朱墙、砖缝、门洞里的暖光
+  k.fillStyle = GF_WALL;
+  k.beginPath(); k.moveTo(170, 208); k.lineTo(180, 124); k.lineTo(360, 124); k.lineTo(370, 208); k.closePath(); k.fill();
+  k.strokeStyle = 'rgba(0,0,0,0.12)'; k.lineWidth = 1;
+  for (let y = 134; y < 208; y += 10) { k.beginPath(); k.moveTo(172, y + 0.5); k.lineTo(368, y + 0.5); k.stroke(); }
+  const ag = k.createLinearGradient(0, 140, 0, 208); ag.addColorStop(0, '#FFD98A'); ag.addColorStop(1, '#F0954A');
+  k.fillStyle = ag; k.beginPath(); k.moveTo(246, 208); k.lineTo(246, 154); k.quadraticCurveTo(270, 128, 294, 154); k.lineTo(294, 208); k.closePath(); k.fill();
+  k.fillStyle = '#6E2016'; k.fillRect(176, 118, 188, 7);
+  // 两层殿身：红柱、金色窗格透光
+  const hall = (x0, x1, y0, y1) => {
+    k.fillStyle = '#B8412C'; k.fillRect(x0, y0, x1 - x0, y1 - y0);
+    const n = Math.round((x1 - x0) / 16);
+    for (let i = 0; i < n; i++) {
+      const x = x0 + 4 + i * ((x1 - x0 - 8) / n);
+      k.fillStyle = `rgba(255,${Math.round(mix(170, 205, lit))},110,${(0.55 + 0.35 * lit).toFixed(3)})`; k.fillRect(x + 2, y0 + 5, (x1 - x0 - 8) / n - 5, y1 - y0 - 9);
+      k.fillStyle = '#7E2519'; k.fillRect(x, y0, 2, y1 - y0);
+    }
+  };
+  // 翘檐屋顶：深青瓦面 + 金色檐线
+  const roof = (cx, y, hw, hh) => {
+    k.beginPath(); k.moveTo(cx - hw - 14, y - 6); k.quadraticCurveTo(cx - hw, y, cx - hw + 10, y - hh * 0.4); k.lineTo(cx - hw * 0.6, y - hh);
+    k.lineTo(cx + hw * 0.6, y - hh); k.lineTo(cx + hw - 10, y - hh * 0.4); k.quadraticCurveTo(cx + hw, y, cx + hw + 14, y - 6); k.closePath();
+    k.fillStyle = GF_ROOF; k.fill(); k.strokeStyle = GF_GOLD; k.lineWidth = 1.3; k.stroke();
+  };
+  hall(206, 334, 94, 120); roof(270, 96, 84, 22);
+  hall(226, 314, 54, 78); roof(270, 56, 62, 20);
+  k.fillStyle = GF_GOLD; k.fillRect(266, 28, 8, 8);
+  // 楼前暖光随灯笼点亮而变强
+  if (lit > 0) {
+    const wg = k.createRadialGradient(270, 120, 10, 270, 120, 260); wg.addColorStop(0, `rgba(255,170,90,${(0.28 * lit).toFixed(3)})`); wg.addColorStop(1, 'rgba(255,170,90,0)');
+    k.fillStyle = wg; k.fillRect(0, 0, CW, CH);
+  }
+  // 天灯：起飞后边升边轻摆、渐小，升到顶部前淡出
+  for (let i = 0; i < GF_SKY_X.length; i++) {
+    const p = seg(u, GF_SKY_ON(i), GF_SKY_ON(i) + GF_SKY_DUR); if (p <= 0 || p >= 1) continue;
+    const x = GF_SKY_X[i] + Math.sin(p * TAU * 1.5 + i) * 6, y = mix(170, 14, p), s = mix(1, 0.6, p);
+    const a = Math.min(1, p * 6) * (1 - seg(p, 0.75, 1));
+    k.save(); k.translate(x, y); k.scale(s, s); k.globalAlpha = a;
+    const sg = k.createRadialGradient(0, 0, 1, 0, 0, 22); sg.addColorStop(0, 'rgba(255,200,110,0.55)'); sg.addColorStop(1, 'rgba(255,200,110,0)');
+    k.fillStyle = sg; k.fillRect(-22, -22, 44, 44);
+    k.fillStyle = '#FFC266'; k.beginPath(); k.moveTo(-6, -9); k.lineTo(6, -9); k.lineTo(4.5, 8); k.lineTo(-4.5, 8); k.closePath(); k.fill();
+    k.fillStyle = '#FFF1C8'; k.fillRect(-2, 3, 4, 4);
+    k.restore();
+  }
+  // 人群：前景一排头肩剪影，深紫褐，几个人手里提着小灯
+  k.fillStyle = '#2E1A2E';
+  for (let i = 0; i < 30; i++) {
+    const x = i * 19 + hash(i + 70) * 8, r = 6 + hash(i + 80) * 3, y = 196 - hash(i + 90) * 8;
+    k.beginPath(); k.arc(x, y - r * 1.6, r * 0.7, 0, TAU); k.fill();
+    k.beginPath(); k.ellipse(x, y + 8, r * 1.4, r * 1.6, 0, Math.PI, TAU); k.fill(); k.fillRect(x - r * 1.4, y + 8, r * 2.8, 20);
+  }
+  for (let i = 0; i < 30; i += 6) {
+    const x = i * 19 + hash(i + 70) * 8 + 10, y = 186 - hash(i + 90) * 8, on = lampOn(i % GF_LAMPS);
+    k.fillStyle = `rgba(255,${Math.round(mix(120, 190, on))},90,${(0.5 + 0.5 * on).toFixed(3)})`; k.beginPath(); k.ellipse(x, y, 3.5, 4.5, 0, 0, TAU); k.fill();
+    k.fillStyle = '#2E1A2E';
+  }
+  // 灯笼绳
+  k.strokeStyle = '#4A2A1C'; k.lineWidth = 1; k.beginPath(); k.moveTo(110, 96); k.quadraticCurveTo(CW / 2, 122, 430, 96); k.stroke();
+  // 灯笼：未亮是暗朱红，亮起变亮红并带光晕；摆角用周期内整数次的正弦
+  for (let i = 0; i < GF_LAMPS; i++) {
+    const x = GF_LAMP_X0 + i * GF_LAMP_DX, t = (x - 110) / 320, y = 96 + 2 * (1 - t) * t * 26, on = lampOn(i);
+    const ang = Math.sin(TAU * (u / CYC) * GF_SWING + i * 1.3) * 0.12;
+    k.save(); k.translate(x, y); k.rotate(ang);
+    if (on > 0) {
+      const gl = k.createRadialGradient(0, 18, 2, 0, 18, 38); gl.addColorStop(0, `rgba(255,180,90,${(0.6 * on).toFixed(3)})`); gl.addColorStop(1, 'rgba(255,180,90,0)');
+      k.fillStyle = gl; k.fillRect(-38, -20, 76, 76);
+    }
+    k.strokeStyle = '#4A2A1C'; k.beginPath(); k.moveTo(0, 0); k.lineTo(0, 8); k.stroke();
+    k.fillStyle = `rgb(${Math.round(mix(122, 236, on))},${Math.round(mix(40, 72, on))},${Math.round(mix(32, 40, on))})`;
+    k.beginPath(); k.ellipse(0, 18, 9, 11, 0, 0, TAU); k.fill();
+    // 灯骨竖线 + 金色上下盖 + 金穗
+    k.strokeStyle = `rgba(120,30,20,${(0.5).toFixed(2)})`; k.beginPath(); k.ellipse(0, 18, 4, 11, 0, 0, TAU); k.stroke();
+    k.fillStyle = GF_GOLD; k.fillRect(-5, 7, 10, 3); k.fillRect(-5, 27, 10, 3);
+    k.strokeStyle = GF_GOLD; k.lineWidth = 1.5; k.beginPath(); k.moveTo(0, 30); k.lineTo(0, 39); k.stroke(); k.lineWidth = 1;
+    k.restore();
+  }
+  const fade = 1 - seg(u, GF_FADE[0], GF_FADE[1]);
+  // 朱红印章：实底红印、米白字，大一号处压下
+  const sp = seg(u, GF_SEAL, GF_SEAL + 0.18);
+  if (sp > 0 && fade > 0) {
+    const s = mix(1.6, 1, out3(sp));
+    k.save(); k.translate(70, 50); k.rotate(-0.14); k.scale(s, s); k.globalAlpha = fade * Math.min(1, sp * 2);
+    k.fillStyle = GF_RED; k.fillRect(-30, -17, 60, 34);
+    k.strokeStyle = GF_CREAM; k.lineWidth = 1.5; k.strokeRect(-26, -13, 52, 26);
+    k.fillStyle = GF_CREAM; k.font = `900 20px ${SERIF}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('灯会', 0, 1);
+    k.restore();
+  }
+  // 金色年份：从下往上浮起淡入
+  const yp = out3(seg(u, GF_YEAR[0], GF_YEAR[1]));
+  if (yp > 0 && fade > 0) {
+    k.save(); k.globalAlpha = fade * yp; k.fillStyle = GF_GOLD; k.font = `900 34px ${SERIF}`; k.textAlign = 'right'; k.textBaseline = 'middle';
+    k.shadowColor = 'rgba(60,20,40,0.7)'; k.shadowBlur = 8; k.fillText(GF_YEAR_TEXT, 520, 96 + (1 - yp) * 30);
+    k.restore();
+  }
+};

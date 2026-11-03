@@ -1,0 +1,15 @@
+Please use "Metro map" (地下鉄路線図), filed under "Animation styles / Diagrams & boards".
+Motion Prompt #4-043
+
+What it is: An explainer that grows a metro line drawn only at 0°, 45° and 90°, station by station, to walk through a route or a sequence of steps
+What the sample shows: On white, red Line 1 grows and pauses at each station, which pops in on arrival; 博物馆 greys out with a closed tag, a yellow interchange branch draws at 市中心, and a train runs from 火车站 to 机场 before the map fades out.
+Spec:
+- Background #FAFAF7; the red line #E4002B (6 px) turns only at 0°, 45° and 90°. The badge 1 号线 fades in at 0.2 s.
+- 0.2–4.2 s the line grows and pauses at each station; all 6 stations pop in with backOut on arrival, named in Chinese with small English.
+- 1.65 s 博物馆 turns grey with a 暂停服务 tag; 3.1–3.5 s a yellow #F2A900 branch draws from 市中心 with the tag 换乘 2 号线.
+- 4.2–5.3 s a train runs from 火车站 to 机场, turning with each segment; 5.4–6.0 s the whole map fades out.
+When to use it: Use it for step-by-step processes, roadmaps and timelines that move from one stage to the next.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-043.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

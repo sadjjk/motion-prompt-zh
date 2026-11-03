@@ -1,0 +1,15 @@
+Please use "Keynote number" (発表会ミニマル), filed under "Animation styles / Flat & line".
+Motion Prompt #4-046
+
+What it is: A product-launch look: pure black, one thing per screen, and a huge white number that lands the moment it is said
+What the sample shows: On black, the grey heading 续航 fades in and a huge white number rolls from 0 to 32, landing with a small bounce; 小时 slides in beside it and a gradient bar lights up from the left beneath. Then the screen slowly fades to black.
+Spec:
+- Black with a faint blue glow; the 17 px heading (#86868B) fades in at 0.3–0.7 s.
+- 0.8–2.2 s a 112 px white number (#F5F5F7) rolls from 0 to 32, then bounces 4% over 0.3 s as it lands; it is right-aligned to the width of the final value so it does not jitter.
+- 2.2–2.6 s the 30 px unit 小时 slides in from 12 px to the side.
+- 2.8–3.6 s a 5 px bar (#FFE7A3 → #F2A54A → #E8603C) grows from the left; 5.4–6.3 s everything fades to black.
+When to use it: Use it for product launches, a single headline figure or spec, and the punchline slide of a presentation.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-046.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,15 @@
+Please use "Isotype chart" (アイソタイプ統計), filed under "Animation styles / Diagrams & boards".
+Motion Prompt #4-044
+
+What it is: A pictogram chart that compares amounts by repeating same-size icons, so viewers can count instead of reading bars
+What the sample shows: On beige paper, person icons stamp down one by one into three rows while the number at each row's end counts up; the largest row, A 城, turns red with a 最多 tag, then the icons lift away from right to left.
+Spec:
+- Background #EFE7D6, figures grey #8F877A; legend: 1 figure = 10 万人. Rows A / B / C 城 hold 12 / 8 / 5 figures, 24 px apart.
+- From 0.5 s figures drop every 0.11 s from 1.5× to full size, squashing 18% on landing; a 0.2 s pause between rows; the number at the row end counts up with them.
+- 3.9 s the largest row turns red #C8352B and a 最多 tag bounces in.
+- From 5.4 s figures lift away column by column from the right, 0.045 s apart; the text fades out at 5.9–6.3 s.
+When to use it: Use it for data explainers comparing populations, users or resources, where the count itself should be the picture.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-044.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

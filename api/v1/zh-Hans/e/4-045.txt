@@ -1,0 +1,68 @@
+// Motion Prompt #4-045 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// 留白极简 / Ink-circle minimal
+// 分类: 审美风格 / 动画画风 / 平面与线条
+// 动画表现: 暖白纸上一笔画出墨圈，收笔处飞白断开；圈内浮现「静」，下方「心不动，则万物静」逐字出现。最后墨色褪淡，圈从收笔处倒着收回。
+// 运动规格:
+//   - 纸色 #F4F1EA 带淡纤维；墨 #2A2622 圈半径 56 px，张角为整圈的 93%，留一个口。
+//   - 0.3–1.5 秒顺时针画圈；笔宽最粗 9 px，起笔细、中段粗、收笔细，从 72% 处起拆成 5 道细丝形成飞白。
+//   - 1.5–2.3 秒 54 px 的「静」从 1.06 倍缩到原大浮现；从 2.5 秒起 13 px 小字每字 0.16 秒出现。
+//   - 从 5.4 秒起墨色褪淡 70%，5.4–6.2 秒墨圈从收笔处倒着收回起笔。
+// 适用场景: 适合安静地呈现一个字或关键词，诗词、禅意和品牌理念类短片。
+// 标签: minimal, ink, brush-stroke, white-space, typography, explainer, zen
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-045
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 06
+// 06 留白极简：暖白纸大片留白，一笔墨圈从起笔处顺时针画到收笔（收笔处飞白），圈内「静」淡入，
+// 下方「心不动，则万物静」逐字出现；复位时墨色褪淡、圈从收笔处倒着收回
+const MN_BG = '#F4F1EA', MN_INK = '#2A2622', MN_SUB = '#6E675C';
+const MN_C = [270, 88], MN_R = 56, MN_W = 9;                 // 圈心、半径、最粗笔宽
+const MN_A0 = -Math.PI * 0.62, MN_SPAN = TAU * 0.93;          // 起笔角度、圈的张角（不闭合，留一个口）
+const MN_N = 120, MN_DRY = 0.72;                              // 采样数；从 72% 处开始飞白
+const MN_LINE = '心不动，则万物静';
+CELLS[5] = (k, w, h, u) => {
+  k.fillStyle = MN_BG; k.fillRect(0, 0, CW, CH);
+  // 纸纹：确定性的淡色纤维
+  k.fillStyle = 'rgba(120,100,70,0.05)';
+  for (let i = 0; i < 160; i++) k.fillRect(hash(i * 3) * CW, hash(i * 7 + 1) * CH, 6 + hash(i) * 14, 1);
+  const back = inOut3(seg(u, SHOW, SHOW + 0.8));              // 复位：圈从收笔处往回收
+  const prog = inOut3(seg(u, 0.3, 1.5)) * (1 - back);
+  const ink = 1 - 0.7 * seg(u, SHOW, SHOW + 0.5);             // 复位时墨色褪淡
+  const n = Math.floor(MN_N * prog);
+  k.save(); k.lineCap = 'round'; k.strokeStyle = MN_INK;
+  for (let i = 0; i < n; i++) {
+    const t = i / MN_N, a1 = MN_A0 + MN_SPAN * t, a2 = MN_A0 + MN_SPAN * (i + 1) / MN_N;
+    // 笔宽：起笔稍细 → 中段最粗 → 收笔变细
+    const wd = MN_W * (0.55 + 0.45 * Math.sin(Math.PI * Math.min(1, t * 1.3))) * (1 - 0.5 * seg(t, 0.8, 1));
+    const r1 = MN_R + 2 * Math.sin(t * 9), r2 = MN_R + 2 * Math.sin((i + 1) / MN_N * 9);
+    const p1 = [MN_C[0] + Math.cos(a1) * r1, MN_C[1] + Math.sin(a1) * r1], p2 = [MN_C[0] + Math.cos(a2) * r2, MN_C[1] + Math.sin(a2) * r2];
+    if (t < MN_DRY) { k.globalAlpha = ink * 0.92; k.lineWidth = wd; strokePts(k, [p1, p2]); continue; }
+    // 飞白：拆成 5 道细丝，越往后断得越多
+    const dry = (t - MN_DRY) / (1 - MN_DRY);
+    for (let j = 0; j < 5; j++) {
+      if (hash(i * 5 + j) < dry * 0.75) continue;
+      const off = (j / 4 - 0.5) * wd, nx = Math.cos(a1), ny = Math.sin(a1);
+      k.globalAlpha = ink * (0.85 - 0.4 * dry); k.lineWidth = wd / 5;
+      strokePts(k, [[p1[0] + nx * off, p1[1] + ny * off], [p2[0] + nx * off, p2[1] + ny * off]]);
+    }
+  }
+  k.restore();
+  // 圈内大字与下方小字
+  const fade = 1 - resetK(u);
+  const za = seg(u, 1.5, 2.3);
+  if (za > 0) {
+    k.save(); k.globalAlpha = za * fade * ink; k.fillStyle = MN_INK;
+    k.translate(MN_C[0], MN_C[1] + 2); k.scale(mix(1.06, 1, out3(za)), mix(1.06, 1, out3(za)));
+    k.font = `400 54px ${SERIF}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('静', 0, 0);
+    k.restore();
+  }
+  k.save(); k.font = `400 13px ${SERIF}`; k.textBaseline = 'middle'; k.textAlign = 'left'; k.fillStyle = MN_SUB;
+  const cs = [...MN_LINE], cw = 17, x0 = MN_C[0] - (cs.length * cw) / 2;
+  cs.forEach((c, i) => { const a = seg(u, 2.5 + i * 0.16, 2.8 + i * 0.16); if (a > 0) { k.globalAlpha = a * fade; k.fillText(c, x0 + i * cw + 2, 178); } });
+  k.restore();
+};

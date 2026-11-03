@@ -1,0 +1,115 @@
+// Motion Prompt #4-041 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// 青図の特許図面 / Blueprint drawing
+// 分類: ビジュアルスタイル / アニメーションの画風 / 図解・板書
+// 何が起きるか: 方眼紙に点線の補助線が浮かび、フランジの正面図と側面図が順に描かれ、寸法線と数字、右下の図枠 FIG. 1 が入り、赤鉛筆が穴を囲んで公差を書く。最後に紙が上へ巻き取られる。
+// 動きの仕様:
+//   - 紺青 #123F74 に 10 px の細い方眼と 50 px の太い方眼、線色 #EAF2FF
+//   - 0.2–0.8 秒に補助線が 50% の破線で浮かぶ。0.8 秒から外形線（正面図と、ボルト穴 4 つの側面図）を 0.16 秒ずつずらして 1 本 0.45 秒で描く
+//   - 2.5–3.3 秒に寸法線・矢印と Ø140 / 40 / 4×Ø12。3.4–4.7 秒に図枠を描き FIG. 1、FLANGE · 法兰、SCALE 1:2 NO. 07 を1文字ずつ打つ
+//   - 4.6–5.0 秒に赤鉛筆 #FF6B5B が内径を囲み、5.3 秒までに「公差 ±0.02」と書く。5.4–6.1 秒に紙が上へ巻き取られ、白紙が下から入る
+// 使いどころ: 発明や機械の仕組み、製品構造、技術史の解説動画に。
+// タグ: blueprint, technical-drawing, patent, engineering, line-drawing, explainer
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-041
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 02
+// 02 蓝图专利图：普鲁士蓝方格纸上，先淡入构造虚线，再按顺序画出法兰零件的主视图与侧视图，接着拉尺寸线、写数字，
+// 右下角图签逐字打出 FIG. 1，红铅笔圈出孔位写「公差」；复位时整张图纸向上卷走，新纸从下方滑入
+const BP_BG = '#123F74', BP_L = '#EAF2FF', BP_R = '#FF6B5B';
+const BP_C = [290, 110];                                     // 侧视图圆心
+const BP_OBJ = [                                              // 物体线：[折线, 线宽, 是否虚线（隐藏线）]
+  [[[90, 40], [110, 40], [110, 180], [90, 180], [90, 40]], 2.2, false],          // 法兰盘
+  [[[110, 75], [150, 75], [150, 145], [110, 145]], 2.2, false],                  // 轮毂
+  [[[90, 95], [150, 95]], 1.2, true], [[[90, 125], [150, 125]], 1.2, true],      // 内孔（隐藏线）
+  [circlePts(BP_C[0], BP_C[1], 70), 2.2, false],
+  [circlePts(BP_C[0], BP_C[1], 35), 2.2, false],
+  [circlePts(BP_C[0], BP_C[1], 15), 1.8, false],
+  ...[45, 135, 225, 315].map(d => [circlePts(BP_C[0] + Math.cos(d * Math.PI / 180) * 52, BP_C[1] - Math.sin(d * Math.PI / 180) * 52, 6, 20), 1.6, false]),
+];
+const BP_CON = [                                              // 构造线（50% 虚线）
+  [[76, 110], [164, 110]], [[206, 110], [374, 110]], [[290, 28], [290, 192]],
+  [[110, 40], [290, 40]], [[150, 75], [290, 75]], [[150, 145], [290, 145]], [[110, 180], [290, 180]],
+  circlePts(BP_C[0], BP_C[1], 52),
+];
+const BP_HOLE = [BP_C[0] + Math.cos(-Math.PI / 4) * 52, BP_C[1] + Math.sin(-Math.PI / 4) * 52];
+const BP_STEP = 0.16, BP_DRAW = 0.45, BP_T0 = 0.8;            // 物体线依次画出：错开 0.16 秒，每条 0.45 秒
+const BP_TB = [400, 142, 128, 56];                            // 图签 x, y, w, h
+const BP_TB_ROWS = [['FIG. 1', 13, 700], ['FLANGE · 法兰', 10, 500], ['SCALE 1:2   NO. 07', 9, 500]];
+function bpArrow(k, x, y, ang) {
+  k.save(); k.translate(x, y); k.rotate(ang);
+  k.beginPath(); k.moveTo(0, 0); k.lineTo(-7, -2.6); k.lineTo(-7, 2.6); k.closePath(); k.fill(); k.restore();
+}
+// 一张图纸：网格 + 截至时刻 u 已画出的内容；withDrawing = false 时只有空白方格纸
+function bpSheet(k, u, withDrawing) {
+  k.fillStyle = BP_BG; k.fillRect(0, 0, CW, CH);
+  k.fillStyle = 'rgba(234,242,255,0.10)';
+  for (let x = 0; x < CW; x += 10) k.fillRect(x, 0, 1, CH);
+  for (let y = 0; y < CH; y += 10) k.fillRect(0, y, CW, 1);
+  k.fillStyle = 'rgba(234,242,255,0.22)';
+  for (let x = 0; x < CW; x += 50) k.fillRect(x, 0, 1, CH);
+  for (let y = 0; y < CH; y += 50) k.fillRect(0, y, CW, 1);
+  if (!withDrawing) return;
+  k.lineCap = 'round'; k.lineJoin = 'round'; k.strokeStyle = BP_L; k.fillStyle = BP_L;
+  // 1. 构造线淡入
+  k.save(); k.globalAlpha = 0.5 * seg(u, 0.2, 0.8); k.lineWidth = 0.8; k.setLineDash([5, 4]);
+  BP_CON.forEach(p => strokePts(k, p)); k.restore();
+  // 2. 物体线按顺序画出
+  BP_OBJ.forEach(([pts, lw, hidden], i) => {
+    const t0 = BP_T0 + Math.min(i, 7) * BP_STEP;              // 4 个螺栓孔同一拍画
+    k.save(); k.lineWidth = lw; if (hidden) k.setLineDash([4, 3]);
+    strokeProg(k, pts, inOut3(seg(u, t0, t0 + BP_DRAW))); k.restore();
+  });
+  // 3. 尺寸线、箭头和数字
+  const d = seg(u, 2.5, 3.0), dt = seg(u, 2.9, 3.3);
+  k.save(); k.lineWidth = 0.9;
+  if (d > 0) {
+    strokeProg(k, [[88, 40], [64, 40]], d); strokeProg(k, [[88, 180], [64, 180]], d);
+    strokeProg(k, [[70, 110], [70, 40]], d); strokeProg(k, [[70, 110], [70, 180]], d);
+    strokeProg(k, [[110, 182], [110, 200]], d); strokeProg(k, [[150, 147], [150, 200]], d);
+    strokeProg(k, [[130, 195], [110, 195]], d); strokeProg(k, [[130, 195], [150, 195]], d);
+    strokeProg(k, [BP_HOLE, [356, 42], [404, 42]], d);
+  }
+  if (d >= 1) { bpArrow(k, 70, 40, -Math.PI / 2); bpArrow(k, 70, 180, Math.PI / 2); bpArrow(k, 110, 195, Math.PI); bpArrow(k, 150, 195, 0); }
+  k.globalAlpha = dt; k.font = `600 11px ${MONO}`; k.textBaseline = 'alphabetic';
+  k.save(); k.translate(64, 110); k.rotate(-Math.PI / 2); k.textAlign = 'center'; k.fillText('Ø140', 0, 0); k.restore();
+  k.textAlign = 'center'; k.fillText('40', 130, 191);
+  k.textAlign = 'left'; k.fillText('4×Ø12', 360, 38);
+  k.restore();
+  // 4. 图签：框线画出后逐字打出
+  const [tx, ty, tw, th] = BP_TB;
+  k.save(); k.lineWidth = 1.4;
+  strokeProg(k, [[tx, ty], [tx + tw, ty], [tx + tw, ty + th], [tx, ty + th], [tx, ty]], seg(u, 3.4, 3.8));
+  k.lineWidth = 0.8; const row = th / 3;
+  strokeProg(k, [[tx, ty + row], [tx + tw, ty + row]], seg(u, 3.7, 3.85)); strokeProg(k, [[tx, ty + row * 2], [tx + tw, ty + row * 2]], seg(u, 3.75, 3.9));
+  k.textAlign = 'left'; k.textBaseline = 'middle';
+  BP_TB_ROWS.forEach(([s, sz, wt], i) => {
+    const n = Math.floor([...s].length * seg(u, 3.9 + i * 0.25, 4.2 + i * 0.25));
+    k.font = `${wt} ${sz}px ${MONO}`; k.fillText([...s].slice(0, n).join(''), tx + 7, ty + row * (i + 0.5) + 1);
+  });
+  k.restore();
+  // 5. 红铅笔批注：圈出内孔端口，手写「公差 ±0.02」
+  k.save(); k.strokeStyle = BP_R; k.fillStyle = BP_R; k.lineWidth = 1.8;
+  const ring = []; for (let i = 0; i <= 40; i++) { const a = -2.2 + (i / 40) * TAU * 1.08; ring.push([150 + Math.cos(a) * (17 + 2 * Math.sin(a * 2)), 110 + Math.sin(a) * 23]); }
+  strokeProg(k, ring, inOut3(seg(u, 4.6, 5.0)));
+  const np = seg(u, 4.95, 5.3);
+  if (np > 0) { k.font = `700 15px ${KAI}`; k.textAlign = 'left'; k.textBaseline = 'alphabetic'; const s = '公差 ±0.02', tw2 = k.measureText(s).width;
+    k.beginPath(); k.rect(160, 46, tw2 * np + 2, 22); k.clip(); k.fillText(s, 162, 63); }
+  k.restore();
+}
+CELLS[1] = (k, w, h, u) => {
+  // 复位：旧图纸带着内容向上卷走（底边有一道卷起的高光），新空白纸从下方同步滑入
+  const r = inOut3(seg(u, SHOW, SHOW + 0.7));
+  if (r <= 0) { bpSheet(k, u, true); return; }
+  const up = -r * (CH + 12);
+  k.save(); k.translate(0, up); bpSheet(k, u, true);
+  const roll = k.createLinearGradient(0, CH - 10, 0, CH + 12);
+  roll.addColorStop(0, 'rgba(234,242,255,0)'); roll.addColorStop(0.5, 'rgba(234,242,255,0.35)'); roll.addColorStop(1, 'rgba(6,24,48,0.9)');
+  k.fillStyle = roll; k.fillRect(0, CH - 10, CW, 22);
+  k.restore();
+  k.save(); k.translate(0, up + CH + 12); bpSheet(k, u, false); k.restore();
+};

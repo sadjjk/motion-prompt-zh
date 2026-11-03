@@ -1,0 +1,67 @@
+// Motion Prompt #4-055 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// 切り絵のタイトルバック / Cut-paper title sequence
+// 分類: ビジュアルスタイル / 芸術の流派 / モダン・ポストモダン
+// 何が起きるか: 朱色の地に、黒いビルの色面が左右や下から次々と切り込んで街のシルエットになり、窓の切り込みが入る。黒い縦線が上から下へ画面を割り、その左右に「夜」「行」がカットで現れ、監督・出演・英題の小さなクレジットが順に続く。最後は文字が左へ抜け、色面が入ってきたのと逆向きに切り出て、朱色だけに戻る。
+// 動きの仕様:
+//   - 地 #E8562A、色面 #14110F、文字 #F6EFE3。ビルの色面は 10 枚
+//   - 0.3–1.0 秒に 10 枚の色面が左・右・下から各 0.18 秒で切り込む
+//   - 1.3–1.6 秒に x 270 の幅 6 px の縦線が上から下へ伸びる
+//   - 1.9 秒に 52 px の明朝「夜」「行」が縦線の左右にカットで入り、2.5 / 2.8 / 3.1 秒にクレジット 3 行
+//   - 5.4–5.7 秒に文字が左へ抜け、5.4 秒から後に入った色面ほど先に 0.03 秒ずつずらして逆向きに切り出る
+// 使いどころ: サスペンス、映画史、大きな事件の導入など、強いオープニングが欲しい解説に。
+// タグ: title-sequence, cut-paper, silhouette, hard-cut, film-title, graphic, explainer
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-055
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 16
+// 16 剪影片头：橘红底，黑色硬边色块从画外切进来拼成城市天际线，一道竖线从上到下劈开画面，
+// 片名「夜行」和演职员小字依次硬切入；复位时色块按反方向切出，回到纯橘红
+const TT_BG = '#E8562A', TT_INK = '#14110F', TT_CREAM = '#F6EFE3';
+// 城市剪影色块：[x, 顶边 y, 宽, 切入方向（-1 从左、1 从右、0 从下）, 切入时刻]
+const TT_BLDG = [
+  [0, 120, 52, -1, 0.3], [48, 92, 40, 0, 0.42], [86, 132, 60, -1, 0.5], [142, 70, 30, 0, 0.6], [170, 112, 48, 1, 0.66],
+  [324, 104, 44, -1, 0.72], [364, 60, 34, 0, 0.8], [396, 124, 56, 1, 0.86], [450, 84, 38, 0, 0.94], [486, 116, 53, 1, 1.0],
+];
+const TT_CUT = 0.18;                                             // 每块切入耗时（硬切感：很短）
+const TT_LINE_X = 270, TT_LINE = [1.3, 1.6];                     // 竖线 x、劈开时段
+const TT_TITLE = 1.9, TT_CREDITS = [2.5, 2.8, 3.1];             // 片名、三行小字的切入时刻
+const TT_OUT = [SHOW, SHOW + 0.6];
+CELLS[15] = (k, w, h, u) => {
+  k.fillStyle = TT_BG; k.fillRect(0, 0, CW, CH);
+  // 复位：后进来的先出去，方向和切入相反
+  const N = TT_BLDG.length;
+  k.fillStyle = TT_INK;
+  TT_BLDG.forEach(([x, y, wd, dir, t0], i) => {
+    const inn = seg(u, t0, t0 + TT_CUT), os = TT_OUT[0] + (N - 1 - i) * 0.03, o = seg(u, os, os + TT_CUT);
+    if (inn <= 0 || o >= 1) return;
+    const e = inOut3(inn) * (1 - inOut3(o));
+    const dx = dir ? dir * (CW * 0.6) * (1 - e) : 0, dy = dir ? 0 : (CH - y) * (1 - e);
+    k.fillRect(x + dx, y + dy, wd, CH - y);
+    // 窗格：在色块上挖出几道橘红缝，剪纸感
+    if (wd > 40 && e > 0.99) { k.fillStyle = TT_BG; for (let r = y + 14; r < CH - 20; r += 16) k.fillRect(x + dx + 8, r + dy, wd - 16, 3); k.fillStyle = TT_INK; }
+  });
+  // 竖线：从上往下劈开
+  const lp = inOut3(seg(u, TT_LINE[0], TT_LINE[1])) * (1 - seg(u, TT_OUT[0] + 0.25, TT_OUT[0] + 0.25 + TT_CUT));
+  if (lp > 0) { k.fillStyle = TT_INK; k.fillRect(TT_LINE_X - 3, 0, 6, CH * lp); }
+  // 片名与小字：硬切出现（无渐变），切出时整体向左平移出画
+  const shift = CW * inOut3(seg(u, TT_OUT[0], TT_OUT[0] + 0.3));
+  k.textBaseline = 'middle';
+  if (u >= TT_TITLE) {
+    // 片名两字分立在竖线两侧，奶白色压在剪影之上
+    k.fillStyle = TT_CREAM; k.font = `900 52px ${SERIF}`;
+    k.textAlign = 'right'; k.fillText('夜', TT_LINE_X - 14 - shift, 46);
+    k.textAlign = 'left'; k.fillText('行', TT_LINE_X + 14 - shift, 46);
+  }
+  const CR = [['导演  林一川', TT_LINE_X - 14, 'right', 84], ['主演  周白  沈青', TT_LINE_X + 14, 'left', 84], ['NIGHT WALK · 2026', TT_LINE_X + 14, 'left', 100]];
+  CR.forEach(([s, x, al, y], i) => {
+    if (u < TT_CREDITS[i]) return;
+    // 小字跨在橘红底和黑色楼顶上，统一用奶白，两种底上都看得清
+    k.fillStyle = TT_CREAM; k.font = i === 2 ? `700 9px ${DISP}` : `600 10px ${SANS}`; k.textAlign = al;
+    k.fillText(s, x - shift, y);
+  });
+};

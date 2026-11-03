@@ -1,0 +1,83 @@
+// Motion Prompt #4-044 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Isotype chart / アイソタイプ統計
+// Category: Visual styles / Animation styles / Diagrams & boards
+// What happens: On beige paper, person icons stamp down one by one into three rows while the number at each row's end counts up; the largest row, A 城, turns red with a 最多 tag, then the icons lift away from right to left.
+// Motion spec:
+//   - Background #EFE7D6, figures grey #8F877A; legend: 1 figure = 10 万人. Rows A / B / C 城 hold 12 / 8 / 5 figures, 24 px apart.
+//   - From 0.5 s figures drop every 0.11 s from 1.5× to full size, squashing 18% on landing; a 0.2 s pause between rows; the number at the row end counts up with them.
+//   - 3.9 s the largest row turns red #C8352B and a 最多 tag bounces in.
+//   - From 5.4 s figures lift away column by column from the right, 0.045 s apart; the text fades out at 5.9–6.3 s.
+// When to use it: Use it for data explainers comparing populations, users or resources, where the count itself should be the picture.
+// Tags: isotype, pictogram, infographic, data-visualization, stamp, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-044
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 05
+// 05 象形统计：米色纸上三座城市每天乘地铁的人数，1 个人形 = 10 万人；人形一行行盖章落下（落地压扁回弹），
+// 行末数字跟着滚到终值，最多那一行变红并挂「最多」；复位时人形从右往左依次抬起消失
+const IS_BG = '#EFE7D6', IS_GRAY = '#8F877A', IS_INK = '#1F1B16', IS_RED = '#C8352B';
+const IS_ROWS = [['A 城', 12, 76], ['B 城', 8, 122], ['C 城', 5, 168]];   // [名称, 人形个数, 行中线 y]
+const IS_X0 = 100, IS_DX = 24, IS_UNIT = 10;                  // 第一个人形 x、间距、每个人形代表的万人数
+const IS_GAP = 0.11, IS_ROWGAP = 0.2;                          // 同行人形间隔、换行停顿
+const IS_MAXN = Math.max(...IS_ROWS.map(r => r[1]));
+// 每行第一个人形的盖章时刻
+const IS_START = IS_ROWS.reduce((acc, r, i) => { acc.push(i ? acc[i - 1] + IS_ROWS[i - 1][1] * IS_GAP + IS_ROWGAP : 0.5); return acc; }, []);
+const IS_HI = 3.9;                                             // 最多那一行变色的时刻
+function isPerson(k, col) {
+  k.fillStyle = col;
+  k.beginPath(); k.arc(0, -10, 4.2, 0, TAU); k.fill();
+  k.beginPath(); k.moveTo(-5, -4.5); k.lineTo(5, -4.5); k.lineTo(7, 10); k.lineTo(-7, 10); k.closePath(); k.fill();
+}
+CELLS[4] = (k, w, h, u) => {
+  k.fillStyle = IS_BG; k.fillRect(0, 0, CW, CH);
+  const txtA = seg(u, 0.1, 0.4) * (1 - seg(u, 5.9, 6.3));   // 文字层：开场淡入、复位末段淡出
+  k.save();
+  // 图例与标题
+  k.globalAlpha = txtA;
+  k.save(); k.translate(26, 30); k.scale(0.8, 0.8); isPerson(k, IS_GRAY); k.restore();
+  k.fillStyle = IS_INK; k.font = `700 12px ${SANS}`; k.textAlign = 'left'; k.textBaseline = 'middle'; k.fillText(`= ${IS_UNIT} 万人`, 38, 30);
+  k.font = `900 15px ${SANS}`; k.textAlign = 'right'; k.fillText('每天乘地铁的人数', 523, 30);
+  const hi = seg(u, IS_HI, IS_HI + 0.3);
+  IS_ROWS.forEach(([name, n, cy], r) => {
+    k.globalAlpha = txtA;
+    k.fillStyle = IS_INK; k.font = `900 15px ${SANS}`; k.textAlign = 'left'; k.textBaseline = 'middle'; k.fillText(name, 22, cy + 1);
+    // 已盖下的个数 → 行末数字
+    let done = 0;
+    for (let i = 0; i < n; i++) {
+      const at = IS_START[r] + i * IS_GAP, t = seg(u, at, at + 0.16);
+      if (t <= 0) continue;
+      if (t >= 0.5) done++;
+      // 复位：按列从右往左抬起，最右一列先走
+      const lt = SHOW + (IS_MAXN - 1 - i) * 0.045, lift = out3(seg(u, lt, lt + 0.25));
+      if (lift >= 1) continue;
+      const drop = out3(clamp(t * 1.6)), sq = Math.sin(Math.PI * seg(t, 0.55, 1));
+      const sc = mix(1.5, 1, drop);
+      const col = r === 0 && hi > 0 ? (hi >= 1 ? IS_RED : `rgb(${Math.round(mix(143, 200, hi))},${Math.round(mix(135, 53, hi))},${Math.round(mix(122, 43, hi))})`) : IS_GRAY;
+      k.globalAlpha = clamp(t * 3) * (1 - lift);
+      k.save(); k.translate(IS_X0 + i * IS_DX, cy + 10 - 30 * lift);
+      k.scale(sc * (1 + 0.1 * sq), sc * (1 - 0.18 * sq)); k.translate(0, -10);
+      isPerson(k, col); k.restore();
+    }
+    if (done > 0) {
+      k.globalAlpha = txtA;
+      k.fillStyle = r === 0 && hi >= 1 ? IS_RED : IS_INK; k.font = `900 18px ${DISP}`; k.textAlign = 'left'; k.textBaseline = 'middle';
+      k.fillText(`${done * IS_UNIT} 万`, IS_X0 + IS_MAXN * IS_DX + 4, cy + 1);
+    }
+  });
+  // 「最多」标签
+  const ta = seg(u, IS_HI + 0.3, IS_HI + 0.45);
+  if (ta > 0) {
+    k.globalAlpha = txtA * ta; k.font = `800 11px ${SANS}`;
+    const x = IS_X0 + IS_MAXN * IS_DX + 64, y = IS_ROWS[0][2] - 9, sc = backOut(ta);
+    k.save(); k.translate(x + 18, y + 9); k.scale(sc, sc);
+    k.fillStyle = IS_RED; k.beginPath(); k.roundRect(-18, -9, 36, 18, 3); k.fill();
+    k.fillStyle = '#fff'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('最多', 0, 1);
+    k.restore();
+  }
+  k.restore();
+};

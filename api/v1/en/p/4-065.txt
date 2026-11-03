@@ -1,0 +1,16 @@
+Please use "TV news package" (テレビニュース), filed under "Animation styles / Media & genres".
+Motion Prompt #4-065
+
+What it is: A broadcast-news package look: blue studio, channel bug, LIVE badge, picture-in-picture, two-tier lower third, scrolling ticker and a breaking banner
+What the sample shows: A blue studio with light shafts and a slowly turning wireframe globe. The channel bug 晨光新闻 comes in at top left, with a blinking 直播 badge and the time at top right. A picture-in-picture pops open on the right as a subway train pulls into the platform. A headline bar tagged 最新 and a detail bar slide in from the left, while the ticker at the bottom keeps scrolling. Midway a red 突发 banner sweeps across. On reset the bars, the picture-in-picture and the bug retract in turn and the studio lights fade.
+Spec:
+- Picture-in-picture: top right, 206 × 92, pops open at 0.6 s; the train arrives over 1.0–2.4 s.
+- Lower thirds: two tiers slide in at 1.2 s and 1.6 s.
+- Ticker: exactly 2 laps per cycle, so 6.4 s matches 0 s.
+- 突发 banner: sweeps in at 2.6 s, out at 3.5 s.
+- Reset: from 5.4 s everything retracts in reverse, 0.35 s each.
+When to use it: Use it for news, current affairs and breaking-event explainers.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-065.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

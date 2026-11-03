@@ -1,0 +1,91 @@
+// Motion Prompt #4-050 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// 雑誌エディトリアル / Magazine editorial
+// 分類: ビジュアルスタイル / アニメーションの画風 / 媒体・ジャンル
+// 何が起きるか: 温かい白の紙で、刊頭の細い罫線が中央から左右へ伸び、明朝の大見出し「慢生活」が落ちてくる。2 段組の本文がグレーの線で一行ずつ組まれ、右段の本文が赤い縦線つきの大きな斜体の引用に置き換わり、右下にページ番号が出る。最後はページごと左へめくれ、次の白いページが現れる。
+// 動きの仕様:
+//   - 紙 #F6F1E7、文字 #1E1B17、本文のグレー #8A8174、アクセントの赤 #B3261E。左右の余白 30 px
+//   - 0.2–0.7 秒に刊頭の罫線が中央から左右へ伸び、0.7–1.2 秒に 50 px の明朝見出しが 18 px 上から落ちる
+//   - 1.3 秒から本文のグレーの線が 0.09 秒おきに一行ずつ伸びる（2 段 × 7 行、行間 10 px、段幅 140 px）。続いて右段 5 行
+//   - 3.2–3.8 秒に右段が 20 px の斜体 2 行の引用と赤い縦線に置き換わり、4.0 秒に右下のページ番号
+//   - 5.4–6.2 秒にページ全体が左へめくれて画面外へ出る。下の白いページが 0 秒の画面とつながる
+// 使いどころ: エッセイ、インタビュー、書評、ブランドストーリーなど、落ち着いて読ませる解説に。
+// タグ: editorial, magazine, layout, serif, pull-quote, typography, explainer
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-050
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 11
+// 11 杂志编辑：暖白纸上一篇专题开篇页「慢生活」——刊头细线从中间向两侧拉开，衬线大标题落下，两栏正文灰条逐行排出，
+// 右栏一段正文换成大号斜体引语并加左侧红竖线，右下角页码；复位时整页向左翻走，露出下一张空白页
+const ED_BG = '#F6F1E7', ED_INK = '#1E1B17', ED_DIM = '#8A8174', ED_RED = '#B3261E';
+const ED_M = 30, ED_RULE = 30;                                 // 左右页边距、刊头细线 y
+const ED_RULE_T = [0.2, 0.7], ED_TITLE_T = [0.7, 1.2];          // 细线拉开、标题落下的时段
+const ED_COLS = [30, 186], ED_COLW = 140;                       // 两栏正文 x、栏宽
+const ED_ROW0 = 118, ED_LH = 10, ED_ROWS = 7;                   // 首行 y、行距、每栏行数
+const ED_LINE_T0 = 1.3, ED_LINE_DT = 0.09;                      // 正文灰条开始时刻、逐行间隔
+const ED_QX = 372, ED_QW = 137, ED_QROWS = 5, ED_QUOTE = [3.2, 3.8];   // 右栏 x、宽、灰条行数、换成引语的时段
+const ED_QLINES = ['「慢一点，', '才看得见。」'];
+const ED_PAGE_T = 4.0, ED_TURN = [SHOW, SHOW + 0.8];            // 页码出现、整页向左翻走
+// 灰条一行：最后一行短一截，像段落收尾
+function edBar(k, x, y, wd, last, a) { k.globalAlpha = a; k.fillRect(x, y, wd * (last ? 0.55 : 1), 3); }
+CELLS[10] = (k, w, h, u) => {
+  // 底下一页：翻走后露出的空白页，和 0 秒画面一致
+  k.fillStyle = ED_BG; k.fillRect(0, 0, CW, CH);
+  const turn = inOut3(seg(u, ED_TURN[0], ED_TURN[1]));
+  if (turn >= 1) return;
+  k.save(); k.translate(-turn * (CW + 24), 0);
+  k.fillStyle = ED_BG; k.fillRect(0, 0, CW, CH);
+  // 翻页时右边缘投一道阴影，看得出是一张纸
+  if (turn > 0) { const sh = k.createLinearGradient(CW, 0, CW + 18, 0); sh.addColorStop(0, 'rgba(60,40,20,0.22)'); sh.addColorStop(1, 'rgba(60,40,20,0)'); k.fillStyle = sh; k.fillRect(CW, 0, 18, CH); }
+  // 刊头细线：从中间向两侧拉开
+  const half = (CW / 2 - ED_M) * inOut3(seg(u, ED_RULE_T[0], ED_RULE_T[1]));
+  if (half > 0) { k.fillStyle = ED_INK; k.fillRect(CW / 2 - half, ED_RULE, half * 2, 1); }
+  const ma = seg(u, ED_RULE_T[1], ED_RULE_T[1] + 0.3);
+  if (ma > 0) {
+    k.globalAlpha = ma; k.textBaseline = 'alphabetic';
+    k.fillStyle = ED_INK; k.font = `700 12px ${SERIF}`; k.textAlign = 'left'; k.fillText('生活周刊', ED_M, ED_RULE - 8);
+    k.fillStyle = ED_DIM; k.font = `500 10px ${DISP}`; k.textAlign = 'right'; k.fillText('NO. 46 · 2026', CW - ED_M, ED_RULE - 8);
+    k.fillStyle = ED_RED; k.font = `700 10px ${SANS}`; k.textAlign = 'left'; k.fillText('专题 · FEATURE', ED_M, ED_RULE + 16);
+    k.globalAlpha = 1;
+  }
+  // 衬线大标题：从上方轻轻落下
+  const ta = seg(u, ED_TITLE_T[0], ED_TITLE_T[1]);
+  if (ta > 0) {
+    k.globalAlpha = ta; k.fillStyle = ED_INK; k.font = `700 50px ${SERIF}`; k.textAlign = 'left';
+    k.fillText('慢生活', ED_M, 98 - 18 * (1 - out3(ta))); k.globalAlpha = 1;
+  }
+  // 两栏正文灰条：先排左栏再排右栏，逐行出现
+  k.fillStyle = ED_DIM;
+  ED_COLS.forEach((cx, c) => {
+    for (let r = 0; r < ED_ROWS; r++) {
+      const a = seg(u, ED_LINE_T0 + (c * ED_ROWS + r) * ED_LINE_DT, ED_LINE_T0 + (c * ED_ROWS + r) * ED_LINE_DT + 0.25);
+      if (a > 0) edBar(k, cx, ED_ROW0 + r * ED_LH, ED_COLW * (0.9 + 0.1 * hash(c * 20 + r)) * a, r === ED_ROWS - 1, 0.55);
+    }
+  });
+  // 右栏：接在两栏之后排出同样的灰条，再换成大号斜体引语 + 左侧红竖线
+  const q = inOut3(seg(u, ED_QUOTE[0], ED_QUOTE[1]));
+  for (let r = 0; r < ED_QROWS; r++) {
+    const t0 = ED_LINE_T0 + (2 * ED_ROWS + r) * ED_LINE_DT;
+    const a = seg(u, t0, t0 + 0.25);
+    if (a > 0 && q < 1) edBar(k, ED_QX + 12, 98 + r * ED_LH, (ED_QW - 12) * (0.88 + 0.12 * hash(r + 50)) * a, r === ED_QROWS - 1, 0.55 * (1 - q));
+  }
+  k.globalAlpha = 1;
+  if (q > 0) {
+    k.fillStyle = ED_RED; k.fillRect(ED_QX, 92, 2.5, 56 * q);
+    k.save(); k.globalAlpha = q; k.fillStyle = ED_INK; k.font = `600 20px ${SERIF}`; k.textAlign = 'left';
+    // 中文字体大多没有斜体字形，用错切变换得到稳定的斜体效果
+    ED_QLINES.forEach((s, i) => { k.save(); k.translate(ED_QX + 12, 114 + i * 28); k.transform(1, 0, -0.2, 1, 0, 0); k.fillText(s, 0, 0); k.restore(); });
+    k.restore();
+  }
+  // 右下角页码
+  const pa = seg(u, ED_PAGE_T, ED_PAGE_T + 0.4);
+  if (pa > 0) {
+    k.globalAlpha = pa; k.fillStyle = ED_DIM; k.font = `500 10px ${DISP}`; k.textAlign = 'right'; k.fillText('P. 24', CW - ED_M, 196);
+    k.fillRect(CW - ED_M - 60, 192, 24, 1); k.globalAlpha = 1;
+  }
+  k.restore();
+};

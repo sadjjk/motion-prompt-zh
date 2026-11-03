@@ -1,0 +1,72 @@
+// Motion Prompt #4-048 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Dark gold line art / ダークゴールドの線画
+// Category: Visual styles / Animation styles / Space & material
+// What happens: With a fixed camera, glowing amber lines on charcoal draw the floor, desk, chair, a person reading, an open book and a lamp in turn; the lamp flickers twice and comes on, casting a warm pool on the desk, and a page turns. Then the lines retract in reverse order and the light goes out.
+// Motion spec:
+//   - Charcoal #15130F, 1.8 px amber #F0B44C lines with an 8 px outer glow; the camera does not move.
+//   - 0.3–3.5 s 15 strokes draw in the order floor → desk → chair → person → book → lamp.
+//   - 3.6 s the lamp flickers for 0.3 s and comes on, adding a light cone and an elliptical pool (90 px radius) on the desk; 4.2–4.8 s a page turns over the spine.
+//   - From 5.4 s the strokes retract from their ends, the last drawn first, 0.3 s each; the light goes out at 5.4–5.65 s.
+// When to use it: Use it for explainers about work, psychology and daily-life problems that open on a familiar scene.
+// Tags: line-art, glow, neon-line, dark-mode, hand-drawn, explainer, scene
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-048
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 09
+// 09 暗金线描：固定机位，炭黑底，琥珀色发光线条一笔笔画出地面、书桌、椅子、读书的人、摊开的书和台灯；
+// 台灯闪两下亮起，在桌面投出一圈暖光，书页翻过一页；复位时线条从末端往回收，光晕熄灭
+const DG_BG = '#15130F', DG_GOLD = '#F0B44C', DG_GLOW = 'rgba(240,180,76,0.7)', DG_BLUR = 8;
+const DG_HEAD = circlePts(196, 64, 13, 32, Math.PI / 2);
+// [折线, 开始时刻, 结束时刻]：按"地面 → 桌 → 椅 → 人 → 书 → 灯"的顺序画
+const DG_STROKES = [
+  [[[60, 184], [480, 184]], 0.3, 0.7],
+  [[[226, 120], [434, 120]], 0.6, 0.95], [[[244, 120], [244, 184]], 0.85, 1.05], [[[416, 120], [416, 184]], 0.95, 1.15],
+  [[[146, 82], [150, 142], [204, 142]], 1.1, 1.45], [[[152, 142], [152, 184]], 1.35, 1.5], [[[200, 142], [200, 184]], 1.4, 1.55],
+  [DG_HEAD, 1.5, 1.8],
+  [[[194, 78], [186, 104], [182, 138], [236, 140], [236, 181], [252, 182]], 1.75, 2.25],
+  [[[192, 92], [222, 112], [262, 112]], 2.15, 2.5],
+  [[[258, 119], [262, 108], [292, 113], [322, 108], [326, 119]], 2.5, 2.85], [[[292, 113], [292, 119]], 2.8, 2.9],
+  [[[380, 120], [404, 120]], 2.95, 3.05], [[[392, 120], [372, 84], [398, 60]], 3.0, 3.25],
+  [[[388, 56], [414, 62], [422, 82], [396, 79], [388, 56]], 3.2, 3.5],
+];
+const DG_ON = 3.6, DG_FLIP = [4.2, 4.8];
+CELLS[8] = (k, w, h, u) => {
+  k.fillStyle = DG_BG; k.fillRect(0, 0, CW, CH);
+  // 台灯：3.6 秒起闪两下后常亮，复位开始时熄灭
+  const flick = u >= DG_ON && u < DG_ON + 0.3 ? (hash(Math.floor(u * 30)) > 0.45 ? 1 : 0.25) : 1;
+  const lit = seg(u, DG_ON, DG_ON + 0.05) * flick * (1 - seg(u, SHOW, SHOW + 0.25));
+  if (lit > 0) {
+    // 光锥 + 桌面光圈
+    k.save(); k.globalAlpha = lit;
+    const cone = k.createLinearGradient(410, 80, 300, 120);
+    cone.addColorStop(0, 'rgba(255,190,90,0.22)'); cone.addColorStop(1, 'rgba(255,140,60,0.03)');
+    k.fillStyle = cone; k.beginPath(); k.moveTo(396, 79); k.lineTo(422, 82); k.lineTo(380, 120); k.lineTo(250, 120); k.closePath(); k.fill();
+    k.translate(318, 120); k.scale(1, 0.13);
+    const pool = k.createRadialGradient(0, 0, 0, 0, 0, 90);
+    pool.addColorStop(0, 'rgba(255,200,110,0.55)'); pool.addColorStop(0.6, 'rgba(255,106,61,0.18)'); pool.addColorStop(1, 'rgba(255,106,61,0)');
+    k.fillStyle = pool; k.beginPath(); k.arc(0, 0, 90, 0, TAU); k.fill();
+    k.restore();
+  }
+  k.save(); k.strokeStyle = DG_GOLD; k.lineWidth = 1.8; k.lineCap = 'round'; k.lineJoin = 'round';
+  k.shadowColor = DG_GLOW; k.shadowBlur = DG_BLUR;
+  const N = DG_STROKES.length;
+  DG_STROKES.forEach(([pts, a, b], i) => {
+    // 复位：后画的先收，每笔 0.3 秒从末端往回收
+    const rs = SHOW + (N - 1 - i) * 0.035, back = inOut3(seg(u, rs, rs + 0.3));
+    strokeProg(k, pts, inOut3(seg(u, a, b)) * (1 - back));
+  });
+  // 灯泡亮点
+  if (lit > 0) { k.globalAlpha = lit; k.fillStyle = '#FFF4D6'; k.beginPath(); k.arc(408, 79, 2.6, 0, TAU); k.fill(); k.globalAlpha = 1; }
+  // 翻页：从右页绕书脊翻到左页，页角抬起成弧
+  const f = inOut3(seg(u, DG_FLIP[0], DG_FLIP[1]));
+  if (f > 0 && f < 1) {
+    const tip = [292 + 30 * Math.cos(Math.PI * f), 113 - 16 * Math.sin(Math.PI * f) - 5 * (1 - Math.abs(Math.cos(Math.PI * f)))];
+    strokePts(k, [[292, 113], [mix(292, tip[0], 0.5), Math.min(113, tip[1]) - 4 * Math.sin(Math.PI * f)], tip]);
+  }
+  k.restore();
+};

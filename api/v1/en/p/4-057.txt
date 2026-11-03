@@ -1,0 +1,16 @@
+Please use "Retro desktop" (レトロデスクトップ), filed under "Art movements / Digital & retro".
+Motion Prompt #4-057
+
+What it is: A 1-bit early-computer look: dithered gray desktop, black-and-white windows with striped title bars, and an arrow cursor
+What the sample shows: A dithered gray desktop. The window 日记.txt opens with dotted zoom frames and two lines are typed one character at a time. The cursor clicks 文件, a menu drops down and 保存 highlights. A save dialog opens, its progress bar fills in steps and reads 已保存. The dialog closes and the file icon drops onto the desktop in jerky steps, flashing once. Finally the window shrinks shut through dotted frames and the icon blinks away.
+Spec:
+- 1 px dithered ground #B8B8B8, black and white only; 14 px menu bar.
+- 0.1 s the window opens through 0.25 s dotted zoom frames; 0.4–1.2 s two lines are typed.
+- 1.65–2.25 s the menu is open; 2.05 s 保存 highlights.
+- 2.3 s the dialog opens; 2.55–3.5 s the progress bar fills in 8 steps; 3.9 s it closes.
+- 4.2 s the icon drops in 5 steps; 5.4 s the window closes; 5.9 s the icon disappears.
+When to use it: Use it for computing history, software how-tos and early-internet culture that suit a vintage screen.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-057.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

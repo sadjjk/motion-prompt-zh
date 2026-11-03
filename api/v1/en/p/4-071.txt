@@ -1,0 +1,15 @@
+Please use "Dunhuang mural" (敦煌壁画), filed under "East Asian tradition / Calligraphy & painting".
+Motion Prompt #4-071
+
+What it is: A cave-mural look: ochre plaster flakes away to reveal a flying apsara with malachite skirt and long streamers on red ochre, while light glints across a gold cartouche
+What the sample shows: A wall covered in ochre plaster. Cracked plaster pieces fall one by one in shuffled order, tumbling and fading, to reveal red ochre beneath. A haloed apsara flies left holding a lotus, her whole body bobbing gently. Her hair is piled in a high double-loop bun with a gold floral crown, her malachite skirt trails behind in three S-curved tails, slender legs with pointed toes curl out from under it, and three streamers ripple in wide S-curves. Scrolling clouds and falling petals fill in, and a diagonal glint runs twice across the gold-framed cartouche 飞天 at top left. On reset the plaster covers back over from the edges inward.
+Spec:
+- Plaster: 10 × 4 = 40 pieces, flaking from 0.4 s, 0.05 s apart.
+- Figure and streamers: exactly 2 sways per cycle, seamless.
+- Cartouche glint: twice, 3.0–3.8 s and 4.4–5.1 s.
+- Reset: from 5.4 s plaster covers back from the edges inward, 0.018 s apart.
+When to use it: Use it for the Silk Road, Buddhist history and East–West exchange.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-071.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

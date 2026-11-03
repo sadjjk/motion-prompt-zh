@@ -1,0 +1,119 @@
+// Motion Prompt #4-067 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// 视觉调查 / Visual investigation
+// 分类: 审美风格 / 动画画风 / 媒介与题材
+// 动画表现: 深灰工作台上并排三栏：左边剪报原文，中间江岸钟楼的现场示意图，右边 1920–1945 的时间线。黄色荧光笔划过「钟楼刚刚落成」，红笔用手绘椭圆圈住钟楼。时间线游标从 1920 滑到 1934「钟楼落成」停住，这一条变亮。镜头推近红圈，四角取景框出现，红框印章「推定：1934 年」盖下。复位时印章、划线擦去，镜头拉回。
+// 运动规格:
+//   - 三栏：原文 150 宽、现场图 170 宽、时间线 148 宽
+//   - 标记顺序：荧光笔 0.4 秒、红圈 1.2 秒、游标 2.0–2.8 秒
+//   - 时间线：1920–1945，游标停在 1934
+//   - 推近：3.3–3.9 秒放大到 1.7 倍，以红圈为中心
+//   - 复位：5.4–6.0 秒标记擦去、镜头拉回
+// 适用场景: 适合史料考证、事件复盘、辟谣。
+// 标签: investigation, fact-check, evidence-board, timeline, red-circle, highlight, explainer
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-067
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 28
+// 28 视觉调查：深灰工作台上并排三栏——左边原文剪报、中间现场示意画、右边时间线。原文里荧光笔划出「钟楼刚刚落成」，
+// 现场画上红圈圈住钟楼，时间线游标从 1920 滑到 1934 停住，镜头推近到现场画定格并打上「推定：1934 年」。复位时红圈、划线擦去，镜头拉回
+const IV_RED = '#FF3B30', IV_PAPER = '#ECE6D6', IV_INK = '#1F1D1A';
+const IV_COL = { doc: [20, 28, 150, 160], pic: [186, 28, 170, 120], tl: [372, 28, 148, 160] }; // 三栏 x、y、宽、高
+const IV_YEARS = [1920, 1945], IV_HIT = 1934;                    // 时间线范围、推定年份
+// 三栏常驻（复位只擦标记、拉回镜头，6.4 秒与 0 秒画面一致），标记从 0.4 秒开始依次出现
+const IV_T = { hl: [0.4, 0.9], ring: [1.2, 1.8], cur: [2.0, 2.8], zoom: [3.3, 3.9], stamp: 4.0 };
+const IV_ZOOM = 1.7;                                             // 推近倍数（以红圈为中心）
+const IV_RING = [270, 70, 22, 30];                               // 红圈中心与横、竖半径（落在钟楼上）
+CELLS[27] = (k, w, h, u) => {
+  k.fillStyle = '#101114'; k.fillRect(0, 0, CW, CH);
+  k.strokeStyle = 'rgba(255,255,255,0.04)'; k.lineWidth = 1;
+  for (let x = 0; x < CW; x += 20) { k.beginPath(); k.moveTo(x + 0.5, 0); k.lineTo(x + 0.5, CH); k.stroke(); }
+  // 擦除：复位段红圈、划线、游标、印章一起变淡，镜头同时拉回
+  const er = 1 - resetK(u);
+  const zp = inOut3(seg(u, IV_T.zoom[0], IV_T.zoom[1])) * er;
+  const z = mix(1, IV_ZOOM, zp), [rx, ry] = IV_RING;
+  // 推近：红圈中心从原位移到画面中心，同时放大
+  k.save(); k.translate(mix(rx, CW / 2, zp), mix(ry, CH / 2, zp)); k.scale(z, z); k.translate(-rx, -ry);
+  // 左栏：原文剪报
+  {
+    const [x, y, cw, ch] = IV_COL.doc; k.save();
+    k.fillStyle = IV_PAPER; k.fillRect(x, y, cw, ch);
+    k.fillStyle = IV_INK; k.font = `900 12px ${SERIF}`; k.textAlign = 'left'; k.textBaseline = 'alphabetic'; k.fillText('本埠新闻', x + 10, y + 20);
+    k.fillRect(x + 10, y + 25, cw - 20, 1);
+    const lines = ['南岸码头近日', '人潮如织，', '钟楼刚刚落成，', '市民争相合影。', '记者 摄于江边'];
+    k.font = `500 11px ${SERIF}`;
+    lines.forEach((s, i) => {
+      const ly = y + 44 + i * 22;
+      if (i === 2) {
+        // 荧光笔：黄色半透明条从左往右划过关键句
+        const hw = k.measureText(s).width * out3(seg(u, IV_T.hl[0], IV_T.hl[1])) * er;
+        if (hw > 0) { k.fillStyle = 'rgba(255,214,0,0.55)'; k.fillRect(x + 8, ly - 11, hw + 4, 14); }
+      }
+      k.fillStyle = i === 4 ? '#7A7468' : IV_INK; k.fillText(s, x + 10, ly);
+    });
+    k.restore();
+  }
+  // 中栏：现场示意画（江岸、钟楼、人群），下方标注
+  {
+    const [x, y, cw, ch] = IV_COL.pic; k.save();
+    k.fillStyle = '#F4F1EA'; k.fillRect(x - 4, y - 4, cw + 8, ch + 22);
+    k.save(); k.beginPath(); k.rect(x, y, cw, ch); k.clip();
+    const sg = k.createLinearGradient(0, y, 0, y + ch); sg.addColorStop(0, '#B8B2A4'); sg.addColorStop(1, '#8E887A'); k.fillStyle = sg; k.fillRect(x, y, cw, ch);
+    k.fillStyle = '#6E695E'; k.fillRect(x, y + 92, cw, 28);                                   // 江面
+    k.fillStyle = '#4A463F';
+    [[x + 6, 50, 26], [x + 34, 36, 30], [x + 120, 44, 40]].forEach(([bx, bh, bw]) => k.fillRect(bx, y + 92 - bh, bw, bh));
+    k.fillRect(rx - 9, y + 30, 18, 62); k.beginPath(); k.moveTo(rx - 12, y + 30); k.lineTo(rx, y + 10); k.lineTo(rx + 12, y + 30); k.fill(); // 钟楼
+    k.fillStyle = '#D9D4C8'; k.beginPath(); k.arc(rx, y + 42, 5, 0, TAU); k.fill();
+    k.strokeStyle = '#4A463F'; k.lineWidth = 1; k.beginPath(); k.moveTo(rx, y + 42); k.lineTo(rx, y + 39); k.moveTo(rx, y + 42); k.lineTo(rx + 2.5, y + 42); k.stroke();
+    k.fillStyle = '#3A362F'; for (let i = 0; i < 18; i++) { const px = x + 10 + i * 9 + hash(i) * 4, py = y + 92; k.fillRect(px, py - 7, 3, 7); k.beginPath(); k.arc(px + 1.5, py - 9, 2, 0, TAU); k.fill(); }
+    k.restore();
+    k.fillStyle = '#6A665E'; k.font = `500 8px ${SANS}`; k.textAlign = 'left'; k.fillText('现场示意 · 南岸码头', x, y + ch + 12);
+    k.restore();
+  }
+  // 右栏：时间线，游标滑到推定年份
+  {
+    const [x, y, cw, ch] = IV_COL.tl; k.save();
+    k.fillStyle = '#1B1D22'; k.fillRect(x, y, cw, ch);
+    k.fillStyle = '#8D8F96'; k.font = `700 9px ${SANS}`; k.textAlign = 'left'; k.fillText('时间线', x + 10, y + 16);
+    const lx = x + 30, y0 = y + 30, y1 = y + ch - 14, yAt = yr => mix(y0, y1, (yr - IV_YEARS[0]) / (IV_YEARS[1] - IV_YEARS[0]));
+    k.strokeStyle = '#4A4D55'; k.lineWidth = 2; k.beginPath(); k.moveTo(lx, y0); k.lineTo(lx, y1); k.stroke();
+    const cp = out3(seg(u, IV_T.cur[0], IV_T.cur[1])) * er;
+    [[1920, '码头扩建'], [1927, '江堤加固'], [1934, '钟楼落成'], [1941, '码头停用']].forEach(([yr, s]) => {
+      const yy = yAt(yr); k.fillStyle = '#4A4D55'; k.fillRect(lx - 4, yy - 1, 8, 2);
+      k.fillStyle = '#8D8F96'; k.font = `600 9px ${MONO}`; k.textAlign = 'right'; k.fillText(String(yr).slice(2), lx - 7, yy + 3);
+      // 游标停到推定年份后，该条事件变亮
+      k.textAlign = 'left'; k.fillStyle = yr === IV_HIT && cp > 0.98 ? '#F2EFE8' : '#8D8F96'; k.font = `600 9px ${SANS}`; k.fillText(s, lx + 10, yy + 3);
+    });
+    if (cp > 0) {
+      const yy = yAt(mix(IV_YEARS[0], IV_HIT, cp));
+      k.fillStyle = IV_RED; k.beginPath(); k.moveTo(lx - 10, yy - 5); k.lineTo(lx - 2, yy); k.lineTo(lx - 10, yy + 5); k.fill();
+      k.fillRect(lx - 2, yy - 1, cw - 40, 2);
+    }
+    k.restore();
+  }
+  // 红圈：手绘感的椭圆，起止点错开一点；线宽按缩放反算，推近后不变粗
+  const rp = seg(u, IV_T.ring[0], IV_T.ring[1]) * er;
+  if (rp > 0) {
+    const pts = []; for (let i = 0; i <= 50; i++) { const t = i / 50, an = -2 + t * (TAU + 0.5), rr = 1 + 0.06 * Math.sin(t * 7); pts.push([rx + Math.cos(an) * IV_RING[2] * rr, ry + Math.sin(an) * IV_RING[3] * rr]); }
+    k.strokeStyle = IV_RED; k.lineWidth = 2.5 / z; k.lineCap = 'round'; strokeProg(k, pts, rp);
+  }
+  k.restore();
+  // 定格印章（不跟镜头缩放）
+  const sp = backOut(seg(u, IV_T.stamp, IV_T.stamp + 0.3)) * er;
+  if (sp > 0) {
+    k.save(); k.translate(CW - 96, CH - 34); k.rotate(-0.08); k.scale(sp, sp);
+    k.fillStyle = 'rgba(16,17,20,0.85)'; k.fillRect(-70, -14, 140, 28);
+    k.strokeStyle = IV_RED; k.lineWidth = 2; k.strokeRect(-70, -14, 140, 28);
+    k.fillStyle = IV_RED; k.font = `900 14px ${SANS}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(`推定：${IV_HIT} 年`, 0, 1);
+    k.restore();
+  }
+  // 定格时的四角取景框
+  if (zp > 0.5) {
+    k.strokeStyle = `rgba(242,239,232,${((zp - 0.5) * 1.6).toFixed(3)})`; k.lineWidth = 2;
+    [[10, 10, 1, 1], [CW - 10, 10, -1, 1], [10, CH - 10, 1, -1], [CW - 10, CH - 10, -1, -1]].forEach(([x, y, sx, sy]) => { k.beginPath(); k.moveTo(x, y + 14 * sy); k.lineTo(x, y); k.lineTo(x + 14 * sx, y); k.stroke(); });
+  }
+};

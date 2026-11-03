@@ -2,7 +2,7 @@
 
 # Names
 
-436 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+468 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind. Each number opens the moving sample in the gallery.
 
@@ -47,14 +47,15 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | 3 Editing & photography | Light & color | Light sources & color | 8 | #3 057–064 |
 | 3 Editing & photography | Lens effects & finishing | Lens effects | 11 | #3 065–075 |
 | 3 Editing & photography | Lens effects & finishing | Grading & finishing | 8 | #3 076–083 |
-| 4 Visual styles | Animation styles | Flat & line | 4 | #4 001–004 |
-| 4 Visual styles | Animation styles | Space & material | 5 | #4 005–008 · 031 |
-| 4 Visual styles | Animation styles | Media & genres | 3 | #4 009–011 |
-| 4 Visual styles | Art movements | Modern & postmodern | 5 | #4 012–015 · 032 |
-| 4 Visual styles | Art movements | Digital & retro | 4 | #4 016–019 |
-| 4 Visual styles | Craft & patterns | Print & handmade | 7 | #4 020–021 · 030 · 033–036 |
+| 4 Visual styles | Animation styles | Flat & line | 6 | #4 001–004 · 045–046 |
+| 4 Visual styles | Animation styles | Space & material | 8 | #4 005–008 · 031 · 047–049 |
+| 4 Visual styles | Animation styles | Media & genres | 11 | #4 009–011 · 050–053 · 065–068 |
+| 4 Visual styles | Animation styles | Diagrams & boards | 5 | #4 040–044 |
+| 4 Visual styles | Art movements | Modern & postmodern | 7 | #4 012–015 · 032 · 054–055 |
+| 4 Visual styles | Art movements | Digital & retro | 7 | #4 016–019 · 056–058 |
+| 4 Visual styles | Craft & patterns | Print & handmade | 12 | #4 020–021 · 030 · 033–036 · 059–062 · 069 |
 | 4 Visual styles | Craft & patterns | Geometric patterns | 5 | #4 022–026 |
-| 4 Visual styles | East Asian tradition | Calligraphy & painting | 3 | #4 027–028 · 037 |
+| 4 Visual styles | East Asian tradition | Calligraphy & painting | 7 | #4 027–028 · 037 · 063–064 · 070–071 |
 | 4 Visual styles | East Asian tradition | Objects & folk crafts | 3 | #4 029 · 038–039 |
 
 ## 1 UI & Web
@@ -675,7 +676,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 
 ### Animation styles
 
-#### Flat & line · #4 001–004
+#### Flat & line · #4 001–004 · 045–046
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -683,8 +684,10 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-002](https://sadjjk.github.io/motion-prompt-zh/#4-002) | **Line art animation** | Line art animation: one continuous stroke draws itself into a scene and, finally, a logo | Create a line-art animation on midnight blue: one gold stroke draws a horizon, a sprout, buildings and waves in a single line, ending in a ring logo, in about 4 s. |
 | [#4-003](https://sadjjk.github.io/motion-prompt-zh/#4-003) | **Morphing** | Morphing style: a single shape keeps transforming into new shapes in time with the beat | Make one shape morph through 8 forms in rhythm — circle, sun, paper plane, heart, star… — with a circular colour wipe behind it at each change, 0.8 s per form. |
 | [#4-004](https://sadjjk.github.io/motion-prompt-zh/#4-004) | **Cel animation / line boil** | Hand-drawn cel style: low frame rate and lines that jitter (boil) slightly every frame | Give it a hand-drawn cel look: 12 fps on twos with boiling lines, 3 colours (ink, red, yellow) on cream paper, and a little match-flame character bouncing. |
+| [#4-045](https://sadjjk.github.io/motion-prompt-zh/#4-045) | **Ink-circle minimal** | A minimal explainer on warm white paper: one ink circle, a single character inside it and a great deal of empty space | Make a 6-second minimal clip: one brush stroke draws an ink circle, the character 静 fades in inside it, and a short line of small text appears below. |
+| [#4-046](https://sadjjk.github.io/motion-prompt-zh/#4-046) | **Keynote number** | A product-launch look: pure black, one thing per screen, and a huge white number that lands the moment it is said | Make a 6-second keynote-style clip: on black, the heading 续航 appears, a big number rolls from 0 to 32 and lands, 小时 follows, and a gradient bar sweeps in underneath. |
 
-#### Space & material · #4 005–008 · 031
+#### Space & material · #4 005–008 · 031 · 047–049
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -693,18 +696,39 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-007](https://sadjjk.github.io/motion-prompt-zh/#4-007) | **Liquid motion** | Liquid motion: glossy fluid that swells, pinches off, drips and merges back together | Do a liquid-motion piece on dark plum: 6 orange-to-pink-to-purple drops fall from a top band into a pool below and merge, about 3.2 s per drip. |
 | [#4-008](https://sadjjk.github.io/motion-prompt-zh/#4-008) | **Aurora gradient & glass** | A soft-glow tech look: half-transparent frosted-glass cards floating over a dark aurora gradient | Give the AI product launch film an aurora-gradient glassmorphism look: 5 aurora-coloured glows drifting slowly over a dark background, with 2 frosted-glass cards floating on top. |
 | [#4-031](https://sadjjk.github.io/motion-prompt-zh/#4-031) | **Low poly** | A 3D look built from a few triangles, each painted a single flat shade | Make a low-poly mountain lake: build 3 mountains, the pines on the shore and a raft on the lake out of triangles, and as the light circles once every 6.4 s, let each face step brighter or darker by its facing. |
+| [#4-047](https://sadjjk.github.io/motion-prompt-zh/#4-047) | **Starfield spark** | An explainer set in a deep navy starfield where one gold spark is the hero and changes shape as the idea develops | Make a 6-second starfield clip: a gold spark rises, traces a light bulb, then splits into several sparks that join into a constellation. |
+| [#4-048](https://sadjjk.github.io/motion-prompt-zh/#4-048) | **Dark gold line art** | An explainer drawn in glowing amber lines on charcoal, building an everyday scene stroke by stroke like a luminous notebook | Make a 6-second dark gold line-art clip with a fixed camera: glowing lines draw a desk, a chair, a person reading and a desk lamp; the lamp switches on, casts a pool of light, and a page turns. |
+| [#4-049](https://sadjjk.github.io/motion-prompt-zh/#4-049) | **Clay kawaii** | A cute clay look on a pink cream background: little clay characters with faces squash and bounce as they pop in | Make a 6-second clay kawaii clip: three bean characters line up at a milk-tea stand, and the first one takes a cup and hops for joy. |
 
-#### Media & genres · #4 009–011
+#### Media & genres · #4 009–011 · 050–053 · 065–068
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
 | [#4-009](https://sadjjk.github.io/motion-prompt-zh/#4-009) | **Collage / cutout** | A handmade zine-style collage where cut-out pieces are slapped onto paper one by one like stop-motion | Make a collage/cutout magazine opening: a cut-out portrait, newspaper scraps and ransom-note letters slapped onto kraft paper one by one at a 12 fps stop-motion rhythm. |
 | [#4-010](https://sadjjk.github.io/motion-prompt-zh/#4-010) | **Bold-outline sticker explainer** | A flat explainer style built from thick white-outlined stickers and a single accent colour | Make a bold-outline sticker explainer: a phone sticker slaps down with callout lines, the camera flies to a periodic table that lights up 70 elements, then on to a 5-bar chart. |
 | [#4-011](https://sadjjk.github.io/motion-prompt-zh/#4-011) | **Variety-show captions** | Variety-show styling: loud multi-outlined captions with comic burst bubbles and speed lines | Add variety-show captions to a pet video: the title springs in letter by letter, 2 frames apart, and at 2.9 s the camera punches in with speed lines and a burst bubble for a 'shocked!!' caption. |
+| [#4-050](https://sadjjk.github.io/motion-prompt-zh/#4-050) | **Magazine editorial** | A magazine feature-page look on warm white paper: hairline masthead rule, big serif headline, two-column body text and a large pull quote | Make a 6-second magazine editorial clip: a feature opener titled 慢生活 builds up rule, headline, body text and pull quote in turn. |
+| [#4-051](https://sadjjk.github.io/motion-prompt-zh/#4-051) | **Silent-film title card** | A silent-film look: sepia black-and-white footage with grain, flicker, vertical scratches and frame-rate jitter, cutting between scenes and ornate intertitle cards | Make a 6-second silent-film clip: a train pulls into the station, an intertitle reads 终于到了！, and a passenger steps off. |
+| [#4-052](https://sadjjk.github.io/motion-prompt-zh/#4-052) | **RPG dialogue box** | A retro RPG look: a pixel-art scene on top, a navy dialogue window below that types out text letter by letter, and choice menus to move the story on | Make a 6-second RPG dialogue clip: a merchant asks the hero 要买药草吗？, the hero picks 买, and the gold drops by 10. |
+| [#4-053](https://sadjjk.github.io/motion-prompt-zh/#4-053) | **Card battle** | A card-game look on green felt: cards flip face up from the deck, then ram, pop damage numbers and drain HP bars to show attack and defence | Make a 6-second card battle clip: two cards hit the table, one attack is blocked with MISS, and the counter-attack deals damage. |
+| [#4-065](https://sadjjk.github.io/motion-prompt-zh/#4-065) | **TV news package** | A broadcast-news package look: blue studio, channel bug, LIVE badge, picture-in-picture, two-tier lower third, scrolling ticker and a breaking banner | Make a 6-second TV news clip: the fictional channel 晨光新闻 reports 地铁今起延长运营, with a field picture-in-picture, lower thirds, a scrolling ticker and a breaking banner sweeping across. |
+| [#4-066](https://sadjjk.github.io/motion-prompt-zh/#4-066) | **Caption news** | A caption-led social news look: one huge line at a time on a dark screen, keywords blocked in yellow and a number rolling up, readable with the sound off | Make a 6-second caption news clip: a data story 外卖平均 28 分钟送达, with the number rolling from 0 to 28, a yellow block over the keyword and the source sliding in from below. |
+| [#4-067](https://sadjjk.github.io/motion-prompt-zh/#4-067) | **Visual investigation** | An investigative-journalism look: source text, scene picture and timeline side by side, linked by highlighter, red circle and timeline cursor, then a push-in and a verdict stamp | Make a 6-second visual investigation clip: dating an old photo — highlight the source text, circle the scene in red, the timeline cursor stops at 1934, then push in and stamp 推定：1934 年. |
+| [#4-068](https://sadjjk.github.io/motion-prompt-zh/#4-068) | **Archive light table** | A close-reading archive look: film strips and bamboo slips on a cold white light table, a loupe magnifies one character and a red pen circles it | Make a 6-second archive light table clip: a film strip and bamboo slips are laid on a light table, a loupe runs along the slips, stops on the character 年 and a red pen circles it. |
+
+#### Diagrams & boards · #4 040–044
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#4-040](https://sadjjk.github.io/motion-prompt-zh/#4-040) | **Chalkboard lesson** | An explainer drawn like a classroom board: chalk lines and formulas written stroke by stroke on a dark green board | Make a 6-second chalkboard clip: chalk draws a right triangle with squares on its sides, writes a² + b² = c², then an eraser wipes the board. |
+| [#4-041](https://sadjjk.github.io/motion-prompt-zh/#4-041) | **Blueprint drawing** | An explainer drawn like a patent blueprint: construction lines, then object lines, then dimensions on Prussian-blue grid paper | Make a 6-second blueprint clip: draw the front and side views of a flange from construction lines, add dimensions and a title block, and mark a tolerance in red pencil. |
+| [#4-042](https://sadjjk.github.io/motion-prompt-zh/#4-042) | **Dark math explainer** | A maths explainer on near-black where only what is being explained appears, colour-coded, and one object moves smoothly to make the point | Make a 6-second dark maths clip: axes grow, y = sin x traces across, and a gold dot slides along it with a turning tangent line. |
+| [#4-043](https://sadjjk.github.io/motion-prompt-zh/#4-043) | **Metro map** | An explainer that grows a metro line drawn only at 0°, 45° and 90°, station by station, to walk through a route or a sequence of steps | Make a 6-second metro map clip: a red Line 1 grows station by station, one station is closed, a yellow branch appears at the interchange, and a train runs to the end. |
+| [#4-044](https://sadjjk.github.io/motion-prompt-zh/#4-044) | **Isotype chart** | A pictogram chart that compares amounts by repeating same-size icons, so viewers can count instead of reading bars | Make a 6-second isotype clip: stamp rows of person icons for daily metro riders in three cities and turn the largest row red. |
 
 ### Art movements
 
-#### Modern & postmodern · #4 012–015 · 032
+#### Modern & postmodern · #4 012–015 · 032 · 054–055
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -713,8 +737,10 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-014](https://sadjjk.github.io/motion-prompt-zh/#4-014) | **Art Deco** | An Art Deco ornament of gold rays and fan arcs unfolding on black | Make an Art Deco scene: 25 gold rays and 9 fan arcs unfold from the bottom on black, with a light sweep every 6.4 s. |
 | [#4-015](https://sadjjk.github.io/motion-prompt-zh/#4-015) | **Geometric / Bauhaus** | Bauhaus-style geometry: circles, triangles and squares in primary colours, built up on a grid | Do a Bauhaus-style build on cream paper with a grid: a red circle, yellow triangle, blue square and black bar land one per beat at 120 BPM. |
 | [#4-032](https://sadjjk.github.io/motion-prompt-zh/#4-032) | **Pop art** | A modern art style that blows up everyday objects with thick outlines, flat primary colours and halftone dots | Draw a bowl of noodles in pop art: thick black outlines, rays behind it and halftone dots in the shadows. Midway, split the frame into a 2×2 grid, let the 4 panels switch to different colour schemes one by one, then merge back into one. |
+| [#4-054](https://sadjjk.github.io/motion-prompt-zh/#4-054) | **Swiss grid kinetic type** | Swiss-style kinetic typography: a 12-column grid on off-white, oversized black letters slammed onto the column lines, and a red block pushed between columns | Make a 6-second Swiss grid kinetic-type clip: a design-talk poster reading GRID 2026 assembles on a 12-column grid. |
+| [#4-055](https://sadjjk.github.io/motion-prompt-zh/#4-055) | **Cut-paper title sequence** | A cut-paper film-opening look: hard-edged black shapes slice in from off-screen onto vermilion, a vertical line splits the frame, and title and credits cut in | Make a 6-second cut-paper title sequence: black shapes build a city skyline, a vertical line splits the frame, and the title 夜行 and credits cut in. |
 
-#### Digital & retro · #4 016–019
+#### Digital & retro · #4 016–019 · 056–058
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -722,10 +748,13 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-017](https://sadjjk.github.io/motion-prompt-zh/#4-017) | **Cyberpunk HUD / FUI** | A sci-fi film style cyan wireframe heads-up display that builds up layer by layer and locks onto a target | Make a cyberpunk HUD target-lock sequence: cyan wireframes unfold layer by layer, the radar sweeps once every 1.6 s, and at 3.8 s the lock turns everything magenta. |
 | [#4-018](https://sadjjk.github.io/motion-prompt-zh/#4-018) | **80s Synthwave / VHS** | 1980s retro-futurism: a neon sunset, a perspective grid and videotape picture quality | Make an 80s synthwave opening: a striped sunset, a magenta perspective grid rolling toward camera, a chrome title slamming down at 1.2 s, plus VHS scanlines and tape glitches. |
 | [#4-019](https://sadjjk.github.io/motion-prompt-zh/#4-019) | **Pixel art / 8-bit** | An 8-bit game look built from low-res pixels, a limited palette and frame-stepped motion | Make a pixel-art game opening: a little hero runs through a side-scroller grabbing coins and stomping a slime, 48 frames per cycle, scaled up 5× so the pixels stay crisp. |
+| [#4-056](https://sadjjk.github.io/motion-prompt-zh/#4-056) | **Neon cyber** | A cyber night look: magenta and cyan neon tubes glowing against deep-purple rain, reflected on the wet ground | Make a 6-second neon cyber clip: a 24H ramen sign in a rainy alley lights up tube by tube, and one character flickers from a bad contact. |
+| [#4-057](https://sadjjk.github.io/motion-prompt-zh/#4-057) | **Retro desktop** | A 1-bit early-computer look: dithered gray desktop, black-and-white windows with striped title bars, and an arrow cursor | Make a 6-second retro desktop clip: type a diary in a window, save it from the menu, and the file icon lands on the desktop. |
+| [#4-058](https://sadjjk.github.io/motion-prompt-zh/#4-058) | **Cozy farm pixel** | A cozy farming-game look: a top-down farm drawn in 4 px pixels with a wooden HUD for the clock and money | Make a 6-second cozy farm pixel clip: a farmer waters the field, the crops grow in 3 stages, and the harvest adds to the money. |
 
 ### Craft & patterns
 
-#### Print & handmade · #4 020–021 · 030 · 033–036
+#### Print & handmade · #4 020–021 · 030 · 033–036 · 059–062 · 069
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -736,6 +765,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-034](https://sadjjk.github.io/motion-prompt-zh/#4-034) | **Woodcut** | A print cut into wood with gouges and printed in just 2 colours, black and paper | Make a black-and-white woodcut of a fisherman hauling a net from a wooden boat in the waves: the sky in parallel gouge lines, the sea a black mass with white cuts for waves, and a faint wood grain showing through the black. |
 | [#4-035](https://sadjjk.github.io/motion-prompt-zh/#4-035) | **Embroidery** | A craft that stitches a design into cloth with needle and thread, using stitch direction for sheen and relief | In embroidery style, show a lotus leaf, flower, bud and a mandarin duck being stitched one stitch at a time into silk on a wooden hoop; let the sheen change with stitch direction, and run a diagonal gleam across once it's done. |
 | [#4-036](https://sadjjk.github.io/motion-prompt-zh/#4-036) | **Stained glass** | A window of coloured glass pieces joined with lead, seen with light shining through | In stained-glass style, make an arched window in a dark stone wall showing a phoenix, flowers and a sun behind distant hills: thick lead lines between the pieces, and as the light behind it rises from below, the glass lights up nearest-first and casts coloured light onto the floor. |
+| [#4-059](https://sadjjk.github.io/motion-prompt-zh/#4-059) | **Ransom-note cutouts** | A ransom-note look on gray newsprint: every character cut from a different paper, with mixed fonts, backgrounds, sizes and angles, slapped down one by one | Make a 6-second ransom-note clip: the notice 全场五折 / 仅限今天 is pasted up one cutout character at a time, stapled, and circled in red pen. |
+| [#4-060](https://sadjjk.github.io/motion-prompt-zh/#4-060) | **National park poster** | A vintage national-park travel poster look: flat colour in just 5 inks, overprinted plate by plate on beige paper | Make a 6-second national park poster clip: the mountain-and-lake scene 云岭 · 国家公园 is overprinted plate by plate, and the sun rises last. |
+| [#4-061](https://sadjjk.github.io/motion-prompt-zh/#4-061) | **Bullet journal** | A bullet-journal look: dot-grid paper with washi tape, marker handwriting, highlighter, sticky notes and ballpoint ticks | Make a 6-second bullet journal clip: tape goes down on a weekly plan page, the title and to-dos are written, ticked off, and a sticky note is slapped on. |
+| [#4-062](https://sadjjk.github.io/motion-prompt-zh/#4-062) | **Hand-drawn process** | A drawing-process look: a floating tool swaps at each stage, pencil for the rough, fineliner for ink, marker for colour, then signs | Make a 6-second hand-drawn process clip: swapping between pencil, fineliner and marker, a coffee cup is drawn from pencil rough to ink, colour and signature. |
+| [#4-069](https://sadjjk.github.io/motion-prompt-zh/#4-069) | **Copperplate botanical** | A copperplate natural-history plate look: fine ink lines and 45° hatching engrave the plant on old paper, a pale wash follows a beat later, with captions alongside | Make a 6-second copperplate botanical clip: a plate of 蒲公英 — ink lines draw stem, leaves, flower and seed head, 45° hatching sweeps across, a pale wash seeps in and captions appear on the left. |
 
 #### Geometric patterns · #4 022–026
 
@@ -749,13 +783,17 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 
 ### East Asian tradition
 
-#### Calligraphy & painting · #4 027–028 · 037
+#### Calligraphy & painting · #4 027–028 · 037 · 063–064 · 070–071
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
 | [#4-027](https://sadjjk.github.io/motion-prompt-zh/#4-027) | **Dry brush** | A calligraphy scene where a brush writes the character 永 on rice paper, with dry-brush streaks and a red seal | Make a calligraphy opener: a brush writes the 8 strokes of 永 in 4 s, then a red seal stamps down. |
 | [#4-028](https://sadjjk.github.io/motion-prompt-zh/#4-028) | **Vertical verse** | A classical Chinese poem appearing character by character in vertical columns on ruled letter paper | Make a vertical verse scene: Wang Wei's 44-character poem appears right to left at 9.5 characters per second, then a red seal is stamped. |
 | [#4-037](https://sadjjk.github.io/motion-prompt-zh/#4-037) | **Blue-green landscape** | A Chinese landscape painting style that colours the mountains richly with azurite blue and malachite green | Pan slowly along a blue-green landscape handscroll on silk: move 3 layers of mountains (far, middle, near) at different speeds, wash the ink-outlined mountains with azurite and malachite from the top down, ochre at their feet, bands of cloud at mid-height, and a tiny figure on a bridge. |
+| [#4-063](https://sadjjk.github.io/motion-prompt-zh/#4-063) | **Ink wash on paper** | An ink-wash look on xuan paper: distant hills bleeding in shades of ink alone, a bold stroke, a vertical inscription and a vermilion seal | Make a 6-second ink-wash clip: distant hills bleed in, a near rock is laid down in one stroke, a small boat drifts past, and a vertical inscription and seal finish it. |
+| [#4-064](https://sadjjk.github.io/motion-prompt-zh/#4-064) | **Gufeng** | A festive period-picture-book look: an indigo-to-orange dusk sky, a vermilion gate tower, red lanterns and sky lanterns, a vermilion seal and gold numerals | Make a 6-second gufeng clip: at a lantern festival under a city gate at dusk, red lanterns light one by one, sky lanterns rise, a red seal stamps down, and a gold year floats up. |
+| [#4-070](https://sadjjk.github.io/motion-prompt-zh/#4-070) | **Handscroll** | An East Asian handscroll look: a wooden-rollered scroll unrolls right to left revealing a line-and-wash street scene, with a title slip, a seal and a loupe on one figure | Make a 6-second handscroll clip: a street scroll unrolls right to left from its wooden roller, showing a river, an arched bridge, shops and willows; a vertical title slip goes on and a loupe moves in on a porter on the bridge. |
+| [#4-071](https://sadjjk.github.io/motion-prompt-zh/#4-071) | **Dunhuang mural** | A cave-mural look: ochre plaster flakes away to reveal a flying apsara with malachite skirt and long streamers on red ochre, while light glints across a gold cartouche | Make a 6-second Dunhuang mural clip: plaster on a cave wall flakes off piece by piece to reveal a flying apsara and her streamers, and light glints across the gold cartouche 飞天. |
 
 #### Objects & folk crafts · #4 029 · 038–039
 

@@ -1,0 +1,103 @@
+// Motion Prompt #4-068 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// 档案灯台 / Archive light table
+// 分类: 审美风格 / 动画画风 / 媒介与题材
+// 动画表现: 暗房里灯台像日光灯一样闪几下亮起。一条琥珀色胶片放上，接着三根竹简从上方一根根落下。放大镜从胶片右侧沿弧线移到竹简，停在第 3 根的「年」字上。镜片里放大 2.2 倍，红笔一笔圈住这个字，旁边贴上编号签「关键字「年」」。复位时灯台熄灭，物件全部往上撤出画面。
+// 运动规格:
+//   - 灯台：0.1–0.5 秒亮起，开头闪几帧
+//   - 物件：胶片 0.6 秒，竹简 0.9、1.1、1.3 秒依次落下
+//   - 放大镜：1.7–3.0 秒滑到关键字，半径 30、放大 2.2 倍
+//   - 红笔圈：3.2–3.7 秒；编号签 3.9 秒
+//   - 复位：5.4–6.0 秒灯灭、物件上撤 220 px
+// 适用场景: 适合考古、文物、史料细读。
+// 标签: light-table, archive, magnifier, bamboo-slips, film-strip, close-reading, explainer
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-068
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 29
+// 29 档案灯台：暗房里冷白灯台亮起，一条胶片和三根竹简依次放上；放大镜从左沿竹简滑过，停在关键字「年」上放大，
+// 红笔在镜片里一笔圈住，旁边贴上编号签。复位时灯台熄灭，物件往上撤出画面
+const LT_TABLE = [30, 22, 479, 164];                             // 灯台 x、y、宽、高
+const LT_RED = '#E0302A';
+const LT_T = { on: [0.1, 0.5], film: 0.6, slips: [0.9, 1.1, 1.3], lens: [1.7, 3.0], ring: [3.2, 3.7], tag: 3.9 };
+const LT_SLIPS = [{ x: 300, s: '元年春正月' }, { x: 340, s: '王命作宫室' }, { x: 380, s: '三年乃成' }]; // 竹简 x 与文字
+const LT_KEY = { slip: 2, ch: 1 };                               // 关键字：第 3 根竹简第 2 个字「年」
+const LT_CH = 18, LT_Y0 = 46;                                    // 竹简字距、首字 y
+const LT_LENS_R = 30, LT_LENS_Z = 2.2;                           // 放大镜半径、倍数
+CELLS[28] = (k, w, h, u) => {
+  k.fillStyle = '#0A0D14'; k.fillRect(0, 0, CW, CH);
+  const off = resetK(u), on = out3(seg(u, LT_T.on[0], LT_T.on[1])) * (1 - off);
+  // 灯台本体：开灯时日光灯启辉闪几帧
+  const flick = u > LT_T.on[0] && u < LT_T.on[0] + 0.25 && Math.floor(u * 30) % 3 === 0 ? 0.4 : 1;
+  const [tx, ty, tw, th] = LT_TABLE;
+  k.fillStyle = '#1A1F2A'; k.fillRect(tx - 6, ty - 6, tw + 12, th + 12);
+  const lg = k.createRadialGradient(tx + tw / 2, ty + th / 2, 20, tx + tw / 2, ty + th / 2, tw * 0.62);
+  lg.addColorStop(0, '#F4F9FF'); lg.addColorStop(1, '#BFD0E6');
+  k.globalAlpha = on * flick; k.fillStyle = lg; k.fillRect(tx, ty, tw, th);
+  k.strokeStyle = 'rgba(30,50,90,0.12)'; k.lineWidth = 1; for (let x = tx + 20; x < tx + tw; x += 20) { k.beginPath(); k.moveTo(x + 0.5, ty); k.lineTo(x + 0.5, ty + th); k.stroke(); }
+  k.globalAlpha = 1;
+  // 物件落下：淡入 + 从上方落 16 px；复位时整体往上撤 220 px
+  const drop = t0 => { const p = out3(seg(u, t0, t0 + 0.3)); return { a: p, dy: -16 * (1 - p) - off * 220 }; };
+  const drawScene = () => {
+    // 胶片条：透光的琥珀色片基，两侧齿孔，三格画面
+    let d = drop(LT_T.film);
+    if (d.a > 0) {
+      k.save(); k.globalAlpha = d.a; k.translate(70, 104 + d.dy); k.rotate(-0.06);
+      k.fillStyle = 'rgba(60,34,14,0.88)'; k.fillRect(0, 0, 196, 56);
+      k.fillStyle = '#F4F9FF'; for (let i = 0; i < 14; i++) { k.fillRect(5 + i * 14, 4, 7, 5); k.fillRect(5 + i * 14, 47, 7, 5); }
+      for (let i = 0; i < 3; i++) {
+        k.fillStyle = 'rgba(244,210,160,0.75)'; k.fillRect(8 + i * 62, 13, 56, 30);
+        k.fillStyle = 'rgba(60,34,14,0.8)'; k.fillRect(8 + i * 62 + 14 + i * 6, 23, 14, 20); k.beginPath(); k.arc(8 + i * 62 + 21 + i * 6, 20, 5, 0, TAU); k.fill();
+      }
+      k.restore();
+    }
+    // 竹简：竖条、编绳、竖排墨字
+    LT_SLIPS.forEach((sl, i) => {
+      d = drop(LT_T.slips[i]); if (d.a <= 0) return;
+      k.save(); k.globalAlpha = d.a; k.translate(0, d.dy);
+      const g = k.createLinearGradient(sl.x - 13, 0, sl.x + 13, 0); g.addColorStop(0, '#B9935A'); g.addColorStop(0.5, '#D9B67A'); g.addColorStop(1, '#A9834C');
+      k.fillStyle = g; k.fillRect(sl.x - 13, 32, 26, 140);
+      k.fillStyle = '#6E4E2A'; k.fillRect(sl.x - 15, 58, 30, 2); k.fillRect(sl.x - 15, 140, 30, 2);
+      k.fillStyle = '#2A1A0E'; k.font = `700 14px ${KAI}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+      [...sl.s].forEach((c, j) => k.fillText(c, sl.x, LT_Y0 + 6 + j * LT_CH + (j > 0 ? 6 : 0)));
+      k.restore();
+    });
+  };
+  drawScene();
+  // 关键字中心（与上面竖排字位置公式一致）
+  const kx = LT_SLIPS[LT_KEY.slip].x, ky = LT_Y0 + 6 + LT_KEY.ch * LT_CH + 6;
+  // 放大镜：从胶片右侧沿弧线滑到关键字，镜片里按倍数重画一遍场景
+  const lp = inOut3(seg(u, LT_T.lens[0], LT_T.lens[1]));
+  // 放大镜和编号签在复位开头 0.25 秒内先撤，免得灯灭后还留一个暗圆
+  const early = 1 - seg(u, SHOW, SHOW + 0.25);
+  const la = seg(u, LT_T.lens[0] - 0.2, LT_T.lens[0]) * early;
+  if (la > 0) {
+    const mx = mix(250, kx, lp), my = mix(150, ky, lp) - Math.sin(lp * Math.PI) * 30;
+    k.save(); k.globalAlpha = la;
+    k.beginPath(); k.arc(mx, my, LT_LENS_R, 0, TAU); k.clip();
+    k.fillStyle = '#F4F9FF'; k.fillRect(mx - LT_LENS_R, my - LT_LENS_R, LT_LENS_R * 2, LT_LENS_R * 2);
+    k.translate(mx, my); k.scale(LT_LENS_Z, LT_LENS_Z); k.translate(-mx, -my); drawScene();
+    k.restore();
+    k.save(); k.globalAlpha = la;
+    k.strokeStyle = '#2A2F3A'; k.lineWidth = 5; k.beginPath(); k.arc(mx, my, LT_LENS_R, 0, TAU); k.stroke();
+    k.strokeStyle = 'rgba(255,255,255,0.6)'; k.lineWidth = 2; k.beginPath(); k.arc(mx, my, LT_LENS_R - 5, -2.4, -1.6); k.stroke();
+    k.strokeStyle = '#2A2F3A'; k.lineWidth = 8; k.lineCap = 'round'; k.beginPath(); k.moveTo(mx + 22, my + 22); k.lineTo(mx + 46, my + 46); k.stroke();
+    // 红笔圈：画在镜片里，围住放大后的关键字
+    const rp = seg(u, LT_T.ring[0], LT_T.ring[1]);
+    if (rp > 0) { k.strokeStyle = LT_RED; k.lineWidth = 2.5; k.lineCap = 'round'; strokeProg(k, circlePts(mx, my, 16, 40, -2.2), rp); }
+    k.restore();
+  }
+  // 编号签
+  const tp = backOut(seg(u, LT_T.tag, LT_T.tag + 0.3)) * early;
+  if (tp > 0) {
+    k.save(); k.translate(kx + 90, ky - 4); k.scale(tp, tp); k.rotate(0.04);
+    k.fillStyle = '#FFF'; k.fillRect(-38, -18, 76, 36); k.fillStyle = LT_RED; k.fillRect(-38, -18, 4, 36);
+    k.fillStyle = '#0A0D14'; k.font = `800 11px ${SANS}`; k.textAlign = 'left'; k.textBaseline = 'middle'; k.fillText('关键字「年」', -29, -5);
+    k.fillStyle = '#8AA0C0'; k.font = `600 8px ${MONO}`; k.fillText('No.03-2', -29, 9);
+    k.restore();
+  }
+};

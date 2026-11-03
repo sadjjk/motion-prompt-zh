@@ -1,0 +1,16 @@
+Please use "Hand-drawn process" (手描きプロセス), filed under "Craft & patterns / Print & handmade".
+Motion Prompt #4-062
+
+What it is: A drawing-process look: a floating tool swaps at each stage, pencil for the rough, fineliner for ink, marker for colour, then signs
+What the sample shows: On white paper a pencil comes in from off-screen. It roughs out the saucer, cup, handle and steam in thin gray lines, then swaps for a black fineliner and traces the same strokes in ink, lifting slightly as it hops between lines. At each swap the old tool shrinks away and the new one drops in. A red marker then fills the cup with back-and-forth strokes, the fineliner returns to sign at the bottom right, and the tool leaves the frame. On reset a fresh page turns over from the right, back to blank paper.
+Spec:
+- Paper #FBF8F2, ink #23201C, marker #D7392B.
+- From 0.25 s, 6 pencil lines are sketched 0.23 s apart.
+- From 1.7 s, 6 ink lines are traced 0.28 s apart, each over 0.24 s.
+- 3.4–4.3 s the marker fill; 4.5–5.0 s the signature.
+- 5.4–6.2 s a fresh page turns over from the right.
+When to use it: Use it for explaining how things work and step-by-step how-tos that want to draw it out in front of you.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-062.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

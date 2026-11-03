@@ -1,0 +1,15 @@
+Please use "Ink-circle minimal" (余白のミニマル), filed under "Animation styles / Flat & line".
+Motion Prompt #4-045
+
+What it is: A minimal explainer on warm white paper: one ink circle, a single character inside it and a great deal of empty space
+What the sample shows: One brush stroke draws an ink circle on warm white paper, breaking into dry-brush streaks at the end; 静 appears inside, and 心不动，则万物静 writes in below one character at a time. Then the ink pales and the circle unwinds from its end.
+Spec:
+- Paper #F4F1EA with faint fibres; the ink #2A2622 circle has a radius of 56 px and spans 93% of a turn, leaving a gap.
+- 0.3–1.5 s the circle draws clockwise; the brush peaks at 9 px, thin at the start, full in the middle and thin at the end, and from 72% on it splits into 5 dry streaks.
+- 1.5–2.3 s the 54 px character 静 settles from 1.06× to full size; from 2.5 s a 13 px line appears at 0.16 s per character.
+- From 5.4 s the ink pales by 70%, and at 5.4–6.2 s the circle unwinds from its end back to the start.
+When to use it: Use it to present one word or keyword quietly, for poetry, Zen and brand philosophy pieces.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-045.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

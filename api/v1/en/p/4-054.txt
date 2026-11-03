@@ -1,0 +1,16 @@
+Please use "Swiss grid kinetic type" (スイスグリッドのタイポ), filed under "Art movements / Modern & postmodern".
+Motion Prompt #4-054
+
+What it is: Swiss-style kinetic typography: a 12-column grid on off-white, oversized black letters slammed onto the column lines, and a red block pushed between columns
+What the sample shows: Grid lines for 12 columns fade in from left to right on off-white. Huge black letters G, R, I, D slam down one at a time, their left edges locked to column lines, then 2026 pushes in from the left on the next row. A red block rises from below and slides and stretches between columns, and the small date and venue text settles left-aligned on column 8. Finally type and block slide off to the right along the grid.
+Spec:
+- Ground #F2F1EC, type #111111, secondary #777777, red #E3001B; 12 columns, 20 px margins, 8 px gutters, everything snaps to column lines.
+- From 0.1 s the grid lines fade in from the left, 0.03 s apart.
+- From 0.7 s the 100 px letters G, R, I, D slam down every 0.22 s, sinking 3 px on landing; 1.8–2.1 s the 62 px 2026 enters from the left.
+- The red block rises at 2.3 s on column 8, 1 column wide; at 3.1 s it moves to column 7, 3 columns wide; at 3.9 s to column 9, 2 columns wide. From 3.0 s three lines of small text settle on column 8, 0.15 s apart.
+- From 5.4 s elements slide off to the right in 0.45 s, rightmost first; the grid lines fade from 5.7 s.
+When to use it: Use it for opinions, data points and key phrases where the type itself is the picture, and for event posters.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-054.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,125 @@
+// Motion Prompt #4-065 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// TV news package / テレビニュース
+// Category: Visual styles / Animation styles / Media & genres
+// What happens: A blue studio with light shafts and a slowly turning wireframe globe. The channel bug 晨光新闻 comes in at top left, with a blinking 直播 badge and the time at top right. A picture-in-picture pops open on the right as a subway train pulls into the platform. A headline bar tagged 最新 and a detail bar slide in from the left, while the ticker at the bottom keeps scrolling. Midway a red 突发 banner sweeps across. On reset the bars, the picture-in-picture and the bug retract in turn and the studio lights fade.
+// Motion spec:
+//   - Picture-in-picture: top right, 206 × 92, pops open at 0.6 s; the train arrives over 1.0–2.4 s.
+//   - Lower thirds: two tiers slide in at 1.2 s and 1.6 s.
+//   - Ticker: exactly 2 laps per cycle, so 6.4 s matches 0 s.
+//   - 突发 banner: sweeps in at 2.6 s, out at 3.5 s.
+//   - Reset: from 5.4 s everything retracts in reverse, 0.35 s each.
+// When to use it: Use it for news, current affairs and breaking-event explainers.
+// Tags: tv-news, broadcast, lower-third, ticker, breaking-news, picture-in-picture, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-065
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 26
+// 26 电视新闻包装：蓝色演播室底，虚构台标「晨光新闻」和「直播」角标亮起；右侧画中画弹出现场示意（地铁进站），
+// 两层下方标题条依次滑入，底部滚动字幕一直走；「突发」红色横幅从左扫到右。复位时标题条、画中画倒序收回，演播室灯光淡出
+const TV_BLUE = '#0B3A7A', TV_DEEP = '#06224A', TV_SKY = '#9FC2F0', TV_RED = '#E8202A';
+const TV_PIP = [318, 30, 206, 92];                               // 画中画 x、y、宽、高
+const TV_L3_Y = 134;                                             // 下方标题条首行 y
+const TV_TICK = { y: 190, p: 560, loops: 2 };                    // 滚动字幕：y、一轮长度、每周期整数轮（保证无缝）
+const TV_TICK_ITEMS = [[0, '早高峰客流平稳'], [140, '今日气温 18–25℃'], [290, '城东新桥今晚封闭施工'], [450, '明日有小雨']];
+const TV_T = { light: 0.3, logo: 0.2, live: 0.4, pip: 0.6, train: [1.0, 2.4], tick: 0.8, l1: 1.2, l2: 1.6, bk: [2.6, 2.9, 3.5, 3.8] };
+// 复位倒序：第二层标题条 → 第一层 → 画中画 → 字幕条和台标，每样 0.35 秒
+const TV_OUT = { l2: SHOW, l1: SHOW + 0.12, pip: SHOW + 0.25, chrome: SHOW + 0.4 };
+const tvIn = (u, a, d = 0.35) => out3(seg(u, a, a + d));
+const tvOut = (u, a) => 1 - inOut3(seg(u, a, a + 0.35));
+CELLS[25] = (k, w, h, u) => {
+  const g = k.createRadialGradient(170, 90, 10, 170, 90, 380);
+  g.addColorStop(0, '#1C5AA8'); g.addColorStop(0.55, TV_BLUE); g.addColorStop(1, TV_DEEP);
+  k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  // 演播室灯光：斜向光束、地面透视网格、线框地球，开场亮起、复位时淡出
+  const lit = seg(u, 0, TV_T.light) * tvOut(u, TV_OUT.chrome);
+  if (lit > 0) {
+    k.globalAlpha = lit;
+    k.fillStyle = 'rgba(159,194,240,0.07)';
+    [[60, 140], [210, 300], [380, 470]].forEach(([a, b]) => { k.beginPath(); k.moveTo(a, 0); k.lineTo(a + 40, 0); k.lineTo(b + 60, CH); k.lineTo(b - 30, CH); k.closePath(); k.fill(); });
+    k.strokeStyle = 'rgba(159,194,240,0.16)'; k.lineWidth = 1;
+    for (let i = 0; i < 5; i++) { const y = 150 + i * i * 3; k.beginPath(); k.moveTo(0, y); k.lineTo(CW, y); k.stroke(); }
+    // 地球经线随时间转一整圈/周期，6.4 秒回到原样
+    const R = 44, gx = 150, gy = 76, ph = (u / CYC) * TAU;
+    k.strokeStyle = 'rgba(159,194,240,0.3)';
+    k.beginPath(); k.arc(gx, gy, R, 0, TAU); k.stroke();
+    [-0.5, 0, 0.5].forEach(t => { k.beginPath(); k.ellipse(gx, gy + t * R, R * Math.sqrt(1 - t * t), 5, 0, 0, TAU); k.stroke(); });
+    for (let i = 0; i < 4; i++) { const rx = Math.abs(Math.cos(ph + (i * Math.PI) / 4)) * R; k.beginPath(); k.ellipse(gx, gy, rx, R, 0, 0, TAU); k.stroke(); }
+    k.globalAlpha = 1;
+  }
+  // 画中画：弹出放大，里面是地铁进站的示意画面
+  const ps = backOut(seg(u, TV_T.pip, TV_T.pip + 0.35)) * tvOut(u, TV_OUT.pip);
+  if (ps > 0.01) {
+    const [x, y, pw, ph2] = TV_PIP;
+    k.save(); k.translate(x + pw / 2, y + ph2 / 2); k.scale(ps, ps); k.translate(-(x + pw / 2), -(y + ph2 / 2));
+    k.fillStyle = '#FFF'; k.fillRect(x - 2, y - 2, pw + 4, ph2 + 4);
+    k.save(); k.beginPath(); k.rect(x, y, pw, ph2); k.clip();
+    const sg = k.createLinearGradient(0, y, 0, y + ph2); sg.addColorStop(0, '#6E8CB0'); sg.addColorStop(1, '#C9D6E4');
+    k.fillStyle = sg; k.fillRect(x, y, pw, ph2);
+    k.fillStyle = '#3A4658'; for (let i = 0; i < 6; i++) k.fillRect(x + 8 + i * 36, y + 8, 3, 46);   // 站台立柱
+    k.fillStyle = '#8B95A3'; k.fillRect(x, y + 66, pw, ph2 - 66);                                     // 站台地面
+    k.fillStyle = '#F2C230'; k.fillRect(x, y + 64, pw, 3);                                            // 黄色安全线
+    const tx = mix(x + pw + 10, x + 24, out3(seg(u, TV_T.train[0], TV_T.train[1])));
+    k.fillStyle = '#E9EDF2'; k.beginPath(); k.moveTo(tx + 10, y + 26); k.lineTo(tx + 200, y + 26); k.lineTo(tx + 200, y + 62); k.lineTo(tx, y + 62); k.lineTo(tx, y + 38); k.closePath(); k.fill();
+    k.fillStyle = TV_BLUE; k.fillRect(tx, y + 52, 200, 4);
+    k.fillStyle = '#2B3A4E'; k.fillRect(tx + 6, y + 31, 14, 12); for (let i = 0; i < 5; i++) k.fillRect(tx + 30 + i * 34, y + 32, 24, 13);
+    k.restore();
+    k.fillStyle = TV_RED; k.fillRect(x, y, 34, 14); k.fillStyle = '#FFF'; k.font = `700 9px ${SANS}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('现场', x + 17, y + 7.5);
+    k.restore();
+  }
+  // 台标和直播角标
+  const chrome = tvOut(u, TV_OUT.chrome);
+  const la = tvIn(u, TV_T.logo) * chrome;
+  if (la > 0) {
+    k.globalAlpha = la; k.save(); k.translate(-20 * (1 - la), 0);
+    k.fillStyle = TV_RED; k.fillRect(14, 10, 22, 22); k.fillStyle = '#FFF'; k.font = `900 14px ${SANS}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('晨', 25, 21.5);
+    k.textAlign = 'left'; k.font = `800 13px ${SANS}`; k.fillText('晨光新闻', 42, 17); k.fillStyle = TV_SKY; k.font = `600 7px ${DISP}`; k.fillText('MORNING NEWS', 42, 28);
+    k.restore(); k.globalAlpha = 1;
+  }
+  const lv = tvIn(u, TV_T.live) * chrome;
+  if (lv > 0) {
+    k.globalAlpha = lv; k.textBaseline = 'middle';
+    k.fillStyle = TV_RED; k.fillRect(CW - 104, 10, 44, 15);
+    k.fillStyle = '#FFF'; if (Math.floor(u * 2) % 2 === 0) { k.beginPath(); k.arc(CW - 96, 17.5, 2.5, 0, TAU); k.fill(); }
+    k.font = `800 9px ${SANS}`; k.textAlign = 'left'; k.fillText('直播', CW - 89, 18);
+    k.font = `700 11px ${MONO}`; k.fillText('07:30', CW - 54, 18); k.globalAlpha = 1;
+  }
+  // 「突发」横幅：平行四边形从左扫进、停住、再往右扫出
+  const bi = out3(seg(u, TV_T.bk[0], TV_T.bk[1])), bo = inOut3(seg(u, TV_T.bk[2], TV_T.bk[3]));
+  if (bi > 0 && bo < 1) {
+    const bx = -CW * (1 - bi) + CW * bo, by = 96;
+    k.fillStyle = '#FFF'; k.beginPath(); k.moveTo(bx - 10, by - 2); k.lineTo(bx + CW + 8, by - 2); k.lineTo(bx + CW, by + 28); k.lineTo(bx - 18, by + 28); k.closePath(); k.fill();
+    k.fillStyle = TV_RED; k.beginPath(); k.moveTo(bx - 6, by); k.lineTo(bx + CW + 4, by); k.lineTo(bx + CW - 2, by + 26); k.lineTo(bx - 12, by + 26); k.closePath(); k.fill();
+    k.fillStyle = '#FFF'; k.font = `900 14px ${SANS}`; k.textAlign = 'left'; k.textBaseline = 'middle';
+    k.fillText('突发', bx + 18, by + 13.5); k.font = `700 12px ${SANS}`; k.fillText('城东新桥今晚封闭施工', bx + 62, by + 13.5);
+  }
+  // 两层下方标题条：从左滑入，复位时第二层先收
+  k.textBaseline = 'middle'; k.textAlign = 'left';
+  const p1 = tvIn(u, TV_T.l1) * tvOut(u, TV_OUT.l1), p2 = tvIn(u, TV_T.l2) * tvOut(u, TV_OUT.l2);
+  if (p1 > 0) {
+    const x = 14 - 380 * (1 - p1);
+    k.fillStyle = TV_RED; k.fillRect(x, TV_L3_Y, 46, 26); k.fillStyle = '#FFF'; k.font = `900 13px ${SANS}`; k.fillText('最新', x + 9, TV_L3_Y + 13.5);
+    k.fillStyle = '#FFF'; k.fillRect(x + 46, TV_L3_Y, 300, 26); k.fillStyle = TV_DEEP; k.font = `900 16px ${SANS}`; k.fillText('地铁今起延长运营', x + 58, TV_L3_Y + 13.5);
+  }
+  if (p2 > 0) {
+    const x = 14 - 380 * (1 - p2);
+    k.fillStyle = 'rgba(6,34,74,0.92)'; k.fillRect(x, TV_L3_Y + 26, 346, 18);
+    k.fillStyle = '#FFF'; k.font = `600 10px ${SANS}`; k.fillText('末班车延后至 23:30 · 周末再延 1 小时', x + 12, TV_L3_Y + 35.5);
+  }
+  // 滚动字幕：每周期整数轮，6.4 秒与 0 秒位置相同
+  const tk = tvIn(u, TV_T.tick, 0.3) * chrome;
+  if (tk > 0) {
+    const y = TV_TICK.y + 20 * (1 - tk);
+    k.fillStyle = '#FFF'; k.fillRect(0, y, CW, 18);
+    const off = (((u / CYC) * TV_TICK.loops) % 1) * TV_TICK.p;
+    k.save(); k.beginPath(); k.rect(44, y, CW - 44, 18); k.clip();
+    k.fillStyle = TV_DEEP; k.font = `600 10px ${SANS}`;
+    for (let j = 0; j < 2; j++) TV_TICK_ITEMS.forEach(([dx, s]) => { const x = 56 + dx - off + j * TV_TICK.p; k.fillText(s, x, y + 9.5); k.fillStyle = TV_RED; k.fillRect(x - 8, y + 7, 3, 3); k.fillStyle = TV_DEEP; });
+    k.restore();
+    k.fillStyle = TV_RED; k.fillRect(0, y, 44, 18); k.fillStyle = '#FFF'; k.font = `800 10px ${SANS}`; k.fillText('快讯', 11, y + 9.5);
+  }
+};

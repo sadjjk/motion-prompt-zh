@@ -1,0 +1,16 @@
+Please use "RPG dialogue box" (RPG の会話ウィンドウ), filed under "Animation styles / Media & genres".
+Motion Prompt #4-052
+
+What it is: A retro RPG look: a pixel-art scene on top, a navy dialogue window below that types out text letter by letter, and choice menus to move the story on
+What the sample shows: In a pixel-art meadow at dusk, the hero stands at a merchant's stall. The dialogue window opens under a 商人 name tag and 要买药草吗？ types out with a cursor, then ▼ blinks. A 买 / 不买 menu pops up; the cursor moves to 不买, back to 买, and confirms. Gold goes from 50 to 40 with a floating −10, followed by 谢谢惠顾！. Then the window closes and the scene coarsens into big pixels and fades out.
+Spec:
+- Background #0A0C1C, window #141A46 (3 px white border plus inner line #2C3680), text #F4F4F4, cursor and name tag #FFD84A; one pixel cell is 4 px.
+- 0.3–0.6 s the dialogue window opens vertically; 0.8–1.6 s 要买药草吗？ shows the first N characters by elapsed time.
+- 2.0–3.9 s the choice menu; at 2.6 s the cursor moves to 不买, at 3.1 s back to 买, and at 3.5 s it confirms with a blink.
+- 3.9 s gold goes 50 → 40 and a −10 floats away; 4.0–4.5 s 谢谢惠顾！.
+- 5.4–5.7 s the window closes; 5.6–6.3 s the scene coarsens from 4 px to 64 px cells as it fades.
+When to use it: Use it for either-or decisions, story-driven explainers and anything you want the viewer to 'choose' like a game.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-052.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,16 @@
+Please use "Magazine editorial" (雑誌エディトリアル), filed under "Animation styles / Media & genres".
+Motion Prompt #4-050
+
+What it is: A magazine feature-page look on warm white paper: hairline masthead rule, big serif headline, two-column body text and a large pull quote
+What the sample shows: On warm white paper the masthead rule draws out from the centre and the serif headline 慢生活 drops in; two columns of grey text bars set line by line, a right-hand paragraph turns into a large italic pull quote with a red rule on its left, and a page number appears bottom right. Then the whole page turns away to the left, revealing a blank next page.
+Spec:
+- Paper #F6F1E7, text #1E1B17, body grey #8A8174, accent red #B3261E; 30 px side margins.
+- 0.2–0.7 s the masthead rule draws out from the centre; 0.7–1.2 s the 50 px serif headline drops from 18 px above.
+- From 1.3 s grey body bars draw in one line every 0.09 s (2 columns × 7 lines, 10 px leading, 140 px columns), then 5 lines in the right column.
+- 3.2–3.8 s the right column turns into a two-line 20 px italic pull quote with a red rule; 4.0 s the page number bottom right.
+- 5.4–6.2 s the whole page turns off to the left; the blank page underneath matches the 0 s frame.
+When to use it: Use it for essays, interviews, book notes and brand stories that should read calm and considered.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-050.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

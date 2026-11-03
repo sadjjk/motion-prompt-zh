@@ -1,0 +1,97 @@
+// Motion Prompt #4-063 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Ink wash on paper / 水墨紙本
+// Category: Visual styles / East Asian tradition / Calligraphy & painting
+// What happens: Xuan paper with visible fibres. The far hills bleed in pale, and nearer hills overlap a shade darker. Faint horizontal strokes mark the water, and a rock at the lower left is laid down in a single bold stroke. A small boat with a figure holding a pole drifts slowly from left to right. At the top right the vertical inscription 孤舟一叶 远山青 appears one character at a time, and a vermilion seal is pressed last. On reset the ink spreads and fades, and the paper turns clean again.
+// Motion spec:
+//   - Paper #F4EDDC → #E2D6BC, ink in one colour only, seal #B23A2E.
+//   - 0.2–1.6 s far hills, 0.8–2.0 s middle hills bleed in from 12 stacked layers.
+//   - 2.0–2.6 s the bold rock; 1.2–5.4 s the boat drifts from x 140 to 300.
+//   - From 3.0 s the 7 inscription characters appear 0.25 s apart; 4.4 s the seal.
+//   - 5.4–6.3 s the ink spreads and fades.
+// When to use it: Use it for literature, poetry, traditional culture and slow, single-thread explainers.
+// Tags: ink-wash, shan-shui, xuan-paper, monochrome, vertical-text, seal, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-063
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 24
+// 24 水墨纸本：宣纸底纹；远山从淡到浓一层层晕染开，近处一笔浓墨画出山石，孤舟从左往右缓缓漂过；
+// 宋体竖排题字逐字出现，最后盖朱砂印。全幅只用墨色单色 + 一方朱印。复位时墨色洇淡、纸面复白
+const PA_INK = '28,24,20';                                       // 墨色 RGB，用透明度分出浓淡
+const PA_SEAL = '#B23A2E';
+// 山形两端都收到山脚线 PA_BASE，避免端头被竖着切断
+const PA_FAR = [[0, 120], [50, 86], [92, 104], [140, 62], [196, 98], [240, 80], [290, 112], [330, 128], [370, 150]];
+const PA_MID = [[150, 150], [180, 132], [228, 104], [262, 118], [300, 92], [350, 122], [400, 110], [440, 134], [480, 150]];
+const PA_BASE = 150;
+const PA_ROCK = [[24, 208], [30, 168], [52, 146], [74, 154], [92, 140], [116, 160], [128, 208]];
+const PA_T = { far: [0.2, 1.6], mid: [0.8, 2.0], rock: [2.0, 2.6], boat: [1.2, SHOW], title: 3.0, title_dt: 0.25, seal: 4.4 };
+const PA_LAYERS = 12;                                            // 晕染层数：层多、每层很淡，叠出的边缘看不出台阶
+const PA_FOOT = 0.15;                                            // 山脚处墨色相对山顶的浓度：往下渐淡，融进水面
+const PA_TITLE = ['孤', '舟', '一', '叶', '远', '山', '青'];
+CELLS[23] = (k, w, h, u) => {
+  const g = k.createRadialGradient(CW / 2, CH / 2, 20, CW / 2, CH / 2, CW * 0.6);
+  g.addColorStop(0, '#F4EDDC'); g.addColorStop(1, '#E2D6BC'); k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  // 宣纸纤维：固定的短细线
+  k.strokeStyle = 'rgba(120,100,70,0.10)'; k.lineWidth = 0.6;
+  for (let i = 0; i < 120; i++) { const x = hash(i + 11) * CW, y = hash(i + 22) * CH, a = hash(i + 33) * TAU, l = 3 + hash(i + 44) * 7; k.beginPath(); k.moveTo(x, y); k.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); k.stroke(); }
+  // 复位：墨色整体变淡
+  const fade = 1 - inOut3(seg(u, SHOW, CYC - 0.1));
+  if (fade <= 0) return;
+  // 每层山形向下错开 spread，用纵向渐变从山顶浓到山脚淡，叠起来是软边的墨晕
+  const wash = (pts, base, p, alpha, spread) => {
+    if (p <= 0) return;
+    const top = Math.min(...pts.map(([, y]) => y)), a = alpha * p * fade / PA_LAYERS * 2;
+    const g = k.createLinearGradient(0, top, 0, base);
+    g.addColorStop(0, `rgba(${PA_INK},${a.toFixed(4)})`); g.addColorStop(1, `rgba(${PA_INK},${(a * PA_FOOT).toFixed(4)})`);
+    k.fillStyle = g;
+    for (let l = 0; l < PA_LAYERS; l++) {
+      const dy = l * spread * (1 + (1 - fade) * 2);
+      k.beginPath(); pts.forEach(([x, y], i) => { const yy = Math.min(base, y + dy); i ? k.lineTo(x, yy) : k.moveTo(x, yy); });
+      k.lineTo(pts[pts.length - 1][0], base); k.lineTo(pts[0][0], base); k.closePath(); k.fill();
+    }
+  };
+  wash(PA_FAR, PA_BASE, inOut3(seg(u, PA_T.far[0], PA_T.far[1])), 0.32, 1.5);
+  wash(PA_MID, PA_BASE, inOut3(seg(u, PA_T.mid[0], PA_T.mid[1])), 0.5, 1.2);
+  // 水面：几道淡墨横线
+  k.strokeStyle = `rgba(${PA_INK},${(0.18 * fade * seg(u, PA_T.mid[0], PA_T.mid[1])).toFixed(3)})`; k.lineWidth = 1;
+  [[150, 158, 60], [260, 166, 80], [200, 176, 50], [330, 172, 40]].forEach(([x, y, l]) => { k.beginPath(); k.moveTo(x, y); k.lineTo(x + l, y); k.stroke(); });
+  // 近处山石：浓墨一笔从左往右扫出，再补几道皴线
+  const rp = out3(seg(u, PA_T.rock[0], PA_T.rock[1]));
+  if (rp > 0) {
+    k.save(); k.beginPath(); k.rect(0, 0, 24 + 110 * rp, CH); k.clip();
+    k.fillStyle = `rgba(${PA_INK},${(0.88 * fade).toFixed(3)})`; k.beginPath(); PA_ROCK.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); k.closePath(); k.fill();
+    k.strokeStyle = `rgba(244,237,220,${(0.5 * fade).toFixed(3)})`; k.lineWidth = 1.2;
+    [[[50, 160], [60, 190]], [[78, 162], [84, 196]], [[100, 158], [106, 184]]].forEach(p => strokePts(k, p));
+    k.restore();
+  }
+  // 孤舟：船身 + 撑篙人，匀速漂过
+  const bp = seg(u, PA_T.boat[0], PA_T.boat[1]);
+  if (bp > 0) {
+    const bx = mix(140, 300, bp), by = 160, ba = Math.min(1, bp * 8) * fade;
+    k.fillStyle = `rgba(${PA_INK},${(0.85 * ba).toFixed(3)})`;
+    k.beginPath(); k.moveTo(bx - 16, by); k.quadraticCurveTo(bx, by + 6, bx + 16, by - 1); k.lineTo(bx - 16, by); k.fill();
+    k.fillRect(bx - 1, by - 12, 3, 11); k.beginPath(); k.arc(bx + 0.5, by - 14, 2.5, 0, TAU); k.fill();
+    k.strokeStyle = `rgba(${PA_INK},${(0.7 * ba).toFixed(3)})`; k.lineWidth = 1; k.beginPath(); k.moveTo(bx + 6, by - 18); k.lineTo(bx - 8, by + 6); k.stroke();
+  }
+  // 竖排题字：从上往下逐字淡入
+  k.textAlign = 'center'; k.textBaseline = 'middle'; k.font = `700 20px ${SERIF}`;
+  PA_TITLE.forEach((c, i) => {
+    const col = i < 4 ? 0 : 1, row = i < 4 ? i : i - 4;
+    const a = seg(u, PA_T.title + i * PA_T.title_dt, PA_T.title + i * PA_T.title_dt + 0.3) * fade;
+    if (a <= 0) return;
+    k.fillStyle = `rgba(${PA_INK},${(0.9 * a).toFixed(3)})`; k.fillText(c, 488 - col * 26, 34 + row * 26);
+  });
+  // 朱砂印：略大处落下压实
+  const sp = seg(u, PA_T.seal, PA_T.seal + 0.18);
+  if (sp > 0) {
+    const s = mix(1.4, 1, out3(sp));
+    k.save(); k.translate(462, 140); k.rotate(-0.05); k.scale(s, s); k.globalAlpha = fade * Math.min(1, sp * 2);
+    k.fillStyle = PA_SEAL; k.fillRect(-13, -13, 26, 26);
+    k.fillStyle = '#F4EDDC'; k.font = `900 10px ${SERIF}`; k.fillText('山', -5, -5); k.fillText('水', 5, -5); k.fillText('小', -5, 6); k.fillText('品', 5, 6);
+    k.restore(); k.globalAlpha = 1;
+  }
+};

@@ -1,0 +1,80 @@
+// Motion Prompt #4-059 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Ransom-note cutouts / 切り抜き文字
+// Category: Visual styles / Craft & patterns / Print & handmade
+// What happens: Gray newsprint with ruled lines and copier grain. The first line 全场五折 is pasted one character at a time, each shrinking into place, then the second line 仅限今天 follows. Every character has its own font, background, size and tilt. Two staples punch in along the top, and a red pen loops a hand-drawn oval around the first line. Finally everything fades, leaving the bare newsprint.
+// Motion spec:
+//   - Ground #E6E2D6, red #E2463B; each character picks from 7 backgrounds × 5 fonts.
+//   - From 0.3 s line 1 and from 1.4 s line 2 are pasted one character every 0.22 s, each shrinking from 1.35× over 0.12 s.
+//   - Each character is 0.82–1.18× size and tilted up to ±8°.
+//   - 2.5 / 2.6 s two staples; 3.0–3.6 s the red-pen circle.
+//   - 5.4–6.4 s characters, staples and circle fade out together.
+// When to use it: Use it for mysteries, exposés, plot twists and meme roundups that want a playful, sketchy edge.
+// Tags: ransom-note, cutout-letters, newsprint, collage, punk, stamp-in, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-059
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 20
+// 20 剪报拼字：灰白新闻纸上，「全场五折 / 仅限今天」每个字像从不同报纸剪下来（字体、底色、大小、角度各不同），
+// 一个字一个字拍上去；订书钉钉上，红笔手画一圈。复位时字、钉、红圈整体淡出，只剩新闻纸
+const RN_PAPER = '#E6E2D6', RN_RED = '#E2463B';
+const RN_PAL = [['#FFFFFF', '#111111'], ['#111111', '#FFFFFF'], ['#F2D43D', '#111111'], ['#E2463B', '#FFFFFF'], ['#DCD7CB', '#111111'], ['#5A7FB5', '#FFFFFF'], ['#FFFFFF', '#E2463B']];
+const RN_FONTS = [s => `900 ${s}px ${SANS}`, s => `700 ${s}px ${SERIF}`, s => `700 ${s}px ${KAI}`, s => `700 ${s}px ${MONO}`, s => `900 ${s}px ${DISP}`];
+const RN_LINES = [{ text: '全场五折', y: 74, size: 60, t0: 0.3 }, { text: '仅限今天', y: 152, size: 40, t0: 1.4 }];
+const RN_DT = 0.22, RN_SLAP = 0.12;                              // 每字间隔、拍下时长
+const RN_STAPLE = [[2.5, 160, 34, -8], [2.6, 378, 36, 6]];       // 订书钉 [时刻, x, y, 角度°]
+const RN_CIRCLE = [3.0, 3.6];                                    // 红圈画出的时段
+CELLS[19] = (k, w, h, u) => {
+  k.fillStyle = RN_PAPER; k.fillRect(0, 0, CW, CH);
+  // 新闻纸：横向细线 + 栏线 + 复印颗粒
+  k.fillStyle = 'rgba(60,55,45,0.10)'; for (let y = 0; y < CH; y += 7) k.fillRect(0, y, CW, 1.5);
+  k.fillStyle = 'rgba(60,55,45,0.12)'; for (let i = 0; i < 6; i++) k.fillRect(20 + i * 100, 0, 1, CH);
+  for (let i = 0; i < 260; i++) { k.fillStyle = `rgba(40,36,30,${(0.08 + hash(i + 900) * 0.18).toFixed(3)})`; k.fillRect(hash(i) * CW, hash(i + 500) * CH, 1 + hash(i + 700) * 1.2, 1); }
+  const fade = 1 - seg(u, SHOW, CYC);
+  if (fade <= 0) return;
+  k.globalAlpha = fade;
+  let seed = 0;
+  RN_LINES.forEach(L => {
+    // 每个字的底色、字体、大小、角度都由下标哈希决定，保证每帧一致
+    const boxes = [...L.text].map(c => {
+      seed++;
+      const sz = L.size * (0.82 + hash(seed * 3.1) * 0.36);
+      return { c, sz, bw: sz * 1.18, rot: (hash(seed * 5.7) - 0.5) * 16 * Math.PI / 180, dy: (hash(seed * 2.3) - 0.5) * 8,
+        pal: RN_PAL[Math.floor(hash(seed * 7.3) * RN_PAL.length)], font: RN_FONTS[Math.floor(hash(seed * 9.1) * RN_FONTS.length)] };
+    });
+    const gap = L.size * 0.08, total = boxes.reduce((s, b) => s + b.bw, 0) + gap * (boxes.length - 1);
+    let x = CW / 2 - total / 2;
+    boxes.forEach((b, i) => {
+      const at = L.t0 + i * RN_DT, cx = x + b.bw / 2; x += b.bw + gap;
+      if (u < at) return;
+      const s = mix(1.35, 1, out3(seg(u, at, at + RN_SLAP)));
+      k.save(); k.translate(cx, L.y + b.dy); k.rotate(b.rot); k.scale(s, s);
+      const bh = b.sz * 1.18;
+      k.fillStyle = 'rgba(0,0,0,0.18)'; k.fillRect(-b.bw / 2 + 2, -bh / 2 + 2, b.bw, bh);
+      k.fillStyle = b.pal[0]; k.fillRect(-b.bw / 2, -bh / 2, b.bw, bh);
+      k.fillStyle = b.pal[1]; k.font = b.font(Math.round(b.sz)); k.textAlign = 'center'; k.textBaseline = 'middle';
+      k.fillText(b.c, 0, b.sz * 0.04);
+      k.restore();
+    });
+  });
+  // 订书钉
+  RN_STAPLE.forEach(([at, x, y, deg]) => {
+    if (u < at) return;
+    k.save(); k.translate(x, y - 6 * (1 - out3(seg(u, at, at + 0.1)))); k.rotate(deg * Math.PI / 180);
+    k.fillStyle = '#666'; k.fillRect(-13, -1, 26, 4); k.fillStyle = '#9A9A9A'; k.fillRect(-13, -2, 26, 3);
+    k.restore();
+  });
+  // 红笔圈：比一整圈多画一点，半径带起伏，像手画的
+  const pts = [];
+  for (let i = 0; i <= 64; i++) {
+    const a = -2.4 + (i / 64) * TAU * 1.1, r = 1 + Math.sin(i * 0.7) * 0.03;
+    pts.push([CW / 2 + Math.cos(a) * 150 * r, 74 + Math.sin(a) * 48 * r]);
+  }
+  k.strokeStyle = RN_RED; k.lineWidth = 3.5; k.lineCap = 'round'; k.lineJoin = 'round';
+  strokeProg(k, pts, inOut3(seg(u, RN_CIRCLE[0], RN_CIRCLE[1])));
+  k.globalAlpha = 1;
+};

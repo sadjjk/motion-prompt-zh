@@ -1,0 +1,15 @@
+Please use "Blueprint drawing" (青図の特許図面), filed under "Animation styles / Diagrams & boards".
+Motion Prompt #4-041
+
+What it is: An explainer drawn like a patent blueprint: construction lines, then object lines, then dimensions on Prussian-blue grid paper
+What the sample shows: Dashed construction lines appear on grid paper, the flange's front and side views draw in order, dimensions and a FIG. 1 title block follow, and a red pencil rings the bore and notes a tolerance; the sheet then rolls away upward.
+Spec:
+- Prussian blue #123F74 with a 10 px fine grid and a 50 px coarse grid; line colour #EAF2FF.
+- 0.2–0.8 s construction lines fade in as 50% dashes; from 0.8 s the object lines (front view, side view with 4 bolt holes) draw one after another, staggered 0.16 s, 0.45 s each.
+- 2.5–3.3 s dimension lines, arrows and Ø140 / 40 / 4×Ø12; 3.4–4.7 s the title block box, then FIG. 1, FLANGE · 法兰 and SCALE 1:2 NO. 07 typed letter by letter.
+- 4.6–5.0 s a red pencil #FF6B5B rings the bore and writes 公差 ±0.02 by 5.3 s; 5.4–6.1 s the sheet rolls up out of frame while a blank sheet slides in from below.
+When to use it: Use it for inventions, how a machine works, product structure and history-of-technology explainers.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-041.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

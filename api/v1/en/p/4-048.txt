@@ -1,0 +1,15 @@
+Please use "Dark gold line art" (ダークゴールドの線画), filed under "Animation styles / Space & material".
+Motion Prompt #4-048
+
+What it is: An explainer drawn in glowing amber lines on charcoal, building an everyday scene stroke by stroke like a luminous notebook
+What the sample shows: With a fixed camera, glowing amber lines on charcoal draw the floor, desk, chair, a person reading, an open book and a lamp in turn; the lamp flickers twice and comes on, casting a warm pool on the desk, and a page turns. Then the lines retract in reverse order and the light goes out.
+Spec:
+- Charcoal #15130F, 1.8 px amber #F0B44C lines with an 8 px outer glow; the camera does not move.
+- 0.3–3.5 s 15 strokes draw in the order floor → desk → chair → person → book → lamp.
+- 3.6 s the lamp flickers for 0.3 s and comes on, adding a light cone and an elliptical pool (90 px radius) on the desk; 4.2–4.8 s a page turns over the spine.
+- From 5.4 s the strokes retract from their ends, the last drawn first, 0.3 s each; the light goes out at 5.4–5.65 s.
+When to use it: Use it for explainers about work, psychology and daily-life problems that open on a familiar scene.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-048.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

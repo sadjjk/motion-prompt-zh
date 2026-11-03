@@ -1,0 +1,138 @@
+// Motion Prompt #4-057 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Retro desktop / レトロデスクトップ
+// Category: Visual styles / Art movements / Digital & retro
+// What happens: A dithered gray desktop. The window 日记.txt opens with dotted zoom frames and two lines are typed one character at a time. The cursor clicks 文件, a menu drops down and 保存 highlights. A save dialog opens, its progress bar fills in steps and reads 已保存. The dialog closes and the file icon drops onto the desktop in jerky steps, flashing once. Finally the window shrinks shut through dotted frames and the icon blinks away.
+// Motion spec:
+//   - 1 px dithered ground #B8B8B8, black and white only; 14 px menu bar.
+//   - 0.1 s the window opens through 0.25 s dotted zoom frames; 0.4–1.2 s two lines are typed.
+//   - 1.65–2.25 s the menu is open; 2.05 s 保存 highlights.
+//   - 2.3 s the dialog opens; 2.55–3.5 s the progress bar fills in 8 steps; 3.9 s it closes.
+//   - 4.2 s the icon drops in 5 steps; 5.4 s the window closes; 5.9 s the icon disappears.
+// When to use it: Use it for computing history, software how-tos and early-internet culture that suit a vintage screen.
+// Tags: retro-desktop, 1-bit, window, menu, cursor, dither, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-057
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 18
+// 18 复古桌面：1-bit 灰点阵桌面和黑白窗口。窗口「日记.txt」缩放框打开，文字逐字打出；光标移到「文件」，
+// 下拉菜单里点「保存」，弹出对话框、进度条走满、显示「已保存」，文件图标落到桌面。复位时窗口缩回、图标闪两下消失
+const DT_GRAY = '#B8B8B8', DT_DOT = '#7E7E7E';
+const DT_BAR = 14;                                               // 菜单栏高
+const DT_WIN = [60, 30, 230, 118], DT_DLG = [290, 64, 200, 74];  // 文档窗口、保存对话框 x、y、宽、高
+const DT_MENU = [20, DT_BAR, 66, 56], DT_ITEMS = ['新建', '打开…', '保存', '关闭'];
+const DT_TEXT = '今天把讲义写完了。\n明天整理图表。';
+const DT_T = { open: 0.1, type: [0.4, 1.2], menu: [1.65, 2.25], hover: 2.05, dlg: 2.3, prog: [2.55, 3.5], dlgClose: 3.9, icon: 4.2, close: SHOW, iconOff: 5.9 };
+const DT_ZOOM = 0.25;                                            // 缩放框动画时长
+const DT_ICON = [470, 150];
+// 光标路径关键帧 [时刻, x, y]；起点与终点相同，循环无缝
+const DT_CUR = [[0, 330, 160], [1.2, 330, 160], [1.6, 30, 7], [1.8, 30, 7], [2.05, 42, 50], [2.25, 42, 50], [2.5, 400, 120], [4.4, 400, 120], [5.0, 330, 160]];
+const dtCursor = u => {
+  for (let i = 1; i < DT_CUR.length; i++) {
+    const [t1, x1, y1] = DT_CUR[i], [t0, x0, y0] = DT_CUR[i - 1];
+    if (u <= t1) { const e = inOut3(seg(u, t0, t1)); return [mix(x0, x1, e), mix(y0, y1, e)]; }
+  }
+  return DT_CUR[DT_CUR.length - 1].slice(1);
+};
+CELLS[17] = (k, w, h, u) => {
+  k.fillStyle = DT_GRAY; k.fillRect(0, 0, CW, CH);
+  // 点阵：隔行错位的 1px 虚线，模拟 50% 抖动灰
+  k.strokeStyle = DT_DOT; k.lineWidth = 1; k.setLineDash([1, 1]);
+  for (let y = DT_BAR + 1; y < CH; y += 2) { k.lineDashOffset = (y >> 1) % 2; k.beginPath(); k.moveTo(0, y + 0.5); k.lineTo(CW, y + 0.5); k.stroke(); }
+  k.setLineDash([]); k.lineDashOffset = 0;
+  // 菜单栏
+  k.fillStyle = '#FFF'; k.fillRect(0, 0, CW, DT_BAR); k.fillStyle = '#000'; k.fillRect(0, DT_BAR, CW, 1.5);
+  const menuOpen = u >= DT_T.menu[0] && u < DT_T.menu[1];
+  k.textBaseline = 'middle'; k.textAlign = 'left'; k.font = `700 9px ${SANS}`;
+  [['◆', 8], ['文件', 24], ['编辑', 52], ['显示', 80], ['特别', 108]].forEach(([s, x], i) => {
+    if (i === 1 && menuOpen) { k.fillStyle = '#000'; k.fillRect(x - 3, 0, 24, DT_BAR); k.fillStyle = '#FFF'; } else k.fillStyle = '#000';
+    k.fillText(s, x, DT_BAR / 2 + 0.5);
+  });
+  // 黑白窗口：白底、黑框、硬投影、条纹标题栏
+  const win = ([x, y, ww, hh], title) => {
+    k.fillStyle = '#000'; k.fillRect(x + 4, y + 4, ww, hh);
+    k.fillStyle = '#FFF'; k.fillRect(x, y, ww, hh); k.strokeStyle = '#000'; k.lineWidth = 1.5; k.strokeRect(x, y, ww, hh);
+    k.fillStyle = '#000'; for (let r = y + 3; r < y + 11; r += 2) k.fillRect(x + 2, r, ww - 4, 1);
+    k.fillRect(x, y + 12, ww, 1.5);
+    k.font = `700 8px ${SANS}`; const tw = k.measureText(title).width + 10;
+    k.fillStyle = '#FFF'; k.fillRect(x + ww / 2 - tw / 2, y + 1, tw, 10); k.fillRect(x + 8, y + 2, 9, 8);
+    k.strokeStyle = '#000'; k.lineWidth = 1; k.strokeRect(x + 8.5, y + 2.5, 8, 7);
+    k.fillStyle = '#000'; k.textAlign = 'center'; k.fillText(title, x + ww / 2, y + 6.5);
+  };
+  // 缩放框：从标题栏中心长到整窗（p 0→1），或反向；中间态只画几层虚线框
+  const zoom = ([x, y, ww, hh], p) => {
+    if (p <= 0 || p >= 1) return;
+    k.strokeStyle = '#000'; k.lineWidth = 1; k.setLineDash([2, 2]);
+    for (let i = 0; i < 3; i++) {
+      const s = clamp(p - i * 0.2); if (s <= 0) continue;
+      const cx = x + ww / 2, cy = y + 6;
+      k.strokeRect(cx - (ww / 2) * s, cy - 6 * s, ww * s, 6 * s + (hh - 6) * s);
+    }
+    k.setLineDash([]);
+  };
+  // 文档窗口：开、关两次缩放
+  const wOpen = seg(u, DT_T.open, DT_T.open + DT_ZOOM), wClose = seg(u, DT_T.close, DT_T.close + DT_ZOOM);
+  if (wOpen >= 1 && wClose <= 0) {
+    win(DT_WIN, '日记.txt');
+    const n = Math.floor(seg(u, DT_T.type[0], DT_T.type[1]) * DT_TEXT.length);
+    k.fillStyle = '#000'; k.font = `500 11px ${SANS}`; k.textAlign = 'left';
+    DT_TEXT.slice(0, n).split('\n').forEach((line, i) => k.fillText(line, DT_WIN[0] + 10, DT_WIN[1] + 30 + i * 17));
+    // 文字插入点：打字时常亮，之后按 2 次/秒闪
+    if (u < DT_T.menu[0] && (u < DT_T.type[1] || Math.floor(u * 2) % 2 === 0)) {
+      const lines = DT_TEXT.slice(0, n).split('\n'), last = lines[lines.length - 1];
+      k.font = `500 11px ${SANS}`;
+      k.fillRect(DT_WIN[0] + 10 + k.measureText(last).width + 1, DT_WIN[1] + 23 + (lines.length - 1) * 17, 1, 13);
+    }
+  }
+  zoom(DT_WIN, wClose > 0 ? 1 - wClose : wOpen);
+  // 保存对话框
+  const dOpen = seg(u, DT_T.dlg, DT_T.dlg + DT_ZOOM), dClose = seg(u, DT_T.dlgClose, DT_T.dlgClose + DT_ZOOM);
+  if (dOpen >= 1 && dClose <= 0) {
+    const [x, y, ww] = DT_DLG; win(DT_DLG, '保存');
+    const pr = seg(u, DT_T.prog[0], DT_T.prog[1]);
+    k.fillStyle = '#000'; k.font = `600 10px ${SANS}`; k.textAlign = 'left';
+    k.fillText(pr < 1 ? '正在保存「日记.txt」…' : '已保存 ✓', x + 12, y + 28);
+    k.lineWidth = 1.5; k.strokeRect(x + 12, y + 44, ww - 24, 12);
+    // 进度条按 8 格跳格走，像老系统那样一格一格填
+    k.fillRect(x + 14, y + 46, (ww - 28) * Math.floor(pr * 8) / 8, 8);
+  }
+  zoom(DT_DLG, dClose > 0 ? 1 - dClose : dOpen);
+  // 下拉菜单：悬停到「保存」时反白
+  if (menuOpen) {
+    const [x, y, ww, hh] = DT_MENU;
+    k.fillStyle = '#000'; k.fillRect(x + 3, y + 3, ww, hh); k.fillStyle = '#FFF'; k.fillRect(x, y, ww, hh);
+    k.strokeStyle = '#000'; k.lineWidth = 1.5; k.strokeRect(x, y, ww, hh);
+    k.font = `600 9px ${SANS}`; k.textAlign = 'left';
+    DT_ITEMS.forEach((s, i) => {
+      const hot = i === 2 && u >= DT_T.hover;
+      if (hot) { k.fillStyle = '#000'; k.fillRect(x + 1, y + 2 + i * 13, ww - 2, 13); }
+      k.fillStyle = hot ? '#FFF' : (i === 1 ? '#888' : '#000'); k.fillText(s, x + 8, y + 9 + i * 13);
+    });
+  }
+  // 桌面图标：一步一步跳落（1-bit 没有平滑位移），落定后反白闪一下；复位末段闪两下消失
+  const ip = seg(u, DT_T.icon, DT_T.icon + 0.4);
+  const iconVis = ip > 0 && !(u >= DT_T.iconOff - 0.2 && (u >= DT_T.iconOff || Math.floor((u - DT_T.iconOff) * 20) % 2 === 0));
+  if (iconVis) {
+    const [ix, iy0] = DT_ICON, iy = iy0 - 40 * (1 - Math.floor(out3(ip) * 5) / 5);
+    const inv = u >= DT_T.icon + 0.45 && u < DT_T.icon + 0.7 && Math.floor(u * 10) % 2 === 0;
+    k.fillStyle = inv ? '#000' : '#FFF'; k.strokeStyle = '#000'; k.lineWidth = 1.5;
+    k.beginPath(); k.moveTo(ix - 9, iy - 11); k.lineTo(ix + 4, iy - 11); k.lineTo(ix + 9, iy - 6); k.lineTo(ix + 9, iy + 11); k.lineTo(ix - 9, iy + 11); k.closePath(); k.fill(); k.stroke();
+    k.fillStyle = inv ? '#FFF' : '#000'; for (let r = -4; r < 8; r += 3) k.fillRect(ix - 5, iy + r, 10, 1);
+    k.fillStyle = '#FFF'; k.font = `600 8px ${SANS}`; k.textAlign = 'center';
+    const lw = k.measureText('日记.txt').width + 6; k.fillRect(ix - lw / 2, iy + 14, lw, 10);
+    k.fillStyle = '#000'; k.fillText('日记.txt', ix, iy + 19.5);
+  }
+  // 光标：等待进度时换成沙漏
+  const [cx, cy] = dtCursor(u);
+  k.fillStyle = '#000'; k.strokeStyle = '#FFF'; k.lineWidth = 1.2;
+  if (u >= DT_T.prog[0] && u < DT_T.prog[1]) {
+    k.beginPath(); k.moveTo(cx - 5, cy - 7); k.lineTo(cx + 5, cy - 7); k.lineTo(cx, cy); k.lineTo(cx + 5, cy + 7); k.lineTo(cx - 5, cy + 7); k.lineTo(cx, cy); k.closePath(); k.stroke(); k.fill();
+  } else {
+    const A = [[0, 0], [0, 14], [4, 10], [7, 16], [9, 15], [6, 9], [11, 9]];
+    k.beginPath(); A.forEach(([x, y], i) => (i ? k.lineTo(cx + x, cy + y) : k.moveTo(cx + x, cy + y))); k.closePath(); k.stroke(); k.fill();
+  }
+};

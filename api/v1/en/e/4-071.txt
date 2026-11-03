@@ -1,0 +1,258 @@
+// Motion Prompt #4-071 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Dunhuang mural / 敦煌壁画
+// Category: Visual styles / East Asian tradition / Calligraphy & painting
+// What happens: A wall covered in ochre plaster. Cracked plaster pieces fall one by one in shuffled order, tumbling and fading, to reveal red ochre beneath. A haloed apsara flies left holding a lotus, her whole body bobbing gently. Her hair is piled in a high double-loop bun with a gold floral crown, her malachite skirt trails behind in three S-curved tails, slender legs with pointed toes curl out from under it, and three streamers ripple in wide S-curves. Scrolling clouds and falling petals fill in, and a diagonal glint runs twice across the gold-framed cartouche 飞天 at top left. On reset the plaster covers back over from the edges inward.
+// Motion spec:
+//   - Plaster: 10 × 4 = 40 pieces, flaking from 0.4 s, 0.05 s apart.
+//   - Figure and streamers: exactly 2 sways per cycle, seamless.
+//   - Cartouche glint: twice, 3.0–3.8 s and 4.4–5.1 s.
+//   - Reset: from 5.4 s plaster covers back from the edges inward, 0.018 s apart.
+// When to use it: Use it for the Silk Road, Buddhist history and East–West exchange.
+// Tags: dunhuang, mural, apsara, cave-painting, plaster-reveal, buddhist-art, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-071
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 32
+// 32 敦煌壁画：石窟壁面被土黄灰泥盖着，灰泥一块块剥落，露出赭红底上的飞天——头光、石绿裙、两条长飘带随风起伏，
+// 卷云和落花点缀；左上金色榜题「飞天」有流光扫过两次。复位时灰泥从边缘往中间重新覆上
+const DH_WALL = [16, 12, 507, 184];                              // 壁面 x、y、宽、高
+const DH_COLS = 10, DH_ROWS = 4;                                 // 灰泥块网格
+const DH_FALL = { t0: 0.4, dt: 0.05, dur: 0.4 };                 // 剥落起始、相邻块间隔、单块下落时长
+const DH_COAT = { dt: 0.018, dur: 0.15 };                        // 复位重新覆上的间隔与淡入时长
+const DH_GLINT = [[3.0, 3.8], [4.4, 5.1]];                       // 榜题流光两次
+const DH_RED = '#8A3B22', DH_GREEN = '#3E7A5E', DH_GOLD = '#E9C86A', DH_OUT = '#3A1A10', DH_SKIN = '#D8A47A';
+const DH_FIG = { x: 236, y: 104, sc: 1.1, bobX: 10, bobY: 6, tilt: -0.16, sway: 0.05 }; // 飞天腰部位置、缩放、浮动幅度、身体倾角与摆幅
+// 灰泥块顶点：网格点加抖动，相邻块共用顶点，裂缝严丝合缝
+const DH_V = (() => { const o = []; for (let r = 0; r <= DH_ROWS; r++) for (let c = 0; c <= DH_COLS; c++) { const edge = r === 0 || r === DH_ROWS || c === 0 || c === DH_COLS; const jx = edge && (c === 0 || c === DH_COLS) ? 0 : (hash(r * 31 + c) - 0.5) * 22, jy = edge && (r === 0 || r === DH_ROWS) ? 0 : (hash(r * 17 + c + 5) - 0.5) * 18; o.push([DH_WALL[0] + (c / DH_COLS) * DH_WALL[2] + jx, DH_WALL[1] + (r / DH_ROWS) * DH_WALL[3] + jy]); } return o; })();
+const DH_TILES = (() => {
+  const o = [];
+  for (let r = 0; r < DH_ROWS; r++) for (let c = 0; c < DH_COLS; c++) {
+    const v = (rr, cc) => DH_V[rr * (DH_COLS + 1) + cc];
+    const edgeD = Math.min(r, DH_ROWS - 1 - r, c, DH_COLS - 1 - c);
+    o.push({ pts: [v(r, c), v(r, c + 1), v(r + 1, c + 1), v(r + 1, c)], h: hash(r * 13 + c * 7 + 3), edgeD });
+  }
+  // 剥落顺序按哈希打乱；重新覆上按离边缘的远近，从外往里
+  [...o].sort((a, b) => a.h - b.h).forEach((t, i) => { t.fall = DH_FALL.t0 + i * DH_FALL.dt; });
+  [...o].sort((a, b) => a.edgeD - b.edgeD || a.h - b.h).forEach((t, i) => { t.coat = SHOW + i * DH_COAT.dt; });
+  return o;
+})();
+CELLS[31] = (k, w, h, u) => {
+  k.fillStyle = '#2A1712'; k.fillRect(0, 0, CW, CH);
+  const [wx, wy, ww, wh] = DH_WALL;
+  // 壁画底：赭红渐变 + 土色斑驳
+  const g = k.createLinearGradient(0, wy, 0, wy + wh); g.addColorStop(0, '#9A4628'); g.addColorStop(1, DH_RED);
+  k.fillStyle = g; k.fillRect(wx, wy, ww, wh);
+  for (let i = 0; i < 30; i++) { k.fillStyle = `rgba(60,24,12,${(0.08 + hash(i + 3) * 0.1).toFixed(3)})`; k.beginPath(); k.arc(wx + hash(i) * ww, wy + hash(i + 40) * wh, 3 + hash(i + 80) * 9, 0, TAU); k.fill(); }
+  // 卷云：石绿与白的勾卷
+  [[90, 150, 1], [420, 46, -1], [470, 160, 1]].forEach(([cx, cy, d]) => {
+    k.strokeStyle = 'rgba(214,226,206,0.8)'; k.lineWidth = 2; k.beginPath();
+    for (let j = 0; j < 3; j++) { const x = cx + j * 18 * d; k.moveTo(x + 8, cy); k.arc(x, cy, 8, 0, Math.PI * 1.5, d < 0); }
+    k.stroke();
+    k.fillStyle = 'rgba(62,122,94,0.55)'; k.beginPath(); k.ellipse(cx + 18 * d, cy + 6, 30, 6, 0, 0, TAU); k.fill();
+  });
+  // 飞天：整个人在局部坐标里画（原点在腰，朝左飞），外层做上下浮动、前后漂移和身体轻摆。
+  // 所有摆动都用 ph（每周期整 2 圈）或 ph / 2（整 1 圈）驱动，6.4 秒与 0 秒同一帧
+  const ph = (u / CYC) * TAU * 2;
+  const F = DH_FIG;
+  // 先裁到壁面内：带尾甩得远，不能伸出窟壁
+  k.save(); k.beginPath(); k.rect(wx, wy, ww, wh); k.clip();
+  k.save();
+  k.translate(F.x + Math.sin(ph / 2) * F.bobX, F.y + Math.sin(ph) * F.bobY);
+  k.rotate(F.tilt + Math.sin(ph + 0.6) * F.sway); k.scale(F.sc, F.sc);
+  k.lineJoin = 'round'; k.lineCap = 'round';
+  // 飘带：沿三次贝塞尔走大 S 形，波从身体往带尾传（sin(t·k − ph)），越往尾摆幅越大、越细
+  const ribbon = (B, amp, kw, off, w0, color) => {
+    const top = [], bot = [];
+    for (let i = 0; i <= 44; i++) {
+      const t = i / 44, m = 1 - t;
+      const x = m * m * m * B[0][0] + 3 * m * m * t * B[1][0] + 3 * m * t * t * B[2][0] + t * t * t * B[3][0];
+      const y = m * m * m * B[0][1] + 3 * m * m * t * B[1][1] + 3 * m * t * t * B[2][1] + t * t * t * B[3][1] + Math.sin(t * kw - ph + off) * amp * t;
+      const wv = w0 * (1 - 0.65 * t) + 0.5 + Math.sin(t * 9 - ph * 2 + off) * 0.6 * t;
+      top.push([x, y - wv]); bot.push([x, y + wv]);
+    }
+    k.fillStyle = color; k.beginPath(); top.concat(bot.reverse()).forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); k.closePath(); k.fill();
+    k.strokeStyle = DH_OUT; k.lineWidth = 0.7; k.stroke();
+  };
+  // 肢体：先画深色描边粗线再叠肤色细线，关节处自然圆滑
+  const limb = (pts, w) => {
+    [[DH_OUT, w + 2], [DH_SKIN, w]].forEach(([c, lw]) => { k.strokeStyle = c; k.lineWidth = lw; k.beginPath(); pts.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); k.stroke(); });
+    // 末端加手（脚）掌，避免肢体像一根棍
+    const [ex, ey] = pts[pts.length - 1], [px, py] = pts[pts.length - 2], an = Math.atan2(ey - py, ex - px);
+    k.fillStyle = DH_SKIN; k.strokeStyle = DH_OUT; k.lineWidth = 0.9; k.beginPath(); k.ellipse(ex + Math.cos(an) * 2, ey + Math.sin(an) * 2, w * 0.95, w * 0.6, an, 0, TAU); k.fill(); k.stroke();
+  };
+  const rotP = ([x, y], [ox, oy], r) => [ox + (x - ox) * Math.cos(r) - (y - oy) * Math.sin(r), oy + (x - ox) * Math.sin(r) + (y - oy) * Math.cos(r)];
+  // 前手从下巴下方往前托莲（整条手臂低于头，不挡脸），后手往头后上扬；各自绕肩轻摆，相位错开
+  const sF = [-24, -7], aF = Math.sin(ph + 0.4) * 0.12, eF = rotP([-40, 1], sF, aF), hF = rotP([-57, -5], sF, aF * 1.4);
+  const sB = [-16, -12], aB = Math.sin(ph + 2.2) * 0.16, eB = rotP([-6, -30], sB, aB), hB = rotP([-18, -44], sB, aB * 1.3);
+  // 三条飘带：青带从前手绕过头顶甩到身后，红带从肩下兜一圈拖到身后，细青带接在后手
+  ribbon([hF, [-46, -82], [40, -70], [236, -40]], 12, 7, 0, 3.4, '#2F6E7A');
+  ribbon([[-14, -8], [18, 34], [120, 32], [246, 6]], 14, 6, 1.7, 3.2, '#B5452C');
+  ribbon([hB, [20, -62], [110, -22], [200, -58]], 9, 8, 3.1, 2.2, '#3F8A92');
+  // 头光
+  k.strokeStyle = DH_GREEN; k.lineWidth = 3; k.beginPath(); k.arc(-36, -22, 16, 0, TAU); k.stroke();
+  k.fillStyle = 'rgba(233,200,106,0.35)'; k.beginPath(); k.arc(-36, -22, 14, 0, TAU); k.fill();
+  limb([sB, eB, hB], 4.4);
+  // 腿：大腿藏在裙里，只露出纤长的小腿和绷直的脚背。前腿屈膝把脚勾到身后上方，后腿顺着裙尾向后伸；
+  // 小腿画成两头收窄的填充形，脚尖拉成尖角，踝上一道金镯
+  const leg = (kx, ky, ax, ay, tx, ty, wK, wA) => {
+    const an = Math.atan2(ay - ky, ax - kx), nx = -Math.sin(an), ny = Math.cos(an);
+    k.fillStyle = DH_SKIN; k.strokeStyle = DH_OUT; k.lineWidth = 0.9;
+    k.beginPath(); k.moveTo(kx + nx * wK, ky + ny * wK);
+    k.quadraticCurveTo((kx + ax) / 2 + nx * (wK + 1.2), (ky + ay) / 2 + ny * (wK + 1.2), ax + nx * wA, ay + ny * wA);   // 小腿肚微鼓
+    k.quadraticCurveTo(ax + nx * wA * 1.6 + (tx - ax) * 0.4, ay + ny * wA * 1.6 + (ty - ay) * 0.4, tx, ty);              // 脚背到脚尖
+    k.quadraticCurveTo(ax - nx * wA * 0.6 + (tx - ax) * 0.3, ay - ny * wA * 0.6 + (ty - ay) * 0.3, ax - nx * wA, ay - ny * wA);
+    k.lineTo(kx - nx * wK, ky - ny * wK); k.closePath(); k.fill(); k.stroke();
+    k.strokeStyle = DH_GOLD; k.lineWidth = 1.3; k.beginPath(); k.moveTo(ax + nx * (wA + 0.6), ay + ny * (wA + 0.6)); k.lineTo(ax - nx * (wA + 0.6), ay - ny * (wA + 0.6)); k.stroke();
+  };
+  // 裙身与腿共用的起伏：w1 在膝附近，w2 滞后一拍在裙尾
+  const w1 = Math.sin(ph) * 2.5, w2 = Math.sin(ph - 0.9) * 5;
+  // 双腿画在裙子之前：从胯到膝的大腿和膝盖都被裙子盖住，只有小腿从裙子上沿里伸出来，衔接处由裙边自然遮住。
+  // 前腿屈膝把脚勾到身后上方；后腿顺着裙身往后伸，脚从中股裙尾上沿探出。大腿、小腿都绕各自关节轻摆
+  const thigh = (hx, hy, kx, ky, w) => { k.strokeStyle = DH_SKIN; k.lineWidth = w; k.lineCap = 'round'; k.beginPath(); k.moveTo(hx, hy); k.lineTo(kx, ky); k.stroke(); };
+  const aL = Math.sin(ph + 1.2) * 0.12, kn = [60, 0 + w1];
+  const an1 = rotP([80, -24 + w1], kn, aL), to1 = rotP([88, -34 + w1], kn, aL * 1.2);
+  thigh(8, 2, kn[0], kn[1], 9); leg(kn[0], kn[1], an1[0], an1[1], to1[0], to1[1], 4, 1.8);
+  const kn2 = [82, 4 + w2], aL2 = Math.sin(ph + 2.0) * 0.1;
+  const an2 = rotP([106, -10 + w2], kn2, aL2), to2 = rotP([116, -16 + w2], kn2, aL2 * 1.3);
+  thigh(10, 4, kn2[0], kn2[1], 8); leg(kn2[0], kn2[1], an2[0], an2[1], to2[0], to2[1], 3.6, 1.6);
+  // 长裙：仿唐代飞天「吴带当风」的画法——裙身沿一条 S 形脊线往身后拖，末端分成 3 股渐细的裙尾，尾尖向上卷起；
+  // 轮廓全部由脊线采样生成（不用折线拼），裙褶是一组跟脊线平行的细长弧线。波沿脊线往后传，越往尾摆幅越大
+  const DH_SK_N = 40;                                               // 每股采样点数
+  // 脊线：腰 (−2, 2) → 膝 (66, 4) → 往后上方甩出；k0 控制该股在尾部的上下分散
+  const spine = (t, k0) => {
+    const m = 1 - t, P = [[-2, 2], [44, -2], [96, 4 + k0 * 4], [150, -6 + k0 * 18]];
+    const x = m * m * m * P[0][0] + 3 * m * m * t * P[1][0] + 3 * m * t * t * P[2][0] + t * t * t * P[3][0];
+    const y = m * m * m * P[0][1] + 3 * m * m * t * P[1][1] + 3 * m * t * t * P[2][1] + t * t * t * P[3][1];
+    return [x, y + Math.sin(t * 5 - ph + k0) * 6 * t * t];
+  };
+  // 一股裙尾：宽度从腰到尾先略鼓后收尖，尾尖最后 12% 向上卷
+  const strand = (k0, wMax, curl) => {
+    const top = [], bot = [];
+    for (let i = 0; i <= DH_SK_N; i++) {
+      const t = i / DH_SK_N, [x, y] = spine(t, k0), [x2, y2] = spine(Math.min(1, t + 0.01), k0);
+      const an = Math.atan2(y2 - y, x2 - x), nx = -Math.sin(an), ny = Math.cos(an);
+      const wv = wMax * Math.sin(Math.PI * Math.min(1, t * 0.9 + 0.1)) * (1 - t * 0.55);
+      const cu = t > 0.88 ? -curl * ((t - 0.88) / 0.12) ** 2 : 0;
+      top.push([x + nx * wv, y + ny * wv + cu]); bot.push([x - nx * wv, y - ny * wv + cu]);
+    }
+    return { top, bot };
+  };
+  const path = ({ top, bot }) => { k.beginPath(); top.concat([...bot].reverse()).forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); k.closePath(); };
+  const sgr = k.createLinearGradient(0, -14, 0, 24); sgr.addColorStop(0, '#2C664E'); sgr.addColorStop(1, '#43836A');
+  // 三股裙尾：下股最长最宽，上股细长上扬；先画远的下股，近的上股压在上面
+  const SK = [{ k0: 1.0, w: 12, c: 3, col: '#2E6A50' }, { k0: 0.35, w: 13, c: 4, col: null }, { k0: -0.45, w: 8, c: 6, col: '#3F8066' }];
+  SK.forEach(({ k0, w, c, col }) => {
+    const st = strand(k0, w, c);
+    k.fillStyle = col || sgr; k.strokeStyle = DH_OUT; k.lineWidth = 1; path(st); k.fill(); k.stroke();
+    // 裙褶：同一股里 3 条平行于脊线的细弧，起点错开、终点汇向尾尖
+    k.save(); path(st); k.clip();
+    k.strokeStyle = 'rgba(220,236,214,0.42)'; k.lineWidth = 0.7;
+    for (let j = 1; j <= 3; j++) {
+      const f = j / 4 * 2 - 1; k.beginPath();
+      for (let i = 4 + j * 2; i <= DH_SK_N - 2; i++) {
+        const t = i / DH_SK_N, A = st.top[i], B = st.bot[i], q = (1 - f * (1 - t)) / 2;
+        const x = A[0] * q + B[0] * (1 - q), y = A[1] * q + B[1] * (1 - q);
+        i === 4 + j * 2 ? k.moveTo(x, y) : k.lineTo(x, y);
+      }
+      k.stroke();
+    }
+    k.restore();
+    // 裙边：米白宽边压朱红细线，沿该股下沿从膝后走到尾尖
+    [['#EADFC4', 2.2], ['#B5452C', 0.8]].forEach(([cc, lw]) => {
+      k.strokeStyle = cc; k.lineWidth = lw; k.beginPath();
+      st.bot.slice(Math.floor(DH_SK_N * 0.45)).forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y)));
+      k.stroke();
+    });
+  });
+  // 外层短裙：浅石绿，荷叶边下摆三段弧，弧随相位轻轻翻动
+  k.fillStyle = '#5E9E80'; k.strokeStyle = DH_OUT; k.lineWidth = 1;
+  k.beginPath(); k.moveTo(-4, -8); k.bezierCurveTo(14, -13, 32, -12, 46, -6 + w1 * 0.5);
+  for (let i = 0; i < 3; i++) { const x0 = 46 - i * 15, x1 = x0 - 15, d = Math.sin(ph - i * 0.7) * 1.5; k.quadraticCurveTo((x0 + x1) / 2 + 1, 8 + i * 0.5 + d, x1, 2 + i * 1.5); }
+  k.quadraticCurveTo(-6, 9, 0, 8); k.closePath(); k.fill(); k.stroke();
+  k.strokeStyle = DH_GOLD; k.lineWidth = 1; k.beginPath(); k.moveTo(-3, -6); k.bezierCurveTo(14, -11, 30, -10, 44, -5 + w1 * 0.5); k.stroke();   // 腰缘金线
+  // 腰带：红色短带垂下，带尾随风摆
+  k.strokeStyle = '#B5452C'; k.lineWidth = 2.2; k.beginPath(); k.moveTo(-2, 0); k.quadraticCurveTo(6, 12, 2 + Math.sin(ph + 0.8) * 5, 22); k.stroke();
+  // 躯干与项圈
+  k.fillStyle = DH_SKIN; k.strokeStyle = DH_OUT; k.lineWidth = 1.1;
+  k.beginPath(); k.moveTo(-31, -13); k.quadraticCurveTo(-16, -18, -2, -9); k.lineTo(2, 4); k.quadraticCurveTo(-14, 1, -28, -3); k.closePath(); k.fill(); k.stroke();
+  k.strokeStyle = DH_GOLD; k.lineWidth = 1.4; k.beginPath(); k.arc(-28, -14, 6, 0.2, 1.9); k.stroke();
+  // 头：微微低首。唐代飞天常见的高髻——头顶盘起两个发环（双环髻），额前一道弧形发际，鬓发垂过耳侧；
+  // 髻前插金花冠，两条宝缯（发带）从髻后长长甩向身后，波从发髻往带尾传
+  const bao = (x0, y0, len, off, col, wd) => {
+    const top = [], bot = [];
+    for (let i = 0; i <= 20; i++) {
+      const t = i / 20, x = x0 + t * len, y = y0 - t * 6 + Math.sin(t * 6 - ph + off) * 4 * t, wv = wd * (1 - 0.7 * t);
+      top.push([x, y - wv]); bot.push([x, y + wv]);
+    }
+    k.fillStyle = col; k.beginPath(); top.concat(bot.reverse()).forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); k.closePath(); k.fill();
+  };
+  bao(-26, -36, 34, 0, '#B5452C', 1.3);
+  bao(-25, -33, 28, 1.4, '#3F8A92', 1.1);
+  // 脑后发团：盖住头顶和后脑
+  k.fillStyle = '#2A140C'; k.beginPath(); k.ellipse(-33, -24, 9, 9.5, -0.45, 0, TAU); k.fill();
+  // 脸
+  k.fillStyle = DH_SKIN; k.strokeStyle = DH_OUT; k.lineWidth = 1;
+  k.beginPath(); k.ellipse(-38, -20, 6.8, 8.2, -0.45, 0, TAU); k.fill(); k.stroke();
+  // 额前发际：从额头弧到耳后，把脸上半部收进发里
+  k.fillStyle = '#2A140C'; k.beginPath(); k.moveTo(-44, -24); k.quadraticCurveTo(-41, -31, -33, -30); k.quadraticCurveTo(-34, -25, -31, -19); k.quadraticCurveTo(-37, -27, -44, -24); k.fill();
+  // 鬓发：一缕细发垂过耳侧，随风轻摆
+  k.strokeStyle = '#2A140C'; k.lineWidth = 1.2; k.beginPath(); k.moveTo(-32, -20); k.quadraticCurveTo(-30, -12, -27 + Math.sin(ph + 0.5) * 1.5, -6); k.stroke();
+  // 双环髻：两个空心发环立在头顶，后环略低
+  k.strokeStyle = '#2A140C'; k.lineCap = 'round';
+  k.lineWidth = 3; k.beginPath(); k.ellipse(-27, -36, 4, 5.5, 0.5, 0, TAU); k.stroke();
+  k.lineWidth = 3.2; k.beginPath(); k.ellipse(-34, -38, 4.2, 6, -0.15, 0, TAU); k.stroke();
+  k.fillStyle = '#2A140C'; k.beginPath(); k.ellipse(-31, -31, 6, 3, -0.3, 0, TAU); k.fill();   // 髻根
+  // 金花冠：一道金弧加三朵小花钿
+  k.strokeStyle = DH_GOLD; k.lineWidth = 1.3; k.beginPath(); k.arc(-34, -26, 7.5, -2.6, -1.2); k.stroke();
+  k.fillStyle = DH_GOLD; [[-40, -31], [-35, -34], [-29, -32]].forEach(([x, y]) => { k.beginPath(); k.arc(x, y, 1.6, 0, TAU); k.fill(); });
+  k.fillStyle = '#B5452C'; k.beginPath(); k.arc(-35, -34, 0.8, 0, TAU); k.fill();
+  // 五官：低垂的眼线与一点朱唇，额间花钿
+  k.strokeStyle = DH_OUT; k.lineWidth = 0.9; k.beginPath(); k.moveTo(-44, -20); k.quadraticCurveTo(-42, -18.6, -40, -19.6); k.stroke();
+  k.fillStyle = '#B5452C'; k.beginPath(); k.arc(-44.5, -14.5, 0.9, 0, TAU); k.fill(); k.beginPath(); k.arc(-45, -24.5, 0.7, 0, TAU); k.fill();
+  limb([sF, eF, hF], 4.4);
+  // 手中莲花：五瓣，随手一起摆
+  k.fillStyle = '#E8B6A0'; k.strokeStyle = DH_OUT; k.lineWidth = 0.8;
+  for (let i = -2; i <= 2; i++) { k.beginPath(); k.ellipse(hF[0] - 3 + i * 2, hF[1] - 4, 2.3, 5.5, i * 0.35 - 0.3, 0, TAU); k.fill(); k.stroke(); }
+  k.restore();
+  k.restore();
+  // 落花：慢慢飘落，每周期整数次落完
+  for (let i = 0; i < 12; i++) {
+    const loops = 1 + (i % 2), y = wy + ((hash(i + 50) + (u / CYC) * loops) % 1) * wh, x = wx + 30 + hash(i) * (ww - 60) + Math.sin(y / 14 + i) * 6;
+    k.fillStyle = i % 3 ? '#E8B6A0' : '#F3E6CC'; k.beginPath(); k.ellipse(x, y, 2.6, 1.6, y / 20, 0, TAU); k.fill();
+  }
+  // 榜题：金框竖条，流光是一条斜向亮带扫过
+  const bx = 42, by = 24, bw = 28, bh = 70;
+  k.fillStyle = '#5A2A16'; k.fillRect(bx, by, bw, bh); k.strokeStyle = DH_GOLD; k.lineWidth = 2; k.strokeRect(bx + 2, by + 2, bw - 4, bh - 4);
+  k.fillStyle = DH_GOLD; k.font = `900 18px ${KAI}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('飞', bx + bw / 2, by + 22); k.fillText('天', bx + bw / 2, by + 48);
+  DH_GLINT.forEach(([a, b]) => {
+    const p = seg(u, a, b); if (p <= 0 || p >= 1) return;
+    k.save(); k.beginPath(); k.rect(bx, by, bw, bh); k.clip();
+    const yy = mix(by - 30, by + bh + 30, p), lg = k.createLinearGradient(bx, yy - 14, bx + bw, yy + 14);
+    lg.addColorStop(0, 'rgba(255,240,190,0)'); lg.addColorStop(0.5, 'rgba(255,240,190,0.75)'); lg.addColorStop(1, 'rgba(255,240,190,0)');
+    k.fillStyle = lg; k.fillRect(bx, by, bw, bh); k.restore();
+  });
+  // 灰泥块：剥落时下坠、旋转、变淡；复位时从边缘往里重新淡入覆上。裁在壁面内，下坠的块不掉到窟壁外
+  k.save(); k.beginPath(); k.rect(wx, wy, ww, wh); k.clip();
+  DH_TILES.forEach(t => {
+    const fp = seg(u, t.fall, t.fall + DH_FALL.dur), cp = seg(u, t.coat, t.coat + DH_COAT.dur);
+    let a, dy = 0, rot = 0;
+    if (u >= t.coat) a = cp;
+    else { a = 1 - fp; dy = 60 * fp * fp; rot = (t.h - 0.5) * 0.6 * fp; }
+    if (a <= 0) return;
+    const cx = t.pts.reduce((s, p) => s + p[0], 0) / 4, cy = t.pts.reduce((s, p) => s + p[1], 0) / 4;
+    k.save(); k.globalAlpha = a; k.translate(cx, cy + dy); k.rotate(rot); k.translate(-cx, -cy);
+    k.fillStyle = t.h > 0.5 ? '#C9A46A' : '#BF9A60';
+    k.beginPath(); t.pts.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); k.closePath(); k.fill();
+    k.strokeStyle = 'rgba(80,50,24,0.55)'; k.lineWidth = 1; k.stroke();
+    k.fillStyle = 'rgba(120,84,44,0.25)'; for (let i = 0; i < 4; i++) { k.beginPath(); k.arc(cx + (hash(t.h * 100 + i) - 0.5) * 30, cy + (hash(t.h * 100 + i + 9) - 0.5) * 24, 1.5 + hash(i + t.h) * 2, 0, TAU); k.fill(); }
+    k.restore();
+  });
+  k.restore();
+  // 壁面外框与窟壁阴影
+  k.strokeStyle = 'rgba(0,0,0,0.5)'; k.lineWidth = 3; k.strokeRect(wx, wy, ww, wh);
+};

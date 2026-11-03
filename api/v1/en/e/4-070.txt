@@ -1,0 +1,114 @@
+// Motion Prompt #4-070 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Handscroll / 絵巻
+// Category: Visual styles / East Asian tradition / Calligraphy & painting
+// What happens: On a dark brown desk the left roller rolls away from the right one and the scroll opens. A pale blue river with a small boat, an arched bridge, gray-blue-roofed shops, a wine banner, willows and passers-by appear in line and wash. A vertical title slip 市井图卷 goes on at the head of the scroll and a red seal is stamped. A loupe moves from top right to a porter carrying a shoulder pole on the bridge, magnifying him 2.4 times. On reset the loupe goes away and the left roller rolls back to the right, closing the scroll.
+// Motion spec:
+//   - Unroll: the left roller travels from x 506 to 34 over 0.3–2.2 s.
+//   - Title slip: 2.3 s; seal 2.6 s.
+//   - Loupe: moves to the porter over 3.0–3.8 s, radius 34, 2.4×.
+//   - Reset: from 5.4 s the left roller rolls back to the right.
+// When to use it: Use it for timelines, city life and East Asian history.
+// Tags: handscroll, scroll, chinese-painting, line-and-wash, magnifier, street-scene, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-070
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 31
+// 31 长卷：深褐案面上，一幅街市长卷从右往左展开——左轴滚过去，河、拱桥、店铺、柳树和行人的线描淡彩依次露出；
+// 卷首竖排题签贴上并盖印，放大镜移到桥上挑担的人物身上放大停住。复位时左轴往右卷回，长卷收起
+const HS_PAPER = '#EFE3C8', HS_INK = '#3A2A1C', HS_WOOD = '#C08A52';
+const HS_Y = [30, 178];                                          // 画心上下边
+const HS_RIGHT = 506, HS_LEFT_MIN = 34;                          // 右轴位置、左轴展开到的最左
+const HS_T = { open: [0.3, 2.2], slip: 2.3, seal: 2.6, lens: [3.0, 3.8], lensOff: [4.9, 5.3] };
+const HS_HERO = [304, 112];                                      // 放大镜要找的挑担人物
+const HS_LENS_R = 34, HS_LENS_Z = 2.4;
+const hsPerson = (k, x, y, s, robe) => {
+  k.fillStyle = robe; k.beginPath(); k.moveTo(x, y - 6 * s); k.lineTo(x - 3.5 * s, y + 3 * s); k.lineTo(x + 3.5 * s, y + 3 * s); k.closePath(); k.fill();
+  k.fillStyle = HS_INK; k.beginPath(); k.arc(x, y - 8 * s, 2.2 * s, 0, TAU); k.fill();
+};
+const hsScene = k => {
+  // 河：淡青色水带和几道水纹
+  k.fillStyle = 'rgba(150,175,165,0.45)'; k.fillRect(40, 140, 470, 34);
+  k.strokeStyle = 'rgba(58,42,28,0.35)'; k.lineWidth = 0.7; k.beginPath();
+  for (let r = 0; r < 4; r++) for (let x = 44; x < 506; x += 22) { const y = 146 + r * 7 + ((x / 22) % 2) * 2; k.moveTo(x, y); k.quadraticCurveTo(x + 5, y - 2, x + 10, y); }
+  k.stroke();
+  // 拱桥
+  k.strokeStyle = HS_INK; k.lineWidth = 1.4; k.fillStyle = '#D6C29C';
+  k.beginPath(); k.moveTo(250, 142); k.quadraticCurveTo(305, 98, 360, 142); k.lineTo(352, 142); k.quadraticCurveTo(305, 112, 258, 142); k.closePath(); k.fill(); k.stroke();
+  k.lineWidth = 0.8; for (let i = 0; i <= 10; i++) { const t = i / 10, x = mix(254, 356, t), y = 142 - 44 * 4 * t * (1 - t) * 0.92; k.beginPath(); k.moveTo(x, y); k.lineTo(x, y - 6); k.stroke(); }
+  // 店铺与屋宇：灰青屋顶、土黄墙、酒旗
+  [[60, 96, 70, 'rgba(110,124,128,0.85)'], [140, 104, 56, 'rgba(110,124,128,0.85)'], [392, 92, 60, 'rgba(96,108,112,0.85)'], [456, 100, 46, 'rgba(110,124,128,0.85)']].forEach(([x, y, ww, roof]) => {
+    k.fillStyle = '#DCC9A2'; k.fillRect(x + 4, y, ww - 8, 140 - y);
+    k.strokeStyle = HS_INK; k.lineWidth = 1; k.strokeRect(x + 4, y, ww - 8, 140 - y);
+    k.fillStyle = roof; k.beginPath(); k.moveTo(x - 6, y + 2); k.quadraticCurveTo(x + ww / 2, y - 4, x + ww + 6, y + 2); k.lineTo(x + ww - 6, y - 12); k.lineTo(x + 6, y - 12); k.closePath(); k.fill(); k.stroke();
+    k.fillStyle = 'rgba(58,42,28,0.55)'; k.fillRect(x + ww / 2 - 6, y + 14, 12, 140 - y - 14);
+  });
+  k.strokeStyle = HS_INK; k.lineWidth = 1; k.beginPath(); k.moveTo(196, 140); k.lineTo(196, 70); k.stroke();
+  k.fillStyle = '#B5452C'; k.fillRect(196, 72, 14, 26); k.fillStyle = HS_PAPER; k.font = `700 9px ${KAI}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('酒', 203, 85);
+  // 柳树：垂下的细枝
+  [[232, 80], [372, 78]].forEach(([x, y]) => {
+    k.strokeStyle = HS_INK; k.lineWidth = 1.6; k.beginPath(); k.moveTo(x, 140); k.lineTo(x + 2, y); k.stroke();
+    k.strokeStyle = 'rgba(110,140,80,0.8)'; k.lineWidth = 0.8; k.beginPath();
+    for (let i = 0; i < 10; i++) { const a = -1.2 + i * 0.27, ex = x + Math.cos(a) * 22, ey = y + Math.sin(a) * 10; k.moveTo(x + 2, y); k.quadraticCurveTo(ex, ey, ex + 2, ey + 26); }
+    k.stroke();
+  });
+  // 小船
+  k.fillStyle = '#8A6A44'; k.beginPath(); k.moveTo(120, 156); k.lineTo(176, 156); k.lineTo(168, 164); k.lineTo(128, 164); k.closePath(); k.fill();
+  k.strokeStyle = HS_INK; k.lineWidth = 0.8; k.stroke(); hsPerson(k, 160, 154, 0.9, '#5E6E7A');
+  // 行人
+  [[80, 138, '#7A5A3A'], [110, 139, '#5E6E7A'], [176, 138, '#8A4A3A'], [420, 138, '#5E6E7A'], [480, 139, '#7A5A3A'], [278, 122, '#8A4A3A'], [334, 120, '#5E6E7A']].forEach(([x, y, c]) => hsPerson(k, x, y, 1, c));
+  // 主角：桥上挑担的人
+  const [hx, hy] = HS_HERO; hsPerson(k, hx, hy, 1.1, '#3E5E7A');
+  k.strokeStyle = HS_INK; k.lineWidth = 1; k.beginPath(); k.moveTo(hx - 12, hy - 9); k.lineTo(hx + 12, hy - 7); k.stroke();
+  k.beginPath(); k.moveTo(hx - 11, hy - 9); k.lineTo(hx - 11, hy - 2); k.moveTo(hx + 11, hy - 7); k.lineTo(hx + 11, hy); k.stroke();
+  k.fillStyle = '#A8843E'; k.beginPath(); k.arc(hx - 11, hy, 3, 0, TAU); k.arc(hx + 11, hy + 2, 3, 0, TAU); k.fill();
+};
+CELLS[30] = (k, w, h, u) => {
+  k.fillStyle = '#241910'; k.fillRect(0, 0, CW, CH);
+  k.strokeStyle = 'rgba(243,231,207,0.04)'; k.lineWidth = 1; for (let y = 6; y < CH; y += 9) { k.beginPath(); k.moveTo(0, y + hash(y) * 3); k.lineTo(CW, y); k.stroke(); }
+  const lx = mix(HS_RIGHT, HS_LEFT_MIN, inOut3(seg(u, HS_T.open[0], HS_T.open[1])) * (1 - inOut3(seg(u, SHOW, CYC - 0.1))));
+  const [y0, y1] = HS_Y;
+  // 画心：裱边上下各一道锦条，只露出左轴到右轴之间
+  k.save(); k.beginPath(); k.rect(lx, y0 - 8, HS_RIGHT - lx, y1 - y0 + 16); k.clip();
+  k.fillStyle = 'rgba(0,0,0,0.35)'; k.fillRect(lx, y0 - 4, HS_RIGHT - lx, y1 - y0 + 14);
+  k.fillStyle = '#8A5A3A'; k.fillRect(0, y0 - 8, CW, 8); k.fillRect(0, y1, CW, 8);
+  k.fillStyle = HS_PAPER; k.fillRect(0, y0, CW, y1 - y0);
+  hsScene(k);
+  // 题签与印章：卷首（右端）
+  const sl = backOut(seg(u, HS_T.slip, HS_T.slip + 0.3));
+  if (sl > 0) {
+    k.save(); k.translate(486, 74); k.scale(sl, sl);
+    k.fillStyle = '#F7F0DE'; k.fillRect(-8, -38, 16, 76); k.strokeStyle = HS_WOOD; k.lineWidth = 0.8; k.strokeRect(-8, -38, 16, 76);
+    k.fillStyle = HS_INK; k.font = `700 11px ${KAI}`; k.textAlign = 'center'; k.textBaseline = 'middle'; [...'市井图卷'].forEach((c, i) => k.fillText(c, 0, -27 + i * 17));
+    k.restore();
+  }
+  const se = backOut(seg(u, HS_T.seal, HS_T.seal + 0.25));
+  if (se > 0) { k.save(); k.translate(486, 124); k.scale(se, se); k.fillStyle = '#B5291F'; k.fillRect(-7, -7, 14, 14); k.fillStyle = HS_PAPER; k.font = `700 6px ${KAI}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('长卷', 0, 0.5); k.restore(); }
+  k.restore();
+  // 两根木轴：圆柱渐变 + 两端轴头
+  const roller = x => {
+    const g = k.createLinearGradient(x - 6, 0, x + 6, 0); g.addColorStop(0, '#6E4A26'); g.addColorStop(0.45, HS_WOOD); g.addColorStop(1, '#5A3A1C');
+    k.fillStyle = g; k.fillRect(x - 6, y0 - 12, 12, y1 - y0 + 24);
+    k.fillStyle = '#E9D6A8'; k.fillRect(x - 4, y0 - 20, 8, 8); k.fillRect(x - 4, y1 + 12, 8, 8);
+  };
+  roller(HS_RIGHT); roller(lx);
+  // 放大镜：从右上移到挑担人物，镜片里放大重画一遍
+  const la = seg(u, HS_T.lens[0] - 0.2, HS_T.lens[0]) * (1 - seg(u, HS_T.lensOff[0], HS_T.lensOff[1]));
+  if (la > 0) {
+    const lp = inOut3(seg(u, HS_T.lens[0], HS_T.lens[1]));
+    const mx = mix(440, HS_HERO[0], lp), my = mix(66, HS_HERO[1] - 6, lp);
+    k.save(); k.globalAlpha = la; k.beginPath(); k.arc(mx, my, HS_LENS_R, 0, TAU); k.clip();
+    k.fillStyle = HS_PAPER; k.fillRect(mx - HS_LENS_R, my - HS_LENS_R, HS_LENS_R * 2, HS_LENS_R * 2);
+    k.translate(mx, my); k.scale(HS_LENS_Z, HS_LENS_Z); k.translate(-mx, -my); hsScene(k);
+    k.restore();
+    k.save(); k.globalAlpha = la;
+    k.strokeStyle = '#3A2A1C'; k.lineWidth = 5; k.beginPath(); k.arc(mx, my, HS_LENS_R, 0, TAU); k.stroke();
+    k.strokeStyle = 'rgba(255,255,255,0.5)'; k.lineWidth = 2; k.beginPath(); k.arc(mx, my, HS_LENS_R - 6, -2.5, -1.7); k.stroke();
+    k.strokeStyle = '#6E4A26'; k.lineWidth = 8; k.lineCap = 'round'; k.beginPath(); k.moveTo(mx + 25, my + 25); k.lineTo(mx + 50, my + 50); k.stroke();
+    k.restore();
+  }
+};

@@ -1,0 +1,76 @@
+// Motion Prompt #4-066 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// 字幕ニュース / Caption news
+// 分類: ビジュアルスタイル / アニメーションの画風 / 媒体・ジャンル
+// 何が起きるか: 暗い夜の街のボケが横へ流れる。左に黄色の縦線が伸び、「外卖平均」が一文字ずつ出る。続いて大きな数字が 0 から 28 まで回って止まり、右の計時リングの黄色い弧も一緒に伸びる。「28 分钟」に黄色の帯が左から敷かれ、帯の中の文字は黒に反転する。補足の一文が一文字ずつ出て、最後に出典の小さな文字が下から滑り込む。リセットでは字幕全体が上へ抜ける。
+// 動きの仕様:
+//   - 数字：1.0–2.0 秒で 0 から 28 まで回る
+//   - 黄色の帯：2.05–2.4 秒で「28 分钟」に敷かれ、中の文字は黒に反転
+//   - 計時リング：弧の長さ = 数字 / 60 分
+//   - 出典：3.6 秒に下から滑り込む
+//   - リセット：5.4–6.0 秒に字幕全体が 208 px 上へ
+// 使いどころ: データニュース、どんでん返しのある話、音なしで見られる速報に。
+// タグ: caption, social-news, kinetic-type, data-news, highlight, number-roll, explainer
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-066
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 27
+// 27 字幕新闻：压暗的夜间街景当底，一句一屏超大字幕。「外卖平均」逐字打出，数字从 0 滚到 28，
+// 「28 分钟」压上黄色色块，补充句逐字出现，来源小字从下方滑入；右侧计时环跟着数字走。复位时字幕整体上移出画面
+const CN_Y = '#FFD600', CN_N = 28;
+const CN_T = { bar: [0.2, 0.6], l1: [0.3, 0.9], num: [1.0, 2.0], blk: [2.05, 2.4], l3: [2.7, 3.4], src: [3.6, 4.0] };
+const CN_L1 = '外卖平均', CN_L3 = '比三年前快了 6 分钟', CN_SRC = '来源：示例调查（虚构数据）';
+const CN_BOKEH = 16;                                             // 背景光斑数
+CELLS[26] = (k, w, h, u) => {
+  k.fillStyle = '#0A0A0A'; k.fillRect(0, 0, CW, CH);
+  // 光斑每周期整好横移一屏，循环无缝
+  for (let i = 0; i < CN_BOKEH; i++) {
+    const x = ((hash(i) + u / CYC) % 1) * (CW + 60) - 30, y = 30 + hash(i + 20) * 150, r = 6 + hash(i + 40) * 16;
+    k.fillStyle = hash(i + 60) > 0.5 ? 'rgba(255,190,90,0.07)' : 'rgba(255,214,0,0.05)';
+    k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill();
+  }
+  k.fillStyle = 'rgba(255,255,255,0.05)'; k.fillRect(0, 176, CW, 2);
+  k.save(); k.translate(0, -CH * resetK(u));
+  // 左侧黄竖条
+  const bh = 150 * out3(seg(u, CN_T.bar[0], CN_T.bar[1]));
+  k.fillStyle = CN_Y; k.fillRect(24, 32, 4, bh);
+  k.textAlign = 'left'; k.textBaseline = 'alphabetic';
+  k.fillStyle = '#FFF'; k.font = `800 26px ${SANS}`;
+  k.fillText(CN_L1.slice(0, Math.floor(seg(u, CN_T.l1[0], CN_T.l1[1]) * CN_L1.length)), 42, 58);
+  const val = Math.round(out3(seg(u, CN_T.num[0], CN_T.num[1])) * CN_N);
+  if (u >= CN_T.num[0]) {
+    // 数字宽度按「28」固定，滚动时后面的「分钟送达」不跟着抖
+    k.font = `900 76px ${DISP}`; const wn = k.measureText(String(CN_N)).width;
+    k.font = `900 38px ${SANS}`; const wm = k.measureText('分钟').width;
+    // 「分钟」与「送达」分开画、中间留 CN_GAP，黄块右沿落在空隙正中，不压到「送」
+    const CN_GAP = 12, xm = 42 + wn + 10, xs = xm + wm + CN_GAP;
+    const draw = c => {
+      k.fillStyle = c; k.font = `900 76px ${DISP}`; k.textAlign = 'right'; k.fillText(String(val), 42 + wn, 140);
+      k.textAlign = 'left'; k.font = `900 38px ${SANS}`; k.fillText('分钟', xm, 140); k.fillText('送达', xs, 140);
+    };
+    draw('#FFF');
+    // 关键词黄块：从左往右铺过「28 分钟」，左右各留 6 px，块内的字反成黑色
+    const bw = (xm + wm + CN_GAP / 2 - 36) * out3(seg(u, CN_T.blk[0], CN_T.blk[1]));
+    if (bw > 0) {
+      k.fillStyle = CN_Y; k.fillRect(36, 78, bw, 74);
+      k.save(); k.beginPath(); k.rect(36, 78, bw, 74); k.clip(); draw('#0A0A0A'); k.restore();
+    }
+  }
+  k.fillStyle = '#BDBDBD'; k.font = `600 15px ${SANS}`;
+  k.fillText(CN_L3.slice(0, Math.floor(seg(u, CN_T.l3[0], CN_T.l3[1]) * CN_L3.length)), 42, 172);
+  const sp = out3(seg(u, CN_T.src[0], CN_T.src[1]));
+  if (sp > 0) { k.globalAlpha = sp; k.fillStyle = '#9A9A9A'; k.font = `500 9px ${SANS}`; k.fillText(CN_SRC, 42, 196 + 14 * (1 - sp)); k.globalAlpha = 1; }
+  // 计时环：灰底圈 + 黄弧，弧长 = 数字 / 60 分钟
+  if (u >= CN_T.num[0]) {
+    const cx = 450, cy = 100, R = 46;
+    k.strokeStyle = 'rgba(255,255,255,0.14)'; k.lineWidth = 8; k.beginPath(); k.arc(cx, cy, R, 0, TAU); k.stroke();
+    k.strokeStyle = CN_Y; k.lineCap = 'butt'; k.beginPath(); k.arc(cx, cy, R, -Math.PI / 2, -Math.PI / 2 + (val / 60) * TAU); k.stroke();
+    k.fillStyle = '#FFF'; k.textAlign = 'center'; k.textBaseline = 'middle'; k.font = `800 22px ${DISP}`; k.fillText(String(val), cx, cy - 4);
+    k.fillStyle = '#9A9A9A'; k.font = `600 9px ${SANS}`; k.fillText('分钟 / 60', cx, cy + 16);
+  }
+  k.restore();
+};

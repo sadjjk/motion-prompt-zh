@@ -1,0 +1,15 @@
+Please use "Dark math explainer" (ダークな数学解説), filed under "Animation styles / Diagrams & boards".
+Motion Prompt #4-042
+
+What it is: A maths explainer on near-black where only what is being explained appears, colour-coded, and one object moves smoothly to make the point
+What the sample shows: On black, axes grow from the origin, ticks light up in turn and y = sin x rises letter by letter; a blue curve traces left to right with a gold dot and tangent riding it, turning red where the slope hits 0; then everything dims out.
+Spec:
+- Background #0F1014; 0.2–0.9 s the axes grow from the origin, and ticks π/2, π, 3π/2, 2π and ±1 fade in 0.12 s apart.
+- From 0.6 s the blue #58C4DD formula y = sin x rises letter by letter at top right, 0.08 s per letter.
+- 1.6–4.6 s the sine curve (2π spans 420 px, amplitude 62 px) traces from the left, with a gold dot #F4D35E and an 84 px tangent riding it.
+- The readout k = cos x updates live; near the peak and trough, where the slope is close to 0, tangent and readout turn red #FC6255. 5.4–6.0 s everything dims to black.
+When to use it: Use it for maths, statistics and AI concept explainers, or whenever a function or graph needs to move.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-042.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,17 @@
+Please use "Cozy farm pixel" (のんびり農場ピクセル), filed under "Art movements / Digital & retro".
+Motion Prompt #4-058
+
+What it is: A cozy farming-game look: a top-down farm drawn in 4 px pixels with a wooden HUD for the clock and money
+What the sample shows: A fenced green farm seen from above. The wooden HUD at top right ticks the clock forward 10 minutes at a time from 6:00. The farmer walks the path and waters 5 columns in turn, darkening the soil. The crops grow through 3 stages: sprout, leaves and ripe pumpkin. The farmer comes back and harvests column by column, +5 floats up and today's income rises. Finally a night blue covers the scene, and when it lifts it is 6:00 again with seeds in the ground.
+Spec:
+- Ground #6DB54A, 1 pixel = 4 px; field of 5 columns × 2 rows.
+- From 0.6 s each column is watered 0.32 s apart; a sprout shows 0.5 s after watering.
+- Leaves from 2.6 s and pumpkins from 3.2 s, staggered by column.
+- From 3.7 s each column is harvested 0.28 s apart, +5 per plant, +50 in total.
+- The clock moves 10 minutes every 0.45 s from 6:00.
+- 5.4–5.9 s night darkens the scene; 5.9 s it resets to 6:00 and seeds; dawn by 6.4 s.
+When to use it: Use it for farming, seasons, growth processes and habit-building topics that show something growing step by step.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-058.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

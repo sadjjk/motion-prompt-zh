@@ -1,0 +1,120 @@
+// Motion Prompt #4-069 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Copperplate botanical / 銅版博物画
+// Category: Visual styles / Craft & patterns / Print & handmade
+// What happens: A double-ruled plate on foxed old paper. A fine ink stem grows, four toothed basal leaves are drawn, and the flower head and the downy seed ball open out radially. 45° hatching sweeps from top left to bottom right across the leaves and the flower centre, and a beat later a pale green and yellow wash seeps out from the centres. Red part numbers 1–3 appear, and on the left PL. XII, 蒲公英, the Latin name and three caption lines come in one by one. On reset the wash fades, then the hatching and ink lines retract to a blank plate.
+// Motion spec:
+//   - Ink lines: stem from 0.3 s, 4 basal leaves 0.18 s apart.
+//   - Hatching: 45°, spacing 3.2, sweeps over 1.4–2.9 s.
+//   - Wash: seeps out from the centres over 2.7–3.6 s, offset 1.5 px from the lines.
+//   - Captions: from 1.0 s, one every 0.45 s, 6 in all.
+//   - Reset: the wash fades first from 5.4 s; hatching and lines retract from 5.65 s.
+// When to use it: Use it for plants and animals, natural history, and objects or inventions.
+// Tags: copperplate, engraving, botanical, hatching, natural-history, vintage-print, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-069
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 30
+// 30 铜版博物：旧纸底的博物图版「蒲公英」。先用细墨线勾出茎、基生叶、花序和果球，再由一道 45° 排线从左上往右下扫过叶片和花心，
+// 淡彩晚一拍从中心渗开，左侧图注逐条出现。复位时淡彩先褪，排线和墨线从末端收回，回到空白图版
+const CP_PAPER = '#EFE6D2', CP_INK = '#3A2E22', CP_RED = '#7A1E14';
+const CP_FRAME = [176, 8, 352, 192];                             // 图版框 x、y、宽、高
+const CP_T = { stem: [0.3, 0.7], leaf: [0.5, 0.18, 0.45], flower: [1.0, 1.4], seed: [1.2, 1.8], hatch: [1.4, 2.9], tint: [2.7, 3.6], cap: [1.0, 0.45] };
+const CP_BACK = [SHOW + 0.25, CYC - 0.05];                       // 墨线和排线收回的时段
+const CP_HATCH = 3.2;                                            // 排线间距
+const CP_FLOWER = [300, 62], CP_SEED = [410, 58, 30];            // 花序中心；果球中心与半径
+// 基生叶：[基点 x, 基点 y, 朝向角, 长, 半宽]；锯齿用相邻采样点宽窄交替做出倒向的裂片
+const CP_LEAVES = [[330, 196, -2.75, 120, 17], [330, 196, -2.35, 96, 14], [332, 196, -0.42, 118, 16], [332, 196, -0.8, 92, 13]];
+const cpLeaf = ([bx, by, ang, L, W]) => {
+  const n = 16, left = [], right = [], c = Math.cos(ang), s = Math.sin(ang);
+  for (let i = 0; i <= n; i++) {
+    const t = i / n, wv = W * Math.sin(Math.PI * Math.min(1, t * 1.08)) * (i % 2 ? 0.5 : 1);
+    left.push([t * L, -wv]); right.push([t * L, wv * 0.85]);
+  }
+  return left.concat(right.reverse()).map(([x, y]) => [bx + x * c - y * s, by + x * s + y * c]);
+};
+const CP_LEAF_PTS = CP_LEAVES.map(cpLeaf);
+const cpQuad = (a, b, c2, n = 24) => { const o = []; for (let i = 0; i <= n; i++) { const t = i / n, m = 1 - t; o.push([m * m * a[0] + 2 * m * t * b[0] + t * t * c2[0], m * m * a[1] + 2 * m * t * b[1] + t * t * c2[1]]); } return o; };
+const CP_STEMS = [cpQuad([330, 196], [318, 130], [CP_FLOWER[0], CP_FLOWER[1] + 10]), cpQuad([334, 196], [362, 120], [CP_SEED[0], CP_SEED[1] + CP_SEED[2]])];
+const CP_CAPS = [['PL. XII', 9, MONO, '#8A7A60'], ['蒲公英', 22, SERIF, CP_INK], ['Taraxacum officinale', 9, SERIF, '#6A5A44'], ['1  头状花序', 10, SERIF, CP_INK], ['2  冠毛果球', 10, SERIF, CP_INK], ['3  基生叶，倒向羽裂', 10, SERIF, CP_INK]];
+CELLS[29] = (k, w, h, u) => {
+  k.fillStyle = '#E4D8BE'; k.fillRect(0, 0, CW, CH);
+  k.fillStyle = CP_PAPER; k.fillRect(8, 4, CW - 16, CH - 8);
+  // 纸面霉斑
+  for (let i = 0; i < 26; i++) { k.fillStyle = `rgba(150,110,60,${(0.05 + hash(i + 7) * 0.08).toFixed(3)})`; k.beginPath(); k.arc(12 + hash(i) * (CW - 24), 8 + hash(i + 30) * (CH - 16), 1 + hash(i + 60) * 3, 0, TAU); k.fill(); }
+  const [fx, fy, fw, fh] = CP_FRAME;
+  k.strokeStyle = CP_INK; k.lineWidth = 1.2; k.strokeRect(fx, fy, fw, fh); k.lineWidth = 0.5; k.strokeRect(fx + 3, fy + 3, fw - 6, fh - 6);
+  const back = 1 - seg(u, CP_BACK[0], CP_BACK[1]);
+  const tintK = out3(seg(u, CP_T.tint[0], CP_T.tint[1])) * (1 - seg(u, SHOW, SHOW + 0.3));
+  // 淡彩：从各部位中心按圆形往外渗开，和墨线错开 1.5 px，像手工上色没对准
+  const wash = (pts, color, cx, cy, R) => {
+    if (tintK <= 0) return;
+    k.save(); k.beginPath(); k.arc(cx, cy, R * tintK, 0, TAU); k.clip();
+    k.fillStyle = color; k.beginPath(); pts.forEach(([x, y], i) => (i ? k.lineTo(x + 1.5, y + 1) : k.moveTo(x + 1.5, y + 1))); k.closePath(); k.fill();
+    k.restore();
+  };
+  CP_LEAF_PTS.forEach(p => wash(p, 'rgba(112,140,78,0.38)', 330, 190, 130));
+  wash(circlePts(CP_FLOWER[0], CP_FLOWER[1], 17, 24), 'rgba(230,178,40,0.5)', CP_FLOWER[0], CP_FLOWER[1], 22);
+  wash(circlePts(CP_SEED[0], CP_SEED[1], CP_SEED[2], 32), 'rgba(170,180,190,0.25)', CP_SEED[0], CP_SEED[1], 34);
+  // 排线：x + y = c 的 45° 斜线，只画 c 小于扫过阈值的部分；阈值随复位倒退
+  const thr = mix(160, 640, seg(u, CP_T.hatch[0], CP_T.hatch[1]) * back);
+  const hatch = (pts, dir = 1) => {
+    if (thr <= 160) return;
+    k.save(); k.beginPath(); pts.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); k.closePath(); k.clip();
+    k.strokeStyle = 'rgba(58,46,34,0.55)'; k.lineWidth = 0.6; k.beginPath();
+    for (let c = 160; c < thr; c += CP_HATCH) {
+      if (dir > 0) { k.moveTo(c - 220, 220); k.lineTo(c, 0); }
+      else { const d = c - 400; k.moveTo(d, 0); k.lineTo(d + 220, 220); }
+    }
+    k.stroke(); k.restore();
+  };
+  CP_LEAF_PTS.forEach(p => hatch(p));
+  hatch(circlePts(CP_FLOWER[0], CP_FLOWER[1], 6, 20)); hatch(circlePts(CP_FLOWER[0], CP_FLOWER[1], 6, 20), -1);
+  // 墨线
+  k.strokeStyle = CP_INK; k.lineCap = 'round'; k.lineJoin = 'round';
+  const pr = (a, b) => seg(u, a, b) * back;
+  k.lineWidth = 1.3; CP_STEMS.forEach(s => strokeProg(k, s, pr(CP_T.stem[0], CP_T.stem[1])));
+  k.lineWidth = 1;
+  CP_LEAF_PTS.forEach((p, i) => { const a = CP_T.leaf[0] + i * CP_T.leaf[1]; strokeProg(k, p.concat([p[0]]), pr(a, a + CP_T.leaf[2])); k.lineWidth = 0.6; strokeProg(k, [p[0], p[8]], pr(a, a + CP_T.leaf[2])); k.lineWidth = 1; });
+  // 花序：放射状舌状花 + 下垂总苞
+  const fp = pr(CP_T.flower[0], CP_T.flower[1]);
+  if (fp > 0) {
+    const [cx, cy] = CP_FLOWER; k.lineWidth = 0.8; k.beginPath();
+    for (let i = 0; i < 26; i++) { const a = (i / 26) * TAU, r0 = 5, r1 = 15 + hash(i) * 4; const e = clamp(fp * 1.4 - (i / 26) * 0.4); if (e <= 0) continue; k.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0 * 0.7); k.lineTo(cx + Math.cos(a) * mix(r0, r1, e), cy + Math.sin(a) * mix(r0, r1, e) * 0.7); }
+    for (let i = -3; i <= 3; i++) { k.moveTo(cx + i * 2, cy + 8); k.quadraticCurveTo(cx + i * 3, cy + 14, cx + i * 4.5, cy + 16 * fp); }
+    k.stroke();
+    k.beginPath(); k.ellipse(cx, cy, 6, 4.2, 0, 0, TAU * fp); k.stroke();
+  }
+  // 果球：冠毛细线，末端分三叉
+  const sp = pr(CP_T.seed[0], CP_T.seed[1]);
+  if (sp > 0) {
+    const [cx, cy, R] = CP_SEED; k.lineWidth = 0.5; k.beginPath();
+    for (let i = 0; i < 40; i++) {
+      const a = (i / 40) * TAU + hash(i) * 0.1, e = clamp(sp * 1.5 - hash(i + 9) * 0.5); if (e <= 0) continue;
+      const x1 = cx + Math.cos(a) * mix(3, R, e), y1 = cy + Math.sin(a) * mix(3, R, e);
+      k.moveTo(cx + Math.cos(a) * 3, cy + Math.sin(a) * 3); k.lineTo(x1, y1);
+      if (e >= 1) for (let j = -1; j <= 1; j++) { k.moveTo(x1, y1); k.lineTo(x1 + Math.cos(a + j * 0.5) * 4, y1 + Math.sin(a + j * 0.5) * 4); }
+    }
+    k.stroke(); k.fillStyle = CP_INK; k.beginPath(); k.arc(cx, cy, 3 * sp, 0, TAU); k.fill();
+  }
+  // 部位编号
+  k.fillStyle = CP_RED; k.font = `italic 600 9px ${SERIF}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+  const na = clamp(seg(u, CP_T.seed[1], CP_T.seed[1] + 0.3) * back * 2);
+  if (na > 0) { k.globalAlpha = na; k.fillText('1', CP_FLOWER[0] - 24, CP_FLOWER[1] - 8); k.fillText('2', CP_SEED[0] + 40, CP_SEED[1] - 20); k.fillText('3', 220, 176); k.globalAlpha = 1; }
+  // 左侧图注逐条出现，复位时淡出
+  const capOut = 1 - seg(u, SHOW + 0.2, SHOW + 0.5);
+  k.textAlign = 'left'; k.textBaseline = 'alphabetic';
+  let cy = 30;
+  CP_CAPS.forEach(([s, size, font, color], i) => {
+    const a = out3(seg(u, CP_T.cap[0] + i * CP_T.cap[1], CP_T.cap[0] + i * CP_T.cap[1] + 0.3)) * capOut;
+    cy += size + (i === 1 ? 10 : i === 3 ? 14 : 6);
+    if (a <= 0) return;
+    k.globalAlpha = a; k.fillStyle = color; k.font = `${i === 2 ? 'italic ' : ''}${i === 1 ? 900 : 500} ${size}px ${font}`; k.fillText(s, 24 + 8 * (1 - a), cy);
+    if (i === 2) { k.fillStyle = CP_INK; k.fillRect(24, cy + 8, 120, 0.8); }
+    k.globalAlpha = 1;
+  });
+};

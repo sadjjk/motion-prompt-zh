@@ -1,0 +1,16 @@
+Please use "Caption news" (字幕ニュース), filed under "Animation styles / Media & genres".
+Motion Prompt #4-066
+
+What it is: A caption-led social news look: one huge line at a time on a dark screen, keywords blocked in yellow and a number rolling up, readable with the sound off
+What the sample shows: Night-street bokeh drifts sideways on a dark screen. A yellow rule grows down the left and 外卖平均 types in character by character. A huge number rolls from 0 to 28 and lands, while a yellow arc on the timer ring at right grows with it. A yellow block wipes across 28 分钟 from the left, flipping the text inside it to black. A follow-up line types in, and a small source credit slides up from below. On reset the whole caption moves up out of frame.
+Spec:
+- Number: rolls from 0 to 28 over 1.0–2.0 s.
+- Yellow block: wipes over 28 分钟 at 2.05–2.4 s, text inside turns black.
+- Timer ring: arc length = number / 60 minutes.
+- Source credit: slides up from below at 3.6 s.
+- Reset: 5.4–6.0 s the whole caption moves up 208 px.
+When to use it: Use it for data news, stories with a twist and quick updates meant to be watched muted.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-066.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

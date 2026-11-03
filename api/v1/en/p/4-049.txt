@@ -1,0 +1,15 @@
+Please use "Clay kawaii" (ねんどカワイイ), filed under "Animation styles / Space & material".
+Motion Prompt #4-049
+
+What it is: A cute clay look on a pink cream background: little clay characters with faces squash and bounce as they pop in
+What the sample shows: On a pink floor a milk-tea stand, a cup and three bean characters pop in one after another with a squash and bounce, and blink; the cup arcs over to the first bean, who smiles and hops twice. Then everything squashes flat into the floor.
+Spec:
+- Background #FFF1F5, floor #FFD6E3; the clay uses radial gradients with soft shadows and a top-left highlight.
+- 0.2 s the stand (mint #9EE6D0, 110 px wide), 0.6 s the cup, and 1.0 / 1.3 / 1.6 s three beans (36×48 px) pop in with a backOut squash and stretch.
+- Each bean blinks once at its own moment; 3.0–3.5 s the cup moves to the first bean along a 30 px arc and its face turns to a smile.
+- 3.7–4.5 s the first bean hops twice, 26 px high; from 5.4 s everything squashes flat, the last to arrive first, 0.08 s apart.
+When to use it: Use it for kids' explainers, light everyday stories and friendly brand or shop intros.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-049.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

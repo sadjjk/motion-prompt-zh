@@ -1,0 +1,16 @@
+Please use "Ink wash on paper" (水墨紙本), filed under "East Asian tradition / Calligraphy & painting".
+Motion Prompt #4-063
+
+What it is: An ink-wash look on xuan paper: distant hills bleeding in shades of ink alone, a bold stroke, a vertical inscription and a vermilion seal
+What the sample shows: Xuan paper with visible fibres. The far hills bleed in pale, and nearer hills overlap a shade darker. Faint horizontal strokes mark the water, and a rock at the lower left is laid down in a single bold stroke. A small boat with a figure holding a pole drifts slowly from left to right. At the top right the vertical inscription 孤舟一叶 远山青 appears one character at a time, and a vermilion seal is pressed last. On reset the ink spreads and fades, and the paper turns clean again.
+Spec:
+- Paper #F4EDDC → #E2D6BC, ink in one colour only, seal #B23A2E.
+- 0.2–1.6 s far hills, 0.8–2.0 s middle hills bleed in from 12 stacked layers.
+- 2.0–2.6 s the bold rock; 1.2–5.4 s the boat drifts from x 140 to 300.
+- From 3.0 s the 7 inscription characters appear 0.25 s apart; 4.4 s the seal.
+- 5.4–6.3 s the ink spreads and fades.
+When to use it: Use it for literature, poetry, traditional culture and slow, single-thread explainers.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-063.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

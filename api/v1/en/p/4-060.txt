@@ -1,0 +1,16 @@
+Please use "National park poster" (国立公園ポスター), filed under "Craft & patterns / Print & handmade".
+Motion Prompt #4-060
+
+What it is: A vintage national-park travel poster look: flat colour in just 5 inks, overprinted plate by plate on beige paper
+What the sample shows: A sheet of beige paper on a dark brown wall. Six plates – sky, far peaks, near hills, lake, pines and title band – press up from below in turn, each slightly off register. The swatches on the right light up as each ink is printed. Finally the sun rises from behind the far peaks. On reset the plates lift off from the top one down, back to blank paper.
+Spec:
+- Paper #F3E6C4, 5 inks #F2C14E / #D9682B / #2F6B6B / #1F4F4F / #2B2B2B.
+- 0.3 / 0.7 / 1.1 / 1.5 / 1.9 / 2.3 s the 6 plates print, each pressing up 24 px over 0.35 s.
+- Each plate is fixed off register by up to ±1.5 px across and ±1 px down.
+- 2.8–3.8 s the sun rises.
+- From 5.4 s the plates lift off 0.12 s apart, last one first.
+When to use it: Use it for geography, nature, travel and city guides that want to show off a landscape.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-060.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

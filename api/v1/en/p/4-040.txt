@@ -1,0 +1,15 @@
+Please use "Chalkboard lesson" (黒板とチョーク), filed under "Animation styles / Diagrams & boards".
+Motion Prompt #4-040
+
+What it is: An explainer drawn like a classroom board: chalk lines and formulas written stroke by stroke on a dark green board
+What the sample shows: Chalk draws a right triangle and the squares on its sides, labels a², b², c², rings c² in red and underlines the yellow formula twice; then an eraser wipes left to right.
+Spec:
+- Board #1F4A42 with a top-left highlight and a 10 px chalk tray at the bottom; chalk lines are 3 offset dashed strokes for grain (2–2.4 px wide).
+- 0.6–1.4 s a right triangle (legs 60 / 45 px); 1.6–2.9 s the squares on the 3 sides one by one, each labelled a², b², c² 0.2 s after it is drawn.
+- 3.2–3.6 s red chalk #F28B82 rings c²; 3.7–4.3 s the yellow #F5D76E formula a² + b² = c² at 30 px, 2 underlines at 4.35–4.75 s, then 3² + 4² = 5² at 4.6–5.1 s.
+- 5.4–6.2 s an eraser sweeps left to right; the faint white smear it leaves (4.5%) fades at 6.0–6.4 s.
+When to use it: Use it for maths and science explainers, deriving a formula, or any lesson-style knowledge video.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-040.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

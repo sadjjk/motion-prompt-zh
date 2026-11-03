@@ -1,0 +1,81 @@
+// Motion Prompt #4-060 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// National park poster / 国立公園ポスター
+// Category: Visual styles / Craft & patterns / Print & handmade
+// What happens: A sheet of beige paper on a dark brown wall. Six plates – sky, far peaks, near hills, lake, pines and title band – press up from below in turn, each slightly off register. The swatches on the right light up as each ink is printed. Finally the sun rises from behind the far peaks. On reset the plates lift off from the top one down, back to blank paper.
+// Motion spec:
+//   - Paper #F3E6C4, 5 inks #F2C14E / #D9682B / #2F6B6B / #1F4F4F / #2B2B2B.
+//   - 0.3 / 0.7 / 1.1 / 1.5 / 1.9 / 2.3 s the 6 plates print, each pressing up 24 px over 0.35 s.
+//   - Each plate is fixed off register by up to ±1.5 px across and ±1 px down.
+//   - 2.8–3.8 s the sun rises.
+//   - From 5.4 s the plates lift off 0.12 s apart, last one first.
+// When to use it: Use it for geography, nature, travel and city guides that want to show off a landscape.
+// Tags: travel-poster, screen-print, limited-palette, overprint, landscape, vintage, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-060
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 21
+// 21 国家公园海报：深棕墙上一张米色纸海报，限定 5 色平涂；天空、远山、近山、湖面、松树、题字条一版版从下往上套印（带轻微错版），
+// 太阳最后从远山后升起；右侧色标随印版点亮。复位时色版从最上一版起依次往下撤掉，回到空白纸
+const PO_CARD = [152, 6, 235, 196];                              // 海报纸 x、y、宽、高
+const PO_INK = ['#F2C14E', '#D9682B', '#2F6B6B', '#1F4F4F', '#2B2B2B'];  // 5 色：黄、橙、青、深青、墨
+const PO_INK_NAME = ['暖黄', '橘红', '湖青', '深青', '墨黑'];        // 色标文字：标的是颜色，不是版次（6 版共用这 5 色）
+const PO_PAPER = '#F3E6C4';
+// 印版：[开印时刻, 用色下标]；顺序即套印顺序
+const PO_PLATES = [[0.3, 0], [0.7, 1], [1.1, 2], [1.5, 3], [1.9, 4], [2.3, 4]];
+const PO_PRESS = 0.35, PO_LIFT = 24;                             // 压印时长、压上前的下移距离
+const PO_SUN = [2.8, 3.8];
+const PO_OFF_DT = 0.12;                                          // 复位时每版撤掉的间隔
+CELLS[20] = (k, w, h, u) => {
+  k.fillStyle = '#3A2E28'; k.fillRect(0, 0, CW, CH);
+  const [cx, cy, cw, chh] = PO_CARD;
+  k.fillStyle = 'rgba(0,0,0,0.35)'; k.fillRect(cx + 5, cy + 6, cw, chh);
+  k.fillStyle = PO_PAPER; k.fillRect(cx, cy, cw, chh);
+  // 每版的进度：压上 0→1，撤掉 1→0（最后一版最先撤）
+  const n = PO_PLATES.length;
+  const lv = PO_PLATES.map(([at], i) => {
+    const off = SHOW + (n - 1 - i) * PO_OFF_DT;
+    return { on: out3(seg(u, at, at + PO_PRESS)), vis: u >= at && u < off + 0.2, off: inOut3(seg(u, off, off + 0.2)) };
+  });
+  const draws = [
+    () => { k.fillStyle = PO_INK[0]; k.fillRect(0, 0, cw, 130);
+      const sp = inOut3(seg(u, PO_SUN[0], PO_SUN[1]));
+      k.fillStyle = PO_PAPER; k.beginPath(); k.arc(165, mix(118, 48, sp), 22, 0, TAU); k.fill(); },
+    () => { k.fillStyle = PO_INK[1]; k.beginPath(); [[0, 110], [35, 72], [62, 95], [100, 52], [140, 92], [175, 64], [235, 100], [235, 196], [0, 196]].forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); k.fill(); },
+    () => { k.fillStyle = PO_INK[2]; k.beginPath(); [[0, 128], [50, 98], [90, 120], [135, 94], [190, 122], [235, 108], [235, 196], [0, 196]].forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); k.fill(); },
+    () => { k.fillStyle = PO_INK[3]; k.beginPath(); k.moveTo(0, 140); k.quadraticCurveTo(cw / 2, 126, cw, 140); k.lineTo(cw, 196); k.lineTo(0, 196); k.fill();
+      // 湖面波纹留出纸色，不加第 6 种墨
+      k.strokeStyle = PO_PAPER; k.lineWidth = 1.2; [[60, 143, 40], [130, 140, 52], [96, 147, 30]].forEach(([x, y, l]) => { k.beginPath(); k.moveTo(x, y); k.lineTo(x + l, y); k.stroke(); }); },
+    () => { k.fillStyle = PO_INK[4];
+      [14, 30, 46, 62, 196, 214].forEach((x, i) => { const th = 20 + hash(i + 60) * 14, by = 144;
+        k.fillRect(x - 1.5, by - 4, 3, 6);
+        for (let t = 0; t < 2; t++) { k.beginPath(); k.moveTo(x, by - th + t * th * 0.35); k.lineTo(x - 8, by - th * 0.35 + t * th * 0.35); k.lineTo(x + 8, by - th * 0.35 + t * th * 0.35); k.fill(); } }); },
+    () => { k.fillStyle = PO_INK[4]; k.fillRect(0, 150, cw, 46);
+      k.textAlign = 'center'; k.textBaseline = 'middle';
+      k.fillStyle = PO_INK[0]; k.font = `900 19px ${SANS}`; k.fillText('云 岭 · 国 家 公 园', cw / 2, 168);
+      k.fillStyle = PO_PAPER; k.font = `700 7px ${DISP}`; k.fillText('Y U N L I N G   N A T I O N A L   P A R K', cw / 2, 185); },
+  ];
+  k.save(); k.beginPath(); k.rect(cx, cy, cw, chh); k.clip();
+  lv.forEach((l, i) => {
+    if (!l.vis) return;
+    // 错版：每一版固定偏一点点，像手工套印没对准
+    const dx = (hash(i + 30) - 0.5) * 3, dy = (hash(i + 40) - 0.5) * 2;
+    k.save(); k.translate(cx + dx, cy + dy + (1 - l.on) * PO_LIFT + l.off * PO_LIFT); k.globalAlpha = (l.on > 0 ? 1 : 0) * (1 - l.off);
+    draws[i](); k.restore();
+  });
+  // 纸面颗粒
+  for (let i = 0; i < 160; i++) { k.fillStyle = `rgba(60,40,20,${(0.05 + hash(i + 3000) * 0.1).toFixed(3)})`; k.fillRect(cx + hash(i + 3100) * cw, cy + hash(i + 3200) * chh, 1.2, 1.2); }
+  k.restore(); k.globalAlpha = 1;
+  // 右侧色标：某色已有印版在纸上就点亮
+  k.textAlign = 'left'; k.textBaseline = 'middle'; k.font = `700 9px ${SANS}`; k.fillStyle = '#C9B79A'; k.fillText('5 色套印', 420, 26);
+  PO_INK.forEach((c, j) => {
+    const a = Math.max(0, ...PO_PLATES.map(([, ci], i) => (ci === j && lv[i].vis ? (l => (l.on > 0 ? 1 : 0) * (1 - l.off))(lv[i]) : 0)));
+    k.strokeStyle = '#6A5A4C'; k.lineWidth = 1; k.strokeRect(420.5, 42.5 + j * 30, 18, 18);
+    if (a > 0) { k.globalAlpha = a; k.fillStyle = c; k.fillRect(421, 43 + j * 30, 17, 17); k.globalAlpha = 1; }
+    k.fillStyle = '#8A7A68'; k.fillText(PO_INK_NAME[j], 446, 52 + j * 30);
+  });
+};

@@ -1,0 +1,144 @@
+// Motion Prompt #4-062 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// 手描きプロセス / Hand-drawn process
+// 分類: ビジュアルスタイル / 工芸・文様 / 版画・手仕事
+// 何が起きるか: 白い紙に、鉛筆が画面の外から入ってくる。まず灰色の細い線で皿、カップ、取っ手、湯気をさっと下描きし、黒いサインペンに持ち替えて同じ順番でペン線をなぞる。線から線へはペンを少し浮かせて移り、持ち替えのときは前のペンが縮んで浮き、新しいペンが降りてくる。続いて赤いマーカーでカップを左右に往復して塗り、サインペンに戻して右下にサインを書き、ペンは画面の外へ戻る。リセットでは新しいページが右からめくられて白紙に戻る。
+// 動きの仕様:
+//   - 紙 #FBF8F2、墨線 #23201C、マーカー #D7392B
+//   - 0.25 秒から鉛筆の下書き線 6 本を 0.23 秒おきに 1 本ずつ引く
+//   - 1.7 秒からインク線 6 本を 0.28 秒おきに 1 本ずつ、各 0.24 秒でなぞる
+//   - 3.4–4.3 秒にマーカー塗り、4.5–5.0 秒にサイン
+//   - 5.4–6.2 秒に新しいページが右からめくられる
+// 使いどころ: しくみの説明、作り方の手順、一歩ずつ描いて見せたい解説に。
+// タグ: hand-drawn, drawing-process, pencil, fineliner, marker, line-art, explainer
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-062
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 23
+// 23 手绘过程：白纸上，一支悬空的笔带着笔尖走，画一杯咖啡：铅笔灰线快速起稿 → 换针管笔逐条描出墨线 →
+// 换马克笔来回平涂杯身 → 换回针管笔在右下角签名。换笔时旧笔抬起缩小、新笔落下。复位时新的一页从右往左翻过来盖住，回到白纸，笔停在画外
+const SK_BG = '#FBF8F2', SK_INK = '#23201C', SK_PENCIL = '#B4AC9C', SK_RED = '#D7392B';
+const SK_REST = [560, 230];                                      // 笔的停靠点（画外右下）
+const skEllipse = (cx, cy, rx, ry, n = 40) => { const o = []; for (let i = 0; i <= n; i++) { const a = Math.PI + (i / n) * TAU; o.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]); } return o; };
+const skWave = (x, y0, y1) => { const o = []; for (let i = 0; i <= 16; i++) { const t = i / 16; o.push([x + Math.sin(t * TAU) * 5, mix(y0, y1, t)]); } return o; };
+const skArc = (cx, cy, r, a0, a1, n = 20) => { const o = []; for (let i = 0; i <= n; i++) { const a = mix(a0, a1, i / n); o.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); } return o; };
+// 杯子的线稿：碟子、杯身、杯口、把手、两缕热气
+const SK_PATHS = [skEllipse(230, 166, 84, 12), [[180, 74], [189, 152], [271, 152], [280, 74]], skEllipse(230, 74, 50, 8), skArc(286, 108, 19, -Math.PI / 2 - 0.2, Math.PI / 2 + 0.2), skWave(214, 58, 22), skWave(246, 58, 28)];
+const SK_BODY = [[181, 78], [189, 152], [271, 152], [279, 78]];   // 马克笔平涂的裁剪区
+const SK_FILL = (() => { const o = []; for (let x = 184, i = 0; x <= 278; x += 7, i++) o.push([x, i % 2 ? 150 : 80]); return o; })();
+const SK_SIGN = { text: '画一杯咖啡 · 阿青', x: 348, y: 186 };
+// 笔画时间表：铅笔起稿 0.25–1.57，墨线 1.7–3.34，马克笔 3.4–4.3，签名 4.5–5.0。
+// 笔画之间留出抬笔挪动的空隙，笔不会在两笔之间瞬移
+const SK_PEN = { t0: 0.25, dt: 0.23, dur: 0.17 }, SK_INKT = { t0: 1.7, dt: 0.28, dur: 0.24 };
+const SK_STROKES = (() => {
+  const o = [], n = SK_PATHS.length;
+  SK_PATHS.forEach((pts, i) => o.push({ kind: 'pencil', pts, i, t0: SK_PEN.t0 + i * SK_PEN.dt, t1: SK_PEN.t0 + i * SK_PEN.dt + SK_PEN.dur }));
+  SK_PATHS.forEach((pts, i) => o.push({ kind: 'ink', pts, i, t0: SK_INKT.t0 + i * SK_INKT.dt, t1: SK_INKT.t0 + i * SK_INKT.dt + SK_INKT.dur }));
+  o.push({ kind: 'fill', pts: SK_FILL, t0: 3.4, t1: 4.3 });
+  o.push({ kind: 'sign', pts: [[SK_SIGN.x, SK_SIGN.y], [SK_SIGN.x + 150, SK_SIGN.y]], t0: 4.5, t1: 5.0 });
+  return o;
+})();
+const SK_FLIP = [SHOW, SHOW + 0.8];
+CELLS[22] = (k, w, h, u) => {
+  k.fillStyle = SK_BG; k.fillRect(0, 0, CW, CH);
+  if (u >= SK_FLIP[1]) return;
+  // 铅笔稿：灰色细线，带一点错位，像起稿时的虚线条
+  k.lineCap = 'round'; k.lineJoin = 'round';
+  SK_STROKES.forEach(s => {
+    const p = seg(u, s.t0, s.t1); if (p <= 0) return;
+    if (s.kind === 'pencil') {
+      k.strokeStyle = SK_PENCIL; k.lineWidth = 1; k.save(); k.translate((hash(s.i) - 0.5) * 3, (hash(s.i + 9) - 0.5) * 3); strokeProg(k, s.pts, p); k.restore();
+    } else if (s.kind === 'fill') {
+      k.save(); k.beginPath(); SK_BODY.forEach(([x, y], i) => (i ? k.lineTo(x, y) : k.moveTo(x, y))); k.closePath(); k.clip();
+      k.strokeStyle = 'rgba(215,57,43,0.55)'; k.lineWidth = 11; strokeProg(k, s.pts, p); k.restore();
+    } else if (s.kind === 'sign') {
+      k.font = `700 13px ${KAI}`; const tw = k.measureText(SK_SIGN.text).width;
+      k.save(); k.beginPath(); k.rect(SK_SIGN.x - 2, SK_SIGN.y - 16, (tw + 4) * p, 24); k.clip();
+      k.fillStyle = SK_INK; k.textAlign = 'left'; k.textBaseline = 'alphabetic'; k.fillText(SK_SIGN.text, SK_SIGN.x, SK_SIGN.y); k.restore();
+    }
+  });
+  // 墨线画在马克笔上面，保留轮廓
+  SK_STROKES.forEach(s => { if (s.kind !== 'ink') return; k.strokeStyle = SK_INK; k.lineWidth = 2.4; strokeProg(k, s.pts, seg(u, s.t0, s.t1)); });
+  // 笔的位置：画笔时在笔尖上；笔画之间直线挪过去并略微抬笔；开头从画外进来、最后回到画外。
+  // 前后两笔换了工具时，在空隙前半段旧笔缩小抬起、后半段新笔放大落下
+  // 签名时笔尖跟着文字的显露边走：按实际字宽算终点，不用固定的 150 px
+  k.font = `700 13px ${KAI}`; const signW = k.measureText(SK_SIGN.text).width;
+  const sEnd = s => (s.kind === 'sign' ? [s.pts[0][0] + signW, s.pts[0][1]] : s.pts[s.pts.length - 1]);
+  const sAt = (s, p) => (s.kind === 'sign' ? [s.pts[0][0] + signW * p, s.pts[0][1]] : polyAt(s.pts, polyLen(s.pts) * p));
+  let tip = SK_REST, lift = 0, tool = SK_TOOL[SK_STROKES[0].kind], sc = 1;
+  const first = SK_STROKES[0], last = SK_STROKES[SK_STROKES.length - 1];
+  if (u < first.t0) { const e = inOut3(seg(u, first.t0 - 0.3, first.t0)); tip = [mix(SK_REST[0], first.pts[0][0], e), mix(SK_REST[1], first.pts[0][1], e)]; }
+  else if (u >= last.t1) { const e = inOut3(seg(u, last.t1, last.t1 + 0.4)); const a = sEnd(last); tip = [mix(a[0], SK_REST[0], e), mix(a[1], SK_REST[1], e)]; tool = SK_TOOL[last.kind]; lift = 6 * e; }
+  else for (let i = 0; i < SK_STROKES.length; i++) {
+    const s = SK_STROKES[i];
+    if (u <= s.t1) { tip = sAt(s, seg(u, s.t0, s.t1)); tool = SK_TOOL[s.kind]; break; }
+    const nx = SK_STROKES[i + 1];
+    if (u < nx.t0) {
+      const e = seg(u, s.t1, nx.t0), a = sEnd(s), b = nx.pts[0], swap = SK_TOOL[s.kind] !== SK_TOOL[nx.kind];
+      tip = [mix(a[0], b[0], e), mix(a[1], b[1], e)]; lift = Math.sin(Math.PI * e) * (swap ? 14 : 8);
+      tool = SK_TOOL[(e < 0.5 ? s : nx).kind]; if (swap) sc = out3(Math.abs(2 * e - 1));
+      break;
+    }
+  }
+  // 翻页：新的一页从右边翻过来，页边左侧压一道阴影
+  const fp = inOut3(seg(u, SK_FLIP[0], SK_FLIP[1]));
+  if (fp > 0) {
+    const ex = CW * (1 - fp);
+    const sg = k.createLinearGradient(ex - 18, 0, ex, 0); sg.addColorStop(0, 'rgba(0,0,0,0)'); sg.addColorStop(1, 'rgba(0,0,0,0.18)');
+    k.fillStyle = sg; k.fillRect(ex - 18, 0, 18, CH);
+    k.fillStyle = SK_BG; k.fillRect(ex, 0, CW - ex, CH);
+    k.fillStyle = '#EDE6DA'; k.fillRect(ex, 0, 6, CH);
+  }
+  skTool(k, tip[0], tip[1] - lift, lift, tool, sc);
+};
+// 画笔：只画悬在纸上的笔，按阶段换笔——起稿用铅笔、描线和签名用黑色针管笔、上色用红色马克笔。
+// 局部坐标里笔尖在原点、笔杆朝 −y，整体顺时针转 SK_TILT，笔杆指向右上
+const SK_TILT = 0.5;
+const SK_TOOL = { pencil: 'pencil', ink: 'pen', sign: 'pen', fill: 'marker' };  // 笔画种类 → 用哪支笔
+// 笔的剪影（投影用）：笔尖到笔尾的近似轮廓，[半宽, 长度]
+const SK_TOOL_SIL = { pencil: [3, 67], pen: [3.4, 64], marker: [5, 60] };
+function skTool(k, x, y, lift, tool, sc) {
+  if (sc <= 0) return;
+  // 投影：笔尖贴纸时投影贴着笔尖，抬笔时投影往右下离开、变淡
+  const [hw, len] = SK_TOOL_SIL[tool];
+  k.save(); k.translate(x + 2 + lift * 0.7, y + 2 + lift * 0.9); k.rotate(SK_TILT + 0.08); k.scale(sc, sc);
+  k.fillStyle = `rgba(70,50,30,${(0.10 - lift * 0.004).toFixed(3)})`;
+  k.beginPath(); k.moveTo(0, 0); k.lineTo(-hw, -10); k.lineTo(-hw, -len); k.lineTo(hw, -len); k.lineTo(hw, -10); k.closePath(); k.fill();
+  k.restore();
+  k.save(); k.translate(x, y); k.rotate(SK_TILT); k.scale(sc, sc);
+  if (tool === 'pencil') {
+    // 铅笔：石墨尖、削开的木头、六棱黄杆（亮面 + 暗面）、铁箍、橡皮
+    k.fillStyle = '#ECC995'; k.beginPath(); k.moveTo(0, 0); k.lineTo(-3, -10); k.lineTo(3, -10); k.closePath(); k.fill();
+    k.fillStyle = SK_INK; k.beginPath(); k.moveTo(0, 0); k.lineTo(-1.1, -3.6); k.lineTo(1.1, -3.6); k.closePath(); k.fill();
+    k.fillStyle = '#F2B630'; k.fillRect(-3, -56, 6, 46);
+    k.fillStyle = '#D9961C'; k.fillRect(1, -56, 2, 46);
+    k.fillStyle = '#F9D772'; k.fillRect(-2.2, -56, 0.9, 46);
+    k.fillStyle = '#B9B9B9'; k.fillRect(-3.2, -62, 6.4, 6); k.fillStyle = '#8E8E8E'; k.fillRect(-3.2, -60.5, 6.4, 0.8); k.fillRect(-3.2, -58.3, 6.4, 0.8);
+    k.fillStyle = '#EE8E8E'; k.beginPath(); k.moveTo(-3, -62); k.lineTo(-3, -65); k.quadraticCurveTo(0, -67.5, 3, -65); k.lineTo(3, -62); k.fill();
+  } else if (tool === 'pen') {
+    // 针管笔：细钢针、银色锥头、黑色笔杆、白色标签环、笔尾夹
+    k.strokeStyle = '#6E6E6E'; k.lineWidth = 0.9; k.beginPath(); k.moveTo(0, 0); k.lineTo(0, -4); k.stroke();
+    k.fillStyle = '#C9C9C9'; k.beginPath(); k.moveTo(-0.9, -4); k.lineTo(-3.2, -13); k.lineTo(3.2, -13); k.lineTo(0.9, -4); k.closePath(); k.fill();
+    k.fillStyle = '#9A9A9A'; k.beginPath(); k.moveTo(0.9, -4); k.lineTo(3.2, -13); k.lineTo(1.6, -13); k.closePath(); k.fill();
+    k.fillStyle = '#2A2826'; k.fillRect(-3.4, -60, 6.8, 47);
+    k.fillStyle = '#45423E'; k.fillRect(-2.4, -60, 1, 47);
+    k.fillStyle = '#F1EEE8'; k.fillRect(-3.4, -36, 6.8, 6); k.fillStyle = SK_INK; k.font = `700 4px ${MONO}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+    k.save(); k.translate(0, -33); k.rotate(-Math.PI / 2); k.fillText('0.5', 0, 0.3); k.restore();
+    k.fillStyle = '#1A1917'; k.beginPath(); k.moveTo(-3.4, -60); k.lineTo(-3.4, -63); k.quadraticCurveTo(0, -65, 3.4, -63); k.lineTo(3.4, -60); k.fill();
+    k.fillStyle = '#8E8E8E'; k.fillRect(3.4, -58, 1.4, 16);
+  } else {
+    // 马克笔：红色斜切笔头、白色粗笔杆、红色笔帽端和色环
+    k.fillStyle = SK_RED; k.beginPath(); k.moveTo(-2.4, 0); k.lineTo(2.4, -2.5); k.lineTo(2.6, -7); k.lineTo(-2.6, -7); k.closePath(); k.fill();
+    k.fillStyle = '#D8D4CC'; k.beginPath(); k.moveTo(-2.6, -7); k.lineTo(-4.6, -13); k.lineTo(4.6, -13); k.lineTo(2.6, -7); k.closePath(); k.fill();
+    k.fillStyle = '#F7F5F0'; k.fillRect(-5, -54, 10, 41);
+    k.fillStyle = '#E2DED6'; k.fillRect(2, -54, 3, 41);
+    k.strokeStyle = '#BDB7AC'; k.lineWidth = 0.8; k.strokeRect(-5, -54, 10, 41);
+    k.fillStyle = SK_RED; k.fillRect(-5, -40, 10, 7);
+    k.fillStyle = '#B42A1F'; k.beginPath(); k.moveTo(-5, -54); k.lineTo(-5, -58); k.quadraticCurveTo(0, -61, 5, -58); k.lineTo(5, -54); k.fill();
+  }
+  k.restore();
+}

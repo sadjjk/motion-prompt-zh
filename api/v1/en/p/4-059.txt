@@ -1,0 +1,16 @@
+Please use "Ransom-note cutouts" (切り抜き文字), filed under "Craft & patterns / Print & handmade".
+Motion Prompt #4-059
+
+What it is: A ransom-note look on gray newsprint: every character cut from a different paper, with mixed fonts, backgrounds, sizes and angles, slapped down one by one
+What the sample shows: Gray newsprint with ruled lines and copier grain. The first line 全场五折 is pasted one character at a time, each shrinking into place, then the second line 仅限今天 follows. Every character has its own font, background, size and tilt. Two staples punch in along the top, and a red pen loops a hand-drawn oval around the first line. Finally everything fades, leaving the bare newsprint.
+Spec:
+- Ground #E6E2D6, red #E2463B; each character picks from 7 backgrounds × 5 fonts.
+- From 0.3 s line 1 and from 1.4 s line 2 are pasted one character every 0.22 s, each shrinking from 1.35× over 0.12 s.
+- Each character is 0.82–1.18× size and tilted up to ±8°.
+- 2.5 / 2.6 s two staples; 3.0–3.6 s the red-pen circle.
+- 5.4–6.4 s characters, staples and circle fade out together.
+When to use it: Use it for mysteries, exposés, plot twists and meme roundups that want a playful, sketchy edge.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-059.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

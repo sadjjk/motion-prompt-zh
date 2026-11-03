@@ -1,0 +1,61 @@
+// Motion Prompt #4-046 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// 发布会极简 / Keynote number
+// 分类: 审美风格 / 动画画风 / 平面与线条
+// 动画表现: 黑底上灰色小标题「续航」淡入，超大白色数字从 0 滚到 32 并轻轻回弹落定；「小时」从侧面跟上，数字下方渐变色条从左扫亮。最后整屏缓慢淡黑。
+// 运动规格:
+//   - 黑底带一团淡蓝光；17 px 小标题（#86868B）在 0.3–0.7 秒淡入。
+//   - 0.8–2.2 秒 112 px 白色数字（#F5F5F7）从 0 滚到 32，落定时在 0.3 秒内回弹 4%；数字按终值宽度右对齐，滚动时不左右跳。
+//   - 2.2–2.6 秒 30 px 的「小时」从侧面 12 px 处滑入。
+//   - 2.8–3.6 秒 5 px 高的渐变色条（#FFE7A3 → #F2A54A → #E8603C）从左伸出；5.4–6.3 秒整屏淡黑。
+// 适用场景: 适合新品发布、用一个数字说清的成果或参数，以及演讲中的高潮页。
+// 标签: keynote, number, count-up, minimal, dark-mode, product-launch, typography
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-046
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 07
+// 07 发布会极简：纯黑底一屏一件事——小标题「续航」淡入，超大白色数字从 0 滚到 32 落定，「小时」跟上，
+// 数字下方渐变色条从左扫亮；复位时整屏缓慢淡黑
+const KN_W = '#F5F5F7', KN_G = '#86868B';
+const KN_VAL = 32, KN_NUM = 112, KN_UNIT = 30, KN_BASE = 146;  // 终值、数字字号、单位字号、数字基线
+const KN_ROLL = [0.8, 2.2], KN_BAR = [2.8, 3.6];
+CELLS[6] = (k, w, h, u) => {
+  k.fillStyle = '#000'; k.fillRect(0, 0, CW, CH);
+  const fade = 1 - inOut3(seg(u, SHOW, SHOW + 0.9));
+  k.save(); k.globalAlpha = fade;
+  // 背后一团很淡的蓝色光
+  const glow = k.createRadialGradient(270, 110, 0, 270, 110, 200);
+  glow.addColorStop(0, `rgba(70,120,255,${0.18 * seg(u, 0.8, 2.2)})`); glow.addColorStop(1, 'rgba(0,0,0,0)');
+  k.fillStyle = glow; k.fillRect(0, 0, CW, CH);
+  k.textBaseline = 'alphabetic';
+  // 先按终值量出整组宽度，数字右对齐到固定位置，滚动时不左右跳
+  k.font = `700 ${KN_NUM}px ${DISP}`; const nw = k.measureText(String(KN_VAL)).width;
+  k.font = `600 ${KN_UNIT}px ${SANS}`; const uw = k.measureText('小时').width;
+  const gx = (CW - (nw + 10 + uw)) / 2, nx = gx + nw;
+  // 小标题
+  k.globalAlpha = fade * seg(u, 0.3, 0.7); k.fillStyle = KN_G; k.font = `600 17px ${SANS}`; k.textAlign = 'center';
+  k.fillText('续航', CW / 2, 40 + 6 * (1 - out3(seg(u, 0.3, 0.7))));
+  // 数字：0.8–2.2 秒从 0 滚到终值，落定时轻微回弹
+  const r = seg(u, KN_ROLL[0], KN_ROLL[1]);
+  if (r > 0) {
+    const v = Math.round(KN_VAL * out3(r)), land = seg(u, KN_ROLL[1], KN_ROLL[1] + 0.3);
+    const sc = land > 0 ? 1 + 0.04 * Math.sin(Math.PI * land) : 1;
+    k.globalAlpha = fade * seg(u, KN_ROLL[0], KN_ROLL[0] + 0.2); k.fillStyle = KN_W; k.font = `700 ${KN_NUM}px ${DISP}`; k.textAlign = 'right';
+    k.save(); k.translate(nx, KN_BASE); k.scale(sc, sc); k.fillText(String(v), 0, 0); k.restore();
+  }
+  // 单位跟上
+  const ua = seg(u, 2.2, 2.6);
+  if (ua > 0) { k.globalAlpha = fade * ua; k.fillStyle = KN_W; k.font = `600 ${KN_UNIT}px ${SANS}`; k.textAlign = 'left'; k.fillText('小时', nx + 10 + 12 * (1 - out3(ua)), KN_BASE); }
+  // 渐变色条：从左扫亮
+  const b = inOut3(seg(u, KN_BAR[0], KN_BAR[1]));
+  if (b > 0) {
+    const bw = nw + 10 + uw, bar = k.createLinearGradient(gx, 0, gx + bw, 0);
+    bar.addColorStop(0, '#FFE7A3'); bar.addColorStop(0.5, '#F2A54A'); bar.addColorStop(1, '#E8603C');
+    k.globalAlpha = fade; k.fillStyle = bar; k.beginPath(); k.roundRect(gx, KN_BASE + 16, bw * b, 5, 2.5); k.fill();
+  }
+  k.restore();
+};

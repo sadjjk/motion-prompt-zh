@@ -1,0 +1,99 @@
+// Motion Prompt #4-052 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// RPG の会話ウィンドウ / RPG dialogue box
+// 分類: ビジュアルスタイル / アニメーションの画風 / 媒体・ジャンル
+// 何が起きるか: 夕暮れのドット絵の草原で、勇者が商人の屋台の前に立つ。下の会話ウィンドウが開き、「商人」の名札とともに「要买药草吗？」が一字ずつカーソルつきで打たれ、▼ が点滅する。「买 / 不买」のメニューが出て、カーソルが「不买」に動いてから「买」に戻って決定。ゴールド 50 が 40 になり −10 が浮かび、「谢谢惠顾！」と続く。最後はウィンドウが閉じ、場面がモザイク状に粗くなって消える。
+// 動きの仕様:
+//   - 背景 #0A0C1C、ウィンドウ #141A46（白枠 3 px＋内線 #2C3680）、文字 #F4F4F4、カーソルと名札 #FFD84A。ドット 1 マス 4 px
+//   - 0.3–0.6 秒に会話ウィンドウが上下に開き、0.8–1.6 秒に「要买药草吗？」を経過時間で先頭から N 文字ずつ表示
+//   - 2.0–3.9 秒に選択メニュー。2.6 秒にカーソルが「不买」、3.1 秒に「买」へ戻り、3.5 秒に決定で点滅
+//   - 3.9 秒にゴールド 50 → 40、−10 が浮いて消える。4.0–4.5 秒に「谢谢惠顾！」
+//   - 5.4–5.7 秒にウィンドウが閉じ、5.6–6.3 秒に場面のマス目が 4 px から 64 px へ粗くなりながら消える
+// 使いどころ: 二択の判断、ストーリー仕立ての解説、ゲーム感覚で選ばせる説明に。
+// タグ: rpg, pixel-art, dialogue-box, typewriter, menu, retro-game, explainer
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-052
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 13
+// 13 RPG 对话框：上方像素场景（勇者站在商人的摊位前），下方深蓝对话框逐字打出「要买药草吗？」并闪光标；
+// 弹出选项「买 / 不买」，光标上下移动后选中「买」，金币 50 → 40；复位时对话框合上，场景像素化淡出
+const RP_BG = '#0A0C1C', RP_W = '#F4F4F4', RP_Y = '#FFD84A', RP_BOX = '#141A46', RP_IN = '#2C3680';
+const RP_PX = 4;                                                // 一个像素格 = 4 px
+const RP_SKY = ['#24306E', '#2E3C86', '#3C4C9C', '#5464AE', '#7A78B8', '#B68CB0'], RP_GRASS = 22;   // 天空色带、草地起始行
+const RP_DLG = [12, 120, 515, 80];                              // 对话框 x, y, w, h
+const RP_LINES = [['要买药草吗？', 0.8, 1.6], ['谢谢惠顾！', 4.0, 4.5]];   // [台词, 开始打字, 打完]
+const RP_MENU = [2.0, 3.9], RP_PICK = [[2.0, 0], [2.6, 1], [3.1, 0]], RP_OK = 3.5;   // 菜单时段、光标（时刻, 项）、确认时刻
+const RP_GOLD = 50, RP_COST = 10;
+const RP_IN_T = [0, 0.4], RP_OUT_T = [5.6, 6.3];               // 场景由粗到细出现、由细到粗消失
+// 像素框：白边 + 内衬线，像老式 RPG 的窗口
+function rpBox(k, x, y, wd, ht) {
+  k.fillStyle = RP_BOX; k.beginPath(); k.roundRect(x, y, wd, ht, 8); k.fill();
+  k.strokeStyle = RP_W; k.lineWidth = 3; k.stroke();
+  k.strokeStyle = RP_IN; k.lineWidth = 1.5; k.beginPath(); k.roundRect(x + 4, y + 4, wd - 8, ht - 8, 5); k.stroke();
+}
+CELLS[12] = (k, w, h, u) => {
+  k.fillStyle = RP_BG; k.fillRect(0, 0, CW, CH);
+  const sa = seg(u, RP_IN_T[0], RP_IN_T[1]) * (1 - seg(u, RP_OUT_T[0] + 0.2, RP_OUT_T[1]));
+  // 像素化程度：块边长 4 → 64 px，坐标按块对齐，形状变粗糙
+  const pix = Math.max(1 - seg(u, RP_IN_T[0], RP_IN_T[1]), seg(u, RP_OUT_T[0], RP_OUT_T[1]));
+  const blk = RP_PX * Math.pow(2, Math.floor(pix * 4.99));
+  const P = (x, y, ww, hh, c) => {
+    const x0 = Math.floor(x * RP_PX / blk) * blk, y0 = Math.floor(y * RP_PX / blk) * blk;
+    const x1 = Math.ceil((x + ww) * RP_PX / blk) * blk, y1 = Math.min(112, Math.ceil((y + hh) * RP_PX / blk) * blk);
+    k.fillStyle = c; k.fillRect(x0, y0, x1 - x0, y1 - y0);
+  };
+  if (sa > 0) {
+    k.save(); k.globalAlpha = sa;
+    RP_SKY.forEach((c, i) => { const r0 = Math.floor(i * RP_GRASS / 6), r1 = Math.floor((i + 1) * RP_GRASS / 6); P(0, r0, 135, r1 - r0, c); });
+    for (let i = 0; i < 12; i++) P(Math.floor(hash(i * 3) * 135), Math.floor(hash(i * 5 + 1) * 10), 1, 1, RP_W);
+    P(0, RP_GRASS, 135, 6, '#3D6B3A'); for (let x = 0; x < 135; x += 3) P(x, RP_GRASS, 1, 1, '#5A8F4E');
+    // 勇者
+    P(41, 14, 2, 1, '#3A2418'); P(41, 15, 2, 2, '#F0C8A0'); P(40, 17, 4, 3, '#2A6CF0'); P(40, 20, 1, 2, '#24306E'); P(43, 20, 1, 2, '#24306E'); P(45, 15, 1, 5, '#D8D8E0');
+    // 商人的摊位：红白遮阳棚、柜台、药瓶
+    for (let i = 0; i < 10; i++) P(70 + i * 2, 9, 2, 2, i % 2 ? RP_W : '#C8352B');
+    P(70, 11, 1, 11, '#7A4A32'); P(89, 11, 1, 11, '#7A4A32');
+    P(79, 12, 4, 1, '#8A5A30'); P(80, 13, 2, 2, '#F0C8A0'); P(79, 15, 4, 2, '#8A4AA0');
+    P(70, 17, 20, 5, '#7A4A32'); P(70, 17, 20, 1, '#A8683E');
+    P(73, 15, 2, 2, '#4CC38A'); P(76, 15, 2, 2, '#4CC38A'); P(86, 15, 2, 2, '#E05A5A');
+    // 金币栏
+    const paid = u >= RP_OK + 0.4;
+    rpBox(k, 10, 8, 78, 24);
+    k.fillStyle = RP_Y; k.beginPath(); k.arc(26, 20, 6, 0, TAU); k.fill();
+    k.fillStyle = RP_W; k.font = `700 13px ${MONO}`; k.textAlign = 'left'; k.textBaseline = 'middle'; k.fillText(String(paid ? RP_GOLD - RP_COST : RP_GOLD), 40, 21);
+    const fa = seg(u, RP_OK + 0.4, RP_OK + 1.1);
+    if (fa > 0 && fa < 1) { k.globalAlpha = sa * (1 - fa); k.fillStyle = '#FF6B5B'; k.font = `800 14px ${MONO}`; k.fillText('−' + RP_COST, 94, 22 - 12 * out3(fa)); }
+    k.restore();
+  }
+  // 对话框：0.3–0.6 秒展开，复位时上下合拢
+  const op = out3(seg(u, 0.3, 0.6)) * (1 - inOut3(seg(u, SHOW, SHOW + 0.3)));
+  if (op > 0) {
+    const [x, y, wd, ht] = RP_DLG;
+    k.save(); k.translate(0, y + ht / 2); k.scale(1, op); k.translate(0, -(y + ht / 2));
+    rpBox(k, x, y, wd, ht);
+    if (op >= 1) {
+      rpBox(k, 24, 106, 52, 22); k.fillStyle = RP_Y; k.font = `800 12px ${SANS}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('商人', 50, 118);
+      // 逐字打出：只按时间取前 n 个字，不保留状态
+      const [line, a, b] = u >= RP_LINES[1][1] ? RP_LINES[1] : RP_LINES[0];
+      const cs = [...line], n = Math.floor(seg(u, a, b) * cs.length);
+      k.fillStyle = RP_W; k.font = `700 18px ${SANS}`; k.textAlign = 'left'; k.fillText(cs.slice(0, n).join(''), 34, 156);
+      if (u >= a && n < cs.length && Math.floor(u * 8) % 2 === 0) { const tw = k.measureText(cs.slice(0, n).join('')).width; k.fillRect(36 + tw, 146, 9, 18); }
+      if (n >= cs.length && Math.floor(u * 3) % 2 === 0) { k.beginPath(); k.moveTo(500, 184); k.lineTo(512, 184); k.lineTo(506, 191); k.closePath(); k.fill(); }
+    }
+    k.restore();
+  }
+  // 选项菜单：光标在两项之间移动，确认时闪两下
+  if (u >= RP_MENU[0] && u < RP_MENU[1]) {
+    const pop = out3(seg(u, RP_MENU[0], RP_MENU[0] + 0.15));
+    k.save(); k.translate(468, 65); k.scale(pop, pop); k.translate(-468, -65);
+    rpBox(k, 420, 30, 96, 70);
+    let cy = 0; RP_PICK.forEach(([t, i], j) => { if (u >= t) cy = j ? mix(RP_PICK[j - 1][1], i, inOut3(seg(u, t, t + 0.12))) : i; });
+    const sel = Math.round(cy);
+    ['买', '不买'].forEach((s, i) => { k.fillStyle = i === sel ? RP_Y : RP_W; k.font = `700 16px ${SANS}`; k.textAlign = 'left'; k.textBaseline = 'middle'; k.fillText(s, 450, 52 + i * 26); });
+    if (!(u >= RP_OK && Math.floor(u * 8) % 2)) { const ty = 52 + cy * 26; k.fillStyle = RP_Y; k.beginPath(); k.moveTo(431, ty - 6); k.lineTo(441, ty); k.lineTo(431, ty + 6); k.closePath(); k.fill(); }
+    k.restore();
+  }
+};

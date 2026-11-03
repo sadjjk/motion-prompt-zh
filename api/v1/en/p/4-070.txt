@@ -1,0 +1,15 @@
+Please use "Handscroll" (絵巻), filed under "East Asian tradition / Calligraphy & painting".
+Motion Prompt #4-070
+
+What it is: An East Asian handscroll look: a wooden-rollered scroll unrolls right to left revealing a line-and-wash street scene, with a title slip, a seal and a loupe on one figure
+What the sample shows: On a dark brown desk the left roller rolls away from the right one and the scroll opens. A pale blue river with a small boat, an arched bridge, gray-blue-roofed shops, a wine banner, willows and passers-by appear in line and wash. A vertical title slip 市井图卷 goes on at the head of the scroll and a red seal is stamped. A loupe moves from top right to a porter carrying a shoulder pole on the bridge, magnifying him 2.4 times. On reset the loupe goes away and the left roller rolls back to the right, closing the scroll.
+Spec:
+- Unroll: the left roller travels from x 506 to 34 over 0.3–2.2 s.
+- Title slip: 2.3 s; seal 2.6 s.
+- Loupe: moves to the porter over 3.0–3.8 s, radius 34, 2.4×.
+- Reset: from 5.4 s the left roller rolls back to the right.
+When to use it: Use it for timelines, city life and East Asian history.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-070.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

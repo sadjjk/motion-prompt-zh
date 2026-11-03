@@ -1,0 +1,90 @@
+// Motion Prompt #4-043 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Metro map / 地下鉄路線図
+// Category: Visual styles / Animation styles / Diagrams & boards
+// What happens: On white, red Line 1 grows and pauses at each station, which pops in on arrival; 博物馆 greys out with a closed tag, a yellow interchange branch draws at 市中心, and a train runs from 火车站 to 机场 before the map fades out.
+// Motion spec:
+//   - Background #FAFAF7; the red line #E4002B (6 px) turns only at 0°, 45° and 90°. The badge 1 号线 fades in at 0.2 s.
+//   - 0.2–4.2 s the line grows and pauses at each station; all 6 stations pop in with backOut on arrival, named in Chinese with small English.
+//   - 1.65 s 博物馆 turns grey with a 暂停服务 tag; 3.1–3.5 s a yellow #F2A900 branch draws from 市中心 with the tag 换乘 2 号线.
+//   - 4.2–5.3 s a train runs from 火车站 to 机场, turning with each segment; 5.4–6.0 s the whole map fades out.
+// When to use it: Use it for step-by-step processes, roadmaps and timelines that move from one stage to the next.
+// Tags: metro-map, subway, route, timeline, infographic, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-043
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 04
+// 04 地铁线路图：白底，红色 1 号线只走 0°/45°/90°，一站站长出、到站站点弹出；博物馆站变灰挂「暂停服务」，
+// 市中心站画出黄色支线和「换乘 2 号线」；列车从起点站开到终点站，整图淡出复位
+const MT_RED = '#E4002B', MT_GOLD = '#F2A900', MT_INK = '#1A1A1A';
+const MT_LINE = [[30, 170], [110, 170], [150, 130], [250, 130], [300, 80], [420, 80], [460, 40], [510, 40]];
+const MT_X = [[360, 14], [360, 80], [390, 110], [390, 196]];
+// [x, y, 中文, 英文, 类型 0 普通 / 1 端点 / 2 换乘, 标签 dx, dy]
+const MT_ST = [
+  [30, 170, '火车站', 'Railway Sta.', 1, -12, 26], [95, 170, '人民路', 'Renmin Rd', 0, -16, 24], [200, 130, '博物馆', 'Museum', 0, -18, -14],
+  [275, 105, '大学城', 'University', 0, 10, 20], [360, 80, '市中心', 'City Centre', 2, -54, -16], [510, 40, '机场', 'Airport', 1, -26, 26]];
+const MT_OFF = 2, MT_XST = 4;                                  // 暂停服务站、换乘站的下标
+const MT_LEN = polyLen(MT_LINE);
+// 每站在线路上的累计长度（站点都落在折线上，取最近的采样点）
+const MT_AT = MT_ST.map(([x, y]) => { let best = 0, bd = 1e9; for (let l = 0; l <= MT_LEN; l += 0.5) { const [px, py] = polyAt(MT_LINE, l), d = Math.hypot(px - x, py - y); if (d < bd) { bd = d; best = l; } } return best; });
+// 线路生长关键帧 [时刻, 长度]：每段停在一站
+const MT_KEYS = [[0.2, 0], [0.7, MT_AT[1]], [0.95, MT_AT[1]], [1.4, MT_AT[2]], [1.9, MT_AT[2]], [2.3, MT_AT[3]], [2.55, MT_AT[3]], [3.0, MT_AT[4]], [3.7, MT_AT[4]], [4.2, MT_LEN]];
+const MT_TRAIN = [4.2, 5.3];                                  // 列车从起点开到终点的时段
+CELLS[3] = (k, w, h, u) => {
+  k.fillStyle = '#FAFAF7'; k.fillRect(0, 0, CW, CH);
+  let l = 0;
+  for (let i = 0; i < MT_KEYS.length - 1; i++) if (u >= MT_KEYS[i][0]) l = mix(MT_KEYS[i][1], MT_KEYS[i + 1][1], inOut3(seg(u, MT_KEYS[i][0], MT_KEYS[i + 1][0])));
+  const fade = 1 - resetK(u);
+  k.save(); k.globalAlpha = fade; k.lineCap = 'round'; k.lineJoin = 'round';
+  // 线路牌
+  k.globalAlpha = fade * seg(u, 0.2, 0.4);
+  k.fillStyle = MT_RED; k.beginPath(); k.roundRect(16, 14, 22, 22, 4); k.fill();
+  k.fillStyle = '#fff'; k.font = `900 15px ${DISP}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('1', 27, 26);
+  k.fillStyle = MT_INK; k.font = `800 15px ${SANS}`; k.textAlign = 'left'; k.fillText('1 号线', 44, 26);
+  k.globalAlpha = fade;
+  // 底线（灰）+ 生长中的红线
+  k.lineWidth = 6; k.strokeStyle = '#E6E6E2'; strokePts(k, MT_LINE);
+  k.strokeStyle = MT_RED; if (l > 0) strokePts(k, polyCut(MT_LINE, l));
+  // 换乘支线：到市中心站后画出
+  k.strokeStyle = MT_GOLD; strokeProg(k, MT_X, inOut3(seg(u, 3.1, 3.5)));
+  // 站点：线路到站才弹出
+  MT_ST.forEach(([x, y, cn, en, kind, dx, dy], i) => {
+    if (u < 0.2 || l < MT_AT[i] - 0.5) return;
+    const reach = MT_KEYS.find(kf => kf[1] >= MT_AT[i] - 0.5)[0];
+    const sc = backOut(seg(u, reach, reach + 0.25));
+    const off = i === MT_OFF && u >= 1.6;
+    k.save(); k.translate(x, y); k.scale(sc, sc);
+    k.fillStyle = '#fff'; k.strokeStyle = off ? '#AAA' : kind ? MT_INK : MT_RED; k.lineWidth = kind ? 3 : 2;
+    k.beginPath(); k.arc(0, 0, kind ? 7 : 4.5, 0, TAU); k.fill(); k.stroke();
+    k.restore();
+    k.globalAlpha = fade * seg(u, reach, reach + 0.2) * (off ? 0.45 : 1);
+    k.textAlign = 'left'; k.textBaseline = 'alphabetic';
+    k.fillStyle = MT_INK; k.font = `800 13px ${SANS}`; k.fillText(cn, x + dx, y + dy);
+    k.fillStyle = '#888'; k.font = `500 7px ${MONO}`; k.fillText(en, x + dx, y + dy + 10);
+    k.globalAlpha = fade;
+  });
+  // 「暂停服务」「换乘 2 号线」标签
+  const tag = (s, x, y, bg, fg, a) => {
+    if (a <= 0) return;
+    k.globalAlpha = fade * a; k.font = `800 9px ${SANS}`; const tw = k.measureText(s).width;
+    k.fillStyle = bg; k.beginPath(); k.roundRect(x, y, tw + 10, 15, 3); k.fill();
+    k.fillStyle = fg; k.textAlign = 'left'; k.textBaseline = 'middle'; k.fillText(s, x + 5, y + 8);
+    k.globalAlpha = fade;
+  };
+  tag('暂停服务', 180, 138, '#888', '#fff', seg(u, 1.65, 1.8));
+  tag('换乘 2 号线', 366, 10, MT_GOLD, MT_INK, seg(u, 3.4, 3.55));
+  // 列车：线路全部建成后从起点开到终点，车头朝向取当前路段方向
+  if (u >= MT_TRAIN[0]) {
+    const tl = MT_LEN * inOut3(seg(u, MT_TRAIN[0], MT_TRAIN[1]));
+    const [tx, ty] = polyAt(MT_LINE, tl), [bx, by] = polyAt(MT_LINE, Math.max(0, tl - 2)), [fx, fy] = polyAt(MT_LINE, Math.min(MT_LEN, tl + 2));
+    k.save(); k.translate(tx, ty); k.rotate(Math.atan2(fy - by, fx - bx));
+    k.fillStyle = MT_INK; k.strokeStyle = '#fff'; k.lineWidth = 1.5;
+    k.beginPath(); k.roundRect(-12, -5.5, 24, 11, 5.5); k.fill(); k.stroke();
+    k.restore();
+  }
+  k.restore();
+};

@@ -1,0 +1,107 @@
+// Motion Prompt #4-040 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// 黒板とチョーク / Chalkboard lesson
+// 分類: ビジュアルスタイル / アニメーションの画風 / 図解・板書
+// 何が起きるか: チョークが直角三角形と3辺の正方形を描き、a²・b²・c² を書き込み、赤で c² を囲んで黄色で公式に二重線を引き、黒板消しが左から右へ拭き取る。
+// 動きの仕様:
+//   - 黒板 #1F4A42 に左上のハイライト、下端に高さ 10 px のチョーク受け。チョーク線は 3 本ずらした破線を重ねて粒状にする（線幅 2–2.4 px）
+//   - 0.6–1.4 秒に直角三角形（直角をはさむ辺 60 / 45 px）、1.6–2.9 秒に3辺の正方形を順に描き、各正方形の 0.2 秒後に a²・b²・c² を書く
+//   - 3.2–3.6 秒に赤チョーク #F28B82 で c² を囲む。3.7–4.3 秒に黄 #F5D76E で 30 px の a² + b² = c²、4.35–4.75 秒に下線 2 本、4.6–5.1 秒に 3² + 4² = 5²
+//   - 5.4–6.2 秒に黒板消しが左から右へ通過し、残った白い拭き跡（4.5%）が 6.0–6.4 秒に消える
+// 使いどころ: 数学や理科の解説、公式の導出、授業風の知識動画に。
+// タグ: chalkboard, chalk, hand-drawn, math, explainer, education, write-on
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-040
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 01
+// 01 粉笔黑板：墨绿黑板上，粉笔一笔笔画出直角三角形和三边上的正方形，a²、b²、c² 晚半拍写进方格，红粉笔圈出 c²，
+// 黄粉笔写出 a² + b² = c² 并画双下划线；最后板擦从左到右擦净，擦痕散去复位
+const CB_BOARD = '#1F4A42', CB_W = '#EEECE3', CB_Y = '#F5D76E', CB_R = '#F28B82';
+// 粉笔线：3 道错开的细线 + 不规则虚线，模拟粉笔在板面上的颗粒断续
+function chalkLine(k, pts, prog, col, wd, seed) {
+  if (prog <= 0) return;
+  const part = polyCut(pts, polyLen(pts) * clamp(prog));
+  k.save(); k.lineCap = 'round'; k.lineJoin = 'round'; k.strokeStyle = col;
+  for (let p = 0; p < 3; p++) {
+    const ox = (hash(seed * 7 + p) - 0.5) * wd * 0.7, oy = (hash(seed * 13 + p) - 0.5) * wd * 0.7;
+    k.globalAlpha = 0.55 + 0.25 * hash(seed + p * 3);
+    k.lineWidth = wd * (0.5 + 0.2 * p);
+    k.setLineDash([3 + hash(seed + p) * 5, 0.5 + hash(seed * 3 + p) * 1.2]);
+    k.save(); k.translate(ox, oy); strokePts(k, part); k.restore();
+  }
+  k.restore();
+}
+// 粉笔字：从左往右写出（clip），叠一层错位描影，再撒板面色细点做颗粒；align 'center' 时 x 为中心
+function chalkText(k, s, x, y, size, col, prog, seed, align = 'left') {
+  if (prog <= 0) return;
+  k.save();
+  k.font = `700 ${size}px ${KAI}`; k.textAlign = 'left'; k.textBaseline = 'alphabetic';
+  const w = k.measureText(s).width, x0 = align === 'center' ? x - w / 2 : x;
+  k.beginPath(); k.rect(x0 - 2, y - size, (w + 4) * clamp(prog), size * 1.3); k.clip();
+  k.fillStyle = col; k.globalAlpha = 0.9; k.fillText(s, x0, y);
+  k.globalAlpha = 0.35; k.fillText(s, x0 + 0.6, y + 0.5);
+  k.globalAlpha = 0.55; k.fillStyle = CB_BOARD;
+  const n = Math.round(w * size / 14);
+  for (let i = 0; i < n; i++) k.fillRect(x0 + hash(seed * 31 + i) * w, y - size * 0.85 + hash(seed * 17 + i * 3) * size, 0.9, 0.9);
+  k.restore();
+}
+// 3-4-5 直角三角形：直角顶点 CB_O，直角边 a = 60（水平）、b = 45（竖直），斜边 c = 75
+const CB_O = [200, 128], CB_A = 60, CB_B = 45;
+const CB_PA = [CB_O[0] + CB_A, CB_O[1]], CB_PB = [CB_O[0], CB_O[1] - CB_B];
+const CB_TRI = [CB_PB, CB_O, CB_PA, CB_PB];
+const CB_SQA = [CB_O, [CB_O[0], CB_O[1] + CB_A], [CB_PA[0], CB_O[1] + CB_A], CB_PA];
+const CB_SQB = [CB_O, [CB_O[0] - CB_B, CB_O[1]], [CB_O[0] - CB_B, CB_PB[1]], CB_PB];
+// 斜边上的正方形向右上外翻：沿斜边法向 (b, -a) 平移
+const CB_SQC = [CB_PB, [CB_PB[0] + CB_B, CB_PB[1] - CB_A], [CB_PA[0] + CB_B, CB_PA[1] - CB_A], CB_PA];
+const CB_RT = [[CB_O[0] + 9, CB_O[1]], [CB_O[0] + 9, CB_O[1] - 9], [CB_O[0], CB_O[1] - 9]];   // 直角标记
+const CB_CC = [(CB_PB[0] + CB_PA[0] + CB_B) / 2, (CB_PB[1] + CB_PA[1] - CB_A) / 2];           // c² 方格中心
+// 红圈套住 c² 字样：字以 CB_CC[1] + 8 为基线、24px，字形视觉中心约在 CB_CC[1]，圈心与之重合
+const CB_RING = []; for (let i = 0; i <= 48; i++) { const a = -Math.PI * 0.9 + (i / 48) * TAU * 1.06; CB_RING.push([CB_CC[0] + Math.cos(a) * 22, CB_CC[1] + Math.sin(a) * 17]); }
+const CB_UL1 = [[338, 92], [430, 91], [512, 93]], CB_UL2 = [[342, 99], [432, 98], [508, 100]];
+CELLS[0] = (k, w, h, u) => {
+  // 黑板底：偏左上的高光 + 两团擦拭留下的白雾
+  const g = k.createRadialGradient(150, 50, 10, 200, 80, 420);
+  g.addColorStop(0, '#2C5E54'); g.addColorStop(0.45, CB_BOARD); g.addColorStop(1, '#173A34');
+  k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  [[110, 50, 120, 0.06], [420, 150, 110, 0.05]].forEach(([x, y, r, a]) => {
+    const hz = k.createRadialGradient(x, y, 0, x, y, r); hz.addColorStop(0, `rgba(255,255,255,${a})`); hz.addColorStop(1, 'rgba(255,255,255,0)');
+    k.fillStyle = hz; k.fillRect(0, 0, CW, CH);
+  });
+  // 板擦：5.4–6.2 秒从左到右扫过，擦过的部分不再绘制
+  const ex = mix(-40, CW + 40, inOut3(seg(u, SHOW, SHOW + 0.8)));
+  k.save(); k.beginPath(); k.rect(ex, 0, CW, CH); k.clip();
+  const P = (a, b) => seg(u, a, b);
+  chalkText(k, '勾股定理', 24, 40, 24, CB_W, P(0.2, 0.7), 1);
+  chalkLine(k, CB_TRI, P(0.6, 1.4), CB_W, 2.4, 2);
+  chalkLine(k, CB_RT, P(1.4, 1.55), CB_W, 1.6, 3);
+  chalkLine(k, CB_SQA, P(1.6, 2.0), CB_W, 2.0, 4);
+  chalkLine(k, CB_SQB, P(2.0, 2.4), CB_W, 2.0, 5);
+  chalkLine(k, CB_SQC, P(2.4, 2.9), CB_W, 2.0, 6);
+  // 方格里的面积标注晚半拍写出
+  chalkText(k, 'a²', CB_O[0] + CB_A / 2, CB_O[1] + CB_A / 2 + 8, 22, CB_W, P(2.0, 2.2), 7, 'center');
+  chalkText(k, 'b²', CB_O[0] - CB_B / 2, CB_O[1] - CB_B / 2 + 8, 20, CB_W, P(2.4, 2.6), 8, 'center');
+  chalkText(k, 'c²', CB_CC[0], CB_CC[1] + 8, 24, CB_W, P(2.9, 3.1), 9, 'center');
+  chalkLine(k, CB_RING, P(3.2, 3.6), CB_R, 2.4, 10);
+  chalkText(k, 'a² + b² = c²', 340, 82, 30, CB_Y, P(3.7, 4.3), 11);
+  chalkLine(k, CB_UL1, P(4.35, 4.55), CB_Y, 2.2, 12);
+  chalkLine(k, CB_UL2, P(4.55, 4.75), CB_Y, 2.2, 13);
+  chalkText(k, '3² + 4² = 5²', 352, 140, 22, CB_W, P(4.6, 5.1), 14);
+  k.restore();
+  // 擦过的地方留一道淡白擦痕，6.0–6.4 秒散去，循环起点是干净黑板
+  const smear = 1 - seg(u, 6.0, CYC);
+  if (u > SHOW && smear > 0) {
+    k.fillStyle = `rgba(255,255,255,${0.045 * smear})`; k.fillRect(0, 16, clamp(ex, 0, CW), 170);
+    k.save(); k.translate(ex, 100); k.rotate(-0.08);
+    k.fillStyle = '#6B4A2E'; k.fillRect(-18, -9, 36, 12); k.fillStyle = '#D9D4C7'; k.fillRect(-18, 3, 36, 6);
+    k.restore();
+  }
+  // 粉笔槽与两截粉笔
+  const tr = k.createLinearGradient(0, 198, 0, CH);
+  tr.addColorStop(0, '#80583A'); tr.addColorStop(1, '#5A3A22');
+  k.fillStyle = tr; k.fillRect(0, 198, CW, 10);
+  k.fillStyle = '#F4F1E6'; k.fillRect(452, 193, 28, 6); k.fillStyle = CB_Y; k.fillRect(486, 194, 18, 5);
+};

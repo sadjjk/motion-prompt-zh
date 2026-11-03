@@ -1,0 +1,109 @@
+// Motion Prompt #4-058 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// のんびり農場ピクセル / Cozy farm pixel
+// 分類: ビジュアルスタイル / 芸術の流派 / デジタル・レトロ
+// 何が起きるか: 柵のある緑の農場を真上から見る。右上の木枠の HUD は朝 6:00 から 10 分ずつ時計が進む。農家が畦道を歩いて 5 列の畑に順に水をやると、土の色が濃くなる。作物は芽、葉、実った南瓜の 3 段階で育つ。農家が戻って 1 列ずつ収穫すると「+5」が浮かび、今日の収入が増える。最後は夜の青が画面を覆い、明けると朝 6:00 と種に戻る。
+// 動きの仕様:
+//   - 地 #6DB54A、1 ドット 4 px。畑 5 列 × 2 行
+//   - 0.6 秒から 0.32 秒おきに列ごとに水やり、各列の水やり 0.5 秒後に芽
+//   - 葉は 2.6 秒から、南瓜は 3.2 秒から列ごとにずれて育つ
+//   - 3.7 秒から 0.28 秒おきに列ごとに収穫、1 株 +5、合計 +50
+//   - 時計は 6:00 から 0.45 秒ごとに 10 分進む
+//   - 5.4–5.9 秒に夜で暗くなり、5.9 秒に朝 6:00 と種に戻り、6.4 秒までに明ける
+// 使いどころ: 農業、季節、成長の過程、日々の習慣づくりなど、少しずつ育つ様子を見せたい解説に。
+// タグ: pixel-art, farming-game, top-down, hud, crops, cozy, explainer
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-058
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 19
+// 19 田园像素：俯视春天农场，4px 一格整数格绘制；右上角木框 HUD 显示时钟（按 10 分钟跳）和今日收入。
+// 农夫沿田埂给两行作物逐列浇水，作物分 3 个阶段长大，再逐列收获，每株 +5。复位时入夜变暗，天亮回到清晨、作物回到种子
+const FM_PX = 4;                                                 // 像素格边长
+const FM_COLS = 5, FM_COL_X0 = 14, FM_COL_DX = 11;               // 列数、首列 x、列距（单位：格）
+const FM_ROWS_Y = [14, 32], FM_PLOT = 7;                         // 两行地块的 y、地块边长（格）
+const FM_LANE_Y = 22;                                            // 农夫走的田埂 y（格）
+const FM_WATER = i => 0.6 + i * 0.32;                            // 第 i 列浇水时刻
+const FM_GROW = i => [FM_WATER(i) + 0.5, 2.6 + i * 0.12, 3.2 + i * 0.08]; // 三个生长阶段的出现时刻
+const FM_HARV = i => 3.7 + i * 0.28;                             // 第 i 列收获时刻
+const FM_GOLD = 5;                                               // 每株收入
+const FM_CLOCK0 = 6 * 60, FM_TICK = 0.45;                        // 清晨 6:00 起，每 0.45 秒跳 10 分钟
+const FM_NIGHT = [SHOW, SHOW + 0.5, CYC];                        // 入夜、翻到次日、天亮
+const FM_START_X = 4;
+CELLS[18] = (k, w, h, u) => {
+  // 入夜后（翻到次日那一刻起）场景状态回到 0 秒，保证 6.4 秒与 0 秒一致
+  const t = u >= FM_NIGHT[1] ? 0 : u;
+  const P = (x, y, ww, hh, c) => { k.fillStyle = c; k.fillRect(Math.round(x) * FM_PX, Math.round(y) * FM_PX, ww * FM_PX, hh * FM_PX); };
+  const GW = Math.ceil(CW / FM_PX), GH = Math.ceil(CH / FM_PX);
+  // 草地、草簇、小花
+  P(0, 0, GW, GH, '#6DB54A');
+  for (let i = 0; i < 90; i++) { const x = Math.floor(hash(i) * GW), y = Math.floor(hash(i + 50) * GH); P(x, y, 2, 1, '#57A03C'); }
+  for (let i = 0; i < 18; i++) P(Math.floor(hash(i + 400) * GW), 46 + Math.floor(hash(i + 420) * 5), 1, 1, hash(i + 440) > 0.5 ? '#F7E26B' : '#F59AB6');
+  // 上方木栅栏
+  for (let x = 0; x < GW; x += 4) P(x, 2, 1, 5, '#C08A52');
+  P(0, 3, GW, 1, '#8A5A30'); P(0, 5, GW, 1, '#8A5A30');
+  // 田地
+  P(FM_COL_X0 - 3, FM_ROWS_Y[0] - 2, FM_COLS * FM_COL_DX + 2, FM_ROWS_Y[1] + FM_PLOT + 2 - FM_ROWS_Y[0] + 2, '#B88A55');
+  let today = 0;
+  for (let i = 0; i < FM_COLS; i++) {
+    const x = FM_COL_X0 + i * FM_COL_DX, wet = t >= FM_WATER(i), harvested = t >= FM_HARV(i);
+    if (harvested) today += FM_GOLD * FM_ROWS_Y.length;
+    const [g1, g2, g3] = FM_GROW(i);
+    FM_ROWS_Y.forEach(y => {
+      P(x, y, FM_PLOT, FM_PLOT, wet ? '#6E4426' : '#9A6A3A');
+      P(x, y + FM_PLOT - 1, FM_PLOT, 1, wet ? '#5A361E' : '#86592F');
+      const cx = x + 3, cy = y + 3;
+      if (harvested) return;
+      if (t < g1) { P(cx, cy + 1, 1, 1, '#E8D08A'); return; }                // 种子
+      if (t < g2) { P(cx, cy, 1, 2, '#5DBE3B'); P(cx - 1, cy, 1, 1, '#86CF5E'); P(cx + 1, cy - 1, 1, 1, '#86CF5E'); return; } // 嫩芽
+      if (t < g3) { P(cx, cy - 1, 1, 3, '#3E8E3A'); P(cx - 2, cy - 1, 2, 1, '#5DBE3B'); P(cx + 1, cy - 2, 2, 1, '#5DBE3B'); P(cx - 1, cy + 1, 3, 1, '#86CF5E'); return; } // 长叶
+      P(cx - 2, cy - 3, 5, 2, '#3E8E3A'); P(cx - 1, cy - 4, 3, 1, '#5DBE3B');  // 成熟：叶冠 + 南瓜
+      P(cx - 2, cy - 1, 5, 3, '#F28C28'); P(cx - 1, cy - 1, 1, 2, '#F7B04A'); P(cx, cy - 1, 1, 3, '#C9661A');
+    });
+  }
+  // 农夫位置：沿田埂到每列浇水 → 回到起点 → 逐列收获
+  const keys = [[0, FM_START_X], [0.4, FM_START_X]];
+  for (let i = 0; i < FM_COLS; i++) { const x = FM_COL_X0 + i * FM_COL_DX + 2; keys.push([FM_WATER(i) - 0.12, x], [FM_WATER(i) + 0.15, x]); }
+  keys.push([2.2, FM_COL_X0 + (FM_COLS - 1) * FM_COL_DX + 2], [3.0, FM_START_X]);
+  for (let i = 0; i < FM_COLS; i++) { const x = FM_COL_X0 + i * FM_COL_DX + 2; keys.push([FM_HARV(i) - 0.12, x], [FM_HARV(i) + 0.12, x]); }
+  let px = keys[keys.length - 1][1], moving = false;
+  for (let i = 1; i < keys.length; i++) {
+    if (t <= keys[i][0]) { const e = seg(t, keys[i - 1][0], keys[i][0]); px = mix(keys[i - 1][1], keys[i][1], e); moving = e > 0 && e < 1 && keys[i][1] !== keys[i - 1][1]; break; }
+  }
+  const step = moving ? Math.floor(u * 8) % 2 : 0, py = FM_LANE_Y - step;
+  P(px, py + 9, 1, 2, '#3B2A1E'); P(px + 3, py + 9, 1, 2, '#3B2A1E');          // 腿
+  P(px, py + 5, 4, 4, '#3D6FB8');                                              // 衣服
+  P(px, py + 1, 4, 4, '#F2C9A0'); P(px + 1, py + 2, 1, 1, '#3B2A1E'); P(px + 3, py + 2, 1, 1, '#3B2A1E');
+  P(px - 1, py, 6, 1, '#E8C35A'); P(px, py - 1, 4, 1, '#E8C35A');             // 草帽
+  // 浇水：水壶在右手，浇水时上下两行各落三滴水
+  const wi = [...Array(FM_COLS).keys()].find(i => Math.abs(t - FM_WATER(i)) < 0.2);
+  if (t < 2.2) { P(px + 4, py + 5, 3, 2, '#5A8FD8'); P(px + 7, py + 4, 1, 1, '#5A8FD8'); }
+  if (wi !== undefined) {
+    const x = FM_COL_X0 + wi * FM_COL_DX, f = Math.floor(u * 12) % 3;
+    FM_ROWS_Y.forEach(y => { for (let d = 0; d < 3; d++) P(x + 1 + d * 2, y + ((f + d) % 3) * 2, 1, 1, '#9FD3FF'); });
+  }
+  // 收获飘字 +5
+  k.textAlign = 'center'; k.textBaseline = 'middle'; k.font = `800 11px ${MONO}`;
+  for (let i = 0; i < FM_COLS; i++) {
+    const p = seg(t, FM_HARV(i), FM_HARV(i) + 0.6); if (p <= 0 || p >= 1) continue;
+    k.globalAlpha = 1 - p; k.fillStyle = '#FFF3A0';
+    FM_ROWS_Y.forEach(y => k.fillText('+' + FM_GOLD, (FM_COL_X0 + i * FM_COL_DX + 3.5) * FM_PX, (y - 1) * FM_PX - p * 14));
+    k.globalAlpha = 1;
+  }
+  // HUD 木框：时钟按 10 分钟跳、今日收入
+  const hx = 400, hy = 8, hw = 128, hh = 50;
+  k.fillStyle = '#5C3317'; k.fillRect(hx, hy, hw, hh); k.fillStyle = '#C98A43'; k.fillRect(hx + 3, hy + 3, hw - 6, hh - 6);
+  k.fillStyle = '#F6E3B4'; k.fillRect(hx + 6, hy + 6, hw - 12, hh - 12);
+  const mins = FM_CLOCK0 + Math.floor(clamp(t, 0, SHOW) / FM_TICK) * 10;
+  k.fillStyle = '#4A2A12'; k.textAlign = 'left'; k.font = `800 13px ${MONO}`;
+  k.fillText(`${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, '0')}`, hx + 12, hy + 18);
+  k.font = `700 10px ${SANS}`; k.fillText('上午', hx + 60, hy + 18);
+  k.fillStyle = '#F2B21B'; k.beginPath(); k.arc(hx + 18, hy + 35, 5, 0, TAU); k.fill(); k.strokeStyle = '#7A4E10'; k.lineWidth = 1.5; k.stroke();
+  k.fillStyle = '#4A2A12'; k.font = `800 11px ${MONO}`; k.fillText(`今日 +${today}`, hx + 28, hy + 35);
+  // 入夜 → 天亮：深蓝罩层先压暗再退去，状态在最暗时翻回清晨
+  const night = u < FM_NIGHT[1] ? inOut3(seg(u, FM_NIGHT[0], FM_NIGHT[1])) : 1 - inOut3(seg(u, FM_NIGHT[1], FM_NIGHT[2]));
+  if (night > 0) { k.fillStyle = `rgba(16,20,56,${(0.85 * night).toFixed(3)})`; k.fillRect(0, 0, CW, CH); }
+};

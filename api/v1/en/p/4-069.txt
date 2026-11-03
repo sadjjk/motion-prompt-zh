@@ -1,0 +1,16 @@
+Please use "Copperplate botanical" (銅版博物画), filed under "Craft & patterns / Print & handmade".
+Motion Prompt #4-069
+
+What it is: A copperplate natural-history plate look: fine ink lines and 45° hatching engrave the plant on old paper, a pale wash follows a beat later, with captions alongside
+What the sample shows: A double-ruled plate on foxed old paper. A fine ink stem grows, four toothed basal leaves are drawn, and the flower head and the downy seed ball open out radially. 45° hatching sweeps from top left to bottom right across the leaves and the flower centre, and a beat later a pale green and yellow wash seeps out from the centres. Red part numbers 1–3 appear, and on the left PL. XII, 蒲公英, the Latin name and three caption lines come in one by one. On reset the wash fades, then the hatching and ink lines retract to a blank plate.
+Spec:
+- Ink lines: stem from 0.3 s, 4 basal leaves 0.18 s apart.
+- Hatching: 45°, spacing 3.2, sweeps over 1.4–2.9 s.
+- Wash: seeps out from the centres over 2.7–3.6 s, offset 1.5 px from the lines.
+- Captions: from 1.0 s, one every 0.45 s, 6 in all.
+- Reset: the wash fades first from 5.4 s; hatching and lines retract from 5.65 s.
+When to use it: Use it for plants and animals, natural history, and objects or inventions.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-069.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

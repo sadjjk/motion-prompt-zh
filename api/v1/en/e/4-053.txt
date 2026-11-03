@@ -1,0 +1,105 @@
+// Motion Prompt #4-053 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Card battle / カードバトル
+// Category: Visual styles / Animation styles / Media & genres
+// What happens: On green felt, 骑士 and 巨龙 arc out of the deck on the left, flipping face up as they land. The knight rams but is blocked: MISS. The dragon counter-rams, a −5 pops over the knight, its card shakes and its HP bar drops from 8 to 3. Finally both cards flip back and fly home to the deck.
+// Motion spec:
+//   - Felt radial gradient #1E5A45→#0F3B2E→#082219, card face #FDF7E8→#EADCB8, back #7A1E1E/#5A1414 stripes with a gold #E9C46A border; cards are 74×104 px.
+//   - 0.3 s the knight and 0.8 s the dragon fly from the deck at (44, 104) along a 30 px arc to x 200 / 380, flipping over on the way (0.5 s each).
+//   - 1.6–2.1 s the knight dashes 100 px and back; MISS in #FF5A4E pops at the moment of impact.
+//   - 2.7–3.2 s the dragon counter-attacks: −5 pops over the knight, its card shakes and HP drops 8 → 3.
+//   - 5.4–6.2 s both cards flip back face down and arc home to the deck.
+// When to use it: Use it for showdowns, strategy comparisons and explaining who beats whom like a game.
+// Tags: card-game, battle, flip, damage-number, hp-bar, game, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-053
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 14
+// 14 卡牌对战：绿绒桌面，左下牌堆里两张卡依次翻面打出——「骑士」攻击「巨龙」被挡下（MISS），
+// 「巨龙」反击冲撞，伤害数字弹出、骑士震动、血条减少；复位时两张卡翻回背面飞回牌堆
+const CD_GOLD = '#E9C46A', CD_DARK = '#2A2016', CD_MISS = '#FF5A4E';
+const CD_CW = 74, CD_CH = 104;                                  // 卡牌宽高
+const CD_DECK = [44, 104];                                      // 牌堆中心
+// [名称, 边框色, 图案, 攻击, 生命, 落位中心, 打出时刻]
+const CD_CARDS = [['骑士', '#8A9BB8', 'sword', 3, 8, [200, 104], 0.3], ['巨龙', '#C8352B', 'fire', 5, 9, [380, 104], 0.8]];
+const CD_ATK1 = [1.6, 2.1], CD_ATK2 = [2.7, 3.2], CD_DMG = 5;  // 骑士攻击、巨龙反击时段；反击伤害
+const CD_DASH = 100;                                             // 冲撞前冲距离：两卡相距 180 px，冲到最远时刚好压上对方边缘
+const CD_BACK = [SHOW, SHOW + 0.8];                              // 复位：翻回背面并飞回牌堆
+function cdBack(k) {
+  k.fillStyle = '#7A1E1E'; k.beginPath(); k.roundRect(-CD_CW / 2, -CD_CH / 2, CD_CW, CD_CH, 7); k.fill();
+  k.save(); k.clip(); k.fillStyle = '#5A1414';
+  for (let i = -CD_CH; i < CD_CW + CD_CH; i += 12) { k.beginPath(); k.moveTo(-CD_CW / 2 + i, -CD_CH / 2); k.lineTo(-CD_CW / 2 + i + 6, -CD_CH / 2); k.lineTo(-CD_CW / 2 + i + 6 - CD_CH, CD_CH / 2); k.lineTo(-CD_CW / 2 + i - CD_CH, CD_CH / 2); k.closePath(); k.fill(); }
+  k.restore();
+  k.strokeStyle = CD_GOLD; k.lineWidth = 3; k.beginPath(); k.roundRect(-CD_CW / 2 + 1.5, -CD_CH / 2 + 1.5, CD_CW - 3, CD_CH - 3, 6); k.stroke();
+}
+function cdFace(k, [name, col, art, atk, hp], hpNow) {
+  const g = k.createLinearGradient(-CD_CW / 2, -CD_CH / 2, CD_CW / 2, CD_CH / 2); g.addColorStop(0, '#FDF7E8'); g.addColorStop(1, '#EADCB8');
+  k.fillStyle = g; k.beginPath(); k.roundRect(-CD_CW / 2, -CD_CH / 2, CD_CW, CD_CH, 7); k.fill();
+  k.strokeStyle = col; k.lineWidth = 4; k.beginPath(); k.roundRect(-CD_CW / 2 + 2, -CD_CH / 2 + 2, CD_CW - 4, CD_CH - 4, 6); k.stroke();
+  k.fillStyle = CD_DARK; k.font = `800 12px ${SANS}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText(name, 0, -CD_CH / 2 + 14);
+  k.fillStyle = CD_DARK; k.beginPath(); k.roundRect(-28, -28, 56, 42, 4); k.fill();
+  if (art === 'sword') {
+    k.fillStyle = '#D8DEE8'; k.fillRect(-2, -24, 4, 24); k.fillStyle = CD_GOLD; k.fillRect(-9, 0, 18, 3); k.fillRect(-1.5, 3, 3, 7);
+  } else {
+    k.fillStyle = '#FF8A3D'; k.beginPath(); k.moveTo(0, -24); k.quadraticCurveTo(16, -4, 8, 10); k.quadraticCurveTo(0, 2, -8, 10); k.quadraticCurveTo(-16, -4, 0, -24); k.fill();
+    k.fillStyle = '#FFE08A'; k.beginPath(); k.moveTo(0, -10); k.quadraticCurveTo(7, 0, 3, 9); k.lineTo(-3, 9); k.quadraticCurveTo(-7, 0, 0, -10); k.fill();
+  }
+  k.font = `800 11px ${MONO}`; k.fillStyle = CD_DARK; k.textAlign = 'left'; k.fillText('⚔' + atk, -30, 26);
+  // 血条：按当前生命 / 最大生命缩短
+  k.fillStyle = 'rgba(42,32,22,0.25)'; k.fillRect(-30, 36, 60, 6);
+  k.fillStyle = hpNow / hp > 0.5 ? '#4CAF6A' : '#E07A3A'; k.fillRect(-30, 36, 60 * hpNow / hp, 6);
+  k.fillStyle = CD_DARK; k.textAlign = 'right'; k.fillText('♥' + hpNow, 30, 26);
+}
+CELLS[13] = (k, w, h, u) => {
+  const bg = k.createRadialGradient(CW / 2, CH * 0.45, 0, CW / 2, CH * 0.45, CW * 0.6);
+  bg.addColorStop(0, '#1E5A45'); bg.addColorStop(0.55, '#0F3B2E'); bg.addColorStop(1, '#082219');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  k.save(); k.strokeStyle = 'rgba(255,255,255,0.12)'; k.setLineDash([6, 5]); k.lineWidth = 1.5; k.beginPath(); k.roundRect(110, 18, 380, 172, 14); k.stroke(); k.restore();
+  // 牌堆：几张背面叠在一起，始终在场
+  for (let i = 3; i >= 0; i--) { k.save(); k.translate(CD_DECK[0] - i * 1.5, CD_DECK[1] - i * 1.5); cdBack(k); k.restore(); }
+  const back = inOut3(seg(u, CD_BACK[0], CD_BACK[1]));
+  const hit1 = seg(u, CD_ATK1[0], CD_ATK1[1]), hit2 = seg(u, CD_ATK2[0], CD_ATK2[1]);
+  const knightHp = u >= mix(CD_ATK2[0], CD_ATK2[1], 0.5) ? CD_CARDS[0][4] - CD_DMG : CD_CARDS[0][4];
+  // 冲撞的一方画在上层，压住被攻击的卡
+  const order = hit1 > 0 && hit1 < 1 ? [1, 0] : [0, 1];
+  order.forEach(i => {
+    const c = CD_CARDS[i];
+    const [, , , , hp, [tx, ty], t0] = c;
+    const play = out3(seg(u, t0, t0 + 0.5));
+    if (play <= 0) return;
+    // 打出：从牌堆沿弧线飞到落位，途中翻面（scaleX 过 0 时换面）；复位时倒过来
+    const p = play * (1 - back);
+    let x = mix(CD_DECK[0], tx, p), y = mix(CD_DECK[1], ty, p) - Math.sin(Math.PI * p) * 30;
+    const flip = Math.cos(Math.PI * (1 - p));                  // -1 = 背面，1 = 正面
+    // 冲撞：前半冲向对方，后半弹回
+    const atk = i === 0 ? hit1 : hit2;
+    if (atk > 0 && atk < 1) x += (i === 0 ? 1 : -1) * CD_DASH * Math.sin(Math.PI * atk);
+    // 被击中的卡震动
+    let rot = 0;
+    if (i === 0 && hit2 > 0.5 && hit2 < 1) { const s = (1 - hit2) * 2; x += Math.sin(u * 90) * 5 * s; rot = Math.sin(u * 70) * 0.06 * s; }
+    if (i === 1 && hit1 > 0.5 && hit1 < 1) x += Math.sin(u * 90) * 1.5 * (1 - hit1);
+    k.save(); k.translate(x, y); k.rotate(rot);
+    k.shadowColor = 'rgba(0,0,0,0.45)'; k.shadowBlur = 10; k.shadowOffsetY = 5;
+    k.scale(Math.max(0.02, Math.abs(flip)), 1);
+    if (flip > 0) cdFace(k, c, i === 0 ? knightHp : hp); else cdBack(k);
+    k.restore();
+  });
+  // MISS：骑士攻击撞上巨龙时弹出
+  const ma = seg(u, mix(CD_ATK1[0], CD_ATK1[1], 0.45), mix(CD_ATK1[0], CD_ATK1[1], 0.45) + 0.8);
+  if (ma > 0 && ma < 1) {
+    k.save(); k.globalAlpha = 1 - seg(ma, 0.7, 1); k.translate(390, 46 - 10 * out3(ma)); k.rotate(-0.17); k.scale(backOut(seg(ma, 0, 0.3)), backOut(seg(ma, 0, 0.3)));
+    k.font = `900 26px ${DISP}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+    k.fillStyle = '#2A0A08'; k.fillText('MISS', 0, 3); k.fillStyle = CD_MISS; k.fillText('MISS', 0, 0); k.restore();
+  }
+  // 伤害数字：反击命中时从骑士头顶弹出
+  const da = seg(u, mix(CD_ATK2[0], CD_ATK2[1], 0.5), mix(CD_ATK2[0], CD_ATK2[1], 0.5) + 0.9);
+  if (da > 0 && da < 1) {
+    k.save(); k.globalAlpha = 1 - seg(da, 0.7, 1); k.translate(206, 40 - 16 * out3(da)); k.scale(backOut(seg(da, 0, 0.3)), backOut(seg(da, 0, 0.3)));
+    k.font = `900 28px ${DISP}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+    k.fillStyle = '#2A0A08'; k.fillText('−' + CD_DMG, 0, 3); k.fillStyle = CD_GOLD; k.fillText('−' + CD_DMG, 0, 0); k.restore();
+  }
+};

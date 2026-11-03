@@ -1,0 +1,92 @@
+// Motion Prompt #4-056 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// ネオンサイバー / Neon cyber
+// 分類: ビジュアルスタイル / 芸術の流派 / デジタル・レトロ
+// 何が起きるか: 雨が斜めに降る紫の夜の路地。看板の枠のネオン管が一辺ずつちらついて点き、「24H」「拉」「面」「营业中」が順に通電する。点いた後も「面」だけが時々消え、赤と青がずれる。濡れた地面には看板が潰れて映り込む。最後は電源が落ち、点いたのと逆の順に一本ずつ消える。
+// 動きの仕様:
+//   - 地 #0B0716、ネオン #FF2BD6 / #00F0FF / #FFE45C、地面線 y 140
+//   - 0.3 / 0.45 / 0.6 / 0.75 秒に枠の 4 辺、1.1 / 1.4 / 1.7 / 2.1 秒に 24H・拉・面・营业中 が点灯し、各 0.35 秒ちらつく
+//   - 2.5–5.4 秒「面」は 12 コマ/秒で消えたり赤青に最大 4 px ずれたりする
+//   - 倒影は地面線で上下反転し縦 0.6 倍、不透明度 0.3。雨は 70 本
+//   - 5.4 秒から 0.1 秒おきに点灯の逆順で消える
+// 使いどころ: 夜の街、都市文化、SF、ゲームの世界観など、ネオンの空気が合う解説に。
+// タグ: neon, cyberpunk, rain, sign, flicker, reflection, explainer
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-056
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 17
+// 17 霓虹赛博：深紫雨夜，雨丝斜落；招牌「24H 拉面」的灯管一节节闪着通电，「面」字接触不良，
+// 间歇熄灭并出现红青错位；湿地面上有压扁的倒影。复位时断电，灯管倒序逐节熄灭
+const NE_CY = '#00F0FF', NE_MG = '#FF2BD6', NE_YL = '#FFE45C';
+const NE_GY = 140;                                               // 地面线：以下是湿地面和倒影
+const NE_BOX = [150, 18, 240, 92];                               // 招牌灯管框 x、y、宽、高
+const NE_RAIN = 70, NE_RAIN_P = CH + 30;                         // 雨丝条数、竖向循环周期
+// 招牌各节点亮时刻：框四边、24H、拉、面、营业中
+const NE_ON = { frame: [0.3, 0.45, 0.6, 0.75], h24: 1.1, la: 1.4, mian: 1.7, open: 2.1 };
+const NE_BAD = [2.5, SHOW];                                      // 「面」接触不良的时段
+const NE_OFF_DT = 0.1;                                           // 断电时每节熄灭间隔
+// 通电闪烁：前 0.35 秒按帧号哈希忽明忽暗，之后常亮
+const neFlick = (u, at, seed) => { if (u < at) return 0; const t = u - at; if (t > 0.35) return 1; return hash(Math.floor(t * 30) + seed * 17) > 0.45 ? 1 : 0.12; };
+CELLS[16] = (k, w, h, u) => {
+  const g = k.createLinearGradient(0, 0, 0, CH);
+  g.addColorStop(0, '#05040B'); g.addColorStop(0.6, '#1A0B2E'); g.addColorStop(1, '#2A0D3E');
+  k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  // 两侧楼体剪影
+  k.fillStyle = '#0B0716'; k.fillRect(0, 0, 110, NE_GY); k.fillRect(430, 0, 109, NE_GY);
+  k.fillStyle = 'rgba(0,240,255,0.18)';
+  for (let r = 0; r < 6; r++) for (let c = 0; c < 3; c++) if (hash(r * 7 + c) > 0.5) { k.fillRect(14 + c * 32, 12 + r * 20, 14, 8); k.fillRect(446 + c * 30, 12 + r * 20, 14, 8); }
+  k.fillStyle = '#0E0818'; k.fillRect(0, NE_GY, CW, CH - NE_GY);
+  // 每节的亮度：通电闪烁 × 断电（断电按点亮的倒序）
+  const order = ['f0', 'f1', 'f2', 'f3', 'h24', 'la', 'mian', 'open'];
+  const onAt = { f0: NE_ON.frame[0], f1: NE_ON.frame[1], f2: NE_ON.frame[2], f3: NE_ON.frame[3], h24: NE_ON.h24, la: NE_ON.la, mian: NE_ON.mian, open: NE_ON.open };
+  const lv = {};
+  order.forEach((key, i) => {
+    const offAt = SHOW + (order.length - 1 - i) * NE_OFF_DT;
+    lv[key] = neFlick(u, onAt[key], i + 1) * (1 - seg(u, offAt, offAt + 0.06));
+  });
+  // 接触不良：按 12 帧/秒的帧号哈希决定「面」这一帧亮不亮、要不要错位
+  const fr = Math.floor(u * 12), bad = u >= NE_BAD[0] && u < NE_BAD[1];
+  if (bad && hash(fr) < 0.3) lv.mian *= 0.15;
+  const glitch = bad && hash(fr + 5) > 0.7 ? (hash(fr + 9) - 0.5) * 8 : 0;
+  const [bx, by, bw, bh] = NE_BOX;
+  const sides = [[[bx, by], [bx + bw, by]], [[bx + bw, by], [bx + bw, by + bh]], [[bx + bw, by + bh], [bx, by + bh]], [[bx, by + bh], [bx, by]]];
+  const tube = (a, color, draw) => {
+    if (a <= 0) return;
+    k.globalAlpha = a; k.shadowColor = color; k.shadowBlur = 12; draw(color);
+    k.shadowBlur = 0; draw('#FFF2FC', true); k.globalAlpha = 1;
+  };
+  const drawSign = () => {
+    k.lineCap = 'round';
+    sides.forEach((p, i) => tube(lv['f' + i], NE_MG, (c, core) => { k.strokeStyle = c; k.lineWidth = core ? 1.5 : 4; strokePts(k, p); }));
+    k.textBaseline = 'middle';
+    tube(lv.h24, NE_CY, c => { k.fillStyle = c; k.font = `800 26px ${DISP}`; k.textAlign = 'left'; k.fillText('24H', bx + 14, by + 30); });
+    tube(lv.la, NE_MG, c => { k.fillStyle = c; k.font = `900 46px ${SANS}`; k.textAlign = 'center'; k.fillText('拉', bx + 116, by + 52); });
+    if (glitch) {
+      // 错位故障：红、青两层分别往两侧偏
+      k.font = `900 46px ${SANS}`; k.textAlign = 'center'; k.globalAlpha = 0.7 * lv.mian;
+      k.fillStyle = '#FF3355'; k.fillText('面', bx + 186 - glitch, by + 52);
+      k.fillStyle = NE_CY; k.fillText('面', bx + 186 + glitch, by + 52); k.globalAlpha = 1;
+    }
+    tube(lv.mian, NE_MG, c => { k.fillStyle = c; k.font = `900 46px ${SANS}`; k.textAlign = 'center'; k.fillText('面', bx + 186, by + 52); });
+    tube(lv.open, NE_YL, c => { k.fillStyle = c; k.font = `700 11px ${SANS}`; k.textAlign = 'left'; k.fillText('营业中', bx + 16, by + 70); });
+  };
+  drawSign();
+  // 倒影：以地面线为轴竖向翻转并压扁到 0.6，透明度低，随雨水轻微横向抖
+  k.save();
+  k.beginPath(); k.rect(0, NE_GY, CW, CH - NE_GY); k.clip();
+  k.translate(Math.sin(u * TAU * 2) * 1.5, NE_GY); k.scale(1, -0.6); k.translate(0, -NE_GY);
+  k.globalAlpha = 0.3; drawSign();
+  k.restore(); k.globalAlpha = 1;
+  // 雨丝：每条在一个周期内整数次落完，保证 6.4 → 0 无缝
+  k.strokeStyle = 'rgba(150,200,255,0.28)'; k.lineWidth = 1; k.beginPath();
+  for (let i = 0; i < NE_RAIN; i++) {
+    const loops = 6 + Math.floor(hash(i + 200) * 4), x0 = hash(i) * (CW + 60);
+    const y = ((hash(i + 100) + (u / CYC) * loops) % 1) * NE_RAIN_P - 20, len = 8 + hash(i + 300) * 10;
+    k.moveTo(x0 - y * 0.25, y); k.lineTo(x0 - (y + len) * 0.25, y + len);
+  }
+  k.stroke();
+};

@@ -1,0 +1,68 @@
+// Motion Prompt #4-045 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Ink-circle minimal / 余白のミニマル
+// Category: Visual styles / Animation styles / Flat & line
+// What happens: One brush stroke draws an ink circle on warm white paper, breaking into dry-brush streaks at the end; 静 appears inside, and 心不动，则万物静 writes in below one character at a time. Then the ink pales and the circle unwinds from its end.
+// Motion spec:
+//   - Paper #F4F1EA with faint fibres; the ink #2A2622 circle has a radius of 56 px and spans 93% of a turn, leaving a gap.
+//   - 0.3–1.5 s the circle draws clockwise; the brush peaks at 9 px, thin at the start, full in the middle and thin at the end, and from 72% on it splits into 5 dry streaks.
+//   - 1.5–2.3 s the 54 px character 静 settles from 1.06× to full size; from 2.5 s a 13 px line appears at 0.16 s per character.
+//   - From 5.4 s the ink pales by 70%, and at 5.4–6.2 s the circle unwinds from its end back to the start.
+// When to use it: Use it to present one word or keyword quietly, for poetry, Zen and brand philosophy pieces.
+// Tags: minimal, ink, brush-stroke, white-space, typography, explainer, zen
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-045
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 06
+// 06 留白极简：暖白纸大片留白，一笔墨圈从起笔处顺时针画到收笔（收笔处飞白），圈内「静」淡入，
+// 下方「心不动，则万物静」逐字出现；复位时墨色褪淡、圈从收笔处倒着收回
+const MN_BG = '#F4F1EA', MN_INK = '#2A2622', MN_SUB = '#6E675C';
+const MN_C = [270, 88], MN_R = 56, MN_W = 9;                 // 圈心、半径、最粗笔宽
+const MN_A0 = -Math.PI * 0.62, MN_SPAN = TAU * 0.93;          // 起笔角度、圈的张角（不闭合，留一个口）
+const MN_N = 120, MN_DRY = 0.72;                              // 采样数；从 72% 处开始飞白
+const MN_LINE = '心不动，则万物静';
+CELLS[5] = (k, w, h, u) => {
+  k.fillStyle = MN_BG; k.fillRect(0, 0, CW, CH);
+  // 纸纹：确定性的淡色纤维
+  k.fillStyle = 'rgba(120,100,70,0.05)';
+  for (let i = 0; i < 160; i++) k.fillRect(hash(i * 3) * CW, hash(i * 7 + 1) * CH, 6 + hash(i) * 14, 1);
+  const back = inOut3(seg(u, SHOW, SHOW + 0.8));              // 复位：圈从收笔处往回收
+  const prog = inOut3(seg(u, 0.3, 1.5)) * (1 - back);
+  const ink = 1 - 0.7 * seg(u, SHOW, SHOW + 0.5);             // 复位时墨色褪淡
+  const n = Math.floor(MN_N * prog);
+  k.save(); k.lineCap = 'round'; k.strokeStyle = MN_INK;
+  for (let i = 0; i < n; i++) {
+    const t = i / MN_N, a1 = MN_A0 + MN_SPAN * t, a2 = MN_A0 + MN_SPAN * (i + 1) / MN_N;
+    // 笔宽：起笔稍细 → 中段最粗 → 收笔变细
+    const wd = MN_W * (0.55 + 0.45 * Math.sin(Math.PI * Math.min(1, t * 1.3))) * (1 - 0.5 * seg(t, 0.8, 1));
+    const r1 = MN_R + 2 * Math.sin(t * 9), r2 = MN_R + 2 * Math.sin((i + 1) / MN_N * 9);
+    const p1 = [MN_C[0] + Math.cos(a1) * r1, MN_C[1] + Math.sin(a1) * r1], p2 = [MN_C[0] + Math.cos(a2) * r2, MN_C[1] + Math.sin(a2) * r2];
+    if (t < MN_DRY) { k.globalAlpha = ink * 0.92; k.lineWidth = wd; strokePts(k, [p1, p2]); continue; }
+    // 飞白：拆成 5 道细丝，越往后断得越多
+    const dry = (t - MN_DRY) / (1 - MN_DRY);
+    for (let j = 0; j < 5; j++) {
+      if (hash(i * 5 + j) < dry * 0.75) continue;
+      const off = (j / 4 - 0.5) * wd, nx = Math.cos(a1), ny = Math.sin(a1);
+      k.globalAlpha = ink * (0.85 - 0.4 * dry); k.lineWidth = wd / 5;
+      strokePts(k, [[p1[0] + nx * off, p1[1] + ny * off], [p2[0] + nx * off, p2[1] + ny * off]]);
+    }
+  }
+  k.restore();
+  // 圈内大字与下方小字
+  const fade = 1 - resetK(u);
+  const za = seg(u, 1.5, 2.3);
+  if (za > 0) {
+    k.save(); k.globalAlpha = za * fade * ink; k.fillStyle = MN_INK;
+    k.translate(MN_C[0], MN_C[1] + 2); k.scale(mix(1.06, 1, out3(za)), mix(1.06, 1, out3(za)));
+    k.font = `400 54px ${SERIF}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('静', 0, 0);
+    k.restore();
+  }
+  k.save(); k.font = `400 13px ${SERIF}`; k.textBaseline = 'middle'; k.textAlign = 'left'; k.fillStyle = MN_SUB;
+  const cs = [...MN_LINE], cw = 17, x0 = MN_C[0] - (cs.length * cw) / 2;
+  cs.forEach((c, i) => { const a = seg(u, 2.5 + i * 0.16, 2.8 + i * 0.16); if (a > 0) { k.globalAlpha = a * fade; k.fillText(c, x0 + i * cw + 2, 178); } });
+  k.restore();
+};

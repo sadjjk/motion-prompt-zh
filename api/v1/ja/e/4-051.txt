@@ -1,0 +1,108 @@
+// Motion Prompt #4-051 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// サイレント映画の字幕カード / Silent-film title card
+// 分類: ビジュアルスタイル / アニメーションの画風 / 媒体・ジャンル
+// 何が起きるか: 黒からアイリスが開き、セピアの駅にシルエットの汽車が右から入って減速し、煙を上げて止まる。黒地に二重線と四隅の飾りがついた字幕カード「终于到了！」に切り替わり、また駅に戻ると山高帽の乗客がかばんを提げてホームへ歩き出す。全編に粒子・ちらつき・縦の傷・揺れがあり、最後はアイリスが黒い点まで閉じる。
+// 動きの仕様:
+//   - 空 #D8C9A8→#A8977A、地面 #6B5D48、シルエット #1D1812、字幕 #E9E1CF。揺れ・ちらつき・粒子は 18 コマ/秒のフレーム番号から決める
+//   - 0–0.6 秒にアイリスが開く。0.4–2.2 秒に汽車が右から入り、減速して先頭 x 120 で止まる
+//   - 2.4–4.0 秒は字幕カード（二重枠＋四隅の飾り、34 px の明朝）にカットで切り替わる
+//   - 4.2–5.2 秒に乗客が車両の前から 34 px 手前のホームへ降りて右へ歩く。縦の傷は 6 コマ/秒で位置が変わる
+//   - 5.4–6.0 秒にアイリスが黒い点まで閉じ、6.4 秒の黒は 0 秒の黒とつながる
+// 使いどころ: 昔話、映画史、百年前の出来事など、古い時代の話をユーモラスに語る解説に。
+// タグ: silent-film, intertitle, sepia, film-grain, iris, vintage, explainer
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-051
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 12
+// 12 默片字卡：棕褐黑白胶片——光圈打开，剪影火车从右驶入站台减速停下；硬切到花边框黑底字卡「终于到了！」，
+// 再切回画面，一位乘客走下站台。全程颗粒、闪烁、竖向划痕和 18 帧/秒的抖动；复位时光圈收成黑点，下一轮再圈出
+const SL_BG = '#0B0A08', SL_INK = '#E9E1CF', SL_SIL = '#1D1812', SL_GROUND = '#6B5D48';
+const SL_FPS = 18;                                              // 抖动、闪烁、颗粒按 18 帧/秒取帧号
+const SL_TRAIN = [0.4, 2.2], SL_STOP = 120, SL_RAIL = 156;     // 火车驶入时段、车头停靠 x、站台面 y
+const SL_CARD = [2.4, 4.0];                                     // 字卡（硬切进出）
+const SL_WALK = [4.2, 5.2], SL_STEP = 34;                       // 乘客走下站台的时段、走到前景地面下移的距离
+const SL_OPEN = [0, 0.6], SL_CLOSE = [SHOW, 6.0];               // 圈出、圈入时段
+const SL_R = Math.hypot(CW, CH) / 2 + 4;                        // 光圈全开半径
+// 剪影火车：x 为车头左端；车头 + 三节车厢，车窗透出天光
+function slTrain(k, x) {
+  k.fillStyle = SL_SIL;
+  k.fillRect(x, 112, 70, 28); k.fillRect(x + 60, 96, 30, 46); k.fillRect(x + 56, 91, 38, 6); k.fillRect(x + 12, 96, 10, 16); k.fillRect(x - 2, 138, 94, 8);
+  k.beginPath(); k.moveTo(x - 12, 150); k.lineTo(x, 130); k.lineTo(x, 150); k.closePath(); k.fill();   // 排障器
+  [16, 40, 74].forEach(dx => { k.beginPath(); k.arc(x + dx, 148, 8, 0, TAU); k.fill(); });
+  for (let i = 0; i < 3; i++) {
+    const cx = x + 98 + i * 96;
+    k.fillStyle = SL_SIL; k.fillRect(cx, 104, 90, 42); k.fillRect(cx - 6, 128, 6, 4);
+    [16, 74].forEach(dx => { k.beginPath(); k.arc(cx + dx, 148, 7, 0, TAU); k.fill(); });
+    k.fillStyle = '#B9A888'; for (let j = 0; j < 4; j++) k.fillRect(cx + 8 + j * 21, 112, 13, 12);
+  }
+  k.fillStyle = '#B9A888'; k.fillRect(x + 68, 102, 14, 12);
+}
+CELLS[11] = (k, w, h, u) => {
+  const q = Math.floor(u * SL_FPS);                              // 当前胶片帧号：同一帧内抖动不变
+  k.fillStyle = SL_BG; k.fillRect(0, 0, CW, CH);
+  k.save(); k.translate((hash(q + 1) - 0.5) * 3, (hash(q + 2) - 0.5) * 4);
+  const card = u >= SL_CARD[0] && u < SL_CARD[1];
+  if (!card) {
+    const sky = k.createLinearGradient(0, 0, 0, SL_RAIL); sky.addColorStop(0, '#D8C9A8'); sky.addColorStop(1, '#A8977A');
+    k.fillStyle = sky; k.fillRect(-6, -6, CW + 12, SL_RAIL + 6);
+    k.fillStyle = SL_GROUND; k.fillRect(-6, SL_RAIL, CW + 12, CH - SL_RAIL + 6);
+    k.fillStyle = '#4E4334'; k.fillRect(-6, SL_RAIL, CW + 12, 4);
+    // 火车：减速驶入（out3），停稳后车头冒烟
+    const tx = mix(CW + 20, SL_STOP, out3(seg(u, SL_TRAIN[0], SL_TRAIN[1])));
+    for (let i = 0; i < 6; i++) {
+      const p = (u * 0.9 + i / 6) % 1;
+      k.fillStyle = `rgba(138,130,112,${0.5 * (1 - p)})`;
+      k.beginPath(); k.arc(tx + 17 + p * 46, 92 - p * 56, 5 + p * 12, 0, TAU); k.fill();
+    }
+    slTrain(k, tx);
+    // 站台雨棚与立柱在火车前面
+    k.fillStyle = SL_SIL; k.fillRect(-6, 26, CW + 12, 9);
+    [40, 250, 460].forEach(px => k.fillRect(px, 35, 5, SL_RAIL - 35));
+    // 乘客：切回画面后从车门走下站台
+    // 剪影和车身同色，所以人走到车前方的站台地面上（基线比轨面低 SL_STEP），才看得出轮廓
+    const wk = seg(u, SL_WALK[0], SL_WALK[1]);
+    if (u >= SL_CARD[1]) {
+      const px = mix(236, 330, wk), by = SL_RAIL + SL_STEP * out3(seg(wk, 0, 0.3)), step = Math.sin(wk * Math.PI * 8) * 2;
+      k.fillRect(px - 5, by - 26, 10, 18); k.fillRect(px - 4 + step, by - 9, 3, 9); k.fillRect(px + 1 - step, by - 9, 3, 9);
+      k.beginPath(); k.arc(px, by - 31, 5, 0, TAU); k.fill(); k.fillRect(px - 7, by - 37, 14, 2); k.fillRect(px - 4, by - 41, 8, 4);   // 礼帽
+      k.fillRect(px + 6, by - 16, 8, 7);                          // 手提箱
+    }
+  } else {
+    // 字卡：黑底双线边框 + 四角卷草
+    k.fillStyle = SL_BG; k.fillRect(-6, -6, CW + 12, CH + 12);
+    k.strokeStyle = SL_INK; k.lineWidth = 2; k.strokeRect(22, 16, CW - 44, CH - 32);
+    k.lineWidth = 1; k.strokeRect(30, 24, CW - 60, CH - 48);
+    [[30, 24, 1, 1], [CW - 30, 24, -1, 1], [30, CH - 24, 1, -1], [CW - 30, CH - 24, -1, -1]].forEach(([x, y, a, b]) => {
+      k.lineWidth = 1.5; k.beginPath(); k.moveTo(x, y + b * 30); k.quadraticCurveTo(x + a * 4, y + b * 4, x + a * 30, y); k.stroke();
+      k.beginPath(); k.arc(x + a * 10, y + b * 10, 3, 0, TAU); k.stroke();
+    });
+    k.fillStyle = SL_INK; k.font = `700 34px ${SERIF}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('终于到了！', CW / 2, CH / 2 + 2);
+  }
+  k.restore();
+  // 胶片质感：整帧闪烁、颗粒与灰尘、竖向划痕、暗角
+  k.fillStyle = `rgba(0,0,0,${0.14 * hash(q * 3 + 5)})`; k.fillRect(0, 0, CW, CH);
+  for (let i = 0; i < 50; i++) {
+    const g = hash(q * 37 + i * 11);
+    k.fillStyle = g > 0.5 ? 'rgba(242,234,216,0.5)' : 'rgba(20,16,10,0.4)';
+    const s = hash(q * 13 + i) > 0.92 ? 2.5 : 1;
+    k.fillRect(hash(q * 31 + i * 7) * CW, hash(q * 17 + i * 3) * CH, s, s);
+  }
+  const sq = Math.floor(u * 6);                                   // 划痕换位比抖动慢，像胶片上的长划痕
+  k.fillStyle = 'rgba(240,230,210,0.35)';
+  for (let i = 0; i < 2; i++) if (hash(sq + i * 5) > 0.5) k.fillRect(hash(sq + i * 9 + 3) * CW, 0, 1, CH);
+  const vg = k.createRadialGradient(CW / 2, CH / 2, 110, CW / 2, CH / 2, 300);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.65)');
+  k.fillStyle = vg; k.fillRect(0, 0, CW, CH);
+  // 光圈：0 秒与 6.4 秒都是全黑，首尾无缝
+  const r = u < SL_CLOSE[0] ? SL_R * out3(seg(u, SL_OPEN[0], SL_OPEN[1])) : SL_R * (1 - inOut3(seg(u, SL_CLOSE[0], SL_CLOSE[1])));
+  if (r < SL_R) {
+    k.fillStyle = '#000'; k.beginPath(); k.rect(0, 0, CW, CH);
+    if (r > 0.5) k.arc(CW / 2, CH / 2, r, 0, TAU, true);
+    k.fill('evenodd');
+  }
+};

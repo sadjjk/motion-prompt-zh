@@ -1,0 +1,92 @@
+// Motion Prompt #4-056 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Neon cyber / ネオンサイバー
+// Category: Visual styles / Art movements / Digital & retro
+// What happens: A purple night alley with slanting rain. The sign's frame tubes flicker on one side at a time, then 24H, 拉, 面 and 营业中 power up in turn. Afterwards 面 keeps dropping out now and then, splitting into red and cyan. The wet ground holds a squashed reflection of the sign. Finally the power cuts and the tubes go dark one by one in reverse order.
+// Motion spec:
+//   - Ground #0B0716, neon #FF2BD6 / #00F0FF / #FFE45C, ground line y 140.
+//   - 0.3 / 0.45 / 0.6 / 0.75 s the 4 frame sides, 1.1 / 1.4 / 1.7 / 2.1 s 24H, 拉, 面 and 营业中 light up, each flickering for 0.35 s.
+//   - 2.5–5.4 s 面 drops out or splits red and cyan by up to 4 px at 12 frames/s.
+//   - The reflection flips at the ground line, squashed to 0.6 height, opacity 0.3; 70 rain streaks.
+//   - From 5.4 s the tubes go dark in reverse order, 0.1 s apart.
+// When to use it: Use it for night-city, urban culture, sci-fi and game-world topics that suit a neon mood.
+// Tags: neon, cyberpunk, rain, sign, flicker, reflection, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-056
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 17
+// 17 霓虹赛博：深紫雨夜，雨丝斜落；招牌「24H 拉面」的灯管一节节闪着通电，「面」字接触不良，
+// 间歇熄灭并出现红青错位；湿地面上有压扁的倒影。复位时断电，灯管倒序逐节熄灭
+const NE_CY = '#00F0FF', NE_MG = '#FF2BD6', NE_YL = '#FFE45C';
+const NE_GY = 140;                                               // 地面线：以下是湿地面和倒影
+const NE_BOX = [150, 18, 240, 92];                               // 招牌灯管框 x、y、宽、高
+const NE_RAIN = 70, NE_RAIN_P = CH + 30;                         // 雨丝条数、竖向循环周期
+// 招牌各节点亮时刻：框四边、24H、拉、面、营业中
+const NE_ON = { frame: [0.3, 0.45, 0.6, 0.75], h24: 1.1, la: 1.4, mian: 1.7, open: 2.1 };
+const NE_BAD = [2.5, SHOW];                                      // 「面」接触不良的时段
+const NE_OFF_DT = 0.1;                                           // 断电时每节熄灭间隔
+// 通电闪烁：前 0.35 秒按帧号哈希忽明忽暗，之后常亮
+const neFlick = (u, at, seed) => { if (u < at) return 0; const t = u - at; if (t > 0.35) return 1; return hash(Math.floor(t * 30) + seed * 17) > 0.45 ? 1 : 0.12; };
+CELLS[16] = (k, w, h, u) => {
+  const g = k.createLinearGradient(0, 0, 0, CH);
+  g.addColorStop(0, '#05040B'); g.addColorStop(0.6, '#1A0B2E'); g.addColorStop(1, '#2A0D3E');
+  k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  // 两侧楼体剪影
+  k.fillStyle = '#0B0716'; k.fillRect(0, 0, 110, NE_GY); k.fillRect(430, 0, 109, NE_GY);
+  k.fillStyle = 'rgba(0,240,255,0.18)';
+  for (let r = 0; r < 6; r++) for (let c = 0; c < 3; c++) if (hash(r * 7 + c) > 0.5) { k.fillRect(14 + c * 32, 12 + r * 20, 14, 8); k.fillRect(446 + c * 30, 12 + r * 20, 14, 8); }
+  k.fillStyle = '#0E0818'; k.fillRect(0, NE_GY, CW, CH - NE_GY);
+  // 每节的亮度：通电闪烁 × 断电（断电按点亮的倒序）
+  const order = ['f0', 'f1', 'f2', 'f3', 'h24', 'la', 'mian', 'open'];
+  const onAt = { f0: NE_ON.frame[0], f1: NE_ON.frame[1], f2: NE_ON.frame[2], f3: NE_ON.frame[3], h24: NE_ON.h24, la: NE_ON.la, mian: NE_ON.mian, open: NE_ON.open };
+  const lv = {};
+  order.forEach((key, i) => {
+    const offAt = SHOW + (order.length - 1 - i) * NE_OFF_DT;
+    lv[key] = neFlick(u, onAt[key], i + 1) * (1 - seg(u, offAt, offAt + 0.06));
+  });
+  // 接触不良：按 12 帧/秒的帧号哈希决定「面」这一帧亮不亮、要不要错位
+  const fr = Math.floor(u * 12), bad = u >= NE_BAD[0] && u < NE_BAD[1];
+  if (bad && hash(fr) < 0.3) lv.mian *= 0.15;
+  const glitch = bad && hash(fr + 5) > 0.7 ? (hash(fr + 9) - 0.5) * 8 : 0;
+  const [bx, by, bw, bh] = NE_BOX;
+  const sides = [[[bx, by], [bx + bw, by]], [[bx + bw, by], [bx + bw, by + bh]], [[bx + bw, by + bh], [bx, by + bh]], [[bx, by + bh], [bx, by]]];
+  const tube = (a, color, draw) => {
+    if (a <= 0) return;
+    k.globalAlpha = a; k.shadowColor = color; k.shadowBlur = 12; draw(color);
+    k.shadowBlur = 0; draw('#FFF2FC', true); k.globalAlpha = 1;
+  };
+  const drawSign = () => {
+    k.lineCap = 'round';
+    sides.forEach((p, i) => tube(lv['f' + i], NE_MG, (c, core) => { k.strokeStyle = c; k.lineWidth = core ? 1.5 : 4; strokePts(k, p); }));
+    k.textBaseline = 'middle';
+    tube(lv.h24, NE_CY, c => { k.fillStyle = c; k.font = `800 26px ${DISP}`; k.textAlign = 'left'; k.fillText('24H', bx + 14, by + 30); });
+    tube(lv.la, NE_MG, c => { k.fillStyle = c; k.font = `900 46px ${SANS}`; k.textAlign = 'center'; k.fillText('拉', bx + 116, by + 52); });
+    if (glitch) {
+      // 错位故障：红、青两层分别往两侧偏
+      k.font = `900 46px ${SANS}`; k.textAlign = 'center'; k.globalAlpha = 0.7 * lv.mian;
+      k.fillStyle = '#FF3355'; k.fillText('面', bx + 186 - glitch, by + 52);
+      k.fillStyle = NE_CY; k.fillText('面', bx + 186 + glitch, by + 52); k.globalAlpha = 1;
+    }
+    tube(lv.mian, NE_MG, c => { k.fillStyle = c; k.font = `900 46px ${SANS}`; k.textAlign = 'center'; k.fillText('面', bx + 186, by + 52); });
+    tube(lv.open, NE_YL, c => { k.fillStyle = c; k.font = `700 11px ${SANS}`; k.textAlign = 'left'; k.fillText('营业中', bx + 16, by + 70); });
+  };
+  drawSign();
+  // 倒影：以地面线为轴竖向翻转并压扁到 0.6，透明度低，随雨水轻微横向抖
+  k.save();
+  k.beginPath(); k.rect(0, NE_GY, CW, CH - NE_GY); k.clip();
+  k.translate(Math.sin(u * TAU * 2) * 1.5, NE_GY); k.scale(1, -0.6); k.translate(0, -NE_GY);
+  k.globalAlpha = 0.3; drawSign();
+  k.restore(); k.globalAlpha = 1;
+  // 雨丝：每条在一个周期内整数次落完，保证 6.4 → 0 无缝
+  k.strokeStyle = 'rgba(150,200,255,0.28)'; k.lineWidth = 1; k.beginPath();
+  for (let i = 0; i < NE_RAIN; i++) {
+    const loops = 6 + Math.floor(hash(i + 200) * 4), x0 = hash(i) * (CW + 60);
+    const y = ((hash(i + 100) + (u / CYC) * loops) % 1) * NE_RAIN_P - 20, len = 8 + hash(i + 300) * 10;
+    k.moveTo(x0 - y * 0.25, y); k.lineTo(x0 - (y + len) * 0.25, y + len);
+  }
+  k.stroke();
+};

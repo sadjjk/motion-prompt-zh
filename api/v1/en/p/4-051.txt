@@ -1,0 +1,16 @@
+Please use "Silent-film title card" (サイレント映画の字幕カード), filed under "Animation styles / Media & genres".
+Motion Prompt #4-051
+
+What it is: A silent-film look: sepia black-and-white footage with grain, flicker, vertical scratches and frame-rate jitter, cutting between scenes and ornate intertitle cards
+What the sample shows: An iris opens from black on a sepia station: a silhouette train rolls in from the right, slows and stops, puffing smoke. It cuts to a black intertitle with a double border and corner flourishes reading 终于到了！, then back to the platform, where a passenger in a top hat walks off with a suitcase. Grain, flicker, scratches and jitter run throughout; at the end the iris closes to a black dot.
+Spec:
+- Sky #D8C9A8→#A8977A, ground #6B5D48, silhouettes #1D1812, intertitle #E9E1CF; jitter, flicker and grain come from an 18 fps frame number.
+- 0–0.6 s the iris opens; 0.4–2.2 s the train enters from the right, slowing to stop with its nose at x 120.
+- 2.4–4.0 s hard cut to the intertitle (double border plus corner flourishes, 34 px serif).
+- 4.2–5.2 s the passenger steps 34 px down onto the near platform and walks right; scratches move at 6 fps.
+- 5.4–6.0 s the iris closes to a black dot; the black at 6.4 s matches the black at 0 s.
+When to use it: Use it for history from a century ago, film history, or old-times stories told with a light touch.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-051.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

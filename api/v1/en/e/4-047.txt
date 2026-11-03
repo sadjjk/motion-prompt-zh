@@ -1,0 +1,81 @@
+// Motion Prompt #4-047 · MIT License (c) 2026 Berryxia · https://github.com/andyhuo520/vibe-knowledge
+//
+// Starfield spark / 星空の光点
+// Category: Visual styles / Animation styles / Space & material
+// What happens: Under a twinkling sky a gold spark rises and traces a glowing light-bulb outline; the bulb fades, the spark splits into 7 that drift apart and link into a constellation. Then the links break and the sparks gather into one and sink.
+// Motion spec:
+//   - Background gradient #05070F → #0E1430; the 90 stars each twinkle a whole number of times per 6.4 s.
+//   - 0.3–1.3 s a gold #F2C46D spark rises to the centre; 1.4–2.6 s it traces a 30 px-radius bulb outline in a glowing line (10 px blur), which fades at 2.8–3.1 s.
+//   - 2.8–3.4 s the spark splits into 7 that drift apart; from 3.4 s, 7 links draw in 0.14 s apart.
+//   - 5.4–5.7 s the links shrink to their midpoints and break; 5.5–5.9 s the sparks gather into one; 5.9–6.4 s it sinks out of frame.
+// When to use it: Use it for the birth of an idea, space and information topics, or abstract concepts connecting together.
+// Tags: starfield, particles, glow, constellation, idea, explainer
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-047
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 08
+// 08 星空光点：深蓝黑星空，背景星点按确定性闪烁；一颗金色光点从下方升起，描出灯泡轮廓，再碎成 7 颗光点
+// 散开连成星座；复位时连线断开，光点汇回一颗并沉到画面下方
+const SF_GOLD = '#F2C46D', SF_STARS = 90;
+const SF_C = [270, 92], SF_BR = 30;                           // 灯泡圆心、半径
+// 灯泡轮廓：左颈 → 绕过顶部 → 右颈 → 灯座
+const SF_BULB = (() => {
+  const a0 = Math.acos(-0.4), a1 = Math.acos(0.4) + TAU, out = [];
+  for (let i = 0; i <= 40; i++) { const a = mix(a0, a1, i / 40); out.push([SF_C[0] + Math.cos(a) * SF_BR, SF_C[1] + Math.sin(a) * SF_BR]); }
+  const yb = SF_C[1] + Math.sin(a0) * SF_BR;
+  return [...out, [282, yb + 16], [258, yb + 16], [258, yb]];
+})();
+const SF_PTS = [[96, 72], [168, 46], [236, 80], [310, 58], [362, 112], [436, 92], [470, 156]];
+const SF_EDGES = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [2, 4]];
+function sfDot(k, x, y, r, a) {
+  const g = k.createRadialGradient(x, y, 0, x, y, r * 4);
+  g.addColorStop(0, `rgba(255,243,208,${a})`); g.addColorStop(0.3, `rgba(242,196,109,${0.8 * a})`); g.addColorStop(1, 'rgba(242,196,109,0)');
+  k.fillStyle = g; k.beginPath(); k.arc(x, y, r * 4, 0, TAU); k.fill();
+  k.fillStyle = `rgba(255,250,235,${a})`; k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill();
+}
+CELLS[7] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, 0, CH); bg.addColorStop(0, '#05070F'); bg.addColorStop(1, '#0E1430');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  // 背景星：每颗按整数倍周期闪烁，6.4 秒首尾一致
+  for (let i = 0; i < SF_STARS; i++) {
+    const tw = 0.5 + 0.5 * Math.sin(TAU * (u / CYC) * (1 + Math.floor(hash(i * 5) * 4)) + hash(i * 9) * TAU);
+    k.fillStyle = `rgba(207,214,234,${0.15 + 0.55 * tw * hash(i * 2 + 1)})`;
+    k.fillRect(hash(i * 3 + 7) * CW, hash(i * 11 + 3) * CH, hash(i) > 0.85 ? 2 : 1, hash(i) > 0.85 ? 2 : 1);
+  }
+  // 1. 光点从下方升起，停在灯泡中心
+  const scatter = out3(seg(u, 2.8, 3.4));                     // 0 = 一颗，1 = 散成星座
+  const gather = inOut3(seg(u, 5.5, 5.9));                     // 复位：汇回一颗
+  const sink = inOut3(seg(u, 5.9, CYC));                       // 复位：沉到画面下方
+  const rise = out3(seg(u, 0.3, 1.3));
+  // 2. 灯泡轮廓：1.4–2.6 秒描出，2.8–3.1 秒淡出
+  const bp = inOut3(seg(u, 1.4, 2.6)), ba = 1 - seg(u, 2.8, 3.1);
+  if (bp > 0 && ba > 0) {
+    k.save(); k.globalAlpha = ba; k.strokeStyle = SF_GOLD; k.lineWidth = 2; k.lineJoin = 'round'; k.lineCap = 'round';
+    k.shadowColor = 'rgba(242,196,109,0.8)'; k.shadowBlur = 10; strokeProg(k, SF_BULB, bp);
+    if (bp >= 1) { strokePts(k, [[260, 130], [280, 130]]); }
+    k.restore();
+  }
+  // 3. 星座连线：3.4–4.4 秒逐条画出，复位时向中点收缩断开
+  const brk = seg(u, SHOW, 5.7);
+  SF_EDGES.forEach(([a, b], i) => {
+    const p = inOut3(seg(u, 3.4 + i * 0.14, 3.7 + i * 0.14)); if (p <= 0 || brk >= 1) return;
+    const A = SF_PTS[a], B = SF_PTS[b], m = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2];
+    const s = [mix(A[0], m[0], brk), mix(A[1], m[1], brk)], e = [mix(B[0], m[0], brk), mix(B[1], m[1], brk)];
+    k.save(); k.strokeStyle = 'rgba(242,196,109,0.6)'; k.lineWidth = 1.2; strokePts(k, [s, [mix(s[0], e[0], p), mix(s[1], e[1], p)]]); k.restore();
+  });
+  // 光点：一颗（升起 / 灯丝）或 7 颗（星座）
+  if (scatter <= 0 || gather >= 1) {
+    const y = gather >= 1 ? mix(SF_C[1], 236, sink) : mix(236, SF_C[1], rise);
+    sfDot(k, SF_C[0], y, u > 1.3 && u < 2.8 ? 4 + 1.5 * seg(u, 1.3, 1.6) : 4, 1);
+  } else {
+    const s = scatter * (1 - gather);
+    SF_PTS.forEach(([x, y], i) => {
+      const tw = 0.85 + 0.15 * Math.sin(TAU * (u / CYC) * 4 + i);
+      sfDot(k, mix(SF_C[0], x, s), mix(SF_C[1], y, s), mix(4, 2.6, s), tw);
+    });
+  }
+};

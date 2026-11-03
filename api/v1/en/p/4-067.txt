@@ -1,0 +1,16 @@
+Please use "Visual investigation" (ビジュアル調査), filed under "Animation styles / Media & genres".
+Motion Prompt #4-067
+
+What it is: An investigative-journalism look: source text, scene picture and timeline side by side, linked by highlighter, red circle and timeline cursor, then a push-in and a verdict stamp
+What the sample shows: Three panels sit on a dark gray desk: a newspaper clipping on the left, a riverside scene with a clock tower in the middle, and a 1920–1945 timeline on the right. A yellow highlighter runs over 钟楼刚刚落成, and a red pen loops a hand-drawn ellipse around the clock tower. The timeline cursor slides from 1920 and stops at 1934 钟楼落成, which lights up. The camera pushes in on the red circle, corner brackets appear, and a red-framed stamp 推定：1934 年 lands. On reset the marks and highlight wipe away and the camera pulls back.
+Spec:
+- Three panels: source 150 wide, scene 170 wide, timeline 148 wide.
+- Marking order: highlighter 0.4 s, red circle 1.2 s, cursor 2.0–2.8 s.
+- Timeline: 1920–1945, the cursor stops at 1934.
+- Push-in: 3.3–3.9 s to 1.7×, centred on the red circle.
+- Reset: 5.4–6.0 s marks wipe away and the camera pulls back.
+When to use it: Use it for source checking, event reconstructions and debunking.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-067.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/explainer.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.
