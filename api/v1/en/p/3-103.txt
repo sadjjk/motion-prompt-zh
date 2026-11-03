@@ -1,0 +1,15 @@
+Please use "High-end look" (高級感), filed under "Light & color / Mood & tone recipes".
+Motion Prompt #3-103
+
+What it is: Looking premium through a restrained palette, generous empty space, soft light and precise material detail
+What the sample shows: It starts with a perfume bottle among flowers and a ribbon, on a background of 4 loud stripes. First the colours drop to muted beige tones. Then the flowers and ribbon disappear and the bottle shrinks and moves right, leaving space around it. Next a large soft light comes in from the left, a faint blurred shadow stretches to the right of the bottle and the right side of the frame darkens gently. Finally a liquid line, a vertical highlight on the glass and fine grooves on the metal cap appear. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+Spec:
+- 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+- The 4 stripes mute to #E4DFD8 and the flowers and ribbon leave; the bottle shrinks from x 196 at 1× to x 262 at 0.68×.
+- A large soft light from the left and a soft shadow blurred by 6 px to the right of the bottle; material: a liquid line, a vertical highlight on the left of the glass and 6 fine grooves on the metal cap.
+- The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For product shots of cosmetics, perfume or jewellery that should look premium.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-103.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

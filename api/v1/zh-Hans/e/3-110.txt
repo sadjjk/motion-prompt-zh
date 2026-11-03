@@ -1,0 +1,51 @@
+// Motion Prompt #3-110 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/healing-vibe
+//
+// 治愈感 / Healing vibe
+// 分类: 剪辑与摄影 / 光线与色彩 / 氛围与调性
+// 动画表现: 起点是窗台上一杯冒着热气的茶，偏冷的平淡画面。先让窗变暖，低角度的阳光斜着落在窗台上，茶杯拉出长影；再从左下滑进一条带格纹的毯子；接着整体盖一层暖白降低对比，细小颗粒跳动；最后镜头极慢地推向茶杯。热气一直轻轻摆动。右侧清单每加入一项，对应的编号圆点变蓝，状态从「平淡版」变为「叠加中」再到「成品」。
+// 运动规格:
+//   - 5 秒周期。0–0.6 秒是平淡版；4 项成分从 0.6 秒起每 0.7 秒加入下一项，各用 0.5 秒渐入
+//   - 低角度暖阳从窗斜着落到窗台成一条光带，茶杯拉出长影；毯子从左边滑进 60 px，带 2 条格纹
+//   - 暖白 0.28 降低对比，520 颗颗粒每秒跳 12 次；极慢推进：2.7–4.4 秒从 1 倍推到 1.1 倍；热气每轮摆 1 次
+//   - 成品停到 4.4 秒，4.4–4.95 秒退回平淡版，5 秒与 0 秒是同一帧
+// 适用场景: 拍生活、咖啡、读书、周末 Vlog 这类慢悠悠的日常时。
+// 标签: healing, cozy, warm light, film grain, slow push-in, everyday life
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-110
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 63
+// 63 治愈感：窗边一杯茶。低角度暖阳斜照进来 → 加上随手搭的毯子（生活痕迹）→ 降低对比加颗粒 → 镜头极慢推进
+const HL_CUP = { x: 214, y: 140 }, HL_WIN = { x: 40, y: 18, w: 128, h: 104 };
+const HL_GRAIN = () => once('hlGrain', () => { const r = rng(63), o = []; for (let i = 0; i < 520; i++) o.push([r() * MD_W, r() * CH, r() < 0.5]); return o; });
+CELLS[62] = mdCell('治愈感', ['低角度暖阳', '随手搭的毯子', '降对比加颗粒', '镜头极慢推进'], (k, u, [pS, pB, pG, pZ], D) => {
+  const z = 1 + 0.1 * pZ * mdSlow(u, 3), T = u / CYC * TAU, W = HL_WIN;
+  k.save(); k.translate(HL_CUP.x, HL_CUP.y - 30); k.scale(z, z); k.translate(-HL_CUP.x, -(HL_CUP.y - 30));
+  D.rect(0, 0, MD_W, CH, '#DCDDE0');
+  D.rect(W.x, W.y, W.w, W.h, mixc('#C9D3DE', '#FFE2B0', pS)); D.frame(W.x, W.y, W.w, W.h, 5, '#F4F2EE'); D.rect(W.x + W.w / 2 - 2, W.y, 4, W.h, '#F4F2EE');
+  D.rect(0, 140, MD_W, 68, '#C8BBA8');   // 窗台
+  if (pS > 0.01) {   // 低角度暖阳：从窗斜着落到窗台一长条，茶杯拉出长影
+    k.save(); k.globalCompositeOperation = 'screen'; k.fillStyle = `rgba(255,190,110,${(0.5 * pS).toFixed(3)})`;
+    k.beginPath(); k.moveTo(W.x + 4, W.y + 6); k.lineTo(W.x + W.w - 4, W.y + 6); k.lineTo(330, 200); k.lineTo(150, 200); k.closePath(); k.fill(); k.restore();
+    k.save(); k.globalAlpha = 0.3 * pS; D.poly([[HL_CUP.x - 10, HL_CUP.y], [HL_CUP.x + 10, HL_CUP.y], [HL_CUP.x + 74, HL_CUP.y + 30], [HL_CUP.x + 56, HL_CUP.y + 30]], '#6E5A44'); k.restore();
+  }
+  if (pB > 0.01) {   // 毯子：从左下角滑进来，带两条格纹
+    k.save(); k.globalAlpha = pB; k.translate(-60 * (1 - pB), 0);
+    D.poly([[0, 150], [120, 140], [170, 168], [150, 208], [0, 208]], '#E6B8A2'); D.line([[10, 160], [130, 152], [160, 176]], 3, '#F3D6C6'); D.line([[0, 186], [150, 182]], 3, '#F3D6C6');
+    k.restore();
+  }
+  D.rr(HL_CUP.x - 13, HL_CUP.y - 26, 26, 26, 4, '#F6F1E8'); D.rect(HL_CUP.x - 13, HL_CUP.y - 26, 26, 4, '#C98F4E');   // 茶杯 + 茶面
+  k.strokeStyle = '#F6F1E8'; k.lineWidth = 3; k.beginPath(); k.arc(HL_CUP.x + 15, HL_CUP.y - 14, 6, -1.2, 1.2); k.stroke();
+  k.strokeStyle = 'rgba(255,255,255,.6)'; k.lineWidth = 1.6; k.lineCap = 'round';   // 热气：一轮摆 1 次
+  for (let j = 0; j < 2; j++) { k.beginPath(); for (let s = 0; s <= 10; s++) { const y = HL_CUP.y - 30 - s * 2.4; k[s ? 'lineTo' : 'moveTo'](HL_CUP.x - 4 + j * 8 + 2.5 * Math.sin(s * 0.7 + T + j * 2), y); } k.stroke(); }
+  k.restore();
+  if (pG > 0.01) {   // 降对比：盖一层暖白；颗粒：固定点阵按 u 跳着平移（12 帧/秒）
+    k.save(); k.fillStyle = `rgba(250,238,222,${(0.28 * pG).toFixed(3)})`; k.fillRect(0, 0, MD_W, CH);
+    const off = Math.floor(u * 12) * 7;
+    HL_GRAIN().forEach(([x, y, w]) => { k.fillStyle = w ? `rgba(255,255,255,${(0.35 * pG).toFixed(3)})` : `rgba(60,40,20,${(0.22 * pG).toFixed(3)})`; k.fillRect((x + off) % MD_W, y, 1.2, 1.2); });
+    k.restore();
+  }
+});

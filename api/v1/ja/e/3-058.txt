@@ -2,13 +2,13 @@
 //
 // コースティクス / Caustics
 // 分類: 編集・撮影 / 光と色 / 光源と色
-// 何が起きるか: 場面が水の中の淡い青に沈む。上に揺れる水面の線、斜めに差す4本の光の筋。人物と水底に、曲がった網目の明るい線が揺れながら流れる。
+// 何が起きるか: 最初から最後までプールの水中。上には下から見上げた波打つ水面の帯があり、斜めの光の筋が5本差し込む。奥の壁はタイル、底は遠近のついたタイルとコースの線。赤い水着に帽子とゴーグルの人が手を振り、泡が上っていく。壁・底・肌の上に明るい曲線の網が広がり、線の交わるところがいちばん明るい。底では網が横につぶれて見える。網はゆっくり形を変えて流れるが、タイルの線と人物の形はゆがまない。最初と最後は水面が静かで網もゆるく、0.2秒から波が強くなり、終わりにまた静まる。
 // 動きの仕様:
-//   - 場面①: 胸から上の人物。色は #3F8FB0 へ 55% 寄せ、空 #7CC3D9、水底 #5E9FB4、人物 #2E5A78
-//   - 網目: 右下がりと左下がりの線を各 34 本、間隔 26px、太さ 0.2〜2.2px の #E8FBFF。線は3つの正弦の揺れ（1周に 1・2・3 回）で曲がる
-//   - 網目は 1px ぼかして不透明度 0.5 のスクリーン。光の筋 4 本は x 120 から 110px おき、上で 0.22 の不透明度から下へ消える
-//   - 水面: 上端 y≈9 の揺れる線、太さ 2px #EAFBFF
-//   - 時間: 0.4〜1.4秒で効果が入り、4.0秒まで保ち、4.8秒までに元へ戻る（1周5秒、イーズインアウト）
+//   - 5秒周期。0.2〜1.0秒に水面が波立ち、4.4〜4.95秒に静まる。網の強さは静かなとき0.6倍
+//   - 網：34個の点がそれぞれ小さな円を描き（1周に1〜2周）、いちばん近い2点までの距離の差から明るさを出すので、つながった曲線の網になり交点が最も明るい
+//   - 網は全体に0.55、底には縦1.6倍に伸ばしてつぶした写しを0.7、肌の上に0.5で重ねる。網は半分の解像度で計算
+//   - 壁のタイルは26pxの格子、底は透視の線。光の筋5本は x 60から104pxおきで8px揺れる。泡5個が上る
+//   - 人物は (318, 96)：肌 #E8B48E、赤い水着 #C8414B、帽子 #1F3A5F、ゴーグル。手を1周に1回振る
 // 使いどころ: プール・海・水族館など、水の中にいる感じを出したいとき。
 // タグ: caustics, underwater, pool light, ripples, water, light
 // サイズ: 539x208 px · 1周: 5 s
@@ -19,42 +19,81 @@
 // ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
 
 // @element 41
-// 水下焦散（コースティクス）: 場面が水の中の淡い青に沈む。上に揺れる水面の線、斜めに差し込む光の筋。
-// 人物と水底に、水面の揺れで曲がった網目の明るい線が流れる
-CELLS[40] = cell((k, u) => {
-  const a = env(u), T = u / CYC * TAU;
-  const WATER = mapPal(BASE, c => mixc(c, '#3F8FB0', 0.55));
-  Object.assign(WATER, { sky: '#7CC3D9', sky2: '#5FAFCB', ground: '#5E9FB4', person: '#2E5A78', shade: '#24485F' });
-  stagePortrait(k, pal(BASE, WATER, a));
-  bust(k, PX, PY, PR, mixc(BASE.person, WATER.person, a));
-  if (a < 0.002) return;
-  // 網目: 2方向に走る曲がった線。線の位置は水面の揺れ（整数倍の周期）で変形する
-  const [L, kl] = layer('caustic');
-  kl.strokeStyle = '#E8FBFF'; kl.lineCap = 'round';
-  const wob = (x, y) => 7 * Math.sin(x * 0.045 + T * 2) + 5 * Math.sin(y * 0.07 - T + x * 0.02) + 3 * Math.sin((x + y) * 0.09 + T * 3);
-  for (let dir = 0; dir < 2; dir++) {
-    for (let i = -6; i < 28; i++) {
-      kl.lineWidth = 1.2 + (i % 3) * 0.5; kl.beginPath();
-      for (let s = 0; s <= 60; s++) {
-        const t = s / 60;
-        // dir 0: 右下がりの線、dir 1: 左下がりの線。交わって網になる
-        const bx = dir ? i * 26 - t * 120 : i * 26 - 160 + t * 120, by = 30 + t * (CH - 30);
-        const x = bx + wob(bx, by), y = by + 0.6 * wob(by, bx);
-        s ? kl.lineTo(x, y) : kl.moveTo(x, y);
-      }
-      kl.stroke();
-    }
+// 水下焦散：整轮都在泳池水下。上方是从水下看的起伏水面，斜光束穿过水；池底瓷砖、后墙和人的皮肤上
+// 爬着网状、弯曲的亮纹（粗细不一，交汇处最亮，网眼里偏暗）。和斑驳树影的分别：是连成网的细亮线，不是圆光斑；
+// 和涟漪扭曲的分别：只是光在动，瓷砖和人形本身不变形。
+// 亮纹算法：一组固定种子的点（rng(58)）各自画小圈，像素到最近两点的距离差越小越亮 → 天然形成连成网的曲线，三线交汇处最亮。
+// 所有运动都是一轮（CYC 5 秒）的整数倍周期，首尾帧一致；0～1 秒水面从平静起伏起来，4.4～4.95 秒回到平静（复位）
+const CA_SC = 2, CA_W = Math.ceil(CW / CA_SC), CA_H = Math.ceil(CH / CA_SC);   // 网纹在半分辨率算，放大时自然柔一点
+const CA_N = 34, CA_FLOOR = 150, CA_SURF = 16, CA_VP = [262, 40];   // 种子点数、池底线、水面高度、地砖透视消失点
+const CA_SWIM = { x: 318, y: 96, R: 19 }, CA_SKIN = '#E8B48E', CA_SUIT = '#C8414B', CA_CAP = '#1F3A5F';
+const CA_PTS = () => once('caPts', () => { const r = rng(58), o = []; for (let i = 0; i < CA_N; i++) o.push([r() * (CA_W + 24) - 12, r() * (CA_H + 24) - 12, 4 + r() * 6, 3 + r() * 5, 1 + (r() < 0.5 ? 1 : 0), r() * TAU]); return o; });
+const CA_BUF = () => once('caBuf', () => layer('causticSrc')[1].createImageData(CA_W, CA_H));
+const CA_BUB = [[286, 0.1, 1], [296, 0.55, 2], [352, 0.3, 1], [140, 0.7, 1], [430, 0.2, 2]];   // 气泡 [x, 相位, 一轮升几次]
+function caCalm(u) { return eIO(P(u, 0.2, 1.0)) * (1 - eIO(P(u, 4.4, 4.95))); }
+// 网纹：返回一张 CA_W×CA_H 的透明亮纹图（画在 CW×CH 的层上左上角）
+function caMesh(u, q) {
+  const T = u / CYC * TAU, pts = CA_PTS().map(([x, y, rx, ry, n, ph]) => [x + q * rx * Math.cos(n * T + ph), y + q * ry * Math.sin(n * T + ph * 1.3)]);
+  const img = CA_BUF(), d = img.data;
+  for (let y = 0; y < CA_H; y++) for (let x = 0; x < CA_W; x++) {
+    // 坐标先被水面起伏弯一下，网线因此是弯的
+    const wx = x + (1 + 2.4 * q) * Math.sin(y * 0.13 + T * 2), wy = y + (1 + 2 * q) * Math.sin(x * 0.11 - T);
+    let d1 = 1e9, d2 = 1e9;
+    for (let i = 0; i < CA_N; i++) { const dx = wx - pts[i][0], dy = wy - pts[i][1], dd = dx * dx + dy * dy; if (dd < d1) { d2 = d1; d1 = dd; } else if (dd < d2) d2 = dd; }
+    const e = Math.sqrt(d2) - Math.sqrt(d1), w = 0.9 + 0.55 * (1 + Math.sin(x * 0.06 + y * 0.08 + T)), v = Math.exp(-e / w);
+    const o = (y * CA_W + x) * 4; d[o] = 232; d[o + 1] = 252; d[o + 2] = 255; d[o + 3] = Math.min(255, v * 300);
   }
-  k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.5 * a; k.filter = 'blur(1px)'; k.drawImage(L, 0, 0); k.restore();
-  // 光の筋と水面
+  const [L, kl] = layer('causticSrc'); kl.putImageData(img, 0, 0); return L;
+}
+function caSwimmer(k, D, u, mask) {
+  const S = CA_SWIM, T = u / CYC * TAU, sway = 0.12 * Math.sin(T), sk = mask || CA_SKIN;
+  // 抬起的手臂：肩 → 肘 → 手，整轮摆 1 次
+  const sh = [S.x + 22, S.y + 34], el = [sh[0] + 22 + 4 * sway * 10, sh[1] - 30], ha = [el[0] - 6 + 30 * sway, el[1] - 34];
+  D.line([sh, el, ha], 10, sk); D.circ(ha[0], ha[1], 6, sk);
+  bust(k, S.x, S.y, S.R, mask || CA_SUIT);
+  D.circ(S.x, S.y, S.R, sk);   // 脸和脖子是皮肤色
+  D.rect(S.x - 8, S.y + S.R - 4, 16, 14, sk);
+  if (!mask) {
+    k.fillStyle = CA_CAP; k.beginPath(); k.arc(S.x, S.y, S.R + 0.5, Math.PI * 1.02, Math.PI * 1.98); k.fill();   // 泳帽
+    D.rr(S.x - 15, S.y - 4, 13, 7, 3, '#2A2F3A'); D.rr(S.x + 2, S.y - 4, 13, 7, 3, '#2A2F3A');   // 泳镜
+  }
+}
+CELLS[40] = cell((k, u) => {
+  const T = u / CYC * TAU, q = caCalm(u), D = pen(k);
+  // 水：上亮下暗的青蓝
+  const g = k.createLinearGradient(0, 0, 0, CH); g.addColorStop(0, '#7FD0E2'); g.addColorStop(0.55, '#3C9BB8'); g.addColorStop(1, '#1F6A8A');
+  k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  // 后墙瓷砖 + 池底透视瓷砖（瓷砖线是直的：焦散不扭曲物体）
+  k.strokeStyle = 'rgba(20,70,95,.25)'; k.lineWidth = 1;
+  for (let x = 0; x <= CW; x += 26) { k.beginPath(); k.moveTo(x, 34); k.lineTo(x, CA_FLOOR); k.stroke(); }
+  for (let y = 34; y <= CA_FLOOR; y += 26) { k.beginPath(); k.moveTo(0, y); k.lineTo(CW, y); k.stroke(); }
+  D.rect(0, CA_FLOOR, CW, CH - CA_FLOOR, '#2F86A6');
+  k.strokeStyle = 'rgba(15,60,85,.35)';
+  for (let i = -14; i <= 34; i++) { k.beginPath(); k.moveTo(CA_VP[0] + (i * 26 - CA_VP[0]) * 0.55, CA_FLOOR); k.lineTo(CA_VP[0] + (i * 26 - CA_VP[0]) * 1.6, CH); k.stroke(); }
+  for (const y of [CA_FLOOR + 8, CA_FLOOR + 20, CA_FLOOR + 36, CA_FLOOR + 58]) { k.beginPath(); k.moveTo(0, y); k.lineTo(CW, y); k.stroke(); }
+  D.poly([[CA_VP[0] - 12, CA_FLOOR], [CA_VP[0] + 12, CA_FLOOR], [CA_VP[0] + 30, CH], [CA_VP[0] - 30, CH]], '#1E5E80');   // 泳道线
+  caSwimmer(k, D, u);
+  // 气泡：从人嘴边和池底往上冒，循环整数次
+  k.strokeStyle = 'rgba(235,252,255,.75)'; k.lineWidth = 1.2;
+  CA_BUB.forEach(([x, ph, n], i) => { const f = (u / CYC * n + ph) % 1, y = CA_FLOOR - f * (CA_FLOOR - CA_SURF); k.beginPath(); k.arc(x + 3 * Math.sin(f * TAU * 2 + i), y, 2 + (i % 3), 0, TAU); k.stroke(); });
+  // 网纹：整面一层；池底再叠一层压扁的（透视里网眼变扁变密）；人身上用遮罩再叠一层，亮纹落在皮肤上
+  const M = caMesh(u, q), A = lerp(0.6, 1, q);
+  k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.55 * A; k.drawImage(M, 0, 0, CA_W, CA_H, 0, 0, CW, CH); k.restore();
+  k.save(); k.beginPath(); k.rect(0, CA_FLOOR, CW, CH - CA_FLOOR); k.clip(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.7 * A;
+  k.drawImage(M, 0, 0, CA_W, CA_H, -40, CA_FLOOR - 10, CW + 80, (CH - CA_FLOOR) * 1.6); k.restore();
+  const [Mk, km] = layer('causticSkin'); caSwimmer(km, pen(km), u, '#FFFFFF');
+  km.globalCompositeOperation = 'source-in'; km.drawImage(M, 0, 0, CA_W, CA_H, 0, 0, CW, CH);
+  k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.5 * A; k.drawImage(Mk, 0, 0); k.restore();
+  // 斜光束：从水面斜着往右下打，跟着水面轻轻晃
   k.save(); k.globalCompositeOperation = 'lighter';
-  for (let i = 0; i < 4; i++) {
-    const x0 = 120 + i * 110 + 10 * Math.sin(T + i), g = k.createLinearGradient(0, 0, 0, CH);
-    g.addColorStop(0, `rgba(220,248,255,${(0.22 * a).toFixed(3)})`); g.addColorStop(1, 'rgba(220,248,255,0)');
-    k.fillStyle = g; k.beginPath(); k.moveTo(x0, 0); k.lineTo(x0 + 26, 0); k.lineTo(x0 + 26 - 70, CH); k.lineTo(x0 - 40 - 70, CH); k.closePath(); k.fill();
+  for (let i = 0; i < 5; i++) {
+    const x0 = 60 + i * 104 + 8 * Math.sin(T + i * 1.3), bg = k.createLinearGradient(0, CA_SURF, 0, CH);
+    bg.addColorStop(0, `rgba(210,246,255,${(0.2 * A).toFixed(3)})`); bg.addColorStop(1, 'rgba(210,246,255,0)');
+    k.fillStyle = bg; k.beginPath(); k.moveTo(x0, CA_SURF); k.lineTo(x0 + 22, CA_SURF); k.lineTo(x0 + 22 + 90, CH); k.lineTo(x0 - 30 + 90, CH); k.closePath(); k.fill();
   }
   k.restore();
-  k.save(); k.globalAlpha = a; k.strokeStyle = '#EAFBFF'; k.lineWidth = 2; k.beginPath();
-  for (let x = 0; x <= CW; x += 6) { const y = 9 + 3 * Math.sin(x * 0.05 + T * 2) + 2 * Math.sin(x * 0.11 - T * 3); x ? k.lineTo(x, y) : k.moveTo(x, y); }
-  k.stroke(); k.restore();
+  // 从水下看的水面：一条亮带，下沿随波起伏（振幅跟 q）
+  const sy = x => CA_SURF + (1 + 3 * q) * Math.sin(x * 0.05 + T * 2) + (0.5 + 2 * q) * Math.sin(x * 0.12 - T * 3);
+  k.fillStyle = 'rgba(214,246,255,.85)'; k.beginPath(); k.moveTo(0, 0); for (let x = 0; x <= CW; x += 6) k.lineTo(x, sy(x)); k.lineTo(CW, 0); k.closePath(); k.fill();
+  k.strokeStyle = '#F4FDFF'; k.lineWidth = 2; k.beginPath(); for (let x = 0; x <= CW; x += 6) x ? k.lineTo(x, sy(x)) : k.moveTo(x, sy(x)); k.stroke();
 });

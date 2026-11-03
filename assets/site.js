@@ -240,7 +240,8 @@
     if (s == null) s = I18N.en[key] || key;
     s = s.split('{repo}').join(window.MP_SITE_CONFIG.repo);
     if (key === 'installPrompt') s = s.replace('https://github.com/showheyohtaki/motion-prompt', window.MP_SITE_CONFIG.repo);
-    if (key === 'installPrompt') s = s.replace(/motion-prompt (Skill|skill|スキル)/g, window.MP_SITE_CONFIG.skillName + ' $1');
+    // Skill 名称：所有文案都按配置里的安装名替换（与 tools/build.mjs 的静态替换同一规则），否则运行时会把静态页里已替换好的 s1p、outEnd 改回旧名
+    s = s.replace(/motion-prompt (Skill|skill|スキル)/g, window.MP_SITE_CONFIG.skillName + ' $1');
     if (vars) Object.keys(vars).forEach(function (k) { s = s.split('{' + k + '}').join(vars[k]); });
     return s;
   }

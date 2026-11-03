@@ -1,0 +1,77 @@
+// Motion Prompt #3-095 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/ad-15s-script
+//
+// 15秒CM台本 / 15-second ad script
+// 分類: 編集・撮影 / カメラ・編集 / 絵コンテ・テンポ
+// 何が起きるか: 4コマの幅が3 : 7 : 3 : 2秒の比で、ポイントの区間がいちばん長く、締めがいちばん短いのがひと目でわかる。「钩子」はボトルが上から落ちて弾み、赤字「摔不坏？」。「卖点 × 2」は前半が黒バックのサイドライトで溝が光り、後半は湯気が立ち、数字が12hまで数え上がって「保温」。「使用」は屋外で手に持つ。「产品 + 口号」は淡い青の無地の背景でボトルが中央、下に青い帯のキャッチコピー。コマの下に3s・7s・3s・2s、隅に経過秒「07 / 15s」。
+// 動きの仕様:
+//   - 9.4秒周期。15秒を1秒＝0.55秒に縮め、0.3秒から8.55秒まで再生
+//   - 4コマの幅は3 : 7 : 3 : 2。「卖点 × 2」の前半は滑り止め、後半は湯気と0から12hへのカウント
+//   - 締めのコマ：コマの15〜40%でキャッチコピーの帯が現れる
+//   - 8.8〜9.4秒に最初の画面へフェードで戻る
+// 使いどころ: SNS広告やEC用の15秒動画の台本を、時間配分から組み立てたいとき。
+// タグ: 15-second ad, ad script, hook, selling points, slogan, storyboard
+// サイズ: 539x208 px · 1周: 9.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-095
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 47
+// 47 15 秒广告脚本：4 段按 3 : 7 : 3 : 2 秒分配，格子宽度也按这个比例 —— 一眼看出卖点段最长、结尾最短。
+// 钩子（杯子从高处掉下弹起，「摔不坏？」）→ 两个卖点（防滑纹 / 保温 12 小时）→ 使用（手拿着出门）→ 产品 + 口号（干净底色 + 口号条）。
+// 15 秒压到 0.3–8.55 s 播放（每秒 0.55 s），沿用 43 格的保温杯。
+const AD_SEC = [3, 7, 3, 2], AD_K = 0.55, AD_T0 = 0.3;
+const AD_TS = AD_SEC.reduce((a, s, i) => (a.push(i ? a[i - 1] + AD_SEC[i - 1] * AD_K : AD_T0), a), []);
+const AD_LABEL = ['钩子', '卖点 × 2', '使用', '产品 + 口号'];
+const AD_SLOGAN = '热水随身带';
+function adShot(k, w, h, i, q) {
+  if (i === 0) {   // 钩子：杯子从画面上方掉下，落地弹两下，问号字卡
+    k.fillStyle = '#FFF6E5'; k.fillRect(0, 0, w, h);
+    const t = q * 1.6, y = t < 0.5 ? (t / 0.5) ** 2 : t < 0.9 ? 1 - 0.18 * Math.sin((t - 0.5) / 0.4 * Math.PI) : 1 - 0.05 * Math.sin(Math.min(1, (t - 0.9) / 0.25) * Math.PI);
+    k.fillStyle = C.g2; k.fillRect(0, h * 0.86, w, h * 0.14);
+    pdBottle(k, w / 2, lerp(-h * 0.1, h * 0.86, y), h * 0.56, 0.5);
+    if (q > 0.55) txt(k, '摔不坏？', w / 2, h * 0.16, `800 12px ${JP}`, '#E5484D', 'center', 'middle');
+    return;
+  }
+  if (i === 1) {   // 两个卖点各占一半：左半段防滑纹侧光，右半段保温（热气 + 12h）
+    if (q < 0.5) return pdShot(k, w, h, 1, q * 2);
+    const p = (q - 0.5) * 2;
+    k.fillStyle = '#16161A'; k.fillRect(0, 0, w, h);
+    pdBottle(k, w * 0.32, h * 0.92, h * 0.78, 0.8);
+    k.strokeStyle = 'rgba(255,255,255,.5)'; k.lineWidth = 2; k.lineCap = 'round';
+    for (let j = 0; j < 3; j++) {   // 热气：三条波浪线往上飘
+      const x = w * 0.26 + j * 9, y0 = h * 0.18 - ((p * 2 + j * 0.3) % 1) * 12;
+      k.beginPath(); for (let s = 0; s <= 12; s++) { const yy = y0 - s * 1.6; k[s ? 'lineTo' : 'moveTo'](x + Math.sin(s * 0.8 + p * 9) * 2.5, yy); } k.stroke();
+    }
+    txt(k, `${Math.round(12 * eOut(clamp(p * 1.5)))}h`, w * 0.7, h * 0.48, `800 26px ${EN}`, '#FFFFFF', 'center', 'middle');
+    txt(k, '保温', w * 0.7, h * 0.72, `700 11px ${JP}`, C.blueM, 'center', 'middle');
+    return;
+  }
+  if (i === 2) return pdShot(k, w, h, 2, q);
+  // 产品 + 口号：浅蓝干净底色，杯子居中，下方口号条
+  k.fillStyle = C.blueBg; k.fillRect(0, 0, w, h);
+  pdBottle(k, w / 2, h * 0.7, h * 0.56, 0.6 + q * 0.3);
+  const a = P(q, 0.15, 0.4);
+  k.save(); k.globalAlpha *= a; k.fillStyle = C.blue; k.fillRect(0, h * 0.76, w, h * 0.24);
+  txt(k, AD_SLOGAN, w / 2, h * 0.88, `700 10px ${JP}`, '#FFFFFF', 'center', 'middle'); k.restore();
+}
+CELLS[46] = shot((k, w, h, uu, cyc) => {
+  const U = sbU(uu, cyc), fade = sbFade(U), x0 = 30, x1 = CW - 30, gap = 10, y = 50, ph = 100;
+  const unit = (x1 - x0 - gap * 3) / 15;
+  let x = x0, cur = -1;
+  const R = AD_SEC.map(s => { const r = { x, y, w: s * unit, h: ph }; x += s * unit + gap; return r; });
+  R.forEach((r, i) => {
+    const st = sbState(U, AD_TS, i), q = st === 1 ? clamp((U - AD_TS[i]) / (AD_SEC[i] * AD_K)) : 1;
+    if (st === 1) cur = i;
+    sbPanel(k, r, st, sbOn(U, AD_TS, i), (kk, pw, phh) => adShot(kk, pw, phh, i, q), String(i + 1));
+    sbLabel(k, r, AD_LABEL[i], st);
+    // 秒数：格下第二行，等宽字
+    k.save(); k.globalAlpha = P(U, 0.2, 0.5) * fade;
+    txt(k, `${AD_SEC[i]}s`, r.x + r.w / 2, r.y + r.h + 30, `700 11px ${MONO}`, st === 1 ? C.blue : C.sub, 'center', 'middle');
+    k.restore();
+  });
+  // 已播秒数：按 15 秒刻度换算
+  const sec = cur >= 0 ? Math.min(15, Math.floor((U - AD_T0) / AD_K)) : 0;
+  return cur >= 0 ? `${String(sec).padStart(2, '0')} / 15s  ${AD_LABEL[cur]}` : '15 秒广告脚本';
+});

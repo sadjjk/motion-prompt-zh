@@ -1,0 +1,15 @@
+Please use "Three-second hook" (冒頭3秒のフック), filed under "Camera & editing / Storyboards & pacing".
+Motion Prompt #3-090
+
+What it is: Open on the result, the conflict or a close-up straight away, and tell how it got there afterwards
+What the sample shows: Three panels light up in turn. Panel 1 is the result in close-up: a two-tier cake with strawberries, its candle flame flickering, background blurred, the camera creeping in. Panel 2 is a close shot of the face: the mouth opens, a "Wow!" bubble pops up and the eyes blink once. Panel 3 is the wide establishing shot: the person stands by the table and raises an arm. On the timeline below, the first 3 s are filled blue and labelled "first 3 s · hook", and panel 1 ends exactly as the playhead leaves that stretch.
+Spec:
+- 9.4 s cycle. The 3 panels start at 0.3, 3.3 and 5.8 s and end at 8.5 s; panel 1 lasts exactly 3 s.
+- Result close-up: background blurred by 3 px, slow push-in; the flame flickers irregularly from 2 overlaid frequencies.
+- Timeline: the 0–3 s stretch is blue, with ticks "0" and "3s"; the playhead moves in real seconds.
+- From 8.8 to 9.4 s the picture fades back to the opening frame.
+When to use it: For the opening of a short video that has to stop the scroll in the first seconds.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-090.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

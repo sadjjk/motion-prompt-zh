@@ -1,0 +1,91 @@
+// Motion Prompt #3-102 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/cinematic-look
+//
+// シネマ風 / Cinematic look
+// 分類: 編集・撮影 / 光と色 / ムード・トーン
+// 何が起きるか: 街角のカフェの窓の前に人物がいる平凡な昼の画面に、要素が1つずつ重なる。まず上下に黒い帯が入って横長の画面になる。次に右の窓が暖色に灯って場面が夜に変わり、窓の光が床と顔の右側を照らす。続いて背景の建物と窓がぼけ、4つの街灯が大きな玉ボケになる。最後に全体が青緑に沈み、窓のまわりだけオレンジが強まる。右のチェックリストは要素が入るごとに番号の丸が青くなり、状態が「平淡版 → 叠加中 → 成品」と変わる。
+// 動きの仕様:
+//   - 5秒周期。0〜0.6秒は平凡な版。4つの要素が0.6秒から0.7秒ごとに1つずつ加わり、それぞれ0.5秒で入る
+//   - 黒い帯は上下22px。窓の光で場面が夜になり、右の114 × 120pxの暖色の窓が床と顔の右側を照らす
+//   - 浅い被写界深度で背景を3.4pxぼかし、4つの街灯は玉ボケに。ティール＆オレンジ：全体に #5FB4BE を乗算し、窓のまわりにオレンジを足す
+//   - 4.4秒まで完成形で止まり、4.4〜4.95秒に平凡な版へ戻る。5秒と0秒は同じ画面
+// 使いどころ: 人物写真や街のスナップ、動画のサムネイルを映画の一場面のように見せたいとき。
+// タグ: cinematic, letterbox, motivated light, shallow depth of field, teal and orange, color grading
+// サイズ: 539x208 px · 1周: 5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-102
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 55
+// —— 氛围与调性（55〜64）共用节奏：0–0.6 秒平淡版 → 每 0.7 秒叠一项成分（0.5 秒渐入），右侧清单逐项点亮 →
+// 3.4–4.4 秒停在成品 → 4.4–4.95 秒全部退回平淡版。场景画在左边 392 px 宽的区域，右边是成分清单。
+const MD = { t0: 0.6, dt: 0.7, ramp: 0.5, hold: 4.4, back: 4.95 }, MD_W = 392;
+const mdR = u => 1 - eIO(P(u, MD.hold, MD.back));
+const mdP = (u, i) => eIO(P(u, MD.t0 + i * MD.dt, MD.t0 + i * MD.dt + MD.ramp)) * mdR(u);
+// 最后一项成分开始后的「慢动作」进度（0→1 走到 4.4 秒），极慢推拉镜用
+const mdSlow = (u, i) => P(u, MD.t0 + i * MD.dt, MD.hold);
+// canvas 的 filter 不随变换缩放：按当前缩放换算，2× 画布上虚化程度一致
+const mdBlur = (k, px) => { const m = k.getTransform(), sc = Math.hypot(m.a, m.b); k.filter = px > 0.05 ? `blur(${(px * sc).toFixed(2)}px)` : 'none'; };
+function mdPanel(k, name, labels, ps) {
+  const x = MD_W;
+  k.fillStyle = '#FFFFFF'; k.fillRect(x, 0, CW - x, CH); k.fillStyle = '#E3E1DC'; k.fillRect(x, 0, 1, CH);
+  fcText(k, name, x + 18, 28, 16, FC_INK, 'left', 800);
+  const n = ps.filter(p => p > 0.5).length;
+  fcText(k, n === 0 ? '平淡版' : n === ps.length ? '成品' : `叠加中 ${n} / ${ps.length}`, x + 18, 50, 10.5, n === ps.length ? FC_BLUE : FC_SUB, 'left', 600);
+  labels.forEach((s, i) => {
+    const y = 80 + i * 30, p = ps[i], on = p > 0.5;
+    k.fillStyle = mixc('#E2E1DE', FC_BLUE, p); k.beginPath(); k.arc(x + 26, y, 9, 0, TAU); k.fill();
+    fcText(k, String(i + 1), x + 26, y + 0.5, 10, '#FFFFFF', 'center', 800);
+    fcText(k, s, x + 42, y, 11.5, on ? FC_INK : '#B0B0B5', 'left', on ? 700 : 500);
+  });
+}
+// 氛围款外壳：scene(k, u, ps, D) 只管画场景；ps 默认按统一节奏算，局部改图等特例可传 psFn
+function mdCell(name, labels, scene, psFn) {
+  return cell((k, u) => {
+    const ps = psFn ? psFn(u) : labels.map((_, i) => mdP(u, i));
+    k.save(); k.beginPath(); k.rect(0, 0, MD_W, CH); k.clip(); scene(k, u, ps, pen(k)); k.restore();
+    mdPanel(k, name, labels, ps);
+  });
+}
+// 55 电影感：夜晚街角咖啡馆窗前的人。宽画幅黑边 → 窗光（有来源，从右侧窗照到脸上，场景转夜）→ 浅景深（背景虚化、路灯变光斑）→ 青橙调色
+const CI_P = { x: 150, y: 96, R: 30 }, CI_WIN = { x: 238, y: 30, w: 114, h: 120 }, CI_BAR = 22;
+const CI_BLD = [[6, 40, 58, 72], [72, 22, 46, 90], [124, 54, 40, 58], [360, 40, 40, 74]];   // [x, y, w, h]
+const CI_LAMP = [[40, 74], [118, 66], [210, 70], [376, 62]];   // 路灯灯头 [x, y]
+CELLS[54] = mdCell('电影感', ['宽画幅黑边', '有来源的窗光', '浅景深', '青橙调色'], (k, u, [pL, pW, pD, pG], D) => {
+  const night = pW, c = (a, b) => mixc(a, b, night);
+  D.rect(0, 0, MD_W, CH, c('#D3D6DB', '#1E2330'));
+  k.save(); mdBlur(k, 3.4 * pD);   // 背景：楼、路灯、咖啡馆窗都会被浅景深虚掉
+  CI_BLD.forEach(([x, y, w, h]) => D.rect(x, y, w, h, c('#B8BCC4', '#2C3342')));
+  D.rect(0, 130, MD_W, 78, c('#BFC2C8', '#262B37'));
+  CI_LAMP.forEach(([x, y]) => { D.rect(x - 1.2, y, 2.4, 130 - y, c('#9FA3AA', '#3A4152')); D.circ(x, y, 3.2, c('#C9CCD1', '#FFD38A')); });
+  const W = CI_WIN;
+  D.rect(W.x, W.y, W.w, W.h, c('#D9DCE0', '#FFC46B'));
+  D.frame(W.x, W.y, W.w, W.h, 4, c('#9FA3AA', '#5A3B1E')); D.rect(W.x + W.w / 2 - 1.5, W.y, 3, W.h, c('#9FA3AA', '#5A3B1E'));
+  k.restore();
+  // 光斑：路灯在浅景深里变成大圆盘
+  if (pD * night > 0.01) {
+    k.save(); k.globalCompositeOperation = 'lighter';
+    CI_LAMP.forEach(([x, y], i) => { k.fillStyle = `rgba(255,200,120,${(0.22 * pD * night).toFixed(3)})`; k.beginPath(); k.arc(x, y, 5 + 9 * pD + (i % 2) * 3, 0, TAU); k.fill(); });
+    k.restore();
+  }
+  // 窗光落在地面和人的右侧
+  if (pW > 0.01) {
+    k.save(); k.globalCompositeOperation = 'lighter'; k.fillStyle = `rgba(255,170,80,${(0.22 * pW).toFixed(3)})`;
+    k.beginPath(); k.moveTo(W.x, W.y + W.h); k.lineTo(W.x + W.w, W.y + W.h); k.lineTo(W.x + 40, CH); k.lineTo(W.x - 130, CH); k.closePath(); k.fill(); k.restore();
+  }
+  const body = c('#4D5A75', '#151923');
+  bust(k, CI_P.x, CI_P.y, CI_P.R, body, kk => {
+    if (pW < 0.01) return;
+    kk.globalAlpha = pW; headShade(kk, CI_P.x, CI_P.y, CI_P.R, 0.95, 1, '#E89A4E');
+    kk.fillStyle = '#C97C3A'; kk.fillRect(CI_P.x + 1.2 * CI_P.R, CI_P.y + CI_P.R, CI_P.R, CH);
+  });
+  // 青橙：整体乘上青色（暗部偏青），窗光一带再提橙
+  if (pG > 0.01) {
+    k.save(); k.globalCompositeOperation = 'multiply'; k.fillStyle = mixc('#FFFFFF', '#5FB4BE', pG); k.fillRect(0, 0, MD_W, CH);
+    k.globalCompositeOperation = 'screen'; const g = k.createRadialGradient(295, 90, 10, 295, 90, 170);
+    g.addColorStop(0, `rgba(255,140,40,${(0.4 * pG).toFixed(3)})`); g.addColorStop(1, 'rgba(255,140,40,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    k.restore();
+  }
+  const bh = CI_BAR * pL; D.rect(0, 0, MD_W, bh, '#000000'); D.rect(0, CH - bh, MD_W, bh, '#000000');
+});

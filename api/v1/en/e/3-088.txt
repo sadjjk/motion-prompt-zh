@@ -1,0 +1,71 @@
+// Motion Prompt #3-088 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/action-beats
+//
+// Action beats / 動作を拍に分ける
+// Category: Editing & photography / Camera & editing / Storyboards & pacing
+// What happens: Five equal panels light up in turn. A figure seated at a table, seen side-on, holds still, slowly reaches out and grips the cup, pauses for a beat, quickly lifts the cup to the mouth (head tipping back slightly, cup tilting towards the lips) and ends in the drinking pose. The time bar below is split by each beat's real length: the slow part is long and light blue, the pause is its own grey segment, the fast part is short and dark blue, with a black playhead moving along.
+// Motion spec:
+//   - 9.4 s cycle. The 5 beats start at 0.3 s and last 1.2, 2.6, 1.0, 0.8 and 2.6 s: 8.2 s in total, finished by 8.5 s.
+//   - The lift reaches the mouth in the first half of its beat and holds there for the second half, so it reads as fast.
+//   - Bar segments are proportional to duration: slow is light blue, pause grey and fast dark blue, each marked "slow", "pause" or "fast".
+//   - From 8.8 to 9.4 s the picture fades back to the opening frame.
+// When to use it: For everyday actions such as drinking, opening a door or turning round, when the AI should act out the rhythm instead of rushing through.
+// Tags: action beats, timing, pacing, pause, motion breakdown, storyboard
+// Size: 539x208 px · Cycle: 9.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-088
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 40
+// 40 动作拆节拍：「端起杯子喝一口」拆成 5 拍：起始 → 伸手（慢）→ 停 1 拍 → 举杯（快）→ 结束。
+// 5 个格子等宽，下方时间条的段长按每拍实际时长画：慢的拍长、快的拍短、停顿单独占一段，一眼看出节奏。
+const BT_BEATS = [   // [格下标签, 时长 s, 速度]；速度 slow / stop / fast 决定时间条颜色和段内字
+  ['起始', 1.2, ''], ['伸手 · 慢', 2.6, 'slow'], ['停 1 拍', 1.0, 'stop'], ['举杯 · 快', 0.8, 'fast'], ['结束', 2.6, '']
+];
+const BT_T0 = 0.3;   // 第 1 拍开始；5 拍共 8.2 s，8.5 s 播完，留在 SB_END（8.8）之前
+const BT_TS = BT_BEATS.reduce((a, b, i) => (a.push(i ? a[i - 1] + BT_BEATS[i - 1][1] : BT_T0), a), []);
+const BT_FAST = 0.5;   // 举杯只用本拍前一半时间，后一半停在嘴边，显得快
+// 每拍的姿态：r = 手从桌上伸到杯子（0〜1），l = 杯子从桌面举到嘴边（0〜1）
+const btPose = (i, q) => i === 0 ? { r: 0, l: 0 } : i === 1 ? { r: eIO(q), l: 0 } : i === 2 ? { r: 1, l: 0 } : i === 3 ? { r: 1, l: eOut(clamp(q / BT_FAST)) } : { r: 1, l: 1 };
+// 坐在桌边的人（侧面）：手臂用一条弯线从肩膀连到手，杯子在手里
+function btFig(k, w, h, r, l) {
+  const ty = h * 0.74, bx = w * 0.26;
+  k.fillStyle = C.g3; k.fillRect(w * 0.42, ty, w * 0.58, 4); k.fillRect(w * 0.88, ty + 4, 3, h - ty);   // 桌面、桌腿
+  k.fillStyle = C.blue;
+  rr(k, bx - 9, h * 0.4, 18, ty - h * 0.4 + 4, 6); k.fill();                 // 上身
+  k.beginPath(); k.arc(bx + l * 2, h * 0.3 - l * 2, 9, 0, TAU); k.fill();    // 头，喝的时候略后仰
+  const rest = [w * 0.46, ty - 3], grip = [w * 0.66, ty - 7], lip = [bx + 14, h * 0.33], sh = [bx + 4, h * 0.45];
+  const cup = [lerp(grip[0], lip[0], l), lerp(grip[1], lip[1], l)];
+  const hand = l > 0 ? cup : [lerp(rest[0], grip[0], r), lerp(rest[1], grip[1], r)];
+  k.strokeStyle = C.blue; k.lineWidth = 5; k.lineCap = 'round';
+  k.beginPath(); k.moveTo(sh[0], sh[1]); k.quadraticCurveTo((sh[0] + hand[0]) / 2, Math.max(sh[1], hand[1]) + 10, hand[0], hand[1]); k.stroke();
+  k.save(); k.translate(cup[0] + 6, cup[1]); k.rotate(-l * 0.5);   // 杯子朝嘴的方向倾斜
+  k.fillStyle = '#FFFFFF'; k.strokeStyle = C.ink; k.lineWidth = 1.4;
+  rr(k, -5, -8, 10, 13, 2); k.fill(); k.stroke();
+  k.fillStyle = C.blueL; k.fillRect(-4, -4, 8, 8);
+  k.restore();
+}
+CELLS[39] = shot((k, w, h, uu, cyc) => {
+  const U = sbU(uu, cyc), R = sbRow(5, { h: 92, gap: 10 }), fade = sbFade(U);
+  let cur = -1;
+  R.forEach((r, i) => {
+    const st = sbState(U, BT_TS, i), q = st === 1 ? clamp((U - BT_TS[i]) / BT_BEATS[i][1]) : 1, pose = btPose(i, q);
+    if (st === 1) cur = i;
+    sbPanel(k, r, st, sbOn(U, BT_TS, i), (kk, pw, ph) => btFig(kk, pw, ph, pose.r, pose.l), String(i + 1));
+    sbLabel(k, r, BT_BEATS[i][0], st);
+  });
+  // 时间条：段长 ∝ 每拍时长；慢 = 浅蓝、停 = 灰、快 = 深蓝，段内写字；黑色播放头
+  const x0 = R[0].x, x1 = R[4].x + R[4].w, y = R[0].y + R[0].h + 32, total = BT_TS[4] + BT_BEATS[4][1] - BT_T0;
+  k.save(); k.globalAlpha = P(U, 0.2, 0.5) * fade;
+  BT_BEATS.forEach(([, dur, kind], i) => {
+    const xa = lerp(x0, x1, (BT_TS[i] - BT_T0) / total), xb = lerp(x0, x1, (BT_TS[i] + dur - BT_T0) / total);
+    k.fillStyle = kind === 'fast' ? C.blue : kind === 'slow' ? C.blueM : kind === 'stop' ? C.g4 : C.g2;
+    rr(k, xa + 1, y - 6, xb - xa - 2, 12, 3); k.fill();
+    const tag = { slow: '慢', stop: '停', fast: '快' }[kind];
+    if (tag) txt(k, tag, (xa + xb) / 2, y + 0.5, `700 9px ${JP}`, '#FFFFFF', 'center', 'middle');
+  });
+  if (U >= BT_T0 && U < SB_END + 0.3) { const px = lerp(x0, x1, clamp((U - BT_T0) / total)); k.fillStyle = C.ink; k.fillRect(px - 1, y - 9, 2, 18); }
+  k.restore();
+  return cur >= 0 ? `${cur + 1}/5 ${BT_BEATS[cur][0]}` : '动作拆节拍';
+});

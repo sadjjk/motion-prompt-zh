@@ -1,0 +1,15 @@
+Please use "Inpainting brief" (部分修正), filed under "Lens effects & finishing / Grading & finishing".
+Motion Prompt #3-112
+
+What it is: Editing part of an image by stating where to change, what to change it into and that nothing else changes, with the new part lit to match the original
+What the sample shows: A photo of a person holding a white porcelain cup in their left hand, in a room with a picture frame on the wall and a light source at the top left. First a blue dashed box appears around the cup, its dashes marching, with "only change inside the box" beneath. Then, sweeping from left to right inside the box only, the cup is repainted into a red glass cup with a bright liquid line and a vertical highlight on its left. Finally a dashed amber arrow runs from the light at the top left to the new cup's highlight, tagged "light matches". The face, pose and background outside the box never change.
+Spec:
+- 5 s cycle. Over 0.6–1.1 s a 54 × 60 px selection box (marching blue dashes) and "only change inside the box" appear.
+- Over 1.4–2.6 s only the inside of the box is repainted, sweeping left to right: white porcelain → red glass (0.82 opacity, liquid line, vertical highlight on the left).
+- Over 2.9–3.4 s a dashed arrow runs from the light source at (24, 24) to the new highlight, tagged "light matches".
+- Inside the box the original is redrawn first and then the cup is swapped, so the hand and arm in the box stay as they were; everything returns over 4.4–4.95 s.
+When to use it: For AI edits that change only part of a photo, swapping an object's colour, material or shape without disturbing the face or composition.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-112.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

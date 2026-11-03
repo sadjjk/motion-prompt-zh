@@ -1,0 +1,15 @@
+Please use "Clean look" (すっきり), filed under "Light & color / Mood & tone recipes".
+Motion Prompt #3-109
+
+What it is: A tidy picture with few elements, a background that stays back, and colour and light kept consistent
+What the sample shows: It starts with a desk scattered with small items, things stuck all over the wall and 3 patches of differently coloured light. First the 7 items on the desk disappear, leaving only the laptop, cup and plant. Then the 4 things on the wall go and the wall and floor brighten and recede. Next the coloured light patches fade and an even soft light covers everything. Finally the colours settle into one pale grey tone. The 3 kept items never change position or size. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+Spec:
+- 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+- The 7 items on the desk disappear and the 3 kept ones remain: laptop, cup and plant; the 4 things on the wall fade and the wall lightens to #F5F4F1.
+- The 3 coloured light patches fade into an even soft light of white at 0.18; tone: every colour is pulled 50% towards #EEF0F2; no material detail is added.
+- The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For desk, room and product shots that should look tidy and easy to read.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-109.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

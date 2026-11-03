@@ -1,0 +1,51 @@
+// Motion Prompt #3-111 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/japanese-airy-look
+//
+// 日本風の透明感 / Japanese airy look
+// 分類: 編集・撮影 / 光と色 / ムード・トーン
+// 何が起きるか: 空・海・海辺の道を自転車の人物が走る、コントラストの強い平凡な画面から始まる。道の破線が流れ、ペダルが回り続ける。まず暗部が持ち上がり、黒い部分が灰青色になる。次に人物の後ろ上に逆光が光り、人物の縁に明るい線が出る。続いて全体が青緑に寄る。最後に白っぽい薄いベールがかかってコントラストが下がり、明るく淡い完成形になる。右のチェックリストは要素が入るごとに番号の丸が青くなり、状態が「平淡版 → 叠加中 → 成品」と変わる。
+// 動きの仕様:
+//   - 5秒周期。0〜0.6秒は平凡な版。4つの要素が0.6秒から0.7秒ごとに1つずつ加わり、それぞれ0.5秒で入る
+//   - 道の破線は46pxおきで1周に5本ぶん流れ、ペダルは1周に2回転。暗部：#8E9AA6 のスクリーンで黒が灰青に
+//   - 逆光：(270, 40) から半径200pxの光、シルエットを1.5pxずらした明るい縁。青緑：#CDEBDF を乗算。コントラスト：白0.3を重ねる
+//   - 4.4秒まで完成形で止まり、4.4〜4.95秒に平凡な版へ戻る。5秒と0秒は同じ画面
+// 使いどころ: 日常のスナップ・旅行・夏の写真を、明るく澄んだ空気感にしたいとき。
+// タグ: japanese style, airy, bright exposure, low contrast, faded shadows, backlight
+// サイズ: 539x208 px · 1周: 5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-111
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 64
+// 64 日系：海边骑自行车的人。曝光提亮暗部不压黑 → 逆光把边缘照亮 → 整体偏青绿 → 降低对比。成品偏亮偏淡
+const JP_HZ = 104, JP_RIDE = { x: 196, y: 150 };
+function jpBike(D, k, x, y, col, T) {
+  k.strokeStyle = col; k.lineWidth = 2.4;
+  [x - 22, x + 22].forEach(cx => { k.beginPath(); k.arc(cx, y, 13, 0, TAU); k.stroke(); });
+  k.beginPath(); k.moveTo(x - 22, y); k.lineTo(x - 4, y - 18); k.lineTo(x + 14, y - 18); k.lineTo(x + 22, y); k.moveTo(x - 4, y - 18); k.lineTo(x + 2, y); k.lineTo(x - 22, y); k.stroke();
+  // 骑车的人：躯干前倾，腿随踏板转（一轮 2 圈）
+  const a = T * 2, px = x + 2 + 6 * Math.cos(a), py = y + 6 * Math.sin(a);
+  D.line([[x - 2, y - 24], [px, py]], 4, col); D.line([[x - 2, y - 24], [x + 2 - 3.6 * Math.cos(a), y - 4]], 4, col);
+  D.line([[x - 2, y - 24], [x + 8, y - 46]], 7, col); D.line([[x + 8, y - 44], [x + 16, y - 22]], 3.4, col);
+  D.circ(x + 10, y - 54, 7, col);
+}
+CELLS[63] = mdCell('日系', ['提亮暗部不压黑', '逆光发亮边缘', '偏青绿', '降低对比'], (k, u, [pE, pR, pT, pC], D) => {
+  const T = u / CYC * TAU;
+  D.rect(0, 0, MD_W, JP_HZ, '#7FA9CF'); D.rect(0, JP_HZ, MD_W, 30, '#2F6E9A'); D.rect(0, JP_HZ + 30, MD_W, 74, '#5E5A55');   // 天、海、海边路
+  D.rect(0, JP_HZ + 28, MD_W, 4, '#3E3B37');
+  for (let x = -46; x < MD_W; x += 46) D.rect(x + (u * 46) % 46, JP_HZ + 50, 22, 3, '#8C8780');   // 路面虚线：一轮正好移 5 格，首尾接上
+  jpBike(D, k, JP_RIDE.x, JP_RIDE.y, '#1E2430', T);
+  if (pE > 0.01) {   // 提亮暗部：screen 一层浅色，黑处变灰蓝而不是死黑
+    k.save(); k.globalCompositeOperation = 'screen'; k.fillStyle = mixc('#000000', '#8E9AA6', pE); k.fillRect(0, 0, MD_W, CH); k.restore();
+  }
+  if (pR > 0.01) {   // 逆光：太阳在人背后偏上；把同一剪影往光源方向偏 1.5px 画成亮色，再盖回剪影，只留一圈亮边
+    k.save(); k.globalCompositeOperation = 'screen';
+    const g = k.createRadialGradient(270, 40, 4, 270, 40, 200); g.addColorStop(0, `rgba(255,250,235,${(0.8 * pR).toFixed(3)})`); g.addColorStop(1, 'rgba(255,250,235,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    k.restore();
+    k.save(); k.globalAlpha = pR; k.translate(1.5, -1.5); jpBike(pen(k), k, JP_RIDE.x, JP_RIDE.y, '#FFF6DE', T); k.restore();
+    jpBike(D, k, JP_RIDE.x, JP_RIDE.y, mixc('#1E2430', '#58687A', pE), T);
+  }
+  if (pT > 0.01) { k.save(); k.globalCompositeOperation = 'multiply'; k.fillStyle = mixc('#FFFFFF', '#CDEBDF', pT); k.fillRect(0, 0, MD_W, CH); k.restore(); }
+  if (pC > 0.01) { k.save(); k.fillStyle = `rgba(246,250,248,${(0.3 * pC).toFixed(3)})`; k.fillRect(0, 0, MD_W, CH); k.restore(); }
+});

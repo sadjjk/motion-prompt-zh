@@ -2,13 +2,13 @@
 //
 // Macro shot / マクロ撮影
 // Category: Editing & photography / Shot size & composition / Shot size
-// What happens: A mushroom about 0.26 m tall fills the frame; focus pulls from soft to sharp so the white spots on the cap, the gills and a bug crawling along the rim come through, while the tree trunks and a person's legs behind stay blurred.
+// What happens: A tiny fly agaric half buried in moss fills the height of the frame: a round dome cap covered in rows of small white warts, white membrane scraps on the rim, a slender white stem with a skirt ring just under the cap, and a bulbous base wrapped in scale rings. Focus starts far behind with everything soft, then pulls onto the mushroom. Big foreground grass blades, the grass behind and the coloured bokeh blobs of the background stay blurred by how far they are from the focus plane. On the cap an ant walks from right to left, turns and walks back. The camera pushes in very slowly, and the "1 cm" scale bar at the bottom left grows with it. In a small side-view diagram at the bottom right, a thin blue band marking the sharp zone moves with the focus. At the end focus returns to the distance and the push-in eases back.
 // Motion spec:
-//   - Frame: from 0.02 m below the ground to 0.26 m; camera close to the ground, 0.9 m from the mushroom.
-//   - Focus: pulls from soft to sharp from 0.4 s to 1.1 s and goes soft again from 4.3 s to 4.7 s.
-//   - Mushroom: cap red-brown #C34F40 with a #D97B57 middle ring and a #E7E0CE centre, three rings of white spots, radial gills under the cap and two fine lines on the stem.
-//   - Bug: crawls along the rim from right to left and back once per pass; its legs move faster or slower with its speed.
-//   - The two trees and the person's legs behind always stay blurred; top right reads "微距 MACRO"; one pass = 4.7 s.
+//   - One pass is 4.7 s. Focus pulls from far (depth 0.95) onto the mushroom (0.5) over 0.5–1.4 s and goes back over 4.2–4.7 s.
+//   - Blur = depth difference from the focus plane × 14 px; the 16 grass blades sit in 3 layers at depths 0.06–0.9, and the 6 background bokeh blobs scale by only 30% of the push-in.
+//   - Very slow push-in: up to 1.08× over 0.5–4.2 s, back over 4.2–4.7 s; the scale bar is 1 cm = 64 px and grows with the push-in.
+//   - Ant: right to left over 0.3–2.1 s, turns at 2.3 s, walks back over 2.5–4.3 s and turns again at 4.5 s; 4 steps each way.
+//   - A 92 × 46 px depth-of-field diagram at the bottom right; "微距 MACRO" at the top right.
 // When to use it: For insects, flowers, food or product textures, details the eye barely sees.
 // Tags: macro shot, macro, macro photography, focus pull, detail, shallow depth of field, shot size
 // Size: 539x208 px · Cycle: 9.4 s
@@ -19,17 +19,211 @@
 // The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
 
 // @element 32
-// 32 微距：0.26 m 的蘑菇撑满画面，对焦拉实（0.4–1.1s）后能看清伞盖的白点花纹、菌褶和沿伞缘爬的小虫；
-// 后景是虚化的树干，人物只剩一双虚化的腿（贴着地面看的视角）；结尾回虚，循环无缝
-CELLS[31] = shot(frameCell({ lo: -0.02, hi: 0.26, name: '微距', abbr: 'MACRO', draw: (k, w, h, u) => {
-  const sharp = eIO(P(u, 0.4, 1.1)) * (1 - eIOs(P(u, 4.3, 4.7)));   // 1 = 对上焦；结尾回虚，循环无缝
-  const bug = 0.5 - 0.5 * wave(u, 1);   // 小虫沿伞盖外缘来回走（0 = 右缘，1 = 左缘）
-  world(k, w, h, fit(-0.02, 0.26, 0.9, { z: 7 }), {
-    person: { x: 0.2, z: 7.6 }, blurBg: 4, blurFg: 4 * (1 - sharp),
-    extra: [
-      [0.3, 0, 7.4, (kk, s) => mushroom(kk, s, bug, 1.5), true],
-      [-0.13, 0, 7.9, (kk, s) => tree(kk, s, 4, '#8FA98F')],
-      [0.45, 0, 8.2, (kk, s) => tree(kk, s, 4.6, '#9DB3A0')]
-    ]
+// 32 微距：贴着苔藓拍一朵约 2.7 cm 高的小毒蝇伞，蘑菇撑满画面高度。缺了就不像的两点：
+//   ① 很小的东西占满画面 —— 左下角 1 cm 比例尺 + 伞盖上的水珠和一只蚂蚁当参照；
+//   ② 只有极薄的一层是清楚的 —— 草叶按前后深度分层，离焦平面越远越虚；右下角侧视图里蓝色细带就是清楚范围。
+// 节奏（4.7 s 一轮）：开头焦点在远处、全画面发虚 → 0.5–1.4 s 焦点拉到蘑菇 → 镜头极慢前推到 1.08 倍 →
+// 4.2–4.7 s 焦点退回远处、推镜回到起点，与第 0 帧同一画面。
+// 不再用 world() 的 3D 场景：旧画法蘑菇被挤到右上角、前景大块虚腿抢画面，看不出「小东西撑满画面」。
+const MC_X = 270, MC_GY = 202;               // 蘑菇中心 x、地面 y（px）
+const MC_CM = 64;                            // 1 cm 对应的像素（蘑菇约 2.6 cm 高，与上面比例一致）
+const MC_FOCUS = [0.95, 0.5];                // 焦平面深度：远处 → 蘑菇所在深度（0 = 贴镜头，1 = 最远）
+const MC_PULL = [0.5, 1.4], MC_BACK = [4.2, 4.7];
+const MC_PUSH = 0.08;                        // 极慢前推的放大量
+const MC_DOF_K = 14;                         // 虚化 px = |深度 − 焦平面| × K，景深极浅所以 K 取大
+// 背景色块：远处的花和落叶虚成一团团颜色（径向渐变代替 blur，边缘本身就是软的）[x, y, r, 颜色]
+const MC_BOKEH = [[92, 72, 74, '233,178,110'], [448, 58, 62, '244,231,200'], [150, 158, 54, '159,191,138'], [486, 156, 58, '185,211,166'], [34, 30, 44, '255,255,255'], [330, 26, 40, '214,229,196']];
+// 草叶 [根部 x, 高, 叶尖偏移, 叶宽, 深度]；深度决定颜色和虚化程度
+const MC_BLADES = [
+  [40, 120, 10, 7, 0.86], [72, 92, -8, 6, 0.9], [122, 142, 14, 7, 0.84], [184, 104, -10, 6, 0.88], [366, 132, 12, 7, 0.86], [412, 96, -6, 6, 0.9], [470, 152, 8, 7, 0.84], [512, 112, -12, 6, 0.88],
+  [204, 72, -14, 5, 0.52], [230, 54, 8, 4, 0.48], [316, 66, 12, 5, 0.5], [344, 50, -6, 4, 0.53],
+  [18, 176, 42, 24, 0.07], [84, 122, 30, 18, 0.1], [456, 162, -36, 22, 0.08], [524, 194, -30, 26, 0.06]
+];
+const mcCol = d => d > 0.7 ? '#B9D0A6' : d > 0.3 ? '#6E9E5A' : '#3F6B3A';
+// 虚化：ctx.filter 的 px 是设备像素，按当前缩放换算，2 倍画布上看起来一样虚
+function mcBlur(k, b, fn) {
+  if (b < 0.3) { fn(); return; }
+  const t = k.getTransform();
+  k.save(); k.filter = `blur(${(b * Math.hypot(t.a, t.b)).toFixed(2)}px)`; fn(); k.restore();
+}
+function mcBlade(k, [x, bh, lean, bw], gy) {
+  k.beginPath(); k.moveTo(x - bw / 2, gy);
+  k.quadraticCurveTo(x - bw * 0.3, gy - bh * 0.6, x + lean, gy - bh);
+  k.quadraticCurveTo(x + bw * 0.3, gy - bh * 0.6, x + bw / 2, gy);
+  k.closePath(); k.fill();
+}
+// 右下角侧视图：左边镜头，右边是深度轴；蓝色细带 = 清楚范围，跟着焦平面移动，蘑菇小图标在 0.5 处
+function mcDof(k, w, h, focus) {
+  const pw = 92, ph = 46, x0 = w - 13 - 14 - pw, y0 = h - 13 - 10 - ph;
+  const ax = x0 + 24, bx = x0 + pw - 8, gy = y0 + ph - 10, fx = lerp(ax, bx, focus);
+  k.save();
+  k.fillStyle = 'rgba(255,255,255,.92)'; rr(k, x0, y0, pw, ph, 7); k.fill();
+  k.strokeStyle = C.border; k.lineWidth = 1.2; k.stroke();
+  txt(k, '景深', x0 + 6, y0 + 10, `600 9px ${JP}`, C.sub, 'left', 'middle');
+  k.fillStyle = C.g4; rr(k, x0 + 6, gy - 9, 10, 8, 2); k.fill();   // 机身
+  k.beginPath(); k.moveTo(x0 + 16, gy - 7); k.lineTo(ax, gy - 9); k.lineTo(ax, gy - 1); k.lineTo(x0 + 16, gy - 3); k.fill();   // 镜头
+  k.strokeStyle = C.g2; k.lineWidth = 1.2; k.beginPath(); k.moveTo(ax, gy); k.lineTo(bx, gy); k.stroke();
+  const mx = lerp(ax, bx, MC_FOCUS[1]);   // 蘑菇小图标
+  k.fillStyle = '#C34F40'; k.beginPath(); k.arc(mx, gy - 8, 5, Math.PI, 0); k.fill();
+  k.fillStyle = '#E2DACB'; k.fillRect(mx - 1.5, gy - 8, 3, 8);
+  k.fillStyle = 'rgba(47,107,235,.28)'; k.fillRect(fx - 2.5, y0 + 16, 5, gy - y0 - 16);
+  k.strokeStyle = C.blue; k.lineWidth = 1.2; k.beginPath(); k.moveTo(fx, y0 + 16); k.lineTo(fx, gy); k.stroke();
+  k.restore();
+}
+// 微距专用蘑菇（像素坐标，镜头与伞盖齐平略低）：毒蝇伞。比例参照实拍照片（360 图片搜索「毒蝇伞 微距」「fly agaric macro」）：
+//   伞盖是偏圆的馒头形，宽约等于全高的 0.9；伞面密布细小的白色疣点（不是大块斑），伞缘偏橙、挂着几片白色碎膜；
+//   菌柄细长洁白（宽只有伞盖的 1/6 左右），上部紧贴伞盖下垂一圈裙状菌环，基部膨大成球，球上绕几圈鳞状残片。
+//   平视时几乎看不到菌褶，只在伞缘下露出一线乳白。远景格仍用 mushroom()；这里单独画是因为微距要看清这些结构。
+const MC_CAP = { top: 26, rim: 90, rx: 78, n: 2.15 };               // 伞顶 y、伞缘 y、半宽、圆顶指数（2 = 椭圆，越大越方）
+const MC_STEM = { w0: 20, w1: 26, ring: 98, bulb: 180, base: 196 }; // 柄上宽、下宽、菌环上沿 y、菌球中心 y、着地 y
+const MC_WART_ROWS = [[0.1, 15], [0.26, 15], [0.42, 14], [0.58, 12], [0.73, 9], [0.86, 6], [0.96, 2]];   // 疣点各行 [高度比例, 个数]
+const mcH = i => { const s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };      // 固定伪随机（纯函数）
+// 圆顶在高度比例 f（0 = 伞缘，1 = 伞顶）处的横向半宽比例；t ∈ [-1, 1] 横向位置处的顶面 y
+const mcDomeW = f => Math.pow(Math.max(0, 1 - Math.pow(f, MC_CAP.n)), 1 / MC_CAP.n);
+const mcDomeY = t => MC_CAP.rim - (MC_CAP.rim - MC_CAP.top) * mcDomeW(Math.min(1, Math.abs(t)));
+function mcShroom(k) {
+  const X = MC_X, Cp = MC_CAP, S = MC_STEM, capPath = () => {
+    k.beginPath(); for (let j = 0; j <= 60; j++) { const t = -1 + j / 30; k[j ? 'lineTo' : 'moveTo'](X + t * Cp.rx, mcDomeY(t)); }
+    k.ellipse(X, Cp.rim, Cp.rx, 5, 0, 0, Math.PI, false); k.closePath();
+  };
+  // 菌褶：伞缘下一线乳白，细纹汇向柄（汇聚处被柄挡住）
+  k.fillStyle = '#EEE6D4'; k.beginPath(); k.ellipse(X, Cp.rim + 1, Cp.rx * 0.95, 7, 0, 0, Math.PI); k.closePath(); k.fill();
+  k.save(); k.clip(); k.strokeStyle = 'rgba(160,140,110,.45)'; k.lineWidth = 0.6;
+  for (let j = 1; j < 44; j++) { const a = j / 44 * Math.PI; k.beginPath(); k.moveTo(X + Math.cos(a) * 8, Cp.rim + 1); k.lineTo(X + Math.cos(a) * Cp.rx, Cp.rim + 1 + Math.sin(a) * 7); k.stroke(); }
+  k.restore();
+  // 菌柄：细长、上窄下宽，左侧受光；下半段有一圈圈细碎的横向鳞纹
+  const sg = k.createLinearGradient(X - S.w1 / 2 - 4, 0, X + S.w1 / 2 + 4, 0);
+  sg.addColorStop(0, '#D6CCB8'); sg.addColorStop(0.3, '#FBF8F1'); sg.addColorStop(0.68, '#ECE5D6'); sg.addColorStop(1, '#BDB09A');
+  k.fillStyle = sg; k.beginPath(); k.moveTo(X - S.w0 / 2, Cp.rim);
+  k.bezierCurveTo(X - S.w0 / 2 - 1, Cp.rim + 40, X - S.w1 / 2 - 1, S.bulb - 30, X - S.w1 / 2, S.bulb - 6); k.lineTo(X + S.w1 / 2, S.bulb - 6);
+  k.bezierCurveTo(X + S.w1 / 2 + 1, S.bulb - 30, X + S.w0 / 2 + 1, Cp.rim + 40, X + S.w0 / 2, Cp.rim); k.closePath(); k.fill();
+  // 鳞纹只是淡淡几道断续的短弧（实拍里柄面是细绒状，不是整圈锯齿）
+  k.strokeStyle = 'rgba(170,155,130,.28)'; k.lineWidth = 0.6;
+  for (let y = S.ring + 30; y < S.bulb - 12; y += 9) {
+    const hw = lerp(S.w0, S.w1, (y - Cp.rim) / (S.bulb - Cp.rim)) / 2;
+    for (let j = 0; j < 3; j++) { const x = X - hw + (j + mcH(y + j)) * hw * 0.62; k.beginPath(); k.arc(x + 2, y - 1, 3, 0.3, Math.PI - 0.3); k.stroke(); }
+  }
+  // 菌球：基部膨大，绕 3 圈鳞状残片
+  const bg = k.createRadialGradient(X - 7, S.bulb - 4, 2, X, S.bulb, 22);
+  bg.addColorStop(0, '#FBF7EE'); bg.addColorStop(1, '#CFC2A8');
+  k.fillStyle = bg; k.beginPath(); k.ellipse(X, S.bulb, 20, 15, 0, 0, TAU); k.fill();
+  for (let r = 0; r < 3; r++) for (let j = 0; j < 9; j++) {
+    const a = Math.PI * (0.06 + j * 0.11), x = X - Math.cos(a) * (19 - r * 2.5), y = S.bulb - 9 + r * 6 + Math.sin(a) * 3;
+    k.fillStyle = 'rgba(150,130,100,.45)'; k.beginPath(); k.ellipse(x + 0.6, y + 0.8, 2.6, 1.4, 0, 0, TAU); k.fill();
+    k.fillStyle = '#F8F3E8'; k.beginPath(); k.ellipse(x, y, 2.6, 1.4, 0, 0, TAU); k.fill();
+  }
+  // 菌环：紧贴伞盖下方的一圈白裙，上窄下宽、下沿波浪，左亮右暗；裙下柄上一道阴影
+  k.fillStyle = 'rgba(90,70,40,.13)'; k.fillRect(X - S.w0 / 2, S.ring + 17, S.w0 + 0.5, 7);
+  const rg = k.createLinearGradient(X - 18, 0, X + 18, 0); rg.addColorStop(0, '#E2D9C6'); rg.addColorStop(0.35, '#FFFDF8'); rg.addColorStop(1, '#C9BCA4');
+  k.fillStyle = rg; k.strokeStyle = 'rgba(160,140,110,.7)'; k.lineWidth = 0.7; k.beginPath();
+  k.moveTo(X - S.w0 / 2 - 1, S.ring); k.quadraticCurveTo(X - S.w0 / 2 - 6, S.ring + 9, X - S.w0 / 2 - 9, S.ring + 18);
+  for (let j = 1; j <= 7; j++) { const x = X - S.w0 / 2 - 9 + j * (S.w0 + 18) / 7; k.quadraticCurveTo(x - (S.w0 + 18) / 14, S.ring + 22.5, x, S.ring + 18 + (j % 2) * 1.2); }
+  k.quadraticCurveTo(X + S.w0 / 2 + 6, S.ring + 9, X + S.w0 / 2 + 1, S.ring); k.closePath(); k.fill(); k.stroke();
+  k.strokeStyle = 'rgba(170,150,120,.35)'; [-6, -1, 4].forEach(dx => { k.beginPath(); k.moveTo(X + dx * 0.6, S.ring + 3); k.lineTo(X + dx * 1.6, S.ring + 19); k.stroke(); });
+  // 伞盖：馒头形；左上受光的红，往伞缘渐成橙红，右下暗
+  const cg = k.createRadialGradient(X - 28, Cp.top + 18, 4, X - 6, Cp.top + 36, Cp.rx * 1.25);
+  cg.addColorStop(0, '#F65E3E'); cg.addColorStop(0.45, '#D92A1F'); cg.addColorStop(1, '#8E140F');
+  k.fillStyle = cg; capPath(); k.fill();
+  k.save(); capPath(); k.clip();
+  const eg = k.createLinearGradient(0, Cp.rim - 16, 0, Cp.rim + 4); eg.addColorStop(0, 'rgba(240,120,50,0)'); eg.addColorStop(1, 'rgba(240,120,50,.55)');
+  k.fillStyle = eg; k.fillRect(X - Cp.rx, Cp.rim - 16, Cp.rx * 2, 22);   // 伞缘偏橙
+  k.fillStyle = 'rgba(255,255,255,.16)'; k.beginPath(); k.ellipse(X - 30, Cp.top + 20, 24, 12, -0.5, 0, TAU); k.fill();   // 湿润的反光
+  k.restore();
+  // 疣点：一行行铺满伞面，越靠两侧越扁（圆顶透视）、越靠伞缘越小；每颗下方一点暗影显出凸起
+  MC_WART_ROWS.forEach(([f, n], row) => {
+    const ew = mcDomeW(f);
+    for (let j = 0; j < n; j++) {
+      const id = row * 31 + j, t = ew * (-0.94 + (j + 0.5 + (mcH(id) - 0.5) * 0.7) / n * 1.88);
+      const x = X + t * Cp.rx, y = Cp.rim - (Cp.rim - Cp.top) * Math.min(0.99, f + (mcH(id + 7) - 0.5) * 0.08);
+      const r = (1.5 + mcH(id + 3) * 1.4) * (0.75 + 0.25 * f), sx = Math.sqrt(Math.max(0.15, 1 - (t / Math.max(ew, 0.01)) ** 2 * 0.85));
+      k.fillStyle = 'rgba(100,15,10,.35)'; k.beginPath(); k.ellipse(x + 0.5, y + 0.9, r * sx, r * 0.8, 0, 0, TAU); k.fill();
+      k.fillStyle = '#F4EEDF'; k.beginPath(); k.ellipse(x, y, r * sx, r * 0.8, 0, 0, TAU); k.fill();
+      k.fillStyle = '#FFFFFF'; k.beginPath(); k.arc(x - r * sx * 0.3, y - r * 0.3, r * 0.35, 0, TAU); k.fill();
+    }
   });
-} }));
+  // 伞缘挂着的几片白色碎膜
+  k.fillStyle = '#F1EADA';
+  [-0.86, -0.6, -0.31, 0.05, 0.38, 0.7].forEach((t, i) => { const x = X + t * Cp.rx, w = 4 + mcH(i + 400) * 4; k.beginPath(); k.moveTo(x - w / 2, Cp.rim + 2); k.lineTo(x + w / 2, Cp.rim + 2); k.lineTo(x + w * 0.1, Cp.rim + 5 + mcH(i + 410) * 3); k.closePath(); k.fill(); });
+  // 苔藓：菌球一半埋进去，表面亮绿颗粒
+  k.fillStyle = '#4F7A3A'; k.beginPath(); k.ellipse(X, S.base + 12, 120, 18, 0, Math.PI, 0); k.fill();
+  k.fillStyle = '#7FAE5A'; for (let j = 0; j < 40; j++) { const x = X - 110 + mcH(j + 200) * 220, y = S.base + 10 - Math.sqrt(Math.max(0, 1 - ((x - X) / 120) ** 2)) * 16 * mcH(j + 260); k.beginPath(); k.arc(x, y, 1.2 + mcH(j + 300) * 1.4, 0, TAU); k.fill(); }
+}
+// 水珠：伞盖左前方一颗，透明体——边缘深、中间透出底色、左上高光、右下聚光
+const MC_DROP = [MC_X - 36, mcDomeY(-0.46) + 10, 6, 5.2];
+function mcDrop(k) {
+  const [x, y, rx, ry] = MC_DROP;
+  k.fillStyle = 'rgba(70,10,8,.3)'; k.beginPath(); k.ellipse(x + 1.5, y + 5, 6, 2, 0, 0, TAU); k.fill();
+  const g = k.createRadialGradient(x - 2, y - 2, 1, x, y, rx);
+  g.addColorStop(0, 'rgba(255,255,255,.55)'); g.addColorStop(0.6, 'rgba(235,130,115,.35)'); g.addColorStop(1, 'rgba(120,20,15,.6)');
+  k.fillStyle = g; k.beginPath(); k.ellipse(x, y, rx, ry, 0, 0, TAU); k.fill();
+  k.strokeStyle = 'rgba(90,15,10,.45)'; k.lineWidth = 0.7; k.stroke();
+  k.fillStyle = '#FFFFFF'; k.beginPath(); k.ellipse(x - 2.6, y - 2.4, 2, 1.4, -0.5, 0, TAU); k.fill();
+  k.fillStyle = 'rgba(255,225,205,.85)'; k.beginPath(); k.arc(x + 2.6, y + 2.6, 1.2, 0, TAU); k.fill();
+}
+// 蚂蚁：沿伞盖顶面爬，0.3–2.1 s 从右走到左，停下转身，2.5–4.3 s 走回右边，4.5 s 再转身——首尾帧同位同向。
+// 腿按走过的距离交替迈步（三足步态），停下时腿也停；每段路正好 4 步，0 与 4.7 s 腿的相位一致。
+const MC_ANT = { t0: 0.58, t1: -0.5, go: [0.3, 2.1], back: [2.5, 4.3], turn: [2.3, 4.5], steps: 4 };
+function mcAnt(k, ph, wig) {
+  const ink = '#2B1D18';
+  const leg = (hx, fx, near, i) => {
+    const a = ph + (i % 2) * Math.PI + (near ? 0 : Math.PI), f = fx + 2.4 * Math.sin(a) + (near ? 0 : 1.4), lift = Math.max(0, Math.cos(a)) * 1.6;
+    k.strokeStyle = near ? ink : 'rgba(43,29,24,.5)'; k.lineWidth = near ? 1.1 : 0.9;
+    k.beginPath(); k.moveTo(hx, -4); k.lineTo((hx + f) / 2 + (fx - hx) * 0.15, -8.5 - lift * 0.5); k.lineTo(f, -lift); k.stroke();
+  };
+  [[0.6, -6], [2.2, 2], [3.8, 9.5]].forEach(([hx, fx], i) => leg(hx, fx, false, i));   // 远侧三条腿先画（被身体压住）
+  k.fillStyle = ink;
+  k.beginPath(); k.ellipse(-9, -5.5, 7, 5, -0.25, 0, TAU); k.fill();        // 腹部
+  k.beginPath(); k.arc(-2.4, -4.6, 1.7, 0, TAU); k.fill();                  // 腹柄
+  k.beginPath(); k.ellipse(2.2, -5.6, 4.6, 2.6, -0.2, 0, TAU); k.fill();    // 胸部
+  k.beginPath(); k.ellipse(8.6, -7, 3.4, 3, 0.2, 0, TAU); k.fill();         // 头
+  k.fillStyle = 'rgba(255,255,255,.35)'; k.beginPath(); k.ellipse(-10.5, -8, 2.6, 1.3, -0.4, 0, TAU); k.fill();   // 腹部高光
+  k.beginPath(); k.arc(9.6, -8, 0.8, 0, TAU); k.fill();                    // 眼睛反光
+  [[0.6, -6], [2.2, 2], [3.8, 9.5]].forEach(([hx, fx], i) => leg(hx, fx, true, i));
+  k.strokeStyle = ink; k.lineWidth = 0.9;                                    // 触角：膝状，轻轻抖
+  k.beginPath(); k.moveTo(10, -9.4); k.lineTo(11.5, -14.5 + wig); k.lineTo(16, -12 + wig * 0.6); k.stroke();
+  k.beginPath(); k.moveTo(11, -9); k.lineTo(13.5, -13.5 - wig * 0.5); k.lineTo(17.5, -10.5 - wig * 0.3); k.stroke();
+}
+function mcAntOn(k, u) {
+  const A = MC_ANT, s1 = eIO(P(u, A.go[0], A.go[1])), s2 = eIO(P(u, A.back[0], A.back[1]));
+  const t = lerp(A.t0, A.t1, s1 - s2), x = MC_X + t * MC_CAP.rx, y = mcDomeY(t) + 0.5;
+  const ang = Math.atan2(mcDomeY(t + 0.01) - mcDomeY(t - 0.01), 0.02 * MC_CAP.rx);
+  const dir = u >= A.turn[0] && u < A.turn[1] ? 1 : -1;   // -1 = 朝左
+  k.save(); k.translate(x, y); k.rotate(ang); k.scale(dir, 1);
+  mcAnt(k, (s1 + s2) * A.steps * TAU, 1.2 * wave(u, 6));
+  k.restore();
+}
+CELLS[31] = shot((k, w, h, u) => {
+  const pull = eIO(P(u, MC_PULL[0], MC_PULL[1])) * (1 - eIOs(P(u, MC_BACK[0], MC_BACK[1])));
+  const focus = lerp(MC_FOCUS[0], MC_FOCUS[1], pull);
+  const Z = 1 + MC_PUSH * eIOs(P(u, MC_PULL[0], MC_BACK[0])) * (1 - eIOs(P(u, MC_BACK[0], MC_BACK[1])));
+  const blurAt = d => Math.abs(d - focus) * MC_DOF_K;
+  const zoom = z => { k.translate(MC_X, 110); k.scale(z, z); k.translate(-MC_X, -110); };
+  // 底色 + 背景色块（远处，推镜时只放大 30%，有一点视差）
+  const g = k.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#E8F0DF'); g.addColorStop(1, '#C9DDB9');
+  k.fillStyle = g; k.fillRect(0, 0, w, h);
+  k.save(); zoom(1 + (Z - 1) * 0.3);
+  MC_BOKEH.forEach(([x, y, r, c]) => {
+    const rg = k.createRadialGradient(x, y, 0, x, y, r);
+    rg.addColorStop(0, `rgba(${c},.75)`); rg.addColorStop(0.6, `rgba(${c},.45)`); rg.addColorStop(1, `rgba(${c},0)`);
+    k.fillStyle = rg; k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill();
+  });
+  k.restore();
+  k.save(); zoom(Z);
+  const layer = (lo, hi) => MC_BLADES.filter(b => b[4] >= lo && b[4] < hi).forEach(b => mcBlur(k, blurAt(b[4]), () => { k.fillStyle = mcCol(b[4]); mcBlade(k, b, MC_GY + 8); }));
+  layer(0.7, 1.01);
+  // 蘑菇、水珠、蚂蚁：都在焦平面 0.5 附近，一起虚实
+  mcBlur(k, blurAt(MC_FOCUS[1]), () => { mcShroom(k); mcDrop(k); mcAntOn(k, u); });
+  layer(0.3, 0.7);
+  layer(0, 0.3);
+  k.restore();
+  // 1 cm 比例尺：跟着推镜一起变长，说明画面里的东西实际很小
+  const L = MC_CM * Z, sx = 40, sy = h - 34;
+  k.save();
+  k.fillStyle = 'rgba(255,255,255,.85)'; rr(k, sx - 6, sy - 15, L + 12, 22, 5); k.fill();
+  k.strokeStyle = C.ink; k.lineWidth = 1.6; k.beginPath();
+  k.moveTo(sx, sy - 3); k.lineTo(sx, sy + 3); k.moveTo(sx, sy); k.lineTo(sx + L, sy); k.moveTo(sx + L, sy - 3); k.lineTo(sx + L, sy + 3); k.stroke();
+  txt(k, '1 cm', sx + L / 2, sy - 8, `600 9px ${MONO}`, C.ink, 'center', 'middle');
+  k.restore();
+  mcDof(k, w, h, focus);
+  return '微距 MACRO';
+});

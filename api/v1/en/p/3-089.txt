@@ -1,0 +1,15 @@
+Please use "One shot, one action" (1カット1動作), filed under "Camera & editing / Storyboards & pacing".
+Motion Prompt #3-089
+
+What it is: Give each shot only one main action and one kind of camera move, and split into more shots when there is more
+What the sample shows: First the bad example: in one wide panel the figure walks and waves while the camera pushes in. Red tags "walk", "wave" and "push-in" appear one by one, then a red frame and the red caption "✕ one shot crammed with 3 actions". It then switches to 3 panels played in turn: walk · locked off, wave · locked off, stand still · push-in, with the blue caption "✓ split into 3 shots, 1 action each" underneath.
+Spec:
+- 9.4 s cycle. Bad example 0.3–3.6 s: the figure walks from x −1.6 m to 1.6 m, waves every 0.25 s, and the camera pushes in from 7 m to 4.4 m.
+- Red tags appear at 1.0, 1.5 and 2.0 s, and the red caption at 2.5 s.
+- 3 panels cross-fade in over 3.6–4.1 s and start at 4.2, 5.7 and 7.2 s, 1.5 s each; in panel 3 the camera pushes in from 6 m to 3.6 m.
+- From 8.8 to 9.4 s the picture fades back to the bad example.
+When to use it: Use it to split shots when a prompt piles on actions and camera moves and the result comes out muddled.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-089.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

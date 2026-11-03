@@ -1,0 +1,49 @@
+// Motion Prompt #3-108 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/dreamy-look
+//
+// 梦幻感 / Dreamy look
+// 分类: 剪辑与摄影 / 光线与色彩 / 氛围与调性
+// 动画表现: 起点是花丛中一个人（头肩）的平淡白天画面。先让太阳出现在人背后，头和肩的外缘亮起一道轮廓光；再让太阳周围的亮部大片晕开，花上的小光点轻轻闪；接着前景 4 朵花一边变大一边虚化，成了柔软的色块；最后整体配色换成粉、淡紫、奶白。右侧清单每加入一项，对应的编号圆点变蓝，状态从「平淡版」变为「叠加中」再到「成品」。
+// 运动规格:
+//   - 5 秒周期。0–0.6 秒是平淡版；4 项成分从 0.6 秒起每 0.7 秒加入下一项，各用 0.5 秒渐入
+//   - 太阳在人背后 (236, 60)，头和肩一圈 2.4 px 轮廓光；高光晕开到半径 170 px，9 个小光点每轮闪 2 次
+//   - 前景 4 朵花从 0.5 倍长到 1 倍并虚化 7 px；46 朵花和天空、地面换成粉、淡紫、奶白
+//   - 成品停到 4.4 秒，4.4–4.95 秒退回平淡版，5 秒与 0 秒是同一帧
+// 适用场景: 花海、婚纱、仙气人像，或想要柔和氛围的产品图。
+// 标签: dreamy, backlight, rim light, bloom, foreground blur, pastel
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-108
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 61
+// 61 梦幻感：花丛中的人。逆光轮廓（人背后的太阳，边缘一圈亮）→ 高光晕开 → 前景花虚化 → 粉紫奶白配色
+const DR_P = { x: 196, y: 92, R: 24 }, DR_SUN = [236, 60];
+const DR_FLOW = () => once('drFlow', () => { const r = rng(61), o = []; for (let i = 0; i < 46; i++) o.push([r() * MD_W, 128 + r() * 70, 4 + r() * 5, i % 3]); return o; });
+const DR_FG = [[34, 186, 30], [96, 200, 22], [318, 190, 28], [372, 176, 20]];   // 前景大花 [x, y, r]
+const DR_COL = [['#E85D75', '#F6B6D0'], ['#F2C94C', '#FFF1D6'], ['#7FB3E0', '#C9B6F0']];   // [原色, 粉紫奶白版]
+CELLS[60] = mdCell('梦幻感', ['逆光轮廓', '高光晕开', '前景花虚化', '粉紫奶白配色'], (k, u, [pR, pG, pF, pC], D) => {
+  const T = u / CYC * TAU, c = (a, b) => mixc(a, b, pC);
+  D.rect(0, 0, MD_W, CH, c(mixc('#BFD9EE', '#F4D9B0', pR), mixc('#F3DDEB', '#FFF4F0', pR)));
+  D.rect(0, 120, MD_W, 88, c('#8DBF6E', '#D9C8E4'));
+  if (pR > 0.01) sun(D, DR_SUN[0], DR_SUN[1], 14, { sun: c('#FFE7A8', '#FFF6EE'), glow: c('#FFE7A8', '#FFE4F0') }, pR);
+  DR_FLOW().forEach(([x, y, r, j]) => D.circ(x, y, r, c(DR_COL[j][0], DR_COL[j][1])));
+  bust(k, DR_P.x, DR_P.y, DR_P.R, c(mixc('#4D5A75', '#3A3550', pR), '#8C7A9E'));
+  if (pR > 0.01) {   // 轮廓光：沿头和肩外缘一圈亮边，偏向太阳一侧
+    k.save(); k.globalAlpha = pR; k.strokeStyle = c('#FFE9B0', '#FFF6F8'); k.lineWidth = 2.4;
+    k.beginPath(); k.arc(DR_P.x, DR_P.y, DR_P.R, -2.4, 0.6); k.stroke();
+    k.beginPath(); k.moveTo(DR_P.x + 1.44 * DR_P.R, DR_P.y + 1.4 * DR_P.R); k.lineTo(DR_P.x + 1.94 * DR_P.R, DR_P.y + 1.8 * DR_P.R); k.stroke(); k.restore();
+  }
+  if (pG > 0.01) {   // 高光晕开：亮部往外扩一层柔光，花上的小光点轻轻闪（一轮 2 次）
+    k.save(); k.globalCompositeOperation = 'screen';
+    const g = k.createRadialGradient(DR_SUN[0], DR_SUN[1], 6, DR_SUN[0], DR_SUN[1], 170);
+    g.addColorStop(0, `rgba(255,248,236,${(0.75 * pG).toFixed(3)})`); g.addColorStop(1, 'rgba(255,248,236,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    for (let i = 0; i < 9; i++) { const a = 0.5 + 0.5 * Math.sin(T * 2 + i * 1.7); k.fillStyle = `rgba(255,255,255,${(0.6 * a * pG).toFixed(3)})`; k.beginPath(); k.arc(40 + i * 40, 70 + (i % 3) * 22, 3 + (i % 2) * 2, 0, TAU); k.fill(); }
+    k.restore();
+  }
+  // 前景大花：一开始是清楚的小花，虚化后变成大而软的色块
+  k.save(); mdBlur(k, 7 * pF);
+  DR_FG.forEach(([x, y, r], i) => { const j = i % 3; D.circ(x, y, r * lerp(0.5, 1, pF), c(DR_COL[j][0], DR_COL[j][1])); });
+  k.restore();
+});

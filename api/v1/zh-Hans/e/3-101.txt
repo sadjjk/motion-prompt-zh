@@ -1,0 +1,65 @@
+// Motion Prompt #3-101 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/describe-live-background
+//
+// 直播间背景 / Livestream background
+// 分类: 剪辑与摄影 / 景别与构图 / 画幅与裁切
+// 动画表现: 先是清晰的房间：两侧书架、绿植、中间一扇窗。接着背景压暗、虚化一档；主播剪影从下方升到中间空位，旁边出现一盒商品；最后两侧肩部高度出现白色品牌信息块。右侧清单「背景压暗、虚化一档」「主播和商品进中间空位」「两侧肩高放品牌信息」随步骤逐项点亮。
+// 运动规格:
+//   - 5 秒周期。房间 300 × 169 px，0.3–0.7 秒出现
+//   - 1.0–1.8 秒压暗（黑色不透明度 0.34）并虚化 2.4 px
+//   - 2.0–2.6 秒主播从下方升起、商品出现；2.8–3.3 秒在肩高 y≈100 一带出现品牌信息
+//   - 4.4–4.95 秒全部收回，5 秒与 0 秒是同一帧
+// 适用场景: 做直播带货背景、虚拟背景，不想让人和商品淹没在背景里时。
+// 标签: livestream, background, virtual set, low contrast, shallow depth, branding
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-101
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 54
+// 54 直播间背景：清晰的背景（书架、绿植、窗）先压暗、虚化一档，主播剪影和商品进到中间空位，
+// 最后两侧肩部高度出现品牌信息块。右侧清单随步骤逐项点亮。
+const LV = { x: 76, y: 20, w: 300, h: 169 }, LV_SRC = { x: 0, y: 0, w: 300, h: 169 };
+const LV_T = { show: [0.3, 0.7], dim: [1.0, 1.8], host: [2.0, 2.6], info: [2.8, 3.3] };
+const LV_DARK = 0.34, LV_BLUR = 2.4;   // 压暗用的黑色不透明度、虚化半径（源坐标 px）
+const LV_HOST = { x: 150, y: 74, R: 24 };   // 肩部高度 ≈ y + 1.06R ≈ 100，信息块就放在这一带
+const LV_LIST = [['背景压暗、虚化一档', 'dim'], ['主播和商品进中间空位', 'host'], ['两侧肩高放品牌信息', 'info']];
+const LV_BOOK = ['#7FA6D6', '#E8B4A0', '#B6C9A0', '#F2D27A', '#C3B5E0'];
+function lvRoom(D) {
+  D.rect(0, 0, 300, 169, '#EDE5DA');
+  D.rect(112, 18, 76, 58, '#F8F4EC'); D.frame(112, 18, 76, 58, 3, '#D8CBB8'); D.rect(149, 18, 2, 58, '#D8CBB8');   // 窗
+  [[14, 30], [14, 66], [14, 102], [214, 30], [214, 66], [214, 102]].forEach(([x, y], i) => {   // 两侧书架，书的高低按序号错开（固定，不随机）
+    D.rect(x, y + 22, 72, 4, '#B89C78');
+    for (let j = 0; j < 6; j++) { const d = (j * 5 + i) % 6; D.rect(x + 4 + j * 11, y + 4 + d, 8, 18 - d, LV_BOOK[(i + j) % 5]); }
+  });
+  D.rect(98, 118, 12, 26, '#C79A6B'); D.circ(104, 108, 14, '#7FAF7A'); D.circ(96, 98, 9, '#8FBF88');   // 绿植
+  D.rect(0, 144, 300, 25, '#C9B79F');   // 桌面
+}
+CELLS[53] = cell((k, u) => {
+  k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+  const pS = fcK(u, ...LV_T.show), pD = fcK(u, ...LV_T.dim), pH = fcK(u, ...LV_T.host), pI = fcK(u, ...LV_T.info);
+  k.save(); k.globalAlpha = pS;
+  fcPic(k, LV, LV_SRC, (D, kk) => {
+    // 虚化半径换算成设备像素：canvas 的 filter 不跟随变换缩放，2× 画布上也要虚得一样
+    const m = kk.getTransform(), sc = Math.hypot(m.a, m.b);
+    kk.save(); if (pD > 0.01) kk.filter = `blur(${(LV_BLUR * pD * sc).toFixed(2)}px)`; lvRoom(D); kk.restore();
+    D.rect(0, 0, 300, 169, `rgba(20,16,12,${(LV_DARK * pD).toFixed(3)})`);
+    if (pH > 0.01) {
+      bust(kk, LV_HOST.x, LV_HOST.y + (1 - pH) * 110, LV_HOST.R, '#2E3950');
+      kk.save(); kk.globalAlpha *= pH; D.rr(202, 120, 28, 24, 3, FC_BLUE); D.rr(208, 113, 16, 7, 2, '#22252B'); kk.restore();   // 商品：一盒
+    }
+    if (pI > 0.01) {
+      kk.save(); kk.globalAlpha *= pI;
+      [14, 216].forEach(x => { D.rr(x, 98, 70, 36, 5, 'rgba(255,255,255,.92)'); D.rect(x + 6, 104, 4, 24, FC_BLUE); D.rr(x + 14, 106, 44, 6, 2, '#5A5A60'); D.rr(x + 14, 118, 32, 5, 2, '#B0B0B5'); });
+      kk.restore();
+    }
+  });
+  k.restore();
+  LV_LIST.forEach(([s, key], i) => {
+    const p = { dim: pD, host: pH, info: pI }[key], y = 70 + i * 34, x = LV.x + LV.w + 16;
+    k.save(); k.globalAlpha = Math.max(0.3 * pS, p);
+    k.fillStyle = p > 0.5 ? FC_BLUE : '#CFCECB'; k.beginPath(); k.arc(x, y, 4, 0, TAU); k.fill();
+    fcText(k, s, x + 10, y, 10.5, p > 0.5 ? FC_INK : FC_SUB, 'left', 600); k.restore();
+  });
+});

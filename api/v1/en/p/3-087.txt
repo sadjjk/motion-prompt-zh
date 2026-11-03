@@ -1,0 +1,15 @@
+Please use "First and last frame" (最初と最後のフレーム), filed under "Camera & editing / Storyboards & pacing".
+Motion Prompt #3-087
+
+What it is: Fix the video's first and last frames with two images and describe only the change in between
+What the sample shows: Three panels sit side by side. The first frame on the left and the last frame on the right never move, each with a lock icon and a "first frame · locked" / "last frame · locked" label. Only the middle "process only" panel plays: the figure walks from left to right, stops and raises an arm, ending in exactly the last frame's pose. A timeline below is pinned to the first and last frames, and the blue progress and playhead travel only between them.
+Spec:
+- 9.4 s cycle. The first and last frames appear over 0.2–0.5 s and then stay locked.
+- The process panel plays from 1.0 to 7.4 s: the figure walks from x −1.6 m to 1.6 m, stopping to raise an arm at 82% of the process.
+- The timeline runs from the centre of the first frame to the centre of the last; the playhead follows the process and the corner label reads "process NN%".
+- From 8.8 to 9.4 s the picture fades back to the opening frame.
+When to use it: For image-to-video when the opening and closing pictures are already decided and the AI only has to fill in the middle.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-087.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

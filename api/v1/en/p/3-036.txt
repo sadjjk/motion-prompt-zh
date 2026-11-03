@@ -2,13 +2,13 @@ Please use "Macro shot" (マクロ撮影), filed under "Shot size & composition 
 Motion Prompt #3-036
 
 What it is: A very small subject shot so it fills the frame
-What the sample shows: A mushroom about 0.26 m tall fills the frame; focus pulls from soft to sharp so the white spots on the cap, the gills and a bug crawling along the rim come through, while the tree trunks and a person's legs behind stay blurred.
+What the sample shows: A tiny fly agaric half buried in moss fills the height of the frame: a round dome cap covered in rows of small white warts, white membrane scraps on the rim, a slender white stem with a skirt ring just under the cap, and a bulbous base wrapped in scale rings. Focus starts far behind with everything soft, then pulls onto the mushroom. Big foreground grass blades, the grass behind and the coloured bokeh blobs of the background stay blurred by how far they are from the focus plane. On the cap an ant walks from right to left, turns and walks back. The camera pushes in very slowly, and the "1 cm" scale bar at the bottom left grows with it. In a small side-view diagram at the bottom right, a thin blue band marking the sharp zone moves with the focus. At the end focus returns to the distance and the push-in eases back.
 Spec:
-- Frame: from 0.02 m below the ground to 0.26 m; camera close to the ground, 0.9 m from the mushroom.
-- Focus: pulls from soft to sharp from 0.4 s to 1.1 s and goes soft again from 4.3 s to 4.7 s.
-- Mushroom: cap red-brown #C34F40 with a #D97B57 middle ring and a #E7E0CE centre, three rings of white spots, radial gills under the cap and two fine lines on the stem.
-- Bug: crawls along the rim from right to left and back once per pass; its legs move faster or slower with its speed.
-- The two trees and the person's legs behind always stay blurred; top right reads "微距 MACRO"; one pass = 4.7 s.
+- One pass is 4.7 s. Focus pulls from far (depth 0.95) onto the mushroom (0.5) over 0.5–1.4 s and goes back over 4.2–4.7 s.
+- Blur = depth difference from the focus plane × 14 px; the 16 grass blades sit in 3 layers at depths 0.06–0.9, and the 6 background bokeh blobs scale by only 30% of the push-in.
+- Very slow push-in: up to 1.08× over 0.5–4.2 s, back over 4.2–4.7 s; the scale bar is 1 cm = 64 px and grows with the push-in.
+- Ant: right to left over 0.3–2.1 s, turns at 2.3 s, walks back over 2.5–4.3 s and turns again at 4.5 s; 4 steps each way.
+- A 92 × 46 px depth-of-field diagram at the bottom right; "微距 MACRO" at the top right.
 When to use it: For insects, flowers, food or product textures, details the eye barely sees.
 
 Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-036.txt

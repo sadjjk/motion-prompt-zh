@@ -1,0 +1,98 @@
+// Motion Prompt #3-089 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/one-shot-one-action
+//
+// 一镜一动作 / One shot, one action
+// 分类: 剪辑与摄影 / 镜头与剪辑 / 分镜与节奏
+// 动画表现: 先看反例：一个宽格里人物边走边挥手，镜头同时往前推，「走」「挥手」「推镜」三处红标依次出现，再出红框和红字「✕ 一个镜头塞了 3 个动作」。随后换成 3 个格子依次播放：走 · 固定、挥手 · 固定、站定 · 推镜，下方蓝字「✓ 拆成 3 个镜头，每格 1 个动作」。
+// 运动规格:
+//   - 9.4 秒周期。反例 0.3–3.6 秒：人物从 x −1.6 m 走到 1.6 m，每 0.25 秒挥一次手，机位从 7 m 推到 4.4 m
+//   - 红标在 1.0、1.5、2.0 秒依次出现，2.5 秒出现红字说明
+//   - 3.6–4.1 秒交叉淡入 3 格，分别在 4.2、5.7、7.2 秒开始，各 1.5 秒；第 3 格机位从 6 m 推到 3.6 m
+//   - 8.8–9.4 秒淡回反例画面
+// 适用场景: 提示词里动作和运镜堆得太多、生成结果乱时，用来拆镜头。
+// 标签: one action per shot, shot breakdown, prompt clarity, storyboard, camera move, pacing
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-089
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 41
+// 41 一镜一动作：先看反例 —— 一个镜头里同时塞进「走」「挥手」「推镜」，三处红标，下方红字说明；
+// 再拆成 3 个镜头，每格只有 1 个动作 + 1 种机位（走·固定 / 挥手·固定 / 站定·推镜），依次播放。
+const OA_RED = '#E5484D';
+const OA_BAD = [0.3, 3.6];         // 反例镜头的区间
+const OA_TAGS = [1.0, 1.5, 2.0];   // 三处红标出现：走、挥手、推镜
+const OA_SWAP = [3.6, 4.1];        // 反例淡出、三格淡入
+const OA_TS = [4.2, 5.7, 7.2], OA_DUR = 1.5;   // 三格各自开始与时长，8.7 s 播完
+const OA_LABEL = ['走 · 固定', '挥手 · 固定', '站定 · 推镜'];
+const oaWave = t => Math.floor(t * 4) % 2 === 0;   // 挥手：每 0.25 s 举放一次
+const oaPerson = (x, walk, up) => ({ x, z: 8, walk, armUp: up });
+// 推镜用固定焦距、机位前移，人物变大；d0 = 起始距离（与 sbCam 同样的画框）
+const oaPush = (h, d0, d) => cam({ x: 0, y: 1.05, z: 8 - d, f: h * d0 / 2.7 });
+function oaBox(k, x, y, s) {
+  const bw = tw(k, s, `700 11px ${JP}`) + 10;
+  k.fillStyle = OA_RED; rr(k, x, y, bw, 16, 4); k.fill();
+  txt(k, s, x + bw / 2, y + 8.5, `700 11px ${JP}`, '#FFFFFF', 'center', 'middle');
+}
+// 红圈 + 右侧红标；y 限制在格内，推近后标签不出格
+function oaTag(k, w, h, x, y, s, a) {
+  if (a <= 0) return;
+  y = Math.max(12, Math.min(h - 12, y));
+  k.save(); k.globalAlpha *= a;
+  k.strokeStyle = OA_RED; k.lineWidth = 1.6; k.beginPath(); k.arc(x, y, 9, 0, TAU); k.stroke();
+  oaBox(k, x + 12, y - 8, s);
+  k.restore();
+}
+function oaBad(k, w, h, U) {
+  const p = P(U, OA_BAD[0], OA_BAD[1]), x = lerp(-1.6, 1.6, p), c = oaPush(h, 7, lerp(7, 4.4, eIOs(p)));
+  world(k, w, h, c, { person: oaPerson(x, p * 20, oaWave(U)), trees: false, mountains: false });
+  const ft = proj(c, x, 0.4, 8), hd = proj(c, x + 0.3, 1.75, 8);
+  oaTag(k, w, h, w / 2 + ft.x, h / 2 + ft.y, '走', P(U, OA_TAGS[0], OA_TAGS[0] + 0.25));
+  oaTag(k, w, h, w / 2 + hd.x, h / 2 + hd.y, '挥手', P(U, OA_TAGS[1], OA_TAGS[1] + 0.25));
+  const a = P(U, OA_TAGS[2], OA_TAGS[2] + 0.25);
+  if (a <= 0) return;
+  // 推镜：四角红色箭头指向画面中心
+  k.save(); k.globalAlpha *= a; k.strokeStyle = OA_RED; k.lineWidth = 2; k.lineCap = 'round';
+  [[1, 1], [-1, 1], [1, -1], [-1, -1]].forEach(([sx, sy]) => {
+    const xa = sx > 0 ? 12 : w - 12, ya = sy > 0 ? 10 : h - 10, xb = xa + sx * 16, yb = ya + sy * 10;
+    k.beginPath(); k.moveTo(xa, ya); k.lineTo(xb, yb); k.moveTo(xb - sx * 6, yb); k.lineTo(xb, yb); k.lineTo(xb, yb - sy * 5); k.stroke();
+  });
+  oaBox(k, 36, 8, '推镜');   // 放在左上箭头旁；放中间会和推近后的人头、「挥手」标叠在一起
+  k.restore();
+}
+function oaGood(k, w, h, i, q, U) {
+  const opt = { trees: false, mountains: false };
+  if (i === 0) return world(k, w, h, sbCam(h, -0.3, 2.4, 6), { ...opt, person: oaPerson(lerp(-1.2, 1.2, q), q * 10, false) });
+  if (i === 1) return world(k, w, h, sbCam(h, -0.3, 2.4, 6), { ...opt, person: oaPerson(0, 0, q < 1 && oaWave(U)) });
+  world(k, w, h, oaPush(h, 6, lerp(6, 3.6, eIOs(q))), { ...opt, person: oaPerson(0, 0, false) });
+}
+CELLS[40] = shot((k, w, h, uu, cyc) => {
+  const U = sbU(uu, cyc), back = P(U, SB_END, HOLD), sw = P(U, OA_SWAP[0], OA_SWAP[1]);
+  // 反例布局在开头和结尾淡回时可见，三格布局在中段；两者交叉淡入淡出，首尾同一帧
+  const aA = Math.min(1, 1 - sw + back), aB = sw * (1 - back);
+  let cur = -1;
+  if (aA > 0.001) {
+    const A = { x: 30, y: 48, w: CW - 60, h: 112 };
+    k.save(); k.globalAlpha = aA;
+    sbPanel(k, A, 0, P(U, 0.2, 0.5) * (1 - sw) * aA, (kk, pw, ph) => oaBad(kk, pw, ph, U), '');
+    const bad = P(U, OA_BAD[0], OA_BAD[0] + 0.3) * (1 - sw), msg = P(U, 2.5, 2.8) * (1 - sw);
+    if (bad > 0) { k.globalAlpha = aA * bad; k.strokeStyle = OA_RED; k.lineWidth = 2.4; rr(k, A.x, A.y, A.w, A.h, 6); k.stroke(); }
+    if (msg > 0) { k.globalAlpha = aA * msg; txt(k, '✕ 一个镜头塞了 3 个动作', A.x + A.w / 2, A.y + A.h + 16, `700 12px ${JP}`, OA_RED, 'center', 'middle'); }
+    k.restore();
+  }
+  if (aB > 0.001) {
+    const R = sbRow(3, { h: 100 });
+    k.save(); k.globalAlpha = aB;
+    R.forEach((r, i) => {
+      const st = sbState(U, OA_TS, i), q = st === 1 ? clamp((U - OA_TS[i]) / OA_DUR) : 1;
+      if (st === 1) cur = i;
+      sbPanel(k, r, st, sbOn(U, OA_TS, i) * aB, (kk, pw, ph) => oaGood(kk, pw, ph, i, q, U), String(i + 1));
+      sbLabel(k, r, OA_LABEL[i], st);
+    });
+    k.globalAlpha = aB * P(U, OA_SWAP[1], OA_SWAP[1] + 0.3);
+    txt(k, '✓ 拆成 3 个镜头，每格 1 个动作', CW / 2, R[0].y + R[0].h + 34, `700 12px ${JP}`, C.blue, 'center', 'middle');
+    k.restore();
+  }
+  return cur >= 0 ? `${cur + 1}/3 ${OA_LABEL[cur]}` : (U < OA_SWAP[0] || back > 0.5) ? '一镜多动作' : '一镜一动作';
+});

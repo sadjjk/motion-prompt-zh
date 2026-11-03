@@ -1,0 +1,56 @@
+// Motion Prompt #3-103 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/high-end-look
+//
+// 高级感 / High-end look
+// 分类: 剪辑与摄影 / 光线与色彩 / 氛围与调性
+// 动画表现: 起点是花和缎带围着的香水瓶，背景是 4 条鲜艳色带。先把颜色降成低饱和的米灰；再让花和缎带退场，瓶子缩小并移到右侧，四周留出空白；接着左边进来一大片柔光，瓶子右侧拉出一片很软的影子，画面右侧慢慢压暗；最后出现液面亮线、玻璃竖向高光和金属盖上的细纹。右侧清单每加入一项，对应的编号圆点变蓝，状态从「平淡版」变为「叠加中」再到「成品」。
+// 运动规格:
+//   - 5 秒周期。0–0.6 秒是平淡版；4 项成分从 0.6 秒起每 0.7 秒加入下一项，各用 0.5 秒渐入
+//   - 4 条色带退成 #E4DFD8，花和缎带退场；瓶子从 x 196、1 倍缩到 x 262、0.68 倍
+//   - 左侧大面积柔光，瓶子右边一片模糊 6 px 的软影；材质：液面亮线、玻璃左侧竖高光、金属盖上 6 道细纹
+//   - 成品停到 4.4 秒，4.4–4.95 秒退回平淡版，5 秒与 0 秒是同一帧
+// 适用场景: 拍化妆品、香水、首饰等产品，想显得高级时。
+// 标签: premium, minimal, muted palette, negative space, soft light, product photography
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-103
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 56
+// 56 高级感：桌上一只香水瓶。减到两三个低饱和色 → 主体缩小、四周留白（杂物退场）→ 一侧大面积柔光 → 材质细节（玻璃高光、液面、金属盖纹）
+const HE_STRIPE = ['#F2B5C4', '#9ED0E6', '#F7D774', '#B8E0A8'], HE_MUTE = '#E4DFD8';
+const HE_FROM = { x: 196, y: 176, s: 1 }, HE_TO = { x: 262, y: 168, s: 0.68 };
+function heBottle(D, k, cx, by, s, col, cap, pM) {
+  const w = 64 * s, h = 82 * s;
+  D.rr(cx - w / 2, by - h, w, h, 10 * s, col);
+  D.rect(cx - 9 * s, by - h - 10 * s, 18 * s, 11 * s, mixc(col, '#FFFFFF', 0.3));
+  D.rr(cx - 15 * s, by - h - 34 * s, 30 * s, 25 * s, 4 * s, cap);
+  D.rr(cx - w / 2 + 12 * s, by - h * 0.62, w - 24 * s, h * 0.3, 2 * s, mixc(col, '#FFFFFF', 0.55));
+  if (pM < 0.01) return;
+  k.save(); k.globalAlpha *= pM;
+  D.rect(cx - w / 2 + 2 * s, by - h * 0.86, w - 4 * s, 2 * s, 'rgba(255,255,255,.7)');   // 液面
+  D.rr(cx - w / 2 + 6 * s, by - h + 8 * s, 5 * s, h - 18 * s, 3 * s, 'rgba(255,255,255,.75)');   // 玻璃左侧竖高光
+  for (let i = 0; i < 6; i++) D.rect(cx - 13 * s + i * 5 * s, by - h - 32 * s, 1.4 * s, 21 * s, 'rgba(255,255,255,.35)');   // 金属盖细纹
+  k.restore();
+}
+CELLS[55] = mdCell('高级感', ['减到两三个低饱和色', '主体缩小留白', '一侧大面积柔光', '材质细节'], (k, u, [pC, pS, pL, pM], D) => {
+  HE_STRIPE.forEach((c, i) => D.rect(i * MD_W / 4, 0, MD_W / 4 + 1, 150, mixc(c, HE_MUTE, pC)));
+  D.rect(0, 150, MD_W, 58, mixc('#E8A87C', '#D6CFC5', pC));
+  // 杂物：花和缎带，留白这一步退场
+  k.save(); k.globalAlpha = 1 - pS;
+  [[70, 128, '#E85D75'], [92, 120, '#F2C94C'], [80, 108, '#7FB3E0'], [320, 132, '#E85D75'], [338, 122, '#9B7BE0']].forEach(([x, y, c]) => D.circ(x, y, 11, mixc(c, '#BDB4A8', pC)));
+  D.rect(60, 140, 300, 8, mixc('#E85D75', '#BDB4A8', pC));
+  k.restore();
+  const x = lerp(HE_FROM.x, HE_TO.x, pS), y = lerp(HE_FROM.y, HE_TO.y, pS), s = lerp(HE_FROM.s, HE_TO.s, pS);
+  // 柔光的影子：在瓶子右边拉出一片很软的影
+  if (pL > 0.01) { k.save(); mdBlur(k, 6); k.globalAlpha = 0.35 * pL; D.poly([[x, y], [x + 120 * s, y - 8 * s], [x + 140 * s, y + 6 * s], [x, y + 6 * s]], '#6E655A'); k.restore(); }
+  heBottle(D, k, x, y, s, mixc('#E85D75', '#C9B8A3', pC), mixc('#F2C94C', '#8C857C', pC), pM);
+  if (pL > 0.01) {
+    k.save(); k.globalCompositeOperation = 'screen'; const g = k.createRadialGradient(-60, 60, 20, -60, 60, 360);
+    g.addColorStop(0, `rgba(255,255,255,${(0.5 * pL).toFixed(3)})`); g.addColorStop(1, 'rgba(255,255,255,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    k.globalCompositeOperation = 'multiply'; const g2 = k.createLinearGradient(0, 0, MD_W, 0);
+    g2.addColorStop(0.45, 'rgba(255,255,255,1)'); g2.addColorStop(1, mixc('#FFFFFF', '#B9B0A6', pL)); k.fillStyle = g2; k.fillRect(0, 0, MD_W, CH);
+    k.restore();
+  }
+});

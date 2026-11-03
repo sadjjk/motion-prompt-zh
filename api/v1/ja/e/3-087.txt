@@ -1,0 +1,55 @@
+// Motion Prompt #3-087 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/first-last-frame
+//
+// 最初と最後のフレーム / First and last frame
+// 分類: 編集・撮影 / カメラ・編集 / 絵コンテ・テンポ
+// 何が起きるか: 3コマが並ぶ。左の最初のフレームと右の最後のフレームは最後まで動かず、それぞれ鍵のアイコンと「首帧 · 固定」「尾帧 · 固定」のラベル付き。動くのは中央の「只写过程」のコマだけで、人物が左から右へ歩いて止まり、手を挙げて最後のフレームと同じ姿勢になる。下のタイムラインは両端が最初と最後のフレームに留められ、青い進行と再生ヘッドはその間だけを進む。
+// 動きの仕様:
+//   - 9.4秒周期。最初と最後のフレームは0.2〜0.5秒に現れ、以後固定
+//   - 過程のコマは1.0〜7.4秒に再生：人物はx −1.6mから1.6mへ歩き、過程の82%で止まって手を挙げる
+//   - タイムラインは最初のフレームの中心から最後のフレームの中心まで。再生ヘッドは過程の進み具合で動き、隅に「过程 NN%」
+//   - 8.8〜9.4秒に最初の画面へフェードで戻る
+// 使いどころ: 画像から動画を作るとき、始まりと終わりの絵がもう決まっていて、間だけをAIに埋めてほしいとき。
+// タグ: first frame, last frame, keyframes, image to video, interpolation, storyboard
+// サイズ: 539x208 px · 1周: 9.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-087
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 39
+// 39 首尾帧：左格首帧、右格尾帧从头到尾不动（锁定），只有中间格在演过程：人物从左走到右、停下举手。
+// 下方时间轴两端钉在首尾帧上，播放头只在两端之间走，标「只写过程」。
+const FL_X = [-1.6, 1.6];            // 首帧、尾帧里人物的位置（米）
+const FL_RUN = [1.0, 7.4];           // 过程在整轮里的区间
+const FL_ARM = 0.82;                 // 过程走到这个比例后举手（尾帧是举手姿态）
+const flPose = p => ({ x: lerp(FL_X[0], FL_X[1], clamp(p / FL_ARM)), z: 8, walk: clamp(p / FL_ARM) * 14, armUp: p >= FL_ARM });
+const flScene = (k, w, h, p) => world(k, w, h, sbCam(h, -0.3, 2.4, 6), { person: flPose(p), trees: false, mountains: false });
+// 锁形小图标：紧挨左上角编号（右上角是太阳、右下角是尾帧人物，放那里会叠在一起），说明这一帧固定
+function flLock(k, r, col) {
+  const x = r.x + 33, y = r.y + 12;
+  k.save(); k.strokeStyle = col; k.fillStyle = col; k.lineWidth = 1.6;
+  k.beginPath(); k.arc(x, y - 2, 3.5, Math.PI, 0); k.stroke();
+  rr(k, x - 5, y - 2, 10, 8, 2); k.fill(); k.restore();
+}
+CELLS[38] = shot((k, w, h, uu, cyc) => {
+  const U = sbU(uu, cyc), R = sbRow(3, { h: 100 }), fade = sbFade(U);
+  const endsOn = P(U, 0.2, 0.5) * fade, p = eIOs(P(U, FL_RUN[0], FL_RUN[1]));
+  const run = U >= FL_RUN[0] && U < SB_END + 0.3 ? 1 : 0;   // 过程格在演时为当前格（蓝框）
+  sbPanel(k, R[0], endsOn > 0.5 ? 2 : 0, endsOn, (kk, pw, ph) => flScene(kk, pw, ph, 0), '首');
+  sbPanel(k, R[1], run, P(U, FL_RUN[0] - 0.3, FL_RUN[0]) * fade, (kk, pw, ph) => flScene(kk, pw, ph, p), '');
+  sbPanel(k, R[2], endsOn > 0.5 ? 2 : 0, endsOn, (kk, pw, ph) => flScene(kk, pw, ph, 1), '尾');
+  if (endsOn > 0.5) { flLock(k, R[0], C.g4); flLock(k, R[2], C.g4); }
+  sbLabel(k, R[0], '首帧 · 固定', endsOn > 0.5 ? 2 : 0);
+  sbLabel(k, R[1], '只写过程', run);
+  sbLabel(k, R[2], '尾帧 · 固定', endsOn > 0.5 ? 2 : 0);
+  // 时间轴：从首帧中心到尾帧中心，两端是实心钉，播放头在中间走
+  const y = R[0].y + R[0].h + 32, xa = R[0].x + R[0].w / 2, xb = R[2].x + R[2].w / 2;
+  k.save(); k.globalAlpha = endsOn;
+  k.strokeStyle = C.g3; k.lineWidth = 2; k.beginPath(); k.moveTo(xa, y); k.lineTo(xb, y); k.stroke();
+  k.strokeStyle = C.blue; k.lineWidth = 3; k.beginPath(); k.moveTo(xa, y); k.lineTo(lerp(xa, xb, p), y); k.stroke();
+  [xa, xb].forEach(x => { k.fillStyle = C.ink; k.beginPath(); k.arc(x, y, 4.5, 0, TAU); k.fill(); });
+  if (run) { const px = lerp(xa, xb, p); k.fillStyle = C.blue; k.beginPath(); k.arc(px, y, 5.5, 0, TAU); k.fill(); k.fillStyle = '#FFFFFF'; k.beginPath(); k.arc(px, y, 2.2, 0, TAU); k.fill(); }
+  k.restore();
+  return run ? `过程 ${Math.round(p * 100)}%` : '首尾帧';
+});

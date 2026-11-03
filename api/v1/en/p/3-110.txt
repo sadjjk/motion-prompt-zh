@@ -1,0 +1,15 @@
+Please use "Healing vibe" (癒やし), filed under "Light & color / Mood & tone recipes".
+Motion Prompt #3-110
+
+What it is: A calming feel built from warm soft light, a slow pace, small everyday things and empty space
+What the sample shows: It starts from a plain, cool-toned picture of a steaming cup of tea on a windowsill. First the window turns warm, low sunlight slants across the sill and the cup throws a long shadow. Then a striped blanket slides in from the bottom left. Next a warm white wash lowers the contrast and fine grain flickers over it. Finally the camera pushes in very slowly towards the cup. The steam sways the whole time. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+Spec:
+- 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+- Low warm sunlight falls from the window across the sill as a slanted band, with a long cup shadow; the blanket slides in 60 px from the left with 2 stripes.
+- A warm white wash at 0.28 lowers the contrast and 520 grain dots jump 12 times per second; very slow push-in from 1× to 1.1× over 2.7–4.4 s; the steam sways 1 time per cycle.
+- The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For lifestyle, café, reading and weekend vlog shots that show an unhurried everyday moment.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-110.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

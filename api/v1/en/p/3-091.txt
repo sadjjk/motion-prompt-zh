@@ -1,0 +1,15 @@
+Please use "Product three-beat" (商品の3段構成), filed under "Camera & editing / Storyboards & pacing".
+Motion Prompt #3-091
+
+What it is: A product sequence in three beats: the whole product, a close-up of the selling point, then the product in use
+What the sample shows: The same blue thermos is the focus of all 3 panels. Panel 1, "whole · orbit", stands it on a turntable for one slow full turn, its highlight and logo sliding from side to side. Panel 2, "selling point · side-lit close-up", is a big close-up on black: a light sweeps left to right and the cap's grip ridges light up one by one, then a "non-slip ridges" label appears. Panel 3, "in use", is outdoors: a hand holds the bottle and sways it once, keeping it in the centre of the frame.
+Spec:
+- 9.4 s cycle. The 3 panels start at 0.3, 3.1 and 5.9 s, 2.8 s each.
+- Whole: the bottle makes exactly 1 turn per panel; the logo is wide face-on, narrow side-on and hidden at the back.
+- Close-up: the light runs from beyond the left edge to beyond the right; ridges are 7 px apart and brighter the nearer the light; the label appears at 45–60% of the panel.
+- In use: the bottle sways once per panel. From 8.8 to 9.4 s the picture fades back to the opening frame.
+When to use it: For shop and ad videos that must show what it is, why it is good and how it is used in a short time.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-091.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

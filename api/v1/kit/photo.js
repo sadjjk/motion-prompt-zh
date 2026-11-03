@@ -1,4 +1,4 @@
-// Motion Prompt #3 037–084 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#097
+// Motion Prompt #3 037–084 · 096–112 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#097
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/rule-of-thirds (#3-037)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/centered-composition (#3-038)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/symmetry (#3-039)
@@ -23,9 +23,26 @@
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/soft-focus (#3-074)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/prism (#3-075)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/flat-lay (#3-084)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/describe-wechat-header (#3-096)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/describe-avatar (#3-097)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/describe-douyin-first-frame (#3-098)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/describe-xhs-cover (#3-099)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/describe-wallpaper (#3-100)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/describe-live-background (#3-101)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/cinematic-look (#3-102)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/high-end-look (#3-103)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/atmosphere (#3-104)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/loneliness-mood (#3-105)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/ambient-light-look (#3-106)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/texture-feel (#3-107)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/dreamy-look (#3-108)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/clean-look (#3-109)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/healing-vibe (#3-110)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/japanese-airy-look (#3-111)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/inpaint-description (#3-112)
 //
 // Kit for pack "photo" (Photo looks, lighting & styles / 写真の表現・光と画風): the constants and helpers its elements share.
-// Elements #3 037–084 · 539x208 px · cycle 5 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #3 037–084 · 096–112 · 539x208 px · cycle 5 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,

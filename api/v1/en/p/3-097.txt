@@ -1,0 +1,15 @@
+Please use "Avatar" (アイコン画像), filed under "Shot size & composition / Framing & cropping".
+Motion Prompt #3-097
+
+What it is: A square that will be cropped to a circle, with the face in the centre and a plain background so it reads even when tiny
+What the sample shows: Two rows, each starting from a square picture. A circular mask fades the outside to white and an amber dashed circle appears. Then round icons at 64, 32 and 16 px appear one after another. In the top row the face is centred on a plain background, so it still reads as a person at 16 px (✓); in the bottom row the face sits off to the right against a busy street scene and turns into an unreadable blob when shrunk (✕).
+Spec:
+- 5 s cycle. The source square is 76 px, appears over 0.3–0.8 s, and the circular mask comes in over 1.0–1.5 s.
+- Shrunk copies at 64, 32 and 16 px appear from 1.8, 2.2 and 2.6 s, 0.35 s each, drawn at their real size on the canvas.
+- Over 3.0–3.4 s: ✓ "face centred, plain background" / ✕ "busy background, face off to one side".
+- Everything clears over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For social and chat profile pictures and ID photos that are shown small and round.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-097.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

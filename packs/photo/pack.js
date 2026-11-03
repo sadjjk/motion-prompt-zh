@@ -1012,44 +1012,83 @@ MotionPrompt.pack('photo', function () {
   });
 
   // @element 41
-  // 水下焦散（コースティクス）: 場面が水の中の淡い青に沈む。上に揺れる水面の線、斜めに差し込む光の筋。
-  // 人物と水底に、水面の揺れで曲がった網目の明るい線が流れる
-  CELLS[40] = cell((k, u) => {
-    const a = env(u), T = u / CYC * TAU;
-    const WATER = mapPal(BASE, c => mixc(c, '#3F8FB0', 0.55));
-    Object.assign(WATER, { sky: '#7CC3D9', sky2: '#5FAFCB', ground: '#5E9FB4', person: '#2E5A78', shade: '#24485F' });
-    stagePortrait(k, pal(BASE, WATER, a));
-    bust(k, PX, PY, PR, mixc(BASE.person, WATER.person, a));
-    if (a < 0.002) return;
-    // 網目: 2方向に走る曲がった線。線の位置は水面の揺れ（整数倍の周期）で変形する
-    const [L, kl] = layer('caustic');
-    kl.strokeStyle = '#E8FBFF'; kl.lineCap = 'round';
-    const wob = (x, y) => 7 * Math.sin(x * 0.045 + T * 2) + 5 * Math.sin(y * 0.07 - T + x * 0.02) + 3 * Math.sin((x + y) * 0.09 + T * 3);
-    for (let dir = 0; dir < 2; dir++) {
-      for (let i = -6; i < 28; i++) {
-        kl.lineWidth = 1.2 + (i % 3) * 0.5; kl.beginPath();
-        for (let s = 0; s <= 60; s++) {
-          const t = s / 60;
-          // dir 0: 右下がりの線、dir 1: 左下がりの線。交わって網になる
-          const bx = dir ? i * 26 - t * 120 : i * 26 - 160 + t * 120, by = 30 + t * (CH - 30);
-          const x = bx + wob(bx, by), y = by + 0.6 * wob(by, bx);
-          s ? kl.lineTo(x, y) : kl.moveTo(x, y);
-        }
-        kl.stroke();
-      }
+  // 水下焦散：整轮都在泳池水下。上方是从水下看的起伏水面，斜光束穿过水；池底瓷砖、后墙和人的皮肤上
+  // 爬着网状、弯曲的亮纹（粗细不一，交汇处最亮，网眼里偏暗）。和斑驳树影的分别：是连成网的细亮线，不是圆光斑；
+  // 和涟漪扭曲的分别：只是光在动，瓷砖和人形本身不变形。
+  // 亮纹算法：一组固定种子的点（rng(58)）各自画小圈，像素到最近两点的距离差越小越亮 → 天然形成连成网的曲线，三线交汇处最亮。
+  // 所有运动都是一轮（CYC 5 秒）的整数倍周期，首尾帧一致；0～1 秒水面从平静起伏起来，4.4～4.95 秒回到平静（复位）
+  const CA_SC = 2, CA_W = Math.ceil(CW / CA_SC), CA_H = Math.ceil(CH / CA_SC);   // 网纹在半分辨率算，放大时自然柔一点
+  const CA_N = 34, CA_FLOOR = 150, CA_SURF = 16, CA_VP = [262, 40];   // 种子点数、池底线、水面高度、地砖透视消失点
+  const CA_SWIM = { x: 318, y: 96, R: 19 }, CA_SKIN = '#E8B48E', CA_SUIT = '#C8414B', CA_CAP = '#1F3A5F';
+  const CA_PTS = () => once('caPts', () => { const r = rng(58), o = []; for (let i = 0; i < CA_N; i++) o.push([r() * (CA_W + 24) - 12, r() * (CA_H + 24) - 12, 4 + r() * 6, 3 + r() * 5, 1 + (r() < 0.5 ? 1 : 0), r() * TAU]); return o; });
+  const CA_BUF = () => once('caBuf', () => layer('causticSrc')[1].createImageData(CA_W, CA_H));
+  const CA_BUB = [[286, 0.1, 1], [296, 0.55, 2], [352, 0.3, 1], [140, 0.7, 1], [430, 0.2, 2]];   // 气泡 [x, 相位, 一轮升几次]
+  function caCalm(u) { return eIO(P(u, 0.2, 1.0)) * (1 - eIO(P(u, 4.4, 4.95))); }
+  // 网纹：返回一张 CA_W×CA_H 的透明亮纹图（画在 CW×CH 的层上左上角）
+  function caMesh(u, q) {
+    const T = u / CYC * TAU, pts = CA_PTS().map(([x, y, rx, ry, n, ph]) => [x + q * rx * Math.cos(n * T + ph), y + q * ry * Math.sin(n * T + ph * 1.3)]);
+    const img = CA_BUF(), d = img.data;
+    for (let y = 0; y < CA_H; y++) for (let x = 0; x < CA_W; x++) {
+      // 坐标先被水面起伏弯一下，网线因此是弯的
+      const wx = x + (1 + 2.4 * q) * Math.sin(y * 0.13 + T * 2), wy = y + (1 + 2 * q) * Math.sin(x * 0.11 - T);
+      let d1 = 1e9, d2 = 1e9;
+      for (let i = 0; i < CA_N; i++) { const dx = wx - pts[i][0], dy = wy - pts[i][1], dd = dx * dx + dy * dy; if (dd < d1) { d2 = d1; d1 = dd; } else if (dd < d2) d2 = dd; }
+      const e = Math.sqrt(d2) - Math.sqrt(d1), w = 0.9 + 0.55 * (1 + Math.sin(x * 0.06 + y * 0.08 + T)), v = Math.exp(-e / w);
+      const o = (y * CA_W + x) * 4; d[o] = 232; d[o + 1] = 252; d[o + 2] = 255; d[o + 3] = Math.min(255, v * 300);
     }
-    k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.5 * a; k.filter = 'blur(1px)'; k.drawImage(L, 0, 0); k.restore();
-    // 光の筋と水面
+    const [L, kl] = layer('causticSrc'); kl.putImageData(img, 0, 0); return L;
+  }
+  function caSwimmer(k, D, u, mask) {
+    const S = CA_SWIM, T = u / CYC * TAU, sway = 0.12 * Math.sin(T), sk = mask || CA_SKIN;
+    // 抬起的手臂：肩 → 肘 → 手，整轮摆 1 次
+    const sh = [S.x + 22, S.y + 34], el = [sh[0] + 22 + 4 * sway * 10, sh[1] - 30], ha = [el[0] - 6 + 30 * sway, el[1] - 34];
+    D.line([sh, el, ha], 10, sk); D.circ(ha[0], ha[1], 6, sk);
+    bust(k, S.x, S.y, S.R, mask || CA_SUIT);
+    D.circ(S.x, S.y, S.R, sk);   // 脸和脖子是皮肤色
+    D.rect(S.x - 8, S.y + S.R - 4, 16, 14, sk);
+    if (!mask) {
+      k.fillStyle = CA_CAP; k.beginPath(); k.arc(S.x, S.y, S.R + 0.5, Math.PI * 1.02, Math.PI * 1.98); k.fill();   // 泳帽
+      D.rr(S.x - 15, S.y - 4, 13, 7, 3, '#2A2F3A'); D.rr(S.x + 2, S.y - 4, 13, 7, 3, '#2A2F3A');   // 泳镜
+    }
+  }
+  CELLS[40] = cell((k, u) => {
+    const T = u / CYC * TAU, q = caCalm(u), D = pen(k);
+    // 水：上亮下暗的青蓝
+    const g = k.createLinearGradient(0, 0, 0, CH); g.addColorStop(0, '#7FD0E2'); g.addColorStop(0.55, '#3C9BB8'); g.addColorStop(1, '#1F6A8A');
+    k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+    // 后墙瓷砖 + 池底透视瓷砖（瓷砖线是直的：焦散不扭曲物体）
+    k.strokeStyle = 'rgba(20,70,95,.25)'; k.lineWidth = 1;
+    for (let x = 0; x <= CW; x += 26) { k.beginPath(); k.moveTo(x, 34); k.lineTo(x, CA_FLOOR); k.stroke(); }
+    for (let y = 34; y <= CA_FLOOR; y += 26) { k.beginPath(); k.moveTo(0, y); k.lineTo(CW, y); k.stroke(); }
+    D.rect(0, CA_FLOOR, CW, CH - CA_FLOOR, '#2F86A6');
+    k.strokeStyle = 'rgba(15,60,85,.35)';
+    for (let i = -14; i <= 34; i++) { k.beginPath(); k.moveTo(CA_VP[0] + (i * 26 - CA_VP[0]) * 0.55, CA_FLOOR); k.lineTo(CA_VP[0] + (i * 26 - CA_VP[0]) * 1.6, CH); k.stroke(); }
+    for (const y of [CA_FLOOR + 8, CA_FLOOR + 20, CA_FLOOR + 36, CA_FLOOR + 58]) { k.beginPath(); k.moveTo(0, y); k.lineTo(CW, y); k.stroke(); }
+    D.poly([[CA_VP[0] - 12, CA_FLOOR], [CA_VP[0] + 12, CA_FLOOR], [CA_VP[0] + 30, CH], [CA_VP[0] - 30, CH]], '#1E5E80');   // 泳道线
+    caSwimmer(k, D, u);
+    // 气泡：从人嘴边和池底往上冒，循环整数次
+    k.strokeStyle = 'rgba(235,252,255,.75)'; k.lineWidth = 1.2;
+    CA_BUB.forEach(([x, ph, n], i) => { const f = (u / CYC * n + ph) % 1, y = CA_FLOOR - f * (CA_FLOOR - CA_SURF); k.beginPath(); k.arc(x + 3 * Math.sin(f * TAU * 2 + i), y, 2 + (i % 3), 0, TAU); k.stroke(); });
+    // 网纹：整面一层；池底再叠一层压扁的（透视里网眼变扁变密）；人身上用遮罩再叠一层，亮纹落在皮肤上
+    const M = caMesh(u, q), A = lerp(0.6, 1, q);
+    k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.55 * A; k.drawImage(M, 0, 0, CA_W, CA_H, 0, 0, CW, CH); k.restore();
+    k.save(); k.beginPath(); k.rect(0, CA_FLOOR, CW, CH - CA_FLOOR); k.clip(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.7 * A;
+    k.drawImage(M, 0, 0, CA_W, CA_H, -40, CA_FLOOR - 10, CW + 80, (CH - CA_FLOOR) * 1.6); k.restore();
+    const [Mk, km] = layer('causticSkin'); caSwimmer(km, pen(km), u, '#FFFFFF');
+    km.globalCompositeOperation = 'source-in'; km.drawImage(M, 0, 0, CA_W, CA_H, 0, 0, CW, CH);
+    k.save(); k.globalCompositeOperation = 'screen'; k.globalAlpha = 0.5 * A; k.drawImage(Mk, 0, 0); k.restore();
+    // 斜光束：从水面斜着往右下打，跟着水面轻轻晃
     k.save(); k.globalCompositeOperation = 'lighter';
-    for (let i = 0; i < 4; i++) {
-      const x0 = 120 + i * 110 + 10 * Math.sin(T + i), g = k.createLinearGradient(0, 0, 0, CH);
-      g.addColorStop(0, `rgba(220,248,255,${(0.22 * a).toFixed(3)})`); g.addColorStop(1, 'rgba(220,248,255,0)');
-      k.fillStyle = g; k.beginPath(); k.moveTo(x0, 0); k.lineTo(x0 + 26, 0); k.lineTo(x0 + 26 - 70, CH); k.lineTo(x0 - 40 - 70, CH); k.closePath(); k.fill();
+    for (let i = 0; i < 5; i++) {
+      const x0 = 60 + i * 104 + 8 * Math.sin(T + i * 1.3), bg = k.createLinearGradient(0, CA_SURF, 0, CH);
+      bg.addColorStop(0, `rgba(210,246,255,${(0.2 * A).toFixed(3)})`); bg.addColorStop(1, 'rgba(210,246,255,0)');
+      k.fillStyle = bg; k.beginPath(); k.moveTo(x0, CA_SURF); k.lineTo(x0 + 22, CA_SURF); k.lineTo(x0 + 22 + 90, CH); k.lineTo(x0 - 30 + 90, CH); k.closePath(); k.fill();
     }
     k.restore();
-    k.save(); k.globalAlpha = a; k.strokeStyle = '#EAFBFF'; k.lineWidth = 2; k.beginPath();
-    for (let x = 0; x <= CW; x += 6) { const y = 9 + 3 * Math.sin(x * 0.05 + T * 2) + 2 * Math.sin(x * 0.11 - T * 3); x ? k.lineTo(x, y) : k.moveTo(x, y); }
-    k.stroke(); k.restore();
+    // 从水下看的水面：一条亮带，下沿随波起伏（振幅跟 q）
+    const sy = x => CA_SURF + (1 + 3 * q) * Math.sin(x * 0.05 + T * 2) + (0.5 + 2 * q) * Math.sin(x * 0.12 - T * 3);
+    k.fillStyle = 'rgba(214,246,255,.85)'; k.beginPath(); k.moveTo(0, 0); for (let x = 0; x <= CW; x += 6) k.lineTo(x, sy(x)); k.lineTo(CW, 0); k.closePath(); k.fill();
+    k.strokeStyle = '#F4FDFF'; k.lineWidth = 2; k.beginPath(); for (let x = 0; x <= CW; x += 6) x ? k.lineTo(x, sy(x)) : k.moveTo(x, sy(x)); k.stroke();
   });
 
   // @element 42
@@ -1352,6 +1391,719 @@ MotionPrompt.pack('photo', function () {
     tag(k, '留白', S.x + S.w / 2, S.y + S.h / 2, a);
     hud(k, '90°');
   });
+
+  // @element 49
+  // —— 画幅与裁切（49〜54）共用：先给完整画面，再套平台比例或界面遮挡，对照主体放对 / 放错 ——
+  // 节奏统一：0.3 秒起逐步出现，停到 4.4 秒，4.4–4.95 秒全部收回；5 秒与 0 秒同一帧。
+  // 平台界面一律画成通用灰块，不画任何真实 App 的 Logo 或按钮样式。
+  const FC_OK = '#2E9E5B', FC_NG = '#E5484D', FC_BLUE = '#2F6BEB', FC_UI = 'rgba(40,40,46,.5)', FC_INK = '#1E1E21', FC_SUB = '#8E8E93';
+  const FC_SKY = '#DCEBF7', FC_SAND = '#ECE5D6', FC_SEA = '#9CC7E4';
+  const fcR = u => 1 - eIO(P(u, 4.4, 4.95));
+  const fcK = (u, a, b) => eIO(P(u, a, b)) * fcR(u);
+  // 把源坐标里的一张「照片」画进画布矩形 r：view 是源坐标里要露出的区域（裁切 = 换 view，缩小 = 换 r）
+  function fcPic(k, r, view, draw) {
+    const s = r.w / view.w;
+    k.save(); k.beginPath(); k.rect(r.x, r.y, r.w, r.h); k.clip();
+    k.translate(r.x - view.x * s, r.y - view.y * s); k.scale(s, s);
+    draw(pen(k), k); k.restore();
+  }
+  function fcText(k, s, x, y, size, col, align = 'center', weight = 600) {
+    k.font = `${weight} ${size}px ${ZH}`; k.fillStyle = col; k.textAlign = align; k.textBaseline = 'middle'; k.fillText(s, x, y);
+  }
+  // 对照结论：✓ 绿 / ✕ 红 圆标 + 一到两行字
+  function fcMark(k, ok, l1, l2, x, y, a) {
+    if (a <= 0.01) return;
+    k.save(); k.globalAlpha *= a;
+    k.fillStyle = ok ? FC_OK : FC_NG; k.beginPath(); k.arc(x + 8, y, 8, 0, TAU); k.fill();
+    fcText(k, ok ? '✓' : '✕', x + 8, y + 0.5, 11, '#FFFFFF', 'center', 800);
+    fcText(k, l1, x + 22, y, 12, FC_INK, 'left', 700);
+    if (l2) fcText(k, l2, x + 22, y + 16, 11, FC_SUB, 'left', 500);
+    k.restore();
+  }
+  function fcBox(k, x, y, w, h, col, lw, dash) {
+    k.save(); k.strokeStyle = col; k.lineWidth = lw; if (dash) k.setLineDash(dash); k.strokeRect(x, y, w, h); k.restore();
+  }
+  // 9:16 小手机：深色机身 + 屏幕；屏幕内容在源坐标 90×160 里画。返回屏幕在画布上的矩形
+  const FC_SCR = { x: 0, y: 0, w: 90, h: 160 };
+  function fcPhone(k, cx, cy, h, draw) {
+    const w = h * 9 / 16, r = { x: cx - w / 2, y: cy - h / 2, w, h };
+    k.fillStyle = FC_INK; k.beginPath(); k.roundRect(r.x - 4, r.y - 4, w + 8, h + 8, 12); k.fill();
+    fcPic(k, r, FC_SCR, draw);
+    return r;
+  }
+  // 海边场景（横竖都用）：天、海、沙滩、太阳；hz = 海平线。人物由调用方另画
+  function fcBeach(D, W, H, hz) {
+    D.rect(0, 0, W, H, FC_SKY); D.rect(0, hz, W, H - hz, FC_SEA); D.rect(0, hz + (H - hz) * 0.45, W, H, FC_SAND);
+    sun(D, W * 0.82, hz * 0.4, Math.max(5, H * 0.07), BASE);
+  }
+  // 49 公众号头图：头图是很扁的横幅（约 2.35 : 1），分享卡片再从中间裁一块正方形。两行对照：
+  // 上行主体在正中，横幅和正方形都完整；下行主体偏左，正方形把人裁掉一半。
+  const WX_W = 235, WX_H = 100, WX_SQ = { x: (WX_W - WX_H) / 2, y: 0, w: WX_H, h: WX_H };
+  const WX_ROWS = [{ y: 20, subj: 117, ok: true, l1: '主体居中', l2: '横幅、正方形都完整' }, { y: 112, subj: 72, ok: false, l1: '主体偏一侧', l2: '正方形裁掉半个人' }];
+  const WX_BX = 30, WX_BW = 188, WX_OUT = 318;   // 横幅位置与宽度；裁出的正方形最终停在 x = 318
+  const WX_T = { show: [0.3, 0.8], box: [1.0, 1.6], out: [1.9, 2.6], mark: [2.8, 3.2] };
+  function wxScene(D, subj) { fcBeach(D, WX_W, WX_H, 58); figure(D, subj, 92, 64, BASE.person); }
+  CELLS[48] = cell((k, u) => {
+    k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+    const pS = fcK(u, ...WX_T.show), pB = fcK(u, ...WX_T.box), pO = fcK(u, ...WX_T.out), pM = fcK(u, ...WX_T.mark);
+    const s = WX_BW / WX_W, bh = WX_H * s, sq = WX_H * s;
+    WX_ROWS.forEach(row => {
+      const B = { x: WX_BX, y: row.y, w: WX_BW, h: bh }, qx = B.x + WX_SQ.x * s;
+      k.save(); k.globalAlpha = pS; fcPic(k, B, { x: 0, y: 0, w: WX_W, h: WX_H }, D => wxScene(D, row.subj)); k.restore();
+      // 正方形框：框外压白，框线琥珀
+      if (pB > 0.01) {
+        k.save(); k.globalAlpha = 0.62 * pB; k.fillStyle = '#FFFFFF';
+        k.fillRect(B.x, B.y, qx - B.x, bh); k.fillRect(qx + sq, B.y, B.x + B.w - qx - sq, bh); k.restore();
+        k.save(); k.globalAlpha = pB; fcBox(k, qx, B.y, sq, bh, GUIDE, 2, [5, 4]); k.restore();
+      }
+      // 裁出来的正方形滑到右边，边框绿 = 完整、红 = 被裁坏
+      if (pO > 0.01) {
+        const x = lerp(qx, WX_OUT, pO);
+        k.save(); k.globalAlpha = Math.min(1, pO * 3);
+        fcPic(k, { x, y: B.y, w: sq, h: sq }, WX_SQ, D => wxScene(D, row.subj));
+        fcBox(k, x, B.y, sq, sq, row.ok ? FC_OK : FC_NG, 2);
+        k.restore();
+      }
+      fcMark(k, row.ok, row.l1, row.l2, 412, row.y + 30, pM);
+    });
+    k.save(); k.globalAlpha = pS; fcText(k, '横幅 2.35 : 1', WX_BX + WX_BW / 2, 10, 10, FC_SUB); k.restore();
+    k.save(); k.globalAlpha = pO; fcText(k, '正方形 1 : 1', WX_OUT + sq / 2, 10, 10, FC_SUB); k.restore();
+  });
+
+  // @element 50
+  // 50 头像：正方形图套上圆形遮罩，再缩到 64 / 32 / 16 px 并排。上行脸居中、纯色底，缩到 16 px 仍认得出；
+  // 下行背景杂、脸偏一侧，一缩小就糊成一团。缩小格按真实尺寸画（在 539×208 画布里就是 64 / 32 / 16 px）。
+  const AV_ROWS = [{ y: 52, ok: true, l1: '脸居中、纯色底', l2: '16 px 仍认得出' }, { y: 152, ok: false, l1: '背景杂、脸偏一侧', l2: '缩小后认不出' }];
+  const AV_SRC = { x: 0, y: 0, w: 100, h: 100 }, AV_BIG = 76, AV_X = 34;
+  const AV_SIZES = [[64, 150], [32, 236], [16, 290]];   // [边长 px, 中心 x]
+  const AV_T = { show: [0.3, 0.8], mask: [1.0, 1.5], s: [1.8, 2.2, 2.6], mark: [3.0, 3.4] };
+  function avScene(D, k, ok) {
+    if (ok) { D.rect(0, 0, 100, 100, '#CFE0F5'); bust(k, 50, 42, 19, BASE.person); return; }
+    D.rect(0, 0, 100, 100, '#F1F0EE');
+    building(D, -4, 70, 34, 56, BASE, 1); building(D, 36, 70, 26, 40, BASE, 4); tree(D, 30, 72, 9, BASE); lamp(D, 58, 72, 34, BASE);
+    D.rect(0, 70, 100, 30, BASE.ground2); D.circ(12, 90, 8, '#B6C9A0'); D.circ(26, 94, 6, '#E8B4A0');
+    bust(k, 80, 56, 10, BASE.person);
+  }
+  function avDraw(k, cx, cy, d, ok, round) {
+    k.save();
+    if (round) { k.beginPath(); k.arc(cx, cy, d / 2, 0, TAU); k.clip(); }
+    fcPic(k, { x: cx - d / 2, y: cy - d / 2, w: d, h: d }, AV_SRC, (D, kk) => avScene(D, kk, ok));
+    k.restore();
+  }
+  CELLS[49] = cell((k, u) => {
+    k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+    const pS = fcK(u, ...AV_T.show), pM = fcK(u, ...AV_T.mask), pK = fcK(u, ...AV_T.mark);
+    AV_ROWS.forEach(row => {
+      const cx = AV_X + AV_BIG / 2, cy = row.y;
+      k.save(); k.globalAlpha = pS; avDraw(k, cx, cy, AV_BIG, row.ok, false);
+      // 圆形遮罩：圆外逐渐压白，圆周一圈琥珀虚线
+      if (pM > 0.01) {
+        k.globalAlpha = pS * pM * 0.85; k.fillStyle = '#FFFFFF';
+        k.beginPath(); k.rect(cx - AV_BIG / 2, cy - AV_BIG / 2, AV_BIG, AV_BIG); k.arc(cx, cy, AV_BIG / 2, 0, TAU, true); k.fill();
+        k.globalAlpha = pS * pM; k.strokeStyle = GUIDE; k.lineWidth = 1.6; k.setLineDash([4, 3]); k.beginPath(); k.arc(cx, cy, AV_BIG / 2, 0, TAU); k.stroke(); k.setLineDash([]);
+      }
+      k.restore();
+      AV_SIZES.forEach(([d, x], i) => {
+        const p = fcK(u, AV_T.s[i], AV_T.s[i] + 0.35);
+        if (p <= 0.01) return;
+        k.save(); k.globalAlpha = p; avDraw(k, x, cy, d, row.ok, true);
+        fcText(k, `${d} px`, x, cy + 40, 10, FC_SUB, 'center', 600); k.restore();
+      });
+      fcMark(k, row.ok, row.l1, row.l2, 360, cy - 8, pK);
+    });
+  });
+
+  // @element 51
+  // 51 抖音竖屏首帧：9:16 小手机里先是完整画面，再依次盖上右侧按钮栏、底部文案、顶部栏三块通用灰块，
+  // 最后亮出中部安全区蓝框。左右两只更小的手机做对照：主体在安全区内（✓）/ 主体在右下被按钮和文案挡住（✕）。
+  const DY_T = { show: [0.3, 0.7], right: [1.0, 1.4], bottom: [1.5, 1.9], top: [2.0, 2.4], safe: [2.6, 3.1], cmp: [3.2, 3.7] };
+  const DY_SAFE = { x: 8, y: 26, w: 62, h: 94 };   // 源坐标 90×160 里的安全区：避开顶栏、右侧按钮列和底部文案
+  function dyScene(D, x, feet, s) { fcBeach(D, 90, 160, 92); figure(D, x, feet, s, BASE.person); }
+  // 三块界面遮挡（源坐标）：a = [右侧按钮, 底部文案, 顶部栏] 各自的不透明度
+  function dyUI(D, k, a) {
+    k.save();
+    k.globalAlpha *= a[0]; D.circ(80, 64, 5.5, FC_UI); [82, 98, 114].forEach(y => D.circ(80, y, 4.5, FC_UI)); D.rr(76, 124, 8, 8, 2, FC_UI);
+    k.restore(); k.save();
+    k.globalAlpha *= a[1]; D.rr(6, 128, 28, 5, 2, FC_UI); D.rr(6, 137, 62, 4, 2, FC_UI); D.rr(6, 145, 48, 4, 2, FC_UI);
+    k.restore(); k.save();
+    k.globalAlpha *= a[2]; D.rr(24, 9, 14, 4, 2, FC_UI); D.rr(42, 9, 14, 4, 2, 'rgba(40,40,46,.75)'); D.rr(60, 9, 10, 4, 2, FC_UI); D.circ(82, 11, 3.2, FC_UI);
+    k.restore();
+  }
+  CELLS[50] = cell((k, u) => {
+    k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+    const pS = fcK(u, ...DY_T.show), ui = [fcK(u, ...DY_T.right), fcK(u, ...DY_T.bottom), fcK(u, ...DY_T.top)];
+    const pF = fcK(u, ...DY_T.safe), pC = fcK(u, ...DY_T.cmp);
+    k.save(); k.globalAlpha = pS;
+    fcPhone(k, 270, 104, 184, (D, kk) => {
+      dyScene(D, 39, 108, 64); dyUI(D, kk, ui);
+      if (pF > 0.01) {
+        kk.save(); kk.globalAlpha *= pF; kk.fillStyle = 'rgba(47,107,235,.08)'; kk.fillRect(DY_SAFE.x, DY_SAFE.y, DY_SAFE.w, DY_SAFE.h);
+        fcBox(kk, DY_SAFE.x, DY_SAFE.y, DY_SAFE.w, DY_SAFE.h, FC_BLUE, 1.4, [3, 2]);
+        fcText(kk, '安全区', DY_SAFE.x + DY_SAFE.w / 2, DY_SAFE.y + 7, 6.5, FC_BLUE, 'center', 700); kk.restore();
+      }
+    });
+    k.restore();
+    // 对照：左 ✓ 主体在安全区；右 ✕ 主体在右下，被按钮和文案挡住
+    if (pC <= 0.01) return;
+    [[110, true, 39, 108, 64, '主体在安全区内'], [430, false, 70, 150, 60, '被按钮和文案挡住']].forEach(([cx, ok, x, feet, s, l1]) => {
+      k.save(); k.globalAlpha = pC;
+      const r = fcPhone(k, cx, 86, 136, (D, kk) => { dyScene(D, x, feet, s); dyUI(D, kk, [1, 1, 1]); });
+      fcMark(k, ok, l1, '', cx - 58, r.y + r.h + 18, 1);
+      k.restore();
+    });
+  });
+
+  // @element 52
+  // 52 小红书封面：3:4 封面先单独展示 —— 主体占画面一半以上、上方留出标题区；再缩小放进双列信息流，
+  // 和几张灰色封面并排，标题在小尺寸下依然读得出（字大、字少、底色干净）。
+  const XH_SRC = { x: 0, y: 0, w: 90, h: 120 };
+  const XH_BIG = { x: 100, y: 18, w: 129, h: 172 };   // 单独展示时
+  const XH_FEED = { x: 330, y: 12, w: 182, h: 184 }, XH_COL = 84, XH_GAP = 8;
+  const XH_SLOT = { x: XH_FEED.x + 6, y: XH_FEED.y + 6, w: XH_COL, h: XH_COL * 4 / 3 };
+  const XH_GRAY = [[0, 124, 60], [1, 0, 74], [1, 80, 104]];   // 其他封面：[列, 距顶, 高]
+  const XH_T = { show: [0.3, 0.8], note: [1.0, 1.5], feed: [1.9, 2.3], move: [2.3, 3.0], mark: [3.2, 3.6] };
+  function xhScene(D, k) {
+    fcBeach(D, 90, 120, 64);
+    figure(D, 46, 116, 74, BASE.person);   // 头顶约在 y 42：人占画面高度六成
+    D.rect(0, 0, 90, 30, 'rgba(255,255,255,.88)');
+    k.textAlign = 'center'; k.textBaseline = 'middle';
+    k.font = `800 13px ${ZH}`; k.fillStyle = FC_INK; k.fillText('周末去海边', 45, 13);
+    k.font = `600 6px ${ZH}`; k.fillStyle = FC_NG; k.fillText('三条路线全攻略', 45, 24);
+  }
+  CELLS[51] = cell((k, u) => {
+    k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+    const pS = fcK(u, ...XH_T.show), pN = fcK(u, ...XH_T.note), pF = fcK(u, ...XH_T.feed), pV = fcK(u, ...XH_T.move), pK = fcK(u, ...XH_T.mark);
+    // 双列信息流：灰色底板 + 其他灰色封面 + 每张封面下的标题行
+    if (pF > 0.01) {
+      k.save(); k.globalAlpha = pF;
+      k.fillStyle = '#F4F3F0'; k.beginPath(); k.roundRect(XH_FEED.x, XH_FEED.y, XH_FEED.w, XH_FEED.h, 10); k.fill(); k.clip();
+      XH_GRAY.forEach(([c, t, hh]) => {
+        const x = XH_SLOT.x + c * (XH_COL + XH_GAP), y = XH_SLOT.y + t;
+        k.fillStyle = '#E2E1DE'; k.fillRect(x, y, XH_COL, hh - 14);
+        k.fillStyle = '#CFCECB'; k.fillRect(x + 4, y + hh - 10, XH_COL * 0.7, 4);
+      });
+      k.fillStyle = '#CFCECB'; k.fillRect(XH_SLOT.x + 4, XH_SLOT.y + XH_SLOT.h + 4, XH_COL * 0.7, 4);
+      k.restore();
+    }
+    const R = { x: lerp(XH_BIG.x, XH_SLOT.x, pV), y: lerp(XH_BIG.y, XH_SLOT.y, pV), w: lerp(XH_BIG.w, XH_SLOT.w, pV), h: lerp(XH_BIG.h, XH_SLOT.h, pV) };
+    k.save(); k.globalAlpha = pS; fcPic(k, R, XH_SRC, xhScene); fcBox(k, R.x, R.y, R.w, R.h, '#E3E1DC', 1); k.restore();
+    // 单独展示时的标注：标题区虚线框、右侧「主体占一半以上」括号；封面一移动就收起，复位时不再出现
+    const pn = u < XH_T.move[1] ? pN * (1 - pV) : 0;
+    if (pn > 0.01) {
+      const s = XH_BIG.w / 90, B = XH_BIG, y0 = B.y + 42 * s, y1 = B.y + 116 * s, xb = B.x + B.w + 10;
+      k.save(); k.globalAlpha = pn;
+      fcBox(k, B.x + 2, B.y + 2, B.w - 4, 30 * s - 4, GUIDE, 1.6, [4, 3]);
+      fcText(k, '标题区', B.x - 10, B.y + 15 * s, 11, GUIDE, 'right', 700);
+      k.strokeStyle = GUIDE; k.lineWidth = 1.6; k.beginPath(); k.moveTo(xb - 4, y0); k.lineTo(xb, y0); k.lineTo(xb, y1); k.lineTo(xb - 4, y1); k.stroke();
+      fcText(k, '主体占一半以上', xb + 6, (y0 + y1) / 2, 11, GUIDE, 'left', 700);
+      k.restore();
+    }
+    fcMark(k, true, '缩进双列信息流', '标题仍读得出', 120, 96, pK);
+  });
+
+  // @element 53
+  // 53 壁纸：手机屏幕上盖上锁屏时间和底部图标，主体放在中下部空位，时间区保持安静。
+  // 右边小手机做对照：主体放在上部，被大号时间压住。
+  const WP_T = { show: [0.3, 0.7], time: [1.0, 1.5], icons: [1.6, 2.0], zone: [2.3, 2.9], cmp: [3.1, 3.6] };
+  const WP_TIME = { x: 12, y: 10, w: 66, h: 40 }, WP_SUBJ = { x: 28, y: 88, w: 34, h: 46 };   // 源坐标 90×160
+  function wpScene(D, x, feet, s) {
+    D.rect(0, 0, 90, 160, '#C9D9EE'); D.rect(0, 60, 90, 100, '#D8E2F0');
+    D.poly([[0, 132], [20, 118], [44, 126], [66, 112], [90, 122], [90, 160], [0, 160]], '#B7C8DF');
+    D.poly([[0, 146], [30, 136], [60, 142], [90, 134], [90, 160], [0, 160]], '#9FB4D2');
+    figure(D, x, feet, s, BASE.person);
+  }
+  // 锁屏层：日期 + 大号时间（aT），底部两个圆按钮 + 横条（aI）
+  function wpLock(D, k, aT, aI) {
+    k.save(); k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillStyle = '#FFFFFF';
+    k.globalAlpha *= aT; k.font = `600 6px ${ZH}`; k.fillText('11月3日 星期一', 45, 17);
+    k.font = `700 24px ${MONO}`; k.fillText('09:41', 45, 36);
+    k.restore(); k.save();
+    k.globalAlpha *= aI; D.circ(14, 146, 7, 'rgba(255,255,255,.55)'); D.circ(76, 146, 7, 'rgba(255,255,255,.55)'); D.rr(30, 154, 30, 2.4, 1.2, '#FFFFFF');
+    k.restore();
+  }
+  CELLS[52] = cell((k, u) => {
+    k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+    const pS = fcK(u, ...WP_T.show), pT = fcK(u, ...WP_T.time), pI = fcK(u, ...WP_T.icons), pZ = fcK(u, ...WP_T.zone), pC = fcK(u, ...WP_T.cmp);
+    k.save(); k.globalAlpha = pS;
+    const r = fcPhone(k, 200, 104, 184, (D, kk) => {
+      wpScene(D, 45, 132, 40); wpLock(D, kk, pT, pI);
+      if (pZ > 0.01) {
+        kk.save(); kk.globalAlpha *= pZ;
+        fcBox(kk, WP_TIME.x, WP_TIME.y, WP_TIME.w, WP_TIME.h, '#FFFFFF', 1.2, [3, 2]);
+        fcBox(kk, WP_SUBJ.x, WP_SUBJ.y, WP_SUBJ.w, WP_SUBJ.h, GUIDE, 1.4, [3, 2]); kk.restore();
+      }
+    });
+    k.restore();
+    // 引线标注（画布坐标）：从两个框的右边连到右侧文字
+    if (pZ > 0.01) {
+      const s = r.w / 90, lx = r.x + r.w + 18;
+      const ty = r.y + (WP_TIME.y + WP_TIME.h / 2) * s, sy = r.y + (WP_SUBJ.y + WP_SUBJ.h / 2) * s;
+      k.save(); k.globalAlpha = pZ; k.strokeStyle = FC_SUB; k.lineWidth = 1; k.beginPath();
+      k.moveTo(r.x + (WP_TIME.x + WP_TIME.w) * s, ty); k.lineTo(lx, ty); k.moveTo(r.x + (WP_SUBJ.x + WP_SUBJ.w) * s, sy); k.lineTo(lx, sy); k.stroke();
+      fcText(k, '时间区', lx + 4, ty, 11, FC_INK, 'left', 700);
+      fcText(k, '主体', lx + 4, sy, 11, GUIDE, 'left', 700);
+      k.restore();
+      fcMark(k, true, '时间区和图标区留空', '主体放在中下部', 6, 96, pZ);
+    }
+    if (pC > 0.01) {
+      k.save(); k.globalAlpha = pC;
+      const r2 = fcPhone(k, 450, 86, 136, (D, kk) => { wpScene(D, 45, 74, 52); wpLock(D, kk, 1, 1); });
+      fcMark(k, false, '主体被时间压住', '', 450 - 56, r2.y + r2.h + 18, 1);
+      k.restore();
+    }
+  });
+
+  // @element 54
+  // 54 直播间背景：清晰的背景（书架、绿植、窗）先压暗、虚化一档，主播剪影和商品进到中间空位，
+  // 最后两侧肩部高度出现品牌信息块。右侧清单随步骤逐项点亮。
+  const LV = { x: 76, y: 20, w: 300, h: 169 }, LV_SRC = { x: 0, y: 0, w: 300, h: 169 };
+  const LV_T = { show: [0.3, 0.7], dim: [1.0, 1.8], host: [2.0, 2.6], info: [2.8, 3.3] };
+  const LV_DARK = 0.34, LV_BLUR = 2.4;   // 压暗用的黑色不透明度、虚化半径（源坐标 px）
+  const LV_HOST = { x: 150, y: 74, R: 24 };   // 肩部高度 ≈ y + 1.06R ≈ 100，信息块就放在这一带
+  const LV_LIST = [['背景压暗、虚化一档', 'dim'], ['主播和商品进中间空位', 'host'], ['两侧肩高放品牌信息', 'info']];
+  const LV_BOOK = ['#7FA6D6', '#E8B4A0', '#B6C9A0', '#F2D27A', '#C3B5E0'];
+  function lvRoom(D) {
+    D.rect(0, 0, 300, 169, '#EDE5DA');
+    D.rect(112, 18, 76, 58, '#F8F4EC'); D.frame(112, 18, 76, 58, 3, '#D8CBB8'); D.rect(149, 18, 2, 58, '#D8CBB8');   // 窗
+    [[14, 30], [14, 66], [14, 102], [214, 30], [214, 66], [214, 102]].forEach(([x, y], i) => {   // 两侧书架，书的高低按序号错开（固定，不随机）
+      D.rect(x, y + 22, 72, 4, '#B89C78');
+      for (let j = 0; j < 6; j++) { const d = (j * 5 + i) % 6; D.rect(x + 4 + j * 11, y + 4 + d, 8, 18 - d, LV_BOOK[(i + j) % 5]); }
+    });
+    D.rect(98, 118, 12, 26, '#C79A6B'); D.circ(104, 108, 14, '#7FAF7A'); D.circ(96, 98, 9, '#8FBF88');   // 绿植
+    D.rect(0, 144, 300, 25, '#C9B79F');   // 桌面
+  }
+  CELLS[53] = cell((k, u) => {
+    k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+    const pS = fcK(u, ...LV_T.show), pD = fcK(u, ...LV_T.dim), pH = fcK(u, ...LV_T.host), pI = fcK(u, ...LV_T.info);
+    k.save(); k.globalAlpha = pS;
+    fcPic(k, LV, LV_SRC, (D, kk) => {
+      // 虚化半径换算成设备像素：canvas 的 filter 不跟随变换缩放，2× 画布上也要虚得一样
+      const m = kk.getTransform(), sc = Math.hypot(m.a, m.b);
+      kk.save(); if (pD > 0.01) kk.filter = `blur(${(LV_BLUR * pD * sc).toFixed(2)}px)`; lvRoom(D); kk.restore();
+      D.rect(0, 0, 300, 169, `rgba(20,16,12,${(LV_DARK * pD).toFixed(3)})`);
+      if (pH > 0.01) {
+        bust(kk, LV_HOST.x, LV_HOST.y + (1 - pH) * 110, LV_HOST.R, '#2E3950');
+        kk.save(); kk.globalAlpha *= pH; D.rr(202, 120, 28, 24, 3, FC_BLUE); D.rr(208, 113, 16, 7, 2, '#22252B'); kk.restore();   // 商品：一盒
+      }
+      if (pI > 0.01) {
+        kk.save(); kk.globalAlpha *= pI;
+        [14, 216].forEach(x => { D.rr(x, 98, 70, 36, 5, 'rgba(255,255,255,.92)'); D.rect(x + 6, 104, 4, 24, FC_BLUE); D.rr(x + 14, 106, 44, 6, 2, '#5A5A60'); D.rr(x + 14, 118, 32, 5, 2, '#B0B0B5'); });
+        kk.restore();
+      }
+    });
+    k.restore();
+    LV_LIST.forEach(([s, key], i) => {
+      const p = { dim: pD, host: pH, info: pI }[key], y = 70 + i * 34, x = LV.x + LV.w + 16;
+      k.save(); k.globalAlpha = Math.max(0.3 * pS, p);
+      k.fillStyle = p > 0.5 ? FC_BLUE : '#CFCECB'; k.beginPath(); k.arc(x, y, 4, 0, TAU); k.fill();
+      fcText(k, s, x + 10, y, 10.5, p > 0.5 ? FC_INK : FC_SUB, 'left', 600); k.restore();
+    });
+  });
+
+  // @element 55
+  // —— 氛围与调性（55〜64）共用节奏：0–0.6 秒平淡版 → 每 0.7 秒叠一项成分（0.5 秒渐入），右侧清单逐项点亮 →
+  // 3.4–4.4 秒停在成品 → 4.4–4.95 秒全部退回平淡版。场景画在左边 392 px 宽的区域，右边是成分清单。
+  const MD = { t0: 0.6, dt: 0.7, ramp: 0.5, hold: 4.4, back: 4.95 }, MD_W = 392;
+  const mdR = u => 1 - eIO(P(u, MD.hold, MD.back));
+  const mdP = (u, i) => eIO(P(u, MD.t0 + i * MD.dt, MD.t0 + i * MD.dt + MD.ramp)) * mdR(u);
+  // 最后一项成分开始后的「慢动作」进度（0→1 走到 4.4 秒），极慢推拉镜用
+  const mdSlow = (u, i) => P(u, MD.t0 + i * MD.dt, MD.hold);
+  // canvas 的 filter 不随变换缩放：按当前缩放换算，2× 画布上虚化程度一致
+  const mdBlur = (k, px) => { const m = k.getTransform(), sc = Math.hypot(m.a, m.b); k.filter = px > 0.05 ? `blur(${(px * sc).toFixed(2)}px)` : 'none'; };
+  function mdPanel(k, name, labels, ps) {
+    const x = MD_W;
+    k.fillStyle = '#FFFFFF'; k.fillRect(x, 0, CW - x, CH); k.fillStyle = '#E3E1DC'; k.fillRect(x, 0, 1, CH);
+    fcText(k, name, x + 18, 28, 16, FC_INK, 'left', 800);
+    const n = ps.filter(p => p > 0.5).length;
+    fcText(k, n === 0 ? '平淡版' : n === ps.length ? '成品' : `叠加中 ${n} / ${ps.length}`, x + 18, 50, 10.5, n === ps.length ? FC_BLUE : FC_SUB, 'left', 600);
+    labels.forEach((s, i) => {
+      const y = 80 + i * 30, p = ps[i], on = p > 0.5;
+      k.fillStyle = mixc('#E2E1DE', FC_BLUE, p); k.beginPath(); k.arc(x + 26, y, 9, 0, TAU); k.fill();
+      fcText(k, String(i + 1), x + 26, y + 0.5, 10, '#FFFFFF', 'center', 800);
+      fcText(k, s, x + 42, y, 11.5, on ? FC_INK : '#B0B0B5', 'left', on ? 700 : 500);
+    });
+  }
+  // 氛围款外壳：scene(k, u, ps, D) 只管画场景；ps 默认按统一节奏算，局部改图等特例可传 psFn
+  function mdCell(name, labels, scene, psFn) {
+    return cell((k, u) => {
+      const ps = psFn ? psFn(u) : labels.map((_, i) => mdP(u, i));
+      k.save(); k.beginPath(); k.rect(0, 0, MD_W, CH); k.clip(); scene(k, u, ps, pen(k)); k.restore();
+      mdPanel(k, name, labels, ps);
+    });
+  }
+  // 55 电影感：夜晚街角咖啡馆窗前的人。宽画幅黑边 → 窗光（有来源，从右侧窗照到脸上，场景转夜）→ 浅景深（背景虚化、路灯变光斑）→ 青橙调色
+  const CI_P = { x: 150, y: 96, R: 30 }, CI_WIN = { x: 238, y: 30, w: 114, h: 120 }, CI_BAR = 22;
+  const CI_BLD = [[6, 40, 58, 72], [72, 22, 46, 90], [124, 54, 40, 58], [360, 40, 40, 74]];   // [x, y, w, h]
+  const CI_LAMP = [[40, 74], [118, 66], [210, 70], [376, 62]];   // 路灯灯头 [x, y]
+  CELLS[54] = mdCell('电影感', ['宽画幅黑边', '有来源的窗光', '浅景深', '青橙调色'], (k, u, [pL, pW, pD, pG], D) => {
+    const night = pW, c = (a, b) => mixc(a, b, night);
+    D.rect(0, 0, MD_W, CH, c('#D3D6DB', '#1E2330'));
+    k.save(); mdBlur(k, 3.4 * pD);   // 背景：楼、路灯、咖啡馆窗都会被浅景深虚掉
+    CI_BLD.forEach(([x, y, w, h]) => D.rect(x, y, w, h, c('#B8BCC4', '#2C3342')));
+    D.rect(0, 130, MD_W, 78, c('#BFC2C8', '#262B37'));
+    CI_LAMP.forEach(([x, y]) => { D.rect(x - 1.2, y, 2.4, 130 - y, c('#9FA3AA', '#3A4152')); D.circ(x, y, 3.2, c('#C9CCD1', '#FFD38A')); });
+    const W = CI_WIN;
+    D.rect(W.x, W.y, W.w, W.h, c('#D9DCE0', '#FFC46B'));
+    D.frame(W.x, W.y, W.w, W.h, 4, c('#9FA3AA', '#5A3B1E')); D.rect(W.x + W.w / 2 - 1.5, W.y, 3, W.h, c('#9FA3AA', '#5A3B1E'));
+    k.restore();
+    // 光斑：路灯在浅景深里变成大圆盘
+    if (pD * night > 0.01) {
+      k.save(); k.globalCompositeOperation = 'lighter';
+      CI_LAMP.forEach(([x, y], i) => { k.fillStyle = `rgba(255,200,120,${(0.22 * pD * night).toFixed(3)})`; k.beginPath(); k.arc(x, y, 5 + 9 * pD + (i % 2) * 3, 0, TAU); k.fill(); });
+      k.restore();
+    }
+    // 窗光落在地面和人的右侧
+    if (pW > 0.01) {
+      k.save(); k.globalCompositeOperation = 'lighter'; k.fillStyle = `rgba(255,170,80,${(0.22 * pW).toFixed(3)})`;
+      k.beginPath(); k.moveTo(W.x, W.y + W.h); k.lineTo(W.x + W.w, W.y + W.h); k.lineTo(W.x + 40, CH); k.lineTo(W.x - 130, CH); k.closePath(); k.fill(); k.restore();
+    }
+    const body = c('#4D5A75', '#151923');
+    bust(k, CI_P.x, CI_P.y, CI_P.R, body, kk => {
+      if (pW < 0.01) return;
+      kk.globalAlpha = pW; headShade(kk, CI_P.x, CI_P.y, CI_P.R, 0.95, 1, '#E89A4E');
+      kk.fillStyle = '#C97C3A'; kk.fillRect(CI_P.x + 1.2 * CI_P.R, CI_P.y + CI_P.R, CI_P.R, CH);
+    });
+    // 青橙：整体乘上青色（暗部偏青），窗光一带再提橙
+    if (pG > 0.01) {
+      k.save(); k.globalCompositeOperation = 'multiply'; k.fillStyle = mixc('#FFFFFF', '#5FB4BE', pG); k.fillRect(0, 0, MD_W, CH);
+      k.globalCompositeOperation = 'screen'; const g = k.createRadialGradient(295, 90, 10, 295, 90, 170);
+      g.addColorStop(0, `rgba(255,140,40,${(0.4 * pG).toFixed(3)})`); g.addColorStop(1, 'rgba(255,140,40,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+      k.restore();
+    }
+    const bh = CI_BAR * pL; D.rect(0, 0, MD_W, bh, '#000000'); D.rect(0, CH - bh, MD_W, bh, '#000000');
+  });
+
+  // @element 56
+  // 56 高级感：桌上一只香水瓶。减到两三个低饱和色 → 主体缩小、四周留白（杂物退场）→ 一侧大面积柔光 → 材质细节（玻璃高光、液面、金属盖纹）
+  const HE_STRIPE = ['#F2B5C4', '#9ED0E6', '#F7D774', '#B8E0A8'], HE_MUTE = '#E4DFD8';
+  const HE_FROM = { x: 196, y: 176, s: 1 }, HE_TO = { x: 262, y: 168, s: 0.68 };
+  function heBottle(D, k, cx, by, s, col, cap, pM) {
+    const w = 64 * s, h = 82 * s;
+    D.rr(cx - w / 2, by - h, w, h, 10 * s, col);
+    D.rect(cx - 9 * s, by - h - 10 * s, 18 * s, 11 * s, mixc(col, '#FFFFFF', 0.3));
+    D.rr(cx - 15 * s, by - h - 34 * s, 30 * s, 25 * s, 4 * s, cap);
+    D.rr(cx - w / 2 + 12 * s, by - h * 0.62, w - 24 * s, h * 0.3, 2 * s, mixc(col, '#FFFFFF', 0.55));
+    if (pM < 0.01) return;
+    k.save(); k.globalAlpha *= pM;
+    D.rect(cx - w / 2 + 2 * s, by - h * 0.86, w - 4 * s, 2 * s, 'rgba(255,255,255,.7)');   // 液面
+    D.rr(cx - w / 2 + 6 * s, by - h + 8 * s, 5 * s, h - 18 * s, 3 * s, 'rgba(255,255,255,.75)');   // 玻璃左侧竖高光
+    for (let i = 0; i < 6; i++) D.rect(cx - 13 * s + i * 5 * s, by - h - 32 * s, 1.4 * s, 21 * s, 'rgba(255,255,255,.35)');   // 金属盖细纹
+    k.restore();
+  }
+  CELLS[55] = mdCell('高级感', ['减到两三个低饱和色', '主体缩小留白', '一侧大面积柔光', '材质细节'], (k, u, [pC, pS, pL, pM], D) => {
+    HE_STRIPE.forEach((c, i) => D.rect(i * MD_W / 4, 0, MD_W / 4 + 1, 150, mixc(c, HE_MUTE, pC)));
+    D.rect(0, 150, MD_W, 58, mixc('#E8A87C', '#D6CFC5', pC));
+    // 杂物：花和缎带，留白这一步退场
+    k.save(); k.globalAlpha = 1 - pS;
+    [[70, 128, '#E85D75'], [92, 120, '#F2C94C'], [80, 108, '#7FB3E0'], [320, 132, '#E85D75'], [338, 122, '#9B7BE0']].forEach(([x, y, c]) => D.circ(x, y, 11, mixc(c, '#BDB4A8', pC)));
+    D.rect(60, 140, 300, 8, mixc('#E85D75', '#BDB4A8', pC));
+    k.restore();
+    const x = lerp(HE_FROM.x, HE_TO.x, pS), y = lerp(HE_FROM.y, HE_TO.y, pS), s = lerp(HE_FROM.s, HE_TO.s, pS);
+    // 柔光的影子：在瓶子右边拉出一片很软的影
+    if (pL > 0.01) { k.save(); mdBlur(k, 6); k.globalAlpha = 0.35 * pL; D.poly([[x, y], [x + 120 * s, y - 8 * s], [x + 140 * s, y + 6 * s], [x, y + 6 * s]], '#6E655A'); k.restore(); }
+    heBottle(D, k, x, y, s, mixc('#E85D75', '#C9B8A3', pC), mixc('#F2C94C', '#8C857C', pC), pM);
+    if (pL > 0.01) {
+      k.save(); k.globalCompositeOperation = 'screen'; const g = k.createRadialGradient(-60, 60, 20, -60, 60, 360);
+      g.addColorStop(0, `rgba(255,255,255,${(0.5 * pL).toFixed(3)})`); g.addColorStop(1, 'rgba(255,255,255,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+      k.globalCompositeOperation = 'multiply'; const g2 = k.createLinearGradient(0, 0, MD_W, 0);
+      g2.addColorStop(0.45, 'rgba(255,255,255,1)'); g2.addColorStop(1, mixc('#FFFFFF', '#B9B0A6', pL)); k.fillStyle = g2; k.fillRect(0, 0, MD_W, CH);
+      k.restore();
+    }
+  });
+
+  // @element 57
+  // 57 氛围感：林间小路上的人。空气里加雾 → 逆光把雾照亮（看得见的光束）→ 统一冷色只留太阳一点暖 → 暗部沉下去
+  const AT_TREE = [[20, 16], [62, 10], [104, 7], [146, 5], [250, 5], [288, 7], [326, 10], [366, 16]];   // [x, 粗细]；越靠边越近越粗
+  const AT_SUN = [196, 64];
+  CELLS[56] = mdCell('氛围感', ['空气里加雾', '逆光照亮雾', '冷色只留一点暖', '暗部沉下去'], (k, u, [pF, pB, pC, pD], D) => {
+    const T = u / CYC * TAU;
+    D.rect(0, 0, MD_W, CH, '#DDE4D8'); D.rect(0, 118, MD_W, 90, '#B9C7A6');
+    D.poly([[176, 118], [216, 118], [300, CH], [92, CH]], '#D8CDB4');   // 小路
+    AT_TREE.forEach(([x, w]) => { D.rect(x - w / 2, 0, w, 124 + w, mixc('#5E6B52', '#E6EAE4', pF * (1 - w / 18) * 0.8)); });
+    figure(D, 196, 150, 38, '#3D4656');
+    if (pF > 0.01) {   // 雾：越近地平线越浓
+      const g = k.createLinearGradient(0, 0, 0, CH);
+      g.addColorStop(0, `rgba(236,240,236,${(0.25 * pF).toFixed(3)})`); g.addColorStop(0.55, `rgba(236,240,236,${(0.7 * pF).toFixed(3)})`); g.addColorStop(1, `rgba(236,240,236,${(0.2 * pF).toFixed(3)})`);
+      k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    }
+    if (pB > 0.01) {   // 逆光：太阳在树后，光束穿过雾，左右轻轻摆（一轮 1 个周期）
+      k.save(); k.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 6; i++) {
+        const a = -1.05 + i * 0.42 + 0.03 * Math.sin(T + i), L = 260;
+        k.fillStyle = `rgba(255,236,200,${(0.13 * pB * pF + 0.05 * pB).toFixed(3)})`;
+        k.beginPath(); k.moveTo(AT_SUN[0], AT_SUN[1]); k.lineTo(AT_SUN[0] + Math.sin(a - 0.07) * L, AT_SUN[1] + Math.cos(a - 0.07) * L); k.lineTo(AT_SUN[0] + Math.sin(a + 0.07) * L, AT_SUN[1] + Math.cos(a + 0.07) * L); k.closePath(); k.fill();
+      }
+      const g = k.createRadialGradient(AT_SUN[0], AT_SUN[1], 2, AT_SUN[0], AT_SUN[1], 40);
+      g.addColorStop(0, `rgba(255,240,210,${(0.55 * pB).toFixed(3)})`); g.addColorStop(1, 'rgba(255,240,210,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+      k.restore();
+    }
+    if (pC > 0.01) {   // 冷色统一，再把太阳附近的一点暖色加回来
+      k.save(); k.globalCompositeOperation = 'multiply'; k.fillStyle = mixc('#FFFFFF', '#8FB0CF', pC); k.fillRect(0, 0, MD_W, CH);
+      k.globalCompositeOperation = 'screen'; const g = k.createRadialGradient(AT_SUN[0], AT_SUN[1], 2, AT_SUN[0], AT_SUN[1], 46);
+      g.addColorStop(0, `rgba(255,190,110,${(0.8 * pC).toFixed(3)})`); g.addColorStop(1, 'rgba(255,190,110,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+      k.restore();
+    }
+    if (pD > 0.01) {   // 暗部沉下去：四周和下方压暗，中间光束保留
+      const g = k.createRadialGradient(196, 90, 50, 196, 90, 260);
+      g.addColorStop(0, 'rgba(10,20,32,0)'); g.addColorStop(1, `rgba(10,20,32,${(0.7 * pD).toFixed(3)})`); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    }
+  });
+
+  // @element 58
+  // 58 孤独感：夜里的空站台。拉成大远景、人变小 → 只有一盏灯照到他 → 蓝灰夜色 → 镜头极慢拉远（最后一项一直慢慢退到 4.4 秒）
+  const LO_P = [214, 140], LO_LAMP = [214, 46];
+  CELLS[57] = mdCell('孤独感', ['拉成大远景', '一盏灯只照到他', '蓝灰夜色', '镜头极慢拉远'], (k, u, [pW, pL, pN, pS], D) => {
+    const c = (a, b) => mixc(a, b, pN), s = lerp(2.6, 1, pW) * (1 - 0.12 * pS * mdSlow(u, 3));
+    D.rect(0, 0, MD_W, CH, c('#E3E5E8', '#202838'));
+    k.save(); k.translate(196, 118); k.scale(s, s); k.translate(-LO_P[0], -LO_P[1] + 22);
+    D.rect(-200, 12, 800, 14, c('#B9BDC4', '#2C3548'));   // 顶棚
+    for (let x = -180; x < 600; x += 92) D.rect(x, 26, 6, 114, c('#C6C9CF', '#323B50'));   // 柱子
+    D.rect(-200, 140, 800, 12, c('#CFD2D7', '#3A4459')); D.rect(-200, 140, 800, 3, c('#F2D27A', '#8A7A45'));   // 站台边 + 黄线
+    D.rect(-200, 152, 800, 80, c('#9EA3AB', '#171D2A'));   // 轨道
+    for (let x = -200; x < 600; x += 18) D.rect(x, 168, 10, 4, c('#8A8F98', '#1F2636'));
+    D.rr(110, 126, 40, 5, 2, c('#A9ADB4', '#2B3346')); D.rect(114, 131, 3, 9, c('#A9ADB4', '#2B3346')); D.rect(143, 131, 3, 9, c('#A9ADB4', '#2B3346'));   // 长椅
+    D.rect(LO_LAMP[0] - 1, 26, 2, LO_LAMP[1] - 26, c('#9FA3AA', '#3A4152')); D.rr(LO_LAMP[0] - 8, LO_LAMP[1] - 2, 16, 5, 2, c('#9FA3AA', '#3A4152'));
+    figure(D, LO_P[0], LO_P[1], 30, c('#4D5A75', '#0F141F'));
+    if (pL > 0.01) {   // 其余地方压暗，只有灯下一锥光
+      D.rect(-400, -200, 1200, 600, `rgba(8,10,18,${(0.45 * pL).toFixed(3)})`);
+      k.save(); k.globalCompositeOperation = 'lighter';
+      const g = k.createLinearGradient(0, LO_LAMP[1], 0, LO_P[1] + 6);
+      g.addColorStop(0, `rgba(255,214,150,${(0.5 * pL).toFixed(3)})`); g.addColorStop(1, `rgba(255,214,150,${(0.12 * pL).toFixed(3)})`);
+      k.fillStyle = g; k.beginPath(); k.moveTo(LO_LAMP[0] - 6, LO_LAMP[1] + 3); k.lineTo(LO_LAMP[0] + 6, LO_LAMP[1] + 3); k.lineTo(LO_LAMP[0] + 34, LO_P[1] + 6); k.lineTo(LO_LAMP[0] - 34, LO_P[1] + 6); k.closePath(); k.fill();
+      k.fillStyle = `rgba(255,230,180,${(0.9 * pL).toFixed(3)})`; k.beginPath(); k.ellipse(LO_P[0], LO_P[1] + 4, 30, 4, 0, 0, TAU); k.fill();
+      k.restore();
+    }
+    k.restore();
+  });
+
+  // @element 59
+  // 59 氛围灯：卧室书桌。主灯关掉、整体变暗 → 顶部灯带亮起（紫蓝）→ 台灯暖光 → 屏幕冷光。主灯关后只剩一暖一冷的局部光
+  const AL_DESK = { x: 60, y: 132, w: 290 }, AL_MON = { x: 152, y: 64, w: 106, h: 62 }, AL_LAMP = { x: 306, y: 74 };
+  CELLS[58] = mdCell('氛围灯', ['主灯关掉', '灯带亮起', '台灯暖光', '屏幕冷光'], (k, u, [pO, pS, pL, pM], D) => {
+    D.rect(0, 0, MD_W, CH, '#ECE8E2'); D.rect(0, 160, MD_W, 48, '#D6D0C6');
+    D.rect(0, 120, 46, 88, '#C9D3E2'); D.rect(0, 112, 50, 12, '#E8ECF2');   // 床角
+    D.rect(84, 30, 40, 52, '#D8C6E8'); D.rect(270, 24, 70, 6, '#BFB4A6');   // 海报、置物板
+    D.rect(AL_DESK.x, AL_DESK.y, AL_DESK.w, 8, '#B89C78'); D.rect(AL_DESK.x + 10, AL_DESK.y + 8, 6, 60, '#A88C68'); D.rect(AL_DESK.x + AL_DESK.w - 16, AL_DESK.y + 8, 6, 60, '#A88C68');
+    const M = AL_MON; D.rr(M.x, M.y, M.w, M.h, 4, '#3A3D45'); D.rect(M.x + 4, M.y + 4, M.w - 8, M.h - 8, '#6E7380'); D.rect(M.x + M.w / 2 - 4, M.y + M.h, 8, 8, '#3A3D45');
+    D.rr(150, 126, 80, 5, 2, '#5A5E68');   // 键盘
+    const L = AL_LAMP; D.line([[L.x + 18, AL_DESK.y], [L.x + 10, L.y + 28], [L.x, L.y + 6]], 3, '#4A4D55'); D.poly([[L.x - 18, L.y + 10], [L.x + 4, L.y - 6], [L.x + 14, L.y + 6], [L.x - 6, L.y + 22]], '#4A4D55');
+    D.rect(0, 0, MD_W, CH, `rgba(16,18,30,${(0.72 * pO).toFixed(3)})`);
+    k.save(); k.globalCompositeOperation = 'lighter';
+    if (pS > 0.01) {   // 灯带：天花板下一条紫蓝线，往下晕开
+      D.rect(0, 14, MD_W, 3, mixc('#000000', '#B69CFF', pS));
+      const g = k.createLinearGradient(0, 16, 0, 120); g.addColorStop(0, `rgba(140,110,255,${(0.42 * pS).toFixed(3)})`); g.addColorStop(1, 'rgba(140,110,255,0)');
+      k.fillStyle = g; k.fillRect(0, 16, MD_W, 104);
+    }
+    if (pL > 0.01) {   // 台灯：灯罩下一锥暖光落在桌面
+      const g = k.createRadialGradient(L.x - 10, AL_DESK.y, 4, L.x - 10, AL_DESK.y, 80); g.addColorStop(0, `rgba(255,180,90,${(0.75 * pL).toFixed(3)})`); g.addColorStop(1, 'rgba(255,180,90,0)');
+      k.fillStyle = g; k.beginPath(); k.moveTo(L.x - 12, L.y + 18); k.lineTo(L.x + 6, L.y + 8); k.lineTo(L.x + 50, AL_DESK.y + 4); k.lineTo(L.x - 80, AL_DESK.y + 4); k.closePath(); k.fill();
+      k.fillStyle = `rgba(255,220,160,${pL.toFixed(3)})`; k.beginPath(); k.arc(L.x - 4, L.y + 15, 3.5, 0, TAU); k.fill();
+    }
+    if (pM > 0.01) {   // 屏幕：亮成冷蓝，往四周和桌面洒一点冷光
+      k.fillStyle = `rgba(120,190,255,${(0.85 * pM).toFixed(3)})`; k.fillRect(M.x + 4, M.y + 4, M.w - 8, M.h - 8);
+      const g = k.createRadialGradient(M.x + M.w / 2, M.y + M.h / 2, 20, M.x + M.w / 2, M.y + M.h / 2, 120); g.addColorStop(0, `rgba(90,160,255,${(0.35 * pM).toFixed(3)})`); g.addColorStop(1, 'rgba(90,160,255,0)');
+      k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    }
+    k.restore();
+  });
+
+  // @element 60
+  // 60 质感：一只陶杯。推到特写 → 低角度侧光从左掠过，表面颗粒投下细小阴影 → 柔和的高光形状 → 一点划痕
+  const TX_C = { x: 196, y: 150, w: 64, h: 66 }, TX_ZOOM = 2.3;
+  const TX_DOTS = () => once('txDots', () => { const r = rng(60), o = []; for (let i = 0; i < 90; i++) o.push([r() * TX_C.w, r() * TX_C.h, 0.35 + r() * 0.5]); return o; });
+  function txBody(k) { const C = TX_C; k.beginPath(); k.moveTo(C.x - C.w / 2, C.y - C.h); k.lineTo(C.x + C.w / 2, C.y - C.h); k.lineTo(C.x + C.w / 2 - 6, C.y - 4); k.quadraticCurveTo(C.x + C.w / 2 - 7, C.y, C.x + C.w / 2 - 12, C.y); k.lineTo(C.x - C.w / 2 + 12, C.y); k.quadraticCurveTo(C.x - C.w / 2 + 7, C.y, C.x - C.w / 2 + 6, C.y - 4); k.closePath(); }
+  CELLS[59] = mdCell('质感', ['推到特写', '低角度侧光显凹凸', '柔和高光', '一点划痕'], (k, u, [pZ, pL, pH, pS], D) => {
+    const C = TX_C, s = lerp(1, TX_ZOOM, pZ);
+    D.rect(0, 0, MD_W, CH, '#EEEAE4');
+    k.save(); k.translate(196, lerp(C.y - C.h / 2, 112, pZ)); k.scale(s, s); k.translate(-C.x, -(C.y - C.h / 2));
+    D.rect(-200, C.y, 800, 200, '#DCD5CB');
+    if (pL > 0.01) { k.save(); k.globalAlpha = 0.35 * pL; D.poly([[C.x, C.y - 2], [C.x + 120, C.y + 4], [C.x + 110, C.y + 12], [C.x - 20, C.y + 2]], '#8F857A'); k.restore(); }   // 低角度光的长影
+    k.strokeStyle = '#B9A893'; k.lineWidth = 7; k.beginPath(); k.ellipse(C.x + C.w / 2 + 4, C.y - C.h / 2, 12, 18, 0, -1.4, 1.4); k.stroke();   // 把手
+    k.save(); txBody(k); k.fillStyle = '#C8B8A6'; k.fill(); k.clip();
+    if (pL > 0.01) {
+      // 侧光：右侧压暗，每颗颗粒左上一点亮、右下一点影
+      const g = k.createLinearGradient(C.x - C.w / 2, 0, C.x + C.w / 2, 0); g.addColorStop(0, `rgba(255,248,236,${(0.45 * pL).toFixed(3)})`); g.addColorStop(0.5, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(70,55,40,${(0.45 * pL).toFixed(3)})`);
+      k.fillStyle = g; k.fillRect(C.x - C.w / 2, C.y - C.h, C.w, C.h);
+      TX_DOTS().forEach(([x, y, r]) => { const X = C.x - C.w / 2 + x, Y = C.y - C.h + y;
+        k.fillStyle = `rgba(90,70,50,${(0.4 * pL).toFixed(3)})`; k.beginPath(); k.arc(X + r * 0.7, Y + r * 0.3, r, 0, TAU); k.fill();
+        k.fillStyle = `rgba(255,250,240,${(0.45 * pL).toFixed(3)})`; k.beginPath(); k.arc(X - r * 0.4, Y - r * 0.2, r * 0.7, 0, TAU); k.fill(); });
+    }
+    if (pH > 0.01) { k.save(); mdBlur(k, 2); k.fillStyle = `rgba(255,255,255,${(0.55 * pH).toFixed(3)})`; k.beginPath(); k.ellipse(C.x - C.w / 2 + 14, C.y - C.h / 2, 5, C.h * 0.36, 0, 0, TAU); k.fill(); k.restore(); }
+    if (pS > 0.01) {
+      k.lineWidth = 0.6; k.lineCap = 'round';
+      [[[18, 20], [30, 26]], [[36, 40], [44, 36]], [[24, 48], [27, 56]]].forEach(([[a, b], [c2, d]]) => {
+        k.strokeStyle = `rgba(80,62,45,${(0.7 * pS).toFixed(3)})`; k.beginPath(); k.moveTo(C.x - C.w / 2 + a, C.y - C.h + b); k.lineTo(C.x - C.w / 2 + c2, C.y - C.h + d); k.stroke();
+        k.strokeStyle = `rgba(255,255,255,${(0.6 * pS).toFixed(3)})`; k.beginPath(); k.moveTo(C.x - C.w / 2 + a, C.y - C.h + b - 0.6); k.lineTo(C.x - C.w / 2 + c2, C.y - C.h + d - 0.6); k.stroke();
+      });
+    }
+    k.restore();
+    D.rect(C.x - C.w / 2 - 2, C.y - C.h - 3, C.w + 4, 4, '#D9CCBC');   // 杯口
+    k.restore();
+  });
+
+  // @element 61
+  // 61 梦幻感：花丛中的人。逆光轮廓（人背后的太阳，边缘一圈亮）→ 高光晕开 → 前景花虚化 → 粉紫奶白配色
+  const DR_P = { x: 196, y: 92, R: 24 }, DR_SUN = [236, 60];
+  const DR_FLOW = () => once('drFlow', () => { const r = rng(61), o = []; for (let i = 0; i < 46; i++) o.push([r() * MD_W, 128 + r() * 70, 4 + r() * 5, i % 3]); return o; });
+  const DR_FG = [[34, 186, 30], [96, 200, 22], [318, 190, 28], [372, 176, 20]];   // 前景大花 [x, y, r]
+  const DR_COL = [['#E85D75', '#F6B6D0'], ['#F2C94C', '#FFF1D6'], ['#7FB3E0', '#C9B6F0']];   // [原色, 粉紫奶白版]
+  CELLS[60] = mdCell('梦幻感', ['逆光轮廓', '高光晕开', '前景花虚化', '粉紫奶白配色'], (k, u, [pR, pG, pF, pC], D) => {
+    const T = u / CYC * TAU, c = (a, b) => mixc(a, b, pC);
+    D.rect(0, 0, MD_W, CH, c(mixc('#BFD9EE', '#F4D9B0', pR), mixc('#F3DDEB', '#FFF4F0', pR)));
+    D.rect(0, 120, MD_W, 88, c('#8DBF6E', '#D9C8E4'));
+    if (pR > 0.01) sun(D, DR_SUN[0], DR_SUN[1], 14, { sun: c('#FFE7A8', '#FFF6EE'), glow: c('#FFE7A8', '#FFE4F0') }, pR);
+    DR_FLOW().forEach(([x, y, r, j]) => D.circ(x, y, r, c(DR_COL[j][0], DR_COL[j][1])));
+    bust(k, DR_P.x, DR_P.y, DR_P.R, c(mixc('#4D5A75', '#3A3550', pR), '#8C7A9E'));
+    if (pR > 0.01) {   // 轮廓光：沿头和肩外缘一圈亮边，偏向太阳一侧
+      k.save(); k.globalAlpha = pR; k.strokeStyle = c('#FFE9B0', '#FFF6F8'); k.lineWidth = 2.4;
+      k.beginPath(); k.arc(DR_P.x, DR_P.y, DR_P.R, -2.4, 0.6); k.stroke();
+      k.beginPath(); k.moveTo(DR_P.x + 1.44 * DR_P.R, DR_P.y + 1.4 * DR_P.R); k.lineTo(DR_P.x + 1.94 * DR_P.R, DR_P.y + 1.8 * DR_P.R); k.stroke(); k.restore();
+    }
+    if (pG > 0.01) {   // 高光晕开：亮部往外扩一层柔光，花上的小光点轻轻闪（一轮 2 次）
+      k.save(); k.globalCompositeOperation = 'screen';
+      const g = k.createRadialGradient(DR_SUN[0], DR_SUN[1], 6, DR_SUN[0], DR_SUN[1], 170);
+      g.addColorStop(0, `rgba(255,248,236,${(0.75 * pG).toFixed(3)})`); g.addColorStop(1, 'rgba(255,248,236,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+      for (let i = 0; i < 9; i++) { const a = 0.5 + 0.5 * Math.sin(T * 2 + i * 1.7); k.fillStyle = `rgba(255,255,255,${(0.6 * a * pG).toFixed(3)})`; k.beginPath(); k.arc(40 + i * 40, 70 + (i % 3) * 22, 3 + (i % 2) * 2, 0, TAU); k.fill(); }
+      k.restore();
+    }
+    // 前景大花：一开始是清楚的小花，虚化后变成大而软的色块
+    k.save(); mdBlur(k, 7 * pF);
+    DR_FG.forEach(([x, y, r], i) => { const j = i % 3; D.circ(x, y, r * lerp(0.5, 1, pF), c(DR_COL[j][0], DR_COL[j][1])); });
+    k.restore();
+  });
+
+  // @element 62
+  // 62 干净：杂乱的书桌。删去杂物只留两三样 → 背景退后（墙上东西退场、墙变浅）→ 统一柔光去掉杂乱光斑 → 统一冷暖
+  // 与高级感的分别：只做减法和统一，不加材质，留下的东西位置和大小不变
+  const CL_MESS = [[70, 108, 26, 14, '#E85D75'], [104, 112, 18, 10, '#F2C94C'], [140, 100, 10, 22, '#7FB3E0'], [276, 106, 30, 16, '#9B7BE0'], [312, 114, 16, 8, '#6FCF97'], [336, 98, 12, 24, '#F2994A'], [196, 126, 22, 5, '#56CCF2']];
+  const CL_WALL = [[40, 24, 40, 30, '#F2C94C'], [96, 18, 28, 40, '#E85D75'], [290, 22, 50, 26, '#7FB3E0'], [350, 30, 22, 22, '#6FCF97']];
+  const CL_SPOT = [[90, 60, 28, '#FFD27A'], [320, 70, 34, '#9CD3FF'], [210, 40, 22, '#FFB0C8']];   // 杂乱光斑 [x, y, r, 色]
+  CELLS[61] = mdCell('干净', ['删杂物只留两三样', '背景退后', '统一柔光', '统一冷暖'], (k, u, [pM, pB, pL, pT], D) => {
+    const unify = a => mixc(a, '#EEF0F2', pT * 0.5);
+    D.rect(0, 0, MD_W, CH, unify(mixc('#E9DCCB', '#F5F4F1', pB)));
+    k.save(); k.globalAlpha = 1 - pB; CL_WALL.forEach(([x, y, w, h, c]) => D.rect(x, y, w, h, c)); k.restore();
+    D.rect(30, 124, 332, 8, unify('#C9AE8A')); D.rect(0, 132, MD_W, 76, unify(mixc('#D8CBB8', '#E9E6E0', pB)));
+    // 留下的三样：笔记本电脑、杯子、一盆绿植
+    D.rr(168, 92, 68, 32, 3, unify('#9AA0AA')); D.rect(160, 122, 84, 3, unify('#7E848E'));
+    D.rr(254, 104, 16, 20, 3, unify('#FFFFFF')); D.rect(116, 108, 14, 16, unify('#C79A6B')); D.circ(123, 100, 11, unify('#7FAF7A'));
+    k.save(); k.globalAlpha = 1 - pM; CL_MESS.forEach(([x, y, w, h, c]) => D.rr(x, y, w, h, 2, c)); k.restore();
+    // 杂乱光斑：几团不同颜色的硬光，统一柔光后消失，换成一层均匀的柔光
+    // 用带颜色的径向渐变画：浅色墙上用 lighter 会糊成白圆，看不出是「乱光」
+    k.save(); k.globalAlpha = 0.55 * (1 - pL);
+    CL_SPOT.forEach(([x, y, r, c]) => { const g = k.createRadialGradient(x, y, 2, x, y, r); g.addColorStop(0, c); g.addColorStop(1, c + '00'); k.fillStyle = g; k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill(); });
+    k.restore();
+    if (pL > 0.01) { k.save(); k.globalCompositeOperation = 'screen'; k.fillStyle = `rgba(255,255,255,${(0.18 * pL).toFixed(3)})`; k.fillRect(0, 0, MD_W, CH); k.restore(); }
+  });
+
+  // @element 63
+  // 63 治愈感：窗边一杯茶。低角度暖阳斜照进来 → 加上随手搭的毯子（生活痕迹）→ 降低对比加颗粒 → 镜头极慢推进
+  const HL_CUP = { x: 214, y: 140 }, HL_WIN = { x: 40, y: 18, w: 128, h: 104 };
+  const HL_GRAIN = () => once('hlGrain', () => { const r = rng(63), o = []; for (let i = 0; i < 520; i++) o.push([r() * MD_W, r() * CH, r() < 0.5]); return o; });
+  CELLS[62] = mdCell('治愈感', ['低角度暖阳', '随手搭的毯子', '降对比加颗粒', '镜头极慢推进'], (k, u, [pS, pB, pG, pZ], D) => {
+    const z = 1 + 0.1 * pZ * mdSlow(u, 3), T = u / CYC * TAU, W = HL_WIN;
+    k.save(); k.translate(HL_CUP.x, HL_CUP.y - 30); k.scale(z, z); k.translate(-HL_CUP.x, -(HL_CUP.y - 30));
+    D.rect(0, 0, MD_W, CH, '#DCDDE0');
+    D.rect(W.x, W.y, W.w, W.h, mixc('#C9D3DE', '#FFE2B0', pS)); D.frame(W.x, W.y, W.w, W.h, 5, '#F4F2EE'); D.rect(W.x + W.w / 2 - 2, W.y, 4, W.h, '#F4F2EE');
+    D.rect(0, 140, MD_W, 68, '#C8BBA8');   // 窗台
+    if (pS > 0.01) {   // 低角度暖阳：从窗斜着落到窗台一长条，茶杯拉出长影
+      k.save(); k.globalCompositeOperation = 'screen'; k.fillStyle = `rgba(255,190,110,${(0.5 * pS).toFixed(3)})`;
+      k.beginPath(); k.moveTo(W.x + 4, W.y + 6); k.lineTo(W.x + W.w - 4, W.y + 6); k.lineTo(330, 200); k.lineTo(150, 200); k.closePath(); k.fill(); k.restore();
+      k.save(); k.globalAlpha = 0.3 * pS; D.poly([[HL_CUP.x - 10, HL_CUP.y], [HL_CUP.x + 10, HL_CUP.y], [HL_CUP.x + 74, HL_CUP.y + 30], [HL_CUP.x + 56, HL_CUP.y + 30]], '#6E5A44'); k.restore();
+    }
+    if (pB > 0.01) {   // 毯子：从左下角滑进来，带两条格纹
+      k.save(); k.globalAlpha = pB; k.translate(-60 * (1 - pB), 0);
+      D.poly([[0, 150], [120, 140], [170, 168], [150, 208], [0, 208]], '#E6B8A2'); D.line([[10, 160], [130, 152], [160, 176]], 3, '#F3D6C6'); D.line([[0, 186], [150, 182]], 3, '#F3D6C6');
+      k.restore();
+    }
+    D.rr(HL_CUP.x - 13, HL_CUP.y - 26, 26, 26, 4, '#F6F1E8'); D.rect(HL_CUP.x - 13, HL_CUP.y - 26, 26, 4, '#C98F4E');   // 茶杯 + 茶面
+    k.strokeStyle = '#F6F1E8'; k.lineWidth = 3; k.beginPath(); k.arc(HL_CUP.x + 15, HL_CUP.y - 14, 6, -1.2, 1.2); k.stroke();
+    k.strokeStyle = 'rgba(255,255,255,.6)'; k.lineWidth = 1.6; k.lineCap = 'round';   // 热气：一轮摆 1 次
+    for (let j = 0; j < 2; j++) { k.beginPath(); for (let s = 0; s <= 10; s++) { const y = HL_CUP.y - 30 - s * 2.4; k[s ? 'lineTo' : 'moveTo'](HL_CUP.x - 4 + j * 8 + 2.5 * Math.sin(s * 0.7 + T + j * 2), y); } k.stroke(); }
+    k.restore();
+    if (pG > 0.01) {   // 降对比：盖一层暖白；颗粒：固定点阵按 u 跳着平移（12 帧/秒）
+      k.save(); k.fillStyle = `rgba(250,238,222,${(0.28 * pG).toFixed(3)})`; k.fillRect(0, 0, MD_W, CH);
+      const off = Math.floor(u * 12) * 7;
+      HL_GRAIN().forEach(([x, y, w]) => { k.fillStyle = w ? `rgba(255,255,255,${(0.35 * pG).toFixed(3)})` : `rgba(60,40,20,${(0.22 * pG).toFixed(3)})`; k.fillRect((x + off) % MD_W, y, 1.2, 1.2); });
+      k.restore();
+    }
+  });
+
+  // @element 64
+  // 64 日系：海边骑自行车的人。曝光提亮暗部不压黑 → 逆光把边缘照亮 → 整体偏青绿 → 降低对比。成品偏亮偏淡
+  const JP_HZ = 104, JP_RIDE = { x: 196, y: 150 };
+  function jpBike(D, k, x, y, col, T) {
+    k.strokeStyle = col; k.lineWidth = 2.4;
+    [x - 22, x + 22].forEach(cx => { k.beginPath(); k.arc(cx, y, 13, 0, TAU); k.stroke(); });
+    k.beginPath(); k.moveTo(x - 22, y); k.lineTo(x - 4, y - 18); k.lineTo(x + 14, y - 18); k.lineTo(x + 22, y); k.moveTo(x - 4, y - 18); k.lineTo(x + 2, y); k.lineTo(x - 22, y); k.stroke();
+    // 骑车的人：躯干前倾，腿随踏板转（一轮 2 圈）
+    const a = T * 2, px = x + 2 + 6 * Math.cos(a), py = y + 6 * Math.sin(a);
+    D.line([[x - 2, y - 24], [px, py]], 4, col); D.line([[x - 2, y - 24], [x + 2 - 3.6 * Math.cos(a), y - 4]], 4, col);
+    D.line([[x - 2, y - 24], [x + 8, y - 46]], 7, col); D.line([[x + 8, y - 44], [x + 16, y - 22]], 3.4, col);
+    D.circ(x + 10, y - 54, 7, col);
+  }
+  CELLS[63] = mdCell('日系', ['提亮暗部不压黑', '逆光发亮边缘', '偏青绿', '降低对比'], (k, u, [pE, pR, pT, pC], D) => {
+    const T = u / CYC * TAU;
+    D.rect(0, 0, MD_W, JP_HZ, '#7FA9CF'); D.rect(0, JP_HZ, MD_W, 30, '#2F6E9A'); D.rect(0, JP_HZ + 30, MD_W, 74, '#5E5A55');   // 天、海、海边路
+    D.rect(0, JP_HZ + 28, MD_W, 4, '#3E3B37');
+    for (let x = -46; x < MD_W; x += 46) D.rect(x + (u * 46) % 46, JP_HZ + 50, 22, 3, '#8C8780');   // 路面虚线：一轮正好移 5 格，首尾接上
+    jpBike(D, k, JP_RIDE.x, JP_RIDE.y, '#1E2430', T);
+    if (pE > 0.01) {   // 提亮暗部：screen 一层浅色，黑处变灰蓝而不是死黑
+      k.save(); k.globalCompositeOperation = 'screen'; k.fillStyle = mixc('#000000', '#8E9AA6', pE); k.fillRect(0, 0, MD_W, CH); k.restore();
+    }
+    if (pR > 0.01) {   // 逆光：太阳在人背后偏上；把同一剪影往光源方向偏 1.5px 画成亮色，再盖回剪影，只留一圈亮边
+      k.save(); k.globalCompositeOperation = 'screen';
+      const g = k.createRadialGradient(270, 40, 4, 270, 40, 200); g.addColorStop(0, `rgba(255,250,235,${(0.8 * pR).toFixed(3)})`); g.addColorStop(1, 'rgba(255,250,235,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+      k.restore();
+      k.save(); k.globalAlpha = pR; k.translate(1.5, -1.5); jpBike(pen(k), k, JP_RIDE.x, JP_RIDE.y, '#FFF6DE', T); k.restore();
+      jpBike(D, k, JP_RIDE.x, JP_RIDE.y, mixc('#1E2430', '#58687A', pE), T);
+    }
+    if (pT > 0.01) { k.save(); k.globalCompositeOperation = 'multiply'; k.fillStyle = mixc('#FFFFFF', '#CDEBDF', pT); k.fillRect(0, 0, MD_W, CH); k.restore(); }
+    if (pC > 0.01) { k.save(); k.fillStyle = `rgba(246,250,248,${(0.3 * pC).toFixed(3)})`; k.fillRect(0, 0, MD_W, CH); k.restore(); }
+  });
+
+  // @element 65
+  // 65 局部改图：一张人物拿杯子的图，虚线框选中「左手的杯子」→ 框内重画成另一种材质和颜色（白瓷 → 红色玻璃）→
+  // 「光线一致」箭头标出新杯子的高光方向和原图光源相同。重画只画在框里，框外的人脸、姿势、背景全程不动。
+  const IP_P = { x: 166, y: 74, R: 26 }, IP_CUP = { x: 104, y: 118, w: 30, h: 36 }, IP_BOX = { x: 92, y: 106, w: 54, h: 60 };
+  const IP_LIGHT = [24, 24];   // 原图光源在左上：人物左侧受光，杯子高光也在左
+  const IP_T = { box: [0.6, 1.1], paint: [1.4, 2.6], arrow: [2.9, 3.4] };
+  function ipScene(D, k) {
+    D.rect(0, 0, MD_W, CH, '#E9E4DC'); D.rect(0, 150, MD_W, 58, '#D3C9BA');
+    D.rect(260, 30, 90, 70, '#F6F2EA'); D.frame(260, 30, 90, 70, 4, '#C9BFAF');   // 墙上的画框
+    sun(D, IP_LIGHT[0], IP_LIGHT[1], 9, BASE);
+    bust(k, IP_P.x, IP_P.y, IP_P.R, BASE.person, kk => headShade(kk, IP_P.x, IP_P.y, IP_P.R, 0.7, 1, BASE.shade));
+    D.line([[IP_P.x - 34, IP_P.y + 44], [IP_CUP.x + IP_CUP.w + 2, IP_CUP.y + 22]], 11, BASE.person);   // 左臂伸向杯子
+  }
+  function ipCup(D, k, glass) {
+    const C = IP_CUP, body = glass ? 'rgba(214,52,64,.82)' : '#F7F5F1';
+    D.rr(C.x, C.y, C.w, C.h, [3, 3, 7, 7], body);
+    k.strokeStyle = body; k.lineWidth = 4; k.beginPath(); k.arc(C.x + C.w + 4, C.y + C.h / 2, 7, -1.3, 1.3); k.stroke();
+    if (glass) {   // 玻璃：液面一道亮线 + 左侧竖高光
+      D.rect(C.x + 3, C.y + 10, C.w - 6, 2, 'rgba(255,220,220,.8)'); D.rr(C.x + 4, C.y + 4, 4, C.h - 10, 2, 'rgba(255,255,255,.85)');
+    } else {       // 白瓷：左侧宽高光 + 右侧一点暗面
+      D.rr(C.x + 4, C.y + 5, 5, C.h - 12, 2.5, '#FFFFFF'); D.rect(C.x + C.w - 7, C.y + 3, 5, C.h - 6, 'rgba(0,0,0,.08)');
+    }
+    D.rr(C.x - 8, C.y + 14, 14, 16, 5, BASE.person);   // 握着杯子的手（压在杯子前面）
+  }
+  CELLS[64] = mdCell('局部改图', ['框选「左手的杯子」', '框内重画材质和颜色', '光线一致'], (k, u, [pB, pP, pA], D) => {
+    ipScene(D, k); ipCup(D, k, false);
+    if (pP > 0.01) {   // 框内重画：从左往右扫，扫过的部分换成红色玻璃杯
+      const B = IP_BOX; k.save(); k.beginPath(); k.rect(B.x, B.y, B.w * pP, B.h); k.clip();
+      ipScene(D, k); ipCup(D, k, true); k.restore();   // 框内先重画同一张原图，再换杯子：人物被框住的部分保持原样
+    }
+    if (pB > 0.01) {
+      const B = IP_BOX; k.save(); k.globalAlpha = pB; k.strokeStyle = FC_BLUE; k.lineWidth = 1.6; k.setLineDash([5, 4]); k.lineDashOffset = -u * 18;
+      k.strokeRect(B.x, B.y, B.w, B.h); k.setLineDash([]);
+      fcText(k, '只改框内', B.x + B.w / 2, B.y + B.h + 12, 10, FC_BLUE, 'center', 700); k.restore();
+    }
+    if (pA > 0.01) {   // 光源 → 新杯子高光的箭头
+      const x1 = IP_CUP.x + 6, y1 = IP_CUP.y + 8, a = Math.atan2(y1 - IP_LIGHT[1], x1 - IP_LIGHT[0]);
+      k.save(); k.globalAlpha = pA; k.strokeStyle = GUIDE; k.fillStyle = GUIDE; k.lineWidth = 1.8; k.setLineDash([4, 3]);
+      k.beginPath(); k.moveTo(IP_LIGHT[0] + 10, IP_LIGHT[1] + 10); k.lineTo(x1 - 4, y1 - 4); k.stroke(); k.setLineDash([]);
+      k.beginPath(); k.moveTo(x1 - 2, y1 - 2); k.lineTo(x1 - 2 - 8 * Math.cos(a - 0.4), y1 - 2 - 8 * Math.sin(a - 0.4)); k.lineTo(x1 - 2 - 8 * Math.cos(a + 0.4), y1 - 2 - 8 * Math.sin(a + 0.4)); k.closePath(); k.fill();
+      k.restore(); tag(k, '光线一致', 62, 70, pA);
+    }
+  }, u => { const r = mdR(u); return [IP_T.box, IP_T.paint, IP_T.arrow].map(([a, b]) => eIO(P(u, a, b)) * r); });
 
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };

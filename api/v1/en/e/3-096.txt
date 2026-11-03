@@ -1,0 +1,96 @@
+// Motion Prompt #3-096 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/describe-wechat-header
+//
+// WeChat article header / 公众号のヘッダー画像
+// Category: Editing & photography / Shot size & composition / Framing & cropping
+// What happens: Two rows of the same wide beach banner. An amber dashed square appears over the centre and everything outside it fades to white. The cropped square then slides out to the right: in the top row the person is centred, so the square holds the whole figure, with a green border and ✓ "subject centred"; in the bottom row the person is off to the left, so the square cuts them in half, with a red border and ✕ "subject off to one side". Labels "banner 2.35 : 1" and "square 1 : 1" sit above.
+// Motion spec:
+//   - 5 s cycle. The 2.35 : 1 banners appear over 0.3–0.8 s; the centre square frame and the white wash outside it (0.62 opacity) come in over 1.0–1.6 s.
+//   - Over 1.9–2.6 s the cropped square slides right to x 318, framed green (whole) or red (cut).
+//   - The ✓ / ✕ verdicts appear over 2.8–3.2 s.
+//   - Everything clears over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+// When to use it: For article headers and wide banners that will later be cropped to other ratios.
+// Tags: banner, header image, crop safe, aspect ratio, centred subject, framing
+// Size: 539x208 px · Cycle: 5 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-096
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 49
+// —— 画幅与裁切（49〜54）共用：先给完整画面，再套平台比例或界面遮挡，对照主体放对 / 放错 ——
+// 节奏统一：0.3 秒起逐步出现，停到 4.4 秒，4.4–4.95 秒全部收回；5 秒与 0 秒同一帧。
+// 平台界面一律画成通用灰块，不画任何真实 App 的 Logo 或按钮样式。
+const FC_OK = '#2E9E5B', FC_NG = '#E5484D', FC_BLUE = '#2F6BEB', FC_UI = 'rgba(40,40,46,.5)', FC_INK = '#1E1E21', FC_SUB = '#8E8E93';
+const FC_SKY = '#DCEBF7', FC_SAND = '#ECE5D6', FC_SEA = '#9CC7E4';
+const fcR = u => 1 - eIO(P(u, 4.4, 4.95));
+const fcK = (u, a, b) => eIO(P(u, a, b)) * fcR(u);
+// 把源坐标里的一张「照片」画进画布矩形 r：view 是源坐标里要露出的区域（裁切 = 换 view，缩小 = 换 r）
+function fcPic(k, r, view, draw) {
+  const s = r.w / view.w;
+  k.save(); k.beginPath(); k.rect(r.x, r.y, r.w, r.h); k.clip();
+  k.translate(r.x - view.x * s, r.y - view.y * s); k.scale(s, s);
+  draw(pen(k), k); k.restore();
+}
+function fcText(k, s, x, y, size, col, align = 'center', weight = 600) {
+  k.font = `${weight} ${size}px ${ZH}`; k.fillStyle = col; k.textAlign = align; k.textBaseline = 'middle'; k.fillText(s, x, y);
+}
+// 对照结论：✓ 绿 / ✕ 红 圆标 + 一到两行字
+function fcMark(k, ok, l1, l2, x, y, a) {
+  if (a <= 0.01) return;
+  k.save(); k.globalAlpha *= a;
+  k.fillStyle = ok ? FC_OK : FC_NG; k.beginPath(); k.arc(x + 8, y, 8, 0, TAU); k.fill();
+  fcText(k, ok ? '✓' : '✕', x + 8, y + 0.5, 11, '#FFFFFF', 'center', 800);
+  fcText(k, l1, x + 22, y, 12, FC_INK, 'left', 700);
+  if (l2) fcText(k, l2, x + 22, y + 16, 11, FC_SUB, 'left', 500);
+  k.restore();
+}
+function fcBox(k, x, y, w, h, col, lw, dash) {
+  k.save(); k.strokeStyle = col; k.lineWidth = lw; if (dash) k.setLineDash(dash); k.strokeRect(x, y, w, h); k.restore();
+}
+// 9:16 小手机：深色机身 + 屏幕；屏幕内容在源坐标 90×160 里画。返回屏幕在画布上的矩形
+const FC_SCR = { x: 0, y: 0, w: 90, h: 160 };
+function fcPhone(k, cx, cy, h, draw) {
+  const w = h * 9 / 16, r = { x: cx - w / 2, y: cy - h / 2, w, h };
+  k.fillStyle = FC_INK; k.beginPath(); k.roundRect(r.x - 4, r.y - 4, w + 8, h + 8, 12); k.fill();
+  fcPic(k, r, FC_SCR, draw);
+  return r;
+}
+// 海边场景（横竖都用）：天、海、沙滩、太阳；hz = 海平线。人物由调用方另画
+function fcBeach(D, W, H, hz) {
+  D.rect(0, 0, W, H, FC_SKY); D.rect(0, hz, W, H - hz, FC_SEA); D.rect(0, hz + (H - hz) * 0.45, W, H, FC_SAND);
+  sun(D, W * 0.82, hz * 0.4, Math.max(5, H * 0.07), BASE);
+}
+// 49 公众号头图：头图是很扁的横幅（约 2.35 : 1），分享卡片再从中间裁一块正方形。两行对照：
+// 上行主体在正中，横幅和正方形都完整；下行主体偏左，正方形把人裁掉一半。
+const WX_W = 235, WX_H = 100, WX_SQ = { x: (WX_W - WX_H) / 2, y: 0, w: WX_H, h: WX_H };
+const WX_ROWS = [{ y: 20, subj: 117, ok: true, l1: '主体居中', l2: '横幅、正方形都完整' }, { y: 112, subj: 72, ok: false, l1: '主体偏一侧', l2: '正方形裁掉半个人' }];
+const WX_BX = 30, WX_BW = 188, WX_OUT = 318;   // 横幅位置与宽度；裁出的正方形最终停在 x = 318
+const WX_T = { show: [0.3, 0.8], box: [1.0, 1.6], out: [1.9, 2.6], mark: [2.8, 3.2] };
+function wxScene(D, subj) { fcBeach(D, WX_W, WX_H, 58); figure(D, subj, 92, 64, BASE.person); }
+CELLS[48] = cell((k, u) => {
+  k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+  const pS = fcK(u, ...WX_T.show), pB = fcK(u, ...WX_T.box), pO = fcK(u, ...WX_T.out), pM = fcK(u, ...WX_T.mark);
+  const s = WX_BW / WX_W, bh = WX_H * s, sq = WX_H * s;
+  WX_ROWS.forEach(row => {
+    const B = { x: WX_BX, y: row.y, w: WX_BW, h: bh }, qx = B.x + WX_SQ.x * s;
+    k.save(); k.globalAlpha = pS; fcPic(k, B, { x: 0, y: 0, w: WX_W, h: WX_H }, D => wxScene(D, row.subj)); k.restore();
+    // 正方形框：框外压白，框线琥珀
+    if (pB > 0.01) {
+      k.save(); k.globalAlpha = 0.62 * pB; k.fillStyle = '#FFFFFF';
+      k.fillRect(B.x, B.y, qx - B.x, bh); k.fillRect(qx + sq, B.y, B.x + B.w - qx - sq, bh); k.restore();
+      k.save(); k.globalAlpha = pB; fcBox(k, qx, B.y, sq, bh, GUIDE, 2, [5, 4]); k.restore();
+    }
+    // 裁出来的正方形滑到右边，边框绿 = 完整、红 = 被裁坏
+    if (pO > 0.01) {
+      const x = lerp(qx, WX_OUT, pO);
+      k.save(); k.globalAlpha = Math.min(1, pO * 3);
+      fcPic(k, { x, y: B.y, w: sq, h: sq }, WX_SQ, D => wxScene(D, row.subj));
+      fcBox(k, x, B.y, sq, sq, row.ok ? FC_OK : FC_NG, 2);
+      k.restore();
+    }
+    fcMark(k, row.ok, row.l1, row.l2, 412, row.y + 30, pM);
+  });
+  k.save(); k.globalAlpha = pS; fcText(k, '横幅 2.35 : 1', WX_BX + WX_BW / 2, 10, 10, FC_SUB); k.restore();
+  k.save(); k.globalAlpha = pO; fcText(k, '正方形 1 : 1', WX_OUT + sq / 2, 10, 10, FC_SUB); k.restore();
+});

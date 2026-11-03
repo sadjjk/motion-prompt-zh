@@ -1,0 +1,85 @@
+// Motion Prompt #3-091 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/product-three-beat
+//
+// 产品三段式 / Product three-beat
+// 分类: 剪辑与摄影 / 镜头与剪辑 / 分镜与节奏
+// 动画表现: 同一只蓝色保温杯是三格的画面焦点。第 1 格「全貌 · 环绕」：杯子立在转台上缓慢转一整圈，高光和杯身标志左右移动；第 2 格「卖点 · 侧光特写」：黑底大特写，光从左扫到右，杯盖防滑纹一条条亮起，出现「防滑纹」标签；第 3 格「场景 · 拿着用」：户外，手拿杯子轻轻晃一个来回，杯子始终在画面中心。
+// 运动规格:
+//   - 9.4 秒周期。3 格在 0.3、3.1、5.9 秒开始，各 2.8 秒
+//   - 全貌：每格杯子正好转 1 圈；标志转到正面变宽、侧面变窄，转到背面看不见
+//   - 特写：光从左外侧扫到右外侧，防滑纹每 7 px 一条，离光越近越亮；「防滑纹」在本格 45–60% 处出现
+//   - 使用场景：每格晃一个来回。8.8–9.4 秒淡回开头画面
+// 适用场景: 电商主图视频、广告里，想在短时间内讲清「是什么、好在哪、怎么用」时。
+// 标签: product video, three beats, hero shot, detail close-up, lifestyle shot, storyboard
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-091
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 43
+// 43 产品三段式：同一只保温杯在三格里都是画面焦点 ——
+//   ① 全貌：杯子立在转台上缓慢环绕（高光和杯身标志左右移动表现转动）；
+//   ② 卖点：黑底侧光大特写，光从左扫到右，杯盖的防滑纹一条条亮起，标「防滑纹」；
+//   ③ 场景：户外，手拿着杯子轻轻晃，杯子仍在画面中心。
+const PD_TS = [0.3, 3.1, 5.9], PD_DUR = 2.8;
+const PD_LABEL = ['全貌 · 环绕', '卖点 · 侧光特写', '场景 · 拿着用'];
+const PD_BODY = C.blue, PD_CAP = '#2A2A30', PD_SKIN = '#F2C9A8';
+// 杯子（px，底边中心 cx, by，高 H）；rot = 环绕角度（只影响高光和标志的位置）
+function pdBottle(k, cx, by, H, rot) {
+  const W = H * 0.34, capH = H * 0.2, bodyH = H - capH;
+  const g = k.createLinearGradient(cx - W / 2, 0, cx + W / 2, 0);
+  g.addColorStop(0, '#1F4FB8'); g.addColorStop(0.5, PD_BODY); g.addColorStop(1, '#1F4FB8');
+  k.fillStyle = g; rr(k, cx - W / 2, by - bodyH, W, bodyH, W * 0.22); k.fill();
+  k.fillStyle = PD_CAP; rr(k, cx - W * 0.44, by - H, W * 0.88, capH + 2, W * 0.12); k.fill();
+  k.save(); rr(k, cx - W / 2, by - bodyH, W, bodyH, W * 0.22); k.clip();
+  const hx = cx + Math.sin(rot) * W * 0.36;   // 高光条随转动左右移
+  k.fillStyle = 'rgba(255,255,255,.35)'; k.fillRect(hx - W * 0.07, by - bodyH + 4, W * 0.14, bodyH - 8);
+  const c = Math.cos(rot + 1.2);
+  if (c > 0) {   // 杯身白色标志：转到正面时变宽、侧面时变窄，转到背面时看不见
+    const lx = cx + Math.sin(rot + 1.2) * W * 0.4;
+    k.fillStyle = `rgba(255,255,255,${0.9 * c})`; k.beginPath(); k.ellipse(lx, by - bodyH * 0.5, W * 0.14 * c, W * 0.14, 0, 0, TAU); k.fill();
+  }
+  k.restore();
+}
+function pdShot(k, w, h, i, q) {
+  if (i === 0) {
+    k.fillStyle = '#F7F7F5'; k.fillRect(0, 0, w, h);
+    k.fillStyle = C.g2; k.beginPath(); k.ellipse(w / 2, h * 0.86, w * 0.3, 9, 0, 0, TAU); k.fill();
+    return pdBottle(k, w / 2, h * 0.86, h * 0.72, q * TAU);   // 一格转一整圈
+  }
+  if (i === 1) {
+    k.fillStyle = '#16161A'; k.fillRect(0, 0, w, h);
+    const lx = lerp(-0.1, 1.1, eIO(q)) * w, top = h * 0.12, bot = h * 0.88, x0 = w * 0.12, x1 = w * 0.88;
+    k.fillStyle = PD_CAP; rr(k, x0, top, x1 - x0, bot - top, 8); k.fill();
+    // 防滑纹：竖条，离光越近越亮
+    for (let x = x0 + 6; x < x1 - 4; x += 7) {
+      const b = Math.max(0, 1 - Math.abs(x - lx) / (w * 0.35));
+      k.fillStyle = `rgba(${Math.round(70 + 170 * b)},${Math.round(72 + 168 * b)},${Math.round(80 + 165 * b)},1)`;
+      k.fillRect(x, top + 6, 2.6, bot - top - 12);
+    }
+    const a = P(q, 0.45, 0.6);
+    if (a > 0) { k.save(); k.globalAlpha *= a; k.fillStyle = '#FFFFFF'; rr(k, w - 62, 8, 52, 18, 5); k.fill(); txt(k, '防滑纹', w - 36, 17.5, `700 11px ${JP}`, C.ink, 'center', 'middle'); k.restore(); }
+    return;
+  }
+  const g = k.createLinearGradient(0, 0, 0, h); g.addColorStop(0, C.blueBg); g.addColorStop(1, C.blueXL);
+  k.fillStyle = g; k.fillRect(0, 0, w, h);
+  k.fillStyle = '#CFE3C4'; k.beginPath(); k.moveTo(0, h * 0.72); k.quadraticCurveTo(w * 0.5, h * 0.55, w, h * 0.7); k.lineTo(w, h); k.lineTo(0, h); k.fill();
+  const sway = Math.sin(q * TAU) * 0.08;   // 一格晃一个来回
+  k.save(); k.translate(w * 0.5, h * 0.62); k.rotate(sway);
+  k.fillStyle = C.blueM; k.beginPath(); k.moveTo(10, 8); k.lineTo(w * 0.5, h * 0.42); k.lineTo(w * 0.5, h * 0.62); k.lineTo(-2, 22); k.fill();   // 袖子从右下伸进来
+  pdBottle(k, 0, 26, h * 0.6, 0.6);
+  k.fillStyle = PD_SKIN; rr(k, -14, 2, 30, 18, 8); k.fill();   // 握住杯身的手
+  k.restore();
+}
+CELLS[42] = shot((k, w, h, uu, cyc) => {
+  const U = sbU(uu, cyc), R = sbRow(3, { h: 112 });
+  let cur = -1;
+  R.forEach((r, i) => {
+    const st = sbState(U, PD_TS, i), q = st === 1 ? clamp((U - PD_TS[i]) / PD_DUR) : 1;
+    if (st === 1) cur = i;
+    sbPanel(k, r, st, sbOn(U, PD_TS, i), (kk, pw, ph) => pdShot(kk, pw, ph, i, q), String(i + 1));
+    sbLabel(k, r, PD_LABEL[i], st);
+  });
+  return cur >= 0 ? `${cur + 1}/3 ${PD_LABEL[cur]}` : '产品三段式';
+});

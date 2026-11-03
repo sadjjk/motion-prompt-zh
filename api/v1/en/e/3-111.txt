@@ -1,0 +1,51 @@
+// Motion Prompt #3-111 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/japanese-airy-look
+//
+// Japanese airy look / 日本風の透明感
+// Category: Editing & photography / Light & color / Mood & tone recipes
+// What happens: It starts from a plain, contrasty picture of a person cycling along a seaside road under sky and sea. The road dashes stream past and the pedals keep turning. First the shadows lift and the blacks turn grey-blue. Then a backlight glows behind and above the rider and a bright line appears along their outline. Next everything leans towards green-cyan. Finally a thin whitish veil lowers the contrast, leaving a bright, pale finished look. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+// Motion spec:
+//   - 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+//   - The road dashes are 46 px apart and move 5 dashes per cycle; the pedals turn 2 times per cycle; shadows: a #8E9AA6 screen turns blacks grey-blue.
+//   - Backlight: a glow from (270, 40) with a 200 px radius and a bright edge from the silhouette offset by 1.5 px; green-cyan: multiply by #CDEBDF; contrast: a white layer at 0.3.
+//   - The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+// When to use it: For everyday snaps, travel and summer photos that should feel bright and clear.
+// Tags: japanese style, airy, bright exposure, low contrast, faded shadows, backlight
+// Size: 539x208 px · Cycle: 5 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-111
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 64
+// 64 日系：海边骑自行车的人。曝光提亮暗部不压黑 → 逆光把边缘照亮 → 整体偏青绿 → 降低对比。成品偏亮偏淡
+const JP_HZ = 104, JP_RIDE = { x: 196, y: 150 };
+function jpBike(D, k, x, y, col, T) {
+  k.strokeStyle = col; k.lineWidth = 2.4;
+  [x - 22, x + 22].forEach(cx => { k.beginPath(); k.arc(cx, y, 13, 0, TAU); k.stroke(); });
+  k.beginPath(); k.moveTo(x - 22, y); k.lineTo(x - 4, y - 18); k.lineTo(x + 14, y - 18); k.lineTo(x + 22, y); k.moveTo(x - 4, y - 18); k.lineTo(x + 2, y); k.lineTo(x - 22, y); k.stroke();
+  // 骑车的人：躯干前倾，腿随踏板转（一轮 2 圈）
+  const a = T * 2, px = x + 2 + 6 * Math.cos(a), py = y + 6 * Math.sin(a);
+  D.line([[x - 2, y - 24], [px, py]], 4, col); D.line([[x - 2, y - 24], [x + 2 - 3.6 * Math.cos(a), y - 4]], 4, col);
+  D.line([[x - 2, y - 24], [x + 8, y - 46]], 7, col); D.line([[x + 8, y - 44], [x + 16, y - 22]], 3.4, col);
+  D.circ(x + 10, y - 54, 7, col);
+}
+CELLS[63] = mdCell('日系', ['提亮暗部不压黑', '逆光发亮边缘', '偏青绿', '降低对比'], (k, u, [pE, pR, pT, pC], D) => {
+  const T = u / CYC * TAU;
+  D.rect(0, 0, MD_W, JP_HZ, '#7FA9CF'); D.rect(0, JP_HZ, MD_W, 30, '#2F6E9A'); D.rect(0, JP_HZ + 30, MD_W, 74, '#5E5A55');   // 天、海、海边路
+  D.rect(0, JP_HZ + 28, MD_W, 4, '#3E3B37');
+  for (let x = -46; x < MD_W; x += 46) D.rect(x + (u * 46) % 46, JP_HZ + 50, 22, 3, '#8C8780');   // 路面虚线：一轮正好移 5 格，首尾接上
+  jpBike(D, k, JP_RIDE.x, JP_RIDE.y, '#1E2430', T);
+  if (pE > 0.01) {   // 提亮暗部：screen 一层浅色，黑处变灰蓝而不是死黑
+    k.save(); k.globalCompositeOperation = 'screen'; k.fillStyle = mixc('#000000', '#8E9AA6', pE); k.fillRect(0, 0, MD_W, CH); k.restore();
+  }
+  if (pR > 0.01) {   // 逆光：太阳在人背后偏上；把同一剪影往光源方向偏 1.5px 画成亮色，再盖回剪影，只留一圈亮边
+    k.save(); k.globalCompositeOperation = 'screen';
+    const g = k.createRadialGradient(270, 40, 4, 270, 40, 200); g.addColorStop(0, `rgba(255,250,235,${(0.8 * pR).toFixed(3)})`); g.addColorStop(1, 'rgba(255,250,235,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    k.restore();
+    k.save(); k.globalAlpha = pR; k.translate(1.5, -1.5); jpBike(pen(k), k, JP_RIDE.x, JP_RIDE.y, '#FFF6DE', T); k.restore();
+    jpBike(D, k, JP_RIDE.x, JP_RIDE.y, mixc('#1E2430', '#58687A', pE), T);
+  }
+  if (pT > 0.01) { k.save(); k.globalCompositeOperation = 'multiply'; k.fillStyle = mixc('#FFFFFF', '#CDEBDF', pT); k.fillRect(0, 0, MD_W, CH); k.restore(); }
+  if (pC > 0.01) { k.save(); k.fillStyle = `rgba(246,250,248,${(0.3 * pC).toFixed(3)})`; k.fillRect(0, 0, MD_W, CH); k.restore(); }
+});

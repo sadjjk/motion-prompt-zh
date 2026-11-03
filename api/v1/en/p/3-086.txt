@@ -1,0 +1,15 @@
+Please use "Beat-synced montage" (ビート合わせのカット編集), filed under "Camera & editing / Storyboards & pacing".
+Motion Prompt #3-086
+
+What it is: An edit where every cut lands on the music's beat and the strong beats switch to the most striking shot
+What the sample shows: A beat bar along the bottom has a beat line every 0.5 s, with a taller blue accent line every 2 beats. The picture changes only on the beats: on an accent it cuts to a close-up of the face that pops slightly larger and settles back; on the weak beats it alternates between wide and medium shots. Colour blocks above the bar record which shot each segment used, turning solid as the playhead passes.
+Spec:
+- 9.4 s cycle. Beat 1 falls at 0.4 s, then one every 0.5 s: 17 beats, the last at 8.4 s.
+- Every 2nd beat (beats 1, 3, 5 …) is an accent: cut to a close-up popped to 1.07×, easing back as e^(-6t).
+- Weak beats alternate wide and medium; the blocks are blue for close-ups, light blue for medium and grey for wide.
+- From 8.8 to 9.4 s the picture fades back to the opening wide shot.
+When to use it: For travel shorts, product beat edits and any cut that should ride the music.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-086.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

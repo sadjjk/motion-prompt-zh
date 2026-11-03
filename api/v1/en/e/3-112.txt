@@ -1,0 +1,62 @@
+// Motion Prompt #3-112 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/inpaint-description
+//
+// Inpainting brief / 部分修正
+// Category: Editing & photography / Lens effects & finishing / Grading & finishing
+// What happens: A photo of a person holding a white porcelain cup in their left hand, in a room with a picture frame on the wall and a light source at the top left. First a blue dashed box appears around the cup, its dashes marching, with "only change inside the box" beneath. Then, sweeping from left to right inside the box only, the cup is repainted into a red glass cup with a bright liquid line and a vertical highlight on its left. Finally a dashed amber arrow runs from the light at the top left to the new cup's highlight, tagged "light matches". The face, pose and background outside the box never change.
+// Motion spec:
+//   - 5 s cycle. Over 0.6–1.1 s a 54 × 60 px selection box (marching blue dashes) and "only change inside the box" appear.
+//   - Over 1.4–2.6 s only the inside of the box is repainted, sweeping left to right: white porcelain → red glass (0.82 opacity, liquid line, vertical highlight on the left).
+//   - Over 2.9–3.4 s a dashed arrow runs from the light source at (24, 24) to the new highlight, tagged "light matches".
+//   - Inside the box the original is redrawn first and then the cup is swapped, so the hand and arm in the box stay as they were; everything returns over 4.4–4.95 s.
+// When to use it: For AI edits that change only part of a photo, swapping an object's colour, material or shape without disturbing the face or composition.
+// Tags: inpainting, local edit, mask, keep unchanged, consistent lighting, image editing
+// Size: 539x208 px · Cycle: 5 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-112
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 65
+// 65 局部改图：一张人物拿杯子的图，虚线框选中「左手的杯子」→ 框内重画成另一种材质和颜色（白瓷 → 红色玻璃）→
+// 「光线一致」箭头标出新杯子的高光方向和原图光源相同。重画只画在框里，框外的人脸、姿势、背景全程不动。
+const IP_P = { x: 166, y: 74, R: 26 }, IP_CUP = { x: 104, y: 118, w: 30, h: 36 }, IP_BOX = { x: 92, y: 106, w: 54, h: 60 };
+const IP_LIGHT = [24, 24];   // 原图光源在左上：人物左侧受光，杯子高光也在左
+const IP_T = { box: [0.6, 1.1], paint: [1.4, 2.6], arrow: [2.9, 3.4] };
+function ipScene(D, k) {
+  D.rect(0, 0, MD_W, CH, '#E9E4DC'); D.rect(0, 150, MD_W, 58, '#D3C9BA');
+  D.rect(260, 30, 90, 70, '#F6F2EA'); D.frame(260, 30, 90, 70, 4, '#C9BFAF');   // 墙上的画框
+  sun(D, IP_LIGHT[0], IP_LIGHT[1], 9, BASE);
+  bust(k, IP_P.x, IP_P.y, IP_P.R, BASE.person, kk => headShade(kk, IP_P.x, IP_P.y, IP_P.R, 0.7, 1, BASE.shade));
+  D.line([[IP_P.x - 34, IP_P.y + 44], [IP_CUP.x + IP_CUP.w + 2, IP_CUP.y + 22]], 11, BASE.person);   // 左臂伸向杯子
+}
+function ipCup(D, k, glass) {
+  const C = IP_CUP, body = glass ? 'rgba(214,52,64,.82)' : '#F7F5F1';
+  D.rr(C.x, C.y, C.w, C.h, [3, 3, 7, 7], body);
+  k.strokeStyle = body; k.lineWidth = 4; k.beginPath(); k.arc(C.x + C.w + 4, C.y + C.h / 2, 7, -1.3, 1.3); k.stroke();
+  if (glass) {   // 玻璃：液面一道亮线 + 左侧竖高光
+    D.rect(C.x + 3, C.y + 10, C.w - 6, 2, 'rgba(255,220,220,.8)'); D.rr(C.x + 4, C.y + 4, 4, C.h - 10, 2, 'rgba(255,255,255,.85)');
+  } else {       // 白瓷：左侧宽高光 + 右侧一点暗面
+    D.rr(C.x + 4, C.y + 5, 5, C.h - 12, 2.5, '#FFFFFF'); D.rect(C.x + C.w - 7, C.y + 3, 5, C.h - 6, 'rgba(0,0,0,.08)');
+  }
+  D.rr(C.x - 8, C.y + 14, 14, 16, 5, BASE.person);   // 握着杯子的手（压在杯子前面）
+}
+CELLS[64] = mdCell('局部改图', ['框选「左手的杯子」', '框内重画材质和颜色', '光线一致'], (k, u, [pB, pP, pA], D) => {
+  ipScene(D, k); ipCup(D, k, false);
+  if (pP > 0.01) {   // 框内重画：从左往右扫，扫过的部分换成红色玻璃杯
+    const B = IP_BOX; k.save(); k.beginPath(); k.rect(B.x, B.y, B.w * pP, B.h); k.clip();
+    ipScene(D, k); ipCup(D, k, true); k.restore();   // 框内先重画同一张原图，再换杯子：人物被框住的部分保持原样
+  }
+  if (pB > 0.01) {
+    const B = IP_BOX; k.save(); k.globalAlpha = pB; k.strokeStyle = FC_BLUE; k.lineWidth = 1.6; k.setLineDash([5, 4]); k.lineDashOffset = -u * 18;
+    k.strokeRect(B.x, B.y, B.w, B.h); k.setLineDash([]);
+    fcText(k, '只改框内', B.x + B.w / 2, B.y + B.h + 12, 10, FC_BLUE, 'center', 700); k.restore();
+  }
+  if (pA > 0.01) {   // 光源 → 新杯子高光的箭头
+    const x1 = IP_CUP.x + 6, y1 = IP_CUP.y + 8, a = Math.atan2(y1 - IP_LIGHT[1], x1 - IP_LIGHT[0]);
+    k.save(); k.globalAlpha = pA; k.strokeStyle = GUIDE; k.fillStyle = GUIDE; k.lineWidth = 1.8; k.setLineDash([4, 3]);
+    k.beginPath(); k.moveTo(IP_LIGHT[0] + 10, IP_LIGHT[1] + 10); k.lineTo(x1 - 4, y1 - 4); k.stroke(); k.setLineDash([]);
+    k.beginPath(); k.moveTo(x1 - 2, y1 - 2); k.lineTo(x1 - 2 - 8 * Math.cos(a - 0.4), y1 - 2 - 8 * Math.sin(a - 0.4)); k.lineTo(x1 - 2 - 8 * Math.cos(a + 0.4), y1 - 2 - 8 * Math.sin(a + 0.4)); k.closePath(); k.fill();
+    k.restore(); tag(k, '光线一致', 62, 70, pA);
+  }
+}, u => { const r = mdR(u); return [IP_T.box, IP_T.paint, IP_T.arrow].map(([a, b]) => eIO(P(u, a, b)) * r); });

@@ -1,0 +1,15 @@
+Please use "Action beats" (動作を拍に分ける), filed under "Camera & editing / Storyboards & pacing".
+Motion Prompt #3-088
+
+What it is: Break one action into small visible steps and write the speed and pauses of each
+What the sample shows: Five equal panels light up in turn. A figure seated at a table, seen side-on, holds still, slowly reaches out and grips the cup, pauses for a beat, quickly lifts the cup to the mouth (head tipping back slightly, cup tilting towards the lips) and ends in the drinking pose. The time bar below is split by each beat's real length: the slow part is long and light blue, the pause is its own grey segment, the fast part is short and dark blue, with a black playhead moving along.
+Spec:
+- 9.4 s cycle. The 5 beats start at 0.3 s and last 1.2, 2.6, 1.0, 0.8 and 2.6 s: 8.2 s in total, finished by 8.5 s.
+- The lift reaches the mouth in the first half of its beat and holds there for the second half, so it reads as fast.
+- Bar segments are proportional to duration: slow is light blue, pause grey and fast dark blue, each marked "slow", "pause" or "fast".
+- From 8.8 to 9.4 s the picture fades back to the opening frame.
+When to use it: For everyday actions such as drinking, opening a door or turning round, when the AI should act out the rhythm instead of rushing through.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-088.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

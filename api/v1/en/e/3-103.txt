@@ -1,0 +1,56 @@
+// Motion Prompt #3-103 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/high-end-look
+//
+// High-end look / 高級感
+// Category: Editing & photography / Light & color / Mood & tone recipes
+// What happens: It starts with a perfume bottle among flowers and a ribbon, on a background of 4 loud stripes. First the colours drop to muted beige tones. Then the flowers and ribbon disappear and the bottle shrinks and moves right, leaving space around it. Next a large soft light comes in from the left, a faint blurred shadow stretches to the right of the bottle and the right side of the frame darkens gently. Finally a liquid line, a vertical highlight on the glass and fine grooves on the metal cap appear. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+// Motion spec:
+//   - 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+//   - The 4 stripes mute to #E4DFD8 and the flowers and ribbon leave; the bottle shrinks from x 196 at 1× to x 262 at 0.68×.
+//   - A large soft light from the left and a soft shadow blurred by 6 px to the right of the bottle; material: a liquid line, a vertical highlight on the left of the glass and 6 fine grooves on the metal cap.
+//   - The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+// When to use it: For product shots of cosmetics, perfume or jewellery that should look premium.
+// Tags: premium, minimal, muted palette, negative space, soft light, product photography
+// Size: 539x208 px · Cycle: 5 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-103
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 56
+// 56 高级感：桌上一只香水瓶。减到两三个低饱和色 → 主体缩小、四周留白（杂物退场）→ 一侧大面积柔光 → 材质细节（玻璃高光、液面、金属盖纹）
+const HE_STRIPE = ['#F2B5C4', '#9ED0E6', '#F7D774', '#B8E0A8'], HE_MUTE = '#E4DFD8';
+const HE_FROM = { x: 196, y: 176, s: 1 }, HE_TO = { x: 262, y: 168, s: 0.68 };
+function heBottle(D, k, cx, by, s, col, cap, pM) {
+  const w = 64 * s, h = 82 * s;
+  D.rr(cx - w / 2, by - h, w, h, 10 * s, col);
+  D.rect(cx - 9 * s, by - h - 10 * s, 18 * s, 11 * s, mixc(col, '#FFFFFF', 0.3));
+  D.rr(cx - 15 * s, by - h - 34 * s, 30 * s, 25 * s, 4 * s, cap);
+  D.rr(cx - w / 2 + 12 * s, by - h * 0.62, w - 24 * s, h * 0.3, 2 * s, mixc(col, '#FFFFFF', 0.55));
+  if (pM < 0.01) return;
+  k.save(); k.globalAlpha *= pM;
+  D.rect(cx - w / 2 + 2 * s, by - h * 0.86, w - 4 * s, 2 * s, 'rgba(255,255,255,.7)');   // 液面
+  D.rr(cx - w / 2 + 6 * s, by - h + 8 * s, 5 * s, h - 18 * s, 3 * s, 'rgba(255,255,255,.75)');   // 玻璃左侧竖高光
+  for (let i = 0; i < 6; i++) D.rect(cx - 13 * s + i * 5 * s, by - h - 32 * s, 1.4 * s, 21 * s, 'rgba(255,255,255,.35)');   // 金属盖细纹
+  k.restore();
+}
+CELLS[55] = mdCell('高级感', ['减到两三个低饱和色', '主体缩小留白', '一侧大面积柔光', '材质细节'], (k, u, [pC, pS, pL, pM], D) => {
+  HE_STRIPE.forEach((c, i) => D.rect(i * MD_W / 4, 0, MD_W / 4 + 1, 150, mixc(c, HE_MUTE, pC)));
+  D.rect(0, 150, MD_W, 58, mixc('#E8A87C', '#D6CFC5', pC));
+  // 杂物：花和缎带，留白这一步退场
+  k.save(); k.globalAlpha = 1 - pS;
+  [[70, 128, '#E85D75'], [92, 120, '#F2C94C'], [80, 108, '#7FB3E0'], [320, 132, '#E85D75'], [338, 122, '#9B7BE0']].forEach(([x, y, c]) => D.circ(x, y, 11, mixc(c, '#BDB4A8', pC)));
+  D.rect(60, 140, 300, 8, mixc('#E85D75', '#BDB4A8', pC));
+  k.restore();
+  const x = lerp(HE_FROM.x, HE_TO.x, pS), y = lerp(HE_FROM.y, HE_TO.y, pS), s = lerp(HE_FROM.s, HE_TO.s, pS);
+  // 柔光的影子：在瓶子右边拉出一片很软的影
+  if (pL > 0.01) { k.save(); mdBlur(k, 6); k.globalAlpha = 0.35 * pL; D.poly([[x, y], [x + 120 * s, y - 8 * s], [x + 140 * s, y + 6 * s], [x, y + 6 * s]], '#6E655A'); k.restore(); }
+  heBottle(D, k, x, y, s, mixc('#E85D75', '#C9B8A3', pC), mixc('#F2C94C', '#8C857C', pC), pM);
+  if (pL > 0.01) {
+    k.save(); k.globalCompositeOperation = 'screen'; const g = k.createRadialGradient(-60, 60, 20, -60, 60, 360);
+    g.addColorStop(0, `rgba(255,255,255,${(0.5 * pL).toFixed(3)})`); g.addColorStop(1, 'rgba(255,255,255,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    k.globalCompositeOperation = 'multiply'; const g2 = k.createLinearGradient(0, 0, MD_W, 0);
+    g2.addColorStop(0.45, 'rgba(255,255,255,1)'); g2.addColorStop(1, mixc('#FFFFFF', '#B9B0A6', pL)); k.fillStyle = g2; k.fillRect(0, 0, MD_W, CH);
+    k.restore();
+  }
+});

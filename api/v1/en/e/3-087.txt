@@ -1,0 +1,55 @@
+// Motion Prompt #3-087 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/first-last-frame
+//
+// First and last frame / 最初と最後のフレーム
+// Category: Editing & photography / Camera & editing / Storyboards & pacing
+// What happens: Three panels sit side by side. The first frame on the left and the last frame on the right never move, each with a lock icon and a "first frame · locked" / "last frame · locked" label. Only the middle "process only" panel plays: the figure walks from left to right, stops and raises an arm, ending in exactly the last frame's pose. A timeline below is pinned to the first and last frames, and the blue progress and playhead travel only between them.
+// Motion spec:
+//   - 9.4 s cycle. The first and last frames appear over 0.2–0.5 s and then stay locked.
+//   - The process panel plays from 1.0 to 7.4 s: the figure walks from x −1.6 m to 1.6 m, stopping to raise an arm at 82% of the process.
+//   - The timeline runs from the centre of the first frame to the centre of the last; the playhead follows the process and the corner label reads "process NN%".
+//   - From 8.8 to 9.4 s the picture fades back to the opening frame.
+// When to use it: For image-to-video when the opening and closing pictures are already decided and the AI only has to fill in the middle.
+// Tags: first frame, last frame, keyframes, image to video, interpolation, storyboard
+// Size: 539x208 px · Cycle: 9.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-087
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 39
+// 39 首尾帧：左格首帧、右格尾帧从头到尾不动（锁定），只有中间格在演过程：人物从左走到右、停下举手。
+// 下方时间轴两端钉在首尾帧上，播放头只在两端之间走，标「只写过程」。
+const FL_X = [-1.6, 1.6];            // 首帧、尾帧里人物的位置（米）
+const FL_RUN = [1.0, 7.4];           // 过程在整轮里的区间
+const FL_ARM = 0.82;                 // 过程走到这个比例后举手（尾帧是举手姿态）
+const flPose = p => ({ x: lerp(FL_X[0], FL_X[1], clamp(p / FL_ARM)), z: 8, walk: clamp(p / FL_ARM) * 14, armUp: p >= FL_ARM });
+const flScene = (k, w, h, p) => world(k, w, h, sbCam(h, -0.3, 2.4, 6), { person: flPose(p), trees: false, mountains: false });
+// 锁形小图标：紧挨左上角编号（右上角是太阳、右下角是尾帧人物，放那里会叠在一起），说明这一帧固定
+function flLock(k, r, col) {
+  const x = r.x + 33, y = r.y + 12;
+  k.save(); k.strokeStyle = col; k.fillStyle = col; k.lineWidth = 1.6;
+  k.beginPath(); k.arc(x, y - 2, 3.5, Math.PI, 0); k.stroke();
+  rr(k, x - 5, y - 2, 10, 8, 2); k.fill(); k.restore();
+}
+CELLS[38] = shot((k, w, h, uu, cyc) => {
+  const U = sbU(uu, cyc), R = sbRow(3, { h: 100 }), fade = sbFade(U);
+  const endsOn = P(U, 0.2, 0.5) * fade, p = eIOs(P(U, FL_RUN[0], FL_RUN[1]));
+  const run = U >= FL_RUN[0] && U < SB_END + 0.3 ? 1 : 0;   // 过程格在演时为当前格（蓝框）
+  sbPanel(k, R[0], endsOn > 0.5 ? 2 : 0, endsOn, (kk, pw, ph) => flScene(kk, pw, ph, 0), '首');
+  sbPanel(k, R[1], run, P(U, FL_RUN[0] - 0.3, FL_RUN[0]) * fade, (kk, pw, ph) => flScene(kk, pw, ph, p), '');
+  sbPanel(k, R[2], endsOn > 0.5 ? 2 : 0, endsOn, (kk, pw, ph) => flScene(kk, pw, ph, 1), '尾');
+  if (endsOn > 0.5) { flLock(k, R[0], C.g4); flLock(k, R[2], C.g4); }
+  sbLabel(k, R[0], '首帧 · 固定', endsOn > 0.5 ? 2 : 0);
+  sbLabel(k, R[1], '只写过程', run);
+  sbLabel(k, R[2], '尾帧 · 固定', endsOn > 0.5 ? 2 : 0);
+  // 时间轴：从首帧中心到尾帧中心，两端是实心钉，播放头在中间走
+  const y = R[0].y + R[0].h + 32, xa = R[0].x + R[0].w / 2, xb = R[2].x + R[2].w / 2;
+  k.save(); k.globalAlpha = endsOn;
+  k.strokeStyle = C.g3; k.lineWidth = 2; k.beginPath(); k.moveTo(xa, y); k.lineTo(xb, y); k.stroke();
+  k.strokeStyle = C.blue; k.lineWidth = 3; k.beginPath(); k.moveTo(xa, y); k.lineTo(lerp(xa, xb, p), y); k.stroke();
+  [xa, xb].forEach(x => { k.fillStyle = C.ink; k.beginPath(); k.arc(x, y, 4.5, 0, TAU); k.fill(); });
+  if (run) { const px = lerp(xa, xb, p); k.fillStyle = C.blue; k.beginPath(); k.arc(px, y, 5.5, 0, TAU); k.fill(); k.fillStyle = '#FFFFFF'; k.beginPath(); k.arc(px, y, 2.2, 0, TAU); k.fill(); }
+  k.restore();
+  return run ? `过程 ${Math.round(p * 100)}%` : '首尾帧';
+});

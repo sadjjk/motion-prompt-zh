@@ -1,4 +1,4 @@
-// Motion Prompt #3 001–036 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#025
+// Motion Prompt #3 001–036 · 085–095 · MIT License (c) 2026 Shohei Ohtaki · https://showheyohtaki.github.io/motion-prompt/#025
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/establishing-shot (#3-025)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/shot-reverse-shot (#3-026)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/match-on-action (#3-027)
@@ -11,9 +11,20 @@
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/close-up (#3-034)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/extreme-close-up (#3-035)
 // Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/macro-shot (#3-036)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/before-after-sequence (#3-085)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/beat-sync-montage (#3-086)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/first-last-frame (#3-087)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/action-beats (#3-088)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/one-shot-one-action (#3-089)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/hook-opening (#3-090)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/product-three-beat (#3-091)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/storyboard-script (#3-092)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/unboxing-sequence (#3-093)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/broll-sequence (#3-094)
+// Also: MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/ad-15s-script (#3-095)
 //
 // Kit for pack "camera" (Camera moves & transitions / カメラワークと切り替え): the constants and helpers its elements share.
-// Elements #3 001–036 · 539x208 px · cycle 9.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #3 001–036 · 085–095 · 539x208 px · cycle 9.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,
@@ -455,3 +466,32 @@ function cutCell(shots) {
 }
 // 说话口型：u 落在 [a, b] 内时开合（首尾合拢）
 const mouth = (u, a, b) => P(u, a, a + 0.2) * (1 - P(u, b - 0.2, b)) * (0.35 + 0.35 * Math.max(0, Math.sin(u * 19)));
+
+// @shared
+// 分镜与节奏（37〜47）：一张卡横排几个小镜头格，按时间依次点亮；当前格蓝框、已播格灰框、未播格只有浅底。
+// 这一组按整轮 9.4 秒走（shot 传进来的 uu + cyc × CYC）：0–8.8 秒播完全部格子，8.8–9.4 秒淡回起始画面，首尾同一帧。
+// 描述方法参考 jingyu-skill（MIT · 阿梦freedom）。
+const SB_END = HOLD - 0.6;                          // 8.8：开始淡回
+const sbU = (uu, cyc) => uu + cyc * CYC;            // 还原整轮时间 0..HOLD
+const sbFade = U => 1 - eIOs(P(U, SB_END, HOLD));   // 1 = 正常显示，结尾降到 0，与 U = 0 的起始画面一致
+// sbRow(n, o)：n 个格子的位置；缺省排在 REC / HUD 之下、取景器底角之上
+function sbRow(n, o = {}) {
+  const x0 = o.x0 || 30, x1 = o.x1 || CW - 30, y = o.y || 50, h = o.h || 112, gap = o.gap || 12;
+  const w = (x1 - x0 - gap * (n - 1)) / n;
+  return Array.from({ length: n }, (_, i) => ({ x: x0 + i * (w + gap), y, w, h }));
+}
+// sbState(U, ts, i)：ts = 各格开始时刻。落在本格区间为当前（1），之后为已播（2），未到或淡回过半为未播（0）
+const sbState = (U, ts, i) => (U < ts[i] || U >= SB_END + 0.3) ? 0 : (i + 1 < ts.length && U >= ts[i + 1]) ? 2 : 1;
+const sbOn = (U, ts, i) => P(U, ts[i], ts[i] + 0.3) * sbFade(U);   // 格内画面的不透明度
+// sbPanel(k, r, st, on, draw, no)：先画浅底，再在格内局部坐标（已裁切）draw(k, w, h)，最后描框和左上角编号
+function sbPanel(k, r, st, on, draw, no) {
+  k.save();
+  k.fillStyle = C.g1; rr(k, r.x, r.y, r.w, r.h, 6); k.fill();
+  if (on > 0.001) { k.save(); rr(k, r.x, r.y, r.w, r.h, 6); k.clip(); k.translate(r.x, r.y); k.globalAlpha = on; draw(k, r.w, r.h); k.restore(); }
+  k.strokeStyle = st === 1 ? C.blue : st === 2 ? C.g3 : C.border; k.lineWidth = st === 1 ? 2.4 : 1.4;
+  rr(k, r.x, r.y, r.w, r.h, 6); k.stroke();
+  if (no) { k.fillStyle = 'rgba(255,255,255,.85)'; rr(k, r.x + 4, r.y + 4, 18, 14, 4); k.fill(); txt(k, no, r.x + 13, r.y + 11.5, `600 10px ${MONO}`, st === 1 ? C.blue : C.sub, 'center', 'middle'); }
+  k.restore();
+}
+// sbLabel：格子下方的说明文字，当前格用蓝色
+const sbLabel = (k, r, s, st, dy = 14) => txt(k, s, r.x + r.w / 2, r.y + r.h + dy, `600 12px ${JP}`, st === 1 ? C.blue : st === 2 ? C.ink : C.faint, 'center', 'middle');

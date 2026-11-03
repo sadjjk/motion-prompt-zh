@@ -1,0 +1,56 @@
+// Motion Prompt #3-104 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/atmosphere
+//
+// Atmospheric mood / 空気感
+// Category: Editing & photography / Light & color / Mood & tone recipes
+// What happens: It starts from a plain picture of a person standing on a forest path lined with 8 trunks. First haze fills the air, thickest near the horizon, whitening the farther trees most. Then the sun behind the trees lights up and 6 beams cut through the haze, swaying slowly from side to side. Next the whole picture shifts cool, with warm colour left only around the sun. Finally the edges and bottom sink into shadow, so the beams in the middle stand out. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+// Motion spec:
+//   - 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+//   - The haze is densest near the horizon; the sun sits behind the trees at (196, 64) and its 6 beams sway back and forth 1 time per cycle.
+//   - Cool tone: the frame is multiplied by #8FB0CF, with warmth put back only within a 46 px radius of the sun; shadows: the edges and bottom darken by up to 0.7.
+//   - The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+// When to use it: For landscapes, portraits and vlog shots that need a mood rather than just looking pretty.
+// Tags: atmosphere, haze, light beams, backlight, cool tone, mood
+// Size: 539x208 px · Cycle: 5 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-104
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 57
+// 57 氛围感：林间小路上的人。空气里加雾 → 逆光把雾照亮（看得见的光束）→ 统一冷色只留太阳一点暖 → 暗部沉下去
+const AT_TREE = [[20, 16], [62, 10], [104, 7], [146, 5], [250, 5], [288, 7], [326, 10], [366, 16]];   // [x, 粗细]；越靠边越近越粗
+const AT_SUN = [196, 64];
+CELLS[56] = mdCell('氛围感', ['空气里加雾', '逆光照亮雾', '冷色只留一点暖', '暗部沉下去'], (k, u, [pF, pB, pC, pD], D) => {
+  const T = u / CYC * TAU;
+  D.rect(0, 0, MD_W, CH, '#DDE4D8'); D.rect(0, 118, MD_W, 90, '#B9C7A6');
+  D.poly([[176, 118], [216, 118], [300, CH], [92, CH]], '#D8CDB4');   // 小路
+  AT_TREE.forEach(([x, w]) => { D.rect(x - w / 2, 0, w, 124 + w, mixc('#5E6B52', '#E6EAE4', pF * (1 - w / 18) * 0.8)); });
+  figure(D, 196, 150, 38, '#3D4656');
+  if (pF > 0.01) {   // 雾：越近地平线越浓
+    const g = k.createLinearGradient(0, 0, 0, CH);
+    g.addColorStop(0, `rgba(236,240,236,${(0.25 * pF).toFixed(3)})`); g.addColorStop(0.55, `rgba(236,240,236,${(0.7 * pF).toFixed(3)})`); g.addColorStop(1, `rgba(236,240,236,${(0.2 * pF).toFixed(3)})`);
+    k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+  }
+  if (pB > 0.01) {   // 逆光：太阳在树后，光束穿过雾，左右轻轻摆（一轮 1 个周期）
+    k.save(); k.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 6; i++) {
+      const a = -1.05 + i * 0.42 + 0.03 * Math.sin(T + i), L = 260;
+      k.fillStyle = `rgba(255,236,200,${(0.13 * pB * pF + 0.05 * pB).toFixed(3)})`;
+      k.beginPath(); k.moveTo(AT_SUN[0], AT_SUN[1]); k.lineTo(AT_SUN[0] + Math.sin(a - 0.07) * L, AT_SUN[1] + Math.cos(a - 0.07) * L); k.lineTo(AT_SUN[0] + Math.sin(a + 0.07) * L, AT_SUN[1] + Math.cos(a + 0.07) * L); k.closePath(); k.fill();
+    }
+    const g = k.createRadialGradient(AT_SUN[0], AT_SUN[1], 2, AT_SUN[0], AT_SUN[1], 40);
+    g.addColorStop(0, `rgba(255,240,210,${(0.55 * pB).toFixed(3)})`); g.addColorStop(1, 'rgba(255,240,210,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    k.restore();
+  }
+  if (pC > 0.01) {   // 冷色统一，再把太阳附近的一点暖色加回来
+    k.save(); k.globalCompositeOperation = 'multiply'; k.fillStyle = mixc('#FFFFFF', '#8FB0CF', pC); k.fillRect(0, 0, MD_W, CH);
+    k.globalCompositeOperation = 'screen'; const g = k.createRadialGradient(AT_SUN[0], AT_SUN[1], 2, AT_SUN[0], AT_SUN[1], 46);
+    g.addColorStop(0, `rgba(255,190,110,${(0.8 * pC).toFixed(3)})`); g.addColorStop(1, 'rgba(255,190,110,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    k.restore();
+  }
+  if (pD > 0.01) {   // 暗部沉下去：四周和下方压暗，中间光束保留
+    const g = k.createRadialGradient(196, 90, 50, 196, 90, 260);
+    g.addColorStop(0, 'rgba(10,20,32,0)'); g.addColorStop(1, `rgba(10,20,32,${(0.7 * pD).toFixed(3)})`); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+  }
+});

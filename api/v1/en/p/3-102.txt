@@ -1,0 +1,15 @@
+Please use "Cinematic look" (シネマ風), filed under "Light & color / Mood & tone recipes".
+Motion Prompt #3-102
+
+What it is: Making a still look like a film frame through a wide aspect, light with a visible source, controlled depth of field and one consistent grade
+What the sample shows: A plain daytime picture of a person in front of a café window on a street corner gains one ingredient at a time. First black bars close in top and bottom to make a wide frame. Then the window on the right glows warm, the scene turns to night, and the window light falls on the floor and the right side of the face. Next the buildings and window behind blur and the 4 street lamps swell into bokeh discs. Finally the whole frame sinks into teal, with orange pushed up only around the window. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+Spec:
+- 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+- Black bars are 22 px top and bottom; the window light turns the scene to night, and the warm 114 × 120 px window on the right lights the floor and the right side of the face.
+- Shallow focus blurs the background by 3.4 px and the 4 street lamps become bokeh discs; teal and orange: the frame is multiplied by teal #5FB4BE and orange is added around the window.
+- The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For portraits, street shots and video thumbnails that should feel like a still from a film.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-102.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

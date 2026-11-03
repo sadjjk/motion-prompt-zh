@@ -1,0 +1,61 @@
+// Motion Prompt #3-097 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/describe-avatar
+//
+// アイコン画像 / Avatar
+// 分類: 編集・撮影 / ショットサイズ・構図 / 画面比率・トリミング
+// 何が起きるか: 上下2段に正方形の画像。円形のマスクがかかって円の外が白くなり、琥珀色の点線の円が出る。続いて64・32・16pxの丸いアイコンが順に並ぶ。上段は顔が中央で背景が無地なので16pxでも人物と分かり ✓、下段は街並みの雑多な背景に顔が右に寄っていて、縮めると何か分からない塊になり ✕。
+// 動きの仕様:
+//   - 5秒周期。元の正方形は76px、0.3〜0.8秒に現れ、1.0〜1.5秒に円形マスク
+//   - 64、32、16pxの縮小版が1.8、2.2、2.6秒から各0.35秒で現れる。キャンバス上の実寸で描く
+//   - 3.0〜3.4秒に ✓「脸居中、纯色底」/ ✕「背景杂、脸偏一侧」
+//   - 4.4〜4.95秒にすべて消えて最初に戻り、5秒と0秒は同じ画面
+// 使いどころ: SNSやチャットのアイコン、社員証の写真など、小さく丸く表示される顔写真を作るとき。
+// タグ: avatar, profile picture, circle crop, small size, plain background, portrait
+// サイズ: 539x208 px · 1周: 5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-097
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 50
+// 50 头像：正方形图套上圆形遮罩，再缩到 64 / 32 / 16 px 并排。上行脸居中、纯色底，缩到 16 px 仍认得出；
+// 下行背景杂、脸偏一侧，一缩小就糊成一团。缩小格按真实尺寸画（在 539×208 画布里就是 64 / 32 / 16 px）。
+const AV_ROWS = [{ y: 52, ok: true, l1: '脸居中、纯色底', l2: '16 px 仍认得出' }, { y: 152, ok: false, l1: '背景杂、脸偏一侧', l2: '缩小后认不出' }];
+const AV_SRC = { x: 0, y: 0, w: 100, h: 100 }, AV_BIG = 76, AV_X = 34;
+const AV_SIZES = [[64, 150], [32, 236], [16, 290]];   // [边长 px, 中心 x]
+const AV_T = { show: [0.3, 0.8], mask: [1.0, 1.5], s: [1.8, 2.2, 2.6], mark: [3.0, 3.4] };
+function avScene(D, k, ok) {
+  if (ok) { D.rect(0, 0, 100, 100, '#CFE0F5'); bust(k, 50, 42, 19, BASE.person); return; }
+  D.rect(0, 0, 100, 100, '#F1F0EE');
+  building(D, -4, 70, 34, 56, BASE, 1); building(D, 36, 70, 26, 40, BASE, 4); tree(D, 30, 72, 9, BASE); lamp(D, 58, 72, 34, BASE);
+  D.rect(0, 70, 100, 30, BASE.ground2); D.circ(12, 90, 8, '#B6C9A0'); D.circ(26, 94, 6, '#E8B4A0');
+  bust(k, 80, 56, 10, BASE.person);
+}
+function avDraw(k, cx, cy, d, ok, round) {
+  k.save();
+  if (round) { k.beginPath(); k.arc(cx, cy, d / 2, 0, TAU); k.clip(); }
+  fcPic(k, { x: cx - d / 2, y: cy - d / 2, w: d, h: d }, AV_SRC, (D, kk) => avScene(D, kk, ok));
+  k.restore();
+}
+CELLS[49] = cell((k, u) => {
+  k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+  const pS = fcK(u, ...AV_T.show), pM = fcK(u, ...AV_T.mask), pK = fcK(u, ...AV_T.mark);
+  AV_ROWS.forEach(row => {
+    const cx = AV_X + AV_BIG / 2, cy = row.y;
+    k.save(); k.globalAlpha = pS; avDraw(k, cx, cy, AV_BIG, row.ok, false);
+    // 圆形遮罩：圆外逐渐压白，圆周一圈琥珀虚线
+    if (pM > 0.01) {
+      k.globalAlpha = pS * pM * 0.85; k.fillStyle = '#FFFFFF';
+      k.beginPath(); k.rect(cx - AV_BIG / 2, cy - AV_BIG / 2, AV_BIG, AV_BIG); k.arc(cx, cy, AV_BIG / 2, 0, TAU, true); k.fill();
+      k.globalAlpha = pS * pM; k.strokeStyle = GUIDE; k.lineWidth = 1.6; k.setLineDash([4, 3]); k.beginPath(); k.arc(cx, cy, AV_BIG / 2, 0, TAU); k.stroke(); k.setLineDash([]);
+    }
+    k.restore();
+    AV_SIZES.forEach(([d, x], i) => {
+      const p = fcK(u, AV_T.s[i], AV_T.s[i] + 0.35);
+      if (p <= 0.01) return;
+      k.save(); k.globalAlpha = p; avDraw(k, x, cy, d, row.ok, true);
+      fcText(k, `${d} px`, x, cy + 40, 10, FC_SUB, 'center', 600); k.restore();
+    });
+    fcMark(k, row.ok, row.l1, row.l2, 360, cy - 8, pK);
+  });
+});

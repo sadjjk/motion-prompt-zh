@@ -1,0 +1,58 @@
+// Motion Prompt #3-098 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/describe-douyin-first-frame
+//
+// 抖音の縦型ファーストフレーム / Douyin vertical first frame
+// 分類: 編集・撮影 / ショットサイズ・構図 / 画面比率・トリミング
+// 何が起きるか: 中央の9:16のスマホに海辺の全画面が出る。右のボタン列、下の説明文、上のバーが汎用のグレーのブロックで順にかぶさり、最後に中央の安全エリアが青い点線の枠で示され「安全区」と書かれる。続いて左右に小さいスマホが出て比べる：左は人物が安全エリア内で ✓、右は人物が右下にいてボタンと説明文に隠れ ✕。実在するアプリのロゴやボタンは描かない。
+// 動きの仕様:
+//   - 5秒周期。中央のスマホは高さ184px。0.3〜0.7秒に画面が出て、右のボタン1.0〜1.4秒、下の説明文1.5〜1.9秒、上のバー2.0〜2.4秒
+//   - 2.6〜3.1秒に安全エリアの青い点線枠（90 × 160の画面座標で62 × 94）
+//   - 3.2〜3.7秒に高さ136pxのスマホ2台で ✓ / ✕ を比較
+//   - 4.4〜4.95秒にすべて消えて最初に戻り、5秒と0秒は同じ画面
+// 使いどころ: 抖音・快手・TikTokなど縦型ショート動画の最初のフレームやカバーを作るとき。
+// タグ: vertical video, 9:16, safe zone, first frame, cover, short video
+// サイズ: 539x208 px · 1周: 5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-098
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 51
+// 51 抖音竖屏首帧：9:16 小手机里先是完整画面，再依次盖上右侧按钮栏、底部文案、顶部栏三块通用灰块，
+// 最后亮出中部安全区蓝框。左右两只更小的手机做对照：主体在安全区内（✓）/ 主体在右下被按钮和文案挡住（✕）。
+const DY_T = { show: [0.3, 0.7], right: [1.0, 1.4], bottom: [1.5, 1.9], top: [2.0, 2.4], safe: [2.6, 3.1], cmp: [3.2, 3.7] };
+const DY_SAFE = { x: 8, y: 26, w: 62, h: 94 };   // 源坐标 90×160 里的安全区：避开顶栏、右侧按钮列和底部文案
+function dyScene(D, x, feet, s) { fcBeach(D, 90, 160, 92); figure(D, x, feet, s, BASE.person); }
+// 三块界面遮挡（源坐标）：a = [右侧按钮, 底部文案, 顶部栏] 各自的不透明度
+function dyUI(D, k, a) {
+  k.save();
+  k.globalAlpha *= a[0]; D.circ(80, 64, 5.5, FC_UI); [82, 98, 114].forEach(y => D.circ(80, y, 4.5, FC_UI)); D.rr(76, 124, 8, 8, 2, FC_UI);
+  k.restore(); k.save();
+  k.globalAlpha *= a[1]; D.rr(6, 128, 28, 5, 2, FC_UI); D.rr(6, 137, 62, 4, 2, FC_UI); D.rr(6, 145, 48, 4, 2, FC_UI);
+  k.restore(); k.save();
+  k.globalAlpha *= a[2]; D.rr(24, 9, 14, 4, 2, FC_UI); D.rr(42, 9, 14, 4, 2, 'rgba(40,40,46,.75)'); D.rr(60, 9, 10, 4, 2, FC_UI); D.circ(82, 11, 3.2, FC_UI);
+  k.restore();
+}
+CELLS[50] = cell((k, u) => {
+  k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+  const pS = fcK(u, ...DY_T.show), ui = [fcK(u, ...DY_T.right), fcK(u, ...DY_T.bottom), fcK(u, ...DY_T.top)];
+  const pF = fcK(u, ...DY_T.safe), pC = fcK(u, ...DY_T.cmp);
+  k.save(); k.globalAlpha = pS;
+  fcPhone(k, 270, 104, 184, (D, kk) => {
+    dyScene(D, 39, 108, 64); dyUI(D, kk, ui);
+    if (pF > 0.01) {
+      kk.save(); kk.globalAlpha *= pF; kk.fillStyle = 'rgba(47,107,235,.08)'; kk.fillRect(DY_SAFE.x, DY_SAFE.y, DY_SAFE.w, DY_SAFE.h);
+      fcBox(kk, DY_SAFE.x, DY_SAFE.y, DY_SAFE.w, DY_SAFE.h, FC_BLUE, 1.4, [3, 2]);
+      fcText(kk, '安全区', DY_SAFE.x + DY_SAFE.w / 2, DY_SAFE.y + 7, 6.5, FC_BLUE, 'center', 700); kk.restore();
+    }
+  });
+  k.restore();
+  // 对照：左 ✓ 主体在安全区；右 ✕ 主体在右下，被按钮和文案挡住
+  if (pC <= 0.01) return;
+  [[110, true, 39, 108, 64, '主体在安全区内'], [430, false, 70, 150, 60, '被按钮和文案挡住']].forEach(([cx, ok, x, feet, s, l1]) => {
+    k.save(); k.globalAlpha = pC;
+    const r = fcPhone(k, cx, 86, 136, (D, kk) => { dyScene(D, x, feet, s); dyUI(D, kk, [1, 1, 1]); });
+    fcMark(k, ok, l1, '', cx - 58, r.y + r.h + 18, 1);
+    k.restore();
+  });
+});

@@ -1,0 +1,15 @@
+Please use "Livestream background" (ライブ配信の背景), filed under "Shot size & composition / Framing & cropping".
+Motion Prompt #3-101
+
+What it is: A backdrop that leaves the centre for the host and product, keeps the background low-contrast and softly blurred, and puts brand information at shoulder height on both sides
+What the sample shows: A sharp room appears first: bookshelves on both sides, a plant and a window in the middle. The background then darkens and blurs a step. The host's silhouette rises from below into the centre and a product box appears beside them. Finally white brand-info blocks appear at shoulder height on the left and right. A checklist on the right, "darken and blur the background a step", "host and product into the central space", "brand info at shoulder height on both sides", lights up step by step.
+Spec:
+- 5 s cycle. The room is 300 × 169 px and appears over 0.3–0.7 s.
+- Over 1.0–1.8 s it darkens (black at 0.34 opacity) and blurs by 2.4 px.
+- Over 2.0–2.6 s the host rises from below and the product appears; over 2.8–3.3 s brand info appears at shoulder height, y ≈ 100.
+- Everything clears over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For live-commerce sets and virtual backgrounds, when the host and product must not get lost in the background.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-101.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

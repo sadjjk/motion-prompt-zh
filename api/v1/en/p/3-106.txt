@@ -1,0 +1,15 @@
+Please use "Ambient lighting" (間接照明の雰囲気), filed under "Light & color / Mood & tone recipes".
+Motion Prompt #3-106
+
+What it is: Switching off the main light and keeping only local lights such as LED strips, a desk lamp or a screen, so most of the room is dark and the coloured light has direction
+What the sample shows: It starts from an ordinary, evenly lit bedroom: a bed corner, a poster, a desk with a monitor and a desk lamp. First the main light goes off and the whole room darkens. Then a purple-blue LED strip lights up near the ceiling and bleeds downward. Next the desk lamp comes on and drops a warm cone of light on the desk. Finally the monitor glows cold blue, spilling blue light around it and onto the desk, leaving only one warm and one cold local light. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+Spec:
+- 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+- Switching off the main light darkens the frame by 0.72; the LED strip is a 3 px line under the ceiling that bleeds downward.
+- Desk lamp: a warm cone of light on the desk with an 80 px radius; monitor: lights up cold blue and spills light over a 120 px radius.
+- The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For night shots of rooms, desk setups, gaming rooms or cafés that should feel dim and relaxed.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-106.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

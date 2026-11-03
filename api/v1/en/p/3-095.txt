@@ -1,0 +1,15 @@
+Please use "15-second ad script" (15秒CM台本), filed under "Camera & editing / Storyboards & pacing".
+Motion Prompt #3-095
+
+What it is: A 15-second ad laid out as a hook in 0–3 s, 2 selling points in 3–10 s, use in 10–13 s and the product with slogan in the last 2 s
+What the sample shows: The 4 panels are as wide as their 3 : 7 : 3 : 2 seconds, so the selling-point part is clearly longest and the ending shortest. "Hook": the bottle drops from above and bounces, with the red caption "Drop-proof?". "Selling points × 2": first the grip ridges glow under side light on black, then steam rises and a counter climbs to 12h with "keeps hot". "Use": a hand carries it outdoors. "Product + slogan": the bottle centred on a plain pale-blue background with the slogan in a blue bar beneath. Seconds 3s, 7s, 3s and 2s sit under the panels, and the corner shows elapsed time such as "07 / 15s".
+Spec:
+- 9.4 s cycle. The 15 s are compressed to 0.55 s per second and play from 0.3 s to 8.55 s.
+- Panel widths are 3 : 7 : 3 : 2; the first half of "selling points × 2" shows the ridges, the second half steam and a count from 0 to 12h.
+- End panel: the slogan bar fades in over 15–40% of the panel.
+- From 8.8 to 9.4 s the picture fades back to the opening frame.
+When to use it: For building a 15-second social or shop ad script from its time budget.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-095.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

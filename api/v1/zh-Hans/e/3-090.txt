@@ -1,0 +1,83 @@
+// Motion Prompt #3-090 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/hook-opening
+//
+// 前 3 秒开场钩子 / Three-second hook
+// 分类: 剪辑与摄影 / 镜头与剪辑 / 分镜与节奏
+// 动画表现: 三格依次亮起。第 1 格是结果特写：放着草莓的两层蛋糕，蜡烛火苗在跳，后景虚化，镜头极慢推近；第 2 格是人物脸部近景，嘴张开、冒出「哇！」气泡，眨一次眼；第 3 格是建立镜头，拉到全景，人物站在桌边举起手。下方时间轴把最初 3 秒涂成蓝色并标「前 3 秒 · 钩子」，播放头走出这一段时第 1 格正好结束。
+// 运动规格:
+//   - 9.4 秒周期。3 格在 0.3、3.3、5.8 秒开始，8.5 秒结束；第 1 格正好 3 秒
+//   - 结果特写：后景虚化 3 px，极慢推近；火苗由 2 个频率叠加，跳得不规则
+//   - 时间轴：0–3 秒段为蓝色，刻度「0」和「3s」；播放头按真实秒数走
+//   - 8.8–9.4 秒淡回开头画面
+// 适用场景: 短视频开头，想在最初几秒留住观众时。
+// 标签: hook, opening, first 3 seconds, short video, result first, storyboard
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-090
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 42
+// 42 前 3 秒钩子：第一格就是最终结果（做好的蛋糕特写，蜡烛在跳），再接人物反应、最后才给建立镜头交代在哪。
+// 下方时间轴把 0–3 秒涂成蓝色标「前 3 秒 · 钩子」，播放头走过时第一格正好占满这一段。
+// 三格里的蛋糕是同一个物体（同一张桌子、同一位置），只是机位不同。
+const HK_TS = [0.3, 3.3, 5.8], HK_END = 8.5;   // 第 1 格正好 3 秒
+const HK_LABEL = ['结果特写', '人物反应', '建立镜头'];
+const HK_TABLE = { x: 0.7, z: 8, h: 0.75 };      // 桌子位置；蛋糕放在桌面中间
+// 蛋糕：两层奶油蛋糕 + 草莓 + 一根蜡烛（局部米制，原点在桌面，y 向上）；fl = 火苗晃动
+function hkCake(k, fl) {
+  k.fillStyle = '#F6E7D2'; rr(k, -0.15, 0, 0.3, 0.11, 0.02); k.fill();
+  k.fillStyle = '#FBF3E6'; rr(k, -0.11, 0.11, 0.22, 0.09, 0.02); k.fill();
+  k.fillStyle = '#E8A0A8';   // 两层之间、顶上的粉色奶油边
+  [[0.11, 0.15], [0.2, 0.11]].forEach(([y, r]) => { for (let j = -3; j <= 3; j++) { k.beginPath(); k.arc(j * r / 3.3, y, 0.017, 0, TAU); k.fill(); } });
+  k.fillStyle = '#E5484D';
+  [-0.07, 0, 0.07].forEach(x => { k.beginPath(); k.ellipse(x, 0.215, 0.017, 0.02, 0, 0, TAU); k.fill(); });
+  k.fillStyle = C.blueM; k.fillRect(-0.006, 0.2, 0.012, 0.08);   // 蜡烛
+  k.save(); k.translate(0, 0.3); k.scale(1 + fl * 0.15, 1 - fl * 0.1);
+  k.fillStyle = '#FFC24A'; k.beginPath(); k.ellipse(0, 0, 0.012, 0.022, 0, 0, TAU); k.fill();
+  k.fillStyle = '#FFF4D6'; k.beginPath(); k.ellipse(0, -0.004, 0.005, 0.01, 0, 0, TAU); k.fill();
+  k.restore();
+}
+function hkTable(k, fl) {
+  k.fillStyle = C.g3; k.fillRect(-0.5, HK_TABLE.h - 0.04, 1.0, 0.04); k.fillRect(-0.45, 0, 0.04, HK_TABLE.h); k.fillRect(0.41, 0, 0.04, HK_TABLE.h);
+  k.save(); k.translate(0, HK_TABLE.h); hkCake(k, fl); k.restore();
+}
+function hkShot(k, w, h, i, q, U) {
+  const fl = Math.sin(U * 23) * 0.5 + Math.sin(U * 37) * 0.5;   // 火苗：两个频率叠加，看起来不规则
+  const extra = [[HK_TABLE.x, 0, HK_TABLE.z, kk => hkTable(kk, fl), true]];   // fg = true：蛋糕不跟后景一起虚化
+  const opt = { trees: false, mountains: false, extra };
+  // 1 结果特写：蛋糕撑满画面，极慢推近；后景虚化
+  if (i === 0) return world(k, w, h, sbCam(h, 0.7 + q * 0.03, 1.1 - q * 0.03, 1.2, HK_TABLE.x), { ...opt, blurBg: 3, buildings: false, grid: false, sky: '#F3EDE4' });
+  // 2 人物反应：人物脸的近景，张嘴「哇」，眨一次眼
+  if (i === 1) {
+    world(k, w, h, sbCam(h, 1.2, 1.95, 2.2, -0.5), { ...opt, person: { x: -0.5, z: 8.3 }, extra: [[-0.5, 0, 8.29, kk => face(kk, 0, { gaze: 0.05, talk: 0.4 + 0.5 * P(q, 0.1, 0.3), blink: q > 0.6 && q < 0.68 ? 1 : 0 })]] });
+    const a = P(q, 0.15, 0.3);
+    if (a > 0) { k.save(); k.globalAlpha *= a; k.fillStyle = '#FFFFFF'; rr(k, w * 0.6, h * 0.2, 44, 22, 8); k.fill(); txt(k, '哇！', w * 0.6 + 22, h * 0.2 + 11.5, `700 12px ${JP}`, C.ink, 'center', 'middle'); k.restore(); }
+    return;
+  }
+  // 3 建立镜头：拉到全景，人物站在桌边，观众这时才知道这是在哪
+  world(k, w, h, sbCam(h, -0.2, 2.4, 6, 0.1), { ...opt, person: { x: -0.5, z: 8.3, armUp: q > 0.4 } });
+}
+CELLS[41] = shot((k, w, h, uu, cyc) => {
+  const U = sbU(uu, cyc), R = sbRow(3, { h: 100 }), fade = sbFade(U);
+  const ts = [...HK_TS, HK_END];
+  let cur = -1;
+  R.forEach((r, i) => {
+    const st = sbState(U, HK_TS, i), q = st === 1 ? clamp((U - ts[i]) / (ts[i + 1] - ts[i])) : 1;
+    if (st === 1) cur = i;
+    sbPanel(k, r, st, sbOn(U, HK_TS, i), (kk, pw, ph) => hkShot(kk, pw, ph, i, q, U), String(i + 1));
+    sbLabel(k, r, HK_LABEL[i], st);
+  });
+  // 时间轴：0–3 秒蓝色段 + 刻度 0 / 3 s；播放头按真实秒数走
+  const x0 = R[0].x, x1 = R[2].x + R[2].w, y = R[0].y + R[0].h + 32, sx = t => lerp(x0, x1, (t - HK_TS[0]) / (HK_END - HK_TS[0]));
+  k.save(); k.globalAlpha = P(U, 0.2, 0.5) * fade;
+  // 条高 12，「前 3 秒 · 钩子」写在蓝色段里面；写在条上方会和格子下面的标签挤在一起
+  k.fillStyle = C.g2; rr(k, x0, y - 6, x1 - x0, 12, 4); k.fill();
+  k.fillStyle = C.blue; rr(k, x0, y - 6, sx(HK_TS[1]) - x0, 12, 4); k.fill();
+  txt(k, '前 3 秒 · 钩子', (x0 + sx(HK_TS[1])) / 2, y + 0.5, `700 9px ${JP}`, '#FFFFFF', 'center', 'middle');
+  txt(k, '0', x0, y + 15, `600 9px ${MONO}`, C.sub, 'center', 'middle');
+  txt(k, '3s', sx(HK_TS[1]), y + 15, `600 9px ${MONO}`, C.sub, 'center', 'middle');
+  if (U >= HK_TS[0] && U < SB_END + 0.3) { const px = sx(clamp(U, HK_TS[0], HK_END)); k.fillStyle = C.ink; k.fillRect(px - 1, y - 9, 2, 18); }
+  k.restore();
+  return cur >= 0 ? `${cur + 1}/3 ${HK_LABEL[cur]}` : '前 3 秒钩子';
+});

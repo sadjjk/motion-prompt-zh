@@ -1,0 +1,81 @@
+// Motion Prompt #3-085 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/before-after-sequence
+//
+// 前后对比 / Before and after
+// 分类: 剪辑与摄影 / 镜头与剪辑 / 分镜与节奏
+// 动画表现: 三格分镜依次亮起。第 1 格是凌乱的房间：地上散着杂物、挂画歪着、沙发上搭着衣服；第 2 格一只离镜头很近、又大又虚的手从左扫到右，挡住画面的一刻房间变整洁；第 3 格是同一构图下整洁的房间。随后第 1、3 格的沙发和挂画处出现蓝色虚线框，用折线连起来，标「同机位」。
+// 运动规格:
+//   - 9.4 秒周期。3 格「之前」「衔接」「之后」分别在 0.3、3.0、4.7 秒亮起，格内画面 0.3 秒淡入
+//   - 衔接格：手在格亮起后 0.25–1.15 秒从左扫到右，模糊 2 px；扫到一半时，散着 6 件杂物的房间换成整洁的房间
+//   - 5.2–5.6 秒在第 1、3 格同一位置出现蓝色虚线框并用折线连起来，标「同机位」
+//   - 8.8–9.4 秒淡回开头画面
+// 适用场景: 整理、化妆、装修改造等，想让观众一眼对比前后变化时。
+// 标签: before and after, comparison, transformation, same framing, storyboard, transition
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-085
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 37
+// 37 前后对比：之前（杂乱房间）→ 衔接（一只手从镜头前扫过）→ 之后（同一机位的整洁房间）。
+// 第 1、3 格的家具位置、取景完全相同，只差杂物；两格叠同一个蓝色虚线框，标「同机位」。
+const BA_TS = [0.3, 3.0, 4.7];              // 三格开始时刻；衔接格只占 1.7 秒，扫过要快
+const BA_SWEEP = [0.25, 1.15];              // 衔接格内：手从左扫到右的区间（相对 BA_TS[1]）
+const BA_ALIGN = [0.45, 0.30, 0.42, 0.50];  // 对齐框（占格宽高的比例 x, y, w, h），框住沙发和挂画
+// 杂物：[x, y, w, h, 角度, 颜色]，按格宽高比例给出；整洁房间里不画
+const BA_MESS = [[0.08, 0.80, 0.14, 0.07, 0.4, C.blueM], [0.30, 0.86, 0.10, 0.06, -0.6, C.g4], [0.72, 0.82, 0.16, 0.06, 0.25, C.blueL],
+  [0.56, 0.90, 0.09, 0.05, 1.1, C.g3], [0.86, 0.74, 0.08, 0.10, -0.3, C.g4], [0.40, 0.76, 0.12, 0.05, -0.15, C.blueM]];
+function baRoom(k, w, h, mess) {
+  k.fillStyle = C.blueBg; k.fillRect(0, 0, w, h * 0.72);   // 墙
+  k.fillStyle = C.g2; k.fillRect(0, h * 0.72, w, h * 0.28); // 地板
+  k.fillStyle = '#FFFFFF'; rr(k, w * 0.08, h * 0.16, w * 0.24, h * 0.34, 3); k.fill();   // 窗
+  k.strokeStyle = C.g3; k.lineWidth = 1.2; k.stroke();
+  k.beginPath(); k.moveTo(w * 0.20, h * 0.16); k.lineTo(w * 0.20, h * 0.50); k.stroke();
+  // 挂画：杂乱时歪着
+  k.save(); k.translate(w * 0.66, h * 0.26); k.rotate(mess ? 0.16 : 0);
+  k.fillStyle = C.blueL; k.fillRect(-w * 0.08, -h * 0.08, w * 0.16, h * 0.16); k.strokeStyle = C.blueM; k.strokeRect(-w * 0.08, -h * 0.08, w * 0.16, h * 0.16); k.restore();
+  // 沙发
+  k.fillStyle = C.blue; rr(k, w * 0.48, h * 0.50, w * 0.36, h * 0.24, 5); k.fill();
+  k.fillStyle = '#5A87F0'; rr(k, w * 0.50, h * 0.42, w * 0.32, h * 0.14, 4); k.fill();
+  if (!mess) return;
+  BA_MESS.forEach(([x, y, bw, bh, a, col]) => { k.save(); k.translate(x * w, y * h); k.rotate(a); k.fillStyle = col; rr(k, -bw * w / 2, -bh * h / 2, bw * w, bh * h, 2); k.fill(); k.restore(); });
+  k.fillStyle = C.g4; k.save(); k.translate(w * 0.62, h * 0.50); k.rotate(-0.5); rr(k, -w * 0.06, -h * 0.03, w * 0.12, h * 0.06, 3); k.fill(); k.restore();   // 搭在沙发上的衣服
+}
+// 一只手：掌心朝镜头的剪影，离镜头很近所以又大又虚；p = 0 在格子左外侧，1 在右外侧
+function baHand(k, w, h, p) {
+  const x = lerp(-w * 0.5, w * 1.5, eIO(p));
+  k.save(); k.filter = 'blur(2px)'; k.fillStyle = C.ink; k.translate(x, h * 0.62); k.rotate(-0.25);
+  rr(k, -w * 0.22, -h * 0.30, w * 0.44, h * 0.80, w * 0.12); k.fill();   // 手掌
+  [-0.16, -0.05, 0.06, 0.17].forEach((fx, i) => { rr(k, fx * w - w * 0.045, -h * (0.62 + (i === 1 || i === 2 ? 0.06 : 0)), w * 0.09, h * 0.42, w * 0.045); k.fill(); });
+  k.restore();
+}
+CELLS[36] = shot((k, w, h, uu, cyc) => {
+  const U = sbU(uu, cyc), R = sbRow(3), names = ['之前', '衔接', '之后'];
+  const st = R.map((_, i) => sbState(U, BA_TS, i));
+  sbPanel(k, R[0], st[0], sbOn(U, BA_TS, 0), (kk, pw, ph) => baRoom(kk, pw, ph, true), '1');
+  sbPanel(k, R[1], st[1], sbOn(U, BA_TS, 1), (kk, pw, ph) => {
+    const p = P(U - BA_TS[1], BA_SWEEP[0], BA_SWEEP[1]);
+    baRoom(kk, pw, ph, p < 0.5);   // 手挡住镜头的那一刻换成整洁房间
+    if (p > 0 && p < 1) baHand(kk, pw, ph, p);
+  }, '2');
+  sbPanel(k, R[2], st[2], sbOn(U, BA_TS, 2), (kk, pw, ph) => baRoom(kk, pw, ph, false), '3');
+  R.forEach((r, i) => sbLabel(k, r, names[i], st[i]));
+  // 同机位：第 3 格出现后，在 1、3 两格的同一位置画虚线框，上方用折线连起来
+  const a = P(U, BA_TS[2] + 0.5, BA_TS[2] + 0.9) * sbFade(U);
+  if (a > 0.001) {
+    k.save(); k.globalAlpha = a; k.strokeStyle = C.blue; k.lineWidth = 1.6; k.setLineDash([4, 3]);
+    const box = r => [r.x + BA_ALIGN[0] * r.w, r.y + BA_ALIGN[1] * r.h, BA_ALIGN[2] * r.w, BA_ALIGN[3] * r.h];
+    const b1 = box(R[0]), b3 = box(R[2]);
+    k.strokeRect(...b1); k.strokeRect(...b3);
+    const yTop = R[0].y - 6;
+    k.beginPath(); k.moveTo(b1[0] + b1[2] / 2, b1[1]); k.lineTo(b1[0] + b1[2] / 2, yTop); k.lineTo(b3[0] + b3[2] / 2, yTop); k.lineTo(b3[0] + b3[2] / 2, b3[1]); k.stroke();
+    k.setLineDash([]);
+    const f = `600 11px ${JP}`, tx = (b1[0] + b3[0] + b3[2]) / 2, ww = tw(k, '同机位', f) + 14;
+    k.fillStyle = '#FFFFFF'; rr(k, tx - ww / 2, yTop - 9, ww, 18, 9); k.fill(); k.strokeStyle = C.blue; k.stroke();
+    txt(k, '同机位', tx, yTop, f, C.blue, 'center', 'middle');
+    k.restore();
+  }
+  const cur = st.lastIndexOf(1);
+  return cur < 0 ? '前后对比' : `${cur + 1}/3 ${names[cur]}`;
+});

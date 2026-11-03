@@ -1,0 +1,56 @@
+// Motion Prompt #3-104 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/atmosphere
+//
+// 空気感 / Atmospheric mood
+// 分類: 編集・撮影 / 光と色 / ムード・トーン
+// 何が起きるか: 8本の幹が並ぶ森の小道に人物が立つ平凡な画面から始まる。まず空気に霧が入り、地平線に近いほど濃く、奥の木ほど白く霞む。次に木の後ろの太陽が光り、6本の光の筋が霧を抜けて、ゆっくり左右に揺れる。続いて全体が寒色に寄り、太陽のまわりだけ暖かい色が残る。最後にまわりと下が暗く沈み、中央の光の筋が浮き上がる。右のチェックリストは要素が入るごとに番号の丸が青くなり、状態が「平淡版 → 叠加中 → 成品」と変わる。
+// 動きの仕様:
+//   - 5秒周期。0〜0.6秒は平凡な版。4つの要素が0.6秒から0.7秒ごとに1つずつ加わり、それぞれ0.5秒で入る
+//   - 霧は地平線付近がいちばん濃い。太陽は木の後ろの (196, 64)、6本の光の筋は1周に1往復揺れる
+//   - 寒色：全体に #8FB0CF を乗算し、太陽から半径46pxだけ暖色を戻す。暗部：まわりと下を最大0.7まで暗く
+//   - 4.4秒まで完成形で止まり、4.4〜4.95秒に平凡な版へ戻る。5秒と0秒は同じ画面
+// 使いどころ: 風景・人物・Vlogのカットに、ただきれいなだけでない気分を足したいとき。
+// タグ: atmosphere, haze, light beams, backlight, cool tone, mood
+// サイズ: 539x208 px · 1周: 5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-104
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 57
+// 57 氛围感：林间小路上的人。空气里加雾 → 逆光把雾照亮（看得见的光束）→ 统一冷色只留太阳一点暖 → 暗部沉下去
+const AT_TREE = [[20, 16], [62, 10], [104, 7], [146, 5], [250, 5], [288, 7], [326, 10], [366, 16]];   // [x, 粗细]；越靠边越近越粗
+const AT_SUN = [196, 64];
+CELLS[56] = mdCell('氛围感', ['空气里加雾', '逆光照亮雾', '冷色只留一点暖', '暗部沉下去'], (k, u, [pF, pB, pC, pD], D) => {
+  const T = u / CYC * TAU;
+  D.rect(0, 0, MD_W, CH, '#DDE4D8'); D.rect(0, 118, MD_W, 90, '#B9C7A6');
+  D.poly([[176, 118], [216, 118], [300, CH], [92, CH]], '#D8CDB4');   // 小路
+  AT_TREE.forEach(([x, w]) => { D.rect(x - w / 2, 0, w, 124 + w, mixc('#5E6B52', '#E6EAE4', pF * (1 - w / 18) * 0.8)); });
+  figure(D, 196, 150, 38, '#3D4656');
+  if (pF > 0.01) {   // 雾：越近地平线越浓
+    const g = k.createLinearGradient(0, 0, 0, CH);
+    g.addColorStop(0, `rgba(236,240,236,${(0.25 * pF).toFixed(3)})`); g.addColorStop(0.55, `rgba(236,240,236,${(0.7 * pF).toFixed(3)})`); g.addColorStop(1, `rgba(236,240,236,${(0.2 * pF).toFixed(3)})`);
+    k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+  }
+  if (pB > 0.01) {   // 逆光：太阳在树后，光束穿过雾，左右轻轻摆（一轮 1 个周期）
+    k.save(); k.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 6; i++) {
+      const a = -1.05 + i * 0.42 + 0.03 * Math.sin(T + i), L = 260;
+      k.fillStyle = `rgba(255,236,200,${(0.13 * pB * pF + 0.05 * pB).toFixed(3)})`;
+      k.beginPath(); k.moveTo(AT_SUN[0], AT_SUN[1]); k.lineTo(AT_SUN[0] + Math.sin(a - 0.07) * L, AT_SUN[1] + Math.cos(a - 0.07) * L); k.lineTo(AT_SUN[0] + Math.sin(a + 0.07) * L, AT_SUN[1] + Math.cos(a + 0.07) * L); k.closePath(); k.fill();
+    }
+    const g = k.createRadialGradient(AT_SUN[0], AT_SUN[1], 2, AT_SUN[0], AT_SUN[1], 40);
+    g.addColorStop(0, `rgba(255,240,210,${(0.55 * pB).toFixed(3)})`); g.addColorStop(1, 'rgba(255,240,210,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    k.restore();
+  }
+  if (pC > 0.01) {   // 冷色统一，再把太阳附近的一点暖色加回来
+    k.save(); k.globalCompositeOperation = 'multiply'; k.fillStyle = mixc('#FFFFFF', '#8FB0CF', pC); k.fillRect(0, 0, MD_W, CH);
+    k.globalCompositeOperation = 'screen'; const g = k.createRadialGradient(AT_SUN[0], AT_SUN[1], 2, AT_SUN[0], AT_SUN[1], 46);
+    g.addColorStop(0, `rgba(255,190,110,${(0.8 * pC).toFixed(3)})`); g.addColorStop(1, 'rgba(255,190,110,0)'); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+    k.restore();
+  }
+  if (pD > 0.01) {   // 暗部沉下去：四周和下方压暗，中间光束保留
+    const g = k.createRadialGradient(196, 90, 50, 196, 90, 260);
+    g.addColorStop(0, 'rgba(10,20,32,0)'); g.addColorStop(1, `rgba(10,20,32,${(0.7 * pD).toFixed(3)})`); k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+  }
+});

@@ -1,0 +1,15 @@
+Please use "Tactile texture" (質感), filed under "Light & color / Mood & tone recipes".
+Motion Prompt #3-107
+
+What it is: Showing a surface so you can tell what material it is and how it would feel to the touch
+What the sample shows: It starts from a plain picture of a ceramic cup on a table. First the camera moves in and the cup grows large. Then a low light from the left makes the left side bright and the right dark; the surface grains pop out, each lit on the upper left with a small shadow on the lower right, and a long shadow stretches across the table. Next a soft, blurred vertical highlight appears on the left. Finally 3 fine scratches show up as dark lines with light edges. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+Spec:
+- 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+- Push in to a 2.3× close-up; low side light from the left: bright on the left and dark on the right, each of the 90 grains lit at the upper left with a shadow at the lower right, plus a long shadow on the table.
+- Soft highlight: a tall ellipse on the left blurred by 2 px; the 3 scratches are each a dark line paired with a light edge.
+- The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For product shots of ceramics, leather, wood or fabric that should convey how the material feels.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-107.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

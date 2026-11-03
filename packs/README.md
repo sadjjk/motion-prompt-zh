@@ -2,7 +2,7 @@
 
 # Names
 
-468 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+496 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind. Each number opens the moving sample in the gallery.
 
@@ -41,12 +41,15 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | 3 Editing & photography | Camera & editing | Camera movement | 8 | #3 001–008 |
 | 3 Editing & photography | Camera & editing | Shooting style & time | 8 | #3 009–016 |
 | 3 Editing & photography | Camera & editing | Cuts & transitions | 12 | #3 017–028 |
+| 3 Editing & photography | Camera & editing | Storyboards & pacing | 11 | #3 085–095 |
 | 3 Editing & photography | Shot size & composition | Shot size | 8 | #3 029–036 |
 | 3 Editing & photography | Shot size & composition | Composition | 8 | #3 037–043 · 084 |
+| 3 Editing & photography | Shot size & composition | Framing & cropping | 6 | #3 096–101 |
 | 3 Editing & photography | Light & color | Lighting & time of day | 13 | #3 044–056 |
 | 3 Editing & photography | Light & color | Light sources & color | 8 | #3 057–064 |
+| 3 Editing & photography | Light & color | Mood & tone recipes | 10 | #3 102–111 |
 | 3 Editing & photography | Lens effects & finishing | Lens effects | 11 | #3 065–075 |
-| 3 Editing & photography | Lens effects & finishing | Grading & finishing | 8 | #3 076–083 |
+| 3 Editing & photography | Lens effects & finishing | Grading & finishing | 9 | #3 076–083 · 112 |
 | 4 Visual styles | Animation styles | Flat & line | 6 | #4 001–004 · 045–046 |
 | 4 Visual styles | Animation styles | Space & material | 8 | #4 005–008 · 031 · 047–049 |
 | 4 Visual styles | Animation styles | Media & genres | 11 | #4 009–011 · 050–053 · 065–068 |
@@ -580,6 +583,22 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#3-027](https://sadjjk.github.io/motion-prompt-zh/#3-027) | **Match on action** | Cut mid-movement so the action carries on in the next shot | Use a match on action as he pushes open a door: cut to the inside angle halfway through, and the door keeps opening in the next shot. |
 | [#3-028](https://sadjjk.github.io/motion-prompt-zh/#3-028) | **180-degree rule** | Keep every camera on one side of the line between two people so left and right never flip | Follow the 180-degree rule for the two-person dialogue: every camera on the same side, the heroine always on the left of the frame. |
 
+#### Storyboards & pacing · #3 085–095
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#3-085](https://sadjjk.github.io/motion-prompt-zh/#3-085) | **Before and after** | Shoot the before and the after from the same spot with the same framing, joined by one action in between | Make a before-and-after of tidying a room: shoot the messy room and the tidy room from the same spot, and have a hand sweep past the lens in between, switching to the tidy room while the hand covers the frame. |
+| [#3-086](https://sadjjk.github.io/motion-prompt-zh/#3-086) | **Beat-synced montage** | An edit where every cut lands on the music's beat and the strong beats switch to the most striking shot | Make a beat-synced montage: cut a person walking down the street on every beat, 0.5 s apart; on the strong beats cut to a close-up of the face with a slight zoom pop, and alternate wide and medium shots on the weak beats. |
+| [#3-087](https://sadjjk.github.io/motion-prompt-zh/#3-087) | **First and last frame** | Fix the video's first and last frames with two images and describe only the change in between | Generate from a first and last frame: the first frame has her standing on the left, the last has her on the right with a hand raised; the prompt only describes the process: she walks from left to right, stops and raises her hand. |
+| [#3-088](https://sadjjk.github.io/motion-prompt-zh/#3-088) | **Action beats** | Break one action into small visible steps and write the speed and pauses of each | Break it into action beats: split "pick up the cup and take a sip" into 5 beats — start, reach slowly, pause for 1 beat, lift quickly, end — and give the speed of each. |
+| [#3-089](https://sadjjk.github.io/motion-prompt-zh/#3-089) | **One shot, one action** | Give each shot only one main action and one kind of camera move, and split into more shots when there is more | Rewrite this as one shot, one action: "she walks over, waves and the camera pushes in" becomes 3 shots, each with 1 action and 1 camera setup. |
+| [#3-090](https://sadjjk.github.io/motion-prompt-zh/#3-090) | **Three-second hook** | Open on the result, the conflict or a close-up straight away, and tell how it got there afterwards | Open with a three-second hook: the first 3 s are a close-up of the finished cake with a lit candle, then her surprised face, and only then pull back to show the whole room. |
+| [#3-091](https://sadjjk.github.io/motion-prompt-zh/#3-091) | **Product three-beat** | A product sequence in three beats: the whole product, a close-up of the selling point, then the product in use | Shoot the thermos as a product three-beat: first a full turn on a turntable to show the whole bottle, then a side-lit close-up of the non-slip ridges on the cap against black, and finally a hand holding it outdoors. |
+| [#3-092](https://sadjjk.github.io/motion-prompt-zh/#3-092) | **Shot list script** | A script with one shot per row, listing number, duration, shot size and camera move, picture and sound in a table | Write the morning-café short as a shot list script: 5 shots, each row giving number, duration, shot size and camera move, picture and sound, with neighbouring shots in clearly different sizes. |
+| [#3-093](https://sadjjk.github.io/motion-prompt-zh/#3-093) | **Unboxing sequence** | An unboxing in order: the whole box, hands opening it, lifting the product out for the reveal, details, then using it | Make a 5-shot unboxing of the thermos: the box from straight above, hands lifting the lid, the bottle lifted out and held for a beat, a sideways pan across the cap ridges, and finally a person turning it in their hands. |
+| [#3-094](https://sadjjk.github.io/motion-prompt-zh/#3-094) | **B-roll over talking head** | Cut to hand shots, object close-ups or scenery that match what is being said, while the voice carries on unbroken | Edit it as B-roll over the talking head: between medium close-ups of the speaker, insert a hand close-up, an overhead desk shot and a city establishing shot, with the voice and subtitles running on without a break. |
+| [#3-095](https://sadjjk.github.io/motion-prompt-zh/#3-095) | **15-second ad script** | A 15-second ad laid out as a hook in 0–3 s, 2 selling points in 3–10 s, use in 10–13 s and the product with slogan in the last 2 s | Write a 15-second ad script for the thermos: 0–3 s a drop-proof hook, 3–10 s the non-slip ridges and 12-hour heat retention, 10–13 s carrying it outdoors, and the last 2 s the product with the slogan "hot water, always with you". |
+
 ### Shot size & composition
 
 #### Shot size · #3 029–036
@@ -593,7 +612,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#3-033](https://sadjjk.github.io/motion-prompt-zh/#3-033) | **Medium close-up** | Framed from the chest up, centred on speech and expression | Medium close-up of her speaking, the bottom edge of the frame at her chest, for 3 seconds. |
 | [#3-034](https://sadjjk.github.io/motion-prompt-zh/#3-034) | **Close-up** | Head and shoulders fill the frame, so small expressions lead | Close-up of him hearing a sound, his eyes flicking and blinking once, framed down to the shoulders, for 3 seconds. |
 | [#3-035](https://sadjjk.github.io/motion-prompt-zh/#3-035) | **Extreme close-up** | Only a detail such as the eyes, magnifying the smallest change | Extreme close-up of her eyes, nothing but the eye area, the gaze sweeping to one side and then a blink, for 2 seconds. |
-| [#3-036](https://sadjjk.github.io/motion-prompt-zh/#3-036) | **Macro shot** | A very small subject shot so it fills the frame | Macro shot of a small mushroom, the focus slowly pulling sharp until a tiny bug crawling over the cap is visible, for 4 seconds. |
+| [#3-036](https://sadjjk.github.io/motion-prompt-zh/#3-036) | **Macro shot** | A very small subject shot so it fills the frame | Macro shot of a tiny fly agaric on moss: the mushroom fills the height of the frame, only a very thin slice at the cap is sharp, the grass in front and behind blurs by its depth, and the camera makes a very slow push-in. Put a water drop and 1 ant on the cap. |
 
 #### Composition · #3 037–043 · 084
 
@@ -607,6 +626,17 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#3-042](https://sadjjk.github.io/motion-prompt-zh/#3-042) | **Frame within a frame** | A door, window or arch in the foreground frames the subject a second time | Frame-within-a-frame composition of a child in the yard outside, the nearby doorframe enclosing the child in the middle of the picture. |
 | [#3-043](https://sadjjk.github.io/motion-prompt-zh/#3-043) | **Foreground, middle ground & background** | Foreground, middle ground and background are laid out in layers for depth | Shoot the person by the lake in three layers: flowers in the foreground, the person in the middle ground, the lake and the woods across it in the background. |
 | [#3-084](https://sadjjk.github.io/motion-prompt-zh/#3-084) | **Flat lay** | A composition shot straight down at 90° onto objects laid out flat | Make a breakfast flat lay: shoot a linen cloth from straight above, set down a soy-milk bowl, buns, fried dough sticks, a teacup and chopsticks one by one, keep every dish a perfect circle, chopsticks parallel to the cloth edge, and the bottom right left empty. |
+
+#### Framing & cropping · #3 096–101
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#3-096](https://sadjjk.github.io/motion-prompt-zh/#3-096) | **WeChat article header** | A very wide banner with the subject in the centre so the sides can be cropped, surviving the square crop used when shared | Make a WeChat article header: a 2.35 : 1 banner with the person on the beach right in the middle, so a square crop from the centre still holds the whole person. |
+| [#3-097](https://sadjjk.github.io/motion-prompt-zh/#3-097) | **Avatar** | A square that will be cropped to a circle, with the face in the centre and a plain background so it reads even when tiny | Make an avatar: a square with the face dead centre on a plain pale-blue background, still recognisable after a circular crop and shrinking to 16 px. |
+| [#3-098](https://sadjjk.github.io/motion-prompt-zh/#3-098) | **Douyin vertical first frame** | In 9:16 the first frame doubles as cover and hook, so the subject goes in the central safe zone and the top, bottom and right are left clear for the interface | Make a Douyin vertical first frame: 9:16, with the person on the beach inside the central safe zone, clear of the right-hand buttons, the caption at the bottom and the top bar. |
+| [#3-099](https://sadjjk.github.io/motion-prompt-zh/#3-099) | **Xiaohongshu cover** | A 3:4 portrait cover where the person or object fills over half the frame and space is kept at the top or middle for the title | Make a Xiaohongshu cover: 3:4 portrait, the person on the beach filling about 60% of the height, with a big, short title "Beach weekend" in a band at the top that stays readable when shrunk into the 2-column feed. |
+| [#3-100](https://sadjjk.github.io/motion-prompt-zh/#3-100) | **Wallpaper** | A picture sized to the screen ratio, keeping the clock and icon areas quiet and placing the subject where nothing covers it | Make a phone wallpaper: 9:16, with only sky and soft colour up where the clock sits, and the person in front of the hills placed small, below the middle of the screen. |
+| [#3-101](https://sadjjk.github.io/motion-prompt-zh/#3-101) | **Livestream background** | A backdrop that leaves the centre for the host and product, keeps the background low-contrast and softly blurred, and puts brand information at shoulder height on both sides | Make a livestream background: a room with bookshelves, a plant and a window, darkened and blurred a step, the centre left free for the host and product, and brand panels at shoulder height on left and right. |
 
 ### Light & color
 
@@ -633,13 +663,28 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
 | [#3-057](https://sadjjk.github.io/motion-prompt-zh/#3-057) | **Dappled light** | Sunlight through the leaves drops bright patches on the person and the ground | Dappled light on the person standing under a tree: a greenish shade overall, irregular patches of sun on the person and the ground, swaying in the wind. |
-| [#3-058](https://sadjjk.github.io/motion-prompt-zh/#3-058) | **Caustics** | Sunlight through a rippling surface throws a bright net of ripples on skin and the pool floor | Underwater caustics on the person in the pool: tint everything pale blue and let a bright net of light ripple over the person and the floor. |
+| [#3-058](https://sadjjk.github.io/motion-prompt-zh/#3-058) | **Caustics** | Light focused by a rippling surface acting like a lens, casting a moving net of bright curved lines on underwater walls, the floor and skin | Underwater caustics in the pool for a swimmer waving: look up at the surface from below, let slanted beams of light come in, and let a net of bright curved lines drift over the walls, the floor and the skin, without bending the tile lines or the figure. |
 | [#3-059](https://sadjjk.github.io/motion-prompt-zh/#3-059) | **Campfire light** | At night only a fire low in front lights the person, warm orange and flickering, with darkness just beyond it | Light the person at a night camp with only the campfire: the side facing the fire flickers orange, the rest falls into darkness, with sparks drifting up. |
 | [#3-060](https://sadjjk.github.io/motion-prompt-zh/#3-060) | **Screen glow** | In a dark room only a screen is lit, its cool white light reaching the face and hands from the front | Light the person looking at a laptop at night with only the screen glow: cool white light on the face and chest only, darkness behind. |
 | [#3-061](https://sadjjk.github.io/motion-prompt-zh/#3-061) | **Foggy light** | Fog makes the distance paler and whiter, light spreads in the air and the layers recede one by one | Add fog to the evening street: the far hills and buildings fade whiter the further they are, street lamps become big halos in the mist, the person in front stays sharp. |
 | [#3-062](https://sadjjk.github.io/motion-prompt-zh/#3-062) | **Moonlight** | Weak, cold blue light comes from high up; shadows are clear but deep and there is little colour | Turn the portrait into a moonlit night: a near-black blue sky, cold light from high up on one side only, and a silver glint on the ground. |
 | [#3-063](https://sadjjk.github.io/motion-prompt-zh/#3-063) | **Bicolor lighting** | Two lights of different colours hit from both sides, turning one side of the face magenta and the other cyan | Light the person on a dark background with magenta from the left and cyan from the right, mixing to a pale violet in the middle. |
 | [#3-064](https://sadjjk.github.io/motion-prompt-zh/#3-064) | **Color temperature** | Whether light is warm orange or cool blue, measured in kelvin (K) | Sweep the colour temperature of the landscape: from 5500 K to a warm orange 2000 K, then to a cold blue 10000 K and back to 5500 K, with a scale showing the value. |
+
+#### Mood & tone recipes · #3 102–111
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#3-102](https://sadjjk.github.io/motion-prompt-zh/#3-102) | **Cinematic look** | Making a still look like a film frame through a wide aspect, light with a visible source, controlled depth of field and one consistent grade | Give the person by the café window at night a cinematic look: black bars top and bottom, light only from the window on the right, the street lamps behind turned into bokeh, and a teal-and-orange grade overall. |
+| [#3-103](https://sadjjk.github.io/motion-prompt-zh/#3-103) | **High-end look** | Looking premium through a restrained palette, generous empty space, soft light and precise material detail | Make the perfume-bottle shot high-end: cut it down to 2–3 muted colours, clear away the flowers and ribbon and place the bottle smaller, add a large soft light from the left, and show the detail of the glass and the metal cap. |
+| [#3-104](https://sadjjk.github.io/motion-prompt-zh/#3-104) | **Atmospheric mood** | Giving a picture a mood by working light, haze in the air and colour tone together | Give the person on the forest path some atmosphere: put haze in the air, show beams from the sun behind the trees, keep the whole picture cool with a little warmth only around the sun, and let the shadows around the edges sink. |
+| [#3-105](https://sadjjk.github.io/motion-prompt-zh/#3-105) | **Loneliness** | Conveying loneliness by putting a small figure in a big space, leaving the surroundings empty and cold, and lighting only him | Show loneliness with the man on the night platform: pull out to a big wide shot so he is small, let the light of 1 lamp fall on him alone, use blue-grey night colours, and end with the camera backing away very slowly. |
+| [#3-106](https://sadjjk.github.io/motion-prompt-zh/#3-106) | **Ambient lighting** | Switching off the main light and keeping only local lights such as LED strips, a desk lamp or a screen, so most of the room is dark and the coloured light has direction | Give the bedroom desk an ambient-light look: switch off the main light so the room goes dark, and keep only a purple-blue LED strip under the ceiling, the warm pool of the desk lamp and the cold blue glow of the monitor. |
+| [#3-107](https://sadjjk.github.io/motion-prompt-zh/#3-107) | **Tactile texture** | Showing a surface so you can tell what material it is and how it would feel to the touch | Bring out the texture of the ceramic cup: push in to a close-up, rake a low side light from the left so the grains of the surface show their relief, keep the highlight soft, and add a few fine scratches. |
+| [#3-108](https://sadjjk.github.io/motion-prompt-zh/#3-108) | **Dreamy look** | A dream-like look from backlight, highlights that glow softly, blurred flowers or gauze in the foreground and a pink, lavender and cream palette | Make the person among the flowers dreamy: put the sun behind for a glowing rim, let the highlights bloom softly, blur the near flowers into big soft shapes, and shift the colours to pink, lavender and cream. |
+| [#3-109](https://sadjjk.github.io/motion-prompt-zh/#3-109) | **Clean look** | A tidy picture with few elements, a background that stays back, and colour and light kept consistent | Make the messy desk clean: clear the clutter and keep only the laptop, cup and plant, take the things off the wall so it brightens, swap the patchy coloured light for even soft light, and pull the colours into one tone. |
+| [#3-110](https://sadjjk.github.io/motion-prompt-zh/#3-110) | **Healing vibe** | A calming feel built from warm soft light, a slow pace, small everyday things and empty space | Give the cup of tea by the window a healing vibe: let low warm sunlight slant in, add a casually draped blanket, lower the contrast and add grain, and have the camera push in very slowly. |
+| [#3-111](https://sadjjk.github.io/motion-prompt-zh/#3-111) | **Japanese airy look** | An airy look from bright exposure, low contrast, pale colours leaning cyan or warm, and plenty of natural light on everyday scenes | Give the cyclist on the seaside road a Japanese airy look: lift the shadows so nothing is crushed black, backlight the outline so it glows, lean everything slightly towards green-cyan, and lower the contrast so the picture is bright and pale. |
 
 ### Lens effects & finishing
 
@@ -659,7 +704,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#3-074](https://sadjjk.github.io/motion-prompt-zh/#3-074) | **Soft focus** | Highlights spread softly and contrast drops, while the outlines stay | Soft focus on the landscape portrait: let the bright edges spread gently and lower the contrast a little, but keep the outlines sharp. |
 | [#3-075](https://sadjjk.github.io/motion-prompt-zh/#3-075) | **Prism effect** | Rainbow-coloured, offset ghosts appear next to the bright areas | Prism effect on the night street: rainbow ghosts slightly offset next to the window and lamp lights, plus one faint rainbow band across the frame. |
 
-#### Grading & finishing · #3 076–083
+#### Grading & finishing · #3 076–083 · 112
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -671,6 +716,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#3-081](https://sadjjk.github.io/motion-prompt-zh/#3-081) | **Film grain** | Fine, film-like grain over the image | Add film grain to the beach photo: fine grain all over, blacks slightly lifted and warm. |
 | [#3-082](https://sadjjk.github.io/motion-prompt-zh/#3-082) | **Light leak** | Red-orange glow as if light leaked onto the film | Summer memory photo with a light leak coming in from the right edge, red and orange light bleeding in. |
 | [#3-083](https://sadjjk.github.io/motion-prompt-zh/#3-083) | **Double exposure** | Two photos layered into one frame | Double exposure of a profile silhouette and a forest-and-mountain landscape on a white background, the landscape visible only inside the head. |
+| [#3-112](https://sadjjk.github.io/motion-prompt-zh/#3-112) | **Inpainting brief** | Editing part of an image by stating where to change, what to change it into and that nothing else changes, with the new part lit to match the original | Inpaint this photo: box only the cup in the left hand and repaint it from white porcelain into a red glass cup, with its highlight on the left to match the light source at the top left. Keep the face, pose and background exactly as they are. |
 
 ## 4 Visual styles
 

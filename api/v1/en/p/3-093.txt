@@ -1,0 +1,15 @@
+Please use "Unboxing sequence" (開封動画), filed under "Camera & editing / Storyboards & pacing".
+Motion Prompt #3-093
+
+What it is: An unboxing in order: the whole box, hands opening it, lifting the product out for the reveal, details, then using it
+What the sample shows: Five panels light up in turn. Panel 1 is the box from straight above with a blue ribbon cross, growing very slowly. Panel 2: two hands lift the lid open. Panel 3: the bottle rises out of the box and stops, with a soft halo of light behind it for the reveal. Panel 4: on black, the cap ridges slide past from right to left. Panel 5 pulls back to a medium shot of the person turning the bottle in front of their chest. A line chart under the panels plots how close each shot is, getting closer and closer before pulling back at the end, with played points turning blue.
+Spec:
+- 9.4 s cycle. The 5 panels start at 0.3, 1.9, 3.5, 5.3 and 6.9 s and end at 8.5 s.
+- The box grows by 6%. The bottle rises during the first 45% of its panel, then holds while the halo appears.
+- Detail: ridges 7 px apart pan from 18 px to −18 px; the chart's closeness values are 0.15, 0.55, 0.7, 1.0 and 0.4.
+- From 8.8 to 9.4 s the picture fades back to the opening frame.
+When to use it: For unboxing reviews and shop videos that should build anticipation until the product comes out.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-093.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

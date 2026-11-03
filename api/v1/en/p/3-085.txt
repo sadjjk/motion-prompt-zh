@@ -1,0 +1,15 @@
+Please use "Before and after" (ビフォーアフター), filed under "Camera & editing / Storyboards & pacing".
+Motion Prompt #3-085
+
+What it is: Shoot the before and the after from the same spot with the same framing, joined by one action in between
+What the sample shows: Three storyboard panels light up in turn. Panel 1 is a messy room: clutter on the floor, a crooked picture, clothes on the sofa. In panel 2 a large, blurred hand right in front of the lens sweeps left to right, and the room is tidy the moment the hand covers the frame. Panel 3 is the tidy room in the same framing. Then blue dashed boxes appear over the sofa and picture in panels 1 and 3, joined by a line labelled "same camera".
+Spec:
+- 9.4 s cycle. The 3 panels "before", "bridge" and "after" light up at 0.3, 3.0 and 4.7 s; each panel's picture fades in over 0.3 s.
+- Bridge panel: a hand blurred by 2 px sweeps left to right 0.25–1.15 s after the panel lights up; halfway across, the room with 6 clutter items switches to the tidy room.
+- From 5.2 to 5.6 s blue dashed boxes appear at the same place in panels 1 and 3, joined by a line labelled "same camera".
+- From 8.8 to 9.4 s the picture fades back to the opening frame.
+When to use it: For tidying, make-up, renovations and other changes the viewer should compare at a glance.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-085.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

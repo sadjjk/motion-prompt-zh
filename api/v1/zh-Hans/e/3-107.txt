@@ -1,0 +1,52 @@
+// Motion Prompt #3-107 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/texture-feel
+//
+// 质感 / Tactile texture
+// 分类: 剪辑与摄影 / 光线与色彩 / 氛围与调性
+// 动画表现: 起点是桌上一只陶杯的平淡画面。先推到特写，杯子变大；再让低角度光从左边掠过，杯身左亮右暗，表面颗粒左上亮、右下有小影子，一颗颗凸出来，桌上拉出长影；接着左侧出现一道柔和模糊的竖向高光；最后出现 3 道细划痕，每道是一条暗线加一条亮边。右侧清单每加入一项，对应的编号圆点变蓝，状态从「平淡版」变为「叠加中」再到「成品」。
+// 运动规格:
+//   - 5 秒周期。0–0.6 秒是平淡版；4 项成分从 0.6 秒起每 0.7 秒加入下一项，各用 0.5 秒渐入
+//   - 推到 2.3 倍特写；低角度侧光从左边来：左亮右暗，90 颗颗粒各有左上亮点和右下阴影，桌上拉出长影
+//   - 柔和高光：左侧一个模糊 2 px 的竖长椭圆；3 道划痕各是一条暗线配一条亮边
+//   - 成品停到 4.4 秒，4.4–4.95 秒退回平淡版，5 秒与 0 秒是同一帧
+// 适用场景: 拍陶瓷、皮具、木器、布料等产品，想传达材料手感时。
+// 标签: texture, material, raking light, close-up, surface detail, product photography
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-107
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 60
+// 60 质感：一只陶杯。推到特写 → 低角度侧光从左掠过，表面颗粒投下细小阴影 → 柔和的高光形状 → 一点划痕
+const TX_C = { x: 196, y: 150, w: 64, h: 66 }, TX_ZOOM = 2.3;
+const TX_DOTS = () => once('txDots', () => { const r = rng(60), o = []; for (let i = 0; i < 90; i++) o.push([r() * TX_C.w, r() * TX_C.h, 0.35 + r() * 0.5]); return o; });
+function txBody(k) { const C = TX_C; k.beginPath(); k.moveTo(C.x - C.w / 2, C.y - C.h); k.lineTo(C.x + C.w / 2, C.y - C.h); k.lineTo(C.x + C.w / 2 - 6, C.y - 4); k.quadraticCurveTo(C.x + C.w / 2 - 7, C.y, C.x + C.w / 2 - 12, C.y); k.lineTo(C.x - C.w / 2 + 12, C.y); k.quadraticCurveTo(C.x - C.w / 2 + 7, C.y, C.x - C.w / 2 + 6, C.y - 4); k.closePath(); }
+CELLS[59] = mdCell('质感', ['推到特写', '低角度侧光显凹凸', '柔和高光', '一点划痕'], (k, u, [pZ, pL, pH, pS], D) => {
+  const C = TX_C, s = lerp(1, TX_ZOOM, pZ);
+  D.rect(0, 0, MD_W, CH, '#EEEAE4');
+  k.save(); k.translate(196, lerp(C.y - C.h / 2, 112, pZ)); k.scale(s, s); k.translate(-C.x, -(C.y - C.h / 2));
+  D.rect(-200, C.y, 800, 200, '#DCD5CB');
+  if (pL > 0.01) { k.save(); k.globalAlpha = 0.35 * pL; D.poly([[C.x, C.y - 2], [C.x + 120, C.y + 4], [C.x + 110, C.y + 12], [C.x - 20, C.y + 2]], '#8F857A'); k.restore(); }   // 低角度光的长影
+  k.strokeStyle = '#B9A893'; k.lineWidth = 7; k.beginPath(); k.ellipse(C.x + C.w / 2 + 4, C.y - C.h / 2, 12, 18, 0, -1.4, 1.4); k.stroke();   // 把手
+  k.save(); txBody(k); k.fillStyle = '#C8B8A6'; k.fill(); k.clip();
+  if (pL > 0.01) {
+    // 侧光：右侧压暗，每颗颗粒左上一点亮、右下一点影
+    const g = k.createLinearGradient(C.x - C.w / 2, 0, C.x + C.w / 2, 0); g.addColorStop(0, `rgba(255,248,236,${(0.45 * pL).toFixed(3)})`); g.addColorStop(0.5, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(70,55,40,${(0.45 * pL).toFixed(3)})`);
+    k.fillStyle = g; k.fillRect(C.x - C.w / 2, C.y - C.h, C.w, C.h);
+    TX_DOTS().forEach(([x, y, r]) => { const X = C.x - C.w / 2 + x, Y = C.y - C.h + y;
+      k.fillStyle = `rgba(90,70,50,${(0.4 * pL).toFixed(3)})`; k.beginPath(); k.arc(X + r * 0.7, Y + r * 0.3, r, 0, TAU); k.fill();
+      k.fillStyle = `rgba(255,250,240,${(0.45 * pL).toFixed(3)})`; k.beginPath(); k.arc(X - r * 0.4, Y - r * 0.2, r * 0.7, 0, TAU); k.fill(); });
+  }
+  if (pH > 0.01) { k.save(); mdBlur(k, 2); k.fillStyle = `rgba(255,255,255,${(0.55 * pH).toFixed(3)})`; k.beginPath(); k.ellipse(C.x - C.w / 2 + 14, C.y - C.h / 2, 5, C.h * 0.36, 0, 0, TAU); k.fill(); k.restore(); }
+  if (pS > 0.01) {
+    k.lineWidth = 0.6; k.lineCap = 'round';
+    [[[18, 20], [30, 26]], [[36, 40], [44, 36]], [[24, 48], [27, 56]]].forEach(([[a, b], [c2, d]]) => {
+      k.strokeStyle = `rgba(80,62,45,${(0.7 * pS).toFixed(3)})`; k.beginPath(); k.moveTo(C.x - C.w / 2 + a, C.y - C.h + b); k.lineTo(C.x - C.w / 2 + c2, C.y - C.h + d); k.stroke();
+      k.strokeStyle = `rgba(255,255,255,${(0.6 * pS).toFixed(3)})`; k.beginPath(); k.moveTo(C.x - C.w / 2 + a, C.y - C.h + b - 0.6); k.lineTo(C.x - C.w / 2 + c2, C.y - C.h + d - 0.6); k.stroke();
+    });
+  }
+  k.restore();
+  D.rect(C.x - C.w / 2 - 2, C.y - C.h - 3, C.w + 4, 4, '#D9CCBC');   // 杯口
+  k.restore();
+});

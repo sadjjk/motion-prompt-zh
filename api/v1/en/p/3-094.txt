@@ -1,0 +1,15 @@
+Please use "B-roll over talking head" (トークの間に挟む映像), filed under "Camera & editing / Storyboards & pacing".
+Motion Prompt #3-094
+
+What it is: Cut to hand shots, object close-ups or scenery that match what is being said, while the voice carries on unbroken
+What the sample shows: On the left is the finished picture: with no insert it shows the speaker in a medium close-up, mouth moving. In 3 places the picture switches to B-roll: a close-up of the bottle in hand, a slowly rotating overhead shot of a desk with a notebook, pen and bottle, and a city view with drifting clouds. The subtitles keep running in a black strip at the bottom, with the keyword highlighted in yellow. On the right are 2 tracks: the B-roll track with 3 blocks, and the dark "voice-over" track whose waveform never stops, labelled "sound never breaks"; a red playhead crosses both.
+Spec:
+- 9.4 s cycle. The talk runs 0.3–8.6 s; B-roll at 1.5–3.0 s "hand close-up", 4.0–5.5 s "desk overhead" and 6.5–7.8 s "scenery".
+- Subtitles: 0.3–3.0 s "this bottle | keeps hot 12 hours", 3.0–5.8 s "the cap has | non-slip ridges", 5.8–8.6 s "out and about | carry it one-handed".
+- The finished picture is 200 × 112 px; subtitles sit on a 60% black strip with the keyword on yellow.
+- From 8.8 to 9.4 s the picture fades back to the opening frame.
+When to use it: For explainers, reviews and vlogs built on talking, so the face alone doesn't become monotonous.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-094.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,15 @@
+Please use "Loneliness" (孤独感), filed under "Light & color / Mood & tone recipes".
+Motion Prompt #3-105
+
+What it is: Conveying loneliness by putting a small figure in a big space, leaving the surroundings empty and cold, and lighting only him
+What the sample shows: It starts close on a person standing near a bench on a platform. First the view pulls back and the person becomes small inside a long platform of pillars and roof. Then the surroundings fall dark and only the cone of light from 1 lamp lights him and the floor at his feet. Next the colours turn to a blue-grey night. Finally the camera keeps backing away very slowly and the figure gets smaller still. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+Spec:
+- 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+- The view widens from 2.6× to 1×; everything else darkens by 0.45, leaving only the cone of light from 1 lamp and the pool at his feet.
+- A blue-grey night palette replaces the daytime colours; very slow pull-back: a further 12% shrink from 2.7 to 4.4 s.
+- The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For film-like stills, story-driven portraits and lonely moments in music videos.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-105.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

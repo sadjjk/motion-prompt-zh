@@ -1,0 +1,15 @@
+Please use "Japanese airy look" (日本風の透明感), filed under "Light & color / Mood & tone recipes".
+Motion Prompt #3-111
+
+What it is: An airy look from bright exposure, low contrast, pale colours leaning cyan or warm, and plenty of natural light on everyday scenes
+What the sample shows: It starts from a plain, contrasty picture of a person cycling along a seaside road under sky and sea. The road dashes stream past and the pedals keep turning. First the shadows lift and the blacks turn grey-blue. Then a backlight glows behind and above the rider and a bright line appears along their outline. Next everything leans towards green-cyan. Finally a thin whitish veil lowers the contrast, leaving a bright, pale finished look. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+Spec:
+- 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+- The road dashes are 46 px apart and move 5 dashes per cycle; the pedals turn 2 times per cycle; shadows: a #8E9AA6 screen turns blacks grey-blue.
+- Backlight: a glow from (270, 40) with a 200 px radius and a bright edge from the silhouette offset by 1.5 px; green-cyan: multiply by #CDEBDF; contrast: a white layer at 0.3.
+- The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For everyday snaps, travel and summer photos that should feel bright and clear.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-111.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

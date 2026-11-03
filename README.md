@@ -61,5 +61,5 @@ AI 会打开效果库让你挑选，选好后点"发送给 AI"，它会读取真
 - `ui` 包 17 款、`lp` 包 19 款、`aiux` 包 7 款、`uxmotion` 包 25 款、`motion2` 包 31 款、`scenes` 包 7 款改写自 Hannah 整理的 [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/)；原站声明「僅供個人參考學習」，未使用原站的提示词、代码与字体，名称、说明与提示词为本仓库自写，详见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。版权行署名 Hannah。
 - `ui` 包 4 款、`lp` 包 4 款、`uxmotion` 包 5 款、`motion2` 包 2 款为本仓库原创，MIT License © 2026 sadjjk。使用这部分代码时保留其版权行。
 - `explainer` 包中的 32 款改写自 [vibe-knowledge](https://github.com/andyhuo520/vibe-knowledge)，作者 Berryxia，MIT License；只取画风，画面为通用案例，未使用原作的风格图、视频、配乐与字体。使用这部分代码时保留其版权行。
-- `camera` 包 12 款、`photo` 包 24 款、`motion2` 包 4 款、`scenes` 包 10 款、`mgstyles` 包 1 款的术语与定义参考 [镜语](https://idea.ameng.dev/)（[jingyu-skill](https://github.com/hemengke1997/jingyu-skill)，作者阿梦freedom，MIT License）；动画为本仓库实现，未使用原站的演示代码、图片与文字。使用这部分代码时保留其版权行。
+- `camera` 包 23 款、`photo` 包 41 款、`motion2` 包 4 款、`scenes` 包 10 款、`mgstyles` 包 1 款的术语与定义参考 [镜语](https://idea.ameng.dev/)（[jingyu-skill](https://github.com/hemengke1997/jingyu-skill)，作者阿梦freedom，MIT License）；动画为本仓库实现，未使用原站的演示代码、图片与文字。使用这部分代码时保留其版权行。
 - 每款的版权行写在它的代码首行（`e/<编号>.txt`），Skill 的 `get` 会一并取回。

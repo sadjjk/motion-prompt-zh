@@ -1,0 +1,15 @@
+Please use "Atmospheric mood" (空気感), filed under "Light & color / Mood & tone recipes".
+Motion Prompt #3-104
+
+What it is: Giving a picture a mood by working light, haze in the air and colour tone together
+What the sample shows: It starts from a plain picture of a person standing on a forest path lined with 8 trunks. First haze fills the air, thickest near the horizon, whitening the farther trees most. Then the sun behind the trees lights up and 6 beams cut through the haze, swaying slowly from side to side. Next the whole picture shifts cool, with warm colour left only around the sun. Finally the edges and bottom sink into shadow, so the beams in the middle stand out. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+Spec:
+- 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+- The haze is densest near the horizon; the sun sits behind the trees at (196, 64) and its 6 beams sway back and forth 1 time per cycle.
+- Cool tone: the frame is multiplied by #8FB0CF, with warmth put back only within a 46 px radius of the sun; shadows: the edges and bottom darken by up to 0.7.
+- The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For landscapes, portraits and vlog shots that need a mood rather than just looking pretty.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-104.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,88 @@
+// Motion Prompt #3-092 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/storyboard-script
+//
+// Shot list script / 絵コンテ台本
+// Category: Editing & photography / Camera & editing / Storyboards & pacing
+// What happens: A table on the left has the headers "# / duration / size & move / picture / sound", and each row is written out left to right as its shot begins, the current row turning blue: wide · locked off "street corner at dawn, she walks in" with ambience; medium · push-in "stops at the café door" with footsteps; close-up · locked off "looks up at the sign" with a wind chime; medium close-up · locked off "pushes the door, smiles and says morning" with "Morning!"; long shot · pull-back "warm light inside, she sits down" as music comes in. A small preview on the right plays that row's shot, with a progress bar and "shot N · size" below.
+// Motion spec:
+//   - 9.4 s cycle. The 5 rows start at 0.4 s and last 2.0, 1.5, 1.5, 1.5 and 1.5 s, finishing at 8.4 s.
+//   - Each row is written out left to right in 0.35 s from its start; the current row has a blue background and a blue bar on the left.
+//   - The preview on the right is 160 × 100 px; in shot 2 the camera pushes in from 4.6 m to 3.2 m, and in shot 5 it backs away to reveal the whole street.
+//   - From 8.8 to 9.4 s the picture fades back to the opening frame.
+// When to use it: Before shooting a short or an ad, to settle the order and length of shots and hand them to the team or the AI.
+// Tags: shot list, storyboard, script, shot size, timing, planning
+// Size: 539x208 px · Cycle: 9.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-092
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 44
+// 44 分镜脚本：左边一张表逐行写出 5 个镜头（编号 / 时长 / 景别与运镜 / 画面 / 声音），当前行高亮；
+// 右边小画面同步播放这一行写的镜头。相邻镜头景别拉开（全景 → 中景 → 特写 → 中近景 → 远景），剪在一起不跳。
+const SS_ROWS = [   // [时长秒, 景别与运镜, 画面, 声音]，时长相加 8 秒，从 0.4 秒开始，8.4 秒播完
+  [2.0, '全景 · 固定', '清晨街口，她走进来', '环境声'],
+  [1.5, '中景 · 推镜', '停在咖啡店门口', '脚步声'],
+  [1.5, '特写 · 固定', '抬眼看招牌', '风铃'],
+  [1.5, '中近景 · 固定', '推门，笑着说早', '「早！」'],
+  [1.5, '远景 · 拉镜', '店里暖光，她坐下', '音乐起']
+];
+const SS_TS = SS_ROWS.reduce((a, r) => (a.push(a[a.length - 1] + r[0]), a), [0.4]).slice(0, -1);   // 各行开始时刻
+const SS_COLS = [['#', 18], ['时长', 30], ['景别与运镜', 74], ['画面', 112], ['声音', 50]];          // 列名与列宽（px）
+const SS_TAB = { x: 28, y: 44, head: 18, row: 22 };
+const SS_VIEW = { x: 352, y: 50, w: 160, h: 100 };   // 右侧小画面
+const SS_SHOP = [[1.6, 0, 9.5, (k, s) => building(k, s, 2.6, 3.2, C.blueXL)]];   // 咖啡店：人物右后方的一栋浅蓝小楼
+// ssCam：小画面里的机位；lo〜hi 正好占满小画面高，d = 离人物的距离
+const ssCam = (lo, hi, d, cx = 0) => cam({ x: cx, y: (lo + hi) / 2, z: 8 - d, f: SS_VIEW.h * d / (hi - lo) });
+// 第 i 个镜头在镜头内时间 t（0..时长）的画面
+function ssShot(k, w, h, i, t) {
+  const p = clamp(t / SS_ROWS[i][0]);
+  if (i === 0) return world(k, w, h, cam({ y: 1.4, z: -2, f: F0 * h / CH }), { person: { x: lerp(-3, 0.2, eOut(p)), z: 8, walk: t * 8 }, extra: SS_SHOP, trees: false });
+  if (i === 1) { const d = lerp(4.6, 3.2, eIO(p)); return world(k, w, h, ssCam(0.6, 1.95, d), { person: { x: 0.2, z: 8 }, extra: SS_SHOP, trees: false, blurBg: 0 }); }
+  if (i === 2) return world(k, w, h, ssCam(1.42, 1.86, 2.6, 0.2), { person: { x: 0.2, z: 8, fg: true }, extra: [[0.2, 0, 7.99, (kk, s) => face(kk, s, { gaze: 0.035 * eOut(P(t, 0.2, 0.6)), blink: clamp(1 - Math.abs(t - 0.9) / 0.08) }), true]], trees: false });
+  if (i === 3) return world(k, w, h, ssCam(1.2, 1.9, 2.2, 0.2), { person: { x: 0.2, z: 8, fg: true }, extra: [[0.2, 0, 7.99, (kk, s) => face(kk, s, { talk: mouth(t, 0.3, 1.1) }), true]], trees: false });
+  const z = lerp(-4, -11, eIO(p));   // 拉镜：机位后退，画面里慢慢露出整条街
+  return world(k, w, h, cam({ y: 2.2, z, f: F0 * h / CH }), { person: { x: 1.2, z: 8 }, extra: SS_SHOP, sky: '#FFF7EC', sunCol: '#FFD9A8' });
+}
+function ssFrame(k, U) {
+  const cur = SS_TS.reduce((a, t, i) => (U >= t ? i : a), -1);
+  // 表格：表头一直在；行到开始时刻才写出来（从左往右展开），当前行蓝底
+  const T = SS_TAB, tw0 = SS_COLS.reduce((s, c) => s + c[1], 0);
+  k.save();
+  k.fillStyle = '#FFFFFF'; rr(k, T.x - 4, T.y - 4, tw0 + 8, T.head + T.row * SS_ROWS.length + 8, 6); k.fill();
+  k.strokeStyle = C.border; k.lineWidth = 1.2; k.stroke();
+  let x = T.x;
+  SS_COLS.forEach(([name, cw]) => { txt(k, name, x + 4, T.y + T.head / 2, `600 10px ${JP}`, C.sub, 'left', 'middle'); x += cw; });
+  k.strokeStyle = C.g2; k.beginPath(); k.moveTo(T.x, T.y + T.head); k.lineTo(T.x + tw0, T.y + T.head); k.stroke();
+  SS_ROWS.forEach((row, i) => {
+    const y = T.y + T.head + i * T.row, show = P(U, SS_TS[i], SS_TS[i] + 0.35);
+    if (show <= 0) return;
+    if (i === cur) { k.fillStyle = C.blueBg; k.fillRect(T.x, y + 1, tw0, T.row - 2); k.fillStyle = C.blue; k.fillRect(T.x, y + 1, 3, T.row - 2); }
+    k.save(); k.beginPath(); k.rect(T.x, y, tw0 * eOut(show), T.row); k.clip();
+    const cells = [String(i + 1), row[0].toFixed(1) + 's', row[1], row[2], row[3]], col = i === cur ? C.blue : C.ink;
+    let cx = T.x;
+    cells.forEach((s, j) => { txt(k, s, cx + 4, y + T.row / 2, `${j === 2 || i === cur ? 600 : 400} 10.5px ${j < 2 ? MONO : JP}`, j === 0 && i !== cur ? C.sub : col, 'left', 'middle'); cx += SS_COLS[j][1]; });
+    k.restore();
+    if (i < SS_ROWS.length - 1) { k.strokeStyle = C.g1; k.beginPath(); k.moveTo(T.x, y + T.row); k.lineTo(T.x + tw0, y + T.row); k.stroke(); }
+  });
+  // 右侧小画面：播放当前行的镜头；第 1 行开始前是空白画面
+  const V = SS_VIEW;
+  k.fillStyle = C.g1; rr(k, V.x, V.y, V.w, V.h, 6); k.fill();
+  if (cur >= 0) {
+    k.save(); rr(k, V.x, V.y, V.w, V.h, 6); k.clip(); k.translate(V.x, V.y);
+    ssShot(k, V.w, V.h, cur, U - SS_TS[cur]);
+    k.restore();
+    const p = clamp((U - SS_TS[cur]) / SS_ROWS[cur][0]);
+    k.fillStyle = C.g2; k.fillRect(V.x, V.y + V.h + 8, V.w, 3); k.fillStyle = C.blue; k.fillRect(V.x, V.y + V.h + 8, V.w * p, 3);
+    txt(k, `镜头 ${cur + 1} · ${SS_ROWS[cur][1]}`, V.x, V.y + V.h + 22, `600 11px ${JP}`, C.blue, 'left', 'middle');
+  }
+  k.strokeStyle = cur >= 0 ? C.blue : C.border; k.lineWidth = cur >= 0 ? 2.2 : 1.2; rr(k, V.x, V.y, V.w, V.h, 6); k.stroke();
+  k.restore();
+  return cur < 0 ? '分镜脚本' : `镜头 ${cur + 1}/${SS_ROWS.length}`;
+}
+CELLS[43] = shot((k, w, h, uu, cyc) => {
+  const U = sbU(uu, cyc), r = 1 - sbFade(U);
+  let hud = '分镜脚本';
+  blend(k, kk => { hud = ssFrame(kk, U); }, kk => ssFrame(kk, 0), r);
+  return r > 0.5 ? '分镜脚本' : hud;
+});

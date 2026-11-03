@@ -1,0 +1,15 @@
+Please use "Shot list script" (絵コンテ台本), filed under "Camera & editing / Storyboards & pacing".
+Motion Prompt #3-092
+
+What it is: A script with one shot per row, listing number, duration, shot size and camera move, picture and sound in a table
+What the sample shows: A table on the left has the headers "# / duration / size & move / picture / sound", and each row is written out left to right as its shot begins, the current row turning blue: wide · locked off "street corner at dawn, she walks in" with ambience; medium · push-in "stops at the café door" with footsteps; close-up · locked off "looks up at the sign" with a wind chime; medium close-up · locked off "pushes the door, smiles and says morning" with "Morning!"; long shot · pull-back "warm light inside, she sits down" as music comes in. A small preview on the right plays that row's shot, with a progress bar and "shot N · size" below.
+Spec:
+- 9.4 s cycle. The 5 rows start at 0.4 s and last 2.0, 1.5, 1.5, 1.5 and 1.5 s, finishing at 8.4 s.
+- Each row is written out left to right in 0.35 s from its start; the current row has a blue background and a blue bar on the left.
+- The preview on the right is 160 × 100 px; in shot 2 the camera pushes in from 4.6 m to 3.2 m, and in shot 5 it backs away to reveal the whole street.
+- From 8.8 to 9.4 s the picture fades back to the opening frame.
+When to use it: Before shooting a short or an ad, to settle the order and length of shots and hand them to the team or the AI.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-092.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

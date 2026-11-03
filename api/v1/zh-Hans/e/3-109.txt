@@ -1,0 +1,41 @@
+// Motion Prompt #3-109 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/clean-look
+//
+// 干净 / Clean look
+// 分类: 剪辑与摄影 / 光线与色彩 / 氛围与调性
+// 动画表现: 起点是一张乱糟糟的书桌：桌上散着小东西，墙上贴满东西，还有 3 团颜色不一的光斑。先删掉桌上 7 件杂物，只留笔记本电脑、杯子和绿植；再让墙上 4 件东西退场，墙面和地面变浅退后；接着杂乱光斑消失，换成一层均匀柔光；最后颜色统一到浅灰调。留下的 3 样东西位置和大小始终不变。右侧清单每加入一项，对应的编号圆点变蓝，状态从「平淡版」变为「叠加中」再到「成品」。
+// 运动规格:
+//   - 5 秒周期。0–0.6 秒是平淡版；4 项成分从 0.6 秒起每 0.7 秒加入下一项，各用 0.5 秒渐入
+//   - 桌上 7 件杂物退场，留下笔记本电脑、杯子、绿植 3 样；墙上 4 件东西退场，墙面变浅到 #F5F4F1
+//   - 3 团颜色不一的光斑消失，换成白色 0.18 的均匀柔光；冷暖：所有颜色向 #EEF0F2 靠 50%；不加材质细节
+//   - 成品停到 4.4 秒，4.4–4.95 秒退回平淡版，5 秒与 0 秒是同一帧
+// 适用场景: 拍桌面、房间、产品，想让画面整洁好看时。
+// 标签: clean, minimal, declutter, even light, consistent tone, simple
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-109
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 62
+// 62 干净：杂乱的书桌。删去杂物只留两三样 → 背景退后（墙上东西退场、墙变浅）→ 统一柔光去掉杂乱光斑 → 统一冷暖
+// 与高级感的分别：只做减法和统一，不加材质，留下的东西位置和大小不变
+const CL_MESS = [[70, 108, 26, 14, '#E85D75'], [104, 112, 18, 10, '#F2C94C'], [140, 100, 10, 22, '#7FB3E0'], [276, 106, 30, 16, '#9B7BE0'], [312, 114, 16, 8, '#6FCF97'], [336, 98, 12, 24, '#F2994A'], [196, 126, 22, 5, '#56CCF2']];
+const CL_WALL = [[40, 24, 40, 30, '#F2C94C'], [96, 18, 28, 40, '#E85D75'], [290, 22, 50, 26, '#7FB3E0'], [350, 30, 22, 22, '#6FCF97']];
+const CL_SPOT = [[90, 60, 28, '#FFD27A'], [320, 70, 34, '#9CD3FF'], [210, 40, 22, '#FFB0C8']];   // 杂乱光斑 [x, y, r, 色]
+CELLS[61] = mdCell('干净', ['删杂物只留两三样', '背景退后', '统一柔光', '统一冷暖'], (k, u, [pM, pB, pL, pT], D) => {
+  const unify = a => mixc(a, '#EEF0F2', pT * 0.5);
+  D.rect(0, 0, MD_W, CH, unify(mixc('#E9DCCB', '#F5F4F1', pB)));
+  k.save(); k.globalAlpha = 1 - pB; CL_WALL.forEach(([x, y, w, h, c]) => D.rect(x, y, w, h, c)); k.restore();
+  D.rect(30, 124, 332, 8, unify('#C9AE8A')); D.rect(0, 132, MD_W, 76, unify(mixc('#D8CBB8', '#E9E6E0', pB)));
+  // 留下的三样：笔记本电脑、杯子、一盆绿植
+  D.rr(168, 92, 68, 32, 3, unify('#9AA0AA')); D.rect(160, 122, 84, 3, unify('#7E848E'));
+  D.rr(254, 104, 16, 20, 3, unify('#FFFFFF')); D.rect(116, 108, 14, 16, unify('#C79A6B')); D.circ(123, 100, 11, unify('#7FAF7A'));
+  k.save(); k.globalAlpha = 1 - pM; CL_MESS.forEach(([x, y, w, h, c]) => D.rr(x, y, w, h, 2, c)); k.restore();
+  // 杂乱光斑：几团不同颜色的硬光，统一柔光后消失，换成一层均匀的柔光
+  // 用带颜色的径向渐变画：浅色墙上用 lighter 会糊成白圆，看不出是「乱光」
+  k.save(); k.globalAlpha = 0.55 * (1 - pL);
+  CL_SPOT.forEach(([x, y, r, c]) => { const g = k.createRadialGradient(x, y, 2, x, y, r); g.addColorStop(0, c); g.addColorStop(1, c + '00'); k.fillStyle = g; k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill(); });
+  k.restore();
+  if (pL > 0.01) { k.save(); k.globalCompositeOperation = 'screen'; k.fillStyle = `rgba(255,255,255,${(0.18 * pL).toFixed(3)})`; k.fillRect(0, 0, MD_W, CH); k.restore(); }
+});

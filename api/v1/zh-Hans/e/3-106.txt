@@ -1,0 +1,49 @@
+// Motion Prompt #3-106 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/ambient-light-look
+//
+// 氛围灯 / Ambient lighting
+// 分类: 剪辑与摄影 / 光线与色彩 / 氛围与调性
+// 动画表现: 起点是普通亮着的卧室：床角、海报、书桌、显示器和台灯。先关掉主灯，整个房间暗下来；再让天花板附近的紫蓝灯带亮起，向下晕开；接着台灯亮起，在桌面落下一锥暖光；最后显示器亮成冷蓝，往四周和桌面洒一点冷光，只剩一暖一冷的局部光。右侧清单每加入一项，对应的编号圆点变蓝，状态从「平淡版」变为「叠加中」再到「成品」。
+// 运动规格:
+//   - 5 秒周期。0–0.6 秒是平淡版；4 项成分从 0.6 秒起每 0.7 秒加入下一项，各用 0.5 秒渐入
+//   - 关主灯后整体压暗 0.72；灯带是天花板下一条 3 px 的线，向下晕开
+//   - 台灯：桌面上一锥暖光，半径 80 px；屏幕：亮成冷蓝，向四周洒光，半径 120 px
+//   - 成品停到 4.4 秒，4.4–4.95 秒退回平淡版，5 秒与 0 秒是同一帧
+// 适用场景: 拍房间、桌面、电竞房、咖啡店的夜景，想要暗一点、放松的气氛时。
+// 标签: ambient light, led strip, desk lamp, screen glow, low key, interior
+// 尺寸: 539x208 px · 周期: 5 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-106
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 59
+// 59 氛围灯：卧室书桌。主灯关掉、整体变暗 → 顶部灯带亮起（紫蓝）→ 台灯暖光 → 屏幕冷光。主灯关后只剩一暖一冷的局部光
+const AL_DESK = { x: 60, y: 132, w: 290 }, AL_MON = { x: 152, y: 64, w: 106, h: 62 }, AL_LAMP = { x: 306, y: 74 };
+CELLS[58] = mdCell('氛围灯', ['主灯关掉', '灯带亮起', '台灯暖光', '屏幕冷光'], (k, u, [pO, pS, pL, pM], D) => {
+  D.rect(0, 0, MD_W, CH, '#ECE8E2'); D.rect(0, 160, MD_W, 48, '#D6D0C6');
+  D.rect(0, 120, 46, 88, '#C9D3E2'); D.rect(0, 112, 50, 12, '#E8ECF2');   // 床角
+  D.rect(84, 30, 40, 52, '#D8C6E8'); D.rect(270, 24, 70, 6, '#BFB4A6');   // 海报、置物板
+  D.rect(AL_DESK.x, AL_DESK.y, AL_DESK.w, 8, '#B89C78'); D.rect(AL_DESK.x + 10, AL_DESK.y + 8, 6, 60, '#A88C68'); D.rect(AL_DESK.x + AL_DESK.w - 16, AL_DESK.y + 8, 6, 60, '#A88C68');
+  const M = AL_MON; D.rr(M.x, M.y, M.w, M.h, 4, '#3A3D45'); D.rect(M.x + 4, M.y + 4, M.w - 8, M.h - 8, '#6E7380'); D.rect(M.x + M.w / 2 - 4, M.y + M.h, 8, 8, '#3A3D45');
+  D.rr(150, 126, 80, 5, 2, '#5A5E68');   // 键盘
+  const L = AL_LAMP; D.line([[L.x + 18, AL_DESK.y], [L.x + 10, L.y + 28], [L.x, L.y + 6]], 3, '#4A4D55'); D.poly([[L.x - 18, L.y + 10], [L.x + 4, L.y - 6], [L.x + 14, L.y + 6], [L.x - 6, L.y + 22]], '#4A4D55');
+  D.rect(0, 0, MD_W, CH, `rgba(16,18,30,${(0.72 * pO).toFixed(3)})`);
+  k.save(); k.globalCompositeOperation = 'lighter';
+  if (pS > 0.01) {   // 灯带：天花板下一条紫蓝线，往下晕开
+    D.rect(0, 14, MD_W, 3, mixc('#000000', '#B69CFF', pS));
+    const g = k.createLinearGradient(0, 16, 0, 120); g.addColorStop(0, `rgba(140,110,255,${(0.42 * pS).toFixed(3)})`); g.addColorStop(1, 'rgba(140,110,255,0)');
+    k.fillStyle = g; k.fillRect(0, 16, MD_W, 104);
+  }
+  if (pL > 0.01) {   // 台灯：灯罩下一锥暖光落在桌面
+    const g = k.createRadialGradient(L.x - 10, AL_DESK.y, 4, L.x - 10, AL_DESK.y, 80); g.addColorStop(0, `rgba(255,180,90,${(0.75 * pL).toFixed(3)})`); g.addColorStop(1, 'rgba(255,180,90,0)');
+    k.fillStyle = g; k.beginPath(); k.moveTo(L.x - 12, L.y + 18); k.lineTo(L.x + 6, L.y + 8); k.lineTo(L.x + 50, AL_DESK.y + 4); k.lineTo(L.x - 80, AL_DESK.y + 4); k.closePath(); k.fill();
+    k.fillStyle = `rgba(255,220,160,${pL.toFixed(3)})`; k.beginPath(); k.arc(L.x - 4, L.y + 15, 3.5, 0, TAU); k.fill();
+  }
+  if (pM > 0.01) {   // 屏幕：亮成冷蓝，往四周和桌面洒一点冷光
+    k.fillStyle = `rgba(120,190,255,${(0.85 * pM).toFixed(3)})`; k.fillRect(M.x + 4, M.y + 4, M.w - 8, M.h - 8);
+    const g = k.createRadialGradient(M.x + M.w / 2, M.y + M.h / 2, 20, M.x + M.w / 2, M.y + M.h / 2, 120); g.addColorStop(0, `rgba(90,160,255,${(0.35 * pM).toFixed(3)})`); g.addColorStop(1, 'rgba(90,160,255,0)');
+    k.fillStyle = g; k.fillRect(0, 0, MD_W, CH);
+  }
+  k.restore();
+});

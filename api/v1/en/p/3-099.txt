@@ -1,0 +1,15 @@
+Please use "Xiaohongshu cover" (小紅書のカバー), filed under "Shot size & composition / Framing & cropping".
+Motion Prompt #3-099
+
+What it is: A 3:4 portrait cover where the person or object fills over half the frame and space is kept at the top or middle for the title
+What the sample shows: The 3:4 cover first appears large on its own: a person standing on the beach, with the title "Beach weekend" and a small red subtitle in a white band at the top. An amber dashed box marks the "title area" and a bracket on the right says "subject over half". Then a grey 2-column feed appears and the cover shrinks into its top-left slot; next to the other grey covers its title is still readable. ✓ "shrunk into the 2-column feed · title still readable".
+Spec:
+- 5 s cycle. The cover is 129 × 172 px (3:4) on its own, appears over 0.3–0.8 s, and the title box and bracket notes come in over 1.0–1.5 s.
+- The feed appears over 1.9–2.3 s, and over 2.3–3.0 s the cover shrinks into an 84 px wide column; the notes clear as soon as it moves.
+- The ✓ verdict appears over 3.2–3.6 s.
+- Everything clears over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For Xiaohongshu note covers and similar, when the cover has to catch the eye even small in the feed.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-099.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

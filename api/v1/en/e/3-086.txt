@@ -1,0 +1,77 @@
+// Motion Prompt #3-086 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/beat-sync-montage
+//
+// Beat-synced montage / ビート合わせのカット編集
+// Category: Editing & photography / Camera & editing / Storyboards & pacing
+// What happens: A beat bar along the bottom has a beat line every 0.5 s, with a taller blue accent line every 2 beats. The picture changes only on the beats: on an accent it cuts to a close-up of the face that pops slightly larger and settles back; on the weak beats it alternates between wide and medium shots. Colour blocks above the bar record which shot each segment used, turning solid as the playhead passes.
+// Motion spec:
+//   - 9.4 s cycle. Beat 1 falls at 0.4 s, then one every 0.5 s: 17 beats, the last at 8.4 s.
+//   - Every 2nd beat (beats 1, 3, 5 …) is an accent: cut to a close-up popped to 1.07×, easing back as e^(-6t).
+//   - Weak beats alternate wide and medium; the blocks are blue for close-ups, light blue for medium and grey for wide.
+//   - From 8.8 to 9.4 s the picture fades back to the opening wide shot.
+// When to use it: For travel shorts, product beat edits and any cut that should ride the music.
+// Tags: beat sync, montage, music edit, cut on beat, short video, rhythm
+// Size: 539x208 px · Cycle: 9.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-086
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 38
+// 38 混剪卡点：底部节拍条每 0.5 秒一拍、每 2 拍一个重拍；画面只在拍点上切换。
+// 重拍切到特写并轻微放大再回落，弱拍在全景、中景之间交替；节拍条上方的色块显示每段用了哪种镜头，色块边界就是拍线。
+const BS_T0 = 0.4, BS_BEAT = 0.5, BS_N = 17;   // 第 1 拍时刻、拍长、拍数（最后一拍 8.4 秒，8.8 秒前播完）
+const BS_BAR = { x0: 40, x1: 499, y: 168 };    // 节拍条：U = 0..SB_END 映射到 x0..x1
+const BS_POP = 0.07;                            // 重拍放大量，按 e^(-6t) 回落
+const bsX = U => lerp(BS_BAR.x0, BS_BAR.x1, U / SB_END);
+// 第 i 拍用的镜头：偶数拍是重拍 → 特写；弱拍按 全景 / 中景 交替；第 1 拍之前停在全景
+const bsKind = i => i < 0 ? 'W' : i % 2 === 0 ? 'C' : i % 4 === 1 ? 'W' : 'M';
+const BS_NAME = { W: '全景', M: '中景', C: '特写' };
+// 三种镜头都按整卡取景；bsFrame 把画面整体上移 22 px，给底部节拍条让位
+const bsShot = (kk, kind, U) => {
+  const sway = 0.6 * Math.sin(U / HOLD * TAU * 2);   // 人物缓慢来回走，一轮 2 个来回，首尾同位
+  if (kind === 'W') return world(kk, CW, CH, cam({ y: 1.4, z: 0 }), { person: { x: sway, z: 8, walk: U * 7 } });
+  if (kind === 'M') return world(kk, CW, CH, fit(0.88, 1.92, 4.2, { cx: sway }), { person: { x: sway, z: 8, armUp: true, fg: true } });
+  world(kk, CW, CH, fit(1.4, 1.85, 2.6, { cx: sway }), {
+    person: { x: sway, z: 8, fg: true },
+    extra: [[sway, 0, 7.99, (k2, s) => face(k2, s, { talk: 0.5 + 0.5 * Math.sin(U * 12) }), true]]
+  });
+};
+function bsFrame(k, U) {
+  const i = Math.floor((U - BS_T0) / BS_BEAT + 1e-9), beat = Math.min(i, BS_N - 1), kind = bsKind(beat);
+  const since = U - (BS_T0 + beat * BS_BEAT);
+  const pop = kind === 'C' && beat >= 0 ? 1 + BS_POP * Math.exp(-since * 6) : 1;
+  k.save(); k.translate(CW / 2, CH / 2 - 22); k.scale(pop, pop); k.translate(-CW / 2, -CH / 2); bsShot(k, kind, U); k.restore();
+  // 节拍条底板
+  k.save();
+  k.fillStyle = 'rgba(255,255,255,.94)'; rr(k, BS_BAR.x0 - 10, BS_BAR.y - 22, BS_BAR.x1 - BS_BAR.x0 + 20, 36, 8); k.fill();
+  // 每段镜头的色块（已播段实色，未播段浅色）
+  for (let j = -1; j < BS_N; j++) {
+    const a = j < 0 ? 0 : BS_T0 + j * BS_BEAT, b = j < 0 ? BS_T0 : Math.min(SB_END, a + BS_BEAT), kd = bsKind(j);
+    const col = kd === 'C' ? C.blue : kd === 'M' ? C.blueM : C.g3;
+    k.globalAlpha = U >= a ? 1 : 0.28; k.fillStyle = col; k.fillRect(bsX(a) + 1, BS_BAR.y - 16, bsX(b) - bsX(a) - 2, 8);
+  }
+  k.globalAlpha = 1;
+  // 拍线：重拍高、蓝色；播放头经过时亮一下
+  for (let j = 0; j < BS_N; j++) {
+    const t = BS_T0 + j * BS_BEAT, x = bsX(t), acc = j % 2 === 0, hit = clamp(1 - (U - t) / 0.25) * (U >= t ? 1 : 0);
+    k.strokeStyle = acc ? C.blue : C.g4; k.lineWidth = acc ? 2 + hit * 1.5 : 1.2;
+    k.beginPath(); k.moveTo(x, BS_BAR.y + (acc ? -4 : 0)); k.lineTo(x, BS_BAR.y + 10); k.stroke();
+  }
+  // 播放头
+  const px = bsX(Math.min(U, SB_END));
+  k.fillStyle = C.ink; k.beginPath(); k.moveTo(px - 4, BS_BAR.y - 20); k.lineTo(px + 4, BS_BAR.y - 20); k.lineTo(px, BS_BAR.y - 15); k.fill();
+  k.fillRect(px - 0.75, BS_BAR.y - 16, 1.5, 28);
+  k.restore();
+  return beat < 0 ? '混剪卡点' : `${beat % 2 === 0 ? '重拍' : '弱拍'} · ${BS_NAME[kind]}`;
+}
+CELLS[37] = shot((k, w, h, uu, cyc) => {
+  const U = sbU(uu, cyc), r = 1 - sbFade(U);
+  let hud = '混剪卡点';
+  blend(k, kk => { hud = bsFrame(kk, U); }, kk => bsFrame(kk, 0), r);
+  return r > 0.5 ? '混剪卡点' : hud;
+});
+
+
+// sbCam(ph, lo, hi, d, cx, z)：小格里的机位；lo〜hi（米）正好占满格高 ph，d = 离主体的距离
+const sbCam = (ph, lo, hi, d, cx = 0, z = 8) => cam({ x: cx, y: (lo + hi) / 2, z: z - d, f: ph * d / (hi - lo) });

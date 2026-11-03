@@ -1,0 +1,66 @@
+// Motion Prompt #3-099 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/describe-xhs-cover
+//
+// Xiaohongshu cover / 小紅書のカバー
+// Category: Editing & photography / Shot size & composition / Framing & cropping
+// What happens: The 3:4 cover first appears large on its own: a person standing on the beach, with the title "Beach weekend" and a small red subtitle in a white band at the top. An amber dashed box marks the "title area" and a bracket on the right says "subject over half". Then a grey 2-column feed appears and the cover shrinks into its top-left slot; next to the other grey covers its title is still readable. ✓ "shrunk into the 2-column feed · title still readable".
+// Motion spec:
+//   - 5 s cycle. The cover is 129 × 172 px (3:4) on its own, appears over 0.3–0.8 s, and the title box and bracket notes come in over 1.0–1.5 s.
+//   - The feed appears over 1.9–2.3 s, and over 2.3–3.0 s the cover shrinks into an 84 px wide column; the notes clear as soon as it moves.
+//   - The ✓ verdict appears over 3.2–3.6 s.
+//   - Everything clears over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+// When to use it: For Xiaohongshu note covers and similar, when the cover has to catch the eye even small in the feed.
+// Tags: cover, 3:4, title area, feed, xiaohongshu, thumbnail
+// Size: 539x208 px · Cycle: 5 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-099
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 52
+// 52 小红书封面：3:4 封面先单独展示 —— 主体占画面一半以上、上方留出标题区；再缩小放进双列信息流，
+// 和几张灰色封面并排，标题在小尺寸下依然读得出（字大、字少、底色干净）。
+const XH_SRC = { x: 0, y: 0, w: 90, h: 120 };
+const XH_BIG = { x: 100, y: 18, w: 129, h: 172 };   // 单独展示时
+const XH_FEED = { x: 330, y: 12, w: 182, h: 184 }, XH_COL = 84, XH_GAP = 8;
+const XH_SLOT = { x: XH_FEED.x + 6, y: XH_FEED.y + 6, w: XH_COL, h: XH_COL * 4 / 3 };
+const XH_GRAY = [[0, 124, 60], [1, 0, 74], [1, 80, 104]];   // 其他封面：[列, 距顶, 高]
+const XH_T = { show: [0.3, 0.8], note: [1.0, 1.5], feed: [1.9, 2.3], move: [2.3, 3.0], mark: [3.2, 3.6] };
+function xhScene(D, k) {
+  fcBeach(D, 90, 120, 64);
+  figure(D, 46, 116, 74, BASE.person);   // 头顶约在 y 42：人占画面高度六成
+  D.rect(0, 0, 90, 30, 'rgba(255,255,255,.88)');
+  k.textAlign = 'center'; k.textBaseline = 'middle';
+  k.font = `800 13px ${ZH}`; k.fillStyle = FC_INK; k.fillText('周末去海边', 45, 13);
+  k.font = `600 6px ${ZH}`; k.fillStyle = FC_NG; k.fillText('三条路线全攻略', 45, 24);
+}
+CELLS[51] = cell((k, u) => {
+  k.fillStyle = '#FFFFFF'; k.fillRect(0, 0, CW, CH);
+  const pS = fcK(u, ...XH_T.show), pN = fcK(u, ...XH_T.note), pF = fcK(u, ...XH_T.feed), pV = fcK(u, ...XH_T.move), pK = fcK(u, ...XH_T.mark);
+  // 双列信息流：灰色底板 + 其他灰色封面 + 每张封面下的标题行
+  if (pF > 0.01) {
+    k.save(); k.globalAlpha = pF;
+    k.fillStyle = '#F4F3F0'; k.beginPath(); k.roundRect(XH_FEED.x, XH_FEED.y, XH_FEED.w, XH_FEED.h, 10); k.fill(); k.clip();
+    XH_GRAY.forEach(([c, t, hh]) => {
+      const x = XH_SLOT.x + c * (XH_COL + XH_GAP), y = XH_SLOT.y + t;
+      k.fillStyle = '#E2E1DE'; k.fillRect(x, y, XH_COL, hh - 14);
+      k.fillStyle = '#CFCECB'; k.fillRect(x + 4, y + hh - 10, XH_COL * 0.7, 4);
+    });
+    k.fillStyle = '#CFCECB'; k.fillRect(XH_SLOT.x + 4, XH_SLOT.y + XH_SLOT.h + 4, XH_COL * 0.7, 4);
+    k.restore();
+  }
+  const R = { x: lerp(XH_BIG.x, XH_SLOT.x, pV), y: lerp(XH_BIG.y, XH_SLOT.y, pV), w: lerp(XH_BIG.w, XH_SLOT.w, pV), h: lerp(XH_BIG.h, XH_SLOT.h, pV) };
+  k.save(); k.globalAlpha = pS; fcPic(k, R, XH_SRC, xhScene); fcBox(k, R.x, R.y, R.w, R.h, '#E3E1DC', 1); k.restore();
+  // 单独展示时的标注：标题区虚线框、右侧「主体占一半以上」括号；封面一移动就收起，复位时不再出现
+  const pn = u < XH_T.move[1] ? pN * (1 - pV) : 0;
+  if (pn > 0.01) {
+    const s = XH_BIG.w / 90, B = XH_BIG, y0 = B.y + 42 * s, y1 = B.y + 116 * s, xb = B.x + B.w + 10;
+    k.save(); k.globalAlpha = pn;
+    fcBox(k, B.x + 2, B.y + 2, B.w - 4, 30 * s - 4, GUIDE, 1.6, [4, 3]);
+    fcText(k, '标题区', B.x - 10, B.y + 15 * s, 11, GUIDE, 'right', 700);
+    k.strokeStyle = GUIDE; k.lineWidth = 1.6; k.beginPath(); k.moveTo(xb - 4, y0); k.lineTo(xb, y0); k.lineTo(xb, y1); k.lineTo(xb - 4, y1); k.stroke();
+    fcText(k, '主体占一半以上', xb + 6, (y0 + y1) / 2, 11, GUIDE, 'left', 700);
+    k.restore();
+  }
+  fcMark(k, true, '缩进双列信息流', '标题仍读得出', 120, 96, pK);
+});

@@ -1,0 +1,85 @@
+// Motion Prompt #3-093 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/unboxing-sequence
+//
+// 开箱 / Unboxing sequence
+// 分类: 剪辑与摄影 / 镜头与剪辑 / 分镜与节奏
+// 动画表现: 5 格依次亮起。第 1 格顶拍系着蓝色缎带十字的盒子，极慢变大；第 2 格两只手把盒盖掀开；第 3 格杯子从盒里升起后停住，身后亮起一圈淡光（揭晓）；第 4 格黑底，杯盖防滑纹从右往左横移；第 5 格拉开到中景，人物在胸前转动杯子。格下折线标出每格景别远近：一路变近，最后拉开，已播到的点变蓝。
+// 运动规格:
+//   - 9.4 秒周期。5 格在 0.3、1.9、3.5、5.3、6.9 秒开始，8.5 秒结束
+//   - 盒子放大 6%；取出在本格前 45% 升起，之后停住并亮起光圈
+//   - 细节：防滑纹每 7 px 一条，从 18 px 横移到 −18 px；折线远近值 0.15、0.55、0.7、1.0、0.4
+//   - 8.8–9.4 秒淡回开头画面
+// 适用场景: 新品开箱测评、电商视频里，想拍出拆开前的期待感时。
+// 标签: unboxing, product reveal, packaging, hands close-up, product video, storyboard
+// 尺寸: 539x208 px · 周期: 9.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#3-093
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 45
+// 45 开箱：5 格 —— 包装顶拍 → 手部打开 → 取出停顿 → 细节横移 → 上手。
+// 第 3 格「取出」后停 1 拍（揭晓），格下多一个「揭晓 · 停」标；格子下方的折线标出景别远近：一路变近，最后拉开。
+// 产品沿用 43 格的保温杯（pdBottle），开箱的是同一只杯子。
+const UB_TS = [0.3, 1.9, 3.5, 5.3, 6.9], UB_END = 8.5;
+const UB_LABEL = ['包装 · 顶拍', '手部打开', '取出 · 停', '细节横移', '上手'];
+const UB_NEAR = [0.15, 0.55, 0.7, 1.0, 0.4];   // 每格景别有多近（0 远〜1 近），画折线用
+const UB_REVEAL = 0.45;                        // 第 3 格里取出动作只用前 45%，之后停住
+const UB_BOX = '#D9C3A5', UB_BOX_D = '#B89C78';
+function ubShot(k, w, h, i, q) {
+  k.fillStyle = i === 3 ? '#16161A' : '#F4EFE8'; k.fillRect(0, 0, w, h);   // 细节格用黑底，跟 43 格卖点同一种打光
+  const cx = w / 2, cy = h / 2;
+  if (i === 0) {   // 顶拍：盒盖正面，缎带十字，镜头极慢下降（盒子微微变大）
+    const s = 1 + q * 0.06, bw = w * 0.5 * s, bh = h * 0.62 * s;
+    k.fillStyle = UB_BOX; rr(k, cx - bw / 2, cy - bh / 2, bw, bh, 4); k.fill();
+    k.fillStyle = C.blue; k.fillRect(cx - 3, cy - bh / 2, 6, bh); k.fillRect(cx - bw / 2, cy - 3, bw, 6);
+    return;
+  }
+  if (i === 1) {   // 手部打开：盒盖从下往上掀开，两只手扶在盒盖两侧
+    const lift = eIO(q), bw = w * 0.64, top = h * 0.42;
+    k.fillStyle = UB_BOX_D; rr(k, cx - bw / 2, top, bw, h * 0.5, 4); k.fill();
+    k.fillStyle = '#FFFFFF'; k.fillRect(cx - bw / 2 + 6, top + 4, bw - 12, 10);   // 内衬
+    const ly = top - lift * h * 0.34;
+    k.fillStyle = UB_BOX; rr(k, cx - bw / 2 - 3, ly - 10, bw + 6, 14, 3); k.fill();
+    k.fillStyle = PD_SKIN; [cx - bw / 2 - 6, cx + bw / 2 - 12].forEach(x => { rr(k, x, ly - 14, 18, 22, 8); k.fill(); });
+    return;
+  }
+  if (i === 2) {   // 取出：杯子从盒子里升起，到位后停住；身后一圈淡光表示「揭晓」
+    const p = eOut(clamp(q / UB_REVEAL)), by = lerp(h * 1.25, h * 0.86, p);
+    if (q > UB_REVEAL) { const a = Math.min(1, (q - UB_REVEAL) * 4); k.fillStyle = `rgba(255,236,179,${0.7 * a})`; k.beginPath(); k.arc(cx, h * 0.5, h * 0.42, 0, TAU); k.fill(); }
+    pdBottle(k, cx, by, h * 0.7, 0.9);
+    k.fillStyle = UB_BOX_D; k.fillRect(cx - w * 0.36, h * 0.86, w * 0.72, h * 0.14);
+    return;
+  }
+  if (i === 3) {   // 细节横移：杯盖防滑纹贴近画面，从右往左平移
+    const off = lerp(18, -18, eIOs(q)), top = h * 0.14, bot = h * 0.86;
+    k.fillStyle = PD_CAP; rr(k, off - 10, top, w + 20, bot - top, 6); k.fill();
+    for (let x = off - 6; x < w + 14; x += 7) { k.fillStyle = 'rgba(200,200,210,.75)'; k.fillRect(x, top + 6, 2.6, bot - top - 12); }
+    return;
+  }
+  // 上手：拉开到中景，人拿起杯子在胸前转一下
+  world(k, w, h, sbCam(h, 0.6, 2.0, 2.8), { trees: false, mountains: false, person: { x: 0, z: 8 },
+    extra: [[0.18, 1.08, 7.9, kk => { kk.save(); kk.scale(1, -1); pdBottle(kk, 0, 0, 0.32, q * TAU); kk.restore(); }, true]] });
+}
+CELLS[44] = shot((k, w, h, uu, cyc) => {
+  const U = sbU(uu, cyc), R = sbRow(5, { h: 86, gap: 10 }), fade = sbFade(U), ts = [...UB_TS, UB_END];
+  let cur = -1;
+  R.forEach((r, i) => {
+    const st = sbState(U, UB_TS, i), q = st === 1 ? clamp((U - ts[i]) / (ts[i + 1] - ts[i])) : 1;
+    if (st === 1) cur = i;
+    sbPanel(k, r, st, sbOn(U, UB_TS, i), (kk, pw, ph) => ubShot(kk, pw, ph, i, q), String(i + 1));
+    sbLabel(k, r, UB_LABEL[i], st);
+  });
+  // 景别折线：点越高 = 越近；已播到的点变蓝，线也画到当前格
+  const yb = R[0].y + R[0].h + 46, hh = 20, lx = R[0].x + R[0].w / 2 - 22;   // 「近 / 远」放在第 1 个点左边，避开取景器左下角标
+  k.save(); k.globalAlpha = P(U, 0.2, 0.5) * fade;
+  txt(k, '近', lx, yb - hh, `600 9px ${JP}`, C.sub, 'center', 'middle');
+  txt(k, '远', lx, yb, `600 9px ${JP}`, C.sub, 'center', 'middle');
+  const pts = R.map((r, i) => [r.x + r.w / 2, yb - UB_NEAR[i] * hh]);
+  k.strokeStyle = C.g3; k.lineWidth = 1.4; k.beginPath(); pts.forEach(([x, y], i) => i ? k.lineTo(x, y) : k.moveTo(x, y)); k.stroke();
+  const n = cur >= 0 ? cur : (U >= UB_END && U < SB_END + 0.3 ? 4 : -1);
+  if (n > 0) { k.strokeStyle = C.blue; k.lineWidth = 2; k.beginPath(); pts.slice(0, n + 1).forEach(([x, y], i) => i ? k.lineTo(x, y) : k.moveTo(x, y)); k.stroke(); }
+  pts.forEach(([x, y], i) => { k.fillStyle = i <= n ? C.blue : C.g3; k.beginPath(); k.arc(x, y, 3.2, 0, TAU); k.fill(); });
+  k.restore();
+  return cur >= 0 ? `${cur + 1}/5 ${UB_LABEL[cur]}` : '开箱';
+});

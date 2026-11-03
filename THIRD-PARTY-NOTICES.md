@@ -310,14 +310,15 @@ lists it after the pack's own line. To ask for a removal or a correction, use th
 | `#2-098` | `scenes` | 飄落花瓣 Falling Petals (#174) |
 | `#2-099` | `scenes` | 煙火 Fireworks (#181) |
 
-## 镜语 jingyu-skill by 阿梦freedom (51 elements in packs `camera`, `photo`, `motion2`, `scenes` and `mgstyles`)
+## 镜语 jingyu-skill by 阿梦freedom (79 elements in packs `camera`, `photo`, `motion2`, `scenes` and `mgstyles`)
 
-The 51 elements (12 in pack `camera`, 24 in pack `photo`, 4 in pack `motion2`, 10 in pack `scenes`, 1 in pack `mgstyles`: shot
+The 79 elements (23 in pack `camera`, 41 in pack `photo`, 4 in pack `motion2`, 10 in pack `scenes`, 1 in pack `mgstyles`: shot
 sizes, composition and shot-to-shot continuity, lens light, lighting setups, light sources and colour, plus transitions, text
-and packaging, particles and texture, and visual styles) take their terms and definitions from
+and packaging, particles and texture, visual styles, storyboards and pacing, framing and cropping for platform
+formats, mood recipes, and inpainting) take their terms and definitions from
 阿梦freedom's [镜语](https://idea.ameng.dev/) and its skill
-[hemengke1997/jingyu-skill](https://github.com/hemengke1997/jingyu-skill) (`skills/jingyu/references/camera.md`
-and the light, colour, effect and transition terms).
+[hemengke1997/jingyu-skill](https://github.com/hemengke1997/jingyu-skill) (`skills/jingyu/references/camera.md`,
+`describe.md`, and the light, colour, effect and transition terms).
 The moving samples are Canvas 2D drawings written for this repository with the existing `camera`, `photo`, `motion2`,
 `scenes` and `mgstyles` scenes; no demo code, image or text from 镜语 is copied. Each element carries the line
 `MIT License (c) 2026 阿梦freedom` and links to its term page. The license notice:

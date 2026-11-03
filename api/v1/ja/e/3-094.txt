@@ -1,0 +1,88 @@
+// Motion Prompt #3-094 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/broll-sequence
+//
+// トークの間に挟む映像 / B-roll over talking head
+// 分類: 編集・撮影 / カメラ・編集 / 絵コンテ・テンポ
+// 何が起きるか: 左は完成画面：挿入がないときは人物のバストで口が動いている。3か所で画面がB-rollに替わる：手で持ったボトルのアップ、ノート・ペン・ボトルを置いた机の真上からゆっくり回る絵、雲の流れる街の空景。字幕は下の黒い帯でそのまま続き、キーワードが黄色で強調される。右は2本のトラック：上のB-rollトラックに3つのブロック、下の暗い「口播」トラックには波形がずっと動き、「声音不断」のラベル。赤い再生ヘッドが両方をまたいで進む。
+// 動きの仕様:
+//   - 9.4秒周期。トークは0.3〜8.6秒。B-rollは1.5〜3.0秒「手部特写」、4.0〜5.5秒「桌面俯拍」、6.5〜7.8秒「环境空镜」
+//   - 字幕：0.3〜3.0秒「这只杯子｜保温 12 小时」、3.0〜5.8秒「杯盖做了｜防滑纹」、5.8〜8.6秒「出门｜一只手就能拿」
+//   - 完成画面は200 × 112px。字幕は黒60%の帯、キーワードは黄色の地
+//   - 8.8〜9.4秒に最初の画面へフェードで戻る
+// 使いどころ: 解説・レビュー・Vlogなど話が中心の動画で、顔だけが続いて単調にならないようにしたいとき。
+// タグ: b-roll, talking head, voice-over, cutaway, subtitles, editing
+// サイズ: 539x208 px · 1周: 9.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/camera.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-094
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 46
+// 46 口播穿插画面：两条轨道 —— 下面「口播」主轨从头到尾不断，声波一直在跳；上面「B-roll」轨在三处插入画面。
+// 左边是成片画面：没有插入时是人物中近景口播，插入时换成 B-roll，但字幕和声音照常走；字幕里的关键词高亮。
+const VO_T0 = 0.3, VO_T1 = 8.6;
+const VO_BROLL = [[1.5, 3.0, '手部特写'], [4.0, 5.5, '桌面俯拍'], [6.5, 7.8, '环境空镜']];
+const VO_SUBS = [[0.3, 3.0, '这只杯子', '保温 12 小时'], [3.0, 5.8, '杯盖做了', '防滑纹'], [5.8, 8.6, '出门', '一只手就能拿']];   // [开始, 结束, 普通字, 关键词]
+const VO_VIEW = { x: 30, y: 48, w: 200, h: 112 };
+const VO_TL = { x0: 290, x1: 509, yB: 66, yM: 104, th: 26 };
+const voB = U => VO_BROLL.findIndex(([a, b]) => U >= a && U < b);
+function voView(k, w, h, U, bi, q) {
+  if (bi < 0) {   // 口播：中近景，嘴在动
+    const talk = U > VO_T0 && U < VO_T1 ? 0.25 + 0.35 * Math.max(0, Math.sin(U * 19)) : 0;
+    return world(k, w, h, sbCam(h, 1.05, 1.95, 2.6, 0.25), { trees: false, mountains: false, person: { x: 0, z: 8 }, extra: [[0, 0, 7.99, kk => face(kk, 0, { gaze: 0, talk })]] });
+  }
+  if (bi === 0) { k.fillStyle = '#F4EFE8'; k.fillRect(0, 0, w, h); return pdShot(k, w, h, 2, q); }   // 手拿杯子
+  if (bi === 1) {   // 桌面俯拍：木桌上杯子、笔记本、一支笔，镜头慢慢转
+    k.fillStyle = '#E6D3B8'; k.fillRect(0, 0, w, h);
+    k.save(); k.translate(w / 2, h / 2); k.rotate(-0.1 + q * 0.12);
+    k.fillStyle = '#FFFFFF'; rr(k, -70, -30, 56, 64, 3); k.fill();
+    k.strokeStyle = C.g3; k.lineWidth = 1; for (let y = -18; y < 28; y += 9) { k.beginPath(); k.moveTo(-62, y); k.lineTo(-22, y); k.stroke(); }
+    k.fillStyle = C.ink; k.save(); k.rotate(0.5); k.fillRect(-10, -36, 4, 50); k.restore();
+    k.fillStyle = PD_CAP; k.beginPath(); k.arc(36, 0, 22, 0, TAU); k.fill();
+    k.fillStyle = PD_BODY; k.beginPath(); k.arc(36, 0, 16, 0, TAU); k.fill();
+    k.restore(); return;
+  }
+  // 环境空镜：远处城市和山，云慢慢飘
+  world(k, w, h, cam({ y: 1.6, z: -6 + q * 1.5 }), { clouds: [[-8 + q * 3, 10, 60, 2], [9 + q * 3, 12, 70, 2.6]], trees: true });
+}
+function voWave(k, x0, x1, y, U) {
+  k.strokeStyle = 'rgba(255,255,255,.85)'; k.lineWidth = 1.4; k.beginPath();
+  for (let x = x0 + 3; x < x1 - 3; x += 3) {
+    const t = (x - x0) * 0.21 - U * 9, a = 0.35 + 0.65 * Math.abs(Math.sin(t) * Math.sin(t * 0.37 + 1.3));
+    k.moveTo(x, y - a * 8); k.lineTo(x, y + a * 8);
+  }
+  k.stroke();
+}
+CELLS[45] = shot((k, w, h, uu, cyc) => {
+  const U = sbU(uu, cyc), fade = sbFade(U), on = P(U, 0.2, 0.5) * fade, bi = U < SB_END ? voB(U) : -1;
+  const q = bi >= 0 ? clamp((U - VO_BROLL[bi][0]) / (VO_BROLL[bi][1] - VO_BROLL[bi][0])) : 0;
+  const V = VO_VIEW;
+  sbPanel(k, V, bi >= 0 ? 1 : 0, on, (kk, pw, ph) => {
+    voView(kk, pw, ph, U, bi, q);
+    const s = VO_SUBS.find(([a, b]) => U >= a && U < b);
+    if (!s) return;
+    // 字幕：底部黑条，关键词黄色
+    const f = `700 11px ${JP}`, w1 = tw(kk, s[2], f), w2 = tw(kk, s[3], f), sx = pw / 2 - (w1 + w2 + 4) / 2, sy = ph - 14;
+    kk.fillStyle = 'rgba(0,0,0,.62)'; rr(kk, sx - 8, sy - 10, w1 + w2 + 20, 20, 4); kk.fill();
+    txt(kk, s[2], sx, sy + 0.5, f, '#FFFFFF', 'left', 'middle');
+    kk.fillStyle = '#FFD84A'; rr(kk, sx + w1 + 2, sy - 8, w2 + 4, 16, 3); kk.fill();
+    txt(kk, s[3], sx + w1 + 4, sy + 0.5, f, C.ink, 'left', 'middle');
+  }, '');
+  txt(k, bi >= 0 ? `B-roll · ${VO_BROLL[bi][2]}` : '口播', V.x + V.w / 2, V.y + V.h + 14, `600 12px ${JP}`, bi >= 0 ? C.blue : C.ink, 'center', 'middle');
+  // 时间线：两条轨道
+  const T = VO_TL, sx = t => lerp(T.x0, T.x1, (t - VO_T0) / (VO_T1 - VO_T0));
+  k.save(); k.globalAlpha = on;
+  txt(k, 'B-roll', T.x0 - 8, T.yB + T.th / 2, `600 10px ${EN}`, C.sub, 'right', 'middle');
+  txt(k, '口播', T.x0 - 8, T.yM + T.th / 2, `600 10px ${JP}`, C.sub, 'right', 'middle');
+  k.fillStyle = C.g1; rr(k, T.x0, T.yB, T.x1 - T.x0, T.th, 4); k.fill();
+  VO_BROLL.forEach(([a, b, name], i) => {
+    k.fillStyle = i === bi ? C.blue : C.blueL; rr(k, sx(a), T.yB + 2, sx(b) - sx(a), T.th - 4, 3); k.fill();
+    txt(k, name, (sx(a) + sx(b)) / 2, T.yB + T.th / 2 + 0.5, `600 9px ${JP}`, i === bi ? '#FFFFFF' : C.blue, 'center', 'middle');
+  });
+  k.fillStyle = C.ink; rr(k, T.x0, T.yM, T.x1 - T.x0, T.th, 4); k.fill();
+  voWave(k, T.x0, T.x1, T.yM + T.th / 2, U);
+  txt(k, '声音不断', (T.x0 + T.x1) / 2, T.yM + T.th + 14, `600 10px ${JP}`, C.sub, 'center', 'middle');
+  if (U >= VO_T0 && U < SB_END + 0.3) { const px = sx(clamp(U, VO_T0, VO_T1)); k.fillStyle = '#E5484D'; k.fillRect(px - 1, T.yB - 6, 2, T.yM + T.th - T.yB + 12); }
+  k.restore();
+  return bi >= 0 ? `插入 ${bi + 1}/3` : '口播穿插画面';
+});

@@ -1,0 +1,15 @@
+Please use "Douyin vertical first frame" (抖音の縦型ファーストフレーム), filed under "Shot size & composition / Framing & cropping".
+Motion Prompt #3-098
+
+What it is: In 9:16 the first frame doubles as cover and hook, so the subject goes in the central safe zone and the top, bottom and right are left clear for the interface
+What the sample shows: A 9:16 phone in the centre shows a full beach picture. Generic grey blocks for the right-hand buttons, the bottom caption and the top bar cover it one after another, and finally the central safe zone is outlined in blue dashes and labelled "safe zone". Two smaller phones then appear for comparison: on the left the person is inside the safe zone (✓); on the right the person stands at the bottom right, hidden by the buttons and caption (✕). No real app logos or buttons are drawn.
+Spec:
+- 5 s cycle. The centre phone is 184 px tall; the picture appears over 0.3–0.7 s, then the right buttons 1.0–1.4 s, the bottom caption 1.5–1.9 s and the top bar 2.0–2.4 s.
+- The blue dashed safe-zone frame appears over 2.6–3.1 s (62 × 94 in the 90 × 160 screen units).
+- Over 3.2–3.7 s two 136 px phones compare ✓ and ✕.
+- Everything clears over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For the first frame or cover of vertical short videos on Douyin, Kuaishou or TikTok.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-098.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

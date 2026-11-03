@@ -1,0 +1,15 @@
+Please use "WeChat article header" (公众号のヘッダー画像), filed under "Shot size & composition / Framing & cropping".
+Motion Prompt #3-096
+
+What it is: A very wide banner with the subject in the centre so the sides can be cropped, surviving the square crop used when shared
+What the sample shows: Two rows of the same wide beach banner. An amber dashed square appears over the centre and everything outside it fades to white. The cropped square then slides out to the right: in the top row the person is centred, so the square holds the whole figure, with a green border and ✓ "subject centred"; in the bottom row the person is off to the left, so the square cuts them in half, with a red border and ✕ "subject off to one side". Labels "banner 2.35 : 1" and "square 1 : 1" sit above.
+Spec:
+- 5 s cycle. The 2.35 : 1 banners appear over 0.3–0.8 s; the centre square frame and the white wash outside it (0.62 opacity) come in over 1.0–1.6 s.
+- Over 1.9–2.6 s the cropped square slides right to x 318, framed green (whole) or red (cut).
+- The ✓ / ✕ verdicts appear over 2.8–3.2 s.
+- Everything clears over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+When to use it: For article headers and wide banners that will later be cropped to other ratios.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/3-096.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

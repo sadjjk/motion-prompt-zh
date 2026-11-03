@@ -1,0 +1,52 @@
+// Motion Prompt #3-107 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/texture-feel
+//
+// Tactile texture / 質感
+// Category: Editing & photography / Light & color / Mood & tone recipes
+// What happens: It starts from a plain picture of a ceramic cup on a table. First the camera moves in and the cup grows large. Then a low light from the left makes the left side bright and the right dark; the surface grains pop out, each lit on the upper left with a small shadow on the lower right, and a long shadow stretches across the table. Next a soft, blurred vertical highlight appears on the left. Finally 3 fine scratches show up as dark lines with light edges. A checklist on the right turns each numbered circle blue as its ingredient arrives, and the status reads plain version → adding → finished.
+// Motion spec:
+//   - 5 s cycle. 0–0.6 s is the plain version; the 4 ingredients join from 0.6 s, the next every 0.7 s, each fading in over 0.5 s.
+//   - Push in to a 2.3× close-up; low side light from the left: bright on the left and dark on the right, each of the 90 grains lit at the upper left with a shadow at the lower right, plus a long shadow on the table.
+//   - Soft highlight: a tall ellipse on the left blurred by 2 px; the 3 scratches are each a dark line paired with a light edge.
+//   - The finished look holds until 4.4 s and slides back to the plain version over 4.4–4.95 s, so 5 s and 0 s are the same frame.
+// When to use it: For product shots of ceramics, leather, wood or fabric that should convey how the material feels.
+// Tags: texture, material, raking light, close-up, surface detail, product photography
+// Size: 539x208 px · Cycle: 5 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#3-107
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 60
+// 60 质感：一只陶杯。推到特写 → 低角度侧光从左掠过，表面颗粒投下细小阴影 → 柔和的高光形状 → 一点划痕
+const TX_C = { x: 196, y: 150, w: 64, h: 66 }, TX_ZOOM = 2.3;
+const TX_DOTS = () => once('txDots', () => { const r = rng(60), o = []; for (let i = 0; i < 90; i++) o.push([r() * TX_C.w, r() * TX_C.h, 0.35 + r() * 0.5]); return o; });
+function txBody(k) { const C = TX_C; k.beginPath(); k.moveTo(C.x - C.w / 2, C.y - C.h); k.lineTo(C.x + C.w / 2, C.y - C.h); k.lineTo(C.x + C.w / 2 - 6, C.y - 4); k.quadraticCurveTo(C.x + C.w / 2 - 7, C.y, C.x + C.w / 2 - 12, C.y); k.lineTo(C.x - C.w / 2 + 12, C.y); k.quadraticCurveTo(C.x - C.w / 2 + 7, C.y, C.x - C.w / 2 + 6, C.y - 4); k.closePath(); }
+CELLS[59] = mdCell('质感', ['推到特写', '低角度侧光显凹凸', '柔和高光', '一点划痕'], (k, u, [pZ, pL, pH, pS], D) => {
+  const C = TX_C, s = lerp(1, TX_ZOOM, pZ);
+  D.rect(0, 0, MD_W, CH, '#EEEAE4');
+  k.save(); k.translate(196, lerp(C.y - C.h / 2, 112, pZ)); k.scale(s, s); k.translate(-C.x, -(C.y - C.h / 2));
+  D.rect(-200, C.y, 800, 200, '#DCD5CB');
+  if (pL > 0.01) { k.save(); k.globalAlpha = 0.35 * pL; D.poly([[C.x, C.y - 2], [C.x + 120, C.y + 4], [C.x + 110, C.y + 12], [C.x - 20, C.y + 2]], '#8F857A'); k.restore(); }   // 低角度光的长影
+  k.strokeStyle = '#B9A893'; k.lineWidth = 7; k.beginPath(); k.ellipse(C.x + C.w / 2 + 4, C.y - C.h / 2, 12, 18, 0, -1.4, 1.4); k.stroke();   // 把手
+  k.save(); txBody(k); k.fillStyle = '#C8B8A6'; k.fill(); k.clip();
+  if (pL > 0.01) {
+    // 侧光：右侧压暗，每颗颗粒左上一点亮、右下一点影
+    const g = k.createLinearGradient(C.x - C.w / 2, 0, C.x + C.w / 2, 0); g.addColorStop(0, `rgba(255,248,236,${(0.45 * pL).toFixed(3)})`); g.addColorStop(0.5, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(70,55,40,${(0.45 * pL).toFixed(3)})`);
+    k.fillStyle = g; k.fillRect(C.x - C.w / 2, C.y - C.h, C.w, C.h);
+    TX_DOTS().forEach(([x, y, r]) => { const X = C.x - C.w / 2 + x, Y = C.y - C.h + y;
+      k.fillStyle = `rgba(90,70,50,${(0.4 * pL).toFixed(3)})`; k.beginPath(); k.arc(X + r * 0.7, Y + r * 0.3, r, 0, TAU); k.fill();
+      k.fillStyle = `rgba(255,250,240,${(0.45 * pL).toFixed(3)})`; k.beginPath(); k.arc(X - r * 0.4, Y - r * 0.2, r * 0.7, 0, TAU); k.fill(); });
+  }
+  if (pH > 0.01) { k.save(); mdBlur(k, 2); k.fillStyle = `rgba(255,255,255,${(0.55 * pH).toFixed(3)})`; k.beginPath(); k.ellipse(C.x - C.w / 2 + 14, C.y - C.h / 2, 5, C.h * 0.36, 0, 0, TAU); k.fill(); k.restore(); }
+  if (pS > 0.01) {
+    k.lineWidth = 0.6; k.lineCap = 'round';
+    [[[18, 20], [30, 26]], [[36, 40], [44, 36]], [[24, 48], [27, 56]]].forEach(([[a, b], [c2, d]]) => {
+      k.strokeStyle = `rgba(80,62,45,${(0.7 * pS).toFixed(3)})`; k.beginPath(); k.moveTo(C.x - C.w / 2 + a, C.y - C.h + b); k.lineTo(C.x - C.w / 2 + c2, C.y - C.h + d); k.stroke();
+      k.strokeStyle = `rgba(255,255,255,${(0.6 * pS).toFixed(3)})`; k.beginPath(); k.moveTo(C.x - C.w / 2 + a, C.y - C.h + b - 0.6); k.lineTo(C.x - C.w / 2 + c2, C.y - C.h + d - 0.6); k.stroke();
+    });
+  }
+  k.restore();
+  D.rect(C.x - C.w / 2 - 2, C.y - C.h - 3, C.w + 4, 4, '#D9CCBC');   // 杯口
+  k.restore();
+});

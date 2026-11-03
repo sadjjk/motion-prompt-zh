@@ -1,0 +1,45 @@
+// Motion Prompt #3-105 · MIT License (c) 2026 阿梦freedom · https://idea.ameng.dev/terms/loneliness-mood
+//
+// 孤独感 / Loneliness
+// 分類: 編集・撮影 / 光と色 / ムード・トーン
+// 何が起きるか: ホームのベンチ近くに立つ人物の寄りの画面から始まる。まず画面が引いて、柱と屋根の続く広いホームの中で人物が小さくなる。次にまわりが暗く落ち、1本の街灯の光の円すいだけが彼と足元の床を照らす。続いて色が青灰色の夜に変わる。最後にカメラがごくゆっくり後ろへ下がり続け、人物はさらに小さくなる。右のチェックリストは要素が入るごとに番号の丸が青くなり、状態が「平淡版 → 叠加中 → 成品」と変わる。
+// 動きの仕様:
+//   - 5秒周期。0〜0.6秒は平凡な版。4つの要素が0.6秒から0.7秒ごとに1つずつ加わり、それぞれ0.5秒で入る
+//   - 画面は2.6倍から1倍へ引く。まわりを0.45暗くし、街灯1本の光の円すいと足元の光だけを残す
+//   - 昼の配色を青灰色の夜の配色に置き換える。極めてゆっくり後ろへ：2.7〜4.4秒にさらに12%縮む
+//   - 4.4秒まで完成形で止まり、4.4〜4.95秒に平凡な版へ戻る。5秒と0秒は同じ画面
+// 使いどころ: 映画のワンシーン風の写真、物語のある人物写真、MVの寂しい場面を作りたいとき。
+// タグ: loneliness, wide shot, small figure, single light, night, pull back
+// サイズ: 539x208 px · 1周: 5 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/photo.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#3-105
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 58
+// 58 孤独感：夜里的空站台。拉成大远景、人变小 → 只有一盏灯照到他 → 蓝灰夜色 → 镜头极慢拉远（最后一项一直慢慢退到 4.4 秒）
+const LO_P = [214, 140], LO_LAMP = [214, 46];
+CELLS[57] = mdCell('孤独感', ['拉成大远景', '一盏灯只照到他', '蓝灰夜色', '镜头极慢拉远'], (k, u, [pW, pL, pN, pS], D) => {
+  const c = (a, b) => mixc(a, b, pN), s = lerp(2.6, 1, pW) * (1 - 0.12 * pS * mdSlow(u, 3));
+  D.rect(0, 0, MD_W, CH, c('#E3E5E8', '#202838'));
+  k.save(); k.translate(196, 118); k.scale(s, s); k.translate(-LO_P[0], -LO_P[1] + 22);
+  D.rect(-200, 12, 800, 14, c('#B9BDC4', '#2C3548'));   // 顶棚
+  for (let x = -180; x < 600; x += 92) D.rect(x, 26, 6, 114, c('#C6C9CF', '#323B50'));   // 柱子
+  D.rect(-200, 140, 800, 12, c('#CFD2D7', '#3A4459')); D.rect(-200, 140, 800, 3, c('#F2D27A', '#8A7A45'));   // 站台边 + 黄线
+  D.rect(-200, 152, 800, 80, c('#9EA3AB', '#171D2A'));   // 轨道
+  for (let x = -200; x < 600; x += 18) D.rect(x, 168, 10, 4, c('#8A8F98', '#1F2636'));
+  D.rr(110, 126, 40, 5, 2, c('#A9ADB4', '#2B3346')); D.rect(114, 131, 3, 9, c('#A9ADB4', '#2B3346')); D.rect(143, 131, 3, 9, c('#A9ADB4', '#2B3346'));   // 长椅
+  D.rect(LO_LAMP[0] - 1, 26, 2, LO_LAMP[1] - 26, c('#9FA3AA', '#3A4152')); D.rr(LO_LAMP[0] - 8, LO_LAMP[1] - 2, 16, 5, 2, c('#9FA3AA', '#3A4152'));
+  figure(D, LO_P[0], LO_P[1], 30, c('#4D5A75', '#0F141F'));
+  if (pL > 0.01) {   // 其余地方压暗，只有灯下一锥光
+    D.rect(-400, -200, 1200, 600, `rgba(8,10,18,${(0.45 * pL).toFixed(3)})`);
+    k.save(); k.globalCompositeOperation = 'lighter';
+    const g = k.createLinearGradient(0, LO_LAMP[1], 0, LO_P[1] + 6);
+    g.addColorStop(0, `rgba(255,214,150,${(0.5 * pL).toFixed(3)})`); g.addColorStop(1, `rgba(255,214,150,${(0.12 * pL).toFixed(3)})`);
+    k.fillStyle = g; k.beginPath(); k.moveTo(LO_LAMP[0] - 6, LO_LAMP[1] + 3); k.lineTo(LO_LAMP[0] + 6, LO_LAMP[1] + 3); k.lineTo(LO_LAMP[0] + 34, LO_P[1] + 6); k.lineTo(LO_LAMP[0] - 34, LO_P[1] + 6); k.closePath(); k.fill();
+    k.fillStyle = `rgba(255,230,180,${(0.9 * pL).toFixed(3)})`; k.beginPath(); k.ellipse(LO_P[0], LO_P[1] + 4, 30, 4, 0, 0, TAU); k.fill();
+    k.restore();
+  }
+  k.restore();
+});
