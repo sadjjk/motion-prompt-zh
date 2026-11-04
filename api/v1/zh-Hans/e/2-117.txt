@@ -1,0 +1,40 @@
+// Motion Prompt #2-117 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// 动画时长 / Duration
+// 分类: 动态图形 / 运动原理 / 入场与缓动
+// 动画表现: 三个方块用 0.2 秒、0.4 秒和 0.8 秒走过相同距离，下方的条显示各自的时长。
+// 运动规格:
+//   - 每 4.7 秒一轮。三个 34 px 方块（圆角 10）向右移动 300 px，2.75 秒时用相同时长返回。
+//   - 去程同在 0.4 秒开始，从上到下时长分别为 0.2 秒、0.4 秒、0.8 秒。
+//   - 三者都用三次 ease-out，只有时长不同。
+//   - 下方的条长度与时长成正比（1 秒 = 250 px），运动时从左向右填满，结束后 0.6–0.9 秒淡出。
+// 适用场景: 适合统一各处动画的长短：小反馈用短时长，大面积切换用稍长时长。
+// 标签: duration, timing, transition-duration, speed, seconds, motion, ms
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-117
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 66
+// 66 动画时长（同一段 300px 位移，分别用 0.2 / 0.4 / 0.8 秒完成）
+const DU_T = [0.4, 2.75], DU_D = [0.2, 0.4, 0.8], DU_COL = [C.blue, C.coral, C.mint];
+CELLS[65] = (k, w, h, u) => {
+  stage(k);
+  const x0 = 172, x1 = 472, S = 34, ys = [44, 102, 160];
+  DU_D.forEach((d, i) => {
+    const y = ys[i];
+    txt(k, d.toFixed(1) + ' 秒', 28, y + 1, `700 26px ${JP}`, DU_COL[i], 'left', 'middle');
+    k.strokeStyle = C.navy2; k.lineWidth = 6; k.lineCap = 'round'; k.beginPath(); k.moveTo(x0, y); k.lineTo(x1, y); k.stroke();
+    // 时长条：长度与时长成正比（1 秒 = 250px），动画进行时从左往右填满，结束 0.6 秒后淡出
+    const bl = d * 250, by = y + 24;
+    k.fillStyle = C.navy2; rr(k, x0, by - 3, bl, 6, 3); k.fill();
+    DU_T.forEach(s => {
+      const p = P(u, s, s + d), a = u < s ? 0 : 1 - P(u, s + d + 0.6, s + d + 0.9);
+      if (a > 0) { k.globalAlpha = a; k.fillStyle = DU_COL[i]; rr(k, x0, by - 3, Math.max(6, bl * p), 6, 3); k.fill(); k.globalAlpha = 1; }
+    });
+    const f = eOut(P(u, DU_T[0], DU_T[0] + d)) - eOut(P(u, DU_T[1], DU_T[1] + d));
+    k.fillStyle = DU_COL[i]; rr(k, x0 + f * (x1 - x0) - S / 2, y - S / 2, S, S, 10); k.fill();
+  });
+};

@@ -1,4 +1,4 @@
-# Motion Prompt catalog (ja) · 496 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	category	title	tags	summary
+# Motion Prompt catalog (ja) · 501 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	category	title	tags	summary
 1-001	コンポーネント / 開く・重なる	モーダル (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	「開く」ボタンを押すと画面全体が暗くなり、中央に小窓が少し拡大しながら出る。×を押すと閉じる。
 1-002	コンポーネント / 開く・重なる	ドロワー (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	「メニュー」を押すと左から縦長のパネルが引き出され、外側を押すと戻る。
 1-003	コンポーネント / 開く・重なる	ボトムシート (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	指で「詳細を見る」を押すと下からパネルがせり上がり、上端のつまみを下へ引くと閉じる。
@@ -196,6 +196,8 @@
 1-195	文字・データ / チャート	統計カード (Stat cards)	dashboard,stat-card,kpi,count-up,sparkline,metrics	3枚のデータカードが下から順に浮かび上がる。各カードの数字が0から目標値まで増え、下の小さな折れ線が左から描かれ、最後に右上の伸び率が現れる。
 1-196	文字・データ / チャート	表のクロスハイライト (Table crosshair highlight)	table,crosshair,highlight,hover,data-table,grid	4×4の数値表の上をポインタが移る。止まったセルの行全体と列全体が淡く色づいて十字になり、そのセルは強調色で塗られ数字が白く太く大きくなる。表を離れると消える。
 1-197	ポインター操作 / リキッドな操作	リキッドグラスレンズ (Liquid glass lens)	liquid,glass,refraction,lens,dispersion,glassmorphism	暗いグリッドの上に大きな見出しと 6 色のチップが並び、カプセル形のガラスレンズが右へ滑って止まり、また左へ戻る。レンズの中央は素通しで、縁に近づくほど内容が内側へ引き込まれて曲がり、縁には赤と青のにじみが出る。上部には弧形のハイライト、外側には柔らかい影がある。
+1-198	ページ / スクロール	スクロールで隠れるヘッダー (Hide-on-scroll header)	hide-on-scroll,headroom,auto-hide-header,navbar,header,scroll-direction,sticky	下へスクロールするとヘッダーが上へ引っ込み、少し上へ戻した所でまた滑り出てくる。
+1-199	フィードバック / 操作への反応	ローディングボタン (Loading button)	loading-button,spinner,submit,busy-state,async,success,disabled	クリックすると「订阅」ボタンが丸く縮んで回り、終わると緑に広がってチェックと「已订阅」が出て、元に戻る。
 2-001	動きの原理 / 登場・イージング	ポップイン (Pop-in)	pop,pop-in,spring,bounce,scale,icon,badge,entrance	アプリのアイコンがポンと弾んで現れ、通知バッジが遅れてポンと出る。
 2-002	動きの原理 / 登場・イージング	スタガー (Stagger)	stagger,sequence,delay,cascade,bar-chart,list,entrance	グラフの棒が、少しずつ時間をずらして左から順に立ち上がる。
 2-003	動きの原理 / 登場・イージング	マスクリビール (Mask reveal)	mask,reveal,clip,wipe,title,text,slide-up,headline	1本の線を境に、見えない枠の向こうから見出しがせり上がる。
@@ -312,6 +314,9 @@
 2-114	文字アニメーション / 一文字ずつ・組版	名言カード (Quote card)	quote,pull quote,card,highlight,typography,title	濃紺の画面の中央に、角の丸い紙色のカードが少し行き過ぎて弾むように現れる。左上にはコーラル色の大きな引用符が上から落ちてきて弾んで止まり、「好的设计，」「是把不必要的都拿掉。」の2行が下から順に浮かび上がる。続いて「不必要的」の4文字に黄色のマーカーが左から右へ引かれ、前後の字とは少し間をあけて目立たせる。右下に出典が淡く現れ、しばらく止まったあと、カードは少し縮みながら消えて空の画面に戻る。
 2-115	図形・オブジェクト / 情報・テック	ズームコールアウト (Zoom callout)	zoom,callout,magnifier,detail,annotation,loupe	街の夜景の上で、黄色い小さな円がビル街を8の字を描いてゆっくり動く。小円から右上の大きな白い円へ点線が伸び、大円の中には小円の位置を3倍に拡大した同じ景色が映る。窓の明かりの点滅も大円の中で同時に変わる。大円の下のラベルには倍率と小円の座標が出て、移動に合わせて数字が変わる。元の画面は拡大も移動もしない。
 2-116	エフェクト・トランジション / 粒子・光	降雪 (Snowfall)	snow,snowfall,particles,winter,bokeh,depth	紺色の夜空とビルのシルエット、雪の積もった道の夜の街で、雪が途切れずに降り続ける。遠くの雪は小さくはっきりしてゆっくり落ち、中くらいの雪は少し大きく速く、手前の雪はピントの外れた大きく淡い光の玉になって速く横切る。どの雪片も落ちながら左右にゆるく揺れる。街灯の光の円錐を通る雪片は暖かい白に照らされて少し大きく見え、地面にも光だまりがある。
+2-117	動きの原理 / 登場・イージング	デュレーション (Duration)	duration,timing,transition-duration,speed,seconds,motion,ms	同じ距離を0.2秒・0.4秒・0.8秒で動く3つの四角。下の棒がそれぞれの時間の長さを示す。
+2-118	動きの原理 / 登場・イージング	ディレイ (Delay)	delay,stagger,transition-delay,sequence,timing,offset,list	4本の棒が0・0.15・0.3・0.45秒待ってから動き出す。右の四角も同じ順でスライドして現れる。
+2-119	動きの原理 / 登場・イージング	スプリングアニメーション (Spring animation)	spring,spring-physics,damping,stiffness,bounce,overshoot,framer-motion	同じ硬さで減衰比だけ違う3つの丸が終点へ動く。右の小さなグラフは位置の時間変化。
 3-001	カメラ・編集 / カメラの動き	パン (Pan)	pan,panning,yaw,rotate,horizontal,camera move,reveal	カメラの位置は変えず、首を左から右へ振る。回転なので手前も奥も同じ量だけ横に流れる。
 3-002	カメラ・編集 / カメラの動き	ティルト (Tilt)	tilt,tilt up,pitch,vertical,look up,camera move	カメラの位置は変えず、首を下から上へ振る。足元の人物から塔の先端まで見上げていく。
 3-003	カメラ・編集 / カメラの動き	ドリーイン (Dolly in)	dolly,dolly in,push in,track in,move forward,parallax,camera move	カメラそのものが被写体へ前進する。手前の物ほど大きく速く流れ、奥の山はほとんど変わらない。

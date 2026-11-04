@@ -1,0 +1,16 @@
+Please use "Loading button" (ローディングボタン), filed under "Feedback / Action feedback".
+Motion Prompt #1-199
+
+What it is: A button that shows a busy state after the click, then the result
+What the sample shows: After the click, the subscribe button shrinks into a spinning circle, then widens in green with a check and "Subscribed", and resets.
+Spec:
+- One 4.8 s cycle. The cursor moves to the button at 0.2–0.95 s and clicks at 1.1 s.
+- At 1.15–1.45 s the button narrows from 140 to 32 px (cubic ease-in-out), the label fades and the colour drops to 0.75 opacity as a disabled state.
+- Once narrowed, a white arc of radius 8 px spins once every 0.8 s.
+- At 2.7–3.05 s it widens back to 140 px and turns green; a check draws at 2.9–3.2 s and "Subscribed" fades in at 2.95–3.2 s.
+- At 4.1–4.45 s it returns to the orange button and its label.
+When to use it: Use it on submit, save or pay actions that take time, to block double clicks and show progress and the result.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-199.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

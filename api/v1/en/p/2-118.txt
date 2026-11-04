@@ -1,0 +1,15 @@
+Please use "Delay" (ディレイ), filed under "Motion principles / Entrances & easing".
+Motion Prompt #2-118
+
+What it is: The wait before a move starts
+What the sample shows: Four bars wait 0, 0.15, 0.3 and 0.45 s before they start; the squares on the right slide in in the same order.
+Spec:
+- One 4.7 s cycle. The timeline starts at 0.5 s; a white playhead moves at 1 s = 170 px.
+- The four rows have delays of 0, 0.15, 0.3 and 0.45 s: a dotted line while waiting, then a 0.5 s bar.
+- Each square on the right (110×30 px) slides 30 px from the left and fades in over 0.5 s (cubic ease-out).
+- Everything fades out at 3.5–3.9 s before the next cycle.
+When to use it: Use it to bring in lists or cards one after another instead of all at once.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-118.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

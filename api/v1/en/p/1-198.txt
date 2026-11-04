@@ -1,0 +1,16 @@
+Please use "Hide-on-scroll header" (スクロールで隠れるヘッダー), filed under "Pages / Scrolling".
+Motion Prompt #1-198
+
+What it is: A header that hides as you scroll down and comes back when you scroll up
+What the sample shows: Scrolling down slides the header up out of view; scrolling back up a little slides it back in.
+Spec:
+- Scroll: 0→200 px at 0.4–1.5 s, 200→130 px at 2.1–2.6 s, 130→0 at 3.3–4.3 s (cubic ease-in-out).
+- A 34 px header (logo, three menu items, button).
+- Once a downward scroll passes the 34 px header height, it slides 34 px up out of view over 0.3 s (cubic ease-out).
+- When an upward scroll starts it slides back over the same 0.3 s and stays while scrolling up to the top.
+- While shown, a 12 px shadow sits under it (up to 0.16 opacity, fading in over the first 24 px of scroll).
+When to use it: Use it on small screens to give the content more room while reading and bring the menu back only when the reader scrolls up.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-198.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lp.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

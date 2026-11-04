@@ -1,0 +1,16 @@
+Please use "Spring animation" (スプリングアニメーション), filed under "Motion principles / Entrances & easing".
+Motion Prompt #2-119
+
+What it is: Motion driven by a spring's stiffness and damping, which can overshoot and settle
+What the sample shows: Three dots with the same stiffness but different damping ratios move to the end line; small graphs on the right plot position over time.
+Spec:
+- One 4.7 s cycle. Three 30 px dots leave for an end line 200 px to the right at 0.35 s and return with the same spring at 2.7 s.
+- Natural angular frequency ω = 14 for all three; damping ratios are 0.3, 0.6 and 1 from top to bottom.
+- Damping 0.3 overshoots a lot and swings a few times; 0.6 overshoots once a little; 1 settles without overshoot.
+- Each move ends at 2 s; the last 0.3 s eases any remaining wobble onto the end line.
+- The graphs span 0–1.2 s horizontally with position vertically; a white dot marks the current time.
+When to use it: Use it when a move should overshoot and settle like a physical spring instead of following a fixed curve.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-119.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

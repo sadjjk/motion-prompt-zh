@@ -2695,6 +2695,86 @@ MotionPrompt.pack('motion2', function () {
     txt(k, `×${ZC_Z}  ·  ${Math.round(px)}, ${Math.round(py)}`, bx, by + br + 19, `600 12px ${DISP}`, '#fff', 'center', 'middle');
   };
 
+  // @element 66
+  // 66 动画时长（同一段 300px 位移，分别用 0.2 / 0.4 / 0.8 秒完成）
+  const DU_T = [0.4, 2.75], DU_D = [0.2, 0.4, 0.8], DU_COL = [C.blue, C.coral, C.mint];
+  CELLS[65] = (k, w, h, u) => {
+    stage(k);
+    const x0 = 172, x1 = 472, S = 34, ys = [44, 102, 160];
+    DU_D.forEach((d, i) => {
+      const y = ys[i];
+      txt(k, d.toFixed(1) + ' 秒', 28, y + 1, `700 26px ${JP}`, DU_COL[i], 'left', 'middle');
+      k.strokeStyle = C.navy2; k.lineWidth = 6; k.lineCap = 'round'; k.beginPath(); k.moveTo(x0, y); k.lineTo(x1, y); k.stroke();
+      // 时长条：长度与时长成正比（1 秒 = 250px），动画进行时从左往右填满，结束 0.6 秒后淡出
+      const bl = d * 250, by = y + 24;
+      k.fillStyle = C.navy2; rr(k, x0, by - 3, bl, 6, 3); k.fill();
+      DU_T.forEach(s => {
+        const p = P(u, s, s + d), a = u < s ? 0 : 1 - P(u, s + d + 0.6, s + d + 0.9);
+        if (a > 0) { k.globalAlpha = a; k.fillStyle = DU_COL[i]; rr(k, x0, by - 3, Math.max(6, bl * p), 6, 3); k.fill(); k.globalAlpha = 1; }
+      });
+      const f = eOut(P(u, DU_T[0], DU_T[0] + d)) - eOut(P(u, DU_T[1], DU_T[1] + d));
+      k.fillStyle = DU_COL[i]; rr(k, x0 + f * (x1 - x0) - S / 2, y - S / 2, S, S, 10); k.fill();
+    });
+  };
+
+  // @element 67
+  // 67 动画延迟（4 个方块各等 0 / 0.15 / 0.3 / 0.45 秒再开始，每个都动 0.5 秒）
+  const DL_S = 0.5, DL_DL = [0, 0.15, 0.3, 0.45], DL_D = 0.5, DL_OUT = [3.5, 3.9], DL_SC = 170;
+  CELLS[66] = (k, w, h, u) => {
+    stage(k);
+    const t = u - DL_S, gx = 132, fade = 1 - P(u, DL_OUT[0], DL_OUT[1]);
+    // 时间轴刻度（1 秒 = 170px）
+    [0, 0.5, 1].forEach(s => { const x = gx + s * DL_SC; k.fillStyle = C.navy2; k.fillRect(x - 0.5, 18, 1, 166); txt(k, s + ' 秒', x, 198, `500 11px ${JP}`, C.dim, 'center', 'middle'); });
+    DL_DL.forEach((dl, i) => {
+      const y = 34 + i * 44, x = gx + dl * DL_SC, p = P(t, dl, dl + DL_D);
+      txt(k, dl + ' 秒', 26, y + 1, `700 18px ${JP}`, PAL[i], 'left', 'middle');
+      // 等待段（虚线）+ 动画段（条）
+      if (dl > 0) { k.strokeStyle = C.navy3; k.lineWidth = 2; k.setLineDash([4, 5]); k.beginPath(); k.moveTo(gx, y); k.lineTo(x, y); k.stroke(); k.setLineDash([]); }
+      k.fillStyle = C.navy2; rr(k, x, y - 7, DL_D * DL_SC, 14, 7); k.fill();
+      if (p > 0 && fade > 0) { k.globalAlpha = fade; k.fillStyle = PAL[i]; rr(k, x, y - 7, Math.max(14, DL_D * DL_SC * p), 14, 7); k.fill(); k.globalAlpha = 1; }
+      // 右侧方块：向右滑入 30px 并淡入（ease-out）
+      const e = eOut(p);
+      if (e * fade > 0) { k.globalAlpha = e * fade; k.fillStyle = PAL[i]; rr(k, 400 - 30 * (1 - e), y - 15, 110, 30, 8); k.fill(); k.globalAlpha = 1; }
+    });
+    // 播放头
+    const end = DL_DL[3] + DL_D, pa = t < 0 ? 0 : 1 - P(t, end + 0.2, end + 0.5);
+    if (pa > 0) { const x = gx + Math.min(t, end) * DL_SC; k.globalAlpha = pa; k.fillStyle = C.white; k.fillRect(x - 1, 14, 2, 172); k.beginPath(); k.arc(x, 14, 4, 0, 7); k.fill(); k.globalAlpha = 1; }
+  };
+
+  // @element 68
+  // 68 弹簧动画（同一刚度 ω=14，阻尼比 0.3 / 0.6 / 1；右边是位置随时间的曲线）
+  const SP_W = 14, SP_Z = [0.3, 0.6, 1], SP_T = [0.35, 2.7], SP_DUR = 2.0;
+  const spX = (t, z) => {
+    if (t <= 0) return 0;
+    if (z >= 1) return 1 - Math.exp(-SP_W * t) * (1 + SP_W * t);
+    const wd = SP_W * Math.sqrt(1 - z * z);
+    return 1 - Math.exp(-z * SP_W * t) * (Math.cos(wd * t) + z * SP_W / wd * Math.sin(wd * t));
+  };
+  // 最后 0.3 秒把残余的微小振动收到终点，保证循环无缝
+  const spS = (t, z) => t >= SP_DUR ? 1 : lerp(spX(t, z), 1, smooth(P(t, SP_DUR - 0.3, SP_DUR)));
+  CELLS[67] = (k, w, h, u) => {
+    stage(k);
+    const x0 = 140, x1 = 340, D = x1 - x0, R = 15, ys = [46, 104, 162], gx = 440, gw = 80, gT = 1.2;
+    // 终点线
+    k.strokeStyle = C.dim; k.lineWidth = 1.5; k.setLineDash([4, 5]); k.beginPath(); k.moveTo(x1, 18); k.lineTo(x1, 190); k.stroke(); k.setLineDash([]);
+    SP_Z.forEach((z, i) => {
+      const y = ys[i], col = PAL[i];
+      txt(k, '阻尼比 ' + z, 24, y + 1, `700 15px ${JP}`, col, 'left', 'middle');
+      k.strokeStyle = C.navy2; k.lineWidth = 6; k.lineCap = 'round'; k.beginPath(); k.moveTo(x0, y); k.lineTo(x1 + 70, y); k.stroke();
+      const f = u < SP_T[1] ? spS(u - SP_T[0], z) : 1 - spS(u - SP_T[1], z);
+      k.fillStyle = col; k.beginPath(); k.arc(x0 + f * D, y, R, 0, 7); k.fill();
+      // 曲线：横轴 0〜1.2 秒，纵轴是位置（虚线 = 终点）
+      const gy = v => y + 16 - v * 26;
+      k.fillStyle = C.navy2; rr(k, gx - 6, y - 24, gw + 12, 48, 8); k.fill();
+      k.strokeStyle = C.navy3; k.lineWidth = 1; k.setLineDash([3, 3]); k.beginPath(); k.moveTo(gx, gy(1)); k.lineTo(gx + gw, gy(1)); k.stroke(); k.setLineDash([]);
+      k.strokeStyle = col; k.lineWidth = 2; k.beginPath();
+      for (let j = 0; j <= 60; j++) { const tt = j / 60 * gT, px = gx + j / 60 * gw, py = gy(spX(tt, z)); j ? k.lineTo(px, py) : k.moveTo(px, py); }
+      k.stroke();
+      const lt = u - SP_T[0], da = lt < 0 ? 0 : 1 - P(lt, gT, gT + 0.3);
+      if (da > 0) { const tt = Math.min(lt, gT); k.globalAlpha = da; k.fillStyle = C.white; k.beginPath(); k.arc(gx + tt / gT * gw, gy(spX(tt, z)), 3.5, 0, 7); k.fill(); k.globalAlpha = 1; }
+    });
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

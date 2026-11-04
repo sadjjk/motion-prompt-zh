@@ -1,0 +1,15 @@
+Please use "Duration" (デュレーション), filed under "Motion principles / Entrances & easing".
+Motion Prompt #2-117
+
+What it is: How long a move takes from start to finish
+What the sample shows: Three squares cover the same distance in 0.2 s, 0.4 s and 0.8 s; a bar under each shows how long it takes.
+Spec:
+- One 4.7 s cycle. Three 34 px squares (radius 10) move 300 px right, then move back at 2.75 s in the same time.
+- They all start at 0.4 s; durations are 0.2 s, 0.4 s and 0.8 s from top to bottom.
+- All three use the same cubic ease-out; only the duration differs.
+- Each bar's length is proportional to its duration (1 s = 250 px). It fills from the left during the move and fades out 0.6–0.9 s after it ends.
+When to use it: Use it to set how long each move lasts: short for small feedback, longer for large screen changes.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-117.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

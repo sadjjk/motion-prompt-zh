@@ -1,0 +1,53 @@
+// Motion Prompt #2-119 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// Spring animation / スプリングアニメーション
+// Category: Motion graphics / Motion principles / Entrances & easing
+// What happens: Three dots with the same stiffness but different damping ratios move to the end line; small graphs on the right plot position over time.
+// Motion spec:
+//   - One 4.7 s cycle. Three 30 px dots leave for an end line 200 px to the right at 0.35 s and return with the same spring at 2.7 s.
+//   - Natural angular frequency ω = 14 for all three; damping ratios are 0.3, 0.6 and 1 from top to bottom.
+//   - Damping 0.3 overshoots a lot and swings a few times; 0.6 overshoots once a little; 1 settles without overshoot.
+//   - Each move ends at 2 s; the last 0.3 s eases any remaining wobble onto the end line.
+//   - The graphs span 0–1.2 s horizontally with position vertically; a white dot marks the current time.
+// When to use it: Use it when a move should overshoot and settle like a physical spring instead of following a fixed curve.
+// Tags: spring, spring-physics, damping, stiffness, bounce, overshoot, framer-motion
+// Size: 539x208 px · Cycle: 4.7 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-119
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 68
+// 68 弹簧动画（同一刚度 ω=14，阻尼比 0.3 / 0.6 / 1；右边是位置随时间的曲线）
+const SP_W = 14, SP_Z = [0.3, 0.6, 1], SP_T = [0.35, 2.7], SP_DUR = 2.0;
+const spX = (t, z) => {
+  if (t <= 0) return 0;
+  if (z >= 1) return 1 - Math.exp(-SP_W * t) * (1 + SP_W * t);
+  const wd = SP_W * Math.sqrt(1 - z * z);
+  return 1 - Math.exp(-z * SP_W * t) * (Math.cos(wd * t) + z * SP_W / wd * Math.sin(wd * t));
+};
+// 最后 0.3 秒把残余的微小振动收到终点，保证循环无缝
+const spS = (t, z) => t >= SP_DUR ? 1 : lerp(spX(t, z), 1, smooth(P(t, SP_DUR - 0.3, SP_DUR)));
+CELLS[67] = (k, w, h, u) => {
+  stage(k);
+  const x0 = 140, x1 = 340, D = x1 - x0, R = 15, ys = [46, 104, 162], gx = 440, gw = 80, gT = 1.2;
+  // 终点线
+  k.strokeStyle = C.dim; k.lineWidth = 1.5; k.setLineDash([4, 5]); k.beginPath(); k.moveTo(x1, 18); k.lineTo(x1, 190); k.stroke(); k.setLineDash([]);
+  SP_Z.forEach((z, i) => {
+    const y = ys[i], col = PAL[i];
+    txt(k, '阻尼比 ' + z, 24, y + 1, `700 15px ${JP}`, col, 'left', 'middle');
+    k.strokeStyle = C.navy2; k.lineWidth = 6; k.lineCap = 'round'; k.beginPath(); k.moveTo(x0, y); k.lineTo(x1 + 70, y); k.stroke();
+    const f = u < SP_T[1] ? spS(u - SP_T[0], z) : 1 - spS(u - SP_T[1], z);
+    k.fillStyle = col; k.beginPath(); k.arc(x0 + f * D, y, R, 0, 7); k.fill();
+    // 曲线：横轴 0〜1.2 秒，纵轴是位置（虚线 = 终点）
+    const gy = v => y + 16 - v * 26;
+    k.fillStyle = C.navy2; rr(k, gx - 6, y - 24, gw + 12, 48, 8); k.fill();
+    k.strokeStyle = C.navy3; k.lineWidth = 1; k.setLineDash([3, 3]); k.beginPath(); k.moveTo(gx, gy(1)); k.lineTo(gx + gw, gy(1)); k.stroke(); k.setLineDash([]);
+    k.strokeStyle = col; k.lineWidth = 2; k.beginPath();
+    for (let j = 0; j <= 60; j++) { const tt = j / 60 * gT, px = gx + j / 60 * gw, py = gy(spX(tt, z)); j ? k.lineTo(px, py) : k.moveTo(px, py); }
+    k.stroke();
+    const lt = u - SP_T[0], da = lt < 0 ? 0 : 1 - P(lt, gT, gT + 0.3);
+    if (da > 0) { const tt = Math.min(lt, gT); k.globalAlpha = da; k.fillStyle = C.white; k.beginPath(); k.arc(gx + tt / gT * gw, gy(spX(tt, z)), 3.5, 0, 7); k.fill(); k.globalAlpha = 1; }
+  });
+};

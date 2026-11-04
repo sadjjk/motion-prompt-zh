@@ -1,0 +1,40 @@
+// Motion Prompt #2-117 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// Duration / デュレーション
+// Category: Motion graphics / Motion principles / Entrances & easing
+// What happens: Three squares cover the same distance in 0.2 s, 0.4 s and 0.8 s; a bar under each shows how long it takes.
+// Motion spec:
+//   - One 4.7 s cycle. Three 34 px squares (radius 10) move 300 px right, then move back at 2.75 s in the same time.
+//   - They all start at 0.4 s; durations are 0.2 s, 0.4 s and 0.8 s from top to bottom.
+//   - All three use the same cubic ease-out; only the duration differs.
+//   - Each bar's length is proportional to its duration (1 s = 250 px). It fills from the left during the move and fades out 0.6–0.9 s after it ends.
+// When to use it: Use it to set how long each move lasts: short for small feedback, longer for large screen changes.
+// Tags: duration, timing, transition-duration, speed, seconds, motion, ms
+// Size: 539x208 px · Cycle: 4.7 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-117
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 66
+// 66 动画时长（同一段 300px 位移，分别用 0.2 / 0.4 / 0.8 秒完成）
+const DU_T = [0.4, 2.75], DU_D = [0.2, 0.4, 0.8], DU_COL = [C.blue, C.coral, C.mint];
+CELLS[65] = (k, w, h, u) => {
+  stage(k);
+  const x0 = 172, x1 = 472, S = 34, ys = [44, 102, 160];
+  DU_D.forEach((d, i) => {
+    const y = ys[i];
+    txt(k, d.toFixed(1) + ' 秒', 28, y + 1, `700 26px ${JP}`, DU_COL[i], 'left', 'middle');
+    k.strokeStyle = C.navy2; k.lineWidth = 6; k.lineCap = 'round'; k.beginPath(); k.moveTo(x0, y); k.lineTo(x1, y); k.stroke();
+    // 时长条：长度与时长成正比（1 秒 = 250px），动画进行时从左往右填满，结束 0.6 秒后淡出
+    const bl = d * 250, by = y + 24;
+    k.fillStyle = C.navy2; rr(k, x0, by - 3, bl, 6, 3); k.fill();
+    DU_T.forEach(s => {
+      const p = P(u, s, s + d), a = u < s ? 0 : 1 - P(u, s + d + 0.6, s + d + 0.9);
+      if (a > 0) { k.globalAlpha = a; k.fillStyle = DU_COL[i]; rr(k, x0, by - 3, Math.max(6, bl * p), 6, 3); k.fill(); k.globalAlpha = 1; }
+    });
+    const f = eOut(P(u, DU_T[0], DU_T[0] + d)) - eOut(P(u, DU_T[1], DU_T[1] + d));
+    k.fillStyle = DU_COL[i]; rr(k, x0 + f * (x1 - x0) - S / 2, y - S / 2, S, S, 10); k.fill();
+  });
+};

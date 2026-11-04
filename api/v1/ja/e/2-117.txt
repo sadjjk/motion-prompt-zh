@@ -1,0 +1,40 @@
+// Motion Prompt #2-117 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// デュレーション / Duration
+// 分類: モーショングラフィックス / 動きの原理 / 登場・イージング
+// 何が起きるか: 同じ距離を0.2秒・0.4秒・0.8秒で動く3つの四角。下の棒がそれぞれの時間の長さを示す。
+// 動きの仕様:
+//   - 4.7秒周期。34pxの四角（角丸10）3つが300px右へ動き、2.75秒に同じ時間で戻る
+//   - 行きは0.4秒に同時スタート。時間は上から0.2秒・0.4秒・0.8秒
+//   - イージングは3本とも同じ easeOut（3乗）。違うのは時間だけ
+//   - 下の棒の長さは時間に比例（1秒=250px）。動いている間に左から満ち、終わって0.6〜0.9秒で消える
+// 使いどころ: 小さなボタンの反応は短く、大きな画面の切り替えは長めにと、動きの長さをそろえたいとき。
+// タグ: duration, timing, transition-duration, speed, seconds, motion, ms
+// サイズ: 539x208 px · 1周: 4.7 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-117
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 66
+// 66 动画时长（同一段 300px 位移，分别用 0.2 / 0.4 / 0.8 秒完成）
+const DU_T = [0.4, 2.75], DU_D = [0.2, 0.4, 0.8], DU_COL = [C.blue, C.coral, C.mint];
+CELLS[65] = (k, w, h, u) => {
+  stage(k);
+  const x0 = 172, x1 = 472, S = 34, ys = [44, 102, 160];
+  DU_D.forEach((d, i) => {
+    const y = ys[i];
+    txt(k, d.toFixed(1) + ' 秒', 28, y + 1, `700 26px ${JP}`, DU_COL[i], 'left', 'middle');
+    k.strokeStyle = C.navy2; k.lineWidth = 6; k.lineCap = 'round'; k.beginPath(); k.moveTo(x0, y); k.lineTo(x1, y); k.stroke();
+    // 时长条：长度与时长成正比（1 秒 = 250px），动画进行时从左往右填满，结束 0.6 秒后淡出
+    const bl = d * 250, by = y + 24;
+    k.fillStyle = C.navy2; rr(k, x0, by - 3, bl, 6, 3); k.fill();
+    DU_T.forEach(s => {
+      const p = P(u, s, s + d), a = u < s ? 0 : 1 - P(u, s + d + 0.6, s + d + 0.9);
+      if (a > 0) { k.globalAlpha = a; k.fillStyle = DU_COL[i]; rr(k, x0, by - 3, Math.max(6, bl * p), 6, 3); k.fill(); k.globalAlpha = 1; }
+    });
+    const f = eOut(P(u, DU_T[0], DU_T[0] + d)) - eOut(P(u, DU_T[1], DU_T[1] + d));
+    k.fillStyle = DU_COL[i]; rr(k, x0 + f * (x1 - x0) - S / 2, y - S / 2, S, S, 10); k.fill();
+  });
+};

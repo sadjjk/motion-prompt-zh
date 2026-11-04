@@ -3033,6 +3033,75 @@ MotionPrompt.pack('lp', function () {
     return fn;
   })();
 
+  // @element 53
+  // 53 滚动隐藏页头（往下滚时页头往上收起，往上滚时滑回来）
+  const HH_K = [[0.4, 0], [1.5, 200], [2.1, 200], [2.6, 130], [3.3, 130], [4.3, 0]];
+  const HH_PASS = (() => { let a = 0.4, b = 1.5; for (let i = 0; i < 40; i++) { const m = (a + b) / 2; if (steps(HH_K, m) < 34) a = m; else b = m; } return b; })();
+  const hhHidden = t => { t = mod(t, CYC); return t >= HH_PASS && t < 2.1; };
+  CELLS[52] = (k, w, h, u) => {
+    frame(k);
+    const y = steps(HH_K, u), hid = trans(hhHidden, u, 0.3, eOut), hy = -34 * hid;
+    const v = steps(HH_K, u + 0.02) - steps(HH_K, u - 0.02);
+    view(k, () => {
+      k.save(); k.translate(0, 34 - y);
+      pic(k, 24, 16, 214, 112, 1, 8);
+      txt(k, '轻装上阵，专注内容', 262, 50, `800 22px ${JP}`, C.ink); bars(k, 262, 66, 210, 3); btn(k, 262, 106, 100, 26, '了解更多');
+      k.fillStyle = C.soft; k.fillRect(0, 150, VW, 236);
+      txt(k, '特色', VW / 2, 184, `800 18px ${JP}`, C.ink, 'center');
+      for (let i = 0; i < 3; i++) { const x = 34 + i * 152; k.fillStyle = '#fff'; rr(k, x, 200, 136, 120, 8); k.fill(); pic(k, x + 8, 208, 120, 58, i, 5); bars(k, x + 10, 278, 110, 3, C.faint, 6, 11); }
+      bars(k, 34, 352, 440, 3, C.faint, 6, 11);
+      k.restore();
+      const sh = (1 - hid) * clamp(y / 24);
+      if (sh > 0) { const g = k.createLinearGradient(0, hy + 34, 0, hy + 46); g.addColorStop(0, `rgba(28,35,51,${0.16 * sh})`); g.addColorStop(1, 'rgba(28,35,51,0)'); k.fillStyle = g; k.fillRect(0, hy + 34, VW, 12); }
+      if (hid < 1) header(k, hy);
+      sbar(k, y / 250, 0.42);
+      // 滚动方向提示
+      const da = clamp(Math.abs(v) / 3);
+      if (da > 0) { k.globalAlpha = da; k.fillStyle = 'rgba(28,35,51,.78)'; rr(k, VW - 118, VH - 32, 96, 22, 11); k.fill(); txt(k, v > 0 ? '↓ 向下滚动' : '↑ 向上滚动', VW - 70, VH - 20.5, `600 11px ${JP}`, '#fff', 'center', 'middle'); k.globalAlpha = 1; }
+    });
+  };
+
+  // @element 54
+  // 54 加载状态按钮（点击后按钮收成圆形转圈、不可再点，完成后变绿出现对勾，再复原）
+  const LB_CLICK = 1.1, LB_DONE = 2.7, LB_RESET = 4.1, LB_GREEN = '#1FA971';
+  const LB_BX = VW / 2, LB_BY = 122;
+  const LB_PATH = [[0.2, 400, 150], [0.95, LB_BX + 18, LB_BY + 4], [1.5, LB_BX + 18, LB_BY + 4], [2.1, 400, 150]];
+  CELLS[53] = (k, w, h, u) => {
+    frame(k);
+    view(k, () => {
+      k.fillStyle = C.soft; k.fillRect(0, 0, VW, VH);
+      const fx = VW / 2 - 150;
+      k.save(); k.shadowColor = 'rgba(28,35,51,.10)'; k.shadowBlur = 12; k.shadowOffsetY = 3; k.fillStyle = '#fff'; rr(k, fx, 18, 300, 134, 10); k.fill(); k.restore();
+      txt(k, '订阅更新', fx + 20, 42, `800 15px ${JP}`, C.ink, 'left', 'middle');
+      k.strokeStyle = C.rule; k.lineWidth = 1; rr(k, fx + 20, 60, 260, 30, 6); k.stroke();
+      txt(k, 'you@example.com', fx + 32, 75.5, `500 12px ${EN}`, C.ink, 'left', 'middle');
+      const c1 = eIO(P(u, LB_CLICK + 0.05, LB_CLICK + 0.35)), c2 = eIO(P(u, LB_DONE, LB_DONE + 0.35)), r = P(u, LB_RESET, LB_RESET + 0.35);
+      const bw = lerp(lerp(140, 32, c1), 140, c2), bh = 32, bx = LB_BX - bw / 2, by = LB_BY - bh / 2;
+      // 底色：加载中按钮变淡（不可点），完成后变绿，复原时橙色盖回
+      k.globalAlpha = 1 - 0.25 * c1 * (1 - c2); k.fillStyle = c2 > 0 ? LB_GREEN : C.acc; rr(k, bx, by, bw, bh, bh / 2); k.fill();
+      if (r > 0) { k.globalAlpha = r; k.fillStyle = C.acc; rr(k, bx, by, bw, bh, bh / 2); k.fill(); }
+      k.globalAlpha = 1;
+      const la = Math.max(1 - clamp(c1 * 3), r);
+      if (la > 0) { k.globalAlpha = la; txt(k, '订阅', LB_BX, LB_BY + 0.5, `700 13px ${JP}`, '#fff', 'center', 'middle'); k.globalAlpha = 1; }
+      const sa = clamp((c1 - 0.6) / 0.4) * (1 - clamp(c2 * 3));
+      if (sa > 0) { const a = (u - LB_CLICK) / 0.8 * Math.PI * 2; k.globalAlpha = sa; k.strokeStyle = '#fff'; k.lineWidth = 2.5; k.lineCap = 'round'; k.beginPath(); k.arc(LB_BX, LB_BY, 8, a, a + Math.PI * 1.3); k.stroke(); k.lineCap = 'butt'; k.globalAlpha = 1; }
+      const okA = c2 > 0 ? 1 - r : 0;
+      if (okA > 0) {
+        const cp = P(u, LB_DONE + 0.2, LB_DONE + 0.5), ta = P(u, LB_DONE + 0.25, LB_DONE + 0.5), ox = LB_BX - 30;
+        k.globalAlpha = okA; k.strokeStyle = '#fff'; k.lineWidth = 2.5; k.lineCap = 'round'; k.lineJoin = 'round';
+        const pts = [[ox - 6, LB_BY], [ox - 1.5, LB_BY + 4.5], [ox + 7, LB_BY - 5]], L1 = Math.hypot(4.5, 4.5), L2 = Math.hypot(8.5, 9.5), L = (L1 + L2) * cp;
+        k.beginPath(); k.moveTo(pts[0][0], pts[0][1]);
+        if (L <= L1) k.lineTo(lerp(pts[0][0], pts[1][0], L / L1), lerp(pts[0][1], pts[1][1], L / L1));
+        else { k.lineTo(pts[1][0], pts[1][1]); const q = (L - L1) / L2; k.lineTo(lerp(pts[1][0], pts[2][0], q), lerp(pts[1][1], pts[2][1], q)); }
+        if (cp > 0) k.stroke();
+        k.lineCap = 'butt';
+        k.globalAlpha = okA * ta; txt(k, '已订阅', LB_BX + 10, LB_BY + 0.5, `700 13px ${JP}`, '#fff', 'center', 'middle'); k.globalAlpha = 1;
+      }
+      const [mx, my] = path(LB_PATH, u);
+      click(k, mx, my, u, [LB_CLICK]);
+    });
+  };
+
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

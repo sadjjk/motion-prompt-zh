@@ -9,7 +9,7 @@ data files (`api/v1/<lang>/catalog.tsv`, `e/<id>.txt`) follow
 [Lucian UX/UI Prompt](https://lucianlabs.dev/uxui-prompt/) and its skill
 [Seokwoooo/lucian-uxui](https://github.com/Seokwoooo/lucian-uxui).
 
-The 37 elements by Seokwoooo in `packs/uxmotion/` are Canvas 2D
+The elements by Seokwoooo in `packs/uxmotion/` are Canvas 2D
 implementations written for this repository after the structure, timing, easing and colors of the corresponding
 Lucian elements, recomposed as looping card demos with a simulated pointer or scroll. No Lucian HTML, CSS or
 script is copied. Every `e/<id>.txt` and `kit/uxmotion.js` of this pack carries Seokwoooo's copyright line.
@@ -36,11 +36,11 @@ The license notice:
 
 ## Libraries.dev (pack `aiux`)
 
-The 12 elements by Jakub Antalik in `packs/aiux/` are Canvas 2D implementations
+The elements by Jakub Antalik in `packs/aiux/` are Canvas 2D implementations
 written for this repository after the effects and published parameters of three
 [Libraries.dev](https://libraries.dev/) packages by Jakub Antalik: `border-beam`, `thinking-orbs` and
 `liquid-gooey` ([Jakubantalik/Libraries.dev](https://github.com/Jakubantalik/Libraries.dev)). No source file of
-those packages is copied. The `e/<id>.txt` of these 12 elements and `kit/aiux.js` carry the copyright line below.
+those packages is copied. The `e/<id>.txt` of these elements and `kit/aiux.js` carry the copyright line below.
 
 > MIT License
 >
@@ -63,7 +63,7 @@ those packages is copied. The `e/<id>.txt` of these 12 elements and `kit/aiux.js
 
 ## Motion Atlas (pack `scenes`)
 
-The 32 elements by Yun in `packs/scenes/` are Canvas 2D implementations written
+The elements by Yun in `packs/scenes/` are Canvas 2D implementations written
 for this repository after the corresponding styles of [Motion Atlas](https://github.com/skylarzzzz/motion-atlas)
 by Yun: each one is recomposed for a 539 × 208 card, turned into a seamless loop and drawn without randomness.
 Every `e/<id>.txt` and `kit/scenes.js` of this pack carries the copyright line below.
@@ -89,7 +89,7 @@ Every `e/<id>.txt` and `kit/scenes.js` of this pack carries the copyright line b
 
 ## mg-styles-15 (pack `mgstyles`)
 
-The 15 elements in `packs/mgstyles/` are Canvas 2D implementations written for
+The elements by Vincentwei1021 in `packs/mgstyles/` are Canvas 2D implementations written for
 this repository after the palettes, composition, rhythm and signature techniques of the corresponding styles in
 [mg-styles-15](https://github.com/Vincentwei1021/mg-styles-15) by Vincentwei1021: each one takes one representative
 passage of the original 10-second film and recomposes it as a looping 539 × 208 card. None of that project's
@@ -115,9 +115,9 @@ photos, sticker images, textures, HDRIs, glyph outlines, fonts or audio are used
 > IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 > THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-## skills by Emil Kowalski (11 elements in packs `ui`, `lp` and `motion2`)
+## skills by Emil Kowalski (packs `ui`, `lp` and `motion2`)
 
-The 11 elements (5 in pack `ui`, 5 in pack `lp`, 1 in pack `motion2`) are
+The elements by Emil Kowalski in packs `ui`, `lp` and `motion2` are
 Canvas 2D cards written for this repository after the terms and definitions in the `animation-vocabulary` skill of
 [skills](https://github.com/emilkowalski/skills) by Emil Kowalski (scale in, origin-aware animation, rubber-banding,
 interruptible animation, drag to reorder, press feedback, hold to confirm, shared element transition,
@@ -144,9 +144,9 @@ line below, and the `kit/<pack>.js` of `ui`, `lp` and `motion2` lists it after t
 > IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 > THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-## ui2v by illli Ai Studio (12 elements in packs `ui`, `scenes` and `motion2`)
+## ui2v by illli Ai Studio (packs `ui`, `scenes` and `motion2`)
 
-The 12 elements below are Canvas 2D cards written for this repository after motion packages published by
+The elements below are Canvas 2D cards written for this repository after motion packages published by
 illli Ai Studio (@itelmn) on [ui2v](https://ui2v.com/). Each one follows the original's composition, colours,
 timings and easing from its HyperFrames source, rescaled to the card size and made to loop. None of the original
 HTML, CSS, GSAP code or fonts are included. ui2v releases its motion packages under MIT No Attribution
@@ -186,9 +186,9 @@ HTML, CSS, GSAP code or fonts are included. ui2v releases its motion packages un
 > OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 > SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-## KittenJam Motion Library by Hannah (106 elements in packs `ui`, `lp`, `aiux`, `uxmotion`, `motion2` and `scenes`)
+## KittenJam Motion Library by Hannah (packs `ui`, `lp`, `aiux`, `uxmotion`, `motion2` and `scenes`)
 
-The 106 elements below are Canvas 2D cards written for this repository after effects collected in
+The elements below are Canvas 2D cards written for this repository after effects collected in
 [KittenJam Motion Library 動態收藏](https://kittenjam-motion-library.vercel.app/), curated by Hannah
 ([portfolio](https://hannahchao-portfolio.vercel.app/)), and added to the packs `ui`, `lp`, `aiux`, `uxmotion`,
 `motion2` and `scenes`. Each card follows the original effect's structure and timing, rescaled to its pack's card
@@ -310,9 +310,9 @@ lists it after the pack's own line. To ask for a removal or a correction, use th
 | `#2-098` | `scenes` | 飄落花瓣 Falling Petals (#174) |
 | `#2-099` | `scenes` | 煙火 Fireworks (#181) |
 
-## 镜语 jingyu-skill by 阿梦freedom (79 elements in packs `camera`, `photo`, `motion2`, `scenes` and `mgstyles`)
+## 镜语 jingyu-skill by 阿梦freedom (packs `camera`, `photo`, `motion2`, `scenes` and `mgstyles`)
 
-The 79 elements (23 in pack `camera`, 41 in pack `photo`, 4 in pack `motion2`, 10 in pack `scenes`, 1 in pack `mgstyles`: shot
+The elements by 阿梦freedom in packs `camera`, `photo`, `motion2`, `scenes` and `mgstyles` (shot
 sizes, composition and shot-to-shot continuity, lens light, lighting setups, light sources and colour, plus transitions, text
 and packaging, particles and texture, visual styles, storyboards and pacing, framing and cropping for platform
 formats, mood recipes, and inpainting) take their terms and definitions from
@@ -375,9 +375,9 @@ element's `e/<id>.txt` and the `kit/aiux.js` header carry the copyright line bel
 > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 > SOFTWARE.
 
-## vibe-knowledge by Berryxia (32 elements in pack `explainer`)
+## vibe-knowledge by Berryxia (pack `explainer`)
 
-The 32 elements in pack `explainer` follow the look of 32 styles from Berryxia's
+The elements in pack `explainer` follow the look of styles from Berryxia's
 [vibe-knowledge](https://github.com/andyhuo520/vibe-knowledge) style library (`skills/vibe-knowledge/styles/<style>/STYLE.md`):
 palette, materials and the way things move. The scenes are new, general-purpose examples drawn with Canvas 2D for this
 repository; no style image (`still.jpg`), video, music, voice or font from vibe-knowledge is included (its `NOTICE.md`
@@ -416,6 +416,11 @@ keeps only each post's URL (and ID for X), the author and a one-line introductio
 (`examples/found.json`). Being listed does not mean the author endorses this project. To ask for a removal
 or a correction, use the
 [issue form](https://github.com/sadjjk/motion-prompt-zh/issues/new?template=3-removal.yml).
+
+The elements `#2-117`–`#2-119` (in `packs/motion2/`) and `#1-198`–`#1-199` (in `packs/lp/`) were chosen
+after the motion glossary on [Bubble's Brain](https://bubblenews.today/vibe-coding/terms/motion/), which is
+listed on the examples page. Only the general terms were taken; the drawings, names, descriptions and prompts
+are our own, under this repository's MIT License © 2026 sadjjk.
 
 ## Tools used at run time (not included)
 

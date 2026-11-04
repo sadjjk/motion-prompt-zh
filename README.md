@@ -51,15 +51,15 @@ AI 会打开效果库让你挑选，选好后点"发送给 AI"，它会读取真
 - [MIT License](LICENSE) © 2026 Shohei Ohtaki。使用参考代码时请保留版权行。案例帖子及其媒体归原作者所有，不在 MIT 许可范围内，详见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
 效果代码按画布尺寸与周期放在几个代码包（`packs/<包>/`）里，下面按包写明来源；每款的作者与原作见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
 
-- `aiux` 包中的 12 款改写自 [Libraries.dev](https://libraries.dev/)，作者 Jakub Antalik，[MIT License](https://github.com/Jakubantalik/Libraries.dev/blob/main/LICENSE)。使用这部分代码时保留其版权行。
-- `aiux` 包 1 款（液态玻璃透镜）改写自 [liquid-glass](https://github.com/samasante/liquid-glass)，作者 Sam Asante，[MIT License](https://github.com/samasante/liquid-glass/blob/main/LICENSE)；未复制原库源码。使用这部分代码时保留其版权行。
-- `uxmotion` 包中的 37 款改写自 [Lucian UX/UI Prompt](https://lucianlabs.dev/uxui-prompt/)，作者 Seokwoooo，MIT License。使用这部分代码时保留其版权行。
-- `mgstyles` 包中的 15 款改写自 [mg-styles-15](https://github.com/Vincentwei1021/mg-styles-15)，作者 Vincentwei1021，MIT License；未使用原作的照片、纹理、字形与音频。使用这部分代码时保留其版权行。
-- `scenes` 包中的 32 款改写自 [Motion Atlas](https://github.com/skylarzzzz/motion-atlas)，作者 Yun，MIT License。使用这部分代码时保留其版权行。
-- `ui` 包 5 款、`lp` 包 5 款、`motion2` 包 1 款改写自 [skills](https://github.com/emilkowalski/skills)，作者 Emil Kowalski，MIT License。使用这部分代码时保留其版权行。
-- `ui` 包 6 款、`motion2` 包 3 款、`scenes` 包 3 款改写自 [ui2v](https://ui2v.com/) 上 illli Ai Studio 的动效包，MIT-0（MIT No Attribution）；未使用原作的代码与字体。我们仍在版权行中署名作者。
-- `ui` 包 17 款、`lp` 包 19 款、`aiux` 包 7 款、`uxmotion` 包 25 款、`motion2` 包 31 款、`scenes` 包 7 款改写自 Hannah 整理的 [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/)；原站声明「僅供個人參考學習」，未使用原站的提示词、代码与字体，名称、说明与提示词为本仓库自写，详见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。版权行署名 Hannah。
-- `ui` 包 4 款、`lp` 包 4 款、`uxmotion` 包 5 款、`motion2` 包 2 款为本仓库原创，MIT License © 2026 sadjjk。使用这部分代码时保留其版权行。
-- `explainer` 包中的 32 款改写自 [vibe-knowledge](https://github.com/andyhuo520/vibe-knowledge)，作者 Berryxia，MIT License；只取画风，画面为通用案例，未使用原作的风格图、视频、配乐与字体。使用这部分代码时保留其版权行。
-- `camera` 包 23 款、`photo` 包 41 款、`motion2` 包 4 款、`scenes` 包 10 款、`mgstyles` 包 1 款的术语与定义参考 [镜语](https://idea.ameng.dev/)（[jingyu-skill](https://github.com/hemengke1997/jingyu-skill)，作者阿梦freedom，MIT License）；动画为本仓库实现，未使用原站的演示代码、图片与文字。使用这部分代码时保留其版权行。
+- `aiux` 包中署名 Jakub Antalik 的效果改写自 [Libraries.dev](https://libraries.dev/)，作者 Jakub Antalik，[MIT License](https://github.com/Jakubantalik/Libraries.dev/blob/main/LICENSE)。使用这部分代码时保留其版权行。
+- `aiux` 包的液态玻璃透镜改写自 [liquid-glass](https://github.com/samasante/liquid-glass)，作者 Sam Asante，[MIT License](https://github.com/samasante/liquid-glass/blob/main/LICENSE)；未复制原库源码。使用这部分代码时保留其版权行。
+- `uxmotion` 包中署名 Seokwoooo 的效果改写自 [Lucian UX/UI Prompt](https://lucianlabs.dev/uxui-prompt/)，作者 Seokwoooo，MIT License。使用这部分代码时保留其版权行。
+- `mgstyles` 包中署名 Vincentwei1021 的效果改写自 [mg-styles-15](https://github.com/Vincentwei1021/mg-styles-15)，作者 Vincentwei1021，MIT License；未使用原作的照片、纹理、字形与音频。使用这部分代码时保留其版权行。
+- `scenes` 包中署名 Yun 的效果改写自 [Motion Atlas](https://github.com/skylarzzzz/motion-atlas)，作者 Yun，MIT License。使用这部分代码时保留其版权行。
+- `ui`、`lp`、`motion2` 包中署名 Emil Kowalski 的效果改写自 [skills](https://github.com/emilkowalski/skills)，作者 Emil Kowalski，MIT License。使用这部分代码时保留其版权行。
+- `ui`、`motion2`、`scenes` 包中署名 illli Ai Studio 的效果改写自 [ui2v](https://ui2v.com/) 上 illli Ai Studio 的动效包，MIT-0（MIT No Attribution）；未使用原作的代码与字体。我们仍在版权行中署名作者。
+- `ui`、`lp`、`aiux`、`uxmotion`、`motion2`、`scenes` 包中署名 Hannah 的效果改写自 Hannah 整理的 [KittenJam Motion Library](https://kittenjam-motion-library.vercel.app/)；原站声明「僅供個人參考學習」，未使用原站的提示词、代码与字体，名称、说明与提示词为本仓库自写，详见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。版权行署名 Hannah。
+- `ui`、`lp`、`uxmotion`、`motion2` 包中署名 sadjjk 的效果为本仓库原创，MIT License © 2026 sadjjk。使用这部分代码时保留其版权行。
+- `explainer` 包的效果改写自 [vibe-knowledge](https://github.com/andyhuo520/vibe-knowledge)，作者 Berryxia，MIT License；只取画风，画面为通用案例，未使用原作的风格图、视频、配乐与字体。使用这部分代码时保留其版权行。
+- `camera`、`photo`、`motion2`、`scenes`、`mgstyles` 包中署名阿梦freedom 的效果，术语与定义参考 [镜语](https://idea.ameng.dev/)（[jingyu-skill](https://github.com/hemengke1997/jingyu-skill)，作者阿梦freedom，MIT License）；动画为本仓库实现，未使用原站的演示代码、图片与文字。使用这部分代码时保留其版权行。
 - 每款的版权行写在它的代码首行（`e/<编号>.txt`），Skill 的 `get` 会一并取回。

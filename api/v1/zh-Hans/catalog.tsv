@@ -1,4 +1,4 @@
-# Motion Prompt catalog (zh-Hans) · 496 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	category	title	tags	summary
+# Motion Prompt catalog (zh-Hans) · 501 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	category	title	tags	summary
 1-001	组件 / 弹出与覆盖	模态对话框 (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	点击“打开”后页面变暗，小窗口略微放大并出现在中央，点击 × 关闭。
 1-002	组件 / 弹出与覆盖	侧边抽屉 (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	点击“菜单”后高面板从左侧滑入，点击外部后滑回。
 1-003	组件 / 弹出与覆盖	底部弹出面板 (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	手指轻点“查看详情”，面板从底部升起；向下拖动把手即可关闭。
@@ -196,6 +196,8 @@
 1-195	文字与数据 / 数据图表	数据仪表卡片 (Stat cards)	dashboard,stat-card,kpi,count-up,sparkline,metrics	3 张数据卡依次从下方浮上；每张的数字从 0 累加到目标值，下方迷你折线从左画出，最后右上角增长率淡入。
 1-196	文字与数据 / 数据图表	表格十字高亮 (Table crosshair highlight)	table,crosshair,highlight,hover,data-table,grid	指针在 4 × 4 数据表上移动；停留格所在整行整列淡淡着色形成十字，该格填满强调色、数字变白加粗放大；离开表格后高亮消失。
 1-197	指针交互 / 液态交互	液态玻璃透镜 (Liquid glass lens)	liquid,glass,refraction,lens,dispersion,glassmorphism	深色网格上有大标题和 6 个色块，胶囊形玻璃透镜向右滑过、停住、再滑回。透镜中部通透，越靠近边缘内容越被向内拉弯，边缘带红蓝色散；上部有弧形高光，外侧有柔和投影。
+1-198	页面 / 滚动	滚动隐藏页头 (Hide-on-scroll header)	hide-on-scroll,headroom,auto-hide-header,navbar,header,scroll-direction,sticky	向下滚动时页头向上收起，稍往回滚又滑出来。
+1-199	反馈 / 操作反馈	加载状态按钮 (Loading button)	loading-button,spinner,submit,busy-state,async,success,disabled	点击后「订阅」按钮收成圆形转圈，完成后变绿展开，出现对勾和「已订阅」，随后复原。
 2-001	运动原理 / 入场与缓动	弹性弹入 (Pop-in)	pop,pop-in,spring,bounce,scale,icon,badge,entrance	应用图标弹跳入场，随后通知角标稍晚弹出。
 2-002	运动原理 / 入场与缓动	交错入场 (Stagger)	stagger,sequence,delay,cascade,bar-chart,list,entrance	图表的柱条从左到右依次升起，每根略有延迟。
 2-003	运动原理 / 入场与缓动	遮罩揭示 (Mask reveal)	mask,reveal,clip,wipe,title,text,slide-up,headline	标题从一条分隔线所标记的不可见边缘后方滑出。
@@ -312,6 +314,9 @@
 2-114	文字动画 / 逐字与排版	金句卡 (Quote card)	quote,pull quote,card,highlight,typography,title	深蓝画面中间，一张圆角纸色卡片带一点过冲弹出。左上角珊瑚色大引号从上方落下、回弹停住，「好的设计，」「是把不必要的都拿掉。」两行依次从下方升起。接着「不必要的」四个字从左往右刷上黄色色块，和前后的字略微拉开，显得更突出。右下角淡入出处；停留一会儿后，卡片微缩并淡出，回到空画面。
 2-115	图形与物件 / 信息与科技	放大镜局部放大 (Zoom callout)	zoom,callout,magnifier,detail,annotation,loupe	城市夜景上，一个黄色小圈沿 8 字路线在楼群间缓慢移动。一条虚线从小圈连到右上方的白色大圆，大圆里是小圈位置放大 3 倍的同一画面，窗灯的明灭也同步变化。大圆下方的标签显示倍数和小圈坐标，数字随移动变化。原画面本身不缩放、不移动。
 2-116	特效与转场 / 粒子与光效	飘雪 (Snowfall)	snow,snowfall,particles,winter,bokeh,depth	深蓝夜空、楼群剪影和积雪路面的夜晚街道上，雪不间断地下着。远处的雪片小而清楚、落得慢，中层稍大稍快，近处是失焦的大而淡的光斑、很快划过。每片雪都边落边轻轻左右漂。经过路灯光锥的雪片被照成暖白色、显得略大，地上有一圈光斑。
+2-117	运动原理 / 入场与缓动	动画时长 (Duration)	duration,timing,transition-duration,speed,seconds,motion,ms	三个方块用 0.2 秒、0.4 秒和 0.8 秒走过相同距离，下方的条显示各自的时长。
+2-118	运动原理 / 入场与缓动	动画延迟 (Delay)	delay,stagger,transition-delay,sequence,timing,offset,list	四条时间条分别等待 0、0.15、0.3、0.45 秒后开始，右侧方块按同样顺序滑入。
+2-119	运动原理 / 入场与缓动	弹簧动画 (Spring animation)	spring,spring-physics,damping,stiffness,bounce,overshoot,framer-motion	三个刚度相同、阻尼比不同的圆点移向终点线，右侧小图画出位置随时间的变化。
 3-001	镜头与剪辑 / 镜头运动	水平摇镜 (Pan)	pan,panning,yaw,rotate,horizontal,camera move,reveal	相机原地从左向右转动；由于是旋转，远近图层按相同角度横向滑动。
 3-002	镜头与剪辑 / 镜头运动	俯仰摇镜 (Tilt)	tilt,tilt up,pitch,vertical,look up,camera move	相机在原地向上转动，从地面人物逐渐摇到塔顶。
 3-003	镜头与剪辑 / 镜头运动	镜头推进 (Dolly in)	dolly,dolly in,push in,track in,move forward,parallax,camera move	相机本身接近主体；近处物体迅速放大并掠过，远山几乎不变。

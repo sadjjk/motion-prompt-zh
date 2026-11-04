@@ -2,7 +2,7 @@
 
 # Names
 
-496 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+501 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind. Each number opens the moving sample in the gallery.
 
@@ -14,7 +14,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | 1 UI & Web | Components | Choosing & input | 24 | #1 019–042 |
 | 1 UI & Web | Components | Navigation & menus | 8 | #1 043–050 |
 | 1 UI & Web | Components | Status & developer UI | 8 | #1 051–058 |
-| 1 UI & Web | Pages | Scrolling | 20 | #1 059–078 |
+| 1 UI & Web | Pages | Scrolling | 21 | #1 059–078 · 198 |
 | 1 UI & Web | Pages | Page transitions & loading | 9 | #1 079–087 |
 | 1 UI & Web | Pages | Hero backgrounds | 15 | #1 088–102 |
 | 1 UI & Web | Pointer interactions | Buttons | 12 | #1 103–114 |
@@ -22,12 +22,12 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | 1 UI & Web | Pointer interactions | Cursor | 13 | #1 123–135 |
 | 1 UI & Web | Pointer interactions | Tactile & cards | 10 | #1 136–145 |
 | 1 UI & Web | Pointer interactions | Liquid interactions | 4 | #1 146–148 · 197 |
-| 1 UI & Web | Feedback | Action feedback | 10 | #1 149–158 |
+| 1 UI & Web | Feedback | Action feedback | 11 | #1 149–158 · 199 |
 | 1 UI & Web | Feedback | Progress & icons | 8 | #1 159–166 |
 | 1 UI & Web | Feedback | AI status | 12 | #1 167–178 |
 | 1 UI & Web | Text & data | Interactive type | 8 | #1 179–186 |
 | 1 UI & Web | Text & data | Charts | 10 | #1 187–196 |
-| 2 Motion graphics | Motion principles | Entrances & easing | 9 | #2 001–009 |
+| 2 Motion graphics | Motion principles | Entrances & easing | 12 | #2 001–009 · 117–119 |
 | 2 Motion graphics | Motion principles | Rhythm & loops | 9 | #2 010–018 |
 | 2 Motion graphics | Text animation | Letter by letter & layout | 13 | #2 019–029 · 113–114 |
 | 2 Motion graphics | Text animation | Morphing & texture | 12 | #2 030–041 |
@@ -145,7 +145,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 
 ### Pages
 
-#### Scrolling · #1 059–078
+#### Scrolling · #1 059–078 · 198
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -169,6 +169,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-076](https://sadjjk.github.io/motion-prompt-zh/#1-076) | **Back-to-top progress ring** | A back-to-top button that appears on scroll with a reading-progress ring | Add a back-to-top progress ring to the article: show the button at the bottom right after 12%, draw reading progress as an arc around it, and scroll to the top in 0.8 s on click. |
 | [#1-077](https://sadjjk.github.io/motion-prompt-zh/#1-077) | **Scroll zoom to full** | A small image grows to fill the screen as you scroll | Make the feature's key moment a scroll zoom to full: grow a 38% × 46% image to full screen, take the corners from 16 px to 0 and float the title in at the end. |
 | [#1-078](https://sadjjk.github.io/motion-prompt-zh/#1-078) | **Progressive edge blur** | Scrolling content blurs and fades step by step as it nears the top and bottom edges | Give the article list a progressive edge blur: in a 78 px top band and a 62 px bottom band, stack 1/2, 1/4 and 1/8 blur levels so content gets blurrier and fainter towards the edge, and scroll the content up 390 px every 4.7 s on a loop. |
+| [#1-198](https://sadjjk.github.io/motion-prompt-zh/#1-198) | **Hide-on-scroll header** | A header that hides as you scroll down and comes back when you scroll up | Make the header hide when scrolling down and come back when scrolling up, sliding up over 0.3 s. |
 
 #### Page transitions & loading · #1 079–087
 
@@ -280,7 +281,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 
 ### Feedback
 
-#### Action feedback · #1 149–158
+#### Action feedback · #1 149–158 · 199
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -294,6 +295,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-156](https://sadjjk.github.io/motion-prompt-zh/#1-156) | **Chat message pop** | Typing dots turn into a message, then a reply pops in | Show the chat screen with a chat message pop: show the other side's typing dots for 1.75 s, turn the bubble into text, then pop the reply in from the bottom right in 0.4 s. |
 | [#1-157](https://sadjjk.github.io/motion-prompt-zh/#1-157) | **Badge unlock** | A hexagon badge draws in, a star stamps down and rays burst out | Add a badge unlock to the achievement screen: draw the hexagon outline in 0.8 s, stamp a star down from 3× and burst 12 rays. |
 | [#1-158](https://sadjjk.github.io/motion-prompt-zh/#1-158) | **Copy feedback** | Pressing copy spins the icon into a check and pops a tooltip | Add copy feedback to the code block: on press, spin the icon 90° into a check, show a 'Copied' tooltip above and revert after 1.5 s. |
+| [#1-199](https://sadjjk.github.io/motion-prompt-zh/#1-199) | **Loading button** | A button that shows a busy state after the click, then the result | Turn the submit button into a loading button: it shrinks into a spinning circle, then shows a green check when done. |
 
 #### Progress & icons · #1 159–166
 
@@ -359,7 +361,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 
 ### Motion principles
 
-#### Entrances & easing · #2 001–009
+#### Entrances & easing · #2 001–009 · 117–119
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -372,6 +374,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-007](https://sadjjk.github.io/motion-prompt-zh/#2-007) | **Anticipation** | Pulls back briefly before moving forward | Add anticipation before the button shoots off to the right: pull back slightly for 0.3 s, squash, then go. |
 | [#2-008](https://sadjjk.github.io/motion-prompt-zh/#2-008) | **Follow-through** | Parts keep swinging after the body stops | Give the hair and the flag follow-through after the character stops: they keep swinging for about 0.5 s, then settle. |
 | [#2-009](https://sadjjk.github.io/motion-prompt-zh/#2-009) | **Bounce** | Falls and bounces lower until it stops | Drop the ball from the top with a bounce: three bounces, each lower than the last. |
+| [#2-117](https://sadjjk.github.io/motion-prompt-zh/#2-117) | **Duration** | How long a move takes from start to finish | Set the panel's open and close duration to 0.3 s, animating only transform and opacity. |
+| [#2-118](https://sadjjk.github.io/motion-prompt-zh/#2-118) | **Delay** | The wait before a move starts | Bring the list rows in one by one with a 0.05 s delay between each, animating only transform and opacity. |
+| [#2-119](https://sadjjk.github.io/motion-prompt-zh/#2-119) | **Spring animation** | Motion driven by a spring's stiffness and damping, which can overshoot and settle | Open this modal with a spring animation, damping ratio about 0.6 so it overshoots slightly, animating only transform and opacity. |
 
 #### Rhythm & loops · #2 010–018
 

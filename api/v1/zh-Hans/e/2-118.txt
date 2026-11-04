@@ -1,0 +1,42 @@
+// Motion Prompt #2-118 · MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh
+//
+// 动画延迟 / Delay
+// 分类: 动态图形 / 运动原理 / 入场与缓动
+// 动画表现: 四条时间条分别等待 0、0.15、0.3、0.45 秒后开始，右侧方块按同样顺序滑入。
+// 运动规格:
+//   - 每 4.7 秒一轮。时间轴在 0.5 秒开始，白色播放头以 1 秒 = 170 px 前进。
+//   - 四行的延迟为 0、0.15、0.3、0.45 秒；等待段画虚线，之后是 0.5 秒的动画条。
+//   - 右侧方块（110×30 px）各用 0.5 秒从左侧滑入 30 px 并淡入，采用三次 ease-out。
+//   - 3.5–3.9 秒全部淡出，进入下一轮。
+// 适用场景: 适合让列表或卡片错开时间依次出现，而不是同时出现。
+// 标签: delay, stagger, transition-delay, sequence, timing, offset, list
+// 尺寸: 539x208 px · 周期: 4.7 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/motion2.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-118
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 67
+// 67 动画延迟（4 个方块各等 0 / 0.15 / 0.3 / 0.45 秒再开始，每个都动 0.5 秒）
+const DL_S = 0.5, DL_DL = [0, 0.15, 0.3, 0.45], DL_D = 0.5, DL_OUT = [3.5, 3.9], DL_SC = 170;
+CELLS[66] = (k, w, h, u) => {
+  stage(k);
+  const t = u - DL_S, gx = 132, fade = 1 - P(u, DL_OUT[0], DL_OUT[1]);
+  // 时间轴刻度（1 秒 = 170px）
+  [0, 0.5, 1].forEach(s => { const x = gx + s * DL_SC; k.fillStyle = C.navy2; k.fillRect(x - 0.5, 18, 1, 166); txt(k, s + ' 秒', x, 198, `500 11px ${JP}`, C.dim, 'center', 'middle'); });
+  DL_DL.forEach((dl, i) => {
+    const y = 34 + i * 44, x = gx + dl * DL_SC, p = P(t, dl, dl + DL_D);
+    txt(k, dl + ' 秒', 26, y + 1, `700 18px ${JP}`, PAL[i], 'left', 'middle');
+    // 等待段（虚线）+ 动画段（条）
+    if (dl > 0) { k.strokeStyle = C.navy3; k.lineWidth = 2; k.setLineDash([4, 5]); k.beginPath(); k.moveTo(gx, y); k.lineTo(x, y); k.stroke(); k.setLineDash([]); }
+    k.fillStyle = C.navy2; rr(k, x, y - 7, DL_D * DL_SC, 14, 7); k.fill();
+    if (p > 0 && fade > 0) { k.globalAlpha = fade; k.fillStyle = PAL[i]; rr(k, x, y - 7, Math.max(14, DL_D * DL_SC * p), 14, 7); k.fill(); k.globalAlpha = 1; }
+    // 右侧方块：向右滑入 30px 并淡入（ease-out）
+    const e = eOut(p);
+    if (e * fade > 0) { k.globalAlpha = e * fade; k.fillStyle = PAL[i]; rr(k, 400 - 30 * (1 - e), y - 15, 110, 30, 8); k.fill(); k.globalAlpha = 1; }
+  });
+  // 播放头
+  const end = DL_DL[3] + DL_D, pa = t < 0 ? 0 : 1 - P(t, end + 0.2, end + 0.5);
+  if (pa > 0) { const x = gx + Math.min(t, end) * DL_SC; k.globalAlpha = pa; k.fillStyle = C.white; k.fillRect(x - 1, 14, 2, 172); k.beginPath(); k.arc(x, 14, 4, 0, 7); k.fill(); k.globalAlpha = 1; }
+};
