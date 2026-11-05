@@ -1,4 +1,4 @@
-# Motion Prompt catalog (zh-Hans) · 536 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	category	title	tags	summary
+# Motion Prompt catalog (zh-Hans) · 545 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	category	title	tags	summary
 1-001	组件 / 弹出与覆盖	模态对话框 (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	点击“打开”后页面变暗，小窗口略微放大并出现在中央，点击 × 关闭。
 1-002	组件 / 弹出与覆盖	侧边抽屉 (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	点击“菜单”后高面板从左侧滑入，点击外部后滑回。
 1-003	组件 / 弹出与覆盖	底部弹出面板 (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	手指轻点“查看详情”，面板从底部升起；向下拖动把手即可关闭。
@@ -352,6 +352,15 @@
 2-121	文字动画 / 变形与质感	毛糙抖动字 (Fuzzy text)	fuzzy,jitter,glitch,hover,noise,typography	浅色背景上的黑色大字边缘细细地毛糙；光标放上去后横条大幅错开、剧烈抖动。光标离开后回到细微的毛糙。
 2-122	文字动画 / 变形与质感	折纸展开字 (Fold text)	fold,paper,unfold,origami,text-reveal,card	深蓝背景上，先出现黄色标题条，下面的白色纸条再一段一段折开，文字逐渐可读。最后从最下面一段起依次折回消失。
 2-123	文字动画 / 逐字与排版	滚速流动字 (Scroll velocity type)	kinetic-type,scroll-velocity,skew,marquee,scroll-linked,typography	深色背景上，2 行大字方向相反地流动；快速向下滚时文字一下子流得飞快、像斜体一样倾斜，向上滚时反向流动。停下后字形回正。
+2-124	图形与物件 / 物件与机械	天平倾斜 (Tipping balance scale)	balance-scale,comparison,weight,coins,tilt,damped-sway,short-video	中间立柱上架着横梁，两端挂 A、B 两个托盘。5 枚金币依次落进 B 盘叠起来，横梁每落一枚多斜一点并带阻尼摆动，最后回到水平。
+2-125	图形与物件 / 物件与机械	牛顿摆 (Newton's cradle)	newtons-cradle,pendulum,chain-reaction,cause-and-effect,physics,swing,short-video	5 颗球用细线挂在横杆下。左端金球和右端灰球交替摆出，5.4 秒内来回 5 次后停下。底部写着「一个动作，连锁反应」。
+2-126	图形与物件 / 物件与机械	硬币堆高 (Growing coin stacks)	coin-stack,coins,growth,money,bar-chart,savings,short-video	地面线上 5 摞金币。从左边一摞开始依次加高，每枚新硬币从上方一小段距离落下；3.6 秒时 5 摞分别为 4、7、10、13、16 枚。
+2-127	图形与物件 / 信息与科技	复利曲线 (Compound growth curve)	compound-interest,exponential,growth-curve,line-chart,finance,data-visualization,short-video	左边和下边两条坐标轴，每期 10%、共 40 期的增长曲线从原点画出。白点沿线头向右走，曲线在末段陡然升起，右上角浮出「×45」。
+2-128	图形与物件 / 信息与科技	年份时间轴 (Sliding year timeline)	timeline,years,history,decades,scroll,highlight-center,short-video	每 10 年一个的年份排在横线上，从 1930 开始向左滑动。到中间的年份变成金色大字，远离的变小变淡，最后停在 2020。
+2-129	图形与物件 / 信息与科技	知识树 (Growing knowledge tree)	tree-diagram,knowledge-map,hierarchy,nodes,branching,spring-pop,short-video	底部金色的「主题」向上长出 3 根分支，出现「概念」「方法」「案例」，再往上出现 6 个金色小点。节点弹性弹出，整棵树缓缓上下浮动。
+2-130	图形与物件 / 信息与科技	决策树 (Decision tree path)	decision-tree,flowchart,choices,branching,path-highlight,logic,short-video	顶部「要不要继续？」向下分出「继续」「止损」，再分出「越陷越深」「侥幸回本」「损失封顶」「重新出发」，逐层弹出。随后「止损」→「重新出发」这条路变成金色，其余变暗，终点套上金色圆环。
+2-131	图形与物件 / 信息与科技	放射脑图 (Radial mind map)	mind-map,radial,brainstorm,branches,ideas,rotation,short-video	中心是发光的金色圆「想法」。6 根分支从正上方开始顺时针一根根弹出，末端圆点旁出现标签。背后有 3 圈淡淡的同心椭圆，整张图缓慢旋转。
+2-132	文字动画 / 冲击与物理	词语堆叠 (Stacking word cards)	word-stack,kinetic-type,slam,cards,steps,impact,short-video	红、橙、蓝、灰 4 张卡写着「计划」「执行」「复盘」「迭代」。每张从放大状态缩小着砸到前一张上面，左右略微歪斜，每砸一张下面的卡都往下一沉再弹回。
 3-001	镜头与剪辑 / 镜头运动	水平摇镜 (Pan)	pan,panning,yaw,rotate,horizontal,camera move,reveal	相机原地从左向右转动；由于是旋转，远近图层按相同角度横向滑动。
 3-002	镜头与剪辑 / 镜头运动	俯仰摇镜 (Tilt)	tilt,tilt up,pitch,vertical,look up,camera move	相机在原地向上转动，从地面人物逐渐摇到塔顶。
 3-003	镜头与剪辑 / 镜头运动	镜头推进 (Dolly in)	dolly,dolly in,push in,track in,move forward,parallax,camera move	相机本身接近主体；近处物体迅速放大并掠过，远山几乎不变。

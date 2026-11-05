@@ -1,0 +1,16 @@
+Please use "Stacking word cards" (積み重なる言葉), filed under "Text animation / Impact & physics".
+Motion Prompt #2-132
+
+What it is: Coloured word cards slam down one at a time from a larger size and pile upward, giving steps or key points a strong beat
+What the sample shows: 4 cards in red, orange, blue and grey read 「计划」「执行」「复盘」「迭代」. Each one shrinks down from a larger size onto the card before, tilted slightly left or right, and the cards below dip and spring back every time.
+Spec:
+- 4 rounded cards 200 × 40 px with 24 px bold white words 「计划」「执行」「复盘」「迭代」 in red #B3261E, orange #B8601A, blue #3A6EA5 and grey #444A55, each with a soft drop shadow.
+- Card i starts at 0.4 + 0.7·i s and shrinks from 1.6× to 1× over 0.18 s with an ease-out while fading in; it lands 44 px above the card before, from the bottom up.
+- The cards tilt by 0.05 rad, alternating right and left.
+- Each time a card lands, every card below dips by up to 2 px and springs back within 0.2 s.
+- At 5.4–6.0 s the stack fades out; at 0 s no card is drawn, so the loop restarts cleanly.
+When to use it: Use it to build up steps, principles or keywords one forceful beat at a time.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-132.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

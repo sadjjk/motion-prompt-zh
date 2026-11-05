@@ -1,0 +1,43 @@
+// Motion Prompt #2-125 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// ニュートンのゆりかご / Newton's cradle
+// 分類: モーショングラフィックス / 図形・オブジェクト / 物・機械
+// 何が起きるか: 横棒から紐で吊った 5 個の球。左端の金色の球と右端の灰色の球が交互に振り出され、5.4 秒で 5 往復して止まる。下に「一个动作，连锁反应」の文字。
+// 動きの仕様:
+//   - 半径 16 px の球 5 個が 34 px 間隔で、上部の横棒から長さ 120 px の紐で吊られる。左端は金色、他は灰色で、それぞれ小さなハイライトがある
+//   - 揺れはサイン波で、5.4 秒に 5 周期。各周期の前半は左端の球が左へ、後半は右端の球が右へ振り出され、最大 0.6 rad。中央の 3 個は動かない
+//   - 球の下に 16 px の灰色で「一个动作，连锁反应」と書く
+//   - 5.4 秒でサイン波が 0 に戻り、6.4 秒まで球は静止して垂れ下がるので、ループがつながる
+// 使いどころ: 一つの行動が次々に影響を広げる、連鎖や因果関係を説明するとき。
+// タグ: newtons-cradle, pendulum, chain-reaction, cause-and-effect, physics, swing, short-video
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-125
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 02
+// 牛顿摆：左端金球撞下，右端灰球被弹起，来回 5 次；底部一行说明文字
+CELLS[1] = (k, w, h, u) => {
+  bg(k);
+  const N = 5, R = 16, GAP = 34, PY = 30, L = 120, x0 = 270 - GAP * 2;
+  // 负半周左端金球摆出，正半周右端球摆出；先动的是金球
+  const a = -Math.sin(u * TAU * 5 / SHOW) * (u < SHOW ? 1 : 0);
+  // 顶杆
+  k.strokeStyle = '#3A3D48'; k.lineWidth = 6; k.lineCap = 'round';
+  k.beginPath(); k.moveTo(x0 - 40, PY); k.lineTo(x0 + GAP * 4 + 40, PY); k.stroke();
+  for (let i = 0; i < N; i++) {
+    let th = 0;
+    if (i === 0 && a < 0) th = 0.6 * a;
+    if (i === N - 1 && a > 0) th = 0.6 * a;
+    const px = x0 + GAP * i, bx = px + Math.sin(th) * L, by = PY + Math.cos(th) * L;
+    k.strokeStyle = DIM; k.lineWidth = 1.5;
+    k.beginPath(); k.moveTo(px, PY); k.lineTo(bx, by); k.stroke();
+    k.fillStyle = i === 0 ? GOLD : '#9AA0AC';
+    k.beginPath(); k.arc(bx, by, R, 0, TAU); k.fill();
+    k.fillStyle = 'rgba(255,255,255,0.35)';
+    k.beginPath(); k.arc(bx - 5, by - 5, 4, 0, TAU); k.fill();
+  }
+  txt(k, '一个动作，连锁反应', 270, 186, 16, DIM, 'center', 500);
+};

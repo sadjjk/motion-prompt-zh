@@ -1,0 +1,52 @@
+// Motion Prompt #2-129 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// Growing knowledge tree / 知識ツリー
+// Category: Motion graphics / Shapes & objects / Information & tech
+// What happens: From the gold 「主题」 at the bottom, 3 branches grow up to 「概念」, 「方法」 and 「案例」, then 6 gold dots appear above them. Nodes pop in with a spring and the whole tree drifts gently up and down.
+// Motion spec:
+//   - 3 layers: the root box 「主题」 at the bottom centre, 3 boxes 「概念」「方法」「案例」 160 px apart in the middle, and 6 gold dots of radius 7 px at the top, 2 above each box.
+//   - Layer d appears at 0.3 + 0.9·d s (0.3, 1.2, 2.1 s); the S-shaped glowing line to each node is drawn in the 0.5 s before, then the node pops in with a damped spring.
+//   - Lines into the middle layer are gold and 3 px wide, lines into the top layer darker gold and 2 px; the whole tree bobs up and down by 2 px, 2 times per cycle.
+//   - At 5.4–6.0 s the tree fades out; at 0 s nothing but the background is drawn, so the loop restarts cleanly.
+// When to use it: Use it to open with the structure of a topic, such as a course outline, a knowledge map or a breakdown of a theme.
+// Tags: tree-diagram, knowledge-map, hierarchy, nodes, branching, spring-pop, short-video
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-129
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 06
+// 知识树：从底部根节点「主题」向上长出 3 个分支和 6 个末梢，节点逐层弹出，整棵树轻轻浮动
+CELLS[5] = (k, w, h, u) => {
+  bg(k);
+  const F = fadeIn(u), bob = 2 * Math.sin(u * TAU / CYC * 2);
+  const L1 = ['概念', '方法', '案例'], X1 = [110, 270, 430];
+  const nodes = [{ x: 270, y: 180, d: 0, label: '主题', p: -1 }];
+  X1.forEach((x, i) => nodes.push({ x, y: 110, d: 1, label: L1[i], p: 0 }));
+  X1.forEach((x, i) => { nodes.push({ x: x - 40, y: 40, d: 2, p: 1 + i }); nodes.push({ x: x + 40, y: 40, d: 2, p: 1 + i }); });
+  k.globalAlpha = F;
+  const T0 = d => 0.3 + 0.9 * d;
+  nodes.forEach(nd => {
+    if (nd.p < 0) return;
+    const pa = nodes[nd.p];
+    glowLine(k, pa.x, pa.y + bob, nd.x, nd.y + bob, seg(u, T0(nd.d) - 0.5, T0(nd.d)), nd.d === 1 ? GOLD : GOLD_D, nd.d === 1 ? 3 : 2);
+  });
+  nodes.forEach(nd => {
+    const s = spring(u - T0(nd.d));
+    if (s <= 0) return;
+    const y = nd.y + bob;
+    if (nd.label) {
+      const bw = nd.d ? 64 : 76, bh = nd.d ? 30 : 34;
+      k.save(); k.translate(nd.x, y); k.scale(s, s);
+      rr(k, -bw / 2, -bh / 2, bw, bh, 8); k.fillStyle = nd.d ? '#22252E' : GOLD; k.fill();
+      k.strokeStyle = GOLD; k.lineWidth = 1.5; k.stroke();
+      txt(k, nd.label, 0, 1, nd.d ? 15 : 16, nd.d ? INK : BG, 'center', 700);
+      k.restore();
+    } else {
+      k.fillStyle = GOLD; k.beginPath(); k.arc(nd.x, y, 7 * s, 0, TAU); k.fill();
+    }
+  });
+  k.globalAlpha = 1;
+};

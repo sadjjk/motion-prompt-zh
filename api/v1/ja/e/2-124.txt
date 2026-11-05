@@ -1,0 +1,60 @@
+// Motion Prompt #2-124 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// 傾く天秤 / Tipping balance scale
+// 分類: モーショングラフィックス / 図形・オブジェクト / 物・機械
+// 何が起きるか: 中央の支柱に横梁と A・B の皿。5 枚の金貨が順に B の皿へ落ちて積み重なり、天秤は一枚ごとに傾きを増して減衰しながら揺れ、最後に元へ戻る。
+// 動きの仕様:
+//   - 暗いカードの中央に支柱があり、長さ 300 px の横梁が金色の支点に乗る。両端の皿はそれぞれ 2 本の吊り紐で下がり、横梁が回っても水平を保つ。皿には A と B のラベル
+//   - 金貨 5 枚がカードの上から B の皿へ落ちる。1 枚目は 0.6 秒、以後 0.45 秒ごと。1 枚は 0.35 秒で加速しながら落ち、前の金貨の 6 px 上に止まる
+//   - 金貨が 1 枚着地するごとに横梁は 0.05 rad 傾き増し、1 − e^(−4t)·cos(10t)（t は着地からの時間）で移るので、毎回少し行き過ぎてから止まる
+//   - 5.4–6.0 秒に金貨がフェードアウトし、横梁がゆっくり水平に戻る。0 秒では両方の皿が空で水平なので、ループがつながる
+// 使いどころ: 二つの選択肢の重さ、損得、優先度を比べて、片方が勝つことを見せたいとき。
+// タグ: balance-scale, comparison, weight, coins, tilt, damped-sway, short-video
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-124
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 01
+// 天平倾斜：5 枚金币依次落进右盘，横梁每多一枚就多倾斜一点，最后带阻尼回摆停稳
+CELLS[0] = (k, w, h, u) => {
+  bg(k);
+  const R = resetK(u), PX = 270, PY = 56, HALF = 150, N = 5;
+  // 每枚金币落定后横梁再斜 0.05 rad，带阻尼过冲 1 − e^(−4t)·cos(10t)，落定瞬间角度连续
+  let tilt = 0;
+  for (let i = 0; i < N; i++) {
+    const t = u - (0.6 + 0.45 * i + 0.35);
+    if (t > 0) tilt += 0.05 * (1 - Math.exp(-4 * t) * Math.cos(10 * t));
+  }
+  const ang = tilt * (1 - R);
+  // 立柱与底座
+  k.fillStyle = '#3A3D48'; k.fillRect(PX - 4, PY, 8, 132); rr(k, PX - 46, 186, 92, 10, 4); k.fill();
+  const ca = Math.cos(ang), sa = Math.sin(ang);
+  const ends = [[PX - HALF * ca, PY - HALF * sa], [PX + HALF * ca, PY + HALF * sa]];
+  // 横梁
+  k.strokeStyle = INK; k.lineWidth = 5; k.lineCap = 'round';
+  k.beginPath(); k.moveTo(ends[0][0], ends[0][1]); k.lineTo(ends[1][0], ends[1][1]); k.stroke();
+  k.fillStyle = GOLD; k.beginPath(); k.arc(PX, PY, 7, 0, TAU); k.fill();
+  // 托盘（不随横梁旋转）
+  ends.forEach(([ex, ey], s) => {
+    const py = ey + 58;
+    k.strokeStyle = DIM; k.lineWidth = 1.5;
+    k.beginPath(); k.moveTo(ex, ey); k.lineTo(ex - 44, py); k.moveTo(ex, ey); k.lineTo(ex + 44, py); k.stroke();
+    k.fillStyle = '#2A2D36'; k.strokeStyle = INK; k.lineWidth = 2;
+    k.beginPath(); k.ellipse(ex, py, 52, 8, 0, 0, TAU); k.fill(); k.stroke();
+    txt(k, s ? 'B' : 'A', ex, py + 26, 22, DIM, 'center', 700);
+    if (!s) return;
+    // 金币：落下 0.35 秒（加速），落定后每层 6 px
+    k.globalAlpha = 1 - R;
+    for (let i = 0; i < N; i++) {
+      const t0 = 0.6 + 0.45 * i, q = seg(u, t0, t0 + 0.35);
+      if (u < t0) continue;
+      const ty = py - 5 - 6 * i, y = mix(-12, ty, q * q);
+      k.fillStyle = GOLD_D; k.beginPath(); k.ellipse(ex, y + 3, 22, 6, 0, 0, TAU); k.fill();
+      k.fillStyle = GOLD; k.beginPath(); k.ellipse(ex, y, 22, 6, 0, 0, TAU); k.fill();
+    }
+    k.globalAlpha = 1;
+  });
+};

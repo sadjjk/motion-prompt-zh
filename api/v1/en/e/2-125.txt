@@ -1,0 +1,43 @@
+// Motion Prompt #2-125 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// Newton's cradle / ニュートンのゆりかご
+// Category: Motion graphics / Shapes & objects / Objects & machines
+// What happens: 5 balls hang on strings from a bar. The gold ball on the left and the grey ball on the right swing out in turn, making 5 full swings in 5.4 s before coming to rest. The caption reads 「一个动作，连锁反应」.
+// Motion spec:
+//   - 5 balls of radius 16 px hang 34 px apart on strings 120 px long from a bar near the top; the left ball is gold, the others grey, each with a small highlight.
+//   - The swing follows a sine wave with 5 full periods in 5.4 s: in one half of each period the left ball swings out to the left, in the other half the right ball swings out to the right, both up to 0.6 rad; the middle 3 balls stay still.
+//   - The caption 「一个动作，连锁反应」 sits under the balls in 16 px grey text.
+//   - At 5.4 s the sine wave is back at zero and the balls hang still until 6.4 s, so the loop restarts cleanly.
+// When to use it: Use it to explain a chain reaction or cause and effect, where one action passes its impact along.
+// Tags: newtons-cradle, pendulum, chain-reaction, cause-and-effect, physics, swing, short-video
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-125
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 02
+// 牛顿摆：左端金球撞下，右端灰球被弹起，来回 5 次；底部一行说明文字
+CELLS[1] = (k, w, h, u) => {
+  bg(k);
+  const N = 5, R = 16, GAP = 34, PY = 30, L = 120, x0 = 270 - GAP * 2;
+  // 负半周左端金球摆出，正半周右端球摆出；先动的是金球
+  const a = -Math.sin(u * TAU * 5 / SHOW) * (u < SHOW ? 1 : 0);
+  // 顶杆
+  k.strokeStyle = '#3A3D48'; k.lineWidth = 6; k.lineCap = 'round';
+  k.beginPath(); k.moveTo(x0 - 40, PY); k.lineTo(x0 + GAP * 4 + 40, PY); k.stroke();
+  for (let i = 0; i < N; i++) {
+    let th = 0;
+    if (i === 0 && a < 0) th = 0.6 * a;
+    if (i === N - 1 && a > 0) th = 0.6 * a;
+    const px = x0 + GAP * i, bx = px + Math.sin(th) * L, by = PY + Math.cos(th) * L;
+    k.strokeStyle = DIM; k.lineWidth = 1.5;
+    k.beginPath(); k.moveTo(px, PY); k.lineTo(bx, by); k.stroke();
+    k.fillStyle = i === 0 ? GOLD : '#9AA0AC';
+    k.beginPath(); k.arc(bx, by, R, 0, TAU); k.fill();
+    k.fillStyle = 'rgba(255,255,255,0.35)';
+    k.beginPath(); k.arc(bx - 5, by - 5, 4, 0, TAU); k.fill();
+  }
+  txt(k, '一个动作，连锁反应', 270, 186, 16, DIM, 'center', 500);
+};

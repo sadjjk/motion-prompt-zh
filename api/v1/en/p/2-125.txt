@@ -1,0 +1,15 @@
+Please use "Newton's cradle" (ニュートンのゆりかご), filed under "Shapes & objects / Objects & machines".
+Motion Prompt #2-125
+
+What it is: The end ball strikes the row and only the ball at the far end swings out, back and forth, as a picture of a chain reaction
+What the sample shows: 5 balls hang on strings from a bar. The gold ball on the left and the grey ball on the right swing out in turn, making 5 full swings in 5.4 s before coming to rest. The caption reads 「一个动作，连锁反应」.
+Spec:
+- 5 balls of radius 16 px hang 34 px apart on strings 120 px long from a bar near the top; the left ball is gold, the others grey, each with a small highlight.
+- The swing follows a sine wave with 5 full periods in 5.4 s: in one half of each period the left ball swings out to the left, in the other half the right ball swings out to the right, both up to 0.6 rad; the middle 3 balls stay still.
+- The caption 「一个动作，连锁反应」 sits under the balls in 16 px grey text.
+- At 5.4 s the sine wave is back at zero and the balls hang still until 6.4 s, so the loop restarts cleanly.
+When to use it: Use it to explain a chain reaction or cause and effect, where one action passes its impact along.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-125.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

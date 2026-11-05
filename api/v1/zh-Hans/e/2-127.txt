@@ -1,0 +1,41 @@
+// Motion Prompt #2-127 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// 复利曲线 / Compound growth curve
+// 分类: 动态图形 / 图形与物件 / 信息与科技
+// 动画表现: 左边和下边两条坐标轴，每期 10%、共 40 期的增长曲线从原点画出。白点沿线头向右走，曲线在末段陡然升起，右上角浮出「×45」。
+// 运动规格:
+//   - 灰色坐标轴围出 460 × 150 px 的绘图区；曲线为 y = (1.1^(40x) − 1) / (1.1^40 − 1)，即每期 10%、共 40 期的增长按绘图区缩放。
+//   - 0.3–3.6 秒金色曲线（线宽 3 px、带柔光）按缓入缓出从左画到右；线头有一个半径 5 px 的白点。
+//   - 3.6–4.0 秒右上角淡入 30 px 粗体金字「×45」，因为 1.1^40 ≈ 45。
+//   - 5.4–6.0 秒曲线和标注淡出；0 秒时只画坐标轴，循环无缝。
+// 适用场景: 适合讲复利、习惯、学习这类一点点积累、后期拉开巨大差距的话题。
+// 标签: compound-interest, exponential, growth-curve, line-chart, finance, data-visualization, short-video
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-127
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 04
+// 复利曲线：每期 +10%、共 40 期的增长曲线从坐标原点画出，先平后陡，亮点沿线走，最后标出「×45」
+CELLS[3] = (k, w, h, u) => {
+  bg(k);
+  const F = fadeIn(u), OX = 40, OY = 184, W = 460, H = 150, G = Math.pow(1.1, 40);
+  const f = x => (Math.pow(1.1, 40 * x) - 1) / (G - 1);
+  k.strokeStyle = '#3A3D48'; k.lineWidth = 2;
+  k.beginPath(); k.moveTo(OX, OY - H - 10); k.lineTo(OX, OY); k.lineTo(OX + W + 10, OY); k.stroke();
+  k.globalAlpha = F;
+  const p = inOut3(seg(u, 0.3, 3.6)), n = 80;
+  if (p > 0) {
+    k.save(); k.strokeStyle = GOLD; k.lineWidth = 3; k.lineJoin = 'round'; k.shadowColor = GOLD; k.shadowBlur = 8;
+    k.beginPath();
+    for (let i = 0; i <= n; i++) { const x = p * i / n; const X = OX + W * x, Y = OY - H * f(x); if (i) k.lineTo(X, Y); else k.moveTo(X, Y); }
+    k.stroke(); k.restore();
+    const X = OX + W * p, Y = OY - H * f(p);
+    k.fillStyle = '#FFFFFF'; k.beginPath(); k.arc(X, Y, 5, 0, TAU); k.fill();
+  }
+  const L = seg(u, 3.6, 4.0);
+  if (L > 0) { k.globalAlpha = F * L; txt(k, '×45', OX + W - 8, OY - H + 6, 30, GOLD, 'right', 800); }
+  k.globalAlpha = 1;
+};

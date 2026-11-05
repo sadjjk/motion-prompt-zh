@@ -1,0 +1,44 @@
+// Motion Prompt #2-126 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// 硬币堆高 / Growing coin stacks
+// 分类: 动态图形 / 图形与物件 / 物件与机械
+// 动画表现: 地面线上 5 摞金币。从左边一摞开始依次加高，每枚新硬币从上方一小段距离落下；3.6 秒时 5 摞分别为 4、7、10、13、16 枚。
+// 运动规格:
+//   - 5 摞金币间隔 80 px 立在地面线上；每枚硬币是 60 × 16 px 的椭圆，上面金色、侧边暗金，层距 9 px。
+//   - 第 c 摞最多 4 + 3·c 枚（4、7、10、13、16）；从 0.3 + 0.3·c 秒开始匀速加枚，3.6 秒时到满。
+//   - 每枚新硬币从上方 20 px 处减速落下；每摞最上一枚带一小段白色高光。
+//   - 5.4–6.0 秒金币淡出；0 秒时只画地面线，循环无缝。
+// 适用场景: 适合用比图表更亲切的方式表现存款、收入、用户数一步步增长的时候。
+// 标签: coin-stack, coins, growth, money, bar-chart, savings, short-video
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-126
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 03
+// 硬币堆高：5 列金币从左到右依次加高（4、7、10、13、16 枚），像柱状图一样长起来
+CELLS[2] = (k, w, h, u) => {
+  bg(k);
+  const F = fadeIn(u), BASE = 184, STEP = 9;
+  k.strokeStyle = '#3A3D48'; k.lineWidth = 2;
+  k.beginPath(); k.moveTo(50, BASE + 10); k.lineTo(490, BASE + 10); k.stroke();
+  k.globalAlpha = F;
+  for (let c = 0; c < 5; c++) {
+    const x = 110 + 80 * c, max = 4 + 3 * c, p = seg(u, 0.3 + 0.3 * c, 3.6) * max;
+    const n = Math.floor(p + 1e-9), frac = p - n;
+    const total = Math.min(max, n + (frac > 0 ? 1 : 0));
+    for (let i = 0; i < total; i++) {
+      let y = BASE - STEP * i;
+      if (i === n) y -= 20 * (1 - out3(clamp(frac / 0.4)));
+      k.fillStyle = GOLD_D; k.beginPath(); k.ellipse(x, y + 4, 30, 8, 0, 0, TAU); k.fill();
+      k.fillStyle = GOLD; k.beginPath(); k.ellipse(x, y, 30, 8, 0, 0, TAU); k.fill();
+      if (i === total - 1) {
+        k.strokeStyle = 'rgba(255,255,255,0.6)'; k.lineWidth = 2;
+        k.beginPath(); k.ellipse(x, y, 20, 4, 0, Math.PI * 1.1, Math.PI * 1.6); k.stroke();
+      }
+    }
+  }
+  k.globalAlpha = 1;
+};

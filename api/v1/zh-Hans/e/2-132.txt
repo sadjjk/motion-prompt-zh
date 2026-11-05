@@ -1,0 +1,47 @@
+// Motion Prompt #2-132 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// 词语堆叠 / Stacking word cards
+// 分类: 动态图形 / 文字动画 / 冲击与物理
+// 动画表现: 红、橙、蓝、灰 4 张卡写着「计划」「执行」「复盘」「迭代」。每张从放大状态缩小着砸到前一张上面，左右略微歪斜，每砸一张下面的卡都往下一沉再弹回。
+// 运动规格:
+//   - 4 张 200 × 40 px 的圆角卡片，写着 24 px 粗体白字「计划」「执行」「复盘」「迭代」，颜色依次为红 #B3261E、橙 #B8601A、蓝 #3A6EA5、灰 #444A55，各带柔和投影。
+//   - 第 i 张在 0.4 + 0.7·i 秒开始，0.18 秒内按减速曲线从 1.6 倍缩到 1 倍并淡入；从下往上，每张落在前一张上方 44 px 处。
+//   - 卡片倾斜 0.05 rad，左右交替。
+//   - 每落定一张，下面所有卡片下沉最多 2 px，0.2 秒内弹回。
+//   - 5.4–6.0 秒整摞淡出；0 秒时没有卡片，循环无缝。
+// 适用场景: 适合一个个有力地叠出步骤、原则或关键词的时候。
+// 标签: word-stack, kinetic-type, slam, cards, steps, impact, short-video
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-132
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 09
+// 词语堆叠：4 张彩色字卡从大到小砸下来，一张压一张地往上叠，每砸一张下面的卡片被压低一下再弹回
+CELLS[8] = (k, w, h, u) => {
+  bg(k);
+  const F = fadeIn(u), WORDS = ['计划', '执行', '复盘', '迭代'];
+  const COLS = ['#B3261E', '#B8601A', '#3A6EA5', '#444A55'], CWD = 200, CHT = 40;
+  const t0 = i => 0.4 + 0.7 * i;
+  k.globalAlpha = F;
+  for (let i = 0; i < 4; i++) {
+    const q = seg(u, t0(i), t0(i) + 0.18);
+    if (u < t0(i)) continue;
+    // 上方每张卡落定时，本卡被压低 2 px，0.1 秒后回弹
+    let press = 0;
+    for (let j = i + 1; j < 4; j++) {
+      const d = u - (t0(j) + 0.18);
+      if (d >= 0 && d < 0.2) press += 2 * Math.sin(Math.PI * d / 0.2);
+    }
+    const sc = mix(1.6, 1, out3(q)), y = 170 - 44 * i + press, rot = (i % 2 ? -0.05 : 0.05);
+    k.save(); k.globalAlpha = F * clamp(q * 1.5); k.translate(270, y); k.rotate(rot); k.scale(sc, sc);
+    k.shadowColor = 'rgba(0,0,0,0.45)'; k.shadowBlur = 10; k.shadowOffsetY = 4;
+    rr(k, -CWD / 2, -CHT / 2, CWD, CHT, 6); k.fillStyle = COLS[i]; k.fill();
+    k.shadowColor = 'transparent';
+    txt(k, WORDS[i], 0, 1, 24, '#FFFFFF', 'center', 800);
+    k.restore();
+  }
+  k.globalAlpha = 1;
+};

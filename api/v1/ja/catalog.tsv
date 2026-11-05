@@ -1,4 +1,4 @@
-# Motion Prompt catalog (ja) · 536 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	category	title	tags	summary
+# Motion Prompt catalog (ja) · 545 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	category	title	tags	summary
 1-001	コンポーネント / 開く・重なる	モーダル (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	「開く」ボタンを押すと画面全体が暗くなり、中央に小窓が少し拡大しながら出る。×を押すと閉じる。
 1-002	コンポーネント / 開く・重なる	ドロワー (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	「メニュー」を押すと左から縦長のパネルが引き出され、外側を押すと戻る。
 1-003	コンポーネント / 開く・重なる	ボトムシート (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	指で「詳細を見る」を押すと下からパネルがせり上がり、上端のつまみを下へ引くと閉じる。
@@ -352,6 +352,15 @@
 2-121	文字アニメーション / 変形・質感	ざらつき揺れ文字 (Fuzzy text)	fuzzy,jitter,glitch,hover,noise,typography	明るい背景の黒い大きな文字の縁が細かくざらついて見え、カーソルが乗ると横帯が大きくずれて激しく揺れる。カーソルが離れると細かいざらつきに戻る。
 2-122	文字アニメーション / 変形・質感	折り紙展開テキスト (Fold text)	fold,paper,unfold,origami,text-reveal,card	濃い青の背景で、黄色い見出しの帯が現れたあと、その下に白い紙の帯が 1 段ずつ折り開かれて文章が読めるようになる。最後は下の段から順に折りたたまれて消える。
 2-123	文字アニメーション / 一文字ずつ・組版	スクロール速度で流れる文字 (Scroll velocity type)	kinetic-type,scroll-velocity,skew,marquee,scroll-linked,typography	暗い背景で 2 行の大きな文字が逆向きに流れ、下へ素早くスクロールすると文字が一気に速く流れてイタリックのように傾き、上へスクロールすると逆向きに流れる。止まると字形がまっすぐに戻る。
+2-124	図形・オブジェクト / 物・機械	傾く天秤 (Tipping balance scale)	balance-scale,comparison,weight,coins,tilt,damped-sway,short-video	中央の支柱に横梁と A・B の皿。5 枚の金貨が順に B の皿へ落ちて積み重なり、天秤は一枚ごとに傾きを増して減衰しながら揺れ、最後に元へ戻る。
+2-125	図形・オブジェクト / 物・機械	ニュートンのゆりかご (Newton's cradle)	newtons-cradle,pendulum,chain-reaction,cause-and-effect,physics,swing,short-video	横棒から紐で吊った 5 個の球。左端の金色の球と右端の灰色の球が交互に振り出され、5.4 秒で 5 往復して止まる。下に「一个动作，连锁反应」の文字。
+2-126	図形・オブジェクト / 物・機械	積み上がるコイン (Growing coin stacks)	coin-stack,coins,growth,money,bar-chart,savings,short-video	地面の線の上に金貨の山が 5 つ。左の山から順に積み始め、新しい一枚は少し上から落ちて乗る。3.6 秒で 4、7、10、13、16 枚の山がそろう。
+2-127	図形・オブジェクト / 情報・テック	複利カーブ (Compound growth curve)	compound-interest,exponential,growth-curve,line-chart,finance,data-visualization,short-video	左と下の座標軸に、1 期 10% で 40 期分の成長カーブが原点から描かれる。先端の白い点が右へ進み、カーブは終盤で急に立ち上がり、右上に「×45」が浮かぶ。
+2-128	図形・オブジェクト / 情報・テック	年号タイムライン (Sliding year timeline)	timeline,years,history,decades,scroll,highlight-center,short-video	10 年ごとの年号が横線の上に並び、1930 から左へ流れていく。中央に来た年は大きな金色になり、離れた年は小さく薄くなる。最後は 2020 で止まる。
+2-129	図形・オブジェクト / 情報・テック	知識ツリー (Growing knowledge tree)	tree-diagram,knowledge-map,hierarchy,nodes,branching,spring-pop,short-video	下の金色の「主题」から 3 本の枝が伸びて「概念」「方法」「案例」が現れ、さらに上へ 6 つの金色の点が出る。ノードは弾むように現れ、ツリー全体がゆっくり上下に揺れる。
+2-130	図形・オブジェクト / 情報・テック	決定木 (Decision tree path)	decision-tree,flowchart,choices,branching,path-highlight,logic,short-video	上の「要不要继续？」から「继续」「止损」、下段の「越陷越深」「侥幸回本」「损失封顶」「重新出发」へと一段ずつ弾んで現れる。続いて「止损」→「重新出发」の道が金色になり、他は暗くなり、終点が金色の輪で囲まれる。
+2-131	図形・オブジェクト / 情報・テック	放射状マインドマップ (Radial mind map)	mind-map,radial,brainstorm,branches,ideas,rotation,short-video	中央に光る金色の円「想法」。そこから 6 本の枝が上から時計回りに一本ずつ弾むように伸び、先の点の横にラベルが出る。背景に薄い同心の楕円 3 つ、地図全体がゆっくり回る。
+2-132	文字アニメーション / 衝撃・物理	積み重なる言葉 (Stacking word cards)	word-stack,kinetic-type,slam,cards,steps,impact,short-video	赤、橙、青、灰の 4 枚のカードに「计划」「执行」「复盘」「迭代」。一枚ずつ大きな状態から縮みながら落ちて前のカードの上に重なり、左右に少し傾く。落ちるたびに下のカードが沈んで戻る。
 3-001	カメラ・編集 / カメラの動き	パン (Pan)	pan,panning,yaw,rotate,horizontal,camera move,reveal	カメラの位置は変えず、首を左から右へ振る。回転なので手前も奥も同じ量だけ横に流れる。
 3-002	カメラ・編集 / カメラの動き	ティルト (Tilt)	tilt,tilt up,pitch,vertical,look up,camera move	カメラの位置は変えず、首を下から上へ振る。足元の人物から塔の先端まで見上げていく。
 3-003	カメラ・編集 / カメラの動き	ドリーイン (Dolly in)	dolly,dolly in,push in,track in,move forward,parallax,camera move	カメラそのものが被写体へ前進する。手前の物ほど大きく速く流れ、奥の山はほとんど変わらない。

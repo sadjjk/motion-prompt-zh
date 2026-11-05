@@ -415,6 +415,36 @@ drawings are our own. React Bits is licensed under the MIT License with the Comm
 this pack. The code of this pack is under this repository's MIT License © 2026 sadjjk. To ask for a removal or a
 correction, use the [issue form](https://github.com/sadjjk/motion-prompt-zh/issues/new?template=3-removal.yml).
 
+## vibe-fx by ai-martin-lau (pack `vibefx`)
+
+The elements `2-124`–`2-132` in `packs/vibefx/` are Canvas 2D adaptations of effects from
+[vibe-fx](https://github.com/ai-martin-lau/vibe-fx) by ai-martin-lau (`engine/effects/fx.js`): each vertical one-shot clip
+is recomposed for a 539 × 208 card, turned into a seamless loop and drawn without randomness, and the example copy is
+replaced with general-purpose text. The generated images, three.js scenes, fonts and the helpers in `engine/anim.js`
+of vibe-fx are not used. Each element carries the line `MIT License (c) 2026 ai-martin-lau`. The license notice:
+
+> MIT License
+>
+> Copyright (c) 2026 ai-martin-lau
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat

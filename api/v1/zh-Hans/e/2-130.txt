@@ -1,0 +1,68 @@
+// Motion Prompt #2-130 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// 决策树 / Decision tree path
+// 分类: 动态图形 / 图形与物件 / 信息与科技
+// 动画表现: 顶部「要不要继续？」向下分出「继续」「止损」，再分出「越陷越深」「侥幸回本」「损失封顶」「重新出发」，逐层弹出。随后「止损」→「重新出发」这条路变成金色，其余变暗，终点套上金色圆环。
+// 运动规格:
+//   - 3 排高 28 px 的圆角方框：顶部「要不要继续？」字号 16 px，中间「继续」「止损」字号 15 px，底部「越陷越深」「侥幸回本」「损失封顶」「重新出发」字号 13 px，每排在卡片上均匀分布。
+//   - 第 d 排在 0.2 + 0.6·d 秒按阻尼弹簧弹出（0.2、0.8、1.4 秒）；连到该排的 S 形灰线在此前 0.4 秒内画出。
+//   - 2.6–3.0 秒「要不要继续？」→「止损」→「重新出发」这条路径变成金色，方框填满金色、连线加宽到 3 px，其余方框和连线降到一半不透明度。
+//   - 3.0–3.35 秒「重新出发」外长出一圈 116 × 42 px 的金色椭圆环，减速停住。
+//   - 5.4–6.0 秒整棵树淡出；0 秒时只有背景，循环无缝。
+// 适用场景: 适合把选项和后果摆出来，一步步论证该选哪条路的时候。
+// 标签: decision-tree, flowchart, choices, branching, path-highlight, logic, short-video
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-130
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 07
+// 决策树：一个问题分成两个选项、再分成四个结果，逐层弹出；随后一条路径亮成金色，终点套上圆环
+CELLS[6] = (k, w, h, u) => {
+  bg(k);
+  const F = fadeIn(u);
+  const T = [['要不要继续？'], ['继续', '止损'], ['越陷越深', '侥幸回本', '损失封顶', '重新出发']];
+  const YS = [36, 104, 172], FS = [16, 15, 13], BW = [140, 92, 104];
+  const xs = d => T[d].map((_, i) => (CW / T[d].length) * (i + 0.5));
+  const path = [0, 1, 3]; // 止损 → 重新出发
+  const hi = seg(u, 2.6, 3.0);
+  k.globalAlpha = F;
+  for (let d = 1; d < 3; d++) {
+    const X = xs(d), PX = xs(d - 1), t = seg(u, 0.2 + 0.6 * d - 0.4, 0.2 + 0.6 * d);
+    X.forEach((x, i) => {
+      const p = Math.floor(i / 2), on = path[d] === i && path[d - 1] === p;
+      k.save(); k.globalAlpha = F * (on ? 1 : mix(1, 0.5, hi));
+      glowLine(k, PX[p], YS[d - 1] + 14, x, YS[d] - 14, t, DIM, 2);
+      // 选中路径：金线按 hi 叠上去，颜色渐变不跳
+      if (on && hi > 0) { k.globalAlpha = F * hi; glowLine(k, PX[p], YS[d - 1] + 14, x, YS[d] - 14, t, GOLD, 3); }
+      k.restore();
+    });
+  }
+  for (let d = 0; d < 3; d++) {
+    const X = xs(d), s = spring(u - (0.2 + 0.6 * d));
+    if (s <= 0) continue;
+    X.forEach((x, i) => {
+      const on = path[d] === i, a = on ? 1 : mix(1, 0.5, hi);
+      k.save(); k.globalAlpha = F * a; k.translate(x, YS[d]); k.scale(s, s);
+      // 底牌始终不透明（遮住穿过的连线），选中时金色底牌与深色字按 g 交叉淡入
+      const g = on ? hi : 0;
+      rr(k, -BW[d] / 2, -14, BW[d], 28, 7);
+      k.fillStyle = '#22252E'; k.fill();
+      k.strokeStyle = '#4A4E5A'; k.lineWidth = 1.5; k.stroke();
+      if (g > 0) { k.globalAlpha = F * a * g; k.fillStyle = GOLD; k.fill(); k.strokeStyle = GOLD; k.stroke(); }
+      k.globalAlpha = F * a * (1 - g); txt(k, T[d][i], 0, 1, FS[d], INK, 'center', 700);
+      if (g > 0) { k.globalAlpha = F * a * g; txt(k, T[d][i], 0, 1, FS[d], BG, 'center', 700); }
+      k.restore();
+    });
+  }
+  // 终点圆环减速长出，不过冲（右缘距卡片边 9 px）
+  const ring = out3(seg(u, 3.0, 3.35));
+  if (ring > 0) {
+    const x = xs(2)[3];
+    k.save(); k.globalAlpha = F; k.strokeStyle = GOLD; k.lineWidth = 2; k.shadowColor = GOLD; k.shadowBlur = 8;
+    k.beginPath(); k.ellipse(x, YS[2], 58 * ring, 21 * ring, 0, 0, TAU); k.stroke(); k.restore();
+  }
+  k.globalAlpha = 1;
+};

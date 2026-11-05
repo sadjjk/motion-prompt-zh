@@ -1,0 +1,15 @@
+Please use "Growing knowledge tree" (知識ツリー), filed under "Shapes & objects / Information & tech".
+Motion Prompt #2-129
+
+What it is: Branches grow upward from a root topic at the bottom and nodes pop in layer by layer, showing how a subject breaks down
+What the sample shows: From the gold 「主题」 at the bottom, 3 branches grow up to 「概念」, 「方法」 and 「案例」, then 6 gold dots appear above them. Nodes pop in with a spring and the whole tree drifts gently up and down.
+Spec:
+- 3 layers: the root box 「主题」 at the bottom centre, 3 boxes 「概念」「方法」「案例」 160 px apart in the middle, and 6 gold dots of radius 7 px at the top, 2 above each box.
+- Layer d appears at 0.3 + 0.9·d s (0.3, 1.2, 2.1 s); the S-shaped glowing line to each node is drawn in the 0.5 s before, then the node pops in with a damped spring.
+- Lines into the middle layer are gold and 3 px wide, lines into the top layer darker gold and 2 px; the whole tree bobs up and down by 2 px, 2 times per cycle.
+- At 5.4–6.0 s the tree fades out; at 0 s nothing but the background is drawn, so the loop restarts cleanly.
+When to use it: Use it to open with the structure of a topic, such as a course outline, a knowledge map or a breakdown of a theme.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-129.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

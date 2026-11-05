@@ -1,0 +1,52 @@
+// Motion Prompt #2-129 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// 知识树 / Growing knowledge tree
+// 分类: 动态图形 / 图形与物件 / 信息与科技
+// 动画表现: 底部金色的「主题」向上长出 3 根分支，出现「概念」「方法」「案例」，再往上出现 6 个金色小点。节点弹性弹出，整棵树缓缓上下浮动。
+// 运动规格:
+//   - 3 层：底部中间是根节点方框「主题」，中层是间隔 160 px 的 3 个方框「概念」「方法」「案例」，顶层是 6 个半径 7 px 的金色圆点，每个方框上方 2 个。
+//   - 第 d 层在 0.3 + 0.9·d 秒出现（0.3、1.2、2.1 秒）；连到该层节点的 S 形发光线在此前 0.5 秒内画出，随后节点按阻尼弹簧弹出。
+//   - 连到中层的线为金色、宽 3 px，连到顶层的线为暗金、宽 2 px；整棵树上下浮动 2 px，每个周期 2 次。
+//   - 5.4–6.0 秒整棵树淡出；0 秒时只有背景，循环无缝。
+// 适用场景: 适合开头先展示整体结构，比如课程目录、知识体系、话题拆解。
+// 标签: tree-diagram, knowledge-map, hierarchy, nodes, branching, spring-pop, short-video
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-129
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 06
+// 知识树：从底部根节点「主题」向上长出 3 个分支和 6 个末梢，节点逐层弹出，整棵树轻轻浮动
+CELLS[5] = (k, w, h, u) => {
+  bg(k);
+  const F = fadeIn(u), bob = 2 * Math.sin(u * TAU / CYC * 2);
+  const L1 = ['概念', '方法', '案例'], X1 = [110, 270, 430];
+  const nodes = [{ x: 270, y: 180, d: 0, label: '主题', p: -1 }];
+  X1.forEach((x, i) => nodes.push({ x, y: 110, d: 1, label: L1[i], p: 0 }));
+  X1.forEach((x, i) => { nodes.push({ x: x - 40, y: 40, d: 2, p: 1 + i }); nodes.push({ x: x + 40, y: 40, d: 2, p: 1 + i }); });
+  k.globalAlpha = F;
+  const T0 = d => 0.3 + 0.9 * d;
+  nodes.forEach(nd => {
+    if (nd.p < 0) return;
+    const pa = nodes[nd.p];
+    glowLine(k, pa.x, pa.y + bob, nd.x, nd.y + bob, seg(u, T0(nd.d) - 0.5, T0(nd.d)), nd.d === 1 ? GOLD : GOLD_D, nd.d === 1 ? 3 : 2);
+  });
+  nodes.forEach(nd => {
+    const s = spring(u - T0(nd.d));
+    if (s <= 0) return;
+    const y = nd.y + bob;
+    if (nd.label) {
+      const bw = nd.d ? 64 : 76, bh = nd.d ? 30 : 34;
+      k.save(); k.translate(nd.x, y); k.scale(s, s);
+      rr(k, -bw / 2, -bh / 2, bw, bh, 8); k.fillStyle = nd.d ? '#22252E' : GOLD; k.fill();
+      k.strokeStyle = GOLD; k.lineWidth = 1.5; k.stroke();
+      txt(k, nd.label, 0, 1, nd.d ? 15 : 16, nd.d ? INK : BG, 'center', 700);
+      k.restore();
+    } else {
+      k.fillStyle = GOLD; k.beginPath(); k.arc(nd.x, y, 7 * s, 0, TAU); k.fill();
+    }
+  });
+  k.globalAlpha = 1;
+};

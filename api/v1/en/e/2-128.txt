@@ -1,0 +1,45 @@
+// Motion Prompt #2-128 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// Sliding year timeline / 年号タイムライン
+// Category: Motion graphics / Shapes & objects / Information & tech
+// What happens: Years 10 apart sit along a line and slide left starting from 1930. The year at the centre turns large and gold, the others shrink and fade with distance, and it comes to rest on 2020.
+// Motion spec:
+//   - The years 1930–2020, one every 10 years, sit 120 px apart above a grey line, each with a small dot on the line; a gold triangle marks the centre of the card.
+//   - At 0.3–4.6 s the row slides left by 1080 px with ease-in-out, from 1930 at the centre to 2020 at the centre.
+//   - As a year comes within 120 px of the centre it grows smoothly from 22 px to 44 px and turns gold, and its dot grows from 3 px to 5 px; farther years stay 22 px with opacity 1 − distance / 240, never below 0.2.
+//   - At 5.4–5.7 s the row fades out, jumps back to 1930 while hidden, and fades in again at 5.8–6.1 s; at 0 s 1930 is at the centre, so the loop restarts cleanly.
+// When to use it: Use it to walk through history, a brand story or how a technology developed, decade by decade.
+// Tags: timeline, years, history, decades, scroll, highlight-center, short-video
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-128
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 05
+// 年份时间轴：1930–2020 的年份沿横线滑过，靠近中线的年份放大成金色，最后停在 2020
+CELLS[4] = (k, w, h, u) => {
+  bg(k);
+  const Y = 120, SP = 120, CX = 270;
+  // 5.4–5.7 秒淡出，隐去时跳回 1930，5.8–6.1 秒淡入
+  const hide = u >= 5.75;
+  const off = hide ? 0 : -9 * SP * inOut3(seg(u, 0.3, 4.6));
+  const A = hide ? seg(u, 5.8, 6.1) : 1 - seg(u, 5.4, 5.7);
+  k.strokeStyle = '#3A3D48'; k.lineWidth = 2;
+  k.beginPath(); k.moveTo(0, Y + 30); k.lineTo(CW, Y + 30); k.stroke();
+  for (let i = 0; i < 10; i++) {
+    const x = CX + i * SP + off, d = Math.abs(x - CX);
+    if (x < -80 || x > CW + 80) continue;
+    // 离中线 120 px 以内逐渐放大并渐变为金色：g 从 0 到 1，没有跳变
+    const g = inOut3(clamp(1 - d / 120)), s = String(1930 + 10 * i);
+    const r = mix(3, 5, g), size = mix(22, 44, g), ty = mix(Y, Y - 4, g);
+    k.globalAlpha = A; k.fillStyle = DIM; k.beginPath(); k.arc(x, Y + 30, r, 0, TAU); k.fill();
+    k.globalAlpha = A * g; k.fillStyle = GOLD; k.beginPath(); k.arc(x, Y + 30, r, 0, TAU); k.fill();
+    k.globalAlpha = A * Math.max(0.2, 1 - d / 240) * (1 - g); txt(k, s, x, ty, size, INK, 'center', 700);
+    k.globalAlpha = A * g; txt(k, s, x, ty, size, GOLD, 'center', 700);
+    k.globalAlpha = 1;
+  }
+  k.fillStyle = GOLD;
+  k.beginPath(); k.moveTo(CX - 8, 186); k.lineTo(CX + 8, 186); k.lineTo(CX, 174); k.closePath(); k.fill();
+};

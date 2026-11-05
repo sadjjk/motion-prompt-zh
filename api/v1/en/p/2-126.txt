@@ -1,0 +1,15 @@
+Please use "Growing coin stacks" (積み上がるコイン), filed under "Shapes & objects / Objects & machines".
+Motion Prompt #2-126
+
+What it is: Stacks of coins grow one coin at a time from left to right to different heights, showing growth like a bar chart
+What the sample shows: 5 stacks of gold coins on a ground line. The left stack starts first and each new coin drops a little onto the top; by 3.6 s the stacks hold 4, 7, 10, 13 and 16 coins.
+Spec:
+- 5 stacks stand 80 px apart on a ground line; each coin is an ellipse 60 × 16 px with a gold top and a darker gold edge, and coins sit 9 px apart.
+- Stack c holds up to 4 + 3·c coins (4, 7, 10, 13, 16); it starts at 0.3 + 0.3·c s and reaches its full height at 3.6 s, adding coins at an even rate.
+- Each new coin drops 20 px onto the stack with an ease-out; the top coin of each stack has a short white highlight.
+- At 5.4–6.0 s the coins fade out; at 0 s only the ground line is drawn, so the loop restarts cleanly.
+When to use it: Use it to show savings, income or user numbers rising step by step in a friendlier way than a chart.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-126.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

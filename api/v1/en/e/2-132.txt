@@ -1,0 +1,47 @@
+// Motion Prompt #2-132 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// Stacking word cards / 積み重なる言葉
+// Category: Motion graphics / Text animation / Impact & physics
+// What happens: 4 cards in red, orange, blue and grey read 「计划」「执行」「复盘」「迭代」. Each one shrinks down from a larger size onto the card before, tilted slightly left or right, and the cards below dip and spring back every time.
+// Motion spec:
+//   - 4 rounded cards 200 × 40 px with 24 px bold white words 「计划」「执行」「复盘」「迭代」 in red #B3261E, orange #B8601A, blue #3A6EA5 and grey #444A55, each with a soft drop shadow.
+//   - Card i starts at 0.4 + 0.7·i s and shrinks from 1.6× to 1× over 0.18 s with an ease-out while fading in; it lands 44 px above the card before, from the bottom up.
+//   - The cards tilt by 0.05 rad, alternating right and left.
+//   - Each time a card lands, every card below dips by up to 2 px and springs back within 0.2 s.
+//   - At 5.4–6.0 s the stack fades out; at 0 s no card is drawn, so the loop restarts cleanly.
+// When to use it: Use it to build up steps, principles or keywords one forceful beat at a time.
+// Tags: word-stack, kinetic-type, slam, cards, steps, impact, short-video
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-132
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 09
+// 词语堆叠：4 张彩色字卡从大到小砸下来，一张压一张地往上叠，每砸一张下面的卡片被压低一下再弹回
+CELLS[8] = (k, w, h, u) => {
+  bg(k);
+  const F = fadeIn(u), WORDS = ['计划', '执行', '复盘', '迭代'];
+  const COLS = ['#B3261E', '#B8601A', '#3A6EA5', '#444A55'], CWD = 200, CHT = 40;
+  const t0 = i => 0.4 + 0.7 * i;
+  k.globalAlpha = F;
+  for (let i = 0; i < 4; i++) {
+    const q = seg(u, t0(i), t0(i) + 0.18);
+    if (u < t0(i)) continue;
+    // 上方每张卡落定时，本卡被压低 2 px，0.1 秒后回弹
+    let press = 0;
+    for (let j = i + 1; j < 4; j++) {
+      const d = u - (t0(j) + 0.18);
+      if (d >= 0 && d < 0.2) press += 2 * Math.sin(Math.PI * d / 0.2);
+    }
+    const sc = mix(1.6, 1, out3(q)), y = 170 - 44 * i + press, rot = (i % 2 ? -0.05 : 0.05);
+    k.save(); k.globalAlpha = F * clamp(q * 1.5); k.translate(270, y); k.rotate(rot); k.scale(sc, sc);
+    k.shadowColor = 'rgba(0,0,0,0.45)'; k.shadowBlur = 10; k.shadowOffsetY = 4;
+    rr(k, -CWD / 2, -CHT / 2, CWD, CHT, 6); k.fillStyle = COLS[i]; k.fill();
+    k.shadowColor = 'transparent';
+    txt(k, WORDS[i], 0, 1, 24, '#FFFFFF', 'center', 800);
+    k.restore();
+  }
+  k.globalAlpha = 1;
+};

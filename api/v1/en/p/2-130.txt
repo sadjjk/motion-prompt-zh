@@ -1,0 +1,16 @@
+Please use "Decision tree path" (決定木), filed under "Shapes & objects / Information & tech".
+Motion Prompt #2-130
+
+What it is: A question branches into 2 choices and 4 outcomes, then only the chosen path lights up in gold, showing how a decision plays out
+What the sample shows: From 「要不要继续？」 at the top, 「继续」 and 「止损」 and then 「越陷越深」「侥幸回本」「损失封顶」「重新出发」 pop in layer by layer. Then the path 「止损」 → 「重新出发」 turns gold, the rest dims, and a gold ring circles the end.
+Spec:
+- 3 rows of rounded boxes 28 px tall: 「要不要继续？」 at the top in 16 px, 「继续」「止损」 in the middle in 15 px, and 「越陷越深」「侥幸回本」「损失封顶」「重新出发」 at the bottom in 13 px, each row spread evenly across the card.
+- Row d pops in with a damped spring at 0.2 + 0.6·d s (0.2, 0.8, 1.4 s); the S-shaped grey lines to it are drawn in the 0.4 s before.
+- At 2.6–3.0 s the path 「要不要继续？」 → 「止损」 → 「重新出发」 turns gold, boxes filled and lines 3 px wide, while every other box and line fades to half opacity.
+- At 3.0–3.35 s a gold ellipse ring 116 × 42 px grows out around 「重新出发」, easing to a stop.
+- At 5.4–6.0 s the tree fades out; at 0 s nothing but the background is drawn, so the loop restarts cleanly.
+When to use it: Use it to lay out options and their outcomes and argue for one choice step by step.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-130.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

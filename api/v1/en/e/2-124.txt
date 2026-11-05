@@ -1,0 +1,60 @@
+// Motion Prompt #2-124 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// Tipping balance scale / 傾く天秤
+// Category: Motion graphics / Shapes & objects / Objects & machines
+// What happens: A beam on a central post with pans A and B. 5 gold coins fall into pan B one after another and stack up; the beam tips further with each coin, sways with damping, and finally levels out again.
+// Motion spec:
+//   - A dark card with a post in the middle and a beam 300 px long pivoting on a gold dot; a pan hangs from each end on 2 cords and stays level while the beam turns. The pans are labelled A and B.
+//   - 5 coins fall into pan B from above the card, the first at 0.6 s and then every 0.45 s; each takes 0.35 s to fall, speeding up, and lands 6 px above the previous one.
+//   - Each coin that lands adds 0.05 rad of tilt, eased in as 1 − e^(−4t)·cos(10t) with t the time since it landed, so the beam dips a little past each new angle and settles.
+//   - At 5.4–6.0 s the coins fade out and the beam eases back to level; at 0 s the pans are empty and level, so the loop restarts cleanly.
+// When to use it: Use it when comparing two options, costs against gains or priorities, and you want to show one side winning.
+// Tags: balance-scale, comparison, weight, coins, tilt, damped-sway, short-video
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-124
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 01
+// 天平倾斜：5 枚金币依次落进右盘，横梁每多一枚就多倾斜一点，最后带阻尼回摆停稳
+CELLS[0] = (k, w, h, u) => {
+  bg(k);
+  const R = resetK(u), PX = 270, PY = 56, HALF = 150, N = 5;
+  // 每枚金币落定后横梁再斜 0.05 rad，带阻尼过冲 1 − e^(−4t)·cos(10t)，落定瞬间角度连续
+  let tilt = 0;
+  for (let i = 0; i < N; i++) {
+    const t = u - (0.6 + 0.45 * i + 0.35);
+    if (t > 0) tilt += 0.05 * (1 - Math.exp(-4 * t) * Math.cos(10 * t));
+  }
+  const ang = tilt * (1 - R);
+  // 立柱与底座
+  k.fillStyle = '#3A3D48'; k.fillRect(PX - 4, PY, 8, 132); rr(k, PX - 46, 186, 92, 10, 4); k.fill();
+  const ca = Math.cos(ang), sa = Math.sin(ang);
+  const ends = [[PX - HALF * ca, PY - HALF * sa], [PX + HALF * ca, PY + HALF * sa]];
+  // 横梁
+  k.strokeStyle = INK; k.lineWidth = 5; k.lineCap = 'round';
+  k.beginPath(); k.moveTo(ends[0][0], ends[0][1]); k.lineTo(ends[1][0], ends[1][1]); k.stroke();
+  k.fillStyle = GOLD; k.beginPath(); k.arc(PX, PY, 7, 0, TAU); k.fill();
+  // 托盘（不随横梁旋转）
+  ends.forEach(([ex, ey], s) => {
+    const py = ey + 58;
+    k.strokeStyle = DIM; k.lineWidth = 1.5;
+    k.beginPath(); k.moveTo(ex, ey); k.lineTo(ex - 44, py); k.moveTo(ex, ey); k.lineTo(ex + 44, py); k.stroke();
+    k.fillStyle = '#2A2D36'; k.strokeStyle = INK; k.lineWidth = 2;
+    k.beginPath(); k.ellipse(ex, py, 52, 8, 0, 0, TAU); k.fill(); k.stroke();
+    txt(k, s ? 'B' : 'A', ex, py + 26, 22, DIM, 'center', 700);
+    if (!s) return;
+    // 金币：落下 0.35 秒（加速），落定后每层 6 px
+    k.globalAlpha = 1 - R;
+    for (let i = 0; i < N; i++) {
+      const t0 = 0.6 + 0.45 * i, q = seg(u, t0, t0 + 0.35);
+      if (u < t0) continue;
+      const ty = py - 5 - 6 * i, y = mix(-12, ty, q * q);
+      k.fillStyle = GOLD_D; k.beginPath(); k.ellipse(ex, y + 3, 22, 6, 0, 0, TAU); k.fill();
+      k.fillStyle = GOLD; k.beginPath(); k.ellipse(ex, y, 22, 6, 0, 0, TAU); k.fill();
+    }
+    k.globalAlpha = 1;
+  });
+};

@@ -1,0 +1,45 @@
+// Motion Prompt #2-128 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// 年份时间轴 / Sliding year timeline
+// 分类: 动态图形 / 图形与物件 / 信息与科技
+// 动画表现: 每 10 年一个的年份排在横线上，从 1930 开始向左滑动。到中间的年份变成金色大字，远离的变小变淡，最后停在 2020。
+// 运动规格:
+//   - 1930–2020 的年份每 10 年一个，间隔 120 px 排在灰色横线上方，线上各有一个小圆点；卡片中间有一个金色小三角做指示。
+//   - 0.3–4.6 秒整排按缓入缓出向左滑动 1080 px，从 1930 在中间滑到 2020 在中间。
+//   - 年份离中线 120 px 以内时，字号从 22 px 平滑放大到 44 px 并渐变成金色，线上圆点半径从 3 px 变到 5 px；更远的年份保持 22 px，不透明度为 1 − 距离 / 240，最低 0.2。
+//   - 5.4–5.7 秒整排淡出，隐去时跳回 1930，5.8–6.1 秒再淡入；0 秒时 1930 在中间，循环无缝。
+// 适用场景: 适合按年代讲历史、品牌发展、技术演进的时候。
+// 标签: timeline, years, history, decades, scroll, highlight-center, short-video
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-128
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 05
+// 年份时间轴：1930–2020 的年份沿横线滑过，靠近中线的年份放大成金色，最后停在 2020
+CELLS[4] = (k, w, h, u) => {
+  bg(k);
+  const Y = 120, SP = 120, CX = 270;
+  // 5.4–5.7 秒淡出，隐去时跳回 1930，5.8–6.1 秒淡入
+  const hide = u >= 5.75;
+  const off = hide ? 0 : -9 * SP * inOut3(seg(u, 0.3, 4.6));
+  const A = hide ? seg(u, 5.8, 6.1) : 1 - seg(u, 5.4, 5.7);
+  k.strokeStyle = '#3A3D48'; k.lineWidth = 2;
+  k.beginPath(); k.moveTo(0, Y + 30); k.lineTo(CW, Y + 30); k.stroke();
+  for (let i = 0; i < 10; i++) {
+    const x = CX + i * SP + off, d = Math.abs(x - CX);
+    if (x < -80 || x > CW + 80) continue;
+    // 离中线 120 px 以内逐渐放大并渐变为金色：g 从 0 到 1，没有跳变
+    const g = inOut3(clamp(1 - d / 120)), s = String(1930 + 10 * i);
+    const r = mix(3, 5, g), size = mix(22, 44, g), ty = mix(Y, Y - 4, g);
+    k.globalAlpha = A; k.fillStyle = DIM; k.beginPath(); k.arc(x, Y + 30, r, 0, TAU); k.fill();
+    k.globalAlpha = A * g; k.fillStyle = GOLD; k.beginPath(); k.arc(x, Y + 30, r, 0, TAU); k.fill();
+    k.globalAlpha = A * Math.max(0.2, 1 - d / 240) * (1 - g); txt(k, s, x, ty, size, INK, 'center', 700);
+    k.globalAlpha = A * g; txt(k, s, x, ty, size, GOLD, 'center', 700);
+    k.globalAlpha = 1;
+  }
+  k.fillStyle = GOLD;
+  k.beginPath(); k.moveTo(CX - 8, 186); k.lineTo(CX + 8, 186); k.lineTo(CX, 174); k.closePath(); k.fill();
+};

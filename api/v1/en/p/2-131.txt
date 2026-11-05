@@ -1,0 +1,15 @@
+Please use "Radial mind map" (放射状マインドマップ), filed under "Shapes & objects / Information & tech".
+Motion Prompt #2-131
+
+What it is: Branches reach out one by one from a central idea and the whole map turns slowly, showing an idea spreading in many directions
+What the sample shows: A glowing gold circle 「想法」 sits in the centre. 6 branches spring out one by one clockwise from the top, each with a label beside its end dot. 3 faint concentric ellipses sit behind, and the whole map turns slowly.
+Spec:
+- A gold centre circle of radius 26 px labelled 「想法」 springs in at 0.1 s with a soft glow; 3 faint gold concentric ellipses stay behind it the whole time.
+- 6 branches 「写作」「视频」「设计」「播客」「咨询」「编程」 are spaced evenly around an ellipse 340 × 144 px, starting from the top and going clockwise; branch i springs out from the centre at 0.4 + 0.25·i s.
+- Each branch is a darker gold line ending in a gold dot of radius 7 px; its 15 px label sits just outside the dot and fades in over 0.3 s.
+- The map turns by 0.12 rad per second; at 5.4–6.0 s it fades out and the angle eases back to 0, so at 0 s the loop restarts cleanly.
+When to use it: Use it to show at a glance the uses, ideas or related fields that grow out of one theme.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-131.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

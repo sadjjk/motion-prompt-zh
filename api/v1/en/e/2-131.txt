@@ -1,0 +1,57 @@
+// Motion Prompt #2-131 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// Radial mind map / 放射状マインドマップ
+// Category: Motion graphics / Shapes & objects / Information & tech
+// What happens: A glowing gold circle 「想法」 sits in the centre. 6 branches spring out one by one clockwise from the top, each with a label beside its end dot. 3 faint concentric ellipses sit behind, and the whole map turns slowly.
+// Motion spec:
+//   - A gold centre circle of radius 26 px labelled 「想法」 springs in at 0.1 s with a soft glow; 3 faint gold concentric ellipses stay behind it the whole time.
+//   - 6 branches 「写作」「视频」「设计」「播客」「咨询」「编程」 are spaced evenly around an ellipse 340 × 144 px, starting from the top and going clockwise; branch i springs out from the centre at 0.4 + 0.25·i s.
+//   - Each branch is a darker gold line ending in a gold dot of radius 7 px; its 15 px label sits just outside the dot and fades in over 0.3 s.
+//   - The map turns by 0.12 rad per second; at 5.4–6.0 s it fades out and the angle eases back to 0, so at 0 s the loop restarts cleanly.
+// When to use it: Use it to show at a glance the uses, ideas or related fields that grow out of one theme.
+// Tags: mind-map, radial, brainstorm, branches, ideas, rotation, short-video
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-131
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 08
+// 放射脑图：中心「想法」向四周依次伸出 6 个分支，节点弹出后整圈缓慢旋转，背景有 3 圈淡金色椭圆
+CELLS[7] = (k, w, h, u) => {
+  bg(k);
+  const F = fadeIn(u), CX = 270, CY = 104, RX = 170, RY = 72;
+  const LB = ['写作', '视频', '设计', '播客', '咨询', '编程'];
+  const rot = 0.12 * u * (1 - resetK(u));
+  // 背景椭圆常驻，不参与淡出，循环接缝处没有跳变
+  k.strokeStyle = 'rgba(232,176,74,0.12)'; k.lineWidth = 1;
+  for (let r = 1; r <= 3; r++) { k.beginPath(); k.ellipse(CX, CY, RX * r / 3 + 12, RY * r / 3 + 6, 0, 0, TAU); k.stroke(); }
+  k.globalAlpha = F;
+  LB.forEach((s, i) => {
+    const t0 = 0.4 + 0.25 * i, a = i / 6 * TAU - Math.PI / 2 + rot;
+    const ln = clamp(spring(u - t0), 0, 1.15);
+    if (ln <= 0) return;
+    const x = CX + Math.cos(a) * RX * ln, y = CY + Math.sin(a) * RY * ln;
+    k.save(); k.strokeStyle = GOLD_D; k.lineWidth = 2; k.shadowColor = GOLD; k.shadowBlur = 4;
+    k.beginPath(); k.moveTo(CX, CY); k.lineTo(x, y); k.stroke(); k.restore();
+    k.fillStyle = GOLD; k.beginPath(); k.arc(x, y, 7, 0, TAU); k.fill();
+    // 标签中心沿分支方向外推「12 px + 半个字宽」，旋转时连续移动，不会因对齐方式切换而跳动
+    k.font = `600 15px ${SANS}`;
+    const c = Math.cos(a), tw = k.measureText(s).width;
+    // 分支弹出过冲时，底部标签不超出卡片下沿
+    const lx = x + c * (12 + tw / 2), ly = Math.min(CH - 12, y + Math.sin(a) * 16);
+    k.globalAlpha = F * clamp((u - t0) / 0.3);
+    txt(k, s, lx, ly, 15, INK, 'center', 600);
+    k.globalAlpha = F;
+  });
+  const s = spring(u - 0.1);
+  if (s > 0) {
+    k.save(); k.translate(CX, CY); k.scale(s, s);
+    k.fillStyle = GOLD; k.shadowColor = GOLD; k.shadowBlur = 12;
+    k.beginPath(); k.arc(0, 0, 26, 0, TAU); k.fill(); k.shadowBlur = 0;
+    txt(k, '想法', 0, 1, 15, BG, 'center', 800);
+    k.restore();
+  }
+  k.globalAlpha = 1;
+};

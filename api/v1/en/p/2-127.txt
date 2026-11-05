@@ -1,0 +1,15 @@
+Please use "Compound growth curve" (複利カーブ), filed under "Shapes & objects / Information & tech".
+Motion Prompt #2-127
+
+What it is: An exponential curve that stays almost flat at first and then shoots up, drawn to show how small gains add up
+What the sample shows: On left and bottom axes, the growth curve for 10% per period over 40 periods is drawn from the origin. A white dot rides the tip to the right, the curve shoots up near the end, and 「×45」 appears at the top right.
+Spec:
+- Grey axes frame a plot area 460 × 150 px; the curve is y = (1.1^(40x) − 1) / (1.1^40 − 1), the growth of 10% per period over 40 periods scaled to the plot.
+- At 0.3–3.6 s the gold line, 3 px wide with a soft glow, is drawn from left to right with ease-in-out; a white dot of radius 5 px sits at its tip.
+- At 3.6–4.0 s the label 「×45」 fades in at the top right in 30 px bold gold, since 1.1^40 ≈ 45.
+- At 5.4–6.0 s the curve and label fade out; at 0 s only the axes are drawn, so the loop restarts cleanly.
+When to use it: Use it to explain compound interest, habits or learning, where small steps add up to a big difference later.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-127.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

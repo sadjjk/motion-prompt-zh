@@ -1,0 +1,57 @@
+// Motion Prompt #2-131 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// 放射脑图 / Radial mind map
+// 分类: 动态图形 / 图形与物件 / 信息与科技
+// 动画表现: 中心是发光的金色圆「想法」。6 根分支从正上方开始顺时针一根根弹出，末端圆点旁出现标签。背后有 3 圈淡淡的同心椭圆，整张图缓慢旋转。
+// 运动规格:
+//   - 半径 26 px 的金色中心圆「想法」在 0.1 秒弹出，带柔和光晕；背后始终有 3 圈淡金色同心椭圆。
+//   - 6 根分支「写作」「视频」「设计」「播客」「咨询」「编程」沿 340 × 144 px 的椭圆均匀分布，从正上方开始顺时针排列；第 i 根在 0.4 + 0.25·i 秒从中心弹出。
+//   - 每根分支是一条暗金色的线，末端是半径 7 px 的金色圆点；15 px 的标签放在圆点外侧，0.3 秒内淡入。
+//   - 整张图每秒旋转 0.12 rad；5.4–6.0 秒淡出，角度缓缓回到 0，0 秒时循环无缝。
+// 适用场景: 适合一次性展示从一个主题延伸出的用途、点子或相关领域。
+// 标签: mind-map, radial, brainstorm, branches, ideas, rotation, short-video
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-131
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 08
+// 放射脑图：中心「想法」向四周依次伸出 6 个分支，节点弹出后整圈缓慢旋转，背景有 3 圈淡金色椭圆
+CELLS[7] = (k, w, h, u) => {
+  bg(k);
+  const F = fadeIn(u), CX = 270, CY = 104, RX = 170, RY = 72;
+  const LB = ['写作', '视频', '设计', '播客', '咨询', '编程'];
+  const rot = 0.12 * u * (1 - resetK(u));
+  // 背景椭圆常驻，不参与淡出，循环接缝处没有跳变
+  k.strokeStyle = 'rgba(232,176,74,0.12)'; k.lineWidth = 1;
+  for (let r = 1; r <= 3; r++) { k.beginPath(); k.ellipse(CX, CY, RX * r / 3 + 12, RY * r / 3 + 6, 0, 0, TAU); k.stroke(); }
+  k.globalAlpha = F;
+  LB.forEach((s, i) => {
+    const t0 = 0.4 + 0.25 * i, a = i / 6 * TAU - Math.PI / 2 + rot;
+    const ln = clamp(spring(u - t0), 0, 1.15);
+    if (ln <= 0) return;
+    const x = CX + Math.cos(a) * RX * ln, y = CY + Math.sin(a) * RY * ln;
+    k.save(); k.strokeStyle = GOLD_D; k.lineWidth = 2; k.shadowColor = GOLD; k.shadowBlur = 4;
+    k.beginPath(); k.moveTo(CX, CY); k.lineTo(x, y); k.stroke(); k.restore();
+    k.fillStyle = GOLD; k.beginPath(); k.arc(x, y, 7, 0, TAU); k.fill();
+    // 标签中心沿分支方向外推「12 px + 半个字宽」，旋转时连续移动，不会因对齐方式切换而跳动
+    k.font = `600 15px ${SANS}`;
+    const c = Math.cos(a), tw = k.measureText(s).width;
+    // 分支弹出过冲时，底部标签不超出卡片下沿
+    const lx = x + c * (12 + tw / 2), ly = Math.min(CH - 12, y + Math.sin(a) * 16);
+    k.globalAlpha = F * clamp((u - t0) / 0.3);
+    txt(k, s, lx, ly, 15, INK, 'center', 600);
+    k.globalAlpha = F;
+  });
+  const s = spring(u - 0.1);
+  if (s > 0) {
+    k.save(); k.translate(CX, CY); k.scale(s, s);
+    k.fillStyle = GOLD; k.shadowColor = GOLD; k.shadowBlur = 12;
+    k.beginPath(); k.arc(0, 0, 26, 0, TAU); k.fill(); k.shadowBlur = 0;
+    txt(k, '想法', 0, 1, 15, BG, 'center', 800);
+    k.restore();
+  }
+  k.globalAlpha = 1;
+};

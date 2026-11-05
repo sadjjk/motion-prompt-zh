@@ -1,0 +1,15 @@
+Please use "Tipping balance scale" (傾く天秤), filed under "Shapes & objects / Objects & machines".
+Motion Prompt #2-124
+
+What it is: Coins drop one by one into one pan of a balance scale, which tips a little further with each coin and sways to rest, showing one side outweighing the other
+What the sample shows: A beam on a central post with pans A and B. 5 gold coins fall into pan B one after another and stack up; the beam tips further with each coin, sways with damping, and finally levels out again.
+Spec:
+- A dark card with a post in the middle and a beam 300 px long pivoting on a gold dot; a pan hangs from each end on 2 cords and stays level while the beam turns. The pans are labelled A and B.
+- 5 coins fall into pan B from above the card, the first at 0.6 s and then every 0.45 s; each takes 0.35 s to fall, speeding up, and lands 6 px above the previous one.
+- Each coin that lands adds 0.05 rad of tilt, eased in as 1 − e^(−4t)·cos(10t) with t the time since it landed, so the beam dips a little past each new angle and settles.
+- At 5.4–6.0 s the coins fade out and the beam eases back to level; at 0 s the pans are empty and level, so the loop restarts cleanly.
+When to use it: Use it when comparing two options, costs against gains or priorities, and you want to show one side winning.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-124.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

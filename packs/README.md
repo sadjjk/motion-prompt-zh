@@ -2,7 +2,7 @@
 
 # Names
 
-536 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+545 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind. Each number opens the moving sample in the gallery.
 
@@ -31,11 +31,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | 2 Motion graphics | Motion principles | Rhythm & loops | 9 | #2 010–018 |
 | 2 Motion graphics | Text animation | Letter by letter & layout | 15 | #2 019–029 · 113–114 · 120 · 123 |
 | 2 Motion graphics | Text animation | Morphing & texture | 14 | #2 030–041 · 121–122 |
-| 2 Motion graphics | Text animation | Impact & physics | 7 | #2 042–048 |
+| 2 Motion graphics | Text animation | Impact & physics | 8 | #2 042–048 · 132 |
 | 2 Motion graphics | Text animation | Spatial type | 6 | #2 049–054 |
 | 2 Motion graphics | Shapes & objects | Lines & shapes | 9 | #2 055–063 |
-| 2 Motion graphics | Shapes & objects | Objects & machines | 12 | #2 064–075 |
-| 2 Motion graphics | Shapes & objects | Information & tech | 17 | #2 076–091 · 115 |
+| 2 Motion graphics | Shapes & objects | Objects & machines | 15 | #2 064–075 · 124–126 |
+| 2 Motion graphics | Shapes & objects | Information & tech | 22 | #2 076–091 · 115 · 127–131 |
 | 2 Motion graphics | Effects & transitions | Particles & light | 9 | #2 092–099 · 116 |
 | 2 Motion graphics | Effects & transitions | Transitions | 13 | #2 100–112 |
 | 3 Editing & photography | Camera & editing | Camera movement | 8 | #3 001–008 |
@@ -464,7 +464,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-121](https://sadjjk.github.io/motion-prompt-zh/#2-121) | **Fuzzy text** | Large type sliced into thin horizontal strips that each jitter sideways on their own, like an unstable signal; hovering makes it shake harder | Make the big heading on the 404 page fuzzy text: slice the type into 2 px horizontal strips and shift each one sideways at random 24 times a second. Keep the shift at 1.5 px normally, raise it to 12 px within 0.25 s on hover, and bring it back when the cursor leaves. No red-green-blue split. |
 | [#2-122](https://sadjjk.github.io/motion-prompt-zh/#2-122) | **Fold text** | Each line of a note is a creased paper strip that unfolds downward 1 fold at a time, revealing the text | Make the note in the notification panel fold text: after the header strip, make each line a 40 px paper strip that unfolds from 90° to 0° over 0.6 s, hinged on the lower edge of the strip above. Stagger the strips by 0.45 s, darkening inward folds and brightening outward ones while they turn. |
 
-#### Impact & physics · #2 042–048
+#### Impact & physics · #2 042–048 · 132
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -475,6 +475,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-046](https://sadjjk.github.io/motion-prompt-zh/#2-046) | **Slot machine** | Reels spin and stop left to right on the result | Reveal the result with a slot machine: four reels spin, then slow and stop left to right with a slight bounce back. |
 | [#2-047](https://sadjjk.github.io/motion-prompt-zh/#2-047) | **Swing letters** | Letters hang from a point and swing like pendulums | Give the character name swing letters: hang each letter from a point above and swing it ±14°, staggered. |
 | [#2-048](https://sadjjk.github.io/motion-prompt-zh/#2-048) | **Countdown slam** | Countdown numbers slam down from huge | Open with a countdown slam: 3, 2, 1, GO!, 0.75 s each, slamming down from 3× with a small rebound. |
+| [#2-132](https://sadjjk.github.io/motion-prompt-zh/#2-132) | **Stacking word cards** | Coloured word cards slam down one at a time from a larger size and pile upward, giving steps or key points a strong beat | When listing the steps, slam the cards 「计划」「执行」「复盘」「迭代」 down one on top of another from the bottom up, with the cards below dipping and springing back each time one lands. |
 
 #### Spatial type · #2 049–054
 
@@ -503,7 +504,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-062](https://sadjjk.github.io/motion-prompt-zh/#2-062) | **Growing tree** | A tree grows from trunk to branches to leaves | Open the brand story with a growing tree: ground and trunk, then branches, twigs and leaves, then a line of text. |
 | [#2-063](https://sadjjk.github.io/motion-prompt-zh/#2-063) | **Logo build reveal** | A logo draws itself part by part, then the name slides in | Add a logo build reveal at the start: draw the outer circle, draw and fill a 45° square, pop the centre dot, then slide the name in from the left. |
 
-#### Objects & machines · #2 064–075
+#### Objects & machines · #2 064–075 · 124–126
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -519,8 +520,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-073](https://sadjjk.github.io/motion-prompt-zh/#2-073) | **Spinning vinyl** | A product-shot-style scene of a large, cropped vinyl record spinning on red | Make a spinning vinyl loop: a 150 px radius record cropped large on red, the label turning 4 times per 6.4 s with the tonearm resting in the groove. |
 | [#2-074](https://sadjjk.github.io/motion-prompt-zh/#2-074) | **Card flourish** | A card flourish on green felt where playing cards fan out and flip face up and back | Animate a card fan: 24 cards fly from the deck into a fan and flip face up one by one between 1.9 and 3.8 s. |
 | [#2-075](https://sadjjk.github.io/motion-prompt-zh/#2-075) | **Receipt printing** | A thermal receipt slowly feeding out of a register's paper slot | Animate a receipt printing: a white receipt feeds 165px out of a dark paper slot, revealing the shop name, 3 item lines and the total. |
+| [#2-124](https://sadjjk.github.io/motion-prompt-zh/#2-124) | **Tipping balance scale** | Coins drop one by one into one pan of a balance scale, which tips a little further with each coin and sways to rest, showing one side outweighing the other | Add a balance scale to the comparison: each time a coin drops into pan B the beam tips further, sways a little and settles. |
+| [#2-125](https://sadjjk.github.io/motion-prompt-zh/#2-125) | **Newton's cradle** | The end ball strikes the row and only the ball at the far end swings out, back and forth, as a picture of a chain reaction | Add a Newton's cradle: the gold ball on the left drops and hits the row, only the ball on the right swings out, and this repeats a few times. Put one line of text underneath. |
+| [#2-126](https://sadjjk.github.io/motion-prompt-zh/#2-126) | **Growing coin stacks** | Stacks of coins grow one coin at a time from left to right to different heights, showing growth like a bar chart | Show the income growing with 5 stacks of gold coins from left to right: coins drop onto them one by one and each stack ends up taller than the one before. |
 
-#### Information & tech · #2 076–091 · 115
+#### Information & tech · #2 076–091 · 115 · 127–131
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -541,6 +545,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-090](https://sadjjk.github.io/motion-prompt-zh/#2-090) | **Oscilloscope trace** | A sweep beam drawing a cyan waveform across a dark scope screen | Animate an oscilloscope: a vertical sweep beam moves left to right, drawing a cyan waveform behind it whose 3 peaks get gradually smaller. |
 | [#2-091](https://sadjjk.github.io/motion-prompt-zh/#2-091) | **Matrix rain** | Columns of glyphs pour down like rain | Use matrix rain as a hacker-style background: columns of green glyphs fall, the leading glyph glowing white with a fading trail. |
 | [#2-115](https://sadjjk.github.io/motion-prompt-zh/#2-115) | **Zoom callout** | A small circle marks a spot and a linked big circle shows that spot magnified | Add a zoom callout to the city night view: an 18 px yellow circle moves along a figure-8, the big white-rimmed 56 px circle at the top right shows that spot at 3×, a dashed line links them, and a label shows the zoom and coordinates. |
+| [#2-127](https://sadjjk.github.io/motion-prompt-zh/#2-127) | **Compound growth curve** | An exponential curve that stays almost flat at first and then shoots up, drawn to show how small gains add up | For the compound interest point, draw a glowing gold exponential curve from the bottom left: almost flat at first, then steep, with a white dot riding the tip and 「×45」 appearing at the end. |
+| [#2-128](https://sadjjk.github.io/motion-prompt-zh/#2-128) | **Sliding year timeline** | Years slide along a line and the one passing the centre grows into large gold type, showing time moving through the decades | When talking through the history, slide the years from 1930 to 2020 sideways: only the year above the centre marker turns large and gold, and it stops on 2020. |
+| [#2-129](https://sadjjk.github.io/motion-prompt-zh/#2-129) | **Growing knowledge tree** | Branches grow upward from a root topic at the bottom and nodes pop in layer by layer, showing how a subject breaks down | To give the overview, grow glowing branches up from 「主题」 at the bottom: 「概念」, 「方法」 and 「案例」 appear, then 2 dots pop out above each of them. |
+| [#2-130](https://sadjjk.github.io/motion-prompt-zh/#2-130) | **Decision tree path** | A question branches into 2 choices and 4 outcomes, then only the chosen path lights up in gold, showing how a decision plays out | Show a decision tree where the choice is explained: 「要不要继续？」 splits into 「继续」 and 「止损」 and then 4 outcomes; only the path from 「止损」 to 「重新出发」 lights up gold and gets circled at the end. |
+| [#2-131](https://sadjjk.github.io/motion-prompt-zh/#2-131) | **Radial mind map** | Branches reach out one by one from a central idea and the whole map turns slowly, showing an idea spreading in many directions | Where you list what one skill can lead to, grow 6 branches in turn from a gold 「想法」 in the middle, ending in 「写作」「视频」「设计」「播客」「咨询」「编程」, and let the whole map turn slowly. |
 
 ### Effects & transitions
 

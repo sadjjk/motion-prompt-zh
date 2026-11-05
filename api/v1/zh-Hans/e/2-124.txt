@@ -1,0 +1,60 @@
+// Motion Prompt #2-124 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// 天平倾斜 / Tipping balance scale
+// 分类: 动态图形 / 图形与物件 / 物件与机械
+// 动画表现: 中间立柱上架着横梁，两端挂 A、B 两个托盘。5 枚金币依次落进 B 盘叠起来，横梁每落一枚多斜一点并带阻尼摆动，最后回到水平。
+// 运动规格:
+//   - 深色卡片中间一根立柱，长 300 px 的横梁架在金色支点上；两端各用 2 根吊绳挂一个托盘，横梁转动时托盘保持水平。托盘标着 A 和 B。
+//   - 5 枚金币从卡片上方落进 B 盘：第一枚在 0.6 秒，之后每隔 0.45 秒一枚；每枚下落 0.35 秒、越落越快，落定在上一枚上方 6 px。
+//   - 每落定一枚金币，横梁多倾斜 0.05 rad，按 1 − e^(−4t)·cos(10t) 过渡（t 为落定后的时间），所以每次会稍微斜过头再停稳。
+//   - 5.4–6.0 秒金币淡出，横梁缓缓回到水平；0 秒时两盘为空且水平，循环无缝。
+// 适用场景: 适合比较两个选项、得失或轻重，想直观表现一边压过另一边的时候。
+// 标签: balance-scale, comparison, weight, coins, tilt, damped-sway, short-video
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-124
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 01
+// 天平倾斜：5 枚金币依次落进右盘，横梁每多一枚就多倾斜一点，最后带阻尼回摆停稳
+CELLS[0] = (k, w, h, u) => {
+  bg(k);
+  const R = resetK(u), PX = 270, PY = 56, HALF = 150, N = 5;
+  // 每枚金币落定后横梁再斜 0.05 rad，带阻尼过冲 1 − e^(−4t)·cos(10t)，落定瞬间角度连续
+  let tilt = 0;
+  for (let i = 0; i < N; i++) {
+    const t = u - (0.6 + 0.45 * i + 0.35);
+    if (t > 0) tilt += 0.05 * (1 - Math.exp(-4 * t) * Math.cos(10 * t));
+  }
+  const ang = tilt * (1 - R);
+  // 立柱与底座
+  k.fillStyle = '#3A3D48'; k.fillRect(PX - 4, PY, 8, 132); rr(k, PX - 46, 186, 92, 10, 4); k.fill();
+  const ca = Math.cos(ang), sa = Math.sin(ang);
+  const ends = [[PX - HALF * ca, PY - HALF * sa], [PX + HALF * ca, PY + HALF * sa]];
+  // 横梁
+  k.strokeStyle = INK; k.lineWidth = 5; k.lineCap = 'round';
+  k.beginPath(); k.moveTo(ends[0][0], ends[0][1]); k.lineTo(ends[1][0], ends[1][1]); k.stroke();
+  k.fillStyle = GOLD; k.beginPath(); k.arc(PX, PY, 7, 0, TAU); k.fill();
+  // 托盘（不随横梁旋转）
+  ends.forEach(([ex, ey], s) => {
+    const py = ey + 58;
+    k.strokeStyle = DIM; k.lineWidth = 1.5;
+    k.beginPath(); k.moveTo(ex, ey); k.lineTo(ex - 44, py); k.moveTo(ex, ey); k.lineTo(ex + 44, py); k.stroke();
+    k.fillStyle = '#2A2D36'; k.strokeStyle = INK; k.lineWidth = 2;
+    k.beginPath(); k.ellipse(ex, py, 52, 8, 0, 0, TAU); k.fill(); k.stroke();
+    txt(k, s ? 'B' : 'A', ex, py + 26, 22, DIM, 'center', 700);
+    if (!s) return;
+    // 金币：落下 0.35 秒（加速），落定后每层 6 px
+    k.globalAlpha = 1 - R;
+    for (let i = 0; i < N; i++) {
+      const t0 = 0.6 + 0.45 * i, q = seg(u, t0, t0 + 0.35);
+      if (u < t0) continue;
+      const ty = py - 5 - 6 * i, y = mix(-12, ty, q * q);
+      k.fillStyle = GOLD_D; k.beginPath(); k.ellipse(ex, y + 3, 22, 6, 0, 0, TAU); k.fill();
+      k.fillStyle = GOLD; k.beginPath(); k.ellipse(ex, y, 22, 6, 0, 0, TAU); k.fill();
+    }
+    k.globalAlpha = 1;
+  });
+};

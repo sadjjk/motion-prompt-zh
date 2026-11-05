@@ -1,0 +1,68 @@
+// Motion Prompt #2-130 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// Decision tree path / 決定木
+// Category: Motion graphics / Shapes & objects / Information & tech
+// What happens: From 「要不要继续？」 at the top, 「继续」 and 「止损」 and then 「越陷越深」「侥幸回本」「损失封顶」「重新出发」 pop in layer by layer. Then the path 「止损」 → 「重新出发」 turns gold, the rest dims, and a gold ring circles the end.
+// Motion spec:
+//   - 3 rows of rounded boxes 28 px tall: 「要不要继续？」 at the top in 16 px, 「继续」「止损」 in the middle in 15 px, and 「越陷越深」「侥幸回本」「损失封顶」「重新出发」 at the bottom in 13 px, each row spread evenly across the card.
+//   - Row d pops in with a damped spring at 0.2 + 0.6·d s (0.2, 0.8, 1.4 s); the S-shaped grey lines to it are drawn in the 0.4 s before.
+//   - At 2.6–3.0 s the path 「要不要继续？」 → 「止损」 → 「重新出发」 turns gold, boxes filled and lines 3 px wide, while every other box and line fades to half opacity.
+//   - At 3.0–3.35 s a gold ellipse ring 116 × 42 px grows out around 「重新出发」, easing to a stop.
+//   - At 5.4–6.0 s the tree fades out; at 0 s nothing but the background is drawn, so the loop restarts cleanly.
+// When to use it: Use it to lay out options and their outcomes and argue for one choice step by step.
+// Tags: decision-tree, flowchart, choices, branching, path-highlight, logic, short-video
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-130
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 07
+// 决策树：一个问题分成两个选项、再分成四个结果，逐层弹出；随后一条路径亮成金色，终点套上圆环
+CELLS[6] = (k, w, h, u) => {
+  bg(k);
+  const F = fadeIn(u);
+  const T = [['要不要继续？'], ['继续', '止损'], ['越陷越深', '侥幸回本', '损失封顶', '重新出发']];
+  const YS = [36, 104, 172], FS = [16, 15, 13], BW = [140, 92, 104];
+  const xs = d => T[d].map((_, i) => (CW / T[d].length) * (i + 0.5));
+  const path = [0, 1, 3]; // 止损 → 重新出发
+  const hi = seg(u, 2.6, 3.0);
+  k.globalAlpha = F;
+  for (let d = 1; d < 3; d++) {
+    const X = xs(d), PX = xs(d - 1), t = seg(u, 0.2 + 0.6 * d - 0.4, 0.2 + 0.6 * d);
+    X.forEach((x, i) => {
+      const p = Math.floor(i / 2), on = path[d] === i && path[d - 1] === p;
+      k.save(); k.globalAlpha = F * (on ? 1 : mix(1, 0.5, hi));
+      glowLine(k, PX[p], YS[d - 1] + 14, x, YS[d] - 14, t, DIM, 2);
+      // 选中路径：金线按 hi 叠上去，颜色渐变不跳
+      if (on && hi > 0) { k.globalAlpha = F * hi; glowLine(k, PX[p], YS[d - 1] + 14, x, YS[d] - 14, t, GOLD, 3); }
+      k.restore();
+    });
+  }
+  for (let d = 0; d < 3; d++) {
+    const X = xs(d), s = spring(u - (0.2 + 0.6 * d));
+    if (s <= 0) continue;
+    X.forEach((x, i) => {
+      const on = path[d] === i, a = on ? 1 : mix(1, 0.5, hi);
+      k.save(); k.globalAlpha = F * a; k.translate(x, YS[d]); k.scale(s, s);
+      // 底牌始终不透明（遮住穿过的连线），选中时金色底牌与深色字按 g 交叉淡入
+      const g = on ? hi : 0;
+      rr(k, -BW[d] / 2, -14, BW[d], 28, 7);
+      k.fillStyle = '#22252E'; k.fill();
+      k.strokeStyle = '#4A4E5A'; k.lineWidth = 1.5; k.stroke();
+      if (g > 0) { k.globalAlpha = F * a * g; k.fillStyle = GOLD; k.fill(); k.strokeStyle = GOLD; k.stroke(); }
+      k.globalAlpha = F * a * (1 - g); txt(k, T[d][i], 0, 1, FS[d], INK, 'center', 700);
+      if (g > 0) { k.globalAlpha = F * a * g; txt(k, T[d][i], 0, 1, FS[d], BG, 'center', 700); }
+      k.restore();
+    });
+  }
+  // 终点圆环减速长出，不过冲（右缘距卡片边 9 px）
+  const ring = out3(seg(u, 3.0, 3.35));
+  if (ring > 0) {
+    const x = xs(2)[3];
+    k.save(); k.globalAlpha = F; k.strokeStyle = GOLD; k.lineWidth = 2; k.shadowColor = GOLD; k.shadowBlur = 8;
+    k.beginPath(); k.ellipse(x, YS[2], 58 * ring, 21 * ring, 0, 0, TAU); k.stroke(); k.restore();
+  }
+  k.globalAlpha = 1;
+};

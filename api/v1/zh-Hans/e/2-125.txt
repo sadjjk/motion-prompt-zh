@@ -1,0 +1,43 @@
+// Motion Prompt #2-125 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// 牛顿摆 / Newton's cradle
+// 分类: 动态图形 / 图形与物件 / 物件与机械
+// 动画表现: 5 颗球用细线挂在横杆下。左端金球和右端灰球交替摆出，5.4 秒内来回 5 次后停下。底部写着「一个动作，连锁反应」。
+// 运动规格:
+//   - 5 颗半径 16 px 的球间隔 34 px，用 120 px 长的细线挂在顶部横杆下；左端为金色，其余为灰色，各带一个小高光。
+//   - 摆动按正弦变化，5.4 秒内 5 个完整周期：每个周期的前半段左端球向左摆出，后半段右端球向右摆出，摆角最大 0.6 rad；中间 3 颗球不动。
+//   - 球下方用 16 px 灰字写着「一个动作，连锁反应」。
+//   - 5.4 秒时正弦回到零，球静止垂下直到 6.4 秒，循环无缝。
+// 适用场景: 适合讲连锁反应、因果传递，表现一个动作带出一串后果的时候。
+// 标签: newtons-cradle, pendulum, chain-reaction, cause-and-effect, physics, swing, short-video
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-125
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 02
+// 牛顿摆：左端金球撞下，右端灰球被弹起，来回 5 次；底部一行说明文字
+CELLS[1] = (k, w, h, u) => {
+  bg(k);
+  const N = 5, R = 16, GAP = 34, PY = 30, L = 120, x0 = 270 - GAP * 2;
+  // 负半周左端金球摆出，正半周右端球摆出；先动的是金球
+  const a = -Math.sin(u * TAU * 5 / SHOW) * (u < SHOW ? 1 : 0);
+  // 顶杆
+  k.strokeStyle = '#3A3D48'; k.lineWidth = 6; k.lineCap = 'round';
+  k.beginPath(); k.moveTo(x0 - 40, PY); k.lineTo(x0 + GAP * 4 + 40, PY); k.stroke();
+  for (let i = 0; i < N; i++) {
+    let th = 0;
+    if (i === 0 && a < 0) th = 0.6 * a;
+    if (i === N - 1 && a > 0) th = 0.6 * a;
+    const px = x0 + GAP * i, bx = px + Math.sin(th) * L, by = PY + Math.cos(th) * L;
+    k.strokeStyle = DIM; k.lineWidth = 1.5;
+    k.beginPath(); k.moveTo(px, PY); k.lineTo(bx, by); k.stroke();
+    k.fillStyle = i === 0 ? GOLD : '#9AA0AC';
+    k.beginPath(); k.arc(bx, by, R, 0, TAU); k.fill();
+    k.fillStyle = 'rgba(255,255,255,0.35)';
+    k.beginPath(); k.arc(bx - 5, by - 5, 4, 0, TAU); k.fill();
+  }
+  txt(k, '一个动作，连锁反应', 270, 186, 16, DIM, 'center', 500);
+};

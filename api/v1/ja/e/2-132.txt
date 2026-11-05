@@ -1,0 +1,47 @@
+// Motion Prompt #2-132 · MIT License (c) 2026 ai-martin-lau · https://github.com/ai-martin-lau/vibe-fx
+//
+// 積み重なる言葉 / Stacking word cards
+// 分類: モーショングラフィックス / 文字アニメーション / 衝撃・物理
+// 何が起きるか: 赤、橙、青、灰の 4 枚のカードに「计划」「执行」「复盘」「迭代」。一枚ずつ大きな状態から縮みながら落ちて前のカードの上に重なり、左右に少し傾く。落ちるたびに下のカードが沈んで戻る。
+// 動きの仕様:
+//   - 200 × 40 px の角丸カード 4 枚に 24 px の太字の白で「计划」「执行」「复盘」「迭代」。色は赤 #B3261E、橙 #B8601A、青 #3A6EA5、灰 #444A55 で、それぞれ柔らかい影が付く
+//   - i 枚目は 0.4 + 0.7·i 秒に始まり、0.18 秒で 1.6 倍から 1 倍へイーズアウトで縮みながらフェードインする。下から順に、前のカードの 44 px 上に重なる
+//   - カードは 0.05 rad 傾き、右と左が交互になる
+//   - 1 枚落ちるたびに下のカードがすべて最大 2 px 沈み、0.2 秒以内に戻る
+//   - 5.4–6.0 秒にカードの山がフェードアウト。0 秒ではカードがないので、ループがつながる
+// 使いどころ: 手順、原則、キーワードを一つずつ力強く積み上げて見せたいとき。
+// タグ: word-stack, kinetic-type, slam, cards, steps, impact, short-video
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/vibefx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-132
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 09
+// 词语堆叠：4 张彩色字卡从大到小砸下来，一张压一张地往上叠，每砸一张下面的卡片被压低一下再弹回
+CELLS[8] = (k, w, h, u) => {
+  bg(k);
+  const F = fadeIn(u), WORDS = ['计划', '执行', '复盘', '迭代'];
+  const COLS = ['#B3261E', '#B8601A', '#3A6EA5', '#444A55'], CWD = 200, CHT = 40;
+  const t0 = i => 0.4 + 0.7 * i;
+  k.globalAlpha = F;
+  for (let i = 0; i < 4; i++) {
+    const q = seg(u, t0(i), t0(i) + 0.18);
+    if (u < t0(i)) continue;
+    // 上方每张卡落定时，本卡被压低 2 px，0.1 秒后回弹
+    let press = 0;
+    for (let j = i + 1; j < 4; j++) {
+      const d = u - (t0(j) + 0.18);
+      if (d >= 0 && d < 0.2) press += 2 * Math.sin(Math.PI * d / 0.2);
+    }
+    const sc = mix(1.6, 1, out3(q)), y = 170 - 44 * i + press, rot = (i % 2 ? -0.05 : 0.05);
+    k.save(); k.globalAlpha = F * clamp(q * 1.5); k.translate(270, y); k.rotate(rot); k.scale(sc, sc);
+    k.shadowColor = 'rgba(0,0,0,0.45)'; k.shadowBlur = 10; k.shadowOffsetY = 4;
+    rr(k, -CWD / 2, -CHT / 2, CWD, CHT, 6); k.fillStyle = COLS[i]; k.fill();
+    k.shadowColor = 'transparent';
+    txt(k, WORDS[i], 0, 1, 24, '#FFFFFF', 'center', 800);
+    k.restore();
+  }
+  k.globalAlpha = 1;
+};
