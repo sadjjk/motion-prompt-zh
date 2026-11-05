@@ -1,0 +1,15 @@
+Please use "Pixel swap" (ピクセルスワップ), filed under "Pointer interactions / Hover".
+Motion Prompt #1-220
+
+What it is: A card that swaps to another picture in a wave of pixel blocks spreading from where the cursor enters
+What the sample shows: When the cursor enters the card from the left at 1.0 s a pixel wave turns day into night; when it leaves at the bottom right at 3.4 s a reverse wave turns it back.
+Spec:
+- A 300×150 px card is split into 15 px pixel blocks.
+- When the cursor enters at 1.0 s a wave spreads from that point at 260 px/s, swapping blocks one by one from the day picture to the night one; an 18 px ring at the wave front flashes violet.
+- Each block gets a fixed 0–14 px delay, so the wave front looks jagged and pixelated.
+- When the cursor leaves at the bottom-right corner at 3.4 s, a second wave from that point swaps back to day.
+When to use it: Use it on product or portfolio cards to show a second image or a before-and-after on hover.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-220.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

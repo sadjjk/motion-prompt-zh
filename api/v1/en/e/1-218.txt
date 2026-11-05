@@ -1,0 +1,54 @@
+// Motion Prompt #1-218 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Dodge field / よけるアイコン
+// Category: UI & Web / Pointer interactions / Cursor
+// What happens: Seven by three icons sit on a light page; as the cursor snakes through the three rows nearby icons move aside, then return once it passes.
+// Motion spec:
+//   - Rounded icons 44 px across, 72 px apart in a 7×3 grid.
+//   - An icon at distance d from the cursor moves away by 28·(1 − d/90)² px (none at d ≥ 90 px) and shrinks with the offset to as little as 0.92 times.
+//   - The offset averages the cursor's last 0.3 s, 11 samples weighted with a 0.12 s time constant, so icons glide back instead of snapping.
+//   - The cursor enters at 0.4 s, snakes through the three rows and leaves at 5.0 s.
+// When to use it: Use it on app grids, tech-stack lists or logo walls that should react playfully.
+// Tags: dodge, repel, cursor-avoid, icon-grid, spring-back, micro-interaction
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-218
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 19
+// 19 躲避光标：7×3 个圆角图标块铺在浅色画面上；每块沿远离光标的方向让开 28·(1 − d/90)² px（d ≥ 90 px 时不动），并缩小到最少 0.92 倍；
+// 位移取光标最近 0.3 秒、11 个采样位置的指数加权平均（时间常数 0.12 秒），所以光标走开后图块顺滑地滑回原位，而不是瞬间跳回。
+// 光标 0.4 秒入场，蛇形扫过三行，5.0 秒离场
+const DG_COLS = 7, DG_ROWS = 3, DG_S = 44, DG_DX = 72, DG_Y = [44, 104, 164], DG_R = 90, DG_PUSH = 28;
+const DG_KF = [[0.4, -30, 44], [1.5, 300, 46], [2.0, 500, 62], [2.6, 420, 104], [3.4, 120, 102], [3.9, 60, 150], [4.5, 300, 166], [5.0, 590, 172]];
+const DG_COL = ['#FF6B5A', '#FFB020', '#2EC4B6', '#4F8BFF', '#7A5CFF', '#FF4D8D', '#1F2430'];
+CELLS[18] = (k, w, h, u) => {
+  k.fillStyle = '#F3F1EC'; k.fillRect(0, 0, CW, CH);
+  const x0 = (CW - (DG_COLS - 1) * DG_DX) / 2;
+  for (let r = 0; r < DG_ROWS; r++) for (let c = 0; c < DG_COLS; c++) {
+    const X = x0 + c * DG_DX, Y = DG_Y[r];
+    let ox = 0, oy = 0, sw = 0;
+    for (let i = 0; i <= 10; i++) {
+      const s = u - i * 0.03, wt = Math.exp(-i * 0.03 / 0.12);
+      sw += wt;
+      if (s < 0.4 || s > 5.0) continue;
+      const [px, py] = path(DG_KF, s), dx = X - px, dy = Y - py, d = Math.hypot(dx, dy);
+      if (d < DG_R && d > 0.01) { const f = DG_PUSH * (1 - d / DG_R) ** 2; ox += wt * dx / d * f; oy += wt * dy / d * f; }
+    }
+    ox /= sw; oy /= sw;
+    const sc = 1 - 0.08 * clamp(Math.hypot(ox, oy) / DG_PUSH), i = r * DG_COLS + c;
+    k.save(); k.translate(X + ox, Y + oy); k.scale(sc, sc);
+    k.fillStyle = 'rgba(0,0,0,.08)'; rr(k, -DG_S / 2, -DG_S / 2 + 3, DG_S, DG_S, 12); k.fill();
+    k.fillStyle = DG_COL[(i * 3) % DG_COL.length]; rr(k, -DG_S / 2, -DG_S / 2, DG_S, DG_S, 12); k.fill();
+    // 图标符号：圆、方、三角轮换
+    k.fillStyle = 'rgba(255,255,255,.92)'; k.beginPath();
+    if (i % 3 === 0) k.arc(0, 0, 8, 0, TAU);
+    else if (i % 3 === 1) rr(k, -7, -7, 14, 14, 3);
+    else { k.moveTo(0, -9); k.lineTo(8.5, 7); k.lineTo(-8.5, 7); k.closePath(); }
+    k.fill(); k.restore();
+  }
+  const [cx, cy] = path(DG_KF, u);
+  if (u > 0.4 && u < 5.0) cursor(k, cx, cy);
+};

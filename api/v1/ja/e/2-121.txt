@@ -1,0 +1,43 @@
+// Motion Prompt #2-121 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// ざらつき揺れ文字 / Fuzzy text
+// 分類: モーショングラフィックス / 文字アニメーション / 変形・質感
+// 何が起きるか: 明るい背景の黒い大きな文字の縁が細かくざらついて見え、カーソルが乗ると横帯が大きくずれて激しく揺れる。カーソルが離れると細かいざらつきに戻る。
+// 動きの仕様:
+//   - 文字は 2 px の高さの横帯に分け、各帯を別々に左右へずらして描く
+//   - ずれは 1 秒に 24 回、帯の番号とコマ番号から作る乱数で変わる
+//   - ずれの幅は普段 1.5 px、カーソルが乗っている間は 12 px
+//   - カーソルは 1.4 秒に文字に乗り 0.25 秒で幅が最大に、3.6 秒に離れ始めて 0.35 秒で戻る
+//   - 色ずれはなく、文字は 1 色のまま
+// 使いどころ: 404 ページ、ゲームやイベントのタイトル、ノイズ感のあるブランド表現など、少し荒れた雰囲気を出したいとき。
+// タグ: fuzzy, jitter, glitch, hover, noise, typography
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-121
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 33
+// 33 毛糙抖动字：大字按 2 px 高的横条切开，每条各自左右错开，像信号不稳的屏幕。
+// 每秒换 24 次随机偏移（hash(行号, 帧号)），偏移幅度 = 平时 1.5 px，光标停在字上时升到 12 px；
+// 字整体不做红绿蓝分色。光标 0.6 秒入场，1.4–3.6 秒停在字上（幅度 0.25 秒升满、0.35 秒回落），5.0 秒前离开。
+const FZ_ROW = 2, FZ_TOP = 58, FZ_H = 76, FZ_IDLE = 1.5, FZ_HOT = 12, FZ_FPS = 24;
+const FZ_KF = [[0.6, 520, 196], [1.4, 300, 104], [3.6, 330, 108], [4.6, 540, 200]];
+CELLS[32] = (k, w, h, u) => {
+  k.fillStyle = '#F3F0E8'; k.fillRect(0, 0, CW, CH);
+  const heat = inOut3(seg(u, 1.4, 1.65)) * (1 - inOut3(seg(u, 3.6, 3.95)));
+  const amp = mix(FZ_IDLE, FZ_HOT, heat), frame = Math.floor(u * FZ_FPS);
+  k.font = `900 84px ${SANS}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillStyle = '#1B1A20';
+  for (let r = 0; r * FZ_ROW < FZ_H; r++) {
+    const y = FZ_TOP + r * FZ_ROW;
+    const n = hash(r * 7.31 + frame * 131.7) - 0.5, n2 = hash(r * 3.17 + frame * 57.3) - 0.5;
+    const dx = amp * (2 * n) * (0.6 + 0.4 * Math.abs(2 * n2));
+    k.save(); k.beginPath(); k.rect(0, y, CW, FZ_ROW + 0.5); k.clip();
+    k.fillText('FUZZY', CW / 2 + dx, FZ_TOP + FZ_H / 2 + 4);
+    k.restore();
+  }
+  txt(k, heat > 0.5 ? 'hovering — noise ×8' : 'hover to shake the signal', CW / 2, 168, `500 14px ${MONO}`, '#8A8577', 'center', 'middle');
+  const [cx, cy] = path(FZ_KF, u);
+  if (u > 0.6 && u < 4.6) cursor(k, cx, cy, 0, false);
+};

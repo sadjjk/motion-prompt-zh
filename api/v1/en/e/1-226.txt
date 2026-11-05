@@ -1,0 +1,73 @@
+// Motion Prompt #1-226 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Arc gallery / アーチギャラリー
+// Category: UI & Web / Components / Choosing & input
+// What happens: On a dark background, curved cards sit along an arc; the cursor drags left and lets go, the cards settle into the nearest slot, then it drags right back to the original order.
+// Motion spec:
+//   - 7 cards of 92×116 px sit 116 px apart on an arc of 560 px radius, and they loop from end to end.
+//   - The top and bottom edges of each card are sampled at 9 points along the arc so the card bends with it; the titles also follow the arc under the cards.
+//   - Cards darken by up to 55% the further they are from the centre.
+//   - At 1.0–2.2 s the cursor drags 170 px left; on release the row snaps as e^(−5τ) to the nearest slot at −116 px.
+//   - At 3.4–4.4 s it drags 170 px right, and released at 54 px it snaps back to the nearest slot, the start, so 0 s and 6.4 s show the same frame.
+// When to use it: Use it for portfolios, product collections or speaker line-ups where people should browse a row of images by hand.
+// Tags: arc-gallery, curved-carousel, drag, snap, loop, gallery
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-226
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 27
+// 27 弧面画廊：一排 7 张 92×116 的卡片排在半径 560 px 的圆弧上（中间高、两边低），卡片本身也沿弧弯曲（上下边按弧采样成多边形）。
+// 卡片首尾循环排列，间距 116 px。1.0–2.2 秒按住向左拖 170 px，松手后按 e^(−5τ) 吸附到最近的卡位（−116 px）；
+// 3.4–4.4 秒再向右拖 170 px（到 54 px），松手后吸附回最近的原位，所以 0 秒与 6.4 秒画面相同。卡片下方的标题沿同一段弧排列。
+const AG_N = 7, AG_W = 92, AG_H = 116, AG_SP = 116, AG_R = 560, AG_Y = 92;
+const AG_COLS = [['#FF9A62', '#FF5F6D'], ['#7F7FD5', '#86A8E7'], ['#43E97B', '#38F9D7'], ['#F7971E', '#FFD200'], ['#C471F5', '#FA71CD'], ['#30CFD0', '#330867'], ['#F857A6', '#FF5858']];
+const AG_NAMES = ['Dunes', 'Harbor', 'Fern', 'Amber', 'Bloom', 'Tide', 'Ember'];
+// 拖动段：[按下, 松手, 光标起点 x, 光标终点 x, 吸附目标偏移]
+const AG_DR = [[1.0, 2.2, 420, 250, -AG_SP], [3.4, 4.4, 160, 330, 0]];
+const AG_KF = [[0.4, 540, 200], [0.95, 420, 96], [1.0, 420, 96], [2.2, 250, 96], [2.5, 300, 196], [3.0, 160, 150], [3.4, 160, 96], [4.4, 330, 96], [5.0, 560, 190]];
+const AG_off = u => {
+  let o = 0;
+  for (const [a, b, x0, x1, tgt] of AG_DR) {
+    if (u < a) break;
+    if (u < b) return o + (path(AG_KF, u)[0] - x0);
+    const rel = o + (x1 - x0);
+    o = tgt + (rel - tgt) * Math.exp(-5 * (u - b));
+  }
+  return o;
+};
+const AG_pt = (s, t) => { const f = s / AG_R; return [270 + (AG_R + t) * Math.sin(f), AG_Y + AG_R - (AG_R + t) * Math.cos(f), f]; };
+CELLS[26] = (k, w, h, u) => {
+  k.fillStyle = '#0F1016'; k.fillRect(0, 0, CW, CH);
+  const off = AG_off(u), span = AG_N * AG_SP;
+  for (let i = 0; i < AG_N; i++) {
+    // 循环位置：相对中心的弧长落在 [−span/2, span/2)
+    let s = i * AG_SP - 3 * AG_SP + off;
+    s = ((s + span / 2) % span + span) % span - span / 2;
+    if (Math.abs(s) > 330) continue;
+    // 卡片轮廓：上下边沿弧各采样 9 点
+    k.beginPath();
+    for (let j = 0; j <= 8; j++) { const [x, y] = AG_pt(s - AG_W / 2 + AG_W * j / 8, AG_H / 2); j ? k.lineTo(x, y) : k.moveTo(x, y); }
+    for (let j = 8; j >= 0; j--) { const [x, y] = AG_pt(s - AG_W / 2 + AG_W * j / 8, -AG_H / 2); k.lineTo(x, y); }
+    k.closePath();
+    const [px, py, f] = AG_pt(s, 0), [c1, c2] = AG_COLS[i];
+    const g = k.createLinearGradient(px + 60 * Math.sin(f), py - 60 * Math.cos(f), px - 60 * Math.sin(f), py + 60 * Math.cos(f));
+    g.addColorStop(0, c1); g.addColorStop(1, c2);
+    k.fillStyle = g; k.fill();
+    // 越靠两边越暗
+    k.fillStyle = `rgba(15,16,22,${clamp(Math.abs(s) / 320) * 0.55})`; k.fill();
+    // 卡上的"太阳"
+    const [sx, sy] = AG_pt(s + 18, 26);
+    k.fillStyle = 'rgba(255,255,255,0.55)'; k.beginPath(); k.arc(sx, sy, 9, 0, TAU); k.fill();
+    // 标题：沿弧放在卡片下方
+    const [tx, ty, tf] = AG_pt(s, -AG_H / 2 - 16);
+    k.save(); k.translate(tx, ty); k.rotate(tf);
+    txt(k, AG_NAMES[i], 0, 0, `700 12px ${SANS}`, `rgba(235,236,245,${1 - clamp(Math.abs(s) / 340) * 0.6})`, 'center', 'middle');
+    k.restore();
+  }
+  const [cx, cy] = path(AG_KF, u);
+  const held = AG_DR.some(([a, b]) => u > a && u < b);
+  if (u > AG_KF[0][0] && u < AG_KF[AG_KF.length - 1][0]) cursor(k, cx, cy, held ? 1 : 0, true);
+};

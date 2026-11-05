@@ -1,0 +1,49 @@
+// Motion Prompt #1-211 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Pixel paint swirl / ピクセル絵の具の渦
+// Category: UI & Web / Pages / Hero backgrounds
+// What happens: Chunky four-colour pixel paint swirls around the centre; the cursor twists the paint as it passes, and a click opens a whirlpool that then fades.
+// Motion spec:
+//   - A 108×42 low-res buffer, each pixel 5 px, with smoothing off.
+//   - Coordinates rotate around the centre by 2.4·e^(−1.4r) plus one full turn per cycle, then two layers of sine domain warping are applied.
+//   - Values are quantised by 4 thresholds into navy, blue, red and pale pink.
+//   - The cursor enters at 0.4–1.0 s and turns the paint near it an extra 1.8·e^(−d²/0.05) radians.
+//   - A click at 3.6 s spins up a whirlpool of up to 5 radians that rises and settles over 1.4 s.
+// When to use it: Use it as a hero background for card games, indie games or playful brands.
+// Tags: paint-swirl, pixelated, domain-warp, retro-game, hero-background, whirlpool
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-211
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 12
+// 12 像素漩涡颜料：108×42 的低分辨率缓冲，每像素 5 px，关闭平滑；坐标先绕中心旋转 2.4·e^(−1.4r) + 一整圈/周期，
+// 再做两层正弦域扭曲，值按 4 个阈值量化成深蓝灰、蓝、红、浅粉四色，像一池打旋的颜料；
+// 光标 0.4–1.0 秒入场后搅动它附近的颜料（额外旋转 1.8·e^(−d²/0.05)），3.6 秒点击生成一个旋涡（最多 5 弧度，1.4 秒内升起再平息）
+const BA_W = 108, BA_H = 42, BA_S = 5, BA_CLICK = 3.6;
+const BA_PAL = [[30, 40, 56], [38, 120, 240], [236, 66, 56], [255, 214, 200]];
+const BA_KF = [[0.4, -30, 60], [1.4, 150, 140], [2.6, 220, 60], [BA_CLICK, 300, 104], [4.6, 430, 150], [5.3, 600, 90]];
+let BA_C = null, BA_IMG = null;
+CELLS[11] = (k, w, h, u) => {
+  if (!BA_C) { BA_C = document.createElement('canvas'); BA_C.width = BA_W; BA_C.height = BA_H; BA_IMG = BA_C.getContext('2d').createImageData(BA_W, BA_H); }
+  const ph = TAU * u / CYC, d = BA_IMG.data, [cx, cy] = path(BA_KF, u), p = presence(u, 0.4, 1.0, 4.6, 5.3);
+  const ct = u - BA_CLICK, whirl = ct > 0 ? 5 * Math.sin(Math.PI * clamp(ct / 1.4)) ** 2 : 0;
+  const mx = (cx / BA_S - BA_W / 2) / BA_H, my = (cy / BA_S - BA_H / 2) / BA_H;
+  const kx = (BA_KF[3][1] / BA_S - BA_W / 2) / BA_H, ky = (BA_KF[3][2] / BA_S - BA_H / 2) / BA_H;
+  for (let y = 0; y < BA_H; y++) for (let x = 0; x < BA_W; x++) {
+    let nx = (x - BA_W / 2) / BA_H, ny = (y - BA_H / 2) / BA_H;
+    const r = Math.hypot(nx, ny), dm = (nx - mx) ** 2 + (ny - my) ** 2, dk = (nx - kx) ** 2 + (ny - ky) ** 2;
+    const a = 2.4 * Math.exp(-1.4 * r) + ph + p * 1.8 * Math.exp(-dm / 0.05) + whirl * Math.exp(-dk / 0.06);
+    const ca = Math.cos(a), sa = Math.sin(a), qx = nx * ca - ny * sa, qy = nx * sa + ny * ca;
+    const wx = qx + 0.35 * Math.sin(qy * 4.0 + ph), wy = qy + 0.35 * Math.sin(qx * 3.0 - ph);
+    const v = Math.sin(wx * 5.0 + Math.sin(wy * 4.0) * 1.5) + Math.sin(wy * 6.0 + Math.sin(wx * 3.0) * 1.2);
+    const lv = v < -0.7 ? 0 : v < 0.35 ? 1 : v < 1.25 ? 2 : 3, c = BA_PAL[lv], o = (y * BA_W + x) * 4;
+    d[o] = c[0]; d[o + 1] = c[1]; d[o + 2] = c[2]; d[o + 3] = 255;
+  }
+  BA_C.getContext('2d').putImageData(BA_IMG, 0, 0);
+  k.save(); k.imageSmoothingEnabled = false; k.drawImage(BA_C, 0, 0, BA_W * BA_S, BA_H * BA_S); k.restore();
+  ripple(k, BA_KF[3][1], BA_KF[3][2], ct / 0.6);
+  if (u > 0.4 && u < 5.3) cursor(k, cx, cy, Math.abs(ct) < 0.1 ? 1 : 0);
+};

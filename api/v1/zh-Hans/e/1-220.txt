@@ -1,0 +1,62 @@
+// Motion Prompt #1-220 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// 像素换图 / Pixel swap
+// 分类: 界面与网页 / 指针交互 / 悬停
+// 动画表现: 光标 1.0 秒从左侧进入卡片，像素波把白天换成夜晚；3.4 秒从右下角离开，反向波再换回白天。
+// 运动规格:
+//   - 300×150 px 的卡片切成 15 px 的像素块。
+//   - 1.0 秒光标进入时，以入口点为圆心，一圈波以 260 px/s 扩散，逐块把白天图换成夜晚图；波前 18 px 宽的一圈闪成紫色。
+//   - 每块加 0–14 px 的固定延迟，所以波前呈锯齿像素状。
+//   - 3.4 秒光标从右下角离开，从出口点再起一道波换回白天图。
+// 适用场景: 适合商品卡、作品卡，想在悬停时展示另一张图或前后对比时。
+// 标签: pixel, hover-swap, image-swap, wave, card, before-after
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-220
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 21
+// 21 像素换图：卡片（300×150）切成 15 px 的像素块；1.0 秒光标从左边进入，以入口点为圆心、260 px/s 的波逐块把白天图 A 换成夜晚图 B，
+// 波前 18 px 宽的一圈块先闪成强调色；3.4 秒光标从右下角离开，从出口点再起一道波把 B 换回 A。每块加 0–14 px 的确定性延迟，让波前呈锯齿像素状
+const PS_X = 120, PS_Y = 29, PS_W = 300, PS_H = 150, PS_C = 15, PS_V = 260, PS_EDGE = 18;
+const PS_IN = [1.0, 120, 100], PS_OUT = [3.4, 420, 179];
+const PS_KF = [[0.3, -30, 104], [PS_IN[0], PS_IN[1], PS_IN[2]], [1.8, 250, 80], [2.6, 340, 128], [PS_OUT[0], PS_OUT[1], PS_OUT[2]], [4.0, 570, 204]];
+let PS_A = null, PS_B = null;
+function PS_paint(night) {
+  const c = document.createElement('canvas'); c.width = PS_W; c.height = PS_H;
+  const g = c.getContext('2d'), sky = g.createLinearGradient(0, 0, 0, PS_H);
+  if (night) { sky.addColorStop(0, '#1B1446'); sky.addColorStop(1, '#4A2C7A'); } else { sky.addColorStop(0, '#7CC8FF'); sky.addColorStop(1, '#DDF2FF'); }
+  g.fillStyle = sky; g.fillRect(0, 0, PS_W, PS_H);
+  if (night) {
+    for (let i = 0; i < 30; i++) { g.fillStyle = `rgba(255,255,255,${0.4 + 0.5 * hash(i + 40)})`; g.fillRect(hash(i) * PS_W, hash(i + 90) * 90, 2, 2); }
+    g.fillStyle = '#F4EFD8'; g.beginPath(); g.arc(230, 44, 20, 0, TAU); g.fill();
+    g.fillStyle = '#1B1446'; g.beginPath(); g.arc(240, 38, 17, 0, TAU); g.fill();
+  } else { g.fillStyle = '#FFD45A'; g.beginPath(); g.arc(230, 44, 22, 0, TAU); g.fill(); }
+  g.fillStyle = night ? '#2A1D52' : '#5BBE7A'; g.beginPath(); g.moveTo(0, PS_H);
+  for (let x = 0; x <= PS_W; x += 10) g.lineTo(x, 112 + 12 * Math.sin(x * 0.03));
+  g.lineTo(PS_W, PS_H); g.closePath(); g.fill();
+  g.font = `800 34px ${SANS}`; g.textBaseline = 'alphabetic'; g.fillStyle = night ? '#FFFFFF' : '#0F3B5C'; g.fillText(night ? 'NIGHT' : 'DAY', 22, 66);
+  return c;
+}
+CELLS[20] = (k, w, h, u) => {
+  if (!PS_A) { PS_A = PS_paint(false); PS_B = PS_paint(true); }
+  k.fillStyle = '#EDEAF3'; k.fillRect(0, 0, CW, CH);
+  const hov = presence(u, PS_IN[0] - 0.1, PS_IN[0] + 0.2, PS_OUT[0] - 0.1, PS_OUT[0] + 0.2);
+  k.fillStyle = `rgba(40,20,90,${0.10 + 0.12 * hov})`; rr(k, PS_X, PS_Y + 4 + 4 * hov, PS_W, PS_H, 14); k.fill();
+  k.save(); rr(k, PS_X, PS_Y, PS_W, PS_H, 14); k.clip();
+  const R1 = (u - PS_IN[0]) * PS_V, R2 = (u - PS_OUT[0]) * PS_V;
+  for (let r = 0; r < PS_H / PS_C; r++) for (let c = 0; c < PS_W / PS_C; c++) {
+    const x = PS_X + c * PS_C, y = PS_Y + r * PS_C, jit = 14 * hash(r * 37 + c * 11 + 5);
+    const d1 = Math.hypot(x + PS_C / 2 - PS_IN[1], y + PS_C / 2 - PS_IN[2]) + jit, d2 = Math.hypot(x + PS_C / 2 - PS_OUT[1], y + PS_C / 2 - PS_OUT[2]) + jit;
+    const onB = R1 > d1 && !(R2 > d2);
+    k.drawImage(onB ? PS_B : PS_A, c * PS_C, r * PS_C, PS_C, PS_C, x, y, PS_C, PS_C);
+    // 波前：刚被波扫到的那一圈块闪成强调色
+    const fr = R2 > 0 ? R2 - d2 : R1 - d1;
+    if (fr > 0 && fr < PS_EDGE) { k.fillStyle = `rgba(122,92,255,${0.85 * (1 - fr / PS_EDGE)})`; k.fillRect(x, y, PS_C, PS_C); }
+  }
+  k.restore();
+  const [cx, cy] = path(PS_KF, u);
+  if (u > 0.3 && u < 4.0) cursor(k, cx, cy);
+};

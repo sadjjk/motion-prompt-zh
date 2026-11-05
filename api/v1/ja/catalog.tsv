@@ -1,4 +1,4 @@
-# Motion Prompt catalog (ja) · 501 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	category	title	tags	summary
+# Motion Prompt catalog (ja) · 536 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	category	title	tags	summary
 1-001	コンポーネント / 開く・重なる	モーダル (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	「開く」ボタンを押すと画面全体が暗くなり、中央に小窓が少し拡大しながら出る。×を押すと閉じる。
 1-002	コンポーネント / 開く・重なる	ドロワー (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	「メニュー」を押すと左から縦長のパネルが引き出され、外側を押すと戻る。
 1-003	コンポーネント / 開く・重なる	ボトムシート (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	指で「詳細を見る」を押すと下からパネルがせり上がり、上端のつまみを下へ引くと閉じる。
@@ -198,6 +198,37 @@
 1-197	ポインター操作 / リキッドな操作	リキッドグラスレンズ (Liquid glass lens)	liquid,glass,refraction,lens,dispersion,glassmorphism	暗いグリッドの上に大きな見出しと 6 色のチップが並び、カプセル形のガラスレンズが右へ滑って止まり、また左へ戻る。レンズの中央は素通しで、縁に近づくほど内容が内側へ引き込まれて曲がり、縁には赤と青のにじみが出る。上部には弧形のハイライト、外側には柔らかい影がある。
 1-198	ページ / スクロール	スクロールで隠れるヘッダー (Hide-on-scroll header)	hide-on-scroll,headroom,auto-hide-header,navbar,header,scroll-direction,sticky	下へスクロールするとヘッダーが上へ引っ込み、少し上へ戻した所でまた滑り出てくる。
 1-199	フィードバック / 操作への反応	ローディングボタン (Loading button)	loading-button,spinner,submit,busy-state,async,success,disabled	クリックすると「订阅」ボタンが丸く縮んで回り、終わると緑に広がってチェックと「已订阅」が出て、元に戻る。
+1-200	ページ / ヒーロー背景	ボールプール (Ball pit)	ball-pit,physics,gravity,collision,hero-background,cursor-push,click-burst	26 個のボールが上から落ちて暗い枠の底に積もり、カーソルが底をなぞって左から右へ押しのけ、中央のクリックで弾け飛んでから落ち直し、最後にフェードアウトする。
+1-201	ポインター操作 / 手触り・カード	ステッカーはがし (Sticker peel)	sticker,peel,page-curl,fold,drag,tactile	点線の台紙の上のオレンジのステッカーの右下をカーソルがつまみ、左上へ引くと折り目が進んで裏面がめくれ、離すとばねのように揺れて平らに貼り戻る。
+1-202	文字・データ / インタラクティブな文字	プレッシャー文字 (Pressure type)	pressure-text,variable-width,cursor-proximity,interactive-type,headline,kinetic-type	大文字の PRESSURE の上をカーソルが左右に 3 回なぞり、近くの文字が膨らんで濃くなり、離れた文字は細く灰色に戻る。
+1-203	ページ / ヒーロー背景	マグネットライン (Magnet lines)	magnet-lines,cursor-follow,grid,hero-background,iron-filings,click-wave	暗い背景の 24×9 本の短い線がカーソルに向きをそろえ、近くの線が緑に光る。中央のクリックで線が外へ順に半回転し、カーソルが去ると元の揺れに戻る。
+1-204	ページ / ヒーロー背景	レンズドットフィールド (Lens dot field)	dot-field,lens,magnify,swirl,cursor-follow,hero-background,gradient	13 px 間隔のグラデーションの点の上を、半径 72 px のレンズがカーソルについて動き、前半は中の点を拡大し、後半は渦状にねじる。
+1-205	ページ / ヒーロー背景	レターグリッチ (Letter glitch)	letter-glitch,glyphs,flicker,scramble,cyberpunk,hero-background,monospace	49×13 の等幅文字が緑と青紫の 4 色でばらばらに入れ替わってちらつき、カーソルの周りが白く乱れ、クリックで近くの行が横に裂けて一瞬マゼンタになる。
+1-206	ポインター操作 / カーソル	カーソル点灯グリッド (Cursor grid)	cursor-grid,cursor-trail,grid,hover-highlight,click-pulse,background	26 px のマス目の上をカーソルが動き、通ったマスが光って尾を引くように消え、クリックで光るマスの輪が外へ広がる。
+1-207	ページ / ヒーロー背景	等高線地形 (Contour terrain)	topography,contour-lines,terrain,3d,hero-background,cursor-bump	透視で見た 13 段の青い等高線の地形がうねり、カーソルの下が盛り上がって線が集まり、クリックで白い光の輪が広がる。
+1-208	ページ / ヒーロー背景	シェイプウェーブ (Shape waves)	shape-waves,geometric,wave,pattern,hero-background,halftone	28×11 の丸・三角・四角の上を斜めの波が流れ、波の山で形が金色からピンクに光って大きくなり、谷で暗く小さくなる。
+1-209	ページ / ヒーロー背景	ASCII グロー (ASCII glow)	ascii-art,gradient-glow,text-mode,monospace,hero-background,scramble	77×17 マスの等幅文字で 3 つの色の光がゆっくり動き、明るさが文字の濃さで表され、カーソルの周りの文字が乱れて白く光る。
+1-210	ページ / ヒーロー背景	ディザウェーブ (Dither waves)	dither,bayer,pixel-art,retro,wave,hero-background	藍・紫・珊瑚・クリームの 4 色のドットで波がうねり、境目はディザの網点になり、カーソルの後ろに明るい尾が伸びて消える。
+1-211	ページ / ヒーロー背景	ピクセル絵の具の渦 (Pixel paint swirl)	paint-swirl,pixelated,domain-warp,retro-game,hero-background,whirlpool	4 色の粗いピクセルの絵の具が中心のまわりで渦を巻いて流れ、カーソルが通ると絵の具がねじれ、クリックした所に渦ができて消える。
+1-212	ページ / ヒーロー背景	グラデーションブラインド (Gradient blinds)	gradient-blinds,spotlight,slats,cursor-follow,hero-background,stage-light	18 枚の縦ブラインドがゆらゆら揺れ、カーソルのスポットライトが動くと羽根がそちらへ傾き、光の当たる所が白っぽく光る。
+1-213	ページ / ヒーロー背景	夜のハイウェイ光跡 (Highway light trails)	hyperspeed,light-trails,highway,warp,press-and-hold,hero-background	夜の道路を赤と白の光跡が流れ、カーソルが 2.3 秒から押し続けると速度が上がって光跡が長く伸び、視野が広がって紫に染まり、離すと元の速さに戻る。
+1-214	ページ / ヒーロー背景	傾いたタイルの壁 (Tilted tile wall)	tile-wall,tilted-grid,marquee,parallax,card-wall,hero-background	−12° 傾いた 5 列のカードが交互に逆向きに流れ、カーソルが動くと列が奥行きを感じる量でずれ、真下のカードが浮き上がって光る。
+1-215	ポインター操作 / カーソル	キューブフィールド (Cube field)	cubes,cube-grid,cursor-follow,isometric,click-wave,background	12×4 個の立方体が斜めを向いて並び、カーソルの近くだけがそちらへ傾き、3.2 秒のクリックで波が広がって立方体が 1 つずつ回る。
+1-216	ポインター操作 / カーソル	リボンカーソル (Ribbon cursor)	ribbons,cursor-trail,spring,follow-cursor,glow,additive-blend	カーソルが波のような線を描いて横切り、4 色のリボンがばねで遅れてついてきて、曲がるたびに外側へふくらむ。
+1-217	ポインター操作 / カーソル	ターゲットカーソル (Target cursor)	target-cursor,snap,corner-brackets,custom-cursor,hover,focus-ring	カーソルがナビ、ボタン、カードへ順に移り、そのたびに 4 つの角括号が外枠へ弾んで吸い付き、2.9 秒にボタンをクリックする。
+1-218	ポインター操作 / カーソル	よけるアイコン (Dodge field)	dodge,repel,cursor-avoid,icon-grid,spring-back,micro-interaction	明るい画面に 7×3 個のアイコンが並び、カーソルが 3 行を蛇行して通ると近くのアイコンがよけ、通り過ぎると元へ戻る。
+1-219	ポインター操作 / カーソル	網点リビール (Halftone reveal)	halftone,reveal,dot-matrix,cursor-trail,image-reveal,hero-image	暗い網点の上をカーソルが動き、なぞった跡に夕焼けの山の絵が網点で浮かび、4.0 秒のクリックで絵全体が現れてから消える。
+1-220	ポインター操作 / ホバー	ピクセルスワップ (Pixel swap)	pixel,hover-swap,image-swap,wave,card,before-after	カーソルが 1.0 秒に左からカードへ入ると昼の絵が像素の波で夜の絵に変わり、3.4 秒に右下から出ると逆の波で昼に戻る。
+1-221	ポインター操作 / ホバー	電流ボーダー (Electric border)	electric-border,lightning,card-hover,glow,sine-noise,border	暗い背景の角丸カードの縁が 2 本の電流の弧になって震え、カーソルがカードの周りを回ると近い部分が大きく暴れ、触れている間は全体が明るくなる。
+1-222	ポインター操作 / 手触り・カード	バウンスカード (Bounce cards)	bounce-cards,card-fan,hover-spread,stacked-cards,gallery,spring	5 枚のカードが扇形に弾んで現れ、カーソルが左から右へ 1 枚ずつ止まるたびにそのカードがまっすぐ前に出て、両隣が外へよけ、最後に全部が縮んで消える。
+1-223	ポインター操作 / 手触り・カード	ストラップ付き名札 (Lanyard badge)	lanyard,id-badge,drag,pendulum,swing,spring	名札が軽く揺れて下がっていて、1.2 秒にカーソルがつかんで右上へ引っ張り、2.6 秒に離すと名札が左右に大きく揺れ、ストラップが弾んで縮み、だんだん止まる。
+1-224	コンポーネント / 選ぶ・入力する	カーブ入力欄 (Curved input)	curved-input,arc-text,search-field,text-on-path,input,typing	平らな検索欄が円弧に曲がり、クリックで外側に光る輪が出て文字が順に弧に沿って入力され、送信ボタンを押すと文字が弧に沿って流れて消え、プレースホルダーが戻る。
+1-225	コンポーネント / 選ぶ・入力する	ドラッグ調整フィールド (Scrub field)	scrub,number-input,drag-to-adjust,rubber-band,overscroll,slider	暗い背景の Opacity 欄をカーソルが押さえて右へドラッグし、値が 100 に達したあと右端が伸びて、離すと弾んで戻る。次に左へドラッグして 0 を越え、左端が伸びて戻る。
+1-226	コンポーネント / 選ぶ・入力する	アーチギャラリー (Arc gallery)	arc-gallery,curved-carousel,drag,snap,loop,gallery	暗い背景で弧に沿って曲がったカードが並び、カーソルが左へドラッグして離すとカードが一番近い位置に吸い付いて止まり、次に右へドラッグして元の並びに戻る。
+1-227	コンポーネント / ナビゲーション・メニュー	フローイングメニュー (Flowing menu)	flowing-menu,marquee,hover-band,direction-aware,fullscreen-menu,navigation	暗い背景の 4 行のメニューをカーソルが上から下へなぞると、行ごとに上から帯が滑り込んで名前が流れ、最後に下から 3 行目へ戻ると帯が下から入る。
+1-228	フィードバック / 操作への反応	導火線の取り消し (Fuse undo)	undo,toast,countdown,fuse,delete,snackbar	カーソルがファイル行の削除ボタンを押すと行が右へ消え、下に暗い通知が出て、取り消しボタンの縁が火花を散らしながら燃え進む。途中で取り消しを押すと火が消えて煙が上がり、ファイル行が戻る。
+1-229	フィードバック / 進捗・アイコン	揺れる液面ゲージ (Slosh gauge)	liquid-gauge,progress,slosh,spring,splash,meter	暗い背景のガラス容器の液体が、目標が上がるたびに追いかけて少し行き過ぎ、液面が傾いて揺れる。最後は 100% に当たって水しぶきが上がり、右の数字が青緑になる。
+1-230	フィードバック / AI の状態表示	ツール呼び出しチップ (Tool call chip)	tool-call,ai-agent,status-chip,progress,success,error-shake	明るい背景で search_docs のチップが左から塗られて緑のチェックになり、次の run_query のチップは途中で赤くなって左右に揺れ、failed と出る。
 2-001	動きの原理 / 登場・イージング	ポップイン (Pop-in)	pop,pop-in,spring,bounce,scale,icon,badge,entrance	アプリのアイコンがポンと弾んで現れ、通知バッジが遅れてポンと出る。
 2-002	動きの原理 / 登場・イージング	スタガー (Stagger)	stagger,sequence,delay,cascade,bar-chart,list,entrance	グラフの棒が、少しずつ時間をずらして左から順に立ち上がる。
 2-003	動きの原理 / 登場・イージング	マスクリビール (Mask reveal)	mask,reveal,clip,wipe,title,text,slide-up,headline	1本の線を境に、見えない枠の向こうから見出しがせり上がる。
@@ -317,6 +348,10 @@
 2-117	動きの原理 / 登場・イージング	デュレーション (Duration)	duration,timing,transition-duration,speed,seconds,motion,ms	同じ距離を0.2秒・0.4秒・0.8秒で動く3つの四角。下の棒がそれぞれの時間の長さを示す。
 2-118	動きの原理 / 登場・イージング	ディレイ (Delay)	delay,stagger,transition-delay,sequence,timing,offset,list	4本の棒が0・0.15・0.3・0.45秒待ってから動き出す。右の四角も同じ順でスライドして現れる。
 2-119	動きの原理 / 登場・イージング	スプリングアニメーション (Spring animation)	spring,spring-physics,damping,stiffness,bounce,overshoot,framer-motion	同じ硬さで減衰比だけ違う3つの丸が終点へ動く。右の小さなグラフは位置の時間変化。
+2-120	文字アニメーション / 一文字ずつ・組版	ぼかし表示テキスト (Blur text reveal)	blur,text-reveal,stagger,headline,hero,typography	暗い背景で、白と青の大きな見出しが単語ごとにぼやけた状態から順にくっきりと現れ、続いて下のサブテキストが文字ごとに浮かび上がる。最後は全体がまたぼやけて消える。
+2-121	文字アニメーション / 変形・質感	ざらつき揺れ文字 (Fuzzy text)	fuzzy,jitter,glitch,hover,noise,typography	明るい背景の黒い大きな文字の縁が細かくざらついて見え、カーソルが乗ると横帯が大きくずれて激しく揺れる。カーソルが離れると細かいざらつきに戻る。
+2-122	文字アニメーション / 変形・質感	折り紙展開テキスト (Fold text)	fold,paper,unfold,origami,text-reveal,card	濃い青の背景で、黄色い見出しの帯が現れたあと、その下に白い紙の帯が 1 段ずつ折り開かれて文章が読めるようになる。最後は下の段から順に折りたたまれて消える。
+2-123	文字アニメーション / 一文字ずつ・組版	スクロール速度で流れる文字 (Scroll velocity type)	kinetic-type,scroll-velocity,skew,marquee,scroll-linked,typography	暗い背景で 2 行の大きな文字が逆向きに流れ、下へ素早くスクロールすると文字が一気に速く流れてイタリックのように傾き、上へスクロールすると逆向きに流れる。止まると字形がまっすぐに戻る。
 3-001	カメラ・編集 / カメラの動き	パン (Pan)	pan,panning,yaw,rotate,horizontal,camera move,reveal	カメラの位置は変えず、首を左から右へ振る。回転なので手前も奥も同じ量だけ横に流れる。
 3-002	カメラ・編集 / カメラの動き	ティルト (Tilt)	tilt,tilt up,pitch,vertical,look up,camera move	カメラの位置は変えず、首を下から上へ振る。足元の人物から塔の先端まで見上げていく。
 3-003	カメラ・編集 / カメラの動き	ドリーイン (Dolly in)	dolly,dolly in,push in,track in,move forward,parallax,camera move	カメラそのものが被写体へ前進する。手前の物ほど大きく速く流れ、奥の山はほとんど変わらない。

@@ -1,0 +1,79 @@
+// Motion Prompt #1-229 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// 晃动液位计 / Slosh gauge
+// 分类: 界面与网页 / 反馈 / 进度与图标
+// 动画表现: 深色背景的玻璃罐里，目标每升一次，液体就追上去并稍微冲过头，液面倾斜晃动。最后撞到 100% 溅起水花，右侧数字变成青绿色。
+// 运动规格:
+//   - 目标从 20% 开始，0.6 秒升到 55%，2.0 秒升到 85%，3.2 秒升到 100%，5.4 秒回到 20%。
+//   - 液位按弹簧 x'' = 40(目标 − x) − 9x' 追赶目标，从 0 秒起按 1/120 秒步长积分；超过 100% 的部分在顶部停住。
+//   - 液面左右高差与液位速度成正比，最大为罐宽的 0.35 倍；表面叠 2 层频率为周期整数倍的波。
+//   - 第一次到达 100% 时，8 颗水珠向上飞出、沿抛物线落下，1 秒内消失。
+//   - 6.0–6.4 秒收掉剩余晃动，把液位正好对到 20%，接回 0 秒。
+// 适用场景: 适合存储空间、额度、目标完成度、喝水记录等想展示“一点点装满”的数值。
+// 标签: liquid-gauge, progress, slosh, spring, splash, meter
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-229
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 30
+// 30 晃动液位计：圆角玻璃罐里的液体追着目标值走（目标 20% → 0.6 秒 55% → 2.0 秒 85% → 3.2 秒 100%）。
+// 液位按弹簧 x'' = 40(目标 − x) − 9x' 追赶（1/120 秒步长从 0 积分），液面倾斜角与液位速度成正比，上面叠两层小波；
+// 到 100% 时撞顶溅起 8 颗水珠并按抛物线落下；5.4–6.0 秒液位回到 20%。
+const SG_X = 210, SG_Y = 26, SG_W = 120, SG_H = 160, SG_STEPS = [[0, 20], [0.6, 55], [2.0, 85], [3.2, 100], [SHOW, 20]];
+const SG_SIM = (() => {               // 每 1/120 秒一帧：[液位 %, 速度 %/s]
+  const out = []; let x = 20, v = 0;
+  for (let n = 0; n <= CYC * 120; n++) {
+    const t = n / 120; let g = 20;
+    for (const [a, b] of SG_STEPS) if (t >= a) g = b;
+    out.push([x, v]);
+    const acc = 40 * (g - x) - 9 * v; v += acc / 120; x += v / 120;
+    if (x > 100) { x = 100; v = Math.min(v, 0) - Math.max(v, 0) * 0.2; }
+  }
+  return out;
+})();
+const SG_W1 = TAU * 5 / CYC, SG_W2 = TAU * 3 / CYC;   // 波的角频率取周期的整数倍，0 秒与 6.4 秒相位一致
+const SG_HIT = (() => { for (let n = 0; n < SG_SIM.length; n++) if (SG_SIM[n][0] >= 99.5) return n / 120; return 99; })();
+CELLS[29] = (k, w, h, u) => {
+  k.fillStyle = '#0F1720'; k.fillRect(0, 0, CW, CH);
+  // 6.0–6.4 秒把弹簧余振收到正好 20%，与 0 秒一致
+  const [lv0, vel0] = SG_SIM[Math.min(SG_SIM.length - 1, Math.round(u * 120))];
+  const settle = inOut3(seg(u, 6.0, 6.35)), lv = mix(lv0, 20, settle), vel = vel0 * (1 - settle);
+  const tilt = clamp(vel / 260, -0.35, 0.35);           // 液面左右高差（相对罐宽）
+  for (let i = 0; i <= 4; i++) {
+    const y = SG_Y + SG_H - SG_H * i / 4;
+    k.fillStyle = '#3A4756'; k.fillRect(SG_X - 16, y - 0.5, 8, 1);
+    txt(k, `${i * 25}`, SG_X - 22, y, `11px ${MONO}`, '#6B7A8C', 'right', 'middle');
+  }
+  // 液体（剪裁到罐内）：后层浅色、前层深色，两层波相位错开
+  k.save(); rr(k, SG_X, SG_Y, SG_W, SG_H, 18); k.clip();
+  k.fillStyle = '#162433'; k.fillRect(SG_X, SG_Y, SG_W, SG_H);
+  const surf = x => {
+    const f = (x - SG_X) / SG_W - 0.5;
+    return SG_Y + SG_H * (1 - lv / 100) + f * tilt * SG_W
+      + Math.sin(x * 0.09 + u * SG_W1) * 2 * (0.4 + Math.abs(tilt) * 3) + Math.sin(x * 0.05 - u * SG_W2) * 1.5;
+  };
+  for (const [off, col] of [[-4, 'rgba(56,189,248,0.35)'], [0, '#2BA6E8']]) {
+    k.beginPath(); k.moveTo(SG_X, SG_Y + SG_H);
+    for (let x = SG_X; x <= SG_X + SG_W; x += 3) k.lineTo(x, surf(x + off * 3) + off);
+    k.lineTo(SG_X + SG_W, SG_Y + SG_H); k.closePath(); k.fillStyle = col; k.fill();
+  }
+  k.restore();
+  rr(k, SG_X, SG_Y, SG_W, SG_H, 18); k.strokeStyle = '#8FA3B8'; k.lineWidth = 2; k.stroke();
+  k.strokeStyle = 'rgba(255,255,255,0.18)'; k.lineWidth = 4; k.lineCap = 'round';
+  k.beginPath(); k.moveTo(SG_X + 14, SG_Y + 24); k.lineTo(SG_X + 14, SG_Y + 70); k.stroke();
+  // 撞顶溅起的水珠
+  const st = u - SG_HIT;
+  if (st > 0 && st < 1.0) {
+    for (let i = 0; i < 8; i++) {
+      const vx = (hash(i * 3 + 5) - 0.5) * 160, vy = -120 - 90 * hash(i * 3 + 6);
+      const x = SG_X + SG_W * (0.2 + 0.6 * hash(i * 3 + 7)) + vx * st, y = SG_Y + 4 + vy * st + 420 * st * st;
+      if (y > SG_Y + 6 && st > 0.15) continue;
+      k.fillStyle = `rgba(56,189,248,${0.9 * (1 - st)})`; k.beginPath(); k.arc(x, y, 2.5 + hash(i) * 1.5, 0, TAU); k.fill();
+    }
+  }
+  txt(k, `${Math.round(clamp(lv, 0, 100))}%`, 360, 98, `800 34px ${SANS}`, lv >= 99.5 ? '#5EEAD4' : '#E6EDF5', 'left', 'middle');
+  txt(k, 'STORAGE', 362, 128, `600 11px ${MONO}`, '#6B7A8C', 'left', 'middle');
+};

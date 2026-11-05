@@ -1,0 +1,76 @@
+// Motion Prompt #1-225 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// ドラッグ調整フィールド / Scrub field
+// 分類: UI・Web / コンポーネント / 選ぶ・入力する
+// 何が起きるか: 暗い背景の Opacity 欄をカーソルが押さえて右へドラッグし、値が 100 に達したあと右端が伸びて、離すと弾んで戻る。次に左へドラッグして 0 を越え、左端が伸びて戻る。
+// 動きの仕様:
+//   - 220×48 px の欄で、値の範囲は 0–100、カーソルが 2 px 動くと値が 1 変わる
+//   - 範囲を越えた分 d px は r(d) = 40·(1 − 1/(1 + d/80)) だけ欄の縁を外へ伸ばし、伸びるほど増えにくい
+//   - 引いた側の縁だけを伸ばし、高さは伸びに合わせて最大 6% 細くする
+//   - 離すと伸びは e^(−9τ)·cos(18τ) で 0 に戻る。1.0–2.6 秒に右へ、3.2–4.6 秒に左へドラッグする
+//   - 欄の下側に値に合わせたバーを敷き、ドラッグ中は枠が青くなりカーソルが左右矢印になる。5.4–6.0 秒に値が 0 秒の 40 へ戻る
+// 使いどころ: デザインツールのプロパティ欄、動画や音声の編集パネル、設定画面など、数値を素早く少しずつ変えたいところ。
+// タグ: scrub, number-input, drag-to-adjust, rubber-band, overscroll, slider
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-225
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 26
+// 26 拖动调数：数值框 "Opacity"，按住后左右拖动直接改数值（每 2 px 变 1），范围 0–100。
+// 1.0 秒按下向右拖，数值到 100 后继续拖，超出部分按橡皮筋 r(d) = 40·(1 − 1/(1 + d/80)) 让整个框向右被拉长、越拉越难；
+// 2.6 秒松手，框按 e^(−9τ)·cos(18τ) 弹回原宽；3.2 秒再按下向左拖到 0 以下，同样左侧被拉长，4.6 秒松手弹回。
+// 拖动时光标变成左右箭头，框内底部的进度条跟随数值；5.4–6.0 秒数值缓回 0 秒的 40。
+const SF_X = 270, SF_Y = 98, SF_W = 220, SF_H = 48, SF_V0 = 40, SF_PX = 2;
+const SF_KF = [[0.3, 330, 220], [0.9, 310, 102], [1.0, 310, 102], [2.4, 500, 102], [2.6, 500, 102], [3.1, 430, 102], [3.2, 430, 102], [4.4, 130, 102], [4.6, 130, 102], [5.2, 200, 220]];
+const SF_D = [[1.0, 2.6, 310], [3.2, 4.6, 430]];
+const SF_band = d => 40 * (1 - 1 / (1 + d / 80));
+// 拖动状态：返回 [数值, 越界拉伸(+右/−左), 是否按住]
+const SF_state = (u, cx) => {
+  let v = SF_V0, over = 0, held = false;
+  for (const [a, b, x0] of SF_D) {
+    if (u < a) break;
+    const xe = u < b ? cx : path(SF_KF, b)[0];
+    const raw = v + (xe - x0) / SF_PX, cl = clamp(raw, 0, 100);
+    const ex = (raw - cl) * SF_PX, st = Math.sign(ex) * SF_band(Math.abs(ex));
+    if (u < b) { held = true; over = st; v = cl; break; }
+    const tau = u - b;
+    over = st * Math.exp(-9 * tau) * Math.cos(18 * tau); v = cl;
+  }
+  return [v, over, held];
+};
+CELLS[25] = (k, w, h, u) => {
+  k.fillStyle = '#16181F'; k.fillRect(0, 0, CW, CH);
+  const [cx, cy] = path(SF_KF, u);
+  let [v, over, held] = SF_state(u, cx);
+  v = mix(v, SF_V0, resetK(u)); over *= 1 - resetK(u);
+  // 拉伸：右越界只拉长右边缘，左越界只拉长左边缘；高度略收窄
+  const l = SF_X - SF_W / 2 + Math.min(0, over), r = SF_X + SF_W / 2 + Math.max(0, over);
+  const hh = SF_H * (1 - 0.06 * Math.abs(over) / 40);
+  const y0 = SF_Y - hh / 2;
+  k.fillStyle = held ? '#2A2E3C' : '#232632'; rr(k, l, y0, r - l, hh, 10); k.fill();
+  k.strokeStyle = held ? '#7C8CFF' : '#3A3F50'; k.lineWidth = 1.5; rr(k, l, y0, r - l, hh, 10); k.stroke();
+  // 进度条
+  k.save(); rr(k, l, y0, r - l, hh, 10); k.clip();
+  k.fillStyle = 'rgba(124,140,255,0.22)'; k.fillRect(l, y0, (r - l) * v / 100, hh);
+  k.restore();
+  txt(k, 'Opacity', l + 16, SF_Y + 1, `600 13px ${SANS}`, '#9AA1B8', 'left', 'middle');
+  txt(k, `${Math.round(v)}`, r - 34, SF_Y + 1, `700 18px ${MONO}`, '#FFFFFF', 'right', 'middle');
+  txt(k, '%', r - 16, SF_Y + 2, `600 12px ${MONO}`, '#6F7690', 'right', 'middle');
+  // 两端刻度提示
+  txt(k, '0', SF_X - SF_W / 2, SF_Y + 44, `600 10px ${MONO}`, '#5A6078', 'center');
+  txt(k, '100', SF_X + SF_W / 2, SF_Y + 44, `600 10px ${MONO}`, '#5A6078', 'center');
+  txt(k, 'drag to scrub', SF_X, SF_Y - 40, `600 10px ${MONO}`, '#5A6078', 'center');
+  if (u > SF_KF[0][0] && u < SF_KF[SF_KF.length - 1][0]) {
+    if (held) {
+      // 左右箭头光标
+      k.save(); k.translate(cx, cy);
+      k.fillStyle = '#FFFFFF'; k.strokeStyle = '#16181F'; k.lineWidth = 1.3; k.lineJoin = 'round';
+      k.beginPath(); k.moveTo(-12, 0); k.lineTo(-5, -6); k.lineTo(-5, -2.5); k.lineTo(5, -2.5); k.lineTo(5, -6); k.lineTo(12, 0);
+      k.lineTo(5, 6); k.lineTo(5, 2.5); k.lineTo(-5, 2.5); k.lineTo(-5, 6); k.closePath(); k.fill(); k.stroke();
+      k.restore();
+    } else cursor(k, cx, cy, 0, true);
+  }
+};

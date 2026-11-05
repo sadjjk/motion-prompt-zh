@@ -1,0 +1,43 @@
+// Motion Prompt #2-121 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// 毛糙抖动字 / Fuzzy text
+// 分类: 动态图形 / 文字动画 / 变形与质感
+// 动画表现: 浅色背景上的黑色大字边缘细细地毛糙；光标放上去后横条大幅错开、剧烈抖动。光标离开后回到细微的毛糙。
+// 运动规格:
+//   - 字被切成 2 px 高的横条，每条单独左右错开绘制。
+//   - 错开量每秒变 24 次，由条序号和帧序号生成的随机数决定。
+//   - 错开幅度平时 1.5 px，光标停在字上时 12 px。
+//   - 光标 1.4 秒停到字上，0.25 秒幅度升满；3.6 秒开始离开，0.35 秒回落。
+//   - 没有分色，字始终是 1 种颜色。
+// 适用场景: 适合 404 页面、游戏或活动标题、带噪点感的品牌表达等，想要一点粗粝感的地方。
+// 标签: fuzzy, jitter, glitch, hover, noise, typography
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-121
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 33
+// 33 毛糙抖动字：大字按 2 px 高的横条切开，每条各自左右错开，像信号不稳的屏幕。
+// 每秒换 24 次随机偏移（hash(行号, 帧号)），偏移幅度 = 平时 1.5 px，光标停在字上时升到 12 px；
+// 字整体不做红绿蓝分色。光标 0.6 秒入场，1.4–3.6 秒停在字上（幅度 0.25 秒升满、0.35 秒回落），5.0 秒前离开。
+const FZ_ROW = 2, FZ_TOP = 58, FZ_H = 76, FZ_IDLE = 1.5, FZ_HOT = 12, FZ_FPS = 24;
+const FZ_KF = [[0.6, 520, 196], [1.4, 300, 104], [3.6, 330, 108], [4.6, 540, 200]];
+CELLS[32] = (k, w, h, u) => {
+  k.fillStyle = '#F3F0E8'; k.fillRect(0, 0, CW, CH);
+  const heat = inOut3(seg(u, 1.4, 1.65)) * (1 - inOut3(seg(u, 3.6, 3.95)));
+  const amp = mix(FZ_IDLE, FZ_HOT, heat), frame = Math.floor(u * FZ_FPS);
+  k.font = `900 84px ${SANS}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillStyle = '#1B1A20';
+  for (let r = 0; r * FZ_ROW < FZ_H; r++) {
+    const y = FZ_TOP + r * FZ_ROW;
+    const n = hash(r * 7.31 + frame * 131.7) - 0.5, n2 = hash(r * 3.17 + frame * 57.3) - 0.5;
+    const dx = amp * (2 * n) * (0.6 + 0.4 * Math.abs(2 * n2));
+    k.save(); k.beginPath(); k.rect(0, y, CW, FZ_ROW + 0.5); k.clip();
+    k.fillText('FUZZY', CW / 2 + dx, FZ_TOP + FZ_H / 2 + 4);
+    k.restore();
+  }
+  txt(k, heat > 0.5 ? 'hovering — noise ×8' : 'hover to shake the signal', CW / 2, 168, `500 14px ${MONO}`, '#8A8577', 'center', 'middle');
+  const [cx, cy] = path(FZ_KF, u);
+  if (u > 0.6 && u < 4.6) cursor(k, cx, cy, 0, false);
+};

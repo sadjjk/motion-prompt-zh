@@ -1,0 +1,71 @@
+// Motion Prompt #1-207 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// 等高线地形 / Contour terrain
+// 分类: 界面与网页 / 页面 / 首屏背景
+// 动画表现: 透视视角下 13 层蓝色等高线组成的地形起伏，光标下方鼓起、线条聚拢，点击时白色光环扩散。
+// 运动规格:
+//   - 高度场由 3 组正弦波叠加，相位每个周期转一圈。
+//   - 在 64×32 网格上用 marching squares 求 13 个高度的等高线，按透视投影绘制：越远越暗，越高越亮。
+//   - 在光标所在的地面位置叠加一个高 1.1、高斯半径 0.28 的隆起。
+//   - 3.5 秒点击，一圈光环以每秒 1.6 个单位扩散，经过的线变白。
+//   - 光标 0.3–1.0 秒入场、4.5–5.2 秒离场，隆起随之消失。
+// 适用场景: 适合户外、地图、数据可视化、航天类首屏，想要安静的纵深感时。
+// 标签: topography, contour-lines, terrain, 3d, hero-background, cursor-bump
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-207
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 08
+// 08 等高线地形：高度场 h(x, z) 由三组正弦波叠加，相位每周期转一圈；用 64×32 网格的 marching squares 在 13 个高度上求等高线，
+// 按透视投影成一片起伏的发光线条地形（远处变暗）。光标在地面上移动时把它下面的地形抬高 1.1（高斯半径 0.28），
+// 3.5 秒点击，一圈光环以每秒 1.6 个单位从点击处扩散，经过的线条变白
+const TP_NX = 64, TP_NZ = 32, TP_X0 = -3, TP_X1 = 3, TP_Z1 = 1.4, TP_CLICK = 3.5;
+const TP_LV = Array.from({ length: 13 }, (_, i) => -0.8 + i * 0.2);
+const TP_KF = [[0.3, -2.4, 0.25], [1.2, -0.9, 0.35], [2.4, 0.5, 0.65], [TP_CLICK, 0.0, 0.42], [4.4, 1.0, 0.3], [5.2, 2.8, 0.2]];
+const TP_proj = (x, z, y) => { const D = 0.8 + 2.6 * z; return [CW / 2 + x * 200 / D, 20 + 150 / D - y * 60 / D]; };
+CELLS[7] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, 0, CH); bg.addColorStop(0, '#04060C'); bg.addColorStop(1, '#0A1424');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  const ph = TAU * u / CYC, p = presence(u, 0.3, 1.0, 4.5, 5.2), [wx, wz] = path(TP_KF, u), ct = u - TP_CLICK;
+  const hf = (x, z) => 0.42 * Math.sin(1.1 * x + 2.1 * z + ph) + 0.28 * Math.sin(1.6 * x - 6.3 * z - ph) + 0.18 * Math.cos(3.1 * x + 5.1 * z + 2 * ph)
+    + 1.1 * p * Math.exp(-((x - wx) ** 2 + (z - wz) ** 2) / 0.08);
+  const dx = (TP_X1 - TP_X0) / TP_NX, dz = TP_Z1 / TP_NZ, H = [];
+  for (let j = 0; j <= TP_NZ; j++) for (let i = 0; i <= TP_NX; i++) H.push(hf(TP_X0 + i * dx, j * dz));
+  const buckets = new Map();
+  const add = (key, a, b) => { let arr = buckets.get(key); if (!arr) buckets.set(key, arr = []); arr.push(a, b); };
+  const ringR = ct > 0 && ct < 1.6 ? ct * 1.6 : -9;
+  for (let j = 0; j < TP_NZ; j++) for (let i = 0; i < TP_NX; i++) {
+    const v0 = H[j * (TP_NX + 1) + i], v1 = H[j * (TP_NX + 1) + i + 1], v2 = H[(j + 1) * (TP_NX + 1) + i + 1], v3 = H[(j + 1) * (TP_NX + 1) + i];
+    const x0 = TP_X0 + i * dx, z0 = j * dz;
+    const lo = Math.min(v0, v1, v2, v3), hi = Math.max(v0, v1, v2, v3);
+    TP_LV.forEach((L, li) => {
+      if (L < lo || L > hi) return;
+      const pts = [];
+      const e = (va, vb, xa, za, xb, zb) => { if ((va < L) !== (vb < L)) { const t = (L - va) / (vb - va); pts.push([mix(xa, xb, t), mix(za, zb, t)]); } };
+      e(v0, v1, x0, z0, x0 + dx, z0); e(v1, v2, x0 + dx, z0, x0 + dx, z0 + dz); e(v2, v3, x0 + dx, z0 + dz, x0, z0 + dz); e(v3, v0, x0, z0 + dz, x0, z0);
+      for (let q = 0; q + 1 < pts.length; q += 2) {
+        const mx = (pts[q][0] + pts[q + 1][0]) / 2, mz = (pts[q][1] + pts[q + 1][1]) / 2;
+        const fog = Math.min(3, Math.floor(mz / TP_Z1 * 4));
+        const hot = ringR > 0 && Math.abs(Math.hypot(mx - TP_KF[3][1], (mz - TP_KF[3][2]) * 2) - ringR) < 0.14 ? 1 : 0;
+        add(li * 10 + fog * 2 + hot, TP_proj(pts[q][0], pts[q][1], L), TP_proj(pts[q + 1][0], pts[q + 1][1], L));
+      }
+    });
+  }
+  k.lineCap = 'round';
+  const ringFade = 1 - clamp(ct / 1.6);
+  for (const [key, arr] of buckets) {
+    const li = Math.floor(key / 10), fog = Math.floor((key % 10) / 2), hot = key % 2;
+    const t = li / (TP_LV.length - 1), col = hot ? lerpC(lerpC([40, 120, 200], [150, 245, 255], t), [255, 255, 255], ringFade) : lerpC([40, 120, 200], [150, 245, 255], t);
+    const a = (0.95 - fog * 0.22) * (hot ? 1 : 0.55 + 0.45 * t);
+    k.beginPath();
+    for (let q = 0; q < arr.length; q += 2) { k.moveTo(arr[q][0], arr[q][1]); k.lineTo(arr[q + 1][0], arr[q + 1][1]); }
+    k.strokeStyle = rgb(col); k.globalAlpha = a * 0.25; k.lineWidth = 3.5; k.stroke();
+    k.globalAlpha = a; k.lineWidth = hot ? 1.6 : 1.1; k.stroke();
+  }
+  k.globalAlpha = 1;
+  const [sx, sy] = TP_proj(wx, wz, hf(wx, wz));
+  if (u > 0.3 && u < 5.2) cursor(k, sx, sy, Math.abs(ct) < 0.1 ? 1 : 0);
+};

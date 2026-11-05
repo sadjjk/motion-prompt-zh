@@ -1,0 +1,56 @@
+// Motion Prompt #2-122 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Fold text / 折り紙展開テキスト
+// Category: Motion graphics / Text animation / Morphing & texture
+// What happens: On a deep blue background, a yellow header strip appears, then white paper strips unfold beneath it 1 by 1 until the text can be read. At the end they fold back up from the bottom and disappear.
+// Motion spec:
+//   - The header strip is 36 px tall and opens over 0.5 s from 0.3 s. The 3 body lines are strips 40 px tall.
+//   - The body strips start at 0.8 s with a 0.45 s stagger; each opens its angle θ from 90° to 0° over 0.6 s with out3 easing.
+//   - Each strip hangs from the lower edge of the one above, with a visible height of 40·cos θ.
+//   - Odd strips fold inward and darken by 0.32·sin θ, even strips fold outward and brighten by 0.5·sin θ, and a thin line marks each crease.
+//   - At 5.4–6.0 s the strips fold back from the bottom with a 0.22 s stagger, and the header strip closes too, matching 0 s.
+// When to use it: Use it on small cards whose short lines should be read in order, such as notes, notifications, recipe steps or checklists.
+// Tags: fold, paper, unfold, origami, text-reveal, card
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-122
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 34
+// 34 折纸展开字：一张便签上的 3 行字像折过的纸一样，一折一折往下展开。
+// 每行是一条 40 px 高的纸带，挂在上一条的下沿；纸带绕上沿翻折，角度 θ 从 90° 落到 0°，可见高度 = 40·cos θ，
+// 奇数折向里（变暗 0.32·sin θ），偶数折向外（变亮 0.5·sin θ），折痕处画一条细线。
+// 标题条 0.3 秒落下（0.5 秒），第 1–3 行从 0.8 秒起每隔 0.45 秒展开一条（每条 0.6 秒，out3 缓动）；
+// 5.4–6.0 秒从最后一行往上依次折回，只剩标题条缩回 0，接回 0 秒。
+const FT_X = 150, FT_W = 240, FT_TOP = 18, FT_BAND = 40, FT_HEAD = 36;
+const FT_LINES = ['Fold the plan', 'into three lines', 'and open it slowly.'];
+CELLS[33] = (k, w, h, u) => {
+  k.fillStyle = '#2B3A4A'; k.fillRect(0, 0, CW, CH);
+  const back = seg(u, SHOW, SHOW + 0.6);                 // 折回进度
+  const open = i => {                                    // i = 0 标题，1–3 正文
+    const a = i === 0 ? out3(seg(u, 0.3, 0.8)) : out3(seg(u, 0.8 + 0.45 * (i - 1), 1.4 + 0.45 * (i - 1)));
+    const b = inOut3(seg(back, (3 - i) * 0.22, (3 - i) * 0.22 + 0.34));
+    return a * (1 - b);
+  };
+  let y = FT_TOP;
+  // 投影：跟着纸的总高度
+  const heights = [0, 1, 2, 3].map(i => (i === 0 ? FT_HEAD : FT_BAND) * Math.sin(open(i) * Math.PI / 2));
+  const total = heights.reduce((a, b) => a + b, 0);
+  if (total > 0.5) { k.fillStyle = 'rgba(0,0,0,0.22)'; rr(k, FT_X + 4, FT_TOP + 6, FT_W, total, 6); k.fill(); }
+  for (let i = 0; i < 4; i++) {
+    const p = open(i), th = (1 - p) * Math.PI / 2, bh = i === 0 ? FT_HEAD : FT_BAND, vis = bh * Math.cos(th);
+    if (vis < 0.3) break;
+    k.save(); k.translate(0, y); k.scale(1, Math.cos(th));
+    k.beginPath(); k.rect(FT_X, 0, FT_W, bh); k.clip();
+    k.fillStyle = i === 0 ? '#F2C14E' : '#FBF7EE'; k.fillRect(FT_X, 0, FT_W, bh);
+    if (i === 0) txt(k, 'NOTE', FT_X + 16, bh / 2 + 1, `800 14px ${MONO}`, '#5B4310', 'left', 'middle');
+    else txt(k, FT_LINES[i - 1], FT_X + 16, bh / 2 + 1, `700 19px ${SANS}`, '#24303C', 'left', 'middle');
+    const sh = Math.sin(th);
+    k.fillStyle = i % 2 ? `rgba(30,40,55,${0.32 * sh})` : `rgba(255,255,255,${0.5 * sh})`; k.fillRect(FT_X, 0, FT_W, bh);
+    k.restore();
+    if (i > 0) { k.fillStyle = `rgba(40,50,60,${0.10 + 0.25 * Math.sin(th)})`; k.fillRect(FT_X, y, FT_W, 1); }
+    y += vis;
+  }
+};

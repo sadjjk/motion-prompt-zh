@@ -1,0 +1,105 @@
+// Motion Prompt #1-228 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// 引线撤销 / Fuse undo
+// 分类: 界面与网页 / 反馈 / 操作反馈
+// 动画表现: 光标点文件行的删除键，文件行向右滑出，下方出现深色提示条，撤销按钮的外缘带着火星一路燃烧。中途点撤销，火熄灭冒烟，文件行滑回来。
+// 运动规格:
+//   - 0.62 秒按下删除，文件行向右移动 60 px 并淡出，提示条从下方升起 20 px 出现。
+//   - 引线就是撤销按钮的外缘，从上边中点顺时针燃烧，4 秒烧完全长。
+//   - 烧过的部分是灰色虚线；未烧部分是宽的半透明线叠一条细亮线；燃点画一个光点和 7 道火星。
+//   - 火星的方向和长度每 1/20 秒按固定随机数变化一次。
+//   - 3.82 秒点撤销，火停住，燃点处冒出的烟在 0.7 秒内升起消散，提示条下沉，文件行滑回。
+// 适用场景: 适合删除文件或邮件、批量操作、刚发送的消息这类短时间内可以撤销的操作提示。
+// 标签: undo, toast, countdown, fuse, delete, snackbar
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-228
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 29
+// 29 引线撤销：0.62 秒光标点文件行的删除键，文件行向右滑出，底部出现深色提示条，
+// 提示条里撤销按钮的胶囊外缘是一根引线：从上边中点起顺时针燃烧，4 秒烧完（烧过的部分变成灰色虚线，燃点有火星）。
+// 3.82 秒光标点撤销：引线熄灭冒一小团烟，提示条下沉消失，文件行滑回原位；末态与 0 秒相同。
+const FB_ROW = [120, 40, 300, 52], FB_PILL = [330, 138, 78, 26];
+const FB_DEL = 0.62, FB_UNDO = 3.82, FB_BURN0 = 1.2, FB_BURN = 4.0;
+const FB_KF = [[0.1, 560, 190], [FB_DEL, 392, 66], [1.4, 392, 72], [3.6, 369, 152], [FB_UNDO, 369, 152], [4.8, 560, 200]];
+const FB_R = 13, FB_SL = FB_PILL[2] - 2 * FB_R, FB_LEN = 2 * FB_SL + TAU * FB_R;
+// 胶囊外缘上弧长 s 处的点（s = 0 为上边中点，顺时针）
+function FB_pt(s) {
+  const [x, y, w, h] = FB_PILL, r = FB_R, cxL = x + r, cxR = x + w - r, cy = y + h / 2;
+  s = (((s + FB_SL / 2) % FB_LEN) + FB_LEN) % FB_LEN;
+  if (s < FB_SL) return [cxL + s, y];
+  s -= FB_SL; if (s < Math.PI * r) { const a = -Math.PI / 2 + s / r; return [cxR + r * Math.cos(a), cy + r * Math.sin(a)]; }
+  s -= Math.PI * r; if (s < FB_SL) return [cxR - s, y + h];
+  s -= FB_SL; const a = Math.PI / 2 + s / r; return [cxL + r * Math.cos(a), cy + r * Math.sin(a)];
+}
+function FB_stroke(k, s0, s1) {
+  if (s1 - s0 < 0.5) return;
+  k.beginPath();
+  for (let s = s0; ; s += 1.5) { const [x, y] = FB_pt(Math.min(s, s1)); s === s0 ? k.moveTo(x, y) : k.lineTo(x, y); if (s >= s1) break; }
+  k.stroke();
+}
+CELLS[28] = (k, w, h, u) => {
+  k.fillStyle = '#F2EFE9'; k.fillRect(0, 0, CW, CH);
+  // 文件行：删除后滑出，撤销后滑回
+  const gone = inOut3(seg(u, FB_DEL + 0.05, FB_DEL + 0.4)) * (1 - out3(seg(u, FB_UNDO + 0.2, FB_UNDO + 0.6)));
+  const [rx, ry, rw, rh] = FB_ROW;
+  k.save(); k.globalAlpha = 1 - gone; k.translate(gone * 60, 0);
+  rr(k, rx, ry, rw, rh, 12); k.fillStyle = '#FFFFFF'; k.fill(); k.strokeStyle = '#E0DBD2'; k.lineWidth = 1; k.stroke();
+  rr(k, rx + 14, ry + 12, 22, 28, 4); k.fillStyle = '#E8604C'; k.fill();
+  txt(k, 'PDF', rx + 25, ry + 30, `800 7px ${SANS}`, '#FFFFFF', 'center');
+  txt(k, 'Q3-report.pdf', rx + 48, ry + 23, `600 14px ${SANS}`, '#24232A');
+  txt(k, '2.4 MB · edited today', rx + 48, ry + 40, `12px ${SANS}`, '#8C8880');
+  const hov = presence(u, FB_DEL - 0.25, FB_DEL - 0.05, FB_DEL + 0.3, FB_DEL + 0.45);
+  k.fillStyle = `rgba(232,96,76,${0.1 + 0.12 * hov})`; k.beginPath(); k.arc(392, 66, 15, 0, TAU); k.fill();
+  k.strokeStyle = '#E8604C'; k.lineWidth = 1.6; k.lineCap = 'round'; k.lineJoin = 'round';
+  k.beginPath(); k.moveTo(386, 60); k.lineTo(398, 60); k.moveTo(390, 60); k.lineTo(390, 57.5); k.lineTo(394, 57.5); k.lineTo(394, 60); k.stroke();
+  rr(k, 387.5, 62, 9, 11, 2); k.stroke();
+  k.restore();
+  // 提示条
+  const vis = out3(seg(u, FB_DEL + 0.25, FB_DEL + 0.55)) * (1 - inOut3(seg(u, FB_UNDO + 0.15, FB_UNDO + 0.45)));
+  const f = seg(Math.min(u, FB_UNDO), FB_BURN0, FB_BURN0 + FB_BURN), sb = f * FB_LEN;
+  if (vis > 0) {
+    k.save(); k.globalAlpha = vis; k.translate(0, (1 - vis) * 20);
+    rr(k, 120, 130, 300, 42, 21); k.fillStyle = '#1E1D22'; k.fill();
+    txt(k, 'File moved to Trash', 144, 151, `600 13px ${SANS}`, '#F4F2EE', 'left', 'middle');
+    const uh = presence(u, 3.4, 3.6, FB_UNDO + 0.1, FB_UNDO + 0.2);
+    rr(k, ...FB_PILL, FB_R); k.fillStyle = rgb(lerpC([46, 44, 51], [66, 63, 72], uh)); k.fill();
+    txt(k, 'Undo', 369, 151.5, `700 13px ${SANS}`, '#FFFFFF', 'center', 'middle');
+    // 烧过的部分：灰色虚线
+    k.lineCap = 'round';
+    k.strokeStyle = '#5A5660'; k.lineWidth = 2; k.setLineDash([2, 3]); FB_stroke(k, 0, sb); k.setLineDash([]);
+    // 未烧部分：宽的半透明线叠细亮线
+    k.strokeStyle = 'rgba(255,138,61,0.25)'; k.lineWidth = 6; FB_stroke(k, sb, FB_LEN);
+    k.strokeStyle = '#FFB547'; k.lineWidth = 2.5; FB_stroke(k, sb, FB_LEN);
+    if (u > FB_BURN0 && u < FB_UNDO) {
+      const [px, py] = FB_pt(sb), fr = Math.floor(u * 20) * 31;
+      k.fillStyle = 'rgba(255,138,61,0.35)'; k.beginPath(); k.arc(px, py, 6, 0, TAU); k.fill();
+      k.fillStyle = '#FFF3C4'; k.beginPath(); k.arc(px, py, 2.5, 0, TAU); k.fill();
+      k.strokeStyle = '#FFD36B'; k.lineWidth = 1.2;
+      for (let i = 0; i < 7; i++) {
+        const a = hash(i * 13 + fr) * TAU, l0 = 3 + 2 * hash(i * 5 + fr), l = l0 + 6 * hash(i * 7 + fr + 1);
+        k.beginPath(); k.moveTo(px + Math.cos(a) * l0, py + Math.sin(a) * l0); k.lineTo(px + Math.cos(a) * l, py + Math.sin(a) * l); k.stroke();
+      }
+    }
+    k.restore();
+  }
+  // 熄灭的烟
+  const st = (u - FB_UNDO) / 0.7;
+  if (st > 0 && st < 1) {
+    const [px, py] = FB_pt(sb);
+    for (let i = 0; i < 3; i++) {
+      k.fillStyle = `rgba(150,146,156,${0.4 * (1 - st)})`;
+      k.beginPath(); k.arc(px + (i - 1) * 4 * st, py - st * 30 - i * 5, 3 + st * 9 - i, 0, TAU); k.fill();
+    }
+  }
+  if (u < 4.8) {
+    const [cx, cy] = path(FB_KF, u);
+    const pr = Math.max(presence(u, FB_DEL - 0.06, FB_DEL, FB_DEL + 0.06, FB_DEL + 0.14), presence(u, FB_UNDO - 0.06, FB_UNDO, FB_UNDO + 0.06, FB_UNDO + 0.14));
+    ripple(k, 392, 66, seg(u, FB_DEL, FB_DEL + 0.5), '232,96,76');
+    ripple(k, 369, 151, seg(u, FB_UNDO, FB_UNDO + 0.5), '255,181,71');
+    cursor(k, cx, cy, pr);
+  }
+};

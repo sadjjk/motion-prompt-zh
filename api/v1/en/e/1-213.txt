@@ -1,0 +1,77 @@
+// Motion Prompt #1-213 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Highway light trails / 夜のハイウェイ光跡
+// Category: UI & Web / Pages / Hero backgrounds
+// What happens: Red and white light trails stream along a night road; when the cursor holds from 2.3 s the speed climbs, trails stretch, the view widens and tints violet, and on release it drops back to cruising.
+// Motion spec:
+//   - A perspective night road: horizon at y = 76, the road bends into the distance by 0.012·z²·sin(phase).
+//   - Red tail lights recede on the 2 right lanes and white-blue headlights approach on the 2 left lanes, 14 cars per lane.
+//   - Traffic position p(u) = 3·u/6.4 + 2·S(u), where S eases from 0 to 1 over 2.4–4.2 s.
+//   - The cursor presses on the road at 2.3 s and releases at 4.0 s; meanwhile speed climbs, trails stretch, and the view widens 1.35 times with a violet tint.
+//   - p covers exactly 5 laps per cycle, so the loop is seamless.
+// When to use it: Use it as a hero for mobility, gaming or any product that wants a sense of speed.
+// Tags: hyperspeed, light-trails, highway, warp, press-and-hold, hero-background
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-213
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 14
+// 14 夜间公路光轨：透视的夜间公路（地平线 y = 76，路面向远处弯曲 0.012·z²·sin(相位)），右侧两条车道是远去的红色尾灯、左侧两条是迎面的白蓝车灯，每条车道 14 辆车，路肩两侧是发光的路边线；
+// 车流位置 p(u) = 3·u/6.4 + 2·S(u)，S 在 2.4–4.2 秒内从 0 缓到 1：模拟光标 2.3 秒在路面按住、4.0 秒松开，期间车速飙升、光轨拉长、视野放大 1.35 倍并泛紫，进入"超空间"；
+// p 在一个周期里正好走 5 整圈，循环无缝
+const HS_HOR = 76, HS_N = 14, HS_LANES = [[1.0, 1], [2.3, 1], [-1.0, -1], [-2.3, -1]];
+const HS_S = u => inOut3(seg(u, 2.4, 4.2));
+CELLS[13] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, 0, CH); bg.addColorStop(0, '#04030A'); bg.addColorStop(0.37, '#120B22'); bg.addColorStop(1, '#05040A');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  const ph = TAU * u / CYC, P = 3 * u / CYC + 2 * HS_S(u);
+  const spd = (3 / CYC + 2 * (HS_S(u + 0.01) - HS_S(u - 0.01)) / 0.02) / (3 / CYC);   // 1 = 巡航
+  const warp = clamp((spd - 1) / 3), fov = 170 * (1 + 0.35 * warp);
+  const proj = (X, z) => [CW / 2 + (X + 0.012 * z * z * Math.sin(ph)) * fov / z, HS_HOR + 130 / z];
+  // 路面与车道线
+  k.lineWidth = 1;
+  k.beginPath();
+  for (let z = 1; z <= 40; z += 0.5) { const [x, y] = proj(-3.4, z); z === 1 ? k.moveTo(x, y) : k.lineTo(x, y); }
+  for (let z = 40; z >= 1; z -= 0.5) { const [x, y] = proj(3.4, z); k.lineTo(x, y); }
+  k.closePath(); k.fillStyle = '#0B0915'; k.fill();
+  const hz = k.createRadialGradient(CW / 2, HS_HOR, 0, CW / 2, HS_HOR, 260);
+  hz.addColorStop(0, `rgba(170,90,255,${0.28 + 0.3 * warp})`); hz.addColorStop(1, 'rgba(170,90,255,0)');
+  k.fillStyle = hz; k.fillRect(0, 0, CW, CH);
+  for (const X of [-3.4, 3.4]) {
+    k.beginPath();
+    for (let z = 1; z <= 40; z += 0.5) { const [x, y] = proj(X, z); z === 1 ? k.moveTo(x, y) : k.lineTo(x, y); }
+    k.strokeStyle = 'rgba(150,120,255,.25)'; k.lineWidth = 4; k.stroke();
+    k.strokeStyle = 'rgba(190,170,255,.8)'; k.lineWidth = 1.2; k.stroke();
+  }
+  k.strokeStyle = 'rgba(255,220,160,.5)'; k.lineWidth = 1.2;
+  for (let j = 0; j < 20; j++) {
+    const z0 = 1 + 39 * ((j / 20 + P) % 1), z1 = z0 + 0.8;
+    const [x0, y0] = proj(0, z0), [x1, y1] = proj(0, z1);
+    k.beginPath(); k.moveTo(x0, y0); k.lineTo(x1, y1); k.stroke();
+  }
+  k.save(); k.globalCompositeOperation = 'lighter'; k.lineCap = 'round';
+  HS_LANES.forEach(([X, dir], li) => {
+    for (let j = 0; j < HS_N; j++) {
+      const f = ((hash(li * 17 + j * 3.1) + j / HS_N + dir * P) % 1 + 1) % 1;
+      const z = dir > 0 ? 1.5 + 38 * f : 1.5 + 38 * (1 - f), len = (1.4 + 7 * warp) * (dir > 0 ? 1 : 1.3);
+      const col = dir > 0 ? lerpC([255, 50, 70], [255, 80, 200], warp) : lerpC([210, 230, 255], [120, 200, 255], warp);
+      const a = clamp((40 - z) / 10) * clamp((z - 1.3) / 1.5);
+      for (const off of [-0.18, 0.18]) {
+        const [x0, y0] = proj(X + off, z), [x1, y1] = proj(X + off, z + len);
+        k.strokeStyle = `rgba(${col},${0.3 * a})`; k.lineWidth = 16 / z + 3;
+        k.beginPath(); k.moveTo(x0, y0); k.lineTo(x1, y1); k.stroke();
+        k.strokeStyle = `rgba(${col},${a})`; k.lineWidth = 5 / z + 1; k.stroke();
+      }
+    }
+  });
+  k.restore();
+  if (warp > 0.01) { k.fillStyle = `rgba(150,80,255,${0.16 * warp})`; k.fillRect(0, 0, CW, CH); }
+  // 模拟按住
+  const press = u > 2.3 && u < 4.0 ? 1 : 0;
+  const [cx, cy] = path([[1.6, 600, 200], [2.2, 300, 170], [4.1, 300, 170], [4.8, 600, 220]], u);
+  if (press) { k.strokeStyle = 'rgba(255,255,255,.35)'; k.lineWidth = 2; k.beginPath(); k.arc(cx, cy, 14, -Math.PI / 2, -Math.PI / 2 + TAU * seg(u, 2.3, 4.0)); k.stroke(); }
+  if (u > 1.6 && u < 4.8) cursor(k, cx, cy, press);
+};

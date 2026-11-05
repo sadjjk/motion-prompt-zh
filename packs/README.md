@@ -2,7 +2,7 @@
 
 # Names
 
-501 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+536 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind. Each number opens the moving sample in the gallery.
 
@@ -11,26 +11,26 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | Group | Section | Category | Names | Numbers |
 |---|---|---|---|---|
 | 1 UI & Web | Components | Opening & overlays | 18 | #1 001–018 |
-| 1 UI & Web | Components | Choosing & input | 24 | #1 019–042 |
-| 1 UI & Web | Components | Navigation & menus | 8 | #1 043–050 |
+| 1 UI & Web | Components | Choosing & input | 27 | #1 019–042 · 224–226 |
+| 1 UI & Web | Components | Navigation & menus | 9 | #1 043–050 · 227 |
 | 1 UI & Web | Components | Status & developer UI | 8 | #1 051–058 |
 | 1 UI & Web | Pages | Scrolling | 21 | #1 059–078 · 198 |
 | 1 UI & Web | Pages | Page transitions & loading | 9 | #1 079–087 |
-| 1 UI & Web | Pages | Hero backgrounds | 15 | #1 088–102 |
+| 1 UI & Web | Pages | Hero backgrounds | 27 | #1 088–102 · 200 · 203–205 · 207–214 |
 | 1 UI & Web | Pointer interactions | Buttons | 12 | #1 103–114 |
-| 1 UI & Web | Pointer interactions | Hover | 8 | #1 115–122 |
-| 1 UI & Web | Pointer interactions | Cursor | 13 | #1 123–135 |
-| 1 UI & Web | Pointer interactions | Tactile & cards | 10 | #1 136–145 |
+| 1 UI & Web | Pointer interactions | Hover | 10 | #1 115–122 · 220–221 |
+| 1 UI & Web | Pointer interactions | Cursor | 19 | #1 123–135 · 206 · 215–219 |
+| 1 UI & Web | Pointer interactions | Tactile & cards | 13 | #1 136–145 · 201 · 222–223 |
 | 1 UI & Web | Pointer interactions | Liquid interactions | 4 | #1 146–148 · 197 |
-| 1 UI & Web | Feedback | Action feedback | 11 | #1 149–158 · 199 |
-| 1 UI & Web | Feedback | Progress & icons | 8 | #1 159–166 |
-| 1 UI & Web | Feedback | AI status | 12 | #1 167–178 |
-| 1 UI & Web | Text & data | Interactive type | 8 | #1 179–186 |
+| 1 UI & Web | Feedback | Action feedback | 12 | #1 149–158 · 199 · 228 |
+| 1 UI & Web | Feedback | Progress & icons | 9 | #1 159–166 · 229 |
+| 1 UI & Web | Feedback | AI status | 13 | #1 167–178 · 230 |
+| 1 UI & Web | Text & data | Interactive type | 9 | #1 179–186 · 202 |
 | 1 UI & Web | Text & data | Charts | 10 | #1 187–196 |
 | 2 Motion graphics | Motion principles | Entrances & easing | 12 | #2 001–009 · 117–119 |
 | 2 Motion graphics | Motion principles | Rhythm & loops | 9 | #2 010–018 |
-| 2 Motion graphics | Text animation | Letter by letter & layout | 13 | #2 019–029 · 113–114 |
-| 2 Motion graphics | Text animation | Morphing & texture | 12 | #2 030–041 |
+| 2 Motion graphics | Text animation | Letter by letter & layout | 15 | #2 019–029 · 113–114 · 120 · 123 |
+| 2 Motion graphics | Text animation | Morphing & texture | 14 | #2 030–041 · 121–122 |
 | 2 Motion graphics | Text animation | Impact & physics | 7 | #2 042–048 |
 | 2 Motion graphics | Text animation | Spatial type | 6 | #2 049–054 |
 | 2 Motion graphics | Shapes & objects | Lines & shapes | 9 | #2 055–063 |
@@ -88,7 +88,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-017](https://sadjjk.github.io/motion-prompt-zh/#1-017) | **Speed dial** | A floating + button that fans out small action buttons | Turn the add button at lower right into a speed dial: on click the + turns into ×, and small buttons pop out above it from the bottom up. |
 | [#1-018](https://sadjjk.github.io/motion-prompt-zh/#1-018) | **Swipe-to-dismiss toast** | A short notification you can drag down to dismiss | Make the copied toast swipe-to-dismiss: it drops in from the top with a 3.0 s countdown bar along its bottom, pressing pauses it, dragging up to 74 px shrinks and fades it, and releasing past 46 px makes it speed off downward. |
 
-#### Choosing & input · #1 019–042
+#### Choosing & input · #1 019–042 · 224–226
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -116,8 +116,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-040](https://sadjjk.github.io/motion-prompt-zh/#1-040) | **Comet-trail dial** | A rotary knob whose indicator dot leaves a fading comet tail as it turns | Make the volume knob a comet-trail dial: as it turns from 24 to 72, a dot runs inside the tick ring trailing the arc of the last 0.32 s, ticks it passes glow and fade over 0.4 s, and on release the knob springs back. |
 | [#1-041](https://sadjjk.github.io/motion-prompt-zh/#1-041) | **Wake bar slider** | A slider made of thin bars that rise into a trailing wave as you drag | Turn the brightness slider into a row of bars with no round thumb: lift the bars under the cursor by 12 px and leave a speed-driven wave behind the drag, capped at 48 px and settling with a 0.36 s decay. |
 | [#1-042](https://sadjjk.github.io/motion-prompt-zh/#1-042) | **Bell notification toggle** | A button that turns notifications on with a swinging bell | Make the notify button a bell toggle: on click it turns blue, the bell swings 0.42 rad at 2.4 Hz and damps out, and 3 sound arcs spread on both sides. A second click draws a slash over the bell and turns it off. |
+| [#1-224](https://sadjjk.github.io/motion-prompt-zh/#1-224) | **Curved input** | A search field bent along an arc, with its text, caret and send button all following the curve | Make the landing page search field a curved input: the whole field bends along an arc, typed letters each tilt along the curve, and the caret and the send button at the right end sit on the arc too. On send, the text flows along the arc into the button and fades. |
+| [#1-225](https://sadjjk.github.io/motion-prompt-zh/#1-225) | **Scrub field** | Dragging left or right on a number field changes its value, and pulling past the limits stretches the field like rubber until it springs back on release | Make the opacity field in the settings panel a scrub field: press and drag left or right to change the value by 1 for every 2 px; pulling past 0 or 100 stretches that side's edge with growing resistance, and on release it springs back to its width. Show a left-right arrow cursor while dragging. |
+| [#1-226](https://sadjjk.github.io/motion-prompt-zh/#1-226) | **Arc gallery** | Cards line up along a wide arc, each bent to the curve, and dragging spins them along the arc until they snap into place | Turn the work list into an arc gallery: place cards on a wide arc, high in the middle and low at the ends, bend each card to the arc and darken the ends. Dragging spins them along the arc; on release they snap to the nearest card slot, looping round from the other end. |
 
-#### Navigation & menus · #1 043–050
+#### Navigation & menus · #1 043–050 · 227
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -129,6 +132,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-048](https://sadjjk.github.io/motion-prompt-zh/#1-048) | **Collapsible sidebar** | A sidebar that folds down to a strip of icons | Make the admin menu a collapsible sidebar: a button shrinks it to icons over 0.45 s and the main area widens. |
 | [#1-049](https://sadjjk.github.io/motion-prompt-zh/#1-049) | **Dock magnification** | Icons near the cursor grow by distance and push neighbours aside | Give the app switcher a dock magnification: the nearest icon grows to about 1.9× and icons within 110px scale with distance. |
 | [#1-050](https://sadjjk.github.io/motion-prompt-zh/#1-050) | **Tree menu** | A side nav whose items hang off a trunk by branch lines; opening grows new branches and picking an item lights its path | Turn the dashboard side nav into a tree menu: clicking 'Products' pushes the items below down 54 px, grows 3 child branches 0.13 s apart over 0.4 s each, and lights the line to the chosen child over 0.58 s. |
+| [#1-227](https://sadjjk.github.io/motion-prompt-zh/#1-227) | **Flowing menu** | When the cursor enters a large menu row, a colour band slides in from the side it came from, with the item name scrolling inside it as a marquee | Make the full-screen menu a flowing menu: when the cursor enters a row, a light band slides in to cover it, from the top if the cursor came from above and from the bottom if from below, with the item name and a dot scrolling left inside. On leaving, the band slides out the way the cursor left. |
 
 #### Status & developer UI · #1 051–058
 
@@ -185,7 +189,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-086](https://sadjjk.github.io/motion-prompt-zh/#1-086) | **Slice transition** | Cuts the image into strips that slide away alternately up and down | Use a slice transition for the slider: 6 strips slide out alternately up and down, 0.08 s apart. |
 | [#1-087](https://sadjjk.github.io/motion-prompt-zh/#1-087) | **Circle reveal transition** | A circular mask grows from the centre with scrolling to reveal the next section | Use a circle reveal between chapters: as you scroll, grow a circle from the centre to fill the screen and shrink the previous title to 0.8 as it fades. |
 
-#### Hero backgrounds · #1 088–102
+#### Hero backgrounds · #1 088–102 · 200 · 203–205 · 207–214
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -204,6 +208,18 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-100](https://sadjjk.github.io/motion-prompt-zh/#1-100) | **Aurora gradient** | Blurred glows drift and blend, flowing like an aurora | Give the welcome screen an aurora gradient background: 4 large glows each drifting slowly and blending, with the heading kept clearly readable. |
 | [#1-101](https://sadjjk.github.io/motion-prompt-zh/#1-101) | **Flowing gradient stroke** | A gradient flows along a line while a spark of light travels around it | Draw an infinity-shaped line next to the logo, keep its gradient flowing and send a spark around it once every 4.8 s. |
 | [#1-102](https://sadjjk.github.io/motion-prompt-zh/#1-102) | **Wavy lines** | Thin lines ripple like cloth and lift under the cursor | Make the background wavy lines: horizontal lines ripple like cloth from 2 sine waves, and lift smoothly only where the cursor passes. |
+| [#1-200](https://sadjjk.github.io/motion-prompt-zh/#1-200) | **Ball pit** | A hero background of solid balls that pile up under gravity, get shoved aside by the cursor and blast apart on click | Put a ball pit behind the hero heading: colourful balls fall and pile up, roll and knock into each other when the cursor pushes them, and burst apart then settle again on click. |
+| [#1-203](https://sadjjk.github.io/motion-prompt-zh/#1-203) | **Magnet lines** | A background of short lines in a fixed grid that turn toward the cursor like iron filings near a magnet | Make the hero background magnet lines: a grid of short lines sways gently, all turn to face the cursor when it arrives, lines close to it get longer and brighter, and a click sends a spinning wave outward. |
+| [#1-204](https://sadjjk.github.io/motion-prompt-zh/#1-204) | **Lens dot field** | A gradient field of dots seen through a lens that follows the cursor and magnifies or swirls the dots under it | Make the background a lens dot field: fine dots in a purple-to-cyan-to-pink gradient breathe softly, and inside a round lens around the cursor they push outward and grow, then twist into a swirl. |
+| [#1-205](https://sadjjk.github.io/motion-prompt-zh/#1-205) | **Letter glitch** | A wall of letters that flicker, swap and change colour in place; the cursor scrambles them and a click tears rows apart | Make the background a letter glitch wall: fill it with monospace characters that each swap and flash at their own times, scramble hard and turn white near the cursor, and on click shift a few rows sideways in magenta. |
+| [#1-207](https://sadjjk.github.io/motion-prompt-zh/#1-207) | **Contour terrain** | A 3D landscape drawn in glowing contour lines that slowly undulates and rises under the cursor | Make the hero background contour terrain: a perspective landscape drawn only in glowing blue contour lines that slowly rolls, rises into a hill under the cursor, and on click sends a ring of light that turns lines white as it passes. |
+| [#1-208](https://sadjjk.github.io/motion-prompt-zh/#1-208) | **Shape waves** | A field of circles, triangles and squares where rolling waves make the shapes grow and brighten at the crests | Make the background shape waves: small circles, triangles and squares in a grid, with diagonal waves rolling through so shapes at the crest grow, brighten and turn, and sink small and dark in the troughs. |
+| [#1-209](https://sadjjk.github.io/motion-prompt-zh/#1-209) | **ASCII glow** | A background that draws soft drifting glows using only ASCII characters chosen by brightness | Make the background an ASCII glow: soft orange, magenta and cyan glows drift slowly, drawn with dense characters like @ and # where bright and dots and colons where dark, and characters scramble white around the cursor. |
+| [#1-210](https://sadjjk.github.io/motion-prompt-zh/#1-210) | **Dither waves** | A retro background of flowing waves rendered through a 4×4 Bayer dither into four colours of chunky pixels | Make the background dither waves: slowly flowing waves drawn in only four colours of pixels, with checkered dither patterns at the colour edges, and a bright trail that briefly follows the cursor. |
+| [#1-211](https://sadjjk.github.io/motion-prompt-zh/#1-211) | **Pixel paint swirl** | A background of swirling paint quantised into four colours of chunky pixels; the cursor stirs it and a click makes a whirlpool | Make the background a pixel paint swirl: paint in navy, blue, red and pale pink swirls and flows slowly in chunky pixels, the cursor stirs the paint around it, and a click spins up a whirlpool that settles down. |
+| [#1-212](https://sadjjk.github.io/motion-prompt-zh/#1-212) | **Gradient blinds** | A background of gradient vertical blinds that sway slowly and turn their slats toward a spotlight following the cursor | Make the background gradient blinds: vertical blinds in a pink-to-violet-to-cyan gradient whose slats sway slowly and turn toward a spotlight that follows the cursor, with the lit faces getting brighter. |
+| [#1-213](https://sadjjk.github.io/motion-prompt-zh/#1-213) | **Highway light trails** | Car light trails streaming along a winding night highway that speed up into a hyperspace warp while you hold down | Make the hero highway light trails: a perspective night road where red tail lights recede on the right and white headlights approach on the left, the road bends gently, and holding down stretches the trails, speeds everything up and tints it violet like a hyperspace jump. |
+| [#1-214](https://sadjjk.github.io/motion-prompt-zh/#1-214) | **Tilted tile wall** | A background wall of tilted cards whose rows drift in opposite directions, shift with the cursor and lift the card beneath it | Make the hero background a tilted tile wall: rows of colourful rounded cards, the whole wall slightly tilted, rows drifting slowly in opposite directions, shifting with the cursor position, and the card under the cursor scaling up with a white outline. |
 
 ### Pointer interactions
 
@@ -224,7 +240,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-113](https://sadjjk.github.io/motion-prompt-zh/#1-113) | **Direction-aware fill button** | Colour spreads from where the cursor enters and drains toward the exit | Make the 'Contact now' button a direction-aware fill button: colour spreads in a circle from the entry point over 0.55 s and shrinks back toward the exit point. |
 | [#1-114](https://sadjjk.github.io/motion-prompt-zh/#1-114) | **Neon glow button** | A button whose neon outline breathes and fills with strong glow on hover | Make the sign-up button a neon glow button: the glow breathes every 2.4 s at rest, and on hover it fills and glows strongly over 0.35 s. |
 
-#### Hover · #1 115–122
+#### Hover · #1 115–122 · 220–221
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -236,8 +252,10 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-120](https://sadjjk.github.io/motion-prompt-zh/#1-120) | **Bento grid expand** | The hovered tile grows and the rest of the grid makes room | Lay out the features as a bento grid expand: the hovered tile's column grows to 2.4fr and its row to 1.8fr over 0.55 s. |
 | [#1-121](https://sadjjk.github.io/motion-prompt-zh/#1-121) | **Expanding panels** | The hovered panel in a row of narrow images widens and shows its title | Use expanding panels for the category entrances: the hovered panel widens to 4 times the others over 0.6 s and its title fades in afterwards. |
 | [#1-122](https://sadjjk.github.io/motion-prompt-zh/#1-122) | **Saturate on hover** | A muted image regains full colour and zooms slightly on hover | Make the team photos saturate on hover: 90% desaturated and dimmed at rest, back to full colour and 1.05× over 0.6 s on hover. |
+| [#1-220](https://sadjjk.github.io/motion-prompt-zh/#1-220) | **Pixel swap** | A card that swaps to another picture in a wave of pixel blocks spreading from where the cursor enters | Make the card hover a pixel swap: a wave of pixel blocks spreads from where the cursor enters and swaps the day picture for a night one, the wave front flashing violet, and a reverse wave from where it leaves swaps it back. |
+| [#1-221](https://sadjjk.github.io/motion-prompt-zh/#1-221) | **Electric border** | A card whose border is a crackling electric arc that grows wilder and brighter as the cursor approaches | Give the pricing card an electric border: the whole edge is a bluish-white arc that crackles, the part nearest the cursor thrashes harder, and the whole ring brightens when the cursor reaches the card. |
 
-#### Cursor · #1 123–135
+#### Cursor · #1 123–135 · 206 · 215–219
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -254,8 +272,14 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-133](https://sadjjk.github.io/motion-prompt-zh/#1-133) | **Blend difference cursor** | A round cursor that grows over text and inverts colours where it overlaps | Use a blend difference cursor on the headline: a white circle with difference blending, growing from 12 to 46 px radius in 0.45 s over the headline. |
 | [#1-134](https://sadjjk.github.io/motion-prompt-zh/#1-134) | **Contextual cursor** | A cursor that turns into a big labelled circle for the content under it | Use a contextual cursor on the work grid: a 5 px dot normally, springing to a 34 px circle with a label such as Play or View over each card. |
 | [#1-135](https://sadjjk.github.io/motion-prompt-zh/#1-135) | **Crosshair cursor** | Thin cross lines follow the cursor with live coordinates beside it | Add a crosshair cursor to the hero: full-width cross lines meeting at the cursor, with coordinates scaled to 1920 × 1080 in a monospace label at the bottom right. |
+| [#1-206](https://sadjjk.github.io/motion-prompt-zh/#1-206) | **Cursor grid** | A grid whose cells light up where the cursor passes and fade out slowly, leaving a trail | Make the background a cursor grid: a thin-lined grid where cells the cursor passes glow in a pink-to-violet gradient and fade slowly, and a click sends a ring of lit cells outward. |
+| [#1-215](https://sadjjk.github.io/motion-prompt-zh/#1-215) | **Cube field** | A field of small cubes that turn toward the cursor and spin in a wave when you click | Make the background a cube field: small cubes in a grid, the ones near the cursor turn toward it and brighten, and a click sends out a wave that spins each cube it passes by 90°. |
+| [#1-216](https://sadjjk.github.io/motion-prompt-zh/#1-216) | **Ribbon cursor** | Several glowing ribbons on springs that trail and sway behind the cursor | Give the cursor a ribbon cursor: four glowing ribbons in pink, orange, cyan and violet follow it, the stiff one sticking close and the soft one lagging and swaying further behind. |
+| [#1-217](https://sadjjk.github.io/motion-prompt-zh/#1-217) | **Target cursor** | An aiming cursor whose four corner brackets snap onto the outline of the element under it | Make the cursor a target cursor: four corner brackets circle slowly around a small dot, snap with a little bounce onto the outline of any button or card it rests on, and squeeze in on click. |
+| [#1-218](https://sadjjk.github.io/motion-prompt-zh/#1-218) | **Dodge field** | A grid of icons that slide out of the cursor's way and glide back once it leaves | Make the icon grid a dodge field: icons slide away from the cursor and shrink a little as it comes near, then glide back into place once it moves on. |
+| [#1-219](https://sadjjk.github.io/motion-prompt-zh/#1-219) | **Halftone reveal** | A dark field of halftone dots where tracing with the cursor swells the dots and brings up the picture beneath | Make the hero image a halftone reveal: normally just small grey dots, but where the cursor passes the dots swell by the picture's brightness and take its colours, fade back slowly, and a click reveals the whole picture. |
 
-#### Tactile & cards · #1 136–145
+#### Tactile & cards · #1 136–145 · 201 · 222–223
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -269,6 +293,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-143](https://sadjjk.github.io/motion-prompt-zh/#1-143) | **Tear-off ticket stub** | Drag the stub to tear it off along the perforation, and the ticket gets stamped | Make the event checkout success screen a tear-off ticket stub: grab the 82 px stub on the right and pull down, it tears along the perforation over 1.2 s and drops away, then a 'checked' stamp lands on the ticket. |
 | [#1-144](https://sadjjk.github.io/motion-prompt-zh/#1-144) | **Shredder delete** | Drag a file into a shredder to delete it, and the list closes the gap | Make file deletion a shredder delete: dragging a row shrinks it to a 0.6× card that gets sucked into the slot, the machine shakes, 15 paper strips curl down into the bin and the rows below move up 33 px. |
 | [#1-145](https://sadjjk.github.io/motion-prompt-zh/#1-145) | **Folder pop-out cards** | On hover a folder opens and the cards inside pop out around it and float | Make the portfolio folder a folder pop-out on hover: tip the front open over 0.5 s, launch 3 cards 0.17 s apart to the left, top and right with a spin, and let them float by 2.6 px. |
+| [#1-201](https://sadjjk.github.io/motion-prompt-zh/#1-201) | **Sticker peel** | A sticker you pinch by the corner and pull: it folds back along a crease to show its back, and sticks down again when released | Turn the logo into a sticker peel: pinching the bottom-right corner and pulling it up-left folds it back to show a white underside and shadow, and letting go makes it wobble and stick down again. |
+| [#1-222](https://sadjjk.github.io/motion-prompt-zh/#1-222) | **Bounce cards** | Cards fanned out in a stack pop in with a bounce; the hovered one straightens and comes forward while its neighbours are pushed aside | Make the photo cards bounce cards: 5 cards fanned out at slight angles pop in one by one with a bounce; the hovered card straightens, grows a little and lifts, and the cards beside it move out of the way. |
+| [#1-223](https://sadjjk.github.io/motion-prompt-zh/#1-223) | **Lanyard badge** | An ID badge hanging from a lanyard that you can grab, pull and let go so it swings back into place | Make the event badge a lanyard badge: it hangs from a strap coming down from the top and sways gently; when the cursor grabs it and pulls it up and to the side the strap stretches, and on release it swings back like a pendulum. |
 
 #### Liquid interactions · #1 146–148 · 197
 
@@ -281,7 +308,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 
 ### Feedback
 
-#### Action feedback · #1 149–158 · 199
+#### Action feedback · #1 149–158 · 199 · 228
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -296,8 +323,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-157](https://sadjjk.github.io/motion-prompt-zh/#1-157) | **Badge unlock** | A hexagon badge draws in, a star stamps down and rays burst out | Add a badge unlock to the achievement screen: draw the hexagon outline in 0.8 s, stamp a star down from 3× and burst 12 rays. |
 | [#1-158](https://sadjjk.github.io/motion-prompt-zh/#1-158) | **Copy feedback** | Pressing copy spins the icon into a check and pops a tooltip | Add copy feedback to the code block: on press, spin the icon 90° into a check, show a 'Copied' tooltip above and revert after 1.5 s. |
 | [#1-199](https://sadjjk.github.io/motion-prompt-zh/#1-199) | **Loading button** | A button that shows a busy state after the click, then the result | Turn the submit button into a loading button: it shrinks into a spinning circle, then shows a green check when done. |
+| [#1-228](https://sadjjk.github.io/motion-prompt-zh/#1-228) | **Fuse undo** | After a delete, the undo button's outline is a fuse that burns around it with sparks, and the action can be undone until it burns out | Make the undo button in the toast after deleting a file a fuse undo: turn the capsule outline of the button into a fuse that burns clockwise from the top centre over 4 s, leaving a grey dotted line behind and sparks at the burning tip. If it is pressed before burning out, the flame goes out with a small puff of smoke and the file slides back into place. |
 
-#### Progress & icons · #1 159–166
+#### Progress & icons · #1 159–166 · 229
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -309,8 +337,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-164](https://sadjjk.github.io/motion-prompt-zh/#1-164) | **Liquid fill icon** | A wavy liquid level rises inside an icon as a percentage counts up | Show the upload progress as a liquid fill icon in a drop shape: the wavy level fills in 3.7 s while the percentage beside it counts from 0% to 100%. |
 | [#1-165](https://sadjjk.github.io/motion-prompt-zh/#1-165) | **Task status icon** | One icon that morphs smoothly between waiting, running, done and failed | Add task status icons to the agent's task list: a ring of 12 dashes while waiting, gathering into a spinning progress arc within 0.35 s on start, filling green with a check when done, and turning red with a shaking cross on failure. |
 | [#1-166](https://sadjjk.github.io/motion-prompt-zh/#1-166) | **Grid wave loader** | A wave of light keeps sweeping across rows of tiles, which merge into one progress bar when done | Make the file indexing a grid wave loader: sweep a light wave left to right across 12 × 2 tiles, speeding up from 0.6 to 1.6 passes per second with progress, and when done light them all, merge them into one progress bar and show “Done · 1,284 / 1,284 files”. |
+| [#1-229](https://sadjjk.github.io/motion-prompt-zh/#1-229) | **Slosh gauge** | Liquid in a glass jar chases the target value, its surface tilting and rippling while it moves, and splashes up when it hits the top at full | Turn the storage usage gauge into a slosh gauge: liquid in a rounded glass jar chases the target like a spring, tilting its surface with its speed while it moves, with 2 layers of ripples on top. When it reaches 100%, it hits the top and droplets splash out. |
 
-#### AI status · #1 167–178
+#### AI status · #1 167–178 · 230
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -326,10 +355,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-176](https://sadjjk.github.io/motion-prompt-zh/#1-176) | **Collapsible thinking** | AI reasoning steps list up while thinking, then fold into one line as the answer appears | Add collapsible thinking to the AI reply card: count seconds next to “Thinking”, add a reasoning step every 0.7 s, then change the title to “Thought for 4.8 s”, fold the steps upward and fade in the first line of the answer. |
 | [#1-177](https://sadjjk.github.io/motion-prompt-zh/#1-177) | **Staged image generation** | Inside a fixed frame an image goes from blurred colour blobs through mosaic levels to a sharp picture | Make the image-generation wait a staged reveal: keep the 228 × 136 px frame fixed, go from blurred colour blobs through 6, 12, 24, 48 and 96-column mosaics to the sharp image, with a progress bar and “Compose › Colour › Refine › Done” below. |
 | [#1-178](https://sadjjk.github.io/motion-prompt-zh/#1-178) | **Hold-to-talk capsule** | A mic button stretches into a recording capsule while held, then shrinks back and shows the transcript | Add a hold-to-talk capsule to voice input: when the 68 px round mic button is pressed, stretch it into a 304 px capsule with a red dot, equaliser bars and a timer; on release fold the bars into one line, shrink back to the circle and pop up a transcript bubble above. |
+| [#1-230](https://sadjjk.github.io/motion-prompt-zh/#1-230) | **Tool call chip** | A small chip for each tool call in an AI reply, filling from the left as time passes, turning green on success or red with a shake on failure | Make the tool call display in the AI chat a tool call chip: the tool-name chip has a spinning icon on the left and elapsed seconds on the right, with a fill moving in from the left over time. On success it turns green with a check and the duration; on failure it turns red, shakes side to side and shows a cross and failed. |
 
 ### Text & data
 
-#### Interactive type · #1 179–186
+#### Interactive type · #1 179–186 · 202
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -341,6 +371,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-184](https://sadjjk.github.io/motion-prompt-zh/#1-184) | **Spoiler sand cover** | Spoiler text hidden under shimmering sand that blows away on tap | Cover spoilers in the chat with shimmering sand: on tap the grains burst outward at 2–5 px per frame and the text appears over 0.5 s. |
 | [#1-185](https://sadjjk.github.io/motion-prompt-zh/#1-185) | **Sentence reading focus** | A reading focus mode that keeps only the sentence under the pointer sharp | Add a reading focus to long articles: only the sentence under the mouse stays sharp, the rest drops to 25% opacity with a slight blur, over 0.45 s. |
 | [#1-186](https://sadjjk.github.io/motion-prompt-zh/#1-186) | **Rippling letters** | A headline whose letters bob like springs as the pointer passes | Give the headline letters a spring ripple: as the mouse passes, letters within a 34 px Gaussian lift up and bounce back on springs. |
+| [#1-202](https://sadjjk.github.io/motion-prompt-zh/#1-202) | **Pressure type** | A headline whose letters grow wider and bolder the closer the cursor gets, and narrow down when it moves away | Make the headline pressure type: letters near the cursor get wider, bolder and darker, and the line stays centred as its width changes. |
 
 #### Charts · #1 187–196
 
@@ -394,7 +425,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 
 ### Text animation
 
-#### Letter by letter & layout · #2 019–029 · 113–114
+#### Letter by letter & layout · #2 019–029 · 113–114 · 120 · 123
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -411,8 +442,10 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-029](https://sadjjk.github.io/motion-prompt-zh/#2-029) | **Split-flap board** | An airport departures board whose split-flap letters flip into place | Make an airport split-flap board: 3 flights, each cell flips for 1.6 s and settles in a staggered wave. |
 | [#2-113](https://sadjjk.github.io/motion-prompt-zh/#2-113) | **Danmaku comments** | Viewer comments stream across the video from right to left | Run 5 rows of danmaku comments over the sea footage, each row at a different speed so they overtake each other; make a few yellow or mint, give my own comment a white frame, and cut the comments out around the person so the face stays clear. |
 | [#2-114](https://sadjjk.github.io/motion-prompt-zh/#2-114) | **Quote card** | A quote mark drops onto a paper card, the quote rises in line by line and its key words get highlighted | Turn one line into a quote card: a paper-coloured card pops in, a big red quote mark drops from above and bounces, the 2 lines rise in one after the other, a yellow marker sweeps under 不必要的, and the source fades in at the bottom right. |
+| [#2-120](https://sadjjk.github.io/motion-prompt-zh/#2-120) | **Blur text reveal** | A headline sharpens into place word by word, and the subline letter by letter, each starting blurred and slightly raised | Make the hero headline on the landing page a blur text reveal: stagger the headline word by word at 0.14 s, each word going from blurred and 14 px higher to sharp and in place over 0.8 s. Then reveal the subline the same way, letter by letter at 0.03 s. |
+| [#2-123](https://sadjjk.github.io/motion-prompt-zh/#2-123) | **Scroll velocity type** | A type animation where 2 rows of big words keep flowing sideways, speed up with the scroll speed, lean like italics as they go, and run backwards when scrolling up | Make the page's key words scroll velocity type: 2 rows of big words flowing in opposite directions, speeding up in proportion to scroll speed, with the letterforms leaning like italics as the speed rises. Scrolling up reverses both rows; when scrolling stops, the words return to the normal speed and stand upright again. |
 
-#### Morphing & texture · #2 030–041
+#### Morphing & texture · #2 030–041 · 121–122
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -428,6 +461,8 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-039](https://sadjjk.github.io/motion-prompt-zh/#2-039) | **Neon flicker** | Neon tubes flicker before they light up | Add a neon flicker to the sign-style title: it flickers 2 or 3 times irregularly, then lights, and one letter occasionally blinks as if loose. |
 | [#2-040](https://sadjjk.github.io/motion-prompt-zh/#2-040) | **Echo stack** | Outlined copies step out behind the text like an echo | Add an echo stack to the heading: fan 5 outlined copies out to the upper right in turn, hold, then fold them back. |
 | [#2-041](https://sadjjk.github.io/motion-prompt-zh/#2-041) | **Caution tape cross** | Two lettered caution tapes crossing in an X | Cross 2 yellow caution tapes with black edges in an X, scroll their repeated "KEEP OUT" text in opposite directions, and add a drop shadow. |
+| [#2-121](https://sadjjk.github.io/motion-prompt-zh/#2-121) | **Fuzzy text** | Large type sliced into thin horizontal strips that each jitter sideways on their own, like an unstable signal; hovering makes it shake harder | Make the big heading on the 404 page fuzzy text: slice the type into 2 px horizontal strips and shift each one sideways at random 24 times a second. Keep the shift at 1.5 px normally, raise it to 12 px within 0.25 s on hover, and bring it back when the cursor leaves. No red-green-blue split. |
+| [#2-122](https://sadjjk.github.io/motion-prompt-zh/#2-122) | **Fold text** | Each line of a note is a creased paper strip that unfolds downward 1 fold at a time, revealing the text | Make the note in the notification panel fold text: after the header strip, make each line a 40 px paper strip that unfolds from 90° to 0° over 0.6 s, hinged on the lower edge of the strip above. Stagger the strips by 0.45 s, darkening inward folds and brightening outward ones while they turn. |
 
 #### Impact & physics · #2 042–048
 

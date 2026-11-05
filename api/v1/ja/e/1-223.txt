@@ -1,0 +1,76 @@
+// Motion Prompt #1-223 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// ストラップ付き名札 / Lanyard badge
+// 分類: UI・Web / ポインター操作 / 手触り・カード
+// 何が起きるか: 名札が軽く揺れて下がっていて、1.2 秒にカーソルがつかんで右上へ引っ張り、2.6 秒に離すと名札が左右に大きく揺れ、ストラップが弾んで縮み、だんだん止まる。
+// 動きの仕様:
+//   - 84×116 px の名札が長さ 84 px のストラップにぶら下がり、普段は周期 3.2 秒、±0.04 rad で揺れる
+//   - 1.2 秒にカーソルが名札の中心をつかみ、2.5 秒までに (400, 118) へ引っ張る。ストラップの角度と長さはカーソル位置から逆算する
+//   - 2.6 秒に離すと、振れ角は θ·e^(−2.2τ)·cos(5.2τ) で減衰し、ストラップの長さは e^(−6τ)·cos(14τ) で 84 px へ弾んで戻る
+//   - 名札自身の回転はストラップより 0.06 秒遅れ、ストラップの中ほどがその差の分だけ曲がって振り回される感じを出す
+//   - すべて時刻の式で計算し、フレームごとの積分はしない。5.4–6.0 秒に残った揺れを 0 にして、軽い揺れだけの 0 秒につなぐ
+// 使いどころ: イベント、カンファレンス、採用ページ、プロフィールで、名札を触って遊べるようにしたいとき。
+// タグ: lanyard, id-badge, drag, pendulum, swing, spring
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-223
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 24
+// 24 挂绳胸牌：胸牌（84×116）挂在从画面上方垂下的挂绳上，平时以 3.2 秒为周期轻微摆动（±0.04 rad）。
+// 1.2 秒光标按住胸牌中心，向右上拖到 (400, 118)，挂绳被拉长；2.6 秒松手后按阻尼摆回落：
+// 摆角 θ = θ松手·e^(−2.2τ)·cos(5.2τ)，绳长按 e^(−6τ)·cos(14τ) 弹回 84 px，胸牌自身转角比挂绳晚 0.06 秒，显出甩动感。
+// 全部是 u 的解析式，不做逐帧积分；5.4–6.0 秒把剩余摆动乘 (1 − resetK) 归零，回到只有轻摆的 0 秒状态。
+const LY_AX = 270, LY_AY = -20, LY_L0 = 84, LY_HALF = 66, LY_BW = 84, LY_BH = 116;
+const LY_GRAB = 1.2, LY_REL = 2.6, LY_W = 5.2, LY_DAMP = 2.2, LY_LAG = 0.06;
+const LY_KF = [[0.4, 520, 210], [LY_GRAB, LY_AX, LY_AY + LY_L0 + LY_HALF], [2.5, 400, 118], [LY_REL, 400, 118], [3.2, 450, 160], [4.0, 580, 214]];
+const LY_idle = u => 0.04 * Math.sin(TAU * 2 * u / CYC);
+// 拖动时由光标位置反推挂绳角度与长度（光标抓在胸牌中心：夹子下 8 px 起是 116 px 高的卡，中心离绳端 66 px）
+const LY_drag = (cx, cy) => [Math.atan2(cx - LY_AX, cy - LY_AY), Math.hypot(cx - LY_AX, cy - LY_AY) - LY_HALF];
+CELLS[23] = (k, w, h, u) => {
+  k.fillStyle = '#E9EEF5'; k.fillRect(0, 0, CW, CH);
+  const [cx, cy] = path(LY_KF, u), keep = 1 - resetK(u);
+  let th, L, rot;
+  if (u < LY_REL) {
+    const e = inOut3(seg(u, LY_GRAB, LY_GRAB + 0.15)), [dt, dl] = LY_drag(cx, cy);
+    th = mix(LY_idle(u), dt, e); L = mix(LY_L0, dl, e); rot = th;
+  } else {
+    const [tR, lR] = LY_drag(LY_KF[3][1], LY_KF[3][2]), tau = u - LY_REL;
+    const sw = t => t < 0 ? tR : tR * Math.exp(-LY_DAMP * t) * Math.cos(LY_W * t);
+    th = LY_idle(u) + sw(tau) * keep;
+    rot = LY_idle(u) + sw(tau - LY_LAG) * keep;
+    L = LY_L0 + (lR - LY_L0) * Math.exp(-6 * tau) * Math.cos(14 * tau) * keep;
+  }
+  const clipX = LY_AX + L * Math.sin(th), clipY = LY_AY + L * Math.cos(th);
+  // 挂绳：两股带子从上方汇到夹子；中点按胸牌与挂绳的角度差横向弯一点
+  const bend = (rot - th) * 40, mx = (LY_AX + clipX) / 2 + bend * Math.cos(th), my = (LY_AY + clipY) / 2 - bend * Math.sin(th);
+  for (const [off, col] of [[-5, '#5A3FD6'], [5, '#7A5CFF']]) {
+    k.strokeStyle = col; k.lineWidth = 7; k.lineCap = 'round';
+    k.beginPath(); k.moveTo(LY_AX + off * 2.2, LY_AY); k.quadraticCurveTo(mx + off, my, clipX + off * 0.4, clipY); k.stroke();
+  }
+  k.save(); k.translate(clipX, clipY); k.rotate(-rot);
+  // 夹子
+  k.fillStyle = '#9AA3B2'; rr(k, -9, -4, 18, 14, 3); k.fill();
+  k.fillStyle = '#C9D0DB'; rr(k, -5, -1, 10, 6, 2); k.fill();
+  // 胸牌本体：阴影 + 白卡 + 顶部色带 + 头像 + 姓名 + 条码
+  const by = 8;
+  k.fillStyle = 'rgba(30,40,70,0.16)'; rr(k, -LY_BW / 2 + 3, by + 5, LY_BW, LY_BH, 10); k.fill();
+  k.fillStyle = '#FFFFFF'; rr(k, -LY_BW / 2, by, LY_BW, LY_BH, 10); k.fill();
+  k.save(); rr(k, -LY_BW / 2, by, LY_BW, LY_BH, 10); k.clip();
+  const g = k.createLinearGradient(-LY_BW / 2, 0, LY_BW / 2, 0); g.addColorStop(0, '#7A5CFF'); g.addColorStop(1, '#2EC4B6');
+  k.fillStyle = g; k.fillRect(-LY_BW / 2, by, LY_BW, 30);
+  k.restore();
+  k.fillStyle = '#E9EEF5'; rr(k, -11, by + 6, 22, 5, 2.5); k.fill();          // 穿绳孔
+  k.fillStyle = '#FFD6A5'; k.beginPath(); k.arc(0, by + 44, 15, 0, TAU); k.fill();
+  k.strokeStyle = '#FFFFFF'; k.lineWidth = 3; k.stroke();
+  k.fillStyle = '#3D2C8D'; k.beginPath(); k.arc(0, by + 40, 6, 0, TAU); k.fill();
+  k.beginPath(); k.arc(0, by + 56, 10, Math.PI, TAU); k.fill();
+  txt(k, 'MIKA TAN', 0, by + 78, `800 11px ${SANS}`, '#1E2340', 'center');
+  txt(k, 'ENGINEER', 0, by + 91, `600 8px ${MONO}`, '#7A5CFF', 'center');
+  for (let i = 0; i < 18; i++) { k.fillStyle = '#1E2340'; k.fillRect(-27 + i * 3, by + 98, hash(i + 70) > 0.5 ? 2 : 1, 10); }
+  k.restore();
+  const press = u > LY_GRAB && u < LY_REL ? 1 : 0;
+  if (u > LY_KF[0][0] && u < LY_KF[LY_KF.length - 1][0]) cursor(k, cx, cy, press);
+};

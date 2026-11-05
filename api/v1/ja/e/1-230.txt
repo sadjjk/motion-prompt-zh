@@ -1,0 +1,67 @@
+// Motion Prompt #1-230 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// ツール呼び出しチップ / Tool call chip
+// 分類: UI・Web / フィードバック / AI の状態表示
+// 何が起きるか: 明るい背景で search_docs のチップが左から塗られて緑のチェックになり、次の run_query のチップは途中で赤くなって左右に揺れ、failed と出る。
+// 動きの仕様:
+//   - チップは 236×34 px の丸い形。塗りは薄い色の面と下端の 3 px の線で、経過時間に合わせて左から伸びる
+//   - 実行中は左のアイコンが回り、右に経過秒数を 0.1 秒単位で出す
+//   - 最初の search_docs は 0.3–2.3 秒で満ちて緑になり、0.25 秒でチェックの円が広がって done と所要時間を出す
+//   - 次の run_query は 2.9 秒に始まり、4.1 秒に 62% の所で失敗して赤くなり、e^(−6τ)·sin(40τ)·6 px で左右に揺れる
+//   - 5.4–6.0 秒に 2 つのチップが消え、0 秒には何もない
+// 使いどころ: AI アシスタントやエージェントの回答で、検索、コード実行、API 呼び出しなどの進み具合と結果を示すところ。
+// タグ: tool-call, ai-agent, status-chip, progress, success, error-shake
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-230
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 31
+// 31 工具调用芯片：AI 回答里的工具调用小芯片。填充条随计时从左到右推进，右侧显示秒数，左侧图标转圈；
+// 第 1 次调用 search_docs 0.3–2.3 秒填满后变绿、出现对勾；第 2 次调用 run_query 2.9 秒开始，4.1 秒在 62% 处失败：
+// 填充变红、芯片左右抖动（e^(−6τ)·sin(40τ)·6 px）、出现叉号；5.4–6.0 秒两枚芯片淡出。
+const CC_W = 236, CC_H = 34, CC_X = 152;
+const CC_CALLS = [
+  { y: 58, name: 'search_docs', a: 0.3, b: 2.3, ok: true },
+  { y: 122, name: 'run_query', a: 2.9, b: 4.1, ok: false, at: 0.62 },
+];
+CELLS[30] = (k, w, h, u) => {
+  k.fillStyle = '#FBFAF7'; k.fillRect(0, 0, CW, CH);
+  const fade = fadeIn(u);
+  txt(k, 'Assistant', CC_X, 32, `700 12px ${SANS}`, `rgba(140,138,132,${fade})`, 'left', 'middle');
+  for (const c of CC_CALLS) {
+    const show = out3(seg(u, c.a - 0.25, c.a)) * fade;
+    if (show <= 0) continue;
+    const done = u >= c.b, fr = seg(u, c.a, c.b) * (c.ok ? 1 : c.at);
+    const res = seg(u, c.b, c.b + 0.25), te = u - c.b;
+    const shake = !c.ok && te > 0 ? Math.exp(-6 * te) * Math.sin(40 * te) * 6 : 0;
+    const col = done ? (c.ok ? [34, 160, 100] : [220, 70, 60]) : [90, 110, 230];
+    k.save(); k.globalAlpha = show; k.translate(CC_X + shake, c.y + (1 - show) * 8);
+    rr(k, 0, 0, CC_W, CC_H, CC_H / 2); k.fillStyle = '#FFFFFF'; k.fill();
+    k.strokeStyle = rgb(lerpC([222, 219, 212], col, done ? res : 0)); k.lineWidth = 1.2; k.stroke();
+    k.save(); rr(k, 0, 0, CC_W, CC_H, CC_H / 2); k.clip();
+    k.fillStyle = `rgba(${col.join(',')},${done ? 0.16 : 0.12})`; k.fillRect(0, 0, CC_W * fr, CC_H);
+    k.fillStyle = `rgba(${col.join(',')},0.8)`; k.fillRect(0, CC_H - 3, CC_W * fr, 3);
+    k.restore();
+    // 左侧图标：运行中转圈，结束后对勾或叉号
+    const ix = 18, iy = CC_H / 2;
+    k.lineWidth = 2; k.lineCap = 'round';
+    if (!done) {
+      k.strokeStyle = 'rgba(90,110,230,0.25)'; k.beginPath(); k.arc(ix, iy, 7, 0, TAU); k.stroke();
+      k.strokeStyle = '#5A6EE6'; k.beginPath(); k.arc(ix, iy, 7, u * 7, u * 7 + 1.8); k.stroke();
+    } else {
+      k.fillStyle = rgb(col); k.beginPath(); k.arc(ix, iy, 8 * out3(res) + 0.01, 0, TAU); k.fill();
+      k.strokeStyle = '#FFFFFF'; k.beginPath();
+      if (c.ok) { k.moveTo(ix - 3.5, iy); k.lineTo(ix - 1, iy + 3); k.lineTo(ix + 4, iy - 3); }
+      else { k.moveTo(ix - 3, iy - 3); k.lineTo(ix + 3, iy + 3); k.moveTo(ix + 3, iy - 3); k.lineTo(ix - 3, iy + 3); }
+      k.globalAlpha = show * res; k.stroke(); k.globalAlpha = show;
+    }
+    txt(k, c.name, 34, iy + 0.5, `600 13px ${MONO}`, '#2A2A30', 'left', 'middle');
+    const secs = (Math.min(u, c.b) - c.a).toFixed(1);
+    const tag = done ? (c.ok ? `done · ${secs}s` : 'failed') : `${secs}s`;
+    txt(k, tag, CC_W - 14, iy + 0.5, `12px ${MONO}`, done ? rgb(col) : '#8C8A84', 'right', 'middle');
+    k.restore();
+  }
+};

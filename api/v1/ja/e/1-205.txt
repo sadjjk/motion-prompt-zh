@@ -1,0 +1,57 @@
+// Motion Prompt #1-205 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// レターグリッチ / Letter glitch
+// 分類: UI・Web / ページ / ヒーロー背景
+// 何が起きるか: 49×13 の等幅文字が緑と青紫の 4 色でばらばらに入れ替わってちらつき、カーソルの周りが白く乱れ、クリックで近くの行が横に裂けて一瞬マゼンタになる。
+// 動きの仕様:
+//   - 49×13 マスの等幅文字（13 px）を敷き、4 色のパレットから色を選ぶ
+//   - 各マスは 1 周期に 2–8 回文字を変え（回数と開始位相はインデックスで固定）、変わった瞬間に光って 0.18 秒で暗くなる
+//   - カーソルから 60 px 以内の文字は毎秒 20 回乱れて白っぽくなる
+//   - 3.5 秒のクリックで上下 46 px 以内の行が最大 ±30 px 横にずれ、一部がマゼンタになり、0.25 秒で減衰する
+//   - 四隅に暗いビネットをかける
+// 使いどころ: ハッカー風、ゲーム、サイバーセキュリティのページで、落ち着きつつ不穏な背景がほしいとき。
+// タグ: letter-glitch, glyphs, flicker, scramble, cyberpunk, hero-background, monospace
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-205
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 06
+// 06 字符故障墙：49×13 个等宽字符铺满画面，每格在一个周期里换字 2–8 次（次数与起点按下标确定），换字瞬间闪亮后 0.18 秒内变暗，颜色在 4 色里切换；
+// 光标 60 px 内的字符每秒乱换 20 次并泛白；3.5 秒点击，光标上下 46 px 内的行被横向撕开最多 ±30 px、染成洋红，0.25 秒衰减；四周暗角
+const LG_CW = 11, LG_CH = 17, LG_COLS = 49, LG_ROWS = 13, LG_CLICK = 3.5;
+const LG_G = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&*+-/<>=?@[]{}';
+const LG_PAL = [[31, 122, 85], [61, 220, 151], [76, 201, 240], [123, 97, 255]];
+const LG_KF = [[0.4, -30, 60], [1.2, 140, 90], [2.4, 330, 60], [LG_CLICK, 300, 120], [4.4, 430, 150], [5.1, 590, 110]];
+CELLS[5] = (k, w, h, u) => {
+  k.fillStyle = '#05070A'; k.fillRect(0, 0, CW, CH);
+  const [cx, cy] = path(LG_KF, u), p = presence(u, 0.4, 1.0, 4.4, 5.1), ct = u - LG_CLICK;
+  const tear = ct > 0 ? Math.exp(-ct / 0.25) : 0;
+  k.font = `600 13px ${MONO}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+  const oy = (CH - LG_ROWS * LG_CH) / 2;
+  for (let r = 0; r < LG_ROWS; r++) {
+    const y = oy + (r + 0.5) * LG_CH;
+    const torn = tear > 0.01 && Math.abs(y - LG_KF[3][2]) < 46;
+    const shift = torn ? (hash(r * 5.3 + 1) - 0.5) * 60 * tear : 0;
+    for (let c = 0; c < LG_COLS; c++) {
+      const i = r * LG_COLS + c, x = (c + 0.5) * LG_CW + shift;
+      const n = 2 + Math.floor(hash(i * 7.1) * 7), o = hash(i * 3.3), f = (u / CYC + o) * n;
+      const slot = Math.floor(f) % n, since = (f - Math.floor(f)) * CYC / n;
+      let gi = Math.floor(hash(i * 13 + slot * 7.7) * LG_G.length);
+      let col = LG_PAL[Math.floor(hash(i * 5.9 + slot * 3.1) * LG_PAL.length)];
+      let br = 0.42 + 0.58 * Math.exp(-since / 0.18);
+      const d = Math.hypot(x - cx, y - cy), near = p * Math.exp(-(d / 60) * (d / 60));
+      if (near > 0.15) { gi = Math.floor(hash(i * 1.7 + Math.floor(u * 20) * 0.37) * LG_G.length); col = lerpC(col, [235, 255, 245], near); br = mix(br, 1, near); }
+      if (torn && hash(i * 9.1) < 0.45) { col = lerpC(col, [255, 61, 127], tear); br = mix(br, 1, tear); }
+      k.globalAlpha = br; k.fillStyle = rgb(col); k.fillText(LG_G[gi], x, y);
+    }
+  }
+  k.globalAlpha = 1;
+  const v = k.createRadialGradient(CW / 2, CH / 2, 60, CW / 2, CH / 2, 300);
+  v.addColorStop(0, 'rgba(5,7,10,0)'); v.addColorStop(1, 'rgba(5,7,10,.85)');
+  k.fillStyle = v; k.fillRect(0, 0, CW, CH);
+  ripple(k, LG_KF[3][1], LG_KF[3][2], ct / 0.6);
+  if (u > 0.4 && u < 5.1) cursor(k, cx, cy, Math.abs(ct) < 0.1 ? 1 : 0);
+};

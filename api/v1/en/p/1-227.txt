@@ -1,0 +1,16 @@
+Please use "Flowing menu" (フローイングメニュー), filed under "Components / Navigation & menus".
+Motion Prompt #1-227
+
+What it is: When the cursor enters a large menu row, a colour band slides in from the side it came from, with the item name scrolling inside it as a marquee
+What the sample shows: On a dark background, the cursor runs down a 4-row menu and a band slides into each row from above with the name scrolling; returning up to the 3rd row, the band comes in from below.
+Spec:
+- There are 4 rows, each 44 px tall. The band is clipped to its row, slides in over 0.35 s and slides out over 0.35 s.
+- The entry and exit directions come from whether the cursor was moving up or down when it crossed the row boundary.
+- Inside the band, the item name and a dot repeat seamlessly while scrolling left at 70 px per second.
+- The cursor enters from above at 0.5 s, runs down the 4 rows, goes back up to the 3rd row and leaves to the right at 4.8 s.
+- The entry and exit times and directions are found once at load by stepping along the cursor path in 1/120 s steps.
+When to use it: Use it for full-screen menus on portfolio or agency sites and big-type category lists where the menu itself is a showpiece.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-227.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

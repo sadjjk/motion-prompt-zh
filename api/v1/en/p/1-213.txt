@@ -1,0 +1,16 @@
+Please use "Highway light trails" (夜のハイウェイ光跡), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-213
+
+What it is: Car light trails streaming along a winding night highway that speed up into a hyperspace warp while you hold down
+What the sample shows: Red and white light trails stream along a night road; when the cursor holds from 2.3 s the speed climbs, trails stretch, the view widens and tints violet, and on release it drops back to cruising.
+Spec:
+- A perspective night road: horizon at y = 76, the road bends into the distance by 0.012·z²·sin(phase).
+- Red tail lights recede on the 2 right lanes and white-blue headlights approach on the 2 left lanes, 14 cars per lane.
+- Traffic position p(u) = 3·u/6.4 + 2·S(u), where S eases from 0 to 1 over 2.4–4.2 s.
+- The cursor presses on the road at 2.3 s and releases at 4.0 s; meanwhile speed climbs, trails stretch, and the view widens 1.35 times with a violet tint.
+- p covers exactly 5 laps per cycle, so the loop is seamless.
+When to use it: Use it as a hero for mobility, gaming or any product that wants a sense of speed.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-213.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

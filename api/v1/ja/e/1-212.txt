@@ -1,0 +1,49 @@
+// Motion Prompt #1-212 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// グラデーションブラインド / Gradient blinds
+// 分類: UI・Web / ページ / ヒーロー背景
+// 何が起きるか: 18 枚の縦ブラインドがゆらゆら揺れ、カーソルのスポットライトが動くと羽根がそちらへ傾き、光の当たる所が白っぽく光る。
+// 動きの仕様:
+//   - 18 枚の縦ブラインドの色を横方向にピンク #FF5C8A → 紫 #7B5CFF → 水色 #2EC4FF で変える
+//   - 羽根の角度 θ = 0.35·sin(位相 + 0.4i) の揺れ + 在場度 × 0.9·tanh((光源x − 羽根x)/120)
+//   - 見える幅は 0.2 + 0.8·|cos θ| に比例し、光源を向いた面ほど明るい
+//   - 光源はカーソルについてくる半径 170 px の加算スポットライト。カーソルがいない時は画面上中央で半分の明るさ
+// 使いどころ: 音楽、ファッション、プロダクト発表のヒーローで、上品で動きのある背景がほしいとき。
+// タグ: gradient-blinds, spotlight, slats, cursor-follow, hero-background, stage-light
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-212
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 13
+// 13 渐变百叶：18 片竖向百叶横跨画面，颜色沿横向从粉 #FF5C8A 经紫 #7B5CFF 到青 #2EC4FF；
+// 每片百叶的转角 θ = 0.35·sin(相位 + 0.4i) 的轻摆 + 在场程度 × 0.9·tanh((光源x − 百叶x)/120)，可见宽度 ∝ 0.2 + 0.8·|cos θ|，朝向光源的一面更亮；
+// 光源是跟随光标的聚光（半径 170 px，叠加模式），光标不在时光源停在画面中上方、亮度减半
+const GB_N = 18, GB_A = [255, 92, 138], GB_M = [123, 92, 255], GB_B = [46, 196, 255];
+const GB_KF = [[0.3, 270, 30], [1.0, 120, 80], [2.4, 420, 110], [3.6, 200, 70], [4.6, 330, 120], [5.3, 270, 30]];
+CELLS[12] = (k, w, h, u) => {
+  k.fillStyle = '#0B0A14'; k.fillRect(0, 0, CW, CH);
+  const ph = TAU * u / CYC, [lx, ly] = path(GB_KF, u), p = presence(u, 0.3, 1.0, 4.6, 5.3);
+  const sw = CW / GB_N;
+  for (let i = 0; i < GB_N; i++) {
+    const x = (i + 0.5) * sw, t = i / (GB_N - 1);
+    const base = t < 0.5 ? lerpC(GB_A, GB_M, t * 2) : lerpC(GB_M, GB_B, t * 2 - 1);
+    const th = 0.35 * Math.sin(ph + i * 0.4) + p * 0.9 * Math.tanh((lx - x) / 120);
+    const vis = sw * (0.2 + 0.8 * Math.abs(Math.cos(th))), lit = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(th) * Math.sign(lx - x || 1)) * (0.5 + 0.5 * p);
+    const near = Math.exp(-(((x - lx) / 150) ** 2)) * (0.5 + 0.5 * p);
+    const g = k.createLinearGradient(x - vis / 2, 0, x + vis / 2, 0);
+    const c0 = lerpC([12, 10, 22], base, 0.35 + 0.35 * lit), c1 = lerpC(base, [255, 255, 255], 0.35 * near);
+    if (th > 0) { g.addColorStop(0, rgb(c0)); g.addColorStop(1, rgb(c1)); } else { g.addColorStop(0, rgb(c1)); g.addColorStop(1, rgb(c0)); }
+    const vg = k.createLinearGradient(0, 0, 0, CH);
+    k.fillStyle = g; k.fillRect(x - vis / 2, 0, vis, CH);
+    vg.addColorStop(0, 'rgba(0,0,0,.35)'); vg.addColorStop(0.5, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)');
+    k.fillStyle = vg; k.fillRect(x - vis / 2, 0, vis, CH);
+  }
+  k.save(); k.globalCompositeOperation = 'lighter';
+  const sp = k.createRadialGradient(lx, ly, 0, lx, ly, 170);
+  sp.addColorStop(0, `rgba(255,255,255,${0.32 * (0.5 + 0.5 * p)})`); sp.addColorStop(1, 'rgba(255,255,255,0)');
+  k.fillStyle = sp; k.fillRect(0, 0, CW, CH); k.restore();
+  if (u > 0.3 && u < 5.3 && p > 0.05) cursor(k, lx, ly);
+};

@@ -1,0 +1,49 @@
+// Motion Prompt #1-212 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Gradient blinds / グラデーションブラインド
+// Category: UI & Web / Pages / Hero backgrounds
+// What happens: 18 vertical blinds sway gently; as the cursor's spotlight moves, the slats tilt toward it and glow whitish where the light falls.
+// Motion spec:
+//   - 18 vertical blinds are coloured across the frame from pink #FF5C8A to violet #7B5CFF to cyan #2EC4FF.
+//   - Slat angle θ = 0.35·sin(phase + 0.4i) sway + presence × 0.9·tanh((light x − slat x)/120).
+//   - Visible width is proportional to 0.2 + 0.8·|cos θ|, and faces turned to the light are brighter.
+//   - The light is an additive spotlight of radius 170 px following the cursor; with no cursor it rests top-centre at half brightness.
+// When to use it: Use it on hero sections for music, fashion or product launches that want an elegant, moving background.
+// Tags: gradient-blinds, spotlight, slats, cursor-follow, hero-background, stage-light
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-212
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 13
+// 13 渐变百叶：18 片竖向百叶横跨画面，颜色沿横向从粉 #FF5C8A 经紫 #7B5CFF 到青 #2EC4FF；
+// 每片百叶的转角 θ = 0.35·sin(相位 + 0.4i) 的轻摆 + 在场程度 × 0.9·tanh((光源x − 百叶x)/120)，可见宽度 ∝ 0.2 + 0.8·|cos θ|，朝向光源的一面更亮；
+// 光源是跟随光标的聚光（半径 170 px，叠加模式），光标不在时光源停在画面中上方、亮度减半
+const GB_N = 18, GB_A = [255, 92, 138], GB_M = [123, 92, 255], GB_B = [46, 196, 255];
+const GB_KF = [[0.3, 270, 30], [1.0, 120, 80], [2.4, 420, 110], [3.6, 200, 70], [4.6, 330, 120], [5.3, 270, 30]];
+CELLS[12] = (k, w, h, u) => {
+  k.fillStyle = '#0B0A14'; k.fillRect(0, 0, CW, CH);
+  const ph = TAU * u / CYC, [lx, ly] = path(GB_KF, u), p = presence(u, 0.3, 1.0, 4.6, 5.3);
+  const sw = CW / GB_N;
+  for (let i = 0; i < GB_N; i++) {
+    const x = (i + 0.5) * sw, t = i / (GB_N - 1);
+    const base = t < 0.5 ? lerpC(GB_A, GB_M, t * 2) : lerpC(GB_M, GB_B, t * 2 - 1);
+    const th = 0.35 * Math.sin(ph + i * 0.4) + p * 0.9 * Math.tanh((lx - x) / 120);
+    const vis = sw * (0.2 + 0.8 * Math.abs(Math.cos(th))), lit = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(th) * Math.sign(lx - x || 1)) * (0.5 + 0.5 * p);
+    const near = Math.exp(-(((x - lx) / 150) ** 2)) * (0.5 + 0.5 * p);
+    const g = k.createLinearGradient(x - vis / 2, 0, x + vis / 2, 0);
+    const c0 = lerpC([12, 10, 22], base, 0.35 + 0.35 * lit), c1 = lerpC(base, [255, 255, 255], 0.35 * near);
+    if (th > 0) { g.addColorStop(0, rgb(c0)); g.addColorStop(1, rgb(c1)); } else { g.addColorStop(0, rgb(c1)); g.addColorStop(1, rgb(c0)); }
+    const vg = k.createLinearGradient(0, 0, 0, CH);
+    k.fillStyle = g; k.fillRect(x - vis / 2, 0, vis, CH);
+    vg.addColorStop(0, 'rgba(0,0,0,.35)'); vg.addColorStop(0.5, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)');
+    k.fillStyle = vg; k.fillRect(x - vis / 2, 0, vis, CH);
+  }
+  k.save(); k.globalCompositeOperation = 'lighter';
+  const sp = k.createRadialGradient(lx, ly, 0, lx, ly, 170);
+  sp.addColorStop(0, `rgba(255,255,255,${0.32 * (0.5 + 0.5 * p)})`); sp.addColorStop(1, 'rgba(255,255,255,0)');
+  k.fillStyle = sp; k.fillRect(0, 0, CW, CH); k.restore();
+  if (u > 0.3 && u < 5.3 && p > 0.05) cursor(k, lx, ly);
+};

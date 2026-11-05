@@ -1,0 +1,43 @@
+// Motion Prompt #2-121 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Fuzzy text / ざらつき揺れ文字
+// Category: Motion graphics / Text animation / Morphing & texture
+// What happens: Large black type on a light background has finely ragged edges; when the cursor hovers, the strips shift far apart and shake hard. When it leaves, the type settles back to the fine fuzz.
+// Motion spec:
+//   - The type is sliced into strips 2 px tall, and each strip is drawn with its own sideways shift.
+//   - The shift changes 24 times a second, from a random value built from the strip index and frame index.
+//   - The shift range is 1.5 px normally and 12 px while the cursor hovers.
+//   - The cursor reaches the type at 1.4 s and the range peaks within 0.25 s; it starts to leave at 3.6 s and the range drops back over 0.35 s.
+//   - There is no colour split; the type stays in 1 colour.
+// When to use it: Use it on 404 pages, game or event titles, or noisy brand moments that want a slightly rough feel.
+// Tags: fuzzy, jitter, glitch, hover, noise, typography
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-121
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 33
+// 33 毛糙抖动字：大字按 2 px 高的横条切开，每条各自左右错开，像信号不稳的屏幕。
+// 每秒换 24 次随机偏移（hash(行号, 帧号)），偏移幅度 = 平时 1.5 px，光标停在字上时升到 12 px；
+// 字整体不做红绿蓝分色。光标 0.6 秒入场，1.4–3.6 秒停在字上（幅度 0.25 秒升满、0.35 秒回落），5.0 秒前离开。
+const FZ_ROW = 2, FZ_TOP = 58, FZ_H = 76, FZ_IDLE = 1.5, FZ_HOT = 12, FZ_FPS = 24;
+const FZ_KF = [[0.6, 520, 196], [1.4, 300, 104], [3.6, 330, 108], [4.6, 540, 200]];
+CELLS[32] = (k, w, h, u) => {
+  k.fillStyle = '#F3F0E8'; k.fillRect(0, 0, CW, CH);
+  const heat = inOut3(seg(u, 1.4, 1.65)) * (1 - inOut3(seg(u, 3.6, 3.95)));
+  const amp = mix(FZ_IDLE, FZ_HOT, heat), frame = Math.floor(u * FZ_FPS);
+  k.font = `900 84px ${SANS}`; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillStyle = '#1B1A20';
+  for (let r = 0; r * FZ_ROW < FZ_H; r++) {
+    const y = FZ_TOP + r * FZ_ROW;
+    const n = hash(r * 7.31 + frame * 131.7) - 0.5, n2 = hash(r * 3.17 + frame * 57.3) - 0.5;
+    const dx = amp * (2 * n) * (0.6 + 0.4 * Math.abs(2 * n2));
+    k.save(); k.beginPath(); k.rect(0, y, CW, FZ_ROW + 0.5); k.clip();
+    k.fillText('FUZZY', CW / 2 + dx, FZ_TOP + FZ_H / 2 + 4);
+    k.restore();
+  }
+  txt(k, heat > 0.5 ? 'hovering — noise ×8' : 'hover to shake the signal', CW / 2, 168, `500 14px ${MONO}`, '#8A8577', 'center', 'middle');
+  const [cx, cy] = path(FZ_KF, u);
+  if (u > 0.6 && u < 4.6) cursor(k, cx, cy, 0, false);
+};

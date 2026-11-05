@@ -1,0 +1,68 @@
+// Motion Prompt #2-123 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Scroll velocity type / スクロール速度で流れる文字
+// Category: Motion graphics / Text animation / Letter by letter & layout
+// What happens: On a dark background, 2 rows of big words flow in opposite directions; a fast scroll down makes the words rush and lean like italics, and scrolling up reverses them. When scrolling stops, the letterforms straighten up again.
+// Motion spec:
+//   - The 2 rows of words flow in opposite directions and normally travel 570 px, 1 set of words, per cycle. Words are laid out by their measured widths, with equal gaps and a dot centred in each gap.
+//   - Every 1 px/s of scroll speed adds 0.3 px/s to the flow of the words, and the letterforms shear sideways like italics with the speed, up to 0.3.
+//   - The page scrolls down at 1.0–1.8 s and up at 3.0–3.8 s with a sin² speed curve peaking at 1500 px/s; both distances are equal, so the scrollbar returns to where it started.
+//   - The distance travelled is integrated at load in 1/120 s steps and comes to exactly 570 px at the end of the cycle, so it joins up with 0 s.
+//   - At the lower right, an arrow shows the scroll direction with the multiplier against the normal speed; scrolling up makes it negative.
+// When to use it: Use it for brand names, slogans, portfolio headline words or event keywords where big type should come alive with the scroll.
+// Tags: kinetic-type, scroll-velocity, skew, marquee, scroll-linked, typography
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-123
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 35
+// 35 滚速流动字：两行大字跑马灯方向相反、平时匀速流动（一个周期流过一组文字 570 px，约每秒 89 px）。页面滚动速度 v 叠加到流速上（每 1 px/s 滚动加 0.3 px/s），
+// 并让字按 v 横向倾斜（最大 0.3）；向上滚时两行同时反向。模拟滚动：1.0–1.8 秒向下快滚、3.0–3.8 秒向上快滚（峰值 1500 px/s，
+// sin² 形速度曲线，上下滚动距离相等，右侧滚动条回到原位）。位移在加载时按 1/120 秒步长积分；
+// 上下滚动的加速抵消，整周期位移正好 570 px；积分误差再按步均摊修正到 570 的整数倍，循环无缝。
+const SV_SLOT = 190, SV_U = 3 * SV_SLOT, SV_WORDS = ['SCROLL', 'VELOCITY', 'MARQUEE'], SV_GAIN = 0.3;
+const SV_BASE = SV_U / CYC;        // 基础流速：一个周期正好流过一组文字（约 89 px/s）
+const SV_v = t => {               // 页面滚动速度 px/s（正 = 向下）
+  if (t > 1.0 && t < 1.8) return 1500 * Math.sin(Math.PI * (t - 1.0) / 0.8) ** 2;
+  if (t > 3.0 && t < 3.8) return -1500 * Math.sin(Math.PI * (t - 3.0) / 0.8) ** 2;
+  return 0;
+};
+const SV_TAB = (() => {           // 每 1/120 秒：[跑马灯位移, 页面滚动位置]
+  const n = Math.round(CYC * 120), raw = [[0, 0]];
+  let d = 0, y = 0;
+  for (let i = 0; i < n; i++) { const v = SV_v(i / 120); d += (SV_BASE + SV_GAIN * v) / 120; y += v / 120; raw.push([d, y]); }
+  const fix = (Math.round(d / SV_U) * SV_U - d) / n;          // 每步修正量，让总位移落在 570 的整数倍
+  return raw.map(([dd, yy], i) => [dd + fix * i, yy]);
+})();
+CELLS[34] = (k, w, h, u) => {
+  k.fillStyle = '#121016'; k.fillRect(0, 0, CW, CH);
+  const i = Math.min(SV_TAB.length - 1, Math.round(u * 120)), [d, py] = SV_TAB[i], v = SV_v(u);
+  const skew = 0.3 * clamp(v / 1500, -1, 1);
+  for (const [row, dir, y, fg, bg] of [[0, -1, 64, '#F4EFE6', '#1C1A22'], [1, 1, 138, '#FF7A45', '#18161D']]) {
+    k.fillStyle = bg; k.fillRect(0, y - 30, CW, 60);
+    k.save(); k.beginPath(); k.rect(0, y - 30, 518, 60); k.clip();
+    k.transform(1, 0, -skew * dir, 1, skew * dir * y, 0);
+    // 一组 3 个词按实测字宽排开，剩余宽度均分成 3 个间隙，圆点放在间隙正中；一组总宽固定 570 px
+    k.font = `900 30px ${SANS}`;
+    const words = [0, 1, 2].map(j => SV_WORDS[(j + row) % 3]), ws = words.map(s => k.measureText(s).width);
+    const gap = (SV_U - ws[0] - ws[1] - ws[2]) / 3;
+    const off = ((dir * d) % SV_U + SV_U) % SV_U;
+    for (let base = off - SV_U; base < CW; base += SV_U) {
+      let x = base;
+      for (let j = 0; j < 3; j++) {
+        txt(k, words[j], x, y + 1, `900 30px ${SANS}`, fg, 'left', 'middle');
+        k.fillStyle = fg; k.beginPath(); k.arc(x + ws[j] + gap / 2, y, 4, 0, TAU); k.fill();
+        x += ws[j] + gap;
+      }
+    }
+    k.restore();
+  }
+  // 滚动条与速度读数
+  k.fillStyle = '#2A2732'; rr(k, 526, 12, 5, 184, 2.5); k.fill();
+  k.fillStyle = Math.abs(v) > 50 ? '#FF7A45' : '#6F6A7A'; rr(k, 526, 20 + py * 0.16, 5, 40, 2.5); k.fill();
+  const mult = (SV_BASE + SV_GAIN * v) / SV_BASE;            // 负值 = 跑马灯反向
+  txt(k, `${v >= 0 ? '↓' : '↑'} ×${mult.toFixed(1)}`, 512, 194, `600 12px ${MONO}`, '#8E889A', 'right', 'middle');
+};

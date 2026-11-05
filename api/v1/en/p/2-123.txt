@@ -1,0 +1,16 @@
+Please use "Scroll velocity type" (スクロール速度で流れる文字), filed under "Text animation / Letter by letter & layout".
+Motion Prompt #2-123
+
+What it is: A type animation where 2 rows of big words keep flowing sideways, speed up with the scroll speed, lean like italics as they go, and run backwards when scrolling up
+What the sample shows: On a dark background, 2 rows of big words flow in opposite directions; a fast scroll down makes the words rush and lean like italics, and scrolling up reverses them. When scrolling stops, the letterforms straighten up again.
+Spec:
+- The 2 rows of words flow in opposite directions and normally travel 570 px, 1 set of words, per cycle. Words are laid out by their measured widths, with equal gaps and a dot centred in each gap.
+- Every 1 px/s of scroll speed adds 0.3 px/s to the flow of the words, and the letterforms shear sideways like italics with the speed, up to 0.3.
+- The page scrolls down at 1.0–1.8 s and up at 3.0–3.8 s with a sin² speed curve peaking at 1500 px/s; both distances are equal, so the scrollbar returns to where it started.
+- The distance travelled is integrated at load in 1/120 s steps and comes to exactly 570 px at the end of the cycle, so it joins up with 0 s.
+- At the lower right, an arrow shows the scroll direction with the multiplier against the normal speed; scrolling up makes it negative.
+When to use it: Use it for brand names, slogans, portfolio headline words or event keywords where big type should come alive with the scroll.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-123.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

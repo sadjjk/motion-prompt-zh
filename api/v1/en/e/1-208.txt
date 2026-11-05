@@ -1,0 +1,43 @@
+// Motion Prompt #1-208 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Shape waves / シェイプウェーブ
+// Category: UI & Web / Pages / Hero backgrounds
+// What happens: Diagonal waves roll across 28×11 circles, triangles and squares; at the crests the shapes grow and glow from gold to pink, and in the troughs they shrink and darken.
+// Motion spec:
+//   - 28×11 circles, triangles and squares fill the frame (shape fixed by index).
+//   - A diagonal main wave is multiplied by a slow wave: v = ((main+1)/2)^2.2 × (0.55 + 0.45·(slow+1)/2).
+//   - With v, size goes 2.5→11 px and opacity 0.18→1, colour moves from dark violet to gold on the left and pink on the right, and triangles and squares turn up to 90°.
+//   - The main wave travels 2 wavelengths per cycle and the slow wave 1, so the loop is seamless.
+// When to use it: Use it behind music, event or brand pages that want a lively background that stays out of the way.
+// Tags: shape-waves, geometric, wave, pattern, hero-background, halftone
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-208
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 09
+// 09 几何形状波：28×11 个圆、三角、方块排满画面（形状按下标确定），一道斜向主波滚过、另一道慢波调制强度，
+// 波值 v = ((主波+1)/2)^2.2 × (0.55 + 0.45·(慢波+1)/2)：形状尺寸 2.5→11 px、不透明度 0.18→1，颜色从暗紫变成由左金黄到右粉红的亮色，三角和方块随 v 转 90°；
+// 主波每周期走 2 个波长、慢波走 1 个，循环无缝
+const SW_COLS = 28, SW_ROWS = 11;
+CELLS[8] = (k, w, h, u) => {
+  k.fillStyle = '#100E1A'; k.fillRect(0, 0, CW, CH);
+  const ph = TAU * u / CYC;
+  for (let r = 0; r < SW_ROWS; r++) for (let c = 0; c < SW_COLS; c++) {
+    const i = r * SW_COLS + c, x = (c + 0.5) * CW / SW_COLS, y = (r + 0.5) * CH / SW_ROWS;
+    const w1 = Math.sin(0.024 * x + 0.03 * y - 2 * ph), w2 = Math.sin(-0.012 * x + 0.02 * y - ph);
+    const v = Math.pow((w1 + 1) / 2, 2.2) * (0.55 + 0.45 * (w2 + 1) / 2);
+    const s = 2.5 + 8.5 * v, type = Math.floor(hash(i * 2.7) * 3);
+    const bright = lerpC([255, 190, 92], [255, 92, 138], x / CW);
+    k.fillStyle = rgb(lerpC([70, 60, 140], bright, v)); k.globalAlpha = 0.18 + 0.82 * v;
+    k.save(); k.translate(x, y); k.rotate(v * Math.PI / 2 + hash(i) * 0.6);
+    k.beginPath();
+    if (type === 0) k.arc(0, 0, s / 2, 0, TAU);
+    else if (type === 1) { k.moveTo(0, -s * 0.6); k.lineTo(s * 0.52, s * 0.3); k.lineTo(-s * 0.52, s * 0.3); k.closePath(); }
+    else k.rect(-s * 0.42, -s * 0.42, s * 0.84, s * 0.84);
+    k.fill(); k.restore();
+  }
+  k.globalAlpha = 1;
+};

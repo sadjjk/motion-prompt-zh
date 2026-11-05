@@ -1,0 +1,15 @@
+Please use "Target cursor" (ターゲットカーソル), filed under "Pointer interactions / Cursor".
+Motion Prompt #1-217
+
+What it is: An aiming cursor whose four corner brackets snap onto the outline of the element under it
+What the sample shows: The cursor moves to a nav pill, a button and a card in turn; each time the four brackets bounce onto its outline, and it clicks the button at 2.9 s.
+Spec:
+- At rest, 4 L-shaped brackets sit 14 px around a dot and turn slowly.
+- Over an element the brackets move to its four corners 6 px outside the outline and straighten up; the snap follows a spring curve that overshoots once.
+- Targets are a nav pill (1.0–1.8 s), a button (2.3–3.4 s) and a card (3.9–4.7 s); on leaving, the brackets return around the dot within 0.3 s.
+- The click at 2.9 s pulls the brackets 4 px inward and presses the button down a little.
+When to use it: Use it on gaming or tech landing pages and portfolios to make clickable targets obvious.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-217.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

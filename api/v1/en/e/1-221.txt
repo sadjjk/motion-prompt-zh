@@ -1,0 +1,83 @@
+// Motion Prompt #1-221 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Electric border / 電流ボーダー
+// Category: UI & Web / Pointer interactions / Hover
+// What happens: On a dark background, a rounded card's edge is 2 trembling electric arcs; as the cursor circles the card the nearest stretch thrashes and the whole ring brightens while it touches.
+// Motion spec:
+//   - Points are taken about every 4 px around a 280×124 px card with 18 px corner radius, and each is pushed along its outward normal.
+//   - The push is a sum of 5 sine waves whose wave counts around the edge and turns per cycle are all integers, so the edge is a closed line and 6.4 s matches 0 s with no reset segment.
+//   - The resting swing is 3 px; within 70 px of the cursor it grows to at most 11 px.
+//   - When the cursor comes within 40 px of the card the whole ring gets up to 1.6 times brighter; the glow is drawn as translucent 16 px and 7 px wide lines.
+//   - A 2nd arc with shifted phase is drawn at 0.6 times the swing. The cursor enters from the lower right at 0.5 s and leaves at the lower left at 5.0 s.
+// When to use it: Use it on a premium plan card, a game UI panel or a button that should feel charged with energy.
+// Tags: electric-border, lightning, card-hover, glow, sine-noise, border
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-221
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 22
+// 22 电流边框：深色卡片（280×124）的圆角边框是一圈抖动的电弧。沿周长约每 4 px 取一点，按外法线方向偏移；
+// 偏移由 5 个正弦叠加，每项沿周长的波数和每周期的圈数都取整数，所以边框首尾闭合、u = 6.4 秒与 0 秒完全一致，不需要复位段。
+// 光标 70 px 内的边框抖动幅度从 3 px 增到 11 px；光标越接近卡片，整圈越亮（最多 1.6 倍）。
+const EB_X = 129.5, EB_Y = 42, EB_W = 280, EB_H = 124, EB_R = 18, EB_STEP = 4;
+const EB_A = 3, EB_NEAR = 8, EB_FALL = 70;
+const EB_WAVES = [[7, 9, 0.5], [13, -17, 0.35], [23, 31, 0.25], [41, -47, 0.18], [67, 59, 0.12]]; // [沿周长波数, 每周期圈数, 权重]
+const EB_KF = [[0.5, 570, 196], [1.4, 430, 176], [2.3, 330, 34], [3.2, 150, 96], [4.1, 250, 170], [5.0, -30, 196]];
+// 预先沿圆角矩形顺时针取点：[x, y, 外法线 nx, ny]。边按 上 → 右 → 下 → 左，每条边后接一个四分之一圆角
+const EB_PTS = (() => {
+  const a = EB_W - 2 * EB_R, b = EB_H - 2 * EB_R, q = TAU * EB_R / 4, P = 2 * a + 2 * b + 4 * q;
+  const L = [[EB_X + EB_R, EB_Y, 1, 0], [EB_X + EB_W, EB_Y + EB_R, 0, 1], [EB_X + EB_W - EB_R, EB_Y + EB_H, -1, 0], [EB_X, EB_Y + EB_H - EB_R, 0, -1]];
+  const C = [[EB_X + EB_W - EB_R, EB_Y + EB_R], [EB_X + EB_W - EB_R, EB_Y + EB_H - EB_R], [EB_X + EB_R, EB_Y + EB_H - EB_R], [EB_X + EB_R, EB_Y + EB_R]];
+  const n = Math.round(P / EB_STEP), out = [];
+  for (let i = 0; i < n; i++) {
+    let s = i * P / n;
+    for (let j = 0; j < 4; j++) {
+      const len = j % 2 ? b : a;
+      if (s < len) { const [x, y, dx, dy] = L[j]; out.push([x + dx * s, y + dy * s, dy, -dx]); break; }
+      s -= len;
+      if (s < q || j === 3) { const g = -Math.PI / 2 + j * Math.PI / 2 + s / EB_R, c = Math.cos(g), si = Math.sin(g); out.push([C[j][0] + EB_R * c, C[j][1] + EB_R * si, c, si]); break; }
+      s -= q;
+    }
+  }
+  return out;
+})();
+// 第 i 个点在时刻 u 的法向偏移（约 -1..1），tr 取不同相位得到第二条电弧
+const EB_off = (i, u, tr) => {
+  let v = 0;
+  EB_WAVES.forEach(([kk, m, wt], j) => { v += wt * Math.sin(TAU * (kk * i / EB_PTS.length + m * u / CYC) + TAU * hash(j * 7 + tr * 31 + 3)); });
+  return v;
+};
+function EB_trace(k, u, tr, amps, scale) {
+  k.beginPath();
+  EB_PTS.forEach(([x, y, nx, ny], i) => { const o = EB_off(i, u, tr) * amps[i] * scale; if (i) k.lineTo(x + nx * o, y + ny * o); else k.moveTo(x + nx * o, y + ny * o); });
+  k.closePath();
+}
+CELLS[21] = (k, w, h, u) => {
+  k.fillStyle = '#07080F'; k.fillRect(0, 0, CW, CH);
+  const on = u > EB_KF[0][0] && u < EB_KF[EB_KF.length - 1][0];
+  const [cx, cy] = path(EB_KF, u);
+  // 光标到卡片矩形的外部距离，40 px 内逐渐点亮；出入场位置离卡片都很远，亮度不会跳变
+  const dOut = Math.hypot(Math.max(0, EB_X - cx, cx - EB_X - EB_W), Math.max(0, EB_Y - cy, cy - EB_Y - EB_H));
+  const hov = on ? clamp(1 - dOut / 40) : 0, bright = 1 + 0.6 * hov;
+  const amps = EB_PTS.map(([x, y]) => EB_A + (on ? EB_NEAR * Math.exp(-((Math.hypot(x - cx, y - cy) / EB_FALL) ** 2)) : 0));
+  // 卡片本体与文字
+  const g = k.createLinearGradient(0, EB_Y, 0, EB_Y + EB_H); g.addColorStop(0, '#141829'); g.addColorStop(1, '#0C0E18');
+  k.fillStyle = g; rr(k, EB_X, EB_Y, EB_W, EB_H, EB_R); k.fill();
+  txt(k, 'PRO PLAN', EB_X + 24, EB_Y + 34, `600 11px ${MONO}`, `rgba(120,215,255,${0.55 + 0.35 * hov})`);
+  txt(k, 'Electric', EB_X + 24, EB_Y + 72, `800 30px ${SANS}`, '#F2F6FF');
+  txt(k, 'hover to charge the border', EB_X + 24, EB_Y + 98, `400 13px ${SANS}`, 'rgba(200,210,235,0.6)');
+  // 外圈柔光：宽线低透明度叠两层，代替 shadowBlur（shadowBlur 不随画布缩放，详情页会画得不一样）
+  k.lineJoin = 'round';
+  EB_trace(k, u, 0, amps, 1);
+  k.strokeStyle = `rgba(60,170,255,${0.07 * bright})`; k.lineWidth = 16; k.stroke();
+  k.strokeStyle = `rgba(80,200,255,${0.16 * bright})`; k.lineWidth = 7; k.stroke();
+  k.strokeStyle = `rgba(120,220,255,${Math.min(1, 0.7 * bright)})`; k.lineWidth = 2.4; k.stroke();
+  k.strokeStyle = 'rgba(240,250,255,0.95)'; k.lineWidth = 1; k.stroke();
+  // 第二条电弧：相位不同、幅度 0.6 倍，与主弧交错显出噼啪感
+  EB_trace(k, u, 1, amps, 0.6);
+  k.strokeStyle = `rgba(160,190,255,${0.45 * bright})`; k.lineWidth = 1.2; k.stroke();
+  if (on) cursor(k, cx, cy);
+};

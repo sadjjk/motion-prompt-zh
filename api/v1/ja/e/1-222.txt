@@ -1,0 +1,62 @@
+// Motion Prompt #1-222 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// バウンスカード / Bounce cards
+// 分類: UI・Web / ポインター操作 / 手触り・カード
+// 何が起きるか: 5 枚のカードが扇形に弾んで現れ、カーソルが左から右へ 1 枚ずつ止まるたびにそのカードがまっすぐ前に出て、両隣が外へよけ、最後に全部が縮んで消える。
+// 動きの仕様:
+//   - 96×124 px のカード 5 枚を 58 px 間隔で並べ、傾きは −14° から 14° の扇形にする
+//   - 0.1 秒から 0.12 秒おきに順に、0.5 秒かけて行き過ぎてから戻る拡大で現れる
+//   - カーソルが乗ったカードは傾きが 0 になり、1.08 倍に拡大して 12 px 上がり、一番上に描かれる
+//   - 両隣のカードは外へ 30 px、その隣は 15 px 押しのけられる。乗り具合はカーソルとカード中心の距離から毎回計算する
+//   - カーソルは 0.9 秒に入り、1.5–4.3 秒に 5 枚に順に止まって 5.0 秒に出る。5.4–6.0 秒に全カードが 0 まで縮み、0 秒のまだ出ていない状態につながる
+// 使いどころ: ポートフォリオ、写真ギャラリー、チームメンバー紹介で、カードを触って選ぶ楽しさを出したいとき。
+// タグ: bounce-cards, card-fan, hover-spread, stacked-cards, gallery, spring
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-222
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 23
+// 23 弹跳扇形卡片：5 张 96×124 的卡片扇形叠放（-14°…14°），0.1 秒起依次间隔 0.12 秒带回弹放大入场；
+// 光标从左到右依次停在每张卡上，悬停的卡转正、放大 1.08 倍并上抬 12 px，两侧的卡按距离被推开（相邻 30 px，隔一张 15 px）。
+// 悬停程度按光标与卡中心的水平距离连续计算（不记状态），5.4–6.0 秒全部缩回 0，与 0 秒的未入场状态衔接。
+const BC_N = 5, BC_W = 96, BC_H = 124, BC_GAP = 58, BC_ROT = 14 * Math.PI / 180, BC_PUSH = 30;
+const BC_COLS = [['#FF7A59', '#FFC15E'], ['#7A5CFF', '#C77DFF'], ['#2EC4B6', '#9BF6FF'], ['#FF5D8F', '#FFB3C6'], ['#3A86FF', '#8EC5FF']];
+const BC_KF = [[0.9, -20, 196], [1.5, 154, 104], [2.2, 212, 104], [2.9, 270, 100], [3.6, 328, 104], [4.3, 386, 104], [5.0, 560, 200]];
+const backOut = t => 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2);
+CELLS[22] = (k, w, h, u) => {
+  k.fillStyle = '#F4F1EA'; k.fillRect(0, 0, CW, CH);
+  const on = u > BC_KF[0][0] && u < BC_KF[BC_KF.length - 1][0];
+  const [cx, cy] = path(BC_KF, u);
+  const out = 1 - resetK(u);
+  // 每张卡的悬停程度：光标水平距离的高斯权重 × 光标是否落在卡片高度范围内
+  const inY = on ? clamp(1 - Math.max(0, Math.abs(cy - 104) - 50) / 30) : 0;
+  const hv = [...Array(BC_N)].map((_, i) => inY * Math.exp(-(((cx - (270 + (i - 2) * BC_GAP)) / 26) ** 2)));
+  const cards = [...Array(BC_N)].map((_, i) => {
+    let dx = 0;
+    for (let j = 0; j < BC_N; j++) if (j !== i) dx += Math.sign(i - j) * hv[j] * BC_PUSH / Math.abs(i - j);
+    const a = (i - 2) / 2 * BC_ROT * (1 - hv[i]);
+    const s = backOut(seg(u, 0.1 + 0.12 * i, 0.6 + 0.12 * i)) * out * (1 + 0.08 * hv[i]);
+    return { i, x: 270 + (i - 2) * BC_GAP + dx, y: 110 + Math.abs(i - 2) * 6 - 12 * hv[i], a, s, hv: hv[i] };
+  });
+  // 悬停越强越晚画（在最上层）；中间的卡默认在上面
+  cards.sort((p, q) => (p.hv - q.hv) || (Math.abs(q.i - 2) - Math.abs(p.i - 2)));
+  for (const c of cards) {
+    if (c.s <= 0.001) continue;
+    k.save(); k.translate(c.x, c.y); k.rotate(c.a); k.scale(c.s, c.s);
+    k.fillStyle = `rgba(40,30,20,${0.12 + 0.1 * c.hv})`; rr(k, -BC_W / 2 + 2, -BC_H / 2 + 5 + 5 * c.hv, BC_W, BC_H, 12); k.fill();
+    k.fillStyle = '#FFFFFF'; rr(k, -BC_W / 2, -BC_H / 2, BC_W, BC_H, 12); k.fill();
+    // 卡面"图片"：渐变 + 一座山和太阳
+    const [c1, c2] = BC_COLS[c.i], g = k.createLinearGradient(0, -BC_H / 2, 0, BC_H / 2);
+    g.addColorStop(0, c1); g.addColorStop(1, c2);
+    k.save(); rr(k, -BC_W / 2 + 6, -BC_H / 2 + 6, BC_W - 12, BC_H - 12, 8); k.clip();
+    k.fillStyle = g; k.fillRect(-BC_W / 2, -BC_H / 2, BC_W, BC_H);
+    k.fillStyle = 'rgba(255,255,255,0.75)'; k.beginPath(); k.arc(18, -30, 10, 0, TAU); k.fill();
+    k.fillStyle = 'rgba(0,0,0,0.16)'; k.beginPath(); k.moveTo(-50, 62); k.lineTo(-14, 6); k.lineTo(8, 34); k.lineTo(26, 16); k.lineTo(50, 62); k.closePath(); k.fill();
+    k.restore();
+    k.restore();
+  }
+  if (on) cursor(k, cx, cy, 0, true);
+};

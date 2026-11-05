@@ -1,0 +1,16 @@
+Please use "Tool call chip" (ツール呼び出しチップ), filed under "Feedback / AI status".
+Motion Prompt #1-230
+
+What it is: A small chip for each tool call in an AI reply, filling from the left as time passes, turning green on success or red with a shake on failure
+What the sample shows: On a light background, the search_docs chip fills from the left and turns into a green check; the next chip, run_query, turns red partway, shakes side to side and shows failed.
+Spec:
+- Each chip is a 236×34 px rounded shape. The fill is a light tint plus a 3 px line along the bottom edge, growing from the left with the elapsed time.
+- While running, the icon on the left spins and the elapsed seconds show on the right in 0.1 s units.
+- The first chip, search_docs, fills at 0.3–2.3 s and turns green; a check circle grows over 0.25 s and done with the duration appears.
+- The second chip, run_query, starts at 2.9 s and fails at 62% at 4.1 s, turning red and shaking side to side as e^(−6τ)·sin(40τ)·6 px.
+- Both chips fade at 5.4–6.0 s, and nothing is shown at 0 s.
+When to use it: Use it in AI assistant or agent replies to show the progress and result of searches, code runs or API calls.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-230.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

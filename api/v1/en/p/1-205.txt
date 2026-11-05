@@ -1,0 +1,16 @@
+Please use "Letter glitch" (レターグリッチ), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-205
+
+What it is: A wall of letters that flicker, swap and change colour in place; the cursor scrambles them and a click tears rows apart
+What the sample shows: 49×13 monospace characters flicker and swap at random in 4 greens and violets; the area around the cursor scrambles white, and a click tears nearby rows sideways with a magenta flash.
+Spec:
+- A 49×13 grid of 13 px monospace characters, coloured from a 4-colour palette.
+- Each cell changes its character 2–8 times per cycle (count and phase fixed by index), flashing bright and dimming over 0.18 s.
+- Characters within 60 px of the cursor scramble 20 times a second and turn whitish.
+- A click at 3.5 s shifts rows within 46 px above and below by up to ±30 px and turns some cells magenta, decaying over 0.25 s.
+- A dark vignette darkens the edges.
+When to use it: Use it on hacker-style, gaming or security pages that want a calm but uneasy background.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-205.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

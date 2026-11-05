@@ -1,0 +1,96 @@
+// Motion Prompt #1-224 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Curved input / カーブ入力欄
+// Category: UI & Web / Components / Choosing & input
+// What happens: A flat search field bends into an arc; on click a focus ring appears and letters are typed one by one along the arc; pressing send makes the text flow along the arc and vanish, and the placeholder returns.
+// Motion spec:
+//   - At 0.2–0.8 s the flat field bends into an arc of 200 px radius, and at 5.4–6.0 s it straightens again to match 0 s.
+//   - The field is a 44 px thick round-capped line drawn along the arc's centre line, 300 px long.
+//   - The icon, text, caret and send button are placed at their positions on the arc and turned to the tangent there; the text is placed letter by letter.
+//   - A click at 1.2 s focuses the field, letters are typed one by one at 1.4–3.0 s, and send is pressed at 3.8 s.
+//   - In the 0.5 s after send the text flows 110 px along the arc as it fades, and the placeholder returns in 0.3 s.
+// When to use it: Use it on brand or campaign pages where a search or signup field should have a memorable shape.
+// Tags: curved-input, arc-text, search-field, text-on-path, input, typing
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-224
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 25
+// 25 弧形输入框：搜索框整条弯在一段圆弧上，0.2–0.8 秒从平直弯成弧（弧半径 200 px），5.4–6.0 秒再变回平直，与 0 秒衔接。
+// 输入框是沿中线描出的 44 px 宽圆头粗线；搜索图标、逐字键入的文字、插入符和右端的发送按钮都按所在弧长位置放置并沿切线旋转。
+// 1.2 秒点击聚焦（外圈出现聚焦光环），1.4–3.0 秒逐字键入，3.8 秒点发送：文字沿弧滑向按钮并淡出，随后占位文字回来。
+const CI_CX = 270, CI_Y = 112, CI_R = 200, CI_HALF = 150, CI_TH = 44;
+const CI_TEXT = 'curved text input', CI_PH = 'Search effects…';
+const CI_TYPE0 = 1.4, CI_TYPE1 = 3.0, CI_SEND = 3.8;
+const CI_KF = [[0.4, 520, 214], [1.1, 230, 117], [1.6, 230, 117], [2.6, 330, 190], [3.5, 389, 152], [4.0, 389, 152], [4.8, 540, 220]];
+// 弧长 s、法向偏移 t（向外为正）→ 画面坐标与切线角；b = 弯曲程度 0..1
+const CI_pt = (s, t, b) => {
+  const R = CI_R / Math.max(b, 1e-3), f = s / R;
+  return [CI_CX + (R + t) * Math.sin(f), CI_Y + R - (R + t) * Math.cos(f), f];
+};
+CELLS[24] = (k, w, h, u) => {
+  k.fillStyle = '#EEF0F6'; k.fillRect(0, 0, CW, CH);
+  const b = inOut3(seg(u, 0.2, 0.8)) * (1 - resetK(u));
+  const focus = presence(u, 1.2, 1.4, 4.4, 4.8);
+  // 中线折线
+  const line = (t, lw, col) => {
+    k.strokeStyle = col; k.lineWidth = lw; k.lineCap = 'round'; k.lineJoin = 'round'; k.beginPath();
+    for (let s = -CI_HALF; s <= CI_HALF; s += 4) { const [x, y] = CI_pt(s, t, b); s === -CI_HALF ? k.moveTo(x, y) : k.lineTo(x, y); }
+    k.stroke();
+  };
+  line(-3, CI_TH + 4, 'rgba(30,40,80,0.08)');
+  if (focus > 0) line(0, CI_TH + 10, `rgba(91,99,255,${0.22 * focus})`);
+  line(0, CI_TH + 2, focus > 0.5 ? '#5B63FF' : '#C9CEDC');
+  line(0, CI_TH - 1, '#FFFFFF');
+  // 沿弧放置一个绘制函数
+  const at = (s, t, fn) => { const [x, y, f] = CI_pt(s, t, b); k.save(); k.translate(x, y); k.rotate(f); fn(); k.restore(); };
+  // 搜索图标
+  at(-CI_HALF + 20, 0, () => {
+    k.strokeStyle = '#8A90A6'; k.lineWidth = 2; k.beginPath(); k.arc(-1.5, -1.5, 5.5, 0, TAU); k.stroke();
+    k.beginPath(); k.moveTo(2.5, 2.5); k.lineTo(6.5, 6.5); k.stroke();
+  });
+  // 文字：键入的字符数；发送后整串沿弧滑向按钮并淡出
+  const n = Math.floor(CI_TEXT.length * seg(u, CI_TYPE0, CI_TYPE1) + 1e-6);
+  const go = seg(u, CI_SEND + 0.05, CI_SEND + 0.55), slide = 110 * inOut3(go), fade = 1 - go;
+  const s0 = -CI_HALF + 38;
+  k.font = `500 14px ${SANS}`;
+  let s = s0;
+  if (n > 0 && fade > 0) {
+    for (let i = 0; i < n; i++) {
+      const ch = CI_TEXT[i], cw = k.measureText(ch).width;
+      at(s + cw / 2 + slide, 0, () => txt(k, ch, 0, 0.5, `500 14px ${SANS}`, `rgba(30,34,52,${fade})`, 'center', 'middle'));
+      s += cw;
+    }
+  }
+  // 占位文字：没有键入内容时显示（发送后 0.3 秒淡回）
+  const ph = n === 0 ? 1 : seg(u, CI_SEND + 0.5, CI_SEND + 0.8);
+  if (ph > 0) {
+    let sp = s0;
+    for (const ch of CI_PH) {
+      const cw = k.measureText(ch).width;
+      at(sp + cw / 2, 0, () => txt(k, ch, 0, 0.5, `500 14px ${SANS}`, `rgba(138,144,166,${ph})`, 'center', 'middle'));
+      sp += cw;
+    }
+  }
+  // 插入符：聚焦时闪烁（键入期间常亮）
+  if (focus > 0.5 && u < CI_SEND) {
+    const typing = u > CI_TYPE0 && u < CI_TYPE1 + 0.1;
+    if (typing || Math.floor(u / 0.5) % 2 === 0) at(s + 1.5, 0, () => { k.fillStyle = '#5B63FF'; k.fillRect(-0.8, -9, 1.6, 18); });
+  }
+  // 发送按钮：右端圆形，按下时缩小；箭头沿切线
+  const press = presence(u, CI_SEND - 0.05, CI_SEND, CI_SEND + 0.1, CI_SEND + 0.2);
+  at(CI_HALF - 20, 0, () => {
+    const r = 16 * (1 - 0.12 * press);
+    k.fillStyle = n > 0 && fade > 0.5 ? '#5B63FF' : '#B8BDF5'; k.beginPath(); k.arc(0, 0, r, 0, TAU); k.fill();
+    k.strokeStyle = '#FFFFFF'; k.lineWidth = 2.2; k.lineCap = 'round'; k.lineJoin = 'round';
+    k.beginPath(); k.moveTo(-6, 0); k.lineTo(6, 0); k.moveTo(1, -5); k.lineTo(6, 0); k.lineTo(1, 5); k.stroke();
+  });
+  const [bx, by] = CI_pt(CI_HALF - 20, 0, b);
+  ripple(k, bx, by, seg(u, CI_SEND, CI_SEND + 0.5), '91,99,255');
+  const [cx, cy] = path(CI_KF, u);
+  const down = presence(u, 1.15, 1.2, 1.25, 1.3) + press;
+  if (u > CI_KF[0][0] && u < CI_KF[CI_KF.length - 1][0]) cursor(k, cx, cy, down);
+};

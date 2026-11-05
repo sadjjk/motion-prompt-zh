@@ -1,0 +1,15 @@
+Please use "Shape waves" (シェイプウェーブ), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-208
+
+What it is: A field of circles, triangles and squares where rolling waves make the shapes grow and brighten at the crests
+What the sample shows: Diagonal waves roll across 28×11 circles, triangles and squares; at the crests the shapes grow and glow from gold to pink, and in the troughs they shrink and darken.
+Spec:
+- 28×11 circles, triangles and squares fill the frame (shape fixed by index).
+- A diagonal main wave is multiplied by a slow wave: v = ((main+1)/2)^2.2 × (0.55 + 0.45·(slow+1)/2).
+- With v, size goes 2.5→11 px and opacity 0.18→1, colour moves from dark violet to gold on the left and pink on the right, and triangles and squares turn up to 90°.
+- The main wave travels 2 wavelengths per cycle and the slow wave 1, so the loop is seamless.
+When to use it: Use it behind music, event or brand pages that want a lively background that stays out of the way.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-208.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

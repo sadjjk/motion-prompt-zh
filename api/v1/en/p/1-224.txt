@@ -1,0 +1,16 @@
+Please use "Curved input" (カーブ入力欄), filed under "Components / Choosing & input".
+Motion Prompt #1-224
+
+What it is: A search field bent along an arc, with its text, caret and send button all following the curve
+What the sample shows: A flat search field bends into an arc; on click a focus ring appears and letters are typed one by one along the arc; pressing send makes the text flow along the arc and vanish, and the placeholder returns.
+Spec:
+- At 0.2–0.8 s the flat field bends into an arc of 200 px radius, and at 5.4–6.0 s it straightens again to match 0 s.
+- The field is a 44 px thick round-capped line drawn along the arc's centre line, 300 px long.
+- The icon, text, caret and send button are placed at their positions on the arc and turned to the tangent there; the text is placed letter by letter.
+- A click at 1.2 s focuses the field, letters are typed one by one at 1.4–3.0 s, and send is pressed at 3.8 s.
+- In the 0.5 s after send the text flows 110 px along the arc as it fades, and the placeholder returns in 0.3 s.
+When to use it: Use it on brand or campaign pages where a search or signup field should have a memorable shape.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-224.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,62 @@
+// Motion Prompt #2-120 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// 模糊显字 / Blur text reveal
+// 分类: 动态图形 / 文字动画 / 逐字与排版
+// 动画表现: 深色背景上，白色加蓝色的大标题逐词从模糊变清晰，接着下方副标题逐字母浮现。最后全部重新变模糊消失。
+// 运动规格:
+//   - 标题共 5 个词，0.3 秒起每隔 0.14 秒开始一个，每个词用 0.8 秒显示。
+//   - 每个词从偏上 14 px、模糊半径 10 px、透明，按 out3 缓动变到原位、半径 0、不透明。
+//   - 副标题从 1.5 秒开始，每个字母错开 0.03 秒，每个字母用 0.6 秒从偏上 8 px、半径 6 px 落位。
+//   - 模糊用 17 份字形在半径范围内错位叠印，每份不透明度为 1 − (1 − a)^(1/17)，叠起来正好是 a（不用 filter）。
+//   - 5.4–6.0 秒全部重新变模糊淡出，接回 0 秒。
+// 适用场景: 适合首屏标题、宣传语、栏目开场句等，想让第一句话安静又醒目地出现的地方。
+// 标签: blur, text-reveal, stagger, headline, hero, typography
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-120
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 32
+// 32 模糊显字：标题按词、副标题按字母，从模糊、偏上、透明的状态逐个变清晰落位。
+// 模糊用多份错位叠印来模拟（不用 filter / shadowBlur，放大查看时也能等比缩放）：1 + 6 + 10 份字形分布在半径 r 的圆盘里，
+// 每份透明度 α = 1 − (1 − a)^(1/17)，r 收到 0 时 17 份正好叠成一份透明度为 a 的字。
+// 标题 5 个词从 0.3 秒起每隔 0.14 秒出现一个，每个用 0.8 秒从 r = 10、上移 14 px 变清晰；
+// 副标题从 1.5 秒起每个字母隔 0.03 秒，每个用 0.6 秒从 r = 6、上移 8 px 变清晰；5.4–6.0 秒全部重新变模糊淡出，接回 0 秒。
+const BT_WORDS = ['Ship', 'faster', 'with', 'less', 'noise.'], BT_SUB = 'Blur text reveals one word at a time';
+const BT_TAPS = (() => {
+  const t = [[0, 0]];
+  for (let i = 0; i < 6; i++) t.push([0.5 * Math.cos(i * TAU / 6), 0.5 * Math.sin(i * TAU / 6)]);
+  for (let i = 0; i < 10; i++) t.push([Math.cos((i + 0.5) * TAU / 10), Math.sin((i + 0.5) * TAU / 10)]);
+  return t;
+})();
+function BT_draw(k, s, x, y, r, a) {
+  if (a <= 0.002) return;
+  if (r < 0.1) { k.globalAlpha = a; k.fillText(s, x, y); k.globalAlpha = 1; return; }
+  k.globalAlpha = 1 - Math.pow(1 - Math.min(a, 0.999), 1 / BT_TAPS.length);
+  for (const [dx, dy] of BT_TAPS) k.fillText(s, x + dx * r, y + dy * r);
+  k.globalAlpha = 1;
+}
+CELLS[31] = (k, w, h, u) => {
+  k.fillStyle = '#0F1016'; k.fillRect(0, 0, CW, CH);
+  const out = resetK(u);
+  // 标题：按词
+  k.font = `800 36px ${SANS}`; k.textAlign = 'left'; k.textBaseline = 'alphabetic';
+  const sp = k.measureText(' ').width, ws = BT_WORDS.map(s => k.measureText(s).width);
+  let x = (CW - ws.reduce((a, b) => a + b, 0) - sp * (BT_WORDS.length - 1)) / 2;
+  BT_WORDS.forEach((s, i) => {
+    const p = out3(seg(u, 0.3 + 0.14 * i, 1.1 + 0.14 * i));
+    k.fillStyle = i >= 3 ? '#8B9CFF' : '#F4F2EC';
+    BT_draw(k, s, x, 102 - 14 * (1 - p), 10 * (1 - p) + 10 * out, p * (1 - out));
+    x += ws[i] + sp;
+  });
+  // 副标题：按字母
+  k.font = `500 16px ${SANS}`; k.fillStyle = '#8C8FA3';
+  const total = k.measureText(BT_SUB).width, x0 = (CW - total) / 2;
+  for (let j = 0; j < BT_SUB.length; j++) {
+    const ch = BT_SUB[j]; if (ch === ' ') continue;
+    const p = out3(seg(u, 1.5 + 0.03 * j, 2.1 + 0.03 * j));
+    BT_draw(k, ch, x0 + k.measureText(BT_SUB.slice(0, j)).width, 140 - 8 * (1 - p), 6 * (1 - p) + 6 * out, p * (1 - out));
+  }
+};

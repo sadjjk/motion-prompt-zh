@@ -1,0 +1,51 @@
+// Motion Prompt #1-209 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// ASCII 渐变光 / ASCII glow
+// 分类: 界面与网页 / 页面 / 首屏背景
+// 动画表现: 三团彩色光在 77×17 格等宽字符上缓慢移动，亮度用字符疏密表示，光标周围的字符乱码并泛白。
+// 运动规格:
+//   - 铺 77×17 格等宽字符，每格 7×12 px。
+//   - 三团光（橙、洋红、青，半径 95–120 px）沿整数频率的李萨如路径漂移，循环无缝。
+//   - 亮度 I = Σ e^(−d²/r²) 映射到字符梯度 " .`-:;=+*#%@"，颜色按各光的权重混合。
+//   - 光标 0.4–1.0 秒入场、4.5–5.2 秒离场；55 px 内的字符每秒乱换 15 次并泛白。
+// 适用场景: 适合开发者工具、终端风网站、复古科技品牌的背景。
+// 标签: ascii-art, gradient-glow, text-mode, monospace, hero-background, scramble
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-209
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 10
+// 10 ASCII 渐变光：77×17 格等宽字符（每格 7×12 px），三团柔和光斑按整数频率的李萨如路径漂移，
+// 每格亮度 I = Σ e^(−d²/r²)（r = 95–120 px）映射到字符梯度 " .`-:;=+*#%@"，颜色按各光斑权重混合（橙、洋红、青）；
+// 光标 0.4–1.0 秒入场、4.5–5.2 秒离场，55 px 内的字符每秒乱换 15 次并泛白
+const GA_CW = 7, GA_CH = 12, GA_COLS = 77, GA_ROWS = 17, GA_RAMP = ' .`-:;=+*#%@', GA_SCR = '#$%&*+=?@<>/\\|01';
+const GA_B = [
+  { ax: 190, fx: 1, px: 0.0, ay: 50, fy: 2, py: 0.6, r: 120, c: [255, 138, 61] },
+  { ax: 160, fx: 2, px: 2.1, ay: 45, fy: 1, py: 2.4, r: 105, c: [240, 70, 170] },
+  { ax: 200, fx: 1, px: 4.0, ay: 55, fy: 3, py: 1.2, r: 95, c: [60, 200, 255] }];
+const GA_KF = [[0.4, -30, 140], [1.4, 150, 90], [2.6, 330, 120], [3.6, 420, 70], [4.5, 260, 100], [5.2, 600, 150]];
+CELLS[9] = (k, w, h, u) => {
+  k.fillStyle = '#07070B'; k.fillRect(0, 0, CW, CH);
+  const ph = TAU * u / CYC, [cx, cy] = path(GA_KF, u), p = presence(u, 0.4, 1.0, 4.5, 5.2);
+  const bs = GA_B.map(b => [CW / 2 + b.ax * Math.sin(b.fx * ph + b.px), CH / 2 + b.ay * Math.sin(b.fy * ph + b.py)]);
+  k.font = `600 11px ${MONO}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+  const oy = (CH - GA_ROWS * GA_CH) / 2 + GA_CH / 2, ox = (CW - GA_COLS * GA_CW) / 2 + GA_CW / 2;
+  for (let r = 0; r < GA_ROWS; r++) for (let c = 0; c < GA_COLS; c++) {
+    const x = ox + c * GA_CW, y = oy + r * GA_CH;
+    let I = 0, cr = 0, cg = 0, cb = 0;
+    GA_B.forEach((b, j) => { const dx = x - bs[j][0], dy = (y - bs[j][1]) * 1.6, wgt = Math.exp(-(dx * dx + dy * dy) / (b.r * b.r)); I += wgt; cr += b.c[0] * wgt; cg += b.c[1] * wgt; cb += b.c[2] * wgt; });
+    const col = I > 0 ? [cr / I, cg / I, cb / I] : [0, 0, 0];
+    I = clamp(I * 0.95 + 0.04 * Math.sin(c * 0.7 + r * 1.3 + ph));
+    let ch = GA_RAMP[Math.min(GA_RAMP.length - 1, Math.floor(I * GA_RAMP.length))];
+    let fc = col, a = 0.25 + 0.75 * I;
+    const d = Math.hypot(x - cx, y - cy), near = p * Math.exp(-(d / 55) * (d / 55));
+    if (near > 0.2) { ch = GA_SCR[Math.floor(hash(r * 97 + c * 13 + Math.floor(u * 15) * 0.71) * GA_SCR.length)]; fc = lerpC(col, [255, 255, 255], near); a = mix(a, 1, near); }
+    if (ch === ' ') continue;
+    k.globalAlpha = a; k.fillStyle = rgb(fc.map(Math.round)); k.fillText(ch, x, y);
+  }
+  k.globalAlpha = 1;
+  if (u > 0.4 && u < 5.2) cursor(k, cx, cy);
+};

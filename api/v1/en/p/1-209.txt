@@ -1,0 +1,15 @@
+Please use "ASCII glow" (ASCII グロー), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-209
+
+What it is: A background that draws soft drifting glows using only ASCII characters chosen by brightness
+What the sample shows: Three coloured glows drift across a 77×17 grid of monospace characters, brightness shown by how dense each character is, and characters scramble and glow white around the cursor.
+Spec:
+- A 77×17 grid of monospace characters, each cell 7×12 px.
+- Three glows (orange, magenta, cyan; radius 95–120 px) drift on Lissajous paths with whole-number frequencies, so the loop closes.
+- Brightness I = Σ e^(−d²/r²) picks a character from the ramp " .`-:;=+*#%@"; colour is the weighted mix of the glows.
+- The cursor enters at 0.4–1.0 s and leaves at 4.5–5.2 s; characters within 55 px scramble 15 times a second and turn white.
+When to use it: Use it behind developer tools, terminal-style sites or retro tech brands.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-209.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

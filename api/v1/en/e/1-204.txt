@@ -1,0 +1,57 @@
+// Motion Prompt #1-204 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Lens dot field / レンズドットフィールド
+// Category: UI & Web / Pages / Hero backgrounds
+// What happens: A lens of radius 72 px follows the cursor over a gradient dot grid with 13 px spacing; first it magnifies the dots inside, then it twists them into a swirl.
+// Motion spec:
+//   - Dots on a 13 px grid are coloured with a horizontal gradient from #6A5CFF to #22D3EE to #F472B6, with brightness moved by two diagonal sine waves.
+//   - The cursor enters at 0.3–1.0 s and leaves at 4.6–5.3 s, carrying a lens ring of radius 72 px with a soft highlight.
+//   - At 1.0–2.6 s it magnifies: with t = 1 − d/72, dots inside are pushed out to d·(1+0.9t²) and gain up to 2.2t px of radius.
+//   - At 2.6–3.0 s it blends into swirl mode, rotating dots around the cursor by 2.2t² radians.
+// When to use it: Use it on hero sections for AI or data products where the cursor should feel like a lens peering into the page.
+// Tags: dot-field, lens, magnify, swirl, cursor-follow, hero-background, gradient
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-204
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 05
+// 05 透镜点阵：13 px 间距的点阵按横向三色渐变着色，亮度随两道斜向正弦波呼吸；
+// 光标带着半径 72 px 的透镜移动：1.0–2.6 秒为放大模式（透镜内的点按 d·(1+0.9t²) 向外推开并变大，t = 1 − d/72），
+// 2.6–3.0 秒过渡到漩涡模式（点绕光标转 2.2t² 弧度），光标 0.3–1.0 秒入场、4.6–5.3 秒离场
+const DF_S = 13, DF_R = 72;
+const DF_KF = [[0.3, -40, 120], [1.0, 110, 104], [2.6, 250, 90], [3.0, 300, 110], [4.6, 430, 100], [5.3, 600, 80]];
+const DF_A = [106, 92, 255], DF_B = [34, 211, 238], DF_C = [244, 114, 182];
+CELLS[4] = (k, w, h, u) => {
+  k.fillStyle = '#0A0A12'; k.fillRect(0, 0, CW, CH);
+  const [cx, cy] = path(DF_KF, u), p = presence(u, 0.3, 1.0, 4.6, 5.3), sw = inOut3(seg(u, 2.6, 3.0));
+  const mag = p * (1 - 0.6 * sw), swirl = p * sw;
+  const cols = Math.floor(CW / DF_S), rows = Math.floor(CH / DF_S);
+  const ox = (CW - (cols - 1) * DF_S) / 2, oy = (CH - (rows - 1) * DF_S) / 2;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    let x = ox + c * DF_S, y = oy + r * DF_S;
+    const fx = x / CW, col = fx < 0.5 ? lerpC(DF_A, DF_B, fx * 2) : lerpC(DF_B, DF_C, fx * 2 - 1);
+    let br = 0.38 + 0.22 * Math.sin(TAU * u / CYC * 2 - x * 0.02 + y * 0.03) + 0.12 * Math.sin(TAU * u / CYC - y * 0.05);
+    let rad = 1.5;
+    const dx = x - cx, dy = y - cy, d = Math.hypot(dx, dy);
+    if (d < DF_R && p > 0) {
+      const t = 1 - d / DF_R, s = 1 + 0.9 * mag * t * t, an = swirl * 2.2 * t * t;
+      const ca = Math.cos(an), sa = Math.sin(an);
+      x = cx + (dx * ca - dy * sa) * s; y = cy + (dx * sa + dy * ca) * s;
+      rad += 2.2 * t * (mag + 0.5 * swirl); br = mix(br, 1, t * p);
+    }
+    k.globalAlpha = clamp(br); k.fillStyle = rgb(col);
+    k.beginPath(); k.arc(x, y, rad, 0, TAU); k.fill();
+  }
+  k.globalAlpha = 1;
+  if (p > 0.01) {
+    k.strokeStyle = `rgba(255,255,255,${0.22 * p})`; k.lineWidth = 1.2;
+    k.beginPath(); k.arc(cx, cy, DF_R, 0, TAU); k.stroke();
+    const g = k.createRadialGradient(cx - 24, cy - 28, 0, cx, cy, DF_R);
+    g.addColorStop(0, `rgba(255,255,255,${0.1 * p})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+    k.fillStyle = g; k.beginPath(); k.arc(cx, cy, DF_R, 0, TAU); k.fill();
+  }
+  if (u > 0.3 && u < 5.3) cursor(k, cx, cy);
+};

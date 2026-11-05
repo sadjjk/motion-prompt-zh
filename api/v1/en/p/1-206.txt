@@ -1,0 +1,15 @@
+Please use "Cursor grid" (カーソル点灯グリッド), filed under "Pointer interactions / Cursor".
+Motion Prompt #1-206
+
+What it is: A grid whose cells light up where the cursor passes and fade out slowly, leaving a trail
+What the sample shows: The cursor moves over a 26 px grid; cells it crosses light up and fade into a trail, and a click sends a ring of lit cells outward.
+Spec:
+- A 26 px grid on a dark background; cell colour runs from pink #FF4D8D on the left to violet #7A5CFF on the right.
+- Cells the cursor crosses light up at once and dim as e^(−Δt/0.45).
+- A click at 3.4 s sends a ring of lit cells out at 360 px/s that weakens over 1.2 s.
+- The cursor enters at 0.3 s and leaves at 5.0 s; everything fades out at 5.4–6.0 s.
+When to use it: Use it behind portfolios or event pages to show the cursor's path as a fading trail.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-206.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

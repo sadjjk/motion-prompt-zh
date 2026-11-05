@@ -1,0 +1,76 @@
+// Motion Prompt #1-216 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// リボンカーソル / Ribbon cursor
+// 分類: UI・Web / ポインター操作 / カーソル
+// 何が起きるか: カーソルが波のような線を描いて横切り、4 色のリボンがばねで遅れてついてきて、曲がるたびに外側へふくらむ。
+// 動きの仕様:
+//   - リボンは 4 本、各 36 節。先頭の節はカーソルの周り 9 px の点にぶら下がってゆっくり回り、4 本は 90° ずつずれる
+//   - 後ろの節は 1 ステップごとに v ← 0.3·v + s·(前の節 − 自分) で前の節を追う。s はリボンごとに 0.42、0.32、0.24、0.18
+//   - 線幅は先頭で最大 10 px、末尾へ細くなり、加算合成で重なった所が白く光る
+//   - 物理は 1/120 秒刻みで計算し、60 fps の表にしておくので同じ時刻は毎回同じ絵になる
+//   - カーソルは 0.4 秒に左から入り、5.3 秒に右へ出る。5.4–6.0 秒に全体がフェードアウトする
+// 使いどころ: ポートフォリオや音楽、イベントのページで、カーソルの動きそのものを見せたいとき。
+// タグ: ribbons, cursor-trail, spring, follow-cursor, glow, additive-blend
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-216
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 17
+// 17 弹性飘带光标：4 条飘带跟着光标，每条 36 个节点；头节点挂在光标周围 9 px 处缓慢转动，后面每个节点用弹簧追前一个节点，
+// 每步 v ← d·v + s·(前一节点 − 本节点)，4 条的拉力 s（0.42/0.32/0.24/0.18）不同、保留速度 d 都是 0.3，
+// 所以硬的那条紧贴光标、软的那条拖得更长更甩；线宽从头到尾变细，叠加混合发光。
+// 光标 0.4 秒从左入场，沿波浪线穿过画面，5.3 秒从右离场；物理按 1/120 秒步长预烘焙成 60 fps 帧表，同一时刻画面恒定；5.4–6.0 秒淡出
+const RB_N = 36, RB_FPS = 60, RB_SUB = 2, RB_OFF = 9;
+// 头节点不完全重合：各自挂在光标周围 RB_OFF px 的一个转动点上（相位差 90°），四条飘带才能分开
+// d 取小值：节点链一级级传递速度，d 一大就会层层放大成乱甩的折线，所以只留一点惯性
+const RB_SET = [{ s: 0.42, d: 0.3, c: '255,77,141', w: 10 }, { s: 0.32, d: 0.3, c: '255,179,71', w: 8 }, { s: 0.24, d: 0.3, c: '79,209,255', w: 7 }, { s: 0.18, d: 0.3, c: '155,123,255', w: 6 }];
+// 光标路径：横向匀速推进叠加正弦摆动，速度连续，飘带不会在关键帧处顿住
+const RB_cur = t => { const s = clamp((t - 0.4) / 4.9); return [-40 + 620 * s + 40 * Math.sin(TAU * 2 * s), 104 + 62 * Math.sin(TAU * 1.5 * s + 0.4)]; };
+let RB_FRAMES = null;
+function RB_bake() {
+  const n = Math.ceil(CYC * RB_FPS) + 1, dt = 1 / (RB_FPS * RB_SUB), [x0, y0] = RB_cur(0);
+  const P = RB_SET.map(() => Array.from({ length: RB_N }, () => [x0, y0, 0, 0]));
+  const frames = [];
+  for (let f = 0; f < n; f++) {
+    frames.push(P.map(rib => Float32Array.from(rib.flatMap(q => [q[0], q[1]]))));
+    for (let s = 0; s < RB_SUB; s++) {
+      const [cx, cy] = RB_cur((f * RB_SUB + s + 1) * dt);
+      RB_SET.forEach((o, ri) => {
+        const rib = P[ri], ang = (f * RB_SUB + s) * dt * 5 + ri * Math.PI / 2;
+        rib[0][0] = cx + RB_OFF * Math.cos(ang); rib[0][1] = cy + RB_OFF * Math.sin(ang);
+        for (let j = 1; j < RB_N; j++) {
+          const q = rib[j], pr = rib[j - 1];
+          // 离散弹簧（按步计，不乘 dt）
+          q[2] = q[2] * o.d + (pr[0] - q[0]) * o.s; q[3] = q[3] * o.d + (pr[1] - q[1]) * o.s;
+          q[0] += q[2]; q[1] += q[3];
+        }
+      });
+    }
+  }
+  RB_FRAMES = frames;
+}
+CELLS[16] = (k, w, h, u) => {
+  if (!RB_FRAMES) RB_bake();
+  k.fillStyle = '#0B0A12'; k.fillRect(0, 0, CW, CH);
+  txt(k, 'MOVE · 跟手', CW / 2, CH / 2 + 6, `600 16px ${MONO}`, 'rgba(255,255,255,.14)', 'center');
+  const fr = RB_FRAMES[Math.min(RB_FRAMES.length - 1, Math.floor(u * RB_FPS))], a = fadeIn(u);
+  k.save(); k.globalCompositeOperation = 'lighter'; k.lineCap = 'round'; k.lineJoin = 'round';
+  // 从最软的一条画起，硬的那条压在最上面
+  for (let ri = RB_SET.length - 1; ri >= 0; ri--) {
+    const o = RB_SET[ri], q = fr[ri];
+    for (let pass = 0; pass < 2; pass++) {             // 第 0 遍宽而淡当光晕，第 1 遍是飘带本体
+      for (let j = 1; j < RB_N; j++) {
+        const f = 1 - j / RB_N;
+        k.strokeStyle = `rgba(${o.c},${a * (pass ? 0.9 * f : 0.18 * f)})`;
+        k.lineWidth = (pass ? 1 : 2.6) * (1 + (o.w - 1) * f);
+        k.beginPath(); k.moveTo(q[j * 2 - 2], q[j * 2 - 1]); k.lineTo(q[j * 2], q[j * 2 + 1]); k.stroke();
+      }
+    }
+  }
+  k.restore();
+  const [cx, cy] = RB_cur(u);
+  if (u > 0.4 && u < 5.3) cursor(k, cx, cy);
+};

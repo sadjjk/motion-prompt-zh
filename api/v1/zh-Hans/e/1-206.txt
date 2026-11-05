@@ -1,0 +1,52 @@
+// Motion Prompt #1-206 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// 光标点亮网格 / Cursor grid
+// 分类: 界面与网页 / 指针交互 / 光标
+// 动画表现: 光标在 26 px 方格上移动，经过的格子亮起后渐暗成拖尾，点击时一圈亮格向外扩散。
+// 运动规格:
+//   - 深色背景上铺 26 px 方格，格子颜色从左侧粉 #FF4D8D 渐变到右侧紫 #7A5CFF。
+//   - 光标经过的格子立刻亮起，按 e^(−Δt/0.45) 变暗。
+//   - 3.4 秒点击，一圈亮格以 360 px/s 向外扩散，1.2 秒内减弱。
+//   - 光标 0.3 秒入场、5.0 秒离场；5.4–6.0 秒整体淡出。
+// 适用场景: 适合作品集、活动页背景，想把光标走过的路线显示成渐隐轨迹时。
+// 标签: cursor-grid, cursor-trail, grid, hover-highlight, click-pulse, background
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-206
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 07
+// 07 光标点亮网格：26 px 方格铺满深色画面，光标经过的格子立刻亮起，再按 e^(−Δt/0.45) 渐暗，形成一条拖尾；
+// 格子颜色从左到右由粉 #FF4D8D 渐变到紫 #7A5CFF；3.4 秒点击，一圈亮格以 360 px/s 向外扩散并在 1.2 秒内减弱
+const CG_S = 26, CG_CLICK = 3.4;
+const CG_KF = [[0.3, -30, 40], [1.2, 180, 60], [2.0, 330, 150], [2.8, 470, 70], [CG_CLICK, 300, 110], [4.4, 90, 160], [5.0, -30, 120]];
+const CG_A = [255, 77, 141], CG_B = [122, 92, 255];
+CELLS[6] = (k, w, h, u) => {
+  k.fillStyle = '#0C0B12'; k.fillRect(0, 0, CW, CH);
+  const cols = Math.ceil(CW / CG_S), rows = Math.ceil(CH / CG_S), ox = (CW - cols * CG_S) / 2;
+  const lit = new Float32Array(cols * rows);
+  for (let s = Math.max(0.3, u - 1.6); s <= Math.min(u, 5.0); s += 1 / 90) {
+    const [px, py] = path(CG_KF, s), c = Math.floor((px - ox) / CG_S), r = Math.floor(py / CG_S);
+    if (c >= 0 && c < cols && r >= 0 && r < rows) lit[r * cols + c] = Math.max(lit[r * cols + c], Math.exp(-(u - s) / 0.45));
+  }
+  const ct = u - CG_CLICK;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const x = ox + c * CG_S, y = r * CG_S;
+    let v = lit[r * cols + c];
+    if (ct > 0 && ct < 1.2) {
+      const d = Math.hypot(x + CG_S / 2 - CG_KF[4][1], y + CG_S / 2 - CG_KF[4][2]), q = (d - ct * 360) / 22;
+      v = Math.max(v, 0.8 * Math.exp(-q * q) * (1 - ct / 1.2));
+    }
+    v *= fadeIn(u);
+    k.strokeStyle = 'rgba(255,255,255,.06)'; k.lineWidth = 1; k.strokeRect(x + 0.5, y + 0.5, CG_S, CG_S);
+    if (v > 0.01) {
+      k.fillStyle = rgb(lerpC(CG_A, CG_B, c / (cols - 1))); k.globalAlpha = 0.9 * v;
+      rr(k, x + 2, y + 2, CG_S - 3, CG_S - 3, 3); k.fill(); k.globalAlpha = 1;
+    }
+  }
+  const [cx, cy] = path(CG_KF, u);
+  ripple(k, CG_KF[4][1], CG_KF[4][2], ct / 0.6);
+  if (u > 0.3 && u < 5.0) cursor(k, cx, cy, Math.abs(ct) < 0.1 ? 1 : 0);
+};

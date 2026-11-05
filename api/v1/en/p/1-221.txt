@@ -1,0 +1,16 @@
+Please use "Electric border" (電流ボーダー), filed under "Pointer interactions / Hover".
+Motion Prompt #1-221
+
+What it is: A card whose border is a crackling electric arc that grows wilder and brighter as the cursor approaches
+What the sample shows: On a dark background, a rounded card's edge is 2 trembling electric arcs; as the cursor circles the card the nearest stretch thrashes and the whole ring brightens while it touches.
+Spec:
+- Points are taken about every 4 px around a 280×124 px card with 18 px corner radius, and each is pushed along its outward normal.
+- The push is a sum of 5 sine waves whose wave counts around the edge and turns per cycle are all integers, so the edge is a closed line and 6.4 s matches 0 s with no reset segment.
+- The resting swing is 3 px; within 70 px of the cursor it grows to at most 11 px.
+- When the cursor comes within 40 px of the card the whole ring gets up to 1.6 times brighter; the glow is drawn as translucent 16 px and 7 px wide lines.
+- A 2nd arc with shifted phase is drawn at 0.6 times the swing. The cursor enters from the lower right at 0.5 s and leaves at the lower left at 5.0 s.
+When to use it: Use it on a premium plan card, a game UI panel or a button that should feel charged with energy.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-221.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

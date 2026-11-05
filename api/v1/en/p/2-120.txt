@@ -1,0 +1,16 @@
+Please use "Blur text reveal" (ぼかし表示テキスト), filed under "Text animation / Letter by letter & layout".
+Motion Prompt #2-120
+
+What it is: A headline sharpens into place word by word, and the subline letter by letter, each starting blurred and slightly raised
+What the sample shows: On a dark background, a large white-and-blue headline sharpens in word by word, then the subline below appears letter by letter. At the end everything blurs and fades away again.
+Spec:
+- The headline has 5 words. From 0.3 s a new word starts every 0.14 s, and each takes 0.8 s to appear.
+- Each word goes from 14 px higher, a 10 px blur radius and transparent to in place, radius 0 and opaque, with out3 easing.
+- The subline starts at 1.5 s with a 0.03 s stagger per letter; each letter takes 0.6 s to settle from 8 px higher and a 6 px radius.
+- The blur is 17 copies of the glyph spread within the radius, each with opacity 1 − (1 − a)^(1/17) so they add up to a (no filter).
+- At 5.4–6.0 s everything blurs and fades out again, matching 0 s.
+When to use it: Use it for hero headlines, taglines or section intros where the opening line should arrive quietly but noticeably.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-120.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

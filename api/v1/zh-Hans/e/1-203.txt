@@ -1,0 +1,46 @@
+// Motion Prompt #1-203 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// 磁力线阵 / Magnet lines
+// 分类: 界面与网页 / 页面 / 首屏背景
+// 动画表现: 深色背景上 24×9 根短线一起指向光标，附近的亮成绿色；中间一次点击让线由内向外依次转半圈，光标离开后回到原来的摆动。
+// 运动规格:
+//   - 24×9 根短线排成固定网格，平时围绕 −45° 按正弦波摆动。
+//   - 光标 0.4–1.0 秒入场后，每根线按光标在场程度转向它；线两端对称，按 π 为周期取最短方向转。
+//   - 离光标 120 px 内的线长度从 7 变到 13 px，颜色从灰蓝亮到 #7CF3D0。
+//   - 3.6 秒点击，一圈波以 420 px/s 向外扩散，波经过的线在 0.5 秒内再转半圈。
+//   - 光标 4.5–5.2 秒离场，线回到原来的摆动。
+// 适用场景: 适合科技产品首屏或分区背景，想要一个安静地跟着光标反应的底纹时。
+// 标签: magnet-lines, cursor-follow, grid, hero-background, iron-filings, click-wave
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-203
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 04
+// 04 磁力线阵：24×9 根短线排成固定网格，平时随一道缓慢的正弦波轻轻摆动；
+// 光标 0.4–1.0 秒入场后，每根线按在场程度转向光标（线两端对称，转角按 π 取最短方向），离光标 120 px 内变长变亮；
+// 3.6 秒点击，一圈波以 420 px/s 向外扩散，波经过时每根线在 0.5 秒内多转半圈；光标 4.5–5.2 秒离场，线回到波浪摆动
+const ML_COLS = 24, ML_ROWS = 9, ML_CLICK = 3.6, ML_WAVE = 420;
+const ML_KF = [[0.4, -30, 150], [1.0, 120, 120], [2.0, 300, 60], [2.8, 420, 140], [ML_CLICK, 270, 104], [4.4, 140, 70], [5.2, -40, 40]];
+const ML_DIM = [88, 94, 120], ML_HOT = [124, 243, 208];
+const wrapH = a => a - Math.PI * Math.round(a / Math.PI);
+CELLS[3] = (k, w, h, u) => {
+  k.fillStyle = '#0D0E13'; k.fillRect(0, 0, CW, CH);
+  const [cx, cy] = path(ML_KF, u), p = presence(u, 0.4, 1.0, 4.5, 5.2), ct = u - ML_CLICK;
+  const sx = CW / ML_COLS, sy = CH / ML_ROWS;
+  k.lineCap = 'round';
+  for (let r = 0; r < ML_ROWS; r++) for (let c = 0; c < ML_COLS; c++) {
+    const x = (c + 0.5) * sx, y = (r + 0.5) * sy, d = Math.hypot(cx - x, cy - y);
+    const rest = -Math.PI / 4 + 0.5 * Math.sin(TAU * u / CYC + c * 0.35 + r * 0.5);
+    let a = rest + wrapH(Math.atan2(cy - y, cx - x) - rest) * p;
+    if (ct > 0) a += Math.PI * out3(seg(ct, d / ML_WAVE, d / ML_WAVE + 0.5));
+    const near = p * Math.exp(-(d / 120) * (d / 120));
+    const len = 7 + 6 * near, ex = Math.cos(a) * len / 2, ey = Math.sin(a) * len / 2;
+    k.strokeStyle = rgb(lerpC(ML_DIM, ML_HOT, near)); k.lineWidth = 2 + 0.6 * near;
+    k.beginPath(); k.moveTo(x - ex, y - ey); k.lineTo(x + ex, y + ey); k.stroke();
+  }
+  ripple(k, ML_KF[4][1], ML_KF[4][2], ct / 0.6);
+  if (u > 0.4 && u < 5.2) cursor(k, cx, cy, Math.abs(ct) < 0.1 ? 1 : 0);
+};

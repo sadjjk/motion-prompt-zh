@@ -1,0 +1,16 @@
+Please use "Arc gallery" (アーチギャラリー), filed under "Components / Choosing & input".
+Motion Prompt #1-226
+
+What it is: Cards line up along a wide arc, each bent to the curve, and dragging spins them along the arc until they snap into place
+What the sample shows: On a dark background, curved cards sit along an arc; the cursor drags left and lets go, the cards settle into the nearest slot, then it drags right back to the original order.
+Spec:
+- 7 cards of 92×116 px sit 116 px apart on an arc of 560 px radius, and they loop from end to end.
+- The top and bottom edges of each card are sampled at 9 points along the arc so the card bends with it; the titles also follow the arc under the cards.
+- Cards darken by up to 55% the further they are from the centre.
+- At 1.0–2.2 s the cursor drags 170 px left; on release the row snaps as e^(−5τ) to the nearest slot at −116 px.
+- At 3.4–4.4 s it drags 170 px right, and released at 54 px it snaps back to the nearest slot, the start, so 0 s and 6.4 s show the same frame.
+When to use it: Use it for portfolios, product collections or speaker line-ups where people should browse a row of images by hand.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-226.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

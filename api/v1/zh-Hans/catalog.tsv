@@ -1,4 +1,4 @@
-# Motion Prompt catalog (zh-Hans) · 501 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	category	title	tags	summary
+# Motion Prompt catalog (zh-Hans) · 536 elements · https://sadjjk.github.io/motion-prompt-zh/ · columns: id	category	title	tags	summary
 1-001	组件 / 弹出与覆盖	模态对话框 (Modal dialog)	modal,modal-dialog,dialog,popup,overlay,backdrop,lightbox,confirm	点击“打开”后页面变暗，小窗口略微放大并出现在中央，点击 × 关闭。
 1-002	组件 / 弹出与覆盖	侧边抽屉 (Drawer (Off-canvas))	drawer,off-canvas,offcanvas,side-menu,navigation-drawer,sheet,sidebar,slide-in	点击“菜单”后高面板从左侧滑入，点击外部后滑回。
 1-003	组件 / 弹出与覆盖	底部弹出面板 (Bottom sheet)	bottom-sheet,sheet,modal-sheet,mobile,slide-up,drag-to-dismiss,panel	手指轻点“查看详情”，面板从底部升起；向下拖动把手即可关闭。
@@ -198,6 +198,37 @@
 1-197	指针交互 / 液态交互	液态玻璃透镜 (Liquid glass lens)	liquid,glass,refraction,lens,dispersion,glassmorphism	深色网格上有大标题和 6 个色块，胶囊形玻璃透镜向右滑过、停住、再滑回。透镜中部通透，越靠近边缘内容越被向内拉弯，边缘带红蓝色散；上部有弧形高光，外侧有柔和投影。
 1-198	页面 / 滚动	滚动隐藏页头 (Hide-on-scroll header)	hide-on-scroll,headroom,auto-hide-header,navbar,header,scroll-direction,sticky	向下滚动时页头向上收起，稍往回滚又滑出来。
 1-199	反馈 / 操作反馈	加载状态按钮 (Loading button)	loading-button,spinner,submit,busy-state,async,success,disabled	点击后「订阅」按钮收成圆形转圈，完成后变绿展开，出现对勾和「已订阅」，随后复原。
+1-200	页面 / 首屏背景	物理球池 (Ball pit)	ball-pit,physics,gravity,collision,hero-background,cursor-push,click-burst	26 个球从上方落进深色框里堆积，光标贴着池底从左扫到右把球拱开，中间一次点击把球炸开再落回，最后球层淡出。
+1-201	指针交互 / 拟物与卡片	撕贴纸 (Sticker peel)	sticker,peel,page-curl,fold,drag,tactile	光标在点阵底上捏住橙色贴纸的右下角往左上拉，折线跟着推进、背面翻起，松手后像弹簧一样晃几下贴平。
+1-202	文字与数据 / 交互文字	压感文字 (Pressure type)	pressure-text,variable-width,cursor-proximity,interactive-type,headline,kinetic-type	光标在大写 PRESSURE 上左右扫过三次，靠近的字母鼓起变深，其余保持窄而灰。
+1-203	页面 / 首屏背景	磁力线阵 (Magnet lines)	magnet-lines,cursor-follow,grid,hero-background,iron-filings,click-wave	深色背景上 24×9 根短线一起指向光标，附近的亮成绿色；中间一次点击让线由内向外依次转半圈，光标离开后回到原来的摆动。
+1-204	页面 / 首屏背景	透镜点阵 (Lens dot field)	dot-field,lens,magnify,swirl,cursor-follow,hero-background,gradient	半径 72 px 的透镜跟着光标在 13 px 间距的渐变点阵上移动，前半段放大透镜里的点，后半段把它们拧成漩涡。
+1-205	页面 / 首屏背景	字符故障墙 (Letter glitch)	letter-glitch,glyphs,flicker,scramble,cyberpunk,hero-background,monospace	49×13 个等宽字符以 4 种绿蓝紫色随机换字闪烁，光标周围乱码泛白，点击时附近几行横向撕开并闪成洋红。
+1-206	指针交互 / 光标	光标点亮网格 (Cursor grid)	cursor-grid,cursor-trail,grid,hover-highlight,click-pulse,background	光标在 26 px 方格上移动，经过的格子亮起后渐暗成拖尾，点击时一圈亮格向外扩散。
+1-207	页面 / 首屏背景	等高线地形 (Contour terrain)	topography,contour-lines,terrain,3d,hero-background,cursor-bump	透视视角下 13 层蓝色等高线组成的地形起伏，光标下方鼓起、线条聚拢，点击时白色光环扩散。
+1-208	页面 / 首屏背景	几何形状波 (Shape waves)	shape-waves,geometric,wave,pattern,hero-background,halftone	斜向波浪滚过 28×11 个圆、三角、方块，波峰处形状变大并由金黄到粉红发亮，波谷处变暗变小。
+1-209	页面 / 首屏背景	ASCII 渐变光 (ASCII glow)	ascii-art,gradient-glow,text-mode,monospace,hero-background,scramble	三团彩色光在 77×17 格等宽字符上缓慢移动，亮度用字符疏密表示，光标周围的字符乱码并泛白。
+1-210	页面 / 首屏背景	抖动网点波 (Dither waves)	dither,bayer,pixel-art,retro,wave,hero-background	波浪用靛、紫、珊瑚、奶油 4 色像素起伏，交界处是抖动网点，光标身后拖出一道亮尾再消失。
+1-211	页面 / 首屏背景	像素漩涡颜料 (Pixel paint swirl)	paint-swirl,pixelated,domain-warp,retro-game,hero-background,whirlpool	4 色粗像素颜料绕中心打旋流动，光标经过时颜料被拧动，点击处卷起一个漩涡再消失。
+1-212	页面 / 首屏背景	渐变百叶 (Gradient blinds)	gradient-blinds,spotlight,slats,cursor-follow,hero-background,stage-light	18 片竖向百叶轻轻摆动，光标的聚光灯移动时叶片朝它偏转，光照到的地方泛白发亮。
+1-213	页面 / 首屏背景	夜间公路光轨 (Highway light trails)	hyperspeed,light-trails,highway,warp,press-and-hold,hero-background	红白光轨在夜路上流动，光标从 2.3 秒开始按住后车速上升、光轨拉长、视野放大并泛紫，松手后回到巡航速度。
+1-214	页面 / 首屏背景	倾斜图块墙 (Tilted tile wall)	tile-wall,tilted-grid,marquee,parallax,card-wall,hero-background	5 排倾斜 −12° 的卡片交替反向漂移，光标移动时各排按不同幅度平移出纵深感，正下方的卡片浮起发亮。
+1-215	指针交互 / 光标	立方体朝向阵 (Cube field)	cubes,cube-grid,cursor-follow,isometric,click-wave,background	12×4 个立方体斜着排开，光标附近的朝光标倾斜，3.2 秒点击后一圈波扩散，立方体依次翻转。
+1-216	指针交互 / 光标	弹性飘带光标 (Ribbon cursor)	ribbons,cursor-trail,spring,follow-cursor,glow,additive-blend	光标沿波浪线横穿画面，四色飘带被弹簧拖着跟随，每次转弯都向外甩开。
+1-217	指针交互 / 光标	准星吸附 (Target cursor)	target-cursor,snap,corner-brackets,custom-cursor,hover,focus-ring	光标依次移到导航胶囊、按钮、卡片上，每次四个角括号都弹跳着吸附到外框，2.9 秒点击按钮。
+1-218	指针交互 / 光标	躲避光标 (Dodge field)	dodge,repel,cursor-avoid,icon-grid,spring-back,micro-interaction	浅色画面上排着 7×3 个图标，光标蛇形扫过三行，附近的图标让开，经过后再回到原位。
+1-219	指针交互 / 光标	网点显影 (Halftone reveal)	halftone,reveal,dot-matrix,cursor-trail,image-reveal,hero-image	光标在暗色网点上移动，划过的轨迹显出网点画成的落日山景，4.0 秒点击后整张图显出，再消失。
+1-220	指针交互 / 悬停	像素换图 (Pixel swap)	pixel,hover-swap,image-swap,wave,card,before-after	光标 1.0 秒从左侧进入卡片，像素波把白天换成夜晚；3.4 秒从右下角离开，反向波再换回白天。
+1-221	指针交互 / 悬停	电流边框 (Electric border)	electric-border,lightning,card-hover,glow,sine-noise,border	深色背景上，圆角卡片的边框是 2 条抖动的电弧；光标绕卡片走一圈，近处那段剧烈抖动，碰到卡片时整圈变亮。
+1-222	指针交互 / 拟物与卡片	弹跳扇形卡片 (Bounce cards)	bounce-cards,card-fan,hover-spread,stacked-cards,gallery,spring	5 张卡片弹跳着展开成扇形；光标从左到右依次停在每张上，那张转正浮到前面、两边让开，最后全部缩小消失。
+1-223	指针交互 / 拟物与卡片	挂绳胸牌 (Lanyard badge)	lanyard,id-badge,drag,pendulum,swing,spring	胸牌挂着轻轻晃；1.2 秒光标抓住它往右上拉，2.6 秒松手后胸牌左右大幅摆动，挂绳弹回，摆动逐渐停下。
+1-224	组件 / 选择与输入	弧形输入框 (Curved input)	curved-input,arc-text,search-field,text-on-path,input,typing	平直的搜索框弯成圆弧；点击后外圈出现聚焦光环，文字沿弧一个个键入；按下发送，文字顺着弧滑走消失，占位文字回来。
+1-225	组件 / 选择与输入	拖动调数 (Scrub field)	scrub,number-input,drag-to-adjust,rubber-band,overscroll,slider	深色背景上，光标按住 Opacity 框往右拖，数值到 100 后右边缘被拉长，松手弹回；接着往左拖过 0，左边缘被拉长再弹回。
+1-226	组件 / 选择与输入	弧面画廊 (Arc gallery)	arc-gallery,curved-carousel,drag,snap,loop,gallery	深色背景上，弯曲的卡片沿弧排列；光标向左拖动后松手，卡片吸到最近的位置停下；然后向右拖回原来的排列。
+1-227	组件 / 导航与菜单	流动菜单 (Flowing menu)	flowing-menu,marquee,hover-band,direction-aware,fullscreen-menu,navigation	深色背景上，光标从上到下划过 4 行菜单，每行都有色带从上方滑入、名称滚动；最后往上回到第 3 行，色带从下方进入。
+1-228	反馈 / 操作反馈	引线撤销 (Fuse undo)	undo,toast,countdown,fuse,delete,snackbar	光标点文件行的删除键，文件行向右滑出，下方出现深色提示条，撤销按钮的外缘带着火星一路燃烧。中途点撤销，火熄灭冒烟，文件行滑回来。
+1-229	反馈 / 进度与图标	晃动液位计 (Slosh gauge)	liquid-gauge,progress,slosh,spring,splash,meter	深色背景的玻璃罐里，目标每升一次，液体就追上去并稍微冲过头，液面倾斜晃动。最后撞到 100% 溅起水花，右侧数字变成青绿色。
+1-230	反馈 / AI 状态	工具调用芯片 (Tool call chip)	tool-call,ai-agent,status-chip,progress,success,error-shake	浅色背景上，search_docs 芯片从左往右填满后变成绿色对勾；下一个 run_query 芯片中途变红、左右抖动，显示 failed。
 2-001	运动原理 / 入场与缓动	弹性弹入 (Pop-in)	pop,pop-in,spring,bounce,scale,icon,badge,entrance	应用图标弹跳入场，随后通知角标稍晚弹出。
 2-002	运动原理 / 入场与缓动	交错入场 (Stagger)	stagger,sequence,delay,cascade,bar-chart,list,entrance	图表的柱条从左到右依次升起，每根略有延迟。
 2-003	运动原理 / 入场与缓动	遮罩揭示 (Mask reveal)	mask,reveal,clip,wipe,title,text,slide-up,headline	标题从一条分隔线所标记的不可见边缘后方滑出。
@@ -317,6 +348,10 @@
 2-117	运动原理 / 入场与缓动	动画时长 (Duration)	duration,timing,transition-duration,speed,seconds,motion,ms	三个方块用 0.2 秒、0.4 秒和 0.8 秒走过相同距离，下方的条显示各自的时长。
 2-118	运动原理 / 入场与缓动	动画延迟 (Delay)	delay,stagger,transition-delay,sequence,timing,offset,list	四条时间条分别等待 0、0.15、0.3、0.45 秒后开始，右侧方块按同样顺序滑入。
 2-119	运动原理 / 入场与缓动	弹簧动画 (Spring animation)	spring,spring-physics,damping,stiffness,bounce,overshoot,framer-motion	三个刚度相同、阻尼比不同的圆点移向终点线，右侧小图画出位置随时间的变化。
+2-120	文字动画 / 逐字与排版	模糊显字 (Blur text reveal)	blur,text-reveal,stagger,headline,hero,typography	深色背景上，白色加蓝色的大标题逐词从模糊变清晰，接着下方副标题逐字母浮现。最后全部重新变模糊消失。
+2-121	文字动画 / 变形与质感	毛糙抖动字 (Fuzzy text)	fuzzy,jitter,glitch,hover,noise,typography	浅色背景上的黑色大字边缘细细地毛糙；光标放上去后横条大幅错开、剧烈抖动。光标离开后回到细微的毛糙。
+2-122	文字动画 / 变形与质感	折纸展开字 (Fold text)	fold,paper,unfold,origami,text-reveal,card	深蓝背景上，先出现黄色标题条，下面的白色纸条再一段一段折开，文字逐渐可读。最后从最下面一段起依次折回消失。
+2-123	文字动画 / 逐字与排版	滚速流动字 (Scroll velocity type)	kinetic-type,scroll-velocity,skew,marquee,scroll-linked,typography	深色背景上，2 行大字方向相反地流动；快速向下滚时文字一下子流得飞快、像斜体一样倾斜，向上滚时反向流动。停下后字形回正。
 3-001	镜头与剪辑 / 镜头运动	水平摇镜 (Pan)	pan,panning,yaw,rotate,horizontal,camera move,reveal	相机原地从左向右转动；由于是旋转，远近图层按相同角度横向滑动。
 3-002	镜头与剪辑 / 镜头运动	俯仰摇镜 (Tilt)	tilt,tilt up,pitch,vertical,look up,camera move	相机在原地向上转动，从地面人物逐渐摇到塔顶。
 3-003	镜头与剪辑 / 镜头运动	镜头推进 (Dolly in)	dolly,dolly in,push in,track in,move forward,parallax,camera move	相机本身接近主体；近处物体迅速放大并掠过，远山几乎不变。

@@ -1,0 +1,16 @@
+Please use "Fold text" (折り紙展開テキスト), filed under "Text animation / Morphing & texture".
+Motion Prompt #2-122
+
+What it is: Each line of a note is a creased paper strip that unfolds downward 1 fold at a time, revealing the text
+What the sample shows: On a deep blue background, a yellow header strip appears, then white paper strips unfold beneath it 1 by 1 until the text can be read. At the end they fold back up from the bottom and disappear.
+Spec:
+- The header strip is 36 px tall and opens over 0.5 s from 0.3 s. The 3 body lines are strips 40 px tall.
+- The body strips start at 0.8 s with a 0.45 s stagger; each opens its angle θ from 90° to 0° over 0.6 s with out3 easing.
+- Each strip hangs from the lower edge of the one above, with a visible height of 40·cos θ.
+- Odd strips fold inward and darken by 0.32·sin θ, even strips fold outward and brighten by 0.5·sin θ, and a thin line marks each crease.
+- At 5.4–6.0 s the strips fold back from the bottom with a 0.22 s stagger, and the header strip closes too, matching 0 s.
+When to use it: Use it on small cards whose short lines should be read in order, such as notes, notifications, recipe steps or checklists.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-122.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

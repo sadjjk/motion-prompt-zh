@@ -1,0 +1,16 @@
+Please use "Magnet lines" (マグネットライン), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-203
+
+What it is: A background of short lines in a fixed grid that turn toward the cursor like iron filings near a magnet
+What the sample shows: 24×9 short lines on a dark background turn to point at the cursor and glow green nearby; a click in the middle makes them flip half a turn in an outward wave, and they return to swaying when the cursor leaves.
+Spec:
+- 24×9 short lines sit in a fixed grid and normally sway around −45° on a sine wave.
+- When the cursor enters at 0.4–1.0 s each line turns toward it by the cursor's presence; lines are symmetric, so they turn the short way modulo π.
+- Lines within 120 px of the cursor grow from 7 to 13 px and brighten from slate to #7CF3D0.
+- A click at 3.6 s sends a wave out at 420 px/s; each line it passes spins a further half turn over 0.5 s.
+- The cursor leaves at 4.5–5.2 s and the lines go back to swaying.
+When to use it: Use it as a hero or section background for tech products that should respond quietly to the cursor.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-203.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

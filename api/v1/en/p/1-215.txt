@@ -1,0 +1,15 @@
+Please use "Cube field" (キューブフィールド), filed under "Pointer interactions / Cursor".
+Motion Prompt #1-215
+
+What it is: A field of small cubes that turn toward the cursor and spin in a wave when you click
+What the sample shows: Twelve by four cubes sit at an angle; those near the cursor tilt toward it, and a click at 3.2 s sends a wave that spins them one by one.
+Spec:
+- Cubes 24 px on a side, 44 px apart in a 12×4 grid, drawn in parallel projection; at rest each is turned 0.5 rad about x and 0.62 rad about y.
+- With weight e^(−(d/80)²) for distance d from the cursor, a cube tilts up to 1.1 rad toward the cursor and gets up to 1.5 times brighter.
+- A click at 3.2 s sends a wave out at 300 px/s; each cube it passes spins 90° about y. Every face has the same colour and is shaded only by its direction, so after the spin a cube looks exactly as before.
+- Colour runs from teal #2EC4B6 on the left to violet #7A5CFF on the right. The cursor enters at 0.4–1.0 s and leaves at 4.6–5.3 s.
+When to use it: Use it behind game or creative-studio heroes when the background should react to the cursor in 3D.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-215.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

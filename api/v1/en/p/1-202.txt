@@ -1,0 +1,16 @@
+Please use "Pressure type" (プレッシャー文字), filed under "Text & data / Interactive type".
+Motion Prompt #1-202
+
+What it is: A headline whose letters grow wider and bolder the closer the cursor gets, and narrow down when it moves away
+What the sample shows: The cursor sweeps across the capitals PRESSURE three times; letters near it swell and darken while the rest stay narrow and grey.
+Spec:
+- One line of 76 px capitals, PRESSURE, centred, with 4 px between letters.
+- Each letter's weight is w = e^(−(dx/60)²)·e^(−(dy/70)²), measured from its resting centre to the cursor.
+- Horizontal scale goes 0.78→1.45, vertical 1→1.08, a stroke of 0→3 px thickens it, and the colour moves from #9A97A3 to #16151B.
+- Widths add up after scaling and the whole line re-centres on each frame.
+- The cursor enters at 0.2–0.8 s, sweeps right, left and right, and leaves at 4.4–5.2 s while all weights ease back to 0.
+When to use it: Use it on big headings for portfolios or event sites that should react to the cursor.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-202.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,46 @@
+// Motion Prompt #1-203 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Magnet lines / マグネットライン
+// Category: UI & Web / Pages / Hero backgrounds
+// What happens: 24×9 short lines on a dark background turn to point at the cursor and glow green nearby; a click in the middle makes them flip half a turn in an outward wave, and they return to swaying when the cursor leaves.
+// Motion spec:
+//   - 24×9 short lines sit in a fixed grid and normally sway around −45° on a sine wave.
+//   - When the cursor enters at 0.4–1.0 s each line turns toward it by the cursor's presence; lines are symmetric, so they turn the short way modulo π.
+//   - Lines within 120 px of the cursor grow from 7 to 13 px and brighten from slate to #7CF3D0.
+//   - A click at 3.6 s sends a wave out at 420 px/s; each line it passes spins a further half turn over 0.5 s.
+//   - The cursor leaves at 4.5–5.2 s and the lines go back to swaying.
+// When to use it: Use it as a hero or section background for tech products that should respond quietly to the cursor.
+// Tags: magnet-lines, cursor-follow, grid, hero-background, iron-filings, click-wave
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-203
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 04
+// 04 磁力线阵：24×9 根短线排成固定网格，平时随一道缓慢的正弦波轻轻摆动；
+// 光标 0.4–1.0 秒入场后，每根线按在场程度转向光标（线两端对称，转角按 π 取最短方向），离光标 120 px 内变长变亮；
+// 3.6 秒点击，一圈波以 420 px/s 向外扩散，波经过时每根线在 0.5 秒内多转半圈；光标 4.5–5.2 秒离场，线回到波浪摆动
+const ML_COLS = 24, ML_ROWS = 9, ML_CLICK = 3.6, ML_WAVE = 420;
+const ML_KF = [[0.4, -30, 150], [1.0, 120, 120], [2.0, 300, 60], [2.8, 420, 140], [ML_CLICK, 270, 104], [4.4, 140, 70], [5.2, -40, 40]];
+const ML_DIM = [88, 94, 120], ML_HOT = [124, 243, 208];
+const wrapH = a => a - Math.PI * Math.round(a / Math.PI);
+CELLS[3] = (k, w, h, u) => {
+  k.fillStyle = '#0D0E13'; k.fillRect(0, 0, CW, CH);
+  const [cx, cy] = path(ML_KF, u), p = presence(u, 0.4, 1.0, 4.5, 5.2), ct = u - ML_CLICK;
+  const sx = CW / ML_COLS, sy = CH / ML_ROWS;
+  k.lineCap = 'round';
+  for (let r = 0; r < ML_ROWS; r++) for (let c = 0; c < ML_COLS; c++) {
+    const x = (c + 0.5) * sx, y = (r + 0.5) * sy, d = Math.hypot(cx - x, cy - y);
+    const rest = -Math.PI / 4 + 0.5 * Math.sin(TAU * u / CYC + c * 0.35 + r * 0.5);
+    let a = rest + wrapH(Math.atan2(cy - y, cx - x) - rest) * p;
+    if (ct > 0) a += Math.PI * out3(seg(ct, d / ML_WAVE, d / ML_WAVE + 0.5));
+    const near = p * Math.exp(-(d / 120) * (d / 120));
+    const len = 7 + 6 * near, ex = Math.cos(a) * len / 2, ey = Math.sin(a) * len / 2;
+    k.strokeStyle = rgb(lerpC(ML_DIM, ML_HOT, near)); k.lineWidth = 2 + 0.6 * near;
+    k.beginPath(); k.moveTo(x - ex, y - ey); k.lineTo(x + ex, y + ey); k.stroke();
+  }
+  ripple(k, ML_KF[4][1], ML_KF[4][2], ct / 0.6);
+  if (u > 0.4 && u < 5.2) cursor(k, cx, cy, Math.abs(ct) < 0.1 ? 1 : 0);
+};

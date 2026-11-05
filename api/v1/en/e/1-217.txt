@@ -1,0 +1,72 @@
+// Motion Prompt #1-217 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Target cursor / ターゲットカーソル
+// Category: UI & Web / Pointer interactions / Cursor
+// What happens: The cursor moves to a nav pill, a button and a card in turn; each time the four brackets bounce onto its outline, and it clicks the button at 2.9 s.
+// Motion spec:
+//   - At rest, 4 L-shaped brackets sit 14 px around a dot and turn slowly.
+//   - Over an element the brackets move to its four corners 6 px outside the outline and straighten up; the snap follows a spring curve that overshoots once.
+//   - Targets are a nav pill (1.0–1.8 s), a button (2.3–3.4 s) and a card (3.9–4.7 s); on leaving, the brackets return around the dot within 0.3 s.
+//   - The click at 2.9 s pulls the brackets 4 px inward and presses the button down a little.
+// When to use it: Use it on gaming or tech landing pages and portfolios to make clickable targets obvious.
+// Tags: target-cursor, snap, corner-brackets, custom-cursor, hover, focus-ring
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-217
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 18
+// 18 准星吸附：光标换成一个小圆点加四个角括号；自由移动时括号在圆点周围 14 px 处慢慢旋转，
+// 停到目标元素上时四个括号带回弹地吸附到该元素外框（外扩 6 px），离开后 0.3 秒内收回圆点周围。
+// 三个目标依次是导航胶囊（1.0–1.8 秒）、主按钮（2.3–3.4 秒）、一张卡片（3.9–4.7 秒）；2.9 秒在主按钮上点击，括号收紧 4 px、按钮压下
+const TC_T = [
+  { x: 40, y: 24, w: 92, h: 30, a: 1.0, b: 1.8 },
+  { x: 40, y: 120, w: 150, h: 44, a: 2.3, b: 3.4 },
+  { x: 300, y: 36, w: 200, h: 136, a: 3.9, b: 4.7 },
+];
+const TC_KF = [[0.4, 260, -24], [1.0, 86, 39], [1.8, 92, 41], [2.3, 115, 142], [3.4, 120, 140], [3.9, 400, 104], [4.7, 410, 112], [5.3, 590, 160]];
+const TC_CLICK = 2.9, TC_LEAD = 0.12, TC_REL = 0.3;
+const TC_spring = t => (t <= 0 ? 0 : 1 - Math.exp(-9 * t) * Math.cos(13 * t));   // 带一次过冲的吸附曲线
+CELLS[17] = (k, w, h, u) => {
+  k.fillStyle = '#0F1117'; k.fillRect(0, 0, CW, CH);
+  const [cx, cy] = path(TC_KF, u);
+  // 当前吸附的目标与吸附程度 e（0 = 围着圆点，1 = 贴在目标外框）
+  let tg = null, e = 0;
+  for (const t of TC_T) if (u >= t.a - TC_LEAD && u < t.b + TC_REL) { tg = t; e = u < t.b ? TC_spring(u - t.a + TC_LEAD) : (1 - out3((u - t.b) / TC_REL)) * TC_spring(t.b - t.a + TC_LEAD); }
+  const cp = Math.sin(Math.PI * seg(u, TC_CLICK, TC_CLICK + 0.25)) * (u > TC_CLICK ? 1 : 0);
+  const hv = t => (t === tg ? clamp(e) : 0);
+  // 页面：导航胶囊、主按钮、卡片
+  let t = TC_T[0];
+  k.fillStyle = `rgba(255,255,255,${0.06 + 0.08 * hv(t)})`; rr(k, t.x, t.y, t.w, t.h, 15); k.fill();
+  txt(k, '产品介绍', t.x + t.w / 2, t.y + 20, `500 13px ${SANS}`, 'rgba(255,255,255,.85)', 'center');
+  txt(k, '定价', 162, 44, `500 13px ${SANS}`, 'rgba(255,255,255,.5)'); txt(k, '文档', 210, 44, `500 13px ${SANS}`, 'rgba(255,255,255,.5)');
+  txt(k, '对准，再出手', 40, 100, `700 24px ${SANS}`, '#FFFFFF');
+  t = TC_T[1];
+  k.save(); k.translate(t.x + t.w / 2, t.y + t.h / 2); k.scale(1 - 0.05 * cp, 1 - 0.05 * cp);
+  const bg = k.createLinearGradient(-t.w / 2, 0, t.w / 2, 0); bg.addColorStop(0, '#7A5CFF'); bg.addColorStop(1, '#4F8BFF');
+  k.fillStyle = bg; k.globalAlpha = 0.85 + 0.15 * hv(t); rr(k, -t.w / 2, -t.h / 2, t.w, t.h, 12); k.fill(); k.globalAlpha = 1;
+  txt(k, '立即开始 →', 0, 5, `600 15px ${SANS}`, '#FFFFFF', 'center'); k.restore();
+  t = TC_T[2];
+  k.fillStyle = `rgba(255,255,255,${0.05 + 0.05 * hv(t)})`; rr(k, t.x, t.y, t.w, t.h, 14); k.fill();
+  const ig = k.createLinearGradient(t.x, t.y, t.x + t.w, t.y + 72); ig.addColorStop(0, '#FF8A5B'); ig.addColorStop(1, '#C04CFD');
+  k.fillStyle = ig; rr(k, t.x + 10, t.y + 10, t.w - 20, 70, 9); k.fill();
+  k.fillStyle = 'rgba(255,255,255,.75)'; rr(k, t.x + 12, t.y + 94, 120, 8, 4); k.fill();
+  k.fillStyle = 'rgba(255,255,255,.35)'; rr(k, t.x + 12, t.y + 110, 160, 6, 3); k.fill(); rr(k, t.x + 12, t.y + 122, 96, 6, 3); k.fill();
+  if (!(u > 0.4 && u < 5.3)) return;
+  // 四个角括号：自由角度随时间旋转，吸附时角度按最短弧转正、位置移到目标外框四角
+  const rot = u * 2.2, pad = 6 - 4 * (tg === TC_T[1] ? cp : 0);
+  const rc = tg && [[tg.x - pad, tg.y - pad], [tg.x + tg.w + pad, tg.y - pad], [tg.x + tg.w + pad, tg.y + tg.h + pad], [tg.x - pad, tg.y + tg.h + pad]];
+  k.strokeStyle = '#FFFFFF'; k.lineWidth = 2.5; k.lineCap = 'square';
+  for (let i = 0; i < 4; i++) {
+    const pf = rot - 3 * Math.PI / 4 + i * Math.PI / 2, pl = -3 * Math.PI / 4 + i * Math.PI / 2;
+    const ph = pf + wrapA(pl - pf) * clamp(e), fx = cx + 14 * Math.cos(pf), fy = cy + 14 * Math.sin(pf);
+    const x = rc ? mix(fx, rc[i][0], e) : fx, y = rc ? mix(fy, rc[i][1], e) : fy;
+    // L 形两臂指向框内：与角方向相反、左右各偏 45°
+    k.beginPath();
+    k.moveTo(x + 9 * Math.cos(ph + Math.PI * 3 / 4), y + 9 * Math.sin(ph + Math.PI * 3 / 4));
+    k.lineTo(x, y); k.lineTo(x + 9 * Math.cos(ph - Math.PI * 3 / 4), y + 9 * Math.sin(ph - Math.PI * 3 / 4)); k.stroke();
+  }
+  k.fillStyle = '#FFFFFF'; k.beginPath(); k.arc(cx, cy, 3, 0, TAU); k.fill();
+};

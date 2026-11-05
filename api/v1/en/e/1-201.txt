@@ -1,0 +1,80 @@
+// Motion Prompt #1-201 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Sticker peel / ステッカーはがし
+// Category: UI & Web / Pointer interactions / Tactile & cards
+// What happens: The cursor pinches the bottom-right corner of an orange sticker on a dotted backing and pulls it up-left; the crease advances as the back folds over, and on release it springs back flat with a wobble.
+// Motion spec:
+//   - A die-cut sticker 160×140 px with corner radius 22 and an 8 px white border sits on a dotted backing.
+//   - The cursor moves to the bottom-right corner at 0.3–1.0 s, presses, then drags it to (222, 72) at 1.2–3.2 s.
+//   - The crease is the perpendicular bisector between the corner and the drag point; the lifted part is mirrored across it and drawn as a pale back with a gradient and a 14 px blurred shadow.
+//   - At 3.6 s it lets go and the lift falls back as e^(−4.5t)·cos(8t), clamped at 0, so it snaps flat with a small wobble.
+//   - The cursor leaves at 3.9–4.8 s; the sticker is flat from then until the cycle restarts.
+// When to use it: Use it on logos, badges or reward cards that should feel tactile and fun to fiddle with.
+// Tags: sticker, peel, page-curl, fold, drag, tactile
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-201
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 02
+// 02 撕贴纸：白边模切贴纸（160×140、圆角 22）贴在浅色点阵底上；模拟光标 0.3–1.0 秒移到右下角按住，
+// 1.2–3.2 秒向左上拖到 (222, 72)，折线为拖点与角点连线的中垂线，翻起部分按折线镜像画成背面，并在贴着的一侧投下阴影；
+// 3.6 秒松手，翻起量按阻尼振荡 e^(−4.5t)·cos(8t) 回落贴平，光标 3.9–4.8 秒移出画面
+const ST_X = 189, ST_Y = 34, ST_W = 160, ST_H = 140, ST_RAD = 22;
+const ST_C = [ST_X + ST_W, ST_Y + ST_H], ST_T = [222, 72];
+function ST_face(k) {
+  k.fillStyle = '#FFFFFF'; rr(k, ST_X, ST_Y, ST_W, ST_H, ST_RAD); k.fill();
+  const g = k.createLinearGradient(ST_X, ST_Y, ST_X + ST_W, ST_Y + ST_H);
+  g.addColorStop(0, '#FF7A59'); g.addColorStop(1, '#FFC24B');
+  k.fillStyle = g; rr(k, ST_X + 8, ST_Y + 8, ST_W - 16, ST_H - 16, ST_RAD - 7); k.fill();
+  txt(k, '嗨！', ST_X + ST_W / 2, ST_Y + 84, `800 50px ${SANS}`, '#FFFFFF', 'center');
+  txt(k, 'PEEL ME', ST_X + ST_W / 2, ST_Y + 112, `700 11px ${MONO}`, 'rgba(255,255,255,.85)', 'center');
+}
+function ST_amount(u) {
+  if (u < 3.6) return inOut3(seg(u, 1.2, 3.2));
+  const t = u - 3.6; return Math.max(0, Math.exp(-4.5 * t) * Math.cos(8 * t));
+}
+CELLS[1] = (k, w, h, u) => {
+  k.fillStyle = '#E9E6DF'; k.fillRect(0, 0, CW, CH);
+  k.fillStyle = 'rgba(22,21,27,.12)';
+  for (let gx = 14; gx < CW; gx += 18) for (let gy = 14; gy < CH; gy += 18) k.fillRect(gx, gy, 1.5, 1.5);
+  const f = ST_amount(u);
+  const P = [mix(ST_C[0], ST_T[0], f), mix(ST_C[1], ST_T[1], f)];
+  const dx = ST_C[0] - P[0], dy = ST_C[1] - P[1], L = Math.hypot(dx, dy);
+  // 贴着的投影
+  k.save(); k.shadowColor = 'rgba(40,30,20,.18)'; k.shadowBlur = 6; k.shadowOffsetY = 2;
+  if (L < 0.5) { ST_face(k); k.restore(); }
+  else {
+    k.restore();
+    const nx = dx / L, ny = dy / L, Mx = (ST_C[0] + P[0]) / 2, My = (ST_C[1] + P[1]) / 2;
+    // 折线一侧的大半平面（side = +1 为角点一侧）
+    const half = side => {
+      const ox = Mx + nx * 2000 * side, oy = My + ny * 2000 * side, tx = -ny * 2000, ty = nx * 2000;
+      k.beginPath(); k.moveTo(Mx + tx, My + ty); k.lineTo(Mx - tx, My - ty); k.lineTo(ox - tx, oy - ty); k.lineTo(ox + tx, oy + ty); k.closePath();
+    };
+    // 贴着的部分
+    k.save(); half(-1); k.clip();
+    k.shadowColor = 'rgba(40,30,20,.18)'; k.shadowBlur = 6; k.shadowOffsetY = 2; ST_face(k);
+    k.restore();
+    // 翻起的部分：按折线镜像 X' = X − 2((X − M)·n)n
+    const d0 = Mx * nx + My * ny;
+    k.save();
+    k.setTransform(1 - 2 * nx * nx, -2 * nx * ny, -2 * nx * ny, 1 - 2 * ny * ny, 2 * d0 * nx, 2 * d0 * ny);
+    half(1); k.clip();
+    k.shadowColor = 'rgba(40,30,20,.3)'; k.shadowBlur = 14; k.shadowOffsetX = 3; k.shadowOffsetY = 5;
+    k.fillStyle = '#F3F1EC'; rr(k, ST_X, ST_Y, ST_W, ST_H, ST_RAD); k.fill();
+    k.shadowColor = 'transparent';
+    const g = k.createLinearGradient(Mx, My, Mx + nx * L * 0.6, My + ny * L * 0.6);
+    g.addColorStop(0, 'rgba(120,110,95,.32)'); g.addColorStop(0.4, 'rgba(255,255,255,.35)'); g.addColorStop(1, 'rgba(210,205,196,.25)');
+    k.fillStyle = g; rr(k, ST_X, ST_Y, ST_W, ST_H, ST_RAD); k.fill();
+    k.restore();
+  }
+  // 光标：移到角点 → 按住拖动 → 松手移出
+  let cp, press = 0;
+  if (u < 1.0) cp = path([[0.3, 590, 240], [1.0, ST_C[0] - 3, ST_C[1] - 3]], u);
+  else if (u < 3.6) { cp = [P[0] - 3, P[1] - 3]; press = seg(u, 1.0, 1.15); }
+  else cp = path([[3.9, ST_T[0] - 3, ST_T[1] - 3], [4.8, 590, 30]], u);
+  if (u > 0.3 && u < 4.8) cursor(k, cp[0], cp[1], press, true);
+};

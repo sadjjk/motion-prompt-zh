@@ -1,0 +1,16 @@
+Please use "Bounce cards" (バウンスカード), filed under "Pointer interactions / Tactile & cards".
+Motion Prompt #1-222
+
+What it is: Cards fanned out in a stack pop in with a bounce; the hovered one straightens and comes forward while its neighbours are pushed aside
+What the sample shows: 5 cards bounce in as a fan; the cursor stops on each in turn from left to right, the hovered card straightens and comes forward while its neighbours slide out, and finally all shrink away.
+Spec:
+- 5 cards of 96×124 px sit 58 px apart, fanned from −14° to 14°.
+- From 0.1 s, one card every 0.12 s pops in with a 0.5 s scale that overshoots and settles.
+- The hovered card turns to 0°, scales to 1.08 and lifts 12 px, and is drawn on top.
+- Its neighbours are pushed out 30 px and the next ones 15 px; how hovered each card is gets recomputed from the cursor's distance to its centre every frame.
+- The cursor enters at 0.9 s, stops on the 5 cards in turn at 1.5–4.3 s and leaves at 5.0 s. At 5.4–6.0 s every card shrinks to 0, matching the not-yet-shown state at 0 s.
+When to use it: Use it for portfolios, photo galleries or team sections where picking a card should feel playful.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-222.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

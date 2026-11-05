@@ -1,0 +1,16 @@
+Please use "Ball pit" (ボールプール), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-200
+
+What it is: A hero background of solid balls that pile up under gravity, get shoved aside by the cursor and blast apart on click
+What the sample shows: 26 balls drop into a dark frame and pile up; the cursor sweeps along the floor from left to right shoving them aside, a click in the middle blasts them apart, they fall back, and the layer fades out.
+Spec:
+- 26 balls of radius 13–22 px in 6 colours fall in from above the frame; gravity 1600 px/s², restitution 0.32, simulated in fixed 1/120 s steps and baked into a 60 fps frame table so every moment is repeatable.
+- At 1.6–3.4 s the cursor sweeps along the floor from left to right; balls within 30 px of it are pushed out and take on its speed, then collide with each other.
+- At 4.0 s a click at the centre blasts every ball within 200 px outward and upward, with a ripple ring; the balls fall back and settle.
+- Each ball has a soft top-left highlight and a darker rim; the heading sits behind the balls.
+- At 5.4–6.0 s the ball layer fades out; at 0 s all balls are above the frame, so the loop restarts cleanly.
+When to use it: Use it as a playful hero background for a brand or product page that invites people to poke at it.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-200.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,16 @@
+Please use "Fuse undo" (導火線の取り消し), filed under "Feedback / Action feedback".
+Motion Prompt #1-228
+
+What it is: After a delete, the undo button's outline is a fuse that burns around it with sparks, and the action can be undone until it burns out
+What the sample shows: The cursor presses a file row's delete button and the row slides away to the right; a dark toast appears below and the undo button's outline burns along with sparks. Pressing undo midway puts the flame out with a puff of smoke, and the file row comes back.
+Spec:
+- Pressing delete at 0.62 s moves the file row 60 px right as it fades, and the toast rises 20 px from below.
+- The fuse is the undo button's outline itself; it starts at the top centre, burns clockwise and consumes its whole length in 4 s.
+- The burnt part is a grey dotted line, the unburnt part is a wide translucent line under a thin bright one, and the burning tip has a glow dot and 7 sparks.
+- The sparks' directions and lengths change every 1/20 s using fixed random values.
+- Pressing undo at 3.82 s stops the flame; smoke rises from that spot and fades over 0.7 s, the toast sinks and the file row returns.
+When to use it: Use it in toasts for actions that can be undone for a short while, such as deleting files or mail, bulk edits or just-sent messages.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-228.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

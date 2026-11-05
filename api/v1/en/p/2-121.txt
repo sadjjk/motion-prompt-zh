@@ -1,0 +1,16 @@
+Please use "Fuzzy text" (ざらつき揺れ文字), filed under "Text animation / Morphing & texture".
+Motion Prompt #2-121
+
+What it is: Large type sliced into thin horizontal strips that each jitter sideways on their own, like an unstable signal; hovering makes it shake harder
+What the sample shows: Large black type on a light background has finely ragged edges; when the cursor hovers, the strips shift far apart and shake hard. When it leaves, the type settles back to the fine fuzz.
+Spec:
+- The type is sliced into strips 2 px tall, and each strip is drawn with its own sideways shift.
+- The shift changes 24 times a second, from a random value built from the strip index and frame index.
+- The shift range is 1.5 px normally and 12 px while the cursor hovers.
+- The cursor reaches the type at 1.4 s and the range peaks within 0.25 s; it starts to leave at 3.6 s and the range drops back over 0.35 s.
+- There is no colour split; the type stays in 1 colour.
+When to use it: Use it on 404 pages, game or event titles, or noisy brand moments that want a slightly rough feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-121.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

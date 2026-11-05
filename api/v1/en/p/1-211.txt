@@ -1,0 +1,16 @@
+Please use "Pixel paint swirl" (ピクセル絵の具の渦), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-211
+
+What it is: A background of swirling paint quantised into four colours of chunky pixels; the cursor stirs it and a click makes a whirlpool
+What the sample shows: Chunky four-colour pixel paint swirls around the centre; the cursor twists the paint as it passes, and a click opens a whirlpool that then fades.
+Spec:
+- A 108×42 low-res buffer, each pixel 5 px, with smoothing off.
+- Coordinates rotate around the centre by 2.4·e^(−1.4r) plus one full turn per cycle, then two layers of sine domain warping are applied.
+- Values are quantised by 4 thresholds into navy, blue, red and pale pink.
+- The cursor enters at 0.4–1.0 s and turns the paint near it an extra 1.8·e^(−d²/0.05) radians.
+- A click at 3.6 s spins up a whirlpool of up to 5 radians that rises and settles over 1.4 s.
+When to use it: Use it as a hero background for card games, indie games or playful brands.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-211.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

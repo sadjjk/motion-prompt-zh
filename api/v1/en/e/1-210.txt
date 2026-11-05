@@ -1,0 +1,45 @@
+// Motion Prompt #1-210 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Dither waves / ディザウェーブ
+// Category: UI & Web / Pages / Hero backgrounds
+// What happens: Waves roll in four colours of pixels, indigo, violet, coral and cream, with dithered dot patterns at the edges, and a bright tail stretches behind the cursor and fades.
+// Motion spec:
+//   - A flowing value v from 3 summed sine waves is computed on a 135×52 low-res buffer; phases turn a whole number of times per cycle.
+//   - A 4×4 Bayer matrix applies ordered dithering and quantises to 4 colours: deep indigo, violet, coral and cream.
+//   - Each pixel is scaled up 4 times with smoothing off for chunky dots.
+//   - The cursor enters at 0.5–1.1 s and leaves at 4.6–5.3 s, adding a bright trail of radius 18 px that decays over 0.35 s.
+// When to use it: Use it for hero or section backgrounds on pixel-art, gaming or retro-styled products.
+// Tags: dither, bayer, pixel-art, retro, wave, hero-background
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-210
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 11
+// 11 抖动网点波：在 135×52 的低分辨率缓冲上算出流动的波 v（三道正弦叠加，相位按整数倍随周期转动），
+// 用 4×4 Bayer 矩阵做有序抖动量化成 4 级色（深靛、紫、珊瑚、奶油），每个像素放大 4 倍、关闭平滑，得到复古抖动网点；
+// 光标 0.5–1.1 秒入场、4.6–5.3 秒离场，经过处留下 0.35 秒衰减的亮尾迹（半径 18 px）
+const DI_W = 135, DI_H = 52, DI_S = 4;
+const DI_BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const DI_PAL = [[20, 18, 48], [96, 58, 170], [244, 112, 102], [255, 226, 180]];
+const DI_KF = [[0.5, -30, 150], [1.5, 160, 60], [2.6, 330, 150], [3.6, 460, 80], [4.6, 300, 120], [5.3, 600, 40]];
+let DI_C = null, DI_IMG = null;
+CELLS[10] = (k, w, h, u) => {
+  if (!DI_C) { DI_C = document.createElement('canvas'); DI_C.width = DI_W; DI_C.height = DI_H; DI_IMG = DI_C.getContext('2d').createImageData(DI_W, DI_H); }
+  const ph = TAU * u / CYC, d = DI_IMG.data;
+  const trail = [];
+  for (let s = Math.max(0.5, u - 1.2); s <= Math.min(u, 5.3); s += 1 / 40) { const [tx, ty] = path(DI_KF, s); trail.push([tx / DI_S, ty / DI_S, Math.exp(-(u - s) / 0.35) * presence(s, 0.5, 1.1, 4.6, 5.3)]); }
+  for (let y = 0; y < DI_H; y++) for (let x = 0; x < DI_W; x++) {
+    let v = 0.5 + 0.22 * Math.sin(x * 0.075 + y * 0.05 - 2 * ph) + 0.16 * Math.sin(y * 0.19 - x * 0.03 + ph + Math.sin(x * 0.04 + ph)) + 0.1 * Math.sin((x + y) * 0.11 + 3 * ph);
+    for (const [tx, ty, a] of trail) { const q = ((x - tx) ** 2 + (y - ty) ** 2) / 20; if (q < 9) v += 0.55 * a * Math.exp(-q); }
+    const thr = (DI_BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+    const lv = clamp(Math.floor(clamp(v) * 3 + thr), 0, 3), c = DI_PAL[lv], o = (y * DI_W + x) * 4;
+    d[o] = c[0]; d[o + 1] = c[1]; d[o + 2] = c[2]; d[o + 3] = 255;
+  }
+  DI_C.getContext('2d').putImageData(DI_IMG, 0, 0);
+  k.save(); k.imageSmoothingEnabled = false; k.drawImage(DI_C, 0, 0, DI_W * DI_S, DI_H * DI_S); k.restore();
+  const [cx, cy] = path(DI_KF, u);
+  if (u > 0.5 && u < 5.3) cursor(k, cx, cy);
+};

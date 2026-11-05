@@ -1,0 +1,16 @@
+Please use "Contour terrain" (等高線地形), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-207
+
+What it is: A 3D landscape drawn in glowing contour lines that slowly undulates and rises under the cursor
+What the sample shows: A perspective landscape of 13 blue contour levels rolls; the ground swells into a hill under the cursor, and a click sends a white ring of light across the lines.
+Spec:
+- The height field is a sum of 3 sine waves whose phase turns once per cycle.
+- Marching squares on a 64×32 grid trace contours at 13 levels, drawn in perspective: farther lines dim, higher lines brighten.
+- A bump of height 1.1 and Gaussian radius 0.28 is added under the cursor's position on the ground.
+- A click at 3.5 s spreads a ring of light at 1.6 units per second, turning the lines it crosses white.
+- The cursor enters at 0.3–1.0 s and leaves at 4.5–5.2 s, taking the bump with it.
+When to use it: Use it in hero sections for outdoor, mapping, data or space products that want quiet depth.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-207.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

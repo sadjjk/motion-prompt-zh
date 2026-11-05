@@ -1,0 +1,15 @@
+Please use "Halftone reveal" (網点リビール), filed under "Pointer interactions / Cursor".
+Motion Prompt #1-219
+
+What it is: A dark field of halftone dots where tracing with the cursor swells the dots and brings up the picture beneath
+What the sample shows: The cursor moves over dark halftone dots and a sunset mountain picture appears in dots along its path; a click at 4.0 s reveals the whole picture before it fades.
+Spec:
+- Halftone dots 8 px apart, normally dark grey and 1 px in radius.
+- Dots near the cursor (Gaussian radius 46 px) swell up to 4.6 px by the source picture's brightness and take its colour.
+- The trail shrinks back as e^(−Δt/0.9). The source picture is drawn in code: a sunset sky, a sun and three ridges of mountains.
+- A click at 4.0 s spreads a reveal ring over the whole picture at 420 px/s; all dots shrink back at 5.4–6.0 s.
+When to use it: Use it on heroes that show a photo or artwork when visitors should explore the image with the cursor.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-219.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

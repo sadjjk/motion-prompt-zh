@@ -1,0 +1,16 @@
+Please use "Scrub field" (ドラッグ調整フィールド), filed under "Components / Choosing & input".
+Motion Prompt #1-225
+
+What it is: Dragging left or right on a number field changes its value, and pulling past the limits stretches the field like rubber until it springs back on release
+What the sample shows: On a dark background the cursor presses the Opacity field and drags right; once the value hits 100 the right edge stretches, then springs back on release. Next it drags left past 0, and the left edge stretches and returns.
+Spec:
+- The field is 220×48 px with a range of 0–100, and the value changes by 1 for every 2 px the cursor moves.
+- The d px beyond the range push the field's edge out by r(d) = 40·(1 − 1/(1 + d/80)), which grows ever more slowly.
+- Only the edge on the pulled side stretches, and the height narrows by up to 6% with the stretch.
+- On release the stretch returns to 0 as e^(−9τ)·cos(18τ). The drag goes right at 1.0–2.6 s and left at 3.2–4.6 s.
+- A bar inside the field follows the value; while dragging the outline turns blue and the cursor becomes a left-right arrow. At 5.4–6.0 s the value goes back to the 40 of 0 s.
+When to use it: Use it for property fields in design tools, video or audio editing panels and settings screens where numbers get nudged quickly.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-225.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

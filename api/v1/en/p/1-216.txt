@@ -1,0 +1,16 @@
+Please use "Ribbon cursor" (リボンカーソル), filed under "Pointer interactions / Cursor".
+Motion Prompt #1-216
+
+What it is: Several glowing ribbons on springs that trail and sway behind the cursor
+What the sample shows: The cursor crosses along a wavy line and four coloured ribbons follow on springs, swinging outward at each bend.
+Spec:
+- There are 4 ribbons of 36 nodes each. The head node hangs on a point 9 px from the cursor that slowly circles; the 4 heads are 90° apart.
+- Each following node chases the one before it every step with v ← 0.3·v + s·(previous − self), where s is 0.42, 0.32, 0.24 and 0.18 for the ribbons in turn.
+- Line width is up to 10 px at the head and thins toward the tail; additive blending makes overlaps glow white.
+- Physics runs in 1/120 s steps and is stored as a 60 fps table, so the same moment always draws the same picture.
+- The cursor enters from the left at 0.4 s and leaves on the right at 5.3 s; everything fades out at 5.4–6.0 s.
+When to use it: Use it on portfolio, music or event pages where the cursor's motion itself is part of the show.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-216.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

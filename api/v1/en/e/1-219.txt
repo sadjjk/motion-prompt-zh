@@ -1,0 +1,63 @@
+// Motion Prompt #1-219 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Halftone reveal / 網点リビール
+// Category: UI & Web / Pointer interactions / Cursor
+// What happens: The cursor moves over dark halftone dots and a sunset mountain picture appears in dots along its path; a click at 4.0 s reveals the whole picture before it fades.
+// Motion spec:
+//   - Halftone dots 8 px apart, normally dark grey and 1 px in radius.
+//   - Dots near the cursor (Gaussian radius 46 px) swell up to 4.6 px by the source picture's brightness and take its colour.
+//   - The trail shrinks back as e^(−Δt/0.9). The source picture is drawn in code: a sunset sky, a sun and three ridges of mountains.
+//   - A click at 4.0 s spreads a reveal ring over the whole picture at 420 px/s; all dots shrink back at 5.4–6.0 s.
+// When to use it: Use it on heroes that show a photo or artwork when visitors should explore the image with the cursor.
+// Tags: halftone, reveal, dot-matrix, cursor-trail, image-reveal, hero-image
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-219
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 20
+// 20 网点显影：8 px 网格上的网点默认只是 1 px 的暗灰点；光标附近（高斯半径 46 px）的网点按原图亮度胀大到最多 4.6 px 并换成原图颜色，
+// 光标走过的地方按 e^(−Δt/0.9) 慢慢缩回，像用光标把一张网点照片擦出来。原图是程序画的落日山景（天空渐变、太阳、三层山脊）。
+// 4.0 秒点击，显影圈以 420 px/s 扩到全图；5.4–6.0 秒网点全部缩回
+const HT_S = 8, HT_MAX = 4.6, HT_SIG = 46, HT_CLICK = 4.0;
+const HT_KF = [[0.4, -30, 150], [1.4, 130, 120], [2.2, 250, 70], [3.0, 380, 130], [3.6, 300, 100], [HT_CLICK, 270, 104], [4.6, 330, 150], [5.2, 590, 190]];
+// 原图：返回 [r, g, b, 亮度]
+function HT_img(x, y) {
+  const r1 = 120 + 16 * Math.sin(x * 0.013 + 1) + 9 * Math.sin(x * 0.037), r2 = 150 + 12 * Math.sin(x * 0.019 + 3) + 7 * Math.sin(x * 0.05);
+  const r3 = 180 + 8 * Math.sin(x * 0.027 + 5);
+  let c;
+  if (y > r3) c = [44, 30, 70]; else if (y > r2) c = [92, 52, 112]; else if (y > r1) c = [150, 74, 128];
+  else if (Math.hypot(x - 360, y - 86) < 32) c = [255, 226, 150];
+  else { const t = clamp(y / 130); c = lerpC([48, 40, 120], [255, 142, 92], t); }
+  return [c[0], c[1], c[2], (0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2]) / 255];
+}
+let HT_DOTS = null;
+CELLS[19] = (k, w, h, u) => {
+  const cols = Math.ceil(CW / HT_S), rows = Math.ceil(CH / HT_S);
+  if (!HT_DOTS) { HT_DOTS = []; for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) HT_DOTS.push(HT_img(c * HT_S + HT_S / 2, r * HT_S + HT_S / 2)); }
+  k.fillStyle = '#0D0C12'; k.fillRect(0, 0, CW, CH);
+  const rv = new Float32Array(cols * rows), reach = Math.ceil(3 * HT_SIG / HT_S);
+  // 拖尾：对过去 2.5 秒的光标采样，只更新采样点 3σ 范围内的网点
+  for (let s = Math.max(0.4, u - 2.5); s <= Math.min(u, 5.2); s += 1 / 40) {
+    const [px, py] = path(HT_KF, s), pc = Math.floor(px / HT_S), pr = Math.floor(py / HT_S), dec = Math.exp(-(u - s) / 0.9);
+    for (let r = Math.max(0, pr - reach); r <= Math.min(rows - 1, pr + reach); r++) for (let c = Math.max(0, pc - reach); c <= Math.min(cols - 1, pc + reach); c++) {
+      const dx = c * HT_S + HT_S / 2 - px, dy = r * HT_S + HT_S / 2 - py, v = Math.exp(-(dx * dx + dy * dy) / (HT_SIG * HT_SIG)) * dec;
+      if (v > rv[r * cols + c]) rv[r * cols + c] = v;
+    }
+  }
+  const R = (u - HT_CLICK) * 420, fi = fadeIn(u);
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const x = c * HT_S + HT_S / 2, y = r * HT_S + HT_S / 2, im = HT_DOTS[r * cols + c];
+    let v = rv[r * cols + c];
+    if (R > 0) v = Math.max(v, clamp((R - Math.hypot(x - HT_KF[5][1], y - HT_KF[5][2])) / 60));
+    v *= fi;
+    const rad = mix(1, HT_MAX * (0.35 + 0.65 * im[3]), v);
+    k.fillStyle = rgb(lerpC([58, 56, 66], im, v));
+    k.beginPath(); k.arc(x, y, rad, 0, TAU); k.fill();
+  }
+  const [cx, cy] = path(HT_KF, u);
+  ripple(k, HT_KF[5][1], HT_KF[5][2], (u - HT_CLICK) / 0.6);
+  if (u > 0.4 && u < 5.2) cursor(k, cx, cy, Math.abs(u - HT_CLICK) < 0.1 ? 1 : 0);
+};

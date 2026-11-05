@@ -1,0 +1,16 @@
+Please use "Slosh gauge" (揺れる液面ゲージ), filed under "Feedback / Progress & icons".
+Motion Prompt #1-229
+
+What it is: Liquid in a glass jar chases the target value, its surface tilting and rippling while it moves, and splashes up when it hits the top at full
+What the sample shows: In a glass jar on a dark background, the liquid chases each new target, overshoots a little and its surface tilts and sloshes. Finally it hits 100% and splashes, and the number on the right turns teal.
+Spec:
+- The target starts at 20% and rises to 55% at 0.6 s, 85% at 2.0 s and 100% at 3.2 s, then drops back to 20% at 5.4 s.
+- The level chases the target with the spring x'' = 40(target − x) − 9x', integrated from 0 s in 1/120 s steps; anything past 100% stops at the top.
+- The left-right height difference of the surface is proportional to the level's speed, up to 0.35 times the jar width. 2 ripples, each a whole multiple of the cycle, run on the surface.
+- The first time it reaches 100%, 8 droplets fly up and fall back along parabolas, gone within 1 s.
+- At 6.0–6.4 s the remaining sway settles and the level is brought to exactly 20%, matching 0 s.
+When to use it: Use it to show something filling up, such as storage or quota, goal progress or a water intake log.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-229.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,18 @@
+请使用“工具调用芯片（Tool call chip）”，属于“反馈 / AI 状态”。
+Motion Prompt #1-230
+
+效果解释：用小芯片表示 AI 回答里的工具调用，随计时从左往右填充，成功变绿、失败变红并抖动的效果
+动画表现：浅色背景上，search_docs 芯片从左往右填满后变成绿色对勾；下一个 run_query 芯片中途变红、左右抖动，显示 failed。
+实现规格与关键运动参数：
+- 芯片是 236×34 px 的圆角形。填充是一层浅色面加底边 3 px 的线，随已用时间从左往右伸长。
+- 运行中左侧图标转圈，右侧以 0.1 秒为单位显示已用秒数。
+- 第一枚 search_docs 在 0.3–2.3 秒填满变绿，对勾圆在 0.25 秒内放大，显示 done 和用时。
+- 第二枚 run_query 2.9 秒开始，4.1 秒在 62% 处失败变红，按 e^(−6τ)·sin(40τ)·6 px 左右抖动。
+- 5.4–6.0 秒两枚芯片淡出，0 秒时画面为空。
+适用场景：适合 AI 助手、Agent 回答里展示搜索、跑代码、调 API 等步骤的进度和结果。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-230
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-230.txt
+依赖的公共代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 sadjjk 的 MIT 版权标识。

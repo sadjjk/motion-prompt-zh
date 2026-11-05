@@ -1,0 +1,15 @@
+Please use "Gradient blinds" (グラデーションブラインド), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-212
+
+What it is: A background of gradient vertical blinds that sway slowly and turn their slats toward a spotlight following the cursor
+What the sample shows: 18 vertical blinds sway gently; as the cursor's spotlight moves, the slats tilt toward it and glow whitish where the light falls.
+Spec:
+- 18 vertical blinds are coloured across the frame from pink #FF5C8A to violet #7B5CFF to cyan #2EC4FF.
+- Slat angle θ = 0.35·sin(phase + 0.4i) sway + presence × 0.9·tanh((light x − slat x)/120).
+- Visible width is proportional to 0.2 + 0.8·|cos θ|, and faces turned to the light are brighter.
+- The light is an additive spotlight of radius 170 px following the cursor; with no cursor it rests top-centre at half brightness.
+When to use it: Use it on hero sections for music, fashion or product launches that want an elegant, moving background.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-212.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

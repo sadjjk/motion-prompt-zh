@@ -1,0 +1,53 @@
+// Motion Prompt #1-202 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// 压感文字 / Pressure type
+// 分类: 界面与网页 / 文字与数据 / 交互文字
+// 动画表现: 光标在大写 PRESSURE 上左右扫过三次，靠近的字母鼓起变深，其余保持窄而灰。
+// 运动规格:
+//   - 一行 76 px 的大写 PRESSURE，居中排布，字间距 4 px。
+//   - 每个字母的权重 w = e^(−(dx/60)²)·e^(−(dy/70)²)，按字母静止时的中心到光标的距离计算。
+//   - 横向缩放 0.78→1.45，纵向 1→1.08，描边 0→3 px 加粗，颜色从 #9A97A3 变为 #16151B。
+//   - 缩放后的字宽重新累加，整行每帧重新居中。
+//   - 光标 0.2–0.8 秒入场，向右、向左、再向右扫过，4.4–5.2 秒离场，所有权重缓回 0。
+// 适用场景: 适合作品集、活动站的大标题，想让文字跟着光标起反应时。
+// 标签: pressure-text, variable-width, cursor-proximity, interactive-type, headline, kinetic-type
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-202
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 03
+// 03 压感文字：一行 76 px 的大写 PRESSURE，每个字母按与模拟光标的距离求权重 w = e^(−(dx/60)²)·e^(−(dy/70)²)；
+// 横向缩放 0.78→1.45、纵向 1→1.08，描边 0→3 px 加粗，颜色由灰 #9A97A3 变墨 #16151B，整行按当前宽度重新居中；
+// 光标 0.2–0.8 秒入场，左右来回扫过三次，4.4–5.2 秒离场，权重随光标在场程度回到 0
+const PT_WORD = 'PRESSURE', PT_SIZE = 76, PT_GAP = 4, PT_BASE = 140;
+const PT_KF = [[0.2, 300, 250], [0.8, 70, 112], [2.2, 470, 104], [3.4, 120, 110], [4.4, 330, 106], [5.2, 330, 250]];
+const PT_GRAY = [154, 151, 163], PT_INK = [22, 21, 27];
+CELLS[2] = (k, w, h, u) => {
+  k.fillStyle = '#F4F2EE'; k.fillRect(0, 0, CW, CH);
+  txt(k, '光标越近，字越宽越粗', 24, 30, `600 12px ${SANS}`, '#8E8A97');
+  const [cx, cy] = path(PT_KF, u);
+  const on = inOut3(seg(u, 0.2, 0.8)) * (1 - inOut3(seg(u, 4.4, 5.2)));
+  k.font = `800 ${PT_SIZE}px ${SANS}`;
+  const gw = [...PT_WORD].map(c => k.measureText(c).width);
+  // 中性排版（w = 0）下的字母中心，用来求距离，避免宽度变化反过来影响权重
+  const nTot = gw.reduce((s, v) => s + v * 0.78, 0) + PT_GAP * (gw.length - 1);
+  let nx = (CW - nTot) / 2;
+  const wt = gw.map(v => { const c = nx + v * 0.39; nx += v * 0.78 + PT_GAP; const dx = (cx - c) / 60, dy = (cy - (PT_BASE - 28)) / 70; return on * Math.exp(-dx * dx) * Math.exp(-dy * dy); });
+  const sx = wt.map(q => mix(0.78, 1.45, q));
+  const tot = gw.reduce((s, v, i) => s + v * sx[i], 0) + PT_GAP * (gw.length - 1);
+  let x = (CW - tot) / 2;
+  k.textAlign = 'left'; k.textBaseline = 'alphabetic'; k.lineJoin = 'round';
+  [...PT_WORD].forEach((c, i) => {
+    const q = wt[i], col = rgb(lerpC(PT_GRAY, PT_INK, clamp(q * 1.4)));
+    k.save(); k.translate(x, PT_BASE); k.scale(sx[i], mix(1, 1.08, q));
+    k.fillStyle = col; k.fillText(c, 0, 0);
+    if (q > 0.02) { k.strokeStyle = col; k.lineWidth = 3 * q / sx[i]; k.strokeText(c, 0, 0); }
+    k.restore();
+    x += gw[i] * sx[i] + PT_GAP;
+  });
+  k.fillStyle = 'rgba(22,21,27,.1)'; k.fillRect(24, PT_BASE + 18, CW - 48, 1);
+  if (u > 0.2 && u < 5.2) cursor(k, cx, cy, 0, true);
+};

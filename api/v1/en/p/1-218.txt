@@ -1,0 +1,15 @@
+Please use "Dodge field" (よけるアイコン), filed under "Pointer interactions / Cursor".
+Motion Prompt #1-218
+
+What it is: A grid of icons that slide out of the cursor's way and glide back once it leaves
+What the sample shows: Seven by three icons sit on a light page; as the cursor snakes through the three rows nearby icons move aside, then return once it passes.
+Spec:
+- Rounded icons 44 px across, 72 px apart in a 7×3 grid.
+- An icon at distance d from the cursor moves away by 28·(1 − d/90)² px (none at d ≥ 90 px) and shrinks with the offset to as little as 0.92 times.
+- The offset averages the cursor's last 0.3 s, 11 samples weighted with a 0.12 s time constant, so icons glide back instead of snapping.
+- The cursor enters at 0.4 s, snakes through the three rows and leaves at 5.0 s.
+When to use it: Use it on app grids, tech-stack lists or logo walls that should react playfully.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-218.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

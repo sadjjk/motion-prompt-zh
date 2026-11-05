@@ -1,0 +1,79 @@
+// Motion Prompt #1-227 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// 流动菜单 / Flowing menu
+// 分类: 界面与网页 / 组件 / 导航与菜单
+// 动画表现: 深色背景上，光标从上到下划过 4 行菜单，每行都有色带从上方滑入、名称滚动；最后往上回到第 3 行，色带从下方进入。
+// 运动规格:
+//   - 共 4 行，每行高 44 px。色带裁剪在本行内，0.35 秒滑入，0.35 秒滑出。
+//   - 进入和离开的方向由光标越过行边界时是向上还是向下移动决定。
+//   - 色带里项目名和圆点成组重复，以每秒 70 px 向左无缝滚动。
+//   - 光标 0.5 秒从上方进入，向下划过 4 行，再往上回到第 3 行，4.8 秒从右侧离开。
+//   - 进出的时刻和方向在加载时沿光标路径按 1/120 秒步长推算一次。
+// 适用场景: 适合作品集、设计公司官网的全屏菜单或大字分类列表，想让菜单本身成为亮点时。
+// 标签: flowing-menu, marquee, hover-band, direction-aware, fullscreen-menu, navigation
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-227
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 28
+// 28 流动菜单：4 行大号菜单项。光标进入某一行时，一条浅色色带从光标进入的那一侧（上或下）滑入盖住该行，
+// 色带里是该项名称与小圆点循环向左滚动的跑马灯（每秒 70 px）；光标离开时色带朝离开的方向滑出（0.35 秒）。
+// 光标 0.5 秒从上方进入，依次向下经过 4 行，再向上回到第 3 行（色带从下方进入），4.8 秒从右侧离开。
+// 进出时刻和方向在加载时按 1/120 秒步长从光标路径推算一次。
+const FM_N = 4, FM_T = 18, FM_RH = 44, FM_DUR = 0.35, FM_SPD = 70;
+const FM_ITEMS = ['Mojave', 'Sonoma', 'Monterey', 'Big Sur'];
+const FM_DOTS = ['#FF6B3D', '#3D7BFF', '#22B07D', '#B04DFF'];
+const FM_KF = [[0.5, 300, -14], [1.0, 300, 36], [1.6, 312, 54], [2.2, 300, 84], [2.8, 290, 104], [3.3, 284, 128], [3.8, 280, 160], [4.3, 276, 116], [4.8, 560, 112]];
+const FM_row = y => { const r = Math.floor((y - FM_T) / FM_RH); return r >= 0 && r < FM_N ? r : -1; };
+// 每一行的悬停区间：[进入时刻, 进入方向(−1 从上方/+1 从下方), 离开时刻, 离开方向(−1 向上/+1 向下)]
+const FM_SPANS = (() => {
+  const out = [...Array(FM_N)].map(() => []);
+  let prev = -1, py = -99, cur = null;
+  for (let n = 0; n <= CYC * 120; n++) {
+    const t = n / 120, [x, y] = path(FM_KF, t), r = x > 509 ? -1 : FM_row(y);
+    if (r !== prev) {
+      const down = y >= py;
+      if (cur) { cur[2] = t; cur[3] = down ? 1 : -1; out[prev].push(cur); cur = null; }
+      if (r >= 0) cur = [t, down ? -1 : 1, 99, 0];
+      prev = r;
+    }
+    py = y;
+  }
+  if (cur) out[prev].push(cur);
+  return out;
+})();
+CELLS[27] = (k, w, h, u) => {
+  k.fillStyle = '#101114'; k.fillRect(0, 0, CW, CH);
+  k.strokeStyle = '#2A2C33'; k.lineWidth = 1;
+  for (let r = 0; r <= FM_N; r++) { const y = FM_T + r * FM_RH + 0.5; k.beginPath(); k.moveTo(30, y); k.lineTo(509, y); k.stroke(); }
+  for (let r = 0; r < FM_N; r++) {
+    const y0 = FM_T + r * FM_RH, yc = y0 + FM_RH / 2;
+    txt(k, FM_ITEMS[r], 270, yc + 1, `800 24px ${SANS}`, '#ECEDEF', 'center', 'middle');
+    // 色带位置：0 = 盖住本行；−1/+1 = 完全在上方/下方
+    let pos = 0, vis = false;
+    for (const [a, da, b, db] of FM_SPANS[r]) {
+      if (u < a) continue;
+      if (u < b) { pos = da * (1 - out3(seg(u, a, a + FM_DUR))); vis = true; }
+      else if (u < b + FM_DUR) { pos = db * out3(seg(u, b, b + FM_DUR)); vis = true; }
+    }
+    if (!vis) continue;
+    k.save();
+    k.beginPath(); k.rect(30, y0, 479, FM_RH); k.clip();
+    const by = y0 + pos * FM_RH;
+    k.fillStyle = '#F2E9D8'; k.fillRect(30, by, 479, FM_RH);
+    k.beginPath(); k.rect(30, by, 479, FM_RH); k.clip();
+    // 跑马灯：名称 + 圆点重复排列，整体向左滚动
+    k.font = `800 22px ${SANS}`;
+    const unit = k.measureText(FM_ITEMS[r]).width + 46;
+    for (let x = 30 - ((u * FM_SPD) % unit); x < 509; x += unit) {
+      txt(k, FM_ITEMS[r], x, by + FM_RH / 2 + 1, `800 22px ${SANS}`, '#141414', 'left', 'middle');
+      k.fillStyle = FM_DOTS[r]; k.beginPath(); k.arc(x + unit - 23, by + FM_RH / 2, 8, 0, TAU); k.fill();
+    }
+    k.restore();
+  }
+  const [cx, cy] = path(FM_KF, u);
+  if (u > FM_KF[0][0] && u < FM_KF[FM_KF.length - 1][0]) cursor(k, cx, cy, 0, true);
+};

@@ -1,0 +1,16 @@
+Please use "Lanyard badge" (ストラップ付き名札), filed under "Pointer interactions / Tactile & cards".
+Motion Prompt #1-223
+
+What it is: An ID badge hanging from a lanyard that you can grab, pull and let go so it swings back into place
+What the sample shows: The badge hangs with a gentle sway; at 1.2 s the cursor grabs it and pulls it up to the right, and on release at 2.6 s it swings wide, the strap springs back, and the motion dies down.
+Spec:
+- An 84×116 px badge hangs on an 84 px strap and normally sways ±0.04 rad with a 3.2 s period.
+- At 1.2 s the cursor grabs the badge's centre and pulls it to (400, 118) by 2.5 s; the strap's angle and length are worked out from the cursor position.
+- On release at 2.6 s the swing angle decays as θ·e^(−2.2τ)·cos(5.2τ) and the strap length springs back to 84 px as e^(−6τ)·cos(14τ).
+- The badge's own rotation lags the strap by 0.06 s, and the middle of the strap bends by that difference so it looks flung around.
+- Everything is a formula of time with no per-frame integration; at 5.4–6.0 s the leftover swing is brought to 0, matching the gentle sway at 0 s.
+When to use it: Use it on event, conference, hiring or profile pages where a badge you can tug makes the page feel tangible.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-223.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -405,6 +405,16 @@ keeps those outside the MIT License). Each element carries the line `MIT License
 > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 > SOFTWARE.
 
+## React Bits by David Haz (pack `webfx`)
+
+All elements in `packs/webfx/` take their effect ideas from
+[React Bits](https://reactbits.dev/) ([DavidHDev/react-bits](https://github.com/DavidHDev/react-bits)) by David Haz.
+They are Canvas 2D implementations written from scratch for this repository after the component descriptions and
+live demos; no React Bits code (JSX, CSS or shaders) is copied or ported, and the names, parameters, colors and
+drawings are our own. React Bits is licensed under the MIT License with the Commons Clause, which does not apply to
+this pack. The code of this pack is under this repository's MIT License © 2026 sadjjk. To ask for a removal or a
+correction, use the [issue form](https://github.com/sadjjk/motion-prompt-zh/issues/new?template=3-removal.yml).
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat

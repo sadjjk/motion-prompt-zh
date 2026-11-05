@@ -1,0 +1,56 @@
+// Motion Prompt #1-214 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// Tilted tile wall / 傾いたタイルの壁
+// Category: UI & Web / Pages / Hero backgrounds
+// What happens: Five rows of cards tilted −12° drift in alternating directions; as the cursor moves the rows shift by depth-like amounts, and the card right under it lifts and glows.
+// Motion spec:
+//   - Five rows of 92×58 px rounded cards spaced 104 apart; the whole wall tilts −12°.
+//   - Odd and even rows drift in opposite directions by 2 or 3 cards per cycle; colours repeat every 2 or 3 cards, so the loop is seamless.
+//   - The cursor enters at 0.4–1.0 s; each row shifts by (cursor x − centre)·(0.12 + 0.07·row).
+//   - The card under the cursor brightens, scales 1.08 times and gets a white outline.
+//   - The cursor leaves at 4.6–5.3 s and the shift returns to 0; the left and right edges fade to the background.
+// When to use it: Use it as a hero for app galleries, template stores or portfolios that want to show lots of content at once.
+// Tags: tile-wall, tilted-grid, marquee, parallax, card-wall, hero-background
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-214
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 15
+// 15 倾斜图块墙：5 排圆角图块（92×58，间距 104）整体倾斜 −12°，奇偶排反向漂移，速度为每周期 2 或 3 个图块，每排的配色也按 2 或 3 个图块重复，所以周期末与开头完全重合；
+// 光标 0.4–1.0 秒入场后，各排按 (光标x − 中心)·(0.12 + 0.07·排号) 跟着平移，光标下方的图块提亮、放大 1.08 倍并描白边；光标 4.6–5.3 秒离场，平移回 0
+const GM_W = 92, GM_H = 58, GM_ST = 104, GM_ROWS = 5, GM_ROT = -12 * Math.PI / 180;
+const GM_SPD = [2, 3, 2, 3, 2], GM_PAL = [['#FF8A5B', '#FF4D6D'], ['#5B8CFF', '#7A5CFF'], ['#32D5A4', '#11998E'], ['#FFD166', '#F4A261'], ['#E0E0E8', '#A0A4B8'], ['#C77DFF', '#7B2CBF']];
+const GM_KF = [[0.4, -30, 160], [1.2, 140, 120], [2.4, 400, 90], [3.6, 220, 130], [4.6, 330, 80], [5.3, 600, 40]];
+CELLS[14] = (k, w, h, u) => {
+  k.fillStyle = '#121218'; k.fillRect(0, 0, CW, CH);
+  const [cx, cy] = path(GM_KF, u), p = presence(u, 0.4, 1.0, 4.6, 5.3);
+  const cr = Math.cos(-GM_ROT), sr = Math.sin(-GM_ROT);
+  const lx = (cx - CW / 2) * cr - (cy - CH / 2) * sr, ly = (cx - CW / 2) * sr + (cy - CH / 2) * cr;   // 光标在墙面坐标系里的位置
+  k.save(); k.translate(CW / 2, CH / 2); k.rotate(GM_ROT);
+  for (let r = 0; r < GM_ROWS; r++) {
+    const y = (r - (GM_ROWS - 1) / 2) * (GM_H + 14) - GM_H / 2;
+    const dir = r % 2 ? 1 : -1, off = dir * GM_SPD[r] * GM_ST * u / CYC + p * (cx - CW / 2) * (0.12 + 0.07 * r);
+    const j0 = Math.floor((-420 - off) / GM_ST), j1 = Math.ceil((420 - off) / GM_ST);
+    for (let j = j0; j <= j1; j++) {
+      const x = j * GM_ST + off - GM_W / 2, pal = GM_PAL[(r * 2 + ((j % GM_SPD[r]) + GM_SPD[r]) % GM_SPD[r]) % GM_PAL.length];
+      const hov = p * clamp(1 - Math.hypot((lx - (x + GM_W / 2)) / 60, (ly - (y + GM_H / 2)) / 40));
+      const s = 1 + 0.08 * hov;
+      k.save(); k.translate(x + GM_W / 2, y + GM_H / 2); k.scale(s, s);
+      const g = k.createLinearGradient(-GM_W / 2, -GM_H / 2, GM_W / 2, GM_H / 2); g.addColorStop(0, pal[0]); g.addColorStop(1, pal[1]);
+      k.globalAlpha = 0.55 + 0.45 * hov; k.fillStyle = g; rr(k, -GM_W / 2, -GM_H / 2, GM_W, GM_H, 9); k.fill();
+      k.globalAlpha = 0.85; k.fillStyle = 'rgba(255,255,255,.75)';
+      k.beginPath(); k.arc(-GM_W / 2 + 18, -GM_H / 2 + 18, 8, 0, TAU); k.fill();
+      rr(k, -GM_W / 2 + 12, GM_H / 2 - 22, 50, 5, 2.5); k.fill(); rr(k, -GM_W / 2 + 12, GM_H / 2 - 13, 32, 5, 2.5); k.fill();
+      if (hov > 0.02) { k.globalAlpha = hov; k.strokeStyle = '#FFFFFF'; k.lineWidth = 2; rr(k, -GM_W / 2, -GM_H / 2, GM_W, GM_H, 9); k.stroke(); }
+      k.restore();
+    }
+  }
+  k.restore(); k.globalAlpha = 1;
+  const v = k.createLinearGradient(0, 0, CW, 0);
+  v.addColorStop(0, 'rgba(18,18,24,.9)'); v.addColorStop(0.12, 'rgba(18,18,24,0)'); v.addColorStop(0.88, 'rgba(18,18,24,0)'); v.addColorStop(1, 'rgba(18,18,24,.9)');
+  k.fillStyle = v; k.fillRect(0, 0, CW, CH);
+  if (u > 0.4 && u < 5.3) cursor(k, cx, cy);
+};

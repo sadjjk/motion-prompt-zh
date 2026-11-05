@@ -1,0 +1,56 @@
+// Motion Prompt #2-122 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// 折り紙展開テキスト / Fold text
+// 分類: モーショングラフィックス / 文字アニメーション / 変形・質感
+// 何が起きるか: 濃い青の背景で、黄色い見出しの帯が現れたあと、その下に白い紙の帯が 1 段ずつ折り開かれて文章が読めるようになる。最後は下の段から順に折りたたまれて消える。
+// 動きの仕様:
+//   - 見出しの帯は高さ 36 px、0.3 秒から 0.5 秒で開く。本文の 3 行はそれぞれ高さ 40 px の帯
+//   - 本文の帯は 0.8 秒から 0.45 秒ずつずれて、各帯 0.6 秒で角度 θ が 90° から 0° へ out3 で開く
+//   - 帯は上の帯の下端につながり、見える高さは 40·cos θ
+//   - 奇数段は内折りで 0.32·sin θ だけ暗く、偶数段は外折りで 0.5·sin θ だけ明るく、折り目に細い線を引く
+//   - 5.4–6.0 秒に下の段から 0.22 秒ずつずれて折りたたみ、見出しの帯も閉じて 0 秒とつなぐ
+// 使いどころ: メモ、通知、レシピの手順、チェックリストなど、短い行を順に読ませたい小さなカードに。
+// タグ: fold, paper, unfold, origami, text-reveal, card
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-122
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 34
+// 34 折纸展开字：一张便签上的 3 行字像折过的纸一样，一折一折往下展开。
+// 每行是一条 40 px 高的纸带，挂在上一条的下沿；纸带绕上沿翻折，角度 θ 从 90° 落到 0°，可见高度 = 40·cos θ，
+// 奇数折向里（变暗 0.32·sin θ），偶数折向外（变亮 0.5·sin θ），折痕处画一条细线。
+// 标题条 0.3 秒落下（0.5 秒），第 1–3 行从 0.8 秒起每隔 0.45 秒展开一条（每条 0.6 秒，out3 缓动）；
+// 5.4–6.0 秒从最后一行往上依次折回，只剩标题条缩回 0，接回 0 秒。
+const FT_X = 150, FT_W = 240, FT_TOP = 18, FT_BAND = 40, FT_HEAD = 36;
+const FT_LINES = ['Fold the plan', 'into three lines', 'and open it slowly.'];
+CELLS[33] = (k, w, h, u) => {
+  k.fillStyle = '#2B3A4A'; k.fillRect(0, 0, CW, CH);
+  const back = seg(u, SHOW, SHOW + 0.6);                 // 折回进度
+  const open = i => {                                    // i = 0 标题，1–3 正文
+    const a = i === 0 ? out3(seg(u, 0.3, 0.8)) : out3(seg(u, 0.8 + 0.45 * (i - 1), 1.4 + 0.45 * (i - 1)));
+    const b = inOut3(seg(back, (3 - i) * 0.22, (3 - i) * 0.22 + 0.34));
+    return a * (1 - b);
+  };
+  let y = FT_TOP;
+  // 投影：跟着纸的总高度
+  const heights = [0, 1, 2, 3].map(i => (i === 0 ? FT_HEAD : FT_BAND) * Math.sin(open(i) * Math.PI / 2));
+  const total = heights.reduce((a, b) => a + b, 0);
+  if (total > 0.5) { k.fillStyle = 'rgba(0,0,0,0.22)'; rr(k, FT_X + 4, FT_TOP + 6, FT_W, total, 6); k.fill(); }
+  for (let i = 0; i < 4; i++) {
+    const p = open(i), th = (1 - p) * Math.PI / 2, bh = i === 0 ? FT_HEAD : FT_BAND, vis = bh * Math.cos(th);
+    if (vis < 0.3) break;
+    k.save(); k.translate(0, y); k.scale(1, Math.cos(th));
+    k.beginPath(); k.rect(FT_X, 0, FT_W, bh); k.clip();
+    k.fillStyle = i === 0 ? '#F2C14E' : '#FBF7EE'; k.fillRect(FT_X, 0, FT_W, bh);
+    if (i === 0) txt(k, 'NOTE', FT_X + 16, bh / 2 + 1, `800 14px ${MONO}`, '#5B4310', 'left', 'middle');
+    else txt(k, FT_LINES[i - 1], FT_X + 16, bh / 2 + 1, `700 19px ${SANS}`, '#24303C', 'left', 'middle');
+    const sh = Math.sin(th);
+    k.fillStyle = i % 2 ? `rgba(30,40,55,${0.32 * sh})` : `rgba(255,255,255,${0.5 * sh})`; k.fillRect(FT_X, 0, FT_W, bh);
+    k.restore();
+    if (i > 0) { k.fillStyle = `rgba(40,50,60,${0.10 + 0.25 * Math.sin(th)})`; k.fillRect(FT_X, y, FT_W, 1); }
+    y += vis;
+  }
+};

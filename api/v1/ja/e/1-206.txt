@@ -1,0 +1,52 @@
+// Motion Prompt #1-206 · MIT License (c) 2026 sadjjk · https://reactbits.dev/
+//
+// カーソル点灯グリッド / Cursor grid
+// 分類: UI・Web / ポインター操作 / カーソル
+// 何が起きるか: 26 px のマス目の上をカーソルが動き、通ったマスが光って尾を引くように消え、クリックで光るマスの輪が外へ広がる。
+// 動きの仕様:
+//   - 26 px のマス目を暗い背景に敷き、マスの色は左のピンク #FF4D8D から右の紫 #7A5CFF へ変わる
+//   - カーソルが通ったマスはすぐ点灯し、e^(−Δt/0.45) で暗くなる
+//   - 3.4 秒のクリックで光るマスの輪が 360 px/s で広がり、1.2 秒で弱まる
+//   - カーソルは 0.3 秒に入って 5.0 秒に去り、5.4–6.0 秒に全体がフェードアウトする
+// 使いどころ: ポートフォリオやイベントページの背景で、カーソルの動きを跡として見せたいとき。
+// タグ: cursor-grid, cursor-trail, grid, hover-highlight, click-pulse, background
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-206
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 07
+// 07 光标点亮网格：26 px 方格铺满深色画面，光标经过的格子立刻亮起，再按 e^(−Δt/0.45) 渐暗，形成一条拖尾；
+// 格子颜色从左到右由粉 #FF4D8D 渐变到紫 #7A5CFF；3.4 秒点击，一圈亮格以 360 px/s 向外扩散并在 1.2 秒内减弱
+const CG_S = 26, CG_CLICK = 3.4;
+const CG_KF = [[0.3, -30, 40], [1.2, 180, 60], [2.0, 330, 150], [2.8, 470, 70], [CG_CLICK, 300, 110], [4.4, 90, 160], [5.0, -30, 120]];
+const CG_A = [255, 77, 141], CG_B = [122, 92, 255];
+CELLS[6] = (k, w, h, u) => {
+  k.fillStyle = '#0C0B12'; k.fillRect(0, 0, CW, CH);
+  const cols = Math.ceil(CW / CG_S), rows = Math.ceil(CH / CG_S), ox = (CW - cols * CG_S) / 2;
+  const lit = new Float32Array(cols * rows);
+  for (let s = Math.max(0.3, u - 1.6); s <= Math.min(u, 5.0); s += 1 / 90) {
+    const [px, py] = path(CG_KF, s), c = Math.floor((px - ox) / CG_S), r = Math.floor(py / CG_S);
+    if (c >= 0 && c < cols && r >= 0 && r < rows) lit[r * cols + c] = Math.max(lit[r * cols + c], Math.exp(-(u - s) / 0.45));
+  }
+  const ct = u - CG_CLICK;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const x = ox + c * CG_S, y = r * CG_S;
+    let v = lit[r * cols + c];
+    if (ct > 0 && ct < 1.2) {
+      const d = Math.hypot(x + CG_S / 2 - CG_KF[4][1], y + CG_S / 2 - CG_KF[4][2]), q = (d - ct * 360) / 22;
+      v = Math.max(v, 0.8 * Math.exp(-q * q) * (1 - ct / 1.2));
+    }
+    v *= fadeIn(u);
+    k.strokeStyle = 'rgba(255,255,255,.06)'; k.lineWidth = 1; k.strokeRect(x + 0.5, y + 0.5, CG_S, CG_S);
+    if (v > 0.01) {
+      k.fillStyle = rgb(lerpC(CG_A, CG_B, c / (cols - 1))); k.globalAlpha = 0.9 * v;
+      rr(k, x + 2, y + 2, CG_S - 3, CG_S - 3, 3); k.fill(); k.globalAlpha = 1;
+    }
+  }
+  const [cx, cy] = path(CG_KF, u);
+  ripple(k, CG_KF[4][1], CG_KF[4][2], ct / 0.6);
+  if (u > 0.3 && u < 5.0) cursor(k, cx, cy, Math.abs(ct) < 0.1 ? 1 : 0);
+};
