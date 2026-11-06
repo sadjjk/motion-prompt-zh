@@ -1,0 +1,75 @@
+// Motion Prompt #4-086 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// おもちゃのブロック / Toy bricks
+// 分類: ビジュアルスタイル / アニメーションの画風 / 空間・質感
+// 何が起きるか: 淡いグレーの紙の上に、赤、青、黄、緑、白のブロック 8 個が 0.5 秒ごとに落ちて 5 段に組み上がる。各ブロックは少し弾んで止まり、床の影が広がる。
+// 動きの仕様:
+//   - 淡いグレーの紙 #EEF0F2。y 184 に薄い床の線があり、0.1–0.4 秒にフェードイン。ブロックはポッチ 1 個分が 20 px、高さ 18 px。上面は右へ 12 px、上へ 10 px ずらして描く
+//   - 各ブロックは上面が明るく、正面は本来の色、右側面は暗い。上には 1 単位ごとに丸いポッチ。色は赤 #D7372F、青 #2D6CC0、黄 #F2C230、緑 #3A9A4B、白 #F4F4F4
+//   - 8 個のブロックが順に落ちる。1 個目は 0.4 秒、以後 0.5 秒ごと。それぞれ 0.35 秒で 70 px 落ち、バックアウトのイージングで少し行き過ぎてから止まる
+//   - モデルの下の柔らかい楕円の影が、着地した数に合わせてなめらかに広がる。半幅は 25 px から 113 px まで
+//   - 5.4–6.0 秒にモデルがフェードして白紙に戻る。0 秒と 6.4 秒はどちらも白紙なので、ループがつながる
+// 使いどころ: 組み立て、手順、成長、子ども向けや遊び心のある製品紹介に。
+// タグ: toy-bricks, blocks, stacking, orthographic, drop, bounce
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-086
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 15
+// 玩具积木：带凸点的塑料积木一块块从上方落下搭成造型；正投影，顶面亮、正面原色、右侧面暗，地面投影随块数变大
+{
+  const COL = { R: '#D7372F', Y: '#F2C230', B: '#2D6CC0', G: '#3A9A4B', W: '#F4F4F4' };
+  // 计划里的 16 px 单位在卡片缩略图上偏小，整体放大 1.25 倍：单位 20 px、砖高 18 px
+  const GROUND = 184, UNIT = 20, BH = 18, DX = 12, DY = -10, SR = UNIT / 16;
+  // [左边缘相对 x=270 的偏移（按 16 px 单位写，画时乘 SR）, 层号, 宽度单位数, 颜色]，按落下顺序
+  // 偏移都取 16 的整数倍，凸点才对得上下层；顶层两块各压住下层 1 个凸点，向两侧悬出
+  const BR = [[-64, 0, 4, 'R'], [0, 0, 4, 'B'], [-48, 1, 4, 'Y'], [16, 1, 2, 'G'], [-32, 2, 4, 'W'], [-32, 3, 4, 'R'], [-48, 4, 2, 'B'], [16, 4, 2, 'Y']];
+  const T0 = i => 0.4 + 0.5 * i, FALL = 0.35, DROP = 70;
+  function brick(k, x, yb, n, col) {
+    const w = n * UNIT, top = yb - BH, c = COL[col];
+    k.lineJoin = 'round'; k.lineWidth = 0.8; k.strokeStyle = 'rgba(0,0,0,.18)';
+    // 右侧面
+    k.fillStyle = shade(c, -0.28);
+    k.beginPath(); k.moveTo(x + w, top); k.lineTo(x + w + DX, top + DY); k.lineTo(x + w + DX, yb + DY); k.lineTo(x + w, yb); k.closePath(); k.fill(); k.stroke();
+    // 正面
+    k.fillStyle = c; k.fillRect(x, top, w, BH); k.strokeRect(x, top, w, BH);
+    // 顶面
+    k.fillStyle = shade(c, 0.18);
+    k.beginPath(); k.moveTo(x, top); k.lineTo(x + DX, top + DY); k.lineTo(x + w + DX, top + DY); k.lineTo(x + w, top); k.closePath(); k.fill(); k.stroke();
+    // 凸点：每个单位一个，3 px 高的小圆柱
+    for (let j = 0; j < n; j++) {
+      const cx = x + UNIT * j + UNIT / 2 + DX / 2, cy = top + DY / 2;
+      k.fillStyle = shade(c, -0.28);
+      k.beginPath(); k.ellipse(cx, cy, 6, 3, 0, 0, Math.PI); k.lineTo(cx - 6, cy - 4); k.ellipse(cx, cy - 4, 6, 3, 0, Math.PI, 0, true); k.closePath(); k.fill();
+      k.fillStyle = shade(c, 0.3);
+      k.beginPath(); k.ellipse(cx, cy - 4, 6, 3, 0, 0, TAU); k.fill(); k.stroke();
+    }
+  }
+  CELLS[14] = (k, w, h, u) => {
+    paper(k, '#EEF0F2', 'rgba(0,0,0,.035)');
+    k.globalAlpha = vis(u);
+    // 地面线：0.1–0.4 秒淡入，保证 u=0 与 u=6.4 都只有纸
+    k.strokeStyle = `rgba(40,50,60,${0.18 * seg(u, 0.1, 0.4)})`; k.lineWidth = 1;
+    k.beginPath(); k.moveTo(60, GROUND + 0.5); k.lineTo(480, GROUND + 0.5); k.stroke();
+    // 投影：落地块数连续增长，避免在落地那一帧跳变
+    let landed = 0;
+    BR.forEach((b, i) => { landed += seg(u, T0(i) + FALL * 0.7, T0(i) + FALL); });
+    if (landed > 0) {
+      k.fillStyle = 'rgba(0,0,0,.14)';
+      k.beginPath(); k.ellipse(270, GROUND + 2, 25 + 11 * landed, 6, 0, 0, TAU); k.fill();
+    }
+    // 后落的压在先落的上面；同一时刻最多一块在下落，所以按清单顺序画即可
+    const a0 = k.globalAlpha;
+    BR.forEach(([off, layer, n, col], i) => {
+      const t = seg(u, T0(i), T0(i) + FALL);
+      if (t <= 0) return;
+      const dy = -DROP * (1 - backOut(t, 1.2));
+      k.globalAlpha = a0 * Math.min(1, t * 5);
+      brick(k, 270 + off * SR, GROUND - layer * BH + dy, n, col);
+    });
+    k.globalAlpha = 1;
+  };
+}

@@ -1,0 +1,83 @@
+// Motion Prompt #4-085 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 橡皮管动画 / Rubber-hose cartoon
+// 分类: 审美风格 / 动画画风 / 媒介与题材
+// 动画表现: 白脸、派形眼睛的角色原地弹跳 4 次，两臂一上一下摆动，每次落地身体压扁。整个画面带胶片颗粒、亮度闪烁、偶尔一道竖向划痕和暗角。
+// 运动规格:
+//   - 暖灰色卡片，y 182 处一条墨线，下方是灰色地面。角色是半径 30 px 的黑色圆身体，白脸上有 2 只派形眼睛和笑嘴，软管手臂戴白手套，软管腿穿黑鞋。
+//   - 6.4 秒正好 4 次弹跳，每次 1.6 秒：最高点身体升起 16 px、脚抬起 10 px，影子随升高变小。
+//   - 每次落地身体以底部为基准压扁，最多矮 12%、宽 8%，按 (1 − b)^4 减弱（b 为 0 到 1 的弹跳高度）；两臂摆动 ±0.7 rad，一只抬起时另一只放下。
+//   - 胶片效果按 12.5 帧/秒的帧号变化，每个循环 80 帧：160 个颗粒、最多 4% 的亮度闪烁、约四分之一的帧有一道淡淡的竖向划痕，加上暗角。
+//   - 不做淡出：6.4 秒正好是 4 次弹跳和 80 个胶片帧，最后一帧直接接回第一帧。
+// 适用场景: 适合复古广告、广告歌、随音乐跳动的吉祥物，或老电影风格的片头。
+// 标签: cartoon, rubber-hose, 1930s, bounce, film-grain, loop
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-085
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 14
+// 橡皮管动画：1930 年代黑白墨线卡通，圆身体的角色随节拍原地弹跳，手脚像软管一样弯，落地时压扁；画面带胶片颗粒、闪烁和划痕
+{
+  // 例外：周期动画，不走「画出来再复位」。6.4 秒恰好 4 拍，首尾自然衔接
+  const INK = '#151515', GREY = '#8C8C8C', WHITE = '#FAFAF5', P = CYC / 4, GROUND = 182;
+  // 胶片按 12.5 帧/秒取帧号：6.4 秒正好 80 帧，循环处的换帧和其他帧一样
+  const FPS = 12.5;
+  // 一条软管：起点到终点的二次曲线，控制点沿法线偏 bend
+  function hose(k, x1, y1, x2, y2, bend) {
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, L = Math.hypot(x2 - x1, y2 - y1) || 1;
+    k.beginPath(); k.moveTo(x1, y1); k.quadraticCurveTo(mx - (y2 - y1) / L * bend, my + (x2 - x1) / L * bend, x2, y2); k.stroke();
+  }
+  // 派眼：黑椭圆缺一角
+  function pieEye(k, x, y) {
+    k.fillStyle = INK; k.beginPath(); k.ellipse(x, y, 3.6, 6.5, 0, 0, TAU); k.fill();
+    k.fillStyle = WHITE; k.beginPath(); k.moveTo(x + 0.6, y - 1.2); k.lineTo(x + 4, y - 3.6); k.lineTo(x + 4, y - 0.2); k.closePath(); k.fill();
+  }
+  CELLS[13] = (k, w, h, u) => {
+    const b = Math.abs(Math.sin(Math.PI * u / P)), sq = Math.pow(1 - b, 4), ph = TAU * u / P;
+    const cx = 270, cy = 118 - 16 * b;
+    k.fillStyle = '#D9D5CC'; k.fillRect(0, 0, CW, CH);
+    // 地面：墨线 + 下方平涂灰；影子随离地高度变小
+    k.fillStyle = GREY; k.fillRect(0, GROUND, CW, CH - GROUND);
+    k.strokeStyle = INK; k.lineWidth = 2; k.beginPath(); k.moveTo(0, GROUND); k.lineTo(CW, GROUND); k.stroke();
+    k.fillStyle = 'rgba(21,21,21,.45)'; k.beginPath(); k.ellipse(cx, GROUND + 3, 26 + 8 * (1 - b), 3.5, 0, 0, TAU); k.fill();
+    k.lineCap = 'round'; k.strokeStyle = INK; k.lineWidth = 5;
+    // 腿：身体底部到鞋，鞋随身体抬起 10 px，弯曲方向随 b 摆动
+    const footY = 176 - 10 * b;
+    [-1, 1].forEach(s => {
+      hose(k, cx + 12 * s, cy + 24, cx + 18 * s, footY, s * (4 + 8 * (1 - b)));
+      k.fillStyle = INK; k.beginPath(); k.ellipse(cx + 22 * s, footY + 1, 11, 6, 0, 0, TAU); k.fill();
+    });
+    // 手臂：肩到手套，左右反相摆动
+    [-1, 1].forEach(s => {
+      const th = s < 0 ? Math.PI + 0.2 + 0.7 * Math.sin(ph) : -0.2 + 0.7 * Math.sin(ph);
+      const sx = cx + 26 * s, sy = cy - 2, hx = sx + Math.cos(th) * 32, hy = sy + Math.sin(th) * 32;
+      k.strokeStyle = INK; k.lineWidth = 5; hose(k, sx, sy, hx, hy, -s * 9);
+      k.fillStyle = WHITE; k.lineWidth = 1.8; k.beginPath(); k.arc(hx, hy, 8, 0, TAU); k.fill(); k.stroke();
+    });
+    // 身体与脸：落地时以身体底部为基准压扁
+    k.save();
+    k.translate(cx, cy + 30); k.scale(1 + 0.08 * sq, 1 - 0.12 * sq); k.translate(-cx, -(cy + 30));
+    k.fillStyle = INK; k.beginPath(); k.arc(cx, cy, 30, 0, TAU); k.fill();
+    k.fillStyle = WHITE; k.beginPath(); k.ellipse(cx + 3, cy - 3, 18, 15, 0, 0, TAU); k.fill();
+    pieEye(k, cx - 3, cy - 7); pieEye(k, cx + 8, cy - 7);
+    k.strokeStyle = INK; k.lineWidth = 2; k.beginPath(); k.arc(cx + 3, cy + 1, 9, 0.25 * Math.PI, 0.75 * Math.PI); k.stroke();
+    k.restore();
+    // 胶片效果：同一 u 结果相同
+    const f = Math.floor(u * FPS);
+    for (let i = 0; i < 160; i++) {
+      k.fillStyle = i % 2 ? 'rgba(21,21,21,.18)' : 'rgba(250,250,245,.18)';
+      k.fillRect(rnd(i, f) * CW, rnd(i, f + 300) * CH, 1.5, 1.5);
+    }
+    k.fillStyle = `rgba(255,255,255,${0.04 * rnd(f, 9)})`; k.fillRect(0, 0, CW, CH);
+    if (rnd(f, 3) > 0.75) {
+      const x = rnd(f, 4) * CW;
+      k.strokeStyle = 'rgba(21,21,21,.3)'; k.lineWidth = 1; k.beginPath(); k.moveTo(x, 0); k.lineTo(x + 3 * (rnd(f, 5) - 0.5), CH); k.stroke();
+    }
+    const g = k.createRadialGradient(CW / 2, CH / 2, CH * 0.45, CW / 2, CH / 2, CW * 0.6);
+    g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.35)');
+    k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+  };
+}

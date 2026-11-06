@@ -1,0 +1,16 @@
+Please use "Wax crayon" (クレヨン), filed under "Craft & patterns / Drawing & painting media".
+Motion Prompt #4-074
+
+What it is: A crayon scribbles back and forth so the paper's valleys stay unfilled; a darker crayon adds shade, white is burnished on for a highlight, and a fat outline is traced twice
+What the sample shows: A red balloon in crayon. Back-and-forth strokes fill it with white flecks of paper left behind; dark red adds shade, white a highlight, then a fat outline goes round twice and the string is drawn.
+Spec:
+- Off-white paper. A balloon about 108 px wide and 121 px tall centred at (270, 84).
+- 0.3–2.6 s: red #E63946 at 85% opacity is scribbled in with 7 px strokes, row by row 6 px apart, each row going right and then slanting back; up to 300 specks of paper colour appear in the rows already coloured.
+- 2.6–3.4 s: dark red #9D0208 is scribbled over the lower right; 3.4–3.8 s: white at 70% opacity is pressed in as a small highlight at the upper left.
+- 3.8–4.25 s and 4.25–4.6 s: a 3.5 px outline in #370617 goes round twice, the second pass 2.8% larger; 4.6–4.9 s: the string and its knot are drawn.
+- At 5.4–6.0 s the drawing fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+When to use it: Use it for children's content, party invitations or playful title cards.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-074.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

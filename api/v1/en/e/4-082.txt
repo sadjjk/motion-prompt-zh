@@ -1,0 +1,51 @@
+// Motion Prompt #4-082 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// Single-line engraving / 一本線の彫版
+// Category: Visual styles / Craft & patterns / Print & handmade
+// What happens: Navy ink on cream paper. One spiral line runs out from the centre of a sphere, thin at the upper left and thick at the lower right, until a lit ball appears.
+// Motion spec:
+//   - Cream paper and navy ink #1E2A3A. A sphere 88 px in radius centred at (270, 104), lit from the upper left.
+//   - The whole sphere is one Archimedean spiral whose turns are 3.2 px apart, sampled every 2 px along the line.
+//   - The line width at each point is 0.35 + 2.3 × tone px, so the lit upper left is drawn with hairlines and the shadow side with lines close to 2.7 px.
+//   - 0.3–4.6 s: the spiral is drawn outwards from the centre at a steady pace; an ink dot marks the tip and fades out at 4.6–4.9 s.
+//   - At 5.4–6.0 s the drawing fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+// When to use it: Use it for a banknote-or-stamp kind of dignity, history and craftsmanship, or to introduce algorithmic art.
+// Tags: engraving, spiral, single-line, line-weight, print, process
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-082
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 11
+// 单线雕版：一条不断开的螺旋线从球心往外画出，线越粗越暗，整只受光的球体只由这一条线构成
+{
+  const INK = '#1E2A3A', CX = 270, CY = 104, R = 88, PITCH = 3.2;
+  // 螺线点在定义时算好：弧长步长约 2 px，每点记下该处的线宽
+  const SP = [];
+  for (let th = 0; ;) {
+    const r = PITCH * th / TAU;
+    if (r > R) break;
+    const x = CX + Math.cos(th) * r, y = CY + Math.sin(th) * r, t = Math.max(0, sphereTone(x, y, CX, CY, R + 0.5, R + 0.5));
+    SP.push([x, y, 0.35 + 2.3 * t]);
+    th += 2 / Math.hypot(r, PITCH / TAU);
+  }
+  CELLS[10] = (k, w, h, u) => {
+    paper(k, '#F1EAD9', 'rgba(80,60,30,.05)');
+    const a = vis(u), n = Math.floor(seg(u, 0.3, 4.6) * (SP.length - 1));
+    k.globalAlpha = a; k.strokeStyle = INK; k.lineCap = 'round'; k.lineJoin = 'round';
+    // 线宽相近（按 0.2 量化）的连续段合成一条路径，减少描边次数
+    let i = 0;
+    while (i < n) {
+      const q = Math.round(SP[i][2] * 5) / 5;
+      k.lineWidth = q; k.beginPath(); k.moveTo(SP[i][0], SP[i][1]);
+      while (i < n && Math.round(SP[i][2] * 5) / 5 === q) { i++; k.lineTo(SP[i][0], SP[i][1]); }
+      k.stroke();
+    }
+    // 笔尖墨点，画完后淡出
+    const pa = 1 - seg(u, 4.6, 4.9);
+    if (n > 0 && pa > 0) { k.globalAlpha = a * pa; k.fillStyle = INK; k.beginPath(); k.arc(SP[n][0], SP[n][1], 2, 0, TAU); k.fill(); }
+    k.globalAlpha = 1;
+  };
+}

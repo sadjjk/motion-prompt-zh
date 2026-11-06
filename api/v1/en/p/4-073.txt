@@ -1,0 +1,16 @@
+Please use "Coloured pencil" (色鉛筆), filed under "Craft & patterns / Drawing & painting media".
+Motion Prompt #4-073
+
+What it is: Short strokes in one diagonal direction are layered from light to dark hues on toothy paper, with cross-hatching added in the darkest areas
+What the sample shows: An apple on cream paper. Diagonal strokes go down in yellow, orange and deep red, cross-hatching darkens the shadow, and the stem and leaf come last. The paper's tooth stays as white specks.
+Spec:
+- Cream paper with 900 grain specks. An apple about 128 px across with a notch at the top, a stem and one leaf.
+- Every colour is laid down as 45° strokes 10–16 px long, 1.1 px wide at 55% opacity, placed on a 5 × 4 px grid with jitter and drawn row by row from the top.
+- 0.3–1.4 s yellow #E9C46A over the whole apple; 1.4–2.6 s orange #E76F51 over the lower right; 2.6–3.6 s deep red #9B2226 in the lower-right shadow; 3.6–4.3 s crossing strokes in #5C1A1B at the opposite angle.
+- Inside the apple, specks of paper colour fade in over the colour at 0.3–0.8 s, so the paper's tooth stays white; 4.3–4.5 s the stem is drawn, 4.4–4.8 s the leaf is coloured green.
+- At 5.4–6.0 s the drawing fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+When to use it: Use it for children's content, education, food or anything that should feel gentle and handmade.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-073.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

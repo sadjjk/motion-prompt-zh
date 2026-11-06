@@ -25,8 +25,8 @@ You do not have to write the code yourself. The prompts in [`make-your-own/promp
 
 ### How found examples are listed
 
-- X posts are shown with X's official embed. Everything else (Xiaohongshu, WeChat articles, sites, repositories) is shown as a link card with a one-line introduction we write; the page loads nothing from those platforms. No images, videos, screenshots or post text are copied into this repository or onto the site.
-- `examples/found.json` holds only the author (`author`), `url`, a theme (`theme`, one of the group ids in `packs/categories.json`; the build checks it and generates the page's sections from those groups), a one-line introduction (`intro`, in Simplified Chinese, Japanese and English), the language of the source (`lang`) and the date it was added (`added`). Optional: `platform` (`x` | `xiaohongshu` | `wechat` | `other`, default `x`), the post ID (`id`, required for X), `authorUrl` and `platformLabel` (a short label for `other`, e.g. `GitHub · Web`). It does not keep the post text or counts such as likes.
+- Every source (X posts, Xiaohongshu, WeChat articles, sites, repositories) is shown as a link card with a one-line introduction we write; the page loads nothing from those platforms. No images, videos, screenshots or post text are copied into this repository or onto the site.
+- `examples/found.json` holds only the author (`author`), `url`, a theme (`theme`, one of the group ids in `packs/categories.json`; the build checks it and generates the page's sections from those groups), a one-line introduction (`intro`, in Simplified Chinese, Japanese and English), the language of the source (`lang`) and the date it was added (`added`). Optional: `platform` (`x` | `xiaohongshu` | `wechat` | `other`, default `x`), `authorUrl` and `repoUrl` (for `other` sources with both a site and a GitHub repository: `url` is the site, `repoUrl` the repository). For `other`, the card's tags and "View on" links come from the URLs: a `github.com` URL shows `GitHub`, any other URL shows `Web`, and `repoUrl` adds `GitHub`. It does not keep the post text or counts such as likes.
 - The introduction is one line in our own words. It does not copy the source and does not read as if the author recommends this site.
 - We list sources with samples the author made (moving samples with names, cheat sheets, live demos and so on). We do not list sources that use someone else's work without credit, posts that only quote another post, posts that are mainly advertising a paid course or a product, or company ads. A free, openly licensed project that also sells an optional paid tier can be listed; the introduction does not mention the paid tier.
 - The examples page has no ads for courses or services.
@@ -34,7 +34,7 @@ You do not have to write the code yourself. The prompts in [`make-your-own/promp
 
 ### We only take what can be released under MIT
 
-Everything in this repository is released under the MIT License. We do not accept material that cannot be (someone else's work, fonts that cannot be redistributed, photos without permission). If you do not want your work under MIT, publish it on your own site or on X and suggest it as an example; we will embed and link to it.
+Everything in this repository is released under the MIT License. We do not accept material that cannot be (someone else's work, fonts that cannot be redistributed, photos without permission). If you do not want your work under MIT, publish it on your own site or on X and suggest it as an example; we will link to it.
 
 ## What you can add
 

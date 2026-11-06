@@ -1,0 +1,48 @@
+// Motion Prompt #4-072 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 圆珠笔排线 / Ballpoint hatching
+// 分类: 审美风格 / 工艺与纹样 / 绘画媒介
+// 动画表现: 横格纸上用蓝墨水画一只马克杯：先勾轮廓，再在右侧排线，叠一层交叉线，最后排出投影。
+// 运动规格:
+//   - 奶油色纸上每隔 6 px 一条浅蓝横格线。画面中间一只宽 100 px、高 108 px 的马克杯，杯口为椭圆，右侧是 C 形杯柄，全部用同一种蓝墨水。
+//   - 0.3–1.4 秒：一笔接一笔勾出轮廓，线宽 1.2 px、略带抖动；约三分之二的笔画在停笔处留下 1.1 px 的墨点。
+//   - 1.4–2.8 秒：杯身右侧 40 px 排满 −60° 的斜线，间距 4 px；2.8–3.8 秒：再叠一层 30°、间距 5 px 的交叉线，杯口内侧也排上线。
+//   - 3.8–4.4 秒：杯子右下方的椭圆投影排上间距 3.5 px 的斜线。
+//   - 5.4–6.0 秒画面淡回空白画纸；0 秒和 6.4 秒都是空白纸，循环无缝。
+// 适用场景: 适合要手绘草稿感的地方，比如笔记、想法速写、涂鸦风的讲解。
+// 标签: drawing, ballpoint, hatching, cross-hatching, sketch, process
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-072
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 01
+// 圆珠笔排线：只用一支蓝色圆珠笔画马克杯，先勾轮廓，再一层层排线压暗右侧，最后排出投影；笔停处留下小墨点
+{
+  const INK = '#1F3A93';
+  const RIM = ellPts(270, 62, 50, 10, 104, 0.6, 48, Math.PI, 0.06);
+  const BODY = [wobble(220, 62, 220, 170, 101, 1, 10), wobble(220, 170, 320, 170, 102, 1, 10), wobble(320, 170, 320, 62, 103, 1, 10)];
+  const arcPts = (rx, ry) => { const p = []; for (let i = 0; i <= 16; i++) { const a = -Math.PI / 2 + Math.PI * i / 16; p.push([318 + Math.cos(a) * rx, 112 + Math.sin(a) * ry]); } return p; };
+  const OUTLINE = [RIM, ...BODY, arcPts(26, 30), arcPts(14, 18)];
+  const bodyClip = k => k.rect(280, 62, 40, 108), BODY_BOX = [280, 62, 40, 108];
+  const rimClip = k => k.ellipse(270, 62, 46, 7.5, 0, 0, TAU), RIM_BOX = [224, 54, 92, 16];
+  const shadowClip = k => k.ellipse(326, 176, 48, 6, 0, 0, TAU), SH_BOX = [278, 170, 96, 12];
+  CELLS[0] = (k, w, h, u) => {
+    paper(k, '#F7F5EF', 'rgba(0,0,0,.035)');
+    // 横格本的浅蓝格线（纸的一部分，不淡出）
+    k.fillStyle = 'rgba(70,110,170,.12)';
+    for (let y = 8; y < CH; y += 6) k.fillRect(0, y, CW, 0.6);
+    k.globalAlpha = vis(u);
+    k.strokeStyle = INK; k.fillStyle = INK; k.lineCap = 'round'; k.lineJoin = 'round'; k.lineWidth = 1.2;
+    const done = seqDraw(k, OUTLINE, seg(u, 0.3, 1.4));
+    // 停笔处的积墨：每条轮廓线画完后，按 rnd 在末端留一个小墨点
+    for (let i = 0; i < done; i++) if (rnd(i, 9) > 0.35) { const p = OUTLINE[i][OUTLINE[i].length - 1]; k.beginPath(); k.arc(p[0], p[1], 1.1, 0, TAU); k.fill(); }
+    hatch(k, bodyClip, BODY_BOX, -Math.PI / 3, 4, seg(u, 1.4, 2.8), INK, 0.8, 11, 0.8);
+    hatch(k, bodyClip, BODY_BOX, Math.PI / 6, 5, seg(u, 2.8, 3.8), INK, 0.7, 12, 0.8);
+    hatch(k, rimClip, RIM_BOX, -Math.PI / 3, 4, seg(u, 2.8, 3.8), INK, 0.7, 13, 0.8);
+    hatch(k, shadowClip, SH_BOX, -Math.PI / 3, 3.5, seg(u, 3.8, 4.4), INK, 0.7, 14, 0.8);
+    k.globalAlpha = 1;
+  };
+}

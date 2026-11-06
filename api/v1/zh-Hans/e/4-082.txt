@@ -1,0 +1,51 @@
+// Motion Prompt #4-082 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 单线雕版 / Single-line engraving
+// 分类: 审美风格 / 工艺与纹样 / 版画与手工
+// 动画表现: 米色纸、深蓝墨水：一条螺旋线从球心往外画，左上细、右下粗，画完就是一只受光的球。
+// 运动规格:
+//   - 米色纸、深蓝墨水 #1E2A3A。中心在 (270, 104)、半径 88 px 的球，光从左上来。
+//   - 整只球是一条阿基米德螺线，相邻两圈相距 3.2 px，沿线每 2 px 取一个点。
+//   - 每点的线宽为 0.35 + 2.3 × 色调 px，所以左上受光处是细线，背光面的线接近 2.7 px。
+//   - 0.3–4.6 秒：螺线从中心匀速往外画；笔尖有一个墨点，4.6–4.9 秒淡出。
+//   - 5.4–6.0 秒画面淡回空白画纸；0 秒和 6.4 秒都是空白纸，循环无缝。
+// 适用场景: 适合钞票、邮票一类的庄重感，历史、手艺题材，或介绍算法艺术。
+// 标签: engraving, spiral, single-line, line-weight, print, process
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-082
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 11
+// 单线雕版：一条不断开的螺旋线从球心往外画出，线越粗越暗，整只受光的球体只由这一条线构成
+{
+  const INK = '#1E2A3A', CX = 270, CY = 104, R = 88, PITCH = 3.2;
+  // 螺线点在定义时算好：弧长步长约 2 px，每点记下该处的线宽
+  const SP = [];
+  for (let th = 0; ;) {
+    const r = PITCH * th / TAU;
+    if (r > R) break;
+    const x = CX + Math.cos(th) * r, y = CY + Math.sin(th) * r, t = Math.max(0, sphereTone(x, y, CX, CY, R + 0.5, R + 0.5));
+    SP.push([x, y, 0.35 + 2.3 * t]);
+    th += 2 / Math.hypot(r, PITCH / TAU);
+  }
+  CELLS[10] = (k, w, h, u) => {
+    paper(k, '#F1EAD9', 'rgba(80,60,30,.05)');
+    const a = vis(u), n = Math.floor(seg(u, 0.3, 4.6) * (SP.length - 1));
+    k.globalAlpha = a; k.strokeStyle = INK; k.lineCap = 'round'; k.lineJoin = 'round';
+    // 线宽相近（按 0.2 量化）的连续段合成一条路径，减少描边次数
+    let i = 0;
+    while (i < n) {
+      const q = Math.round(SP[i][2] * 5) / 5;
+      k.lineWidth = q; k.beginPath(); k.moveTo(SP[i][0], SP[i][1]);
+      while (i < n && Math.round(SP[i][2] * 5) / 5 === q) { i++; k.lineTo(SP[i][0], SP[i][1]); }
+      k.stroke();
+    }
+    // 笔尖墨点，画完后淡出
+    const pa = 1 - seg(u, 4.6, 4.9);
+    if (n > 0 && pa > 0) { k.globalAlpha = a * pa; k.fillStyle = INK; k.beginPath(); k.arc(SP[n][0], SP[n][1], 2, 0, TAU); k.fill(); }
+    k.globalAlpha = 1;
+  };
+}

@@ -1,0 +1,16 @@
+Please use "Mid-century gouache" (ミッドセンチュリーのガッシュ), filed under "Craft & patterns / Drawing & painting media".
+Motion Prompt #4-080
+
+What it is: Flat, matte, opaque gouache shapes go down one at a time with dry-brush edges, and the final ink line is deliberately off register, as in 1950s picture books and posters
+What the sample shows: A simplified city scene. Ground, buildings, sun, cloud and tree appear as flat shapes one after another, with dry-brush edges and faint brush marks; the ink outlines and windows come last, shifted up and to the right of the colour.
+Spec:
+- Cream paper #F2E8D5. 9 flat shapes in #3D405B, #81B29A, #E07A5F, #F2CC8F and off-white: the ground, 4 buildings, a sun, a cloud, a tree trunk and a round tree top.
+- 0.3–3.4 s: the shapes appear one after another, each becoming fully opaque within 0.25 s.
+- Each shape has 8–14 short dry-brush hairs 6–10 px long pulled outwards from its edge at 60% opacity, and 3 faint paper-coloured brush marks across it at 18% opacity.
+- 3.4–4.6 s: 1.5 px ink lines in #2B2B2B draw the outlines of the buildings, sun, cloud and tree top, then the windows, the trunk and the ground line, all shifted 3 px right and 2 px up from the colour.
+- At 5.4–6.0 s the picture fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+When to use it: Use it for retro ads, picture books, city or lifestyle introductions and warm brand stories.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-080.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

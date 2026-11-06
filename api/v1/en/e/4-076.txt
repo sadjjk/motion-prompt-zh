@@ -1,0 +1,56 @@
+// Motion Prompt #4-076 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// Pencil and watercolour / 鉛筆と水彩
+// Category: Visual styles / Craft & patterns / Drawing & painting media
+// What happens: A five-petal flower is sketched in pencil; pale pink and green washes go on one patch at a time, a deeper second wash follows, and pencil details finish the centre.
+// Motion spec:
+//   - Warm white paper. A flower of 5 petals around (270, 82), with a round centre, a stem and 2 leaves.
+//   - 0.3–1.4 s: the pencil sketch is drawn in grey 0.8 px lines.
+//   - 1.4–2.6 s: one patch at a time, a pale wash at 35% opacity goes on each petal and leaf, shrunk to 80% of the shape and shifted 2–3 px so it doesn't fill the outline; each patch has a 1.2 px darker edge like a dried tide mark.
+//   - 2.6–3.6 s: a deeper second wash at 30% opacity, half the size of each shape and shifted 3–5 px, goes on top; 3.6–4.2 s: 6 pencil lines radiate in the centre, and 4.1–4.4 s a dark dot fills it.
+//   - At 5.4–6.0 s the drawing fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+// When to use it: Use it for plants, travel journals, picture books or soft lifestyle content.
+// Tags: drawing, watercolour, pencil, wash, botanical, process
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-076
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 05
+// 铅笔水彩：先打铅笔稿，再由浅到深上水彩，颜色不完全填满轮廓、边缘留下水渍线，最后用铅笔补几笔
+{
+  const FC = [270, 82];
+  const PETALS = [0, 1, 2, 3, 4].map(i => { const a = -Math.PI / 2 + i * TAU / 5; return blob(FC[0] + Math.cos(a) * 24, FC[1] + Math.sin(a) * 24, 19, 70 + i, 0.06); });
+  const LEAVES = [[236, 150, -0.6], [306, 140, 0.5]].map(([x, y, r], i) => { const p = []; for (let j = 0; j < 24; j++) { const t = j / 24 * TAU, ex = Math.cos(t) * 24, ey = Math.sin(t) * 9; p.push([x + ex * Math.cos(r) - ey * Math.sin(r), y + ex * Math.sin(r) + ey * Math.cos(r)]); } return p; });
+  const STEM = wobble(270, 106, 272, 196, 75, 1.4, 10);
+  const CENTER = ellPts(FC[0], FC[1], 11, 11, 76, 0.6, 28, 0, 0.1);
+  const SKETCH = [...PETALS.map(p => [...p, p[0]]), CENTER, STEM, ...LEAVES.map(p => [...p, p[0]])];
+  // 水彩块：比轮廓小一圈并偏向一侧，不完全填满
+  const wash = (pts, s, ox, oy) => { const cx = pts.reduce((a, p) => a + p[0], 0) / pts.length, cy = pts.reduce((a, p) => a + p[1], 0) / pts.length; return pts.map(([x, y]) => [cx + (x - cx) * s + ox, cy + (y - cy) * s + oy]); };
+  const W1 = [...PETALS.map((p, i) => [wash(p, 0.8, 3, 2), 'rgba(240,128,128,', i]), ...LEAVES.map((p, i) => [wash(p, 0.8, 2, 3), 'rgba(120,170,110,', 5 + i])];
+  const W2 = [...PETALS.map((p, i) => [wash(p, 0.5, 5, 4), 'rgba(214,84,96,', i]), ...LEAVES.map((p, i) => [wash(p, 0.5, 4, 3), 'rgba(80,130,80,', 5 + i])];
+  const DETAIL = [0, 1, 2, 3, 4, 5].map(i => { const a = i * TAU / 6; return [[FC[0] + Math.cos(a) * 4, FC[1] + Math.sin(a) * 4], [FC[0] + Math.cos(a) * 10, FC[1] + Math.sin(a) * 10]]; });
+  function washes(k, list, u, t0, t1, alpha) {
+    list.forEach(([pts, col, i]) => {
+      const t = seg(u, t0 + (t1 - t0) * i / 7 * 0.6, t0 + (t1 - t0) * (i / 7 * 0.6 + 0.4));
+      if (t <= 0) return;
+      k.fillStyle = col + (alpha * t) + ')'; fillPts(k, pts);
+      k.strokeStyle = col + ((alpha + 0.15) * t) + ')'; k.lineWidth = 1.2; strokePts(k, [...pts, pts[0]]);
+    });
+  }
+  CELLS[4] = (k, w, h, u) => {
+    paper(k, '#FAF7F0', 'rgba(0,0,0,.04)', 600, 9);
+    const a = vis(u);
+    k.globalAlpha = a; k.lineCap = 'round'; k.lineJoin = 'round';
+    k.strokeStyle = '#7A7A7A'; k.lineWidth = 0.8; seqDraw(k, SKETCH, seg(u, 0.3, 1.4));
+    washes(k, W1, u, 1.4, 2.6, 0.35);
+    washes(k, W2, u, 2.6, 3.6, 0.3);
+    // 3.6–4.4 秒：颜色上面补铅笔线、加深花心
+    k.strokeStyle = '#5A5A5A'; k.lineWidth = 1; seqDraw(k, DETAIL, seg(u, 3.6, 4.2));
+    const c = seg(u, 4.1, 4.4);
+    if (c > 0) { k.fillStyle = `rgba(90,80,60,${0.5 * c})`; k.beginPath(); k.arc(FC[0], FC[1], 5, 0, TAU); k.fill(); }
+    k.globalAlpha = 1;
+  };
+}

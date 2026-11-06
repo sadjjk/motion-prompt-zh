@@ -1,0 +1,97 @@
+// Motion Prompt #4-078 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 油画厚涂 / Oil impasto
+// 分类: 审美风格 / 工艺与纹样 / 绘画媒介
+// 动画表现: 亚麻布上画瓶子和梨的静物：背景、桌面、瓶子、梨依次薄涂，再叠厚笔触，最后在朝向左上光源的一侧点上近白色高光。
+// 运动规格:
+//   - 棕褐色亚麻布 #B8865B，带 3 px 的十字布纹。绿色瓶子立在 x 236–276，右边一只黄梨，背景深色，桌沿在 y 132，下方是棕色桌面。
+//   - 0.3–1.8 秒：长 30–50 px、宽 14 px、透明度 70% 的长笔触铺满画布，顺序是背景、桌面、瓶子、梨；瓶子和梨上的笔触缩短到不出轮廓，最短 10 px。
+//   - 1.8–3.8 秒：长 12–20 px、宽 8–10 px 的短厚笔触按同样顺序叠上，瓶子和梨上的同样收在轮廓内；朝左上光源的一侧更亮，每笔一边带 1.5 px 亮边、另一边带暗边。
+//   - 3.8–4.6 秒：最厚的近白色高光 #F2E6C8 点在瓶子左侧和梨上。
+//   - 5.4–6.0 秒画面淡回空白亚麻布；0 秒和 6.4 秒都是空白亚麻布，循环无缝。
+// 适用场景: 适合美术馆、艺术、高端产品或古典氛围的内容。
+// 标签: painting, oil, impasto, brushstrokes, still-life, process
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-078
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 07
+// 油画厚涂：在调过色的亚麻布上先用稀薄的长笔触铺出大形，再一笔笔叠上厚而短的颜料，每笔带亮边和暗边；最后点上最厚的高光
+{
+  const BG = '#3E3A35', TB = '#7A5C3E', BOT = '#6B8E4E', PEARC = '#C8A24A';
+  const inBottle = (x, y) => (x >= 236 && x <= 276 && y >= 60 && y <= 170) || (x >= 249 && x <= 263 && y >= 26 && y <= 60);
+  const inPear = (x, y) => Math.hypot(x - 326, y - 148) < 30 || Math.hypot(x - 320, y - 116) < 17;
+  const HZ = 132; // 桌沿
+  // 区域：0 背景、1 桌面、2 瓶子、3 梨；按画家顺序先远后近
+  const region = (x, y) => (inBottle(x, y) ? 2 : inPear(x, y) ? 3 : y < HZ ? 0 : 1);
+  const BASE = [BG, TB, BOT, PEARC];
+  // 笔触 = [x, y, 角度, 长, 宽, 主色, 亮边色, 暗边色]
+  const BLOCK = [], IMP = [];
+  let i = 0;
+  for (let y = 8; y <= 200; y += 12) for (let x = 96; x <= 444; x += 16, i++) {
+    const px = x + (rnd(i, 71) - 0.5) * 8, py = y + (rnd(i, 72) - 0.5) * 6, r = region(px, py);
+    const ang = r === 2 ? Math.PI / 2 : r === 1 ? (rnd(i, 73) - 0.5) * 0.3 : r === 3 ? 0.9 : -0.5 + (rnd(i, 73) - 0.5) * 0.4;
+    let L = 30 + 20 * rnd(i, 74);
+    // 瓶子和梨的铺色笔触同样收在本区域内（最短 10 px），不然 30–50 px 的长笔触会把梨铺成一大块
+    if (r >= 2) {
+      const ca = Math.cos(ang), sa = Math.sin(ang);
+      while (L > 10 && (region(px - ca * L / 2, py - sa * L / 2) !== r || region(px + ca * L / 2, py + sa * L / 2) !== r)) L -= 2;
+    }
+    BLOCK.push([r, px, py, ang, L, 14, BASE[r]]);
+  }
+  BLOCK.sort((a, b) => a[0] - b[0]);
+  i = 0;
+  for (let y = 10; y <= 198; y += 9) for (let x = 100; x <= 440; x += 10, i++) {
+    const px = x + (rnd(i, 75) - 0.5) * 6, py = y + (rnd(i, 76) - 0.5) * 5, r = region(px, py);
+    if (r === 0 && rnd(i, 77) > 0.4) continue; // 背景只零星加厚
+    // 光从左上来：越靠左越亮
+    const f = r === 2 ? 0.25 - 0.5 * (px - 236) / 40 : r === 3 ? 0.3 - 0.6 * clamp((px - 296 + py - 98) / 100) : r === 1 ? 0.12 - 0.2 * (py - HZ) / 70 : 0.08;
+    const ang = r === 2 ? Math.PI / 2 + (rnd(i, 78) - 0.5) * 0.3 : (r === 1 ? 0 : 0.8) + (rnd(i, 78) - 0.5) * 0.6;
+    const c = BASE[r];
+    let L = 12 + 8 * rnd(i, 79);
+    // 瓶子和梨上的厚涂笔触两端都要落在本区域内，否则斜向长笔触会把梨的外形糊成一团
+    if (r >= 2) {
+      const ca = Math.cos(ang), sa = Math.sin(ang);
+      while (L > 6 && (region(px - ca * L / 2, py - sa * L / 2) !== r || region(px + ca * L / 2, py + sa * L / 2) !== r)) L -= 2;
+      if (L <= 6) continue;
+    }
+    IMP.push([r, px, py, ang, L, 8 + 2 * rnd(i, 80), shade(c, f), shade(c, clamp(f + 0.3, -1, 1)), shade(c, f - 0.3 < 0 ? f - 0.3 : -0.1)]);
+  }
+  IMP.sort((a, b) => a[0] - b[0]);
+  const HI = [];
+  for (let y = 72; y <= 160; y += 14) HI.push([2, 243, y, Math.PI / 2, 12, 5, '#F2E6C8', '#FFF8E8', '#C9B892']);
+  HI.push([2, 253, 34, Math.PI / 2, 14, 4, '#F2E6C8', '#FFF8E8', '#C9B892'], [3, 312, 140, 0.9, 12, 6, '#F2E6C8', '#FFF8E8', '#C9B892'], [3, 312, 112, 0.9, 8, 5, '#F2E6C8', '#FFF8E8', '#C9B892']);
+  function dab(k, s, f, edges) {
+    const [, x, y, a, L, W, col, hi, lo] = s, c = Math.cos(a), sn = Math.sin(a);
+    const x0 = x - c * L / 2, y0 = y - sn * L / 2, x1 = x0 + c * L * f, y1 = y0 + sn * L * f;
+    k.lineWidth = W; k.strokeStyle = col; k.beginPath(); k.moveTo(x0, y0); k.lineTo(x1, y1); k.stroke();
+    if (!edges) return;
+    // 厚涂的立体感：笔触一侧沿法线偏 1.5 px 画亮边，另一侧画暗边
+    const nx = -sn * (W / 2 - 1.5), ny = c * (W / 2 - 1.5), ga = k.globalAlpha;
+    k.lineWidth = 1.5; k.globalAlpha = ga * 0.5;
+    k.strokeStyle = hi; k.beginPath(); k.moveTo(x0 - nx, y0 - ny); k.lineTo(x1 - nx, y1 - ny); k.stroke();
+    k.strokeStyle = lo; k.beginPath(); k.moveTo(x0 + nx, y0 + ny); k.lineTo(x1 + nx, y1 + ny); k.stroke();
+    k.globalAlpha = ga;
+  }
+  // 按进度依次画一组笔触，最后一笔只画出一部分
+  function dabs(k, list, t, edges) {
+    const n = clamp(t) * list.length;
+    for (let j = 0; j < Math.ceil(n); j++) dab(k, list[j], Math.min(1, n - j), edges);
+  }
+  CELLS[6] = (k, w, h, u) => {
+    k.fillStyle = '#B8865B'; k.fillRect(0, 0, CW, CH);
+    // 亚麻布纹：横竖交错的细线
+    k.fillStyle = 'rgba(70,45,20,.08)';
+    for (let x = 0; x < CW; x += 3) k.fillRect(x, 0, 1, CH);
+    for (let y = 0; y < CH; y += 3) k.fillRect(0, y, CW, 1);
+    const a = vis(u);
+    k.lineCap = 'round';
+    k.globalAlpha = a * 0.7; dabs(k, BLOCK, seg(u, 0.3, 1.8), false);
+    k.globalAlpha = a; dabs(k, IMP, seg(u, 1.8, 3.8), true);
+    dabs(k, HI, seg(u, 3.8, 4.6), true);
+    k.globalAlpha = 1;
+  };
+}

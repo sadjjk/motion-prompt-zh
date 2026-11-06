@@ -1,0 +1,51 @@
+// Motion Prompt #4-082 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 一本線の彫版 / Single-line engraving
+// 分類: ビジュアルスタイル / 工芸・文様 / 版画・手仕事
+// 何が起きるか: 生成りの紙に紺のインク。一本の渦巻き線が球の中心から外へ伸び、左上は細く右下は太くなって、光の当たった球が浮かび上がる。
+// 動きの仕様:
+//   - クリーム色の紙と紺のインク #1E2A3A。中心 (270, 104)、半径 88 px の球。光は左上から
+//   - 球全体が 1 本のアルキメデスの渦巻き線。隣の周との間隔は 3.2 px、線に沿って 2 px ごとに点を取る
+//   - 各点の線幅は 0.35 + 2.3 × 濃さ px。光の当たる左上は髪の毛のような細線、影の側は 2.7 px 近くの線になる
+//   - 0.3–4.6 秒：渦巻きが中心から外へ一定の速さで描かれる。先端のインクの点は 4.6–4.9 秒にフェードアウト
+//   - 5.4–6.0 秒に絵がフェードして白紙に戻る。0 秒と 6.4 秒はどちらも白紙なので、ループがつながる
+// 使いどころ: 紙幣や切手のような格調、歴史、職人技、アルゴリズムアートの紹介に。
+// タグ: engraving, spiral, single-line, line-weight, print, process
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-082
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 11
+// 单线雕版：一条不断开的螺旋线从球心往外画出，线越粗越暗，整只受光的球体只由这一条线构成
+{
+  const INK = '#1E2A3A', CX = 270, CY = 104, R = 88, PITCH = 3.2;
+  // 螺线点在定义时算好：弧长步长约 2 px，每点记下该处的线宽
+  const SP = [];
+  for (let th = 0; ;) {
+    const r = PITCH * th / TAU;
+    if (r > R) break;
+    const x = CX + Math.cos(th) * r, y = CY + Math.sin(th) * r, t = Math.max(0, sphereTone(x, y, CX, CY, R + 0.5, R + 0.5));
+    SP.push([x, y, 0.35 + 2.3 * t]);
+    th += 2 / Math.hypot(r, PITCH / TAU);
+  }
+  CELLS[10] = (k, w, h, u) => {
+    paper(k, '#F1EAD9', 'rgba(80,60,30,.05)');
+    const a = vis(u), n = Math.floor(seg(u, 0.3, 4.6) * (SP.length - 1));
+    k.globalAlpha = a; k.strokeStyle = INK; k.lineCap = 'round'; k.lineJoin = 'round';
+    // 线宽相近（按 0.2 量化）的连续段合成一条路径，减少描边次数
+    let i = 0;
+    while (i < n) {
+      const q = Math.round(SP[i][2] * 5) / 5;
+      k.lineWidth = q; k.beginPath(); k.moveTo(SP[i][0], SP[i][1]);
+      while (i < n && Math.round(SP[i][2] * 5) / 5 === q) { i++; k.lineTo(SP[i][0], SP[i][1]); }
+      k.stroke();
+    }
+    // 笔尖墨点，画完后淡出
+    const pa = 1 - seg(u, 4.6, 4.9);
+    if (n > 0 && pa > 0) { k.globalAlpha = a * pa; k.fillStyle = INK; k.beginPath(); k.arc(SP[n][0], SP[n][1], 2, 0, TAU); k.fill(); }
+    k.globalAlpha = 1;
+  };
+}

@@ -1,0 +1,16 @@
+Please use "Ballpoint hatching" (ボールペンのハッチング), filed under "Craft & patterns / Drawing & painting media".
+Motion Prompt #4-072
+
+What it is: One blue ballpoint draws the outline, then builds the shading from parallel and crossed lines, like a sketch in the margin of a notebook
+What the sample shows: A mug in blue ink on lined notebook paper. The outline goes down first, then hatching on the right side, cross-hatching on top of it, and finally a hatched shadow.
+Spec:
+- Cream paper with light blue rules every 6 px. A mug 100 px wide and 108 px tall at the centre, with an elliptical rim and a C-shaped handle on the right, all in one blue ink.
+- 0.3–1.4 s: the outline is drawn stroke after stroke with slightly wobbly 1.2 px lines; about two thirds of the strokes leave a 1.1 px ink blob where they stop.
+- 1.4–2.8 s: the right 40 px of the mug body fills with lines 4 px apart at −60°; 2.8–3.8 s: a second layer 5 px apart at 30° crosses them, and the inside of the rim is hatched too.
+- 3.8–4.4 s: a flat elliptical shadow to the lower right is hatched with lines 3.5 px apart.
+- At 5.4–6.0 s the drawing fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+When to use it: Use it for a rough hand-drawn feel: notebook notes, idea sketches or a doodle-style explainer.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-072.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

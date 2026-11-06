@@ -1,0 +1,16 @@
+Please use "Paper toy theatre" (紙の人形劇場), filed under "Craft & patterns / Print & handmade".
+Motion Prompt #4-084
+
+What it is: Cut and torn paper flats slide onto a toy-theatre stage from back to front, each casting a shadow on the one behind
+What the sample shows: On a dark stage a torn paper sky, a sun, far hills and near hills slide up one after another, then a red proscenium drops into place. Each paper casts a shadow, and the layers sway a little.
+Spec:
+- A dark stage #2B2420. Layers from back to front: a torn-edged sky #F3E3C3, a sun #E8833A 30 px in radius, far hills #8DB48E and near hills #4F8A5B.
+- Starting at 0.3 s and then every 0.7 s, each layer slides 220 px up into place over 0.5 s, easing out; every layer casts a soft shadow, 6 px blur offset 4 px down.
+- 3.1–3.6 s: a red #B23A3A proscenium with an arched opening drops 220 px into place from above, with 6 dark fold lines on its curtains.
+- From 4.0 s the layers sway sideways, each further forward swaying a little more.
+- At 5.4–6.0 s the scene fades back to the empty dark stage; at 0 s and 6.4 s the stage is empty, so the loop restarts cleanly.
+When to use it: Use it to open a story, a fairy tale, a stage or event announcement, or a chapter title.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-084.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

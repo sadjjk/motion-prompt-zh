@@ -8,11 +8,6 @@
 .f-small { font-size: 13.5px; line-height: 1.7; color: var(--muted); }
 .f-hero > .f-small { margin-top: 12px; max-width: 46em; }
 
-.xnote { margin-top: 32px; max-width: 760px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 20px 22px 22px; }
-.xnote-h { font-size: 15px; font-weight: 700; }
-.xnote p { font-size: 14px; line-height: 1.75; }
-#xnote-p { margin-top: 6px; color: var(--ink); }
-.xnote-links { margin-top: 8px; color: var(--muted); }
 .linkish { border: 0; background: none; padding: 0; font: inherit; color: var(--ink); text-decoration: underline; text-underline-offset: .2em; text-decoration-thickness: 1px; }
 .linkish:hover { color: var(--accent); }
 
@@ -33,11 +28,6 @@
 .ex-intro { font-size: 15px; line-height: 1.7; }
 .ex-act { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
 .ex-x { font-size: 14px; }
-.ex-status { font-size: 13.5px; color: var(--muted); }
-.ex-status.is-warn { color: var(--ink); border-left: 3px solid var(--accent); padding-left: 10px; }
-.ex-embed { min-width: 0; overflow: hidden; min-height: 120px; }
-.ex-embed > .twitter-tweet, .ex-embed iframe { margin: 0 auto !important; max-width: 100% !important; }
-.ex.is-open { grid-row: span 1; }
 
 .f-more { padding-block: 72px 80px; border-top: 1px solid var(--line); }
 .f-sec-h { font-size: clamp(28px, 3.6vw, 44px); }
@@ -46,7 +36,6 @@
 
 @media (max-width: 720px) {
   .f-hero { padding-block: 40px 28px; }
-  .xnote { padding: 16px 16px 18px; }
   .ex-list { columns: 1; }
   .ex-list > .ex { margin-bottom: 16px; }
   .ex { padding: 14px 14px 16px; }

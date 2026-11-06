@@ -1,0 +1,16 @@
+Please use "Rubber-hose cartoon" (ラバーホース・アニメ), filed under "Animation styles / Media & genres".
+Motion Prompt #4-085
+
+What it is: A 1930s black-and-white cartoon: a round-bodied character bounces to the beat with arms and legs that bend like rubber hoses, under film grain, flicker and scratches
+What the sample shows: A character with a white face and pie-cut eyes bounces 4 times on the spot. One arm rises as the other drops and its body squashes at every landing. Film grain, flickering brightness, an occasional vertical scratch and a vignette cover the frame.
+Spec:
+- A warm grey card with a grey floor below an ink line at y 182. The character has a black round body 30 px in radius, a white face with 2 pie-cut eyes and a smile, hose arms with white gloves and hose legs with black shoes.
+- The 6.4 s loop holds exactly 4 bounces of 1.6 s: the body rises 16 px at the top of each bounce and the feet 10 px, and the shadow shrinks as it rises.
+- At each landing the body squashes from its base, up to 12% shorter and 8% wider, easing off as (1 − b)^4 with b the bounce height from 0 to 1; the arms swing ±0.7 rad, one rising while the other drops.
+- The film effects change on a 12.5 fps frame count, 80 frames per loop: 160 grain specks, a brightness flicker of up to 4%, a faint vertical scratch on about a quarter of the frames, and a vignette.
+- There is no fade-out: 6.4 s is exactly 4 bounces and 80 film frames, so the last frame flows straight back into the first.
+When to use it: Use it for retro ads, jingles, a mascot dancing to music or an old-cinema style opening.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-085.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

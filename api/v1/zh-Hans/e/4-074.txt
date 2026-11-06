@@ -1,0 +1,53 @@
+// Motion Prompt #4-074 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 蜡笔 / Wax crayon
+// 分类: 审美风格 / 工艺与纹样 / 绘画媒介
+// 动画表现: 用蜡笔画一只红气球：来回涂满，纸纹留下白点；深红压暗部，白色压高光，再用粗线描两圈轮廓，画上气球线。
+// 运动规格:
+//   - 米白色画纸。一只宽约 108 px、高约 121 px 的气球，中心在 (270, 84)。
+//   - 0.3–2.6 秒：红色 #E63946、透明度 85%、线宽 7 px 来回涂抹，行距 6 px，每行先往右再斜着回到下一行；已经涂到的行里出现最多 300 个纸色小点。
+//   - 2.6–3.4 秒：深红 #9D0208 涂右下；3.4–3.8 秒：左上用透明度 70% 的白色压出一小块高光。
+//   - 3.8–4.25 秒和 4.25–4.6 秒：#370617 的 3.5 px 粗轮廓描两圈，第二圈放大 2.8%；4.6–4.9 秒：画出气球线和打结处。
+//   - 5.4–6.0 秒画面淡回空白画纸；0 秒和 6.4 秒都是空白纸，循环无缝。
+// 适用场景: 适合儿童内容、活动邀请或活泼的标题卡。
+// 标签: drawing, crayon, scribble, kids, outline, process
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-074
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 03
+// 蜡笔：来回涂抹给气球上色，纸纹凹处留白；再用深色压暗部、白色压高光，最后用粗线描两遍轮廓并画出气球线
+{
+  const CX = 270, CY = 84;
+  const BAL = blob(CX, CY, 54, 5, 0.04, 1.12);
+  const inBal = (x, y) => inPoly(BAL, x, y);
+  const FILL = scribble(inBal, 206, 334, 24, 146, 6, 41);
+  const DARK = scribble((x, y) => inBal(x, y) && (x - CX) + (y - CY) * 0.9 > 28, 206, 334, 24, 146, 6, 42);
+  const HI = scribble((x, y) => (x - 250) ** 2 + (y - 58) ** 2 < 13 * 13, 236, 264, 46, 70, 4, 43, 1);
+  const GAPS = []; for (let i = 0; i < 300; i++) { const x = 206 + rnd(i, 44) * 128, y = 24 + rnd(i, 45) * 122; if (inBal(x, y)) GAPS.push([x, y, 1 + rnd(i, 46)]); }
+  const RIM1 = [...BAL, BAL[0]], RIM2 = RIM1.map(([x, y]) => [CX + (x - CX) * 1.028, CY + (y - CY) * 1.028]);
+  const STRING = []; for (let i = 0; i <= 12; i++) STRING.push([CX + 6 * Math.sin(i * 0.6), 150 + i * 4.5]);
+  CELLS[2] = (k, w, h, u) => {
+    paper(k, '#FBF8F1', 'rgba(0,0,0,.04)');
+    const a = vis(u), tf = seg(u, 0.3, 2.6);
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    k.save(); k.beginPath(); tracePts(k, BAL); k.clip();
+    k.globalAlpha = a * 0.85; k.strokeStyle = '#E63946'; k.lineWidth = 7; partial(k, FILL, tf);
+    k.globalAlpha = a * 0.8; k.strokeStyle = '#9D0208'; k.lineWidth = 6; partial(k, DARK, seg(u, 2.6, 3.4));
+    // 纸纹留白：只在已经涂到的行里出现
+    const fy = 24 + tf * 122;
+    k.globalAlpha = a * 0.9; k.fillStyle = '#FBF8F1';
+    GAPS.forEach(([x, y, s]) => { if (y < fy - 4) k.fillRect(x, y, s, s); });
+    k.globalAlpha = a * 0.7; k.strokeStyle = '#FFFFFF'; k.lineWidth = 5; partial(k, HI, seg(u, 3.4, 3.8));
+    k.restore();
+    k.globalAlpha = a; k.strokeStyle = '#370617'; k.lineWidth = 3.5;
+    partial(k, RIM1, seg(u, 3.8, 4.25));
+    partial(k, RIM2, seg(u, 4.25, 4.6));
+    k.lineWidth = 2; partial(k, STRING, seg(u, 4.6, 4.9));
+    if (u >= 4.6) { k.fillStyle = '#370617'; k.beginPath(); k.moveTo(CX - 5, 153); k.lineTo(CX + 5, 153); k.lineTo(CX, 146); k.closePath(); k.fill(); }
+    k.globalAlpha = 1;
+  };
+}

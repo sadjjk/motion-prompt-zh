@@ -1,0 +1,16 @@
+Please use "Single-line engraving" (一本線の彫版), filed under "Craft & patterns / Print & handmade".
+Motion Prompt #4-082
+
+What it is: The whole picture is one unbroken spiral line whose width follows the tone, a 17th-century engraving technique
+What the sample shows: Navy ink on cream paper. One spiral line runs out from the centre of a sphere, thin at the upper left and thick at the lower right, until a lit ball appears.
+Spec:
+- Cream paper and navy ink #1E2A3A. A sphere 88 px in radius centred at (270, 104), lit from the upper left.
+- The whole sphere is one Archimedean spiral whose turns are 3.2 px apart, sampled every 2 px along the line.
+- The line width at each point is 0.35 + 2.3 × tone px, so the lit upper left is drawn with hairlines and the shadow side with lines close to 2.7 px.
+- 0.3–4.6 s: the spiral is drawn outwards from the centre at a steady pace; an ink dot marks the tip and fades out at 4.6–4.9 s.
+- At 5.4–6.0 s the drawing fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+When to use it: Use it for a banknote-or-stamp kind of dignity, history and craftsmanship, or to introduce algorithmic art.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-082.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

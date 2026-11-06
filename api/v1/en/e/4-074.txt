@@ -1,0 +1,53 @@
+// Motion Prompt #4-074 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// Wax crayon / クレヨン
+// Category: Visual styles / Craft & patterns / Drawing & painting media
+// What happens: A red balloon in crayon. Back-and-forth strokes fill it with white flecks of paper left behind; dark red adds shade, white a highlight, then a fat outline goes round twice and the string is drawn.
+// Motion spec:
+//   - Off-white paper. A balloon about 108 px wide and 121 px tall centred at (270, 84).
+//   - 0.3–2.6 s: red #E63946 at 85% opacity is scribbled in with 7 px strokes, row by row 6 px apart, each row going right and then slanting back; up to 300 specks of paper colour appear in the rows already coloured.
+//   - 2.6–3.4 s: dark red #9D0208 is scribbled over the lower right; 3.4–3.8 s: white at 70% opacity is pressed in as a small highlight at the upper left.
+//   - 3.8–4.25 s and 4.25–4.6 s: a 3.5 px outline in #370617 goes round twice, the second pass 2.8% larger; 4.6–4.9 s: the string and its knot are drawn.
+//   - At 5.4–6.0 s the drawing fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+// When to use it: Use it for children's content, party invitations or playful title cards.
+// Tags: drawing, crayon, scribble, kids, outline, process
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-074
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 03
+// 蜡笔：来回涂抹给气球上色，纸纹凹处留白；再用深色压暗部、白色压高光，最后用粗线描两遍轮廓并画出气球线
+{
+  const CX = 270, CY = 84;
+  const BAL = blob(CX, CY, 54, 5, 0.04, 1.12);
+  const inBal = (x, y) => inPoly(BAL, x, y);
+  const FILL = scribble(inBal, 206, 334, 24, 146, 6, 41);
+  const DARK = scribble((x, y) => inBal(x, y) && (x - CX) + (y - CY) * 0.9 > 28, 206, 334, 24, 146, 6, 42);
+  const HI = scribble((x, y) => (x - 250) ** 2 + (y - 58) ** 2 < 13 * 13, 236, 264, 46, 70, 4, 43, 1);
+  const GAPS = []; for (let i = 0; i < 300; i++) { const x = 206 + rnd(i, 44) * 128, y = 24 + rnd(i, 45) * 122; if (inBal(x, y)) GAPS.push([x, y, 1 + rnd(i, 46)]); }
+  const RIM1 = [...BAL, BAL[0]], RIM2 = RIM1.map(([x, y]) => [CX + (x - CX) * 1.028, CY + (y - CY) * 1.028]);
+  const STRING = []; for (let i = 0; i <= 12; i++) STRING.push([CX + 6 * Math.sin(i * 0.6), 150 + i * 4.5]);
+  CELLS[2] = (k, w, h, u) => {
+    paper(k, '#FBF8F1', 'rgba(0,0,0,.04)');
+    const a = vis(u), tf = seg(u, 0.3, 2.6);
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    k.save(); k.beginPath(); tracePts(k, BAL); k.clip();
+    k.globalAlpha = a * 0.85; k.strokeStyle = '#E63946'; k.lineWidth = 7; partial(k, FILL, tf);
+    k.globalAlpha = a * 0.8; k.strokeStyle = '#9D0208'; k.lineWidth = 6; partial(k, DARK, seg(u, 2.6, 3.4));
+    // 纸纹留白：只在已经涂到的行里出现
+    const fy = 24 + tf * 122;
+    k.globalAlpha = a * 0.9; k.fillStyle = '#FBF8F1';
+    GAPS.forEach(([x, y, s]) => { if (y < fy - 4) k.fillRect(x, y, s, s); });
+    k.globalAlpha = a * 0.7; k.strokeStyle = '#FFFFFF'; k.lineWidth = 5; partial(k, HI, seg(u, 3.4, 3.8));
+    k.restore();
+    k.globalAlpha = a; k.strokeStyle = '#370617'; k.lineWidth = 3.5;
+    partial(k, RIM1, seg(u, 3.8, 4.25));
+    partial(k, RIM2, seg(u, 4.25, 4.6));
+    k.lineWidth = 2; partial(k, STRING, seg(u, 4.6, 4.9));
+    if (u >= 4.6) { k.fillStyle = '#370617'; k.beginPath(); k.moveTo(CX - 5, 153); k.lineTo(CX + 5, 153); k.lineTo(CX, 146); k.closePath(); k.fill(); }
+    k.globalAlpha = 1;
+  };
+}

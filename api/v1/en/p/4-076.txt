@@ -1,0 +1,16 @@
+Please use "Pencil and watercolour" (鉛筆と水彩), filed under "Craft & patterns / Drawing & painting media".
+Motion Prompt #4-076
+
+What it is: Light watercolour washes go over a pencil underdrawing without quite filling the outlines, leaving tide marks at their edges; the pencil comes back at the end
+What the sample shows: A five-petal flower is sketched in pencil; pale pink and green washes go on one patch at a time, a deeper second wash follows, and pencil details finish the centre.
+Spec:
+- Warm white paper. A flower of 5 petals around (270, 82), with a round centre, a stem and 2 leaves.
+- 0.3–1.4 s: the pencil sketch is drawn in grey 0.8 px lines.
+- 1.4–2.6 s: one patch at a time, a pale wash at 35% opacity goes on each petal and leaf, shrunk to 80% of the shape and shifted 2–3 px so it doesn't fill the outline; each patch has a 1.2 px darker edge like a dried tide mark.
+- 2.6–3.6 s: a deeper second wash at 30% opacity, half the size of each shape and shifted 3–5 px, goes on top; 3.6–4.2 s: 6 pencil lines radiate in the centre, and 4.1–4.4 s a dark dot fills it.
+- At 5.4–6.0 s the drawing fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+When to use it: Use it for plants, travel journals, picture books or soft lifestyle content.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-076.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,48 @@
+// Motion Prompt #4-072 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// Ballpoint hatching / ボールペンのハッチング
+// Category: Visual styles / Craft & patterns / Drawing & painting media
+// What happens: A mug in blue ink on lined notebook paper. The outline goes down first, then hatching on the right side, cross-hatching on top of it, and finally a hatched shadow.
+// Motion spec:
+//   - Cream paper with light blue rules every 6 px. A mug 100 px wide and 108 px tall at the centre, with an elliptical rim and a C-shaped handle on the right, all in one blue ink.
+//   - 0.3–1.4 s: the outline is drawn stroke after stroke with slightly wobbly 1.2 px lines; about two thirds of the strokes leave a 1.1 px ink blob where they stop.
+//   - 1.4–2.8 s: the right 40 px of the mug body fills with lines 4 px apart at −60°; 2.8–3.8 s: a second layer 5 px apart at 30° crosses them, and the inside of the rim is hatched too.
+//   - 3.8–4.4 s: a flat elliptical shadow to the lower right is hatched with lines 3.5 px apart.
+//   - At 5.4–6.0 s the drawing fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+// When to use it: Use it for a rough hand-drawn feel: notebook notes, idea sketches or a doodle-style explainer.
+// Tags: drawing, ballpoint, hatching, cross-hatching, sketch, process
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-072
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 01
+// 圆珠笔排线：只用一支蓝色圆珠笔画马克杯，先勾轮廓，再一层层排线压暗右侧，最后排出投影；笔停处留下小墨点
+{
+  const INK = '#1F3A93';
+  const RIM = ellPts(270, 62, 50, 10, 104, 0.6, 48, Math.PI, 0.06);
+  const BODY = [wobble(220, 62, 220, 170, 101, 1, 10), wobble(220, 170, 320, 170, 102, 1, 10), wobble(320, 170, 320, 62, 103, 1, 10)];
+  const arcPts = (rx, ry) => { const p = []; for (let i = 0; i <= 16; i++) { const a = -Math.PI / 2 + Math.PI * i / 16; p.push([318 + Math.cos(a) * rx, 112 + Math.sin(a) * ry]); } return p; };
+  const OUTLINE = [RIM, ...BODY, arcPts(26, 30), arcPts(14, 18)];
+  const bodyClip = k => k.rect(280, 62, 40, 108), BODY_BOX = [280, 62, 40, 108];
+  const rimClip = k => k.ellipse(270, 62, 46, 7.5, 0, 0, TAU), RIM_BOX = [224, 54, 92, 16];
+  const shadowClip = k => k.ellipse(326, 176, 48, 6, 0, 0, TAU), SH_BOX = [278, 170, 96, 12];
+  CELLS[0] = (k, w, h, u) => {
+    paper(k, '#F7F5EF', 'rgba(0,0,0,.035)');
+    // 横格本的浅蓝格线（纸的一部分，不淡出）
+    k.fillStyle = 'rgba(70,110,170,.12)';
+    for (let y = 8; y < CH; y += 6) k.fillRect(0, y, CW, 0.6);
+    k.globalAlpha = vis(u);
+    k.strokeStyle = INK; k.fillStyle = INK; k.lineCap = 'round'; k.lineJoin = 'round'; k.lineWidth = 1.2;
+    const done = seqDraw(k, OUTLINE, seg(u, 0.3, 1.4));
+    // 停笔处的积墨：每条轮廓线画完后，按 rnd 在末端留一个小墨点
+    for (let i = 0; i < done; i++) if (rnd(i, 9) > 0.35) { const p = OUTLINE[i][OUTLINE[i].length - 1]; k.beginPath(); k.arc(p[0], p[1], 1.1, 0, TAU); k.fill(); }
+    hatch(k, bodyClip, BODY_BOX, -Math.PI / 3, 4, seg(u, 1.4, 2.8), INK, 0.8, 11, 0.8);
+    hatch(k, bodyClip, BODY_BOX, Math.PI / 6, 5, seg(u, 2.8, 3.8), INK, 0.7, 12, 0.8);
+    hatch(k, rimClip, RIM_BOX, -Math.PI / 3, 4, seg(u, 2.8, 3.8), INK, 0.7, 13, 0.8);
+    hatch(k, shadowClip, SH_BOX, -Math.PI / 3, 3.5, seg(u, 3.8, 4.4), INK, 0.7, 14, 0.8);
+    k.globalAlpha = 1;
+  };
+}

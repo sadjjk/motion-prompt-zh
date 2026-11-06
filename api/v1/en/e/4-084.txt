@@ -1,0 +1,73 @@
+// Motion Prompt #4-084 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// Paper toy theatre / 紙の人形劇場
+// Category: Visual styles / Craft & patterns / Print & handmade
+// What happens: On a dark stage a torn paper sky, a sun, far hills and near hills slide up one after another, then a red proscenium drops into place. Each paper casts a shadow, and the layers sway a little.
+// Motion spec:
+//   - A dark stage #2B2420. Layers from back to front: a torn-edged sky #F3E3C3, a sun #E8833A 30 px in radius, far hills #8DB48E and near hills #4F8A5B.
+//   - Starting at 0.3 s and then every 0.7 s, each layer slides 220 px up into place over 0.5 s, easing out; every layer casts a soft shadow, 6 px blur offset 4 px down.
+//   - 3.1–3.6 s: a red #B23A3A proscenium with an arched opening drops 220 px into place from above, with 6 dark fold lines on its curtains.
+//   - From 4.0 s the layers sway sideways, each further forward swaying a little more.
+//   - At 5.4–6.0 s the scene fades back to the empty dark stage; at 0 s and 6.4 s the stage is empty, so the loop restarts cleanly.
+// When to use it: Use it to open a story, a fairy tale, a stage or event announcement, or a chapter title.
+// Tags: paper-craft, toy-theatre, layers, parallax, shadow, stage
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-084
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 13
+// 纸艺剧场：剪纸景片由后往前一层层滑入（天幕、太阳、远山、近山），最后台口从上方落下；层与层之间有空隙和投影
+{
+  // 撕纸边：沿闭合多边形各边加抖动
+  const torn = (corners, seed, amp = 1.4) => {
+    const pts = [];
+    corners.forEach((p, i) => { const q = corners[(i + 1) % corners.length], n = Math.max(2, Math.round(Math.hypot(q[0] - p[0], q[1] - p[1]) / 14)); pts.push(...wobble(p[0], p[1], q[0], q[1], seed + i, amp, n).slice(0, -1)); });
+    return pts;
+  };
+  const ridge = (top, amp, f, ph, seed) => {
+    const pts = [[40, 200]];
+    for (let x = 40; x <= 500; x += 10) pts.push([x, top + amp * Math.sin(x / f + ph) + 0.5 * amp * Math.sin(x / (f * 0.43) + ph * 2) + (rnd(seed, x) - 0.5) * 1.6]);
+    pts.push([500, 200]);
+    return pts;
+  };
+  const SKY = torn([[40, 14], [500, 14], [500, 196], [40, 196]], 51);
+  const SUN = blob(360, 70, 30, 2.2, 0.02);
+  const FAR = ridge(110, 12, 46, 0.8, 53), NEAR = ridge(142, 10, 34, 2.1, 54);
+  const LAYERS = [[SKY, '#F3E3C3'], [SUN, '#E8833A'], [FAR, '#8DB48E'], [NEAR, '#4F8A5B']];
+  function stage(k) {
+    // 台口：整张卡片挖掉拱形开口（evenodd）
+    k.beginPath(); k.rect(0, 0, CW, CH);
+    k.moveTo(64, CH); k.lineTo(64, 42); k.quadraticCurveTo(270, 8, 475, 42); k.lineTo(475, CH); k.closePath();
+    k.fillStyle = '#B23A3A'; k.fill('evenodd');
+  }
+  CELLS[12] = (k, w, h, u) => {
+    k.fillStyle = '#2B2420'; k.fillRect(0, 0, CW, CH);
+    const a = vis(u), sway = seg(u, 4.0, 4.4) * Math.sin((u - 4.0) * 2.2);
+    k.globalAlpha = a;
+    k.shadowColor = 'rgba(0,0,0,.30)'; k.shadowBlur = 6; k.shadowOffsetY = 4;
+    LAYERS.forEach(([pts, col], i) => {
+      const t = seg(u, 0.3 + 0.7 * i, 0.8 + 0.7 * i);
+      if (t <= 0) return;
+      k.save(); k.translate(1.2 * i * sway, 220 * (1 - out3(t)));
+      k.fillStyle = col; fillPts(k, pts);
+      k.restore();
+    });
+    // 台口最后从上方落下
+    const t = seg(u, 0.3 + 0.7 * 4, 0.8 + 0.7 * 4);
+    if (t > 0) {
+      // 台口是固定的外框，不跟着景片晃动；晃动会让卡片一侧露出 4–5 px 的暗边
+      k.save(); k.translate(0, -220 * (1 - out3(t)));
+      stage(k);
+      k.shadowColor = 'transparent';
+      // 幕布褶皱
+      k.strokeStyle = 'rgba(90,20,20,.55)'; k.lineWidth = 1.2;
+      [16, 32, 48, 491, 507, 523].forEach(x => { k.beginPath(); k.moveTo(x, 30); k.lineTo(x + 2, CH); k.stroke(); });
+      k.restore();
+    }
+    k.shadowColor = 'transparent'; k.shadowBlur = 0; k.shadowOffsetY = 0;
+    k.globalAlpha = 1;
+  };
+}

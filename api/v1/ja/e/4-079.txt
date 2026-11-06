@@ -1,0 +1,57 @@
+// Motion Prompt #4-079 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 筆触分割 / Broken colour
+// 分類: ビジュアルスタイル / 工芸・文様 / 画材・描画
+// 何が起きるか: 水面の夕日。青紫、橙黄、紺と水色の短い点が上の行から順に置かれ、太陽の下に光の帯が伸びる。最後に太陽を淡い黄の点で描く。
+// 動きの仕様:
+//   - 淡いキャンバス #E9E2D0。どの筆跡も 9 × 4 px の楕円で、傾きは ±0.2 rad 以内。隣り合う点はその区域のパレットからランダムに色を取る
+//   - 空の上部 #5B7DB1 #8E7CC3 #F2B5A0、空の下部 #F4A259 #F6D06F #E76F51（y 112 の水平線まで）、水面 #3D5A80 #98C1D9 #5B7DB1。太陽の下の反射の帯は #F4A259 #F6D06F #98C1D9 で、下ほど広い
+//   - 0.3–4.6 秒：上から 6 px 間隔の行で点を置く。各行は左から右へ、間隔 7 px・揺らぎ ±2 px
+//   - 4.0–4.6 秒：(300, 94) に半径 22 px の太陽を #FFE8A3 と #FFD166 の点で上に重ねる
+//   - 5.4–6.0 秒に絵がフェードして素のキャンバスに戻る。0 秒と 6.4 秒はどちらも素のキャンバスなので、ループがつながる
+// 使いどころ: 風景、旅、夕暮れ、絵画や印象派を紹介する場面に。
+// タグ: painting, impressionism, broken-colour, dabs, sunset, process
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-079
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 08
+// 分色笔触：水面日落全用不调和的短色点铺成，相邻色点颜色不同，远看才混成天色和水光；太阳最后单独点上
+{
+  const SUN = [300, 94, 22], HZ = 112;
+  const SKY_T = ['#5B7DB1', '#8E7CC3', '#F2B5A0'], SKY_L = ['#F4A259', '#F6D06F', '#E76F51'];
+  const WATER = ['#3D5A80', '#98C1D9', '#5B7DB1'], REFL = ['#F4A259', '#F6D06F', '#98C1D9'];
+  const SUNP = ['#FFE8A3', '#FFD166'];
+  const COLS = [...new Set([...SKY_T, ...SKY_L, ...WATER, ...REFL])];
+  // 色点 = [x, y, 角度, 颜色序号]；按行从上到下、行内从左到右排列，就是落笔顺序
+  const DABS = [];
+  let i = 0;
+  for (let y = 10, r = 0; y <= 200; y += 6, r++) for (let x = 40 + (r % 2) * 3; x <= 500; x += 7, i++) {
+    const px = x + (rnd(i, 81) - 0.5) * 4, py = y + (rnd(i, 82) - 0.5) * 2;
+    const pal = py < 56 ? SKY_T : py < HZ ? SKY_L : Math.abs(px - SUN[0]) < 14 + (py - HZ) * 0.5 ? REFL : WATER;
+    DABS.push([px, py, (rnd(i, 83) - 0.5) * 0.4, COLS.indexOf(pal[Math.floor(rnd(i, 84) * pal.length)])]);
+  }
+  const SUND = [];
+  for (let y = SUN[1] - SUN[2]; y <= SUN[1] + SUN[2]; y += 3) for (let x = SUN[0] - SUN[2]; x <= SUN[0] + SUN[2]; x += 4, i++) {
+    if (Math.hypot(x - SUN[0], y - SUN[1]) > SUN[2] - 2) continue;
+    SUND.push([x + (rnd(i, 85) - 0.5) * 2, y, rnd(i, 86) * Math.PI, rnd(i, 87) < 0.5 ? 0 : 1]);
+  }
+  // 同色的点合成一条路径一次填充，减少每帧的填充次数
+  function paint(k, list, n, cols) {
+    cols.forEach((col, ci) => {
+      k.fillStyle = col; k.beginPath();
+      for (let j = 0; j < n; j++) { const d = list[j]; if (d[3] !== ci) continue; k.moveTo(d[0] + 4.5 * Math.cos(d[2]), d[1] + 4.5 * Math.sin(d[2])); k.ellipse(d[0], d[1], 4.5, 2, d[2], 0, TAU); }
+      k.fill();
+    });
+  }
+  CELLS[7] = (k, w, h, u) => {
+    paper(k, '#E9E2D0', 'rgba(80,60,30,.06)', 500, 17);
+    k.globalAlpha = vis(u);
+    paint(k, DABS, Math.floor(seg(u, 0.3, 4.6) * DABS.length), COLS);
+    paint(k, SUND, Math.floor(seg(u, 4.0, 4.6) * SUND.length), SUNP);
+    k.globalAlpha = 1;
+  };
+}

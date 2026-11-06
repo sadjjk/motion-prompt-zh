@@ -1,0 +1,56 @@
+// Motion Prompt #4-076 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 铅笔水彩 / Pencil and watercolour
+// 分类: 审美风格 / 工艺与纹样 / 绘画媒介
+// 动画表现: 铅笔画出五瓣花，浅粉和浅绿水彩一块块铺上，再叠一层更深的颜色，最后用铅笔补画花心。
+// 运动规格:
+//   - 暖白色画纸。以 (270, 82) 为中心的 5 瓣花，带圆形花心、一根花茎和 2 片叶子。
+//   - 0.3–1.4 秒：用 0.8 px 的灰色铅笔线画出线稿。
+//   - 1.4–2.6 秒：每片花瓣和叶子一块块铺上透明度 35% 的浅色水彩，形状缩小到 80% 并偏移 2–3 px，不完全填满轮廓；每块带 1.2 px 深色边，像水渍干后的边线。
+//   - 2.6–3.6 秒：第二层更深的水彩，透明度 30%，大小为原形状的一半、偏移 3–5 px；3.6–4.2 秒：花心画 6 条放射铅笔线，4.1–4.4 秒点上深色花心。
+//   - 5.4–6.0 秒画面淡回空白画纸；0 秒和 6.4 秒都是空白纸，循环无缝。
+// 适用场景: 适合植物、旅行手账、绘本和柔和的生活方式内容。
+// 标签: drawing, watercolour, pencil, wash, botanical, process
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-076
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 05
+// 铅笔水彩：先打铅笔稿，再由浅到深上水彩，颜色不完全填满轮廓、边缘留下水渍线，最后用铅笔补几笔
+{
+  const FC = [270, 82];
+  const PETALS = [0, 1, 2, 3, 4].map(i => { const a = -Math.PI / 2 + i * TAU / 5; return blob(FC[0] + Math.cos(a) * 24, FC[1] + Math.sin(a) * 24, 19, 70 + i, 0.06); });
+  const LEAVES = [[236, 150, -0.6], [306, 140, 0.5]].map(([x, y, r], i) => { const p = []; for (let j = 0; j < 24; j++) { const t = j / 24 * TAU, ex = Math.cos(t) * 24, ey = Math.sin(t) * 9; p.push([x + ex * Math.cos(r) - ey * Math.sin(r), y + ex * Math.sin(r) + ey * Math.cos(r)]); } return p; });
+  const STEM = wobble(270, 106, 272, 196, 75, 1.4, 10);
+  const CENTER = ellPts(FC[0], FC[1], 11, 11, 76, 0.6, 28, 0, 0.1);
+  const SKETCH = [...PETALS.map(p => [...p, p[0]]), CENTER, STEM, ...LEAVES.map(p => [...p, p[0]])];
+  // 水彩块：比轮廓小一圈并偏向一侧，不完全填满
+  const wash = (pts, s, ox, oy) => { const cx = pts.reduce((a, p) => a + p[0], 0) / pts.length, cy = pts.reduce((a, p) => a + p[1], 0) / pts.length; return pts.map(([x, y]) => [cx + (x - cx) * s + ox, cy + (y - cy) * s + oy]); };
+  const W1 = [...PETALS.map((p, i) => [wash(p, 0.8, 3, 2), 'rgba(240,128,128,', i]), ...LEAVES.map((p, i) => [wash(p, 0.8, 2, 3), 'rgba(120,170,110,', 5 + i])];
+  const W2 = [...PETALS.map((p, i) => [wash(p, 0.5, 5, 4), 'rgba(214,84,96,', i]), ...LEAVES.map((p, i) => [wash(p, 0.5, 4, 3), 'rgba(80,130,80,', 5 + i])];
+  const DETAIL = [0, 1, 2, 3, 4, 5].map(i => { const a = i * TAU / 6; return [[FC[0] + Math.cos(a) * 4, FC[1] + Math.sin(a) * 4], [FC[0] + Math.cos(a) * 10, FC[1] + Math.sin(a) * 10]]; });
+  function washes(k, list, u, t0, t1, alpha) {
+    list.forEach(([pts, col, i]) => {
+      const t = seg(u, t0 + (t1 - t0) * i / 7 * 0.6, t0 + (t1 - t0) * (i / 7 * 0.6 + 0.4));
+      if (t <= 0) return;
+      k.fillStyle = col + (alpha * t) + ')'; fillPts(k, pts);
+      k.strokeStyle = col + ((alpha + 0.15) * t) + ')'; k.lineWidth = 1.2; strokePts(k, [...pts, pts[0]]);
+    });
+  }
+  CELLS[4] = (k, w, h, u) => {
+    paper(k, '#FAF7F0', 'rgba(0,0,0,.04)', 600, 9);
+    const a = vis(u);
+    k.globalAlpha = a; k.lineCap = 'round'; k.lineJoin = 'round';
+    k.strokeStyle = '#7A7A7A'; k.lineWidth = 0.8; seqDraw(k, SKETCH, seg(u, 0.3, 1.4));
+    washes(k, W1, u, 1.4, 2.6, 0.35);
+    washes(k, W2, u, 2.6, 3.6, 0.3);
+    // 3.6–4.4 秒：颜色上面补铅笔线、加深花心
+    k.strokeStyle = '#5A5A5A'; k.lineWidth = 1; seqDraw(k, DETAIL, seg(u, 3.6, 4.2));
+    const c = seg(u, 4.1, 4.4);
+    if (c > 0) { k.fillStyle = `rgba(90,80,60,${0.5 * c})`; k.beginPath(); k.arc(FC[0], FC[1], 5, 0, TAU); k.fill(); }
+    k.globalAlpha = 1;
+  };
+}

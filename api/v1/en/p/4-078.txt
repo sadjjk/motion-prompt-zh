@@ -1,0 +1,16 @@
+Please use "Oil impasto" (油彩の厚塗り), filed under "Craft & patterns / Drawing & painting media".
+Motion Prompt #4-078
+
+What it is: On toned linen, thin long strokes block in the big shapes, then short thick dabs of paint pile on top, each catching light on one edge and shadow on the other
+What the sample shows: A still life of a bottle and a pear on linen. Background, table, bottle and pear are blocked in thinly in that order, thick dabs build on top, and near-white highlights go on the side facing the top-left light.
+Spec:
+- Tan linen #B8865B with a 3 px cross weave. A green bottle stands at x 236–276 and a yellow pear at the right, against a dark background over a brown table edge at y 132.
+- 0.3–1.8 s: long block-in strokes 30–50 px long and 14 px wide at 70% opacity cover the canvas, background first, then table, bottle and pear; on the bottle and pear they are shortened to stay inside the shape, down to 10 px.
+- 1.8–3.8 s: short impasto dabs 12–20 px long and 8–10 px wide pile on in the same order, again kept inside the bottle and pear; each is lighter on the side toward the top-left light and carries a 1.5 px light edge on one side and a dark edge on the other.
+- 3.8–4.6 s: the thickest near-white highlights #F2E6C8 go down the left of the bottle and on the pear.
+- At 5.4–6.0 s the painting fades back to bare linen; at 0 s and 6.4 s the card is bare linen, so the loop restarts cleanly.
+When to use it: Use it for galleries, fine art, premium products or anything with a classical mood.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-078.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

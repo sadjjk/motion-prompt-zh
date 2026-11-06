@@ -1,0 +1,65 @@
+// Motion Prompt #4-081 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 点描 / Stippling
+// 分類: ビジュアルスタイル / 工芸・文様 / 版画・手仕事
+// 何が起きるか: 生成りの紙に卵と影。暗い部分から明るい部分へ順に点が打たれ、ペン先が最後に打った点に付いて動き、描き終わると消える。
+// 動きの仕様:
+//   - クリーム色の紙。中心 (270, 96)、108 × 140 px で上が細い卵。光は左上から、右下の地面に楕円の影
+//   - 点は事前に計算しておく。x 150–390・y 18–204 に 2.2 px の格子を ±0.9 px 揺らして取り、各点を 濃さ^1.2 × 0.9 の確率で残す。卵の縁は濃くして、光の当たる側でも輪郭が見えるようにする
+//   - 0.3–4.8 秒：半径 0.85 px の点が色調 6 段階で暗い順に現れ、各段階の中は高さ 10 px の行を往復して打つ。影の側から形が出て、ペン先はまとまって動く
+//   - 描いている間はペン先が最新の点に付き、4.8–5.1 秒にフェードアウト
+//   - 5.4–6.0 秒に絵がフェードして白紙に戻る。0 秒と 6.4 秒はどちらも白紙なので、ループがつながる
+// 使いどころ: 科学、博物、医療のイラスト、根気や細部へのこだわりを伝えたい場面に。
+// タグ: drawing, stipple, dots, pen, tone, process
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-081
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 10
+// 点描：一支针管笔，从最暗处开始一点点点出一只蛋和它的投影；明暗只靠点的疏密，最亮处几乎不落点
+{
+  const INK = '#20201E', CX = 270, CY = 96, RX = 54, RY = 70;
+  // 蛋形：上窄下宽，横半轴随纵向位置变化
+  // 边缘再加深一圈（q>0.8 起），否则亮面一侧几乎没有点、蛋形认不出来
+  const eggTone = (x, y) => {
+    const ny = (y - CY) / RY, rx = RX * (1 + 0.12 * ny), t = sphereTone(x, y, CX, CY, rx, RY);
+    if (t < 0) return t;
+    const nx = (x - CX) / rx, q = nx * nx + ny * ny;
+    return Math.min(1, Math.max(t, 0.14) + 0.45 * seg(q, 0.8, 1));
+  };
+  const tone = (x, y) => {
+    const t = eggTone(x, y);
+    if (t >= 0) return t;
+    const dx = (x - 304) / 84, dy = (y - 180) / 13, d2 = dx * dx + dy * dy;
+    return d2 < 1 ? 0.7 * (1 - d2) : 0;
+  };
+  // 点阵在定义时算好：2.2 px 网格加抖动，按色调概率保留，再按从暗到亮排序（计划为 3 px，截图后加密）
+  const DOTS = [];
+  let id = 0;
+  for (let y = 18; y <= 204; y += 2.2) for (let x = 150; x <= 390; x += 2.2, id++) {
+    const px = x + (rnd(id, 1) - 0.5) * 1.8, py = y + (rnd(id, 2) - 0.5) * 1.8, t = tone(px, py);
+    if (t > 0 && rnd(id, 7) < Math.pow(t, 1.2) * 0.9) DOTS.push([px, py, t, id]);
+  }
+  // 只按色调排序时，相邻两点常在蛋的两头，笔尖每帧乱跳；
+  // 改为色调分 6 档从暗到亮，每档内按 10 px 行蛇形扫过，笔尖成片移动
+  const band = d => Math.min(5, Math.floor(d[2] * 6)), row = d => Math.floor(d[1] / 10);
+  DOTS.sort((a, b) => band(b) - band(a) || row(a) - row(b) || (row(a) % 2 ? b[0] - a[0] : a[0] - b[0]));
+  CELLS[9] = (k, w, h, u) => {
+    paper(k, '#F6F2EA', 'rgba(60,50,30,.05)');
+    const a = vis(u), n = Math.floor(seg(u, 0.3, 4.8) * DOTS.length);
+    k.globalAlpha = a; k.fillStyle = INK;
+    for (let i = 0; i < n; i++) { k.beginPath(); k.arc(DOTS[i][0], DOTS[i][1], 0.85, 0, TAU); k.fill(); }
+    // 针管笔：停在刚点下的那个点上，画完后淡出
+    const pa = (1 - seg(u, 4.8, 5.1)) * (n > 0 ? 1 : 0);
+    if (pa > 0) {
+      const [px, py] = DOTS[Math.min(n, DOTS.length - 1)];
+      k.globalAlpha = a * pa * 0.8; k.strokeStyle = INK; k.lineCap = 'round';
+      k.lineWidth = 2; k.beginPath(); k.moveTo(px + 2, py - 2); k.lineTo(px + 26, py - 26); k.stroke();
+      k.lineWidth = 5; k.beginPath(); k.moveTo(px + 14, py - 14); k.lineTo(px + 26, py - 26); k.stroke();
+    }
+    k.globalAlpha = 1;
+  };
+}

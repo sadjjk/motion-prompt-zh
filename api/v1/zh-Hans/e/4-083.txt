@@ -1,0 +1,88 @@
+// Motion Prompt #4-083 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 刮画 / Scratchboard
+// 分类: 审美风格 / 工艺与纹样 / 版画与手工
+// 动画表现: 黑底上的月夜：刮刀依次刮出月亮轮廓、避开月坑的横线、海浪和星星，刀尖跟着正在刮的位置走。
+// 运动规格:
+//   - 卡片是一层黑色涂层 #121212，整个循环都不变；刮出来的线都是米白色 #F2EEE6。
+//   - 0.3–1.2 秒：刮出 (270, 84) 处、半径 56 px 的月亮轮廓；1.2–3.6 秒：37 条间距 3 px 的横线从上往下刮满月面，每条从左往右，3 个月坑处留空。
+//   - 3.6–4.6 秒：卡片下方刮出 5 条波浪线，每条比上一条晚 0.1 秒开始；4.6–5.0 秒：6 颗十字形小星星一颗颗出现。
+//   - 一把三角形小刮刀停在正在刮的线的末端。
+//   - 5.4–6.0 秒刮出的线淡回黑色；0 秒和 6.4 秒都是纯黑，循环无缝。
+// 适用场景: 适合夜景、悬疑、哥特氛围，或任何需要强烈黑白版画感的地方。
+// 标签: scratchboard, engraving, black, white-lines, night, process
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-083
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 12
+// 刮画：全黑涂层上用刮刀一道道刮出白线，先刮月亮轮廓，再横向刮满月面（避开月坑），最后刮出海浪和星星
+{
+  const WHITE = '#F2EEE6', MX = 270, MY = 84, MR = 56;
+  const RIM = ellPts(MX, MY, MR, MR, 31, 0.8, 72, -Math.PI / 2, 0.05);
+  const CRATERS = [[248, 70, 10], [290, 96, 14], [262, 112, 7]];
+  // 月面横线：37 条、间距 3 px，每条拆成避开月坑的若干段；记下每条的总长，按长度推进
+  const LINES = [];
+  for (let i = 0; i < 37; i++) {
+    const y = MY - 54 + i * 3, half = Math.sqrt(Math.max(0, MR * MR - (y - MY) * (y - MY))) - 2;
+    let parts = [[MX - half, MX + half]];
+    CRATERS.forEach(([cx, cy, cr]) => {
+      const dy = y - cy; if (Math.abs(dy) >= cr) return;
+      const hw = Math.sqrt(cr * cr - dy * dy) + 1.5, next = [];
+      parts.forEach(([a, b]) => { if (cx - hw > a) next.push([a, Math.min(b, cx - hw)]); if (cx + hw < b) next.push([Math.max(a, cx + hw), b]); });
+      parts = next;
+    });
+    LINES.push({ y, parts, len: parts.reduce((s, [a, b]) => s + (b - a), 0) });
+  }
+  const WAVES = [158, 167, 176, 185, 194].map((y0, j) => { const pts = []; for (let x = 40; x <= 500; x += 4) pts.push([x, y0 + 2.5 * Math.sin(x / 14 + j)]); return pts; });
+  const STARS = [];
+  for (let s = 0; STARS.length < 6; s++) {
+    const x = 40 + rnd(s, 41) * 460, y = 10 + rnd(s, 42) * 48;
+    if (Math.hypot(x - MX, y - MY) > MR + 20 && STARS.every(([sx, sy]) => Math.hypot(sx - x, sy - y) > 50)) STARS.push([x, y]);
+  }
+  function knife(k, x, y) { k.beginPath(); k.moveTo(x, y); k.lineTo(x + 5, y - 11); k.lineTo(x + 10, y - 7); k.closePath(); k.fill(); }
+  CELLS[11] = (k, w, h, u) => {
+    // 黑色涂层就是“纸”，不随复位淡出；刮出的白线随 vis 淡去
+    paper(k, '#121212', 'rgba(255,255,255,.025)', 300, 5);
+    const a = vis(u);
+    k.globalAlpha = a; k.strokeStyle = WHITE; k.fillStyle = WHITE; k.lineCap = 'round';
+    let tip = null;
+    // 0.3–1.2 秒：月亮轮廓
+    const tr = seg(u, 0.3, 1.2);
+    k.lineWidth = 1.4; partial(k, RIM, tr);
+    if (tr > 0 && tr < 1) tip = RIM[Math.floor(tr * (RIM.length - 1))];
+    // 1.2–3.6 秒：月面横线，从上到下，每条从左往右
+    const p = seg(u, 1.2, 3.6) * LINES.length;
+    k.lineWidth = 1.1;
+    for (let i = 0; i < Math.ceil(p); i++) {
+      const L = LINES[i]; let left = Math.min(1, p - i) * L.len;
+      for (const [x0, x1] of L.parts) {
+        if (left <= 0) break;
+        const x = Math.min(x1, x0 + left); left -= x1 - x0;
+        k.beginPath(); k.moveTo(x0, L.y); k.lineTo(x, L.y); k.stroke();
+        if (p - i < 1) tip = [x, L.y];
+      }
+    }
+    // 3.6–4.6 秒：海浪，从左往右，每条错开 0.1 秒
+    k.lineWidth = 1.2;
+    WAVES.forEach((pts, j) => {
+      const t = seg(u, 3.6 + 0.1 * j, 4.2 + 0.1 * j);
+      partial(k, pts, t);
+      if (t > 0 && t < 1) tip = pts[Math.floor(t * (pts.length - 1))];
+    });
+    // 4.6–5.0 秒：星星一颗颗刮出
+    k.lineWidth = 1;
+    STARS.forEach(([x, y], i) => {
+      const t = seg(u, 4.6 + 0.065 * i, 4.7 + 0.065 * i);
+      if (t <= 0) return;
+      const r = 4 * t;
+      k.beginPath(); k.moveTo(x - r, y); k.lineTo(x + r, y); k.moveTo(x, y - r); k.lineTo(x, y + r); k.stroke();
+    });
+    // 刮刀刀尖，跟着当前刮到的位置
+    if (tip) { k.globalAlpha = a * 0.7; knife(k, tip[0], tip[1]); }
+    k.globalAlpha = 1;
+  };
+}

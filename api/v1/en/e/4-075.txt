@@ -1,0 +1,59 @@
+// Motion Prompt #4-075 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// Charcoal and eraser / 木炭と練り消し
+// Category: Visual styles / Craft & patterns / Drawing & painting media
+// What happens: Charcoal goes on in vertical strokes and is smudged, then a pear and the light of a window are erased out of it. The outlines and window frame are redrawn on top, with a faint offset ghost of the earlier line.
+// Motion spec:
+//   - Pale grey paper. 0.3–1.4 s: 26 vertical charcoal strokes 22 px wide at 12% opacity are laid from left to right across x 120–420.
+//   - 1.4–2.0 s: the charcoal is smudged even, a flat layer rising to 45% opacity over the same area.
+//   - 2.0–3.4 s: a pear about 80 px wide and a 72 px square of window light are lifted out in paper colour, rising to 85% opacity, with an 8 px soft edge.
+//   - 3.4–4.6 s: the pear, its stem and the window frame with its cross bars are redrawn in 2 px charcoal; a 1.6 px ghost of the pear outline sits 3 px right and 2 px down at 25% opacity.
+//   - At 5.4–6.0 s the drawing fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+// When to use it: Use it for quiet documentary moments, flashbacks, reflective scenes or art and education topics.
+// Tags: drawing, charcoal, eraser, smudge, sketch, process
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-075
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 04
+// 炭笔擦画：先用炭条铺满画面并抹匀，再用橡皮擦出梨和窗光，最后在擦过的地方重新勾线，旧线条留下淡淡的痕迹
+{
+  const CH_ = '#2A2826', PAPER = '#ECE8E1';
+  // 梨：上小下大，由两个 blob 叠成的轮廓
+  const PEAR = blob(270, 124, 40, 8, 0.04, 1).map(([x, y]) => { const dy = (y - 124) / 40; return dy < 0 ? [270 + (x - 270) * (1 + 0.55 * dy), 124 + (y - 124) * 1.9] : [x, y]; });
+  // 窗框整个放在炭粉区（x 108–432）里面，否则右半边窗光擦在没有炭的白纸上
+  const WIN = [[340, 24], [420, 24], [420, 104], [340, 104]];
+  const STROKES = []; for (let i = 0; i < 26; i++) STROKES.push([120 + i * 12 + (rnd(i, 61) - 0.5) * 4, 6 + rnd(i, 62) * 6, CH - 6 - rnd(i, 63) * 6]);
+  const PEAR_LINE = [...PEAR, PEAR[0]], WIN_LINES = [[...WIN, WIN[0]], [[380, 24], [380, 104]], [[340, 64], [420, 64]]];
+  const STEM = wobble(268, 50, 274, 36, 64, 0.6, 4);
+  CELLS[3] = (k, w, h, u) => {
+    paper(k, PAPER, 'rgba(0,0,0,.05)', 600, 7);
+    const a = vis(u);
+    k.lineCap = 'round';
+    // 0.3–1.4 秒：竖向宽笔触，从左往右铺炭
+    const n = seg(u, 0.3, 1.4) * STROKES.length;
+    k.globalAlpha = a * 0.12; k.strokeStyle = CH_; k.lineWidth = 22;
+    for (let i = 0; i < Math.ceil(n); i++) { const [x, y0, y1] = STROKES[i], f = Math.min(1, n - i); k.beginPath(); k.moveTo(x, y0); k.lineTo(x + 3, mix(y0, y1, f)); k.stroke(); }
+    // 1.4–2.0 秒：抹匀
+    k.globalAlpha = a * 0.45 * seg(u, 1.4, 2.0); k.fillStyle = CH_; k.fillRect(108, 0, 324, CH);
+    // 2.0–3.4 秒：橡皮擦出亮部，边缘柔和
+    const e = seg(u, 2.0, 3.4);
+    if (e > 0) {
+      k.save(); k.globalAlpha = a * 0.85 * e; k.fillStyle = PAPER; k.shadowColor = PAPER; k.shadowBlur = 8;
+      fillPts(k, PEAR); k.fillRect(344, 28, 72, 72);
+      k.restore();
+    }
+    // 3.4–4.6 秒：重新勾线；旧轮廓偏 3 px 留一道淡痕
+    const r = seg(u, 3.4, 4.6);
+    if (r > 0) {
+      k.globalAlpha = a * 0.25 * Math.min(1, r * 3); k.strokeStyle = CH_; k.lineWidth = 1.6;
+      k.save(); k.translate(3, 2); strokePts(k, PEAR_LINE); k.restore();
+      k.globalAlpha = a; k.lineWidth = 2;
+      seqDraw(k, [PEAR_LINE, STEM, ...WIN_LINES], r);
+    }
+    k.globalAlpha = 1;
+  };
+}

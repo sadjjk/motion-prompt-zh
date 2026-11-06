@@ -1,0 +1,16 @@
+Please use "Broken colour" (筆触分割), filed under "Craft & patterns / Drawing & painting media".
+Motion Prompt #4-079
+
+What it is: Short dabs of unmixed colour are laid side by side so that they blend only in the eye, the way the Impressionists painted
+What the sample shows: A sunset over water. Short dabs in blue-violet, orange-yellow, navy and pale blue go down row by row from the top, with a band of reflected light under the sun; the sun itself is dabbed in last in pale yellows.
+Spec:
+- Pale canvas #E9E2D0. Every mark is an ellipse 9 × 4 px, tilted up to ±0.2 rad; neighbouring dabs take random colours from the palette of their area.
+- Upper sky #5B7DB1 #8E7CC3 #F2B5A0, lower sky #F4A259 #F6D06F #E76F51 down to the horizon at y 112, water #3D5A80 #98C1D9 #5B7DB1, and a reflection band under the sun in #F4A259 #F6D06F #98C1D9 that widens downwards.
+- 0.3–4.6 s: dabs go down in rows 6 px apart from the top, each row from left to right, 7 px apart with ±2 px jitter.
+- 4.0–4.6 s: the sun, 22 px in radius at (300, 94), is dabbed on top in #FFE8A3 and #FFD166.
+- At 5.4–6.0 s the painting fades back to bare canvas; at 0 s and 6.4 s the card is bare canvas, so the loop restarts cleanly.
+When to use it: Use it for landscapes, travel, sunsets, or when introducing painting and the Impressionists.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-079.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

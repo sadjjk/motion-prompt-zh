@@ -2,7 +2,7 @@
 
 # Names
 
-545 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+560 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind. Each number opens the moving sample in the gallery.
 
@@ -51,12 +51,13 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | 3 Editing & photography | Lens effects & finishing | Lens effects | 11 | #3 065–075 |
 | 3 Editing & photography | Lens effects & finishing | Grading & finishing | 9 | #3 076–083 · 112 |
 | 4 Visual styles | Animation styles | Flat & line | 6 | #4 001–004 · 045–046 |
-| 4 Visual styles | Animation styles | Space & material | 8 | #4 005–008 · 031 · 047–049 |
-| 4 Visual styles | Animation styles | Media & genres | 11 | #4 009–011 · 050–053 · 065–068 |
+| 4 Visual styles | Animation styles | Space & material | 9 | #4 005–008 · 031 · 047–049 · 086 |
+| 4 Visual styles | Animation styles | Media & genres | 12 | #4 009–011 · 050–053 · 065–068 · 085 |
 | 4 Visual styles | Animation styles | Diagrams & boards | 5 | #4 040–044 |
 | 4 Visual styles | Art movements | Modern & postmodern | 7 | #4 012–015 · 032 · 054–055 |
 | 4 Visual styles | Art movements | Digital & retro | 7 | #4 016–019 · 056–058 |
-| 4 Visual styles | Craft & patterns | Print & handmade | 12 | #4 020–021 · 030 · 033–036 · 059–062 · 069 |
+| 4 Visual styles | Craft & patterns | Print & handmade | 16 | #4 020–021 · 030 · 033–036 · 059–062 · 069 · 081–084 |
+| 4 Visual styles | Craft & patterns | Drawing & painting media | 9 | #4 072–080 |
 | 4 Visual styles | Craft & patterns | Geometric patterns | 5 | #4 022–026 |
 | 4 Visual styles | East Asian tradition | Calligraphy & painting | 7 | #4 027–028 · 037 · 063–064 · 070–071 |
 | 4 Visual styles | East Asian tradition | Objects & folk crafts | 3 | #4 029 · 038–039 |
@@ -782,7 +783,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-045](https://sadjjk.github.io/motion-prompt-zh/#4-045) | **Ink-circle minimal** | A minimal explainer on warm white paper: one ink circle, a single character inside it and a great deal of empty space | Make a 6-second minimal clip: one brush stroke draws an ink circle, the character 静 fades in inside it, and a short line of small text appears below. |
 | [#4-046](https://sadjjk.github.io/motion-prompt-zh/#4-046) | **Keynote number** | A product-launch look: pure black, one thing per screen, and a huge white number that lands the moment it is said | Make a 6-second keynote-style clip: on black, the heading 续航 appears, a big number rolls from 0 to 32 and lands, 小时 follows, and a gradient bar sweeps in underneath. |
 
-#### Space & material · #4 005–008 · 031 · 047–049
+#### Space & material · #4 005–008 · 031 · 047–049 · 086
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -794,8 +795,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-047](https://sadjjk.github.io/motion-prompt-zh/#4-047) | **Starfield spark** | An explainer set in a deep navy starfield where one gold spark is the hero and changes shape as the idea develops | Make a 6-second starfield clip: a gold spark rises, traces a light bulb, then splits into several sparks that join into a constellation. |
 | [#4-048](https://sadjjk.github.io/motion-prompt-zh/#4-048) | **Dark gold line art** | An explainer drawn in glowing amber lines on charcoal, building an everyday scene stroke by stroke like a luminous notebook | Make a 6-second dark gold line-art clip with a fixed camera: glowing lines draw a desk, a chair, a person reading and a desk lamp; the lamp switches on, casts a pool of light, and a page turns. |
 | [#4-049](https://sadjjk.github.io/motion-prompt-zh/#4-049) | **Clay kawaii** | A cute clay look on a pink cream background: little clay characters with faces squash and bounce as they pop in | Make a 6-second clay kawaii clip: three bean characters line up at a milk-tea stand, and the first one takes a cup and hops for joy. |
+| [#4-086](https://sadjjk.github.io/motion-prompt-zh/#4-086) | **Toy bricks** | Plastic bricks with studs drop in one at a time and stack into a model, drawn in orthographic view with a bright top, a pure-colour front and a dark right side | Have toy bricks with studs drop in one at a time and stack up; each should bounce slightly when it lands, and the shadow on the ground should grow as the model gets bigger. |
 
-#### Media & genres · #4 009–011 · 050–053 · 065–068
+#### Media & genres · #4 009–011 · 050–053 · 065–068 · 085
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -810,6 +812,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-066](https://sadjjk.github.io/motion-prompt-zh/#4-066) | **Caption news** | A caption-led social news look: one huge line at a time on a dark screen, keywords blocked in yellow and a number rolling up, readable with the sound off | Make a 6-second caption news clip: a data story 外卖平均 28 分钟送达, with the number rolling from 0 to 28, a yellow block over the keyword and the source sliding in from below. |
 | [#4-067](https://sadjjk.github.io/motion-prompt-zh/#4-067) | **Visual investigation** | An investigative-journalism look: source text, scene picture and timeline side by side, linked by highlighter, red circle and timeline cursor, then a push-in and a verdict stamp | Make a 6-second visual investigation clip: dating an old photo — highlight the source text, circle the scene in red, the timeline cursor stops at 1934, then push in and stamp 推定：1934 年. |
 | [#4-068](https://sadjjk.github.io/motion-prompt-zh/#4-068) | **Archive light table** | A close-reading archive look: film strips and bamboo slips on a cold white light table, a loupe magnifies one character and a red pen circles it | Make a 6-second archive light table clip: a film strip and bamboo slips are laid on a light table, a loupe runs along the slips, stops on the character 年 and a red pen circles it. |
+| [#4-085](https://sadjjk.github.io/motion-prompt-zh/#4-085) | **Rubber-hose cartoon** | A 1930s black-and-white cartoon: a round-bodied character bounces to the beat with arms and legs that bend like rubber hoses, under film grain, flicker and scratches | Make it look like a 1930s black-and-white cartoon: a round character bouncing on the beat, hose-like arms swinging, squashing on each landing, with old film grain and scratches. |
 
 #### Diagrams & boards · #4 040–044
 
@@ -849,7 +852,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 
 ### Craft & patterns
 
-#### Print & handmade · #4 020–021 · 030 · 033–036 · 059–062 · 069
+#### Print & handmade · #4 020–021 · 030 · 033–036 · 059–062 · 069 · 081–084
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -865,6 +868,24 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-061](https://sadjjk.github.io/motion-prompt-zh/#4-061) | **Bullet journal** | A bullet-journal look: dot-grid paper with washi tape, marker handwriting, highlighter, sticky notes and ballpoint ticks | Make a 6-second bullet journal clip: tape goes down on a weekly plan page, the title and to-dos are written, ticked off, and a sticky note is slapped on. |
 | [#4-062](https://sadjjk.github.io/motion-prompt-zh/#4-062) | **Hand-drawn process** | A drawing-process look: a floating tool swaps at each stage, pencil for the rough, fineliner for ink, marker for colour, then signs | Make a 6-second hand-drawn process clip: swapping between pencil, fineliner and marker, a coffee cup is drawn from pencil rough to ink, colour and signature. |
 | [#4-069](https://sadjjk.github.io/motion-prompt-zh/#4-069) | **Copperplate botanical** | A copperplate natural-history plate look: fine ink lines and 45° hatching engrave the plant on old paper, a pale wash follows a beat later, with captions alongside | Make a 6-second copperplate botanical clip: a plate of 蒲公英 — ink lines draw stem, leaves, flower and seed head, 45° hatching sweeps across, a pale wash seeps in and captions appear on the left. |
+| [#4-081](https://sadjjk.github.io/motion-prompt-zh/#4-081) | **Stippling** | A fine pen builds the picture from dots alone: dot density is the tone, the darkest areas are dotted first and the brightest are left almost bare | Turn this into stippling: no lines, only dot density for the shading, and show the dots going in from the darkest areas first. |
+| [#4-082](https://sadjjk.github.io/motion-prompt-zh/#4-082) | **Single-line engraving** | The whole picture is one unbroken spiral line whose width follows the tone, a 17th-century engraving technique | Make it an engraving drawn with a single spiral line that runs outwards from the centre, thick in the dark parts and thin in the light ones. |
+| [#4-083](https://sadjjk.github.io/motion-prompt-zh/#4-083) | **Scratchboard** | A knife scrapes white lines out of a board coated in black ink, so you draw by taking away the dark wherever you want light | Make it a scratchboard picture: white lines scraped out of black, the outline first, then parallel lines for the surfaces, then the small details. |
+| [#4-084](https://sadjjk.github.io/motion-prompt-zh/#4-084) | **Paper toy theatre** | Cut and torn paper flats slide onto a toy-theatre stage from back to front, each casting a shadow on the one behind | Build it like a paper toy theatre: the backdrop is layers of paper that slide up one at a time from back to front, and a red proscenium drops in from the top at the end. |
+
+#### Drawing & painting media · #4 072–080
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#4-072](https://sadjjk.github.io/motion-prompt-zh/#4-072) | **Ballpoint hatching** | One blue ballpoint draws the outline, then builds the shading from parallel and crossed lines, like a sketch in the margin of a notebook | Turn this illustration into a blue ballpoint sketch: draw the outline first, then layer diagonal hatching to darken the shadow side, leaving small ink blobs where strokes stop. |
+| [#4-073](https://sadjjk.github.io/motion-prompt-zh/#4-073) | **Coloured pencil** | Short strokes in one diagonal direction are layered from light to dark hues on toothy paper, with cross-hatching added in the darkest areas | Colour this like coloured pencil: layer short diagonal strokes from yellow to red, and let the paper's tooth show through as white specks. |
+| [#4-074](https://sadjjk.github.io/motion-prompt-zh/#4-074) | **Wax crayon** | A crayon scribbles back and forth so the paper's valleys stay unfilled; a darker crayon adds shade, white is burnished on for a highlight, and a fat outline is traced twice | Make this a crayon drawing: fill it with back-and-forth scribbles that leave white gaps here and there, then trace a thick outline twice. |
+| [#4-075](https://sadjjk.github.io/motion-prompt-zh/#4-075) | **Charcoal and eraser** | Charcoal darkens the whole sheet and is smudged, a kneaded eraser lifts out the light shapes, and the lines are redrawn over the erased traces | Do it as a charcoal drawing: darken everything with charcoal first, erase the subject and the light out of it, then redraw the lines and leave a faint trace of the earlier ones. |
+| [#4-076](https://sadjjk.github.io/motion-prompt-zh/#4-076) | **Pencil and watercolour** | Light watercolour washes go over a pencil underdrawing without quite filling the outlines, leaving tide marks at their edges; the pencil comes back at the end | Make it look like watercolour over a pencil sketch: the colour shouldn't line up exactly with the lines, and each wash should dry with a darker edge. |
+| [#4-077](https://sadjjk.github.io/motion-prompt-zh/#4-077) | **Ink line and wash** | Wet washes go down first and flood past where the lines will be, drying with backrun edges; then a flexible nib draws lines that are thin at both ends and thick in the middle | Make it a sketch where loose colour goes on first and the pen line comes after; the colour can spill past the lines, and each line should taper at both ends. |
+| [#4-078](https://sadjjk.github.io/motion-prompt-zh/#4-078) | **Oil impasto** | On toned linen, thin long strokes block in the big shapes, then short thick dabs of paint pile on top, each catching light on one edge and shadow on the other | Paint it like a thick oil painting: block in thin colour first, then build up short heavy strokes, and finish with the thickest highlights. |
+| [#4-079](https://sadjjk.github.io/motion-prompt-zh/#4-079) | **Broken colour** | Short dabs of unmixed colour are laid side by side so that they blend only in the eye, the way the Impressionists painted | Paint it like the Impressionists, with short dabs of unmixed colour placed side by side, row by row from the top, and the sun last. |
+| [#4-080](https://sadjjk.github.io/motion-prompt-zh/#4-080) | **Mid-century gouache** | Flat, matte, opaque gouache shapes go down one at a time with dry-brush edges, and the final ink line is deliberately off register, as in 1950s picture books and posters | Do it like a 1950s picture book: lay flat matte colour shapes one by one with dry, scratchy edges, then draw windows and outlines in black ink that sits slightly off the colour. |
 
 #### Geometric patterns · #4 022–026
 

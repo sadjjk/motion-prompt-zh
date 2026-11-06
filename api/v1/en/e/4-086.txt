@@ -1,0 +1,75 @@
+// Motion Prompt #4-086 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// Toy bricks / おもちゃのブロック
+// Category: Visual styles / Animation styles / Space & material
+// What happens: On pale grey paper 8 bricks in red, blue, yellow, green and white drop in 0.5 s apart and stack into 5 layers. Each one bounces slightly as it lands, and the shadow on the floor spreads.
+// Motion spec:
+//   - Pale grey paper #EEF0F2 with a faint floor line at y 184 that fades in at 0.1–0.4 s. Bricks are 20 px per stud and 18 px tall, drawn with a top face offset 12 px right and 10 px up.
+//   - Each brick has a lighter top face, a front in its own colour, a darker right side and one round stud per unit on top; the colours are red #D7372F, blue #2D6CC0, yellow #F2C230, green #3A9A4B and white #F4F4F4.
+//   - 8 bricks drop in order, the first at 0.4 s and then every 0.5 s; each falls 70 px in 0.35 s with a back-out ease that overshoots slightly before it settles.
+//   - A soft elliptical shadow under the model grows smoothly from 25 px to 113 px in half-width as the bricks land.
+//   - At 5.4–6.0 s the model fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+// When to use it: Use it for building things up step by step, growth, children's content or playful product intros.
+// Tags: toy-bricks, blocks, stacking, orthographic, drop, bounce
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-086
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 15
+// 玩具积木：带凸点的塑料积木一块块从上方落下搭成造型；正投影，顶面亮、正面原色、右侧面暗，地面投影随块数变大
+{
+  const COL = { R: '#D7372F', Y: '#F2C230', B: '#2D6CC0', G: '#3A9A4B', W: '#F4F4F4' };
+  // 计划里的 16 px 单位在卡片缩略图上偏小，整体放大 1.25 倍：单位 20 px、砖高 18 px
+  const GROUND = 184, UNIT = 20, BH = 18, DX = 12, DY = -10, SR = UNIT / 16;
+  // [左边缘相对 x=270 的偏移（按 16 px 单位写，画时乘 SR）, 层号, 宽度单位数, 颜色]，按落下顺序
+  // 偏移都取 16 的整数倍，凸点才对得上下层；顶层两块各压住下层 1 个凸点，向两侧悬出
+  const BR = [[-64, 0, 4, 'R'], [0, 0, 4, 'B'], [-48, 1, 4, 'Y'], [16, 1, 2, 'G'], [-32, 2, 4, 'W'], [-32, 3, 4, 'R'], [-48, 4, 2, 'B'], [16, 4, 2, 'Y']];
+  const T0 = i => 0.4 + 0.5 * i, FALL = 0.35, DROP = 70;
+  function brick(k, x, yb, n, col) {
+    const w = n * UNIT, top = yb - BH, c = COL[col];
+    k.lineJoin = 'round'; k.lineWidth = 0.8; k.strokeStyle = 'rgba(0,0,0,.18)';
+    // 右侧面
+    k.fillStyle = shade(c, -0.28);
+    k.beginPath(); k.moveTo(x + w, top); k.lineTo(x + w + DX, top + DY); k.lineTo(x + w + DX, yb + DY); k.lineTo(x + w, yb); k.closePath(); k.fill(); k.stroke();
+    // 正面
+    k.fillStyle = c; k.fillRect(x, top, w, BH); k.strokeRect(x, top, w, BH);
+    // 顶面
+    k.fillStyle = shade(c, 0.18);
+    k.beginPath(); k.moveTo(x, top); k.lineTo(x + DX, top + DY); k.lineTo(x + w + DX, top + DY); k.lineTo(x + w, top); k.closePath(); k.fill(); k.stroke();
+    // 凸点：每个单位一个，3 px 高的小圆柱
+    for (let j = 0; j < n; j++) {
+      const cx = x + UNIT * j + UNIT / 2 + DX / 2, cy = top + DY / 2;
+      k.fillStyle = shade(c, -0.28);
+      k.beginPath(); k.ellipse(cx, cy, 6, 3, 0, 0, Math.PI); k.lineTo(cx - 6, cy - 4); k.ellipse(cx, cy - 4, 6, 3, 0, Math.PI, 0, true); k.closePath(); k.fill();
+      k.fillStyle = shade(c, 0.3);
+      k.beginPath(); k.ellipse(cx, cy - 4, 6, 3, 0, 0, TAU); k.fill(); k.stroke();
+    }
+  }
+  CELLS[14] = (k, w, h, u) => {
+    paper(k, '#EEF0F2', 'rgba(0,0,0,.035)');
+    k.globalAlpha = vis(u);
+    // 地面线：0.1–0.4 秒淡入，保证 u=0 与 u=6.4 都只有纸
+    k.strokeStyle = `rgba(40,50,60,${0.18 * seg(u, 0.1, 0.4)})`; k.lineWidth = 1;
+    k.beginPath(); k.moveTo(60, GROUND + 0.5); k.lineTo(480, GROUND + 0.5); k.stroke();
+    // 投影：落地块数连续增长，避免在落地那一帧跳变
+    let landed = 0;
+    BR.forEach((b, i) => { landed += seg(u, T0(i) + FALL * 0.7, T0(i) + FALL); });
+    if (landed > 0) {
+      k.fillStyle = 'rgba(0,0,0,.14)';
+      k.beginPath(); k.ellipse(270, GROUND + 2, 25 + 11 * landed, 6, 0, 0, TAU); k.fill();
+    }
+    // 后落的压在先落的上面；同一时刻最多一块在下落，所以按清单顺序画即可
+    const a0 = k.globalAlpha;
+    BR.forEach(([off, layer, n, col], i) => {
+      const t = seg(u, T0(i), T0(i) + FALL);
+      if (t <= 0) return;
+      const dy = -DROP * (1 - backOut(t, 1.2));
+      k.globalAlpha = a0 * Math.min(1, t * 5);
+      brick(k, 270 + off * SR, GROUND - layer * BH + dy, n, col);
+    });
+    k.globalAlpha = 1;
+  };
+}

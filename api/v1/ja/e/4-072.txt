@@ -1,0 +1,48 @@
+// Motion Prompt #4-072 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// ボールペンのハッチング / Ballpoint hatching
+// 分類: ビジュアルスタイル / 工芸・文様 / 画材・描画
+// 何が起きるか: 罫線ノートの上に青インクでマグカップ。輪郭を描き、右側に斜線、さらに交差線を重ね、最後に影を線で入れる。
+// 動きの仕様:
+//   - クリーム色の紙に 6 px ごとの薄い青の罫線。中央に幅 100 px、高さ 108 px のマグカップ。口は楕円、右に C 字の取っ手。すべて同じ青インク
+//   - 0.3–1.4 秒：輪郭を一筆ずつ描く。線幅 1.2 px で少し揺れる。約 3 分の 2 の線は止めに 1.1 px のインクだまりを残す
+//   - 1.4–2.8 秒：胴の右側 40 px を −60° の斜線（間隔 4 px）で埋める。2.8–3.8 秒：30°・間隔 5 px の線を交差させ、口の内側にも線を入れる
+//   - 3.8–4.4 秒：右下の楕円の影を間隔 3.5 px の斜線で描く
+//   - 5.4–6.0 秒に絵がフェードして白紙に戻る。0 秒と 6.4 秒はどちらも白紙なので、ループがつながる
+// 使いどころ: 手描きのラフ感、ノートのメモ、アイデアのスケッチを見せたいとき。
+// タグ: drawing, ballpoint, hatching, cross-hatching, sketch, process
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-072
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 01
+// 圆珠笔排线：只用一支蓝色圆珠笔画马克杯，先勾轮廓，再一层层排线压暗右侧，最后排出投影；笔停处留下小墨点
+{
+  const INK = '#1F3A93';
+  const RIM = ellPts(270, 62, 50, 10, 104, 0.6, 48, Math.PI, 0.06);
+  const BODY = [wobble(220, 62, 220, 170, 101, 1, 10), wobble(220, 170, 320, 170, 102, 1, 10), wobble(320, 170, 320, 62, 103, 1, 10)];
+  const arcPts = (rx, ry) => { const p = []; for (let i = 0; i <= 16; i++) { const a = -Math.PI / 2 + Math.PI * i / 16; p.push([318 + Math.cos(a) * rx, 112 + Math.sin(a) * ry]); } return p; };
+  const OUTLINE = [RIM, ...BODY, arcPts(26, 30), arcPts(14, 18)];
+  const bodyClip = k => k.rect(280, 62, 40, 108), BODY_BOX = [280, 62, 40, 108];
+  const rimClip = k => k.ellipse(270, 62, 46, 7.5, 0, 0, TAU), RIM_BOX = [224, 54, 92, 16];
+  const shadowClip = k => k.ellipse(326, 176, 48, 6, 0, 0, TAU), SH_BOX = [278, 170, 96, 12];
+  CELLS[0] = (k, w, h, u) => {
+    paper(k, '#F7F5EF', 'rgba(0,0,0,.035)');
+    // 横格本的浅蓝格线（纸的一部分，不淡出）
+    k.fillStyle = 'rgba(70,110,170,.12)';
+    for (let y = 8; y < CH; y += 6) k.fillRect(0, y, CW, 0.6);
+    k.globalAlpha = vis(u);
+    k.strokeStyle = INK; k.fillStyle = INK; k.lineCap = 'round'; k.lineJoin = 'round'; k.lineWidth = 1.2;
+    const done = seqDraw(k, OUTLINE, seg(u, 0.3, 1.4));
+    // 停笔处的积墨：每条轮廓线画完后，按 rnd 在末端留一个小墨点
+    for (let i = 0; i < done; i++) if (rnd(i, 9) > 0.35) { const p = OUTLINE[i][OUTLINE[i].length - 1]; k.beginPath(); k.arc(p[0], p[1], 1.1, 0, TAU); k.fill(); }
+    hatch(k, bodyClip, BODY_BOX, -Math.PI / 3, 4, seg(u, 1.4, 2.8), INK, 0.8, 11, 0.8);
+    hatch(k, bodyClip, BODY_BOX, Math.PI / 6, 5, seg(u, 2.8, 3.8), INK, 0.7, 12, 0.8);
+    hatch(k, rimClip, RIM_BOX, -Math.PI / 3, 4, seg(u, 2.8, 3.8), INK, 0.7, 13, 0.8);
+    hatch(k, shadowClip, SH_BOX, -Math.PI / 3, 3.5, seg(u, 3.8, 4.4), INK, 0.7, 14, 0.8);
+    k.globalAlpha = 1;
+  };
+}

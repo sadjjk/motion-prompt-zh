@@ -1,0 +1,16 @@
+Please use "Stippling" (点描), filed under "Craft & patterns / Print & handmade".
+Motion Prompt #4-081
+
+What it is: A fine pen builds the picture from dots alone: dot density is the tone, the darkest areas are dotted first and the brightest are left almost bare
+What the sample shows: An egg and its shadow on cream paper. Dots go in from the darkest areas to the lightest, with the pen tip following the latest dot and fading away once it is done.
+Spec:
+- Cream paper. An egg 108 × 140 px, narrower at the top, centred at (270, 96), lit from the upper left, with an elliptical shadow on the ground to the lower right.
+- The dots are worked out once in advance: a 2.2 px grid with ±0.9 px jitter over x 150–390 and y 18–204 keeps each dot with a probability of tone^1.2 × 0.9; the egg's rim is darkened so its outline reads even on the lit side.
+- 0.3–4.8 s: the dots, 0.85 px in radius, appear in 6 tone bands from darkest to lightest, each band swept back and forth in rows 10 px tall, so the shadow side builds up first and the pen moves in patches.
+- A pen tip sits on the latest dot while it works and fades out at 4.8–5.1 s.
+- At 5.4–6.0 s the drawing fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+When to use it: Use it for scientific, natural-history or medical illustration, or to show patience and attention to detail.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-081.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

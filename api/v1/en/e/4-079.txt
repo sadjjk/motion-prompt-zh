@@ -1,0 +1,57 @@
+// Motion Prompt #4-079 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// Broken colour / 筆触分割
+// Category: Visual styles / Craft & patterns / Drawing & painting media
+// What happens: A sunset over water. Short dabs in blue-violet, orange-yellow, navy and pale blue go down row by row from the top, with a band of reflected light under the sun; the sun itself is dabbed in last in pale yellows.
+// Motion spec:
+//   - Pale canvas #E9E2D0. Every mark is an ellipse 9 × 4 px, tilted up to ±0.2 rad; neighbouring dabs take random colours from the palette of their area.
+//   - Upper sky #5B7DB1 #8E7CC3 #F2B5A0, lower sky #F4A259 #F6D06F #E76F51 down to the horizon at y 112, water #3D5A80 #98C1D9 #5B7DB1, and a reflection band under the sun in #F4A259 #F6D06F #98C1D9 that widens downwards.
+//   - 0.3–4.6 s: dabs go down in rows 6 px apart from the top, each row from left to right, 7 px apart with ±2 px jitter.
+//   - 4.0–4.6 s: the sun, 22 px in radius at (300, 94), is dabbed on top in #FFE8A3 and #FFD166.
+//   - At 5.4–6.0 s the painting fades back to bare canvas; at 0 s and 6.4 s the card is bare canvas, so the loop restarts cleanly.
+// When to use it: Use it for landscapes, travel, sunsets, or when introducing painting and the Impressionists.
+// Tags: painting, impressionism, broken-colour, dabs, sunset, process
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-079
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 08
+// 分色笔触：水面日落全用不调和的短色点铺成，相邻色点颜色不同，远看才混成天色和水光；太阳最后单独点上
+{
+  const SUN = [300, 94, 22], HZ = 112;
+  const SKY_T = ['#5B7DB1', '#8E7CC3', '#F2B5A0'], SKY_L = ['#F4A259', '#F6D06F', '#E76F51'];
+  const WATER = ['#3D5A80', '#98C1D9', '#5B7DB1'], REFL = ['#F4A259', '#F6D06F', '#98C1D9'];
+  const SUNP = ['#FFE8A3', '#FFD166'];
+  const COLS = [...new Set([...SKY_T, ...SKY_L, ...WATER, ...REFL])];
+  // 色点 = [x, y, 角度, 颜色序号]；按行从上到下、行内从左到右排列，就是落笔顺序
+  const DABS = [];
+  let i = 0;
+  for (let y = 10, r = 0; y <= 200; y += 6, r++) for (let x = 40 + (r % 2) * 3; x <= 500; x += 7, i++) {
+    const px = x + (rnd(i, 81) - 0.5) * 4, py = y + (rnd(i, 82) - 0.5) * 2;
+    const pal = py < 56 ? SKY_T : py < HZ ? SKY_L : Math.abs(px - SUN[0]) < 14 + (py - HZ) * 0.5 ? REFL : WATER;
+    DABS.push([px, py, (rnd(i, 83) - 0.5) * 0.4, COLS.indexOf(pal[Math.floor(rnd(i, 84) * pal.length)])]);
+  }
+  const SUND = [];
+  for (let y = SUN[1] - SUN[2]; y <= SUN[1] + SUN[2]; y += 3) for (let x = SUN[0] - SUN[2]; x <= SUN[0] + SUN[2]; x += 4, i++) {
+    if (Math.hypot(x - SUN[0], y - SUN[1]) > SUN[2] - 2) continue;
+    SUND.push([x + (rnd(i, 85) - 0.5) * 2, y, rnd(i, 86) * Math.PI, rnd(i, 87) < 0.5 ? 0 : 1]);
+  }
+  // 同色的点合成一条路径一次填充，减少每帧的填充次数
+  function paint(k, list, n, cols) {
+    cols.forEach((col, ci) => {
+      k.fillStyle = col; k.beginPath();
+      for (let j = 0; j < n; j++) { const d = list[j]; if (d[3] !== ci) continue; k.moveTo(d[0] + 4.5 * Math.cos(d[2]), d[1] + 4.5 * Math.sin(d[2])); k.ellipse(d[0], d[1], 4.5, 2, d[2], 0, TAU); }
+      k.fill();
+    });
+  }
+  CELLS[7] = (k, w, h, u) => {
+    paper(k, '#E9E2D0', 'rgba(80,60,30,.06)', 500, 17);
+    k.globalAlpha = vis(u);
+    paint(k, DABS, Math.floor(seg(u, 0.3, 4.6) * DABS.length), COLS);
+    paint(k, SUND, Math.floor(seg(u, 4.0, 4.6) * SUND.length), SUNP);
+    k.globalAlpha = 1;
+  };
+}

@@ -1,0 +1,16 @@
+Please use "Toy bricks" (おもちゃのブロック), filed under "Animation styles / Space & material".
+Motion Prompt #4-086
+
+What it is: Plastic bricks with studs drop in one at a time and stack into a model, drawn in orthographic view with a bright top, a pure-colour front and a dark right side
+What the sample shows: On pale grey paper 8 bricks in red, blue, yellow, green and white drop in 0.5 s apart and stack into 5 layers. Each one bounces slightly as it lands, and the shadow on the floor spreads.
+Spec:
+- Pale grey paper #EEF0F2 with a faint floor line at y 184 that fades in at 0.1–0.4 s. Bricks are 20 px per stud and 18 px tall, drawn with a top face offset 12 px right and 10 px up.
+- Each brick has a lighter top face, a front in its own colour, a darker right side and one round stud per unit on top; the colours are red #D7372F, blue #2D6CC0, yellow #F2C230, green #3A9A4B and white #F4F4F4.
+- 8 bricks drop in order, the first at 0.4 s and then every 0.5 s; each falls 70 px in 0.35 s with a back-out ease that overshoots slightly before it settles.
+- A soft elliptical shadow under the model grows smoothly from 25 px to 113 px in half-width as the bricks land.
+- At 5.4–6.0 s the model fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+When to use it: Use it for building things up step by step, growth, children's content or playful product intros.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-086.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

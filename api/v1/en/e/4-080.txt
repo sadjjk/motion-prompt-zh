@@ -1,0 +1,78 @@
+// Motion Prompt #4-080 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// Mid-century gouache / ミッドセンチュリーのガッシュ
+// Category: Visual styles / Craft & patterns / Drawing & painting media
+// What happens: A simplified city scene. Ground, buildings, sun, cloud and tree appear as flat shapes one after another, with dry-brush edges and faint brush marks; the ink outlines and windows come last, shifted up and to the right of the colour.
+// Motion spec:
+//   - Cream paper #F2E8D5. 9 flat shapes in #3D405B, #81B29A, #E07A5F, #F2CC8F and off-white: the ground, 4 buildings, a sun, a cloud, a tree trunk and a round tree top.
+//   - 0.3–3.4 s: the shapes appear one after another, each becoming fully opaque within 0.25 s.
+//   - Each shape has 8–14 short dry-brush hairs 6–10 px long pulled outwards from its edge at 60% opacity, and 3 faint paper-coloured brush marks across it at 18% opacity.
+//   - 3.4–4.6 s: 1.5 px ink lines in #2B2B2B draw the outlines of the buildings, sun, cloud and tree top, then the windows, the trunk and the ground line, all shifted 3 px right and 2 px up from the colour.
+//   - At 5.4–6.0 s the picture fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+// When to use it: Use it for retro ads, picture books, city or lifestyle introductions and warm brand stories.
+// Tags: painting, gouache, mid-century, retro, flat-shapes, off-register
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-080
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 09
+// 世纪中期水粉：不透明的哑光色块一块块拍上去，边缘带干刷的毛边；最后的墨线整体错开几像素，和色块对不齐
+{
+  const rect = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+  const BLOCKS = [
+    [rect(60, 170, 420, 24), '#3D405B'],
+    [rect(120, 70, 58, 100), '#3D405B'],
+    [rect(178, 96, 52, 74), '#81B29A'],
+    [rect(230, 50, 46, 120), '#E07A5F'],
+    [rect(300, 84, 64, 86), '#F2CC8F'],
+    [blob(440, 44, 20, 91, 0.01), '#E07A5F'],
+    [blob(170, 38, 26, 92, 0.06, 0.42), '#FBF7EE'],
+    [rect(396, 146, 8, 24), '#3D405B'],
+    [blob(400, 126, 26, 93, 0.04), '#81B29A'],
+  ];
+  const STEP = (3.4 - 0.25 - 0.3) / (BLOCKS.length - 1);
+  // 干刷毛边：在每块边缘取点，沿离开中心的方向拉出短细线
+  const DRY = BLOCKS.map(([pts], b) => {
+    const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length, cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+    const n = 8 + Math.floor(rnd(b, 94) * 7), out = [];
+    for (let j = 0; j < n; j++) {
+      const e = Math.floor(rnd(b * 31 + j, 95) * pts.length), q = pts[e], q2 = pts[(e + 1) % pts.length], f = rnd(b * 31 + j, 96);
+      const x = mix(q[0], q2[0], f), y = mix(q[1], q2[1], f), d = Math.hypot(x - cx, y - cy) || 1, L = 6 + 4 * rnd(b * 31 + j, 97);
+      out.push([x, y, x + (x - cx) / d * L, y + (y - cy) / d * L]);
+    }
+    return out;
+  });
+  // 刷痕：色块内的几道纸色细线
+  const BRUSH = BLOCKS.map(([pts], b) => {
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    return [0, 1, 2].map(j => { const y = mix(y0, y1, 0.2 + 0.3 * j + 0.1 * rnd(b, 98 + j)); return [x0 + 3, y, x1 - 3, y + 1]; });
+  });
+  // 墨线：楼的轮廓、窗格、树干、云
+  const INK = [];
+  BLOCKS.forEach(([pts], b) => { if (b !== 0 && b !== 7) INK.push([...pts, pts[0]]); });
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 3; c++) INK.push([...rect(128 + c * 17, 80 + r * 17, 8, 10), [128 + c * 17, 80 + r * 17]]);
+  for (let c = 0; c < 3; c++) INK.push([[240 + c * 13, 60], [240 + c * 13, 160]]);
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) INK.push([...rect(308 + c * 14, 94 + r * 22, 8, 12), [308 + c * 14, 94 + r * 22]]);
+  INK.push([[400, 170], [400, 140]], [[60, 170], [480, 170]]);
+  CELLS[8] = (k, w, h, u) => {
+    paper(k, '#F2E8D5', 'rgba(90,70,40,.06)', 500, 19);
+    const a = vis(u);
+    k.lineCap = 'round';
+    BLOCKS.forEach(([pts, col], b) => {
+      const t = seg(u, 0.3 + STEP * b, 0.55 + STEP * b);
+      if (t <= 0) return;
+      k.globalAlpha = a * t; k.fillStyle = col; fillPts(k, pts);
+      k.strokeStyle = col; k.lineWidth = 1; k.globalAlpha = a * t * 0.6;
+      DRY[b].forEach(([x0, y0, x1, y1]) => { k.beginPath(); k.moveTo(x0, y0); k.lineTo(x1, y1); k.stroke(); });
+      k.globalAlpha = a * t * 0.18; k.fillStyle = '#F2E8D5';
+      BRUSH[b].forEach(([x0, y0, x1, y1]) => k.fillRect(x0, y0, x1 - x0, y1 - y0));
+    });
+    // 3.4–4.6 秒：墨线整体偏移 (3, -2)，故意和色块错位
+    k.globalAlpha = a; k.strokeStyle = '#2B2B2B'; k.lineWidth = 1.5; k.lineJoin = 'round';
+    k.save(); k.translate(3, -2); seqDraw(k, INK, seg(u, 3.4, 4.6)); k.restore();
+    k.globalAlpha = 1;
+  };
+}

@@ -1,0 +1,87 @@
+// Motion Prompt #4-077 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 墨线淡彩 / Ink line and wash
+// 分类: 审美风格 / 工艺与纹样 / 绘画媒介
+// 动画表现: 一只站在枝头的小鸟：棕色、米色和枝条的淡彩逐块晕开，边缘起回流花边；然后墨线依次画出身体、头、尾巴、喙、树枝、腿和翅膀，最后点上眼睛。
+// 运动规格:
+//   - 暖米白色画纸。一只从尾到喙约 120 px 的小鸟站在斜枝上，头部在 (292, 78)。
+//   - 0.3–1.8 秒：4 块淡彩每隔 0.3 秒出现一块，每块 0.6 秒内淡入到 35–40% 透明度；鸟身上的 3 块比轮廓大 6–8 px，颜色漫到线外，枝条那块是沿树枝的一条宽 12–18 px 的斜带；1.2–1.8 秒：其中出现 4 个深一圈的小环，像水彩回流。
+//   - 1.8–4.4 秒：8 条 #1B1B1B 墨线依次画出；每条线的线宽为 0.6 + 2.2·sin(πs) px，s 从 0 到 1，所以每一笔两头细中间粗。
+//   - 4.4–4.8 秒：眼睛长成半径 2.6 px 的墨点。
+//   - 5.4–6.0 秒画面淡回空白画纸；0 秒和 6.4 秒都是空白纸，循环无缝。
+// 适用场景: 适合自然、旅行、城市速写或杂志插画风的内容。
+// 标签: drawing, ink, wash, watercolour, line-weight, process
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-077
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 06
+// 墨线淡彩：顺序与铅笔水彩相反，先铺湿润的淡彩，颜色漫出轮廓、边缘起回流花边，再用软笔尖勾出两头细中间粗的墨线
+{
+  const INK = '#1B1B1B';
+  // 小鸟：身体、头、尾巴、喙；站在一根斜枝上
+  const BODY = blob(262, 104, 34, 11, 0.03, 0.78);
+  const HEAD = blob(292, 78, 17, 12, 0.03);
+  // 枝条的淡彩：沿墨线 (150,178)→(392,138) 的一条斜带，半宽 6–9 px，比墨线略长，跟枝条同向
+  // （原先用横向椭圆，看起来像鸟脚下的影子，和斜枝对不上）
+  const BRANCH_WASH = [];
+  {
+    const top = [], bot = [];
+    for (let i = 0; i <= 24; i++) {
+      const s = i / 24, x = 146 + 250 * s, y = 178.7 - 41.4 * s, hw = 6 + 3 * Math.sin(Math.PI * s);
+      top.push([x, y - hw + (rnd(i, 17) - 0.5) * 2]); bot.push([x, y + hw + (rnd(i, 18) - 0.5) * 2]);
+    }
+    BRANCH_WASH.push(...top, ...bot.reverse());
+  }
+  const WASH = [
+    [blob(260, 106, 42, 13, 0.07, 0.8), 'rgba(196,140,90,.40)'],
+    [blob(292, 78, 23, 14, 0.07), 'rgba(196,140,90,.40)'],
+    [blob(262, 118, 26, 15, 0.08, 0.6), 'rgba(230,200,150,.40)'],
+    [BRANCH_WASH, 'rgba(120,100,80,.35)'],
+  ];
+  const BLOOMS = [[240, 96, 9], [280, 116, 7], [296, 72, 6], [222, 162, 8]];
+  const LINES = [
+    [...BODY.slice(14), ...BODY.slice(0, 8)],
+    [...HEAD.slice(10), ...HEAD.slice(0, 26)],
+    [[230, 96], [206, 88], [198, 96], [230, 108]],
+    [[307, 76], [322, 80], [306, 84]],
+    [[150, 178], [210, 166], [270, 158], [340, 146], [392, 138]],
+    [[256, 128], [254, 146], [258, 158]], [[270, 128], [272, 146], [276, 156]],
+    [[240, 100], [258, 92], [276, 104]],
+  ];
+  CELLS[5] = (k, w, h, u) => {
+    paper(k, '#F8F4EA', 'rgba(0,0,0,.04)', 500, 13);
+    const a = vis(u);
+    // 0.3–1.8 秒：淡彩一块块铺开，透明度随进度上升
+    WASH.forEach(([pts, col], i) => {
+      const t = seg(u, 0.3 + 0.3 * i, 0.9 + 0.3 * i);
+      if (t <= 0) return;
+      k.globalAlpha = a * t; k.fillStyle = col; fillPts(k, pts);
+    });
+    // 回流花边：边缘更深的小色块
+    BLOOMS.forEach(([x, y, r], i) => {
+      const t = seg(u, 1.2 + 0.12 * i, 1.8);
+      if (t <= 0) return;
+      k.globalAlpha = a * t; k.strokeStyle = 'rgba(150,100,60,.35)'; k.lineWidth = 1.4;
+      strokePts(k, [...blob(x, y, r, 80 + i, 0.15), blob(x, y, r, 80 + i, 0.15)[0]]);
+    });
+    // 1.8–4.4 秒：墨线，每条两头细中间粗
+    k.globalAlpha = a; k.strokeStyle = INK; k.lineCap = 'round';
+    const tl = seg(u, 1.8, 4.4) * LINES.length;
+    for (let j = 0; j < Math.ceil(tl); j++) {
+      const pts = LINES[j], f = Math.min(1, tl - j), m = (pts.length - 1) * f;
+      for (let i = 0; i < Math.ceil(m); i++) {
+        const s = (i + 0.5) / (pts.length - 1), g = Math.min(1, m - i);
+        const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+        k.lineWidth = 0.6 + 2.2 * Math.sin(Math.PI * s);
+        k.beginPath(); k.moveTo(x0, y0); k.lineTo(mix(x0, x1, g), mix(y0, y1, g)); k.stroke();
+      }
+    }
+    const e = seg(u, 4.4, 4.8);
+    if (e > 0) { k.fillStyle = INK; k.beginPath(); k.arc(298, 74, 2.6 * e, 0, TAU); k.fill(); }
+    k.globalAlpha = 1;
+  };
+}

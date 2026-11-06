@@ -1,0 +1,70 @@
+// Motion Prompt #4-073 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 彩色铅笔 / Coloured pencil
+// 分类: 审美风格 / 工艺与纹样 / 绘画媒介
+// 动画表现: 米色纸上一只苹果：黄、橙、深红三层斜线依次叠上，暗部加交叉线，最后画果柄和叶子；纸纹凹处一直留着白点。
+// 运动规格:
+//   - 米色纸面带 900 个纸纹点。一只宽约 128 px 的苹果，顶部有凹口，带果柄和一片叶子。
+//   - 每种颜色都是 45° 的短线，长 10–16 px、线宽 1.1 px、透明度 55%，排在 5 × 4 px 的网格上并带抖动，从上往下逐行画。
+//   - 0.3–1.4 秒黄色 #E9C46A 铺满苹果；1.4–2.6 秒橙红 #E76F51 铺右下；2.6–3.6 秒深红 #9B2226 压右下暗部；3.6–4.3 秒 #5C1A1B 反方向交叉线。
+//   - 0.3–0.8 秒苹果范围内的纸色小点淡入并压在颜色上面，纸纹凹处一直留白；4.3–4.5 秒画果柄，4.4–4.8 秒给叶子上绿色。
+//   - 5.4–6.0 秒画面淡回空白画纸；0 秒和 6.4 秒都是空白纸，循环无缝。
+// 适用场景: 适合儿童、教育、食物等需要温和手作感的内容。
+// 标签: drawing, coloured-pencil, layering, paper-grain, illustration, process
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-073
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 02
+// 彩色铅笔：米色粗纹纸上画一只苹果，同一斜向的短笔触由浅到深一层层叠色，暗部再加交叉排线；纸纹凹处始终留白
+{
+  // 苹果外形：顶部中间压下一个凹口
+  const AP = blob(270, 110, 64, 3, 0.05, 0.92).map(([x, y]) => { const dx = (x - 270) / 64; return [x, y + (y < 110 ? 12 * Math.exp(-dx * dx * 18) : 0)]; });
+  const LEAF = []; for (let i = 0; i < 24; i++) { const a = i / 24 * TAU, ex = Math.cos(a) * 16, ey = Math.sin(a) * 6.5; LEAF.push([292 + ex * Math.cos(-0.45) - ey * Math.sin(-0.45), 40 + ex * Math.sin(-0.45) + ey * Math.cos(-0.45)]); }
+  const STEM = wobble(270, 64, 264, 34, 201, 0.8, 5);
+  // 一层笔触：在 box 网格上取点，test 为真才保留；按行从上到下排好（手画的顺序）
+  const layer = (poly, test, box, dx, dy, seed) => {
+    const out = [], [bx, by, bw, bh] = box;
+    let i = 0;
+    for (let y = by; y <= by + bh; y += dy) for (let x = bx; x <= bx + bw; x += dx, i++) {
+      const px = x + (rnd(i, seed) - 0.5) * dx, py = y + (rnd(i, seed + 1) - 0.5) * dy;
+      if (inPoly(poly, px, py) && test(px, py)) out.push([px, py, 10 + 6 * rnd(i, seed + 2)]);
+    }
+    return out;
+  };
+  const AB = [204, 48, 132, 124];
+  const L_Y = layer(AP, () => true, AB, 5, 4, 21);
+  const L_O = layer(AP, (x, y) => (x - 270) + (y - 110) * 0.8 > -12, AB, 5, 4, 22);
+  const L_R = layer(AP, (x, y) => (x - 270) + (y - 110) > 35, AB, 5, 4, 23);
+  const L_X = layer(AP, (x, y) => (x - 270) + (y - 110) > 62, AB, 5, 4, 24);
+  const L_L = layer(LEAF, () => true, [274, 28, 38, 26], 3, 3, 25);
+  const TOOTH = []; for (let i = 0; i < 900; i++) { const x = AB[0] + rnd(i, 31) * AB[2], y = AB[1] + rnd(i, 32) * AB[3]; if (inPoly(AP, x, y)) TOOTH.push([x, y]); }
+  function strokes(k, list, t, ang, col) {
+    const n = Math.floor(clamp(t) * list.length), c = Math.cos(ang), s = Math.sin(ang);
+    k.strokeStyle = col;
+    for (let i = 0; i < n; i++) { const [x, y, L] = list[i]; k.beginPath(); k.moveTo(x - c * L / 2, y - s * L / 2); k.lineTo(x + c * L / 2, y + s * L / 2); k.stroke(); }
+  }
+  CELLS[1] = (k, w, h, u) => {
+    paper(k, '#F1E6D2', 'rgba(90,70,40,.07)', 900, 3);
+    const a = vis(u);
+    k.lineCap = 'round'; k.lineWidth = 1.1;
+    k.save(); k.beginPath(); tracePts(k, AP); k.clip();
+    k.globalAlpha = a * 0.55;
+    strokes(k, L_Y, seg(u, 0.3, 1.4), -Math.PI / 4, '#E9C46A');
+    strokes(k, L_O, seg(u, 1.4, 2.6), -Math.PI / 4, '#E76F51');
+    strokes(k, L_R, seg(u, 2.6, 3.6), -Math.PI / 4, '#9B2226');
+    strokes(k, L_X, seg(u, 3.6, 4.3), Math.PI / 4, '#5C1A1B');
+    // 纸纹凸点挡住铅笔：在已上色的苹果区域压一层纸色小点
+    k.globalAlpha = a * 0.55 * seg(u, 0.3, 0.8); k.fillStyle = '#F1E6D2';
+    TOOTH.forEach(([x, y]) => k.fillRect(x, y, 1, 1));
+    k.restore();
+    k.globalAlpha = a; k.strokeStyle = '#6B4F3A'; k.lineWidth = 3; partial(k, STEM, seg(u, 4.3, 4.5));
+    k.save(); k.beginPath(); tracePts(k, LEAF); k.clip();
+    k.globalAlpha = a * 0.6; k.lineWidth = 1.1; strokes(k, L_L, seg(u, 4.4, 4.8), -Math.PI / 4, '#4A7C59');
+    k.restore();
+    k.globalAlpha = 1;
+  };
+}

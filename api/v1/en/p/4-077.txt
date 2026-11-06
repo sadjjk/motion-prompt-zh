@@ -1,0 +1,16 @@
+Please use "Ink line and wash" (ペン画と淡彩), filed under "Craft & patterns / Drawing & painting media".
+Motion Prompt #4-077
+
+What it is: Wet washes go down first and flood past where the lines will be, drying with backrun edges; then a flexible nib draws lines that are thin at both ends and thick in the middle
+What the sample shows: A small bird on a branch. Brown, cream and branch-coloured washes bloom one at a time with backruns at their edges; then ink lines draw the body, head, tail, beak, branch, legs and wing, and the eye is dotted in last.
+Spec:
+- Warm off-white paper. A small bird about 120 px from tail to beak on a slanting branch, with its head at (292, 78).
+- 0.3–1.8 s: 4 washes fade in 0.3 s apart, each over 0.6 s at 35–40% opacity; the 3 on the bird are 6–8 px larger than its outline so the colour spills past it, and the branch wash is a slanting band 12–18 px wide along the branch; 1.2–1.8 s: 4 darker rings appear inside them like backruns.
+- 1.8–4.4 s: 8 ink lines in #1B1B1B are drawn one after another; along each line the width is 0.6 + 2.2·sin(πs) px, with s going from 0 to 1, so every stroke tapers at both ends.
+- 4.4–4.8 s: the eye grows into an ink dot 2.6 px in radius.
+- At 5.4–6.0 s the drawing fades back to blank paper; at 0 s and 6.4 s the card is blank paper, so the loop restarts cleanly.
+When to use it: Use it for nature, travel or urban sketching, or anything that should feel like a magazine illustration.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-077.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

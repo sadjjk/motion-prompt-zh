@@ -1,0 +1,56 @@
+// Motion Prompt #4-076 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// 鉛筆と水彩 / Pencil and watercolour
+// 分類: ビジュアルスタイル / 工芸・文様 / 画材・描画
+// 何が起きるか: 五枚の花びらの花を鉛筆で描き、淡いピンクと緑の水彩を一つずつ置き、さらに濃い色を重ねる。最後に鉛筆で花芯を描き込む。
+// 動きの仕様:
+//   - 温かみのある白い紙。(270, 82) を中心とする 5 枚の花びらの花、丸い花芯、茎、葉 2 枚
+//   - 0.3–1.4 秒：0.8 px のグレーの鉛筆線で下描き
+//   - 1.4–2.6 秒：花びらと葉に一つずつ不透明度 35% の淡い水彩を置く。形を 80% に縮め 2–3 px ずらすので輪郭は埋まらない。各色面に 1.2 px の濃い縁が付き、乾いた水じみに見える
+//   - 2.6–3.6 秒：不透明度 30% の濃い色を、元の形の半分の大きさで 3–5 px ずらして重ねる。3.6–4.2 秒：花芯に放射状の鉛筆線 6 本、4.1–4.4 秒に濃い点を置く
+//   - 5.4–6.0 秒に絵がフェードして白紙に戻る。0 秒と 6.4 秒はどちらも白紙なので、ループがつながる
+// 使いどころ: 植物、旅の記録、絵本、やわらかいライフスタイル系の場面に。
+// タグ: drawing, watercolour, pencil, wash, botanical, process
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-076
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 05
+// 铅笔水彩：先打铅笔稿，再由浅到深上水彩，颜色不完全填满轮廓、边缘留下水渍线，最后用铅笔补几笔
+{
+  const FC = [270, 82];
+  const PETALS = [0, 1, 2, 3, 4].map(i => { const a = -Math.PI / 2 + i * TAU / 5; return blob(FC[0] + Math.cos(a) * 24, FC[1] + Math.sin(a) * 24, 19, 70 + i, 0.06); });
+  const LEAVES = [[236, 150, -0.6], [306, 140, 0.5]].map(([x, y, r], i) => { const p = []; for (let j = 0; j < 24; j++) { const t = j / 24 * TAU, ex = Math.cos(t) * 24, ey = Math.sin(t) * 9; p.push([x + ex * Math.cos(r) - ey * Math.sin(r), y + ex * Math.sin(r) + ey * Math.cos(r)]); } return p; });
+  const STEM = wobble(270, 106, 272, 196, 75, 1.4, 10);
+  const CENTER = ellPts(FC[0], FC[1], 11, 11, 76, 0.6, 28, 0, 0.1);
+  const SKETCH = [...PETALS.map(p => [...p, p[0]]), CENTER, STEM, ...LEAVES.map(p => [...p, p[0]])];
+  // 水彩块：比轮廓小一圈并偏向一侧，不完全填满
+  const wash = (pts, s, ox, oy) => { const cx = pts.reduce((a, p) => a + p[0], 0) / pts.length, cy = pts.reduce((a, p) => a + p[1], 0) / pts.length; return pts.map(([x, y]) => [cx + (x - cx) * s + ox, cy + (y - cy) * s + oy]); };
+  const W1 = [...PETALS.map((p, i) => [wash(p, 0.8, 3, 2), 'rgba(240,128,128,', i]), ...LEAVES.map((p, i) => [wash(p, 0.8, 2, 3), 'rgba(120,170,110,', 5 + i])];
+  const W2 = [...PETALS.map((p, i) => [wash(p, 0.5, 5, 4), 'rgba(214,84,96,', i]), ...LEAVES.map((p, i) => [wash(p, 0.5, 4, 3), 'rgba(80,130,80,', 5 + i])];
+  const DETAIL = [0, 1, 2, 3, 4, 5].map(i => { const a = i * TAU / 6; return [[FC[0] + Math.cos(a) * 4, FC[1] + Math.sin(a) * 4], [FC[0] + Math.cos(a) * 10, FC[1] + Math.sin(a) * 10]]; });
+  function washes(k, list, u, t0, t1, alpha) {
+    list.forEach(([pts, col, i]) => {
+      const t = seg(u, t0 + (t1 - t0) * i / 7 * 0.6, t0 + (t1 - t0) * (i / 7 * 0.6 + 0.4));
+      if (t <= 0) return;
+      k.fillStyle = col + (alpha * t) + ')'; fillPts(k, pts);
+      k.strokeStyle = col + ((alpha + 0.15) * t) + ')'; k.lineWidth = 1.2; strokePts(k, [...pts, pts[0]]);
+    });
+  }
+  CELLS[4] = (k, w, h, u) => {
+    paper(k, '#FAF7F0', 'rgba(0,0,0,.04)', 600, 9);
+    const a = vis(u);
+    k.globalAlpha = a; k.lineCap = 'round'; k.lineJoin = 'round';
+    k.strokeStyle = '#7A7A7A'; k.lineWidth = 0.8; seqDraw(k, SKETCH, seg(u, 0.3, 1.4));
+    washes(k, W1, u, 1.4, 2.6, 0.35);
+    washes(k, W2, u, 2.6, 3.6, 0.3);
+    // 3.6–4.4 秒：颜色上面补铅笔线、加深花心
+    k.strokeStyle = '#5A5A5A'; k.lineWidth = 1; seqDraw(k, DETAIL, seg(u, 3.6, 4.2));
+    const c = seg(u, 4.1, 4.4);
+    if (c > 0) { k.fillStyle = `rgba(90,80,60,${0.5 * c})`; k.beginPath(); k.arc(FC[0], FC[1], 5, 0, TAU); k.fill(); }
+    k.globalAlpha = 1;
+  };
+}

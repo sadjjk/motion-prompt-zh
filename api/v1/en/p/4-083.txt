@@ -1,0 +1,16 @@
+Please use "Scratchboard" (スクラッチボード), filed under "Craft & patterns / Print & handmade".
+Motion Prompt #4-083
+
+What it is: A knife scrapes white lines out of a board coated in black ink, so you draw by taking away the dark wherever you want light
+What the sample shows: A moonlit night on black. The knife scrapes out the moon's outline, horizontal lines across it that skip the craters, then waves and stars, with the blade following the line it is cutting.
+Spec:
+- The card is a black coating #121212 that stays put through the loop; every scraped line is off-white #F2EEE6.
+- 0.3–1.2 s: the outline of a moon 56 px in radius at (270, 84) is scraped; 1.2–3.6 s: 37 horizontal lines 3 px apart fill it from top to bottom, each from left to right, leaving gaps at 3 craters.
+- 3.6–4.6 s: 5 wavy lines are scraped across the bottom of the card, each starting 0.1 s after the last; 4.6–5.0 s: 6 small cross-shaped stars appear one by one.
+- A small triangular blade sits on the end of the line being scraped.
+- At 5.4–6.0 s the scraped lines fade back into the black; at 0 s and 6.4 s the card is plain black, so the loop restarts cleanly.
+When to use it: Use it for night scenes, mystery, gothic moods, or any strong black-and-white print look.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-083.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

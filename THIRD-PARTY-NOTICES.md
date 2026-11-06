@@ -445,12 +445,22 @@ of vibe-fx are not used. Each element carries the line `MIT License (c) 2026 ai-
 > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 > SOFTWARE.
 
+## anidoodle by Alex Greenshpun (pack `drawstyles`)
+
+All elements in `packs/drawstyles/` (ids `4-072`–`4-086`) take their style ideas from
+[anidoodle](https://github.com/alexgreensh/anidoodle) by Alex Greenshpun, which draws each style in the order a real
+artist would. They are Canvas 2D implementations written from scratch for this repository after the style
+descriptions and rendered examples; no anidoodle code is copied or ported, no fonts, images or audio from it are
+used, and the names, subjects, parameters, colors and drawings are our own. anidoodle is licensed under the Apache
+License 2.0, which does not apply to this pack. The code of this pack is under this repository's MIT License © 2026
+sadjjk. To ask for a removal or a correction, use the
+[issue form](https://github.com/sadjjk/motion-prompt-zh/issues/new?template=3-removal.yml).
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat
-official accounts and other platforms. X posts are shown through X's official embed
-(`platform.twitter.com/widgets.js`), loaded only when the visitor scrolls to them; posts on other platforms
-are only linked, and the page loads nothing from those platforms. Those posts, including their text, images
+official accounts and other platforms. Every post, X included, is only linked, and the page loads nothing
+from those platforms. Those posts, including their text, images
 and videos, belong to their authors and are not covered by this repository's MIT License. The repository
 keeps only each post's URL (and ID for X), the author and a one-line introduction we wrote
 (`examples/found.json`). Being listed does not mean the author endorses this project. To ask for a removal

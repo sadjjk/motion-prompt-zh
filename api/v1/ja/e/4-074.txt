@@ -1,0 +1,53 @@
+// Motion Prompt #4-074 · MIT License (c) 2026 sadjjk · https://github.com/alexgreensh/anidoodle
+//
+// クレヨン / Wax crayon
+// 分類: ビジュアルスタイル / 工芸・文様 / 画材・描画
+// 何が起きるか: 赤い風船をクレヨンで。往復ストロークで塗り、白い紙目が残る。暗い赤で影、白で光、太い輪郭を二度描いて糸を付ける。
+// 動きの仕様:
+//   - オフホワイトの紙。中心 (270, 84)、幅約 108 px、高さ約 121 px の風船
+//   - 0.3–2.6 秒：赤 #E63946（不透明度 85%）を線幅 7 px で往復塗り。行の間隔 6 px、右へ進んで斜めに次の行へ戻る。塗り終えた行には最大 300 個の紙色の点が出る
+//   - 2.6–3.4 秒：暗い赤 #9D0208 を右下に塗る。3.4–3.8 秒：左上に不透明度 70% の白で小さなハイライトを押し付ける
+//   - 3.8–4.25 秒と 4.25–4.6 秒：#370617 の 3.5 px の輪郭を二周、2 周目は 2.8% 大きい。4.6–4.9 秒：糸と結び目を描く
+//   - 5.4–6.0 秒に絵がフェードして白紙に戻る。0 秒と 6.4 秒はどちらも白紙なので、ループがつながる
+// 使いどころ: 子ども向け、イベント告知、遊び心のあるタイトルの背景に。
+// タグ: drawing, crayon, scribble, kids, outline, process
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/drawstyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-074
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 03
+// 蜡笔：来回涂抹给气球上色，纸纹凹处留白；再用深色压暗部、白色压高光，最后用粗线描两遍轮廓并画出气球线
+{
+  const CX = 270, CY = 84;
+  const BAL = blob(CX, CY, 54, 5, 0.04, 1.12);
+  const inBal = (x, y) => inPoly(BAL, x, y);
+  const FILL = scribble(inBal, 206, 334, 24, 146, 6, 41);
+  const DARK = scribble((x, y) => inBal(x, y) && (x - CX) + (y - CY) * 0.9 > 28, 206, 334, 24, 146, 6, 42);
+  const HI = scribble((x, y) => (x - 250) ** 2 + (y - 58) ** 2 < 13 * 13, 236, 264, 46, 70, 4, 43, 1);
+  const GAPS = []; for (let i = 0; i < 300; i++) { const x = 206 + rnd(i, 44) * 128, y = 24 + rnd(i, 45) * 122; if (inBal(x, y)) GAPS.push([x, y, 1 + rnd(i, 46)]); }
+  const RIM1 = [...BAL, BAL[0]], RIM2 = RIM1.map(([x, y]) => [CX + (x - CX) * 1.028, CY + (y - CY) * 1.028]);
+  const STRING = []; for (let i = 0; i <= 12; i++) STRING.push([CX + 6 * Math.sin(i * 0.6), 150 + i * 4.5]);
+  CELLS[2] = (k, w, h, u) => {
+    paper(k, '#FBF8F1', 'rgba(0,0,0,.04)');
+    const a = vis(u), tf = seg(u, 0.3, 2.6);
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    k.save(); k.beginPath(); tracePts(k, BAL); k.clip();
+    k.globalAlpha = a * 0.85; k.strokeStyle = '#E63946'; k.lineWidth = 7; partial(k, FILL, tf);
+    k.globalAlpha = a * 0.8; k.strokeStyle = '#9D0208'; k.lineWidth = 6; partial(k, DARK, seg(u, 2.6, 3.4));
+    // 纸纹留白：只在已经涂到的行里出现
+    const fy = 24 + tf * 122;
+    k.globalAlpha = a * 0.9; k.fillStyle = '#FBF8F1';
+    GAPS.forEach(([x, y, s]) => { if (y < fy - 4) k.fillRect(x, y, s, s); });
+    k.globalAlpha = a * 0.7; k.strokeStyle = '#FFFFFF'; k.lineWidth = 5; partial(k, HI, seg(u, 3.4, 3.8));
+    k.restore();
+    k.globalAlpha = a; k.strokeStyle = '#370617'; k.lineWidth = 3.5;
+    partial(k, RIM1, seg(u, 3.8, 4.25));
+    partial(k, RIM2, seg(u, 4.25, 4.6));
+    k.lineWidth = 2; partial(k, STRING, seg(u, 4.6, 4.9));
+    if (u >= 4.6) { k.fillStyle = '#370617'; k.beginPath(); k.moveTo(CX - 5, 153); k.lineTo(CX + 5, 153); k.lineTo(CX, 146); k.closePath(); k.fill(); }
+    k.globalAlpha = 1;
+  };
+}
