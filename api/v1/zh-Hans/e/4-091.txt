@@ -1,0 +1,109 @@
+// Motion Prompt #4-091 · MIT License (c) 2026 alchaincyf (花叔) · https://github.com/alchaincyf/huashu-art-motion
+//
+// 洞穴岩画 / Cave painting
+// 分类: 审美风格 / 艺术流派 / 古代与中世纪
+// 动画表现: 赭色岩壁上，炭点戳出一头野牛的轮廓，补上角和腿后涂满红赭石；周围依次喷出 5 个手印，火光摇曳时野牛开始奔跑。
+// 运动规格:
+//   - 赭色岩壁，上浅下深，70 块明暗斑做出起伏，另有 7 道细裂纹；其他内容淡出时岩壁保留。
+//   - 0.3–1.6 秒：210 个半径 1–2.3 px 的炭点沿野牛轮廓依次戳出，最多抖动 1.2 px 形成毛边。1.6–2.0 秒：画出角、尾巴和 4 条腿。
+//   - 2.0–2.8 秒：红赭石以 80% 涂满身体，腹部更深。2.6–3.2 秒：右侧一只大手周围喷上 1017 个赭石点，先外圈后内圈，手掌和 5 根手指留空。从 2.93 秒起另外 4 只角度不同的小手每隔 0.18 秒接着喷，3 只赭石色、1 只深炭色，每只喷 0.45 秒，贴着手形边缘的点最密。3.2–3.4 秒：再加一排 5 个赭石圆点。
+//   - 从 3.4 秒起，腿每 0.22 秒在两种姿势间切换，野牛像在奔跑；左下方的暖色火光忽明忽暗。
+//   - 5.4–6.0 秒画面淡回空白岩壁；0 秒和 6.4 秒都只剩空白岩壁，循环无缝。
+// 适用场景: 适合讲历史与起源、人类学、“最初的一步”，或想要原始、质朴的感觉时。
+// 标签: cave-painting, prehistoric, charcoal, ochre, hand-stencil, firelight
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-091
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 01
+// 洞穴岩画：凹凸的赭色岩壁上，炭点沿野牛轮廓一点点戳出来，再抹上红赭石，旁边喷出手印；之后火光摇曳，野牛的腿在两种姿势间交替，像在奔跑
+// 对应原作 scenes/01_cave.js（浮雕岩壁、炭点毛边、赭石、两姿势交替、火光）；岩壁改成定义时算好的明暗斑块
+{
+  const ROCK = Array.from({ length: 70 }, (_, i) => [rnd(i, 1) * CW, rnd(i, 2) * CH, 14 + rnd(i, 3) * 40, 6 + rnd(i, 4) * 18, rnd(i, 5) * Math.PI, rnd(i, 6) < 0.5]);
+  const CRACKS = Array.from({ length: 7 }, (_, i) => {
+    let x = rnd(i, 11) * CW, y = rnd(i, 12) * CH; const o = [[x, y]];
+    for (let s = 0; s < 6; s++) { x += 8 + rnd(i, 13 + s) * 14; y += (rnd(i, 20 + s) - 0.5) * 16; o.push([x, y]); }
+    return o;
+  });
+  const BISON = dense([[172, 100], [190, 80], [222, 66], [252, 56], [282, 60], [302, 76], [318, 98], [324, 116], [312, 126], [298, 120], [290, 132], [258, 138], [220, 136], [190, 132], [174, 118], [172, 100]], 6);
+  const BELLY = dense([[196, 128], [230, 120], [270, 124], [290, 132], [258, 138], [220, 136], [196, 128]], 4);
+  // 炭点：沿轮廓每 2.4 px 一点，带一点抖动形成毛边
+  const DOTS = [];
+  for (let i = 1; i < BISON.length; i++) {
+    const p = BISON[i - 1], q = BISON[i], d = Math.hypot(q[0] - p[0], q[1] - p[1]);
+    for (let s = 0; s < d; s += 2.4) { const f = s / d, j = DOTS.length; DOTS.push([mix(p[0], q[0], f) + (rnd(j, 31) - 0.5) * 2.4, mix(p[1], q[1], f) + (rnd(j, 32) - 0.5) * 2.4, 1 + rnd(j, 33) * 1.3]); }
+  }
+  const HORN = dense([[298, 70], [312, 60], [308, 48]], 4), TAIL = dense([[174, 104], [162, 112], [166, 126]], 4);
+  const LEGS = [[290, 128, 9], [278, 134, -6], [208, 134, -9], [194, 130, 6]];   // 腿根 x、y，姿势 A 时腿尖的水平偏移
+  // 手印：手形本身留空，周围喷上赭石点。几只手大小、角度、颜色各不同：[中心 x, y, 放大倍数, 旋转, 颜色]
+  const HANDS = [
+    [446, 100, 1.9, 0, 'rgba(150,52,30,0.62)'],
+    [352, 44, 0.95, -0.35, 'rgba(150,52,30,0.6)'],
+    [500, 170, 0.9, 0.5, 'rgba(50,30,20,0.55)'],
+    [50, 66, 1.15, -0.2, 'rgba(150,52,30,0.58)'],
+    [112, 160, 0.95, 0.45, 'rgba(120,44,26,0.58)'],
+  ];
+  // 点是否落在第 hi 只手的手形里（先转到手的局部坐标）
+  const inHand = (hi, x, y) => {
+    const [cx, cy, sc, rot] = HANDS[hi], c0 = Math.cos(-rot), s0 = Math.sin(-rot);
+    const ox = (x - cx) / sc, oy = (y - cy) / sc, dx = ox * c0 - oy * s0, dy = ox * s0 + oy * c0;
+    if ((dx * dx) / 144 + ((dy - 8) * (dy - 8)) / 196 < 1) return true;            // 手掌
+    return [[-13, -4, -0.7], [-6, -14, -0.25], [1, -16, 0], [8, -14, 0.25], [14, -6, 0.6]].some(([fx, fy, r]) => {   // 五指
+      const c = Math.cos(-r), s = Math.sin(-r), lx = (dx - fx) * c - (dy - fy) * s, ly = (dx - fx) * s + (dy - fy) * c;
+      return Math.abs(lx) < 3.6 && ly > -12 && ly < 6;
+    });
+  };
+  // 喷点：网格间距和点大小随手的大小缩放；范围半径要大于指尖到中心的距离。
+  // 密度看到手形的距离（贴着手形最密、往外变稀），这样小手的指缝也喷得满，手形看得出来；手形里不喷
+  const nearHand = (hi, x, y, d) => inHand(hi, x + d, y) || inHand(hi, x - d, y) || inHand(hi, x, y + d) || inHand(hi, x, y - d);
+  const SPRAYS = HANDS.map(([cx, cy, sc], hi) => {
+    const SR = Math.round(34 * sc), st = Math.max(1.3, 2 * sc / 1.9), oy = -14 * sc / 1.9, out = [];
+    for (let gy = -SR, i = hi * 20000; gy <= SR; gy += st) for (let gx = -SR; gx <= SR; gx += st, i++) {
+      const x = cx + gx + (rnd(i, 41) - 0.5) * st, y = cy + oy + gy + (rnd(i, 42) - 0.5) * st, r = Math.hypot(x - cx, y - cy - oy);
+      if (r >= SR || inHand(hi, x, y)) continue;
+      const edge = nearHand(hi, x, y, 4 * sc) ? 0.5 : 0;
+      if (rnd(i, 43) < 1.1 - r / SR + edge) out.push([x, y, (0.6 + rnd(i, 44) * 0.8) * Math.max(0.7, sc / 1.9), r]);
+    }
+    return out.sort((p, q) => q[3] - p[3]);              // 先喷外圈，最后贴着手指
+  });
+  CELLS[0] = (k, w, h, u) => {
+    const g = k.createLinearGradient(0, 0, 0, CH); g.addColorStop(0, '#C9A072'); g.addColorStop(1, '#9A714B');
+    k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+    ROCK.forEach(([x, y, rx, ry, r, light]) => { k.fillStyle = light ? 'rgba(240,215,175,0.16)' : 'rgba(70,45,25,0.14)'; k.beginPath(); k.ellipse(x, y, rx, ry, r, 0, TAU); k.fill(); });
+    k.strokeStyle = 'rgba(60,40,25,0.3)'; k.lineWidth = 1; CRACKS.forEach(c => strokePts(k, c));
+    const a = vis(u); k.globalAlpha = a;
+    // 红赭石（2.0–2.8 秒）
+    const ot = seg(u, 2.0, 2.8);
+    if (ot > 0) { k.globalAlpha = a * ot * 0.8; k.fillStyle = '#A8452A'; fillPts(k, BISON); k.fillStyle = 'rgba(60,25,15,0.35)'; fillPts(k, BELLY); k.globalAlpha = a; }
+    // 炭点轮廓（0.3–1.6 秒）
+    const n = Math.floor(seg(u, 0.3, 1.6) * DOTS.length);
+    k.fillStyle = '#231A14';
+    for (let i = 0; i < n; i++) { const d = DOTS[i]; k.beginPath(); k.arc(d[0], d[1], d[2], 0, TAU); k.fill(); }
+    // 角、尾、腿（1.6–2.0 秒）；3.4 秒后每 0.22 秒换一次姿势
+    const lt = seg(u, 1.6, 2.0), pose = u > 3.4 && Math.floor((u - 3.4) / 0.22) % 2 ? -1 : 1;
+    k.strokeStyle = '#231A14'; k.lineCap = 'round';
+    if (lt > 0) {
+      k.lineWidth = 3; partial(k, HORN, lt); k.lineWidth = 2; partial(k, TAIL, lt);
+      k.lineWidth = 4; LEGS.forEach(([x, y, o]) => partial(k, [[x, y], [x + o * pose, 172]], lt));
+    }
+    // 手印（大手 2.6–3.2 秒，其余每只晚 0.18 秒，各喷 0.45 秒）和一排赭石圆点（3.2–3.4 秒）
+    SPRAYS.forEach((sp, hi) => {
+      const t0 = hi ? 2.75 + hi * 0.18 : 2.6, sn = Math.floor(seg(u, t0, t0 + (hi ? 0.45 : 0.6)) * sp.length);
+      k.fillStyle = HANDS[hi][4];
+      for (let i = 0; i < sn; i++) { const s = sp[i]; k.fillRect(s[0] - s[2], s[1] - s[2], s[2] * 2, s[2] * 2); }
+    });
+    for (let i = 0; i < 5; i++) { const t = seg(u, 3.2 + i * 0.04, 3.28 + i * 0.04); if (t > 0) { k.fillStyle = '#A8452A'; k.globalAlpha = a * t; k.beginPath(); k.arc(390 + i * 14, 168 - i * 3, 3.2, 0, TAU); k.fill(); } }
+    k.globalAlpha = a;
+    // 火光（3.4 秒后）：左下角暖光忽明忽暗
+    const f = ease(u, 3.4) * (0.6 + 0.25 * Math.sin(u * 7.3) + 0.15 * Math.sin(u * 17.1));
+    if (f > 0) {
+      const fg = k.createRadialGradient(40, 220, 10, 40, 220, 460);
+      fg.addColorStop(0, `rgba(255,170,80,${0.32 * f})`); fg.addColorStop(1, 'rgba(255,170,80,0)');
+      k.fillStyle = fg; k.fillRect(0, 0, CW, CH);
+    }
+    k.globalAlpha = 1;
+  };
+}

@@ -1,0 +1,16 @@
+Please use "Egyptian tomb painting" (エジプト墓室壁画), filed under "Art movements / Ancient & medieval".
+Motion Prompt #4-092
+
+What it is: Ancient Egyptian wall painting: a striding figure with a profile face, a frontal eye and frontal shoulders, outlined in ink and filled flat, beside columns of hieroglyphs under sun rays that end in little hands
+What the sample shows: Coloured bands run along a plaster wall, a figure is drawn in ink and filled with skin, a white kilt and a black wig. Three columns of hieroglyphs fill in at the right, and the little hands at the ends of the sun's rays open and close.
+Spec:
+- A sand-coloured plaster wall with fine speckles; the wall stays when everything else fades.
+- 0.3–0.9 s: bands of blue, red and yellow stripes 3 px each run in along the top from the left and along the bottom from the right. 0.9–2.2 s: the striding figure's 8 parts are outlined in ink, starting 0.14 s apart; 2.0–2.6 s: red-brown skin, a white kilt and a black wig are filled in flat.
+- 2.4–2.8 s: a collar of blue, red and yellow rings, a frontal eye in the profile face and pleats on the kilt are added. 2.8–3.0 s: 4 column lines are drawn at the right; 2.9–3.7 s: 15 hieroglyphs of 7 kinds (eye, water, ankh, sun, bread, reed, bird) fill 3 columns.
+- 3.4–3.6 s: a red sun pops in at the top; 3.6–4.0 s: 7 rays reach down from it, each ending in a small three-fingered hand. From 4.0 s the hands open and close and the water signs flow sideways.
+- At 5.4–6.0 s the picture fades back to blank plaster; at 0 s and 6.4 s only blank plaster is left, so the loop restarts cleanly.
+When to use it: Use it for history, ancient civilisations, museums, the origins of writing and records, or a solemn, ceremonial mood.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-092.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

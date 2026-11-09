@@ -2,7 +2,7 @@
 
 # Names
 
-560 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+573 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind. Each number opens the moving sample in the gallery.
 
@@ -51,10 +51,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | 3 Editing & photography | Lens effects & finishing | Lens effects | 11 | #3 065–075 |
 | 3 Editing & photography | Lens effects & finishing | Grading & finishing | 9 | #3 076–083 · 112 |
 | 4 Visual styles | Animation styles | Flat & line | 6 | #4 001–004 · 045–046 |
-| 4 Visual styles | Animation styles | Space & material | 9 | #4 005–008 · 031 · 047–049 · 086 |
-| 4 Visual styles | Animation styles | Media & genres | 12 | #4 009–011 · 050–053 · 065–068 · 085 |
-| 4 Visual styles | Animation styles | Diagrams & boards | 5 | #4 040–044 |
-| 4 Visual styles | Art movements | Modern & postmodern | 7 | #4 012–015 · 032 · 054–055 |
+| 4 Visual styles | Animation styles | Space & material | 11 | #4 005–008 · 031 · 047–049 · 086–088 |
+| 4 Visual styles | Animation styles | Media & genres | 13 | #4 009–011 · 050–053 · 065–068 · 085 · 090 |
+| 4 Visual styles | Animation styles | Diagrams & boards | 6 | #4 040–044 · 089 |
+| 4 Visual styles | Art movements | Ancient & medieval | 5 | #4 091–095 |
+| 4 Visual styles | Art movements | Modern & postmodern | 11 | #4 012–015 · 032 · 054–055 · 096–099 |
 | 4 Visual styles | Art movements | Digital & retro | 7 | #4 016–019 · 056–058 |
 | 4 Visual styles | Craft & patterns | Print & handmade | 16 | #4 020–021 · 030 · 033–036 · 059–062 · 069 · 081–084 |
 | 4 Visual styles | Craft & patterns | Drawing & painting media | 9 | #4 072–080 |
@@ -783,7 +784,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-045](https://sadjjk.github.io/motion-prompt-zh/#4-045) | **Ink-circle minimal** | A minimal explainer on warm white paper: one ink circle, a single character inside it and a great deal of empty space | Make a 6-second minimal clip: one brush stroke draws an ink circle, the character 静 fades in inside it, and a short line of small text appears below. |
 | [#4-046](https://sadjjk.github.io/motion-prompt-zh/#4-046) | **Keynote number** | A product-launch look: pure black, one thing per screen, and a huge white number that lands the moment it is said | Make a 6-second keynote-style clip: on black, the heading 续航 appears, a big number rolls from 0 to 32 and lands, 小时 follows, and a gradient bar sweeps in underneath. |
 
-#### Space & material · #4 005–008 · 031 · 047–049 · 086
+#### Space & material · #4 005–008 · 031 · 047–049 · 086–088
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -796,8 +797,10 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-048](https://sadjjk.github.io/motion-prompt-zh/#4-048) | **Dark gold line art** | An explainer drawn in glowing amber lines on charcoal, building an everyday scene stroke by stroke like a luminous notebook | Make a 6-second dark gold line-art clip with a fixed camera: glowing lines draw a desk, a chair, a person reading and a desk lamp; the lamp switches on, casts a pool of light, and a page turns. |
 | [#4-049](https://sadjjk.github.io/motion-prompt-zh/#4-049) | **Clay kawaii** | A cute clay look on a pink cream background: little clay characters with faces squash and bounce as they pop in | Make a 6-second clay kawaii clip: three bean characters line up at a milk-tea stand, and the first one takes a cup and hops for joy. |
 | [#4-086](https://sadjjk.github.io/motion-prompt-zh/#4-086) | **Toy bricks** | Plastic bricks with studs drop in one at a time and stack into a model, drawn in orthographic view with a bright top, a pure-colour front and a dark right side | Have toy bricks with studs drop in one at a time and stack up; each should bounce slightly when it lands, and the shadow on the ground should grow as the model gets bigger. |
+| [#4-087](https://sadjjk.github.io/motion-prompt-zh/#4-087) | **Lidar survey** | A cut plane passes through a golden point cloud of forest; the tree points drop to the ground and vanish, leaving bare earth lit from the side with old stone walls hidden under the trees, the way lidar strips away vegetation to show the terrain | Show this as a lidar survey: a teal cut plane sweeps through a golden forest point cloud, and wherever it passes the trees vanish to reveal bare ground lit from the side, with the hidden stone walls standing out. Put the place name, coordinates and echo count in small monospace type in the top-left. |
+| [#4-088](https://sadjjk.github.io/motion-prompt-zh/#4-088) | **White model projection** | A pure white massing model of a city sits in a dark room and a projector paints data onto it as light, one layer at a time; the model never changes, only the light on it does | Turn this into a projection on a white model: a white city model in a dark room, the house lights go out, a level of light climbs the facades by height, then winter sun casts long shadows and the tallest tower's shadow is traced in blue and measured. |
 
-#### Media & genres · #4 009–011 · 050–053 · 065–068 · 085
+#### Media & genres · #4 009–011 · 050–053 · 065–068 · 085 · 090
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -813,8 +816,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-067](https://sadjjk.github.io/motion-prompt-zh/#4-067) | **Visual investigation** | An investigative-journalism look: source text, scene picture and timeline side by side, linked by highlighter, red circle and timeline cursor, then a push-in and a verdict stamp | Make a 6-second visual investigation clip: dating an old photo — highlight the source text, circle the scene in red, the timeline cursor stops at 1934, then push in and stamp 推定：1934 年. |
 | [#4-068](https://sadjjk.github.io/motion-prompt-zh/#4-068) | **Archive light table** | A close-reading archive look: film strips and bamboo slips on a cold white light table, a loupe magnifies one character and a red pen circles it | Make a 6-second archive light table clip: a film strip and bamboo slips are laid on a light table, a loupe runs along the slips, stops on the character 年 and a red pen circles it. |
 | [#4-085](https://sadjjk.github.io/motion-prompt-zh/#4-085) | **Rubber-hose cartoon** | A 1930s black-and-white cartoon: a round-bodied character bounces to the beat with arms and legs that bend like rubber hoses, under film grain, flicker and scratches | Make it look like a 1930s black-and-white cartoon: a round character bouncing on the beat, hose-like arms swinging, squashing on each landing, with old film grain and scratches. |
+| [#4-090](https://sadjjk.github.io/motion-prompt-zh/#4-090) | **Telestrator** | Like the analysis in a sports broadcast: the angled camera picture freezes, then a ring under the player's feet, a spotlight, yellow dashed arrows and name captions are drawn onto it | Turn this moment into a broadcast telestrator: freeze the play on an angled pitch, then draw a yellow ring and spotlight under the key player, a curved pass arrow and a shot arrow. Add the camera label, the player's name tag, a freeze-frame badge and a score bar. |
 
-#### Diagrams & boards · #4 040–044
+#### Diagrams & boards · #4 040–044 · 089
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -823,10 +827,21 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-042](https://sadjjk.github.io/motion-prompt-zh/#4-042) | **Dark math explainer** | A maths explainer on near-black where only what is being explained appears, colour-coded, and one object moves smoothly to make the point | Make a 6-second dark maths clip: axes grow, y = sin x traces across, and a gold dot slides along it with a turning tangent line. |
 | [#4-043](https://sadjjk.github.io/motion-prompt-zh/#4-043) | **Metro map** | An explainer that grows a metro line drawn only at 0°, 45° and 90°, station by station, to walk through a route or a sequence of steps | Make a 6-second metro map clip: a red Line 1 grows station by station, one station is closed, a yellow branch appears at the interchange, and a train runs to the end. |
 | [#4-044](https://sadjjk.github.io/motion-prompt-zh/#4-044) | **Isotype chart** | A pictogram chart that compares amounts by repeating same-size icons, so viewers can count instead of reading bars | Make a 6-second isotype clip: stamp rows of person icons for daily metro riders in three cities and turn the largest row red. |
+| [#4-089](https://sadjjk.github.io/motion-prompt-zh/#4-089) | **Circuit board** | On a green board, bundles of parallel traces gather onto a copper bar, pale cyan light flows down a wide channel and LEDs light up in turn, showing where data or power flows as a circuit-board diagram | Turn this flow into a circuit board: two bundles of parallel traces gather onto a copper bar in the middle, pale cyan light flows down a wide channel, and two rows of LEDs light up in turn. Add two-line Chinese and English silkscreen labels. |
 
 ### Art movements
 
-#### Modern & postmodern · #4 012–015 · 032 · 054–055
+#### Ancient & medieval · #4 091–095
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#4-091](https://sadjjk.github.io/motion-prompt-zh/#4-091) | **Cave painting** | The Palaeolithic way of painting: an animal outlined in charcoal dots on a rough rock wall, filled with red ochre, and a hand stencil made by blowing pigment around a hand | Turn this into a cave painting: charcoal dots for the outline on a rock wall, red ochre for the fill, several sprayed hand stencils of different sizes around it, and flickering firelight at the end. |
+| [#4-092](https://sadjjk.github.io/motion-prompt-zh/#4-092) | **Egyptian tomb painting** | Ancient Egyptian wall painting: a striding figure with a profile face, a frontal eye and frontal shoulders, outlined in ink and filled flat, beside columns of hieroglyphs under sun rays that end in little hands | Turn this into an Egyptian tomb painting: coloured bands top and bottom, a figure with a profile face and frontal eye in ink line and flat colour, columns of hieroglyphs beside it, and sun rays ending in hands. |
+| [#4-093](https://sadjjk.github.io/motion-prompt-zh/#4-093) | **Greek black-figure** | Ancient Greek vase painting: shapes painted as black glaze silhouettes on orange clay, details scratched through to the clay colour, with a little purple-red and white added | Turn this into a Greek black-figure vase painting: meander bands top and bottom, black silhouettes for the shapes, fine incised lines inside them, and touches of purple-red and white dots. |
+| [#4-094](https://sadjjk.github.io/motion-prompt-zh/#4-094) | **Gothic illuminated manuscript** | A medieval manuscript page: red ruling on parchment, a coloured initial in a gold-leaf frame, the text written as rows of black Gothic strokes, and vines with coloured leaves along the margin | Turn this into a page of a medieval illuminated manuscript: ruled parchment, a red initial in a gold-leaf frame, black Gothic text written stroke by stroke, vines along the margin, and a glint running across the gold. |
+| [#4-095](https://sadjjk.github.io/motion-prompt-zh/#4-095) | **Persian miniature** | A miniature painting with no perspective: a high horizon, a gold sky over flat green ground, sponge-like rocks, a pavilion of geometric tiles, flowering trees and figures, all laid out flat inside a decorative border | Turn this into a Persian miniature: a blue and gold border, a gold sky above a high horizon, flat green ground with lilac rocks and a stream, a tiled pavilion, a cypress and a flowering tree, and a figure seated on a carpet, in that order. |
+
+#### Modern & postmodern · #4 012–015 · 032 · 054–055 · 096–099
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -837,6 +852,10 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-032](https://sadjjk.github.io/motion-prompt-zh/#4-032) | **Pop art** | A modern art style that blows up everyday objects with thick outlines, flat primary colours and halftone dots | Draw a bowl of noodles in pop art: thick black outlines, rays behind it and halftone dots in the shadows. Midway, split the frame into a 2×2 grid, let the 4 panels switch to different colour schemes one by one, then merge back into one. |
 | [#4-054](https://sadjjk.github.io/motion-prompt-zh/#4-054) | **Swiss grid kinetic type** | Swiss-style kinetic typography: a 12-column grid on off-white, oversized black letters slammed onto the column lines, and a red block pushed between columns | Make a 6-second Swiss grid kinetic-type clip: a design-talk poster reading GRID 2026 assembles on a 12-column grid. |
 | [#4-055](https://sadjjk.github.io/motion-prompt-zh/#4-055) | **Cut-paper title sequence** | A cut-paper film-opening look: hard-edged black shapes slice in from off-screen onto vermilion, a vertical line splits the frame, and title and credits cut in | Make a 6-second cut-paper title sequence: black shapes build a city skyline, a vertical line splits the frame, and the title 夜行 and credits cut in. |
+| [#4-096](https://sadjjk.github.io/motion-prompt-zh/#4-096) | **Mucha-style Art Nouveau** | Like a Mucha poster: a profile and flowing hair drawn in whiplash curves that swell and taper, the hair ending in spirals, with a round halo behind the head, flowers on either side, and the whole framed by an arch and a lettered band | Turn this into Mucha-style Art Nouveau: a halo behind, flowers growing up on both sides, a profile and flowing hair in lines that swell and taper, with the hair ending in spirals. Finish it as a poster with a double-line border, an arched frame, an arched window with a rising sun and a lettered band at the bottom. |
+| [#4-097](https://sadjjk.github.io/motion-prompt-zh/#4-097) | **Analytic Cubism** | Early Cubism in the manner of Picasso and Braque: objects broken into overlapping translucent facets of brown and grey, the same bottle or glass seen from two angles at once, with broken outlines and stencilled letters | Turn this into Analytic Cubism: layer translucent brown and grey facets one at a time, draw the bottle and glass from two viewpoints at once, and add broken outlines and lettering. |
+| [#4-098](https://sadjjk.github.io/motion-prompt-zh/#4-098) | **Klimt golden phase** | Klimt's golden phase: the figure's robe becomes a flat field of gold leaf packed with spirals, squares and eye-shaped motifs, while only the face and hands are painted naturally, set against a gold mosaic background above a flower meadow | Turn this into Klimt's golden style: make the robe a flat gold field filled with spirals, squares and eye motifs, set it on a gold mosaic background above a flower meadow, run a glint across the gold and let the eye motifs blink in turn. |
+| [#4-099](https://sadjjk.github.io/motion-prompt-zh/#4-099) | **Munch-style Expressionism** | Like Munch's The Scream: long, thin brushstrokes laid along a flow, a blood-red sky, a dark fjord rolling along the shore, a diagonal bridge rail and a figure clutching its face, all painting anxiety | Turn this into Munch-style Expressionism: long, thin strokes for a red sky, a fjord rolling along the shore and a diagonal bridge, a figure in front clutching its face and screaming, and finally make the whole picture ripple. |
 
 #### Digital & retro · #4 016–019 · 056–058
 

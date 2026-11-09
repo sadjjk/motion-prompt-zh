@@ -1,0 +1,192 @@
+// Motion Prompt #4-087 · MIT License (c) 2026 sadjjk · https://github.com/lemomo-ai/lemo-opuscar
+//
+// 点群測量 / Lidar survey
+// 分類: ビジュアルスタイル / アニメーションの画風 / 空間・質感
+// 何が起きるか: 黒地に金色の森の点群。青緑の切断面が左から右上へ進み、通った所の点が地面に落ちて消え、灰色の地表と 5 本の石垣の盛り上がりが残る。最後に石垣を青緑でなぞり、字幕が出る。
+// 動きの仕様:
+//   - 黒いカードで、地面を遠近法で見下ろす。森は地面の上に立つ 7600 点で、濃い茶色から淡い金色まで 6 段階。地面は 96 × 230 の格子で、左からの低い光により濃い灰色から生成り色まで 28 段階で陰影をつける。切断面の後ろに現れる地表はなだらかに起伏し、5 本の石垣が低い盛り上がりとして地形に組み込まれ、それぞれに細いハイライトが付く
+//   - 0–0.4 秒：森がフェードイン。0.4–4.2 秒：底辺が光る半透明の青緑の切断面が左端の外から右上の隅まで進み、森を一角だけ残す。通り過ぎたばかりの点は地面へ落ち、白くなって消える
+//   - 左上に 0.2–0.7 秒で地名、座標「41.89°N 72.20°W · 0.74 km²」、切断面の進みに合わせて 4,812,306 まで増えるエコー数、「地形起伏 ×2」が出る
+//   - 4.1–4.8 秒：5 本の石垣を順に光る青緑の線でなぞり、4.9–5.4 秒になぞり線が消える。4.5–5.0 秒：左下に字幕バー「树下还有墙。」と「Walls under the trees.」がフェードイン
+//   - 5.4–6.0 秒に背景以外がフェードアウトする。0 秒と 6.4 秒はどちらも背景だけなので、ループがつながる
+// 使いどころ: 測量、考古学、地理、森林、3D スキャンなど、表面の下に隠れたものを見せたい場面に。
+// タグ: lidar, point-cloud, survey, terrain, archaeology, scan
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/infostyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-087
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 01
+// 点云测绘：暖金色的树林点云铺满画面，一道青色切面斜着扫过；扫过的地方树冠点落到地上、消失，
+// 露出侧光照亮的裸地，地上有几道旧石墙的隆起；切面停在右上角，留一角树林。左上角是地名和回波计数，最后出字幕条。
+{
+  const BG = '#050505', CUT = '#7FE0D2', GROUND_LO = '#3E3A35', GROUND_HI = '#DDD7CC';
+  const GOLD_LO = '#3A2D18', GOLD_HI = '#F2D497';
+  const ECHOES = 4812306;                       // 角标回波数的终值，随切面推进累加
+  // 透视：z=0 在近处（画面底部外），z=1 在远处（画面顶部）；d 为视距
+  const dOf = z => 0.8 + 1.6 * z;
+  const scr = (x, z, y) => { const d = dOf(z); return [270 + (x - 0.2) * 360 / d, -100 + (264 - y * 150) / d]; };
+  // 地面起伏：几层正弦叠加，幅度很小，靠侧光显出来
+  // 平滑值噪声（格点取 rnd，双三次平滑插值），三层叠加；固定种子，结果只由坐标决定
+  const vnoise = (x, z, sd) => {
+    const xi = Math.floor(x), zi = Math.floor(z), fx = x - xi, fz = z - zi;
+    const sx = fx * fx * (3 - 2 * fx), sz = fz * fz * (3 - 2 * fz);
+    const v = (i, j) => rnd(i * 57 + j * 131 + sd, sd);
+    return mix(mix(v(xi, zi), v(xi + 1, zi), sx), mix(v(xi, zi + 1), v(xi + 1, zi + 1), sx), sz);
+  };
+  const WALLS_RAW = [
+    [[-1.6, 0.55], [-0.2, 0.6], [0.9, 0.52], [1.9, 0.63]],
+    [[-0.25, 0.0], [-0.3, 0.3], [-0.2, 0.6], [-0.38, 1.0]],
+    [[0.55, 0.02], [0.72, 0.3], [0.9, 0.52]],
+    [[-1.5, 0.86], [-0.3, 0.93]],
+    [[-1.0, 0.12], [-0.27, 0.27]],
+  ];
+  // 石墙在地面上是一道低矮的隆起：到墙线的距离越近越高（z 方向按 2 倍算，抵消透视压缩）
+  const segDist = (x, z, A, B) => {
+    const vx = B[0] - A[0], vz = (B[1] - A[1]) * 2, px = x - A[0], pz = (z - A[1]) * 2;
+    const t = clamp((px * vx + pz * vz) / (vx * vx + vz * vz));
+    return Math.hypot(px - vx * t, pz - vz * t);
+  };
+  const ridge = (x, z) => {
+    let d = 9;
+    for (const w of WALLS_RAW) for (let i = 1; i < w.length; i++) d = Math.min(d, segDist(x, z, w[i - 1], w[i]));
+    return 0.008 * Math.exp(-(d * d) / (0.03 * 0.03));
+  };
+  const hgt = (x, z) => 0.05 * vnoise(x * 2.2, z * 3.0, 11) + 0.025 * vnoise(x * 5, z * 7, 23) + 0.01 * vnoise(x * 11, z * 15, 37) + ridge(x, z);
+  // 切面位置：g = x + z，g < c 的一侧已被扫过
+  const gOf = (x, z) => x + z;
+  // 切面从画面左缘外（C0）推到右上角（C1），留一角树林；用较缓的 smoothstep，中段不至于一闪而过
+  const C0 = -0.55, C1 = 1.2;
+  const cutAt = u => { const t = seg(u, 0.4, 4.2); return mix(C0, C1, t * t * (3 - 2 * t)); };
+  // 网格：行按 1/d 均分（屏幕上行距近似相等），列按每行可见宽度均分
+  const ROWS = 96, COLS = 230, GT = 28;
+  const rowZ = s => (1 / mix(1 / 0.6, 1 / 2.9, s) - 0.8) / 1.6;   // 近处从 z<0 开始铺满画面底边，远处到 z≈1.3 盖住顶边
+  const halfW = z => 300 * dOf(z) / 360;
+  const gridX = (a, z) => 0.2 + (a * 2 - 1) * halfW(z);
+  const GCOL = Array.from({ length: GT }, (_, i) => mixHex(GROUND_LO, GROUND_HI, i / (GT - 1)));
+  const QUADS = [];
+  for (let j = 0; j < ROWS; j++) for (let i = 0; i < COLS; i++) {
+    const s0 = j / ROWS, s1 = (j + 1) / ROWS, a0 = i / COLS, a1 = (i + 1) / COLS;
+    const z0 = rowZ(s0), z1 = rowZ(s1);
+    const P = [[a0, z0], [a1, z0], [a1, z1], [a0, z1]].map(([a, z]) => { const x = gridX(a, z); return scr(x, z, hgt(x, z)); });
+    const zc = (z0 + z1) / 2, xc = gridX((a0 + a1) / 2, zc), e = 0.01;
+    const dx = (hgt(xc + e, zc) - hgt(xc - e, zc)) / (2 * e), dz = (hgt(xc, zc + e) - hgt(xc, zc - e)) / (2 * e);
+    // 光从左边低角度照来：朝左的坡亮，朝右的坡暗；远处略暗。不加逐格随机，免得出马赛克
+    const tone = clamp((0.62 - 2.2 * dx + 0.6 * dz) * mix(1, 0.8, clamp(zc)));
+    QUADS.push({ P, g: gOf(xc, zc), b: Math.min(GT - 1, Math.floor(tone * GT)) });
+  }
+  // 石墙：地面坐标里的折线，加密并加小抖动，像手垒的石墙
+  const WALLS = WALLS_RAW.map((w, wi) => {
+    const out = [];
+    for (let i = 1; i < w.length; i++) {
+      const [x0, z0] = w[i - 1], [x1, z1] = w[i];
+      const n = Math.ceil(Math.hypot(x1 - x0, (z1 - z0) * 2) * 60);
+      for (let t = i === 1 ? 0 : 1; t <= n; t++) {
+        const f = t / n, x = mix(x0, x1, f) + (rnd(wi * 500 + out.length, 1) - 0.5) * 0.012, z = mix(z0, z1, f) + (rnd(wi * 500 + out.length, 2) - 0.5) * 0.006;
+        out.push({ p: scr(x, z, hgt(x, z) + 0.012), g: gOf(x, z) });
+      }
+    }
+    return out;
+  });
+  // 树林点云：在屏幕上大致均匀撒点，每点有地面位置和树冠高度
+  const NPTS = 7600, PT = 6;
+  const PCOL = Array.from({ length: PT }, (_, i) => mixHex(GOLD_LO, GOLD_HI, i / (PT - 1)));
+  const crown = (x, z) => 0.5 + 0.5 * Math.sin(9 * x + 2) * Math.sin(8 * z + 1) + 0.3 * Math.sin(17 * x - 13 * z);
+  const PTS = [];
+  for (let i = 0; i < NPTS; i++) {
+    const z = rowZ(rnd(i, 1)), x = gridX(rnd(i, 2) * 1.04 - 0.02, z);
+    const top = 0.16 + 0.12 * clamp(crown(x, z) / 1.3);
+    const y0 = hgt(x, z), yc = y0 + top * Math.pow(rnd(i, 3), 0.4);
+    const [sx, sy] = scr(x, z, yc), [gx, gy] = scr(x, z, y0);
+    const tone = clamp(0.25 + 0.75 * (yc - y0) / 0.28 * (0.6 + 0.4 * rnd(i, 4)));
+    PTS.push({ sx, sy, gx, gy, g: gOf(x, z), b: Math.min(PT - 1, Math.floor(tone * PT)), s: 0.9 + 1.0 * (1 - z) });
+  }
+  // 切面与地面的交线（按当前 c 现算），以及竖起的半透明切面
+  const edgeAt = c => {
+    const pts = [];
+    for (let i = 0; i <= 20; i++) { const z = i / 20, x = c - z; pts.push([x, z]); }
+    return pts;
+  };
+  const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  CELLS[0] = (k, w, h, u) => {
+    k.fillStyle = BG; k.fillRect(0, 0, CW, CH);
+    const a = vis(u) * seg(u, 0, 0.4);
+    if (a <= 0) return;
+    k.globalAlpha = a;
+    const c = cutAt(u);
+    // 1. 已扫过的裸地：按色阶合并成一条路径填充，描同色细边盖住接缝
+    const paths = Array.from({ length: GT }, () => []);
+    for (const q of QUADS) if (q.g < c) paths[q.b].push(q.P);
+    paths.forEach((list, bi) => {
+      if (!list.length) return;
+      k.fillStyle = GCOL[bi]; k.strokeStyle = GCOL[bi]; k.lineWidth = 0.7;
+      k.beginPath(); for (const P of list) tracePts(k, P, true); k.fill(); k.stroke();
+    });
+    // 2. 石墙：阴影线 + 高光线，只画已扫过的部分；扫完后青色描一遍再退回浮雕
+    const trace = seg(u, 4.1, 4.8), traceFade = 1 - seg(u, 4.9, 5.4);
+    WALLS.forEach((wall, wi) => {
+      const runs = []; let cur = [];
+      for (const pt of wall) { if (pt.g < c) cur.push(pt.p); else if (cur.length) { runs.push(cur); cur = []; } }
+      if (cur.length) runs.push(cur);
+      for (const r of runs) {
+        if (r.length < 2) continue;
+        k.lineCap = 'round'; k.lineJoin = 'round';
+        // 隆起本身已由地形光照显出，这里只补一道细碎石高光
+        k.strokeStyle = 'rgba(248,244,236,0.45)'; k.lineWidth = 0.8; strokePts(k, r);
+      }
+      if (trace > 0 && traceFade > 0) {
+        const pts = wall.map(p => p.p);
+        k.globalAlpha = a * traceFade;
+        glowLine(k, pts, seg(trace, wi * 0.1, wi * 0.1 + 0.6), CUT, 0.9);
+        k.globalAlpha = a;
+      }
+    });
+    // 3. 树林点云：未扫过的保持金色；刚扫过（切面后 0.15 内）的点落到地面、变青白、淡掉
+    const buckets = Array.from({ length: PT }, () => []), falling = [];
+    for (const p of PTS) {
+      const dg = c - p.g;
+      if (dg <= 0) buckets[p.b].push(p.sx, p.sy, p.s);
+      else if (dg < 0.15) { const f = out3(dg / 0.15); falling.push(mix(p.sx, p.gx, f), mix(p.sy, p.gy, f), p.s, 1 - f); }
+    }
+    buckets.forEach((arr, bi) => {
+      k.fillStyle = PCOL[bi];
+      for (let i = 0; i < arr.length; i += 3) k.fillRect(arr[i] - arr[i + 2] / 2, arr[i + 1] - arr[i + 2] / 2, arr[i + 2], arr[i + 2]);
+    });
+    k.fillStyle = '#E6FFF8';
+    for (let i = 0; i < falling.length; i += 4) {
+      k.globalAlpha = a * falling[i + 3];
+      k.fillRect(falling[i] - falling[i + 2] / 2, falling[i + 1] - falling[i + 2] / 2, falling[i + 2], falling[i + 2]);
+    }
+    k.globalAlpha = a;
+    // 4. 切面：竖起的半透明青色面，底边贴地发光
+    const edge = edgeAt(c);
+    const base = edge.map(([x, z]) => scr(x, z, hgt(x, z))), topE = edge.map(([x, z]) => scr(x, z, hgt(x, z) + 0.32));
+    k.globalAlpha = a * 0.22; k.fillStyle = CUT;
+    fillPts(k, base.concat(topE.slice().reverse()));
+    k.globalAlpha = a * 0.5; k.strokeStyle = CUT; k.lineWidth = 0.8; strokePts(k, topE);
+    k.globalAlpha = a; glowLine(k, base, 1, '#C8FFF4', 1.3);
+    // 5. 左上角：地名与回波计数
+    const ta = seg(u, 0.2, 0.7);
+    // 文字底下垫一层从左上往外淡开的暗色，浅色地面上也读得清
+    const hg = k.createLinearGradient(0, 0, 230, 0);
+    hg.addColorStop(0, 'rgba(10,10,10,0.55)'); hg.addColorStop(1, 'rgba(10,10,10,0)');
+    k.globalAlpha = a * ta; k.fillStyle = hg; k.fillRect(0, 8, 230, 56);
+    k.textAlign = 'left'; k.textBaseline = 'alphabetic';
+    k.fillStyle = '#F2EEE6'; k.font = `600 11px ${SANS}`; k.fillText('康涅狄格 · 林下旧墙', 14, 22);
+    k.fillStyle = 'rgba(232,228,220,0.72)'; k.font = `500 8px ${MONO}`;
+    k.fillText('41.89°N  72.20°W  ·  0.74 km²', 14, 35);
+    k.fillText(`LIDAR 2016  ·  ${fmt(Math.round(ECHOES * seg(c, C0, C1)))} 回波`, 14, 46);
+    k.fillStyle = 'rgba(232,228,220,0.4)'; k.fillText('地形起伏 ×2', 14, 57);
+    // 6. 字幕条（4.5–5.0 秒淡入）
+    const sa = seg(u, 4.5, 5.0);
+    if (sa > 0) {
+      k.globalAlpha = a * sa * 0.62; k.fillStyle = '#16171A'; k.fillRect(12, 158, 250, 38);
+      k.globalAlpha = a * sa; k.fillStyle = '#F2EEE6'; k.fillRect(18, 163, 1.5, 28);
+      k.font = `600 12px ${SANS}`; k.fillText('树下还有墙。', 26, 176);
+      k.fillStyle = 'rgba(242,238,230,0.75)'; k.font = `400 8.5px ${SANS}`; k.fillText('Walls under the trees.', 26, 189);
+    }
+    k.globalAlpha = 1;
+  };
+}

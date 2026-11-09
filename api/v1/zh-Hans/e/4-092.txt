@@ -1,0 +1,103 @@
+// Motion Prompt #4-092 · MIT License (c) 2026 alchaincyf (花叔) · https://github.com/alchaincyf/huashu-art-motion
+//
+// 埃及墓室壁画 / Egyptian tomb painting
+// 分类: 审美风格 / 艺术流派 / 古代与中世纪
+// 动画表现: 灰泥墙上下色带展开，墨线画出人物后涂上肤色、白色短裙和黑色假发；右侧排出 3 栏象形文字，太阳光线末端的小手一开一合。
+// 运动规格:
+//   - 带细小斑点的沙色灰泥墙；其他内容淡出时墙面保留。
+//   - 0.3–0.9 秒：每条 3 px 的蓝、红、黄色带沿顶部从左、沿底部从右展开。0.9–2.2 秒：行走人物的 8 个部分依次用墨线勾出，间隔 0.14 秒；2.0–2.6 秒：平涂红褐色皮肤、白色短裙和黑色假发。
+//   - 2.4–2.8 秒：加上蓝红黄三圈项圈、侧脸上的正面眼和裙褶。2.8–3.0 秒：右侧画出 4 条栏线；2.9–3.7 秒：7 种象形文字（眼、水、生命符、太阳、面包、芦苇、鸟）共 15 个填满 3 栏。
+//   - 3.4–3.6 秒：顶部弹出红色太阳；3.6–4.0 秒：伸出 7 道光线，末端各有一只三指小手。4.0 秒起小手一开一合，水波符号横向流动。
+//   - 5.4–6.0 秒画面淡回空白灰泥墙；0 秒和 6.4 秒都只剩空白灰泥墙，循环无缝。
+// 适用场景: 适合历史、古代文明、博物馆、文字与记录的起源，或庄重、仪式感的场合。
+// 标签: egyptian, tomb-painting, hieroglyphs, profile, flat-colour, ancient
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-092
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 02
+// 埃及墓室壁画：先画出上下的色带，墨线勾出侧脸、正面眼、正面双肩的行走人物，再平涂肤色、白裙和项圈，右侧象形文字一格格出现，最后太阳光线伸出小手；之后小手一开一合，水波符号流动
+// 对应原作 scenes/02_egypt.js（侧脸正面眼、象形文字栏、阿顿光线小手、水波符号）
+{
+  const SKIN = '#B5572E', WHITE = '#F4EEDC', BLUE = '#2C5E8C', RED = '#B8432A', YEL = '#D9A93A';
+  const WIG = [[186, 44], [204, 40], [214, 46], [212, 62], [200, 74], [186, 72], [182, 58]];
+  const FACE = [[206, 48], [216, 52], [218, 58], [222, 62], [217, 64], [218, 68], [214, 72], [206, 74], [202, 68]];
+  const NECK = [[201, 70], [211, 70], [211, 82], [201, 82]];
+  const TORSO = [[184, 80], [226, 80], [220, 104], [210, 120], [196, 120], [188, 104]];
+  const ARM_F = [[220, 82], [230, 84], [242, 110], [246, 120], [240, 122], [234, 112]];
+  const ARM_B = [[186, 82], [192, 86], [184, 112], [182, 122], [176, 120], [178, 110]];
+  const KILT = [[194, 118], [214, 118], [222, 150], [188, 150]];
+  const LEG_F = [[208, 150], [216, 150], [228, 184], [236, 190], [222, 190], [220, 186]];
+  const LEG_B = [[192, 150], [200, 150], [194, 186], [198, 190], [184, 190], [186, 186]];
+  const FILLS = [[ARM_B, SKIN], [LEG_B, SKIN], [LEG_F, SKIN], [TORSO, SKIN], [ARM_F, SKIN], [KILT, WHITE], [NECK, SKIN], [FACE, SKIN], [WIG, INK]];
+  const OUTL = [WIG, FACE, TORSO, ARM_F, ARM_B, KILT, LEG_F, LEG_B];
+  const COLS = [433, 463, 493];
+  const GLYPHS = [0, 1, 3, 6, 2, 5, 4, 1, 0, 3, 2, 6, 1, 5, 4];   // 0 眼 1 水波 2 生命符 3 太阳 4 面包 5 芦苇 6 鸟
+  const SUN = [340, 40];
+  const RAYS = Array.from({ length: 7 }, (_, i) => Math.PI * (0.32 + i * 0.06));
+  function glyph(k, type, x, y, flow) {
+    k.strokeStyle = INK; k.fillStyle = INK; k.lineWidth = 1.4;
+    if (type === 0) { k.beginPath(); k.ellipse(x, y, 7, 3, 0, 0, TAU); k.stroke(); k.beginPath(); k.arc(x, y, 1.6, 0, TAU); k.fill(); strokePts(k, [[x - 2, y + 3], [x - 4, y + 8], [x - 1, y + 9]]); }
+    else if (type === 1) {
+      k.save(); k.beginPath(); k.rect(x - 9, y - 6, 18, 12); k.clip(); k.strokeStyle = BLUE;
+      for (let r = -1; r <= 1; r++) { k.beginPath(); for (let s = 0; s <= 12; s++) { const xx = x - 12 + s * 2 + (flow % 4); k.lineTo(xx, y + r * 4 + (s % 2 ? -1.6 : 1.6)); } k.stroke(); }
+      k.restore();
+    } else if (type === 2) { k.beginPath(); k.ellipse(x, y - 6, 3.5, 5, 0, 0, TAU); k.stroke(); strokePts(k, [[x - 7, y - 1], [x + 7, y - 1]]); strokePts(k, [[x, y - 1], [x, y + 10]]); }
+    else if (type === 3) { k.fillStyle = RED; k.beginPath(); k.arc(x, y, 5.5, 0, TAU); k.fill(); k.stroke(); k.fillStyle = INK; k.beginPath(); k.arc(x, y, 1.3, 0, TAU); k.fill(); }
+    else if (type === 4) { k.fillStyle = BLUE; k.beginPath(); k.arc(x, y + 4, 7, Math.PI, 0); k.closePath(); k.fill(); k.stroke(); }
+    else if (type === 5) { k.fillStyle = '#5E8A3A'; k.beginPath(); k.ellipse(x, y, 2.6, 9, 0.2, 0, TAU); k.fill(); k.stroke(); }
+    else { k.beginPath(); k.ellipse(x, y + 1, 6, 3.6, -0.2, 0, TAU); k.fill(); k.beginPath(); k.arc(x + 5, y - 4, 2.6, 0, TAU); k.fill(); strokePts(k, [[x + 7, y - 4], [x + 10, y - 3]]); strokePts(k, [[x - 1, y + 4], [x - 2, y + 10]]); strokePts(k, [[x + 2, y + 4], [x + 3, y + 10]]); }
+  }
+  function band(k, y, t, dir) {      // 三色带，按 dir 从左或从右展开
+    const wdt = CW * t, x0 = dir > 0 ? 0 : CW - wdt;
+    [BLUE, RED, YEL].forEach((c, i) => { k.fillStyle = c; k.fillRect(x0, y + i * 3, wdt, 3); });
+  }
+  CELLS[1] = (k, w, h, u) => {
+    grainBg(k, '#E8D6AE', 'rgba(150,110,60,0.10)', 500, 5);
+    const a = vis(u); k.globalAlpha = a;
+    const bt = inOut3(seg(u, 0.3, 0.9));
+    if (bt > 0) { band(k, 10, bt, 1); band(k, 194, bt, -1); k.fillStyle = INK; k.fillRect(0, 190, CW * bt, 1.5); }
+    // 平涂（2.0–2.6 秒）
+    const ft = seg(u, 2.0, 2.6);
+    if (ft > 0) { k.globalAlpha = a * ft; FILLS.forEach(([p, c]) => { k.fillStyle = c; fillPts(k, p); }); k.globalAlpha = a; }
+    // 墨线（0.9–2.2 秒）
+    k.strokeStyle = INK; k.lineWidth = 1.3; k.lineJoin = 'round';
+    outlines(k, OUTL, u, 0.9, 0.14, 0.3);
+    // 正面眼、项圈、裙褶（2.4–2.8 秒）
+    const ct = seg(u, 2.4, 2.8);
+    if (ct > 0) {
+      k.globalAlpha = a * ct;
+      [[BLUE, 8], [RED, 11], [YEL, 14]].forEach(([c, r]) => { k.strokeStyle = c; k.lineWidth = 3; k.beginPath(); k.arc(206, 80, r, 0.15, Math.PI - 0.15); k.stroke(); });
+      k.fillStyle = WHITE; k.beginPath(); k.ellipse(212, 57, 3.4, 1.5, 0, 0, TAU); k.fill();
+      k.fillStyle = INK; k.beginPath(); k.arc(212.6, 57, 1.2, 0, TAU); k.fill();
+      k.strokeStyle = INK; k.lineWidth = 1; strokePts(k, [[208, 56], [218, 56.5]]);
+      k.lineWidth = 0.7; for (let i = 1; i < 5; i++) strokePts(k, [[194 + i * 4, 120], [190 + i * 7, 150]]);
+      k.globalAlpha = a;
+    }
+    // 栏线（2.8–3.0 秒）和象形文字（2.8–3.6 秒）
+    const lt = seg(u, 2.8, 3.0);
+    k.strokeStyle = INK; k.lineWidth = 1;
+    [418, 448, 478, 508].forEach(x => partial(k, [[x, 24], [x, 186]], lt));
+    const flow = ease(u, 4.0) * (u - 4.0) * 6;
+    GLYPHS.forEach((g, i) => {
+      const t = seg(u, 2.9 + i * 0.045, 3.05 + i * 0.045);
+      if (t <= 0) return;
+      k.globalAlpha = a * t; glyph(k, g, COLS[i % 3], 40 + Math.floor(i / 3) * 32, g === 1 ? flow : 0);
+    });
+    k.globalAlpha = a;
+    // 太阳（3.4–3.6 秒）和光线小手（3.6–4.0 秒）；4.0 秒后小手开合
+    const st = backOut(seg(u, 3.4, 3.6), 1.4);
+    if (st > 0) { k.fillStyle = RED; k.strokeStyle = INK; k.lineWidth = 1.2; k.beginPath(); k.arc(SUN[0], SUN[1], 14 * st, 0, TAU); k.fill(); k.stroke(); }
+    const rt = seg(u, 3.6, 4.0), op = 0.25 + 0.35 * (0.5 + 0.5 * Math.sin((u - 4.0) * 5)) * ease(u, 4.0);
+    if (rt > 0) RAYS.forEach((an, i) => {
+      const L = 16 + 64 * rt, ex = SUN[0] + Math.cos(an) * L, ey = SUN[1] + Math.sin(an) * L;
+      k.strokeStyle = RED; k.lineWidth = 1.2; strokePts(k, [[SUN[0] + Math.cos(an) * 16, SUN[1] + Math.sin(an) * 16], [ex, ey]]);
+      k.lineWidth = 1.4; k.strokeStyle = SKIN;
+      for (let f = -1; f <= 1; f++) strokePts(k, [[ex, ey], [ex + Math.cos(an + f * op) * 4.5, ey + Math.sin(an + f * op) * 4.5]]);
+    });
+    k.globalAlpha = 1;
+  };
+}

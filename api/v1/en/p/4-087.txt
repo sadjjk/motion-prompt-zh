@@ -1,0 +1,16 @@
+Please use "Lidar survey" (点群測量), filed under "Animation styles / Space & material".
+Motion Prompt #4-087
+
+What it is: A cut plane passes through a golden point cloud of forest; the tree points drop to the ground and vanish, leaving bare earth lit from the side with old stone walls hidden under the trees, the way lidar strips away vegetation to show the terrain
+What the sample shows: A golden forest point cloud on black. A teal cut plane moves from left to top right; the points it passes drop and vanish, leaving grey ground with 5 low stone-wall ridges. The walls are traced in teal and a caption appears.
+Spec:
+- A black card seen in perspective over a ground plane. The forest is 7600 points in 6 shades from dark brown to pale gold, standing above the ground; the ground is a 96 × 230 grid shaded in 28 steps from dark grey to off-white by low light from the left. Behind the plane the bare ground shows smooth bumps and 5 low stone walls built into the terrain as ridges, with a thin highlight along each.
+- 0–0.4 s: the forest fades in. 0.4–4.2 s: a translucent teal cut plane with a glowing base line moves from off the left edge to the top-right corner, leaving a corner of forest; points it has just passed drop to the ground, turn white and fade.
+- Top-left from 0.2–0.7 s: the place name, coordinates '41.89°N 72.20°W · 0.74 km²', an echo counter that climbs to 4,812,306 as the plane moves, and the note '×2'.
+- 4.1–4.8 s: the 5 walls are traced in glowing teal one after another, and the tracing fades at 4.9–5.4 s. 4.5–5.0 s: a caption bar with '树下还有墙。' and 'Walls under the trees.' fades in at the bottom left.
+- At 5.4–6.0 s everything but the background fades out; at 0 s and 6.4 s the card shows only the background, so the loop restarts cleanly.
+When to use it: Use it for surveying, archaeology, geography, forestry or 3D scanning, wherever you want to reveal what lies under the surface.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-087.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/infostyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

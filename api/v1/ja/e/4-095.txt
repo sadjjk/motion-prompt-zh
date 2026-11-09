@@ -1,0 +1,146 @@
+// Motion Prompt #4-095 · MIT License (c) 2026 alchaincyf (花叔) · https://github.com/alchaincyf/huashu-art-motion
+//
+// ペルシャ細密画 / Persian miniature
+// 分類: ビジュアルスタイル / 芸術の流派 / 古代・中世
+// 何が起きるか: 青と金の縁の中に金色の空と緑の地面が敷かれ、淡い紫の山から川が流れる。青いタイルの建物、糸杉、花の木が立ち、敷物に人が座る。川面が流れ、花びらが舞う。
+// 動きの仕様:
+//   - 生成りのカード。0.3–0.8 秒：幅 14 px の紺の縁がフェードインし、12 px ごとの金の点が時計回りに灯り、内側に金の線が出る
+//   - 0.8–1.2 秒：y 46 の高い地平線より上を金色の空で埋め、白い渦巻きの雲を 2 つ置く。1.1–1.5 秒：残りを平らな緑の地面で埋め、白・赤・黄の小花 60 個を散らす。1.4–1.9 秒：地平線の左半分に縁が波形の淡い紫の山が立ち上がる
+//   - 1.9–2.6 秒：淡い青の川が山から曲がりくねって流れ下り、幅は 6 px から 24 px に広がる。2.4–3.0 秒：右に赤い屋根、青い壁、金のアーチの建物が地面から伸び上がり、2.8–3.4 秒にひし形のタイルが壁を覆う。3.0–3.4 秒：濃い色の糸杉が伸びる。3.2–3.6 秒：木の枝を描き、3.6–4.2 秒に白とピンクの花 70 個が咲く
+//   - 4.2–4.6 秒：オレンジの服に白いターバンの人物が赤い敷物に座って現れる。4.2 秒から川面の波紋 14 個が下流へ動き、ピンクの花びら 10 枚が木から舞い落ち、糸杉が少し揺れる
+//   - 5.4–6.0 秒に絵がフェードして生成りの白紙に戻る。0 秒と 6.4 秒はどちらも生成りの白紙だけなので、ループがつながる
+// 使いどころ: 物語や詩、庭園、中東や中央アジアの文化、旅行、手の込んだ装飾性を見せたい場面に。
+// タグ: persian, miniature, flat, garden, ornament, border
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-095
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 05
+// 波斯细密画：蓝金花边框先亮，高地平线的金色天空、平涂绿地和淡紫色海绵状山石依次铺出，溪流从山上蜿蜒流下，再立起贴满几何花砖的亭子、柏树和开花的树，最后一个人坐在毯子上；之后溪水的波纹流动，花瓣飘落
+// 对应原作 references/风格配方/51_persian_miniature.md（原作标为研究配方）：平面化、高地平线、无透视、装饰性花边
+{
+  const FRAME = '#1E3A7A', GOLDC = '#E8C35A', GREEN = '#6E9A4A';
+  const IN = [14, 14, CW - 14, CH - 14];
+  const HORIZON = 46;
+  const HILLS = dense([[14, 104], [40, 70], [70, 80], [96, 52], [128, 64], [150, 46], [176, 60], [200, 46], [230, 54], [250, 46]], 4).concat([[250, HORIZON], [14, HORIZON]]);
+  // 海绵状山石：沿山脊画一串小半圆
+  const SCALLOP = dense([[14, 104], [40, 70], [70, 80], [96, 52], [128, 64], [150, 46], [176, 60], [200, 46], [230, 54], [250, 46]], 3);
+  const STREAM = dense([[222, 56], [200, 80], [236, 104], [214, 132], [168, 150], [120, 176], [70, 196]], 8);
+  const CYPRESS = dense([[118, 172], [108, 140], [106, 100], [112, 70], [118, 46], [124, 70], [130, 100], [128, 140], [118, 172]], 4);
+  const CROWN = [292, 86];
+  const BLOSSOM = Array.from({ length: 70 }, (_, i) => { const an = rnd(i, 71) * TAU, r = 26 * Math.sqrt(rnd(i, 72)); return [CROWN[0] + Math.cos(an) * r, CROWN[1] + Math.sin(an) * r * 0.8, rnd(i, 73) < 0.6 ? '#FFFFFF' : '#F4A8B8', rnd(i, 74)]; });
+  const FLOWERS = Array.from({ length: 60 }, (_, i) => [IN[0] + rnd(i, 81) * 340, 100 + rnd(i, 82) * 90, ['#FFFFFF', '#E8433A', '#F4D35A'][i % 3]]);
+  const PETALS = Array.from({ length: 10 }, (_, i) => [CROWN[0] - 30 + rnd(i, 91) * 60, rnd(i, 92), rnd(i, 93) * TAU]);
+  const PAV = [372, 54, 112, 128];         // 亭子 x, y, 宽, 高
+  CELLS[4] = (k, w, h, u) => {
+    k.fillStyle = '#F2E8D0'; k.fillRect(0, 0, CW, CH);
+    const a = vis(u); k.globalAlpha = a;
+    // 花边框（0.3–0.8 秒）
+    const ft = seg(u, 0.3, 0.8);
+    if (ft > 0) {
+      k.globalAlpha = a * ft; k.fillStyle = FRAME;
+      k.fillRect(0, 0, CW, IN[1]); k.fillRect(0, IN[3], CW, CH - IN[3]); k.fillRect(0, IN[1], IN[0], IN[3] - IN[1]); k.fillRect(IN[2], IN[1], CW - IN[2], IN[3] - IN[1]);
+      // 金点沿花边顺时针一颗颗亮起
+      const DOT = (x, y, q) => { if (q <= ft) { k.beginPath(); k.arc(x, y, 1.6, 0, TAU); k.fill(); } };
+      k.fillStyle = GOLDC; k.globalAlpha = a;
+      for (let x = 7; x < CW; x += 12) { DOT(x, 7, x / CW * 0.5); DOT(x, CH - 7, 0.5 + x / CW * 0.5); }
+      for (let y = 19; y < CH - 12; y += 12) { DOT(CW - 7, y, y / CH * 0.5); DOT(7, y, 0.5 + y / CH * 0.5); }
+      k.globalAlpha = a * ft; k.strokeStyle = GOLDC; k.lineWidth = 1.5; k.strokeRect(IN[0] - 1, IN[1] - 1, IN[2] - IN[0] + 2, IN[3] - IN[1] + 2);
+      k.globalAlpha = a;
+    }
+    k.save(); k.beginPath(); k.rect(IN[0], IN[1], IN[2] - IN[0], IN[3] - IN[1]); k.clip();
+    // 金色天空（0.8–1.2 秒）和平涂绿地（1.1–1.5 秒）
+    const skt = seg(u, 0.8, 1.2);
+    if (skt > 0) {
+      k.globalAlpha = a * skt; k.fillStyle = GOLDC; k.fillRect(IN[0], IN[1], CW, HORIZON - IN[1] + 2);
+      k.strokeStyle = '#FFFFFF'; k.lineWidth = 1.4;
+      [[330, 26], [460, 30]].forEach(([x, y]) => { k.beginPath(); k.arc(x, y, 5, Math.PI, 0); k.arc(x + 10, y, 5, Math.PI, 0); k.arc(x + 20, y, 5, Math.PI, TAU * 0.9); k.stroke(); });
+      k.globalAlpha = a;
+    }
+    const gt = seg(u, 1.1, 1.5);
+    if (gt > 0) {
+      k.globalAlpha = a * gt; k.fillStyle = GREEN; k.fillRect(IN[0], HORIZON, CW, CH);
+      FLOWERS.forEach(([x, y, c]) => { k.fillStyle = c; k.beginPath(); k.arc(x, y, 1.6, 0, TAU); k.fill(); });
+      k.globalAlpha = a;
+    }
+    // 淡紫色山石（1.4–1.9 秒）
+    const ht = seg(u, 1.4, 1.9);
+    if (ht > 0) {
+      k.globalAlpha = a * ht; k.fillStyle = '#B9A3C9'; fillPts(k, HILLS);
+      k.strokeStyle = '#7E6A94'; k.lineWidth = 1;
+      for (let i = 0; i < SCALLOP.length - 1; i += 2) { const p = SCALLOP[i], q = SCALLOP[i + 1]; k.beginPath(); k.arc((p[0] + q[0]) / 2, (p[1] + q[1]) / 2, Math.hypot(q[0] - p[0], q[1] - p[1]) / 2 + 1.5, Math.PI, 0); k.stroke(); }
+      k.globalAlpha = a;
+    }
+    // 溪流（1.9–2.6 秒从上往下流出），4.2 秒后波纹沿溪流移动
+    const rt = seg(u, 1.9, 2.6);
+    if (rt > 0) {
+      k.fillStyle = '#A8C4D4'; fillPts(k, ribbon(STREAM, q => 6 + 18 * q, rt));
+      k.strokeStyle = '#5E7E94'; k.lineWidth = 1;
+      const flow = ease(u, 4.2) * (u - 4.2) * 0.08;
+      for (let j = 0; j < 14; j++) {
+        const q = ((j / 14 + flow) % 1 + 1) % 1;
+        if (q > rt) continue;
+        const p = STREAM[Math.floor(q * (STREAM.length - 1))], r = 2 + 3 * q;
+        k.beginPath(); k.arc(p[0], p[1], r, Math.PI * 1.1, Math.PI * 1.9); k.stroke();
+      }
+    }
+    // 亭子（2.4–3.0 秒）和花砖（2.8–3.4 秒）
+    const pt = seg(u, 2.4, 3.0);
+    if (pt > 0) {
+      const [x, y, pw, ph] = PAV;
+      // 从地面往上长：裁剪框的上沿从亭子底部升到屋檐
+      k.save(); k.beginPath(); k.rect(x - 8, y + ph - (ph + 10) * out3(pt), pw + 16, ph + 10); k.clip();
+      k.fillStyle = '#C8401E'; k.fillRect(x - 6, y - 8, pw + 12, 10);
+      k.fillStyle = '#2F6FA8'; k.fillRect(x, y, pw, ph);
+      k.globalAlpha = a * seg(u, 2.8, 3.4); k.strokeStyle = '#F2E8D0'; k.lineWidth = 0.8;   // 花砖淡入
+      for (let ty = y + 6; ty < y + ph; ty += 10) for (let tx = x + 6 + ((ty - y) % 20 ? 5 : 0); tx < x + pw - 2; tx += 10) {
+        k.beginPath(); k.moveTo(tx, ty - 4); k.lineTo(tx + 4, ty); k.lineTo(tx, ty + 4); k.lineTo(tx - 4, ty); k.closePath(); k.stroke();
+      }
+      k.globalAlpha = a;
+      const dx = x + pw / 2;
+      k.fillStyle = GOLDC; k.beginPath(); k.moveTo(dx - 20, y + ph); k.lineTo(dx - 20, y + 64); k.quadraticCurveTo(dx - 20, y + 40, dx, y + 30); k.quadraticCurveTo(dx + 20, y + 40, dx + 20, y + 64); k.lineTo(dx + 20, y + ph); k.closePath(); k.fill();
+      k.strokeStyle = '#8C5A1E'; k.lineWidth = 1.2; k.stroke();
+      k.restore();
+    }
+    // 柏树（3.0–3.4 秒）和开花的树（3.2–3.6 秒，花 3.6–4.2 秒）
+    const ct = out3(seg(u, 3.0, 3.4));
+    if (ct > 0) {
+      const sw = 0.03 * ease(u, 4.2) * Math.sin((u - 4.2) * 2);
+      k.save(); k.translate(118, 172); k.rotate(sw); k.scale(1, ct); k.translate(-118, -172);
+      k.fillStyle = '#2D4A2A'; fillPts(k, CYPRESS); k.strokeStyle = '#4E7A3A'; k.lineWidth = 1; strokePts(k, CYPRESS);
+      k.restore();
+    }
+    const tt = seg(u, 3.2, 3.6);
+    if (tt > 0) {
+      k.strokeStyle = '#6B4A2A'; k.lineCap = 'round'; k.lineWidth = 4; partial(k, [[292, 170], [290, 130], [292, 96]], tt);
+      k.lineWidth = 2; partial(k, [[291, 118], [270, 96]], tt); partial(k, [[291, 112], [314, 92]], tt);
+    }
+    BLOSSOM.forEach(([x, y, c, d]) => {
+      const t = seg(u, 3.6 + d * 0.5, 3.7 + d * 0.5);
+      if (t <= 0) return;
+      k.fillStyle = c; k.beginPath(); k.arc(x, y, 2.2 * t, 0, TAU); k.fill();
+    });
+    // 坐在毯子上的人（4.2–4.6 秒）
+    const mt = seg(u, 4.2, 4.6);
+    if (mt > 0) {
+      k.globalAlpha = a * mt;
+      k.fillStyle = '#B8302A'; k.fillRect(316, 160, 40, 12); k.fillStyle = GOLDC; k.fillRect(318, 162, 36, 2); k.fillRect(318, 168, 36, 2);
+      k.fillStyle = '#E8743A'; k.beginPath(); k.moveTo(326, 162); k.quadraticCurveTo(336, 128, 346, 162); k.closePath(); k.fill();
+      k.fillStyle = '#F0CFB0'; k.beginPath(); k.arc(336, 136, 5, 0, TAU); k.fill();
+      k.fillStyle = '#FFFFFF'; k.beginPath(); k.ellipse(336, 131, 6.5, 4, 0, Math.PI, 0); k.fill();
+      k.globalAlpha = a;
+    }
+    // 花瓣飘落（4.2 秒后）
+    const fl = ease(u, 4.2);
+    if (fl > 0) PETALS.forEach(([x, ph, r]) => {
+      const s = (((u - 4.2) * 0.35 + ph) % 1 + 1) % 1;
+      k.globalAlpha = a * fl * clamp(Math.sin(Math.PI * s) * 3); k.fillStyle = '#F4A8B8';
+      k.beginPath(); k.ellipse(x + 14 * Math.sin(s * 6 + r), 96 + s * 80, 2.2, 1.2, r + s * 4, 0, TAU); k.fill();
+    });
+    k.restore();
+    k.globalAlpha = 1;
+  };
+}

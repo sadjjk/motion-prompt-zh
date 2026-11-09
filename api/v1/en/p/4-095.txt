@@ -1,0 +1,16 @@
+Please use "Persian miniature" (ペルシャ細密画), filed under "Art movements / Ancient & medieval".
+Motion Prompt #4-095
+
+What it is: A miniature painting with no perspective: a high horizon, a gold sky over flat green ground, sponge-like rocks, a pavilion of geometric tiles, flowering trees and figures, all laid out flat inside a decorative border
+What the sample shows: Inside a blue and gold border, a gold sky and green ground are laid down and a stream winds down from lilac rocks. A blue-tiled pavilion, a cypress and a flowering tree go up and a figure sits on a carpet; then the stream ripples and petals drift down.
+Spec:
+- A cream card. 0.3–0.8 s: a dark blue border 14 px wide fades in, gold dots every 12 px light up around it clockwise, and a gold inner line appears.
+- 0.8–1.2 s: a gold sky with two white curling clouds fills the strip above a high horizon at y 46; 1.1–1.5 s: flat green ground dotted with 60 small white, red and yellow flowers fills the rest; 1.4–1.9 s: lilac rocks with scalloped edges rise along the left half of the horizon.
+- 1.9–2.6 s: a pale blue stream winds down from the rocks, widening from 6 to 24 px. 2.4–3.0 s: a pavilion with a red roof, a blue wall and a gold arch grows up from the ground on the right, and 2.8–3.4 s: diamond tiles cover the wall. 3.0–3.4 s: a dark cypress grows; 3.2–3.6 s: the branches of a tree are drawn and 3.6–4.2 s: 70 white and pink blossoms open on it.
+- 4.2–4.6 s: a figure in orange with a white turban appears seated on a red carpet. From 4.2 s 14 ripples move down the stream, 10 pink petals drift down from the tree and the cypress sways slightly.
+- At 5.4–6.0 s the picture fades back to blank cream paper; at 0 s and 6.4 s only blank cream paper is left, so the loop restarts cleanly.
+When to use it: Use it for stories and poetry, gardens, Middle Eastern and Central Asian culture, travel, or anywhere rich ornament is the point.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-095.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

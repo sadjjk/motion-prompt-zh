@@ -1,0 +1,16 @@
+Please use "Cave painting" (洞窟壁画), filed under "Art movements / Ancient & medieval".
+Motion Prompt #4-091
+
+What it is: The Palaeolithic way of painting: an animal outlined in charcoal dots on a rough rock wall, filled with red ochre, and a hand stencil made by blowing pigment around a hand
+What the sample shows: On an ochre rock wall, charcoal dots outline a bison, then horn and legs are added and red ochre fills it. 5 sprayed hand stencils appear around it one after another, and as the firelight flickers the bison starts to run.
+Spec:
+- An ochre rock wall shading from light to dark downward, with 70 lighter and darker patches for relief and 7 thin cracks; the wall stays when everything else fades.
+- 0.3–1.6 s: 210 charcoal dots 1–2.3 px in radius go down along the outline of a bison, jittered by up to 1.2 px for a ragged edge. 1.6–2.0 s: the horn, the tail and 4 legs are drawn.
+- 2.0–2.8 s: red ochre fills the body at 80%, with a darker belly. 2.6–3.2 s: 1017 ochre specks are sprayed around a large hand at the right, outer ones first, leaving the palm and 5 fingers bare. From 2.93 s, 4 smaller hands at other angles follow 0.18 s apart, 3 in ochre and 1 in dark charcoal, each sprayed in 0.45 s with its specks densest along the hand's edge. 3.2–3.4 s: a row of 5 ochre dots is added.
+- From 3.4 s the legs switch between two poses every 0.22 s, so the bison seems to run, and a warm firelight from the lower left flickers.
+- At 5.4–6.0 s the picture fades back to the bare rock wall; at 0 s and 6.4 s only the bare rock wall is left, so the loop restarts cleanly.
+When to use it: Use it for history and origin stories, anthropology, a 'first step' moment, or whenever you want a raw, primitive feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-091.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

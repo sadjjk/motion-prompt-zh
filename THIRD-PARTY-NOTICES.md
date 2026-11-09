@@ -456,6 +456,46 @@ License 2.0, which does not apply to this pack. The code of this pack is under t
 sadjjk. To ask for a removal or a correction, use the
 [issue form](https://github.com/sadjjk/motion-prompt-zh/issues/new?template=3-removal.yml).
 
+## lemo-opuscar by Lemomo (pack `infostyles`)
+
+All elements in `packs/infostyles/` (ids `4-087`–`4-090`) take their style ideas from
+[lemo-opuscar](https://github.com/lemomo-ai/lemo-opuscar) by Lemomo (LemoLab). They are Canvas 2D implementations
+written from scratch for this repository after the style descriptions (`styles/<slug>/STYLE.md`); no lemo-opuscar code
+is copied or ported, none of its demo videos, stills, fonts or audio are used, and the subjects, parameters, colors and
+drawings are our own. The code of this pack is under this repository's MIT License © 2026 sadjjk. To ask for a removal
+or a correction, use the [issue form](https://github.com/sadjjk/motion-prompt-zh/issues/new?template=3-removal.yml).
+
+## huashu-art-motion by 花叔 (pack `artstyles`)
+
+The elements `4-091`–`4-099` in `packs/artstyles/` are Canvas 2D adaptations of scenes and style recipes from
+[huashu-art-motion](https://github.com/alchaincyf/huashu-art-motion) by 花叔 (`scripts/engine/scenes/`,
+`references/风格配方/`): the drawing techniques (variable-width whiplash lines, translucent facets, flow-field strokes
+and so on) are recomposed for a 539 × 208 card, turned into a seamless loop and drawn without randomness or pixel
+reads. The stroke data, fonts and the 花叔 cartoon character of huashu-art-motion are not used. Each element carries
+the line `MIT License (c) 2026 alchaincyf (花叔)`. The license notice:
+
+> MIT License
+>
+> Copyright (c) 2026 alchaincyf (花叔 · 花生)
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat

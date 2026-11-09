@@ -1,0 +1,222 @@
+// Motion Prompt #4-088 · MIT License (c) 2026 sadjjk · https://github.com/lemomo-ai/lemo-opuscar
+//
+// 白模型プロジェクション / White model projection
+// 分類: ビジュアルスタイル / アニメーションの画風 / 空間・質感
+// 何が起きるか: 暗い部屋の白い街の模型。照明が落ちてプロジェクターが点くと、高さの色の光が壁面を昇る。続いて冬の日差しで長い影が伸び、一番高い塔の影が青くなぞられて 248 m と測られる。
+// 動きの仕様:
+//   - ほぼ黒の部屋。暗い台座の上に、通りごとに並んだ 94 棟の白い街の模型と暗い川が置かれ、斜め上から見る。0–6.0 秒で画面がゆっくり左へ 16 px 動く。左上に「CITY CENTRE · 1:1000 WHITE MODEL」と「94 BUILDINGS · OPEN DATA」
+//   - 0–0.6 秒：室内灯の下で模型がフェードイン。1.2–1.45 秒：室内灯が切れて模型は明るさ 42% に落ちる。1.45–1.56 秒にプロジェクターがちらついて点き、白い光が当たって 1.9 秒までに消える
+//   - 第 01 層、1.6–2.4 秒：屋上の高さに応じて紫からマゼンタ、ピーチへ色づいた光が全部の壁面を昇り、左の数値が「146 m」まで回る。2.4–2.7 秒：塔に「146 m · TALLEST ROOF」のラベル。2.9–3.2 秒にこの層が消える
+//   - 第 02 層：3.0–3.5 秒に模型が冬の日差しの暖色になり、影が右奥へ落ちて 3.9 秒まで伸びる。数値は「DEC 21 · SUN 30.5°」。3.9–4.6 秒：塔の影を足元から青くなぞり、影の中の 5 棟も青く染める。4.1–4.7 秒：50 m ごとに目盛りのある測定線。4.6–4.9 秒：ラベル「248 m · WINTER NOON SHADOW」
+//   - 5.4–6.0 秒にすべてフェードアウトする。0 秒と 6.4 秒はどちらも暗い部屋だけなので、ループがつながる
+// 使いどころ: 都市計画、不動産、建築の提案、日照や高さの分析など、データを場所そのものに重ねて見せたいときに。
+// タグ: white-model, projection, massing, city-model, shadow, urban
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/infostyles.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-088
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 02
+// 白模投影：暗室里一块高密度的纯白城市体块模型。先在室内灯下出现；灯一关、投影机亮起，高度色阶像水位一样沿立面升上去；
+// 之后换成冬日阳光，长影铺满模型，投影机把最高那栋楼的影子描成蓝色并量出长度。模型本身不动，变的只有光
+{
+  const ROOM = '#0B0C0E';
+  const OX = 118, OY = 96, KX = 0.45, KZ = 0.42, KY = 0.9;     // 斜二测：z 越大越近、越靠右下；看得到顶面、正面和左面
+  const PW = 520, PD = 200, PLINTH = 7;                        // 底板（右侧出画）和底座厚度
+  const SC = 1.4;                                              // 1 个模型单位代表 1.4 m，只用于标注
+  const SUN = [1.5, -0.8];                                     // 每 1 单位高度的影子在地面上的位移（朝右后方）
+  const SUN_LEN = Math.hypot(SUN[0], SUN[1]);
+  const riverX = z => 400 - 0.62 * z, RIVER_HW = 15;           // 河道中心线与半宽
+  let DX = 0;                                                  // 镜头横移量，每帧由 u 算出
+  const P = (x, y, z) => [OX + DX + x + KX * z, OY + KZ * z - KY * y];
+  // 体块：按街区行生成，行之间留街道；落在河道里的跳过，少量空地
+  const B = [], ROWB = [];
+  for (let z = 4, r = 0; z < PD - 12; r++) {
+    const z1 = Math.min(PD - 4, z + 16 + Math.floor(rnd(r, 1) * 10));
+    ROWB.push([z, z1]);
+    for (let x = 4 + rnd(r, 2) * 6, c = 0; x < 470 - KX * z; c++) {
+      const id = r * 40 + c, wd = 12 + rnd(id, 3) * 20, xc = x + wd / 2;
+      if (Math.abs(xc - riverX((z + z1) / 2)) > RIVER_HW + wd / 2 + 2 && rnd(id, 4) > 0.08) {
+        const hh = rnd(id, 5) > 0.93 ? 40 + rnd(id, 6) * 22 : 8 + Math.pow(rnd(id, 7), 2) * 26;
+        B.push({ row: r, x0: x, x1: x + wd, z0: z + rnd(id, 8) * 3, z1: z1 - rnd(id, 9) * 3, h: hh });
+      }
+      x += wd + 3 + (c % 4 === 3 ? 6 : 0);
+    }
+    z = z1 + 6;
+  }
+  // 最高的一栋塔楼放在 z≈150 那一行，先清掉和它重叠的体块
+  const TR = ROWB.findIndex(([a, b]) => a <= 150 && b >= 150);
+  for (let i = B.length - 1; i >= 0; i--) if (B[i].row === TR && B[i].x1 > 154 && B[i].x0 < 180) B.splice(i, 1);
+  const TOWER = { row: TR, x0: 158, x1: 176, z0: ROWB[TR][0] + 1, z1: ROWB[TR][1] - 1, h: 104 };
+  B.push(TOWER);
+  B.sort((a, b) => a.row - b.row || b.x0 - a.x0);              // 远的行先画，同一行从右往左画
+  const MAXH = Math.max(...B.map(b => b.h));
+  const TOWER_M = Math.round(TOWER.h * SC);
+  // 影子 = 底面矩形与它沿阳光方向平移后的凸包
+  function hull(pts) {
+    pts = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const lo = [], up = [];
+    for (const p of pts) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
+    for (const p of pts.slice().reverse()) { while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); }
+    return lo.slice(0, -1).concat(up.slice(0, -1));
+  }
+  const shadowW = (b, kk) => {
+    const fx = [[b.x0, b.z0], [b.x1, b.z0], [b.x1, b.z1], [b.x0, b.z1]], ox = SUN[0] * b.h * kk, oz = SUN[1] * b.h * kk;
+    return hull(fx.concat(fx.map(([x, z]) => [x + ox, z + oz])));
+  };
+  const inPolyW = (pts, x, z) => {
+    let inside = false;
+    for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+      const [xi, zi] = pts[i], [xj, zj] = pts[j];
+      if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) inside = !inside;
+    }
+    return inside;
+  };
+  // 塔楼影子：从塔楼中心量到影子尖端
+  const TA = [(TOWER.x0 + TOWER.x1) / 2, (TOWER.z0 + TOWER.z1) / 2], TLEN = TOWER.h * SUN_LEN;
+  const DIR = [SUN[0] / SUN_LEN, SUN[1] / SUN_LEN], PERP = [-DIR[1], DIR[0]];
+  const TIP = [TA[0] + DIR[0] * TLEN, TA[1] + DIR[1] * TLEN];
+  const TS = shadowW(TOWER, 1);
+  const SHADOW_M = Math.round(TLEN * SC);
+  const SUN_ALT = (Math.atan(1 / SUN_LEN) * 180 / Math.PI).toFixed(1);
+  // 落在塔楼影子里的体块：记下它离塔楼的距离比例，描影时依次染蓝
+  B.forEach(b => {
+    const cx = (b.x0 + b.x1) / 2, cz = (b.z0 + b.z1) / 2;
+    b.sh = b === TOWER || !inPolyW(TS, cx, cz) ? -1 : clamp(((cx - TA[0]) * DIR[0] + (cz - TA[1]) * DIR[1]) / TLEN);
+  });
+  // 颜色：白模在室内灯、关灯（只剩环境光）和阳光下各有一组面明度；投影是加在表面上的光
+  const W = [243, 243, 241], AMB = 0.42;         // 关灯后只剩环境光，白模降到约 4 成亮度
+  const HOUSE = { top: 1, left: 0.86, front: 0.7 };
+  const SUNC = { top: [241, 228, 208], left: [236, 218, 194], front: [172, 165, 158] };   // 阳光从左前方来
+  const FAC = { top: 1, left: 0.78, front: 0.6 };                                     // 投影机在前上方，朝向它的面更亮
+  const PLATE = { house: [222, 222, 219], sun: [226, 212, 192] };
+  const RIVER = { house: [46, 50, 56], sun: [60, 62, 66] };
+  const BLUE = [64, 112, 232];                                                        // 塔楼影子里的楼被投影染成的蓝
+  const RAMP = [[91, 75, 214], [201, 60, 156], [255, 180, 138]];                      // 紫 → 洋红 → 桃色
+  const lerp = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+  const ramp = t => (t < 0.5 ? lerp(RAMP[0], RAMP[1], t * 2) : lerp(RAMP[1], RAMP[2], t * 2 - 1));
+  const css = c => `rgb(${c.map(v => Math.round(clamp(v, 0, 255))).join(',')})`;
+  const lit = (house, sun, hk, sk) => lerp(lerp(house.map(v => v * AMB), house, hk), sun, sk);
+  const front = (b, ya, yb) => [P(b.x0, ya, b.z1), P(b.x1, ya, b.z1), P(b.x1, yb, b.z1), P(b.x0, yb, b.z1)];
+  const left = (b, ya, yb) => [P(b.x0, ya, b.z0), P(b.x0, ya, b.z1), P(b.x0, yb, b.z1), P(b.x0, yb, b.z0)];
+  const top = b => [P(b.x0, b.h, b.z0), P(b.x1, b.h, b.z0), P(b.x1, b.h, b.z1), P(b.x0, b.h, b.z1)];
+  const W2S = pts => pts.map(([x, z]) => P(x, 0, z));
+  // 标签：从锚点拉一根细线到深色小牌，牌上一行数值、一行说明
+  function pin(k, x, y, title, sub, t, dx = 0) {
+    if (t <= 0) return;
+    const ty = y - 30, tx = x + dx;
+    k.save(); k.globalAlpha *= t;
+    k.strokeStyle = 'rgba(230,232,236,0.85)'; k.lineWidth = 0.7;
+    k.beginPath(); k.moveTo(x, y); k.lineTo(tx, ty + 11); k.stroke();
+    k.font = `600 10px ${SANS}`; const w1 = k.measureText(title).width;
+    k.font = `500 7px ${MONO}`; const w2 = k.measureText(sub).width;
+    const bw = Math.max(w1, w2) + 10;
+    k.fillStyle = 'rgba(14,15,18,0.86)'; k.fillRect(tx, ty - 11, bw, 23);
+    k.textAlign = 'left'; k.textBaseline = 'alphabetic';
+    k.fillStyle = '#F4F4F2'; k.font = `600 10px ${SANS}`; k.fillText(title, tx + 5, ty);
+    k.fillStyle = '#AEB3BC'; k.font = `500 7px ${MONO}`; k.fillText(sub, tx + 5, ty + 9);
+    k.restore();
+  }
+  CELLS[1] = (k, w, h, u) => {
+    k.fillStyle = ROOM; k.fillRect(0, 0, CW, CH);
+    const a = vis(u) * inOut3(seg(u, 0, 0.6));                   // 开头缓入，避免第一帧整块跳出
+    if (a <= 0) return;
+    k.globalAlpha = a;
+    DX = -16 * seg(u, 0, 6.0);                                   // 镜头一直缓慢横移，不停顿
+    const hk = 1 - seg(u, 1.2, 1.45);                            // 室内灯 1.2 秒切掉（0.25 秒）
+    const fl = u < 1.45 ? 0 : u < 1.5 ? 1 : u < 1.56 ? 0.3 : 1;  // 投影灯启动时闪一下
+    const wash = 0.22 * fl * (1 - seg(u, 1.56, 1.9));
+    const hA = fl * seg(u, 1.6, 1.75) * (1 - seg(u, 2.9, 3.2));   // 第 1 层：高度
+    const L = MAXH * inOut3(seg(u, 1.6, 2.4));                    // 光的水位，2.4 秒升到最高那栋楼顶
+    const sk = inOut3(seg(u, 3.0, 3.5));                          // 冬日阳光
+    const lenK = mix(0.55, 1, inOut3(seg(u, 3.0, 3.9)));          // 太阳走低，影子拉长
+    const tr = inOut3(seg(u, 3.9, 4.6));                          // 第 2 层：描出塔楼影子
+    // 底座与底板
+    k.fillStyle = '#121316'; fillPts(k, [P(0, 0, 0), P(0, 0, PD), P(0, -PLINTH, PD), P(0, -PLINTH, 0)]);
+    k.fillStyle = '#17181B'; fillPts(k, [P(0, 0, PD), P(PW, 0, PD), P(PW, -PLINTH, PD), P(0, -PLINTH, PD)]);
+    k.fillStyle = css(lerp(lit(PLATE.house, PLATE.sun, hk, sk), [255, 255, 255], wash * 0.5));
+    fillPts(k, [P(0, 0, 0), P(PW, 0, 0), P(PW, 0, PD), P(0, 0, PD)]);
+    k.fillStyle = css(lit(RIVER.house, RIVER.sun, hk, sk));
+    fillPts(k, [P(riverX(0) - RIVER_HW, 0, 0), P(riverX(0) + RIVER_HW, 0, 0), P(riverX(PD) + RIVER_HW, 0, PD), P(riverX(PD) - RIVER_HW, 0, PD)]);
+    // 阳光下的影子（只画在地面上）
+    if (sk > 0) {
+      k.fillStyle = `rgba(52,46,48,${0.55 * sk})`;
+      k.beginPath(); B.forEach(b => tracePts(k, W2S(shadowW(b, lenK)), true)); k.fill();
+    }
+    // 投影机把塔楼影子描成蓝色：从塔脚往影子尖端推进
+    if (tr > 0) {
+      const d = tr * TLEN, q = (s, p) => [TA[0] + DIR[0] * s + PERP[0] * p, TA[1] + DIR[1] * s + PERP[1] * p];
+      k.save(); k.beginPath(); tracePts(k, W2S([q(-30, -90), q(d, -90), q(d, 90), q(-30, 90)]), true); k.clip();
+      k.fillStyle = 'rgba(64,112,232,0.78)'; fillPts(k, W2S(TS));
+      k.strokeStyle = 'rgba(160,200,255,0.95)'; k.lineWidth = 1; strokePts(k, W2S(TS), true);
+      k.restore();
+    }
+    // 体块
+    for (const b of B) {
+      const bt = b.sh >= 0 ? clamp((tr - b.sh) / 0.15) * 0.7 : 0;
+      // 室内灯/阳光下的面色，叠上投影机开灯的白闪；在塔楼影子里的楼再朝蓝色混
+      const add = f => lerp(lit(W.map(v => v * HOUSE[f]), SUNC[f], hk, sk).map(v => v + 255 * wash * FAC[f]), BLUE.map(v => v * (0.55 + 0.45 * FAC[f])), bt);
+      // 高度层是加在表面上的光，按 0.7 的强度叠加，白模底色仍透得出来
+      const withRamp = (f, base) => base.map((v, i) => v + ramp(b.h / MAXH)[i] * hA * FAC[f] * 0.7);
+      const cl = add('left'), cf = add('front'), ct = add('top');
+      k.fillStyle = css(cl); fillPts(k, left(b, 0, b.h));
+      k.fillStyle = css(cf); fillPts(k, front(b, 0, b.h));
+      const lv = Math.min(L, b.h);
+      if (hA > 0 && lv > 0) {
+        k.fillStyle = css(withRamp('left', cl)); fillPts(k, left(b, 0, lv));
+        k.fillStyle = css(withRamp('front', cf)); fillPts(k, front(b, 0, lv));
+      }
+      k.fillStyle = css(hA > 0 && L >= b.h ? withRamp('top', ct) : ct); fillPts(k, top(b));
+    }
+    // 测量线：塔脚到影子尖端，每 50 m 一个刻度
+    const ms = seg(u, 4.1, 4.7);
+    if (ms > 0) {
+      const A = P(TA[0], 0, TA[1]), Z = P(TIP[0], 0, TIP[1]);
+      const ex = A[0] + (Z[0] - A[0]) * ms, ey = A[1] + (Z[1] - A[1]) * ms;
+      const L2 = Math.hypot(Z[0] - A[0], Z[1] - A[1]), nx = -(Z[1] - A[1]) / L2 * 3, ny = (Z[0] - A[0]) / L2 * 3;
+      k.strokeStyle = '#F2D6A8'; k.lineWidth = 1.3;
+      k.beginPath(); k.moveTo(A[0], A[1]); k.lineTo(ex, ey);
+      for (let m = 50; m < SHADOW_M; m += 50) {
+        const f = m / SHADOW_M; if (f > ms) break;
+        const tx = A[0] + (Z[0] - A[0]) * f, ty = A[1] + (Z[1] - A[1]) * f;
+        k.moveTo(tx - nx, ty - ny); k.lineTo(tx + nx, ty + ny);
+      }
+      k.stroke();
+      k.fillStyle = '#F2D6A8'; k.beginPath(); k.arc(A[0], A[1], 1.8, 0, TAU); k.arc(ex, ey, 1.8, 0, TAU); k.fill();
+    }
+    // 标签：塔楼高度（第 1 层末尾）、影子长度（第 2 层末尾）
+    const TT = P(TA[0], TOWER.h, TA[1]);
+    pin(k, TT[0], TT[1], `${TOWER_M} m`, 'TALLEST ROOF', seg(u, 2.4, 2.7) * (1 - seg(u, 2.9, 3.2)), -64);
+    const TP = P(TIP[0], 0, TIP[1]);
+    pin(k, TP[0], TP[1], `${SHADOW_M} m`, 'WINTER NOON SHADOW', seg(u, 4.6, 4.9), -104);
+    // 左侧读数和左上角标识（不随镜头移动）
+    k.textAlign = 'left'; k.textBaseline = 'alphabetic';
+    k.fillStyle = 'rgba(236,236,232,0.9)'; k.font = `600 9px ${SANS}`; k.fillText('CITY CENTRE · 1:1000 WHITE MODEL', 14, 20);
+    k.fillStyle = 'rgba(160,164,170,0.8)'; k.font = `500 7px ${MONO}`; k.fillText(`${B.length} BUILDINGS · OPEN DATA`, 14, 30);
+    const r1 = seg(u, 1.7, 1.9) * (1 - seg(u, 2.95, 3.15)), r2 = seg(u, 3.2, 3.4);
+    const readout = (t, idx, name, num, label, sub, bar) => {
+      if (t <= 0) return;
+      k.save(); k.globalAlpha *= t;
+      k.fillStyle = 'rgba(160,164,170,0.9)'; k.font = `500 8px ${MONO}`; k.fillText(idx, 14, 74);
+      k.fillStyle = '#ECECE8'; k.font = `600 9px ${SANS}`; k.fillText(name, 30, 74);
+      k.fillStyle = '#F2D6A8'; k.fillRect(14, 79, 12, 1);
+      k.fillStyle = '#F6F6F4'; k.font = `200 30px ${SANS}`; k.fillText(num, 13, 110);
+      k.fillStyle = '#ECECE8'; k.font = `600 9px ${SANS}`; k.fillText(label, 14, 124);
+      k.fillStyle = 'rgba(160,164,170,0.9)'; k.font = `500 7px ${MONO}`; k.fillText(sub, 14, 134);
+      bar(); k.restore();
+    };
+    readout(r1, '01', 'HEIGHT', `${Math.round(L * SC)} m`, 'ROOF HEIGHT', `LIGHT LEVEL · MAX ${TOWER_M} m`, () => {
+      const g = k.createLinearGradient(14, 0, 94, 0);
+      g.addColorStop(0, css(RAMP[0])); g.addColorStop(0.5, css(RAMP[1])); g.addColorStop(1, css(RAMP[2]));
+      k.fillStyle = g; k.fillRect(14, 141, 80, 3);
+    });
+    readout(r2, '02', 'WINTER SUN', `${Math.round(tr * SHADOW_M)} m`, 'TOWER SHADOW', `DEC 21 · SUN ${SUN_ALT}°`, () => {
+      k.fillStyle = 'rgba(160,164,170,0.5)'; k.fillRect(14, 142, 80, 1);
+      k.fillStyle = '#F2D6A8'; k.beginPath(); k.arc(14 + 80 * inOut3(seg(u, 3.0, 3.9)), 142.5, 2.2, 0, TAU); k.fill();
+    });
+    k.globalAlpha = 1;
+  };
+}

@@ -1,0 +1,16 @@
+Please use "Telestrator" (スポーツ戦術ボード), filed under "Animation styles / Media & genres".
+Motion Prompt #4-090
+
+What it is: Like the analysis in a sports broadcast: the angled camera picture freezes, then a ring under the player's feet, a spotlight, yellow dashed arrows and name captions are drawn onto it
+What the sample shows: On an angled football pitch, 10 players run and the picture flashes and freezes at 1.8 s. A yellow ring, a spotlight, a curved dashed arrow and a shot arrow are drawn, with the camera label, name tag, freeze-frame badge and score.
+Spec:
+- An angled broadcast view: a dark stand with crowd dots, a row of 12 ad boards, a pitch with 14 grass stripes, the penalty box, six-yard box and goal; the stadium stays when everything else fades.
+- 10 players, 5 white and 5 dark, are small figures with running legs and shadows, scaled by distance. 0–0.3 s: they fade in. 0.3–1.8 s: they run towards the goal.
+- 1.8 s: the picture flashes white and freezes. 1.9–2.3 s: a '定格 FREEZE FRAME 战术分析 ANALYSIS' badge slides in top right. 2.2–2.7 s: a pale translucent spotlight; 2.6–3.1 s: a yellow ring with a broken outer ring under the header's feet.
+- 0.3–0.7 s: an 'A 主机位 MAIN CAMERA' label top left. 3.0–3.4 s: a '林远 LIN YUAN' name tag with a thin leader line. 3.2–4.1 s: a yellow dashed arc from the kicker to the header; 4.0–4.5 s: a solid shot arrow to the goal with an arrowhead. 4.3–4.8 s: a score bar 'HAN 2 - 1 SEA 61′' rises into the bottom right.
+- At 5.4–6.0 s the players and drawings fade out; at 0 s and 6.4 s only the empty stadium is left, so the loop restarts cleanly.
+When to use it: Use it for sports analysis, match reviews, explaining tactics or movement, or describing a workflow as if it were a play.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-090.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/infostyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

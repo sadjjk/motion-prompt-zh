@@ -1,0 +1,168 @@
+// Motion Prompt #4-096 · MIT License (c) 2026 alchaincyf (花叔) · https://github.com/alchaincyf/huashu-art-motion
+//
+// 慕夏新艺术 / Mucha-style Art Nouveau
+// 分类: 审美风格 / 艺术流派 / 现代与后现代
+// 动画表现: 浅绿到桃色的底上描出双线外框和拱形画框，右侧拱窗里太阳升起；金色光环展开，两侧长出罂粟花；粗细变化的线依次勾出侧脸、脖子、肩膀和长发，发梢卷成螺旋；底部字带展开、字母浮现；之后光环缓缓转动，花轻轻摇摆。
+// 运动规格:
+//   - 从灰绿经浅橄榄到桃色的竖向渐变；其他内容淡出时渐变保留。0–0.6 秒：顺时针描出双线外框，四角加 4 个金色圆点。0.1–0.8 秒：人物身后描出填浅杏色的拱形画框；人物和花都在外框之内。
+//   - 0.3–0.9 秒：头后长出半径 64 px 的金色光环，带两道圆圈和 36 道短放射纹。0.6–2.05 秒：两侧 4 根罂粟花茎依次长出，间隔 0.15 秒，1.4–2.35 秒红色五瓣花和叶子弹开。0.5–0.9 秒：右侧淡入拱窗，0.8–2.6 秒窗里一轮带 16 道光芒的太阳从绿色山丘上升起。
+//   - 1.2–1.8 秒：头发、脸、脖子和绿色衣服以平涂淡入。1.4–3.8 秒：10 条深棕色线条间隔 0.2 秒依次画出，每条 0.6 秒：侧脸、脖子、肩膀、头发轮廓和 5 缕末端卷成螺旋的鞭形发束；每条线中间粗到 2.6–5 px，两端收细到 0.8 px。
+//   - 3.2–3.6 秒：加上眼睛和眉毛。3.6 秒起光环的放射纹以每秒 0.25 rad 转动，每根花茎最多摆动 0.035 rad。3.8–4.3 秒：底部金色字带从左往右展开，4.0 秒起「SALON DU PRINTEMPS」的字母每隔 0.05 秒浮出一个。
+//   - 5.4–6.0 秒画面淡回背景渐变；0 秒和 6.4 秒都只剩背景渐变，循环无缝。
+// 适用场景: 适合美妆、香水、时尚、咖啡馆、戏剧或音乐海报，以及需要优雅、装饰感的场合。
+// 标签: art-nouveau, mucha, whiplash, halo, poster, arch-frame
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-096
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 06
+// 慕夏新艺术海报：先描出双线外框和拱形画框，右侧拱窗里太阳升起；光环亮起，两侧花茎长出，
+// 粗细会变的鞭形曲线勾出侧脸和长发，发梢卷成螺旋；最后底部字带滑入、字母逐个浮出；之后光环转、花轻摇
+// 对应原作 scenes/10_nouveau.js（dense + ribbon + swellW + spiral；海报框、拱窗和字带的版式）
+{
+  const LINE = '#4E3320', SKIN = '#F6DCC4', HAIR = '#9C7A2E', HALO = '#E8BF55', HALO_LINE = '#C9A24A', POPPY = '#C9503A', LEAF = '#8FAC80';
+  const W = (pts, wmax, wend = 0.8) => ribbon(dense(pts, 8), swellW(wmax, wend));
+  // 侧脸朝右：额头、鼻尖、嘴唇、下巴
+  const FACE = dense([[266, 52], [282, 56], [291, 68], [293, 78], [299, 87], [292, 90], [294, 96], [289, 100], [291, 106], [283, 113], [270, 116]], 6);
+  const FACE_FILL = FACE.concat([[252, 112], [246, 80], [254, 56]]);
+  const NECK = [dense([[276, 115], [274, 132], [276, 150]], 6), dense([[252, 108], [250, 130], [244, 150]], 6)];
+  const HAIR_MASS = dense([[266, 50], [250, 42], [230, 48], [218, 68], [222, 96], [236, 116], [250, 112], [252, 80], [260, 60], [266, 50]], 6);
+  // 鞭形发束：从头后向外甩出，末端接螺旋
+  const LOCKS = [
+    [[[232, 60], [196, 52], [170, 70], [160, 96]], spiral(150, 104, 12, -0.6, 1.1, -1)],
+    [[[226, 84], [196, 96], [180, 124], [190, 150]], spiral(180, 156, 11, -0.2, 1.1, 1)],
+    [[[234, 104], [214, 128], [214, 158], [234, 176]], spiral(240, 170, 10, 2.4, 1.1, -1)],
+    [[[248, 112], [252, 140], [272, 164], [300, 170]], spiral(306, 160, 10, 1.6, 1.1, -1)],
+    [[[262, 48], [292, 34], [322, 40], [336, 60]], spiral(328, 66, 9, 0.2, 1.1, 1)]
+  ].map(([a, b]) => dense(a.concat(b), 6));
+  const SHOULDER = dense([[214, 208], [228, 168], [260, 154], [300, 160], [326, 208]], 6);
+  // 两侧花：花茎底点、花心、弯度
+  const FLOWERS = [[70, 208, 84, 70, 30], [104, 208, 120, 112, -24], [470, 208, 456, 66, -30], [436, 208, 420, 110, 24]];
+  const STEMS = FLOWERS.map(([bx, by, hx, hy, bend]) => dense([[bx, by], [mix(bx, hx, 0.4) + bend, mix(by, hy, 0.4)], [mix(bx, hx, 0.75) - bend * 0.4, mix(by, hy, 0.75)], [hx, hy]], 8));
+  const HC = [270, 88], HR = 64;
+  // 外框：内缩 6 px 的矩形（顺时针，从左上角起），按长度描出
+  const BORDER = [[6, 6], [CW - 6, 6], [CW - 6, CH - 6], [6, CH - 6], [6, 6]];
+  const BORDER_IN = [[11, 11], [CW - 11, 11], [CW - 11, CH - 11], [11, CH - 11], [11, 11]];
+  // 拱形画框：包住光环的半圆顶 + 两条竖边，底边落在字带上
+  const archPts = (cx, top, rw, bottom) => [[cx - rw, bottom]].concat(Array.from({ length: 33 }, (_, i) => { const an = Math.PI + i / 32 * Math.PI; return [cx + rw * Math.cos(an), top + rw + rw * Math.sin(an)]; }), [[cx + rw, bottom]]);
+  const ARCH = archPts(HC[0], 14, 84, 178), ARCH_IN = archPts(HC[0], 19, 79, 178);
+  // 右侧拱窗：窗框、太阳（从窗底升到窗中上部）、远山
+  const WIN = { cx: 373, top: 30, rw: 25, bottom: 150 };
+  const WIN_PTS = archPts(WIN.cx, WIN.top, WIN.rw, WIN.bottom);
+  const HILLS = [[WIN.cx - 26, 136], [WIN.cx - 12, 124], [WIN.cx, 130], [WIN.cx + 12, 120], [WIN.cx + 26, 128], [WIN.cx + 26, 151], [WIN.cx - 26, 151]];
+  // 底部字带：字母逐个浮出；字间距按字宽在画时量
+  const BAND_Y = 178, BAND_H = 18, TITLE = 'SALON DU PRINTEMPS';
+  CELLS[5] = (k, w, h, u) => {
+    const bg = k.createLinearGradient(0, 0, 0, CH);
+    bg.addColorStop(0, '#B9CBA0'); bg.addColorStop(0.5, '#CFD3A6'); bg.addColorStop(1, '#ECC9A2');
+    k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+    const a = vis(u); k.globalAlpha = a;
+    // 拱形画框（0.1–0.8 秒）：框内填浅杏色，再描双线
+    const at = seg(u, 0.1, 0.8);
+    if (at > 0) {
+      k.globalAlpha = a * seg(u, 0.4, 0.9); k.fillStyle = '#F3E2C2'; fillPts(k, ARCH_IN); k.globalAlpha = a;
+      k.strokeStyle = LINE; k.lineWidth = 1.6; partial(k, ARCH, at); k.lineWidth = 0.8; partial(k, ARCH_IN, at);
+    }
+    // 拱窗（0.5–0.9 秒）：天空渐变 + 升起的太阳与放射光 + 远山 + 窗框
+    const wt = seg(u, 0.5, 0.9);
+    if (wt > 0) {
+      k.save(); k.globalAlpha = a * wt;
+      k.beginPath(); tracePts(k, WIN_PTS, true); k.clip();
+      const sky = k.createLinearGradient(0, WIN.top, 0, WIN.bottom);
+      sky.addColorStop(0, '#E9C98A'); sky.addColorStop(1, '#F6E6C4');
+      k.fillStyle = sky; k.fillRect(WIN.cx - 30, WIN.top, 60, WIN.bottom - WIN.top);
+      const sy = mix(150, 84, out3(seg(u, 0.8, 2.6))), rot = 0.2 * u;
+      k.strokeStyle = 'rgba(214,140,60,0.55)'; k.lineWidth = 1;
+      k.beginPath(); for (let i = 0; i < 16; i++) { const an = rot + i / 16 * TAU; k.moveTo(WIN.cx + Math.cos(an) * 13, sy + Math.sin(an) * 13); k.lineTo(WIN.cx + Math.cos(an) * 40, sy + Math.sin(an) * 40); } k.stroke();
+      k.fillStyle = '#E88A3A'; k.beginPath(); k.arc(WIN.cx, sy, 11, 0, TAU); k.fill();
+      k.strokeStyle = LINE; k.lineWidth = 1; k.stroke();
+      k.fillStyle = '#8FAC80'; fillPts(k, HILLS); k.strokeStyle = LINE; k.lineWidth = 1; strokePts(k, HILLS.slice(0, 5));
+      k.restore(); k.globalAlpha = a * wt;
+      k.strokeStyle = LINE; k.lineWidth = 2; strokePts(k, WIN_PTS);
+      k.lineWidth = 1; k.beginPath(); k.moveTo(WIN.cx, WIN.top + WIN.rw); k.lineTo(WIN.cx, WIN.bottom); k.stroke();
+      k.globalAlpha = a;
+    }
+    // 人物、光环和花都裁在内框里，不越过外框
+    k.save(); k.beginPath(); k.rect(11, 11, CW - 22, CH - 22); k.clip();
+    // 光环（0.3–0.9 秒放大），3.6 秒后放射纹缓慢转动
+    const ht = out3(seg(u, 0.3, 0.9));
+    if (ht > 0) {
+      const r = HR * ht, rot = 0.25 * ease(u, 3.6) * (u - 3.6);
+      k.fillStyle = HALO; k.globalAlpha = a * 0.55; k.beginPath(); k.arc(HC[0], HC[1], r, 0, TAU); k.fill(); k.globalAlpha = a;
+      k.strokeStyle = HALO_LINE; k.lineWidth = 1.2;
+      k.beginPath(); k.arc(HC[0], HC[1], r, 0, TAU); k.stroke();
+      k.beginPath(); k.arc(HC[0], HC[1], r * 0.86, 0, TAU); k.stroke();
+      k.beginPath();
+      for (let i = 0; i < 36; i++) { const an = rot + i / 36 * TAU; k.moveTo(HC[0] + Math.cos(an) * r * 0.86, HC[1] + Math.sin(an) * r * 0.86); k.lineTo(HC[0] + Math.cos(an) * r, HC[1] + Math.sin(an) * r); }
+      k.stroke();
+    }
+    // 两侧花茎（0.6–2.0 秒长出），3.6 秒后绕底点轻摇
+    FLOWERS.forEach(([bx, by, hx, hy], i) => {
+      const t = seg(u, 0.6 + i * 0.15, 1.6 + i * 0.15);
+      if (t <= 0) return;
+      const sw = 0.035 * ease(u, 3.6) * Math.sin((u - 3.6) * 2.4 + i * 1.3);
+      k.save(); k.translate(bx, by); k.rotate(sw); k.translate(-bx, -by);
+      k.fillStyle = LINE; fillPts(k, ribbon(STEMS[i], swellW(4, 1.2), t));
+      const ft = backOut(seg(u, 1.4 + i * 0.15, 1.9 + i * 0.15), 1.4);
+      if (ft > 0) {
+        k.save(); k.translate(hx, hy); k.scale(ft, ft);
+        for (let p = 0; p < 5; p++) { k.rotate(TAU / 5); k.fillStyle = POPPY; k.beginPath(); k.ellipse(0, -9, 7, 10, 0, 0, TAU); k.fill(); k.strokeStyle = LINE; k.lineWidth = 1.2; k.stroke(); }
+        k.fillStyle = LINE; k.beginPath(); k.arc(0, 0, 3.5, 0, TAU); k.fill();
+        k.restore();
+        k.fillStyle = LEAF; k.strokeStyle = LINE; k.lineWidth = 1;
+        const lx = mix(bx, hx, 0.55), ly = mix(by, hy, 0.55), s = i % 2 ? -1 : 1;
+        k.beginPath(); k.ellipse(lx + 9 * s, ly, 10 * ft, 3.5 * ft, -0.6 * s, 0, TAU); k.fill(); k.stroke();
+      }
+      k.restore();
+    });
+    // 头发底色、脸、肩（1.2–1.8 秒淡入）
+    const ft = seg(u, 1.2, 1.8);
+    if (ft > 0) {
+      k.globalAlpha = a * ft;
+      k.fillStyle = '#7FA07A'; k.beginPath(); tracePts(k, SHOULDER, false); k.closePath(); k.fill();
+      k.fillStyle = SKIN; fillPts(k, [[252, 108], [276, 115], [276, 152], [244, 152]]);
+      k.fillStyle = HAIR; fillPts(k, HAIR_MASS);
+      k.fillStyle = SKIN; fillPts(k, FACE_FILL);
+      k.globalAlpha = a;
+    }
+    // 墨线：侧脸、脖子、肩、发束依次画出（1.4–3.6 秒）
+    k.fillStyle = LINE;
+    const lines = [[FACE, 3.2], [NECK[0], 2.6], [NECK[1], 2.6], [SHOULDER, 3.4], [HAIR_MASS, 2.8]].concat(LOCKS.map(l => [l, 5]));
+    lines.forEach(([pts, wm], i) => {
+      const t = seg(u, 1.4 + i * 0.2, 2.0 + i * 0.2);
+      if (t > 0) fillPts(k, ribbon(pts, swellW(wm, 0.8), t));
+    });
+    // 眼睛和眉（3.2–3.6 秒）
+    const et = seg(u, 3.2, 3.6);
+    if (et > 0) { k.globalAlpha = a * et; fillPts(k, ribbon(dense([[274, 72], [281, 70], [286, 73]], 4), swellW(1.8, 0.4))); fillPts(k, ribbon(dense([[275, 78], [281, 77], [285, 79]], 4), swellW(2, 0.5))); }
+    k.restore(); k.globalAlpha = a;
+    // 底部字带（3.8–4.3 秒从左往右展开），字母 4.0–4.9 秒逐个浮出；字带压在人物和花茎底部上，像海报的落款栏
+    const bt = out3(seg(u, 3.8, 4.3));
+    if (bt > 0) {
+      const bw = (CW - 22) * bt;
+      k.fillStyle = '#D9A94E'; k.fillRect(11, BAND_Y, bw, BAND_H);
+      k.strokeStyle = LINE; k.lineWidth = 1.2; k.strokeRect(11, BAND_Y, bw, BAND_H);
+      k.lineWidth = 0.6; k.strokeRect(14, BAND_Y + 3, Math.max(0, bw - 6), BAND_H - 6);
+      k.font = `600 11px "Didot", "Bodoni 72", Georgia, "Times New Roman", serif`; k.textBaseline = 'middle'; k.textAlign = 'left';
+      const sp = 5, ws = [...TITLE].map(c => k.measureText(c).width), tw = ws.reduce((x, y) => x + y, 0) + sp * (TITLE.length - 1);
+      let x = CW / 2 - tw / 2;
+      [...TITLE].forEach((c, i) => {
+        const lt = seg(u, 4.0 + i * 0.05, 4.2 + i * 0.05);
+        if (lt > 0 && c !== ' ') { k.globalAlpha = a * lt; k.fillStyle = '#3A2414'; k.fillText(c, x, BAND_Y + BAND_H / 2 + 1 + (1 - out3(lt)) * 3); }
+        x += ws[i] + sp;
+      });
+      k.globalAlpha = a;
+    }
+    // 双线外框（0–0.6 秒顺时针描出），四角各一个小圆饰
+    const ot = seg(u, 0, 0.6);
+    k.strokeStyle = LINE; k.lineWidth = 1.6; partial(k, BORDER, ot); k.lineWidth = 0.7; partial(k, BORDER_IN, ot);
+    if (ot >= 1) {
+      k.fillStyle = HALO;
+      for (const [x, y] of [[8.5, 8.5], [CW - 8.5, 8.5], [CW - 8.5, CH - 8.5], [8.5, CH - 8.5]]) { k.beginPath(); k.arc(x, y, 3.2, 0, TAU); k.fill(); k.stroke(); }
+    }
+    k.globalAlpha = 1;
+  };
+}

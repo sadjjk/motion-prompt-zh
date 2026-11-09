@@ -64,5 +64,7 @@ AI 会打开效果库让你挑选，选好后点"发送给 AI"，它会读取真
 - `webfx` 包的效果为本仓库原创，MIT License © 2026 sadjjk；效果思路参考 [React Bits](https://reactbits.dev/)（作者 David Haz），代码按其效果说明与在线演示独立重写，未复制或移植其源码。使用这部分代码时保留其版权行。
 - `vibefx` 包的效果改写自 [vibe-fx](https://github.com/ai-martin-lau/vibe-fx)，作者 ai-martin-lau，MIT License；未使用原作的生图素材、three.js 场景与字体。使用这部分代码时保留其版权行。
 - `drawstyles` 包的效果为本仓库原创，MIT License © 2026 sadjjk；画风思路参考 [anidoodle](https://github.com/alexgreensh/anidoodle)（作者 Alex Greenshpun），代码按其画风说明与效果图独立重写，未复制或移植其源码。使用这部分代码时保留其版权行。
+- `infostyles` 包的效果为本仓库原创，MIT License © 2026 sadjjk；风格思路参考 [lemo-opuscar](https://github.com/lemomo-ai/lemo-opuscar)（作者 Lemomo），代码按其风格说明独立重写，未复制或移植其源码。使用这部分代码时保留其版权行。
+- `artstyles` 包的效果改写自 [huashu-art-motion](https://github.com/alchaincyf/huashu-art-motion)，作者花叔，MIT License；未使用原作的笔画数据、字体与卡通形象。使用这部分代码时保留其版权行。
 - `camera`、`photo`、`motion2`、`scenes`、`mgstyles` 包中署名阿梦freedom 的效果，术语与定义参考 [镜语](https://idea.ameng.dev/)（[jingyu-skill](https://github.com/hemengke1997/jingyu-skill)，作者阿梦freedom，MIT License）；动画为本仓库实现，未使用原站的演示代码、图片与文字。使用这部分代码时保留其版权行。
 - 每款的版权行写在它的代码首行（`e/<编号>.txt`），Skill 的 `get` 会一并取回。

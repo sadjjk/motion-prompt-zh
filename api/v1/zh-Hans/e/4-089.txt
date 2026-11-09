@@ -1,0 +1,164 @@
+// Motion Prompt #4-089 · MIT License (c) 2026 sadjjk · https://github.com/lemomo-ai/lemo-opuscar
+//
+// 电路板 / Circuit board
+// 分类: 审美风格 / 动画画风 / 图解与板书
+// 动画表现: 绿色电路板上铜条从中间向两边铺开，左右各 11 条走线连上；青白光沿通道流动，两排各 8 颗 LED 从中间向外点亮，最后出现丝印。
+// 运动规格:
+//   - 绿色电路板，越往下越暗，每 6 px 一个淡色网点。0.2–0.6 秒：中间淡入一条青灰色宽通道，以及从铜条往右下拐出去的一条窄通道。
+//   - 0.5–1.1 秒：400 px 长的铜条从中间向两边铺开。0.9–2.2 秒：左右各 11 条平行走线从内往外依次画出，每条从通道边伸出再斜着落到铜条上。从 2.0 秒起：16 道青白光条沿宽通道往下淌并循环，两侧走线和下方通道上也有虚线光点流动。
+//   - 1.0–1.5 秒：两排各 8 颗 LED、带 4 个焊盘的 J2 接口和母线淡入。2.6–3.8 秒：LED 从中间往外每隔 0.14 秒点亮一颗，3.6–4.0 秒母线发光。
+//   - 3.8–4.6 秒：出现丝印 G9–G16、G1–G8、J2，左上「锦屏 JINPING」，右上「九毫秒 NINE MILLISECONDS」。全程 10 个柔和散景光斑缓慢明暗起伏。
+//   - 5.4–6.0 秒除底色外全部淡出；0 秒和 6.4 秒都只剩底色，循环无缝。
+// 适用场景: 适合网络、数据流向、电网，以及硬件、芯片相关的内容。
+// 标签: circuit, pcb, traces, led, data-flow, tech
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/infostyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-089
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 03
+// 电路板：绿色阻焊板上，铜条先从中间向两边铺开，两束平行走线依次连上铜条，中间宽通道里的青色光流往下淌，
+// 穿过铜条流到右下角；两排各 8 颗 LED 从中间向两边依次点亮，最后浮出中英双行丝印和 J2 接口标注
+{
+  const BOARD = '#1D7349', BOARD_D = '#145536', TRACE = '#0E3A25', COPPER_A = '#E0946A', COPPER_B = '#B9683F';
+  const SILK = 'rgba(232,240,232,0.62)', CYAN = '#BFF8FF', LED_ON = '#FFF6B8', LED_OFF = '#5F6C3E';
+  const BAR = { x0: 70, x1: 470, y0: 116, y1: 126 };
+  const CH_L = 252, CH_R = 288;                       // 上方宽通道左右边
+  // 两束扇形走线：从通道两侧水平伸出一小段，再斜着落到铜条上沿；N 条，从内到外依次画
+  const N = 11, FAN = [];
+  for (const side of [-1, 1]) for (let i = 0; i < N; i++) {
+    const y = 106 - i * 8, x0 = side < 0 ? CH_L : CH_R, x1 = x0 + side * (8 + i * 0.6);
+    FAN.push({ side, i, pts: [[x0, y], [x1, y], [x1 + side * (BAR.y0 - 2 - y) * 1.55, BAR.y0 - 2]] });
+  }
+  // 两排 LED：左排 G9–G16、右排 G1–G8，各 8 颗；点亮顺序从靠中间的那颗往外
+  const LEDS = [];
+  for (let i = 0; i < 8; i++) {
+    LEDS.push({ x: 92 + i * 15, row: 0, order: 7 - i });      // 左排，最右边（靠中间）先亮
+    LEDS.push({ x: 336 + i * 15, row: 1, order: i });         // 右排，最左边先亮
+  }
+  const LED_Y = 140, BUS_Y = 166;
+  // 下方窄通道：从铜条下沿往下，再斜向右下，最后水平出画
+  const LOW = [[270, BAR.y1], [270, 172], [292, 194], [CW + 10, 194]];
+  // J2 接口与引线（左排母线左端往下到接口）
+  const J2 = { x: 16, y: 170 }, J2_LEAD = [[86, BUS_Y], [34, BUS_Y], [34, J2.y]];
+  // 右侧一条细边框走线：右排母线右端往右再向上出画
+  const EDGE = [[456, BUS_Y], [512, BUS_Y], [512, -4]];
+  // 散景光斑：位置固定，透明度随时间缓慢起伏
+  const BOKEH = Array.from({ length: 10 }, (_, i) => ({ x: rnd(i, 1) * CW, y: rnd(i, 2) * CH, r: 7 + rnd(i, 3) * 14, ph: rnd(i, 4) * TAU }));
+  // 通道里的光流：每条有固定 x、长度和相位，y 随时间往下走，超出通道底部从顶部重新进入
+  const STREAKS = Array.from({ length: 16 }, (_, i) => ({ x: CH_L + 6 + rnd(i, 5) * (CH_R - CH_L - 12), len: 8 + rnd(i, 6) * 24, ph: rnd(i, 7), sp: 0.8 + rnd(i, 8) * 0.6 }));
+  const roundRect = (k, x, y, w, h, r) => { k.beginPath(); k.moveTo(x + r, y); k.arcTo(x + w, y, x + w, y + h, r); k.arcTo(x + w, y + h, x, y + h, r); k.arcTo(x, y + h, x, y, r); k.arcTo(x, y, x + w, y, r); k.closePath(); };
+  CELLS[2] = (k, w, h, u) => {
+    // 底板：上亮下暗的渐变 + 细网点
+    const bg = k.createLinearGradient(0, 0, 0, CH);
+    bg.addColorStop(0, BOARD); bg.addColorStop(1, BOARD_D);
+    k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+    k.fillStyle = 'rgba(255,255,255,0.025)';
+    for (let y = 3; y < CH; y += 6) for (let x = (y % 12 ? 0 : 3); x < CW; x += 6) k.fillRect(x, y, 1, 1);
+    const a = vis(u) * seg(u, 0, 0.3);
+    if (a <= 0) return;
+    k.globalAlpha = a;
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    // 1. 上方宽通道（0.2–0.6 秒淡入）：深色描边 + 半透明青灰内芯
+    const ch = seg(u, 0.2, 0.6);
+    k.globalAlpha = a * ch;
+    k.fillStyle = TRACE; k.fillRect(CH_L - 3, -2, CH_R - CH_L + 6, BAR.y0 + 2);
+    const cg = k.createLinearGradient(CH_L, 0, CH_R, 0);
+    cg.addColorStop(0, '#4E8E8C'); cg.addColorStop(0.5, '#7FB5B4'); cg.addColorStop(1, '#4E8E8C');
+    k.fillStyle = cg; k.fillRect(CH_L, -2, CH_R - CH_L, BAR.y0 + 2);
+    // 下方窄通道
+    k.strokeStyle = TRACE; k.lineWidth = 16; strokePts(k, LOW);
+    k.strokeStyle = '#5E9C99'; k.lineWidth = 11; strokePts(k, LOW);
+    k.globalAlpha = a;
+    // 2. 扇形走线（0.9–2.2 秒，左右两束同时从内往外画）
+    const fanT = seg(u, 0.9, 2.2);
+    for (const f of FAN) {
+      const t = seg(fanT, f.i / N * 0.7, f.i / N * 0.7 + 0.3);
+      if (t <= 0) continue;
+      k.strokeStyle = TRACE; k.lineWidth = 5; partial(k, f.pts, t);
+      k.strokeStyle = '#2C8558'; k.lineWidth = 2.2; partial(k, f.pts, t);
+    }
+    // 3. 铜条（0.5–1.1 秒从中间往两边铺开）
+    const bt = out3(seg(u, 0.5, 1.1));
+    if (bt > 0) {
+      const cx = (BAR.x0 + BAR.x1) / 2, hw = (BAR.x1 - BAR.x0) / 2 * bt;
+      k.fillStyle = TRACE; k.fillRect(cx - hw - 3, BAR.y0 - 3, hw * 2 + 6, BAR.y1 - BAR.y0 + 6);
+      const g = k.createLinearGradient(0, BAR.y0, 0, BAR.y1);
+      g.addColorStop(0, COPPER_A); g.addColorStop(1, COPPER_B);
+      k.fillStyle = g; k.fillRect(cx - hw, BAR.y0, hw * 2, BAR.y1 - BAR.y0);
+      k.fillStyle = 'rgba(255,230,200,0.35)'; k.fillRect(cx - hw, BAR.y0, hw * 2, 1.5);
+    }
+    // 4. 青色光流（2.0 秒起淡入）：宽通道里的竖条往下淌；扇形走线和下方通道上的虚线光点同步流动
+    const flow = seg(u, 2.0, 2.6);
+    if (flow > 0) {
+      k.save(); k.beginPath(); k.rect(CH_L, 0, CH_R - CH_L, BAR.y0); k.clip();
+      k.strokeStyle = CYAN; k.lineCap = 'round';
+      for (const s of STREAKS) {
+        const span = BAR.y0 + s.len, y = ((s.ph + u * s.sp * 0.55) % 1) * span - s.len;
+        k.globalAlpha = a * flow * 0.25; k.lineWidth = 4; k.beginPath(); k.moveTo(s.x, y); k.lineTo(s.x, y + s.len); k.stroke();
+        k.globalAlpha = a * flow * 0.9; k.lineWidth = 1.4; k.beginPath(); k.moveTo(s.x, y); k.lineTo(s.x, y + s.len); k.stroke();
+      }
+      k.restore();
+      k.save(); k.strokeStyle = CYAN; k.lineWidth = 1.2; k.globalAlpha = a * flow * 0.75;
+      k.setLineDash([4, 10]); k.lineDashOffset = -u * 40;
+      for (const f of FAN) strokePts(k, f.pts);
+      k.lineWidth = 1.3; k.globalAlpha = a * flow * 0.85;
+      for (const off of [-3, 0, 3]) { k.setLineDash([5 + (off + 3), 7]); k.lineDashOffset = -u * 70 + off * 5; strokePts(k, LOW.map(([x, y], i) => [x + (i < 2 ? off : off * 0.7), y + (i >= 2 ? off : 0)])); }
+      k.restore();
+    }
+    // 5. LED、母线、J2 在铜条铺好后（1.0–1.5 秒）淡入，2.6–3.8 秒依次点亮
+    k.globalAlpha = a * seg(u, 1.0, 1.5);
+    LEDS.forEach(L => {
+      const on = seg(u, 2.6 + L.order * 0.14, 2.75 + L.order * 0.14);
+      const bx = L.x, top = LED_Y;
+      // 铜条到 LED 的短引线、LED 到母线的引脚
+      k.strokeStyle = TRACE; k.lineWidth = 2.4;
+      strokePts(k, [[bx + 10, BAR.y1 + 2], [bx + 5, top]]);
+      strokePts(k, [[bx + 5, top + 14], [bx + 5, BUS_Y]]);
+      k.fillStyle = mixHex(LED_OFF, LED_ON, on);
+      roundRect(k, bx, top, 10, 13, 3); k.fill();
+      if (on > 0) { const ga = k.globalAlpha; k.globalAlpha = ga * on * 0.55; glowDot(k, bx + 5, top + 5, 13, 'rgba(255,246,170,0.9)', LED_ON); k.globalAlpha = ga; }
+      k.fillStyle = 'rgba(255,255,255,0.7)'; k.fillRect(bx + 2, top + 2, 2, 4);
+    });
+    // 母线：两排各一条，灯全亮后发光
+    const busOn = seg(u, 3.6, 4.0);
+    [[86, 206], [330, 456]].forEach(([x0, x1]) => {
+      k.strokeStyle = TRACE; k.lineWidth = 6; strokePts(k, [[x0, BUS_Y], [x1, BUS_Y]]);
+      k.strokeStyle = mixHex('#3E7F4C', '#F2FFD8', busOn); k.lineWidth = 3; strokePts(k, [[x0, BUS_Y], [x1, BUS_Y]]);
+    });
+    // LED 行的虚线框
+    k.strokeStyle = SILK; k.lineWidth = 0.7; k.setLineDash([2.5, 2]);
+    k.strokeRect(86, LED_Y - 3, 122, 20); k.strokeRect(330, LED_Y - 3, 122, 20); k.setLineDash([]);
+    // J2 引线与接口、右侧边框走线
+    k.strokeStyle = TRACE; k.lineWidth = 3.4; strokePts(k, J2_LEAD); strokePts(k, EDGE);
+    k.strokeStyle = mixHex('#2F8E5F', '#F2FFD8', busOn * 0.8); k.lineWidth = 1.4; k.setLineDash([3, 3]); strokePts(k, J2_LEAD); k.setLineDash([]);
+    k.strokeStyle = '#2F8E5F'; k.lineWidth = 1.2; strokePts(k, EDGE);
+    k.fillStyle = '#10301F'; k.fillRect(J2.x, J2.y, 26, 26);
+    k.strokeStyle = SILK; k.lineWidth = 0.8; k.strokeRect(J2.x - 2, J2.y - 2, 30, 30);
+    k.fillStyle = '#C9A85A';
+    for (const [dx, dy] of [[7, 7], [19, 7], [7, 19], [19, 19]]) { k.beginPath(); k.arc(J2.x + dx, J2.y + dy, 3.6, 0, TAU); k.fill(); }
+    k.fillStyle = '#10301F'; for (const [dx, dy] of [[19, 7], [7, 19], [19, 19]]) { k.beginPath(); k.arc(J2.x + dx, J2.y + dy, 1.5, 0, TAU); k.fill(); }
+    k.fillRect(J2.x + 5.5, J2.y + 5.5, 3, 3);
+    k.globalAlpha = a;
+    // 6. 丝印（3.8–4.6 秒）：LED 组号、J2、左上和右上的中英双行字
+    const st = seg(u, 3.8, 4.6);
+    if (st > 0) {
+      k.globalAlpha = a * st; k.fillStyle = SILK; k.textBaseline = 'alphabetic';
+      k.font = `500 8px ${SANS}`; k.textAlign = 'center';
+      k.fillText('G9–G16', 147, 182); k.fillText('G1–G8', 391, 182); k.fillText('J2', J2.x + 13, 205);
+      k.textAlign = 'left'; k.font = `300 17px ${SANS}`; k.fillText('锦屏', 14, 30);
+      k.font = `500 7px ${SANS}`; k.fillText('JINPING', 14, 41);
+      k.textAlign = 'right'; k.font = `300 17px ${SANS}`; k.fillText('九毫秒', 496, 30);
+      k.font = `600 8px ${SANS}`; k.fillText('NINE MILLISECONDS', 496, 42);
+      k.globalAlpha = a;
+    }
+    // 7. 散景光斑
+    for (const b of BOKEH) {
+      k.globalAlpha = a * (0.05 + 0.04 * Math.sin(u * 1.2 + b.ph));
+      glowDot(k, b.x, b.y, b.r, 'rgba(230,255,240,0.9)', 'rgba(0,0,0,0)');
+    }
+    k.globalAlpha = 1;
+  };
+}

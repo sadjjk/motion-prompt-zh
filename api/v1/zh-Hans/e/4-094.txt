@@ -1,0 +1,144 @@
+// Motion Prompt #4-094 · MIT License (c) 2026 alchaincyf (花叔) · https://github.com/alchaincyf/huashu-art-motion
+//
+// 哥特泥金手抄本 / Gothic illuminated manuscript
+// 分类: 审美风格 / 艺术流派 / 古代与中世纪
+// 动画表现: 羊皮纸上画出红色格线，出现金箔框和蓝底红色 A，金色边条沿左页边和页眉伸出；9 行黑色哥特体正文写满，藤蔓沿页边长出，金箔闪过高光，一只蜗牛沿页脚爬行。
+// 运动规格:
+//   - 带细小斑点和 14 块淡色污渍的浅色羊皮纸；其他内容淡出时纸面保留。
+//   - 0.3–0.7 秒：红色格线框出正文区。0.7–1.3 秒：左上角淡入 90 × 90 px 的金箔框，用金色渐变表现；1.0–1.5 秒：框内铺上带白点的蓝底；1.5–2.0 秒：出现白边红色「A」。1.0–1.8 秒：2 条金色边条从金箔框伸出，一条沿左页边向下、一条沿页眉向右，末端各有一片小金叶。
+//   - 1.8–3.6 秒：538 道黑色竖笔按词分组，依次写满 9 行，同一个词里的笔画用细斜线连起来；每笔两端是菱形笔锋，其中 57 笔向上伸出、51 笔向下伸出，第 1 行和第 6 行的第一个词为红色。
+//   - 3.0–3.8 秒：绿色藤蔓沿页边向下再沿页脚长出，带 11 片金、蓝、红色叶子，藤蔓经过处还鼓出 11 颗金色圆饰。3.8 秒起一道亮带斜着扫过金箔框和两条边条，5.2 秒扫完，经过的圆饰各闪一下；叶子轻摇，一只蜗牛在 5.4 秒前向右爬 26 px。
+//   - 5.4–6.0 秒画面淡回空白羊皮纸；0 秒和 6.4 秒都只剩空白羊皮纸，循环无缝。
+// 适用场景: 适合历史、宗教、古典、文学、传统手艺或品牌渊源等需要表现精工细作与庄重感的场合。
+// 标签: gothic, manuscript, illumination, gold-leaf, blackletter, medieval
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-094
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 04
+// 哥特泥金手抄本：羊皮纸上先打红色格线，金箔大写字母框亮起，金色边条从字母框沿左页边和页眉伸出，蓝底上出现红色首字母，
+// 黑体字一笔笔竖着写满版面，藤蔓沿页边长出彩叶和金色圆饰；之后金箔上斜着扫过高光，叶子轻摇，蜗牛沿页脚爬
+// 对应原作 scenes/05_gothic.js（金箔高光斜扫、藤蔓摇、蜗牛爬）；原作逐像素做金箔遮罩，这里改成金色渐变加移动的高光带
+{
+  const GOLD = ['#9C6A1A', '#E8C35A', '#FFF0B0', '#B07A22'];
+  const BOX = [40, 26, 90, 90];
+  // 黑体字的竖笔（minim）：按阅读顺序生成，每词 3–9 笔，少数笔画上伸或下伸
+  const MINIMS = [];
+  for (let r = 0; r < 9; r++) {
+    let x = 152; const y = 44 + r * 14;
+    for (let wd = 0; x < 498; wd++) {
+      const n = 3 + Math.floor(rnd(r * 40 + wd, 51) * 7);
+      // 第 6 项：同一个词里的下一笔是否连着（连笔用细斜线，从这一笔脚连到下一笔头），词尾不连
+      for (let m = 0; m < n && x < 498; m++, x += 4.6) { const v = rnd(MINIMS.length, 52); MINIMS.push([x, y, v < 0.1 ? -4 : 0, v > 0.92 ? 3 : 0, wd === 0 && r % 5 === 0, m < n - 1 && x + 4.6 < 498 && rnd(MINIMS.length, 53) < 0.8]); }
+      x += 8;
+    }
+  }
+  const VINE = dense([[86, 122], [78, 140], [92, 158], [84, 176], [110, 188], [160, 182], [220, 190], [280, 184], [340, 190], [400, 184], [460, 190], [512, 184]], 6);
+  const LEAVES = VINE.map((p, i) => [p, i]).filter(([, i]) => i % 6 === 3).map(([p, i], j) => [p[0], p[1], i / (VINE.length - 1), ['#D9A63A', '#2A4A9A', '#B8302A'][j % 3], j % 2 ? 1 : -1]);
+  const STAINS = Array.from({ length: 14 }, (_, i) => [rnd(i, 61) * CW, rnd(i, 62) * CH, 10 + rnd(i, 63) * 30]);
+  // 金色边条：[x, y, 宽, 高, 生长方向]，从字母框往外长（v 向下，h 向右）
+  const BARS = [[42, 116, 6, 54, 'v'], [130, 18, 376, 5, 'h']];
+  // 金色圆饰（bezant）：藤蔓上隔几个点放一颗，和彩叶错开
+  const BEZANTS = VINE.map((p, i) => [p, i]).filter(([, i]) => i % 6 === 0 && i > 0).map(([p, i]) => [p[0], p[1] - 5, i / (VINE.length - 1)]);
+  const goldFill = (k, x0, y0, x1, y1) => { const g = k.createLinearGradient(x0, y0, x1, y1); GOLD.forEach((c, i) => g.addColorStop(i / 3, c)); return g; };
+  CELLS[3] = (k, w, h, u) => {
+    grainBg(k, '#EEDFBE', 'rgba(150,110,60,0.08)', 400, 7);
+    STAINS.forEach(([x, y, r]) => { k.fillStyle = 'rgba(150,110,60,0.06)'; k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill(); });
+    const a = vis(u); k.globalAlpha = a;
+    // 红色格线（0.3–0.7 秒）
+    k.strokeStyle = 'rgba(184,67,42,0.55)'; k.lineWidth = 0.8;
+    const rt = seg(u, 0.3, 0.7);
+    [[[146, 26], [146, 172]], [[504, 26], [504, 172]], [[146, 30], [504, 30]], [[146, 168], [504, 168]]].forEach(l => partial(k, l, rt));
+    // 金箔框（0.7–1.3 秒）、蓝底（1.0–1.5 秒）、首字母（1.5–2.0 秒）
+    const gt = seg(u, 0.7, 1.3);
+    if (gt > 0) {
+      k.globalAlpha = a * gt;
+      const gg = k.createLinearGradient(BOX[0], BOX[1], BOX[0] + BOX[2], BOX[1] + BOX[3]);
+      GOLD.forEach((c, i) => gg.addColorStop(i / 3, c));
+      k.fillStyle = gg; k.fillRect(BOX[0], BOX[1], BOX[2], BOX[3]);
+      k.strokeStyle = '#6E4A12'; k.lineWidth = 1; k.strokeRect(BOX[0], BOX[1], BOX[2], BOX[3]);
+      k.globalAlpha = a;
+    }
+    // 金色边条（1.0–1.8 秒从字母框往外长），两头各带一个小金叶
+    const bar = out3(seg(u, 1.0, 1.8));
+    if (bar > 0) {
+      BARS.forEach(([x, y, bw, bh, dir]) => {
+        const ww = dir === 'h' ? bw * bar : bw, hh = dir === 'v' ? bh * bar : bh;
+        k.fillStyle = goldFill(k, x, y, x + ww, y + hh); k.fillRect(x, y, ww, hh);
+        k.strokeStyle = '#6E4A12'; k.lineWidth = 0.8; k.strokeRect(x, y, ww, hh);
+        if (bar >= 1) {
+          const [ex, ey] = dir === 'h' ? [x + bw, y + bh / 2] : [x + bw / 2, y + bh];
+          k.fillStyle = goldFill(k, ex - 6, ey - 6, ex + 6, ey + 6); k.beginPath(); k.ellipse(ex + (dir === 'h' ? 5 : 0), ey + (dir === 'v' ? 5 : 0), dir === 'h' ? 6 : 3.5, dir === 'h' ? 3.5 : 6, 0, 0, TAU); k.fill(); k.stroke();
+        }
+      });
+    }
+    const bt = seg(u, 1.0, 1.5);
+    if (bt > 0) {
+      k.globalAlpha = a * bt; k.fillStyle = '#2A4A9A'; k.fillRect(48, 34, 74, 74);
+      k.fillStyle = 'rgba(240,230,210,0.7)';
+      for (let y = 40; y < 106; y += 8) for (let x = 54 + (y % 16 ? 4 : 0); x < 120; x += 8) k.fillRect(x, y, 1.4, 1.4);
+      k.globalAlpha = a;
+    }
+    const lt = seg(u, 1.5, 2.0);
+    if (lt > 0) {
+      k.globalAlpha = a * lt; k.font = `700 66px "Didot", "Bodoni 72", Georgia, "Times New Roman", serif`; k.textAlign = 'center'; k.textBaseline = 'middle';
+      k.lineWidth = 3; k.strokeStyle = '#F4EEDC'; k.strokeText('A', 85, 74); k.fillStyle = '#B8302A'; k.fillText('A', 85, 74);
+      k.globalAlpha = a;
+    }
+    // 金箔高光（3.8 秒后）：斜带从左上扫到右下，扫过字母框的金边和两条金色边条（圆饰另在画藤蔓时闪）
+    if (u > 3.8 && gt > 0) {
+      const p = mix(-80, 560, seg(u, 3.8, 5.2));
+      k.save(); k.beginPath(); k.rect(BOX[0], BOX[1], BOX[2], 8); k.rect(BOX[0], BOX[1] + BOX[3] - 8, BOX[2], 8); k.rect(BOX[0], BOX[1], 8, BOX[3]); k.rect(BOX[0] + BOX[2] - 8, BOX[1], 8, BOX[3]);
+      BARS.forEach(([x, y, bw, bh]) => k.rect(x, y, bw, bh)); k.clip();
+      const sg = k.createLinearGradient(p - 40, p * 0.35 - 40, p + 40, p * 0.35 + 40);
+      sg.addColorStop(0, 'rgba(255,255,230,0)'); sg.addColorStop(0.5, `rgba(255,255,230,${0.85 * ease(u, 3.8)})`); sg.addColorStop(1, 'rgba(255,255,230,0)');
+      k.fillStyle = sg; k.fillRect(0, 0, CW, CH); k.restore();
+    }
+    // 黑体字（1.8–3.6 秒）：每笔是竖直粗笔加上下两个菱形笔锋
+    const n = Math.floor(seg(u, 1.8, 3.6) * MINIMS.length);
+    for (let i = 0; i < n; i++) {
+      const [x, y, up, dn, red, join] = MINIMS[i];
+      k.fillStyle = red ? '#B8302A' : '#1E1612';
+      k.fillRect(x - 0.9, y - 7 + up, 1.8, 7 - up + dn);
+      if (join && i + 1 < n) { k.strokeStyle = k.fillStyle; k.lineWidth = 0.6; k.beginPath(); k.moveTo(x + 0.9, y + 0.6); k.lineTo(x + 3.7, y - 6.2); k.stroke(); }
+      k.beginPath(); k.moveTo(x - 1.6, y - 6.4 + up); k.lineTo(x, y - 8 + up); k.lineTo(x + 1.6, y - 6.4 + up); k.fill();
+      k.beginPath(); k.moveTo(x - 1.6, y + dn); k.lineTo(x, y + 1.6 + dn); k.lineTo(x + 1.6, y + dn); k.fill();
+    }
+    // 藤蔓（3.0–3.8 秒）和彩叶；3.8 秒后叶子轻摇
+    const vt = seg(u, 3.0, 3.8), sw = ease(u, 3.8);
+    k.strokeStyle = '#3A5A2A'; k.lineWidth = 1.6; k.lineCap = 'round'; partial(k, VINE, vt);
+    LEAVES.forEach(([x, y, q, c, s], i) => {
+      const t = out3(seg(vt, q, q + 0.12));
+      if (t <= 0) return;
+      k.save(); k.translate(x, y); k.rotate(s * 0.7 + 0.2 * sw * Math.sin((u - 3.8) * 2.4 + i)); k.scale(t, t);
+      k.fillStyle = c; k.beginPath(); k.moveTo(0, 0); k.quadraticCurveTo(6 * s, -4, 0, -11); k.quadraticCurveTo(-6 * s, -4, 0, 0); k.fill();
+      k.restore();
+    });
+    // 金色圆饰：藤蔓长到才鼓出来；3.8 秒后高光扫过时依次闪一下
+    BEZANTS.forEach(([x, y, q], i) => {
+      const t = backOut(seg(vt, q, q + 0.1), 1.5);
+      if (t <= 0) return;
+      const r = 3.6 * t;
+      k.fillStyle = goldFill(k, x - r, y - r, x + r, y + r); k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill();
+      k.strokeStyle = '#6E4A12'; k.lineWidth = 0.7; k.stroke();
+      const sx = mix(-80, 560, seg(u, 3.8, 5.2)), f = clamp(1 - Math.abs(x - sx) / 40) * ease(u, 3.8);
+      if (f > 0) { k.fillStyle = `rgba(255,255,230,${0.8 * f})`; k.beginPath(); k.arc(x - 1, y - 1, r * 0.6, 0, TAU); k.fill(); }
+    });
+    // 蜗牛（3.8 秒后）沿页脚往右爬
+    const nt = seg(u, 3.8, 4.2);
+    if (nt > 0) {
+      const x = 300 + 26 * seg(u, 3.8, 5.4), y = 178;
+      k.globalAlpha = a * nt;
+      k.fillStyle = '#8C8478'; k.beginPath(); k.ellipse(x + 2, y + 3, 11, 3, 0, 0, TAU); k.fill();
+      k.strokeStyle = '#5A5248'; k.lineWidth = 0.9; strokePts(k, [[x + 10, y + 1], [x + 14, y - 6]]); strokePts(k, [[x + 8, y + 1], [x + 10, y - 7]]);
+      k.fillStyle = '#C89A3A'; k.beginPath(); k.arc(x - 2, y - 3, 6.5, 0, TAU); k.fill();
+      k.strokeStyle = '#6E4A12'; k.lineWidth = 1; k.beginPath();
+      for (let s = 0; s <= 24; s++) { const an = s / 24 * 3.5 * Math.PI, r = 6 - s * 0.22; k.lineTo(x - 2 + Math.cos(an) * r, y - 3 + Math.sin(an) * r); }
+      k.stroke();
+    }
+    k.globalAlpha = 1;
+  };
+}

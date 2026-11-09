@@ -1,0 +1,16 @@
+Please use "Gothic illuminated manuscript" (ゴシック彩飾写本), filed under "Art movements / Ancient & medieval".
+Motion Prompt #4-094
+
+What it is: A medieval manuscript page: red ruling on parchment, a coloured initial in a gold-leaf frame, the text written as rows of black Gothic strokes, and vines with coloured leaves along the margin
+What the sample shows: Red rules are drawn on parchment, then a gold frame and a red A on a blue ground appear and gold bars grow along the left margin and the top of the page. Nine lines of black Gothic text are written, a vine grows along the margin, a glint runs over the gold and a snail crawls along the foot of the page.
+Spec:
+- Pale parchment with fine speckles and 14 faint stains; the parchment stays when everything else fades.
+- 0.3–0.7 s: red ruling lines frame the text block. 0.7–1.3 s: a 90 × 90 px gold-leaf frame fades in at the upper left, as a gold gradient; 1.0–1.5 s: a blue ground with white dots fills it; 1.5–2.0 s: a red 'A' with a white outline appears. 1.0–1.8 s: 2 gold bars grow out of the frame, one down the left margin and one along the top of the page, each ending in a small gold leaf.
+- 1.8–3.6 s: 538 black vertical strokes fill 9 lines of text one after another, grouped into words and joined inside a word by thin hairlines; each stroke has diamond-shaped ends, 57 rise above the line and 51 drop below it, and the first word of lines 1 and 6 is red.
+- 3.0–3.8 s: a green vine grows down the margin and along the foot of the page with 11 gold, blue and red leaves and 11 round gold bezants that pop out as it passes. From 3.8 s a bright band sweeps diagonally across the gold frame and both bars by 5.2 s, each bezant flashing as it passes, the leaves sway and a snail crawls 26 px to the right by 5.4 s.
+- At 5.4–6.0 s the picture fades back to blank parchment; at 0 s and 6.4 s only blank parchment is left, so the loop restarts cleanly.
+When to use it: Use it for history, religion, classics, literature, traditional crafts or a brand's heritage, when you want painstaking handwork and a sense of ceremony.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-094.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

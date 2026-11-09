@@ -1,0 +1,94 @@
+// Motion Prompt #4-093 · MIT License (c) 2026 alchaincyf (花叔) · https://github.com/alchaincyf/huashu-art-motion
+//
+// 希腊黑绘陶瓶 / Greek black-figure
+// 分类: 审美风格 / 艺术流派 / 古代与中世纪
+// 动画表现: 橙红陶土上下的回纹带展开，画出黑色帆船剪影，再刻出帆格和船板；之后两条回纹带反向滚动，船随波起伏，海豚跃出水面。
+// 运动规格:
+//   - 橙红色陶土表面，两侧较暗，像弧形瓶身；其他内容淡出时陶土保留。
+//   - 0.3–1.2 秒：每 18 px 一个回纹的黑色回纹带，沿顶部从左、沿底部从右展开。1.2–2.0 秒：淡入一艘战船的黑色剪影：带撞角的船身、卷起的船尾、方帆、桅杆、横桁、8 支桨和一支舵桨。
+//   - 2.0–2.8 秒：刮出 7 道 0.9 px 宽的陶土色刻线，表现帆格和船板，撞角上刻出一只眼。2.8–3.4 秒：船身和帆上加紫红色带和一排白点。
+//   - 从 3.6 秒起两条回纹带以每秒 14 px 反向滚动，船上下起伏 2.5 px 并轻微倾斜，两只海豚轮流跃出，每跃一次 1.8 秒。
+//   - 5.4–6.0 秒画面淡回素陶表面；0 秒和 6.4 秒都只剩素陶表面，循环无缝。
+// 适用场景: 适合古代史、神话、航海与旅程故事、博物馆，或需要古典、庄重感的场合。
+// 标签: greek, black-figure, vase, meander, silhouette, ancient
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-093
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 03
+// 希腊黑绘陶瓶：陶土色瓶面上先画出上下的回纹带，再用黑釉剪影铺出帆船，然后用刻线刮出帆格和船板，再点上紫红色带和白点；之后两条回纹带反向滚动，船随波起伏，海豚跃出
+// 对应原作 scenes/03_greek.js（黑剪影 + 陶土色刻线 + 紫红带白点、回纹反向滚动、船起伏、海豚跃）
+{
+  const BLACK = '#1B120D', CLAY = '#D4844A';
+  const HULL = [[180, 120], [360, 120], [350, 136], [330, 142], [210, 142], [192, 136]];
+  const RAM = [[356, 120], [380, 129], [350, 134]];
+  const STERN = dense([[192, 122], [178, 110], [174, 96], [182, 92], [186, 104], [200, 120]], 4);
+  const SAIL = [[236, 50], [304, 50], [300, 100], [240, 100]];
+  const OARS = Array.from({ length: 8 }, (_, i) => [[206 + i * 18, 136], [194 + i * 18, 160]]);
+  const INCISE = [[[256, 50], [254, 100]], [[270, 50], [270, 100]], [[284, 50], [286, 100]], [[238, 66], [302, 66]], [[239, 83], [301, 83]], [[200, 130], [344, 130]], [[214, 137], [330, 137]]];
+  const DOLPHIN = dense([[-14, 0], [-6, -4], [6, -5], [14, -1], [18, 0], [14, 2], [4, 4], [-8, 3], [-14, 0]], 3);
+  const meander = (k, y0, off) => {
+    k.beginPath();
+    for (let x = -36 + (((off % 18) + 18) % 18); x < CW + 18; x += 18) {
+      tracePts(k, [[x, y0 + 12], [x, y0], [x + 12, y0], [x + 12, y0 + 8], [x + 5, y0 + 8], [x + 5, y0 + 4], [x + 8, y0 + 4]], false);
+      k.moveTo(x, y0 + 12); k.lineTo(x + 18, y0 + 12);
+    }
+    k.stroke();
+  };
+  CELLS[2] = (k, w, h, u) => {
+    const g = k.createLinearGradient(0, 0, CW, 0);
+    g.addColorStop(0, '#9E5226'); g.addColorStop(0.5, '#D4844A'); g.addColorStop(1, '#9E5226');
+    k.fillStyle = g; k.fillRect(0, 0, CW, CH);
+    const a = vis(u); k.globalAlpha = a;
+    // 回纹带（0.3–1.2 秒），3.6 秒后上下反向滚动
+    const mt = inOut3(seg(u, 0.3, 1.2)), off = ease(u, 3.6) * (u - 3.6) * 14;
+    k.strokeStyle = BLACK; k.lineWidth = 1.8; k.lineCap = 'butt';
+    [[12, -off, 0], [182, off, CW * (1 - mt)]].forEach(([y, o, x0]) => {
+      if (mt <= 0) return;
+      k.save(); k.beginPath(); k.rect(y === 12 ? 0 : x0, 0, CW * mt, CH); k.clip();
+      meander(k, y, o); k.fillStyle = BLACK; k.fillRect(0, y - 4, CW, 1.6); k.fillRect(0, y + 15, CW, 1.6);
+      k.restore();
+    });
+    // 船：3.6 秒后起伏
+    const bob = ease(u, 3.6);
+    k.save();
+    k.translate(270, 120); k.rotate(0.02 * bob * Math.sin((u - 3.6) * 2.6)); k.translate(-270, -120 + 2.5 * bob * Math.sin((u - 3.6) * 2.6 + 0.8));
+    // 黑釉剪影（1.2–2.0 秒）
+    const st = seg(u, 1.2, 2.0);
+    if (st > 0) {
+      k.globalAlpha = a * st; k.fillStyle = BLACK; k.strokeStyle = BLACK;
+      fillPts(k, HULL); fillPts(k, RAM); fillPts(k, STERN.concat([[200, 130]])); fillPts(k, SAIL);
+      k.lineWidth = 3; strokePts(k, [[270, 120], [270, 40]]); k.lineWidth = 2; strokePts(k, [[228, 50], [312, 50]]);
+      k.lineWidth = 1.8; OARS.forEach(o => strokePts(k, o)); strokePts(k, [[196, 128], [184, 158]]);
+      k.globalAlpha = a;
+    }
+    // 刻线（2.0–2.8 秒）
+    k.strokeStyle = CLAY; k.lineWidth = 0.9;
+    INCISE.forEach((l, i) => partial(k, l, seg(u, 2.0 + i * 0.1, 2.2 + i * 0.1)));
+    const et = seg(u, 2.6, 2.8);
+    if (et > 0) { k.globalAlpha = a * et; k.beginPath(); k.arc(360, 126, 2.4, 0, TAU); k.stroke(); k.globalAlpha = a; }
+    // 紫红色带和白点（2.8–3.4 秒）
+    const pt = seg(u, 2.8, 3.4);
+    if (pt > 0) {
+      k.globalAlpha = a * pt; k.fillStyle = '#6E2424'; k.fillRect(202, 123, 146, 4); k.fillRect(240, 53, 60, 5);
+      k.fillStyle = '#F0E6D2';
+      for (let x = 208; x < 346; x += 10) { k.beginPath(); k.arc(x, 125, 1.2, 0, TAU); k.fill(); }
+      k.globalAlpha = a;
+    }
+    k.restore();
+    // 海豚（3.6 秒后）：各自 1.8 秒一跃，入水前后淡出
+    [[120, 1, 0], [420, -1, 0.5]].forEach(([x0, dir, ph]) => {
+      if (u <= 3.6) return;
+      const s = (((u - 3.6) / 1.8 + ph) % 1 + 1) % 1, al = ease(u, 3.6) * clamp(Math.sin(Math.PI * s) * 4);
+      if (al <= 0) return;
+      k.save(); k.globalAlpha = a * al;
+      k.translate(x0 + (s - 0.5) * 60 * dir, 168 - 40 * Math.sin(Math.PI * s)); k.scale(dir, 1); k.rotate(Math.atan2(-40 * Math.PI * Math.cos(Math.PI * s), 60));
+      k.fillStyle = BLACK; fillPts(k, DOLPHIN); fillPts(k, [[-13, 0], [-20, -6], [-17, 0], [-20, 6]]); fillPts(k, [[-1, -4], [3, -10], [6, -4]]);
+      k.restore();
+    });
+    k.globalAlpha = 1;
+  };
+}

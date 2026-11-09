@@ -1,0 +1,16 @@
+Please use "Greek black-figure" (ギリシャ黒絵式), filed under "Art movements / Ancient & medieval".
+Motion Prompt #4-093
+
+What it is: Ancient Greek vase painting: shapes painted as black glaze silhouettes on orange clay, details scratched through to the clay colour, with a little purple-red and white added
+What the sample shows: Meander bands run along the top and bottom of an orange clay surface, a black sailing ship appears as a silhouette, and the sail grid and planks are scratched in. Then the bands scroll in opposite directions, the ship rocks and dolphins leap.
+Spec:
+- An orange clay surface, darker at both sides like a curved vase; the clay stays when everything else fades.
+- 0.3–1.2 s: black meander bands with a key pattern every 18 px unroll along the top from the left and along the bottom from the right. 1.2–2.0 s: a black silhouette of a galley fades in: hull with a ram, curled stern, square sail, mast, yard, 8 oars and a steering oar.
+- 2.0–2.8 s: 7 lines 0.9 px wide are scratched through in clay colour, marking the sail grid and the planks, and an eye is cut on the ram. 2.8–3.4 s: purple-red bands on the hull and sail and a row of white dots are added.
+- From 3.6 s the two meander bands scroll in opposite directions at 14 px per second, the ship rises and falls by 2.5 px and tilts slightly, and two dolphins take turns leaping, each jump lasting 1.8 s.
+- At 5.4–6.0 s the picture fades back to the bare clay surface; at 0 s and 6.4 s only the bare clay surface is left, so the loop restarts cleanly.
+When to use it: Use it for ancient history, myths, voyages and journeys, museums, or a classical, dignified look.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-093.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

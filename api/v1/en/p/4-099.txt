@@ -1,0 +1,16 @@
+Please use "Munch-style Expressionism" (ムンク風表現主義), filed under "Art movements / Modern & postmodern".
+Motion Prompt #4-099
+
+What it is: Like Munch's The Scream: long, thin brushstrokes laid along a flow, a blood-red sky, a dark fjord rolling along the shore, a diagonal bridge rail and a figure clutching its face, all painting anxiety
+What the sample shows: On a dark ground, long strokes are laid from the sky down, forming a red sky, a blue fjord, a green shore and an orange bridge. The rail, two distant figures and the screaming figure in front appear, and the whole picture ripples.
+Spec:
+- A dark brown ground. The picture is split into 4 regions: sky, fjord, a shore on the left, and the bridge deck below a rail that runs from the left middle down to the bottom right. 2206 strokes are worked out in advance (719 sky, 727 fjord, 179 shore, 581 deck); each walks up to 40 steps along its region's flow and stops at the region edge. They are 2.4–4.2 px wide, translucent and have no outline.
+- 0.3–3.6 s: the strokes appear at an even rate, the sky first, then the rest from top to bottom. The sky is laid in 7 wavy bands of red, orange and yellow; the fjord runs in long S-shaped waves along the shore in 4 blues; the shore is dark green and the deck orange. Each region's base colour fades in while its strokes go down, so no dark ground shows between them.
+- 2.6–3.3 s: the rail is drawn from left to right, a thick handrail and a thin lower rail with posts every 30 px. 3.0–3.4 s: 2 figures in long coats and top hats fade in at the far end of the bridge. 3.1–3.7 s: the screaming figure rises into the foreground at 1.35× size, a dark S-shaped robe and a pale, skull-like head with hollow eyes and an open mouth, hands pressed to its cheeks.
+- From 3.8 s the whole picture, figures and rail included, sways sideways row by row by up to 4.6 px and up and down column by column by up to 2 px; the screaming figure rocks and its mouth opens and closes.
+- At 5.4–6.0 s the picture fades back to the dark ground; at 0 s and 6.4 s only the dark ground is left, so the loop restarts cleanly.
+When to use it: Use it for anxiety, stress, mental health, horror or tense moments, whenever a strong emotion has to come across.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-099.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

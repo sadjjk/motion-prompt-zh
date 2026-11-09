@@ -1,0 +1,154 @@
+// Motion Prompt #4-099 · MIT License (c) 2026 alchaincyf (花叔) · https://github.com/alchaincyf/huashu-art-motion
+//
+// Munch-style Expressionism / ムンク風表現主義
+// Category: Visual styles / Art movements / Modern & postmodern
+// What happens: On a dark ground, long strokes are laid from the sky down, forming a red sky, a blue fjord, a green shore and an orange bridge. The rail, two distant figures and the screaming figure in front appear, and the whole picture ripples.
+// Motion spec:
+//   - A dark brown ground. The picture is split into 4 regions: sky, fjord, a shore on the left, and the bridge deck below a rail that runs from the left middle down to the bottom right. 2206 strokes are worked out in advance (719 sky, 727 fjord, 179 shore, 581 deck); each walks up to 40 steps along its region's flow and stops at the region edge. They are 2.4–4.2 px wide, translucent and have no outline.
+//   - 0.3–3.6 s: the strokes appear at an even rate, the sky first, then the rest from top to bottom. The sky is laid in 7 wavy bands of red, orange and yellow; the fjord runs in long S-shaped waves along the shore in 4 blues; the shore is dark green and the deck orange. Each region's base colour fades in while its strokes go down, so no dark ground shows between them.
+//   - 2.6–3.3 s: the rail is drawn from left to right, a thick handrail and a thin lower rail with posts every 30 px. 3.0–3.4 s: 2 figures in long coats and top hats fade in at the far end of the bridge. 3.1–3.7 s: the screaming figure rises into the foreground at 1.35× size, a dark S-shaped robe and a pale, skull-like head with hollow eyes and an open mouth, hands pressed to its cheeks.
+//   - From 3.8 s the whole picture, figures and rail included, sways sideways row by row by up to 4.6 px and up and down column by column by up to 2 px; the screaming figure rocks and its mouth opens and closes.
+//   - At 5.4–6.0 s the picture fades back to the dark ground; at 0 s and 6.4 s only the dark ground is left, so the loop restarts cleanly.
+// When to use it: Use it for anxiety, stress, mental health, horror or tense moments, whenever a strong emotion has to come across.
+// Tags: expressionism, munch, scream, brushstrokes, flow-field, anxiety
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-099
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 09
+// 蒙克《呐喊》式表现主义：长而薄的半透明流线笔从天空往下一层层铺出，血色天空、打旋的深蓝峡湾、左侧山岸和斜向右下的桥；
+// 桥栏画出后，远处两个人影走在桥头，双手捂脸的人出现在前景；之后整幅画面连人带桥按行、按列扭动，嘴一张一合
+// 对应原作 scenes/19_munch.js（按区域取方向场的 flowLines、不描边半透明长笔、同色系底色、整幅按行列正弦位移、捂颊尖叫者）
+{
+  const BG = '#3A2418';
+  // 区域：0 天空、1 峡湾、2 左侧山岸、3 桥面。桥栏从左侧中部斜到右下角，桥面是它下方的三角
+  const railY = x => 102 + x / CW * 96;
+  const skyY = x => 64 - 7 * Math.sin(x * 0.011 + 0.6);
+  const shoreX = y => 70 + (y - 60) * 2.4;                 // 山岸右缘：越往下越靠右，和峡湾交成斜岸
+  const region = (x, y) => (y > railY(x) + 4 ? 3 : y < skyY(x) ? 0 : x < shoreX(y) ? 2 : 1);
+  // 方向场：天空是横向波浪，峡湾是顺着岸线弯的 S 形长波（同心旋涡一看就成了梵高《星夜》），山岸顺着坡斜，桥面指向左上方的桥头
+  const angle = (x, y, r) => r === 0 ? 0.45 * Math.sin(x * 0.035 + y * 0.09)
+    : r === 1 ? -0.18 + 0.6 * Math.sin(x * 0.017 - y * 0.045 + 1.1) - 0.5 * Math.exp(-Math.max(0, x - shoreX(y)) / 40)
+      : r === 2 ? 1.15 + 0.45 * Math.sin(y * 0.09 + x * 0.03)
+        : Math.atan2(92 - y, -90 - x);
+  // 每区 [步数, 步长, 线宽, 不透明度]：长笔、薄涂，笔与笔叠出颜色，不描边（描边短笔一看就成了梵高）
+  const PARAM = [[26, 2.6, 3.2, 0.72], [30, 2.8, 3.0, 0.72], [24, 2.6, 3.4, 0.6], [34, 3.2, 3.6, 0.6]];
+  const SKY = ['#E2541C', '#F08A24', '#F4C03A', '#C8301E', '#E8743A', '#F6A63A', '#B82A1E'];
+  const PAL = [null, ['#1E2A5A', '#2C4A8A', '#3E66A8', '#16204A'], ['#3E5A2A', '#5A6A2A', '#2A3A1E', '#7A6A30'], ['#C8642A', '#E8843A', '#A8401E', '#D89A4A']];
+  // 各区域底色：笔缝里露出的是同色系，不是黑
+  const skyLine = Array.from({ length: 28 }, (_, n) => [n * 20, skyY(n * 20)]);
+  const BASE = [
+    ['#C8401E', skyLine.concat([[CW, 0], [0, 0]])],
+    ['#22305E', skyLine.concat([[CW, railY(CW) + 4], [0, railY(0) + 4]])],
+    ['#34482A', [[0, skyY(0)], [shoreX(skyY(0)), skyY(0)], [shoreX(railY(shoreX(railY(0)))) , railY(shoreX(railY(0))) + 4], [0, railY(0) + 4]]],
+    ['#B4562A', [[0, railY(0) + 4], [CW, railY(CW) + 4], [CW, CH], [0, CH]]]
+  ];
+  // 预先积分笔触：7 px 抖动网格的种子，沿方向场走，越出本区就停，所以区域边界干净
+  const STROKES = [];
+  for (let y = 1, jr = 0; y < CH + 3; y += 7, jr++) for (let x = 1 + (jr % 2) * 3.5; x < CW + 3; x += 7) {
+    const id = STROKES.length + jr * 1000, sx = x + (rnd(id, 1) - 0.5) * 6, sy = y + (rnd(id, 2) - 0.5) * 6, r = region(sx, sy);
+    const [steps, st, lw, al] = PARAM[r], n = steps + Math.floor(rnd(id, 3) * 7), pts = [[sx, sy]];
+    let px = sx, py = sy;
+    for (let q = 0; q < n; q++) {
+      const an = angle(px, py, r), nx = px + Math.cos(an) * st, ny = py + Math.sin(an) * st;
+      if (region(nx, ny) !== r || nx < -6 || nx > CW + 6 || ny < -6 || ny > CH + 6) break;
+      px = nx; py = ny; pts.push([px, py]);
+    }
+    if (pts.length < 4) continue;
+    // 天空按「波浪化的 y」分色带，带宽 9 px，7 色循环
+    const col = r === 0 ? SKY[((Math.floor((sy + 6 * Math.sin(sx * 0.03)) / 9) % 7) + 7) % 7] : PAL[r][Math.floor(rnd(id, 4) * 4)];
+    STROKES.push({ pts, r, y: sy, col, lw: lw - 0.6 + rnd(id, 5) * 1.2, al });
+  }
+  // 先天空，再从上往下
+  STROKES.sort((p, q) => (p.r === 0 ? 0 : 1) - (q.r === 0 ? 0 : 1) || p.y - q.y);
+  const N = STROKES.length;
+  const T_OF = n => 0.3 + n / N * 3.3;                      // 笔触在 0.3–3.6 秒内匀速出现
+  const SPAN = [0, 1, 2, 3].map(r => { const ids = STROKES.map((st, n) => (st.r === r ? n : -1)).filter(n => n >= 0); return [T_OF(ids[0]), T_OF(ids[ids.length - 1])]; });
+  // 桥栏：加密成点列，扭动时逐点位移
+  const RAIL_TOP = Array.from({ length: 55 }, (_, n) => [n * 10, railY(n * 10) - 3]);
+  const RAIL_LOW = Array.from({ length: 55 }, (_, n) => [n * 10, railY(n * 10) + 4]);
+  // 尖叫者：站在桥面前景，脚落在画面底边以下
+  // 尖叫者以脚底为基点放大 FS 倍，头落在峡湾前面，是画面主角
+  const FX = 352, FS = 1.35;
+  CELLS[8] = (k, w, h, u) => {
+    k.fillStyle = BG; k.fillRect(0, 0, CW, CH);
+    const a = vis(u); k.globalAlpha = a;
+    const wv = ease(u, 3.8), ph = Math.max(0, u - 3.8);
+    // 整个世界在流：按行水平位移 + 按列竖直位移（3.8 秒起渐入）
+    const DX = y => wv * (3.2 * Math.sin(y * 0.05 + 4.2 * ph) + 1.4 * Math.sin(y * 0.13 - 6 * ph));
+    const DY = x => wv * 2.0 * Math.sin(x * 0.03 - 3.6 * ph);
+    BASE.forEach(([col, pts], r) => {
+      const t = seg(u, SPAN[r][0], SPAN[r][1]);
+      if (t > 0) { k.globalAlpha = a * t; k.fillStyle = col; fillPts(k, pts); }
+    });
+    const shown = Math.floor(seg(u, 0.3, 3.6) * N);
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    for (let n = 0; n < shown; n++) {
+      const st = STROKES[n];
+      k.globalAlpha = a * st.al; k.strokeStyle = st.col; k.lineWidth = st.lw;
+      k.beginPath();
+      st.pts.forEach((p, m) => { const x = p[0] + DX(p[1]), y = p[1] + DY(p[0]); m ? k.lineTo(x, y) : k.moveTo(x, y); });
+      k.stroke();
+    }
+    k.globalAlpha = a;
+    const warp = pts => pts.map(([x, y]) => [x + DX(y), y + DY(x)]);
+    // 桥栏（2.6–3.3 秒，从左边桥头画到右下）：粗扶手、细下栏、竖杆
+    const rt = seg(u, 2.6, 3.3);
+    if (rt > 0) {
+      k.strokeStyle = '#3A2214'; k.lineWidth = 4; partial(k, warp(RAIL_TOP), rt);
+      k.lineWidth = 1.6; partial(k, warp(RAIL_LOW), rt);
+      k.lineWidth = 1.4; k.beginPath();
+      for (let x = 14; x < CW * rt; x += 30) { const t0 = railY(x); k.moveTo(x + DX(t0 - 3), t0 - 3 + DY(x)); k.lineTo(x + DX(t0 + 4), t0 + 4 + DY(x)); }
+      k.stroke();
+    }
+    // 远处两个戴高帽、穿长外套的人影（3.0–3.4 秒），在桥头扶手内侧，一前一后
+    const ft = seg(u, 3.0, 3.4);
+    if (ft > 0) {
+      k.globalAlpha = a * ft; k.fillStyle = '#1E140E';
+      [[28, 126, 1], [48, 130, 0.92]].forEach(([x, y, sc]) => {
+        const o = DX(y - 10), v = DY(x);
+        k.save(); k.translate(x + o, y + v); k.scale(sc, sc);
+        // 外套：窄肩、下摆张开到膝下，两条腿露一小截
+        fillPts(k, [[-2.6, -17], [2.6, -17], [4.2, -5], [-4.4, -5]]);
+        k.fillRect(-2.6, -5, 1.6, 5); k.fillRect(1.0, -5, 1.6, 5);
+        // 头、高帽（帽身 + 帽檐）
+        k.beginPath(); k.arc(0, -19.2, 2.4, 0, TAU); k.fill();
+        k.fillRect(-2.2, -26, 4.4, 5); k.fillRect(-4.2, -21.6, 8.4, 1.4);
+        k.restore();
+      });
+      k.globalAlpha = a;
+    }
+    // 尖叫者（3.1–3.7 秒从下往上浮出并淡入）；3.8 秒起身体摆动、嘴一张一合
+    const pt = seg(u, 3.1, 3.7);
+    if (pt > 0) {
+      const lift = (1 - out3(pt)) * 18, sway = wv * 0.06 * Math.sin(ph * 3.2), mouth = 1 + wv * 0.35 * Math.sin(ph * 9);
+      k.globalAlpha = a * pt;
+      k.save(); k.translate(FX + DX(120), lift + DY(FX)); k.translate(0, 214); k.rotate(sway); k.scale(FS, FS); k.translate(0, -214);
+      // 身体：深色长袍，S 形向左弯，下摆出画
+      const L = dense([[-8, 126], [-14, 146], [-12, 168], [-20, 190], [-26, 214]], 4), R = dense([[8, 126], [12, 146], [16, 168], [12, 190], [18, 214]], 4);
+      k.fillStyle = '#1C1A2A'; fillPts(k, L.concat(R.reverse()));
+      k.strokeStyle = 'rgba(70,60,90,0.6)'; k.lineWidth = 2;
+      strokePts(k, dense([[-2, 132], [-6, 160], [-10, 190], [-14, 212]], 4));
+      // 手臂：从肩膀弯上去，手捂住两颊
+      k.strokeStyle = '#1C1A2A'; k.lineWidth = 5; k.lineCap = 'round';
+      strokePts(k, dense([[-9, 130], [-17, 122], [-15, 110]], 4)); strokePts(k, dense([[9, 130], [17, 122], [15, 110]], 4));
+      // 头：上宽下窄的梨形，浅黄带一点绿影，像骷髅
+      k.fillStyle = '#D6C68E';
+      k.beginPath(); k.moveTo(0, 88); k.bezierCurveTo(14, 88, 15, 104, 9, 114); k.bezierCurveTo(6, 121, -6, 121, -9, 114); k.bezierCurveTo(-15, 104, -14, 88, 0, 88); k.fill();
+      k.fillStyle = 'rgba(120,150,70,0.35)'; k.beginPath(); k.ellipse(5, 108, 5, 9, 0.2, 0, TAU); k.fill();
+      // 手：贴在脸两侧
+      k.fillStyle = '#C8B880';
+      k.beginPath(); k.ellipse(-12, 106, 3.6, 7.5, 0.15, 0, TAU); k.fill(); k.beginPath(); k.ellipse(12, 106, 3.6, 7.5, -0.15, 0, TAU); k.fill();
+      // 眼窝、鼻孔、张开的嘴
+      k.fillStyle = '#2A1E16';
+      k.beginPath(); k.ellipse(-4.2, 99, 2.2, 3, 0, 0, TAU); k.fill(); k.beginPath(); k.ellipse(4.2, 99, 2.2, 3, 0, 0, TAU); k.fill();
+      k.fillRect(-1.2, 104, 0.9, 1.6); k.fillRect(0.4, 104, 0.9, 1.6);
+      k.beginPath(); k.ellipse(0, 112, 2.4, 3.4 * mouth, 0, 0, TAU); k.fill();
+      k.restore();
+    }
+    k.globalAlpha = 1;
+  };
+}

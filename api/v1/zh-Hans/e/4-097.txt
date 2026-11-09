@@ -1,0 +1,87 @@
+// Motion Prompt #4-097 · MIT License (c) 2026 alchaincyf (花叔) · https://github.com/alchaincyf/huashu-art-motion
+//
+// 分析立体主义 / Analytic Cubism
+// 分类: 审美风格 / 艺术流派 / 现代与后现代
+// 动画表现: 米褐色纸上褐、灰切面一片片叠起，两种视角的酒瓶和杯子以断开的线条显出；加上点纹、排线和 CAFÉ 字母后，几片切面来回滑动，字母依次跳动。
+// 运动规格:
+//   - 带淡褐色斑点的米褐色纸；其他内容淡出时纸面保留。色板是赭黄、棕、深褐、灰泥色、蓝灰和浅灰。
+//   - 0.3–3.3 秒：46 个三角形和四边形切面依次淡入，每个 0.2 秒；每个切面是由亮到暗的渐变，不透明度 18–70%，层与层互相透出。
+//   - 1.5–2.85 秒：间隔 0.05 秒画出 22 段 2 px 宽的断开轮廓线：正面的酒瓶、错位倾斜的同一个酒瓶、一只杯子，以及横穿画面的 3 条长线。2.0–2.6 秒：出现一片网点和一块排线；2.2–2.8 秒：杯口画两次，一次是扁椭圆，一次是俯视的圆。
+//   - 2.8–3.3 秒：右上方用衬线字体逐个出现 C、A、F、É。3.4 秒起其中 5 片切面来回滑动最多 6 px，3.6 秒起字母依次跳起最多 4 px。
+//   - 5.4–6.0 秒画面淡回空白纸面；0 秒和 6.4 秒都只剩空白纸面，循环无缝。
+// 适用场景: 适合表现多视角、分析、拆解重组，用于艺术和美术馆，或想要知性、经典现代感的场合。
+// 标签: cubism, analytic, facets, multi-view, picasso, modern-art
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-097
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 07
+// 分析立体主义：褐灰半透明切面一片片叠上，同一个酒瓶和杯子从两个视角同时出现，再加断开的轮廓线和字母；之后几片切面来回滑动
+// 对应原作 scenes/11_cubism.js（plane 切面 + 断开的线段 + 报纸字母）
+{
+  const PAL = ['#B8975F', '#6E5538', '#3A2C1E', '#A8A395', '#8E9EAB', '#5A5852', '#C9D3DA', '#D6C8AC'].map(hex3);
+  // 切面：在静物附近随机生成三角形和四边形
+  const PLANES = [];
+  for (let i = 0; i < 46; i++) {
+    const cx = 150 + rnd(i, 1) * 240, cy = 20 + rnd(i, 2) * 170, r = 18 + rnd(i, 3) * 34, n = rnd(i, 4) < 0.5 ? 3 : 4, a0 = rnd(i, 5) * TAU;
+    const pts = Array.from({ length: n }, (_, j) => { const an = a0 + j / n * TAU + (rnd(i, 6 + j) - 0.5) * 0.9, rr = r * (0.6 + rnd(i, 10 + j) * 0.6); return [cx + Math.cos(an) * rr, cy + Math.sin(an) * rr * 0.9]; });
+    PLANES.push({ pts, col: PAL[Math.floor(rnd(i, 7) * PAL.length)], al: 0.18 + rnd(i, 8) * 0.52, dir: 1 + Math.floor(rnd(i, 9) * 3), slide: i % 9 === 4 ? (rnd(i, 11) - 0.5) * 2 : 0 });
+  }
+  // 酒瓶（正视）和错位的第二视角；杯口一个正视的扁椭圆、一个俯视的圆
+  const BOTTLE = [[218, 182], [218, 92], [228, 72], [230, 40], [242, 40], [244, 72], [254, 92], [254, 182]];
+  const BOTTLE2 = BOTTLE.map(([x, y]) => [x + 16 + (y - 100) * 0.08, y - 6]);
+  const GLASS = [[300, 112], [306, 176], [334, 176], [340, 112]];
+  // 断开的轮廓线：每条只画边的一部分，并略微延长出边外
+  const segsOf = (pts, seed) => pts.map((p, i) => {
+    const q = pts[(i + 1) % pts.length], s = rnd(seed, i) * 0.3 - 0.1, e = 0.7 + rnd(seed + 1, i) * 0.45;
+    return [[mix(p[0], q[0], s), mix(p[1], q[1], s)], [mix(p[0], q[0], e), mix(p[1], q[1], e)]];
+  }).filter((_, i) => rnd(seed + 2, i) > 0.2);
+  const LINES = segsOf(BOTTLE, 3).concat(segsOf(BOTTLE2, 5), segsOf(GLASS, 7), [[[150, 150], [420, 132]], [[170, 190], [400, 170]], [[380, 20], [372, 196]]]);
+  const LETTERS = ['C', 'A', 'F', 'É'];
+  CELLS[6] = (k, w, h, u) => {
+    grainBg(k, '#D6C8AC', 'rgba(110,85,56,0.10)', 500, 3);
+    const a = vis(u); k.globalAlpha = a;
+    const sl = ease(u, 3.4);
+    // 切面逐片叠上（0.3–3.4 秒，每片 0.2 秒淡入）
+    PLANES.forEach((p, i) => {
+      const t = seg(u, 0.3 + i * 0.062, 0.5 + i * 0.062);
+      if (t <= 0) return;
+      const dx = p.slide * 6 * sl * Math.sin((u - 3.4) * 2.2 + i);
+      k.save(); k.translate(dx, 0); k.globalAlpha = a * t;
+      plane(k, p.pts, p.col, p.al, p.dir); k.restore();
+    });
+    k.globalAlpha = a;
+    // 点纹和排线纹理（2.0–2.6 秒）
+    const tt = seg(u, 2.0, 2.6);
+    if (tt > 0) {
+      k.globalAlpha = a * tt; k.fillStyle = 'rgba(40,30,20,0.55)';
+      for (let y = 128; y < 168; y += 5) for (let x = 352; x < 400; x += 5) k.fillRect(x, y, 1.4, 1.4);
+      k.strokeStyle = 'rgba(40,30,20,0.4)'; k.lineWidth = 0.8; k.beginPath();
+      for (let i = 0; i < 9; i++) { k.moveTo(160 + i * 6, 40); k.lineTo(150 + i * 6, 80); }
+      k.stroke(); k.globalAlpha = a;
+    }
+    // 杯口两个视角（2.2–2.8 秒）
+    const gt = seg(u, 2.2, 2.8);
+    if (gt > 0) {
+      k.strokeStyle = 'rgba(40,30,20,0.75)'; k.lineWidth = 1.6; k.globalAlpha = a * gt;
+      k.beginPath(); k.ellipse(320, 112, 20, 4, 0, 0, TAU); k.stroke();
+      k.beginPath(); k.ellipse(322, 104, 18, 15, 0, 0, TAU); k.stroke();
+      k.globalAlpha = a;
+    }
+    // 断开的轮廓线（1.5–3.4 秒）
+    k.strokeStyle = 'rgba(40,30,20,0.72)'; k.lineWidth = 2; k.lineCap = 'round';
+    LINES.forEach((l, i) => partial(k, l, seg(u, 1.5 + i * 0.05, 1.8 + i * 0.05)));
+    // 字母（2.8–3.4 秒），3.6 秒后逐个上下跳
+    k.fillStyle = '#2A2018'; k.font = `700 20px "Didot", "Bodoni 72", Georgia, "Times New Roman", serif`; k.textAlign = 'center'; k.textBaseline = 'alphabetic';
+    LETTERS.forEach((c, i) => {
+      const t = seg(u, 2.8 + i * 0.1, 3.0 + i * 0.1);
+      if (t <= 0) return;
+      const hop = ease(u, 3.6) * Math.max(0, Math.sin((u - 3.6) * 3.2 - i * 0.9)) * 4;
+      k.globalAlpha = a * t; k.fillText(c, 356 + i * 15, 60 - hop - (i % 2) * 3);
+    });
+    k.globalAlpha = 1;
+  };
+}

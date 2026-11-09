@@ -1,0 +1,16 @@
+Please use "Analytic Cubism" (分析的キュビスム), filed under "Art movements / Modern & postmodern".
+Motion Prompt #4-097
+
+What it is: Early Cubism in the manner of Picasso and Braque: objects broken into overlapping translucent facets of brown and grey, the same bottle or glass seen from two angles at once, with broken outlines and stencilled letters
+What the sample shows: Brown and grey facets pile up one by one on buff paper, and a bottle and a glass seen from two viewpoints emerge in broken lines. Dot and hatch textures and the letters CAFÉ are added; then a few facets slide and the letters hop.
+Spec:
+- Buff paper with faint brown speckles; it stays when everything else fades. The palette is ochre, umber, dark brown, putty, blue-grey and pale grey.
+- 0.3–3.3 s: 46 triangles and quadrilaterals fade in one after another, each in 0.2 s; each facet is a gradient from light to dark at 18–70% opacity, so the layers show through each other.
+- 1.5–2.85 s: 22 broken outline strokes 2 px wide are drawn, 0.05 s apart, for a bottle seen from the front, the same bottle shifted and leaning, and a glass, plus 3 long lines that cross the picture. 2.0–2.6 s: a dot grid and a patch of hatching appear; 2.2–2.8 s: the glass's mouth is drawn twice, once as a flat ellipse and once as a circle seen from above.
+- 2.8–3.3 s: the letters C, A, F and É appear one by one in a serif face at the upper right. From 3.4 s 5 of the facets slide back and forth by up to 6 px, and from 3.6 s the letters hop by up to 4 px in turn.
+- At 5.4–6.0 s the picture fades back to blank paper; at 0 s and 6.4 s only blank paper is left, so the loop restarts cleanly.
+When to use it: Use it to suggest many viewpoints, analysis or reconstruction, for art and museums, or for an intellectual, classic-modern look.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-097.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

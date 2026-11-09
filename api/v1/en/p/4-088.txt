@@ -1,0 +1,16 @@
+Please use "White model projection" (白模型プロジェクション), filed under "Animation styles / Space & material".
+Motion Prompt #4-088
+
+What it is: A pure white massing model of a city sits in a dark room and a projector paints data onto it as light, one layer at a time; the model never changes, only the light on it does
+What the sample shows: A white city model in a dark room. The lights go out, the projector strikes and a level of light coloured by height climbs every facade. Then winter sun stretches long shadows, and the tallest tower's shadow is traced in blue and measured at 248 m.
+Spec:
+- A near-black room. A white model of 94 city blocks in street rows sits on a dark plinth with a dark river band, seen from above at an angle; the view drifts 16 px to the left over 0–6.0 s. Top left: 'CITY CENTRE · 1:1000 WHITE MODEL' and '94 BUILDINGS · OPEN DATA'.
+- 0–0.6 s: the model fades in under the house light. 1.2–1.45 s: the house light cuts and the model drops to 42% brightness; at 1.45–1.56 s the projector strikes with a flicker and a white wash that fades by 1.9 s.
+- Layer 01, 1.6–2.4 s: a level of light climbs every facade, coloured violet to magenta to peach by roof height, while the readout on the left rolls up to '146 m'; 2.4–2.7 s: a pin '146 m · TALLEST ROOF' on the tower. The layer fades at 2.9–3.2 s.
+- Layer 02: 3.0–3.5 s the model warms to winter sun and shadows fall to the back right, lengthening until 3.9 s; the readout reads 'DEC 21 · SUN 30.5°'. 3.9–4.6 s: the tower's shadow is traced in blue from its foot, tinting the 5 blocks inside it; 4.1–4.7 s: a measuring line with a tick every 50 m; 4.6–4.9 s: a pin '248 m · WINTER NOON SHADOW'.
+- At 5.4–6.0 s everything fades out; at 0 s and 6.4 s only the dark room is left, so the loop restarts cleanly.
+When to use it: Use it for urban planning, real estate, architecture pitches or sunlight and height studies, when data should sit on the place it describes.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-088.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/infostyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

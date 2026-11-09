@@ -1,0 +1,16 @@
+Please use "Circuit board" (回路基板), filed under "Animation styles / Diagrams & boards".
+Motion Prompt #4-089
+
+What it is: On a green board, bundles of parallel traces gather onto a copper bar, pale cyan light flows down a wide channel and LEDs light up in turn, showing where data or power flows as a circuit-board diagram
+What the sample shows: On a green board, a copper bar spreads out from the middle and 11 traces on each side join it. Pale cyan light flows down the channel, two rows of 8 LEDs light from the middle outwards, and the silkscreen appears.
+Spec:
+- A green board darkening towards the bottom with a faint dot grid every 6 px. 0.2–0.6 s: a wide teal channel fades in down the middle, plus a narrower channel that bends from the bar to the bottom right.
+- 0.5–1.1 s: a copper bar 400 px long spreads out from the middle. 0.9–2.2 s: 11 parallel traces on each side are drawn from the inside out, each running out of the channel and then sloping down onto the bar. From 2.0 s: 16 pale cyan streaks flow down the wide channel and loop, and dashed light runs along the side traces and the lower channel.
+- 1.0–1.5 s: two rows of 8 LEDs, the J2 connector with 4 pads and the bus lines fade in. 2.6–3.8 s: the LEDs light 0.14 s apart from the middle outwards, and the bus lines glow at 3.6–4.0 s.
+- 3.8–4.6 s: silkscreen labels G9–G16, G1–G8 and J2 appear, with '锦屏 JINPING' top left and '九毫秒 NINE MILLISECONDS' top right. 10 soft bokeh spots drift in brightness throughout.
+- At 5.4–6.0 s everything but the background fades out; at 0 s and 6.4 s the card shows only the background, so the loop restarts cleanly.
+When to use it: Use it for networks, data flow, power grids, or anything about hardware and chips.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-089.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/infostyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

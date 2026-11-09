@@ -1,0 +1,16 @@
+Please use "Mucha-style Art Nouveau" (ミュシャ風アール・ヌーヴォー), filed under "Art movements / Modern & postmodern".
+Motion Prompt #4-096
+
+What it is: Like a Mucha poster: a profile and flowing hair drawn in whiplash curves that swell and taper, the hair ending in spirals, with a round halo behind the head, flowers on either side, and the whole framed by an arch and a lettered band
+What the sample shows: On a sage-to-peach ground a double border and an arched frame are drawn and a sun rises in an arched window on the right; a gold halo opens and poppies grow up on both sides. Lines that swell and taper draw the profile, neck, shoulders and hair, the locks curling into spirals; a lettered band unrolls along the bottom, then the halo turns slowly and the flowers sway.
+Spec:
+- A vertical gradient from sage green through pale olive to peach; it stays when everything else fades. 0–0.6 s: a double-line border is drawn clockwise and 4 gold dots mark its corners. 0.1–0.8 s: an arched frame with a pale apricot fill is drawn behind the figure; the figure and flowers stay inside the border.
+- 0.3–0.9 s: a gold halo 64 px in radius grows behind the head, with two rings and 36 short radial ticks. 0.6–2.05 s: 4 poppy stems grow up at the sides, starting 0.15 s apart, and their red five-petalled flowers and leaves pop open at 1.4–2.35 s. 0.5–0.9 s: an arched window fades in on the right, and 0.8–2.6 s a sun with 16 rays rises in it above green hills.
+- 1.2–1.8 s: the hair, the face, the neck and a green dress fade in as flat colour. 1.4–3.8 s: 10 dark brown lines are drawn 0.2 s apart, each in 0.6 s: profile, neck, shoulders, the outline of the hair and 5 whiplash locks ending in spirals; each line swells to 2.6–5 px in the middle and tapers to 0.8 px at the ends.
+- 3.2–3.6 s: an eye and a brow are added. From 3.6 s the halo's ticks turn at 0.25 rad per second and each stem sways by up to 0.035 rad. 3.8–4.3 s: a gold band unrolls along the bottom, and from 4.0 s the letters of 'SALON DU PRINTEMPS' rise into it 0.05 s apart.
+- At 5.4–6.0 s the picture fades back to the background gradient; at 0 s and 6.4 s only the background gradient is left, so the loop restarts cleanly.
+When to use it: Use it for beauty, perfume, fashion, cafés, theatre or music posters, or any elegant, ornamental presentation.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-096.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

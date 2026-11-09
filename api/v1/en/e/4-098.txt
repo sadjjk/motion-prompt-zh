@@ -1,0 +1,170 @@
+// Motion Prompt #4-098 · MIT License (c) 2026 alchaincyf (花叔) · https://github.com/alchaincyf/huashu-art-motion
+//
+// Klimt golden phase / クリムトの黄金様式
+// Category: Visual styles / Art movements / Modern & postmodern
+// What happens: In front of a gold mosaic, small flowers open in a meadow at the bottom, a figure in a gold robe appears and spirals, squares and eye motifs fill the robe from top to bottom. A band of light crosses the picture and the mosaic twinkles, the eyes blink and gold dust drifts down.
+// Motion spec:
+//   - The whole background is a gold-leaf mosaic of 3167 tiles 5 px square in staggered rows over a brown grout, in 6 gold tones plus a few dark and pale tiles; it stays when everything else fades.
+//   - 0.3–1.0 s: a robe shaped like a bell fades in as a gold gradient, with dark hair, a pale face with closed eyes, a hand, and 3 small red, orange and blue flowers in the hair; the robe has a dark outline and a soft shadow. 0.3–0.8 s: a green meadow with 150 grass blades fades in along the bottom, and 64 small five-petalled flowers in 6 colours pop open from the sides towards the middle at 0.9–2.1 s.
+//   - 1.0–3.4 s: 53 motifs grow in from top to bottom inside the robe: 17 black spirals, 23 black or cream squares with a gold centre and 13 cream eyes with a blue iris.
+//   - From 3.4 s a pale band sweeps across the whole mosaic by 5.4 s and 362 tiles twinkle on their own; a soft light band crosses the robe by 5.2 s, each eye blinks once every 1.6 s at its own moment, 70 gold flecks drift slowly down and twinkle, and from 3.6 s the flowers sway.
+//   - At 5.4–6.0 s the picture fades back to the dark gold wall; at 0 s and 6.4 s only the dark gold wall is left, so the loop restarts cleanly.
+// When to use it: Use it for jewellery, luxury brands, anniversaries, themes of love and celebration, or any lavish, ornamental look.
+// Tags: klimt, gold-leaf, mosaic, ornament, meadow, luxury
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/artstyles.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-098
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 08
+// 克里姆特金色时期：满屏金箔马赛克做底，底部一片花草地的小花依次开出；金色长袍的人物铺出底色，
+// 长袍上螺旋纹、方块纹和眼形纹逐块铺满；之后金箔上高光斜扫、碎片闪烁，眼形纹轮流眨、金屑飘落
+// 对应原作 scenes/18_klimt.js（spiral、eye、robePattern、金箔底与花草地）；金箔改用色块加移动的高光带，不读像素
+{
+  const SKIN = '#F0CFB8', SKIN_D = '#D8A88C', HAIR = '#2A1D14';
+  const ROBE = [[246, 70], [294, 70], [318, 120], [344, 208], [196, 208], [222, 120]];
+  const robeIn = (x, y) => { // 点是否在长袍内（左右边按 y 线性插值）
+    if (y < 70 || y > 208) return false;
+    const t = y < 120 ? (y - 70) / 50 : (y - 120) / 88;
+    const l = y < 120 ? mix(246, 222, t) : mix(222, 196, t), r = y < 120 ? mix(294, 318, t) : mix(318, 344, t);
+    return x > l + 4 && x < r - 4;
+  };
+  // 长袍纹样：0 螺旋、1 方块、2 眼形；按网格放置，只保留在长袍内的
+  const MOTIFS = [];
+  for (let y = 80, j = 0; y < 204; y += 15, j++) for (let x = 200 + (j % 2) * 8; x < 344; x += 17) {
+    if (!robeIn(x, y)) continue;
+    const i = MOTIFS.length;
+    MOTIFS.push({ x: x + (rnd(i, 1) - 0.5) * 4, y: y + (rnd(i, 2) - 0.5) * 4, kind: Math.floor(rnd(i, 3) * 3), ph: rnd(i, 4) * 1.6 });
+  }
+  MOTIFS.sort((p, q) => p.y - q.y);
+  const DUST = Array.from({ length: 70 }, (_, i) => [rnd(i, 21) * CW, rnd(i, 22) * CH, 0.8 + rnd(i, 23) * 1.6, rnd(i, 24) * TAU]);
+  // 金箔马赛克：6 px 方块错行排列，按色阶分组，画时每组一条路径；少数深褐和浅色碎片打破均匀
+  const TILE = 6, GROUT = '#8A6424';
+  const GOLDS = ['#B9892E', '#C59536', '#D0A140', '#D9AC4B', '#E2B858', '#EAC468', '#7A5420', '#F6E0A0'];
+  const TILES = GOLDS.map(() => []), GLINT = [];
+  for (let r = 0, y = 0; y < CH; y += TILE, r++) for (let x = (r % 2) * -3; x < CW; x += TILE) {
+    const id = r * 100 + Math.round(x), q = rnd(id, 41);
+    const g = q < 0.018 ? 6 : q > 0.99 ? 7 : Math.min(5, Math.floor(rnd(id, 42) * 6));
+    TILES[g].push(x + 0.5, y + 0.5);
+    if (rnd(id, 43) < 0.12) GLINT.push({ x: x + 0.5, y: y + 0.5, ph: rnd(id, 44) * TAU });
+  }
+  // 花草地：y 172 以下，草叶和五色小花；花按 x 从两边往中间依次开
+  const MEADOW_Y = 172;
+  const BLADES = Array.from({ length: 150 }, (_, i) => [rnd(i, 51) * CW, MEADOW_Y + 6 + rnd(i, 52) * 34, 4 + rnd(i, 53) * 7, (rnd(i, 54) - 0.5) * 0.7]);
+  const FCOL = ['#C8301E', '#2A58A8', '#F6EEDB', '#E8743A', '#8A4FA0', '#E9C23C'];
+  const MFLOWERS = Array.from({ length: 64 }, (_, i) => {
+    const x = rnd(i, 61) * CW, y = MEADOW_Y + 4 + rnd(i, 62) * 32;
+    return { x, y, r: 2.2 + rnd(i, 63) * 2.4 * (0.6 + (y - MEADOW_Y) / 40), c: FCOL[Math.floor(rnd(i, 64) * FCOL.length)], t0: 0.9 + Math.abs(x - CW / 2) / (CW / 2) * -0.6 + 0.6 + rnd(i, 65) * 0.2, ph: rnd(i, 66) * TAU };
+  });
+  CELLS[7] = (k, w, h, u) => {
+    // 金箔底（每帧相同，是本格的底色）
+    k.fillStyle = GROUT; k.fillRect(0, 0, CW, CH);
+    TILES.forEach((list, g) => {
+      k.fillStyle = GOLDS[g]; k.beginPath();
+      for (let n = 0; n < list.length; n += 2) k.rect(list[n], list[n + 1], TILE - 1, TILE - 1);
+      k.fill();
+    });
+    const a = vis(u); k.globalAlpha = a;
+    // 金箔高光（3.4 秒后）：一条斜向亮带从左扫到右，另有少量碎片各自闪烁
+    const gl = ease(u, 3.4);
+    if (gl > 0) {
+      const bx = mix(-160, CW + 160, seg(u, 3.4, 5.4));
+      const bg = k.createLinearGradient(bx - 70, 0, bx + 70, CH * 0.4);
+      bg.addColorStop(0, 'rgba(255,246,206,0)'); bg.addColorStop(0.5, 'rgba(255,246,206,0.38)'); bg.addColorStop(1, 'rgba(255,246,206,0)');
+      k.globalAlpha = a * gl; k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+      k.fillStyle = '#FFF6D6';
+      for (const t of GLINT) { const f = Math.pow(Math.max(0, Math.sin(u * 2.6 + t.ph)), 10); if (f > 0.02) { k.globalAlpha = a * gl * f; k.fillRect(t.x, t.y, TILE - 1, TILE - 1); } }
+      k.globalAlpha = a;
+    }
+    // 花草地（0.3–0.8 秒草地淡入，花 0.9–2.1 秒从两边往中间开出，3.6 秒后轻摇）
+    const mt = seg(u, 0.3, 0.8);
+    if (mt > 0) {
+      k.globalAlpha = a * mt;
+      const mg = k.createLinearGradient(0, MEADOW_Y, 0, CH);
+      mg.addColorStop(0, '#5E7A3A'); mg.addColorStop(1, '#2F4A24');
+      k.fillStyle = mg; k.beginPath(); k.moveTo(0, CH);
+      for (let x = 0; x <= CW; x += 12) k.lineTo(x, MEADOW_Y + 3 * Math.sin(x * 0.05));
+      k.lineTo(CW, CH); k.closePath(); k.fill();
+      k.strokeStyle = '#86A456'; k.lineWidth = 1; k.lineCap = 'round';
+      k.beginPath(); for (const [x, y, l, lean] of BLADES) { k.moveTo(x, y); k.lineTo(x + lean * l, y - l); } k.stroke();
+      k.globalAlpha = a;
+    }
+    const sway = ease(u, 3.6);
+    for (const f of MFLOWERS) {
+      const t = backOut(seg(u, f.t0, f.t0 + 0.4), 1.6);
+      if (t <= 0) continue;
+      const dx = sway * Math.sin((u - 3.6) * 2.2 + f.ph) * 1.2, r = f.r * t;
+      k.fillStyle = f.c; k.beginPath();
+      for (let p = 0; p < 5; p++) { const an = p / 5 * TAU + f.ph; k.moveTo(f.x + dx + Math.cos(an) * r * 0.9 + r * 0.55, f.y + Math.sin(an) * r * 0.9); k.arc(f.x + dx + Math.cos(an) * r * 0.9, f.y + Math.sin(an) * r * 0.9, r * 0.55, 0, TAU); }
+      k.fill();
+      k.fillStyle = f.c === '#E9C23C' ? '#8A4A12' : '#F2C640'; k.beginPath(); k.arc(f.x + dx, f.y, r * 0.38, 0, TAU); k.fill();
+    }
+    // 长袍金色底（0.3–1.0 秒）
+    const rt = seg(u, 0.3, 1.0);
+    if (rt > 0) {
+      k.globalAlpha = a * rt;
+      const g = k.createLinearGradient(196, 70, 344, 208);
+      g.addColorStop(0, '#9C6A1A'); g.addColorStop(0.45, '#D9A63A'); g.addColorStop(0.7, '#F8DE86'); g.addColorStop(1, '#B07A22');
+      k.save(); k.translate(3, 2); k.fillStyle = 'rgba(46,30,12,0.45)'; fillPts(k, ROBE); k.restore();
+      k.fillStyle = g; fillPts(k, ROBE);
+      // 高光带：3.4 秒后斜着扫过长袍
+      const sx = mix(120, 420, seg(u, 3.4, 5.2));
+      if (u > 3.4) {
+        k.save(); k.beginPath(); tracePts(k, ROBE); k.clip();
+        const sg = k.createLinearGradient(sx - 40, 0, sx + 40, 0);
+        sg.addColorStop(0, 'rgba(255,245,200,0)'); sg.addColorStop(0.5, `rgba(255,245,200,${0.45 * ease(u, 3.4)})`); sg.addColorStop(1, 'rgba(255,245,200,0)');
+        k.fillStyle = sg; k.fillRect(0, 0, CW, CH); k.restore();
+      }
+      // 头发、脸、手
+      k.fillStyle = HAIR; k.beginPath(); k.ellipse(266, 44, 22, 22, 0, 0, TAU); k.fill();
+      k.fillStyle = SKIN; k.beginPath(); k.ellipse(272, 50, 12, 15, -0.25, 0, TAU); k.fill();
+      k.fillStyle = SKIN_D; k.beginPath(); k.ellipse(276, 56, 4, 2, -0.25, 0, TAU); k.fill();
+      k.fillStyle = SKIN; k.beginPath(); k.ellipse(284, 112, 9, 6, -0.6, 0, TAU); k.fill();
+      k.strokeStyle = '#3A2614'; k.lineWidth = 1.2;
+      k.beginPath(); k.moveTo(266, 47); k.quadraticCurveTo(270, 45, 274, 47); k.stroke();
+      k.beginPath(); k.moveTo(275, 49); k.quadraticCurveTo(279, 47, 282, 49); k.stroke();
+      // 发间小花
+      [[252, 30, '#C8301E'], [284, 26, '#E8743A'], [246, 52, '#2A58A8']].forEach(([x, y, c]) => { k.fillStyle = c; k.beginPath(); k.arc(x, y, 3.2, 0, TAU); k.fill(); });
+      k.globalAlpha = a;
+    }
+    // 纹样逐块铺上（1.0–3.4 秒）
+    k.save(); k.beginPath(); tracePts(k, ROBE); k.clip();
+    const STEP = (3.4 - 1.0 - 0.2) / Math.max(1, MOTIFS.length - 1);
+    MOTIFS.forEach((m, i) => {
+      const t = out3(seg(u, 1.0 + i * STEP, 1.2 + i * STEP));
+      if (t <= 0) return;
+      k.save(); k.translate(m.x, m.y); k.scale(t, t);
+      if (m.kind === 0) {
+        k.strokeStyle = '#3A2614'; k.lineWidth = 1.1; k.beginPath();
+        for (let s = 0; s <= 30; s++) { const an = s / 30 * 4.5 * Math.PI, r = 0.6 + s * 0.18; s ? k.lineTo(Math.cos(an) * r, Math.sin(an) * r) : k.moveTo(r, 0); }
+        k.stroke();
+      } else if (m.kind === 1) {
+        k.fillStyle = m.ph > 0.8 ? '#1E1610' : '#F6EEDB'; k.fillRect(-4, -5, 8, 10);
+        k.fillStyle = '#D9A63A'; k.fillRect(-1.5, -2, 3, 4);
+      } else {
+        // 眼形纹：3.4 秒后轮流眨（纵向压扁再恢复）
+        const cyc = ((u - 3.4 + m.ph) % 1.6 + 1.6) % 1.6, blink = u > 3.4 ? clamp(Math.abs(cyc - 0.12) / 0.1) : 1;
+        const open = mix(1, blink, ease(u, 3.4));
+        k.fillStyle = '#F6EEDB'; k.beginPath(); k.ellipse(0, 0, 6, 3.4 * open, 0, 0, TAU); k.fill();
+        k.strokeStyle = '#3A2614'; k.lineWidth = 0.9; k.stroke();
+        if (open > 0.25) { k.fillStyle = '#2A58A8'; k.beginPath(); k.arc(0, 0, 1.8 * open, 0, TAU); k.fill(); }
+      }
+      k.restore();
+    });
+    k.restore();
+    // 长袍轮廓
+    if (rt > 0) { k.strokeStyle = 'rgba(46,30,12,0.85)'; k.lineWidth = 1.6; k.globalAlpha = a * rt; strokePts(k, ROBE, true); k.globalAlpha = a; }
+    // 金屑飘落（3.4 秒后）
+    const dt = ease(u, 3.4);
+    if (dt > 0) {
+      k.fillStyle = '#F8DE86';
+      DUST.forEach(([x, y, r, ph]) => {
+        const yy = y + (u - 3.4) * (10 + r * 6), xx = x + Math.sin((u - 3.4) * 1.5 + ph) * 4;
+        k.globalAlpha = a * dt * (0.5 + 0.5 * Math.sin(ph + u * 3)); k.beginPath(); k.arc(xx, yy, r, 0, TAU); k.fill();
+      });
+    }
+    k.globalAlpha = 1;
+  };
+}
