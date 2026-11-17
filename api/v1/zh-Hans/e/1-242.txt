@@ -1,0 +1,110 @@
+// Motion Prompt #1-242 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 币种兑换翻转 / Asset swap
+// 分类: 界面与网页 / 组件 / 选择与输入
+// 动画表现: 桃色到薄荷的渐变底上叠放着两块彩色板，上板是比特币橙，下板是 HYPE 深青绿，文字为白色：上板是 You pay 0.05 BTC，下板是 You receive 127.496 HYPE，各自带美元估值，右下角有一个带圆形图标的币种胶囊。接缝正中是一个白色圆形按钮，里面是向下的箭头。指针按下按钮，按钮微微一缩再弹回，箭头用弹簧转半圈、略冲过头后指向上方；两块板不动，标签互换，上板变成收到 0.03898 BTC，下板变成付出 100 HYPE。指针在下板的 HYPE 胶囊上停留一下再回来，再次按下，箭头继续同向转半圈，回到朝下。
+// 运动规格:
+//   - 每块板 300×116 px，圆角 20 px，上板是 BTC 橙色渐变，下板是 HYPE 青绿渐变，上下相隔 3 px；接缝正中是直径 40 px 的白色箭头按钮。
+//   - 付出方是该币种的整手数量（0.05 BTC / 100 HYPE），接收方显示这笔价值扣掉 0.3% 后除以自身单价（BTC 97700，HYPE 38.2 美元）。
+//   - 1.4 秒和 3.6 秒点击箭头；按住时缩到 0.9，松手后用 0.42 秒、回弹 0.35 的弹簧弹回。
+//   - 每次点击箭头都同向再转 180°，弹簧 0.6 秒，回弹 30 × 0.5% = 0.15。
+//   - 2.1–2.9 秒指针停在下板的 HYPE 胶囊上，胶囊的半透明白底从 20% 提高到 34%。
+//   - 指针 4.8 秒离开，之后画面与 0 秒相同。
+// 适用场景: 适合加密货币交易所和钱包的兑换页、外币兑换、积分兑换表单。
+// 标签: swap, crypto, currency, rotate, spring, exchange-form
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-242
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 79
+// 83 币种兑换翻转（bencho asset-swap）：桃色→薄荷渐变底上两块圆角板，上板是 BTC 橙色渐变（You pay 0.05 BTC），下板是 HYPE 深青绿渐变（You receive 127.496 HYPE），白字；接缝正中是一个白色圆形箭头按钮（Crypto 组，回弹 30）；
+// 指针 0.3 秒进入，1.4 秒点击箭头：按钮按下缩到 0.9 再弹回，箭头用弹簧转半圈指向上方，两块板原地不动，只是 You pay / You receive 互换、两边金额按价格和 0.3% 手续费重算；
+// 指针随后去悬停下板的 HYPE 币种胶囊，3.6 秒再点箭头，箭头继续同向再转半圈回到朝下、数字复原；指针 4.8 秒离开，之后画面与 0 秒相同。
+const AS_S = 0.84, AS_W = 300, AS_CARD = 116, AS_GAP = 3, AS_H = AS_CARD * 2 + AS_GAP, AS_R = 20;
+const AS_OX = 269.5 - AS_W / 2 * AS_S, AS_OY = 104 - AS_H / 2 * AS_S;
+const AS_FX = AS_W / 2, AS_FY = 117.5;                          // 箭头按钮中心（块内坐标）
+const AS_C1 = 1.4, AS_C2 = 3.6;                                  // 两次点击（click 即松手时刻）
+const AS_INK = '#17181a';
+const AS_COINS = {
+  BTC: { bg: '#F7931A', fg: '#FFF', rot: -14, d: 'M23.189 14.02c.314-2.096-1.283-3.223-3.465-3.975l.708-2.84-1.728-.43-.69 2.765c-.454-.114-.92-.22-1.385-.326l.695-2.783L15.596 6l-.708 2.839c-.376-.086-.746-.17-1.104-.26l.002-.009-2.384-.595-.46 1.846s1.283.294 1.256.312c.7.175.826.638.805 1.006l-.806 3.235c.048.012.11.03.18.057l-.183-.045-1.13 4.532c-.086.212-.303.531-.793.41.018.025-1.256-.313-1.256-.313l-.858 1.978 2.25.561c.418.105.828.215 1.231.318l-.715 2.872 1.727.43.708-2.84c.472.127.93.245 1.378.357l-.706 2.828 1.728.43.715-2.866c2.948.558 5.164.333 6.097-2.333.752-2.146-.037-3.385-1.588-4.192 1.13-.26 1.98-1.003 2.207-2.538zm-3.95 5.538c-.533 2.147-4.148.986-5.32.695l.95-3.805c1.172.293 4.929.872 4.37 3.11zm.535-5.569c-.487 1.953-3.495.96-4.47.717l.86-3.45c.975.243 4.118.696 3.61 2.733z' },
+  HYPE: { bg: '#072723', fg: '#97FCE4', rot: 0, d: 'M7.5 16c0-4.4 2.6-6 5-6 1.9 0 2.6 1.7 3.5 1.7s1.6-1.7 3.5-1.7c2.4 0 5 1.6 5 6s-2.6 6-5 6c-1.9 0-2.6-1.7-3.5-1.7s-1.6 1.7-3.5 1.7c-2.4 0-5-1.6-5-6z' },
+};
+// 原作的读数：付出方显示整手数量，接收方 = 价值 × (1 - 0.3%) ÷ 单价（BTC 97700，HYPE 38.2）；按 en-US 格式化
+const AS_SHOW = [
+  [{ role: 'You pay', amt: '0.05', fiat: '$4,885.00' }, { role: 'You receive', amt: '127.496', fiat: '$4,870.35' }],
+  [{ role: 'You receive', amt: '0.03898', fiat: '$3,808.54' }, { role: 'You pay', amt: '100', fiat: '$3,820.00' }],
+];
+// framer-motion 的 duration/bounce 弹簧：阻尼比 1-bounce，固有频率取使包络在 duration 处降到 0.001 的根（与 findSpring 相同）
+const AS_spring = (dur, bounce) => {
+  const z = 1 - bounce, w = -Math.log(0.001 * Math.sqrt(1 - z * z) / z) / (z * dur), wd = w * Math.sqrt(1 - z * z);
+  return t => (t <= 0 ? 0 : 1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + z * w / wd * Math.sin(wd * t)));
+};
+const AS_TURN = AS_spring(0.6, 30 / 100 * 0.5);                 // 旋转：0.6 秒，bounce 0.15
+const AS_TAP = AS_spring(0.42, 0.35);                            // 缩放：0.42 秒，bounce 0.35
+const AS_P = {};
+const AS_path = sym => AS_P[sym] || (AS_P[sym] = new Path2D(AS_COINS[sym].d));
+// 手：0.3 秒从右下进入 → 箭头 → 1.4 秒点击 → 去悬停下板 HYPE 胶囊 → 回到箭头 3.6 秒点击 → 4.8 秒离开
+const AS_pill = (sym, k) => { k.font = UXB_f(500, 13); const w = 4 + 22 + 8 + k.measureText(sym).width + 12; return { x: AS_W - 14 - w, y: AS_CARD - 14 - 30, w, h: 30 }; };
+const AS_PITCH_Y = i => i * (AS_CARD + AS_GAP);
+const AS_KEYS = [[0.3, 330, 250], [1.15, AS_FX + 3, AS_FY + 2], [AS_C1 + 0.25, AS_FX + 3, AS_FY + 2], [2.2, 238, AS_PITCH_Y(1) + 89], [2.75, 240, AS_PITCH_Y(1) + 88], [3.35, AS_FX + 2, AS_FY + 1], [AS_C2 + 0.25, AS_FX + 2, AS_FY + 1], [4.8, 380, 250]];
+const AS_hand = u => BN_path(u, AS_KEYS);
+let AS_HOV = null;
+const AS_TINT = {
+  BTC: { a: '#E2730F', b: '#B9500A', sh: 'rgba(150,60,0,0.35)', lab: 'rgba(255,255,255,0.92)' },
+  HYPE: { a: '#14806F', b: '#0A4E45', sh: 'rgba(0,60,52,0.35)', lab: '#97FCE4' },
+};
+function AS_drawLogo(k, sym, x, y, s) {
+  const c = AS_COINS[sym];
+  k.save(); k.translate(x, y); k.scale(s / 32, s / 32);
+  k.fillStyle = c.bg; k.beginPath(); k.arc(16, 16, 16, 0, TAU); k.fill();
+  if (c.rot) { k.translate(16, 16); k.rotate(c.rot * Math.PI / 180); k.translate(-16, -16); }
+  k.fillStyle = c.fg; k.fill(AS_path(sym));
+  k.restore();
+}
+CELLS[78] = (k, w, h, u) => {
+  // 底：左上桃色 → 右下薄荷的对角渐变，分别呼应 BTC 橙和 HYPE 青绿
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#FFE4C8'); bg.addColorStop(1, '#C9F2E6');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  const st = u >= AS_C1 && u < AS_C2 ? 1 : 0, coins = ['BTC', 'HYPE'];
+  const [hx, hy] = AS_hand(u);
+  k.save(); k.translate(AS_OX, AS_OY); k.scale(AS_S, AS_S);
+  // 下板胶囊的悬停（白色底 20% → 34%，160 ms）
+  const pl = AS_pill('HYPE', k), py = AS_PITCH_Y(1);
+  if (!AS_HOV) AS_HOV = UXB_changes(t => { const p = AS_hand(t); return p[0] >= pl.x && p[0] <= pl.x + pl.w && p[1] >= py + pl.y && p[1] <= py + pl.y + pl.h ? 1 : 0; });
+  const hov = UXB_ramp(u, AS_HOV, 0.16, x => x);
+  for (let i = 0; i < 2; i++) {
+    const y = AS_PITCH_Y(i), f = AS_SHOW[st][i], sym = coins[i];
+    // 板：上 BTC 橙、下 HYPE 深青绿，竖向渐变；阴影用各自的深色
+    const T = AS_TINT[sym], g = k.createLinearGradient(0, y, 0, y + AS_CARD); g.addColorStop(0, T.a); g.addColorStop(1, T.b);
+    k.save(); k.shadowColor = T.sh; k.shadowBlur = 16; k.shadowOffsetY = 5;
+    k.fillStyle = g; rr(k, 0, y, AS_W, AS_CARD, AS_R); k.fill(); k.restore();
+    txt(k, f.role, 18, y + 16, UXB_f(500, 12), T.lab, 'left', 'top');
+    k.letterSpacing = '-0.4px';
+    txt(k, f.amt, 20, y + 71, UXB_f(600, 20), '#FFFFFF', 'left', 'middle');
+    k.letterSpacing = '0px';
+    txt(k, f.fiat, 20, y + 93, UXB_f(400, 12), T.lab, 'left', 'middle');
+    // 币种胶囊：半透明白底，悬停加深到 34%；图标外加一圈白边，与彩色板分开
+    const p = AS_pill(sym, k), a = 0.2 + (i === 1 ? 0.14 * hov : 0);
+    k.fillStyle = `rgba(255,255,255,${a})`; rr(k, p.x, y + p.y, p.w, p.h, 15); k.fill();
+    k.fillStyle = '#FFFFFF'; k.beginPath(); k.arc(p.x + 15, y + p.y + 15, 12.5, 0, TAU); k.fill();
+    AS_drawLogo(k, sym, p.x + 4, y + p.y + 4, 22);
+    txt(k, sym, p.x + 34, y + p.y + 15.5, UXB_f(600, 13), '#FFFFFF', 'left', 'middle');
+  }
+  // 箭头按钮：按下缩到 0.9（whileTap），松手后 0.42 秒弹簧弹回；每次点击再转 180°（只增不减）
+  let rot = 0, sc = 1;
+  for (const c of [AS_C1, AS_C2]) { rot += 180 * AS_TURN(u - c); sc -= 0.1 * (AS_TAP(u - (c - 0.1)) - AS_TAP(u - c)); }
+  k.save(); k.translate(AS_FX, AS_FY); k.scale(sc, sc); k.rotate(rot * Math.PI / 180);
+  k.save(); k.shadowColor = 'rgba(40,30,20,0.28)'; k.shadowBlur = 10; k.shadowOffsetY = 2;
+  k.fillStyle = '#FFFFFF'; k.beginPath(); k.arc(0, 0, 20, 0, TAU); k.fill(); k.restore();
+  k.scale(0.75, 0.75); k.translate(-12, -12);
+  k.strokeStyle = AS_INK; k.lineWidth = 2; k.lineCap = 'round'; k.lineJoin = 'round';
+  k.beginPath(); k.moveTo(12, 5); k.lineTo(12, 19); k.moveTo(19, 12); k.lineTo(12, 19); k.lineTo(5, 12); k.stroke();
+  k.restore();
+  k.restore();
+  let press = 0;
+  for (const c of [AS_C1, AS_C2]) press = Math.max(press, clamp(Math.min((u - c + 0.16) / 0.06, (c + 0.06 - u) / 0.06)));
+  cursor(k, AS_OX + hx * AS_S, AS_OY + hy * AS_S, press);
+};

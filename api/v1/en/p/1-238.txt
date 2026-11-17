@@ -1,0 +1,16 @@
+Please use "Dynamic island" (ダイナミックアイランド), filed under "Components / Opening & overlays".
+Motion Prompt #1-238
+
+What it is: A black pill running a timer grows into its activity card on a slightly overshooting spring when pressed, and tucks back on a second press
+What the sample shows: In the middle of a phone-wallpaper gradient running from orange through magenta to purple sits a small black pill with an amber timer glyph on the left and the time left, 4:59, on the right, ticking down each second. The pointer comes in from the right and presses it: the pill dips, then grows wider and taller at once, overshoots a little and settles as a large black rounded card. The small contents blur, shrink and fade, and a beat later an amber round pause button appears on the left with a grey Timer and a large amber time on the right. The pointer waits over the card; a second press brings it back to the small pill on the same spring, the contents swapping again.
+Spec:
+- The shut pill is 150×36 px with 18 px corners and the open card 300×76 px with 38 px corners, staying black #000 and growing out evenly from the middle of an orange-to-purple wallpaper gradient.
+- Width, height and corners ride one spring: stiffness 380, damping 34 lowered by bounce 40 to 27.6, mass 0.9.
+- The contents are two separate layouts that crossfade after 0.06 s over 0.22 s, entering and leaving through a 6 px blur and a scale from 0.92.
+- The pointer enters from the right at 0.3 s and presses the pill at 1.2 s; it presses again at 3.8 s to tuck it back and is gone by 4.6 s.
+- While pressed the island dips to 0.97×; the time left, 4:59, drops by 1 every 1 s; from 5.4 s to 6.0 s it dissolves back to the first picture.
+When to use it: Use it to show ongoing activities such as timers, calls, music playback and delivery or trip progress.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-238.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

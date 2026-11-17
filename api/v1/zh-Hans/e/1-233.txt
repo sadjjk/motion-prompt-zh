@@ -1,0 +1,156 @@
+// Motion Prompt #1-233 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 粒子避让回弹 / Particle repel
+// 分类: 界面与网页 / 指针交互 / 光标
+// 动画表现: 深靛蓝底上有一个由细小圆点密密排成的实心圆，点的颜色绕着圆心排成一圈彩虹。指针从右侧进入划过圆面，手周围的点被推开，留出一个圆洞；手过去以后，这些点像弹簧一样晃着回到原位，运动中的点沿方向拉长。在中间按下，所有点一起向外飞散，再绕着中心扫进一个圆角方块；颜色跟着点走，方块上的彩虹顺序依旧连贯。指针在方块上又划了一笔后离开，最后这些点再扫回圆形。
+// 运动规格:
+//   - 按原作 480×400 px 的画面缩小到 0.5 倍显示；720 个半径 1.9 px 的点按六角网格排在半径 150 px 的圆内；底色是 #1A1663 到 #0B0A33 的斜向渐变，每颗点按它在初始圆里的角度取 24 档色相之一（饱和度 92%，亮度 64%）。
+//   - 指针 0.3 秒从右侧进入；手 80 px 以内的点受 (1-d/80)² × 6.6 的推力，并由弹簧 0.05、阻尼 0.84（每 1/60 秒）拉回原位。
+//   - 运动中的点按速度沿方向拉长，最多 2.6 倍。
+//   - 2.8 秒按下：按点 200 px 以内的点获得最多 30 × 1.12 的速度，随后按角度重新配对，聚成 280×280 px、圆角 36 px 的方块。
+//   - 指针 4.55 秒移出画面；5.4 秒各点按同样方式配回圆形，5.9–6.3 秒收住余下的晃动，回到第一帧。
+// 适用场景: 适合落地页首屏、可交互的标志或图形展示、加载页上的小互动。
+// 标签: particles, repel, spring, shockwave, shape-morph, hover, canvas
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-233
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 70
+// 70 粒子避让回弹（bencho particles）：深靛蓝渐变底上 720 颗点排成实心圆，每颗点按它在圆里的角度取彩虹色（绕一圈 24 档色相）；指针 0.3 秒从右侧进入，0.73 秒进到画布内，在圆上来回划，
+// 手周围 80 px（原作像素）内的点被推开（force 60），手离开后弹簧拉回原位，运动中的点沿速度方向拉长；
+// 2.8 秒按下，按点周围 200 px 内的点被冲击波甩出，随后按角度配对、绕中心扫进下一个形状——圆角方块；指针再划一笔，4.55 秒移出画布；
+// 5.4 秒复位：各点按同样的配对扫回圆形，5.9–6.3 秒收拢到原位。点的颜色跟着点走，换形按角度配对，所以方块上彩虹依旧连贯。
+const PT_N = 720, PT_W = 480, PT_H = 400, PT_S = 0.5;     // 原作画布 480×400，720 颗点；显示缩小到 0.5
+const PT_X = (CW - PT_W * PT_S) / 2, PT_Y = (CH - PT_H * PT_S) / 2;
+const PT_REACH = 80, PT_FORCE = 60, PT_R = 1.9, PT_FPS = 60, PT_PRESS = 2.8;
+const PT_KEYS = [[0, 600, 122], [0.3, 548, 120], [0.75, 380, 92], [1.15, 300, 70], [1.55, 236, 126], [1.95, 262, 64], [2.35, 318, 112],
+  [2.65, 276, 102], [2.8, 276, 102], [2.95, 276, 102], [3.45, 330, 56], [3.95, 222, 148], [4.35, 330, 150], [4.75, 470, 176], [5.0, 600, 190]];
+// 原作 outline()：圆半径 150；圆角方块 280×280、圆角 36（圆角用 arcTo 画）
+function PT_outline(s) {
+  const p = new Path2D(), cx = PT_W / 2, cy = PT_H / 2;
+  if (s === 'Circle') p.arc(cx, cy, 150, 0, TAU);
+  else {
+    const x = cx - 140, y = cy - 140, w = 280, r = 36;
+    p.moveTo(x + r, y); p.arcTo(x + w, y, x + w, y + w, r); p.arcTo(x + w, y + w, x, y + w, r); p.arcTo(x, y + w, x, y, r); p.arcTo(x, y, x + w, y, r); p.closePath();
+  }
+  return p;
+}
+// 原作 homes()：按形状面积 / N 定六角网格间距，取形状内的格点，再均匀抽取或重复到正好 N 个；同时备好按角度排序的下标
+const PT_HOME = {};
+function PT_homes(s) {
+  if (PT_HOME[s]) return PT_HOME[s];
+  const c = document.createElement('canvas'); c.width = PT_W; c.height = PT_H;
+  const g = c.getContext('2d'), path = PT_outline(s);
+  let area = 0;
+  for (let y = 1; y < PT_H; y += 2) for (let x = 1; x < PT_W; x += 2) if (g.isPointInPath(path, x, y)) area += 4;
+  const sp = Math.sqrt(area / PT_N * (2 / Math.sqrt(3))), rowH = sp * Math.sqrt(3) / 2, pts = [];
+  for (let y = rowH / 2, row = 0; y < PT_H; y += rowH, row++)
+    for (let x = sp / 2 + (row % 2) * sp / 2; x < PT_W; x += sp) if (g.isPointInPath(path, x, y)) pts.push([x, y]);
+  const hx = new Float64Array(PT_N), hy = new Float64Array(PT_N);
+  for (let i = 0; i < PT_N; i++) { const q = pts[Math.floor(i * pts.length / PT_N)]; hx[i] = q[0]; hy[i] = q[1]; }
+  const order = PT_byAngle(hx, hy);
+  return (PT_HOME[s] = { hx, hy, order });
+}
+const PT_byAngle = (xs, ys) => Array.from(xs, (x, i) => [Math.atan2(ys[i] - PT_H / 2, x - PT_W / 2), i]).sort((p, q) => p[0] - q[0]).map(p => p[1]);
+// 换形：把各点按当前位置绕中心的角度排序，与新形状按角度排序的家一一配对（原作 become）
+function PT_become(st, s) {
+  const H = PT_homes(s), a = PT_byAngle(st.x, st.y);
+  a.forEach((di, j) => { st.hx[di] = H.hx[H.order[j]]; st.hy[di] = H.hy[H.order[j]]; });
+}
+// 指针（原作像素）；只在画布范围内才算"在场"（原作 pointerleave 后 hand = null）
+function PT_hand(t) {
+  const p = BN_path(t, PT_KEYS), x = (p[0] - PT_X) / PT_S, y = (p[1] - PT_Y) / PT_S;
+  return x >= 0 && x <= PT_W && y >= 0 && y <= PT_H ? [x, y] : null;
+}
+const PT_arr = () => ({ x: new Float64Array(PT_N), y: new Float64Array(PT_N), vx: new Float64Array(PT_N), vy: new Float64Array(PT_N), hx: new Float64Array(PT_N), hy: new Float64Array(PT_N), busy: false });
+const PT_copy = (a, b) => { for (const key of ['x', 'y', 'vx', 'vy', 'hx', 'hy']) b[key].set(a[key]); b.busy = a.busy; return b; };
+// 原作按 60 Hz 逐帧更新：从第 f 帧推进 dt（≤ 1 帧）
+function PT_step(st, f, dt) {
+  const t = f / PT_FPS, R = PT_REACH, S = PT_FORCE / 100 * 11;
+  if (f === Math.round(PT_PRESS * PT_FPS)) {
+    // 冲击波：200 px 内的点按 (1 - d/200)·30·K 获得向外速度，然后换成下一个形状
+    const p = PT_hand(PT_PRESS), K = 0.4 + PT_FORCE / 100 * 1.2;
+    if (p) for (let i = 0; i < PT_N; i++) {
+      const dx = st.x[i] - p[0], dy = st.y[i] - p[1], dd = Math.hypot(dx, dy);
+      if (dd > 200 || dd < 0.01) continue;
+      const g = (1 - dd / 200) * 30 * K; st.vx[i] += dx / dd * g; st.vy[i] += dy / dd * g;
+    }
+    PT_become(st, 'Square'); st.busy = true;
+  }
+  if (f === Math.round(SHOW * PT_FPS)) { PT_become(st, 'Circle'); st.busy = true; }
+  const h = PT_hand(t);
+  if (!h && !st.busy) return;                                   // 全部静止且无手：这一帧什么都不变（原作停掉循环）
+  let busy = !!h;
+  const damp = Math.pow(0.84, dt);
+  for (let i = 0; i < PT_N; i++) {
+    let vx = st.vx[i], vy = st.vy[i];
+    if (h) {
+      const dx = st.x[i] - h[0], dy = st.y[i] - h[1], dd = Math.hypot(dx, dy);
+      if (dd < R && dd > 0.01) { const g = (1 - dd / R) ** 2 * S; vx += dx / dd * g * dt; vy += dy / dd * g * dt; }
+    }
+    vx = (vx + (st.hx[i] - st.x[i]) * 0.05 * dt) * damp; vy = (vy + (st.hy[i] - st.y[i]) * 0.05 * dt) * damp;
+    let x = st.x[i] + vx * dt, y = st.y[i] + vy * dt;
+    if (Math.abs(st.hx[i] - x) < 0.05 && Math.abs(st.hy[i] - y) < 0.05 && Math.abs(vx) < 0.02 && Math.abs(vy) < 0.02) { x = st.hx[i]; y = st.hy[i]; vx = vy = 0; }
+    else busy = true;
+    st.x[i] = x; st.y[i] = y; st.vx[i] = vx; st.vy[i] = vy;
+  }
+  st.busy = busy;
+}
+// 状态只取决于 u：从 u = 0 的圆形逐帧推进到 u。每 24 帧的整帧状态是确定的，算过一次就缓存为检查点，之后从最近的检查点续算
+const PT_SNAP = [], PT_EVERY = 24, PT_WORK = PT_arr();
+function PT_sim(u) {
+  if (!PT_SNAP.length) {
+    const s0 = PT_arr(), C = PT_homes('Circle');
+    s0.x.set(C.hx); s0.hx.set(C.hx); s0.y.set(C.hy); s0.hy.set(C.hy); PT_SNAP.push(s0);
+  }
+  const n = u * PT_FPS, whole = Math.floor(n), j = Math.floor(whole / PT_EVERY);
+  while (PT_SNAP.length <= j) {
+    const m = PT_SNAP.length, s = PT_copy(PT_SNAP[m - 1], PT_arr());
+    for (let f = (m - 1) * PT_EVERY; f < m * PT_EVERY; f++) PT_step(s, f, 1);
+    PT_SNAP.push(s);
+  }
+  const st = PT_copy(PT_SNAP[j], PT_WORK);
+  for (let f = j * PT_EVERY; f < whole; f++) PT_step(st, f, 1);
+  if (n > whole) PT_step(st, whole, n - whole);
+  return st;
+}
+// 每颗点的色相取它在初始圆里绕中心的角度，分 24 档，同档的点合并成一条路径填充
+const PT_HUES = 24;
+let PT_BAND = null, PT_BG = null;
+function PT_bands() {
+  if (PT_BAND) return PT_BAND;
+  const C = PT_homes('Circle'), b = Array.from({ length: PT_HUES }, () => []);
+  for (let i = 0; i < PT_N; i++) {
+    const a = Math.atan2(C.hy[i] - PT_H / 2, C.hx[i] - PT_W / 2) / TAU + 0.5;
+    b[Math.min(PT_HUES - 1, Math.floor(a * PT_HUES))].push(i);
+  }
+  return (PT_BAND = b);
+}
+CELLS[69] = (k, w, h, u) => {
+  if (!PT_BG) { PT_BG = k.createLinearGradient(0, 0, CW, CH); PT_BG.addColorStop(0, '#1A1663'); PT_BG.addColorStop(1, '#0B0A33'); }
+  k.fillStyle = PT_BG; k.fillRect(0, 0, CW, CH);
+  const st = PT_sim(u), land = inOut3(seg(u, SHOW + 0.5, SHOW + 0.9)), r = PT_R;
+  k.save(); k.translate(PT_X, PT_Y); k.scale(PT_S, PT_S);
+  PT_bands().forEach((band, bi) => {
+  k.fillStyle = `hsl(${Math.round(bi * 360 / PT_HUES + 200) % 360}, 92%, 64%)`; k.beginPath();
+  for (const i of band) {
+    // 复位段最后 0.4 秒把余下的弹簧位移收拢到家，保证首尾帧一致
+    const x = mix(st.x[i], st.hx[i], land), y = mix(st.y[i], st.hy[i], land);
+    const vx = st.vx[i] * (1 - land), vy = st.vy[i] * (1 - land), sp = Math.hypot(vx, vy);
+    if (sp < 0.3) { k.moveTo(x + r, y); k.arc(x, y, r, 0, TAU); }
+    else {
+      // 运动中的点沿速度方向拉长、横向略变细（原作的"按速度拉伸"）
+      const s = Math.min(2.6, 1 + sp * 0.12), rot = Math.atan2(vy, vx);
+      k.moveTo(x + Math.cos(rot) * r * s, y + Math.sin(rot) * r * s); k.ellipse(x, y, r * s, r / Math.sqrt(s), rot, 0, TAU);
+    }
+  }
+  k.fill();
+  });
+  k.restore();
+  const p = BN_path(PT_PRESS, PT_KEYS);
+  ripple(k, p[0], p[1], (u - PT_PRESS) / 0.6, '255,255,255');
+  if (u > 0.2 && u < 5) { const c = BN_path(u, PT_KEYS); cursor(k, c[0], c[1], UXB_press(u, PT_PRESS)); }
+};

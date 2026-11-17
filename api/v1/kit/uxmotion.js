@@ -1,9 +1,10 @@
-// Motion Prompt #1 068–077 · 087 · 091–095 · 097 · 124–135 · 140–142 · 149–158 · 160–161 · 165–166 · 176–196 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
+// Motion Prompt #1 068–077 · 087 · 091–095 · 097 · 124–135 · 140–142 · 149–158 · 160–161 · 165–166 · 176–196 · 231–253 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/
 // Also: MIT License (c) 2026 Hannah · https://kittenjam-motion-library.vercel.app/ (#1 075–077 · 087 · 097 · 130–135 · 140–142 · 152–158 · 193–196)
 // Also: MIT License (c) 2026 sadjjk · https://github.com/sadjjk/motion-prompt-zh (#1 165–166 · 176–178)
+// Also: MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho (#1 231–253)
 //
 // Kit for pack "uxmotion" (Interaction & data motion / インタラクションとデータの動き): the constants and helpers its elements share.
-// Elements #1 068–077 · 087 · 091–095 · 097 · 124–135 · 140–142 · 149–158 · 160–161 · 165–166 · 176–196 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
+// Elements #1 068–077 · 087 · 091–095 · 097 · 124–135 · 140–142 · 149–158 · 160–161 · 165–166 · 176–196 · 231–253 · 539x208 px · cycle 6.4 s. Element code: https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/<id>.txt (or /en/, /ja/).
 //
 // Run one element standalone in a browser:
 //   1. paste this file into a <script>,
@@ -269,3 +270,30 @@ function UXC_tilt(k, W, H, rx, ry, cx, cy, sc = 1, P = 600) {
 }
 // 按住程度：a 前 0.08 秒按下，b 后 0.14 秒抬起（拖动、刮擦这类持续按压）
 const UXC_hold = (u, a, b) => (u >= a - 0.08 && u < b + 0.14 ? Math.min(1, seg(u, a - 0.08, a)) * (1 - seg(u, b, b + 0.14)) : 0);
+
+// @shared
+// 68–90 共用小工具（bencho，Lorenzo Cabra，MIT）：平滑指针路径、指针进出程度、两参数哈希
+// 指针路径：keys = [[t, x, y], ...]，三次 Hermite 样条穿过各关键点，速度连续；端点和相邻两点相同（停顿）处速度为 0
+function BN_path(u, keys) {
+  const n = keys.length, same = (a, b) => a[1] === b[1] && a[2] === b[2];
+  if (u <= keys[0][0]) return [keys[0][1], keys[0][2]];
+  if (u >= keys[n - 1][0]) return [keys[n - 1][1], keys[n - 1][2]];
+  let i = 0; while (u >= keys[i + 1][0]) i++;
+  const vel = j => {
+    if (j === 0 || j === n - 1 || same(keys[j], keys[j - 1]) || same(keys[j], keys[j + 1])) return [0, 0];
+    const a = keys[j - 1], b = keys[j + 1], d = b[0] - a[0];
+    return [(b[1] - a[1]) / d, (b[2] - a[2]) / d];
+  };
+  const a = keys[i], b = keys[i + 1], D = b[0] - a[0], t = (u - a[0]) / D, t2 = t * t, t3 = t2 * t;
+  const va = vel(i), vb = vel(i + 1);
+  const h00 = 2 * t3 - 3 * t2 + 1, h10 = t3 - 2 * t2 + t, h01 = -2 * t3 + 3 * t2, h11 = t3 - t2;
+  return [h00 * a[1] + h10 * D * va[0] + h01 * b[1] + h11 * D * vb[0], h00 * a[2] + h10 * D * va[1] + h01 * b[2] + h11 * D * vb[1]];
+}
+// 指针在画面内的程度：a 秒进入后按时间常数 tau 趋近 1，b 秒离开后按 tau 衰减到 0（原作每帧按 0.004^dt 追赶）
+const BN_near = (u, a, b, tau = 0.18) => {
+  if (u < a) return 0;
+  const inn = 1 - Math.exp(-(Math.min(u, b) - a) / tau);
+  return u < b ? inn : inn * Math.exp(-(u - b) / tau);
+};
+// 两个整数参数的确定性哈希（格子下标 × 换牌序号）
+const BN_hash2 = (i, n) => hash(i * 0.7311 + n * 101.37);

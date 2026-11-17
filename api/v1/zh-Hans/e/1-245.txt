@@ -1,0 +1,98 @@
+// Motion Prompt #1-245 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 等面积画幅切换 / Equal-area aspect switch
+// 分类: 界面与网页 / 组件 / 选择与输入
+// 动画表现: 淡蓝渐变底中间是一张放在圆角画框里的彩色风景（蓝天、黄太阳、黄绿/绿/青绿三层山丘），下面是一排三个小框图标的分段控件，初始为 1:1。指针从右下进入，点横向图标，钴蓝滑块先滑过去，画框稍晚一点变宽变矮成 4:3；再点竖向图标，画框变窄变高；最后点中间，回到正方形。每种形状面积都一样，画面不变形，只是露出的范围不同。
+// 运动规格:
+//   - 三种画框为 276×207、239×239、207×276，都在一个 276×276 的正方形里；圆角 20 px，整体按 0.6 倍绘制。
+//   - 分段控件高 36 px，每格 40 px，底轨为 14% 钴蓝；选中的图标为白色，其余为藏蓝，都是面积 13² 的小框，线宽 1.5 px。
+//   - 0.9 秒点 4:3，2.4 秒点 3:4，3.9 秒点 1:1；画框宽高按 cubic-bezier(.22,1,.36,1) 在 0.52 秒内变化。
+//   - 滑块用同一曲线、0.55 倍时长移动，比画框先到；按下的分段缩到 0.96。
+//   - 指针 0.3 秒进入，4.8 秒离开；最后停在 1:1，与第一帧相同。
+// 适用场景: 适合图片裁切弹窗、发布前预览、封面或缩略图的比例选择。
+// 标签: aspect-ratio, crop, segmented-control, image, morph, equal-area
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-245
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 82
+// 86 等面积画幅切换（bencho aspect）：淡蓝渐变底上，一张彩色风景插图（蓝天、黄太阳、黄绿/绿/青绿三层山）放在圆角画框里，下面是淡钴蓝底轨、钴蓝滑块的三格分段控件（4:3、1:1、3:4 三个同面积小框图标），初始选中 1:1；
+// 指针 0.3 秒从右下进入，0.9 秒点 4:3、2.4 秒点 3:4、3.9 秒点 1:1，滑块先到（约 0.29 秒），画框随后在 0.52 秒内改宽高（不是缩放），
+// 三种画幅面积相同，图片按 cover 裁切不变形；4.8 秒指针离开，画面停在 1:1 与初始一致直到循环结束。
+const AR_S = 0.6;                                         // 原作 276 方框 + 16 间距 + 36 控件 = 328 高，按 0.6 缩进 208 高的格子（上下各留约 6 px）
+const AR_W = 276, AR_GAP = 16, AR_BAR = 36, AR_TAB = 40, AR_CORNER = 20, AR_MS = 0.52;
+const AR_BG0 = '#EAF4FF', AR_BG1 = '#BCDBFF';            // 淡蓝渐变底
+const AR_BLUE = '#2563EB', AR_NAVY = '#1E3A8A';           // 滑块钴蓝；未选中图标藏蓝
+const AR_SKY0 = '#4FA8F5', AR_SKY1 = '#BFE3FF', AR_SUN = '#FFC83D';
+const AR_SHAPES = [[276, 207], [239, 239], [207, 276]];
+// 图标小框：同面积 13² 的 4:3、1:1、3:4（原作 18×18 视框里的坐标）
+const AR_MARK = [[1.5, 3.38, 15, 11.25], [2.5, 2.5, 13, 13], [3.38, 1.5, 11.25, 15]];
+const AR_EZ = UXA_bz(0.22, 1, 0.36, 1), AR_COL = UXA_bz(0.25, 0.1, 0.25, 1);
+const AR_OX = (CW / AR_S - AR_W) / 2, AR_OY = (CH / AR_S - (AR_W + AR_GAP + AR_BAR)) / 2;
+const AR_TX = AR_OX + (AR_W - (3 * AR_TAB + 4)) / 2, AR_TY = AR_OY + AR_W + AR_GAP;
+// 点击：[时刻, 选中下标]；首项为初值
+const AR_EVS = [[-1, 1], [0.9, 0], [2.4, 2], [3.9, 1]];
+// 指针（缩放后坐标）：落到对应分段中心按下
+const AR_tab = i => [(AR_TX + 2 + AR_TAB * i + AR_TAB / 2) * AR_S, (AR_TY + AR_BAR / 2) * AR_S];
+const AR_KEYS = [[0, 470, 250], [0.8, ...AR_tab(0)], [1.0, ...AR_tab(0)], [2.3, ...AR_tab(2)], [2.5, ...AR_tab(2)],
+  [3.8, ...AR_tab(1)], [4.0, ...AR_tab(1)], [4.8, 470, 250]];
+// 原作插图（600×800，SVG 内联数据）的构图：渐变天空、太阳、三层山丘折线；灰阶换成彩色
+const AR_HILLS = [
+  ['#9BD86B', [453.0, 429.8, 424.8, 440.5, 468.7, 494.4, 504.0, 492.4, 465.7]],
+  ['#3FB56B', [579.7, 606.0, 599.4, 567.0, 544.5, 556.6, 590.0, 608.0, 590.9]],
+  ['#139A8C', [665.3, 681.9, 703.8, 711.8, 698.8, 676.3, 664.1, 672.9, 695.0]],
+];
+// 在 600×800 的原图坐标系里画插图；调用方已按 cover 比例缩放并平移
+function AR_pic(k) {
+  const g = k.createLinearGradient(0, 0, 0, 800);
+  g.addColorStop(0, AR_SKY0); g.addColorStop(0.7, AR_SKY1);
+  k.fillStyle = g; k.fillRect(0, 0, 600, 800);
+  k.fillStyle = 'rgba(255,200,61,0.28)'; k.beginPath(); k.arc(342, 257, 78, 0, TAU); k.fill();
+  k.fillStyle = AR_SUN; k.beginPath(); k.arc(342, 257, 54, 0, TAU); k.fill();
+  for (const [c, ys] of AR_HILLS) {
+    k.fillStyle = c; k.beginPath(); k.moveTo(0, 800);
+    ys.forEach((y, i) => k.lineTo(i * 75, y)); k.lineTo(600, 800); k.closePath(); k.fill();
+  }
+}
+CELLS[81] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, CW, CH);
+  bg.addColorStop(0, AR_BG0); bg.addColorStop(1, AR_BG1);
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  k.save(); k.scale(AR_S, AR_S);
+  // 画框宽高：每次点击从当时的尺寸出发，0.52 秒 cubic-bezier(.22,1,.36,1) 过渡
+  const fw = UXB_ramp(u, AR_EVS.map(([t, i]) => [t, AR_SHAPES[i][0]]), AR_MS, AR_EZ);
+  const fh = UXB_ramp(u, AR_EVS.map(([t, i]) => [t, AR_SHAPES[i][1]]), AR_MS, AR_EZ);
+  const fx = AR_OX + (AR_W - fw) / 2, fy = AR_OY + (AR_W - fh) / 2;
+  // 同色系的深蓝软阴影，让画框浮在淡蓝底上
+  k.save(); k.shadowColor = 'rgba(30,58,138,0.22)'; k.shadowBlur = 18; k.shadowOffsetY = 6;
+  k.fillStyle = AR_SKY1; rr(k, fx, fy, fw, fh, AR_CORNER); k.fill(); k.restore();
+  k.save(); rr(k, fx, fy, fw, fh, AR_CORNER); k.clip();
+  k.fillStyle = AR_SKY1; k.fillRect(fx, fy, fw, fh);
+  // cover：以 3:4 原图铺满画框并居中
+  const s = Math.max(fw / 600, fh / 800);
+  k.translate(fx + fw / 2 - 300 * s, fy + fh / 2 - 400 * s); k.scale(s, s); AR_pic(k);
+  k.restore();
+  // 分段控件：14% 钴蓝底轨；钴蓝滑块 0.55 倍时长内先于画框到位
+  k.fillStyle = 'rgba(37,99,235,0.14)'; rr(k, AR_TX, AR_TY, 3 * AR_TAB + 4, AR_BAR, AR_BAR / 2); k.fill();
+  const th = UXB_ramp(u, AR_EVS, AR_MS * 0.55, AR_EZ);
+  const bx = AR_TX + 2 + th * AR_TAB;
+  k.fillStyle = 'rgba(30,58,138,0.25)'; rr(k, bx, AR_TY + 3, AR_TAB, AR_BAR - 4, (AR_BAR - 4) / 2); k.fill();
+  k.fillStyle = AR_BLUE; rr(k, bx, AR_TY + 2, AR_TAB, AR_BAR - 4, (AR_BAR - 4) / 2); k.fill();
+  for (let i = 0; i < 3; i++) {
+    // 选中项（在钴蓝滑块上）为白色，其余藏蓝；颜色 0.16 秒过渡
+    const on = UXB_ramp(u, AR_EVS.map(([t, j]) => [t, j === i ? 1 : 0]), 0.16, AR_COL);
+    const pr = AR_EVS.reduce((a, [t, j]) => a + (j === i ? UXB_press(u, t) : 0), 0);
+    const cx = AR_TX + 2 + AR_TAB * i + AR_TAB / 2, cy = AR_TY + AR_BAR / 2, sc = 1 - 0.04 * pr;
+    const [mx, my, mw, mh] = AR_MARK[i];
+    k.save(); k.translate(cx, cy); k.scale(sc, sc); k.translate(-9, -9);
+    k.strokeStyle = rgba(UXB_mix(AR_NAVY, '#FFFFFF', on), 1); k.lineWidth = 1.5; rr(k, mx, my, mw, mh, 2); k.stroke();
+    k.restore();
+  }
+  k.restore();
+  const [px, py] = BN_path(u, AR_KEYS);
+  for (const [t] of AR_EVS.slice(1)) { const [rx, ry] = BN_path(t, AR_KEYS); ripple(k, rx, ry, (u - t) / 0.5, '37,99,235'); }
+  if (u > 0.2 && u < 4.9) cursor(k, px, py, AR_EVS.slice(1).reduce((a, [t]) => a + UXB_press(u, t), 0));
+};

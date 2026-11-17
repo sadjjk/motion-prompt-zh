@@ -1,0 +1,17 @@
+Please use "Slosh slider" (液体がゆれるスライダー), filed under "Components / Choosing & input".
+Motion Prompt #1-250
+
+What it is: The handle stays rigidly under the finger while the fill behaves like a liquid with weight: it lags, leans its leading edge, overshoots and rocks into place
+What the sample shows: On a deep navy-to-teal gradient lies a dark capsule track; bright cyan liquid fills it to about 60 percent, with a thin white handle standing at its edge and a Flow label and number above. The pointer comes in from the lower right, grabs the handle and drags it slowly left, the liquid following calmly. Then it flings right and lets go mid-swing: the liquid trails behind the handle with its leading edge leaning right, the handle coasts on its momentum to near the right end, and the number rolls up with it. A second grab drags it quickly back left; the liquid leans left, sloshes past the handle and rocks back and forth before going still. Finally handle and liquid ease back together to where they began.
+Spec:
+- The track is a 416 × 52 px capsule (1.3 × the original 320 × 40 px) with 26 px corners; the value starts at 62 and the handle is a 4 px wide bar.
+- The fill chases the handle on a viscosity 15 spring (stiffness 0.2965, damping 0.773 per frame at 60 fps) and bounces off the end walls at 0.42 of its speed; the leading edge leans 45/100 × speed × 3, capped at ±20 px of the original, scaled by 1.3.
+- Grab at 0.6 s, drag slowly to 30 by 1.05 s, fling right from 1.14 s and let go at 1.32 s; the handle coasts to 96 with momentum 55 (speed × 0.92325 per frame, capped at 6 per frame).
+- Grab again at 3.45 s and drag back to 20 in 0.27 s; the fill overshoots the handle by up to about 20 px, with ripples and bubbles on its surface, and comes to rest at 4.3 s. Release at 3.85 s.
+- The readout shows the handle value rounded to an integer; each digit rolls vertically over the last 0.1 before the value rounds up to the next integer.
+- From 5.4–6.2 s the handle and fill ease back to 62 together.
+When to use it: Use it for continuous settings such as volume, flow or brightness, playful control panels, and design-system demos that want a physical feel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-250.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

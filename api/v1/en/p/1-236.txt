@@ -1,0 +1,16 @@
+Please use "Toast stack fan-out" (重ねたトーストの展開), filed under "Components / Opening & overlays".
+Motion Prompt #1-236
+
+What it is: Three stacked notifications fan out into a list on a spring when pointed at, and gather back up when the pointer leaves
+What the sample shows: In the middle of a peach-to-pink gradient sits a cream rounded toast, Payment declined, with a red strip down its left edge, a red rounded square holding a white cross, a Retry button in red text and a close button. Above it, the edges of two rose-tinted toasts peek out, each a little smaller. The pointer comes in from the right and enters the stack: the three toasts spread on a spring, the front one moving down and the two behind moving up and turning cream, and Kai joined your bench with a blue i and brand-kit.zip uploaded with a green tick fade in, each with its own coloured strip. When the pointer rests on the middle toast's close button, a pale rose circle appears behind it. As the pointer leaves, the toasts gather back into a stack and the two behind return to rose edges.
+Spec:
+- Each toast is 300 px wide, 56 px tall with 20 px corners. Stacked, the two behind show 14 px each and are 5% smaller per step, scaled from their top edge.
+- The frame is the size of the open list (three toasts and 10 px gaps, 188 px tall); both the stack and the list sit in its middle.
+- The pointer enters from the right at 0.3 s and reaches the frame at 1.2 s; it leaves the frame at 3.8 s and is gone by 4.45 s.
+- Opening and closing both run on a spring of stiffness 380 and damping 34; the contents and tone of the toasts behind fade in 0.22 s.
+- The close button is 28 px across and fades in a pale rose circle in 0.16 s when the pointer is over it; the left strip is 5 px wide and the icon square 30 px, red, blue or green by kind.
+When to use it: Use it for app notification toasts, upload and payment results, and the notices that pile up in a corner of an admin panel.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-236.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

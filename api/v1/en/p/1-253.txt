@@ -1,0 +1,16 @@
+Please use "Odometer counter" (オドメーター式カウンター), filed under "Components / Choosing & input".
+Motion Prompt #1-253
+
+What it is: A number between a minus and a plus whose digits are 0–9 strips that roll like an odometer, the carry passing from the right column to the left one a moment apart; holding a button repeats faster and in bigger steps
+What the sample shows: A deep plum bar sits on a pink-to-rose gradient, with a cyan "−" key on the left, a green "+" key on the right and a white 95 between them. The pointer comes in from the lower right and taps + twice; the ones strip rolls one step each time, to 97. Then it holds +: the repeats start and speed up, and as 99 turns into 100 the tens and then the hundreds roll a beat later each, the new hundreds column opening from the side and widening the bar. Held longer it steps by 10, the ones column spinning in a blur, and stops at 185. Released, the pointer moves to − and taps twice, down to 183, then leaves. Finally every column rolls the short way back to 95 and the hundreds column folds away.
+Spec:
+- The deep plum bar is drawn at 2× the original: 5 px inset, 40×46 px keys (cyan −, green +), corner 16, white 30 px digits, each column 0.64 em wide.
+- It starts at 95; the pointer taps + at 0.75 s and 1.1 s and holds + from 1.5 s: repeats begin after 0.38 s, every 0.09 s, then every 0.055 s once held for 0.9 s.
+- 99 becomes 100 at 1.97 s and the hundreds column opens over 0.32 s; held past 1.5 s each repeat adds 10, reaching 185 when released at 3.4 s.
+- Each column takes the change 45 ms after the one to its right and lands on a spring (bounce 45: stiffness 0.152, decay 0.71 per frame), blurring up to 3 px while it spins (blur 50).
+- Taps on − at 3.95 s and 4.3 s bring it to 183; at 5.4 s every column rolls the short way back to 95 and the hundreds column folds away.
+When to use it: Use it for quantity and guest steppers, cart counts, scores and tallies, and any setting you nudge up and down.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-253.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

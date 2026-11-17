@@ -1,0 +1,16 @@
+Please use "Action node card" (オートメーションのステップカード), filed under "Components / Status & developer UI".
+Motion Prompt #1-249
+
+What it is: A coloured automation node card whose action buttons, each in its own colour, hide under its top-right corner and fan out of it on hover
+What the sample shows: A deep teal card, "Node 07", sits on a mint-to-sky-blue gradient with a white commit mark and name, a pale description, three overlapping pink, yellow and blue faces and "+3". When the pointer enters the card, 4 round buttons in rose, orange, blue and violet, hidden under its corner, slide out one by one along an arc outside the corner, springing from slightly small to full size, and the card lifts a hair. The button under the pointer grows a little. When the pointer leaves, the buttons tuck back under the corner, the last one first.
+Spec:
+- The deep teal card is 272 px wide with 20 px padding and corner 20; the buttons are 36 px discs, each in its own colour (drawn at 0.8×).
+- Open, the buttons sit 48 px apart on an arc 30 px outside the corner; closed, they hide under the card 20 px inside the corner.
+- When the pointer enters at 1.0 s they slide out 0.05 s apart on a spring (stiffness 0.112, damping 0.66), growing from 0.82 to 1.
+- While open the card lifts 1 px over 0.22 s, and the button under the pointer grows to 1.12 in 0.16 s.
+- When the pointer leaves at 3.8 s they return under the corner in reverse order, the 4th first, on the same spring.
+When to use it: Use it for nodes in workflow and automation editors, pipeline stages, and the action menu of cards on a board.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-249.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

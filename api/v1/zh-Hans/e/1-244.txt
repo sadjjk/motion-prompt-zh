@@ -1,0 +1,147 @@
+// Motion Prompt #1-244 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 头像叠入选择 / Avatar stack picker
+// 分类: 界面与网页 / 组件 / 选择与输入
+// 动画表现: 浅黄渐变底上是一个写着 Unassigned 的深靛蓝胶囊和一张同色的展开四人名单，每人的头像各是一种颜色：珊瑚、紫、青绿、蓝。指针从右下进入，依次点 Adam、Priya、Nora 行尾的方框，方框填上这个人的颜色，白色对勾弹出，这个人的头像从上方带着一点转角落进胶囊，压在前一个头像边上。第一个头像落下时文字消失，之后每加一人胶囊就变宽一截。指针在 Marco 那一行停一下不点，最后取消 Priya，她的头像转着缩小消失，Nora 向左滑过去补位。
+// 运动规格:
+//   - 胶囊高 44 px、圆角 20 px；头像直径 28 px，相邻两个重叠 10 px。原作 264 px 宽的名单（每行 48 px）按 0.9 倍放在右侧。
+//   - 0.9 秒、1.7 秒、2.5 秒依次选中 Adam、Priya、Nora，4.2 秒取消 Priya。
+//   - 头像从缩放 0.2、上移 10 px、-22° 开始：位置和大小走紧弹簧（stiffness 380，damping 34），旋转走松弹簧（stiffness 500，damping 18），会晃过水平再回正。
+//   - 取消的头像缩到 0.2 倍、转 14°，0.16 秒淡出；胶囊宽度 0.22 秒过渡。
+//   - 指针 0.3 秒进入，4.85 秒离开；5.5 秒清空选择，回到 Unassigned。
+// 适用场景: 适合任务和工单的负责人栏、文档添加协作者、活动选择参与人。
+// 标签: avatar, multi-select, people-picker, assignee, spring, stack
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-244
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 81
+// 85 头像叠入选择（bencho picker）：浅黄渐变底上，左边是写着 Unassigned 的靛蓝胶囊，右边是展开的四人靛蓝名单卡片，四人头像各一种颜色；指针 0.3 秒从右下进入，
+// 0.9、1.7、2.5 秒依次点选 Adam、Priya、Nora，行尾方框填成本人头像的颜色并弹出白对勾，头像带一点转角落进胶囊、按 10 px 重叠排成一行，胶囊随之变宽；
+// 3.15 秒在 Marco 一行停留不点，4.2 秒再点 Priya 取消，她的头像转着缩小消失，Nora 滑过去补位；4.85 秒指针离开，5.5 秒清空选择回到 Unassigned。
+const PK_S = 0.9;                                         // 原作 264 宽的名单卡片按 0.9 缩放，与胶囊左右并排放进 208 高的格子
+const PK_FACE = 28, PK_LAP = 10, PK_R = 20, PK_ROW = 48, PK_CARDW = 264, PK_CARDH = 8 + 4 * PK_ROW + 8;
+// 配色：浅黄双色渐变底，胶囊与卡片为深靛蓝色面，白字 + 淡紫副字；与 rgba() 配合用 RGB 数组
+const PK_BG0 = '#FFF6CF', PK_BG1 = '#FFD98A', PK_SLAB = '#28235E', PK_INK = '#FFFFFF', PK_ROLE = '#B9B3EC', PK_CHEV = '#9C95DD';
+const PK_RING = [40, 35, 94];                            // 头像外圈 = 胶囊色（原作外圈取所在板的颜色）
+const PK_VH = CH / PK_S;                                  // 缩放后坐标系的高度
+const PK_CT = (PK_VH - PK_CARDH) / 2, PK_CX = 257, PK_PX = 77, PK_PY = PK_VH / 2;
+// 名单：名字、职能、头像底色（原作为灰色占位图，这里每人一种色相）、头像字母
+const PK_CAST = [
+  ['Adam Marsh', 'Design', [242, 84, 91], 'A'], ['Priya Raman', 'Research', [139, 92, 246], 'P'],
+  ['Nora Wilder', 'Engineering', [13, 148, 136], 'N'], ['Marco Bellini', 'Product', [59, 130, 246], 'M'],
+];
+// 每人 [选中时刻, 取消时刻]（null = 不选）；5.5 秒为复位段清空
+const PK_ON = [[0.9, 5.5], [1.7, 4.2], [2.5, 5.5], null];
+const PK_CLICKS = [0.9, 1.7, 2.5, 4.2];
+// 指针关键点（缩放前坐标）：按下时指尖落在 Adam、Priya、Nora 行尾方框中心（x 496，各行中心 y 44/92/140），在 Marco 行停留，再回 Priya 取消
+const PK_KEYS = [[0, 650, 250], [0.8, 496, 44], [1.0, 496, 44], [1.6, 496, 92], [1.8, 496, 92], [2.4, 496, 140], [2.6, 496, 140],
+  [3.15, 470, 188], [3.55, 470, 188], [4.1, 496, 92], [4.3, 496, 92], [4.85, 660, 250]].map(([t, x, y]) => [t, x * PK_S, y * PK_S]);
+const PK_EZ = UXA_bz(0.22, 1, 0.36, 1), PK_EASE = UXA_bz(0.25, 0.1, 0.25, 1);
+// 弹簧阶跃响应 0→1（初速 0）：stiffness k、damping c、mass m，按阻尼比分欠阻尼/临界/过阻尼三种解析解
+function PK_spring(t, k, c, m) {
+  if (t <= 0) return 0;
+  const w = Math.sqrt(k / m), z = c / (2 * Math.sqrt(k * m));
+  if (z < 0.999) { const wd = w * Math.sqrt(1 - z * z); return 1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + z * w / wd * Math.sin(wd * t)); }
+  if (z < 1.001) return 1 - Math.exp(-w * t) * (1 + w * t);
+  const s = Math.sqrt(z * z - 1), r1 = -w * (z - s), r2 = -w * (z + s);
+  return 1 - (r2 * Math.exp(r1 * t) - r1 * Math.exp(r2 * t)) / (r2 - r1);
+}
+const PK_TIGHT = t => PK_spring(t, 380, 34, 0.7);         // 位置与缩放：贴手的紧弹簧
+const PK_LOOSE = t => PK_spring(t, 500, 18, 0.8);         // 旋转：松弹簧，落下时晃过水平再回正
+const PK_TICK = t => PK_spring(t, 500, 18, 0.6);
+const PK_count = u => PK_ON.filter(p => p && u >= p[0] && u < p[1]).length;
+// 胶囊里头像个数的变化表（导轨宽度据此过渡）
+const PK_CNT = (() => {
+  const ts = [...new Set(PK_ON.filter(Boolean).flat())].sort((a, b) => a - b);
+  return [[-1, 0], ...ts.map(t => [t, PK_count(t)])];
+})();
+const PK_EVTS = PK_CNT.slice(1).map(e => e[0]);
+const PK_rail = n => (n ? PK_FACE + (n - 1) * (PK_FACE - PK_LAP) : 0);
+// 头像在导轨里的下标：前面还在的人数（取消时刻之后不再变，退场时留在原位）
+function PK_index(i, u) {
+  let n = 0;
+  for (let j = 0; j < i; j++) { const p = PK_ON[j]; if (p && u >= p[0] && u < p[1]) n++; }
+  return n;
+}
+function PK_rowAt(u) {
+  if (u < 0.2 || u > 4.9) return -1;
+  const [x, y] = BN_path(u, PK_KEYS), ox = x / PK_S, oy = y / PK_S;
+  if (ox < PK_CX + 8 || ox > PK_CX + PK_CARDW - 8) return -1;
+  const r = Math.floor((oy - PK_CT - 8) / PK_ROW);
+  return r >= 0 && r < 4 ? r : -1;
+}
+let PK_HOV = null;                                        // 每行悬停状态的切换表，只算一次
+function PK_face(k, x, y, d, p, ring) {
+  if (ring) { k.fillStyle = rgba(PK_RING, 1); k.beginPath(); k.arc(x, y, d / 2 + 2, 0, TAU); k.fill(); }
+  k.fillStyle = rgba(p[2], 1); k.beginPath(); k.arc(x, y, d / 2, 0, TAU); k.fill();
+  txt(k, p[3], x, y - d / 2 + d * 61 / 96, UXB_f(500, d * 40 / 96), '#FFFFFF', 'center');
+}
+CELLS[80] = (k, w, h, u) => {
+  if (!PK_HOV) PK_HOV = [0, 1, 2, 3].map(r => UXB_changes(t => (PK_rowAt(t) === r ? 1 : 0)));
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, PK_BG0); bg.addColorStop(1, PK_BG1);
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  k.save(); k.scale(PK_S, PK_S);
+  // 名单卡片：深靛蓝圆角板，无阴影无描边（原作只靠底色衬出）
+  k.fillStyle = PK_SLAB; rr(k, PK_CX, PK_CT, PK_CARDW, PK_CARDH, PK_R); k.fill();
+  for (let r = 0; r < 4; r++) {
+    const p = PK_CAST[r], y0 = PK_CT + 8 + r * PK_ROW, cy = y0 + PK_ROW / 2;
+    const hv = UXB_ramp(u, PK_HOV[r], 0.16, PK_EASE);
+    if (hv > 0.003) { k.fillStyle = `rgba(255,255,255,${0.1 * hv})`; rr(k, PK_CX + 8, y0, PK_CARDW - 16, PK_ROW, PK_R - 6); k.fill(); }
+    PK_face(k, PK_CX + 32, cy, 32, p, false);
+    txt(k, p[0], PK_CX + 60, cy - 3, UXB_f(400, 13), PK_INK);
+    txt(k, p[1], PK_CX + 60, cy + 12, UXB_f(400, 11), PK_ROLE);
+    // 方框一直在，选中时填成本人头像色、白对勾弹出
+    const on = PK_ON[r], mx = PK_CX + PK_CARDW - 34, my = cy - 9;
+    const m = on ? UXB_ramp(u, [[-1, 0], [on[0], 1], [on[1], 0]], 0.16, PK_EASE) : 0;
+    if (m > 0.003) { k.fillStyle = rgba(p[2], m); rr(k, mx, my, 18, 18, 6); k.fill(); }
+    k.strokeStyle = m > 0.003 ? rgba(lerpC([185, 179, 236], p[2], m), mix(0.45, 1, m)) : 'rgba(185,179,236,0.45)'; k.lineWidth = 1.5; rr(k, mx + 0.75, my + 0.75, 16.5, 16.5, 5.25); k.stroke();
+    if (on && u >= on[0]) {
+      const sc = u < on[1] ? mix(0.4, 1, PK_TICK(u - on[0])) : mix(1, 0.4, PK_TICK(u - on[1]));
+      const al = u < on[1] ? clamp(PK_TICK(u - on[0])) : 1 - clamp(PK_TICK(u - on[1]));
+      if (al > 0.003) {
+        k.save(); k.translate(mx + 9, my + 9); k.scale(sc * 14 / 24, sc * 14 / 24); k.translate(-12, -12);
+        k.globalAlpha = al; k.strokeStyle = '#FFFFFF'; k.lineWidth = 2; k.lineCap = 'round'; k.lineJoin = 'round';
+        k.beginPath(); k.moveTo(20, 6); k.lineTo(9, 17); k.lineTo(4, 12); k.stroke(); k.restore();
+      }
+    }
+  }
+  // 胶囊：导轨宽度按 220ms 曲线过渡；没人时显示 Unassigned（原作瞬间切换，这里随导轨一起淡出收窄）
+  const rail = UXB_ramp(u, PK_CNT.map(([t, n]) => [t, PK_rail(n)]), 0.22, PK_EZ);
+  const la = UXB_ramp(u, PK_CNT.map(([t, n]) => [t, n ? 0 : 1]), 0.22, PK_EZ);
+  k.font = UXB_f(500, 14); const lw = k.measureText('Unassigned').width;
+  const pw = rail + 46 + la * (lw + 6), px = PK_PX, py = PK_PY - 22;
+  k.fillStyle = PK_SLAB; rr(k, px, py, pw, 44, PK_R); k.fill();
+  if (la > 0.003) {
+    k.save(); rr(k, px, py, pw, 44, PK_R); k.clip(); k.globalAlpha = la * la;
+    txt(k, 'Unassigned', px + 8 + rail + 6, PK_PY, UXB_f(500, 14), PK_INK, 'left', 'middle'); k.restore();
+  }
+  // 展开状态的箭头朝上（原作 ChevronDown 旋转 180°）
+  const chx = px + 8 + rail + 10 + la * (lw + 6);
+  k.save(); k.translate(chx, PK_PY - 8); k.scale(16 / 24, 16 / 24);
+  k.strokeStyle = PK_CHEV; k.lineWidth = 2; k.lineCap = 'round'; k.lineJoin = 'round';
+  k.beginPath(); k.moveTo(6, 15); k.lineTo(12, 9); k.lineTo(18, 15); k.stroke(); k.restore();
+  // 头像：先画下层；第一个人在最上（z 序反排），4.2 秒后退场的 Priya 压在补位的 Nora 下面
+  const order = u < 4.2 ? [2, 1, 0] : [1, 2, 0];
+  for (const i of order) {
+    const on = PK_ON[i]; if (!on || u < on[0]) continue;
+    const leave = u >= on[1], end = Math.min(u, on[1] - 1e-6), step = PK_FACE - PK_LAP;
+    // 位置：每次前面有人进出，目标格位变一次；紧弹簧是线性的，逐次阶跃叠加即为当前位置
+    let x = PK_index(i, on[0]) * step, last = x;
+    for (const tc of PK_EVTS) if (tc > on[0] && tc <= end) { const nx = PK_index(i, tc) * step; x += (nx - last) * PK_TIGHT(u - tc); last = nx; }
+    const tt = u - (leave ? on[1] : on[0]), a = PK_TIGHT(tt), b = PK_LOOSE(tt);
+    const sc = leave ? mix(1, 0.2, a) : mix(0.2, 1, a), dy = leave ? mix(0, -6, a) : mix(-10, 0, a);
+    const rot = (leave ? mix(0, 14, b) : mix(-22, 0, b)) * Math.PI / 180;
+    const op = leave ? 1 - seg(tt, 0, 0.16) : seg(tt, 0, 0.16);
+    if (op <= 0.003) continue;
+    k.save(); k.globalAlpha = op; k.translate(px + 8 + x + PK_FACE / 2, PK_PY + dy); k.rotate(rot); k.scale(sc, sc);
+    PK_face(k, 0, 0, PK_FACE, PK_CAST[i], true); k.restore();
+  }
+  k.restore();
+  const [hx, hy] = BN_path(u, PK_KEYS);
+  for (const tc of PK_CLICKS) ripple(k, BN_path(tc, PK_KEYS)[0], BN_path(tc, PK_KEYS)[1], (u - tc) / 0.5, '255,255,255');
+  if (u > 0.2 && u < 4.9) cursor(k, hx, hy, PK_CLICKS.reduce((s, tc) => s + UXB_press(u, tc), 0));
+};

@@ -496,6 +496,36 @@ the line `MIT License (c) 2026 alchaincyf (花叔)`. The license notice:
 > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 > SOFTWARE.
 
+## bencho by Lorenzo Cabra (pack `uxmotion`)
+
+The elements `1-231`–`1-253` in `packs/uxmotion/` are Canvas 2D adaptations of the interactive React blocks of
+[bencho](https://github.com/cabralorenzo/bencho) by Lorenzo Cabra (https://bencho.dev): each block is redrawn as a
+539 × 208 card that plays itself with a simulated pointer, keeps the block's default parameters, loops seamlessly and
+is drawn without randomness. No React code, stylesheets, fonts or sounds of bencho are copied. Each element carries
+the line `MIT License (c) 2026 Lorenzo Cabra`. The license notice:
+
+> MIT License
+>
+> Copyright (c) 2026 Lorenzo Cabra
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat

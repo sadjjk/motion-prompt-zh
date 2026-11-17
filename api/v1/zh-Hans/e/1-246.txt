@@ -1,0 +1,123 @@
+// Motion Prompt #1-246 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 配色生成 / Palette shuffle
+// 分类: 界面与网页 / 反馈 / 操作反馈
+// 动画表现: 深夜蓝渐变底上并排两个胶囊：左边深石板色胶囊里是四个色块组成的色条，右边是只放白色刷新图标的珊瑚粉窄按键。开始是一组从浅青到蓝紫的渐变。指针停到按键上时白色箭头稍微变淡；每按一次，按键往下一沉，箭头转半圈。四个色块同时收成圆，在最圆的一刻换成橙、绿、紫一组新色，再略微撑过头后落回各自的格子，左边的胶囊也跟着轻轻一沉一弹。第三次按下换回第一组颜色。
+// 运动规格:
+//   - 原作 300 px 宽的布局按 1.4 倍绘制：色块高 58 px、圆角 14 px、间隙 4 px；胶囊内边距 10 px，两胶囊间距 6 px，刷新键宽 30 px。
+//   - 1.2 秒、3.0 秒、4.8 秒各按一次刷新；每次变化 0.76 秒，四个色块共用一个时钟。
+//   - 进行到 40% 时色块收成直径为 58 px 的 0.66 倍的圆并在此换色；回程用 back-out（1.7），先冲过头再落定。
+//   - 左侧胶囊缩小 3.5% 再恢复，刷新键沉到 0.96，图标每按一次转 180°（600ms）。
+//   - 颜色在 OKLCH 里生成三组（ramp、triad、accent），从浅到深排列；第三次按下回到第一组。
+//   - 底色是深夜蓝径向渐变，色条胶囊为深石板色，刷新键为珊瑚粉配白色图标；最深的色块明度至少 0.56，在深色底上也能跳出来。
+// 适用场景: 适合配色生成器、主题设置、设计工具的颜色面板、品牌创建的引导流程。
+// 标签: palette, color, oklch, refresh, shuffle, elastic
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-246
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 83
+// 87 配色生成（bencho palette）：深夜蓝渐变底上两块胶囊并排：左边深石板色胶囊里是四格色块组成的色条，右边是珊瑚粉的刷新按键胶囊（白色图标）；
+// 指针 0.5 秒从右下进入停到刷新键，1.2、3.0、4.8 秒各按一次：按键胶囊缩到 0.96、图标转半圈，四格同时收成圆，在最圆时换成新色，再带回弹铺回原位，色条胶囊跟着轻轻一沉一弹；
+// 第三次按下换回第一套颜色，5.6 秒指针离开，画面与第一帧相同。
+const PL_S = 1.4;                                         // 原作 300×78 整体放大 1.4 倍
+const PL_W = 300, PL_PAD = 10, PL_BAR = 58, PL_TOOL = 30, PL_GAP = 6, PL_CORNER = 14, PL_SEAM = 4, PL_N = 4;
+const PL_MS = 0.76, PL_OUT = 0.4;                         // morph 50 → 760ms；在形变最大处（40%）换色
+const PL_BARW = PL_W - (PL_TOOL + PL_PAD * 2) - PL_GAP - PL_PAD * 2;
+const PL_SEG = (PL_BARW - PL_SEAM * (PL_N - 1)) / PL_N, PL_STEP = PL_SEG + PL_SEAM;
+const PL_SLABR = PL_CORNER + PL_PAD;                      // 同心圆角：swatch 14 + 内边距 10
+const PL_OX = (CW / PL_S - PL_W) / 2, PL_OY = (CH / PL_S - (PL_BAR + PL_PAD * 2)) / 2;
+const PL_PRESS = [1.2, 3.0, 4.8];
+const PL_EZ = UXA_bz(0.22, 1, 0.36, 1);
+const PL_BG0 = '#1B1F3B', PL_BG1 = '#0B0D1A';           // 深夜蓝径向渐变底
+const PL_SLAB = '#262B47', PL_EDGE = 'rgba(255,255,255,0.08)', PL_KEY = '#FF5C7A';
+// oklch → hex（Ottosson 矩阵，超色域时逐通道钳制；原作同法）
+function PL_lin(L, C, H) {
+  const h = H * Math.PI / 180, a = C * Math.cos(h), b = C * Math.sin(h);
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s];
+}
+const PL_hex = (L, C, H) => '#' + PL_lin(L, C, H).map(v => Math.round(clamp(v <= 0.0031308 ? 12.92 * v : 1.055 * Math.abs(v) ** (1 / 2.4) - 0.055) * 255).toString(16).padStart(2, '0')).join('');
+// 色度先要足，再按色域需要逐步回退（原作 vivid）
+function PL_vivid(L, C, H) {
+  let c = C;
+  while (c > 0.01 && PL_lin(L, c, H).some(v => v < -0.0005 || v > 1.0005)) c -= 0.004;
+  return PL_hex(L, c, H);
+}
+// 原作每次按下随机选色相与“情绪”；这里用固定种子的伪随机，三套依次为 ramp、triad、accent，保证每帧可复现；
+// ramp 最深一格提到 L 0.56（原作 0.42）、accent 的对比色提到 L 0.6（原作 0.52），在深色底上也跳得出来
+const PL_PALS = (() => {
+  let sd = 5; const rnd = (a, b) => { sd = (sd * 16807) % 2147483647; return a + (sd / 2147483647) * (b - a); };
+  const wrap = x => ((x % 360) + 360) % 360;
+  let base = 150;
+  const make = (mood, dir) => {
+    base = wrap(base + rnd(60, 300));
+    const out = [];
+    for (let i = 0; i < PL_N; i++) {
+      const p = i / (PL_N - 1);
+      if (mood === 'ramp') { const st = rnd(14, 26) * dir; out.push([0.92 - p * 0.36, 0.12 + Math.sin(p * Math.PI) * 0.12, base + i * st]); }
+      else if (mood === 'triad') out.push([rnd(0.58, 0.82), 0.22, base + (i % 3) * 120 * dir + rnd(-8, 8)]);
+      else out.push(i === PL_N - 1 ? [0.6, 0.26, base + 180 * dir] : [rnd(0.8, 0.87), 0.18, base + i * 18 * dir]);
+    }
+    out.sort((x, y) => y[0] - x[0]);                      // 从浅到深排开
+    for (const c of out) { const hh = wrap(c[2]); if (hh > 60 && hh < 120 && c[0] < 0.62) c[0] = 0.62 + (0.62 - c[0]) * 0.2; }
+    return out.map(([L, C, H]) => PL_vivid(L, C, wrap(H)));
+  };
+  return [make('ramp', 1), make('triad', -1), make('accent', 1)];
+})();
+// 第 j 次按下把第 j 套换成第 j+1 套；第三次换回第一套，循环无缝
+const PL_pal = j => PL_PALS[j % PL_PALS.length];
+// 形变曲线：快速收拢（三次缓出），在 OUT 处最圆，之后 back-out 回弹过头再落定
+const PL_back = x => { const c = 1.7, v = x - 1; return 1 + (c + 1) * v ** 3 + c * v ** 2; };
+const PL_swell = ti => (ti <= 0 ? 0 : ti >= 1 ? 0 : ti < PL_OUT ? 1 - (1 - ti / PL_OUT) ** 3 : 1 - PL_back((ti - PL_OUT) / (1 - PL_OUT)));
+// 指针（缩放后坐标）：停在刷新键中心
+const PL_BTN = [(PL_OX + PL_W - PL_PAD - PL_TOOL / 2) * PL_S, (PL_OY + PL_PAD + PL_BAR / 2) * PL_S];
+const PL_KEYS = [[0, 600, 250], [1.0, PL_BTN[0], PL_BTN[1]], [5.2, PL_BTN[0], PL_BTN[1]], [5.9, 610, 240]];
+const PL_ICON = ['M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8', 'M21 3v5h-5', 'M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16', 'M8 16H3v5'];
+let PL_P2 = null;
+CELLS[82] = (k, w, h, u) => {
+  if (!PL_P2) PL_P2 = PL_ICON.map(d => new Path2D(d));
+  const bg = k.createRadialGradient(CW / 2, CH * 0.4, 20, CW / 2, CH / 2, CW * 0.6);
+  bg.addColorStop(0, PL_BG0); bg.addColorStop(1, PL_BG1);
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  // 当前这一次换色的进度：最近一次按下后 0.76 秒内为 0→1
+  let j = 0, ti = 0;
+  for (let i = 0; i < PL_PRESS.length; i++) if (u >= PL_PRESS[i]) { j = i; ti = (u - PL_PRESS[i]) / PL_MS; }
+  const started = u >= PL_PRESS[0], run = started && ti < 1;
+  const done = started ? (ti >= 1 ? j + 1 : j) : 0;      // 已完成换色的次数
+  const sw = run ? PL_swell(ti) : 0, d = Math.max(0, sw);
+  const shown = run && ti >= PL_OUT ? PL_pal(j + 1) : PL_pal(done);
+  k.save(); k.scale(PL_S, PL_S); k.translate(PL_OX, PL_OY);
+  // 色条胶囊：换色时整体缩 3.5%，回弹时略超 1（用未钳制的曲线）
+  const slabW = PL_BARW + PL_PAD * 2, slabH = PL_BAR + PL_PAD * 2, beat = 1 - 0.035 * sw;
+  k.save(); k.translate(slabW / 2, slabH / 2); k.scale(beat, beat); k.translate(-slabW / 2, -slabH / 2);
+  k.save(); k.shadowColor = 'rgba(0,0,0,0.45)'; k.shadowBlur = 16; k.shadowOffsetY = 5;
+  k.fillStyle = PL_SLAB; rr(k, 0, 0, slabW, slabH, PL_SLABR); k.fill(); k.restore();
+  k.strokeStyle = PL_EDGE; k.lineWidth = 1; rr(k, 0.5, 0.5, slabW - 1, slabH - 1, PL_SLABR - 0.5); k.stroke();
+  for (let i = 0; i < PL_N; i++) {
+    // 收成圆：宽从 53 收到 0.66×58、高从 58 收到 0.66×58，圆角随之变成半高
+    const side = mix(PL_SEG, PL_BAR * 0.66, d), hh = mix(PL_BAR, PL_BAR * 0.66, d);
+    k.fillStyle = shown[i]; rr(k, PL_PAD + i * PL_STEP + (PL_SEG - side) / 2, PL_PAD + (PL_BAR - hh) / 2, side, hh, mix(PL_CORNER, hh / 2, d)); k.fill();
+  }
+  k.restore();
+  // 按键胶囊：按下时缩到 0.96（160ms 曲线），图标每按一次累计转 180°（600ms 曲线）
+  const tx = slabW + PL_GAP, tw = PL_TOOL + PL_PAD * 2;
+  const pr = PL_PRESS.reduce((a, t) => a + UXB_press(u, t), 0), ts = 1 - 0.04 * PL_EZ(clamp(pr));
+  k.save(); k.translate(tx + tw / 2, slabH / 2); k.scale(ts, ts); k.translate(-tw / 2, -slabH / 2);
+  k.save(); k.shadowColor = 'rgba(255,92,122,0.35)'; k.shadowBlur = 16; k.shadowOffsetY = 5;
+  k.fillStyle = PL_KEY; rr(k, 0, 0, tw, slabH, PL_SLABR); k.fill(); k.restore();
+  const rot = PL_PRESS.reduce((a, t) => a + Math.PI * PL_EZ(seg(u, t, t + 0.6)), 0);
+  // 悬停时白色图标淡到 75%（160ms），指针停在键上即算悬停
+  const hv = UXB_ramp(u, [[-1, 0], [0.95, 1], [5.25, 0]], 0.16, out3);
+  k.translate(tw / 2, slabH / 2); k.rotate(rot); k.scale(18 / 24, 18 / 24); k.translate(-12, -12);
+  k.strokeStyle = `rgba(255,255,255,${1 - 0.25 * hv})`; k.lineWidth = 2; k.lineCap = 'round'; k.lineJoin = 'round';
+  for (const p of PL_P2) k.stroke(p);
+  k.restore();
+  k.restore();
+  const [px, py] = BN_path(u, PL_KEYS);
+  for (const t of PL_PRESS) ripple(k, PL_BTN[0], PL_BTN[1], (u - t) / 0.5, '255,255,255');
+  if (u > 0.4 && u < 5.95) cursor(k, px, py, pr);
+};

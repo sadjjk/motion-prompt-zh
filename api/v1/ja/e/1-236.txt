@@ -1,0 +1,112 @@
+// Motion Prompt #1-236 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 重ねたトーストの展開 / Toast stack fan-out
+// 分類: UI・Web / コンポーネント / 開く・重なる
+// 何が起きるか: 桃色からピンクへのグラデーションの地の中央に、クリーム色の角丸のトースト「Payment declined」があり、左端に赤い縁取りの帯、赤い角丸の四角に白い×のアイコン、赤い文字の Retry ボタン、閉じるボタンが付く。その上に、淡いバラ色に染まった 2 枚の縁が少し小さく覗いている。ポインタが右から近づいて重なりに入ると、3 枚がバネで縦に広がり、前の 1 枚は下へ、後ろの 2 枚は上へ移ってクリーム色に戻り、青い i の「Kai joined your bench」と緑のチェックの「brand-kit.zip uploaded」が、それぞれの色の帯とともに浮かぶ。ポインタが中央のトーストの閉じるボタンに乗ると、ボタンに淡いバラ色の丸が出る。ポインタが離れると 3 枚はまた重なり、後ろの 2 枚はバラ色の縁だけに戻る。
+// 動きの仕様:
+//   - トーストは幅 300px・高さ 56px・角 20px。重なっている時、後ろの二枚は 14px ずつ見え、奥へ行くごとに 5% 小さく、上端を基準に縮む
+//   - 枠は開いたリストの大きさ（三枚と間隔 10px で高さ 188px）で、閉じた重なりも開いたリストもその中央に置く
+//   - ポインタは 0.3 秒に右から入り、1.2 秒に枠へ入る。3.8 秒に枠を出て、4.45 秒に画面外へ消える
+//   - 開閉はどちらも stiffness 380、damping 34 のバネ。後ろのトーストの中身と色は 0.22 秒でフェードする
+//   - 閉じるボタンは直径 28px で、ポインタが乗ると淡いバラ色の丸が 0.16 秒で出る。左端の帯は幅 5px、アイコンの四角は 30px で、種類ごとに赤・青・緑
+// 使いどころ: アプリの通知トースト、アップロードや支払い結果の知らせ、管理画面の右下に積もる通知などに。
+// タグ: toast, notification, stack, hover, spring, list
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-236
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 73
+// 74 叠放提示展开（bencho toast-stack）：桃色到粉色的渐变底，3 条提示叠放，最新的在前，后两条各露出 14 px、每层缩小 5%，叠着时染成淡玫瑰色、内容隐藏；
+// 每条提示左边有一条按种类上色的边条和一个彩色图标块（红 = 失败、蓝 = 信息、绿 = 成功）；
+// 指针 0.3 秒从右侧进入，1.2 秒进入列表框，3 条提示按弹簧（stiffness 380、damping 34）展开成间距 10 px 的列表（圆角 20 px），内容 0.22 秒淡入；
+// 指针在中间那条的关闭按钮上停留时按钮 0.16 秒淡出一个淡玫瑰色圆底；3.8 秒离开列表框，提示收回叠放，4.4 秒后指针移出画面。
+const TS_W = 300, TS_H = 56, TS_N = 3, TS_PEEK = 14, TS_GAP = 10, TS_R = 20;
+const TS_LISTH = TS_N * TS_H + (TS_N - 1) * TS_GAP, TS_STACKH = TS_H + (TS_N - 1) * TS_PEEK;
+// 列表框 = 展开后列表的大小，居中；叠放和展开都以框的中线为准，所以展开时最前面那条也会下移
+const TS_FX = (CW - TS_W) / 2, TS_FY = (CH - TS_LISTH) / 2;
+const TS_FADE = 0.22;
+const TS_INK = '#2a1620', TS_MUTE = '#7a5a66', TS_WASH = UXB_rgb('#f8d3dc'), TS_CARD = UXB_rgb('#fffaf8');
+// 原作 POOL 的前 3 条：[种类, 标题, 正文, 按钮]，下标 0 在最前
+const TS_TOASTS = [
+  ['error', 'Payment declined', 'Try another card.', 'Retry'],
+  ['info', 'Kai joined your bench', 'They can comment and copy.', ''],
+  ['success', 'brand-kit.zip uploaded', 'Saved to Launch week.', ''],
+];
+const TS_ICOL = { success: '#16a34a', error: '#e5484d', info: '#3b82f6' };
+const TS_KEYS = [[0, 600, 196], [0.3, 572, 186], [1.2, TS_FX + TS_W, 128], [1.75, 318, 106], [2.35, 318, 106],
+  [2.8, TS_FX + TS_W - 27, 104], [3.3, TS_FX + TS_W - 27, 104], [3.8, TS_FX + TS_W, 150], [4.45, 590, 200]];
+// 第 k 条（0 = 最前）在框内的 y 与缩放：叠放时每往后一条高 peek、小 5%，从顶边居中缩放
+const TS_place = (k, open) => (open
+  ? [(TS_LISTH - TS_LISTH) / 2 + (TS_N - 1 - k) * (TS_H + TS_GAP), 1]
+  : [(TS_LISTH - TS_STACKH) / 2 + (TS_N - 1 - k) * TS_PEEK, 1 - k * 0.05]);
+const TS_inFrame = u => { const [x, y] = BN_path(u, TS_KEYS); return x >= TS_FX && x < TS_FX + TS_W && y >= TS_FY && y < TS_FY + TS_LISTH ? 1 : 0; };
+// 第 i 条此刻的 y 与缩放（op 为开合程度）
+const TS_geo = (i, op) => { const [y0, s0] = TS_place(i, false), [y1, s1] = TS_place(i, true); return [TS_FY + mix(y0, y1, op), mix(s0, s1, op)]; };
+// framer 弹簧 stiffness 380、damping 34、mass 1 的阶跃响应
+const TS_W0 = Math.sqrt(380), TS_ZT = 34 / (2 * TS_W0), TS_WD = TS_W0 * Math.sqrt(1 - TS_ZT * TS_ZT);
+const TS_spring = t => (t <= 0 ? 0 : 1 - Math.exp(-TS_ZT * TS_W0 * t) * (Math.cos(TS_WD * t) + TS_ZT * TS_W0 / TS_WD * Math.sin(TS_WD * t)));
+let TS_TAB = null;
+function TS_tab() {
+  if (TS_TAB) return TS_TAB;
+  const ch = UXB_changes(TS_inFrame);
+  TS_TAB = { ch, ons: ch.slice(1) };
+  // 每条关闭按钮的悬停事件（指针换算到该条的局部坐标后落在 14 px 半径内）
+  TS_TAB.hov = TS_TOASTS.map((_, i) => UXB_changes(u => { if (u <= 0.2 || u >= 4.6) return 0;
+    const [px, py] = BN_path(u, TS_KEYS), [y, s] = TS_geo(i, TS_open(u)), lx = (px - TS_FX - TS_W / 2) / s + TS_W / 2, ly = (py - y) / s;
+    return Math.hypot(lx - (TS_W - 12 - 14), ly - TS_H / 2) < 14 ? 1 : 0; }));
+  return TS_TAB;
+}
+// 开合程度：线性弹簧，每次切换是一次阶跃，叠加即得连续的位置（中途反向时速度也连续）
+const TS_open = u => { let v = 0; for (const [t, s] of TS_tab().ons) v += (s ? 1 : -1) * TS_spring(u - t); return v; };
+// 图标块：30 px 圆角方块填种类色，里面是白色符号
+function TS_icon(k, kind, x, y) {
+  k.fillStyle = TS_ICOL[kind]; rr(k, x - 15, y - 15, 30, 30, 9); k.fill();
+  k.strokeStyle = '#ffffff'; k.lineWidth = 2.2; k.lineCap = 'round'; k.lineJoin = 'round'; k.beginPath();
+  if (kind === 'error') { k.moveTo(x - 2.5, y - 2.5); k.lineTo(x + 2.5, y + 2.5); k.moveTo(x + 2.5, y - 2.5); k.lineTo(x - 2.5, y + 2.5); }
+  else if (kind === 'success') { k.moveTo(x - 3, y); k.lineTo(x - 0.8, y + 2.3); k.lineTo(x + 3.2, y - 2); }
+  else { k.moveTo(x, y + 3.2); k.lineTo(x, y - 0.2); k.moveTo(x, y - 3.2); k.lineTo(x + 0.01, y - 3.2); }
+  k.stroke();
+}
+CELLS[72] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#ffc9a8'); bg.addColorStop(1, '#ff9ec4');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  const T = TS_tab(), op = TS_open(u), show = UXB_ramp(u, T.ch, TS_FADE, UXA_bz(0.25, 0.1, 0.25, 1));
+  const [px, py] = BN_path(u, TS_KEYS);
+  for (let i = TS_N - 1; i >= 0; i--) {
+    const [y, s] = TS_geo(i, op);
+    const front = i === 0, tuck = front ? 0 : 1 - show, [kind, title, body, act] = TS_TOASTS[i];
+    k.save(); k.translate(TS_FX + TS_W / 2, y); k.scale(s, s); k.translate(-TS_W / 2, 0);
+    // 叠放时后面两条染成淡玫瑰色，展开后变回奶白；投影用同色系的深玫瑰
+    k.save(); k.shadowColor = 'rgba(150,40,80,.22)'; k.shadowBlur = 14; k.shadowOffsetY = 4;
+    k.fillStyle = rgba(lerpC(TS_CARD, TS_WASH, tuck), 1); rr(k, 0, 0, TS_W, TS_H, TS_R); k.fill(); k.restore();
+    // 左边条：5 px 宽，种类色，叠着时随内容一起淡掉
+    k.save(); rr(k, 0, 0, TS_W, TS_H, TS_R); k.clip(); k.globalAlpha = front ? 1 : show;
+    k.fillStyle = TS_ICOL[kind]; k.fillRect(0, 0, 5, TS_H); k.restore();
+    const ca = front ? 1 : show;
+    if (ca > 0.01) {
+      k.globalAlpha = ca;
+      TS_icon(k, kind, 16 + 15, TS_H / 2);
+      const tx = 16 + 30 + 12, xr = TS_W - 12 - 28;
+      let right = xr - 12;
+      if (act) {
+        k.font = UXB_f(500, 13); const bw = k.measureText(act).width + 24; right = xr - 12 - bw;
+        k.fillStyle = 'rgba(229,72,77,.14)'; rr(k, right, TS_H / 2 - 14, bw, 28, 14); k.fill();
+        txt(k, act, right + bw / 2, TS_H / 2 + 4.5, UXB_f(600, 13), '#c42f3a', 'center');
+        right -= 12;
+      }
+      txt(k, title, tx, TS_H / 2 - 3, UXB_f(500, 14), TS_INK);
+      txt(k, body, tx, TS_H / 2 + 15, UXB_f(400, 13), TS_MUTE);
+      // 关闭按钮：指针在上面时出现浅灰圆底（160 毫秒）
+      const cx = xr + 14, cy = TS_H / 2, hov = UXB_ramp(u, T.hov[i], 0.16, UXA_bz(0.25, 0.1, 0.25, 1));
+      if (hov > 0.003) { k.fillStyle = `rgba(248,211,220,${hov})`; k.beginPath(); k.arc(cx, cy, 14, 0, TAU); k.fill(); }
+      k.strokeStyle = rgba(UXB_mix(TS_MUTE, TS_INK, hov), 1); k.lineWidth = 2; k.lineCap = 'round';
+      k.beginPath(); k.moveTo(cx - 4, cy - 4); k.lineTo(cx + 4, cy + 4); k.moveTo(cx + 4, cy - 4); k.lineTo(cx - 4, cy + 4); k.stroke();
+      k.globalAlpha = 1;
+    }
+    k.restore();
+  }
+  if (u > 0.2 && u < 4.6) cursor(k, px, py);
+};

@@ -1,0 +1,16 @@
+Please use "Emoji reactions" (絵文字リアクション), filed under "Feedback / Action feedback".
+Motion Prompt #1-237
+
+What it is: A message turns into a row of emoji, the one under the pointer swells and plays its little move, and the picked one flies to its reaction and adds 1
+What the sample shows: On a sky-blue gradient sits a blue rounded bubble with white text, Shipped the new onboarding flow, with a lilac 🚀 3 and a pale orange 🔥 2 reaction below it and a blue smile-plus add button on a translucent white disc. The pointer comes in from the right and presses the add button: the message text blurs away, the blue bubble springs narrower, and 👍 🎉 👀 ✅ 🚀 🔥 rise in one after another. As the pointer strokes the row from left to right, the emoji under it swells and plays its own move, a nod, confetti, a glance, a tick, a launch or a flicker, while a small black label above names it, Nice or Ship it. Pressing 🚀 turns the row back into the message; the 🚀 arcs over to its reaction, which turns pale blue with a deep blue edge and count, and the count rolls from 3 to 4.
+Spec:
+- The message is a blue bubble 48 px tall with 20 px corners; the emoji row holds 6 emoji at 34 px each and, with its padding, is 216 px wide.
+- Pressing the add button at 1.0 s turns the message into the row on a quick spring with bounce 45; the text blurs out in 0.09 s and the emoji rise 0.018 s apart.
+- The emoji under the pointer grows to 1.17× at magnify 50 (0.22 s) and plays its move; a 22 px tall name label appears 10 px above the row in 0.16 s.
+- Pressing 🚀 at 2.8 s closes the row and the text returns after 0.08 s over 0.22 s; the 🚀 flies a 0.6 s arc peaking 46 px up, scaling from 1.4 to 1 and tilting −14° on the way.
+- It lands at 3.4 s, the reaction's emoji hops and the count rolls from 3 to 4 in 0.22 s; from 5.4 s to 6.0 s everything dissolves back to the first picture.
+When to use it: Use it for chat messages, comment threads and reactions to team updates.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-237.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

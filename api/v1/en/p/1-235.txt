@@ -1,0 +1,17 @@
+Please use "Stacked bars hover" (積み上げ棒グラフのホバー), filed under "Text & data / Charts".
+Motion Prompt #1-235
+
+What it is: Run along a month of stacked bars: the hovered day is ringed, the rest step back, and a tooltip glides beside it
+What the sample shows: On a purple-to-blue gradient sits a deep navy card: on the left, in white, Traffic, Last 20 days, a large 24,182 visits and a Day / Week toggle with Day picked out in purple; on the right, an empty baseline. Bars grow out of the baseline from left to right, stacking purple, sky blue, mint green and amber, with short coral-red bars under the baseline. The pointer comes in from below and runs left to right: the day under it gets a white rounded ring, the other bars sink into the navy of the card, and a dark tooltip beside it shows the date, the total, the top two sources and Bounced, each with its colour swatch. Each time the day changes, the ring and tooltip slide over on a spring; near the right edge the tooltip moves to the left of the bar. When the pointer leaves on the right, the ring and tooltip fade and the colours return. Finally the bars shrink back into the baseline.
+Spec:
+- The plot is 319 px wide, with 104 px above the baseline and 22 px below. The 20 bars sit 6 px apart, with 2 px between segments and 2.5 px corners.
+- From 0.15 s the bars grow out of the baseline, each 14 ms after its left neighbour, fully grown in 0.6 s.
+- The pointer enters the plot at 1.1 s and leaves on the right at 4.25 s; the bar under it is floor(x / width × 20).
+- While hovering, the other bars mix their colour 62% toward the card colour and the ring is a 1.5 px white line. The ring and the 132 px tooltip fade in 0.16 s.
+- On a new day the ring and tooltip move on a spring of stiffness 380 and damping 34; when the tooltip does not fit on the right it goes to the left of the bar.
+- From 5.4–6.0 s the bars shrink back into the baseline, back to the first frame.
+When to use it: Use it for traffic and alert-volume dashboards and the daily or weekly chart cards of admin panels.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-235.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

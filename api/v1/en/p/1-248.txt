@@ -1,0 +1,16 @@
+Please use "Liquid create menu" (とろける作成メニュー), filed under "Pointer interactions / Liquid interactions".
+Motion Prompt #1-248
+
+What it is: The Create pill itself melts open into the menu panel instead of dropping a separate list
+What the sample shows: A violet-to-magenta "+ Create" pill with white text sits on a soft cyan-to-cream gradient. The pointer presses it; the pill sinks a little, its label fades, and the same coloured shape springs, without overshoot, into a rounded panel. Four rows, Document, Spreadsheet, Board and Folder, float up one after another, each icon on its own small yellow, green, blue or orange tile, and the row under the pointer gets a translucent white wash. A press outside the panel fades the rows at once, and the panel shrinks back into the pill as its label returns.
+Spec:
+- The violet-to-magenta pill is 104×38 px with corner 19 and opens into a 212×166 px panel with corner 20 (drawn at 1.12×).
+- Pressed at 1.0 s it sinks to 0.94 in 0.16 s; 0.06 s later a spring (stiffness 420, damping 30, mass 0.5) opens it without overshoot.
+- 4 rows, 34 px tall and 2 px apart, rise 6 px as they appear, starting 0.03 s after opening and 0.022 s apart; each icon sits on its own coloured 24 px tile.
+- The row under the pointer gets an 18% white wash, in over 0.16 s and out over 0.22 s.
+- At 3.8 s a press outside the panel fades the rows at once and the panel springs back into the pill.
+When to use it: Use it for the New or Create button in document apps and dashboards, and for add menus in toolbars.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-248.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

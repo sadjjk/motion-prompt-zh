@@ -1,0 +1,16 @@
+Please use "Avatar stack picker" (アバターが重なる担当者ピッカー), filed under "Components / Choosing & input".
+Motion Prompt #1-244
+
+What it is: Picking people from a list drops their faces into a pill, where they overlap in a row and the pill grows to hold them
+What the sample shows: On a soft yellow gradient sit a deep indigo pill reading Unassigned and an open list of four people in the same indigo, each with a face of its own colour: coral, violet, teal and blue. The pointer comes in from the lower right and ticks the boxes of Adam, Priya and Nora in turn; each box fills with that person's colour and a white tick bounces in, and that person's face drops into the pill from above with a slight turn, landing over the edge of the one before. The word goes with the first face and the pill widens with every person. The pointer rests on Marco's row without clicking, then unticks Priya: her face spins away shrinking and Nora slides left into the gap.
+Spec:
+- The pill is 44 px tall with a 20 px corner; faces are 28 px across and each overlaps the next by 10 px. The original 264 px list (48 px rows) sits beside it at 0.9 scale.
+- Adam, Priya and Nora are picked at 0.9 s, 1.7 s and 2.5 s; Priya is removed at 4.2 s.
+- A face starts at scale 0.2, 10 px up and -22°; position and size settle on a tight spring (stiffness 380, damping 34), while the rotation rides a loose one (stiffness 500, damping 18) and rocks past level.
+- A removed face shrinks to scale 0.2, turns 14° and fades in 0.16 s; the pill width eases over 0.22 s.
+- The pointer enters at 0.3 s and leaves at 4.85 s; at 5.5 s every pick is cleared, back to Unassigned.
+When to use it: Use it for assignee fields in task and issue trackers, adding collaborators to a document, or choosing attendees for an event.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-244.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

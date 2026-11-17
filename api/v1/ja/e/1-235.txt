@@ -1,0 +1,148 @@
+// Motion Prompt #1-235 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 積み上げ棒グラフのホバー / Stacked bars hover
+// 分類: UI・Web / 文字・データ / チャート
+// 何が起きるか: 紫から青へのグラデーションの地に濃紺のカードがあり、左に白い文字で Traffic、Last 20 days、大きな 24,182 visits と、紫が選ばれた Day / Week の切り替えが並び、右には何もない基線だけがある。棒が左から順に基線から伸び、紫・空色・ミントグリーン・琥珀の 4 段に積み上がり、基線の下にはコーラルレッドの短い棒が並ぶ。ポインタが下から入ってグラフを左から右へなぞると、その日の棒が白い角丸枠で囲まれ、他の棒はカードの濃紺に溶けて沈み、横の暗いツールチップに日付・合計・上位 2 項目と Bounced が色の印付きで出る。日を移るたびに枠とツールチップがバネで滑り、右端では棒の左側へ回る。ポインタが右へ抜けると枠とツールチップが消え、色が戻る。最後に棒が基線へ縮む。
+// 動きの仕様:
+//   - 図は幅 319px、基線の上 104px・下 22px。20 本の棒は間隔 6px、各段の間は 2px、角は 2.5px
+//   - 0.15 秒から棒が基線から伸び、各棒が左隣より 14ms 遅れて 0.6 秒で伸びきる
+//   - ポインタは 1.1 秒にグラフへ入り、4.25 秒に右へ抜ける。下の棒の位置は floor(x / 幅 × 20) で決まる
+//   - ホバー中、他の棒は色をカードの地色へ 62% 寄せ、枠は 1.5px の白い線。枠と幅 132px のツールチップは 0.16 秒でフェードする
+//   - 日が変わると枠とツールチップは stiffness 380、damping 34 のバネで移り、右に入りきらなければ棒の左側に出る
+//   - 5.4–6.0 秒に棒が基線へ縮み、最初の画面に戻る
+// 使いどころ: アクセス解析やアラート件数のダッシュボード、管理画面の日次・週次グラフカードなどに。
+// タグ: chart, stacked-bar, hover, tooltip, spring, dashboard
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-235
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 72
+// 73 堆叠柱状图悬停（bencho stacked-bars）：卡片左侧是 Traffic、Last 20 days 和 24,182 visits，右侧 20 根四色堆叠柱（间距 6 px），基线下方是红色 Bounced 短柱；
+// 深靛蓝渐变底上一张深色卡片，四个来源用紫、天蓝、薄荷绿、琥珀，Bounced 用珊瑚红；0.15 秒起柱子从基线依次长出（每根晚 14 毫秒，0.6 秒长成）；指针 1.1 秒进入图表从左往右扫，所在那天的柱被圆角框圈住、其余柱融进卡片底色退后，提示框贴在柱旁按弹簧滑动（右侧放不下时换到左侧）；
+// 约 4.3 秒指针从右侧移出，圈框和提示框 0.16 秒淡出，柱色恢复；复位段 5.4–6.0 秒柱子缩回基线。
+// 原作 makeBars('Day', 20) 种子 4396 生成的数据（9 月 22 日 – 10 月 11 日）：[Direct, Search, Social, Email, Bounced]
+const SB_DATA = [
+  [350, 378, 144, 238, 8], [526, 389, 126, 334, 8], [508, 270, 256, 179, 6], [686, 423, 263, 304, 6], [561, 322, 151, 406, 5],
+  [195, 178, 115, 131, 6], [703, 321, 236, 187, 9], [376, 322, 202, 331, 4], [584, 502, 163, 200, 11], [573, 277, 195, 326, 7],
+  [321, 270, 188, 337, 8], [340, 187, 115, 184, 6], [211, 141, 145, 149, 4], [647, 455, 131, 157, 6], [462, 384, 257, 311, 8],
+  [710, 323, 249, 335, 12], [416, 316, 172, 163, 11], [726, 386, 271, 291, 11], [267, 187, 156, 192, 3], [231, 243, 112, 113, 5],
+];
+const SB_CATS = ['Direct', 'Search', 'Social', 'Email'];
+const SB_COL = ['#a78bfa', '#38bdf8', '#34d399', '#fbbf24'].map(UXB_rgb), SB_ALERT = UXB_rgb('#ff6b6b');
+const SB_INK = '#f4f6ff', SB_CARD = UXB_rgb('#161c33'), SB_MUTE = 'rgba(214,222,255,.62)', SB_SOFT = 'rgba(226,232,255,.82)';
+const SB_FAINT = 'rgba(214,222,255,.45)', SB_EDGE = 'rgba(255,255,255,.12)';
+// 卡片与图表区（原作 CH 104 基线上方、BH 22 基线下方、柱段间 2 px、基线两侧留 2 px、提示框宽 132）
+const SB_X = 14, SB_Y = 12, SB_W = 511, SB_H = 184;
+const SB_PL = 190, SB_PT = 28, SB_PW = 319, SB_CH = 104, SB_BH = 22, SB_SEG = 2, SB_LIFT = 2, SB_TIPW = 132, SB_TIPH = 96;
+const SB_N = SB_DATA.length, SB_GAP = Math.max(1, Math.min(6, (SB_PW - 3 * SB_N) / (SB_N - 1)));
+const SB_BW = (SB_PW - SB_GAP * (SB_N - 1)) / SB_N, SB_R = Math.min(2.5, SB_BW / 2);
+const SB_GROW = 0.15, SB_GDUR = 0.6, SB_STAG = 0.014, SB_FADE = 0.16;
+const SB_KEYS = [[0, 120, 250], [0.3, 120, 250], [1.1, 200, 128], [1.55, 250, 126], [1.85, 250, 126], [2.55, 352, 128], [2.85, 352, 128],
+  [3.55, 446, 129], [3.85, 446, 129], [4.25, 500, 128], [4.7, 575, 172]];
+const SB_ezGrow = UXA_bz(0.22, 1, 0.36, 1), SB_ezCss = UXA_bz(0.25, 0.1, 0.25, 1);
+const SB_fmt = v => Math.round(v).toLocaleString('en-US');
+const SB_day = i => (i < 9 ? `Sep ${22 + i}` : `Oct ${i - 8}`);
+// 每根柱各段的 [底, 高]（以基线上方 LIFT 处为 0）、柱顶、Bounced 柱高
+const SB_LAY = (() => {
+  const tot = SB_DATA.map(d => d[0] + d[1] + d[2] + d[3]), maxT = Math.max(...tot), maxE = Math.max(...SB_DATA.map(d => d[4]));
+  const sc = (SB_CH - SB_LIFT - 2 - SB_SEG * 3) / maxT;
+  return SB_DATA.map((d, i) => {
+    let y = 0; const segs = [];
+    for (let c = 0; c < 4; c++) { const h = Math.max(2, d[c] * sc); segs.push([y, h]); y += h + SB_SEG; }
+    return { segs, top: y - SB_SEG, esc: Math.max(3, d[4] / maxE * (SB_BH - SB_LIFT - 2)), tot: tot[i] };
+  });
+})();
+const SB_TOTAL = SB_LAY.reduce((s, l) => s + l.tot, 0);
+// 指针所在的柱（-1 = 不在图表上）；原作 pick()：floor(相对 x / 宽 × n)
+const SB_at = u => {
+  const [x, y] = BN_path(u, SB_KEYS);
+  if (x < SB_PL || x >= SB_PL + SB_PW || y < SB_PT || y > SB_PT + SB_CH + 1 + SB_BH) return -1;
+  return clamp(Math.floor((x - SB_PL) / SB_PW * SB_N), 0, SB_N - 1);
+};
+// 圈框与提示框的目标位置（图表坐标）：提示框优先放柱右侧，放不下且左侧放得下就放左侧
+const SB_tgt = i => {
+  const L = SB_LAY[i], left = i * (SB_BW + SB_GAP), right = left + SB_BW + 8;
+  const tx = right + SB_TIPW <= SB_PW || left - 8 - SB_TIPW < 0 ? Math.min(SB_PW - SB_TIPW, right) : left - 8 - SB_TIPW;
+  return [left - 3, SB_CH - SB_LIFT - L.top - 3, L.top + SB_LIFT + 1 + SB_LIFT + L.esc + 6, tx];
+};
+// framer 弹簧 stiffness 380、damping 34 的阶跃响应（线性系统：多次改目标 = 各次阶跃叠加，初速度自然连续）
+const SB_W0 = Math.sqrt(380), SB_ZT = 34 / (2 * SB_W0), SB_WD = SB_W0 * Math.sqrt(1 - SB_ZT * SB_ZT);
+const SB_spring = t => (t <= 0 ? 0 : 1 - Math.exp(-SB_ZT * SB_W0 * t) * (Math.cos(SB_WD * t) + SB_ZT * SB_W0 / SB_WD * Math.sin(SB_WD * t)));
+let SB_TAB = null;
+function SB_tab() {
+  if (SB_TAB) return SB_TAB;
+  const ch = UXB_changes(SB_at), on = ch.filter(c => c[1] >= 0);
+  // 每根柱的「退后」程度事件：有悬停且不是自己 → 1
+  const dim = [];
+  for (let i = 0; i < SB_N; i++) dim.push(ch.map(([t, v]) => [t, v >= 0 && v !== i ? 1 : 0]));
+  SB_TAB = { ch, dim, vis: ch.map(([t, v]) => [t, v >= 0 ? 1 : 0]), first: on[0], moves: on.slice(1) };
+  return SB_TAB;
+}
+function SB_text(k, s, x, y, size, w, col, al = 'left') { txt(k, s, x, y, UXB_f(w, size), col, al); }
+CELLS[71] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#3b2a8f'); bg.addColorStop(1, '#0f4c81');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  k.save(); k.shadowColor = 'rgba(8,10,40,.45)'; k.shadowBlur = 18; k.shadowOffsetY = 6;
+  k.fillStyle = rgba(SB_CARD, 1); rr(k, SB_X, SB_Y, SB_W, SB_H, 20); k.fill(); k.restore();
+  k.strokeStyle = SB_EDGE; k.lineWidth = 1; rr(k, SB_X + 0.5, SB_Y + 0.5, SB_W - 1, SB_H - 1, 20); k.stroke();
+  const T = SB_tab();
+  // 左栏：标题、副标题、总数、Day / Week 切换（Day 选中）
+  SB_text(k, 'Traffic', 30, 41, 14, 500, SB_INK);
+  SB_text(k, `Last ${SB_N} days`, 30, 58, 12, 400, SB_MUTE);
+  k.font = UXB_f(500, 30); const nw = k.measureText(SB_fmt(SB_TOTAL)).width;
+  SB_text(k, SB_fmt(SB_TOTAL), 30, 112, 30, 500, SB_INK);
+  SB_text(k, 'visits', 30 + nw + 8, 112, 13, 400, SB_MUTE);
+  k.fillStyle = 'rgba(255,255,255,.08)'; rr(k, 30, 148, 108, 32, 10); k.fill();
+  k.fillStyle = '#a78bfa'; rr(k, 32, 150, 52, 28, 8); k.fill();
+  SB_text(k, 'Day', 58, 168, 12, 600, '#1b1340', 'center'); SB_text(k, 'Week', 112, 168, 12, 500, SB_MUTE, 'center');
+  // 图表：基线、柱（依次长出，复位段缩回）
+  const base = SB_PT + SB_CH;
+  k.fillStyle = 'rgba(255,255,255,.18)'; k.fillRect(SB_PL, base, SB_PW, 1);
+  const back = fadeIn(u);
+  for (let i = 0; i < SB_N; i++) {
+    const L = SB_LAY[i], x = SB_PL + i * (SB_BW + SB_GAP), g = SB_ezGrow(seg(u, SB_GROW + i * SB_STAG, SB_GROW + i * SB_STAG + SB_GDUR)) * back;
+    if (g <= 0.002) continue;
+    const dm = 0.62 * UXB_ramp(u, T.dim[i], SB_FADE, SB_ezCss);
+    for (let c = 0; c < 4; c++) {
+      const [b0, hh] = L.segs[c], y1 = base - SB_LIFT - b0 * g, y0 = y1 - hh * g;
+      k.fillStyle = rgba(lerpC(SB_COL[c], SB_CARD, dm), 1); rr(k, x, y0, SB_BW, y1 - y0, SB_R); k.fill();
+    }
+    k.fillStyle = rgba(lerpC(SB_ALERT, SB_CARD, dm), 1); rr(k, x, base + 1 + SB_LIFT, SB_BW, L.esc * g, SB_R); k.fill();
+  }
+  SB_text(k, SB_day(0), SB_PL, 174, 11, 400, SB_FAINT);
+  SB_text(k, SB_day(SB_N - 1), SB_PL + SB_PW, 174, 11, 400, SB_FAINT, 'right');
+  // 圈框和提示框：第一次出现时直接就位，之后每次换柱按弹簧滑向新位置
+  const vis = UXB_ramp(u, T.vis, SB_FADE, SB_ezCss);
+  if (vis > 0.002 && T.first) {
+    const p = SB_tgt(T.first[1]).slice();
+    let cur = T.first[1];
+    for (const [t, v] of T.moves) {
+      if (t > u) break;
+      const a = SB_tgt(cur), b = SB_tgt(v), s = SB_spring(u - t);
+      for (let j = 0; j < 4; j++) p[j] += (b[j] - a[j]) * s;
+      cur = v;
+    }
+    let at = -1; for (const [t, v] of T.ch) { if (t > u) break; if (v >= 0) at = v; }
+    k.save(); k.globalAlpha = vis;
+    k.strokeStyle = 'rgba(255,255,255,.75)'; k.lineWidth = 1.5; rr(k, SB_PL + p[0] + 0.75, SB_PT + p[1] + 0.75, SB_BW + 4.5, p[2] - 1.5, SB_R + 2.25); k.stroke();
+    const tx = SB_PL + p[3], ty = SB_PT, d = SB_DATA[at], L = SB_LAY[at];
+    k.save(); k.shadowColor = 'rgba(4,6,24,.5)'; k.shadowBlur = 12; k.shadowOffsetY = 4;
+    k.fillStyle = '#252d4f'; rr(k, tx, ty, SB_TIPW, SB_TIPH, 10); k.fill(); k.restore();
+    k.strokeStyle = 'rgba(255,255,255,.16)'; k.lineWidth = 1; rr(k, tx + 0.5, ty + 0.5, SB_TIPW - 1, SB_TIPH - 1, 10); k.stroke();
+    SB_text(k, SB_day(at), tx + 11, ty + 21, 12, 400, SB_MUTE);
+    SB_text(k, SB_fmt(L.tot), tx + SB_TIPW - 11, ty + 21, 12, 500, SB_INK, 'right');
+    const top2 = [0, 1, 2, 3].sort((a, b) => d[b] - d[a]).slice(0, 2);
+    const rows = top2.map(c => [SB_COL[c], SB_CATS[c], SB_fmt(d[c])]).concat([[SB_ALERT, 'Bounced', String(d[4])]]);
+    rows.forEach(([col, name, val], r) => {
+      const ry = ty + 31 + r * 20;
+      k.fillStyle = rgba(col, 1); rr(k, tx + 11, ry + 4, 8, 8, 2); k.fill();
+      SB_text(k, name, tx + 25, ry + 12, 12, 400, SB_SOFT);
+      SB_text(k, val, tx + SB_TIPW - 11, ry + 12, 12, 400, SB_INK, 'right');
+    });
+    k.restore();
+  }
+  if (u > 0.2 && u < 4.9) { const [px, py] = BN_path(u, SB_KEYS); cursor(k, px, py); }
+};

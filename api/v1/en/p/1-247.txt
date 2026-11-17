@@ -1,0 +1,16 @@
+Please use "Step player" (ステップ再生プレーヤー), filed under "Feedback / Progress & icons".
+Motion Prompt #1-247
+
+What it is: In a row of dots on an indigo capsule the current step is a bar that fills with amber, then slides over to the next dot
+What the sample shows: An indigo capsule sits on a soft lavender-to-pink gradient and holds 5 pale dots, the first one an empty bar, with a round coral play button beside it. The pointer presses play; the white triangle squashes into the two bars of pause and the bar fills with amber. When full it slides to the next dot, the old bar shrinks to a yellow dot, and the dots around the landing stretch up briefly. After the last bar fills the button turns back into a triangle, and the bar slides all the way back to the first dot as the colour drains.
+Spec:
+- On an indigo capsule the dots are 8 px, the current step's bar is 36 px, the gap is 8 px and the padding 14 px (drawn at 2.4×).
+- The coral play button is pressed at 0.8 s and sinks to 0.96; the white mark morphs from triangle to pause in 0.3 s.
+- Each step fills with amber in 0.85 s, then slides to the next dot in 0.52 s (ease-out) while the old bar shrinks to a yellow dot.
+- Crossed dots stretch up to 1.34× in 0.3 s, 0.055 s apart, and the landing bar answers last, up to 1.1×.
+- At 5.05 s the 5th step is full and the mark turns back into a triangle; at 5.4 s the bar slides back to the first dot and the amber drains.
+When to use it: Use it for onboarding slides, story-style introductions and the progress of auto-advancing carousels.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-247.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,103 @@
+// Motion Prompt #1-231 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// ASCII wake cube / ASCII の航跡キューブ
+// Category: UI & Web / Pointer interactions / Cursor
+// What happens: On a navy-to-violet gradient sits a cube drawn in fine pale-blue dots: sparse on the top face, medium on the left, dense on the right, with dense lines along the seams and outline. The pointer enters from the right and sweeps across it; under the hand the dots turn into dense, flickering yellow and orange glyphs like @ and #, and the path behind cools through pink, violet and blue as it thins from + to - and back to dots. Nearby glyphs lean toward the hand. A press in the middle sends a ring of characters slowly out until it fades.
+// Motion spec:
+//   - The cube is an isometric cube of radius 92 px drawn as halftone dots on a grid of 10 px monospace cells (6.2 × 8.2 px, odd rows offset by half a cell).
+//   - The pointer enters from the right at 0.3 s, heads off at 4.55 s and is gone by 4.8 s; a 40 px radius under the hand turns into dense glyphs.
+//   - Glyphs run through 9 steps . : - = + * # % @; warm cells flicker to neighbouring steps every 0.07 s. The wake cools by exp(-3t/1.2), back to near dots in 1.2 s.
+//   - Glyphs within 80 px lean toward the hand by up to 12 px × 0.4.
+//   - A press at 2.6 s sends a ring from the press point, spreading from 8 px to 228 px over 2.2 s while it fades.
+//   - From 5.4–6.0 s the remaining heat clears away, back to the plain dot field.
+// When to use it: Use it for hero sections of developer tools and AI products, terminal-style landing pages and playful 404 pages.
+// Tags: ascii, halftone, cursor-trail, hover, monospace, ripple, isometric
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-231
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 68
+// 68 ASCII 尾迹立方（bencho ascii-wake）：等轴立方体由半色调墨点组成（顶面稀、左面中、右面密，面交界和轮廓是密线）；
+// 指针 0.3 秒从右侧进入，沿曲线划过立方体，划过的格子按热度换成 . : - = + * # % @ 并闪动，尾迹按 1.2 秒冷却回点，附近字符向指针倾斜；
+// 2.6 秒按下，从按点荡出一圈 2.2 秒扩散的环；随后再划一笔，4.8 秒离开画面；复位段 5.4–6.0 秒余热清零。
+const AW_R = 92, AW_SZ = 10, AW_CWD = AW_SZ * 0.62, AW_CHT = AW_SZ * 0.82;
+const AW_RAD = 40, AW_TRAIL = 1.2, AW_PULL = 0.4, AW_RING = 2.2, AW_PRESS = 2.6, AW_COLD = 0.04, AW_DT = 1 / 40;
+const AW_RAMP = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'];
+const AW_KEYS = [[0, 600, 150], [0.35, 520, 120], [1.0, 330, 46], [1.55, 222, 120], [2.1, 262, 150], [2.45, 286, 112], [2.75, 286, 112], [3.3, 214, 66], [3.9, 300, 70], [4.3, 360, 150], [4.8, 620, 200]];
+const AW_IN = 0.3, AW_OUT = 4.55;
+// 原作 cube()：点 (x, y) 相对立方体中心的墨点大小 0..1（浅色页面按半色调印：亮面稀、暗面密）
+function AW_cube(x, y) {
+  const lit = v => 0.35 + 0.65 * clamp(1.09 - v);
+  const R = AW_R, c = Math.cos(Math.PI / 6) * R, h = R / 2;
+  const T = [0, -R], UR = [c, -h], B = [0, R], LL = [-c, h], UL = [-c, -h];
+  const along = (o, p, q) => {
+    const ax = p[0] - o[0], ay = p[1] - o[1], bx = q[0] - o[0], by = q[1] - o[1], dx = x - o[0], dy = y - o[1], det = ax * by - ay * bx;
+    return [(dx * by - dy * bx) / det, (ax * dy - ay * dx) / det];
+  };
+  const inside = ([s, t]) => s >= 0 && s <= 1 && t >= 0 && t <= 1, seam = v => (v < 0.045 ? 1 : 0);
+  const top = along(T, UR, UL);
+  if (inside(top)) { const [s, t] = top; return seam(1 - s) || seam(1 - t) ? 1 : lit(0.96 - 0.1 * (s + t) / 2); }
+  const left = along(UL, [0, 0], LL);
+  if (inside(left)) { const [s, t] = left; return seam(s) ? 1 : lit(0.56 - 0.12 * t); }
+  const right = along([0, 0], UR, B);
+  if (inside(right)) { const [s, t] = right; return seam(s) || seam(t) ? 1 : lit(0.13 - 0.05 * s); }
+  return 0;
+}
+let AW_GRID = null;                                       // 立方体内的格子 [下标, x, y, m]，只算一次
+function AW_grid() {
+  if (AW_GRID) return AW_GRID;
+  const cols = Math.floor(CW / AW_CWD - 0.5), rows = Math.floor(CH / AW_CHT);
+  const ox = (CW - cols * AW_CWD) / 2, oy = (CH - rows * AW_CHT) / 2;
+  AW_GRID = [];
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const x = ox + (i + 0.5 + (j & 1) * 0.5) * AW_CWD, y = oy + (j + 0.5) * AW_CHT, m = AW_cube(x - CW / 2, y - CH / 2);
+    if (m > 0) AW_GRID.push([j * cols + i, x, y, m]);
+  }
+  return AW_GRID;
+}
+// 热度色阶：冷蓝 → 紫 → 品红 → 橙 → 黄
+const AW_HEAT = ['#5B8CFF', '#8F63FF', '#D04BE8', '#FF4F9A', '#FF7A45', '#FFB238', '#FFE45C'];
+CELLS[67] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#121A3D'); bg.addColorStop(1, '#2B1452');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  const G = AW_grid(), fade = fadeIn(u), near = BN_near(u, AW_IN, AW_OUT), hand = BN_path(u, AW_KEYS);
+  // 过去 2.4 秒的路径按 1/40 秒取样：每小段按移动距离折算盖章次数（原作每移动 rad/3 盖一次 0.5），再按 exp(-3Δt/trail) 冷却
+  const st = [];
+  for (let s = Math.max(0, Math.floor((u - 2.4) / AW_DT) * AW_DT); s < u; s += AW_DT) {
+    const e = Math.min(u, s + AW_DT), p0 = BN_path(s, AW_KEYS), p1 = BN_path(e, AW_KEYS), d = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]);
+    if (d > 0.01) st.push([p1[0], p1[1], 0.5 * d / (AW_RAD / 3) * Math.exp(-3 * (u - e) / AW_TRAIL)]);
+  }
+  const R2 = AW_RAD * AW_RAD, far2 = 4 * R2, lean = AW_PULL * near, deal = Math.floor(u / 0.07);
+  const rp = (u - AW_PRESS) / AW_RING, rc = BN_path(AW_PRESS, AW_KEYS);
+  const ring = rp > 0 && rp < 1 ? { R: 8 + out3(rp) * 220, amp: 0.6 * (1 - rp) * (1 - rp) * Math.min(1, rp * 6) } : null;
+  const dot = Math.min(AW_CWD, AW_CHT) * 0.44, top = AW_RAMP.length - 1;
+  k.font = `500 ${AW_SZ}px ${MONO}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+  const heatTop = AW_HEAT.length - 1;
+  for (const [id, cx, cy, m] of G) {
+    let hh = 0;
+    for (const [sx, sy, a] of st) { const q = ((cx - sx) ** 2 + (cy - sy) ** 2) / R2; if (q < 1) hh += a * (1 - q) * (1 - q); }
+    hh = Math.min(1, hh);
+    if (near > 0.002) { const q = ((cx - hand[0]) ** 2 + (cy - hand[1]) ** 2) / R2; if (q < 1) hh = Math.max(hh, 0.95 * near * (1 - q) * (1 - q)); }
+    if (ring) { const d = (Math.hypot(cx - rc[0], cy - rc[1]) - ring.R) / 20; if (d > -2.5 && d < 2.5) hh += ring.amp * Math.exp(-d * d); }
+    hh *= (0.55 + 0.45 * m) * fade;
+    let x = cx, y = cy;
+    if (lean > 0.002) {
+      const dx = hand[0] - x, dy = hand[1] - y, d2 = dx * dx + dy * dy;
+      if (d2 < far2) { const f = 1 - d2 / far2, d = Math.sqrt(d2) || 1, mv = Math.min(d * 0.6, 12 * lean * f * f); x += dx / d * mv; y += dy / d * mv; }
+    }
+    let lv = Math.min(1, hh) * top + 0.5;
+    if (hh > AW_COLD) lv += (BN_hash2(id, deal) - 0.5) * 1.6 * Math.min(1, hh * 2);
+    const idx = clamp(Math.floor(lv), 1, top);
+    if (hh <= AW_COLD || idx === 1) {
+      k.fillStyle = `rgba(150,170,255,${(0.35 + 0.4 * m).toFixed(3)})`;
+      k.beginPath(); k.arc(x, y, Math.max(0.45, dot * Math.sqrt(m)), 0, TAU); k.fill();
+    } else {
+      k.fillStyle = AW_HEAT[clamp(Math.round(Math.min(1, hh) * heatTop), 0, heatTop)];
+      k.fillText(AW_RAMP[idx], x, y);
+    }
+  }
+  if (u > 0.2 && u < 4.9) cursor(k, hand[0], hand[1], UXB_press(u, AW_PRESS));
+};

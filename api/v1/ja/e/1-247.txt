@@ -1,0 +1,115 @@
+// Motion Prompt #1-247 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// ステップ再生プレーヤー / Step player
+// 分類: UI・Web / フィードバック / 進捗・アイコン
+// 何が起きるか: 淡い紫からピンクへのグラデーションの上に藍色のカプセルがあり、淡い色の点が 5 つ並ぶ。先頭は空の横長バーで、右にコーラル色の丸い再生ボタンがある。ポインタが再生を押すと白い三角が潰れながら一時停止の二本線に変わり、バーが琥珀色に満ちていく。満ちるとバーは次の点へ滑り、元のバーは黄色い点に縮み、着いた先の周りの点が小さく伸び上がる。最後のバーが満ちるとボタンは三角に戻り、バーが先頭まで滑り戻って色が抜ける。
+// 動きの仕様:
+//   - 藍色のカプセルに 8px の点が並び、今のステップのバーは 36px、間隔 8px、余白 14px（2.4 倍で描く）
+//   - 0.8 秒にコーラル色の再生ボタンを押すと 0.96 倍に沈み、白いマークは 0.3 秒で三角から一時停止へ変形する
+//   - 各ステップは 0.85 秒で琥珀色に満ち、満ちると 0.52 秒（ease-out）で次の点へ滑り、元のバーは黄色い点に縮む
+//   - 通った点は 0.055 秒ずつずれて 0.3 秒で最大 1.34 倍に伸び、着いたバーは最後に 1.1 倍まで
+//   - 5.05 秒に 5 つ目が満ちるとマークが三角に戻り、5.4 秒にバーが先頭へ滑り戻って色が抜ける
+// 使いどころ: オンボーディングのスライド、ストーリー形式の紹介、自動で進むカルーセルの進み具合表示に。
+// タグ: stepper, progress, carousel, play-pause, morph, dots
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-247
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 84
+// 88 分段播放进度（bencho step-player）：淡紫→淡粉渐变底上一颗靛蓝胶囊，里面一排 5 个浅色圆点，第 1 个点是一根空的横条，右边是珊瑚色圆形播放键；
+// 指针 0.2 秒进入，0.8 秒点下播放键，三角变形成暂停键；当前横条每 0.85 秒灌满琥珀黄，满了就用 0.52 秒滑到下一个点（旧条缩回实心点），
+// 落点两侧的点依次竖起一下（尾波）；5.05 秒最后一格灌满，暂停键变回三角；复位段 5.4 秒横条一路滑回第 1 个点，尾波从第 5 个点传回，黄色退空。
+const SP_S = 2.4, SP_N = 5, SP_DOT = 8, SP_BAR = 36, SP_GAP = 8, SP_PAD = 14, SP_H = SP_DOT + SP_PAD * 2;
+const SP_PLAY = 0.8, SP_PACE = 0.85, SP_RESET = 5.4, SP_MOVE = 0.52, SP_LEAD = 0.06, SP_RISE = 0.3, SP_STAG = 0.055;
+const SP_AMP = 0.34, SP_SELF = 0.3, SP_REACH = 8, SP_INK_R = -Math.log(0.78) * 60;  // 原作每帧追 22% → 连续一阶追赶速率
+const SP_END = SP_PLAY + SP_N * SP_PACE;                                           // 最后一格灌满、自动停下
+const SP_TW = SP_GAP + SP_BAR + (SP_N - 1) * (SP_DOT + SP_GAP) - SP_GAP;           // 轨道宽 = layout 最后一个右缘
+const SP_RW = SP_TW + SP_PAD * 2 + 8 + SP_H;                                       // 一行：轨道胶囊 + 8 间距 + 圆钮
+const SP_OX = (CW - SP_RW * SP_S) / 2, SP_OY = (CH - SP_H * SP_S) / 2;
+const SP_BX = SP_OX + (SP_RW - SP_H / 2) * SP_S, SP_BY = SP_OY + SP_H / 2 * SP_S;  // 播放键圆心（格子坐标）
+// 换步事件 [时刻, 从, 到]：播放中每格灌满换下一格；复位段从最后一格回到第 1 格
+const SP_EV = [];
+for (let j = 1; j < SP_N; j++) SP_EV.push([SP_PLAY + j * SP_PACE, j - 1, j]);
+SP_EV.push([SP_RESET, SP_N - 1, 0]);
+const SP_KEYS = [[0.2, 575, 205], [0.62, SP_BX + 3, SP_BY + 5], [0.95, SP_BX + 3, SP_BY + 5], [1.75, 590, 225]];
+const SP_PAUSE_L = [6, 4, 10, 4, 10, 20, 6, 20], SP_PLAY_L = [6.5, 4, 13.25, 8, 13.25, 16, 6.5, 20];
+const SP_PAUSE_R = [14, 4, 18, 4, 18, 20, 14, 20], SP_PLAY_R = [13.25, 8, 20, 12, 20, 12, 13.25, 16];
+const SP_OUTC = UXA_bz(0.22, 1, 0.36, 1), SP_EASE = UXA_bz(0.25, 0.1, 0.25, 1);
+const SP_DOTC = 'rgba(224,231,255,.34)', SP_TRACK = '#4F46E5', SP_INKC = '#FCD34D', SP_BTN = '#FB7185', SP_SHADOW = 'rgba(55,48,163,.28)';
+// 当前步为 at 时每个点的左右缘
+function SP_layout(at) {
+  const out = []; let x = 0;
+  for (let i = 0; i < SP_N; i++) { const w = i === at ? SP_BAR : SP_DOT; out.push([x, x + w]); x += w + SP_GAP; }
+  return out;
+}
+// 点 i 的墨量：目标值分段（0 → 本格进度线性 0..1 → 1 → 复位后 0），墨量按速率 SP_INK_R 一阶追赶目标（解析解逐段推进）
+function SP_ink(i, u) {
+  const s = SP_PLAY + i * SP_PACE;
+  const segs = [[0, 0, 0], [s, 0, 1 / SP_PACE], [s + SP_PACE, 1, 0], [SP_RESET, 0, 0]];
+  let y = 0;
+  for (let j = 0; j < segs.length; j++) {
+    const [t0, a, b] = segs[j], t1 = j + 1 < segs.length ? segs[j + 1][0] : Infinity;
+    if (u <= t0) break;
+    const t = Math.min(u, t1) - t0, c = b / SP_INK_R;
+    y = a + b * t - c + (y - a + c) * Math.exp(-SP_INK_R * t);
+  }
+  return y;
+}
+// 两组四边形之间插值后描成路径（播放三角 ↔ 暂停双竖条是同一组 8 个点）
+function SP_quad(k, a, b, t, dx) {
+  k.beginPath();
+  for (let i = 0; i < 8; i += 2) k[i ? 'lineTo' : 'moveTo'](mix(a[i], b[i], t) + dx, mix(a[i + 1], b[i + 1], t));
+  k.closePath(); k.fill(); k.stroke();
+}
+CELLS[83] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#E0E7FF'); bg.addColorStop(1, '#FCE7F3');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  // 最近一次换步：边缘从旧布局缓到新布局（ease-out 0.52 秒）；两次换步间隔大于 0.52 秒，旧缓动已走完
+  let ev = null; for (const e of SP_EV) if (u >= e[0]) ev = e;
+  const A = SP_layout(ev ? ev[1] : 0), B = SP_layout(ev ? ev[2] : 0), mv = ev ? out3(seg(u, ev[0], ev[0] + SP_MOVE)) : 1;
+  const cur = ev ? ev[2] : 0;
+  k.save(); k.translate(SP_OX, SP_OY); k.scale(SP_S, SP_S);
+  // 轨道胶囊
+  k.save(); k.shadowColor = SP_SHADOW; k.shadowBlur = 12; k.shadowOffsetY = 3;
+  k.fillStyle = SP_TRACK; rr(k, 0, 0, SP_TW + SP_PAD * 2, SP_H, SP_H / 2); k.fill(); k.restore();
+  for (let i = 0; i < SP_N; i++) {
+    const l = mix(A[i][0], B[i][0], mv), r = mix(A[i][1], B[i][1], mv), dw = Math.max(0, r - l);
+    // 尾波：越过的点按越过顺序竖起，落点最后（份额 0.3）
+    let sy = 1;
+    if (ev) {
+      const from = ev[1], org = ev[2], span = Math.abs(org - from), skip = Math.max(0, span - SP_REACH);
+      let delay = -1, share = 1;
+      if (i === org) { delay = Math.min(span, SP_REACH) * SP_STAG; share = SP_SELF; }
+      else if (i >= Math.min(from, org) && i <= Math.max(from, org)) { const q = Math.abs(i - from); if (span - q <= SP_REACH) delay = (q - skip) * SP_STAG; }
+      if (delay >= 0) { const p = (u - ev[0] - SP_LEAD - delay) / SP_RISE; if (p > 0 && p < 1) sy = 1 + Math.sin(Math.PI * p) * SP_AMP * share; }
+    }
+    k.save(); k.translate(SP_PAD + l, SP_PAD + SP_DOT / 2); k.scale(1, sy);
+    k.fillStyle = SP_DOTC; rr(k, 0, -SP_DOT / 2, dw, SP_DOT, SP_DOT / 2); k.fill();
+    const ink = SP_ink(i, u);
+    if (ink > 0.001) {
+      const iw = Math.max(Math.min(SP_DOT, dw), dw * Math.min(1, ink));
+      k.globalAlpha = i === cur ? Math.min(1, ink * 14) : 1;
+      k.fillStyle = SP_INKC; rr(k, 0, -SP_DOT / 2, iw, SP_DOT, SP_DOT / 2); k.fill();
+    }
+    k.restore();
+  }
+  // 播放键：按下时整颗圆钮缩到 0.96；图形在暂停（0）与播放（1）之间 0.3 秒变形，中途挤扁、两半靠拢、倾斜
+  const bx = SP_RW - SP_H / 2, by = SP_H / 2;
+  const sc = UXB_ramp(u, [[0, 1], [0.7, 0.96], [SP_PLAY, 1]], 0.16, SP_OUTC);
+  k.save(); k.translate(bx, by); k.scale(sc, sc);
+  const hv = UXB_ramp(u, [[0, 0], [0.56, 1], [1.05, 0]], 0.16, SP_EASE);
+  k.save(); k.shadowColor = 'rgba(190,18,60,.3)'; k.shadowBlur = 12; k.shadowOffsetY = 3;
+  k.fillStyle = rgba(UXB_mix(SP_BTN, '#F43F5E', hv), 1); k.beginPath(); k.arc(0, 0, SP_H / 2, 0, TAU); k.fill(); k.restore();
+  const t = UXB_ramp(u, [[0, 1], [SP_PLAY, 0], [SP_END, 1]], 0.3, inOut3), goo = Math.sin(clamp(t) * Math.PI);
+  const playing = u >= SP_PLAY && u < SP_END, tip = (playing ? -9 : 9) * goo * Math.PI / 180;
+  const col = '#FFFFFF';
+  k.rotate(tip); k.scale((1 - 0.13 * goo) * 14 / 24, (1 + 0.11 * goo) * 14 / 24); k.translate(-12, -12);
+  k.fillStyle = col; k.strokeStyle = col; k.lineWidth = 2; k.lineJoin = 'round';
+  SP_quad(k, SP_PAUSE_L, SP_PLAY_L, t, 1.6 * goo); SP_quad(k, SP_PAUSE_R, SP_PLAY_R, t, -1.6 * goo);
+  k.restore();
+  k.restore();
+  if (u > 0.2 && u < 1.75) { const p = BN_path(u, SP_KEYS); cursor(k, p[0], p[1], seg(u, 0.66, 0.7) * (1 - seg(u, 0.8, 0.86))); }
+};

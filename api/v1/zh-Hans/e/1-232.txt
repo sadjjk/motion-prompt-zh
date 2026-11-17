@@ -1,0 +1,147 @@
+// Motion Prompt #1-232 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 热力点阵 / Heat dot field
+// 分类: 界面与网页 / 指针交互 / 光标
+// 动画表现: 中心略亮的深夜蓝底上，有三排边缘模糊的暗蓝紫色圆点。指针从右侧进入划过，只有手周围的一圈变成热成像色：每颗点的中心是电光蓝和紫，向外依次是蓝、青、黄、红的色环和粉色的边。手下的点胀大，和相邻的点连在一起，中心被“冷却”成一圈圈色环。按一下，圆点消失，几根在中心交叉的粗条组成的星号慢慢浮现；再按一下变成粗体单词 BEND。指针离开后颜色淡回暗蓝紫，最后单词淡出，圆点重新长出来。
+// 运动规格:
+//   - 按原作 300×170 px 的画面放大 1.2 倍显示；圆点排成 7×3 的格子（间距 38 px，抖动 ±4 px），半径 9–16 px，模糊 12.4 px；底色是中心 #141B46 到外缘 #060818 的径向渐变。
+//   - 指针 0.3 秒从右侧进入；只有半径 128 px 的圆内用 9 级 Neon 色带上色，圆外保持暗蓝紫色 (92,98,196)。
+//   - heat 60：手下半径 90 px 的范围用乘法最多压暗 0.68，把中心打开成色环；手附近的点最多胀大 75%。
+//   - 2.4 秒按下换成 4 根粗 16 px、在中心交叉的粗条组成的星号，3.7 秒按下换成粗体单词 BEND；新图形 0.9 秒内淡入。
+//   - 指针 4.75 秒移出画面，颜色按 0.22 秒的时间常数淡回暗蓝紫色。
+//   - 5.4–6.0 秒单词淡出，5.5–6.35 秒圆点重新长出，回到第一帧。
+// 适用场景: 适合数据可视化和传感类产品的首屏、作品集封面、带点趣味的落地页。
+// 标签: heatmap, thermal, hover, metaball, cursor-reveal, shape-morph, canvas
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-232
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 69
+// 69 热力点阵（bencho heat-word）：深夜蓝底（中心略亮的径向渐变）上 7×3 颗暗蓝紫色圆点（相邻的点边缘相融）；指针 0.3 秒从右侧进入，0.5–2.2 秒在点阵上来回扫，
+// 手下半径 128 px（原作像素，画面整体放大 1.2 倍）的圆内显出 Neon 热成像色（粉边→红→黄→青→蓝→深蓝核心），手下的点胀大相融、中心被"冷却"成一圈圈色环；
+// 2.4 秒按下换成 4 根过中心交叉的粗条（星号），0.9 秒内淡入长出；3.7 秒再按换成粗体单词 BEND，指针在单词上扫过；
+// 4.75 秒指针移出，热色按 0.22 秒时间常数淡回暗蓝紫；5.4–6.0 秒单词淡出，5.5–6.35 秒点阵重新长出。
+const HW_W = 300, HW_H = 170, HW_S = 1.2, HW_PX = 1.3;     // 原作画布 300×170；显示放大 1.2 倍；场按每原作像素 1.3 个像素计算（场本身是模糊的，降低分辨率看不出差别，帧耗时更短）
+const HW_X = (CW - HW_W * HW_S) / 2, HW_Y = (CH - HW_H * HW_S) / 2;
+const HW_HEAT = 60, HW_AREA = 50, HW_SOFT = 40, HW_FLOOR = 34, HW_GROW = 0.9, HW_SEED = 4;
+const HW_T1 = 2.4, HW_T2 = 3.7, HW_IN = 0.45, HW_OUT = 4.75, HW_TAU = 0.217;   // 原作 power 每帧按 0.01^dt 追赶 → 时间常数 1/ln100
+const HW_KEYS = [[0, 600, 118], [0.3, 548, 116], [0.6, 430, 108], [1.05, 330, 66], [1.5, 196, 132], [1.9, 150, 84], [2.2, 236, 74],
+  [2.32, 268, 100], [2.52, 268, 100], [2.95, 336, 140], [3.35, 214, 62], [3.6, 250, 100], [3.8, 250, 100], [4.15, 178, 90], [4.5, 330, 120], [4.8, 470, 150], [5.05, 600, 186]];
+const HW_GREY = [92, 98, 196];                              // 静止态的点：深底上的暗蓝紫（原作浅底上为灰）
+// Neon 色带（rim 0 → core 1），沿用原作 PALETTES.Neon，只把最深的两档核心色提亮成电光蓝/靛紫，免得在深底上看成空洞
+const HW_NEON = [[0, [255, 150, 225]], [0.1, [255, 90, 190]], [0.2, [255, 50, 60]], [0.32, [255, 150, 40]], [0.42, [255, 228, 100]],
+  [0.54, [120, 215, 255]], [0.68, [40, 120, 245]], [0.84, [52, 70, 235]], [1, [96, 52, 210]]];
+const HW_SPREAD = 0.5 + HW_AREA / 100;
+// 256 级亮度 → 颜色表；FLOOR 以下透明，边缘 26 级内淡入；灰度态的透明度另表
+const HW_LUT = (() => {
+  const t = new Uint8ClampedArray(1024);
+  for (let i = HW_FLOOR; i < 256; i++) {
+    const v = (i - HW_FLOOR) / (255 - HW_FLOOR);
+    let j = 0; while (j < HW_NEON.length - 2 && v > HW_NEON[j + 1][0]) j++;
+    const [v0, c0] = HW_NEON[j], [v1, c1] = HW_NEON[j + 1], f = clamp((v - v0) / (v1 - v0));
+    for (let c = 0; c < 3; c++) t[i * 4 + c] = c0[c] + (c1[c] - c0[c]) * f;
+    t[i * 4 + 3] = 255 * clamp((i - HW_FLOOR) / 26);
+  }
+  return t;
+})();
+const HW_GA = new Uint8ClampedArray(256).map((_, i) => 255 * clamp((i - 70) / 45));
+let HW_BG = null;
+// 原作的线性同余 rng：同一 seed 永远同一排布
+function HW_rng(seed) { let t = seed * 9301 + 49297; return () => { t = (t * 9301 + 49297) % 233280; return t / 233280; }; }
+// 原作 drawShape：Dots 为 7×3 抖动网格，手下的点按高斯胀大；Asterisk 为过中心的 3–4 根粗条
+function HW_shape(g, shape, w, h, r, seed, hand) {
+  const rand = HW_rng(seed), cx = w / 2, cy = h / 2;
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  if (shape === 'Dots') {
+    const reach = 62 * r * HW_SPREAD;
+    for (let j = 0; j < 3; j++) for (let i = 0; i < 7; i++) {
+      const x = cx + (i - 3) * 38 * r + (rand() - 0.5) * 8 * r, y = cy + (j - 1) * 38 * r + (rand() - 0.5) * 8 * r;
+      let rad = (9 + rand() * 7) * r;
+      if (hand) rad *= 1 + 0.75 * hand.on * Math.exp(-((x - hand.x) ** 2 + (y - hand.y) ** 2) / (reach * reach));
+      g.beginPath(); g.arc(x, y, rad, 0, TAU); g.fill();
+    }
+  } else {
+    g.lineWidth = 16 * r;
+    const n = 3 + Math.floor(rand() * 2), turn = rand() * Math.PI;
+    for (let i = 0; i < n; i++) {
+      const a = turn + (i / n) * Math.PI, c = Math.cos(a) * 66 * r, s = Math.sin(a) * 66 * r;
+      g.beginPath(); g.moveTo(cx - c, cy - s); g.lineTo(cx + c, cy + s); g.stroke();
+    }
+  }
+}
+const HW_C = {};
+const HW_cv = name => {
+  if (!HW_C[name]) { const c = document.createElement('canvas'); c.width = HW_W * HW_PX; c.height = HW_H * HW_PX; HW_C[name] = [c, c.getContext('2d', { willReadFrequently: true })]; }
+  return HW_C[name];
+};
+// 灰度场：形状画在画布外，只让模糊的影子落进来（亮在笔画中心、边缘渐暗），画两遍让粗处饱和
+function HW_field(g, shape, seed, hand) {
+  const w = HW_W * HW_PX, h = HW_H * HW_PX, r = HW_PX, off = w * 3;
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+  g.shadowColor = 'transparent'; g.fillStyle = '#000'; g.fillRect(0, 0, w, h);
+  g.shadowColor = '#fff'; g.shadowBlur = (6 + HW_SOFT / 100 * 16) * r; g.shadowOffsetX = off; g.fillStyle = '#fff'; g.strokeStyle = '#fff';
+  g.save(); g.translate(-off, 0);
+  if (shape === 'Word') {
+    let size = 150 * r; g.font = UXB_f(700, size);
+    size = Math.min(size, size * (w * 0.88) / g.measureText('BEND').width); g.font = UXB_f(700, size);
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    for (let i = 0; i < 2; i++) g.fillText('BEND', w / 2, h / 2 + size * 0.04);
+  } else for (let i = 0; i < 2; i++) HW_shape(g, shape, w, h, r, seed, hand);
+  g.restore(); g.shadowColor = 'transparent'; g.shadowBlur = 0; g.shadowOffsetX = 0;
+}
+// 静止的场只算一次；Dots 在手下时每帧重画（点会胀大）
+function HW_base(shape, seed, hand) {
+  if (hand) { const [c, g] = HW_cv('dyn'); HW_field(g, shape, seed, hand); return c; }
+  const key = shape + seed;
+  if (!HW_C[key]) { const [c, g] = HW_cv(key); HW_field(g, shape, seed, null); }
+  return HW_C[key][0];
+}
+CELLS[68] = (k, w, h, u) => {
+  if (!HW_BG) { HW_BG = k.createRadialGradient(CW / 2, CH / 2, 10, CW / 2, CH / 2, CW * 0.62); HW_BG.addColorStop(0, '#141B46'); HW_BG.addColorStop(1, '#060818'); }
+  k.fillStyle = HW_BG; k.fillRect(0, 0, CW, CH);
+  const hand = BN_path(u, HW_KEYS), on = BN_near(u, HW_IN, HW_OUT, HW_TAU), P = HW_PX, FW = HW_W * P, FH = HW_H * P;
+  const hx = (hand[0] - HW_X) / HW_S * P, hy = (hand[1] - HW_Y) / HW_S * P, H = on > 0.002 ? { x: hx, y: hy, on } : null;
+  // 当前形状与"长出"程度（原作换形后 globalAlpha 0→1 用 0.9 秒）；复位段单词淡出、点阵叠加长回
+  const L = u < HW_T1 ? [['Dots', HW_SEED, 1]]
+    : u < HW_T2 ? [['Asterisk', HW_SEED + 1, seg(u, HW_T1, HW_T1 + HW_GROW)]]
+      : [['Word', 0, seg(u, HW_T2, HW_T2 + HW_GROW) * (1 - inOut3(seg(u, SHOW, SHOW + 0.6)))], ['Dots', HW_SEED, seg(u, SHOW + 0.1, SHOW + 0.95)]];
+  const [wc, g] = HW_cv('work');
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.fillStyle = '#000'; g.fillRect(0, 0, FW, FH);
+  L.forEach(([s, sd, a], i) => {
+    if (a <= 0) return;
+    g.globalCompositeOperation = i ? 'lighter' : 'source-over'; g.globalAlpha = a;
+    g.drawImage(HW_base(s, sd, s === 'Dots' ? H : null), 0, 0);
+  });
+  g.globalAlpha = 1;
+  // 指针"冷却"：乘法把手下的场压暗，深蓝核心张开成蓝、青、黄、红的色环
+  if (H) {
+    const rad = (60 + HW_HEAT / 100 * 50) * P * HW_SPREAD, amt = on * (0.35 + HW_HEAT / 100 * 0.55);
+    const v = q => { const c = Math.round(255 * (1 - amt * q)); return `rgb(${c},${c},${c})`; };
+    const cool = g.createRadialGradient(hx, hy, 0, hx, hy, rad);
+    cool.addColorStop(0, v(1)); cool.addColorStop(0.45, v(0.6)); cool.addColorStop(1, '#fff');
+    g.globalCompositeOperation = 'multiply'; g.fillStyle = cool; g.fillRect(0, 0, FW, FH); g.globalCompositeOperation = 'source-over';
+  }
+  const src = g.getImageData(0, 0, FW, FH).data, [oc, og] = HW_cv('out');
+  if (!HW_C.img) HW_C.img = og.createImageData(FW, FH);
+  const d = HW_C.img.data, R = (95 + HW_HEAT / 100 * 55) * P * HW_SPREAD, R2 = R * R;
+  for (let y = 0, i = 0; y < FH; y++) {
+    const dy2 = (y - hy) * (y - hy);
+    for (let x = 0; x < FW; x++, i += 4) {
+      const f = src[i], ga = HW_GA[f];
+      let m = 0;
+      if (H) { const q = ((x - hx) * (x - hx) + dy2) / R2; if (q < 1) { const t = 1 - q; m = on * t * t * (3 - 2 * t); } }
+      if (m <= 0) { d[i] = HW_GREY[0]; d[i + 1] = HW_GREY[1]; d[i + 2] = HW_GREY[2]; d[i + 3] = ga; continue; }
+      const v = f * 4, n = 1 - m;
+      d[i] = HW_GREY[0] * n + HW_LUT[v] * m; d[i + 1] = HW_GREY[1] * n + HW_LUT[v + 1] * m;
+      d[i + 2] = HW_GREY[2] * n + HW_LUT[v + 2] * m; d[i + 3] = ga * n + HW_LUT[v + 3] * m;
+    }
+  }
+  og.putImageData(HW_C.img, 0, 0);
+  k.save(); k.imageSmoothingEnabled = true; k.imageSmoothingQuality = 'high';
+  k.drawImage(oc, HW_X, HW_Y, HW_W * HW_S, HW_H * HW_S); k.restore();
+  for (const tc of [HW_T1, HW_T2]) { const p = BN_path(tc, HW_KEYS); ripple(k, p[0], p[1], (u - tc) / 0.6, '255,228,120'); }
+  if (u > 0.2 && u < 5) cursor(k, hand[0], hand[1], UXB_press(u, HW_T1) + UXB_press(u, HW_T2));
+};

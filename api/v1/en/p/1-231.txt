@@ -1,0 +1,17 @@
+Please use "ASCII wake cube" (ASCII の航跡キューブ), filed under "Pointer interactions / Cursor".
+Motion Prompt #1-231
+
+What it is: A pointer drags a wake of characters through a cube drawn in halftone dots, and the wake cools back to dots behind it
+What the sample shows: On a navy-to-violet gradient sits a cube drawn in fine pale-blue dots: sparse on the top face, medium on the left, dense on the right, with dense lines along the seams and outline. The pointer enters from the right and sweeps across it; under the hand the dots turn into dense, flickering yellow and orange glyphs like @ and #, and the path behind cools through pink, violet and blue as it thins from + to - and back to dots. Nearby glyphs lean toward the hand. A press in the middle sends a ring of characters slowly out until it fades.
+Spec:
+- The cube is an isometric cube of radius 92 px drawn as halftone dots on a grid of 10 px monospace cells (6.2 × 8.2 px, odd rows offset by half a cell).
+- The pointer enters from the right at 0.3 s, heads off at 4.55 s and is gone by 4.8 s; a 40 px radius under the hand turns into dense glyphs.
+- Glyphs run through 9 steps . : - = + * # % @; warm cells flicker to neighbouring steps every 0.07 s. The wake cools by exp(-3t/1.2), back to near dots in 1.2 s.
+- Glyphs within 80 px lean toward the hand by up to 12 px × 0.4.
+- A press at 2.6 s sends a ring from the press point, spreading from 8 px to 228 px over 2.2 s while it fades.
+- From 5.4–6.0 s the remaining heat clears away, back to the plain dot field.
+When to use it: Use it for hero sections of developer tools and AI products, terminal-style landing pages and playful 404 pages.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-231.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

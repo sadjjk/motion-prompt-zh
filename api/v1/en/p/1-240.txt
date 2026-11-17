@@ -1,0 +1,17 @@
+Please use "Signature pad" (署名パッド), filed under "Components / Choosing & input".
+Motion Prompt #1-240
+
+What it is: A signature pad whose ink thins when the pen moves fast and pools when it slows, and Clear un-draws it in reverse order
+What the sample shows: On a teal-to-sea-blue gradient sits a pale mint signature pad with a teal signing line and Sign here beneath it. The pointer comes in and puts the pen down; the hint fades and a small teal Clear button with white text pops up in the corner. In navy ink it writes a looped capital, a run of cursive, a dot and a quick underline, and the ink goes thin where the pen moves fast and thick where it slows at the turns. Then it presses Clear: the ink un-draws from the last point back toward the first, the hint returns and the pad is empty again.
+Spec:
+- A pale mint pad, 300 × 180 px with a 20 px corner, sits on a teal gradient; the teal signing line sits 128 px from the top, 28 px in from each side, with a 12 px Sign here hint.
+- With pen weight 40 the navy ink runs between 1.6 px and 4.2 px; speed thins it, and each point eases 0.35 of the way to its target width.
+- The pen goes down at 0.8 s and writes 4 strokes: a capital 0.8–1.42 s, cursive 1.62–2.58 s, a dot at 2.78 s and an underline 3.04–3.4 s.
+- Once ink starts, the hint fades in 220 ms and Clear (54 × 28 px) pops in from 0.9 to 1.
+- Clear is pressed at 3.6 s: the 111 points rewind from the last one at 6 ms per point, gone in about 0.67 s.
+- The pointer leaves by 4.7 s and the empty pad stays as it was at 0 s.
+When to use it: Use it for signature fields on contracts and consent forms, delivery sign-offs and online application forms.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-240.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

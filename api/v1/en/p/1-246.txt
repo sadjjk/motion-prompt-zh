@@ -1,0 +1,17 @@
+Please use "Palette shuffle" (配色ジェネレーター), filed under "Feedback / Action feedback".
+Motion Prompt #1-246
+
+What it is: Pressing refresh draws all four swatches into circles at once; they switch to the new colours at their roundest and spring back out into their slots
+What the sample shows: On a deep night-blue gradient sit two pills: on the left a dark slate pill holding a bar of four colour swatches, on the right a narrow coral-pink key holding only a white refresh icon. It starts on a ramp from light cyan to blue-violet. When the pointer rests on the key the white arrows fade a little; each press sinks the key and turns the arrows half a turn. All four swatches draw into circles at once, switch at their roundest to a set of orange, green and violet, and spread back a little too far before settling in their slots, while the left pill dips and bounces with them. The third press brings back the first set.
+Spec:
+- The original 300 px layout is drawn at 1.4 scale: swatches 58 px tall with a 14 px corner and 4 px seams; 10 px padding inside each pill, 6 px between the pills, a 30 px wide refresh key.
+- Refresh is pressed at 1.2 s, 3.0 s and 4.8 s; each change runs 0.76 s and all four swatches share one clock.
+- At 40% of the run each swatch is a circle 0.66 of 58 px across and the colour swaps there; the return uses a back-out (1.7) that overshoots before it settles.
+- The left pill dips by 3.5% and recovers, the refresh key sinks to 0.96, and the icon turns 180° per press (600ms).
+- Three sets are made in OKLCH (ramp, triad, accent) and ordered light to deep; the third press returns to the first set.
+- The ground is a deep night-blue radial gradient, the swatch pill dark slate and the refresh key coral pink with a white icon; the deepest swatch is kept at lightness 0.56 or above so it still stands out on the dark ground.
+When to use it: Use it for palette generators, theme settings, colour panels in design tools and brand-setup onboarding.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-246.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,17 @@
+Please use "Heat dot field" (ヒートマップの点群), filed under "Pointer interactions / Cursor".
+Motion Prompt #1-232
+
+What it is: On a midnight-blue field, a dim indigo shape turns into a thermal-camera heat map only under the pointer, melting together there, and each press swaps in the next shape
+What the sample shows: On a deep midnight-blue field that glows faintly at the centre, three rows of soft-edged dim indigo dots sit side by side. The pointer enters from the right and sweeps across; only a disc around the hand takes on thermal-camera colours, with electric blue and violet at the heart of each dot and rings of blue, cyan, yellow, red and a pink rim outward. The dots under the hand swell into their neighbours and their cores cool open into rings. A press clears the dots and an asterisk of fat bars crossing at the centre fades in; the next press turns it into the bold word BEND. When the pointer leaves, the colour fades back to dim indigo, and finally the word fades out and the dots grow back.
+Spec:
+- The original 300 × 170 px canvas is shown at 1.2 × scale. The dots sit on a 7 × 3 grid (38 px pitch, ±4 px jitter) with radii of 9–16 px and a 12.4 px blur. The background is a radial gradient from #141B46 at the centre to #060818 at the edges.
+- The pointer enters from the right at 0.3 s. Only a 128 px radius disc is coloured with the 9-stop Neon band; outside it stays dim indigo (92,98,196).
+- At heat 60 a multiply darkens a 90 px radius under the hand by up to 0.68, opening the cores into colour rings; dots near the hand swell by up to 75%.
+- A press at 2.4 s switches to an asterisk of 4 bars 16 px thick crossing at the centre, and a press at 3.7 s to the bold word BEND; each new shape fades in over 0.9 s.
+- The pointer heads off at 4.75 s and the colour fades back to dim indigo with a 0.22 s time constant.
+- From 5.4–6.0 s the word fades out and from 5.5–6.35 s the dots grow back, returning to the first frame.
+When to use it: Use it for hero sections of data-visualisation and sensor products, portfolio covers and playful landing pages.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-232.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

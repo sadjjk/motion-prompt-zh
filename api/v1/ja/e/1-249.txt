@@ -1,0 +1,137 @@
+// Motion Prompt #1-249 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// オートメーションのステップカード / Action node card
+// 分類: UI・Web / コンポーネント / 状態表示・開発者向け画面
+// 何が起きるか: ミントから水色へのグラデーションの上に深い青緑のカード「Node 07」があり、白いコミットのマークと名前、淡い色の説明、ピンク・黄・青の重なった 3 つの顔と「+3」が並ぶ。ポインタがカードに入ると、角の下に隠れていたローズ・オレンジ・青・紫の 4 つの丸ボタンが一つずつ角の外の弧に沿って滑り出し、少し小さい状態から元の大きさに弾み、カードも少しだけ持ち上がる。ポインタが乗ったボタンは少し大きくなる。ポインタが離れると最後のボタンから順に角の下へ戻る。
+// 動きの仕様:
+//   - 深い青緑のカードは幅 272 px・余白 20 px・角丸 20、ボタンは直径 36 px の色違いの円（0.8 倍で描く）
+//   - ボタンは角の外 30 px の弧に沿って 48 px 間隔で並び、閉じているときは角の 20 px 内側でカードの下に隠れる
+//   - 1.0 秒にポインタが入ると、ボタンは 0.05 秒ずつずれてバネ（係数 0.112・減衰 0.66）で滑り出し、0.82 倍から 1 倍になる
+//   - 開いている間カードは 0.22 秒で 1 px 持ち上がり、ポインタが乗ったボタンは 0.16 秒で 1.12 倍になる
+//   - 3.8 秒にポインタが離れると、4 つ目から逆順に同じバネで角の下へ戻る
+// 使いどころ: ワークフローやオートメーションのエディタのノード、パイプラインの各段、ボードのカードの操作メニューに。
+// タグ: node-card, workflow, hover-reveal, fan-out, stagger, spring
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-249
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 86
+// 90 自动化步骤卡（bencho action-node）：薄荷→天蓝渐变底上一张深青绿节点卡「Node 07」（白字、彩色头像），玫红/橙/蓝/紫四颗圆形按钮藏在卡片右上角底下；
+// 指针 1.0 秒进入卡片，按钮按 0.05 秒间隔沿圆角外的弧线带一点回弹地滑出、由 0.82 放大到 1，卡片同时上抬 1 px；指针停到哪颗按钮它就放大到 1.12；
+// 3.8 秒指针离开，按钮倒序（最后一颗先走）缩回角落；4.5 秒后静止到周期结束（与 u=0 画面相同）。
+const AN_S = 0.8, AN_CW = 272, AN_PAD = 20, AN_COR = 20, AN_DOT = 36, AN_R = AN_DOT / 2, AN_N = 4;
+const AN_IN = 1.0, AN_OUT = 3.8, AN_GAP = 0.55 * 0.09;              // stagger 55 → 55% × 90 ms 一拍
+const AN_OFF = 6 + 0.25 * 24 + AN_R, AN_ARC = AN_COR + AN_OFF, AN_LEN = AN_ARC * Math.PI / 2;
+const AN_SAY = 'Reads the thread, writes a summary, and posts it back to the channel it came from.';
+const AN_CREW = [['P', '#F472B6'], ['M', '#FBBF24'], ['A', '#60A5FA']];
+const AN_BTNC = ['#F43F5E', '#F97316', '#3B82F6', '#8B5CF6'], AN_CARD0 = '#0F766E', AN_CARD1 = '#115E59';
+// 按钮停靠点：沿「圆角外 off 处」的轨道，四颗以弧中点为中心、按 48 px 间距排开（原作 ride()）
+function AN_ride(s) {
+  if (s <= 0) return [-AN_COR + s, -AN_OFF];
+  if (s >= AN_LEN) return [AN_OFF, AN_COR + (s - AN_LEN)];
+  const th = Math.PI / 2 - s / AN_ARC;
+  return [-AN_COR + AN_ARC * Math.cos(th), AN_COR - AN_ARC * Math.sin(th)];
+}
+const AN_SPOT = [0, 1, 2, 3].map(i => AN_ride(AN_LEN / 2 + (i - (AN_N - 1) / 2) * (AN_DOT + 12)));
+const AN_HID = [-AN_COR, AN_COR];                                     // 收起时圆心在角内 20 px，整颗被卡片盖住
+// 原作逐帧弹簧（bounce 20：k 0.112、阻尼 0.66，60 fps 一帧一步），这里预先算好 0→1 的阶跃响应表
+const AN_SPR = (() => {
+  const out = [0]; let c = 0, v = 0;
+  for (let f = 0; f < 240; f++) {
+    v += (1 - c) * 0.112; v *= 0.66; c += v;
+    if (Math.abs(1 - c) < 0.0002 && Math.abs(v) < 0.0002) { out.push(1); break; }
+    out.push(c);
+  }
+  return out;
+})();
+const AN_spr = t => { if (t <= 0) return 0; const f = t * 60, i = Math.floor(f); return i + 1 >= AN_SPR.length ? 1 : mix(AN_SPR[i], AN_SPR[i + 1], f - i); };
+// 第 i 颗的展开量：进入时按 i 依次弹出，离开时倒序弹回（两次之间早已静止）
+const AN_amt = (u, i) => clamp(u < AN_OUT ? AN_spr(u - AN_IN - i * AN_GAP - 1 / 60) : 1 - AN_spr(u - AN_OUT - (AN_N - 1 - i) * AN_GAP - 1 / 60), 0, 1.4);
+const AN_ICON = [
+  ['M9 17H7A5 5 0 0 1 7 7h2', 'M15 7h2a5 5 0 1 1 0 10h-2', 'M8 12h8'],
+  ['M5 12h14', 'M12 5v14'],
+  ['M10 8h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2Z', 'M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2'],
+  ['M20 7h-9', 'M14 17H5', 'M20 17a3 3 0 1 1-6 0a3 3 0 1 1 6 0', 'M10 7a3 3 0 1 1-6 0a3 3 0 1 1 6 0'],
+  ['M15 12a3 3 0 1 1-6 0a3 3 0 1 1 6 0', 'M3 12h6', 'M15 12h6'],       // GitCommitHorizontal：卡片标志
+];
+let AN_P2D = null;
+function AN_icon(k, i, x, y, size, col) {
+  if (!AN_P2D) AN_P2D = AN_ICON.map(ps => ps.map(d => new Path2D(d)));
+  k.save(); k.translate(x - size / 2, y - size / 2); k.scale(size / 24, size / 24);
+  k.strokeStyle = col; k.lineWidth = 2; k.lineCap = 'round'; k.lineJoin = 'round';
+  for (const p of AN_P2D[i]) k.stroke(p);
+  k.restore();
+}
+// 版面：说明固定折成 3 行（卡片高度和指针路径都按 3 行算）；实测最宽一行超过 232 px 时整体缩小字号，不会溢出
+const AN_LINES = ['Reads the thread, writes a summary,', 'and posts it back to the channel it', 'came from.'];
+let AN_FS = 0;
+function AN_layout(k) {
+  if (!AN_FS) { k.font = UXB_f(400, 13); const mw = Math.max(...AN_LINES.map(l => k.measureText(l).width)); AN_FS = Math.min(13, 13 * (AN_CW - AN_PAD * 2) / mw); }
+  const ch = AN_PAD + 30 + 13 + AN_LINES.length * 19.5 + 16 + 24 + AN_PAD, reach = AN_OFF + AN_R;
+  const ox = (CW - (AN_CW + reach) * AN_S) / 2, oy = (CH - (ch + reach) * AN_S) / 2 + reach * AN_S;
+  return { ch, ox, oy, cx: ox + AN_CW * AN_S, cy: oy };
+}
+// 第 i 颗按钮此刻的圆心（相对卡片右上角，CSS px）与缩放
+function AN_btn(u, i) {
+  const a = AN_amt(u, i);
+  return [mix(AN_HID[0], AN_SPOT[i][0], a), mix(AN_HID[1], AN_SPOT[i][1], a), 0.82 + 0.18 * Math.min(a, 1)];
+}
+const AN_CH = AN_PAD + 30 + 13 + 3 * 19.5 + 16 + 24 + AN_PAD, AN_REACH = AN_OFF + AN_R;
+const AN_CX = (CW - (AN_CW + AN_REACH) * AN_S) / 2 + AN_CW * AN_S, AN_CY = (CH - (AN_CH + AN_REACH) * AN_S) / 2 + AN_REACH * AN_S;  // 卡片右上角（格子坐标）
+const AN_P = (x, y) => [AN_CX + x * AN_S, AN_CY + y * AN_S];
+const AN_KEYS = [[0.3, 492, 214], [1.0, ...AN_P(-12, 96)], [1.5, ...AN_P(-70, 60)], [1.8, ...AN_P(-70, 60)],
+  [2.2, ...AN_P(AN_SPOT[1][0] + 2, AN_SPOT[1][1] + 3)], [2.65, ...AN_P(AN_SPOT[1][0] + 2, AN_SPOT[1][1] + 3)],
+  [2.95, ...AN_P(AN_SPOT[2][0] + 2, AN_SPOT[2][1] + 3)], [3.4, ...AN_P(AN_SPOT[2][0] + 2, AN_SPOT[2][1] + 3)],
+  [3.8, ...AN_P(AN_OFF + AN_R + 10, 40)], [4.5, 560, 236]];
+// 指针压着哪颗按钮（-1 = 都没有）
+function AN_hot(u) {
+  if (u < AN_IN || u >= AN_OUT) return -1;
+  const [px, py] = BN_path(u, AN_KEYS);
+  for (let i = 0; i < AN_N; i++) { const [x, y, s] = AN_btn(u, i), q = AN_P(x, y); if (Math.hypot(px - q[0], py - q[1]) < AN_R * s * AN_S) return i; }
+  return -1;
+}
+const AN_HOT = UXB_changes(AN_hot), AN_BACK = UXA_bz(0.24, 1.34, 0.38, 1);
+// 第 i 颗的悬停放大 1 → 1.12（0.16 秒、略过冲）
+function AN_zoom(u, i) {
+  const evs = [[0, 1]];
+  for (let j = 1; j < AN_HOT.length; j++) { const on = AN_HOT[j][1] === i ? 1.12 : 1; if (on !== evs[evs.length - 1][1]) evs.push([AN_HOT[j][0], on]); }
+  return UXB_ramp(u, evs, 0.16, AN_BACK);
+}
+CELLS[85] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#D1FAE5'); bg.addColorStop(1, '#DBEAFE');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  const L = AN_layout(k);
+  // 按钮在卡片底下：先画
+  for (let i = 0; i < AN_N; i++) {
+    const [x, y, s] = AN_btn(u, i), z = s * AN_zoom(u, i);
+    k.save(); k.translate(L.cx + x * AN_S, L.cy + y * AN_S); k.scale(AN_S * z, AN_S * z);
+    k.fillStyle = AN_BTNC[i]; k.beginPath(); k.arc(0, 0, AN_R, 0, TAU); k.fill();
+    AN_icon(k, i, 0, 0, 16, '#FFFFFF');
+    k.restore();
+  }
+  // 卡片：展开期间上抬 1 px（0.22 秒、略过冲）
+  const lift = UXB_ramp(u, [[0, 0], [AN_IN, -1], [AN_OUT, 0]], 0.22, AN_BACK);
+  k.save(); k.translate(L.ox, L.oy + lift * AN_S); k.scale(AN_S, AN_S);
+  const cg = k.createLinearGradient(0, 0, AN_CW, L.ch); cg.addColorStop(0, AN_CARD0); cg.addColorStop(1, AN_CARD1);
+  k.save(); k.shadowColor = 'rgba(19,78,74,.3)'; k.shadowBlur = 14; k.shadowOffsetY = 4;
+  k.fillStyle = cg; rr(k, 0, 0, AN_CW, L.ch, AN_COR); k.fill(); k.restore();
+  k.fillStyle = 'rgba(255,255,255,.16)'; rr(k, AN_PAD, AN_PAD, 30, 30, Math.min(15, AN_COR * 0.47)); k.fill();
+  AN_icon(k, 4, AN_PAD + 15, AN_PAD + 15, 18, '#FFFFFF');
+  k.save(); k.letterSpacing = '-0.16px'; txt(k, 'Node 07', AN_PAD + 38, AN_PAD + 15.5, UXB_f(500, 16), '#FFFFFF', 'left', 'middle'); k.restore();
+  let y = AN_PAD + 30 + 13;
+  AN_LINES.forEach((ln, j) => txt(k, ln, AN_PAD, y + 10 + j * 19.5, UXB_f(400, AN_FS), 'rgba(236,253,245,.84)', 'left', 'middle'));
+  y += AN_LINES.length * 19.5 + 16;
+  // 头像叠成一摞：24 px 彩色圆、后一个压前一个 6 px，外圈 2 px 卡片色
+  AN_CREW.forEach(([c, g], j) => {
+    const x = AN_PAD + 12 + j * 18;
+    k.fillStyle = AN_CARD0; k.beginPath(); k.arc(x, y + 12, 14, 0, TAU); k.fill();
+    k.fillStyle = g; k.beginPath(); k.arc(x, y + 12, 12, 0, TAU); k.fill();
+    txt(k, c, x, y + 12.5, UXB_f(600, 10), '#1F2937', 'center', 'middle');
+  });
+  txt(k, '+3', AN_PAD + 3 * 18 + 6 + 8, y + 12.5, UXB_f(500, 11), '#99F6E4', 'left', 'middle');
+  k.restore();
+  if (u > 0.3 && u < 4.5) { const [px, py] = BN_path(u, AN_KEYS); cursor(k, px, py, 0); }
+};

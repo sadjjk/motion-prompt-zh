@@ -1,0 +1,243 @@
+// Motion Prompt #1-250 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// Slosh slider / 液体がゆれるスライダー
+// Category: UI & Web / Components / Choosing & input
+// What happens: On a deep navy-to-teal gradient lies a dark capsule track; bright cyan liquid fills it to about 60 percent, with a thin white handle standing at its edge and a Flow label and number above. The pointer comes in from the lower right, grabs the handle and drags it slowly left, the liquid following calmly. Then it flings right and lets go mid-swing: the liquid trails behind the handle with its leading edge leaning right, the handle coasts on its momentum to near the right end, and the number rolls up with it. A second grab drags it quickly back left; the liquid leans left, sloshes past the handle and rocks back and forth before going still. Finally handle and liquid ease back together to where they began.
+// Motion spec:
+//   - The track is a 416 × 52 px capsule (1.3 × the original 320 × 40 px) with 26 px corners; the value starts at 62 and the handle is a 4 px wide bar.
+//   - The fill chases the handle on a viscosity 15 spring (stiffness 0.2965, damping 0.773 per frame at 60 fps) and bounces off the end walls at 0.42 of its speed; the leading edge leans 45/100 × speed × 3, capped at ±20 px of the original, scaled by 1.3.
+//   - Grab at 0.6 s, drag slowly to 30 by 1.05 s, fling right from 1.14 s and let go at 1.32 s; the handle coasts to 96 with momentum 55 (speed × 0.92325 per frame, capped at 6 per frame).
+//   - Grab again at 3.45 s and drag back to 20 in 0.27 s; the fill overshoots the handle by up to about 20 px, with ripples and bubbles on its surface, and comes to rest at 4.3 s. Release at 3.85 s.
+//   - The readout shows the handle value rounded to an integer; each digit rolls vertically over the last 0.1 before the value rounds up to the next integer.
+//   - From 5.4–6.2 s the handle and fill ease back to 62 together.
+// When to use it: Use it for continuous settings such as volume, flow or brightness, playful control panels, and design-system demos that want a physical feel.
+// Tags: slider, liquid, spring, momentum, drag, physics
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-250
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 87
+// 87 液体晃荡滑块（bencho slosh）：深海蓝到蓝绿的渐变底上一条 416×52 的胶囊凹槽，亮青色液体初始填到 62，液面略低于槽口、带自然微波，一根白色细把手立在液面前缘、顶端贴在液面上；上方左对齐的 Flow 标签和右对齐的滚动读数；
+// 指针 0.2 秒从右下进入、0.5 秒落到把手上，0.6 秒按住泛起一小圈浅环，0.6–1.05 秒往左拖到 30 停顿，1.14 秒起猛地往右甩、1.32 秒中途松手：液体落在把手后面、液面向右涌起，把手带着松手时的速度滑到 96 停下；
+// 3.45 秒再按住，0.27 秒内快速拖回 20 停住：液面向左倾、漫过把手约 20 px 并在把手旁涌起，表面荡起行波、前缘泛起泡沫，液面在把手两侧来回晃几下，4.3 秒静止；3.85 秒松手，指针 4.9 秒从下方离开；复位段 5.4–6.2 秒把手和液体一起缓回 62。
+const SLO_S = 1.3;                                        // 原作 320×40 的滑槽放大 1.3 倍
+const SLO_W = 416, SLO_H = 52, SLO_R = 20 * SLO_S;        // corner 20 = 半高，胶囊形
+const SLO_X = (CW - SLO_W) / 2, SLO_Y = 90, SLO_CY = SLO_Y + SLO_H / 2;
+const SLO_VISC = 15, SLO_MOM = 55, SLO_TILT = 45, SLO_V0 = 62, SLO_FPS = 60;
+// 两次按住的时段 [按下, 松手]；第二次按下的位置要等第一次滑行停稳后才知道，在 SLO_sim 里补上
+const SLO_G1 = [0.6, 1.32], SLO_G2 = [3.45, 3.85];
+// 第一次：0.6–1.05 秒拖到 30 停顿，1.14 秒起猛地往右甩、在 1.32 秒中途松手（样条通往 1.5 秒的 78，松手时正处在最快段）
+const SLO_K1 = [[0.6, 62, 0], [1.05, 30, 0], [1.14, 30, 0], [1.5, 78, 0]];
+const SLO_vx = v => SLO_X + v / 100 * SLO_W;
+const SLO_fx = f => SLO_X + f / 100 * SLO_W;              // 液面前缘的中心 x
+let SLO_D = null;
+// 按原作逐帧（60 fps，dt = 1）的递推算出整段 0–5.4 秒的把手值、液体值和液体速度，只算一次；之后每帧按 u 在相邻两帧间插值，仍是 u 的纯函数
+function SLO_sim() {
+  if (SLO_D) return SLO_D;
+  const N = Math.ceil(SHOW * SLO_FPS) + 1, V = new Float64Array(N + 1), F = new Float64Array(N + 1), FV = new Float64Array(N + 1);
+  const soft = SLO_VISC / 100, stiff = 0.34 - soft * 0.29, damp = 0.74 + soft * 0.22, fric = 0.86 + SLO_MOM / 100 * 0.115;
+  let val = SLO_V0, hv = 0, fill = SLO_V0, fv = 0, wasHeld = false, K2 = null;
+  const keyVal = (u, keys) => BN_path(u, keys)[0];
+  for (let f = 0; f <= N; f++) {
+    const u = f / SLO_FPS;
+    if (!K2 && u >= SLO_G2[0]) K2 = [[SLO_G2[0], val, 0], [3.72, 20, 0], [SLO_G2[1], 20, 0]];   // 第二次：0.27 秒拖回 20，停住再松手（不滑行）
+    const g = u >= SLO_G1[0] && u < SLO_G1[1] ? SLO_K1 : K2 && u >= SLO_G2[0] && u < SLO_G2[1] ? K2 : null;
+    if (g) {
+      // 按住：把手刚性地跟着指针；速度取上一帧到这一帧的差（原作 pointermove 的两点差，单位 %/帧）
+      const nv = clamp(keyVal(u, g), 0, 100);
+      hv = wasHeld ? nv - val : 0; val = nv; wasHeld = true;
+    } else {
+      if (wasHeld) { hv = clamp(hv, -6, 6); wasHeld = false; }   // 松手：带着真实速度离开，限幅 ±6
+      if (hv) {
+        val += hv; hv *= fric;                                    // 滑行：摩擦按帧乘
+        if (val <= 0 || val >= 100) { val = clamp(val, 0, 100); hv = 0; }
+        if (Math.abs(hv) < 0.01) hv = 0;
+      }
+    }
+    // 液体：把手后面的第二个弹簧，偏软、阻尼小；撞到端壁按 0.42 反弹
+    fv += (val - fill) * stiff; fv *= damp; fill += fv;
+    if (fill > 100) { fill = 100; fv = -fv * 0.42; } else if (fill < 0) { fill = 0; fv = -fv * 0.42; }
+    if (Math.abs(val - fill) < 0.02 && Math.abs(fv) < 0.02) { fill = val; fv = 0; }
+    V[f] = val; F[f] = fill; FV[f] = fv;
+  }
+  const at = t => V[Math.round(t * SLO_FPS)];
+  const r1 = at(SLO_G1[1]), v1 = at(SLO_G2[0]), r2 = at(SLO_G2[1]);
+  // 指针：0.2 秒从右下进入，0.5 秒落到把手上；松手后跟着惯性挪一点、抬起，再落到停稳的把手上；第二次松手后从下方离开
+  const P0 = [[0.2, 575, 205], [0.5, SLO_vx(SLO_V0), SLO_CY]];   // 先落稳再按（0.52 秒起压下）
+  const P1 = [[SLO_G1[1], SLO_vx(r1), SLO_CY], [1.7, SLO_vx(r1) + 40, SLO_CY - 10], [2.9, SLO_vx(v1) + 16, SLO_CY - 26], [3.35, SLO_vx(v1), SLO_CY]];
+  const P2 = [[SLO_G2[1], SLO_vx(r2), SLO_CY], [4.25, SLO_vx(r2) + 8, SLO_CY + 24], [4.9, SLO_vx(r2) + 64, CH + 30]];
+  const vr1 = (at(SLO_G1[1]) - V[Math.round(SLO_G1[1] * SLO_FPS) - 1]) * SLO_FPS * SLO_W / 100;   // 松手瞬间把手的速度 px/s
+  SLO_D = { V, F, FV, N, P0, P1, P2, vr1, end: V[N] };
+  return SLO_D;
+}
+// 展示段按 u 在相邻两帧之间线性插值，返回 [把手值, 液体值, 液体速度]
+function SLO_at(u) {
+  const D = SLO_sim(), q = Math.min(u, SHOW) * SLO_FPS, i = Math.min(D.N - 1, Math.floor(q)), t = q - i;
+  return [mix(D.V[i], D.V[i + 1], t), mix(D.F[i], D.F[i + 1], t), mix(D.FV[i], D.FV[i + 1], t)];
+}
+// 松手后的指针：手先顺着松手时的速度 vr（px/s）按 0.08 秒时间常数减速前冲，0.45 秒内渐渐交给后面的路径，速度不断档
+function SLO_after(u, t0, vr, keys) {
+  const t = u - t0, dx = vr * 0.08 * (1 - Math.exp(-t / 0.08)), w = inOut3(seg(u, t0, t0 + 0.45)), q = BN_path(u, keys);
+  return [mix(SLO_vx(SLO_at(t0)[0]) + dx, q[0], w), mix(keys[0][2], q[1], w)];
+}
+// 按住程度 0..1：按下前 0.08 秒压下，松手后 0.12 秒弹起
+const SLO_hold = u => Math.max(...[SLO_G1, SLO_G2].map(([a, b]) => Math.min(seg(u, a - 0.08, a), 1 - seg(u, b, b + 0.12))));
+// 液面高度：比槽口低约 1.7 px 的自然垂面；行波随速度增大、越靠前缘越高；液体经过把手时在把手旁漫起；静止时前缘有毛细微抬
+function SLO_surfY(x, fx, u, kx, amp) {
+  const L = Math.max(60, fx - SLO_X), s = clamp((x - SLO_X) / L, 0, 1.12);
+  let d = 1.7 * Math.pow(Math.sin(Math.PI * Math.min(Math.max(s, 0), 1)), 0.85);   // 中段下垂
+  d += amp * Math.sin(s * 6.8 - u * 9.2) * (0.2 + 0.8 * s * s);                    // 行波，前大后小
+  d -= 3.1 * clamp(amp * 1.6) * Math.exp(-Math.pow((x - kx) / 16, 2));             // 把手旁的漫起
+  d -= Math.max(0, (s - 0.88) / 0.12) * 1.7 * clamp(1 - amp * 2);                  // 静止时前缘微抬
+  return SLO_Y + clamp(d, -2.5, 7);
+}
+// 液体轮廓：左壁沿液面逐点连到前缘顶端，再用 S 形贝塞尔下到底（顶部随 lean 前探、底部回收一半）；close=false 时只画液面+前缘，供描线用
+function SLO_liq(k, fx, lean, u, kx, amp, close) {
+  const y1 = SLO_Y + SLO_H, x0 = SLO_X - 6, et = fx + lean;
+  const pts = [];
+  for (let x = x0; x < et; x += 12) pts.push(x);
+  pts.push(Math.max(et, x0));
+  k.moveTo(x0, SLO_surfY(x0, fx, u, kx, amp));
+  for (const x of pts) k.lineTo(x, SLO_surfY(x, fx, u, kx, amp));
+  const ety = SLO_surfY(et, fx, u, kx, amp), eb = fx - lean * 0.45;
+  k.bezierCurveTo(et + lean * 0.4, ety + SLO_H * 0.34, eb - lean * 0.22, y1 - SLO_H * 0.28, eb, y1);
+  if (close) { k.lineTo(x0, y1); k.closePath(); }
+}
+// 按住提示：一圈快速扩散又收细的浅色环，比默认涟漪小得多，不在空槽里留下大圆
+function SLO_ring(k, x, y, t) {
+  if (t <= 0 || t >= 1) return;
+  k.strokeStyle = `rgba(210,245,250,${(0.55 * (1 - t)).toFixed(3)})`;
+  k.lineWidth = 1.6;
+  k.beginPath(); k.arc(x, y, 5 + 15 * out3(t), 0, TAU); k.stroke();
+}
+// 读数：每一位是一个滚动的数字列，只在接近下一个整数时（离下一个整数还差 0.1 以内）滚过去，停住时数字是正的
+function SLO_digits(k, v, xr, yb) {
+  k.font = UXB_f(650, 25); k.textAlign = 'center'; k.textBaseline = 'alphabetic';
+  const cw = k.measureText('0').width + 1, lh = 29, w = v + 0.5, n = Math.floor(w), r = inOut3(seg(w - n, 0.9, 1));
+  k.save(); k.beginPath(); k.rect(xr - 3 * cw - 2, yb - 25, 3 * cw + 4, 31); k.clip();
+  for (let c = 0; c < 3; c++) {
+    const p = Math.pow(10, c);
+    // 本列位置 = 已进位的整数部分 + 正在进位时的 r（低位全是 9 才进）
+    const allNine = (n % p) === p - 1;
+    const pos = Math.floor(n / p) + (allNine ? r : 0);
+    const x = xr - (c + 0.5) * cw;
+    for (let d = Math.floor(pos); d <= Math.floor(pos) + 1; d++) {
+      const off = (d - pos) * lh;
+      if (Math.abs(off) >= lh) continue;
+      // 高位的 0 不显示：只有这一位真的有值（或正在从 0 滚进来）时才画
+      if (c > 0 && d <= 0) continue;
+      k.fillStyle = `rgba(226,250,255,${(1 - Math.abs(off) / lh * 0.9).toFixed(3)})`;
+      k.fillText(String(((d % 10) + 10) % 10), x, yb + off);
+    }
+  }
+  k.restore();
+}
+CELLS[86] = (k, w, h, u) => {
+  const D = SLO_sim();
+  // 底色：深海蓝 → 蓝绿的斜向渐变，左上冷光晕、右下补一点暗青
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#062A44'); bg.addColorStop(1, '#0A4E60');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  glow(k, 150, 30, 260, '45,175,205', 0.15);
+  glow(k, 480, 195, 210, '18,105,140', 0.12);
+  // 当前值：展示段按模拟插值；复位段把手和液体一起缓回 62（液面回平）
+  let val, fill, fv;
+  if (u < SHOW) [val, fill, fv] = SLO_at(u);
+  else { val = fill = mix(D.end, SLO_V0, inOut3(seg(u, SHOW, SHOW + 0.8))); fv = 0; }
+  const hold = SLO_hold(u), rip = clamp(Math.abs(fv) / 3.5);
+  // 静止时液面也有微波和微倾，不然像塑料；一动起来被真正的晃荡盖过去
+  const calm = clamp((0.35 - Math.abs(fv)) / 0.35);
+  const micro = calm * 0.55 * Math.sin(u * 2.3 + fill);
+  const lean = clamp(SLO_TILT / 100 * fv * 3, -20, 20) * SLO_S + micro;
+  const amp = calm * 0.55 + rip * 3.4;                  // 液面行波幅度
+  const fx = SLO_fx(fill), kx = SLO_vx(val);
+  const sy = x => SLO_surfY(x, fx, u, kx, amp);
+  // 标签与读数（读的是把手值，等于原作的 aria-valuenow）
+  txt(k, 'Flow', SLO_X + 2, SLO_Y - 16, UXB_f(600, 13), '#9ADBE8');
+  SLO_digits(k, val, SLO_X + SLO_W - 2, SLO_Y - 16);
+  // 凹槽：同色系深影托底，槽体比底色更深，内上沿压暗、下沿泛一点水光，外圈一条同色细边
+  k.save(); k.shadowColor = 'rgba(3,22,36,.7)'; k.shadowBlur = 11; k.shadowOffsetY = 5;
+  k.fillStyle = '#062233'; rr(k, SLO_X, SLO_Y, SLO_W, SLO_H, SLO_R); k.fill(); k.restore();
+  k.save(); rr(k, SLO_X, SLO_Y, SLO_W, SLO_H, SLO_R); k.clip();
+  const tg = k.createLinearGradient(0, SLO_Y, 0, SLO_Y + SLO_H);
+  tg.addColorStop(0, 'rgba(0,0,0,.45)'); tg.addColorStop(0.3, 'rgba(0,0,0,.12)'); tg.addColorStop(1, 'rgba(120,220,235,.07)');
+  k.fillStyle = tg; k.fillRect(SLO_X, SLO_Y, SLO_W, SLO_H);
+  k.restore();
+  rr(k, SLO_X + 0.5, SLO_Y + 0.5, SLO_W - 1, SLO_H - 1, SLO_R - 0.5);
+  k.strokeStyle = 'rgba(150,225,240,.13)'; k.lineWidth = 1; k.stroke();
+  // 液体本体：上亮下深的四段青色体积渐变
+  k.save(); rr(k, SLO_X, SLO_Y, SLO_W, SLO_H, SLO_R); k.clip();
+  k.beginPath(); SLO_liq(k, fx, lean, u, kx, amp, true);
+  const lg = k.createLinearGradient(0, SLO_Y - 2, 0, SLO_Y + SLO_H);
+  lg.addColorStop(0, '#93FFF1'); lg.addColorStop(0.22, '#4AE8EA'); lg.addColorStop(0.62, '#1DC0E0'); lg.addColorStop(1, '#0C83BF');
+  k.fillStyle = lg; k.fill();
+  k.save(); k.beginPath(); SLO_liq(k, fx, lean, u, kx, amp, true); k.clip();
+  // 贴着液面的高光带：两条不同宽度的描线沿液面走，宽的那条晕开成皮下光
+  k.beginPath(); SLO_liq(k, fx, lean, u, kx, amp, false);
+  k.strokeStyle = 'rgba(255,255,255,.14)'; k.lineWidth = 13; k.stroke();
+  k.beginPath(); SLO_liq(k, fx, lean, u, kx, amp, false);
+  k.strokeStyle = 'rgba(255,255,255,.30)'; k.lineWidth = 6; k.stroke();
+  // 底部压暗、左端起一点纵深，让填充有体积
+  const dk = k.createLinearGradient(0, SLO_Y + SLO_H - 18, 0, SLO_Y + SLO_H);
+  dk.addColorStop(0, 'rgba(3,55,90,0)'); dk.addColorStop(1, 'rgba(3,55,90,.42)');
+  k.fillStyle = dk; k.fillRect(SLO_X, SLO_Y, SLO_W, SLO_H);
+  const dep = k.createLinearGradient(SLO_X, 0, SLO_X + SLO_W, 0);
+  dep.addColorStop(0, 'rgba(2,40,70,.26)'); dep.addColorStop(0.25, 'rgba(2,40,70,0)');
+  k.fillStyle = dep; k.fillRect(SLO_X, SLO_Y, SLO_W, SLO_H);
+  // 常升的小气泡：2 颗从底部缓慢上浮（相位确定），给静止的液体一点生气
+  for (let i = 0; i < 2; i++) {
+    const s = hash(730 + i), span = SLO_H - 16;
+    const by = SLO_Y + SLO_H - 7 - ((u * (6 + s * 5) + s * 47) % span);
+    const bx = SLO_X + 20 + s * Math.max(30, fx - SLO_X - 70) + Math.sin(u * 2.6 + i * 2) * 2;
+    if (bx > fx - 14 || by < sy(bx) + 4) continue;
+    k.fillStyle = `rgba(230,255,252,${(0.28 + 0.16 * rip).toFixed(3)})`;
+    k.beginPath(); k.arc(bx, by, 1.1 + s * 0.9, 0, TAU); k.fill();
+  }
+  if (rip > 0.03) {
+    // 晃荡时贴着前缘液面的 3 颗泡沫
+    for (let i = 0; i < 3; i++) {
+      const s = hash(760 + i);
+      const bx = fx + lean - (5 + i * 11 + s * 7), by = sy(bx) + 1.5;
+      const r = (0.8 + s * 1.2) * Math.min(1, rip * 1.4);
+      if (r < 0.4 || bx < SLO_X + 8) continue;
+      k.fillStyle = `rgba(240,255,253,${(0.6 * rip).toFixed(3)})`;
+      k.beginPath(); k.arc(bx, by, r, 0, TAU); k.fill();
+    }
+    // 前缘后 3 道跟着液面相位走的小浪纹
+    for (let i = 0; i < 3; i++) {
+      const wx = fx - (12 + i * 16);
+      if (wx < SLO_X + 14) break;
+      const ph = u * 8 - i * 1.9, a = (1 - i / 3) * 3.2 * rip;
+      k.strokeStyle = `rgba(235,255,252,${(0.34 * rip * (1 - i * 0.26)).toFixed(3)})`;
+      k.lineWidth = 1.3;
+      k.beginPath();
+      k.moveTo(wx - 4, sy(wx) + 7 + Math.sin(ph) * a * 0.3);
+      k.quadraticCurveTo(wx + 3, SLO_Y + SLO_H / 2 + Math.sin(ph) * a, wx - 3, SLO_Y + SLO_H - 9);
+      k.stroke();
+    }
+  }
+  k.restore();
+  // 液面描线：沿液面和 S 形前缘的一条细亮边
+  k.beginPath(); SLO_liq(k, fx, lean, u, kx, amp, false);
+  k.strokeStyle = 'rgba(232,255,251,.8)'; k.lineWidth = 1.4; k.stroke();
+  k.restore();
+  // 把手：4 px 圆头细条，顶端贴在液面上（液面波动时跟着微动）、下端距槽底 6 px；按住时下沉并发亮
+  const sink = hold * 1.6, kw = 4;
+  const kTop = clamp(sy(kx), SLO_Y + 4, SLO_Y + 9) + sink, kBot = SLO_Y + SLO_H - 6, kh = kBot - kTop;
+  if (hold > 0.02) glow(k, kx, (kTop + kBot) / 2, 13, '180,245,250', hold * 0.15);
+  k.save(); k.shadowColor = `rgba(3,38,56,${0.65 - hold * 0.2})`; k.shadowBlur = 5; k.shadowOffsetX = 1.5; k.shadowOffsetY = 1;
+  rr(k, kx - kw / 2, kTop, kw, kh, kw / 2); k.fillStyle = hold ? '#FFFFFF' : '#EAFEFF'; k.fill(); k.restore();
+  k.fillStyle = `rgba(255,255,255,${0.45 + hold * 0.35})`;
+  rr(k, kx - kw / 2 + 0.7, kTop + 1.5, 1.1, kh - 3, 0.55); k.fill();
+  // 指针：按住时跟把手走
+  let p;
+  if (u < SLO_G1[0]) p = BN_path(u, D.P0);
+  else if (u < SLO_G1[1] || (u >= SLO_G2[0] && u < SLO_G2[1])) p = [kx, SLO_CY + sink];
+  else if (u < SLO_G2[0]) p = SLO_after(u, SLO_G1[1], D.vr1, D.P1);
+  else p = SLO_after(u, SLO_G2[1], 0, D.P2);
+  SLO_ring(k, SLO_vx(SLO_V0), SLO_CY, seg(u, SLO_G1[0], SLO_G1[0] + 0.45));
+  SLO_ring(k, D.P1[3][1], SLO_CY, seg(u, SLO_G2[0], SLO_G2[0] + 0.45));
+  if (u > 0.2 && u < 4.95) cursor(k, p[0], p[1], hold);
+};

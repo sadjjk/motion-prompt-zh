@@ -1,0 +1,16 @@
+Please use "Todo tower" (ToDo タワー), filed under "Pointer interactions / Tactile & cards".
+Motion Prompt #1-239
+
+What it is: Candy-coloured todo cards are stacked like bricks; check one off and it is pulled out, and the cards above fall under gravity to fill the gap
+What the sample shows: On a cream-yellow ground, 6 cards in pink, orange, green, blue, purple and yellow are stacked in a slightly crooked tower, each with a checkbox and a short todo. The pointer comes in from the bottom right and presses the checkbox of a card in the middle: the box fills with the text colour and gets a tick in the card's own colour, a line is drawn through the text from the left, and the card slides out to the right, tilting a little as it fades. The 3 cards above lose their support and drop straight down, shifting a touch sideways as they fill the gap, and bounce lightly. A while later the missing card fades back in on the right; the pointer pushes it back into its row, the cards above lift to make room, the tick clears, and the tower is as it began.
+Spec:
+- Each card is 144 × 32 px with a 7 px corner radius in one of 6 candy colours, and 6 of them stand on the floor; each row's sideways offset is a lean table × slip 45, at most about 4 px.
+- The checkbox is pressed at 1.5 s and fills in 0.16 s; 0.09 s later the card slides 170 px to the right, tilts 5° and is gone within 0.22 s.
+- The 3 cards above start falling on the same frame and drop one row in about 0.19 s at a gravity of about 1,800 px/s²; the scrape of the pull shifts them sideways by up to about 13 px.
+- Each lands with 2 small bounces at a restitution of 0.32, the first about 3 px high.
+- At 4.2 s the pointer presses the returned card and the cards above lift in 0.2 s; from 4.3–4.6 s the card goes back into its row and unticks, and the pointer leaves by 5.2 s.
+When to use it: Use it on task-app landing pages, as a satisfying moment when something is done, or as a showcase of a list that behaves like physical objects.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-239.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

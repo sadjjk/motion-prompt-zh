@@ -1,0 +1,16 @@
+Please use "Upload drop box that refuses big files" (サイズ超過を断るアップロード枠), filed under "Components / Opening & overlays".
+Motion Prompt #1-252
+
+What it is: A dropped file is swallowed and shown uploading; a file over the limit makes the box shake its head, turn red and bounce the file back, and trying the same file again earns a drier remark
+What the sample shows: On a sunny yellow-to-golden gradient sits a blue rounded drop box with an amber-tinted shadow, showing a white arrow tile, Drag a file here and Up to 5 MB. A tray on the left holds mood.png with a green PNG label and demo.mp4 with a purple MP4 label. The pointer picks up the image and carries it over; the box swells to a brighter blue, lifts its arrow and says Drop to upload. On release the image squeezes thin and is sucked into the centre, the box shrinks to hug an upload row, the percentage rolls up as a mint bar fills, and a green tick pops in. Once the image is back on the tray, the video is dropped in: the box shakes sideways, turns red and says Too big — up to 5 MB, and the video springs back to the tray. A second drop changes the line to Still 12.6 MB. It didn't shrink.; soon the message clears and the box turns blue again.
+Spec:
+- The drop box is 300 × 176 px with 20 px corners, blue on a yellow ground; it reads Drag a file here and Up to 5 MB, and the tray on the left holds mood.png (2.4 MB) and demo.mp4 (12.6 MB).
+- At 0.5 s the pointer picks up the image (scale 1.08, tilting up to 6°) and carries it over the box, which grows to 1.02, lifts its arrow 4 px and says Drop to upload; on release at 1.0 s the file is sucked into the centre in 0.38 s.
+- The box shrinks to hug the upload row; from 1.22 to 2.57 s the percentage rolls up and the mint bar fills (1.35 s, the original's 2.37 s at speed 50 shortened to fit the cycle), a green tick pops in, and at 3.27 s the image springs back onto the tray.
+- At 2.95 s the 12.6 MB video is carried over and dropped at 3.55 s: the box shakes sideways for 0.42 s, turns red and says Too big — up to 5 MB, and the file springs home in 0.42 s with bounce 40.
+- Dropping the same file again at 4.38 s changes the line to Still 12.6 MB. It didn't shrink.; the message clears at 5.35 s, 1.8 s after the first refusal, and the box turns blue again.
+When to use it: Use it for file upload screens, attachment pickers and posting forms with a size limit, where an oversize file should be refused clearly without scolding.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-252.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

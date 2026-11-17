@@ -1,0 +1,203 @@
+// Motion Prompt #1-252 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// Upload drop box that refuses big files / サイズ超過を断るアップロード枠
+// Category: UI & Web / Components / Opening & overlays
+// What happens: On a sunny yellow-to-golden gradient sits a blue rounded drop box with an amber-tinted shadow, showing a white arrow tile, Drag a file here and Up to 5 MB. A tray on the left holds mood.png with a green PNG label and demo.mp4 with a purple MP4 label. The pointer picks up the image and carries it over; the box swells to a brighter blue, lifts its arrow and says Drop to upload. On release the image squeezes thin and is sucked into the centre, the box shrinks to hug an upload row, the percentage rolls up as a mint bar fills, and a green tick pops in. Once the image is back on the tray, the video is dropped in: the box shakes sideways, turns red and says Too big — up to 5 MB, and the video springs back to the tray. A second drop changes the line to Still 12.6 MB. It didn't shrink.; soon the message clears and the box turns blue again.
+// Motion spec:
+//   - The drop box is 300 × 176 px with 20 px corners, blue on a yellow ground; it reads Drag a file here and Up to 5 MB, and the tray on the left holds mood.png (2.4 MB) and demo.mp4 (12.6 MB).
+//   - At 0.5 s the pointer picks up the image (scale 1.08, tilting up to 6°) and carries it over the box, which grows to 1.02, lifts its arrow 4 px and says Drop to upload; on release at 1.0 s the file is sucked into the centre in 0.38 s.
+//   - The box shrinks to hug the upload row; from 1.22 to 2.57 s the percentage rolls up and the mint bar fills (1.35 s, the original's 2.37 s at speed 50 shortened to fit the cycle), a green tick pops in, and at 3.27 s the image springs back onto the tray.
+//   - At 2.95 s the 12.6 MB video is carried over and dropped at 3.55 s: the box shakes sideways for 0.42 s, turns red and says Too big — up to 5 MB, and the file springs home in 0.42 s with bounce 40.
+//   - Dropping the same file again at 4.38 s changes the line to Still 12.6 MB. It didn't shrink.; the message clears at 5.35 s, 1.8 s after the first refusal, and the box turns blue again.
+// When to use it: Use it for file upload screens, attachment pickers and posting forms with a size limit, where an oversize file should be refused clearly without scolding.
+// Tags: upload, drag-and-drop, dropzone, file-size, error, shake, progress
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-252
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 89
+// 89 超限文件拒收（bencho upload-dropzone）：明黄渐变底，右边 300×176、圆角 20 的蓝色投放框（Drag a file here / Up to 5 MB），左边托盘放 mood.png 2.4 MB 和 demo.mp4 12.6 MB；
+// 0.5 秒拿起图片拖进框（框放大 1.02、改成 Drop to upload），1.0 秒松手被吸进框中心，框收成上传行，1.22–2.57 秒百分比滚动、薄荷绿进度条填满后打勾，3.27 秒图片回托盘；
+// 2.95 秒拖视频进框，3.55 秒松手：框抖 0.42 秒、变红说 Too big — up to 5 MB，视频按 bounce 40 弹回；4.0 秒再拖，4.38 秒松手改说 Still 12.6 MB. It didn't shrink.；5.35 秒提示消失、框变回蓝色，静止到周期结束。
+const UD_MAX = 5, UD_SPEED = 50, UD_BOUNCE = 40, UD_COR = 20;          // README 默认值；MAX 单位 MB
+const UD_TW = 76, UD_SH = 75, UD_SG = 20, UD_GAP = 44, UD_BW = 300, UD_BH = 176;
+// 原作托盘在框下方；画布是横条，改成托盘在左、框在右，整体水平居中
+const UD_X0 = (CW - (UD_TW + UD_GAP + UD_BW)) / 2, UD_TY = (CH - (UD_SH * 2 + UD_SG)) / 2;
+const UD_BX = UD_X0 + UD_TW + UD_GAP + UD_BW / 2, UD_BY = CH / 2;      // 框中心
+const UD_HW = 36 + 12 + 150 + 12 + 22, UD_HH = 46;                      // 上传行：图标 36 + 文字列 150 + 勾位 22，间距 12
+// MP4 原作用蓝色标签，这里框是蓝的，换成紫色免得拖到框上看不清
+const UD_FILES = [
+  { name: 'mood.png', ext: 'PNG', size: 2.4e6, tint: '#079455', x: UD_X0, y: UD_TY },
+  { name: 'demo.mp4', ext: 'MP4', size: 12.6e6, tint: '#7A4CF0', x: UD_X0, y: UD_TY + UD_SH + UD_SG },
+];
+const UD_SNARK = "Still 12.6 MB. It didn't shrink.";
+const UD_fmt = b => (b >= 1e6 ? `${(b / 1e6).toFixed(1)} MB` : `${Math.round(b / 1e3)} KB`);
+// 指针：拿起图片 → 拖进框 → 看上传 → 两次拿视频拖进框
+// 松手点放在框的上半部：拖着的文件盖住箭头块，不盖住中间那行提示
+const UD_KEYS = [[0, 30, 250], [0.45, 98, 44], [0.5, 98, 44], [0.75, 200, 58], [0.95, 292, 66], [1.0, 292, 66],
+  [1.5, 330, 158], [2.3, 300, 166], [2.85, 98, 139], [2.95, 98, 139], [3.25, 215, 100], [3.5, 300, 68], [3.55, 300, 68],
+  [3.9, 98, 139], [4.0, 98, 139], [4.2, 215, 96], [4.33, 306, 64], [4.38, 306, 64], [4.85, 430, 262]];
+const UD_G = [[0.5, 1.0, 0], [2.95, 3.55, 1], [4.0, 4.38, 1]];          // [按下, 松手, 第几个文件]
+// 原作 speed 50 时 2.4 MB 的发送时长 (4 − 0.5×3.2)×(0.7 + 0.48×0.6) ≈ 2.37 秒；一个周期装不下两次拒收，按 0.57 倍压到 1.35 秒
+const UD_SECS = (4 - UD_SPEED / 100 * 3.2) * (0.7 + Math.min(1, UD_FILES[0].size / 5e6) * 0.6), UD_D = UD_SECS * 0.57;
+const UD_R1 = UD_G[0][1], UD_TS = UD_R1 + 0.22, UD_TD = UD_TS + UD_D, UD_TI = UD_TD + 0.7;   // 完成后停 0.7 秒（原作 1.5 秒）回到空闲
+const UD_RF = [UD_G[1][1], UD_G[2][1]], UD_CLR = UD_RF[0] + 1.8;    // 原作每次拒收 1.8 秒后清空提示，第一次的计时器也会清掉第二句
+const UD_SPR = UXA_bz(0.3, 1 + UD_BOUNCE / 100 * 0.9, 0.4, 1);       // --upl-spring：bounce 40 → 1.36
+const UD_BOXE = UXA_bz(0.24, 1.34, 0.38, 1), UD_SUCK = UXA_bz(0.55, 0, 0.85, 0.3), UD_EIN = UXA_bz(0.42, 0, 1, 1);
+const UD_EASE = UXA_bz(0.25, 0.1, 0.25, 1), UD_EIO = UXA_bz(0.42, 0, 0.58, 1), UD_GULPE = UXA_bz(0.3, 1.2, 0.4, 1), UD_POP = UXA_bz(0.3, 1.6, 0.4, 1);
+const UD_SHAKE = [0, -7, 6, -4, 2, 0];
+const UD_BLUE = '#2563EB', UD_HOT = '#3D7BFF', UD_RED = '#D8343F', UD_MINT = '#7CF5C4', UD_OK = '#12B76A', UD_INK = '#3D2C00';
+// 进度：原作每帧按 0.4–1.6 倍随机速率前进；这里切成 12 段、每段速率按下标哈希，归一化到 1.35 秒正好 100%
+const UD_PN = 12, UD_PC = (() => { const c = [0]; for (let i = 0; i < UD_PN; i++) c.push(c[i] + 0.4 + 1.2 * hash(i + 31)); return c.map(v => v / c[UD_PN]); })();
+const UD_p = t => { if (t <= 0) return 0; if (t >= UD_D) return 1; const x = t / UD_D * UD_PN, i = Math.floor(x); return mix(UD_PC[i], UD_PC[i + 1], x - i); };
+const UD_pinv = q => { let i = 0; while (UD_PC[i + 1] < q) i++; return (i + (q - UD_PC[i]) / (UD_PC[i + 1] - UD_PC[i])) / UD_PN * UD_D; };
+let UD_C = null;                                                          // 只算一次的表：路径、悬停切换、数字滚动事件
+function UD_cache() {
+  if (UD_C) return UD_C;
+  const P = [new Path2D('M7.75 4A3.25 3.25 0 0 1 11 .75h16c.121 0 .238.048.323.134l10.793 10.793a.46.46 0 0 1 .134.323v24A3.25 3.25 0 0 1 35 39.25H11A3.25 3.25 0 0 1 7.75 36z'),
+    new Path2D('M27 .5V8a4 4 0 0 0 4 4h7.5'), new Path2D('M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12'), new Path2D('M20 6 9 17l-5-5')];
+  // 文件悬在框上（且框空闲）才算 over；按 1/240 秒取样成切换表
+  const over = UXB_changes(u => (UD_G.some(g => u >= g[0] && u < g[1]) && UD_inBox(BN_path(u, UD_KEYS)) && UD_idle(u) ? 1 : 0));
+  // 百分比 n 在 p 越过 (n − 0.5)% 时出现；个位每次都变，十位从 10% 才出现（新列直接停在 1，不滚动）
+  const ones = [[-1, 0]], tens = [[-1, 1]];
+  for (let n = 1; n <= 99; n++) { const t = UD_TS + UD_pinv((n - 0.5) / 100); ones.push([t, n % 10]); if (n > 10 && n % 10 === 0) tens.push([t, n / 10]); }
+  UD_C = { P, over, ones, tens };
+  return UD_C;
+}
+const UD_inBox = p => Math.abs(p[0] - UD_BX) < UD_BW / 2 && Math.abs(p[1] - UD_BY) < UD_BH / 2;
+const UD_idle = u => u < UD_TS || u >= UD_TI;
+// 文件图标（Untitled UI 式）：40 格上的圆角纸页 + 折角，扩展名标签伸出纸页左边
+function UD_page(k, P, x, y, s, f, line) {
+  k.save(); k.translate(x, y); k.scale(s / 40, s / 40);
+  k.fillStyle = '#FFFFFF'; k.fill(P[0]);
+  k.strokeStyle = line; k.lineWidth = 1.5; k.lineJoin = 'round'; k.lineCap = 'round'; k.stroke(P[0]); k.stroke(P[1]);
+  k.fillStyle = f.tint; rr(k, 1, 18, 29, 16, 8); k.fill();
+  txt(k, f.ext, 15.5, 29.1, UXB_f(600, 9), '#FFFFFF', 'center');
+  k.restore();
+}
+// 拿在手里：跟着指针平移，放大 1.08，按横向位移倾斜（最多 6°）
+function UD_held(g, u) {
+  const a = BN_path(g[0], UD_KEYS), b = BN_path(u, UD_KEYS), dx = b[0] - a[0], dy = b[1] - a[1];
+  return { dx, dy, sx: 1.08, sy: 1.08, rot: clamp(dx * 0.04, -6, 6) * Math.PI / 180, op: 1 };
+}
+const UD_lerpT = (a, b, e) => ({ dx: mix(a.dx, b.dx, e), dy: mix(a.dy, b.dy, e), sx: mix(a.sx, b.sx, e), sy: mix(a.sy, b.sy, e), rot: mix(a.rot, b.rot, e), op: 1 });
+const UD_HOME = { dx: 0, dy: 0, sx: 1, sy: 1, rot: 0, op: 1 };
+// 文件 i 在 u 时刻的变换（相对托盘位置，绕卡片中心 38, 32.5）；null 表示不可见
+function UD_tile(i, u) {
+  for (const g of UD_G) {
+    if (g[2] !== i) continue;
+    if (u >= g[0] && u < g[1]) return UD_held(g, u);
+    if (i === 0 && u >= g[1]) {
+      // 吸入：0.38 秒 ease-in 飞向框中心，沿拉动方向压扁（横拉变宽、竖拉变高、太近只缩小），透明度晚 0.08 秒用 0.3 秒淡出
+      const from = UD_held(g, g[1]), f = UD_FILES[0];
+      const tx = UD_BX - (f.x + 38), ty = UD_BY - (f.y + 32.5), ux = Math.abs(tx - from.dx), uy = Math.abs(ty - from.dy);
+      const [sx, sy] = Math.hypot(ux, uy) < 24 ? [0.16, 0.16] : uy >= ux ? [0.14, 0.34] : [0.34, 0.14];
+      const t = u - g[1];
+      if (t < 0.38) { const o = UD_lerpT(from, { dx: tx, dy: ty, sx, sy, rot: 0 }, UD_SUCK(t / 0.38)); o.op = 1 - UD_EIN(seg(t, 0.08, 0.38)); return o; }
+      if (u < UD_TI) return null;
+      // 回到托盘：0.36 秒从 0.7 倍、透明弹回（upl-back）
+      const s = UD_SPR(seg(u, UD_TI, UD_TI + 0.36));
+      return { dx: 0, dy: 0, sx: 0.7 + 0.3 * s, sy: 0.7 + 0.3 * s, rot: 0, op: clamp(s) };
+    }
+  }
+  // 松手在框外或被拒：0.42 秒按 bounce 40 的弹簧飞回原位
+  for (const g of UD_G) if (g[2] === i && u >= g[1] && u < g[1] + 0.42) return UD_lerpT(UD_held(g, g[1]), UD_HOME, UD_SPR((u - g[1]) / 0.42));
+  return UD_HOME;
+}
+// 数字列：滚动条带 0–9，每次变化 0.22 秒带回弹地滚到新数字（中途再变就从当前位置接着滚）
+function UD_roll(k, x, y, evs, u, cw) {
+  const s = UXB_ramp(u, evs, 0.22, UD_BOXE);
+  k.save(); k.beginPath(); k.rect(x, y - 6.5, cw, 13); k.clip();
+  for (let d = Math.max(0, Math.floor(s) - 1); d <= Math.min(9, Math.ceil(s) + 1); d++) k.fillText(String(d), x + cw / 2, y + (d - s) * 12);
+  k.restore();
+}
+CELLS[88] = (k, w, h, u) => {
+  const C = UD_cache(), P = C.P;
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#FFE867'); bg.addColorStop(1, '#FFBE3B');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  glow(k, 80, 20, 220, '255,250,215', 0.55);
+  const busy = !UD_idle(u), done = u >= UD_TD;
+  const over = UXB_ramp(u, C.over, 0.42, UD_BOXE);
+  const ref = UXB_ramp(u, [[-1, 0], [UD_RF[0], 1], [UD_CLR, 0]], 0.22, UD_EASE);
+  const hug = UXB_ramp(u, [[-1, 0], [UD_TS, 1], [UD_TI, 0]], 0.42, UD_BOXE);
+  const bw = mix(UD_BW, UD_HW + 32, hug), bh = mix(UD_BH, UD_HH + 28, hug);
+  // 框的缩放：悬停 1.02；松手 0.2 秒后「吞一口」0.46 秒（.985 → 1.006 → 1），从当时的值起步免得跳
+  let sc = 1 + 0.02 * over;
+  const gt = (u - UD_R1 - 0.2) / 0.46;
+  if (gt >= 0 && gt < 1) {
+    const s0 = 1 + 0.02 * UXB_ramp(UD_R1 + 0.2, C.over, 0.42, UD_BOXE), K = [s0, 0.985, 1.006, 1], T = [0, 0.35, 0.7, 1];
+    const j = gt < 0.35 ? 0 : gt < 0.7 ? 1 : 2; sc = mix(K[j], K[j + 1], UD_GULPE((gt - T[j]) / (T[j + 1] - T[j])));
+  }
+  let shx = 0;
+  for (const t0 of UD_RF) { const s = (u - t0) / 0.42; if (s >= 0 && s < 1) { const j = Math.floor(s * 5); shx = mix(UD_SHAKE[j], UD_SHAKE[j + 1], UD_EIO(s * 5 - j)); } }
+  // —— 投放框
+  k.save(); k.translate(UD_BX + shx, UD_BY); k.scale(sc, sc);
+  k.save(); k.shadowColor = 'rgba(150,92,0,.34)'; k.shadowBlur = 22; k.shadowOffsetY = 8;
+  k.fillStyle = rgba(lerpC(UXB_mix(UD_BLUE, UD_HOT, over), UXB_rgb(UD_RED), ref), 1); rr(k, -bw / 2, -bh / 2, bw, bh, UD_COR); k.fill(); k.restore();
+  rr(k, -bw / 2, -bh / 2, bw, bh, UD_COR); k.clip();
+  if (!busy) {
+    // 空闲：图标块 38 + 两行字，竖向居中；悬停时图标块上抬 4 px
+    const msg = u >= UD_RF[0] && u < UD_CLR ? (u < UD_RF[1] ? `Too big — up to ${UD_MAX} MB` : UD_SNARK) : UD_overNow(C, u) ? 'Drop to upload' : 'Drag a file here';
+    const iy = -42.5 - 4 * over;
+    k.fillStyle = `rgba(255,255,255,${(0.2 + 0.1 * over).toFixed(3)})`; rr(k, -19, iy, 38, 38, 10); k.fill();
+    k.save(); k.translate(-9, iy + 10); k.scale(0.75, 0.75); k.strokeStyle = '#FFFFFF'; k.lineWidth = 2; k.lineCap = 'round'; k.lineJoin = 'round'; k.stroke(P[2]); k.restore();
+    txt(k, msg, 0, 15.5, UXB_f(600, 13), '#FFFFFF', 'center', 'middle');
+    txt(k, `Up to ${UD_MAX} MB`, 0, 35, UXB_f(500, 12), 'rgba(255,255,255,.8)', 'center', 'middle');
+  } else {
+    // 上传行：0.42 秒从 0.85 倍、下移 10 px、透明弹到位（upl-land）
+    const f = UD_FILES[0], lt = UD_SPR(seg(u, UD_TS, UD_TS + 0.42)), p = done ? 1 : UD_p(u - UD_TS);
+    k.save(); k.globalAlpha = clamp(lt); k.translate(0, 10 * (1 - lt)); k.scale(0.85 + 0.15 * lt, 0.85 + 0.15 * lt);
+    const x0 = -UD_HW / 2, tx = x0 + 48;
+    UD_page(k, P, x0, -18, 36, f, 'rgba(20,50,150,.45)');
+    txt(k, f.name, tx, -14, UXB_f(600, 13), '#FFFFFF', 'left', 'middle');
+    const meta = UXB_f(500, 12), dim = 'rgba(255,255,255,.82)';
+    if (done) txt(k, `${UD_fmt(f.size)} · Uploaded`, tx, 4, meta, dim, 'left', 'middle');
+    else {
+      const head = `${UD_fmt(f.size)} ·`; txt(k, head, tx, 4, meta, dim, 'left', 'middle');
+      const cw = k.measureText('0').width, v = Math.min(99, Math.round(p * 100));
+      let x = tx + k.measureText(head).width + 4;
+      k.textAlign = 'center';
+      if (v >= 10) { UD_roll(k, x, 4, C.tens, u, cw); x += cw; }
+      UD_roll(k, x, 4, C.ones, u, cw); x += cw;
+      txt(k, '%', x, 4, meta, dim, 'left', 'middle');
+    }
+    k.fillStyle = 'rgba(255,255,255,.24)'; rr(k, tx, 19, 150, 4, 2); k.fill();
+    if (p > 0) { k.fillStyle = UD_MINT; rr(k, tx, 19, 150 * p, 4, 2); k.fill(); }
+    if (done) {
+      const s = UD_POP(seg(u, UD_TD, UD_TD + 0.38)), cx = tx + 150 + 12 + 11;
+      k.save(); k.translate(cx, 0); k.scale(s, s);
+      k.fillStyle = UD_OK; k.beginPath(); k.arc(0, 0, 11, 0, TAU); k.fill();
+      k.translate(-7, -7); k.scale(14 / 24, 14 / 24); k.strokeStyle = '#FFFFFF'; k.lineWidth = 2.6; k.lineCap = 'round'; k.lineJoin = 'round'; k.stroke(P[3]);
+      k.restore();
+    }
+    k.restore();
+  }
+  k.restore();
+  // —— 托盘里的文件（总画在框上面，原作托盘在 DOM 里排在框后）
+  UD_FILES.forEach((f, i) => {
+    const T = UD_tile(i, u);
+    if (!T || T.op <= 0) return;
+    k.save(); k.globalAlpha = clamp(T.op);
+    k.translate(f.x + 38 + T.dx, f.y + 32.5 + T.dy); k.rotate(T.rot); k.scale(T.sx, T.sy); k.translate(-38, -32.5);
+    UD_page(k, P, 18, 4, 40, f, '#A87700');
+    // 拿起时名字下垫一块奶油色底，拖到蓝框上也看得清（原作名字直接压在框上）
+    // 名字按文件中心进框深度淡出：进框后 chip 会压住框里的提示行（尤其拒收时那句彩蛋文案）
+    const tcx = f.x + 38 + T.dx, tcy = f.y + 32.5 + T.dy;
+    const dep = clamp(Math.min(tcx - (UD_BX - UD_BW / 2), UD_BX + UD_BW / 2 - tcx, tcy - (UD_BY - UD_BH / 2), UD_BY + UD_BH / 2 - tcy) / 12);
+    const lift = clamp((T.sx - 1) / 0.08) * (1 - dep), lf = UXB_f(600, 11);
+    if (lift > 0) { k.font = lf; const lw = k.measureText(f.name).width; k.fillStyle = `rgba(255,248,220,${(0.92 * lift).toFixed(3)})`; rr(k, 38 - lw / 2 - 6, 51, lw + 12, 15, 7.5); k.fill(); }
+    txt(k, f.name, 38, 58.5, lf, `rgba(61,44,0,${(1 - dep).toFixed(3)})`, 'center', 'middle');
+    k.restore();
+  });
+  if (u < 4.86) {
+    const pp = BN_path(u, UD_KEYS);
+    let pr = 0;
+    for (const g of UD_G) pr = Math.max(pr, seg(u, g[0] - 0.08, g[0]) * (1 - seg(u, g[1], g[1] + 0.14)));
+    cursor(k, pp[0], pp[1], pr);
+  }
+};
+// 当前是否处于 over（切换表里最后一个不晚于 u 的值）
+function UD_overNow(C, u) { let v = 0; for (const e of C.over) { if (e[0] > u) break; v = e[1]; } return v === 1; }

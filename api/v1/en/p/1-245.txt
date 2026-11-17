@@ -1,0 +1,16 @@
+Please use "Equal-area aspect switch" (等面積の画角切り替え), filed under "Components / Choosing & input".
+Motion Prompt #1-245
+
+What it is: Switching between 4:3, 1:1 and 3:4 reshapes the picture frame at the same area, so the picture is cropped differently rather than stretched
+What the sample shows: In the middle of a pale blue gradient sits a colour landscape (blue sky, yellow sun, three rows of lime, green and teal hills) in a rounded frame, with a segmented control of three small frame icons below. It starts at 1:1. The pointer comes in from the lower right and presses the wide icon: the cobalt thumb slides there first, and a beat later the frame widens and shortens into 4:3. The tall icon then makes it narrow and tall, and the middle one brings back the square. Every shape has the same area; the picture never distorts, only how much of it shows changes.
+Spec:
+- The three frames are 276×207, 239×239 and 207×276, all inside one 276×276 square; corner 20 px, everything drawn at 0.6 scale.
+- The segmented control is 36 px tall with 40 px tabs on a 14% cobalt track; the chosen icon is white and the others navy, each a frame of area 13² drawn with a 1.5 px line.
+- 4:3 is pressed at 0.9 s, 3:4 at 2.4 s and 1:1 at 3.9 s; the frame's width and height change over 0.52 s on cubic-bezier(.22,1,.36,1).
+- The thumb moves on the same curve in 0.55 of that time, so it lands before the frame; a pressed tab dips to 0.96.
+- The pointer enters at 0.3 s and leaves at 4.8 s; it ends resting at 1:1, matching the first frame.
+When to use it: Use it for image crop dialogs, pre-post previews, and choosing the ratio of a cover image or thumbnail.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-245.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,157 @@
+// Motion Prompt #1-241 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 刻度尺拨时间 / Time ruler
+// 分类: 界面与网页 / 组件 / 选择与输入
+// 动画表现: 杏色渐变底上是一张深橙色卡片，上方用白色大字显示 9:30 AM，下方是一条白色刻度尺，中间立着一根深靛色竖线。越靠中间的刻度越高越清晰，向两端变矮变淡直到消失。指针抓住刻度尺慢慢往左拉到 10:00，然后猛地一甩松手；刻度尺滑行一段，稳稳停在 1:00 PM 的刻度上，数字逐位滚动并带一点模糊。再向右一甩，它又滑回 9:30 AM。
+// 运动规格:
+//   - 橙色渐变卡片宽 300 px，圆角 20 px；时间用白色 30 px 等宽数字，AM/PM 为 14 px；刻度尺高 58 px，每分钟 2 px，每 5 分钟一个刻度。
+//   - 普通刻度 10 px，刻钟 17 px，整点 25 px；按离中心的距离，高度缩放 0.55–1 倍，白色不透明度 0.3–1，两端 22% 渐隐。
+//   - 0.85 秒指针抓住刻度尺拉到 10:00，2.1–2.4 秒向左一甩松手。
+//   - 落点 = 松手速度 × 21 帧之后的位置，取整到 15 分钟；同一个弹簧（拉力 0.022，阻尼 0.26）以松手速度的 0.6 倍起步，把它带到 1:00 PM。
+//   - 3.55–3.85 秒向右一甩，滑回 9:30 AM，约 4.7 秒停稳；数字按 220 ms 的回弹滚动和 260 ms 的模糊变化。
+//   - 指针 4.8 秒离开，之后画面与 0 秒相同。
+// 适用场景: 适合预约和提醒的时间选择、闹钟设置、日历日程创建。
+// 标签: time-picker, ruler, drag, momentum, spring, rolling-digits
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-241
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 78
+// 82 刻度尺拨时间（bencho time-scrubber）：杏色渐变底上一张 300 宽橙色渐变卡，上方是白色 12 小时制时间读数（9:30 AM），下方是一条白色刻度尺（越靠中间越高越不透明），深靛色指针线固定在中间；
+// 指针 0.85 秒按住刻度尺往左慢拖，2.1–2.4 秒加速一甩松手，刻度尺按松手速度滑行、用同一个弹簧停到最近的 15 分钟刻度（1:00 PM），数字逐位滚动并带一点模糊；
+// 3.55–3.85 秒再向右一甩，滑回 9:30 AM，约 4.7 秒停稳；指针 4.8 秒离开，之后画面与 0 秒相同。
+const TR_X = 119.5, TR_Y = 34, TR_W = 300, TR_H = 140, TR_CX = TR_X + TR_W / 2;
+const TR_PX = 2, TR_HALF = (TR_W - 36) / 2, TR_DAY = 1440, TR_STEP = 15, TR_START = 570;
+const TR_CARRY = 6 + 50 / 100 * 30;                  // 动量 50：松手速度 × 21 帧决定落点
+const TR_RUL = TR_Y + 20 + 30 + 16;                   // 刻度尺顶边（高 58）
+const TR_HY = 124;                                    // 手在刻度尺上的高度
+const TR_POP = UXA_bz(0.24, 1.34, 0.38, 1), TR_EO = UXA_bz(0, 0, 0.58, 1);
+const TR_INK = '#FFFFFF', TR_MUTE = 'rgba(255,255,255,0.86)', TR_RED = '#231B5E';
+const TR_P1 = [0.85, 2.4], TR_P2 = [3.55, 3.85];      // 两次按住（按下, 松手）
+const TR_F1 = 120, TR_F2 = 144, TR_V = 2 * TR_F1 / 0.3, TR_V2 = 2 * TR_F2 / 0.3, TR_TAU = 0.09;
+const TR_wrap = m => ((m % TR_DAY) + TR_DAY) % TR_DAY;
+// 手：慢拖用 BN_path；两次甩动是从静止开始的匀加速（x = x0 ± F·s²），松手后速度按 exp 衰减滑出去
+function TR_hand(u) {
+  const y = TR_HY;
+  if (u < TR_P1[0]) return BN_path(u, [[0.2, 580, 200], [0.78, 330, y], [TR_P1[0], 330, y]]);
+  if (u < 2.1) return BN_path(u, [[TR_P1[0], 330, y], [1.75, 270, y + 1], [2.1, 270, y + 1]]);
+  if (u < TR_P1[1]) { const s = (u - 2.1) / 0.3; return [270 - TR_F1 * s * s, y + 1 + 2 * s]; }
+  const e1 = (t) => [160 - TR_V * TR_TAU * (1 - Math.exp(-(t - TR_P1[1]) / TR_TAU)), y + 3 + 6 * (1 - Math.exp(-(t - TR_P1[1]) / TR_TAU))];
+  if (u < 2.75) return e1(u);
+  if (u < TR_P2[0]) { const a = e1(2.75); return BN_path(u, [[2.75, a[0], a[1]], [3.35, 200, y], [TR_P2[0], 200, y]]); }
+  if (u < TR_P2[1]) { const s = (u - TR_P2[0]) / 0.3; return [200 + TR_F2 * s * s, y - 2 * s]; }
+  const x2 = 200 + TR_F2, e2 = (t) => [x2 + TR_V2 * TR_TAU * (1 - Math.exp(-(t - TR_P2[1]) / TR_TAU)), y - 2 + 8 * (1 - Math.exp(-(t - TR_P2[1]) / TR_TAU))];
+  if (u < 4.15) return e2(u);
+  const b = e2(4.15); return BN_path(u, [[4.15, b[0], b[1]], [4.8, 600, 168]]);
+}
+const TR_down = u => (u >= TR_P1[0] && u < TR_P1[1]) || (u >= TR_P2[0] && u < TR_P2[1]);
+function TR_label(m) {
+  const t = TR_wrap(Math.round(m)), h = Math.floor(t / 60);
+  return { time: `${h % 12 || 12}:${String(t % 60).padStart(2, '0')}`, mer: h < 12 ? 'AM' : 'PM' };
+}
+let TR_SIM = null;
+// 一次性按 60 Hz 重放原作：拖动时速度 v = v·0.5 + 本帧位移·0.5；松手落点 = round((x + v·21)/15)·15；
+// 弹簧每帧 v += (to-x)·0.022 - v·0.26，起始速度为松手速度的 0.6；同时记下每一位数字何时变化
+function TR_sim() {
+  if (TR_SIM) return TR_SIM;
+  const N = Math.ceil(CYC * 60) + 1, X = new Float64Array(N);
+  let x = TR_START, v = 0, to = TR_START, spring = false, fresh = false, g = null;
+  for (let i = 0; i < N; i++) {
+    const t = i / 60, hx = TR_hand(t)[0], dn = TR_down(t);
+    if (dn && !g) { spring = false; g = { x: hx, t, v: 0 }; v = 0; }
+    else if (dn && g) {
+      if (Math.abs(hx - g.x) > 0.01) {
+        const dm = -(hx - g.x) / TR_PX, dt = Math.max(1, (t - g.t) * 1000) / 16.67;
+        g.v = g.v * 0.5 + (dm / dt) * 0.5; g.x = hx; g.t = t; x += dm;
+      }
+    } else if (g) {
+      const vv = t - g.t > 0.08 ? 0 : clamp(g.v, -14, 14);
+      to = Math.round((x + vv * TR_CARRY) / TR_STEP) * TR_STEP; v = vv * 0.6; spring = true; fresh = true; g = null;
+    } else if (spring) {
+      if (fresh) fresh = false;
+      v += (to - x) * 0.022 - v * 0.26; x += v;
+      if (Math.abs(to - x) < 0.01 && Math.abs(v) < 0.01) { x = to; v = 0; spring = false; }
+    }
+    X[i] = x;
+  }
+  // 数字列（从右数：1 分个位，2 分十位，4 时个位，5 时十位）：每列一串 [挂载时刻, [[t, 数字], …]]
+  const cols = { 1: [], 2: [], 4: [], 5: [] }, mers = [];
+  let prev = null;
+  for (let i = 0; i < N; i++) {
+    const L = TR_label(X[i]), s = L.time.split(':'), ds = { 1: s[1][1], 2: s[1][0], 4: s[0][s[0].length - 1], 5: s[0].length > 1 ? s[0][0] : null };
+    for (const c of [1, 2, 4, 5]) {
+      const d = ds[c], p = prev ? prev[c] : undefined;
+      if (d === null) continue;
+      if (p === undefined || p === null) cols[c].push({ t0: i / 60, ev: [[-1, +d]] });
+      else if (p !== d) { cols[c][cols[c].length - 1].ev.push([i / 60, +d]); }
+    }
+    if (!prev || L.mer !== mers[mers.length - 1][1]) mers.push([i / 60, L.mer]);
+    prev = ds;
+  }
+  TR_SIM = { X, N, cols, mers };
+  return TR_SIM;
+}
+const TR_pos = u => { const S = TR_sim(), f = clamp(u * 60, 0, S.N - 1), i = Math.min(S.N - 2, Math.floor(f)); return mix(S.X[i], S.X[i + 1], f - i); };
+CELLS[77] = (k, w, h, u) => {
+  // 底：杏色双色渐变；卡片是饱和的橙色竖向渐变，阴影用深橙
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#FFF1E2'); bg.addColorStop(1, '#FFD2B0');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  const cg = k.createLinearGradient(0, TR_Y, 0, TR_Y + TR_H); cg.addColorStop(0, '#F2711F'); cg.addColorStop(1, '#C9450F');
+  k.save(); k.shadowColor = 'rgba(170,64,8,0.32)'; k.shadowBlur = 18; k.shadowOffsetY = 6;
+  k.fillStyle = cg; rr(k, TR_X, TR_Y, TR_W, TR_H, 20); k.fill(); k.restore();
+  const S = TR_sim(), pos = TR_pos(u), fi = Math.min(S.N - 1, Math.round(u * 60));
+  // ── 读数：每位数字是一条 0–9 竖排数字带，在 1.5em 高、上下渐隐的窗口里滚动（220 ms 回弹过渡 + 260 ms 模糊）
+  const F = UXB_f(500, 30); k.font = F;
+  const dw = k.measureText('0').width - 0.9, cw = k.measureText(':').width - 0.9 + 1.2;
+  const segAt = c => { const L = S.cols[c]; let sg = null; for (const s of L) { if (s.t0 <= u + 1e-9) sg = s; } return sg; };
+  const L = TR_label(S.X[fi]), has5 = L.time.length > 4, mer = S.mers.reduce((a, m) => (m[0] <= u + 1e-9 ? m[1] : a), 'AM');
+  k.font = UXB_f(500, 14); const mw = k.measureText(mer).width - 0.28;
+  const tw = dw * (has5 ? 4 : 3) + cw, x0 = TR_CX - (tw + 8 + mw) / 2, base = TR_Y + 20 + 15 + 10.5, top = TR_Y + 20 - 7.5;
+  const order = has5 ? [5, 4, 0, 2, 1] : [4, 0, 2, 1];
+  let cx = x0;
+  for (const c of order) {
+    if (c === 0) { txt(k, ':', cx + 0.6, base, F, TR_INK, 'left', 'alphabetic'); cx += cw; continue; }
+    const sg = segAt(c);
+    if (sg) {
+      const val = UXB_ramp(u, [[sg.t0, sg.ev[0][1]], ...sg.ev.slice(1)], 0.22, TR_POP);
+      let lc = -9; for (const e of sg.ev) if (e[0] > 0 && e[0] <= u) lc = e[0];
+      const bl = u - lc < 0.26 ? 2 * (1 - TR_EO(seg(u, lc, lc + 0.26))) : 0;
+      const gr = k.createLinearGradient(0, top, 0, top + 45);
+      gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.3, TR_INK); gr.addColorStop(0.7, TR_INK); gr.addColorStop(1, 'rgba(255,255,255,0)');
+      // 模糊用几份错开的半透明副本近似（比 filter 便宜）
+      const offs = bl > 0.15 ? [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0, -1], [0, 1]] : [[0, 0]];
+      k.globalAlpha = bl > 0.15 ? 0.3 : 1;
+      for (let d = Math.max(0, Math.floor(val) - 1); d <= Math.min(9, Math.ceil(val) + 1); d++) {
+        const yy = base + (d - val) * 45;
+        if (Math.abs(yy - base) < 45) for (const [ox, oy] of offs) txt(k, String(d), cx + ox * bl, yy + oy * bl, F, gr, 'left', 'alphabetic');
+      }
+      k.globalAlpha = 1;
+    }
+    cx += dw;
+  }
+  txt(k, mer, cx + 8, base, UXB_f(500, 14), TR_MUTE, 'left', 'alphabetic');
+  // ── 刻度尺：只画窗口内的刻度；越靠中间越高越黑，两端按蒙版渐隐（0→22%→78%→100%）
+  const rl = TR_X + 20, rw = TR_W - 40;
+  const fade = x => { const q = (x - rl) / rw; return q <= 0 || q >= 1 ? 0 : q < 0.22 ? q / 0.22 : q > 0.78 ? (1 - q) / 0.22 : 1; };
+  const span = TR_HALF / TR_PX + 10;
+  for (let m = Math.ceil((pos - span) / 5) * 5; m <= pos + span; m += 5) {
+    const dx = (m - pos) * TR_PX, X = TR_CX + dx, f = clamp(1 - Math.pow(Math.abs(dx) / TR_HALF, 2)), a = fade(X);
+    if (a <= 0) continue;
+    const wm = TR_wrap(m), hr = wm % 60 === 0, th = hr ? 25 : wm % 15 === 0 ? 17 : 10;
+    k.fillStyle = rgba([255, 255, 255], (0.3 + 0.7 * f) * a);
+    rr(k, X - 1, TR_RUL + 8, 2, th * (0.55 + 0.45 * f), 1); k.fill();
+    if (hr) {
+      const hh = Math.floor(wm / 60);
+      txt(k, `${hh % 12 || 12} ${hh < 12 ? 'AM' : 'PM'}`, X, TR_RUL + 38, UXB_f(400, 11), rgba([255, 255, 255], (0.25 + 0.75 * f) * a), 'center', 'top');
+    }
+  }
+  k.fillStyle = TR_RED; rr(k, TR_CX - 1.5, TR_RUL + 2, 3, 32, 1.5); k.fill();
+  // ── 指针：按住拖动时显示按下
+  const [hx, hy] = TR_hand(u);
+  let pr = 0;
+  for (const [a, b] of [TR_P1, TR_P2]) pr = Math.max(pr, clamp(Math.min((u - a + 0.06) / 0.06, (b + 0.06 - u) / 0.06)));
+  cursor(k, hx, hy, pr);
+};

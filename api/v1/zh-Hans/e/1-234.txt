@@ -1,0 +1,186 @@
+// Motion Prompt #1-234 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 上下文用量条 / Context meter
+// 分类: 界面与网页 / 反馈 / AI 状态
+// 动画表现: 浅薄荷渐变底上有一张深松绿色卡片，上面有白色的“Context”标题和薄荷色的“Compact”按钮、大字“175.6K of 200K”、一条分色的长条，以及每类一个小纸片。指针进来停在细细的琥珀色段上，其他段淡下去，数字逐位滚成“4.2K System”。接着指向蓝色的 Files，再滑到宽宽的青色 Chat，每次数字都滚到该段的用量。指针离开长条后数字回到总数。指针点右上角的“Compact”：Chat 段缩短，整条被压扁一下再弹回，总数滚到 97.4K，按钮变成“Undo”。最后 Chat 再长回原来的长度。
+// 运动规格:
+//   - 浅薄荷底上的深松绿色 #0F3B37 卡片，圆角 20 px，内边距 16 px；长条高 40 px，段间隔 3 px，两端圆角 6 px、拼缝处 2 px；窗口总量 200K。
+//   - System 4.2K、Tools 12.8K、Files 46.1K、Chat 108.6K、Memory 3.9K 从大到小排列，合计 175.6K；System 琥珀、Tools 紫、Files 蓝、Chat 青、Memory 玫红，剩余空间是 12% 白的淡带。
+//   - 指针 0.3 秒进入，0.8 秒指向 System、1.88 秒指向 Files、2.74 秒指向 Chat，3.55 秒离开长条；没被指的段在 0.22 秒内淡到 0.22。
+//   - 只有变化的数字位从下方或上方 0.18em、2 px 模糊里浮出，0.5 秒带过冲落位，从左到右每位晚 70ms；旧数字 0.16 秒淡出。
+//   - 4.0 秒点“Compact”：Chat 在 0.82 秒内缩到 30.4K，总数变成 97.4K；各段相隔 55ms 依次压扁一下，历时 0.76 秒（Chat 0.78，其余 0.93，回弹到 1.03）。
+//   - 指针 4.75 秒离开；5.4 秒 Chat 以同样的 0.82 秒曲线长回 108.6K，按钮也变回“Compact”。
+// 适用场景: 适合 AI 对话和编程助手里的用量显示、token 预算面板、存储空间占用明细。
+// 标签: context-window, usage-bar, stacked-bar, token-count, odometer, hover-highlight, ai-status
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-234
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 71
+// 72 上下文用量条（bencho context-meter）：浅薄荷渐变底上一张深松绿卡片（原作深色卡片的配法），卡片里一条分段堆叠条（Chat 青 108.6K、Files 蓝 46.1K、Tools 紫 12.8K、System 琥珀 4.2K、Memory 玫红 3.9K，共 175.6K / 200K）；
+// 指针 0.3 秒进入，0.8 秒指向 System、1.88 秒指向 Files、2.74 秒滑到 Chat、3.55 秒移出条外，被指的段保持、其余淡到 0.22，大数字逐位滚到该段用量；
+// 4.0 秒点击 "Compact"：Chat 在 0.82 秒内缩到 30.4K，各段依次被压扁一下，总数滚到 97.4K，按钮变 "Undo"；指针 4.75 秒离开，5.4 秒起复原。
+const CM_KINDS = [['sys', 'System', 4.2, '#FFB020'], ['tools', 'Tools', 12.8, '#A06BFF'], ['files', 'Files', 46.1, '#4C8DFF'], ['chat', 'Chat', 108.6, '#22D3C5'], ['mem', 'Memory', 3.9, '#FF5C9A']];
+const CM_ORDER = [3, 2, 1, 0, 4];                                // 从大到小，压缩时也不重排
+const CM_COMPACT = 30.4, CM_WIN = 200, CM_CLICK = 4.0, CM_FOLD = 0.82, CM_GIVE_T = 0.76;
+const CM_X = 16, CM_Y = 6, CM_W = 507, CM_H = 196, CM_PAD = 16;   // 卡片（原作宽 309，这里放宽到画格宽度，纸片排成一行）
+const CM_BX = CM_X + CM_PAD, CM_BW = CM_W - CM_PAD * 2, CM_BY = 102, CM_BH = 40, CM_GAP = 3;
+const CM_INK = '#FFFFFF', CM_SLAB = '#0F3B37', CM_MINT = '#9FF0D2';    // 深色卡片：字为白，底为深松绿；Compact 用薄荷实心胶囊
+const CM_tint = p => UXB_mix(CM_SLAB, CM_INK, p);
+let CM_BG = null;
+const CM_EASE = UXA_bz(0.25, 0.1, 0.25, 1), CM_FOLDZ = UXA_bz(0.65, 0, 0.2, 1), CM_GIVEZ = UXA_bz(0.33, 0, 0.2, 1);
+const CM_POP = UXA_bz(0.34, 1.45, 0.64, 1), CM_CHIPZ = UXA_bz(0.34, 1.56, 0.64, 1), CM_ACTZ = UXA_bz(0.22, 1, 0.36, 1);
+const CM_KEYS = [[0, 572, 30], [0.3, 548, 44], [0.62, 436, 68], [0.95, 431, 122], [1.5, 431, 122], [1.72, 418, 84], [2.05, 338, 124], [2.6, 338, 124],
+  [2.95, 172, 126], [3.4, 172, 126], [3.82, 470, 37], [4.22, 470, 37], [4.7, 580, 24]];
+// Chat 的 flex-grow：4.0 秒按 Compact 从 108.6 缓到 30.4，5.4 秒复原时缓回（CSS 820 ms 过渡）
+const CM_chat = u => u < SHOW ? mix(108.6, CM_COMPACT, CM_FOLDZ(seg(u, CM_CLICK, CM_CLICK + CM_FOLD))) : mix(CM_COMPACT, 108.6, CM_FOLDZ(seg(u, SHOW, SHOW + CM_FOLD)));
+const CM_compact = u => u >= CM_CLICK && u < SHOW;
+// 每段的 [左, 宽]（3 px 间隔，最小宽 3 px），最后一项是剩余空间
+function CM_segs(u) {
+  const g = CM_ORDER.map(ci => (ci === 3 ? CM_chat(u) : CM_KINDS[ci][2]));
+  g.push(CM_WIN - g.reduce((a, b) => a + b, 0));
+  const free = CM_BW - CM_GAP * 5; let x = CM_BX;
+  return g.map(v => { const w = Math.max(3, free * v / CM_WIN), r = [x, w]; x += w + CM_GAP; return r; });
+}
+// 悬停状态机：指针进入某段就点亮该类（剩余空间 → 无），在 3 px 缝里保持，离开整条 → 无
+let CM_TL = null;
+function CM_timeline() {
+  if (CM_TL) return CM_TL;
+  const hot = [[-1, -1]], text = [];
+  let h = -1, inBar = false;
+  for (let i = 0; i <= CYC * 240; i++) {
+    const t = i / 240, p = BN_path(t, CM_KEYS), on = t > 0.2 && t < 4.75;
+    const now = on && p[1] >= CM_BY && p[1] <= CM_BY + CM_BH && p[0] >= CM_BX && p[0] <= CM_BX + CM_BW;
+    let nh = h;
+    if (now) {
+      CM_segs(t).forEach(([x, w], n) => { if (p[0] >= x && p[0] <= x + w) nh = n < 5 ? CM_ORDER[n] : -1; });
+    } else if (inBar) nh = -1;
+    inBar = now;
+    if (nh !== h) { h = nh; hot.push([t, h]); }
+  }
+  // 大数字显示的字串：指着某类就是它的用量，否则是总用量
+  const show = u => {
+    let hh = -1; for (const [t, v] of hot) if (t <= u) hh = v;
+    const c = CM_compact(u), size = ci => (ci === 3 && c ? CM_COMPACT : CM_KINDS[ci][2]);
+    const v = hh >= 0 ? size(hh) : [0, 1, 2, 3, 4].reduce((a, ci) => a + size(ci), 0);
+    return [v, hh];
+  };
+  const ts = [...hot.map(e => e[0]).filter(t => t >= 0), CM_CLICK, SHOW].sort((a, b) => a - b);
+  let last = show(0)[0];
+  text.push([-1, last.toFixed(1) + 'K', true]);
+  for (const t of ts) { const v = show(t)[0]; if (v.toFixed(1) !== last.toFixed(1)) { text.push([t, v.toFixed(1) + 'K', v > last]); last = v; } }
+  return (CM_TL = { hot, text, show });
+}
+// 原作 framer-motion 的数字滚动：改变的数字从下（变大）或上（变小）0.18em 处、2 px 模糊里浮出，0.5 秒带过冲落位，从左到右各晚 70 ms；旧数字 0.16 秒淡出
+function CM_figure(k, u, x0, base, TL) {
+  const F = UXB_f(500, 30), em = 30, ls = -0.9;
+  k.save(); k.font = F;
+  const adv = c => (/[0-9]/.test(c) ? k.measureText('0').width : k.measureText(c).width) + ls;
+  const lay = s => { const xs = []; let x = x0; for (const c of s) { xs.push(x); x += adv(c); } return [xs, x - x0]; };
+  let ei = 0; for (let i = 0; i < TL.text.length; i++) if (TL.text[i][0] <= u) ei = i;
+  const [t1, s1, up] = TL.text[ei], [xs1, w1] = lay(s1);
+  const glyph = (c, x, dy, a, b) => {
+    if (a <= 0.003) return;
+    k.globalAlpha = clamp(a); if (b > 0.05) k.filter = `blur(${b.toFixed(2)}px)`;
+    k.fillStyle = CM_INK; k.textAlign = 'left'; k.textBaseline = 'alphabetic'; k.fillText(c, x, base + dy);
+    k.filter = 'none';
+  };
+  const inA = (place, s, te, upw, at) => {                   // 第 te 次变化时进来的数字，在 at 时刻的 [dy, alpha, blur]
+    const i = s.length - 1 - place, e = CM_POP(seg(at, te + i * 0.07, te + i * 0.07 + 0.5));
+    return [(upw ? 0.18 : -0.18) * em * (1 - e), e, 2 * (1 - e)];
+  };
+  // 某一位上一次换字的时刻（以位为键，从右数）
+  const changedAt = (place, upto) => {
+    for (let j = upto; j > 0; j--) {
+      const a = TL.text[j - 1][1], b = TL.text[j][1], ca = a[a.length - 1 - place], cb = b[b.length - 1 - place];
+      if (ca !== cb) return j;
+    }
+    return 0;
+  };
+  const L = Math.max(s1.length, ei > 0 ? TL.text[ei - 1][1].length : 0);
+  for (let place = 0; place < L; place++) {
+    const i = s1.length - 1 - place, c = i >= 0 ? s1[i] : null;
+    const j = changedAt(place, ei);
+    if (c !== null) {
+      if (!/[0-9]/.test(c) || j === 0) glyph(c, xs1[i], 0, 1, 0);
+      else { const [dy, a, b] = inA(place, TL.text[j][1], TL.text[j][0], TL.text[j][2], u); glyph(c, xs1[i], dy, a, b); }
+    }
+    if (j > 0) {                                               // 退场的旧字：停在旧位置，0.16 秒淡出加模糊
+      const [, s0] = TL.text[j - 1], i0 = s0.length - 1 - place;
+      if (i0 >= 0) {
+        const c0 = s0[i0], [xs0] = lay(s0), f = seg(u, TL.text[j][0], TL.text[j][0] + 0.16);
+        if (f < 1) {
+          let a0 = 1, d0 = 0;
+          if (/[0-9]/.test(c0)) { const k0 = changedAt(place, j - 1); if (k0 > 0) { const r = inA(place, s0, TL.text[k0][0], TL.text[k0][2], TL.text[j][0]); d0 = r[0]; a0 = r[1]; } }
+          glyph(c0, xs0[i0], d0, a0 * (1 - out3(f)), 2 * out3(f));
+        }
+      }
+    }
+  }
+  k.restore();
+  return w1;
+}
+// CSS 关键帧 0% 1 → 38% give → 72% 1.03 → 100% 1，每段各用一次 cubic-bezier(0.33, 0, 0.2, 1)
+function CM_give(t, give) {
+  const p = t / CM_GIVE_T;
+  if (p <= 0 || p >= 1) return 1;
+  if (p < 0.38) return mix(1, give, CM_GIVEZ(p / 0.38));
+  if (p < 0.72) return mix(give, 1.03, CM_GIVEZ((p - 0.38) / 0.34));
+  return mix(1.03, 1, CM_GIVEZ((p - 0.72) / 0.28));
+}
+CELLS[70] = (k, w, h, u) => {
+  const TL = CM_timeline();
+  if (!CM_BG) { CM_BG = k.createLinearGradient(0, 0, CW, CH); CM_BG.addColorStop(0, '#DDFBEF'); CM_BG.addColorStop(1, '#B8F0DB'); }
+  k.fillStyle = CM_BG; k.fillRect(0, 0, CW, CH);
+  k.save(); k.shadowColor = 'rgba(12,70,60,.28)'; k.shadowBlur = 14; k.shadowOffsetY = 4;
+  k.fillStyle = CM_SLAB; rr(k, CM_X, CM_Y, CM_W, CM_H, 20); k.fill(); k.restore();
+  const [, hh] = TL.show(u);
+  // 头部：标题 + 按钮（Compact ↔ Undo；Undo 底色更淡、字色 64%，220 ms 过渡；按住时缩到 0.96）
+  txt(k, 'Context', CM_BX, CM_Y + CM_PAD + 14, UXB_f(500, 16), CM_INK, 'left', 'middle');
+  const quiet = UXB_ramp(u, [[0, 0], [CM_CLICK, 1], [SHOW, 0]], 0.22, CM_EASE);
+  const lab = CM_compact(u) ? 'Undo' : 'Compact';
+  k.save(); k.font = UXB_f(500, 13); const bw = k.measureText(lab).width + 24; k.restore();
+  const bx = CM_BX + CM_BW - bw, by = CM_Y + CM_PAD, act = UXB_ramp(u, [[0, 1], [CM_CLICK - 0.08, 0.96], [CM_CLICK, 1]], 0.24, CM_ACTZ);
+  k.save(); k.translate(bx + bw / 2, by + 14); k.scale(act, act);
+  // 深色卡片上 Compact 是实心胶囊（薄荷底、深字），Undo 退成淡白洗底、64% 白字
+  k.fillStyle = rgba(lerpC(UXB_rgb(CM_MINT), CM_tint(0.10), quiet), 1); rr(k, -bw / 2, -14, bw, 28, 14); k.fill();
+  txt(k, lab, 0, 0.5, UXB_f(500, 13), rgba(lerpC(UXB_rgb(CM_SLAB), CM_tint(0.64), quiet), 1), 'center', 'middle');
+  k.restore();
+  // 大数字与旁注（指着某类时旁注换成类名）
+  const base = 86, nw = CM_figure(k, u, CM_BX, base, TL);
+  txt(k, hh >= 0 ? CM_KINDS[hh][1] : `of ${CM_WIN}K`, CM_BX + nw + 6, base, UXB_f(400, 13), rgba(hh >= 0 ? UXB_rgb(CM_KINDS[hh][3]) : CM_tint(0.6), 1), 'left', 'alphabetic');
+  // 堆叠条：两端圆角 6、拼缝圆角 2；被指的类保持，其余淡到 0.22（220 ms）；压缩时 Chat 压扁到 0.78、其余 0.93，依次晚 55 ms
+  const segs = CM_segs(u), dimEv = id => TL.hot.map(([t, v]) => [t, v >= 0 && v !== id ? 0.22 : 1]);
+  const dimRoom = TL.hot.map(([t, v]) => [t, v >= 0 ? 0.22 : 1]);
+  const wave = u < SHOW ? u - CM_CLICK : u - SHOW;
+  segs.forEach(([x, sw], n) => {
+    const room = n === 5, ci = room ? -1 : CM_ORDER[n];
+    const a = UXB_ramp(u, room ? dimRoom : dimEv(ci), 0.22, CM_EASE);
+    const sy = room ? 1 : CM_give(wave - n * 0.055, ci === 3 ? 0.78 : 0.93), hh2 = CM_BH * sy;
+    const rl = n === 0 ? 6 : 2, rrr = room ? 6 : 2, y = CM_BY + (CM_BH - hh2) / 2;
+    k.globalAlpha = a; k.fillStyle = room ? rgba(CM_tint(0.12), 1) : CM_KINDS[ci][3];
+    k.beginPath(); k.roundRect(x, y, sw, hh2, [rl, rrr, rrr, rl]); k.fill();
+    k.globalAlpha = 1;
+  });
+  // 类别纸片：被指的那一片底色加深、缩到 0.975
+  let cx = CM_BX;
+  const cy = CM_BY + CM_BH + 12;
+  for (const ci of CM_ORDER) {
+    const [id, name, , col] = CM_KINDS[ci];
+    k.save(); k.font = UXB_f(400, 13); const cw = k.measureText(name).width + 40; k.restore();
+    const onEv = TL.hot.map(([t, v]) => [t, v === ci ? 1 : 0]);
+    const bg = UXB_ramp(u, onEv, 0.16, CM_EASE), sc = UXB_ramp(u, onEv.map(([t, v]) => [t, v ? 0.975 : 1]), 0.26, CM_CHIPZ);
+    k.save(); k.translate(cx + cw / 2, cy + 16); k.scale(sc, sc);
+    k.fillStyle = rgba(CM_tint(mix(0.09, 0.18, bg)), 1); rr(k, -cw / 2, -16, cw, 32, 16); k.fill();
+    k.fillStyle = col; rr(k, -cw / 2 + 12, -4, 8, 8, 2); k.fill();
+    txt(k, name, -cw / 2 + 28, 0.5, UXB_f(400, 13), CM_INK, 'left', 'middle');
+    k.restore();
+    cx += cw + 6;
+    void id;
+  }
+  ripple(k, 470, 37, (u - CM_CLICK) / 0.6, '255,255,255');
+  if (u > 0.2 && u < 4.75) { const p = BN_path(u, CM_KEYS); cursor(k, p[0], p[1], UXB_press(u, CM_CLICK)); }
+};

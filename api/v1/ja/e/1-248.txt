@@ -1,0 +1,125 @@
+// Motion Prompt #1-248 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// とろける作成メニュー / Liquid create menu
+// 分類: UI・Web / ポインター操作 / リキッドな操作
+// 何が起きるか: 淡い水色からクリーム色へのグラデーションの上に、紫からマゼンタへのグラデーションの「+ Create」カプセルがあり、文字は白い。ポインタが押すとカプセルが少し沈み、文字が消えながら同じ色の形がオーバーシュートのないバネで角丸のパネルへ広がる。Document・Spreadsheet・Board・Folder の 4 行が少しずつ遅れて浮かび、アイコンはそれぞれ黄・緑・青・オレンジの小さな四角に載る。ポインタのいる行には半透明の白い下地が敷かれる。パネルの外を押すと行がすぐ消え、パネルはカプセルへ縮んで文字が戻る。
+// 動きの仕様:
+//   - 紫からマゼンタへのグラデーションのカプセルは 104×38 px・角丸 19、開くと 212×166 px・角丸 20 のパネルになる（1.12 倍で描く）
+//   - 1.0 秒に押すと 0.16 秒で 0.94 倍に沈み、0.06 秒後にバネ（stiffness 420・damping 30・mass 0.5）でオーバーシュートなしに広がる
+//   - 高さ 34 px・間隔 2 px の 4 行が、開いて 0.03 秒後から 0.022 秒ずつ遅れて 6 px 浮き上がりながら現れ、アイコンは 24 px の色違いの四角に載る
+//   - ポインタのいる行には 18% の白い下地が 0.16 秒で付き、0.22 秒で消える
+//   - 3.8 秒にパネルの外を押すと行がすぐ消え、パネルはバネでカプセルに戻る
+// 使いどころ: 文書アプリやダッシュボードの「新規作成」ボタン、ツールバーの追加メニューに。
+// タグ: menu, dropdown, morph, spring, pill-button, create
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-248
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 85
+// 89 胶囊融开菜单（bencho liq-create）：淡青→奶油渐变底中央一颗 104×38 的紫罗兰→品红渐变「+ Create」胶囊（白字）；指针 0.3 秒进入，1.0 秒点下，胶囊缩到 0.94，
+// 0.06 秒后不过冲的弹簧把它撑开成 212×166、圆角 20 的面板，四行菜单按 0.022 秒间隔浮上，每行图标放在一块不同颜色的小方块里；指针在行间移动，所在行铺上半透明白底；
+// 3.8 秒在面板外按下，行立即淡出，面板收回胶囊、文字回来；4.75 秒指针离开，之后静止到周期结束（与 u=0 画面相同）。
+const LC_S = 1.12, LC_CX = CW / 2, LC_CY = CH / 2;
+const LC_PILL_W = 18 + 8 + 44 + 34, LC_PILL_H = 38, LC_PANEL_W = 212, LC_PANEL_H = 166;
+const LC_CORNER = 20, LC_SHUT_R = Math.min(19, LC_CORNER * 19 / 20), LC_ROW_R = Math.min(17, LC_CORNER - 10);
+const LC_PRESS = 1.0, LC_OPEN = LC_PRESS + 0.06, LC_CLOSE = 3.8;
+// Framer 弹簧 stiffness 420 / damping 30 / mass 0.5：ζ≈1.035 略过阻尼，静止起步的解析解（无过冲）
+const LC_W0 = Math.sqrt(420 / 0.5), LC_Z = 30 / (2 * Math.sqrt(420 * 0.5)), LC_SD = Math.sqrt(LC_Z * LC_Z - 1);
+const LC_R1 = -LC_W0 * (LC_Z - LC_SD), LC_R2 = -LC_W0 * (LC_Z + LC_SD);
+const LC_spring = t => (t <= 0 ? 0 : t > 1.5 ? 1 : 1 - (LC_R2 * Math.exp(LC_R1 * t) - LC_R1 * Math.exp(LC_R2 * t)) / (LC_R2 - LC_R1));
+const LC_OUTC = UXA_bz(0.22, 1, 0.36, 1), LC_EASE = UXA_bz(0.25, 0.1, 0.25, 1);
+const LC_ITEMS = ['Document', 'Spreadsheet', 'Board', 'Folder'];
+const LC_TILE = ['#FBBF24', '#34D399', '#38BDF8', '#FB923C'], LC_GLYPH = '#2E1065';   // 每行图标底块一种色相，深紫图形
+// lucide 图标（24 格 viewBox，描边 2）：FileText / Table2 / Grid2x2 / Folder，以及胶囊上的 Plus
+const LC_ICON = [
+  ['M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z', 'M14 2v4a2 2 0 0 0 2 2h4', 'M10 9H8', 'M16 13H8', 'M16 17H8'],
+  ['M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18'],
+  ['M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z', 'M3 12h18', 'M12 3v18'],
+  ['M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z'],
+  ['M5 12h14', 'M12 5v14'],
+];
+let LC_P2D = null;
+function LC_icon(k, i, x, y, col) {
+  if (!LC_P2D) LC_P2D = LC_ICON.map(ps => ps.map(d => new Path2D(d)));
+  k.save(); k.translate(x, y); k.scale(16 / 24, 16 / 24);
+  k.strokeStyle = col; k.lineWidth = 2; k.lineCap = 'round'; k.lineJoin = 'round';
+  for (const p of LC_P2D[i]) k.stroke(p);
+  k.restore();
+}
+// 行 i 在舞台坐标（以面板中心为原点、CSS px）里的上缘：面板内边距 12，行高 34，行距 2
+const LC_rowY = i => -LC_PANEL_H / 2 + 12 + i * 36;
+const LC_KEYS = [[0.3, 486, 222], [0.85, LC_CX + 6, LC_CY + 8], [1.2, LC_CX + 6, LC_CY + 8], [1.75, LC_CX - 12, LC_CY - 20], [2.3, LC_CX - 12, LC_CY - 20],
+  [2.75, LC_CX + 22, LC_CY - 60], [3.05, LC_CX + 22, LC_CY - 60], [3.5, 452, 70], [3.9, 452, 70], [4.75, 578, 232]];
+// 指针所在的菜单行（-1 = 不在行上；面板关着时不响应悬停）
+function LC_hit(u) {
+  if (u < LC_OPEN || u >= LC_CLOSE) return -1;
+  const [px, py] = BN_path(u, LC_KEYS), x = (px - LC_CX) / LC_S, y = (py - LC_CY) / LC_S;
+  if (Math.abs(x) > LC_PANEL_W / 2 - 12) return -1;
+  for (let i = 0; i < 4; i++) if (y >= LC_rowY(i) && y < LC_rowY(i) + 34) return i;
+  return -1;
+}
+const LC_HEV = UXB_changes(LC_hit);
+// 带各自时长的过渡：evs[0] = [-1, 初值]，其后 [时刻, 目标, 时长]；每次从当时的值出发（等价分别设了 transition 的 CSS 属性）
+function LC_ramp(u, evs, ez) {
+  let from = evs[0][1], to = from, t0 = -1e9, d = 1;
+  for (let i = 1; i < evs.length; i++) {
+    const e = evs[i]; if (e[0] > u) break;
+    from = mix(from, to, ez(seg(e[0], t0, t0 + d))); to = e[1]; t0 = e[0]; d = e[2];
+  }
+  return mix(from, to, ez(seg(u, t0, t0 + d)));
+}
+// 行 i 的悬停程度：进 0.16 秒、出 0.22 秒
+function LC_hover(u, i) {
+  const evs = [[-1, 0]];
+  for (let j = 1; j < LC_HEV.length; j++) { const [t, v] = LC_HEV[j], on = v === i ? 1 : 0; if (on !== evs[evs.length - 1][1]) evs.push([t, on, on ? 0.16 : 0.22]); }
+  return LC_ramp(u, evs, LC_EASE);
+}
+CELLS[84] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#CFFAFE'); bg.addColorStop(1, '#FEF3C7');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  // 形状：开时从胶囊弹到面板，关时弹回；两次之间早已静止，所以各自从静止起步
+  const sOpen = LC_spring(u - LC_OPEN), sShut = LC_spring(u - LC_CLOSE), p = u < LC_CLOSE ? sOpen : 1 - sShut;
+  const bw = mix(LC_PILL_W, LC_PANEL_W, p), bh = mix(LC_PILL_H, LC_PANEL_H, p), br = mix(LC_SHUT_R, LC_CORNER, p);
+  // 按下：0.16 秒缩到 0.94；张开后 0.42 秒回到 1
+  const sc = LC_ramp(u, [[-1, 1], [LC_PRESS, 0.94, 0.16], [LC_OPEN, 1, 0.42]], LC_OUTC);
+  const pillA = LC_ramp(u, [[-1, 1], [LC_OPEN, 0, 0.16], [LC_CLOSE, 1, 0.16]], LC_EASE);
+  k.save(); k.translate(LC_CX, LC_CY); k.scale(LC_S, LC_S);
+  k.save(); k.scale(sc, sc);
+  // 同一块形状从胶囊到面板，渐变跟着形状的对角拉伸；阴影用同色系深紫
+  const gr = k.createLinearGradient(-bw / 2, -bh / 2, bw / 2, bh / 2); gr.addColorStop(0, '#7C3AED'); gr.addColorStop(1, '#DB2777');
+  k.save(); k.shadowColor = 'rgba(76,29,149,.32)'; k.shadowBlur = 16; k.shadowOffsetY = 5;
+  k.fillStyle = gr; rr(k, -bw / 2, -bh / 2, bw, bh, br); k.fill(); k.restore();
+  // 胶囊上的「+ Create」
+  if (pillA > 0.002) {
+    k.globalAlpha = pillA; k.font = UXB_f(600, 13); const tw = k.measureText('Create').width, x0 = -(16 + 8 + tw) / 2;
+    LC_icon(k, 4, x0, -8, '#FFFFFF'); txt(k, 'Create', x0 + 24, 0.5, UXB_f(600, 13), '#FFFFFF', 'left', 'middle');
+    k.globalAlpha = 1;
+  }
+  k.restore();
+  // 行裁在当前形状里（面板还在撑开时不会露到外面，原作 overflow: hidden）
+  k.save(); rr(k, -bw / 2 * sc, -bh / 2 * sc, bw * sc, bh * sc, br * sc); k.clip();
+  // 菜单行：张开时第 i 行延迟 0.03 + 0.022 i 秒，透明度 0.16 秒、上移 6 px 用 0.22 秒；关上时无延迟退回
+  for (let i = 0; i < 4; i++) {
+    const dl = 0.03 + i * 0.022;
+    const a = LC_ramp(u, [[-1, 0], [LC_OPEN + dl, 1, 0.16], [LC_CLOSE, 0, 0.16]], LC_EASE);
+    if (a < 0.002) continue;
+    const dy = LC_ramp(u, [[-1, 6], [LC_OPEN + dl, 0, 0.22], [LC_CLOSE, 6, 0.22]], LC_OUTC);
+    const hv = LC_hover(u, i), x = -LC_PANEL_W / 2 + 12, y = LC_rowY(i) + dy, rw = LC_PANEL_W - 24;
+    k.globalAlpha = a;
+    if (hv > 0.002) { k.fillStyle = `rgba(255,255,255,${0.18 * hv})`; rr(k, x, y, rw, 34, LC_ROW_R); k.fill(); }
+    k.fillStyle = LC_TILE[i]; rr(k, x + 12, y + 5, 24, 24, 7); k.fill();
+    LC_icon(k, i, x + 16, y + 9, LC_GLYPH);
+    txt(k, LC_ITEMS[i], x + 46, y + 17.5, UXB_f(500, 13), `rgba(255,255,255,${0.9 + 0.1 * hv})`, 'left', 'middle');
+    k.globalAlpha = 1;
+  }
+  k.restore();
+  k.restore();
+  if (u > 0.3 && u < 4.75) {
+    const [px, py] = BN_path(u, LC_KEYS);
+    ripple(k, px, py, seg(u, LC_PRESS, LC_PRESS + 0.5), '255,255,255'); ripple(k, px, py, seg(u, LC_CLOSE, LC_CLOSE + 0.5), '124,58,237');
+    cursor(k, px, py, Math.max(UXB_press(u, LC_PRESS), UXB_press(u, LC_CLOSE)));
+  }
+};

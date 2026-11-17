@@ -1,0 +1,16 @@
+Please use "Voice note with slide to cancel" (スライドで捨てるボイスメモ), filed under "Feedback / AI status".
+Motion Prompt #1-251
+
+What it is: A hold-to-record voice note pill: slide left while recording to throw the take away, or let go to keep it as a clip you can play back
+What the sample shows: A deep green pill with a lime mic and "Hold to record" sits on a lemon-to-grass gradient. When the pointer holds it, the pill widens with a slight overshoot, a red dot blinks, a timer runs and lime level bars grow in one by one from the right. Sliding left while holding shifts the row left and fades it, and the "‹ Slide to cancel" hint below fades too. Slid all the way, a red × disc pops in at the left end and the hint turns into a red "Release to cancel". On release the bars squash flat and vanish and the pill narrows back. A second hold records again; this time the release turns it into a clip with a lime play button. Pressing play morphs the triangle into a pause sign, the bars light up from dim to bright lime as the playhead passes, and at the end it turns back into a triangle. Pressing the × at the right end squashes the bars and closes the pill to the opening picture.
+Spec:
+- The deep green pill is 56 px tall and opens from 216 px to 300 px wide (all drawn at 1.3×); the width moves in 0.42 s with an overshoot from bounce 40 (y1 1.28).
+- The wave is 28 bars, each 3 px wide; one sample joins on the right every 70 ms, and a bar is 4 px + level × 28 px tall (gain 60).
+- Holding at 0.5 s starts a take; from 0.9 s the pointer slides left, at 90 px a red × appears, the release at 1.45 s throws the take away and the pill closes 0.36 s later.
+- A second hold at 2.4 s records for 1.3 s; releasing at 3.7 s turns it into a clip with a 44 px play button.
+- Play is pressed at 3.95 s; bars the playhead has passed go from opacity 0.3 to 1, ending at 5.25 s. The × is pressed at 5.35 s to discard the clip.
+When to use it: Use it for voice messages in chat and messaging apps, voice memos, and the record button of a voice input field.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-251.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

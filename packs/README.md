@@ -2,7 +2,7 @@
 
 # Names
 
-573 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+596 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind. Each number opens the moving sample in the gallery.
 
@@ -10,23 +10,23 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 
 | Group | Section | Category | Names | Numbers |
 |---|---|---|---|---|
-| 1 UI & Web | Components | Opening & overlays | 18 | #1 001–018 |
-| 1 UI & Web | Components | Choosing & input | 27 | #1 019–042 · 224–226 |
+| 1 UI & Web | Components | Opening & overlays | 21 | #1 001–018 · 236 · 238 · 252 |
+| 1 UI & Web | Components | Choosing & input | 35 | #1 019–042 · 224–226 · 240–245 · 250 · 253 |
 | 1 UI & Web | Components | Navigation & menus | 9 | #1 043–050 · 227 |
-| 1 UI & Web | Components | Status & developer UI | 8 | #1 051–058 |
+| 1 UI & Web | Components | Status & developer UI | 9 | #1 051–058 · 249 |
 | 1 UI & Web | Pages | Scrolling | 21 | #1 059–078 · 198 |
 | 1 UI & Web | Pages | Page transitions & loading | 9 | #1 079–087 |
 | 1 UI & Web | Pages | Hero backgrounds | 27 | #1 088–102 · 200 · 203–205 · 207–214 |
 | 1 UI & Web | Pointer interactions | Buttons | 12 | #1 103–114 |
 | 1 UI & Web | Pointer interactions | Hover | 10 | #1 115–122 · 220–221 |
-| 1 UI & Web | Pointer interactions | Cursor | 19 | #1 123–135 · 206 · 215–219 |
-| 1 UI & Web | Pointer interactions | Tactile & cards | 13 | #1 136–145 · 201 · 222–223 |
-| 1 UI & Web | Pointer interactions | Liquid interactions | 4 | #1 146–148 · 197 |
-| 1 UI & Web | Feedback | Action feedback | 12 | #1 149–158 · 199 · 228 |
-| 1 UI & Web | Feedback | Progress & icons | 9 | #1 159–166 · 229 |
-| 1 UI & Web | Feedback | AI status | 13 | #1 167–178 · 230 |
+| 1 UI & Web | Pointer interactions | Cursor | 22 | #1 123–135 · 206 · 215–219 · 231–233 |
+| 1 UI & Web | Pointer interactions | Tactile & cards | 14 | #1 136–145 · 201 · 222–223 · 239 |
+| 1 UI & Web | Pointer interactions | Liquid interactions | 5 | #1 146–148 · 197 · 248 |
+| 1 UI & Web | Feedback | Action feedback | 14 | #1 149–158 · 199 · 228 · 237 · 246 |
+| 1 UI & Web | Feedback | Progress & icons | 10 | #1 159–166 · 229 · 247 |
+| 1 UI & Web | Feedback | AI status | 15 | #1 167–178 · 230 · 234 · 251 |
 | 1 UI & Web | Text & data | Interactive type | 9 | #1 179–186 · 202 |
-| 1 UI & Web | Text & data | Charts | 10 | #1 187–196 |
+| 1 UI & Web | Text & data | Charts | 11 | #1 187–196 · 235 |
 | 2 Motion graphics | Motion principles | Entrances & easing | 12 | #2 001–009 · 117–119 |
 | 2 Motion graphics | Motion principles | Rhythm & loops | 9 | #2 010–018 |
 | 2 Motion graphics | Text animation | Letter by letter & layout | 15 | #2 019–029 · 113–114 · 120 · 123 |
@@ -67,7 +67,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 
 ### Components
 
-#### Opening & overlays · #1 001–018
+#### Opening & overlays · #1 001–018 · 236 · 238 · 252
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -89,8 +89,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-016](https://sadjjk.github.io/motion-prompt-zh/#1-016) | **Cookie banner** | A consent card for cookies that rises from the bottom | Add a cookie banner: it springs up from the bottom, the cookie icon wobbles, and clicking accept sends it back down. |
 | [#1-017](https://sadjjk.github.io/motion-prompt-zh/#1-017) | **Speed dial** | A floating + button that fans out small action buttons | Turn the add button at lower right into a speed dial: on click the + turns into ×, and small buttons pop out above it from the bottom up. |
 | [#1-018](https://sadjjk.github.io/motion-prompt-zh/#1-018) | **Swipe-to-dismiss toast** | A short notification you can drag down to dismiss | Make the copied toast swipe-to-dismiss: it drops in from the top with a 3.0 s countdown bar along its bottom, pressing pauses it, dragging up to 74 px shrinks and fades it, and releasing past 46 px makes it speed off downward. |
+| [#1-236](https://sadjjk.github.io/motion-prompt-zh/#1-236) | **Toast stack fan-out** | Three stacked notifications fan out into a list on a spring when pointed at, and gather back up when the pointer leaves | Add a toast stack fan-out to the notifications: keep the newest toast in front with the two before it peeking 14 px above, a step smaller, fan them into a list with 10 px gaps on a spring when the pointer is over it, and gather them back when it leaves. |
+| [#1-238](https://sadjjk.github.io/motion-prompt-zh/#1-238) | **Dynamic island** | A black pill running a timer grows into its activity card on a slightly overshooting spring when pressed, and tucks back on a second press | Add a dynamic island to the timer: normally a black pill with a timer glyph and the time left; a press grows width, height and corners on one spring (bounce 40) into a card with a pause button and a large time, swapping the contents through a blur, and a second press tucks it back into the pill. |
+| [#1-252](https://sadjjk.github.io/motion-prompt-zh/#1-252) | **Upload drop box that refuses big files** | A dropped file is swallowed and shown uploading; a file over the limit makes the box shake its head, turn red and bounce the file back, and trying the same file again earns a drier remark | Build a drop box for the upload screen: a picked-up file grows a little and tilts, and when it is over the box the box swells, lifts its arrow and switches to Drop to upload. If the file is within the limit, suck it into the centre, shrink the box to hug an upload row, roll the percentage while the progress bar fills, and pop a tick when it is done. If it is over the limit, shake the box sideways, turn it red, state the limit and spring the file back to where it came from; when the same file is dropped again, change the line to a remark that it is still the same size. |
 
-#### Choosing & input · #1 019–042 · 224–226
+#### Choosing & input · #1 019–042 · 224–226 · 240–245 · 250 · 253
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -121,6 +124,14 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-224](https://sadjjk.github.io/motion-prompt-zh/#1-224) | **Curved input** | A search field bent along an arc, with its text, caret and send button all following the curve | Make the landing page search field a curved input: the whole field bends along an arc, typed letters each tilt along the curve, and the caret and the send button at the right end sit on the arc too. On send, the text flows along the arc into the button and fades. |
 | [#1-225](https://sadjjk.github.io/motion-prompt-zh/#1-225) | **Scrub field** | Dragging left or right on a number field changes its value, and pulling past the limits stretches the field like rubber until it springs back on release | Make the opacity field in the settings panel a scrub field: press and drag left or right to change the value by 1 for every 2 px; pulling past 0 or 100 stretches that side's edge with growing resistance, and on release it springs back to its width. Show a left-right arrow cursor while dragging. |
 | [#1-226](https://sadjjk.github.io/motion-prompt-zh/#1-226) | **Arc gallery** | Cards line up along a wide arc, each bent to the curve, and dragging spins them along the arc until they snap into place | Turn the work list into an arc gallery: place cards on a wide arc, high in the middle and low at the ends, bend each card to the arc and darken the ends. Dragging spins them along the arc; on release they snap to the nearest card slot, looping round from the other end. |
+| [#1-240](https://sadjjk.github.io/motion-prompt-zh/#1-240) | **Signature pad** | A signature pad whose ink thins when the pen moves fast and pools when it slows, and Clear un-draws it in reverse order | Add a signature pad to the form: a signing line with a Sign here hint, ink whose width follows the pen speed, a Clear button that appears in the corner once you start, and a Clear that rewinds the ink from the last point back to the first. |
+| [#1-241](https://sadjjk.github.io/motion-prompt-zh/#1-241) | **Time ruler** | Drag a tick ruler under a fixed centre mark to set a time; fling it and it coasts, then settles on the nearest 15-minute tick | Make the time input a scrubbable ruler: a large 12-hour time on top, a tick ruler below that you drag, digits that roll one by one as it moves, and a fling that coasts at the release speed and lands on the nearest 15 minutes with the same spring. |
+| [#1-242](https://sadjjk.github.io/motion-prompt-zh/#1-242) | **Asset swap** | Press the arrow on the seam between two slabs and it springs half a turn; paying and receiving trade places and both amounts are worked out again | Lay out the swap as two stacked slabs with a round arrow button on the seam. On press, turn the arrow half a turn in the same direction with a little overshoot, keep the slabs still, swap the You pay and You receive labels and recompute both amounts from the prices less a 0.3% fee. |
+| [#1-243](https://sadjjk.github.io/motion-prompt-zh/#1-243) | **Magnet select** | Round options packed in a honeycomb; the chosen one swells and shoves its neighbours aside, and the whole cluster leans a little toward the pointer | Pack 7 round options in a honeycomb. The chosen one grows and shows its shape; every other one is pushed directly away from it, the farther ones a touch later, smaller and slightly tilted. Give the springs a little bounce, and let the whole cluster lean a few pixels toward the pointer as it comes near. |
+| [#1-244](https://sadjjk.github.io/motion-prompt-zh/#1-244) | **Avatar stack picker** | Picking people from a list drops their faces into a pill, where they overlap in a row and the pill grows to hold them | Build an avatar stack picker for a task's assignee field: when a person is picked in the list, their face drops into the pill with a slight turn and overlaps the previous one by 10 px; when removed, it spins away shrinking and the rest close the gap. |
+| [#1-245](https://sadjjk.github.io/motion-prompt-zh/#1-245) | **Equal-area aspect switch** | Switching between 4:3, 1:1 and 3:4 reshapes the picture frame at the same area, so the picture is cropped differently rather than stretched | Add an equal-area aspect switch to the image crop settings: give the 4:3, 1:1 and 3:4 frames the same area, change the frame's width and height (not a scale) over 0.52 s when one is picked, crop the image with cover, and let the thumb of the segmented control below arrive before the frame does. |
+| [#1-250](https://sadjjk.github.io/motion-prompt-zh/#1-250) | **Slosh slider** | The handle stays rigidly under the finger while the fill behaves like a liquid with weight: it lags, leans its leading edge, overshoots and rocks into place | Add a slosh slider to the settings screen: a thin handle that tracks the finger exactly, and a fill that chases it on a soft spring, leaning its leading edge the way it travels and overshooting the handle and rocking back a few times on a fast drag; on release, let the handle coast on the speed it had before it stops. |
+| [#1-253](https://sadjjk.github.io/motion-prompt-zh/#1-253) | **Odometer counter** | A number between a minus and a plus whose digits are 0–9 strips that roll like an odometer, the carry passing from the right column to the left one a moment apart; holding a button repeats faster and in bigger steps | Build an odometer counter: every digit is a 0–9 strip, a carry ripples from the right column to the left 45 ms apart and each column lands on a spring, a fast-spinning digit blurs, and holding + repeats faster and faster until it steps by 10. |
 
 #### Navigation & menus · #1 043–050 · 227
 
@@ -136,7 +147,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-050](https://sadjjk.github.io/motion-prompt-zh/#1-050) | **Tree menu** | A side nav whose items hang off a trunk by branch lines; opening grows new branches and picking an item lights its path | Turn the dashboard side nav into a tree menu: clicking 'Products' pushes the items below down 54 px, grows 3 child branches 0.13 s apart over 0.4 s each, and lights the line to the chosen child over 0.58 s. |
 | [#1-227](https://sadjjk.github.io/motion-prompt-zh/#1-227) | **Flowing menu** | When the cursor enters a large menu row, a colour band slides in from the side it came from, with the item name scrolling inside it as a marquee | Make the full-screen menu a flowing menu: when the cursor enters a row, a light band slides in to cover it, from the top if the cursor came from above and from the bottom if from below, with the item name and a dot scrolling left inside. On leaving, the band slides out the way the cursor left. |
 
-#### Status & developer UI · #1 051–058
+#### Status & developer UI · #1 051–058 · 249
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -148,6 +159,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-056](https://sadjjk.github.io/motion-prompt-zh/#1-056) | **Deploy pipeline** | Build stages run in sequence, turning green and linking up | Animate a deploy: 4 cards Lint, Test, Build and Deploy go from "Running" to "Passed" in green one by one, the links between them fill, and it ends on "Live". |
 | [#1-057](https://sadjjk.github.io/motion-prompt-zh/#1-057) | **Pull to refresh** | Pull the list down and let go to reload it | Add pull to refresh to the message list: it resists as it is pulled, the icon turns, and on release it loads and a new item appears at the top. |
 | [#1-058](https://sadjjk.github.io/motion-prompt-zh/#1-058) | **Marching ants selection** | A dashed selection box whose line keeps crawling, with corner handles | Show the editor selection as marching ants: dashes of 6 with gaps of 5 that keep flowing, and a width × height label that updates as the box resizes. |
+| [#1-249](https://sadjjk.github.io/motion-prompt-zh/#1-249) | **Action node card** | A coloured automation node card whose action buttons, each in its own colour, hide under its top-right corner and fan out of it on hover | Build a node card for a workflow editor. Keep 4 round buttons, Connect, Add, Duplicate and Settings, tucked under the card's top-right corner; on hover they should come out one after another along the curve of the corner with a small bounce, and go back in reverse order when the pointer leaves. |
 
 ### Pages
 
@@ -257,7 +269,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-220](https://sadjjk.github.io/motion-prompt-zh/#1-220) | **Pixel swap** | A card that swaps to another picture in a wave of pixel blocks spreading from where the cursor enters | Make the card hover a pixel swap: a wave of pixel blocks spreads from where the cursor enters and swaps the day picture for a night one, the wave front flashing violet, and a reverse wave from where it leaves swaps it back. |
 | [#1-221](https://sadjjk.github.io/motion-prompt-zh/#1-221) | **Electric border** | A card whose border is a crackling electric arc that grows wilder and brighter as the cursor approaches | Give the pricing card an electric border: the whole edge is a bluish-white arc that crackles, the part nearest the cursor thrashes harder, and the whole ring brightens when the cursor reaches the card. |
 
-#### Cursor · #1 123–135 · 206 · 215–219
+#### Cursor · #1 123–135 · 206 · 215–219 · 231–233
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -280,8 +292,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-217](https://sadjjk.github.io/motion-prompt-zh/#1-217) | **Target cursor** | An aiming cursor whose four corner brackets snap onto the outline of the element under it | Make the cursor a target cursor: four corner brackets circle slowly around a small dot, snap with a little bounce onto the outline of any button or card it rests on, and squeeze in on click. |
 | [#1-218](https://sadjjk.github.io/motion-prompt-zh/#1-218) | **Dodge field** | A grid of icons that slide out of the cursor's way and glide back once it leaves | Make the icon grid a dodge field: icons slide away from the cursor and shrink a little as it comes near, then glide back into place once it moves on. |
 | [#1-219](https://sadjjk.github.io/motion-prompt-zh/#1-219) | **Halftone reveal** | A dark field of halftone dots where tracing with the cursor swells the dots and brings up the picture beneath | Make the hero image a halftone reveal: normally just small grey dots, but where the cursor passes the dots swell by the picture's brightness and take its colours, fade back slowly, and a click reveals the whole picture. |
+| [#1-231](https://sadjjk.github.io/motion-prompt-zh/#1-231) | **ASCII wake cube** | A pointer drags a wake of characters through a cube drawn in halftone dots, and the wake cools back to dots behind it | Add an ASCII wake cube to the hero background: draw an isometric cube in halftone dots of a monospace face, turn only the cells the pointer passes into the glyphs . : - = + * # % @, let them cool back to dots over 1.2 s, lean nearby glyphs toward the pointer, and send a ring out on click. |
+| [#1-232](https://sadjjk.github.io/motion-prompt-zh/#1-232) | **Heat dot field** | On a midnight-blue field, a dim indigo shape turns into a thermal-camera heat map only under the pointer, melting together there, and each press swaps in the next shape | Add a heat dot field to the hero: lay out blurred indigo dots on a midnight-blue field, colour only the area under the pointer with the Neon thermal palette (pink rim through red, yellow and cyan to an electric-blue core), make the dots under the hand swell and melt together, and cycle the shape Dots, Asterisk, Word on click. |
+| [#1-233](https://sadjjk.github.io/motion-prompt-zh/#1-233) | **Particle repel** | A shape made of rainbow dots is pushed aside by the pointer and springs back, and a press blasts it apart into the next shape | Add particle repel to the hero: build a circle from 720 dots, push dots within 80 px of the pointer away and spring them back home, stretch moving dots a little along their path, and on press blast them out with a shockwave and regather them by angle into a rounded square. |
 
-#### Tactile & cards · #1 136–145 · 201 · 222–223
+#### Tactile & cards · #1 136–145 · 201 · 222–223 · 239
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -298,8 +313,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-201](https://sadjjk.github.io/motion-prompt-zh/#1-201) | **Sticker peel** | A sticker you pinch by the corner and pull: it folds back along a crease to show its back, and sticks down again when released | Turn the logo into a sticker peel: pinching the bottom-right corner and pulling it up-left folds it back to show a white underside and shadow, and letting go makes it wobble and stick down again. |
 | [#1-222](https://sadjjk.github.io/motion-prompt-zh/#1-222) | **Bounce cards** | Cards fanned out in a stack pop in with a bounce; the hovered one straightens and comes forward while its neighbours are pushed aside | Make the photo cards bounce cards: 5 cards fanned out at slight angles pop in one by one with a bounce; the hovered card straightens, grows a little and lifts, and the cards beside it move out of the way. |
 | [#1-223](https://sadjjk.github.io/motion-prompt-zh/#1-223) | **Lanyard badge** | An ID badge hanging from a lanyard that you can grab, pull and let go so it swings back into place | Make the event badge a lanyard badge: it hangs from a strap coming down from the top and sways gently; when the cursor grabs it and pulls it up and to the side the strap stretches, and on release it swings back like a pendulum. |
+| [#1-239](https://sadjjk.github.io/motion-prompt-zh/#1-239) | **Todo tower** | Candy-coloured todo cards are stacked like bricks; check one off and it is pulled out, and the cards above fall under gravity to fill the gap | On a cream-yellow ground, build a tower of 6 todo cards in 6 candy colours, stacked like bricks, each nudged a little left or right (slip 45). Pressing one card's checkbox fills it, strikes the text through and slides the card out sideways as it fades; the cards above drop together to fill the gap and bounce lightly as they land. Then push that card back into its place. |
 
-#### Liquid interactions · #1 146–148 · 197
+#### Liquid interactions · #1 146–148 · 197 · 248
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -307,10 +323,11 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-147](https://sadjjk.github.io/motion-prompt-zh/#1-147) | **Gooey trail** | A moving indicator stretches and trails a droplet tail behind it | Make the tab indicator liquid: it stretches when it moves and trails a droplet tail, 0.45 s per move, tail lagging 0.09 s. |
 | [#1-148](https://sadjjk.github.io/motion-prompt-zh/#1-148) | **Gooey bend** | A dragged card bows softly against the direction it moves | Make the dragged card bend like liquid against its motion, in proportion to speed, up to 9 px. |
 | [#1-197](https://sadjjk.github.io/motion-prompt-zh/#1-197) | **Liquid glass lens** | A glass lens glides over the content, bending the background at its rim with colour fringes | Slide a capsule-shaped liquid glass lens back and forth over a headline and colour chips: the middle shows the background as is, while within 26 px of the rim the background bends inwards and red, green and blue separate into colour fringes. |
+| [#1-248](https://sadjjk.github.io/motion-prompt-zh/#1-248) | **Liquid create menu** | The Create pill itself melts open into the menu panel instead of dropping a separate list | When the "+ Create" button is pressed, have the pill spring open into a rounded menu panel, with the items floating up one by one, and fold back into the pill when the user presses outside. |
 
 ### Feedback
 
-#### Action feedback · #1 149–158 · 199 · 228
+#### Action feedback · #1 149–158 · 199 · 228 · 237 · 246
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -326,8 +343,10 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-158](https://sadjjk.github.io/motion-prompt-zh/#1-158) | **Copy feedback** | Pressing copy spins the icon into a check and pops a tooltip | Add copy feedback to the code block: on press, spin the icon 90° into a check, show a 'Copied' tooltip above and revert after 1.5 s. |
 | [#1-199](https://sadjjk.github.io/motion-prompt-zh/#1-199) | **Loading button** | A button that shows a busy state after the click, then the result | Turn the submit button into a loading button: it shrinks into a spinning circle, then shows a green check when done. |
 | [#1-228](https://sadjjk.github.io/motion-prompt-zh/#1-228) | **Fuse undo** | After a delete, the undo button's outline is a fuse that burns around it with sparks, and the action can be undone until it burns out | Make the undo button in the toast after deleting a file a fuse undo: turn the capsule outline of the button into a fuse that burns clockwise from the top centre over 4 s, leaving a grey dotted line behind and sparks at the burning tip. If it is pressed before burning out, the flame goes out with a small puff of smoke and the file slides back into place. |
+| [#1-237](https://sadjjk.github.io/motion-prompt-zh/#1-237) | **Emoji reactions** | A message turns into a row of emoji, the one under the pointer swells and plays its little move, and the picked one flies to its reaction and adds 1 | Add emoji reactions to the message: pressing the add button springs the message into a row of 6 emoji, the one under the pointer swells and shows its name, and the picked one arcs over to its reaction while the count rolls up by 1. |
+| [#1-246](https://sadjjk.github.io/motion-prompt-zh/#1-246) | **Palette shuffle** | Pressing refresh draws all four swatches into circles at once; they switch to the new colours at their roundest and spring back out into their slots | Add a palette shuffle to the colour tool: generate the colours in OKLCH and order them light to deep; on refresh, draw all four swatches into circles together, swap to the new colours at the roundest point, and let them overshoot a little on the way back. No cross-fade between colours. |
 
-#### Progress & icons · #1 159–166 · 229
+#### Progress & icons · #1 159–166 · 229 · 247
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -340,8 +359,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-165](https://sadjjk.github.io/motion-prompt-zh/#1-165) | **Task status icon** | One icon that morphs smoothly between waiting, running, done and failed | Add task status icons to the agent's task list: a ring of 12 dashes while waiting, gathering into a spinning progress arc within 0.35 s on start, filling green with a check when done, and turning red with a shaking cross on failure. |
 | [#1-166](https://sadjjk.github.io/motion-prompt-zh/#1-166) | **Grid wave loader** | A wave of light keeps sweeping across rows of tiles, which merge into one progress bar when done | Make the file indexing a grid wave loader: sweep a light wave left to right across 12 × 2 tiles, speeding up from 0.6 to 1.6 passes per second with progress, and when done light them all, merge them into one progress bar and show “Done · 1,284 / 1,284 files”. |
 | [#1-229](https://sadjjk.github.io/motion-prompt-zh/#1-229) | **Slosh gauge** | Liquid in a glass jar chases the target value, its surface tilting and rippling while it moves, and splashes up when it hits the top at full | Turn the storage usage gauge into a slosh gauge: liquid in a rounded glass jar chases the target like a spring, tilting its surface with its speed while it moves, with 2 layers of ripples on top. When it reaches 100%, it hits the top and droplets splash out. |
+| [#1-247](https://sadjjk.github.io/motion-prompt-zh/#1-247) | **Step player** | In a row of dots on an indigo capsule the current step is a bar that fills with amber, then slides over to the next dot | Add a step player to the onboarding: a row of 5 dots and a play button, where the current dot is a bar that fills over time, slides to the next dot when full, and the dots it crosses hop one after another. |
 
-#### AI status · #1 167–178 · 230
+#### AI status · #1 167–178 · 230 · 234 · 251
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -358,6 +378,8 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-177](https://sadjjk.github.io/motion-prompt-zh/#1-177) | **Staged image generation** | Inside a fixed frame an image goes from blurred colour blobs through mosaic levels to a sharp picture | Make the image-generation wait a staged reveal: keep the 228 × 136 px frame fixed, go from blurred colour blobs through 6, 12, 24, 48 and 96-column mosaics to the sharp image, with a progress bar and “Compose › Colour › Refine › Done” below. |
 | [#1-178](https://sadjjk.github.io/motion-prompt-zh/#1-178) | **Hold-to-talk capsule** | A mic button stretches into a recording capsule while held, then shrinks back and shows the transcript | Add a hold-to-talk capsule to voice input: when the 68 px round mic button is pressed, stretch it into a 304 px capsule with a red dot, equaliser bars and a timer; on release fold the bars into one line, shrink back to the circle and pop up a transcript bubble above. |
 | [#1-230](https://sadjjk.github.io/motion-prompt-zh/#1-230) | **Tool call chip** | A small chip for each tool call in an AI reply, filling from the left as time passes, turning green on success or red with a shake on failure | Make the tool call display in the AI chat a tool call chip: the tool-name chip has a spinning icon on the left and elapsed seconds on the right, with a fill moving in from the left over time. On success it turns green with a check and the duration; on failure it turns red, shakes side to side and shows a cross and failed. |
+| [#1-234](https://sadjjk.github.io/motion-prompt-zh/#1-234) | **Context meter** | A model's context shown as a colour-coded stacked bar; pointing at a kind keeps it lit and rolls the figure to its share, and Compact shrinks the chat | Add a context meter to the AI chat screen: one 40 px stacked bar with System, Tools, Files, Chat and Memory biggest first, each in its own hue (violet, blue, teal, amber, rose) and the free room as a faint tail. Fade every kind except the one pointed at to 0.22, roll the big figure digit by digit to that kind's size, and when "Compact" is pressed shrink Chat from 108.6K to 30.4K and drop the total with it. |
+| [#1-251](https://sadjjk.github.io/motion-prompt-zh/#1-251) | **Voice note with slide to cancel** | A hold-to-record voice note pill: slide left while recording to throw the take away, or let go to keep it as a clip you can play back | Build a voice note button for a chat. Holding it should widen the pill with a small bounce and record with a live waveform and a timer; sliding all the way left while holding shows a red × and letting go throws the take away, while a normal release turns it into a clip with a play button whose bars light up as the playhead passes them. |
 
 ### Text & data
 
@@ -375,7 +397,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-186](https://sadjjk.github.io/motion-prompt-zh/#1-186) | **Rippling letters** | A headline whose letters bob like springs as the pointer passes | Give the headline letters a spring ripple: as the mouse passes, letters within a 34 px Gaussian lift up and bounce back on springs. |
 | [#1-202](https://sadjjk.github.io/motion-prompt-zh/#1-202) | **Pressure type** | A headline whose letters grow wider and bolder the closer the cursor gets, and narrow down when it moves away | Make the headline pressure type: letters near the cursor get wider, bolder and darker, and the line stays centred as its width changes. |
 
-#### Charts · #1 187–196
+#### Charts · #1 187–196 · 235
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -389,6 +411,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-194](https://sadjjk.github.io/motion-prompt-zh/#1-194) | **Donut chart segments** | A donut chart whose arcs draw in one after another | Show traffic sources as donut chart segments: draw each from the top clockwise, 0.45 s apiece, and slide the legend in from the right. |
 | [#1-195](https://sadjjk.github.io/motion-prompt-zh/#1-195) | **Stat cards** | Cards rise in turn as numbers count up and sparklines draw | Open the dashboard with stat cards: float 3 cards up 30 px, 0.12 s apart, and count the numbers up over 1.2 s. |
 | [#1-196](https://sadjjk.github.io/motion-prompt-zh/#1-196) | **Table crosshair highlight** | The pointed cell's row and column light up and the cell enlarges | Add a table crosshair highlight to the comparison table: light the hovered cell's row and column in a pale accent over 0.25 s and enlarge the cell to 1.12×. |
+| [#1-235](https://sadjjk.github.io/motion-prompt-zh/#1-235) | **Stacked bars hover** | Run along a month of stacked bars: the hovered day is ringed, the rest step back, and a tooltip glides beside it | Add a stacked bars hover to the traffic card: grow 20 days of four-colour stacked bars in turn, ring the day under the pointer with a rounded outline, sink the other bars into the card colour, and spring a tooltip with the date, total and breakdown beside the bar. |
 
 ## 2 Motion graphics
 

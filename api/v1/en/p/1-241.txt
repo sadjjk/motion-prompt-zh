@@ -1,0 +1,17 @@
+Please use "Time ruler" (目盛り定規の時刻選択), filed under "Components / Choosing & input".
+Motion Prompt #1-241
+
+What it is: Drag a tick ruler under a fixed centre mark to set a time; fling it and it coasts, then settles on the nearest 15-minute tick
+What the sample shows: On a soft apricot gradient, a deep orange card shows 9:30 AM in large white type above a white tick ruler with a dark indigo line standing in the middle. Ticks near the centre stand tall and solid and fall away, shorter and fainter, toward the ends. The pointer grabs the ruler and pulls it slowly left to 10:00, then flings it and lets go. The ruler coasts and settles on the 1:00 PM tick, the digits rolling one by one with a slight blur. A fling to the right carries it back to 9:30 AM.
+Spec:
+- The orange gradient card is 300 px wide with a 20 px corner; the time is set in white 30 px tabular digits with a 14 px AM/PM; the ruler is 58 px tall at 2 px per minute, a tick every 5 minutes.
+- Ticks are 10 px, 17 px on the quarter and 25 px on the hour; distance from the centre scales them 0.55–1 in height and 0.3–1 in white opacity, and the outer 22% fades out.
+- At 0.85 s the pointer grabs the ruler and pulls it to 10:00, then flings it left over 2.1–2.4 s and lets go.
+- The landing is the release speed × 21 frames ahead, rounded to 15 minutes; one spring (pull 0.022, damping 0.26) starts at 0.6 of the release speed and carries it to 1:00 PM.
+- A fling right over 3.55–3.85 s carries it back to 9:30 AM, at rest by about 4.7 s; digits change with a 220 ms springy roll and a 260 ms blur.
+- The pointer leaves by 4.8 s and the frame matches 0 s.
+When to use it: Use it for picking times in bookings and reminders, setting alarms and creating calendar events.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-241.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

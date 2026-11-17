@@ -1,0 +1,141 @@
+// Motion Prompt #1-240 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 署名パッド / Signature pad
+// 分類: UI・Web / コンポーネント / 選ぶ・入力する
+// 何が起きるか: 青緑のグラデーションの上に淡いミント色の署名パッドがあり、青緑の署名線が引かれ、その下に Sign here と書かれている。ポインタが入ってきてペンを下ろすと案内が消え、右上に白文字の青緑の Clear が小さく弾んで現れる。輪のついた大文字、続け字、点、勢いのある下線の順に紺色のインクで書いていき、速く引いた所は細く、折り返しで遅くなる所は太くなる。最後に Clear を押すと、インクが最後の点から書いた順を逆にたどって消え、案内が戻って空のパッドになる。
+// 動きの仕様:
+//   - 青緑のグラデーションの上に、淡いミント色の署名パッド 300×180px、角丸 20px。署名線は上から 128px、左右 28px 内側で、案内 Sign here は 12px
+//   - 紺色のインクの太さはペンの重さ 40 から 1.6px〜4.2px の間で決まり、ポインタの速さで細くなり、毎回 0.35 だけ目標の太さへ寄る
+//   - 0.8 秒にペンを下ろして 4 画を書く：大文字 0.8–1.42 秒、続け字 1.62–2.58 秒、点 2.78 秒、下線 3.04–3.4 秒
+//   - 書き始めると案内が 220ms で消え、Clear（54×28px）が 0.9 から 1 に弾んで現れる
+//   - 3.6 秒に Clear を押すと、111 点のインクが 点ごとに 6ms で最後の点から巻き戻り、約 0.67 秒で消える
+//   - ポインタは 4.7 秒に出ていき、その後は 0 秒と同じ空のパッドのまま
+// 使いどころ: 契約書や同意書の署名欄、配達の受け取りサイン、電子申請フォームなどに。
+// タグ: signature, drawing, pen, form, rewind, stroke-width
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-240
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 77
+// 81 签名板（bencho signature）：青绿渐变底上一块 300×180 淡青色签名板，签名线下方写着 Sign here；指针从右下进入，0.8 秒落笔写一个带圈的大写字母（0.8–1.42 秒），再写一串连笔（1.62–2.58 秒），
+// 2.78 秒点一下，3.04–3.4 秒甩出一道下划线；笔走得快线就细、慢就粗（笔重 40，墨色深蓝）。首次落笔时提示淡出、右上角青绿色 Clear 弹出；
+// 3.6 秒点 Clear，墨迹从最后一点起逐点倒退擦掉（111 个点，约 0.67 秒），提示淡回，指针 4.7 秒离开；之后保持空白签名板，与 0 秒画面相同。
+const SG_W = 300, SG_H = 180, SG_X = 120, SG_Y = 14, SG_R = 20, SG_LINE = 128, SG_INSET = 28;
+const SG_PEN = 40, SG_THIN = 0.8 + SG_PEN / 100 * 2, SG_THICK = 2.2 + SG_PEN / 100 * 5;   // 原作 widths()：笔重 40 → 1.6 / 4.2 px
+const SG_K = 1 - 50 / 100 * 0.75;                     // 平滑 50：笔尖每次 pointermove 追手 62.5%
+const SG_EV = 1 / 60;                                 // pointermove 按 60 Hz 到达
+const SG_PER = 2 + (100 - 50) / 100 * 8;              // 倒退速度 50：每个点 6 ms
+const SG_CLICK = 3.6, SG_INK = '#1B2A6B', SG_TEAL = '#0C8378', SG_DEEP = '#0B5F57';
+const SG_CLR = { x: 236, y: 10, w: 54, h: 28 };       // Clear 按钮（板内坐标，right 10 / top 10）
+const SG_CSS = UXA_bz(0.25, 0.1, 0.25, 1), SG_POP = UXA_bz(0.24, 1.34, 0.38, 1);
+// Catmull-Rom 折线（板内坐标），s 0..1 按点均分
+const SG_cr = P => s => {
+  const n = P.length - 1, f = clamp(s) * n, i = Math.min(n - 1, Math.floor(f)), t = f - i;
+  const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(n, i + 2)];
+  const c = (a, b, c2, d) => 0.5 * (2 * b + (c2 - a) * t + (2 * a - 5 * b + 4 * c2 - d) * t * t + (3 * b - a - 3 * c2 + d) * t * t * t);
+  return [c(p0[0], p1[0], p2[0], p3[0]), c(p0[1], p1[1], p2[1], p3[1])];
+};
+// 连笔：顶端打圈的波形（l 形圈），每个波的高度不同，基线微微上扬
+const SG_HUMP = [24, 40, 17, 32, 15];
+const SG_cursive = s => {
+  const N = SG_HUMP.length, f = clamp(s) * N;
+  const hc = q => { const a = Math.floor(q - 0.5), t = q - 0.5 - a, A = SG_HUMP[clamp(a, 0, N - 1)], B = SG_HUMP[clamp(a + 1, 0, N - 1)]; return mix(A, B, (1 - Math.cos(Math.PI * t)) / 2); };
+  const h = hc(f), ph = TAU * f;
+  return [108 + 122 * s + 0.32 * h * Math.sin(ph), mix(118, 110, s) - h * (1 - Math.cos(ph)) / 2];
+};
+// 笔画：[落笔, 抬笔, 路径, 两端减速程度]；笔画之间的空档都短于原作 220 ms 的"放松"延时，墨色一直保持全黑
+const SG_STROKES = [
+  [0.8, 1.42, SG_cr([[48, 122], [60, 96], [74, 64], [86, 46], [94, 52], [88, 80], [78, 110], [72, 128], [64, 138], [56, 130], [66, 116], [86, 108], [104, 104]]), 1],
+  [1.62, 2.58, SG_cursive, 0.3],
+  [2.78, 2.84, SG_cr([[184, 72], [191, 66]]), 1],
+  [3.04, 3.4, SG_cr([[60, 140], [112, 139], [170, 134], [220, 123], [250, 108], [264, 94]]), 1],
+];
+const SG_warp = (t, c) => t - c * Math.sin(TAU * t) / TAU;
+// 手的位置（板内坐标）：笔画内沿路径走，笔画之间用 BN_path 平滑移动
+function SG_hand(u) {
+  const S = SG_STROKES;
+  for (let i = 0; i < S.length; i++) {
+    const [a, b, f, c] = S[i];
+    if (u >= a && u <= b) return f(SG_warp((u - a) / (b - a), c));
+    const prevEnd = i === 0 ? [0.15, 480, 226] : [S[i - 1][1], ...S[i - 1][2](1)];
+    if (u < a) return BN_path(u, [prevEnd, [a, ...f(0)]]);
+  }
+  const e = S[S.length - 1], end = [e[1], ...e[2](1)], cl = [SG_CLR.x + 26, SG_CLR.y + 16];
+  return BN_path(u, [end, [SG_CLICK - 0.06, cl[0], cl[1]], [SG_CLICK + 0.2, cl[0], cl[1]], [4.7, 480, 150]]);
+}
+let SG_SIM = null;
+// 一次性模拟原作的 onDown / onMove：平滑追手、按速度算目标线宽、线宽再按 0.35 缓动；每个点记下出现时刻
+function SG_sim() {
+  if (SG_SIM) return SG_SIM;
+  const strokes = [];
+  for (const [a, b] of SG_STROKES) {
+    const p0 = SG_hand(a), w0 = (SG_THIN + SG_THICK) / 2, s = [{ x: p0[0], y: p0[1], w: w0, t: a }];
+    let l = { x: p0[0], y: p0[1], t: a * 1000, w: w0 };
+    for (let t = (Math.floor(a / SG_EV) + 1) * SG_EV; t <= b + 1e-9; t += SG_EV) {
+      const raw = SG_hand(t), x = l.x + (raw[0] - l.x) * SG_K, y = l.y + (raw[1] - l.y) * SG_K, d = Math.hypot(x - l.x, y - l.y);
+      if (d < 0.8) continue;
+      const v = d / Math.max(1, t * 1000 - l.t), target = SG_THICK - (SG_THICK - SG_THIN) * clamp(v / 1.6), w = l.w + (target - l.w) * 0.35;
+      l = { x, y, t: t * 1000, w }; s.push({ x, y, w, t });
+    }
+    strokes.push(s);
+  }
+  const n = strokes.reduce((m, s) => m + s.length, 0);
+  SG_SIM = { strokes, n, dur: clamp(n * SG_PER, 350, 2400) / 1000 };
+  return SG_SIM;
+}
+// 原作 pieces()：过各点中点的二次曲线小段，每段宽度取两端点线宽的平均
+function SG_pieces(k, s, upto) {
+  const n = Math.min(s.length, upto);
+  if (n <= 0) return;
+  if (n === 1 || s.length === 1) { k.beginPath(); k.arc(s[0].x, s[0].y, s[0].w / 2, 0, TAU); k.fill(); return; }
+  for (let i = 1; i < n; i++) {
+    const a = s[i - 1], b = s[i];
+    const st = i === 1 ? a : { x: (s[i - 2].x + a.x) / 2, y: (s[i - 2].y + a.y) / 2 };
+    const en = i === s.length - 1 ? b : { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    k.lineWidth = (a.w + b.w) / 2; k.beginPath(); k.moveTo(st.x, st.y); k.quadraticCurveTo(a.x, a.y, en.x, en.y); k.stroke();
+  }
+}
+CELLS[76] = (k, w, h, u) => {
+  // 底：青绿双色线性渐变；签名板是淡青色纸面，阴影用同色系深青
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#2CC9B0'); bg.addColorStop(1, '#0E8C9E');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  k.save(); k.shadowColor = 'rgba(4,60,58,0.35)'; k.shadowBlur = 18; k.shadowOffsetY = 6;
+  k.fillStyle = '#F1FBF8'; rr(k, SG_X, SG_Y, SG_W, SG_H, SG_R); k.fill(); k.restore();
+  const sim = SG_sim(), first = SG_STROKES[0][0];
+  k.save(); k.translate(SG_X, SG_Y);
+  // 签名线与提示（落笔后提示 220 ms 淡出，点 Clear 后淡回）
+  k.fillStyle = 'rgba(15,155,142,0.45)'; k.fillRect(SG_INSET, SG_LINE, SG_W - SG_INSET * 2, 1);
+  const hint = 0.7 * UXB_ramp(u, [[0, 1], [first, 0], [SG_CLICK, 1]], 0.22, SG_CSS);
+  if (hint > 0.003) txt(k, 'Sign here', SG_W / 2, 141, UXB_f(400, 12), `rgba(11,95,87,${hint})`, 'center', 'top');
+  // 墨迹：写字时显示已出现的点；点 Clear 后按 n·(1-ease) 从最后一点倒退
+  let left = Infinity;
+  if (u >= SG_CLICK) {
+    const q = clamp((u - SG_CLICK) / sim.dur), e = q < 0.5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2;
+    left = q >= 1 ? 0 : Math.round(sim.n * (1 - e));
+  }
+  k.strokeStyle = SG_INK; k.fillStyle = SG_INK; k.lineCap = 'round'; k.lineJoin = 'round';
+  for (const s0 of sim.strokes) {
+    if (left <= 0 || s0[0].t > u) break;
+    const s = u >= SG_CLICK || s0[s0.length - 1].t <= u ? s0 : s0.filter(p => p.t <= u);
+    SG_pieces(k, s, left); left -= s.length;
+  }
+  // Clear：首次落笔后淡入并弹到 1，悬停加深底色，按下缩到 0.96，点击后淡出缩回 0.9
+  const hand = SG_hand(u), C = SG_CLR;
+  const op = UXB_ramp(u, [[0, 0], [first, 1], [SG_CLICK, 0]], 0.16, SG_CSS);
+  if (op > 0.003) {
+    const hov = UXB_ramp(u, [[0, 0], [SG_CLICK - 0.1, 1], [SG_CLICK + 0.26, 0]], 0.16, SG_CSS);
+    const sc = UXB_ramp(u, [[0, 0.9], [first, 1], [SG_CLICK - 0.08, 0.96], [SG_CLICK, 0.9]], 0.22, SG_POP);
+    k.save(); k.globalAlpha = op; k.translate(C.x + C.w / 2, C.y + C.h / 2); k.scale(sc, sc);
+    k.fillStyle = `rgb(${UXB_mix(SG_TEAL, SG_DEEP, hov).join(',')})`; rr(k, -C.w / 2, -C.h / 2, C.w, C.h, 10); k.fill();
+    txt(k, 'Clear', 0, 0.5, UXB_f(600, 12), '#FFFFFF', 'center', 'middle');
+    k.restore();
+  }
+  k.restore();
+  // 指针：写字时按住，3.6 秒点击 Clear
+  let press = UXB_press(u, SG_CLICK);
+  for (const [a, b] of SG_STROKES) press = Math.max(press, clamp(Math.min((u - a + 0.06) / 0.06, (b + 0.06 - u) / 0.06)));
+  cursor(k, SG_X + hand[0], SG_Y + hand[1], press);
+};

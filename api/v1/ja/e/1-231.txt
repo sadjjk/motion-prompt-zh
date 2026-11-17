@@ -1,0 +1,103 @@
+// Motion Prompt #1-231 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// ASCII の航跡キューブ / ASCII wake cube
+// 分類: UI・Web / ポインター操作 / カーソル
+// 何が起きるか: 紺から紫へのグラデーションの地に、淡い青の細かな点で描いた立方体がある。上面は点がまばら、左面は中くらい、右面は密で、面の境目と輪郭は濃い線になる。ポインタが右から入って立方体をなぞると、手の下の点は黄やオレンジの @ や # のような濃い文字に変わってちらつき、通った跡はピンク、紫、青へと色が冷めながら + から - 、点へと薄れていく。周りの文字は手のほうへ少し寄る。中央で押すと、そこから文字の輪がゆっくり広がって消える。
+// 動きの仕様:
+//   - 立方体は半径 92px の等角キューブで、10px の等幅フォントの格子（6.2×8.2px、奇数行は半マスずらす）に網点で描く
+//   - ポインタは 0.3 秒に右から入り、4.55 秒に画面外へ向かって 4.8 秒に消える。手の下は半径 40px の範囲が濃い文字になる
+//   - 文字は . : - = + * # % @ の 9 段で、熱い所は 0.07 秒ごとに隣の段へちらつく。跡は exp(-3t/1.2) で冷め、1.2 秒でほぼ点に戻る
+//   - 半径 80px 以内の文字は手のほうへ最大 12px × 0.4 寄る
+//   - 2.6 秒に押すと、押した点から輪が 2.2 秒かけて半径 8px から 228px まで広がり、減衰しながら消える
+//   - 5.4–6.0 秒に残った熱を消して、最初の点だけの画面に戻す
+// 使いどころ: 開発者向けツールや AI プロダクトのヒーロー、ターミナル風のランディングページ、404 ページの遊び要素などに。
+// タグ: ascii, halftone, cursor-trail, hover, monospace, ripple, isometric
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-231
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 68
+// 68 ASCII 尾迹立方（bencho ascii-wake）：等轴立方体由半色调墨点组成（顶面稀、左面中、右面密，面交界和轮廓是密线）；
+// 指针 0.3 秒从右侧进入，沿曲线划过立方体，划过的格子按热度换成 . : - = + * # % @ 并闪动，尾迹按 1.2 秒冷却回点，附近字符向指针倾斜；
+// 2.6 秒按下，从按点荡出一圈 2.2 秒扩散的环；随后再划一笔，4.8 秒离开画面；复位段 5.4–6.0 秒余热清零。
+const AW_R = 92, AW_SZ = 10, AW_CWD = AW_SZ * 0.62, AW_CHT = AW_SZ * 0.82;
+const AW_RAD = 40, AW_TRAIL = 1.2, AW_PULL = 0.4, AW_RING = 2.2, AW_PRESS = 2.6, AW_COLD = 0.04, AW_DT = 1 / 40;
+const AW_RAMP = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'];
+const AW_KEYS = [[0, 600, 150], [0.35, 520, 120], [1.0, 330, 46], [1.55, 222, 120], [2.1, 262, 150], [2.45, 286, 112], [2.75, 286, 112], [3.3, 214, 66], [3.9, 300, 70], [4.3, 360, 150], [4.8, 620, 200]];
+const AW_IN = 0.3, AW_OUT = 4.55;
+// 原作 cube()：点 (x, y) 相对立方体中心的墨点大小 0..1（浅色页面按半色调印：亮面稀、暗面密）
+function AW_cube(x, y) {
+  const lit = v => 0.35 + 0.65 * clamp(1.09 - v);
+  const R = AW_R, c = Math.cos(Math.PI / 6) * R, h = R / 2;
+  const T = [0, -R], UR = [c, -h], B = [0, R], LL = [-c, h], UL = [-c, -h];
+  const along = (o, p, q) => {
+    const ax = p[0] - o[0], ay = p[1] - o[1], bx = q[0] - o[0], by = q[1] - o[1], dx = x - o[0], dy = y - o[1], det = ax * by - ay * bx;
+    return [(dx * by - dy * bx) / det, (ax * dy - ay * dx) / det];
+  };
+  const inside = ([s, t]) => s >= 0 && s <= 1 && t >= 0 && t <= 1, seam = v => (v < 0.045 ? 1 : 0);
+  const top = along(T, UR, UL);
+  if (inside(top)) { const [s, t] = top; return seam(1 - s) || seam(1 - t) ? 1 : lit(0.96 - 0.1 * (s + t) / 2); }
+  const left = along(UL, [0, 0], LL);
+  if (inside(left)) { const [s, t] = left; return seam(s) ? 1 : lit(0.56 - 0.12 * t); }
+  const right = along([0, 0], UR, B);
+  if (inside(right)) { const [s, t] = right; return seam(s) || seam(t) ? 1 : lit(0.13 - 0.05 * s); }
+  return 0;
+}
+let AW_GRID = null;                                       // 立方体内的格子 [下标, x, y, m]，只算一次
+function AW_grid() {
+  if (AW_GRID) return AW_GRID;
+  const cols = Math.floor(CW / AW_CWD - 0.5), rows = Math.floor(CH / AW_CHT);
+  const ox = (CW - cols * AW_CWD) / 2, oy = (CH - rows * AW_CHT) / 2;
+  AW_GRID = [];
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const x = ox + (i + 0.5 + (j & 1) * 0.5) * AW_CWD, y = oy + (j + 0.5) * AW_CHT, m = AW_cube(x - CW / 2, y - CH / 2);
+    if (m > 0) AW_GRID.push([j * cols + i, x, y, m]);
+  }
+  return AW_GRID;
+}
+// 热度色阶：冷蓝 → 紫 → 品红 → 橙 → 黄
+const AW_HEAT = ['#5B8CFF', '#8F63FF', '#D04BE8', '#FF4F9A', '#FF7A45', '#FFB238', '#FFE45C'];
+CELLS[67] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#121A3D'); bg.addColorStop(1, '#2B1452');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  const G = AW_grid(), fade = fadeIn(u), near = BN_near(u, AW_IN, AW_OUT), hand = BN_path(u, AW_KEYS);
+  // 过去 2.4 秒的路径按 1/40 秒取样：每小段按移动距离折算盖章次数（原作每移动 rad/3 盖一次 0.5），再按 exp(-3Δt/trail) 冷却
+  const st = [];
+  for (let s = Math.max(0, Math.floor((u - 2.4) / AW_DT) * AW_DT); s < u; s += AW_DT) {
+    const e = Math.min(u, s + AW_DT), p0 = BN_path(s, AW_KEYS), p1 = BN_path(e, AW_KEYS), d = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]);
+    if (d > 0.01) st.push([p1[0], p1[1], 0.5 * d / (AW_RAD / 3) * Math.exp(-3 * (u - e) / AW_TRAIL)]);
+  }
+  const R2 = AW_RAD * AW_RAD, far2 = 4 * R2, lean = AW_PULL * near, deal = Math.floor(u / 0.07);
+  const rp = (u - AW_PRESS) / AW_RING, rc = BN_path(AW_PRESS, AW_KEYS);
+  const ring = rp > 0 && rp < 1 ? { R: 8 + out3(rp) * 220, amp: 0.6 * (1 - rp) * (1 - rp) * Math.min(1, rp * 6) } : null;
+  const dot = Math.min(AW_CWD, AW_CHT) * 0.44, top = AW_RAMP.length - 1;
+  k.font = `500 ${AW_SZ}px ${MONO}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+  const heatTop = AW_HEAT.length - 1;
+  for (const [id, cx, cy, m] of G) {
+    let hh = 0;
+    for (const [sx, sy, a] of st) { const q = ((cx - sx) ** 2 + (cy - sy) ** 2) / R2; if (q < 1) hh += a * (1 - q) * (1 - q); }
+    hh = Math.min(1, hh);
+    if (near > 0.002) { const q = ((cx - hand[0]) ** 2 + (cy - hand[1]) ** 2) / R2; if (q < 1) hh = Math.max(hh, 0.95 * near * (1 - q) * (1 - q)); }
+    if (ring) { const d = (Math.hypot(cx - rc[0], cy - rc[1]) - ring.R) / 20; if (d > -2.5 && d < 2.5) hh += ring.amp * Math.exp(-d * d); }
+    hh *= (0.55 + 0.45 * m) * fade;
+    let x = cx, y = cy;
+    if (lean > 0.002) {
+      const dx = hand[0] - x, dy = hand[1] - y, d2 = dx * dx + dy * dy;
+      if (d2 < far2) { const f = 1 - d2 / far2, d = Math.sqrt(d2) || 1, mv = Math.min(d * 0.6, 12 * lean * f * f); x += dx / d * mv; y += dy / d * mv; }
+    }
+    let lv = Math.min(1, hh) * top + 0.5;
+    if (hh > AW_COLD) lv += (BN_hash2(id, deal) - 0.5) * 1.6 * Math.min(1, hh * 2);
+    const idx = clamp(Math.floor(lv), 1, top);
+    if (hh <= AW_COLD || idx === 1) {
+      k.fillStyle = `rgba(150,170,255,${(0.35 + 0.4 * m).toFixed(3)})`;
+      k.beginPath(); k.arc(x, y, Math.max(0.45, dot * Math.sqrt(m)), 0, TAU); k.fill();
+    } else {
+      k.fillStyle = AW_HEAT[clamp(Math.round(Math.min(1, hh) * heatTop), 0, heatTop)];
+      k.fillText(AW_RAMP[idx], x, y);
+    }
+  }
+  if (u > 0.2 && u < 4.9) cursor(k, hand[0], hand[1], UXB_press(u, AW_PRESS));
+};

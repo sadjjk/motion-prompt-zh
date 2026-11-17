@@ -1,0 +1,120 @@
+// Motion Prompt #1-239 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// ToDo タワー / Todo tower
+// 分類: UI・Web / ポインター操作 / 手触り・カード
+// 何が起きるか: クリーム色の地に、ピンク・オレンジ・グリーン・ブルー・パープル・イエローの 6 枚のカードが少しずつ左右にずれて積まれ、それぞれにチェックボックスと短い ToDo の文字が入っている。ポインタが右下から来て中ほどのカードのチェックを押すと、ボックスが文字色で塗られてカードの色のチェックが付き、文字に左から線が引かれ、カードは右へ滑り出しながら少し傾いて消える。その上の 3 枚は支えを失ってそのまま落ち、少し横にずれながらすき間を埋めて小さく跳ねる。しばらくして抜けたカードが右側に薄く戻り、ポインタがそれを押して元の段へ差し込むと、上のカードが持ち上がり、チェックが外れて最初のタワーに戻る。
+// 動きの仕様:
+//   - カードは 144×32px、角の半径 7px の 6 色のキャンディカラーで、6 段を床から積む。各段の横ずれは傾き表 × slip 45 で、最大およそ 4px
+//   - 1.5 秒にチェックを押すと、ボックスが 0.16 秒で塗られ、0.09 秒後にカードが右へ 170px 滑り出して 5° 傾き、0.22 秒で消える
+//   - 上の 3 枚は同じ瞬間に落ち始め、重力 1,800px/s² ほどで約 0.19 秒かけて一段分落ちる。抜かれたときの摩擦で最大およそ 13px 横にずれる
+//   - 着地は反発係数 0.32 の小さな跳ねが 2 回で、最初の跳ねは約 3px
+//   - 4.2 秒にポインタが戻ったカードを押し、上のカードは 0.2 秒で持ち上がる。4.3–4.6 秒にカードが元の段へ戻ってチェックが外れ、ポインタは 5.2 秒に出る
+// 使いどころ: タスク管理アプリのランディング、完了したときの手ごたえの演出、物理っぽいリストの見本などに。
+// タグ: todo, stack, gravity, checkbox, physics, tactile
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-239
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 76
+// 80 待办砖塔（bencho todo-tower）：奶油黄渐变底上，粉、橙、绿、蓝、紫、黄 6 张糖果色待办卡片像砖一样叠成塔，按 slip 45 左右错开一点；指针 0.3 秒从右下进入，1.5 秒点中第 4 张（Export the icons）的勾选框，
+// 框用字色填满、打上卡片本色的勾、文字从左划线，0.09 秒后整张向右滑出、转 5° 并淡去；上面 3 张同一刻失去支撑一起下落约 0.19 秒补位，被抽走时蹭出一点横向偏移，落地轻轻弹两下；
+// 3.95 秒那张卡在右侧重新浮现，4.2 秒指针按住它往回推，上面的卡抬起让位、回到原位，4.6 秒卡片归位并取消勾选；指针 5.2 秒离开，之后静止到循环结束。
+const TT_S = 0.7, TT_CW = 206 * TT_S, TT_CH = 46 * TT_S, TT_N = 6, TT_SLIP = 0.45, TT_PICK = 3;
+const TT_X = CW / 2, TT_FLOOR = CH - 6;
+const TT_LEAN = [-0.42, 0.68, -0.15, 0.51, -0.86, 0.24];
+const TT_TODOS = ['Reply to Nadia', 'Renew the domain', 'Book the flights', 'Export the icons', 'Pay the invoice', 'Call the landlord'];
+// 6 种糖果色 [卡片底, 同色系深描边, 字色]：深色卡配白字，浅色卡配同色系深字
+const TT_CANDY = [['#E33A7A', '#B8245C', '#FFFFFF'], ['#FF8A3D', '#D9661C', '#4A1D04'], ['#2DBE84', '#1E9466', '#08372A'],
+  ['#2F74E0', '#1F57B3', '#FFFFFF'], ['#8B5CF6', '#6B3FD6', '#FFFFFF'], ['#FFCC33', '#D9A000', '#4A3300']];
+const TT_G = (900 + 0.5 * 3300) * TT_S, TT_DEC = (0.85 - TT_SLIP * 0.65) * TT_G;   // 重力（gravity 50）与摩擦减速（slip 45）
+const TT_TF = Math.sqrt(2 * TT_CH / TT_G), TT_E = 0.32;                          // 落一张卡高的时间；轻弹的恢复系数
+const TT_KICK = [17, -29, 58];                                                  // 抽卡时蹭给上方卡片的横向速度（px/s，越近越大）
+const TT_OUT = 1.5, TT_BACK = 4.2, TT_IN0 = 4.3, TT_IN1 = 4.6, TT_SLIDE = 170;
+const TT_EASE = UXA_bz(0.22, 1, 0.36, 1);
+const TT_bx = i => TT_X + TT_LEAN[i] * TT_SLIP * 16 * TT_S;
+const TT_by = i => TT_FLOOR - TT_CH / 2 - (TT_N - 1 - i) * TT_CH;
+const TT_GX = TT_bx(TT_PICK) + TT_SLIDE + 36, TT_GY = TT_by(TT_PICK);           // 推回时指针在卡上的位置（滑出后的位置）
+const TT_CHECK = [TT_bx(TT_PICK) - TT_CW / 2 + 16 * TT_S + 9.5 * TT_S, TT_by(TT_PICK)];
+const TT_KA = [[0, 600, 236], [0.3, 540, 214], [1.3, TT_CHECK[0] + 2, TT_CHECK[1] + 2], [1.62, TT_CHECK[0] + 2, TT_CHECK[1] + 2],
+  [2.4, 418, 156], [3.5, 446, 142], [4.08, TT_GX, TT_GY + 2], [4.2, TT_GX, TT_GY + 2]];
+const TT_KB = [[TT_IN1, TT_GX - TT_SLIDE, TT_GY + 2], [4.72, TT_GX - TT_SLIDE, TT_GY + 2], [5.2, 610, 238]];
+// 落地后的小弹跳：两次逐渐变小的抛物线
+const TT_hop = (tau, amp) => {
+  let v = TT_E * TT_G * TT_TF * amp;
+  for (let n = 0; n < 2; n++) {
+    const d = 2 * v / TT_G;
+    if (tau < d) return v * tau - TT_G * tau * tau / 2;
+    tau -= d; v *= TT_E;
+  }
+  return 0;
+};
+// 被抽走那张上方的卡：自由下落时带着蹭出的横速，落地后按摩擦减速停下
+function TT_fallen(i, u) {
+  const t = u - TT_OUT, v = TT_KICK[i];
+  if (t <= 0) return [0, 0];
+  if (t < TT_TF) return [v * t, TT_G * t * t / 2];
+  const tau = t - TT_TF, ts = Math.min(tau, Math.abs(v) / TT_DEC);
+  return [v * TT_TF + v * ts - Math.sign(v) * TT_DEC * ts * ts / 2, TT_CH - TT_hop(tau, 1 + 0.12 * (TT_PICK - 1 - i))];
+}
+function TT_card(k, i, x, y, rot, alpha, chk, strike) {
+  if (alpha <= 0.002) return;
+  const w = TT_CW, h = TT_CH, s = TT_S;
+  k.save(); k.globalAlpha = alpha; k.translate(x, y); k.rotate(rot);
+  const [fill, edge, ink] = TT_CANDY[i], on = UXB_rgb(ink);
+  k.fillStyle = fill; rr(k, -w / 2, -h / 2, w, h, 10 * s); k.fill();
+  k.strokeStyle = edge; k.lineWidth = 1; rr(k, -w / 2 + 0.5, -h / 2 + 0.5, w - 1, h - 1, 10 * s - 0.5); k.stroke();
+  const bs = 19 * s, bx = -w / 2 + 16 * s, by = -bs / 2;
+  rr(k, bx, by, bs, bs, 6 * s);
+  if (chk > 0) { k.fillStyle = rgba(on, chk); k.fill(); }                  // 勾上后框用卡片上的字色填满
+  k.strokeStyle = rgba(on, mix(0.55, 1, chk)); k.lineWidth = 1.5 * s; rr(k, bx + 0.6, by + 0.6, bs - 1.2, bs - 1.2, 6 * s - 0.6); k.stroke();
+  if (chk > 0) {                                                             // lucide Check，14 px、线宽 2，用卡片本色
+    const q = 14 * s / 24, cx = bx + bs / 2 - 12 * q, cy = -12 * q;
+    k.strokeStyle = rgba(UXB_rgb(fill), chk); k.lineWidth = 2 * q * 1.15; k.lineCap = 'round'; k.lineJoin = 'round';
+    k.beginPath(); k.moveTo(cx + 4 * q, cy + 12 * q); k.lineTo(cx + 9 * q, cy + 17 * q); k.lineTo(cx + 20 * q, cy + 6 * q); k.stroke();
+  }
+  const tx = bx + bs + 12 * s, fs = 15.4 * s, ta = mix(1, 0.72, strike);
+  txt(k, TT_TODOS[i], tx, 0.5, UXB_f(600, fs), rgba(on, ta), 'left', 'middle');
+  if (strike > 0) {                                                          // 划线从左往右拉过文字
+    k.font = UXB_f(600, fs); const tw = k.measureText(TT_TODOS[i]).width;
+    k.fillStyle = rgba(on, ta); k.fillRect(tx, 0, tw * strike, Math.max(1.2, fs / 12));
+  }
+  k.restore();
+}
+CELLS[75] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, 0, CH);                           // 奶油黄底，上浅下深
+  bg.addColorStop(0, '#FFF6DA'); bg.addColorStop(1, '#FFE4A6'); k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  const sh = k.createRadialGradient(TT_X, TT_FLOOR + 2, 0, TT_X, TT_FLOOR + 2, 110);  // 塔脚下一片暖棕色的软影
+  sh.addColorStop(0, 'rgba(150,90,10,0.22)'); sh.addColorStop(1, 'rgba(150,90,10,0)');
+  k.save(); k.translate(0, TT_FLOOR + 2); k.scale(1, 0.08); k.translate(0, -(TT_FLOOR + 2)); k.fillStyle = sh; k.fillRect(TT_X - 110, TT_FLOOR - 108, 220, 220); k.restore();
+  const lift = inOut3(seg(u, TT_BACK, TT_BACK + 0.2));                       // 推回时上方卡片抬起、回到原位
+  for (let i = 0; i < TT_N; i++) {
+    if (i === TT_PICK) continue;
+    let x = TT_bx(i), y = TT_by(i);
+    if (i < TT_PICK) { const f = TT_fallen(i, u); x += f[0] * (1 - lift); y += f[1] * (1 - lift); }
+    TT_card(k, i, x, y, 0, 1, 0, 0);
+  }
+  // 抽出 / 放回的那张：勾选、划线，向右滑出转 5° 淡去；3.95 秒重新浮现，4.3–4.6 秒被推回原位
+  let ox = 0, alpha = 1;
+  if (u >= TT_OUT && u < TT_BACK) {
+    ox = TT_SLIDE * TT_EASE(seg(u, TT_OUT + 0.09, TT_OUT + 0.31));
+    alpha = u < 3.95 ? 1 - seg(u, TT_OUT + 0.15, TT_OUT + 0.37) : 0.92 * inOut3(seg(u, 3.95, 4.15));
+  } else if (u >= TT_BACK && u < TT_IN1) {
+    ox = TT_SLIDE * (1 - inOut3(seg(u, TT_IN0, TT_IN1)));
+    alpha = mix(0.92, 1, seg(u, TT_IN0, TT_IN1));
+  }
+  const chk = u < TT_OUT ? 0 : u < TT_IN1 ? (seg(u, TT_OUT, TT_OUT + 0.16)) : 1 - seg(u, TT_IN1, TT_IN1 + 0.16);
+  const strike = u < TT_IN1 ? out3(seg(u, TT_OUT + 0.02, TT_OUT + 0.2)) : 1 - seg(u, TT_IN1, TT_IN1 + 0.16);
+  TT_card(k, TT_PICK, TT_bx(TT_PICK) + ox, TT_by(TT_PICK), ox / TT_SLIDE * 5 * Math.PI / 180, alpha, chk, strike);
+  // 指针
+  ripple(k, TT_CHECK[0], TT_CHECK[1], seg(u, TT_OUT, TT_OUT + 0.6), '255,255,255');
+  if (u > 0.2 && u < 5.2) {
+    let p, press;
+    if (u < TT_BACK) { p = BN_path(u, TT_KA); press = UXB_press(u, TT_OUT) + seg(u, TT_BACK - 0.08, TT_BACK); }
+    else if (u < TT_IN1) { p = [TT_GX - TT_SLIDE + ox, TT_GY + 2]; press = 1; }
+    else { p = BN_path(u, TT_KB); press = 1 - seg(u, TT_IN1, TT_IN1 + 0.14); }
+    cursor(k, p[0], p[1], press);
+  }
+};

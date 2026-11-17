@@ -1,0 +1,17 @@
+Please use "Magnet select" (磁力の選択肢), filed under "Components / Choosing & input".
+Motion Prompt #1-243
+
+What it is: Round options packed in a honeycomb; the chosen one swells and shoves its neighbours aside, and the whole cluster leans a little toward the pointer
+What the sample shows: On a pale lavender gradient seven circles sit in a honeycomb, six around one, each in its own hue: violet, coral, amber, green, sky blue, magenta and cyan. Unchosen circles are pale tints; only the chosen centre is solid violet with a white disc. The pointer drifts in from the right and the cluster leans toward it; resting on the coral circle deepens its tint. A press swells that circle to solid coral and reveals a white rounded square while the centre fades back to a pale tint, and the others are shoved away, a little smaller and tilted, settling in a wave from the inside out. A press on the upper-left green circle brings up a white triangle and the cluster rearranges around it. A last press on the centre restores the starting layout, and the lean fades as the pointer leaves.
+Spec:
+- Circles are 44 px across on a 45 px pitch. At Pull 55 the chosen one scales to 1.281, the rest are pushed about 14.1 px and shrink up to 9% with a 2.75° tilt.
+- Strength and delay fall off with distance as exp(-(distance - 1) / 2.8), with 22 ms of delay per pitch.
+- Spring stiffness runs from 440 to 580 and Bounce 55 gives a damping ratio of 0.636; position, width, height and rotation each ride their own spring.
+- The right circle is pressed at 1.0 s, the upper-left at 2.6 s and the centre at 4.0 s; over 220 ms the chosen circle goes from its pale tint (34% hue over white) to solid colour and its white shape fades in.
+- With Give 50 the cluster leans up to 4.5 px toward a nearby pointer, fading out 44 px beyond its edge.
+- The pointer enters at 0.3 s and leaves by 4.8 s, and the frame returns to 0 s.
+When to use it: Use it for small sets of visual choices: picking an icon, theme or avatar, onboarding preference pickers and emoji reactions.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-243.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

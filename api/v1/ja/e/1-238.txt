@@ -1,0 +1,85 @@
+// Motion Prompt #1-238 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// ダイナミックアイランド / Dynamic island
+// 分類: UI・Web / コンポーネント / 開く・重なる
+// 何が起きるか: オレンジからマゼンタ、紫へと流れるスマホの壁紙のようなグラデーションの中央に黒い小さなピルがあり、左に琥珀色のタイマー記号、右に残り時間 4:59 が出て、1 秒ごとに減っていく。ポインタが右から来てピルを押すと、ピルは少し沈んでから横にも縦にも広がり、わずかに行き過ぎて大きな黒い角丸のカードに落ち着く。小さな中身はぼけながら縮んで消え、少し遅れて、左に琥珀色の丸い一時停止ボタン、右に灰色の Timer と大きな琥珀色の残り時間が浮かぶ。ポインタはカードの上で待ち、もう一度押すとカードは同じバネで小さなピルに戻り、中身もまた入れ替わる。
+// 動きの仕様:
+//   - 閉じたピルは 150×36px・角 18px、開いたカードは 300×76px・角 38px。黒 #000 のまま、オレンジから紫への壁紙グラデーションの中央から均等に広がる
+//   - 幅・高さ・角は一本のバネで動く：stiffness 380、damping 34 から bounce 40 の分だけ減らした 27.6、mass 0.9
+//   - 中身は二つの別の配置で、0.06 秒遅れて 0.22 秒で入れ替わり、出入りはぼかし 6px・拡大率 0.92 から
+//   - ポインタは 0.3 秒に右から入り、1.2 秒にピルを押す。3.8 秒にもう一度押してピルに戻し、4.6 秒に画面外へ消える
+//   - 押している間は 0.97 倍に沈む。残り時間 4:59 は 1 秒ごとに 1 減る。5.4 秒から 6.0 秒で最初の画面へ溶け戻る
+// 使いどころ: タイマーや通話、音楽再生、配達や移動の進み具合など、裏で続いている活動の表示に。
+// タグ: dynamic-island, pill, morph, spring, timer, live-activity
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-238
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 75
+// 76 灵动岛展开（bencho dynamic-island）：橙到紫的手机壁纸渐变上（带两团柔光），中央是 150×36 的黑色胶囊，左边琥珀色计时图标、右边倒计时 4:59，每秒减一；
+// 指针 0.3 秒从右侧进入，1.2 秒按下胶囊，宽、高、圆角同一弹簧（bounce 40，略过冲）长成 300×76 的计时卡片，旧内容模糊缩小淡出、卡片内容（暂停圆钮、Timer、大号倒计时）淡入；
+// 3.8 秒再按一次，卡片按同一弹簧缩回胶囊，指针 4.6 秒离开；复位段 5.4–6.0 秒交叉淡回初始画面。
+const DI_C = [150, 36, 18], DI_O = [300, 76, 38], DI_T1 = 1.2, DI_T2 = 3.8, DI_AMB = '#e09a12';
+// framer 弹簧：stiffness 380、damping 34 − 0.4×16、mass 0.9 的阶跃响应（欠阻尼）
+const DI_step = (() => { const m = 0.9, s = 380, c = 34 - 0.4 * 16, w0 = Math.sqrt(s / m), z = c / (2 * Math.sqrt(s * m)), wd = w0 * Math.sqrt(1 - z * z);
+  return t => (t <= 0 ? 0 : 1 - Math.exp(-z * w0 * t) * (Math.cos(wd * t) + z * w0 / wd * Math.sin(wd * t))); })();
+const DI_ez = UXA_bz(0.25, 0.1, 0.25, 1);
+const DI_KEYS = [[0, 560, 196], [0.3, 520, 184], [0.9, 318, 110], [1.32, 318, 110], [2.3, 372, 126], [3.68, 372, 126], [4.6, 580, 214]];
+let DI_P = null;
+const DI_paths = () => DI_P || (DI_P = {
+  timer: ['M10 2h4', 'M12 14l3-3', 'M20 14a8 8 0 1 1-16 0a8 8 0 1 1 16 0'].map(d => new Path2D(d)),
+  pause: ['M15 3h3a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z', 'M6 3h3a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z'].map(d => new Path2D(d)),
+});
+const DI_clock = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+// 一层内容（收起或展开），a 为透明度进度：模糊 6 px、缩放 0.92 → 1，以胶囊中心为原点
+function DI_layer(k, open, a, cx, cy, w, h, left) {
+  if (a <= 0.003) return;
+  const P = DI_paths(), x0 = cx - w / 2, x1 = cx + w / 2, s = 0.92 + 0.08 * a, num = DI_clock(left);
+  k.save(); k.globalAlpha = a; if (a < 0.999) k.filter = `blur(${(6 * (1 - a)).toFixed(2)}px)`;
+  k.translate(cx, cy); k.scale(s, s); k.translate(-cx, -cy);
+  if (!open) {
+    k.save(); k.translate(x0 + 12, cy - 8); k.scale(16 / 24, 16 / 24);
+    k.strokeStyle = DI_AMB; k.lineWidth = 2 * 24 / 16 * 0.67; k.lineCap = 'round'; k.lineJoin = 'round'; for (const p of P.timer) k.stroke(p); k.restore();
+    txt(k, num, x1 - 12, cy + 0.5, UXB_f(500, 13), DI_AMB, 'right', 'middle');
+  } else {
+    const bx = x0 + 16 + 23;
+    k.fillStyle = 'rgba(255,159,10,.24)'; k.beginPath(); k.arc(bx, cy, 23, 0, TAU); k.fill();
+    k.save(); k.translate(bx - 9, cy - 9); k.scale(18 / 24, 18 / 24); k.fillStyle = DI_AMB; for (const p of P.pause) k.fill(p); k.restore();
+    k.font = UXB_f(500, 30); k.letterSpacing = '-0.9px'; const bw = k.measureText(num).width;
+    txt(k, num, x1 - 16, cy + 1, UXB_f(500, 30), DI_AMB, 'right', 'middle'); k.letterSpacing = '0px';
+    txt(k, 'Timer', x1 - 16 - bw - 8, cy + 0.5, UXB_f(400, 12), 'rgba(255,255,255,.55)', 'right', 'middle');
+  }
+  k.restore();
+}
+function DI_draw(k, u) {
+  // 壁纸：橙 → 品红 → 紫的斜向渐变，左下一团暖橙柔光、右上一团紫色柔光
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#ff9a3c'); bg.addColorStop(0.5, '#f0508a'); bg.addColorStop(1, '#6b3fd4');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  for (const [gx, gy, gr, gc] of [[90, 190, 170, '255,200,90'], [470, 10, 190, '120,70,255']]) {
+    const rg = k.createRadialGradient(gx, gy, 0, gx, gy, gr); rg.addColorStop(0, `rgba(${gc},.55)`); rg.addColorStop(1, `rgba(${gc},0)`);
+    k.fillStyle = rg; k.fillRect(0, 0, CW, CH);
+  }
+  // 尺寸：两次按下各起一个阶跃，叠加成同一条弹簧
+  const g = DI_step(u - DI_T1) - DI_step(u - DI_T2);
+  const w = mix(DI_C[0], DI_O[0], g), h = mix(DI_C[1], DI_O[1], g), r = Math.max(4, mix(DI_C[2], DI_O[2], g));
+  const tap = 1 - 0.03 * (UXB_press(u, DI_T1) + UXB_press(u, DI_T2)), cx = CW / 2, cy = CH / 2;
+  k.save(); k.translate(cx, cy); k.scale(tap, tap); k.translate(-cx, -cy);
+  k.save(); k.shadowColor = 'rgba(40,10,60,.35)'; k.shadowBlur = 16; k.shadowOffsetY = 5;
+  k.fillStyle = '#000'; rr(k, cx - w / 2, cy - h / 2, w, h, Math.min(r, h / 2)); k.fill(); k.restore();
+  k.save(); rr(k, cx - w / 2, cy - h / 2, w, h, Math.min(r, h / 2)); k.clip();
+  // 内容交叉淡换：旧的和新的都晚 0.06 秒、用 0.22 秒
+  const left = 299 - Math.floor(u), f = t => DI_ez(seg(u, t + 0.06, t + 0.28));
+  const openA = u < DI_T2 ? f(DI_T1) : 1 - f(DI_T2), shutA = u < DI_T2 ? 1 - f(DI_T1) : f(DI_T2);
+  DI_layer(k, false, shutA, cx, cy, w, h, left);
+  DI_layer(k, true, openA, cx, cy, w, h, left);
+  k.restore(); k.restore();
+  if (u > 0.2 && u < 4.9) {
+    const [x, y] = BN_path(u, DI_KEYS);
+    for (const tc of [DI_T1, DI_T2]) ripple(k, x, y, seg(u, tc, tc + 0.5));
+    cursor(k, x, y, UXB_press(u, DI_T1) + UXB_press(u, DI_T2));
+  }
+}
+CELLS[74] = (k, w, h, u) => UXB_xfade(k, DI_draw, u, SHOW, SHOW + 0.6);

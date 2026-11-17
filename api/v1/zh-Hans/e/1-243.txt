@@ -1,0 +1,150 @@
+// Motion Prompt #1-243 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 磁力选项 / Magnet select
+// 分类: 界面与网页 / 组件 / 选择与输入
+// 动画表现: 浅紫渐变底上，七个圆排成蜂窝，六个围着一个，每个一种色相：紫、珊瑚、琥珀、绿、天蓝、品红、青。未选中的圆是淡色，只有选中的中心圆是饱和紫色，里面显示白色圆点。指针从右侧移入，整组朝它微微倾靠；停在右边珊瑚色的圆上时，它的颜色加深一点。按下后这个圆变大、变成饱和珊瑚色并露出白色圆角方块，中心圆退回淡紫，其余的圆被推开、略缩小并轻轻倾斜，由内向外像波一样停稳。再按左上的绿色圆，出现白色三角形，整组围着它重新排开。最后按回中心的圆，恢复初始排列，指针离开后倾靠也消失。
+// 运动规格:
+//   - 圆直径 44 px，中心间距 45 px；Pull 55 时选中的圆放大到 1.281 倍，其余被推开约 14.1 px，最多缩小 9% 并倾斜 2.75°。
+//   - 力度和延迟随距离衰减：exp(-(距离 - 1) / 2.8)，每隔一个间距延迟 22 ms。
+//   - 弹簧刚度从 440 到 580，Bounce 55 对应阻尼比 0.636；位置、宽、高和旋转各用一个弹簧。
+//   - 1.0 秒按右边的圆，2.6 秒按左上的圆，4.0 秒按中心的圆；选中的圆在 220 ms 内从淡色（色相与白色按 34% 混合）变成饱和色，白色图形同时淡入。
+//   - Give 50 时指针靠近整组最多倾靠 4.5 px，离开组外 44 px 时归零。
+//   - 指针 0.3 秒进入、4.8 秒离开，画面回到 0 秒的样子。
+// 适用场景: 适合少量可视化选项：选图标、主题或头像，引导页的偏好选择，表情回应。
+// 标签: selector, magnetic, spring, honeycomb, cluster, hover-lean
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-243
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 80
+// 84 磁力选项（bencho magnet-select）：浅紫渐变底上 7 个圆形选项排成蜂窝（Large），每个一种色相：未选中是淡色圆（悬停时加深），选中的那个变大、填满饱和色并显示白色图形，其余被径向推开、略缩小并微微倾斜（Pull 55，Bounce 55）；
+// 指针 0.3 秒从右侧进入，靠近时整组一起向指针倾靠几像素；1.0 秒点右边的圆、2.6 秒点左上的圆、4.0 秒点回中心的圆，每次推力由近到远错开 22 ms 一级向外传开，弹簧带一点回弹；
+// 指针 4.8 秒离开，整组倾靠归零，约 5.0 秒后所有弹簧停稳，画面与 0 秒相同。
+const MS_PTS = [[0, 0], [45, 0], [22.5, -39], [-22.5, -39], [-45, 0], [-22.5, 39], [22.5, 39]];
+const MS_CHIP = 44, MS_PITCH = 45, MS_SPREAD = 2.8, MS_HX = 269.5, MS_HY = 104;
+const MS_P = 55 / 100, MS_GROW = 1.16 + 0.22 * MS_P, MS_ROOM = MS_CHIP * (MS_GROW - 1) / 2, MS_AURA = 3 + 9 * MS_P;
+const MS_TILT = 5 * MS_P, MS_COWER = 0.04 + 0.09 * MS_P, MS_ZETA = 0.9 - 0.48 * 0.55, MS_GIVE = 2 + 0.5 * 5, MS_FADE = 44;
+const MS_SEL = [[-1, 0], [1.0, 1], [2.6, 3], [4.0, 0]];       // [点击时刻, 选中序号]，初始选中中心
+const MS_INK = '#17181a';
+// 七种色相（中心紫、右珊瑚、右上琥珀、左上翠绿、左天蓝、左下品红、右下青）；未选中用它与白色 34% 的混色，悬停时 50%
+const MS_HUE = [['#7C4DFF'], ['#FF5A5F'], ['#F5A300'], ['#1DB86A'], ['#2E8BFF'], ['#E540A8'], ['#00B5C8']];
+// 七个占位图形（48 视框，原作 MARKS）
+const MS_MARKS = [
+  'M38 24a14 14 0 1 1-28 0a14 14 0 1 1 28 0Z',
+  'M16 11h16a5 5 0 0 1 5 5v16a5 5 0 0 1-5 5h-16a5 5 0 0 1-5-5v-16a5 5 0 0 1 5-5Z',
+  'M24 8 L40 38 L8 38 Z',
+  'M24 6 L42 24 L24 42 L6 24 Z',
+  'M10 24 a14 14 0 0 1 28 0 v14 h-28 Z',
+  'M24 7 l4.9 10 11 1.6 -8 7.8 1.9 11 -9.8 -5.2 -9.8 5.2 1.9 -11 -8 -7.8 11 -1.6 Z',
+  'M15 17h18a7 7 0 0 1 0 14h-18a7 7 0 0 1 0-14Z',
+];
+const MS_PATH = [];
+// 原作 field：以选中者为磁铁，其余沿连线方向推开固定的 room + aura，fall = exp(-(far-1)/2.8) 只驱动错峰、倾斜和缩小
+function MS_field(at) {
+  const [ax, ay] = MS_PTS[at];
+  return MS_PTS.map(([px, py], i) => {
+    const dx = px - ax, dy = py - ay, gap = Math.hypot(dx, dy), far = gap / MS_PITCH;
+    const fall = i === at ? 0 : Math.exp(-(far - 1) / MS_SPREAD), push = i === at ? 0 : MS_ROOM + MS_AURA;
+    const ux = gap ? dx / gap : 0, uy = gap ? dy / gap : 0, on = i === at;
+    const k = 300 + 280 * (1 - Math.min(far, 3) / 4);
+    return { far, fall, k, wait: far * 0.022, tg: [ux * push, uy * push, on ? MS_GROW : 1 - MS_COWER * fall, on ? MS_GROW : 1 - MS_COWER * fall, ux * MS_TILT * fall],
+      cx: px + ux * push, cy: py + uy * push };
+  });
+}
+const MS_selAt = u => { let s = 0; for (const e of MS_SEL) if (e[0] <= u) s = e[1]; return s; };
+// 指针：按下时刻停在当时目标圆的静止位置上（上一次选择早已停稳）
+const MS_KEYS = (() => {
+  const f0 = MS_field(0), f1 = MS_field(1), f3 = MS_field(3);
+  const at = (f, i, ox = 0, oy = 0) => [MS_HX + f[i].cx + ox, MS_HY + f[i].cy + oy];
+  return [[0.3, 600, 150], [0.75, ...at(f0, 1, 6, 4)], [1.12, ...at(f0, 1, 4, 3)], [1.75, ...at(f1, 6, 10, 26)],
+    [2.32, ...at(f1, 3, 2, 2)], [2.72, ...at(f1, 3, 1, 2)], [3.3, ...at(f3, 4, -24, 10)], [3.75, ...at(f3, 0, 3, 2)], [4.12, ...at(f3, 0, 3, 2)],
+    [4.8, 600, 190]];
+})();
+const MS_hand = u => BN_path(u, MS_KEYS);
+let MS_SIM = null;
+// 一次性模拟：每个圆 5 个通道（x, y, scaleX, scaleY, rotate）各是一个弹簧，刚度/质量同原作，阻尼比 0.636；
+// 换选中后各圆在 far × 22 ms 后改追新目标，带着当时的速度；同时按 60 Hz 重放倾靠（CSS 220 ms 缓动，每帧重新起步）
+function MS_sim() {
+  if (MS_SIM) return MS_SIM;
+  const R = 240, N = Math.ceil(CYC * R) + 2, SUB = 4, dt = 1 / R / SUB;
+  const F = MS_SEL.map(e => [e[0], MS_field(e[1])]);
+  const M = [0.9, 0.9, 0.8, 0.95, 1], KM = [1, 1, 1.24, 0.86, 0.8];
+  const X = new Float32Array(N * 35), st = [];
+  for (let i = 0; i < 7; i++) for (let c = 0; c < 5; c++) st.push({ x: F[0][1][i].tg[c], v: 0 });
+  for (let n = 0; n < N; n++) {
+    const t = n / R;
+    for (let i = 0; i < 7; i++) {
+      let fl = F[0][1][i];
+      for (const [t0, f] of F) if (t0 >= 0 && t >= t0 + f[i].wait) fl = f[i];
+      for (let c = 0; c < 5; c++) {
+        const s = st[i * 5 + c], m = M[c], k = fl.k * KM[c], d = 2 * Math.sqrt(k * m) * MS_ZETA;
+        if (n > 0) for (let q = 0; q < SUB; q++) { s.v += (-k * (s.x - fl.tg[c]) - d * s.v) / m * dt; s.x += s.v * dt; }
+        X[n * 35 + i * 5 + c] = s.x;
+      }
+    }
+  }
+  // 倾靠：以整组中心为原点，指针在组内按距离从 0 升到满值，出组后 44 px 内淡出；最大 4.5 px
+  const L = Math.ceil(CYC * 60) + 2, LX = new Float32Array(L), LY = new Float32Array(L), E = UXA_bz(0.22, 1, 0.36, 1)(1 / 60 / 0.22);
+  let lx = 0, ly = 0;
+  for (let n = 0; n < L; n++) {
+    const t = n / 60, [px, py] = MS_hand(t), f = MS_field(MS_selAt(t));
+    const r = Math.max(1, ...f.map(c => Math.hypot(c.cx, c.cy) + MS_CHIP / 2));
+    const dx = px - MS_HX, dy = py - MS_HY, d = Math.hypot(dx, dy);
+    const dr = Math.min(1, d / r) * (d <= r ? 1 : Math.max(0, 1 - (d - r) / MS_FADE)) * MS_GIVE;
+    const tx = dr > 0 ? dx / (d || 1) * dr : 0, ty = dr > 0 ? dy / (d || 1) * dr : 0;
+    if (n > 0) { lx += (tx - lx) * E; ly += (ty - ly) * E; }
+    LX[n] = lx; LY[n] = ly;
+  }
+  MS_SIM = { X, N, R, LX, LY, L };
+  MS_SIM.hov = UXB_changes(t => MS_hit(t));
+  return MS_SIM;
+}
+const MS_get = (u, i, c) => { const S = MS_SIM, f = clamp(u * S.R, 0, S.N - 1), n = Math.min(S.N - 2, Math.floor(f)); return mix(S.X[n * 35 + i * 5 + c], S.X[(n + 1) * 35 + i * 5 + c], f - n); };
+// 指针下的圆（按钮是 44 方块，跟着弹簧变换移动）
+function MS_hit(u) {
+  const [px, py] = MS_hand(u);
+  for (let i = 6; i >= 0; i--) {
+    const cx = MS_HX + MS_PTS[i][0] + MS_get(u, i, 0), cy = MS_HY + MS_PTS[i][1] + MS_get(u, i, 1), a = -MS_get(u, i, 4) * Math.PI / 180;
+    const dx = px - cx, dy = py - cy, lx = (dx * Math.cos(a) - dy * Math.sin(a)) / MS_get(u, i, 2), ly = (dx * Math.sin(a) + dy * Math.cos(a)) / MS_get(u, i, 3);
+    if (Math.abs(lx) <= 22 && Math.abs(ly) <= 22) return i;
+  }
+  return -1;
+}
+CELLS[79] = (k, w, h, u) => {
+  // 底：浅紫径向渐变（中心偏亮）
+  const bg = k.createRadialGradient(MS_HX, MS_HY, 20, MS_HX, MS_HY, 320); bg.addColorStop(0, '#F3EEFF'); bg.addColorStop(1, '#DCD0FA');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  const S = MS_sim(), sel = MS_selAt(u);
+  const lf = clamp(u * 60, 0, S.L - 1), ln = Math.min(S.L - 2, Math.floor(lf)), lx = mix(S.LX[ln], S.LX[ln + 1], lf - ln), ly = mix(S.LY[ln], S.LY[ln + 1], lf - ln);
+  const ease = UXA_bz(0.25, 0.1, 0.25, 1);
+  for (let i = 0; i < 7; i++) {
+    // 悬停（220 ms）与选中（底色和图形 220 ms 渐变）
+    const hov = UXB_ramp(u, S.hov.map(e => [e[0], e[1] === i ? 1 : 0]), 0.22, ease);
+    const mk = UXB_ramp(u, MS_SEL.map(e => [e[0], e[1] === i ? 1 : 0]), 0.22, ease);
+    const on = i === sel ? 1 : 0, H = MS_HUE[i];
+    k.save();
+    k.translate(MS_HX + MS_PTS[i][0] + MS_get(u, i, 0), MS_HY + MS_PTS[i][1] + MS_get(u, i, 1));
+    k.rotate(MS_get(u, i, 4) * Math.PI / 180); k.scale(MS_get(u, i, 2), MS_get(u, i, 3)); k.translate(lx, ly);
+    // 底：未选中是本色相的淡色，悬停时加深一档；选中填满饱和色，选中且悬停时再压暗 22%
+    const hn = hov * (1 - on), hs = hov * on;
+    const pale = UXB_mix('#ffffff', H[0], 0.34 + 0.16 * hn), full = UXB_mix(H[0], '#1d1640', 0.22 * hs);
+    const c = pale.map((v, j) => Math.round(v + (full[j] - v) * mk));
+    k.beginPath(); k.arc(0, 0, 22, 0, TAU);
+    k.fillStyle = `rgb(${c.join(',')})`; k.fill();
+    k.strokeStyle = rgba(UXB_mix(H[0], H[0], 0), 0.45 * (1 - mk)); k.lineWidth = 1 / MS_get(u, i, 2); k.stroke();
+    if (mk > 0.003) {
+      if (!MS_PATH[i]) MS_PATH[i] = new Path2D(MS_MARKS[i]);
+      k.save(); k.globalAlpha = mk; k.scale(44 / 48, 44 / 48); k.translate(-24, -24);
+      k.fillStyle = '#FFFFFF'; k.fill(MS_PATH[i]);
+      k.restore();
+    }
+    k.restore();
+  }
+  const [hx, hy] = MS_hand(u);
+  let press = 0;
+  for (const e of MS_SEL) if (e[0] > 0) press = Math.max(press, UXB_press(u, e[0]));
+  cursor(k, hx, hy, press);
+};

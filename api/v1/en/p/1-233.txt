@@ -1,0 +1,16 @@
+Please use "Particle repel" (ポインタを避けて戻る粒子), filed under "Pointer interactions / Cursor".
+Motion Prompt #1-233
+
+What it is: A shape made of rainbow dots is pushed aside by the pointer and springs back, and a press blasts it apart into the next shape
+What the sample shows: On a deep indigo field sits a circle packed with fine dots, tinted in a rainbow that runs round the circle. The pointer enters from the right and sweeps over it; the dots around the hand are pushed aside into a round hole, and once the hand moves on they wobble back home like springs. Moving dots stretch out along their path. A press inside throws every dot outward, and the swarm sweeps round into a rounded square; each dot keeps its colour, so the rainbow stays in order on the square. The pointer sweeps the square once more and leaves, and finally the dots sweep back round into the circle.
+Spec:
+- The original 480 × 400 px canvas is shown at 0.5 × scale. 720 dots of radius 1.9 px sit on a hex grid inside a circle of radius 150 px. The field is a diagonal gradient from #1A1663 to #0B0A33, and each dot takes one of 24 hue steps (92% saturation, 64% lightness) from its angle in the starting circle.
+- The pointer enters from the right at 0.3 s. Dots within 80 px of the hand are pushed with (1-d/80)² × 6.6 and pulled home by a spring of 0.05 with damping 0.84 (per 1/60 s).
+- Moving dots stretch along their path by up to 2.6 × depending on speed.
+- A press at 2.8 s gives dots within 200 px of the press point up to 30 × 1.12 speed, then pairs them by angle into a 280 × 280 px square with 36 px corners.
+- The pointer leaves the canvas at 4.55 s. At 5.4 s the dots pair back into the circle the same way, and 5.9–6.3 s settles the last wobble into the first frame.
+When to use it: Use it for landing-page heroes, interactive logo or shape reveals and playful loading screens.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-233.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

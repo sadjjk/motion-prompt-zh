@@ -1,0 +1,171 @@
+// Motion Prompt #1-237 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// 表情回应 / Emoji reactions
+// 分类: 界面与网页 / 反馈 / 操作反馈
+// 动画表现: 天蓝渐变底上有一条白字的蓝色圆角气泡 Shipped the new onboarding flow，下方是淡紫的 🚀 3 和淡橙的 🔥 2 两个回应，以及一个半透明白底、蓝色图标的笑脸加号按钮。指针从右侧进来点下加号：消息文字模糊消失，蓝色气泡弹性地收窄，👍 🎉 👀 ✅ 🚀 🔥 依次从下方浮起。指针从左到右划过这一排时，指针下的表情放大并做出各自的小动作，点头、撒礼花、左右张望、打勾、发射、跳动，上方的黑色小标签写出 Nice、Ship it 等名字。点下 🚀 后，表情条变回消息，🚀 沿弧线飞到对应回应上，这个回应底色转成淡蓝，边框和数字变成深蓝，数字从 3 滚到 4。
+// 运动规格:
+//   - 消息是蓝色气泡，高 48 px、圆角 20 px；表情条放 6 个表情，每个 34 px，加上两端留白宽 216 px。
+//   - 1.0 秒点加表情按钮，消息按 bounce 45 的快弹簧变成表情条；文字 0.09 秒模糊淡出，表情每个晚 0.018 秒浮起。
+//   - 指针下的表情按 magnify 50 放大到 1.17 倍（0.22 秒）并做出自己的动作；高 22 px 的名字标签在表情条上方 10 px 处 0.16 秒淡入。
+//   - 2.8 秒点下 🚀，表情条收回，文字晚 0.08 秒、用 0.22 秒回来；🚀 沿 0.6 秒的弧线飞行，最高点高出 46 px，缩放从 1.4 到 1，途中倾斜 −14°。
+//   - 3.4 秒落地，回应里的表情跳一下，数字 0.22 秒从 3 滚到 4；5.4 秒到 6.0 秒整体淡回最初画面。
+// 适用场景: 适合聊天消息、评论区和团队动态的回应。
+// 标签: emoji, reaction, picker, magnify, spring, counter, chat
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-237
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 74
+// 75 表情回应（bencho emoji-reactions）：天蓝渐变底上一条蓝色消息气泡 “Shipped the new onboarding flow”（白字），下面是淡紫的 🚀 3、淡橙的 🔥 2 两个回应和一个半透明白底的加表情按钮；
+// 指针 0.3 秒进入，1.0 秒点加表情按钮，消息条按快弹簧（0.22 秒）收成 216 px 宽的表情条，文字模糊淡出、6 个 Work 表情依次升起；
+// 1.55–2.55 秒指针划过表情条，指针下那个表情放大到 1.17 倍（magnify 50）并播放自己的小动作，上方深色标签写出名字；
+// 2.8 秒点中 🚀，表情条变回消息，🚀 沿弧线 0.6 秒飞到 🚀 回应上，3.4 秒落下、回应变成自己的（深蓝边、底色转成淡蓝），数字从 3 滚到 4；复位段 5.4–6.0 秒交叉淡回初始画面。
+const ER_SET = [['👍', 'Nice', 'nod'], ['🎉', 'Celebrate', 'confetti'], ['👀', 'Looking', 'glance'], ['✅', 'Done', 'tick'], ['🚀', 'Ship it', 'launch'], ['🔥', 'Fire', 'flicker']];
+const ER_EMO = 34, ER_PILLW = ER_EMO * ER_SET.length + 12, ER_MH = 48, ER_R = 20, ER_MAG = 1 + 50 / 100 * 0.34;
+const ER_X0 = 120, ER_MY = 56, ER_RY = ER_MY + ER_MH + 8, ER_CHIPH = 36;
+const ER_MSG = 'Shipped the new onboarding flow';
+const ER_OPEN = 1.0, ER_PICK = 2.8, ER_FLY = 0.6, ER_LAND = ER_PICK + ER_FLY, ER_PICKI = 4;
+const ER_INK = '#17181a', ER_SIG = '#1d3fd8', ER_BUB = '#2f6bff';
+// 两个回应各一种底色：🚀 淡紫、🔥 淡橙；变成自己的回应时底色转成淡蓝
+const ER_CHIP = [UXB_rgb('#e7defe'), UXB_rgb('#ffe2cc')], ER_MINE = UXB_rgb('#d6e4ff');
+// framer 的 { bounce, duration } 弹簧换算成阻尼比 ζ = 1 − bounce、包络在 duration 处衰减到千分之一的固有频率（近似 findSpring）
+const ER_mk = (bounce, dur) => { const z = 1 - bounce, w0 = 6.9 / (z * dur), wd = w0 * Math.sqrt(1 - z * z);
+  return t => (t <= 0 ? 0 : 1 - Math.exp(-z * w0 * t) * (Math.cos(wd * t) + z * w0 / wd * Math.sin(wd * t))); };
+const ER_quick = ER_mk(45 / 100 * 0.45, 0.22);               // 消息条 ↔ 表情条、表情升起
+const ER_soft = UXA_bz(0.24, 1.34, 0.38, 1);                 // 表情放大、数字滚动、按钮放大的 CSS 过渡
+const ER_KEYS = [[0, 560, 210], [0.3, 520, 196], [0.8, 0, 130], [1.12, 0, 130], [1.55, 0, 80], [2.3, 0, 80], [2.55, 0, 82], [2.95, 0, 82], [3.6, 300, 176], [4.6, 590, 214]];
+let ER_G = null;
+// 一次算好的布局与事件表：回应宽度、加号位置、指针关键帧、悬停表情的切换时刻
+function ER_geo() {
+  if (ER_G) return ER_G;
+  const c = document.createElement('canvas').getContext('2d');
+  c.font = UXB_f(400, 16); const textW = c.measureText(ER_MSG).width + 40;
+  c.font = UXB_f(500, 14); const dw = c.measureText('0').width;
+  const chipW = 12 + 22 + 8 + dw + 16, chips = [[ER_X0, '🚀', 3], [ER_X0 + chipW + 8, '🔥', 2]];
+  const addX = ER_X0 + 2 * (chipW + 8) + 18, cy = ER_RY + ER_CHIPH / 2, ex = i => ER_X0 + 8 + i * ER_EMO + ER_EMO / 2;
+  const keys = ER_KEYS.map(([t, x, y], j) => [t, j === 2 || j === 3 ? addX : j === 4 ? ex(0) : j === 5 ? ex(5) + 6 : j === 6 || j === 7 ? ex(ER_PICKI) : x, j === 2 || j === 3 ? cy : y]);
+  // 指针下的表情：只在表情条打开时、指针落在条内才算，下标按原作 floor((x − 6) / 34)
+  const on = u => {
+    if (u < ER_OPEN || u >= ER_PICK) return -1;
+    const [x, y] = BN_path(u, keys), lx = x - ER_X0;
+    if (lx < 0 || lx > ER_PILLW || y < ER_MY || y > ER_MY + ER_MH) return -1;
+    return clamp(Math.floor((lx - 6) / ER_EMO), 0, ER_SET.length - 1);
+  };
+  const ch = UXB_changes(on);
+  const addOn = UXB_changes(u => { const [x, y] = BN_path(u, keys); return (u >= ER_OPEN && u < ER_PICK) || Math.hypot(x - addX, y - cy) < 18 ? 1 : 0; });
+  ER_G = { textW, chipW, dw, chips, addX, cy, ex, keys, ch, addOn };
+  return ER_G;
+}
+// CSS 关键帧：frames = [[偏移, 值…], …]，每段用 ez 缓动
+function ER_kf(p, frames, ez) {
+  p = clamp(p);
+  for (let i = 1; i < frames.length; i++) if (p <= frames[i][0]) {
+    const a = frames[i - 1], b = frames[i], t = ez((p - a[0]) / (b[0] - a[0]));
+    return a.slice(1).map((v, j) => mix(v, b[j + 1], t));
+  }
+  return frames[frames.length - 1].slice(1);
+}
+const ER_D = Math.PI / 180, ER_io = UXA_bz(0.42, 0, 0.58, 1), ER_eo = UXA_bz(0, 0, 0.58, 1);
+// 每个表情自己的动作，t = 开始后的秒数；返回 [dx, dy, 旋转, sx, sy, 原点 y]
+function ER_act(kind, t) {
+  if (t < 0) return [0, 0, 0, 1, 1, 0];
+  if (kind === 'launch') { const [x, y, r] = ER_kf(t / 0.64, [[0, 0, 0, 0], [0.3, 2, -7, -12], [0.6, -1, 1, 4], [1, 0, 0, 0]], UXA_bz(0.3, 1.2, 0.4, 1)); return [x, y, r * ER_D, 1, 1, 0]; }
+  if (kind === 'flicker') { const [a, b] = ER_kf(t / 0.62, [[0, 1, 1], [0.15, 1.18, 1.1], [0.3, 0.94, 1.08], [0.48, 1.1, 0.96], [0.66, 0.98, 1.04], [1, 1, 1]], ER_eo); return [0, 0, 0, a, b, 0]; }
+  if (kind === 'confetti') { const [s, r] = ER_kf(t / 0.42, [[0, 0.7, -12], [0.5, 1.18, 6], [1, 1, 0]], UXA_bz(0.3, 1.6, 0.4, 1)); return [0, 0, r * ER_D, s, s, 0]; }
+  if (kind === 'glance') { const [x] = ER_kf(t / 0.7, [[0, 0], [0.25, -2.5], [0.6, 2.5], [1, 0]], ER_io); return [x, 0, 0, 1, 1, 0]; }
+  if (kind === 'tick') { const [s, r] = ER_kf(t / 0.46, [[0, 0.6, -14], [0.55, 1.2, 4], [1, 1, 0]], UXA_bz(0.3, 1.6, 0.4, 1)); return [0, 0, r * ER_D, s, s, 0]; }
+  const [r, y] = ER_kf(t / 0.52, [[0, 0, 0], [0.35, -16, -2], [1, 0, 0]], UXA_bz(0.3, 1.4, 0.4, 1)); return [0, y, r * ER_D, 1, 1, 8];
+}
+// 画一个表情：绕 (x, y + 原点) 先做动作再缩放 sc；t 为动作开始后的秒数
+function ER_emoji(k, e, kind, x, y, size, sc, t, al = 1) {
+  if (al <= 0.003) return;
+  const [dx, dy, r, sx, sy, oy] = ER_act(kind, t), o = Math.max(oy, size * 0.4);
+  k.save(); k.globalAlpha *= al; k.translate(x + dx, y + dy + o); k.rotate(r); k.scale(sc * sx, sc * sy);
+  txt(k, e, 0, -o, UXB_f(400, size), ER_INK, 'center', 'middle'); k.restore();
+  if (t >= 0 && t < 0.56 && kind === 'confetti') {               // 礼花：6 个小方块按固定角度飞出
+    const cols = ['#f5a524', '#e5484d', '#2f6bff', '#12a150', '#a855f7', '#f5a524'], p = UXA_bz(0.2, 0.8, 0.3, 1)(t / 0.56);
+    for (let i = 0; i < 6; i++) { const a = (i * 60 + 15) * ER_D, d = 16 * p, s = 3 * (1 - 0.4 * p);
+      k.globalAlpha = al * (1 - p); k.fillStyle = cols[i]; k.fillRect(x + Math.sin(a) * d - s / 2, y - Math.cos(a) * d - s / 2, s, s); }
+    k.globalAlpha = 1;
+  }
+  if (t >= 0 && t < 0.52 && kind === 'launch') {                 // 火箭尾气：一小团灰烟向左下散开
+    const p = ER_eo(t / 0.52), a = p < 0.25 ? p / 0.25 : 1 - (p - 0.25) / 0.75;
+    k.fillStyle = `rgba(23,24,26,${0.2 * a * al})`; k.beginPath(); k.arc(x - size * 0.3 - 5 * p + 3.5, y + size * 0.2 + 6 * p + 3.5, 3.5 * (0.4 + 1.2 * p), 0, TAU); k.fill();
+  }
+}
+// lucide SmilePlus（24 视图框）
+const ER_ICON = ['M22 11v1a10 10 0 1 1-9-10', 'M8 14s1.5 2 4 2 4-2 4-2', 'M9 9h.01', 'M15 9h.01', 'M16 5h6', 'M19 2v6'];
+let ER_P2 = null;
+function ER_draw(k, u) {
+  const G = ER_geo();
+  const bg = k.createLinearGradient(0, 0, CW * 0.4, CH * 1.3); bg.addColorStop(0, '#a5dcff'); bg.addColorStop(1, '#5aaef0');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  // 打开程度：1.0 秒打开、2.8 秒关上，线性弹簧叠加
+  const op = ER_quick(u - ER_OPEN) - ER_quick(u - ER_PICK);
+  const mw = mix(G.textW, ER_PILLW, op), mr = mix(ER_R, 24, op);
+  // 气泡：蓝色，投影用同色系的深蓝
+  k.save(); k.shadowColor = 'rgba(20,60,160,.28)'; k.shadowBlur = 12; k.shadowOffsetY = 4;
+  k.fillStyle = ER_BUB; rr(k, ER_X0, ER_MY, mw, ER_MH, mr); k.fill(); k.restore();
+  // 消息文字：打开时 0.09 秒模糊淡出，关上时晚 0.08 秒、0.22 秒淡回
+  const ta = u < ER_PICK + 0.08 ? 1 - ER_eo(seg(u, ER_OPEN, ER_OPEN + 0.09)) : ER_eo(seg(u, ER_PICK + 0.08, ER_PICK + 0.3));
+  if (ta > 0.003) {
+    const ts = 1 - 0.04 * (1 - ta); k.save(); k.translate(ER_X0 + mw / 2, ER_MY + ER_MH / 2); k.scale(ts, ts);
+    k.font = UXB_f(500, 16); k.fillStyle = '#ffffff'; k.textAlign = 'center'; k.textBaseline = 'middle';
+    UXA_blurText(k, ER_MSG, 0, 0, 4 * (1 - ta), ta); k.restore(); k.globalAlpha = 1;
+  }
+  // 表情条：依次升起（各晚 0.018 秒），关上时整条 0.16 秒淡出
+  const pa = u < ER_OPEN ? 0 : u < ER_PICK ? 1 : 1 - seg(u, ER_PICK, ER_PICK + 0.16);
+  let at = -1, since = 0; for (const [t, v] of G.ch) { if (t > u) break; if (v !== at) since = t; at = v; }
+  if (pa > 0.003) {
+    ER_SET.forEach(([e, , kind], i) => {
+      const p = ER_quick(u - ER_OPEN - 0.02 - i * 0.018), a = clamp(p) * pa;
+      const sw = UXB_ramp(u, G.ch.map(([t, v]) => [t, v === i ? ER_MAG : 1]), 0.22, ER_soft);
+      ER_emoji(k, e, kind, G.ex(i), ER_MY + 24 + 8 * (1 - p), 20, (0.5 + 0.5 * p) * sw, at === i ? u - since : -1, a);
+    });
+    // 名字标签：深色小块，底边在条上方 10 px，0.16 秒淡入并上移 4 px
+    const tl = UXB_ramp(u, G.ch.map(([t, v]) => [t, v >= 0 ? 1 : 0]), 0.16, ER_eo);
+    let last = -1; for (const [t, v] of G.ch) { if (t > u) break; if (v >= 0) last = v; }
+    if (tl > 0.003 && last >= 0) {
+      k.font = UXB_f(400, 11); const lw = k.measureText(ER_SET[last][1]).width + 16, lx = G.ex(last) - lw / 2, ly = ER_MY - 10 - 22 + 4 * (1 - tl);
+      k.save(); k.globalAlpha = tl * pa; k.fillStyle = ER_INK; rr(k, lx, ly, lw, 22, 6); k.fill();
+      txt(k, ER_SET[last][1], lx + lw / 2, ly + 11.5, UXB_f(400, 11), '#ffffff', 'center', 'middle'); k.restore();
+    }
+  }
+  // 回应：🚀 在 2.8 秒变成自己的（蓝边、蓝字），表情先藏起，3.4 秒落地后显现、播放发射动作，数字 3 → 4 滚动
+  const mine = UXB_ramp(u, [[-1, 0], [ER_PICK, 1]], 0.16, ER_io);
+  G.chips.forEach(([x, e, n], j) => {
+    const own = j === 0 ? mine : 0;
+    k.fillStyle = rgba(lerpC(ER_CHIP[j], ER_MINE, own), 1); rr(k, x, ER_RY, G.chipW, ER_CHIPH, 18); k.fill();
+    if (own > 0.003) { k.strokeStyle = `rgba(29,63,216,${0.75 * own})`; k.lineWidth = 1.5; rr(k, x + 0.75, ER_RY + 0.75, G.chipW - 1.5, ER_CHIPH - 1.5, 17.25); k.stroke(); }
+    const ea = j === 0 ? (u < ER_LAND ? 1 - seg(u, ER_PICK, ER_PICK + 0.16) : seg(u, ER_LAND, ER_LAND + 0.16)) : 1;
+    ER_emoji(k, e, j === 0 ? 'launch' : 'flicker', x + 12 + 11, G.cy, 20, 1, j === 0 ? u - ER_LAND : -1, ea);
+    const v = j === 0 ? UXB_ramp(u, [[-1, n], [ER_LAND, n + 1]], 0.22, ER_soft) : n, cx = x + 12 + 22 + 8, lh = 14 * 1.4;
+    k.save(); k.beginPath(); k.rect(cx - 1, G.cy - lh / 2, G.dw + 2, lh); k.clip();
+    const col = rgba(UXB_mix('#3a2a60', ER_SIG, own), 1);
+    for (let d = Math.max(0, Math.floor(v) - 1); d <= Math.min(9, Math.ceil(v) + 1); d++) txt(k, String(d), cx, G.cy + (d - v) * lh + 0.5, UXB_f(500, 14), col, 'left', 'middle');
+    k.restore();
+  });
+  // 加表情按钮：半透明白底蓝色图标，悬停或打开时底更亮、图标变深、放大到 1.06 倍
+  const ab = UXB_ramp(u, G.addOn, 0.16, ER_soft);
+  k.save(); k.translate(G.addX, G.cy); k.scale(1 + 0.06 * ab, 1 + 0.06 * ab);
+  k.fillStyle = `rgba(255,255,255,${0.55 + 0.3 * ab})`; k.beginPath(); k.arc(0, 0, 18, 0, TAU); k.fill();
+  if (!ER_P2) ER_P2 = ER_ICON.map(d => new Path2D(d));
+  k.scale(0.75, 0.75); k.translate(-12, -12); k.strokeStyle = rgba(UXB_mix('#3b6fd6', '#1d3fd8', ab), 1);
+  k.lineWidth = 2; k.lineCap = 'round'; k.lineJoin = 'round'; for (const p of ER_P2) k.stroke(p);
+  k.restore();
+  // 飞行：从点中的表情沿弧线到回应上的表情，最高点比两端高 46 px，0.6 秒，缩放 1.4 → 1.25 → 1，途中转 −14°
+  if (u >= ER_PICK && u < ER_LAND) {
+    const fx = G.ex(ER_PICKI), fy = ER_MY + 24, tx = G.chips[0][0] + 23, ty = G.cy;
+    const [x, y, s, r] = ER_kf((u - ER_PICK) / ER_FLY, [[0, fx, fy, 1.4, 0], [0.45, (fx + tx) / 2, Math.min(fy, ty) - 46, 1.25, -14], [1, tx, ty, 1, 0]], UXA_bz(0.35, 0, 0.3, 1));
+    k.save(); k.translate(x, y); k.rotate(r * ER_D); k.scale(s, s); txt(k, '🚀', 0, 0, UXB_f(400, 16), ER_INK, 'center', 'middle'); k.restore();
+  }
+  if (u > 0.2 && u < 4.9) {
+    const [x, y] = BN_path(u, G.keys);
+    for (const tc of [ER_OPEN, ER_PICK]) ripple(k, x, y, seg(u, tc, tc + 0.5));
+    cursor(k, x, y, UXB_press(u, ER_OPEN) + UXB_press(u, ER_PICK));
+  }
+}
+CELLS[73] = (k, w, h, u) => UXB_xfade(k, ER_draw, u, SHOW, SHOW + 0.6);

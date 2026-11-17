@@ -1,0 +1,17 @@
+Please use "Context meter" (コンテキスト使用量バー), filed under "Feedback / AI status".
+Motion Prompt #1-234
+
+What it is: A model's context shown as a colour-coded stacked bar; pointing at a kind keeps it lit and rolls the figure to its share, and Compact shrinks the chat
+What the sample shows: On a pale mint gradient sits a deep pine-green card holding a white "Context" title with a mint "Compact" button, a large "175.6K of 200K", a long colour-coded bar and a chip for each kind. The pointer comes in and rests on the thin amber slice; the other slices fade back and the figure rolls digit by digit to "4.2K System". It moves to the blue Files slice and then the wide teal Chat slice, and each time the figure rolls to that size. When the pointer leaves the bar the total comes back. It presses "Compact" at the top right: the Chat slice slides shorter, the bar gives a quick squash and bounce, the total rolls down to 97.4K and the button reads "Undo". At the end Chat grows back to full length.
+Spec:
+- A deep pine-green #0F3B37 card on pale mint, with a 20 px corner and 16 px padding. The bar is 40 px tall with 3 px gaps, 6 px corners at its ends and 2 px where slices meet. The window is 200K.
+- System 4.2K, Tools 12.8K, Files 46.1K, Chat 108.6K and Memory 3.9K are laid out biggest first, 175.6K in total. System is amber, Tools violet, Files blue, Chat teal and Memory rose, and the free room is a 12% white band.
+- The pointer enters at 0.3 s, points at System at 0.8 s, Files at 1.88 s and Chat at 2.74 s, and leaves the bar at 3.55 s. Slices not pointed at fade to 0.22 over 0.22 s.
+- Only digits that change rise from 0.18em below or above out of a 2 px blur over 0.5 s with an overshoot, each 70ms after the one on its left; old digits fade in 0.16 s.
+- Pressing "Compact" at 4.0 s shrinks Chat to 30.4K over 0.82 s and the total becomes 97.4K. The slices take a 0.76 s squash one after another 55ms apart (Chat 0.78, the rest 0.93, rebounding to 1.03).
+- The pointer leaves at 4.75 s. At 5.4 s Chat grows back to 108.6K on the same 0.82 s curve and the button returns to "Compact".
+When to use it: Use it for usage readouts in AI chats and coding assistants, token-budget dashboards and storage breakdowns.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-234.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

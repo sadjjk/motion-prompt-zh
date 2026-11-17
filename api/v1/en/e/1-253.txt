@@ -1,0 +1,179 @@
+// Motion Prompt #1-253 · MIT License (c) 2026 Lorenzo Cabra · https://github.com/cabralorenzo/bencho
+//
+// Odometer counter / オドメーター式カウンター
+// Category: UI & Web / Components / Choosing & input
+// What happens: A deep plum bar sits on a pink-to-rose gradient, with a cyan "−" key on the left, a green "+" key on the right and a white 95 between them. The pointer comes in from the lower right and taps + twice; the ones strip rolls one step each time, to 97. Then it holds +: the repeats start and speed up, and as 99 turns into 100 the tens and then the hundreds roll a beat later each, the new hundreds column opening from the side and widening the bar. Held longer it steps by 10, the ones column spinning in a blur, and stops at 185. Released, the pointer moves to − and taps twice, down to 183, then leaves. Finally every column rolls the short way back to 95 and the hundreds column folds away.
+// Motion spec:
+//   - The deep plum bar is drawn at 2× the original: 5 px inset, 40×46 px keys (cyan −, green +), corner 16, white 30 px digits, each column 0.64 em wide.
+//   - It starts at 95; the pointer taps + at 0.75 s and 1.1 s and holds + from 1.5 s: repeats begin after 0.38 s, every 0.09 s, then every 0.055 s once held for 0.9 s.
+//   - 99 becomes 100 at 1.97 s and the hundreds column opens over 0.32 s; held past 1.5 s each repeat adds 10, reaching 185 when released at 3.4 s.
+//   - Each column takes the change 45 ms after the one to its right and lands on a spring (bounce 45: stiffness 0.152, decay 0.71 per frame), blurring up to 3 px while it spins (blur 50).
+//   - Taps on − at 3.95 s and 4.3 s bring it to 183; at 5.4 s every column rolls the short way back to 95 and the hundreds column folds away.
+// When to use it: Use it for quantity and guest steppers, cart counts, scores and tallies, and any setting you nudge up and down.
+// Tags: counter, odometer, stepper, rolling-digits, hold-to-repeat, stagger, spring
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-253
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 90
+// 90 里程表进位计数器（bencho rolling-counter）：热粉→玫红渐变底上一块深紫计数条，左青色「−」键、右翠绿「+」键，中间白色数字从 95 起，每列是 0–9 的滚筒；
+// 指针 0.3 秒从右下进入，0.75、1.10 秒点两下「+」（96、97）；1.5 秒按住「+」：0.38 秒后开始连发，先 0.09 秒一次、按住 0.9 秒后 0.055 秒一次，1.97 秒 99→100 百位列滑入，按住 1.5 秒后每次 +10，到 185；
+// 3.4 秒松手，指针移到「−」，3.95、4.30 秒点两下（184、183），4.9 秒离开；各列按 45 ms 错开、用弹簧（bounce 45）落位，转得快的列带模糊；复位段 5.4 秒各列就近转不到半圈回到 95、百位列收起，6.1 秒前静止。
+const OD_S = 2;                                                     // 原作约 156×56 px 的小控件，放大 2 倍绘制
+const OD_PLACES = 5, OD_CELL = 46, OD_PAD = 5, OD_BTN = 40, OD_NPAD = 14, OD_FONT = 30, OD_COLW = 0.64 * OD_FONT, OD_COR = 16;
+const OD_START = 95, OD_STAGGER = 0.045, OD_BLUR = 50, OD_BOUNCE = 45, OD_RESET = SHOW;
+const OD_CX = CW / 2, OD_CY = CH / 2;
+const OD_COL = { slab: '#2A0E3D', digit: '#FFF7FC', minus: '#2CC8F5', plus: '#2FDC86', glyph: '#2A0E3D', shadow: 'rgba(120,0,52,.5)' };
+// 按键：[按下, 松开, 方向]；按住超过 0.38 秒才开始连发（原作 setTimeout 380）
+const OD_PRESS = [[0.75, 0.87, 1], [1.10, 1.22, 1], [1.5, 3.4, 1], [3.95, 4.07, -1], [4.3, 4.42, -1]];
+const OD_KEYS = [[0, 590, 245], [0.3, 548, 205], [0.65, 388, 112], [3.45, 388, 112], [3.85, 146, 112], [4.45, 146, 112], [4.95, 70, 250]];
+// 原作 springOf(bounce)：每帧（1/60 秒）v += (目标 − 位置)·k，v *= d，位置 += v
+const OD_K = 0.08 + OD_BOUNCE / 100 * 0.16, OD_D = 0.62 + OD_BOUNCE / 100 * 0.2;
+// 该线性差分方程的阶跃响应写成解析式：误差 e(n) = r^n (cos θn + B sin θn)，n 为帧数，可取小数
+const OD_R = Math.sqrt(OD_D), OD_TH = Math.acos((1 + OD_D - OD_D * OD_K) / (2 * OD_R));
+const OD_B = (1 - OD_K * OD_D - OD_R * Math.cos(OD_TH)) / (OD_R * Math.sin(OD_TH)), OD_LR = Math.log(OD_R);
+// 数值变化表 [时刻, 新值]：按原作 press() 的连发规则（380 ms 后连发；按住超过 0.9 秒间隔 90→55 ms；超过 1.5 秒每次 ±10）预先算好
+const OD_EV = (() => {
+  const ev = []; let v = OD_START;
+  const bump = (t, n) => { const nv = clamp(v + n, 0, 10 ** OD_PLACES - 1); if (nv !== v) { v = nv; ev.push([t, v]); } };
+  for (const [t0, t1, dir] of OD_PRESS) {
+    bump(t0, dir);
+    for (let t = t0 + 0.38; t < t1;) { const held = t - t0; bump(t, dir * (held > 1.5 ? 10 : 1)); t += held > 0.9 ? 0.055 : 0.09; }
+  }
+  ev.push([OD_RESET, OD_START]);                                     // 复位：直接回到初值，各列照常滚动过去
+  return ev;
+})();
+// 每列的目标阶跃 [时刻, 增量]：列 p 的目标是 floor(值 / 10^p)，晚 p 个 stagger 生效。
+// 增量只要模 10 不变，画面就一样（原作对相差 24 以上的列也先整圈跳近）：复位那一步每列就近转不到半圈（±5 格内），0.9 秒内落定
+const OD_STEPS = Array.from({ length: OD_PLACES }, (_, p) => {
+  const out = []; let prev = Math.floor(OD_START / 10 ** p);
+  for (const [t, v] of OD_EV) {
+    const to = Math.floor(v / 10 ** p); let d = to - prev; prev = to;
+    if (t === OD_RESET) d = ((d % 10) + 15) % 10 - 5;
+    if (d) out.push([t + p * OD_STAGGER, d]);
+  }
+  return out;
+});
+// 列 p 在 u 时的位置与每帧速度（各阶跃响应叠加）
+function OD_col(p, u) {
+  let pos = Math.floor(OD_START / 10 ** p), vel = 0;
+  for (const [t, d] of OD_STEPS[p]) {
+    if (u <= t) break;
+    const n = (u - t) * 60, rn = Math.exp(OD_LR * n), c = Math.cos(OD_TH * n), s = Math.sin(OD_TH * n);
+    pos += d * (1 - rn * (c + OD_B * s));
+    vel -= d * rn * (OD_LR * (c + OD_B * s) + OD_TH * (OD_B * c - s));
+  }
+  return [pos, vel];
+}
+const OD_value = u => { let v = OD_START; for (const [t, x] of OD_EV) { if (t > u) break; v = x; } return v; };
+// 键面质感：彩色键顶部一条亮带、底部一条暗影（仿原作 button 6% 明度差的层次）
+function OD_keyShade(k, cx, w, h, r) {
+  for (const [sgn, a] of [[-1, 0.22], [1, 0.14]]) {
+    const y0 = sgn * h / 2, g = k.createLinearGradient(0, y0, 0, y0 - sgn * h * 0.55);
+    g.addColorStop(0, `rgba(255,255,255,${a * (sgn < 0)})`); g.addColorStop(1, `rgba(255,255,255,0)`);
+    const g2 = k.createLinearGradient(0, y0, 0, y0 - sgn * h * 0.5);
+    g2.addColorStop(0, `rgba(26,5,38,${0.18 * (sgn > 0)})`); g2.addColorStop(1, 'rgba(26,5,38,0)');
+    k.fillStyle = sgn < 0 ? g : g2; rr(k, cx - w / 2, -h / 2, w, h, r); k.fill();
+  }
+}
+// CSS transition：evs = [[时刻, 目标, 时长]]，每次从当时的值出发
+function OD_trans(u, v0, evs, ez) {
+  let from = v0, to = v0, t0 = -1e9, dur = 1;
+  for (const [t, v, du] of evs) {
+    if (t > u) break;
+    from = mix(from, to, ez(seg(t, t0, t0 + dur))); to = v; t0 = t; dur = du;
+  }
+  return mix(from, to, ez(seg(u, t0, t0 + dur)));
+}
+const OD_WEZ = UXA_bz(0.3, 1.2, 0.4, 1), OD_EASE = UXA_bz(0.25, 0.1, 0.25, 1), OD_KEZ = UXA_bz(0.3, 0.9, 0.4, 1);
+// 显示位数随数值即时变化，列宽按 320 ms 回弹曲线、透明度按 220 ms ease 过渡（原作 .rct-col）
+const OD_SHOWN = (() => {
+  const len = v => Math.max(1, String(v).length), out = []; let cur = len(OD_START);
+  for (const [t, v] of OD_EV) if (len(v) !== cur) { cur = len(v); out.push([t, cur]); }
+  return out;
+})();
+function OD_lay(u) {
+  const cols = [];
+  let num = 2 * OD_NPAD;
+  for (let p = OD_PLACES - 1; p >= 0; p--) {
+    const on = q => (p < q ? 1 : 0), s0 = on(Math.max(1, String(OD_START).length));
+    const evs = OD_SHOWN.map(([t, q]) => [t, on(q), 0.32]), evo = OD_SHOWN.map(([t, q]) => [t, on(q), 0.22]);
+    const w = Math.max(0, OD_COLW * OD_trans(u, s0, evs, OD_WEZ)), a = clamp(OD_trans(u, s0, evo, OD_EASE));
+    cols.push([p, w, a]); num += w;
+  }
+  const W = 2 * OD_PAD + 2 * OD_BTN + num;
+  return { W, num, cols, x0: -W / 2 };
+}
+// 指针在哪个键上（按画面实际的键位逐 1/240 秒判断）：0 无、-1 「−」、1 「+」
+const OD_HOVER = UXB_changes(u => {
+  if (u < 0.2 || u > 4.95) return 0;
+  const L = OD_lay(u), [px, py] = BN_path(u, OD_KEYS), x = (px - OD_CX) / OD_S, y = (py - OD_CY) / OD_S;
+  if (Math.abs(y) > OD_CELL / 2) return 0;
+  if (x >= L.x0 + OD_PAD && x <= L.x0 + OD_PAD + OD_BTN) return -1;
+  if (x >= -L.x0 - OD_PAD - OD_BTN && x <= -L.x0 - OD_PAD) return 1;
+  return 0;
+});
+function OD_key(k, x, dir, u, col) {
+  // :active 按下 110 ms 缩到 0.9，松开 200 ms 回到 1；:hover 160 ms 加深 10%
+  const evs = [];
+  for (const [t0, t1, d] of OD_PRESS) if (d === dir) evs.push([t0, 0.9, 0.11], [t1, 1, 0.2]);
+  const sc = OD_trans(u, 1, evs, OD_KEZ);
+  const hv = OD_trans(u, 0, OD_HOVER.slice(1).map(([t, v]) => [t, v === dir ? 1 : 0, 0.16]), OD_EASE);
+  const cx = x + OD_BTN / 2, w = OD_BTN * sc, h = OD_CELL * sc, r = (OD_COR - OD_PAD) * sc;
+  k.fillStyle = rgba(UXB_mix(col, '#1A0526', 0.16 * hv), 1); rr(k, cx - w / 2, -h / 2, w, h, r); k.fill();
+  OD_keyShade(k, cx, w, h, r);
+  const g = (16 / 24 * 14 / 2) * sc;                                                  // lucide 16 px 图标，线段 14/24 宽
+  k.strokeStyle = OD_COL.glyph; k.lineWidth = 2.2 * sc * 16 / 24; k.lineCap = 'round';
+  k.beginPath(); k.moveTo(cx - g, 0); k.lineTo(cx + g, 0);
+  if (dir > 0) { k.moveTo(cx, -g); k.lineTo(cx, g); }
+  k.stroke();
+}
+CELLS[89] = (k, w, h, u) => {
+  const bg = k.createLinearGradient(0, 0, CW, CH); bg.addColorStop(0, '#FF4FA6'); bg.addColorStop(1, '#E3115F');
+  k.fillStyle = bg; k.fillRect(0, 0, CW, CH);
+  glow(k, CW * 0.22, CH * 0.1, 220, '255,170,220', 0.35);
+  const L = OD_lay(u), H = OD_CELL + 2 * OD_PAD;
+  k.save(); k.translate(OD_CX, OD_CY); k.scale(OD_S, OD_S);
+  k.save(); k.shadowColor = OD_COL.shadow; k.shadowBlur = 24; k.shadowOffsetY = 8;
+  k.fillStyle = OD_COL.slab; rr(k, L.x0, -H / 2, L.W, H, OD_COR); k.fill(); k.restore();
+  OD_key(k, L.x0 + OD_PAD, -1, u, OD_COL.minus);
+  OD_key(k, -L.x0 - OD_PAD - OD_BTN, 1, u, OD_COL.plus);
+  // 数字窗：每列一条 0–9,0 的竖条，按 位置 mod 10 平移；转得快就模糊（原作 min(3, |v|·2.4)·blur/50 px）
+  k.font = UXB_f(500, OD_FONT); k.textAlign = 'center'; k.textBaseline = 'alphabetic';
+  // 数字相对列居中要按字形包围盒算（'1' 等窄字左缘留白比右缘宽）
+  const bw = {}, dy = (() => { for (const d of '0123456789') { const m = k.measureText(d); bw[d] = [m.actualBoundingBoxLeft ?? m.width / 2, m.actualBoundingBoxRight ?? m.width / 2]; } const m = k.measureText('0'); return (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2; })();
+  const dcen = d => { const [l, r] = bw[d]; return (r - l) / 2; };
+  const T = k.getTransform(), dev = Math.hypot(T.a, T.b);           // canvas 的 blur 按设备像素算，要乘上当前缩放
+  let x = L.x0 + OD_PAD + OD_BTN + OD_NPAD;
+  for (const [p, cw, a] of L.cols) {
+    if (cw > 0.05 && a > 0.004) {
+      const [pos, vel] = OD_col(p, u), m = ((pos % 10) + 10) % 10, j = Math.floor(m), f = m - j;
+      const smear = Math.min(3, Math.abs(vel) * 2.4) * (OD_BLUR / 50);
+      k.save(); k.beginPath(); k.rect(x, -OD_CELL / 2, cw, OD_CELL); k.clip();
+      k.globalAlpha = a; k.fillStyle = OD_COL.digit;
+      if (smear > 0.15) k.filter = `blur(${(smear * dev).toFixed(2)}px)`;
+      const d0 = String(j % 10), d1 = String((j + 1) % 10);
+      k.fillText(d0, x + cw / 2 + dcen(d0), -f * OD_CELL + dy);
+      k.fillText(d1, x + cw / 2 + dcen(d1), (1 - f) * OD_CELL + dy);
+      k.restore();
+    }
+    x += cw;
+  }
+  // 窗口上下 20% 渐隐（原作 mask-image）：底色是纯色，用同色渐变盖住即等效
+  const nx = L.x0 + OD_PAD + OD_BTN, fh = OD_CELL * 0.2, sc = UXB_rgb(OD_COL.slab);
+  for (const s of [-1, 1]) {
+    const y0 = s * OD_CELL / 2, g = k.createLinearGradient(0, y0, 0, y0 - s * fh);
+    g.addColorStop(0, rgba(sc, 1)); g.addColorStop(1, rgba(sc, 0));
+    k.fillStyle = g; k.fillRect(nx, Math.min(y0, y0 - s * fh), L.num, fh);
+  }
+  k.restore();
+  if (u > 0.2 && u < 4.95) {
+    const [px, py] = BN_path(u, OD_KEYS);
+    let pr = 0;
+    for (const [t0, t1] of OD_PRESS) pr = Math.max(pr, u < t1 ? seg(u, t0 - 0.06, t0) : 1 - seg(u, t1, t1 + 0.1));
+    cursor(k, px, py, pr);
+  }
+};

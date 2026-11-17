@@ -1,0 +1,18 @@
+请使用“头像叠入选择（Avatar stack picker）”，属于“组件 / 选择与输入”。
+Motion Prompt #1-244
+
+效果解释：从名单里选人，头像落进胶囊里依次重叠排开，胶囊随之变宽
+动画表现：浅黄渐变底上是一个写着 Unassigned 的深靛蓝胶囊和一张同色的展开四人名单，每人的头像各是一种颜色：珊瑚、紫、青绿、蓝。指针从右下进入，依次点 Adam、Priya、Nora 行尾的方框，方框填上这个人的颜色，白色对勾弹出，这个人的头像从上方带着一点转角落进胶囊，压在前一个头像边上。第一个头像落下时文字消失，之后每加一人胶囊就变宽一截。指针在 Marco 那一行停一下不点，最后取消 Priya，她的头像转着缩小消失，Nora 向左滑过去补位。
+实现规格与关键运动参数：
+- 胶囊高 44 px、圆角 20 px；头像直径 28 px，相邻两个重叠 10 px。原作 264 px 宽的名单（每行 48 px）按 0.9 倍放在右侧。
+- 0.9 秒、1.7 秒、2.5 秒依次选中 Adam、Priya、Nora，4.2 秒取消 Priya。
+- 头像从缩放 0.2、上移 10 px、-22° 开始：位置和大小走紧弹簧（stiffness 380，damping 34），旋转走松弹簧（stiffness 500，damping 18），会晃过水平再回正。
+- 取消的头像缩到 0.2 倍、转 14°，0.16 秒淡出；胶囊宽度 0.22 秒过渡。
+- 指针 0.3 秒进入，4.85 秒离开；5.5 秒清空选择，回到 Unassigned。
+适用场景：适合任务和工单的负责人栏、文档添加协作者、活动选择参与人。
+
+动画演示：https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-244
+参考实现（Canvas 2D，画面仅由时间决定）：https://sadjjk.github.io/motion-prompt-zh/api/v1/zh-Hans/e/1-244.txt
+依赖的公共代码：https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+保留参考实现的形状、运动路径、时序、缓动和全部运动参数；按实际项目替换文字、颜色、图片、标志等素材，并接入项目现有实现方式。
+使用参考代码时保留 Lorenzo Cabra 的 MIT 版权标识。
