@@ -1,0 +1,348 @@
+// Motion Prompt #4-104 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// Ink harbour lighthouse / 墨線の港の灯台
+// Category: Visual styles / Animation styles / Flat & line
+// What happens: On the left a wooden pier with a fishing net hung out to dry and a small covered boat tied at its end; on the right a headland with a red-banded lighthouse and a keeper's hut, and a pale-ink cape and islet out at sea. The sea is many rows of horizontal ink lines, thinner and lower further out, with crests travelling left. The sun reddens and sets on the horizon beside the islet, leaving a streak of light on the water. As it gets dark the lighthouse, the hut window and the boat lantern come on, and the lighthouse's two beams turn round the tower and take turns sweeping the sea: a beam turned forward passes in front of the tower, one turned back is hidden behind it. Two gulls land on the posts at dusk, stay the night and fly off at dawn when the light goes out.
+// Motion spec:
+//   - Colours use the sky top, sky bottom and paper ramps from the original daynight.ts, and ink inverts from #1c1c1c to #efe6cf. The day starts at τ 0.68 and comes round to 1.68; dawn is at 5.4 s and the last 1 s runs through daytime back to the start.
+//   - The lighthouse comes on at 1.5–1.75 s and goes off at 5.3–5.55 s. It has 2 opposite beams that turn 2 times per cycle (3.2 s per turn), in the same warm translucent rgba(255,226,168) as the original window light and street-lamp cone.
+//   - The boat rolls on the original lantern pendulum (10, 1.1), pushed by the slope of the wave under it, swinging about ±4.6°. The net hem uses the original scarf-tail spring (30, 4), pushed by the sea breeze (mean 0.3).
+//   - The sea is 13 rows of horizontal ink lines, lower, thicker and with bigger swell nearer the viewer. Crests pass 3 times per cycle while the lines stay in place, so there is no seam.
+//   - The 2 gulls land on the posts at the pier end at 1.5–2.45 s and fly off at 5.5–6.2 s. Flat colour is limited to 2: the lighthouse red #b3412d and the boat's wood #8b6a48, darkened at night by the original nightTint() amount.
+// When to use it: Use it for guidance, keeping watch, running through the night, signalling from afar, a place to come home to, or showing a night mode.
+// Tags: line-art, ink, day-night, lighthouse, harbour, sea, boat
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#4-104
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 12
+// 港口灯塔：原作没有海边场景，这里按原作的画法（细墨线、纸色遮挡、一两处平涂色、daynight.ts 夜间反相）新编一幅港口。
+// 黄昏太阳沉进海里，入夜灯塔亮起、两道光束绕塔转着扫过海面；系在栈桥上的小船随浪起伏（钟摆），晾着的渔网被海风吹动（弹簧）；
+// 天亮前光束熄灭，复位段天亮，停在系船柱上过夜的海鸥飞回天上
+{
+  // 主线约 1 px、细节线按原作 0.4–0.6 倍，与 #4-101 一致
+  const SP = 1.1, FP = 0.6;
+  const W = TAU / CYC; // 一周期一圈的角速度，周期性小动作都取它的整数倍
+  const HZ = 116;      // 海平线
+  const oval = (cx, cy, rx, ry) => `M${cx - rx} ${cy} a${rx} ${ry} 0 1 0 ${2 * rx} 0 a${rx} ${ry} 0 1 0 ${-2 * rx} 0Z`;
+  const rect = (x0, y0, x1, y1) => `M${x0} ${y0} L${x1} ${y0} L${x1} ${y1} L${x0} ${y1}Z`;
+
+  // —— 6.4 秒里的一天 ——
+  // 从黄昏前 τ 0.68 开始（太阳已偏西），黄昏 τ 0.70–0.79 占约 2 秒（u 0.35–2.35），夜里约 3 秒；5.4 秒黎明，复位段 0.5 秒走完白天回到 1.68。
+  // 首末关键帧差整一天，首尾画面相同
+  const tauAt = dayClock([[0, 0.68], [1.3, 0.74], [2.4, 0.795], [4.4, 1.13], [5.4, 1.245], [5.9, 1.38], [6.4, 1.68]]);
+  // 海风：均值 0.3 取原作 village 的风，起伏按一周期 1 次、3 次的正弦，循环才接得上
+  const windAt = u => 0.3 + 0.12 * Math.sin(W * u) + 0.06 * Math.sin(3 * W * u + 1);
+
+  // —— 浪 ——
+  // 海面是一层层横向墨线：越近的行越低、间距越大、起伏越高、波长越长（近大远小）。每行是一串固定位置的短线，
+  // 线上的起伏 y = A·sin(kx + 3Wt) 向左走，一周期起伏 3 次，所以线段本身不动、浪峰在走，循环接得上
+  const ROWS = 13, WN = 3;
+  const mkRow = (t, y, ph) => ({ t, y, A: 0.3 + 1.9 * t, k: TAU / (30 + 70 * t), ph });
+  const ROW = Array.from({ length: ROWS }, (_, r) => {
+    const t = r / (ROWS - 1), row = mkRow(t, HZ + 3 + 88 * Math.pow(t, 1.5), rnd(r, 5) * TAU), segs = [];
+    let x = -10 - rnd(r, 1) * 30;
+    for (let i = 0; x < CW + 10; i++) {
+      const len = mix(10, 46, rnd(r, 10 + i * 2)) * mix(0.7, 1.2, t);
+      segs.push([x, x + len]);
+      x += len + mix(8, 30, rnd(r, 11 + i * 2)) * mix(1.6, 0.8, t);
+    }
+    return Object.assign(row, { segs });
+  });
+  const waveAt = (row, x, u) => row.y + row.A * Math.sin(row.k * x + WN * W * u + row.ph);
+  const slopeAt = (row, x, u) => row.A * row.k * Math.cos(row.k * x + WN * W * u + row.ph);
+  // 小船吃水线所在的那一层浪（介于第 6、7 行之间），船的上下起伏和受到的推力都取它
+  const BOAT = { x: 268, row: mkRow(0.52, 152, 1.3) };
+
+  // 小船横摇用原作灯笼的钟摆 (10, 1.1)：推力取船下浪面的坡度；渔网下摆用原作围巾尾的弹簧 (30, 4)，目标随海风
+  const swing = sim([{ type: 'pendulum', k: 10, d: 1.1 }, { type: 'spring', k: 30, d: 4 }],
+    u => [2.3 * slopeAt(BOAT.row, BOAT.x, u), 0.6 * windAt(u)]);
+
+  // —— 颜色 ——
+  // 平涂色两种：灯塔的红（同 #4-100 的红伞）和船身的木色（原作 boatman 的船 #8b6a48），夜里按原作 nightTint() 压暗
+  const RED = hx('#b3412d'), RED_NIGHT = hx('#6e2a22'), WOOD = hx('#8b6a48');
+  const nightTint = (c, inkT, amt = 0.55) => mc(c, mc(c, [12, 16, 30], 0.6), inkT * amt);
+  // 光的颜色用原作窗光、路灯光锥那一档暖黄
+  const WARM = '255,226,168';
+  const WARMGLOW = [[0, '255,213,138', 0.75], [0.45, '255,184,92', 0.28], [1, '255,184,92', 0]];
+  let C = null; // 当前帧的 css 颜色；kit 的 pen/shape 用固定 INK/PAPER，夜里会反相，所以用下面两个按 C 画
+  const strokeP = (k, d, w = SP, a = 1) => { k.globalAlpha = a; k.lineWidth = w; k.strokeStyle = C.ink; k.stroke(path(d)); k.globalAlpha = 1; };
+  const shapeP = (k, d, w = SP, col = C.paper) => { const p = path(d); k.fillStyle = col; k.fill(p); k.lineWidth = w; k.strokeStyle = C.ink; k.stroke(p); };
+  const radial = (k, x, y, r, stops, alpha) => {
+    if (alpha < 0.004) return;
+    const g = k.createRadialGradient(x, y, 0, x, y, r);
+    stops.forEach(([o, c, a]) => g.addColorStop(o, `rgba(${c},${a})`));
+    k.globalAlpha = alpha; k.fillStyle = g; k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill(); k.globalAlpha = 1;
+  };
+
+  // —— 天空 ——
+  const STARS = Array.from({ length: 16 }, (_, i) => [8 + rnd(i, 41) * 520, 6 + rnd(i, 42) * 84, 0.5 + rnd(i, 43) * 0.6, 2 + Math.floor(rnd(i, 44) * 7)]);
+  function sky(k, F) {
+    const { P, u, tau } = F, tw = wrap(tau, 1);
+    const g = k.createLinearGradient(0, 0, 0, HZ);
+    g.addColorStop(0, css(P.top)); g.addColorStop(1, css(P.bot));
+    k.fillStyle = g; k.fillRect(-2, -2, CW + 4, HZ + 2);
+    if (P.night > 0.01) {
+      k.fillStyle = '#f5efda';
+      STARS.forEach(([x, y, r, n], i) => { k.globalAlpha = P.night * (0.55 + 0.45 * Math.sin(n * W * u + i)); k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill(); });
+      k.globalAlpha = 1;
+    }
+    k.save(); k.beginPath(); k.rect(-2, -2, CW + 4, HZ + 2); k.clip();
+    // 太阳：沿原作 sky.ts 的弧（τ 0.225 升、0.775 落），落点在灯塔左边的海平线上，越近日落越红、光晕越大
+    const s = (tw - 0.225) / 0.55;
+    if (s > -0.05 && s < 1.05) {
+      const x = 20 + 340 * s, y = HZ - 95 * Math.sin(Math.PI * clamp(s)) + (s < 0 || s > 1 ? 14 : 0);
+      radial(k, x, y, 44, [[0, '255,217,160', 0.55], [1, '255,217,160', 0]], 0.35 + 0.65 * P.sunset);
+      shapeP(k, oval(x, y, 10, 10), SP, css(mc(hx('#fbf3df'), hx('#df5a3a'), P.sunset)));
+    }
+    // 蛾眉月：画法同 #4-100，夜里从左下升到中天
+    if (tau > 0.82 && tau < 1.22) {
+      const m = (tau - 0.82) / 0.4, x = 120 + 200 * m, y = HZ - 14 - 70 * Math.sin(Math.PI / 2 * m), r = 7;
+      k.save(); k.translate(x, y); k.rotate(-24 * Math.PI / 180); k.globalAlpha = smooth(0, 0.1, m) * smooth(1, 0.85, m);
+      k.fillStyle = '#f3ecd6'; k.fill(new Path2D(`M0 ${-r} A${r} ${r} 0 1 1 0 ${r} A${r * 0.62} ${r} 0 1 0 0 ${-r}Z`));
+      k.restore();
+    }
+    k.restore();
+    // 远处的岬角和小岛：原作远山的淡墨 0.42
+    k.globalAlpha = 0.42;
+    shapeP(k, `M-4 ${HZ} L-4 104 Q30 98 62 103 Q96 96 128 106 Q150 112 176 ${HZ}Z`, SP * 0.8);
+    shapeP(k, `M296 ${HZ} Q312 108 330 111 Q342 112 350 ${HZ}Z`, SP * 0.8);
+    k.globalAlpha = 1;
+  }
+
+  // —— 海 ——
+  // 浪行按传入的那一部分画：远处几行在船和栈桥后面，近处几行在它们前面
+  function waves(k, F, rows) {
+    rows.forEach(row => {
+      let d = '';
+      row.segs.forEach(([a, b]) => {
+        const n = Math.max(2, Math.ceil((b - a) / 5));
+        for (let i = 0; i <= n; i++) { const x = mix(a, b, i / n); d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + waveAt(row, x, F.u).toFixed(2); }
+      });
+      strokeP(k, d, mix(0.5, 1.0, row.t), mix(0.5, 0.9, row.t));
+    });
+  }
+  function sea(k, F, lights, rows) {
+    const { P, u } = F;
+    // 水色同 #4-100：白天淡灰蓝，夜里深靛，在 inkT 0.4–0.6 之间渐变
+    const nt = smooth(0.4, 0.6, P.inkT);
+    k.fillStyle = css(mc(mc(P.paper, hx('#bfd0d8'), 0.32), mc(P.paper, hx('#0f1730'), 0.45), nt));
+    k.fillRect(-2, HZ, CW + 4, CH - HZ + 2);
+    strokeP(k, `M-2 ${HZ} L${CW + 2} ${HZ}`, SP * 0.8);
+    // 倒影：太阳和亮着的灯下面一串横向暖色短线，左右抖动、长短起伏（原作 canal 倒影的画法）
+    k.lineCap = 'round';
+    lights.forEach(([x, y0, w, a, n]) => {
+      if (a < 0.02) return;
+      for (let j = 0; j < n; j++) {
+        const y = y0 + j * 5, jit = Math.sin(2 * W * u + j * 1.7 + x * 0.1) * (1.5 + j * 0.5);
+        const ww = w * (1 - j * 0.06) * (0.7 + 0.3 * Math.sin(3 * W * u + j));
+        k.globalAlpha = a * (0.75 - j * 0.06); k.strokeStyle = '#ffcf7e'; k.lineWidth = 1.4 - j * 0.06;
+        k.beginPath(); k.moveTo(x - ww / 2 + jit, y); k.lineTo(x + ww / 2 + jit, y); k.stroke();
+      }
+    });
+    k.globalAlpha = 1;
+    waves(k, F, rows);
+  }
+
+  // —— 岬角、灯塔、守塔人小屋 ——
+  // 灯塔照原作画房子的办法画成立面（不画透视）：塔身上窄下宽，两道红漆环带，顶上是回廊、灯室和穹顶
+  const LT = { x: 446, top: 50, base: 122, hw0: 10, hw1: 15 };
+  const LAMP = [LT.x, 38];
+  const towerX = (y, s) => LT.x + s * mix(LT.hw0, LT.hw1, (y - LT.top) / (LT.base - LT.top));
+  const band = (y0, y1) => `M${towerX(y0, -1)} ${y0} L${towerX(y0, 1)} ${y0} L${towerX(y1, 1)} ${y1} L${towerX(y1, -1)} ${y1}Z`;
+  const ROCK = 'M380 152 Q388 134 406 128 L426 122 Q446 118 470 120 Q498 116 520 121 L541 123 L541 170 Q522 165 502 170 Q474 163 446 168 Q416 160 380 152Z';
+  function headland(k, F, on) {
+    const { u, P } = F;
+    shapeP(k, ROCK);
+    strokeP(k, 'M396 140 q8 -4 14 -2 M420 132 l10 4 M470 128 q10 3 18 0 M500 140 q8 -3 16 2 M440 150 q12 4 22 0 M516 152 l12 -3', FP, 0.8);
+    // 礁石脚下的浪花：几段短弧随浪一伸一缩，频率取浪的 3 倍
+    let d = '';
+    [[384, 154], [412, 162], [444, 170], [476, 167], [508, 171]].forEach(([x, y], i) => {
+      const s = 0.5 + 0.5 * Math.sin(WN * W * u + i * 1.9), len = 6 + 8 * s;
+      d += `M${x - len} ${y + 2 - 2 * s} Q${x} ${y - 2 - 2 * s} ${x + len} ${y + 2 - 2 * s} `;
+    });
+    strokeP(k, d, FP * 1.3, 0.85);
+    // 守塔人小屋：一扇窗，天黑后亮，到天亮
+    const lit = smooth(0.2, 0.45, P.lamp);
+    strokeP(k, 'M510 98 L510 88 M514 98 L514 88', SP);
+    shapeP(k, rect(480, 104, 516, 121));
+    shapeP(k, 'M475 105 L498 92 L521 105Z');
+    strokeP(k, 'M482 101 L514 101 M488 97 L508 97', FP, 0.8);
+    k.fillStyle = css(mc(C.paperArr, hx('#ffd58a'), lit * 0.92)); k.fillRect(487, 108, 9, 7);
+    strokeP(k, `${rect(487, 108, 496, 115)} M491.5 108 L491.5 115`, FP);
+    shapeP(k, rect(502, 110, 509, 121), FP);
+    // 塔身
+    shapeP(k, `M${towerX(LT.top, -1)} ${LT.top} L${towerX(LT.top, 1)} ${LT.top} L${towerX(LT.base, 1)} ${LT.base} L${towerX(LT.base, -1)} ${LT.base}Z`);
+    shapeP(k, band(64, 74), SP, C.red);
+    shapeP(k, band(92, 102), SP, C.red);
+    shapeP(k, rect(442, 108, 450, 122), FP);
+    shapeP(k, rect(444, 81, 448, 86), FP);
+    // 回廊、栏杆
+    shapeP(k, rect(431, 46, 461, 50));
+    strokeP(k, 'M433 46 L433 40 M439 46 L439 40 M453 46 L453 40 M459 46 L459 40 M432 40 L460 40', FP);
+    // 灯室：玻璃按亮度从纸色变成暖白，三根窗棂
+    k.fillStyle = css(mc(C.paperArr, hx('#fff1c9'), on)); k.fillRect(438, 30, 16, 16);
+    strokeP(k, `${rect(438, 30, 454, 46)} M443 30 L443 46 M449 30 L449 46`, FP * 1.4);
+    shapeP(k, 'M435 30 Q446 16 457 30Z', SP, C.red);
+    strokeP(k, 'M446 21 L446 14', SP);
+    shapeP(k, oval(446, 13.5, 1.4, 1.4), FP);
+  }
+
+  // —— 木栈桥 ——
+  // 立面：桥面一条，下面一排木桩伸进海里；桥头两根高桩是系船柱，也是海鸥过夜的地方
+  const DECK = 146, PIER_END = 236;
+  const PILES = [8, 42, 76, 110, 144, 178, 212];
+  function pier(k) {
+    PILES.forEach(x => shapeP(k, rect(x - 2.5, DECK + 4, x + 2.5, CH + 2)));
+    let d = '';
+    for (let i = 0; i < PILES.length - 1; i++) { const a = PILES[i] + 2.5, b = PILES[i + 1] - 2.5; d += `M${a} ${DECK + 8} L${b} ${DECK + 26} M${a} ${DECK + 26} L${b} ${DECK + 8} `; }
+    strokeP(k, d, FP, 0.8);
+    shapeP(k, rect(228, 128, 233, CH + 2));
+    shapeP(k, rect(-4, DECK, PIER_END, DECK + 5));
+    d = '';
+    for (let x = 4; x < PIER_END; x += 9) d += `M${x} ${DECK + 0.8} L${x} ${DECK + 4.2} `;
+    strokeP(k, d, FP, 0.7);
+    shapeP(k, rect(219, 140, 224, DECK), FP);
+    shapeP(k, oval(221.5, 140, 3.4, 1.4), FP);
+    // 栈桥上的鱼篓和一卷缆绳，让人看得出这里有渔家
+    shapeP(k, 'M176 146 L178 134 Q184 131 190 134 L192 146Z');
+    strokeP(k, 'M177 140 L191 140 M180 135 L180 146 M184 133 L184 146 M188 135 L188 146', FP, 0.8);
+    shapeP(k, oval(204, 143, 7, 3));
+    strokeP(k, `${oval(204, 143, 4.4, 1.8)} ${oval(204, 143, 1.8, 0.7)}`, FP, 0.8);
+  }
+
+  // —— 晾网 ——
+  // 两根竿子拉一根绳，网挂在绳上往下垂；下摆被海风往左（岸上）推，用弹簧值 s 推开 dx，越往下偏得越多
+  const NA = [40, 92], NB = [150, 94];
+  function net(k, s, u) {
+    strokeP(k, `M${NA[0]} ${DECK} L${NA[0]} ${NA[1] - 4} M${NB[0]} ${DECK} L${NB[0]} ${NB[1] - 4}`, SP * 1.3);
+    const dx = s * 48;
+    const P = (i, j) => {
+      const top = [mix(NA[0], NB[0], i), mix(NA[1], NB[1], i) + 9 * Math.sin(Math.PI * i)];
+      const hem = 40 - 6 * Math.sin(Math.PI * i) + 1.2 * Math.sin(4 * W * u + i * 7);
+      return [top[0] - dx * j * j * (0.6 + 0.4 * Math.sin(Math.PI * i)) + 1.5 * j * Math.sin(5 * W * u + i * 5), top[1] + hem * j];
+    };
+    strokeP(k, `M${pt(NA)} Q${(NA[0] + NB[0]) / 2} ${(NA[1] + NB[1]) / 2 + 18} ${pt(NB)}`, FP * 1.4);
+    // 网眼是两组斜线交成的菱形；网是透的，不填纸色
+    let d = '';
+    const N = 14, R = 0.35;
+    for (let f = -1; f <= 1; f += 2) for (let m = -3; m <= N + 3; m++) {
+      let started = false;
+      for (let j = 0; j <= 1.0001; j += 0.125) {
+        const i = m / N + f * R * j;
+        if (i < 0 || i > 1) { started = false; continue; }
+        d += (started ? 'L' : 'M') + pt(P(i, j)); started = true;
+      }
+    }
+    strokeP(k, d, FP, 0.75);
+    let hem = '', fl = '';
+    for (let n = 0; n <= 20; n++) hem += (n ? 'L' : 'M') + pt(P(n / 20, 1));
+    strokeP(k, hem, FP * 1.4);
+    // 下摆的浮子
+    for (let n = 1; n < 8; n++) { const [x, y] = P(n / 8, 1); fl += oval(x, y + 1, 2, 1.4); }
+    shapeP(k, fl, FP);
+  }
+
+  // —— 系着的小船 ——
+  // 原点在船中段的吃水线：上下随船下那层浪起伏，横摇角 a 来自钟摆；船身木色平涂，船头立一盏原作 boatman 那样的船灯，船尾一把橹
+  const HULL = 'M-34 -5 L26 -5 Q33 -6 37 -12 Q35 -2 28 4 L-28 4 Q-33 3 -34 -5Z';
+  const toWorld = (bx, by, a, p) => [bx + p[0] * Math.cos(a) - p[1] * Math.sin(a), by + p[0] * Math.sin(a) + p[1] * Math.cos(a)];
+  function boat(k, F, a, on) {
+    const by = waveAt(BOAT.row, BOAT.x, F.u) - 1;
+    // 缆绳：栈桥头的桩顶到船尾，松松垂下一点，船晃时跟着拉动
+    const stern = toWorld(BOAT.x, by, a, [-31, -5]);
+    strokeP(k, `M230.5 132 Q${(230.5 + stern[0]) / 2} ${Math.max(132, stern[1]) + 7} ${pt(stern)}`, FP * 1.3);
+    k.save(); k.translate(BOAT.x, by); k.rotate(a);
+    strokeP(k, 'M-30 -5 L-46 7', SP);                     // 橹
+    shapeP(k, 'M-22 -5 L-22 -12 Q-10 -18 2 -12 L2 -5Z');   // 船篷
+    strokeP(k, 'M-18 -13.8 L-18 -5 M-10 -15.6 L-10 -5 M-2 -14.6 L-2 -5', FP, 0.8);
+    shapeP(k, HULL, SP, C.wood);
+    strokeP(k, 'M-32 -2 L31 -2 M-14 -5 L-14 4 M10 -5 L10 4', FP);
+    strokeP(k, 'M29 -5 L29 -19 Q29 -21 31 -21', SP * 0.9);
+    shapeP(k, 'M30.4 -20 L34.6 -20 Q36 -17 34.6 -14 L30.4 -14 Q29 -17 30.4 -20Z', FP * 1.2, css(mc(C.paperArr, hx('#ffd38a'), on)));
+    k.restore();
+    return toWorld(BOAT.x, by, a, [32.5, -17]);
+  }
+
+  // —— 海鸥 ——
+  // 白天和黄昏两只在海上绕圈飞，扇翅频率取原作 swallows 的 22 rad/s（取整到 22 倍 W）；天黑前落到栈桥头的两根桩上过夜，
+  // 天亮后飞走（原作 scenes.md：鸟黄昏归巢）。飞的样子是一笔「M」形翅膀加一点墨色身子，停着是纸色身子、头、尾和两条腿
+  const GULLS = [
+    { perch: [230.5, 128], dir: -1, c: [300, 66], r: [86, 16], n: 1, ph: 0.4, land: [1.5, 2.2, 5.5, 6.05] },
+    { perch: [221.5, 138.6], dir: 1, c: [170, 50], r: [54, 12], n: -2, ph: 2.6, land: [1.7, 2.45, 5.65, 6.2] },
+  ];
+  function gull(k, g, u) {
+    const [l0, l1, t0, t1] = g.land, landed = smooth(l0, l1, u) * smooth(t1, t0, u);
+    const th = g.n * W * u + g.ph;
+    const fly = [g.c[0] + g.r[0] * Math.cos(th), g.c[1] + g.r[1] * Math.sin(th) + 3 * Math.sin(2 * th)];
+    const e = ease(landed), x = mix(fly[0], g.perch[0], e), y = mix(fly[1], g.perch[1] - 5, e);
+    if (landed > 0.93) {
+      const [px, py] = g.perch, s = g.dir;
+      strokeP(k, `M${px - 1} ${py} L${px - 1} ${py - 3} M${px + 1} ${py} L${px + 1} ${py - 3}`, FP);
+      shapeP(k, `M${px - 6 * s} ${py - 5} Q${px - 2 * s} ${py - 2} ${px + 3 * s} ${py - 4} Q${px + 5 * s} ${py - 6} ${px + 4 * s} ${py - 8} Q${px} ${py - 9} ${px - 6 * s} ${py - 5}Z`, FP * 1.4);
+      shapeP(k, oval(px + 4.4 * s, py - 9.4, 2, 1.9), FP * 1.4);
+      strokeP(k, `M${px + 6.2 * s} ${py - 9.6} L${px + 8.6 * s} ${py - 9.2} M${px - 4 * s} ${py - 6.4} Q${px} ${py - 5} ${px + 3 * s} ${py - 6}`, FP);
+      return;
+    }
+    // 翅膀高低在 +1（上举）和 −0.5（下压）之间；快落地时翅膀张开滑翔
+    const flap = mix(Math.sin(22 * W * u + g.ph * 3) > 0 ? 1 : -0.5, 0.5, e), s = 7 * (1 - 0.3 * e);
+    strokeP(k, `M${x - s} ${y - 3 * flap} Q${x - s * 0.45} ${y - 4 * flap - 1} ${x} ${y} Q${x + s * 0.45} ${y - 4 * flap - 1} ${x + s} ${y - 3 * flap}`, SP);
+    k.fillStyle = C.ink; k.beginPath(); k.ellipse(x, y + 0.4, 1.6, 1, 0, 0, TAU); k.fill();
+  }
+
+  // —— 光束 ——
+  // 灯室里的灯绕竖轴转，两道光束相背，一周期转 2 圈（3.2 秒一圈），所以每 1.6 秒有一道扫过海面。
+  // 立面图里光束朝左右时最长；转到背面时被塔身挡住（画在塔身之前），转到正面时变短、灯口闪亮。
+  // 光束是暖色半透明扇形，从灯口上浓下淡（同 #4-100 路灯光锥的渐变），斜着落到海面，落点处海面一块椭圆光斑
+  const beamOn = u => smooth(1.5, 1.75, u) * smooth(5.55, 5.3, u);
+  const beamEnd = th => [LAMP[0] + 330 * Math.cos(th), HZ + 4 + 30 * (1 + Math.sin(th)) / 2];
+  function beam(k, th, a) {
+    const c = Math.abs(Math.cos(th));
+    if (a * c < 0.01) return;
+    const [ex, ey] = beamEnd(th), dx = ex - LAMP[0], dy = ey - LAMP[1], L = Math.hypot(dx, dy);
+    const nx = -dy / L, ny = dx / L, w0 = 3, w1 = 10 + 22 * c;
+    const g = k.createLinearGradient(LAMP[0], LAMP[1], ex, ey);
+    g.addColorStop(0, `rgba(${WARM},0.55)`); g.addColorStop(1, `rgba(${WARM},0.05)`);
+    k.globalAlpha = a * (0.3 + 0.7 * c); k.fillStyle = g;
+    k.fill(new Path2D(`M${LAMP[0] + nx * w0} ${LAMP[1] + ny * w0} L${ex + nx * w1} ${ey + ny * w1} L${ex - nx * w1} ${ey - ny * w1} L${LAMP[0] - nx * w0} ${LAMP[1] - ny * w0}Z`));
+    k.globalAlpha = 1;
+    // 落点光斑：压扁的径向渐变
+    k.save(); k.translate(ex, ey + 3); k.scale(46 * (0.5 + 0.5 * c), 5); radial(k, 0, 0, 1, WARMGLOW, a * c * 0.8); k.restore();
+  }
+
+  const BACK_ROWS = ROW.filter(r => r.y < BOAT.row.y + 2), FRONT_ROWS = ROW.filter(r => r.y >= BOAT.row.y + 2);
+  CELLS[11] = (k, w, h, u) => {
+    const tau = wrap(tauAt(u), 1), P = palette(tau);
+    const F = { u, tau, P };
+    C = { paper: css(P.paper), ink: css(P.ink), red: css(mc(RED, RED_NIGHT, P.inkT)), wood: css(nightTint(WOOD, P.inkT)), paperArr: P.paper };
+    const [rollA, netS] = swing(u);
+    const bOn = beamOn(u), boatOn = smooth(0.3, 0.55, P.lamp);
+    // 两道相背的光束；sin θ > 0 朝向观者（落点更近、画在塔身前面），sin θ < 0 转到塔后（先画，被塔身挡住）
+    const th0 = 2 * W * u + 0.6, beams = [th0, th0 + Math.PI];
+    k.save();
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    sky(k, F);
+    // 海面倒影：太阳贴近海平线时一道，船灯一小道
+    const ts = (tau - 0.225) / 0.55, sunX = 20 + 340 * clamp(ts);
+    const sunRefl = smooth(0.12, 0.02, Math.abs(clamp(ts) - 1)) * smooth(1.04, 1, ts) * P.sunset;
+    const lights = [[sunX, HZ + 3, 26, sunRefl, 8], [BOAT.x + 33, 158, 7, boatOn, 4]];
+    sea(k, F, lights, BACK_ROWS);
+    beams.forEach(th => { if (Math.sin(th) < 0) beam(k, th, bOn); });
+    pier(k);
+    net(k, netS, u);
+    const lampAt = boat(k, F, rollA, boatOn);
+    waves(k, F, FRONT_ROWS);
+    headland(k, F, bOn);
+    beams.forEach(th => { if (Math.sin(th) >= 0) beam(k, th, bOn); });
+    // 灯口光晕：光束转到正对观者时闪亮一下
+    const flash = Math.max(...beams.map(th => Math.pow(Math.max(0, Math.sin(th)), 10)));
+    radial(k, LAMP[0], LAMP[1], 22 + 14 * flash, WARMGLOW, bOn * (0.6 + 0.4 * flash));
+    radial(k, lampAt[0], lampAt[1], 14, WARMGLOW, boatOn * 0.9);
+    radial(k, 491.5, 111.5, 16, WARMGLOW, smooth(0.2, 0.45, P.lamp) * 0.7);
+    GULLS.forEach(g => gull(k, g, u));
+    k.restore();
+  };
+}

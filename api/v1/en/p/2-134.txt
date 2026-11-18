@@ -1,0 +1,17 @@
+Please use "Kimono walker stopping to bow" (着物の女性の歩みとお辞儀), filed under "Shapes & objects / Figures & animals".
+Motion Prompt #2-134
+
+What it is: A faceless woman in kimono drawn in one fine ink line on warm paper, walking with a real gait on legs hidden under the cloth, so the hem opens and closes with each step
+What the sample shows: A woman in an indigo kimono with a yellow obi and a red parasol walks along the street in geta while the view follows her, so the stone gutter along the houses and the cracks in the road slide past. Halfway she stops, bows from the waist, straightens and walks on.
+Spec:
+- Warm paper #fdfcf8 and ink #1c1c1c, with an indigo kimono #34507a, a yellow obi #d3a24c and a red parasol #7b2f2f; she is about 132 px tall to the top of her hair, feet on a line 172 px down, and keeps her place on screen while the street moves.
+- Street: the house line and a stone gutter below it with a joint every 1/4 of the distance walked per loop, plus short road cracks every 1/5; the moving lines carry small fixed offsets so they look hand-inked but do not jitter.
+- Two legs (thigh 23, shin 23) are solved under the kimono: 1 s per stride cycle, each foot down 62% of it, a 24-unit stride, a 3.4-unit geta lift and a 15° heel peel; hip height comes from what the legs can reach. One loop is a whole number of strides.
+- The kimono below the obi is drawn from the front knee and both ankles, so the hem opens into an A when the legs part; the tabi and two-toothed geta tip with the heel.
+- The sleeves are a spring (stiffness 40, damping 6) and the parasol tilt another (30, 5), both pushed twice per stride cycle; springs are worked out over three loops and the last loop is replayed, so 0 s and 6.4 s match.
+- From 1.8 s she eases to a stop, bends 34° from the waist in 0.45 s from 2.5 s with the parasol dipping 10° more, holds until 3.7 s, straightens in 0.5 s and walks on from 4.2 s.
+When to use it: Use it for greetings, thanks and hospitality, Japanese-themed or town-walk stories, or onboarding and loading screens that want a hand-drawn warmth.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-134.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,358 @@
+// Motion Prompt #4-101 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// 书桌一角 / Ink desk corner
+// 分类: 审美风格 / 动画画风 / 平面与线条
+// 动画表现: 窗边书桌上有红色台灯、靛蓝封皮的摊开的书、冒热气的茶杯、笔筒和一盆绿植，墙上挂着挂历，窗边有窗帘，窗外是电线杆和三栋房子。窗外从夕阳变成夜里，远处的窗户依次亮起。两阵风吹进来，窗帘、挂历和叶子摆动：弱风把一页掀起一半又落回，强风连翻三页。天黑后台灯亮起，只有光圈里回到白天的纸色和墨色，早上关掉。
+// 运动规格:
+//   - 配色用原作 daynight.ts 的天顶、天底、纸色三条色带。墨色从 #1c1c1c 反相到 #efe6cf，一天的走法与 #4-100 相同（τ 0.62 到 1.62，黄昏约 1.7 秒，夜里约 2 秒）。
+//   - 台灯 2.3 秒亮起，2.37–2.45 秒闪一下，5.56–5.66 秒关掉。光圈是以书为中心叠画的 5 层椭圆，里面纸回到 #fbf1dc、墨回到 #1c1c1c。
+//   - 风从窗口往屋里吹两阵：弱风 0.8–2.6 秒，强风 3.25–5.2 秒。窗帘下摆用原作围巾尾的弹簧 (30, 4)，挂历用原作灯笼的钟摆 (10, 1.1)，叶子用原作袖子的弹簧 (40, 6)。
+//   - 一页从 1.25 秒起用 0.9 秒掀起一半再落回；强风在 3.75、4.05、4.4 秒连翻 3 页。每页的字行相同，翻完书的样子不变。
+//   - 平涂色只有 2 种：灯罩的红 #b3412d 和封皮的靛蓝 #34507a，夜里按原作 nightTint() 的比例压暗。热气是 3 条波浪线，风越大越往左弯。
+// 适用场景: 适合讲夜读、学习、居家办公、一天的结束，或展示深色模式切换。
+// 标签: line-art, ink, day-night, desk, lamp, still-life
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-101
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 09
+// 书桌一角：原作没有室内场景，这里按原作的画法（细墨线、纸色遮挡、一两处平涂色、daynight.ts 夜间反相）新编一张书桌。
+// 窗外从午后暗到夜里再亮回来；两阵风从窗口吹进来，窗帘、挂历、窗台上的绿植跟着摆，书页被翻过去；
+// 天黑后台灯亮起，光照到的地方纸和墨回到白天的颜色，其余部分保持夜里的反相
+{
+  // 主线约 1 px，与 #4-100 一致；细节线（字行、页边、弹簧）按原作 0.4–0.6 倍
+  const SP = 1.1, FP = 0.6;
+  const JP = '"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Songti SC",serif';
+  const W = TAU / CYC; // 一周期一圈的角速度，周期性小动作都取它的整数倍
+  const bump = (x, a, b, c, d) => smooth(a, b, x) * smooth(d, c, x);
+  const poly = (pts, close) => 'M' + pts.map(pt).join('L') + (close ? 'Z' : '');
+  const oval = (cx, cy, rx, ry) => `M${cx - rx} ${cy} a${rx} ${ry} 0 1 0 ${2 * rx} 0 a${rx} ${ry} 0 1 0 ${-2 * rx} 0Z`;
+
+  // 桌面用斜投影露出一条桌面：深度 z 往里每 1 单位，画面右移 0.25、上移 0.6；y 是离桌面的高度（负为向上）
+  const FRONT = 156, DEPTH = 24;
+  const P3 = (x, y, z) => [x + 0.25 * z, FRONT + y - 0.6 * z];
+
+  // 一天的节奏与 #4-100 相同：午后 τ 0.62 开始，黄昏 0.70–0.79 约 1.7 秒，夜里约 2 秒，6.4 秒回到午后
+  const tauAt = dayClock([[0, 0.62], [0.9, 0.70], [2.6, 0.79], [4.3, 1.13], [5.1, 1.27], [5.8, 1.45], [6.4, 1.62]]);
+  // 台灯在天快黑时打开（开灯时闪一下），天亮后关掉；时刻按上面 τ 的关键帧挑
+  const lampOn = u => smooth(2.3, 2.34, u) * (1 - 0.85 * bump(u, 2.37, 2.39, 2.43, 2.45)) * smooth(5.66, 5.56, u);
+
+  // 风从右边的窗口往屋里（往左）吹：1.3 秒一阵弱风，3.7 秒一阵强风，阵风里带一点抖动；周期首尾都只剩微风
+  const windAt = u => 0.06
+    + 0.55 * bump(u, 0.8, 1.3, 1.9, 2.6) * (1 + 0.18 * Math.sin(11 * W * u))
+    + 1.0 * bump(u, 3.25, 3.7, 4.5, 5.2) * (1 + 0.15 * Math.sin(13 * W * u + 1));
+  // 窗帘下摆是布，用原作 walker 围巾尾的弹簧 (30, 4)；挂历用原作灯笼的钟摆 (10, 1.1)；叶子用原作袖子的弹簧 (40, 6)
+  const swing = sim([{ type: 'spring', k: 30, d: 4 }, { type: 'pendulum', k: 10, d: 1.1 }, { type: 'spring', k: 40, d: 6 }],
+    u => { const w = windAt(u); return [0.3 * w, 0.9 * w, 0.28 * w]; });
+
+  // —— 颜色 ——
+  // 夜里纸、墨按原作色带反相；平涂色（灯罩的红、书皮的靛蓝、茶色）按原作 nightTint() 压暗。
+  // 台灯照到的地方换成 LIT：暖白纸、深墨，与原作窗灯照亮的意思一致
+  const RED = hx('#b3412d'), RED_NIGHT = hx('#6e2a22'), INDIGO = hx('#34507a'), TEA = hx('#a8743c');
+  const night = (c, t) => mc(c, mc(c, [12, 16, 30], 0.6), t * 0.55);
+  const LIT = { paper: hx('#fbf1dc'), ink: INK_DARK, red: RED, indigo: INDIGO, tea: TEA };
+  const KEYS = ['paper', 'ink', 'red', 'indigo', 'tea'];
+  const sceneCol = P => ({ paper: P.paper, ink: P.ink, red: mc(RED, RED_NIGHT, P.inkT), indigo: night(INDIGO, P.inkT), tea: night(TEA, P.inkT) });
+  const mixCol = (a, b, t) => { const o = {}; KEYS.forEach(n => { o[n] = mc(a[n], b[n], t); }); return o; };
+  let C = null; // 当前这一遍用的 css 颜色
+  let GA = 1;   // 当前这一遍的整体不透明度；灯光那几遍叠画时小于 1，各处的透明度都乘上它
+
+  const strokeP = (k, d, w = SP, a = 1) => { k.globalAlpha = GA * (a); k.lineWidth = w; k.strokeStyle = C.ink; k.stroke(path(d)); k.globalAlpha = GA; };
+  const shapeP = (k, d, w = SP, col = C.paper) => { const p = path(d); k.globalAlpha = GA; k.fillStyle = col; k.fill(p); k.lineWidth = w; k.strokeStyle = C.ink; k.stroke(p); };
+
+  // —— 窗外（只在第一遍画，灯光照不到窗口）——
+  const WIN = { x0: 352, x1: 500, y0: 18, y1: 128, gx0: 358, gx1: 494, gy0: 24, gy1: 122, mx: 426, my: 64 };
+  const STARS = [[366, 30, 0.8, 3], [380, 46, 0.6, 5], [398, 28, 1.1, 4], [414, 40, 0.6, 7], [440, 30, 0.7, 6], [456, 48, 0.9, 3], [472, 28, 0.6, 8], [486, 40, 0.8, 5], [434, 52, 0.5, 9]];
+  // 远处三栋房子：瓦顶、墙、几扇窗；窗按各自的暗度阈值亮，阈值依次错开，天黑时一扇扇亮
+  const TOWN = [
+    { roof: 'M356 106 L366 98 L392 98 L400 106Z', wall: [360, 106, 396, 122], tiles: [[368, 101, 390], [362, 104, 396]] },
+    { roof: 'M400 102 L412 92 L438 92 L450 102Z', wall: [404, 102, 446, 122], tiles: [[414, 95, 436], [406, 99, 446]] },
+    { roof: 'M448 108 L458 100 L486 100 L498 108Z', wall: [452, 108, 494, 122], tiles: [[460, 103, 484], [452, 106, 494]] },
+  ];
+  const FARWIN = [[368, 110, 376, 116, 0.15], [410, 106, 418, 112, 0.35], [430, 106, 438, 112, 0.55], [470, 112, 478, 118, 0.75]];
+  function outside(k, F) {
+    const { P, tau } = F, tw = wrap(tau, 1);
+    k.save();
+    k.beginPath(); k.rect(WIN.gx0, WIN.gy0, WIN.gx1 - WIN.gx0, WIN.gy1 - WIN.gy0); k.clip();
+    const g = k.createLinearGradient(0, WIN.gy0, 0, WIN.gy1);
+    g.addColorStop(0, css(P.top)); g.addColorStop(1, css(P.bot));
+    k.fillStyle = g; k.fillRect(WIN.gx0, WIN.gy0, WIN.gx1 - WIN.gx0, WIN.gy1 - WIN.gy0);
+    if (P.night > 0.01) {
+      k.fillStyle = '#f5efda';
+      STARS.forEach(([x, y, r, n], i) => { k.globalAlpha = GA * (P.night * (0.55 + 0.45 * Math.sin(n * W * F.u + i))); k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill(); });
+      k.globalAlpha = GA;
+    }
+    // 太阳：午后从右上落到屋后（τ 0.56–0.78），早上从左边升起（τ 0.30–0.56），两段在右上角接上
+    let sun = null;
+    if (tw >= 0.56 && tw < 0.8) { const s = (tw - 0.56) / 0.22; sun = [476 - 56 * s, 30 + 86 * Math.pow(s, 1.2)]; }
+    else if (tw >= 0.3 && tw < 0.56) { const s = (tw - 0.3) / 0.26; sun = [366 + 110 * s, 118 - 88 * ease(s)]; }
+    if (sun) {
+      const [x, y] = sun, gl = k.createRadialGradient(x, y, 0, x, y, 30);
+      gl.addColorStop(0, 'rgba(255,217,160,0.55)'); gl.addColorStop(1, 'rgba(255,217,160,0)');
+      k.globalAlpha = GA * (0.35 + 0.65 * P.sunset); k.fillStyle = gl; k.beginPath(); k.arc(x, y, 30, 0, TAU); k.fill(); k.globalAlpha = GA;
+      shapeP(k, oval(x, y, 9, 9), SP, css(mc(hx('#fbf3df'), hx('#df5a3a'), P.sunset)));
+    }
+    // 蛾眉月：画法同 #4-100，夜里从左下升到右上
+    if (tau > 0.84 && tau < 1.3) {
+      const m = (tau - 0.84) / 0.46, x = 372 + 100 * m, y = 104 - 70 * Math.sin(Math.PI / 2 * m), r = 7;
+      k.save(); k.translate(x, y); k.rotate(-24 * Math.PI / 180); k.globalAlpha = GA * (smooth(0, 0.1, m) * smooth(1, 0.85, m));
+      k.fillStyle = '#f3ecd6'; k.fill(new Path2D(`M0 ${-r} A${r} ${r} 0 1 1 0 ${r} A${r * 0.62} ${r} 0 1 0 0 ${-r}Z`));
+      k.restore();
+    }
+    // 电线杆与电线，远景用原作的淡墨 0.42 的思路，这里窗框里的景稍近一点，取 0.7
+    strokeP(k, 'M400 58 L400 100 M391 66 L409 66 M391 66 Q374 72 356 70 M409 66 Q452 76 496 72', FP * 1.4, 0.7);
+    TOWN.forEach(h => {
+      const [x0, y0, x1, y1] = h.wall;
+      shapeP(k, `M${x0} ${y0} L${x1} ${y0} L${x1} ${y1 + 2} L${x0} ${y1 + 2}Z`, FP * 1.4);
+      shapeP(k, h.roof, FP * 1.4);
+      h.tiles.forEach(([a, y, b]) => strokeP(k, `M${a} ${y} L${b} ${y}`, FP, 0.8));
+    });
+    FARWIN.forEach(([x0, y0, x1, y1, thr]) => {
+      const lit = smooth(thr, thr + 0.25, P.lamp);
+      k.fillStyle = css(mc(P.paper, hx('#ffd58a'), lit * 0.92)); k.fillRect(x0, y0, x1 - x0, y1 - y0);
+      strokeP(k, `M${x0} ${y0} L${x1} ${y0} L${x1} ${y1} L${x0} ${y1}Z M${(x0 + x1) / 2} ${y0} L${(x0 + x1) / 2} ${y1}`, FP);
+    });
+    k.restore();
+  }
+
+  // —— 书 ——
+  // 摊开的书平放在桌上，书脊沿深度方向；翻动的那一页绕书脊转 θ（0 平放在右、π 落到左），
+  // 页面带一点弯：离书脊越远转得越慢，像纸被风兜着
+  const BK = { x: 236, z0: 4, z1: 20, pw: 50 };
+  const pageQuad = (th, bend) => {
+    const near = [], far = [];
+    for (let i = 0; i <= 8; i++) {
+      const r = BK.pw * i / 8, a = th - bend * Math.pow(i / 8, 2);
+      const x = BK.x + r * Math.cos(a), y = -1.6 - r * Math.sin(a);
+      near.push(P3(x, y, BK.z0)); far.push(P3(x, y, BK.z1));
+    }
+    return 'M' + near.map(pt).join('L') + 'L' + far.reverse().map(pt).join('L') + 'Z';
+  };
+  // 翻页时刻：弱风只把一页掀起一半又落回；强风连翻三页。所有页的字行一样，翻完书的样子不变，循环接得上
+  const FLIPS = [{ t: 1.25, d: 0.9, peak: 1.1, back: true }, { t: 3.75, d: 0.55 }, { t: 4.05, d: 0.55 }, { t: 4.4, d: 0.6 }];
+  function flipAngle(f, u) {
+    const s = (u - f.t) / f.d;
+    if (s <= 0 || s >= 1) return null;
+    if (f.back) return f.peak * Math.sin(Math.PI * s);
+    return Math.PI * minJerk(s);
+  }
+  // 字行：每页 7 行，长短按行号固定
+  const textLines = (x0, x1, dir) => {
+    let d = '';
+    for (let i = 0; i < 7; i++) {
+      const z = BK.z1 - 2 - i * 2, len = (0.62 + 0.3 * rnd(i, dir > 0 ? 3 : 4)) * (BK.pw - 10);
+      const a = P3(dir > 0 ? x0 + 5 : x1 - 5 - len, -1.6, z), b = P3(dir > 0 ? x0 + 5 + len : x1 - 5, -1.6, z);
+      d += `M${pt(a)}L${pt(b)}`;
+    }
+    return d;
+  };
+  function book(k, u) {
+    const L = BK.x - BK.pw, R = BK.x + BK.pw;
+    // 书皮（靛蓝）比纸页略大，露出一圈
+    shapeP(k, poly([P3(L - 3, 0, BK.z0 - 2), P3(R + 3, 0, BK.z0 - 2), P3(R + 3, 0, BK.z1 + 2), P3(L - 3, 0, BK.z1 + 2)], true), SP, C.indigo);
+    // 纸页厚度：左右各两三道
+    shapeP(k, poly([P3(L, -1.6, BK.z0), P3(BK.x, -1.6, BK.z0), P3(BK.x, -1.6, BK.z1), P3(L, -1.6, BK.z1)], true));
+    shapeP(k, poly([P3(BK.x, -1.6, BK.z0), P3(R, -1.6, BK.z0), P3(R, -1.6, BK.z1), P3(BK.x, -1.6, BK.z1)], true));
+    strokeP(k, `M${pt(P3(L, -0.8, BK.z0))}L${pt(P3(BK.x, -0.8, BK.z0))} M${pt(P3(BK.x, -0.8, BK.z0))}L${pt(P3(R, -0.8, BK.z0))}`, FP);
+    strokeP(k, textLines(L, BK.x, -1) + textLines(BK.x, R, 1), FP, 0.75);
+    // 翻动的页；一阵风里可能同时有两页在动，按角度从大到小画（先画已翻过去的）
+    const live = FLIPS.map(f => flipAngle(f, u)).filter(a => a !== null).sort((a, b) => b - a);
+    live.forEach(th => {
+      const bend = 0.55 * Math.sin(th) * (th < Math.PI / 2 ? 1 : -1) * 0.6;
+      shapeP(k, pageQuad(th, bend), SP);
+      // 页面正对观者时露出几行字，侧过去就看不见
+      const vis = Math.abs(Math.cos(th));
+      if (vis > 0.35) {
+        let d = '';
+        for (let i = 0; i < 3; i++) {
+          const z = BK.z1 - 4 - i * 4, r0 = 6, r1 = BK.pw * (0.55 + 0.1 * i);
+          const a = P3(BK.x + r0 * Math.cos(th), -1.6 - r0 * Math.sin(th), z), b = P3(BK.x + r1 * Math.cos(th), -1.6 - r1 * Math.sin(th), z);
+          d += `M${pt(a)}L${pt(b)}`;
+        }
+        strokeP(k, d, FP, 0.6 * (vis - 0.35) / 0.65);
+      }
+    });
+    // 书脊的折缝
+    strokeP(k, `M${pt(P3(BK.x, -1.6, BK.z0))}L${pt(P3(BK.x, -1.6, BK.z1))}`, SP);
+  }
+
+  // —— 台灯 ——
+  // 底座在桌上，两节灯臂，红色灯罩口朝下斜对着书。灯光照到的地方是一个梯形光锥加桌面上的椭圆光斑
+  const LAMP = { base: P3(96, 0, 14), elbow: [118, 66], head: [150, 52] };
+  const SHADE = 'M138 50 L160 46 L176 74 L136 82Z';
+      function lamp(k, on) {
+    const [bx, by] = LAMP.base;
+    shapeP(k, oval(bx, by - 1, 20, 5));
+    shapeP(k, `M${bx - 20} ${by - 1} L${bx - 20} ${by - 4} A20 5 0 0 1 ${bx + 20} ${by - 4} L${bx + 20} ${by - 1}`);
+    // 灯臂两笔开口，与人物四肢同一种画法
+    limbP(k, [[bx, by - 6], LAMP.elbow, LAMP.head], 3.2);
+    shapeP(k, oval(LAMP.elbow[0], LAMP.elbow[1], 2.4, 2.4));
+    // 灯罩里的灯泡：亮时暖白
+    shapeP(k, oval(156, 78, 6, 3.4), FP, css(mc(C.paperArr, hx('#fff1c9'), on)));
+    shapeP(k, SHADE, SP, C.red);
+    strokeP(k, 'M141 54 L162 50', FP, 0.8);
+    shapeP(k, oval(LAMP.head[0], LAMP.head[1], 2.2, 2.2));
+  }
+  // limb() 用的是 kit 的 PAPER/INK，夜里颜色会变，所以在这里照它的做法换成当前颜色
+  function limbP(k, joints, width) {
+    const s = joints[0], e = joints[joints.length - 1], m = joints[1];
+    let c = [(s[0] + e[0]) / 2, (s[1] + e[1]) / 2];
+    c = [m[0] + 0.55 * (m[0] - c[0]), m[1] + 0.55 * (m[1] - c[1])];
+    const P = [];
+    for (let i = 0; i <= 16; i++) { const t = i / 16, v = 1 - t; P.push([v * v * s[0] + 2 * v * t * c[0] + t * t * e[0], v * v * s[1] + 2 * v * t * c[1] + t * t * e[1]]); }
+    const half = (width - SP) / 2;
+    const side = sg => P.map((p, i) => {
+      const q = P[Math.min(16, i + 1)], o = P[Math.max(0, i - 1)], dx = q[0] - o[0], dy = q[1] - o[1], l = Math.hypot(dx, dy) || 1;
+      return [p[0] - (dy / l) * half * sg, p[1] + (dx / l) * half * sg];
+    });
+    const A = side(1), B = side(-1);
+    k.fillStyle = C.paper; k.fill(path(poly(A) + 'L' + B.slice().reverse().map(pt).join('L') + 'Z'));
+    strokeP(k, poly(A.slice(0, 16))); strokeP(k, poly(B.slice(1)));
+  }
+
+  // —— 茶杯与热气 ——
+  const CUP = P3(384, 0, 12);
+  function cup(k, u, wind) {
+    const [cx, cy] = CUP;
+    shapeP(k, oval(cx, cy, 15, 4));                                               // 杯碟
+    shapeP(k, `M${cx - 9} ${cy - 18} L${cx - 7} ${cy - 2} Q${cx} ${cy + 1} ${cx + 7} ${cy - 2} L${cx + 9} ${cy - 18}Z`);
+    strokeP(k, `M${cx + 9} ${cy - 14} q6 0 5 5 q-1 4 -6 4`, SP);                  // 杯把
+    shapeP(k, oval(cx, cy - 18, 9, 2.4), FP, C.tea);                              // 茶面
+    // 热气：三缕各是一条波浪线，波形一个周期往上走 2 遍，越往上越淡；风越大越往左弯
+    for (let i = 0; i < 3; i++) {
+      let prev = null;
+      for (let j = 0; j <= 10; j++) {
+        const t = j / 10, x = cx - 4 + i * 4 + 2.4 * Math.sin(TAU * 1.4 * t - 2 * W * u + i * 2.1) * t - wind * 26 * t * t;
+        const p = [x, cy - 22 - 34 * t];
+        if (prev) strokeP(k, `M${pt(prev)}L${pt(p)}`, FP * 1.2, 0.5 * (1 - t) * (1 - 0.4 * clamp(wind)));
+        prev = p;
+      }
+    }
+  }
+
+  // —— 窗帘、挂历、笔筒、绿植 ——
+  function curtain(k, s) {
+    strokeP(k, 'M338 12 L520 12', SP * 1.4);
+    [344, 498, 506, 514].forEach(x => shapeP(k, oval(x, 12, 2.2, 2.2), FP));
+    // 上沿挂在杆上不动，越往下被风推得越远，下摆偏 dx
+    const dx = s * 54;
+    shapeP(k, `M494 14 L514 14 C514 60 ${514 - dx * 0.22} 100 ${514 - dx * 0.55} 131 Q${505 - dx * 0.8} 135 ${494 - dx} 132 C${494 - dx * 0.4} 100 494 60 494 14Z`);
+    // 两道褶线，跟着下摆偏
+    strokeP(k, `M500 15 C500 60 ${500 - dx * 0.3} 100 ${500 - dx * 0.85} 132 M507 15 C507 60 ${507 - dx * 0.26} 100 ${507 - dx * 0.7} 133`, FP);
+  }
+  // 挂历：钉子上挂一根绳，挂历绕钉子按钟摆转；表头一条靛蓝，下面是日期格
+  function calendar(k, a) {
+    k.save(); k.translate(70, 20); k.rotate(-a);
+    strokeP(k, 'M0 0 L-12 12 M0 0 L12 12', FP);
+    shapeP(k, 'M-22 12 L22 12 L22 70 L-22 70Z');
+    shapeP(k, 'M-22 12 L22 12 L22 22 L-22 22Z', FP, C.indigo);
+    k.fillStyle = C.ink; k.font = `600 17px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+    k.fillText('18', 0, 34);
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 7; c++) {
+      k.globalAlpha = GA * (r * 7 + c === 16 ? 1 : 0.55);
+      k.fillRect(-18 + c * 6, 46 + r * 5.5, 1.6, 1.6);
+    }
+    k.globalAlpha = GA;
+    k.restore();
+    shapeP(k, oval(70, 20, 1.6, 1.6), FP);
+  }
+  function pencils(k) {
+    const [x, y] = P3(318, 0, 18);
+    strokeP(k, `M${x - 3} ${y - 18} L${x - 9} ${y - 38} M${x + 1} ${y - 18} L${x + 3} ${y - 42} M${x + 4} ${y - 18} L${x + 12} ${y - 34}`, SP);
+    shapeP(k, `M${x - 8} ${y - 20} L${x - 7} ${y} L${x + 7} ${y} L${x + 8} ${y - 20}Z`);
+    shapeP(k, oval(x, y - 20, 8, 2), FP);
+  }
+  // 绿植：五片叶子从盆口伸出，叶尖按弹簧往左（屋里）偏，越高的叶子偏得越多；平时有一点轻颤
+  const LEAVES = [[-14, -26, 0.8], [-6, -36, 1], [2, -40, 1.1], [9, -32, 0.95], [15, -22, 0.75]];
+  function plant(k, s, u) {
+    const [x, y] = P3(462, 0, 16);
+    LEAVES.forEach(([lx, ly, f], i) => {
+      const bend = -(s * 38 + 0.8 * Math.sin((3 + i) * W * u + i)) * f;
+      const tip = [x + lx + bend, y - 18 + ly + Math.abs(bend) * 0.25], base = [x + lx * 0.2, y - 18];
+      const mid = [(base[0] + tip[0]) / 2 + lx * 0.3, (base[1] + tip[1]) / 2];
+      const n = [-(tip[1] - base[1]), tip[0] - base[0]], l = Math.hypot(n[0], n[1]) || 1, wv = 4.5;
+      const a = [mid[0] + n[0] / l * wv, mid[1] + n[1] / l * wv], b = [mid[0] - n[0] / l * wv, mid[1] - n[1] / l * wv];
+      shapeP(k, `M${pt(base)} Q${pt(a)} ${pt(tip)} Q${pt(b)} ${pt(base)}Z`, FP * 1.5);
+      strokeP(k, `M${pt(base)} Q${pt(mid)} ${pt(lerpP(base, tip, 0.8))}`, FP, 0.7);
+    });
+    shapeP(k, `M${x - 12} ${y - 19} L${x - 9} ${y} L${x + 9} ${y} L${x + 12} ${y - 19}Z`);
+    strokeP(k, `M${x - 12} ${y - 15} L${x + 12} ${y - 15}`, FP);
+  }
+
+  // —— 桌子与墙 ——
+  const BACK = FRONT - 0.6 * DEPTH;
+  function desk(k) {
+    shapeP(k, `M14 ${BACK} L${520 + 0.25 * DEPTH} ${BACK} L520 ${FRONT} L14 ${FRONT}Z`);
+    shapeP(k, `M14 ${FRONT} L520 ${FRONT} L520 ${FRONT + 12} L14 ${FRONT + 12}Z`);
+    shapeP(k, `M520 ${FRONT} L${520 + 0.25 * DEPTH} ${BACK} L${520 + 0.25 * DEPTH} ${BACK + 12} L520 ${FRONT + 12}Z`);
+    strokeP(k, `M190 ${FRONT + 3} L346 ${FRONT + 3} L346 ${FRONT + 10} L190 ${FRONT + 10}Z M262 ${FRONT + 6.5} L274 ${FRONT + 6.5}`, FP);
+    shapeP(k, `M24 ${FRONT + 12} L32 ${FRONT + 12} L32 ${CH + 2} L24 ${CH + 2}Z M502 ${FRONT + 12} L510 ${FRONT + 12} L510 ${CH + 2} L502 ${CH + 2}Z`);
+    strokeP(k, `M0 198 L24 198 M32 198 L502 198 M510 198 L${CW} 198`, FP);   // 地板线
+  }
+  const WINDOW = (() => {
+    const { x0, x1, y0, y1, gx0, gx1, gy0, gy1 } = WIN;
+    return `M${x0} ${y0} L${x1} ${y0} L${x1} ${y1} L${x0} ${y1}Z M${gx0} ${gy0} L${gx0} ${gy1} L${gx1} ${gy1} L${gx1} ${gy0}Z`;
+  })();
+  function windowFrame(k) {
+    shapeP(k, WINDOW);
+    shapeP(k, `M${WIN.mx - 2} ${WIN.gy0} L${WIN.mx + 2} ${WIN.gy0} L${WIN.mx + 2} ${WIN.gy1} L${WIN.mx - 2} ${WIN.gy1}Z M${WIN.gx0} ${WIN.my - 2} L${WIN.gx1} ${WIN.my - 2} L${WIN.gx1} ${WIN.my + 2} L${WIN.gx0} ${WIN.my + 2}Z`, FP * 1.4);
+    shapeP(k, `M344 ${WIN.y1} L508 ${WIN.y1} L510 ${WIN.y1 + 5} L342 ${WIN.y1 + 5}Z`);
+  }
+
+  // 整个房间画一遍；full 为假时是灯光里的第二遍，窗外不在光里，跳过
+  function room(k, F, st, full) {
+    k.globalAlpha = GA; k.fillStyle = C.paper; k.fillRect(-2, -2, CW + 4, CH + 4);
+    strokeP(k, `M0 ${BACK - 30} L344 ${BACK - 30} M510 ${BACK - 30} L${CW} ${BACK - 30}`, FP, 0.6);   // 墙裙线
+    if (full) outside(k, F);
+    windowFrame(k);
+    curtain(k, st.cur);
+    calendar(k, st.cal);
+    desk(k);
+    pencils(k);
+    plant(k, st.leaf, F.u);
+    book(k, F.u);
+    cup(k, F.u, st.wind);
+    lamp(k, st.on);
+  }
+  // 灯光照到的范围：桌面上以书为中心的椭圆光斑。由大到小叠画 5 层，从外圈到正中心亮度一层层加上去，边缘有一圈渐变
+  const POOL_F = [1.3, 1.22, 1.14, 1.07, 1];
+  const POOLS = POOL_F.map(f => { const p = new Path2D(); p.ellipse(226, 138, 128 * f, 42 * f, 0, 0, TAU); return p; });
+  // 灯罩口到光斑的光锥，画法同 #4-100 路灯：上浓下淡的暖色半透明梯形
+  const CONE = new Path2D('M137 81 L176 74 L340 150 L120 158Z');
+  CELLS[8] = (k, w, h, u) => {
+    const tau = tauAt(u), P = palette(wrap(tau, 1));
+    const [cur, cal, leaf] = swing(u);
+    const st = { cur, cal, leaf, wind: windAt(u), on: lampOn(u) };
+    const F = { u, tau: wrap(tau, 1), P };
+    const base = sceneCol(P);
+    const use = c => { C = {}; KEYS.forEach(n => { C[n] = css(c[n]); }); C.paperArr = c.paper; };
+    k.save();
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    use(base);
+    room(k, F, st, true);
+    // 灯光：光斑里的纸和墨向暖白纸、深墨过渡。白天开着灯也不太看得出，所以强度跟着天黑程度从 0.35 加到 1
+    const a = st.on * (0.35 + 0.65 * P.lamp);
+    if (a > 0.004) {
+      use(mixCol(base, LIT, a));
+      // 第 j 层叠完后的亮度是 a·j/5；每层的不透明度按「叠上去刚好补到这一档」算
+      POOLS.forEach((pl, j) => {
+        const c0 = a * j / POOLS.length, c1 = a * (j + 1) / POOLS.length;
+        k.save(); k.clip(pl); GA = (c1 - c0) / (1 - c0);
+        room(k, F, st, false);
+        k.restore();
+      });
+      GA = 1; use(base);
+      const g = k.createLinearGradient(0, 78, 0, 156);
+      g.addColorStop(0, 'rgba(255,226,168,0.5)'); g.addColorStop(1, 'rgba(255,226,168,0.06)');
+      k.globalAlpha = a * 0.75; k.fillStyle = g; k.fill(CONE); k.globalAlpha = 1;
+      // 灯泡周围的光晕画在灯罩外面，夜里能看到灯口一圈亮
+      const gb = k.createRadialGradient(156, 79, 0, 156, 79, 22);
+      gb.addColorStop(0, 'rgba(255,226,168,0.7)'); gb.addColorStop(1, 'rgba(255,226,168,0)');
+      k.globalAlpha = st.on * P.lamp; k.fillStyle = gb; k.beginPath(); k.arc(156, 79, 22, 0, TAU); k.fill(); k.globalAlpha = 1;
+    }
+    k.restore();
+  };
+}

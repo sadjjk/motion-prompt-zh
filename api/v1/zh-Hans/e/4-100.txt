@@ -1,0 +1,645 @@
+// Motion Prompt #4-100 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// 墨线町屋昼夜 / Ink machiya street, day to night
+// 分类: 审美风格 / 动画画风 / 平面与线条
+// 动画表现: 一条街上有民家、茶屋和钱汤，电线杆和路灯、红伞和长凳，前面是石砌河岸的运河，远处是山和五重塔。午后的太阳往右落下，天色和纸从夕阳色变成靛蓝，窗户、灯笼、路灯依次亮起并倒映在水里。夜里有星星、萤火虫和一颗流星，深夜几扇窗熄灯，天亮后回到午后。
+// 运动规格:
+//   - 从原作村庄街景（960×480）取 x 190–960 一段，缩到 0.7 倍。场景笔宽 0.8 乘 1.8，主线约 1 px。
+//   - 配色照搬原作 daynight.ts 的天顶、天底、纸色三条色带。墨色从 #1c1c1c 变到 #efe6cf，在纸色半暗时切换。
+//   - 6.4 秒走完一天：τ（0 午夜，0.75 黄昏）沿单调曲线从 0.62 走到 1.62，黄昏 0.70–0.79 占约 1.7 秒，夜里占约 2 秒。
+//   - 窗户、灯笼、路灯按各自对暗度的阈值亮起。阈值和深夜熄灯时刻取自原作同一随机数列（种子 11）。
+//   - 流星从 3.3 秒起划过 0.9 秒。炊烟每 CYC/12 冒一团，6.3 秒散尽。暖帘、灯笼、风铃取原作弹簧的静止角度，再加一点轻摆。
+//   - 水色夜里向 #0f1730 混 45%，白天向 #bfd0d8 混 32%。每处灯光在水里映出 6 道暖色横线，左右晃动。
+// 适用场景: 适合讲时间流逝和一天的变化，日式街景、旅行介绍，或展示日夜主题切换。
+// 标签: line-art, ink, day-night, machiya, street, canal, palette
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-100
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 08
+// 墨线町屋昼夜：取原作 examples/village 街景里酒屋右端到澡堂这一段（houses.ts 町屋、canal.ts 运河、sky.ts 天空），
+// 按 lib/daynight.ts 的配色从午后走到入夜再到天亮。原作一天 180 秒，靠点击和随机触发；这里把一天压进 6.4 秒，
+// 黄昏和夜里放慢、白天加快；窗灯按原作阈值的先后一扇扇亮，流星、炊烟都改成按时间发生
+{
+  // 取景：原作画布 960×480，这里取 x 190–960、y 112 起的一段，缩到 0.7 倍放进 539×208
+  const VX = 190, VY = 112, VW = 770, VS = CW / VW;
+  // 原作场景笔宽 0.8；缩小后主线只剩 0.56 px，所以乘 1.8，让主线约 1 px，细节线按原作比例跟着变
+  const SP = 0.8 * 1.8;
+  // 屋脚线沿用原作 344；画面矮，运河岸从 384 收到 356、水面从 400 收到 370，水面才放得下倒影
+  const BASE = 344, EDGE = 356, WATER = 370, BOT = VY + CH / VS + 4;
+  const JP = '"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Songti SC",serif';
+  const W8 = TAU / CYC; // 一周期一圈的角速度；原作按秒的摆动频率都取整成它的整数倍，循环才接得上
+
+  const RED = hx('#b3412d'), RED_NIGHT = hx('#6e2a22'), WARM = hx('#ffcf7e');
+  const PAIL = hx('#e9c45a'), PAIL_NIGHT = hx('#6d6240');
+
+  // —— 6.4 秒里的一天 ——
+  // τ 按原作约定：0 午夜、0.25 黎明、0.5 正午、0.75 黄昏。从午后 0.62 走满一天回到 1.62，所以首尾自然相接；
+  // 关键帧让黄昏（0.70–0.79）占约 1.7 秒、夜里占约 2 秒，白天几乎没有变化，就走得快
+  const TK = [[0, 0.62], [0.9, 0.70], [2.6, 0.79], [4.3, 1.13], [5.1, 1.27], [5.8, 1.45], [6.4, 1.62]];
+  const tauAt = dayClock(TK);
+  // 开放时段 [o0, o1]（可跨午夜）里的显示量，两端各用 0.012 的 τ 渐变，代替原作逐帧累加的 show
+  const within = (tm, o0, o1) => { const d = wrap(tm - o0, 1), L = wrap(o1 - o0, 1); return smooth(0, 0.012, d) * smooth(L, L - 0.012, d); };
+
+  // 原作 kit.ts 的确定性随机（种子 11），静态街景每次建出来都一样
+  let seed = 11;
+  const srnd = (a, b) => { seed = (seed * 16807) % 2147483647; return a + ((seed - 1) / 2147483646) * (b - a); };
+  const oval = (cx, cy, rx, ry) => `M${cx - rx} ${cy} a${rx} ${ry} 0 1 0 ${2 * rx} 0 a${rx} ${ry} 0 1 0 ${-2 * rx} 0Z`;
+  const rect = (x0, y0, x1, y1) => `M${x0} ${y0} L${x1} ${y0} L${x1} ${y1} L${x0} ${y1}Z`;
+
+  // —— 每帧现算的部分 ——
+  // 原作烟囱顶在 y 66，取景从 y 112 开始会把烟裁掉，所以烟囱截短到 150，烟从画面里冒
+  const CHIM_TOP = 150, CHIM_X = 901;
+  // 原作的风是缓慢变化的噪声；这里取同样的均值 0.3，起伏按一周期 1 次和 2 次的正弦，循环才接得上
+  const windAt = u => 0.3 + 0.1 * Math.sin(W8 * u) + 0.05 * Math.sin(2 * W8 * u + 1);
+  // 夜里给平涂色压暗，原作 nightTint()
+  const nightTint = (c, inkT, amt = 0.55) => mc(c, mc(c, [12, 16, 30], 0.6), inkT * amt);
+  let F = null; // 当前帧的颜色和状态，画各物件时共用
+
+  const strokeIt = (k, p, w) => { k.lineWidth = w; k.strokeStyle = F.ink; if (p) k.stroke(p); else k.stroke(); };
+  function txt(k, x, y, s, size, vertical, wt, col) {
+    k.fillStyle = col; k.font = `${wt} ${size}px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+    if (!vertical) { k.fillText(s, x, y); return; }
+    const ch = [...s];
+    ch.forEach((c, i) => k.fillText(c, x, y + (i - (ch.length - 1) / 2) * size));
+  }
+
+  // 暖帘：原作 noren()。原作逐帧积分弹簧，这里直接取它的稳态：风把布推开 wind·2.2/22，
+  // 加上 1.7 rad/s 的轻摆（远低于共振频率，振幅约 0.6/(22−1.7²)）
+  function drawNoren(k, c, n) {
+    const show = within(F.tau, n.open[0], n.open[1]);
+    if (show < 0.005) return;
+    k.save(); k.globalAlpha = show; k.translate(0, -(1 - ease(show)) * 6);
+    const w = (n.x1 - n.x0) / n.panels;
+    strokeIt(k, new Path2D(`M${n.x0 - 2} ${n.y} L${n.x1 + 2} ${n.y}`), SP * 1.2);
+    let sw = 0;
+    for (let i = 0; i < n.panels; i++) {
+      const x = n.x0 + i * w, cw = w - 0.8;
+      const a = F.wind * 0.1 + 0.031 * Math.sin(2 * W8 * F.u + n.ph[i]);
+      const s = a * n.len * 0.45, flt = Math.sin(3 * W8 * F.u + i) * 0.5, y = n.y, L = n.len;
+      const p = new Path2D(`M${x} ${y} L${x + cw} ${y} Q${x + cw + s * 0.4} ${y + L * 0.6} ${x + cw + s + flt} ${y + L} L${x + s + flt} ${y + L - 0.6} Q${x + s * 0.4} ${y + L * 0.6} ${x} ${y}Z`);
+      k.fillStyle = F.paper; k.fill(p); k.lineJoin = 'round'; strokeIt(k, p, SP * 0.8);
+      sw += s;
+    }
+    txt(k, (n.x0 + n.x1) / 2 + sw / n.panels * 0.6, n.y + n.len * 0.48, n.label, Math.min(n.len * 0.42, w * 0.95), false, 700, F.ink);
+    k.restore();
+  }
+  // 灯笼：原作 chochin()。摆角取稳态 wind·0.5/10 加 0.9 rad/s 的轻摆；亮度按各自阈值 thr 跟着天黑程度亮
+  function drawLantern(k, c, l) {
+    const a = F.wind * 0.05 + 0.016 * Math.sin(W8 * F.u + l.ph);
+    const lit = smooth(l.thr, l.thr + 0.2, F.P.lamp);
+    l.a = a; l.lit = lit;
+    const base = l.red ? mc(RED, RED_NIGHT, F.P.inkT * (1 - lit)) : F.P.paper;
+    const { r, h } = l;
+    k.save(); k.translate(l.x, l.y); k.rotate(-a);
+    const body = new Path2D(`M${-r * 0.75} 4 Q${-r * 1.18} ${4 + h / 2} ${-r * 0.75} ${4 + h} L${r * 0.75} ${4 + h} Q${r * 1.18} ${4 + h / 2} ${r * 0.75} 4Z`);
+    k.fillStyle = css(mc(base, l.red ? hx('#ff8a4a') : WARM, lit * 0.95)); k.fill(body); strokeIt(k, body, SP * 0.8);
+    const ribs = [];
+    for (let j = 1; j < 5; j++) { const yy = 4 + (h * j) / 5, wv = r * (1.18 - 0.3 * Math.abs(j / 5 - 0.5) * 2); ribs.push(`M${-wv * 0.95} ${yy} Q0 ${yy + 1} ${wv * 0.95} ${yy}`); }
+    strokeIt(k, new Path2D(ribs.join(' ')), SP * 0.4);
+    k.fillStyle = F.ink;
+    k.fill(new Path2D(`M${-r * 0.6} 2 L${r * 0.6} 2 L${r * 0.6} 4.4 L${-r * 0.6} 4.4Z M${-r * 0.6} ${4 + h - 0.4} L${r * 0.6} ${4 + h - 0.4} L${r * 0.6} ${6.4 + h} L${-r * 0.6} ${6.4 + h}Z`));
+    strokeIt(k, new Path2D('M0 -4 L0 2'), SP * 0.5);
+    txt(k, 0, 4 + h / 2, l.label, h * 0.42, l.label.length > 1, 700, l.red ? '#fbf3e6' : F.ink);
+    k.restore();
+  }
+  // 风铃：原作 H2 檐下的 fūrin。铃和舌都取稳态摆角；原作点一下才响，这里不点，所以不画响声弧线
+  function drawFurin(k) {
+    const x = 412, y = 207, u = F.u;
+    const a = F.wind * 0.9 / 14 + 0.03 * Math.sin(W8 * u);
+    const sa = a * 1.6 + F.wind * 2.2 / 9 + 0.1 * Math.sin(2 * W8 * u + 0.6);
+    const bx = x + Math.sin(a) * 6, by = y + Math.cos(a) * 6;
+    strokeIt(k, new Path2D(`M${x} ${y - 3} L${bx} ${by}`), SP * 0.45);
+    const bell = new Path2D(`M${bx - 4} ${by + 5} Q${bx - 4.2} ${by - 0.6} ${bx} ${by - 0.6} Q${bx + 4.2} ${by - 0.6} ${bx + 4} ${by + 5}Z`);
+    k.fillStyle = css(nightTint(hx('#e8f2f4'), F.P.inkT)); k.fill(bell); strokeIt(k, bell, SP * 0.7);
+    const cx = bx + Math.sin(sa) * 4, cy = by + 5 + Math.cos(sa) * 4;
+    strokeIt(k, new Path2D(`M${bx} ${by} L${cx} ${cy} M${cx - 0.8} ${cy} l1.6 0`), SP * 0.45);
+    const sx = cx + Math.sin(sa) * 9, sy = cy + Math.cos(sa) * 9;
+    const strip = new Path2D(`M${cx - 1.6} ${cy + 1} L${cx + 1.6} ${cy + 1} L${sx + 1.6} ${sy} L${sx - 1.6} ${sy}Z`);
+    k.fillStyle = F.paper; k.fill(strip); strokeIt(k, strip, SP * 0.55);
+  }
+
+  // —— 静态街景：只在第一次调用时按原作 houses.ts 建一次 Path2D 清单 ——
+  // 颜色每帧随昼夜变，所以清单只存路径和「颜色角色」，画的时候再按当前配色取色；不缓存位图，2× 画布也清楚
+  // 角色：S 纸色填充+墨线（遮住后面）、P 墨线、B 实墨、C 平涂色+墨线、T 文字、W 会亮的窗格、D 每帧现算的物件
+  let OPS = null, WINS = null, LANTERNS = null, NORENS = null, REFL = null, STARS = null, LINES = null, FLIES = null;
+  function build() {
+    // 原作先建天空：90 颗星各抽 x、y、r、ph、sp 共 450 次，再建街道；这里先空转 450 次，街景的窗灯阈值才和原作一致
+    seed = 11;
+    for (let i = 0; i < 450; i++) srnd(0, 1);
+    const ops = [], wins = [], lanterns = [], norens = [];
+    const S = (d, w = SP) => ops.push({ t: 'S', p: new Path2D(d), w });
+    const P = (d, w = SP) => ops.push({ t: 'P', p: new Path2D(d), w });
+    const B = d => ops.push({ t: 'B', p: new Path2D(d) });
+    const C = (col, d, w = SP) => ops.push({ t: 'C', col, p: new Path2D(d), w });
+    const T = (x, y, s, size, o = {}) => ops.push({ t: 'T', x, y, s, size, v: !!o.vertical, wt: o.weight || 600, col: o.col || 'ink' });
+    const D = fn => ops.push({ t: 'D', fn });
+    // 原作 pane() 的默认参数按 thr、lateOff、warmth 的顺序抽随机数，这里保持同样的顺序
+    const pane = (x0, y0, x1, y1, o = {}) => {
+      const thr = o.thr !== undefined ? o.thr : srnd(0.15, 0.6);
+      const lateOff = o.lateOff !== undefined ? o.lateOff : (srnd(0, 1) < 0.45 ? srnd(0.93, 1.12) : 9);
+      const warmth = o.warmth !== undefined ? o.warmth : srnd(0, 1);
+      const w = { p: new Path2D(rect(x0, y0, x1, y1)), x0, y0, x1, y1, thr, lateOff, warmth };
+      wins.push(w); ops.push({ t: 'W', w });
+      return w;
+    };
+
+    function roof({ x0, x1, eave, ridge, inset, tile = 5.6, sori = 2.8, depth = 2.6, oni = true, rafters = true }) {
+      const cx = (x0 + x1) / 2;
+      const eaveY = x => eave - sori * Math.pow(Math.abs(x - cx) / ((x1 - x0) / 2), 2.2);
+      S(`M${x0} ${eaveY(x0)} Q${cx} ${eave + sori * 0.6} ${x1} ${eaveY(x1)} L${x1 - inset} ${ridge} L${x0 + inset} ${ridge}Z`);
+      const ch = [], ends = [];
+      for (let x = x0 + tile * 0.8; x < x1 - tile * 0.4; x += tile) {
+        const t = (x - x0) / (x1 - x0), ey = eaveY(x) - 0.4, top = mix(x0 + inset, x1 - inset, t);
+        ch.push(`M${x} ${ey - 1.6} Q${mix(x, top, 0.5) + (t - 0.5) * 2} ${mix(ey, ridge, 0.55)} ${top} ${ridge + 1}`);
+        ends.push(oval(x, ey, 1.35, 1.35));
+      }
+      P(ch.join(' '), SP * 0.5);
+      S(ends.join(' '), SP * 0.55);
+      P(`M${x0 + 1} ${eaveY(x0) + depth} Q${cx} ${eave + sori * 0.6 + depth} ${x1 - 1} ${eaveY(x1) + depth}`, SP * 0.7);
+      if (rafters) {
+        const r = [];
+        for (let x = x0 + 5; x < x1 - 3; x += 4.2) r.push(`M${x} ${eaveY(x) + depth + 0.6} l0 1.8`);
+        P(r.join(' '), SP * 0.6);
+      }
+      const rx0 = x0 + inset - 4, rx1 = x1 - inset + 4;
+      S(rect(rx0, ridge - 5.5, rx1, ridge + 0.5), SP * 0.9);
+      P(`M${rx0} ${ridge - 2.6} L${rx1} ${ridge - 2.6}`, SP * 0.5);
+      if (oni) [rx0, rx1].forEach((x, i) => {
+        const s = i ? 1 : -1;
+        S(`M${x} ${ridge + 0.5} L${x} ${ridge - 6} Q${x + s * 0.5} ${ridge - 11} ${x + s * 4.5} ${ridge - 12} Q${x + s * 6.5} ${ridge - 9} ${x + s * 5} ${ridge - 6} L${x + s * 5} ${ridge + 0.5}Z`, SP * 0.85);
+        P(`M${x + s * 1.6} ${ridge - 4} q${s * 1.4} -1 ${s * 1.8} 1`, SP * 0.5);
+      });
+    }
+    function koshi(x0, x1, y0, y1, gap = 2.3) {
+      const top = y0 + (y1 - y0) * 0.16;
+      P(rect(x0, y0, x1, y1), SP * 0.9);
+      const d = [`M${x0} ${top} L${x1} ${top}`, `M${x0} ${y1 - 3} L${x1} ${y1 - 3}`];
+      let k = 0;
+      for (let x = x0 + gap; x < x1 - 0.5; x += gap, k++) d.push(k % 4 === 3 ? `M${x} ${y0} L${x} ${y1}` : `M${x} ${top} L${x} ${y1 - 3}`);
+      P(d.join(' '), SP * 0.55);
+    }
+    function mushiko(x0, y0, x1, y1) {
+      S(`M${x0 + 3} ${y0} L${x1 - 3} ${y0} Q${x1} ${y0} ${x1} ${y0 + 3} L${x1} ${y1 - 3} Q${x1} ${y1} ${x1 - 3} ${y1} L${x0 + 3} ${y1} Q${x0} ${y1} ${x0} ${y1 - 3} L${x0} ${y0 + 3} Q${x0} ${y0} ${x0 + 3} ${y0}Z`);
+      const d = [];
+      for (let x = x0 + 4; x < x1 - 3; x += 5) d.push(`M${x} ${y0 + 2.5} Q${x - 0.6} ${(y0 + y1) / 2} ${x} ${y1 - 2.5} M${x + 2.4} ${y0 + 2.5} Q${x + 1.8} ${(y0 + y1) / 2} ${x + 2.4} ${y1 - 2.5}`);
+      P(d.join(' '), SP * 0.55);
+    }
+    function inuyarai(x0, x1, y0) {
+      const d = [`M${x0} ${y0 + 1} Q${(x0 + x1) / 2} ${y0 - 1} ${x1} ${y0 + 1}`, `M${x0 - 1} ${BASE - 1} L${x1 + 1} ${BASE - 1}`];
+      for (let x = x0 + 1.5; x < x1; x += 2.6) d.push(`M${x} ${y0 + 1} Q${x + 0.4} ${(y0 + BASE) / 2 + 3} ${x - 0.6} ${BASE - 1}`);
+      P(d.join(' '), SP * 0.5);
+    }
+    function shojiGrid(x0, y0, x1, y1, cols, rows) {
+      const d = [rect(x0, y0, x1, y1)];
+      for (let i = 1; i < cols; i++) { const x = mix(x0, x1, i / cols); d.push(`M${x} ${y0} L${x} ${y1}`); }
+      for (let j = 1; j < rows; j++) { const y = mix(y0, y1, j / rows); d.push(`M${x0} ${y} L${x1} ${y}`); }
+      P(d.join(' '), SP * 0.5);
+    }
+    // 暖帘与灯笼：形状照原作 noren() / chochin()，摆动和显隐每帧现算，所以登记成 D
+    function noren(x0, x1, y, len, panels, label, open) {
+      const n = { x0, x1, y, len, panels, label, open, ph: Array.from({ length: panels }, () => srnd(0, 6)) };
+      norens.push(n); D((k, c) => drawNoren(k, c, n));
+    }
+    function chochin(x, y, r, h, label, red) {
+      // 原作依次抽 a（初始摆角）、ph、thr；a 在纯函数里用不上，但照样抽掉，后面的随机数才和原作对得上
+      const l = { x, y, r, h, label, red, a0: srnd(-0.05, 0.05), ph: srnd(0, 6), thr: srnd(0.1, 0.3) };
+      lanterns.push(l); D((k, c) => drawLantern(k, c, l));
+    }
+
+    // ---------- 后景：樱树、小巷、烟囱、电线
+    P('M452 344 Q450 300 446 268 Q440 236 420 214 M462 344 Q463 300 468 262 Q474 236 500 214 M447 262 Q458 248 456 226 Q455 206 462 192', SP * 1.1);
+    P('M430 224 l-10 -6 M490 222 l12 -4 M456 212 l-8 -10 M468 236 q10 -4 14 -12', SP * 0.7);
+    [[414, 206, 26], [502, 200, 28], [458, 176, 30], [434, 186, 22], [486, 180, 22], [460, 204, 26], [520, 216, 18], [400, 222, 18]].forEach(([cx, cy, r]) => {
+      const pts = [];
+      for (let i = 0; i <= 60; i++) { const a = (i / 60) * TAU; const rr = r + 2 * Math.abs(Math.sin(a * 6.5)) - 0.6 * Math.sin(a * 3); pts.push(`${cx + rr * Math.cos(a)} ${cy + rr * 0.78 * Math.sin(a)}`); }
+      S('M' + pts.join('L') + 'Z', SP * 0.8);
+    });
+    const fl = [];
+    for (let i = 0; i < 110; i++) {
+      const a = srnd(0, TAU), dd = Math.sqrt(srnd(0, 1));
+      const [cx, cy, r] = [[458, 196, 54], [414, 210, 26], [502, 204, 28]][i % 3];
+      const x = cx + Math.cos(a) * r * dd * 0.95, y = cy + Math.sin(a) * r * 0.62 * dd, s = srnd(0.8, 1.3);
+      fl.push(`M${x} ${y - s} l${s * 0.95} ${s * 0.7} l${-s * 0.4} ${s * 1.1} l${-s * 1.1} 0 l${-s * 0.4} ${-s * 1.1}Z`);
+    }
+    P(fl.join(' '), SP * 0.45);
+    S(rect(432, 250, 482, BASE), SP * 0.6);
+    S('M432 258 L449 286 L449 306 L432 344Z', SP * 0.6);
+    S('M482 258 L465 286 L465 306 L482 344Z', SP * 0.6);
+    P('M436 265 L436 337 M440 271 L440 330 M444 278 L444 322 M478 265 L478 337 M474 271 L474 330 M470 278 L470 322', SP * 0.4);
+    S(rect(449, 288, 465, 306), SP * 0.7);
+    S('M446 289 L468 289 L465 283 L449 283Z', SP * 0.7);
+    P('M457 289 L457 306', SP * 0.5);
+    [[457, 339, 7, 2.4], [456, 328, 5.6, 1.9], [458, 319, 4.4, 1.5], [457, 312, 3.4, 1.1]].forEach(([x, y, rx, ry]) => S(oval(x, y, rx, ry), SP * 0.5));
+    pane(453.5, 293, 460.5, 301, { thr: 0.05, lateOff: 9 });
+    P('M457 293 L457 301 M453.5 297 L460.5 297', SP * 0.4);
+    // 澡堂烟囱：原作顶在 y 66，取景裁到 y 108 以下会看不见烟，所以烟囱截短到 CHIM_TOP，烟从画面里冒出来
+    S(`M893 252 L895 ${CHIM_TOP + 6} L907 ${CHIM_TOP + 6} L909 252Z`);
+    P('M894.3 160 L907.7 160 M893.9 190 L908.1 190 M893.4 220 L908.6 220', SP * 0.55);
+    S(rect(892, CHIM_TOP, 910, CHIM_TOP + 6), SP * 0.9);
+    T(901, 176, 'ゆ', 9, { weight: 800 });
+    const wireY = x => { if (x >= 488) { const v = (x - 488) / (970 - 488); return 112 + (108 - 112) * v + 26 * 4 * v * (1 - v); } const v = (446 - x) / (446 + 10); return 112 + (104 - 112) * v + 22 * 4 * v * (1 - v); };
+    const wd = [];
+    for (const [a, b, off] of [[488, 970, 0], [446, -10, 0], [488, 970, 7], [446, -10, 7]]) {
+      const pts = []; for (let i = 0; i <= 30; i++) { const x = mix(a, b, i / 30); pts.push(`${x} ${wireY(x) + off * (1 + 0.3 * Math.sin(i))}`); }
+      wd.push('M' + pts.join('L'));
+    }
+    P(wd.join(' '), SP * 0.5);
+    ops.push({ t: 'SMOKE' });
+
+    // ---------- 房屋层：原作 houses.ts 的 H1 酒屋（只露出右端）、H2 带阳台的民家、H3 茶屋、H4 钱汤
+    // H1 大部分在取景外，仍整段照建，是为了让 srnd 的调用顺序和原作一致，窗灯阈值也就和原作一致
+    [[26, 206], [220, 206]].forEach(([x, y]) => { S(rect(x, y + 4, x + 8, 262), SP * 0.8); S(`M${x - 3} ${y + 5} L${x + 11} ${y + 5} L${x + 8} ${y} L${x} ${y}Z`, SP * 0.7); });
+    S(rect(32, 214, 222, 262));
+    roof({ x0: 12, x1: 242, eave: 218, ridge: 184, inset: 28 });
+    mushiko(46, 230, 128, 252);
+    S(rect(140, 228, 212, 250), SP * 1.1);
+    P(rect(142.5, 230.5, 209.5, 247.5), SP * 0.5);
+    T(176, 239.5, '白梅 酒', 11.5, { weight: 800 });
+    S(rect(20, 270, 234, BASE));
+    roof({ x0: 14, x1: 240, eave: 274, ridge: 262, inset: 6, tile: 5, sori: 1.4, oni: false });
+    pane(28, 284, 88, 336);
+    koshi(26, 90, 280, 340);
+    S(rect(114, 280, 166, BASE), SP * 0.9);
+    pane(117, 283, 163, BASE - 1, { thr: 0.05, lateOff: 0.9 });
+    P('M117 314 L163 314 M140 283 L140 344', SP * 0.45);
+    noren(116, 164, 281, 26, 3, '酒', [0.29, 0.86]);
+    const barrel = (x, y, w, h) => {
+      S(`M${x} ${y + 2} Q${x + w / 2} ${y - 1} ${x + w} ${y + 2} L${x + w} ${y + h - 2} Q${x + w / 2} ${y + h + 1} ${x} ${y + h - 2}Z`, SP * 0.9);
+      P(`M${x} ${y + 6} Q${x + w / 2} ${y + 3.5} ${x + w} ${y + 6} M${x} ${y + h - 6} Q${x + w / 2} ${y + h - 3.5} ${x + w} ${y + h - 6} M${x + 3} ${y + 1} L${x + 3} ${y + h - 1} M${x + w - 3} ${y + 1} L${x + w - 3} ${y + h - 1}`, SP * 0.5);
+      S(oval(x + w / 2, y + h / 2, w * 0.24, h * 0.24), SP * 0.6);
+      T(x + w / 2, y + h / 2, '酒', w * 0.26, { weight: 800 });
+    };
+    barrel(172, 318, 28, 26); barrel(202, 318, 28, 26); barrel(187, 292, 28, 26);
+    P('M102 274 L102 280', SP * 0.6);
+    const sug = [];
+    for (let i = 0; i < 360; i++) { const a = srnd(0, TAU), dd = Math.sqrt(srnd(0, 1)) * 11.2; const x = 102 + Math.cos(a) * dd, y = 292 + Math.sin(a) * dd, b = srnd(0, TAU); sug.push(`M${x} ${y} l${Math.cos(b) * 1.6} ${Math.sin(b) * 1.6}`); }
+    S(oval(102, 292, 12, 12), SP * 0.8);
+    P(sug.join(' '), SP * 0.45);
+    P('M97 303 l10 0 M100 303 l-1 5 M105 303 l1 5', SP * 0.5);
+
+    // H2：楼上的障子窗在原作里点一下会拉开、有人探身挥手；这里不加点击，障子一直关着，只随天色亮灯
+    S(rect(246, 200, 424, 260));
+    roof({ x0: 230, x1: 438, eave: 204, ridge: 168, inset: 26 });
+    pane(262, 212, 318, 250, { thr: 0.12, lateOff: 1.08 });
+    shojiGrid(290, 212, 318, 250, 3, 5);
+    shojiGrid(262, 212, 290, 250, 3, 5);
+    P(rect(262, 212, 318, 250));
+    pane(340, 212, 404, 250, { thr: 0.3 });
+    shojiGrid(340, 212, 372, 250, 3, 5); shojiGrid(372, 212, 404, 250, 3, 5);
+    P(rect(340, 212, 404, 250));
+    S(rect(250, 238, 418, 258), SP * 0.8);
+    const bal = [];
+    for (let x = 254; x < 416; x += 5.2) bal.push(`M${x} 241 L${x} 256`);
+    P(bal.join(' ') + ' M250 241 L418 241', SP * 0.5);
+    S(rect(240, 268, 428, BASE));
+    roof({ x0: 232, x1: 436, eave: 272, ridge: 260, inset: 6, tile: 5, sori: 1.4, oni: false });
+    pane(246, 282, 294, 322);
+    koshi(244, 296, 278, 324);
+    pane(366, 282, 422, 322, { thr: 0.25 });
+    koshi(364, 424, 278, 324);
+    inuyarai(244, 296, 326); inuyarai(364, 424, 326);
+    S(rect(304, 278, 356, BASE), SP * 0.9);
+    pane(306, 280, 354, BASE - 1, { thr: 0.2 });
+    const dd2 = [];
+    for (let x = 308; x < 354; x += 3.4) dd2.push(`M${x} 280 L${x} 343`);
+    for (let y = 290; y < 342; y += 12) dd2.push(`M306 ${y} L354 ${y}`);
+    P(dd2.join(' ') + ' M330 280 L330 344', SP * 0.45);
+    S(rect(316, 270, 344, 276), SP * 0.6);
+    T(330, 273, '伊 藤', 4.6, { weight: 700 });
+    [[298, 'pine'], [360, 'asagao']].forEach(([x, kind]) => {
+      S(`M${x - 5} 336 L${x + 5} 336 L${x + 4} ${BASE} L${x - 4} ${BASE}Z`, SP * 0.7);
+      if (kind === 'pine') {
+        P(`M${x} 336 Q${x - 3} 330 ${x + 1} 325 Q${x + 4} 321 ${x - 1} 316 M${x + 1} 325 Q${x + 5} 324 ${x + 7} 321`, SP * 0.8);
+        [[x - 4, 324, 5.2], [x + 6, 319.5, 4], [x - 1, 314, 4.4]].forEach(([px, py, r]) => {
+          S(`M${px - r} ${py} Q${px - r * 0.8} ${py - 2.6} ${px - r * 0.3} ${py - 2.2} Q${px} ${py - 3.4} ${px + r * 0.4} ${py - 2.4} Q${px + r} ${py - 2.2} ${px + r} ${py} Q${px} ${py + 1} ${px - r} ${py}Z`, SP * 0.6);
+          P(Array.from({ length: 4 }, (_, j) => `M${px - r * 0.6 + j * r * 0.4} ${py - 0.5} l0.6 -1.4`).join(' '), SP * 0.35);
+        });
+      } else {
+        P(`M${x - 2} 336 L${x - 2} 300 M${x + 2} 336 L${x + 2} 300 M${x - 3} 312 L${x + 3} 312 M${x - 3} 324 L${x + 3} 324`, SP * 0.5);
+        P(`M${x} 334 q-4 -8 1 -14 q4 -6 -1 -12 q-3 -4 1 -8`, SP * 0.5);
+        [[x - 3, 316], [x + 3, 306], [x - 2, 326]].forEach(([fx, fy]) => S(oval(fx, fy, 2.2, 1.8), SP * 0.5));
+      }
+    });
+    D((k, c) => drawFurin(k, c));
+
+    // H3 茶屋
+    S(rect(496, 224, 690, 256));
+    roof({ x0: 476, x1: 710, eave: 228, ridge: 196, inset: 24 });
+    mushiko(520, 232, 668, 250);
+    S(rect(486, 264, 700, BASE));
+    roof({ x0: 478, x1: 708, eave: 268, ridge: 256, inset: 5, tile: 5, sori: 1.6, oni: false });
+    pane(492, 272, 614, 330, { thr: 0.02, lateOff: 0.94 });
+    P('M496 308 L610 308', SP * 0.55);
+    ['だんご', '甘酒', '抹茶', 'おしるこ', '草餅'].forEach((s, i) => { const x = 506 + i * 22; P(`M${x} 283 L${x} 285.5`, SP * 0.4); S(rect(x - 5, 285.5, x + 5, 307), SP * 0.6); T(x, 296.2, s, 4.6, { vertical: true, weight: 700 }); });
+    S(rect(490, 318, 616, 324), SP * 0.9);
+    P('M494 324 L494 344 M612 324 L612 344', SP * 0.7);
+    [528, 574].forEach(x => { S(`M${x - 9} 318 Q${x} 321 ${x + 9} 318 Z`, SP * 0.6); P(`M${x - 7} 315 L${x + 8} 307`, SP * 0.6); [0, 1, 2].forEach(j => S(oval(x - 4 + j * 4.4, 313.5 - j * 2.4, 2.3, 2.3), SP * 0.6)); });
+    S(rect(490, 270, 616, 282), SP * 0.7);
+    P(Array.from({ length: 5 }, (_, i) => `M490 ${272 + i * 2} L616 ${272 + i * 2}`).join(' ') + ' M520 268 L520 284 M586 268 L586 284', SP * 0.35);
+    S('M488 268.5 a2.5 2.5 0 0 0 0 5 L618 273.5 a2.5 2.5 0 0 0 0 -5Z', SP * 0.7);
+    S(rect(620, 270, 694, BASE), SP * 0.9);
+    pane(622, 272, 692, BASE - 1, { thr: 0.02, lateOff: 0.95 });
+    noren(624, 690, 271, 24, 4, '茶', [0.31, 0.9]);
+    chochin(498, 268, 6.4, 15, '茶', true);
+    chochin(696, 268, 6.4, 15, '茶', true);
+
+    // H4 钱汤
+    S(rect(708, 252, 944, BASE));
+    roof({ x0: 700, x1: 952, eave: 256, ridge: 214, inset: 44 });
+    S('M766 262 Q780 262 790 250 Q806 226 826 222 Q846 226 862 250 Q872 262 886 262 L882 268 Q870 268 860 258 Q846 236 826 232 Q806 236 792 258 Q782 268 770 268Z');
+    P('M790 252 Q806 230 826 226 Q846 230 862 252', SP * 0.5);
+    S('M821 222 Q826 214 831 222Z', SP * 0.7);
+    P('M800 262 L800 344 M852 262 L852 344');
+    pane(803, 266, 849, BASE - 1, { thr: 0.0, lateOff: 9 });
+    noren(804, 848, 266, 30, 2, 'ゆ', [0.6, 1.08]);
+    pane(716, 266, 774, 292, { thr: 0.05, lateOff: 9 });
+    pane(878, 266, 936, 292, { thr: 0.05, lateOff: 9 });
+    [[716, 774], [878, 936]].forEach(([a, b]) => shojiGrid(a, 266, b, 292, 6, 2));
+    S(rect(714, 300, 734, 344), SP * 0.9);
+    T(724, 322, '松の湯', 9, { vertical: true, weight: 800 });
+    const ws = [];
+    for (let x = 740; x < 800; x += 4) ws.push(`M${x} 304 L${x} 344`);
+    for (let x = 856; x < 940; x += 4) ws.push(`M${x} 304 L${x} 344`);
+    P(ws.join(' ') + ' M738 304 L800 304 M852 304 L940 304', SP * 0.5);
+    [[902, 335], [915, 335], [928, 335], [908.5, 326], [921.5, 326], [915, 317]].forEach(([x, y]) => {
+      C('pail', `M${x - 6} ${y} L${x + 6} ${y} L${x + 5} ${y + 9} L${x - 5} ${y + 9}Z`, SP * 0.7);
+      P(`M${x - 5.6} ${y + 2.4} L${x + 5.6} ${y + 2.4}`, SP * 0.4);
+    });
+    chochin(790, 262, 5.6, 13, 'ゆ', false);
+    chochin(862, 262, 5.6, 13, 'ゆ', false);
+
+    // 窗灯、灯笼、路灯的光晕画在房子上面、前景下面，和原作的 glow 图层位置一样
+    ops.push({ t: 'GLOW' });
+
+    // ---------- 前景：茶屋门前的红伞和长凳、电线杆和路灯、街面
+    S('M586 351 L586 296 M589 351 L589 296', SP * 0.6);
+    P('M587.5 352 L587.5 262', SP * 0.9);
+    let rimD = 'M536 273 Q548 256 587.5 252 Q627 256 639 273';
+    for (let i = 12; i > 0; i--) { const xa = mix(536, 639, i / 12), xb = mix(536, 639, (i - 1) / 12); rimD += ` Q${(xa + xb) / 2} 276.4 ${xb} 273`; }
+    C('red', rimD + 'Z', SP * 0.8);
+    P(Array.from({ length: 13 }, (_, i) => `M587.5 252.6 L${mix(538, 637, i / 12)} 272.4`).join(' '), SP * 0.35);
+    S(oval(587.5, 252, 3.2, 1.6), SP * 0.6);
+    C('red', rect(516, 330, 600, 336), SP * 0.8);
+    S(rect(514, 336, 602, 339), SP * 0.7);
+    P('M520 339 L520 352 M596 339 L596 352 M522 339 L522 352 M594 339 L594 352 M520 348 L596 348', SP * 0.7);
+    S('M584 330 L585 325 L591 325 L592 330Z', SP * 0.6);
+    S('M465 352 L466.5 98 L470.5 98 L472 352Z', SP * 0.9);
+    P('M466 140 L471 140 M466 200 L471 200 M466 260 L471 260 M466 320 L471 320', SP * 0.5);
+    S(rect(446, 110, 490, 114), SP * 0.8);
+    [450, 458, 478, 486].forEach(x => S(`M${x - 1.6} 110 L${x + 1.6} 110 L${x + 1.2} 105 L${x - 1.2} 105Z`, SP * 0.5));
+    S('M472 140 Q480 140 480 146 L480 170 Q480 176 472 176Z', SP * 0.8);
+    P('M472 150 L479 150 M472 160 L479 160', SP * 0.45);
+    P('M466 226 Q452 222 446 230', SP * 0.8);
+    S('M439 230 L453 230 L450 236 L442 236Z', SP * 0.8);
+    C('lamp', oval(446, 237, 3, 1.6), SP * 0.5);
+    // 街面：原作屋脚到河岸 40 单位，这里只有 12，裂缝和沟石按比例压进这一条
+    P(`M0 ${BASE} L960 ${BASE}`);
+    const cracks = [];
+    for (let i = 0; i < 34; i++) { const x = srnd(0, 960), y = mix(BASE + 6, EDGE - 2, (srnd(350, 380) - 350) / 30); cracks.push(`M${x} ${y} l${srnd(6, 16)} ${srnd(-0.4, 0.4)}`); }
+    P(cracks.join(' '), SP * 0.45);
+    const gut = [];
+    for (let x = 0; x < 960; x += srnd(16, 26)) gut.push(`M${x} ${BASE} L${x} ${BASE + 4}`);
+    P(`M0 ${BASE + 4} L960 ${BASE + 4} ` + gut.join(' '), SP * 0.5);
+
+    // ---------- 运河：岸石两层砌缝，水面颜色、倒影和波纹每帧现算
+    S(`M-10 ${EDGE} L970 ${EDGE} L970 ${WATER} L-10 ${WATER}Z`);
+    const md = [`M-10 ${EDGE + 4} L970 ${EDGE + 4}`, `M-10 ${EDGE + 9} Q480 ${EDGE + 8.6} 970 ${EDGE + 9.1}`];
+    for (let x = srnd(0, 20); x < 960; x += srnd(28, 44)) md.push(`M${x} ${EDGE} l0.4 4`);
+    [[EDGE + 4, EDGE + 9, 0], [EDGE + 9, WATER, 8]].forEach(([y0, y1, o]) => {
+      for (let x = srnd(0, 14) + o; x < 960; x += srnd(12, 24)) md.push(`M${x} ${y0 + 0.4} Q${x + srnd(-1, 1)} ${(y0 + y1) / 2} ${x + srnd(-0.6, 0.6)} ${y1 - 0.4}`);
+    });
+    P(md.join(' '), SP * 0.5);
+    ops.push({ t: 'WATER' });
+
+    OPS = ops; WINS = wins; LANTERNS = lanterns; NORENS = norens;
+    // 倒影只给取景内、离水面近的光源：一楼的窗和门、灯笼
+    REFL = wins.filter(w => w.y1 > 300 && w.x1 > VX).map(w => ({ src: w, x: (w.x0 + w.x1) / 2, w: Math.min(40, (w.x1 - w.x0) * 0.8) }))
+      .concat(lanterns.map(l => ({ src: l, x: l.x, w: 8 })));
+    // 星星落在屋顶以上那条天空里；用 rnd(i, j) 定位置和闪烁，不和街景的 srnd 序列搅在一起
+    STARS = Array.from({ length: 46 }, (_, i) => ({ x: VX + rnd(i, 1) * VW, y: VY + 2 + rnd(i, 2) * 96, r: 0.35 + rnd(i, 3) * 0.7, n: 1 + Math.floor(rnd(i, 4) * 3), ph: rnd(i, 5) * TAU }));
+    LINES = Array.from({ length: 16 }, (_, i) => ({ x: VX + rnd(i, 11) * VW, y: WATER + 6 + (i % 4) * 8 + rnd(i, 12) * 3, len: 10 + rnd(i, 13) * 24, d: 18 + rnd(i, 14) * 22, ph: rnd(i, 15) }));
+    FLIES = Array.from({ length: 12 }, (_, i) => ({ cx: VX + 20 + rnd(i, 21) * (VW - 40), cy: 300 + rnd(i, 22) * 100, ph: rnd(i, 23) * TAU, n: 2 + Math.floor(rnd(i, 24) * 4) }));
+  }
+
+  // —— 天空：原作 sky.ts。日月轨迹的顶点在原作 y 64，取景从 y 112 开始，
+  // 所以轨迹的纵向压到 0.55 倍再下移，太阳从画面上沿附近往右下落到澡堂屋顶后面，月亮在夜里升到天空中段 ——
+  const arcY = y => VY + 8 + (y - 64) * 0.55;
+  const sunArc = s => [40 + 880 * s, arcY(300 - 236 * Math.sin(Math.PI * s))];
+  const moonArc = s => [60 + 840 * s, arcY(290 - 205 * Math.sin(Math.PI * s))];
+  const SUN_SPAN = [0.225, 0.55], MOON_SPAN = [0.775, 0.45];
+  // 流星：原作夜里随机出现、点天空也会出；这里固定在夜最深时（u 3.3 起 0.9 秒）划过一颗
+  const SHOOT = { u0: 3.3, dur: 0.9, x: 700, y: 128, dir: -1 };
+  const MIST = [[330, 140, 100, 0.3], [760, 120, 130, 2.1]];
+  const radial = (k, x, y, r, stops, alpha) => {
+    if (alpha < 0.004) return;
+    const g = k.createRadialGradient(x, y, 0, x, y, r);
+    stops.forEach(([o, c, a]) => g.addColorStop(o, `rgba(${c},${a})`));
+    k.globalAlpha = alpha; k.fillStyle = g; k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill(); k.globalAlpha = 1;
+  };
+  const WARMGLOW = [[0, '255,213,138', 0.75], [0.45, '255,184,92', 0.28], [1, '255,184,92', 0]];
+  function cloudD(x, y, w) {
+    const curl = (cx, cy, s) => `M${cx} ${cy} q${5 * s} 0 ${5 * s} -4 q0 -3.2 ${-3.2 * s} -3.2 q-2.2 0 -2.2 2.2 q0 1.4 1.4 1.4`;
+    return `M${x} ${y} L${x + w} ${y} ${curl(x + w, y, 1)} ${curl(x, y, -1)} M${x + w * 0.18} ${y - 7} L${x + w * 0.66} ${y - 7} ${curl(x + w * 0.66, y - 7, 1)} M${x + w * 0.42} ${y + 6.5} L${x + w * 0.92} ${y + 6.5} ${curl(x + w * 0.42, y + 6.5, -1)}`;
+  }
+  let FAR = null;
+  function drawSky(k) {
+    const { P, u, tau } = F;
+    const g = k.createLinearGradient(0, -20, 0, 500);
+    g.addColorStop(0, css(P.top)); g.addColorStop(1, css(P.bot));
+    k.fillStyle = g; k.fillRect(VX - 10, VY - 10, VW + 20, BOT - VY + 20);
+    // 星星：亮度按原作 night，闪烁频率取一周期的整数倍
+    if (P.night > 0.01) {
+      k.fillStyle = '#f5efda';
+      STARS.forEach(s => {
+        const tw = 0.55 + 0.45 * Math.sin(s.n * W8 * u + s.ph);
+        k.globalAlpha = P.night * tw; k.beginPath(); k.arc(s.x, s.y, s.r, 0, TAU); k.fill();
+        if (s.r > 0.9) { k.globalAlpha = P.night * tw * 0.7 * 0.6; k.lineWidth = 0.35; k.strokeStyle = '#f5efda'; k.stroke(new Path2D(`M${s.x - 2.6} ${s.y} L${s.x + 2.6} ${s.y} M${s.x} ${s.y - 2.6} L${s.x} ${s.y + 2.6}`)); }
+      });
+      const su = (u - SHOOT.u0) / SHOOT.dur;
+      if (su > 0 && su < 1) {
+        const x = SHOOT.x + SHOOT.dir * 120 * su, y = SHOOT.y + 60 * su;
+        k.globalAlpha = P.night * Math.sin(Math.PI * su); k.strokeStyle = '#fff6dc'; k.lineWidth = 0.9 * 1.6; k.lineCap = 'round';
+        k.stroke(new Path2D(`M${x} ${y} L${x - SHOOT.dir * 34 * (1 - su)} ${y - 17 * (1 - su)}`));
+      }
+      k.globalAlpha = 1;
+    }
+    // 太阳：越近日落越红、光晕越大
+    const su = (wrap(tau, 1) - SUN_SPAN[0]) / SUN_SPAN[1];
+    if (su > -0.05 && su < 1.05) {
+      const [x, y0] = sunArc(clamp(su)), y = y0 + (su < 0 || su > 1 ? 30 : 0);
+      radial(k, x, y, 70, [[0, '255,217,160', 0.55], [1, '255,217,160', 0]], 0.35 + 0.65 * P.sunset);
+      const d = new Path2D(oval(x, y, 21, 21));
+      k.fillStyle = css(mc(hx('#fbf3df'), hx('#df5a3a'), P.sunset)); k.fill(d); strokeIt(k, d, SP);
+    }
+    // 月亮：两段弧画的蛾眉月，原作 rotate(-24°)
+    const mu = wrap(tau - MOON_SPAN[0], 1) / MOON_SPAN[1];
+    if (mu <= 1.02) {
+      const [x, y] = moonArc(clamp(mu)), a = smooth(0, 0.08, mu) * smooth(1.02, 0.94, mu), r = 15;
+      radial(k, x, y, 60, [[0, '233,228,255', 0.35], [1, '233,228,255', 0]], a);
+      k.save(); k.translate(x, y); k.rotate(-24 * Math.PI / 180); k.globalAlpha = a;
+      const m = new Path2D(`M0 ${-r} A${r} ${r} 0 1 1 0 ${r} A${r * 0.62} ${r} 0 1 0 0 ${-r}Z`);
+      k.fillStyle = '#f3ecd6'; k.fill(m); k.lineWidth = 0.6; k.strokeStyle = '#f3ecd6'; k.stroke(m);
+      k.globalAlpha = a * 0.7; k.lineWidth = 0.5; k.strokeStyle = '#cfc6ad'; k.stroke(new Path2D('M3 -6 a2.4 1.8 0 1 0 0.1 0 M8 4 a1.6 1.3 0 1 0 0.1 0'));
+      k.restore();
+    }
+    // 霞：原作 suyari-gasumi 横云，白天最浓；这里不漂走，只在原地缓缓左右移
+    k.globalAlpha = 0.75 - 0.45 * P.night;
+    MIST.forEach(([x, y, w, ph]) => strokeIt(k, new Path2D(cloudD(x + 6 * Math.sin(W8 * u + ph), y, w)), SP * 0.75));
+    // 远山与五重塔：原作用 0.42 的淡墨
+    if (!FAR) {
+      const d = [];
+      let y = 236;
+      for (let i = 0; i < 5; i++) {
+        const w = 36 - i * 4.2, bh = 9 - i * 0.6, cx = 640;
+        d.push({ s: rect(cx - w * 0.42, y - bh, cx + w * 0.42, y), w: 0.75 });
+        d.push({ p: `M${cx - w * 0.18} ${y} L${cx - w * 0.18} ${y - bh} M${cx + w * 0.18} ${y} L${cx + w * 0.18} ${y - bh}`, w: 0.5 });
+        y -= bh;
+        d.push({ s: `M${cx - w} ${y + 1} Q${cx - w * 0.6} ${y - 1} ${cx - w * 0.35} ${y - 5} L${cx + w * 0.35} ${y - 5} Q${cx + w * 0.6} ${y - 1} ${cx + w} ${y + 1} Q${cx} ${y - 2} ${cx - w} ${y + 1}Z`, w: 0.75 });
+        y -= 5;
+      }
+      d.push({ p: `M640 ${y} L640 ${y - 26}`, w: 0.8 });
+      d.push({ p: Array.from({ length: 6 }, (_, j) => `M637.4 ${y - 4 - j * 3} L642.6 ${y - 4 - j * 3}`).join(' '), w: 0.5 });
+      FAR = [{ p: 'M0 262 Q80 238 170 222 Q240 206 300 214 Q360 222 420 208 Q470 196 520 188 Q600 176 660 198 Q720 218 790 206 Q860 192 960 214', w: 0.8 },
+        { p: 'M140 228 q20 -6 40 -4 M300 216 q16 -2 30 2 M560 186 q26 -4 44 4 M820 202 q18 -4 32 0', w: 0.55 }].concat(d)
+        .map(o => ({ path: new Path2D(o.s || o.p), fill: !!o.s, w: o.w * SP }));
+    }
+    k.globalAlpha = 0.42;
+    FAR.forEach(o => { if (o.fill) { k.fillStyle = F.paper; k.fill(o.path); } strokeIt(k, o.path, o.w); });
+    k.globalAlpha = 1;
+  }
+
+  // 窗灯：原作 main.ts 的规则。天黑到各自阈值 thr 就亮；lateOff 小于 9 的窗到深夜按各自时刻熄灯，天亮前不再亮
+  function winLit(w) {
+    const lit = smooth(w.thr, w.thr + 0.25, F.P.lamp);
+    if (w.lateOff >= 9) return lit;
+    const sd = wrap(F.tau - 0.75, 1);
+    // 原作是硬切再按每帧 0.08 追上去（约 0.2 秒）；这里换成 τ 上 0.008 的渐变，效果相同且是纯函数
+    return lit * (1 - smooth(w.lateOff - 0.75, w.lateOff - 0.742, sd) * smooth(0.5, 0.49, sd));
+  }
+  function drawGlow(k) {
+    const { u } = F;
+    WINS.forEach(w => {
+      if (w.lit < 0.01) return;
+      const cx = (w.x0 + w.x1) / 2, cy = (w.y0 + w.y1) / 2, rx = (w.x1 - w.x0) * 0.9 + 10, ry = (w.y1 - w.y0) * 0.9 + 10;
+      k.save(); k.translate(cx, cy); k.scale(rx, ry); radial(k, 0, 0, 1, WARMGLOW, w.lit * 0.8); k.restore();
+    });
+    LANTERNS.forEach(l => {
+      const cx = l.x + Math.sin(l.a) * -(l.h / 2 + 4), cy = l.y + Math.cos(l.a) * (l.h / 2 + 4);
+      radial(k, cx, cy, 30 + l.r, WARMGLOW, l.lit * (0.85 + 0.15 * Math.sin(7 * W8 * u + l.ph) * Math.sin(3 * W8 * u)));
+    });
+    // 路灯：灯罩下的光锥和光晕，比窗灯晚一点亮
+    const on = F.lampOn;
+    if (on > 0.004) {
+      const g = k.createLinearGradient(0, 237, 0, 352);
+      g.addColorStop(0, 'rgba(255,226,168,0.5)'); g.addColorStop(1, 'rgba(255,226,168,0.06)');
+      k.globalAlpha = on * 0.75; k.fillStyle = g; k.fill(new Path2D('M441 237 L451 237 L496 352 L396 352Z')); k.globalAlpha = 1;
+      radial(k, 446, 237, 34, WARMGLOW, on);
+      // 绕灯飞的飞蛾，频率取整数倍
+      k.fillStyle = '#fff4d2';
+      for (let i = 0; i < 4; i++) {
+        const a = (3 + i) * W8 * u + i * 1.7, r = 5 + i * 2.2;
+        k.globalAlpha = on * (0.6 + 0.4 * Math.sin(5 * a));
+        k.beginPath(); k.arc(446 + Math.cos(a) * r + Math.sin(2 * a) * 3, 240 + Math.sin(a) * r * 0.6, 0.7 * 1.5, 0, TAU); k.fill();
+      }
+      k.globalAlpha = 1;
+    }
+    // 萤火虫：只在夜里，沿慢速正弦漂移、一明一暗
+    if (F.P.night > 0.01) FLIES.forEach(fl => {
+      const a = W8 * u + fl.ph;
+      const x = fl.cx + Math.sin(a) * 30 + Math.sin(2 * a) * 8, y = fl.cy + Math.sin(a + 1) * 16 + Math.cos(3 * a) * 5;
+      const b = Math.pow(Math.max(0, Math.sin(fl.n * W8 * u + fl.ph)), 3);
+      radial(k, x, y, 5.5, [[0, '233,255,154', 0.9], [1, '200,255,106', 0]], F.P.night * b);
+      k.globalAlpha = F.P.night * (0.3 + 0.7 * b); k.fillStyle = '#f1ffb4'; k.beginPath(); k.arc(x, y, 0.9 * 1.4, 0, TAU); k.fill(); k.globalAlpha = 1;
+    });
+  }
+
+  // 炊烟：原作澡堂午后开始烧水（τ > 0.55 或 < 0.08），每 0.55 秒冒一团，6.3 秒散尽。
+  // 这里把间隔取成 CYC/12，烟团按发出时刻 e 和年龄 wrap(u − e) 现算位置，原作逐帧积分的速度改成积分后的式子
+  const PUFFS = 12, PUFF_LIFE = 6.3;
+  function drawSmoke(k) {
+    const { u } = F;
+    for (let j = 0; j < PUFFS; j++) {
+      const e = j * CYC / PUFFS, tm = wrap(tauAt(e), 1);
+      if (!(tm > 0.55 || tm < 0.08)) continue;
+      const t = wrap(u - e);
+      if (t > PUFF_LIFE) continue;
+      const ph = rnd(j, 31) * TAU, wnd = windAt(e);
+      const x = CHIM_X + (rnd(j, 32) * 4 - 2) + (4 + wnd * 10) * t - (2 / 1.2) * (Math.cos(1.2 * t + ph) - Math.cos(ph));
+      const y = CHIM_TOP - (9 * t - 0.3 * t * t), r = 3 + rnd(j, 33) * 1.5 + 2.2 * t;
+      const pts = [];
+      for (let i = 0; i <= 14; i++) { const a = (i / 14) * TAU, rr = r * (1 + 0.16 * Math.sin(a * 3 + ph + t)); pts.push(`${x + Math.cos(a) * rr} ${y + Math.sin(a) * rr * 0.8}`); }
+      const p = new Path2D('M' + pts.join('L') + 'Z');
+      // 刚冒出的一小段淡入，免得烟团在烟囱口凭空出现
+      k.globalAlpha = Math.max(0, 0.9 - t / 7) * smooth(0, 0.25, t);
+      k.fillStyle = F.paper; k.fill(p); strokeIt(k, p, SP * 0.7);
+    }
+    k.globalAlpha = 1;
+  }
+
+  // 水波纹圈：原作随机冒出、锦鲤落水也会激起；这里固定 3 处
+  const RINGS = [[0.8, 330, 384], [2.9, 610, 392], [5.0, 820, 380]];
+  function drawWater(k) {
+    const { P, u } = F;
+    // 原作在 inkT 过 0.5 时把水色从灰蓝硬切到深靛；这里在 0.4–0.6 之间渐变，避免一帧跳色
+    const nt = smooth(0.4, 0.6, P.inkT);
+    const wc = mc(mc(P.paper, hx('#bfd0d8'), 0.32), mc(P.paper, hx('#0f1730'), 0.45), nt);
+    k.fillStyle = css(wc); k.fillRect(VX - 10, WATER, VW + 20, BOT - WATER + 10);
+    strokeIt(k, new Path2D(`M${VX - 10} ${WATER} L${VX + VW + 10} ${WATER}`), SP * 0.8);
+    // 倒影：每个亮着的光源下面一串横向暖色短线，左右抖动、长短起伏
+    k.lineCap = 'round';
+    REFL.forEach(r => {
+      const lit = r.src.lit || 0;
+      if (lit < 0.02) return;
+      for (let j = 0; j < 6; j++) {
+        const y = WATER + 5 + j * 6, jit = Math.sin(2 * W8 * u + j * 1.7 + r.x * 0.1) * (2 + j * 0.5);
+        const w = r.w * (1 - j * 0.07) * (0.7 + 0.3 * Math.sin(2 * W8 * u + j));
+        k.globalAlpha = lit * (0.75 - j * 0.07); k.strokeStyle = '#ffcf7e'; k.lineWidth = (1.4 - j * 0.08) * 1.4;
+        k.beginPath(); k.moveTo(r.x - w / 2 + jit, y); k.lineTo(r.x + w / 2 + jit, y); k.stroke();
+      }
+    });
+    k.globalAlpha = 1;
+    LINES.forEach(l => {
+      const x = l.x + l.d * Math.sin(W8 * u + l.ph * TAU), y = l.y + Math.sin(W8 * u + l.x * 0.04) * 0.7;
+      strokeIt(k, new Path2D(`M${x} ${y} Q${x + l.len / 2} ${y - 1.2} ${x + l.len} ${y}`), SP * 0.5);
+    });
+    RINGS.forEach(([u0, x, y]) => {
+      const t = wrap(u - u0);
+      if (t > 1.6) return;
+      k.globalAlpha = 1 - t / 1.6;
+      k.beginPath(); k.ellipse(x, y, 2 + t * 12, 0.6 + t * 2.2, 0, 0, TAU); strokeIt(k, null, SP * 0.55);
+      k.globalAlpha = 1;
+    });
+  }
+
+  CELLS[7] = (k, w, h, u) => {
+    if (!OPS) build();
+    const tau = tauAt(u), P = palette(wrap(tau, 1));
+    F = { u, tau: wrap(tau, 1), P, wind: windAt(u), paper: css(P.paper), ink: css(P.ink), lampOn: smooth(0.2, 0.45, P.lamp) };
+    WINS.forEach(wn => { wn.lit = winLit(wn); });
+    const red = css(mc(RED, RED_NIGHT, P.inkT)), pail = css(mc(PAIL, PAIL_NIGHT, P.inkT)), lamp = css(mc(P.paper, hx('#fff1c9'), F.lampOn));
+    const winCol = wn => css(mc(P.paper, mc(hx('#ffd58a'), hx('#f0a24e'), wn.warmth), wn.lit * 0.92));
+    k.save();
+    k.scale(VS, VS); k.translate(-VX, -VY);
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    drawSky(k);
+    for (const o of OPS) {
+      switch (o.t) {
+        case 'S': k.fillStyle = F.paper; k.fill(o.p); strokeIt(k, o.p, o.w); break;
+        case 'P': strokeIt(k, o.p, o.w); break;
+        case 'B': k.fillStyle = F.ink; k.fill(o.p); break;
+        case 'C': k.fillStyle = o.col === 'red' ? red : o.col === 'pail' ? pail : lamp; k.fill(o.p); strokeIt(k, o.p, o.w); break;
+        case 'W': k.fillStyle = winCol(o.w); k.fill(o.w.p); break;
+        case 'T': txt(k, o.x, o.y, o.s, o.size, o.v, o.wt, F.ink); break;
+        case 'D': o.fn(k); break;
+        case 'SMOKE': drawSmoke(k); break;
+        case 'GLOW': drawGlow(k); break;
+        case 'WATER': drawWater(k); break;
+      }
+    }
+    k.restore();
+  };
+}

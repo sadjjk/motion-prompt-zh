@@ -1,0 +1,16 @@
+Please use "Ink tram crossing" (墨線の路面電車), filed under "Animation styles / Flat & line".
+Motion Prompt #4-102
+
+What it is: A line-art tram street in the afternoon: a tram runs with its trolley pole on the overhead wire, eases to a stop, opens its doors and pulls away again, and each time the faceless passengers and hanging straps sway; the town behind slides past in three layers at different speeds, and at dusk the car lights and shop windows come on
+What the sample shows: A green-belted tram seen side-on stays in the middle of the frame while the town moves instead: pale-ink far buildings with a clock tower, a middle row of two- and three-storey old shops with signboards, and near poles, overhead wires and cobbles all slide back at different speeds. The trolley pole on the roof changes angle with the sag of the wire and keeps its tip on it. The tram brakes to a stop at a tram stop with a round red sign, opens its doors, waits and pulls away; each time the seated riders, the standing riders holding straps, and the straps themselves sway forward and back. At dusk the car lights flicker on, the windows turn warm and the riders become silhouettes against them; street lamps and shop windows come on one by one, then go out at dawn and it is afternoon again.
+Spec:
+- Colours use the sky top, sky bottom and paper ramps from the original daynight.ts, and ink inverts from #1c1c1c to #efe6cf. The day starts at τ 0.64 and comes round to 1.64; dusk falls while the tram waits at the stop, and 5.4–5.9 s runs through the night and dawn back to the afternoon.
+- The tram brakes from full speed to a stop at 0.4–2.4 s (speed 1 − t²), waits at the stop until 4.0 s with its doors open at 2.6–3.8 s, and pulls away at 4.0–6.0 s (speed 1 − (1 − t)²). One cycle covers 960 px.
+- Parallax has three layers: far buildings at 0.36×, middle buildings at 0.78×, and the poles, wires and road at 1×. The trolley pole (66 px long) stays on the overhead wire, which sags 5 px between poles 480 px apart.
+- Standing riders sway on the original briefcase pendulum (14, 1.8), up to about 9.4°; the straps use the lantern pendulum (10, 1.1), up to about 17.6°; seated riders use the arm spring (60, 9). All are pushed by the inertial force opposite to the acceleration.
+- The car lights come on at 2.9 s with one flicker and go off at 5.78–5.88 s; shop windows light one by one at 2.87–4.0 s. Flat colour is limited to 2: the tram's green belt #4e8a5a (darkened at night by the original nightTint()) and the stop sign's red #b3412d (#6e2a22 at night).
+When to use it: Use it for commuting and getting around, the rhythm of going and stopping, transfers and waiting, a day in the city, or showing acceleration and braking.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-102.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,490 @@
+// Motion Prompt #4-102 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// 路面电车过街 / Ink tram crossing
+// 分类: 审美风格 / 动画画风 / 平面与线条
+// 动画表现: 侧面看的绿腰带路面电车停在画面中间不动，动的是街：远景淡墨的楼和钟楼、中景两三层的老店铺（招牌写着店名）、近景的电线杆、架空线和石块路面各按不同速度往后退。车顶的集电杆随着架空线的下垂改变角度，杆头一直贴着线。电车刹车停进挂着红色圆站牌的车站，开门等候，再起步开走；每次坐着的人、站着拉吊环的人和吊环本身都前后晃。黄昏时车厢灯闪一下亮起，车窗变暖黄，乘客成了窗光前的剪影；路灯和店铺的窗一盏盏亮，天亮时熄灭，回到午后。
+// 运动规格:
+//   - 配色用原作 daynight.ts 的天顶、天底、纸色三条色带，墨色从 #1c1c1c 反相到 #efe6cf。一天从 τ 0.64 开始，走到 1.64 正好一圈；电车停站时天黑下来，5.4–5.9 秒走过夜里和黎明回到午后。
+//   - 电车 0.4–2.4 秒从全速刹停（速度 1 − t²），在站上停到 4.0 秒，2.6–3.8 秒开着门，4.0–6.0 秒起步（速度 1 − (1 − t)²）。一周期走过 960 px。
+//   - 视差分三层：远景楼 0.36 倍、中景楼 0.78 倍、电线杆和架空线与路面 1 倍。集电杆（长 66 px）一直贴着架空线，架空线在相距 480 px 的两根电线杆之间下垂 5 px。
+//   - 站着的乘客用原作公文包的钟摆 (14, 1.8)，最大约 9.4°；吊环用灯笼的钟摆 (10, 1.1)，最大约 17.6°；坐着的乘客用手臂的弹簧 (60, 9)。都由与加速度反向的惯性力推动。
+//   - 车厢灯 2.9 秒闪一下亮起，5.78–5.88 秒熄灭；店铺的窗 2.87–4.0 秒一扇扇亮。平涂色只有 2 种：电车腰带的绿 #4e8a5a（夜里按原作 nightTint() 压暗）和站牌的红 #b3412d（夜里 #6e2a22）。
+// 适用场景: 适合讲通勤出行、走走停停的节奏、换乘与等候、城市的一天，或展示加速和刹车。
+// 标签: line-art, ink, day-night, tram, city, parallax, commute
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-102
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 10
+// 路面电车过街：原作没有城市交通场景，这里按原作的画法（细墨线、纸色遮挡、一两处平涂色、daynight.ts 夜间反相）新编一条电车街。
+// 镜头跟着电车走，楼群分远、中、近三层按不同速度后退（视差）；电车减速进站、停一下、再起步，车里不画脸的乘客随刹车和起步前后晃（钟摆、弹簧）；
+// 集电杆一直顶着架空线。从午后走到黄昏，车窗、路灯、楼窗一盏盏亮起，复位段走过夜里回到午后
+{
+  // 主线约 1 px、细节线按原作 0.4–0.6 倍，与 #4-101、#4-104 一致
+  const SP = 1.1, FP = 0.6;
+  const JP = '"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Songti SC",serif';
+  const W = TAU / CYC; // 一周期一圈的角速度，周期性小动作都取它的整数倍
+  const oval = (cx, cy, rx, ry) => `M${cx - rx} ${cy} a${rx} ${ry} 0 1 0 ${2 * rx} 0 a${rx} ${ry} 0 1 0 ${-2 * rx} 0Z`;
+  const rect = (x0, y0, x1, y1) => `M${x0} ${y0} L${x1} ${y0} L${x1} ${y1} L${x0} ${y1}Z`;
+  const rot = (p, c, a) => { const s = Math.sin(a), co = Math.cos(a), x = p[0] - c[0], y = p[1] - c[1]; return [c[0] + x * co - y * s, c[1] + x * s + y * co]; };
+
+  // —— 6.4 秒里的一天 ——
+  // 午后 τ 0.64 开始，进站时（约 2.5 秒）正是黄昏，停站时天暗下来、车窗灯亮；4.6 秒入夜，5.4–5.9 秒走过夜里和黎明，最后 0.5 秒回到午后。
+  // 首末关键帧差整一天，首尾画面相同
+  const tauAt = dayClock([[0, 0.64], [1.4, 0.69], [3.0, 0.745], [4.6, 0.79], [5.4, 0.86], [5.9, 1.3], [6.4, 1.64]]);
+
+  // —— 电车的速度 ——
+  // 速度占全速的比例：0.4–2.4 秒刹车到停，2.4–4.0 秒停站，4.0–6.0 秒起步回到全速，6.0–6.4 秒匀速接回开头。
+  // 刹车按 v = 1 − t²：开始时轻轻带闸，停住那一下减速度最大、突然归零，车里的人先往前倒、停下时再往回荡；
+  // 起步按 v = 1 − (1 − t)²：一松闸就猛地一拽，人往后仰。走过的路用这两条的积分直接算，不逐帧累加
+  const BRAKE = [0.4, 2.4], START = [4.0, 6.0];
+  const seg = ([a, b], u) => clamp((u - a) / (b - a));
+  const G = u => {
+    const D1 = BRAKE[1] - BRAKE[0], D2 = START[1] - START[0], s1 = seg(BRAKE, u), s2 = seg(START, u);
+    return Math.min(u, BRAKE[0]) + D1 * (s1 - s1 * s1 * s1 / 3) + D2 * (s2 * s2 - s2 * s2 * s2 / 3) + Math.max(0, u - START[1]);
+  };
+  const gAt = u => { const s1 = seg(BRAKE, u), s2 = seg(START, u); return u < START[0] ? 1 - s1 * s1 : 1 - (1 - s2) * (1 - s2); };
+  // 加速度，单位：全速 / 秒
+  const accAt = u => {
+    if (u > BRAKE[0] && u < BRAKE[1]) return -2 * seg(BRAKE, u) / (BRAKE[1] - BRAKE[0]);
+    if (u > START[0] && u < START[1]) return 2 * (1 - seg(START, u)) / (START[1] - START[0]);
+    return 0;
+  };
+  // 一个周期走过的画面距离：近景（电线杆、路面石块）按它重复。停站时正好走过一半；站台宽 400，
+  // DIST 取 960 时周期开头站台还在画面右边外（x0 = 549）、结尾已出左边（x1 = −11），画面里一周期只经过一次
+  const DIST = 960, GT = G(CYC), V0 = DIST / GT;
+  const offAt = u => V0 * G(wrap(u));
+  // 三层视差：近景 1 倍、中景楼 0.78 倍、远景楼 0.36 倍。每层一个周期刚好移过整数个自身的重复宽度，循环接得上
+  const LAYER = { near: 1, mid: 0.78, far: 0.36 };
+
+  // —— 乘客与吊环 ——
+  // 刹车时车里的人往前（+x）倒、起步时往后仰：惯性力 = −加速度。
+  // 站着的人用原作公文包的钟摆 (14, 1.8)，吊环用原作灯笼的钟摆 (10, 1.1)，坐着的人用原作手臂的弹簧 (60, 9)
+  const sway = sim([
+    { type: 'pendulum', k: 14, d: 1.8 },
+    { type: 'pendulum', k: 14, d: 1.8 },
+    { type: 'pendulum', k: 10, d: 1.1 },
+    { type: 'spring', k: 60, d: 9 },
+  ], u => { const f = -accAt(u); return [1.9 * f, 1.6 * f, 2.6 * f, 0.07 * f]; });
+
+  // —— 颜色 ——
+  // 平涂色两种：电车腰带的绿（原作的 #4e8a5a）和站牌的红（原作的 #b3412d），夜里按原作 nightTint() 压暗
+  const GREEN = hx('#4e8a5a'), RED = hx('#b3412d'), RED_NIGHT = hx('#6e2a22');
+  const nightTint = (c, inkT, amt = 0.55) => mc(c, mc(c, [12, 16, 30], 0.6), inkT * amt);
+  // 灯光颜色用原作窗光那一档暖黄；乘客剪影在亮着的车窗前压成深褐（原作屋内的 #3a2c22）
+  const WARM = '255,226,168', LITWIN = hx('#ffd58a'), SIL = hx('#3a2c22');
+  const WARMGLOW = [[0, '255,213,138', 0.75], [0.45, '255,184,92', 0.28], [1, '255,184,92', 0]];
+  let C = null; // 当前帧的 css 颜色；kit 的 pen/shape 用固定 INK/PAPER，夜里会反相，所以用下面两个按 C 画
+  const strokeP = (k, d, w = SP, a = 1) => { k.globalAlpha = a; k.lineWidth = w; k.strokeStyle = C.ink; k.stroke(path(d)); k.globalAlpha = 1; };
+  const shapeP = (k, d, w = SP, col = C.paper) => { const p = path(d); k.fillStyle = col; k.fill(p); k.lineWidth = w; k.strokeStyle = C.ink; k.stroke(p); };
+  const radial = (k, x, y, r, stops, alpha) => {
+    if (alpha < 0.004) return;
+    const g = k.createRadialGradient(x, y, 0, x, y, r);
+    stops.forEach(([o, c, a]) => g.addColorStop(o, `rgba(${c},${a})`));
+    k.globalAlpha = alpha; k.fillStyle = g; k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill(); k.globalAlpha = 1;
+  };
+  // 某一层按偏移 off 平移、每 per 重复一次：对落在画面里的每一份调用 fn(dx)
+  const tiles = (off, per, fn, pad = 40) => {
+    const o = wrap(off, per);
+    for (let x = -o; x < CW + pad; x += per) if (x + per > -pad) fn(x);
+  };
+
+  // —— 天空 ——
+  const HZ = 150; // 街对面人行道的后沿，楼都站在这条线上
+  const STARS = Array.from({ length: 14 }, (_, i) => [8 + rnd(i, 41) * 520, 6 + rnd(i, 42) * 60, 0.5 + rnd(i, 43) * 0.6, 2 + Math.floor(rnd(i, 44) * 7)]);
+  function sky(k, F) {
+    const { P, u, tau } = F;
+    const g = k.createLinearGradient(0, 0, 0, HZ);
+    g.addColorStop(0, css(P.top)); g.addColorStop(1, css(P.bot));
+    k.fillStyle = g; k.fillRect(-2, -2, CW + 4, HZ + 2);
+    if (P.night > 0.01) {
+      k.fillStyle = '#f5efda';
+      STARS.forEach(([x, y, r, n], i) => { k.globalAlpha = P.night * (0.55 + 0.45 * Math.sin(n * W * u + i)); k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill(); });
+      k.globalAlpha = 1;
+    }
+    // 太阳在无穷远，不随镜头平移：沿原作 sky.ts 的弧（τ 0.225 升、0.775 落）落到楼群后面，越近日落越红
+    const s = (tau - 0.225) / 0.55;
+    if (s > -0.05 && s < 1.05) {
+      const x = 40 + 420 * s, y = HZ + 6 - 130 * Math.sin(Math.PI * clamp(s));
+      radial(k, x, y, 44, [[0, '255,217,160', 0.55], [1, '255,217,160', 0]], 0.35 + 0.65 * P.sunset);
+      shapeP(k, oval(x, y, 10, 10), SP, css(mc(hx('#fbf3df'), hx('#df5a3a'), P.sunset)));
+    }
+    // 蛾眉月：画法同 #4-100，入夜后从左边升起
+    if (tau > 0.8 && tau < 1.2) {
+      const m = (tau - 0.8) / 0.4, x = 70 + 160 * m, y = 70 - 44 * Math.sin(Math.PI / 2 * m), r = 6;
+      k.save(); k.translate(x, y); k.rotate(-24 * Math.PI / 180); k.globalAlpha = smooth(0, 0.1, m) * smooth(1, 0.85, m);
+      k.fillStyle = '#f3ecd6'; k.fill(new Path2D(`M0 ${-r} A${r} ${r} 0 1 1 0 ${r} A${r * 0.62} ${r} 0 1 0 0 ${-r}Z`));
+      k.restore();
+    }
+  }
+
+  // —— 远景楼群：淡墨 0.42（原作远山的浓度），一份 252 宽 ——
+  const FAR_PER = DIST * LAYER.far;
+  // 远景楼要比中景楼高，楼顶才露得出来
+  const FAR = [[0, 34, 96], [30, 22, 124, 'tower'], [56, 40, 84], [100, 30, 110], [134, 44, 78], [182, 26, 100, 'tank'], [212, 40, 90]];
+  function farTown(k, off) {
+    k.globalAlpha = 0.42;
+    tiles(off, FAR_PER, dx => {
+      FAR.forEach(([x, w, h, kind]) => {
+        const x0 = dx + x * FAR_PER / 252, x1 = x0 + w, y0 = HZ - h;
+        if (kind === 'tower') {
+          // 钟楼：塔身加尖顶，上面一个圆钟面
+          shapeP(k, `M${x0} ${HZ} L${x0} ${y0 + 14} L${x0 + w / 2} ${y0 - 6} L${x1} ${y0 + 14} L${x1} ${HZ}Z`, SP * 0.8);
+          shapeP(k, oval(x0 + w / 2, y0 + 22, 5, 5), FP);
+        } else {
+          shapeP(k, rect(x0, y0, x1, HZ + 1), SP * 0.8);
+          if (kind === 'tank') shapeP(k, `M${x0 + 6} ${y0} L${x0 + 6} ${y0 - 8} Q${x0 + 11} ${y0 - 12} ${x0 + 16} ${y0 - 8} L${x0 + 16} ${y0}Z`, FP);
+        }
+      });
+    });
+    k.globalAlpha = 1;
+  }
+
+  // —— 中景楼群：一份宽 DIST×0.78，街对面一排两三层的老店铺，立面画法（不画透视）——
+  // [宽, 高, 招牌字, 屋顶样式]；宽按比例铺满一份，免得接缝处空一块
+  const MID_PER = DIST * LAYER.mid;
+  const MID_RAW = [[70, 62, '喫茶', 'flat'], [88, 86, '書店', 'bill'], [58, 56, '薬', 'gable'], [84, 78, '洋品', 'flat'], [72, 70, '時計', 'gable'], [96, 90, '銀行', 'clock'], [86, 64, '菓子', 'flat']];
+  const MID_SUM = MID_RAW.reduce((s, b) => s + b[0], 0);
+  const MID = (() => {
+    let x = 0;
+    return MID_RAW.map(([w, h, sign, roof], i) => {
+      const ww = w * MID_PER / MID_SUM, b = { x0: x, x1: x + ww, h, sign, roof, i };
+      x += ww;
+      // 楼上的窗：每层 22 高，窗按楼宽均分；每扇窗有自己的点灯时刻（阈值 thr 换算成秒），天黑时一扇扇亮
+      b.wins = [];
+      const floors = Math.floor((h - 30) / 22), n = Math.max(2, Math.round(ww / 22));
+      for (let f = 0; f < floors; f++) for (let j = 0; j < n; j++) {
+        const cx = x - ww + ww * (j + 0.5) / n, y0 = HZ - 36 - f * 22 - 12;
+        b.wins.push([cx - 4, y0, cx + 4, y0 + 12, 0.05 + 0.7 * rnd(i * 13 + f * 5 + j, 7)]);
+      }
+      return b;
+    });
+  })();
+  // 楼窗点灯按时间排开：天色在 2.8–3.2 秒里很快变暗，按 P.lamp 阈值会几乎同时亮，所以改成 2.87–4.0 秒一扇扇亮，天亮前 5.48–5.84 秒一扇扇熄
+  const winLit = (u, thr) => smooth(2.8 + 1.4 * thr, 2.95 + 1.4 * thr, u) * smooth(5.85 - 0.3 * thr, 5.7 - 0.3 * thr, u);
+  function midTown(k, F, off) {
+    const { P } = F, u = wrap(F.u);
+    tiles(off, MID_PER, dx => {
+      MID.forEach(b => {
+        const x0 = dx + b.x0, x1 = dx + b.x1, top = HZ - b.h;
+        if (x1 < -4 || x0 > CW + 4) return;
+        shapeP(k, rect(x0, top, x1, HZ + 1));
+        if (b.roof === 'gable') {
+          // 瓦顶的山墙面朝街：两坡加一道屋脊，几道瓦沟
+          const m = (x0 + x1) / 2;
+          shapeP(k, `M${x0 - 3} ${top + 2} L${m} ${top - 14} L${x1 + 3} ${top + 2}Z`);
+          strokeP(k, `M${m - 10} ${top - 8} L${m + 10} ${top - 8} M${x0 + 6} ${top - 2} L${x1 - 6} ${top - 2}`, FP, 0.8);
+        } else {
+          // 女儿墙压顶
+          shapeP(k, rect(x0 - 2, top - 4, x1 + 2, top), FP * 1.4);
+          if (b.roof === 'bill') {
+            // 屋顶广告牌：两根支架顶一块牌子
+            strokeP(k, `M${x0 + 12} ${top - 4} L${x0 + 12} ${top - 12} M${x1 - 12} ${top - 4} L${x1 - 12} ${top - 12}`, FP);
+            shapeP(k, rect(x0 + 6, top - 30, x1 - 6, top - 12));
+            k.fillStyle = C.ink; k.font = `600 12px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+            k.fillText('新刊', (x0 + x1) / 2, top - 21);
+          }
+          if (b.roof === 'clock') {
+            // 银行的钟楼：方塔顶一面圆钟
+            const m = (x0 + x1) / 2;
+            shapeP(k, rect(m - 12, top - 26, m + 12, top - 4));
+            shapeP(k, `M${m - 14} ${top - 26} L${m} ${top - 38} L${m + 14} ${top - 26}Z`, FP * 1.4);
+            shapeP(k, oval(m, top - 15, 7, 7), FP);
+            strokeP(k, `M${m} ${top - 15} L${m} ${top - 20} M${m} ${top - 15} L${m + 4} ${top - 15}`, FP);
+          }
+        }
+        // 楼上的窗：先填窗玻璃（夜里按阈值亮成暖黄），再描窗框和中棂
+        b.wins.forEach(([a, y0, c, y1, thr]) => {
+          if (c + dx < -4 || a + dx > CW + 4) return;
+          const lit = winLit(u, thr);
+          k.fillStyle = css(mc(P.paper, LITWIN, lit * 0.92)); k.fillRect(a + dx, y0, c - a, y1 - y0);
+          strokeP(k, rect(a + dx, y0, c + dx, y1) + `M${a + dx} ${(y0 + y1) / 2} L${c + dx} ${(y0 + y1) / 2}`, FP);
+        });
+        // 一楼店面：遮阳篷、门洞、竖招牌（字用店名）
+        const ay = HZ - 30;
+        shapeP(k, `M${x0 + 3} ${ay - 4} L${x1 - 3} ${ay - 4} L${x1 - 1} ${ay + 4} L${x0 + 1} ${ay + 4}Z`, FP * 1.4);
+        strokeP(k, rect(x0 + 6, ay + 6, x1 - 6, HZ), FP, 0.8);
+        const sx = x0 + 9, len = b.sign.length;
+        shapeP(k, rect(sx - 5, ay - 6 - 13 * len, sx + 5, ay - 6), FP);
+        k.fillStyle = C.ink; k.font = `600 9px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+        for (let c = 0; c < len; c++) k.fillText(b.sign[c], sx, ay - 12.5 - 13 * (len - 1 - c));
+      });
+    });
+  }
+  // 楼窗的光晕放在最后一层，单独画
+  function midGlow(k, F, off) {
+    const u = wrap(F.u);
+    if (u < 2.8 || u > 5.85) return;
+    tiles(off, MID_PER, dx => MID.forEach(b => b.wins.forEach(([a, y0, c, y1, thr]) => {
+      const lit = winLit(u, thr), x = (a + c) / 2 + dx;
+      if (x > -12 && x < CW + 12) radial(k, x, (y0 + y1) / 2, 10, WARMGLOW, lit * 0.45);
+    })));
+  }
+
+  // —— 近景：电线杆、架空线、电车站、路面 ——
+  // 一份宽 DIST，正好是电车一周期走过的路，所以电车站一周期只经过一次
+  const WIRE = 34;                 // 架空线在电线杆处的高度
+  const POLES = [80, 80 + DIST / 2]; // 一份里的两根电线杆（相距 480）
+  const SAG = 5;                   // 两杆之间架空线下垂
+  // 架空线在画面 x 处的高度：杆处最高，两杆中点下垂 SAG
+  const wireY = (x, off) => {
+    const span = DIST / POLES.length, s = wrap(x + off - POLES[0], span) / span;
+    return WIRE + SAG * 4 * s * (1 - s);
+  };
+  function wires(k, off) {
+    let d = '';
+    for (let x = -4; x <= CW + 4; x += 6) d += (x > -4 ? 'L' : 'M') + x + ' ' + wireY(x, off).toFixed(2);
+    strokeP(k, d, FP * 1.5);
+    // 上面一根馈电线，淡一点
+    let e = '';
+    for (let x = -4; x <= CW + 4; x += 6) e += (x > -4 ? 'L' : 'M') + x + ' ' + (wireY(x, off) - 12 + SAG * 0.4).toFixed(2);
+    strokeP(k, e, FP, 0.55);
+  }
+  function poles(k, F, off, lamps) {
+    tiles(off, DIST, dx => POLES.forEach(px => {
+      const x = px + dx;
+      if (x < -20 || x > CW + 20) return;
+      // 木杆立在对面人行道上，顶上横担挂着绝缘子和架空线，杆身中段挂一盏路灯
+      shapeP(k, `M${x - 2.4} ${HZ + 6} L${x - 1.6} ${WIRE - 22} L${x + 1.6} ${WIRE - 22} L${x + 2.4} ${HZ + 6}Z`, SP);
+      shapeP(k, rect(x - 9, WIRE - 16, x + 9, WIRE - 13), FP);
+      strokeP(k, `M${x} ${WIRE - 13} L${x} ${WIRE} M${x - 6} ${WIRE - 13} L${x - 6} ${WIRE - 10}`, FP);
+      shapeP(k, oval(x, WIRE - 1, 1.8, 1.8), FP);
+      strokeP(k, `M${x} 70 Q${x + 10} 64 ${x + 16} 70`, FP * 1.4);
+      shapeP(k, `M${x + 11} ${70} L${x + 21} ${70} L${x + 19} ${75} L${x + 13} ${75}Z`, FP);
+      lamps.push([x + 16, 75]);
+    }));
+  }
+  function road(k, F, off) {
+    const { P } = F;
+    // 路面铺纸色，对面人行道略深一点
+    k.fillStyle = C.paper; k.fillRect(-2, HZ, CW + 4, CH - HZ + 2);
+    k.fillStyle = css(mc(P.paper, P.ink, 0.04)); k.fillRect(-2, HZ, CW + 4, 8);
+    strokeP(k, `M-2 ${HZ + 8} L${CW + 2} ${HZ + 8}`, SP);
+    // 路面的石块：几排固定位置的短线，跟近景一起走
+    tiles(off, DIST, dx => {
+      let d = '';
+      for (let r = 0; r < 5; r++) {
+        const y = 164 + r * 7 + (r > 2 ? 9 : 0);
+        for (let i = 0; i < 26; i++) {
+          const x = dx + i * (DIST / 26) + rnd(r, i) * 14 - r * 5;
+          if (x > -20 && x < CW + 20) d += `M${x.toFixed(1)} ${y} L${(x + 6 + rnd(i, r + 9) * 8).toFixed(1)} ${y}`;
+        }
+      }
+      strokeP(k, d, FP, 0.45);
+    }, 30);
+    // 远轨在车下，近轨两道（轨头和轨腰），接缝每 DIST/12 一处
+    strokeP(k, `M-2 179 L${CW + 2} 179`, FP, 0.7);
+    strokeP(k, `M-2 186 L${CW + 2} 186 M-2 188.4 L${CW + 2} 188.4`, SP);
+    tiles(off, DIST / 12, dx => strokeP(k, `M${dx} 186 L${dx} 188.4`, FP), 4);
+    // 近处路缘和人行道
+    strokeP(k, `M-2 202 L${CW + 2} 202`, SP);
+  }
+
+  // —— 电车站 ——
+  // 近侧路边一座低矮的安全岛站台：红色圆站牌、长椅和顶棚。电车停住时车门正对站台中间。
+  // 站台只此一座：周期开头在画面右边外，停车时在车门前，周期结尾在左边外，循环接得上
+  const TRAM = { x0: 118, x1: 432, top: 88, bot: 174, win0: 98, win1: 138 };
+  const DOORS = [[156, 182], [356, 382]];
+  const STOP_OFF = V0 * G(BRAKE[1]);                           // 停站时近景的偏移
+  const STOP_W = (DOORS[0][0] + DOORS[1][1]) / 2 + STOP_OFF;  // 站台中心在世界里的位置
+  function station(k, F, off) {
+    // 站台按近景的重复宽度 DIST 重复，周期首尾那一份都在画面外
+    tiles(off - STOP_W + 200, DIST, x0 => stationAt(k, x0, x0 + 400), 40);
+  }
+  function stationAt(k, x0, x1) {
+    // 站台：顶面一条、前沿一条，几道铺石缝
+    shapeP(k, rect(x0, 190, x1, 204));
+    strokeP(k, `M${x0} 193 L${x1} 193`, FP);
+    let d = '';
+    for (let i = 1; i < 16; i++) d += `M${x0 + i * 25} 193 L${x0 + i * 25 - 2} 204`;
+    strokeP(k, d, FP, 0.6);
+    // 站牌：红色圆牌，写站名；立在车尾后面（停车时不挡车窗，也让开 x = 80 的电线杆）
+    const sx = x0 + 32;
+    shapeP(k, rect(sx - 1.2, 132, sx + 1.2, 190), FP);
+    shapeP(k, oval(sx, 128, 10, 10), SP, C.red);
+    k.fillStyle = C.paper; k.font = `600 9px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+    k.fillText('停', sx, 128.5);
+    shapeP(k, rect(sx - 9, 141, sx + 9, 152), FP);
+    k.fillStyle = C.ink; k.font = `600 7px ${JP}`;
+    k.fillText('本町', sx, 146.8);
+    // 右端一张长椅，在车头前面
+    const bx = x1 - 14;
+    shapeP(k, rect(bx - 14, 176, bx + 14, 179), FP * 1.4);
+    strokeP(k, `M${bx - 11} 179 L${bx - 11} 190 M${bx + 11} 179 L${bx + 11} 190 M${bx - 14} 170 L${bx + 14} 170 M${bx - 12} 170 L${bx - 12} 176 M${bx + 12} 170 L${bx + 12} 176`, FP * 1.4);
+  }
+
+  // —— 电车 ——
+  // 侧面立面图：拱形车顶、一排车窗、两扇折门，车窗下一条绿腰带；车头朝右（行进方向），车头灯和前窗上的行先牌。
+  // 车轮 r = 6：一周期转过的角度 DIST/r 取成 4 根辐条间隔（π/2）的整数倍，循环时车轮花样接得上
+  const WHEEL_R = DIST / (Math.round(DIST / 6 / (Math.PI / 2)) * (Math.PI / 2));
+  const WHEELS = [150, 178, 372, 400];
+  const SEATS = [[206, 0], [238, 1], [286, 2], [318, 3]];        // 坐着的乘客（x、样子）
+  const STANDS = [[262, 0], [336, 1]];                         // 站着拉吊环的乘客
+  const STRAPS = [200, 224, 248, 272, 296, 320, 344];
+  const WINS = (() => {
+    // 车窗按门分成三段，每段均分
+    const segs = [[TRAM.x0 + 10, DOORS[0][0] - 4, 1], [DOORS[0][1] + 4, DOORS[1][0] - 4, 6], [DOORS[1][1] + 4, TRAM.x1 - 16, 1]], out = [];
+    segs.forEach(([a, b, n]) => { const w = (b - a) / n; for (let i = 0; i < n; i++) out.push([a + i * w + 2, a + (i + 1) * w - 2]); });
+    return out;
+  })();
+  // 车窗玻璃的形状（裁剪乘客用）
+  const GLASS = (() => {
+    let d = '';
+    WINS.forEach(([a, b]) => { d += rect(a, TRAM.win0, b, TRAM.win1); });
+    DOORS.forEach(([a, b]) => { d += rect(a + 3, TRAM.win0, b - 3, TRAM.win1); });
+    return d;
+  })();
+  // 乘客：头加肩膀，不画脸；样子 0–3 分别是礼帽、短发、发髻、鸭舌帽。a 是绕脚（车厢地板）的倾角
+  function rider(k, x, footY, a, look, F, lit) {
+    const S = c => rot(c, [x, footY], a);
+    const head = S([x, footY - 46]), neck = S([x, footY - 39]), sh = S([x, footY - 36]);
+    const col = lit > 0.02 ? css(mc(F.P.paper, SIL, lit * 0.85)) : C.paper;
+    // 肩膀和上身：一个纸色（夜里亮窗前是深褐剪影）的梯形
+    const L = S([x - 8, footY - 34]), R = S([x + 8, footY - 34]), LB = S([x - 10, footY - 14]), RB = S([x + 10, footY - 14]);
+    shapeP(k, `M${pt(LB)} L${pt(L)} Q${pt(neck)} ${pt(S([x, footY - 37]))} ${pt(R)} L${pt(RB)}Z`, FP * 1.4, col);
+    k.save(); k.translate(head[0], head[1]); k.rotate(a);
+    shapeP(k, oval(0, 0, 3.8, 4.8), FP * 1.4, col);
+    k.fillStyle = C.ink;
+    if (look === 0) k.fill(new Path2D('M-6 -3 L6 -3 Q4 -4.4 3.8 -7.4 Q0 -10 -3.8 -7.4 Q-4 -4.4 -6 -3Z'));
+    else if (look === 1) k.fill(new Path2D('M-3.9 -0.6 Q-4.4 -5.4 0 -5.2 Q4.4 -5.4 3.9 -0.6 Q2.4 -3.4 -3.9 -0.6Z'));
+    else if (look === 2) { k.fill(new Path2D('M-3.9 0 Q-4.4 -5.4 0 -5.2 Q4.4 -5.4 3.9 0 Q1 -3.6 -3.9 0Z')); k.beginPath(); k.arc(-3.2, -4.6, 2.4, 0, TAU); k.fill(); }
+    else k.fill(new Path2D('M-4 -1.4 Q-4 -5.8 0.4 -5.6 Q4 -5.4 4 -2.2 L7.4 -1.6 L7 -0.6 L-4 -0.8Z'));
+    k.restore();
+    return { sh };
+  }
+  function tram(k, F, st) {
+    const { P } = F, b = st.bob, T = TRAM;
+    k.save(); k.translate(0, b);
+    // 车顶：拱顶加一条通风顶
+    shapeP(k, `M${T.x0} ${T.top} Q${T.x0 + 4} ${T.top - 8} ${T.x0 + 20} ${T.top - 8} L${T.x1 - 20} ${T.top - 8} Q${T.x1 - 4} ${T.top - 8} ${T.x1} ${T.top}Z`);
+    shapeP(k, rect(T.x0 + 70, T.top - 12, T.x1 - 70, T.top - 8), FP);
+    // 车身
+    shapeP(k, `M${T.x0} ${T.top} L${T.x1} ${T.top} Q${T.x1 + 8} ${T.top + 30} ${T.x1 + 6} ${T.bot} L${T.x0 - 2} ${T.bot} Q${T.x0 - 4} ${T.top + 30} ${T.x0} ${T.top}Z`);
+    // 车窗：先填玻璃（白天淡灰、天黑后暖黄），乘客画在玻璃里，再描窗框
+    const lit = st.lit;
+    k.fillStyle = css(mc(mc(P.paper, hx('#dfe4e2'), 0.5), LITWIN, lit * 0.95));
+    k.fill(path(GLASS));
+    k.save(); k.clip(path(GLASS));
+    const tilt = st.sway;
+    // 吊环：挂在车顶的扶杆上，按钟摆朝刹车方向甩
+    strokeP(k, `M${T.x0 + 40} ${T.win0 + 3} L${T.x1 - 40} ${T.win0 + 3}`, FP);
+    STRAPS.forEach((x, i) => {
+      const a = tilt[2] * (1 + 0.08 * (i % 3)), e = rot([x, T.win0 + 14], [x, T.win0 + 3], -a);
+      strokeP(k, `M${x} ${T.win0 + 3} L${pt(e)}`, FP);
+      strokeP(k, oval(e[0], e[1] + 2.4, 2.4, 2.4), FP);
+    });
+    SEATS.forEach(([x, look], i) => rider(k, x + 40 * tilt[3] * (1 + 0.15 * i), 168, 0.02 * Math.sin(i), look, F, lit));
+    STANDS.forEach(([x, look], i) => {
+      const a = tilt[i];
+      const r = rider(k, x, 156, a, look, F, lit);
+      // 拉着吊环的那只手：从肩膀伸到头顶的吊环
+      const ring = rot([x + 4, T.win0 + 16], [x + 4, T.win0 + 3], -tilt[2]);
+      strokeP(k, `M${pt(r.sh)} Q${x + 8} ${T.win0 + 28} ${pt(ring)}`, SP * 1.6);
+    });
+    k.restore();
+    let d = '';
+    WINS.forEach(([a, c]) => { d += rect(a, T.win0, c, T.win1) + `M${a} ${T.win0 + 12} L${c} ${T.win0 + 12}`; });
+    strokeP(k, d, FP * 1.4);
+    // 折门：停站时两扇门板向两边收拢
+    DOORS.forEach(([a, c]) => {
+      const o = st.door * 9, m = (a + c) / 2;
+      strokeP(k, rect(a, T.win0 - 2, c, T.bot), SP);
+      if (st.door > 0.01) {
+        k.fillStyle = css(mc(P.paper, LITWIN, lit * 0.7)); k.fillRect(m - o, T.win1, 2 * o, T.bot - T.win1);
+      }
+      strokeP(k, rect(a + 3, T.win0, m - 1 - o, T.bot - 3) + rect(m + 1 + o, T.win0, c - 3, T.bot - 3), FP);
+      strokeP(k, `M${a + 3} ${T.win1} L${m - 1 - o} ${T.win1} M${m + 1 + o} ${T.win1} L${c - 3} ${T.win1}`, FP);
+    });
+    // 腰带（绿）和车号
+    const belt = s => `M${s[0]} 144 L${s[1]} 144 L${s[1]} 152 L${s[0]} 152Z`;
+    [[T.x0 - 3, DOORS[0][0]], [DOORS[0][1], DOORS[1][0]], [DOORS[1][1], T.x1 + 7]].forEach(s => shapeP(k, belt(s), FP, C.green));
+    k.fillStyle = C.paper; k.font = `600 7px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+    k.fillText('103', 270, 148.5);
+    strokeP(k, `M${T.x0 - 3} 166 L${T.x1 + 7} 166`, FP);
+    // 车头：行先牌、车头灯
+    shapeP(k, rect(T.x1 - 34, T.top + 1, T.x1 - 6, T.top + 9), FP);
+    k.fillStyle = C.ink; k.font = `600 7px ${JP}`; k.fillText('駅前', T.x1 - 20, T.top + 5.4);
+    shapeP(k, oval(T.x1 + 6, 158, 2.6, 3), FP, css(mc(P.paper, hx('#fff1c2'), st.head)));
+    // 台车与车轮：轮子转，辐条按走过的路转动
+    WHEELS.forEach(x => {
+      const a = st.off / WHEEL_R;
+      shapeP(k, oval(x, 180, WHEEL_R, WHEEL_R), SP);
+      const c = Math.cos(a) * (WHEEL_R - 1.6), s = Math.sin(a) * (WHEEL_R - 1.6);
+      strokeP(k, `M${x - c} ${180 - s} L${x + c} ${180 + s} M${x + s} ${180 - c} L${x - s} ${180 + c}`, FP);
+    });
+    shapeP(k, rect(140, 172, 188, 178) + rect(362, 172, 410, 178), FP);
+    shapeP(k, rect(T.x0 - 4, T.bot, T.x1 + 8, T.bot + 3), FP);
+    k.restore();
+  }
+  // 集电杆：根部铰在车顶后部，弹簧把它往上顶，杆头的滑轮贴着架空线走。架空线在两杆之间下垂，杆的角度跟着变
+  const POLE_L = 66, POLE_B = [TRAM.x0 + 64, TRAM.top - 12];
+  function trolley(k, F, st, off) {
+    const base = [POLE_B[0], POLE_B[1] + st.bob];
+    // 解杆头位置：杆头在架空线上，迭代三次就收敛（下垂很缓）
+    let y = wireY(base[0] - 50, off), x = base[0];
+    for (let i = 0; i < 3; i++) { const dy = base[1] - y; x = base[0] - Math.sqrt(Math.max(1, POLE_L * POLE_L - dy * dy)); y = wireY(x, off); }
+    const tip = [x, y + 1.6];
+    shapeP(k, rect(base[0] - 6, base[1] - 3, base[0] + 6, base[1]), FP);
+    strokeP(k, `M${pt(base)} L${pt(tip)}`, SP * 1.3);
+    // 拉绳从杆头垂到车尾
+    strokeP(k, `M${pt(tip)} Q${tip[0] - 4} ${tip[1] + 40} ${TRAM.x0 + 2} ${TRAM.top + 4 + st.bob}`, FP, 0.7);
+    shapeP(k, oval(tip[0], tip[1], 2, 2), FP);
+    return tip;
+  }
+
+  // 车厢灯：停站后天快黑时打开（开灯时闪一下），天亮时关掉；车头灯同一时刻开关
+  const roomOn = u => smooth(2.9, 2.96, u) * (1 - 0.8 * smooth(2.99, 3.01, u) * smooth(3.07, 3.05, u)) * smooth(5.88, 5.78, u);
+  // 停站时开门：停稳 0.2 秒后开，起步前 0.2 秒关
+  const doorAt = u => smooth(BRAKE[1] + 0.2, BRAKE[1] + 0.5, u) * smooth(START[0] - 0.2, START[0] - 0.5, u);
+  // 车身随轨缝一跳一跳：每过一道轨缝前后两个轮轴各压一下，跳动随车速减小，停住时不动
+  const JOINT = DIST / 12;
+  const bobAt = (off, g) => {
+    const p = wrap(off, JOINT) / JOINT, q = wrap(off + 28, JOINT) / JOINT;
+    return 0.7 * g * (Math.exp(-Math.pow((p - 0.5) * 14, 2)) + Math.exp(-Math.pow((q - 0.5) * 14, 2)));
+  };
+
+  CELLS[9] = (k, w, h, u) => {
+    const tau = wrap(tauAt(u), 1), P = palette(tau);
+    const F = { u, tau, P };
+    C = { paper: css(P.paper), ink: css(P.ink), green: css(nightTint(GREEN, P.inkT)), red: css(mc(RED, RED_NIGHT, P.inkT)) };
+    const off = offAt(u), g = gAt(wrap(u)), on = roomOn(wrap(u));
+    const st = {
+      off, sway: sway(u), door: doorAt(wrap(u)), bob: bobAt(off, g),
+      lit: on * (0.45 + 0.55 * P.lamp), head: on,
+    };
+    k.save();
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    sky(k, F);
+    farTown(k, off * LAYER.far);
+    midTown(k, F, off * LAYER.mid);
+    const lamps = [];
+    poles(k, F, off, lamps);
+    wires(k, off);
+    road(k, F, off);
+    trolley(k, F, st, off);
+    tram(k, F, st);
+    station(k, F, off);
+    // —— 光（都画在最上面，同原作的 glow 层）——
+    midGlow(k, F, off * LAYER.mid);
+    const sl = smooth(0.25, 0.5, P.lamp);
+    lamps.forEach(([x, y]) => {
+      // 路灯：灯罩下一个上浓下淡的暖色光锥（同 #4-100），加灯口光晕
+      if (sl > 0.01) {
+        const gc = k.createLinearGradient(0, y, 0, HZ + 6);
+        gc.addColorStop(0, `rgba(${WARM},0.5)`); gc.addColorStop(1, `rgba(${WARM},0.04)`);
+        k.globalAlpha = sl * 0.7; k.fillStyle = gc; k.fill(new Path2D(`M${x - 4} ${y} L${x + 4} ${y} L${x + 20} ${HZ + 6} L${x - 20} ${HZ + 6}Z`)); k.globalAlpha = 1;
+      }
+      radial(k, x, y, 16, WARMGLOW, sl * 0.8);
+    });
+    // 车窗往外透的光：车身周围一圈很淡的暖光，车头灯在前面路上照出一小片
+    if (st.lit > 0.01) {
+      k.save(); k.translate(275, 118 + st.bob); k.scale(170, 34); radial(k, 0, 0, 1, WARMGLOW, st.lit * 0.35 * P.lamp); k.restore();
+      radial(k, TRAM.x1 + 7, 158 + st.bob, 18, WARMGLOW, st.head * (0.4 + 0.6 * P.lamp));
+      k.save(); k.translate(TRAM.x1 + 40, 186); k.scale(36, 5); radial(k, 0, 0, 1, WARMGLOW, st.head * P.lamp * 0.6); k.restore();
+    }
+    k.restore();
+  };
+}

@@ -1,0 +1,17 @@
+Please use "Ink mountain waterfall" (墨線の山あいの滝), filed under "Animation styles / Flat & line".
+Motion Prompt #4-103
+
+What it is: A line-art mountain waterfall: bands of cloud drift across pale-ink ridges as the morning mist clears, vertical ink lines pour down into a pool that spreads rings and spray, and a person carrying firewood walks along the mountain path
+What the sample shows: Three layers of pale-ink ridges, with clumps of lobed clouds trailing curled tails drifting between them and a sea of cloud along the middle foothills. A waterfall drops from a notch in the right-hand cliff: seven vertical ink lines whose dashes run downward, faster and longer towards the bottom. Rings keep spreading from where it lands, with a few small rings elsewhere on the pool; drops of spray jump and fall back, mist rises and fades, and ripple lines drift left. A pine and a standing rock are on the left, and a ledge path runs below the cliff. Rocks are split into angular faces with short texture strokes on the shaded side and moss dots, and the pine needles are layered fan-shaped tufts. A person in a straw hat with a back basket steps out from behind the rock, walks along the path and goes around behind the cliff. At first a morning mist whitens the ridges; it clears in about three seconds, leaving thin haze at the foot of each ridge.
+Spec:
+- The far ridges are 3 layers at ink strength 0.26, 0.42 and 0.65 (the original sky.ts far hills use 0.42). Each layer is filled with paper, so nearer ridges hide the lines of farther ridges. Clouds are clumps of 5 or 7 overlapping arcs with curls inside and 2–3 tapering tails. Each band repeats every 108 or 216 px and moves exactly that far in 1 cycle; the cloud sea at the foothills moves 135 px.
+- The waterfall is 7 vertical dashed lines. The fall parameter advances at a constant rate (about 1.25 s from top to bottom), so dashes move faster and stretch longer lower down. Each line moves a whole number of dashes in 1 cycle, so the loop matches up.
+- Rings follow the original canal.ts ellipse rx=(2+12t)·1.5, ry=(0.6+2.2t)·1.5, fade over 1.6 s and start every 0.4 s where the water lands. There are 5 small rings elsewhere (0.6 size). 16 ripple lines drift left at 4–9 units per second, and the water colour is mix(paper, #bfd0d8, 0.32).
+- Spray is 12 drops on parabolas (gravity 220). The mist uses the original critters.ts smoke: a wobbly circle of 14 points whose radius grows 2.2 per second; one puff starts every 0.8 s and is gone after 3.2 s.
+- The person uses the original gait.ts walk, 6 gait cycles per loop (1.07 s each), scale 0.52, leaning 5°. The arm uses the original spring (60, 9) and the back basket the original default spring (40, 6). They step out from behind the rock at about 1–2 s and go behind the cliff at 5–6 s.
+- The morning mist clears over 0.3–2.8 s and rolls back in over 5.4–6.4 s to join the start. Flat colour is limited to 2: the straw hat #e6cf8e and the red sash #b3412d.
+When to use it: Use it for nature, travel, hiking, calm and steady flow, or as an East Asian–style scene change or waiting screen.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-103.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

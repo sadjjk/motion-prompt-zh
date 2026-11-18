@@ -1,0 +1,16 @@
+Please use "Calico cat on a bench" (縁台の三毛猫), filed under "Shapes & objects / Figures & animals".
+Motion Prompt #2-136
+
+What it is: A calico cat drawn in one fine ink line on warm paper, gliding between a few keyed poses and kept alive by breathing, a flick of the tail tip and a twitch of the ear
+What the sample shows: A calico cat sits on a bench with a red seat, a teacup beside it. It stretches forward with its tail up, sits back, lifts a paw and licks it three times, then settles.
+Spec:
+- Warm paper #fdfcf8 and ink #1c1c1c with two flat colours: the bench seat in red #b3412d and the cat's back patch and tail in orange #d08a4a; a black patch on the hip and the top of the head. Fixed camera, ground line 186 px down.
+- The bench is about 320 px wide: red seat, a rail under it, two pairs of legs with a stretcher and a teacup; the cat sits on its left half and is about 90 px tall when sitting.
+- The cat is a closed paper body through chest, shoulder, back and hip, single-stroke front legs ending in ink-ringed paw ovals, and a small oval head with two ears, closed or open dot eyes and whiskers.
+- Poses blend in order sit, stretch at 0.7 s, sit at 2.2 s, then paw licks at 2.8, 3.6 and 4.4 s with a sit between each, and sit from 4.85 s to 6.4 s; each change eases in over the first 1/1.6 of its slot and then holds.
+- Breathing lifts shoulder, back and hip by up to 0.35, 0.42 and 0.21 units, 2 breaths per loop; the tail tip flicks at 1.6 s and 5.3 s and fades over 0.625 s, the left ear twitches at 3.3 s and recovers in 0.33 s, so 0 s and 6.4 s match.
+When to use it: Use it for relaxed waiting and loading screens, stories about town and everyday life, pets and animals, or empty states that want a hand-drawn warmth.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-136.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

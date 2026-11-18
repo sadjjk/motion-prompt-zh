@@ -1,0 +1,16 @@
+Please use "Teahouse by the stream" (川辺の茶屋), filed under "Animation styles / Flat & line".
+Motion Prompt #4-106
+
+What it is: A teahouse under a pine and a red-railed arched bridge built up layer by layer: ink lines, then paper fills, then flat colour, then light; night falls, the windows glow, and it fades back to blank paper
+What the sample shows: On blank paper the ink lines grow stroke by stroke in order: pale-ink hills, both banks, the pine, the teahouse, the arched bridge, the stone lantern, the water. When the drawing is done, the hill ridge and the pine trunk still show through the teahouse roof and wall. Paper colour is then laid from the back layer forward, the sky takes its tint and the hidden lines vanish, so the overlaps read. The pine's needle clusters turn green one at a time, and finally the rail and posts are brushed red from the left. Dusk falls: the paper turns indigo, the ink pale, the teahouse's round window and the lantern's light box glow warm and stars twinkle. Last, paper colour covers everything and it is blank again.
+Spec:
+- Timeline: ink lines draw at 0.1–1.95 s, paper fills at 2.0–3.0 s, flat colour at 3.0–3.95 s, dusk at 4.0–5.0 s, fade to blank paper at 5.4–6.3 s; the last 0.1 s is blank paper and joins 0 s.
+- The ink is split into 7 layers from back to front, 256 strokes in all, laid out by length; neighbouring strokes overlap by 0.12 of the whole so several draw at once. Each stroke is revealed by sliding a dash as long as the line.
+- Paper colour starts on the 7 layers one after another over 0.7 s from the back, 0.3 s per layer. Flat colour is 6 blocks (5 pine clusters and 1 rail block), 0.22 s each, brushed from the left.
+- Flat colour is limited to 2: the rail red #b3412d and the pine green #6f8455, darkened at night by the original nightTint() amount. Colours follow the original daynight.ts ramps from τ 0.5 to 0.92, and ink inverts from #1c1c1c to #efe6cf.
+- Light comes from 2 places, the round window and the lantern's light box, in the original window colour #ffd58a. Line widths: main 1.1, detail 0.6, far hills at the original pale ink 0.42.
+When to use it: Use it for explaining a process step by step, going from sketch to finished work, how layers stack up, loading or generation progress, or how a design is put together.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-106.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

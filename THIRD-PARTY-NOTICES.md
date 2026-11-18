@@ -526,6 +526,39 @@ the line `MIT License (c) 2026 Lorenzo Cabra`. The license notice:
 > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 > SOFTWARE.
 
+## line-art-animation by Dhruv Jaradi (pack `lineart`)
+
+The elements `2-133`–`2-139` and `4-100`–`4-106` in `packs/lineart/` are Canvas 2D adaptations of the SVG library and
+examples of [line-art-animation](https://github.com/JDhruv14/line-art-animation) by Dhruv Jaradi
+(https://jdhruv.dev): the ink helpers (`lib/ink.ts`), the gait solver (`lib/gait.ts`), the springs and pendulums
+(`lib/motion.ts`) and the day–night ramps (`lib/daynight.ts`) are ported to Canvas 2D, and the figures, animals and
+street of `examples/walker` and `examples/village` are recomposed for a 539 × 208 card. The scenes `4-101`–`4-106`
+are new compositions drawn with the same helpers and style rules. Clicks and pointer wind are replaced by timed
+events, every element loops seamlessly and is drawn without randomness. Each element carries the line
+`MIT License (c) 2026 JDhruv14`. The license notice:
+
+> MIT License
+>
+> Copyright (c) 2026 JDhruv14
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat

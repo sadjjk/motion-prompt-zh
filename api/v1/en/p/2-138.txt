@@ -1,0 +1,16 @@
+Please use "Koi leaping from the canal" (錦鯉の跳ね), filed under "Shapes & objects / Figures & animals".
+Motion Prompt #2-138
+
+What it is: A line-art canal in fine ink on warm paper: a koi leaps out once, leaves a splash and spreading rings, and the water settles back to calm
+What the sample shows: Under a mossy stone canal wall, ink ripple lines drift slowly on the water. A white koi with vermilion patches comes up faintly from below, leaps in an arc and goes back in head first; drops fly as it leaves and lands, rings spread and fade, and the water is calm again.
+Spec:
+- Warm paper #fdfcf8 and ink #1c1c1c; a canal wall of coping stones, two masonry courses and hanging moss sits above water tinted with 32% of #bfd0d8. The scene is drawn in the original's units and enlarged 2.3 times; the view does not move.
+- Ink ripple lines in 9 rows drift right at 4–9 units per second, fading in and out over the first and last 1/5 of a 6.4 s life, with staggered starts so the water looks evenly lined at every moment.
+- The koi has a cream body #f4ede0 with three vermilion #d4552f patches, a paper fin and an ink eye. From 0.5 s it swims up under the water at 40% strength, cut off at the surface line.
+- At 2.4 s it leaps: over 1.1 s it moves 30 units forward on an arc 26 units high, its body follows the arc so it turns head-down, and the tail beats. 4 drops fly off as it leaves and 7 as it lands, under the same gravity as the arc.
+- Ripples are ellipses that grow 12 units per second wide and 2.2 tall and fade over 1.6 s, 0.22 s apart: 2 at take-off, 2 from dripping water, 3 at 1.2 times size on landing at 3.5 s, plus 3 small stray rings. The koi has faded below by 5.1 s and every ring by 6.0 s.
+When to use it: Use it for Japanese-flavoured onboarding or loading screens, stories about seasons and waterside life, or a calm page that wants one moment of movement.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-138.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

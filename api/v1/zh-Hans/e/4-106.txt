@@ -1,0 +1,321 @@
+// Motion Prompt #4-106 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// 溪边茶屋 / Teahouse by the stream
+// 分类: 审美风格 / 动画画风 / 平面与线条
+// 动画表现: 白纸上，墨线按远处淡墨山、两岸、松树、茶屋、拱桥、石灯笼、水面的顺序一笔笔伸出来；描完时山脊线、松树干还透过茶屋的屋顶和墙露着。接着从最后面那层开始往前铺纸色，天空染上颜色，被挡住的线消失，前后关系一下子清楚了。松针一簇簇变绿，最后栏杆和望柱从左往右刷成红色。天黑下来，纸变成靛蓝、墨变成浅色，茶屋的圆窗和石灯笼的火袋亮起暖光，星星闪烁。最后纸色盖满整幅，回到白纸。
+// 运动规格:
+//   - 时间线：0.1–1.95 秒描墨线，2.0–3.0 秒铺纸色，3.0–3.95 秒平涂，4.0–5.0 秒天黑，5.4–6.3 秒淡回白纸，最后 0.1 秒是白纸，与 0 秒相接。
+//   - 墨线从后往前分 7 层，共 256 笔，按长度排开，相邻的笔互相搭全程的 0.12，几笔同时在走。每笔用和线长一样长的虚线错开来画出。
+//   - 纸色 7 层从最后面起在 0.7 秒内依次开始，每层 0.3 秒铺满。平涂共 6 块（松针 5 簇、栏杆 1 块），每块 0.22 秒，从左往右刷。
+//   - 平涂色只有 2 种：栏杆的红 #b3412d 和松针的绿 #6f8455，夜里按原作 nightTint() 的比例压暗。配色用原作 daynight.ts 的色带，τ 从 0.5 走到 0.92，墨色从 #1c1c1c 反相到 #efe6cf。
+//   - 灯光 2 处：圆窗和石灯笼的火袋，颜色是原作窗灯的 #ffd58a。线宽主线 1.1、细节 0.6，远山用原作的淡墨 0.42。
+// 适用场景: 适合讲制作步骤、从草稿到成品、图层叠加的原理、加载或生成进度，或展示一个设计是怎么搭起来的。
+// 标签: line-art, ink, drawing, layers, reveal, day-night, teahouse
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-106
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 14
+// 溪边茶屋：原作没有这类演示，这里按原作 style.md 的分层画法（墨线 → 纸色遮挡 → 平涂 → 光）新编一幅「松下小亭、红栏拱桥、石灯笼」，
+// 让这几层一层层叠出来：先逐笔描线（后面的线先描、此时还透着），再铺纸色把被挡住的线盖掉，再一块块铺平涂色，最后天黑点灯，复位段淡回白纸
+{
+  // 主线约 1 px、细节线按原作 0.4–0.6 倍、远山淡墨 0.42，与 #4-101、#4-104 一致
+  const SP = 1.1, FP = 0.6, FAR = 0.42;
+  const W = TAU / CYC; // 一周期一圈的角速度，星星闪烁取它的整数倍
+
+  // —— 时间线（秒）——
+  // 描线 0.1–1.95；纸色 2.0–3.0（各图层由后往前错开）；平涂 3.0–3.95；天黑 4.0–5.0；淡回白纸 5.4–6.3
+  const T = { line0: 0.1, line1: 1.95, fill0: 2.0, fill1: 2.7, fillD: 0.3, paint0: 3.0, paint1: 3.72, paintD: 0.22, dusk0: 4.0, dusk1: 5.0, out0: 5.4, out1: 6.3 };
+  // 天色：正午 τ 0.5 一直到 4 秒，再在 1 秒里走过黄昏到夜里 τ 0.92（原作 daynight.ts 的色带，用 kit 的 palette）
+  const tauAt = u => 0.5 + 0.42 * smooth(T.dusk0, T.dusk1, u);
+  // 每条线在描线段里占的那一截：按线长依次排开，相邻的线互相搭一点（OV），像几支笔接力，不会一条条干等
+  const OV = 0.12;
+
+  // —— 几何工具 ——
+  // 所有线都先做成折线点列：线长好算（描线进度要用），也方便加一点固定的手抖
+  const qb = (a, c, b, n = 10) => {
+    const o = [];
+    for (let i = 0; i <= n; i++) { const t = i / n, s = 1 - t; o.push([s * s * a[0] + 2 * s * t * c[0] + t * t * b[0], s * s * a[1] + 2 * s * t * c[1] + t * t * b[1]]); }
+    return o;
+  };
+  // 首尾相接的几段折线拼成一条（后一段的起点就是前一段的终点，去掉重复点）
+  const cat = (...ps) => ps.reduce((o, p) => o.concat(o.length ? p.slice(1) : p), []);
+  const rectP = (x0, y0, x1, y1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+  const ovalP = (cx, cy, rx, ry, n = 20) => Array.from({ length: n }, (_, i) => [cx + rx * Math.cos(TAU * i / n), cy + ry * Math.sin(TAU * i / n)]);
+  const fillPath = pts => { const p = new Path2D(); pts.forEach(([x, y], i) => (i ? p.lineTo(x, y) : p.moveTo(x, y))); p.closePath(); return p; };
+  // 长于 8 px 的段先细分，再沿弧长加两个慢正弦的偏移（≤0.28 px），直线也带一点原作 inkDefs() 那种墨线的抖
+  let SEED = 0;
+  function inkStroke(src, w, a) {
+    const pts = [];
+    src.forEach((q, i) => {
+      if (i) { const pr = src[i - 1], n = Math.ceil(Math.hypot(q[0] - pr[0], q[1] - pr[1]) / 8); for (let j = 1; j < n; j++) pts.push(lerpP(pr, q, j / n)); }
+      pts.push(q);
+    });
+    const sd = ++SEED, p = new Path2D();
+    let len = 0;
+    pts.forEach(([x, y], i) => {
+      if (i) len += Math.hypot(x - pts[i - 1][0], y - pts[i - 1][1]);
+      const dx = 0.28 * Math.sin(len * 0.21 + sd * 1.7), dy = 0.28 * Math.sin(len * 0.17 + sd * 2.3 + 1);
+      if (i) p.lineTo(x + dx, y + dy); else p.moveTo(x + dx, y + dy);
+    });
+    // D 是虚线的一节：比折线长稍长一点，抖动多出来的长度也盖得住
+    return { p, len, w, a, D: len * 1.03 + 1 };
+  }
+
+  // —— 图层 ——
+  // 场景按「从后往前」分成若干图层；每层有纸色填充、平涂块、墨线三样，画的时候也按这个顺序叠
+  const LAYERS = [];
+  let L = null;
+  const layer = () => { L = { fills: [], paints: [], strokes: [], win: null }; LAYERS.push(L); };
+  const ln = (pts, w = SP, a = 1) => L.strokes.push(inkStroke(pts, w, a));
+  // 闭合的物件：纸色填充 + 一圈墨线
+  const sh = (pts, w = SP, a = 1) => { L.fills.push(fillPath(pts)); ln(pts.concat([pts[0]]), w, a); };
+  // 平涂块：几块多边形合成一块，按包围盒从左往右刷上去
+  const pa = (polys, col) => {
+    const p = new Path2D(), xs = [], ys = [];
+    polys.forEach(q => { p.addPath(fillPath(q)); q.forEach(([x, y]) => { xs.push(x); ys.push(y); }); });
+    L.paints.push({ p, col, x0: Math.min(...xs) - 1, x1: Math.max(...xs) + 1, y0: Math.min(...ys) - 1, y1: Math.max(...ys) + 1 });
+  };
+
+  // 平涂色两种：栏杆和柱子的红（同 #4-100 的红伞 #b3412d），松针的暗绿；夜里按原作 nightTint() 压暗
+  const RED = hx('#b3412d'), PINE = hx('#6f8455');
+  const nightTint = (c, inkT, amt = 0.55) => mc(c, mc(c, [12, 16, 30], 0.6), inkT * amt);
+  const WARM_WIN = hx('#ffd58a');   // 原作窗灯的暖黄
+  const WARMGLOW = [[0, '255,213,138', 0.75], [0.45, '255,184,92', 0.28], [1, '255,184,92', 0]];
+
+  const HZ = 142;   // 远岸线：远山和天空的下沿
+
+  // 一串控制点 → 平滑曲线：相邻两点的中点当端点、点本身当控制点，逐段二次曲线
+  const chain = (pts, n = 8) => {
+    const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    let o = [pts[0]], prev = pts[0];
+    for (let i = 1; i < pts.length - 1; i++) { const m = mid(pts[i], pts[i + 1]); o = cat(o, qb(prev, pts[i], i === pts.length - 2 ? pts[i + 1] : m, n)); prev = m; }
+    return o;
+  };
+  // 拱桥三条弧的控制点 x 都在两端正中，x 随参数线性变化，所以按 x 直接求 y
+  const arcY = (a, c, b, x) => { const t = (x - a[0]) / (b[0] - a[0]), s = 1 - t; return s * s * a[1] + 2 * s * t * c[1] + t * t * b[1]; };
+  // 松针簇：日本画里松树那种底边平、顶上一串小圆鼓的「云片」
+  const pad = (cx, cy, rw, rh, n) => {
+    let top = [[cx + rw, cy]];
+    for (let j = 0; j < n; j++) {
+      const xa = cx + rw - 2 * rw * j / n, xb = cx + rw - 2 * rw * (j + 1) / n, xm = (xa + xb) / 2;
+      const e = Math.sin(Math.PI * (j + 0.5) / n);   // 中间的圆鼓高、两头低
+      top = cat(top, qb([xa, cy - rh * e * 0.55], [xm, cy - rh * (0.55 * e + 0.9)], [xb, cy - rh * Math.sin(Math.PI * (j + 1) / n) * 0.55], 6));
+    }
+    return cat(top, qb([cx - rw, cy], [cx, cy + 3], [cx + rw, cy], 6));
+  };
+
+  // —— 0 远山（淡墨）——
+  layer();
+  {
+    const ridge = chain([[-4, 110], [50, 82], [110, 102], [170, 74], [240, 100], [300, 90], [360, 68], [420, 90], [470, 62], [543, 92]]);
+    sh(cat(ridge, [[543, HZ], [-4, HZ]]), SP * 0.8, FAR);
+    const near = chain([[268, HZ], [320, 118], [380, 106], [440, 122], [500, 110], [543, 120]]);
+    sh(cat(near, [[543, HZ]]), SP * 0.8, FAR * 1.4);
+    [[[356, 74], [344, 90], [350, 104]], [[466, 68], [478, 84], [470, 98]], [[168, 80], [180, 92], [176, 104]], [[48, 88], [38, 100]]].forEach(q => ln(q.length > 2 ? qb(q[0], q[1], q[2], 6) : q, FP, FAR));
+    ln([[-4, HZ], [543, HZ]], FP, FAR);
+  }
+
+  // —— 1 两岸 ——
+  layer();
+  {
+    sh([[-4, 154], [296, 154], [306, 160], [314, 172], [-4, 172]]);
+    sh([[543, 158], [470, 158], [462, 164], [454, 172], [543, 172]]);
+    // 岸边的石块、草（原作「道具让眼睛有地方停」）
+    [[20, 166, 9, 4], [52, 168, 7, 3.5], [262, 167, 8, 4], [292, 168, 7, 3.4], [488, 167, 8, 4], [522, 168, 9, 3.6]].forEach(([x, y, rx, ry]) => sh(ovalP(x, y, rx, ry, 14), FP * 1.6));
+    [[80, 154], [112, 154], [282, 154], [530, 158]].forEach(([x, y]) => {
+      ln(qb([x, y], [x - 1, y - 4], [x - 4, y - 7], 4), FP); ln([[x + 1, y], [x + 2, y - 8]], FP); ln(qb([x + 2, y], [x + 4, y - 4], [x + 7, y - 6], 4), FP);
+    });
+    ln([[30, 160], [74, 160]], FP, 0.6); ln([[190, 161], [240, 161]], FP, 0.6); ln([[482, 162], [506, 162]], FP, 0.6);
+  }
+
+  // —— 2 松（在茶屋后面，下半截被屋子挡住）——
+  layer();
+  {
+    sh(cat(qb([146, 150], [136, 108], [156, 70]), qb([156, 70], [170, 46], [150, 26]), [[157, 24]], qb([157, 24], [180, 48], [164, 72]), qb([164, 72], [148, 108], [160, 150])));
+    // 枝：两笔开口的细枝，从树干伸到松针簇底下
+    [[[160, 58], [196, 44], [228, 46], 2.4], [[146, 84], [116, 70], [90, 68], 2.2], [[154, 38], [128, 26], [108, 26], 1.8]].forEach(([a, c, b, wd]) => {
+      ln(qb([a[0], a[1] - wd], [c[0], c[1] - wd], b, 8)); ln(qb([a[0], a[1] + wd], [c[0], c[1] + wd * 0.5], [b[0], b[1] + 0.6], 8));
+    });
+    // 树皮：几道短弧
+    [[150, 116, 148, 106], [156, 96, 152, 88], [158, 64, 160, 56], [158, 44, 156, 36]].forEach(([x0, y0, x1, y1]) => ln(qb([x0, y0], [x0 + 3, (y0 + y1) / 2], [x1, y1], 4), FP));
+    const pads = [[232, 46, 34, 12, 5], [88, 68, 30, 11, 4], [108, 26, 24, 9, 4], [160, 20, 22, 8, 3], [204, 64, 22, 8, 3]];
+    pads.forEach(([cx, cy, rw, rh, n]) => {
+      const q = pad(cx, cy, rw, rh, n);
+      sh(q);
+      pa([q], 'pine');
+      // 松针：底边上一排短竖线
+      for (let x = cx - rw + 6; x < cx + rw - 4; x += 7) ln([[x, cy - 1], [x + 1.5, cy - rh * 0.55]], FP, 0.8);
+    });
+  }
+
+  // —— 3 茶屋 ——
+  layer();
+  {
+    sh(rectP(130, 146, 262, 152));                       // 缘侧
+    [134, 196, 258].forEach(x => ln([[x, 152], [x, 156]], SP));
+    sh(rectP(142, 110, 252, 146));                       // 墙
+    [176, 218].forEach(x => ln([[x, 112], [x, 146]], SP));
+    // 左：格子拉门
+    sh(rectP(147, 115, 171, 146), FP * 1.6);
+    [155, 163].forEach(x => ln([[x, 115], [x, 146]], FP));
+    [123, 131, 139].forEach(y => ln([[147, y], [171, y]], FP));
+    // 中：灰泥墙上的圆窗，天黑后窗灯亮在这里
+    const win = ovalP(197, 128, 11, 11, 28);
+    sh(win, SP);
+    L.win = { p: fillPath(win), x: 197, y: 128, r: 11, thr: 0.25 };
+    [191, 197, 203].forEach(x => { const h = Math.sqrt(121 - (x - 197) ** 2); ln([[x, 128 - h], [x, 128 + h]], FP); });
+    [123, 133].forEach(y => { const w2 = Math.sqrt(121 - (y - 128) ** 2); ln([[197 - w2, y], [197 + w2, y]], FP); });
+    // 右：竖格子，每第四根通到顶（原作格子的节奏）
+    for (let i = 0, x = 222; x <= 249; i++, x += 3.4) ln([[x, i % 4 ? 118 : 112], [x, 146]], FP);
+    ln([[220, 118], [252, 118]], FP);
+    // 屋顶：歇山顶简化成正立面的梯形，瓦沟向屋脊收拢，檐口一排圆瓦头，屋脊两端起翘
+    sh([[118, 109], [276, 109], [262, 100], [242, 87], [152, 87], [132, 100]]);
+    for (let i = 1; i < 16; i++) { const t = i / 16; ln([[mix(124, 270, t), 108], [mix(154, 240, t), 88]], FP, 0.85); }
+    sh([[114, 108], [280, 108], [278, 113], [116, 113]], SP);
+    for (let x = 122; x <= 272; x += 7.5) ln(ovalP(x, 110.5, 1.5, 1.5, 10).concat([[x + 1.5, 110.5]]), FP);
+    sh([[146, 88], [248, 88], [252, 82], [256, 79], [250, 82.5], [144, 82.5], [138, 79], [142, 82]], SP);
+    // 檐下挂的竹帘：一排横线
+    sh(rectP(224, 113, 250, 117.5), FP * 1.4);
+  }
+
+  // —— 4 红栏拱桥（跨过茶屋右边流出来的小溪）——
+  layer();
+  {
+    // 控制点 y = 2·拱顶 − 两端均值：桥面拱顶约 y 128，桥洞拱顶约 y 150
+    const A = [[292, 156], [384, 99], [476, 158]];           // 桥面
+    const B = A.map(([x, y]) => [x, y + 6]);                  // 桥面外沿下缘
+    const R = A.map(([x, y]) => [x, y - 13]);                 // 扶手上沿
+    const U = [[314, 171], [384, 128], [454, 172]];           // 桥洞
+    const arc = (q, x0, x1, n = 14) => Array.from({ length: n + 1 }, (_, i) => { const x = mix(x0, x1, i / n); return [x, arcY(q[0], q[1], q[2], x)]; });
+    sh(cat(arc(A, 292, 476), [[478, 166], [470, 172], [458, 172]], arc(U, 454, 314), [[310, 172], [298, 172], [290, 164]]));
+    ln(arc(B, 293, 475));
+    for (let x = 304; x < 470; x += 9) ln([[x, arcY(A[0], A[1], A[2], x) + 1], [x, arcY(B[0], B[1], B[2], x) - 1]], FP, 0.8);
+    // 桥洞里的石缝
+    [[330, 160], [350, 150], [418, 150], [438, 160]].forEach(([x, y]) => ln([[x, y], [x + (x < 384 ? 6 : -6), y - 4]], FP, 0.7));
+    // 扶手：一条红的横木、一排红的望柱，栏下一道细的中横木
+    const posts = [];
+    for (let x = 296; x <= 474; x += 16.2) posts.push(x);
+    const rail = cat(arc(R, 292, 476), arc(R.map(([x, y]) => [x, y + 3]), 476, 292));
+    const postP = posts.map(x => rectP(x - 1.6, arcY(R[0], R[1], R[2], x) + 2.5, x + 1.6, arcY(A[0], A[1], A[2], x) - 0.3));
+    postP.forEach(q => sh(q, FP * 1.6));
+    sh(rail, FP * 1.6);
+    pa(postP.concat([rail]), 'red');
+    ln(arc(R.map(([x, y]) => [x, y + 8]), 296, 472), FP);
+    // 两头的宝珠
+    [292, 476].forEach(x => { const y = arcY(R[0], R[1], R[2], x); sh(cat(qb([x - 2.6, y + 1], [x - 3.2, y - 4], [x, y - 7], 5), qb([x, y - 7], [x + 3.2, y - 4], [x + 2.6, y + 1], 5)), FP * 1.6); });
+  }
+
+  // —— 5 石灯笼（右岸，夜里火袋亮）——
+  layer();
+  {
+    sh(rectP(495, 165, 521, 171));
+    sh([[503, 165], [513, 165], [512, 147], [504, 147]]);
+    sh([[497, 147], [519, 147], [517, 142], [499, 142]]);
+    sh(rectP(500, 128, 516, 142));
+    const fire = rectP(504.5, 131, 511.5, 139.5);
+    sh(fire, FP * 1.6);
+    L.win = { p: fillPath(fire), x: 508, y: 135, r: 6, thr: 0.4 };
+    sh(cat(qb([491, 129], [500, 126], [508, 117], 6), qb([508, 117], [516, 126], [525, 129], 6), [[521, 130], [495, 130]]));
+    sh(ovalP(508, 114.5, 2.4, 2.8, 12), FP * 1.6);
+  }
+  // —— 6 水面（最前面：两岸之间的溪口和近处的水）——
+  // 一排排固定位置的短横线，越近越疏越长
+  layer();
+  {
+    for (let r = 0; r < 6; r++) {
+      const y = 177 + r * 5 + r * r * 0.4;
+      let x = -6 - rnd(r, 31) * 30;
+      for (let i = 0; x < CW; i++) {
+        const len = mix(14, 40, rnd(r, 40 + i)) * (1 + r * 0.12);
+        ln([[x, y], [x + len, y]], FP, 0.75);
+        x += len + mix(16, 44, rnd(r, 60 + i));
+      }
+    }
+    [[332, 158, 354], [404, 157, 426], [326, 166, 348], [362, 164, 390], [420, 166, 446]].forEach(([x0, y, x1]) => ln([[x0, y], [x1, y]], FP, 0.65));
+  }
+
+  // —— 排好描线、平涂的时刻 ——
+  // 描线：所有笔画按图层从后往前、层内按定义顺序排成一条，按长度分 0–1 的进度区间
+  const ALL = [].concat(...LAYERS.map(l => l.strokes));
+  const TOT = ALL.reduce((s, x) => s + x.len, 0);
+  ALL.reduce((acc, s) => { s.a0 = acc / TOT * (1 - OV); s.a1 = (acc + s.len) / TOT * (1 - OV) + OV; return acc + s.len; }, 0);
+  const PAINTS = [].concat(...LAYERS.map(l => l.paints));
+  PAINTS.forEach((p, i) => { p.t0 = T.paint0 + (T.paint1 - T.paint0) * i / Math.max(1, PAINTS.length - 1); });
+  const fillAt = (i, u) => smooth(0, 1, (u - (T.fill0 + (T.fill1 - T.fill0) * i / (LAYERS.length - 1))) / T.fillD);
+
+  // —— 夜空 ——
+  const STARS = Array.from({ length: 14 }, (_, i) => [10 + rnd(i, 71) * 520, 6 + rnd(i, 72) * 60, 0.5 + rnd(i, 73) * 0.6, 2 + Math.floor(rnd(i, 74) * 6)]);
+  const radial = (k, x, y, r, stops, alpha) => {
+    if (alpha < 0.004) return;
+    const g = k.createRadialGradient(x, y, 0, x, y, r);
+    stops.forEach(([o, c, a]) => g.addColorStop(o, `rgba(${c},${a})`));
+    k.globalAlpha = alpha; k.fillStyle = g; k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill(); k.globalAlpha = 1;
+  };
+
+  CELLS[13] = (k, w, h, u) => {
+    const tau = tauAt(u), P = palette(tau);
+    const ink = css(P.ink), paperC = css(P.paper);
+    const COL = { red: css(nightTint(RED, P.inkT)), pine: css(nightTint(PINE, P.inkT)) };
+    const lineProg = (u - T.line0) / (T.line1 - T.line0);
+    k.save();
+    k.lineCap = 'round'; k.lineJoin = 'round';
+    k.fillStyle = paperC; k.fillRect(-2, -2, CW + 4, CH + 4);
+    // 天空的渐变算在纸色那一层里：远山铺纸色时一起出来；天黑后星星闪
+    const skyA = fillAt(0, u);
+    if (skyA > 0.004) {
+      const g = k.createLinearGradient(0, 0, 0, HZ);
+      g.addColorStop(0, css(P.top)); g.addColorStop(1, css(P.bot));
+      k.globalAlpha = skyA; k.fillStyle = g; k.fillRect(-2, -2, CW + 4, HZ + 2);
+      if (P.night > 0.01) {
+        k.fillStyle = '#f5efda';
+        STARS.forEach(([x, y, r, n], i) => { k.globalAlpha = skyA * P.night * (0.55 + 0.45 * Math.sin(n * W * u + i)); k.beginPath(); k.arc(x, y, r, 0, TAU); k.fill(); });
+      }
+      k.globalAlpha = 1;
+    }
+    const glows = [];
+    LAYERS.forEach((Ly, i) => {
+      // 纸色：这一层的填充盖住它后面各层已经描好的线
+      const fa = fillAt(i, u);
+      if (fa > 0.004) {
+        k.globalAlpha = fa; k.fillStyle = paperC;
+        Ly.fills.forEach(p => k.fill(p));
+        k.globalAlpha = 1;
+      }
+      // 平涂：每块从左往右刷开，刷子边缘留 6 px 的过渡
+      Ly.paints.forEach(pb => {
+        const s = clamp((u - pb.t0) / T.paintD);
+        if (s <= 0) return;
+        const x = mix(pb.x0 - 6, pb.x1, ease(s));
+        k.save(); k.beginPath(); k.rect(pb.x0 - 6, pb.y0, x - pb.x0 + 6, pb.y1 - pb.y0); k.clip();
+        k.fillStyle = COL[pb.col]; k.fill(pb.p);
+        k.restore();
+      });
+      // 光：窗格和石灯笼的火袋按各自的暗度阈值亮起
+      if (Ly.win && P.lamp > 0.01) {
+        const lit = smooth(Ly.win.thr, Ly.win.thr + 0.25, P.lamp);
+        k.fillStyle = css(mc(P.paper, WARM_WIN, lit * 0.92)); k.fill(Ly.win.p);
+        glows.push([Ly.win, lit]);
+      }
+      // 墨线：还没描完的线用一节虚线露出前面那一截
+      k.strokeStyle = ink;
+      Ly.strokes.forEach(s => {
+        const p = clamp((lineProg - s.a0) / (s.a1 - s.a0));
+        if (p <= 0) return;
+        k.globalAlpha = s.a; k.lineWidth = s.w;
+        if (p < 1) { k.setLineDash([s.D, s.D]); k.lineDashOffset = s.D - p * s.len; }
+        k.stroke(s.p);
+        if (p < 1) { k.setLineDash([]); k.lineDashOffset = 0; }
+      });
+      k.globalAlpha = 1;
+    });
+    glows.forEach(([g, lit]) => radial(k, g.x, g.y, g.r * 2.4, WARMGLOW, lit * 0.85));
+    // 复位：整张纸色盖上来，回到白纸；最后 0.1 秒是空白纸，与 0 秒相接
+    const out = smooth(T.out0, T.out1, u);
+    if (out > 0.004) { k.globalAlpha = out; k.fillStyle = PAPER; k.fillRect(-2, -2, CW + 4, CH + 4); k.globalAlpha = 1; }
+    k.restore();
+  };
+}

@@ -1,0 +1,17 @@
+Please use "Sparrows on the wire" (電線のスズメ), filed under "Shapes & objects / Figures & animals".
+Motion Prompt #2-137
+
+What it is: A line-art scene in fine ink on warm paper: a row of sparrows, each just a body oval and a brown cap, hop, turn and preen on a wire between two poles, and the wire dips and springs back under their weight
+What the sample shows: A fixed view of two utility poles with two wires sagging between them; seven sparrows sit on the upper wire. The one in the middle flies off, three more follow in turn and leave the frame, then they come back from both sides and settle in their old places facing the same way. The others keep hopping and turning meanwhile.
+Spec:
+- Warm paper #fdfcf8 and ink #1c1c1c; the sparrow caps are the only colour, #7a5a3c. The scene is drawn in the original village units scaled 2.2 times, with a 0.8 scene pen.
+- Two poles copied from the original (shaft, bands, cross-arm with four insulators, a transformer on the right one). The upper wire spans 153 units and sags 8.25 at the middle, the original's 26 per 482 units; a second wire hangs 7 below it.
+- Each sparrow is a 3.1 × 2.4 body oval, a cap, a cheek dot, a beak, a tail line, a folded wing and two legs. Perched birds hop 0.22 s and 3.2 units high, turn round, preen (head dips 1.6) or flick the tail about once a second; hops add up to zero and turns come in pairs over a loop.
+- The middle bird takes off at 1.3 s and three others follow at 1.42, 1.56 and 1.72 s along Bézier curves whose control points sit 26–32 units above the wire, and leave the frame; in flight two wing strokes beat 35 times per loop (the original 34 rad/s, rounded).
+- They come back from both sides and land at 5.5, 5.7, 5.95 and 6.1 s on their old spots, facing the way they faced at 0 s.
+- Each bird's weight bends the wire into two straight pieces, 1.2 units deep at mid-span, through a spring with k 40 and d 6; a short push before take-off and after landing makes it bounce. The spring is worked out over three loops and the last loop is replayed, so 0 s and 6.4 s match.
+When to use it: Use it for quiet mornings and everyday town scenes, waiting or loading screens, and seasonal greetings or notice cards.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-137.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

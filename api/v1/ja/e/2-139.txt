@@ -1,0 +1,237 @@
+// Motion Prompt #2-139 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// 風に揺れる柳とのれん / Willow and noren in the wind
+// 分類: モーショングラフィックス / 図形・オブジェクト / 物・機械
+// 何が起きるか: 茶屋の瓦の軒に柱が 2 本、軒下に風鈴、「茶」の字の赤い提灯 2 つ、4 枚に分かれた「茶」ののれん。左端には柳の幹と枝が垂れる。左から弱い風、続いて強い風が吹き、柳、風鈴、提灯、のれんの順に揺れ、強い風で風鈴が鳴り、やがてすべて止まる。
+// 動きの仕様:
+//   - 暖かい紙 #fdfcf8 に墨色 #1c1c1c。原作の村の通りを 2.2 倍で描き、0.8 の場面用の線幅をそのまま使う。色は赤い提灯二つの #b3412d とガラスの風鈴 #e8f2f4 だけ
+//   - 軒下に風鈴ひとつ、提灯 2 つ、4 枚に分かれたのれん、柳の枝から垂れる 16 本の枝。軒は原作どおり瓦の筋、丸い瓦の端、鼻隠し、垂木の先を描く
+//   - 風：0.1 から 1.6 秒に強さ 1.0 の弱い風、1.8 から 3.5 秒に少し揺らぎのある 2.4 の強い風、そのあと無風。風の先頭は毎秒 230 単位で右へ進むので、左から遠いものほど遅れて揺れ始める
+//   - 吊るしたものはすべて振り子で、硬さ・減衰・風の押しは原作どおり：柳 k 3.2 × 0.7–1.3、d 0.9、提灯 k 10、d 1.1、のれん各枚 k 22、d 3.2、風鈴 k 14、d 1.4、舌 k 9、d 1.6 で風鈴の角度の 1.6 倍へ引かれる
+//   - 舌が風鈴から 0.35 ラジアンより大きく振れると当たったことにし、風鈴の上に短い弧を二本出して毎秒 0.9 ずつ消す
+//   - 風が過ぎたあと、3.4 から 4.2 秒で各振り子の戻す力を 3 倍、減衰を臨界まで上げるので、6.4 秒までにすべて止まる。動きは 三周分計算して最後の一周を再生する
+// 使いどころ: 夏や風、季節の移り変わりの話、和の店や旅館の案内、静かなローディング画面に。
+// タグ: line-art, ink, wind, pendulum, noren, lantern, wind-chime, willow
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-139
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 07
+// 风吹柳条与暖帘：茶屋屋檐下挂着风铃、两盏红灯笼和四片暖帘，左边一棵垂柳；风从左边来，先一阵弱风、再一阵强风，然后慢慢停下。
+// 对应原作 examples/village 的 houses.ts（noren、chochin、fūrin）与 canal.ts（柳条）；钟摆 k/d 和推力系数照搬，指针风改成按时间的阵风。
+{
+  const S = 2.2;                                    // 场景单位 → 画面像素；SP×S ≈ 01 款的笔宽，几款并排时线一样粗
+  const SP = 0.8;                                   // 原作 village 的场景笔宽
+  const RED = '#b3412d', CREAM = '#fbf3e6', GLASS = '#e8f2f4';
+  const JP = '"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Songti SC",serif';
+  const GROUND = 88, EAVE = 16;
+  const WIND_SPEED = 230;                           // 阵风前沿的推进速度（单位/秒），离左边越远越晚被吹到
+  // 阵风：原作风力范围是 0.3 基础风到指针最大 2.4；这里弱风 0.8、强风到 2.4，强风里带一点起伏
+  const WEAK = 1.0, STRONG = 2.4;
+  const bump = (t, a, b, c, d) => smooth(a, b, t) * (1 - smooth(c, d, t));
+  const wind = t => {
+    t = wrap(t);
+    return WEAK * bump(t, 0.1, 0.6, 0.9, 1.6) + STRONG * bump(t, 1.8, 2.3, 2.7, 3.5) * (1 + 0.12 * Math.sin(TAU * (t - 1.8) * 1.25));
+  };
+  // 原作每个物件都还有一点自己的小抖动（wobble、正弦）；它们只在有风时出现，风停后不再推，物件才能真的静下来
+  const env = t => clamp(wind(t) / WEAK);
+  // 风停后把物件「收住」：原作阻尼很小（柳条 d=0.9 要好几秒才停），6.4 秒时还在晃，接不回开头的静止。
+  // 所以风过去后把回复力加到 CALM_K 倍、阻尼加到临界，像空气静下来；开头 0.15 秒内退回原作参数，此时还没有风，看不出切换
+  const CALM = [3.4, 4.2], CALM_K = 3;
+  const calm = t => { t = wrap(t); return t < 2 ? 1 - smooth(0, 0.15, t) : smooth(CALM[0], CALM[1], t); };
+  const wobble = (t, k = 1) => Math.sin(t * 1.3 * k) * 0.6 + Math.sin(t * 2.7 * k + 1.7) * 0.3 + Math.sin(t * 5.1 * k + 4.1) * 0.1;
+
+  // —— 物件位置（场景单位）——
+  const FURIN = { x: 96, y: 30 };                  // 挂点；上面一段固定细绳连到檐下
+  const LANTERNS = [{ x: 120, y: 22, ph: 0.7 }, { x: 216, y: 22, ph: 3.1 }];
+  const NOREN = { x0: 136, x1: 202, y: 25, len: 24, panels: 4, label: '茶' };
+  const DOOR = [132, 23, 206, 88];
+  const PILLARS = [74, 232];
+  // 柳：原作 canal.ts 的树干和枝条整体平移，树干大半出了左边，只露出几根枝条挂下来的柳条
+  const WDX = -30, WDY = -200;
+  const ROOTS = [[104, 212], [86, 252], [82, 190], [64, 216], [52, 252], [70, 196], [94, 230], [40, 226]];
+  const strands = [];
+  ROOTS.forEach(([rx, ry], i) => {
+    for (let j = 0; j < 2; j++) {
+      // 原作 srnd(-10,10)、srnd(-3,5)、srnd(80,150)、stiff 0.7–1.3，换成固定种子
+      const y = ry + WDY - 3 + rnd(i, j + 7) * 8;
+      // 原作柳条垂到水面；这里画面矮，末端停在地面上方
+      strands.push({ x: rx + WDX + (rnd(i, j) - 0.5) * 20, y, len: Math.min(80 + rnd(i, j + 13) * 70, GROUND - 8 - y), ph: rnd(i, j + 19) * 6, stiff: 0.7 + rnd(i, j + 29) * 0.6 });
+    }
+  });
+
+  // —— 钟摆：照搬原作每个物件的 k、d 和推力 ——
+  // kit 的 sim() 推力只能由 u 决定；风铃舌要跟着铃身走（原作 -(sa - a·1.6)·9），风停后还要加阻尼，所以这里自己积分，做法与 sim() 相同
+  const units = [];
+  const unit = (k, d, x, force) => units.push({ k, d, delay: x / WIND_SPEED, force }) - 1;
+  const iStrand = strands.map(s => unit(3.2 * s.stiff, 0.9, s.x, (t, tl) => wind(tl) * 0.32 + wobble(t * 0.6 + s.ph) * 0.12 * env(tl)));
+  const iLantern = LANTERNS.map(l => unit(10, 1.1, l.x, (t, tl) => wind(tl) * 0.5 + Math.sin(t * 0.9 + l.ph) * 0.15 * env(tl)));
+  const nw = (NOREN.x1 - NOREN.x0) / NOREN.panels;
+  const iCloth = Array.from({ length: NOREN.panels }, (_, i) => unit(22, 3.2, NOREN.x0 + (i + 0.5) * nw, (t, tl) => wind(tl) * 2.2 + Math.sin(t * 1.7 + i * 1.9) * 0.6 * env(tl)));
+  const iBell = unit(14, 1.4, FURIN.x, (t, tl) => wind(tl) * 0.9 + wobble(t * 0.7) * 0.4 * env(tl));
+  // 舌的「弹簧」k=9 拉向铃身角度的 1.6 倍：k·1.6·a 作为推力的一部分
+  const iClap = unit(9, 1.6, FURIN.x, (t, tl, x) => 9 * 1.6 * x[iBell] + wind(tl) * 2.2 + Math.sin(t * 2.3) * 0.6 * env(tl));
+  const DT = SIM_DT, N = Math.round(CYC / DT), M = units.length;
+  // 舌与铃身的相对角超过这个值算碰到铃身：只有强风里摆得最大的几下过线
+  const HIT = 0.35;
+  let table = null, hits = null;
+  const build = () => {
+    const x = new Float64Array(M), v = new Float64Array(M);
+    table = new Float64Array(N * M);
+    for (let c = 0; c < SIM_WARM; c++) for (let n = 0; n < N; n++) {
+      if (c === SIM_WARM - 1) for (let m = 0; m < M; m++) table[n * M + m] = x[m];
+      const t = n * DT;
+      for (let m = 0; m < M; m++) {
+        const s = units[m], tl = t - s.delay;
+        const c = calm(tl), kk = s.k * mix(1, CALM_K, c), d = mix(s.d, Math.max(s.d, 2 * Math.sqrt(kk)), c);
+        v[m] += (-x[m] * kk + s.force(t, tl, x) - v[m] * d) * DT;   // 原作 pendulum()
+        x[m] += v[m] * DT;
+      }
+    }
+    // 碰铃时刻：相对角向外越过 HIT；两次之间至少隔 0.3 秒，免得同一下在阈值附近抖出两次
+    hits = [];
+    for (let n = 0; n < N; n++) {
+      const r0 = Math.abs(table[((n + N - 1) % N) * M + iClap] - table[((n + N - 1) % N) * M + iBell]);
+      const r1 = Math.abs(table[n * M + iClap] - table[n * M + iBell]);
+      if (r0 < HIT && r1 >= HIT && (!hits.length || n * DT - hits[hits.length - 1] > 0.3)) hits.push(n * DT);
+    }
+  };
+  const state = u => {
+    if (!table) build();
+    const f = wrap(u) / DT, i = Math.floor(f) % N, t = f - Math.floor(f), j = (i + 1) % N;
+    const out = new Float64Array(M);
+    for (let m = 0; m < M; m++) out[m] = table[i * M + m] * (1 - t) + table[j * M + m] * t;
+    return out;
+  };
+  // 原作 ring 每秒减 0.9：碰一下后声线在约 1.1 秒里淡出
+  const ringAt = u => { let r = 0; for (const h of hits) r = Math.max(r, 1 - wrap(u - h) * 0.9); return r; };
+
+  // —— 静止部分（屋檐、墙、门、柱、地面、树干），首次调用时建成 Path2D ——
+  const rect = (x0, y0, x1, y1) => `M${x0} ${y0} L${x1} ${y0} L${x1} ${y1} L${x0} ${y1}Z`;
+  let ST = null;
+  const buildStatic = () => {
+    // 原作 roof()：瓦沟线收向屋脊、檐口一排圆瓦头、封檐板和椽头；屋脊在画面上方之外
+    const x0 = 70, x1 = 330, ridge = -24, inset = 30, tile = 5.6, sori = 2.8, depth = 2.6;
+    const cx = (x0 + x1) / 2;
+    const eaveY = x => EAVE - sori * Math.pow(Math.abs(x - cx) / ((x1 - x0) / 2), 2.2);
+    const ch = [], ends = [], raf = [];
+    for (let x = x0 + tile * 0.8; x < x1 - tile * 0.4; x += tile) {
+      const t = (x - x0) / (x1 - x0), ey = eaveY(x) - 0.4, top = mix(x0 + inset, x1 - inset, t);
+      ch.push(`M${x} ${ey - 1.6} Q${mix(x, top, 0.5) + (t - 0.5) * 2} ${mix(ey, ridge, 0.55)} ${top} ${ridge + 1}`);
+      ends.push(`M${x + 1.35} ${ey} A1.35 1.35 0 1 0 ${x - 1.35} ${ey} A1.35 1.35 0 1 0 ${x + 1.35} ${ey}Z`);
+    }
+    for (let x = x0 + 5; x < x1 - 3; x += 4.2) raf.push(`M${x} ${eaveY(x) + depth + 0.6} l0 1.8`);
+    // 柳：原作的树干和三根主枝，平移到左上
+    const W = (x, y) => `${x + WDX} ${y + WDY}`;
+    const gut = [];
+    for (let x = 0, i = 0; x < CW / S; x += 16 + rnd(i, 3) * 10, i++) gut.push(`M${x} ${GROUND} L${x} ${GROUND + 4}`);
+    ST = {
+      wall: new Path2D(rect(x0 + 2, EAVE, CW / S + 2, GROUND)),
+      beam: new Path2D(`M${x0 + 2} ${EAVE + 6} L${CW / S + 2} ${EAVE + 6}`),
+      roof: new Path2D(`M${x0} ${eaveY(x0)} Q${cx} ${EAVE + sori * 0.6} ${x1} ${eaveY(x1)} L${x1 - inset} ${ridge} L${x0 + inset} ${ridge}Z`),
+      channels: new Path2D(ch.join(' ')),
+      tiles: new Path2D(ends.join(' ')),
+      fascia: new Path2D(`M${x0 + 1} ${eaveY(x0) + depth} Q${cx} ${EAVE + sori * 0.6 + depth} ${x1 - 1} ${eaveY(x1) + depth}`),
+      rafters: new Path2D(raf.join(' ')),
+      pillars: PILLARS.map(x => new Path2D(rect(x, eaveY(x) + depth + 2.4, x + 5, GROUND))),
+      // 门：原作茶屋入口，门框加一横一竖两道格（白天门里是纸色）
+      door: new Path2D(rect(...DOOR)),
+      doorLines: new Path2D(`M${DOOR[0] + 3} ${DOOR[1] + 34} L${DOOR[2] - 3} ${DOOR[1] + 34} M${(DOOR[0] + DOOR[2]) / 2} ${DOOR[1] + 3} L${(DOOR[0] + DOOR[2]) / 2} ${GROUND}`),
+      string: new Path2D(`M${FURIN.x} ${eaveY(FURIN.x) + depth} L${FURIN.x} ${FURIN.y - 3}`),
+      ground: new Path2D(`M0 ${GROUND} L${CW / S} ${GROUND}`),
+      gutter: new Path2D(`M0 ${GROUND + 4} L${CW / S} ${GROUND + 4} ` + gut.join(' ')),
+      trunk: new Path2D(`M${W(14, 384)} Q${W(20, 340)} ${W(16, 300)} Q${W(12, 262)} ${W(34, 236)} Q${W(46, 222)} ${W(40, 206)} L${W(46, 206)} Q${W(54, 226)} ${W(42, 244)} Q${W(24, 270)} ${W(28, 306)} Q${W(32, 344)} ${W(28, 384)}Z`),
+      boughs: new Path2D(`M${W(36, 238)} Q${W(66, 214)} ${W(104, 212)} M${W(30, 260)} Q${W(60, 246)} ${W(86, 252)} M${W(40, 222)} Q${W(22, 204)} ${W(-4, 202)} M${W(42, 214)} Q${W(56, 196)} ${W(82, 190)}`),
+      bark: new Path2D(`M${W(20, 330)} q3 -6 0 -12 M${W(24, 290)} q-3 -6 1 -12`),
+    };
+  };
+
+  // 原作 chochin()：红纸灯笼、四道竹骨、上下黑箍、挂钩，字是奶白色
+  const lantern = (k, l, a) => {
+    const r = 6.4, h = 15;
+    k.save(); k.translate(l.x, l.y); k.rotate(-a);
+    paint(k, `M${-r * 0.75} 4 Q${-r * 1.18} ${4 + h / 2} ${-r * 0.75} ${4 + h} L${r * 0.75} ${4 + h} Q${r * 1.18} ${4 + h / 2} ${r * 0.75} 4Z`, RED, SP * 0.8);
+    const ribs = [];
+    for (let i = 1; i < 5; i++) { const yy = 4 + (h * i) / 5, wv = r * (1.18 - 0.3 * Math.abs(i / 5 - 0.5) * 2); ribs.push(`M${-wv * 0.95} ${yy} Q0 ${yy + 1} ${wv * 0.95} ${yy}`); }
+    pen(k, ribs.join(' '), SP * 0.4);
+    blot(k, `M${-r * 0.6} 2 L${r * 0.6} 2 L${r * 0.6} 4.4 L${-r * 0.6} 4.4Z M${-r * 0.6} ${4 + h - 0.4} L${r * 0.6} ${4 + h - 0.4} L${r * 0.6} ${6.4 + h} L${-r * 0.6} ${6.4 + h}Z`);
+    pen(k, 'M0 -4 L0 2', SP * 0.5);
+    k.fillStyle = CREAM; k.font = `700 ${h * 0.42}px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+    k.fillText('茶', 0, 4 + h / 2);
+    k.restore();
+  };
+
+  CELLS[6] = (k, w, h, u) => {
+    paper(k);
+    if (!ST) buildStatic();
+    const x = state(u), ring = ringAt(u);
+    k.save(); k.scale(S, S);
+
+    // 墙、门、屋檐、柱
+    shape(k, ST.wall, SP);
+    pen(k, ST.beam, SP * 0.6);
+    shape(k, ST.door, SP * 0.9);
+    pen(k, ST.doorLines, SP * 0.45);
+    shape(k, ST.roof, SP);
+    pen(k, ST.channels, SP * 0.5);
+    k.fillStyle = PAPER; k.fill(ST.tiles); pen(k, ST.tiles, SP * 0.55);
+    pen(k, ST.fascia, SP * 0.7);
+    pen(k, ST.rafters, SP * 0.6);
+    ST.pillars.forEach(p => shape(k, p, SP * 0.8));
+    pen(k, ST.ground, SP);
+    pen(k, ST.gutter, SP * 0.5);
+
+    // 暖帘：原作 noren()，每片下摆偏移 a·len·0.45，下沿再加一点抖动；字随各片平均偏移移动
+    const { x0, x1, y, len, panels } = NOREN;
+    pen(k, `M${x0 - 2} ${y} L${x1 + 2} ${y}`, SP * 1.2);
+    let sw = 0;
+    for (let i = 0; i < panels; i++) {
+      const cxp = x0 + i * nw, cw = nw - 0.8;
+      const s = x[iCloth[i]] * len * 0.45, flt = Math.sin(u * 3.1 + i) * 0.5 * env(u - units[iCloth[i]].delay);
+      shape(k, `M${cxp} ${y} L${cxp + cw} ${y} Q${cxp + cw + s * 0.4} ${y + len * 0.6} ${cxp + cw + s + flt} ${y + len} L${cxp + s + flt} ${y + len - 0.6} Q${cxp + s * 0.4} ${y + len * 0.6} ${cxp} ${y}Z`, SP * 0.8);
+      sw += s;
+    }
+    k.fillStyle = INK; k.font = `700 ${Math.min(len * 0.42, nw * 0.95)}px ${JP}`; k.textAlign = 'center'; k.textBaseline = 'middle';
+    k.fillText(NOREN.label, (x0 + x1) / 2 + (sw / panels) * 0.6, y + len * 0.48);
+
+    LANTERNS.forEach((l, i) => lantern(k, l, x[iLantern[i]]));
+
+    // 风铃：原作 furin，铃身挂在 6 长的绳上平移（不转），舌从铃顶垂下、末端一小横，再挂一张短签
+    const a = x[iBell], sa = x[iClap];
+    pen(k, ST.string, SP * 0.45);
+    const bx = FURIN.x + Math.sin(a) * 6, by = FURIN.y + Math.cos(a) * 6;
+    pen(k, `M${FURIN.x} ${FURIN.y - 3} L${bx} ${by}`, SP * 0.45);
+    const cx = bx + Math.sin(sa) * 4, cy = by + 5 + Math.cos(sa) * 4;
+    pen(k, `M${bx} ${by} L${cx} ${cy} M${cx - 0.8} ${cy} l1.6 0`, SP * 0.45);
+    paint(k, `M${bx - 4} ${by + 5} Q${bx - 4.2} ${by - 0.6} ${bx} ${by - 0.6} Q${bx + 4.2} ${by - 0.6} ${bx + 4} ${by + 5}Z`, GLASS, SP * 0.7);
+    const sx = cx + Math.sin(sa) * 9, sy = cy + Math.cos(sa) * 9;
+    shape(k, `M${cx - 1.6} ${cy + 1} L${cx + 1.6} ${cy + 1} L${sx + 1.6} ${sy} L${sx - 1.6} ${sy}Z`, SP * 0.55);
+    if (ring > 0.02) {
+      // 原作碰铃后铃顶上方两道弧线，随 ring 淡出
+      k.globalAlpha = ring;
+      pen(k, [7, 11].map(r => `M${bx - r * 0.7} ${by - r * 0.1 - 4} Q${bx} ${by - r - 4} ${bx + r * 0.7} ${by - r * 0.1 - 4}`).join(' '), SP * 0.5);
+      k.globalAlpha = 1;
+    }
+
+    // 柳：树干纸色填充挡住后面的地面线；柳条是原作的钟摆，越往下摆得越开、末端略微上提，枝上交替小叶
+    shape(k, ST.trunk, SP);
+    pen(k, ST.boughs, SP * 0.8);
+    pen(k, ST.bark, SP * 0.45);
+    strands.forEach((s, i) => {
+      const sa2 = x[iStrand[i]], e = env(u - units[iStrand[i]].delay);
+      let d = '', lv = '';
+      for (let j = 0; j <= 10; j++) {
+        const q = j / 10, sway = sa2 * s.len * q * q * 0.9 + Math.sin(u * 1.6 + s.ph + q * 3) * 1.2 * q * e;
+        const px = s.x + sway + q * 2, py = s.y + s.len * q - Math.abs(sa2) * s.len * q * q * 0.12;
+        d += (j ? 'L' : 'M') + px + ' ' + py;
+        if (j >= 2) lv += `M${px} ${py} l${j % 2 ? -2 : 2} 2.4`;
+      }
+      pen(k, d, SP * 0.5);
+      pen(k, lv, SP * 0.45);
+    });
+    k.restore();
+  };
+}

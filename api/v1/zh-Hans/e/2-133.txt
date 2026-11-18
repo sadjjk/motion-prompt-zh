@@ -1,0 +1,148 @@
+// Motion Prompt #2-133 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// 提包行人脱帽 / Briefcase walker tipping his hat
+// 分类: 动态图形 / 图形与物件 / 人物与动物
+// 动画表现: 戴礼帽、围红围巾、提棕色公文包的男人沿人行道走，镜头跟着他，地砖缝和路灯向后退；走到一半放慢，举起帽子、放下，再走起来。
+// 运动规格:
+//   - 暖纸 #fdfcf8，墨色只有 #1c1c1c；男人约 125 px 高，脚踩在离顶 172 px 的路缘线上，在画面里位置不动，街景移动。
+//   - 两条路缘线，地砖缝间距是一个周期走过距离的 1/8，另有一盏路灯；线条细分成短段并加固定小偏移，像手画墨线但不抖。
+//   - 步态：落地脚以行进速度向后滑，所以在地上不动；摆动脚走最小加加速度路径，脚跟先抬起；髋高由腿够得着的高度决定。一个周期走整数步。
+//   - 四肢是两条开口墨线，中间填纸色；大衣绕着前膝画，下摆随步子开合。
+//   - 手臂经弹簧与腿反向摆动，公文包作为钟摆挂在手上，围巾尾巴是被走路和缓慢微风推动的弹簧。弹簧和钟摆先算满三个周期，播放最后一个周期，所以 0 秒和 6.4 秒画面一致。
+//   - 2.2 秒起步子慢到 15%，近侧手在 0.35 秒内抬到帽檐、把帽子举高 5 单位，保持到 3.4 秒，再用 0.4 秒放下；手抬起时公文包移到腰侧。
+// 适用场景: 适合打招呼、欢迎页，讲城市和日常生活，或想要手绘温度的引导页与加载画面。
+// 标签: line-art, ink, walk-cycle, gait, hat-tip, spring, pendulum
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-133
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 01
+// 提包行人脱帽：戴礼帽、围红围巾、提公文包的人沿街走，镜头跟着他，地砖缝和路灯向后退；
+// 走到一半放慢，抬手把帽子举起、放下，再走起来。手臂、公文包、围巾尾巴都经弹簧或钟摆，跟着身体滞后、摆动。
+// 对应原作 examples/walker（点一下才举帽、移动指针吹围巾）；这里举帽按时间发生，风是一阵缓慢的微风。
+{
+  const GROUND = 172, SCALE = 1.3;
+  const FX = 250;                                   // 人物脚下的画面 x 固定，街景向后退
+  const T0 = 2.2;                                   // 开始举帽
+  const TIP_IN = 0.35, TIP_HOLD = 1.2, TIP_OUT = 0.4;   // 原作：0.35 秒抬手，举到 1.2 秒，0.4 秒放下
+  const SLOW = 0.85;                                // 举帽时步子慢到 15%（原作 go = 1 - tip*0.85）
+  const SCARF = '#b3412d', CASE = '#6b4a32';
+  const tip = u => {
+    const t = u - T0;
+    if (t < 0) return 0;
+    if (t < TIP_IN) return ease(t / TIP_IN);
+    if (t < TIP_HOLD) return 1;
+    if (t < TIP_HOLD + TIP_OUT) return 1 - ease((t - TIP_HOLD) / TIP_OUT);
+    return 0;
+  };
+  // tip 在 [0, u] 上的积分，用来算放慢后走过的步数
+  const tipInt = u => {
+    const t = u - T0;
+    if (t <= 0) return 0;
+    if (t < TIP_IN) return TIP_IN * easeInt(t / TIP_IN);
+    const a = TIP_IN / 2;
+    if (t < TIP_HOLD) return a + (t - TIP_IN);
+    const b = a + TIP_HOLD - TIP_IN;
+    if (t < TIP_HOLD + TIP_OUT) { const s = (t - TIP_HOLD) / TIP_OUT; return b + TIP_OUT * (s - easeInt(s)); }
+    return b + TIP_OUT / 2;
+  };
+  // 一个周期走整数步：按原作步频取整，再反推步频，循环时腿的姿势首尾相接（不为走出画面去加快步子）
+  const GO_INT = CYC - SLOW * tipInt(CYC);
+  const STEPS = Math.max(1, Math.round(GO_INT / GAIT.walk.period));
+  const walk = gait({ kind: 'walk', period: GO_INT / STEPS });
+  const goAt = u => 1 - SLOW * tip(u);
+  const phaseAt = u => (u - SLOW * tipInt(u)) / walk.period;
+  // 一个周期走过的画面距离；地砖缝按它的 1/8、路灯按它的整倍重复，循环时街景也首尾相接
+  const DIST = walk.speed * SCALE * walk.period * STEPS;
+  const TILES = 8, TILE = DIST / TILES;
+  const LAMP_X = 120, LAMP_H = 126;
+  // 原作是指针风加缓慢微风；这里只留微风，两个正弦都按周期取整
+  const wind = u => 0.2 + 0.25 * Math.sin(TAU * u / CYC) + 0.15 * Math.sin(TAU * 3 * u / CYC + 1);
+  const FLUTTER = Math.round(9 * CYC / TAU);        // 原作围巾抖动约 9 rad/s，取整成周期内整数次
+  const motion = sim([
+    { type: 'spring', k: 60, d: 9 },                // 远侧手臂
+    { type: 'spring', k: 60, d: 9 },                // 近侧手臂
+    { type: 'pendulum', k: 14, d: 1.8 },            // 公文包
+    { type: 'spring', k: 30, d: 4 },                // 围巾尾
+  ], u => {
+    const go = goAt(u), ph = phaseAt(u), p = walk.pose(ph, go);
+    const legSwing = (p.feet[0].ankle[0] - 40) / (walk.stride / 2);
+    const accel = Math.cos(TAU * ph * 2) * 1.6 * go;
+    return [
+      -legSwing * 16 * go,
+      legSwing * 14 * go,
+      -accel - wind(u) * 0.3,
+      -6 - walk.speed * 0.08 * go - wind(u) * 5 + Math.sin(TAU * FLUTTER * u / CYC) * 0.8,
+    ];
+  });
+  const lamp = (k, x) => {
+    const top = GROUND - LAMP_H;
+    shape(k, `M${x - 4} ${GROUND} L${x - 2} ${top} L${x + 2} ${top} L${x + 4} ${GROUND}Z`, 0.9);
+    shape(k, `M${x - 10} ${top} L${x + 10} ${top} L${x + 7} ${top - 12} L${x - 7} ${top - 12}Z`, 0.9);
+    pen(k, `M${x - 6} ${top - 6} L${x + 6} ${top - 6} M${x} ${top - 12} L${x} ${top - 18}`, 0.6);
+  };
+  CELLS[0] = (k, w, h, u) => {
+    paper(k);
+    const go = goAt(u), ph = phaseAt(u), tp = tip(u);
+    const off = wrap(walk.speed * SCALE * walk.period * ph, DIST);   // 已走的画面距离
+    const [farS, nearS, ca, flow] = motion(u);
+
+    // 街：路缘两条线、地砖缝、路灯；偏移的种子按世界里的第几块砖取，街景移动时墨线形状跟着走
+    inkLine(k, 0, GROUND, CW, GROUND, 0.9, 1);
+    inkLine(k, 0, GROUND + 9, CW, GROUND + 9, 0.9, 2);
+    const first = Math.floor(off / TILE);
+    for (let i = first - 1; i <= first + Math.ceil(CW / TILE) + 1; i++) {
+      const x = i * TILE - off + 10;
+      if (x < -2 || x > CW + 2) continue;
+      inkLine(k, x, GROUND, x + 0.0001, GROUND + 9, 0.55, ((i % TILES) + TILES) % TILES + 10, 0.2);
+    }
+    for (let j = -1; j <= Math.ceil(CW / DIST) + 1; j++) {
+      const x = LAMP_X + j * DIST - off;
+      if (x > -20 && x < CW + 20) lamp(k, x);
+    }
+
+    // 人物：全部在人物空间里画（脚踩 y=120），由远到近
+    k.save();
+    place(k, FX, GROUND, 1, SCALE);
+    const p = walk.pose(ph, go), b = p.bob;
+    const sh = [41, 41 + b], hemY = 92;
+    const shF = [sh[0] - 1, sh[1] + 2], shN = [sh[0] + 1.6, sh[1] + 2.4];
+    const farA = farS * Math.PI / 180, nearA = nearS * Math.PI / 180;
+    const elbF = [shF[0] + 17 * Math.sin(farA), shF[1] + 17 * Math.cos(farA)];
+    limb(k, [shF, elbF, [elbF[0] + 16 * Math.sin(farA + 0.25), elbF[1] + 16 * Math.cos(farA + 0.25)]], 3.6, [0.2, 0.5]);
+    // 腿：在前的那条后画，压在上面
+    [1 - p.front, p.front].forEach(i => { const fo = p.feet[i]; limb(k, [p.hip, fo.knee, fo.ankle], 4.2, [0.3, 0.8]); shoe(k, fo.ankle, fo.pitch); });
+
+    // 大衣绕着前膝画，下摆随步子开合
+    const kF = p.feet[p.front].knee, aF = p.feet[p.front].ankle;
+    const fx = Math.max(kF[0] + 2.4, 46.4);
+    shape(k, `M${sh[0] - 6} ${sh[1] + 1} Q${sh[0] - 1} ${sh[1] - 2.4} ${sh[0] + 5} ${sh[1] + 1} L${fx - 0.6} ${70 + b} Q${fx} ${82 + b * 0.5} ${Math.max(fx, aF[0] - 4)} ${hemY} L30.6 ${hemY + 1} L33.2 ${70 + b}Z`);
+    pen(k, `M${sh[0] + 2.6} ${sh[1] + 4} L${sh[0] + 3.8} ${66 + b}`, PEN * 0.6);
+
+    // 围巾尾、头、礼帽（举帽时升起）、围巾
+    const hc = [42.6, 31.6 + b];
+    paint(k, `M${hc[0] - 3.6} ${hc[1] + 6} Q${hc[0] - 6 + flow * 0.4} ${hc[1] + 9} ${hc[0] - 4 + flow} ${hc[1] + 16 + flow * 0.2} L${hc[0] - 1 + flow * 0.9} ${hc[1] + 16.6 + flow * 0.2} Q${hc[0] - 3 + flow * 0.3} ${hc[1] + 10} ${hc[0] - 0.8} ${hc[1] + 7.4}Z`, SCARF, PEN * 0.8);
+    const head = new Path2D(); head.ellipse(hc[0], hc[1], 3.6, 4.6, 0, 0, TAU);
+    shape(k, head);
+    const l = tp * 5;
+    blot(k, `M${hc[0] - 6.4} ${hc[1] - 3.6 - l} L${hc[0] + 6.6} ${hc[1] - 3.6 - l} Q${hc[0] + 4.4} ${hc[1] - 5 - l} ${hc[0] + 4} ${hc[1] - 8 - l} Q${hc[0]} ${hc[1] - 11 - l} ${hc[0] - 3.8} ${hc[1] - 8 - l} Q${hc[0] - 4.2} ${hc[1] - 5 - l} ${hc[0] - 6.4} ${hc[1] - 3.6 - l}Z`);
+    paint(k, `M${hc[0] - 4.6} ${hc[1] + 4.6} Q${hc[0]} ${hc[1] + 8.4} ${hc[0] + 4} ${hc[1] + 4.8} L${hc[0] + 4.4} ${hc[1] + 7.6} Q${hc[0]} ${hc[1] + 11} ${hc[0] - 4.8} ${hc[1] + 7.4}Z`, SCARF, PEN * 0.8);
+
+    // 近侧手臂：平时随步子摆，举帽时手移到帽檐
+    const elbN = [shN[0] + 17 * Math.sin(nearA), shN[1] + 17 * Math.cos(nearA)];
+    const handN = [elbN[0] + 16 * Math.sin(nearA + 0.1), elbN[1] + 16 * Math.cos(nearA + 0.1)];
+    // 原作从一个近似的垂手姿势插值，起手时手会跳一下；这里从这一刻真实的手肘、手位置插值
+    const target = [hc[0] + 4, hc[1] - 4 - l];
+    const mid = lerpP(shN, target, 0.5);
+    limb(k, [shN, lerpP(elbN, [mid[0] + 7 * tp, mid[1] + 3], tp), lerpP(handN, target, tp)], 3.6, [0.2, 0.4]);
+    // 公文包挂在近侧手上；举帽时停在腰侧。原作在这里直接换位置，会跳一下，这里在抬手的前 1/4 里平滑移过去
+    const ch = lerpP(handN, [shN[0] + 6, shN[1] + 34], ease(tp * 4));
+    k.translate(ch[0], ch[1]); k.rotate(ca); k.translate(-ch[0], -ch[1]);
+    paint(k, `M${ch[0] - 8} ${ch[1] + 2.4} L${ch[0] + 8} ${ch[1] + 2.4} L${ch[0] + 8} ${ch[1] + 13} L${ch[0] - 8} ${ch[1] + 13}Z`, CASE, PEN * 0.8);
+    pen(k, `M${ch[0] - 2.4} ${ch[1] + 2.4} Q${ch[0]} ${ch[1]} ${ch[0] + 2.4} ${ch[1] + 2.4}`, PEN * 0.7);
+    k.restore();
+  };
+}

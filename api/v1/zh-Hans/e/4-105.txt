@@ -1,0 +1,404 @@
+// Motion Prompt #4-105 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// 厨房煮饭 / Ink kitchen cooking
+// 分类: 审美风格 / 动画画风 / 平面与线条
+// 动画表现: 穿靛蓝围裙的人站在案台后面，把砧板上的胡萝卜切 8 刀。放下刀，把切剩的头扔进菜篮，揭开锅盖，抬起砧板，胡萝卜片一片片落进锅里；盖回锅盖、拿起刀，从菜篮拿出一根新的，回到开头。锅盖盖着时被蒸汽顶起 7 次，盖顶的气孔一直冒着细气，灶门里火苗跳动。墙上 4 件厨具随刀声和锅盖落下晃动，窗外邻家的烟囱飘着炊烟。
+// 运动规格:
+//   - 白天场景，不做昼夜变化。平涂色只有 2 种：围裙的靛蓝 #34507a 和胡萝卜的橙 #c8643b，灶火也用胡萝卜的颜色。
+//   - 从 0.1 秒起每 0.29 秒切一刀，共 8 刀，每片厚 5。3.15 秒揭开锅盖，3.25–4.25 秒抬起砧板再放回，4.05–4.3 秒盖回锅盖。
+//   - 锅盖盖着时在 0.55、1.25、1.85、2.4、4.9、5.45、5.95 秒共跳 7 次，每次 0.22 秒，每跳一次从两边冒热气。热气和窗外的炊烟都照原作 critters.ts 的炊烟画法。
+//   - 墙上 4 件厨具用原作灯笼的钟摆（刚度 10、12、9、14，阻尼 1.1），刀落到砧板和锅盖落下时推一下。
+//   - 人照原作不画脸，头是纸色椭圆，只露出案台以上的上身；去菜篮拿东西和揭锅盖时上身会探过去。
+// 适用场景: 适合讲做饭、菜谱、居家日常、食品或厨房电器，或做「准备中」的等待画面。
+// 标签: line-art, ink, kitchen, cooking, steam, pendulum
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#4-105
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 13
+// 厨房煮饭：一个不画脸的人站在案台后切胡萝卜，切完揭开锅盖、抬起砧板把胡萝卜片滑进锅里，盖回锅盖，
+// 再从菜篮里拿一根新的放上砧板。锅一直在灶上滚着，锅盖被蒸汽顶得一跳一跳，冒出一团团热气；
+// 墙上挂的勺铲随切菜的震动轻轻晃，窗外邻家的烟囱冒炊烟。原作没有室内场景，构图是新编的；
+// 墨线、纸色遮挡、两种平涂色（围裙靛蓝、胡萝卜橙）、炊烟画法和钟摆参数沿用原作。白天场景，不做昼夜。
+{
+  const SP = 1.2, FP = 0.6;                         // 主线、细节线（原作细节笔 0.4–0.6×）
+  const INDIGO = '#34507a', CARROT = '#c8643b';     // 围裙用原作和服的靛蓝；胡萝卜是这一款唯一的暖色
+  const TOP = 150;                                  // 案台台面
+  const W13 = TAU / CYC;                            // 一个周期一次的角频率，轻微晃动都取它的整数倍
+
+  // —— 时间线（秒）——
+  const CHOPS = 8, CH0 = 0.1, CHP = 0.29;           // 切 8 刀，每刀 0.29 秒
+  const SW = 5, CA0 = 196, CA1 = 250;               // 每片厚 5；胡萝卜从叶端 x=196 到尖端 x=250
+  const cutX = i => CA1 - SW * (i + 1);             // 第 i 刀落在哪
+  const hitT = i => CH0 + i * CHP + 0.3 * CHP;      // 第 i 刀刀刃碰到砧板的时刻
+  const cutsDone = u => { let n = 0; for (let i = 0; i < CHOPS; i++) if (u >= hitT(i)) n++; return n; };
+  const LID_UP = [3.15, 3.35], LID_DOWN = [4.05, 4.3];          // 揭盖、盖回
+  const TILT = [3.25, 3.55, 4.0, 4.25];                          // 砧板抬起、倾着、放回
+  const BUMPS = [0.55, 1.25, 1.85, 2.4, 4.9, 5.45, 5.95];        // 盖着时锅盖被顶起的时刻，越到后面越密
+  const BUMP_LEN = 0.22;
+
+  // 关键帧轨迹：[[时刻, [x, y]], …]，相邻两帧之间 ease 过渡，首尾同一位置，循环接得上
+  const track = keys => u => {
+    if (u <= keys[0][0]) return keys[0][1];
+    for (let i = 1; i < keys.length; i++) if (u <= keys[i][0]) {
+      const [t0, a] = keys[i - 1], [t1, b] = keys[i], s = t1 > t0 ? ease((u - t0) / (t1 - t0)) : 1;
+      return [mix(a[0], b[0], s), mix(a[1], b[1], s)];
+    }
+    return keys[keys.length - 1][1];
+  };
+  const win = (u, a, b) => smooth(a[0], a[1], u) * (1 - smooth(b[0], b[1], u));
+
+  // —— 砧板：右下角为支点，抬起时支点挪到锅沿上方，板绕它顺时针转，左端抬高，板上的片往锅里滑 ——
+  const PIV0 = [262, TOP], PIV1 = [270, 128], TH1 = 0.3, BL = 74, BT = 6;
+  const tiltAt = u => smooth(TILT[0], TILT[1], u) * (1 - smooth(TILT[2], TILT[3], u));
+  const boardXf = u => { const b = tiltAt(u); return { p: lerpP(PIV0, PIV1, b), th: TH1 * b }; };
+  const toWorld = (xf, lx, ly) => {
+    const c = Math.cos(xf.th), s = Math.sin(xf.th);
+    return [xf.p[0] + lx * c - ly * s, xf.p[1] + lx * s + ly * c];
+  };
+
+  // —— 手的轨迹 ——
+  // 右手拿刀：切菜时按刀数上下，切完把刀平放在案上，揭锅盖、举着、盖回，再拿起刀回到第一刀上方
+  const KNIFE_DOWN = [262, 154];                  // 刀平放在砧板前面的台面上，砧板抬起时刀不跟着动
+  const rightKeys = track([
+    [CH0 + CHOPS * CHP, [cutX(CHOPS - 1), 112]], [2.5, [cutX(CHOPS - 1), 112]], [2.75, KNIFE_DOWN], [2.85, KNIFE_DOWN],
+    [LID_UP[0], [300, 118]], [LID_UP[1], [306, 96]], [LID_DOWN[0], [306, 96]], [LID_DOWN[1], [300, 118]], [4.38, [300, 118]],
+    [4.55, KNIFE_DOWN], [4.62, KNIFE_DOWN], [5.4, [cutX(0), 112]], [CYC, [cutX(0), 112]],
+  ]);
+  const chopY = s => s < 0.3 ? 112 + 18 * s * s / 0.09 : s < 0.45 ? 130 : 130 - 18 * ease((s - 0.45) / 0.55);
+  const rightHand = u => {
+    if (u < CH0) return [cutX(0), 112];
+    const f = (u - CH0) / CHP, i = Math.floor(f);
+    if (i >= CHOPS) return rightKeys(u);
+    const s = f - i, x0 = cutX(i), x1 = cutX(Math.min(CHOPS - 1, i + 1));
+    return [s < 0.45 ? x0 : mix(x0, x1, ease((s - 0.45) / 0.55)), chopY(s)];
+  };
+  // 刀的角度：拿在手里刀刃朝下（0），放下时转成平躺（π/2，刀尖朝左）
+  const knifeAng = u => Math.PI / 2 * win(u, [2.55, 2.75], [4.62, 4.82]);
+  const knifeHeld = u => !(u > 2.75 && u < 4.55);
+  // 左手：按住胡萝卜，切完把剩下的叶头扔进菜篮，抬砧板（手跟着板的左端），放回后去菜篮拿新的一根放上砧板
+  const REST_L = [200, 138], BASKET = [168, 134];   // 手伸进篮口以下，扔进去的叶头才被篮子挡住
+  const leftKeys = track([
+    [0, REST_L], [2.45, REST_L], [2.6, [197, 138]], [2.85, [170, 120]], [2.95, BASKET], [TILT[0], [191, 147]],
+    [TILT[3], [191, 147]], [4.45, [200, 142]], [4.7, [170, 122]], [4.8, BASKET], [5.25, REST_L], [CYC, REST_L],
+  ]);
+  const leftHand = u => u >= TILT[0] && u <= TILT[3] ? toWorld(boardXf(u), -BL + 3, -BT / 2) : leftKeys(u);
+
+  // —— 锅盖：盖着时被蒸汽顶得跳；揭开时被右手举着 ——
+  const bumpAt = u => {
+    for (const b of BUMPS) { const s = (u - b) / BUMP_LEN; if (s >= 0 && s < 1) return s; }
+    return -1;
+  };
+  const LID_REST = [300, 132], KNOB = 14;          // 锅沿中心；手握的盖钮在它上方 14
+  const lidPose = u => {
+    const off = win(u, LID_UP, LID_DOWN);
+    if (off > 0) {
+      const h = rightHand(u);
+      return { c: lerpP(LID_REST, [h[0], h[1] + KNOB], off), a: 0.35 * off };
+    }
+    const s = bumpAt(u);
+    if (s < 0) return { c: LID_REST, a: 0 };
+    // 一跳：先顶起再落下，落下时轻轻弹一下；一侧先起，所以带一点歪
+    const lift = 2.8 * Math.sin(Math.PI * s) + 0.6 * Math.max(0, Math.sin(Math.PI * (s * 2 - 1)));
+    return { c: [LID_REST[0], LID_REST[1] - lift], a: 0.05 * Math.sin(TAU * s) };
+  };
+
+  // —— 墙上挂的勺铲：原作灯笼的钟摆 (10, 1.1)，推力来自每一刀落下和锅盖落回的震动 ——
+  const JOLTS = [...Array.from({ length: CHOPS }, (_, i) => [hitT(i), 3]), ...BUMPS.map(b => [b + BUMP_LEN, 1.6]), [LID_DOWN[1], 3]];
+  const jolt = u => JOLTS.reduce((f, [t, a]) => { const d = wrap(u - t + CYC / 2) - CYC / 2; return f + a * Math.exp(-(d / 0.03) * (d / 0.03)); }, 0);
+  const HANG = [{ x: 40, k: 10 }, { x: 70, k: 12 }, { x: 100, k: 9 }, { x: 132, k: 14 }];
+  const sway = sim(HANG.map(h => ({ type: 'pendulum', k: h.k, d: 1.1 })), u => HANG.map((h, i) => jolt(u) * (i % 2 ? -1 : 1)));
+
+  // —— 热气：照原作 critters.ts 炊烟的画法（14 点起伏的圆、越老越大越淡）；出生时刻和走法都是定值，同一时刻画面不变 ——
+  const PUFFS = [];
+  BUMPS.forEach((b, i) => [[268, -1], [332, 1]].forEach(([x, dir], j) =>
+    PUFFS.push({ t0: b + 0.05, x, y: 130, vx: dir * (6 + 4 * rnd(i, j)), vy: 14 + 6 * rnd(i, j + 5), r0: 3, life: 1.3, ph: rnd(i, j + 9) * 6 })));
+  for (let j = 0; j < 7; j++) PUFFS.push({ t0: LID_UP[0] + 0.05 + j * 0.11, x: 284 + 32 * rnd(j, 21), y: 128, vx: -4 + 8 * rnd(j, 22), vy: 26 + 12 * rnd(j, 23), r0: 4, life: 1.6, ph: rnd(j, 24) * 6 });
+  const puffPath = (x, y, r, ph, age) => {
+    const P = [];
+    for (let i = 0; i <= 14; i++) { const a = i / 14 * TAU, rr = r * (1 + 0.16 * Math.sin(a * 3 + ph + age)); P.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr * 0.8]); }
+    return new Path2D('M' + P.map(pt).join('L') + 'Z');
+  };
+  function steam(k, u) {
+    PUFFS.forEach(p => {
+      const age = wrap(u - p.t0);
+      if (age > p.life) return;
+      const x = p.x + p.vx * age + Math.sin(age * 1.2 + p.ph) * 2, y = p.y - p.vy * age + 3 * age * age;
+      const a = (1 - age / p.life) * smooth(0, 0.2, age), d = puffPath(x, y, p.r0 + 2.2 * age * 2, p.ph, age);
+      k.globalAlpha = a * 0.85; k.fillStyle = PAPER; k.fill(d);
+      k.globalAlpha = a * 0.6; pen(k, d, FP);
+    });
+    // 盖着的时候，锅盖顶上的气孔一直冒两缕细气，波形一个周期往上走 3 遍
+    const on = 1 - win(u, [LID_UP[0], LID_UP[0] + 0.1], [LID_DOWN[1] - 0.1, LID_DOWN[1]]);
+    if (on > 0.01) for (let i = 0; i < 2; i++) {
+      let prev = null;
+      for (let j = 0; j <= 10; j++) {
+        const t = j / 10, p = [296 + i * 7 + 2.6 * Math.sin(TAU * 1.3 * t - 3 * W13 * u + i * 2) * t, LID_REST[1] - KNOB - 3 - 40 * t];
+        if (prev) { k.globalAlpha = on * 0.55 * (1 - t); pen(k, `M${pt(prev)}L${pt(p)}`, FP * 1.1); }
+        prev = p;
+      }
+    }
+    k.globalAlpha = 1;
+  }
+
+  // —— 布景：墙、挂勺的横杆、窗外邻家烟囱、案台、灶、水缸 ——
+  const BACK = 146, FRONT = 156;                   // 台面后沿、前沿：台面是一条看得见上表面的窄带
+  const POT = { x: 300, rim: 134, hw: 34, bot: 152 };
+  const WIN = { x0: 360, y0: 26, x1: 470, y1: 104 };
+
+  // 窗外：邻家屋顶和烟囱，烟按原作 critters.ts 的炊烟一团团往上飘，每个周期 10 团，出生时刻均分，首尾接得上
+  const SMOKE = Array.from({ length: 10 }, (_, j) => ({ t0: j * CYC / 10, ph: rnd(j, 31) * 6, dx: 4 + 4 * rnd(j, 32) }));
+  function windowView(k, u) {
+    const { x0, y0, x1, y1 } = WIN;
+    k.save(); k.beginPath(); k.rect(x0, y0, x1 - x0, y1 - y0); k.clip();
+    k.fillStyle = '#eef0ea'; k.fillRect(x0, y0, x1 - x0, y1 - y0);
+    // 远山一道淡线
+    k.globalAlpha = 0.45; pen(k, `M${x0} 70 Q${x0 + 30} 56 ${x0 + 58} 64 T${x1} 58`, FP); k.globalAlpha = 1;
+    SMOKE.forEach(p => {
+      const age = wrap(u - p.t0), life = CYC;
+      const x = 446 + p.dx * age + Math.sin(age * 0.9 + p.ph) * 2.5, y = 62 - 9 * age;
+      const a = smooth(0, 0.4, age) * (1 - age / life), d = puffPath(x, y, 3 + 1.6 * age, p.ph, age);
+      k.globalAlpha = a * 0.9; k.fillStyle = '#eef0ea'; k.fill(d);
+      k.globalAlpha = a * 0.55; pen(k, d, FP);
+    });
+    k.globalAlpha = 1;
+    shape(k, `M436 66 L446 66 L446 86 L436 86 Z`, FP * 1.6);                           // 烟囱
+    shape(k, `M${x0 - 4} 104 L${x0 - 4} 88 L392 80 L478 80 L478 104 Z`, SP);             // 邻家屋顶
+    for (let x = 368; x < 478; x += 7) pen(k, `M${x} 82 L${x - 2} 104`, FP * 0.8);      // 瓦垄
+    k.restore();
+    // 窗框和格子
+    pen(k, `M${x0} ${y0} L${x1} ${y0} L${x1} ${y1} L${x0} ${y1} Z`, SP * 1.2);
+    for (let i = 1; i < 4; i++) inkLine(k, x0 + (x1 - x0) * i / 4, y0, x0 + (x1 - x0) * i / 4, y1, FP * 1.4, i, 0.2);
+    inkLine(k, x0, (y0 + y1) / 2, x1, (y0 + y1) / 2, FP * 1.4, 7, 0.2);
+    inkLine(k, x0 - 6, y1 + 4, x1 + 6, y1 + 4, SP, 8, 0.3);                               // 窗台
+  }
+
+  // 挂在横杆上的四件厨具：长柄勺、锅铲、小煎锅、打蛋器；每件绕挂钩转 sway 的角度
+  function utensils(k, u) {
+    inkLine(k, 22, 24, 152, 24, SP * 1.2, 3, 0.25);
+    blot(k, `M20 21 L24 21 L24 27 L20 27 Z`); blot(k, `M150 21 L154 21 L154 27 L150 27 Z`);
+    const ang = sway(u);
+    const ITEMS = [
+      k2 => { pen(k2, 'M0 2 L0 34', FP * 1.8); shape(k2, 'M-6 34 Q-6 43 0 43 Q6 43 6 34 Z', FP * 1.6); },
+      k2 => { pen(k2, 'M0 2 L0 28', FP * 1.8); shape(k2, 'M-5 28 L5 28 L6 42 L-6 42 Z', FP * 1.6); pen(k2, 'M-2 31 L-2 39 M2 31 L2 39', FP); },
+      k2 => { pen(k2, 'M0 2 L0 18', FP * 2.2); shape(k2, 'M-11 18 L11 18 Q11 34 0 34 Q-11 34 -11 18 Z', SP); pen(k2, 'M-8 22 Q0 26 8 22', FP); },
+      k2 => { pen(k2, 'M0 2 L0 20', FP * 2); for (const s of [-1, -0.4, 0.4, 1]) pen(k2, `M0 20 Q${7 * s} 30 0 40`, FP); },
+    ];
+    HANG.forEach((h, i) => {
+      k.save(); k.translate(h.x, 24); k.rotate(ang[i] * 1.6);
+      pen(k, 'M0 0 Q2 1 1 3 Q0 4 0 2', FP);                  // 挂钩
+      ITEMS[i](k);
+      k.restore();
+    });
+  }
+
+  function counter(k) {
+    shape(k, `M-2 ${BACK} L258 ${BACK} L258 ${CH + 2} L-2 ${CH + 2} Z`, SP);
+    inkLine(k, -2, FRONT, 258, FRONT, SP, 11, 0.3);
+    for (const x of [86, 172]) inkLine(k, x, FRONT, x, CH, FP * 1.4, x, 0.25);          // 柜门缝
+    for (const x of [76, 96, 162, 182]) pen(k, `M${x} 176 L${x} 184`, SP * 1.4);         // 柜门把手
+    for (let i = 0; i < 6; i++) { const y = FRONT + 12 + i * 8; k.globalAlpha = 0.35; pen(k, `M${8 + 31 * (i % 3)} ${y} q10 -1 18 0`, FP); }
+    k.globalAlpha = 1;
+  }
+
+  // 灶：砖砌的前脸，中间火门，火苗是胡萝卜色的一小团，三个尖按整数频率起伏
+  function stove(k, u) {
+    shape(k, `M258 ${BACK} L346 ${BACK} L346 ${CH + 2} L258 ${CH + 2} Z`, SP);
+    inkLine(k, 258, FRONT, 346, FRONT, SP, 13, 0.3);
+    for (let r = 0; r < 6; r++) {                            // 砖缝
+      const y = FRONT + 8 * (r + 1); k.globalAlpha = 0.45; pen(k, `M258 ${y} L346 ${y}`, FP);
+      for (let x = 262 + (r % 2) * 11; x < 346; x += 22) pen(k, `M${x} ${y - 8} L${x} ${y}`, FP);
+    }
+    k.globalAlpha = 1;
+    const door = `M284 ${CH + 2} L284 182 Q300 168 316 182 L316 ${CH + 2} Z`;
+    blot(k, door);
+    const f = i => 7 + 3 * Math.sin(W13 * (5 + i) * u + i * 2);
+    paint(k, `M287 ${CH} Q290 ${CH - f(0)} 293 ${CH - 4} Q296 ${CH - 4 - f(1)} 301 ${CH - 5} Q305 ${CH - 2 - f(2)} 313 ${CH} Z`, CARROT, FP);
+  }
+
+  // 水缸：灶右边，缸口搭一把木瓢
+  function waterJar(k) {
+    shape(k, `M384 ${CH + 2} Q372 170 388 150 L432 150 Q448 170 436 ${CH + 2} Z`, SP);
+    pen(k, 'M386 150 Q410 156 434 150', FP * 1.4);
+    pen(k, 'M392 166 Q410 170 428 166', FP);
+    pen(k, 'M420 148 L452 128', FP * 1.8);
+    shape(k, 'M410 146 Q412 140 420 142 Q426 148 418 151 Q410 151 410 146 Z', FP * 1.4);
+  }
+
+  // —— 砧板和胡萝卜 ——
+  // 胡萝卜躺在砧板上，叶端在左（x=196）、尖在右（x=250），半径从 4.2 收到 1.6
+  const CR = x => mix(4.2, 1.6, (x - CA0) / (CA1 - CA0));
+  const carrotD = (x0, x1, dx = 0, dy = 0) => {
+    const y = x => BACK - 2 - CR(x) + dy;            // 贴着砧板面
+    return `M${x0 + dx} ${y(x0) - CR(x0)} L${x1 + dx} ${y(x1) - CR(x1)} Q${x1 + dx + 1.6} ${y(x1)} ${x1 + dx} ${y(x1) + CR(x1)} L${x0 + dx} ${y(x0) + CR(x0)} Q${x0 + dx - 1.4} ${y(x0)} ${x0 + dx} ${y(x0) - CR(x0)} Z`;
+  };
+  const leaves = (dx, dy) => `M${CA0 + dx} ${BACK - 6 + dy} q-6 -3 -11 -9 M${CA0 + dx} ${BACK - 7 + dy} q-3 -5 -4 -12 M${CA0 + dx} ${BACK - 6 + dy} q-8 0 -13 -3`;
+  function wholeCarrot(k, x1, dx, dy) {
+    paint(k, carrotD(CA0, x1, dx, dy), CARROT, FP * 1.4);
+    for (let x = CA0 + 9; x < x1 - 3; x += 11) { k.globalAlpha = 0.55; pen(k, `M${x + dx} ${BACK - 2 - 2 * CR(x) + 1 + dy} l1 2`, FP * 0.8); }
+    k.globalAlpha = 1;
+    pen(k, leaves(dx, dy), FP * 1.2);
+  }
+
+  // 切下的片在砧板局部坐标里：lx 从支点（右端）往左量，ly 向下为正，板面是 ly=-BT
+  const BOARD_PIV0_X = PIV0[0];
+  const SLIDE_A = 320, SLIDE_T0 = TILT[0] + 0.15;    // 板倾到一半片才开始滑，越往后越快
+  function slicePose(i, u) {
+    const t = u - hitT(i);
+    const fall = smooth(0, 0.1, t);                  // 切下后往右倒一点
+    let lx = cutX(i) + SW / 2 + 1.4 * fall - BOARD_PIV0_X;
+    const st = u - SLIDE_T0 - 0.015 * i;             // 靠近支点的先滑
+    if (st > 0) lx += 0.5 * SLIDE_A * st * st;
+    return { lx, rot: 0.22 * fall + (st > 0 ? 0.6 * st : 0), st };
+  }
+  // 已经滑出板端、正往锅里掉的片
+  const offBoard = u => {
+    if (u > TILT[3]) return [];
+    const out = [];
+    for (let i = 0; i < cutsDone(u); i++) { const s = slicePose(i, u); if (s.lx > 1) out.push([i, s]); }
+    return out;
+  };
+  function boardAndSlices(k, u) {
+    const xf = boardXf(u), n = cutsDone(u);
+    k.save(); k.translate(xf.p[0], xf.p[1]); k.rotate(xf.th);
+    shape(k, `M${-BL} ${-BT} L0 ${-BT} L0 0 L${-BL} 0 Z`, SP);
+    pen(k, `M${-BL + 3} ${-BT + 2.4} L-3 ${-BT + 2.4}`, FP * 0.7);
+    k.restore();
+    for (let i = 0; i < n; i++) {
+      if (u > TILT[3]) break;                        // 盖回之后片都在锅里了
+      const s = slicePose(i, u), r = CR(cutX(i) + SW / 2);
+      if (s.lx > 1) continue;
+      const c = toWorld(xf, s.lx, -BT - r);
+      k.save(); k.translate(c[0], c[1]); k.rotate(xf.th + s.rot);
+      paint(k, `M${-SW / 2} ${-r} L${SW / 2} ${-r * 0.9} L${SW / 2} ${r * 0.9} L${-SW / 2} ${r} Z`, CARROT, FP * 1.2);
+      k.restore();
+    }
+  }
+  // 滑出板端的片：从板端抛出、按重力落进锅口，掉到锅沿以下就被锅身挡住
+  function fallingSlices(k, u, list) {
+    const xf = boardXf(u), end = toWorld(xf, 0, -BT - 2);
+    list.forEach(([i, s]) => {
+      const over = s.lx - 1, v = Math.sqrt(2 * SLIDE_A * Math.max(over, 0.01));
+      const tf = over / Math.max(v, 1);              // 离开板端后的大致时间
+      const x = end[0] + v * Math.cos(xf.th) * tf, y = end[1] + v * Math.sin(xf.th) * tf + 0.5 * 600 * tf * tf;
+      if (y > POT.rim + 6) return;
+      const r = CR(cutX(i) + SW / 2);
+      k.save(); k.translate(x, y); k.rotate(s.rot * 2);
+      paint(k, `M${-SW / 2} ${-r} L${SW / 2} ${-r} L${SW / 2} ${r} L${-SW / 2} ${r} Z`, CARROT, FP * 1.2);
+      k.restore();
+    });
+  }
+
+  // 菜篮：前脸画斜编纹；手伸进篮口时被前脸挡住
+  function basketBack(k) {
+    pen(k, 'M146 124 Q166 118 186 124', FP * 1.4);
+    pen(k, 'M152 124 q2 -10 8 -12 M160 123 q0 -12 5 -15 M172 123 q4 -9 10 -10', FP * 1.1);   // 篮里冒出的菜叶
+  }
+  function basketFront(k) {
+    shape(k, 'M146 124 Q166 130 186 124 L182 150 Q166 153 150 150 Z', SP);
+    k.save(); k.clip(path('M146 124 Q166 130 186 124 L182 150 Q166 153 150 150 Z'));
+    k.globalAlpha = 0.55;
+    for (let x = 136; x < 196; x += 5) { pen(k, `M${x} 124 L${x + 10} 152`, FP * 0.8); pen(k, `M${x + 10} 124 L${x} 152`, FP * 0.8); }
+    k.restore(); k.globalAlpha = 1;
+    pen(k, 'M146 124 Q166 130 186 124', SP * 1.3);
+  }
+
+  function pot(k) {
+    const { x, rim, hw, bot } = POT;
+    shape(k, `M${x - hw} ${rim} L${x + hw} ${rim} Q${x + hw + 6} ${rim + 12} ${x + hw - 4} ${bot} L${x - hw + 4} ${bot} Q${x - hw - 6} ${rim + 12} ${x - hw} ${rim} Z`, SP);
+    pen(k, `M${x - hw - 4} ${rim + 5} q-5 0 -5 3 M${x + hw + 4} ${rim + 5} q5 0 5 3`, SP);             // 两只锅耳
+    pen(k, `M${x - hw + 2} ${rim + 3} L${x + hw - 2} ${rim + 3}`, FP * 0.8);
+  }
+  function lid(k, u) {
+    const L = lidPose(u);
+    k.save(); k.translate(L.c[0], L.c[1]); k.rotate(L.a);
+    shape(k, `M${-POT.hw - 2} 0 Q0 -16 ${POT.hw + 2} 0 Z`, SP);
+    shape(k, `M-4 -10 L4 -10 L3 -${KNOB} L-3 -${KNOB} Z`, FP * 1.6);
+    k.restore();
+  }
+
+  // 刀：局部坐标握点在原点，+y 沿刀身；ang=π/2 时刀尖朝左平躺
+  function knife(k, at, ang) {
+    k.save(); k.translate(at[0], at[1]); k.rotate(ang);
+    blot(k, 'M-1.4 -8 L1.4 -8 L1.4 0 L-1.4 0 Z');
+    shape(k, 'M-2 0 L2.6 0 L2.6 15 Q0 15 -2 12.5 Z', FP * 1.4);
+    k.restore();
+  }
+
+  // —— 人：站在案台后面，正面、不画脸；下半身被案台挡住 ——
+  // 去菜篮拿放东西时上身往左探，揭锅盖时往右探，好让手够得着
+  const lean = u => -14 * (win(u, [2.5, 2.75], [2.95, 3.15]) + win(u, [4.45, 4.7], [4.85, 5.2])) + 6 * win(u, [3.05, 3.2], [4.3, 4.5]);
+  const BODY_X = 228, SHO_Y = 80, SHO_W = 16, UPPER = 38, FORE = 36, ARM_W = 7.4;
+  // 两段手臂：肩到手，肘向外弯。右臂直接用 knee()（取 x 较大的解），左臂左右镜像后再用
+  const elbow = (s, hd, side) => {
+    if (side > 0) return knee(s, hd, UPPER, FORE);
+    const e = knee([-s[0], s[1]], [-hd[0], hd[1]], UPPER, FORE);
+    return [-e[0], e[1]];
+  };
+  function body(k, u) {
+    const L = lean(u), sx = BODY_X + L;
+    // 躯干：肩随前探移动，腰在案台后面不动
+    shape(k, `M${sx - SHO_W} ${SHO_Y} Q${sx} ${SHO_Y - 5} ${sx + SHO_W} ${SHO_Y} L${BODY_X + 21} 152 L${BODY_X - 21} 152 Z`, SP);
+    // 围裙：原作和服的靛蓝，挂脖带两笔
+    paint(k, `M${sx - 10} 98 L${sx + 10} 98 L${BODY_X + 18} 152 L${BODY_X - 18} 152 Z`, INDIGO, FP * 1.4);
+    pen(k, `M${sx - 10} 98 L${sx - 5} ${SHO_Y - 4} M${sx + 10} 98 L${sx + 5} ${SHO_Y - 4}`, FP * 1.2);
+    pen(k, `M${BODY_X - 19} 122 L${BODY_X + 19} 122`, FP * 1.2);          // 围裙腰带
+    // 脖子和头：头比肩多探一点；原作不画脸，头是纸色椭圆，后脑一个发髻
+    const hx = sx + L * 0.15;
+    pen(k, `M${sx - 3.5} ${SHO_Y - 3} L${hx - 3} ${SHO_Y - 12} M${sx + 3.5} ${SHO_Y - 3} L${hx + 3} ${SHO_Y - 12}`, SP);
+    blot(k, `M${hx - 4.5} 38 a5 4.4 0 1 1 9 0 a5 4.4 0 1 1 -9 0 Z`);
+    shape(k, `M${hx - 8.6} 56 a8.6 11 0 1 1 17.2 0 a8.6 11 0 1 1 -17.2 0 Z`, SP);
+    blot(k, `M${hx - 8.6} 54 Q${hx - 8} 44 ${hx} 45 Q${hx + 8} 44 ${hx + 8.6} 54 Q${hx + 9.6} 42 ${hx} 42 Q${hx - 9.6} 42 ${hx - 8.6} 54 Z`);
+  }
+  function arms(k, u) {
+    const sx = BODY_X + lean(u);
+    [[-1, leftHand(u)], [1, rightHand(u)]].forEach(([side, hd]) => {
+      const s = [sx + side * (SHO_W - 3), SHO_Y + 2], e = elbow(s, hd, side);
+      limb(k, [s, e, hd], ARM_W, [0.6, 1.2], SP);
+      shape(k, `M${hd[0] - 3.6} ${hd[1]} a3.6 3.2 0 1 1 7.2 0 a3.6 3.2 0 1 1 -7.2 0 Z`, FP * 1.4);   // 手
+    });
+  }
+
+  // —— 胡萝卜的去向：切剩的叶头被左手扔进菜篮，新的一根从菜篮拿出来放上砧板 ——
+  const STUB = [2.45, 2.95], FRESH = [4.8, 5.25];
+  function carrots(k, u, onBoard) {
+    const hd = leftHand(u), off = [hd[0] - REST_L[0], hd[1] - REST_L[1]], n = cutsDone(u);
+    if (onBoard) {
+      if (u < STUB[0]) wholeCarrot(k, n ? cutX(n - 1) : CA1, 0, 0);
+      else if (u >= FRESH[1]) wholeCarrot(k, CA1, 0, 0);
+      return;
+    }
+    // 手里拿着的这一根画在篮子前脸之前，伸进篮口以下就被前脸挡住
+    if (u >= STUB[0] && u < STUB[1] + 0.05) wholeCarrot(k, cutX(CHOPS - 1), off[0], off[1]);
+    if (u >= FRESH[0] && u < FRESH[1]) wholeCarrot(k, CA1, off[0], off[1]);
+  }
+
+  CELLS[12] = (k, w, h, u) => {
+    paper(k);
+    // 墙上一道腰线和几块墙砖的淡线，交代这是墙
+    k.globalAlpha = 0.35;
+    inkLine(k, 0, 112, CW, 112, FP, 41, 0.3);
+    for (const [x, y] of [[20, 70], [150, 54], [500, 40], [508, 128], [190, 126]]) pen(k, `M${x} ${y} l14 0`, FP);
+    k.globalAlpha = 1;
+    windowView(k, u);
+    utensils(k, u);
+    body(k, u);
+    counter(k);
+    stove(k, u);
+    waterJar(k);
+    basketBack(k);
+    carrots(k, u, false);
+    fallingSlices(k, u, offBoard(u));
+    pot(k);
+    lid(k, u);
+    boardAndSlices(k, u);
+    carrots(k, u, true);
+    knife(k, knifeHeld(u) ? rightHand(u) : KNIFE_DOWN, knifeHeld(u) ? knifeAng(u) : Math.PI / 2);
+    arms(k, u);
+    basketFront(k);
+    steam(k, u);
+  };
+}

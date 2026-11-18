@@ -1,0 +1,201 @@
+// Motion Prompt #2-135 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// Cyclist ringing the bell / 自転車に乗る人とベル
+// Category: Motion graphics / Shapes & objects / Figures & animals
+// What happens: A boy in a black school uniform and cap rides a step-through bike with a brown bag in the front basket. The view follows him, so the paving joints and street lamps slide past. Halfway his thumb flicks the bell, the bell cap shakes, and 2 curved sound lines rise and fade.
+// Motion spec:
+//   - Warm paper #fdfcf8 and one ink colour #1c1c1c, with a brown bag #4a3a2c and a pale bell #d8d2c0; the bike's tyres sit on the kerb line 172 px down and the rider keeps the same place on screen while the street moves.
+//   - Bike geometry as in the original: wheel radius 13.5, cranks 6.2, thigh and shin 21 each; legs and sleeves are two pen lines filled with ink, the head is left blank with a black cap.
+//   - In each 6.4 s loop the wheels turn exactly 10 times and the cranks 4 times; the wheels roll without slipping, so the ground moves at the rim speed, and 8 spokes per wheel turn with it.
+//   - The two pedals are half a turn apart; each ankle rides just above its pedal and the knee is solved from hip and ankle, and the body rises and falls by 0.35 units with each pedal stroke.
+//   - At 3 s the thumb flicks toward the bell for 0.2 s; the bell cap shakes up to 14° and settles, and 2 sound arcs of radius 5 and 9 fade out over 1 s.
+// When to use it: Use it for commuting and school-run stories, delivery or "heads-up" notices, everyday town life, or notifications and loading screens that want a hand-drawn warmth.
+// Tags: line-art, ink, bicycle, pedaling, bell, wheel-spokes, commute
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-135
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 03
+// 骑车人与车铃：戴帽的学生骑着带车筐的买菜车往前骑，镜头跟着他，地砖缝和路灯向后退；曲柄带着两脚蹬踏，膝、踝跟着解算，
+// 车轮辐条转动；骑到一半拇指按一下车铃，铃盖抖动、冒出两道短声线。对应原作 examples/village/people.ts 的 createCyclist（点一下才响铃），这里响铃按时间发生。
+{
+  const GROUND = 172, SCALE = 1.3;
+  const FX = 262;                                   // 人物空间 x=40 的画面位置固定，街景向后退；车身略偏前，这样整车居中
+  // 车架几何照搬原作：轮半径、后轮、前轮、中轴、曲柄长
+  const R = 13.5, REAR = [18, 106.5], FRONT = [71, 106.5], BB = [41, 108], CR = 6.2;
+  // 原作车速 66 px/s、人物缩放 0.5，曲柄转角是车轮转角的 0.42。
+  // 一个周期里车轮转数、曲柄圈数都取整（10 圈、4 圈），反推车速和传动比，循环时轮子、脚踏首尾相接
+  const SPEED0 = 66 / 0.5, GEAR0 = 0.42;
+  const WHEEL_REV = Math.max(1, Math.round((SPEED0 * CYC) / (TAU * R)));
+  const CRANK_REV = Math.max(1, Math.round(WHEEL_REV * GEAR0));
+  const SPIN = (WHEEL_REV * TAU) / CYC;             // 车轮角速度 rad/s
+  const GEAR = CRANK_REV / WHEEL_REV;
+  const SPEED = SPIN * R;                           // 车轮不打滑：人物单位/秒
+  // 一个周期骑过的画面距离；地砖缝、路灯的间距按它整除，循环时街景也首尾相接。间距取得和 01 款相近，两款并排时街景疏密一致
+  const DIST = SPEED * SCALE * CYC;
+  const TILES = Math.round(DIST / 32), TILE = DIST / TILES;
+  const LAMPS = Math.max(1, Math.round(DIST / 260)), LAMP_SP = DIST / LAMPS;
+  const LAMP_X = 120, LAMP_H = 126;
+  // 原作 poke 后 ringT 从 0 走到 0.9 秒；这里放到 1.0 秒，铃盖抖动幅度和声线透明度都正好落到 0，结束时不跳
+  const RING_T0 = 3.0, RING_LEN = 1.0;
+  const BAG = '#4a3a2c', BELL = '#d8d2c0';
+
+  // 原作 joint()：bend=+1 中间关节朝 +x（膝），-1 朝 -x（肘）；kit 的 knee() 只有朝前一种
+  const ik = (a, b, l1, l2, bend) => {
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    const d = Math.min(Math.hypot(dx, dy), l1 + l2 - 0.01), th = Math.atan2(dy, dx);
+    const al = Math.acos(clamp((l1 * l1 + d * d - l2 * l2) / (2 * l1 * d), -1, 1));
+    const c1 = [a[0] + l1 * Math.cos(th - al), a[1] + l1 * Math.sin(th - al)];
+    const c2 = [a[0] + l1 * Math.cos(th + al), a[1] + l1 * Math.sin(th + al)];
+    return (c1[0] - c2[0]) * bend > 0 ? c1 : c2;
+  };
+  // 原作 solid(limb())：同样的两笔四肢，只是中间填墨（黑校服的腿和袖子）；kit 的 limb() 固定填纸色，所以在这里另写
+  const solidLimb = (k, joints, width, w = PEN) => {
+    const [s, m, e] = joints;
+    const c = [m[0] + 0.55 * (m[0] - (s[0] + e[0]) / 2), m[1] + 0.55 * (m[1] - (s[1] + e[1]) / 2)];
+    const P = [];
+    for (let i = 0; i <= 16; i++) {
+      const t = i / 16, v = 1 - t;
+      P.push([v * v * s[0] + 2 * v * t * c[0] + t * t * e[0], v * v * s[1] + 2 * v * t * c[1] + t * t * e[1]]);
+    }
+    const half = (width - w) / 2;
+    const side = sgn => P.map((p, i) => {
+      const q = P[Math.min(16, i + 1)], o = P[Math.max(0, i - 1)];
+      const dx = q[0] - o[0], dy = q[1] - o[1], l = Math.hypot(dx, dy) || 1;
+      return [p[0] - (dy / l) * half * sgn, p[1] + (dx / l) * half * sgn];
+    });
+    const L = side(1), Rr = side(-1);
+    blot(k, 'M' + L.map(pt).join('L') + 'L' + Rr.slice().reverse().map(pt).join('L') + 'Z');
+    pen(k, 'M' + L.map(pt).join('L'), w);
+    pen(k, 'M' + Rr.map(pt).join('L'), w);
+  };
+  const footShoe = a => `M${a[0] - 2.6} ${a[1] + 0.6} L${a[0] + 4.4} ${a[1] + 0.6} Q${a[0] + 5.4} ${a[1] + 2.6} ${a[0] + 3} ${a[1] + 2.8} L${a[0] - 2.4} ${a[1] + 2.8}Z`;
+  const lamp = (k, x) => {
+    const top = GROUND - LAMP_H;
+    shape(k, `M${x - 4} ${GROUND} L${x - 2} ${top} L${x + 2} ${top} L${x + 4} ${GROUND}Z`, 0.9);
+    shape(k, `M${x - 10} ${top} L${x + 10} ${top} L${x + 7} ${top - 12} L${x - 7} ${top - 12}Z`, 0.9);
+    pen(k, `M${x - 6} ${top - 6} L${x + 6} ${top - 6} M${x} ${top - 12} L${x} ${top - 18}`, 0.6);
+  };
+  // 车身不动的部分（原作 SVG 里只设一次 d 的那些）首次调用时建成 Path2D 缓存，结果只与常量有关
+  let S = null;
+  const build = () => {
+    const ring = (c, r) => { const p = new Path2D(); p.arc(c[0], c[1], r, 0, TAU); return p; };
+    S = {
+      tyre: [REAR, FRONT].map(c => ring(c, R)),
+      rim: [REAR, FRONT].map(c => ring(c, R - 1.6)),
+      hub: [REAR, FRONT].map(c => ring(c, 1.4)),
+      guards: new Path2D(`M${REAR[0] - 15} ${REAR[1] - 2} Q${REAR[0]} ${REAR[1] - 18} ${REAR[0] + 14} ${REAR[1] - 5} M${FRONT[0] - 13} ${FRONT[1] - 5} Q${FRONT[0]} ${FRONT[1] - 18} ${FRONT[0] + 14} ${FRONT[1] - 3}`),
+      frame: new Path2D(`M64 79 Q52 103 ${BB[0]} ${BB[1]} L${REAR[0]} ${REAR[1]} L31 80 L${BB[0]} ${BB[1]} M31 80 L30 74 M64 79 L66.6 89 Q68.4 97 ${FRONT[0]} ${FRONT[1]} M64 79 L62.4 70 Q58 68 54.4 69.6`),
+      chain: new Path2D(`M${BB[0] + 3} ${BB[1] - 3.6} L${REAR[0] + 1} ${REAR[1] - 3} Q${REAR[0] - 2} ${REAR[1]} ${REAR[0] + 1} ${REAR[1] + 3} L${BB[0] + 3} ${BB[1] + 3.6} Q${BB[0] + 6.4} ${BB[1]} ${BB[0] + 3} ${BB[1] - 3.6}Z`),
+      saddle: new Path2D('M25 73 Q30 70.6 35.6 72.4 L34.6 75 L26 75Z'),
+      basket: new Path2D('M66 71 L82 71 L80.6 84 L67.4 84Z'),
+      weave: new Path2D('M66.5 75 L81.6 75 M66.9 79.4 L81 79.4 M70 71 L70.6 84 M74 71 L74 84 M78 71 L77.4 84'),
+      bag: new Path2D('M68 71 Q68.5 64 74 64 Q80 64 80 71Z'),
+      headlamp: new Path2D('M81.6 84 L85.4 84 L85.4 88 L81.6 88Z'),
+      bell: new Path2D('M56 66.6 a1.8 1.8 0 0 1 3.6 0Z'),
+      // 原作两道弧形声线，半径 5 和 9，同时出现、一起淡出
+      rings: new Path2D([5, 9].map(r => `M${57.8 - r * 0.6} ${64 - r * 0.5} Q57.8 ${64 - r * 1.1} ${57.8 + r * 0.6} ${64 - r * 0.5}`).join(' ')),
+    };
+  };
+
+  CELLS[2] = (k, w, h, u) => {
+    if (!S) build();
+    paper(k);
+    u = wrap(u);
+    const off = wrap(SPEED * SCALE * u, DIST);       // 已骑过的画面距离
+
+    // 街：照 01 款，两条路缘线、地砖缝、路灯；墨线偏移的种子按世界里的第几块砖取
+    inkLine(k, 0, GROUND, CW, GROUND, 0.9, 1);
+    inkLine(k, 0, GROUND + 9, CW, GROUND + 9, 0.9, 2);
+    const first = Math.floor(off / TILE);
+    for (let i = first - 1; i <= first + Math.ceil(CW / TILE) + 1; i++) {
+      const x = i * TILE - off + 10;
+      if (x < -2 || x > CW + 2) continue;
+      inkLine(k, x, GROUND, x + 0.0001, GROUND + 9, 0.55, ((i % TILES) + TILES) % TILES + 10, 0.2);
+    }
+    const offL = wrap(off, LAMP_SP);
+    for (let j = -1; j <= Math.ceil(CW / LAMP_SP) + 1; j++) {
+      const x = LAMP_X + j * LAMP_SP - offL;
+      if (x > -20 && x < CW + 20) lamp(k, x);
+    }
+
+    // 车铃：rr 为按下后的秒数；不响时为 -1
+    const tr = wrap(u - RING_T0);
+    const rr = tr < RING_LEN ? tr : -1;
+    // 原作手一直握在车把上；这里拇指往铃那边按一下（0.2 秒），让「按铃」看得出来
+    const press = rr >= 0 ? Math.sin(Math.PI * clamp(rr / 0.2)) : 0;
+
+    k.save();
+    place(k, FX, GROUND, 1, SCALE);
+    const wa = SPIN * u, ca = wa * GEAR;
+
+    // 车轮：外胎、轮圈、8 根穿过轮心的辐条（16 根半辐，每 π/8 重复一次）、实心花鼓
+    for (let n = 0; n < 2; n++) {
+      const c = [REAR, FRONT][n];
+      pen(k, S.tyre[n], PEN * 1.1);
+      pen(k, S.rim[n], PEN * 0.45);
+      let d = '';
+      for (let i = 0; i < 8; i++) {
+        const a = wa + (i * Math.PI) / 8, cx = Math.cos(a) * (R - 1.6), cy = Math.sin(a) * (R - 1.6);
+        d += `M${c[0] + cx} ${c[1] + cy} L${c[0] - cx} ${c[1] - cy}`;
+      }
+      pen(k, d, PEN * 0.32);
+      k.fillStyle = INK; k.fill(S.hub[n]);
+    }
+
+    // 曲柄转一圈，两只脚踏相差半圈；踝在脚踏上方，膝按大腿 21、小腿 21 两段解算
+    const pN = [BB[0] + Math.cos(ca) * CR, BB[1] + Math.sin(ca) * CR];
+    const pF = [BB[0] - Math.cos(ca) * CR, BB[1] - Math.sin(ca) * CR];
+    const bob = Math.sin(ca * 2) * 0.35;              // 原作：每蹬一脚身子轻轻起伏一次
+    const hip = [31, 70.6 + bob];
+    const leg = (p, width) => {
+      const ank = [p[0] - 0.6, p[1] - 2.2];
+      solidLimb(k, [hip, knee(hip, ank, 21, 21), ank], width);
+      blot(k, footShoe(ank));
+    };
+    leg(pF, 4.2);                                     // 远侧腿在车架后面
+
+    pen(k, S.frame, PEN * 1.05);
+    pen(k, S.guards, PEN * 0.6);
+    shape(k, S.chain, PEN * 0.6);
+    blot(k, S.saddle);
+    shape(k, S.basket, PEN * 0.7);
+    pen(k, S.weave, PEN * 0.35);
+    paint(k, S.bag, BAG, PEN * 0.6);
+    shape(k, S.headlamp, PEN * 0.6);                 // 白天车灯不亮，原作同样只填纸色
+    // 铃盖：原作按 sin(rr·60) 抖，幅度 14° 随时间衰减
+    k.save();
+    if (rr >= 0) { k.translate(57.8, 66.6); k.rotate((Math.sin(rr * 60) * 14 * (1 - rr) * Math.PI) / 180); k.translate(-57.8, -66.6); }
+    paint(k, S.bell, BELL, 0.5);
+    k.restore();
+    pen(k, `M${pF[0]} ${pF[1]} L${pN[0]} ${pN[1]} M${pN[0] - 2} ${pN[1]} l4 0 M${pF[0] - 2} ${pF[1]} l4 0`, PEN * 0.9);
+
+    // 上身：黑校服躯干、领口一笔纸色、头、帽
+    const sh = [44.6, 43 + bob];
+    blot(k, `M${hip[0] - 3.6} ${hip[1] + 2} Q${hip[0] - 4.4} ${hip[1] - 14} ${sh[0] - 6} ${sh[1] + 1} Q${sh[0] - 1} ${sh[1] - 3.4} ${sh[0] + 3.4} ${sh[1] + 1.6} Q${sh[0] - 2} ${hip[1] - 12} ${hip[0] + 6} ${hip[1] + 2}Z`);
+    k.lineWidth = PEN * 0.6; k.strokeStyle = PAPER; k.lineCap = 'round';
+    k.stroke(path(`M${sh[0] - 2} ${sh[1] - 1} l3 1.6`));
+    const hc = [sh[0] + 4.2, sh[1] - 9.4];
+    const head = new Path2D(); head.ellipse(hc[0], hc[1], 4.3, 5, 0, 0, TAU);
+    shape(k, head);
+    blot(k, `M${hc[0] - 4.6} ${hc[1] - 1.6} Q${hc[0] - 4.4} ${hc[1] - 7} ${hc[0] + 0.4} ${hc[1] - 6.8} Q${hc[0] + 4.8} ${hc[1] - 6.4} ${hc[0] + 4.6} ${hc[1] - 2} L${hc[0] + 8} ${hc[1] - 1.2} L${hc[0] + 4.4} ${hc[1] - 0.6}Z`);
+
+    leg(pN, 4.4);                                     // 近侧腿压在车架和躯干上
+    // 手臂：肩到车把，肘朝后弯；按铃时手朝铃移一点
+    const grip = [55.4 + 0.6 * press, 69.6 - 0.6 * press];
+    const s2 = [sh[0], sh[1] + 2];
+    solidLimb(k, [s2, ik(s2, grip, 11.5, 11.5, -1), grip], 3.6);
+    const hand = new Path2D(); hand.ellipse(grip[0], grip[1], 1.7, 1.4, 0, 0, TAU);
+    shape(k, hand, PEN * 0.7);
+
+    if (rr >= 0) {
+      k.globalAlpha = 1 - rr;
+      pen(k, S.rings, PEN * 0.6);
+      k.globalAlpha = 1;
+    }
+    k.restore();
+  };
+}

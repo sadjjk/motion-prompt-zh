@@ -2,7 +2,7 @@
 
 # Names
 
-596 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+610 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind. Each number opens the moving sample in the gallery.
 
@@ -34,8 +34,9 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | 2 Motion graphics | Text animation | Impact & physics | 8 | #2 042–048 · 132 |
 | 2 Motion graphics | Text animation | Spatial type | 6 | #2 049–054 |
 | 2 Motion graphics | Shapes & objects | Lines & shapes | 9 | #2 055–063 |
-| 2 Motion graphics | Shapes & objects | Objects & machines | 15 | #2 064–075 · 124–126 |
+| 2 Motion graphics | Shapes & objects | Objects & machines | 16 | #2 064–075 · 124–126 · 139 |
 | 2 Motion graphics | Shapes & objects | Information & tech | 22 | #2 076–091 · 115 · 127–131 |
+| 2 Motion graphics | Shapes & objects | Figures & animals | 6 | #2 133–138 |
 | 2 Motion graphics | Effects & transitions | Particles & light | 9 | #2 092–099 · 116 |
 | 2 Motion graphics | Effects & transitions | Transitions | 13 | #2 100–112 |
 | 3 Editing & photography | Camera & editing | Camera movement | 8 | #3 001–008 |
@@ -50,7 +51,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | 3 Editing & photography | Light & color | Mood & tone recipes | 10 | #3 102–111 |
 | 3 Editing & photography | Lens effects & finishing | Lens effects | 11 | #3 065–075 |
 | 3 Editing & photography | Lens effects & finishing | Grading & finishing | 9 | #3 076–083 · 112 |
-| 4 Visual styles | Animation styles | Flat & line | 6 | #4 001–004 · 045–046 |
+| 4 Visual styles | Animation styles | Flat & line | 13 | #4 001–004 · 045–046 · 100–106 |
 | 4 Visual styles | Animation styles | Space & material | 11 | #4 005–008 · 031 · 047–049 · 086–088 |
 | 4 Visual styles | Animation styles | Media & genres | 13 | #4 009–011 · 050–053 · 065–068 · 085 · 090 |
 | 4 Visual styles | Animation styles | Diagrams & boards | 6 | #4 040–044 · 089 |
@@ -529,7 +530,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-062](https://sadjjk.github.io/motion-prompt-zh/#2-062) | **Growing tree** | A tree grows from trunk to branches to leaves | Open the brand story with a growing tree: ground and trunk, then branches, twigs and leaves, then a line of text. |
 | [#2-063](https://sadjjk.github.io/motion-prompt-zh/#2-063) | **Logo build reveal** | A logo draws itself part by part, then the name slides in | Add a logo build reveal at the start: draw the outer circle, draw and fill a 45° square, pop the centre dot, then slide the name in from the left. |
 
-#### Objects & machines · #2 064–075 · 124–126
+#### Objects & machines · #2 064–075 · 124–126 · 139
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -548,6 +549,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-124](https://sadjjk.github.io/motion-prompt-zh/#2-124) | **Tipping balance scale** | Coins drop one by one into one pan of a balance scale, which tips a little further with each coin and sways to rest, showing one side outweighing the other | Add a balance scale to the comparison: each time a coin drops into pan B the beam tips further, sways a little and settles. |
 | [#2-125](https://sadjjk.github.io/motion-prompt-zh/#2-125) | **Newton's cradle** | The end ball strikes the row and only the ball at the far end swings out, back and forth, as a picture of a chain reaction | Add a Newton's cradle: the gold ball on the left drops and hits the row, only the ball on the right swings out, and this repeats a few times. Put one line of text underneath. |
 | [#2-126](https://sadjjk.github.io/motion-prompt-zh/#2-126) | **Growing coin stacks** | Stacks of coins grow one coin at a time from left to right to different heights, showing growth like a bar chart | Show the income growing with 5 stacks of gold coins from left to right: coins drop onto them one by one and each stack ends up taller than the one before. |
+| [#2-139](https://sadjjk.github.io/motion-prompt-zh/#2-139) | **Willow and noren in the wind** | A line-art scene where the noren, lanterns, wind chime and willow strands under an eave are pushed in turn by wind from the left and then settle; light things swing wide, heavy things barely move | Make this a line-art animation in ink: wind from the left blows once softly, once hard, then dies away, swinging the noren, red lanterns, wind chime and willow strands under an eave. Things start moving from left to right as the wind reaches them, and when the chime's clapper strikes, draw a few short sound lines. |
 
 #### Information & tech · #2 076–091 · 115 · 127–131
 
@@ -575,6 +577,17 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#2-129](https://sadjjk.github.io/motion-prompt-zh/#2-129) | **Growing knowledge tree** | Branches grow upward from a root topic at the bottom and nodes pop in layer by layer, showing how a subject breaks down | To give the overview, grow glowing branches up from 「主题」 at the bottom: 「概念」, 「方法」 and 「案例」 appear, then 2 dots pop out above each of them. |
 | [#2-130](https://sadjjk.github.io/motion-prompt-zh/#2-130) | **Decision tree path** | A question branches into 2 choices and 4 outcomes, then only the chosen path lights up in gold, showing how a decision plays out | Show a decision tree where the choice is explained: 「要不要继续？」 splits into 「继续」 and 「止损」 and then 4 outcomes; only the path from 「止损」 to 「重新出发」 lights up gold and gets circled at the end. |
 | [#2-131](https://sadjjk.github.io/motion-prompt-zh/#2-131) | **Radial mind map** | Branches reach out one by one from a central idea and the whole map turns slowly, showing an idea spreading in many directions | Where you list what one skill can lead to, grow 6 branches in turn from a gold 「想法」 in the middle, ending in 「写作」「视频」「设计」「播客」「咨询」「编程」, and let the whole map turn slowly. |
+
+#### Figures & animals · #2 133–138
+
+| # | Name | What it is | How to ask an AI |
+|---|---|---|---|
+| [#2-133](https://sadjjk.github.io/motion-prompt-zh/#2-133) | **Briefcase walker tipping his hat** | A line-art figure drawn in one fine ink line on warm paper, faceless, walking with a real gait; what he carries swings a little behind his hand | Make this a line-art animation in ink: a faceless figure walks with a real gait, slows to a stop halfway to lift his hat, then walks on. Let the arms, the bag and the scarf end lag and swing like springs. |
+| [#2-134](https://sadjjk.github.io/motion-prompt-zh/#2-134) | **Kimono walker stopping to bow** | A faceless woman in kimono drawn in one fine ink line on warm paper, walking with a real gait on legs hidden under the cloth, so the hem opens and closes with each step | Make this a line-art animation in ink: a woman in kimono and geta walks with short steps, eases to a stop halfway, bows from the waist, straightens and walks on. Let the hem open and close around the front knee, and let the sleeves and parasol lag like springs. |
+| [#2-135](https://sadjjk.github.io/motion-prompt-zh/#2-135) | **Cyclist ringing the bell** | A faceless line-art boy in one fine ink line on warm paper pedals a bicycle, knees and ankles following the cranks, and rings the bell on the way | Make this a line-art animation in ink: a faceless rider pedals a bicycle, knees and ankles moving with the cranks while the spokes turn. Halfway he flicks the bell once with his thumb, the bell cap shakes and a couple of short sound lines appear. The view follows him and the ground slides back. |
+| [#2-136](https://sadjjk.github.io/motion-prompt-zh/#2-136) | **Calico cat on a bench** | A calico cat drawn in one fine ink line on warm paper, gliding between a few keyed poses and kept alive by breathing, a flick of the tail tip and a twitch of the ear | Make this a line-art animation in ink: a calico cat sitting on a bench stretches, sits back up, lifts a paw to lick it a few times and settles again. Its body rises and falls with its breath the whole time, and now and then it flicks its tail tip or twitches an ear. Keep the camera still. |
+| [#2-137](https://sadjjk.github.io/motion-prompt-zh/#2-137) | **Sparrows on the wire** | A line-art scene in fine ink on warm paper: a row of sparrows, each just a body oval and a brown cap, hop, turn and preen on a wire between two poles, and the wire dips and springs back under their weight | Make this a line-art animation in ink: sparrows sit on a sagging wire between two poles, hopping, turning round and preening. One in the middle is startled and flies off, a few follow one after another with flapping wings, then they come back one by one. The wire should dip and spring back as they land and take off. |
+| [#2-138](https://sadjjk.github.io/motion-prompt-zh/#2-138) | **Koi leaping from the canal** | A line-art canal in fine ink on warm paper: a koi leaps out once, leaves a splash and spreading rings, and the water settles back to calm | Make this a line-art animation in ink: a stone canal wall and water; a koi swims up faintly under the surface, leaps in an arc, turns over in the air and drops back in, and the splash and rings spread and fade. The camera stays still. |
 
 ### Effects & transitions
 
@@ -796,7 +809,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 
 ### Animation styles
 
-#### Flat & line · #4 001–004 · 045–046
+#### Flat & line · #4 001–004 · 045–046 · 100–106
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -806,6 +819,13 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#4-004](https://sadjjk.github.io/motion-prompt-zh/#4-004) | **Cel animation / line boil** | Hand-drawn cel style: low frame rate and lines that jitter (boil) slightly every frame | Give it a hand-drawn cel look: 12 fps on twos with boiling lines, 3 colours (ink, red, yellow) on cream paper, and a little match-flame character bouncing. |
 | [#4-045](https://sadjjk.github.io/motion-prompt-zh/#4-045) | **Ink-circle minimal** | A minimal explainer on warm white paper: one ink circle, a single character inside it and a great deal of empty space | Make a 6-second minimal clip: one brush stroke draws an ink circle, the character 静 fades in inside it, and a short line of small text appears below. |
 | [#4-046](https://sadjjk.github.io/motion-prompt-zh/#4-046) | **Keynote number** | A product-launch look: pure black, one thing per screen, and a huge white number that lands the moment it is said | Make a 6-second keynote-style clip: on black, the heading 续航 appears, a big number rolls from 0 to 32 and lands, 小时 follows, and a gradient bar sweeps in underneath. |
+| [#4-100](https://sadjjk.github.io/motion-prompt-zh/#4-100) | **Ink machiya street, day to night** | A line-art street of machiya houses by a canal that goes from afternoon through night and back to morning; at night the paper turns indigo, the ink turns pale, and the windows light up one by one | Make this a line-art animation in ink: a street of tiled-roof machiya houses with a canal in front goes through one day, from afternoon to sunset, night and morning. As it gets dark, turn the paper indigo and the ink pale; windows and lanterns light one by one and are reflected in the water, with stars and a shooting star in the night sky. |
+| [#4-101](https://sadjjk.github.io/motion-prompt-zh/#4-101) | **Ink desk corner** | A line-art desk by a window: outside goes from afternoon to night, gusts swing the curtain and calendar and flip the book's pages, and when it gets dark the desk lamp comes on and turns just the lit part back to daytime colours | Make this a line-art animation in ink: a desk by a window with an open book, a steaming cup, a red desk lamp and a potted plant. Outside goes from afternoon through sunset to night. Two gusts blow in through the window, swinging the curtain and calendar and flipping a few pages. As it gets dark, turn the paper indigo and the ink pale; when the lamp comes on, only the lit area goes back to daytime paper and ink. |
+| [#4-102](https://sadjjk.github.io/motion-prompt-zh/#4-102) | **Ink tram crossing** | A line-art tram street in the afternoon: a tram runs with its trolley pole on the overhead wire, eases to a stop, opens its doors and pulls away again, and each time the faceless passengers and hanging straps sway; the town behind slides past in three layers at different speeds, and at dusk the car lights and shop windows come on | Make this a line-art animation in ink: a street tram seen from the side running through town. The trolley pole on the roof keeps touching the overhead wire; the camera follows the tram and the town behind slides past in three layers (far, middle, near) at different speeds for parallax. The tram slows down, stops at a tram stop, opens its doors, waits a moment and pulls away again. Inside, a few faceless passenger silhouettes sit or stand; they lurch forward when it brakes and back when it starts, and the hanging straps swing like pendulums. Go from afternoon to dusk: as it darkens, turn the paper indigo and the ink pale, and let the car lights, street lamps and shop windows come on one by one. At the end, run through the morning back to the afternoon. |
+| [#4-103](https://sadjjk.github.io/motion-prompt-zh/#4-103) | **Ink mountain waterfall** | A line-art mountain waterfall: bands of cloud drift across pale-ink ridges as the morning mist clears, vertical ink lines pour down into a pool that spreads rings and spray, and a person carrying firewood walks along the mountain path | Make this a line-art animation in ink: three layers of pale-ink ridges with bands of cloud slowly crossing them, and a morning mist that clears at the start. A waterfall drops from a notch in the cliff on the right, drawn as a bundle of vertical ink lines whose dashes keep running downward. Rings keep spreading on the pool below, with spray and mist rising. A person in a straw hat with a basket of firewood on their back steps out from behind a rock, walks along the ledge path and disappears behind the cliff. Daytime only, with just two flat colours: the hat and the sash. |
+| [#4-104](https://sadjjk.github.io/motion-prompt-zh/#4-104) | **Ink harbour lighthouse** | A line-art harbour at dusk: the sun sinks into the sea, the lighthouse comes on and two beams sweep round over the water while a boat tied to the pier rocks on the waves; the light goes out at dawn and it is morning again | Make this a line-art animation in ink: a harbour with a wooden pier, a fishing net hung out to dry, a moored boat, and on the headland a red-banded lighthouse with a keeper's hut. Draw the sea as layers of horizontal ink lines, with two gulls flying. Go from dusk to night: as it darkens, turn the paper indigo and the ink pale; the lighthouse comes on and warm translucent beams turn and sweep the water. The boat rocks on the waves like a pendulum and the net flutters in the sea breeze. The gulls land on the posts at dusk and fly off in the morning. Use the last second to return to morning. |
+| [#4-105](https://sadjjk.github.io/motion-prompt-zh/#4-105) | **Ink kitchen cooking** | A line-art kitchen: a faceless cook chops a carrot, lifts the pot lid and slides the slices in off the board; the boiling pot keeps bumping its lid with steam, and the ladles on the wall swing with each chop | Make this a line-art animation in ink: a faceless cook stands behind a kitchen counter chopping a carrot. When done, they put the knife down, lift the pot lid, tip the chopping board so the slices slide into the pot, put the lid back and take a fresh carrot from the basket. The pot on the stove bumps its lid now and then and puffs steam. The ladles and pan on the wall swing with each chop, and outside the window smoke rises from the neighbour's chimney. |
+| [#4-106](https://sadjjk.github.io/motion-prompt-zh/#4-106) | **Teahouse by the stream** | A teahouse under a pine and a red-railed arched bridge built up layer by layer: ink lines, then paper fills, then flat colour, then light; night falls, the windows glow, and it fades back to blank paper | Make this a line-art animation in ink that shows how the picture is built. The subject is a teahouse by a stream with a pine behind it, a red-railed arched bridge and a stone lantern on the right, and pale-ink hills behind. In the first 2 seconds draw the ink lines stroke by stroke along their length, back lines first, so the lines behind still show through. In the next second lay paper colour on each layer from back to front so hidden lines disappear. In the next second brush on the pine green and the rail red one block at a time from the left. In the next second let it get dark, turning the paper indigo and the ink pale, and light the round window and the lantern. Finally fade back to blank paper. |
 
 #### Space & material · #4 005–008 · 031 · 047–049 · 086–088
 

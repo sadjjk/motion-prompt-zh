@@ -1,0 +1,120 @@
+// Motion Prompt #2-136 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// 长椅上的三花猫 / Calico cat on a bench
+// 分类: 动态图形 / 图形与物件 / 人物与动物
+// 动画表现: 红色凳面的长椅上坐着一只三花猫，旁边放着一只茶杯。猫向前伸懒腰、尾巴竖起，坐回去后抬起前爪舔三下，再坐定。
+// 运动规格:
+//   - 暖纸 #fdfcf8、墨色 #1c1c1c，只有两处平涂色：长椅凳面红色 #b3412d，猫背上的斑和尾巴橘色 #d08a4a；臀侧和头顶各一块墨斑。镜头固定，地面线离顶 186 px。
+//   - 长椅约 320 px 宽：红色凳面、下面一条横木、两对腿加一根拉档，凳上一只茶杯；猫坐在左半边，坐着时约 90 px 高。
+//   - 猫是一块穿过胸、肩、背、臀的纸色闭合身体，前腿是单笔墨线，末端是墨边小椭圆爪；头是小椭圆，两只耳朵，闭眼或点状睁眼，加胡须。
+//   - 姿势依次过渡：坐，0.7 秒伸懒腰，2.2 秒坐回，接着在 2.8、3.6、4.4 秒各抬爪舔一次、中间坐回，4.85 秒到 6.4 秒坐定；每次换姿势在本段前 1/1.6 的时间里缓入缓出，之后停住。
+//   - 呼吸让肩、背、臀分别最多起伏 0.35、0.42、0.21 单位，一个周期 2 次；尾尖在 1.6 秒和 5.3 秒各甩一次、0.625 秒内衰减，左耳在 3.3 秒抖一下、0.33 秒恢复，所以 0 秒和 6.4 秒画面一致。
+// 适用场景: 适合轻松的等待与加载画面、讲日常生活和小镇，宠物与动物话题，或想要手绘温度的空状态页。
+// 标签: line-art, ink, cat, calico, pose-blend, breathing, idle
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#2-136
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 04
+// 长椅上的三花猫：三花猫坐在红面长椅上，伸个懒腰、坐回去、抬爪舔三下，再坐好；全程呼吸起伏，尾尖偶尔甩、耳朵抖一下。
+// 对应原作 examples/village/critters.ts 的 createCat（点一下才醒来走一遍姿势序列）和 houses.ts 的长椅；
+// 这里姿势序列按时间自己走，去掉了打哈欠和睡回去（一个周期放不下，且要回到开头的坐姿）。
+{
+  // 原作场景坐标（猫脚下 y=0、长椅面 y=330）整体放大 S 倍放进卡片；线宽不跟着放大，
+  // 按「原作场景笔 0.8 ≈ 01 款人物笔 1.75 px」换算，和 01 款的墨线粗细一致
+  const S = 3.6, CX = 270, GY = 186;                 // 长椅中线 x=558 → CX，地面 y=352 → GY
+  const PX = 1.75 / 0.8 / S;                         // 原作线宽 → 放大后坐标里的线宽
+  const SP = 0.8 * PX;                               // 原作 scene pen
+  const CAT = [548, 330];                            // 原作猫的位置：长椅左半边
+  const RED = '#b3412d', CALICO = '#d08a4a';         // 原作长椅面的红、三花的橘
+  const oval = (cx, cy, rx, ry) => `M${cx - rx} ${cy} a${rx} ${ry} 0 1 0 ${2 * rx} 0 a${rx} ${ry} 0 1 0 ${-2 * rx} 0Z`;
+  const rect = (x0, y0, x1, y1) => `M${x0} ${y0} L${x1} ${y0} L${x1} ${y1} L${x0} ${y1}Z`;
+
+  // 原作 POSES 里用到的三个，数值原样照搬（相对猫脚下的点；tilt 为头的转角，ear 为耳朵竖起程度，eye>0.5 睁眼）
+  const POSES = {
+    sit:     { S: [-4.4, -12.6], H: [4.6, -5.4], Bc: [2.2, -11.4], C: [-6.4, -1.4], Bt: [6.6, -0.2], hd: [-5.4, -17.6], tilt: 0, ear: 1, eye: 1, F1: [-5.6, 0], F2: [-3.4, 0], T0: [6.6, -1], T1: [13, 0.6], T2: [15.6, -4.4] },
+    stretch: { S: [-9.4, -4.6], H: [5.4, -11.6], Bc: [-1, -8.6], C: [-11, -1], Bt: [7.4, -3.6], hd: [-15.6, -6.6], tilt: -6, ear: 0.7, eye: 0.3, F1: [-17.6, 0], F2: [-15, 0], T0: [7, -9.6], T1: [10, -17], T2: [8.6, -22] },
+    groom:   { S: [-4.4, -12.6], H: [4.6, -5.4], Bc: [2.2, -11.4], C: [-6.4, -1.4], Bt: [6.6, -0.2], hd: [-5.2, -16.4], tilt: 22, ear: 1, eye: 0, F1: [-5.6, 0], F2: [-6.6, -13.6], T0: [6.6, -1], T1: [13, 0.6], T2: [15.6, -3.4] },
+  };
+  // 原作醒来序列去掉 yawn 和结尾的 sleep，最后一段坐姿拉长到正好 6.4 秒；各段时长照原作
+  const SEQ = [['sit', 0.7], ['stretch', 1.5], ['sit', 0.6], ['groom', 0.45], ['sit', 0.35], ['groom', 0.45], ['sit', 0.35], ['groom', 0.45], ['sit', 1.55]];
+  const START = []; SEQ.reduce((a, s) => (START.push(a), a + s[1]), 0);
+  const lerpPose = (a, b, t) => { const o = {}; for (const n in a) o[n] = Array.isArray(a[n]) ? [mix(a[n][0], b[n][0], t), mix(a[n][1], b[n][1], t)] : mix(a[n], b[n], t); return o; };
+  const poseAt = u => {
+    let i = SEQ.length - 1;
+    for (let j = 0; j < SEQ.length; j++) if (START[j] <= u) i = j;
+    const prev = SEQ[(i + SEQ.length - 1) % SEQ.length][0];   // 第一段的「上一段」是最后一段的坐姿，循环接得上
+    // 原作：每段在前 1/1.6 的时间里缓入缓出到新姿势，余下时间停住
+    return lerpPose(POSES[prev], POSES[SEQ[i][0]], ease(Math.min(1, (u - START[i]) / SEQ[i][1] * 1.6)));
+  };
+  // 原作每隔 2–6 秒随机触发一次：六成甩尾尖、四成抖耳朵。这里固定成甩、抖、甩三次，相隔 1.7–2.8 秒：
+  // 伸懒腰停住时甩一下（尾巴竖着最显眼）、舔爪间隙抖耳、最后坐定后再甩一下，在接缝前结束
+  const FLICKS = [1.6, 5.3], EARS = [3.3];
+  const decay = (list, u, rate) => { for (const t0 of list) { const d = u - t0; if (d >= 0 && d < 1 / rate) return [1 - d * rate, d]; } return [0, 0]; };
+  // 原作呼吸 1.8 rad/s，一个周期约 1.8 次；取整成 2 次
+  const BREATH = 2;
+
+  const bench = k => {
+    // 原作 houses.ts：红色凳面、下面一条横木、两对腿和一根拉档、凳上一只茶杯
+    paint(k, rect(516, 330, 600, 336), RED, SP * 0.8);
+    shape(k, rect(514, 336, 602, 339), SP * 0.7);
+    pen(k, 'M520 339 L520 352 M596 339 L596 352 M522 339 L522 352 M594 339 L594 352 M520 348 L596 348', SP * 0.7);
+    shape(k, 'M584 330 L585 325 L591 325 L592 330Z', SP * 0.6);
+  };
+
+  CELLS[3] = (k, w, h, u) => {
+    paper(k);
+    inkLine(k, 0, GY, CW, GY, 0.9, 4);
+    k.save();
+    k.translate(CX, GY); k.scale(S, S); k.translate(-558, -352);
+    bench(k);
+
+    const pose = poseAt(u);
+    const breathe = Math.sin(TAU * BREATH * u / CYC) * 0.35;
+    const [flick, fd] = decay(FLICKS, u, 1.6), [ear] = decay(EARS, u, 3);
+    const X = p => CAT[0] + p[0], Y = p => CAT[1] + p[1];
+    // 呼吸：肩、背、臀起伏幅度不同（原作 1、1.2、0.6 倍），着地的点不动
+    const Sh = [X(pose.S), Y(pose.S) - breathe], H = [X(pose.H), Y(pose.H) - breathe * 0.6], Bc = [X(pose.Bc), Y(pose.Bc) - breathe * 1.2];
+    const C = [X(pose.C), Y(pose.C)], Bt = [X(pose.Bt), Y(pose.Bt)];
+
+    // 尾巴：原作 3.1 宽的墨线里压一笔 1.5 宽的橘色，墨边各 0.8 正好一支场景笔；橘色宽度是形体尺寸、跟着放大，墨边按本卡的笔宽算。原作甩尾一触发就从正弦中途起跳，这里从触发那一刻算相位，起手不跳
+    const fl = Math.sin(14 * fd) * 2.5 * flick;
+    const T0 = [X(pose.T0), Y(pose.T0)], T1 = [X(pose.T1), Y(pose.T1)], T2 = [X(pose.T2) + fl, Y(pose.T2) - fl * 0.4];
+    const tail = new Path2D(`M${pt(T0)} Q${pt(T1)} ${pt(T2)}`);
+    k.lineCap = 'round';
+    k.lineWidth = 1.5 + 2 * SP; k.strokeStyle = INK; k.stroke(tail);
+    k.lineWidth = 1.5; k.strokeStyle = CALICO; k.stroke(tail);
+
+    // 前腿：单笔墨线，先画，被身体挡住根部
+    const sh = [Sh[0] + 1.4, Sh[1] + 4];
+    const F1 = [X(pose.F1), Y(pose.F1)], F2 = [X(pose.F2), Y(pose.F2)];
+    pen(k, `M${pt(sh)} L${pt(F1)} M${sh[0] + 1.6} ${sh[1]} L${pt(F2)}`, SP * 1.6);
+    // 身体：纸色闭合轮廓，四段二次曲线穿过胸、肩、背、臀
+    shape(k, `M${pt(C)} Q${C[0] - 2} ${(C[1] + Sh[1]) / 2} ${pt(Sh)} Q${pt(Bc)} ${pt(H)} Q${H[0] + 4} ${(H[1] + Bt[1]) / 2} ${pt(Bt)} Q${(Bt[0] + C[0]) / 2} ${Math.max(Bt[1], C[1]) + 1} ${pt(C)}Z`, SP);
+    // 三花：背上一块橘色、臀边一块墨色
+    const mid = lerpP(Sh, H, 0.55);
+    k.fillStyle = CALICO;
+    k.fill(path(`M${mid[0] - 3.4} ${mid[1] + 0.6} Q${mid[0]} ${mid[1] - 3} ${mid[0] + 4} ${mid[1] + 0.2} Q${mid[0] + 1} ${mid[1] + 3.6} ${mid[0] - 3.4} ${mid[1] + 0.6}Z`));
+    const hb = lerpP(Sh, H, 0.85);
+    blot(k, oval(hb[0], hb[1] + 1.4, 1.8, 1.2));
+    shape(k, `${oval(F1[0] - 0.4, F1[1] - 0.6, 1.5, 0.9)} ${oval(F2[0] - 0.4, F2[1] - 0.6, 1.5, 0.9)}`, SP * 0.7);
+
+    // 头：在头的局部坐标里画（原作 translate + rotate），耳朵、头、头顶墨斑、眼睛和胡须
+    k.save();
+    k.translate(X(pose.hd), Y(pose.hd) - breathe);
+    k.rotate(pose.tilt * Math.PI / 180);
+    const e = pose.ear, tw = ear * 0.6;               // 抖耳：左耳尖一下压低再弹回
+    k.lineJoin = 'round';
+    shape(k, `M-4 -2 L${-4.2 - (1 - e) * 1.4} ${-7.4 + (1 - e) * 3 + tw} L-1 -3.6Z M1.4 -3.8 L${3.6 + (1 - e) * 1.6} ${-7.2 + (1 - e) * 3} L4.4 -1.8Z`, SP * 0.9);
+    const head = new Path2D(); head.ellipse(0, 0, 4.6, 4.1, 0, 0, TAU);
+    shape(k, head, SP);
+    blot(k, 'M-4.4 -1.2 Q-3.6 -3.8 -0.6 -4 Q-1.6 -1.6 -4.4 -1.2Z');
+    pen(k, (pose.eye > 0.5 ? 'M-2.6 -0.4 a0.6 0.8 0 1 0 0.1 0 M1 -0.4 a0.6 0.8 0 1 0 0.1 0' : 'M-3.2 -0.2 q0.7 0.7 1.4 0 M0.6 -0.2 q0.7 0.7 1.4 0') +
+      ' M-1.2 1.4 l0.6 0.5 l0.6 -0.5 M-4.4 1.6 l-3.6 -0.4 M-4.4 2.4 l-3.4 0.8 M2.6 1.8 l3.4 -0.2', SP * 0.6);
+    k.restore();
+    k.restore();
+  };
+}

@@ -1,0 +1,17 @@
+Please use "Willow and noren in the wind" (風に揺れる柳とのれん), filed under "Shapes & objects / Objects & machines".
+Motion Prompt #2-139
+
+What it is: A line-art scene where the noren, lanterns, wind chime and willow strands under an eave are pushed in turn by wind from the left and then settle; light things swing wide, heavy things barely move
+What the sample shows: A tea house's tiled eave on two posts, with a wind chime, two red lanterns lettered 茶 and a noren split into four panels lettered 茶 hanging beneath it, and a willow trunk and strands at the left edge. A soft gust and then a strong one come from the left; the willow, the chime, the lanterns and the noren start swinging in that order, the chime rings in the strong gust, and everything comes to rest.
+Spec:
+- Warm paper #fdfcf8 with ink #1c1c1c; the scene from the original village street is drawn at 2.2× with its 0.8 scene pen. Colour only on the two red lanterns #b3412d and the glass chime #e8f2f4.
+- Under the eave: a wind chime, 2 chōchin lanterns, a noren of 4 panels, and 16 willow strands hanging from the boughs; the eave keeps the original tile channels, round tile ends, fascia and rafter ends.
+- Wind: a soft gust of strength 1.0 from 0.1 to 1.6 s, a strong gust of 2.4 from 1.8 to 3.5 s with a slight flutter, then calm. The gust front moves right at 230 units per second, so things further from the left start later.
+- Every hanging thing is a pendulum with the original stiffness and damping and the original push from the wind: willow k 3.2 × 0.7–1.3, d 0.9; lantern k 10, d 1.1; noren panel k 22, d 3.2; chime k 14, d 1.4; clapper k 9, d 1.6, pulled toward 1.6 times the chime's angle.
+- When the clapper swings more than 0.35 rad away from the chime it strikes it, and two short arcs appear above the chime and fade at 0.9 per second.
+- After the wind passes, from 3.4 to 4.2 s each pendulum's pull grows to 3 times and its damping to critical, so everything is still before 6.4 s; motion is worked out over three loops and the last one is replayed.
+When to use it: Use it for summer, wind or changing seasons, for Japanese shops and inns, or for a calm loading screen.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-139.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

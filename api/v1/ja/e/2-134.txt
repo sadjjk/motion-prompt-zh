@@ -1,0 +1,182 @@
+// Motion Prompt #2-134 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// 着物の女性の歩みとお辞儀 / Kimono walker stopping to bow
+// 分類: モーショングラフィックス / 図形・オブジェクト / 人物・動物
+// 何が起きるか: 藍の着物に黄色の帯、赤い傘をさした女性が下駄で通りを歩き、カメラが付いていくので家並みの際の石の溝と路面のひびが後ろへ流れる。途中で止まって腰から深くお辞儀をし、起き上がってまた歩き出す。
+// 動きの仕様:
+//   - 暖かい紙 #fdfcf8 と墨色 #1c1c1c に、藍の着物 #34507a、黄色の帯 #d3a24c、赤い傘 #7b2f2f。女性は髪の上まで約 132 px、上から 172 px の線に立ち、画面上の位置は動かず通りのほうが動く
+//   - 通り：家並みの際の線とその下の石の溝。溝の継ぎ目は一周で歩く距離の 1/4 ごと、路面の短いひびは 1/5 ごと。動く線には固定の小さなずれがあり、手描きの墨線に見えるが震えない
+//   - 着物の下で二本の脚（もも 23、すね 23）を解く。歩行周期ひとつは 1 秒、片足が地面にあるのはその 62%、歩幅 24 単位、下駄の持ち上げ 3.4 単位、かかとの上がり 15°。腰の高さは脚が届く高さで決まる。一周はちょうど整数の歩行周期
+//   - 帯から下の着物は前の膝と両足首から描き、脚が開くと裾が A 字に開く。白足袋と二枚歯の下駄はかかとと一緒に傾く
+//   - 袖はばね（硬さ 40、減衰 6）、傘の傾きは別のばね（30、5）で、歩行周期ごとに二回押される。ばねは三周分計算して最後の一周を再生するので、0 秒と 6.4 秒の絵が一致する
+//   - 1.8 秒からゆっくり止まり、2.5 秒から 0.45 秒で腰から 34° 曲げ、傘はさらに 10° 前へ傾く。3.7 秒まで保ち、0.5 秒で起き上がって 4.2 秒からまた歩く
+// 使いどころ: あいさつやお礼、おもてなしの場面、和の雰囲気や町歩きの話、手描きの温かさがほしい案内やローディングに。
+// タグ: line-art, ink, kimono, walk-cycle, gait, bow, spring
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-134
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 02
+// 和服女子步态与鞠躬：穿木屐、撑红伞的和服女子碎步走，镜头跟着她，石砌边沟的接缝和路面裂纹向后退；
+// 走到一半慢慢停住，从腰弯下鞠躬、起身，再走起来。腿藏在和服里照样解算，下摆绕前膝和两脚开合，袖子和伞经弹簧滞后摆动。
+// 对应原作 examples/village/people.ts 的 createKimono（点一下才鞠躬、颜色随机、天黑换灯笼）；这里鞠躬按时间发生，颜色固定成白天的靛蓝和服、黄腰带、红伞。
+{
+  const GROUND = 172, SCALE = 1.3;
+  const FX = 250;                                   // 人物脚下的画面 x 固定，街面向后退
+  // 原作 createKimono 自带一套 foot()：T=1.0、DUTY=0.62、S=24、抬脚 3.4、脚跟 15°，只把脚踝抬到 116 垫出木屐高度，
+  // 与 GAIT.walk 只差 ankleY，所以用 walk 预设改 ankleY，而不是更短更低的 shuffle 预设
+  const ANKLE = 116;
+  // 原作四组随机配色里取第一组（靛蓝和服、黄腰带），伞取红色；白天 inkT=0，填色就是原色
+  const KIMONO = '#34507a', OBI = '#d3a24c', PARASOL = '#7b2f2f';
+  const FAR = '#2c4468';                            // 远侧袖：原作 mix(和服色, [10,12,20], 0.18) 在白天的结果
+  const CORD = '#b3412d', PIN = '#c9a24a', RING = '#f1e7d0', MOTIF = '#f2ead8';
+  // 鞠躬时间照原作 draw()：停步按每秒 2.4 爬升（约 0.42 秒停住），0.7 秒起用 0.45 秒弯下，保持到 1.9 秒，0.5 秒起身，2.4 秒起再走
+  const T0 = 1.8;                                   // 开始停步；鞠躬最深落在 2.95–3.7 秒，正在周期中段
+  const RATE = 2.4, RISE = 2.4;
+  const stopAt = u => {
+    const t = u - T0;
+    if (t <= 0) return 0;
+    if (t < RISE) return Math.min(1, t * RATE);
+    return Math.max(0, 1 - (t - RISE) * RATE);
+  };
+  // ease(stop) 在 [0, u] 上的积分：放慢期间少走的那部分，用来换算走过的步数和距离
+  const stopInt = u => {
+    const t = u - T0, r = 1 / RATE;
+    if (t <= 0) return 0;
+    if (t < r) return easeInt(t * RATE) * r;
+    if (t < RISE) return 0.5 * r + (t - r);
+    if (t < RISE + r) return 0.5 * r + (RISE - r) + (0.5 - easeInt(1 - (t - RISE) * RATE)) * r;
+    return RISE;
+  };
+  const bowAt = u => {
+    const t = u - T0;
+    if (t < 0.7) return 0;
+    if (t < 1.15) return ease((t - 0.7) / 0.45);
+    if (t < 1.9) return 1;
+    if (t < 2.4) return 1 - ease((t - 1.9) / 0.5);
+    return 0;
+  };
+  // 一个周期走整数个步态周期：按原作步频取整再反推，循环时腿首尾相接
+  const GO_INT = CYC - stopInt(CYC);
+  const STEPS = Math.max(1, Math.round(GO_INT / GAIT.walk.period));
+  const walk = gait({ kind: 'walk', ankleY: ANKLE, period: GO_INT / STEPS });
+  const goAt = u => 1 - ease(stopAt(wrap(u)));
+  const phaseAt = u => { const v = wrap(u); return (v - stopInt(v)) / walk.period; };
+  // 原作髋高每帧 hipS = lerp(hipS, hipY, dt*18)，把步态里髋高的折点抹圆；
+  // 这里按 60 帧/秒把这段指数平滑展开成对过去 13 帧的加权和，结果只由 u 决定
+  const LAG_A = Math.min(1, 18 / 60), LAG_W = [];
+  for (let j = 0, s = 0; j < 13; j++) { LAG_W.push(LAG_A * Math.pow(1 - LAG_A, j)); s += LAG_W[j]; if (j === 12) LAG_W.forEach((_, i) => { LAG_W[i] /= s; }); }
+  const hipAt = u => LAG_W.reduce((s, wt, j) => s + wt * walk.pose(phaseAt(u - j / 60), goAt(u - j / 60)).hip[1], 0);
+  // 袖子和伞的弹簧照原作：袖 k40 d6、伞倾 k30 d5，目标随步子（每个步态周期两次）摆，停步时归位
+  const motion = sim([
+    { type: 'spring', k: 40, d: 6 },                // 袖子下摆的前后
+    { type: 'spring', k: 30, d: 5 },                // 伞的倾角
+  ], u => {
+    const go = goAt(u), sp = 4 * Math.PI * phaseAt(u);
+    return [(-1.4 + Math.sin(sp - 1.1) * 0.9) * go, Math.sin(sp - 0.8) * 1.6 * go];
+  });
+
+  // 一个周期走过的画面距离；边沟石板、路面裂纹都按它的整分重复，循环时街面首尾相接
+  const DIST = walk.speed * SCALE * walk.period * STEPS;
+  const BACK = GROUND - 16 * SCALE / 0.5;           // 屋前边线：原作在她脚下那条线后方 16 场景像素（人物缩放 0.5），按本格缩放换算
+  const SLABS = 4, SLAB = DIST / SLABS, CRACKS = 5;
+
+  const oval = (cx, cy, rx, ry) => `M${cx - rx} ${cy} a${rx} ${ry} 0 1 0 ${2 * rx} 0 a${rx} ${ry} 0 1 0 ${-2 * rx} 0Z`;
+  const dots = (list, dy = 0) => list.map(([x, y]) => `M${x} ${y + dy} a1.1 1.1 0 1 0 0.1 0`).join(' ');
+  // 原作有几处是彩色细线（纹样、腰绳、伞面那道亮边），kit 的 pen 只画墨色
+  const tint = (k, d, col, w) => { k.lineWidth = w; k.strokeStyle = col; k.lineCap = 'round'; k.lineJoin = 'round'; k.stroke(path(d)); };
+  // 上半身的静态轮廓，原作就是写死的路径，首次加载时建成 Path2D
+  const UPPER = new Path2D('M36 43 Q32 45.5 32.2 52 Q31.6 60 32 69 L47.6 69 Q48.4 56 46.6 48 Q45.4 44 43.4 43Z');
+  const OBI_P = new Path2D('M31.8 59 L47.8 59.5 L47.9 69.4 L31.7 69Z');
+  const TAIKO = new Path2D('M32 57.5 L25.4 58.6 Q24.4 66 25.6 75 L32 74Z');
+  const COLLAR = new Path2D('M37.4 43.4 L41.6 53.4 L44.8 43.6 L43 43 L41.4 49 L39.2 43.2Z');
+  const HAIR = new Path2D(`M36.6 31 Q35.4 23.6 41 22.6 Q46.4 22.4 46 28.6 Q43.2 25.6 39.8 27 Q37.8 28.4 36.6 31Z ${oval(35.4, 31.4, 3, 3.8)} ${oval(40.2, 20.6, 3.8, 2.3)}`);
+  const HEAD = new Path2D(); HEAD.ellipse(41, 32, 4.2, 5.1, 0, 0, TAU);
+  const HAND_X = 50.4, HAND_Y = 54.6;
+  const HAND = new Path2D(); HAND.ellipse(HAND_X, HAND_Y, 1.8, 1.5, 0, 0, TAU);
+  const BALL = new Path2D(); BALL.arc(47.6, 17.4, 1.1, 0, TAU);
+  const CANOPY = new Path2D('M-27 10 Q-25 -1.6 0 -4 Q25 -1.6 27 10 Q22 8 18 9.6 Q13 7.6 9 9 Q4.6 7.4 0 8.8 Q-4.6 7.4 -9 9 Q-13 7.6 -18 9.6 Q-22 8 -27 10Z');
+  const RIBS = new Path2D(Array.from({ length: 9 }, (_, i) => { const x = mix(-24, 24, i / 8); return `M0 -3.6 L${x} ${8.8 - Math.abs(x) * 0.02}`; }).join(' '));
+  // 木屐（两齿，墨色）和白足袋（纸色），照原作 getaPath，随脚跟抬起的角度转
+  const foot = (k, ank, pitch) => {
+    const r = pitch * Math.PI / 180, c = Math.cos(r), s = Math.sin(r);
+    const R = (x, y) => pt([ank[0] + x * c - y * s, ank[1] + x * s + y * c]);
+    shape(k, `M${R(-3.4, 0.2)} Q${R(-3.7, -5)} ${R(-0.7, -5.6)} L${R(1.6, -5)} Q${R(4.7, -3.4)} ${R(4.8, 0.2)}Z`, PEN * 0.75);
+    blot(k, `M${R(-4.4, 0.2)} L${R(5.2, 0.2)} L${R(5.2, 1.5)} L${R(3.8, 1.5)} L${R(3.8, 4)} L${R(2.4, 4)} L${R(2.4, 1.5)} L${R(-1.4, 1.5)} L${R(-1.4, 4)} L${R(-2.8, 4)} L${R(-2.8, 1.5)} L${R(-4.4, 1.5)}Z`);
+  };
+
+  CELLS[1] = (k, w, h, u) => {
+    paper(k);
+    const go = goAt(u), ph = phaseAt(u), bow = bowAt(u);
+    const off = wrap(walk.speed * SCALE * walk.period * ph, DIST);   // 已走的画面距离
+    const [slv, tiltS] = motion(u);
+
+    // 街面：照原作 houses.ts，屋前一条边线、其下石砌边沟（两线夹石板接缝）、路面零星短裂纹；
+    // 接缝和裂纹的位置、墨线偏移都按世界里的第几块取，街面移动时形状跟着走
+    inkLine(k, 0, BACK, CW, BACK, 0.9, 21);
+    inkLine(k, 0, BACK + 8, CW, BACK + 8, 0.6, 22, 0.25);
+    for (let i = Math.floor(off / SLAB) - 1; i <= Math.floor(off / SLAB) + Math.ceil(CW / SLAB) + 1; i++) {
+      const m = ((i % SLABS) + SLABS) % SLABS;
+      const x = (i + 0.5 + (rnd(m, 3) - 0.5) * 0.5) * SLAB - off;
+      if (x > -2 && x < CW + 2) inkLine(k, x, BACK, x + 0.0001, BACK + 8, 0.55, m + 30, 0.2);
+    }
+    const CR = DIST / CRACKS;
+    for (let i = Math.floor(off / CR) - 1; i <= Math.floor(off / CR) + Math.ceil(CW / CR) + 1; i++) {
+      const m = ((i % CRACKS) + CRACKS) % CRACKS;
+      const x = (i + rnd(m, 5)) * CR - off, y = GROUND - 22 + rnd(m, 6) * 56, len = 10 + rnd(m, 7) * 14;
+      if (x > -30 && x < CW + 2) pen(k, `M${x} ${y} l${len} ${(rnd(m, 8) - 0.5) * 1.2}`, 0.5);
+    }
+
+    k.save();
+    place(k, FX, GROUND, 1, SCALE);
+    // 藏在和服里的两条腿：照原作解算出脚踝和膝，髋用平滑后的高度重算膝
+    const p = walk.pose(ph, go), restHip = p.hip[1] - p.bob;
+    const hipS = hipAt(u), b = hipS - restHip, hip = [40, hipS];
+    const F = p.feet.map(fo => ({ a: fo.ankle, pitch: fo.pitch, k: knee(hip, fo.ankle, walk.thigh, walk.shin) }));
+    const iF = F[0].a[0] >= F[1].a[0] ? 0 : 1, iR = 1 - iF;
+    const aF = F[iF].a, aR = F[iR].a;
+    const kF = F[0].k[0] >= F[1].k[0] ? F[0].k : F[1].k, kR = F[0].k[0] >= F[1].k[0] ? F[1].k : F[0].k;
+    // 后脚先画，摆过来的前脚压在上面
+    foot(k, aR, F[iR].pitch); foot(k, aF, F[iF].pitch);
+
+    // 远侧袖子（暗一档），在身后
+    paint(k, `M34 ${47 + b} Q${30 + slv * 0.5} ${56 + b} ${28.8 + slv} ${74 + b} Q${31 + slv} ${77.6 + b} 34 ${76 + b}Z`, FAR);
+    // 腰带以下的和服：前缘鼓过前膝、下摆连着两只脚踝，迈步时张成 A 字，并拢时合上
+    const wB = [31.8, 69 + b], wF = [47.8, 69.4 + b];
+    const hemF = [Math.max(46.6, aF[0] + 4.2), 112.6], hemR = [Math.min(31.4, aR[0] - 2.4), 113];
+    const kx = Math.max(kF[0] + 2.6, 47.4);
+    paint(k, `M${pt(wB)} L${pt(wF)} C48.6 ${80 + b} ${kx} ${kF[1] - 9} ${kx} ${kF[1]} Q${kx - 0.2} ${(kF[1] + hemF[1]) / 2 + 2} ${pt(hemF)} Q${(hemF[0] + hemR[0]) / 2} 113.6 ${pt(hemR)} Q${Math.min(30.8, hemR[0] + 1.6)} ${92 + b * 0.5} ${pt(wB)}Z`, KIMONO);
+    pen(k, `M44.4 ${72 + b} Q${kF[0] - 0.6} ${kF[1] + 3} ${Math.max(42, aF[0] + 0.8)} 112.6`, PEN * 0.6);              // 衽的交叠线
+    pen(k, `M${kR[0] + 1.6} ${kR[1] - 4} Q${kR[0] + 0.4} ${kR[1] + 6} ${Math.max(hemR[0] + 3, aR[0] + 1.4)} 112.4`, PEN * 0.45);   // 后膝的褶
+    tint(k, dots([[36.4, 84], [41.6, 96], [36, 104], [42, 79]], b * 0.6), MOTIF, PEN * 0.5);
+
+    // 上半身骑在髋上，走路时前倾 1.4°；鞠躬时绕腰（40, 68）弯下 34°
+    k.save();
+    k.translate(0, b); k.translate(40, 68); k.rotate((bow * 34 + 1.4 * go) * Math.PI / 180); k.translate(-40, -68);
+    paint(k, UPPER, KIMONO);
+    tint(k, dots([[36, 55], [42, 50]]), MOTIF, PEN * 0.5);
+    paint(k, OBI_P, OBI); paint(k, TAIKO, OBI);
+    tint(k, 'M31.8 64.4 L47.9 64.6', CORD, 1.1);
+    shape(k, COLLAR, PEN * 0.8);
+    limb(k, [[40.6, 44], [40.8, 37]], 3.2, [0.2, 0.2]);
+    shape(k, HEAD);
+    blot(k, HAIR);
+    pen(k, 'M42.6 21.2 L47.4 17.6', PEN * 0.7);
+    k.fillStyle = PIN; k.fill(BALL); pen(k, BALL, 0.5);
+    paint(k, `M43.6 46 Q49.6 49 50.4 55 L${50.6 + slv * 0.5} 72 Q${46 + slv} 75.6 ${41.6 + slv} 72.4 L41.6 54Z`, KIMONO);
+    shape(k, HAND, PEN * 0.7);
+    // 伞：伞柄从手里斜向后上方，伞面随弹簧倾，鞠躬时再往前收 10°
+    const apex = [HAND_X - 15, HAND_Y - 50];
+    pen(k, `M${HAND_X + 1} ${HAND_Y + 3} L${apex[0]} ${apex[1]}`, PEN * 0.9);
+    k.translate(apex[0], apex[1]); k.rotate((-14 + tiltS - bow * 10) * Math.PI / 180);
+    paint(k, CANOPY, PARASOL, PEN * 0.9);
+    tint(k, 'M-18.6 2.8 Q0 -3 18.6 2.8', RING, 2.4);
+    pen(k, RIBS, PEN * 0.4);
+    blot(k, oval(0, -4.2, 2.6, 1.4));
+    k.restore();
+    k.restore();
+  };
+}

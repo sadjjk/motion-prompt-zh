@@ -1,0 +1,16 @@
+Please use "Ink desk corner" (墨線の机の一角), filed under "Animation styles / Flat & line".
+Motion Prompt #4-101
+
+What it is: A line-art desk by a window: outside goes from afternoon to night, gusts swing the curtain and calendar and flip the book's pages, and when it gets dark the desk lamp comes on and turns just the lit part back to daytime colours
+What the sample shows: A desk by a window with a red desk lamp, an open book with an indigo cover, a steaming cup, a pencil pot and a potted plant; a calendar on the wall, a curtain at the window, and a utility pole and three houses outside. Outside turns from sunset to night and the far windows light in turn. Two gusts blow in and swing the curtain, calendar and leaves: the weak one lifts a page halfway and drops it back, the strong one flips three pages. When it gets dark the lamp comes on and only the circle of light goes back to daytime paper and ink; it turns off in the morning.
+Spec:
+- Colours use the sky top, sky bottom and paper ramps from the original daynight.ts. Ink inverts from #1c1c1c to #efe6cf, and the day runs as in #4-100 (τ 0.62 to 1.62, about 1.7 s of dusk, about 2 s of night).
+- The lamp comes on at 2.3 s, flickers once at 2.37–2.45 s and goes off at 5.56–5.66 s. The light is 5 stacked ellipses centred on the book; inside, paper goes back to #fbf1dc and ink to #1c1c1c.
+- Wind blows in from the window twice: a weak gust 0.8–2.6 s and a strong gust 3.25–5.2 s. The curtain hem uses the original scarf-tail spring (30, 4), the calendar the original lantern pendulum (10, 1.1), and the leaves the original sleeve spring (40, 6).
+- A page lifts halfway and falls back from 1.25 s over 0.9 s; the strong gust flips 3 pages at 3.75, 4.05 and 4.4 s. Every page has the same lines, so the book looks the same after flipping.
+- Flat colour is limited to 2: the red #b3412d lamp shade and the indigo #34507a cover, darkened at night by the original nightTint() amount. The steam is 3 wavy lines that bend left as the wind gets stronger.
+When to use it: Use it for reading or studying at night, working from home, the end of a day, or showing a dark-mode switch.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-101.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

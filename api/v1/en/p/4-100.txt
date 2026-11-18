@@ -1,0 +1,17 @@
+Please use "Ink machiya street, day to night" (墨線の町家、昼から夜へ), filed under "Animation styles / Flat & line".
+Motion Prompt #4-100
+
+What it is: A line-art street of machiya houses by a canal that goes from afternoon through night and back to morning; at night the paper turns indigo, the ink turns pale, and the windows light up one by one
+What the sample shows: A street of a house, a tea house and a public bath, with a utility pole and street lamp, a red parasol and bench, a stone-walled canal in front, and far hills with a pagoda behind. The afternoon sun sets to the right, sky and paper go from sunset to indigo, and windows, lanterns and the street lamp light in turn and show in the water. Night brings stars, fireflies and a shooting star, some windows go dark late, and dawn leads back to the afternoon.
+Spec:
+- The x 190–960 slice of the original village street (960×480), scaled to 0.7. The 0.8 scene pen is multiplied by 1.8, so main lines are about 1 px.
+- Colours follow the three ramps in the original daynight.ts for sky top, sky bottom and paper. Ink goes from #1c1c1c to #efe6cf while the paper is half dark.
+- One day in 6.4 s: τ (0 midnight, 0.75 dusk) moves from 0.62 to 1.62 along a monotone curve, giving about 1.7 s to dusk 0.70–0.79 and about 2 s to the night.
+- Windows, lanterns and the street lamp light at their own darkness thresholds. Thresholds and the late lights-out times come from the original random sequence (seed 11).
+- A shooting star crosses from 3.3 s for 0.9 s. Smoke puffs leave every CYC/12 and fade over 6.3 s. Noren, lanterns and the chime sit at the original springs' rest angle plus a small sway.
+- Water turns 45% toward #0f1730 at night and 32% toward #bfd0d8 by day. Each light shows 6 warm horizontal strokes in the water that drift side to side.
+When to use it: Use it for the passing of time or a day, for Japanese streets and travel, or to show a light/dark theme switch.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-100.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

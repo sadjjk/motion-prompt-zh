@@ -1,0 +1,192 @@
+// Motion Prompt #2-138 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// Koi leaping from the canal / 錦鯉の跳ね
+// Category: Motion graphics / Shapes & objects / Figures & animals
+// What happens: Under a mossy stone canal wall, ink ripple lines drift slowly on the water. A white koi with vermilion patches comes up faintly from below, leaps in an arc and goes back in head first; drops fly as it leaves and lands, rings spread and fade, and the water is calm again.
+// Motion spec:
+//   - Warm paper #fdfcf8 and ink #1c1c1c; a canal wall of coping stones, two masonry courses and hanging moss sits above water tinted with 32% of #bfd0d8. The scene is drawn in the original's units and enlarged 2.3 times; the view does not move.
+//   - Ink ripple lines in 9 rows drift right at 4–9 units per second, fading in and out over the first and last 1/5 of a 6.4 s life, with staggered starts so the water looks evenly lined at every moment.
+//   - The koi has a cream body #f4ede0 with three vermilion #d4552f patches, a paper fin and an ink eye. From 0.5 s it swims up under the water at 40% strength, cut off at the surface line.
+//   - At 2.4 s it leaps: over 1.1 s it moves 30 units forward on an arc 26 units high, its body follows the arc so it turns head-down, and the tail beats. 4 drops fly off as it leaves and 7 as it lands, under the same gravity as the arc.
+//   - Ripples are ellipses that grow 12 units per second wide and 2.2 tall and fade over 1.6 s, 0.22 s apart: 2 at take-off, 2 from dripping water, 3 at 1.2 times size on landing at 3.5 s, plus 3 small stray rings. The koi has faded below by 5.1 s and every ring by 6.0 s.
+// When to use it: Use it for Japanese-flavoured onboarding or loading screens, stories about seasons and waterside life, or a calm page that wants one moment of movement.
+// Tags: line-art, ink, koi, water, ripple, splash, jump
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#2-138
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 06
+// 锦鲤跃水：运河护岸下的水面上墨线水纹慢慢漂，锦鲤在水下隐约游近，划弧跃出、空中顺着弧线翻身，落水溅起水珠，几圈涟漪扩散变淡，最后回到平静水面。
+// 对应原作 examples/village/canal.ts 的 buildCanal（护岸、水面、水纹、涟漪、锦鲤跃水）。原作点水面才跳、白天偶尔随机跳，这里按时间跳一次；
+// 原作锦鲤只在空中出现，这里补上水下隐约游近、落水后潜走（按水面裁开，水下那半淡画），并加了出水、落水的水珠，任务要求有水花。
+{
+  // 全部按原作单位画，再整体放大：原作运河段（护岸顶到画面底）约 96 单位高，放大 2.3 倍正好填满卡片高度
+  const S = 2.3;
+  const VW = CW / S, VH = CH / S;
+  const EDGE = 7, WATER = EDGE + 16;               // 原作 EDGE=384、WATER=400：护岸顶到水面 16 单位
+  const SP = 0.8;                                   // 原作场景笔宽，放大后与 01 款人物线宽相近
+  const R = (i, j, a, b) => a + rnd(i, j) * (b - a);   // 原作 srnd/rnd 的固定种子版
+  const mixHex = (a, b, t) => '#' + [1, 3, 5].map(i => Math.round(mix(parseInt(a.slice(i, i + 2), 16), parseInt(b.slice(i, i + 2), 16), t)).toString(16).padStart(2, '0')).join('');
+  const WATER_FILL = mixHex(PAPER, '#bfd0d8', 0.32);   // 原作白天水色：纸色混 32% 的灰蓝
+  const KOI_BODY = '#f4ede0', KOI_SPOT = '#d4552f';
+
+  // 跳跃照搬原作：1.1 秒，水平前进 30、拱高 26，从水面下 14 单位（水面上离护岸 14 的那一点）起跳并落回同一高度
+  const T0 = 2.4, JUMP = 1.1, T1 = T0 + JUMP;
+  const ARC_W = 30, ARC_H = 26, DEPTH = 14;
+  const SURF = WATER + DEPTH;                       // 斜看的水面：锦鲤所在那一条水面线，涟漪也画在这一线上
+  const DIR = 1;                                    // 原作随机左右，这里固定向右；改成 -1 即镜像
+  const VX = ARC_W / JUMP;                          // 水下游速取跳跃的水平速度，出水、入水时不变速
+  // 起跳点让整段可见轨迹（水下游近 → 跳 → 潜走）落在画面中间
+  const SWIM_IN = 0.5, SWIM_OUT = T1 + 1.6;
+  const X0 = VW / 2 - DIR * VX * ((SWIM_IN + SWIM_OUT) / 2 - T0);
+  const DEEP = SURF + 18;                           // 水下巡游深度
+  const SUB = 0.4;                                  // 水下的鱼只画四成浓，「隐约」
+  // 与鱼弧线同高同时长的抛物线重力（8h/T²），水珠和鱼按同一种重力落下
+  const G = 8 * ARC_H / (JUMP * JUMP);
+
+  // 涟漪：原作 ring() 椭圆 rx=(2+12t)·big、ry=(0.6+2.2t)·big，1.6 秒淡完，一组里每圈晚 0.22 秒
+  const RING_LIFE = 1.6, RING_GAP = 0.22;
+  const rings = [];
+  const ring = (t0, x, y, n = 1, big = 1) => { for (let i = 0; i < n; i++) rings.push({ t0: t0 + i * RING_GAP, x, y, big }); };
+  ring(T0, X0, SURF, 2);                            // 原作：起跳时两圈
+  ring(T0 + 0.1 * JUMP, X0, WATER + 12, 2, 0.9);    // 原作：u≈0.1 时出水滴落的两圈
+  ring(T1, X0 + DIR * ARC_W, SURF, 3, 1.2);         // 原作：落水三圈、放大 1.2
+  // 原作水面每秒约 0.5 次零星小涟漪（big 0.6）；一个周期约 3 次，时刻避开跳跃，最后一次在 6.0 秒前淡完
+  [0.3, 1.5, 4.4].forEach((t, i) => ring(t, R(i, 61, 20, VW - 20), R(i, 62, WATER + 10, VH - 6), 1, 0.6));
+
+  // 水珠：出水时从鱼身甩下几颗，落水时向四周溅起一圈；按抛体算，落回鱼所在的水面线就消失
+  const drops = [];
+  const spray = (t0, x, n, seed, vxMid, vxSpread, vyMin, vyMax) => {
+    for (let i = 0; i < n; i++) drops.push({ t0, x, vx: vxMid + (rnd(i, seed) - 0.5) * vxSpread, vy: R(i, seed + 1, vyMin, vyMax) });
+  };
+  spray(T0 + 0.06, X0, 4, 80, DIR * 14, 16, 22, 40);
+  spray(T1, X0 + DIR * ARC_W, 7, 70, 0, 34, 35, 60);
+
+  // 水纹：原作 46 条横贯 960 宽、分 9 排，每条以 4–9 单位/秒向右漂、出右边回到左边。
+  // 照原速一个周期只漂 26–58 单位，回绕不了整幅，循环会跳；所以每条只活一个周期：
+  // 漂的同时头尾 1/5 淡入淡出，各条起始相位错开，任一时刻的水纹疏密差不多。条数按画面宽度和平均浓度换算
+  const LINE_FADE = 0.2, LINE_MEAN = 1 - LINE_FADE;
+  const lines = Array.from({ length: Math.round(46 * (VW + 40) / (960 + 40) / LINE_MEAN) }, (_, i) => ({
+    x: R(i, 2, -30, VW), y: WATER + 5 + (i % 9) * 8.4 + R(i, 3, -2, 2), len: R(i, 4, 10, 34), v: R(i, 1, 4, 9), ph: rnd(i, 5),
+  }));
+
+  // 护岸：顶石一层、下面两层砌石、零星石面短划和垂下的苔藓，全部静态，首次调用时建好
+  let wall = null;
+  const buildWall = () => {
+    const d = [`M-10 ${EDGE + 5} L${VW + 10} ${EDGE + 5}`, `M-10 ${EDGE + 10.5} Q${VW / 2} ${EDGE + 10} ${VW + 10} ${EDGE + 10.6}`];
+    for (let x = R(0, 10, 0, 20), j = 0; x < VW; x += R(j, 11, 28, 44), j++) d.push(`M${x} ${EDGE} l0.4 5`);
+    [[EDGE + 5, EDGE + 10.5, 0], [EDGE + 10.5, WATER, 8]].forEach(([y0, y1, o], c) => {
+      for (let x = R(c, 12, 0, 14) + o, j = 0; x < VW; x += R(j, 13 + c, 12, 24), j++) {
+        d.push(`M${x} ${y0 + 0.4} Q${x + R(j, 15 + c, -1, 1)} ${(y0 + y1) / 2} ${x + R(j, 17 + c, -0.6, 0.6)} ${y1 - 0.4}`);
+      }
+    });
+    for (let i = 0, n = Math.round(40 * VW / 960); i < n; i++) {
+      const x = R(i, 20, 4, VW - 4), y = R(i, 21, EDGE + 6, WATER - 2);
+      d.push(`M${x} ${y} l${R(i, 22, 1, 2.6)} ${R(i, 23, -0.3, 0.3)}`);
+    }
+    const moss = [];
+    for (let i = 0, n = Math.round(26 * VW / 960); i < n; i++) {
+      const x = R(i, 30, 0, VW);
+      moss.push(`M${x} ${EDGE + 5} q-1 3 0.4 5 M${x + 2} ${EDGE + 5} q1 2.6 -0.2 4.4`);
+    }
+    wall = {
+      body: new Path2D(`M-10 ${EDGE} L${VW + 10} ${EDGE} L${VW + 10} ${WATER} L-10 ${WATER}Z`),
+      joints: new Path2D(d.join(' ')),
+      moss: new Path2D(moss.join(' ')),
+      water: new Path2D(`M-10 ${WATER} L${VW + 10} ${WATER} L${VW + 10} ${VH + 10} L-10 ${VH + 10}Z`),
+      spots: (() => { const p = new Path2D(); [[2, -1.5, 3.2, 1.8], [-5, 1, 2.6, 1.6], [8.6, -0.8, 1.6, 1.2]].forEach(([x, y, rx, ry]) => { p.moveTo(x + rx, y); p.ellipse(x, y, rx, ry, 0, 0, TAU); }); return p; })(),
+      eye: (() => { const p = new Path2D(); p.arc(9, -0.8, 0.9, 0, TAU); return p; })(),
+    };
+  };
+
+  // 鱼的轨迹：跳跃段用原作的正弦拱；前后把这条拱往水下延伸，再在 0.5 秒里和水平巡游混合，
+  // 所以鱼是从水下斜着冲上来、落水后斜着扎下去再放平，位置和朝向都连续
+  const arcY = u => SURF - ARC_H * Math.sin(Math.PI * u);
+  const koiX = t => X0 + DIR * VX * (t - T0);
+  const koiY = t => {
+    const u = (t - T0) / JUMP;
+    if (u >= 0 && u <= 1) return arcY(u);
+    const w = u < 0 ? smooth(T0 - 0.5, T0, t) : 1 - smooth(T1, T1 + 0.5, t);
+    return mix(DEEP + Math.sin(TAU * 2 * t / CYC), arcY(u), w);
+  };
+  // 原作：身体朝向切线（ang = atan2(dy, dx)），所以上升时抬头、过顶后低头扎下，这就是「空中翻身」
+  const koiAng = t => Math.atan2(koiY(t + 0.01) - koiY(t - 0.01), VX * 0.02);
+  // 原作尾巴摆动 sin(u·18)·2；水下沿用同一相位，出水入水不跳
+  const koiBend = t => Math.sin((t - T0) * 18 / JUMP) * 2;
+  const subAlpha = t => SUB * smooth(SWIM_IN, SWIM_IN + 0.7, t) * (1 - smooth(T1 + 0.4, SWIM_OUT, t));
+
+  // 原作锦鲤：米白身体加墨线、三块朱红斑、纸色胸鳍、墨点眼；尾巴两叉随 bend 摆
+  const koi = (k, x, y, ang, bend) => {
+    k.save();
+    k.translate(x, y); k.rotate(ang * DIR); k.scale(DIR, 1);
+    const body = new Path2D(`M-11 0 Q-4 -5.4 6 -3.6 Q11 -2 12 0 Q11 2 6 3.6 Q-4 5.4 -11 0Z M-11 0 L-17 ${-4.5 + bend} Q-15 0 -17 ${4.5 + bend}Z`);
+    k.fillStyle = KOI_BODY; k.fill(body); pen(k, body, SP * 0.8);
+    k.fillStyle = KOI_SPOT; k.fill(wall.spots);
+    shape(k, 'M-1 3 L-4 7.5 L2 4Z', SP * 0.6);
+    blot(k, wall.eye);
+    k.restore();
+  };
+  // 以鱼所在的水面线为界：线下是水里，淡画；线上是空中，实画
+  const koiPart = (k, t, below) => {
+    const a = below ? subAlpha(t) : 1;
+    if (a <= 0.001) return;
+    k.save();
+    k.beginPath();
+    if (below) k.rect(-20, SURF, VW + 40, VH); else k.rect(-20, -20, VW + 40, SURF + 20);
+    k.clip();
+    k.globalAlpha = a;
+    koi(k, koiX(t), koiY(t), koiAng(t), koiBend(t));
+    k.restore();
+  };
+
+  CELLS[5] = (k, w, h, u) => {
+    if (!wall) buildWall();
+    paper(k);
+    k.save();
+    k.scale(S, S);
+
+    shape(k, wall.body, SP);
+    pen(k, wall.joints, SP * 0.5);
+    pen(k, wall.moss, SP * 0.45);
+    k.fillStyle = WATER_FILL; k.fill(wall.water);
+
+    // 水下的鱼在水纹、涟漪下面，被水纹划过，看起来是在水里
+    if (u > SWIM_IN && u < SWIM_OUT) koiPart(k, u, true);
+
+    inkLine(k, -10, WATER, VW + 10, WATER, SP * 0.8, 6, 0.15);
+    for (const l of lines) {
+      if (l.y > VH + 2) continue;
+      const s = wrap(u / CYC + l.ph, 1);
+      const x = l.x + l.v * CYC * (s - 0.5);
+      // 原作 sin(t·1.3 + x·0.04)·0.7 的上下浮动，时间频率取整成一个周期一次
+      const y = l.y + Math.sin(TAU * u / CYC + x * 0.04) * 0.7;
+      k.globalAlpha = smooth(0, LINE_FADE, s) * (1 - smooth(1 - LINE_FADE, 1, s));
+      pen(k, `M${x} ${y} Q${x + l.len / 2} ${y - 1.2} ${x + l.len} ${y}`, SP * 0.5);
+    }
+    k.globalAlpha = 1;
+    for (const r of rings) {
+      const t = u - r.t0;
+      if (t < 0 || t > RING_LIFE) continue;
+      k.globalAlpha = 1 - t / RING_LIFE;
+      const e = new Path2D(); e.ellipse(r.x, r.y, (2 + t * 12) * r.big, (0.6 + t * 2.2) * r.big, 0, 0, TAU);
+      pen(k, e, SP * 0.55);
+    }
+    k.globalAlpha = 1;
+    for (const d of drops) {
+      const t = u - d.t0;
+      if (t <= 0) continue;
+      const y = SURF - d.vy * t + G * t * t / 2;
+      if (y > SURF) continue;
+      // 水珠拉长成沿速度方向的小椭圆，纸色填充、细墨线
+      const e = new Path2D(); e.ellipse(d.x + d.vx * t, y, 1.3, 0.75, Math.atan2(G * t - d.vy, d.vx), 0, TAU);
+      shape(k, e, SP * 0.5);
+    }
+
+    // 出水前鱼头、入水后鱼尾也会露出水面线，所以整段可见时间里都画线上那半
+    if (u > SWIM_IN && u < SWIM_OUT) koiPart(k, u, false);
+    k.restore();
+  };
+}

@@ -1,0 +1,16 @@
+Please use "Ink harbour lighthouse" (墨線の港の灯台), filed under "Animation styles / Flat & line".
+Motion Prompt #4-104
+
+What it is: A line-art harbour at dusk: the sun sinks into the sea, the lighthouse comes on and two beams sweep round over the water while a boat tied to the pier rocks on the waves; the light goes out at dawn and it is morning again
+What the sample shows: On the left a wooden pier with a fishing net hung out to dry and a small covered boat tied at its end; on the right a headland with a red-banded lighthouse and a keeper's hut, and a pale-ink cape and islet out at sea. The sea is many rows of horizontal ink lines, thinner and lower further out, with crests travelling left. The sun reddens and sets on the horizon beside the islet, leaving a streak of light on the water. As it gets dark the lighthouse, the hut window and the boat lantern come on, and the lighthouse's two beams turn round the tower and take turns sweeping the sea: a beam turned forward passes in front of the tower, one turned back is hidden behind it. Two gulls land on the posts at dusk, stay the night and fly off at dawn when the light goes out.
+Spec:
+- Colours use the sky top, sky bottom and paper ramps from the original daynight.ts, and ink inverts from #1c1c1c to #efe6cf. The day starts at τ 0.68 and comes round to 1.68; dawn is at 5.4 s and the last 1 s runs through daytime back to the start.
+- The lighthouse comes on at 1.5–1.75 s and goes off at 5.3–5.55 s. It has 2 opposite beams that turn 2 times per cycle (3.2 s per turn), in the same warm translucent rgba(255,226,168) as the original window light and street-lamp cone.
+- The boat rolls on the original lantern pendulum (10, 1.1), pushed by the slope of the wave under it, swinging about ±4.6°. The net hem uses the original scarf-tail spring (30, 4), pushed by the sea breeze (mean 0.3).
+- The sea is 13 rows of horizontal ink lines, lower, thicker and with bigger swell nearer the viewer. Crests pass 3 times per cycle while the lines stay in place, so there is no seam.
+- The 2 gulls land on the posts at the pier end at 1.5–2.45 s and fly off at 5.5–6.2 s. Flat colour is limited to 2: the lighthouse red #b3412d and the boat's wood #8b6a48, darkened at night by the original nightTint() amount.
+When to use it: Use it for guidance, keeping watch, running through the night, signalling from afar, a place to come home to, or showing a night mode.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-104.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,17 @@
+Please use "Briefcase walker tipping his hat" (鞄を提げた紳士の帽子会釈), filed under "Shapes & objects / Figures & animals".
+Motion Prompt #2-133
+
+What it is: A line-art figure drawn in one fine ink line on warm paper, faceless, walking with a real gait; what he carries swings a little behind his hand
+What the sample shows: A man in a bowler hat and red scarf, carrying a brown briefcase, walks along the pavement while the view follows him, so the paving joints and a street lamp slide past. Halfway he slows, lifts his hat, lowers it and walks on.
+Spec:
+- Warm paper #fdfcf8 and one ink colour #1c1c1c; the man is about 125 px tall with his feet on the kerb line 172 px down, and keeps the same place on screen while the street moves.
+- Two kerb lines, a paving joint every 1/8 of the distance walked per loop, and a street lamp; lines are split into short pieces with small fixed offsets so they look hand-inked but do not jitter.
+- Walk: the planted foot slides back at exactly the walking speed so it stays still on the ground, the swinging foot follows a minimum-jerk path, the heel lifts first, and hip height comes from what the legs can reach. One loop is a whole number of steps.
+- Arms and legs are two open pen lines with paper between them; the coat is drawn around the front knee so the hem opens and closes with each step.
+- Arms swing opposite the legs through springs, the briefcase hangs from the hand as a pendulum, and the scarf end is a spring pushed by walking and a slow breeze. Springs and pendulums are worked out over three loops and the last loop is replayed, so 0 s and 6.4 s match.
+- From 2.2 s he slows to 15% of his pace, raises his near hand to the brim in 0.35 s and lifts the hat by 5 units, holds until 3.4 s, and lowers it in 0.4 s; the briefcase moves to his waist side while the hand is up.
+When to use it: Use it for greetings and welcomes, stories about town and everyday life, or onboarding and loading screens that want a hand-drawn warmth.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/2-133.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

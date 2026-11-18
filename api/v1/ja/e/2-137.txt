@@ -1,0 +1,222 @@
+// Motion Prompt #2-137 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// 電線のスズメ / Sparrows on the wire
+// 分類: モーショングラフィックス / 図形・オブジェクト / 人物・動物
+// 何が起きるか: 固定した画面に電柱が 2 本、その間に電線が 2 本たわみ、上の線に 7 羽のスズメが止まっている。真ん中の 1 羽が飛び立つと 3 羽が順に続いて画面の外へ消え、やがて左右から戻って元の場所と向きに止まる。残った鳥はその間も跳ねたり振り向いたりしている。
+// 動きの仕様:
+//   - 暖かい紙 #fdfcf8 に墨 #1c1c1c、色はスズメの頭の #7a5a3c だけ。原作の村の場面の単位を 2.2 倍にして描き、場面のペン幅は 0.8
+//   - 電柱二本は原作どおり（柱、帯、碍子四個の腕木、右の柱に変圧器）。上の電線は径間 153 単位で中央が 8.25 たわみ、原作の 482 単位につき 26 と同じ割合。もう一本はその 7 下
+//   - スズメは 3.1 × 2.4 の体の楕円、頭の斑、頬の点、くちばし、尾の線、たたんだ翼、二本の脚。止まっている間は一秒前後おきに跳ねる（0.22 秒、高さ 3.2 単位）、振り向く、羽をつつく（頭が 1.6 下がる）、尾を振るのどれか。一周で跳ねた距離の合計はゼロ、振り向きは二回ずつ
+//   - 真ん中の一羽が 1.3 秒に飛び立ち、ほかの三羽が 1.42、1.56、1.72 秒に続いて 制御点が電線より 26–32 単位上にあるベジェ曲線で画面の外へ出る。飛ぶ間は二本の翼の線が一周 35 回羽ばたく（原作の 34 rad/s を丸めた値）
+//   - 左右から戻って 5.5、5.7、5.95、6.1 秒に元の場所へ止まり、0 秒と同じ向きになる
+//   - 鳥一羽ごとの重さが電線を二本の直線に折り、径間中央で深さ 1.2 単位、k 40・d 6 のばねで沈む。飛び立つ直前と止まった直後にひと蹴りして電線が跳ね返る。ばねは三周分計算して最後の一周を再生するので、0 秒と 6.4 秒の絵が一致する
+// 使いどころ: のどかな朝や町の暮らしの場面、待ち時間や読み込みの画面、季節のあいさつやお知らせのカードに。
+// タグ: line-art, ink, bird, sparrow, power-line, flock, spring
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#2-137
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 05
+// 电线上的麻雀：两根电线杆之间一根下垂的电线，七只麻雀停在上面跳、转身、啄羽、甩尾；中段一只被惊起，三只先后跟着飞走，
+// 再先后从画面外飞回原位，电线随停落的重量下沉、回弹。对应原作 examples/village/critters.ts 的 createSparrows 和 houses.ts 的电线杆与电线：
+// 原作的动作随机触发、点一下才惊飞，这里排成时间表；原作电线是静止的，这里给每只鸟的重量挂一个弹簧，电线才会下沉回弹。
+{
+  // 原作麻雀按场景单位画（整幅 960 宽、一只鸟身长约 6 单位），卡片只看一段电线，所以整体放大 S 倍
+  const S = 2.2;
+  const SP = 0.8;                                   // 原作场景笔宽（village/kit.ts 的 SP），放大后约 1.8 px
+  const Y0 = 36;                                    // 电线挂点高度（场景单位）；原作 112，整体上移 76
+  const DY = 112 - Y0;
+  const POLE_L = 26, POLE_R = 219;                  // 两根杆的中心；横担 ±22，两端都在画面里
+  const XA = POLE_L + 20, XB = POLE_R - 20, L = XB - XA;   // 原作电线挂在杆中心外 20 单位（488 = 468 + 20）
+  const SAG = 26 * L / 482;                         // 原作右侧一跨 482 单位垂 26，按跨度同比例
+  const DIP = 1.2;                                  // 一只鸟停在跨中压下的深度；原作电线不动，这个值只为看得出下沉
+  const PERCH = 0.8;                                // 原作身体基准在电线上方 2.5，放大后脚悬空，这里让脚正好踩在线上
+  const CAP = '#7a5a3c';
+  const WIRE = { type: 'spring', k: 40, d: 6 };     // 原作 motion.md 的默认弹簧 spring(40, 6)，欠阻尼，落下会回弹一两下
+  const HOP = 0.22, HOP_UP = 3.2;                   // 原作一跳 0.22 秒、高 3.2
+  const FLAP = Math.round(34 * CYC / TAU);          // 原作拍翅 34 rad/s，取整成周期内整数次
+  // 原作七个停位 540…850 的疏密节奏，缩放到这一跨里（两端各留 16 单位）
+  const SPOTS = [540, 575, 610, 660, 720, 790, 850].map(s => XA + 16 + (s - 540) / 310 * (L - 32));
+  // 每只鸟的时间表：停着的动作照原作四种（跳、转身、啄羽、甩尾），原作间隔 0.8–3.6 秒，这里取 0.4–1.7 秒，否则 6.4 秒里每只鸟只动一两下；
+  // 一个周期里跳的距离相加为零、转身次数为偶数，6.4 秒回到起始位置和朝向。
+  // fly：起飞时刻、飞走用时、飞回时刻、飞回用时（原作 1.8–3.2 / 2.2–3.4 秒），和贝塞尔控制点。
+  // 飞行距离按原作的约一半（爬高 26–32 单位，原作 40–80），否则一出发就飞出画面。
+  // 飞回的最后一段从停位的「背后」进来，落下时朝向和起始时一致。
+  const BIRDS = [
+    { dir: 1, acts: [[0.8, 'peck'], [2.4, 'turn'], [3.4, 'hop', 6], [4.9, 'turn'], [5.9, 'hop', 6]] },
+    { dir: -1, acts: [[1.2, 'tail'], [2.9, 'turn'], [4.6, 'peck'], [5.8, 'turn']] },
+    { dir: 1, acts: [[0.7, 'peck']],
+      fly: { off: 1.56, durA: 1.8, a: { c1: [12, -32], c2: [20, -28], p1: [-18, -4] }, back: 3.70, durB: 2.25, b: { p0: [-18, 18], c1: [40, 6], c2dx: -16 } } },
+    // 中段这只最先被惊起
+    { dir: -1, acts: [[0.6, 'peck'], [6.05, 'tail']],
+      fly: { off: 1.30, durA: 1.85, a: { c1: [20, -30], c2: [200, -27], p1: [262, -8] }, back: 3.30, durB: 2.2, b: { p0: [262, 4], c1: [150, 8], c2dx: 18 } } },
+    { dir: 1, acts: [[0.25, 'tail'], [1.05, 'turn']],
+      fly: { off: 1.42, durA: 1.8, a: { c1: [-15, -26], c2: [215, -26], p1: [262, -6] }, back: 3.50, durB: 2.2, b: { p0: [-18, 10], c1: [70, 2], c2dx: -20 } } },
+    { dir: -1, acts: [[0.2, 'hop', 5], [1.0, 'peck']],
+      fly: { off: 1.72, durA: 1.9, a: { c1: [-10, -28], c2: [230, -30], p1: [262, 8] }, back: 3.85, durB: 2.25, b: { p0: [262, -6], c1: [200, 12], c2dx: 18 } } },
+    { dir: -1, acts: [[0.4, 'hop', 5], [1.9, 'turn'], [3.0, 'hop', 5], [4.6, 'peck'], [5.6, 'turn']] },
+  ];
+  BIRDS.forEach((b, i) => { b.x = SPOTS[i]; });
+
+  const baseY = x => { const v = (x - XA) / L; return Y0 + SAG * 4 * v * (1 - v); };
+  // 一只鸟在 a 处的重量让整跨弯成两段直线（张紧的弦受集中力），跨中最深、靠杆处几乎不动
+  const wireY = (x, s, ax) => {
+    let y = baseY(x);
+    if (x <= XA || x >= XB) return y;
+    for (let i = 0; i < s.length; i++) {
+      const a = clamp(ax[i], XA + 0.1, XB - 0.1), dx = x - XA, da = a - XA;
+      y += DIP * s[i] * (4 / L) * (dx < da ? dx * (L - da) : da * (L - dx)) / L;
+    }
+    return y;
+  };
+
+  // 停在线上时的状态：每个动作都按「从哪一刻开始」直接算出来，不逐帧累加
+  const perched = (b, u, from) => {
+    let x = b.x, dir = b.dir, lift = 0, pk = 0, tf = 0;
+    for (const [t, kind, dist] of b.acts) {
+      if (t < from || t > u) continue;
+      const e = u - t;
+      if (kind === 'turn') dir = -dir;
+      else if (kind === 'hop') {
+        const h = e / HOP;
+        if (h >= 1) x += dir * dist;
+        else { x += dir * dist * ease(h); lift = Math.sin(Math.PI * h) * HOP_UP; }
+      } else if (kind === 'peck' && e < 0.5) pk = Math.sin(Math.PI * (1 - 2 * e)) * 1.6;   // 原作 peck 每秒减 2
+      else if (kind === 'tail' && e < 1 / 3) { const tl = 1 - 3 * e; tf = Math.sin(tl * 20) * 1.6 * tl; }   // 原作 tail 每秒减 3
+    }
+    return { x, dir, lift, pk, tf };
+  };
+  const bez = (p0, c1, c2, p1, s) => {
+    const a = 1 - s;
+    return [0, 1].map(j => a * a * a * p0[j] + 3 * a * a * s * c1[j] + 3 * a * s * s * c2[j] + s * s * s * p1[j]);
+  };
+  // 飞行朝向取曲线切线方向；原作取前方一小步的位置差，落地那一刻差为零会翻成朝右，这里用导数避免
+  const bezDir = (p0, c1, c2, p1, s) => {
+    const a = 1 - s, dx = 3 * a * a * (c1[0] - p0[0]) + 6 * a * s * (c2[0] - c1[0]) + 3 * s * s * (p1[0] - c2[0]);
+    return dx >= 0 ? 1 : -1;
+  };
+
+  // 电线对每只鸟的「负重目标」：停着为 1，飞着为 0；起跳前一瞬和落下后一瞬蹬一下，弹簧被踢动才看得出回弹
+  const load = (b, u) => {
+    const f = b.fly;
+    if (f) {
+      const land = f.back + f.durB;
+      if (u >= f.off - 0.06 && u < f.off) return 2.5;
+      if (u >= f.off && u < land) return 0;
+      if (u >= land && u < land + 0.06) return 2.5;
+    }
+    for (const [t, kind] of b.acts) {
+      if (kind !== 'hop') continue;
+      if (u >= t - 0.04 && u < t) return 2;
+      if (u >= t && u < t + HOP) return 0;
+      if (u >= t + HOP && u < t + HOP + 0.05) return 2;
+    }
+    return 1;
+  };
+  const wire = sim(BIRDS.map(() => WIRE), u => BIRDS.map(b => load(b, u)));
+
+  // 原作 houses.ts 的电线杆（杆身、箍、横担、四个瓷瓶，右杆带变压器），平移到卡片坐标；只与参数有关，缓存成 Path2D
+  let poles = null;
+  const buildPoles = () => {
+    const y = v => v - DY, out = [];
+    for (const cx of [POLE_L, POLE_R]) {
+      const o = cx - 468;
+      const X = v => v + o;
+      out.push(['shape', `M${X(465)} ${y(352)} L${X(466.5)} ${y(98)} L${X(470.5)} ${y(98)} L${X(472)} ${y(352)}Z`, SP * 0.9]);
+      out.push(['pen', `M${X(466)} ${y(140)} L${X(471)} ${y(140)} M${X(466)} ${y(200)} L${X(471)} ${y(200)}`, SP * 0.5]);
+      out.push(['shape', `M${X(446)} ${y(110)} L${X(490)} ${y(110)} L${X(490)} ${y(114)} L${X(446)} ${y(114)}Z`, SP * 0.8]);
+      for (const ix of [450, 458, 478, 486]) out.push(['shape', `M${X(ix) - 1.6} ${y(110)} L${X(ix) + 1.6} ${y(110)} L${X(ix) + 1.2} ${y(105)} L${X(ix) - 1.2} ${y(105)}Z`, SP * 0.5]);
+      if (cx === POLE_R) {
+        out.push(['shape', `M${X(472)} ${y(140)} Q${X(480)} ${y(140)} ${X(480)} ${y(146)} L${X(480)} ${y(170)} Q${X(480)} ${y(176)} ${X(472)} ${y(176)}Z`, SP * 0.8]);
+        out.push(['pen', `M${X(472)} ${y(150)} L${X(479)} ${y(150)} M${X(472)} ${y(160)} L${X(479)} ${y(160)}`, SP * 0.45]);
+      }
+    }
+    return out.map(([kind, d, w]) => [kind, new Path2D(d), w]);
+  };
+  // 电线是细分折线，每个点按序号加固定小偏移，像墨线；偏移跟着线走，不随帧抖
+  const wirePath = (fy, x1, x2, n, seed) => {
+    let d = '';
+    for (let j = 0; j <= n; j++) {
+      const x = mix(x1, x2, j / n), o = j === 0 || j === n ? 0 : (rnd(j, seed) - 0.5) * 0.24;
+      d += (j ? 'L' : 'M') + x + ' ' + (fy(x) + o);
+    }
+    return d;
+  };
+  const oval = (cx, cy, rx, ry) => { const p = new Path2D(); p.ellipse(cx, cy, rx, ry, 0, 0, TAU); return p; };
+
+  CELLS[4] = (k, w, h, u) => {
+    paper(k);
+    if (!poles) poles = buildPoles();
+    const s = wire(u);
+    // 先解出每只鸟这一刻在哪、什么状态；电线的负重位置要用停着时的 x
+    const st = BIRDS.map((b, i) => {
+      const f = b.fly;
+      if (!f) return Object.assign(perched(b, u, -1), { mode: 'perch' });
+      const land = f.back + f.durB;
+      if (u < f.off) return Object.assign(perched(b, u, -1), { mode: 'perch' });
+      if (u >= land) return Object.assign(perched(b, u, land), { mode: 'perch' });
+      const pre = perched(b, f.off, -1);
+      if (u < f.off + f.durA) return Object.assign(pre, { mode: 'away', t: (u - f.off) / f.durA, lift: 0, pk: 0, tf: 0 });
+      if (u < f.back) return { mode: 'gone', x: b.x };
+      return { mode: 'back', t: (u - f.back) / f.durB, x: b.x, lift: 0, pk: 0, tf: 0 };
+    });
+    const ax = st.map(q => q.x);
+    const wy = x => wireY(x, s, ax);
+
+    k.save();
+    k.scale(S, S);
+    // 电线：上面一根载鸟、随弹簧下沉；下面一根在原作里比上面低 7、中段稍多垂一点，不载鸟、不动
+    pen(k, wirePath(wy, XA, XB, 40, 1), SP * 0.5);
+    pen(k, wirePath(x => baseY(x) + 7 * (1 + 0.3 * Math.sin(Math.PI * (x - XA) / L)), XA, XB, 40, 2), SP * 0.5);
+    // 杆外侧的下一跨只露出一小段，照原作左跨的坡度向外垂
+    for (const off of [0, 7]) {
+      pen(k, `M${POLE_L - 20} ${Y0 + off} L${POLE_L - 40} ${Y0 + off + 3.4}`, SP * 0.5);
+      pen(k, `M${POLE_R + 20} ${Y0 + off} L${POLE_R + 40} ${Y0 + off + 4.1}`, SP * 0.5);
+    }
+    for (const [kind, p, lw] of poles) (kind === 'shape' ? shape : pen)(k, p, lw);
+
+    BIRDS.forEach((b, i) => {
+      const q = st[i];
+      if (q.mode === 'gone') return;
+      let x, y, d, flying = false;
+      if (q.mode === 'perch') { x = q.x; y = wy(x) - PERCH - q.lift; d = q.dir; }
+      else {
+        const f = b.fly;
+        let p0, c1, c2, p1;
+        if (q.mode === 'away') {
+          // 起飞点取起飞那一刻电线的位置，之后电线回弹不再拖着鸟
+          const s0 = wire(f.off), ax0 = ax.slice(); ax0[i] = q.x;
+          p0 = [q.x, wireY(q.x, s0, ax0) - PERCH];
+          c1 = [q.x + f.a.c1[0], p0[1] + f.a.c1[1]]; c2 = [f.a.c2[0], p0[1] + f.a.c2[1]]; p1 = f.a.p1;
+        } else {
+          p0 = f.b.p0; c1 = f.b.c1; c2 = [b.x + f.b.c2dx, baseY(b.x) - 22];
+          p1 = [b.x, wy(b.x) - PERCH];                // 终点跟着这一刻的电线，落下时和停着的画法接上
+        }
+        const e = ease(q.t);
+        [x, y] = bez(p0, c1, c2, p1, e);
+        d = bezDir(p0, c1, c2, p1, e);
+        flying = q.t < 0.97;
+      }
+      const pk = q.pk, X = dx => x + dx * d;
+      // 以下造型照原作：身体椭圆、帽斑、颊点、喙、尾线、收着的翅、两条腿，飞时换成两条拍动的翅
+      pen(k, `M${X(-2.4)} ${y - 2.6} L${X(-6)} ${y - 0.6 - q.tf}`, SP * 0.9);
+      shape(k, oval(x, y - 2.8, 3.1, 2.4), SP * 0.7);
+      // 原作帽斑的圆弧方向不随朝向翻转，朝左的鸟帽子会扣到下面；这里按朝向翻转弧的方向
+      k.fillStyle = CAP;
+      k.fill(new Path2D(`M${X(0.8)} ${y - 5.6 + pk} a2 1.8 0 0 ${d > 0 ? 1 : 0} ${3.6 * d} 0Z`));
+      blot(k, oval(x + 2.6 * d, y - 4.4 + pk, 0.6, 0.6));
+      blot(k, `M${X(4.4)} ${y - 5.2 + pk} L${X(6)} ${y - 4.8 + pk} L${X(4.4)} ${y - 4.3 + pk}Z`);
+      if (flying) {
+        const fl = Math.sin(TAU * FLAP * u / CYC + i) * 4;
+        pen(k, `M${X(0)} ${y - 3.4} L${X(-2)} ${y - 3.4 - fl} M${X(0.6)} ${y - 3} L${X(2.4)} ${y - 3 - fl * 0.8}`, SP * 0.8);
+      } else {
+        pen(k, `M${X(-1.6)} ${y - 3.6} Q${X(0.6)} ${y - 2.2} ${X(-2.2)} ${y - 1.4}`, SP * 0.5);
+        pen(k, `M${X(-0.4)} ${y - 0.6} L${X(-0.4)} ${y + 0.6} M${X(0.8)} ${y - 0.6} L${X(0.8)} ${y + 0.6}`, SP * 0.4);
+      }
+    });
+    k.restore();
+  };
+}

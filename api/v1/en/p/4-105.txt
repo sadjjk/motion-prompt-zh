@@ -1,0 +1,16 @@
+Please use "Ink kitchen cooking" (墨線の台所), filed under "Animation styles / Flat & line".
+Motion Prompt #4-105
+
+What it is: A line-art kitchen: a faceless cook chops a carrot, lifts the pot lid and slides the slices in off the board; the boiling pot keeps bumping its lid with steam, and the ladles on the wall swing with each chop
+What the sample shows: A cook in an indigo apron stands behind the counter and chops the carrot on the board 8 times. They put the knife down, drop the end in the basket, lift the pot lid and tip the board so the slices drop into the pot one by one, then put the lid back, pick up the knife and take a fresh carrot from the basket to start again. While the lid is on, steam bumps it 7 times and a thin wisp rises from its vent; the fire flickers in the stove door. The 4 utensils on the wall swing with the chops and the lid, and outside smoke drifts from the neighbour's chimney.
+Spec:
+- A daytime scene with no day-night change. Flat colour is limited to 2: the indigo #34507a apron and the orange #c8643b carrot; the stove fire uses the carrot colour.
+- 8 chops start at 0.1 s, one every 0.29 s, each slice 5 thick. The lid comes off at 3.15 s, the board tips and comes back over 3.25–4.25 s, and the lid goes back on over 4.05–4.3 s.
+- While the lid is on it bumps 7 times, at 0.55, 1.25, 1.85, 2.4, 4.9, 5.45 and 5.95 s, each for 0.22 s, puffing steam out both sides. The steam and the smoke outside are drawn like the smoke in the original critters.ts.
+- The 4 utensils on the wall use the original lantern pendulum (stiffness 10, 12, 9 and 14, damping 1.1), pushed whenever the knife hits the board or the lid drops.
+- As in the original, the cook has no face: the head is a paper-coloured oval and only the upper body above the counter shows. The body leans over to reach the basket and the pot lid.
+When to use it: Use it for cooking and recipes, everyday home life, food or kitchen-appliance products, or a "getting ready" waiting screen.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/4-105.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

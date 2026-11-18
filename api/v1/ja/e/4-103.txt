@@ -1,0 +1,658 @@
+// Motion Prompt #4-103 · MIT License (c) 2026 JDhruv14 · https://github.com/JDhruv14/line-art-animation
+//
+// 墨線の山あいの滝 / Ink mountain waterfall
+// 分類: ビジュアルスタイル / アニメーションの画風 / フラット・線
+// 何が起きるか: 淡墨の山並み三重、その間を丸い瓣を重ねた勾雲の群れが尾を引いて流れ、中ほどの山すそには雲海が寄せる。右の崖の切れ目から滝が落ち、七本の縦の墨線の切れ目が下ほど速く長くなりながら流れ落ちる。滝つぼでは落ちた所から波紋が次々に広がり、ほかの水面にも小さな波紋が出る。しぶきの粒がはね上がって落ち、水煙が上って薄れ、水面の筋は左へ流れる。左には松と立石、崖の下に岩棚の山道。石は角ばった面に分け、陰の面に短い皴を重ねて苔点を打ち、松葉は扇形の針の房を重ねて描く。笠と背負いかごの人が石の陰から出て道を歩き、崖の裏へ回り込む。はじめは朝霧で山が白くかすみ、三秒ほどで晴れて山すその薄いもやだけが残る。
+// 動きの仕様:
+//   - 遠山は 3 層で墨の濃さ 0.26、0.42、0.65（原作 sky.ts の遠山 0.42）。各層は紙色で塗りつぶし、手前の山が奥の山の線を隠す。雲は 5 または 7 枚の円弧の瓣を重ねた勾雲で、瓣の中に渦を巻き、細くなる尾を 2–3 本引く。各層の雲の帯は 108 または 216 px ごとにくり返し、1 周期でちょうどその分だけ流れる。山すその雲海は 135 px 流れる。
+//   - 滝は 7 本の縦の破線。落下の進み具合を一定の速さで進め（約 1.25 秒で落ちきる）、下ほど速く破線が長くなる。どの線も 1 周期に整数個の破線ぶん進むので、継ぎ目でそろう。
+//   - 波紋は原作 canal.ts の楕円 rx=(2+12t)·1.5、ry=(0.6+2.2t)·1.5 で 1.6 秒で消え、落ちた所から 0.4 秒ごとに出る。ほかに小さな波紋が 5 か所（0.6 倍）。水面の筋 16 本は秒速 4–9 で左へ流れ、水の色は mix(paper, #bfd0d8, 0.32)。
+//   - しぶきは 12 粒の放物線（重力 220）。水煙は原作 critters.ts の煙と同じく 14 点の波打つ円で、半径は毎秒 2.2 伸び、0.8 秒ごとに一つ出て 3.2 秒で消える。
+//   - 人は原作 gait.ts の walk の歩き方で、ループごとに 6 歩行周期（各 1.07 秒）、縮尺 0.52、前傾 5°。腕は原作のばね (60, 9)、背負いかごは原作の標準ばね (40, 6)。約 1–2 秒で立石の陰から出て、5–6 秒で崖の裏へ入る。
+//   - 朝霧は 0.3–2.8 秒で晴れ、5.4–6.4 秒でまた立ちこめて最初につながる。平塗りは笠の麦わら色 #e6cf8e と帯の赤 #b3412d の 2 色だけ。
+// 使いどころ: 自然や旅、山歩き、静けさと流れ続けるもの、和風・中国風の場面転換や待ち時間の見せ方に。
+// タグ: line-art, ink, landscape, waterfall, mountain, walk, mist
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/lineart.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#4-103
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 11
+// 山间瀑布：原作没有山水场景，这里按原作的画法（细墨线、纸色遮挡、远景淡墨、一两处平涂色）新编一幅：淡墨远山三层、勾云成团飘过、山腰一层云海，
+// 清晨的雾在前 2.8 秒散去；瀑布是一组沿竖向循环下移的墨线，潭面一圈圈涟漪、水花和水烟；背着柴篓、戴斗笠的行人从瀑布后面的山路走出来，
+// 沿岩架走出画面右边（原作 gait.ts 的步态）。远山淡墨、涟漪、水纹、水烟照原作 sky.ts、canal.ts、critters.ts 的画法与参数。
+{
+  // 主线约 1 px，与 #4-100、#4-101 一致；细节线（皴纹、水纹、草）按原作 0.4–0.6 倍
+  const SP = 1.0, FP = 0.55;
+  const W11 = TAU / CYC;                            // 一周期一圈的角速度，周期性小动作都取它的整数倍
+  const R = (i, j, a, b) => a + rnd(i, j) * (b - a);   // 原作 srnd 的固定种子版
+  const STRAW = '#e6cf8e', SASH = '#b3412d';        // 原作孩子草帽的麦秆色、原作的红；全幅只有这两处平涂
+  // 原作运河水面：mix(paper, #bfd0d8, 0.32)
+  const WATER_FILL = css(mc(hx('#fdfcf8'), hx('#bfd0d8'), 0.32));
+  const PAPER_RGB = '253,252,248';
+  const POOL_Y = 182;                               // 潭面
+  const GY = 160;                                   // 岩架山路（行人脚下）
+
+  // —— 晨雾 ——
+  // 开头雾最浓，0.3–2.8 秒散去，白天只剩山脚一层薄霞；5.4–6.4 秒雾重新漫上来，接回开头
+  const morning = u => 1 - smooth(0.3, 2.8, u) + smooth(5.4, 6.4, u);
+
+  // —— 远山 ——
+  // 三层山脊，越远越淡：原作远山用 0.42 的淡墨，这里最远一层再淡到 0.26、最近一层 0.65。
+  // 每层先铺不透明纸色再描脊线，近的一层挡住远的一层的线，像原作纸色填充的遮挡
+  const RIDGES = [
+    { a: 0.26, pts: [[-6, 74], [30, 58], [62, 40], [84, 26], [104, 38], [136, 56], [170, 44], [204, 24], [222, 16], [246, 30], [280, 50], [316, 40], [352, 54], [400, 44], [450, 30], [545, 46]],
+      tex: 'M70 44 q8 10 6 22 M92 34 q-4 12 2 24 M210 28 q6 12 2 26 M232 26 q-6 14 0 28 M300 46 q4 8 2 18' },
+    { a: 0.42, pts: [[-6, 104], [26, 92], [58, 80], [92, 92], [128, 100], [162, 86], [196, 74], [226, 84], [262, 98], [300, 90], [336, 102], [380, 96], [545, 104]],
+      tex: 'M50 86 q10 -4 22 -2 M170 84 q6 8 4 18 M196 80 q-4 10 2 20 M282 96 q14 -4 26 0' },
+    { a: 0.65, pts: [[-6, 132], [28, 122], [66, 112], [104, 118], [146, 128], [190, 132], [236, 140], [282, 146], [330, 156], [360, 170]],
+      tex: 'M60 118 q10 -3 20 0 M120 124 q4 6 2 14 M200 138 q12 -3 22 1 M250 146 q4 6 2 12' },
+  ];
+  // 折线顶点之间用二次曲线连起来（控制点是顶点、端点是相邻顶点的中点），山脊圆顺、不出尖角
+  const ridgeD = pts => {
+    let d = `M${pt(pts[0])}`;
+    for (let i = 1; i < pts.length - 1; i++) d += ` Q${pt(pts[i])} ${(pts[i][0] + pts[i + 1][0]) / 2} ${(pts[i][1] + pts[i + 1][1]) / 2}`;
+    return d + ` L${pt(pts[pts.length - 1])}`;
+  };
+  // 纸色胶囊（顺时针，与云瓣的圆同向，叠在一起填充不会留洞）：做勾云平的云底
+  const capsule = (x0, y0, x1, y1) => { const r = (y1 - y0) / 2; return `M${x0 + r} ${y0} L${x1 - r} ${y0} A${r} ${r} 0 0 1 ${x1 - r} ${y1} L${x0 + r} ${y1} A${r} ${r} 0 0 1 ${x0 + r} ${y0}Z`; };
+  // 雾带：纸色上下渐隐的一条横带，盖在一层山的山脚上，山脚就淡进雾里（原作只给天空和光用渐变，雾属于天空这一层）
+  function mistBand(k, y0, y1, a, x0 = 0, x1 = CW) {
+    if (a < 0.01) return;
+    const g = k.createLinearGradient(0, y0, 0, y1);
+    g.addColorStop(0, `rgba(${PAPER_RGB},0)`); g.addColorStop(0.5, `rgba(${PAPER_RGB},1)`); g.addColorStop(1, `rgba(${PAPER_RGB},0)`);
+    k.globalAlpha = clamp(a); k.fillStyle = g; k.fillRect(x0, y0, x1 - x0, y1 - y0); k.globalAlpha = 1;
+  }
+
+
+  // —— 石头的画法 ——
+  // 山水画里的石头讲「石分三面」：轮廓是有棱角的折线，块面之间的转折线是明暗交界，背光的一面用短皴笔排出来，
+  // 石脚、石顶点几个苔点。这里的石头（山崖、立石、潭石、路边石子）都用同一套：
+  // 轮廓折线加小圆角、2–4 条转折线、背光面横向短皴（斧劈皴那种一笔一笔的短笔）、苔点。几何全在建块时算好，每帧只描
+  const f2 = v => Math.round(v * 100) / 100;
+  // 折线加小圆角：每个顶点前后各退 r，以顶点作控制点的二次曲线连起来，棱角还在、不扎眼
+  function roundPoly(P, r = 1.6) {
+    const n = P.length; let d = '';
+    for (let i = 0; i < n; i++) {
+      const a = P[(i + n - 1) % n], b = P[i], c = P[(i + 1) % n];
+      const la = Math.hypot(a[0] - b[0], a[1] - b[1]), lc = Math.hypot(c[0] - b[0], c[1] - b[1]);
+      const ra = Math.min(r, la / 2) / la, rc = Math.min(r, lc / 2) / lc;
+      d += `${i ? 'L' : 'M'}${f2(b[0] + (a[0] - b[0]) * ra)} ${f2(b[1] + (a[1] - b[1]) * ra)}Q${f2(b[0])} ${f2(b[1])} ${f2(b[0] + (c[0] - b[0]) * rc)} ${f2(b[1] + (c[1] - b[1]) * rc)}`;
+    }
+    return d + 'Z';
+  }
+  // 背光面的皴笔：在多边形 P 里沿角度 ang 排平行扫描线，每条切成长短不一的短笔，偶尔空一笔。
+  // 扫描线从起点一侧（明暗交界）排起，只伸到 reach 比例那么远，所以贴着转折线最密、往外渐稀；
+  // 交界在右边时 ang 加 π 反过来排。扫描线与多边形求交，凹多边形也行
+  function hatch(P, ang, gap, seed, o = {}) {
+    const ca = Math.cos(ang), sa = Math.sin(ang);
+    const Q = P.map(([x, y]) => [x * ca + y * sa, -x * sa + y * ca]);
+    const ys = Q.map(q => q[1]), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const back = (x, y) => `${f2(x * ca - y * sa)} ${f2(x * sa + y * ca)}`;
+    let d = '';
+    for (let y = y0 + gap * 0.6, row = 0; y < y1 - gap * 0.3; y += gap, row++) {
+      const xs = [];
+      for (let i = 0; i < Q.length; i++) {
+        const a = Q[i], b = Q[(i + 1) % Q.length];
+        if ((a[1] <= y) !== (b[1] <= y)) xs.push(a[0] + (y - a[1]) / (b[1] - a[1]) * (b[0] - a[0]));
+      }
+      xs.sort((p, q) => p - q);
+      for (let j = 0; j + 1 < xs.length; j += 2) {
+        const xa = xs[j] + (o.inset ?? 1), xb = xs[j + 1] - (o.inset ?? 1);
+        if (xb - xa < 1.2) continue;
+        const reach = xa + (xb - xa) * R(row, seed + j, o.reach ?? 0.5, 1);
+        let x = xa + R(row, seed + 7, 0, 1);
+        for (let s = 0; x < reach; s++) {
+          const id = row * 31 + s, x2 = Math.min(reach, x + R(id, seed + 1, o.min ?? 2, o.max ?? 4.6));
+          if (rnd(id, seed + 2) > (o.skip ?? 0.2) && x2 - x > 0.7) {
+            const yy = y + R(id, seed + 3, -0.3, 0.3);
+            d += `M${back(x, yy)}L${back(x2, yy + R(id, seed + 5, -0.25, 0.35))}`;
+          }
+          x = x2 + R(id, seed + 4, 0.8, 2);
+        }
+      }
+    }
+    return d;
+  }
+  // 苔点：[x, y, 个数, 散开半宽]，一团里多数是小墨点，夹几笔短竖
+  function mossArt(list, seed) {
+    let dots = '', ticks = '';
+    list.forEach(([x, y, n, sp = 3], i) => {
+      for (let j = 0; j < n; j++) {
+        const id = i * 17 + j, px = f2(x + R(id, seed, -sp, sp)), py = f2(y + R(id, seed + 1, -0.9, 0.6));
+        if (rnd(id, seed + 2) < 0.3) ticks += `M${px} ${py}l${f2(R(id, seed + 3, -0.4, 0.4))} ${f2(-R(id, seed + 4, 1.2, 2.2))}`;
+        else { const r = f2(R(id, seed + 5, 0.4, 0.75)); dots += `M${f2(px - r)} ${py}a${r} ${r} 0 1 0 ${f2(2 * r)} 0a${r} ${r} 0 1 0 ${f2(-2 * r)} 0`; }
+      }
+    });
+    return { dots: new Path2D(dots), ticks: new Path2D(ticks) };
+  }
+  // 一块石头：pts 轮廓、facets 转折线（折线）、shade 背光面 [{p, a, g, seed, reach…}]、cun 亮面的几笔淡皴、moss 苔点
+  function rockArt(o, seed) {
+    return {
+      body: new Path2D(roundPoly(o.pts, o.r ?? 1.6)),
+      facets: new Path2D(o.facets.map(l => 'M' + l.map(pt).join('L')).join('')),
+      shade: new Path2D((o.shade || []).map((s, i) => hatch(s.p, s.a ?? 0, s.g ?? 2.2, seed + i * 13, s)).join('')),
+      cun: new Path2D(o.cun || ''),
+      moss: mossArt(o.moss || [], seed + 90),
+      w: o.w ?? SP, fw: o.fw ?? FP * 0.95,
+    };
+  }
+  function drawRock(k, r) {
+    k.fillStyle = PAPER; k.fill(r.body);
+    k.globalAlpha = 0.72; pen(k, r.shade, FP * 0.75);
+    k.globalAlpha = 0.6; pen(k, r.cun, FP * 0.7);
+    k.globalAlpha = 1; pen(k, r.facets, r.fw); pen(k, r.body, r.w);
+    k.fillStyle = INK; k.fill(r.moss.dots); pen(k, r.moss.ticks, FP * 0.8);
+  }
+
+  // —— 山崖 ——
+  // 瀑布从右边山崖的豁口落下；崖左缘斜下到潭边，右边一直高到画面外。斧劈皴的崖面：竖向的大块面，几道横的岩层转折，
+  // 朝右的面背光、排短皴，崖顶和岩层上点苔
+  // 崖脚在山路转弯处是一段竖直的石壁（x=CLIFF_X），行人走到这里绕到山后，被石壁挡住
+  const CLIFF_X = 336;
+  const CLIFF = rockArt({
+    r: 1.4,
+    pts: [[CLIFF_X, 186], [CLIFF_X, 104], [340, 96], [346, 88], [350, 78], [357, 70], [360, 60], [367, 52], [372, 42], [379, 36], [386, 30], [394, 28], [440, 28],
+      [448, 22], [458, 19], [468, 17], [478, 15], [490, 12], [502, 12], [512, 10], [524, 9], [534, 7], [545, 4], [545, 186]],
+    facets: [
+      [[350, 80], [355, 98], [351, 118], [356, 140], [353, 162], [357, 182]],
+      [[372, 42], [377, 60], [372, 82], [379, 106], [374, 128], [380, 152], [377, 182]],
+      [[CLIFF_X, 128], [344, 125], [351, 127]], [[355, 98], [364, 95], [376, 97]], [[356, 140], [366, 137], [377, 140]], [[CLIFF_X, 160], [347, 157], [353, 160]],
+      [[462, 18], [466, 40], [462, 62], [468, 90], [464, 118], [470, 150], [466, 182]],
+      [[502, 12], [498, 34], [504, 58], [500, 84], [506, 112], [502, 140], [508, 182]],
+      [[440, 56], [452, 52], [464, 55]], [[468, 90], [484, 86], [501, 88]], [[464, 118], [478, 122], [490, 118], [505, 121]],
+      [[470, 150], [486, 146], [503, 148]], [[504, 58], [522, 55], [539, 58]], [[506, 112], [522, 108], [539, 111]],
+    ],
+    shade: [
+      { p: [[355, 98], [351, 118], [356, 140], [353, 162], [357, 182], [377, 182], [380, 152], [374, 128], [379, 106], [372, 82], [364, 95]], a: 0.18, reach: 0.35 },
+      { p: [[466, 40], [480, 36], [498, 34], [504, 58], [500, 84], [506, 112], [502, 140], [508, 182], [466, 182], [470, 150], [464, 118], [468, 90], [462, 62]], a: 0.18, g: 2.4, reach: 0.25 },
+      { p: [[440, 56], [452, 52], [464, 55], [462, 62], [450, 60], [442, 61]], a: 0.1, g: 1.6, reach: 0.6 },
+    ],
+    cun: 'M344 112 q-3 10 -1 20 M362 70 q-3 8 -2 16 M486 40 q-3 14 1 30 M520 70 q-4 16 0 32 M524 130 q-3 12 1 24 M446 100 q-2 12 1 24 M446 140 q-2 10 1 20 M388 120 q-2 12 1 22 M530 20 q-3 10 0 22',
+    moss: [[452, 23, 4], [488, 15, 5], [516, 12, 4], [368, 50, 3, 2], [358, 72, 3, 2], [346, 124, 3, 2.5], [484, 85, 4], [522, 54, 4], [488, 145, 4], [522, 107, 3]],
+  }, 700);
+  // 豁口两侧各一块凸出的岩石，压住瀑布顶的两角，看得出水是从石缝里冲出来的
+  const LIPS = [
+    rockArt({ r: 1, pts: [[378, 35], [379, 30], [383, 26], [388, 24], [393, 24.5], [397, 27], [400, 32], [395, 35.5], [387, 36.5]], facets: [[[388, 24], [389, 30], [387, 36.5]]],
+      shade: [{ p: [[389, 30], [393, 24.5], [397, 27], [400, 32], [395, 35.5], [387, 36.5]], g: 1.5, reach: 0.6 }], moss: [[384, 25.5, 3, 2]] }, 760),
+    rockArt({ r: 1, pts: [[432, 33], [433, 28], [437, 23.5], [443, 22], [449, 23], [453, 27], [452, 32], [446, 35], [438, 35.5]], facets: [[[443, 22], [445, 29], [446, 35]]],
+      shade: [{ p: [[445, 29], [443, 22], [449, 23], [453, 27], [452, 32], [446, 35]], g: 1.5, reach: 0.7 }], moss: [[447, 22.4, 3, 2.5]] }, 780),
+  ];
+  // 崖顶的草丛：几笔短竖线，远看是草木
+  const TUFTS = [[452, 21], [470, 17], [498, 12], [520, 9], [372, 52], [360, 80]];
+  function cliff(k) {
+    drawRock(k, CLIFF);
+    TUFTS.forEach(([x, y], i) => pen(k, `M${x - 3} ${y} l-1 -4 M${x} ${y - 0.5} l0 -5.5 M${x + 3} ${y} l1.4 -4 M${x + 1.5} ${y} l0.6 -3`, FP * (i < 4 ? 1 : 0.8)));
+    LIPS.forEach(r => drawRock(k, r));
+  }
+
+  // —— 云 ——
+  // 勾云：一团云由几个大小不一的圆弧瓣叠成，纸色填满、墨线只勾外轮廓；瓣里画长短不一的卷涡，团的后侧拖出渐细的云尾，尾梢回卷。
+  // 远层云小、扁、淡、线细，近层大而清楚。云团本身的纸色挡住后面的山脊，水墨山水里云遮山腰就是这样留白的。
+  // 原作 sky.ts 的横云每秒只漂 1.2–2.6 单位，一个周期不到 17 px，看不出在动；这里每层做成一条横向周期为 P 的云带，
+  // 一个周期正好往右平移 P（远层 108、近层 216、山脚云海 135），首尾无缝，不用淡入淡出。
+  // 团的大小、高低、每个瓣的半径取决于它此刻的横坐标（两道慢正弦叠成的平滑起伏），所以云一边走一边慢慢变形，
+  // 不会每隔 P 重复一个一模一样的团；平移 P 后每个位置上的团又是原来的样子，循环照样接得上
+  const nz = (x, s) => 0.5 + 0.3 * Math.sin(x * 0.0363 + s * 1.7) + 0.2 * Math.sin(x * 0.0871 + s * 4.1);
+  // 云的几何每帧都在变，直接往 Path2D 里加线段，省掉拼字符串再解析（这一层每帧有几十团）
+  const circ = (P, x, y, r) => { P.moveTo(x + r, y); P.arc(x, y, r, 0, TAU); };
+  // 卷涡：以 (cx, cy) 为心，从半径 r0、角 a0 起转 sweep 弧度，半径缩到 r0·kEnd；dir 取 ±1 定旋向
+  function spiral(Q, cx, cy, r0, a0, sweep, kEnd, dir) {
+    for (let i = 0; i <= 12; i++) {
+      const t = i / 12, a = a0 + dir * sweep * t, r = r0 * mix(1, kEnd, t), x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r * 0.85;
+      if (i) Q.lineTo(x, y); else Q.moveTo(x, y);
+    }
+  }
+  // 云尾：从 (x0, y0) 往 dir 的反方向拖出 len 长，中段略垂，梢头随 sway 上下摆，最后往上回卷一个小钩；
+  // 画成一条从 w 收到 0.25w 的细长墨块，所以是渐细的
+  function tail(T, x0, y0, len, dir, sway, w) {
+    const P = [];
+    for (let i = 0; i <= 14; i++) { const t = i / 14; P.push([x0 - dir * len * t, y0 + len * 0.05 * Math.sin(Math.PI * t) + sway * t * t]); }
+    const [ex, ey] = P[14], rh = clamp(len * 0.08, 1.6, 3.2);
+    // 尾梢顺着来势往上卷：钩的圆心在末点正上方，从圆的最低点起转 1.4π，半径缩一半
+    for (let i = 1; i <= 8; i++) {
+      const s = (i / 8) * 1.4 * Math.PI, r = rh * mix(1, 0.5, i / 8), a = Math.PI / 2 + dir * s;
+      P.push([ex + Math.cos(a) * r, ey - rh + Math.sin(a) * r]);
+    }
+    const n = P.length, B = [];
+    for (let i = 0; i < n; i++) {
+      const p = P[Math.max(0, i - 1)], q = P[Math.min(n - 1, i + 1)];
+      const dx = q[0] - p[0], dy = q[1] - p[1], m = Math.hypot(dx, dy) || 1, hw = w * 0.5 * mix(1, 0.25, i / (n - 1));
+      const ax = P[i][0] - dy / m * hw, ay = P[i][1] + dx / m * hw;
+      if (i) T.lineTo(ax, ay); else T.moveTo(ax, ay);
+      B.push(P[i][0] + dy / m * hw, P[i][1] - dx / m * hw);
+    }
+    for (let i = B.length - 2; i >= 0; i -= 2) T.lineTo(B[i], B[i + 1]);
+    T.closePath();
+  }
+  // ridge：插在第几层山前；D 是团距，P = 整数个 D；W、H 是团的基准宽高，a、w 是墨色浓淡和线宽
+  // 崖顶在 x≈394 以右已高过两层云，云走到那里被崖挡住，不必再画
+  const CLOUD_X1 = 400;
+  const CLOUD_LAYERS = [
+    { ridge: 0, P: 108, D: 54, y: 48, W: 44, H: 8, lobes: 5, a: 0.6, w: 0.6, tails: 2, seed: 1 },
+    { ridge: 1, P: 216, D: 72, y: 76, W: 64, H: 13, lobes: 7, a: 0.85, w: 0.8, tails: 3, seed: 2 },
+  ];
+  // 一团云在横坐标 x 处的样子：底下一条扁胶囊做平的云底（绘卷里霞的下沿），上面一排瓣中间大两边小
+  function clump(L, x, u, out, curls, tails) {
+    const s = L.seed, g = mix(0.55, 1.15, nz(x, s));
+    const W = L.W * g, H = L.H * g, by = L.y + (nz(x, s + 3) - 0.5) * L.H * 0.8;
+    out.addPath(new Path2D(capsule(x - W / 2, by - H * 0.32, x + W / 2, by + H * 0.18)));
+    for (let i = 0; i < L.lobes; i++) {
+      const t = (i + 0.5) / L.lobes, arch = Math.sin(Math.PI * t);
+      // 每个瓣的半径轻轻呼吸，一个周期 2 或 3 次，相位跟着位置走
+      const br = 1 + 0.07 * Math.sin((2 + i % 2) * W11 * u + x * 0.05 + i * 1.9);
+      const r = H * (0.32 + 0.38 * arch) * mix(0.6, 1.25, nz(x + i * 17, s + 5 + i)) * br;
+      const lx = x + (t - 0.5) * W * 0.9, ly = by - H * 0.15 - arch * H * 0.45 - r * 0.25;
+      circ(out, lx, ly, r);
+      // 卷涡只画在一半的瓣上（哪几个瓣按层固定），长短随位置变：左半边从左下起顺时针卷进去，右半边反过来
+      if ((i + s) % 2 === 0) {
+        const left = t < 0.5, sweep = mix(0.9, 1.8, nz(x + i * 31, s + 9)) * Math.PI;
+        spiral(curls, lx + (left ? 1 : -1) * r * 0.1, ly + r * 0.1, r * 0.7, left ? 0.9 * Math.PI : 0.1 * Math.PI, sweep, 0.25, left ? 1 : -1);
+      }
+    }
+    for (let m = 0; m < L.tails; m++) {
+      const len = W * mix(0.3, 1.0, nz(x + m * 23, s + 11)) * (1 - 0.22 * m);
+      const sway = H * 0.3 * Math.sin((1 + m % 2) * W11 * u + x * 0.03 + m * 2.1);
+      tail(tails, x - W / 2 + 1, by - H * 0.08 + m * H * 0.16, len, 1, sway, L.w * 1.3);
+    }
+  }
+  function cloudLayer(k, u, ridge) {
+    CLOUD_LAYERS.forEach(L => {
+      if (L.ridge !== ridge) return;
+      const sh = L.P * u / CYC, j0 = Math.floor((-L.W * 2 - sh) / L.D), j1 = Math.ceil((CLOUD_X1 + L.W - sh) / L.D);
+      // 一层的所有团拼进同一组路径，四次画完：先填云尾，再用两倍线宽描所有瓣、纸色填满——
+      // 瓣内、团与团相叠处的半截线和伸进别的团里的云尾都被纸色盖掉，只剩整条云带的外轮廓和露在外面的尾巴
+      const out = new Path2D(), curls = new Path2D(), tails = new Path2D();
+      for (let j = j0; j <= j1; j++) clump(L, j * L.D + sh, u, out, curls, tails);
+      k.globalAlpha = L.a; k.fillStyle = INK; k.fill(tails);
+      k.lineWidth = L.w * 2; k.strokeStyle = INK; k.lineJoin = 'round'; k.stroke(out);
+      k.globalAlpha = 1; k.fillStyle = PAPER; k.fill(out);
+      k.globalAlpha = L.a; pen(k, curls, L.w * 0.85);
+    });
+    k.globalAlpha = 1;
+  }
+  // 山脚云海：贴着中间一层山的山脚，一排连着的圆瓣做上沿，下面一整片纸色；瓣里偶尔一个卷涡，
+  // 下面几道断开的横线是流动的霞。一个周期往右平移 135（6 个瓣距），比近层云慢
+  const SEA = { P: 135, step: 22.5, y: 102, a: 0.6, w: 0.65 };
+  function cloudSea(k, u) {
+    const sh = SEA.P * u / CYC, j0 = Math.floor((-30 - sh) / SEA.step), j1 = Math.ceil((CLIFF_X + 30 - sh) / SEA.step);
+    const out = new Path2D(), curls = [];
+    for (let j = j0; j <= j1; j++) {
+      const x = j * SEA.step + sh, n = nz(x, 21);
+      const r = (7 + 7 * n) * (1 + 0.06 * Math.sin(3 * W11 * u + x * 0.07));
+      const y = SEA.y + 3 * Math.sin(x * 0.021) - r * 0.3;
+      circ(out, x, y, r);
+      // 卷涡的浓淡随位置渐变（n 越过 0.45 才慢慢显出），走着走着出现、消失，不会突然跳出来
+      const ca = smooth(0.45, 0.6, n);
+      if (ca > 0.01) { const Q = new Path2D(); spiral(Q, x - r * 0.1, y + r * 0.15, r * 0.6, 0.9 * Math.PI, mix(1.0, 1.7, n) * Math.PI, 0.3, 1); curls.push([ca, Q]); }
+    }
+    const fill = new Path2D(out); fill.rect(-40, SEA.y, CW + 80, 24);
+    k.globalAlpha = SEA.a; k.lineWidth = SEA.w * 2; k.strokeStyle = INK; k.lineJoin = 'round'; k.stroke(out);
+    k.globalAlpha = 1; k.fillStyle = PAPER; k.fill(fill);
+    curls.forEach(([ca, d]) => { k.globalAlpha = SEA.a * ca; pen(k, d, SEA.w * 0.85); });
+    // 霞的横线：三道，每道一个周期内是两段（段距 67.5 = P/2），跟云海一起走
+    let lines = '';
+    for (let m = 0; m < 3; m++) {
+      const y = SEA.y + 7 + m * 4.5, len = 34 - m * 6, off = m * 23;
+      for (let j = Math.floor((-80 - sh - off) / 67.5); j * 67.5 + sh + off < CLIFF_X + 20; j++) {
+        const x = j * 67.5 + sh + off;
+        lines += `M${f2(x)} ${f2(y)}Q${f2(x + len / 2)} ${f2(y - 1.2)} ${f2(x + len)} ${f2(y)}`;
+      }
+    }
+    k.globalAlpha = SEA.a * 0.7; pen(k, lines, SEA.w * 0.8);
+    k.globalAlpha = 1;
+  }
+
+  // —— 瀑布 ——
+  // 水从豁口 y=30 落到潭面，下面略宽。水柱先铺纸色挡住后面的皴纹，再画两条边线和 7 道竖向墨线。
+  // 每道线是一串虚线段，沿竖向往下循环移动：段的排布在「下落参数 q ∈ [0,1]」上等距，q 匀速前进，
+  // 画面高度 y = FALL0 + FALL_H·q·(0.45 + 0.55q)，越往下走得越快、线段拉得越长，看得出水在加速
+  const FALL0 = 30, FALL_H = POOL_Y + 4 - FALL0;
+  const fallY = q => FALL0 + FALL_H * q * (0.45 + 0.55 * q);
+  const fallX = (f, y) => { const t = (y - FALL0) / FALL_H; return mix(401 - 5 * t, 431 + 6 * t, f); };
+  // 每道线：横向位置 f、段的间距 per（q 单位）、实线占比 duty、浓淡 a、起始相位 ph。
+  // 下落速度按 q 每秒约 0.8（整段约 1.25 秒落完）；每道线一个周期走过的段数取整，循环时线段首尾相接
+  const LANES = Array.from({ length: 7 }, (_, i) => {
+    const per = R(i, 31, 0.15, 0.24);
+    return { f: (i + 0.5) / 7 + R(i, 32, -0.03, 0.03), per, duty: R(i, 33, 0.42, 0.7), a: R(i, 34, 0.55, 0.95), ph: rnd(i, 35), n: Math.round(0.8 * CYC / per) };
+  });
+  let FALL_SHAPE = null;
+  function waterfall(k, u) {
+    if (!FALL_SHAPE) {
+      const L = [], Rr = [];
+      for (let j = 0; j <= 12; j++) { const y = FALL0 + FALL_H * j / 12; L.push([fallX(0, y), y]); Rr.push([fallX(1, y), y]); }
+      FALL_SHAPE = {
+        body: new Path2D('M' + L.map(pt).join('L') + 'L' + Rr.slice().reverse().map(pt).join('L') + 'Z'),
+        // 两条边线带一点固定的起伏，像水沿着石壁贴下去
+        edges: new Path2D('M' + L.map(([x, y], j) => pt([x + (j % 2 ? 0.5 : -0.3), y])).join('L') + 'M' + Rr.map(([x, y], j) => pt([x + (j % 2 ? -0.4 : 0.4), y])).join('L')),
+        // 豁口上沿水翻过石棱的弧线
+        lip: new Path2D('M400 31 Q416 26.5 432 31 M404 34 Q410 32 415 33.4 M419 33 Q425 31.8 429 33.6'),
+      };
+    }
+    k.fillStyle = PAPER; k.fill(FALL_SHAPE.body);
+    pen(k, FALL_SHAPE.edges, SP * 0.9);
+    LANES.forEach(l => {
+      // q 方向的偏移：一个周期走 n 个间距
+      const off = wrap(l.n * l.per * u / CYC + l.ph * l.per, l.per);
+      let d = '';
+      for (let q = off - l.per; q < 1; q += l.per) {
+        const q0 = Math.max(0, q), q1 = Math.min(1, q + l.per * l.duty);
+        if (q1 <= q0) continue;
+        const y0 = fallY(q0), y1 = fallY(q1), ym = (y0 + y1) / 2;
+        d += `M${fallX(l.f, y0)} ${y0} Q${fallX(l.f, ym) + 0.5 * Math.sin(ym * 0.08 + l.f * 9)} ${ym} ${fallX(l.f, y1)} ${y1}`;
+      }
+      k.globalAlpha = l.a; pen(k, d, FP * 1.1);
+    });
+    k.globalAlpha = 1;
+    pen(k, FALL_SHAPE.lip, FP);
+  }
+
+  // —— 潭 ——
+  const POOL = new Path2D(`M200 ${POOL_Y} L${CW + 2} ${POOL_Y} L${CW + 2} ${CH + 2} L200 ${CH + 2}Z`);
+  const FX0 = 417;                                  // 落水点
+  // 涟漪：原作 canal.ts ring() 的椭圆 rx=(2+12t)·big、ry=(0.6+2.2t)·big，1.6 秒淡完。
+  // 落水点不停地出涟漪：每 0.4 秒一圈（一个周期 16 圈），放大 1.5；任一时刻同时有 4 圈在扩散
+  const RING_LIFE = 1.6, RING_N = 16, RING_BIG = 1.5;
+  // 潭面上零星的小涟漪（原作 big 0.6），水花落回水面的地方
+  const SMALL_RINGS = [[0.6, 300, 194], [2.1, 470, 200], [3.3, 352, 199], [4.6, 508, 192], [5.5, 322, 203]];
+  // 水纹：原作 canal.ts 每条 10–34 长、以 4–9 单位/秒漂；潭水从落水点往左流出，所以向左漂。
+  // 照原速回绕不了整幅，照 #4-006 的办法每条只活一个周期、头尾 1/5 淡入淡出
+  const LINE_FADE = 0.2;
+  const PLINES = Array.from({ length: 16 }, (_, i) => ({
+    x: R(i, 41, 230, 540), y: POOL_Y + 6 + (i % 4) * 5.4 + R(i, 42, -1.2, 1.2), len: R(i, 43, 10, 30), v: R(i, 44, 4, 9), ph: rnd(i, 45),
+  }));
+  // 潭里两块露出水面的石头（左边那块在岩架下沿前面）：同样分亮面、背光面，背光面横皴，水线上点苔
+  const STONES = [
+    rockArt({
+      pts: [[273, 202.5], [274.5, 198], [277, 195], [281, 192.8], [286, 191.6], [291, 192.2], [296, 194.4], [299.5, 197.6], [302, 202.5]],
+      facets: [[[286, 191.6], [289, 196], [287.5, 202.5]], [[277, 195], [282, 197], [289, 196]], [[289, 196], [295, 198.4], [299.5, 197.6]]],
+      shade: [{ p: [[289, 196], [295, 198.4], [299.5, 197.6], [302, 202.5], [287.5, 202.5]], g: 1.4, min: 1.4, max: 3, reach: 0.85 }],
+      moss: [[278, 201.6, 3, 2.5], [294, 201.8, 2, 1.5]],
+    }, 860),
+    rockArt({
+      pts: [[487, 194.5], [488.5, 190.8], [491.5, 188], [496, 185.8], [501, 184.8], [506, 185.2], [511, 186.8], [515, 190], [518, 194.5]],
+      facets: [[[501, 184.8], [503.5, 189], [502, 194.5]], [[491.5, 188], [497, 189.6], [503.5, 189]]],
+      shade: [{ p: [[501, 184.8], [506, 185.2], [511, 186.8], [515, 190], [518, 194.5], [502, 194.5], [503.5, 189]], g: 1.4, min: 1.4, max: 3, reach: 0.8 }],
+      moss: [[492, 193.6, 3, 2.5], [512, 193.8, 2, 1.5]],
+    }, 880),
+  ];
+  // 水线处的两道短反光：石脚下的水面贴着一两笔断开的细横线，看得出石头站在水里
+  const GLINTS = 'M269 204.4 L273.6 204.4 M277.4 204.8 L284 204.8 M294 204.6 L299.6 204.6 M288 206.6 L292.6 206.6 '
+    + 'M483 196.4 L488 196.4 M492 196.8 L498 196.8 M509 196.6 L515.4 196.6 M502 198.6 L506 198.6';
+  function pool(k, u) {
+    k.fillStyle = WATER_FILL; k.fill(POOL);
+    inkLine(k, 200, POOL_Y, CW + 2, POOL_Y, SP * 0.8, 21, 0.15);
+    // 瀑布在水里的倒影：几道竖短线，长短随时间轻轻变（频率取整）
+    for (let i = 0; i < 6; i++) {
+      const x = fallX((i + 0.5) / 6, POOL_Y), len = 6 + 4 * Math.sin((3 + i) * W11 * u + i * 1.7);
+      k.globalAlpha = 0.35; pen(k, `M${x} ${POOL_Y + 8} L${x + 0.4} ${POOL_Y + 8 + len}`, FP);
+    }
+    for (const l of PLINES) {
+      const s = wrap(u / CYC + l.ph, 1), x = l.x - l.v * CYC * (s - 0.5);
+      // 原作 sin(t·1.3 + x·0.04)·0.7 的上下浮动，时间频率取整成一个周期一次
+      const y = l.y + Math.sin(W11 * u + x * 0.04) * 0.7;
+      k.globalAlpha = smooth(0, LINE_FADE, s) * (1 - smooth(1 - LINE_FADE, 1, s)) * 0.9;
+      pen(k, `M${x} ${y} Q${x + l.len / 2} ${y - 1.2} ${x + l.len} ${y}`, FP);
+    }
+    const ring = (x, y, t, big) => {
+      k.globalAlpha = 1 - t / RING_LIFE;
+      const e = new Path2D(); e.ellipse(x, y, (2 + t * 12) * big, (0.6 + t * 2.2) * big, 0, 0, TAU);
+      pen(k, e, FP);
+    };
+    for (let j = 0; j < RING_N; j++) {
+      const t = wrap(u - j * CYC / RING_N);
+      if (t < RING_LIFE) ring(FX0 + R(j, 46, -5, 5), POOL_Y + 7, t, RING_BIG);
+    }
+    SMALL_RINGS.forEach(([t0, x, y]) => { const t = wrap(u - t0); if (t < RING_LIFE) ring(x, y, t, 0.6); });
+    k.globalAlpha = 1;
+    STONES.forEach(r => drawRock(k, r));
+    // 石头脚下的水线和反光
+    pen(k, 'M271 202.6 Q288 203.8 304 202.6 M485 194.6 Q503 195.8 520 194.6', FP);
+    k.globalAlpha = 0.7; pen(k, GLINTS, FP * 0.7); k.globalAlpha = 1;
+  }
+
+  // 落水点的白沫：一圈起伏的纸色轮廓，起伏随时间滚动（频率取整）
+  function foam(k, u) {
+    const N = 28, P = [];
+    for (let i = 0; i <= N; i++) {
+      const a = Math.PI + Math.PI * i / N;               // 只画上半圈，下沿埋在潭面下
+      const r = 1 + 0.16 * Math.sin(a * 7 + 5 * W11 * u) + 0.08 * Math.sin(a * 13 - 3 * W11 * u);
+      P.push([FX0 + Math.cos(a) * 26 * r, POOL_Y + 3 + Math.sin(a) * 7 * r]);
+    }
+    shape(k, 'M' + P.map(pt).join('L') + 'Z', FP * 1.2);
+  }
+  // 水花：一组水珠按抛体从落水点溅起再落回，每颗按自己的周期反复（周期是 CYC 的整数分之一，循环接得上）。
+  // 画法同 #4-006：沿速度方向拉长的小椭圆，纸色填充、细墨线
+  const G = 220;
+  const DROPS = Array.from({ length: 12 }, (_, i) => ({
+    per: CYC / (7 + (i % 3)), ph: rnd(i, 51), x: FX0 + R(i, 52, -18, 18), vx: R(i, 53, -26, 26), vy: R(i, 54, 32, 58),
+  }));
+  function spray(k, u) {
+    DROPS.forEach(d => {
+      const t = wrap(u + d.ph * d.per, d.per), y = POOL_Y + 1 - d.vy * t + G * t * t / 2;
+      if (y > POOL_Y + 2) return;
+      const e = new Path2D(); e.ellipse(d.x + d.vx * t, y, 1.2, 0.7, Math.atan2(G * t - d.vy, d.vx), 0, TAU);
+      shape(k, e, FP * 0.9);
+    });
+  }
+  // 水烟：照原作 critters.ts 炊烟的画法（14 点起伏的圆、纵向压 0.8、越老越淡、半径每秒长 2.2），
+  // 从落水点每 0.8 秒冒一团、往上飘、略向左散，3.2 秒散尽。出生时刻按周期等分，循环接得上
+  const PUFFS = 8, PUFF_LIFE = 3.2;
+  function spume(k, u) {
+    for (let j = 0; j < PUFFS; j++) {
+      const age = wrap(u - j * CYC / PUFFS);
+      if (age > PUFF_LIFE) continue;
+      const ph = R(j, 61, 0, 6), x = FX0 + R(j, 62, -14, 14) - 4 * age + Math.sin(age * 1.2 + ph) * 2, y = POOL_Y - 4 - 9 * age + 0.3 * age * age;
+      const r = 5 + 2.2 * age * 1.4, P = [];
+      for (let i = 0; i <= 14; i++) { const a = i / 14 * TAU, rr = r * (1 + 0.16 * Math.sin(a * 3 + ph + age)); P.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr * 0.8]); }
+      const a = Math.max(0, 0.9 - age / PUFF_LIFE * 0.9) * smooth(0, 0.25, age);
+      const p = new Path2D('M' + P.map(pt).join('L') + 'Z');
+      k.globalAlpha = a * 0.85; k.fillStyle = PAPER; k.fill(p);
+      k.globalAlpha = a * 0.6; pen(k, p, FP * 0.8);
+    }
+    k.globalAlpha = 1;
+  }
+
+  // —— 山路、松、立石 ——
+  // 山路是崖前一道岩架，路面 y=GY；左边地面往上坡收到画面外。路面下是岩架的立面，下沿没进潭里
+  const GROUND = `M-4 140 Q40 134 88 142 Q140 152 180 ${GY} L${CLIFF_X + 6} ${GY} L${CLIFF_X + 6} 190 L262 190 Q232 192 214 200 Q204 206 200 212 L-4 212Z`;
+  const LEDGE = 'M190 166 q30 -2 56 1 M262 172 q26 -2 50 1 M200 180 q22 -3 40 -1 M286 182 q18 -2 34 0 M120 160 q14 4 22 12 M60 150 q16 2 28 8 M30 176 q18 -4 34 -2';
+  // 路边的小石子：也按「石分三面」画，只是小，一道转折线、背光面两三笔短皴、一个苔点
+  const pebble = (x, y, r, i) => rockArt({
+    r: 0.5, w: FP * 1.3, fw: FP * 0.8,
+    pts: [[x - r, y], [x - r * 0.9, y - r * 0.55], [x - r * 0.4, y - r * 1.05], [x + r * 0.3, y - r * 1.15], [x + r * 0.85, y - r * 0.6], [x + r, y]],
+    facets: [[[x + r * 0.3, y - r * 1.15], [x + r * 0.1, y - r * 0.5], [x + r * 0.2, y]]],
+    shade: [{ p: [[x + r * 0.1, y - r * 0.5], [x + r * 0.3, y - r * 1.15], [x + r * 0.85, y - r * 0.6], [x + r, y], [x + r * 0.2, y]], g: 0.9, min: 0.8, max: 1.8, inset: 0.4, reach: 0.9, skip: 0.1 }],
+    moss: [[x - r * 0.6, y - 0.2, 1, 0.4]],
+  }, 800 + i * 7);
+  const PEBBLES = [[266, GY - 0.4, 3.4], [276, GY - 0.3, 1.8], [298, GY - 0.4, 2.6], [320, GY - 0.4, 3.6], [329, GY - 0.3, 2]].map(([x, y, r], i) => pebble(x, y, r, i));
+  // 路边的草：每丛 4–7 片，长短、斜度各不同（rnd 固定），外侧的叶片往外弯
+  const GRASS = new Path2D([[150, 156], [168, 159], [196, 161], [286, 161], [304, 161], [312, 160.6], [40, 138], [58, 139], [74, 140], [100, 146], [128, 152]].map(([x, y], i) => {
+    let d = ''; const n = 4 + Math.floor(rnd(i, 71) * 4);
+    for (let j = 0; j < n; j++) {
+      const t = n === 1 ? 0 : j / (n - 1) - 0.5, len = R(i * 9 + j, 72, 2.4, 7.2), lean = t * 1.2 + R(i * 9 + j, 73, -0.25, 0.25);
+      const bx = x + t * 4, tx = bx + Math.sin(lean) * len, ty = y - Math.cos(lean) * len;
+      d += `M${f2(bx)} ${y}Q${f2(bx + Math.sin(lean) * len * 0.3)} ${f2(y - len * 0.6)} ${f2(tx)} ${f2(ty)}`;
+    }
+    return d;
+  }).join(''));
+  function ground(k) {
+    shape(k, GROUND, SP);
+    pen(k, LEDGE, FP);
+    PEBBLES.forEach(r => drawRock(k, r));
+    pen(k, GRASS, FP);
+  }
+  // 立石：站在路的外沿，比行人高，行人从它后面走出来；纸色填充挡住后面的人。
+  // 光从左上来：中间一道竖的转折线把石头分成亮面和背光面，背光面排横皴；左边几道横的转折是石头的层次
+  const ROCK = rockArt({
+    pts: [[206, 182], [203, 168], [202, 152], [205, 138], [204, 126], [209, 114], [214, 106], [221, 100], [229, 97], [238, 96.5], [246, 99], [252, 105], [255, 114], [257, 126], [260, 140], [259, 156], [261, 170], [260, 182]],
+    facets: [
+      [[238, 96.5], [241, 108], [236, 122], [240, 138], [237, 154], [240, 170], [238, 182]],
+      [[214, 106], [225, 110], [241, 108]], [[205, 138], [214, 135], [223, 140], [240, 138]], [[203, 160], [212, 158], [219, 162]], [[240, 138], [249, 134], [257, 137]],
+    ],
+    shade: [
+      { p: [[241, 108], [236, 122], [240, 138], [237, 154], [240, 170], [238, 182], [260, 182], [261, 170], [259, 156], [260, 140], [257, 126], [255, 114], [252, 105], [246, 99], [238, 96.5]], a: 0.12, reach: 0.55 },
+      { p: [[205, 138], [214, 135], [223, 140], [221, 145], [212, 146], [204, 145]], g: 1.6, reach: 0.9 },
+      { p: [[214, 106], [225, 110], [241, 108], [237, 114], [224, 115], [212, 112]], g: 1.6, reach: 0.9 },
+    ],
+    cun: 'M214 118 q-4 10 -3 22 M226 116 q-2 8 -1 16 M212 166 q-3 6 -1 12 M226 148 q-2 10 0 22',
+    moss: [[211, 180.5, 5], [255, 181, 4], [224, 98.5, 3, 2.5], [244, 135.5, 3, 2], [208, 159, 2, 1.5]],
+  }, 840);
+
+  // 松：树干从坡上斜伸出来，枝条分叉、带几个结节；枝头是一簇簇扇形的松针，
+  // 每簇从一个小枝点放射出 6–10 根细短针（山水画里的「扇形松针」）。一团松针分后、前两排，
+  // 后排先画、前排后画，每簇先铺纸色扇面再描针，前面的簇挡住后面的；团的下沿留空，露出连到每簇的小枝
+  const PADS = [[214, 64, 30], [176, 84, 22], [252, 82, 20], [204, 44, 18]];
+  const BRANCHES = 'M180 100 Q172 94 168 86 M172 93 q-6 -1 -10 -4 M204 60 Q204 50 206 46 M205 52 q4 -3 7 -4 M226 77 q6 -6 11 -7 M241 78 q4 3 9 2 M190 72 q-6 -6 -12 -8';
+  const KNOTS = 'M213.4 77 a1.6 1 0 1 0 3.2 0 a1.6 1 0 1 0 -3.2 0 M175.4 96 a1 1.4 0 1 0 2 0 a1 1.4 0 1 0 -2 0 M192.6 86 a1.4 1 0 1 0 2.8 0 a1.4 1 0 1 0 -2.8 0 M168 134 q2 -2 4 0 M184 92 l-3 -2';
+  const BARK = 'M160 140 q4 -8 3 -16 M172 116 q2 -6 0 -12 M163 128 q3 -1 5 1 M181 100 q3 -1 4 1 M192 84 q2 -3 1 -6';
+  function needleCluster(x, y, len, seed) {
+    const n = 6 + Math.floor(rnd(seed, 1) * 5);
+    const a0 = -Math.PI + R(seed, 2, 0.15, 0.35), a1 = -R(seed, 3, 0.15, 0.35);
+    let fill = `M${f2(x)} ${f2(y + 0.6)}`, nd = '';
+    for (let i = 0; i < n; i++) {
+      const a = mix(a0, a1, i / (n - 1)) + R(seed * 13 + i, 4, -0.08, 0.08), l = len * R(seed * 13 + i, 5, 0.7, 1.1);
+      // 扇面压扁一点（纵向 0.75），松针团是平的
+      const dx = Math.cos(a), dy = Math.sin(a) * 0.75;
+      fill += `L${f2(x + dx * l * 0.82)} ${f2(y + dy * l * 0.82)}`;
+      nd += `M${f2(x + dx * 0.7)} ${f2(y + dy * 0.7)}L${f2(x + dx * l)} ${f2(y + dy * l)}`;
+    }
+    return { fill: new Path2D(fill + 'Z'), needles: new Path2D(nd) };
+  }
+  let PINE = null;
+  function buildPine() {
+    PINE = PADS.map(([cx, cy, w], p) => {
+      const rows = [], base = [cx, cy + 3];
+      let twigs = '';
+      [[-4.5, Math.round(w / 6) + 1, 0.72, 5.6], [0, Math.round(w / 5) + 1, 1, 6.6]].forEach(([off, n, span, len], r) => {
+        const row = [];
+        for (let j = 0; j < n; j++) {
+          const s = p * 100 + r * 30 + j, t = n === 1 ? 0 : (j / (n - 1)) * 2 - 1;
+          const x = cx + t * w * span * 0.85 + R(s, 6, -1.2, 1.2), y = cy + off - 3.6 * (1 - t * t) + R(s, 7, -0.8, 0.8);
+          row.push(needleCluster(x, y, len, s));
+          twigs += `M${f2(base[0] + t * w * 0.3)} ${f2(base[1])}Q${f2((x + base[0]) / 2)} ${f2(y + 2.4)} ${f2(x)} ${f2(y + 0.4)}`;
+        }
+        rows.push(row);
+      });
+      return { base, rows, twigs: new Path2D(twigs) };
+    });
+  }
+  function pine(k, u) {
+    if (!PINE) buildPine();
+    // 树干两笔开口，与人物四肢同一种画法；伸向右边那团的大枝也用双线，其余小枝单线
+    limb(k, [[150, 150], [178, 104], [208, 64]], 7, [0.2, 0.6], SP);
+    limb(k, [[194, 80], [222, 74.6], [250, 81]], 3, [0.2, 0.7], SP * 0.85);
+    pen(k, BRANCHES, SP * 0.8);
+    pen(k, KNOTS, FP);
+    pen(k, BARK, FP);
+    PINE.forEach((pd, i) => {
+      // 松针团随风轻摆：绕团底的枝点转不到 1°，一个周期两个来回
+      k.save();
+      k.translate(pd.base[0], pd.base[1]); k.rotate(0.012 * Math.sin(2 * W11 * u + i * 1.7)); k.translate(-pd.base[0], -pd.base[1]);
+      pen(k, pd.twigs, FP * 0.85);
+      pd.rows.forEach(row => row.forEach(c => { k.fillStyle = PAPER; k.fill(c.fill); pen(k, c.needles, FP * 0.75); }));
+      k.restore();
+    });
+  }
+
+  // —— 背柴的行人 ——
+  // 原作 gait.ts 的 walk 预设（每秒约两步）；一个周期走整数个步态周期，反推步频，腿的姿势首尾相接。
+  // 人从立石后面走出来，沿岩架往右走到崖脚，绕进石壁后面；一个周期走过的距离由步速和缩放决定，起点挑在完全藏在立石后面的位置，
+  // 终点正好完全进到石壁后面，接缝处人看不见，不会跳
+  const S11 = 0.52, FPEN = 1.6;                    // 人物缩放；人物笔宽按人物单位，缩放后约 0.83 px，比场景主线略细，人物在远处
+  const STEPS = Math.max(1, Math.round(CYC / GAIT.walk.period));
+  const walk = gait({ kind: 'walk', period: CYC / STEPS });
+  const DIST = walk.speed * S11 * CYC;
+  const X_START = 234;
+  const LEAN = 5 * Math.PI / 180;                   // 背着东西身子往前倾一点
+  // 手臂照原作 walker 的弹簧 (60, 9)；背篓照原作 motion.md 的默认弹簧 (40, 6) 跟着身体上下颠，比身体慢半拍
+  const motion = sim([{ type: 'spring', k: 60, d: 9 }, { type: 'spring', k: 40, d: 6 }], u => {
+    const p = walk.pose(u / walk.period);
+    return [-(p.feet[0].ankle[0] - 40) / (walk.stride / 2) * 16, p.bob];
+  });
+  function walker(k, u) {
+    const ph = u / walk.period, p = walk.pose(ph), b = p.bob;
+    const [armS, bk] = motion(u);
+    k.save();
+    place(k, X_START + DIST * u / CYC, GY, 1, S11);
+    const hip = p.hip;
+    // 上身绕髋前倾；腿不跟着转
+    const up = (fn) => { k.save(); k.translate(hip[0], hip[1]); k.rotate(LEAN); k.translate(-hip[0], -hip[1]); fn(); k.restore(); };
+    const sh = [41, 41 + b];
+    // 远侧手臂：随步子前后摆（弹簧滞后）
+    up(() => {
+      const a = armS * Math.PI / 180, s0 = [sh[0] - 1, sh[1] + 2];
+      const e = [s0[0] + 16 * Math.sin(a), s0[1] + 16 * Math.cos(a)];
+      limb(k, [s0, e, [e[0] + 15 * Math.sin(a + 0.25), e[1] + 15 * Math.cos(a + 0.25)]], 3.6, [0.2, 0.5], FPEN);
+    });
+    // 腿：在前的那条后画
+    [1 - p.front, p.front].forEach(i => { const fo = p.feet[i]; limb(k, [hip, fo.knee, fo.ankle], 4.2, [0.3, 0.8], FPEN); shoe(k, fo.ankle, fo.pitch); });
+    up(() => {
+      // 背篓：下窄上宽的篓子，横向编纹，上面露出一捆柴；高度跟着弹簧 bk
+      const by = bk;
+      pen(k, `M23 ${38 + by} L17 ${20 + by} M26.5 ${38 + by} L25 ${16 + by} M30 ${38 + by} L32 ${19 + by} M28 ${38 + by} L28.6 ${22 + by}`, FPEN * 1.1);
+      pen(k, `M19 ${27 + by} Q25 ${25.4 + by} 31.4 ${27 + by}`, FPEN * 0.7);
+      shape(k, `M19.6 ${38 + by} L35 ${38 + by} L34 ${70 + by} L23.4 ${70 + by}Z`, FPEN);
+      let d = '';
+      for (let y = 43; y < 70; y += 4.4) d += `M${mix(19.6, 23.4, (y - 38) / 32) + 0.4} ${y + by} L${mix(35, 34, (y - 38) / 32) - 0.4} ${y + by} `;
+      d += `M25.5 ${39 + by} L27 ${69.4 + by} M30.2 ${39 + by} L30.4 ${69.4 + by}`;
+      pen(k, d, FPEN * 0.5);
+      pen(k, `M19.6 ${38 + by} L35 ${38 + by} M20 ${40.4 + by} L34.8 ${40.4 + by}`, FPEN);
+      // 短上衣，盖住背篓前沿；腰上一条红腰带
+      shape(k, `M${sh[0] - 6} ${sh[1] + 1} Q${sh[0] - 1} ${sh[1] - 2.4} ${sh[0] + 5} ${sh[1] + 1} L47.4 ${82 + b} L32 ${83 + b} L33.6 ${62 + b}Z`, FPEN);
+      pen(k, `M${sh[0] + 3} ${sh[1] + 4} L45 ${82 + b}`, FPEN * 0.6);
+      paint(k, `M33.2 ${69 + b} L46.6 ${69 + b} L46.8 ${72.6 + b} L33 ${72.6 + b}Z`, SASH, FPEN * 0.7);
+      // 背带：从肩头斜到篓口、从腋下到篓底
+      pen(k, `M${sh[0] + 2} ${sh[1]} Q38 ${36 + by} 34 ${39 + by} M38 ${58 + b} Q36 ${63 + by} 34 ${64 + by}`, FPEN * 0.8);
+      // 脖子两笔、头、斗笠（不画脸）
+      pen(k, `M40.4 ${36.6 + b} L40.2 ${41 + b} M43.4 ${36.8 + b} L43.6 ${40.8 + b}`, FPEN * 0.8);
+      const hc = [42.4, 31.6 + b];
+      const head = new Path2D(); head.ellipse(hc[0], hc[1], 3.6, 4.6, 0, 0, TAU);
+      shape(k, head, FPEN);
+      paint(k, `M${hc[0] - 12} ${hc[1] - 1.6} L${hc[0] + 0.6} ${hc[1] - 10.4} L${hc[0] + 12.4} ${hc[1] - 1.2} Q${hc[0]} ${hc[1] + 0.6} ${hc[0] - 12} ${hc[1] - 1.6}Z`, STRAW, FPEN * 0.8);
+      pen(k, `M${hc[0] + 0.6} ${hc[1] - 10.4} L${hc[0] - 6} ${hc[1] - 0.6} M${hc[0] + 0.6} ${hc[1] - 10.4} L${hc[0] + 6.4} ${hc[1] - 0.4}`, FPEN * 0.4);
+      // 近侧手臂：手握在胸前的背带上，跟着身体走，不摆
+      const sN = [sh[0] + 1.6, sh[1] + 2.4];
+      limb(k, [sN, [sN[0] + 2, sN[1] + 15], [sN[0] + 5.4, sN[1] + 7]], 3.6, [0.2, 0.4], FPEN);
+    });
+    k.restore();
+  }
+
+  CELLS[10] = (k, w, h, u) => {
+    paper(k);
+    const fog = morning(u);
+    // 远山三层，由远到近；每层之后插山脚的薄霞和一层云，近的山挡住远的山和云
+    RIDGES.forEach((r, i) => {
+      const d = ridgeD(r.pts);
+      k.fillStyle = PAPER; k.fill(path(d + ` L${CW + 6} ${CH + 6} L-6 ${CH + 6}Z`));
+      k.globalAlpha = r.a; pen(k, d, SP * (0.8 + 0.1 * i)); pen(k, r.tex, FP * 0.8); k.globalAlpha = 1;
+      // 白天也留一层山脚薄霞（0.55）；晨雾浓时整片山腰都埋在雾里。霞先铺，云画在霞上面，云的墨线不被冲淡
+      const base = r.pts.reduce((m, p) => Math.max(m, p[1]), 0);
+      mistBand(k, base - 26, base + 14, 0.55 + 0.4 * fog);
+      // 中间一层山的山脚先铺云海，再画近层的云团；最近一层山画上来时挡住云海的下半截
+      if (i === 1) cloudSea(k, u);
+      cloudLayer(k, u, i);
+    });
+    // 晨雾：开头一大片纸色盖住远山，散去后只剩上面的山脚薄霞
+    mistBand(k, 6, 150, 0.92 * fog);
+    cliff(k);
+    waterfall(k, u);
+    pool(k, u);
+    foam(k, u);
+    spray(k, u);
+    spume(k, u);
+    // 潭面上方的晨雾，比山间的薄一些、散得一样快
+    mistBand(k, 150, 214, 0.55 * fog, 196, CW);
+    pine(k, u);
+    ground(k);
+    // 行人：在崖脚 x=CLIFF_X 处裁掉，看起来是绕进了石壁后面
+    k.save(); k.beginPath(); k.rect(-10, 0, CLIFF_X + 10, CH); k.clip();
+    walker(k, u);
+    k.restore();
+    drawRock(k, ROCK);
+    // 路面在立石前那一段的边线
+    pen(k, `M200 182 Q230 184 266 182`, FP);
+  };
+}
