@@ -1,0 +1,15 @@
+Please use "Prism grid card" (プリズムグリッドカード), filed under "Pointer interactions / Tactile & cards".
+Motion Prompt #1-257
+
+What it is: A holographic card tiled with small squares that each hold their own rainbow hue and brighten and dim separately with the angle
+What the sample shows: As a deep teal card sways, its mosaic tiles flicker rainbow out of step with one another; a silver hexagon sits in the middle.
+Spec:
+- Card 126 × 168 px (3:4), corner radius 0.045 × width, thickness 0.036 × width; it swings on its own in a 6.4 s loop: yaw 24°·sin a, pitch 11.5°·sin 2a, roll 1.6°·sin a and a 1.3 % bob.
+- The face is split into 9 × 12 tiles; a per-tile hash sets the hue and flash phase (cos to the power 2.2), and the joints are white at 0.25 opacity. The emblem is a silver hexagon on a silver frame.
+- Layers from back to front: base pattern (−0.082 W), emblem (−0.03 W), then surface foil and a bevelled metal frame; tilting shifts each layer by its depth, so the card reads as deep.
+- The light direction turns with the angle and a diagonal sheen crosses the face; cross-star glints twinkle on frame corners and the emblem tip.
+When to use it: Use it for collection grids, tech or game cards and digital membership passes.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-257.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

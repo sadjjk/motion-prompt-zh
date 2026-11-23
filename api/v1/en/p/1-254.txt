@@ -1,0 +1,15 @@
+Please use "Quicksand holo card" (流砂ホロカード), filed under "Pointer interactions / Tactile & cards".
+Motion Prompt #1-254
+
+What it is: A holographic card filled with glitter and silk ribbons that slide towards the low side as it tilts, like quicksand
+What the sample shows: A deep purple card sways slowly on a dark stand while gold, pink and cyan sequins and pink-gold silk inside flow and sparkle like quicksand.
+Spec:
+- Card 126 × 168 px (3:4), corner radius 0.045 × width, thickness 0.036 × width; it swings on its own in a 6.4 s loop: yaw 24°·sin a, pitch 11.5°·sin 2a, roll 1.6°·sin a and a 1.3 % bob.
+- About 260 sequins (gold, pink, cyan, white) on a 15 × 19 grid drift with gravity, each circling slightly and flashing sharply by its normal against the light's half vector; two silk ribbons undulate. The base carries a faint starburst foil and the emblem is a gold five-point star.
+- Layers from back to front: base pattern (−0.082 W), emblem (−0.03 W), then surface foil and a bevelled metal frame; tilting shifts each layer by its depth, so the card reads as deep.
+- The light direction turns with the angle and a diagonal sheen crosses the face; cross-star glints twinkle on frame corners and the emblem tip.
+When to use it: Use it for fan merchandise, acrylic stands and trading-card showcases or a gacha prize reveal.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-254.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

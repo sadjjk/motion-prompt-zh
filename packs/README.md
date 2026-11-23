@@ -2,7 +2,7 @@
 
 # Names
 
-610 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+616 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind. Each number opens the moving sample in the gallery.
 
@@ -20,7 +20,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | 1 UI & Web | Pointer interactions | Buttons | 12 | #1 103–114 |
 | 1 UI & Web | Pointer interactions | Hover | 10 | #1 115–122 · 220–221 |
 | 1 UI & Web | Pointer interactions | Cursor | 22 | #1 123–135 · 206 · 215–219 · 231–233 |
-| 1 UI & Web | Pointer interactions | Tactile & cards | 14 | #1 136–145 · 201 · 222–223 · 239 |
+| 1 UI & Web | Pointer interactions | Tactile & cards | 20 | #1 136–145 · 201 · 222–223 · 239 · 254–259 |
 | 1 UI & Web | Pointer interactions | Liquid interactions | 5 | #1 146–148 · 197 · 248 |
 | 1 UI & Web | Feedback | Action feedback | 14 | #1 149–158 · 199 · 228 · 237 · 246 |
 | 1 UI & Web | Feedback | Progress & icons | 10 | #1 159–166 · 229 · 247 |
@@ -297,7 +297,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-232](https://sadjjk.github.io/motion-prompt-zh/#1-232) | **Heat dot field** | On a midnight-blue field, a dim indigo shape turns into a thermal-camera heat map only under the pointer, melting together there, and each press swaps in the next shape | Add a heat dot field to the hero: lay out blurred indigo dots on a midnight-blue field, colour only the area under the pointer with the Neon thermal palette (pink rim through red, yellow and cyan to an electric-blue core), make the dots under the hand swell and melt together, and cycle the shape Dots, Asterisk, Word on click. |
 | [#1-233](https://sadjjk.github.io/motion-prompt-zh/#1-233) | **Particle repel** | A shape made of rainbow dots is pushed aside by the pointer and springs back, and a press blasts it apart into the next shape | Add particle repel to the hero: build a circle from 720 dots, push dots within 80 px of the pointer away and spring them back home, stretch moving dots a little along their path, and on press blast them out with a shockwave and regather them by angle into a rounded square. |
 
-#### Tactile & cards · #1 136–145 · 201 · 222–223 · 239
+#### Tactile & cards · #1 136–145 · 201 · 222–223 · 239 · 254–259
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -315,6 +315,12 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-222](https://sadjjk.github.io/motion-prompt-zh/#1-222) | **Bounce cards** | Cards fanned out in a stack pop in with a bounce; the hovered one straightens and comes forward while its neighbours are pushed aside | Make the photo cards bounce cards: 5 cards fanned out at slight angles pop in one by one with a bounce; the hovered card straightens, grows a little and lifts, and the cards beside it move out of the way. |
 | [#1-223](https://sadjjk.github.io/motion-prompt-zh/#1-223) | **Lanyard badge** | An ID badge hanging from a lanyard that you can grab, pull and let go so it swings back into place | Make the event badge a lanyard badge: it hangs from a strap coming down from the top and sways gently; when the cursor grabs it and pulls it up and to the side the strap stretches, and on release it swings back like a pendulum. |
 | [#1-239](https://sadjjk.github.io/motion-prompt-zh/#1-239) | **Todo tower** | Candy-coloured todo cards are stacked like bricks; check one off and it is pulled out, and the cards above fall under gravity to fill the gap | On a cream-yellow ground, build a tower of 6 todo cards in 6 candy colours, stacked like bricks, each nudged a little left or right (slip 45). Pressing one card's checkbox fills it, strikes the text through and slides the card out sideways as it fades; the cards above drop together to fill the gap and bounce lightly as they land. Then push that card back into its place. |
+| [#1-254](https://sadjjk.github.io/motion-prompt-zh/#1-254) | **Quicksand holo card** | A holographic card filled with glitter and silk ribbons that slide towards the low side as it tilts, like quicksand | Make the collector card a quicksand holo card: put about 260 sequins and two silk ribbons inside, let them slide towards the low side as the card tilts, and make each sequin flash by its own facing. |
+| [#1-255](https://sadjjk.github.io/motion-prompt-zh/#1-255) | **Cracked ice holo card** | A holographic card covered in shattered-ice facets that each flash rainbow at their own angle | Make the collector card a cracked-ice holo card: split the face into 10 × 13 Voronoi shards, give each its own facing so they flash rainbow in turn as the angle changes, and make the cracks glow white. |
+| [#1-256](https://sadjjk.github.io/motion-prompt-zh/#1-256) | **Starburst foil card** | A foil card where 24 rainbow rays burst from a central emblem and swirl as the angle changes | Make the collector card a starburst foil card: radiate 24 rainbow rays from the centre over fine diagonal hairlines, and shift the hue with angle and tilt. |
+| [#1-257](https://sadjjk.github.io/motion-prompt-zh/#1-257) | **Prism grid card** | A holographic card tiled with small squares that each hold their own rainbow hue and brighten and dim separately with the angle | Make the collector card a prism grid card: divide the face into 9 × 12 tiles, give each tile its own hue and flash timing, and keep the joints as thin white lines. |
+| [#1-258](https://sadjjk.github.io/motion-prompt-zh/#1-258) | **Cosmos wave card** | A holographic card whose spiral ripples glow rainbow from the centre and roll outwards as the angle changes | Make the collector card a cosmos wave card: draw spiral ripples from the centre in rainbow foil, move the waves outwards with the tilt, and shift the colour from inside to outside. |
+| [#1-259](https://sadjjk.github.io/motion-prompt-zh/#1-259) | **Diamond lattice card** | A dark card where only a diamond lattice glows rainbow and a bright band sweeps diagonally across it | Make the collector card a diamond lattice card: draw only a diamond grid in rainbow foil on a dark face, sweep a bright band diagonally across it, and keep the cells dark. |
 
 #### Liquid interactions · #1 146–148 · 197 · 248
 

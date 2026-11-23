@@ -1,0 +1,15 @@
+Please use "Cosmos wave card" (コスモスウェーブカード), filed under "Pointer interactions / Tactile & cards".
+Motion Prompt #1-258
+
+What it is: A holographic card whose spiral ripples glow rainbow from the centre and roll outwards as the angle changes
+What the sample shows: On an indigo card, spiral ripples around a ringed planet roll outwards and change colour each time it sways.
+Spec:
+- Card 126 × 168 px (3:4), corner radius 0.045 × width, thickness 0.036 × width; it swings on its own in a 6.4 s loop: yaw 24°·sin a, pitch 11.5°·sin 2a, roll 1.6°·sin a and a 1.3 % bob.
+- Waves are sin(radius × 32 − azimuth × 4) to the power 2.3, a four-armed spiral; hue = radius × 2.1 − tilt × 1.5. The emblem is a planet with a tilted ring on a silver frame.
+- Layers from back to front: base pattern (−0.082 W), emblem (−0.03 W), then surface foil and a bevelled metal frame; tilting shifts each layer by its depth, so the card reads as deep.
+- The light direction turns with the angle and a diagonal sheen crosses the face; cross-star glints twinkle on frame corners and the emblem tip.
+When to use it: Use it for space or astronomy themes, music and event keepsake cards and night-time rewards.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-258.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

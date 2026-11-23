@@ -1,0 +1,24 @@
+// Motion Prompt #1-259 · MIT License (c) 2026 holo-card-3d contributors · https://github.com/deepslit/holo-card-3d
+//
+// 菱格暗纹卡 / Diamond lattice card
+// 分类: 界面与网页 / 指针交互 / 拟物与卡片
+// 动画表现: 近黑色卡片上菱形网格线浮出彩虹光，每次摆动都有一道亮带斜向扫过；中间是金色四角星。
+// 运动规格:
+//   - 卡片 126 × 168 px（3:4），圆角 0.045 × 宽，厚 0.036 × 宽；6.4 秒一圈自动摆动：yaw 24°·sin a、pitch 11.5°·sin 2a、roll 1.6°·sin a，上下浮动 1.3%。
+//   - 两个方向的 |sin| 构成网格线（宽 0.24），再用 cos 的 1.6 次方亮带调制强弱；色相 = u × 1.35 + v × 1.10 + 倾斜 × 1.7。徽章是金色四角星，金色边框。
+//   - 层从后到前：底纹（−0.082W）、徽章（−0.03W）、卡面箔光与倒角金属边框；倾斜时各层按深度错开，显出卡内纵深。
+//   - 光线方向随角度转动，一道斜向扫光划过卡面；边框角和徽章顶端闪四角十字星。
+// 适用场景: 适合黑卡、邀请函和需要低调高级感的限定品展示。
+// 标签: holographic, diamond, lattice, foil, card, trading-card, premium
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-259
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 96
+// 96 菱格暗纹卡（holo-card-3d diamond_lattice）：深色卡面上只有菱形网格线带彩虹箔光，一道明暗带斜向扫过网格，格内保持暗色；
+// 中间金色四角星徽章，金色倒角边框；卡片按原作轨迹摆动。
+CELLS[95] = HC_cell({ pat: 5, base: [HC_hex('#1c1c26'), HC_hex('#08080c')], glow: '255,200,120', bgG: 1, topG: 0.24, sandG: 0, seqG: 0,
+  rim: HC_GOLD, em: 'star4', emT: [1.0, 0.84, 0.52] });

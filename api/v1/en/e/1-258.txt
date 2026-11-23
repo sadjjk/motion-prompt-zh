@@ -1,0 +1,24 @@
+// Motion Prompt #1-258 · MIT License (c) 2026 holo-card-3d contributors · https://github.com/deepslit/holo-card-3d
+//
+// Cosmos wave card / コスモスウェーブカード
+// Category: UI & Web / Pointer interactions / Tactile & cards
+// What happens: On an indigo card, spiral ripples around a ringed planet roll outwards and change colour each time it sways.
+// Motion spec:
+//   - Card 126 × 168 px (3:4), corner radius 0.045 × width, thickness 0.036 × width; it swings on its own in a 6.4 s loop: yaw 24°·sin a, pitch 11.5°·sin 2a, roll 1.6°·sin a and a 1.3 % bob.
+//   - Waves are sin(radius × 32 − azimuth × 4) to the power 2.3, a four-armed spiral; hue = radius × 2.1 − tilt × 1.5. The emblem is a planet with a tilted ring on a silver frame.
+//   - Layers from back to front: base pattern (−0.082 W), emblem (−0.03 W), then surface foil and a bevelled metal frame; tilting shifts each layer by its depth, so the card reads as deep.
+//   - The light direction turns with the angle and a diagonal sheen crosses the face; cross-star glints twinkle on frame corners and the emblem tip.
+// When to use it: Use it for space or astronomy themes, music and event keepsake cards and night-time rewards.
+// Tags: holographic, cosmos, waves, spiral, card, trading-card, foil
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-258
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 95
+// 95 星海波卡（holo-card-3d cosmos_waves）：以徽章为中心的螺旋同心波纹箔光，波峰随倾斜向外推移，颜色由内向外渐变；
+// 中间带斜环的星球徽章，银色倒角边框；卡片按原作轨迹摆动。
+CELLS[94] = HC_cell({ pat: 2, base: [HC_hex('#131d52'), HC_hex('#050818')], glow: '90,110,255', bgG: 0.95, topG: 0.2, sandG: 0, seqG: 0,
+  rim: HC_SILV, em: 'orb', emT: [0.72, 0.76, 1.0] });

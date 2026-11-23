@@ -1,0 +1,24 @@
+// Motion Prompt #1-255 · MIT License (c) 2026 holo-card-3d contributors · https://github.com/deepslit/holo-card-3d
+//
+// クラックアイスホロカード / Cracked ice holo card
+// 分類: UI・Web / ポインター操作 / 手触り・カード
+// 何が起きるか: 濃紺のカードが揺れると、氷の破片がひとつずつ虹色に光っては消え、白いひびが走る。中央には銀の氷の結晶。
+// 動きの仕様:
+//   - カード 126×168px（3:4）、角丸 0.045×幅、厚み 0.036×幅。6.4 秒で一周する自動スイング：yaw 24°·sin a、pitch 11.5°·sin 2a、roll 1.6°·sin a、上下 1.3% の浮き沈み
+//   - 面を 10×13 のボロノイの破片に分け、破片ごとにランダムな法線を持たせる。半角ベクトルとの角度で虹色に強く光り（7.5 乗）、境界のひびは白。エンブレムは銀のひし形の結晶、枠は銀
+//   - 層は奥から地紋（−0.082W）、エンブレム（−0.03W）、表面の箔と面取りメタル枠の順。傾けると層ごとにずれて奥行きが見える
+//   - 光の向きは角度とともに回り、斜めのハイライトが面を横切る。枠の角とエンブレムの先端に十字の星がきらめく
+// 使いどころ: レア度の高いカード、冬や氷のテーマの特典、限定アイテムの見せ場に。
+// タグ: holographic, cracked-ice, voronoi, shards, card, trading-card, foil
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-255
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 92
+// 92 碎冰闪卡（holo-card-3d cracked_ice）：深蓝卡面布满碎冰一样的多边形晶面，每块按自己的朝向在不同角度亮起彩虹色，裂纹线发白；
+// 中间银白菱形冰晶徽章，银色倒角边框；卡片按原作轨迹摆动，晶面轮流闪光。
+CELLS[91] = HC_cell({ pat: 3, base: [HC_hex('#12385a'), HC_hex('#06121f')], glow: '90,170,255', bgG: 0.85, topG: 0.16, sandG: 0, seqG: 0,
+  rim: HC_SILV, em: 'crystal', emT: [0.78, 0.9, 1.0] });

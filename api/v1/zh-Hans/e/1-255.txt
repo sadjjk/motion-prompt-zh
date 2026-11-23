@@ -1,0 +1,24 @@
+// Motion Prompt #1-255 · MIT License (c) 2026 holo-card-3d contributors · https://github.com/deepslit/holo-card-3d
+//
+// 碎冰闪卡 / Cracked ice holo card
+// 分类: 界面与网页 / 指针交互 / 拟物与卡片
+// 动画表现: 深蓝色卡片摆动时，冰晶碎块逐块亮起彩虹色又暗下，白色裂纹闪动；中间是银白冰晶徽章。
+// 运动规格:
+//   - 卡片 126 × 168 px（3:4），圆角 0.045 × 宽，厚 0.036 × 宽；6.4 秒一圈自动摆动：yaw 24°·sin a、pitch 11.5°·sin 2a、roll 1.6°·sin a，上下浮动 1.3%。
+//   - 卡面分成 10 × 13 的 Voronoi 碎块，每块随机法线；按与半程向量的夹角亮起彩虹色（7.5 次方），块间裂纹发白。徽章是银白菱形冰晶，银色边框。
+//   - 层从后到前：底纹（−0.082W）、徽章（−0.03W）、卡面箔光与倒角金属边框；倾斜时各层按深度错开，显出卡内纵深。
+//   - 光线方向随角度转动，一道斜向扫光划过卡面；边框角和徽章顶端闪四角十字星。
+// 适用场景: 适合稀有卡、冬季或冰雪主题奖励、限定道具展示。
+// 标签: holographic, cracked-ice, voronoi, shards, card, trading-card, foil
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-255
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 92
+// 92 碎冰闪卡（holo-card-3d cracked_ice）：深蓝卡面布满碎冰一样的多边形晶面，每块按自己的朝向在不同角度亮起彩虹色，裂纹线发白；
+// 中间银白菱形冰晶徽章，银色倒角边框；卡片按原作轨迹摆动，晶面轮流闪光。
+CELLS[91] = HC_cell({ pat: 3, base: [HC_hex('#12385a'), HC_hex('#06121f')], glow: '90,170,255', bgG: 0.85, topG: 0.16, sandG: 0, seqG: 0,
+  rim: HC_SILV, em: 'crystal', emT: [0.78, 0.9, 1.0] });

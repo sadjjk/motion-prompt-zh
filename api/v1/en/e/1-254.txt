@@ -1,0 +1,24 @@
+// Motion Prompt #1-254 · MIT License (c) 2026 holo-card-3d contributors · https://github.com/deepslit/holo-card-3d
+//
+// Quicksand holo card / 流砂ホロカード
+// Category: UI & Web / Pointer interactions / Tactile & cards
+// What happens: A deep purple card sways slowly on a dark stand while gold, pink and cyan sequins and pink-gold silk inside flow and sparkle like quicksand.
+// Motion spec:
+//   - Card 126 × 168 px (3:4), corner radius 0.045 × width, thickness 0.036 × width; it swings on its own in a 6.4 s loop: yaw 24°·sin a, pitch 11.5°·sin 2a, roll 1.6°·sin a and a 1.3 % bob.
+//   - About 260 sequins (gold, pink, cyan, white) on a 15 × 19 grid drift with gravity, each circling slightly and flashing sharply by its normal against the light's half vector; two silk ribbons undulate. The base carries a faint starburst foil and the emblem is a gold five-point star.
+//   - Layers from back to front: base pattern (−0.082 W), emblem (−0.03 W), then surface foil and a bevelled metal frame; tilting shifts each layer by its depth, so the card reads as deep.
+//   - The light direction turns with the angle and a diagonal sheen crosses the face; cross-star glints twinkle on frame corners and the emblem tip.
+// When to use it: Use it for fan merchandise, acrylic stands and trading-card showcases or a gacha prize reveal.
+// Tags: holographic, quicksand, glitter, sequins, card, trading-card, shaker
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-254
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 91
+// 91 流麻闪卡（holo-card-3d sar_quicksand）：深紫卡面里约 260 片金、粉、青、白亮片和两条粉金丝带，随卡片倾斜像流沙一样朝低处滑动，亮片按各自朝向一闪一闪；
+// 底层叠淡星芒箔，中间金色五角星徽章浮在卡内（视差），金色倒角边框，名牌三颗小钻；卡片按原作轨迹 6.4 秒摆一圈。
+CELLS[90] = HC_cell({ pat: 0, base: [HC_hex('#2c1c62'), HC_hex('#110a2c')], glow: '150,90,255', bgG: 0.55, topG: 0.12, sandG: 1, seqG: 1,
+  sand: [[1.0, 0.55, 0.82], [1.0, 0.84, 0.45]], seqC: [[1, 0.84, 0.42], [1, 0.56, 0.82], [0.56, 0.9, 1], [1, 1, 1]], rim: HC_GOLD, em: 'star5', emT: [1.0, 0.82, 0.5] });

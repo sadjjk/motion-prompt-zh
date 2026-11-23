@@ -1,0 +1,24 @@
+// Motion Prompt #1-257 · MIT License (c) 2026 holo-card-3d contributors · https://github.com/deepslit/holo-card-3d
+//
+// プリズムグリッドカード / Prism grid card
+// 分類: UI・Web / ポインター操作 / 手触り・カード
+// 何が起きるか: 深い青緑のカードが揺れると、モザイクのようなタイルがばらばらに虹色に明滅する。中央に銀の六角形。
+// 動きの仕様:
+//   - カード 126×168px（3:4）、角丸 0.045×幅、厚み 0.036×幅。6.4 秒で一周する自動スイング：yaw 24°·sin a、pitch 11.5°·sin 2a、roll 1.6°·sin a、上下 1.3% の浮き沈み
+//   - 面を 9×12 のタイルに分け、タイルごとのハッシュで色相と明滅の位相を決める（cos の 2.2 乗）。継ぎ目は不透明度 0.25 の白。エンブレムは銀の六角形、枠は銀
+//   - 層は奥から地紋（−0.082W）、エンブレム（−0.03W）、表面の箔と面取りメタル枠の順。傾けると層ごとにずれて奥行きが見える
+//   - 光の向きは角度とともに回り、斜めのハイライトが面を横切る。枠の角とエンブレムの先端に十字の星がきらめく
+// 使いどころ: コレクションの一覧、テック系やゲームのカード、デジタル会員証に。
+// タグ: holographic, prism, grid, mosaic, card, trading-card, foil
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-257
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 94
+// 94 棱镜格卡（holo-card-3d prism_grid）：卡面分成 9×12 个小方格，每格有自己的彩虹色相，随倾斜各自变亮变暗，格缝是浅白细线；
+// 中间银色六边形徽章，银色倒角边框；卡片按原作轨迹摆动。
+CELLS[93] = HC_cell({ pat: 1, base: [HC_hex('#0d3c3c'), HC_hex('#051616')], glow: '60,220,200', bgG: 0.9, topG: 0.18, sandG: 0, seqG: 0,
+  rim: HC_SILV, em: 'hex', emT: [0.78, 0.95, 0.92] });

@@ -1,0 +1,15 @@
+Please use "Diamond lattice card" (ダイヤ格子カード), filed under "Pointer interactions / Tactile & cards".
+Motion Prompt #1-259
+
+What it is: A dark card where only a diamond lattice glows rainbow and a bright band sweeps diagonally across it
+What the sample shows: A diamond lattice glows rainbow on a near-black card and a bright band passes diagonally each time it sways; a gold four-point star sits in the middle.
+Spec:
+- Card 126 × 168 px (3:4), corner radius 0.045 × width, thickness 0.036 × width; it swings on its own in a 6.4 s loop: yaw 24°·sin a, pitch 11.5°·sin 2a, roll 1.6°·sin a and a 1.3 % bob.
+- Two |sin| directions form the lattice lines (width 0.24), modulated by a bright band of cos to the power 1.6; hue = u × 1.35 + v × 1.10 + tilt × 1.7. The emblem is a gold four-point star on a gold frame.
+- Layers from back to front: base pattern (−0.082 W), emblem (−0.03 W), then surface foil and a bevelled metal frame; tilting shifts each layer by its depth, so the card reads as deep.
+- The light direction turns with the angle and a diagonal sheen crosses the face; cross-star glints twinkle on frame corners and the emblem tip.
+When to use it: Use it for black cards, invitations and limited items that should look quietly luxurious.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-259.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

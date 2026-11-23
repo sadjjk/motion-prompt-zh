@@ -1,0 +1,24 @@
+// Motion Prompt #1-255 · MIT License (c) 2026 holo-card-3d contributors · https://github.com/deepslit/holo-card-3d
+//
+// Cracked ice holo card / クラックアイスホロカード
+// Category: UI & Web / Pointer interactions / Tactile & cards
+// What happens: As a navy card sways, ice shards light up rainbow one by one and fade while white cracks glint; a silver crystal sits in the middle.
+// Motion spec:
+//   - Card 126 × 168 px (3:4), corner radius 0.045 × width, thickness 0.036 × width; it swings on its own in a 6.4 s loop: yaw 24°·sin a, pitch 11.5°·sin 2a, roll 1.6°·sin a and a 1.3 % bob.
+//   - The face splits into 10 × 13 Voronoi shards, each with a random normal; it flashes rainbow by its angle to the half vector (power 7.5) and the cracks between shards are white. The emblem is a silver diamond crystal on a silver frame.
+//   - Layers from back to front: base pattern (−0.082 W), emblem (−0.03 W), then surface foil and a bevelled metal frame; tilting shifts each layer by its depth, so the card reads as deep.
+//   - The light direction turns with the angle and a diagonal sheen crosses the face; cross-star glints twinkle on frame corners and the emblem tip.
+// When to use it: Use it for rare cards, winter or ice-themed rewards and limited-edition highlights.
+// Tags: holographic, cracked-ice, voronoi, shards, card, trading-card, foil
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-255
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 92
+// 92 碎冰闪卡（holo-card-3d cracked_ice）：深蓝卡面布满碎冰一样的多边形晶面，每块按自己的朝向在不同角度亮起彩虹色，裂纹线发白；
+// 中间银白菱形冰晶徽章，银色倒角边框；卡片按原作轨迹摆动，晶面轮流闪光。
+CELLS[91] = HC_cell({ pat: 3, base: [HC_hex('#12385a'), HC_hex('#06121f')], glow: '90,170,255', bgG: 0.85, topG: 0.16, sandG: 0, seqG: 0,
+  rim: HC_SILV, em: 'crystal', emT: [0.78, 0.9, 1.0] });

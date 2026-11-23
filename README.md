@@ -68,5 +68,6 @@ AI 会打开效果库让你挑选，选好后点"发送给 AI"，它会读取真
 - `infostyles` 包的效果为本仓库原创，MIT License © 2026 sadjjk；风格思路参考 [lemo-opuscar](https://github.com/lemomo-ai/lemo-opuscar)（作者 Lemomo），代码按其风格说明独立重写，未复制或移植其源码。使用这部分代码时保留其版权行。
 - `artstyles` 包的效果改写自 [huashu-art-motion](https://github.com/alchaincyf/huashu-art-motion)，作者花叔，MIT License；未使用原作的笔画数据、字体与卡通形象。使用这部分代码时保留其版权行。
 - `lineart` 包的效果改写自 [line-art-animation](https://github.com/JDhruv14/line-art-animation)，作者 Dhruv Jaradi，MIT License；把原作的墨线、步态、弹簧与钟摆、昼夜配色移植到 Canvas 2D，点击和指针风改成按时间自动发生。使用这部分代码时保留其版权行。
+- `uxmotion` 包中署名 holo-card-3d contributors 的效果改写自 [holo-card-3d](https://github.com/deepslit/holo-card-3d)，作者 deepslit，MIT License；把原作的摆动轨迹、光线、全息底纹与流麻亮片移植到 Canvas 2D 逐像素绘制，角色立绘与 PNG 边框换成程序绘制的徽章和边框，未复制原作的 WebGL 代码与图片。使用这部分代码时保留其版权行。
 - `camera`、`photo`、`motion2`、`scenes`、`mgstyles` 包中署名阿梦freedom 的效果，术语与定义参考 [镜语](https://idea.ameng.dev/)（[jingyu-skill](https://github.com/hemengke1997/jingyu-skill)，作者阿梦freedom，MIT License）；动画为本仓库实现，未使用原站的演示代码、图片与文字。使用这部分代码时保留其版权行。
 - 每款的版权行写在它的代码首行（`e/<编号>.txt`），Skill 的 `get` 会一并取回。

@@ -559,6 +559,39 @@ events, every element loops seamlessly and is drawn without randomness. Each ele
 > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 > SOFTWARE.
 
+## holo-card-3d by deepslit (pack `uxmotion`)
+
+The elements `1-254`–`1-259` in `packs/uxmotion/` are Canvas 2D adaptations of the holographic card renderer of
+[holo-card-3d](https://github.com/deepslit/holo-card-3d) by deepslit: the card pose and light path, the hash
+functions, the spectral palette, the holo patterns `starburst`, `prism_grid`, `cosmos_waves`, `cracked_ice` and
+`diamond_lattice`, the quicksand sequins and silk ribbons, and the layer depths of `scripts/render_card.py` and
+`scripts/build_html_card.py` are ported to a per-pixel Canvas 2D renderer. The character illustration, its relief
+parallax and the PNG frames are replaced by drawn emblems and a bevelled frame; no WebGL code or image of holo-card-3d
+is copied. Every element swings on the original auto-orbit path, loops seamlessly and is drawn without randomness.
+Each element carries the line `MIT License (c) 2026 holo-card-3d contributors`. The license notice:
+
+> MIT License
+>
+> Copyright (c) 2026 holo-card-3d contributors
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
+
 ## Posts shown on the examples page
 
 The examples page (`found.html`) lists posts and articles by other people on X, Xiaohongshu, WeChat

@@ -1,0 +1,24 @@
+// Motion Prompt #1-258 · MIT License (c) 2026 holo-card-3d contributors · https://github.com/deepslit/holo-card-3d
+//
+// コスモスウェーブカード / Cosmos wave card
+// 分類: UI・Web / ポインター操作 / 手触り・カード
+// 何が起きるか: 藍色のカードの上で、リング付きの惑星を中心に渦巻く波紋が揺れるたびに外へ流れて色を変える。
+// 動きの仕様:
+//   - カード 126×168px（3:4）、角丸 0.045×幅、厚み 0.036×幅。6.4 秒で一周する自動スイング：yaw 24°·sin a、pitch 11.5°·sin 2a、roll 1.6°·sin a、上下 1.3% の浮き沈み
+//   - 波は sin(半径×32 − 方位角×4) の 2.3 乗で 4 本腕の渦、色相は半径×2.1 − 傾き×1.5。エンブレムは斜めのリングを持つ惑星、枠は銀
+//   - 層は奥から地紋（−0.082W）、エンブレム（−0.03W）、表面の箔と面取りメタル枠の順。傾けると層ごとにずれて奥行きが見える
+//   - 光の向きは角度とともに回り、斜めのハイライトが面を横切る。枠の角とエンブレムの先端に十字の星がきらめく
+// 使いどころ: 宇宙や天体のテーマ、音楽やイベントの記念カード、夜の雰囲気の特典に。
+// タグ: holographic, cosmos, waves, spiral, card, trading-card, foil
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-258
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 95
+// 95 星海波卡（holo-card-3d cosmos_waves）：以徽章为中心的螺旋同心波纹箔光，波峰随倾斜向外推移，颜色由内向外渐变；
+// 中间带斜环的星球徽章，银色倒角边框；卡片按原作轨迹摆动。
+CELLS[94] = HC_cell({ pat: 2, base: [HC_hex('#131d52'), HC_hex('#050818')], glow: '90,110,255', bgG: 0.95, topG: 0.2, sandG: 0, seqG: 0,
+  rim: HC_SILV, em: 'orb', emT: [0.72, 0.76, 1.0] });

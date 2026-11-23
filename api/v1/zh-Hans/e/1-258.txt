@@ -1,0 +1,24 @@
+// Motion Prompt #1-258 · MIT License (c) 2026 holo-card-3d contributors · https://github.com/deepslit/holo-card-3d
+//
+// 星海波卡 / Cosmos wave card
+// 分类: 界面与网页 / 指针交互 / 拟物与卡片
+// 动画表现: 靛蓝色卡片上，以带环星球为中心的螺旋波纹每次摆动都向外流动、变换颜色。
+// 运动规格:
+//   - 卡片 126 × 168 px（3:4），圆角 0.045 × 宽，厚 0.036 × 宽；6.4 秒一圈自动摆动：yaw 24°·sin a、pitch 11.5°·sin 2a、roll 1.6°·sin a，上下浮动 1.3%。
+//   - 波纹为 sin(半径 × 32 − 方位角 × 4) 的 2.3 次方，四臂螺旋；色相 = 半径 × 2.1 − 倾斜 × 1.5。徽章是带斜环的星球，银色边框。
+//   - 层从后到前：底纹（−0.082W）、徽章（−0.03W）、卡面箔光与倒角金属边框；倾斜时各层按深度错开，显出卡内纵深。
+//   - 光线方向随角度转动，一道斜向扫光划过卡面；边框角和徽章顶端闪四角十字星。
+// 适用场景: 适合宇宙星空主题、音乐或活动纪念卡、夜间氛围奖励。
+// 标签: holographic, cosmos, waves, spiral, card, trading-card, foil
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-258
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 95
+// 95 星海波卡（holo-card-3d cosmos_waves）：以徽章为中心的螺旋同心波纹箔光，波峰随倾斜向外推移，颜色由内向外渐变；
+// 中间带斜环的星球徽章，银色倒角边框；卡片按原作轨迹摆动。
+CELLS[94] = HC_cell({ pat: 2, base: [HC_hex('#131d52'), HC_hex('#050818')], glow: '90,110,255', bgG: 0.95, topG: 0.2, sandG: 0, seqG: 0,
+  rim: HC_SILV, em: 'orb', emT: [0.72, 0.76, 1.0] });

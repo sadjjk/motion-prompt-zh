@@ -1,0 +1,24 @@
+// Motion Prompt #1-259 · MIT License (c) 2026 holo-card-3d contributors · https://github.com/deepslit/holo-card-3d
+//
+// ダイヤ格子カード / Diamond lattice card
+// 分類: UI・Web / ポインター操作 / 手触り・カード
+// 何が起きるか: 黒に近いカードの上でひし形の格子線が虹色に浮かび、揺れるたびに明るい帯が斜めに通る。中央に金の四芒星。
+// 動きの仕様:
+//   - カード 126×168px（3:4）、角丸 0.045×幅、厚み 0.036×幅。6.4 秒で一周する自動スイング：yaw 24°·sin a、pitch 11.5°·sin 2a、roll 1.6°·sin a、上下 1.3% の浮き沈み
+//   - 2 方向の |sin| で格子線（幅 0.24）を作り、cos の 1.6 乗の明るい帯で強弱をつける。色相は u×1.35 + v×1.10 + 傾き×1.7。エンブレムは金の四芒星、枠は金
+//   - 層は奥から地紋（−0.082W）、エンブレム（−0.03W）、表面の箔と面取りメタル枠の順。傾けると層ごとにずれて奥行きが見える
+//   - 光の向きは角度とともに回り、斜めのハイライトが面を横切る。枠の角とエンブレムの先端に十字の星がきらめく
+// 使いどころ: ブラックカードや招待状、落ち着いた高級感を出したい限定品の紹介に。
+// タグ: holographic, diamond, lattice, foil, card, trading-card, premium
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/uxmotion.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-259
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 96
+// 96 菱格暗纹卡（holo-card-3d diamond_lattice）：深色卡面上只有菱形网格线带彩虹箔光，一道明暗带斜向扫过网格，格内保持暗色；
+// 中间金色四角星徽章，金色倒角边框；卡片按原作轨迹摆动。
+CELLS[95] = HC_cell({ pat: 5, base: [HC_hex('#1c1c26'), HC_hex('#08080c')], glow: '255,200,120', bgG: 1, topG: 0.24, sandG: 0, seqG: 0,
+  rim: HC_GOLD, em: 'star4', emT: [1.0, 0.84, 0.52] });
