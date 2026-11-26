@@ -1,0 +1,44 @@
+// Motion Prompt #1-262 · MIT License (c) 2026 sadjjk · https://shaders.paper.design/grain-gradient
+//
+// 颗粒渐变 / Grain gradient
+// 分类: 界面与网页 / 页面 / 首屏背景
+// 动画表现: 从暗紫过渡到品红、橙、奶油色的色带一边变形一边流动；整面带细颗粒，色带交界处两种颜色点点交错。
+// 运动规格:
+//   - 没有模拟：色带坐标 = 斜向渐变（横向每单位 0.26、纵向每单位 −0.3）+ 两层值噪声 fbm，权重 0.9 和 0.5。
+//   - 第一层噪声的取样中心每 6.4 秒周期沿半径 0.9 的圆转一圈；第二层沿半径 0.6 的圆反向转两圈，并被第一层再扭一次，循环首尾相接。
+//   - 扭曲在 135×52 网格上计算后放大，颗粒按像素计算。
+//   - 颗粒：查色前给色带坐标加 ±0.05 的固定噪点，再把亮度乘 1 ± 9%。
+//   - 颜色 #0D0A1C、#2B1660、#6A2AA8、#D2508F、#FF9A6B、#FFE2B0，在 OKLab 插值。
+// 适用场景: 安静的落地页首屏、产品介绍或作品集的背景。
+// 标签: gradient, grain, noise, domain-warp, hero-background, shader
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-262
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 38
+// 38 颗粒渐变：几条色带被缓慢流动的噪声扭曲，整面带磨砂相纸一样的颗粒，色带交界处的颗粒让两种颜色互相渗点。没有模拟，画面直接由 u 算出。
+// 色带坐标 = 沿斜向的位置 + 两层扭曲噪声；第一层噪声的取样中心沿半径 0.9 的圆每周期转一圈，第二层沿半径 0.6 的圆反向转两圈并被第一层再扭一次，
+// 所以画面一直在流、周期结束回到原样。扭曲在 135×52 的粗网格上算再放大；颗粒按像素：色带坐标加 ±0.05 的固定噪点后查 OKLab 色表，再乘 ±9% 的亮度噪点。
+const GG_W = 135, GG_H = 52;
+const GG_PAL = ['#0D0A1C', '#2B1660', '#6A2AA8', '#D2508F', '#FF9A6B', '#FFE2B0'];
+const GG_MIX = 0.1, GG_GRAIN = 0.18;                  // 色带坐标噪点幅度、亮度噪点幅度（峰峰值）
+let GG = null;
+CELLS[37] = (k, w, h, u) => {
+  if (!GG) GG = { ramp: labRamp(GG_PAL), n1: grainTab(17.3), n2: grainTab(91.7), g: new Float32Array(GG_W * GG_H), up: new Float32Array(CW * CH), px: pixels() };
+  const { ramp, n1, n2, g, up } = GG, out = GG.px.buf, a = TAU * u / CYC;
+  const ax = 0.9 * Math.cos(a), ay = 0.9 * Math.sin(a), bx = 0.6 * Math.cos(1 - 2 * a), by = 0.6 * Math.sin(1 - 2 * a);
+  for (let j = 0; j < GG_H; j++) for (let i = 0; i < GG_W; i++) {
+    const x = i / (GG_H - 1), y = j / (GG_H - 1);       // 以画面高度为 1
+    const w1 = fbm(1.2 * x + ax + 3.1, 1.2 * y + ay + 7.7), w2 = fbm(2.3 * x + bx + 2 * w1, 2.3 * y + by + 2 * w1);
+    g[j * GG_W + i] = 0.5 + 0.26 * (x - 1.3) - 0.3 * (y - 0.5) + 0.9 * (w2 - 0.5) + 0.5 * (w1 - 0.5);
+  }
+  upGrid(g, GG_W, GG_H, 1, up);
+  for (let p = 0; p < CW * CH; p++) {
+    const t = clamp(up[p] + GG_MIX * (n1[p] - 0.5)), q = 3 * Math.round(t * 255), b = 1 + GG_GRAIN * (n2[p] - 0.5);
+    out[3 * p] = ramp[q] * b; out[3 * p + 1] = ramp[q + 1] * b; out[3 * p + 2] = ramp[q + 2] * b;
+  }
+  GG.px.show(k);
+};

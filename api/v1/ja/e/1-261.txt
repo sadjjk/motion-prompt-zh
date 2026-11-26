@@ -1,0 +1,110 @@
+// Motion Prompt #1-261 · MIT License (c) 2017 Pavel Dobryakov · https://github.com/PavelDoGreat/WebGL-Fluid-Simulation
+//
+// ネオン流体 / Neon fluid
+// 分類: UI・Web / ページ / ヒーロー背景
+// 何が起きるか: 黒い画面のあちこちから色とりどりのインクが噴き出し、ぶつかって渦を巻きながら混ざっていく。明るい部分はにじむように光り、中心から外へ光の筋が伸びる。
+// 動きの仕様:
+//   - 本番は WebGL2 のリアルタイムシミュレーション。プレビューは 108×42 のグリッドで固定の流れを読み込み時に焼き込んで再生する（1/30 秒刻み、curl 30、圧力 × 0.8、Jacobi 反復 20 回）。
+//   - 0.8 秒ごとに 4 ステップ噴射する。半径 2.2 セルのガウス状の塊が速度を 120 セル/秒へ引き寄せ、毎ステップ 0.2 のインクを足す。1 周 8 回で、位置・向き・色相は噴射番号のハッシュで決める。
+//   - 速度の減衰 0.2、インクの減衰 1。どちらも ÷ (1 + 減衰·dt) でかける。
+//   - 陰影：インクの明るさの勾配で急な斜面を暗く、左上を向いた斜面を明るくする（係数 0.6–1.15）。
+//   - ブルームは明るさ 0.45 を超えた分を半径 3 のボックスぼかし 2 回でぼかして 0.9 倍で足す。光の筋は中心へ向かって距離の 0.6 倍までに 16 サンプル取り、1 サンプルごとに重み × 0.9、0.5 倍で足す。
+//   - 最終色は 1 − e^(−1.7·x)。周期の最後 0.6 秒で 1 周前の同じ時刻へクロスフェードする。
+// 使いどころ: 音楽・ゲーム・イベントサイトのファーストビューや、暗い画面で強い印象を出したい背景に。
+// タグ: fluid, navier-stokes, neon, bloom, sunrays, hero-background, webgl
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-261
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 37
+// 37 霓虹流体：黑底上一股股高饱和的彩色墨流互相冲撞、卷成涡旋，亮处泛出辉光，并有光束从画面中心向外散开。
+// 不跟光标：每 0.8 秒在确定的位置朝确定的方向喷一次彩色墨团，持续 4 步；位置、方向、色相由喷射序号的哈希决定，一个周期 8 次，下一圈重复。
+// 流体用公共代码里的 fluidBake（按 Pavel Dobryakov 的 WebGL Fluid Simulation 改写，MIT），在 108×42 网格上按 1/30 秒步长预烘焙，
+// 预热一圈、最后 0.6 秒渐变到上一圈同一时刻。绘制时在网格上做三步后期：按墨迹亮度梯度打光（立体感）→ 亮部两遍盒式模糊成辉光 →
+// 每格朝画面中心取 16 个辉光样本做径向模糊得到光束；最后按 1 − e^(−1.7x) 压到 0..1。
+const NF_W = 108, NF_H = 42, NF_FPS = 30, NF_XF = 0.6;
+const NF_CURL = 30, NF_PDECAY = 0.8, NF_ITER = 20, NF_VDIS = 0.2, NF_DDIS = 1;
+const NF_EVERY = 24, NF_JET = 4, NF_SHOTS = 8;        // 每 24 步（0.8 秒）喷一次，每次持续 4 步，一个周期 8 次
+const NF_R = 2.2, NF_SPEED = 120, NF_DYE = 0.2;      // 墨团半径（格）、喷射速度（格/秒）、每步墨量
+const NF_THR = 0.45, NF_BLOOM = 0.9, NF_RAYS = 0.5, NF_EXPO = 1.7;
+const NF_hue = h => [0, 4, 2].map(o => clamp(Math.abs(((h * 6 + o) % 6) - 3) - 1));   // 色相 0..1 → 满饱和 RGB
+function NF_box(a, b, r) {           // 3 通道盒式模糊（先横后竖，结果写回 a，b 为临时数组）
+  const W = NF_W, H = NF_H, k = 1 / (2 * r + 1);
+  for (let j = 0; j < H; j++) for (let c = 0; c < 3; c++) {
+    let s = 0;
+    for (let i = -r; i <= r; i++) s += a[3 * (j * W + clamp(i, 0, W - 1)) + c];
+    for (let i = 0; i < W; i++) {
+      b[3 * (j * W + i) + c] = s * k;
+      s += a[3 * (j * W + Math.min(W - 1, i + r + 1)) + c] - a[3 * (j * W + Math.max(0, i - r)) + c];
+    }
+  }
+  for (let i = 0; i < W; i++) for (let c = 0; c < 3; c++) {
+    let s = 0;
+    for (let j = -r; j <= r; j++) s += b[3 * (clamp(j, 0, H - 1) * W + i) + c];
+    for (let j = 0; j < H; j++) {
+      a[3 * (j * W + i) + c] = s * k;
+      s += b[3 * (Math.min(H - 1, j + r + 1) * W + i) + c] - b[3 * (Math.max(0, j - r) * W + i) + c];
+    }
+  }
+}
+let NF = null;
+function NF_init() {
+  const frames = fluidBake({
+    W: NF_W, H: NF_H, fps: NF_FPS, curl: NF_CURL, pdecay: NF_PDECAY, iter: NF_ITER, vdis: NF_VDIS, ddis: NF_DDIS,
+    t0: -CYC, steps: Math.round(2 * CYC * NF_FPS), keep: Math.round((CYC - NF_XF) * NF_FPS),
+    inject(t, S) {
+      const g = Math.round(t * NF_FPS), m = ((g % NF_EVERY) + NF_EVERY) % NF_EVERY;
+      if (m >= NF_JET) return;
+      const n = ((Math.floor(g / NF_EVERY) % NF_SHOTS) + NF_SHOTS) % NF_SHOTS;   // 本周期第几次喷射
+      const x = NF_W * (0.15 + 0.7 * hash(n * 7 + 1)), y = NF_H * (0.2 + 0.6 * hash(n * 7 + 2)), ang = TAU * hash(n * 7 + 3);
+      const c = NF_hue(hash(n * 7 + 4)), vx = Math.cos(ang) * NF_SPEED, vy = Math.sin(ang) * NF_SPEED;
+      gaussAt(NF_W, NF_H, x, y, NF_R, (o, w) => {   // 速度按权重拉向喷射速度，墨按权重累加
+        S.U[o] += (vx - S.U[o]) * w; S.V[o] += (vy - S.V[o]) * w;
+        S.R[o] += c[0] * NF_DYE * w; S.G[o] += c[1] * NF_DYE * w; S.B[o] += c[2] * NF_DYE * w;
+      });
+    }
+  });
+  const N = NF_W * NF_H, F = n => new Float32Array(n);
+  NF = { frames, D: F(3 * N), L: F(N), O: F(3 * N), Bl: F(3 * N), tmp: F(3 * N), up: F(3 * CW * CH), dit: grainTab(7.7), px: pixels() };
+}
+CELLS[36] = (k, w, h, u) => {
+  if (!NF) NF_init();
+  const { D, L, O, Bl, tmp, up, dit } = NF, W = NF_W, H = NF_H, N = W * H, out = NF.px.buf;
+  const s = inOut3(seg(u, CYC - NF_XF, CYC));
+  D.fill(0);
+  dyeAt(NF.frames, (u + NF_XF) * NF_FPS, D, 1 - s);
+  if (s > 0) dyeAt(NF.frames, (u - CYC + NF_XF) * NF_FPS, D, s);
+  for (let q = 0; q < N; q++) L[q] = Math.max(D[3 * q], D[3 * q + 1], D[3 * q + 2]);
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    const q = j * W + i;
+    // 1 打光：把亮度梯度当作坡度，越陡越暗，朝左上的坡面略亮
+    const dx = L[i < W - 1 ? q + 1 : q] - L[i > 0 ? q - 1 : q], dy = L[j < H - 1 ? q + W : q] - L[j > 0 ? q - W : q];
+    const nz = 1 / Math.sqrt(1 + (dx * dx + dy * dy) / 0.02), sh = clamp(0.72 + 0.28 * nz - 0.6 * (0.6 * dx + 0.8 * dy) * nz, 0.6, 1.15);
+    // 2 亮部：超过阈值的部分按比例保留
+    const m = L[q], b = m > NF_THR ? (m - NF_THR) / m : 0;
+    for (let c = 0; c < 3; c++) { O[3 * q + c] = D[3 * q + c] * sh; Bl[3 * q + c] = D[3 * q + c] * b; }
+  }
+  NF_box(Bl, tmp, 3); NF_box(Bl, tmp, 3);               // 两遍盒式模糊 ≈ 高斯
+  // 3 光束：朝画面中心走 0.6 倍距离取 16 个辉光样本，权重每步 × 0.9
+  const cx = W / 2, cy = H / 2;
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    let r = 0, g = 0, b = 0, wt = 1, tot = 0;
+    for (let n = 0; n < 16; n++) {
+      const f = 0.6 * n / 16, p = 3 * (Math.round(mix(j, cy, f)) * W + Math.round(mix(i, cx, f)));
+      r += Bl[p] * wt; g += Bl[p + 1] * wt; b += Bl[p + 2] * wt; tot += wt; wt *= 0.9;
+    }
+    const q = 3 * (j * W + i);
+    O[q] = 1 - Math.exp(-NF_EXPO * (O[q] + NF_BLOOM * Bl[q] + NF_RAYS * r / tot));
+    O[q + 1] = 1 - Math.exp(-NF_EXPO * (O[q + 1] + NF_BLOOM * Bl[q + 1] + NF_RAYS * g / tot));
+    O[q + 2] = 1 - Math.exp(-NF_EXPO * (O[q + 2] + NF_BLOOM * Bl[q + 2] + NF_RAYS * b / tot));
+  }
+  upGrid(O, W, H, 3, up);
+  for (let p = 0; p < CW * CH; p++) {                    // 加一点固定噪点防色带
+    const e = 0.004 * (dit[p] - 0.5);
+    out[3 * p] = up[3 * p] + e; out[3 * p + 1] = up[3 * p + 1] + e; out[3 * p + 2] = up[3 * p + 2] + e;
+  }
+  NF.px.show(k);
+};

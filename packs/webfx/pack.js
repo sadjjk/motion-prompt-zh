@@ -1707,8 +1707,490 @@ MotionPrompt.pack('webfx', function () {
     txt(k, `${v >= 0 ? '↓' : '↑'} ×${mult.toFixed(1)}`, 512, 194, `600 12px ${MONO}`, '#8E889A', 'right', 'middle');
   };
 
+  // @element 36
+  // 36 流体墨迹：首屏背后一层跟着光标流动的蓝色墨迹，带颗粒纹理。流体按 Pavel Dobryakov 的 WebGL Fluid Simulation（MIT）
+  // 的步骤改写，不开涡量约束：注入 → 散度 → 压力 × 0.8 → 10 次 Jacobi 迭代 → 减压力梯度 → 半拉格朗日平流并衰减。
+  // 预览在 180×70 的网格上（每格 3 px）按固定步长 1/30 秒模拟，首次绘制时烘焙整个周期的墨迹帧，绘制时只按 u 取相邻两帧插值。
+  // 光标沿一条周期正好 6.4 秒的闭合曲线移动（不做开场冲击环，否则循环时每圈都会出现一次）。墨迹不累加：画笔把所在处的墨色
+  // 直接混向当前颜色，笔迹芯是纯色、边缘渐淡，之后按衰减 0.5 慢慢消失。周期最后 0.6 秒渐变到上一圈同一时刻，首尾相接。
+  // 显示：墨迹不透明度 = 最亮通道 × 1.35，叠在深色底上；墨色再乘一张固定的颗粒亮度图（起伏标准差约 10%）。
+  const FI_W = 180, FI_H = 70, FI_FPS = 30, FI_XF = 0.6;
+  const FI_PDECAY = 0.8, FI_ITER = 10, FI_VDIS = 0.29, FI_DDIS = 0.5;
+  const FI_BRUSH = 0.03, FI_GAP = 0.018, FI_PUSH = 0.16, FI_HUES = 2;   // 画笔宽、印章间距（都按长边比例）、冲量系数、每圈色相转几轮
+  const FI_ALPHA = 1.35, FI_GRAIN = 0.75;
+  const FI_PAL = ['#2048F0', '#58B4FF', '#18C4E4'], FI_BG0 = '#0B0C10', FI_BG1 = '#111720';
+  const FI_cur = t => {                // 光标（网格坐标）：周期 6.4 秒的闭合曲线
+    const a = TAU * t / CYC;
+    return [FI_W * (0.5 + 0.34 * Math.sin(a) + 0.07 * Math.sin(3 * a + 1.1)), FI_H * (0.5 + 0.3 * Math.sin(2 * a + 0.9))];
+  };
+  let FI = null;
+  function FI_init() {
+    const W = FI_W, H = FI_H, dt = 1 / FI_FPS, ramp = labRamp([...FI_PAL, FI_PAL[0]]);
+    const br = FI_BRUSH * W, gap = FI_GAP * W;
+    // 一次印章：影响 g = exp(−距离² / 笔宽²)；速度加 冲量 × g，墨色按 min(g, 1) 混向 col
+    const stamp = (S, x, y, ix, iy, col) => {
+      const reach = 3 * br;
+      for (let j = Math.max(0, Math.floor(y - reach)); j <= Math.min(H - 1, Math.ceil(y + reach)); j++)
+        for (let i = Math.max(0, Math.floor(x - reach)); i <= Math.min(W - 1, Math.ceil(x + reach)); i++) {
+          const dx = i - x, dy = j - y, g = Math.exp(-(dx * dx + dy * dy) / (br * br));
+          if (g < 1e-4) continue;
+          const o = j * W + i, m = Math.min(1, g);
+          S.U[o] += ix * g; S.V[o] += iy * g;
+          S.R[o] += (col[0] - S.R[o]) * m; S.G[o] += (col[1] - S.G[o]) * m; S.B[o] += (col[2] - S.B[o]) * m;
+        }
+    };
+    let [px, py] = FI_cur(-CYC), vx = 0, vy = 0;
+    const frames = fluidBake({
+      W, H, fps: FI_FPS, curl: 0, pdecay: FI_PDECAY, iter: FI_ITER, vdis: FI_VDIS, ddis: FI_DDIS,
+      t0: -CYC, steps: Math.round(2 * CYC * FI_FPS), keep: Math.round((CYC - FI_XF) * FI_FPS),   // 预热一圈，存 −0.6 秒起的帧
+      inject(t, S) {
+        const h = FI_HUES * t / CYC, q = 3 * Math.round((h - Math.floor(h)) * 255), col = [ramp[q], ramp[q + 1], ramp[q + 2]];
+        const [cx, cy] = FI_cur(t), mx = cx - px, my = cy - py;
+        vx = vx * 0.4 + mx / dt * 0.6; vy = vy * 0.4 + my / dt * 0.6;   // 光标速度平滑
+        const n = Math.min(16, Math.max(2, Math.ceil(Math.hypot(mx, my) / gap)));
+        if (mx || my) for (let m = 1; m <= n; m++) stamp(S, px + mx * m / n, py + my * m / n, vx * FI_PUSH, vy * FI_PUSH, col);   // 光标不动时不盖章
+        px = cx; py = cy;
+      }
+    });
+    const hx = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16) / 255), b0 = hx(FI_BG0), b1 = hx(FI_BG1);
+    const gr = new Float32Array(CW * CH), bg = new Float32Array(CW * 3), L = new Float32Array(1024);
+    for (let y = 0; y < CH; y++) for (let x = 0; x < CW; x++) {   // 颗粒：扭曲过的细噪声（每像素 0.6 个噪声格），亮度 1 + (n − 0.5) × 0.75
+      const X = 0.6 * x, Y = 0.6 * y, wx = fbm(X + 1.7, Y + 9.2) - 0.5, wy = fbm(X + 8.3, Y + 2.8) - 0.5;
+      gr[y * CW + x] = 1 + (fbm(X + 1.5 * wx, Y + 1.5 * wy) - 0.5) * FI_GRAIN;
+    }
+    for (let x = 0; x < CW; x++) for (let c = 0; c < 3; c++) bg[3 * x + c] = mix(b0[c], b1[c], (x / (CW - 1)) ** 1.5);   // 底色：左深右微蓝
+    for (let i = 0; i < 1024; i++) { const v = i / 1023; L[i] = v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055; }   // 线性光 → sRGB
+    FI = { frames, gr, bg, L, D: new Float32Array(3 * W * H), up: new Float32Array(3 * CW * CH), px: pixels(true) };
+  }
+  CELLS[35] = (k, w, h, u) => {
+    if (!FI) FI_init();
+    const { D, up, gr, bg, L } = FI, out = FI.px.buf, s = inOut3(seg(u, CYC - FI_XF, CYC));
+    D.fill(0);
+    dyeAt(FI.frames, (u + FI_XF) * FI_FPS, D, 1 - s);                 // frames[k] 对应时间 −0.6 + k/30 秒
+    if (s > 0) dyeAt(FI.frames, (u - CYC + FI_XF) * FI_FPS, D, s);    // 最后 0.6 秒渐变到上一圈同一时刻
+    upGrid(D, FI_W, FI_H, 3, up);
+    const S = v => L[Math.min(1023, Math.max(0, v * 1023) | 0)];
+    for (let p = 0; p < CW * CH; p++) {
+      const g = gr[p], x = 3 * (p % CW), r = up[3 * p], gg = up[3 * p + 1], b = up[3 * p + 2];
+      const a = Math.min(1, Math.max(r, gg, b) * FI_ALPHA), q = 1 - a;   // 墨迹不透明度 = 最亮通道 × 1.35
+      out[3 * p] = S(r * g) * a + bg[x] * q; out[3 * p + 1] = S(gg * g) * a + bg[x + 1] * q; out[3 * p + 2] = S(b * g) * a + bg[x + 2] * q;
+    }
+    FI.px.show(k);
+  };
+
+  // @element 37
+  // 37 霓虹流体：黑底上一股股高饱和的彩色墨流互相冲撞、卷成涡旋，亮处泛出辉光，并有光束从画面中心向外散开。
+  // 不跟光标：每 0.8 秒在确定的位置朝确定的方向喷一次彩色墨团，持续 4 步；位置、方向、色相由喷射序号的哈希决定，一个周期 8 次，下一圈重复。
+  // 流体用公共代码里的 fluidBake（按 Pavel Dobryakov 的 WebGL Fluid Simulation 改写，MIT），在 108×42 网格上按 1/30 秒步长预烘焙，
+  // 预热一圈、最后 0.6 秒渐变到上一圈同一时刻。绘制时在网格上做三步后期：按墨迹亮度梯度打光（立体感）→ 亮部两遍盒式模糊成辉光 →
+  // 每格朝画面中心取 16 个辉光样本做径向模糊得到光束；最后按 1 − e^(−1.7x) 压到 0..1。
+  const NF_W = 108, NF_H = 42, NF_FPS = 30, NF_XF = 0.6;
+  const NF_CURL = 30, NF_PDECAY = 0.8, NF_ITER = 20, NF_VDIS = 0.2, NF_DDIS = 1;
+  const NF_EVERY = 24, NF_JET = 4, NF_SHOTS = 8;        // 每 24 步（0.8 秒）喷一次，每次持续 4 步，一个周期 8 次
+  const NF_R = 2.2, NF_SPEED = 120, NF_DYE = 0.2;      // 墨团半径（格）、喷射速度（格/秒）、每步墨量
+  const NF_THR = 0.45, NF_BLOOM = 0.9, NF_RAYS = 0.5, NF_EXPO = 1.7;
+  const NF_hue = h => [0, 4, 2].map(o => clamp(Math.abs(((h * 6 + o) % 6) - 3) - 1));   // 色相 0..1 → 满饱和 RGB
+  function NF_box(a, b, r) {           // 3 通道盒式模糊（先横后竖，结果写回 a，b 为临时数组）
+    const W = NF_W, H = NF_H, k = 1 / (2 * r + 1);
+    for (let j = 0; j < H; j++) for (let c = 0; c < 3; c++) {
+      let s = 0;
+      for (let i = -r; i <= r; i++) s += a[3 * (j * W + clamp(i, 0, W - 1)) + c];
+      for (let i = 0; i < W; i++) {
+        b[3 * (j * W + i) + c] = s * k;
+        s += a[3 * (j * W + Math.min(W - 1, i + r + 1)) + c] - a[3 * (j * W + Math.max(0, i - r)) + c];
+      }
+    }
+    for (let i = 0; i < W; i++) for (let c = 0; c < 3; c++) {
+      let s = 0;
+      for (let j = -r; j <= r; j++) s += b[3 * (clamp(j, 0, H - 1) * W + i) + c];
+      for (let j = 0; j < H; j++) {
+        a[3 * (j * W + i) + c] = s * k;
+        s += b[3 * (Math.min(H - 1, j + r + 1) * W + i) + c] - b[3 * (Math.max(0, j - r) * W + i) + c];
+      }
+    }
+  }
+  let NF = null;
+  function NF_init() {
+    const frames = fluidBake({
+      W: NF_W, H: NF_H, fps: NF_FPS, curl: NF_CURL, pdecay: NF_PDECAY, iter: NF_ITER, vdis: NF_VDIS, ddis: NF_DDIS,
+      t0: -CYC, steps: Math.round(2 * CYC * NF_FPS), keep: Math.round((CYC - NF_XF) * NF_FPS),
+      inject(t, S) {
+        const g = Math.round(t * NF_FPS), m = ((g % NF_EVERY) + NF_EVERY) % NF_EVERY;
+        if (m >= NF_JET) return;
+        const n = ((Math.floor(g / NF_EVERY) % NF_SHOTS) + NF_SHOTS) % NF_SHOTS;   // 本周期第几次喷射
+        const x = NF_W * (0.15 + 0.7 * hash(n * 7 + 1)), y = NF_H * (0.2 + 0.6 * hash(n * 7 + 2)), ang = TAU * hash(n * 7 + 3);
+        const c = NF_hue(hash(n * 7 + 4)), vx = Math.cos(ang) * NF_SPEED, vy = Math.sin(ang) * NF_SPEED;
+        gaussAt(NF_W, NF_H, x, y, NF_R, (o, w) => {   // 速度按权重拉向喷射速度，墨按权重累加
+          S.U[o] += (vx - S.U[o]) * w; S.V[o] += (vy - S.V[o]) * w;
+          S.R[o] += c[0] * NF_DYE * w; S.G[o] += c[1] * NF_DYE * w; S.B[o] += c[2] * NF_DYE * w;
+        });
+      }
+    });
+    const N = NF_W * NF_H, F = n => new Float32Array(n);
+    NF = { frames, D: F(3 * N), L: F(N), O: F(3 * N), Bl: F(3 * N), tmp: F(3 * N), up: F(3 * CW * CH), dit: grainTab(7.7), px: pixels() };
+  }
+  CELLS[36] = (k, w, h, u) => {
+    if (!NF) NF_init();
+    const { D, L, O, Bl, tmp, up, dit } = NF, W = NF_W, H = NF_H, N = W * H, out = NF.px.buf;
+    const s = inOut3(seg(u, CYC - NF_XF, CYC));
+    D.fill(0);
+    dyeAt(NF.frames, (u + NF_XF) * NF_FPS, D, 1 - s);
+    if (s > 0) dyeAt(NF.frames, (u - CYC + NF_XF) * NF_FPS, D, s);
+    for (let q = 0; q < N; q++) L[q] = Math.max(D[3 * q], D[3 * q + 1], D[3 * q + 2]);
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+      const q = j * W + i;
+      // 1 打光：把亮度梯度当作坡度，越陡越暗，朝左上的坡面略亮
+      const dx = L[i < W - 1 ? q + 1 : q] - L[i > 0 ? q - 1 : q], dy = L[j < H - 1 ? q + W : q] - L[j > 0 ? q - W : q];
+      const nz = 1 / Math.sqrt(1 + (dx * dx + dy * dy) / 0.02), sh = clamp(0.72 + 0.28 * nz - 0.6 * (0.6 * dx + 0.8 * dy) * nz, 0.6, 1.15);
+      // 2 亮部：超过阈值的部分按比例保留
+      const m = L[q], b = m > NF_THR ? (m - NF_THR) / m : 0;
+      for (let c = 0; c < 3; c++) { O[3 * q + c] = D[3 * q + c] * sh; Bl[3 * q + c] = D[3 * q + c] * b; }
+    }
+    NF_box(Bl, tmp, 3); NF_box(Bl, tmp, 3);               // 两遍盒式模糊 ≈ 高斯
+    // 3 光束：朝画面中心走 0.6 倍距离取 16 个辉光样本，权重每步 × 0.9
+    const cx = W / 2, cy = H / 2;
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+      let r = 0, g = 0, b = 0, wt = 1, tot = 0;
+      for (let n = 0; n < 16; n++) {
+        const f = 0.6 * n / 16, p = 3 * (Math.round(mix(j, cy, f)) * W + Math.round(mix(i, cx, f)));
+        r += Bl[p] * wt; g += Bl[p + 1] * wt; b += Bl[p + 2] * wt; tot += wt; wt *= 0.9;
+      }
+      const q = 3 * (j * W + i);
+      O[q] = 1 - Math.exp(-NF_EXPO * (O[q] + NF_BLOOM * Bl[q] + NF_RAYS * r / tot));
+      O[q + 1] = 1 - Math.exp(-NF_EXPO * (O[q + 1] + NF_BLOOM * Bl[q + 1] + NF_RAYS * g / tot));
+      O[q + 2] = 1 - Math.exp(-NF_EXPO * (O[q + 2] + NF_BLOOM * Bl[q + 2] + NF_RAYS * b / tot));
+    }
+    upGrid(O, W, H, 3, up);
+    for (let p = 0; p < CW * CH; p++) {                    // 加一点固定噪点防色带
+      const e = 0.004 * (dit[p] - 0.5);
+      out[3 * p] = up[3 * p] + e; out[3 * p + 1] = up[3 * p + 1] + e; out[3 * p + 2] = up[3 * p + 2] + e;
+    }
+    NF.px.show(k);
+  };
+
+  // @element 38
+  // 38 颗粒渐变：几条色带被缓慢流动的噪声扭曲，整面带磨砂相纸一样的颗粒，色带交界处的颗粒让两种颜色互相渗点。没有模拟，画面直接由 u 算出。
+  // 色带坐标 = 沿斜向的位置 + 两层扭曲噪声；第一层噪声的取样中心沿半径 0.9 的圆每周期转一圈，第二层沿半径 0.6 的圆反向转两圈并被第一层再扭一次，
+  // 所以画面一直在流、周期结束回到原样。扭曲在 135×52 的粗网格上算再放大；颗粒按像素：色带坐标加 ±0.05 的固定噪点后查 OKLab 色表，再乘 ±9% 的亮度噪点。
+  const GG_W = 135, GG_H = 52;
+  const GG_PAL = ['#0D0A1C', '#2B1660', '#6A2AA8', '#D2508F', '#FF9A6B', '#FFE2B0'];
+  const GG_MIX = 0.1, GG_GRAIN = 0.18;                  // 色带坐标噪点幅度、亮度噪点幅度（峰峰值）
+  let GG = null;
+  CELLS[37] = (k, w, h, u) => {
+    if (!GG) GG = { ramp: labRamp(GG_PAL), n1: grainTab(17.3), n2: grainTab(91.7), g: new Float32Array(GG_W * GG_H), up: new Float32Array(CW * CH), px: pixels() };
+    const { ramp, n1, n2, g, up } = GG, out = GG.px.buf, a = TAU * u / CYC;
+    const ax = 0.9 * Math.cos(a), ay = 0.9 * Math.sin(a), bx = 0.6 * Math.cos(1 - 2 * a), by = 0.6 * Math.sin(1 - 2 * a);
+    for (let j = 0; j < GG_H; j++) for (let i = 0; i < GG_W; i++) {
+      const x = i / (GG_H - 1), y = j / (GG_H - 1);       // 以画面高度为 1
+      const w1 = fbm(1.2 * x + ax + 3.1, 1.2 * y + ay + 7.7), w2 = fbm(2.3 * x + bx + 2 * w1, 2.3 * y + by + 2 * w1);
+      g[j * GG_W + i] = 0.5 + 0.26 * (x - 1.3) - 0.3 * (y - 0.5) + 0.9 * (w2 - 0.5) + 0.5 * (w1 - 0.5);
+    }
+    upGrid(g, GG_W, GG_H, 1, up);
+    for (let p = 0; p < CW * CH; p++) {
+      const t = clamp(up[p] + GG_MIX * (n1[p] - 0.5)), q = 3 * Math.round(t * 255), b = 1 + GG_GRAIN * (n2[p] - 0.5);
+      out[3 * p] = ramp[q] * b; out[3 * p + 1] = ramp[q + 1] * b; out[3 * p + 2] = ramp[q + 2] * b;
+    }
+    GG.px.show(k);
+  };
+
+  // @element 39
+  // 39 烟雾光环：画面中间一圈发光的烟雾环，环的边缘被分层噪声吹散成一缕缕烟，烟一直向外飘，环随周期轻轻呼吸（半径 ±4%）。
+  // 噪声按极坐标取样，角度方向一圈 7 个噪声格且首尾相接；向外飘用两层错开半个周期的噪声交替淡入淡出：每层每周期向外平移 1.4 格后跳回，
+  // 跳回那一刻它的权重正好为 0，所以循环无缝。噪声把半径缩放 0.7–1.5 倍，再按与环半径的距离取高斯得到亮度，环内另加一层柔光。
+  // 亮度在 135×52 网格上算再放大，按像素乘 ±8% 的颗粒；颜色按亮度的 1.6 次方查 OKLab 色表，外圈深紫、环心暖黄。
+  const SR_W = 135, SR_H = 52, SR_P = 7;
+  const SR_R = 0.6, SR_T = 0.15, SR_FLOW = 1.4;          // 环半径、环厚（以半高为 1）、每周期向外飘的噪声格数
+  const SR_PAL = ['#1A0F3D', '#5B21B6', '#C026D3', '#F472B6', '#FDE68A'], SR_BG = '#07060C';
+  let SR = null;
+  CELLS[38] = (k, w, h, u) => {
+    if (!SR) SR = { ramp: labRamp(SR_PAL), bg: hexLin(SR_BG), n1: grainTab(43.1), g: new Float32Array(SR_W * SR_H), up: new Float32Array(CW * CH), px: pixels() };
+    const { ramp, bg, n1, g, up } = SR, out = SR.px.buf;
+    const f = u / CYC, fa = f - Math.floor(f), fb = f + 0.5 - Math.floor(f + 0.5), wa = 1 - Math.abs(2 * fa - 1);
+    const R = SR_R * (1 + 0.04 * Math.sin(TAU * f)), cx = SR_W / 2, cy = SR_H / 2;
+    for (let j = 0; j < SR_H; j++) for (let i = 0; i < SR_W; i++) {
+      const dx = (i + 0.5 - cx) / cy, dy = (j + 0.5 - cy) / cy, r = Math.hypot(dx, dy), th = (Math.atan2(dy, dx) / TAU + 0.5) * SR_P;
+      const n = wa * fbm(th, 2.2 * r - fa * SR_FLOW, SR_P) + (1 - wa) * fbm(th + 2.5, 2.2 * r - fb * SR_FLOW + 5.3, SR_P);
+      const d = r * (0.7 + 0.8 * n);
+      g[j * SR_W + i] = Math.exp(-(((d - R) / SR_T) ** 2)) + 0.2 * Math.exp(-2 * (d / R) ** 2);
+    }
+    upGrid(g, SR_W, SR_H, 1, up);
+    for (let p = 0; p < CW * CH; p++) {
+      const t = clamp(up[p] * (1 + 0.16 * (n1[p] - 0.5))), q = 3 * Math.round(t ** 1.6 * 255);
+      out[3 * p] = ramp[q] * t + bg[0] * (1 - t); out[3 * p + 1] = ramp[q + 1] * t + bg[1] * (1 - t); out[3 * p + 2] = ramp[q + 2] * t + bg[2] * (1 - t);
+    }
+    SR.px.show(k);
+  };
+
+  // @element 40
+  // 40 液态铬涟漪：整面像流动的液态金属，表面反射出明暗交错的铬色条纹；模拟光标划过的地方拖出尾波，两次点按各激起一圈涟漪，把条纹扭弯。
+  // 表面高度 = 缓慢起伏的底面（两个互相扭曲的正弦，相位按周期的整数倍转）+ 涟漪。涟漪在 135×52 网格上解二维波动方程：每步 1/60 秒，
+  // 波速系数 0.25、阻尼 0.975，光标每步在所在处按移动速度往下压一个高斯坑，1.2 秒和 4.0 秒各点按一次；从 −6.4 秒预热，
+  // 存 −0.6 秒起的帧，最后 0.6 秒渐变到上一圈同一时刻。着色：高度梯度 × 22 得到法线，取反射方向去查一张铬色环境色带（暗亮硬过渡），再加一点高光。
+  const LC_W = 135, LC_H = 52, LC_FPS = 30, LC_SUB = 2, LC_XF = 0.6;
+  const LC_C = 0.25, LC_DAMP = 0.975, LC_R = 3, LC_PUSH = 0.003, LC_TAP = 0.25, LC_SLOPE = 22;
+  const LC_TAPS = [[1.2, 0.3, 0.35], [4.0, 0.72, 0.62]];    // 点按：时刻（秒）、位置（相对网格）
+  const LC_ENV = [[0, '#06080C'], [0.3, '#1D2330'], [0.44, '#9AA5B8'], [0.5, '#F5F8FC'], [0.55, '#272D39'], [0.72, '#5E687A'], [0.86, '#DCE3EE'], [1, '#FFFFFF']];
+  const LC_cur = t => { const a = TAU * t / CYC; return [LC_W * (0.5 + 0.36 * Math.sin(a + 0.4)), LC_H * (0.5 + 0.3 * Math.sin(2 * a))]; };
+  let LC = null;
+  function LC_init() {
+    const W = LC_W, H = LC_H, N = W * H, dt = 1 / (LC_FPS * LC_SUB), per = Math.round(CYC / dt);
+    let A = new Float32Array(N), B = new Float32Array(N), C = new Float32Array(N);   // 上一步、这一步、下一步的高度
+    const frames = [], steps = 2 * per, keep = Math.round((CYC - LC_XF) * LC_FPS), taps = LC_TAPS.map(([t, x, y]) => [Math.round(t / dt), x * W, y * H]);
+    let [px, py] = LC_cur(-CYC);
+    for (let s = 1; s <= steps; s++) {
+      const t = -CYC + s * dt, [cx, cy] = LC_cur(t), sp = Math.hypot(cx - px, cy - py) / dt, m = s % per;
+      gaussAt(W, H, cx, cy, LC_R, (o, g) => { B[o] -= LC_PUSH * g * sp / 30; });
+      for (const [ts, x, y] of taps) if (m === ts) gaussAt(W, H, x, y, 3, (o, g) => { B[o] -= LC_TAP * g; });
+      px = cx; py = cy;
+      for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+        const q = j * W + i, l = i > 0 ? q - 1 : q, r = i < W - 1 ? q + 1 : q, tp = j > 0 ? q - W : q, bt = j < H - 1 ? q + W : q;
+        C[q] = (2 * B[q] - A[q] + LC_C * (B[l] + B[r] + B[tp] + B[bt] - 4 * B[q])) * LC_DAMP;
+      }
+      [A, B, C] = [B, C, A];
+      if (s % LC_SUB === 0 && s / LC_SUB >= keep) frames.push(Int16Array.from(B, v => clamp(Math.round(v * 2000), -32767, 32767)));
+    }
+    const env = new Float32Array(768), st = LC_ENV.map(([p, c]) => [p, toLab(hexLin(c))]);
+    for (let q = 0; q < 256; q++) {
+      const t = q / 255; let i = 0;
+      while (i < st.length - 2 && t > st[i + 1][0]) i++;
+      const e = clamp((t - st[i][0]) / (st[i + 1][0] - st[i][0]));
+      env.set(fromLab([0, 1, 2].map(c => mix(st[i][1][c], st[i + 1][1][c], e))), 3 * q);
+    }
+    LC = { frames, env, hg: new Float32Array(N), gr: new Float32Array(2 * N), up: new Float32Array(2 * CW * CH), px: pixels() };
+  }
+  CELLS[39] = (k, w, h, u) => {
+    if (!LC) LC_init();
+    const { frames, env, hg, gr, up } = LC, W = LC_W, H = LC_H, out = LC.px.buf, a = TAU * u / CYC, s = inOut3(seg(u, CYC - LC_XF, CYC));
+    const rip = (f, wgt) => {           // 第 f 帧涟漪（相邻两帧插值）× wgt 累加进高度
+      f = clamp(f, 0, frames.length - 1.0001);
+      const i0 = Math.floor(f), e = f - i0, F0 = frames[i0], F1 = frames[i0 + 1];
+      for (let q = 0; q < W * H; q++) hg[q] += wgt * mix(F0[q], F1[q], e) / 2000;
+    };
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+      const x = i / (H - 1), y = j / (H - 1);
+      hg[j * W + i] = 0.55 * Math.sin(2.1 * x + 1.3 * Math.sin(1.7 * y + a) + a) + 0.45 * Math.sin(1.6 * y - 1.1 * x + 1.6 * Math.sin(1.2 * x - 2 * a));
+    }
+    rip((u + LC_XF) * LC_FPS, 1 - s);
+    if (s > 0) rip((u - CYC + LC_XF) * LC_FPS, s);
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+      const q = j * W + i;
+      gr[2 * q] = 0.5 * (hg[i < W - 1 ? q + 1 : q] - hg[i > 0 ? q - 1 : q]);
+      gr[2 * q + 1] = 0.5 * (hg[j < H - 1 ? q + W : q] - hg[j > 0 ? q - W : q]);
+    }
+    upGrid(gr, W, H, 2, up);
+    for (let y = 0, p = 0; y < CH; y++) for (let x = 0; x < CW; x++, p++) {
+      const nx = -LC_SLOPE * up[2 * p], ny = -LC_SLOPE * up[2 * p + 1], il = 1 / Math.sqrt(nx * nx + ny * ny + 1);
+      // 视线垂直屏幕时反射方向 = (2·nz·nx, 2·nz·ny, …)；竖直分量为主、水平分量为辅去查环境色带，并随画面高度略微下移
+      const e = clamp(0.5 + 0.42 * 2 * il * ny * il + 0.18 * 2 * il * nx * il + 0.25 * (y / CH - 0.5)), q = 3 * Math.round(e * 255);
+      const hl = Math.max(0, -0.21 * nx * il - 0.27 * ny * il + 0.94 * il) ** 60 * 0.7;   // 左上光源的半程向量高光
+      out[3 * p] = env[q] + hl; out[3 * p + 1] = env[q + 1] + hl; out[3 * p + 2] = env[q + 2] + hl;
+    }
+    LC.px.show(k);
+  };
+
+  // @element 41
+  // 41 丝绸褶皱：一块暗金色的绸缎铺满画面，褶皱像被风吹着一样缓慢起伏，褶皱脊上滑过柔亮的光泽，整面带细颗粒。
+  // 褶皱高度是两组被低频正弦扭曲的斜向波叠加（所有相位按周期的整数倍转动，所以首尾相接），在 270×104 网格（每格约 2 px）上算；
+  // 由高度差得法线（坡度 × 0.22），漫反射 + 左上光源的半程向量高光（指数 28）给出绸缎光泽，凹处按高度再压暗最多 40%，
+  // 颜色在暗底、绸缎本色之间按光照插值再加高光色，放大后按像素乘 ±7% 的亮度颗粒。
+  const SK_W = 270, SK_H = 104, SK_TILT = 0.22, SK_SHINE = 28;
+  const SK_DARK = '#0D0906', SK_BODY = '#7C5631', SK_SHEEN = '#FFE5BD';
+  const SK_h = (x, y, a) => {
+    const q = x + 0.2 * Math.sin(2.1 * y + 0.5 * x + a);
+    return 0.62 * Math.sin(6 * (0.82 * q + 0.57 * y) + a + 1.5 * Math.sin(3 * q - 1.7 * y - a)) + 0.38 * Math.sin(3.2 * (0.5 * q - 0.87 * y) + 2 * a + 0.9 * Math.sin(2.4 * y + a));
+  };
+  let SK = null;
+  CELLS[40] = (k, w, h, u) => {
+    if (!SK) SK = { hg: new Float32Array(SK_W * SK_H), col: new Float32Array(3 * SK_W * SK_H), up: new Float32Array(3 * CW * CH), n1: grainTab(29.9), c0: hexLin(SK_DARK), c1: hexLin(SK_BODY), c2: hexLin(SK_SHEEN), px: pixels() };
+    const { hg, col, up, n1, c0, c1, c2 } = SK, W = SK_W, H = SK_H, out = SK.px.buf, a = TAU * u / CYC, dx = 1 / (H - 1);
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) hg[j * W + i] = SK_h(i * dx, j * dx, a);
+    const L = [-0.45, -0.55, 0.7], ll = Math.hypot(...L), Ld = L.map(v => v / ll), hh = Math.hypot(Ld[0], Ld[1], Ld[2] + 1), Hd = [Ld[0] / hh, Ld[1] / hh, (Ld[2] + 1) / hh];
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+      const q = j * W + i, hv = hg[q];
+      const gx = (hg[i < W - 1 ? q + 1 : q] - hg[i > 0 ? q - 1 : q]) / (2 * dx), gy = (hg[j < H - 1 ? q + W : q] - hg[j > 0 ? q - W : q]) / (2 * dx);
+      const nx = -SK_TILT * gx, ny = -SK_TILT * gy, il = 1 / Math.sqrt(nx * nx + ny * ny + 1);
+      const df = Math.max(0, (nx * Ld[0] + ny * Ld[1] + Ld[2]) * il), sp = Math.max(0, (nx * Hd[0] + ny * Hd[1] + Hd[2]) * il) ** SK_SHINE;
+      const lit = df ** 1.3 * (0.8 + 0.2 * hv);
+      for (let c = 0; c < 3; c++) col[3 * q + c] = mix(c0[c], c1[c], lit) + c2[c] * sp * 0.55;
+    }
+    upGrid(col, W, H, 3, up);
+    for (let p = 0; p < CW * CH; p++) {
+      const b = 1 + 0.14 * (n1[p] - 0.5);
+      out[3 * p] = up[3 * p] * b; out[3 * p + 1] = up[3 * p + 1] * b; out[3 * p + 2] = up[3 * p + 2] * b;
+    }
+    SK.px.show(k);
+  };
+
   // @shared
-  // （本包目前没有跨元素共用的代码）
+  // 逐像素背景（36–41）共用：颜色换算、值噪声、离屏像素缓冲、网格放大，以及 36、37 的流体求解器。
+  // 都写成函数声明（会提升），元素块顶层可以直接调用；带缓存的表在第一次绘制时才建。
+  // 颜色：#RRGGBB → 线性光 RGB；线性光 ↔ OKLab（Björn Ottosson 的公式）
+  function hexLin(s) {
+    return [1, 3, 5].map(i => { const c = parseInt(s.slice(i, i + 2), 16) / 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
+  }
+  function toLab([r, g, b]) {
+    const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b), m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b), s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+    return [0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s];
+  }
+  function fromLab([L, A, B]) {
+    const l = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3, m = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3, s = (L - 0.0894841775 * A - 1.291485548 * B) ** 3;
+    return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s].map(v => Math.max(0, v));
+  }
+  // 色表：一串颜色在 OKLab 里等距插值成 n 级（循环色表把首色再写一遍在末尾），每级 3 个线性光值
+  function labRamp(cols, n = 256) {
+    const L = cols.map(c => toLab(hexLin(c))), out = new Float32Array(3 * n);
+    for (let q = 0; q < n; q++) {
+      const x = q / (n - 1) * (L.length - 1), i = Math.min(L.length - 2, Math.floor(x)), t = x - i;
+      out.set(fromLab([0, 1, 2].map(m => mix(L[i][m], L[i + 1][m], t))), 3 * q);
+    }
+    return out;
+  }
+  // 值噪声 0..1；px > 0 时 x 方向每 px 格重复一次（绕圆周取样时首尾相接）。fbm 叠 3 层
+  // 格点值 = hash(i·57.31 + j·113.7)；−64..63 范围内的格点在 NZ_T 里预先算好（结果与现算相同），超出范围再现算
+  function vnoise(x, y, px = 0) {
+    const i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+    const i0 = px ? ((i % px) + px) % px : i, i1 = px ? (i0 + 1) % px : i + 1;
+    let a, b, c, d;
+    if (i0 >= -64 && i0 < 64 && i1 >= -64 && i1 < 64 && j >= -64 && j < 63) {
+      const r0 = (j + 64) * 128 + 64, r1 = r0 + 128;
+      a = NZ_T[r0 + i0]; b = NZ_T[r0 + i1]; c = NZ_T[r1 + i0]; d = NZ_T[r1 + i1];
+    } else {
+      a = hash(i0 * 57.31 + j * 113.7); b = hash(i1 * 57.31 + j * 113.7); c = hash(i0 * 57.31 + (j + 1) * 113.7); d = hash(i1 * 57.31 + (j + 1) * 113.7);
+    }
+    return mix(mix(a, b, sx), mix(c, d, sx), sy);
+  }
+  const NZ_T = Float64Array.from({ length: 128 * 128 }, (_, q) => hash(((q & 127) - 64) * 57.31 + ((q >> 7) - 64) * 113.7));
+  function fbm(x, y, px = 0) {
+    const m1 = px ? 2 : 2.03, m2 = px ? 4 : 4.01;
+    return 0.5 * vnoise(x, y, px) + 0.3 * vnoise(m1 * x + 11.1, m1 * y + 3.7, px * 2) + 0.2 * vnoise(m2 * x - 7.3, m2 * y + 9.2, px * 4);
+  }
+  // 每像素固定噪点表（0..1），seed 不同则互不相关
+  function grainTab(seed) { return Float32Array.from({ length: CW * CH }, (_, p) => hash(p + seed)); }
+  // 离屏像素画布：往 buf（CW×CH×3）里写 0..1 的颜色，show(k) 画到 k 上；默认 buf 是线性光、显示前转 sRGB，srgb = true 时原样显示
+  let LIN8 = null, RAW8 = null;
+  function pixels(srgb = false) {
+    if (!LIN8) {
+      LIN8 = new Uint8Array(1024); RAW8 = new Uint8Array(1024);
+      for (let i = 0; i < 1024; i++) { const v = i / 1023; LIN8[i] = Math.round(255 * (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055)); RAW8[i] = Math.round(255 * v); }
+    }
+    const c = document.createElement('canvas'); c.width = CW; c.height = CH;
+    const x = c.getContext('2d'), img = x.createImageData(CW, CH), buf = new Float32Array(CW * CH * 3), L = srgb ? RAW8 : LIN8;
+    const d = img.data;
+    for (let p = 3; p < d.length; p += 4) d[p] = 255;
+    const ix = v => (v = v * 1023, v > 1023 ? 1023 : v > 0 ? v | 0 : 0);
+    return { buf, show(k) {
+      for (let p = 0, q = 0; p < d.length; p += 4, q += 3) {
+        d[p] = L[ix(buf[q])]; d[p + 1] = L[ix(buf[q + 1])]; d[p + 2] = L[ix(buf[q + 2])];
+      }
+      x.putImageData(img, 0, 0); k.drawImage(c, 0, 0);
+    } };
+  }
+  // 把 W×H 网格上每格 C 个数的场双线性放大到 CW×CH（格心对齐），写入 out
+  // 每种网格尺寸的取样下标与权重只算一次（UP_T 缓存）
+  const UP_T = {};
+  function upGrid(src, W, H, C, out) {
+    const key = W + 'x' + H;
+    if (!UP_T[key]) {
+      const kx = W / CW, ky = H / CH, I = new Int32Array(CW), FX = new Float64Array(CW), J = new Int32Array(CH), FY = new Float64Array(CH);
+      for (let x = 0; x < CW; x++) { const gx = clamp((x + 0.5) * kx - 0.5, 0, W - 1.001); I[x] = gx | 0; FX[x] = gx - I[x]; }
+      for (let y = 0; y < CH; y++) { const gy = clamp((y + 0.5) * ky - 0.5, 0, H - 1.001); J[y] = gy | 0; FY[y] = gy - J[y]; }
+      UP_T[key] = { I, FX, J, FY };
+    }
+    const { I, FX, J, FY } = UP_T[key];
+    for (let y = 0, p = 0; y < CH; y++) {
+      const row = J[y] * W, fy = FY[y];
+      for (let x = 0; x < CW; x++, p += C) {
+        const fx = FX[x], o = C * (row + I[x]), o2 = o + C * W;
+        for (let c = 0; c < C; c++) {
+          const a = src[o + c], b = src[o2 + c], t = a + (src[o + C + c] - a) * fx;
+          out[p + c] = t + (b + (src[o2 + C + c] - b) * fx - t) * fy;
+        }
+      }
+    }
+  }
+  // 高斯印章：以 (x, y) 为中心、半径 r 格，对 3r 以内每格回调 fn(下标, g)，g = exp(−d² / 2r²)
+  function gaussAt(W, H, x, y, r, fn) {
+    const rr = Math.ceil(3 * r);
+    for (let j = Math.max(0, Math.floor(y - rr)); j <= Math.min(H - 1, Math.ceil(y + rr)); j++)
+      for (let i = Math.max(0, Math.floor(x - rr)); i <= Math.min(W - 1, Math.ceil(x + rr)); i++)
+        fn(j * W + i, Math.exp(-((i - x) ** 2 + (j - y) ** 2) / (2 * r * r)));
+  }
+  // 流体求解器（36、37 共用）：步骤按 Pavel Dobryakov 的 WebGL Fluid Simulation（MIT）改写，四周是墙。
+  // 每步 1/fps 秒：注入（回调 inject）→ 涡量 → 涡量约束 → 散度 → 压力衰减 → Jacobi 迭代 → 减压力梯度 → 半拉格朗日平流并衰减。
+  // o = { W, H, fps, curl, pdecay, iter, vdis, ddis, t0, steps, keep, inject(t, S) }，S = { U, V, R, G, B } 是当前各场。
+  // 从 t0 起走 steps 步，第 keep 步起每步存一帧染料：0..2 按平方根压成 1 字节，用 dyeAt 读回。
+  function fluidBake(o) {
+    const { W, H } = o, N = W * H, dt = 1 / o.fps, F = () => new Float32Array(N);
+    let U = F(), V = F(), U2 = F(), V2 = F(), P = F(), P2 = F(), R = F(), G = F(), B = F(), R2 = F(), G2 = F(), B2 = F();
+    const C = F(), DV = F(), S = {}, frames = [];
+    const samp = (f, x, y) => {
+      x = Math.min(W - 1.001, Math.max(0, x)); y = Math.min(H - 1.001, Math.max(0, y));
+      const i = x | 0, j = y | 0, fx = x - i, fy = y - j, q = j * W + i;
+      return (f[q] * (1 - fx) + f[q + 1] * fx) * (1 - fy) + (f[q + W] * (1 - fx) + f[q + W + 1] * fx) * fy;
+    };
+    const kv = 1 / (1 + o.vdis * dt), kd = 1 / (1 + o.ddis * dt);
+    for (let s = 1; s <= o.steps; s++) {
+      // 1 注入
+      Object.assign(S, { U, V, R, G, B }); o.inject(o.t0 + s * dt, S);
+      // 2 涡量 curl = ∂v/∂x − ∂u/∂y
+      for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+        const q = j * W + i, l = i > 0 ? q - 1 : q, r = i < W - 1 ? q + 1 : q, tp = j > 0 ? q - W : q, bt = j < H - 1 ? q + W : q;
+        C[q] = 0.5 * ((V[r] - V[l]) - (U[bt] - U[tp]));
+      }
+      // 3 涡量约束：沿 |curl| 梯度把小涡旋推回去，让卷曲不被数值耗散抹平
+      for (let j = 1; j < H - 1; j++) for (let i = 1; i < W - 1; i++) {
+        const q = j * W + i, nx = 0.5 * (Math.abs(C[q + 1]) - Math.abs(C[q - 1])), ny = 0.5 * (Math.abs(C[q + W]) - Math.abs(C[q - W]));
+        const len = Math.hypot(nx, ny) + 1e-4, w = o.curl * C[q];
+        U[q] += (ny / len) * w * dt; V[q] += (-nx / len) * w * dt;
+      }
+      // 4 散度（越界的邻格取反向速度）
+      for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+        const q = j * W + i;
+        const uL = i > 0 ? U[q - 1] : -U[q], uR = i < W - 1 ? U[q + 1] : -U[q], vT = j > 0 ? V[q - W] : -V[q], vB = j < H - 1 ? V[q + W] : -V[q];
+        DV[q] = 0.5 * (uR - uL + vB - vT);
+      }
+      // 5 压力：沿用上一帧 × pdecay，再做 iter 次 Jacobi 迭代
+      for (let q = 0; q < N; q++) P[q] *= o.pdecay;
+      for (let it = 0; it < o.iter; it++) {
+        for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+          const q = j * W + i;
+          const pL = i > 0 ? P[q - 1] : P[q], pR = i < W - 1 ? P[q + 1] : P[q], pT = j > 0 ? P[q - W] : P[q], pB = j < H - 1 ? P[q + W] : P[q];
+          P2[q] = (pL + pR + pT + pB - DV[q]) * 0.25;
+        }
+        [P, P2] = [P2, P];
+      }
+      // 6 减压力梯度，速度场变成无散度
+      for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+        const q = j * W + i;
+        const pL = i > 0 ? P[q - 1] : P[q], pR = i < W - 1 ? P[q + 1] : P[q], pT = j > 0 ? P[q - W] : P[q], pB = j < H - 1 ? P[q + W] : P[q];
+        U[q] -= 0.5 * (pR - pL); V[q] -= 0.5 * (pB - pT);
+      }
+      // 7 平流：沿速度倒推一步取值，再除以 (1 + 衰减·dt)
+      for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+        const q = j * W + i, x = i - dt * U[q], y = j - dt * V[q];
+        U2[q] = samp(U, x, y) * kv; V2[q] = samp(V, x, y) * kv;
+      }
+      [U, U2] = [U2, U]; [V, V2] = [V2, V];
+      for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+        const q = j * W + i, x = i - dt * U[q], y = j - dt * V[q];
+        R2[q] = samp(R, x, y) * kd; G2[q] = samp(G, x, y) * kd; B2[q] = samp(B, x, y) * kd;
+      }
+      [R, R2] = [R2, R]; [G, G2] = [G2, G]; [B, B2] = [B2, B];
+      if (s >= o.keep) {
+        const f = new Uint8Array(3 * N), e = v => Math.round(255 * Math.sqrt(Math.min(1, Math.max(0, v) / 2)));
+        for (let q = 0; q < N; q++) { f[3 * q] = e(R[q]); f[3 * q + 1] = e(G[q]); f[3 * q + 2] = e(B[q]); }
+        frames.push(f);
+      }
+    }
+    return frames;
+  }
+  // 读帧表：第 f 帧（可带小数，相邻两帧线性插值）的染料乘 wgt 累加进 out
+  const DYE = Float32Array.from({ length: 256 }, (_, q) => 2 * (q / 255) ** 2);
+  function dyeAt(frames, f, out, wgt) {
+    f = clamp(f, 0, frames.length - 1.0001);
+    const a = Math.floor(f), A = frames[a], Bf = frames[Math.min(frames.length - 1, a + 1)], e = f - a;
+    for (let i = 0; i < out.length; i++) out[i] += wgt * mix(DYE[A[i]], DYE[Bf[i]], e);
+  }
   // @end
   return { width: CW, height: CH, cycle: CYC, cells: CELLS, fonts: [] };
 });

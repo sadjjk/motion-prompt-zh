@@ -1,0 +1,17 @@
+Please use "Neon fluid" (ネオン流体), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-261
+
+What it is: A fluid-simulation background where bursts of vivid ink keep shooting across a black screen, collide and curl, with glow around the bright parts and light rays spreading out
+What the sample shows: Bursts of colourful ink shoot out from around a black screen, run into each other and swirl together. The bright parts glow and light rays stretch outward from the centre.
+Spec:
+- The real thing runs as a WebGL2 simulation; the preview replays a fixed sequence on a 108×42 grid baked at load (1/30 s steps, curl 30, pressure × 0.8, 20 Jacobi iterations).
+- Every 0.8 s a jet fires for 4 steps: a Gaussian blob of radius 2.2 cells pulls velocity to 120 cells/s and adds 0.2 ink per step; 8 jets per cycle, position, direction and hue from a hash of the jet number.
+- Velocity dissipation 0.2 and ink dissipation 1, both applied as ÷ (1 + dissipation·dt).
+- Shading: the brightness gradient darkens steep slopes and lifts slopes facing up-left (factor 0.6–1.15).
+- Bloom keeps the part above 0.45 brightness and blurs it with two box blurs of radius 3, added at 0.9; rays take 16 bloom samples toward the centre over 0.6 of the distance, weight × 0.9 per sample, added at 0.5.
+- Final colour is 1 − e^(−1.7·x); the last 0.6 s of the cycle crossfades into the previous lap.
+When to use it: Hero sections for music, gaming or event sites, or any dark screen that should make a strong first impression.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-261.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

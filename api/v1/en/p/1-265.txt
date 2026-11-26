@@ -1,0 +1,16 @@
+Please use "Silk folds" (シルクのひだ), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-265
+
+What it is: A background of dark gold satin filling the screen, its folds rolling slowly as if in a breeze while a soft sheen slides along the ridges
+What the sample shows: Dark gold cloth covers the screen and its folds slowly change shape as they roll. Soft light runs along the ridges, the hollows sink into shadow, and a fine grain covers it all.
+Spec:
+- No simulation: fold height = 0.62 · sin(6 (0.82 q + 0.57 y) + a + 1.5 sin(3q − 1.7y − a)) + 0.38 · sin(3.2 (0.5 q − 0.87 y) + 2a + 0.9 sin(2.4y + a)), with q = x + 0.2 sin(2.1y + 0.5x + a) and a = 2π·u / 6.4.
+- Computed on a 270×104 grid (about 2 px per cell) and scaled up.
+- Normals: height gradient × 0.22; diffuse from a light at (−0.45, −0.55, 0.7) raised to the power 1.3, and hollows darkened by up to 40% by height.
+- Sheen: half-vector specular with exponent 28, adding #FFE5BD at 0.55.
+- Colour mixes #0D0906 to #7C5631 by the light, then brightness × 1 ± 7% grain per pixel.
+When to use it: Hero sections for luxury brands, cosmetics or jewellery, and backgrounds for invitations or events.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-265.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

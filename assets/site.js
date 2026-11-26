@@ -330,14 +330,18 @@
       }
       return;
     }
-    for (var i = 0; i < tiles.length; i++) {
-      var tl = tiles[i];
+    // 每帧画卡片最多用 TILE_BUDGET 毫秒：超出的卡片保留上一帧，下一帧从它接着轮流画，滚动和交互保持流畅
+    var t0 = performance.now(), n = tiles.length, drawn = 0;
+    for (var k = 0; k < n; k++) {
+      var i = (nextTile + k) % n, tl = tiles[i];
       if (!tl.visible || tl.broken || ready[tl.el.pack] !== 'ok') continue;
       if (!state.playing && !tl.dirty) continue;
-      tl.dirty = false;
+      if (drawn && performance.now() - t0 > TILE_BUDGET) { nextTile = i; return; }
+      tl.dirty = false; drawn++;
       if (!paint(tl.ctx, tl.el, timeFor(tl.el, tl.offset), 1)) breakTile(tl);
     }
   }
+  var TILE_BUDGET = 10, nextTile = 0;
   var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (entries) {
     entries.forEach(function (en) {
       var tl = en.target._tile;

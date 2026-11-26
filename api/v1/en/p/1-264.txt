@@ -1,0 +1,16 @@
+Please use "Liquid chrome ripples" (液体クロームの波紋), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-264
+
+What it is: A background where the whole screen rolls like flowing liquid metal reflecting chrome stripes, and ripples spread from the cursor's path and from taps
+What the sample shows: Silver stripes roll slowly across a liquid-metal surface. The cursor leaves a wake as it crosses, and two taps each send out a ring of ripples that bends the stripes.
+Spec:
+- The real thing runs on WebGL2 with the actual pointer; the preview solves the wave equation on a 135×52 grid at 1/60 s steps (wave coefficient 0.25, damping 0.975), baked at load.
+- Each step the cursor presses a Gaussian dip of radius 3 cells, 0.003 × speed / 30 deep; taps at 1.2 s and 4.0 s press a radius-3 dip 0.25 deep.
+- Base surface: two sine waves warping each other, all phases turning a whole number of times per 6.4 s cycle.
+- Normals come from the height gradient × 22; the reflection direction (mostly vertical, partly horizontal, shifted slightly down the screen) looks up a chrome strip from #06080C through #F5F8FC to #FFFFFF with hard dark–light steps.
+- Highlight: half-vector specular from the top left with exponent 60 at 0.7; the ripples warm up for one cycle and the last 0.6 s crossfades into the previous lap.
+When to use it: Hero sections for tech products, hardware or fashion, wherever the background should feel hard and premium.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-264.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

@@ -1,0 +1,86 @@
+// Motion Prompt #1-264 · MIT License (c) 2026 sadjjk · https://reactbits.dev/backgrounds/liquid-chrome
+//
+// 液态铬涟漪 / Liquid chrome ripples
+// 分类: 界面与网页 / 页面 / 首屏背景
+// 动画表现: 银色条纹在液态金属般的表面上缓慢起伏；光标划过时身后留下尾波，两次点按各荡开一圈涟漪，把条纹扭弯。
+// 运动规格:
+//   - 实际项目用 WebGL2、跟随真实指针；预览在 135×52 网格上以 1/60 秒步长解二维波动方程（波速系数 0.25，阻尼 0.975），加载时烘焙。
+//   - 光标每步在所在处压一个半径 3 格、深 0.003 × 速度 / 30 的高斯坑；1.2 秒和 4.0 秒各点按一次，压一个半径 3 格、深 0.25 的坑。
+//   - 底面是两个互相扭曲的正弦波，所有相位每 6.4 秒周期转整数圈。
+//   - 法线由高度梯度 × 22 得到；反射方向（竖直为主、水平为辅，并随画面高度略微下移）去查一条从 #06080C 经 #F5F8FC 到 #FFFFFF、明暗硬过渡的铬色色带。
+//   - 高光：左上光源的半程向量高光，指数 60、强度 0.7；涟漪预热一圈，周期最后 0.6 秒渐变到上一圈同一时刻。
+// 适用场景: 科技产品、硬件、时尚品牌的首屏等，需要硬朗、高级质感的背景。
+// 标签: liquid-metal, chrome, ripple, wave-equation, hero-background, webgl
+// 尺寸: 539x208 px · 周期: 6.4 s
+// 依赖的公共代码: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 动画演示: https://sadjjk.github.io/motion-prompt-zh/?lang=zh-Hans#1-264
+//
+// cells[i](k, w, h, u)：k 为 CanvasRenderingContext2D，调用方已清空并包裹 save/restore；w、h 为尺寸，u 为 [0, cycle) 内的秒数。画面仅由 u 决定。
+// 以下为本效果代码，CELLS、常量和辅助函数位于依赖的公共代码中。
+
+// @element 40
+// 40 液态铬涟漪：整面像流动的液态金属，表面反射出明暗交错的铬色条纹；模拟光标划过的地方拖出尾波，两次点按各激起一圈涟漪，把条纹扭弯。
+// 表面高度 = 缓慢起伏的底面（两个互相扭曲的正弦，相位按周期的整数倍转）+ 涟漪。涟漪在 135×52 网格上解二维波动方程：每步 1/60 秒，
+// 波速系数 0.25、阻尼 0.975，光标每步在所在处按移动速度往下压一个高斯坑，1.2 秒和 4.0 秒各点按一次；从 −6.4 秒预热，
+// 存 −0.6 秒起的帧，最后 0.6 秒渐变到上一圈同一时刻。着色：高度梯度 × 22 得到法线，取反射方向去查一张铬色环境色带（暗亮硬过渡），再加一点高光。
+const LC_W = 135, LC_H = 52, LC_FPS = 30, LC_SUB = 2, LC_XF = 0.6;
+const LC_C = 0.25, LC_DAMP = 0.975, LC_R = 3, LC_PUSH = 0.003, LC_TAP = 0.25, LC_SLOPE = 22;
+const LC_TAPS = [[1.2, 0.3, 0.35], [4.0, 0.72, 0.62]];    // 点按：时刻（秒）、位置（相对网格）
+const LC_ENV = [[0, '#06080C'], [0.3, '#1D2330'], [0.44, '#9AA5B8'], [0.5, '#F5F8FC'], [0.55, '#272D39'], [0.72, '#5E687A'], [0.86, '#DCE3EE'], [1, '#FFFFFF']];
+const LC_cur = t => { const a = TAU * t / CYC; return [LC_W * (0.5 + 0.36 * Math.sin(a + 0.4)), LC_H * (0.5 + 0.3 * Math.sin(2 * a))]; };
+let LC = null;
+function LC_init() {
+  const W = LC_W, H = LC_H, N = W * H, dt = 1 / (LC_FPS * LC_SUB), per = Math.round(CYC / dt);
+  let A = new Float32Array(N), B = new Float32Array(N), C = new Float32Array(N);   // 上一步、这一步、下一步的高度
+  const frames = [], steps = 2 * per, keep = Math.round((CYC - LC_XF) * LC_FPS), taps = LC_TAPS.map(([t, x, y]) => [Math.round(t / dt), x * W, y * H]);
+  let [px, py] = LC_cur(-CYC);
+  for (let s = 1; s <= steps; s++) {
+    const t = -CYC + s * dt, [cx, cy] = LC_cur(t), sp = Math.hypot(cx - px, cy - py) / dt, m = s % per;
+    gaussAt(W, H, cx, cy, LC_R, (o, g) => { B[o] -= LC_PUSH * g * sp / 30; });
+    for (const [ts, x, y] of taps) if (m === ts) gaussAt(W, H, x, y, 3, (o, g) => { B[o] -= LC_TAP * g; });
+    px = cx; py = cy;
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+      const q = j * W + i, l = i > 0 ? q - 1 : q, r = i < W - 1 ? q + 1 : q, tp = j > 0 ? q - W : q, bt = j < H - 1 ? q + W : q;
+      C[q] = (2 * B[q] - A[q] + LC_C * (B[l] + B[r] + B[tp] + B[bt] - 4 * B[q])) * LC_DAMP;
+    }
+    [A, B, C] = [B, C, A];
+    if (s % LC_SUB === 0 && s / LC_SUB >= keep) frames.push(Int16Array.from(B, v => clamp(Math.round(v * 2000), -32767, 32767)));
+  }
+  const env = new Float32Array(768), st = LC_ENV.map(([p, c]) => [p, toLab(hexLin(c))]);
+  for (let q = 0; q < 256; q++) {
+    const t = q / 255; let i = 0;
+    while (i < st.length - 2 && t > st[i + 1][0]) i++;
+    const e = clamp((t - st[i][0]) / (st[i + 1][0] - st[i][0]));
+    env.set(fromLab([0, 1, 2].map(c => mix(st[i][1][c], st[i + 1][1][c], e))), 3 * q);
+  }
+  LC = { frames, env, hg: new Float32Array(N), gr: new Float32Array(2 * N), up: new Float32Array(2 * CW * CH), px: pixels() };
+}
+CELLS[39] = (k, w, h, u) => {
+  if (!LC) LC_init();
+  const { frames, env, hg, gr, up } = LC, W = LC_W, H = LC_H, out = LC.px.buf, a = TAU * u / CYC, s = inOut3(seg(u, CYC - LC_XF, CYC));
+  const rip = (f, wgt) => {           // 第 f 帧涟漪（相邻两帧插值）× wgt 累加进高度
+    f = clamp(f, 0, frames.length - 1.0001);
+    const i0 = Math.floor(f), e = f - i0, F0 = frames[i0], F1 = frames[i0 + 1];
+    for (let q = 0; q < W * H; q++) hg[q] += wgt * mix(F0[q], F1[q], e) / 2000;
+  };
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    const x = i / (H - 1), y = j / (H - 1);
+    hg[j * W + i] = 0.55 * Math.sin(2.1 * x + 1.3 * Math.sin(1.7 * y + a) + a) + 0.45 * Math.sin(1.6 * y - 1.1 * x + 1.6 * Math.sin(1.2 * x - 2 * a));
+  }
+  rip((u + LC_XF) * LC_FPS, 1 - s);
+  if (s > 0) rip((u - CYC + LC_XF) * LC_FPS, s);
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    const q = j * W + i;
+    gr[2 * q] = 0.5 * (hg[i < W - 1 ? q + 1 : q] - hg[i > 0 ? q - 1 : q]);
+    gr[2 * q + 1] = 0.5 * (hg[j < H - 1 ? q + W : q] - hg[j > 0 ? q - W : q]);
+  }
+  upGrid(gr, W, H, 2, up);
+  for (let y = 0, p = 0; y < CH; y++) for (let x = 0; x < CW; x++, p++) {
+    const nx = -LC_SLOPE * up[2 * p], ny = -LC_SLOPE * up[2 * p + 1], il = 1 / Math.sqrt(nx * nx + ny * ny + 1);
+    // 视线垂直屏幕时反射方向 = (2·nz·nx, 2·nz·ny, …)；竖直分量为主、水平分量为辅去查环境色带，并随画面高度略微下移
+    const e = clamp(0.5 + 0.42 * 2 * il * ny * il + 0.18 * 2 * il * nx * il + 0.25 * (y / CH - 0.5)), q = 3 * Math.round(e * 255);
+    const hl = Math.max(0, -0.21 * nx * il - 0.27 * ny * il + 0.94 * il) ** 60 * 0.7;   // 左上光源的半程向量高光
+    out[3 * p] = env[q] + hl; out[3 * p + 1] = env[q + 1] + hl; out[3 * p + 2] = env[q + 2] + hl;
+  }
+  LC.px.show(k);
+};

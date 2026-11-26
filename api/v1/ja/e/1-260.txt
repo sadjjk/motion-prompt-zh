@@ -1,0 +1,90 @@
+// Motion Prompt #1-260 · MIT License (c) 2017 Pavel Dobryakov · https://github.com/PavelDoGreat/WebGL-Fluid-Simulation
+//
+// 流体インク / Fluid ink
+// 分類: UI・Web / ページ / ヒーロー背景
+// 何が起きるか: 暗い背景の上を、カーソルの通った跡から青いインクが流れ出し、渦を巻きながら広がって溶けていく。色は深い青から空色、シアンへと移り、全体に紙のような粒子感がある。
+// 動きの仕様:
+//   - 実際のサイトでは WebGL2 で実際のポインターに合わせてリアルタイムに解く。格子は長辺 180 マス、短辺は画面の比率に合わせる。プレビューは 180×70 の格子で読み込み時に焼き込んだ固定のカーソル経路を再生し、最後の 0.6 秒で前の周の同じ時刻へつなぐのはループのためだけ
+//   - 1 ステップ 1/30 秒、四辺は壁：カーソルの線分に沿って格子長辺の 0.018 ごとにスタンプ（1 ステップ 2–16 個、カーソルが止まっているときは押さない）→ 発散 → 圧力 × 0.8 → Jacobi 反復 10 回 → 圧力勾配を引く → セミラグランジュ移流。渦度閉じ込めはしない
+//   - スタンプの影響は e^(−(距離 / 筆幅)²)、筆幅は格子長辺の 0.03。スタンプごとに速度へ 平滑化速度 × 0.16 × 影響 を足し（平滑化速度 = 0.4 × 前ステップ + 0.6 × 今のカーソル速度）、インクは影響の分だけ今の色へ混ぜるので厚く積もらない
+//   - 移流のとき速度を (1 + 0.29·dt)、インクを (1 + 0.5·dt) で割る。インクの色は 3.2 秒ごとに OKLab で #2048F0 → #58B4FF → #18C4E4 → 最初の色へ 1 周する
+//   - 合成：インクの不透明度 = 線形光で最も明るいチャンネル × 1.35。インクの明るさに静的な粒子 1 + (n − 0.5) × 0.75 をかけ（n は 1 ピクセルあたり 0.6 マスの歪ませた fbm ノイズ、標準偏差約 10%）、sRGB に変換して左から右への #0B0C10 → #111720 の地色に重ねる
+// 使いどころ: プロダクトや開発ツールのランディングページ、ポートフォリオのファーストビューなど、静かだが触ると反応する背景がほしいところ。
+// タグ: fluid, navier-stokes, ink, hero-background, cursor-trail, webgl
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-260
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 36
+// 36 流体墨迹：首屏背后一层跟着光标流动的蓝色墨迹，带颗粒纹理。流体按 Pavel Dobryakov 的 WebGL Fluid Simulation（MIT）
+// 的步骤改写，不开涡量约束：注入 → 散度 → 压力 × 0.8 → 10 次 Jacobi 迭代 → 减压力梯度 → 半拉格朗日平流并衰减。
+// 预览在 180×70 的网格上（每格 3 px）按固定步长 1/30 秒模拟，首次绘制时烘焙整个周期的墨迹帧，绘制时只按 u 取相邻两帧插值。
+// 光标沿一条周期正好 6.4 秒的闭合曲线移动（不做开场冲击环，否则循环时每圈都会出现一次）。墨迹不累加：画笔把所在处的墨色
+// 直接混向当前颜色，笔迹芯是纯色、边缘渐淡，之后按衰减 0.5 慢慢消失。周期最后 0.6 秒渐变到上一圈同一时刻，首尾相接。
+// 显示：墨迹不透明度 = 最亮通道 × 1.35，叠在深色底上；墨色再乘一张固定的颗粒亮度图（起伏标准差约 10%）。
+const FI_W = 180, FI_H = 70, FI_FPS = 30, FI_XF = 0.6;
+const FI_PDECAY = 0.8, FI_ITER = 10, FI_VDIS = 0.29, FI_DDIS = 0.5;
+const FI_BRUSH = 0.03, FI_GAP = 0.018, FI_PUSH = 0.16, FI_HUES = 2;   // 画笔宽、印章间距（都按长边比例）、冲量系数、每圈色相转几轮
+const FI_ALPHA = 1.35, FI_GRAIN = 0.75;
+const FI_PAL = ['#2048F0', '#58B4FF', '#18C4E4'], FI_BG0 = '#0B0C10', FI_BG1 = '#111720';
+const FI_cur = t => {                // 光标（网格坐标）：周期 6.4 秒的闭合曲线
+  const a = TAU * t / CYC;
+  return [FI_W * (0.5 + 0.34 * Math.sin(a) + 0.07 * Math.sin(3 * a + 1.1)), FI_H * (0.5 + 0.3 * Math.sin(2 * a + 0.9))];
+};
+let FI = null;
+function FI_init() {
+  const W = FI_W, H = FI_H, dt = 1 / FI_FPS, ramp = labRamp([...FI_PAL, FI_PAL[0]]);
+  const br = FI_BRUSH * W, gap = FI_GAP * W;
+  // 一次印章：影响 g = exp(−距离² / 笔宽²)；速度加 冲量 × g，墨色按 min(g, 1) 混向 col
+  const stamp = (S, x, y, ix, iy, col) => {
+    const reach = 3 * br;
+    for (let j = Math.max(0, Math.floor(y - reach)); j <= Math.min(H - 1, Math.ceil(y + reach)); j++)
+      for (let i = Math.max(0, Math.floor(x - reach)); i <= Math.min(W - 1, Math.ceil(x + reach)); i++) {
+        const dx = i - x, dy = j - y, g = Math.exp(-(dx * dx + dy * dy) / (br * br));
+        if (g < 1e-4) continue;
+        const o = j * W + i, m = Math.min(1, g);
+        S.U[o] += ix * g; S.V[o] += iy * g;
+        S.R[o] += (col[0] - S.R[o]) * m; S.G[o] += (col[1] - S.G[o]) * m; S.B[o] += (col[2] - S.B[o]) * m;
+      }
+  };
+  let [px, py] = FI_cur(-CYC), vx = 0, vy = 0;
+  const frames = fluidBake({
+    W, H, fps: FI_FPS, curl: 0, pdecay: FI_PDECAY, iter: FI_ITER, vdis: FI_VDIS, ddis: FI_DDIS,
+    t0: -CYC, steps: Math.round(2 * CYC * FI_FPS), keep: Math.round((CYC - FI_XF) * FI_FPS),   // 预热一圈，存 −0.6 秒起的帧
+    inject(t, S) {
+      const h = FI_HUES * t / CYC, q = 3 * Math.round((h - Math.floor(h)) * 255), col = [ramp[q], ramp[q + 1], ramp[q + 2]];
+      const [cx, cy] = FI_cur(t), mx = cx - px, my = cy - py;
+      vx = vx * 0.4 + mx / dt * 0.6; vy = vy * 0.4 + my / dt * 0.6;   // 光标速度平滑
+      const n = Math.min(16, Math.max(2, Math.ceil(Math.hypot(mx, my) / gap)));
+      if (mx || my) for (let m = 1; m <= n; m++) stamp(S, px + mx * m / n, py + my * m / n, vx * FI_PUSH, vy * FI_PUSH, col);   // 光标不动时不盖章
+      px = cx; py = cy;
+    }
+  });
+  const hx = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16) / 255), b0 = hx(FI_BG0), b1 = hx(FI_BG1);
+  const gr = new Float32Array(CW * CH), bg = new Float32Array(CW * 3), L = new Float32Array(1024);
+  for (let y = 0; y < CH; y++) for (let x = 0; x < CW; x++) {   // 颗粒：扭曲过的细噪声（每像素 0.6 个噪声格），亮度 1 + (n − 0.5) × 0.75
+    const X = 0.6 * x, Y = 0.6 * y, wx = fbm(X + 1.7, Y + 9.2) - 0.5, wy = fbm(X + 8.3, Y + 2.8) - 0.5;
+    gr[y * CW + x] = 1 + (fbm(X + 1.5 * wx, Y + 1.5 * wy) - 0.5) * FI_GRAIN;
+  }
+  for (let x = 0; x < CW; x++) for (let c = 0; c < 3; c++) bg[3 * x + c] = mix(b0[c], b1[c], (x / (CW - 1)) ** 1.5);   // 底色：左深右微蓝
+  for (let i = 0; i < 1024; i++) { const v = i / 1023; L[i] = v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055; }   // 线性光 → sRGB
+  FI = { frames, gr, bg, L, D: new Float32Array(3 * W * H), up: new Float32Array(3 * CW * CH), px: pixels(true) };
+}
+CELLS[35] = (k, w, h, u) => {
+  if (!FI) FI_init();
+  const { D, up, gr, bg, L } = FI, out = FI.px.buf, s = inOut3(seg(u, CYC - FI_XF, CYC));
+  D.fill(0);
+  dyeAt(FI.frames, (u + FI_XF) * FI_FPS, D, 1 - s);                 // frames[k] 对应时间 −0.6 + k/30 秒
+  if (s > 0) dyeAt(FI.frames, (u - CYC + FI_XF) * FI_FPS, D, s);    // 最后 0.6 秒渐变到上一圈同一时刻
+  upGrid(D, FI_W, FI_H, 3, up);
+  const S = v => L[Math.min(1023, Math.max(0, v * 1023) | 0)];
+  for (let p = 0; p < CW * CH; p++) {
+    const g = gr[p], x = 3 * (p % CW), r = up[3 * p], gg = up[3 * p + 1], b = up[3 * p + 2];
+    const a = Math.min(1, Math.max(r, gg, b) * FI_ALPHA), q = 1 - a;   // 墨迹不透明度 = 最亮通道 × 1.35
+    out[3 * p] = S(r * g) * a + bg[x] * q; out[3 * p + 1] = S(gg * g) * a + bg[x + 1] * q; out[3 * p + 2] = S(b * g) * a + bg[x + 2] * q;
+  }
+  FI.px.show(k);
+};

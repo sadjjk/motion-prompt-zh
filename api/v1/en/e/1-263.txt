@@ -1,0 +1,47 @@
+// Motion Prompt #1-263 · MIT License (c) 2026 sadjjk · https://shaders.paper.design/smoke-ring
+//
+// Smoke ring / 煙のリング
+// Category: UI & Web / Pages / Hero backgrounds
+// What happens: A glowing ring sits in the middle of a dark screen, with thin wisps of smoke flowing out from its edge. The ring swells and shrinks slowly, glowing warmer toward the inside.
+// Motion spec:
+//   - No simulation: brightness = e^(−((d − R) / 0.15)²) + 0.2 · e^(−2 (d / R)²), where d is the radius scaled by 0.7–1.5 × noise and R = 0.6 of the half height × (1 ± 4%) over the cycle.
+//   - Noise is a 3-layer value-noise fbm sampled in polar coordinates, 7 noise cells around the circle and wrapping seamlessly.
+//   - Drift: two noise layers offset by half a cycle each move 1.4 cells outward per cycle and jump back when their weight is 0, crossfading as 1 − |2f − 1|.
+//   - Brightness is computed on a 135×52 grid, scaled up and multiplied per pixel by 1 ± 8% grain.
+//   - Colour looks up brightness^1.6 in #1A0F3D → #5B21B6 → #C026D3 → #F472B6 → #FDE68A (OKLab) over a #07060C ground.
+// When to use it: Hero sections for AI products or voice assistants, and backgrounds for loading or idle screens.
+// Tags: smoke, ring, noise, glow, hero-background, shader
+// Size: 539x208 px · Cycle: 6.4 s
+// Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// Live demo: https://sadjjk.github.io/motion-prompt-zh/?lang=en#1-263
+//
+// cells[i](k, w, h, u): k = CanvasRenderingContext2D (already cleared and wrapped in save/restore by the caller), w,h = size, u = seconds in [0, cycle). The picture depends only on u.
+// The code of this effect starts here. CELLS, constants and helpers live in the shared code it depends on.
+
+// @element 39
+// 39 烟雾光环：画面中间一圈发光的烟雾环，环的边缘被分层噪声吹散成一缕缕烟，烟一直向外飘，环随周期轻轻呼吸（半径 ±4%）。
+// 噪声按极坐标取样，角度方向一圈 7 个噪声格且首尾相接；向外飘用两层错开半个周期的噪声交替淡入淡出：每层每周期向外平移 1.4 格后跳回，
+// 跳回那一刻它的权重正好为 0，所以循环无缝。噪声把半径缩放 0.7–1.5 倍，再按与环半径的距离取高斯得到亮度，环内另加一层柔光。
+// 亮度在 135×52 网格上算再放大，按像素乘 ±8% 的颗粒；颜色按亮度的 1.6 次方查 OKLab 色表，外圈深紫、环心暖黄。
+const SR_W = 135, SR_H = 52, SR_P = 7;
+const SR_R = 0.6, SR_T = 0.15, SR_FLOW = 1.4;          // 环半径、环厚（以半高为 1）、每周期向外飘的噪声格数
+const SR_PAL = ['#1A0F3D', '#5B21B6', '#C026D3', '#F472B6', '#FDE68A'], SR_BG = '#07060C';
+let SR = null;
+CELLS[38] = (k, w, h, u) => {
+  if (!SR) SR = { ramp: labRamp(SR_PAL), bg: hexLin(SR_BG), n1: grainTab(43.1), g: new Float32Array(SR_W * SR_H), up: new Float32Array(CW * CH), px: pixels() };
+  const { ramp, bg, n1, g, up } = SR, out = SR.px.buf;
+  const f = u / CYC, fa = f - Math.floor(f), fb = f + 0.5 - Math.floor(f + 0.5), wa = 1 - Math.abs(2 * fa - 1);
+  const R = SR_R * (1 + 0.04 * Math.sin(TAU * f)), cx = SR_W / 2, cy = SR_H / 2;
+  for (let j = 0; j < SR_H; j++) for (let i = 0; i < SR_W; i++) {
+    const dx = (i + 0.5 - cx) / cy, dy = (j + 0.5 - cy) / cy, r = Math.hypot(dx, dy), th = (Math.atan2(dy, dx) / TAU + 0.5) * SR_P;
+    const n = wa * fbm(th, 2.2 * r - fa * SR_FLOW, SR_P) + (1 - wa) * fbm(th + 2.5, 2.2 * r - fb * SR_FLOW + 5.3, SR_P);
+    const d = r * (0.7 + 0.8 * n);
+    g[j * SR_W + i] = Math.exp(-(((d - R) / SR_T) ** 2)) + 0.2 * Math.exp(-2 * (d / R) ** 2);
+  }
+  upGrid(g, SR_W, SR_H, 1, up);
+  for (let p = 0; p < CW * CH; p++) {
+    const t = clamp(up[p] * (1 + 0.16 * (n1[p] - 0.5))), q = 3 * Math.round(t ** 1.6 * 255);
+    out[3 * p] = ramp[q] * t + bg[0] * (1 - t); out[3 * p + 1] = ramp[q + 1] * t + bg[1] * (1 - t); out[3 * p + 2] = ramp[q + 2] * t + bg[2] * (1 - t);
+  }
+  SR.px.show(k);
+};

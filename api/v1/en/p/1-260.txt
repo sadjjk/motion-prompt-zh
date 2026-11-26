@@ -1,0 +1,16 @@
+Please use "Fluid ink" (流体インク), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-260
+
+What it is: A fluid-simulation hero background where blue ink follows the cursor, curls into swirls and slowly dissolves, with a grainy paper texture
+What the sample shows: On a dark background, blue ink streams out behind the cursor, spreads in curling swirls and dissolves. The colour moves from deep blue to sky blue and cyan, with a grainy, paper-like texture over everything.
+Spec:
+- The real thing runs as a WebGL2 simulation driven by the actual pointer, on a grid 180 cells along the long side with the short side in proportion; the preview replays a fixed cursor path on a 180×70 grid baked at load, and its last 0.6 s crossfade into the previous lap exists only to close the loop.
+- Each step (1/30 s, walls on all sides): stamps along the cursor segment every 0.018 of the grid long side (2–16 per step, none while the cursor is still), divergence, pressure × 0.8, 10 Jacobi iterations, gradient subtraction, semi-Lagrangian advection; no vorticity confinement.
+- A stamp has influence e^(−(distance / brush)²) with a brush 0.03 of the grid long side; every stamp adds smoothed velocity × 0.16 × influence (smoothed = 0.4 × previous + 0.6 × this step’s cursor velocity) and mixes the ink towards the current colour by the influence, so ink never piles up.
+- During advection velocity is divided by (1 + 0.29·dt) and ink by (1 + 0.5·dt); the ink colour runs one round every 3.2 s through #2048F0 → #58B4FF → #18C4E4 → back to the first, in OKLab.
+- Compositing: ink opacity = brightest linear channel × 1.35; ink brightness is multiplied by a static grain 1 + (n − 0.5) × 0.75 (n is warped fbm noise at 0.6 cells per pixel, about 10% standard deviation), then converted to sRGB over a left-to-right #0B0C10 → #111720 ground.
+When to use it: Use it behind the hero of product or developer-tool landing pages and portfolios, where the background should stay calm but respond when touched.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-260.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

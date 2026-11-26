@@ -2,7 +2,7 @@
 
 # Names
 
-616 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
+622 names · Languages: [日本語](README.ja.md) / [简体中文](README.zh-Hans.md)
 
 Find the name, then say it to your AI. Add how long, how strong and what moves, and the result gets closer to what you had in mind. Each number opens the moving sample in the gallery.
 
@@ -16,7 +16,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | 1 UI & Web | Components | Status & developer UI | 9 | #1 051–058 · 249 |
 | 1 UI & Web | Pages | Scrolling | 21 | #1 059–078 · 198 |
 | 1 UI & Web | Pages | Page transitions & loading | 9 | #1 079–087 |
-| 1 UI & Web | Pages | Hero backgrounds | 27 | #1 088–102 · 200 · 203–205 · 207–214 |
+| 1 UI & Web | Pages | Hero backgrounds | 33 | #1 088–102 · 200 · 203–205 · 207–214 · 260–265 |
 | 1 UI & Web | Pointer interactions | Buttons | 12 | #1 103–114 |
 | 1 UI & Web | Pointer interactions | Hover | 10 | #1 115–122 · 220–221 |
 | 1 UI & Web | Pointer interactions | Cursor | 22 | #1 123–135 · 206 · 215–219 · 231–233 |
@@ -204,7 +204,7 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-086](https://sadjjk.github.io/motion-prompt-zh/#1-086) | **Slice transition** | Cuts the image into strips that slide away alternately up and down | Use a slice transition for the slider: 6 strips slide out alternately up and down, 0.08 s apart. |
 | [#1-087](https://sadjjk.github.io/motion-prompt-zh/#1-087) | **Circle reveal transition** | A circular mask grows from the centre with scrolling to reveal the next section | Use a circle reveal between chapters: as you scroll, grow a circle from the centre to fill the screen and shrink the previous title to 0.8 as it fades. |
 
-#### Hero backgrounds · #1 088–102 · 200 · 203–205 · 207–214
+#### Hero backgrounds · #1 088–102 · 200 · 203–205 · 207–214 · 260–265
 
 | # | Name | What it is | How to ask an AI |
 |---|---|---|---|
@@ -235,6 +235,12 @@ Find the name, then say it to your AI. Add how long, how strong and what moves, 
 | [#1-212](https://sadjjk.github.io/motion-prompt-zh/#1-212) | **Gradient blinds** | A background of gradient vertical blinds that sway slowly and turn their slats toward a spotlight following the cursor | Make the background gradient blinds: vertical blinds in a pink-to-violet-to-cyan gradient whose slats sway slowly and turn toward a spotlight that follows the cursor, with the lit faces getting brighter. |
 | [#1-213](https://sadjjk.github.io/motion-prompt-zh/#1-213) | **Highway light trails** | Car light trails streaming along a winding night highway that speed up into a hyperspace warp while you hold down | Make the hero highway light trails: a perspective night road where red tail lights recede on the right and white headlights approach on the left, the road bends gently, and holding down stretches the trails, speeds everything up and tints it violet like a hyperspace jump. |
 | [#1-214](https://sadjjk.github.io/motion-prompt-zh/#1-214) | **Tilted tile wall** | A background wall of tilted cards whose rows drift in opposite directions, shift with the cursor and lift the card beneath it | Make the hero background a tilted tile wall: rows of colourful rounded cards, the whole wall slightly tilted, rows drifting slowly in opposite directions, shifting with the cursor position, and the card under the cursor scaling up with a white outline. |
+| [#1-260](https://sadjjk.github.io/motion-prompt-zh/#1-260) | **Fluid ink** | A fluid-simulation hero background where blue ink follows the cursor, curls into swirls and slowly dissolves, with a grainy paper texture | Make the hero background fluid ink. Solve the fluid in real time with WebGL2 and half-float textures, injecting ink and velocity from the real cursor (or touch) movement. The ink drifts slowly between deep blue, sky blue and cyan, curls into swirls and dissolves. Lay a fine grainy texture over it and keep the headline text readable. |
+| [#1-261](https://sadjjk.github.io/motion-prompt-zh/#1-261) | **Neon fluid** | A fluid-simulation background where bursts of vivid ink keep shooting across a black screen, collide and curl, with glow around the bright parts and light rays spreading out | Make the background a neon fluid. Solve the fluid in real time with WebGL2 and half-float textures, and every so often shoot a burst of vivid ink from somewhere on screen. Add bloom on the bright parts and light rays spreading out from the centre. |
+| [#1-262](https://sadjjk.github.io/motion-prompt-zh/#1-262) | **Grain gradient** | A quiet gradient background where a few colour bands slowly warp and flow under noise, covered with a frosted, photo-paper grain | Make the background a grain gradient. In a fragment shader, warp colour bands running from deep purple through magenta and orange to pale cream with two layers of noise so they keep slowly flowing. Let the grain mix the colours where bands meet, put a fine grain over everything and keep text readable. |
+| [#1-263](https://sadjjk.github.io/motion-prompt-zh/#1-263) | **Smoke ring** | A background with a glowing ring of smoke in the middle whose edges fray into wisps that keep drifting outward while the ring slowly breathes | Put a smoke ring in the background. In a fragment shader, fray the ring's edge into smoke with layered noise sampled in polar coordinates and keep the smoke drifting outward. The ring breathes slowly in size, and the colour goes from deep purple outside through magenta and pink to warm yellow at the core. |
+| [#1-264](https://sadjjk.github.io/motion-prompt-zh/#1-264) | **Liquid chrome ripples** | A background where the whole screen rolls like flowing liquid metal reflecting chrome stripes, and ripples spread from the cursor's path and from taps | Make the background liquid chrome. Solve a height-field wave equation in real time with WebGL2, press the surface down along the real cursor's movement and make a bigger ripple on click. Take normals from a slowly rolling base surface plus the ripples, look up a chrome environment strip along the reflection direction and add a little highlight. |
+| [#1-265](https://sadjjk.github.io/motion-prompt-zh/#1-265) | **Silk folds** | A background of dark gold satin filling the screen, its folds rolling slowly as if in a breeze while a soft sheen slides along the ridges | Make the background silk folds. In a fragment shader, build the fold height from two sets of diagonal waves warped by low-frequency sines, take normals from the height differences and give it a satin sheen with diffuse light and a sharp highlight from the top left. Put a fine grain over it and let it roll slowly. |
 
 ### Pointer interactions
 

@@ -1,0 +1,16 @@
+Please use "Grain gradient" (粒子グラデーション), filed under "Pages / Hero backgrounds".
+Motion Prompt #1-262
+
+What it is: A quiet gradient background where a few colour bands slowly warp and flow under noise, covered with a frosted, photo-paper grain
+What the sample shows: Colour bands shading from dark purple through magenta and orange to cream keep changing shape as they drift. A fine grain covers everything, and the colours speckle into each other where the bands meet.
+Spec:
+- No simulation: the band coordinate is a diagonal ramp (0.26 per unit across, −0.3 per unit down) plus 0.9 × and 0.5 × two layers of value-noise fbm.
+- The first noise layer's sample centre moves once around a circle of radius 0.9 per 6.4 s cycle; the second moves twice the other way around a circle of radius 0.6 and is warped again by the first, so the loop joins up.
+- Warping is computed on a 135×52 grid and scaled up; grain is per pixel.
+- Grain: the band coordinate gets ±0.05 of fixed noise before the colour lookup, then brightness is multiplied by 1 ± 9%.
+- Colours #0D0A1C, #2B1660, #6A2AA8, #D2508F, #FF9A6B, #FFE2B0, interpolated in OKLab.
+When to use it: Calm landing-page heroes, product introductions or portfolio backgrounds.
+
+Reference implementation (Canvas 2D, a function whose picture depends only on the time): https://sadjjk.github.io/motion-prompt-zh/api/v1/en/e/1-262.txt
+Shared code it depends on: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+Keep the shapes, timing and easing values of the reference implementation as they are, and change only the text, colours and assets to fit what I am making.

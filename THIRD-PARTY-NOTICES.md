@@ -407,13 +407,63 @@ keeps those outside the MIT License). Each element carries the line `MIT License
 
 ## React Bits by David Haz (pack `webfx`)
 
-All elements in `packs/webfx/` take their effect ideas from
-[React Bits](https://reactbits.dev/) ([DavidHDev/react-bits](https://github.com/DavidHDev/react-bits)) by David Haz.
+The elements in `packs/webfx/` take their effect ideas from
+[React Bits](https://reactbits.dev/) ([DavidHDev/react-bits](https://github.com/DavidHDev/react-bits)) by David Haz,
+except `1-260`–`1-263` (see the next two sections). `1-264` 液态铬涟漪 (Liquid chrome ripples) follows the look of
+[Liquid Chrome](https://reactbits.dev/backgrounds/liquid-chrome) and `1-265` 丝绸褶皱 (Silk folds) the look of
+[Silk](https://reactbits.dev/backgrounds/silk).
 They are Canvas 2D implementations written from scratch for this repository after the component descriptions and
 live demos; no React Bits code (JSX, CSS or shaders) is copied or ported, and the names, parameters, colors and
 drawings are our own. React Bits is licensed under the MIT License with the Commons Clause, which does not apply to
 this pack. The code of this pack is under this repository's MIT License © 2026 sadjjk. To ask for a removal or a
 correction, use the [issue form](https://github.com/sadjjk/motion-prompt-zh/issues/new?template=3-removal.yml).
+
+## WebGL Fluid Simulation by Pavel Dobryakov (2 elements in pack `webfx`)
+
+The elements `1-260` 流体墨迹 (Fluid ink) and `1-261` 霓虹流体 (Neon fluid) in `packs/webfx/` run the fluid steps of
+[WebGL Fluid Simulation](https://github.com/PavelDoGreat/WebGL-Fluid-Simulation)
+([demo](https://paveldogreat.github.io/WebGL-Fluid-Simulation/)) by Pavel Dobryakov, rewritten in plain JavaScript for a
+Canvas 2D preview: splat, vorticity and vorticity confinement, divergence, pressure decay with Jacobi iterations,
+gradient subtraction, and semi-Lagrangian advection with dissipation (shared as `fluidBake` in `kit/webfx.js`). The
+preview bakes a fixed cursor path or a fixed series of jets on a coarse grid; `1-261` adds its own bloom and sun-ray
+passes. No shader or other source file of the original is copied, and no image or texture from it is used. Both
+elements carry the copyright line below.
+
+The look of `1-260` (blue ink that is mixed in rather than piled up, a grainy texture, no vorticity confinement) is
+modelled on the hero background of [Wu](https://wu.dstrml.org/) by dstrml, as seen on its website. None of Wu's code
+or shaders is copied; the Canvas 2D code is written for this repository.
+
+> MIT License
+>
+> Copyright (c) 2017 Pavel Dobryakov
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
+
+## Paper Shaders by Paper (2 elements in pack `webfx`)
+
+The elements `1-262` 颗粒渐变 (Grain gradient) and `1-263` 烟雾光环 (Smoke ring) in `packs/webfx/` take their effect
+ideas from [Grain Gradient](https://shaders.paper.design/grain-gradient) and
+[Smoke Ring](https://shaders.paper.design/smoke-ring) of [Paper Shaders](https://shaders.paper.design/)
+([paper-design/shaders](https://github.com/paper-design/shaders)). They are Canvas 2D implementations written from
+scratch for this repository after the live demos; no Paper Shaders code (shaders or React components) is copied or
+ported, and the names, parameters, colors and drawings are our own. Paper Shaders is licensed under the Apache
+License 2.0, which does not apply to these elements. Their code is under this repository's MIT License © 2026 sadjjk.
 
 ## vibe-fx by ai-martin-lau (pack `vibefx`)
 

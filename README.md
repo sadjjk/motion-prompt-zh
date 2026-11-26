@@ -62,7 +62,8 @@ AI 会打开效果库让你挑选，选好后点"发送给 AI"，它会读取真
 - `ui`、`lp`、`uxmotion`、`motion2` 包中署名 sadjjk 的效果为本仓库原创，MIT License © 2026 sadjjk。使用这部分代码时保留其版权行。
 - `uxmotion` 包中署名 Lorenzo Cabra 的效果改写自 [bencho](https://github.com/cabralorenzo/bencho)，作者 Lorenzo Cabra，MIT License；用 Canvas 2D 重画成自动播放的卡片，未复制原作的 React 代码、样式、字体与音效。使用这部分代码时保留其版权行。
 - `explainer` 包的效果改写自 [vibe-knowledge](https://github.com/andyhuo520/vibe-knowledge)，作者 Berryxia，MIT License；只取画风，画面为通用案例，未使用原作的风格图、视频、配乐与字体。使用这部分代码时保留其版权行。
-- `webfx` 包的效果为本仓库原创，MIT License © 2026 sadjjk；效果思路参考 [React Bits](https://reactbits.dev/)（作者 David Haz），代码按其效果说明与在线演示独立重写，未复制或移植其源码。使用这部分代码时保留其版权行。
+- `webfx` 包的效果为本仓库原创，MIT License © 2026 sadjjk；效果思路参考 [React Bits](https://reactbits.dev/)（作者 David Haz），1-262、1-263 参考 [Paper Shaders](https://shaders.paper.design/)（Apache License 2.0），代码按其效果说明与在线演示独立重写，未复制或移植其源码。使用这部分代码时保留其版权行。
+- `webfx` 包中署名 Pavel Dobryakov 的效果（1-260、1-261）改写自 [WebGL Fluid Simulation](https://github.com/PavelDoGreat/WebGL-Fluid-Simulation)，作者 Pavel Dobryakov，MIT License；把原作的流体求解步骤改写成 Canvas 2D 预览用的 JavaScript，未复制原作的 shader。1-260 的画面参考 [Wu](https://wu.dstrml.org/) 官网背景，未复制其代码。使用这部分代码时保留其版权行。
 - `vibefx` 包的效果改写自 [vibe-fx](https://github.com/ai-martin-lau/vibe-fx)，作者 ai-martin-lau，MIT License；未使用原作的生图素材、three.js 场景与字体。使用这部分代码时保留其版权行。
 - `drawstyles` 包的效果为本仓库原创，MIT License © 2026 sadjjk；画风思路参考 [anidoodle](https://github.com/alexgreensh/anidoodle)（作者 Alex Greenshpun），代码按其画风说明与效果图独立重写，未复制或移植其源码。使用这部分代码时保留其版权行。
 - `infostyles` 包的效果为本仓库原创，MIT License © 2026 sadjjk；风格思路参考 [lemo-opuscar](https://github.com/lemomo-ai/lemo-opuscar)（作者 Lemomo），代码按其风格说明独立重写，未复制或移植其源码。使用这部分代码时保留其版权行。

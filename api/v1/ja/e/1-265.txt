@@ -1,0 +1,52 @@
+// Motion Prompt #1-265 · MIT License (c) 2026 sadjjk · https://reactbits.dev/backgrounds/silk
+//
+// シルクのひだ / Silk folds
+// 分類: UI・Web / ページ / ヒーロー背景
+// 何が起きるか: 暗い金色の布が画面を覆い、ひだがゆっくり形を変えながら波打つ。ひだの尾根には柔らかな光が流れ、谷は深く沈み、全体に細かな粒子がある。
+// 動きの仕様:
+//   - シミュレーションはない。ひだの高さ = 0.62 · sin(6 (0.82 q + 0.57 y) + a + 1.5 sin(3q − 1.7y − a)) + 0.38 · sin(3.2 (0.5 q − 0.87 y) + 2a + 0.9 sin(2.4y + a))。q = x + 0.2 sin(2.1y + 0.5x + a)、a = 2π·u / 6.4。
+//   - 270×104 のグリッド（1 セル約 2 px）で計算して拡大する。
+//   - 法線は高さの勾配 × 0.22。光の向き (−0.45, −0.55, 0.7) の拡散光を 1.3 乗し、谷は高さに応じて最大 40% 暗くする。
+//   - 光沢はハーフベクトルのハイライトで指数 28、#FFE5BD を 0.55 倍で足す。
+//   - 色は光に応じて #0D0906 から #7C5631 へ補間し、ピクセルごとに明るさへ 1 ± 7% の粒子をかける。
+// 使いどころ: 高級ブランドや化粧品、ジュエリーのファーストビュー、招待状やイベントの背景に。
+// タグ: silk, satin, fabric, sheen, grain, hero-background, shader
+// サイズ: 539x208 px · 1周: 6.4 s
+// 依存する共通コード: https://sadjjk.github.io/motion-prompt-zh/api/v1/kit/webfx.js
+// 動く見本: https://sadjjk.github.io/motion-prompt-zh/?lang=ja#1-265
+//
+// cells[i](k, w, h, u) … k = CanvasRenderingContext2D（呼ぶ側でクリアと save/restore 済み）、w・h = サイズ、u = 秒（0 以上 1周 未満）。u だけで絵が決まる。
+// ここからこの効果のコード。CELLS や定数・補助関数は依存する共通コードにある。
+
+// @element 41
+// 41 丝绸褶皱：一块暗金色的绸缎铺满画面，褶皱像被风吹着一样缓慢起伏，褶皱脊上滑过柔亮的光泽，整面带细颗粒。
+// 褶皱高度是两组被低频正弦扭曲的斜向波叠加（所有相位按周期的整数倍转动，所以首尾相接），在 270×104 网格（每格约 2 px）上算；
+// 由高度差得法线（坡度 × 0.22），漫反射 + 左上光源的半程向量高光（指数 28）给出绸缎光泽，凹处按高度再压暗最多 40%，
+// 颜色在暗底、绸缎本色之间按光照插值再加高光色，放大后按像素乘 ±7% 的亮度颗粒。
+const SK_W = 270, SK_H = 104, SK_TILT = 0.22, SK_SHINE = 28;
+const SK_DARK = '#0D0906', SK_BODY = '#7C5631', SK_SHEEN = '#FFE5BD';
+const SK_h = (x, y, a) => {
+  const q = x + 0.2 * Math.sin(2.1 * y + 0.5 * x + a);
+  return 0.62 * Math.sin(6 * (0.82 * q + 0.57 * y) + a + 1.5 * Math.sin(3 * q - 1.7 * y - a)) + 0.38 * Math.sin(3.2 * (0.5 * q - 0.87 * y) + 2 * a + 0.9 * Math.sin(2.4 * y + a));
+};
+let SK = null;
+CELLS[40] = (k, w, h, u) => {
+  if (!SK) SK = { hg: new Float32Array(SK_W * SK_H), col: new Float32Array(3 * SK_W * SK_H), up: new Float32Array(3 * CW * CH), n1: grainTab(29.9), c0: hexLin(SK_DARK), c1: hexLin(SK_BODY), c2: hexLin(SK_SHEEN), px: pixels() };
+  const { hg, col, up, n1, c0, c1, c2 } = SK, W = SK_W, H = SK_H, out = SK.px.buf, a = TAU * u / CYC, dx = 1 / (H - 1);
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) hg[j * W + i] = SK_h(i * dx, j * dx, a);
+  const L = [-0.45, -0.55, 0.7], ll = Math.hypot(...L), Ld = L.map(v => v / ll), hh = Math.hypot(Ld[0], Ld[1], Ld[2] + 1), Hd = [Ld[0] / hh, Ld[1] / hh, (Ld[2] + 1) / hh];
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    const q = j * W + i, hv = hg[q];
+    const gx = (hg[i < W - 1 ? q + 1 : q] - hg[i > 0 ? q - 1 : q]) / (2 * dx), gy = (hg[j < H - 1 ? q + W : q] - hg[j > 0 ? q - W : q]) / (2 * dx);
+    const nx = -SK_TILT * gx, ny = -SK_TILT * gy, il = 1 / Math.sqrt(nx * nx + ny * ny + 1);
+    const df = Math.max(0, (nx * Ld[0] + ny * Ld[1] + Ld[2]) * il), sp = Math.max(0, (nx * Hd[0] + ny * Hd[1] + Hd[2]) * il) ** SK_SHINE;
+    const lit = df ** 1.3 * (0.8 + 0.2 * hv);
+    for (let c = 0; c < 3; c++) col[3 * q + c] = mix(c0[c], c1[c], lit) + c2[c] * sp * 0.55;
+  }
+  upGrid(col, W, H, 3, up);
+  for (let p = 0; p < CW * CH; p++) {
+    const b = 1 + 0.14 * (n1[p] - 0.5);
+    out[3 * p] = up[3 * p] * b; out[3 * p + 1] = up[3 * p + 1] * b; out[3 * p + 2] = up[3 * p + 2] * b;
+  }
+  SK.px.show(k);
+};
